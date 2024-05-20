@@ -1,0 +1,193 @@
+﻿@model Capa_Entidad.Almacen_ENT.TablasSql.OIPE_E
+@using Capa_Entidad.General_ENT.Tablas
+@using Capa_Entidad.Almacen_ENT.TablasSql
+
+@{
+    ViewBag.Title = "EditarPeriodo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(document).ready(function () {
+    });
+    var contAlm = 0;
+    function valorCamposSelect(id) {
+        var Sel = $("#" + id);
+        var SelOpt = $("#" + id + " option[value='" + Sel.val() + "']").attr("WhsName");
+        if (Sel.val() == null || Sel.val() == "") { swal.fire("No ha seleccionado ningun Almacen", "Verifique", "warning"); return; }
+        if (validarUnicoCampoTabla(Sel.val(), "DetallesPeriodo1")) {
+            $("#DetallesPeriodo1 > tbody").append("<tr><td><input class='form-control border-success' name='DetAlmacenes[" + contAlm + "].WhsCode' value='" + Sel.val() + "' readonly /></td><td><input  class='form-control border-success' name='DetAlmacenes[" + contAlm + "].WhsName' value='" + SelOpt + "'  readonly /></td><td>" +
+                "<button type='button' onclick='borrarTrTable(this)' class='btn btn-danger'>Retirar</button></td></tr>");
+            contAlm = contAlm + 1;
+        }
+    }
+    function borrarTrTable(dom) {
+        var i = -1;
+        let indice = 0;
+        $(dom).closest('tr').remove();
+        contAlm = contAlm - 1;
+
+        $("#DetallesPeriodo1 > tbody" + " tr").each(function (index, htm) {
+            iden1 = $(htm).find("td:eq(0) input");
+            iden1.attr("name", "DetAlmacenes[" + indice + "].WhsCode");
+            iden2 = $(htm).find("td:eq(1) input");
+            iden2.attr("name", "DetAlmacenes[" + indice + "].WhsName");
+            ++indice;
+        })
+    }
+    function validarUnicoCampoTabla(identificador, idTabla) {
+        var sinRegistro = true;
+        $("#" + idTabla + " tr").find('td:eq(0) input').each(function () {
+            iden = $(this).val();
+            if (iden == identificador) { swal.fire("El valor ya se encuentra en la tabla", "Verifique", "warning"); sinRegistro = false; }
+        })
+        return sinRegistro;
+    }
+    function validarEnviarFormulario() {
+        var object = $("#EditarPeriodo").serialize();
+        $.ajax('/Almacen/validarNuevoPeriodo',
+            {
+                data: object,
+                dataType: 'html',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                if (response != "true") { swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false }
+                else { $("#EditarPeriodo").submit(); }
+            });
+    }
+</script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="/Index/Sesion">Inicio</a></li>
+            <li><a href="@Url.Action("GestionPeriodos","Almacen")">Gestión de periodos</a></li>
+            <li class="current"><em>Editar periodo</em></li>
+        </ol>
+    </nav>
+</div>
+
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">EDITAR PERIODO</h3></div>
+</div>
+
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "EditarPeriodo" }))
+{
+    @Html.AntiForgeryToken()
+<div class="bg-form-pestanas-cobefar pt-4 bg-section-form p-4 bg-form-cobefar">
+    <div class="row mt-2">
+        <div class="col-lg-4">
+            <label for="Propietario" class="text-dark form-label font-weight-bold font-18">Propietario:</label>
+            @Html.EditorFor(model => model.Propietario, new { htmlAttributes = new { @class = "form-control border-success", @readonly = "true" } })
+        </div>
+
+        <div class="col-lg-3">
+            <label for="FechaRegistro" class="text-dark form-label font-weight-bold font-18">Tiempo de Registro:</label>
+            <input type="text" value="@Model.FechaRegistro @Model.HoraRegistro" class="form-control text-center border-success" readonly />
+            @Html.EditorFor(model => model.FechaRegistro, new { htmlAttributes = new { @readonly = "true", @type = "hidden" } })
+            @Html.EditorFor(model => model.HoraRegistro, new { htmlAttributes = new { @readonly = "true", @type = "hidden" } })
+        </div>
+
+        <div class="col-lg-4">
+            <label for="Descripcion" class="text-dark form-label font-weight-bold font-18">Descripción:</label>
+            @Html.EditorFor(model => model.Descripcion, new { htmlAttributes = new { @class = "form-control border-success" } })
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-lg-2">
+            <label for="DocEntry" class="text-dark form-label font-weight-bold font-18">N°:</label>
+            @Html.EditorFor(model => model.DocEntry, new { htmlAttributes = new { @class = "form-control border-success", @readonly = "true" } })
+        </div>
+
+        <div class="col-lg-2">
+            <label for="FecIni" class="text-dark form-label font-weight-bold font-18">Fecha Inicio:</label>
+            <input class="form-control border-success" type="date" name="FecIni" value="@Convert.ToDateTime(Model.FecIni).ToString("yyyy-MM-dd")" />
+        </div>
+
+        <div class="col-lg-2">
+            <label for="FecFin" class="text-dark form-label font-weight-bold font-18">Fecha Fin:</label>
+            <input class="form-control border-success" type="date" name="FecFin" value="@Convert.ToDateTime(Model.FecFin).ToString("yyyy-MM-dd")" />
+        </div>
+
+        <div class="col-lg-2">
+            <label for="Estado" class="text-dark form-label font-weight-bold font-18">Estado:</label>
+            @Html.EditorFor(model => model.Estado, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+        </div>
+
+        <div class="col-lg-3">
+            <label for="Almacen" class="text-dark form-label font-weight-bold font-18">Almacén:</label>
+            <select class="form-control bg-cobefar text-white" name="" id="Almacen">
+                <option value="">Seleccione</option>
+                @foreach (OWHS_E obj in ViewBag.Almacenes)
+                {
+                    <option value="@obj.WhsCode" WhsName="@obj.WhsName">@obj.WhsName</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-lg-4"><button type="button" class="btn btn-cobefar" onclick="valorCamposSelect('Almacen');"><i class="icon icon-plus"></i> Agregar</button></div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-lg-6">
+            <table id="DetallesPeriodo1" class="table table-light table-sm table-hover " >
+                <thead class="bg-dark">
+                    <tr>
+                        <th class="text-center">Cod</th>
+                        <th class="text-center">Descripción</th>
+                        <th class="text-center"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{int cont = 0;}
+                    @foreach (IPE1_E obj in Model.DetAlmacenes)
+                    {
+                        <tr>
+                            <td><input class='form-control border-success' name='DetAlmacenes[@cont].WhsCode' value='@obj.WhsCode' readonly /></td>
+                            <td><input class='form-control border-success' name='DetAlmacenes[@cont].WhsName' value='@obj.WhsName' readonly /></td>
+                            <td><button type='button' onclick='borrarTrTable(this)' class='btn btn-danger'>Retirar</button></td>
+                        </tr>
+                        cont++;
+                    }
+                </tbody>
+            </table>
+            <script>
+            contAlm = 1*@cont
+            </script>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-lg-4">
+            <label for="EstadoDatos" class="text-dark form-label font-weight-bold font-18">Estado de Datos:</label>
+            @Html.EditorFor(model => model.EstadoDatos, new { htmlAttributes = new { @class = "form-control border-success", @readonly = "true" } })
+        </div>
+
+        <div class="col-lg-8">
+            <label for="Observaciones" class="text-dark form-label font-weight-bold font-18">Observaciones:</label>
+            @Html.EditorFor(model => model.Observaciones, "", new { htmlAttributes = new { @class = "form-control border-success", placeholder = "Anote aqui sus observaciones..." } })
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-lg-4"><button type="button" class="btn btn-success" onclick="validarEnviarFormulario();"><i class="icon icon-pencil"></i> Editar</button></div>
+    </div>
+</div><!-- // -->
+
+}
+<script>
+    if ('@ViewBag.Mensaje' != "") {
+        swal.fire({
+            title: "@ViewBag.Mensaje",
+            text: "Presione OK para continuar",
+            icon: "warning"
+        })
+    };
+</script>

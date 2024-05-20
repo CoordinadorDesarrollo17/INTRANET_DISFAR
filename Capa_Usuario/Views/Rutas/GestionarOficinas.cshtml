@@ -1,0 +1,336 @@
+﻿@model IEnumerable<Capa_Entidad.General_ENT.TablasSql.OUR1_E>
+@using Capa_Entidad.General_ENT.TablasSql
+@{
+    ViewBag.Title = "Gestionar Oficinas";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<COUR_E> Couriers = new List<COUR_E>(ViewBag.Couriers);
+    List<UBIG_E> Ubigeos = new List<UBIG_E>(ViewBag.Ubigeos);
+}
+
+<script>
+    $(document).ready(function () { });
+
+    function registrarOficina() {
+        var object = $("#frm1").serialize();
+        $.ajax('/Rutas/validarNuevaOficina',
+            {
+                data: object,
+                dataType: 'html',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                if (response != "true") { Swal.fire(response); return false }
+                else { $(location).attr('href', "/Rutas/RegistrarOficina?" + object); }
+            });
+
+    }
+    function borrarOficina(Id) {
+
+        Swal.fire({
+            title: '¿SEGURO QUE DESEA ELIMINAR OFICINA?',
+            showCancelButton: true,
+            confirmButtonText: 'Confirmar',
+            confirmButtonColor: 'green'
+        }).then((result) => {
+         
+            if (result.isConfirmed) {
+                $(location).attr('href', "/Rutas/EliminarOficina?Id=" + Id);
+            } 
+        })
+
+    }
+    function filtrarUbigeo(dom) {
+        let desc = dom.toLowerCase();
+        let textoCapitalizado = desc.charAt(0).toUpperCase() + desc.slice(1);
+        let buscarxDepartamento = $("#chk_buscarxdepartamento").is(':checked');
+        let buscarxProvincia = $("#chk_buscarxprovincia").is(':checked');
+        let buscarxDistrito = $("#chk_buscarxdistrito").is(':checked');
+        $("#Ubigeos" + " tr").each(function (index, htm) {
+            if (index > 0) {
+                if (desc.length == 0) {
+                    $(htm).attr("class", " ");
+                }
+                else {
+                    if (buscarxDepartamento && $(htm).find("td:eq(3)").html() == textoCapitalizado) {
+                        $(htm).attr("class", " ");
+                    } else if (buscarxProvincia && $(htm).find("td:eq(2)").html() == textoCapitalizado) {
+                        $(htm).attr("class", " ");
+                    } else if (buscarxDistrito && $(htm).find("td:eq(1)").html() == textoCapitalizado) {
+                        $(htm).attr("class", " ");
+                    } else {
+                        if ((!buscarxDepartamento && !buscarxProvincia && !buscarxDistrito) && $(htm).text().toLowerCase().indexOf(desc) != -1) {
+                            $(htm).attr("class", " ");
+                        }
+                        else {
+                            $(htm).attr("class", "d-none")
+                        }
+                    }
+
+                }
+            }
+
+        });
+    }
+    function agregarDatos(ubi, dis, pro, dep) {
+        $("#Ubigeo").val(ubi);
+        $("#Distrito").val(dis);
+        $("#Provincia").val(pro);
+        $("#Departamento").val(dep);
+        $("#Calle").focusin();
+
+    }
+    function registrarAgencia() {
+        var object = $("#formAgencia").serialize();
+        $.ajax('/Rutas/RegistrarAgencia',
+            {
+                data: object,
+                dataType: 'json',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                Swal.fire(response);
+            });
+        window.setTimeout(function () {
+            location.reload();
+        }, 3000);
+    }
+
+</script>
+
+
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="/Index/Sesion">Inicio</a></li>
+            <li><a href="@Url.Action("ListadoRepartos", "Rutas")">Listado de repartos</a></li>
+            <li class="current"><em>Gestionar oficinas</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">GESTIONAR OFICINAS</h3></div>
+
+    <div class="d-flex pl-2 w-100 py-2">
+        <div class="mx-2">
+            <a id="accion" data-target="#modalRegistrarCourier" data-toggle="modal" class="btn btn-success text-light"><i class="icon icon-plus"></i> Nueva Agencia</a>
+        </div>
+    </div>
+</div>
+
+<div class="bg-form-pestanas-cobefar p-4 bg-form-cobefar">
+<form name="frm1" id="frm1">
+    <div class="row mt-2">
+        <div class="col-lg-6">
+            <label for="TipoRuta" class="text-dark form-label font-weight-bold font-18">Calle:</label>
+            <input type="text" class="form-control border-success" name="Calle" id="Calle" required>
+        </div>
+
+        <div class="col-lg-3">
+            <label for="TipoRuta" class="text-dark form-label font-weight-bold font-18">Agencia a cargo:</label>
+            <select type="text" class="form-control bg-cobefar text-white" name="IdCourier" required>
+                <option value="">Seleccione...</option>
+                @foreach (var i in Couriers)
+                {
+                    <option value="@i.Id">@i.Nombre</option>
+                }
+            </select>
+        </div>
+    </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-4"><label class="text-dark form-label font-weight-bold font-18">Ubigeo</label></div>
+            </div>
+
+            <div class="row mt-2">
+                <div class="col-lg-3"><input type="text" name="Distrito" id="Distrito" class="form-control border-success" readonly /></div>
+                <div class="col-lg-3"><input type="text" name="Provincia" id="Provincia" class="form-control border-success" readonly /></div>
+                <div class="col-lg-3"><input type="text" name="Departamento" id="Departamento" class="form-control border-success" readonly /></div>
+                
+                    
+                    
+                    
+                <div class="col-lg-1">
+                    <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#modalUbigeo"><i class="icon-search"></i></button>
+                    <input type="hidden" name="Ubigeo" id="Ubigeo" class="form-control" readonly />
+                </div>
+                <div class="col-lg-2">
+                    <button type="button" class="btn btn-cobefar w-100" onclick="registrarOficina();"><i class="icon icon-checkmark"></i> Registrar</button>
+                </div>
+            </div>
+
+</form>
+        
+        
+<form name="frm2" id="frm2">
+    <div class="row mt-4 justify-content-center bg-dark pt-4">
+        <div class="col-12">
+            <table id="Oficinas" class="table border table-light  table-hover table-responsive-md cls-dataTable" cellspacing="0" width="100%">
+                <thead class="bg-dark">
+                    <tr>
+                        <th class="text-center">
+                            @Html.DisplayName("Id")
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayName("Agencia")
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayName("Ubigeo")
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayName("Calle")
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayName("Localidad")
+                        </th>
+                        <th></th>
+                    </tr>
+
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.Id)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.NombreAgencia)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.Ubigeo)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.Calle)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.Distrito)-@Html.DisplayFor(modelItem => item.Provincia)-@Html.DisplayFor(modelItem => item.Departamento)
+                            </td>
+                            <td class="text-center">
+                                <button type="button" onclick="borrarOficina(@item.Id)" class="btn btn-danger btn-sm"><i class="icon-bin"></i></button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        </div>
+</form>
+
+</div><!-- -->
+
+
+
+    <div class="modal fade" id="modalUbigeo" tabindex="-1" role="dialog" aria-labelledby="modalUbigeoLabel">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex mb-4 justify-content-center">
+                        <div class="px-2 pt-2 bg-light" style="border-radius: 10px;">
+                            <input type="checkbox" id="chk_buscarxdistrito" class="form-check-inline" onclick="filtrarUbigeo($('#busqueda_ubigeo').val());" /><label for="chk_buscarxdistrito" class="text-dark font-weight-bold">Buscar por Distrito</label>
+                        </div>
+
+                        <div class="px-2 pt-2 ml-5 bg-light" style="border-radius: 10px;">
+                            <input type="checkbox" id="chk_buscarxprovincia" class="form-check-inline" onclick="filtrarUbigeo($('#busqueda_ubigeo').val());" /><label for="chk_buscarxprovincia" class="text-dark font-weight-bold">Buscar por Provincia</label>
+                        </div>
+
+                        <div class="px-2 pt-2 ml-5 bg-light" style="border-radius: 10px;">
+                            <input type="checkbox" id="chk_buscarxdepartamento" class="form-check-inline" onclick="filtrarUbigeo($('#busqueda_ubigeo').val());" /><label for="chk_buscarxdepartamento" class="text-dark font-weight-bold">Buscar por Departamento</label>
+                        </div>
+
+                    </div>
+
+
+                    <input type="text" id="busqueda_ubigeo" class="form-control" placeholder="Digite su busqueda" onkeyup="filtrarUbigeo(this.value);" />
+                    <br />
+
+                    <table id="Ubigeos" class="table table-light table-bordered border-success table-hover table-sm text-center table-responsive-md">
+                        <tr style="background-color:steelblue;color:white"><td>Ubigeo</td><td>Distrito</td><td>Provincia</td><td>Departamento</td><td><button class="btn btn-danger btn-sm" data-dismiss="modal" onclick="agregarDatos('','','','')">Borrar</button></td></tr>
+                        @foreach (var o in Ubigeos)
+                        {
+                            <tbody>
+                                <tr>
+                                    <td>@o.Ubigeo</td>
+                                    <td>@o.Distrito</td>
+                                    <td>@o.Provincia</td>
+                                    <td>@o.Departamento</td>
+                                    <td><button class="btn btn-primary btn-sm" data-dismiss="modal" onclick="agregarDatos('@o.Ubigeo','@o.Distrito','@o.Provincia','@o.Departamento')">Seleccionar</button></td>
+                                </tr>
+                            </tbody>
+
+                        }
+
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-info" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="modalRegistrarCourier" tabindex="-1" role="dialog" aria-labelledby="modalRegistrarCourierLabel">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content border" >
+                <div class="modal-header bg-cobefar text-white">
+                    <h5 class="modal-title">REGISTRAR AGENCIA COURIER</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+
+                </div>
+                <div class="modal-body bg-light">
+                        <form id="formAgencia">
+                            <div class="row mt-2 justify-content-center">
+                                <div class="col-lg-4">
+                                    <label class="text-dark form-label font-weight-bold font-18">RUC:</label>
+                                    <input type="text" name="Ruc" value="" class="form-control border-success" />
+                                </div>
+
+                                <div class="col-lg-6">
+                                    <label class="text-dark form-label font-weight-bold font-18">Nombre:</label>
+                                    <input type="text" name="Nombre" value="" class="form-control border-success" />
+                                </div>
+                            </div>
+
+                            <div class="row mt-4 justify-content-center">
+                                <div class="col-lg-10">
+                                    <label class="text-dark form-label font-weight-bold font-18">Dirección Fiscal:</label>
+                                    <input type="text" name="DireccionFiscal" value="" class="form-control border-success" />
+                                </div>
+                            </div>
+
+                            <div class="row mt-4 justify-content-center">
+                                <div class="col-lg-5">
+                                    <label class="text-dark form-label font-weight-bold font-18">Monto Minimo Domicilio (SIN IGV)</label>
+                                    <input type="number" name="MinDomicilio" value="" step=0.01 class="form-control border-success" />
+                                </div>
+
+                                <div class="col-lg-5">
+                                    <label class="text-dark form-label font-weight-bold font-18">Monto Minimo Agencia (SIN IGV)</label>
+                                    <input type="number" name="MinAgencia" value="" step=0.01 class="form-control border-success" />
+                                </div>
+                            </div>
+                        </form>
+                   
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" onclick="registrarAgencia();"><i class="icon icon-checkmark"></i> Registrar</button>
+                    <button type="button" class="btn btn-dark" data-dismiss="modal"><i class="icon icon-cross"></i> Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+
+    if ('@ViewBag.Mensaje' != "") {
+        Swal.fire({
+            icon: '',
+            text: `@ViewBag.Mensaje`
+        })
+    }
+</script>

@@ -1,0 +1,98 @@
+﻿@{
+    Layout = null;
+}
+
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+<script>
+    $(document).ready(function () { codProd(); ProdLabo(); rpt(); });
+    function codProd() {
+        $('#infoProducto').on('change', function () {
+            $('#ItemCode').val("");
+            $('#ItemCode').val($("#infoProductoList option[value='" + $("#infoProducto").val() + "']").attr("ItemCode"));
+        });
+    }
+    function ProdLabo() {
+        $('#FirmCode').on('change', function () {
+            $('#ItemCode').val(""); $('#infoProducto').val("");
+            var parametros = { "FirmCode": $('#FirmCode').val() };
+            $.ajax('/ReportesDigemid/ListaProductosHtml',
+                {
+                    data: parametros,
+                    dataType: 'html',
+                    cache: false,
+                    type: 'post'
+                })
+                .done(function (response) {
+                    $('#infoProductoList').html(response);
+                });
+        });
+    }
+    //eventos de reporte
+    function rpt() {
+        $('#Formulario #Generar').on('click', function () {
+            $('#Reporte').html('<img src="/imagenes/index/ReportesDigemid/cargando.gif" />');
+            var parametros = $("#frm").serialize();
+            $.ajax('/ReportesDigemid/tbVentasArtLote',
+                {
+                    data: parametros,
+                    dataType: 'html',
+                    cache: false,
+                    type: 'post'
+                })
+                .done(function (response) {
+                    $('#Reporte').html(response);
+                });
+        });
+    }
+</script>
+
+<div class="container" style="padding: 2%; background-color: rgb(220, 220, 220);">
+    <h3 class="text-cobefar font-weight-bold text-center">VENTAS ARTÍCULO - LOTE</h3>
+
+    <form id="frm">
+        <div class="row mt-4">
+            <div class="col-lg-3">
+                <label for="FecIni" class="text-dark font-weight-bold font-18">Fecha Inicial:</label>
+                <input id="FecIni" name="FecIni" type='date' class="form-control text-center border-success">
+            </div>
+
+            <div class="col-lg-3">
+                <label for="FecFin" class="text-dark font-weight-bold font-18">Fecha Final:</label>
+                <input id="FecFin" name="FecFin" type='date' class="form-control text-center border-success">
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-5">
+                <label for="FecIni" class="text-dark font-weight-bold font-18">Laboratorio:</label>
+                @Html.DropDownList("FirmCode",
+                                       (SelectList)ViewBag.ListaLaboratorios, "Seleccione", new { @class = "form-control bg-cobefar text-white border-success" })
+            </div>
+
+            <div class="col-lg-7">
+                <label class="text-dark font-weight-bold font-18">Producto:</label>
+                <input type="search" id="infoProducto" list="infoProductoList" class="form-control border-success">
+                <datalist id="infoProductoList"></datalist>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-3">
+                <label for="ItemCode" class="text-dark font-weight-bold font-18">Código:</label>
+                <input name="ItemCode" id="ItemCode" type="text" class="form-control text-center border-success" readonly />
+            </div>
+
+            <div class="col-lg-3">
+                <label class="text-dark font-weight-bold font-18">Lote:</label>
+                <input id="Lote" name="Lote" type="text" class="form-control border-success">
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-4">
+                <button id="Generar" type="button" class="btn btn-success"><i class="icon-checkmark"></i> Generar</button>
+            </div>
+        </div>
+
+    </form>
+</div>

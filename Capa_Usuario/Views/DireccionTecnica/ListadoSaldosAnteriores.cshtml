@@ -1,0 +1,79 @@
+﻿@model IEnumerable<Capa_Entidad.General_ENT.Tablas.COB_SALDO_E>
+
+@{
+    ViewBag.Title = "ListadoSaldosAnteriores";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    $(document).ready(function () { });
+    function filtrar() {
+        var object = $("#frm").serialize();
+        $(location).attr('href', "/DireccionTecnica/ListadoSaldosAnteriores?" + object);
+    }
+</script>
+<h4>LISTADO SALDOS ANTERIORES</h4>
+<div class="alert alert-success">@ViewBag.Mensaje</div>
+<a id="accion" href="@Url.Action("AgregarSaldoAnterior", "DireccionTecnica")" class="btn btn-light">
+    <span><strong>Agregar Articulo</strong></span>
+</a>
+<br />
+<br />
+<form name="frm" id="frm">
+    <table class="table table-light table-sm table-hover table-responsive" cellspacing="0" width="100%">
+        <tr style="background-color:dimgrey">
+            <th>
+                @Html.DisplayNameFor(model => model.Code)
+                <input type="text" name="Code" style="width:50px;font-size:13px;" onchange="filtrar();" value="@ViewBag.fil.Code" />
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+                <input type="text" name="Name" style="width:70px;font-size:13px;" onchange="filtrar();" value="@ViewBag.fil.Name" />
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.U_COB_DESCRIPCION)<br />
+                <input type="text" name="U_COB_DESCRIPCION" style="width:160px;font-size:13px;" onchange="filtrar();" value="@ViewBag.fil.U_COB_DESCRIPCION" />
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.U_COB_TIPOCONT)
+                <input type="text" name="U_COB_TIPOCONT" style="width:70px;font-size:13px;" onchange="filtrar();" value="@ViewBag.fil.U_COB_TIPOCONT" />
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.U_COB_TRIMESTRE)
+                <input type="text" name="U_COB_TRIMESTRE" style="width:50px;font-size:13px;" onchange="filtrar();" value="@ViewBag.fil.U_COB_TRIMESTRE" />
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.U_COB_SALDOANTE)
+                <input type="text" name="U_COB_SALDOANTE" style="width:90px;font-size:13px;" onchange="filtrar();" value="@ViewBag.fil.U_COB_SALDOANTE" />
+            </th>
+            <th></th>
+        </tr>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Code)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.U_COB_DESCRIPCION)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.U_COB_TIPOCONT)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.U_COB_TRIMESTRE)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.U_COB_SALDOANTE)
+                </td>
+                <td>
+                    <a href="@Url.Action( "EditarSaldoAnterior", "DireccionTecnica", new { Code = item.Code } )"><i title="Editar" class="icon-pencil2"></i></a>
+                    <a href="@Url.Action( "EliminarSaldoAnterior", "DireccionTecnica", new { Code = item.Code } )"><i title="Eliminar" class="icon-bin"></i></a>
+                </td>
+            </tr>
+        }
+
+    </table>
+</form>

@@ -1,0 +1,283 @@
+﻿@using Capa_Entidad.General_ENT.TablasSql;
+@{
+    ViewBag.Title = "Formato de devolución DT";
+    Layout = null;
+
+    string DireccionAlm = string.Empty;
+    List<OWHS_E> Almacenes = (List<OWHS_E>)ViewBag.Almacenes;
+
+    if (Almacenes != null && Almacenes.Count >= 1)
+    {
+        DireccionAlm = $"{Almacenes[0].Street} {Almacenes[0].StreetNo} ({Almacenes[0].Block} - {Almacenes[0].City} - {Almacenes[0].County})";
+    }
+
+    int num = 1;
+
+    string levConformidad = Request["LevConformidad"];
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/x-icon" href="~/Content/img/favicon-cobefar.png">
+    <link href="~/Content/css/bootstrap.css" rel="stylesheet" type="text/css" />
+
+    <style>
+        thead {
+            display: table-header-group
+        }
+
+        tfoot {
+            display: table-row-group
+        }
+
+        tr {
+            page-break-inside: avoid
+        }
+
+        .cabecera1 {
+            background-color: #C6E0B4;
+        }
+
+        .cabecera2 {
+            background-color: #F8CBAD;
+        }
+
+
+        .footerFormatoDev {
+            bottom: 0px;
+            right: 0;
+            float: right;
+        }
+
+        .f12 {
+            font-size: 12px;
+        }
+
+        @@media print {
+            body {
+                height: 595px;
+                margin-left: auto;
+                margin-right: auto;
+                page-break-after: auto;
+                transform: scale(0.90);
+            }
+
+
+            .landscape {
+                page: rotated;
+                transform-origin: top left;
+                transform: translateX(100vw) rotate(90deg);
+                width: 100vh;
+                height: 100vw;
+            }
+        }
+    </style>
+</head>
+<body style="padding: 0px; margin: 0px;">
+    <div class="landscape">
+        <div class="row">
+            <div class="col-6 d-flex justify-content-start">
+                <table>
+                    <tr>
+                        <td class="text-center font-weight-bold"><img src="~/Content/img/logo-drogueria-cobefar.jpg" width="250"></td>
+                    </tr>
+                    <tr>
+                        <td class=""></td>
+
+                    </tr>
+
+                </table>
+
+            </div>
+
+            <div class="col-6 d-flex justify-content-end">
+                <table>
+                    <tr>
+                        <td class="text-center"></td>
+                    </tr>
+                    <tr>
+                        <td class="text-center " style="width: 250px; height: 50px"></td>
+                    </tr>
+                    <tr>
+                        <td class="text-center font-weight-bold"></td>
+                        <td class="text-center font-weight-bold"><h4>REG-026-02</h4></td>
+                    </tr>
+                    <tr>
+                        <td class="text-right font-weight-bold pr-4"><h4>N°</h4></td>
+                        <td class="text-center border border-dark" style="width: 250px; height: 50px">@Model.Correlativo</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="row mt-1">
+            <div class="col-12 d-flex justify-content-center">
+                <h1>FORMATO DE DEVOLUCIÓN - PROVEEDOR</h1>
+            </div>
+        </div>
+
+
+        <div class="mt-2">
+            <span class="font-weight-bold">RUC: </span>@Model.CardCode
+        </div>
+
+        <div class="mt-2">
+            <span class="font-weight-bold">RAZÓN SOCIAL: </span>@Model.CardName
+        </div>
+
+        <div class="mt-2">
+            <span class="font-weight-bold">DIRECCIÓN ALMACÉN: </span>@DireccionAlm
+        </div>
+
+        <div class="mt-2">
+            <span class="font-weight-bold">FECHA DE DEVOLUCIÓN: </span>@Model.FechaDevolucion
+        </div>
+
+        <div id="div_tblDetalle" class="mt-4 ">
+            <table class="table-bordered cls-table" width="100%">
+                <thead>
+                    <tr>
+                        <th colspan="5" class="cabecera1 text-center font-weight-bold border-dark">CARACTERÍSTICAS DEL PRODUCTO</th>
+                        <th colspan="5" class="cabecera2 text-center font-weight-bold border-dark">DETALLE DEL PROCESO</th>
+                    </tr>
+                    <tr class="cabecera2">
+                        <th class="cabecera1 text-center font-weight-bold border-dark">CÓDIGO</th>
+                        <th class="cabecera1 text-center font-weight-bold border-dark">DESCRIPCIÓN DEL PRODUCTO</th>
+                        <th class="cabecera1 text-center font-weight-bold border-dark">LOTE</th>
+                        <th class="cabecera1 text-center font-weight-bold border-dark">FECHA VTO</th>
+                        <th class="cabecera1 text-center font-weight-bold border-dark">CANTIDAD</th>
+                        <th class="cabecera2 text-center font-weight-bold border-dark">REF. DE FACTURA</th>
+                        <th class="cabecera2 text-center font-weight-bold border-dark">MOTIVO</th>
+                        <th class="cabecera2 text-center font-weight-bold border-dark">OBSERVACIONES</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null)
+                    {
+                        List<String> list = new List<String>();
+                        foreach (var m in Model.DetalleDevolucion)
+                        {
+                            string obs = string.Empty;
+                            obs = (m.Motivo.Equals(7) || m.Motivo.Equals(15)) ? m.Observacion : m.DescSubmotivo;            // Solo para los motivos "Producto no solicitado" y "Lote infiltrado" se mostrará el campo "Observación"
+                            <tr>
+                                <th class="text-center border-dark font-weight-normal f12">@m.ItemCode</th>
+                                <th class="text-center border-dark font-weight-normal f12">@m.ItemName</th>
+                                <th class="text-center border-dark font-weight-normal f12">@m.BatchNum</th>
+                                <th class="text-center border-dark font-weight-normal f12">@m.ExpDateFormat</th>
+                                <th class="text-center border-dark font-weight-normal f12">@Convert.ToInt32(m.Quantity) @if (m.BuyUnitMsr.Equals("PZA")) { Write("("+m.BuyUnitMsr+")"); }</th>
+                                <th class="text-center border-dark font-weight-normal f12">@m.RefFactura</th>
+                                <th class="text-center border-dark font-weight-normal f12">@m.DescMotivo</th>
+                                <th class="text-center border-dark font-weight-normal f12">@obs</th>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+
+        <div class="row mt-4" style="@if (num >= 16) { Write("page-break-before: always"); }">
+            <div class="col-3">
+                <span class="font-weight-bold">LEVANTAMIENTO DE CONFORMIDAD:</span>
+            </div>
+
+            <div class="col-7 d-flex justify-content-start">
+                <table>
+                    <tr>
+                        <td>SI</td>
+                        <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                        <td class="border border-dark">&nbsp;&nbsp;&nbsp;@if (levConformidad != null && levConformidad.Equals("SI")) { Write("X"); }&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                        <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                        <td>NO</td>
+                        <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                        <td class="border border-dark">&nbsp;&nbsp;&nbsp;@if (levConformidad != null && levConformidad.Equals("NO")) { Write("X"); }&nbsp;&nbsp;&nbsp;</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <span class="font-weight-bold">AUXILIAR DE ALMACÉN:</span> @if (ViewBag.ResponsableAlmacen != null) { Write(ViewBag.ResponsableAlmacen); }
+            </div>
+        </div>
+
+        <div class="footerFormatoDev w-100">
+            <div class="row mt-4">
+                <div class="col-6 justify-content-center">
+                    <table class="font-weight-bold">
+                        <tr>
+                            <td class="border-bottom border-dark text-center" style="width: 240px; height: 100px">
+                                @if (ViewBag.Firmas != null)
+                                {<img src="@ViewBag.Firmas" width="250" />}
+                            </td>
+                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                            <td class="border-bottom border-dark text-center" style="width: 240px; height: 100px">
+                                <img src="@ViewBag.FirmaDT" width="250" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-center" style="width: 240px">RESPONSABLE DE ALMACÉN</td>
+                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                            <td class="text-center" style="width: 240px">DIRECTOR TÉCNICO</td>
+                        </tr>
+                        <tr>
+                            <td style="width: 240px">&nbsp;</td>
+                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                            <td style="width: 240px">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left" style="width: 240px"></td>
+                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                            <td class="text-left" style="width: 240px"></td>
+                        </tr>
+                        <tr>
+                            <td class="text-left" style="width: 240px"></td>
+                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                            <td class="text-left" style="width: 240px"></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="col-6 justify-content-center">
+                    <table class="font-weight-bold">
+                        <tr>
+                            <td class="border-bottom border-dark text-center" style="width: 240px; height: 160px">&nbsp;</td>
+                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                            <td class="border-bottom border-dark text-center" style="width: 240px; height: 160px">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center" style="width: 240px">PROVEEDOR</td>
+                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                            <td class="text-center" style="width: 240px">SEGURIDAD</td>
+                        </tr>
+                        <tr>
+                            <td style="width: 240px;">&nbsp;</td>
+                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                            <td style="width: 240px;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left" style="width: 240px">NOMBRE:</td>
+                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                            <td class="text-left" style="width: 240px"></td>
+                        </tr>
+                        <tr>
+                            <td class="text-left" style="width: 240px">DNI:</td>
+                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                            <td class="text-left" style="width: 240px"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,227 @@
+﻿@using Capa_Entidad.Almacen_ENT.TablasSql;
+@{
+    ViewBag.Title = "Seguimiento Devolucion";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("DevolucionMercancias", "Almacen")">Listado de devoluciones</a></li>
+            <li class="current"><em>Ver Devolución</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">SEGUIMIENTO DEVOLUCIÓN</h3></div>
+</div>
+
+<form>
+    <input type="hidden" id="DocEntry" name="DocEntry" value="@if (Model != null) { Write(Model.DocEntry); }" />
+    <div class="bg-form-pestanas-cobefar pt-4 bg-section-form p-4 bg-form-cobefar">
+        <div class="row mb-2">
+            <div class="col-lg-2 my-2">
+                <label class="text-dark form-label font-weight-bold font-18">DocNum:</label>
+                <input type="text" id="DocNumDevolucion" name="DocNum" class="form-control border-success text-center" value="@if (Model != null) { Write(Model.DocNum); }" disabled />
+            </div>
+            <div class="col-lg-4 my-2">
+                <label class="text-dark form-label font-weight-bold font-18">Correlativo:</label>
+                <input type="text" id="CorrelativoDevolucion" name="Correlativo" class="form-control border-success text-center" value="@if (Model != null) { Write(Model.Correlativo); }" disabled />
+            </div>
+
+            <div class="col-lg-2 my-2">
+                <label class="text-dark form-label font-weight-bold font-18">Retiro de mercado:</label>
+                <input type="text" id="RetiroMercado" class="form-control border-success text-center" value="@if (Model != null) { if (Model.RetiroMercado == true) { Write("SI"); } else if (Model.RetiroMercado == false) {Write("NO"); }  }" disabled>
+            </div>
+
+            <div class="col-lg-3 my-2">
+                <label class="text-dark form-label font-weight-bold font-18">Entrada de mercancía:</label>
+                <input type="text" id="SinEM" class="form-control border-success text-center" value="@if (Model != null) { if (Model.SinEM == true) { Write("NO"); } else if (Model.SinEM == false) {Write("SI"); } }" disabled>
+            </div>
+        </div>
+
+        <div class="row mb-2">
+            <div class="col-lg-2 my-2">
+                <label class="text-dark form-label font-weight-bold font-18">RUC:</label>
+                <input type="text" id="CardCode" class="form-control border-success text-center" value="@if (Model != null) { Write(Model.CardCode); }" disabled>
+            </div>
+
+            <div class="col-lg-4 my-2">
+                <label for="CardName" class="text-dark form-label font-weight-bold font-18">Proveedor:</label>
+                <input type="text" name="CardName" id="CardName" class="form-control border-success text-center" value="@if (Model != null) { Write(Model.CardName); }" disabled>
+            </div>
+
+            <div class="col-lg-2 my-2">
+                <label class="text-dark form-label font-weight-bold font-18">Almacén:</label>
+                <input type="text" class="form-control border-success text-center" value="@if (Model != null) { Write(Model.WhsCode); }" disabled />
+            </div>
+
+            <div class="col-lg-2 my-2">
+                <label class="text-dark form-label font-weight-bold font-18">Estado:</label>
+                <input type="text" id="Estado" class="form-control border-success text-center" value="@if (Model != null) { Write(Model.Estado); }" disabled>
+            </div>
+
+            <div class="col-lg-2 my-2">
+                <label class="text-dark form-label font-weight-bold font-18">Fecha:</label>
+                <input type="text" id="FechaOperacion" class="form-control border-success text-center" value="@if (Model != null) { Write(Model.FechaOperacion); }" disabled>
+            </div>
+        </div>
+
+        <div class="row mt-4 mb-2">
+            <div class="col-lg-5 d-flex">
+                <label class="text-dark form-label font-weight-bold font-18">Levantamiento de conformidad:</label>
+                <select name="LevConformidad" id="LevConformidad" class="form-control bg-cobefar text-white border-success mx-4" style="width: 150px" required>
+                    <option value="SI">SI</option>
+                    <option value="NO" selected>NO</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-2">
+                <button type="button" class="btn btn-info" id="btn_modalDocumentos" data-toggle="modal" data-target="#modalDocumentos" onclick="validarLevConformidad()"><i class="icon-checkmark"></i> Generar Documentos</button>
+            </div>
+            <div class="col-lg-2">
+                <button type="button" class="btn btn-warning" id="btn_modalCorreo" data-toggle="modal" data-target="#modalCorreo"><i class="icon-mail"></i> Enviar Correo</button>
+            </div>
+        </div>
+
+        <div class="row pt-4 mt-4">
+            <div class="col-lg-12 table-responsive bg-dark pt-4">
+                <table id="tbl_listaDevoluciones" class="table table-light table-sm table-bordered table-hover cls-dataTable" cellspacing="0" width="100%">
+                    <thead class="bg-cobefar">
+                        <tr>
+                            <th class="text-center">Cod producto</th>
+                            <th class="text-center">Descripción </th>
+                            <th class="text-center">Lote</th>
+                            <th class="text-center">Fecha Vencimiento</th>
+                            <th class="text-center">Cantidad</th>
+                            <th class="text-center">UM</th>
+                            <th class="text-center">Motivo</th>
+                            <th class="text-center">Observación</th>
+                            <th class="text-center">Ref. Factura</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.DetalleDevolucion != null)
+                        {
+                            int num = 0;
+                            foreach (var m in Model.DetalleDevolucion)
+                            {
+                                <tr class="cls-filaDevolucion">
+                                    <td class="text-center">@m.ItemCode</td>
+                                    <td class="text-center">@m.ItemName</td>
+                                    <td class="text-center">@m.BatchNum</td>
+                                    <td class="text-center">@m.ExpDate</td>
+                                    <td class="text-center">@m.Quantity</td>
+                                    <td class="text-center">@m.BuyUnitMsr</td>
+                                    <td class="text-center">@m.DescMotivo</td>
+                                    <td class="text-center">@m.Observacion</td>
+                                    <td class="text-center">@m.RefFactura</td>
+                                </tr>
+
+                                ++num;
+                            }
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+<!-- Modal -->
+<div class="modal fade" id="modalDocumentos" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-cobefar text-white">
+                <h5 class="modal-title" id="exampleModalLabel">Documentos</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" class="text-white">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row mt-4">
+                    <div class="row col-lg-12 justify-content-center">
+                        <div class="col-lg-4">
+                            <a href="" id="btn_formatoSimple" class="btn btn-success"><i class="icon-file-pdf"> </i> Formato de Devolucion</a>
+                        </div>
+                        <div class="col-lg-4">
+                            <a href="" id="btn_formatoDT" class="btn btn-success"><i class="icon-file-pdf"> </i> Formato de Devolucion Proveedor</a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btn_cerrarModal" class="btn btn-secondary" data-dismiss="modal"><i class='icon-cross'></i> Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalCorreo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-cobefar text-white">
+                <h5 class="modal-title" id="exampleModalLabel">Enviar correo</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" class="text-white">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="EnvioCorreo" class="form-inline" method="post">
+                    <div class="form-group mb-2 mr-2">
+                        <label for="CorreoProveedor" class="text-dark mr-2">Correo proveedor</label>
+                        <input type="text" class="form-control w-100" id="CorreoProveedor" placeholder="email@example.com">
+                        <input type="hidden" id="DocEntryDev" value="@Model.DocEntry">
+                        <input type="hidden" id="WhsCodeCorreo" value="@Model.WhsCode">
+                    </div><div class="form-group mb-2">
+                        <label for="CorreoCCProveedor" class="text-dark mr-2">Con copia a:</label>
+                        <input type="text" class="form-control w-100" id="CorreoCCProveedor" placeholder="cc_email@example.com">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-dismiss="modal" onclick="enviarCorreo()"><i class='icon-checkmark'></i> Enviar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    if ('@ViewBag.Mensaje' != "") {
+            Swal.fire('@ViewBag.Mensaje');
+    }
+
+    function validarLevConformidad() {
+        $('#btn_formatoDT').attr('href', '/Almacen/PdfFormatoDevolucionDT?DocEntry=@Model.DocEntry&LevConformidad=' + $('#LevConformidad').val());
+        $('#btn_formatoSimple').attr('href', '/Almacen/PdfFormatoDevolucionSimple?DocEntry=@Model.DocEntry&LevConformidad=' + $('#LevConformidad').val());
+    }
+
+    function enviarCorreo() {
+        var CorreoProveedor = $("#CorreoProveedor").val();
+        var CorreoCCProveedor = $("#CorreoCCProveedor").val();
+        var WhsCode = $("#WhsCodeCorreo").val();
+        var DocEntryDev = $("#DocEntryDev").val();
+        if (CorreoProveedor.length >= 5) {
+            $.ajax({
+                url: '/Almacen/EnviarCorreo',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    'DocEntryDev': DocEntryDev ,'WhsCode': WhsCode, 'Correo1': CorreoProveedor, 'Correo2': CorreoCCProveedor }
+            }).done(function (response) {
+                if (response != '') {
+                     Swal.fire(response);
+                }
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR.status + textStatus + errorThrown);
+            });
+        }
+}
+
+</script>

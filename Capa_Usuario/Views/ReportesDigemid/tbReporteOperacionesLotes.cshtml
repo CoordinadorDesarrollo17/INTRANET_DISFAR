@@ -1,0 +1,206 @@
+﻿@model IEnumerable<Capa_Entidad.ReportesDigemid_ENT.Reportes.OperacionesLotes_E>
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>tbReporteOperacionesLotes</title>
+    <style>
+        #scroll {
+            border: 1px solid;
+            height: 230px;
+            width: 100%;
+            overflow-y: scroll;
+            overflow-x: hidden;
+        }
+
+        #lineaCab:hover {
+            background: lightblue;
+        }
+        #tablaDetalles th{
+            color:black;
+        }
+        #tp th{
+            color:black;
+        }
+    </style>
+    <script>
+        $(document).ready(function () { });
+        function backLinea(dom) {
+            if ($(dom).attr("select") != "true") {
+                $("#tbCab tr").css({ "background": "" });
+                $("#tbCab tr").attr({ "select": "false" });
+                $(dom).css({ "background": "lightblue" });
+                $(dom).attr({ "select": "true" });
+                var parametros = {
+                    "ArtIni": $(dom).attr("ArtIni"), "Lote": $(dom).attr("Lote")
+                    , "AlmIni": $(dom).attr("AlmIni"), "FecIni": $(dom).attr("FecIni")
+                    , "FecFin": $(dom).attr("FecFin"), "cab": "No"
+                };
+                $('#DetOpeLotes').html('<img src="/imagenes/index/ReportesDigemid/cargando.gif" />');
+                $.ajax('/ReportesDigemid/tbReporteOperacionesLotesDet',
+                    {
+                        data: parametros,
+                        dataType: 'json',
+                        cache: false,
+                        type: 'post',
+                    })
+                    .done(function (response) {
+                        var ht = "<button type=\"button\" onclick=\"exportTableToExcel('tablaDetalles')\">Exportar a Excel File</button>" +
+                            "<table class=\"table\" style=\"font-size:10px;\" id='tablaDetalles'>" +
+                            "<tr><th>Nro</th><th>Documento</th><th>Fecha</th><th>Almacén</th><th>NombreDeAlmacén</th><th>NombreDeProveedor</th><th>Lote</th><th>Cantidad</th><th>Imputado</th><th>Sentido</th></tr>";
+                        $.each(response, function (key, value) {
+                            ht += "<tr><td>" + (key + 1) + "</td>" +
+                                "<td>" + value.Abreviatura + "&nbsp;" + value.DocNum + "</td><td>" + value.DocDate + "</td><td>" + value.WhsCode + "</td><td>" + value.WhsName + "</td><td>" + value.CardName + "</td><td>" + value.DistNumber + "</td><td>" + value.Quantity + "</td><td>" + value.Imputado + "</td><td>" + value.Sentido + "</td>" +
+                                "</tr>";
+                        });
+                        ht += "</table>";
+                        $('#DetOpeLotes').html(ht);
+                    });
+            } else {
+                //alert("ya esta seleccionado");
+            }
+        }
+    </script>
+    <script>
+        function exportTableToExcel(tableID, filename = '') {
+            var downloadLink;
+            var dataType = 'application/vnd.ms-excel';
+            var tableSelect = document.getElementById(tableID);
+            var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
+            tableHTML = "<meta http-equiv=\"content-type\" content=\"application/vnd.ms-excel; charset=UTF-8\">" + tableHTML;
+            console.log(tableHTML);
+            //tableHTML = decodeURIComponent(escape(tableHTML));
+            // Specify file name
+            filename = filename ? filename + '.xls' : 'excel_data.xls';
+
+            // Create download link element
+            downloadLink = document.createElement("a");
+
+            document.body.appendChild(downloadLink);
+
+            if (navigator.msSaveOrOpenBlob) {
+                var blob = new Blob(['ufeff', tableHTML], {
+                    //type: dataType
+                    type: "text/plain;charset=utf-8;"
+                });
+                navigator.msSaveOrOpenBlob(blob, filename);
+            } else {
+                // Create a link to the file
+                downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
+
+                // Setting the file name
+                downloadLink.download = filename;
+
+                //triggering the function
+                downloadLink.click();
+            }
+        }
+    </script>
+</head>
+<body>
+    <table class="table" id="tp" style="font-size:10px;">
+        <tr>
+            <th width="2%">
+                #
+            </th>
+            <th width="10%" >
+                @Html.DisplayNameFor(model => model.ItemCode)
+            </th>
+            <th width="16%" >
+                @Html.DisplayNameFor(model => model.ItemName)
+            </th>
+            <th width="9%" >
+                @Html.DisplayNameFor(model => model.DistNumber)
+            </th>
+            <th width="6%" >
+                @Html.DisplayNameFor(model => model.WhsCode)
+            </th>
+            <th width="9%" >
+                @Html.DisplayNameFor(model => model.WhsName)
+            </th>
+            <th width="7%" >
+                @Html.DisplayNameFor(model => model.QuantityTotal)
+            </th>
+            <th width="8%" >
+                @Html.DisplayNameFor(model => model.ImputadoTotal)
+            </th>
+            <th width="9%" >
+                @Html.DisplayNameFor(model => model.MnfSerial)
+            </th>
+            <th width="10%">
+                @Html.DisplayNameFor(model => model.ExpDate)
+            </th>
+            <th width="10%">
+                @Html.DisplayNameFor(model => model.FechaAdmision)
+            </th>
+            <th width="10%">
+                @Html.DisplayNameFor(model => model.Temperatura)
+            </th>   
+        </tr>
+        <tr>
+            <td colspan="11">
+            <div id="scroll">
+                    <table class="table" id="tbCab">
+                        @{ int i = 1;}
+                        @foreach (var item in Model)
+                        {
+                            <tr id="lineaCab" onclick="backLinea(this)" select="false" ArtIni="@item.ItemCode" Lote="@item.DistNumber" AlmIni="@item.WhsCode" FecIni="@ViewBag.Frm.FecIni" FecFin="@ViewBag.Frm.FecFin">
+                                <td width="1%">
+                                    @(i++)
+                                </td>
+                                <td width="9%">
+                                    @Html.DisplayFor(modelItem => item.ItemCode)
+                                </td>
+                                <td width="17%">
+                                    @Html.DisplayFor(modelItem => item.ItemName)
+                                </td>
+                                <td width="9%">
+                                    @Html.DisplayFor(modelItem => item.DistNumber)
+                                </td>
+                                <td width="6%">
+                                    @Html.DisplayFor(modelItem => item.WhsCode)
+                                </td>
+                                <td width="9%">
+                                    @Html.DisplayFor(modelItem => item.WhsName)
+                                </td>
+                                <td width="7%">
+                                    @Html.DisplayFor(modelItem => item.QuantityTotal)
+                                </td>
+                                <td width="9%">
+                                    @Html.DisplayFor(modelItem => item.ImputadoTotal)
+                                </td>
+                                <td width="9%">
+                                    @Html.DisplayFor(modelItem => item.MnfSerial)
+                                </td>
+                                <td width="11%">
+                                    @Html.DisplayFor(modelItem => item.ExpDate)
+                                </td>
+                                <td width="8%">
+                                    @Html.DisplayFor(modelItem => item.FechaAdmision)
+                                </td>
+                                <td width="8%">
+                                    @Html.DisplayFor(modelItem => item.Temperatura)
+                                </td>
+                            </tr>
+                        }
+                    </table>
+            </div>
+            </td>
+        </tr>
+    </table>    
+    <table>
+        <tr>
+            <td>
+                <div id="DetOpeLotes"></div>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

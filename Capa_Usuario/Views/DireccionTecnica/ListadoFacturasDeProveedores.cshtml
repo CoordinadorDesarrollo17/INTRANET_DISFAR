@@ -1,0 +1,112 @@
+﻿@model IEnumerable<Capa_Entidad.Compras_ENT.Tablas.OPCH_E>
+@using Capa_Entidad.Compras_ENT.Tablas
+
+@{
+    ViewBag.Title = "ListadoFacturasDeProveedores";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    OPCH_E o = (OPCH_E)ViewBag.Opch;
+}
+<script>
+    $(document).ready(function () {
+    });
+    function filtrar() {
+        var object = $("#frm").serialize();
+        $(location).attr('href', "/DireccionTecnica/ListadoFacturasDeProveedores?" + object);
+    }
+</script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li class="current"><em>Listado facturas de proveedores</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO FACTURAS DE PROVEEDORES</h3></div>
+</div>
+
+
+<div class="bg-form-pestanas-cobefar">
+    <div class="bg-dark">
+        <form name="frm" id="frm">
+            <table class="table table-light table-sm table-hover cls-dataTable" id="tabla_Datos" cellspacing="0" width="100%">
+                <thead class="thead-dark">
+                    <tr>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.DocNum)
+                            <input type="text" name="DocNum" class="form-control" style="width: 120px" onchange="filtrar();" value="@if (o.DocNum != 0) { Write(o.DocNum); } " />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.DocDate)
+                            <input type="date" name="DocDate" class="form-control input_date-filtro-table" style="height: 38px" onchange="filtrar();" value="@o.DocDate" />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.TaxDate)
+                            <input type="date" name="TaxDate" class="form-control input_date-filtro-table" style="height: 38px" onchange="filtrar();" value="@o.TaxDate" />
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.CardName)
+                            <input type="text" name="CardName" class="form-control" onchange="filtrar();" value="@o.CardName" />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.NumAtCard)
+                            <input type="text" name="NumAtCard" class="form-control" onchange="filtrar();" value="@o.NumAtCard" />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.DocTotal)
+                            <input type="text" name="DocTotal" class="form-control" onchange="filtrar();" value="@if (o.DocTotal != 0) { Write(o.DocTotal); } " />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.U_SYP_STATUS)
+                            <input type="text" name="U_SYP_STATUS" class="form-control" onchange="filtrar();" value="@o.U_SYP_STATUS" />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.entradasVinculadas)
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.DocNum)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.DocDate)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.TaxDate)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.CardName)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.NumAtCard)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.DocTotal)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.U_SYP_STATUS)
+                            </td>
+                            <td class="text-center">
+                                @foreach (var e in item.entradasVinculadas)
+                                {
+                                    @Html.ActionLink(e.DocNum + "", "ListadoEntradasDeMercancias", new { DocNum = e.DocNum }, htmlAttributes: new { @target = "_blank", @class = "text-danger" })
+                                }
+                            </td>
+                            <td class="text-center">
+                                <a class="btn btn-success btn-sm" href="@Url.Action("FacturaDeProveedor" ,new { DocEntry = item.DocEntry })"><i class="icon-search"></i></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,317 @@
+﻿@model Capa_Entidad.Almacen_ENT.TablasSql.OIEQ_E
+@using Capa_Entidad.Almacen_ENT.TablasSql
+@using Capa_Entidad.Seguridad_ENT
+@using Capa_Entidad.Almacen_ENT.Tablas
+
+@{
+    ViewBag.Title = "EditarEquipo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<Usuario_E> u = (List<Usuario_E>)ViewBag.Miembros;
+    List<OIPE_E> listaPer = (List<OIPE_E>)ViewBag.Periodos;
+    var jss = new System.Web.Script.Serialization.JavaScriptSerializer();
+    var perInfoJson = jss.Serialize(listaPer);
+    List<OMRC_E> l = (List<OMRC_E>)ViewBag.Laboratorios;
+    OIPE_E per = listaPer.Find(x => x.DocEntry == Model.DocEntryPer);
+
+}
+
+<script>
+    $(document).ready(function () {
+
+    });
+    var perInfo = JSON.parse('@Html.Raw(perInfoJson)');
+    var contUser = 0;
+    function valorCampoList(id) {
+        var Sel = $("#" + id);
+        var SelOpt = $("#listaMiembros option[value='" + Sel.val() + "']").attr("nombre");
+        if (Sel.val() == null || Sel.val() == "") { swal.fire("No ha seleccionado un personal", "Verifique", "warning"); return; }
+        if (SelOpt == null || SelOpt == "") { swal.fire("No ha seleccionado un personal existente", "Verifique", "warning"); return; }
+        if (validarUnicoCampoTabla(Sel.val(), "DetallesEquipos1")) {
+            $("#DetallesEquipos1 > tbody").append("<tr><td><input class='form-control text-center' name='DetMiembros[" + contUser + "].Linea' value='" + (contUser+1) +" ' readonly /></td>"+
+                "<td><input class= 'form-control text-center' name = 'DetMiembros[" + contUser + "].Id' value = '" + Sel.val() + "' readonly /></td ><td><input class='form-control' name='DetMiembros[" + contUser + "].Nombre' value='" + SelOpt + "'  readonly /></td><td>" +
+                "<button type='button' onclick='borrarTrTable1(this)' class='btn btn-danger'>Retirar</button></td></tr>");
+            contUser = contUser + 1;
+        }
+        $("#" + id).val("");
+    }
+    var contLab = 0;
+    function valorCampoList2(id) {
+        var Sel = $("#" + id);
+        var SelOpt = $("#listaLaboratorios option[value='" + Sel.val() + "']").attr("FirmName");
+        var SelOpt2 = $("#listaLaboratorios option[value='" + Sel.val() + "']").attr("U_SYP_DESC");
+        if (Sel.val() == null || Sel.val() == "") { swal.fire("No ha seleccionado un laboratorio", "Verifique", "warning"); return; }
+        if (SelOpt2 == null || SelOpt2 == "") { swal.fire("No ha seleccionado un laboratorio existente", "Verifique", "warning"); return; }
+        if (validarUnicoCampoTabla(Sel.val(), "DetallesEquipos2")) {
+            $("#DetallesEquipos2 > tbody").append("<tr><td ><input class='form-control text-center' name='DetFabricantes[" + contLab + "].Linea' value='" + (contLab+1) + " ' style='width: 70px;' readonly /></td>" +
+                "<td hidden ><input class='form-control' name='DetFabricantes[" + contLab + "].FirmCode' value='" + Sel.val() + "'   /></td>" +
+                "<td><input class='form-control text-center' name='DetFabricantes[" + contLab + "].FirmName' value='" + SelOpt + "' style='width: 120px;' readonly /></td>" +
+                "<td><input class='form-control' name='DetFabricantes[" + contLab + "].U_SYP_DESC' value='" + SelOpt2 + "'  readonly /></td><td>" +
+                "<button type='button' onclick='borrarTrTable2(this)' class='btn btn-danger'>Retirar</button></td></tr>");
+            contLab = contLab + 1;
+        }
+        $("#" + id).val("");
+    }
+
+    function borrarTrTable1(dom) {
+        var i = -1;
+        $(dom).closest('tr').remove();
+        contUser = contUser - 1;
+        $("#DetallesEquipos1" + " tr").each(function (index, htm) {
+            iden1 = $(htm).find("td:eq(0) input");
+            iden1.attr("name", "DetMiembros[" + i + "].Linea");
+            iden1.val(i + 1);
+            iden2 = $(htm).find("td:eq(1) input");
+            iden2.attr("name", "DetMiembros[" + i + "].Id");
+            iden3 = $(htm).find("td:eq(2) input");
+            iden3.attr("name", "DetMiembros[" + i + "].Nombre");
+            i = i + 1;
+        })
+    }
+    function borrarTrTable2(dom) {
+        var i = -1;
+        $(dom).closest('tr').remove();
+        contLab = contLab - 1;
+        $("#DetallesEquipos2" + " tr").each(function (index, htm) {
+            iden1 = $(htm).find("td:eq(0) input");
+            iden1.attr("name", "DetFabricantes[" + i + "].Linea");
+            iden1.val(i + 1);
+            iden2 = $(htm).find("td:eq(1) input");
+            iden2.attr("name", "DetFabricantes[" + i + "].FirmCode");
+            iden3 = $(htm).find("td:eq(2) input");
+            iden3.attr("name", "DetFabricantes[" + i + "].FirmName");
+            iden4 = $(htm).find("td:eq(3) input");
+            iden4.attr("name", "DetFabricantes[" + i + "].U_SYP_DESC");
+            i = i + 1;
+        })
+    }
+    function validarUnicoCampoTabla(identificador, idTabla) {
+        var sinRegistro = true;
+        $("#" + idTabla + " tr").find('td:eq(1) input').each(function () {
+            iden = $(this).val();
+            if (iden == identificador) { swal.fire("El valor ya se encuentra en la tabla", "Verifique", "warning"); sinRegistro = false; }
+        })
+        return sinRegistro;
+    }
+    function listarAlmacenes() {
+        var htm = "<option value=''>Seleccione</option>";
+        var DocEntryPer = $("#Periodo").val();
+        $.each(perInfo, function (key, value) {
+            if (DocEntryPer == value.DocEntry) {
+                $.each(value.DetAlmacenes, function (key, value2) {
+                     htm += "<option value='"+value2.WhsCode+"' WhsName='"+value2.WhsName+"'>"+value2.WhsName+"</option>";
+                });
+            }
+        });
+        $("#Almacen").html(htm);
+    }
+    function validarEnviarFormulario() {
+        var object = $("#EditarEquipo").serialize();
+        $.ajax('/Almacen/validarEquipo',
+            {
+                data: object,
+                dataType: 'html',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                if (response != "true") { swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false }
+                else { $("#EditarEquipo").submit(); }
+            });
+    }
+    var pref = "";
+    function completarNombre() {
+        var alm = $("#Almacen").val();
+        ind = $("#Nombre").val().indexOf("-");
+        pref = $("#Nombre").val().substr(0, ind);
+        if (ind < 0) { pref = $("#Nombre").val();}
+        if (alm != null && alm != "") { $("#Nombre").val(pref + "-Alm" + alm);}
+    }
+</script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("ContabilizacionInventario", "Almacen")">Módulo contabilización inventario</a></li>
+            <li><a href="@Url.Action("GestionEquipos", "Almacen")">Gestión equipos</a></li>
+            <li class="current"><em>Registrar nuevo equipo</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">EDITAR EQUIPO</h3></div>
+</div>
+
+<div class="bg-form-pestanas-cobefar">
+    <div class="alert alert-danger mb-0" role="alert">
+        @if (@OIPE_E.PeriodoSeleccionado != null)
+        {
+            <p>
+                @OIPE_E.PeriodoSeleccionado.Descripcion
+                Almacenes:
+                @OIPE_E.PeriodoSeleccionado.enlistarDetAlmacenes()
+            </p>
+        }
+    </div>
+
+    <div class="bg-section-form p-4 bg-form-cobefar">
+        @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "EditarEquipo" }))
+        {
+            @Html.AntiForgeryToken()
+            <div class="row mt-4">
+                <div class="col-lg-2">
+                    <label for="DocEntry" class="text-dark form-label font-weight-bold font-18">N°:</label>
+                    @Html.EditorFor(model => model.DocEntry, new { htmlAttributes = new { @class = "form-control border-success text-center", @readonly = "true" } })
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="Nombre" class="text-dark form-label font-weight-bold font-18">Nombre:</label>
+                    @Html.EditorFor(model => model.Nombre, new { htmlAttributes = new { @class = "form-control border-success text-center", @readonly = "true" } })
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="Tipo" class="text-dark form-label font-weight-bold font-18">Tipo:</label>
+                    @Html.EditorFor(model => model.Tipo, new { htmlAttributes = new { @class = "form-control border-success text-center", @readonly = "true" } })
+                </div>
+
+                <div class="col-lg-2">
+                    <label for="Estado" class="text-dark form-label font-weight-bold font-18">Estado:</label>
+                    <select name="Estado" id="Estado" class="form-control border-success bg-cobefar text-white">
+                        <option value="">Seleccione</option>
+                        <option value="Abierto" @if (Model.Estado == "Abierto") { Write("selected"); }>Abierto</option>
+                        <option value="Cerrado" @if (Model.Estado == "Cerrado") { Write("selected"); }>Cerrado</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-2">
+                    <label for="DocEntryPer" class="text-dark form-label font-weight-bold font-18">Periodo:</label>
+                    @Html.EditorFor(model => model.DocEntryPer, new { htmlAttributes = new { @class = "form-control border-success text-center", @readonly = "true" } })
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="Almacen" class="text-dark form-label font-weight-bold font-18">Almacenes:</label>
+                    <select name="WhsCode" id="Almacen" onchange="completarNombre();" class="form-control border-success bg-cobefar text-white">
+                        <option value="">Seleccione</option>
+                        @foreach (IPE1_E obj in per.DetAlmacenes)
+                        {
+                            <option value="@obj.WhsCode" WhsName="@obj.WhsName" @if (Model.WhsCode == obj.WhsCode) { Write("selected"); }>@obj.WhsName</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-lg-1">
+                    <label for="Piso" class="text-dark form-label font-weight-bold font-18">Piso:</label>
+                    @Html.EditorFor(model => model.Piso, new { htmlAttributes = new { @class = "form-control border-success text-center" } })
+                </div>
+
+                <div class="col-lg-2">
+                    <label for="Controlados" class="text-dark form-label font-weight-bold font-18">Controlados:</label>
+                    <select name="Controlados" id="Controlados" class="form-control border-success bg-cobefar text-white">
+                        <option value="No" @if (Model.Controlados == "No") { Write("selected"); }>No</option>
+                        <option value="Si" @if (Model.Controlados == "Si") { Write("selected"); }>Si</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-6">
+                    <label for="Miembros" class="text-dark form-label font-weight-bold font-18">Miembros:</label>
+                    <div class="d-flex">
+                        <input type="search" id="Miembros" list="listaMiembros" class="form-control border-success" />
+                        <button style="margin-right:10px" type="button" class="btn btn-info" onclick="valorCampoList('Miembros');">Agregar</button>
+                    </div>
+
+                    <datalist id="listaMiembros">
+                        @foreach (Usuario_E obj in u)
+                        {
+                            <option value="@obj.Prefijo@obj.Id" nombre="@obj.Nombres @obj.Apellidos">@obj.Nombres @obj.Apellidos</option>
+                        }
+                    </datalist>
+                </div>
+
+                <div class="col-lg-6">
+                    <label for="Laboratorios" class="text-dark form-label font-weight-bold font-18">Laboratorios:</label>
+                    <div class="d-flex">
+                        <input type="search" id="Laboratorios" list="listaLaboratorios" class="form-control border-success" />
+                        <button type="button" class="btn btn-info" onclick="valorCampoList2('Laboratorios');">Agregar</button>
+                    </div>
+
+                    <datalist id="listaLaboratorios">
+                        @foreach (OMRC_E obj in l)
+                        {
+                            <option value="@obj.FirmCode" FirmName="@obj.FirmName" U_SYP_DESC="@obj.U_SYP_DESC">@obj.U_SYP_DESC</option>
+                        }
+                    </datalist>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-6">
+                    <table id="DetallesEquipos1" class="table table-sm ">
+                        <thead class="bg-success">
+                            <tr>
+                                <th class="text-center" style="width: 70px">#</th>
+                                <th class="text-center" style="width: 160px">User</th>
+                                <th class="text-center">Nombre</th>
+                                <th class="text-center"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{ int cont = 0;}
+                            @foreach (IEQ1_E obj in Model.DetMiembros)
+                            {
+                                <tr>
+                                    <td><input class='form-control text-center' name='DetMiembros[@cont].Linea' value='@obj.Linea' readonly /></td>
+                                    <td><input class='form-control text-center' name='DetMiembros[@cont].Id' value='@obj.Id' readonly /></td>
+                                    <td><input class='form-control' name='DetMiembros[@cont].Nombre' value='@obj.Nombre' readonly /></td>
+                                    <td><button type='button' onclick='borrarTrTable1(this)' class='btn btn-danger'>Retirar</button></td>
+                                </tr>
+                                cont++;
+                            }
+                        </tbody>
+                    </table>
+                    <script>contUser=@cont</script>
+                </div>
+
+                <div class="col-lg-6">
+                    <table id="DetallesEquipos2" class="table table-sm">
+                        <thead class="bg-success">
+                            <tr>
+                                <th class="text-center" style="width: 70px">#</th>
+                                <th class="text-center" style="width: 90px">Cod</th>
+                                <th class="text-center">Descripcion</th>
+                                <th class="text-center"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{ int cont2 = 0;}
+                            @foreach (IEQ2_E obj in Model.DetFabricantes)
+                            {
+                                <tr>
+                                    <td><input class='form-control text-center' name='DetFabricantes[@cont2].Linea' value='@obj.Linea' readonly /></td>
+                                    <td hidden><input class='form-control' name='DetFabricantes[@cont2].FirmCode' value='@obj.FirmCode' readonly /></td>
+                                    <td><input class='form-control text-center' name='DetFabricantes[@cont2].FirmName' value='@obj.FirmCode' readonly /></td>
+                                    <td><input class='form-control' name='DetFabricantes[@cont2].U_SYP_DESC' value='@obj.U_SYP_DESC' readonly /></td>
+                                    <td><button type='button' onclick='borrarTrTable2(this)' class='btn btn-danger'>Retirar</button></td>
+                                </tr>
+                                cont2++;
+                            }
+                        </tbody>
+
+                    </table>
+                    <script>contLab=@cont2</script>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-6">
+                    <button type="button" class="btn btn-success" onclick="validarEnviarFormulario();"><i class="icon-pencil"></i> Editar</button>
+                </div>
+            </div>
+        }
+    </div>    
+
+</div>

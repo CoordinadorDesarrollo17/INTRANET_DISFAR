@@ -1,0 +1,80 @@
+﻿@using Capa_Entidad.General_ENT.TablasSql
+@{
+    Layout = null;
+}
+@*<script src="~/Scripts/jquery-1.10.2.min.js"></script>*@
+<script src="~/Content/js/jquery-3.6.3.js"></script>
+<script src="~/Scripts/Frameworks/sweetalert2@11.js"></script>
+<script>
+    $(document).ready(function () { });
+    function rpt() {
+        if ($('#FecIni').val() == '' || $('#FecFin').val() == '') {
+            $('#FecIni').addClass("bg-danger text-white");
+            $('#FecFin').addClass("bg-danger text-white");
+            Swal.fire("Debe elegir un rango de fechas para los tickets");
+        } else {
+            $('#FecIni').removeClass("bg-danger text-white");
+            $('#FecFin').removeClass("bg-danger text-white");
+
+            $('#Reporte').html('<img src="/imagenes/index/ReportesDigemid/cargando.gif" />');
+            var parametros = $("#frm").serialize();
+            $.ajax('/Ventas/tbReporteAuditVtsCli',
+                {
+                    data: parametros,
+                    dataType: 'html',
+                    cache: false,
+                    type: 'post'
+                })
+                .done(function (response) {
+                    $('#Reporte').html(response);
+                });
+        }   
+    }
+</script>
+<div class="container " style="padding: 2%; background-color: rgb(220, 220, 220);">
+    <h3 class="text-cobefar font-weight-bold text-center">AUDITORIA VENTAS CLIENTE</h3>
+    <form id="frm">
+        <div class="row mt-4">
+            <div class="col-lg-3">
+                <label for="FecIni" class="text-dark font-weight-bold font-18">Fecha Inicial:</label>
+                <input id="FecIni" name="FecIni" type='date' class="form-control border-success">
+            </div>
+
+            <div class="col-lg-3">
+                <label for="FecFin" class="text-dark font-weight-bold font-18">Fecha Final:</label>
+                <input id="FecFin" name="FecFin" type='date' class="form-control border-success">
+            </div>
+
+            <div class="col-lg-6">
+                <label for="Vendedores" class="text-dark font-weight-bold font-18">Vendedor:</label>
+                @Html.DropDownList("SlpCode",
+                                           (SelectList)ViewBag.Vendedores, "Seleccione", new { @class = "form-control bg-cobefar text-white border-success" })
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-6">
+                <label for="CardCode" class="text-dark font-weight-bold font-18">Cliente:</label>
+                <input type="search" list="ListaClientes" name="CardCode" class="form-control border-success">
+                <datalist id="ListaClientes">
+                    @foreach (var obj in ViewBag.Clientes)
+                    {
+                        <option CardCode="@obj.CardCode" value="@obj.CardCode">@obj.CardName</option>
+                    }
+                </datalist>
+            </div>
+
+            <div class="col-lg-6">
+                <label for="Laboratorios" class="text-dark font-weight-bold font-18">Laboratorio:</label>
+                @Html.DropDownList("FirmCode",
+                                           (SelectList)ViewBag.Laboratorios, "Seleccione", new { @class = "form-control bg-cobefar text-white border-success" })
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-6">
+                <button id="Generar" type="button" class="btn btn-success" onclick="rpt();"><i class="icon-checkmark"></i> Generar</button>
+            </div>
+        </div>
+    </form>
+</div>

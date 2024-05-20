@@ -1,0 +1,311 @@
+﻿@model Capa_Entidad.Rutas_ENT.TablasSql.ORRU_E
+@using Capa_Entidad.Rutas_ENT.TablasSql
+@using Capa_Entidad.Ventas_ENT.TablasSql
+@{
+    Layout = null;
+    var Model2 = Model;
+    List<OREG_E> lstReg = new List<OREG_E>();
+
+    if (Model.DetRRU0 != null && Model.DetRRU0.Count >= 1)
+    {
+        foreach (var d in Model.DetRRU0)
+        {
+            if (d.Ticket.Det5 != null && d.Ticket.Det5.Count >= 1)
+            {
+                if (d.Ticket.Det5[0].IdReg > 0 && d.Ticket.Det5[0].RegCant > 0)
+                {
+                    if (lstReg.Find(x => x.Id == d.Ticket.Det5[0].IdReg) == null)
+                    {
+                        lstReg.Add(new OREG_E() { Id = (int)d.Ticket.Det5[0].IdReg, Categoria = d.Ticket.Det5[0].RegCate, Tipo = d.Ticket.Det5[0].RegTipo, StockDisp = d.Ticket.Det5[0].RegCant });
+                    }
+                    else
+                    {
+                        lstReg.Find(x => x.Id == d.Ticket.Det5[0].IdReg).StockDisp += d.Ticket.Det5[0].RegCant;
+                    }
+                }
+            }
+
+        }
+    }
+
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>DocumentoRutasTransferencia</title>
+</head>
+<body>
+    <div style='page-break-after:always;'>
+        <table border=0 style="width: 1275px">
+            <tr>
+                <td colspan=15 width=850px><img width="90" height="30" src='/imagenes/index/encabezado/logoC.jpg' /></td>
+            </tr>
+            <tr>
+                <td colspan=14 align=center><font size="@(ViewBag.Letra+1)"><strong>REGISTRO DE RUTAS TRANSFERENCIAS</strong></font></td>
+                <td align=right><font size="@(ViewBag.Letra+1)">REG-029-01</font></td>
+            </tr>
+            <tr>
+                <td><font size="@ViewBag.Letra" px><strong>TRANSPORTISTA: </strong></font></td>
+                <td colspan=3><font size="@ViewBag.Letra+px">@Html.DisplayFor(model2 => model2.TransDesc)</font></td>
+                <td colspan="8"></td>
+                <td><font size="@ViewBag.Letra"><strong>DOCUMENTO Nro. </strong></font></td>
+                <td width=70px colspan=2><font size="@ViewBag.Letra">@Html.DisplayFor(model2 => model2.DocNum)</font></td>
+            </tr>
+            <tr>
+                <td><font size="@ViewBag.Letra"><strong>COPILOTO 1: </strong></font></td>
+                <td><font size="@ViewBag.Letra">@Html.DisplayFor(model2 => model2.CopilDesc)</font></td>
+                <td></td>
+                <td><font size="@ViewBag.Letra"><strong>COPILOTO 2: </strong></font></td>
+                <td colspan=4><font size="@ViewBag.Letra">@Html.DisplayFor(model2 => model2.Copil2Desc)</font></td>
+                <td colspan=7></td>
+            </tr>
+            @*<tr>
+                <td><font size="@ViewBag.Letra"><strong>COPILOTO 3: </strong></font></td>
+                <td><font size="@ViewBag.Letra">@Html.DisplayFor(model2 => model2.Copil3Desc)</font></td>
+                <td></td>
+                <td><font size="@ViewBag.Letra"><strong>COPILOTO 4: </strong></font></td>
+                <td colspan=4><font size="@ViewBag.Letra">@Html.DisplayFor(model2 => model2.Copil4Desc)</font></td>
+                <td colspan=7></td>
+            </tr>*@
+            <tr>
+                <td><font size="@ViewBag.Letra"><strong>PLACA: </strong></font></td>
+                <td><font size="@ViewBag.Letra">@Html.DisplayFor(model2 => model2.Placa)</font></td>
+                <td></td>
+                <td><font size="@ViewBag.Letra"><strong>FECHA: </strong></font></td>
+                <td><font size="@ViewBag.Letra">@Model.TiempoPac.ToString().Substring(0, 10)</font></td>
+                <td colspan=10></td>
+            </tr>
+            <tr>
+                <td><font size="@ViewBag.Letra"><strong>HORA INICIO: </strong></font></td>
+                <td><font size="@ViewBag.Letra">@if (Model.TiempoPac != null) { Write(Model.TiempoPac.ToString().Substring(10, 8)); }</font></td>
+                <td></td>
+                <td><font size="@ViewBag.Letra"><strong>HORA TERMINO: </strong></font></td>
+                @if (Model.TiempoTerEn != null && Model.TiempoTerEn.Trim() != "")
+                {
+                    <td><font size="@ViewBag.Letra">@Model.TiempoTerEn.ToString().Substring(10, 8)</font></td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                <td colspan=10><font size="@ViewBag.Letra">CONDICIÓN ALMACENAMIENTO : T° 15°C-25°C</font></td>
+            </tr>
+            <tr>
+                <td><font size="@ViewBag.Letra"><strong>ALM-ORIGEN: </strong></font></td>
+                <td colspan=6><font size="@ViewBag.Letra">@Html.DisplayFor(model2 => model2.AlmOrigenDesc);@Html.DisplayFor(model2 => model2.AlmOrigenDesc2)</font></td>
+                <td></td>
+                <td><font size="@ViewBag.Letra"><strong>ALM-DESTINO: </strong></font></td>
+                <td colspan=6><font size="@ViewBag.Letra">@Html.DisplayFor(model2 => model2.AlmDestinoDesc);@Html.DisplayFor(model2 => model2.AlmDestinoDesc2)</font></td>
+            </tr>
+        </table>
+        <table border=1>
+            <tr>
+                <th width=10px><font size="@ViewBag.Letra">#</font></th>
+                <th align=center width=70px><font size="@ViewBag.Letra">Nro.TICKET</font></th>
+                <th align="center" width="300px"><font size="@ViewBag.Letra">REFERENCIA</font></th>
+                <th align=center width=250px><font size="@ViewBag.Letra">Nro. DE GUIAS</font></th>
+                <th align=center width=40px><font size="@ViewBag.Letra">MONTO</font></th>
+                <th align=center width=200px><font size="@ViewBag.Letra">OPERARIO DE VENTAS</font></th>
+                <th align=center width=40px><font size="@ViewBag.Letra"># CAJAS</font></th>
+                <th align=center width=40px><font size="@ViewBag.Letra">VISTO</font></th>
+            </tr>
+            @if (Model2.DetRRU0 != null && Model2.DetRRU0.Count >= 1)
+            {
+                foreach (var det in Model2.DetRRU0.Where(x => x.Estado != "LIBERADO"))
+                {
+                    <tr>
+                        <td><font size="@ViewBag.Letra">@det.Linea</font></td>
+                        <td><font size="@ViewBag.Letra">@det.Ticket.DocNum</font></td>
+                        <td><font size="@ViewBag.Letra">@det.Ticket.CardName</font></td>
+                        <td><font size="@ViewBag.Letra">@det.Guias</font></td>
+                        <td style='text-align: center;'><font size="@ViewBag.Letra">S/@det.Ticket.MontoFinal</font></td>
+                        <td><font size="@ViewBag.Letra">@det.Ticket.Vendedor</font></td>
+                        <td style='text-align: center;'><font size="@ViewBag.Letra">@det.Ticket.Cajas</font></td>
+                        <td><font size="@ViewBag.Letra"></font></td>
+                    </tr>
+                }
+            }
+
+        </table>
+        <table border=0>
+            <tr>
+                <td height=35px colspan="4"></td>
+                <td align=right><font size="@ViewBag.Letra">ENTREGA</font></td>
+                <td></td>
+                <td align=right><font size="@ViewBag.Letra">TOTAL CAJAS : @Model.DetRRU0.Where(x => x.Estado != "LIBERADO").Sum(x => x.Cajas)</font></td>
+            </tr>
+            <tr>
+                <td width=250px align=right><font size="@ViewBag.Letra"></font></td>
+                <td><font size="@ViewBag.Letra"></font></td>
+                <td width=200px><font size="@ViewBag.Letra"></font></td>
+                <td width=200px align=right><font size="@ViewBag.Letra"></font></td>
+                <td width=200px colspan=3><font size="@ViewBag.Letra"></font></td>
+            </tr>
+            <tr>
+                <td align=right><font size="@ViewBag.Letra"></font></td>
+                <td colspan=3><font size="@ViewBag.Letra"></font></td>
+                <td><font size="@ViewBag.Letra">1._____________</font></td>
+                <td><font size="@ViewBag.Letra">3._____________</font></td>
+            </tr>
+            <tr>
+                <td align=right><font size="@ViewBag.Letra">_________________</font></td>
+                <td colspan=2><font size="@ViewBag.Letra"></font></td>
+                <td><font size="@ViewBag.Letra">________________</font></td>
+            </tr>
+            <tr>
+                <td align=right><font size="@ViewBag.Letra">TRANSPORTISTA</font></td>
+                <td><font size="@ViewBag.Letra"></font></td>
+                <td><font size="@ViewBag.Letra"></font></td>
+                <td><font size="@ViewBag.Letra">VIGILANCIA</font></td>
+                <td><font size="@ViewBag.Letra"></font></td>
+                <td><font size="@ViewBag.Letra"></font></td>
+            </tr>
+            <tr>
+                <td align=right><font size="@ViewBag.Letra"></font></td>
+                <td><font size="@ViewBag.Letra"></font></td>
+                <td><font size="@ViewBag.Letra"></font></td>
+                <td><font size="@ViewBag.Letra"></font></td>
+                <td><font size="@ViewBag.Letra">2._____________</font></td>
+                <td><font size="@ViewBag.Letra">4._____________</font></td>
+            </tr>
+        </table>
+    </div>
+    @if (lstReg.Count > 0)
+    {
+        <div style='page-break-after:always;'>
+            <div>
+                <table border=0 style=' width: 1275px'>
+                    <tr>
+                        <td colspan=2 width=150px><img width=90px height=30px src='/imagenes/index/encabezado/logoC.jpg' /></td>
+                    </tr>
+                    <tr>
+                        <td colspan=5 align=center><font size="@(ViewBag.Letra+1)"><strong>RUTAS REGALOS</strong></font></td>
+                        <td align=right><font size="@(ViewBag.Letra+1)">REG-031-01</font></td>
+                    </tr>
+                    <tr>
+                        <td><font size="@ViewBag.Letra"><strong>TRANSPORTISTA:</strong></font></td>
+                        <td width=190px><font size="@ViewBag.Letra">@Html.DisplayFor(model2 => model2.TransDesc)</font></td>
+                        <td></td>
+                        <td></td>
+                        <td><font size="@ViewBag.Letra"><strong>DOCUMENTO Nro.</strong></font></td>
+                        <td width=200px><font size="@ViewBag.Letra">@Html.DisplayFor(model2 => model2.DocNum)</font></td>
+                    </tr>
+                    <tr>
+                        <td><font size="@ViewBag.Letra"><strong>COPILOTO: </strong></font></td>
+                        <td width=150px><font size="@ViewBag.Letra">@Html.DisplayFor(model2 => model2.CopilDesc)</font></td>
+                        <td><font size="@ViewBag.Letra"><strong>COPILOTO2: </strong></font></td>
+                        <td width=150px><font size="@ViewBag.Letra">@Html.DisplayFor(model2 => model2.Copil2Desc)</font></td>
+                    </tr>
+                    <tr>
+                        <td><font size="@ViewBag.Letra"><strong>COPILOTO3: </strong></font></td>
+                        <td width=150px><font size="@ViewBag.Letra">@Html.DisplayFor(model2 => model2.Copil3Desc)</font></td>
+                        <td><font size="@ViewBag.Letra"><strong>COPILOTO4: </strong></font></td>
+                        <td width=150px><font size="@ViewBag.Letra">@Html.DisplayFor(model2 => model2.Copil4Desc)</font></td>
+                    </tr>
+                    <tr>
+                        <td><font size="@ViewBag.Letra"><strong>PLACA: </strong></font></td>
+                        <td width=150px><font size="@ViewBag.Letra">@Html.DisplayFor(model2 => model2.Placa)</font></td>
+                        <td><font size="@ViewBag.Letra"><strong>FECHA: </strong></font></td>
+                        <td width=270px><font size="@ViewBag.Letra">@Model2.FechaCont</font></td>
+                    </tr>
+                    <tr>
+                        <td><font size="@ViewBag.Letra"><strong>HORA INICIO: </strong></font></td>
+                        <td width=150px><font size="@ViewBag.Letra">@Html.DisplayFor(model2 => model2.TiempoIniEn)</font></td>
+
+                        <td colspan=10><font size="@ViewBag.Letra">CONDICIÓN ALMACENAMIENTO : T° 15°C-25°C</font></td>
+                    </tr>
+                </table>
+            </div>
+            <div style="width:50%;">
+                <table border=1 style="width:100%;float:left;">
+                    <tr>
+                        <th width=2%><font size="@ViewBag.Letra">#</font></th>
+                        <th align=center width=5%><font size="@ViewBag.Letra">NRO. TICKET</font></th>
+                        <th align=center width=10%><font size="@ViewBag.Letra">RAZÓN SOCIAL-RUC</font></th>
+                        <th align=center width=12%><font size="@ViewBag.Letra">DIRECCIÓN-TELÉFONO</font></th>
+                        <th align=center width=8%><font size="@ViewBag.Letra">OPERARIO DE VENTAS</font></th>
+                        <th align=center width=5%><font size="@ViewBag.Letra">REGALO</font></th>
+                        <th align=center width=5%><font size="@ViewBag.Letra">DESCRIPCION</font></th>
+                        <th align=center width=25%><font size="@ViewBag.Letra">FIRMA Y/O SELLO DE RECIBIDO</font></th>
+
+                    </tr>
+                    @foreach (var det in Model2.DetRRU0.Where(x => x.Ticket.Det5 != null && x.Ticket.Det5.Count > 0 && x.Ticket.Det5[0].RegCant > 0))
+                    {
+                        <tr>
+                            <td><font size="@ViewBag.Letra">@det.Linea</font></td>
+                            <td><font size="@ViewBag.Letra">@det.DocNumTicket</font></td>
+                            <td style='text-align: justify; word-wrap: break-word;'>
+                                <font size="@ViewBag.Letra">
+                                    @det.Ticket.CardName<br>
+                                    RUC: @det.Ticket.CardCode
+                                </font>
+                            </td>
+
+                            <td style='text-align: justify; word-wrap: break-word;'>
+                                <font size="@ViewBag.Letra">
+                                    @det.Ticket.DirDestino<br>
+                                    @if (det.Ticket.Det1 != null && det.Ticket.Det1.Count > 0)
+                                    {
+                                        <p>TELEF: @det.Ticket.Det1[0].TelfPer</p>
+                                    }
+                                </font>
+                            </td>
+                            <td><font size="@ViewBag.Letra">@det.Ticket.Vendedor</font></td>
+                            <td style='text-align: center;'><font size="@ViewBag.Letra">@Math.Round(det.Ticket.Det5[0].RegCant, 0)</font></td>
+                            <td style='text-align: center;'><font size="@ViewBag.Letra"><strong>@(det.Ticket.Det5[0].RegCate + "  " + det.Ticket.Det5[0].RegTipo)</strong></font></td>
+                            <td style='text-align: justify; word-wrap: break-word;'><font size="@ViewBag.Letra">_________________________</font></td>
+
+                        </tr>
+
+                    }
+                </table>
+            </div>
+            <div style="margin-left:40px;padding-top:20px; display: inline-block;width:22%;">
+                <table border=1>
+                    <tr>
+                        <th align=center width=10%><font size="@ViewBag.Letra">TIPO</font></th>
+                        <th align=center width=8%><font size="@ViewBag.Letra">CATEGORIA</font></th>
+                        <th align=center width=5%><font size="@ViewBag.Letra">SUBTOTAL</font></th>
+                    </tr>
+                    @foreach (OREG_E det in lstReg)
+                    {
+                        <tr>
+                            <td><font size="@ViewBag.Letra">@det.Categoria</font></td>
+                            <td><font size="@ViewBag.Letra">@det.Tipo</font></td>
+                            <td style='text-align: center;'><font size="@ViewBag.Letra">@Math.Round(det.StockDisp, 0)</font></td>
+                        </tr>
+                    }
+
+                </table>
+            </div>
+            <div style="clear:both;"></div>
+
+            <br /><br />
+            <div>
+                <table>
+                    <tr>
+                        <td width=100px><font size="@ViewBag.Letra"></font></td>
+                        <td><font size="@ViewBag.Letra">__________________</font></td>
+                        <td><font size="@ViewBag.Letra"></font></td>
+                        <td width=600px><font size="@ViewBag.Letra"></font></td>
+                        <td><font size="@ViewBag.Letra">__________________</font></td>
+                        <td><font size="@ViewBag.Letra"></font></td>
+                    </tr>
+                    <tr>
+                        <td><font size="@ViewBag.Letra"></font></td>
+                        <td><font size="@ViewBag.Letra">TRANSPORTISTA </font></td>
+                        <td><font size="@ViewBag.Letra"></font></td>
+                        <td><font size="@ViewBag.Letra"></font></td>
+                        <td><font size="@ViewBag.Letra">VIGILANCIA</font></td>
+                        <td><font size="@ViewBag.Letra"></font></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    }
+</body>
+</html>
+
+

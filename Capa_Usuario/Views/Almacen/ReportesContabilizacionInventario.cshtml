@@ -1,0 +1,112 @@
+﻿@using Capa_Entidad.Almacen_ENT.Tablas
+@using Capa_Entidad.Almacen_ENT.TablasSql
+@{
+    ViewBag.Title = "ReportesContabilizacionInventario";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<OMRC_E> labos = (List<OMRC_E>)ViewBag.Laboratorios;
+}
+<script>
+    $(document).ready(function () { });
+    function listarArticulos(dom) {
+        if ($(dom).val().length > 3) {
+            $.ajax('/Almacen/dataListArticulos',
+                {
+                    data: { "ItemName": $(dom).val(), "ItemCode": $(dom).val(), "FirmCode": $("#FirmCode").val() },
+                    dataType: 'html',
+                    cache: false,
+                    type: 'post',
+                })
+                .done(function (response) {
+                    $('#listaArticulos').html(response);
+                });
+        }
+    }
+    function rpt() {
+        $('#Reporte').html('<img src="/imagenes/index/ReportesDigemid/cargando.gif" />');
+        var parametros = $("#frm").serialize();
+        $.ajax('/Almacen/tbReporteContabilizacionInventario',
+            {
+                data: parametros,
+                dataType: 'html',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                $('#Reporte').html(response);
+            });
+    }
+</script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("ContabilizacionInventario", "Almacen")">Módulo contabilización inventario</a></li>
+            <li class="current"><em>Reportes de inventario</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">REPORTES DE INVENTARIO</h3></div>
+</div>
+
+<div class="bg-form-pestanas-cobefar">
+    <div class="alert alert-danger" role="alert">
+        @if (@OIPE_E.PeriodoSeleccionado != null)
+        {
+            @OIPE_E.PeriodoSeleccionado.Descripcion
+            Write(" - Almacenes: ");
+            @OIPE_E.PeriodoSeleccionado.enlistarDetAlmacenes()
+        }
+    </div>
+
+    <div class="bg-section-form p-4 bg-form-cobefar">
+        <form id="frm">
+            <div class="row">
+                <div class="col-lg-3">
+                    <label for="Fase" class="text-dark form-label font-weight-bold font-18">Tipo:</label>
+                    <select id="Fase" name="Fase" class="form-control bg-cobefar text-white border-success">
+                        <option value="">Seleccione</option>
+                        <option value="3">Conteo</option>
+                        <option value="5">Reconteo</option>
+                        <option value="7">Analisis</option>
+                    </select>
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="FirmCode" class="text-dark form-label font-weight-bold font-18">Laboratorio:</label>
+                    <input id="FirmCode" name="FirmCode" type="search" list="listaLaboratorios" autocomplete="off" class="form-control bg-cobefar text-white border-success" />
+                    <datalist id="listaLaboratorios">
+                        @foreach (OMRC_E obj in labos)
+                        {
+                            <option value="@obj.FirmCode" FirmName="@obj.FirmName" FirmCode="@obj.FirmCode">@obj.U_SYP_DESC</option>
+                        }
+                    </datalist>
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="ItemCode" class="text-dark form-label font-weight-bold font-18">Artículo:</label>
+                    <input id="ItemCode" name="ItemCode" type="search" list="listaArticulos" autocomplete="off" class="form-control border-success" onkeyup="listarArticulos(this);" />
+                    <datalist id="listaArticulos">
+                    </datalist>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-6">
+                    <button type="button" class="btn btn-success" onclick="rpt();"><i class="icon-checkmark"></i> Generar</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="row mt-4">
+            <div class="col-lg-12">
+                <table id="Reporte" class="table table-hover table-responsive" style="background-color:white">
+                </table>
+            </div>
+        </div>
+        
+    </div>
+    
+</div>

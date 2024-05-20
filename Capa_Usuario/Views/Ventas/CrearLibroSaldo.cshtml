@@ -1,0 +1,75 @@
+﻿@model Capa_Entidad.Ventas_ENT.TablasSql.OLDS_E
+@{
+    ViewBag.Title = "CrearLibroSaldo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    function valorCampoList(idLista, idLabel, idCampo, atrib) {
+        $("#" + idCampo).val(
+            $("#" + idLista + " option[value='" + $("#" + idLabel).val() + "']").attr(atrib)
+        );
+    }
+</script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("ListadoLibrosSaldo", "Ventas")">Listado libros saldo</a></li>
+            <li class="current"><em>Crear libro saldo</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">CREAR LIBRO SALDO</h3></div>
+</div>
+
+<div class="bg-form-pestanas-cobefar p-4 bg-form-cobefar">
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+    <div class="row">
+        <div class="col-lg-2">
+            <label for="CardCode" class="text-dark font-weight-bold font-18">CardCode:</label>
+            @Html.EditorFor(model => model.CardCode, new { htmlAttributes = new { @class = "form-control border-success", @readonly = "true" } })
+        </div>
+
+        <div class="col-lg-6">
+            <label for="CardName" class="text-dark font-weight-bold font-18">CardName:</label>
+            @Html.EditorFor(model => model.CardName, new { htmlAttributes = new { @class = "form-control border-success", @type = "search", @list = "listaClientes", @autocomplete = "off", @onchange = "valorCampoList('listaClientes','CardName','CardCode','CardCode');" } })
+            <datalist id="listaClientes">
+                @foreach (var c in ViewBag.Clientes)
+                {
+                    <option value="@c.CardName" CardCode="@c.CardCode">@c.CardName</option>
+                }
+            </datalist>
+        </div>
+
+        <div class="col-lg-2">
+            <label for="NroOpe" class="text-dark font-weight-bold font-18">NroOpe:</label>
+            @Html.EditorFor(model => model.NroOpe, new { htmlAttributes = new { @class = "form-control border-success", @readonly = "true" } })
+        </div>
+
+        <div class="col-lg-2">
+            <label for="SaldoActual" class="text-dark font-weight-bold font-18">SaldoActual:</label>
+            @Html.EditorFor(model => model.SaldoActual, new { htmlAttributes = new { @class = "form-control border-success", @readonly = "true" } })
+        </div>
+
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-lg-4">
+            <input type="submit" value="Crear" class="btn btn-success" />
+        </div>
+    </div>
+
+    }
+</div>
+
+
+<script>
+    if ('@ViewBag.Mensaje' != "") {
+        Swal.fire('@ViewBag.Mensaje');
+    }
+</script>

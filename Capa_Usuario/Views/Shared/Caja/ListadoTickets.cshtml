@@ -1,0 +1,201 @@
+﻿<form name="frm" id="frm">
+
+    <table id="tbl_listadoTC" class="table table-light table-sm table-hover" cellspacing="0" width="100%">
+        <thead class="thead-dark">
+            <tr>
+                <th class="text-center">
+                    Nro Ticket<br />
+                    <input type="text" id="DocNum" name="DocNum" class="form-control-sm text-center border cls-numeric" autocomplete="off" onchange="$('#frm').submit();" style="width: 120px;" />
+                </th>
+                <th class="text-center">
+                    Fecha Ticket<br />
+                    <input type="date" id="fechaTicketTC" name="FechaSapTicket" value="@ViewBag.OTC.FechaSapTicket" class="form-control-sm text-center border" onchange="$('#frm').submit();" />
+                </th>
+                <th class="text-center">Cliente<br /><input type="text" id="clienteTC" name="CardName" class="form-control-sm text-center border w-100" value="@ViewBag.OTC.CardName" autocomplete="off" onchange="$('#frm').submit();" /></th>
+                <th class="text-center">
+                    Estado Ticket<br />
+                    <select name="Estado" id="Estado" class="form-control-sm bg-cobefar text-white" onchange="$('#frm').submit();">
+                        <option value="">Seleccione</option>
+                        <option value="ABIERTO">ABIERTO</option>
+                        <option value="RECIBIDO">RECIBIDO</option>
+                        <option value="PICKEANDO">PICKEANDO</option>
+                        <option value="VERIFICANDO">VERIFICANDO</option>
+                        <option value="EMPACANDO">EMPACANDO</option>
+                        <option value="EMPACADO">EMPACADO</option>
+                        <option value="PESADO">PESADO</option>
+                        <option value="ENVIADO">ENVIADO</option>
+                        <option value="ENTREGADO">ENTREGADO</option>
+                        <option value="ANULADO">ANULADO</option>
+                        <option value="CANCELADO">CANCELADO</option>
+                    </select>
+                </th>
+                <th class="text-center">
+                    Vendedor<br />
+                    <input type="text" id="Vendedor" name="Vendedor" class="form-control-sm text-center border w-100" value="@ViewBag.OTC.Vendedor" autocomplete="off" onchange="$('#frm').submit();" />
+                </th>
+                <th class="text-center">
+                    Monto Final<br />
+                    <input type="text" id="MontoFinal" name="MontoFinal" class="form-control-sm text-center border" autocomplete="off" onchange="$('#frm').submit();" style="width: 100px" />
+                </th>
+                <th class="text-center">
+                    Lugar Destino<br />
+                    <select id="LugarDestino" name="LugarDestino" class="form-control-sm bg-cobefar text-white" onchange="$('#frm').submit();">
+                        <option value="">Seleccione</option>
+                        <option value="Arriola">Arriola</option>
+                        <option value="Agencia Courier">Agencia Courier</option>
+                        <option value="Domicilio">Domicilio</option>
+                        <option value="Centro">Centro</option>
+                        <option value="Arriola07">Arriola07</option>
+                    </select>
+                </th>
+                <th class="text-center">
+                    Estado Pago<br />
+                    <select name="EstadoPago" id="EstadoPago" class="form-control-sm bg-cobefar text-white" onchange="$('#frm').submit();">
+                        <option value="">Seleccione</option>
+                        <option value="PENDIENTE">PENDIENTE</option>
+                        <option value="PAGADO">PAGADO</option>
+                    </select>
+                </th>
+                <th class="text-center">
+                    Estado Gasto<br />
+                    <select name="EstadoGasto" id="EstadoGasto" class="form-control-sm bg-cobefar text-white" onchange="$('#frm').submit();">
+                        <option value="">Seleccione</option>
+                        <option value="PENDIENTE">PENDIENTE</option>
+                        <option value="CONFIRMADO">CONFIRMADO</option>
+                    </select>
+                </th>
+                <th class="text-center">
+                    Pago Envío<br />
+                    <select name="PagoEnv" id="PagoEnv" class="form-control-sm bg-cobefar text-white" onchange="$('#frm').submit();" style="width: 100px;">
+                        <option value="0.00" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.PagoEnv == 0.00M) { Write("selected"); } }>NO</option>
+                        <option value="0.01" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.PagoEnv == 0.01M) { Write("selected"); } }>SI</option>
+                    </select>
+                </th>
+                <th class="text-center">
+                    Tipo de Pago<br />
+                    <select id="TipoPago" name="TipoPago" class="form-control-sm bg-cobefar text-white" onchange="$('#frm').submit();">
+                        <option value="">Seleccione</option>
+                        <option value="PCE">P. Completo Efectivo</option>
+                        <option value="PCD">P. Completo Depósito</option>
+                        <option value="PMI">P. Mixto o Incompleto</option>
+                        <option value="SP">Sin Pago</option>
+                    </select>
+                </th>
+                <th class="text-center">
+                    ContraEntrega<br />
+                    <select id="EstadoContraEntrega" name="EstadoContraEntrega" class="form-control-sm bg-cobefar text-white" onchange="$('#frm').submit();">
+                        <option value="">Seleccione</option>
+                        <option value="PENDIENTE">Pendiente</option>
+                        <option value="VALIDADO">Validado</option>
+                        <option value="AUTORIZADO">Autorizado</option>
+                        <option value="RECHAZADO">Rechazado</option>
+                        <option value="CUADRADO">Cuadrado</option>
+                        <option value="ANULADO">Anulado</option>
+                    </select>
+                </th>
+                <th class="text-center"></th>
+                <th class="text-center"></th>
+                <th class="text-center"></th>
+                <th class="text-center"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null)
+            {
+                bool verSegTicket = false, verPDF = false;
+
+                foreach (var item in Model)
+                {
+                    if (item.Estado != "SEPARADO") { verSegTicket = true; verPDF = true; }
+                    <tr>
+                        <td class="text-center" style="width: 80px;"><div>@item.DocNum</div></td>
+                        <td class="text-center">@item.FechaSapTicket</td>
+                        <td class="text-center">@item.CardName</td>
+                        <td class="text-center">@item.Estado</td>
+                        <td class="text-center">@item.Vendedor</td>
+                        <td class="text-center">@item.MontoFinal</td>
+                        <td class="text-center">@item.LugarDestino</td>
+                        <td class="text-center">@item.EstadoPago</td>
+                        <td class="text-center">@item.EstadoGasto</td>
+                        <td class="text-center">@item.PagoEnv</td>
+                        <td class="text-center">@item.TipoPago</td>
+                        <td class="text-center">@item.EstadoContraEntrega</td>
+                        <td class="text-center">
+                            @if (item.Estado != "CANCELADO")
+                            {
+                                <button type="button" class="btn btn-sm btn-success" onclick="mostrarVistaPagarTicket('@item.DocEntry', '@item.IdOTC')"><i title="Pagar ticket" class="text-white icon-coin-dollar"></i></button>
+                            }
+                        </td>
+                        <td class="text-center">
+                            @if (verSegTicket)
+                            {
+                                <a href="@Url.Action( "SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry  } )" type="button" target="_blank" class="btn btn-sm btn-dark"
+                                   onclick="window.open(this.href,this.target,'width=1200,height=720,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;">
+                                    <i title="Seguimiento de ticket" class="text-white icon-truck"></i>
+                                </a>
+                            }
+                        </td>
+                        <td class="text-center">
+                            @if (verPDF)
+                            {
+                                <a href="@Url.Action( "GenerarPDF", "Ventas", new { DocEntry = item.DocEntry  } )" target="_blank" class="btn btn-sm btn-danger"
+                                   onclick="window.open(this.href,this.target,'width=900,height=720,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;"><i title="Documento PDF del ticket" class="text-white icon-file-pdf"></i></a>
+                            }
+                        </td>
+                        <td class="text-center">
+                            @if (item.Estado == "ENTREGADO" && (item.LugarDestino == "Agencia" || item.LugarDestino == "Agencia Courier"))
+                            {
+                                <a href="@Url.Action( "EvidenciaReparto", "Rutas", new { DocEntry = item.DocEntry , TipoRuta="Ventas"} )" class="btn btn-sm btn-primary">
+                                    <i title="Evidencia" class="icon-image"></i>
+                                </a>
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</form>
+
+<script>
+    let docNum = `@ViewBag.OTC.DocNum`;
+    let montoFinal = `@ViewBag.OTC.MontoFinal`;
+    let estadoTicket = `@ViewBag.OTC.Estado`;
+    let lugarDestino = `@ViewBag.OTC.LugarDestino`;
+    let estadoPago = `@ViewBag.OTC.EstadoPago`;
+    let estadoGasto= `@ViewBag.OTC.EstadoGasto`;
+    let tipoPagoCE= `@ViewBag.OTC.TipoPago`;
+    let estadoCE= `@ViewBag.OTC.EstadoContraEntrega`;
+
+    if (docNum * 1 > 0) { document.getElementById("DocNum").value = docNum; }
+    if (montoFinal * 1 > 0) { document.getElementById("MontoFinal").value = montoFinal; }
+    if (estadoTicket != '') { document.getElementById("Estado").value = estadoTicket; }
+    if (lugarDestino != '') {  document.getElementById("LugarDestino").value = lugarDestino; }
+    if (estadoPago != '') { document.getElementById("EstadoPago").value = estadoPago; }
+    if (estadoGasto != '') { document.getElementById("EstadoGasto").value = estadoGasto; }
+    if (tipoPagoCE != '') { document.getElementById("TipoPago").value = tipoPagoCE; }
+    if (estadoCE != '') { document.getElementById("EstadoContraEntrega").value = estadoCE; }
+
+    $('#tbl_listadoTC').DataTable({
+        "searching": false,
+        "ordering": false,
+        "scrollX": true,
+        pageLength: 50, /*---- PARA INICIALIZAR LA PAGINACIÓN */
+        lengthMenu: [50, 100, 150], /* RANGO PAGINACIÓN */
+    });
+
+    $('.cls-numeric').keypress(function (tecla) {
+        // enter y [0-9]
+        if (tecla.keyCode != 13 && (tecla.keyCode < 48 || tecla.keyCode > 57)) {
+            return false;
+        }
+    });
+
+    function mostrarVistaPagarTicket(docEntry, idOTC) {
+        window.location.href = `/Caja/PagarTicketVenta?DocEntry=${docEntry}&IdOTC=${idOTC}`;
+    }
+
+    if ($('.dataTables_empty').length == 0) {
+        $('#div_botones').show();
+    }
+</script>

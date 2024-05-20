@@ -1,0 +1,135 @@
+﻿@model IEnumerable<Capa_Entidad.Seguridad_ENT.Usuario_E>
+@using Capa_Entidad.Seguridad_ENT
+@{
+    ViewBag.Title = "GestionPermisos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Usuario_E f = (Usuario_E)ViewBag.Usuario;
+}
+
+<script>
+    $(document).ready(function () {
+    });
+    function filtrar() {
+        var object = $("#frm").serialize();
+        $(location).attr('href', "/TI_Sistemas/GestionPermisos?" + object);
+    }
+    function eliminar(DocEntry) {
+        Swal.fire({
+            title: '¿Está seguro(a) de inactivar este usuario?',
+            text: "Este usuario ya no podrá acceder a la INTRANET",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Si, estoy seguro(a)',
+            cancelButtonText: 'Cancelar'
+
+        }).then(result => {
+            if (result.value) {
+                var parametros = { "DocEntry": DocEntry };
+                $.ajax('/TI_Sistemas/EliminarUsuario',
+                    {
+                        data: parametros,
+                        dataType: 'json',
+                        cache: false,
+                        type: 'post'
+                    })
+
+                $(location).attr('href', "/TI_Sistemas/GestionPermisos");
+
+            }
+        });
+    }
+</script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li class="current"><em>Módulo gestión de permisos</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">MÓDULO GESTIÓN DE PERMISOS</h3></div>
+
+    <div class="d-flex pl-2 w-100 py-2">
+
+        <div class="mx-2">
+            <a id="accion" href="@Url.Action("CrearUsuario", "TI_Sistemas")" class="btn btn-success"><i class="icon icon-plus"></i> Crear usuario</a>
+            <a id="accion" href="@Url.Action("GestionRolOperacion", "TI_Sistemas")" class="btn btn-warning"><i class="icon icon-address-book"></i> Gestion Rol-Operaciones</a>
+        </div>
+
+    </div>
+</div>
+
+<div class="bg-dark bg-form-cobefar">
+    <form name="frm" id="frm">
+        <table class="table table-light table-sm table-hover cls-dataTable font-14" cellspacing="0" width="100%">
+            <thead class="thead-dark">
+                <tr>
+                    <th class="text-center">
+                        DocEntry
+                        <div class="d-flex justify-content-center">
+                            <input type="text" name="DocEntry" class="form-control" style="width: 100px" onchange="filtrar();" value="@if (f.DocEntry > 0){@f.DocEntry;}" autocomplete="off" />
+                        </div>
+                    </th>
+                    <th class="text-center">Usuario</th>
+                    <th>
+                        Nombres y Apellidos
+                        <input type="text" name="Nombres" class="form-control" onchange="filtrar();" value="@f.Nombres" autocomplete="off" />
+                    </th>
+                    <th class="text-center">Almacén</th>
+                    <th class="text-center">Rol</th>
+                    <th class="text-center">Fecha Creación</th>
+                    <th class="text-center">Operario Creación</th>
+                    <th class="text-center">Activo</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody class="text-dark">
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="text-center">@item.DocEntry</td>
+                        <td class="text-center">@item.Prefijo@item.Id</td>
+                        <td>@item.Nombres @item.Apellidos</td>
+                        <td class="text-center">@item.WhsCode</td>
+                        <td class="text-center">
+                            @item.DescripcionRol
+                        </td>
+                        <td class="text-center">
+                            @item.FechaRegistro
+                        </td>
+                        <td class="text-center">
+                            @item.OperarioRegistro
+                        </td>
+                        <td class="text-center">
+                            @if (item.Activo == 1) { Write("SI"); } else if (item.Activo == 0) { Write("NO"); }
+                        </td>
+                        <td class="text-center">
+                            @if (item.Activo == 1)
+                            {
+                                <a href="@Url.Action("EditarUsuario", "TI_Sistemas", new { DocEntry = item.DocEntry } )" class="btn btn-sm btn-info">
+                                    <i class="icon icon-pencil"></i> Editar
+                                </a>
+                                <button type="button" onclick="eliminar('@item.DocEntry');" class="btn btn-sm btn-danger">
+                                    <i class="icon icon-blocked"></i> Inactivar
+                                </button>
+                            }
+
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </form>
+</div>
+
+
+<script>
+    if ('@ViewBag.Mensaje' != "") {
+            Swal.fire('@ViewBag.Mensaje');
+        }
+</script>

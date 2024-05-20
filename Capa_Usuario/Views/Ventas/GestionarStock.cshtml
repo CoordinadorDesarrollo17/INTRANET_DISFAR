@@ -1,0 +1,121 @@
+﻿@model Capa_Entidad.Ventas_ENT.TablasSql.OTRC_E
+@using Capa_Entidad.Ventas_ENT.TablasSql
+@{
+    ViewBag.Title = "GestionarStocks";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    OREG_E reg = (OREG_E)ViewBag.Regalo;
+}
+
+<script>
+    function validar() {
+        var object = $("#GestionarStocks").serialize();
+        $.ajax('/Ventas/validarGestionarStock',
+            {
+                data: object,
+                dataType: 'html',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                if (response != "true") { swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false }
+                else { $("#GestionarStocks").submit(); }
+            });
+    }
+</script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("GestionRegalos", "Ventas")">Módulo gestión regalos</a></li>
+            <li class="current"><em>Gestión stock de regalos</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">GESTIÓN STOCK DE REGALOS</h3></div>
+</div>
+
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "GestionarStocks", enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+<div class="bg-form-pestanas-cobefar p-4 bg-form-cobefar">
+    <div class="row">
+
+        <div class="col-lg-2">
+            <label for="Categoria" class="text-dark font-weight-bold font-18">Categoría:</label>
+            <input class="form-control border-success" type="text" id="Categoria" name="Categoria" value="@reg.Categoria" readonly />
+        </div>
+
+        <div class="col-lg-6">
+            <label for="Tipo" class="text-dark form-label font-weight-bold font-18">Tipo:</label>
+            <input class="form-control border-success" type="text" id="Tipo" name="Tipo" value="@reg.Tipo" readonly />
+        </div>
+
+        <div class="col-lg-2">
+            <label for="StockTotal" class="text-dark form-label font-weight-bold font-18">Stock Total:</label>
+            <input class="form-control text-center border-success" type="text" id="StockTotal" name="StockTotal" value="@((int)reg.StockTotal)" readonly />
+        </div>
+
+    </div>
+
+
+    <div class="row mt-4">
+
+        <div class="col-lg-2">
+            <label for="IdReg" class="text-dark font-weight-bold font-18">CodRegalo:</label>
+            <input class="form-control text-center border-success" type="text" id="IdReg" name="IdReg" value="@reg.Id" readonly />
+        </div>
+
+        <div class="col-lg-6">
+            <label for="RegName" class="text-dark form-label font-weight-bold font-18">Regalo:</label>
+            <input class="form-control border-success" type="text" id="RegName" name="RegName" value="@(reg.Categoria+" "+reg.Tipo)" readonly />
+        </div>
+
+        <div class="col-lg-2">
+            <label for="StockDisp" class="text-dark form-label font-weight-bold font-18">Stock Disponible:</label>
+            <input class="form-control text-center border-success" type="text" id="StockDisp" name="StockDisp" value="@reg.StockDisp" readonly />
+        </div>
+
+    </div>
+
+
+    <div class="row mt-4">
+
+        <div class="col-lg-2">
+            <label for="Sentido" class="text-dark font-weight-bold font-18">Acción:</label>
+            <select id="Sentido" name="Sentido" class="form-control bg-cobefar text-white border-success">
+                <option value="">Seleccione</option>
+                <option value="Entrada">Agregar</option>
+                <option value="Salida">Retirar</option>
+            </select>
+        </div>
+
+        <div class="col-lg-6">
+            <label for="Detalle" class="text-dark form-label font-weight-bold font-18">Detalle:</label>
+            <input class="form-control border-success" type="text" id="Detalle" name="Detalle" value="" />
+        </div>
+
+        <div class="col-lg-2">
+            <label for="StockDisp" class="text-dark form-label font-weight-bold font-18">Stock Comprometido:</label>
+            <input class="form-control text-center border-success" type="text" id="StockDisp" name="StockDisp" value="@reg.StockComp" readonly />
+        </div>
+
+        <div class="col-lg-2">
+            <label for="Cantidad" class="text-dark form-label font-weight-bold font-18">Cantidad:</label>
+            <input class="form-control text-center border-success" type="number" id="Cantidad" name="Cantidad" min="1" value="" />
+        </div>
+
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-lg-4">
+            <button type="button" class="btn btn-success" onclick="validar();"><i class="icon icon-checkmark"></i> Registrar</button>
+        </div>
+    </div>
+
+</div>
+    
+}

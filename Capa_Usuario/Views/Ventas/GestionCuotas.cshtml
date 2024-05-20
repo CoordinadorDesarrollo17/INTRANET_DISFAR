@@ -1,0 +1,122 @@
+﻿@model Capa_Entidad.Ventas_ENT.TablasSql.USR1_E
+@using Capa_Entidad.Ventas_ENT.TablasSql
+@using Capa_Entidad.Seguridad_ENT
+@{
+    ViewBag.Title = "GestionCuotas";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<USR1_E> lista = (List<USR1_E>)ViewBag.CuotasUser;
+    Usuario_E user = (Usuario_E)ViewBag.User;
+}
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("ListadoTickets", "Ventas")">Listado de tickets</a></li>
+            <li><a href="@Url.Action("GestionVendedores", "Ventas")">Gestión vendedores</a></li>
+            <li class="current"><em>Gestión cuotas</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">Gestión Cuotas</h3></div>
+</div>
+
+<div class="bg-light pb-4">
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+
+    <div class="row ml-4 pt-4">
+        <div class="col-lg-4 py-2 px-2">
+            <input type="hidden" name="DocEntry" value="@user.DocEntry" />
+            <span class="text-cobefar font-weight-bold">@user.DocEntry: </span>@user.Nombres
+        </div>
+    </div>
+
+    <div class="form-group row ml-4 mt-2">
+        <div class="col-sm-1 col-form-label bg-cobefar text-white text-center py-2 px-2">Año:</div>
+        <div class="col-lg-2">
+            @Html.EditorFor(model => model.YearU, new { htmlAttributes = new { @class = "form-control border-success text-center" } })
+        </div>
+
+        <div class="col-sm-1 col-form-label bg-cobefar text-white text-center py-2 px-2">Mes:</div>
+        <div class="col-lg-1">
+            @Html.EditorFor(model => model.MonthU, new { htmlAttributes = new { @class = "form-control border-success text-center" } })
+        </div>
+
+        <div class="col-sm-1 col-form-label bg-cobefar text-white text-center py-2 px-2">Cuota:</div>
+        <div class="col-lg-2">
+            @Html.EditorFor(model => model.Cuota, new { htmlAttributes = new { @class = "form-control border-success text-center" } })
+        </div>
+
+        <div class="col-lg-2 d-flex justify-content-end">
+            <button type="submit" class="btn btn-success"><i class="icon icon-plus"></i> Agregar</button>
+        </div>
+    </div>
+
+    }
+</div>
+
+<div class="bg-dark pt-4">
+    <table class="table table-light table-sm table-hover cls-dataTable" cellspacing="0" width="100%">
+        <thead class="thead-dark">
+            <tr>
+                <th class="text-center">
+                    @Html.DisplayNameFor(model => model.YearU)
+                </th>
+                <th class="text-center">
+                    @Html.DisplayNameFor(model => model.MonthU)
+                </th>
+                <th class="text-center">
+                    @Html.DisplayNameFor(model => model.Cuota)
+                </th>
+                <th class="text-center">
+                    @Html.DisplayNameFor(model => model.FechaRegistro)
+                </th>
+                <th class="text-center">
+                    @Html.DisplayNameFor(model => model.OpRegistro)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @{int i = 0; }
+            @foreach (var item in lista)
+            {
+                <tr>
+                    <td class="text-center">
+                        @Html.DisplayFor(modelItem => item.YearU)
+                    </td>
+                    <td class="text-center">
+                        @Html.DisplayFor(modelItem => item.MonthU)
+                    </td>
+                    <td class="text-center">
+                        @Html.DisplayFor(modelItem => item.Cuota)
+                    </td>
+                    <td class="text-center">
+                        @Html.DisplayFor(modelItem => item.FechaRegistro)
+                    </td>
+                    <td class="text-center">
+                        @Html.DisplayFor(modelItem => item.OpRegistro)
+                    </td>
+                    <td class="text-center">
+                        @if (i == 0)
+                        {<a href="/Ventas/BorrarCuotaUsr?YearU=@item.YearU&amp;MonthU=@item.MonthU&amp;DocEntry=@item.DocEntry" class="btn btn-danger"><i class="icon icon-bin2"></i> Borrar</a>}
+                    </td>
+                </tr>
+                { i++; }
+            }
+        </tbody>
+    </table>
+</div>
+
+<script>
+    if ('@ViewBag.Mensaje' != "") {
+        swal.fire({
+            title: "@ViewBag.Mensaje",
+            text: "Presione OK para continuar",
+            icon: "warning"
+        })
+    };
+</script>

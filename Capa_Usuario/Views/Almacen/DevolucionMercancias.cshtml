@@ -1,0 +1,936 @@
+﻿@using Capa_Entidad.General_ENT.TablasSql;
+@using Capa_Entidad.Almacen_ENT.Tablas;
+@using Capa_Entidad.Almacen_ENT.TablasSql;
+@{
+    ViewBag.Title = "DevolucionMercancias";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<OWHS_E> Almacenes = (List<OWHS_E>)ViewBag.Almacenes;
+    List<OMRC_E> Laboratorios = (List<OMRC_E>)ViewBag.Laboratorios;
+    List<MotivosDevoluciones_E> motivos = (List<MotivosDevoluciones_E>)ViewBag.Motivos;
+    List<MotivosDevoluciones_E> motivosSubmotivos = (List<MotivosDevoluciones_E>)ViewBag.ListaParaSubmotivos;
+    List<SubmotivosDevoluciones_E> submotivos = (List<SubmotivosDevoluciones_E>)ViewBag.Submotivos;
+}
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li class="current"><em>Devolución de mercancías</em></li>
+        </ol>
+    </nav>
+</div>
+
+<form name="frm" id="frm">
+    <div class="bg-dark border-cabecera-seccion pb-2">
+        <div class="px-3 pt-3"><h3 class="titulo-seccion">DEVOLUCIÓN DE MERCANCÍAS</h3></div>
+
+        <div class="row pl-2 w-100 py-2">
+            <div class="d-flex col-lg-8 col-md-6 col-sm-12 col-6 my-lg-2 button-group">
+                <a href="@Url.Action("NuevaDevolucion", "Almacen")" class="btn btn-warning font-weight-bold mx-1 my-1" title="Nueva Devolución">
+                    <i class="icon icon-plus"></i> Nueva Devolución
+                </a>
+
+                <a href="@Url.Action("NuevaDevolucion", "Almacen", new { Almacen ="DEV07"})" class="btn btn-primary font-weight-bold mx-1 my-1" title="ALM. DEV07">
+                    <i class="icon icon-plus"></i> DEV07
+                </a>
+
+                <button type="button" class="btn btn-success font-weight-bold mx-1 my-1" title="Descargar Reporte Histórico" data-toggle="modal" data-target="#modalReporte" onclick="limpiarCampos()">
+                    <i class="icon icon-file-excel"></i> Reporte Histórico
+                </button>
+
+                <button type="button" class="btn btn-info font-weight-bold mx-1 my-1" title="Motivos y Sub Motivos" data-toggle="modal" data-target="#modalMotivosyObs">
+                    <i class="icon icon-folder-open"></i> Motivos y Submotivos.
+                </button>
+            </div>
+
+            <div class="d-flex col-lg-4 col-md-6 col-sm-12 col-12 mt-sm-2 justify-content-lg-end justify-content-md-end justify-content-sm-center">
+                <input type="text" name="DetalleDevolucion[0].RefFactura" class="form-control text-center border-success filtrosDevolucion" placeholder="Buscar por factura..." style="width: 250px; height: 50px" value="@if (ViewBag.Devolucion.DetalleDevolucion != null && ViewBag.Devolucion.DetalleDevolucion.Count >= 1) { Write(ViewBag.Devolucion.DetalleDevolucion[0].RefFactura); }" onchange="filtrar();" />
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="bg-dark pt-4">
+        <table id="tbl_listaDevoluciones" class="table table-light table-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
+            <thead class="thead-dark">
+                <tr>
+                    <th class="text-center">DocNum<br /><div class="d-flex justify-content-center"><input type="text" name="DocNum" id="filtro_DocNum" class="form-control text-center filtrosDevolucion" autocomplete="off" style="width: 100px" onchange="filtrar();" value="@if (ViewBag.Devolucion.DocNum != 0) { Write(ViewBag.Devolucion.DocNum); }" /></div></th>
+                    <th class="text-center">Almacen<br /><div class="d-flex justify-content-center"><input type="text" name="WhsCode" class="form-control text-center filtrosDevolucion" autocomplete="off" style="width: 50px" onchange="filtrar();" value="@if (!string.IsNullOrEmpty(ViewBag.Devolucion.WhsCode)) { Write(ViewBag.Devolucion.WhsCode); }" /></div></th>
+                    <th class="text-center">Fecha Registro</th>
+                    <th class="text-center">Proveedor<br /><div class="d-flex justify-content-center"><input type="text" name="CardName" class="form-control text-center filtrosDevolucion" autocomplete="off" style="width: 300px" onchange="filtrar();" value="@ViewBag.Devolucion.CardName" /></div></th>
+                    <th class="text-center">Registrado por</th>
+                    <th class="text-center">
+                        Estado<br />
+                        <div class="d-flex justify-content-center">
+                            <select type="text" name="Estado" id="EstadoPost" class="form-control filtrosDevolucion" autocomplete="off" style="width: 200px" onchange="filtrar();">
+                                <option value="">Seleccione</option>
+                                <option value="PENDIENTE DE RECOJO" @if (ViewBag.Devolucion.Estado != null && ViewBag.Devolucion.Estado.Equals("PENDIENTE DE RECOJO")) { Write("selected"); }>Pendiente de recojo</option>
+                                <option value="RECOGIDO" @if (ViewBag.Devolucion.Estado != null && ViewBag.Devolucion.Estado.Equals("RECOGIDO")) { Write("selected"); }>Recogido</option>
+                                <option value="NC APLICADA" @if (ViewBag.Devolucion.Estado != null && ViewBag.Devolucion.Estado.Equals("NC APLICADA")) { Write("selected"); }>NC Aplicada</option>
+                                <option value="ANULADO" @if (ViewBag.Devolucion.Estado != null && ViewBag.Devolucion.Estado.Equals("ANULADO")) { Write("selected"); }>Anulado</option>
+                            </select>
+                        </div>
+                    </th>
+
+                    <th class="text-center"></th>
+                    <th class="text-center"></th>
+                    <th class="text-center"></th>
+                    <th class="text-center"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null)
+                {
+                    foreach (var m in Model)
+                    {
+                        <tr>
+                            <td class="text-center">@m.DocNum</td>
+                            <td class="text-center">@m.WhsCode</td>
+                            <td class="text-center">@m.FechaOperacion</td>
+                            <td class="text-center">@m.CardName</td>
+                            <td class="text-center">@m.Operario</td>
+                            <td class="text-center">@m.Estado</td>
+
+                            <td class="text-center">
+                                @if (m.Estado.Equals("PENDIENTE DE RECOJO"))
+                                {
+                                    <button type="button" class="btn btn-sm btn-danger" onclick="validarCambioEstadoDevolucion(@m.DocEntry,@m.DocNum,'@m.WhsCode','AA');"> <i title="Anular" class="icon-bin"></i></button>
+                                }
+                                // Solo para Estado RECOGIDO y guardará "0" en el campo "SinNC" siempre y cuando no encuentre un NULL en NotaCredito línea x línea en RPD1
+                                @*else if (m.Estado.Equals("RECOGIDO") && m.SinNC.Equals(0))
+                                    {
+                                        <button type="button" class="btn btn-sm btn-success" onclick="validarCambioEstadoDevolucion(@m.DocEntry,@m.DocNum,'@m.WhsCode','NC');"> NC Aplicada</button>
+                                    }*@
+                            </td>
+                            <td class="text-center">
+                                @if (m.Estado.Equals("RECOGIDO"))
+                                {
+                                    <button type="button" class="btn btn-sm btn-orange" onclick="validarCambioEstadoDevolucion(@m.DocEntry, @m.DocNum, '@m.WhsCode', 'RR')"> Rv. recojo</button>
+                                }
+                                @if (m.Estado.Equals("PENDIENTE DE RECOJO"))
+                                {
+                                    <button type="button" class="btn btn-sm btn-blue" onclick="validarCambioEstadoDevolucion(@m.DocEntry, @m.DocNum, '@m.WhsCode', 'R')"> Recogido</button>
+                                }
+                            </td>
+                            <td class="text-center">
+                                @if (m.Estado.Equals("PENDIENTE DE RECOJO"))
+                                {
+                                    if (m.WhsCode.Equals("DEV07"))
+                                    {
+                                        <a href="/Almacen/EditarDevolucion?DocEntry=@m.DocEntry&Almacen=DEV07" class="btn btn-sm btn-dark"> <i title="Editar Devolución - ALM DEV07" class="icon-pencil"></i></a>
+                                    }
+                                    else
+                                    {
+                                        <a href="/Almacen/EditarDevolucion?DocEntry=@m.DocEntry" class="btn btn-sm btn-dark"> <i title="Editar Devolución" class="icon-pencil"></i></a>
+                                    }
+                                }
+                            </td>
+                            <td class="text-center"><a href="/Almacen/SeguimientoDevolucion?DocEntry=@m.DocEntry" class="btn btn-sm btn-warning"> <i title="Ver Devolución" class="icon-search"></i></a></td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</form>
+<form id="frmReporteHistorico">
+    <!-- Modal -->
+    <div class="modal fade" id="modalReporte" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-cobefar text-white">
+                    <h5 class="modal-title" id="exampleModalLabel">Reporte Histórico</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true" class="text-white">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-4">
+                        <div class="col-lg-3 col-md-3">
+                            <label class="text-cobefar font-weight-bold">Fecha Dev. Desde:</label>
+                            <input type="date" id="FechaDesde" name="FechaDesde" class="form-control border-success text-center" />
+                        </div>
+
+                        <div class="col-lg-3 col-md-3">
+                            <label class="text-cobefar font-weight-bold">Fecha Dev. Hasta:</label>
+                            <input type="date" id="FechaHasta" name="FechaHasta" class="form-control border-success text-center" />
+                        </div>
+
+                        <div class="col-lg-6 col-md-6">
+                            <label class="text-cobefar font-weight-bold">Estado:</label>
+                            <select type="text" id="EstadoReporte" class="form-control bg-cobefar text-white" autocomplete="off" style="width: 250px">
+                                <option value="">Seleccione</option>
+                                <option value="PENDIENTE DE RECOJO" @if (ViewBag.Devolucion.Estado != null && ViewBag.Devolucion.Estado.Equals("PENDIENTE DE RECOJO")) { Write("selected"); }>Pendiente de recojo</option>
+                                <option value="RECOGIDO" @if (ViewBag.Devolucion.Estado != null && ViewBag.Devolucion.Estado.Equals("RECOGIDO")) { Write("selected"); }>Recogido</option>
+                                <option value="NC APLICADA" @if (ViewBag.Devolucion.Estado != null && ViewBag.Devolucion.Estado.Equals("NC APLICADA")) { Write("selected"); }>NC Aplicada</option>
+                                <option value="ANULADO" @if (ViewBag.Devolucion.Estado != null && ViewBag.Devolucion.Estado.Equals("ANULADO")) { Write("selected"); }>Anulado</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-lg-6">
+                            <label class="text-cobefar font-weight-bold">Factura:</label>
+                            <input type="text" id="RefFacturaReporte" class="form-control border-success text-center" />
+                        </div>
+
+                        <div class="col-lg-6">
+                            <label class="text-cobefar font-weight-bold">Almacén:</label>
+                            <select id="WhsCodeReporte" class="form-control bg-cobefar text-white border-success">
+                                <option value="">Seleccione</option>
+                                @if (Almacenes != null && Almacenes.Count() >= 1)
+                                {
+                                    foreach (var alm in Almacenes)
+                                    {
+                                        <option value="@alm.WhsCode">@alm.WhsName</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-lg-6 col-md-6">
+                            <label class="text-cobefar font-weight-bold">Proveedor:</label>
+                            <input type="search" id="CardNameReporte" list='ListaClientes' class="form-control border-success" onkeyup="cargarListaCliente(this.value)" autocomplete="off" />
+                            <div id="div_listaClientes"></div>
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-lg-6 col-md-6">
+                            <label class="text-cobefar font-weight-bold">Doc Num:</label>
+                            <input type="text" id="DocNumReporte" class="form-control border-success" autocomplete="off" />
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-lg-6 col-md-6">
+                            <label class="text-cobefar font-weight-bold">Laboratorio:</label>
+                            <input type="search" id="FirmCodeReporte" list='ListaLab' class="form-control border-success" onchange="cargarProductos(this.value)" autocomplete="off" />
+                            <datalist id="ListaLab">
+                                @if (Laboratorios != null && Laboratorios.Count() >= 1)
+                                {
+                                    foreach (var lab in Laboratorios)
+                                    {
+                                        <option firmcode="@lab.FirmCode" value="@lab.U_SYP_DESC"></option>
+                                    }
+                                }
+                            </datalist>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6">
+                            <label class="text-cobefar font-weight-bold">Producto:</label>
+                            <input type="text" id="ItemNameReporte" list="ListaProductos" class="form-control border-success text-center" autocomplete="off" />
+                            <div id="div_listaProductos"></div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-2">
+                        <div class="col-lg-2 d-flex align-items-end">
+                            <button type="button" class="btn btn-cobefar mb-2" onclick="ExportarReporteHistorico()"><i class="icon-filter"></i> Generar Reporte</button>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btn_cerrarModal" class="btn btn-secondary" data-dismiss="modal"><i class='icon-cross'></i> Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</form>
+
+<!-- Modal Motivos y Submotivos -->
+<div class="modal fade" id="modalMotivosyObs" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header bg-cobefar text-white">
+                <h5 class="modal-title" id="exampleModalLabel">Motivos y Submotivos</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" class="text-white">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-4">
+                    <div class="col-lg-6 col-md-6 text-center">
+                        <button class="btn btn-cobefar font-weight-bold mx-1 my-1" title="Nuevo Motivo" data-toggle="modal" data-target="#modalMotivo" onclick="limpiarCamposMotivo()">
+                            <i class="icon icon-plus"></i> Nuevo Motivo
+                        </button>
+                    </div>
+
+                    <div class="col-lg-6 col-md-6 text-center">
+                        <button class="btn btn-cobefar font-weight-bold mx-1 my-1" title="Nuevo Sub Motivo" data-toggle="modal" data-target="#modalSubmotivo" onclick="limpiarCamposSubmotivo()">
+                            <i class="icon icon-plus"></i> Nuevo Submotivo
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btn_cerrarModal" class="btn btn-secondary" data-dismiss="modal"><i class='icon-cross'></i> Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Motivos -->
+<div class="modal fade" id="modalMotivo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-cobefar text-white">
+                <h5 class="modal-title" id="exampleModalLabel">Motivos Devoluciones</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" class="text-white">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="frm_motivo">
+                    <div class="row mb-4">
+                        <div class="col-lg-6 col-md-6">
+                            <label class="text-cobefar font-weight-bold">Descripción:</label>
+                            <input type="hidden" id="idmotivo" name="IdMotivo" />
+                            <input type="text" id="desc_motivo" name="Descripcion" class="form-control border-success" autocomplete="off" />
+                        </div>
+
+                        <div class="col-lg-3 col-md-3">
+                            <label class="text-cobefar font-weight-bold">Estado:</label>
+                            <select id="estado_motivo" name="Estado" class="form-control bg-cobefar text-white">
+                                <option value="1">Activo</option>
+                                <option value="0">Inactivo</option>
+                            </select>
+                        </div>
+
+                        <div id="div_btnAccionMotivo" class="col-lg-3 col-md-3 d-flex align-self-end">
+                            <button type="button" class="btn btn-success" onclick="agregarMotivo()"><i class="icon icon-plus"></i> Agregar</button>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="row mb-4">
+                    <div class="col-lg-12 col-md-12">
+                        <div class="bg-dark pt-4">
+                            <table id="tbl_listaMotivos" class="table table-light table-sm table-hover" cellspacing="0" width="100%">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th class="text-center">#</th>
+                                        <th class="text-center">Motivo</th>
+                                        <th class="text-center">Estado</th>
+                                        <th class="text-center"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (motivos != null && motivos.Count >= 1)
+                                    {
+                                        int num = 1;
+                                        foreach (var m in motivos)
+                                        {
+                                            <tr>
+                                                <td class="text-center">@num</td>
+                                                <td class="text-center">@m.Descripcion</td>
+                                                <td class="text-center font-weight-bold @if (m.Estado.Equals("1")) { Write("text-success"); } else { Write("text-danger"); }">@m.DescEstado</td>
+                                                <td class="text-center"><button type="button" class="btn btn-warning" onclick="llenarCamposMotivo (@m.IdMotivo, '@m.Descripcion')"><i title="Editar Motivo" class="icon-pencil"></i></button></td>
+                                            </tr>
+                                            ++num;
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" id="btn_cerrarModal" class="btn btn-secondary" data-dismiss="modal"><i class='icon-cross'></i> Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Motivos y Submotivos -->
+<div class="modal fade" id="modalMotivosyObs" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header bg-cobefar text-white">
+                <h5 class="modal-title" id="exampleModalLabel">Motivos y Submotivos</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" class="text-white">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-4">
+                    <div class="col-lg-6 col-md-6 text-center">
+                        <button class="btn btn-cobefar font-weight-bold mx-1 my-1" title="Nuevo Motivo" data-toggle="modal" data-target="#modalMotivo" onclick="limpiarCamposMotivo()">
+                            <i class="icon icon-plus"></i> Nuevo Motivo
+                        </button>
+                    </div>
+
+                    <div class="col-lg-6 col-md-6 text-center">
+                        <button class="btn btn-cobefar font-weight-bold mx-1 my-1" title="Nueva Observación" data-toggle="modal" data-target="#modalSubmotivo" onclick="limpiarCamposSubmotivo()">
+                            <i class="icon icon-plus"></i> Nueva Observación
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btn_cerrarModal" class="btn btn-secondary" data-dismiss="modal"><i class='icon-cross'></i> Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal Motivos -->
+<div class="modal fade" id="modalMotivo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-cobefar text-white">
+                <h5 class="modal-title" id="exampleModalLabel">Motivos Devoluciones</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" class="text-white">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="frm_motivo">
+                    <div class="row mb-4">
+                        <div class="col-lg-6 col-md-6">
+                            <label class="text-cobefar font-weight-bold">Descripción:</label>
+                            <input type="hidden" id="idmotivo" name="IdMotivo" />
+                            <input type="text" id="desc_motivo" name="Descripcion" class="form-control border-success" autocomplete="off" />
+                        </div>
+
+                        <div class="col-lg-3 col-md-3">
+                            <label class="text-cobefar font-weight-bold">Estado:</label>
+                            <select id="estado_motivo" name="Estado" class="form-control bg-cobefar text-white">
+                                <option value="1">Activo</option>
+                                <option value="0">Inactivo</option>
+                            </select>
+                        </div>
+
+                        <div id="div_btnAccionMotivo" class="col-lg-3 col-md-3 d-flex align-self-end">
+                            <button type="button" class="btn btn-success" onclick="agregarMotivo()"><i class="icon icon-plus"></i> Agregar</button>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="row mb-4">
+                    <div class="col-lg-12 col-md-12">
+                        <div class="bg-dark pt-4">
+                            <table id="tbl_listaMotivos" class="table table-light table-sm table-hover" cellspacing="0" width="100%">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th class="text-center">#</th>
+                                        <th class="text-center">Motivo</th>
+                                        <th class="text-center">Estado</th>
+                                        <th class="text-center"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (motivos != null && motivos.Count >= 1)
+                                    {
+                                        int num = 1;
+                                        foreach (var m in motivos)
+                                        {
+                                            <tr>
+                                                <td class="text-center">@num</td>
+                                                <td class="text-center">@m.Descripcion</td>
+                                                <td class="text-center font-weight-bold @if (m.Estado.Equals("1")) { Write("text-success"); } else { Write("text-danger"); }">@m.DescEstado</td>
+                                                <td class="text-center"><button type="button" class="btn btn-warning" onclick="llenarCamposMotivo (@m.IdMotivo, '@m.Descripcion')"><i title="Editar Motivo" class="icon-pencil"></i></button></td>
+                                            </tr>
+                                            ++num;
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" id="btn_cerrarModal" class="btn btn-secondary" data-dismiss="modal"><i class='icon-cross'></i> Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal Submotivos -->
+<div class="modal fade" id="modalSubmotivo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-cobefar text-white">
+                <h5 class="modal-title" id="exampleModalLabel">Submotivos Devoluciones</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" class="text-white">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="frm_submotivo">
+                    <div class="row mb-4">
+                        <div class="col-lg-6 col-md-6">
+                            <label class="text-cobefar font-weight-bold">Motivo:</label>
+                            <select id="idmotivo_submotivo" name="IdMotivo" class="form-control bg-cobefar text-white">
+                                <option value="">Seleccione</option>
+                                @if (motivosSubmotivos != null && motivosSubmotivos.Count >= 1)
+                                {
+                                    foreach (var mot in motivosSubmotivos)
+                                    {
+                                        <option value="@mot.IdMotivo">@mot.Descripcion</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-lg-6 col-md-6">
+                            <label class="text-cobefar font-weight-bold">Descripción:</label>
+                            <input type="hidden" id="idsubmotivo" name="IdSubmotivo" />
+                            <input type="text" id="desc_submotivo" name="Descripcion" class="form-control border-success" autocomplete="off" />
+                        </div>
+
+                        <div class="col-lg-3 col-md-3">
+                            <label class="text-cobefar font-weight-bold">Estado:</label>
+                            <select id="estado_submotivo" name="Estado" class="form-control bg-cobefar text-white">
+                                <option value="1">Activo</option>
+                                <option value="0">Inactivo</option>
+                            </select>
+                        </div>
+
+                        <div id="div_btnAccionSubmotivo" class="col-lg-3 col-md-3 d-flex align-self-end">
+                            <button type="button" class="btn btn-success" onclick="agregarSubmotivo()"><i class="icon icon-plus"></i> Agregar</button>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="row mb-4">
+                    <div class="col-lg-12 col-md-12">
+                        <div class="bg-dark pt-4">
+                            <table id="tbl_listaSubmotivos" class="table table-light table-sm table-hover " cellspacing="0" width="100%">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th class="text-center">#</th>
+                                        <th class="text-center">Motivo</th>
+                                        <th class="text-center">Submotivo</th>
+                                        <th class="text-center">Estado</th>
+                                        <th class="text-center"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (submotivos != null && submotivos.Count >= 1)
+                                    {
+                                        int num = 1;
+                                        foreach (var o in submotivos)
+                                        {
+                                            <tr>
+                                                <td class="text-center">@num</td>
+                                                <td class="text-center">@o.DescMotivo</td>
+                                                <td class="text-center">@o.Descripcion</td>
+                                                <td class="text-center font-weight-bold @if (o.Estado.Equals("1")) { Write("text-success"); } else { Write("text-danger"); }">@o.DescEstado</td>
+                                                <td class="text-center"><button type="button" class="btn btn-warning" onclick="llenarCamposSubmotivo(@o.IdSubmotivo, '@o.Descripcion', @o.IdMotivo)"><i title="Editar Motivo" class="icon-pencil"></i></button></td>
+                                            </tr>
+                                            ++num;
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" id="btn_cerrarModal" class="btn btn-secondary" data-dismiss="modal"><i class='icon-cross'></i> Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    $(document).ready(function () {
+        var tableMot = $('#tbl_listaMotivos').DataTable();
+        tableMot.columns.adjust().draw();
+
+        var tableObs = $('#tbl_listaSubmotivos').DataTable();
+        tableObs.columns.adjust().draw();
+    });
+
+    $('#tbl_listaDevoluciones_filter').hide();
+
+    function limpiarCampos() {
+        $('#FechaDesde').val('');
+        $('#FechaHasta').val('');
+        $('#RefFacturaReporte').val('');
+        $('#EstadoReporte').val('');
+        $('#WhsCodeReporte').val('');
+        $('#CardNameReporte').val('');
+        $('#FirmCodeReporte').val('');
+        $('#ItemNameReporte').val('');
+        $('#DocNumReporte').val('');
+
+    }
+    function filtrar() {
+        var object = $("#frm").serialize();
+        $(location).attr('href', "/Almacen/DevolucionMercancias?" + object);
+    }
+    function validarCambioEstadoDevolucion(docEntry, docNum, whsCode, tipoMantenimiento) {
+
+        if (tipoMantenimiento == 'AA') {
+            Swal.fire({
+                title: "Esta seguro de anular devolucion?",
+                text: "Este proceso es irreversible",
+                input: 'text',
+                inputLabel: 'text',
+                inputPlaceholder: 'Ingrese su comentario',
+                showCancelButton: true,
+                showLoaderOnConfirm: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/Almacen/CambiarEstadoDevolucion',
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            'DocEntry': docEntry, 'DocNum': docNum, 'WhsCode': whsCode, 'TipoMantenimiento': tipoMantenimiento, 'Comentario': result.value
+                        }
+                    }).done(function (response) {
+                        $('.filtrosDevolucion').val('');
+                        $('#filtro_DocNum').val(docNum);
+                        $('#tbl_listaSubmotivos').DataTable().columns.adjust().draw();
+                        Swal.fire(response.Mensaje);
+                        $('#tbl_listaDevoluciones > tbody').html(response.Lista);
+
+                    }).fail(function (jqXHR, textStatus, errorThrown) {
+                        console.log(jqXHR.status + textStatus + errorThrown);
+                    });
+                }
+            })
+        }
+        else if (tipoMantenimiento == 'R') {
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success mx-4',
+                    cancelButton: 'btn btn-danger mx-4'
+                },
+                buttonsStyling: false
+            })
+
+            swalWithBootstrapButtons.fire({
+                title: '¿Está seguro(a) de cambiar el estado a RECOGIDO?',
+                text: "Este proceso genera el correlativo del documento.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: "<i class='icon-checkmark'></i> Si, estoy seguro(a)",
+                cancelButtonText: "<i class='icon-cross'></i> Cancelar",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/Almacen/CambiarEstadoDevolucion',
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            'DocEntry': docEntry, 'DocNum': docNum, 'WhsCode': whsCode, 'TipoMantenimiento': tipoMantenimiento
+                        }
+                    }).done(function (response) {
+                        $('.filtrosDevolucion').val('');
+                        $('#filtro_DocNum').val(docNum);
+                        $('#tbl_listaSubmotivos').DataTable().columns.adjust().draw();
+                        Swal.fire(response.Mensaje);
+                        $('#tbl_listaDevoluciones > tbody').html(response.Lista);
+
+                    }).fail(function (jqXHR, textStatus, errorThrown) {
+                        console.log(jqXHR.status + textStatus + errorThrown);
+                    });
+                }
+            });
+        }
+        else if (tipoMantenimiento == 'RR') {
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success mx-4',
+                    cancelButton: 'btn btn-danger mx-4'
+                },
+                buttonsStyling: false
+            })
+
+            swalWithBootstrapButtons.fire({
+                title: '¿Está seguro(a) de REVERTIR RECOJO?',
+                text: "Perdera el correlativo del documento.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: "<i class='icon-checkmark'></i> Si, estoy seguro(a)",
+                cancelButtonText: "<i class='icon-cross'></i> Cancelar",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/Almacen/CambiarEstadoDevolucion',
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            'DocEntry': docEntry, 'DocNum': docNum, 'WhsCode': whsCode, 'TipoMantenimiento': tipoMantenimiento
+                        }
+                    }).done(function (response) {
+                        $('.filtrosDevolucion').val('');
+                        $('#filtro_DocNum').val(docNum);
+                        $('#tbl_listaSubmotivos').DataTable().columns.adjust().draw();
+                        Swal.fire(response.Mensaje);
+                        $('#tbl_listaDevoluciones > tbody').html(response.Lista);
+
+                    }).fail(function (jqXHR, textStatus, errorThrown) {
+                        console.log(jqXHR.status + textStatus + errorThrown);
+                    });
+                }
+            });
+        }
+        /*else if (tipoMantenimiento == 'NC') {
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success mx-4',
+                    cancelButton: 'btn btn-danger mx-4'
+                },
+                buttonsStyling: false
+            })
+
+            swalWithBootstrapButtons.fire({
+                title: '¿Está seguro(a) de aplicar NC y terminar proceso?',
+                text: "Este proceso es irreversible",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: "<i class='icon-checkmark'></i> Si, estoy seguro(a)",
+                cancelButtonText: "<i class='icon-cross'></i> Cancelar",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/Almacen/CambiarEstadoDevolucion',
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            'DocEntry': docEntry, 'DocNum': docNum, 'WhsCode': whsCode, 'TipoMantenimiento': tipoMantenimiento
+                        }
+                    }).done(function (response) {
+                        $('.filtrosDevolucion').val('');
+                        $('#filtro_DocNum').val(docNum);
+                        $('#tbl_listaSubmotivos').DataTable().columns.adjust().draw();
+                        Swal.fire(response.Mensaje);
+                        $('#tbl_listaDevoluciones > tbody').html(response.Lista);
+
+                    }).fail(function (jqXHR, textStatus, errorThrown) {
+                        console.log(jqXHR.status + textStatus + errorThrown);
+                    });
+                }
+            });
+        }*/
+        else {
+            $.ajax({
+                url: '/Almacen/CambiarEstadoDevolucion',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    'DocEntry': docEntry, 'DocNum': docNum, 'WhsCode': whsCode, 'TipoMantenimiento': tipoMantenimiento
+                }
+            }).done(function (response) {
+                $('.filtrosDevolucion').val('');
+                Swal.fire(response.Mensaje);
+                $('#tbl_listaDevoluciones > tbody').html(response.Lista);
+
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR.status + textStatus + errorThrown);
+            });
+        }
+    }
+    function cargarProductos(valor) {
+        let firmCode = $(`#ListaLab option[value='${valor}']`).attr("firmcode");
+
+        Swal.fire({
+            html: '<img src="/imagenes/index/ReportesDigemid/cargando.gif" />',
+            //closeOnCancel: false,
+            allowOutsideClick: false,
+            showCancelButton: false,
+            showConfirmButton: false
+        });
+
+        $.ajax({
+            url: '/Almacen/BuscarProducto',
+            type: 'POST',
+            dataType: 'json',
+            data: { 'FirmCode': firmCode }
+        }).done(function (response) {
+            swal.close();
+            if (response != '') {
+                $('#div_listaProductos').html(response);
+            } else {
+                $('#div_listaProductos').html('');
+            }
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            console.log(jqXHR.status + textStatus + errorThrown);
+        });
+    }
+    function ExportarReporteHistorico() {
+        let habilitarDescarga = true;
+        if ($('#EstadoReporte').val() != 'PENDIENTE DE RECOJO') {
+            if ($('#FechaDesde').val() == '' && $('#FechaHasta').val() == '' && $('#DocNumReporte').val() == '' && $('#RefFacturaReporte').val() == '') {
+                Swal.fire('Por favor seleccionar el rango de fechas de devoluciones a filtrar o ref factura');
+                habilitarDescarga = false;
+            }
+        }
+        if (habilitarDescarga) {
+            $.ajax({
+                url: '/Almacen/VerificarExistenciaDevConFiltros',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    'FechaDesde': $('#FechaDesde').val(), 'FechaHasta': $('#FechaHasta').val(), 'Estado': $('#EstadoReporte').val(), 'RefFactura': $('#RefFacturaReporte').val(), 'WhsCode': $('#WhsCodeReporte').val(), 'DocNum': $('#DocNumReporte').val(), 'CardName': $('#CardNameReporte').val(), 'ItemName': $('#ItemNameReporte').val()
+                }
+            }).done(function (response) {
+                if (response.Mensaje != "") {
+                    Swal.fire(response.Mensaje);
+                } else {
+                    let params = `FechaDesde=${$('#FechaDesde').val()}&FechaHasta=${$('#FechaHasta').val()}&Estado=${$('#EstadoReporte').val()}&RefFactura=${$('#RefFacturaReporte').val()}&WhsCode=${$('#WhsCodeReporte').val()}&DocNum=${$('#DocNumReporte').val()}&CardName=${$('#CardNameReporte').val()}&ItemName=${$('#ItemNameReporte').val()}`;
+                    window.open(`/Almacen/ExportarReporteHistoricoDevoluciones?${params}`, '_blank', 'noopener, noreferrer');
+                }
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR.status + textStatus + errorThrown);
+            });
+        } 
+    }
+    function cargarListaCliente(textoIngresado) {
+        if (textoIngresado.length >= 5) {
+            $.ajax({
+                url: '/Ventas/BuscarCliente',
+                type: 'POST',
+                dataType: 'json',
+                data: { 'CardName': textoIngresado, 'TipoCliente': 'P' }
+            }).done(function (response) {
+                $('#div_listaClientes').html(response);
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR.status + textStatus + errorThrown);
+            });
+        } else {
+            $('#div_listaClientes').html('');
+        }
+    }
+    /********* MOTIVOS Y SUBMOTIVOS *********/
+    function cargarMensaje() {
+        Swal.fire({
+            position: "top-end",
+            icon: "info",
+            title: "Click en Editar para guardar cambios",
+            showConfirmButton: false,
+            timer: 1000
+        });
+    }
+
+    /********* MOTIVOS *********/
+    function limpiarCamposMotivo() {
+        $('#desc_motivo').val('');
+        $('#estado_motivo').val('1');
+        $('#div_btnAccionMotivo').html(`<button type="button" class="btn btn-success" onclick="agregarMotivo()"><i class="icon icon-plus"></i> Agregar</button>`);
+    }
+
+    function agregarMotivo() {
+        $.ajax({
+            url: '/Almacen/NuevoMotivoDevolucion',
+            type: 'POST',
+            dataType: 'json',
+            data: $('#frm_motivo').serialize()
+        }).done(function (response) {
+            $('#desc_motivo').val('');
+            $('#estado_motivo').val('1');
+            Swal.fire(response.Mensaje);
+            $('#tbl_listaMotivos > tbody').html(response.Lista);
+            $('#idmotivo_submotivo').html(response.ListaActualizadaParaObs);
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            console.log(jqXHR.status + textStatus + errorThrown);
+        });
+    }
+
+
+    function editarMotivo() {
+        $.ajax({
+            url: '/Almacen/EditarMotivoDevolucion',
+            type: 'POST',
+            dataType: 'json',
+            data: $('#frm_motivo').serialize()
+        }).done(function (response) {
+            $('#desc_motivo').val('');
+            $('#estado_motivo').val('1');
+            Swal.fire(response.Mensaje);
+            $('#tbl_listaMotivos > tbody').html(response.Lista);
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            console.log(jqXHR.status + textStatus + errorThrown);
+        });
+    }
+
+    function llenarCamposMotivo(id, desc) {
+        cargarMensaje();
+        $(`#desc_motivo`).val(desc);
+        $(`#idmotivo`).val(id);
+        $('#div_btnAccionMotivo').html(`<button type="button" class="btn btn-success" onclick="editarMotivo()"><i class="icon icon-pencil"></i> Editar</button>`);
+    }
+
+    /********* SUBMOTIVOS *********/
+    function limpiarCamposSubmotivo() {
+        $('#desc_submotivo').val('');
+        $('#estado_submotivo').val('1');
+        $('#idmotivo_submotivo').val('');
+        $('#div_btnAccionSubmotivo').html(`<button type="button" class="btn btn-success" onclick="agregarSubmotivo()"><i class="icon icon-plus"></i> Agregar</button>`);
+    }
+
+    function agregarSubmotivo() {
+        if ($('#idmotivo_submotivo').val() != '' && $('#desc_submotivo').val() != '') {
+            $.ajax({
+                url: '/Almacen/NuevoSubmotivoDevolucion',
+                type: 'POST',
+                dataType: 'json',
+                data: $('#frm_submotivo').serialize()
+            }).done(function (response) {
+                $('#desc_submotivo').val('');
+                $('#estado_submotivo').val('1');
+                $('#idmotivo_submotivo').val('');
+                Swal.fire(response.Mensaje);
+                $('#tbl_listaSubmotivos > tbody').html(response.Lista);
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR.status + textStatus + errorThrown);
+            });
+        } else {
+            Swal.fire('Todos los campos son obligatorios');
+        }
+    }
+
+    function editarSubmotivo() {
+        $.ajax({
+            url: '/Almacen/EditarSubmotivoDevolucion',
+            type: 'POST',
+            dataType: 'json',
+            data: $('#frm_submotivo').serialize()
+        }).done(function (response) {
+            $('#desc_submotivo').val('');
+            $('#estado_submotivo').val('1');
+            $('#idmotivo_submotivo').val('');
+            Swal.fire(response.Mensaje);
+            $('#tbl_listaSubmotivos > tbody').html(response.Lista);
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            console.log(jqXHR.status + textStatus + errorThrown);
+        });
+    }
+
+    function llenarCamposSubmotivo(idSubmotivo, desc, idMotivo) {
+        cargarMensaje();
+        $(`#desc_submotivo`).val(desc);
+        $(`#idsubmotivo`).val(idSubmotivo);
+        $(`#idmotivo_submotivo`).val(idMotivo);
+        $('#div_btnAccionSubmotivo').html(`<button type="button" class="btn btn-success" onclick="editarSubmotivo()"><i class="icon icon-pencil"></i> Editar</button>`);
+    }
+</script>

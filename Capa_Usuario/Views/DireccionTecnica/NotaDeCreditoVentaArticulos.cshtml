@@ -1,0 +1,245 @@
+﻿@model IEnumerable<Capa_Entidad.ReportesDigemid_ENT.Reportes.NotaCreditoVentaArticulo_E>
+
+@{
+    Layout = null;
+    var Cab = Model.ToList()[0];
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>NotaDeCreditoVentaArticulos</title>
+</head>
+<body>
+    <table style="font-size:11px" border="0">
+        <tr>
+            <td colspan="2">
+                <img src="~/imagenes/index/encabezado/logoC.jpg" width="130" height="60" /><br />
+                www.cobefar.com.pe
+            </td>
+            <td valign="top">
+                <img src="~/imagenes/index/encabezado/bpa.jpg" width="30" height="30" />
+            </td>
+            <td>
+                <strong>Dom. Fiscal:</strong> Cal.Carlos Pedemonte Nro. 145b Int. 3piso<br />
+                Urb. Lotizacion Ex Fundo El Pino Lima - Lima - San Luis<br />
+                <strong>Almacen:</strong> Av. Nicolás Arriola N°2955-2963,2do. Piso<br />
+                Urb. Mercurio - San Luis - Lima - Lima<br />
+                <strong>Almacén:</strong> Jr. Antonio Miroquezada N° 806 int. 303<br />
+                Lima - Lima - Lima<br />
+                <strong>Almacén:</strong> Jr. Antonio Miroquezada N° 806 int. 502<br />
+                Lima - Lima - Lima<br />
+                Teléfono: 428-1248<br />
+                <strong>Email:</strong> cobefar.ventas@gmail.com<br />
+            </td>
+            <td width="50px"></td>
+            <td style="font-size:14px;vertical-align:top;text-align:center;border:2px solid green;padding:5px;border-radius:5px;">
+                <br />R.U.C. 20600546041<br /><br />
+                <strong>NOTA DE CRÉDITO <br />ELECTRÓNICA</strong>
+                <br /><br />
+                N° @Cab.SerieDoc-@Cab.CorreDoc<br />
+            </td>
+        </tr>
+    </table>
+    <table style="font-size:11px" border="0">
+        <tr>
+            <td style="border-top:2px solid green;border-left:2px solid green">Cliente: </td>
+            <td colspan="3" style="border-top:2px solid green;border-right:2px solid green">@Cab.NombreSocio</td>
+        </tr>
+        <tr>
+            <td style="border-left:2px solid green">Dirección: </td>
+            <td colspan="3" style="border-right:2px solid green" width="400px">@Cab.DirPagar</td>
+            <td>FECHA DE EMISION: Lima, @Cab.Fecha.ToLongDateString()</td>
+        </tr>
+        <tr>
+            <td style="border-bottom:2px solid green;border-left:2px solid green">R.U.C.: </td>
+            <td colspan="3" style="border-bottom:2px solid green;border-right:2px solid green">@Cab.RUC</td>
+            <td>MONEDA : Soles</td>
+        </tr>
+    </table>
+    <table style="font-size:11px;text-align:center;border-collapse:collapse" class="" border="1">
+        <tr>
+            <td>TIPO DE DOC.</td>
+            <td>SERIE Y CORRELATIVO</td>
+            <td>FECHA DEL DOCUMENTO</td>
+            <td>FECHA DE EMISION</td>
+            <td>VENDEDOR</td>
+        </tr>
+        <tr>
+            <td>@Cab.TipoDocOrigen</td>
+            <td>@Cab.SerieDocOrigen-@Cab.CorreDocOrigen</td>
+            <td>@Cab.FDocOrigen</td>
+            <td>@Cab.Fecha.ToString("dd/MM/yyyy")</td>
+            <td>@Cab.ElaboradoPor</td>
+        </tr>
+    </table>
+    <table class="" style="font-size:11px;border-collapse:collapse" border="1">
+        <tr>
+            <th>
+                CANT.
+            </th>
+            <th>
+                DESCRIPCION
+            </th>
+            <th>
+                LAB.
+            </th>
+            <th>
+                LOTE
+            </th>
+            <th>
+                FECHA<br /> VC.
+            </th>
+            <th>
+                P.UNIT<br />ARIO
+            </th>
+            <th>
+                DSCTO<br /> %
+            </th>
+            <th>
+                V.VENTA<br /> NETO
+            </th>
+            <th>
+                PRECIO<br /> VENTA
+            </th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Math.Round(item.cantVta(), 0)
+                    @item.F_UM()
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Descripcion)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Laboratorio)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LoteNum)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.VctoLote)
+                </td>
+                <td>
+                    @Math.Round(item.F_ItemPrecio(), 2)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Descuento)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PreVentaNeto)
+                </td>
+                <td>
+                    @Math.Round(item.ItemTotalxLot(), 2)
+                </td>
+            </tr>
+        }
+
+    </table>
+    <table style="font-size:11px" border="0">
+        <tr>
+            <td colspan="9">
+                <br />
+                MOTIVO : @Cab.Motivo
+            </td>
+        </tr>
+        <tr>
+            <td colspan="9">
+                -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+            </td>
+        </tr>
+        <tr>
+            <td colspan="8">
+                SON:@Cab.TotalL()
+            </td>
+        </tr>
+        <tr>
+            <td colspan="9">
+                -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+            </td>
+        </tr>
+        <tr>
+            <td style="text-align:center;padding:10px;font-size:9px">
+                <img src="~/imagenes/index/encabezado/barras.png" width="140" height="50" /><br />
+                Autorizado mediante N° R.S. 300-2014/SUNAT<br />
+                Representación impresa de la Factura Electrónica. Puede<br />
+                ser consultada<br />
+                en www.cobefar.com.peqq
+
+            </td>
+            <td style="border-bottom:2px solid black;border-left:2px solid black;padding:0px 5px 0px 15px;font-size:10px;">
+                <p>
+                    <strong>GERENTE DE VENTAS	      </strong><br />
+                    Cel.:982577809			     <br />
+                    Telf.:4281248			     <br />
+                    <strong>VENTAS PROVINCIA</strong>		     <br />
+                    958950318 / 971559893        <br />
+                    997895353				     <br />
+                    <strong>VENTAS POR MAYOR</strong>	         <br />
+                    933567704 / 956381409
+                </p>
+            </td>
+            <td style="border-bottom:2px solid black;border-right:2px solid black;padding:0px 5px 0px 15px;font-size:10px;">
+                <p>
+                    <strong>VENTAS LIMA</strong><br />
+                    954121505/933514870/982768938<br />
+                    939391010/932766022/933514897<br />
+                    986789108/986789103/942810044<br />
+                    977190699/980576206<br />
+                    950156844/980914611<br />
+                    939392020<br />
+                    Telf.:4280115/4274304
+                </p>
+            </td>
+            <td rowspan="2">
+                <p>
+                    Op. Gravada &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; S/<br />
+                    Desc. Globales &nbsp; S/<br />
+                    I.G.V 18% &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; S/<br />
+                    Op. Inafecta &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; S/<br />
+                    Op. exonerada &nbsp;&nbsp; S/<br />
+                    Op. gratuita &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; S/<br />
+                    -----------------------<br />
+                    Importe Total &nbsp;&nbsp;&nbsp; S/<br />
+                </p>
+            </td>
+            <td rowspan="2">
+                <p>
+                    @Math.Round(Cab.Tgrabado(Cab.Sum_Topgratuita(Model.ToList()), Cab.Sum_Tinafecto(Model.ToList())), 2)<br />
+                    <br />
+                    @Math.Round(Cab.Impuesto, 2)<br />
+                    @Cab.F_Tinafecto(Cab.Sum_Tinafecto(Model.ToList()))<br />
+                    <br />
+                    @Cab.F_Topgratuita(Cab.Sum_Topgratuita(Model.ToList()))<br />
+                    ----------------<br />
+                    @Math.Round(Cab.TotalFactura(Cab.Sum_Topgratuita(Model.ToList())), 2)
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td style="text-align:center;border-bottom:2px solid black;border-left:2px solid black;border-right:2px solid black;font-size:10px" colspan="2">
+                <br />
+                <strong>CANCELADO<br /><br /></strong>
+
+                Lima...........de.................................del 20.....<br /><br />
+
+                ------------------------------------------<br />
+                COBEFAR S.A.C.
+
+            </td>
+            <td></td>
+        </tr>
+        <tr>
+            <td colspan="5">
+                Nota: No aceptamos devoluciones ni reclamos después de la entrega de la mercadería
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

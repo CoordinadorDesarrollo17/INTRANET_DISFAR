@@ -1,0 +1,134 @@
+﻿@model IEnumerable<Capa_Entidad.Ventas_ENT.TablasSql.OLDS_E>
+@{
+    ViewBag.Title = "ListadoLibrosSaldo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    $(document).ready(function () {
+
+    });
+    function filtrar() {
+        var object = $("#frm").serialize();
+        $(location).attr('href', "/Ventas/ListadoLibrosSaldo?" + object);
+    }</script>
+
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li class="current"><em>Listado libros saldo</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO LIBROS SALDO</h3></div>
+
+    <div class="d-flex pl-2 w-100 py-2">
+
+        <div class="mx-2">
+            <a id="accion" href="@Url.Action("CrearLibroSaldo", "Ventas")" class="btn btn-success">
+                <i class="icon icon-plus"></i> Nuevo Libro
+            </a>
+        </div>
+
+    </div>
+</div>
+
+
+<div class="bg-dark pt-4">
+    <form name="frm" id="frm">
+        <table class="table table-light table-sm table-hover cls-dataTable" cellpadding="100" cellspacing="100" width="100%">
+            <thead class="thead-dark">
+                <tr>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.CardCode)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.CardName)
+                        <br />
+                        @if (ViewBag.Olds != null && ViewBag.Olds.CardName != null)
+                        {
+                            <input type="text" name="CardName" class="form-control input_filtro-table"  onchange="filtrar();"  style="width: 500px" value="@ViewBag.Olds.CardName" />
+                        }
+                        else
+                        { <input type="text" name="CardName" class="form-control input_filtro-table" onchange="filtrar();"  style="width: 500px" />}
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.NroOpe)
+                        <br />
+                        @if (ViewBag.Olds != null && ViewBag.Olds.NroOpe > 0)
+                        {
+                            <input type="text" name="NroOpe" class="form-control input_filtro-table" onchange="filtrar();" value="@ViewBag.Olds.NroOpe" />
+                        }
+                        else
+                        { <input type="text" name="NroOpe" class="form-control input_filtro-table" onchange="filtrar();" />}
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.SaldoActual)
+                        <br />
+                        @if (ViewBag.Olds != null && ViewBag.Olds.SaldoActual != 0.00M)
+                        {
+                            <select name="SaldoActual" onchange="filtrar();" class="form-control select_filtro-table" >
+                                <option value="">Seleccione</option>
+                                @if (ViewBag.Olds.SaldoActual > 0.00M)
+                                {
+                                    <option value="1" selected>Positivo</option>
+                                }
+                                else
+                                {
+                                    <option value="1">Positivo</option>
+                                }
+                                @if (ViewBag.Olds.SaldoActual < 0.00M)
+                                {
+                                    <option value="-1" selected>Negativo</option>
+                                }
+                                else
+                                {
+                                    <option value="-1">Negativo</option>
+                                }
+                            </select>
+                        }
+                        else
+                        {
+                            <select name="SaldoActual" onchange="filtrar();" class="form-control select_filtro-table">
+                                <option value="">Seleccione</option>
+                                <option value="1">Positivo</option>
+                                <option value="-1">Negativo</option>
+                            </select>
+                        }
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="text-center" style="width: 150px">
+                            @Html.DisplayFor(modelItem => item.CardCode)
+                        </td>
+                        <td style="width: 500px">
+                            @Html.DisplayFor(modelItem => item.CardName)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.NroOpe)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.SaldoActual)
+                        </td>
+                        <td>
+                            <a href="@Url.Action("ListarDetLibroSaldo", "Ventas", new { CardCode = item.CardCode })" class="btn btn-sm btn-info">
+                                <i class="icon icon-cogs"></i> Operaciones
+                            </a>
+                            <a href="@Url.Action("ReporteLibroSaldo", "Ventas", new { CardCode = item.CardCode })" class="btn btn-sm btn-warning">
+                                <i class="icon icon-stats-dots"></i> Reporte
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </form>
+</div>

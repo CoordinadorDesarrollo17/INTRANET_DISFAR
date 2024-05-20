@@ -1,0 +1,233 @@
+﻿@model Capa_Entidad.Almacen_ENT.TablasSql.OIAR_E
+@using Capa_Entidad.Almacen_ENT.TablasSql
+@{
+    ViewBag.Title = "NuevoConteo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<OIEQ_E> listaOieq = (List<OIEQ_E>)ViewBag.listaOieq;
+    var jss = new System.Web.Script.Serialization.JavaScriptSerializer();
+    var equInfoJson = jss.Serialize(listaOieq);
+}
+<script>
+    $(document).ready(function () {
+    });
+    var artInfo = "";
+    var equInfo = JSON.parse('@Html.Raw(equInfoJson)');
+    function listarLaboratorios() {
+        var htm = "<option value=''>Seleccione</option>";
+        var DocEntryEqu = $("#DocEntryEqu").val();
+        $.each(equInfo, function (key, value) {
+            if (DocEntryEqu == value.DocEntry) {
+                $.each(value.DetFabricantes, function (key2, value2) {
+                    htm += "<option value='" + value2.FirmCode + "'>"+value2.U_SYP_DESC+"</option>";
+                })
+            }
+        });
+        $("#Laboratorio").html(htm);
+    }
+    function listarArticulos() {
+        var htm = "";
+        var FirmCode = $("#Laboratorio").val();
+        $("#ItemName").val("");
+        $("#ItemCode").val("");
+        $.each(artInfo, function (key, value) {
+            if (FirmCode == value.FirmCode) {
+                htm += "<option value='" + value.ItemName + "' ItemCode ='"+value.ItemCode+"' FirmCode='"+value.FirmCode+"' NumInBuy='"+value.NumInBuy+"'></option>";
+            }
+        });
+        $("#ListaArticulos").html(htm);
+    }
+    function valorCampoList(idLista, idLabel, idCampo, atrib) {
+        $("#" + idCampo).val(
+                $("#" + idLista + " option[value='" + $("#" + idLabel).val() + "']").attr(atrib)
+        );
+    }
+    function valorCamposSelect(id) {
+        $("#DocEntryPer").val($(`#${id} option:selected`).attr('docentryper'));
+        $("#WhsCode").val($(`#${id} option:selected`).attr('whscode'));
+        $("#Piso").val($(`#${id} option:selected`).attr('piso'));
+    }
+    function listarArticulosBd() {
+        var parametros = { "DocEntry": $("#DocEntryEqu").val() };
+        if ($("#OrigenDatos").val() == "Sap") {
+            document.getElementById("Laboratorio").hidden = false;
+            document.getElementById("Laboratorio2").hidden = true;
+            document.getElementById("ItemCode").readOnly = true;
+
+            $.ajax('/Almacen/listarArticulosUsrEquiSap',
+                {
+                    data: parametros,
+                    dataType: 'json',
+                    cache: false,
+                    type: 'post'
+                })
+                .done(function (response) {
+                    artInfo = response;
+                    listarArticulos();
+                });
+        }
+        else if ($("#OrigenDatos").val() == "Periodo") {
+            document.getElementById("Laboratorio").hidden = false;
+            document.getElementById("Laboratorio2").hidden = true;
+            document.getElementById("ItemCode").readOnly = true;
+
+            $.ajax('/Almacen/listarArticulosUsrEquiSql',
+                {
+                    data: parametros,
+                    dataType: 'json',
+                    cache: false,
+                    type: 'post'
+                })
+                .done(function (response) {
+                    artInfo = response;
+                    listarArticulos();
+                });
+        }
+        else if ($("#OrigenDatos").val() == "Inexistente") {
+            artInfo = "";
+            listarArticulos();
+
+            document.getElementById("Laboratorio2").hidden = false;
+            document.getElementById("Laboratorio").hidden = true;
+            document.getElementById("ItemCode").readOnly = false;
+            document.getElementById("Laboratorio2").placeholder = "Escriba 0 si no tiene un cod de laboratorio";
+            document.getElementById("ItemCode").placeholder = "Escriba Sin registro";
+
+        }
+        else {
+
+            artInfo = "";
+            listarArticulos();
+
+            document.getElementById("Laboratorio").hidden = false;
+            document.getElementById("Laboratorio2").hidden = true;
+            document.getElementById("ItemCode").readOnly = true;
+        }
+    }
+    function validarEnviarFormulario() {
+        var object = $("#NuevoConteo").serialize();
+        $.ajax('/Almacen/validarNuevoConteo',
+            {
+                data: object,
+                dataType: 'html',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                if (response != "true") { swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false }
+                else { $("#NuevoConteo").submit(); }
+            });
+    }
+</script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("ContabilizacionInventario", "Almacen")">Módulo contabilización inventario</a></li>
+            <li><a href="@Url.Action("GestionConteos", "Almacen")">Gestión de conteos</a></li>
+            <li class="current"><em>Registrar nuevo conteo</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">REGISTRAR NUEVO CONTEO</h3></div>
+
+    @*DESCOMENTAR ESTE FRAGMENTO EN CASO DE REQUERIR BOTONES-------------------
+            <div class="d-flex pl-2 w-100 py-2">
+            <div class="mx-2">
+                @Html.ActionLink("Nuevo Conteo", "NuevoConteo", null, new { @class = "btn btn-success" })
+            </div>
+        </div>*@
+</div>
+
+@if (@OIPE_E.PeriodoSeleccionado != null)
+{
+    <div class="alert alert-danger mb-0" role="alert">
+        @("Periodo Seleccionado: " + OIPE_E.PeriodoSeleccionado.Descripcion + " ----- Almacenes: " + OIPE_E.PeriodoSeleccionado.enlistarDetAlmacenes())
+    </div>
+}
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "NuevoConteo" }))
+{
+    @Html.AntiForgeryToken()
+<div class="bg-form-pestanas-cobefar pt-4 bg-section-form p-4 bg-form-cobefar">
+    <input id="DocEntryPer" type="hidden" name="DocEntryPer" value="" />
+
+    <div class="row mt-2">
+        <div class="col-lg-3">
+            <label for="DocEntryEqu" class="text-dark form-label font-weight-bold font-18">Equipo:</label>
+            <select id="DocEntryEqu" type="text" name="DocEntryEqu" class="form-control bg-cobefar text-white" onchange="valorCamposSelect('DocEntryEqu'); listarLaboratorios();">
+                <option value="">Seleccione</option>
+                @foreach (OIEQ_E obj in listaOieq)
+                {
+                    if (obj.Tipo == "Conteo")
+                    {
+                        <option value="@obj.DocEntry" docentryper="@obj.DocEntryPer" whscode="@obj.WhsCode" piso="@obj.Piso">@obj.Nombre</option>
+                    }
+                }
+            </select>
+        </div>
+
+        <div class="col-lg-3">
+            <label for="WhsCode" class="text-dark form-label font-weight-bold font-18">Almacén:</label>
+            <input class="form-control border-success text-center" type="text" id="WhsCode" name="WhsCode" readonly value="" />
+        </div>
+
+        <div class="col-lg-1">
+            <label for="Piso" class="text-dark form-label font-weight-bold font-18">Piso:</label>
+            <input class="form-control border-success text-center" type="text" id="Piso" name="Piso" readonly value="" />
+        </div>
+
+        <div class="col-lg-5">
+            <label for="Laboratorio" class="text-dark form-label font-weight-bold font-18">Laboratorio:</label>
+            <select class="form-control bg-cobefar text-white" id="Laboratorio" onchange="listarArticulosBd();">
+                <option value="">Seleccione</option>
+            </select>
+            <input style="width:350px" type="text" name="FirmCode2" id="Laboratorio2" hidden />
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-lg-6">
+            <label for="Laboratorio" class="text-dark form-label font-weight-bold font-18">Artículo:</label>
+            <input class="form-control border-success" type="search" list="ListaArticulos" name="ItemName" id="ItemName" autocomplete="off"
+                   onchange="valorCampoList('ListaArticulos', 'ItemName', 'ItemCode', 'ItemCode'); valorCampoList('ListaArticulos', 'ItemName', 'FirmCode', 'FirmCode'); valorCampoList('ListaArticulos', 'ItemName', 'NumInBuy', 'NumInBuy');" />
+            <datalist id="ListaArticulos">
+            </datalist>
+        </div>
+
+        <div class="col-lg-2">
+            <label for="Laboratorio" class="text-dark form-label font-weight-bold font-18">Cod. Artículo:</label>
+            <input class="form-control border-success" type="text" name="ItemCode" id="ItemCode" readonly />
+            <input type="hidden" name="FirmCode" id="FirmCode" readonly />
+            <input type="hidden" name="NumInBuy" id="NumInBuy" readonly />
+        </div>
+
+        <div class="col-lg-2">
+            <label for="OrigenDatos" class="text-dark form-label font-weight-bold font-18">Origen de Datos:</label>
+            <select id="OrigenDatos" onchange="listarArticulosBd();" class="form-control bg-cobefar text-white">
+                <option value="Periodo" selected>Periodo</option>
+                <option value="Sap">Sap</option>
+                <option value="Inexistente">Inexistente</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-lg-6">
+            <button type="button" class="btn btn-success" onclick="validarEnviarFormulario();"><i class="icon-checkmark"></i> Registrar</button>
+        </div>
+    </div>
+</div>
+}
+<script>
+    if ('@ViewBag.MensajePost' != "") {
+        swal.fire({
+            title: "@ViewBag.MensajePost",
+            text: "Presione OK para continuar",
+            icon: "warning"
+        })
+    };
+</script>
+

@@ -1,0 +1,359 @@
+﻿@model Capa_Entidad.Rutas_ENT.TablasSql.ORRU_E
+@using Capa_Entidad.Almacen_ENT.Tablas
+@using Capa_Entidad.General_ENT.TablasSql
+
+@{
+    ViewBag.Title = "CrearOrdenDeRutaAlm";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<OWHS_E> lstOriDest = (List<OWHS_E>)ViewBag.ListaOrigenesDestinos;
+
+    string urlAction = Url.Action("ListadoRutas", "Rutas"), tituloListado = "Listado de rutas";
+    if (ViewBag.TipoRep == "Re")
+    {
+        urlAction = Url.Action("ListadoRepartos", "Rutas");
+        tituloListado = "Listado de repartos";
+    }
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+
+
+<script>
+    $(document).ready(function () {
+        $('.select-guias').select2();
+    });
+    function enviarValSelect(idSelect, idCampo, atrib) {
+        $("#" + idCampo).val(
+            $("#" + idSelect + " option:selected ").attr(atrib)
+        );
+    }
+    function enviarValList(idi, idList, idf, attrf) {
+        $("#" + idf).val($("#" + idList + " option[value='" + $("#" + idi).val() + "']").attr(attrf));
+    }
+    function datosTraslado(orden) {
+        $('#contenido-productos' + orden).html('<img src="/imagenes/index/ReportesDigemid/cargando.gif" />');
+        var parametros = {
+            "guia": $('#DetRRU1' + orden + 'Guia').val(),
+            "orden": orden,
+            "Origen": $("#Origen").val()
+        };
+        $.ajax('/Rutas/infoDatosTraslado',
+            {
+                data: parametros,
+                dataType: 'html',
+                cache: false,
+                type: 'post',
+            })
+            .done(function (response) {
+                $('#contenido-productos' + orden).html(response);
+            });
+    }
+    function actualizarCajas() {
+        var totalCajaMaster = 0 * 1;
+        var totalCajas = 0 * 1;
+        var i = 0;
+        var j = 0;
+        while ($("#Linea" + j).val() > 0) {
+            while ($("#ldrr" + j + "rru" + i).val() > 0) {
+                if ($("#ldrr" + j + "rruC" + i).val() > 0) {
+                    totalCajaMaster += $("#ldrr" + j + "rruC" + i).val() * 1;
+                }
+                i++;
+            }
+            $("#DetRRU1" + j + "Cajas").val(totalCajaMaster);
+            totalCajas += totalCajaMaster * 1
+            totalCajaMaster = 0; i = 0;
+            j++;
+        }
+        $("#TotalCajas").val(totalCajas);
+
+    }
+    function validar() {
+        var form = $("#form");
+        $.ajax('/Rutas/validarRuta', {
+            data: form.serialize(),
+            dataType: 'html',
+            cache: false,
+            type: 'post'
+        })
+            .done(function (response) {
+                Swal.fire(response);
+            });
+    }
+
+    function listarGuias() {
+        $(".select-guias").html();
+        var htm = "<option value='' DocNum='' NumAtCard=''>Seleccione</option>";
+        var parametros = {
+            "Origen": $("#Origen").val()
+        };
+        $.ajax('/Rutas/infoGuiasTransferencia',
+            {
+                data: parametros,
+                dataType: 'json',
+                cache: false,
+                type: 'post',
+            })
+            .done(function (response) {
+                $.each(response, function (key, value) {
+                    htm += "<option value='" + value.NumAtCard + "' DocNum='" + value.DocNum + "' SlpName='" + value.SlpName + "'>" + value.NumAtCard + "</option>";
+
+                });
+                $(".select-guias").html(htm);
+            })
+    }
+</script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="/Index/Sesion">Inicio</a></li>
+            <li><a href="@urlAction">@tituloListado</a></li>
+            <li class="current"><em>Crear orden de ruta entre almacenes</em></li>
+        </ol>
+    </nav>
+</div>
+
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">CREAR ORDEN DE RUTA ENTRE ALMACENES</h3></div>
+</div>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "form" }))
+{
+    @Html.AntiForgeryToken()
+    <input name="TipoRep" type="hidden" value="@ViewBag.TipoRep" readonly />
+    <div class="bg-form-pestanas-cobefar pt-4 bg-section-form p-4 bg-form-cobefar">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @if (ViewBag.TipoRep == "Re")
+        {
+            <h3 class="text-cobefar font-weight-bold text-center">Registrar Hoja de Reparto</h3>
+        }
+        else if (ViewBag.TipoRep == "Ru")
+        {
+            <h3 class="text-cobefar font-weight-bold text-center">Registrar Hoja de Ruta</h3>
+        }
+    <div class="row mt-4 mb-4">
+        <div class="col-lg-3">
+            <label for="TipoRuta" class="text-dark font-weight-bold font-18">TipoRuta:</label>
+            <select name="TipoRuta" class="form-control bg-cobefar text-white">
+                <option value="TA" selected>Traslado Almacenes</option>
+            </select>
+        </div>
+
+        <div class="col-lg-3">
+            <label for="Origen" class="text-dark font-weight-bold font-18">Origen:</label>
+            <select name="Origen" id="Origen" class="form-control bg-cobefar text-white" onchange="listarGuias()" required>
+                <option value="">Seleccione</option>
+                <option value="OWTR">Transferencias de stock</option>
+                <option value="OWTQ">Solicitud de traslado</option>
+            </select>
+        </div>
+    </div>
+
+        <h3 class="text-cobefar font-weight-bold">ESTADO DE DOCUMENTO</h3>
+
+        <div class="row mt-4 mb-4">
+            <div class="col-lg-3">
+                <label for="DocNum" class="text-dark form-label font-weight-bold font-18">DocNum:</label>
+                @Html.EditorFor(model => model.DocNum, new { htmlAttributes = new { @class = "form-control border-success", @readonly = "true" } })
+            </div>
+
+            <div class="col-lg-3">
+                <label for="TransDesc" class="text-dark form-label font-weight-bold font-18">TransDesc:</label>
+                @Html.EditorFor(model => model.TransCod, new { htmlAttributes = new { @class = "form-control", @type = "hidden", @readonly = "true" } })
+                <select name="TransDesc" id="TransDesc" class="form-control bg-cobefar text-white border-success" onchange="enviarValSelect('TransDesc', 'TransCod','Code');">
+                    <option value="" Code="">Seleccione</option>
+                    @foreach (var t in ViewBag.ListaChoferes)
+                    {
+                        <option value="@t.U_SYP_CHNO" Code="@t.Code">@t.U_SYP_CHNO</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-lg-3">
+                <label for="VehiculoCod" class="text-dark form-label font-weight-bold font-18">VehiculoCod:</label>
+                <select name="VehiculoCod" id="VehiculoCod" class="form-control bg-cobefar text-white"
+                        onchange="enviarValSelect('VehiculoCod', 'Placa', 'U_SYP_VEPL');
+                                        enviarValSelect('VehiculoCod', 'Marca', 'U_SYP_VEMA');
+                                        enviarValSelect('VehiculoCod', 'Modelo', 'U_SYP_VEMO');">
+                    <option value="">Seleccione</option>
+                    @foreach (var t in ViewBag.ListaVehiculos)
+                    {
+                        <option value="@t.Code" U_SYP_VEPL="@t.U_SYP_VEPL" U_SYP_VEMA="@t.U_SYP_VEMA" U_SYP_VEMO="@t.U_SYP_VEMO">@t.Code</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-lg-3">
+                <label for="Placa" class="text-dark form-label font-weight-bold font-18">Placa:</label>
+                @Html.EditorFor(model => model.Marca, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+                @Html.EditorFor(model => model.Modelo, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+                @Html.EditorFor(model => model.Placa, new { htmlAttributes = new { @class = "form-control border-success", @readonly = "true" } })
+            </div>
+        </div>
+
+
+        <div class="row mt-4">
+            <div class="col-lg-3">
+                <label for="CopilDesc" class="text-dark form-label font-weight-bold font-18">CopilDesc:</label>
+                @Html.EditorFor(model => model.CopilDesc, new { htmlAttributes = new { @class = "form-control border-success", @type = "search", @list = "ListaCopilotos", @autocomplete = "off" } })
+                <datalist id="ListaCopilotos">
+                    @foreach (var c in ViewBag.ListaCopilotos)
+                    {
+                        <option value="@c.Nombres @c.Apellidos"></option>
+                    }
+                </datalist>
+            </div>
+
+            <div class="col-lg-3">
+                <label for="Copil2Desc" class="text-dark form-label font-weight-bold font-18">Copil2Desc:</label>
+                @Html.EditorFor(model => model.Copil2Desc, new { htmlAttributes = new { @class = "form-control border-success", @type = "search", @list = "ListaCopilotos", @autocomplete = "off" } })
+            </div>
+
+            @*<div class="col-lg-3">
+                    <label for="Copil3Desc" class="text-dark form-label font-weight-bold font-18">Copil3Desc:</label>
+                    @Html.EditorFor(model => model.Copil3Desc, new { htmlAttributes = new { @class = "form-control border-success", @type = "search", @list = "ListaCopilotos" } })
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="Copil4Desc" class="text-dark form-label font-weight-bold font-18">Copil4Desc:</label>
+                    @Html.EditorFor(model => model.Copil4Desc, new { htmlAttributes = new { @class = "form-control border-success", @type = "search", @list = "ListaCopilotos" } })
+                </div>*@
+        </div>
+
+
+        <div class="row mt-4">
+            <div class="col-lg-3">
+                <label for="FechaCont" class="text-dark form-label font-weight-bold font-18">FechaCont:</label>
+                <input type="date" name="FechaCont" id="FechaCont" class="form-control border-success" />
+            </div>
+
+            <div class="col-lg-3">
+                <label for="FechaDoc" class="text-dark form-label font-weight-bold font-18">FechaDoc:</label>
+                <input type="date" name="FechaDoc" class="form-control border-success" readonly />
+            </div>
+
+            <div class="col-lg-3">
+                <label for="AlmOrigenDesc" class="text-dark form-label font-weight-bold font-18">Almacén de Origen:</label>
+                <input type="hidden" id="AlmOrigenCod" name="AlmOrigenCod" value="" />
+                <input type="hidden" id="AlmOrigenDesc2" name="AlmOrigenDesc2" value="" />
+                <select name="AlmOrigenDesc" id="AlmOrigenDesc" class="form-control bg-cobefar text-white"
+                        onchange="enviarValSelect('AlmOrigenDesc', 'AlmOrigenCod','almorigencod');enviarValSelect('AlmOrigenDesc', 'AlmOrigenDesc2','almorigendesc2');">
+                    <option value="">Seleccione</option>
+                    @foreach (var l in lstOriDest.Where(x => x.WhsCode != "00"))
+                    {
+                        <option value="@l.WhsName" almorigencod="@l.WhsCode" almorigendesc2="@(l.Street+" "+l.StreetNo+" "+l.Building+" "+l.Block+" "+l.City+" "+l.County)">
+                            @l.WhsName
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-lg-3">
+                <label for="AlmDestinoDesc" class="text-dark form-label font-weight-bold font-18">Almacén de Destino:</label>
+                <input type="hidden" id="AlmDestinoCod" name="AlmDestinoCod" value="" />
+                <input type="hidden" id="AlmDestinoDesc2" name="AlmDestinoDesc2" value="" />
+                <select name="AlmDestinoDesc" id="AlmDestinoDesc" class="form-control bg-cobefar text-white"
+                        onchange="enviarValSelect('AlmDestinoDesc', 'AlmDestinoCod','almdestinocod');enviarValSelect('AlmDestinoDesc', 'AlmDestinoDesc2','almdestinodesc2');">
+                    <option value="">Seleccione</option>
+                    @foreach (var l in lstOriDest.Where(x => x.WhsCode != "00"))
+                    {
+                        <option value="@l.WhsName" almdestinocod="@l.WhsCode" almdestinodesc2="@(l.Street+" "+l.StreetNo+" "+l.Building+" "+l.Block+" "+l.City+" "+l.County)">
+                            @l.WhsName
+                        </option>
+                    }
+                </select>
+            </div>
+
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-3">
+                <label for="Propietario" class="text-dark form-label font-weight-bold font-18">Propietario:</label>
+                @Html.EditorFor(model => model.Propietario, new { htmlAttributes = new { @class = "form-control border-success", @readonly = "true" } })
+            </div>
+
+            <div class="col-lg-3">
+                <label for="TiempoPac" class="text-dark form-label font-weight-bold font-18">TiempoPac:</label>
+                <input type="datetime-local" class="form-control border-success" name="TiempoPac" />
+            </div>
+
+            <div class="col-lg-2">
+                <label for="TotalCajas" class="text-dark form-label font-weight-bold font-18">TotalCajas:</label>
+                <input id="TotalCajas" type="text" class="form-control border-success" readonly />
+            </div>
+
+        </div>
+
+
+        <div class="row mt-4 mb-4">
+            <div class="col-lg-12">
+                <label for="Observaciones" class="text-dark form-label font-weight-bold font-18">Observaciones:</label>
+                @Html.EditorFor(model => model.Observaciones, new { htmlAttributes = new { @class = "form-control border-success" } })
+            </div>
+        </div>
+
+        <h3 class="text-cobefar font-weight-bold">CONTENIDO</h3>
+
+        <div class="mt-4">
+            <table class="table table-light table-sm" cellspacing="0" width="100%">
+                <thead class="bg-success">
+                    <tr>
+                        <th class="text-center">#</th>
+                        <th class="text-center">Guia</th>
+                        <th class="text-center">Nro de Traslado</th>
+                        <th class="text-center">Operario Envio</th>
+                        <th class="text-center">Cajas</th>
+                        <th class="text-center">Operario Recepcion</th>
+                        <th class="text-center">Verificado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 1; i <= (int)ViewBag.Filas; i++)
+                    {
+                        <tr>
+                            <td class="text-center"><input type="hidden" name="DetRRU1[@(i-1)].Linea" id="Linea@(i-1)" value="@i" />@i</td>
+                            <td class="text-center">
+                                <select name="DetRRU1[@(i-1)].Guia" id="DetRRU1@(i-1)Guia" class="form-control bg-cobefar text-white select-guias"
+                                        onchange="enviarValSelect('DetRRU1@(i-1)Guia', 'NroSap@(i-1)', 'DocNum');
+                                          enviarValSelect('DetRRU1@(i-1)Guia', 'OperarioEnvio@(i-1)', 'SlpName');
+                                          datosTraslado(@(i-1));actualizarCajas();" style="width: 220px">
+                                    <option value="" DocNum="" SlpName="">Seleccione</option>
+                                </select>
+                            </td>
+                            <td class="text-center"><input name="DetRRU1[@(i-1)].NroSap" id="NroSap@(i-1)" class="form-control text-center border-success" readonly /></td>
+                            <td class="text-center"><input name="DetRRU1[@(i-1)].OpEnvio" id="OperarioEnvio@(i-1)" class="form-control text-center border-success font-14" readonly /></td>
+                            <td class="text-center"><input type="text" name="DetRRU1[@(i-1)].Cajas" id="DetRRU1@(i-1)Cajas" class="form-control text-center border-success" readonly size="5" /></td>
+                            <td class="text-center"><input name="DetRRU1[@(i-1)].OpRecepcion" type="text" class="form-control border-success" /></td>
+                            <td class="text-center" style="vertical-align:middle !important"><input type="checkbox" name="DetRRU1[@(i-1)].Verificado" class="form-control border-success" /></td>
+                        </tr>
+                        <tr>
+                            <td colspan="10" id="contenido-productos@(i-1)">
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <datalist id="ListaSocios"></datalist>
+        <div class="row mt-4">
+            <div class="col-lg-5">
+                <button type="submit" class="btn btn-success"><i class="icon icon-checkmark"></i> Crear</button>
+                <button class="btn btn-primary" id="Validar" type="button" onclick="validar();"><i class="icon icon-clipboard"></i> Validar Datos</button>
+            </div>
+
+        </div>
+    </div>
+}
+
+<script>
+    if ('@ViewBag.Mensaje' != "") {
+        Swal.fire({
+            icon: '',
+            text: `@ViewBag.Mensaje`
+        })
+    }
+</script>

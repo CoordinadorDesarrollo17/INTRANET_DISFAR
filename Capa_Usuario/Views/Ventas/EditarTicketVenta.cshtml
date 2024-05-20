@@ -1,0 +1,787 @@
+﻿@model Capa_Entidad.Ventas_ENT.TablasSql.ORTV_E
+@using Capa_Entidad.Ventas_ENT.TablasSql;
+@using Capa_Entidad.General_ENT.TablasSql;
+
+@{
+    ViewBag.Title = "EditarTicketVenta";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    OCLR_E clr = (OCLR_E)ViewBag.ClienteRegalo;
+    List<UBIG_E> Ubigeos = new List<UBIG_E>(ViewBag.Ubigeos);
+    List<OUR1_E> Oficinas = new List<OUR1_E>(ViewBag.Oficinas);
+    List<COUR_E> Agencias = new List<COUR_E>(ViewBag.Agencias);
+}
+
+<script>
+    $(document).ready(function () {
+        //verifica los datos del ticket apenas carga la pagina por si hubiera algun error desde la creacion
+        verificacionDatos('@Model.Estado');
+        //segun el ruc del cliente trae  el desplegable de sus direcciones SAP 
+        validacionDirDestino('@Model.Estado');
+        
+        //si no existe direccion 2 en la creacion, campo debe estar inhabilitado
+        if ($("#Ubigeo2").val()=='') {
+             $("#DirDestino2").attr('readonly', true);
+        }
+        //solo para Agencia, Agencia courier o Domicilio se ocultan o muestran
+        //los div que contienen sus datos
+        if ("@(Model.LugarDestino)" == 'Agencia'||"@(Model.LugarDestino)" == 'Agencia Courier' ) {
+            $("#CamposAgDom").show(); $("#CamposAgencia").show();
+        }
+        else if ("@(Model.LugarDestino)" == 'Domicilio') {
+            $("#CamposAgDom").show(); $("#CamposAgencia").hide();
+        }
+        else {
+            $("#CamposAgDom").hide();
+        }
+
+        //considerar la vinculacion de tickets para que sea visible la tabla
+        var vinculado = $("#VinculacionTicket").val(); var LugarDestino = $("#LugarDestino").val();
+        if (vinculado === "SI" && (LugarDestino === 'Domicilio' || LugarDestino === 'Agencia')) { $("#divVinculados").show(); }
+        else { $("#divVinculados").hide(); }
+
+        //Zona pachacamac y lima
+        if ($("#Distrito2").val() === 'Pachacamac' || $("#Distrito2").val() === 'Lima' ) {
+            $("#Zona").prop("readonly", false);
+            if ($("#Distrito2").val() === 'Pachacamac') {
+                $("#Zona").attr("list", "opcionesZonaPachacamac");
+            }
+            else if ($("#Distrito2").val() === 'Lima') {
+                $("#Zona").attr("list", "opcionesZonaLima");
+            }
+        } else {
+            $("#Zona").prop("readonly", true);
+        }
+       
+        //Caso especial para trabajar con Agencia Courier (solo contempla CRUZ DEL SUR): 
+        if ($("#Agencia").val() == 'CRUZ DEL SUR' && $("#EnvioAgencia").val() == 'Oficina de agencia') {
+            $("#btnOficinas").show();
+            $("#btn_verTarifario").show();
+            $("#btnUbigeo").hide();
+        } else {
+            $("#btnOficinas").hide();
+            $("#btn_verTarifario").hide();
+            $("#btnUbigeo").show();
+        }
+    });
+
+    if ('@ViewBag.Mensaje' != "") {
+        Swal.fire('@ViewBag.Mensaje');
+    }
+
+</script>
+<script src="~/Scripts/Ventas/TicketDeVenta.js"></script>
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("ListadoTickets", "Ventas")">Listado de tickets</a></li>
+            <li class="current"><em>Editar ticket de venta</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">EDITAR TICKET DE VENTA</h3></div>
+</div>
+
+<div class="bg-form-pestanas-cobefar pt-4">
+    <nav>
+        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+            <a class="nav-link active" id="nav-datos-pedidos-tab" data-toggle="tab" href="#nav-datos-pedidos" role="tab" aria-controls="nav-datos-pedidos" aria-selected="true">
+                Datos Pedido
+            </a>
+            <a class="nav-link" id="nav-especif-recojo-tab" data-toggle="tab" href="#nav-especif-recojo" role="tab" aria-controls="nav-especif-recojo" aria-selected="false">
+                Especificaciones de Recojo
+            </a>
+            <a class="nav-link" id="nav-det-pedidos-tab" data-toggle="tab" href="#nav-det-pedidos" role="tab" aria-controls="nav-det-pedidos" aria-selected="false">
+                Detalles de Pedidos
+            </a>
+            <a class="nav-link" id="nav-caja-tab" data-toggle="tab" href="#nav-caja" role="tab" aria-controls="nav-caja" aria-selected="false">
+                Caja
+            </a>
+        </div>
+    </nav>
+
+    @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "EditaTicketVenta" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="tab-content" id="nav-tabContent">
+
+            <div class="tab-pane fade show active" id="nav-datos-pedidos" role="tabpanel" aria-labelledby="nav-datos-pedidos-tab">
+                <div class="bg-section-form p-4 bg-form-cobefar">
+                    <h2 class="mt-4 text-cobefar font-weight-bold">DATOS PEDIDO</h2>
+                    <div class="form-group row pt-4">
+                        <div class="col-lg-10">
+                        </div>
+
+                        <div class="col-lg-2">
+                            <input type="hidden" id="DocEntry" name="DocEntry" value="@Model.DocEntry" readonly />
+                            <input type="text" name="Estado" value="@Model.Estado" class="form-control text-center bg-warning" readonly />
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div id="infoFechaTicket" class="col-lg-2">
+                            <label for="FechaSapTicket" class="text-dark form-label font-weight-bold font-18">@Html.DisplayNameFor(m => m.FechaSapTicket):</label>
+                            <input id="FechaSapTicket" type="date" name="FechaSapTicket" value="@Model.FechaSapTicket" class="form-control text-center border-success" readonly>
+                        </div>
+                        <div class="col-lg-2">
+                            <label for="TipoVenta" class="text-dark form-label font-weight-bold font-18">Tipo de Venta:</label>
+                            <select name="TipoVenta" id="TipoVenta" class="form-control bg-cobefar text-white">
+                                <option value="">Seleccione</option>
+                                <option value="Normal" @{ if (Model.TipoVenta == "Normal") { Write("selected"); } }>Normal</option>
+                                <option value="Credito" @{ if (Model.TipoVenta == "Credito") { Write("selected"); } }>Crédito</option>
+                                <option value="ContraEntrega" @{ if (Model.TipoVenta == "ContraEntrega") { Write("selected"); } }>ContraEntrega</option>
+                            </select>
+                        </div>
+
+                        <div class="col-lg-3">
+                            <label for="Embalaje" class="text-dark form-label font-weight-bold font-18">Embalaje:</label>
+                            <select name="Embalaje" id="Embalaje" class="form-control  bg-cobefar text-white border-success">
+                                <option value="">Seleccione</option>
+                                <option value="CL" @{ if (Model.Embalaje == "CL") { Write("selected"); } }>Caja Lima</option>
+                                <option value="CP" @{ if (Model.Embalaje == "CP") { Write("selected"); } }>Caja Provincia</option>
+                            </select>
+                        </div>
+
+                        <div class="col-lg-3">
+                            <label for="DocNum" class="text-dark form-label font-weight-bold font-18">DocNum Ticket:</label>
+                            <input type="text" name="DocNum" id="DocNum" value="@Model.DocNum" class="form-control text-center border-success" readonly />
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div id="infoListaClientes" class="col-lg-7">
+                            <label for="CardName" class="text-dark form-label font-weight-bold font-18">Cliente:</label>
+                            <input type="text" id="CardName" name="CardName" list='ListaClientes' class="form-control border-success" value="@Model.CardName" readonly>
+                        </div>
+
+                        <div id="infoCliente" class="col-lg-2">
+                            <label for="CardCode" class="text-dark form-label font-weight-bold font-18">Código Cliente:</label>
+                            <input type="text" id="CardCode" name="CardCode" class="form-control text-center border-success" readonly value="@Model.CardCode">
+                        </div>
+
+                        <div class="col-lg-3">
+                            <label for="LugarDestino" class="text-dark form-label font-weight-bold font-18">Lugar destino:</label>
+                            <select name="LugarDestino" id="LugarDestino" class="form-control bg-cobefar text-white border-success" onchange="muestraCampo();mostrarOficinas();mostrarTableTicketsVinculados($('#selectVinculado').val());">
+                                <option value="">Seleccione</option>
+                                <option value="Arriola" @{ if (Model.LugarDestino == "Arriola") { Write("selected"); } }>Para Arriola</option>
+                                <option value="Agencia" @{ if (Model.LugarDestino == "Agencia") { Write("selected"); } }>Para Agencia</option>
+                                <option value="Domicilio" @{ if (Model.LugarDestino == "Domicilio") { Write("selected"); } }>Para Domicilio</option>
+                                <option value="Centro" @{ if (Model.LugarDestino == "Centro") { Write("selected"); } }>Para Centro</option>
+                                <option value="Agencia Courier" @{ if (Model.LugarDestino == "Agencia Courier") { Write("selected"); } }>Para Agencia Courier</option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <div id="CamposAgDom">
+                        <div class="row mt-4" id="CamposAgencia">
+                            <div class="col-lg-3">
+                                <label class="text-dark form-label font-weight-bold font-18">Modo de envío:</label>
+                                <select name="EnvioAgencia" id="EnvioAgencia" class="form-control bg-cobefar text-white" onchange="mostrarOficinas();">
+                                    <option value="">Seleccione</option>
+                                    <option value="Oficina de agencia" @{ if (Model.EnvioAgencia == "Oficina de agencia") { Write("selected"); } }>Oficina de agencia</option>
+                                    <option value="Domicilio de cliente" @{ if (Model.EnvioAgencia == "Domicilio de cliente") { Write("selected"); } }>Domicilio de cliente</option>
+                                </select>
+                            </div>
+
+                            <div class="col-lg-3">
+                                <label class="text-dark form-label font-weight-bold font-18">Agencia:</label>
+                                <input type="text" name="Agencia" id="Agencia" value="@Model.Agencia" class="form-control border-success" list="ListAgencias" autocomplete="off" />
+                                <datalist id="ListAgencias">
+                                    @foreach (var i in Agencias)
+                                    {
+                                        <option value="@i.Nombre" />
+                                    }
+                                </datalist>
+
+                            </div>
+
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-lg-9">
+                                <label for="DirDestino" class="text-dark form-label font-weight-bold font-18">DirDestino: </label>
+                                @if (!string.IsNullOrEmpty(Model.DirDestino))
+                                {<label class="text-dark form-label font-16" id="DireccionEscogida">@Model.DirDestino </label>}
+                                <select name="DirDestino" id="DirDestino" class="form-control bg-cobefar text-white border-success" onchange="enviarValSelect('DirDestino', 'Distrito', 'Distrito');enviarValSelect('DirDestino', 'Provincia', 'Provincia');enviarValSelect('DirDestino', 'Departamento', 'Departamento');enviarValSelect('DirDestino', 'Ubigeo', 'Ubigeo');enviarValSelect('DirDestino', 'Calle', 'Calle');enviarValSelect('DirDestino', 'Zona', 'Zona');"@*muestraCampo()*@>
+                                    <option value="">Seleccione</option>
+                                </select>
+                                <input type="hidden" id="Calle" name="Det3[0].Calle" />
+                                <input type="hidden" id="Ubigeo" name="Det3[0].Ubigeo" />
+                                <input type="hidden" id="Distrito" name="Det3[0].Distrito" />
+                                <input type="hidden" id="Provincia" name="Det3[0].Provincia" />
+                                <input type="hidden" id="Departamento" name="Det3[0].Departamento" />
+
+                            </div>
+                            <div class="col-lg-3">
+                                <label class="text-dark form-label font-weight-bold font-18">Zona: </label> @Model.Zona
+                                <div class="input-group">
+                                    <input type="text" id="Zona" name="Zona" class="form-control text-center border-success" value="@Model.Zona" autocomplete="off">
+                                    <div class="input-group-append">
+                                        <button type="button" id="borrarZona" onclick="$('#Zona').val('');" class="btn btn-outline-danger">
+                                            <i class="icon icon-bin2"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <datalist id="opcionesZonaPachacamac">
+                                    <option value="CONO ESTE2">
+                                    <option value="CONO SUR">
+                                </datalist>
+                                <datalist id="opcionesZonaLima">
+                                    <option value="CALLAO">
+                                    <option value="CONO CENTRO">
+                                </datalist>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-lg-7">
+                                <label class="text-dark form-label font-weight-bold font-18">DirDestino2:</label>
+                                <input type="text" name="Det3[1].Calle" id="DirDestino2" class="form-control border-success" value="@if (Model.Det3 != null && Model.Det3.Count >= 2 && Model.Det3[1].Calle != null) { Write(Model.Det3[1].Calle); }" autocomplete="off"  onkeyup="validarDirDestino2(this.value);" />
+                            </div>
+                            <div class="col-lg-3 d-flex align-items-end">
+                                <button id="btnUbigeo" type="button" class="btn btn-warning mx-2" data-toggle="modal" data-target="#modalUbigeo"><i class="icon icon-location"></i> Selec. Ubigeo</button>
+                                <button id="btnOficinas" type="button" class="btn btn-warning mx-2" data-toggle="modal" data-target="#modalOficinas" onclick="buscarOficina()"><i class="icon icon-office"></i> Selec.  Oficina</button>
+                                <button id="btn_verTarifario" type="button" class="btn btn-warning mx-2" onclick="verTarifario()"><i class="icon icon-book"></i> Ver Tarifario</button>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+
+                            @if (Model.Det3 != null && Model.Det3.Count > 1)
+                            {
+                                if (Model.Det3[1].Ubigeo != null)
+                                {
+                                    <div class="col-lg-3">
+                                        <input type="text" name="Det3[1].Distrito" id="Distrito2" value="@if (Model.Det3.Count >= 1) { Write(Model.Det3[1].Distrito); }" class="form-control text-center border-success" readonly />
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <input type="text" name="Det3[1].Provincia" id="Provincia2" value="@if (Model.Det3.Count >= 1) { Write(Model.Det3[1].Provincia); }" class="form-control text-center border-success" readonly />
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <input type="text" name="Det3[1].Departamento" id="Departamento2" value="@if (Model.Det3.Count >= 1) { Write(Model.Det3[1].Departamento); }" class="form-control text-center border-success" readonly />
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <input type="text" name="Det3[1].Ubigeo" id="Ubigeo2" value="@if (Model.Det3.Count >= 1) { Write(Model.Det3[1].Ubigeo); }" class="form-control text-center border-success" readonly />
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="col-lg-3">
+                                    <input type="text" name="Det3[1].Distrito" id="Distrito2" value="" class="form-control text-center border-success" readonly />
+                                </div>
+                                <div class="col-lg-3">
+                                    <input type="text" name="Det3[1].Provincia" id="Provincia2" value="" class="form-control text-center border-success" readonly />
+                                </div>
+                                <div class="col-lg-3">
+                                    <input type="text" name="Det3[1].Departamento" id="Departamento2" value="" class="form-control text-center border-success" readonly />
+                                </div>
+                                <div class="col-lg-3">
+                                    <input type="text" name="Det3[1].Ubigeo" id="Ubigeo2" value="" class="form-control text-center border-success" readonly />
+                                </div>
+                            }
+
+
+
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-lg-12">
+                                <label class="text-dark form-label font-weight-bold font-18">Referencia:</label>
+                                <input type="text" name="Referencia" placeholder="Referencia" id="Referencia" class="form-control border-success" value="@Model.Referencia" />
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div><!-- // TAB 1 -->
+
+
+            <div class="tab-pane fade" id="nav-especif-recojo" role="tabpanel" aria-labelledby="nav-especif-recojo-tab">
+                <div class="bg-section-form p-4 bg-form-cobefar">
+                    <h2 class="mt-4 text-cobefar font-weight-bold">ESPECIFICACIONES DE RECOJO</h2>
+                    <div class="row mt-4">
+                        <input type="hidden" name="Det1[0].Linea" value="1" />
+                        <input type="hidden" name="Det1[0].DocEntry" value="@Model.DocEntry" />
+                        <div class="col-lg-5">
+                            <label for="NombrePer" class="text-dark form-label font-weight-bold font-18">Nombres:</label>
+                            <input class="form-control border-success" id="Det1_NombrePer_0" name="Det1[0].NombrePer" type="text" value="@if (Model.Det1 != null && Model.Det1.Count >= 1) { Write(Model.Det1[0].NombrePer); }">
+                        </div>
+
+                        <div class="col-lg-2">
+                            <label for="TelfPer" class="text-dark form-label font-weight-bold font-18">Teléfono:</label>
+                            <input type="number" id="TelfPer" name="Det1[0].TelfPer" class="form-control text-center border-success" value="@if (Model.Det1 != null && Model.Det1.Count >= 1) { Write(Model.Det1[0].TelfPer); }" />
+                        </div>
+
+                        <div class="col-lg-3">
+                            <label for="TipoDocPer" class="text-dark form-label font-weight-bold font-18">Tipo de Doc:</label>
+                            <select name="Det1[0].TipoDocPer" id="TipoDocPer" class="form-control bg-cobefar text-white border-success">
+                                <option value="">Seleccione</option>
+                                <option value="DNI" @{ if (Model.Det1 != null && Model.Det1.Count >= 1) { if (Model.Det1[0].TipoDocPer == "DNI") { Write("selected"); } } }>DNI</option>
+                                <option value="RUC" @{ if (Model.Det1 != null && Model.Det1.Count >= 1) { if (Model.Det1[0].TipoDocPer == "RUC") { Write("selected"); } } }>RUC</option>
+                                <option value="CE" @{ if (Model.Det1 != null && Model.Det1.Count >= 1) { if (Model.Det1[0].TipoDocPer == "CE") { Write("selected"); } }}>CARNET DE EXTRANJERIA</option>
+                            </select>
+                        </div>
+
+                        <div class="col-lg-2">
+                            <label for="DocPer" class="text-dark form-label font-weight-bold font-18">Nro Doc:</label>
+                            <input class="form-control text-center border-success" id="Det1_DocPer_0" name="Det1[0].DocPer" type="text" value="@if (Model.Det1 != null && Model.Det1.Count >= 1) { Write(Model.Det1[0].DocPer); }">
+                        </div>
+
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-lg-4">
+                            <label for="Observaciones" class="text-dark form-label font-weight-bold font-18">Coordinación del pedido</label>
+                            @Html.TextAreaFor(model => model.Observaciones, new { @class = "form-control border-success", @placeholder = "Ejm: Enviar obsequio a cliente, caja frágil", @rows = "5" })
+                        </div>
+                        <div class="col-lg-4">
+                            <label class="text-dark form-label font-weight-bold font-18">Observación adicional</label>
+                            @Html.TextAreaFor(model => model.Observaciones3, new { @class = "form-control border-success", @placeholder = "Ejm: Imprimir una copia de factura, coordin. con Juan Perez", @rows = "5" })
+                        </div>
+
+                        <div class="col-lg-4">
+                            <label class="text-dark form-label font-weight-bold font-18">Vendedor:</label>
+                            <input name="Vendedor" value="@Model.Vendedor" class="form-control text-center border-success" readonly />
+                            <label class="text-dark form-label font-weight-bold font-18">Hora Registro:</label>
+                            <input type="time" class="form-control text-center border-success" value="@Model.HoraRegistro" readonly />
+                        </div>
+                    </div>
+
+
+                </div>
+
+
+
+            </div><!-- // TAB 2 -->
+            <div class="tab-pane fade" id="nav-det-pedidos" role="tabpanel" aria-labelledby="nav-det-pedidos-tab">
+                <div class="bg-section-form p-4 bg-form-cobefar">
+                    <div id="div_detallesPedidos" class="row mt-4">
+                        <div class="col-lg-12">
+                            <table class="table table-hover table-bordered" id="detallesPedidos">
+                                <thead class='bg-dark text-white'>
+                                    <tr>
+                                        <th class='text-center'>#</th>
+                                        <th class='text-center'>VER</th>
+                                        <th class='text-center'>Monto</th>
+                                        <th class='text-center'>Nro SAP</th>
+                                        <th class='text-center'>Tipo Comprobante</th>
+                                        <th class='text-center'>Vendedor</th>
+                                        <th class='text-center'>Lugar de Entrega</th>
+                                        <th class='text-center'>ALM Salida</th>
+                                        <th class='text-center font-24'>Observación</th>
+                                    </tr>
+                                </thead>
+                                <tbody style='background: #D1D1D1'>
+                                    @if (Model.Det2 != null && Model.Det2.Count >= 1)
+                                    {
+                                        foreach (var dt in Model.Det2)
+                                        {
+                                            <tr>
+                                                <td class="text-center"><input id="Linea@(dt.Linea)" name='Det2[@(dt.Linea - 1)].Linea' type='hidden' value='@dt.Linea' />@dt.Linea</td>
+                                                <td class="text-center"><input id="Verificar@(dt.Linea)" name="Det2[@(dt.Linea - 1)].Verificar" type="checkbox" checked readonly onclick="javascript: return false;" /></td>
+                                                <td class="text-center"><input id="Monto@(dt.Linea)" name='Det2[@(dt.Linea - 1)].Monto' type='hidden' value='@dt.Monto' />@dt.Monto</td>
+                                                <td class="text-center"><input id="NroSap@(dt.Linea)" name='Det2[@(dt.Linea - 1)].NroSap' type='hidden' value='@dt.NroSap' />@dt.NroSap</td>
+
+                                                <td>
+                                                    <select id="TipoComprobante@(dt.Linea)" class="form-control" name='Det2[@(dt.Linea - 1)].TipoComprobante' style="width:130px">
+                                                        <option value='Factura' @{ if (dt.TipoComprobante == "Factura") { Write("selected"); } }>Factura</option>
+                                                        <option value='Boleta' @{ if (dt.TipoComprobante == "Boleta") { Write("selected"); } }>Boleta</option>
+                                                        <option value='F/B' @{ if (dt.TipoComprobante == "F/B") { Write("selected"); } }>F/B</option>
+                                                    </select>
+                                                </td>
+
+                                                <td class="text-center font-11"><input id="Vendedor@(dt.Linea)" name='Det2[@(dt.Linea-1)].Vendedor' type='hidden' value='@dt.Vendedor' />@dt.Vendedor</td>
+                                                <td class="text-center"><input id="LugarDeEntrega@(dt.Linea)" name='Det2[@(dt.Linea-1)].LugarDeEntrega' type='hidden' value='@dt.LugarDeEntrega' />@dt.LugarDeEntrega</td>
+                                                <td class="text-center"><input id="AlmacenSalida@(dt.Linea)" name='Det2[@(dt.Linea-1)].AlmacenSalida' type='hidden' value='@dt.AlmacenSalida' />@dt.AlmacenSalida</td>
+                                                <td class="text-center"><input id="Observaciones@(dt.Linea)" name='Det2[@(dt.Linea-1)].Observaciones' type='text' class="form-control" value='@dt.Observaciones' /></td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-lg-12  d-flex">
+                            <label class="text-dark form-label font-weight-bold font-18 mr-4">Vinculación de ticket</label>
+                            <select class="form-control bg-cobefar text-light w-25" onchange="mostrarTableTicketsVinculados(this.value)" name="Observaciones2" id="VinculacionTicket">
+                                <option value="NO" @if (Model.Observaciones2 != "SI") { Write("selected"); }>NO</option>
+                                <option value="SI" @if (Model.Observaciones2 == "SI") { Write("selected"); }>SI</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mt-4" id="divVinculados">
+                        <div class="col-lg-12 d-flex">
+                            <div class="col-lg-6">
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control" id="searchInput" placeholder="Escriba su numero de ticket" aria-label="Buscar" aria-describedby="basic-addon2">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-secondary" type="button" onclick="buscarTicketAVincular($('#searchInput').val())">Buscar</button>
+                                        <button class="btn btn-blue" type="button" onclick="agregarTicketVinculado($('#DocEntry').val(),$('#DocNumVinculado').val(),$('#RucClienteVinculado').val(),$('#ClienteVinculado').val(),$('#MontoFinalVinculado').val())">Agregar</button>
+                                    </div>
+                                </div>
+                                <table id="DetallesVinculados" class="table table-sm">
+                                    <thead class="bg-success">
+                                        <tr>
+                                            <th hidden>DocEntry</th>
+                                            <th class="text-center">#</th>
+                                            <th class="text-center">Ticket</th>
+                                            <th hidden>Ruc</th>
+                                            <th class="text-center">Cliente</th>
+                                            <th class="text-center">Monto</th>
+                                            <th class="text-center"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @{ int cont = 0;}
+                                        @if (Model.Det7 != null && Model.Det7.Count > 0)
+                                        {
+                                            foreach (var dt in Model.Det7)
+                                            {
+                                                <tr>
+                                                    <td hidden><input class='form-control text-center' name='Det7[@cont].DocEntry' value='@dt.DocEntry' readonly /></td>
+                                                    <td><input class='form-control text-center' name='Det7[@cont].Linea' value='@dt.Linea' readonly /></td>
+                                                    <td><input class='form-control text-center' name='Det7[@cont].DocNumVinc' value='@dt.DocNumVinc' readonly /></td>
+                                                    <td hidden><input class='form-control text-center' name='Det7[@cont].CardCode' value='@dt.CardCode' readonly /></td>
+                                                    <td><input class='form-control text-center' name='Det7[@cont].CardName' value='@dt.CardName' readonly /></td>
+                                                    <td><input class='form-control text-center' name='Det7[@cont].MontoFinal' value='@dt.MontoFinal' readonly /></td>
+                                                    <td><button type='button' onclick='borrarTrTablaVinculados(this)' class='btn btn-danger btn-sm p-2'><i class='icon icon-bin'></i></button></td>
+                                                </tr>
+                                                cont++;
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                                <script>
+                                    //setea valor en la variable cont
+                                    cont =@cont
+                                </script>
+                            </div>
+                            <div class="col-lg-6" id="InformacionTicketVinc">
+                                @*Se añadira el nombre de cliente y monto final*@
+                                <div class="row d-flex justify-content-between"><label class="font-weight-bold font-18 m-1 text-dark">Cliente: </label> <input class="form-control w-75" type="text" id="DocNumVinculado" readonly hidden /><input class="form-control w-75" type="text" id="RucClienteVinculado" readonly hidden /><input class="form-control w-75" type="text" id="ClienteVinculado" readonly /> </div>
+                                <div class="row d-flex justify-content-between">
+                                    <label class="font-weight-bold font-18 m-1 text-dark">Monto Final: </label><input class="form-control w-75" type="text" id="MontoFinalVinculado" readonly />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <h2 class="mt-4 text-cobefar font-weight-bold">DETALLES DE PAGO</h2>
+                    <div class="row mt-4">
+                        <div class="col-lg-3">
+                            <label for="MontoTotal" class="text-dark form-label font-weight-bold font-18">Monto Total:</label>
+                            @Html.EditorFor(model => model.MontoTotal, new { htmlAttributes = new { @class = "form-control font-weight-bold border-success", @readonly = "true" } })
+                        </div>
+
+                        <div class="col-lg-3">
+                            <label for="TiempoEntrega" class="text-dark form-label font-weight-bold font-18">Tiempo de Entrega:</label>
+                            @Html.EditorFor(model => model.TiempoEntrega, new { htmlAttributes = new { @class = "form-control cls-dateTimeVentas border-success", @type = "text", @autocomplete = "off" } })
+
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-lg-3">
+                            <label for="Flete" class="text-dark form-label font-weight-bold font-18">Flete (Taxi):</label>
+                            <div id="infoFlete">@Html.EditorFor(model => model.Flete, new { htmlAttributes = new { @class = "form-control font-weight-bold border-success", @onchange = "validacionVerificarMontos('EDITAR');" } })</div>
+                        </div>
+
+                        <div class="col-lg-4">
+                            <label for="DeudaCliente" class="text-dark form-label font-weight-bold font-18">Deuda de cliente:</label>
+                            <div class="d-flex">
+                                <div id="infoDeudaCliente"></div>
+                                @Html.EditorFor(model => model.DeudaCliente, new { htmlAttributes = new { @class = "form-control font-weight-bold border-success", @onchange = "validacionVerificarMontos('EDITAR');", @readonly = "true" } })
+                                <div class=""><a id="RptSaldo" class="btn btn-warning" onclick="reporteLibroSaldo('@Model.Estado');">Saldo</a></div>
+
+                                <div id="ReporteReclamos" class="ml-3"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-lg-3">
+                            <label for="GastoEnvio" class="text-dark form-label font-weight-bold font-18">Gasto de Envío:</label>
+                            @Html.EditorFor(model => model.GastoEnvio, new { htmlAttributes = new { @class = "form-control font-weight-bold border-success", @onchange = "validacionVerificarMontos('EDITAR');" } })
+                        </div>
+
+                        <div class="col-lg-3">
+                            <label for="DeudaEmpresa" class="text-dark form-label font-weight-bold font-18">Deuda de Empresa:</label>
+                            @Html.EditorFor(model => model.DeudaEmpresa, new { htmlAttributes = new { @class = "form-control font-weight-bold border-success", @onchange = "validacionVerificarMontos('EDITAR');", @readonly = "true" } })
+                        </div>
+
+                    </div><!-- FIN ROW -->
+
+                    <div class="row mt-4">
+                        <div class="col-lg-3">
+                            <label for="DescuentoNC" class="text-dark form-label font-weight-bold font-18">Descuento NC:</label>
+                            <div id="infoDescuentoNC">@Html.EditorFor(model => model.DescuentoNC, new { htmlAttributes = new { @class = "form-control font-weight-bold border-success", @onchange = "validacionVerificarMontos('EDITAR');", @readonly = "true" } })</div>
+                        </div>
+
+                        <div class="col-lg-3">
+                            <label for="IdReg" class="text-dark form-label font-weight-bold font-18">Regalo:</label>
+                            <select name="Det5[0].IdReg" id="IdReg" class="form-control bg-cobefar text-white" onchange="enviarValSelect('IdReg', 'RegCate', 'Categoria'); enviarValSelect('IdReg', 'RegTipo', 'Tipo');">
+                                <option value="">Seleccione</option>
+                                @foreach (var o in clr.Det)
+                                {
+                                    if (Model.Det5 != null && Model.Det5.Count >= 1)
+                                    {
+                                        if (Model.Det5[0].IdReg == o.IdReg)
+                                        {
+                                            <option value="@o.IdReg" CardCode="@o.CardCode" Categoria="@o.Categoria" Tipo="@o.Tipo" selected>@(o.Categoria + "-" + o.Tipo)</option>
+                                        }
+
+                                    }
+                                    else
+                                    {
+                                        <option value="@o.IdReg" CardCode="@o.CardCode" Categoria="@o.Categoria" Tipo="@o.Tipo">@(o.Categoria + "-" + o.Tipo)</option>
+                                    }
+
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-lg-3">
+                            <label for="RegCant" class="text-dark form-label font-weight-bold font-18">CantRegalo:</label>
+                            <div class="d-flex">
+                                <input type="number" class="form-control border-success" id="Det5_RegCant_0" name="Det5[0].RegCant" value="@if (Model.Det5 != null && Model.Det5.Count >= 1) { Write(Model.Det5[0].RegCant); }" />
+                                <a id="RptClienteRegalos" class="btn btn-warning" onclick="clienteRegalos();">SaldoReg</a>
+                            </div>
+                        </div>
+
+                        <input type="hidden" id="LineaRegalo" name="Det5[0].Linea" value="1" readonly />
+                        <input type="hidden" id="RegCate" name="Det5[0].RegCate" readonly />
+                        <input type="hidden" id="RegTipo" name="Det5[0].RegTipo" readonly />
+                    </div><!-- FIN ROW -->
+
+                    @if (Model.Det4 != null && Model.Det4.Count >= 1)
+                    {
+                        <div class="row mt-4">
+                            <div class="col-lg-6">
+                                <table class="table table-hover table-bordered" style="background:#BAFDDF;">
+                                    <thead class="thead-dark text-white">
+                                        <tr>
+                                            <th class="text-center">#</th>
+                                            <th class="text-center">Monto NC</th>
+                                            <th class="text-center">Fecha</th>
+                                            <th class="text-center">Nro SAP</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (RTV4_E d2 in Model.Det4)
+                                        {
+                                            if (d2.Nc != null)
+                                            {
+                                                <tr>
+                                                    <td class="text-center">@d2.Linea</td>
+                                                    <td class="text-center">@d2.Nc.DocTotal</td>
+                                                    <td class="text-center">@d2.Nc.DocDate</td>
+                                                    <td class="text-center">@d2.Nc.DocNum</td>
+                                                </tr>
+                                            }
+
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="row mt-4">
+                        <div class="col-lg-3">
+                            <label for="MontoFinal" class="text-white bg-cobefar px-2 form-label font-weight-bold font-18">Monto Final:</label>
+                            <div id="infoMontoFinal"><input id="MontoFinal" name="MontoFinal" type="text" value="@Model.MontoFinal" readonly class="form-control font-weight-bold border-success" /></div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-lg-12">
+                            <label for="Comentario" class="text-dark form-label font-weight-bold font-18">Comentario:</label>
+                            @Html.TextAreaFor(model => model.Comentario, new { @class = "form-control border-success w-75", @placeholder = "Escribe aquí tu comentario", @rows = "4" })
+                        </div>
+                    </div>
+
+                    @if (ViewBag.IdRol == 1 || ViewBag.IdRol == 6 || (ViewBag.IdRol == 7 && (Model.Estado.Equals("SEPARADO") || Model.Estado.Equals("ABIERTO"))))
+                    {
+                        <div class="row mt-4">
+                            <div class="col-lg-6">
+                                <button type="submit" id="Editar" class="btn btn-success"><i class="icon icon-pencil2"></i> Editar</button>
+                                <button type="button" id="Verificar" class="btn btn-primary"><i class="icon icon-clipboard"></i> Verificar Datos</button>
+                            </div>
+                        </div>
+                    }
+
+
+                </div>
+            </div><!-- // TAB 3 -->
+
+
+            <div class="tab-pane fade" id="nav-caja" role="tabpanel" aria-labelledby="nav-caja-tab">
+                <div class="bg-section-form p-4 bg-form-cobefar">
+                    <h2 class="text-cobefar font-weight-bold">CAJA</h2>
+                    <div class="row mt-4">
+                        <div class="col-lg-3">
+                            <label for="EstadoPago" class="text-dark form-label font-weight-bold font-18">Estado de Pago:</label>
+                            @Html.EditorFor(model => model.EstadoPago, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                        </div>
+
+                        <div class="col-lg-3">
+                            <label for="FormaPago" class="text-dark form-label font-weight-bold font-18">Forma de Pago:</label>
+                            @Html.EditorFor(model => model.FormaPago, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                        </div>
+
+
+                        <div class="col-lg-3">
+                            <label for="MontoRecibido" class="text-dark form-label font-weight-bold font-18">Monto Recibido:</label>
+                            @Html.EditorFor(model => model.MontoRecibido, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                        </div>
+
+                        <div class="col-lg-3">
+                            <label for="FechaPago" class="text-dark form-label font-weight-bold font-18">Fecha de Pago:</label>
+                            @Html.EditorFor(model => model.FechaPago, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-lg-6">
+                            <label for="Cajero" class="text-dark form-label font-weight-bold font-18">CajeroDesc:</label>
+                            <input type="search" name="Cajero" class="form-control border-success" list='ListaCajeros' value="@Model.Cajero" readonly />
+                            <input type="hidden" name="CodSapCajero" value="@Model.CodSapCajero" readonly />
+                        </div>
+
+                        <div class="col-lg-2">
+                            <label for="HoraPago" class="text-dark form-label font-weight-bold font-18">Hora de Pago:</label>
+                            @Html.EditorFor(model => model.HoraPago, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                        </div>
+                    </div>
+                </div>
+            </div><!-- // TAB 4 -->
+
+        </div>
+
+    }
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="modalUbigeo" tabindex="-1" role="dialog" aria-labelledby="modalUbigeoLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex mb-4 justify-content-center">
+                    <div class="px-2 pt-2 bg-light" style="border-radius: 10px;">
+                        <input type="checkbox" id="chk_buscarxdistritoUbigeos" class="form-check-inline" onclick="busqueda($('#busqueda_ubigeo').val(),'Ubigeos');" /><label for="chk_buscarxdistritoUbigeos" class="text-dark font-weight-bold">Buscar por Distrito</label>
+                    </div>
+
+                    <div class="px-2 pt-2 ml-5 bg-light" style="border-radius: 10px;">
+                        <input type="checkbox" id="chk_buscarxprovinciaUbigeos" class="form-check-inline" onclick="busqueda($('#busqueda_ubigeo').val(),'Ubigeos');" /><label for="chk_buscarxprovinciaUbigeos" class="text-dark font-weight-bold">Buscar por Provincia</label>
+                    </div>
+
+                    <div class="px-2 pt-2 ml-5 bg-light" style="border-radius: 10px;">
+                        <input type="checkbox" id="chk_buscarxdepartamentoUbigeos" class="form-check-inline" onclick="busqueda($('#busqueda_ubigeo').val(),'Ubigeos');" /><label for="chk_buscarxdepartamentoUbigeos" class="text-dark font-weight-bold">Buscar por Departamento</label>
+                    </div>
+
+                </div>
+
+
+                <div class="row">
+                    <div class="col-md-9"> <input type="text" id="busqueda_ubigeo" class="form-control" placeholder="Digite su busqueda" onkeyup="busqueda(this.value,'Ubigeos');" /></div>
+                    <div class="col-md-3"><button class="btn btn-success" data-dismiss="modal" onclick="$('#DirDestino2').val('').prop('readonly', true);$('#Ubigeo2').val(''); $('#Distrito2').val(''); $('#Provincia2').val(''); $('#Departamento2').val(''); reubicarZona('@Model.DirDestino');">Limpiar datos</button></div>
+                </div>
+                <br />
+
+                <table id="Ubigeos" class="table table-light table-bordered table-sm table-hover text-center table-responsive-md">
+                    <tr style="background-color:steelblue;color:white"><td>Ubigeo</td><td>Distrito</td><td>Provincia</td><td>Departamento</td><td></td></tr>
+                    @foreach (var o in Ubigeos)
+                    {
+                        <tbody>
+                            <tr>
+                                <td>@o.Ubigeo</td>
+                                <td>@o.Distrito</td>
+                                <td>@o.Provincia</td>
+                                <td>@o.Departamento</td>
+                                <td><button class="btn btn-primary btn-sm" data-dismiss="modal" onclick="agregarDatos('@o.Ubigeo','@o.Distrito','@o.Provincia','@o.Departamento','@o.Zona')">Seleccionar</button></td>
+                            </tr>
+                        </tbody>
+
+                    }
+
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" data-dismiss="modal" onclick="$('#DirDestino2').val('').prop('readonly', true);$('#Ubigeo2').val('');$('#Distrito2').val('');$('#Provincia2').val('');$('#Departamento2').val(''); reubicarZona('@Model.DirDestino');">Limpiar datos</button>
+                <button type="button" class="btn btn-info" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalOficinas" tabindex="-1" role="dialog" aria-labelledby="modalOficinasLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex mb-4 justify-content-center">
+                    <div class="px-2 pt-2 bg-light" style="border-radius: 10px;">
+                        <input type="checkbox" id="chk_buscarxdistritoOficicnas" class="form-check-inline" onclick="busqueda($('#busqueda_oficinas').val(),'Oficinas');" /><label for="chk_buscarxdistritoOficicnas" class="text-dark font-weight-bold">Buscar por Distrito</label>
+                    </div>
+
+                    <div class="px-2 pt-2 ml-5 bg-light" style="border-radius: 10px;">
+                        <input type="checkbox" id="chk_buscarxprovinciaOficinas" class="form-check-inline" onclick="busqueda($('#busqueda_oficinas').val(),'Oficinas');" /><label for="chk_buscarxprovinciaOficinas" class="text-dark font-weight-bold">Buscar por Provincia</label>
+                    </div>
+
+                    <div class="px-2 pt-2 ml-5 bg-light" style="border-radius: 10px;">
+                        <input type="checkbox" id="chk_buscarxdepartamentoOficinas" class="form-check-inline" onclick="busqueda($('#busqueda_oficinas').val(),'Oficinas');" /><label for="chk_buscarxdepartamentoOficinas" class="text-dark font-weight-bold">Buscar por Departamento</label>
+                    </div>
+
+                </div>
+
+                <div class="row">
+                    <div class="col-md-9"> <input type="text" id="busqueda_oficinas" class="form-control" placeholder="Digite su busqueda" onkeyup="busqueda(this.value,'Oficinas');" /></div>
+                    <div class="col-md-3"><button class="btn btn-success" data-dismiss="modal" onclick="$('#DirDestino2').val('');$('#Ubigeo2').val('');$('#Distrito2').val('');$('#Provincia2').val('');$('#Departamento2').val('');">Limpiar datos</button></div>
+                </div>
+                <br />
+
+                <table id="Oficinas" class="table table-light table-bordered table-hover table-sm text-center table-responsive-md">
+                    <thead>
+                        <tr style="background-color:steelblue;color:white">
+                            <th>Calle</th>
+                            <th>Distrito</th>
+                            <th>Provincia</th>
+                            <th>Departamento</th>
+                            <th>Ubigeo</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var o in Oficinas)
+                        {
+                            <tr>
+                                <td>@o.Calle</td>
+                                <td>@o.Distrito</td>
+                                <td>@o.Provincia</td>
+                                <td>@o.Departamento</td>
+                                <td>@o.Ubigeo</td>
+                                <td><button class="btn btn-primary btn-sm" data-dismiss="modal" onclick="agregarDatosOficina('@o.Calle','@o.Ubigeo','@o.Distrito','@o.Provincia','@o.Departamento')">Seleccionar</button></td>
+                            </tr>
+
+
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" data-dismiss="modal" onclick="$('#DirDestino2').val('');$('#Ubigeo2').val('');$('#Distrito2').val('');$('#Provincia2').val('');$('#Departamento2').val('');">Limpiar datos</button>
+                <button type="button" class="btn btn-info" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>

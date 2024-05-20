@@ -1,0 +1,83 @@
+﻿@model Capa_Entidad.Ventas_ENT.TablasSql.ORTV_E
+@{
+    Layout = null;
+}
+<title>RotuladoTicket</title>
+<div style='width:1200px;page-break-after:always;align-content:center'>
+    @for (int i = 0; i < Model.Cajas; i++)
+    {
+    <div style='width:600px;height:380px;float:left;padding:10px;margin:10px;border: 3px dotted black;page-break-after:always;'>
+        <div style="display: flex;flex-wrap: wrap;align-content: space-between;">
+            <div style="float:left;margin:20px">
+                <img src="~/imagenes/logoventa2.jpg" width="160" height="60" />
+            </div>
+            <div style='text-align:left;float:right;margin:0 10px;font-size:13px;'>
+                <p>
+                    Cal.Carlos Pedemonte Nro. 145B  Int. 3 Urb.Lotizacion ex fundo <br />El Pino Lima - Lima - San Luis
+                    Telf.:  (01) 428 5818<br />
+                    Ventas Lima:        982 577 809<br /> Ventas Provincia:    932 669 846<br />
+                </p>
+            </div>
+        </div>
+      
+        <table border="1" width="100%" style="text-align:center">
+            <tr>
+                <th  colspan="2">RAZON SOCIAL ó CLIENTE</th>
+            </tr>
+            <tr>
+                <td  colspan="2" style="padding:10px">@Model.NombrePer1.ToUpper() </td>
+            </tr>
+            <tr><th  colspan="2">DIRECCION</th></tr> 
+            <tr>
+                <td  colspan="2" style="padding:10px">
+                    @if (Model.EnvioAgencia == "Oficina de agencia")
+                    {
+
+                        @Model.Det4[1].Calle.ToUpper();
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrEmpty(Model.DirDestino2) && Model.DirDestino2.Length > 0)
+                        { @Model.Det4[1].Calle.ToUpper();
+
+                    }
+                    else
+                    {
+                        @Model.Det4[0].Calle.ToUpper();
+                    }
+                }
+                </td>
+            </tr>
+            <tr><th  colspan="2">LOCALIDAD</th>  </tr>
+            <tr>
+                <td colspan="2" style="padding:10px">
+                    @if (Model.EnvioAgencia == "Oficina de agencia")
+                    {
+                        <p>
+                            @Model.Det4[1].Distrito.ToUpper() &nbsp; -  @Model.Det4[1].Provincia.ToUpper() &nbsp;- @Model.Det4[1].Departamento.ToUpper()
+                        </p>
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrEmpty(Model.DirDestino2) && Model.DirDestino2.Length > 0)
+                        { <p> @Model.Det4[1].Distrito.ToUpper() &nbsp; - @Model.Det4[1].Provincia.ToUpper()&nbsp; - @Model.Det4[1].Departamento.ToUpper()</p>
+
+                    }
+                    else
+                    {
+                <p>
+                    @Model.Det4[0].Distrito.ToUpper() &nbsp; - @Model.Det4[0].Provincia.ToUpper() &nbsp; - @Model.Det4[0].Departamento.ToUpper()
+                </p>
+                    }
+                    }
+</td>
+                
+            </tr>
+            <tr><th>NRO DOCUMENTO</th> <th>CANT CAJAS</th></tr>
+            <tr><td style="padding:5px">@Model.DocNum</td > <td style="padding:5px">@(i + 1) de @Model.Cajas</td></tr>
+        </table>
+
+    </div>
+    }
+</div>
+ 

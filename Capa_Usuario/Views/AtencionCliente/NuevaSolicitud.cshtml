@@ -1,0 +1,624 @@
+﻿@model Capa_Entidad.AtencionCliente_ENT.TablasSql.OSAT_E
+@using Capa_Entidad.Ventas_ENT.TablasSql
+@{
+    ViewBag.Title = "NuevaSolicitud";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    th {
+        padding: 10px;
+    }
+
+    #Articulos td {
+        font-size: 13px;
+    }
+
+    #ArtAten td {
+        font-size: 13px;
+    }
+
+    i:hover {
+        cursor: pointer;
+    }
+</style>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("GestionSolicitud", "AtencionCliente")">Módulo gestión de solicitudes</a></li>
+            <li class="current"><em>Registrar solicitud</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">REGISTRAR SOLICITUD</h3></div>
+</div>
+
+<div class="bg-form-pestanas-cobefar">
+    @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "NuevaSolicitud", enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
+
+        @Html.EditorFor(model => model.DocEntry, new { htmlAttributes = new { @class = "form-control", @type = "hidden" } })
+
+        <div class="bg-section-form p-4 bg-form-cobefar">
+            <h4 class="text-cobefar font-weight-bold">DATOS DE TICKET</h4>
+            <div class="row mt-4">
+                <div class="col-lg-3">
+                    <label for="Tipo" class="text-dark form-label font-weight-bold font-18">Tipo:</label>
+                    <select name="Tipo" id="Tipo" class="form-control bg-cobefar text-white border-success" onchange="obtenerNroSolicitud();">
+                        <option value="">Seleccione</option>
+                        <option value="Reclamo">Reclamo</option>
+                        <option value="Devolucion">Devolucion</option>
+                        <option value="SolicitudInterna">Solicitud interna</option>
+                    </select>
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="Estado" class="text-dark form-label font-weight-bold font-18">Estado:</label>
+                    @Html.EditorFor(model => model.Estado, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = true } })
+                </div>
+
+                <div id="div_tipoVenta" class="col-lg-3" style="display: none">
+                    <label for="TipoVenta" class="text-dark form-label font-weight-bold font-18">Tipo de Venta:</label>
+                    <select name="TipoVenta" id="TipoVenta" class="form-control bg-cobefar text-white border-success" onchange="">
+                        <option value="">Seleccione</option>
+                        <option value="VCALLC">Ventas Call Center</option>
+                        <option value="VHORIZ">Ventas Horizontal</option>
+                        <option value="VESTRAT">Ventas Estratégicas</option>
+                    </select>
+                </div>
+
+                <div id="div_canalVenta" class="col-lg-3" style="display: none">
+                    <label for="CanalVenta" class="text-dark form-label font-weight-bold font-18">Canal de Venta:</label>
+                    <select name="CanalVenta" id="CanalVenta" class="form-control bg-cobefar text-white border-success" onchange="">
+                        <option value="">Seleccione</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-3">
+                    <input type="hidden" name="FechaFacturacion" id="FechaFacturacion" autocomplete="off" />
+                    <label for="DocNum" class="text-dark form-label font-weight-bold font-18">N° Ticket:</label>
+                    <div class="d-flex">
+                        <input class="form-control border-success cls-numeric" type="search" list="Tickets" name="DocNumTicket" id="DocNumTicket" autocomplete="off" />
+                        <button type="button" id="BTicket" onclick="buscarTicket();" class="btn btn-primary"><i class="icon-search"></i> Buscar</button>
+                    </div>
+
+                    <datalist id="Tickets">
+                        @foreach (ORTV_E d in ViewBag.Tickets)
+                        {
+                            <option value="@d.DocNum"></option>
+                        }
+                    </datalist>
+                </div>
+
+                <div class="col-lg-3 d-flex align-items-end">
+                    <button type="button" id="Seg" onclick="verSeguimiento()" class="btn btn-warning">
+                        <i class="icon-pushpin"></i> Seguimiento
+                    </button>
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="LugarDestino" class="text-dark form-label font-weight-bold font-18">Lugar de Destino:</label>
+                    <!--Html.EditorFor(model => model.LugarDestino, new { htmlAttributes = new { class = "form-control border-success", readonly = "true" } })-->
+                    <input type="text" id="LugarDestino" name="DetORTV['LugarDestino']" class="form-control text-center border-success" value="" readonly />
+                </div>
+
+            </div>
+
+            @Html.EditorFor(model => model.DocEntryTicket, new { htmlAttributes = new { @readonly = "true", @type = "hidden" } })
+            <input type="hidden" id="CardCode" name="DetORTV[CardCode]" class="form-control border-success" value="" readonly />
+            <input type="hidden" id="CardName" name="DetORTV[CardName]" class="form-control border-success" value="" readonly />
+            <!--Html.EditorFor(model => model.CardCode, new { htmlAttributes = new { readonly = "true", type = "hidden" } })
+            Html.EditorFor(model => model.CardName, new { htmlAttributes = new { readonly = "true", type = "hidden" } })
+            Html.EditorFor(model => model.Propietario, new { htmlAttributes = new { readonly = "true", type = "hidden" } })-->
+
+            <div class="row mt-4 mb-4">
+                <div class="col-lg-3">
+                    <label for="FechaRegistro" class="text-dark form-label font-weight-bold font-18">Fecha de registro:</label>
+                    @Html.EditorFor(model => model.FechaRegistro, new { htmlAttributes = new { @class = "form-control border-success", @readonly = true } })
+                </div>
+
+                <div class="col-lg-6">
+                    <label for="OpRegistro" class="text-dark form-label font-weight-bold font-18">Registrador:</label>
+                    @Html.EditorFor(model => model.OpRegistro, new { htmlAttributes = new { @class = "form-control border-success", @readonly = true } })
+                </div>
+
+            </div>
+
+            <h4 class="text-cobefar font-weight-bold">DATOS DEL CLIENTE</h4>
+
+            <div class="row mt-4">
+                <div class="col-lg-4">
+                    <label for="Contacto" class="text-dark form-label font-weight-bold font-18">Contacto:</label>
+                    <input type="text" name="Contacto" id="Contacto" class="form-control border-success" />
+                </div>
+
+                <div class="col-lg-4">
+                    <label for="Correo" class="text-dark form-label font-weight-bold font-18">Correo:</label>
+                    @Html.EditorFor(model => model.Correo, new { htmlAttributes = new { @class = "form-control border-success" } })
+                </div>
+
+                <div class="col-lg-2">
+                    <label for="Telefono" class="text-dark form-label font-weight-bold font-18">Teléfono:</label>
+                    <input type="number" name="Telefono" id="Telefono" class="form-control text-center border-success cls-numeric" />
+                </div>
+
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-10">
+                    <label for="DireccionRecojo" class="text-dark form-label font-weight-bold font-18">Dirección:</label>
+                    <input type="text" name="DireccionRecojo" id="DireccionRecojo" class="form-control border-success" autocomplete="off" />
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-4">
+                    <label class="text-dark form-label font-weight-bold font-18">Lista de Artículos:</label>
+                    <button type="button" data-toggle="modal" data-target="#exampleModal" class="btn btn-info">Seleccionar</button>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-3">
+                    <label for="TipoError" class="text-dark form-label font-weight-bold font-18">Tipo de Error:</label>
+                    <select class="form-control bg-cobefar text-white" id="TipoError" name='TipoError' onchange="enviarValorEscogido(this.value, this.id); cargarSelectTipo(this.value);">
+                        <option value=''>Seleccione</option>
+                        <option value='ErrorAlmacen'>Error de almacén</option>
+                        <option value='ErrorVendedor'>Error de vendedor</option>
+                        <option value='ErrorCliente'>Error de cliente</option>
+                        <option value='ErrorProveedor'>Error de proveedor</option>
+                        <option value='RetiroMercado'>Retiro de mercado</option>
+                        <option value='ErrorAgencia'>Error de agencia</option>
+                        <option value='Otros'>Otros</option>
+                    </select>
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="Problema" class="text-dark form-label font-weight-bold font-18">Problema:</label>
+                    <select class="form-control bg-cobefar text-white" id="Problema" name='Problema' onchange="enviarValorEscogido(this.value, this.id)">
+                        <option value=''>Seleccione</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-12">
+                    <div class="table-responsive">
+                        <table id="ArtAten" class="table table-light table-sm table-hover table-responsive-md">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th hidden></th>
+                                    <th hidden></th>
+                                    <th hidden></th>
+                                    <th class="text-center" style="width:50px">NroSap</th>
+                                    <th class="text-center" style="width:50px">Código</th>
+                                    <th class="text-center" style="width:200px">Descripción</th>
+                                    <th class="text-center" style="width:100px">Lote</th>
+                                    <th class="text-center" style="width:80px">Fecha Venc.</th>
+                                    <th class="text-center" style="width:50px">UMVend.</th>
+                                    <th hidden></th>
+                                    <th class="text-center" style="width:50px">Cant Vend.</th>
+                                    <th class="text-center" style="width:50px">Precio</th>
+                                    <th class="text-center" style="width:50px">Um</th>
+                                    <th class="text-center" style="width:50px">Cant</th>
+                                    <th class="text-center" style="width:50px">Total</th>
+                                    <th class="text-center" style="width:80px">AlmVenta</th>
+                                    <th style="width:60px"></th>
+                                </tr>
+                            </thead>
+                            <tbody style="background: #D1D1D1"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-4">
+                    @Html.TextBoxFor(x => x.Archivo, new { @type = "file", @accept = ".pdf, .zip, .docx, .xlsx, .png, .jpg, .jpeg, .rar", @class = "form-control border-success", @multiple = "multiple" })
+                </div>
+
+                <div class="col-lg-4">
+                    <input class="form-control border-success" style="height: 44px" id="UrlArchivo" name="UrlArchivo" placeholder="Url de archivo en nube" type="text" value="">
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-4">
+                    <button type="button" class="btn btn-success" onclick="validarEnviarFormulario();"><i class="icon icon-checkmark"></i> Registrar</button>
+                </div>
+            </div>
+
+        </div>
+
+    }
+</div>
+
+<div class="modal fade " id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-cobefar text-white">
+                <h5 class="modal-title" id="exampleModalLabel">Artículos</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span class="text-white" aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="text" class="form-control" placeholder="Digite el artículo" onkeyup="filtrarArticulo(this);" />
+                <br />
+                <table id="Articulos" class="table table-light table-sm table-hover">
+                    <thead class="bg-dark text-white">
+                        <tr>
+                            <th class="text-center">#</th>
+                            <th class="text-center">Código</th>
+                            <th class="text-center">Descripción</th>
+                            <th class="text-center">Lote</th>
+                            <th class="text-center">NroSap</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        let docNumTicket = `@Request["DocNumTicket"]`;
+        // Acción para botón que se encuentra en Seguimiento de Ticket
+        if (docNumTicket != '') {
+            $('#DocNumTicket').val(docNumTicket);
+            $('#BTicket').click();
+        }
+    });
+
+    function cargarSelectTipo(tipoError) {
+        let problemas = "<option value=''>Seleccione</option>";
+        if (tipoError == "ErrorAlmacen") {
+            problemas += `<option value='CruceDeLote'>Cruce de lote</option>
+                                        <option value='CruceDeProducto'>Cruce de producto</option>
+                                        <option value='ProductoMaltratado'>Producto maltratado</option>
+                                        <option value='Faltante'>Faltante</option>
+                                        <option value='SinLote'>Sin lote</option>`;
+        }
+        else if (tipoError == "ErrorVendedor") {
+            problemas += `<option value='ProductoNoSolicitado'>Producto no solicitado</option>
+                                    <option value='UnidadDeVentaErrónea'>Unidad de venta errónea</option>
+                                    <option value='PrecioIncorrecto'>Precio incorrecto</option>
+                                    <option value='CantidadIncorrecta'>Cantidad incorrecta</option>
+                                    <option value='FechaCorta'>Fecha corta</option>`;
+        }
+        else if (tipoError == "ErrorCliente") {
+            problemas += `<option value='ProductoIncorrecto'>Producto incorrecto</option>
+                                        <option value='FechaCorta'>Fecha corta</option>
+                                        <option value='CantidadIncorrecta'>Cantidad incorrecta</option>`;
+        } else if (tipoError == "ErrorProveedor") {
+            problemas += `<option value='FallaDeCalidad'>Falla de calidad</option>
+                                        <option value='LoteBorroso'>Lote borroso</option>
+                                        <option value='ProductoMaltratado'>Producto maltratado</option>
+                                        <option value='SinLote'>Sin lote</option>`;
+        } else if (tipoError == "RetiroMercado") {
+            problemas += `<option value='RetiroMercado'>Retiro de mercado</option>`;
+        } else if (tipoError == "ErrorAgencia") {
+
+            problemas += `<option value='ProductoMaltratado' >Producto maltratado</option>`;
+        }
+
+        problemas += `<option value='Otros'>Otros</option>`;
+        $('#Problema').html(problemas);
+    }
+
+    var Art;
+    var DocEntryT;
+    var Lin = 0;
+    var contUser = 0;
+
+    function enviarValorEscogido(valor, id) {
+        $(`.cls-${id}`).val(valor);
+    }
+
+    function buscarTicket() {
+        // Limpiamos los campos
+        DocEntryT = 0;
+        $("#BTicket").css({ "display": "none" });
+        $("#CardCode").val(""); $("#CardName").val("");
+        $("#LugarDestino").val(""); $("#Vendedor").val("");
+        //$("#Articulos").html("");
+        $("#ArtAten > tbody").html("");
+
+        var parametros = {
+            "DocNumTicket": $("#DocNumTicket").val()
+        };
+
+        Swal.fire({
+            html: '<img src="/imagenes/index/ReportesDigemid/cargando.gif" />',
+            //closeOnCancel: false,
+            allowOutsideClick: false,
+            showCancelButton: false,
+            showConfirmButton: false
+        });
+
+        $.ajax('/AtencionCliente/listarArticulosTicket',
+            {
+                data: parametros,
+                dataType: 'json',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                swal.close();
+                if (response.DocEntryTicket == 0) { $("#BTicket").css({ "display": "block" }); return; }
+                if (response.FechaFacturacion == null) { $("#BTicket").css({ "display": "block" }); return Swal.fire("Nro Ticket no se encuentra facturado, por favor intentar con otro nro ticket"); }
+                $("#FechaFacturacion").val(response.FechaFacturacion);
+                DocEntryT = response.DocEntryTicket;
+                Art = response.Det;
+
+                let filas = "";
+                $.each(response.Det, function (key, value) {
+                    filas += `<tr>
+                                        <td class="text-center">${key}</td>
+                                        <td>${value.ItemCode}</td>
+                                        <td class="text-center">${value.Dscription}</td>
+                                        <td class="text-center">${value.BatchNum}</td>
+                                        <td class="text-center">${value.NroSap}</td>
+                                        <td><button class="btn btn-sm btn-cobefar" data-dismiss="modal" onclick="agregarTabla('${key}')"><i class="icon icon-plus"></i> Agregar</button></td>
+                                </tr>`;
+                })
+
+                $("#Articulos > tbody").html(filas);
+                $("#CardCode").val(response.CardCode);
+                $("#CardName").val(response.CardName);
+                $("#Telefono").val(response.Telefono);
+                $("#DireccionRecojo").val(response.DireccionRecojo);
+                $("#Contacto").val(response.Contacto);
+                $("#LugarDestino").val(response.DetORTV.LugarDestino);
+                $("#Vendedor").val(response.DetORTV.Vendedor);
+                $("#DocEntryTicket").val(response.DocEntryTicket);
+                $("#BTicket").css({ "display": "block" });
+            }).fail(function () {
+                alert('Hubo un Error!!'); swal.close();
+                $("#BTicket").css({ "display": "block" });
+            });
+
+    }
+    function agregarTabla(key) {
+        console.log(Art);
+        let htm = `<tr>
+                            <td hidden><input type='hidden' name='Det[${Lin}].TipoError' id='Det${Lin}TipoError' class="cls-TipoError" value='' readonly /></td>
+                            <td hidden><input type='hidden' name='Det[${Lin}].Problema' id='Det${Lin}Problema' class="cls-Problema" value='' readonly /></td>
+                            <td hidden><input type='hidden' name='Det[${Lin}].ErrorAlmacen' id='Det${Lin}ErrorAlmacen' class="cls-ErrorAlmacen" value='' readonly /></td>
+                            <td hidden><input type='hidden' name='Det[${Lin}].Linea' value='${Lin + 1}' readonly /></td>
+                            <td class="text-center"><input class='form-control' type='hidden' name='Det[${Lin}].NroSap' value='${Art[key].NroSap}'  readonly/>${Art[key].NroSap}</td>
+                            <td class="text-center"><input  type='hidden' name='Det[${Lin}].ItemCode' value='${Art[key].ItemCode}' readonly/>${Art[key].ItemCode}</td>
+                            <td class="text-center"><input type='hidden' name='Det[${Lin}].Dscription' value='${Art[key].Dscription}' readonly/>${Art[key].Dscription}</td>
+                            <td class="text-center"><input type='hidden' name='Det[${Lin}].BatchNum' value='${Art[key].BatchNum}' readonly/>${Art[key].BatchNum}</td>
+                            <td class="text-center"><input type='hidden' name='Det[${Lin}].ExpDate' value='${Art[key].ExpDate}' readonly/>${Art[key].ExpDate}</td>
+                            <td class="text-center"><input type='hidden' name='Det[${Lin}].UnitMsr' value='${Art[key].UnitMsr}' readonly/>${Art[key].UnitMsr}</td>
+                            <td hidden><input class='form-control' type='hidden' name='Det[${Lin}].NumPerMsr' id='Det${Lin}NumPerMsr' value='${Art[key].NumPerMsr}' readonly /></td>
+                            <td class="text-center"><input type='hidden' name='Det[${Lin}].Quantity' value='${Art[key].Quantity}' readonly />${Art[key].Quantity}</td>
+                            <td class="text-center"><input type='hidden' name='Det[${Lin}].PriceAfVAT' id='Det${Lin}PriceAfVAT' value='${Art[key].PriceAfVAT}' readonly/>${Art[key].PriceAfVAT}</td>
+                            <td class="text-center">
+                                <select class='form-control bg-cobefar text-white' name='Det[${Lin}].unitMsrF' id='Det${Lin}unitMsrF' style='width:100px;' onchange='limpiarCantidad(${Lin});'>
+                                <option value=''>Seleccione</option>
+                                <option value='C'>CAJA</option>
+                                <option value='P'>PIEZA</option>
+                                </select>
+                            </td>
+                            <td class="text-center"><input  class='form-control cls-numeric' name='Det[${Lin}].QuantityF' id='Det${Lin}QuantityF' style='width:60px;height:30px' onchange='calcularLineTotalF(${Lin});'></td>
+                            <td class="text-center"><input class='form-control' name='Det[${Lin}].LineTotalF' id='Det${Lin}LineTotalF' type='text' style='width:100px;height:30px' readonly/></td>
+                            <td class="text-center"><input class='form-control' type='text' name='Det[${Lin}].AlmVenta' id='Det${Lin}AlmVenta' value='${Art[key].AlmVenta}' style='width:70px;height:30px' readonly/></td>
+                            <td class="text-center"><button class="btn btn-danger" onclick='borrarTrTable1(this)'><i class='icon icon-bin' ></i></button></td>
+                        </tr>`;
+        $("#ArtAten").append(htm);
+        Lin = Lin + 1;
+
+        // Función para siempre obtener el error y y problema preseleccionado
+        obtenerTipoErroryProblema();
+    }
+    function obtenerNroSolicitud() {
+        $.ajax('/AtencionCliente/obtenerNroSolicitud',
+            {
+                data: { "Tipo": $("#Tipo").val() },
+                dataType: 'html',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                $("#DocNum").val(response)
+            });
+    }
+    function verSeguimiento() {
+        if (DocEntryT != null && DocEntryT > 0) {
+            window.open("/Ventas/SeguimientoDeTicket?DocEntry=" + DocEntryT, "_blank", 'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');
+        }
+    }
+    function calcularLineTotalF(line) {
+        if ($("#Det" + line + "unitMsrF").val() == 'P') {
+            $("#Det" + line + "LineTotalF").val(($("#Det" + line + "PriceAfVAT").val() * 1 * $("#Det" + line + "QuantityF").val() / $("#Det" + line + "NumPerMsr").val()).toFixed(5));
+        }
+        else if ($("#Det" + line + "unitMsrF").val() == 'C') {
+            $("#Det" + line + "LineTotalF").val(($("#Det" + line + "PriceAfVAT").val() * 1 * $("#Det" + line + "QuantityF").val()).toFixed(5));
+        }
+    }
+    function limpiarCantidad(line) {
+        $("#Det" + line + "QuantityF").val("");
+        $("#Det" + line + "LineTotalF").val("");
+    }
+    function borrarTrTable1(dom) {
+        var i = -1;
+        $(dom).closest('tr').remove();
+        Lin = Lin - 1;
+
+        $("#ArtAten" + " tr").each(function (index, htm) {
+            iden1 = $(htm).find("td:eq(0) input");
+            iden1.attr("name", "Det[" + i + "].TipoError");
+
+            iden1 = $(htm).find("td:eq(1) input");
+            iden1.attr("name", "Det[" + i + "].Problema");
+
+            iden1 = $(htm).find("td:eq(2) input");
+            iden1.attr("name", "Det[" + i + "].ErrorAlmacen");
+
+            iden1 = $(htm).find("td:eq(3) input");
+            iden1.attr("name", "Det[" + i + "].Linea");
+            iden1.val(i + 1);
+            iden2 = $(htm).find("td:eq(4) input");
+            iden2.attr("name", "Det[" + i + "].NroSap");
+
+            iden3 = $(htm).find("td:eq(5) input");
+            iden3.attr("name", "Det[" + i + "].ItemCode");
+
+            iden3 = $(htm).find("td:eq(6) input");
+            iden3.attr("name", "Det[" + i + "].Dscription");
+
+            iden3 = $(htm).find("td:eq(7) input");
+            iden3.attr("name", "Det[" + i + "].BatchNum");
+
+            iden3 = $(htm).find("td:eq(8) input");
+            iden3.attr("name", "Det[" + i + "].ExpDate");
+
+            iden3 = $(htm).find("td:eq(9) input");
+            iden3.attr("name", "Det[" + i + "].UnitMsr");
+
+            iden3 = $(htm).find("td:eq(10) input");
+            iden3.attr("name", "Det[" + i + "].NumPerMsr");
+            iden3.attr("id", "Det" + i + "NumPerMsr");
+
+            iden3 = $(htm).find("td:eq(11) input");
+            iden3.attr("name", "Det[" + i + "].Quantity");
+
+            iden3 = $(htm).find("td:eq(12) input");
+            iden3.attr("name", "Det[" + i + "].PriceAfVAT");
+            iden3.attr("id", "Det" + i + "PriceAfVAT");
+
+            iden3 = $(htm).find("td:eq(13) select");
+            iden3.attr("name", "Det[" + i + "].unitMsrF");
+            iden3.attr("id", "Det" + i + "unitMsrF");
+            iden3.attr("onchange", "limpiarCantidad(" + i + ");");
+
+            iden3 = $(htm).find("td:eq(14) input");
+            iden3.attr("name", "Det[" + i + "].QuantityF");
+            iden3.attr("id", "Det" + i + "QuantityF");
+            iden3.attr("onchange", "calcularLineTotalF(" + i + ");");
+
+            iden3 = $(htm).find("td:eq(15) input");
+            iden3.attr("name", "Det[" + i + "].LineTotalF");
+            iden3.attr("id", "Det" + i + "LineTotalF");
+
+            iden3 = $(htm).find("td:eq(16) input");
+            iden3.attr("name", "Det[" + i + "].AlmVenta");
+            iden3.attr("id", "Det" + i + "AlmVenta");
+            i = i + 1;
+        });
+
+        // Función para siempre obtener el error y y problema preseleccionado
+        obtenerTipoErroryProblema();
+    }
+    function validarEnviarFormulario() {
+        if ($('#TipoError').val() == '') {
+            Swal.fire('Seleccionar Tipo de Error');
+        } else if ($('#Problema').val() == '') {
+            Swal.fire('Seleccionar Problema');
+        } else {
+            var object = $("#NuevaSolicitud").serialize();
+            $.ajax('/AtencionCliente/validarNuevaSolicitud',
+                {
+                    data: object,
+                    dataType: 'html',
+                    cache: false,
+                    type: 'post'
+                })
+                .done(function (response) {
+                    if (response != "true") { swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false }
+                    else { $("#NuevaSolicitud").submit(); }
+                });
+        }
+    }
+    function filtrarArticulo(dom) {
+        desc = $(dom).val().toLowerCase();
+
+        $("#Articulos > tbody > tr").each(function (index, obj) {
+            if (index > 0) {
+                if (desc.length == 0) {
+                    $(obj).attr("class", "");
+                } else {
+                    if ($(obj).text().toLowerCase().indexOf(desc) == -1) {
+                        $(obj).attr("class", "d-none");
+                    } else {
+                        $(obj).attr("class", "");
+                    }
+                }
+            }
+
+        })
+    }
+
+    function obtenerTipoErroryProblema() {
+        let msj = false;
+
+        if ($('#TipoError').val() != '') {
+            $('.cls-TipoError').val($('#TipoError').val());
+        } else {
+            Swal.fire('Seleccionar Tipo de Error');
+            msj = true;
+        }
+
+        if ($('#Problema').val() != '') {
+            $('.cls-Problema').val($('#Problema').val());
+        } else if(msj == false) {
+            Swal.fire('Seleccionar Problema');
+        }
+    }
+
+    // Tipo de solicitud
+    document.getElementById("Tipo").addEventListener("change", (event) => {
+        if (event.target.value != '' && event.target.value != 'Reclamo') {
+            document.getElementById("div_tipoVenta").style.display = "block";
+            document.getElementById("div_canalVenta").style.display = "block";
+        } else {
+            document.getElementById("div_tipoVenta").style.display = "none";
+            document.getElementById("TipoVenta").value = "";
+            document.getElementById("div_canalVenta").style.display = "none";
+            $("#CanalVenta").html('');
+        }
+    });
+
+    document.getElementById("TipoVenta").addEventListener("change", (event) => {
+        let bodySelect = '';
+
+        if (event.target.value == 'VCALLC') {
+            bodySelect = `<option value='LIMA'>Lima</option>
+                                    <option value='PROV'>Provincia</option>
+                                    <option value='LIC'>Licitación</option>
+                                    <option value='CAD'>Cadena</option>`;
+            document.getElementById("div_canalVenta").style.display = "block";
+        } else if (event.target.value == 'VHORIZ') {
+            bodySelect = `<option value='PROMLIMA'>Promotoría Lima</option>
+                                    <option value='PROMPROV'>Promotoría Provincia</option>
+                                    <option value='TELEV'>Televentas</option>
+                                    <option value='CAD'>Cadena</option>`;
+            document.getElementById("div_canalVenta").style.display = "block";
+        } else if (event.target.value == 'VESTRAT') {
+            bodySelect = `<option value='CENTRO'>Centro</option>`;
+            document.getElementById("div_canalVenta").style.display = "block";
+        } else {
+            document.getElementById("div_canalVenta").style.display = "none";
+        }
+
+        $("#CanalVenta").html(bodySelect);
+    });
+
+    $('.cls-numeric').keypress(function (tecla) {
+        if (tecla.charCode < 48 || tecla.charCode > 57) {
+            return false;
+        }
+    });
+</script>

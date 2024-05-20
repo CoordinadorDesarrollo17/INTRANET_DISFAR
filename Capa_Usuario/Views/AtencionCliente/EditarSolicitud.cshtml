@@ -1,0 +1,675 @@
+﻿@model Capa_Entidad.AtencionCliente_ENT.TablasSql.OSAT_E
+@{
+    ViewBag.Title = "EditarSolicitud";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Dictionary<int, string> Adjuntos = (Dictionary<int, string>)ViewBag.Adjuntos;
+    int cantidadAdjuntos = (Adjuntos != null) ? Adjuntos.Count() : 0;
+
+    string valorReadonly = "";
+    if (Model.Estado != "Registrado")
+    {
+        valorReadonly = "readonly";
+    }
+}
+<style>
+    #Articulos td {
+        font-size: 13px;
+    }
+
+    #Articulos th {
+        color: black;
+    }
+
+    th {
+        padding: 10px;
+    }
+
+    i:hover {
+        cursor: pointer;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        if (@Model.Det.Count> 0) {
+        // Cargamos las listas TipoError dependiendo del tipoSolicitud
+        cargarSelectTipo("@Model.Det[0].TipoError");
+
+        // Seteamos el valor TipoError
+            $('#TipoError').val("@Model.Det[0].TipoError");
+            $('#Problema').val("@Model.Det[0].Problema");
+        }
+
+        obtenerTipoErroryProblema();
+    });
+
+    var Art;
+
+    function enviarValorEscogido(valor, id) {
+        $(`.cls-${id}`).val(valor);
+    }
+
+
+    function buscarTicket() {
+        if ($('#articulos_migrados').val() == 'NO' ){
+            var parametros = {
+                "DocNumTicket": $("#DocNumTicket").val()
+            };
+
+            Swal.fire({
+                html: '<img src="/imagenes/index/ReportesDigemid/cargando.gif" />',
+                //closeOnCancel: false,
+                allowOutsideClick: false,
+                showCancelButton: false,
+                showConfirmButton: false
+            });
+
+            $.ajax('/AtencionCliente/listarArticulosTicket',
+                {
+                    data: parametros,
+                    dataType: 'json',
+                    cache: false,
+                    type: 'post'
+                })
+                .done(function (response) {
+                    swal.close();
+                    $('#articulos_migrados').val('SI');
+                    Art = response.Det;
+
+                    let filas = "";
+                    $.each(response.Det, function (key, value) {
+                        filas += `<tr>
+                                        <td class="text-center">${key}</td>
+                                        <td>${value.ItemCode}</td>
+                                        <td class="text-center">${value.Dscription}</td>
+                                        <td class="text-center">${value.BatchNum}</td>
+                                        <td class="text-center">${value.NroSap}</td>
+                                        <td><button class="btn btn-sm btn-cobefar" data-dismiss="modal" onclick="agregarTabla('${key}')"><i class="icon icon-plus"></i> Agregar</button></td>
+                                </tr>`;
+                    });
+
+                    $("#Articulos > tbody").html(filas);
+                }).fail(function () {
+                    alert('Hubo un Error!!'); swal.close();
+                });
+        }
+    }
+
+    function agregarTabla(key) {
+        //console.log(Art);
+        let htm = `<tr>
+                            <td hidden><input type='hidden' name='Det[${Lin}].TipoError' id='Det${Lin}TipoError' class="cls-TipoError" value='' readonly /></td>
+                            <td hidden><input type='hidden' name='Det[${Lin}].Problema' id='Det${Lin}Problema' class="cls-Problema" value='' readonly /></td>
+                            <td hidden><input type='hidden' name='Det[${Lin}].ErrorAlmacen' id='Det${Lin}ErrorAlmacen' class="cls-ErrorAlmacen" value='' readonly /></td>
+                            <td hidden><input type='hidden' name='Det[${Lin}].Linea' value='${Lin + 1}' readonly /></td>
+                            <td class="text-center"><input class='form-control' type='hidden' name='Det[${Lin}].NroSap' value='${Art[key].NroSap}'  readonly/>${Art[key].NroSap}</td>
+                            <td class="text-center"><input  type='hidden' name='Det[${Lin}].ItemCode' value='${Art[key].ItemCode}' readonly/>${Art[key].ItemCode}</td>
+                            <td class="text-center"><input type='hidden' name='Det[${Lin}].Dscription' value='${Art[key].Dscription}' readonly/>${Art[key].Dscription}</td>
+                            <td class="text-center"><input type='hidden' name='Det[${Lin}].BatchNum' value='${Art[key].BatchNum}' readonly/>${Art[key].BatchNum}</td>
+                            <td class="text-center"><input type='hidden' name='Det[${Lin}].ExpDate' value='${Art[key].ExpDate}' readonly/>${Art[key].ExpDate}</td>
+                            <td class="text-center"><input type='hidden' name='Det[${Lin}].UnitMsr' value='${Art[key].UnitMsr}' readonly/>${Art[key].UnitMsr}</td>
+                            <td hidden><input class='form-control' type='hidden' name='Det[${Lin}].NumPerMsr' id='Det${Lin}NumPerMsr' value='${Art[key].NumPerMsr}' readonly /></td>
+                            <td class="text-center"><input type='hidden' name='Det[${Lin}].Quantity' value='${Art[key].Quantity}' readonly />${Art[key].Quantity}</td>
+                            <td class="text-center"><input type='hidden' name='Det[${Lin}].PriceAfVAT' id='Det${Lin}PriceAfVAT' value='${Art[key].PriceAfVAT}' readonly/>${Art[key].PriceAfVAT}</td>
+                            <td class="text-center">
+                                <select class='form-control bg-cobefar text-white' name='Det[${Lin}].unitMsrF' id='Det${Lin}unitMsrF' style='width:100px;' onchange='limpiarCantidad(${Lin});'>
+                                <option value=''>Seleccione</option>
+                                <option value='C'>CAJA</option>
+                                <option value='P'>PIEZA</option>
+                                </select>
+                            </td>
+                            <td class="text-center"><input  class='form-control cls-numeric' name='Det[${Lin}].QuantityF' id='Det${Lin}QuantityF' style='width:60px;height:30px' onchange='calcularLineTotalF(${Lin});'></td>
+                            <td class="text-center"><input class='form-control' name='Det[${Lin}].LineTotalF' id='Det${Lin}LineTotalF' type='text' style='width:100px;height:30px' readonly/></td>
+                            <td class="text-center"><input class='form-control' type='text' name='Det[${Lin}].AlmVenta' id='Det${Lin}AlmVenta' value='${Art[key].AlmVenta}' style='width:70px;height:30px' readonly/></td>
+                            <td class="text-center"><button class="btn btn-danger" onclick='borrarTrTable1(this)'><i class='icon icon-bin' ></i></button></td>
+                        </tr>`;
+        $("#ArtAten").append(htm);
+        Lin = Lin + 1;
+
+        // Función para siempre obtener el error y y problema preseleccionado
+        obtenerTipoErroryProblema();
+    }
+
+    function cargarSelectTipo(tipoError) {
+        let problemas = "<option value=''>Seleccione</option>";
+
+        if (tipoError == "ErrorAlmacen") {
+            problemas += `<option value='CruceDeLote'>Cruce de lote</option>
+                                        <option value='CruceDeProducto'>Cruce de producto</option>
+                                        <option value='ProductoMaltratado'>Producto maltratado</option>
+                                        <option value='Faltante'>Faltante</option>
+                                        <option value='SinLote'>Sin lote</option>`;
+        }
+
+        else if (tipoError == "ErrorVendedor") {
+            problemas += `<option value='ProductoNoSolicitado'>Producto no solicitado</option>
+                                    <option value='UnidadDeVentaErrónea'>Unidad de venta errónea</option>
+                                    <option value='PrecioIncorrecto'>Precio incorrecto</option>
+                                    <option value='CantidadIncorrecta'>Cantidad incorrecta</option>
+                                    <option value='FechaCorta'>Fecha corta</option>`;
+        }
+        else if (tipoError == "ErrorCliente") {
+            problemas += `<option value='ProductoIncorrecto'>Producto incorrecto</option>
+                                        <option value='FechaCorta'>Fecha corta</option>
+                                        <option value='CantidadIncorrecta'>Cantidad incorrecta</option>`;
+        } else if (tipoError == "ErrorProveedor") {
+            problemas += `<option value='FallaDeCalidad'>Falla de calidad</option>
+                                        <option value='LoteBorroso'>Lote borroso</option>
+                                        <option value='ProductoMaltratado'>Producto maltratado</option>
+                                        <option value='SinLote'>Sin lote</option>`;
+        } else if (tipoError == "RetiroMercado") {
+            problemas += `<option value='RetiroMercado'>Retiro de mercado</option>`;
+        } else if (tipoError == "ErrorAgencia") {
+
+            problemas += `<option value='ProductoMaltratado' >Producto maltratado</option>`;
+        }
+
+        problemas += `<option value='Otros'>Otros</option>`;
+
+        $('#Problema').html(problemas);
+    }
+
+
+
+        var Lin = @(Model.Det.Count);
+
+        function verSeguimiento(DocEntryT) {
+            if (DocEntryT != null && DocEntryT > 0) {
+                window.open("/Ventas/SeguimientoDeTicket?DocEntry=" + DocEntryT, "_blank", 'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');
+            }
+        }
+        function calcularLineTotalF(line) {
+            if ($("#Det" + line + "unitMsrF").val() == 'P') {
+                $("#Det" + line + "LineTotalF").val(($("#Det" + line + "PriceAfVAT").val() * $("#Det" + line + "QuantityF").val() / $("#Det" + line + "NumPerMsr").val()).toFixed(5));
+            }
+            else if ($("#Det" + line + "unitMsrF").val() == 'C') {
+                $("#Det" + line + "LineTotalF").val(($("#Det" + line + "PriceAfVAT").val() * $("#Det" + line + "QuantityF").val()).toFixed(5));
+            }
+        }
+        function limpiarCantidad(line) {
+            $("#Det" + line + "QuantityF").val("");
+            $("#Det" + line + "LineTotalF").val("");
+        }
+    function borrarTrTable1(dom) {
+        var i = -1;
+        $(dom).closest('tr').remove();
+        Lin = Lin - 1;
+
+        $("#ArtAten" + " tr").each(function (index, htm) {
+            iden1 = $(htm).find("td:eq(0) input");
+            iden1.attr("name", "Det[" + i + "].TipoError");
+
+            iden1 = $(htm).find("td:eq(1) input");
+            iden1.attr("name", "Det[" + i + "].Problema");
+
+            iden1 = $(htm).find("td:eq(2) input");
+            iden1.attr("name", "Det[" + i + "].ErrorAlmacen");
+
+            iden1 = $(htm).find("td:eq(3) input");
+            iden1.attr("name", "Det[" + i + "].Linea");
+            iden1.val(i + 1);
+            iden2 = $(htm).find("td:eq(4) input");
+            iden2.attr("name", "Det[" + i + "].NroSap");
+
+            iden3 = $(htm).find("td:eq(5) input");
+            iden3.attr("name", "Det[" + i + "].ItemCode");
+
+            iden3 = $(htm).find("td:eq(6) input");
+            iden3.attr("name", "Det[" + i + "].Dscription");
+
+            iden3 = $(htm).find("td:eq(7) input");
+            iden3.attr("name", "Det[" + i + "].BatchNum");
+
+            iden3 = $(htm).find("td:eq(8) input");
+            iden3.attr("name", "Det[" + i + "].ExpDate");
+
+            iden3 = $(htm).find("td:eq(9) input");
+            iden3.attr("name", "Det[" + i + "].UnitMsr");
+
+            iden3 = $(htm).find("td:eq(10) input");
+            iden3.attr("name", "Det[" + i + "].NumPerMsr");
+            iden3.attr("id", "Det" + i + "NumPerMsr");
+
+            iden3 = $(htm).find("td:eq(11) input");
+            iden3.attr("name", "Det[" + i + "].Quantity");
+
+            iden3 = $(htm).find("td:eq(12) input");
+            iden3.attr("name", "Det[" + i + "].PriceAfVAT");
+            iden3.attr("id", "Det" + i + "PriceAfVAT");
+
+            iden3 = $(htm).find("td:eq(13) select");
+            iden3.attr("name", "Det[" + i + "].unitMsrF");
+            iden3.attr("id", "Det" + i + "unitMsrF");
+            iden3.attr("onchange", "limpiarCantidad(" + i + ");");
+
+            iden3 = $(htm).find("td:eq(14) input");
+            iden3.attr("name", "Det[" + i + "].QuantityF");
+            iden3.attr("id", "Det" + i + "QuantityF");
+            iden3.attr("onchange", "calcularLineTotalF(" + i + ");");
+
+            iden3 = $(htm).find("td:eq(15) input");
+            iden3.attr("name", "Det[" + i + "].LineTotalF");
+            iden3.attr("id", "Det" + i + "LineTotalF");
+
+            iden3 = $(htm).find("td:eq(16) input");
+            iden3.attr("name", "Det[" + i + "].AlmVenta");
+            iden3.attr("id", "Det" + i + "AlmVenta");
+            i = i + 1;
+        });
+
+        // Función para siempre obtener el error y y problema preseleccionado
+        obtenerTipoErroryProblema();
+    }
+    function validarEnviarFormulario() {
+        if ($('#TipoError').val() == '') {
+            Swal.fire('Seleccionar Tipo de Error');
+        } else if ($('#Problema').val() == '') {
+            Swal.fire('Seleccionar Problema');
+        } else {
+            var object = $("#EditarSolicitud").serialize();
+            $.ajax('/AtencionCliente/validarEditarSolicitud',
+                {
+                    data: object,
+                    dataType: 'html',
+                    cache: false,
+                    type: 'post'
+                })
+                .done(function (response) {
+                    if (response != "true") { swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false }
+                    else { $("#EditarSolicitud").submit(); }
+                });
+        }
+    }
+
+        function filtrarArticulo(dom) {
+            desc = $(dom).val().toLowerCase();
+            $("#Articulos > tbody" + " tr").each(function (index, htm) {
+                if (index > 0) {
+                    if (desc.length == 0) {
+                        $(htm).attr("class", "");
+                    }
+                    else {
+                        if ($(htm).text().toLowerCase().indexOf(desc) == -1) {
+                            $(htm).attr("class", "d-none");
+                        }
+                        else {
+                            $(htm).attr("class", "");
+                        }
+                    }
+                }
+
+            })
+        }
+</script>
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("GestionSolicitud", "AtencionCliente")">Módulo gestión de solicitudes</a></li>
+            <li class="current"><em>Editar solicitud</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">EDITAR SOLICITUD</h3></div>
+</div>
+
+<div class="bg-form-pestanas-cobefar">
+    @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "EditarSolicitud", enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="bg-section-form p-4 bg-form-cobefar">
+            <h4 class="text-cobefar font-weight-bold">DATOS DE TICKET</h4>
+            @Html.EditorFor(model => model.DocEntry, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+
+            <div class="row mt-4">
+                <div class="col-lg-3">
+                    <label for="Tipo" class="text-dark form-label font-weight-bold font-18">Tipo:</label>
+                    @Html.EditorFor(model => model.Tipo, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = true } })
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="Estado" class="text-dark form-label font-weight-bold font-18">Estado:</label>
+                    @Html.EditorFor(model => model.Estado, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = true } })
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="FechaRegistro" class="text-dark form-label font-weight-bold font-18">Fecha de registro:</label>
+                    @Html.EditorFor(model => model.FechaRegistro, new { htmlAttributes = new { @type = "date", @class = "form-control text-center border-success", @readonly = true } })
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="OpRegistro" class="text-dark form-label font-weight-bold font-18">Registrado por:</label>
+                    @Html.EditorFor(model => model.OpRegistro, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = true } })
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-3">
+                    <label for="DocNum" class="text-dark form-label font-weight-bold font-18">N° Solicitud:</label>
+                    @Html.EditorFor(model => model.DocNum, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = true } })
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="TipoVenta" class="text-dark form-label font-weight-bold font-18">Tipo de Venta:</label>
+                    <select name="TipoVenta" id="TipoVenta" class="form-control bg-cobefar text-white border-success" onchange="cargarCanalesDeVenta()">
+                        <option value="">Seleccione</option>
+                        <option value="VCALLC" @if (Model.TipoVenta != null && Model.TipoVenta.Equals("VCALLC")) { Write("selected"); }>Ventas Call Center</option>
+                        <option value="VHORIZ" @if (Model.TipoVenta != null && Model.TipoVenta.Equals("VHORIZ")) { Write("selected"); }>Ventas Horizontal</option>
+                        <option value="VESTRAT" @if (Model.TipoVenta != null && Model.TipoVenta.Equals("VESTRAT")) { Write("selected"); }>Ventas Estratégicas</option>
+                    </select>
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="CanalVenta" class="text-dark form-label font-weight-bold font-18">Canal de Venta:</label>
+                    <select name="CanalVenta" id="CanalVenta" class="form-control bg-cobefar text-white border-success" onchange="">
+                        <option value="">Seleccione</option>
+                    </select>
+                </div>
+            </div>
+
+
+            <div class="row mt-4 mb-4">
+                <div class="col-lg-3">
+                    <input type="hidden" name="FechaFacturacion" id="FechaFacturacion" autocomplete="off" />
+                    <label for="DocNumTicket" class="text-dark form-label font-weight-bold font-18">N° Ticket:</label>
+                    <input class="form-control text-center border-success" type="search" name="DocNumTicket" id="DocNumTicket" value="@Model.DocNumTicket" readonly />
+                </div>
+
+                <div class="col-lg-3 d-flex align-items-end">
+                    <button type="button" id="Seg" onclick="verSeguimiento(@Model.DocEntryTicket)" class="btn btn-warning">
+                        <i class="icon-pushpin"></i> Seguimiento
+                    </button>
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="LugarDestino" class="text-dark form-label font-weight-bold font-18">Lugar de Destino:</label>
+                    <input type="text" id="LugarDestino" name="DetORTV[LugarDestino]" class="form-control text-center border-success" value="@if (Model.DetORTV != null) { if (Model.DetORTV["LugarDestino"] != "") { Write(Model.DetORTV["LugarDestino"]); }}" readonly />
+                </div>
+            </div>
+
+            @Html.EditorFor(model => model.DocEntryTicket, new { htmlAttributes = new { @readonly = "true", @type = "hidden" } })
+            <input type="hidden" id="CardCode" name="DetORTV[CardCode]" class="form-control border-success" value="@if (Model.DetORTV != null) { if (Model.DetORTV["CardCode"] != "") { Write(Model.DetORTV["CardCode"]); }}" readonly />
+            <input type="hidden" id="CardName" name="DetORTV[CardName]" class="form-control border-success" value="@if (Model.DetORTV != null) { if (Model.DetORTV["CardName"] != "") { Write(Model.DetORTV["CardName"]); }}" readonly />
+
+            <h4 class="text-cobefar font-weight-bold">DATOS DEL CLIENTE</h4>
+
+            <div class="row mt-4">
+                <div class="col-lg-4">
+                    <label for="Contacto" class="text-dark form-label font-weight-bold font-18">Contacto:</label>
+                    <input type="text" name="Contacto" id="Contacto" class="form-control border-success text-center" value="@Model.Contacto" @valorReadonly />
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="Correo" class="text-dark form-label font-weight-bold font-18">Correo:</label>
+                    <input type="text" name="Correo" id="Correo" class="form-control border-success text-center" value="@Model.Correo" @valorReadonly />
+                </div>
+
+                <div class="col-lg-2">
+                    <label for="Telefono" class="text-dark form-label font-weight-bold font-18">Teléfono:</label>
+                    <input type="text" name="Telefono" id="Telefono" class="form-control border-success text-center cls-numeric" value="@Model.Telefono" @valorReadonly />
+                </div>
+
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-9">
+                    <label for="DireccionRecojo" class="text-dark form-label font-weight-bold font-18">Dirección:</label>
+                    <input type="text" name="DireccionRecojo" id="DireccionRecojo" class="form-control border-success" value="@Model.DireccionRecojo" autocomplete="off" @valorReadonly />
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-4">
+                    <label class="text-dark form-label font-weight-bold font-18">Lista de Artículos:</label>
+                    <button type="button" data-toggle="modal" data-target="#exampleModal" class="btn btn-info" onclick="buscarTicket();">Seleccionar</button>
+                    <input type="hidden" id="articulos_migrados" value="NO" />
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-3">
+
+                    <label for="TipoError" class="text-dark form-label font-weight-bold font-18">Tipo de Error:</label>
+                    <select class="form-control bg-cobefar text-white" id="TipoError" name='TipoError' onchange="enviarValorEscogido(this.value, this.id); cargarSelectTipo(this.value);">
+                        <option value=''>Seleccione</option>
+                        <option value='ErrorAlmacen' @if (Model.Det[0].TipoError == "ErrorAlmacen") { Write("selected"); }>Error de almacén</option>
+                        <option value='ErrorVendedor' @if (Model.Det[0].TipoError == "ErrorVendedor") { Write("selected"); }>Error de vendedor</option>
+                        <option value='ErrorCliente' @if (Model.Det[0].TipoError == "ErrorCliente") { Write("selected"); }>Error de cliente</option>
+                        <option value='ErrorProveedor' @if (Model.Det[0].TipoError == "ErrorProveedor") { Write("selected"); }>Error de proveedor</option>
+                        <option value='RetiroMercado' @if (Model.Det[0].TipoError == "RetiroMercado") { Write("selected"); }>Retiro de mercado</option>
+                        <option value='ErrorAgencia' @if (Model.Det[0].TipoError == "ErrorAgencia") { Write("selected"); }>Error de agencia</option>
+                        <option value='Otros' @if (Model.Det[0].TipoError == "Otros") { Write("selected"); }>Otros</option>
+                    </select>
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="Problema" class="text-dark form-label font-weight-bold font-18">Problema:</label>
+                    <select class="form-control bg-cobefar text-white" id="Problema" name='Problema' onchange="enviarValorEscogido(this.value, this.id)">
+                        <option value=''>Seleccione</option>
+                    </select>
+                </div>
+            </div>
+
+
+            <div class="row mt-4">
+                <div class="col-lg-12">
+                    <table id="ArtAten" class="table table-light table-sm table-hover table-responsive-md">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th class="text-center" style="width:50px">NroSap</th>
+                                <th class="text-center" style="width:50px">Codigo</th>
+                                <th class="text-center" style="width:200px">Descripción</th>
+                                <th class="text-center" style="width:100px">Lote</th>
+                                <th class="text-center" style="width:80px">Fecha Ven</th>
+                                <th class="text-center" style="width:50px">Um Vend</th>
+                                <th class="text-center" style="width:50px">Cant. Vend</th>
+                                <th class="text-center" style="width:50px">Precio</th>
+                                <th class="text-center" style="width:120px">Um</th>
+                                <th class="text-center" style="width:80px">Cant.</th>
+                                <th class="text-center" style="width:120px">Total</th>
+                                <th class="text-center" style="width:80px">Alm Venta</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody style="background: #D1D1D1">
+                            @{ int i = 0;}
+                            @foreach (var obj in Model.Det)
+                            {
+                                <tr>
+                                    <td hidden><input type='hidden' name='Det[@i].TipoError' id='Det@(i)TipoError' class="cls-TipoError" value='' readonly /></td>
+                                    <td hidden><input type='hidden' name='Det[@i].Problema' id='Det@(i)Problema' class="cls-Problema" value='' readonly /></td>
+                                    <td hidden><input type='hidden' name='Det[@i].ErrorAlmacen' id='Det@(i)ErrorAlmacen' class="cls-ErrorAlmacen" value='' readonly /></td>
+                                    <td hidden><input type='hidden' name='Det[@i].Linea' value='@obj.Linea' readonly /></td>
+
+                                    <td class="text-center">
+                                        @*<input type='hidden' name='Det[@i].DocEntry' id='Det@(i)DocEntry' class="cls-DocEntry" value='@obj.DocEntry' readonly />*@
+                                        <input type='hidden' name='Det[@i].NroSap' value='@obj.NroSap' readonly />@obj.NroSap
+                                    </td>
+                                    <td class="text-center"><input type='hidden' name='Det[@i].ItemCode' value='@obj.ItemCode' readonly />@obj.ItemCode</td>
+                                    <td class="text-center"><input type='hidden' name='Det[@i].Dscription' value='@obj.Dscription' readonly />@obj.Dscription</td>
+                                    <td class="text-center"><input type='hidden' name='Det[@i].BatchNum' value='@obj.BatchNum' readonly />@obj.BatchNum</td>
+                                    <td class="text-center"><input type='hidden' name='Det[@i].ExpDate' value='@obj.ExpDate' readonly />@obj.ExpDate</td>
+                                    <td class="text-center">
+                                        <input type='hidden' name='Det[@i].unitMsr' value='@obj.UnitMsr' readonly />@obj.UnitMsr
+                                    </td>
+                                    <td hidden><input type='hidden' name='Det[@i].NumPerMsr' id='Det@(i)NumPerMsr' value='@((int)obj.NumPerMsr)' readonly /></td>
+                                    <td class="text-center"><input type='hidden' name='Det[@i].Quantity' value='@((int)obj.Quantity)' readonly />@((int)obj.Quantity)</td>
+                                    <td class="text-center"><input type='hidden' name='Det[@i].PriceAfVAT' id='Det@(i)PriceAfVAT' value='@((double)obj.PriceAfVAT)' readonly />@((double)obj.PriceAfVAT)</td>
+
+                                    @if (Model.Estado != "Registrado")
+                                    {
+                                        <td class="text-center"><input type='hidden' name='Det[@i].unitMsrF' id='Det@(i)unitMsrF' value='@obj.unitMsrF' readonly />@obj.unitMsrF</td>
+                                        <td class="text-center"><input type='hidden' name='Det[@i].QuantityF' id='Det@(i)QuantityF' value='@obj.QuantityF' readonly />@obj.QuantityF</td>
+                                        <td class="text-center"><input type='hidden' name='Det[@i].LineTotalF' id='Det@(i)LineTotalF' value='@((double)obj.LineTotalF)' readonly />@((double)obj.LineTotalF)</td>
+                                        <td class="text-center"><input type='hidden' name='Det[@i].AlmVenta' id='Det@(i)AlmVenta' value='@obj.AlmVenta' readonly />@obj.AlmVenta</td>
+                                        <td></td>
+                                    }
+                                    else
+                                    {
+                                        <td class="text-center">
+                                            <select class='form-control' name='Det[@i].unitMsrF' id='Det@(i)unitMsrF' style='width:100px;' onchange='limpiarCantidad(@(i));'>
+                                                <option value=''>Seleccione</option>
+                                                <option value='C' @if (obj.unitMsrF == "C") { Write("selected"); }>CAJA</option>
+                                                <option value='P' @if (obj.unitMsrF == "P") { Write("selected"); }>PIEZA</option>
+                                            </select>
+                                        </td>
+                                        <td class="text-center"><input class='form-control text-center cls-numeric' name='Det[@i].QuantityF' value="@((int)obj.QuantityF)" id='Det@(i)QuantityF' onchange='calcularLineTotalF(@(i));'></td>
+                                        <td class="text-center"><input class='form-control text-center' name='Det[@i].LineTotalF' value="@((double)obj.LineTotalF)" id='Det@(i)LineTotalF' readonly /></td>
+                                        <td class="text-center"><input class='form-control' type='hidden' name='Det[@i].AlmVenta' id='Det@(i)AlmVenta' value='@obj.AlmVenta' readonly />@obj.AlmVenta</td>
+                                        <td class="text-center"><button class="btn btn-danger" onclick='borrarTrTable1(this)'><i class='icon icon-bin'></i></button></td>
+                                        { i++; }
+                                    }
+                                </tr>
+                            }
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+
+
+            <div class="row mt-4">
+                <div class="col-lg-4">
+                    <input class="form-control border-success" style="height: 44px" id="UrlArchivo" name="UrlArchivo" placeholder="Url de archivo en nube" type="text" value="@Model.UrlArchivo">
+                </div>
+            </div>
+
+            @if (cantidadAdjuntos >= 1)
+            {
+                <div class="row mt-4">
+                    <div class="col-lg-4">
+                        @Html.TextBoxFor(x => x.Archivo, new { @type = "file", @accept = ".pdf, .zip, .docx, .xlsx, .png, .jpg, .jpeg, .rar", @class = "form-control border-success", @multiple = "multiple" })
+                    </div>
+                </div>
+                foreach (KeyValuePair<int, string> adj in Adjuntos)
+                {
+                    <div class="row mt-4">
+                        <div class="col-lg-4">
+                            <div class="d-flex">
+
+                                <input class='form-control border-success' value='@adj.Value' readonly />
+                                <a href="@Url.Action("ArchivoSolicitud", "AtencionCliente" , new { id = Model.DocEntry, linea = adj.Key } )" class="btn btn-cobefar"><i class="icon-folder-download"></i> Descargar</a>
+                            </div>
+
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="row mt-4">
+                    <div class="col-lg-4">
+                        @Html.TextBoxFor(x => x.Archivo, new { @type = "file", @accept = ".pdf, .zip, .docx, .xlsx, .png, .jpg, .jpeg, .rar", @class = "form-control border-success", @multiple = "multiple" })
+                    </div>
+
+
+                </div>
+            }
+
+            <div class="row mt-4">
+                <div class="col-lg-4">
+                    <button type="button" class="btn btn-success" onclick="validarEnviarFormulario();"><i class="icon icon-pencil2"></i> Editar</button>
+                </div>
+            </div>
+
+        </div>
+    }
+</div>
+
+<div class="modal fade " id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-cobefar text-white">
+                <h5 class="modal-title" id="exampleModalLabel">Artículos</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span class="text-white" aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="text" class="form-control" placeholder="Digite el artículo" onkeyup="filtrarArticulo(this);" />
+                <br />
+                <table id="Articulos" class="table table-light table-sm table-hover">
+                    <thead class="bg-dark">
+                        <tr>
+                            <th class="text-center text-white">#</th>
+                            <th class="text-center text-white">Código</th>
+                            <th class="text-center text-white">Descripción</th>
+                            <th class="text-center text-white">Lote</th>
+                            <th class="text-center text-white">NroSap</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        cargarCanalesDeVenta();
+
+        let modelCanalVenta = `@Model.CanalVenta`;
+        if (modelCanalVenta != '') {
+            $('#CanalVenta').val(modelCanalVenta);
+        }
+    });
+
+    if ('@ViewBag.Mensaje' != "") {
+        swal.fire({
+            title: "@ViewBag.Mensaje",
+            text: "Presione OK para continuar",
+            icon: "warning"
+        })
+    };
+
+
+    function cargarCanalesDeVenta() {
+        let bodySelect = '';
+        let tipoVenta = document.getElementById("TipoVenta").value;
+
+        if (tipoVenta == 'VCALLC') {
+            bodySelect = `<option value='LIMA'>Lima</option>
+                                    <option value='PROV'>Provincia</option>
+                                    <option value='LIC'>Licitación</option>
+                                    <option value='CAD'>Cadena</option>`;
+        } else if (tipoVenta == 'VHORIZ') {
+            bodySelect = `<option value='PROMLIMA'>Promotoría Lima</option>
+                                    <option value='PROMPROV'>Promotoría Provincia</option>
+                                    <option value='TELEV'>Televentas</option>
+                                    <option value='CAD'>Cadena</option>`;
+        } else if (tipoVenta == 'VESTRAT') {
+            bodySelect = `<option value='CENTRO'>Centro</option>`;
+        }
+
+        $("#CanalVenta").html(bodySelect);
+    }
+
+    $('.cls-numeric').keypress(function (tecla) {
+        if (tecla.charCode < 48 || tecla.charCode > 57) {
+            return false;
+        }
+    });
+
+    function obtenerTipoErroryProblema() {
+        let msj = false;
+
+        if ($('#TipoError').val() != '') {
+            $('.cls-TipoError').val($('#TipoError').val());
+        } else {
+            Swal.fire('Seleccionar Tipo de Error');
+            msj = true;
+        }
+
+        if ($('#Problema').val() != '') {
+            $('.cls-Problema').val($('#Problema').val());
+        } else if (msj == false) {
+            Swal.fire('Seleccionar Problema');
+        }
+
+    }
+</script>

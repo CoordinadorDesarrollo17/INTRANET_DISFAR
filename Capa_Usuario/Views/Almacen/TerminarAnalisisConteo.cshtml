@@ -1,0 +1,324 @@
+﻿@model Capa_Entidad.Almacen_ENT.TablasSql.OIAR_E
+@using Capa_Entidad.Almacen_ENT.TablasSql
+@{
+    ViewBag.Title = "TerminarAnalisisConteo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<IPE2_E> Lotes = (List<IPE2_E>)ViewBag.Lotes;
+}
+<script>
+    $(document).ready(function () {
+        selectLotesConStock = $("#Lotes").html();
+        selectLotesSinStock = "";
+        var parametros = {
+            "ItemCode": $("#ItemCode").val(),
+            "WhsCode": $("#WhsCode").val(),
+            "ExpDate": $("#TiempoRegistro").val()
+        };
+        $.ajax('/Almacen/listarLotesSinStock',
+            {
+                data: parametros,
+                dataType: 'json',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                selectLotesSinStock += "<option value=''>Seleccione</option>";
+                $.each(response, function (key, value) {
+                    selectLotesSinStock += "<option value='" + value.BatchNum + "' ExpDate='" + value.AuxExpDate + "' >" + value.BatchNum + "</option>";
+                });
+            });
+    });
+    var contUser = 0;
+    function llenarCampos() {
+        $("#BatchNum").val($('#Lotes').val());
+        $("#ExpDate").val($("#Lotes option[value='" + $('#Lotes').val() + "']").attr("ExpDate"));
+    }
+    function llenarTabla(idTabla) {
+        var BatchNum = $("#BatchNum").val();
+        var ExpDate = $("#ExpDate").val();
+        var QuantityCajas = $("#StockCajas").val();
+        var QuantityPiezas = $("#StockPiezas").val();
+        var ObsLote = $("#Obs").val();
+        if (BatchNum == null || BatchNum == "") { swal.fire("No ha seleccionado un lote", "Verifique", "warning"); return; }
+        if (ExpDate == null || ExpDate == "") { swal.fire("la fecha vencimiento debe estar llena", "Verifique", "warning"); return; }
+        if (QuantityCajas < 0) { swal.fire("el stock en cajas debe ser positivo", "Verifique", "warning"); return; }
+        if (QuantityPiezas < 0) { swal.fire("el stock en piezas debe ser positivo", "Verifique", "warning"); return; }
+        if (QuantityCajas == 0 && QuantityPiezas <= 0) { swal.fire("el lote debe tener al menos 1 pieza de stock", "Verifique", "warning"); return; }
+        if (validarUnicoCampoTabla(BatchNum, idTabla)) {
+            $("#" + idTabla).append("<tr><td><input class='form-control' name='DetFases[0].DetContab[" + contUser + "].Linea' value='" + (contUser + 1) + " ' readonly /></td>" +
+                "<td><input class= 'form-control' name = 'DetFases[0].DetContab[" + contUser + "].BatchNum' value = '" + BatchNum + "' readonly /></td>" +
+                "<td><input class='form-control' type='text' name='DetFases[0].DetContab[" + contUser + "].ExpDate' value='" + ExpDate + "' readonly /></td>" +
+                "<td><input class='form-control' name='DetFases[0].DetContab[" + contUser + "].QuantityCajas' value='" + QuantityCajas + "' readonly /></td>" +
+                "<td><input class='form-control' name='DetFases[0].DetContab[" + contUser + "].QuantityPiezas' value='" + QuantityPiezas + "' readonly /></td>" +
+                "<td><input class='form-control' name='DetFases[0].DetContab[" + contUser + "].ObsLote' value='" + ObsLote + "' readonly /></td>" +
+                "<td><button type='button' onclick='borrarTrTable1(this," + '"' + BatchNum + '"' + ")' class='btn btn-danger'>Retirar</button></td></tr>");
+            contUser = contUser + 1;
+            $("#Lotes option[value='" + BatchNum + "']").hide();
+            if ($("#GrupoLotes").val() == "ConStock") { selectLotesConStock = $("#Lotes").html(); }
+            else if ($("#GrupoLotes").val() == "SinStock") { selectLotesSinStock = $("#Lotes").html(); }
+        }
+        $("#BatchNum").val(""); $("#StockCajas").val(""); $("#StockPiezas").val(""); $("#Obs").val(""); ExpDate = $("#ExpDate").val("");
+        $("#Lotes").val("");
+    }
+    function validarUnicoCampoTabla(identificador, idTabla) {
+        var sinRegistro = true;
+        $("#" + idTabla + " tr").find('td:eq(1) input').each(function () {
+            iden = $(this).val();
+            if (iden == identificador) { swal.fire("El valor ya se encuentra en la tabla", "Verifique", "warning"); sinRegistro = false; }
+        })
+        return sinRegistro;
+    }
+    function borrarTrTable1(dom, Batch) {
+        var i = -1;
+        $(dom).closest('tr').remove();
+        contUser = contUser - 1;
+        $("#DetArtDeCont12" + " tr").each(function (index, htm) {
+            iden1 = $(htm).find("td:eq(0) input");
+            iden1.attr("name", "DetFases[0].DetContab[" + i + "].Linea");
+            iden1.val(i + 1);
+            iden2 = $(htm).find("td:eq(1) input");
+            iden2.attr("name", "DetFases[0].DetContab[" + i + "].BatchNum");
+            iden3 = $(htm).find("td:eq(2) input");
+            iden3.attr("name", "DetFases[0].DetContab[" + i + "].ExpDate");
+            iden4 = $(htm).find("td:eq(3) input");
+            iden4.attr("name", "DetFases[0].DetContab[" + i + "].QuantityCajas");
+            iden5 = $(htm).find("td:eq(4) input");
+            iden5.attr("name", "DetFases[0].DetContab[" + i + "].QuantityPiezas");
+            iden6 = $(htm).find("td:eq(5) input");
+            iden6.attr("name", "DetFases[0].DetContab[" + i + "].ObsLote");
+            i = i + 1;
+        })
+        if ($("#GrupoLotes").val() == "ConStock") {
+            $("#Lotes").html(selectLotesSinStock); $("#Lotes option[value='" + Batch + "']").show();
+            selectLotesSinStock = $("#Lotes").html();
+            $("#Lotes").html(selectLotesConStock); $("#Lotes option[value='" + Batch + "']").show();
+            selectLotesConStock = $("#Lotes").html();
+        }
+        else if ($("#GrupoLotes").val() == "SinStock") {
+            $("#Lotes").html(selectLotesConStock); $("#Lotes option[value='" + Batch + "']").show();
+            selectLotesConStock = $("#Lotes").html();
+            $("#Lotes").html(selectLotesSinStock); $("#Lotes option[value='" + Batch + "']").show();
+            selectLotesSinStock = $("#Lotes").html();
+        }
+        else {
+            $("#Lotes").html(selectLotesSinStock); $("#Lotes option[value='" + Batch + "']").show();
+            selectLotesSinStock = $("#Lotes").html();
+            $("#Lotes").html(selectLotesConStock); $("#Lotes option[value='" + Batch + "']").show();
+            selectLotesConStock = $("#Lotes").html();
+            $("#Lotes").html("");
+        }
+    }
+    function terminarAnalisisConteo() {
+        var object = $("#TerminarAnalisisConteo").serialize();
+        $(location).attr('href', "/Almacen/TerminarAnalisisConteoPost?" + object);
+    }
+    function revertirTerminoAnalisisConteo() {
+        var object = $("#TerminarAnalisisConteo").serialize();
+        $(location).attr('href', "/Almacen/RevertirTerminoAnalisisConteo?" + object);
+    }
+    function listarLotes() {
+        if ($("#GrupoLotes").val() == "ConStock") {
+            $("#BatchNum").attr("readonly", true);
+            $("#ExpDate").attr("readonly", true);
+            if (selectLotesConStock != "") {
+                $("#Lotes").html(selectLotesConStock);
+                $("#BatchNum").val("");
+                $("#ExpDate").val("");
+            }
+        } else if ($("#GrupoLotes").val() == "SinStock") {
+            $("#BatchNum").attr("readonly", true);
+            $("#ExpDate").attr("readonly", true);
+            $("#Lotes").html(selectLotesSinStock);
+        } else {
+            $("#BatchNum").attr("readonly", false);
+            $("#ExpDate").attr("readonly", false);
+            $("#Lotes").html("");
+            $("#BatchNum").val("");
+            $("#ExpDate").val("");
+        }
+    }
+    function validarTerminoAnalisisConteo() {
+        var object = $("#TerminarAnalisisConteo").serialize();
+        $.ajax('/Almacen/validarTerminoAnalisisConteo',
+            {
+                data: object,
+                dataType: 'html',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                if (response != "true") { swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false }
+                else { terminarAnalisisConteo(); }
+            });
+    }
+    function validarRevertirTerminoAnalisisConteo() {
+        var object = $("#TerminarAnalisisConteo").serialize();
+        $.ajax('/Almacen/validarRevertirTerminoAnalisisConteo',
+            {
+                data: object,
+                dataType: 'html',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                if (response != "true") { swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false }
+                else { revertirTerminoAnalisisConteo(); }
+            });
+    }
+</script>
+<h4>TERMINAR ANÁLISIS DE CONTEO</h4>
+<p id="accion">
+    @Html.ActionLink("Volver atras", "GestionAnalisisConteos", null, new { @class = "btn btn-light" })
+</p>
+<br />
+<br />
+<div class="alert alert-danger" role="alert">
+    @if (@OIPE_E.PeriodoSeleccionado != null)
+    {
+        @("Periodo Seleccionado: " + OIPE_E.PeriodoSeleccionado.Descripcion + " ---- Almacenes: " + OIPE_E.PeriodoSeleccionado.enlistarDetAlmacenes())
+    }
+</div>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "TerminarAnalisisConteo" }))
+{
+    @Html.AntiForgeryToken()
+    <table class="table-responsive">
+        <tr>
+            <th class="col-1">Equipo</th>
+            <td><input class="form-control" id="DocEntryEqu" type="text" name="DocEntryEqu" readonly value="@Model.DocEntryEqu" /></td>
+
+            <th>Almacen</th>
+            <td><input class="form-control" type="text" name="WhsCode" readonly value="@Model.WhsCode" /></td>
+
+            <th>Piso</th>
+            <td><input class="form-control" type="text" name="Piso" readonly value="@Model.Piso" /></td>
+        </tr>
+    </table>
+    <table class="table-responsive">
+        <tr>
+            <th>Grupo Lotes</th>
+            <td>
+                <select id="GrupoLotes" onchange="listarLotes();" class="form-control">
+                    <option value="ConStock" selected>ConStock</option>
+                    <option value="SinStock">SinStock</option>
+                    <option value="SinRegistro">SinRegistro</option>
+                </select>
+            </td>
+            <th>Lotes</th>
+            <td>
+                <select id="Lotes" onchange="llenarCampos();" class="form-control">
+                    <option value="">Seleccione</option>
+                    @foreach (IPE2_E obj in Lotes)
+                    {
+                        <option value="@obj.BatchNum" ExpDate="@obj.ExpDate.ToString("yyyy-MM-dd")">@obj.BatchNum</option>
+                    }
+                </select>
+                <input id="BatchNum" type="text" placeholder="Llene el lote" class="form-control" readonly />
+            </td>
+            <td>
+                <input id="ExpDate" type="date" readonly class="form-control" />
+            </td>
+        </tr>
+        <tr>
+            <th>StockCajas</th>
+            <td><input id="StockCajas" type="number" class="form-control" /></td>
+            <th>StockPiezas</th>
+            <td><input id="StockPiezas" type="number" class="form-control" /></td>
+            <th>Observacion por lote</th>
+            <td>
+                <input id="Obs" type="search" list="ListaObs" autocomplete="off" class="form-control" />
+                <datalist id="ListaObs">
+                    <option value="Roto"></option>
+                    <option value="Maltratado"></option>
+                    <option value="Sin Fecha"></option>
+                    <option value="Sin Lote"></option>
+                    <option value="Sin Lote y Fecha"></option>
+                </datalist>
+            </td>
+            @if (Model.DetFases.Count > 5)
+            {
+                <td><button type="button" class="btn btn-light" onclick="">Agregar</button></td>
+            }
+            else
+            {
+                <td><button type="button" class="btn btn-info" onclick="llenarTabla('DetArtDeCont12')">Agregar</button></td>
+            }
+        </tr>
+        <tr>
+            <td colspan="6">
+                <table id="DetArtDeCont12" class="table table-sm ">
+                    <tr>
+                        <th class="table-dark">#</th>
+                        <th class="table-dark">Lote</th>
+                        <th class="table-dark">F.v</th>
+                        <th class="table-dark">StockCajas</th>
+                        <th class="table-dark">StockPiezas</th>
+                        <th class="table-dark">Obs</th>
+                        <th class="table-dark"></th>
+                    </tr>
+                    @if (Model.DetFases.Count > 5 && Model.DetFases[5].DetContab.Count > 0)
+                    {
+                        foreach (IAR12_E obj in Model.DetFases[5].DetContab)
+                        {
+                            <tbody class="table-light">
+                                <tr>
+                                    <td>@obj.Linea</td>
+                                    <td>@obj.BatchNum</td>
+                                    <td>@obj.ExpDate</td>
+                                    <td>@obj.QuantityCajas</td>
+                                    <td>@obj.QuantityPiezas</td>
+                                    <td>@obj.ObsLote</td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        }
+                    }
+                </table>
+            </td>
+        </tr>
+    </table>
+    <div style="text-align:center">
+        <button id="accion" type="button" class="btn btn-success" onclick="validarTerminoAnalisisConteo();">TerminarAnalisis</button>
+        <button id="accion" type="button" class="btn btn-danger" onclick="validarRevertirTerminoAnalisisConteo();">RevertirTerminoAnalisis</button>
+    </div>
+    <br />
+    <br />
+    <table>
+        <tr>
+            @if (Model.DetFases != null && Model.DetFases.Count > 4)
+            {
+                <th>TiempoInicioAnalisis</th>
+                <td><input class="form-control" value="@Model.DetFases[4].FechaFase" readonly /></td>
+                <td><input class="form-control" value="@Model.DetFases[4].HoraFase" readonly /></td>
+                <th>OpAnalisis</th>
+                <td><input class="form-control" name="DetFases[0].Operario" value="@Model.DetFases[4].Operario" readonly /></td>
+                <th>ObsInicioAnalisis</th>
+                <td colspan="2"><input class="form-control" value="@Model.DetFases[4].Observacion" readonly /></td>
+            }
+            else
+            {
+                <th>TiempoInicioAnalisis</th>
+                <td><input class="form-control" value="" readonly /></td>
+                <th>OpAnalisis</th>
+                <td><input class="form-control" value="" readonly /></td>
+                <th>ObsInicioAnalisis</th>
+                <td colspan="2"><input class="form-control" value="" readonly /></td>
+            }
+        </tr>
+        <tr>
+            <th>@Html.LabelFor(model => model.ItemName, htmlAttributes: new { @class = "control-label col-md-2" })</th>
+            <td colspan="3">@Html.EditorFor(model => model.ItemName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+            <td>@Html.EditorFor(model => model.ItemCode, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+            <th>@Html.LabelFor(model => model.DocEntry, htmlAttributes: new { @class = "control-label col-md-2" })</th>
+            <td>@Html.EditorFor(model => model.DocEntry, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+            <td hidden>
+                @Html.EditorFor(model => model.WhsCode, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                <input id="TiempoRegistro" value="@Model.FechaRegistro" readonly />
+            </td>
+        </tr>
+        <tr>
+            <th>@Html.LabelFor(model => model.Estado, htmlAttributes: new { @class = "control-label col-md-2" })</th>
+            <td>@Html.EditorFor(model => model.Estado, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+        </tr>
+    </table>
+}

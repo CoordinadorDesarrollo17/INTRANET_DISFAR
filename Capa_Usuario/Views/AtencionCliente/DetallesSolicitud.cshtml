@@ -1,0 +1,360 @@
+﻿@model Capa_Entidad.AtencionCliente_ENT.TablasSql.OSAT_E
+@using Capa_Entidad.AtencionCliente_ENT.TablasSql
+@{
+    ViewBag.Title = "DetallesSolicitud";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    #Articulos td {
+        font-size: 13px;
+    }
+
+    th {
+        padding: 10px;
+    }
+</style>
+<script>
+    function verSeguimiento(DocEntryT) {
+        if (DocEntryT != null && DocEntryT > 0) {
+            window.open("/Ventas/SeguimientoDeTicket?DocEntry=" + DocEntryT, "_blank", 'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');
+        }
+    }
+</script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("GestionSolicitud", "AtencionCliente")">Módulo gestión de solicitudes</a></li>
+            <li class="current"><em>Detalle de solicitud</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">DETALLE DE SOLICITUD</h3></div>
+</div>
+
+<div class="bg-form-pestanas-cobefar">
+    @using (Html.BeginForm("CulminarSolicitud", "AtencionCliente", FormMethod.Post, new { id = "frm_culminarSolicitud", enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="bg-section-form p-4 bg-form-cobefar">
+            <div class="row mt-4">
+                @Html.EditorFor(model => model.DocEntry, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+                <div class="col-lg-3">
+                    <label for="Tipo" class="text-dark form-label font-weight-bold font-18">Tipo:</label>
+                    @Html.EditorFor(model => model.Tipo, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = true } })
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="Estado" class="text-dark form-label font-weight-bold font-18">Estado:</label>
+                    @Html.EditorFor(model => model.Estado, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = true } })
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="FechaAtencion" class="text-dark form-label font-weight-bold font-18">Fecha de registro:</label>
+                    <input id="FechaAtencion" name="FechaAtencion" class="form-control border-success text-center" value="@Model.FechaRegistro" readonly />
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="OpAtencion" class="text-dark form-label font-weight-bold font-18">Registrado por:</label>
+                    <input id="OpAtencion" name="OpAtencion" class="form-control border-success text-center" value="@Model.OpRegistro" readonly />
+                </div>
+            </div>
+
+            <div class="row mt-2">
+                <div class="col-lg-3">
+                    <label for="DocNum" class="text-dark form-label font-weight-bold font-18">N° Solicitud:</label>
+                    @Html.EditorFor(model => model.DocNum, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = true } })
+                </div>
+
+                @if (Model.Tipo != null && !Model.Tipo.Equals("Reclamo"))
+                {
+                    <div class="col-lg-3">
+                        <label for="TipoVenta" class="text-dark form-label font-weight-bold font-18">Tipo de Venta:</label>
+                        <input type="text" class="form-control border-success text-center" id="TipoVenta" name="TipoVenta" readonly value="@ViewBag.TipoVenta">
+                    </div>
+
+                    <div class="col-lg-3">
+                        <label for="CanalVenta" class="text-dark form-label font-weight-bold font-18">Canal de Venta:</label>
+                        <input type="text" class="form-control border-success text-center" id="CanalVenta" name="CanalVenta" readonly value="@ViewBag.CanalVenta">
+                    </div>
+                }
+
+                <div class="col-lg-3">
+                    <label for="Factor" class="text-dark form-label font-weight-bold font-18">Factor:</label>
+                    <input id="Factor" name="Factor" class="form-control border-success text-center" value="@Model.Factor" readonly />
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-3">
+                    <label for="DocNumTicket" class="text-dark form-label font-weight-bold font-18">N° Ticket:</label>
+                    @Html.EditorFor(model => model.DocNumTicket, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = true } })
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="Resultado" class="text-dark form-label font-weight-bold font-18">Resultado:</label>
+                    <input id="Resultado" name="Resultado" class="form-control border-success text-center" value="@Model.Resultado" readonly />
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="TipoSolucion" class="text-dark form-label font-weight-bold font-18">Tipo Solución:</label>
+                    <input id="TipoSolucion" name="TipoSolucion" class="form-control border-success text-center" value="@Model.TipoSolucion" readonly />
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="LugarDestino" class="text-dark form-label font-weight-bold font-18">Lugar de Destino:</label>
+                    <input type="text" id="LugarDestino" name="LugarDestino" class="form-control text-center border-success" value="@Model.DetORTV["LugarDestino"]" readonly />
+                </div>
+            </div>
+
+            <div class="row mt-4 mb-5">
+                <div class="col-lg-12">
+                    <label for="Solucion" class="text-dark form-label font-weight-bold font-18">Solución:</label>
+                    <input id="Solucion" name="Solucion" class="form-control border-success text-center" value="@Model.Solucion" readonly />
+                </div>
+            </div>
+
+            <h4 class="text-cobefar font-weight-bold">DATOS DEL CLIENTE</h4>
+
+            <div class="row mt-2">
+                <div class="col-lg-6">
+                    <label for="Contacto" class="text-dark form-label font-weight-bold font-18">Contacto:</label>
+                    <input type="text" id="Contacto" name="Contacto" class="form-control text-center border-success" value="@Model.Contacto" readonly />
+                </div>
+
+                <div class="col-lg-4">
+                    <label for="Correo" class="text-dark form-label font-weight-bold font-18">Correo:</label>
+                    <input type="text" id="Correo" name="Correo" class="form-control text-center border-success" value="@Model.Correo" readonly />
+                </div>
+
+                <div class="col-lg-2">
+                    <label for="Telefono" class="text-dark form-label font-weight-bold font-18">Teléfono:</label>
+                    <input type="text" id="Telefono" name="Telefono" class="form-control text-center border-success" value="@Model.Telefono" readonly />
+                </div>
+
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-12">
+                    <label for="DireccionRecojo" class="text-dark form-label font-weight-bold font-18">Dirección:</label>
+                    <input type="text" id="DireccionRecojo" name="DireccionRecojo" class="form-control text-center border-success" value="@Model.DireccionRecojo" readonly />
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-4">
+                    <label for="Problema" class="text-dark form-label font-weight-bold font-18">Problema:</label>
+                    <input type="text" id="Problema" name="Problema" class="form-control text-center border-success" value="@if (Model.Det != null && Model.Det.Count >= 1) { Write(Model.Det[0].Problema); }" readonly />
+                </div>
+
+                <div class="col-lg-4">
+                    <label for="TipoError" class="text-dark form-label font-weight-bold font-18">Tipo de Error:</label>
+                    <input type="text" id="TipoError" name="TipoError" class="form-control text-center border-success" value="@if (Model.Det != null && Model.Det.Count >= 1) { Write(Model.Det[0].TipoError); }" readonly />
+                </div>
+
+                @if (Model.Det.Count >= 1 && !string.IsNullOrEmpty(Model.Det[0].TipoError) && Model.Det[0].TipoError.Equals("ErrorAlmacen") && !string.IsNullOrEmpty(ViewBag.ErrorAlmacen))
+                {
+                    <div class="col-lg-4">
+                        <label for="ErrorAlmacen" class="text-dark form-label font-weight-bold font-18">Error de almacén:</label>
+                        <input type="text" class="form-control border-success text-center" id="ErrorAlmacen" name="ErrorAlmacen" readonly value="@ViewBag.ErrorAlmacen">
+                    </div>
+                }
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-4">
+                    <label for="TipoError" class="text-dark form-label font-weight-bold font-18">Fecha de proceso:</label>
+                    <input type="text" id="Problema" name="Problema" class="form-control text-center border-success" value="@ViewBag.FechaProceso" readonly />
+                </div>
+
+                <div class="col-lg-4">
+                    <label for="Problema" class="text-dark form-label font-weight-bold font-18">Op Proceso:</label>
+                    <input type="text" id="Problema" name="Problema" class="form-control text-center border-success" value="@ViewBag.OpProceso" readonly />
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-4">
+                    <label for="TipoError" class="text-dark form-label font-weight-bold font-18">Fecha de atención:</label>
+                    <input type="text" id="Problema" name="Problema" class="form-control text-center border-success" value="@ViewBag.FechaAtencion" readonly />
+                </div>
+
+                <div class="col-lg-4">
+                    <label for="Problema" class="text-dark form-label font-weight-bold font-18">Op Atención:</label>
+                    <input type="text" id="Problema" name="Problema" class="form-control text-center border-success" value="@ViewBag.OpAtencion" readonly />
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-4">
+                    <label for="TipoError" class="text-dark form-label font-weight-bold font-18">Fecha de culminación:</label>
+                    <input type="text" id="Problema" name="Problema" class="form-control text-center border-success" value="@ViewBag.FechaCulminacion" readonly />
+                </div>
+
+                <div class="col-lg-4">
+                    <label for="Problema" class="text-dark form-label font-weight-bold font-18">Op Culminación:</label>
+                    <input type="text" id="Problema" name="Problema" class="form-control text-center border-success" value="@ViewBag.OpCulminacion" readonly />
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-12">
+                    <table id="Articulos" class="table table-light table-hover table-bordered table-responsive" width="100%">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th colspan="2" class="text-center">Detalle</th>
+                                <th class="text-center" style="width:50px">Um Vend</th>
+                                <th class="text-center" style="width:50px">Cant Vend</th>
+                                <th class="text-center" style="width:50px">Um Entr</th>
+                                <th class="text-center" style="width:50px">Cant Entr</th>
+                                <th class="text-center" style="width:50px">Precio</th>
+                                <th class="text-center" style="width:50px">Total</th>
+                                <th class="text-center" style="width:100px">Operario Responsable</th>
+                                <th class="text-center" style="width:100px">Comentario</th>
+                                <th class="text-center" style="width:100px">Regalo</th>
+                                <th class="text-center" style="width:100px">Motivo Regalo</th>
+                                <th class="text-center" style="width:100px">Tarea Fact</th>
+                                <th class="text-center" style="width:100px">Comprobante Vinc</th>
+                                <th class="text-center" style="width:100px">Alm Tranf</th>
+                                <th class="text-center">AlmVenta</th>
+                                <th class="text-center" style="width:100px">Doc. Fact.</th>
+                                @if (Model.TipoSolucion != null && Model.TipoSolucion.Equals("NotaDeCredito"))
+                                {
+                                    <th class="text-center" style="width:100px">NC SAP</th>
+                                }
+                            </tr>
+                        </thead>
+                        @if (Model.Det.Count > 0 && Model.Det != null)
+                        {
+                            <tbody class="table-primary">
+                                @{
+                                    int i = 0;
+                                    Dictionary<string, string> opcUnit = new Dictionary<string, string>() { { "C", "Cajas" }, { "P", "Piezas" } };
+                                }
+
+                                @foreach (SAT1_E obj in Model.Det)
+                                {
+                                    <tr>
+                                        <td class="text-center" hidden>
+                                            <input type='hidden' name='Det[@i].Linea' value='@obj.Linea' readonly />
+                                            <input type='hidden' name='Det[@i].Problema' id='Det@(i)Problema' value='@obj.Problema' readonly />
+                                            <input type='hidden' name='Det[@i].TipoError' id='Det@(i)TipoError' value='@obj.TipoError' readonly />
+                                            <input type='hidden' class="cls-ErrorAlmacen" name='Det[@i].ErrorAlmacen' id='Det@(i)ErrorAlmacen' value='@obj.ErrorAlmacen' readonly />
+                                            <input type='hidden' name='Det[@i].NroSap' value='@obj.NroSap' readonly />@obj.NroSap
+                                        </td>
+                                        <td>
+                                            <input type="hidden" name="Det[@i].ItemCode" value="@obj.ItemCode" readonly /><strong>Codigo: </strong>@obj.ItemCode<br />
+                                            <input type="hidden" name="Det[@i].Dscription" value="@obj.Dscription" readonly /><strong>Descripcion: </strong>@obj.Dscription
+                                        </td>
+                                        <td>
+                                            <input type="hidden" name="Det[@i].BatchNum" value="@obj.BatchNum" readonly /><strong>Lote: </strong>@obj.BatchNum<br />
+                                            <input type="hidden" name="Det[@i].ExpDate" value="@obj.ExpDate" readonly /><strong>Fecha Venc.: </strong><br />@obj.ExpDate
+                                        </td>
+                                        <td class="text-center"><input type="hidden" name="Det[@i].unitMsr" value="@obj.UnitMsr" readonly />@obj.UnitMsr</td>
+                                        <td class="text-center"><input type="hidden" name="Det[@i].Quantity" value="@obj.Quantity" readonly />@((int)obj.Quantity)</td>
+                                        <td class="text-center"><input type="hidden" name="Det[@i].unitMsrF" value="@obj.unitMsrF" readonly />@opcUnit[obj.unitMsrF]</td>
+                                        <td class="text-center">
+                                            <input type="hidden" name="Det[@i].NumPerMsr" id="Det@(i)NumPerMsr" value="@obj.NumPerMsr" readonly />
+                                            <input type="hidden" name="Det[@i].QuantityF" value="@obj.QuantityF" id="Det@(i)QuantityF" readonly>@((int)obj.QuantityF)
+                                        </td>
+                                        <td class="text-center"><input type="hidden" name="Det[@i].PriceAfVAT" id="Det@(i)PriceAfVAT" value="@obj.PriceAfVAT" readonly />S/ @obj.PriceAfVAT</td>
+                                        <td class="text-center"><input type="hidden" name="Det[@i].LineTotalF" value="@obj.LineTotalF" id="Det@(i)LineTotalF" readonly />S/. @obj.LineTotalF</td>
+
+                                        <td class="text-center"><input type="hidden" name="Det[@i].OpResponsable" value="@obj.OpResponsable" readonly />@obj.OpResponsable</td>
+                                        <td class="text-center"><input type="hidden" name="Det[@i].Comentario" value="@obj.Comentario" readonly />@obj.Comentario</td>
+                                        <td class="text-center"><input type="hidden" name="Det[@i].Regalo" value="@obj.Regalo" readonly />@obj.Regalo</td>
+                                        <td class="text-center"><input type="hidden" name="Det[@i].MotRegalo" value="@obj.MotRegalo" readonly />@obj.MotRegalo</td>
+                                        <td class="text-center"><input type="hidden" name="Det[@i].TareaFact" value="@obj.TareaFact" readonly />@obj.TareaFact</td>
+                                        <td class="text-center"><input type="hidden" name="Det[@i].ComprobanteVinc" value="@obj.ComprobanteVinc" readonly />@obj.ComprobanteVinc</td>
+                                        <td class="text-center"><input type="hidden" name="Det[@i].AlmTransf" value="@obj.AlmTransf" readonly />@obj.AlmTransf</td>
+                                        <td class="text-center"><input type='hidden' name='Det[@i].AlmVenta' value='@obj.AlmVenta' readonly />@obj.AlmVenta</td>
+                                        @if (Model.Estado == "Culminado")
+                                        {
+                                            <td class="text-center"><input type='hidden' name='Det[@i].ComprobanteFin' value='@obj.ComprobanteFin' readonly />@obj.ComprobanteFin</td>
+                                        }
+                                        else
+                                        {
+                                            <td class="text-center"><input class='form-control text-center' type='text' name='Det[@i].ComprobanteFin' value='@obj.ComprobanteFin' style="width: 200px" autocomplete="off" /></td>
+                                        }
+
+                                        @if (Model.TipoSolucion != null && Model.TipoSolucion.Equals("NotaDeCredito"))
+                                        {
+                                            if (Model.Estado == "Culminado")
+                                            {
+                                                <td class="text-center"><input type='hidden' name='Det[@i].NCSAP' value='@obj.NCSAP' readonly />@obj.NCSAP</td>
+                                            }
+                                            else
+                                            {
+                                                <td class="text-center"><input class='form-control cls-numeric text-center' type='text' name='Det[@i].NCSAP' value='@obj.NCSAP' style="width: 200px" autocomplete="off" /></td>
+                                            }
+                                        }
+                                    </tr>
+                                    { i++; }
+                                }
+                            </tbody>
+                        }
+                    </table>
+                </div>
+            </div>
+
+
+            @if (ViewBag.CantidadAdjuntos >= 1)
+            {
+                foreach (KeyValuePair<int, string> adj in ViewBag.Adjuntos)
+                {
+                    <div class="row mt-4">
+                        <div class="col-lg-4">
+                            <div class="d-flex">
+                                <input class='form-control border-success' value='@adj.Value' readonly />
+                                <a href="@Url.Action("ArchivoSolicitud", "AtencionCliente" , new { id = Model.DocEntry, linea = adj.Key } )" class="btn btn-cobefar"><i class="icon-folder-download"></i> Descargar</a>
+                            </div>
+
+                        </div>
+                    </div>
+                }
+            }
+
+            <div class="row mt-4">
+                <div class="col-lg-6">
+                    <button type="button" class="btn btn-success" onclick="culminarSolicitud();"><i class="icon icon-checkmark"></i> Culminar</button>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-6">
+                    <label for="UrlArchivo" class="text-dark form-label font-weight-bold font-18">Url Drive:</label>
+                    @Html.EditorFor(model => model.UrlArchivo, new { htmlAttributes = new { @class = "form-control border-success", @readonly = true } })
+                </div>
+            </div>
+
+
+        </div>
+    }
+</div>
+
+<script>
+    function culminarSolicitud() {
+        var object = $("#frm_culminarSolicitud").serialize();
+        $.ajax('/AtencionCliente/validarCulminarSolicitud',
+            {
+                data: object,
+                dataType: 'html',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                if (response != "true") { swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false }
+                else { $("#frm_culminarSolicitud").submit(); }
+            });
+    }
+
+    $('.cls-numeric').keypress(function (tecla) {
+        // 0-9 && enter
+        if ((tecla.charCode < 48 || tecla.charCode > 57) && tecla.charCode != 13) {
+            return false;
+        }
+    });
+</script>

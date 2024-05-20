@@ -1,0 +1,78 @@
+﻿
+@{
+    ViewBag.Title = "ReportesRutas";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    li {
+        list-style-type: none;
+    }
+
+    .cuerpo {
+        padding: 1%;
+        width: 100%;
+        height: 300px;
+    }
+
+    section .section1 {
+        float: left;
+        width: 25%;
+    }
+
+    section .section2 {
+        float: left;
+        width: 75%;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+
+    });
+    function cargarFormulario(info) {
+        $.ajax('/Rutas/' + info,
+            {
+                dataType: 'html',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                Swal.fire("Formulario cargado");
+                $('#Formulario').html(response);
+            });
+    }
+</script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li class="current"><em>Reportes de rutas</em></li>
+        </ol>
+    </nav>
+</div>
+
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">REPORTES DE RUTAS</h3></div>
+</div>
+
+<div class="bg-form-pestanas-cobefar pt-2 bg-section-form bg-form-cobefar">
+    <div class="cuerpo">
+        <section>
+            <div class="section1">
+                <ul>
+                    <li id="infoHojasRuta"><button class="btn btn-warning m-2" onclick="cargarFormulario('infoHojasRuta')"><strong>Análisis Hojas de Ruta</strong></button></li>
+                    <li id="infoTicketsPesaje"><button class="btn btn-warning m-2" onclick="cargarFormulario('infoTicketsPesaje')"><strong>Análisis Pesaje</strong></button></li>
+                    <li id="infoHojasCargo"><button class="btn btn-warning m-2" onclick="cargarFormulario('infoHojasCargo')"><strong>Análisis Hojas de Cargo</strong></button></li>
+                    <li id="infoHojasCargo"><button class="btn btn-warning m-2" onclick="cargarFormulario('infoHojasCargoDetallado')"><strong>Análisis Hojas de Cargo / Detallado</strong></button></li>
+                </ul>
+            </div>
+            <div id="Formulario" class="section2">
+            </div>
+        </section>
+    </div>
+
+    <table id="Reporte" class="table-responsive" style="background-color:white">
+    </table>
+
+</div>

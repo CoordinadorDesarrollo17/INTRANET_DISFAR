@@ -1,0 +1,146 @@
+﻿@model IEnumerable<Capa_Entidad.Ventas_ENT.TablasSql.OTRC_E.RptTransacciones>
+@using Capa_Entidad.Ventas_ENT.TablasSql
+
+@{
+    ViewBag.Title = "TransaccionesRegalo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    OREG_E reg = (OREG_E)ViewBag.Regalo;
+}
+
+<script>
+    function excel() {
+        var object = $("#frm").serialize();
+        $(location).attr('href', "/Ventas/ExportarExcelTransReg?" + object);
+    }
+</script>
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("GestionRegalos", "Ventas")">Módulo gestión regalos</a></li>
+            <li class="current"><em>Transacciones de regalos</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">TRANSACCIONES DE REGALOS</h3></div>
+</div>
+
+<div class="bg-form-pestanas-cobefar p-4 bg-form-cobefar">
+    <form name="frm" id="frm">
+        <div class="row">
+            <div class="col-lg-4">
+                <label class="text-dark font-weight-bold font-18">Categoría:</label>
+                <input class="form-control border-success" value="@reg.Categoria" readonly />
+            </div>
+
+            <div class="col-lg-2">
+                <label class="text-dark form-label font-weight-bold font-18">Stock Total:</label>
+                <input class="form-control border-success" value="@reg.StockTotal" readonly />
+            </div>
+
+            <div class="col-lg-2">
+                <input name="IdReg" type="hidden" value="@reg.Id" readonly />
+                <label for="estado" class="text-dark form-label font-weight-bold font-18">Fecha Inicial:</label>
+                <input class="form-control border-success" name="TiempoIni" type="date" />
+            </div>
+
+            <div class="col-lg-2">
+                <input name="IdReg" type="hidden" value="@reg.Id" readonly />
+                <label for="estado" class="text-dark form-label font-weight-bold font-18">Fecha Fin:</label>
+                <input class="form-control border-success" name="TiempoFin" type="date" />
+            </div>
+
+        </div>
+    </form>
+
+    <div class="row mt-4">
+        <div class="col-lg-4">
+            <button class="btn btn-cobefar" onclick="excel();"><i class="icon icon-file-excel"></i> Exportar a Excel</button>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <table class="table table-light table-sm table-hover table-responsive-md" cellspacing="0" width="100%">
+            <thead class="thead-dark">
+                <tr>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.Id)
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayName("NombreRegalo")
+                    </th>
+                    <th>
+                        @Html.DisplayName("Ruc")
+                    </th>
+                    <th>
+                        @Html.DisplayName("Razon Social")
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.Sentido)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Detalle)
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.Cantidad)
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.Imputado)
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.Operario)
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.FechaRegistro)
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.HoraRegistro)
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.Id)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.RegName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.CardCode)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.CardName)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.Sentido)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Detalle)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.Cantidad)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.Imputado)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.Operario)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.FechaRegistro)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.HoraRegistro)
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+</div>

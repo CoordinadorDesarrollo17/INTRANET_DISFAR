@@ -1,0 +1,142 @@
+﻿@model Capa_Entidad.Almacen_ENT.TablasSql.OIPE_E
+@using Capa_Entidad.Almacen_ENT.TablasSql
+@{
+    ViewBag.Title = "CerrarPeriodo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<CC_OIPE_E> OIPECierre = (List<CC_OIPE_E>)ViewBag.OIPECierre;
+}
+
+<script>
+    $(document).ready(function () {
+    });
+
+    function cerrarp() {
+        var object = $("#CerrarPeriodo").serialize();
+        $(location).attr('href', "/Almacen/CerrarPeriodoPost?" + object);
+    }
+    function revertircierre() {
+        var object = $("#CerrarPeriodo").serialize();
+        $(location).attr('href', "/Almacen/RevertirCierre?" + object);
+    }
+</script>
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="/Index/Sesion">Inicio</a></li>
+            <li><a href="@Url.Action("GestionPeriodos","Almacen")">Gestión de periodos</a></li>
+            <li class="current"><em>Cerrar periodo</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">CERRAR PERIODO</h3></div>
+</div>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "CerrarPeriodo" }))
+{
+<div class="bg-form-pestanas-cobefar pt-4 bg-section-form p-4 bg-form-cobefar">
+    <h3 class="text-cobefar text-center font-weight-bold">¿Está seguro que desea cerrar este periodo ?</h3>
+
+    <div class="row mt-4 justify-content-center">
+        <button id="cerrar" type="button" class="btn btn-danger mx-1" onclick="cerrarp()"><i class="icon icon-cross"></i> Cerrar</button>
+        <button id="revertir" type="button" class="btn btn-warning mx-1" onclick="revertircierre()"><i class="icon icon-undo2"></i> Revertir Cierre</button>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-lg-4">
+            <label class="text-dark form-label font-weight-bold font-18">OperarioCierre:</label>
+            <input class="form-control text-center border-success" id="Operario" name="Operario" readonly type="text" value="@OIPECierre[0].Operario">
+        </div>
+
+        <div class="col-lg-2">
+            <label class="text-dark form-label font-weight-bold font-18">N°:</label>
+            @Html.EditorFor(model => model.DocEntry, new { htmlAttributes = new { @class = "form-control border-success", @readonly = "true" } })
+        </div>
+
+        <div class="col-lg-4">
+            <label class="text-dark form-label font-weight-bold font-18">Descripción:</label>
+            @Html.EditorFor(model => model.Descripcion, new { htmlAttributes = new { @class = "form-control border-success", @readonly = "true" } })
+        </div>
+
+        <div class="col-lg-2">
+            <label class="text-dark form-label font-weight-bold font-18">TiempoCierre:</label>
+            <input class="form-control text-center border-success" id="TiempoCierre" name="TiempoCierre" type="text" value="@OIPECierre[0].FechaOperacion" readonly>
+        </div>
+    </div>
+
+
+    <div class="row mt-4">
+        <div class="col-lg-2">
+            <label class="text-dark form-label font-weight-bold font-18">TiempoRegistro:</label>
+            @Html.EditorFor(model => model.FechaRegistro, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+        </div>
+
+        <div class="col-lg-2">
+            <label class="text-dark form-label font-weight-bold font-18">Estado:</label>
+            @Html.EditorFor(model => model.Estado, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+        </div>
+
+        <div class="col-lg-2">
+            <label class="text-dark form-label font-weight-bold font-18">Estado Datos:</label>
+            @Html.EditorFor(model => model.EstadoDatos, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+        </div>
+
+        <div class="col-lg-2">
+            <label class="text-dark form-label font-weight-bold font-18">Fecha Inicial:</label>
+            <input class="form-control text-center border-success" value="@Convert.ToString(string.Format("{0:dd/MM/yyyy}", Model.FecIni))" readonly />
+        </div>
+
+        <div class="col-lg-2">
+            <label class="text-dark form-label font-weight-bold font-18">Fecha Final:</label>
+            <input class="form-control text-center border-success" value="@Convert.ToString(string.Format("{0:dd/MM/yyyy}", Model.FecFin))" readonly />
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-lg-4">
+            <label class="text-dark form-label font-weight-bold font-18">Propietario:</label>
+            @Html.EditorFor(model => model.Propietario, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+        </div>
+
+        <div class="col-lg-8">
+            <label class="text-dark form-label font-weight-bold font-18">Observaciones:</label>
+            @Html.EditorFor(model => model.Observaciones, new { htmlAttributes = new { @class = "form-control border-success", @readonly = "true" } })
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-lg-6">
+            <table id="DetallesPeriodo1" class="table table-light table-sm table-hover">
+                <thead class="bg-dark">
+                    <tr>
+                        <th class="text-center">Cod</th>
+                        <th class="text-center">Descripcion</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{int cont = 0;}
+                    @foreach (IPE1_E obj in Model.DetAlmacenes)
+                    {
+                        <tr>
+                            <td><input class='form-control text-center' name='DetAlmacenes[@cont].WhsCode' value='@obj.WhsCode' readonly /></td>
+                            <td><input class='form-control text-center' name='DetAlmacenes[@cont].WhsName' value='@obj.WhsName' readonly /></td>
+                        </tr>
+                        cont++;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+   
+}
+<script>
+    if ('@ViewBag.Mensaje' != "") {
+        swal.fire({
+            title: "@ViewBag.Mensaje",
+            text: "Presione OK para continuar",
+            icon: "warning"
+        })
+    };
+</script>

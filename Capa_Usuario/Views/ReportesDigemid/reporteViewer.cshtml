@@ -1,0 +1,17 @@
+﻿
+@{
+    Layout = null;
+}
+
+@using ReportViewerForMvc;
+@using Microsoft.Reporting.WebForms
+<h5>reporte</h5>
+@if (ViewBag.Mensaje != null)
+{
+    <div class="alert alert-danger">@ViewBag.Mensaje</div>
+
+}
+else
+{
+    @Html.ReportViewer((ReportViewer)ViewBag.REPORTE)
+}

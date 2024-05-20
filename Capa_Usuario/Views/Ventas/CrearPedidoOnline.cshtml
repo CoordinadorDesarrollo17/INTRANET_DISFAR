@@ -1,0 +1,439 @@
+﻿
+@{
+    ViewBag.Title = "Crear Pedido Online";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("PedidosOnline", "Ventas")">Listado de pedidos online</a></li>
+            <li class="current"><em>Crear pedido online</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">CREAR PEDIDO ONLINE</h3></div>
+</div>
+
+<form action="/Ventas/CrearPedidoOnline" method="post">
+    <input type="hidden" id="EstadoInicialCreacion" name="EstadoInicialCreacion" />
+    <div class="bg-form-pestanas-cobefar pt-4 bg-section-form p-4 bg-form-cobefar">
+        <div class="row">
+            <div class="col-lg-2 my-2">
+                <label for="Cardcode" class="text-dark form-label font-weight-bold font-18">Cod. Cliente:</label>
+                <input type="text" name="Cardcode" id="Cardcode" class="form-control border-success" autocomplete="off" required>
+            </div>
+
+            <div class="col-lg-4 my-2">
+                <label for="CardName" class="text-dark form-label font-weight-bold font-18">Cliente:</label>
+                <input type="search" name="CardName" id="CardName" list='ListaClientes' class="form-control border-success" onkeyup="cargarListaCliente(this.value)" onchange="cargarCodCliente()" value="" autocomplete="off" required>
+                <div id="div_listaClientes"></div>
+
+            </div>
+
+
+            <div class="col-lg-2 my-2">
+                <label for="WhsCode" class="text-dark form-label font-weight-bold font-18">Almacén:</label>
+                <select name="WhsCode" id="WhsCode" class="form-control bg-cobefar text-white border-success" required>
+                    <option value="">Seleccione</option>
+                    <option value="01">ALM1</option>
+                    <option value="03" selected>ALM3</option>
+                    <option value="05">ALM5</option>
+                    <option value="09">ALM6</option>
+                    <option value="07">ALM7</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row mt-lg-4 mt-sm-lg-0">
+            <div class="col-lg-8">
+                <label for="Comentario" class="text-dark form-label font-weight-bold font-18">Comentario:</label>
+                <input type="text" name="Comentario" id="Comentario" class="form-control border-success" autocomplete="off" />
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-6">
+                <button type="button" id="btn_modalArticulos" data-toggle="modal" data-target="#modalArticulos" hidden></button>
+                <button type="button" class="btn btn-warning" onclick="validarAlmacen();"><i class="icon icon-plus"></i> Agregar Artículos</button>
+            </div>
+        </div>
+
+        <div class="row pt-4 mt-4">
+            <div class="col-lg-12 table-responsive">
+                <table id="tbl_detallePedido" class="table table-light table-sm table-bordered table-hover" cellpadding="0" width="100%">
+                    <thead class="bg-cobefar">
+                        <tr>
+                            <th hidden></th>
+                            <th hidden></th>
+                            <th class="text-center">Descripción</th>
+                            <th class="text-center">Código</th>
+                            <th class="text-center">Por vender</th>
+                            <th class="text-center">Cantidad</th>
+                            <th class="text-center">UM Venta</th>
+                            <th hidden></th>
+                            <th class="text-center">Precio</th>
+                            <th class="text-center">Total</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="ml-3">
+                <div class="form-inline form-group">
+                    <label for="PrecioTotal" class="text-dark form-label font-weight-bold font-18 mx-1">Total (S/): </label>
+                    <input type="number" name="PrecioTotal" id="PrecioTotal" class="form-control text-center border-success" autocomplete="off" required disabled>
+                </div>
+            </div>
+        </div>
+
+        <div id="div_botonesSubmit" class="row mt-4">
+            <div class="col-lg-6">
+                <button type="button" class="btn btn-secondary" onclick="enviarDatos('BORRADOR');"><i class="icon-files-empty"></i> Borrador</button>
+                <button type="button" class="btn btn-success" onclick="enviarDatos('GENERAR');"><i class="icon-checkmark"></i> Generar Pedido</button>
+            </div>
+        </div>
+
+    </div>
+</form>
+
+<!-- Modal -->
+<div class="modal fade" id="modalArticulos" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-full-width">
+        <div class="modal-content">
+            <div class="modal-header bg-cobefar text-white">
+                <h5 class="modal-title" id="exampleModalLabel">Búsqueda de artículos</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" class="text-white">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-6 my-2">
+                        <label for="articulo" class="text-cobefar font-weight-bold">Por Descripción:</label>
+                        <input type="text" id="articulo" name="articulo" class="form-control border-success" placeholder="Ingresar descripción del artículo..." />
+                    </div>
+
+                    <div class="col-lg-6 my-2">
+                        <label for="principio_activo" class="text-cobefar font-weight-bold">Por Princ. Activo:</label>
+                        <input type="text" id="principio_activo" name="principio_activo" class="form-control border-success" placeholder="Ingresar principio activo..." />
+                    </div>
+                </div>
+
+                <div class="row mt-2">
+                    <div class="col-lg-2">
+                        <button type="button" class="btn btn-cobefar" onclick="buscarArticulo()"><i class="icon-search"></i> Buscar</button>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-lg-12 table-responsive">
+                        <table id="tbl_listaArticulos" class="table table-bordered table-hover">
+                            <thead class="bg-success">
+                                <tr>
+                                    <th></th>
+                                    <th class="text-center" style="width: 45%">Descripción</th>
+                                    <th class="text-center" style="width: 5%">Precio x PZA</th>
+                                    <th class="text-center" style="width: 5%">Precio x CAJA</th>
+                                    <th class="text-center" style="width: 10%">Por Vender</th>
+                                    <th class="text-center" style="width: 10%">Fecha Vencimiento</th>
+                                    <th class="text-center" style="width: 10%">Princ. Activo</th>
+                                    <th class="text-center" style="width: 10%">Observación</th>
+                                    <th class="text-center" style="width: 5%">Cajón M.</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btn_cerrarModal" class="btn btn-secondary" data-dismiss="modal"><i class='icon-cross'></i> Cerrar</button>
+                @*<button type="button" class="btn btn-cobefar" onclick="agregarDetallePedido();">Agregar </button>*@
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    if ('@ViewBag.Mensaje' != "") {
+            Swal.fire('@ViewBag.Mensaje');
+        }
+
+    var num = 0;
+
+    function limpiarCampos() {
+        $('#tbl_listaArticulos > tbody').html('');
+        $('#articulo').val('');
+        $('#principio_activo').val('');
+    }
+
+    function enviarDatos(tipo) {
+        if ($('#Cardcode').val() == '' && $('#CardName').val() == '') {
+            Swal.fire('El código de cliente, nombre de cliente y el almacén, son campos obligatorios.');
+        } else if ($('#PrecioTotal').val() <= 0) {
+            Swal.fire('El precio total debe ser mayor a cero.');
+        } else {
+            $('#EstadoInicialCreacion').val(tipo);
+            $("form").first().trigger("submit");
+        }
+    }
+
+    function validarAlmacen() {
+        if ($('#Cardcode').val() == '') {
+            Swal.fire('Por favor ingresar Cod. Cliente');
+        } else if ($('#CardName').val() == '') {
+            Swal.fire('Por favor ingresar Cliente');
+        } else if ($('#WhsCode').val() == '') {
+            Swal.fire('Por favor seleccionar Almacén');
+        } else {
+            $.ajax({
+                url: '/Ventas/VerificarMigracionArticulos',
+                type: 'POST',
+                dataType: 'json',
+            }).done(function (response) {
+                if (response == true) {         // true: en caso se este ejecutando una migración
+                    Swal.fire('Migración en curso, por favor volver a consultar artículos en un lapso de 3 minutos.');
+                } else {
+                    if (response == false) {
+                        limpiarCampos();
+                        $('#btn_modalArticulos').click();
+                    }
+                }
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR.status + textStatus + errorThrown);
+            });
+
+        }
+    }
+
+    function cargarCodCliente() {
+        let cliente = $('#CardName').val();
+        let cardCode = $(`#ListaClientes option[value='${cliente}']`).attr("cardcode");
+        $('#Cardcode').val(cardCode);
+    }
+
+    function cargarListaCliente(textoIngresado) {
+        if (textoIngresado.length >= 5) {
+            $.ajax({
+                url: '/Ventas/BuscarCliente',
+                type: 'POST',
+                dataType: 'json',
+                data: { 'CardName': textoIngresado }
+            }).done(function (response) {
+                $('#div_listaClientes').html(response);
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR.status + textStatus + errorThrown);
+            });
+        } else {
+            $('#div_listaClientes').html('');
+        }
+    }
+
+    function buscarArticulo() {
+        let descripcion = $('#articulo').val();
+        let princActivo = $('#principio_activo').val();
+
+        if (descripcion.length >= 5 || princActivo.length >= 5) {
+            $.ajax({
+                url: '/Ventas/BuscarArticulo',
+                type: 'POST',
+                dataType: 'json',
+                data: { 'ItemName': descripcion, 'PrincActivo': princActivo, 'WhsCode': $('#WhsCode').val() }
+            }).done(function (response) {
+                $('#tbl_listaArticulos > tbody').html(response);
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR.status + textStatus + errorThrown);
+            });
+        } else {
+            Swal.fire('Ingresar descripción o principio activo para la búsqueda.')
+            $('#tbl_listaArticulos > tbody').html('');
+        }
+    }
+
+    function calcularPrecioTotal() {
+        let sumarCant = 0;
+        $.each($('.cls-pricexcant'), function (key, obj) {
+            sumarCant += obj.value * 1;
+        });
+        $('#PrecioTotal').val(sumarCant);
+    }
+
+    function calcularPrecioxCantidad(idCampo, tipo, price) {
+        let cantidad = 0;
+        let umVenta = 0;
+        let fila = 0;
+        let undMed = '';
+
+        if (tipo == 'cantidad') {
+            cantidad = $('#' + idCampo).val();
+            fila = idCampo.substring(idCampo.indexOf('_')+1);
+            umVenta = $('#' + idCampo.replace('cantidad_', 'umventa_')).find('option:selected').attr('num');
+            undMed = $('#' + idCampo.replace('cantidad_', 'umventa_')).find('option:selected').attr('alias');
+        } else if (tipo == 'umventa') {
+            umVenta = $('#' + idCampo).find('option:selected').attr('num');
+            fila = idCampo.substring(idCampo.indexOf('_')+1);
+            cantidad = $('#' + idCampo.replace('umventa_', 'cantidad_')).val();
+            undMed = $('#' + idCampo).find('option:selected').attr('alias');
+        }
+
+        $('#undmed_' + fila).val(undMed);
+
+        if (cantidad >= 1 || umVenta >= 1) {
+            let calculo = price * cantidad * umVenta * 1;
+            $(`#PrecioxCantidad_${fila}`).val(calculo);
+            $('#div_botonesSubmit').css('display', 'block');
+        } else {
+            $('#div_botonesSubmit').css('display', 'none');
+            Swal.fire('La cantidad ingresada debe ser mayor o igual a 1.');
+        }
+
+        calcularPrecioTotal();
+    }
+
+    function reconstruirTabla() {
+        --num;
+        var i = 0;
+
+        $("#tbl_detallePedido tr").each(function (index, htm) {
+            if (htm.id != '') {
+                iden1 = $(htm).find("td:eq(0) input");
+                iden1.attr("name", "DetallePedido[" + i + "].ExpDate");
+                iden1 = $(htm).find("td:eq(1) input");
+                iden1.attr("name", "DetallePedido[" + i + "].BatchNum");
+                iden1 = $(htm).find("td:eq(2) input");
+                iden1.attr("name", "DetallePedido[" + i + "].ItemName");
+                iden1 = $(htm).find("td:eq(3) input");
+                iden1.attr("name", "DetallePedido[" + i + "].ItemCode");
+                iden1 = $(htm).find("td:eq(4) input");
+                iden1.attr("name", "DetallePedido[" + i + "].Quantity");
+
+                iden1 = $(htm).find("td:eq(5) input");
+                iden1.attr("id", "cantidad_" + i);
+                iden1.attr("name", "DetallePedido[" + i + "].Cantidad");
+
+                iden1 = $(htm).find("td:eq(6) select");
+                iden1.attr("id", "umventa_" + i);
+                iden1.attr("name", "DetallePedido[" + i + "].UMVenta");
+
+                iden1 = $(htm).find("td:eq(7) select");
+                iden1.attr("id", "undmed_" + i);
+                iden1.attr("name", "DetallePedido[" + i + "].UndMed");
+                iden1 = $(htm).find("td:eq(8) input");
+                iden1.attr("id", "Price_" + i);
+                iden1.attr("name", "DetallePedido[" + i + "].Price");
+                iden1 = $(htm).find("td:eq(9) input");
+                iden1.attr("id", "PrecioxCantidad_" + i);
+                iden1.attr("name", "DetallePedido[" + i + "].PrecioxCantidad");
+
+                i++;
+            }
+        })
+    }
+
+
+    function borrarFila(idArticulo) {
+        $('#tr_' + idArticulo).remove();
+        reconstruirTabla();
+        calcularPrecioTotal();
+    }
+
+
+    function actualizarTablaDetalle(itemCode, itemName, NumInBuy, BuyUnitMsr, SalUnitMsr, BatchNum, PorVender, ExpDate, price, idArticulo) {
+        //if (undMed != '' && parseInt(cantidad) > 0) {
+        fila = `<tr id="tr_${idArticulo}" class="cls-articuloUnico">
+                            <td hidden><input type="hidden" name="DetallePedido[${num}].ExpDate" value="${ExpDate}" /></td>
+                            <td hidden><input type="hidden" name="DetallePedido[${num}].BatchNum" value="${BatchNum}" /></td>
+                            <td class="text-center"><input type="hidden" name="DetallePedido[${num}].ItemName" value="${itemName}" />${itemName}</td>
+                            <td class="text-center"><input type="hidden" name="DetallePedido[${num}].ItemCode" value="${itemCode}" />${itemCode}</td>
+                            <td class="text-center"><input type="hidden" name="DetallePedido[${num}].Quantity" value="${PorVender}" />${PorVender}</td>
+                            <td class="text-center">
+                                <div class="d-flex justify-content-center">
+                                <input type="number" id="cantidad_${num}" name="DetallePedido[${num}].Cantidad" onkeyup="calcularPrecioxCantidad(this.id, 'cantidad', ${price});" class="form-control border-success text-center" style="width: 120px;" />
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <select id="umventa_${num}"  name="DetallePedido[${num}].UMVenta" class="form-control bg-cobefar text-white" onchange="calcularPrecioxCantidad(this.id, 'umventa', ${price})" style="width: 120px;">
+                                    <option value="${SalUnitMsr}" num="${SalUnitMsr.substring(SalUnitMsr.indexOf('X') + 2)}" alias="${SalUnitMsr.substring(0, 4).trimEnd()}">${SalUnitMsr}</option>`;
+
+                                if (BuyUnitMsr != SalUnitMsr) {
+                                    fila += `<option value="${BuyUnitMsr}" num="${NumInBuy}" alias="${BuyUnitMsr.substring(0, 4).trimEnd()}">${BuyUnitMsr}</option>`;
+                                }
+
+        fila += `<option value="PZA" num="1" alias="PZA">PZA</option>
+                                </select>
+                            </td>
+                            <td hidden>
+                                <select id="undmed_${num}"  name="DetallePedido[${num}].UndMed" class="form-control bg-cobefar text-white">
+                                    <option value="CAJA" selected>CAJA</option>
+                                    <option value="PZA">PZA</option>
+                                </select>
+                             </td>
+                            <td class="text-center"><input type="hidden" id="Price_${num}" name="DetallePedido[${num}].Price" value="${price}" />${price}</td>
+                            <td class="text-center">
+                                <div class="d-flex justify-content-center">
+                                <input type="number" id="PrecioxCantidad_${num}" name="DetallePedido[${num}].PrecioxCantidad" class="form-control border-success cls-pricexcant text-center" style="width: 140px;" readonly />
+                                </div>
+                            </td>
+                            <td class="text-center"><button type="button" class="btn btn-danger" title="Eliminar" onclick="borrarFila('${idArticulo}');"><i class="icon-bin" title="Eliminar"></i></button></td>
+                       </tr>`;
+
+        $('#tbl_detallePedido > tbody').append(fila);
+        ++num;
+        reconstruirTabla();
+        calcularPrecioTotal();
+            //}
+    }
+
+
+    function agregarDetallePedido(itemCode, itemName, NumInBuy, BuyUnitMsr, SalUnitMsr, BatchNum, PorVender, ExpDate, price, idArticulo) {
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: 'btn btn-success mx-4',
+                cancelButton: 'btn btn-danger mx-4'
+            },
+            buttonsStyling: false
+        })
+
+        if ($(`#tr_${idArticulo}`).length >= 1) {       // Si el elemento existe en el DOM
+            swalWithBootstrapButtons.fire({
+                title: '¿Está seguro(a) de agregar artículo?',
+                text: "El artículo seleccionado ya se encuentra en el detalle",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: "<i class='icon-checkmark'></i> Si, estoy seguro(a)",
+                cancelButtonText: "<i class='icon-cross'></i> Cancelar",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let nuevoIdArticulo = 0;
+                    let cantidadArticulosSeleccionados = document.getElementsByClassName("cls-articuloUnico").length;
+                    if (cantidadArticulosSeleccionados >= 3) {
+                        $.each($('.cls-articuloUnico'), function (key, obj) {
+                            let arrNombreId = obj.id.split("_");
+                            nuevoIdArticulo = arrNombreId[0] + '_' + (cantidadArticulosSeleccionados * 1 + 1);
+                        });
+                    } else {
+                        nuevoIdArticulo = idArticulo + '_' + (cantidadArticulosSeleccionados * 1 + 1);
+                    }
+
+                    actualizarTablaDetalle(itemCode, itemName, NumInBuy, BuyUnitMsr, SalUnitMsr, BatchNum, PorVender, ExpDate, price, nuevoIdArticulo);
+                    $('#btn_cerrarModal').click();      // Cerramos el modal de la búsqueda de artículos
+                }
+            });
+        } else {
+            actualizarTablaDetalle(itemCode, itemName, NumInBuy, BuyUnitMsr, SalUnitMsr, BatchNum, PorVender, ExpDate, price, idArticulo);
+            $('#btn_cerrarModal').click();      // Cerramos el modal de la búsqueda de artículos
+        }
+
+    }
+</script>

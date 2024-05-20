@@ -1,0 +1,148 @@
+﻿@model Capa_Entidad.Rutas_ENT.TablasSql.ORRU_E
+
+@{
+    ViewBag.Title = "ListadoEntregaRepartos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    $(document).ready(function () { });
+    function EntregaMasiva() {
+        var o = $("#formIni").serialize();
+        $(location).attr('href', "/Rutas/EntregaMasiva?" + o);
+    }
+</script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            @if (ViewBag.TipoRep == "Re")
+            {
+                <li><a href="@Url.Action("ListadoRepartos", "Rutas")">Listado de Repartos</a></li>
+            }
+            else
+            {
+                <li><a href="@Url.Action("ListadoRutas", "Rutas")">Listado de Rutas</a></li>
+            }
+            <li class="current"><em>Entrega Repartos</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">ENTREGA REPARTOS</h3></div>
+</div>
+
+<div class="bg-form-pestanas-cobefar pt-4 bg-section-form p-4 bg-form-cobefar">
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="text-dark font-18"><span class="font-weight-bold">NroDoc: </span>@Html.DisplayFor(model => model.DocNum)</div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-lg-6">
+            <button class="btn btn-success" type="button" data-toggle="modal" data-target="#M1"><i class="icon-checkmark"></i> Entrega Masiva</button>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-lg-10">
+            <table class="table table-light table-sm table-hover table-responsive-sm">
+                @if (Model.DetRRU0 != null && Model.DetRRU0.Count > 0)
+                {
+                    <thead class="bg-success">
+                        <tr>
+                            <th class="text-center">@Html.DisplayNameFor(model => model.DetRRU0[0].Socio)</th>
+                            <th class="text-center">@Html.DisplayNameFor(model => model.DetRRU0[0].DocNumTicket)</th>
+                            <th class="text-center">@Html.DisplayNameFor(model => model.DetRRU0[0].Estado)</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    foreach (var item in Model.DetRRU0)
+                    {
+                        <tr>
+                            <td class="text-center">@Html.DisplayFor(modelItem => item.Socio)</td>
+                            <td class="text-center">@Html.DisplayFor(modelItem => item.DocNumTicket)</td>
+                            <td class="text-center">@Html.DisplayFor(modelItem => item.Estado)</td>
+                            <td class="text-center">@Html.ActionLink("Ent", "EntregarDetReparto", new { DocEntry = item.DocEntry, Linea = item.Linea, TipoRep = ViewBag.TipoRep }, new { @class = "btn btn-success  text-light" })</td>
+                        </tr>
+                    }
+                }
+                @if (Model.DetRRU1 != null && Model.DetRRU1.Count > 0)
+                {
+                    <thead class="bg-success">
+                        <tr>
+                            <th class="text-center">@Html.DisplayNameFor(model => model.DetRRU1[0].Linea)</th>
+                            <th class="text-center">@Html.DisplayNameFor(model => model.DetRRU1[0].Guia)</th>
+                            <th class="text-center">@Html.DisplayNameFor(model => model.DetRRU1[0].Estado)</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    foreach (var item in Model.DetRRU1)
+                    {
+                        <tr>
+                            <td class="text-center">@Html.DisplayFor(modelItem => item.Linea)</td>
+                            <td class="text-center">@Html.DisplayFor(modelItem => item.Guia)</td>
+                            <td class="text-center">@Html.DisplayFor(modelItem => item.Estado)</td>
+                            <td class="text-center">@Html.ActionLink("Ent", "EntregarDetReparto", new { DocEntry = item.DocEntry, Linea = item.Linea, TipoRep = ViewBag.TipoRep }, new { @class = "btn btn-warning" })</td>
+                        </tr>
+                    }
+                }
+            </table>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal" id="M1" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-cobefar text-white">
+                <h5 class="modal-title" id="exampleModalLabel">¿Entrega Masiva Traslado Ventas?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span class="text-white" aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="formIni">
+                    <div class="form-group">
+                        <label class="col-form-label" id="M1DocNum"></label><br />
+                        <input class="form-control" name="DocEntry" id="M1DocEntry" value="@Model.DocEntry" type="hidden" readonly>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col">
+                                <label class="col-form-label font-weight-bold text-dark">TERMOHIGROMETRO 1</label>
+                                <label class="col-form-label text-dark">Temperatura Final 1</label><br />
+                                <input type="number" step="00.1" class="form-control border-success" name="TempF1" value="0"><br />
+                                <label class="col-form-label text-dark">Humedad Final 1</label><br />
+                                <input type="number" class="form-control border-success" name="HumedF1" value="0">
+                            </div>
+                            <div class="col">
+                                <label class="col-form-label font-weight-bold text-dark">TERMOHIGROMETRO 2</label><br />
+                                <label class="col-form-label text-dark">Temperatura Final 2</label><br />
+                                <input type="number" step="00.1" class="form-control border-success" name="TempF2" value="0"><br />
+                                <label class="col-form-label text-dark">Humedad Final 2</label><br />
+                                <input type="number" class="form-control border-success" name="HumedF2" value="0">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-cobefar" onclick="EntregaMasiva();"><i class="icon-checkmark"></i> SI</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="icon-cross"></i> NO</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    if ('@ViewBag.Mensaje' != "") {
+        Swal.fire({
+            text: `@ViewBag.Mensaje`
+        })
+    }
+</script>

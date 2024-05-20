@@ -1,0 +1,528 @@
+﻿@using Capa_Entidad.DireccionTecnica_ENT.Reportes.BalanceControlados
+
+@{
+    Layout = null;
+    string impresion = Request["Impresion"];
+}
+
+@{
+    List<RptBalanceControladosConsolidado_E> datos = new List<RptBalanceControladosConsolidado_E>();
+    List<string> listaCodProducto = new List<string>();
+    Dictionary<string, List<RptBalanceControladosConsolidado_E>> result = new Dictionary<string, List<RptBalanceControladosConsolidado_E>>();
+    decimal sumCompra = 0;
+    decimal sumOtrosIngresosNC = 0;
+    decimal sumVenta = 0;
+    decimal sumOtrosEgresosDEV = 0;
+    decimal saldoActual = 0;
+    decimal sumOtrosEgresosSAM = 0;
+}
+
+@if (impresion != null && impresion.Equals("SI"))
+{
+    <link href="~/Content/css/bootstrap.css" rel="stylesheet" type="text/css" />
+
+    <style>
+        div * {
+            font-family: "Arial", Verdana, Helvetica, Sans-Serif !important;
+        }
+    </style>
+}
+
+<style>
+    .impresion {
+        width: 100%;
+        background-color: white;
+    }
+
+    .table-bordered {
+        border: 2px solid black !important;
+    }
+
+        .table-bordered th, .table-bordered td {
+            border: 2px solid black !important;
+        }
+
+    .border {
+        border: 2px solid black !important;
+    }
+
+    thead {
+        display: table-header-group
+    }
+
+    tfoot {
+        display: table-row-group
+    }
+
+    tr {
+        page-break-inside: avoid
+    }
+
+    .border-top {
+        border-top: 2px solid black !important;
+    }
+
+    .border-bottom {
+        border-bottom: 2px solid black !important;
+    }
+
+    .border-left {
+        border-left: 2px solid black !important;
+    }
+
+    .border-right {
+        border-right: 2px solid black !important;
+    }
+
+    .border-div2 {
+        border: 1px solid black;
+        border-left: 0px;
+    }
+
+    .border-div3 {
+        border: 1px solid black;
+        border-top: 0px;
+    }
+
+    #div_plantillaRpt {
+        height: 450px;
+        width: 100%;
+        overflow-y: scroll;
+    }
+</style>
+
+<div class="impresion mt-4 ml-0 mr-0 pl-0 pr-0" style="width: 100%">
+    @*<table width="100%">
+            <tr>
+                <td>
+
+                    <table width="100%" style="font-size: 12px">
+                        <tr>
+                            <td width="15%">
+                                <img width="55" src="~/Content/img/escudo_nacional.png" />
+                            </td>
+                            <td class="text-center" width="70%">
+                                <span class="font-weight-bold ">
+                                    MINISTERIO DE SALUD
+                                </span>
+                            </td>
+                            <td width="55">
+                                <div style="width: 55px"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="15%">
+                            </td>
+                            <td class="text-center" width="85%">
+                                <span>DIRECCIÓN GENERAL DE MEDICAMENTOS INSUMOS Y DROGAS</span><br />
+                                <span>DIRECCION EJECUTIVA DE AUTORIZACIONES SANITARIAS</span><br />
+                                <span>EQUIPO DE DROGAS</span>
+                            </td>
+                            <td width="55">
+                                <div style="width: 55px"></div>
+                            </td>
+                        </tr>
+                    </table>
+
+
+
+                </td>
+                <td>
+                    <div class="col-6 border-div2 text-center" style="font-size: 12px;">
+                        <span class="font-weight-bold">
+                            FORMATO DROG-PT-02
+                        </span><br />
+                        <span class="font-weight-bold">
+                            BALANCE TRIMESTRAL DE @Model.DescTipoControlado
+                        </span><br />
+                        <span class="font-weight-bold">DROGUERIAS</span><br />
+                        <span class="font-weight-bold">INCLUIDOS EN LAS LISTAS IVB</span><br />
+                        <span class="font-weight-bold">DECRETO SUPREMO Nº 023-2001-SA</span>
+
+                        <div class="d-flex justify-content-center">
+                            <table width="50%">
+                                <tr>
+                                    <td>TRIMESTRE Nº :</td>
+                                    <td>
+                                        @if (Model.DetBalanceControladosConsolidado != null && Model.DetBalanceControladosConsolidado.Count >= 1)
+                                        {
+                                            @Model.DetBalanceControladosConsolidado[0].Trimestre;
+                                        }
+                                    </td>
+                                    <td>TRIMESTRE</td>
+                                </tr>
+                                <tr>
+                                    <td class="pr-4 text-right">AÑO :</td>
+                                    <td></td>
+                                    <td class="text-left">2023</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                    </div>
+                </td>
+            </tr>
+        </table>*@
+
+
+    <div class="row justify-content-center">
+        <div class="col-10">
+            <table class="border-top border-bottom border-left" width="100%">
+                <tr>
+                    <td class="border-right" width="50%">
+                        <table width="100%" style="font-size: 12px">
+                            <tr>
+                                <td class="text-right" width="15%">
+                                    <img width="55" src="~/Content/img/escudo_nacional.png" />
+                                </td>
+                                <td class="text-center" width="70%">
+                                    <span class="font-weight-bold ">
+                                        MINISTERIO DE SALUD
+                                    </span>
+                                </td>
+                                <td width="55">
+                                    <div style="width: 55px"></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="15%">
+                                </td>
+                                <td class="text-center" width="85%">
+                                    <span>DIRECCIÓN GENERAL DE MEDICAMENTOS INSUMOS Y DROGAS</span><br />
+                                    <span>DIRECCION EJECUTIVA DE AUTORIZACIONES SANITARIAS</span><br />
+                                    <span>EQUIPO DE DROGAS</span>
+                                </td>
+                                <td width="55">
+                                    <div style="width: 55px"></div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td width="50%">
+                        <table class="text-center border-right" width="100%" style="font-size: 12px">
+                            <tr>
+                                <td>
+                                    <span class="font-weight-bold">
+                                        FORMATO DROG-PT-02
+                                    </span><br />
+                                    <span class="font-weight-bold">
+                                        BALANCE TRIMESTRAL DE @Model.DescTipoControlado
+                                    </span><br />
+                                    <span class="font-weight-bold">DROGUERIAS</span><br />
+                                    <span class="font-weight-bold">INCLUIDOS EN LAS LISTAS IVB</span><br />
+                                    <span class="font-weight-bold">DECRETO SUPREMO Nº 023-2001-SA</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                        <table class="text-center" width="100%" style="font-size: 11px">
+                                            <tr>
+                                                <td>
+                                                    TRIMESTRE Nº :
+                                                    <span class="pl-4 pr-4">
+                                                        @if (Model.DetBalanceControladosConsolidado != null && Model.DetBalanceControladosConsolidado.Count >= 1)
+                                                        {
+                                                            @Model.DetBalanceControladosConsolidado[0].Trimestre;
+                                                        }
+                                                    </span>
+                                                    TRIMESTRE
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding-left: 30px">AÑO : <span style="padding-left: 40px">@DateTime.Now.Year</span>
+                                            </tr>
+                                        </table>                                        
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="border-top" width="50%">
+                        <table width="100%" style="font-size: 12px;  ">
+                            <tr>
+                                <td width="20"></td>
+                                <td class="pt-2 pb-2" width="400">Razón Social</td>
+                            </tr>
+                            <tr>
+                                <td width="20"></td>
+                                <td class="pt-2 pb-2">Nombre Comercial</td>
+                            </tr>
+                            <tr>
+                                <td width="20"></td>
+                                <td class="pt-2 pb-2">R.U.C.</td>
+                            </tr>
+                            <tr>
+                                <td width="20"></td>
+                                <td class="pt-2 pb-2">Dirección<br /></td>
+                            </tr>
+                            <tr>
+                                <td width="20"></td>
+                                <td class="pt-2 pb-2">Teléfono</td>
+                            </tr>
+                            <tr>
+                                <td width="20"></td>
+                                <td class="pt-2 pb-2">Q.F. Director Técnico</td>
+                            </tr>
+                            <tr>
+                                <td width="20"></td>
+                                <td class="pt-2 pb-2">Correo Electrónico</td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td class="border-top" width="50%">
+                        <table width="100%" style="font-size: 12px; border-right: 2px solid black !important; ">
+                            <tr>
+                                <td class="pt-2 pb-2">COBEFAR S.A.C.</td>
+                            </tr>
+                            <tr>
+                                <td class="pt-2 pb-2">COBEFAR S.A.C.</td>
+                            </tr>
+                            <tr>
+                                <td class="pt-2 pb-2">20600546041</td>
+                            </tr>
+                            <tr>
+                                <td class="pt-2 pb-2">
+                                    @if (Model.DetBalanceControladosConsolidado != null && Model.DetBalanceControladosConsolidado.Count >= 1)
+                                    {
+                                        @Model.DetBalanceControladosConsolidado[0].Direccion;
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="pt-2 pb-2">
+                                    @if (Model.DetBalanceControladosConsolidado != null && Model.DetBalanceControladosConsolidado.Count >= 1)
+                                    {
+                                        @Model.DetBalanceControladosConsolidado[0].Telefono2;
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="pt-2 pb-2">
+                                    @if (Model.DetBalanceControladosConsolidado != null && Model.DetBalanceControladosConsolidado.Count >= 1)
+                                    {
+                                        @Model.DetBalanceControladosConsolidado[0].Quimico;
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="pt-2 pb-2">
+                                    @if (Model.DetBalanceControladosConsolidado != null && Model.DetBalanceControladosConsolidado.Count >= 1)
+                                    {
+                                        @Model.DetBalanceControladosConsolidado[0].Correo;
+                                    }
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+    </div>
+
+
+
+    <div class="row mt-4 justify-content-center">
+        <div class="col-10">
+            <table style="font-size: 12px;" width="100%">
+                <tr>
+                    <td class="font-weight-bold">
+                        PARTE I: LISTAS
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="row mt-4 justify-content-center">
+        <div class="col-10">
+            <table class="" style="font-size: 12px" width="100%">
+                <thead>
+                    <tr>
+                        <th class="border-top border-left">&nbsp;</th>
+                        <th class="border text-dark text-center font-weight-bold" height="40" colspan="2">DESCRIPCIÓN DEL PRODUCTO (2)</th>
+                        <th class="border text-dark text-center font-weight-bold" rowspan="2">CONCENTRA<br />CIÓN<br />(3)</th>
+                        <th class="border text-dark text-center font-weight-bold" rowspan="2">F.F.<br />(4)</th>
+                        <th class="border text-dark text-center font-weight-bold" rowspan="2">SALDO<br />ANTERIOR<br />(por unidad)<br />(5)</th>
+                        <th class="border text-dark text-center font-weight-bold" colspan="2">INGRESOS (6)</th>
+                        <th class="border text-dark text-center font-weight-bold" colspan="2">EGRESOS (7)</th>
+                        <th class="border text-dark text-center font-weight-bold" rowspan="2">SALDO ACTUAL<br />(por unidad)<br />(8)</th>
+                    </tr>
+                    <tr>
+                        <th class="border-left text-dark text-center font-weight-bold">CÓDIGO (1)</th>
+                        <th class="border text-dark text-center font-weight-bold">NOMBRE GENÉRICO</th>
+                        <th class="border text-dark text-center font-weight-bold">NOMBRE<br />COMERCIAL</th>
+
+                        <th class="border text-dark text-center font-weight-bold">COMPRA</th>
+                        <th class="border text-dark text-center font-weight-bold">OTROS *</th>
+                        <th class="border text-dark text-center font-weight-bold">VENTA</th>
+                        <th class="border text-dark text-center font-weight-bold">OTROS *</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.DetBalanceControladosConsolidado != null && Model.DetBalanceControladosConsolidado.Count >= 1)
+                    {
+                        listaCodProducto.Add(Model.DetBalanceControladosConsolidado[0].CodProducto);
+
+                        foreach (var det in Model.DetBalanceControladosConsolidado)
+                        {
+
+                            if (listaCodProducto[listaCodProducto.Count - 1].Equals(det.CodProducto))
+                            {
+                                sumCompra += det.Compra;
+                                sumOtrosIngresosNC += det.OtrosIngresosNC;
+                                sumVenta += det.Venta;
+
+                                sumOtrosEgresosDEV += det.OtrosEgresosDEV;
+                                sumOtrosEgresosSAM+= det.OtrosEgresosSAM;
+
+                                saldoActual = sumCompra + sumOtrosIngresosNC - sumVenta - sumOtrosEgresosDEV-sumOtrosEgresosSAM;
+                                datos.Add(det);
+                            }
+                            else
+                            {
+
+                                // Agregamos el siguiente CodProducto
+                                listaCodProducto.Add(det.CodProducto);
+
+                                <tr>
+                                    <td class="border text-center">@datos[0].CodProducto</td>
+                                    <td class="text-center border p-1" style="word-break: break-all"><div style="width: 100%">@datos[0].NombreGenerico</div></td>
+                                    <td class="border text-center">@datos[0].NombreComercial</td>
+                                    <td class="border text-center"><div style="width: 100%; word-break: break-all">@datos[0].Concentracion</div></td>
+                                    <td class="border text-center">@datos[0].FormaFamaceutica</td>
+                                    <td class="border text-center">@datos[0].SaldoAnterior</td>
+                                    <td class="border text-center">@sumCompra</td>
+                                    <td class="border text-center">@sumOtrosIngresosNC</td>
+                                    <td class="border text-center">@sumVenta</td>
+                                    <td class="border text-center">@sumOtrosEgresosDEV</td>
+                                    <td class="border text-center">@((saldoActual + datos[0].SaldoAnterior))</td>
+
+                                </tr>
+
+                                // Limpiamos las variables
+                                sumCompra = 0;
+                                sumOtrosIngresosNC = 0;
+                                sumVenta = 0;
+                                sumOtrosEgresosDEV = 0;
+                                saldoActual = 0;
+                                datos.Clear();
+
+
+
+                                datos.Add(det);
+                                sumCompra += det.Compra;
+                                sumOtrosIngresosNC += det.OtrosIngresosNC;
+                                sumVenta += det.Venta;
+                                sumOtrosEgresosDEV += det.OtrosEgresosDEV;
+                                sumOtrosEgresosSAM += det.OtrosEgresosSAM;
+                                saldoActual = sumCompra + sumOtrosIngresosNC - sumVenta - sumOtrosEgresosDEV-sumOtrosEgresosSAM;
+
+                            }
+                        }
+
+
+                        // Exclusivo para el último registro
+                        if (Model.DetBalanceControladosConsolidado.Count >= 2)
+                        {
+                            datos.Add(Model.DetBalanceControladosConsolidado[Model.DetBalanceControladosConsolidado.Count - 1]);
+
+                            <tr>
+                                <td class="border text-center">@datos[0].CodProducto</td>
+                                <td class="text-center border p-1" style="word-break: break-all"><div style="width: 100%">@datos[0].NombreGenerico</div></td>
+                                <td class="border text-center">@datos[0].NombreComercial</td>
+                                <td class="border text-center"><div style="width: 100%; word-break: break-all">@datos[0].Concentracion</div></td>
+                                <td class="border text-center">@datos[0].FormaFamaceutica</td>
+                                <td class="border text-center">@datos[0].SaldoAnterior</td>
+                                <td class="border text-center">@sumCompra</td>
+                                <td class="border text-center">@sumOtrosIngresosNC</td>
+                                <td class="border text-center">@sumVenta</td>
+                                <td class="border text-center">@sumOtrosEgresosDEV</td>
+                                <td class="border text-center">@((saldoActual + datos[0].SaldoAnterior))</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-8">
+            <table style="font-size: 12px">
+                <tr>
+                    <td class="pt-2 pb-2">Leyenda</td>
+                    <td class="pt-2 pb-2"></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td class="pt-2 pb-2">(1) Código del Producto</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td class="pt-2 pb-2">(2) Descripción del Producto</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td class="pt-2 pb-2">(3) Concentración</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td class="pt-2 pb-2">(4) Forma Farmacéutica (Tab, Cap,Comp,Amp,etc)</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td class="pt-2 pb-2">(5) Saldo anterior: Indicar el saldo final del Balance anterior, según presentación</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td class="pt-2 pb-2">(6) Ingresos (El total de la cantidad según unidad detallado en la Parte I del presente Balance)</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td class="pt-2 pb-2">(7) Egresos (El total de la cantidad según unidad detallado en la Parte II del presente Balance)</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td class="pt-2 pb-2">(8) Saldo Final por presentación</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td class="pt-2 pb-2">
+                        Otros** ( Devoluciones, Destrucción, control de calidad, Pesquisados, Contramuestra)
+                    </td>
+                </tr>
+                <tr>
+                    <td class="pt-2 pb-2" colspan="2">
+                        (*) Precursores: Ergometrina, Ergotamina, Norefedrina y Seudoefedrina.
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="row" style="margin-top: 200px; page-break-after: always">
+        <div class="col-12 d-flex justify-content-center">
+            <table width="60%" style="font-size: 14px">
+                <tr>
+                    <td width="300" class="font-weight-bold" style="border-bottom: solid 1px"></td>
+                    <td width="300"></td>
+                    <td width="300" class="font-weight-bold" style="border-bottom: solid 1px"></td>
+                </tr>
+                <tr>
+                    <td class="text-center font-weight-bold" width="300">DIRECTOR TECNICO<br />FIRMA Y SELLO<br />Nº DE COLEGIATURA</td>
+                    <td width="300"></td>
+                    <td class="text-center font-weight-bold" width="300">REPRESENTANTE LEGAL<br />FIRMA Y NOMBRE COMPLETO<br />SELLO DE LA EMPRESA</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    function descargarPDF() {
+        window.open('/ReportesDigemid/PdfRptBalanceControlados?Informe=Consolidado&FecIni=' + $('#FecIni').val() + '&FecFin=' + $('#FecFin').val() + '&TipoControlado=' + $('#TipoControlado').val() + '&Impresion=SI', '_blank');
+    }
+</script>

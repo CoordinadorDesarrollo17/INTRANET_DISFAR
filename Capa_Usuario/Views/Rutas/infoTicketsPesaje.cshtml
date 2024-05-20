@@ -1,0 +1,49 @@
+﻿@model Capa_Entidad.Rutas_ENT.TablasSql.ORRU_E
+@{
+    ViewBag.Title = "infoTicketsPesaje";
+    Layout = "";
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <script>
+        function rpt() {
+            $('#Reporte').html('<img src="/imagenes/index/ReportesDigemid/cargando.gif" />');
+            var parametros = $("#frm").serialize();
+            $(location).attr('href', "/Rutas/RptPesaje?" + parametros);
+            $('#Reporte').html("");
+        }
+    </script>
+</head>
+
+
+<body>
+    @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm" }))
+    {
+        @Html.AntiForgeryToken()
+    <div class="container" style="padding: 2%; background-color:rgb(220, 220, 220);">
+        <h3 class="text-cobefar font-weight-bold text-center">ANÁLISIS TICKET PESAJE</h3>
+
+        <div class="row mt-4">
+            <div class="col-lg-3">
+                <label for="FecConIni" class="text-dark font-weight-bold font-18">Fecha Ticket Desde:</label>
+                @Html.EditorFor(model => model.FecConIni, new { htmlAttributes = new { @class = "form-control border-success", @type = "date" } })
+            </div>
+
+            <div class="col-lg-3">
+                <label for="Estado" class="text-dark font-weight-bold font-18">Fecha Ticket Hasta:</label>
+                @Html.EditorFor(model => model.FecConFin, new { htmlAttributes = new { @class = "form-control border-success", @type = "date" } })
+            </div>
+
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-4">
+                <button id="Generar" type="button" class="btn btn-success" onclick="rpt()"><i class="icon icon-checkmark"></i> Generar</button>
+            </div>
+        </div>
+    </div>
+    }
+</body>
+</html>

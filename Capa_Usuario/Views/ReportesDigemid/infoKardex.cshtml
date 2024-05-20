@@ -1,0 +1,143 @@
+﻿
+@{
+    Layout = null;
+}
+<div class="container" style="padding: 2%; background-color: rgb(220, 220, 220);" id="infoKardex">
+    <h3 class="text-cobefar font-weight-bold text-center">KÁRDEX DE ALMACENES</h3>
+    <form id="frmKardex">
+        <div class="row mt-4">
+            <div class="col-lg-3">
+                <label for="FecConIni" class="text-dark font-weight-bold font-18">Almacén:</label>
+                <select class="form-control bg-cobefar text-white border-success" id="WhsCode" name="WhsCode">
+                    <option value="">Seleccione</option>
+                    @foreach (var alm in ViewBag.ListaAlmacenes)
+                    {
+                        <option value="@alm.WhsCode" desc="@alm.WhsName">@alm.WhsName</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-lg-3">
+                <label for="FecIni" class="text-dark font-weight-bold font-18">Fecha Inicial:</label>
+                <input id="FecIni" name="FecIni" type='date' class="form-control text-center border-success">
+            </div>
+
+            <div class="col-lg-3">
+                <label for="FecFin" class="text-dark font-weight-bold font-18">Fecha Final:</label>
+                <input id="FecFin" name="FecFin" type='date' class="form-control text-center border-success">
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-5">
+                <label for="FirmCode" class="text-dark font-weight-bold font-18">Laboratorio:</label>
+
+                <select id="FirmCode" name="FirmCode" class="form-control bg-cobefar text-white border-success" onchange="listarProductos(); obtenerCodProducto();">
+                    <option value="">Seleccione</option>
+
+                    @foreach (var campo in ViewBag.ListaLaboratorios)
+                    {
+                        <option value="@campo.FirmCode">@campo.U_SYP_DESC</option>
+                    }
+
+                </select>
+            </div>
+
+            <div class="col-lg-7">
+                <label for="FecIni" class="text-dark font-weight-bold font-18">Producto:</label>
+                <input type="search" id="infoProducto" list="ListaProductos" class="form-control border-success text-center" autocomplete="off" onchange="obtenerCodProducto();">
+                <datalist id="ListaProductos">
+                </datalist>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-3">
+                <label for="FecIni" class="text-dark font-weight-bold font-18">Código:</label>
+                <input name="ItemCode" id="ItemCode" type="text" class="form-control text-center border-success" readonly />
+            </div>
+
+            <div class="col-lg-4">
+                <label for="FecIni" class="text-dark font-weight-bold font-18">Lote:</label>
+                <input id="Lote" name="Lote" type="text" class="form-control border-success text-center">
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-6">
+                <button id="Generar" type="button" class="btn btn-success"><i class="icon-checkmark"></i> Generar</button>
+            </div>
+        </div>
+
+    </form>
+</div>
+
+<script>
+    $(document).ready(function () {
+        rptKardex();
+    });
+
+    function obtenerCodProducto() {
+        $('#ItemCode').val("");
+        $('#ItemCode').val($("#ListaProductos option[value='" + $("#infoProducto").val() + "']").attr("ItemCode"));
+    }
+
+    function listarProductos() {
+        let parametros = { "FirmCode": $('#FirmCode').val() };
+
+        Swal.fire({
+            html: '<img src="/imagenes/index/ReportesDigemid/cargando.gif" />',
+            //closeOnCancel: false,
+            allowOutsideClick: false,
+            showCancelButton: false,
+            showConfirmButton: false
+        });
+
+        $.ajax('/ReportesDigemid/ListaProductosHtml',
+            {
+                data: parametros,
+                dataType: 'html',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                swal.close();
+                $('#ListaProductos').html(response);
+            });
+    }
+    //eventos de reporte
+    function rptKardex() {
+        $('#Formulario #Generar').on('click', function () {
+            let whsCode = $('#WhsCode').val();
+
+            if (whsCode != '' && $('#FecIni').val() != '' && $('#FecFin').val() != '' && $('#ItemCode').val() != '') {
+                let whsName = $(`#WhsCode option[value='${whsCode}']`).attr(`desc`);
+                let botonesDescarga = `<table class="table border-0">
+                                                        <tr>
+                                                            <td class="border-0 text-right">
+                                                                <button type="button" class="btn btn-danger" onclick="descargarPDF()"><i class="icon-file-pdf"></i> PDF</button>
+                                                                <button type="button" class="btn btn-success" onclick="descargarExcel('tbl_detalle')"><i class="icon-file-excel"></i> EXCEL</button>
+                                                            </td>
+                                                        </tr>
+                                                    </table>`;
+                $('#div_plantillaRpt').html('<img src="/imagenes/index/ReportesDigemid/cargando.gif" />');
+
+                $.ajax({
+                    url: '/ReportesDigemid/RptKardexAlmacenes',
+                    type: 'POST',
+                    data: {
+                        'WhsCode': whsCode, 'WhsName': whsName, 'ItemCode': $('#ItemCode').val(), 'ItemName': $('#infoProducto').val(), 'Lote': $('#Lote').val(),
+                        'FecIni': $('#FecIni').val(), 'FecFin': $('#FecFin').val()
+                    }
+                }).done(function (response) {
+                    $('#div_plantillaRpt').html(`${response}`);
+                    $('#div_botonesDescarga').html(`${botonesDescarga}`);
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    console.log(jqXHR.status + textStatus + errorThrown);
+                });
+            } else {
+                Swal.fire('"Almacén", "Fecha Inicial", "Fecha Fin" y "Cód. Producto" son obligatorios');
+            }
+        });
+    }
+</script>

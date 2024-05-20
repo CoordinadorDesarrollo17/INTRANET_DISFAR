@@ -1,0 +1,264 @@
+﻿@model Capa_Entidad.Almacen_ENT.TablasSql.OIAR_E
+@using Capa_Entidad.Seguridad_ENT
+@using Capa_Entidad.Almacen_ENT.TablasSql
+
+@{
+    ViewBag.Title = "IniciarConteo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    IAR1_E iar1 = (IAR1_E)ViewBag.Iar1;
+    IAR11_E iar11 = (IAR11_E)ViewBag.Iar11;
+    List<Usuario_E> u = (List<Usuario_E>)ViewBag.Miembros;
+}
+<script>
+    $(document).ready(function () {
+    });
+
+    var contUser = 0;
+    function llenarTabla(id) {
+        console.log(id);
+        var Usuario = $("#" + id);
+        var Nombre = $("#listaApoyos option[value='" + Usuario.val() + "']").attr("nombre");
+        var Observacion = $("#ObsApoyo").val();
+        console.log(Observacion);
+        if (Usuario.val() == null || Usuario.val() == "") { swal.fire("No ha seleccionado un personal de apoyo", "Verifique", "warning"); return; }
+        if (Nombre == null || Nombre == "") { swal.fire("Personal no existente", "Verifique", "warning"); return; }
+        if (validarUnicoCampoTabla(Usuario.val(), "DetallesConteo")) {
+            $("#DetallesConteo > tbody").append("<tr><td hidden><input class='form-control' name='DetFases[0].DetApoyos[" + contUser + "].Linea' value='" + (contUser + 1) + " ' readonly /></td>" +
+                "<td><input class= 'form-control text-center' name = 'DetFases[0].DetApoyos[" + contUser + "].Id' value = '" + Usuario.val() + "' readonly /></td >" +
+                "<td><input class='form-control text-center' name='DetFases[0].DetApoyos[" + contUser + "].Nombre' value='" + Nombre + "'  readonly /></td>" +
+                "<td><input class= 'form-control' name = 'DetFases[0].DetApoyos[" + contUser + "].ObsApoyo' value = '" + Observacion + "' readonly /></td >" +
+                "<td><button type='button' onclick='borrarTrTable(this)' class='btn btn-danger'>Retirar</button></td></tr>");
+            contUser = contUser + 1;
+        }
+        $("#" + id + " > tbody").val("");
+        $("#ObsApoyo > tbody").val("");
+    }
+
+    function borrarTrTable(dom) {
+        var i = -1;
+        $(dom).closest('tr').remove();
+        contUser = contUser - 1;
+        $("#DetallesConteo > tbody" + " tr").each(function (index, htm) {
+            iden1 = $(htm).find("td:eq(0) input");
+            iden1.attr("name", "DetFases[0].DetApoyos[" + i + "].Linea");
+            iden1.val(i + 1);
+            iden2 = $(htm).find("td:eq(1) input");
+            iden2.attr("name", "DetFases[0].DetApoyos[" + i + "].Id");
+            iden3 = $(htm).find("td:eq(2) input");
+            iden3.attr("name", "DetFases[0].DetApoyos[" + i + "].Nombre");
+            iden3 = $(htm).find("td:eq(3) input");
+            iden3.attr("name", "DetFases[0].DetApoyos[" + i + "].ObsApoyo");
+            i = i + 1;
+        })
+    }
+    function validarUnicoCampoTabla(identificador, idTabla) {
+        var sinRegistro = true;
+        $("#" + idTabla + " tr").find('td:eq(1) input').each(function () {
+            iden = $(this).val();
+            if (iden == identificador) { swal.fire("El valor ya se encuentra en la tabla", "Verifique", "warning"); sinRegistro = false; }
+        })
+        return sinRegistro;
+    }
+    function guardarConteo() {
+        var object = $("#IniciarConteo").serialize();
+        $(location).attr('href', "/Almacen/IniciarConteoPost?" + object);
+    }
+    function revertirConteo() {
+        var object = $("#IniciarConteo").serialize();
+        $(location).attr('href', "/Almacen/RevertirInicioConteo?" + object);
+    }
+    function validaInicioConteo() {
+        var object = $("#IniciarConteo").serialize();
+        $.ajax('/Almacen/validarInicioConteo',
+            {
+                data: object,
+                dataType: 'html',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                if (response != "true") { swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false }
+                else { guardarConteo(); }
+            });
+    }
+    function validaRevertirInicioConteo() {
+        var object = $("#IniciarConteo").serialize();
+        $.ajax('/Almacen/validarRevertirInicioConteo',
+            {
+                data: object,
+                dataType: 'html',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                if (response != "true") { swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false }
+                else { revertirConteo(); }
+            });
+    }
+
+</script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("ContabilizacionInventario", "Almacen")">Módulo contabilización inventario</a></li>
+            <li><a href="@Url.Action("GestionConteos", "Almacen")">Gestión de conteos</a></li>
+            <li class="current"><em>Iniciar conteo</em></li>
+        </ol>
+    </nav>
+</div>
+
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">INICIAR CONTEO</h3></div>
+
+    <div class="d-flex pl-2 w-100 py-2">
+        <div class="mx-2">
+            @Html.ActionLink("Nuevo Conteo", "NuevoConteo", null, new { @class = "btn btn-success" })
+        </div>
+    </div>
+</div>
+
+@if (@OIPE_E.PeriodoSeleccionado != null)
+{
+    <div class="alert alert-danger mb-0" role="alert">
+        @("Periodo Seleccionado: " + OIPE_E.PeriodoSeleccionado.Descripcion + " ----- Almacenes: " + OIPE_E.PeriodoSeleccionado.enlistarDetAlmacenes())
+    </div>
+}
+
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "IniciarConteo" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="bg-form-pestanas-cobefar pt-4 bg-section-form p-4 bg-form-cobefar">
+        <div class="row mt-2">
+            <div class="col-lg-1">
+                <label for="DocEntryEqu" class="text-dark form-label font-weight-bold font-18">Equipo:</label>
+                <input class="form-control border-success text-center" id="DocEntryEqu" type="text" name="DocEntryEqu" readonly value="@Model.DocEntryEqu" />
+            </div>
+
+            <div class="col-lg-2">
+                <label for="WhsCode" class="text-dark form-label font-weight-bold font-18">Almacén:</label>
+                <input class="form-control border-success text-center" type="text" name="WhsCode" readonly value="@Model.WhsCode" />
+            </div>
+
+            <div class="col-lg-1">
+                <label for="Piso" class="text-dark form-label font-weight-bold font-18">Piso:</label>
+                <input class="form-control border-success text-center" type="text" name="Piso" readonly value="@Model.Piso" />
+            </div>
+
+            <div class="col-lg-4">
+                <label for="Propietario" class="text-dark form-label font-weight-bold font-18">Propietario:</label>
+                <input class="form-control border-success text-center" type="text" name="Propietario" readonly value="@Model.Propietario" />
+            </div>
+
+            <input id="" type="hidden" name="DocEntryPer" value="@Model.DocEntryPer" />
+
+            <div class="col-lg-4">
+                <label for="Operario" class="text-dark form-label font-weight-bold font-18">Op Conteo:</label>
+                <input class="form-control border-success text-center" type="text" name="DetFases[0].Operario" readonly value="@if (Model.Fase > 1) { Write(Model.DetFases[0].Operario); } " />
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-2">
+                <label for="TiempoInicio" class="text-dark form-label font-weight-bold font-18">Tiempo Inicio:</label>
+                <input class="form-control border-success text-center" type="text" name="DetFases[0].FechaFase" readonly value="@if (Model.Fase > 1) { Write(Model.DetFases[0].FechaFase); }" />
+            </div>
+
+            <div class="col-lg-2">
+                <label for="TiempoInicio" class="text-dark form-label font-weight-bold font-18">Hora Inicio:</label>
+                <input class="form-control border-success text-center" type="text" name="DetFases[0].HoraFase" readonly value="@if (Model.Fase > 1) { Write(Model.DetFases[0].HoraFase); }" />
+            </div>
+
+            <div class="col-lg-8">
+                <label for="TiempoInicio" class="text-dark form-label font-weight-bold font-18">Observación:</label>
+                <input class="form-control border-success" type="text" name="DetFases[0].FechaFase" readonly value="@if (Model.Fase > 1) { Write(Model.DetFases[0].Observacion); }" />
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-2">
+                <label for="TiempoInicio" class="text-dark form-label font-weight-bold font-18">N°:</label>
+                <input class="form-control border-success text-center" type="text" name="DocEntry" readonly value="@Model.DocEntry" />
+            </div>
+
+            <div class="col-lg-2">
+                <label for="TiempoInicio" class="text-dark form-label font-weight-bold font-18">Estado:</label>
+                <input class="form-control border-success text-center" type="text" name="Estado" readonly value="@Model.Estado" />
+            </div>
+
+            <div class="col-lg-6">
+                <label for="TiempoInicio" class="text-dark form-label font-weight-bold font-18">Artículo:</label>
+                <input class="form-control border-success text-center" type="text" name="ItemName" readonly value="@Model.ItemName" />
+            </div>
+
+            <div class="col-lg-2">
+                <label for="TiempoInicio" class="text-dark form-label font-weight-bold font-18">Cod. Artículo:</label>
+                <input class="form-control border-success text-center" type="text" name="ItemCode" readonly value="@Model.ItemCode" />
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-4">
+                <label for="TiempoInicio" class="text-dark form-label font-weight-bold font-18">Apoyos:</label>
+                <input type="search" id="Apoyos" list="listaApoyos" class="form-control border-success text-center" />
+                <datalist id="listaApoyos">
+
+                    @foreach (Usuario_E obj in u)
+                    {
+                        <option value="@obj.Prefijo@obj.Id" nombre="@obj.Nombres  @obj.Apellidos">@obj.Nombres  @obj.Apellidos</option>
+                    }
+                </datalist>
+            </div>
+
+            <div class="col-lg-8">
+                <label for="ObsApoyo" class="text-dark form-label font-weight-bold font-18">Obs. Apoyo:</label>
+                <div class="d-flex">
+                    <input id="ObsApoyo" type="text" value="" class="form-control border-success" />
+                    @if (Model.DetFases.Count ==  0)
+                    {
+                        <button type="button" class="btn btn-info" onclick="llenarTabla('Apoyos');"><i class="icon-plus"></i> Agregar</button>
+                    }
+
+                </div>
+
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-10">
+                <table id="DetallesConteo" class="table table-hover table-bordered table-sm">
+                    <thead class="bg-success">
+                        <tr>
+                            <th class="text-center" width="220px">Usuario</th>
+                            <th class="text-center">Nombre</th>
+                            <th class="text-center">Observación</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.DetFases.Count > 0 && Model.DetFases[0].DetApoyos.Count > 0)
+                        {
+                            foreach (IAR11_E obj in Model.DetFases[0].DetApoyos)
+                            {
+                                <tr>
+                                    <td class="text-center">@obj.Id</td>
+                                    <td class="text-center">@obj.Nombre</td>
+                                    <td class="text-center">@obj.ObsApoyo</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-6">
+                <button id="accion" type="button" class="btn btn-success" onclick="validaInicioConteo();"><i class="icon-checkmark"></i> IniciarConteo</button>
+                <button id="accion" type="button" class="btn btn-danger" onclick=" validaRevertirInicioConteo();"><i class="icon-undo"></i> RevertirInicioConteo</button>
+            </div>
+        </div>
+    </div>
+}

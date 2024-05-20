@@ -1,0 +1,71 @@
+﻿@{
+    Layout = null;
+}
+
+<style>
+    .impresion {
+        width: 100%;
+        margin-left: -1% !important;
+        background-color: white;
+    }
+
+    thead {
+        display: table-header-group
+    }
+
+    tfoot {
+        display: table-row-group
+    }
+
+    tr {
+        page-break-inside: avoid
+    }
+
+    .habilitar-scroll {
+        height: 300px;
+        line-height: 1em;
+        overflow-x: hidden;
+        overflow-y: scroll;
+        width: 100%;
+    }
+</style>
+
+<div class="habilitar-scroll mt-4" style="width: 100%">
+    <table class="table table-bordered text-center" cellpadding="0" cellspacing="0">
+        <thead class="text-dark">
+            <tr>
+                <th class="border text-dark" style="vertical-align: middle">NRO</th>
+                <th class="border text-dark" style="vertical-align: middle">DOCUMENTO</th>
+                <th class="border text-dark" style="vertical-align: middle">FECHA</th>
+                <th class="border text-dark" style="vertical-align: middle">ALMACÉN</th>
+                <th class="border text-dark" style="vertical-align: middle">NOMBRE ALMACÉN</th>
+                <th class="border text-dark" style="vertical-align: middle">NOMBRE PROVEEDOR</th>
+                <th class="border text-dark" style="vertical-align: middle">LOTE</th>
+                <th class="border text-dark" style="vertical-align: middle">CANTIDAD</th>
+                <th class="border text-dark" style="vertical-align: middle">IMPUTADO</th>
+                <th class="border text-dark" style="vertical-align: middle">SENTIDO</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Count >= 1)
+            {
+                int num = 1;
+                foreach (var det in Model)
+                {
+                    <tr>
+                        <td class="text-center">@det.DocNum</td>
+                        <td class="text-center">@det.DocDate</td>
+                        <td class="text-center">@det.WhsCode</td>
+                        <td class="text-center">@det.WhsName</td>
+                        <td class="text-center">@det.CardName</td>
+                        <td class="text-center">@det.DistNumber</td>
+                        <td class="text-center">@det.Quantity</td>
+                        <td class="text-center">@det.Imputado</td>
+                        <td class="text-center">@det.Sentido</td>
+                    </tr>
+                    ++num;
+                }
+            }
+        </tbody>
+    </table>
+</div>

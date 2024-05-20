@@ -1,0 +1,378 @@
+﻿@model IEnumerable<Capa_Entidad.General_ENT.TablasSql.OUR2_E>
+@using Capa_Entidad.General_ENT.TablasSql
+
+@{
+    ViewBag.Title = "Gestionar Tarifario";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<UBIG_E> Ubigeos = new List<UBIG_E>(ViewBag.Ubigeos);
+    List<COUR_E> Agencias = new List<COUR_E>(ViewBag.Agencias);
+}
+
+@{ if (@Request["ticketventa"] != "1")
+    {
+    <div class="pt-4">
+        <nav>
+            <ol class="cd-breadcrumb bg-dark">
+                <li><a href="/Index/Sesion">Inicio</a></li>
+                <li><a href="@Url.Action("ListadoRepartos", "Rutas")">Listado de Repartos</a></li>
+                <li class="current"><em>Gestionar Tarifario</em></li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="bg-dark border-cabecera-seccion pb-2">
+        <div class="px-3 pt-3"><h3 class="titulo-seccion">GESTIONAR TARIFARIO</h3></div>
+        <div class="d-flex pl-2 w-100 py-2">
+
+            <div class="mx-2">
+                <a id="accion" data-toggle="modal" href="#ModalImportar" class="btn btn-cobefar">Importar datos</a>
+            </div>
+
+        </div>
+
+    </div>
+
+        
+
+        <div id="div_gestionarTarifario" class="pt-4 bg-form-pestanas-cobefar justify-content-center">
+            <form name="frm_gestionarTarifario" id="frm_gestionarTarifario">
+                <div class="row d-flex mx-1">
+                    <div class="col-lg-4 col-sm-8 col-xs-6">
+                            <label class="col-form-label text-dark form-label font-weight-bold font-18">DESTINO:</label>
+                            <select name="Destino" id="Destino" class="form-control bg-cobefar text-white cls-campoTarifario">
+                                <option value="">Seleccione...</option>
+                                @{ foreach (var ubi in Ubigeos)
+                                    {
+                                        <option value="@ubi.Distrito.ToUpper()">@ubi.Distrito.ToUpper()</option>
+                                    }
+                                }
+                            </select>
+                    </div>
+
+
+                    <div class="col-lg-2 col-sm-4 col-xs-2">
+                            <label class="col-form-label text-md-right text-dark form-label font-weight-bold font-18">TARIFA KG:</label>
+                            <input type="number" name="TarifaKg" id="TarifaKg" class="form-control border-success cls-campoTarifario" step=0.01 autocomplete="off" />
+                    </div>
+
+                    <div class="col-lg-2 col-sm-4 col-xs-2">
+                            <label for="PrecioBase" class="col-form-label text-md-right text-dark form-label font-weight-bold font-18">BASE:</label>
+                            <input type="number" name="PrecioBase" id="PrecioBase" class="form-control border-success cls-campoTarifario" step=0.01 autocomplete="off" />
+                    </div>
+
+
+                    <div class="col-lg-4 col-sm-8 col-xs-6">
+                            <label for="IdCourier" class=" col-form-label text-md-right text-dark form-label font-weight-bold font-18">AGENCIA:</label>
+                            <input type="hidden" id="IdTarifario" value="@Request["Id"]" />
+                            <select name="IdCourier" id="IdCourier" class="form-control bg-cobefar text-white cls-campoTarifario" style="width: 100%">
+                                <option value="">Seleccione...</option>
+                                @foreach (var i in Agencias)
+                                {
+                                    <option value="@i.Id">@i.Nombre</option>
+                                }
+                            </select>
+                    </div>
+
+                </div>
+
+                <div class="row d-flex mt-4 mx-1">
+                    <div id="div_botonesTarifario" class="col-lg-6 col-md-2">
+                        <button type="button" id="btn_agregar" class="btn btn-success" onclick="validarFormulario();"><i class="icon icon-plus"></i> Agregar</button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    }
+}
+
+
+<div class="d-flex pt-4 bg-form-pestanas-cobefar justify-content-center mb-4 w-100">
+    <div class="row w-100 px-3 py-2 shadow-inputs-form">
+        <label for="buscador" class="col-form-label text-dark form-label font-weight-bold font-18">Búsqueda:</label>
+        <div class="col-xl-7 col-lg-5 col-md-10 col-12">
+            <input type="text" id="buscador" class="form-control border-success" />
+        </div>
+        <div class="col-xl-4 col-lg-4 col-md-12 col-12 mt-lg-0 mt-md-0 mt-3">
+            <button class="btn btn-primary" onclick="buscarTexto()"><i class="icon-search"></i> Buscar</button>
+            <button class="btn btn-warning" onclick="buscarTexto('mostrarTodo')"><i class="icon-list"></i> Mostrar Todo</button>
+        </div>
+    </div>
+</div>
+
+
+<div class="d-flex justify-content-center">
+    <div class="w-100">
+        <table id="tbl_tarifarios" class="table table-hover table-responsive-sm bg-light">
+            <thead class="bg-dark">
+                <tr>
+                    <th>#</th>
+                    <th>DESTINO</th>
+                    <th class="text-center">TARIFA / KG</th>
+                    <th class="text-center">BASE</th>
+                    <th class="text-center">AGENCIA</th>
+                    @if (@Request["ticketventa"] != "1")
+                    {
+                        <th class="text-center">ACCIÓN</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @{ int num = 1;
+                    foreach (var tarif in Model)
+                    {
+                        <tr>
+                            <td>@num</td>
+                            <td>@tarif.Destino</td>
+                            <td class="text-center">@tarif.TarifaKg</td>
+                            <td class="text-center">@tarif.PrecioBase</td>
+                            <td class="text-center">@tarif.NombreAgencia</td>
+                            @if (@Request["ticketventa"] != "1")
+                            {
+                                <td class="text-center">
+                                    <button class="btn btn-primary mr-lg-2 mr-md-0 mr-sm-1" onclick="buscarTarifario(@tarif.Id)"><i class="icon-pencil"></i></button>
+                                    <button class="btn btn-danger ml-sm-1" onclick="mostrarMensaje('eliminar', 'EliminarTarifario', @tarif.Id)"><i class="icon-bin"></i></button>
+                                </td>
+                            }
+                        </tr>
+                        ++@num;
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+
+
+
+<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex mb-4 justify-content-center">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-info" data-dismiss="modal"><i class="icon-cross"></i> Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="ModalImportar" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
+    <div class="modal-dialog modal-lg " role="document">
+        @using (Html.BeginForm("ImportarExcel", "Rutas", FormMethod.Post, new { id = "formArchivo", enctype = "multipart/form-data", autocomplete = "off" }))
+        {
+            <div class="modal-content">
+                <div class="modal-header bg-cobefar text-white">
+                    <h5 class="modal-title">IMPORTAR DATOS EXCEL</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body bg-light">
+                    <div class="col-md-12">
+                        <label class="control-label text-dark"><span>Recuerde ubicar su archivo excel en D:\</span></label><br />
+                        <input id="i_file" type="file" class="form-control btn btn-primary m-2" accept=".xlsx" style="width:300px" />
+                        <input type="hidden" id="filename" name="filename" />
+                        <button type="button" class="btn btn-info" onclick="previsualizar()"> Previsualizar</button>
+                    </div>
+                    <div class="d-flex mb-4 justify-content-center">
+                        <div class="w-100">
+                            <div class="row p-4">
+                                <div class="col-lg-12">
+                                    <label class="text-dark form-label font-weight-bold font-18">Agencia Courier:</label>
+                                    <select name="IdCourier" class="form-control bg-cobefar text-white col-md-5">
+                                        <option value="0">Seleccione...</option>
+                                        @foreach (var i in Agencias)
+                                        {
+                                            <option value="@i.Id">@i.Nombre</option>
+                                        }
+                                    </select>
+                                </div>
+                                
+                            </div>
+                            <div class="overflow-auto">
+                                <table id="DetallesTarifario" style="height:200px" class="table table-hover table-sm bg-light">
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success"><i class="icon-database"></i> Guardar datos</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal"> Cerrar</button>
+                </div>
+
+            </div>
+        }
+    </div>
+</div>
+<script>
+    if ('@ViewBag.Mensaje' != "") {
+        Swal.fire({
+            icon: '',
+            text: `@ViewBag.Mensaje`
+        })
+    }
+
+
+    function validarFormulario() {
+        if ($('#Destino').val() != '' || $('#TarifaKg').val() != '' || $('#PrecioBase').val() != '' || $('#IdCourier').val() != '') {
+            mantenerTarifario('registrarTarifario', '');
+        } else {
+            Swal.fire({
+            icon: 'error',
+            text: `No se puede registrar tarifario con campos vacíos.`
+        })
+        }
+
+    }
+
+
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const getVer = urlParams.get('ticketventa') ? urlParams.get('ticketventa') : 0;
+
+        function buscarTexto(param) {
+                let textoBuscador = $('#buscador').val();
+                let datos = new Object();
+                if (param == 'mostrarTodo') {
+                    $('#buscador').val('');
+                    datos = { Destino: '', NombreAgencia: '' };
+                } else {
+                    datos = { Destino: textoBuscador, NombreAgencia: textoBuscador };
+                }
+
+                $.ajax({
+                    url: 'BuscarTarifario',
+                    type: 'POST',
+                    data: datos,
+                    success: function (response) {
+                        let filaTabla = '', num = 1;
+
+                        if (response.length > 0) {
+                            for (let indice in response) {
+                                filaTabla += `<tr>
+                                                <td>${num}</td>
+                                                <td>${response[indice].Destino}</td>
+                                                <td class="text-center">${response[indice].TarifaKg}</td>
+                                                <td class="text-center">${response[indice].PrecioBase}</td>
+                                                <td class="text-center">${response[indice].NombreAgencia}</td>`;
+
+                                if (getVer == 0) {
+                                    filaTabla += `<td class="text-center">
+                                                        <button class="btn btn-primary mr-lg-2 mr-md-0 mr-sm-1" onclick="buscarTarifario(${response[indice].Id})"><i class="icon-pencil"></i></button>
+                                                        <button class="btn btn-danger ml-sm-1" onclick="mostrarMensaje('eliminar', 'EliminarTarifario', ${response[indice].Id})"><i class="icon-bin"></i></button>
+                                                    </td>`;
+                                }
+                                filaTabla += `</tr>`;
+                                num++;
+                            }
+
+                        } else {
+                            filaTabla += `<tr><td class="text-danger" colspan="6"><b>No se encontraron resultados.</b></td></tr>`;
+                        }
+
+                        $('#tbl_tarifarios > tbody').html(filaTabla);
+                    }
+                });
+        }
+
+
+        function buscarTarifario(idTarifario) {
+            $.ajax({
+                url: 'BuscarTarifario',
+                type: 'POST',
+                data: { Id: idTarifario },
+                success: function (response) {
+                    if (response.length > 0) {
+                        window.scroll({
+                          top: 100,
+                          left: 100,
+                          behavior: 'smooth'
+                        });
+                        $('#btn_agregar').css('display', 'none');
+                        $('#IdTarifario').val(response[0].Id);
+                        const botones = `<button type="button" class="btn btn-success" onclick="mantenerTarifario('editarTarifario', '')">Editar</button>
+                                         <a href="GestionarTarifarios?TipoRep=Re" class="btn btn-dark">Cancelar</a>`;
+                        $('#div_botonesTarifario').html(botones);
+                    } else {
+                        $('#btn_agregar').css('display', 'block');
+                    }
+
+                    $('#Destino').val(response[0].Destino);
+                    $('#TarifaKg').val(response[0].TarifaKg);
+                    $('#PrecioBase').val(response[0].PrecioBase);
+                    $('#IdCourier').val(response[0].IdCourier);
+                }
+            });
+        }
+        function mostrarMensaje(accion, controller, idRegistro = 0) {
+            Swal.fire({
+                title: `¿Estás seguro(a) de ${accion} tarifario?`,
+                confirmButtonColor: 'green',
+                showCancelButton: true,
+                confirmButtonText: `<i class="icon-checkmark"></i> Si, estoy seguro(a)`,
+                cancelButtonText: `<i class="icon-cross"></i> Cancelar`,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let datosMostrarMensaje = { Id: idRegistro };
+                    mantenerTarifario(controller, datosMostrarMensaje);
+                }
+            });
+        }
+        function mantenerTarifario(controller = '', datos) {
+            if (datos == '') {
+                datos = {
+                            Id: $('#IdTarifario').val(),
+                            IdCourier: $('#IdCourier').val(),
+                            Destino: $('#Destino').val(),
+                            PrecioBase: $('#PrecioBase').val(),
+                            TarifaKg: $('#TarifaKg').val()
+                        };
+            }
+            console.log(datos);
+            $.ajax({
+                url: controller,
+                type: 'POST',
+                dataType: 'json',
+                data: datos,
+                beforeSend: function () {
+                    $('.cls-campoTarifario').val('');
+                },
+                success: function (response) {
+                    Swal.fire(`${response.mensaje}`, '', 'success');
+                    $('#tbl_tarifarios > tbody').html(response.listaActualizada);
+                    $('#div_botonesTarifario').html(`<button type="button" id="btn_agregar" class="btn btn-success" onclick="validarFormulario();">Agregar</button>`);
+                }
+            });
+
+        }
+        $(function () {
+        $('#i_file').on('change', function () {
+            var filename = $('input[type=file]').val().split('\\').pop();
+            $("#filename").val(filename);
+        });
+    });
+        function previsualizar() {
+        $("#DetallesTarifario tr:not(:first)").remove();
+        $.ajax('/Rutas/PrevisualizarExcel',
+            {
+                data: { filename: $("#filename").val() },
+                dataType: 'json',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                $("#DetallesTarifario").append("<thead class='bg-dark'><tr><th class='text-center'>DESTINO</th><th class='text-center'>BASE</th>" +
+                    "<th class='text-center'>TARIFA / KG</th></tr></thead>");
+                $.each(response, function (key, value) {
+                    $("#DetallesTarifario").append("<tr><td class='text-center'>" + value.Destino + "</td> <td class='text-center'>" + value.PrecioBase + "</td> <td class='text-center'>" + value.TarifaKg + "</td></tr>");
+                });
+            });
+    }
+</script>

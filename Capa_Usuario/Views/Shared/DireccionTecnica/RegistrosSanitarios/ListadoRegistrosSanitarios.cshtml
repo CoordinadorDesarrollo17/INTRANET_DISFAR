@@ -1,0 +1,111 @@
+﻿<form name="frm" id="frm">
+    <table id="tbl_listadoRS" class="table table-light table-sm table-hover" cellspacing="0" width="100%">
+        <thead class="thead-dark">
+            <tr>
+                <th class="text-center">Registro Sanitario<br /><input type="text" id="registroSanitario" name="RegistroSanitario" class="form-control-sm text-center border" value="@ViewBag.ORS.RegistroSanitario" autocomplete="off" onchange="$('#frm').submit();" /></th>
+                <th class="text-center">Cód. Artículo<br /><input type="text" id="codArticulo" name="CodArticulo" class="form-control-sm text-center border text-uppercase" value="@ViewBag.ORS.CodArticulo" autocomplete="off" onchange="$('#frm').submit();" /></th>
+                <th class="text-center">Desc. Artículo<br /><input type="text" id="descArticulo" name="DescArticulo" value="@ViewBag.ORS.DescArticulo" class="form-control-sm text-center border text-uppercase" onchange="$('#frm').submit();" /></th>
+                <th class="text-center" style="width: 120px">Fecha Venc.<br /><input type="date" id="fechaVenc" name="FechaVenc" class="form-control-sm text-center border w-100" value="@ViewBag.ORS.FechaVenc" autocomplete="off" onchange="$('#frm').submit();" /></th>
+                <th class="text-center">Comentario</th>
+                <th class="text-center">
+                    Estado<br />
+                    <select id="estado" name="Estado" class="form-control-sm bg-cobefar text-white" onchange="$('#frm').submit();">
+                        <option value="">Seleccione</option>
+                        <option value="01" @if (!string.IsNullOrEmpty(ViewBag.ORS.Estado) && ViewBag.ORS.Estado.Equals("01")) { Write("selected"); }>Vigente</option>
+                        <option value="02" @if (!string.IsNullOrEmpty(ViewBag.ORS.Estado) && ViewBag.ORS.Estado.Equals("02")) { Write("selected"); }>Agotamiento de Stock</option>
+                        <option value="03" @if (!string.IsNullOrEmpty(ViewBag.ORS.Estado) && ViewBag.ORS.Estado.Equals("03")) { Write("selected"); }>Vencido</option>
+                        <option value="04" @if (!string.IsNullOrEmpty(ViewBag.ORS.Estado) && ViewBag.ORS.Estado.Equals("04")) { Write("selected"); }>Proceso de Reinscripción</option>
+                        <option value="05" @if (!string.IsNullOrEmpty(ViewBag.ORS.Estado) && ViewBag.ORS.Estado.Equals("05")) { Write("selected"); }>Cancelado</option>
+                    </select>
+                </th>
+                <th class="text-center"></th>
+                <th class="text-center"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null)
+            {
+                int num = 1;
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="text-center">@item.RegistroSanitario</td>
+                        <td class="text-center">@item.CodArticulo</td>
+                        <td class="text-center">@item.DescArticulo</td>
+                        <td class="text-center">@item.FechaVenc</td>
+                        <td class="text-center"><span class="px-3">@item.Comentario</span></td>
+                        <td class="text-center"><span class="px-2">@item.Estado</span></td>
+                        <td class="text-center">
+                            <button type="button" id="btn_agregar_@num" class="btn btn-sm btn-warning" title="Agregar Observaciones" data-RN="@item.RegistroSanitario" data-CA="@item.CodArticulo" data-DA="@item.DescArticulo" data-CL="@item.CodLaboratorio" onclick="agregarObservacion(this.id)"><i class="icon-plus"></i></button>
+                        </td>
+                        <td class="text-center">
+                            @if (item.IdOORS > 0)
+                            {
+                                <button type="button" id="btn_obs_@num" class="btn btn-sm btn-secondary" title="Seguimiento de Observaciones" data-RN="@item.RegistroSanitario" data-CA="@item.CodArticulo" data-DA="@item.DescArticulo" data-CL="@item.CodLaboratorio" onclick="obtenerObservaciones(this.id)"><i class="icon-search"></i></button>
+                            }
+                        </td>
+                    </tr>
+                    ++num;
+                }
+            }
+        </tbody>
+    </table>
+</form>
+
+<script>
+    $('#tbl_listadoRS').DataTable({
+        "searching": false,
+        "ordering": false,
+        "scrollX": true,
+        pageLength: 50, /*---- PARA INICIALIZAR LA PAGINACIÓN */
+        lengthMenu: [50, 100, 150], /* RANGO PAGINACIÓN */
+    });
+
+    $('.cls-numeric').keypress(function (tecla) {
+        // enter y [0-9]
+        if (tecla.keyCode != 13 && (tecla.keyCode < 48 || tecla.keyCode > 57)) {
+            return false;
+        }
+    });
+
+    function agregarObservacion(id) {
+        $('#div_vistaParcial').html('');
+
+        $.ajax({
+            url: '/DireccionTecnica/AgregarObservaciones',
+            type: 'POST',
+            data: {
+                'RegistroSanitario': $(`#${id}`).attr('data-RN'),
+                'CodArticulo': $(`#${id}`).attr('data-CA'),
+                'DescArticulo': $(`#${id}`).attr('data-DA'),
+                'CodLaboratorio': $(`#${id}`).attr('data-CL')
+            }
+        }).done(function (response) {
+            $('#div_vistaParcial').html(response);
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            console.log(jqXHR.status + textStatus + errorThrown);
+        });
+        
+        $('#modalInfo').modal('show');
+    }
+
+    function obtenerObservaciones(id) {
+        $('#div_vistaParcial').html('');
+
+        $.ajax({
+            url: '/DireccionTecnica/VerSeguimientoObservaciones',
+            type: 'POST',
+            data: {
+                'RegistroSanitario': $(`#${id}`).attr('data-RN'),
+                'CodArticulo': $(`#${id}`).attr('data-CA'),
+                'DescArticulo': $(`#${id}`).attr('data-DA')
+            }
+        }).done(function (response) {
+            $('#div_vistaParcial').html(response);
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            console.log(jqXHR.status + textStatus + errorThrown);
+        });
+
+        $('#modalInfo').modal('show');
+    }
+</script>

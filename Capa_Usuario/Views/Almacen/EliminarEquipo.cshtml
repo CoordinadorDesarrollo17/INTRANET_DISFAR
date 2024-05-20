@@ -1,0 +1,184 @@
+﻿@model Capa_Entidad.Almacen_ENT.TablasSql.OIEQ_E
+@using Capa_Entidad.Almacen_ENT.TablasSql
+@using Capa_Entidad.Seguridad_ENT
+@using Capa_Entidad.Almacen_ENT.Tablas
+
+@{
+    ViewBag.Title = "EliminarEquipo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<Usuario_E> u = (List<Usuario_E>)ViewBag.Miembros;
+    List<OMRC_E> l = (List<OMRC_E>)ViewBag.Laboratorios;
+}
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("ContabilizacionInventario", "Almacen")">Módulo contabilización inventario</a></li>
+            <li><a href="@Url.Action("GestionEquipos", "Almacen")">Gestión equipos</a></li>
+            <li class="current"><em>Registrar nuevo equipo</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">ELIMINAR EQUIPO</h3></div>
+</div>
+
+<div class="bg-form-pestanas-cobefar">
+    <div class="alert alert-danger mb-0" role="alert">
+        @if (@OIPE_E.PeriodoSeleccionado != null)
+        {
+            @OIPE_E.PeriodoSeleccionado.Descripcion
+            Write(" - Almacenes: ");
+            @OIPE_E.PeriodoSeleccionado.enlistarDetAlmacenes()
+        }
+    </div>
+
+    <div class="bg-section-form p-4 bg-form-cobefar">
+        @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "EliminarEquipoPost" }))
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="row mt-2">
+                <div class="col-lg-2">
+                    <label for="DocEntry" class="text-dark form-label font-weight-bold font-18">N°:</label>
+                    @Html.EditorFor(model => model.DocEntry, new { htmlAttributes = new { @class = "form-control border-success text-center", @readonly = "true" } })
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="Nombre" class="text-dark form-label font-weight-bold font-18">Nombre:</label>
+                    @Html.EditorFor(model => model.Nombre, new { htmlAttributes = new { @class = "form-control border-success text-center", @readonly = "true" } })
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="Tipo" class="text-dark form-label font-weight-bold font-18">Tipo:</label>
+                    @Html.EditorFor(model => model.Tipo, new { htmlAttributes = new { @class = "form-control border-success text-center", @readonly = "true" } })
+                </div>
+
+                <div class="col-lg-2">
+                    <label for="Estado" class="text-dark form-label font-weight-bold font-18">Estado:</label>
+                    @Html.EditorFor(model => model.Estado, new { htmlAttributes = new { @class = "form-control border-success text-center", @readonly = "true" } })
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-2">
+                    <label for="DocEntryPer" class="text-dark form-label font-weight-bold font-18">Periodo:</label>
+                    @Html.EditorFor(model => model.DocEntryPer, new { htmlAttributes = new { @class = "form-control border-success text-center", @readonly = "true" } })
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="Almacen" class="text-dark form-label font-weight-bold font-18">Almacenes:</label>
+                    @Html.EditorFor(model => model.WhsCode, new { htmlAttributes = new { @class = "form-control border-success text-center", @readonly = "true" } })
+                </div>
+
+                <div class="col-lg-1">
+                    <label for="Piso" class="text-dark form-label font-weight-bold font-18">Piso:</label>
+                    @Html.EditorFor(model => model.Piso, new { htmlAttributes = new { @class = "form-control border-success text-center", @readonly = "true"  } })
+                </div>
+
+                <div class="col-lg-2">
+                    <label for="Estado" class="text-dark form-label font-weight-bold font-18">Estado:</label>
+                    @Html.EditorFor(model => model.Controlados, new { htmlAttributes = new { @class = "form-control border-success text-center", @readonly = "true" } })
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-6">
+                    <table id="DetallesEquipos1" class="table table-sm">
+                        <thead class="bg-success">
+                            <tr>
+                                <th class="text-center">#</th>
+                                <th class="text-center">User</th>
+                                <th class="text-center">Nombre</th>
+                                <th class="text-center"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{int cont = 0;}
+                            @foreach (IEQ1_E obj in Model.DetMiembros)
+
+                            {
+                                <tr>
+                                    <td class="text-center"><input class='form-control' name='DetMiembros[@cont].Linea' value='@obj.Linea' readonly /></td>
+                                    <td class="text-center"><input class='form-control' name='DetMiembros[@cont].Id' value='@obj.Id' readonly /></td>
+                                    <td class="text-center"><input class='form-control' name='DetMiembros[@cont].Nombre' value='@obj.Nombre' readonly /></td>
+
+                                </tr>
+                                cont++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="col-lg-6">
+                    <table id="DetallesEquipos2" class="table table-sm">
+                        <thead class="bg-success">
+                            <tr>
+                                <th class="text-center">#</th>
+                                <th class="text-center">Descripcion</th>
+                                <th class="text-center"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{int cont2 = 0;}
+                            @foreach (IEQ2_E obj in Model.DetFabricantes)
+
+                            {
+                                <tr>
+                                    <td class="text-center"><input class='form-control' name='DetFabricantes[@cont2].Linea' value='@obj.Linea' readonly /></td>
+                                    <td class="text-center"><input class='form-control' name='DetFabricantes[@cont2].U_SYP_DESC' value='@obj.U_SYP_DESC' readonly /></td>
+                                </tr>
+                                cont++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-6">
+                    <button type="button" class="btn btn-danger" onclick="eliminarEquipo();"><i class="icon-bin"></i> Eliminar</button>
+                </div>
+            </div>
+        }
+    </div>
+    
+</div>
+
+
+<script>
+    if ('@ViewBag.Mensaje' != "") {
+        swal.fire({
+            title: "@ViewBag.Mensaje",
+            text: "Presione OK para continuar",
+            icon: "warning"
+        })
+    };
+
+    function eliminarEquipo() {
+        Swal.fire({
+            title: '¿Está seguro(a) de eliminar equipo?',
+            text: "Este proceso no es revertible.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: 'success',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Si, estoy seguro(a)',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax('/Almacen/EliminarEquipo',
+                    {
+                        data: { id: $("#DocEntry").val() },
+                        dataType: 'html',
+                        cache: false,
+                        type: 'post'
+                    }).done(function() {
+                      window.location.href = "/Almacen/GestionEquipos";
+                    });
+            }
+        });
+    }
+</script>

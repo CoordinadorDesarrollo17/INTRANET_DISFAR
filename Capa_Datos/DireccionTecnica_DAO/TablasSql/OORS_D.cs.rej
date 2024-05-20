@@ -1,0 +1,9 @@
+diff a/Capa_Datos/DireccionTecnica_DAO/TablasSql/OORS_D.cs b/Capa_Datos/DireccionTecnica_DAO/TablasSql/OORS_D.cs	(rejected hunks)
+@@ -121,6 +121,7 @@
+             {
+                 if (!string.IsNullOrEmpty(rs.RegistroSanitario)) { condWhere += $" AND BTN.\"MnfSerial\" = '{rs.RegistroSanitario}'"; }
+                 if (!string.IsNullOrEmpty(rs.CodArticulo)) { condWhere += $" AND ITM.\"ItemCode\" = '{rs.CodArticulo}'"; }
++                if (!string.IsNullOrEmpty(rs.DescArticulo)) { condWhere += $" AND ITM.\"ItemName\" LIKE '%{rs.DescArticulo.ToUpper()}%'"; }
+                 if (!string.IsNullOrEmpty(rs.FechaVenc)) { condWhere += $" AND TO_CHAR(ITM.\"U_COB_FECH_RS\", 'YYYY-MM-DD') = '{rs.FechaVenc}'"; }
+                 if (!string.IsNullOrEmpty(rs.Estado)) { condWhere += $" AND ITM.\"U_COB_ESTRS\" = '{rs.Estado}'"; }
+             }

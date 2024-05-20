@@ -1,0 +1,174 @@
+﻿@{
+    List<string> comprobantes = (List<string>)ViewBag.Comprobantes;
+    bool botonAutorizar = false;
+    int numComprobante = 1, numSlide = 1, dataSlideTo = 0;
+    decimal montoTotal = Model.MontoRecibidoEfectivo + Model.MontoRecibidoDeposito;
+
+    if (!montoTotal.Equals(ViewBag.MontoFinal))
+    {
+        botonAutorizar = true;
+    }
+}
+
+<div class="bg-section-form p-4 bg-form-cobefar">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="text-cobefar font-weight-bold">DETALLES DEL REPARTO</h2><br />
+            <div class="row mt-3 justify-content-center">
+                <div class="col-11">
+                    @if (comprobantes != null && comprobantes.Count >= 1)
+                    {
+                        <div class="form-group row">
+                            <div id="carouselExampleIndicators" class="carousel slide w-100" data-ride="carousel">
+                                <ol class="carousel-indicators">
+                                    @foreach (var adj in comprobantes)
+                                    {
+                                        <li data-target="#carouselExampleIndicators" data-slide-to="@dataSlideTo" class="@{ if (numSlide.Equals(1)) { Write("active"); }}"></li>
+                                        ++numSlide;
+                                    }
+                                </ol>
+                                <div class="carousel-inner">
+                                    @foreach (var adj in comprobantes)
+                                    {
+                                        <div class="carousel-item @{ if (numComprobante.Equals(1)) { Write("active"); }}">
+                                            <img class="d-block w-100" src="@adj" alt="">
+                                        </div>
+                                        ++numComprobante;
+                                    }
+                                </div>
+                                <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="sr-only">Previous</span>
+                                </a>
+                                <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="sr-only">Next</span>
+                                </a>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="form-group row mt-4 justify-content-center font-18">
+                        <span class="font-weight-bold pr-2">Tipo de pago:</span><span class="">@Model.DescTipoPago</span>
+                    </div>
+                    <div class="form-group row justify-content-center font-18">
+                        <span class="font-weight-bold bg-warning pr-2">Monto Efectivo:</span><span class="bg-warning">S/ @Model.MontoRecibidoEfectivo</span>
+                    </div>
+                    <div class="form-group row justify-content-center font-18">
+                        <span class="font-weight-bold pr-2">Monto Depósito:</span> S/ @Model.MontoRecibidoDeposito
+                    </div>
+                    <div class="form-group row justify-content-center font-18">
+                        <span class="font-weight-bold pr-2">Monto Total:</span> S/ @montoTotal
+                    </div>
+                    <div class="form-group row justify-content-center">
+                        <hr class="w-25" />
+                    </div>
+                    <div class="form-group row justify-content-center font-18">
+                        <span class="font-weight-bold pr-2">Total Ticket:</span> S/ @ViewBag.MontoFinal
+                    </div>
+                    @if (botonAutorizar)
+                    {
+                        <div class="form-group row mt-2 justify-content-center font-18 text-danger">
+                            <span class="w-50">NOTA: El monto total ingresado por el transportista no es igual al monto total del ticket.</span>
+                        </div>
+
+                        <div class="form-group row mt-2 justify-content-center font-18 text-danger">
+                            <textarea id="Comentario" name="Comentario" class="form-control  w-50" placeholder="Escribe aquí el motivo de rechazo o autorización..." rows="6"></textarea>
+                        </div>
+
+                        <div class="form-group row justify-content-center">
+                            <button type="button" class="btn btn-sm btn-danger mx-2" onclick="rechazarTicket(@Model.IdOTC)"><i class="icon-cross"></i> Rechazar</button>
+                            <button type="button" class="btn btn-sm btn-success mx-2" onclick="validarAutorizarTicket('A', @Model.IdOTC)"><i class="icon-checkmark"></i> Autorizar</button>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="form-group row mt-2 justify-content-center font-18 text-danger">
+                            <textarea id="Comentario" name="Comentario" class="form-control  w-50" placeholder="Escribe aquí el motivo de rechazo o autorización..." rows="6"></textarea>
+                        </div>
+
+                        <div class="form-group row justify-content-center">
+                            <button type="button" class="btn btn-sm btn-danger mx-2" onclick="rechazarTicket(@Model.IdOTC)"><i class="icon-cross"></i> Rechazar</button>
+                            <button type="button" class="btn btn-sm btn-success mx-2" onclick="validarAutorizarTicket('V', @Model.IdOTC)"><i class="icon-checkmark"></i> Validar</button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function rechazarTicket(idOTC) {
+        if ($("#Comentario").val().trim() != '') {
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success mx-4',
+                    cancelButton: 'btn btn-danger mx-4'
+                },
+                buttonsStyling: false
+            })
+
+            swalWithBootstrapButtons.fire({
+                title: '¿Está seguro(a) de RECHAZAR la solicitud?',
+                text: "El transportista tendrá que enviar una nueva solicitud.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: "<i class='icon-checkmark'></i> Si, estoy seguro(a)",
+                cancelButtonText: "<i class='icon-cross'></i> Cancelar",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/Ventas/RechazarTC',
+                        type: 'POST',
+                        dataType: 'json',
+                        data: { 'IdOTC': idOTC, 'Comentario': $('#Comentario').val() }
+                    }).done(function (response) {
+                        if (response.Mensaje == 'OK') {
+                            $('#div_listado').load(`@Url.Action("ListarTicketsACuadrar")`);
+                            $('#modalInfo').modal('hide');
+                        }
+                    }).fail(function (jqXHR, textStatus, errorThrown) {
+                        console.log(jqXHR.status + textStatus + errorThrown);
+                    });
+                }
+            });
+        } else {
+            Swal.fire('Para rechazar una solicitud, debe agregar un motivo');
+        }
+    }
+
+    function validarAutorizarTicket(tipo, idOTC) {
+        if (tipo != '') {
+            let ruta = '';
+            let datos = {};
+
+            if (tipo == 'V') { ruta = '/Ventas/ValidarTC'; datos = { 'IdOTC': idOTC } }
+            else if (tipo == 'A') {
+                if ($('#Comentario').val() != '') {
+                    ruta = '/Ventas/AutorizarTC';
+                    datos = {
+                        'IdOTC': idOTC, 'Comentario': $('#Comentario').val()
+                    }
+                } else {
+                    Swal.fire('Es obligatorio justificar la autorización');
+                }
+            }
+
+            $.ajax({
+                url: ruta,
+                type: 'POST',
+                dataType: 'json',
+                data: datos
+            }).done(function (response) {
+                if (response.Mensaje == 'OK') {
+                    $('#div_listado').load(`@Url.Action("ListarTicketsACuadrar")`);
+                    $('#modalInfo').modal('hide');
+                }
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR.status + textStatus + errorThrown);
+            });
+        }
+    }
+</script>

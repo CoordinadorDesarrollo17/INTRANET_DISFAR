@@ -1,0 +1,69 @@
+﻿@using Capa_Entidad.General_ENT.Tablas
+@using ReportViewerForMvc;
+@using Microsoft.Reporting.WebForms
+@{
+    ViewBag.Title = "CalcularPdfsDescarga";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string vista = ViewBag.VistaAnterior;
+}
+
+<style>
+    li {
+        list-style-type: none;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        //agregar condicional para los almacenes
+    });
+    function cargarFormulario(info) {
+        $.ajax('/DireccionTecnica/' + info,
+            {
+                dataType: 'html',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                Swal.fire("Formulario cargado correctamente.");
+                $('#Formulario').html(response);
+            });
+    }
+</script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("ListadoFacturasDeVenta", "DireccionTecnica")">Listado facturas de venta</a></li>
+            <li class="current"><em>Calcular descarga PDFS</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">CALCULAR DESCARGA PDFS</h3></div>
+</div>
+
+<div class="bg-form-pestanas-cobefar">
+    <div class="">
+        <div class="row mt-2">
+            <div class="col-lg-3">
+                <ul>
+                    <li class="alm_16"><button class="btn btn-success m-2 w-100" onclick="cargarFormulario('frmActaRecepcion')"><strong>Acta Recepcion y Organo Leptico</strong></button></li>
+                    <li class="alm_16"><button class="btn btn-success m-2 w-100" onclick="cargarFormulario('frmActaDespachoOINV')"><strong>Acta Despacho <br />ALM 01 y 06</strong></button></li>
+                    <li class="alm_357"><button class="btn btn-success m-2 w-100" onclick="cargarFormulario('frmActaDespachoOWTR')"><strong>Acta Despacho trasl <br />ALM 03, 05, 07</strong></button></li>
+                    <li class="alm_357"><button class="btn btn-success m-2 w-100" onclick="cargarFormulario('frmActaDespachoODLN')"><strong>Acta Despacho venta <br /> ALM 03, 05, 07</strong></button></li>
+                </ul>
+            </div>
+            <div id="Formulario" class="col-lg-9 p-4">
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    if ('@ViewBag.Mensaje' != "") {
+        Swal.fire('@ViewBag.Mensaje');
+    }
+</script>

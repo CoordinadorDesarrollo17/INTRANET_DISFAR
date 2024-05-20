@@ -1,0 +1,803 @@
+﻿@model Capa_Entidad.Ventas_ENT.TablasSql.ORTV_E
+@using Capa_Entidad.Seguridad_ENT
+@using Capa_Entidad.Ventas_ENT.TablasSql
+@using Capa_Entidad.AtencionCliente_ENT.TablasSql
+@using Capa_Entidad.Almacen_ENT.Tablas
+
+@{
+    ViewBag.Title = "VerificadoTicketVenta";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<Capa_Entidad.Operaciones_ENT.TablasSql.OTEP_E> erroresPicking = (List<Capa_Entidad.Operaciones_ENT.TablasSql.OTEP_E>)ViewBag.ErroresPicking;
+    List<RTV11_E> pickers = (List<RTV11_E>)ViewBag.Pickers;
+    List<OMRC_E> laboratorios = (List<OMRC_E>)ViewBag.Laboratorios;
+    List<SAT1_E> productosTicket = (List<SAT1_E>)ViewBag.ListaArticulosTicket;
+}
+<script>
+    $(document).ready(function () { });
+    function filtrar() {
+        var object = $("#frm").serialize();
+        $(location).attr('href', "/Ventas/ListadoTicketsAlmacen?" + object);
+    }</script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("ListadoTicketsAlmacen", "Ventas")">Listado de tickets de almacén</a></li>
+            <li class="current"><em>Verificando ticket de venta</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">VERIFICANDO TICKET DE VENTA</h3></div>
+</div>
+
+<div class="bg-form-pestanas-cobefar pt-4">
+    <nav>
+        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+            <a class="nav-link active" id="nav-verificando-tab" data-toggle="tab" href="#nav-verificando" role="tab" aria-controls="nav-verificando" aria-selected="true">
+                Verificando
+            </a>
+            <a class="nav-link" id="nav-datos-pedidos-tab" data-toggle="tab" href="#nav-datos-pedidos" role="tab" aria-controls="nav-datos-pedidos" aria-selected="false">
+                Datos Pedido
+            </a>
+            <a class="nav-link" id="nav-especif-recojo-tab" data-toggle="tab" href="#nav-especif-recojo" role="tab" aria-controls="nav-especif-recojo" aria-selected="false">
+                Especificaciones de Recojo
+            </a>
+            <a class="nav-link" id="nav-det-pedidos-tab" data-toggle="tab" href="#nav-det-pedidos" role="tab" aria-controls="nav-det-pedidos" aria-selected="false">
+                Detalles de Pedidos
+            </a>
+            <a class="nav-link" id="nav-caja-tab" data-toggle="tab" href="#nav-caja" role="tab" aria-controls="nav-caja" aria-selected="false">
+                Caja
+            </a>
+        </div>
+    </nav>
+
+
+    <div class="tab-content" id="nav-tabContent">
+        <div class="tab-pane fade show active" id="nav-verificando" role="tabpanel" aria-labelledby="nav-verificando-tab">
+            <div class="bg-section-form p-4 bg-form-cobefar">
+                <h2 class="text-cobefar font-weight-bold">VERIFICANDO TICKET DE VENTA</h2>
+                <form id="fmr_FinVerificar">
+                    @Html.AntiForgeryToken()
+                    <div class="form-group row mt-4 ml-1" hidden>
+                        <label for="FechaVerificado" class="col-sm-2 bg-cobefar text-white text-center py-2 px-2 col-form-label font-weight-bold font-18">Fecha Verificado:</label>
+                        <div class="col-lg-2">
+                            @Html.EditorFor(model => model.FechaVerificado, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                        </div>
+
+                        <label for="HoraVerificado" class="col-sm-2 bg-cobefar text-white text-center py-2 px-2 col-form-label font-weight-bold font-18">Hora Verificado:</label>
+                        <div class="col-lg-2">
+                            @Html.EditorFor(model => model.HoraVerificado, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                        </div>
+                    </div>
+
+
+                    <div class="form-group row mt-4 ml-1">
+                        <label for="OpVerificado" class="col-sm-2 bg-cobefar text-white text-center py-2 px-2 col-form-label font-weight-bold font-18">OpVerificado:</label>
+                        <div class="col-lg-5">
+                            <input type="text" id="OpVerificado" name="Det12[0].Operario" class="form-control text-center border-success" value="@ViewBag.OpRegistro" readonly />
+                        </div>
+
+                    </div>
+
+                    <div class="form-group row ml-1">
+                        <label for="Verificador2" class="col-sm-2 bg-cobefar text-white text-center py-2 px-2 col-form-label font-weight-bold font-18">Verificador 2:</label>
+                        <div class="col-lg-5">
+                            <input type="search" id="Verificador2" name="Det12[1].Operario" list="ListaUsuarios" class="form-control border-success" autocomplete="off" />
+                        </div>
+                    </div>
+
+                    <div class="form-group row ml-1">
+                        <label for="Verificador3" class="col-sm-2 bg-cobefar text-white text-center py-2 px-2 col-form-label font-weight-bold font-18">Verificador 3:</label>
+                        <div class="col-lg-5">
+                            <input type="search" id="Verificador3" name="Det12[2].Operario" list="ListaUsuarios" class="form-control border-success" autocomplete="off" />
+                        </div>
+                    </div>
+                </form>
+
+                <datalist id="ListaUsuarios">
+                    @foreach (Usuario_E u in ViewBag.ListaUsuarios)
+                    {
+                        <option value="@u.Nombres @u.Apellidos"></option>
+                    }
+                </datalist>
+
+                <div class="row mt-4">
+                    <div class="col-lg-2">
+                        <button type="button" class="btn btn-success" onclick="validarForm()"><i class="icon icon-checkmark"></i> Terminar Verificar</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+        <div class="tab-pane fade" id="nav-datos-pedidos" role="tabpanel" aria-labelledby="nav-datos-pedidos-tab">
+            <div class="bg-section-form p-4 bg-form-cobefar">
+                <h2 class="mt-4 text-cobefar font-weight-bold">DATOS PEDIDO</h2>
+
+                <div class="row mt-4">
+                    <div id="infoFechaTicket" class="col-lg-2">
+                        <label for="FechaRegistro" class="text-dark form-label font-weight-bold font-18">Fecha Registro:</label>
+                        <input id="FechaRegistro" type="date" name="FechaRegistro" value="@Model.FechaRegistro" class="form-control text-center border-success" readonly>
+                    </div>
+                    <div class="col-lg-2">
+                        <label for="TipoVenta" class="text-dark form-label font-weight-bold font-18">Tipo de Venta:</label>
+                        <input type="text" name="TipoVenta" value="@Model.TipoVenta" class="form-control text-center border-success" readonly />
+                    </div>
+
+                    <div class="col-lg-3">
+                        <label for="Embalaje" class="text-dark form-label font-weight-bold font-18">Embalaje:</label>
+                        <input type="text" name="Embalaje" value="@Model.Embalaje" class="form-control text-center border-success" readonly />
+                    </div>
+
+                    <div class="col-lg-2">
+                        <label for="DocNum" class="text-dark form-label font-weight-bold font-18">DocNum Ticket:</label>
+                        <input type="text" name="DocNum" value="@Model.DocNum" class="form-control text-center border-success" readonly />
+                    </div>
+
+                    <div class="col-lg-2">
+                        <label for="Estado" class="text-dark form-label font-weight-bold font-18">Estado:</label>
+                        <input type="text" name="Estado" value="@Model.Estado" class="form-control text-center bg-warning" readonly />
+                    </div>
+
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-lg-6">
+                        <label for="CardName" class="text-dark form-label font-weight-bold font-18">Cliente:</label>
+                        <input type="text" id="CardName" name="CardName" list='ListaClientes' class="form-control border-success" value="@Model.CardName" readonly />
+                    </div>
+
+                    <div class="col-lg-3">
+                        <label for="LugarDestino" class="text-dark form-label font-weight-bold font-18">Lugar destino:</label>
+                        <input type="text" id="LugarDestino" name="LugarDestino" class="form-control text-center border-success" value="@Model.LugarDestino" readonly />
+                    </div>
+
+                    <div class="col-lg-3">
+                        <label class="text-dark form-label font-weight-bold font-18">Agencia:</label>
+                        <input type="text" name="Agencia" id="Agencia" value="@Model.Agencia" class="form-control border-success" readonly />
+                    </div>
+
+                </div>
+
+
+                <div class="row mt-4">
+                    <div class="col-lg-7">
+                        <label class="text-dark form-label font-weight-bold font-18">DirDestino:</label>
+                        <input type="text" name="DirDestino" id="DirDestino" value="@Model.DirDestino" class="form-control border-success" readonly />
+                    </div>
+                </div>
+
+            </div>
+        </div><!-- // TAB DATOS PEDIDO -->
+
+
+        <div class="tab-pane fade" id="nav-especif-recojo" role="tabpanel" aria-labelledby="nav-especif-recojo-tab">
+            <div class="bg-section-form p-4 bg-form-cobefar">
+                <h2 class="mt-4 text-cobefar font-weight-bold">ESPECIFICACIONES DE RECOJO</h2>
+                <div class="row mt-4">
+                    <input type="hidden" name="Det1[0].Linea" value="1" />
+                    <input type="hidden" id="docentry_ticket" name="Det1[0].DocEntry" value="@Model.DocEntry" />
+                    <div class="col-lg-5">
+                        <label for="NombrePer" class="text-dark form-label font-weight-bold font-18">Nombres:</label>
+                        <input class="form-control text-center border-success" id="Det1_NombrePer_0" name="Det1[0].NombrePer" type="text" value="@if (Model.Det1 != null && Model.Det1.Count >= 1) { Write(Model.Det1[0].NombrePer); }" readonly>
+                    </div>
+
+                    <div class="col-lg-2">
+                        <label for="TelfPer" class="text-dark form-label font-weight-bold font-18">Teléfono:</label>
+                        <input type="number" id="TelfPer" name="Det1[0].TelfPer" class="form-control text-center border-success" value="@if (Model.Det1 != null && Model.Det1.Count >= 1) { Write(Model.Det1[0].TelfPer); }" readonly />
+                    </div>
+
+                    <div class="col-lg-3">
+                        <label for="TipoDocPer" class="text-dark form-label font-weight-bold font-18">Tipo de Doc:</label>
+                        <input type="text" id="TipoDocPer" name="Det1[0].TipoDocPer" class="form-control text-center border-success" value="@if (Model.Det1 != null && Model.Det1.Count >= 1) { Write(Model.Det1[0].TipoDocPer); }" readonly />
+                    </div>
+
+                    <div class="col-lg-2">
+                        <label for="DocPer" class="text-dark form-label font-weight-bold font-18">Nro Doc:</label>
+                        <input class="form-control text-center border-success" id="Det1_DocPer_0" name="Det1[0].DocPer" type="text" value="@if (Model.Det1 != null && Model.Det1.Count >= 1) { Write(Model.Det1[0].DocPer); }" readonly>
+                    </div>
+
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-lg-6">
+                        <label for="Observaciones" class="text-dark form-label font-weight-bold font-18">Coordinación del pedido</label>
+                        @Html.TextAreaFor(model => model.Observaciones, new { @class = "form-control border-success", @readonly = "true", @rows = "4" })
+                    </div>
+
+                    <div class="col-lg-6">
+                        <label class="text-dark form-label font-weight-bold font-18">Vinculación de ticket</label>
+                        @Html.TextAreaFor(model => model.Observaciones2, new { @class = "form-control border-success", @readonly = "true", @rows = "4" })
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+
+                    <div class="col-lg-4">
+                        <label class="text-dark form-label font-weight-bold font-18">Vendedor:</label>
+                        <input name="Vendedor" value="@Model.Vendedor" class="form-control text-center border-success" readonly />
+                    </div>
+
+                    <div class="col-lg-2">
+                        <label class="text-dark form-label font-weight-bold font-18">Hora Registro:</label>
+                        <input type="time" class="form-control text-center border-success" value="@Model.HoraRegistro" readonly />
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div><!-- // TAB ESPECIFICACIONES DE RECOJO -->
+
+
+        <div class="tab-pane fade" id="nav-det-pedidos" role="tabpanel" aria-labelledby="nav-det-pedidos-tab">
+            <div class="bg-section-form p-4 bg-form-cobefar">
+                <div id="div_detallesPedidos" class="row mt-4">
+                    <div class="col-lg-12">
+                        <table class="table table-hover table-bordered" id="detallesPedidos">
+                            <thead class='bg-dark text-white'>
+                                <tr>
+                                    <th class='text-center'>#</th>
+                                    <th class='text-center'>VER</th>
+                                    <th class='text-center'>Monto</th>
+                                    <th class='text-center'>Nro SAP</th>
+                                    <th class='text-center'>Tipo Comprobante</th>
+                                    <th class='text-center'>Vendedor</th>
+                                    <th class='text-center'>Lugar de Entrega</th>
+                                    <th class='text-center'>ALM Salida</th>
+                                    <th class='text-center font-24'>Observación</th>
+                                </tr>
+                            </thead>
+                            <tbody style='background: #D1D1D1'>
+                                @if (Model.Det2 != null && Model.Det2.Count >= 1)
+                                {
+                                    foreach (var dt in Model.Det2)
+                                    {
+                                        <tr>
+                                            <td class="text-center">@dt.Linea</td>
+                                            <td class="text-center"><input id="Verificar@(dt.Linea)" name="Det2[@(dt.Linea - 1)].Verificar" type="checkbox" checked readonly onclick="javascript: return false;" /></td>
+                                            <td class="text-center">@dt.Monto</td>
+                                            <td class="text-center">@dt.NroSap</td>
+
+                                            <td class="text-center">@dt.TipoComprobante</td>
+
+                                            <td class="text-center font-11">@dt.Vendedor</td>
+                                            <td class="text-center">@dt.LugarDeEntrega</td>
+                                            <td class="text-center">@dt.AlmacenSalida</td>
+                                            <td class="text-center">@dt.Observaciones</td>
+                                        </tr>
+                                    }
+                                }
+
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+
+                <h2 class="mt-4 text-cobefar font-weight-bold">DETALLES DE PAGO</h2>
+                <div class="row mt-4">
+                    <div class="col-lg-3">
+                        <label for="MontoTotal" class="text-dark form-label font-weight-bold font-18">Monto Total:</label>
+                        @Html.EditorFor(model => model.MontoTotal, new { htmlAttributes = new { @class = "form-control font-weight-bold border-success", @readonly = "true" } })
+                    </div>
+
+                    <div class="col-lg-3">
+                        <label for="TiempoEntrega" class="text-dark form-label font-weight-bold font-18">Tiempo de Entrega:</label>
+                        @Html.EditorFor(model => model.TiempoEntrega, new { htmlAttributes = new { @class = "form-control cls-dateTime border-success", @type = "text", @readonly = "true" } })
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-lg-3">
+                        <label for="Flete" class="text-dark form-label font-weight-bold font-18">Flete (Taxi):</label>
+                        <div id="infoFlete">@Html.EditorFor(model => model.Flete, new { htmlAttributes = new { @class = "form-control font-weight-bold border-success", @readonly = "true" } })</div>
+                    </div>
+
+                    <div class="col-lg-3">
+                        <label for="DeudaCliente" class="text-dark form-label font-weight-bold font-18">Deuda de cliente:</label>
+                        @Html.EditorFor(model => model.DeudaCliente, new { htmlAttributes = new { @class = "form-control font-weight-bold border-success", @readonly = "true" } })
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-lg-3">
+                        <label for="GastoEnvio" class="text-dark form-label font-weight-bold font-18">Gasto de Envío:</label>
+                        @Html.EditorFor(model => model.GastoEnvio, new { htmlAttributes = new { @class = "form-control font-weight-bold border-success", @readonly = "true" } })
+                    </div>
+
+                    <div class="col-lg-3">
+                        <label for="DeudaEmpresa" class="text-dark form-label font-weight-bold font-18">Deuda de Empresa:</label>
+                        <div id="infoDeudaEmpresa">@Html.EditorFor(model => model.DeudaEmpresa, new { htmlAttributes = new { @class = "form-control font-weight-bold border-success", @readonly = "true" } })</div>
+                    </div>
+
+                </div><!-- FIN ROW -->
+
+                <div class="row mt-4">
+                    <div class="col-lg-3">
+                        <label for="DescuentoNC" class="text-dark form-label font-weight-bold font-18">Descuento NC:</label>
+                        @Html.EditorFor(model => model.DescuentoNC, new { htmlAttributes = new { @class = "form-control font-weight-bold border-success", @readonly = "true" } })
+                    </div>
+
+                    <div class="col-lg-3">
+                        <label for="FechaNC" class="text-dark form-label font-weight-bold font-18">Fecha NC:</label>
+                        @if (Model.FechaNC != null)
+                        {
+                            <input type="date" name="FechaNC" class="form-control font-weight-bold border-success" value="@Model.FechaNC" readonly />
+                        }
+                        else
+                        {
+                            <input type="text" name="FechaNC" class="form-control font-weight-bold border-success" value="" readonly />
+                        }
+
+                    </div>
+
+                </div><!-- FIN ROW -->
+
+                @if (Model.Det4 != null && Model.Det4.Count >= 1)
+                {
+                    <div class="row mt-4">
+                        <div class="col-lg-6">
+                            <table class="table table-hover table-bordered" style="background:#BAFDDF;">
+                                <thead class="thead-dark text-white">
+                                    <tr>
+                                        <th class="text-center">#</th>
+                                        <th class="text-center">Monto NC</th>
+                                        <th class="text-center">Fecha</th>
+                                        <th class="text-center">Nro SAP</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (RTV4_E d2 in Model.Det4)
+                                    {
+                                        if (d2.Nc != null)
+                                        {
+                                            <tr>
+                                                <td class="text-center">@d2.Linea</td>
+                                                <td class="text-center">@d2.Nc.DocTotal</td>
+                                                <td class="text-center">@d2.Nc.DocDate</td>
+                                                <td class="text-center">@d2.Nc.DocNum</td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                }
+
+                <div class="row mt-4">
+                    <div class="col-lg-3">
+                        <label for="MontoFinal" class="text-dark form-label font-weight-bold font-18">Monto Final:</label>
+                        <div id="infoMontoFinal"><input id="MontoFinal" name="MontoFinal" type="text" value="@Model.MontoFinal" readonly class="form-control font-weight-bold border-success" /></div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-lg-12">
+                        <label for="Comentario" class="text-dark form-label font-weight-bold font-18">Comentario:</label>
+                        @Html.TextAreaFor(model => model.Comentario, new { @class = "form-control border-success w-75", @readonly = "true", @rows = "4" })
+                    </div>
+                </div>
+
+                @{ if (Model.Estado == "ABIERTO" && Model.EstadoPago != "PAGADO")
+                    {
+                        <div class="row mt-4">
+                            <div class="col-lg-6">
+                                <button type="submit" id="Editar" class="btn btn-success"><i class="icon icon-pencil2"></i> Editar</button>
+                                <button type="button" id="Verificar" class="btn btn-primary"><i class="icon icon-clipboard"></i> Verificar Datos</button>
+                            </div>
+                        </div>
+                    } }
+
+
+            </div>
+        </div><!-- // DETALLE DE PEDIDOS -->
+
+
+        <div class="tab-pane fade" id="nav-caja" role="tabpanel" aria-labelledby="nav-caja-tab">
+            <div class="bg-section-form p-4 bg-form-cobefar">
+                <h2 class="text-cobefar font-weight-bold">CAJA</h2>
+                <div class="row mt-4">
+                    <div class="col-lg-3">
+                        <label for="EstadoPago" class="text-dark form-label font-weight-bold font-18">Estado de Pago:</label>
+                        @Html.EditorFor(model => model.EstadoPago, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                    </div>
+
+                    <div class="col-lg-3">
+                        <label for="FormaPago" class="text-dark form-label font-weight-bold font-18">Forma de Pago:</label>
+                        @Html.EditorFor(model => model.FormaPago, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                    </div>
+
+
+                    <div class="col-lg-3">
+                        <label for="MontoRecibido" class="text-dark form-label font-weight-bold font-18">Monto Recibido:</label>
+                        @Html.EditorFor(model => model.MontoRecibido, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                    </div>
+
+                    <div class="col-lg-3">
+                        <label for="FechaPago" class="text-dark form-label font-weight-bold font-18">Fecha de Pago:</label>
+                        @Html.EditorFor(model => model.FechaPago, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-lg-6">
+                        <label for="Cajero" class="text-dark form-label font-weight-bold font-18">CajeroDesc:</label>
+                        <input type="text" name="Cajero" class="form-control border-success" value="@Model.Cajero" readonly />
+                    </div>
+
+                </div>
+            </div>
+        </div><!-- // TAB CAJA -->
+
+    </div>
+
+</div>
+
+<datalist id="ListaUsuarios">
+    @foreach (Usuario_E u in ViewBag.ListaUsuarios)
+    {
+        <option value="@u.Nombres">@u.Nombres</option>
+    }
+</datalist>
+
+<!-- Modal Búsqueda de Productos -->
+<div class="modal fade" id="modalBusquedaProductos" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="exampleModalBusquedaProductos" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-cobefar text-white">
+                <h5 class="modal-title" id="exampleModalBusquedaProductos">Búsqueda de Productos</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" class="text-white">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="producto_valido_bp" />
+                <div class="row mt-2">
+                    <div class="col-lg-3">
+                        <label class="font-weight-bold text-cobefar">Tipo de Error</label>
+                        <select id="tipo_error_bp" class="form-control bg-cobefar text-white border-success">
+                            <option value="">Seleccione</option>
+                            @if (erroresPicking != null && erroresPicking.Count >= 1)
+                            {
+                                foreach (var ep in erroresPicking)
+                                {
+                                    <option value="@ep.IdTipoErrorPicking" data-desc="@ep.Descripcion">@ep.Descripcion</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <label class="font-weight-bold text-cobefar">Picker</label>
+                        <select id="picker_bp" class="form-control bg-cobefar text-white border-success">
+                            <option value="">Seleccione</option>
+                            @if (pickers != null && pickers.Count >= 1)
+                            {
+                                foreach (var pk in pickers)
+                                {
+                                    <option value="@pk.Operario">@pk.Operario</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div id="div_laboratorio_bp" class="col-lg-4" style="display: none">
+                        <label class="text-cobefar font-weight-bold">Laboratorio:</label>
+                        <input type="search" id="laboratorio_bp" class="form-control border-success text-center cls-limpiarCampos" list="ListaLaboratorios" onchange="obtenerArticulos()" />
+                    </div>
+
+                    <div class="col-lg-3">
+                        <label class="font-weight-bold text-cobefar">Cód. producto</label>
+                        <input type="text" id="cod_producto_bp" class="form-control border-success text-uppercase text-center cls-limpiarCampos" autocomplete="off" list="lista_productosTicket" onchange="obtenerDatosDatalist('lista_productosTicket', this.value, 'producto_bp', 'descproducto')" />
+                    </div>
+
+                    <div class="col-lg-5">
+                        <label class="font-weight-bold text-cobefar">Descripción Producto</label>
+                        <input type="text" id="producto_bp" class="form-control border-success text-center cls-limpiarCampos" autocomplete="off" list="ListaProductos" onchange="obtenerDatosDatalist('ListaProductos', this.value, 'cod_producto_bp', 'itemcode')" readonly />
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-lg-12 d-flex justify-content-end">
+                        <button type="button" class="btn btn-warning" onclick="agregarDetalleErrores()"><i class="icon-plus"></i> Agregar</button>
+                    </div>
+                </div>
+
+                <div class="row mt-2">
+                    <div class="col-lg-12 my-2">
+                        <form id="frm_erroresPicking">
+                            <input type="hidden" name="Datos.DocEntryTicket" value="@Model.DocEntry" />
+                            <input type="hidden" name="Datos.DocNumTicket" value="@Model.DocNum" />
+                            <table id="tbl_erroresPicking" class="table table-light table-sm table-bordered table-hover" cellspacing="0" width="100%">
+                                <thead class="bg-cobefar">
+                                    <tr>
+                                        <th class="text-center">Cód. Producto</th>
+                                        <th class="text-center">Producto</th>
+                                        <th class="text-center">Tipo de Error</th>
+                                        <th class="text-center">Picker Responsable</th>
+                                        <th class="text-center"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </form>
+
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btn_cerrarModalProveedores" class="btn btn-success" onclick="registrarErroresPicking()">
+                    <i class='icon-checkmark'></i> Registrar Errores Picking
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<datalist id="ListaLaboratorios" style="display: none;">
+    <option value="">Seleccione</option>
+    @if (laboratorios != null && laboratorios.Count() >= 1)
+    {
+        foreach (var lab in laboratorios)
+        {
+            <option firmcode="@lab.FirmCode" value="@lab.U_SYP_DESC"></option>
+        }
+    }
+</datalist>
+
+<div id="dvListaProductos">
+    <datalist id="ListaProductos">
+    </datalist>
+</div>
+
+
+<div hidden>
+    <datalist id="lista_productosTicket">
+        @if (productosTicket != null && productosTicket.Count >= 1)
+        {
+            foreach (var at in productosTicket)
+            {
+                <option descProducto="@at.Dscription" value="@at.ItemCode"></option>
+            }
+        }
+    </datalist>
+</div>
+<script>
+    var num = 0;
+
+    if ('@ViewBag.Mensaje' != "") {
+        Swal.fire('@ViewBag.Mensaje');
+    }
+
+    function borrarFila(id) {
+        $('#tr_' + id).remove();
+        reconstruirTabla();
+    }
+
+    function reconstruirTabla() {
+        var i = 0;
+
+        $("#tbl_erroresPicking tr").each(function (index, htm) {
+            if (htm.id != '') {
+                iden1 = $(htm).find("td:eq(0) input");
+                iden1.attr("name", "DetalleErroresPicking[" + i + "].CodigoProducto");
+
+                iden1 = $(htm).find("td:eq(1) input");
+                iden1.attr("name", "DetalleErroresPicking[" + i + "].DescripcionProducto");
+
+                iden1 = $(htm).find("td:eq(2) input");
+                iden1.attr("name", "DetalleErroresPicking[" + i + "].IdTipoErrorPicking");
+
+                iden1 = $(htm).find("td:eq(3) input");
+                iden1.attr("name", "DetalleErroresPicking[" + i + "].PickerResponsable");
+
+                i++;
+            }
+        })
+    }
+
+    function validarDatosDetalle() {
+        let datosOK = true;
+
+        if (document.getElementById('tipo_error_bp').value <= 0) {
+            datosOK = false;
+            Swal.fire('Debe elegir un tipo de error');
+        } else if (document.getElementById('picker_bp').value == '') {
+            datosOK = false;
+            Swal.fire('Por favor escoger picker');
+        } else if (document.getElementById('producto_valido_bp').value == '' || document.getElementById('producto_valido_bp').value == 'NO' ||
+            document.getElementById('producto_bp').value == 'PRODUCTO INCORRECTO' || document.getElementById('producto_bp').value == '') {
+            datosOK = false;
+            Swal.fire('Por favor ingresar un producto válido');
+        }
+
+        return datosOK;
+    }
+
+    function obtenerArticulos() {
+        $('#dvListaProductos').html('');
+
+        document.getElementById("cod_producto_bp").value = '';
+        document.getElementById("producto_bp").value = '';
+        document.getElementById("producto_valido_bp").value = "NO";
+
+        let lab = document.getElementById("laboratorio_bp").value;
+        let firmCode = $(`#ListaLaboratorios option[value='${lab}']`).attr("firmcode");
+
+        if (lab != '' && typeof lab != 'undefined' && firmCode != '' && typeof firmCode != 'undefined') {
+
+            Swal.fire({
+                html: '<img src="/imagenes/index/ReportesDigemid/cargando.gif" />',
+                allowOutsideClick: false,
+                showCancelButton: false,
+                showConfirmButton: false
+            });
+
+            $.ajax('/ReportesDigemid/ListaProductosAuditoria',
+                {
+                    data: { "FirmCode": firmCode },
+                    dataType: 'html',
+                    cache: false,
+                    type: 'post',
+                })
+                .done(function (response) {
+                    swal.close();
+
+                    if (response != '') {
+                        $('#dvListaProductos').html(response);
+                    } else {
+                        $('#dvListaProductos').html('');
+                    }
+                });
+        }
+
+    }
+
+
+    const docEntryTicket = document.getElementById("docentry_ticket").value;
+    const form = document.querySelector("#fmr_FinVerificar");
+
+    async function enviarForm() {
+        // Asociar el objeto FormData al elemento formulario
+        const formData = new FormData(form);
+
+        try {
+            const response = await fetch(`/Ventas/VerificadoTicketVenta?DocEntry=${docEntryTicket}`, {
+                method: "POST",
+                // Establecer la instancia FormData como cuerpo de la solicitud
+                body: formData,
+            });
+
+            const result = await response.json();
+            //Swal.fire(result.Mensaje);
+            window.location.replace(`/Ventas/ListadoTicketsAlmacen?DocNum=${result.DocNum}`);
+
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    // Asumir el envío de formularios
+    form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        enviarForm();
+    });
+
+    function agregarDetalleErrores() {
+        if (validarDatosDetalle() == true) {
+            let codProducto = document.getElementById('cod_producto_bp').value;
+            let descProducto = document.getElementById('producto_bp').value;
+            let tipoError = document.getElementById('tipo_error_bp').value;
+            let picker = document.getElementById('picker_bp').value;
+            let descTipoError = $('#tipo_error_bp :selected').attr('data-desc');
+
+            let contenido = `<tr id="tr_${num}" class="cls-filaErrores">
+                                    <td class="text-center"><input type="hidden" name="DetalleErroresPicking[${num}].CodigoProducto" value="${codProducto}" />${codProducto}</td>
+                                    <td class="text-center"><input type="hidden" name="DetalleErroresPicking[${num}].DescripcionProducto" value='${descProducto}' />${descProducto}</td>
+                                    <td class="text-center"><input type="hidden" name="DetalleErroresPicking[${num}].IdTipoErrorPicking" value="${tipoError}" />${descTipoError}</td>
+                                    <td class="text-center"><input type="hidden" name="DetalleErroresPicking[${num}].PickerResponsable" value="${picker}" />${picker}</td>
+                                    <td class="text-center"><i class="icon-bin2 text-danger" onclick="borrarFila(${num})"></i></td>
+                                </tr>`;
+            $('#tbl_erroresPicking > tbody').append(contenido);
+            ++num;
+            reconstruirTabla();
+        }
+    }
+
+    function validarForm() {
+        Swal.fire({
+            title: "¿Se presentó algún error de picker?",
+            icon: 'warning',
+            showCancelButton: true,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            confirmButtonText: "<i class='icon-checkmark'></i> Si",
+            cancelButtonColor: "red",
+            cancelButtonText: "<i class='icon-cross'></i> No",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $('#modalBusquedaProductos').modal('show');
+            } else {
+                enviarForm();
+            }
+        })
+    }
+
+    // Guardar errores picking
+    const frmErroresPicking = document.querySelector("#frm_erroresPicking");
+
+    async function registrarErroresPicking() {
+        if (validarDatosDetalle() == true) {
+        const formDataEP = new FormData(frmErroresPicking);
+
+        try {
+            const response = await fetch(`/Ventas/RegistrarErroresPicking?DocEntry=${docEntryTicket}`, {
+                method: "POST",
+                body: formDataEP,
+            });
+
+            const resultEP = await response.json();
+                Swal.fire(resultEP.Mensaje);
+
+                if (typeof resultEP.DocNum != 'undefined') {
+                    enviarForm();
+                }
+        } catch (e) {
+            console.error(e);
+        }
+        }
+    }
+
+    // Asumir el envío de formularios
+    frmErroresPicking.addEventListener("submit", (event) => {
+        event.preventDefault();
+        registrarErroresPicking();
+    });
+
+    document.getElementById("cod_producto_bp").addEventListener("change", (event) => {
+        if (event.target.value != '') {
+            document.getElementById("producto_valido_bp").value = "SI";
+        } else {
+            document.getElementById("producto_valido_bp").value = "NO";
+        }
+    });
+
+    document.getElementById("tipo_error_bp").addEventListener("change", (event) => {
+        $(".cls-limpiarCampos").each(function (indice, elem) {
+            elem.value = '';
+        });
+
+        if (event.target.value == '6') {
+            document.getElementById("cod_producto_bp").readOnly = true;
+            document.getElementById("producto_bp").readOnly = false;
+            document.getElementById("div_laboratorio_bp").style.display = "block";
+        } else {
+            document.getElementById("cod_producto_bp").readOnly = false;
+            document.getElementById("producto_bp").readOnly = true;
+            document.getElementById("div_laboratorio_bp").style.display = "none";
+        }
+    });
+
+    function obtenerDatosDatalist(nombreLista, valorCampo, idCampoDestino, campoAttr) {
+        let valor = $(`#${nombreLista} option[value='${valorCampo}']`).attr(campoAttr);
+
+        if (typeof valor === 'undefined') {
+            valor = "PRODUCTO INCORRECTO";
+            document.getElementById("producto_valido_bp").value = "NO";            
+        } else {
+            document.getElementById("producto_valido_bp").value = "SI";
+        }
+
+        $('#' + idCampoDestino).val(valor);
+    }
+</script>

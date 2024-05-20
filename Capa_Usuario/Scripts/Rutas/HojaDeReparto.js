@@ -1,0 +1,503 @@
+﻿function validarTipoRuta(tipo, estado) {
+    if (tipo === 'VG') {
+        $('#div_almacen-destino').hide();
+        $('#div_almacen-origen').hide();
+        //limpiar valores de almacen destino
+        $('#AlmDestinoDesc option[value=" "]').prop('selected', true);
+        $('#AlmDestinoCod').val(''); $('#AlmDestinoDesc2').val('');
+        //limpiar valores de almacen origen
+        $('#AlmOrigenDesc option[value=" "]').prop('selected', true);
+        $('#AlmOrigenCod').val(''); $('#AlmOrigenDesc2').val('');
+        if (estado!=="CREADO") {
+            $('#Zona option[value="AGENCIA"]').prop('selected', true);
+        }
+    } else {
+        $('#div_almacen-destino').show();
+        $('#div_almacen-origen').show();
+        //enviar como parametro default el valor de combobox a almacen destino
+        if (tipo === "VA") {
+            $('#AlmDestinoDesc option[value="ALMACÉN N°6"]').prop('selected', true);
+            if (estado!=="CREADO") {
+                $('#Zona option[value="ARRIOLA"]').prop('selected', true);
+            }
+        }
+        else if (tipo === "VC") {
+            $('#AlmDestinoDesc option[value="ALMACÉN N°1"]').prop('selected', true);
+            if (estado!=="CREADO") {
+                $('#Zona option[value="CONO CENTRO"]').prop('selected', true);
+            }
+        }
+        else if (tipo === "VD") {
+            $('#AlmDestinoDesc option[value="DOMICILIOS"]').prop('selected', true);
+        }
+        if (estado !== "CREADO") {
+            enviarValSelect('AlmDestinoDesc', 'AlmDestinoCod', 'AlmDestinoCod');
+            enviarValSelect('AlmDestinoDesc', 'AlmDestinoDesc2', 'AlmDestinoDesc2');
+        }
+    }
+    if (estado==="CREADO") {
+        //ocultar el detallado de RRU11 cuando el tipo de ruta es diferente a transferencia de almacenes
+        if (tipo != 'TA') { $("#tbl_detRRu11").css("display", "none"); }
+    }
+}
+function enviarValSelect(idi, idf, attrf) {
+    $("#" + idf).val($("#" + idi + " option:selected").attr(attrf));
+}
+//function enviarValList(idi, idList, idf, attrf) {
+//    $("#" + idf).val($("#" + idList + " option[value='" + $("#" + idi).val() + "']").attr(attrf));
+//}
+var xhr;
+function listarTickets(estado) {
+    var FechaSapTicket = $('#FechaSapTicket').val();
+    var TipoRuta = $('#TipoRuta').val();
+    var AlmOrigenCod = $('#AlmOrigenCod').val();
+    var Zona = $('#Zona').val();
+    var tabla = $('#detalleRuta').DataTable();
+
+    if (TipoRuta !== '' && TipoRuta == 'VG') {
+        if (FechaSapTicket !== '' && Zona !== '') {
+            if (xhr && xhr.readyState !== 4) {
+                xhr.abort();
+            }
+            Swal.fire({
+                title: 'Trayendo información de tickets',
+                text: 'Si cierra la ventana, la carga de datos seguirá en proceso.',
+                allowEscapeKey: false,
+                allowOutsideClick: false,
+                showCloseButton: false,
+                showConfirmButton: false,
+                timer: 3000
+            });
+            var parametros = { "FechaSapTicket": FechaSapTicket, "TipoRuta": TipoRuta, "Zona": Zona, "AlmOrigenCod": AlmOrigenCod }
+            if (estado === 'CREADO') {
+                // Destruir la tabla antes de volver a cargar los datos
+                tabla.clear().destroy();
+            }
+            xhr = $.ajax({
+                url: '/Rutas/infoTicketsReparto',
+                data: parametros,
+                dataType: 'json',
+                cache: false,
+                type: 'post'
+            })
+                .done(function (response) {
+                    $("#btn-NoEnviados a").text('');
+                    $("#btn-NoEnviados").hide();
+                    if (estado === 'CREADO') {
+                        // Volver a inicializar DataTable después de destruirlo
+                        tabla = $('#detalleRuta').DataTable();
+                    } else {
+                        if (tabla.rows().count() > 0) {
+                            tabla.clear().draw();
+                        }
+                    }
+                    var msjNoEnviados = "";
+                    response.Resultado.forEach(function (item, index) {
+                        var fila = $('<tr>');
+                        // Agregar el ID a la fila
+                        fila.attr('id', 'fila' + index);
+
+                        // Crear las celdas con inputs y agregarlas a la fila
+                        fila.append('<td class="text-center"><input type="checkbox" class="cls-chkVerif ml-3" id="check' + index + '" autocomplete="off"></td>');
+                        fila.append('<td class="text-center"><input id="Linea' + index + '" type="text" value="' + (index + 1) + '" readonly hidden/>' + (index + 1) + '</td>');
+                        fila.append('<td hidden><input id="DocEntry' + index + '" type="text" value="' + item.DocEntry + '" readonly hidden/></td>');
+                        fila.append('<td class="text-center"><input id="DocNum' + index + '" type="text" value="' + item.DocNum + '" hidden/>' + item.DocNum + '</td>');
+                        fila.append('<td hidden><input id="CardCode' + index + '" type="text" value="' + item.CardCode + '" hidden/></td>');
+                        fila.append('<td class="text-center" style="width:250px"><input id="CardName' + index + '" type="text" value="' + item.CardName + '" hidden/>' + item.CardName + '</td>');
+                        fila.append('<td class="text-center" style="width:450px"><input id="Guías' + index + '" type="text" value="' + item.Guias + '" readonly hidden/>' + item.Guias + '</td>');
+                        fila.append('<td class="text-center"><input id="Cajas' + index + '" type="text" value="' + item.Cajas + '" readonly hidden/>' + item.Cajas + '</td>');
+                        fila.append('<td hidden><input id="Obs' + index + '" type="text" value="' + (item.Observaciones != null ? item.Observaciones : '') + '" readonly hidden/>' + (item.Observaciones != null ? item.Observaciones : '') + '</td>');
+                        fila.append('<td hidden><input id="Direcciones' + index + '" type="text" value="' + (item.DirDestino != null ? item.DirDestino : '') + '" readonly hidden/>' + (item.DirDestino != null ? item.DirDestino : '') + '</td>');
+                        fila.append('<td class="text-center" style="width:70px"><input  type="text" value="' + item.Agencia + '" readonly hidden/>' + (item.Agencia != null ? item.Agencia : '') + '</td>');
+                        fila.append('<td class="text-center"><input id="MontoFinal' + index + '" type="text" value="' + item.MontoFinal.toFixed(2) + '" readonly hidden/>' + item.MontoFinal.toFixed(2) + '</td>');
+                        fila.append('<td hidden><input id="Envio' + index + '" type="text" value="' + item.GastoEnvio.toFixed(2) + '" readonly hidden/>' + item.GastoEnvio.toFixed(2) + '</td>');
+                        fila.append('<td class="text-center"><input id="TipoVenta' + index + '" type="text" value="' + item.TipoVenta + '" readonly hidden/>' + item.TipoVenta + '</td>');
+                        fila.append('<td class="text-center">' + (item.FechaPago != null ? item.FechaPago + '<br>' + item.HoraPago : 'PENDIENTE') + '</td>');
+                        fila.append('<td hidden><input id="Vinculados' + index + '" type="text" value="' + (item.Vinculados != null ? item.Vinculados : '') + '" readonly hidden/>' + (item.Vinculados != null ? item.Vinculados : '') + '</td>');
+
+                        tabla.row.add(fila);
+                    });
+
+                    tabla.draw(); // Dibujar la tabla una vez que se han agregado todas las filas
+                    if (response.CantidadTicketsNoEnviados != 0) {
+                        msjNoEnviados = "Tiene " + response.CantidadTicketsNoEnviados + " tickets pendiente de envio";
+                        $("#btn-NoEnviados a").text(msjNoEnviados);
+                        $("#btn-NoEnviados").show();
+                    }
+                    Swal.close();
+                })
+                .fail(function () {
+                    // Manejar error si es necesario
+                    Swal.fire('Error', 'Hubo un problema al cargar los datos', 'error');
+                });
+        }
+    } else if (TipoRuta !== '' && TipoRuta !== 'VG') {
+        if (FechaSapTicket !== '' && Zona !== '' && AlmOrigenCod !== '') {
+            if (xhr && xhr.readyState !== 4) {
+                xhr.abort();
+            }
+            Swal.fire({
+                title: 'Trayendo información de tickets',
+                text: 'Si cierra la ventana, la carga de datos seguirá en proceso.',
+                allowEscapeKey: false,
+                allowOutsideClick: false,
+                showCloseButton: false,
+                showConfirmButton: false,
+                timer: 3000
+            });
+            var parametros = { "FechaSapTicket": FechaSapTicket, "TipoRuta": TipoRuta, "Zona": Zona, "AlmOrigenCod": AlmOrigenCod }
+            if (estado === 'CREADO') {
+                // Destruir la tabla antes de volver a cargar los datos
+                tabla.clear().destroy();
+            }
+            xhr = $.ajax({
+                url: '/Rutas/infoTicketsReparto',
+                data: parametros,
+                dataType: 'json',
+                cache: false,
+                type: 'post'
+            })
+                .done(function (response) {
+                    $("#btn-NoEnviados a").text('');
+                    $("#btn-NoEnviados").hide();
+
+                    if (estado === 'CREADO') {
+                        // Volver a inicializar DataTable después de destruirlo
+                        tabla = $('#detalleRuta').DataTable();
+                    } else {
+                        if (tabla.rows().count() > 0) {
+                            tabla.clear().draw();
+                        }
+                    }
+
+                    var msjNoEnviados = "";
+                    response.Resultado.forEach(function (item, index) {
+                        var fila = $('<tr>');
+                        // Agregar el ID a la fila
+                        fila.attr('id', 'fila' + index);
+
+                        // Crear las celdas con inputs y agregarlas a la fila
+                        fila.append('<td class="text-center"><input type="checkbox" class="cls-chkVerif ml-3" id="check' + index + '" autocomplete="off"></td>');
+                        fila.append('<td class="text-center"><input id="Linea' + index + '" type="text" value="' + (index + 1) + '" readonly hidden/>' + (index + 1) + '</td>');
+                        fila.append('<td hidden><input id="DocEntry' + index + '" type="text" value="' + item.DocEntry + '" readonly hidden/></td>');
+                        fila.append('<td class="text-center"><input id="DocNum' + index + '" type="text" value="' + item.DocNum + '" hidden/>' + item.DocNum + '</td>');
+                        fila.append('<td hidden><input id="CardCode' + index + '" type="text" value="' + item.CardCode + '" hidden/></td>');
+                        fila.append('<td class="text-center" style="width:250px"><input id="CardName' + index + '" type="text" value="' + item.CardName + '" hidden/>' + item.CardName + '</td>');
+                        fila.append('<td class="text-center" style="width:450px"><input id="Guías' + index + '" type="text" value="' + item.Guias + '" readonly hidden/>' + item.Guias + '</td>');
+                        fila.append('<td class="text-center"><input id="Cajas' + index + '" type="text" value="' + item.Cajas + '" readonly hidden/>' + item.Cajas + '</td>');
+                        fila.append('<td hidden><input id="Obs' + index + '" type="text" value="' + (item.Observaciones != null ? item.Observaciones : '') + '" readonly hidden/>' + (item.Observaciones != null ? item.Observaciones : '') + '</td>');
+                        fila.append('<td hidden><input id="Direcciones' + index + '" type="text" value="' + (item.DirDestino != null ? item.DirDestino : '') + '" readonly hidden/>' + (item.DirDestino != null ? item.DirDestino : '') + '</td>');
+                        fila.append('<td class="text-center" style="width:70px"><input  type="text" value="' + item.Agencia + '" readonly hidden/>' + (item.Agencia != null ? item.Agencia : '') + '</td>');
+                        fila.append('<td class="text-center"><input id="MontoFinal' + index + '" type="text" value="' + item.MontoFinal.toFixed(2) + '" readonly hidden/>' + item.MontoFinal.toFixed(2) + '</td>');
+                        fila.append('<td hidden><input id="Envio' + index + '" type="text" value="' + item.GastoEnvio.toFixed(2) + '" readonly hidden/>' + item.GastoEnvio.toFixed(2) + '</td>');
+                        fila.append('<td class="text-center"><input id="TipoVenta' + index + '" type="text" value="' + item.TipoVenta + '" readonly hidden/>' + item.TipoVenta + '</td>');
+                        fila.append('<td class="text-center">' + (item.FechaPago != null ? item.FechaPago + '<br>' + item.HoraPago : 'PENDIENTE') + '</td>');
+                        fila.append('<td hidden><input id="Vinculados' + index + '" type="text" value="' + (item.Vinculados != null ? item.Vinculados : '') + '" readonly hidden/>' + (item.Vinculados != null ? item.Vinculados : '') + '</td>');
+
+                        tabla.row.add(fila);
+                    });
+
+                    tabla.draw(); // Dibujar la tabla una vez que se han agregado todas las filas
+                    if (response.CantidadTicketsNoEnviados != 0) {
+                        msjNoEnviados = "Tiene " + response.CantidadTicketsNoEnviados + " tickets pendiente de envio";
+                        $("#btn-NoEnviados a").text(msjNoEnviados);
+                        $("#btn-NoEnviados").show();
+                    }
+                    Swal.close();
+                })
+                .fail(function () {
+                    // Manejar error si es necesario
+                    Swal.fire('Error', 'Hubo un problema al cargar los datos', 'error');
+                });
+        }
+    }
+}
+function seleccionarVerif() {
+    let chk = $('#chk_verifTodos').is(':checked');
+    let tabla = $('#detalleRuta').DataTable();
+    if (chk) {
+        tabla.rows({ search: 'applied' }).nodes().to$().find('.cls-chkVerif').prop('checked', chk);
+    } else {
+        tabla.rows({ search: 'applied' }).nodes().to$().find('.cls-chkVerif').prop('checked', chk);
+    }
+}
+function verTicketsNoEnviados() {
+    let FechaSapTicket = $('#FechaSapTicket').val();
+    let TipoRuta = $('#TipoRuta').val();
+    let Zona = $('#Zona').val();
+    let AlmOrigenCod = $('#AlmOrigenCod').val();
+    let tablaModal = $('#tableModalNE');
+    let tbody = tablaModal.find('tbody');
+
+    if (tbody.children().length > 0) {
+        tbody.empty();
+    }
+    if (FechaSapTicket !== '' && TipoRuta !== '' && Zona !== '') {
+        var parametros = { "FechaSapTicket": FechaSapTicket, "TipoRuta": TipoRuta, "Zona": Zona, "AlmOrigenCod": AlmOrigenCod }
+        $.ajax({
+            url: '/Rutas/listarTicketsRepartosNoEnviados',
+            data: parametros,
+            dataType: 'json',
+            cache: false,
+            type: 'post'
+        })
+            .done(function (response) {
+                response.forEach(function (item, index) {
+                    var fila = $('<tr>');
+                    fila.append('<td class="text-center">' + item.DocNum + '  </td>');
+                    fila.append('<td class="text-center">' + item.FechaSapTicket + '</td>');
+                    fila.append('<td class="text-center">' + item.CardName + '</td>');
+                    fila.append('<td class="text-center">' + item.MontoFinal.toFixed(2) + '</td></tr>');
+                    tbody.append(fila);
+                });
+
+            }).fail(function () {
+                // Manejar error si es necesario
+                Swal.fire('Error', 'Hubo un problema al cargar los datos', 'error');
+            });
+        $("#ModalTicketsNE").modal('show');
+    }
+}
+function calcularTotalCajas() {
+    cajas = 0;
+    $("#Detalles > tbody tr").find('td:eq(5) input').each(function () {
+        cajas += $(this).val() * 1;
+    })
+    $("#TotalCajas").val(cajas);
+}
+function validarUnicoCampoTabla(identificador, idTabla) {
+
+    var sinRegistro = true;
+    $("#" + idTabla + " tr").find('td:eq(1) input').each(function () {
+        iden = $(this).val();
+        if (iden == identificador) {
+            Swal.fire("El valor ya se encuentra en la tabla", "Verifique", "warning");
+            sinRegistro = false;
+        }
+    });
+    return sinRegistro;
+}
+function grabarTempDocumentos(docEntryTicket, docNumTicket, callback) {
+    if (docEntryTicket !== '' && docNumTicket !== '') {
+        var parametros = { "DocEntryTicket": docEntryTicket, "DocNumTicket": docNumTicket };
+
+        $.ajax({
+            url: '/Rutas/grabarTempDocumentosRuta',
+            data: parametros,
+            dataType: 'html',
+            cache: false,
+            type: 'post'
+        })
+            .done(function (response) {
+                // Llama al callback y pasa el resultado de la solicitud AJAX como argumento
+                callback(response);
+            });
+    }
+}
+function abrirModalImp(docEntry, masivo) {
+    if (masivo == false) {
+        var modalId = "ModalImpresion" + docEntry;
+        $("#" + modalId).modal('show');
+    }
+    else if (masivo) {
+        var nroFila = docEntry;
+        var firstDocEntry = $("#Detalles tbody tr:first input[name='DetRRU0[" + nroFila + "].DocEntryTicket']").val();
+        if (firstDocEntry > 0) {
+            $("#ModalImpresion" + firstDocEntry).modal('show');
+        }
+        function mostrarSiguienteModal(index) {
+            var nextModal = $("#Detalles tbody input[name='DetRRU0[" + index + "].DocEntryTicket']").val();
+            if (nextModal > 0) {
+                $("#ModalImpresion" + nextModal).on('hidden.bs.modal', function () {
+                    mostrarSiguienteModal(index + 1);
+                }).modal('show');
+            }
+        }
+
+        mostrarSiguienteModal(nroFila);
+    }
+}
+function ImprimirUnitarioDocumento(event, NumAtCard, DocNumTicket, Masivo) {
+    return new Promise(function (resolve, reject) {
+        event.preventDefault();
+        /* if (Masivo == false) {
+             var loadingSwal = Swal.fire({
+                 title: 'Enviando a impresora...',
+                 text: 'Por favor, espera mientras se envian los documentos. Cuando se cierre la ventana, se abrirá el siguiente ticket en lista',
+                 imageUrl: '/imagenes/index/ReportesDigemid/impresion.gif',
+                 imageWidth: 300,
+                 imageHeight: 250,
+                 allowEscapeKey: false,
+                 allowOutsideClick: false,
+                 showConfirmButton: false
+             });
+         }*/
+
+        var MensajeImpresion = "";
+        var parametros = {
+            "NumAtCard": NumAtCard,
+            "DocNumTicket": DocNumTicket,
+            "Impresora": $("#Impresora").val()
+        };
+        $.ajax({
+            url: '/Rutas/PdfComprobanteSap',
+            data: parametros,
+            dataType: 'json',
+            cache: false,
+            type: 'post'
+        }).done(function (response) {
+            MensajeImpresion = response.Mensaje;
+            if (Masivo) {
+                if (MensajeImpresion != "" && MensajeImpresion != "undefined") {
+                    resolve(MensajeImpresion);
+                } else {
+                    resolve(null);
+                }
+            }
+            else {
+                if (MensajeImpresion != "" && MensajeImpresion != "undefined") {
+                    // loadingSwal.close();
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Mensaje',
+                        text: 'Se termino la impresión. ' + MensajeImpresion
+                    }).then(function () {
+                        resolve('success');
+                    });
+
+                }
+                /* else {
+                     loadingSwal.close();
+                     Swal.fire({
+                         icon: 'success',
+                         title: 'Aviso de impresión',
+                         text: 'Se imprimió el documento. ',
+                         timer: 3000
+                     }).then(function () {
+                         resolve('success');
+                     });
+                 }*/
+                ////buscar el tr donde se ubique
+                //var trContenedor = $("#Detalles input[id='DocNumTDet'][value='" + DocNumTicket + "']").closest("tr");
+                //if (trContenedor.length > 0) {
+                //    trContenedor.css({
+                //        "background-color": "rgba(0, 0, 255, 0.5)",
+                //        "transition": "background-color 0.3s ease"
+                //    });
+                //}
+            }
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            // loadingSwal.close();
+            reject(textStatus || errorThrown);
+            Swal.fire('Error', 'Hubo un problema al imprimir', 'error');
+
+        });
+    });
+}
+async function ImprimirMasivamenteDocumentos(event, docEntryTicket, idModal) {
+    if (docEntryTicket > 0) {
+        var parametros = { "DocEntryTicket": docEntryTicket };
+        /*
+        Swal.fire({
+            title: 'Enviando a impresora...',
+            text: 'Por favor, espera mientras se envian los documentos. Cuando se cierre la ventana, se abrirá el siguiente ticket en lista',
+            imageUrl: '/imagenes/index/ReportesDigemid/impresion.gif',
+            imageWidth: 300,
+            imageHeight: 250,
+            allowEscapeKey: false,
+            allowOutsideClick: false,
+            showConfirmButton: false
+        });*/
+
+        $('#btnImp' + docEntryTicket).prop('disabled', true);
+
+        try {
+            var response = await $.ajax({
+                url: '/Rutas/buscarComprobantesTicket',
+                data: parametros,
+                dataType: 'json',
+                cache: false,
+                type: 'post'
+            });
+
+            var DocNumTicket = docEntryTicket + 2000000000;
+            var MensajeImpresionMasivo = "";
+
+            for (const correlativo of response) {
+                try {
+                    var msj = await ImprimirUnitarioDocumento(event, correlativo, DocNumTicket, true);
+                    if (msj != null && msj != " " && msj != "undefined") {
+                        MensajeImpresionMasivo += msj;
+                    }
+                    //buscar el tr donde se ubique
+                    //var trContenedor = $("#Detalles input[id='DocEntryTDet'][value='" + docEntryTicket + "']").closest("tr");
+                    //if (trContenedor.length > 0) {
+                    //    trContenedor.css({
+                    //        "background-color": "rgba(0, 0, 255, 0.5)",
+                    //        "transition": "background-color 0.3s ease"
+                    //    });
+                    //}
+                } catch (error) {
+                    console.error("Error ImprimirUnitarioDocumento:", error);
+                    $('#btnImp' + docEntryTicket).prop('disabled', false);
+                }
+            }
+            $('#' + idModal).modal('hide');
+
+            $('#btnImp' + docEntryTicket).prop('disabled', false);
+
+        } catch (error) {
+            console.error("Error ImprimirMasivamenteDocumentos:", error);
+            $('#btnImp' + docEntryTicket).prop('disabled', false);
+        } finally {
+            Swal.close(); // cierra alert que lleva imagen de impresion
+
+            if (MensajeImpresionMasivo != null && MensajeImpresionMasivo != "") {
+                Swal.fire({
+                    icon: 'warning',
+                    text: 'Los documentos se han impreso exitosamente. ' + MensajeImpresionMasivo,
+                    showConfirmButton: false,
+                    timer: 3000,
+                });
+            }
+            /*else {
+                Swal.fire({
+                    icon: 'success',
+                    text: 'Los documentos se han impreso exitosamente. ',
+                    showConfirmButton: false,
+                    timer: 2000,
+                });
+            }*/
+        }
+    }
+}
+function validarEnviarFormulario(estado) {
+    var object = $("#form").serialize();
+    if (estado === 'CREADO') {
+        $.ajax('/Rutas/validarEditarRuta',
+            {
+                data: object,
+                dataType: 'html',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                if (response != "OK") { swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false }
+                else { $("#form").submit(); }
+            });
+    } else {
+        $.ajax('/Rutas/validarRuta',
+            {
+                data: object,
+                dataType: 'html',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                if (response != "OK") { swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false }
+                else { $("#form").submit(); }
+            });
+    }
+}
+
+

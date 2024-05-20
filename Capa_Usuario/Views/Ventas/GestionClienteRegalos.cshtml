@@ -1,0 +1,95 @@
+﻿@model IEnumerable<Capa_Entidad.Ventas_ENT.TablasSql.OCLR_E>
+@using Capa_Entidad.Ventas_ENT.TablasSql
+@{
+    ViewBag.Title = "GestionClienteRegalos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    OCLR_E f = (OCLR_E)ViewBag.CliReg;
+}
+<script>
+    $(document).ready(function () {
+    });
+    function filtrar() {
+        var object = $("#frm").serialize();
+        $(location).attr('href', "/Ventas/GestionClienteRegalos?" + object);
+    }
+</script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("GestionRegalos", "Ventas")">Módulo gestión regalos</a></li>
+            <li class="current"><em>Gestión Regalo-Cliente</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">GESTIÓN REGALO-CLIENTE</h3></div>
+    <div class="d-flex pl-2 w-100 py-2">
+        <div class="mx-2">
+            <a id="accion" href="@Url.Action("NuevoClienteRegalo", "Ventas")" class="btn btn-success font-weight-bold"><i class="icon icon-plus"></i> Agregar Cliente</a>
+        </div>
+
+    </div>
+</div>
+
+<div class="bg-dark pt-4">
+    <form name="frm" id="frm">
+        <table class="table table-light table-sm table-hover cls-dataTable" cellspacing="0" width="100%">
+            <thead class="thead-dark">
+                <tr>
+                    <th>
+                        @Html.DisplayName("Ruc")
+                        <input type="text" name="CardCode"  class="form-control" onchange="filtrar();" value="@f.CardCode" />
+                    </th>
+                    <th>
+                        @Html.DisplayName("Cliente")
+                        <input type="text" name="CardName" class="form-control" onchange="filtrar();" value="@f.CardName" />
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.NroOpe)
+                        <input type="number" name="NroOpe" class="form-control" style="width: 100px" onchange="filtrar();" value="@f.NroOpe" />
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.Saldo)
+                        <div>
+                            <input type="number" name="Saldo" class="form-control" style="width: 100px" onchange="filtrar();" value="@f.Saldo" />
+                        </div>
+                    </th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.CardCode)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.CardName)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.NroOpe)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.Saldo)
+                        </td>
+                        <td>
+                            <a href="@Url.Action("EditarClienteRegalos", "Ventas", new { CardCode = item.CardCode })" class="btn btn-primary">
+                                <i title="Editar" class="icon-pencil2"></i>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="#" class="btn btn-light">Transacciones</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+    </form>
+</div>
+

@@ -1,0 +1,201 @@
+﻿@model Capa_Entidad.Rutas_ENT.TablasSql.ORRU_E
+@using Capa_Entidad.Rutas_ENT.TablasSql
+
+@{
+    ViewBag.Title = "DocumentoRutasTransferenciaAlm";
+    Layout = null;
+}
+
+<table border=0 style=' width: 1275px;font-size:11px;'>
+    <tr>
+        <td colspan=15 width=850px><img width=90px height=30px src='/imagenes/index/encabezado/logoC.jpg' /></td>
+    </tr>
+    <tr>
+        <td colspan=14 align=center style="font-size:15px;"><strong>REGISTRO DE RUTAS TRANSFERENCIAS</strong></td>
+        <td align=right style="font-size:15px;font-weight:bold;">REG-032-00</td>
+    </tr>
+    <tr>
+        <td style="font-weight:bold;">TRANSPORTISTA: </td>
+        <td colspan=3>@Model.TransDesc</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td style="font-weight:bold;">DOCUMENTO Nro.</td>
+        <td width=70px colspan=2>@Model.DocNum</td>
+    </tr>
+    <tr>
+        <td style="font-weight:bold;">COPILOTO 1: </td>
+        <td> @Model.CopilDesc</td>
+        <td></td>
+        <td style="font-weight:bold;">COPILOTO 2: </td>
+        <td colspan=4> @Model.Copil2Desc </td>
+        <td colspan=7></td>
+    </tr>
+    <tr>
+        <td style="font-weight:bold;">COPILOTO 3: </td>
+        <td> @Model.Copil3Desc</td>
+        <td></td>
+        <td style="font-weight:bold;">COPILOTO 4: </td>
+        <td colspan=4> @Model.Copil4Desc </td>
+        <td colspan=7></td>
+    </tr>
+    <tr>
+        <td style="font-weight:bold;">PLACA: </td>
+        <td> @Model.Placa</td>
+        <td></td>
+        <td style="font-weight:bold;">FECHA</td>
+        <td> @Model.FechaCont.ToString().Substring(0,10)</td>
+        <td colspan=10></td>
+    </tr>
+    <tr>
+        <td style="font-weight:bold;">HORA INICIO: </td>
+        <td>@Model.TiempoPac.ToString().Substring(11,8)</td>
+        <td></td>
+        <td style="font-weight:bold;">HORA TERMINO: </td>
+        @if (Model.TiempoTerEn != "" && Model.TiempoTerEn != null)
+        {
+            <td><font size="@ViewBag.Letra">@Model.TiempoTerEn.ToString().Substring(11, 8)</font></td>
+        }
+        else
+        {
+            <td></td>
+        }
+        <td colspan=10 style="font-weight:bold;">CONDICIÓN ALMACENAMIENTO : T° 15°C-25°C</td>
+    </tr>
+    <tr>
+        <td style="font-weight:bold;">ALM-ORIGEN: </td>
+        <td colspan=6>@Model.AlmOrigenDesc ; @Model.AlmOrigenDesc2</td>
+        <td></td>
+        <td style="font-weight:bold;">ALM-DESTINO: </td>
+        <td colspan=6> @Model.AlmDestinoDesc ; @Model.AlmDestinoDesc2</td>
+    </tr>
+</table>
+<table border=1 style="font-size:11px;">
+    <tr>
+        <th width=10px>#</th>
+        <th align=center width=270px >DATOS DE TRASLADO</th>
+        <th align=center width=70px colspan=6>DETALLES DE PRODUCTOS</th>
+        <th align=center width=90px># CAJAS</th>
+        <th align=center width=40px>OPERARIO RECEPCION</th>
+        <th align=center width=40px>VISTO</th>
+    </tr>
+    
+    @foreach (RRU1_E det1 in Model.DetRRU1)
+    {
+    <tr>
+        <td> @det1.Linea </td>
+        <td style='text-align: justify; word-wrap: break-word;'>
+            REFERENCIA:  COBEFAR SAC <br>
+            RUC:  20600546041 <br>
+            OTROS:  <br>
+            GUIA: @det1.Guia
+        </td>
+        <td style='text-align: center;' colspan=6>
+            <table border="1" style="font-size:11px;">
+                <tr>
+                    <th width=270px>Producto</th>
+                    <th width=70px>Lote</th>
+                    <th width=50px>Cant.</th>
+                    <th width=50px>Lab.</th>
+                    <th width=70px>Unid.Med.</th>
+                    @if (ViewBag.Tipo == "CAJAS")
+                    {
+                        <th width=80px>Cajas master</th>
+                    }
+
+                </tr>
+                @foreach (RRU11_E det12 in det1.ListaRRU11)
+                {
+
+                    <tr>
+                        <td>
+                            @det12.ItemName
+                        </td>
+                        <td>
+                            @det12.Lote
+                        </td>
+                        <td>
+                            @det12.CantidadL
+                        </td>
+                        <td>
+                            @det12.LaboDesc
+                        </td>
+                        <td>
+                            @det12.UnitMed
+                        </td>
+                        @if (ViewBag.Tipo == "CAJAS")
+                        {
+                            <td>
+                                @det12.Cajas
+                            </td>
+                        }
+                    </tr>
+
+                }
+            </table>
+            </td>
+        <td style='text-align: center;'> @det1.Cajas </td>
+        <td> @det1.OpRecepcion </td>
+        <td> @det1.Verificado </td>
+    </tr>
+    }
+</table>
+<table border=0 style="font-size:11px;">
+    <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td align=right>TOTAL CAJAS : @Model.DetRRU1.Sum(x=>x.Cajas) </td>
+    </tr>
+    <tr>
+        <td width=250px align=right></td>
+        <td></td>
+        <td width=200px></td>
+        <td width=200px align=right></td>
+        <td width=200px colspan=3></td>
+    </tr>
+    <tr>
+        <td align=right height=35px></td>
+        <td></td>
+        <td align=right>ENTREGA</td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td align=right>_________________</td>
+        <td></td>
+        <td align=right>1._____________</td>
+        <td></td>
+        <td></td>
+        <td>_________________</td>
+        <td></td>
+        <td>_________________</td>
+    </tr>
+    <tr>
+        <td align=right>TRANSPORTISTA</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>VIGILANCIA ALM-ORIGEN</td>
+        <td></td>
+        <td>VIGILANCIA ALM-DESTINO</td>
+    </tr>
+    <tr>
+        <td align=right></td>
+        <td></td>
+        <td align=right>2._____________</td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+</table>

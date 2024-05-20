@@ -1,0 +1,56 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>PreciosOpm</title>
+    <script>
+        $(document).ready(function () { });
+        function rpt() {
+            $('#Reporte').html('<img src="/imagenes/index/ReportesDigemid/cargando.gif" />');
+            var parametros = $("#frm").serialize();
+            $.ajax('/ReportesDigemid/tbReportePreciosOpm',
+                {
+                    data: parametros,
+                    dataType: 'html',
+                    cache: false,
+                    type: 'post'
+                })
+                .done(function (response) {
+                    $('#Reporte').html(response);
+                });
+        }
+    </script>
+</head>
+<body>
+    <div class="container" style="padding: 2%; background-color: rgb(220, 220, 220);">
+        <form id="frm" method="post">
+            <h3 class="text-cobefar font-weight-bold text-center">REPORTE DE PRECIOS OPM</h3>
+
+            <div class="row mt-4">
+                <div class="col-lg-4">
+                    <label for="FecIni" class="text-dark font-weight-bold font-18">Fecha de contabilización Desde:</label>
+                    <input name="FecIni" type="date" class="form-control text-center border-success" />
+                </div>
+
+                <div class="col-lg-4">
+                    <label for="ArtFin" class="text-dark font-weight-bold font-18">Fecha de contabilización Hasta:</label>
+                    <input name="FecFin" type="date" class="form-control text-center border-success" />
+                </div>
+
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-6">
+                    <button type="button" class="btn btn-success" onclick="rpt();"><i class="icon-checkmark"></i> OK</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

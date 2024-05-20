@@ -1,0 +1,442 @@
+﻿@model IEnumerable<Capa_Entidad.Ventas_ENT.TablasSql.ORTV_E>
+@using Capa_Entidad.Ventas_ENT.TablasSql
+@{
+    ViewBag.Title = "ListadoTicketsGuiasRemision";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ORTV_E ticket = (ORTV_E)ViewBag.Ortv;
+    String bgEstandar = "bg-cobefar text-white",
+    bgEstadoPago = bgEstandar,
+    bgEstadoFacturacion = bgEstandar,
+    bgLugarDestino = bgEstandar,
+    bgFechaTicket = "",
+    bgTipoVenta = bgEstandar,
+    bgEstadoTicket = bgEstandar;
+
+    if (ticket.EstadoPago != "" && ticket.EstadoPago != null)
+    {
+        bgEstadoPago = "bg-warning";
+    }
+
+    if (ticket.TipoVenta != "" && ticket.TipoVenta != null)
+    {
+        bgTipoVenta = "bg-warning";
+    }
+
+    if (ticket.Estado != "" && ticket.Estado != null)
+    {
+        bgEstadoTicket = "bg-warning";
+    }
+
+    if (ticket.EstadoFacturacion != "" && ticket.EstadoFacturacion != null)
+    {
+        bgEstadoFacturacion = "bg-warning";
+    }
+
+    if (ViewBag.Ortv.LugarDestino != "" && ViewBag.Ortv.LugarDestino != null)
+    {
+        bgLugarDestino = "bg-warning";
+    }
+
+    if (ViewBag.Ortv != null && ViewBag.Ortv.FechaSapTicket != null)
+    {
+        bgFechaTicket = "bg-warning";
+    }
+
+}
+<script>
+    function filtrar() {
+        var object = $("#frm").serialize();
+        $(location).attr('href', "/Ventas/ListadoTicketsGuiasRemision?" + object);
+    }
+</script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li class="current"><em>Listado de tickets guías</em></li>
+        </ol>
+    </nav>
+</div>
+
+<form name="frm" id="frm">
+    <div class="bg-dark border-cabecera-seccion pb-2">
+        <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO DE TICKETS GUÍAS REMISIÓN</h3></div>
+        <div class="d-flex pl-2 w-100 py-2">
+            <div class="mx-2">
+                <select name="EstadoPago" id="EstadoPago" class="form-control @bgEstadoPago" onchange="filtrar();">
+                    <option value="">EstadoPago</option>
+                    <option value="PENDIENTE" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.EstadoPago == "PENDIENTE") { Write("selected"); } }>PENDIENTE</option>
+                    <option value="PAGADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.EstadoPago == "PAGADO") { Write("selected"); }}>PAGADO</option>
+                </select>
+            </div>
+
+            <div class="mx-2">
+                <select id="TipoVenta" name="TipoVenta" class="form-control @bgTipoVenta" onchange="filtrar();">
+                    <option value="">TipoVenta</option>
+                    <option value="Normal" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.TipoVenta == "Normal") { Write("selected"); } }>Normal</option>
+                    <option value="Credito" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.TipoVenta == "Credito") { Write("selected"); } }>Crédito</option>
+                    <option value="ContraEntrega" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.TipoVenta == "ContraEntrega") { Write("selected"); } }>ContraEntrega</option>
+                </select>
+            </div>
+
+            <div class="mx-2">
+                <select name="Estado" id="Estado" class="form-control @bgEstadoTicket" onchange="filtrar();">
+                    <option value="">EstadoTicket</option>
+                    <option value="ABIERTO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ABIERTO") { Write("selected"); } }>ABIERTO</option>
+                    <option value="RECIBIDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "RECIBIDO") { Write("selected"); } }>RECIBIDO</option>
+                    <option value="PICKEANDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "PICKEANDO") { Write("selected"); } }>PICKEANDO</option>
+                    <option value="VERIFICANDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "VERIFICANDO") { Write("selected"); } }>VERIFICANDO</option>
+                    <option value="EMPACANDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "EMPACANDO") { Write("selected"); } }>EMPACANDO</option>
+                    <option value="EMPACADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "EMPACADO") { Write("selected"); } }>EMPACADO</option>
+                    <option value="PESADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "PESADO") { Write("selected"); } }>PESADO</option>
+                    <option value="ENVIADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ENVIADO") { Write("selected"); } }>ENVIADO</option>
+                    <option value="ENTREGADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ENTREGADO") { Write("selected"); } }>ENTREGADO</option>
+                    <option value="ANULADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ANULADO") { Write("selected"); } }>ANULADO</option>
+                    <option value="CANCELADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "CANCELADO") { Write("selected"); } }>CANCELADO</option>
+                </select>
+            </div>
+
+            <div class="mx-2">
+                <select name="EstadoFacturacion" id="EstadoFacturacion" class="form-control  @bgEstadoFacturacion" onchange="filtrar();">
+                    <option value="">EstadoFacturacion</option>
+                    <option value="PENDIENTE" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.EstadoFacturacion == "PENDIENTE") { Write("selected"); } }>PENDIENTE</option>
+                    <option value="GRE EMITIDA" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.EstadoFacturacion == "GRE EMITIDA") { Write("selected"); }}>GRE EMITIDA</option>
+                </select>
+            </div>
+
+            <div class="mx-2">
+                <select name="LugarDestino" id="LugarDestino" class="form-control @bgLugarDestino" onchange="filtrar();">
+                    <option value="">LugarDestino</option>
+                    <option value="Arriola" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Arriola") { Write("selected"); } }>Arriola</option>
+                    <option value="Agencia" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Agencia") { Write("selected"); } }>Agencia</option>
+                    <option value="Agencia Courier" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Agencia Courier") { Write("selected"); } }>Agencia Courier</option>
+                    <option value="Domicilio" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Domicilio") { Write("selected"); } }>Domicilio</option>
+                    <option value="Centro" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Centro") { Write("selected"); } }>Centro</option>
+                </select>
+            </div>
+
+            <div class="mx-2 d-flex pb-0">
+                <label class="col-form-label text-white mr-2"> @Html.DisplayNameFor(model => model.FechaSapTicket)</label>
+                @if (ViewBag.Ortv != null && ViewBag.Ortv.FechaSapTicket != null)
+                {
+                    <input type="date" name="FechaSapTicket" class="form-control input_filtro-table @bgFechaTicket" value="@ViewBag.Ortv.FechaSapTicket" onchange="filtrar();" />
+                }
+                else
+                { <input type="date" name="FechaSapTicket" class="form-control border-success input_filtro-table @bgFechaTicket" onchange="filtrar();" />}
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-dark">
+        <table class="table table-light table-sm table-hover cls-dataTableVentas" cellspacing="0" width="100%">
+            <thead class="thead-dark">
+                <tr>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.DocNum)
+                        <br />
+                        @if (ViewBag.Ortv != null && ViewBag.Ortv.DocNum > 0)
+                        {
+                            <input type="text" name="DocNum" class="form-control input_filtro-table" onchange="filtrar();" value="@ViewBag.Ortv.DocNum" />
+                        }
+                        else
+                        { <input type="text" name="DocNum" class="form-control input_filtro-table" onchange="filtrar();" />}
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.CardName)
+                        @if (ViewBag.Ortv != null && ViewBag.Ortv.CardName != null)
+                        {
+                            <input type="text" name="CardName" class="form-control input_filtro-table" onchange="filtrar();" value="@ViewBag.Ortv.CardName" />
+                        }
+                        else
+                        { <input type="text" name="CardName" class="form-control input_filtro-table" onchange="filtrar();" />}
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.Vendedor)
+                        <br />
+                        @if (ViewBag.Ortv != null && ViewBag.Ortv.Vendedor != null)
+                        {
+                            <input type="text" name="Vendedor" class="form-control input_filtro-table" onchange="filtrar();" value="@ViewBag.Ortv.Vendedor" />
+                        }
+                        else
+                        { <input type="text" name="Vendedor" class="form-control input_filtro-table" onchange="filtrar();" />}
+                    </th>
+                    <th class="text-center">Monto Total</th>
+                    <th class="text-center">Nro Cajas</th>
+                    <th class="text-center">Estado</th>
+                    <th class="text-center">Tipo de comprobante</th>
+                    <th class="text-center">Tiempo de entrega</th>
+                    <th class="text-center">
+                        Persona de recojo
+                    </th>
+                    <th class="text-center">Zona</th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody class="text-dark">
+                @foreach (var item in Model.Where(x => x.Estado != "SEPARADO"@* && x.Estado != "RECIBIDO" && x.Estado != "ABIERTO *@ && x.Estado != "CANCELADO" && x.EstadoFacturacion != "FACTURADO"))
+                    {
+                    string styleAnulado = "", styleText = "";
+                    if (item.Estado.Equals("ANULADO") || item.Estado.Equals("CANCELADO"))
+                    {
+                    styleAnulado = "bg-danger text-white";
+                    styleText = "text-white";
+                    }
+                    <tr id="fila" class="@styleAnulado">
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.DocNum)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.CardName)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.Vendedor)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.MontoTotal)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.Cajas)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.Estado)
+                        </td>
+                        <td style="padding:0;margin:0">
+                            @if (item.Det2 != null)
+                            {
+
+                                foreach (RTV2_E dt in item.Det2)
+                                {
+                                    string styleObs = (@dt.Observaciones != "") ? "background-color: #00FFFF;" : "";
+                                    string colorTipoComprobante = "background-color: #FCC5CA;";
+
+                                    if (dt.TipoComprobante == "Factura")
+                                    {
+                                        colorTipoComprobante = "";
+                                    }
+                                    else if (dt.TipoComprobante == "Boleta")
+                                    {
+                                        colorTipoComprobante = "background-color: #E8C2F7;color:black";
+                                    }
+                                    <p style="@colorTipoComprobante">@dt.Monto : @dt.TipoComprobante</p>
+                                    <p style="@styleObs">@dt.Observaciones</p>
+                                }
+
+                            }
+                        </td>
+
+                        @if (item.TiempoEntrega != null)
+                        {
+                            string styleTiempoEntrega = string.Empty;
+                            //if (DateTime.Parse(item.TiempoEntrega).ToString("dd/MM/yyyy") == DateTime.Now.ToString("dd/MM/yyyy"))
+                            if (item.TiempoEntrega.ToString().Substring(0, 10) == DateTime.Now.ToString("dd/MM/yyyy"))
+                            {
+                                styleTiempoEntrega = "background-color:chartreuse";
+                            }
+
+                            <td class="text-center" style="width: 130px; @styleTiempoEntrega">
+                                <div class="mx-2">@item.TiempoEntrega</div>
+                            </td>
+
+                        }
+                        else
+                        {
+                            <td class="text-center" style="width: 130px;">
+                                <div class="mx-2">@item.TiempoEntrega</div>
+                            </td>
+                        }
+                        <td>
+                            @if (item.Det1 != null && item.LugarDestino == "Agencia")
+                            {
+                                if (item.Det1.Count >= 1)
+                                {
+                                    if (item.Det1[0].NombrePer != null)
+                                    {
+                                        Write(item.Det1[0].NombrePer);
+                                        <br />
+                                        Write($"{item.Det1[0].TipoDocPer}: {item.Det1[0].DocPer}");
+                                    }
+                                }
+                            }
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.Zona)
+                        </td>
+                        <td>
+                            @if (item.EstadoFacturacion == "PENDIENTE")
+                            {
+                                <a class="btn btn-success btn-sm" title="EMITIR GUIAS" onclick="confirmarEmitirGuias(@item.DocEntry)" href="#">
+                                    <i class="icon icon-file-text2"></i>
+                                </a>
+                            }
+                        </td>
+                        <td>
+                            @if (item.EstadoFacturacion == "GRE EMITIDA")
+                            {
+                                <a href="#" onclick="revertirEmitirGuiasTicket(@item.DocEntry);" type="button" target="_self" class="btn btn-danger btn-sm" title="REVERTIR EMITIR GUIAS">
+                                    <i class="icon icon-blocked"></i>
+                                </a>
+                            }
+                        </td>
+                        <td>
+                            <a href="@Url.Action( "SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry  } )" type="button" target="_blank" class="btn btn-dark btn-sm" title="Seguimiento de ticket"
+                               onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no'); return false;">
+                                <i class="icon-truck @styleText"></i>
+                            </a>
+                        </td>
+                        <td>
+                            @if (item.EstadoFacturacion == "GRE EMITIDA" || item.EstadoFacturacion == "FACTURADO")
+                            {
+                                <button type="button" class="btn btn-warning btn-sm" title="VER GUÍAS" onclick="abrirModalGuias(@item.DocEntry)">
+                                    <i class="icon-eye"></i>
+                                </button>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</form>
+
+@if (!string.IsNullOrEmpty(ViewBag.Mensaje))
+{
+    <script>
+     var mensaje = '@Html.Raw(ViewBag.Mensaje)';
+        Swal.fire({
+            text: mensaje,
+            showConfirmButton: false,
+            timer: 2000
+        });
+    </script>
+}
+<script>
+    function confirmarEmitirGuias(DocEntry) {
+        /*
+        Swal.fire({
+            title: "¿Estás seguro?",
+            text: "¿Deseas emitir guias para este ticket de venta?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Sí, emitir",
+            cancelButtonText: "Cancelar",
+       }).then((result) => {
+        if (result.isConfirmed) {*/
+               var docNum = "@(ViewBag.Ortv != null ? ViewBag.Ortv.DocNum : "")";
+                var estadoPago = "@(ViewBag.Ortv != null ? ViewBag.Ortv.EstadoPago : "")";
+                var tipoVenta = "@(ViewBag.Ortv != null ? ViewBag.Ortv.TipoVenta : "")";
+                var tiempoEntrega = "@(ViewBag.Ortv != null ? ViewBag.Ortv.TiempoEntrega : "")";
+                var estado = "@(ViewBag.Ortv != null ? ViewBag.Ortv.Estado : "")";
+                var fechaSapTicket = "@(ViewBag.Ortv != null ? ViewBag.Ortv.FechaSapTicket : "")";
+                var cardName = "@(ViewBag.Ortv != null ? ViewBag.Ortv.CardName : "")";
+                var vendedor = "@(ViewBag.Ortv != null ? ViewBag.Ortv.Vendedor : "")";
+                var flete = "@(ViewBag.Ortv != null ? ViewBag.Ortv.Flete : "")";
+                var descuentoNC = "@(ViewBag.Ortv != null ? ViewBag.Ortv.DescuentoNC : "")";
+                var estadoFacturacion = "@(ViewBag.Ortv != null ? ViewBag.Ortv.EstadoFacturacion : "")";
+                var lugarDestino = "@(ViewBag.Ortv != null ? ViewBag.Ortv.LugarDestino : "")";
+
+                window.location.href = "@Url.Action("EmitirGuiasTicketVenta", "Ventas")?DocEntry=" + DocEntry +
+                                                    "&DocNum=" + docNum +
+                                                    "&EstadoPago=" + estadoPago +
+                                                    "&TipoVenta=" + tipoVenta +
+                                                    "&TiempoEntrega=" + tiempoEntrega +
+                                                    "&Estado=" + estado +
+                                                    "&FechaSapTicket=" + fechaSapTicket +
+                                                    "&CardName=" + cardName +
+                                                    "&Vendedor=" + vendedor +
+                                                    "&Flete=" + flete +
+                                                    "&DescuentoNC=" + descuentoNC +
+                                                    "&EstadoFacturacion=" + estadoFacturacion +
+                                                    "&LugarDestino=" + lugarDestino;
+
+          //  }
+        //});
+    }
+    function buscarGuias(DocEntry, callback) {
+        if (DocEntry !== '') {
+            var parametros = { "DocEntry": DocEntry };
+
+            $.ajax({
+                url: '/Ventas/buscarGuias',
+                data: parametros,
+                dataType: 'json',
+                cache: false,
+                type: 'post'
+            })
+                .done(function (response) {
+                    var tableHtml = "<div class='table-responsive w-100'><table  border='2' style='width: 100 %; border-color:green;text-align:center;' class='w-100'><thead><tr><th class='text-dark text-center'>Correlativo</th><th class='text-dark text-center'>Fecha Cont</th><th class='text-dark text-center'>Fecha Ini Traslado</th></tr></thead><tbody>";
+                    //recorrer response para agregarlo a la table
+                    response.forEach(function (obj) {
+                        tableHtml += '<tr><td>' + obj.NumAtCard + '</td><td>' + obj.DocDate + '</td><td>' + obj.FechaTrasl + '</td></tr>';
+                    });
+
+                    tableHtml += '</tbody></table></div>';
+                    // Llama al callback  pasa el Html
+                    callback(tableHtml);
+                });
+        }
+    }
+    function abrirModalGuias(DocEntry) {
+        var modalId = "ModalComprobantes" + DocEntry;
+
+        // Verificar si el modal ya existe
+        if ($("#" + modalId).length > 0) {
+            // Si el modal ya existe, simplemente ábrelo
+            $("#" + modalId).modal('show');
+            return; // Salir de la función
+        }
+
+        // Si el modal no existe, crear uno nuevo
+        buscarGuias(DocEntry, function (htmlTableDocumentos) {
+            var docNum = DocEntry + 2000000000;
+            var modalHtml = "<div class='modal' id='" + modalId + "' tabindex='-1' role='dialog' aria-labelledby='" + modalId + "Label' aria-hidden='true'>" +
+                "<div class='modal-dialog modal-dialog-centered modal-lg' role='document'>" +
+                "<div class='modal-content'>" +
+                "<div class='modal-header bg-cobefar text-white'>" +
+                "<h5 class='modal-title' id='" + modalId + "Label'>GUÍAS DE REMISIÓN <br>NroTicket : " + docNum + "</h5>" +
+                "<button type='button' class='close' data-dismiss='modal' aria-label='Close'>" +
+                "<span aria-hidden='true'>&times;</span>" +
+                "</button>" +
+                "</div>" +
+                "<div class='modal-body'>" +
+                htmlTableDocumentos +
+                "</div>" +
+                "<div class='modal-footer'>" +
+                "<button type='button' class='btn btn-secondary' data-dismiss='modal'>Cerrar</button>" +
+                "</div>" +
+                "</div>" +
+                "</div>" +
+                "</div>";
+            $("body").append(modalHtml);
+
+            // Una vez que se ha agregado el HTML del modal al cuerpo del documento, ábrelo
+            $("#" + modalId).modal('show');
+        });
+    }
+    function revertirEmitirGuiasTicket(DocEntry) {
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: 'btn btn-success mx-4',
+                cancelButton: 'btn btn-danger mx-4'
+            },
+            buttonsStyling: false
+        })
+
+        swalWithBootstrapButtons.fire({
+            title: '¿Está seguro(a) de revertir emision de guias del ticket?',
+            text: "Este proceso es reversible",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: "<i class='icon-checkmark'></i> Si, estoy seguro(a)",
+            cancelButtonText: "<i class='icon-cross'></i> No",
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                location.href = '/Ventas/RevertirEmitirGuiasTicketVenta?DocEntry=' + DocEntry + '&vista=ListadoTicketsGuiasRemision';
+            }
+        });
+    }
+</script>

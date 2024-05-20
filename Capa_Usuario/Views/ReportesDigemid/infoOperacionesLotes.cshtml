@@ -1,0 +1,169 @@
+﻿@using Capa_Entidad.Almacen_ENT.Tablas
+@using Capa_Entidad.General_ENT.Tablas
+@{
+    Layout = null;
+}
+<script>
+    function obtenerArticulos() {
+        let lab = $('#LaboratorioNroLote').val();
+        $('#ArticuloDesde').val('');
+        $('#ArticuloDesde').attr('readonly', true);
+        $('#ArticuloHasta').val('');
+        $('#ArticuloHasta').attr('readonly', true);
+        $('#ArtIni').val('');
+        $('#ArtFin').val('');
+
+        if (lab != '') {
+            $('#ArticuloDesde').attr('readonly', false);
+            $('#ArticuloHasta').attr('readonly', false);
+
+            let firmCode = $(`#ListaLaboratorios option[value='${lab}']`).attr("firmcode");
+            $('#dvListaProductos').html('');
+
+            Swal.fire({
+                html: '<img src="/imagenes/index/ReportesDigemid/cargando.gif" />',
+                //closeOnCancel: false,
+                allowOutsideClick: false,
+                showCancelButton: false,
+                showConfirmButton: false
+            });
+
+            $.ajax('/ReportesDigemid/ListaProductosAuditoria',
+                {
+                    data: { "FirmCode": firmCode },
+                    dataType: 'html',
+                    cache: false,
+                    type: 'post',
+                })
+                .done(function (response) {
+                    swal.close();
+
+                    if (response != '') {
+                    $('#dvListaProductos').html(response);
+                    } else {
+                        $('#dvListaProductos').html('');
+                    }
+                });
+        }
+
+    }
+    function rpt() {
+        if ($('#ArtIni').val() != '' && $('#ArtFin').val() != '') {
+            Swal.fire({
+                html: '<img src="/imagenes/index/ReportesDigemid/cargando.gif" />',
+                //closeOnCancel: false,
+                allowOutsideClick: false,
+                showCancelButton: false,
+                showConfirmButton: false
+            });
+
+            $.ajax({
+                url: '/ReportesDigemid/RptOperacionesLotes',
+                type: 'POST',
+                cache: false,
+                data: $("#frm").serialize(),
+            }).done(function (response) {
+                swal.close();
+                $('#Reporte').html(response);
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR.status + textStatus + errorThrown);
+            });
+        } else {
+            Swal.fire('Por favor ingresar N° Artículo Desde y N° Artículo Hasta');
+        }
+    }
+</script>
+<div id="dvListaProductos">
+    <datalist id="ListaProductos">
+    </datalist>
+</div>
+
+
+
+<div class="container" style="padding: 2%; background-color: rgb(220, 220, 220);">
+    <form id="frm" method="post">
+        <h3 class="text-cobefar font-weight-bold text-center">REPORTE DE OPERACIONES DE NÚMEROS DE LOTE<br />Criterios de selección</h3>
+
+        <div class="row mt-4">
+            <div class="col-lg-6">
+                <label for="LaboratorioNroLote" class="text-dark font-weight-bold font-18">Laboratorio:</label>
+                <input type="search" id="LaboratorioNroLote" name="LaboratorioNroLote" class="form-control border-success text-center" list="ListaLaboratorios" onchange="obtenerArticulos()" />
+            </div>
+
+            <div class="col-lg-4">
+                <label for="ItmsGrpCod" class="text-dark font-weight-bold font-18">Grupo de artículos:</label>
+                <select name="ItmsGrpCod" class="form-control bg-cobefar text-white border-success">
+                    <option value="">Todos</option>
+                    @foreach (OITB_E g in ViewBag.ListaGrupoArticulos)
+                    {
+                        <option value="@g.ItmsGrpCod">@g.ItmsGrpNam</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-6">
+                <label for="ArticuloDesde" class="text-dark font-weight-bold font-18">Artículo Desde:</label>
+                <input type="hidden" id="ArtIni" name="ArtIni" />
+                <input type="search" id="ArticuloDesde" class="form-control border-success text-center" list="ListaProductos" autocomplete="off" onchange="obtenerItemCode(this.value, 'ArtIni')" readonly />
+            </div>
+
+            <div class="col-lg-6">
+                <label for="ArticuloHasta" class="text-dark font-weight-bold font-18">N° Artículo Hasta:</label>
+                <input type="hidden" id="ArtFin" name="ArtFin" />
+                <input type="search" id="ArticuloHasta" class="form-control border-success text-center" list="ListaProductos" autocomplete="off"  onchange="obtenerItemCode(this.value, 'ArtFin')" readonly />
+            </div>            
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-4">
+                <label for="FecIni" class="text-dark font-weight-bold font-18">Fecha de contabilización desde:</label>
+                <input id="FecIni" name="FecIni" type="date" class="form-control text-center border-success" />
+            </div>
+
+            <div class="col-lg-4">
+                <label for="FecFin" class="text-dark font-weight-bold font-18">Fecha de contabilización hasta:</label>
+                <input id="FecFin" name="FecFin" type="date" class="form-control text-center border-success" />
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-4">
+                <label for="FecIni" class="text-dark font-weight-bold font-18">Almacén desde:</label>
+                <select name="AlmIni" class="form-control bg-cobefar text-white border-success">
+                    <option value="">Seleccione</option>
+                    @foreach (OWHS_E alm in ViewBag.ListaAlmacenes)
+                    {
+                        <option value="@alm.WhsCode">@alm.WhsName</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-lg-4">
+                <label for="FecIni" class="text-dark font-weight-bold font-18">Almacén hasta:</label>
+                <select name="AlmFin" class="form-control bg-cobefar text-white border-success">
+                    <option value="">Seleccione</option>
+                    @foreach (OWHS_E alm in ViewBag.ListaAlmacenes)
+                    {
+                        <option value="@alm.WhsCode">@alm.WhsName</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-4">
+                <button type="button" class="btn btn-success" onclick="rpt();"><i class="icon-checkmark"></i> Generar</button>
+            </div>
+        </div>
+
+    </form>
+</div>
+
+<script>
+    function obtenerItemCode(itemName, idArticulo) {
+        let itemCode = $(`#ListaProductos option[value='${itemName}']`).attr("itemcode");
+        $('#' + idArticulo).val(itemCode);
+    }
+</script>

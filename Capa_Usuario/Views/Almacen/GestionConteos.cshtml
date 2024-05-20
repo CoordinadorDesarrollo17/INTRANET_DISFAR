@@ -1,0 +1,172 @@
+﻿@model IEnumerable<Capa_Entidad.Almacen_ENT.TablasSql.OIAR_E>
+@using Capa_Entidad.Almacen_ENT.TablasSql
+@using Capa_Entidad.General_ENT.Tablas
+
+@{
+    ViewBag.Title = "GestionConteos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    OIAR_E a = (OIAR_E)ViewBag.Oiar;
+
+    List<OWHS_E> ow = (List<OWHS_E>)ViewBag.Almacenes;
+}
+<script>
+    $(document).ready(function () {
+    });
+    function filtrar() {
+        var object = $("#frm").serialize();
+        $(location).attr('href', "/Almacen/GestionConteos?" + object);
+    }
+</script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("ContabilizacionInventario", "Almacen")">Módulo contabilización inventario</a></li>
+            <li class="current"><em>Gestión de conteos</em></li>
+        </ol>
+    </nav>
+</div>
+
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">GESTIÓN DE CONTEOS</h3></div>
+
+    <div class="d-flex pl-2 w-100 py-2">
+        <div class="mx-2">
+            @Html.ActionLink("Nuevo Conteo", "NuevoConteo", null, new { @class = "btn btn-success" })
+        </div>
+    </div>
+</div>
+
+@if (@OIPE_E.PeriodoSeleccionado != null)
+{
+    <div class="alert alert-danger mb-0" role="alert">
+        @OIPE_E.PeriodoSeleccionado.Descripcion
+        Almacenes:
+        @OIPE_E.PeriodoSeleccionado.enlistarDetAlmacenes()
+    </div>
+}
+
+<div class="bg-dark pt-4">
+    <form name="frm" id="frm">
+        <table class="table table-light table-sm table-hover cls-dataTable" cellspacing="0" width="100%">
+            <thead class="thead-dark">
+                <tr>
+                    <th class="text-center">
+                        @Html.DisplayName("N#")
+                        <input type="text" name="DocEntry" class="form-control" style="width:70px;" onchange="filtrar();" value="@if (!a.DocEntry.Equals(0)) {Write(a.DocEntry);}" autocomplete="off" />
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayName("OpContador")
+                        @if (a.DetFases != null && a.DetFases.Count > 0)
+                        {
+                            <input type="text" name="DetFases[0].Operario" class="form-control" style="width:160px;" onchange="filtrar();" value="@a.DetFases[0].Operario" />
+                        }
+                        else
+                        { <input type="text" name="DetFases[0].Operario" class="form-control" style="width:160px;" onchange="filtrar();" value="" autocomplete="off" />}
+
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayName("Equipo")
+                        <input type="number" name="DocEntryEqu" class="form-control" style="width:70px;" onchange="filtrar();" value="@if (!a.DocEntryEqu.Equals(0)) {Write(a.DocEntryEqu);}" autocomplete="off" />
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayName("Almacen")
+                        <select name="WhsCode" id="Almacen" class="form-control" onchange="filtrar();" style="width: 150px;">
+                            <option value="">Seleccione</option>
+                            @foreach (OWHS_E obj in ow)
+                            {
+                                if (a.WhsCode != null && a.WhsCode == obj.WhsCode)
+                                {
+                                    <option value="@obj.WhsCode" selected>@obj.WhsName</option>
+                                }
+                                else
+                                {
+                                    <option value="@obj.WhsCode">@obj.WhsName</option>
+                                }
+                            }
+                        </select>
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.Piso)
+                        <input type="number" name="Piso" class="form-control" style="width:70px;" onchange="filtrar();" value="@if (!a.Piso.Equals(0)) {Write(a.Piso);}" autocomplete="off" />
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayName("CodArticulo")
+                        <input type="text" name="ItemCode" class="form-control" style="width:100px;" onchange="filtrar();" value="@a.ItemCode" autocomplete="off" />
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayName("Articulo")
+                        <input type="text" name="ItemName" class="form-control" style="width:200px;" onchange="filtrar();" value="@a.ItemName" autocomplete="off" />
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayName("Lotes")
+
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.Estado)
+                        <select name="Estado" id="Estado" class="form-control" onchange="filtrar();" style="width: 130px;">
+                            <option value="">Seleccione</option>
+                            <option value="Pendiente" @if (a.Estado == "Pendiente") { Write("selected"); }>Pendiente</option>
+                            <option value="EnConteo" @if (a.Estado == "EnConteo") { Write("selected"); }>EnConteo</option>
+                            <option value="Contado" @if (a.Estado == "Contado") { Write("selected"); }>Contado</option>
+                        </select>
+                    </th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.DocEntry)
+                        </td>
+                        <td class="text-center">
+                            @if (item.DetFases != null && item.DetFases.Count > 0)
+                            {
+                                @item.DetFases[0].Operario
+                            }
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.DocEntryEqu)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.WhsCode)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.Piso)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.ItemCode)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.ItemName)
+                        </td>
+                        <td class="text-center">
+                            @if (item.DetFases != null && item.DetFases.Count > 1)
+                            {
+                                @item.DetFases[1].enlistarLotes()
+                            }
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.Estado)
+                        </td>
+                        <td class="text-center">
+                            @Html.ActionLink("Iniciar Conteo", "IniciarConteo", new { id = item.DocEntry }, new { @class = "btn btn-primary" })
+                        </td>
+                        @if (!item.Estado.Equals("Pendiente"))
+                        {
+                            <td>@Html.ActionLink("Terminar Conteo", "TerminarConteo", new { id = item.DocEntry }, new { @class = "btn btn-danger" })</td>
+                        }
+
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </form>
+</div>
+

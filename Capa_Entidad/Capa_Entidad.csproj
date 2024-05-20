@@ -1,0 +1,215 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{6325E074-D449-47F7-85DA-FF0CA692012F}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Capa_Entidad</RootNamespace>
+    <AssemblyName>Capa_Entidad</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Humanizer, Version=2.10.0.0, Culture=neutral, PublicKeyToken=979442b78dfc278e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Humanizer.Core.2.10.1\lib\netstandard2.0\Humanizer.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Almacen_ENT\ReportesSql\ContInv_E.cs" />
+    <Compile Include="Almacen_ENT\ReportesSql\RptCorreoDevolucion_E.cs" />
+    <Compile Include="Almacen_ENT\ReportesSql\RptHistoricoDevoluciones_E.cs" />
+    <Compile Include="Almacen_ENT\TablasSql\CC_ORPD_E.cs" />
+    <Compile Include="Almacen_ENT\TablasSql\CC_ORRU_E.cs" />
+    <Compile Include="Almacen_ENT\TablasSql\MotivosDevoluciones_E.cs" />
+    <Compile Include="Almacen_ENT\TablasSql\ORPD_E.cs" />
+    <Compile Include="Almacen_ENT\TablasSql\RPD1_E.cs" />
+    <Compile Include="Almacen_ENT\TablasSql\SubmotivosDevoluciones_E.cs" />
+    <Compile Include="Almacen_ENT\Tablas\Guia_Remision_E.cs" />
+    <Compile Include="Almacen_ENT\Tablas\OIBT_E.cs" />
+    <Compile Include="Almacen_ENT\Tablas\OPDN_E.cs" />
+    <Compile Include="Almacen_ENT\Tablas\ORPD_E.cs" />
+    <Compile Include="Almacen_ENT\Tablas\RPD1_E.cs" />
+    <Compile Include="AtencionCliente_ENT\TablasSql\CC_OSAT_E.cs" />
+    <Compile Include="Almacen_ENT\TablasSql\CC_OIPE_E.cs" />
+    <Compile Include="Almacen_ENT\TablasSql\IAR11_E.cs" />
+    <Compile Include="Almacen_ENT\TablasSql\IAR12_E.cs" />
+    <Compile Include="Almacen_ENT\TablasSql\IAR1_E.cs" />
+    <Compile Include="Almacen_ENT\TablasSql\IEQ1_E.cs" />
+    <Compile Include="Almacen_ENT\TablasSql\IEQ2_E.cs" />
+    <Compile Include="Almacen_ENT\TablasSql\IPE1_E.cs" />
+    <Compile Include="Almacen_ENT\TablasSql\IPE2_E.cs" />
+    <Compile Include="Almacen_ENT\TablasSql\OIAR_E.cs" />
+    <Compile Include="Almacen_ENT\TablasSql\OIEQ_E.cs" />
+    <Compile Include="Almacen_ENT\TablasSql\OIPE_E.cs" />
+    <Compile Include="Almacen_ENT\TablasSql\OIBT_E.cs" />
+    <Compile Include="Almacen_ENT\Tablas\OITB_E.cs" />
+    <Compile Include="Almacen_ENT\Tablas\OITM_E.cs" />
+    <Compile Include="Almacen_ENT\Tablas\OITW_E.cs" />
+    <Compile Include="Almacen_ENT\Tablas\OMRC_E.cs" />
+    <Compile Include="Almacen_ENT\Tablas\OWTQ_E.cs" />
+    <Compile Include="Almacen_ENT\Tablas\OWTR_E.cs" />
+    <Compile Include="AreaFc_E.cs" />
+    <Compile Include="Area_E.cs" />
+    <Compile Include="AtencionCliente_ENT\ReportesSql\Rpt_OSAT_E.cs" />
+    <Compile Include="AtencionCliente_ENT\TablasSql\OSAT_E.cs" />
+    <Compile Include="AtencionCliente_ENT\TablasSql\SAT1_E.cs" />
+    <Compile Include="Caja_ENT\OPP_E.cs" />
+    <Compile Include="Compras_ENT\ContratoRebate_E.cs" />
+    <Compile Include="Compras_ENT\ProveedorListaNegra_E.cs" />
+    <Compile Include="Compras_ENT\Reportes\BaseResumenRebate_E.cs" />
+    <Compile Include="Compras_ENT\Reportes\CuadreContrato_E.cs" />
+    <Compile Include="Compras_ENT\DetContratoRebate_E.cs" />
+    <Compile Include="Compras_ENT\DetLineaProduccion_E.cs" />
+    <Compile Include="Compras_ENT\EspDetContratoRebate2_E.cs" />
+    <Compile Include="Compras_ENT\EspDetContratoRebate3_E.cs" />
+    <Compile Include="Compras_ENT\LineaProduccion_E.cs" />
+    <Compile Include="Compras_ENT\Reportes\DetCuadreContrato_E.cs" />
+    <Compile Include="Compras_ENT\Reportes\EspCuadreContrato_E.cs" />
+    <Compile Include="Compras_ENT\Reportes\ResumenRebate_E.cs" />
+    <Compile Include="Compras_ENT\Reportes\SubTranCuadreContrato.cs" />
+    <Compile Include="Compras_ENT\Reportes\TranCuadreContrato_E.cs" />
+    <Compile Include="Compras_ENT\Tablas\PCH1_E.cs" />
+    <Compile Include="Compras_ENT\Tablas\SQL_OPDN_E.cs" />
+    <Compile Include="Compras_ENT\Tablas\OPCH_E.cs" />
+    <Compile Include="Compras_ENT\Tablas\OPDN_E.cs" />
+    <Compile Include="DireccionTecnica_ENT\Reportes\BalanceControlados\RptBalanceControladosConsolidado_E.cs" />
+    <Compile Include="DireccionTecnica_ENT\Reportes\BalanceControlados\RptBalanceControladosEgreso_E.cs" />
+    <Compile Include="DireccionTecnica_ENT\Reportes\BalanceControlados\RptBalanceControladosIngreso_E_E.cs" />
+    <Compile Include="DireccionTecnica_ENT\Reportes\BalanceControlados\RptBalanceControladosLibroControlados_E.cs" />
+    <Compile Include="DireccionTecnica_ENT\Reportes\RptKardexAlmacenes_E.cs" />
+    <Compile Include="DireccionTecnica_ENT\TablasSql\OORS_E.cs" />
+    <Compile Include="DireccionTecnica_ENT\TablasSql\SQL_OWTR_E.cs" />
+    <Compile Include="General_ENT\TablasSql\COUR_E.cs" />
+    <Compile Include="General_ENT\TablasSql\DNLAB_E.cs" />
+    <Compile Include="General_ENT\TablasSql\Firmas_E.cs" />
+    <Compile Include="General_ENT\TablasSql\OCHO_E.cs" />
+    <Compile Include="General_ENT\TablasSql\OUR1_E.cs" />
+    <Compile Include="General_ENT\TablasSql\OUR2_E.cs" />
+    <Compile Include="General_ENT\TablasSql\OVEH_E.cs" />
+    <Compile Include="General_ENT\TablasSql\OWHS_E.cs" />
+    <Compile Include="General_ENT\TablasSql\UBIG_E.cs" />
+    <Compile Include="General_ENT\Tablas\COB_LUG_ENTREGA_E.cs" />
+    <Compile Include="General_ENT\Tablas\COB_SALDO_E.cs" />
+    <Compile Include="General_ENT\Tablas\OSLP_E.cs" />
+    <Compile Include="General_ENT\Tablas\OWHS_E.cs" />
+    <Compile Include="Operaciones_ENT\TablasSql\OTEP_E.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReportesDigemid_ENT\ActaDespachoTs_E.cs" />
+    <Compile Include="ReportesDigemid_ENT\ActaDespachoVt_E.cs" />
+    <Compile Include="ReportesDigemid_ENT\ActaRecepcionEm_E.cs" />
+    <Compile Include="ReportesDigemid_ENT\ActaRecepcionTs_E.cs" />
+    <Compile Include="ReportesDigemid_ENT\ActaRecepcionVt_E.cs" />
+    <Compile Include="ReportesDigemid_ENT\Formularios\FrmAuditoriaStocks_E.cs" />
+    <Compile Include="ReportesDigemid_ENT\Formularios\FrmBalanceControlados_E.cs" />
+    <Compile Include="ReportesDigemid_ENT\Formularios\FrmKardex_E.cs" />
+    <Compile Include="ReportesDigemid_ENT\Formularios\FrmOperacionesLotes_E.cs" />
+    <Compile Include="ReportesDigemid_ENT\OrdenDeVenta_E.cs" />
+    <Compile Include="ReportesDigemid_ENT\OrganolepticoEm_E.cs" />
+    <Compile Include="ReportesDigemid_ENT\OrganolepticoTs_E.cs" />
+    <Compile Include="ReportesDigemid_ENT\OrganolepticoVt_E.cs" />
+    <Compile Include="ReportesDigemid_ENT\Reportes\AuditoriaStocks_E.cs" />
+    <Compile Include="ReportesDigemid_ENT\Reportes\ComprobanteDePago_E.cs" />
+    <Compile Include="ReportesDigemid_ENT\Reportes\NotaCreditoVentaArticulo_E.cs" />
+    <Compile Include="ReportesDigemid_ENT\Reportes\OperacionesLotes_E.cs" />
+    <Compile Include="ReportesDigemid_ENT\Reportes\PreciosOpm_E.cs" />
+    <Compile Include="ReportesDigemid_ENT\Reportes\RptRegistroSanitario_E.cs" />
+    <Compile Include="ReportesDigemid_ENT\Reportes\VentasArtLote_E.cs" />
+    <Compile Include="Rutas_ENT\ReportesSql\RptPesaje_E.cs" />
+    <Compile Include="Rutas_ENT\ReportesSql\Rpt_TempHumed_E.cs" />
+    <Compile Include="Rutas_ENT\TablasSql\RRU01_E.cs" />
+    <Compile Include="Rutas_ENT\TablasSql\RRU0_E.cs" />
+    <Compile Include="Rutas_ENT\Formularios\FrmHojasRutaFormatoA_E.cs" />
+    <Compile Include="Rutas_ENT\TablasSql\ORRU_E.cs" />
+    <Compile Include="Rutas_ENT\ReportesSql\Rpt_TicketVenta_E.cs" />
+    <Compile Include="Rutas_ENT\TablasSql\RRU11_E.cs" />
+    <Compile Include="Rutas_ENT\TablasSql\RRU1_E.cs" />
+    <Compile Include="Rutas_ENT\TablasSql\TEMP_RRU01_E.cs" />
+    <Compile Include="Seguridad_ENT\OOPE_E.cs" />
+    <Compile Include="Seguridad_ENT\Orol_E.cs" />
+    <Compile Include="Seguridad_ENT\Rol1_E.cs" />
+    <Compile Include="Seguridad_ENT\USR2_E.cs" />
+    <Compile Include="SocioNegocios_ENT\Tablas\OCPR_E.cs" />
+    <Compile Include="SocioNegocios_ENT\Tablas\OCRD_E.cs" />
+    <Compile Include="Seguridad_ENT\Usuario_E.cs" />
+    <Compile Include="TI_Sistemas_ENT\OTSO_E.cs" />
+    <Compile Include="Ventas_ENT\ReportesHana\VentCliDias_E.cs" />
+    <Compile Include="Ventas_ENT\ReportesHana\VentSkuCliDias_E.cs" />
+    <Compile Include="Ventas_ENT\ReportesHana\VentSkuDias_E.cs" />
+    <Compile Include="Ventas_ENT\ReportesHana\VentVendDias_E.cs" />
+    <Compile Include="Ventas_ENT\Reportes\RptAnalisisTickets_E.cs" />
+    <Compile Include="Ventas_ENT\Reportes\RptErroresPicking_E.cs" />
+    <Compile Include="Ventas_ENT\Reportes\RptTicketACuadrar_E.cs" />
+    <Compile Include="Ventas_ENT\TablasSql\CC_OTC_E.cs" />
+    <Compile Include="Ventas_ENT\TablasSql\OTC_E.cs" />
+    <Compile Include="Ventas_ENT\TablasSql\EP1_E.cs" />
+    <Compile Include="Ventas_ENT\TablasSql\LDS1_E.cs" />
+    <Compile Include="Ventas_ENT\TablasSql\CC_ORTV_E.cs" />
+    <Compile Include="Ventas_ENT\TablasSql\OEP_E.cs" />
+    <Compile Include="Ventas_ENT\TablasSql\ORDR_E.cs" />
+    <Compile Include="Ventas_ENT\TablasSql\RDR1_E.cs" />
+    <Compile Include="Ventas_ENT\TablasSql\RTV13_E.cs" />
+    <Compile Include="Ventas_ENT\TablasSql\RTV12_E.cs" />
+    <Compile Include="Ventas_ENT\TablasSql\RTV11_E.cs" />
+    <Compile Include="Ventas_ENT\TablasSql\RTV2_E.cs" />
+    <Compile Include="Ventas_ENT\TablasSql\RTV1_E.cs" />
+    <Compile Include="Ventas_ENT\Formularios\FrmAnalisisTicket_E.cs" />
+    <Compile Include="Ventas_ENT\Formularios\FrmAnalisisVentas_E.cs" />
+    <Compile Include="Ventas_ENT\Formularios\FrmAnCtVentas_E.cs" />
+    <Compile Include="Ventas_ENT\TablasSql\OLDS_E.cs" />
+    <Compile Include="Ventas_ENT\ReportesHana\AnlVent1_E.cs" />
+    <Compile Include="Ventas_ENT\ReportesHana\AnCtVentas_E.cs" />
+    <Compile Include="Ventas_ENT\TablasSql\CLR1_E.cs" />
+    <Compile Include="Ventas_ENT\TablasSql\OCLR_E.cs" />
+    <Compile Include="Ventas_ENT\TablasSql\OREG_E.cs" />
+    <Compile Include="Ventas_ENT\TablasSql\OTRC_E.cs" />
+    <Compile Include="Ventas_ENT\TablasSql\RTV5_E.cs" />
+    <Compile Include="Ventas_ENT\TablasSql\RTV6_E.cs" />
+    <Compile Include="Ventas_ENT\TablasSql\RTV3_E.cs" />
+    <Compile Include="Ventas_ENT\TablasSql\RTV4_E.cs" />
+    <Compile Include="Ventas_ENT\TablasSql\RTV7_E.cs" />
+    <Compile Include="Ventas_ENT\TablasSql\USR1_E.cs" />
+    <Compile Include="Ventas_ENT\Tablas\NotaCreditoDebito_E.cs" />
+    <Compile Include="Ventas_ENT\Tablas\ODLN_E.cs" />
+    <Compile Include="Ventas_ENT\Tablas\OINV_E.cs" />
+    <Compile Include="Ventas_ENT\Tablas\ORDR_E.cs" />
+    <Compile Include="Ventas_ENT\Tablas\ORIN_E.cs" />
+    <Compile Include="Ventas_ENT\TablasSql\ORTV_E.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

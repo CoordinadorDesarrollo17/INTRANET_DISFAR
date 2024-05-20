@@ -1,0 +1,77 @@
+﻿@model IEnumerable<Capa_Entidad.Ventas_ENT.TablasSql.USR1_E>
+@using Capa_Entidad.Ventas_ENT.TablasSql
+@{
+    ViewBag.Title = "GestionVendedores";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    USR1_E fil = (USR1_E)ViewBag.fil;
+}
+<script>
+    function filtrar() {
+        var object = $("#frm").serialize();
+        $(location).attr('href', "/Ventas/GestionVendedores?" + object);
+    }
+</script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("ListadoTickets", "Ventas")">Listado de tickets</a></li>
+            <li class="current"><em>Gestión vendedores</em></li>
+        </ol>
+    </nav>
+</div>
+
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">Gestión Vendedores</h3></div>
+</div>
+
+
+<form name="frm" id="frm">
+    <div class="bg-dark pt-4">
+        <table class="table table-light table-sm table-hover cls-dataTable" cellspacing="0" width="100%">
+            <thead class="thead-dark">
+                <tr>
+                    <th class="text-center">Usuario</th>
+                    <th>
+                        Nombre<br />
+                        @if (fil.Nombres != null && fil.Nombres != "")
+                        {
+                            <input type="text" name="Nombres" class="form-control" onchange="filtrar();" value="@fil.Nombres" autocomplete="off" />
+                        }
+                        else
+                        { <input type="text" name="Nombres" class="form-control" onchange="filtrar();"  autocomplete="off" />}
+                    </th>
+                    <th class="text-center">
+                        Ult Per Cuota
+                    </th>
+                    <th class="text-center">
+                        Cuota
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="text-center">@item.Usuario</td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Nombres)
+                        </td>
+                        <td class="text-center">
+                            @(item.YearU + "-" + item.MonthU)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.Cuota)
+                        </td>
+                        <td class="text-center">
+                            <a href="@Url.Action( "GestionCuotas", "Ventas", new { DocEntry = item.DocEntry  } )" class = "btn btn-success"><i title="Gestionar Cuotas" class="icon icon-stack"></i> Cuotas</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</form>

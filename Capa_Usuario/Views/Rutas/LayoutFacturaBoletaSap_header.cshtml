@@ -1,0 +1,104 @@
+﻿@model IEnumerable<Capa_Entidad.ReportesDigemid_ENT.Reportes.ComprobanteDePago_E>
+
+
+@{
+    Layout = null;
+    var Cab = Model.ToList()[0];
+
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LayoutFacturaBoletaSap</title>
+    <style>
+        * {
+            font-family: 'Arial Unicode MS';
+        }
+        table {
+            /*border-collapse: collapse;*/
+            width: 100%;
+        }
+
+     
+    </style>
+
+</head>
+<body style="margin-top: 0;">
+    <div>
+        <table border="0">
+            <tr>
+                <td style="font-size: 10px; text-align: center; position: relative;">
+                    <img style="float:left" src="~/imagenes/logoventa2.jpg" width="230" height="90" /><br />
+                    www.cobefar.com.pe
+                    <!-- Imagen superpuesta en la esquina superior derecha -->
+                    <img src="~/imagenes/index/encabezado/bpa.jpg" width="55" height="50" style="position: absolute; top: 5px; right: 0;" />
+                </td>
+                <td style="text-align:left;font-size:10px; max-width:300px;">
+                    <strong>Dom. Fiscal:</strong> Cal.Carlos Pedemonte Nro. 145B Int. 2pis <br />
+                    Urb. Lotización Ex Fundo El Pino  Lima - Lima - San Luis<br />
+                    <strong>Almacén:</strong> Av. Nicolás Arriola N°2955-2963, 2do. Piso <br />
+                    Urb. Mercurio - San Luis - Lima - Lima<br />
+                    <strong>Almacén:</strong> Jr. Antonio Miroquezada N° 806 Int. 303<br />
+                    Lima - Lima - Lima<br />
+                    <strong>Almacén:</strong> Jr. Antonio Miroquezada N° 806 Int. 502<br />
+                    Lima - Lima - Lima<br />
+                    <strong>Teléfono:</strong> 428-1248<br />
+                    <strong>Email:</strong> cobefar.ventas@gmail.com
+                </td>
+                <td style="font-size:18px !important;text-align:center;">
+                    <div style="border: 2px solid green; vertical-align: top; padding: 5px; border-radius: 15px;">
+                        <div style="height:10px;"></div>
+                        R.U.C. 20600546041
+                        <div style="height:25px;"></div>
+                        @if (ViewBag.Tipo == "F")
+                        {
+                            <strong style="font-size:20px;">FACTURA ELECTRÓNICA</strong>
+                        }
+                        else
+                        {
+                            <strong style="font-size:20px">BOLETA ELECTRÓNICA</strong>
+                        }
+                        <div style="height:25px;"></div>
+                        N° @Cab.SerieDoc-@Cab.CorreDoc<div style="height:10px;"></div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <div style="width: 70%; display: inline-block; border: 2px solid green; vertical-align: top; padding: 5px; border-radius: 15px;margin-bottom:15px">
+            <table style="font-size:12px;text-align:left" border="0">
+                <tr>
+                    <td><strong>Cliente: </strong></td>
+                    <td><text>@Cab.NombreSocio</text></td>
+                </tr>
+                <tr>
+                    <td><strong>Dirección:</strong> </td>
+                    <td colspan="3" width="400px">@Cab.DirPagar</td>
+
+                </tr>
+                <tr>
+                    <td><strong>R.U.C.: </strong></td>
+                    <td colspan="3">@Cab.Ruc</td>
+
+                </tr>
+
+
+            </table>
+        </div>
+        <div style="width: 27%; display: inline-block; text-align:left;font-size:12px">
+            <br />
+            <table>
+                <tr>
+                    <td><strong>FECHA DE EMISIÓN:</strong> @Cab.Fecha</td>
+                </tr>
+                <tr><td><strong>MONEDA :</strong> Soles</td>   </tr>
+                <tr><td><strong>ALMÁCEN :</strong> @Cab.Almacen</td>   </tr>
+            </table>
+        </div>
+
+    </div>
+</body>
+</html>
+
+

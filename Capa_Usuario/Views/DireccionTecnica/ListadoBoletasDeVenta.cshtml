@@ -1,0 +1,149 @@
+﻿@model IEnumerable<Capa_Entidad.Ventas_ENT.Tablas.OINV_E>
+@using Capa_Entidad.General_ENT.Tablas
+@{
+    ViewBag.Title = "ListadoBoletasDeVenta";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    $(document).ready(function () {
+    });
+    function filtrar() {
+        var object = $("#frm").serialize();
+        $(location).attr('href', "/DireccionTecnica/ListadoBoletasDeVenta?" + object);
+    }
+</script>
+
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li class="current"><em>Listado boletas de venta</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO BOLETAS DE VENTA</h3></div>
+
+    @*<div class="d-flex pl-2 w-100 py-2">
+        <a href="@Url.Action("CalcularPdfsDescarga","DireccionTecnica", new { VistaAnterior = "ListadoBoletasDeVenta" })" class="btn btn-warning">Calcular Descarga PDFs</a>
+    </div>*@
+</div>
+
+
+<div class="bg-form-pestanas-cobefar">
+    <div class="bg-dark">
+        <form name="frm" id="frm">
+            <table class="table table-light table-sm table-hover cls-dataTable" cellspacing="0" width="100%">
+                <thead class="thead-dark">
+                    <tr>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.DocNum)
+                            <input type="text" name="DocNum" class="form-control" onchange="filtrar();" value="@if (ViewBag.Oinv.DocNum != 0) { Write(ViewBag.Oinv.DocNum); } " />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.DocDate)
+                            <input type="date" name="DocDate" class="form-control" onchange="filtrar();" style="width: 150px" value="@ViewBag.Oinv.DocDate" />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.U_BPP_FECINITRA)
+                            <input type="date" name="U_BPP_FECINITRA" class="form-control" onchange="filtrar();" style="width: 150px" value="@ViewBag.Oinv.U_BPP_FECINITRA" />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.CardName)
+                            <input type="text" name="CardName" class="form-control" onchange="filtrar();" value="@ViewBag.Oinv.CardName" />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.NumAtCard)
+                            <input type="text" name="NumAtCard" class="form-control" onchange="filtrar();" value="@ViewBag.Oinv.NumAtCard" />
+                        </th>
+                        <th class="text-center">
+                            GuíaTraslado
+                            <input type="text" name="U_COB_CORDOC" class="form-control" onchange="filtrar();" value="@ViewBag.Oinv.U_COB_CORDOC" />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.DocTotal)
+                            <input type="text" name="DocTotal" class="form-control" onchange="filtrar();" value="@ViewBag.Oinv.DocTotal" />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.U_SYP_STATUS)
+                            <input type="text" name="U_SYP_STATUS" class="form-control" onchange="filtrar();" value="@ViewBag.Oinv.U_SYP_STATUS" />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.U_COB_LUGAREN)
+                            <select name="U_COB_LUGAREN" class="form-control" onchange="filtrar();">
+                                <option value="">Seleccione</option>
+                                @foreach (COB_LUG_ENTREGA_E c in ViewBag.ListaLugarEntregas)
+                                {
+                                    if (ViewBag.Oinv.U_COB_LUGAREN == c.Code)
+                                    {
+                                        <option value="@c.Code" selected>@c.Name</option>
+
+                                    }
+                                    else
+                                    {
+                                        <option value="@c.Code">@c.Name</option>
+                                    }
+                                }
+                            </select>
+                        </th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr id="fila">
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.DocNum)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.DocDate)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.U_BPP_FECINITRA)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.CardName)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.NumAtCard)
+                            </td>
+                            <td class="text-center">
+                                @item.U_COB_TIPODOC-@item.U_COB_SERIE-@item.U_COB_CORDOC
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.DocTotal)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.U_SYP_STATUS)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.U_COB_LUGAREN)
+                            </td>
+                            <td class="text-center">
+                                <a href="@Url.Action("ActaRecepcionVt", "DireccionTecnica", new { DocEntry = item.DocEntry })" target="_blank" class="btn btn-sm btn-primary">A. Recepción</a>
+                            </td>
+                            <td class="text-center">
+                                <a href="@Url.Action("ActaDespachoVt", "DireccionTecnica", new { DocEntry = item.DocEntry })" target="_blank" class="btn btn-sm btn-success">A. Despacho</a>
+                            </td>
+                            <td class="text-center">
+                                <a href="@Url.Action("OrganolepticoVt", "DireccionTecnica", new { DocEntry = item.DocEntry })" target="_blank" class="btn btn-sm btn-dark">Organoleptico</a>
+                            </td>
+                            <td class="text-center">
+                                <a href="@Url.Action("ComprobanteDePago", "DireccionTecnica", new { DocEntry = item.DocEntry, Tipo = "B" })" target="_blank" class="mx-2" title="Ver Documentos"><i class="icon-folder text-warning"></i></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+
+            </table>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,22 @@
+﻿
+@{
+    Layout = null;
+}
+
+@using ReportViewerForMvc;
+@using Microsoft.Reporting.WebForms
+<div class="mt-4 mb-4">
+    <h3 class="text-cobefar font-weight-bold ml-3">REPORTE</h3>
+
+    @if (ViewBag.Mensaje == "")
+    {
+        <div style="width: 800px; height: 500px;">@Html.ReportViewer((ReportViewer)ViewBag.REPORTE, new { @style = "width: 800px; height: 500px;" })</div>
+    }
+
+</div>
+
+<script>
+    if ('@ViewBag.Mensaje' != "") {
+        Swal.fire('@ViewBag.Mensaje');
+    }
+</script>

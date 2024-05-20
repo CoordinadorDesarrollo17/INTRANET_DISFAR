@@ -1,0 +1,17 @@
+﻿
+@{
+    ViewBag.Title = "Reportes";
+    Layout = null;
+}
+<link href="~/Content/bootstrap3.min.css" rel="stylesheet" type="text/css" />
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+<script src="~/Scripts/bootstrap3.min.js"></script>
+
+<div id="contenedor" class="w-100 h-100 mx-auto pt-4 ">
+    <h2>Reporte Control de Temperatura y Humedad</h2>
+
+    @using ReportViewerForMvc;
+    @using Microsoft.Reporting.WebForms
+    @Html.ReportViewer((ReportViewer)ViewBag.REPORTE)
+</div>
+

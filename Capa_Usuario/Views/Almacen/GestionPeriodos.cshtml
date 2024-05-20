@@ -1,0 +1,138 @@
+﻿@model IEnumerable<Capa_Entidad.Almacen_ENT.TablasSql.OIPE_E>
+@using Capa_Entidad.Almacen_ENT.TablasSql
+@{
+    ViewBag.Title = "GestionPeriodos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    OIPE_E f = (OIPE_E)ViewBag.Oipe;
+}
+
+<script>
+    $(document).ready(function () {
+    });
+    function filtrar() {
+        var object = $("#frm").serialize();
+        $(location).attr('href', "/Almacen/GestionPeriodos?" + object);
+    }
+</script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="/Index/Sesion">Inicio</a></li>
+            <li><a href="@Url.Action("ContabilizacionInventario", "Almacen")">Módulo contabilización inventario</a></li>
+            <li class="current"><em>Gestión de periodos</em></li>
+        </ol>
+    </nav>
+</div>
+
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">GESTIÓN DE PERIODOS</h3></div>
+
+    <div class="d-flex pl-2 w-100 py-2">
+
+        <div class="mx-2">
+            <a class="btn btn-success" href="@Url.Action("NuevoPeriodo", "Almacen")"><i class="icon icon-plus"></i> Nuevo Periodo</a>
+        </div>
+
+    </div>
+</div>
+
+@if (@OIPE_E.PeriodoSeleccionado != null)
+{
+<div class="alert alert-danger mb-0" role="alert">
+    @("Periodo Seleccionado: " + OIPE_E.PeriodoSeleccionado.Descripcion + " ---- Almacenes: " + OIPE_E.PeriodoSeleccionado.enlistarDetAlmacenes())
+</div>
+}
+
+
+<div class="bg-dark pt-4">
+    <form name="frm" id="frm">
+        <table class="table table-light table-sm table-hover cls-dataTable" cellspacing="0" width="100%">
+            <thead class="thead-dark">
+                <tr>
+                    <th class="text-center">
+                        N#<br />
+                        <input type="text" name="DocEntry" class="form-control" onchange="filtrar();" value="@f.DocEntry" />
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Descripcion)
+                        <input type="text" name="Descripcion" class="form-control" onchange="filtrar();" value="@f.Descripcion" />
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.FecIni)
+                        <input type="date" name="FecIni" class="form-control" onchange="filtrar();" value="@f.FecIni" />
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.FecFin)
+                        <input type="date" name="FecFin" class="form-control" onchange="filtrar();" value="@f.FecFin" />
+                    </th>
+                    <th>Almacenes</th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.FechaRegistro)
+                        <input type="date" name="FechaRegistro" class="form-control" onchange="filtrar();" value="@f.FechaRegistro" />
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Estado)
+                        <select id="Estado" name="Estado" onchange="filtrar();" class="form-control">
+                            <option value="">Seleccione</option>
+                            <option value="Abierto" @if (ViewBag.Oipe.Estado == "Abierto") { Write("selected"); }>Abierto</option>
+                            <option value="Cerrado" @if (ViewBag.Oipe.Estado == "Cerrado") { Write("selected"); }>Cerrado</option>
+                        </select>
+                    </th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr id="fila">
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.DocEntry)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.Descripcion)
+                        </td>
+                        <td class="text-center">
+                            @Convert.ToString(string.Format("{0:dd/MM/yyyy}", item.FecIni))
+                        </td>
+                        <td class="text-center">
+                            @Convert.ToString(string.Format("{0:dd/MM/yyyy}", item.FecFin))
+                        </td>
+                        <td class="text-center">
+                            @item.enlistarDetAlmacenes()
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.FechaRegistro)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.Estado)
+                        </td>
+
+                        <td class="text-center">
+                            <a href="@Url.Action("SeleccionarPeriodo", "Almacen", new { id = item.DocEntry })" class="btn btn-sm btn-primary mx-1">Seleccionar</a>
+                        </td>
+                        <td class="text-center">
+                            <a href="@Url.Action("EditarPeriodo", "Almacen", new { id = item.DocEntry })" class=" mx-1" title="Editar Periodo"><i class="icon icon-pencil text-purple"></i></a>
+                        </td>
+                        <td class="text-center">
+                            <a href="@Url.Action("CerrarPeriodo", "Almacen", new { id = item.DocEntry })" class=" mx-1" title="Cerrar Periodo"><i class="icon icon-cross text-danger"></i></a>
+                        </td>
+                        <td class="text-center">
+                            <a href="@Url.Action("CargarDatosSap", "Almacen", new { id = item.DocEntry })" class="btn btn-sm btn-warning mx-1"><i class="icon icon-database"></i> SAP</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </form>
+</div>
+
+<script>
+    if ('@ViewBag.mensaje' !="") {
+        swal.fire("@ViewBag.mensaje", "Presione el boton para continuar", "success");
+    }
+</script>

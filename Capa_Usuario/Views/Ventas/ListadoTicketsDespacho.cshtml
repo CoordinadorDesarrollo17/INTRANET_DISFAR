@@ -1,0 +1,549 @@
+﻿@model IEnumerable<Capa_Entidad.Ventas_ENT.TablasSql.ORTV_E>
+@using Capa_Entidad.Ventas_ENT.TablasSql
+
+@{
+    ViewBag.Title = "ListadoTicketsDespacho";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    bool verBtnPesar = false;
+    ORTV_E e = (ORTV_E)ViewBag.Ortv;
+    String almacenUsuario = (String)ViewBag.almacenUsuario;
+    int idRolUsuario = (int)ViewBag.idRolUsuario;
+
+    String bgEstadoFacturacion = "bg-cobefar text-white";
+
+    if (e.EstadoFacturacion != "" && e.EstadoFacturacion != null)
+    {
+        bgEstadoFacturacion = "bg-warning";
+    }
+
+    /*
+     * Se mostrará el botón Pesar para los usuarios con idRol = 1
+     * Se mostrará el botón Pesar para los usuarios que tenga el WhsCode (almacén) vacíos o "03" (Arriola)
+     */
+    if (String.IsNullOrEmpty(almacenUsuario) || almacenUsuario == "03" || idRolUsuario == 1)
+    {
+        verBtnPesar = true;
+    }
+}
+
+<script>
+    $(document).ready(function () {
+
+    });
+    function filtrar() {
+        var object = $("#frm").serialize();
+        $(location).attr('href', "/Ventas/ListadoTicketsDespacho?" + object);
+    }
+    function gestionarEntregadoMasivo(entregadoConRegalo) {
+        let arrMensajes = [], arrDocNum = [], arrDocNumRegalos = [], mensajeModal = '', mostrarModal = false;
+        $.ajax({
+            url: '/Ventas/gestionarEntregadoMasivo',
+            data: $('#frm').serialize() + "&entregadoConRegalo=" + entregadoConRegalo,
+            type: 'POST',
+            content: 'json',
+            success: function (data) {
+                for (let indice in data) {
+                    mostrarModal = false;
+
+                    // Si el Nro de Ticket tiene regalo
+                    if (data[indice].RegCant >= 1 && entregadoConRegalo != 1) {
+                        arrDocNumRegalos.push(data[indice].DocNum);
+                        mensajeModal = 'Los siguientes Tickets cuentan con regalo a entregar:';
+                        mostrarModal = true;
+                    } else if (data[indice].Estado == 'ENTREGADO') {
+                        arrDocNum.push(data[indice].DocNum);
+                        mensajeModal = 'Los siguientes Tickets ya fueron entregados:';
+                        mostrarModal = true;
+                    }
+                }
+
+                if (mostrarModal) {
+                    let listaDocNum = (arrDocNumRegalos.length > 0) ? arrDocNumRegalos.join(', ') : arrDocNum.join(', ');
+                    Swal.fire({
+                        allowOutsideClick: false,
+                        title: '<strong>¡ATENCIÓN!</strong>',
+                        icon: 'warning',
+                        html:
+                            mensajeModal + ' <b>' + listaDocNum +
+                            '</b>.<br>Por favor verificar Tickets: ' +
+                            '<button type="button" onclick="verTicketsNoEntregados(' + "[" + listaDocNum + "]" + ')" class="btn btn-info"><i class="icon-search"></i> Ver Tickets </button>',
+                        showCloseButton: false,
+                        showCancelButton: true,
+                        cancelButtonText: '<i class="icon-cross"></i> Cancelar',
+                        showConfirmButton: (arrDocNumRegalos.length > 0 ? false : true),
+                        focusConfirm: false,
+                        confirmButtonColor: '#28a745',
+                        confirmButtonText:
+                            '<i class="icon-checkmark"></i> Entendido!',
+                        confirmButtonAriaLabel: 'Entendido!'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.reload();
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        allowOutsideClick: false,
+                        title: '<strong>ÉXITO !</strong>',
+                        icon: 'success',
+                        html: 'Los Nros de Tickets seleccionados han sido entregados satisfactoriamente.'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.reload();
+                        }
+                    });
+                }
+            }
+        });
+    }
+    function validarCardCode() {
+        let arrCardCode = [], cardCode = '';
+        $('.cls-ticketmasivo').each(function (key, obj) {
+            if (obj.checked) {
+                cardCode = $(`#${obj.id}`).data('cardcode');
+                //console.log(arrCardCode.includes(cardCode));
+                if (arrCardCode.length === 0) {
+                    arrCardCode.push(cardCode);
+                    $('#btn_entregadomasivo').prop('disabled', false);
+                } else if (!arrCardCode.includes(cardCode)) {
+                    //console.log(arrCardCode.includes(cardCode));
+                    $('#btn_entregadomasivo').prop('disabled', true);
+                    Swal.fire(
+                        'VERIFICAR SELECCIÓN',
+                        'Por favor seleccionar el mismo cliente de búsqueda.',
+                        'warning'
+                    )
+                }
+            }
+
+            // Si el [] no tiene ningún elemento
+            if (arrCardCode.length === 0) {
+                $('#btn_entregadomasivo').prop('disabled', true);
+            }
+        });
+    }
+    function verTicketsNoEntregados(arrTickets) {
+        $('.modal').css('pointer-events', 'none');
+        $.ajax({
+            url: '/Ventas/verTicketsNoEntregados',
+            data: { arrTickets: arrTickets },
+            type: 'POST',
+            success: function (data) {
+                $('.swal2-close').click();
+                $('#btn_activarModal').click();
+
+                let num = 1, regCate = '-', regTipo = '', regEstado = '-', OpEntrega = '', tieneRegalos = false, contadorRegEstado = 0;
+                contenido = `<table class="table table-hover">
+                                    <thead class="bg-dark">
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Nro Ticket</th>
+                                            <th>Cliente</th>
+                                            <th>Estado Pedido</th>
+                                            <th>Entregado por</th>
+                                            <th>Cant. Regalo</th>
+                                            <th>Desc. Regalo</th>
+                                            <th>Estado Regalo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>`;
+                for (let i in data) {
+                    opEntrega = (data[i].Operario ? data[i].Operario : '');
+                    if (data[i].Det5[i].RegCant > 0) {
+                        tieneRegalos = true;
+                        regCate = (data[i].Det5[i].RegCate && data[i].Det5[i].RegCate != 'RegTipo' ? data[i].Det5[i].RegCate + ': ' : '-');
+                        regTipo = (data[i].Det5[i].RegTipo ? data[i].Det5[i].RegTipo : '');
+
+                        if (data[i].Det5[i].RegEstado) {
+                            regEstado = data[i].Det5[i].RegEstado;
+                        } else {
+                            regEstado = 'Pendiente';
+                            ++contadorRegEstado;
+                        }
+
+                    } else {
+                        tieneRegalos = false;
+                    }
+
+                    contenido += `<tr>
+                                            <td>${num}</td>
+                                            <td>${data[i].DocNum}</td>
+                                            <td>${data[i].CardName}</td>
+                                            <td class="font-weight-bold">${data[i].Estado}</td>
+                                            <td>${opEntrega}</td>
+                                            <td>${data[i].Det5[i].RegCant}</td>
+                                            <td>${regCate}${regTipo}</td>
+                                            <td>${regEstado}</td>
+                                        </tr>`;
+                    ++num;
+                }
+                contenido += `</tbody>
+                                </table>
+                                <div class="text-right">`;
+                if (tieneRegalos == true && contadorRegEstado >= 1) {
+                    contenido += `<button type="button" class="btn btn-secondary" title="Cancelar" data-dismiss="modal"><i class="icon-cross"></i> Cancelar</button>
+                                      <button type="button" class="btn btn-success" title="Entregar Regalos" onclick="gestionarEntregadoMasivo(1)"><i class="icon-gift"></i> Entregar Regalos</button>`;
+                } else {
+                    contenido += `<button type="button" class="btn btn-secondary" title="Volver a lista" onclick="(function(){ window.location.reload();})();return false;""><i class="icon-undo2"></i> Volver a lista</button>`;
+                }
+                contenido += `</div>`;
+                $('#div_bodyModal').html(contenido);
+            }
+        });
+    }
+</script>
+
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li class="current"><em>Listado tickets de despacho</em></li>
+        </ol>
+    </nav>
+</div>
+
+<form name="frm" id="frm">
+    <div class="bg-dark border-cabecera-seccion pb-2">
+        <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO TICKETS DE DESPACHO</h3></div>
+
+        <div class="d-flex pl-2 w-100 py-2">
+
+            <div class="mx-2">
+                <button type="button" id="btn_entregadomasivo" class="btn btn-success" onclick="gestionarEntregadoMasivo(0)" disabled><i class="icon icon-cloud-upload"></i> Entregado Masivo</button>
+            </div>
+
+            <div class="mx-2">
+                <select name="EstadoFacturacion" id="EstadoFacturacion" class="form-control  @bgEstadoFacturacion" onchange="filtrar();">
+                    <option value="">EstadoFacturacion</option>
+                    <option value="PENDIENTE" @{ if (e != null && e.EstadoFacturacion == "PENDIENTE") { Write("selected"); } }>PENDIENTE</option>
+                    <option value="FACTURADO" @{ if (e != null && e.EstadoFacturacion == "FACTURADO") { Write("selected"); }}>FACTURADO</option>
+                </select>
+            </div>
+
+            <div class="d-flex mx-2">
+                @if (e != null && e.TiempoEntrega != null)
+                {
+                    //var fechaConvert = e.TiempoEntrega.ToString().Substring(0, 10).Split('/');
+                    // var fechaFormateada = $"{fechaConvert[2]}-{fechaConvert[1]}-{fechaConvert[0]}";
+                    <input type="text" name="TiempoEntrega" class="form-control cls-dateTimeDespacho border-success" value="@e.TiempoEntrega" style="width: 200px" autocomplete="off" />
+                }
+                else
+                {
+                    <input type="text" name="TiempoEntrega" class="form-control cls-dateTimeDespacho border-success" style="width: 200px" autocomplete="off" />
+                }
+
+                <button class="btn btn-cobefar">Filtrar Tiempo Entrega</button>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="bg-dark pt-4">
+
+        <table class="table table-light table-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
+            <thead class="thead-dark">
+                <tr>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.DocNum)
+                        <br />
+                        @if (e != null && e.DocNum > 0)
+                        {
+                            <input type="text" name="DocNum" class="form-control input_filtro-table" style="width: 110px" onchange="filtrar();" value="@e.DocNum" />
+                        }
+                        else
+                        { <input type="text" name="DocNum" class="form-control input_filtro-table" style="width: 110px" onchange="filtrar();" />}
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.FechaSapTicket)
+                        <br />
+                        @if (e != null && e.FechaSapTicket != null)
+                        {
+                            <input type="date" name="FechaSapTicket" class="form-control input_date-filtro-table" style="width: 100px" value="@e.FechaSapTicket" onchange="filtrar();" />
+                        }
+                        else
+                        { <input type="date" name="FechaSapTicket" class="form-control input_date-filtro-table" style="width: 100px" onchange="filtrar();" />}
+
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.CardName)
+                        <br />
+                        @if (e != null && e.CardName != null)
+                        {
+                            <input type="text" name="CardName" class="form-control input_filtro-table" style="width: 200px" onchange="filtrar();" value="@e.CardName" />
+                        }
+                        else
+                        { <input type="text" name="CardName" class="form-control input_filtro-table" style="width: 200px" onchange="filtrar();" />}
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.Vendedor)
+                        <br />
+                        @if (e != null && e.Vendedor != null)
+                        {
+                            <input type="text" name="Vendedor" class="form-control input_filtro-table" onchange="filtrar();" value="@e.Vendedor" />
+                        }
+                        else
+                        { <input type="text" name="Vendedor" class="form-control input_filtro-table" onchange="filtrar();" />}
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.MontoFinal)
+                        <br />
+                        @if (e != null && e.MontoFinal > 0)
+                        {
+                            <input type="text" name="MontoFinal" class="form-control input_filtro-table" onchange="filtrar();" value="@e.MontoFinal" />
+                        }
+                        else
+                        { <input type="text" name="MontoFinal" class="form-control input_filtro-table" onchange="filtrar();" />}
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.LugarDestino)
+                        <br />
+                        <select name="LugarDestino" id="LugarDestino" class="form-control select_filtro-table" style="width: 100px" onchange="filtrar();">
+                            <option value=""></option>
+                            <option value="Arriola" @{ if (e != null && e.LugarDestino == "Arriola") { Write("selected"); } }>Arriola</option>
+                            <option value="Agencia" @{ if (e != null && e.LugarDestino == "Agencia") { Write("selected"); } }>Agencia</option>
+                            <option value="Domicilio" @{ if (e != null && e.LugarDestino == "Domicilio") { Write("selected"); } }>Domicilio</option>
+                            <option value="Centro" @{ if (e != null && e.LugarDestino == "Centro") { Write("selected"); } }>Centro</option>
+                            <option value="Agencia Courier" @{ if (e != null && e.LugarDestino == "Agencia Courier") { Write("selected"); } }>Agencia Courier</option>
+                        </select>
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.Estado)
+                        <br />
+                        <select name="Estado" id="Estado" class="form-control select_filtro-table" style="width:100px" onchange="filtrar();">
+                            <option value=""></option>
+                            <option value="ABIERTO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ABIERTO") { Write("selected"); } }>ABIERTO</option>
+                            <option value="RECIBIDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "RECIBIDO") { Write("selected"); } }>RECIBIDO</option>
+                            <option value="PICKEANDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "PICKEANDO") { Write("selected"); } }>PICKEANDO</option>
+                            <option value="VERIFICANDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "VERIFICANDO") { Write("selected"); } }>VERIFICANDO</option>
+                            <option value="EMPACANDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "EMPACANDO") { Write("selected"); } }>EMPACANDO</option>
+                            <option value="EMPACADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "EMPACADO") { Write("selected"); } }>EMPACADO</option>
+                            <option value="PESADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "PESADO") { Write("selected"); } }>PESADO</option>
+                            <option value="PREENVIO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "PREENVIO") { Write("selected"); } }>PREENVIO</option>
+                            <option value="ENVIADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ENVIADO") { Write("selected"); } }>ENVIADO</option>
+                            <option value="ENTREGADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ENTREGADO") { Write("selected"); } }>ENTREGADO</option>
+                            <option value="ANULADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ANULADO") { Write("selected"); } }>ANULADO</option>
+                            <option value="CANCELADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "CANCELADO") { Write("selected"); } }>CANCELADO</option>
+                        </select>
+
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.EstadoPago)
+                        <br />
+                        <select name="EstadoPago" id="EstadoPago" class="form-control select_filtro-table" style="width: 90px" onchange="filtrar();">
+                            <option value=""></option>
+                            <option value="PENDIENTE" @{ if (e != null && e.EstadoPago == "PENDIENTE") { Write("selected"); } }>PENDIENTE</option>
+                            <option value="PAGADO" @{ if (e != null && e.EstadoPago == "PAGADO") { Write("selected"); }}>PAGADO</option>
+                        </select>
+                    </th>
+                    <th class="text-center">
+                        TipoVenta
+                        <select name="TipoVenta" id="TipoVenta" class="form-control select_filtro-table" style="width: 90px" onchange="filtrar();">
+                            <option value=""></option>
+                            <option value="Normal" @{ if (e != null && e.TipoVenta == "Normal") { Write("selected"); } }>Normal</option>
+                            <option value="Credito" @{ if (e != null && e.TipoVenta == "Credito") { Write("selected"); } }>Credito</option>
+                            <option value="ContraEntrega" @{ if (e != null && e.TipoVenta == "ContraEntrega") { Write("selected"); } }>ContraEntrega</option>
+                        </select>
+                    </th>
+                    <th class="text-center">
+                        Tiempo Entrega
+                    </th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Where(x => x.Estado != "SEPARADO"))
+                {
+                    bool verCheck = false, condEntregar = false, condPesar = false, condAnularPesar = false, condAnularEntrega = false;
+                    String styleEstado = "", claseDocNum = (ViewBag.DocNum == item.DocNum ? "d-flex bg-success" : "d-flex align-self-center form-inline");
+
+                    // TipoVenta: normal && EstadoPago: pagado
+                    // TipoVenta: Credito && EstadoPago: pendiente
+
+
+                    if (item.Estado.Equals("ENVIADO"))
+                    {
+                        if ((item.TipoVenta == "Normal" && item.EstadoPago == "PAGADO")
+                          || (item.TipoVenta == "Credito" && (item.EstadoPago == "PENDIENTE" || item.EstadoPago == "PAGADO")) || (item.TipoVenta == "ContraEntrega")
+                          )
+                        {
+                            condEntregar = true;
+                        }
+                    }
+
+                    if (item.Estado.Equals("EMPACADO"))
+                    {
+                        if (item.LugarDestino.Equals("Agencia Courier") || item.LugarDestino.Equals("Agencia"))
+                        {
+                            condPesar = true;
+                        }
+                        else
+                        {
+                            condEntregar = true;
+                        }
+                    }
+                    else if (item.Estado.Equals("ENTREGADO"))
+                    {
+                        condAnularEntrega = true;
+                        styleEstado = "background-color: #96FF33; font-weight: bold";
+                    }
+                    else if (item.Estado.Equals("ENVIADO"))
+                    {
+                        styleEstado = "background-color: #F2F526; font-weight: bold;";
+                    }
+
+
+                    if (item.Estado.Equals("PESADO") && (item.LugarDestino.Equals("Agencia Courier") || item.LugarDestino.Equals("Agencia")))
+                    {
+                        condAnularPesar = true;
+                        condEntregar = true;
+                    }
+
+
+
+                    if (item.Det5 != null && item.Det5.Count >= 1 && item.Estado.Equals("ENTREGADO"))
+                    {
+                        if (item.Det5[0].RegEstado != "PENDIENTE")
+                        {
+                            condAnularEntrega = true;
+                        }
+                    }
+
+
+                    if (
+                        (item.LugarDestino == "Arriola" || item.LugarDestino == "Centro") &&
+                        item.EstadoFacturacion == "FACTURADO" && item.Estado == "ENVIADO" &&
+                        e.CardName != null && (condEntregar == true)
+                        )
+                    {
+                        verCheck = true;
+                    }
+                    else
+                    {
+                        claseDocNum += " ml-3";
+                    }
+
+
+                    <tr id="fila">
+                        <td style="width: 120px">
+                            <div class="@claseDocNum">
+                                @if (verCheck == true)
+                                {
+                                    <input type="checkbox" name="ticketsMasivo[]" id="chk_@item.DocNum" class="form-check mr-1 cls-ticketmasivo" value="@item.DocEntry" data-cardcode="@item.CardCode" onclick="validarCardCode()" />
+
+                                }
+                                <label for="chk_@item.DocNum" class="text-dark"> @Html.DisplayFor(modelItem => item.DocNum)</label>
+
+                            </div>
+                        </td>
+                        <td class="text-center">@Html.DisplayFor(modelItem => item.FechaSapTicket)</td>
+                        <td class="text-left">@Html.DisplayFor(modelItem => item.CardName)</td>
+                        <td class="text-center">@Html.DisplayFor(modelItem => item.Vendedor)</td>
+                        <td class="text-center">@Html.DisplayFor(modelItem => item.MontoFinal)</td>
+                        <td class="text-center">@Html.DisplayFor(modelItem => item.LugarDestino)</td>
+                        <td class="text-center" style="@styleEstado">@Html.DisplayFor(modelItem => item.Estado)</td>
+                        <td class="text-center">@Html.DisplayFor(modelItem => item.EstadoPago)</td>
+                        <td class="text-center">@Html.DisplayFor(modelItem => item.TipoVenta)</td>
+                        <td class="text-center">@item.TiempoEntrega.ToString()</td>
+                        <td>
+                            @if (condPesar == true && verBtnPesar == true)
+                            {
+                                <a href="@Url.Action( "PesadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry  } )" class="btn btn-primary btn-sm" title="Pesar">
+                                    <span>Pesar</span>
+                                </a>
+                            }
+                            @if (condAnularPesar == true && verBtnPesar == true)
+                            {
+                                <a href="@Url.Action( "AnularPesadoTicket", "Ventas", new { DocEntry = item.DocEntry  } )" class="btn btn-danger btn-sm" title="AnularPesado">
+                                    <span>Anular Pesado</span>
+                                </a>
+                            }
+                        </td>
+                        <td>
+                            @if (item.LugarDestino != "Agencia Courier" && condEntregar == true)
+
+                            {
+                                <a href="@Url.Action( "EntregadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry  } )" class="btn btn-success btn-sm" title="Entregar"><span>Entregar</span></a>
+                            }
+                            else if (item.Estado == "PESADO" && condEntregar == true)
+                            {
+                                <a href="@Url.Action( "EntregadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry  } )" class="btn btn-success btn-sm" title="Entregar"><span>Entregar</span></a>
+                            }
+
+                            @if (condAnularEntrega == true)
+                            {
+
+                                <a href="@Url.Action("AnularEntregadoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-warning btn-sm" title="AnularEntrega">
+                                    <span>Anular <br /> Entrega</span>
+                                </a>
+
+                            }
+                        </td>
+
+                        <td>
+                            <a href="@Url.Action( "SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry, view = "despacho"  } )" class="btn btn-dark btn-sm" title="Seguimiento de ticket" type="button" target="_blank"
+                               onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;">
+                                <i class="icon-truck"></i>
+                            </a>
+                        </td>
+                        <td>
+                            @*@if (idRolUsuario == 1 || (idRolUsuario == 4 && !item.Estado.Equals("ENTREGADO")))
+        {
+            <a href="#" class="btn btn-danger btn-sm" title="Cancelar" onclick="cancelarTicket(@item.DocEntry);">
+                <i class="icon-cross"></i>
+            </a>
+        }*@
+                        </td>
+
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</form>
+
+<button type="button" id="btn_activarModal" class="btn btn-primary" data-toggle="modal" data-target="#modal_ticketsDespacho" data-backdrop="static" data-keyboard="false" style="display: none;">
+</button>
+<!-- Modal Tickets No Entregados -->
+<div class="modal fade" id="modal_ticketsDespacho" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-body text-center bg-white" id="div_bodyModal">
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    if ('@ViewBag.Mensaje' != "") {
+        Swal.fire('@ViewBag.Mensaje');
+    }
+
+    /*function cancelarTicket(DocEntry) {
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: 'btn btn-success mx-4',
+                cancelButton: 'btn btn-danger mx-4'
+            },
+            buttonsStyling: false
+        })
+
+        swalWithBootstrapButtons.fire({
+            title: '¿Está seguro(a) de cancelar el ticket?',
+            text: "Este proceso es irreversible",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: "<i class='icon-checkmark'></i> Si, estoy seguro(a)",
+            cancelButtonText: "<i class='icon-cross'></i> Cancelar",
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                location.href = '/Ventas/CancelarTicket?DocEntry=' + DocEntry  +'&vista=ListadoTicketsDespacho';
+            }
+        });
+    }*/
+</script>

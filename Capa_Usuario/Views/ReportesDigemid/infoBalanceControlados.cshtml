@@ -1,0 +1,104 @@
+﻿
+@{
+    Layout = null;
+}
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+<script>
+    $(document).ready(function () { });
+    function rpt() {
+        if ($('#Informe').val() != '' && $('#FecIni').val() != '' && $('#FecFin').val() != '' && $('#TipoControlado').val() != '') {
+            let botonesDescarga = `<table class="table border-0">
+                                                        <tr>
+                                                            <td class="border-0 text-right">
+                                                                <button type="button" class="btn btn-danger mx-2" onclick="descargarPDF()"><i class="icon-file-pdf"></i> PDF</button>`;
+
+            if ($('#Informe').val() == 'Libro Controlados') {
+                botonesDescarga += `<button type="button" class="btn btn-success mx-2" onclick="exportTableToExcel('tbl_libroControlados')"><i class="icon-file-excel"></i> Excel</button>`;
+            }
+
+            botonesDescarga += `</td>
+                                                        </tr>
+                                                    </table>`;
+
+            $('#div_plantillaRpt').html('<img src="/imagenes/index/ReportesDigemid/cargando.gif" />');
+
+            $.ajax('/ReportesDigemid/RptBalanceControlados',
+                {
+                    data: $("#frm").serialize(),
+                    cache: false,
+                    type: 'post'
+                })
+                .done(function (response) {
+                    $('#div_plantillaRpt').html(`${response}`);
+                    $('#div_botonesDescarga').html(`${botonesDescarga}`);
+                });
+            //} else {
+            //    $('#Reporte').html('<img src="/imagenes/index/ReportesDigemid/cargando.gif" />');
+            //    var parametros = $("#frm").serialize();
+            //    $.ajax('/ReportesDigemid/tbReporteBalanceControlados',
+            //        {
+            //            data: parametros,
+            //            dataType: 'html',
+            //            cache: false,
+            //            type: 'post'
+            //        })
+            //        .done(function (response) {
+            //            $('#Reporte').html(response);
+            //        });
+            //}
+
+        } else {
+            Swal.fire('Todos los campos son obligatorios')
+        }
+
+    }
+</script>
+<style>
+    a {
+        color: red;
+    }
+</style>
+<div class="container" style="padding: 2%; background-color: rgb(220, 220, 220);" id="infoBalanceControlados">
+    <h3 class="text-cobefar font-weight-bold text-center">PRODUCTOS CONTROLADOS</h3>
+    <a href="@Url.Action("ListadoSaldosAnteriores", "DireccionTecnica")" target="_blank" class="btn btn-sm btn-info my-1"><i class="icon-spinner10"></i> Actualizar Saldo Anterior</a>
+    <form name="frm" id="frm">
+        <div class="row mt-4">
+            <div class="col-lg-3">
+                <label for="Informe" class="text-dark font-weight-bold font-18">Informe:</label>
+                <select name="Informe" id="Informe" class="form-control bg-cobefar text-white border-success dropdown">
+                    <option value="">Seleccione</option>
+                    <option value="Ingresos">Ingresos</option>
+                    <option value="Egresos">Egresos</option>
+                    <option value="Consolidado">Consolidado</option>
+                    <option value="Libro Controlados">Libro Controlados</option>
+                </select>
+            </div>
+
+            <div class="col-lg-3">
+                <label for="FecIni" class="text-dark font-weight-bold font-18">Fecha Inicial:</label>
+                <input id="FecIni" name="FecIni" type='date' class="form-control text-center border-success">
+            </div>
+
+            <div class="col-lg-3">
+                <label for="FecFin" class="text-dark font-weight-bold font-18">Fecha Final:</label>
+                <input id="FecFin" name="FecFin" type='date' class="form-control text-center border-success">
+            </div>
+
+            <div class="col-lg-3">
+                <label for="TipoControlado" class="text-dark font-weight-bold font-18">Tipo de Controlado:</label>
+                <select name="TipoControlado" id="TipoControlado" class="form-control bg-cobefar text-white border-success">
+                    <option value="">Seleccione</option>
+                    <option value="P">Precursor</option>
+                    <option value="S">Psicotropico</option>
+                    <option value="E">Estupefaciente</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-6">
+                <button id="Generar" type="button" class="btn btn-success" onclick="rpt();"><i class="icon-checkmark"></i> Generar</button>
+            </div>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,251 @@
+﻿@model IEnumerable<Capa_Entidad.ReportesDigemid_ENT.Reportes.ComprobanteDePago_E>
+
+@{
+    Layout = null;
+    var Cab = Model.ToList()[0];
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LayoutFacturaBoletaSap</title>
+    <style>
+        * {
+            /* font-family: 'Verdana';*/ font-family: 'Arial Unicode MS';
+        }
+        .page-break {
+            page-break-before: always;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td, th {
+            padding: 2px;
+        }
+
+    </style>
+
+</head>
+<body>
+    <div>
+
+        <div style="border: 2px solid green; padding: 5px; border-radius: 15px; vertical-align: top; ">
+            <table style="font-size:12px" border="0">
+                <tr>
+                    <td colspan="5" style="width:350px"><strong>Punto de partida</strong> &nbsp;&nbsp; @Cab.PtoPartida</td>
+                    <td><strong>Fecha Entrega:<br />Ruc&nbsp;&nbsp; /&nbsp;&nbsp; Dni Transportista:</strong></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td colspan="5" style="width:350px"><strong>Punto de llegada</strong> &nbsp;&nbsp; @Cab.DirEnvio</td>
+                    <td><strong>Transportista:<br />Licencia:</strong></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td colspan="5" style="width:350px"><strong>Marca:</strong></td>
+                    <td><strong>Placa:</strong></td>
+                    <td></td>
+                </tr>
+            </table>
+
+        </div>
+        <br />
+        <table style="font-size:12px;text-align:center;border-collapse:collapse;" border="1">
+            <tr>
+                <td width="250px">VENDEDOR</td>
+                <td>COND. PAGO</td>
+                <td>GUIA DE REMISIÓN</td>
+                <td>NRO. ORDEN DE VENTA</td>
+            </tr>
+            <tr>
+                <td>@Cab.ElaboradoPor</td>
+                <td>@Cab.CondPago</td>
+                <td>@Cab.NumGuias</td>
+                <td>@Cab.NroOrdVenta</td>
+            </tr>
+        </table>
+
+        <table border="1" style="font-size:11px;">
+            @*@{*@
+                <tr>
+                    <th style="width: 60px;">CANT.</th>
+                    <th style="width: 320px;">DESCRIPCION</th>
+                    <th style="width: 60px;">LAB.</th>
+                    <th style="width: 60px;">LOTE</th>
+                    <th style="width: 60px;">FECHA<br /> VC.</th>
+                    <th style="width: 60px;">P.UNIT<br />ARIO</th>
+                    <th style="width: 60px;">DSCTO<br /> %</th>
+                    <th style="width: 60px;">V.VENTA<br /> NETO</th>
+                    <th style="width: 70px;">PRECIO<br /> VENTA</th>
+                </tr>
+                @foreach (var item in Model)
+                {
+                <tr style="text-align: center;page-break-inside:avoid;">
+                    <td style="width: 60px;">@Math.Round(item.cantVta(), 0) @item.UM()</td>
+                    <td style="width: 320px; text-align: left !important;">@Html.DisplayFor(modelItem => item.Descripcion)</td>
+                    <td style="width: 60px;">@Html.DisplayFor(modelItem => item.Laboratorio)</td>
+                    <td style="width: 60px;">@Html.DisplayFor(modelItem => item.LoteNum)</td>
+                    <td style="width: 60px;">@Html.DisplayFor(modelItem => item.VctoLote)</td>
+                    <td style="width: 60px;">@Math.Round(item.F_ItemPrecio(), 2)</td>
+                    <td style="width: 60px;">@Html.DisplayFor(modelItem => item.Descuento)</td>
+                    <td style="width: 60px;">@Html.DisplayFor(modelItem => item.PreVentaNeto)</td>
+                    <td style="width: 70px;">@Math.Round(item.ItemTotalxLot(), 2)</td>
+                </tr>
+                }
+                @*
+                var counter = 0;
+
+
+                foreach (var item in Model)
+                {
+                    if (counter % 33 == 0)
+                    {
+                        if (counter != 0)
+                        { @Html.Raw("</table><div class='page-break'></div><table border='1' style='font-size:11px;'><tr>\r\n                    <th style=\"width: 60px;\">CANT.</th>\r\n                    <th style=\"width: 320px;\">DESCRIPCION</th>\r\n                    <th style=\"width: 60px;\">LAB.</th>\r\n                    <th style=\"width: 60px;\">LOTE</th>\r\n                    <th style=\"width: 60px;\">FECHA<br /> VC.</th>\r\n                    <th style=\"width: 60px;\">P.UNIT<br />ARIO</th>\r\n                    <th style=\"width: 60px;\">DSCTO<br /> %</th>\r\n                    <th style=\"width: 60px;\">V.VENTA<br /> NETO</th>\r\n                    <th style=\"width: 70px;\">PRECIO<br /> VENTA</th>\r\n                </tr>\r\n")
+
+                        }
+
+                    }
+                    else
+                    {
+                    <tr style="text-align: center;page-break-inside:avoid;">
+                        <td style="width: 60px;">@Math.Round(item.cantVta(), 0) @item.UM()</td>
+                        <td style="width: 320px; text-align: left !important;">@Html.DisplayFor(modelItem => item.Descripcion)</td>
+                        <td style="width: 60px;">@Html.DisplayFor(modelItem => item.Laboratorio)</td>
+                        <td style="width: 60px;">@Html.DisplayFor(modelItem => item.LoteNum)</td>
+                        <td style="width: 60px;">@Html.DisplayFor(modelItem => item.VctoLote)</td>
+                        <td style="width: 60px;">@Math.Round(item.F_ItemPrecio(), 2)</td>
+                        <td style="width: 60px;">@Html.DisplayFor(modelItem => item.Descuento)</td>
+                        <td style="width: 60px;">@Html.DisplayFor(modelItem => item.PreVentaNeto)</td>
+                        <td style="width: 70px;">@Math.Round(item.ItemTotalxLot(), 2)</td>
+                    </tr>
+                }
+
+                counter++;
+            }
+
+            }*@
+
+            </table>
+
+
+        <table style="font-size: 11px; page-break-inside: avoid;" border="0">
+            <tr>
+                <td colspan="9">
+                    -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                </td>
+            </tr>
+            <tr>
+                <td colspan="8">
+                    SON:@Cab.TotalL()
+                </td>
+            </tr>
+            <tr>
+                <td colspan="9">
+                    -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:center;padding:5px;font-size:11px">
+                    <img src="~/imagenes/index/encabezado/barras.png" width="140" height="50" /><br />
+                    Autorizado mediante N° R.S. 300-2014/SUNAT<br />
+                    Representación impresa de la Factura Electrónica. Puede<br />
+                    ser consultada<br />
+                    en www.cobefar.com.pe
+                </td>
+                <td style="border-bottom: 2px solid black; border-top: 2px solid black; border-left: 2px solid black; padding: 0px 5px 0px 15px; font-size: 11px;">
+                    <p>
+                        <strong>GERENTE DE VENTAS	      </strong><br />
+                        Cel.:982577809			     <br />
+                        Telf.:4281248			     <br />
+                        <strong>VENTAS PROVINCIA</strong>		     <br />
+                        958950318 / 971559893        <br />
+                        997895353				     <br />
+                        <strong>VENTAS POR MAYOR</strong>	         <br />
+                        933567704 / 956381409
+                    </p>
+                </td>
+                <td style="border-bottom: 2px solid black; border-top: 2px solid black; border-right: 2px solid black; padding: 0px 5px 0px 15px; font-size: 11px;">
+                    <p>
+                        <strong>VENTAS LIMA</strong><br />
+                        954121505 / 933514870 / 982768938<br />
+                        939391010 / 932766022 / 933514897<br />
+                        986789108 / 986789103 / 942810044<br />
+                        977190699 / 980576206<br />
+                        950156844 / 980914611<br />
+                        939392020<br />
+                        Telf.: 4280115 / 4274304
+                    </p>
+                </td>
+                <td rowspan="2">
+                    <table style="font-size:11px;padding:0">
+                        <tr>
+                            <td>Op. Gravada</td>
+                            <td>S/</td>
+                            <td style="text-align:right">@Math.Round(Cab.Tgrabado(Cab.Sum_Topgratuita(Model.ToList()), Cab.Sum_Tinafecto(Model.ToList())), 2)</td>
+                        </tr>
+                        <tr>
+                            <td>Desc.&nbsp;Globales</td>
+                            <td>S/</td>
+                            <td style="text-align:right"></td>
+                        </tr>
+                        <tr>
+                            <td> I.G.V 18%</td>
+                            <td>S/</td>
+                            <td style="text-align:right">@Math.Round(Cab.Impuesto, 2)</td>
+                        </tr>
+                        <tr>
+                            <td> Op. Inafecta</td>
+                            <td>S/</td>
+                            <td style="text-align:right"></td>
+                        </tr>
+                        <tr>
+                            <td> Op. exonerada</td>
+                            <td>S/</td>
+                            <td style="text-align:right">@Cab.F_Tinafecto(Cab.Sum_Tinafecto(Model.ToList()))</td>
+                        </tr>
+                        <tr>
+                            <td>Op. gratuita</td>
+                            <td>S/</td>
+                            <td style="text-align:right">@Cab.F_Topgratuita(Cab.Sum_Topgratuita(Model.ToList()))</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3"><hr /></td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:600">Importe Total</td>
+                            <td style="font-weight:600"> S/</td>
+                            <td style="font-weight: 600; text-align: right"> @Math.Round(Cab.TotalFactura(Cab.Sum_Topgratuita(Model.ToList())), 2)</td>
+                        </tr>
+                    </table>
+                </td>
+
+            <tr>
+                <td></td>
+                <td style="text-align:center;border-bottom:2px solid black;border-left:2px solid black;border-right:2px solid black;font-size:10px" colspan="2">
+                    <br />
+                    <strong>CANCELADO<br /><br /></strong>
+
+                    Lima...........de.................................del 20.....<br /><br />
+
+                    ------------------------------------------<br />
+                    COBEFAR S.A.C.
+
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5">
+                    Nota: No aceptamos devoluciones ni reclamos después de la entrega de la mercadería
+                </td>
+            </tr>
+        </table>
+    </div>
+
+</body>
+</html>
+
+
+

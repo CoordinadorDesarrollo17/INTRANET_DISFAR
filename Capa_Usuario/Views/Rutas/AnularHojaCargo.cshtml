@@ -1,0 +1,124 @@
+﻿@model Capa_Entidad.Rutas_ENT.TablasSql.ORRU_E
+
+@{
+    ViewBag.Title = "AnularHojaCargo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    function anularEntrega(DocEntryTicket, DocEntry, Linea) {
+        Swal.fire({
+            title: 'Esta seguro/a de anular entrega?',
+            text: "Este proceso es irreversible!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Si'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $(location).attr('href', "/Rutas/AnularEntregaTicket?DocEntryTicket=" + DocEntryTicket + "&DocEntry=" + DocEntry + "&Linea=" + Linea + "&TipoRuta=AC");
+            }
+        })
+    }
+
+</script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="/Index/Sesion">Inicio</a></li>
+            <li><a href="@Url.Action("ListadoRutas", "Rutas")">Listado de Rutas</a></li>
+            <li class="current"><em>Anular hoja de cargo</em></li>
+        </ol>
+    </nav>
+</div>
+
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">ANULAR HOJA DE CARGO</h3></div>
+</div>
+
+<div class="bg-form-pestanas-cobefar pt-4 bg-section-form p-4 bg-form-cobefar">
+    <p class="pb-2 mb-2 border-bottom border-success"><b>DOCNUM :</b> @Model.DocNum</p>
+    <p class="pb-2 mb-2 border-bottom border-success"><b>TIPO DE RUTA:</b> @Model.TipoRuta</p>
+    <p class="pb-2 mb-2 border-bottom border-success"><b>TRANSPORTISTA :</b> @Model.TransCod</p>
+    <p class="pb-2 mb-2 border-bottom border-success"><b>PLACA DEL VEHICULO :</b> @Model.Placa</p>
+    <p class="pb-2 mb-2 border-bottom border-success"><b>ALM. ORIGEN :</b> @Model.AlmOrigenDesc <b>& ALM. DESTINO :</b>@Model.AlmDestinoDesc</p>
+    <p class="pb-2 mb-2 border-bottom border-success"><b>FECHA CONT :</b> @Model.FechaCont  <b>& FECHA DOC :</b> @Model.FechaDoc  </p>
+    <p class="pb-2 mb-2 border-bottom border-success"><b>REGISTRADO POR  :</b> @Model.Propietario  </p>
+    <p class="mb-0"><b>TOTAL CAJAS:</b> @Model.TotCajas()</p>
+
+
+    <div class="row mt-4">
+        <div class="col-lg-12 col-md-12 col-sm-12">
+        <h3 class="text-cobefar p-2 mt-3"><b>Detallado de orden</b></h3>
+            <table class="table table-striped table-hover" id="tbDetalle">
+                <thead class="bg-success">
+                    <tr>
+                        <th>#</th>
+                        <th>SOCIO</th>
+                        <th># TICKET</th>
+                        <th>GUIAS</th>
+                        <th>CAJAS</th>
+                        <th>PESO TOTAL</th>
+                        <th>DIRECCION</th>
+                        <th>MONTO FINAL</th>
+                        <th>ENVIO</th>
+                        <th>ESTADO</th>
+                        <th>ENTREGADOR POR</th>
+                        <th>TIEMPO DE ENTREGA</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody class="bg-light">
+                    @if (Model.DetRRU0 != null)
+                    {
+                        foreach (var dt in Model.DetRRU0)
+                        {
+
+                            <tr>
+                                <td class="border-top border-success text-center">@Html.DisplayFor(model => dt.Linea)</td>
+                                <td class="border-top border-success">@Html.DisplayFor(model => dt.Socio)</td>
+                                <td class="border-top border-success text-center">@Html.DisplayFor(model => dt.DocEntryTicket)</td>
+                                <td class="border-top border-success text-center">@Html.DisplayFor(model => dt.Guias)</td>
+                                <td class="border-top border-success text-center">@Html.DisplayFor(model => dt.Cajas)</td>
+                                <td class="border-top border-success text-center">
+                                    @if (dt.Ticket.Det6 != null)
+                                    {
+                                        var s = dt.Ticket.Det6.Sum(x => x.Peso);
+                                        <p>@s kg</p>
+                                    }
+                                </td>
+                                <td class="border-top border-success">@dt.Direcciones</td>
+                                <td class="border-top border-success text-center">S/@dt.MontoFinal</td>
+                                <td class="border-top border-success text-center">S/@dt.Envio</td>
+                                <td class="border-top border-success text-center">@dt.Estado</td>
+                                <td class="border-top border-success text-center">@dt.OpEntrega</td>
+                                <td class="border-top border-success text-center">@dt.FechaEntrega @dt.HoraEntrega</td>
+                                <td class="border-top border-success">
+                                    @if (dt.Estado == "ENTREGADO")
+                                    {
+
+                                        <a href="#" onclick="anularEntrega(@dt.DocEntryTicket,@dt.DocEntry,@dt.Linea)" class="btn btn-danger btn-sm"><i class="icon-bin"></i></a>
+
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    if ('@ViewBag.Mensaje' != "") {
+        Swal.fire({
+            icon: '',
+            text: `@ViewBag.Mensaje`
+        })
+    }
+</script>

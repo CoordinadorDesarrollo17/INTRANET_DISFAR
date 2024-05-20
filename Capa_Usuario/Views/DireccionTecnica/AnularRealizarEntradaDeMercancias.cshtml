@@ -1,0 +1,101 @@
+﻿@model Capa_Entidad.Compras_ENT.Tablas.OPDN_E
+
+@{
+    ViewBag.Title = "AnularRealizarEntradaDeMercancias";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("ListadoEntradasDeMercancias", "DireccionTecnica")">Listado entrada de mercancías</a></li>
+            <li class="current"><em>Anular realizar entrada de mercancías</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">ANULAR REALIZAR ENTRADA DE MERCANCÍAS</h3></div>
+</div>
+
+<div class="bg-form-pestanas-cobefar">
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+
+<div class="bg-section-form p-4 bg-form-cobefar">
+    <input type="hidden" id="DocEntry" value="@Model.DocEntry" />
+    <div class="row mt-4">
+        <div class="col-lg-12">
+            <label for="DocNum" class="text-dark form-label font-weight-bold font-18">NroDocumento:</label>
+            @Html.DisplayFor(model => model.DocNum)
+        </div>
+
+        <div class="col-lg-12">
+            <label for="DocDate" class="text-dark form-label font-weight-bold font-18">FechaCont:</label>
+            @Html.DisplayFor(model => model.DocDate)
+        </div>
+
+        <div class="col-lg-12">
+            <label for="CardName" class="text-dark form-label font-weight-bold font-18">NombreProv:</label>
+            @Html.DisplayFor(model => model.CardName)
+        </div>
+
+        <div class="col-lg-12">
+            <label for="NumAtCard" class="text-dark form-label font-weight-bold font-18">Guía:</label>
+            @Html.DisplayFor(model => model.NumAtCard)
+        </div>
+
+        <div class="col-lg-12">
+            <label for="NumAtCard" class="text-dark form-label font-weight-bold font-18">Total:</label>
+            @Html.DisplayFor(model => model.DocTotal)
+        </div>
+
+        <div class="col-lg-12">
+            <label for="NumAtCard" class="text-dark form-label font-weight-bold font-18">EstadoDoc:</label>
+            @Html.DisplayFor(model => model.U_SYP_STATUS)
+        </div>
+
+        <div class="col-lg-12">
+            <label for="NumAtCard" class="text-dark form-label font-weight-bold font-18">Almacen:</label>
+            @Html.DisplayFor(model => model.Almacen)
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-lg-6">
+            <button type="button" value="AnularRealizar" class="btn btn-danger" onclick="anularRealizar()"><i class="icon-blocked"></i> Anular Realizar</button>
+        </div>
+
+    </div>
+</div>
+    }
+</div>
+
+<script>
+    function anularRealizar() {
+        Swal.fire({
+            title: '¿Está seguro(a) de anular Realización de Entrada?',
+            text: "Este proceso no es revertible.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: 'success',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Si, estoy seguro(a)',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax('/DireccionTecnica/AnularRealizarEntradaDeMercancias',
+                    {
+                        data: { DocEntry: $("#DocEntry").val() },
+                        dataType: 'html',
+                        cache: false,
+                        type: 'post'
+                    }).done(function() {
+                      window.location.href = "/DireccionTecnica/ListadoEntradasDeMercancias";
+                    });
+            }
+        });
+    }
+</script>

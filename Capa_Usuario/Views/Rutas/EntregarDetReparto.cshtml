@@ -1,0 +1,253 @@
+﻿
+@using Capa_Entidad.Rutas_ENT.TablasSql
+@{
+    ViewBag.Title = "EntregarDetReparto";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    RRU0_E rru0E = (RRU0_E)ViewBag.RRU0;
+    RRU1_E rru1E = (RRU1_E)ViewBag.RRU1;
+    string[] rutasValidas = { "VD", "VC", "VA", "TA" };
+}
+
+<script>
+
+    function validarEnviarFormulario() {
+        var object = new FormData($("#form")[0]);
+        $.ajax('/Rutas/validarEntDetReparto',
+            {
+                data: object,
+                dataType: 'html',
+                cache: false,
+                type: 'post',
+                contentType: false,
+                processData: false,
+            })
+            .done(function (response) {
+                if (response != "ok") { swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false }
+                else {
+                    Swal.fire({
+                        icon: 'success',
+                        text: 'Se está enviando los datos'
+                    })
+                    $("#form").submit();
+                }
+            });
+    }
+
+    function validarArchivo() {
+        var fi = document.getElementById('Archivo');
+        if (fi.files.length > 0) {
+            for (let i = 0; i <= fi.files.length - 1; i++) {
+                let fsize = fi.files.item(i).size;
+                let file = Math.round((fsize / 1024));
+                if (file >= 15360) {
+                    Swal.fire("Archivo adjunto supera el límite de 15 MB");
+                    fi.value = null;
+                }
+            }
+        }
+    }
+</script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("ListadoRutas", "Rutas")">Listado de Rutas</a></li>
+            <li><a href="@Url.Action("ListadoEntregaRepartos", "Rutas",new { TipoRep=ViewBag.TipoRep,DocEntry=ViewBag.DocEntry})">Entrega Repartos</a></li>
+            <li class="current"><em>Entregar Det. Reparto</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">ENTREGAR DET. REPARTO</h3></div>
+</div>
+
+<div class="bg-form-pestanas-cobefar">
+    <div class="bg-section-form p-4 bg-form-cobefar">
+        <form id="form" enctype="multipart/form-data" method="post">
+
+            <div class="row mt-2">
+
+                <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                    @if (rru0E.DocEntry > 0)
+                    {
+                        <div class="row mb-3 justify-content-center">
+                            <div class="bg-cobefar text-white font-weight-bold px-2 py-1 font-18">Nro Ticket : @rru0E.DocNumTicket</div>
+                        </div>
+                        <input type="hidden" id="TipoRuta" value="@ViewBag.TipoRuta" />
+                        <input type="hidden" name="DocEntry" value="@ViewBag.DocEntry" readonly />
+                        <input type="hidden" name="Linea" value="@ViewBag.Linea" readonly />
+                        <input type="hidden" name="TipoRep" value="@ViewBag.TipoRep" readonly />
+
+                        if (ViewBag.TipoRuta != null && rutasValidas.Contains((string)ViewBag.TipoRuta))
+                        {
+                            <div class="row mt-lg-4 mt-md-4 mt-sm-4 justify-content-center">
+                                <div class="col-lg-5 col-md-6 col-sm-6 col-6 form-inline">
+                                    <div class="px-lg-0 px-sm-3 py-lg-0 py-sm-2">
+                                        <label for="TempF1" class="text-dark form-label font-weight-bold font-18 mr-lg-4 mr-md-4 mr-sm-2 text-dark">Temperatura Final 1:</label>
+                                        <input id="TempF1" name="TempF1" value="@if(rru0E.TempF1 != 0){ Write(rru0E.TempF1); }" type="text" class="form-control text-center border-success cls-numeric" style="width:140px;" />
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-5 col-md-6 col-sm-6 col-6 form-inline">
+                                    <div class="px-lg-0 px-sm-3 py-lg-0 py-sm-2">
+                                        <label for="TempF2" class="text-dark form-label font-weight-bold font-18 mr-lg-4 mr-md-4 mr-sm-2">Temperatura Final 2:</label>
+                                        <input id="TempF2" name="TempF2" value="@if(rru0E.TempF2 != 0){ Write(rru0E.TempF2); }" type="text" class="form-control text-center border-success cls-numeric" style="width:140px;" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mt-4 mt-lg-4 mt-md-4 justify-content-center">
+                                <div class="col-lg-5 col-md-6 col-sm-6 col-6 form-inline">
+                                    <div class="px-lg-0 px-sm-3 py-lg-0 py-sm-2">
+                                        <label for="HumedF1" class="text-dark form-label font-weight-bold font-18 mr-lg-4 mr-md-4 mr-sm-2">Humedad Final 1:</label>
+                                        <input id="HumedF1" name="HumedF1" value="@if(rru0E.HumedF1 != 0){ Write(rru0E.HumedF1); }" type="text" class="form-control text-center border-success cls-numeric" style="width: 140px;" />
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-5 col-md-6 col-sm-6 col-6 form-inline">
+                                    <div class="px-lg-0 px-sm-3 py-lg-0 py-sm-2">
+                                        <label for="HumedF2" class="text-dark form-label font-weight-bold font-18 mr-lg-4 mr-md-4 mr-sm-2">Humedad Final 2:</label>
+                                        <input id="HumedF2" name="HumedF2" value="@if(rru0E.HumedF2 != 0){ Write(rru0E.HumedF2); }" type="text" class="form-control text-center border-success cls-numeric" style="width: 140px;" />
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        if (ViewBag.TipoRuta != null && ViewBag.TipoRuta.Equals("VG"))
+                        {
+                            <div class="row mt-lg-4 mt-md-4 justify-content-center">
+                                <div class="col-lg-5 col-md-6 col-sm-6 col-6 form-inline">
+                                    <div class="px-lg-0 px-sm-3 py-lg-0 py-sm-2">
+                                        <label for="ticket_pagoEnv" class="text-dark form-label font-weight-bold font-18 mr-lg-4 mr-md-4 mr-sm-2">PagoEnvio:</label>
+                                        <input id="ticket_pagoEnv" name="Ticket.PagoEnv" value="@rru0E.Ticket.PagoEnv" type="number" step="0.1" class="form-control text-center border-success cls-numeric" style="width: 140px;" />
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-5 col-md-6 col-sm-6 col-6 form-inline">
+                                    <div class="px-lg-0 px-sm-3 py-lg-0 py-sm-2">
+                                        <label for="ticket_pagoEnv" class="text-dark form-label font-weight-bold font-18 mr-lg-4 mr-md-4 mr-sm-2">ClaveEnvio:</label>
+                                        <input name="Ticket.ClaveEnv" value="@rru0E.Ticket.ClaveEnv" type="text" class="form-control text-center border-success" style="width: 140px;" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mt-lg-4 mt-md-4 justify-content-center">
+                                <div class="col-sm-12 col-md-12 col-lg-10 col-xl-10">
+                                    <div class="px-lg-0 px-sm-3">
+                                        <label for="Archivo" class="text-dark form-label font-weight-bold font-18 mr-lg-4 mr-md-4 mr-sm-2">Evidencia:</label>
+                                        <div class="form-group row">
+                                            <div class="col-sm-12 col-lg-12">
+                                                <input type="file" name="Archivo" id="Archivo" class="form-control border-success" onchange="validarArchivo()" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+
+                        if (rru0E.Ticket.Det5 != null && rru0E.Ticket.Det5.Count >= 1 && rru0E.Ticket.LugarDestino.Equals("Domicilio"))
+                        {
+                            <div class="row mt-lg-4 mt-md-4 justify-content-center">
+                                <div class="col-sm-12 col-md-12 col-lg-10 col-xl-8">
+                                    <div class="px-lg-0 px-sm-3 py-lg-0 py-sm-2">
+                                        <label for="ticket_regEstado" class="text-dark form-label font-weight-bold font-18 mr-lg-4 mr-md-4 mr-sm-2">Regalo:</label>
+                                        <select id="ticket_regEstado" name="Ticket.Det5[0].RegEstado" class="form-control bg-cobefar text-white border-success">
+                                            <option value="">Pendiente</option>
+                                            @if (rru0E.Ticket.Det5[0].RegEstado == "Entregado")
+                                            {
+                                                <option value="Entregado" selected>Entregado</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="Entregado">Entregado</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        if (rru0E.Estado != null && rru0E.Estado.Equals("ENTREGADO"))
+                        {
+                            <div class="row mt-lg-4 mt-md-4 justify-content-center">
+                                <div class="col-lg-4 col-md-6 col-sm-6  d-flex justify-content-center mb-lg-0 mb-md-0 mb-sm-0 mb-4">
+                                    <a href="@Url.Action("EvidenciaReparto", "Rutas", new { DocEntry = rru0E.DocEntry, TipoRuta = "Ventas" })" class="btn btn-primary"><i class="icon-image"></i> ImgEvidencia</a>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else if (rru1E.DocEntry > 0)        // Traslados (TA)
+                    {
+                        <div class="row mb-4 justify-content-center">
+                            <div class="bg-dark text-white px-4 py-2">Guía: @rru1E.Guia</div>
+                        </div>
+                        <input type="hidden" name="DocEntry" value="@ViewBag.DocEntry" readonly />
+                        <input type="hidden" name="Linea" value="@ViewBag.Linea" readonly />
+
+                        <div class="row mt-lg-4 mt-md-4">
+                            <div class="col-lg-5 col-md-6 col-sm-6 col-6 form-inline">
+                                <div class="px-lg-0 px-sm-3 py-lg-0 py-sm-2">
+                                    <label for="TempF1" class="text-dark form-label font-weight-bold font-18 mr-lg-4 mr-md-4 mr-sm-2 text-dark">T° Serie1:</label>
+                                    <input id="TempF1" name="TempF1" value="@if(rru1E.TempF1 != 0){ Write(rru1E.TempF1); }" type="text" class="form-control text-center border-success cls-numeric" style="width:140px;" />
+                                </div>
+                            </div>
+
+                            <div class="col-lg-5 col-md-6 col-sm-6 col-6 form-inline">
+                                <div class="px-lg-0 px-sm-3 py-lg-0 py-sm-2">
+                                    <label for="TempF2" class="text-dark form-label font-weight-bold font-18 mr-lg-4 mr-md-4 mr-sm-2">T° Serie2:</label>
+                                    <input id="TempF2" name="TempF2" value="@if(rru1E.TempF2 != 0){ Write(rru1E.TempF2); }" type="text" class="form-control text-center border-success cls-numeric" style="width: 140px;" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4 mt-lg-4 mt-md-4 justify-content-center">
+                            <div class="col-lg-5 col-md-6 col-sm-6 col-6 form-inline">
+                                <div class="px-lg-0 px-sm-3 py-lg-0 py-sm-2">
+                                    <label for="HumedF1" class="text-dark form-label font-weight-bold font-18 mr-lg-4 mr-md-4 mr-sm-2">Humed Serie1:</label>
+                                    <input id="HumedF1" name="HumedF1" value="@if(rru1E.HumedF1 != 0){ Write(rru1E.HumedF1); }" type="text" class="form-control text-center border-success cls-numeric" style="width: 140px;" />
+                                </div>
+                            </div>
+
+                            <div class="col-lg-5 col-md-6 col-sm-6 col-6 form-inline">
+                                <div class="px-lg-0 px-sm-3 py-lg-0 py-sm-2">
+                                    <label for="HumedF2" class="text-dark form-label font-weight-bold font-18 mr-lg-4 mr-md-4 mr-sm-2">Humed Serie2:</label>
+                                    <input id="HumedF2" name="HumedF2" value="@if(rru1E.HumedF2 != 0){ Write(rru1E.HumedF2); }" type="text" class="form-control text-center border-success cls-numeric" style="width: 140px;" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-lg-4 mt-md-4 justify-content-center">
+                            <div class="col-lg-5 col-md-6 col-sm-12 col-12 form-inline">
+                                <div class="px-lg-0 px-sm-3 py-lg-0 py-sm-2">
+                                    <label for="Archivo" class="text-dark form-label font-weight-bold font-18 mr-lg-4 mr-md-4 mr-sm-2">Evidencia:</label>
+                                    <div class="form-group row">
+                                        <div class="col-sm-12 col-lg-12">
+                                            <input type="file" name="Archivo" id="Archivo" class="form-control border-success" onchange="validarArchivo()" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </form>
+
+        <div class="row mt-5 justify-content-center">
+            <button type="button" class="btn btn-success" onclick="validarEnviarFormulario();"><i class="icon-checkmark"></i> Entregar pedido</button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    $('.cls-numeric').keypress(function (tecla) {
+        if (tecla.keyCode != 46 && (tecla.keyCode < 48 || tecla.keyCode > 57)) {
+            return false;
+        }
+    });
+</script>

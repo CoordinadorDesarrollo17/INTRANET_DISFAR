@@ -1,0 +1,1294 @@
+﻿<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\EntityFramework.6.4.4\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.props')" />
+  <Import Project="..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.0\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props" Condition="Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.0\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{2BB608A5-525D-428C-B817-DA3F21F405B3}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Capa_Usuario</RootNamespace>
+    <AssemblyName>Capa_Usuario</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <UseIISExpress>true</UseIISExpress>
+    <Use64BitIISExpress />
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Aspose.PDF, Version=23.10.0.0, Culture=neutral, PublicKeyToken=716fcc553a201e56, processorArchitecture=MSIL">
+      <HintPath>..\packages\Aspose.PDF.23.10.0\lib\net4.0\Aspose.PDF.dll</HintPath>
+    </Reference>
+    <Reference Include="CrystalDecisions.CrystalReports.Engine, Version=13.0.4000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL" />
+    <Reference Include="CrystalDecisions.ReportSource, Version=13.0.4000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL" />
+    <Reference Include="CrystalDecisions.Shared, Version=13.0.4000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL" />
+    <Reference Include="DocumentFormat.OpenXml, Version=2.11.3.0, Culture=neutral, PublicKeyToken=8fb06cb64d019a17, processorArchitecture=MSIL">
+      <HintPath>..\packages\DocumentFormat.OpenXml.2.11.3\lib\net46\DocumentFormat.OpenXml.dll</HintPath>
+    </Reference>
+    <Reference Include="dotless.AspNet, Version=1.6.7.0, Culture=neutral, PublicKeyToken=96b446c9e63eae34, processorArchitecture=MSIL">
+      <HintPath>..\packages\dotless.AspNetHandler.1.6.7\lib\net461\dotless.AspNet.dll</HintPath>
+    </Reference>
+    <Reference Include="dotless.Core, Version=1.6.7.0, Culture=neutral, PublicKeyToken=96b446c9e63eae34, processorArchitecture=MSIL">
+      <HintPath>..\packages\dotless.Core.1.6.7\lib\net461\dotless.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="EPPlus, Version=4.1.1.0, Culture=neutral, PublicKeyToken=ea159fdaa78159a1, processorArchitecture=MSIL">
+      <HintPath>..\packages\EPPlus.4.1.1\lib\net40\EPPlus.dll</HintPath>
+    </Reference>
+    <Reference Include="itextsharp, Version=5.5.13.1, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
+      <HintPath>..\packages\iTextSharp.5.5.13.1\lib\itextsharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AnalysisServices.AdomdClient, Version=13.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unofficial.Microsoft.AnalysisServices.AdomdClient.13.0.4001\lib\net40\Microsoft.AnalysisServices.AdomdClient.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Extensions.DependencyInjection, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.2.1.1\lib\net461\Microsoft.Extensions.DependencyInjection.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.2.1.1\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportingServices.Authorization, Version=15.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unofficial.Microsoft.ReportingServices.2019.11.0\lib\net462\Microsoft.ReportingServices.Authorization.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportingServices.Diagnostics, Version=15.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unofficial.Microsoft.ReportingServices.2019.11.0\lib\net462\Microsoft.ReportingServices.Diagnostics.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportingServices.Interfaces, Version=2019.11.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unofficial.Microsoft.ReportingServices.2019.11.0\lib\net462\Microsoft.ReportingServices.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.Common, Version=15.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ReportingServices.ReportViewerControl.Winforms.150.1586.0\lib\net40\Microsoft.ReportViewer.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.DataVisualization, Version=15.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ReportingServices.ReportViewerControl.Winforms.150.1586.0\lib\net40\Microsoft.ReportViewer.DataVisualization.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.Design, Version=15.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ReportingServices.ReportViewerControl.Winforms.150.1586.0\lib\net40\Microsoft.ReportViewer.Design.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.ProcessingObjectModel, Version=15.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ReportingServices.ReportViewerControl.Winforms.150.1586.0\lib\net40\Microsoft.ReportViewer.ProcessingObjectModel.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.WebDesign, Version=15.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ReportingServices.ReportViewerControl.WebForms.150.1484.0\lib\net40\Microsoft.ReportViewer.WebDesign.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.WebForms, Version=15.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ReportingServices.ReportViewerControl.WebForms.150.1484.0\lib\net40\Microsoft.ReportViewer.WebForms.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.WinForms, Version=15.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ReportingServices.ReportViewerControl.Winforms.150.1586.0\lib\net40\Microsoft.ReportViewer.WinForms.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.SqlServer.Types, Version=14.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.SqlServer.Types.14.0.314.76\lib\net40\Microsoft.SqlServer.Types.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Win32.Primitives, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Win32.Primitives.4.3.0\lib\net46\Microsoft.Win32.Primitives.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="PdfiumViewer, Version=2.13.0.0, Culture=neutral, PublicKeyToken=91e4789cfb0609e0, processorArchitecture=MSIL">
+      <HintPath>..\packages\PdfiumViewer.2.13.0.0\lib\net20\PdfiumViewer.dll</HintPath>
+    </Reference>
+    <Reference Include="ReportViewerForMvc, Version=1.1.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ReportViewerForMvc.1.1.1\lib\net45\ReportViewerForMvc.dll</HintPath>
+    </Reference>
+    <Reference Include="Rotativa, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Rotativa.1.7.3\lib\net461\Rotativa.dll</HintPath>
+    </Reference>
+    <Reference Include="Sap.Data.Hana.v3.5, Version=1.0.120.0, Culture=neutral, PublicKeyToken=0326b8ea63db4bc4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files\sap\hdbclient\ado.net\v3.5\Sap.Data.Hana.v3.5.dll</HintPath>
+    </Reference>
+    <Reference Include="SpreadsheetLight, Version=3.5.0.0, Culture=neutral, PublicKeyToken=32fbb46dc1730c57, processorArchitecture=MSIL">
+      <HintPath>..\packages\SpreadsheetLight.3.5.0\lib\netstandard2.0\SpreadsheetLight.dll</HintPath>
+    </Reference>
+    <Reference Include="System.AppContext, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.AppContext.4.3.0\lib\net46\System.AppContext.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Console, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Console.4.3.0\lib\net46\System.Console.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data.SQLite, Version=1.0.118.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <HintPath>..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.118.0\lib\net46\System.Data.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.SQLite.EF6, Version=1.0.118.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.SQLite.EF6.1.0.118.0\lib\net46\System.Data.SQLite.EF6.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.SQLite.Linq, Version=1.0.118.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.SQLite.Linq.1.0.118.0\lib\net46\System.Data.SQLite.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Diagnostics.DiagnosticSource, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Diagnostics.DiagnosticSource.4.3.0\lib\net46\System.Diagnostics.DiagnosticSource.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Drawing.Common, Version=4.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Drawing.Common.5.0.0\lib\net461\System.Drawing.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Globalization.Calendars, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Globalization.Calendars.4.3.0\lib\net46\System.Globalization.Calendars.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.IO.Compression, Version=4.1.2.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.Compression.4.3.0\lib\net46\System.IO.Compression.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.IO.Compression.ZipFile, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.Compression.ZipFile.4.3.0\lib\net46\System.IO.Compression.ZipFile.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.IO.FileSystem, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.FileSystem.4.3.0\lib\net46\System.IO.FileSystem.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.IO.FileSystem.Primitives, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.FileSystem.Primitives.4.3.0\lib\net46\System.IO.FileSystem.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.Packaging, Version=4.0.5.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.Packaging.4.7.0\lib\net46\System.IO.Packaging.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Net.Http.4.3.0\lib\net46\System.Net.Http.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Net.Sockets, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Net.Sockets.4.3.0\lib\net46\System.Net.Sockets.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.InteropServices.RuntimeInformation.4.3.0\lib\net45\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Algorithms, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.Algorithms.4.3.0\lib\net461\System.Security.Cryptography.Algorithms.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Encoding, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.Encoding.4.3.0\lib\net46\System.Security.Cryptography.Encoding.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Primitives, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.Primitives.4.3.0\lib\net46\System.Security.Cryptography.Primitives.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.X509Certificates, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.X509Certificates.4.3.0\lib\net461\System.Security.Cryptography.X509Certificates.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Xml.ReaderWriter, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Xml.ReaderWriter.4.3.0\lib\net46\System.Xml.ReaderWriter.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Web.Razor">
+      <HintPath>..\packages\Microsoft.AspNet.Razor.3.2.4\lib\net45\System.Web.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Webpages">
+      <HintPath>..\packages\Microsoft.AspNet.Webpages.3.2.4\lib\net45\System.Web.Webpages.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Webpages.Deployment">
+      <HintPath>..\packages\Microsoft.AspNet.Webpages.3.2.4\lib\net45\System.Web.Webpages.Deployment.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Webpages.Razor">
+      <HintPath>..\packages\Microsoft.AspNet.Webpages.3.2.4\lib\net45\System.Web.Webpages.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Helpers">
+      <HintPath>..\packages\Microsoft.AspNet.Webpages.3.2.4\lib\net45\System.Web.Helpers.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Web.Infrastructure">
+      <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Mvc">
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.5.2.4\lib\net45\System.Web.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform">
+      <HintPath>..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.0\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\almacen\rutas\est_ord_reg4.css" />
+    <Content Include="Content\almacen\rutas\index4.css" />
+    <Content Include="Content\bootstrap-theme.css" />
+    <Content Include="Content\bootstrap-theme.min.css" />
+    <Content Include="Content\bootstrap.css" />
+    <Content Include="Content\bootstrap3.min.css" />
+    <Content Include="Content\css\alertify.min.css" />
+    <Content Include="Content\css\bootstrap-grid.css" />
+    <Content Include="Content\css\bootstrap-grid.min.css" />
+    <Content Include="Content\css\bootstrap-reboot.css" />
+    <Content Include="Content\css\bootstrap-reboot.min.css" />
+    <Content Include="Content\css\bootstrap.css" />
+    <Content Include="Content\css\bootstrap.min.css" />
+    <Content Include="Content\css\filepond.min.css" />
+    <Content Include="Content\css\jquery-ui-1.11.3.css" />
+    <Content Include="Content\css\jquery-ui-1.12.css" />
+    <Content Include="Content\css\jquery.datetimepicker.css" />
+    <Content Include="Content\css\print.min.css" />
+    <Content Include="Content\css\select2.min.css" />
+    <Content Include="Content\css\semantic.min.css" />
+    <Content Include="Content\estilos.css" />
+    <Content Include="Content\Frameworks\alertify.min.css" />
+    <Content Include="Content\icomoon\demo-files\demo.css" />
+    <Content Include="Content\icomoon\demo-files\demo.js" />
+    <Content Include="Content\icomoon\demo.html" />
+    <Content Include="Content\icomoon\fonts\icomoon.svg" />
+    <Content Include="Content\icomoon\Read Me.txt" />
+    <Content Include="Content\icomoon\style.css" />
+    <Content Include="Content\img\bg-cobefar-v2.png" />
+    <Content Include="Content\img\favicon-cobefar.png" />
+    <Content Include="Content\img\firmas\firma.png" />
+    <Content Include="Content\img\logo-cobefar.png" />
+    <Content Include="Content\img\logo-drogueria-cobefar.jpg" />
+    <Content Include="Content\img\logo.png" />
+    <Content Include="Content\img\video-presentacion-24-05-23.mp4" />
+    <Content Include="Content\js\alertify.min.js" />
+    <Content Include="Content\js\bootstrap.bundle.js" />
+    <Content Include="Content\js\bootstrap.bundle.min.js" />
+    <Content Include="Content\js\bootstrap.js" />
+    <Content Include="Content\js\bootstrap.min.js" />
+    <Content Include="Content\js\filepond.min.js" />
+    <Content Include="Content\js\jquery-3.6.3.js" />
+    <Content Include="Content\js\jquery.datetimepicker.full.js" />
+    <Content Include="Content\js\popper.min.js" />
+    <Content Include="Content\js\print.min.js" />
+    <Content Include="Content\js\select2.min.js" />
+    <Content Include="Content\Libs\datatables\css\dataTables.bootstrap4.min.css" />
+    <Content Include="Content\Libs\datatables\css\jquery.dataTables.min.css" />
+    <Content Include="Content\Libs\datatables\css\responsive.bootstrap4.min.css" />
+    <Content Include="Content\Libs\datatables\css\responsive.dataTables.min.css" />
+    <Content Include="Content\Libs\datatables\images\sort_asc.png" />
+    <Content Include="Content\Libs\datatables\images\sort_asc_disabled.png" />
+    <Content Include="Content\Libs\datatables\images\sort_both.png" />
+    <Content Include="Content\Libs\datatables\images\sort_desc.png" />
+    <Content Include="Content\Libs\datatables\images\sort_desc_disabled.png" />
+    <Content Include="Content\Libs\datatables\js\buttons.bootstrap4.min.js" />
+    <Content Include="Content\Libs\datatables\js\buttons.flash.min.js" />
+    <Content Include="Content\Libs\datatables\js\buttons.html5.min.js" />
+    <Content Include="Content\Libs\datatables\js\buttons.print.min.js" />
+    <Content Include="Content\Libs\datatables\js\dataTables.bootstrap4.min.js" />
+    <Content Include="Content\Libs\datatables\js\dataTables.buttons.min.js" />
+    <Content Include="Content\Libs\datatables\js\dataTables.responsive.min.js" />
+    <Content Include="Content\Libs\datatables\js\jquery.dataTables.min.js" />
+    <Content Include="Content\Libs\datatables\js\jszip.min.js" />
+    <Content Include="Content\Libs\datatables\js\pdfmake.min.js" />
+    <Content Include="Content\Libs\datatables\js\responsive.bootstrap4.min.js" />
+    <Content Include="Content\Libs\datatables\js\vfs_fonts.js" />
+    <Content Include="Content\Site.css" />
+    <Content Include="Global.asax" />
+    <Content Include="App_Browsers\qt.browser" />
+    <Content Include="Content\icomoon\fonts\icomoon.eot" />
+    <Content Include="Content\icomoon\fonts\icomoon.ttf" />
+    <Content Include="Content\icomoon\fonts\icomoon.woff" />
+    <Content Include="Content\icomoon\selection.json" />
+    <Content Include="Content\js\bootstrap.bundle.js.map" />
+    <Content Include="Content\js\bootstrap.bundle.min.js.map" />
+    <Content Include="Content\js\bootstrap.js.map" />
+    <Content Include="Content\js\bootstrap.min.js.map" />
+    <Content Include="Content\css\bootstrap-grid.css.map" />
+    <Content Include="Content\css\bootstrap-grid.min.css.map" />
+    <Content Include="Content\css\bootstrap-reboot.css.map" />
+    <Content Include="Content\css\bootstrap-reboot.min.css.map" />
+    <Content Include="Content\css\bootstrap.css.map" />
+    <Content Include="Content\css\bootstrap.min.css.map" />
+    <Content Include="Content\estilos.less" />
+    <Content Include="imagenes\index\ReportesDigemid\cargando.gif" />
+    <Content Include="Content\img\checkAzul.png" />
+    <Content Include="Content\img\escudo_nacional.png" />
+    <Content Include="imagenes\index\ReportesDigemid\impresion.gif" />
+    <Content Include="libman.json" />
+    <None Include="Properties\PublishProfiles\CustomProfile.pubxml" />
+    <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
+    <None Include="Properties\PublishProfiles\FolderProfile1.pubxml" />
+    <Content Include="imagenes\index\cobefar %281%29.jpg" />
+    <Content Include="imagenes\index\cobefar %2810%29.jpg" />
+    <Content Include="imagenes\index\cobefar %2811%29.jpg" />
+    <Content Include="Content\img\fondo-inicio-sesion.jpg" />
+    <Content Include="imagenes\index\cobefar %283%29.jpg" />
+    <Content Include="imagenes\index\cobefar %284%29.jpg" />
+    <Content Include="imagenes\index\cobefar %285%29.jpg" />
+    <Content Include="imagenes\index\cobefar %286%29.jpg" />
+    <Content Include="imagenes\index\cobefar %287%29.jpg" />
+    <Content Include="imagenes\index\cobefar %288%29.jpg" />
+    <Content Include="imagenes\index\cobefar %289%29.jpg" />
+    <Content Include="imagenes\index\contenido\inicio\app.jpg" />
+    <Content Include="imagenes\index\contenido\inicio\banner1.jpg" />
+    <Content Include="imagenes\index\contenido\inicio\banner2.jpg" />
+    <Content Include="imagenes\index\contenido\inicio\banner3.png" />
+    <Content Include="imagenes\index\contenido\inicio\banner4.jpg" />
+    <Content Include="imagenes\index\contenido\inicio\banner5.png" />
+    <Content Include="imagenes\index\contenido\inicio\banner6.jpg" />
+    <Content Include="imagenes\index\contenido\inicio\banner7.jpg" />
+    <Content Include="imagenes\index\contenido\inicio\boticaapp.jpg" />
+    <Content Include="imagenes\index\contenido\inicio\cab.jpg" />
+    <Content Include="imagenes\index\contenido\inicio\calcular.png" />
+    <Content Include="imagenes\index\contenido\inicio\campania1.jpg" />
+    <Content Include="imagenes\index\contenido\inicio\campania2.jpg" />
+    <Content Include="imagenes\index\contenido\inicio\campania4.jpg" />
+    <Content Include="imagenes\index\contenido\inicio\campania5.jpg" />
+    <Content Include="imagenes\index\contenido\inicio\cot.png" />
+    <Content Include="imagenes\index\contenido\inicio\cotiz.png" />
+    <Content Include="imagenes\index\contenido\inicio\empresa.jpg" />
+    <Content Include="imagenes\index\contenido\inicio\farma.gif" />
+    <Content Include="imagenes\index\contenido\inicio\img_banner.jpg" />
+    <Content Include="imagenes\index\contenido\inicio\m.jpg" />
+    <Content Include="imagenes\index\contenido\inicio\montefiori.jpg" />
+    <Content Include="imagenes\index\contenido\inicio\ortopedia.jpg" />
+    <Content Include="imagenes\index\contenido\inicio\pastillas.gif" />
+    <Content Include="imagenes\index\contenido\inicio\pruebas diagnosticas.jpg" />
+    <Content Include="imagenes\index\contenido\inicio\sjb.jpg" />
+    <Content Include="imagenes\index\contenido\inicio\spd.jpg" />
+    <Content Include="imagenes\index\contenido\inicio\tarjeta regalo 2.png" />
+    <Content Include="imagenes\index\contenido\inicio\tarjeta regalo.jpg" />
+    <Content Include="imagenes\index\contenido\inicio\tip_1.jpg" />
+    <Content Include="imagenes\index\contenido\inicio\tip_2.jpg" />
+    <Content Include="imagenes\index\contenido\inicio\tip_3.jpg" />
+    <Content Include="imagenes\index\contenido\inicio\tip_4.jpg" />
+    <Content Include="imagenes\index\contenido\inicio\tip_5.jpg" />
+    <Content Include="imagenes\index\contenido\inicio\tip_6.jpg" />
+    <Content Include="imagenes\index\contenido\inicio\tra.jpg" />
+    <Content Include="imagenes\index\contenido\inicio\x.jpg" />
+    <Content Include="imagenes\index\contenido\inicio\xx.png" />
+    <Content Include="imagenes\index\contenido\instalaciones\blog\af_1.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\blog\af_2.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\blog\al_1.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\blog\al_2.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\blog\lac_1.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\blog\lac_2.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\blog\op_1.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\blog\op_2.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\blog\ov_1.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\blog\ov_2.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\inst %281%29.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\inst %2810%29.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\inst %2811%29.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\inst %2812%29.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\inst %2815%29.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\inst %282%29.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\inst %283%29.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\inst %284%29.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\inst %285%29.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\inst %286%29.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\inst %287%29.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\inst13.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\inst14.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\inst8.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\inst9.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\lab_1.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\lab_10.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\lab_2.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\lab_3.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\lab_4.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\lab_5.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\lab_6.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\lab_7.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\lab_8.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\lab_9.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\mision.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\mision2.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\somos1.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\somos2.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\somos3.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\somos4.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\vision.jpg" />
+    <Content Include="imagenes\index\contenido\instalaciones\vision2.jpg" />
+    <Content Include="imagenes\index\contenido\productos\iconos\cuidadopersonal.jpg" />
+    <Content Include="imagenes\index\contenido\productos\iconos\medicinas.png" />
+    <Content Include="imagenes\index\contenido\productos\iconos\prov1.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p1\P1_1.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p1\p1_10.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p1\p1_11.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p1\p1_12.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p1\p1_2.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p1\p1_3.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p1\p1_4.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p1\p1_5.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p1\p1_6.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p1\p1_7.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p1\p1_8.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p1\p1_9.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p2\p2_1.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p2\p2_10.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p2\p2_11.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p2\p2_12.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p2\p2_2.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p2\p2_3.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p2\p2_4.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p2\p2_5.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p2\p2_6.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p2\p2_7.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p2\p2_8.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p2\p2_9.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p3\p3_1.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p3\p3_10.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p3\p3_11.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p3\p3_12.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p3\p3_2.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p3\p3_3.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p3\p3_4.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p3\p3_5.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p3\p3_6.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p3\p3_7.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p3\p3_8.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p3\p3_9.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p4\p4_1.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p4\p4_10.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p4\p4_11.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p4\p4_12.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p4\p4_2.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p4\p4_3.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p4\p4_4.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p4\p4_5.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p4\p4_6.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p4\p4_7.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p4\p4_8.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p4\p4_9.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p5\p5_1.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p5\p5_10.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p5\p5_11.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p5\p5_12.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p5\p5_2.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p5\p5_3.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p5\p5_4.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p5\p5_5.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p5\p5_6.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p5\p5_7.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p5\p5_8.jpg" />
+    <Content Include="imagenes\index\contenido\productos\p5\p5_9.jpg" />
+    <Content Include="imagenes\index\contenido\proveedores\iconos\prov1.jpg" />
+    <Content Include="imagenes\index\contenido\proveedores\iconos\prov10.jpg" />
+    <Content Include="imagenes\index\contenido\proveedores\iconos\prov2.jpg" />
+    <Content Include="imagenes\index\contenido\proveedores\iconos\prov3.jpg" />
+    <Content Include="imagenes\index\contenido\proveedores\iconos\prov4.jpg" />
+    <Content Include="imagenes\index\contenido\proveedores\iconos\prov5.jpg" />
+    <Content Include="imagenes\index\contenido\proveedores\iconos\prov6.jpg" />
+    <Content Include="imagenes\index\contenido\proveedores\iconos\prov7.jpg" />
+    <Content Include="imagenes\index\contenido\proveedores\iconos\prov8.jpg" />
+    <Content Include="imagenes\index\contenido\proveedores\iconos\prov9.jpg" />
+    <Content Include="imagenes\index\encabezado\barras.png" />
+    <Content Include="imagenes\index\encabezado\bpa.jpg" />
+    <Content Include="imagenes\index\encabezado\CobefarNavidad.jpeg" />
+    <Content Include="imagenes\index\encabezado\logoC.jpg" />
+    <Content Include="imagenes\index\encabezado\luces.gif" />
+    <Content Include="imagenes\index\encabezado\navidad1.gif" />
+    <Content Include="imagenes\index\encabezado\navidad2.gif" />
+    <Content Include="imagenes\index\encabezado\navidad3.gif" />
+    <Content Include="imagenes\index\encabezado\navidad4.gif" />
+    <Content Include="imagenes\index\encabezado\navidad5.gif" />
+    <Content Include="imagenes\index\encabezado\navidad6.gif" />
+    <Content Include="imagenes\index\encabezado\navidad7.gif" />
+    <Content Include="imagenes\index\ReportesDigemid\check.png" />
+    <Content Include="imagenes\index\section.png" />
+    <Content Include="imagenes\index\section2.png" />
+    <Content Include="imagenes\index\Ventas\TicketVenta\regalo.jpg" />
+    <Content Include="imagenes\logo-cobefar.png" />
+    <Content Include="imagenes\logo.png" />
+    <Content Include="imagenes\logoventa2.jpg" />
+    <Content Include="imagenes\logoweb.jpg" />
+    <Content Include="imagenes\logoweb.png" />
+    <Content Include="Reportes\DS_Kardex.xsc">
+      <DependentUpon>DS_Kardex.xsd</DependentUpon>
+    </Content>
+    <None Include="Reportes\DS_Kardex.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>DS_Kardex.Designer.cs</LastGenOutput>
+    </None>
+    <Content Include="Reportes\DS_Kardex.xss">
+      <DependentUpon>DS_Kardex.xsd</DependentUpon>
+    </Content>
+    <Content Include="Reportes\DS_Kardex2.xsc">
+      <DependentUpon>DS_Kardex2.xsd</DependentUpon>
+    </Content>
+    <None Include="Reportes\DS_Kardex2.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>DS_Kardex2.Designer.cs</LastGenOutput>
+    </None>
+    <Content Include="Reportes\DS_Kardex2.xss">
+      <DependentUpon>DS_Kardex2.xsd</DependentUpon>
+    </Content>
+    <Content Include="Reportes\RptDireccionTecnica\DS_BalContIngreso.xsc">
+      <DependentUpon>DS_BalContIngreso.xsd</DependentUpon>
+    </Content>
+    <Content Include="Reportes\RptDireccionTecnica\DS_BalContEgresos.xsc">
+      <DependentUpon>DS_BalContEgresos.xsd</DependentUpon>
+    </Content>
+    <Content Include="Reportes\RptDireccionTecnica\DS_BalContConsolidado.xsc">
+      <DependentUpon>DS_BalContConsolidado.xsd</DependentUpon>
+    </Content>
+    <None Include="Reportes\RptDireccionTecnica\DS_BalContConsolidado.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>DS_BalContConsolidado.Designer.cs</LastGenOutput>
+    </None>
+    <Content Include="Reportes\RptDireccionTecnica\DS_BalContConsolidado.xss">
+      <DependentUpon>DS_BalContConsolidado.xsd</DependentUpon>
+    </Content>
+    <None Include="Reportes\RptDireccionTecnica\DS_BalContEgresos.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>DS_BalContEgresos.Designer.cs</LastGenOutput>
+    </None>
+    <Content Include="Reportes\RptDireccionTecnica\DS_BalContEgresos.xss">
+      <DependentUpon>DS_BalContEgresos.xsd</DependentUpon>
+    </Content>
+    <None Include="Reportes\RptDireccionTecnica\DS_BalContIngreso.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>DS_BalContIngreso.Designer.cs</LastGenOutput>
+    </None>
+    <Content Include="Reportes\RptDireccionTecnica\DS_BalContIngreso.xss">
+      <DependentUpon>DS_BalContIngreso.xsd</DependentUpon>
+    </Content>
+    <Content Include="Reportes\RptDireccionTecnica\DS_PreciosOpm.xsc">
+      <DependentUpon>DS_PreciosOpm.xsd</DependentUpon>
+    </Content>
+    <None Include="Reportes\RptDireccionTecnica\DS_PreciosOpm.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>DS_PreciosOpm.Designer.cs</LastGenOutput>
+    </None>
+    <Content Include="Reportes\RptDireccionTecnica\DS_PreciosOpm.xss">
+      <DependentUpon>DS_PreciosOpm.xsd</DependentUpon>
+    </Content>
+    <Content Include="Reportes\RptInventario\DS_RptContInv.xsc">
+      <DependentUpon>DS_RptContInv.xsd</DependentUpon>
+    </Content>
+    <Content Include="Reportes\RptDireccionTecnica\DS_VentasArtLote.xsc">
+      <DependentUpon>DS_VentasArtLote.xsd</DependentUpon>
+    </Content>
+    <None Include="Reportes\RptDireccionTecnica\DS_VentasArtLote.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>DS_VentasArtLote.Designer.cs</LastGenOutput>
+    </None>
+    <Content Include="Reportes\RptDireccionTecnica\DS_VentasArtLote.xss">
+      <DependentUpon>DS_VentasArtLote.xsd</DependentUpon>
+    </Content>
+    <None Include="Reportes\RptInventario\DS_RptContInv.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>DS_RptContInv.Designer.cs</LastGenOutput>
+    </None>
+    <Content Include="Reportes\RptInventario\DS_RptContInv.xss">
+      <DependentUpon>DS_RptContInv.xsd</DependentUpon>
+    </Content>
+    <Content Include="Reportes\RptVentas\DS_AudiVtsCli.xsc">
+      <DependentUpon>DS_AudiVtsCli.xsd</DependentUpon>
+    </Content>
+    <Content Include="Reportes\RptVentas\DS_AnalisisVentas.xsc">
+      <DependentUpon>DS_AnalisisVentas.xsd</DependentUpon>
+    </Content>
+    <Content Include="Reportes\RptRutas\DS_TempHumed.xsc">
+      <DependentUpon>DS_TempHumed.xsd</DependentUpon>
+    </Content>
+    <None Include="Reportes\RptRutas\DS_TempHumed.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>DS_TempHumed.Designer.cs</LastGenOutput>
+    </None>
+    <Content Include="Reportes\RptRutas\DS_TempHumed.xss">
+      <DependentUpon>DS_TempHumed.xsd</DependentUpon>
+    </Content>
+    <Content Include="Reportes\RptRutas\RptPesaje.rpt" />
+    <None Include="Reportes\RptVentas\DS_AnalisisVentas.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>DS_AnalisisVentas.Designer.cs</LastGenOutput>
+    </None>
+    <Content Include="Reportes\RptVentas\DS_AnalisisVentas.xss">
+      <DependentUpon>DS_AnalisisVentas.xsd</DependentUpon>
+    </Content>
+    <Content Include="Reportes\RptVentas\DS_AnCtVentas.xsc">
+      <DependentUpon>DS_AnCtVentas.xsd</DependentUpon>
+    </Content>
+    <None Include="Reportes\RptVentas\DS_AnCtVentas.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>DS_AnCtVentas.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="Reportes\RptVentas\DS_AnCtVentas.xss">
+      <DependentUpon>DS_AnCtVentas.xsd</DependentUpon>
+    </Content>
+    <Content Include="Reportes\RptVentas\DS_AnCtVentas2.xsc">
+      <DependentUpon>DS_AnCtVentas2.xsd</DependentUpon>
+    </Content>
+    <None Include="Reportes\RptVentas\DS_AnCtVentas2.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>DS_AnCtVentas2.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="Reportes\RptVentas\DS_AnCtVentas2.xss">
+      <DependentUpon>DS_AnCtVentas2.xsd</DependentUpon>
+    </Content>
+    <None Include="Reportes\RptVentas\DS_AudiVtsCli.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>DS_AudiVtsCli.Designer.cs</LastGenOutput>
+    </None>
+    <Content Include="Reportes\RptVentas\DS_AudiVtsCli.xss">
+      <DependentUpon>DS_AudiVtsCli.xsd</DependentUpon>
+    </Content>
+    <Content Include="Reportes\RptVentas\DS_VentCliDias.xsc">
+      <DependentUpon>DS_VentCliDias.xsd</DependentUpon>
+    </Content>
+    <Content Include="Reportes\RptVentas\DS_VentasSkuDias.xsc">
+      <DependentUpon>DS_VentasSkuDias.xsd</DependentUpon>
+    </Content>
+    <None Include="Reportes\RptVentas\DS_VentasSkuDias.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>DS_VentasSkuDias.Designer.cs</LastGenOutput>
+    </None>
+    <Content Include="Reportes\RptVentas\DS_VentasSkuDias.xss">
+      <DependentUpon>DS_VentasSkuDias.xsd</DependentUpon>
+    </Content>
+    <None Include="Reportes\RptVentas\DS_VentCliDias.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>DS_VentCliDias.Designer.cs</LastGenOutput>
+    </None>
+    <Content Include="Reportes\RptVentas\DS_VentCliDias.xss">
+      <DependentUpon>DS_VentCliDias.xsd</DependentUpon>
+    </Content>
+    <Content Include="Reportes\RptVentas\DS_VentVendDias.xsc">
+      <DependentUpon>DS_VentVendDias.xsd</DependentUpon>
+    </Content>
+    <Content Include="Reportes\RptVentas\DS_VentSkuCliDias.xsc">
+      <DependentUpon>DS_VentSkuCliDias.xsd</DependentUpon>
+    </Content>
+    <None Include="Reportes\RptVentas\DS_VentSkuCliDias.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>DS_VentSkuCliDias.Designer.cs</LastGenOutput>
+    </None>
+    <Content Include="Reportes\RptVentas\DS_VentSkuCliDias.xss">
+      <DependentUpon>DS_VentSkuCliDias.xsd</DependentUpon>
+    </Content>
+    <None Include="Reportes\RptVentas\DS_VentVendDias.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>DS_VentVendDias.Designer.cs</LastGenOutput>
+    </None>
+    <Content Include="Reportes\RptVentas\DS_VentVendDias.xss">
+      <DependentUpon>DS_VentVendDias.xsd</DependentUpon>
+    </Content>
+    <None Include="Scripts\jquery-1.10.2.intellisense.js" />
+    <Content Include="ReportViewerWebForm.aspx" />
+    <Content Include="Rotativa\help-wkhtmltoimage.txt" />
+    <Content Include="Rotativa\help-wkhtmltopdf.txt" />
+    <Content Include="Rotativa\wkhtmltoimage.exe" />
+    <Content Include="Rotativa\wkhtmltopdf.exe" />
+    <Content Include="Scripts\almacen\reportesDigemid\Kardex2.js" />
+    <Content Include="Scripts\bootstrap.js" />
+    <Content Include="Scripts\bootstrap3.min.js" />
+    <Content Include="Scripts\Frameworks\alertify.min.js" />
+    <Content Include="Scripts\Frameworks\sweetalert2%4011.js" />
+    <Content Include="Scripts\jquery-1.10.2.js" />
+    <Content Include="Scripts\jquery-1.10.2.min.js" />
+    <None Include="Scripts\jquery.validate-vsdoc.js" />
+    <Content Include="Scripts\jquery-2.0.0.js" />
+    <Content Include="Scripts\jquery-2.2.4.js" />
+    <Content Include="Content\js\jquery-3.0.0.js" />
+    <Content Include="Scripts\jquery-ui-1.10.3.js" />
+    <Content Include="Scripts\jquery-ui-1.11.3.js" />
+    <Content Include="Content\js\jquery-ui-1.12.js" />
+    <Content Include="Scripts\jquery.validate.js" />
+    <Content Include="Scripts\jquery.validate.min.js" />
+    <Content Include="Scripts\jquery.validate.unobtrusive.js" />
+    <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
+    <Content Include="Scripts\modernizr-2.6.2.js" />
+    <Content Include="Scripts\Rutas\HojaDeReparto.js" />
+    <Content Include="Scripts\shared\jquery.doubleScroll.js" />
+    <Content Include="Scripts\shared\snow.js" />
+    <Content Include="Scripts\TI_Sistemas\Usuario.js" />
+    <Content Include="Scripts\Ventas\TicketDeVenta.js" />
+    <Content Include="SqlServerTypes\readme.htm" />
+    <Content Include="SqlServerTypes\x64\msvcr120.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SqlServerTypes\x64\SqlServerSpatial140.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SqlServerTypes\x86\msvcr120.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SqlServerTypes\x86\SqlServerSpatial140.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Web.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\AlmacenController.cs" />
+    <Compile Include="Controllers\AtencionClienteController.cs" />
+    <Compile Include="Controllers\CajaController.cs" />
+    <Compile Include="Controllers\ComprasController.cs" />
+    <Compile Include="Controllers\DireccionTecnicaController.cs" />
+    <Compile Include="Controllers\IndexController.cs" />
+    <Compile Include="Controllers\ReportesDigemidController.cs" />
+    <Compile Include="Controllers\RutasController.cs" />
+    <Compile Include="Controllers\TI_SistemasController.cs" />
+    <Compile Include="Controllers\VentasController.cs" />
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="HostedService.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Reportes\DS_Kardex.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DS_Kardex.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Reportes\DS_Kardex2.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DS_Kardex2.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Reportes\RptAtencionCliente\RptDocReg015.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>RptDocReg015.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Reportes\RptAtencionCliente\RptDocReg016.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>RptDocReg016.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Reportes\RptAtencionCliente\RptDocEnvio.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>RptDocEnvio.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Reportes\RptDireccionTecnica\DS_BalContConsolidado.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DS_BalContConsolidado.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Reportes\RptDireccionTecnica\DS_BalContEgresos.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DS_BalContEgresos.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Reportes\RptDireccionTecnica\DS_BalContIngreso.cs">
+      <DependentUpon>DS_BalContIngreso.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Reportes\RptDireccionTecnica\DS_BalContIngreso.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DS_BalContIngreso.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Reportes\RptDireccionTecnica\DS_PreciosOpm.cs">
+      <DependentUpon>DS_PreciosOpm.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Reportes\RptDireccionTecnica\DS_PreciosOpm.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DS_PreciosOpm.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Reportes\RptDireccionTecnica\DS_VentasArtLote.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DS_VentasArtLote.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Reportes\RptInventario\DS_RptContInv.cs">
+      <DependentUpon>DS_RptContInv.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Reportes\RptInventario\DS_RptContInv.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DS_RptContInv.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Reportes\RptRutas\DS_TempHumed.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DS_TempHumed.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Reportes\RptRutas\RptHojasCargo.cs">
+      <DependentUpon>RptHojasCargo.rpt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <SubType>Component</SubType>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Reportes\RptRutas\RptHojasCargoDet.cs">
+      <DependentUpon>RptHojasCargoDet.rpt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <SubType>Component</SubType>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Reportes\RptRutas\RptHojasRutaFormatoA.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>RptHojasRutaFormatoA.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Reportes\RptRutas\RptPesaje.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Reportes\RptVentas\DS_AnalisisVentas.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DS_AnalisisVentas.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Reportes\RptVentas\DS_AnCtVentas.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DS_AnCtVentas.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Reportes\RptVentas\DS_AnCtVentas2.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DS_AnCtVentas2.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Reportes\RptVentas\DS_AudiVtsCli.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DS_AudiVtsCli.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Reportes\RptVentas\DS_VentasSkuDias.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DS_VentasSkuDias.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Reportes\RptVentas\DS_VentCliDias.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DS_VentCliDias.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Reportes\RptVentas\DS_VentSkuCliDias.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DS_VentSkuCliDias.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Reportes\RptVentas\DS_VentVendDias.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DS_VentVendDias.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Reportes\RptVentas\RptAnalisisTickets.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>RptAnalisisTickets.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SqlServerTypes\Loader.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\web.config" />
+    <None Include="packages.config" />
+    <Content Include="Scripts\jquery-1.10.2.min.map" />
+    <Content Include="Views\_ViewStart.cshtml" />
+    <Content Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Views\Index\AccesoUsuario.cshtml" />
+    <Content Include="Views\Index\Index.cshtml" />
+    <Content Include="Views\Index\Sesion.cshtml" />
+    <Content Include="Views\ReportesDigemid\reporteViewer.cshtml" />
+    <Content Include="Views\ReportesDigemid\infoKardex.cshtml" />
+    <Content Include="Views\Index\RH_Personal.cshtml" />
+    <Content Include="Views\Index\Error.cshtml" />
+    <Content Include="Views\Ventas\ListadoTickets.cshtml" />
+    <Content Include="Views\Ventas\CreaTicketVenta.cshtml" />
+    <Content Include="Views\Ventas\EditarTicketVenta.cshtml" />
+    <Content Include="Views\Caja\PagarTicketVenta.cshtml" />
+    <Content Include="Views\Ventas\PdfTicketVenta.cshtml" />
+    <Content Include="Views\Ventas\AnularTicketVenta.cshtml" />
+    <Content Include="Views\Ventas\SeguimientoDeTicket.cshtml" />
+    <Content Include="Views\Rutas\ListadoRutas.cshtml" />
+    <Content Include="Views\Rutas\CrearOrdenDeRuta.cshtml" />
+    <Content Include="Views\Rutas\EditarOrdenDeRuta.cshtml" />
+    <Content Include="Views\Ventas\TacoComentarios.cshtml" />
+    <Content Include="Views\Ventas\TacoEmpaque.cshtml" />
+    <Content Include="Views\Rutas\DocumentoRutasTransferencia.cshtml" />
+    <Content Include="Views\Rutas\DocumentoRutasDomicilio.cshtml" />
+    <Content Include="Views\Ventas\ListadoTicketsFacturacion.cshtml" />
+    <Content Include="Views\Ventas\ListadoTicketsRecepcion.cshtml" />
+    <Content Include="Views\Ventas\ListadoTicketsAlmacen.cshtml" />
+    <Content Include="Views\Ventas\SacandoTicketVenta.cshtml" />
+    <Content Include="Views\Ventas\EmpacadoTicketVenta.cshtml" />
+    <Content Include="Views\Ventas\AnularSacandoTicket.cshtml" />
+    <Content Include="Views\Ventas\AnularEmpacadoTicket.cshtml" />
+    <Content Include="Views\Ventas\ListadoTicketsDespacho.cshtml" />
+    <Content Include="Views\Ventas\EntregadoTicketVenta.cshtml" />
+    <Content Include="Views\Ventas\AnularEntregadoTicket.cshtml" />
+    <Content Include="Views\Ventas\EnviarProtocoloTicket.cshtml" />
+    <Content Include="Views\Ventas\AnularEnviarProtocoloTicket.cshtml" />
+    <Content Include="Views\Ventas\OrdenDeVenta.cshtml" />
+    <Content Include="Views\Rutas\AnularOrdenDeRuta.cshtml" />
+    <Content Include="Views\Ventas\ListadoLibrosSaldo.cshtml" />
+    <Content Include="Views\Ventas\CrearLibroSaldo.cshtml" />
+    <Content Include="Views\Ventas\ListarDetLibroSaldo.cshtml" />
+    <Content Include="Views\Ventas\AgregarDetLibroSaldo.cshtml" />
+    <Content Include="Views\Ventas\ReporteLibroSaldo.cshtml" />
+    <Content Include="Views\TI_Sistemas\CrearUsuario.cshtml" />
+    <Content Include="Views\Rutas\CrearOrdenDeRutaAlm.cshtml" />
+    <Content Include="Views\Rutas\DocumentoRutasTransferenciaAlm.cshtml" />
+    <Content Include="Views\DireccionTecnica\Reportes.cshtml" />
+    <Content Include="Views\DireccionTecnica\ListadoOrdenesDeVenta.cshtml" />
+    <Content Include="Views\DireccionTecnica\ListadoFacturasDeVenta.cshtml" />
+    <Content Include="Views\DireccionTecnica\ActaRecepcionVt.cshtml" />
+    <Content Include="Views\DireccionTecnica\ActaDespachoVt.cshtml" />
+    <Content Include="Views\DireccionTecnica\OrganolepticoVt.cshtml" />
+    <Content Include="Views\DireccionTecnica\CalcularPdfsDescarga.cshtml" />
+    <Content Include="Views\DireccionTecnica\ListadoBoletasDeVenta.cshtml" />
+    <Content Include="Views\DireccionTecnica\ActaRecepcionTs.cshtml" />
+    <Content Include="Views\DireccionTecnica\ActaDespachoTs.cshtml" />
+    <Content Include="Views\DireccionTecnica\OrganolepticoTs.cshtml" />
+    <Content Include="Views\DireccionTecnica\ListadoFacturasDeProveedores.cshtml" />
+    <Content Include="Views\DireccionTecnica\ListadoEntradasDeMercancias.cshtml" />
+    <Content Include="Views\DireccionTecnica\ActaRecepcionEm.cshtml" />
+    <Content Include="Views\DireccionTecnica\OrganolepticoEm.cshtml" />
+    <Content Include="Views\ReportesDigemid\infoBalanceControlados.cshtml" />
+    <Content Include="Views\DireccionTecnica\ListadoSaldosAnteriores.cshtml" />
+    <Content Include="Views\DireccionTecnica\AgregarSaldoAnterior.cshtml" />
+    <Content Include="Views\DireccionTecnica\EditarSaldoAnterior.cshtml" />
+    <Content Include="Views\DireccionTecnica\EliminarSaldoAnterior.cshtml" />
+    <Content Include="Views\DireccionTecnica\ListadoMaestroDeArticulos.cshtml" />
+    <Content Include="Views\DireccionTecnica\DetallesArticulo.cshtml" />
+    <Content Include="Views\DireccionTecnica\ListadoNotasDeCreditoVenta.cshtml" />
+    <Content Include="Views\DireccionTecnica\ListadoEntregasDeVenta.cshtml" />
+    <Content Include="Views\ReportesDigemid\infoAuditoriaStocks.cshtml" />
+    <Content Include="Views\ReportesDigemid\tbReporteAuditoriaStocks.cshtml" />
+    <Content Include="Views\ReportesDigemid\infoOperacionesLotes.cshtml" />
+    <Content Include="Views\ReportesDigemid\tbReporteOperacionesLotes.cshtml" />
+    <Content Include="Views\DireccionTecnica\ComprobanteDePago.cshtml" />
+    <Content Include="Views\ReportesDigemid\infoPreciosOpm.cshtml" />
+    <Content Include="Views\DireccionTecnica\NotaDeCreditoVentaArticulos.cshtml" />
+    <Content Include="Views\DireccionTecnica\RealizarEntradaDeMercancias.cshtml" />
+    <Content Include="Views\DireccionTecnica\AnularRealizarEntradaDeMercancias.cshtml" />
+    <Content Include="Views\DireccionTecnica\FacturaDeProveedor.cshtml" />
+    <Content Include="Views\Almacen\ContabilizacionInventario.cshtml" />
+    <Content Include="Views\Almacen\GestionPeriodos.cshtml" />
+    <Content Include="Views\Almacen\NuevoPeriodo.cshtml" />
+    <Content Include="Views\Almacen\SeleccionarPeriodo.cshtml" />
+    <Content Include="Views\Almacen\EditarPeriodo.cshtml" />
+    <Content Include="Views\Almacen\GestionEquipos.cshtml" />
+    <Content Include="Views\Almacen\CerrarPeriodo.cshtml" />
+    <Content Include="Views\Almacen\CargarDatosSap.cshtml" />
+    <Content Include="Views\Almacen\NuevoEquipo.cshtml" />
+    <Content Include="Views\Almacen\EditarEquipo.cshtml" />
+    <Content Include="Views\Almacen\EliminarEquipo.cshtml" />
+    <Content Include="Views\Almacen\NuevoConteo.cshtml" />
+    <Content Include="Views\Almacen\GestionConteos.cshtml" />
+    <Content Include="Views\Almacen\TerminarConteo.cshtml" />
+    <Content Include="Views\Almacen\IniciarConteo.cshtml" />
+    <Content Include="Views\Almacen\ReportesContabilizacionInventario.cshtml" />
+    <Content Include="Views\Almacen\reporteViewer.cshtml" />
+    <Content Include="Views\Almacen\IniciarReconteo.cshtml" />
+    <Content Include="Views\Almacen\TerminarReconteo.cshtml" />
+    <Content Include="Views\Almacen\GestionReconteos.cshtml" />
+    <Content Include="Views\Almacen\GestionAnalisisConteos.cshtml" />
+    <Content Include="Views\Almacen\IniciarAnalisisConteo.cshtml" />
+    <Content Include="Views\Almacen\TerminarAnalisisConteo.cshtml" />
+    <Content Include="Views\Ventas\ReportesVentas.cshtml" />
+    <Content Include="Views\Ventas\infoAuditVtsCli.cshtml" />
+    <Content Include="Views\Ventas\reporteViewer.cshtml" />
+    <Content Include="Views\Ventas\infoAnalisisTickets.cshtml" />
+    <Content Include="Views\Ventas\infoAnalisisVentas.cshtml" />
+    <Content Include="Views\AtencionCliente\GestionSolicitud.cshtml" />
+    <Content Include="Views\AtencionCliente\NuevaSolicitud.cshtml" />
+    <Content Include="Views\AtencionCliente\EditarSolicitud.cshtml" />
+    <Content Include="Views\AtencionCliente\RegistroDNLAB.cshtml" />
+    <Content Include="Views\AtencionCliente\DetallesSolicitud.cshtml" />
+    <Content Include="Views\AtencionCliente\ProcesarSolicitud.cshtml" />
+    <Content Include="Views\AtencionCliente\AtenderSolicitud.cshtml" />
+    <Content Include="Views\AtencionCliente\CulminarSolicitud.cshtml" />
+    <Content Include="Views\Ventas\GestionarStock.cshtml" />
+    <Content Include="Views\Ventas\GestionRegalos.cshtml" />
+    <Content Include="Views\Ventas\NuevoRegalo.cshtml" />
+    <Content Include="Views\Ventas\TransaccionesRegalo.cshtml" />
+    <Content Include="Views\Ventas\ReporteClienteRegalos.cshtml" />
+    <Content Include="Views\Ventas\InactivarRegalo.cshtml" />
+    <Content Include="Views\Ventas\GestionClienteRegalos.cshtml" />
+    <Content Include="Views\Ventas\NuevoClienteRegalo.cshtml" />
+    <Content Include="Views\Ventas\EditarClienteRegalos.cshtml" />
+    <Content Include="Views\Ventas\ReporteReclamosCliente.cshtml" />
+    <Content Include="Views\Index\Index - BKP 24-05-23.cshtml" />
+    <Content Include="Views\TI_Sistemas\AdministrarRolOperacion.cshtml" />
+    <Content Include="Views\TI_Sistemas\EditarUsuario.cshtml" />
+    <Content Include="Views\TI_Sistemas\GestionPermisos.cshtml" />
+    <Content Include="Views\TI_Sistemas\GestionRolOperacion.cshtml" />
+    <Content Include="Views\Rutas\infoHojasRuta.cshtml" />
+    <Content Include="Views\Rutas\ReportesRutas.cshtml" />
+    <Content Include="Views\Ventas\GestionVendedores.cshtml" />
+    <Content Include="Views\Ventas\GestionCuotas.cshtml" />
+    <Content Include="Views\Ventas\AnCtVentas.cshtml" />
+    <Content Include="Views\Rutas\ListadoRepartos.cshtml" />
+    <Content Include="Views\Rutas\SeguimientoRepartoRutas.cshtml" />
+    <Content Include="Views\Rutas\GestionarChoferes.cshtml" />
+    <Content Include="Views\Rutas\GestionarVehiculos.cshtml" />
+    <Content Include="Views\Rutas\EntregarDetReparto.cshtml" />
+    <Content Include="Views\Rutas\reporteViewer.cshtml" />
+    <Content Include="Views\Rutas\DocumentoRepartoAg.cshtml" />
+    <Content Include="Views\ReportesDigemid\infoVentasArtLote.cshtml" />
+    <Content Include="Views\Ventas\infoVentasClienteDias.cshtml" />
+    <Content Include="Views\Ventas\infoVentasVendedorDias.cshtml" />
+    <Content Include="Views\Ventas\infoVentasSkuDias.cshtml" />
+    <Content Include="Views\Ventas\infoVentasSkuCliDias.cshtml" />
+    <Content Include="Views\Ventas\PesadoTicketVenta.cshtml" />
+    <Content Include="Views\Ventas\AnularPesadoTicket.cshtml" />
+    <Content Include="Views\Rutas\CrearHojaDeCargo.cshtml" />
+    <Content Include="Views\Ventas\RotuladoTicket.cshtml" />
+    <Content Include="Views\Rutas\GestionarOficinas.cshtml" />
+    <Content Include="Views\Ventas\EditarTicketVentaSup.cshtml" />
+    <Content Include="Views\Rutas\ManifiestoCourier.cshtml" />
+    <Content Include="Views\Rutas\GestionarTarifarios.cshtml" />
+    <Content Include="Views\Rutas\infoHojasCargo.cshtml" />
+    <Content Include="Views\Rutas\AnularHojaCargo.cshtml" />
+    <Content Include="Views\Rutas\infoHojasCargoDetallado.cshtml" />
+    <Content Include="Views\Rutas\ListadoEntregaRepartos.cshtml" />
+    <Content Include="Views\Shared\_Layout2.cshtml" />
+    <Content Include="Views\Index\Login - Copia.cshtml" />
+    <Content Include="Views\Rutas\CrearOrdenDeRuta2.cshtml" />
+    <Content Include="Views\Rutas\infoTicketsPesaje.cshtml" />
+    <Content Include="Views\DireccionTecnica\frmActaDespachoODLN.cshtml" />
+    <Content Include="Views\DireccionTecnica\frmActaDespachoOINV.cshtml" />
+    <Content Include="Views\DireccionTecnica\frmActaDespachoOWTR.cshtml" />
+    <Content Include="Views\DireccionTecnica\frmActaRecepcion.cshtml" />
+    <Content Include="Views\DireccionTecnica\ListadoTransferenciasDeStock.cshtml" />
+    <Content Include="Views\Ventas\VerificadoTicketVenta.cshtml" />
+    <Content Include="Views\Ventas\AnularVerificadoTicket.cshtml" />
+    <Content Include="Views\Ventas\PedidosOnline.cshtml" />
+    <Content Include="Views\Ventas\CrearPedidoOnline.cshtml" />
+    <Content Include="Views\Ventas\VerPedidoOnline.cshtml" />
+    <Content Include="Views\Almacen\DevolucionMercancias.cshtml" />
+    <Content Include="Views\Almacen\EditarDevolucion.cshtml" />
+    <Content Include="Views\Almacen\EditarDevolucionAlmDEV07.cshtml" />
+    <Content Include="Views\Almacen\FormatoDevolucionSimple.cshtml" />
+    <Content Include="Views\Almacen\FormatoDevolucionDT.cshtml" />
+    <Content Include="Views\Almacen\NuevaDevolucion.cshtml" />
+    <Content Include="Views\Almacen\SeguimientoDevolucion.cshtml" />
+    <Content Include="Views\Almacen\NuevaDevolucionAlmDEV07.cshtml" />
+    <Content Include="Views\ReportesDigemid\BalanceControlados\RptBalanceControladosConsolidado.cshtml" />
+    <Content Include="Views\ReportesDigemid\BalanceControlados\RptBalanceControladosEgreso.cshtml" />
+    <Content Include="Views\ReportesDigemid\BalanceControlados\RptBalanceControladosIngreso.cshtml" />
+    <Content Include="Views\ReportesDigemid\BalanceControlados\RptBalanceControladosLibroControlados.cshtml" />
+    <Content Include="Views\ReportesDigemid\RptDetalleOperacionesLotes.cshtml" />
+    <Content Include="Views\ReportesDigemid\RptKardexAlmacenes.cshtml" />
+    <Content Include="Views\ReportesDigemid\RptOperacionesLotes.cshtml" />
+    <Content Include="Views\Rutas\Reportes\RptControlTemperaturaHumedad.cshtml" />
+    <Content Include="Views\Ventas\ListadoTicketsGuiasRemision.cshtml" />
+    <Content Include="Views\Rutas\LayoutFacturaBoletaSap.cshtml" />
+    <Content Include="Views\Rutas\LayoutFacturaBoletaSap_header.cshtml" />
+    <Content Include="Views\Rutas\LayoutGuiaRemisionSap.cshtml" />
+    <Content Include="Views\Rutas\LayoutGuiaRemisionSap_header.cshtml" />
+    <Content Include="Views\Rutas\LayoutNotaCreditoDebitoSap.cshtml" />
+    <Content Include="Views\Rutas\LayoutNotaCreditoDebitoSap_header.cshtml" />
+    <Content Include="Views\Caja\Index.cshtml" />
+    <Content Include="Views\Shared\Ventas\ValidarTicketACuadrar.cshtml" />
+    <Content Include="Views\Shared\Caja\ListadoTickets.cshtml" />
+    <Content Include="Views\Shared\DireccionTecnica\RegistrosSanitarios\ListadoRegistrosSanitarios.cshtml" />
+    <Content Include="Views\DireccionTecnica\RegistrosSanitarios.cshtml" />
+    <Content Include="Views\Shared\DireccionTecnica\RegistrosSanitarios\SeguimientoObservaciones.cshtml" />
+    <Content Include="Views\Shared\DireccionTecnica\RegistrosSanitarios\AgregarObservaciones.cshtml" />
+    <Content Include="Views\ReportesDigemid\infoRegistroSanitario.cshtml" />
+    <Content Include="Views\Ventas\AutorizarTicketReparto.cshtml" />
+    <None Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="App_Data\" />
+    <Folder Include="ComprobantesRepartos\" />
+    <Folder Include="EXCEL\" />
+    <Folder Include="imagenes\index\contenido\proveedores\prov1\" />
+    <Folder Include="imagenes\index\contenido\proveedores\prov2\" />
+    <Folder Include="imagenes\index\contenido\proveedores\prov3\" />
+    <Folder Include="imagenes\index\contenido\proveedores\prov4\" />
+    <Folder Include="PDF\" />
+    <Folder Include="Views\AccesoDefault\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Capa_Datos\Capa_Datos.csproj">
+      <Project>{6BBFB369-2F7E-4BB7-9A56-6E92656798DB}</Project>
+      <Name>Capa_Datos</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Capa_Entidad\Capa_Entidad.csproj">
+      <Project>{6325e074-d449-47f7-85da-ff0ca692012f}</Project>
+      <Name>Capa_Entidad</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Capa_Negocio\Capa_Negocio.csproj">
+      <Project>{88940673-5a02-43f7-bde6-4ac8aabcccab}</Project>
+      <Name>Capa_Negocio</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Reportes\RptAtencionCliente\RptDocReg015.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>RptDocReg015.cs</LastGenOutput>
+    </Content>
+    <Content Include="Reportes\RptAtencionCliente\RptDocReg016.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>RptDocReg016.cs</LastGenOutput>
+    </Content>
+    <Content Include="Reportes\RptAtencionCliente\RptDocEnvio.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>RptDocEnvio.cs</LastGenOutput>
+    </Content>
+    <Content Include="Reportes\RptDireccionTecnica\RptBalContConsolidado.rdlc" />
+    <Content Include="Reportes\RptDireccionTecnica\RptBalContEgresos.rdlc" />
+    <Content Include="Reportes\RptDireccionTecnica\RptBalContIngreso.rdlc" />
+    <Content Include="Reportes\RptDireccionTecnica\RptPreciosOpm.rdlc" />
+    <Content Include="Reportes\RptInventario\RptContInvA.rdlc" />
+    <Content Include="Reportes\RptInventario\RptContInvC.rdlc" />
+    <Content Include="Reportes\RptInventario\RptContInvR.rdlc" />
+    <Content Include="Reportes\RptKardexLote.rdlc" />
+    <Content Include="Reportes\RptKardex.rdlc" />
+    <Content Include="Reportes\RptVentas\RptAnalisisTickets.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>RptAnalisisTickets.cs</LastGenOutput>
+    </Content>
+    <Content Include="Reportes\RptVentas\RptAnalisisVentas.rdlc" />
+    <Content Include="Reportes\RptVentas\RptAudiVtsCli.rdlc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{C0C07587-41A7-46C8-8FBD-3F9C8EBE2DDC}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Reportes\RptRutas\RptHojasRutaFormatoA.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>RptHojasRutaFormatoA.cs</LastGenOutput>
+    </Content>
+    <Content Include="Reportes\RptVentas\RptAnCtVentas.rdlc" />
+    <Content Include="Reportes\RptVentas\RptAnCtVentas2.rdlc" />
+    <Content Include="Reportes\RptRutas\RptTempHumed.rdlc" />
+    <Content Include="Reportes\RptDireccionTecnica\RptVentasArtLote.rdlc" />
+    <Content Include="Reportes\RptDireccionTecnica\RptBalControlados.rdlc" />
+    <Content Include="Reportes\RptVentas\RptVentCliDias.rdlc" />
+    <Content Include="Reportes\RptVentas\RptVentVendDias.rdlc" />
+    <Content Include="Reportes\RptVentas\RptVentasSkuDias.rdlc" />
+    <Content Include="Reportes\RptVentas\RptVentSkuCliDias.rdlc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Reportes\RptRutas\RptHojasCargo.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>RptHojasCargo.cs</LastGenOutput>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Reportes\RptRutas\RptHojasCargoDet.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>RptHojasCargoDet.cs</LastGenOutput>
+    </Content>
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>50112</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:42320/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>Este proyecto hace referencia a los paquetes NuGet que faltan en este equipo. Use la restauración de paquetes NuGet para descargarlos. Para obtener más información, consulte http://go.microsoft.com/fwlink/?LinkID=322105. El archivo que falta es {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.0\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.0\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
+    <Error Condition="!Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.4\build\EntityFramework.props'))" />
+    <Error Condition="!Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.4\build\EntityFramework.targets'))" />
+    <Error Condition="!Exists('..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.118.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.118.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets'))" />
+  </Target>
+  <Import Project="..\packages\EntityFramework.6.4.4\build\EntityFramework.targets" Condition="Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.targets')" />
+  <Import Project="..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.118.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets" Condition="Exists('..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.118.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets')" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

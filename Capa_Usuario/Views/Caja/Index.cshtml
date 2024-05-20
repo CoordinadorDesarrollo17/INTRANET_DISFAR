@@ -1,0 +1,100 @@
+﻿@{
+    ViewBag.Title = "Listado de Tickets - CAJA";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles{
+    <link href="~/Content/css/alertify.min.css" rel="stylesheet" />
+    <link href="~/Content/css/semantic.min.css" rel="stylesheet" />
+}
+
+@section Scripts{
+    <script src="~/Content/js/alertify.min.js"></script>
+}
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li class="current"><em>Listado de Tickets</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO DE TICKETS</h3></div>
+
+    <div id="div_botones" class="row pl-2 w-100 py-2" style="display: none">
+        <div class="d-flex col-lg-2 col-md-3 col-sm-4 col-5">
+            <button type="button" class="btn btn-success" onclick="exportarListado()"><i class="icon-file-excel"></i> Exportar</button>
+        </div>
+    </div>
+</div>
+
+<div id="div_listado" class="bg-dark pt-4">
+
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="modalInfo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-cobefar text-white">
+                <h5 class="modal-title" id="exampleModalLabel">Tickets a cuadrar</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" class="text-white">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div id="div_vistaParcial" class="col-12">
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class='icon-cross'></i> Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#div_listado').load(`@Url.Action("ListarTicketsAPagar")?${window.location.search.substring(1)}`).fadeIn("fast");
+
+        var consultarNuevasSolicitudes = function () {
+            $.ajax({
+                url: '/Caja/ConsultarNuevasSolicitudesTC',
+                type: 'POST',
+                dataType: 'json',
+            }).done(function (response) {
+                if (response.Mensaje != '') {
+                    alertify.set('notifier', 'position', 'bottom-right');
+                    alertify.set('notifier', 'delay', 15);     // 15 seg
+
+                    var msj = alertify.warning(`${response.Mensaje}`);
+
+                    msj.callback = function (isClicked) {
+                        if (isClicked)
+                            window.location.href = `/Caja?EstadoContraEntrega=PENDIENTE`;
+                    };
+                }
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR.status + textStatus + errorThrown);
+            });
+        }
+
+        // Intervalo de 15 seg.  
+        setInterval(consultarNuevasSolicitudes, 15000);
+    });
+
+    function exportarListado() {
+        $(location).attr('href', `/Caja/ExportarListadoTicketsACuadrar?${window.location.search.substring(1)}`);
+    }
+
+    if ('@ViewBag.Mensaje' != "") {
+        Swal.fire('@ViewBag.Mensaje');
+    }
+</script>

@@ -1,0 +1,87 @@
+﻿
+@{
+    Layout = null;
+}
+<script>
+    $(document).ready(function () { });
+    function prueba(dom) {
+        if ($(dom).val().length > 3) {
+            $.ajax('/ReportesDigemid/ListaProductosAuditoria',
+                {
+                    data: { "ItemName": $(dom).val(), "ItemCode": $(dom).val() },
+                    dataType: 'html',
+                    cache: false,
+                    type: 'post',
+                })
+                .done(function (response) {
+                    $('#dvListaProductos').html(response);
+                });
+        }
+    }
+    function rpt() {
+        $('#Reporte').html('<img src="/imagenes/index/ReportesDigemid/cargando.gif" />');
+        var parametros = $("#frm").serialize();
+        $.ajax('/Ventas/RptVentasSkuCliDias',
+            {
+                data: parametros,
+                dataType: 'html',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                $('#Reporte').html(response);
+            });
+    }
+</script>
+<div id="dvListaProductos">
+    <datalist id="ListaProductos">
+    </datalist>
+</div>
+<div class="container" style="padding: 2%; background-color: rgb(220, 220, 220);">
+    <h3 class="text-cobefar font-weight-bold text-center">VENTAS SKU CLIENTE DÍAS</h3>
+
+    <form id="frm">
+        @Html.AntiForgeryToken()
+        <div class="row mt-4">
+            <div class="col-lg-3">
+                <label for="Fecha" class="text-dark font-weight-bold font-18">Fecha:</label>
+                <input name="Fecha" type="date" class="form-control border-success" />
+            </div>
+
+            <div class="col-lg-4">
+                <label for="Fecha" class="text-dark font-weight-bold font-18">N° de Artículo Desde:</label>
+                <input type="search" name="ItemCodeIni" class="form-control border-success" list="ListaProductos" onkeyup="prueba(this);" />
+            </div>
+
+            <div class="col-lg-4">
+                <label for="Fecha" class="text-dark font-weight-bold font-18">N° de Artículo Hasta:</label>
+                <input type="search" name="ItemCodeFin" class="form-control border-success" list="ListaProductos" onkeyup="prueba(this);" />
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-4">
+                <label for="CardCodeIni" class="text-dark font-weight-bold font-18">Cliente Desde:</label>
+                <input type="search" list="ListaClientes" name="CardCodeIni" class="form-control border-success">
+                <datalist id="ListaClientes">
+                    @foreach (var obj in ViewBag.Clientes)
+                    {
+                        <option CardCode="@obj.CardCode" value="@obj.CardCode">@obj.CardName</option>
+                    }
+                </datalist>
+            </div>
+
+            <div class="col-lg-4">
+                <label for="Fecha" class="text-dark font-weight-bold font-18">Cliente Hasta:</label>
+                <input type="search" list="ListaClientes" name="CardCodeFin" class="form-control border-success">
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-6">
+                <button id="Generar" type="button" class="btn btn-success" onclick="rpt();"><i class="icon-checkmark"></i> Generar</button>
+            </div>
+        </div>
+
+    </form>
+</div>

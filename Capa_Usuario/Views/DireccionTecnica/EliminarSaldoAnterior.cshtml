@@ -1,0 +1,80 @@
+﻿@model Capa_Entidad.General_ENT.Tablas.COB_SALDO_E
+
+@{
+    ViewBag.Title = "EliminarSaldoAnterior";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h4>ELIMINAR SALDO ANTERIOR</h4>
+<a id="accion" href="@Url.Action("ListadoSaldosAnteriores", "DireccionTecnica")" class="btn btn-light">
+    <span><strong>Volver Atras</strong></span>
+</a>
+<br />
+<br />
+<h4 style="font-size:18px;text-align:center">Desea eliminar el registro?</h4>
+<div class="alert alert-danger">@ViewBag.Mensaje</div>
+<div>
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-actions no-color">
+            <input name="Code" value="@Model.Code" type="hidden" readonly />
+            <input type="submit" value="Eliminar" class="btn btn-danger" />
+        </div>
+    }
+    <br />
+    <div class="table-primary" style="padding:2%;">
+        <dl class="dl-horizontal">
+            <dt>
+                @Html.DisplayNameFor(model => model.Code)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.Code)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.Name)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.Name)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.U_COB_DESCRIPCION)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.U_COB_DESCRIPCION)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.U_COB_TIPOCONT)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.U_COB_TIPOCONT)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.U_COB_TRIMESTRE)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.U_COB_TRIMESTRE)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.U_COB_SALDOANTE)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.U_COB_SALDOANTE)
+            </dd>
+
+        </dl>
+    </div>
+
+</div>

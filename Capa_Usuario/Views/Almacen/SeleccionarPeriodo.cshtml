@@ -1,0 +1,93 @@
+﻿@model Capa_Entidad.Almacen_ENT.TablasSql.OIPE_E
+@using Capa_Entidad.Almacen_ENT.TablasSql
+@{
+    ViewBag.Title = "SeleccionarPeriodo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="/Index/Sesion">Inicio</a></li>
+            <li><a href="@Url.Action("GestionPeriodos","Almacen")">Gestión de periodos</a></li>
+            <li class="current"><em>Seleccionar periodo</em></li>
+        </ol>
+    </nav>
+</div>
+
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">SELECCIONAR PERIODO</h3></div>
+</div>
+
+<div class="bg-form-pestanas-cobefar pt-4 bg-section-form p-4 bg-form-cobefar">
+    @if (@OIPE_E.PeriodoSeleccionado != null)
+    {
+        <div class="alert alert-danger mb-0" role="alert">
+            @("Periodo Seleccionado: " + OIPE_E.PeriodoSeleccionado.Descripcion + " ---- Almacenes: " + OIPE_E.PeriodoSeleccionado.enlistarDetAlmacenes())
+        </div>
+
+    }
+
+    <div class="row mt-2 mb-4">
+        <div class="col-lg-6">
+            <label class="text-dark form-label font-weight-bold font-18">Propietario del periodo:</label>
+            @Model.Propietario
+        </div>
+
+        <div class="col-lg-6">
+            <label for="HoraRegistro" class="text-dark form-label font-weight-bold font-18">Hora de Registro:</label>
+            @Html.DisplayFor(model => model.FechaRegistro) @Html.DisplayFor(model => model.HoraRegistro)
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-12">
+            <h3 class="text-cobefar text-center font-weight-bold">¿Está seguro(a) que desea seleccionar este periodo?</h3>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="alert alert-danger text-center" role="alert">
+                @Html.DisplayFor(model => model.Descripcion)
+            </div>
+        </div>        
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="alert alert-danger text-center" role="alert">
+                @Html.DisplayName("Almacenes :")
+                @Model.enlistarDetAlmacenes()
+            </div>
+        </div>        
+    </div>
+
+    <div class="row mt-4 justify-content-center">
+        <div class="col-lg-12">
+            <!--Formulario para cantidad-->
+            @using (Html.BeginForm())
+            {
+                @Html.Hidden("DocEntry", Model.DocEntry)
+                <button type="submit" class="btn btn-success"><i class="icon icon-checkmark"></i> SI</button>
+                <a class="btn btn-danger" href="@Url.Action("GestionPeriodos","Almacen")"><i class="icon icon-cross"></i> NO</a>
+            }
+
+        </div>
+    </div>
+
+    
+</div><!-- // -->
+
+
+<script>
+    if ('@ViewBag.Mensaje' != "") {
+        swal.fire({
+            title: "@ViewBag.Mensaje",
+            text: "Presione OK para continuar",
+            icon: "success"
+        })
+            .then(function () {
+                window.location.href = "/Almacen/GestionPeriodos";
+            })
+    };
+</script>

@@ -1,0 +1,110 @@
+﻿@model IEnumerable<Capa_Entidad.Ventas_ENT.TablasSql.LDS1_E>
+
+@{
+    ViewBag.Title = "ListarDetLibroSaldo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("ListadoLibrosSaldo", "Ventas")">Listado libros saldo</a></li>
+            <li class="current"><em>Operaciones</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">OPERACIONES</h3></div>
+    <div class="d-flex pl-2 w-100 py-2">
+        <div class="mx-2">
+            <a id="accion" href="@Url.Action("AgregarDetLibroSaldo", "Ventas", new { CardCode = ViewBag.LibroSaldo.CardCode })" class="btn btn-success"><i class="icon icon-plus"></i> Agregar Operacion</a>
+        </div>
+
+    </div>
+
+
+    @if (ViewBag.LibroSaldo != null)
+    {
+        <div class="ml-3 mt-3">
+            <span class="text-cobefar-2 font-18">Cliente: </span><span class="text-white font-18">@ViewBag.LibroSaldo.CardName</span><br />
+            <span class="text-cobefar-2 font-18">Saldo Actual: </span><span class="text-white font-18">@ViewBag.LibroSaldo.SaldoActual</span>
+        </div>
+    }
+</div>
+
+
+<div class="bg-form-pestanas-cobefar p-4 bg-form-cobefar">
+    <table class="table table-light table-sm table-hover table-responsive-md" cellspacing="0" width="100%">
+        <thead class="thead-dark">
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Linea)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.FechaOpe)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Operacion)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DetOpe)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Ingreso)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Egreso)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.FechaReg)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.HoraReg)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.OperarioReg)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+       
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Linea)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FechaOpe)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Operacion)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DetOpe)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Ingreso)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Egreso)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FechaReg)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.HoraReg)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.OperarioReg)
+                </td>
+                <td>
+                </td>
+            </tr>
+        }
+
+    </table>
+</div>

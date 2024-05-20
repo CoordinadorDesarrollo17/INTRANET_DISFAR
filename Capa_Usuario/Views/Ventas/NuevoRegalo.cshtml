@@ -1,0 +1,78 @@
+﻿@model Capa_Entidad.Ventas_ENT.TablasSql.OREG_E
+@{
+    ViewBag.Title = "NuevoRegalo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(document).ready(function () {
+
+    });
+    function validarEnviarFormulario() {
+        var object = $("#NuevoRegalo").serialize();
+        $.ajax('/Ventas/validarNuevoRegalo',
+            {
+                data: object,
+                dataType: 'html',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                if (response != "true") { swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false }
+                else { $("#NuevoRegalo").submit(); }
+            });
+    }
+
+</script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("GestionRegalos", "Ventas")">Módulo gestión regalos</a></li>
+            <li class="current"><em>Nuevo Regalo</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">REGISTRAR NUEVO REGALO</h3></div>
+</div>
+
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "NuevoRegalo", enctype = "multipart/form-data" }))
+{
+<div class="bg-form-pestanas-cobefar p-4 bg-form-cobefar">
+    <div class="row">
+        <div class="col-lg-3">
+            <label for="categoria" class="text-dark font-weight-bold font-18">Categoría:</label>
+            <input class="form-control border-success" type="text" id="categoria" name="Categoria" value="" />
+        </div>
+
+        <div class="col-lg-3">
+            <label for="tipo" class="text-dark form-label font-weight-bold font-18">Tipo:</label>
+            <input class="form-control border-success" type="text" id="tipo" name="Tipo" value="" />
+        </div>
+
+        <div class="col-lg-2">
+            <label for="estado" class="text-dark form-label font-weight-bold font-18">Estado:</label>
+            <select id="estado" name="Estado" class="form-control bg-cobefar text-white border-success">
+                <option value=null>Seleccione</option>
+                <option value="Activo">Activo</option>
+                <option value="Inactivo">Inactivo</option>
+            </select>
+        </div>
+
+        <div class="col-lg-2">
+            <label for="Estado" class="text-dark form-label font-weight-bold font-18">Stock:</label>
+            <input class="form-control border-success" type="number" name="StockTotal" placeholder="Digite el stock en unidades" />
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-lg-2">
+            <button id="accion" type="button" class="btn btn-success" onclick="validarEnviarFormulario();"><i class="icon icon-checkmark"></i> Registrar</button>
+        </div>
+    </div>
+</div>
+}

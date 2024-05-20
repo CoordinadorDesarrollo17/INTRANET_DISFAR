@@ -1,0 +1,231 @@
+﻿@model IEnumerable<Capa_Entidad.General_ENT.TablasSql.OVEH_E>
+
+@{
+    ViewBag.Title = "GestionarVehiculos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string tituloBreadcrumb = "", urlActionBreadcrumb= "";
+
+    if (ViewBag.TipoRep == "Re")
+    {
+        tituloBreadcrumb = "Listado de Repartos";
+        urlActionBreadcrumb = @Url.Action("ListadoRepartos", "Rutas");
+    }
+    else
+    {
+        tituloBreadcrumb = "Listado de Rutas";
+        urlActionBreadcrumb = @Url.Action("ListadoRutas", "Rutas");
+    }
+}
+<script>
+    $(document).ready(function () {
+    });
+    function filtrar() {
+        var object = $("#frm2").serialize();
+        $(location).attr('href', "/Rutas/GestionarVehiculos?" + object);
+    }
+    function registrarVehiculo() {
+        var object = $("#frm1").serialize();
+        $.ajax('/Rutas/validarNuevoVehiculo',
+            {
+                data: object,
+                dataType: 'html',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                if (response != "true") { Swal.fire(response); return false }
+                else { $(location).attr('href', "/Rutas/RegistrarVehiculo?" + object); }
+            });
+    }
+</script>
+
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="/Index/Sesion">Inicio</a></li>
+            <li><a href="@urlActionBreadcrumb">@tituloBreadcrumb</a></li>
+            <li class="current"><em>Gestionar Vehículos</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">GESTIONAR VEHÍCULOS</h3></div>
+</div>
+
+
+<div class="bg-form-pestanas-cobefar pt-4 bg-section-form p-4 bg-form-cobefar">
+    <form name="frm1" id="frm1">
+        <div class="row mt-2">
+            <div class="col-lg-3">
+                <input name="TipoRep" value="@ViewBag.TipoRep" type="hidden" readonly />
+                <label for="Code" class="text-dark form-label font-weight-bold font-18">Código:</label>
+                <input type="text" class="form-control border-success" id="Code" name="Code">
+            </div>
+
+            <div class="col-lg-3">
+                <label for="Name" class="text-dark form-label font-weight-bold font-18">Tamaño:</label>
+                <input type="text" class="form-control border-success" id="Name" name="Name">
+            </div>
+
+            <div class="col-lg-3">
+                <label for="U_SYP_VEMA" class="text-dark form-label font-weight-bold font-18">Marca:</label>
+                <input type="text" class="form-control border-success" id="U_SYP_VEMA" name="U_SYP_VEMA">
+            </div>
+
+            <div class="col-lg-3">
+                <label for="U_SYP_VEMO" class="text-dark form-label font-weight-bold font-18">Modelo:</label>
+                <input type="text" class="form-control border-success" id="U_SYP_VEMO" name="U_SYP_VEMO">
+            </div>
+        </div>
+
+        <div class="row mt-2">
+            <div class="col-lg-3">
+                <label for="U_SYP_VEPL" class="text-dark form-label font-weight-bold font-18">Placa:</label>
+                <input type="text" class="form-control border-success" id="U_SYP_VEPL" name="U_SYP_VEPL">
+            </div>
+
+            <div class="col-lg-3">
+                <label for="SerieT1" class="text-dark form-label font-weight-bold font-18">SerieT1:</label>
+                <input type="text" class="form-control border-success" id="SerieT1" name="SerieT1">
+            </div>
+
+            <div class="col-lg-3">
+                <label for="SerieT2" class="text-dark form-label font-weight-bold font-18">SerieT2</label>
+                <input type="text" class="form-control border-success" id="SerieT1" name="SerieT2">
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-3"><button type="button" class="btn btn-success" onclick="registrarVehiculo();"><i class="icon icon-plus"></i> Agregar</button></div>
+        </div>
+    </form>
+
+
+    <form name="frm2" id="frm2">
+        <div class="pt-3 mt-4 bg-dark">
+            <table class="table table-light table-sm table-hover cls-dataTable" cellspacing="0" width="100%">
+                <thead class="thead-dark">
+                    <tr>
+                        <th class="text-center">
+                            <input name="TipoRep" value="@ViewBag.TipoRep" type="hidden" readonly />
+                            @Html.DisplayName("Codigo")<br />
+                            @if (ViewBag.Oveh != null && ViewBag.Oveh.Code != null)
+                            {
+                                <input class="form-control" type="text" name="Code" onchange="filtrar();" value="@ViewBag.Oveh.Code" />
+                            }
+                            else
+                            { <input class="form-control" type="text" name="Code" onchange="filtrar();" />}
+
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayName("Tamaño")<br />
+                            @if (ViewBag.Oveh != null && ViewBag.Oveh.Name != null)
+                            {
+                                <input class="form-control" type="text" name="Name" onchange="filtrar();" value="@ViewBag.Oveh.Name" />
+                            }
+                            else
+                            { <input class="form-control" type="text" name="Name" onchange="filtrar();" />}
+
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayName("Marca")<br />
+                            @if (ViewBag.Oveh != null && ViewBag.Oveh.U_SYP_VEMA != null)
+                            {
+                                <input class="form-control" type="text" name="U_SYP_VEMA" onchange="filtrar();" value="@ViewBag.Oveh.U_SYP_VEMA" />
+                            }
+                            else
+                            { <input class="form-control" type="text" name="U_SYP_VEMA" onchange="filtrar();" />}
+
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayName("Modelo")<br />
+                            @if (ViewBag.Oveh != null && ViewBag.Oveh.U_SYP_VEMO != null)
+                            {
+                                <input class="form-control" type="text" name="U_SYP_VEMO" onchange="filtrar();" value="@ViewBag.Oveh.U_SYP_VEMO" />
+                            }
+                            else
+                            { <input class="form-control" type="text" name="U_SYP_VEMO" onchange="filtrar();" />}
+
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayName("Placa")<br />
+                            @if (ViewBag.Oveh != null && ViewBag.Oveh.U_SYP_VEPL != null)
+                            {
+                                <input class="form-control" type="text" name="U_SYP_VEPL" onchange="filtrar();" value="@ViewBag.Oveh.U_SYP_VEPL" />
+                            }
+                            else
+                            { <input class="form-control" type="text" name="U_SYP_VEPL" onchange="filtrar();" />}
+
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayName("SerieT1")<br />
+                            @if (ViewBag.Oveh != null && ViewBag.Oveh.SerieT1 != null)
+                            {
+                                <input class="form-control" type="text" name="SerieT1" onchange="filtrar();" value="@ViewBag.Oveh.SerieT1" />
+                            }
+                            else
+                            { <input class="form-control" type="text" name="SerieT1" onchange="filtrar();" />}
+
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayName("SerieT2")<br />
+                            @if (ViewBag.Oveh != null && ViewBag.Oveh.SerieT2 != null)
+                            {
+                                <input class="form-control" type="text" name="SerieT2" onchange="filtrar();" value="@ViewBag.Oveh.SerieT2" />
+                            }
+                            else
+                            { <input class="form-control" type="text" name="SerieT2" onchange="filtrar();" />}
+
+                        </th>
+                        <th></th>
+                    </tr>
+
+                </thead>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.Code)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.Name)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.U_SYP_VEMA)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.U_SYP_VEMO)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.U_SYP_VEPL)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.SerieT1)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.SerieT2)
+                        </td>
+                        <td>
+                            <a href="@Url.Action("EliminarVehiculo", "Rutas", new { DocEntry = item.Code,TipoRep=ViewBag.TipoRep })" class="btn btn-danger"><i class="icon icon-bin2"></i></a>
+                        </td>
+                    </tr>
+                }
+
+            </table>
+        </div>
+        
+    </form>
+</div><!-- -->
+
+
+<script>
+
+    if ('@ViewBag.Mensaje' != "") {
+        Swal.fire({
+            icon: '',
+            text: `@ViewBag.Mensaje`
+        })
+    }
+</script>

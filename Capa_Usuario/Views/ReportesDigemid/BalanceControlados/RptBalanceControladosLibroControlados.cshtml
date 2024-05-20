@@ -1,0 +1,189 @@
+﻿@{
+    ViewBag.Title = "RptBalanceControladosLibroControlados";
+    Layout = null;
+    string impresion = Request["Impresion"];
+    List<string> listaCodProducto = new List<string>();
+}
+
+@if (impresion != null && impresion.Equals("SI"))
+{
+    <link href="~/Content/css/bootstrap.css" rel="stylesheet" type="text/css" />
+    <style>
+        div * {
+            font-family: "Arial", Verdana, Helvetica, Sans - Serif !important;
+        }
+    </style>
+}
+
+<style>
+    #div_plantillaRpt {
+        height: 450px;
+        width: 100%;
+        overflow-y: scroll;
+        overflow-x: scroll;
+        padding-left: 20px;
+    }
+
+    .table-bordered {
+        border: 2px solid black !important;
+    }
+
+        .table-bordered th, .table-bordered td {
+            border: 2px solid black !important;
+        }
+
+    .border {
+        border: 2px solid black !important;
+    }
+
+    .impresion {
+        width: 100%;
+        margin-left: -1% !important;
+        background-color: white;
+    }
+
+    thead {
+        display: table-header-group
+    }
+
+    tfoot {
+        display: table-row-group
+    }
+
+    tr {
+        page-break-inside: avoid
+    }
+</style>
+
+<div class="@if (string.IsNullOrEmpty(impresion) || impresion.Equals("NO")) { Write("impresion"); } mt-4" style="width: 100%">
+    <table style="font-size: @if (string.IsNullOrEmpty(impresion) || impresion.Equals("NO")) { Write("12px"); } else { Write("10px"); }">
+        <tr>
+            <td>
+                HOJA N°4: SUSTENTO DE INGRESO Y EGRESO DE @Model.DescTipoControlado
+            </td>
+        </tr>
+        <tr>
+            <td>
+                PARTE I
+            </td>
+        </tr>
+    </table>
+
+    <table id="tbl_libroControlados" class="text-center" style="width: 100%; font-size: @if (string.IsNullOrEmpty(impresion) || impresion.Equals("NO")) { Write("12px"); } else { Write("10px"); }">
+        <thead id="tr_2daFila" class="text-dark">
+            <tr>
+                <th class="text-dark" width="60" style="border: 2px solid black !important; text-align: center !important; vertical-align: middle">CÓDIGO</th>
+                <th class="text-dark" style="border: 2px solid black !important; text-align: center !important; vertical-align: middle">NOMBRE GENÉRICO</th>
+                <th class="text-dark" style="border: 2px solid black !important; text-align: center !important; vertical-align: middle">NOMBRE COMERCIAL</th>
+                <th class="text-dark" style="border: 2px solid black !important; text-align: center !important; vertical-align: middle">CONCENTRACIÓN</th>
+                <th class="text-dark" style="border: 2px solid black !important; text-align: center !important; vertical-align: middle">FORMA DE PRESENTACIÓN</th>
+                <th class="text-dark" style="border: 2px solid black !important; text-align: center !important; vertical-align: middle">F.F.</th>
+                <th class="text-dark" style="border: 2px solid black !important; text-align: center !important; vertical-align: middle">TIPO</th>
+                <th class="text-dark" style="border: 2px solid black !important; text-align: center !important; vertical-align: middle">CANTIDAD</th>
+                <th class="text-dark" style="border: 2px solid black !important; text-align: center !important; vertical-align: middle">PROVEEDOR / CLIENTE</th>
+                <th class="text-dark" width="120" style="border: 2px solid black !important; text-align: center !important; vertical-align: middle;">N° FACTURA O COI</th>
+                <th class="text-dark" width="60" style="border: 2px solid black !important; text-align: center !important; vertical-align: middle">FECHA</th>
+            </tr>
+
+        </thead>
+        <tbody>
+            @if (Model.DetBalanceControladosLibroControlados != null && Model.DetBalanceControladosLibroControlados.Count >= 1)
+            {
+                listaCodProducto.Add(Model.DetBalanceControladosLibroControlados[0].CodProducto);
+
+                foreach (var det in Model.DetBalanceControladosLibroControlados)
+                {
+                    //if (!det.NroFacturaNcredito.Equals(string.Empty))
+                    //{
+                    if (listaCodProducto[listaCodProducto.Count - 1].Equals(det.CodProducto))
+                    {
+                        <tr>
+                            <td style="border: 2px solid black !important; text-align: center !important;">@det.CodProducto</td>
+                            <td style="border: 2px solid black !important; text-align: center !important;">@det.NombreGenerico</td>
+                            <td style="border: 2px solid black !important; text-align: center !important;">@det.NombreComercial</td>
+                            <td style="border: 2px solid black !important; text-align: center !important;">@det.Concentracion</td>
+                            <td style="border: 2px solid black !important; text-align: center !important;">@det.FormaPresentacion</td>
+                            <td style="border: 2px solid black !important; text-align: center !important;">@det.FormaFamaceutica</td>
+                            <td style="border: 2px solid black !important; text-align: center !important; @if (det.Tipo.Equals("EGRESO")) { Write("background-color: orangered"); } else if (det.Tipo.Equals("INGRESO")){ Write("background-color: lightskyblue"); }">@det.Tipo</td>
+                            <td style="border: 2px solid black !important; text-align: center !important;">@det.CantLote</td>
+                            <td style="border: 2px solid black !important; text-align: center !important;">@det.Proveedor</td>
+                            <td style="border: 2px solid black !important; text-align: center !important;">@det.NroFacturaNcredito</td>
+                            <td style="border: 2px solid black !important; text-align: center !important;">@det.Fecha</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        <tr>
+                            <td style="border: 2px solid black !important; background-color: yellow;"></td>
+                            <td style="border: 2px solid black !important; background-color: yellow;"></td>
+                            <td style="border: 2px solid black !important; background-color: yellow;"></td>
+                            <td style="border: 2px solid black !important; background-color: yellow;"></td>
+                            <td style="border: 2px solid black !important; background-color: yellow;"></td>
+                            <td style="border: 2px solid black !important; background-color: yellow;"></td>
+                            <td style="border: 2px solid black !important; background-color: yellow;"></td>
+                            <td style="border: 2px solid black !important; background-color: yellow;"></td>
+                            <td style="border: 2px solid black !important; background-color: yellow;"></td>
+                            <td style="border: 2px solid black !important; background-color: yellow;"></td>
+                            <td style="border: 2px solid black !important; background-color: yellow;"></td>
+                        </tr>
+                        <tr>
+                            <td style="border: 2px solid black !important; text-align: center !important;">@det.CodProducto</td>
+                            <td style="border: 2px solid black !important; text-align: center !important;">@det.NombreGenerico</td>
+                            <td style="border: 2px solid black !important; text-align: center !important;">@det.NombreComercial</td>
+                            <td style="border: 2px solid black !important; text-align: center !important;">@det.Concentracion</td>
+                            <td style="border: 2px solid black !important; text-align: center !important;">@det.FormaPresentacion</td>
+                            <td style="border: 2px solid black !important; text-align: center !important;">@det.FormaFamaceutica</td>
+                            <td style="border: 2px solid black !important; text-align: center !important; @if (det.Tipo.Equals("EGRESO")) { Write("background-color: orangered"); } else if (det.Tipo.Equals("INGRESO")){ Write("background-color: lightskyblue"); }">@det.Tipo</td>
+                            <td style="border: 2px solid black !important; text-align: center !important;">@det.CantLote</td>
+                            <td style="border: 2px solid black !important; text-align: center !important;">@det.Proveedor</td>
+                            <td style="border: 2px solid black !important; text-align: center !important;">@det.NroFacturaNcredito</td>
+                            <td style="border: 2px solid black !important; text-align: center !important;">@det.Fecha</td>
+                        </tr>
+
+                        listaCodProducto.Add(det.CodProducto);
+                        //}
+                    }
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function descargarPDF() {
+        window.open('/ReportesDigemid/PdfRptBalanceControlados?Informe=Libro Controlados&FecIni=' + $('#FecIni').val() + '&FecFin=' + $('#FecFin').val() + '&TipoControlado=' + $('#TipoControlado').val() + '&Impresion=SI', '_blank');
+    }
+
+    function exportTableToExcel(tableID, filename = '') {
+        var downloadLink;
+        var dataType = 'application/vnd.ms-excel';
+        var tableSelect = document.getElementById(tableID);
+        var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
+        tableHTML = "<meta http-equiv=\"content-type\" content=\"application/vnd.ms-excel; charset=UTF-8\">" + tableHTML;
+        //tableHTML = decodeURIComponent(escape(tableHTML));
+        // Specify file name
+        filename = filename ? filename + '.xls' : 'excel_data.xls';
+
+        // Create download link element
+        downloadLink = document.createElement("a");
+
+        document.body.appendChild(downloadLink);
+
+        if (navigator.msSaveOrOpenBlob) {
+            var blob = new Blob(['ufeff', tableHTML], {
+                //type: dataType
+                type: "text/plain;charset=utf-8;"
+            });
+            navigator.msSaveOrOpenBlob(blob, filename);
+        } else {
+            // Create a link to the file
+            downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
+
+            // Setting the file name
+            downloadLink.download = filename;
+
+            //triggering the function
+            downloadLink.click();
+        }
+    }
+</script>

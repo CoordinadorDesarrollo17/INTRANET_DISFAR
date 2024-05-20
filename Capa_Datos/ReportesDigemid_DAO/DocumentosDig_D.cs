@@ -1,0 +1,1090 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Globalization;
+using Capa_Entidad.General_ENT.Tablas;
+using Capa_Entidad.ReportesDigemid_ENT;
+using Capa_Entidad.ReportesDigemid_ENT.Formularios;
+using Capa_Entidad.ReportesDigemid_ENT.Reportes;
+using Sap.Data.Hana;
+
+namespace Capa_Datos.ReportesDigemid_DAO
+{
+	public class DocumentosDig_D
+	{
+		Utilitarios uti = new Utilitarios(); DBHelper db = new DBHelper();
+		public List<ActaRecepcionVt_E> ConsultarActaRecepcionVt(int DocEntry)
+		{
+			List<ActaRecepcionVt_E> lista = new List<ActaRecepcionVt_E>();
+			string query = "call " + uti.schemaHana + "DIEGO_COBEFAR_ACTARECEPCION_VTAS(" + DocEntry + ")";
+			try
+			{
+				HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
+				while (hdr.Read())
+				{
+					ActaRecepcionVt_E a = new ActaRecepcionVt_E();
+					if (!hdr.IsDBNull(0)) { a.T0_ObjType = hdr.GetString(0); }
+					if (!hdr.IsDBNull(1)) { a.T0_DocEntry = hdr.GetInt32(1); }
+					if (!hdr.IsDBNull(2)) { a.T0_DocNum = hdr.GetInt32(2); }
+					if (!hdr.IsDBNull(3)) { a.T0_CardCode = hdr.GetString(3); }
+					if (!hdr.IsDBNull(4)) { a.T0_CardName = hdr.GetString(4); }
+					if (!hdr.IsDBNull(5)) { a.T0_DocDate = hdr.GetDateTime(5).ToString("dd/MM/yyyy"); }
+					if (!hdr.IsDBNull(6)) { a.T0_NumAtCard = hdr.GetString(6); }
+					if (!hdr.IsDBNull(7)) { a.T0_TaxDate = hdr.GetDateTime(7).ToString("dd/MM/yyyy"); }
+					if (!hdr.IsDBNull(8)) { a.T1_LineNum = hdr.GetInt32(8); }
+					if (!hdr.IsDBNull(9)) { a.T1_ItemCode = hdr.GetString(9); }
+					if (!hdr.IsDBNull(10)) { a.Almacen = hdr.GetString(10); }
+					if (!hdr.IsDBNull(11)) { a.T8_ItemName = hdr.GetString(11); }
+					if (!hdr.IsDBNull(12)) { a.T8_FrgnName = hdr.GetString(12); }
+					if (!hdr.IsDBNull(13)) { a.Concentracion = hdr.GetString(13); }
+					if (!hdr.IsDBNull(14)) { a.FormaPresentacion = hdr.GetString(14); }
+					if (!hdr.IsDBNull(15)) { a.FormaFarmaceutica = hdr.GetString(15); }
+					if (!hdr.IsDBNull(16)) { a.Fabricante = hdr.GetString(16); }
+					if (!hdr.IsDBNull(17)) { a.T4_AbsEntry = hdr.GetInt32(17); }
+					if (!hdr.IsDBNull(18)) { a.T4_DistNumber = hdr.GetString(18); }
+					if (!hdr.IsDBNull(19)) { a.T4_MnfSerial = hdr.GetString(19); }
+					if (!hdr.IsDBNull(20)) { a.T4_ExpDate = hdr.GetDateTime(20).ToString("dd/MM/yyyy"); }
+					if (!hdr.IsDBNull(21)) { a.Quantity = hdr.GetDecimal(21); }
+					if (!hdr.IsDBNull(22)) { a.T7_Location = hdr.GetString(22); }
+					if (!hdr.IsDBNull(23)) { a.T0_U_COB_TIPODOC = hdr.GetString(23); }
+					if (!hdr.IsDBNull(24)) { a.T0_U_COB_SERIE = hdr.GetString(24); }
+					if (!hdr.IsDBNull(25)) { a.T0_U_COB_CORDOC = hdr.GetString(25); }
+					lista.Add(a);
+				}
+				hdr.Close();
+			}
+			catch { }
+			return lista;
+		}
+		public List<ActaDespachoVt_E> ConsultarActaDespachoVt(int DocEntry)
+		{
+			List<ActaDespachoVt_E> lista = new List<ActaDespachoVt_E>();
+			string query = "call " + uti.schemaHana + "DIEGO_COBEFAR_ACTADESPACHO(" + DocEntry + ")";
+			try
+			{
+				HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
+				while (hdr.Read())
+				{
+					ActaDespachoVt_E a = new ActaDespachoVt_E();
+					if (!hdr.IsDBNull(0)) { a.T0_ObjType = hdr.GetString(0); }
+					if (!hdr.IsDBNull(1)) { a.T0_DocEntry = hdr.GetInt32(1); }
+					if (!hdr.IsDBNull(2)) { a.T0_DocNum = hdr.GetInt32(2); }
+					if (!hdr.IsDBNull(3)) { a.T0_CardCode = hdr.GetString(3); }
+					if (!hdr.IsDBNull(4)) { a.T0_CardName = hdr.GetString(4); }
+					if (!hdr.IsDBNull(5)) { a.T0_DocDate = hdr.GetDateTime(5).ToString("dd/MM/yyyy"); }
+					if (!hdr.IsDBNull(6)) { a.T0_NumAtCard = hdr.GetString(6); }
+					if (!hdr.IsDBNull(7)) { a.T0_TaxDate = hdr.GetDateTime(7).ToString("dd/MM/yyyy"); }
+					if (!hdr.IsDBNull(8)) { a.T1_LineNum = hdr.GetInt32(8); }
+					if (!hdr.IsDBNull(9)) { a.T1_ItemCode = hdr.GetString(9); }
+					if (!hdr.IsDBNull(10)) { a.T1_WhsCode = hdr.GetString(10); }
+					if (!hdr.IsDBNull(11)) { a.T8_ItemName = hdr.GetString(11); }
+					if (!hdr.IsDBNull(12)) { a.T8_FrgnName = hdr.GetString(12); }
+					if (!hdr.IsDBNull(13)) { a.Concentracion = hdr.GetString(13); }
+					if (!hdr.IsDBNull(14)) { a.FormaPresentacion = hdr.GetString(14); }
+					if (!hdr.IsDBNull(15)) { a.FormaFarmaceutica = hdr.GetString(15); }
+					if (!hdr.IsDBNull(16)) { a.Fabricante = hdr.GetString(16); }
+					if (!hdr.IsDBNull(17)) { a.T4_AbsEntry = hdr.GetInt32(17); }
+					if (!hdr.IsDBNull(18)) { a.T4_DistNumber = hdr.GetString(18); }
+					if (!hdr.IsDBNull(19)) { a.T4_MnfSerial = hdr.GetString(19); }
+					if (!hdr.IsDBNull(20)) { a.T4_ExpDate = hdr.GetDateTime(20).ToString("dd/MM/yyyy"); }
+					if (!hdr.IsDBNull(21)) { a.Quantity = hdr.GetDecimal(21); }
+					if (!hdr.IsDBNull(22)) { a.T7_Location = hdr.GetString(22); }
+					if (!hdr.IsDBNull(23)) { a.T0_U_COB_TIPODOC = hdr.GetString(23); }
+					if (!hdr.IsDBNull(24)) { a.T0_U_COB_SERIE = hdr.GetString(24); }
+					if (!hdr.IsDBNull(25)) { a.T0_U_COB_CORDOC = hdr.GetString(25); }
+					lista.Add(a);
+				}
+				hdr.Close();
+			}
+			catch { }
+			return lista;
+		}
+		public List<OrganolepticoVt_E> ConsultarOrganolepticoVt(int DocEntry)
+		{
+			List<OrganolepticoVt_E> lista = new List<OrganolepticoVt_E>();
+			string query = "call " + uti.schemaHana + "DIEGO_COBEFAR_ORGA_VTAS(" + DocEntry + ")";
+			try
+			{
+				HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
+				while (hdr.Read())
+				{
+					OrganolepticoVt_E a = new OrganolepticoVt_E();
+					if (!hdr.IsDBNull(0)) { a.NroFactura = hdr.GetString(0); }
+					if (!hdr.IsDBNull(1)) { a.NroGuia = hdr.GetString(1); }
+					if (!hdr.IsDBNull(2)) { a.FechaContab = hdr.GetDateTime(2).ToString("dd/MM/yyyy"); }
+					if (!hdr.IsDBNull(3)) { a.Cliente = hdr.GetString(3); }
+					if (!hdr.IsDBNull(4)) { a.Almacen = hdr.GetString(4); }
+					if (!hdr.IsDBNull(5)) { a.CodUnidMed = hdr.GetString(5); }
+					if (!hdr.IsDBNull(6)) { a.CantidadL = hdr.GetDecimal(6); }
+					if (!hdr.IsDBNull(7)) { a.Lote = hdr.GetString(7); }
+					if (!hdr.IsDBNull(8)) { a.ResgistroS = hdr.GetString(8); }
+					if (!hdr.IsDBNull(9)) { a.FechaVenc = hdr.GetDateTime(9).ToString("dd/MM/yyyy"); }
+					if (!hdr.IsDBNull(10)) { a.Nombre = hdr.GetString(10); }
+					if (!hdr.IsDBNull(11)) { a.Concentracion = hdr.GetString(11); }
+					if (!hdr.IsDBNull(12)) { a.FormaPresentacion = hdr.GetString(12); }
+					if (!hdr.IsDBNull(13)) { a.FormaFarmaceutica = hdr.GetString(13); }
+					if (!hdr.IsDBNull(14)) { a.Fabricante = hdr.GetString(14); }
+					if (!hdr.IsDBNull(15)) { a.CondicionAl = hdr.GetString(15); }
+					lista.Add(a);
+				}
+				hdr.Close();
+			}
+			catch { }
+			return lista;
+		}
+		public List<ActaRecepcionTs_E> ConsultarActaRecepcionTs(int DocEntry)
+		{
+			List<ActaRecepcionTs_E> lista = new List<ActaRecepcionTs_E>();
+			string query = "call " + uti.schemaHana + "DIEGO_COBEFAR_ACTARECEPCION_TS(" + DocEntry + ")";
+			try
+			{
+				HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
+				while (hdr.Read())
+				{
+					ActaRecepcionTs_E a = new ActaRecepcionTs_E();
+					if (!hdr.IsDBNull(0)) { a.T1_DocDate = hdr.GetDateTime(0).ToString("dd/MM/yyyy"); }
+					if (!hdr.IsDBNull(1)) { a.AlmacenEnvio = hdr.GetString(1); }
+					if (!hdr.IsDBNull(2)) { a.AlmacenDestino = hdr.GetString(2); }
+					if (!hdr.IsDBNull(3)) { a.NroDeGuia = hdr.GetString(3); }
+					if (!hdr.IsDBNull(4)) { a.T2_ItemCode = hdr.GetString(4); }
+					if (!hdr.IsDBNull(5)) { a.T2_Dscription = hdr.GetString(5); }
+					if (!hdr.IsDBNull(6)) { a.T3_Quantity = hdr.GetDecimal(6); }
+					if (!hdr.IsDBNull(7)) { a.T8_FrgnName = hdr.GetString(7); }
+					if (!hdr.IsDBNull(8)) { a.Concentracion = hdr.GetString(8); }
+					if (!hdr.IsDBNull(9)) { a.FormaPresentacion = hdr.GetString(9); }
+					if (!hdr.IsDBNull(10)) { a.FormaFarmaceutica = hdr.GetString(10); }
+					if (!hdr.IsDBNull(11)) { a.Fabricante = hdr.GetString(11); }
+					if (!hdr.IsDBNull(12)) { a.Lote = hdr.GetString(12); }
+					if (!hdr.IsDBNull(13)) { a.FechaVenc = hdr.GetDateTime(13).ToString("dd/MM/yyyy"); }
+					if (!hdr.IsDBNull(14)) { a.RegistroSan = hdr.GetString(14); }
+					if (!hdr.IsDBNull(15)) { a.CondAlmac = hdr.GetString(15); }
+					lista.Add(a);
+				}
+				hdr.Close();
+			}
+			catch { }
+			return lista;
+		}
+		public List<ActaDespachoTs_E> ConsultarActaDespachoTs(int DocEntry)
+		{
+			List<ActaDespachoTs_E> lista = new List<ActaDespachoTs_E>();
+			string query = "call " + uti.schemaHana + "DIEGO_COBEFAR_ACTADESPACHO_TS(" + DocEntry + ")";
+			try
+			{
+				HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
+				while (hdr.Read())
+				{
+					ActaDespachoTs_E a = new ActaDespachoTs_E();
+					if (!hdr.IsDBNull(0)) { a.FechaActa = hdr.GetDateTime(0).ToString("dd/MM/yyyy"); }
+					if (!hdr.IsDBNull(1)) { a.NroGuia = hdr.GetString(1); }
+					if (!hdr.IsDBNull(2)) { a.Proveedor = hdr.GetString(2); }
+					if (!hdr.IsDBNull(3)) { a.AlmOrigen = hdr.GetString(3); }
+					if (!hdr.IsDBNull(4)) { a.AlmDestino = hdr.GetString(4); }
+					if (!hdr.IsDBNull(5)) { a.CantidadLote = hdr.GetDecimal(5); }
+					if (!hdr.IsDBNull(6)) { a.NombreComercial = hdr.GetString(6); }
+					if (!hdr.IsDBNull(7)) { a.Concentracion = hdr.GetString(7); }
+					if (!hdr.IsDBNull(8)) { a.FormaFarmaceutica = hdr.GetString(8); }
+					if (!hdr.IsDBNull(9)) { a.FormaPresentacion = hdr.GetString(9); }
+					if (!hdr.IsDBNull(10)) { a.Almacen = hdr.GetString(10); }
+					if (!hdr.IsDBNull(11)) { a.NroLote = hdr.GetString(11); }
+					if (!hdr.IsDBNull(12)) { a.FechaVcto = hdr.GetDateTime(12).ToString("dd/MM/yyyy"); }
+					if (!hdr.IsDBNull(13)) { a.RegistroSanit = hdr.GetString(13); }
+					if (!hdr.IsDBNull(14)) { a.CondicionAlm = hdr.GetString(14); }
+					lista.Add(a);
+				}
+				hdr.Close();
+			}
+			catch { }
+			return lista;
+		}
+
+		public List<OrganolepticoTs_E> ConsultarOrganolepticoTs(int DocEntry)
+		{
+			List<OrganolepticoTs_E> lista = new List<OrganolepticoTs_E>();
+			string query = "call " + uti.schemaHana + "DIEGO_COBEFAR_ACTARECEPCION_TS(" + DocEntry + ")";
+			try
+			{
+				HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
+				while (hdr.Read())
+				{
+					OrganolepticoTs_E a = new OrganolepticoTs_E();
+					if (!hdr.IsDBNull(0)) { a.T1_DocDate = hdr.GetDateTime(0).ToString("dd/MM/yyyy"); }
+					if (!hdr.IsDBNull(1)) { a.AlmacenEnvio = hdr.GetString(1); }
+					if (!hdr.IsDBNull(2)) { a.AlmacenDestino = hdr.GetString(2); }
+					if (!hdr.IsDBNull(3)) { a.NroDeGuia = hdr.GetString(3); }
+					if (!hdr.IsDBNull(4)) { a.T2_ItemCode = hdr.GetString(4); }
+					if (!hdr.IsDBNull(5)) { a.T2_Dscription = hdr.GetString(5); }
+					if (!hdr.IsDBNull(6)) { a.T3_Quantity = hdr.GetDecimal(6); }
+					if (!hdr.IsDBNull(7)) { a.T8_FrgnName = hdr.GetString(7); }
+					if (!hdr.IsDBNull(8)) { a.Concentracion = hdr.GetString(8); }
+					if (!hdr.IsDBNull(9)) { a.FormaPresentacion = hdr.GetString(9); }
+					if (!hdr.IsDBNull(10)) { a.FormaFarmaceutica = hdr.GetString(10); }
+					if (!hdr.IsDBNull(11)) { a.Fabricante = hdr.GetString(11); }
+					if (!hdr.IsDBNull(12)) { a.Lote = hdr.GetString(12); }
+					if (!hdr.IsDBNull(13)) { a.FechaVenc = hdr.GetDateTime(13).ToString("dd/MM/yyyy"); }
+					if (!hdr.IsDBNull(14)) { a.RegistroSan = hdr.GetString(14); }
+					if (!hdr.IsDBNull(15)) { a.CondAlmac = hdr.GetString(15); }
+					lista.Add(a);
+				}
+				hdr.Close();
+			}
+			catch { }
+			return lista;
+		}
+		public List<ActaRecepcionEm_E> ConsultarActaRecepcionEm(int DocEntry)
+		{
+			List<ActaRecepcionEm_E> lista = new List<ActaRecepcionEm_E>();
+			string query = "call " + uti.schemaHana + "DIEGO_COBEFAR_ACTARECEPCION_EM(" + DocEntry + ")";
+			try
+			{
+				HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
+				while (hdr.Read())
+				{
+					ActaRecepcionEm_E a = new ActaRecepcionEm_E();
+					if (!hdr.IsDBNull(0)) { a.T0_CardName = hdr.GetString(0); }
+					if (!hdr.IsDBNull(1)) { a.T0_DocDate = hdr.GetDateTime(1).ToString("dd/MM/yyyy"); }
+					if (!hdr.IsDBNull(2)) { a.Canti_pza_lot = hdr.GetDecimal(2); }
+					if (!hdr.IsDBNull(3)) { a.Lote = hdr.GetString(3); }
+					if (!hdr.IsDBNull(4)) { a.T3_ExpDate = hdr.GetDateTime(4).ToString("dd/MM/yyyy"); }
+					if (!hdr.IsDBNull(5)) { a.Registro = hdr.GetString(5); }
+					if (!hdr.IsDBNull(6)) { a.T6_Location = hdr.GetString(6); }
+					if (!hdr.IsDBNull(7)) { a.T7_FrgnName = hdr.GetString(7); }
+					if (!hdr.IsDBNull(8)) { a.Concentracion = hdr.GetString(8); }
+					if (!hdr.IsDBNull(9)) { a.FormaPresentacion = hdr.GetString(9); }
+					if (!hdr.IsDBNull(10)) { a.FormaFarmaceutica = hdr.GetString(10); }
+					if (!hdr.IsDBNull(11)) { a.Fabricante = hdr.GetString(11); }
+					if (!hdr.IsDBNull(12)) { a.NroFactura = hdr.GetString(12); }
+					if (!hdr.IsDBNull(13)) { a.Comentario = hdr.GetString(13); }
+					if (!hdr.IsDBNull(14)) { a.Comentario2 = hdr.GetString(14); }
+					lista.Add(a);
+				}
+				hdr.Close();
+			}
+			catch { }
+			return lista;
+		}
+		public List<OrganolepticoEm_E> ConsultarOrganolepticoEm(int DocEntry)
+		{
+			List<OrganolepticoEm_E> lista = new List<OrganolepticoEm_E>();
+			string query = "call " + uti.schemaHana + "DIEGO_COBEFAR_ORGANOLEPTICO_EM(" + DocEntry + ")";
+			try
+			{
+				HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
+				while (hdr.Read())
+				{
+					OrganolepticoEm_E a = new OrganolepticoEm_E();
+					if (!hdr.IsDBNull(0)) { a.T0_CardName = hdr.GetString(0); }
+					if (!hdr.IsDBNull(1)) { a.T0_DocDate = hdr.GetDateTime(1).ToString("dd/MM/yyyy"); }
+					if (!hdr.IsDBNull(2)) { a.T1_NumPerMsr = hdr.GetDecimal(2); }
+					if (!hdr.IsDBNull(3)) { a.Canti_pza_lot = hdr.GetDecimal(3); }
+					if (!hdr.IsDBNull(4)) { a.Lote = hdr.GetString(4); }
+					if (!hdr.IsDBNull(5)) { a.T3_ExpDate = hdr.GetDateTime(5).ToString("dd/MM/yyyy"); }
+					if (!hdr.IsDBNull(6)) { a.Registro = hdr.GetString(6); }
+					if (!hdr.IsDBNull(7)) { a.T6_Location = hdr.GetString(7); }
+					if (!hdr.IsDBNull(8)) { a.T7_FrgnName = hdr.GetString(8); }
+					if (!hdr.IsDBNull(9)) { a.Concentracion = hdr.GetString(9); }
+					if (!hdr.IsDBNull(10)) { a.FormaPresentacion = hdr.GetString(10); }
+					if (!hdr.IsDBNull(11)) { a.FormaFarmaceutica = hdr.GetString(11); }
+					if (!hdr.IsDBNull(12)) { a.Fabricante = hdr.GetString(12); }
+					if (!hdr.IsDBNull(13)) { a.NroFactura = hdr.GetString(13); }
+					if (!hdr.IsDBNull(14)) { a.XDevolucion = hdr.GetDecimal(14); }
+					lista.Add(a);
+				}
+				hdr.Close();
+			}
+			catch { }
+			return lista;
+		}
+		public List<ComprobanteDePago_E> ConsultarComprobanteDePago(int DocEntry)
+		{
+			List<ComprobanteDePago_E> lista = new List<ComprobanteDePago_E>();
+			string query = "CALL " + uti.schemaHana + "DIEGO_LYT_FV(" + DocEntry + ")";
+			try
+			{
+				HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
+				if (hdr.HasRows)
+				{
+					while (hdr.Read())
+					{
+						ComprobanteDePago_E c = new ComprobanteDePago_E();
+						if (!hdr.IsDBNull(0)) { c.DocEntry = hdr.GetInt32(0); }
+						if (!hdr.IsDBNull(1)) { c.DocNum = hdr.GetInt32(1); }
+						if (!hdr.IsDBNull(2)) { c.ElaboradoPor = hdr.GetString(2); }
+						if (!hdr.IsDBNull(3)) { c.TipoDoc = hdr.GetString(3); }
+						if (!hdr.IsDBNull(4)) { c.SerieDoc = hdr.GetString(4); }
+						if (!hdr.IsDBNull(5)) { c.CorreDoc = hdr.GetString(5); }
+						if (!hdr.IsDBNull(6)) { c.NumGuias = hdr.GetString(6); }
+						if (!hdr.IsDBNull(7)) { c.NombreSocio = hdr.GetString(7); }
+						if (!hdr.IsDBNull(8)) { c.DirPagar = hdr.GetString(8); }
+						if (!hdr.IsDBNull(9)) { c.Ruc = hdr.GetString(9); }
+						if (!hdr.IsDBNull(10)) { c.Fecha = hdr.GetDateTime(10).ToLongDateString(); }
+						if (!hdr.IsDBNull(11)) { c.FechaVencimiento = hdr.GetDateTime(11).ToLongDateString(); }
+						if (!hdr.IsDBNull(12)) { c.MonedaLetras = hdr.GetString(12); }
+						if (!hdr.IsDBNull(13)) { c.ItemCode = hdr.GetString(13); }
+						if (!hdr.IsDBNull(14)) { c.Descripcion = hdr.GetString(14); }
+						if (!hdr.IsDBNull(15)) { c.DocNumTicket = hdr.GetString(15); }
+						if (!hdr.IsDBNull(16)) { c.Um = hdr.GetString(16); }
+						if (!hdr.IsDBNull(17)) { c.Cantidad = Math.Round(hdr.GetDecimal(17), 0); }
+						if (!hdr.IsDBNull(18)) { c.PreUnitSinIgv = hdr.GetDecimal(18); }
+						if (!hdr.IsDBNull(19)) { c.Descuento = hdr.GetDecimal(19); }
+						if (!hdr.IsDBNull(20)) { c.PreVentaNeto = hdr.GetDecimal(20); }
+						if (!hdr.IsDBNull(21)) { c.PrecioVenta = hdr.GetDecimal(21); }
+						if (!hdr.IsDBNull(22)) { c.ItemPrecio = hdr.GetDecimal(22); }
+						if (!hdr.IsDBNull(23)) { c.ItemTotal = hdr.GetDecimal(23); }
+						if (!hdr.IsDBNull(24)) { c.FechaEntrega = hdr.GetDateTime(24).ToString("dd/MM/yyyy"); }
+						if (!hdr.IsDBNull(25)) { c.Impuesto = hdr.GetDecimal(25); }
+						if (!hdr.IsDBNull(26)) { c.DocTotal = hdr.GetDecimal(26); }
+						if (!hdr.IsDBNull(27)) { c.PorcenImpto = hdr.GetDecimal(27); }
+						if (!hdr.IsDBNull(28)) { c.LoteNum = hdr.GetString(28); }
+						if (!hdr.IsDBNull(29)) { c.CantidadL = hdr.GetDecimal(29); }
+						if (!hdr.IsDBNull(30)) { c.TieneAnticipo = hdr.GetInt32(30); }
+						if (!hdr.IsDBNull(31)) { c.Laboratorio = hdr.GetString(31); }
+						if (!hdr.IsDBNull(32)) { c.VctoLote = hdr.GetDateTime(32).ToString("dd/MM/yyyy"); }
+						if (!hdr.IsDBNull(33)) { c.QUMVta = Math.Round(hdr.GetDecimal(33), 0); }
+						if (!hdr.IsDBNull(34)) { c.CondPago = hdr.GetString(34); }
+						if (!hdr.IsDBNull(35)) { c.NroOrdVenta = hdr.GetInt32(35); }
+						if (!hdr.IsDBNull(36)) { c.CodImpuesto = hdr.GetString(36); }
+						if (!hdr.IsDBNull(37)) { c.Almacen = hdr.GetString(37); }
+						if (!hdr.IsDBNull(38)) { c.PtoPartida = hdr.GetString(38); }
+						if (!hdr.IsDBNull(39)) { c.DirEnvio = hdr.GetString(39); }
+						lista.Add(c);
+					}
+				}
+				hdr.Close();
+			}
+			catch (Exception e) { throw new Exception(e.Message); }
+			return lista;
+		}
+		public List<OrdenDeVenta_E> ConsultarOrdenDeVenta(int DocNum)
+		{
+			List<OrdenDeVenta_E> lista = new List<OrdenDeVenta_E>();
+			HanaConnection hcn = new HanaConnection(uti.cadHana);
+			try
+			{
+				hcn.Open();
+				HanaCommand hcmd = new HanaCommand("select \"DocEntry\" from " + uti.schemaHana + "ordr where \"DocNum\"=" + DocNum, hcn);
+				HanaDataReader dr = hcmd.ExecuteReader();
+				dr.Read();
+				int DocEntry = dr.GetInt32(0);
+				dr.Close();
+
+				HanaCommand hcmd2 = new HanaCommand(uti.schemaHana + "DIEGO_LYT_OV", hcn);
+				hcmd2.CommandType = CommandType.StoredProcedure;
+				hcmd2.Parameters.AddWithValue("DocEntry", DocEntry);
+				HanaDataReader hdr2 = hcmd2.ExecuteReader();
+				while (hdr2.Read())
+				{
+					OrdenDeVenta_E o = new OrdenDeVenta_E();
+					if (!hdr2.IsDBNull(0)) { o.NombreBd = hdr2.GetString(0); }
+					if (!hdr2.IsDBNull(1)) { o.DocNum = hdr2.GetInt32(1); }
+					if (!hdr2.IsDBNull(2)) { o.Fecha = hdr2.GetDateTime(2).ToString(); }
+					if (!hdr2.IsDBNull(3)) { o.CardName = hdr2.GetString(3); }
+					if (!hdr2.IsDBNull(4)) { o.RucCliente = hdr2.GetString(4); }
+					if (!hdr2.IsDBNull(7)) { o.UniMedidVend = hdr2.GetString(7); }
+					if (!hdr2.IsDBNull(8)) { o.NumUnidVend = hdr2.GetDecimal(8); }
+					if (!hdr2.IsDBNull(10)) { o.Laboratorio = hdr2.GetString(10); }
+					if (!hdr2.IsDBNull(11)) { o.Producto = hdr2.GetString(11); }
+					if (!hdr2.IsDBNull(12)) { o.Lote = hdr2.GetString(12); }
+					if (!hdr2.IsDBNull(13)) { o.FechaVenc = hdr2.GetDateTime(13).ToString("dd/MM/yyyy"); }
+					if (!hdr2.IsDBNull(14)) { o.PrecioProdIgvVend = hdr2.GetDecimal(14); }
+					if (!hdr2.IsDBNull(16)) { o.TotalProdIgvVend = hdr2.GetDecimal(16); }
+					if (!hdr2.IsDBNull(17)) { o.SlpName = hdr2.GetString(17); }
+					if (!hdr2.IsDBNull(18)) { o.Comentarios = hdr2.GetString(18); }
+					if (!hdr2.IsDBNull(19)) { o.DocTotal = hdr2.GetDecimal(19); }
+					if (!hdr2.IsDBNull(20)) { o.Almacen = hdr2.GetString(20); }
+					if (!hdr2.IsDBNull(22)) { o.RegSanit = hdr2.GetString(22); }
+					lista.Add(o);
+				}
+				hdr2.Close();
+				hcn.Close();
+			}
+			catch { hcn.Close(); }
+			return lista;
+		}
+		public List<AuditoriaStocks_E> ReporteAuditoriaStocks(FrmAuditoriaStocks_E frm)
+		{
+			List<AuditoriaStocks_E> lista = new List<AuditoriaStocks_E>();
+			string filtro = string.Empty;
+
+			if (frm.Almacenes != null)
+			{
+				string query2 = string.Empty;
+				string almacenesIn = "''";
+				foreach (OWHS_E alm in frm.Almacenes)
+				{
+					if (alm.WhsCode != null && alm.WhsCode != "")
+					{
+						almacenesIn += ",'" + alm.WhsCode + "'";
+					}
+				}
+				filtro = " and (T0.\"CreateDate\" between '" + frm.FecIni + "' and '" + frm.FecFin + "') and (T0.\"Warehouse\" in(" + almacenesIn + "))";
+				if (frm.ItmsGrpCod > 0)
+				{
+					filtro += " and (T0.\"ItemCode\" in (select \"ItemCode\" from " + uti.schemaHana + "oitm where \"ItmsGrpCod\"=" + frm.ItmsGrpCod + "))";
+				}
+				if (frm.ArtIni != null && frm.ArtIni != "" && frm.ArtFin != null && frm.ArtFin != "")
+				{
+					filtro += " and T0.\"ItemCode\" between '" + frm.ArtIni + "' and '" + frm.ArtFin + "'";
+				}
+				query2 = "SELECT T0.\"CreateDate\",T0.\"DocDate\",(CASE T0.\"TransType\" WHEN '13' THEN 'IN'	WHEN '14' THEN 'RC'	" +
+												"WHEN '15' THEN 'NE' WHEN '18' THEN 'TT' WHEN '19' THEN 'AC' WHEN '20' THEN 'EP' WHEN '21' THEN 'DM' " +
+												"WHEN '59' THEN 'EM' WHEN '60' THEN 'SM' WHEN '67' THEN 'TR' ELSE '' END) AS \"Abreviatura\"" +
+												",T0.\"BASE_REF\",T0.\"ItemCode\",T0.\"Dscription\",T0.\"Warehouse\",(T0.\"InQty\"-T0.\"OutQty\")" +
+												",T0.\"CalcPrice\",T0.\"TransValue\"" +
+												",(select (sum(Y.\"TransValue\")) from " + uti.schemaHana + "oinm Y " +
+																" where Y.\"CreateDate\" < T0.\"CreateDate\" and Y.\"Warehouse\" in(" + almacenesIn + ") " +
+																	   " and Y.\"ItemCode\" = T0.\"ItemCode\" and Y.\"TransNum\"<T0.\"TransNum\")	AS \"ValorAcumulado\"" +
+												",T0.\"InvntAct\",T0.\"CardName\"" +
+												",(select (sum(Y.\"InQty\"-Y.\"OutQty\")) from " + uti.schemaHana + "oinm Y	" +
+																" where Y.\"CreateDate\" <= T0.\"CreateDate\" and Y.\"Warehouse\" in(" + almacenesIn + ") " +
+																		" and Y.\"ItemCode\" = T0.\"ItemCode\" and Y.\"TransNum\"<T0.\"TransNum\")+(T0.\"InQty\"-T0.\"OutQty\")	AS \"CantidadAcumulada\" " +
+										 " FROM " + uti.schemaHana + "oinm T0 WHERE T0.\"TransNum\">0 " + filtro +
+										 " order by T0.\"ItemCode\",T0.\"CreateDate\",T0.\"TransNum\"";
+				try
+				{
+					HanaDataReader hdr = db.HanaExecuteReaderNoSp(query2);
+					decimal acum = 0.00M;
+					while (hdr.Read())
+					{
+						AuditoriaStocks_E a = new AuditoriaStocks_E();
+						if (!hdr.IsDBNull(0)) { a.CreateDate = hdr.GetDateTime(0).ToString("dd/MM/yyyy"); }
+						if (!hdr.IsDBNull(1)) { a.DocDate = hdr.GetDateTime(1).ToString("dd/MM/yyyy"); }
+						if (!hdr.IsDBNull(2)) { a.Abreviatura = hdr.GetString(2); }
+						if (!hdr.IsDBNull(3)) { a.DocNum = hdr.GetInt32(3); }
+						if (!hdr.IsDBNull(4)) { a.ItemCode = hdr.GetString(4); }
+						if (!hdr.IsDBNull(5)) { a.ItemName = hdr.GetString(5); }
+						if (!hdr.IsDBNull(6)) { a.WhsCode = hdr.GetString(6); }
+						if (!hdr.IsDBNull(7)) { a.Quantity = Math.Round(hdr.GetDecimal(7), 2); }
+						if (!hdr.IsDBNull(8)) { a.Costos = Math.Round(hdr.GetDecimal(8), 2); }
+						if (!hdr.IsDBNull(10)) { a.ValorAcumuladoTotal = Math.Round(hdr.GetDecimal(10), 2); }
+						if (!hdr.IsDBNull(9))
+						{
+							a.ValorTrans = Math.Round(hdr.GetDecimal(9), 2); acum += a.ValorTrans; a.ValorAcumulado = acum;
+						}
+						if (!hdr.IsDBNull(11)) { a.CuentaMayor = hdr.GetString(11); }
+						if (!hdr.IsDBNull(12)) { a.CardName = hdr.GetString(12); }
+						if (!hdr.IsDBNull(13)) { a.CantidadAcumulada = Math.Round(hdr.GetDecimal(13), 2); }
+						a.DeFecha = frm.FecIni;
+						a.HastaFecha = frm.FecFin;
+						a.Moneda = "Soles";
+						a.Cuentas = "Cuentas";
+						lista.Add(a);
+					}
+					hdr.Close();
+				}
+				catch { }
+			}
+			return lista;
+		}
+		public List<OperacionesLotes_E> ReporteOperacionesLotes(FrmOperacionesLotes_E frm, string cab)
+		{
+			List<OperacionesLotes_E> lista = new List<OperacionesLotes_E>();
+			string query = "";
+			if (cab.Equals("Si"))
+			{
+				query = "call " + uti.schemaHana + "DIEGO_RPT_OPERACIONESLOTESCAB('" + frm.ArtIni + "','" + frm.ArtFin + "'," + frm.ItmsGrpCod + ",'" + frm.FecIni + "','" + frm.FecFin + "','" + frm.AlmIni + "','" + frm.AlmFin + "')";
+				try
+				{
+					HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
+					while (hdr.Read())
+					{
+						OperacionesLotes_E o = new OperacionesLotes_E();
+						if (!hdr.IsDBNull(0)) { o.ItemCode = hdr.GetString(0); }
+						if (!hdr.IsDBNull(1)) { o.ItemName = hdr.GetString(1); }
+						if (!hdr.IsDBNull(2)) { o.DistNumber = hdr.GetString(2); }
+						if (!hdr.IsDBNull(3)) { o.WhsCode = hdr.GetString(3); }
+						if (!hdr.IsDBNull(4)) { o.WhsName = hdr.GetString(4); }
+						if (!hdr.IsDBNull(5)) { o.QuantityTotal = Math.Round(hdr.GetDecimal(5), 2); }
+						if (!hdr.IsDBNull(6)) { o.ImputadoTotal = Math.Round(hdr.GetDecimal(6), 2); }
+						if (!hdr.IsDBNull(7)) { o.MnfSerial = hdr.GetString(7); }
+						if (!hdr.IsDBNull(8)) { o.ExpDate = hdr.GetDateTime(8).ToString("dd/MM/yyyy"); }
+						if (!hdr.IsDBNull(9)) { o.FechaAdmision = hdr.GetDateTime(9).ToString("dd/MM/yyyy"); }
+						if (!hdr.IsDBNull(10)) { o.Temperatura = hdr.GetString(10); }
+						lista.Add(o);
+					}
+					hdr.Close();
+				}
+				catch { }
+			}
+			else
+			{
+				query = "call " + uti.schemaHana + "DIEGO_RPT_OPERACIONESLOTES('" + frm.ArtIni + "','" + frm.FecIni + "','" + frm.FecFin + "','" + frm.AlmIni + "','" + frm.Lote + "')";
+				try
+				{
+					HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
+					while (hdr.Read())
+					{
+						OperacionesLotes_E o = new OperacionesLotes_E();
+						if (!hdr.IsDBNull(0)) { o.ItemCode = hdr.GetString(0); }
+						if (!hdr.IsDBNull(1)) { o.ItemName = hdr.GetString(1); }
+						if (!hdr.IsDBNull(2)) { o.DistNumber = hdr.GetString(2); }
+						if (!hdr.IsDBNull(3)) { o.WhsCode = hdr.GetString(3); }
+						if (!hdr.IsDBNull(4)) { o.WhsName = hdr.GetString(4); }
+						if (!hdr.IsDBNull(5)) { o.DocNum = hdr.GetInt32(5); }
+						if (!hdr.IsDBNull(6)) { o.DocDate = hdr.GetDateTime(6).ToString("dd/MM/yyyy"); }
+						if (!hdr.IsDBNull(7)) { o.CardName = hdr.GetString(7); }
+						if (!hdr.IsDBNull(8)) { o.Quantity = Math.Round(hdr.GetDecimal(8), 2); }
+						if (!hdr.IsDBNull(9)) { o.Imputado = Math.Round(hdr.GetDecimal(9), 2); }
+						if (!hdr.IsDBNull(10)) { o.Sentido = hdr.GetString(10); }
+						if (!hdr.IsDBNull(11)) { o.Abreviatura = hdr.GetString(11); }
+						lista.Add(o);
+					}
+					hdr.Close();
+				}
+				catch { }
+			}
+			return lista;
+		}
+		private List<PreciosOpm_E> ReportePreciosOpm(string FecIni, string FecFin)
+		{
+			List<PreciosOpm_E> lista = new List<PreciosOpm_E>();
+			List<PreciosOpm_E> listaAux = new List<PreciosOpm_E>();
+            string query = "CALL " + uti.schemaHana + "DIEGO_RPT_REGVENTAS('" + FecIni + "','" + FecFin + "')";
+            try
+            {
+				HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
+				while (hdr.Read())
+				{
+					PreciosOpm_E p = new PreciosOpm_E();
+					if (!hdr.IsDBNull(0)) { p.ItemCode = hdr.GetString(0); }
+					if (!hdr.IsDBNull(1)) { p.Dscription = hdr.GetString(1); }
+					if (!hdr.IsDBNull(2)) { p.PrecioCajas = hdr.GetDecimal(2); }
+					if (!hdr.IsDBNull(3)) { p.MnfSerial = hdr.GetString(3); }
+					if (!hdr.IsDBNull(4)) { p.DocEntry = hdr.GetInt32(4); }
+					if (!hdr.IsDBNull(5)) { p.ObjType = hdr.GetString(5); }
+					listaAux.Add(p);
+				}
+				hdr.Close();
+				lista = PreciosOpm_E.ListaConPreciosFinales(listaAux);
+			}
+			catch { }
+			return lista;
+		}
+		public List<NotaCreditoVentaArticulo_E> ConsultarNotaCreditoVentaArticulos(int DocEntry)
+		{
+			List<NotaCreditoVentaArticulo_E> lista = new List<NotaCreditoVentaArticulo_E>();
+			string query = "call " + uti.schemaHana + "DIEGO_LYT_NC_ELECT(" + DocEntry + ")";
+			try
+			{
+				HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
+				while (hdr.Read())
+				{
+					NotaCreditoVentaArticulo_E n = new NotaCreditoVentaArticulo_E();
+					if (!hdr.IsDBNull(0)) { n.DocEntry = hdr.GetInt32(0); }
+					if (!hdr.IsDBNull(1)) { n.ElaboradoPor = hdr.GetString(1); }
+					if (!hdr.IsDBNull(2)) { n.SerieDoc = hdr.GetString(2); }
+					if (!hdr.IsDBNull(3)) { n.CorreDoc = hdr.GetString(3); }
+					if (!hdr.IsDBNull(4)) { n.TipoDocOrigen = hdr.GetString(4); }
+					if (!hdr.IsDBNull(5)) { n.SerieDocOrigen = hdr.GetString(5); }
+					if (!hdr.IsDBNull(6)) { n.CorreDocOrigen = hdr.GetString(6); }
+					if (!hdr.IsDBNull(7)) { n.FDocOrigen = hdr.GetDateTime(7).ToString("dd/MM/yyyy"); }
+					if (!hdr.IsDBNull(8)) { n.Motivo = hdr.GetString(8); }
+					if (!hdr.IsDBNull(9)) { n.NombreSocio = hdr.GetString(9); }
+					if (!hdr.IsDBNull(10)) { n.DirPagar = hdr.GetString(10); }
+					if (!hdr.IsDBNull(11)) { n.RUC = hdr.GetString(11); }
+					if (!hdr.IsDBNull(12)) { n.Fecha = hdr.GetDateTime(12); }
+					if (!hdr.IsDBNull(13)) { n.Moneda = hdr.GetString(13); }
+					if (!hdr.IsDBNull(14)) { n.MonedaLetras = hdr.GetString(14); }
+					if (!hdr.IsDBNull(15)) { n.Descripcion = hdr.GetString(15); }
+					if (!hdr.IsDBNull(16)) { n.ItemPrecio = hdr.GetDecimal(16); }
+					if (!hdr.IsDBNull(17)) { n.ItemTotal = hdr.GetDecimal(17); }
+					if (!hdr.IsDBNull(18)) { n.Impuesto = hdr.GetDecimal(18); }
+					if (!hdr.IsDBNull(19)) { n.DocTotal = hdr.GetDecimal(19); }
+					if (!hdr.IsDBNull(20)) { n.Impto = hdr.GetDecimal(20); }
+					if (!hdr.IsDBNull(21)) { n.LoteNum = hdr.GetString(21); }
+					if (!hdr.IsDBNull(22)) { n.CantidadL = hdr.GetDecimal(22); }
+					if (!hdr.IsDBNull(23)) { n.TieneAnticipo = hdr.GetInt32(23); }
+					if (!hdr.IsDBNull(24)) { n.MontoAnticipo = hdr.GetDecimal(24); }
+					if (!hdr.IsDBNull(25)) { n.NumAnticipo = hdr.GetString(25); }
+					if (!hdr.IsDBNull(26)) { n.Laboratorio = hdr.GetString(26); }
+					if (!hdr.IsDBNull(27)) { n.QUMVta = hdr.GetDecimal(27); }
+					if (!hdr.IsDBNull(28)) { n.CodImpuesto = hdr.GetString(28); }
+					if (!hdr.IsDBNull(29)) { n.UM = hdr.GetString(29); }
+					if (!hdr.IsDBNull(30)) { n.Descuento = hdr.GetDecimal(30); }
+					if (!hdr.IsDBNull(31)) { n.PreVentaNeto = hdr.GetDecimal(31); }
+					if (!hdr.IsDBNull(32)) { n.PreUnitSinIgv = hdr.GetDecimal(32); }
+					if (!hdr.IsDBNull(33)) { n.VctoLote = hdr.GetDateTime(33).ToString("dd/MM/yyyy"); }
+					lista.Add(n);
+				}
+				hdr.Close();
+			}
+			catch { }
+			return lista;
+		}
+		public List<VentasArtLote_E> ListaVentasArtLote(FrmKardex_E f)
+		{
+			List<VentasArtLote_E> lista = new List<VentasArtLote_E>();
+			string query = "select t0.\"ItemName\",t0.\"ItemCode\",t0.\"BatchNum\",t0.\"DocDate\"" +
+							",(case t0.\"BaseType\" " +
+									 "when 13 then (select \"NumAtCard\" from " + uti.schemaHana + "oinv where \"DocEntry\" = t0.\"BaseEntry\") " +
+									 "when 15 then (select max(x.\"NumAtCard\") from " + uti.schemaHana + "dln1 y " +
+													 "inner join " + uti.schemaHana + "inv1 y1 on y1.\"BaseEntry\" = y.\"DocEntry\" and y1.\"BaseType\" = y.\"ObjType\" " +
+													 "inner join " + uti.schemaHana + "oinv x on x.\"DocEntry\" = y1.\"DocEntry\" " +
+													"where y.\"DocEntry\" = t0.\"BaseEntry\" )" +
+								   "when 14 then (select \"NumAtCard\" from " + uti.schemaHana + "orin where \"DocEntry\" = t0.\"BaseEntry\")  " +
+								   " end ) as \"Comprobante\" " +
+							",t0.\"CardCode\",t0.\"CardName\"" +
+							",(case when t0.\"Direction\"=1 then -1*t0.\"Quantity\" else t0.\"Quantity\" end) as \"Cantidad Vendida pza\" " +
+							",(case when t0.\"Direction\"=1 then -1*t0.\"Quantity\" else t0.\"Quantity\" end)/(select \"NumInBuy\" from " + uti.schemaHana + "oitm where \"ItemCode\" = t0.\"ItemCode\") as \"Cantidad Vendida caja\" " +
+							",(case t0.\"BaseType\" " +
+									  "when 13 then (select (select \"SlpName\" from " + uti.schemaHana + "oslp where \"SlpCode\" = h.\"SlpCode\") " +
+													 "from " + uti.schemaHana + "oinv h where h.\"DocEntry\" = t0.\"BaseEntry\") " +
+									  "when 15 then (select (select \"SlpName\" from " + uti.schemaHana + "oslp where \"SlpCode\" = x.\"SlpCode\") " +
+													  "from " + uti.schemaHana + "dln1 y " +
+													  "inner join " + uti.schemaHana + "inv1 y1 on y1.\"BaseEntry\" = y.\"DocEntry\" and y1.\"BaseType\" = y.\"ObjType\" " +
+																			  "and y1.\"ItemCode\" = y.\"ItemCode\" " +
+													  "inner join " + uti.schemaHana + "oinv x on x.\"DocEntry\" = y1.\"DocEntry\" " +
+													  "where y.\"DocEntry\" = t0.\"BaseEntry\" " +
+													  "group by  x.\"SlpCode\" ) end ) as \"Vendedor\" " +
+							",(select \"E_Mail\" from " + uti.schemaHana + "ocrd where \"CardCode\"=t0.\"CardCode\" ) as \"Correo\" " +
+							"from " + uti.schemaHana + "ibt1 t0 " +
+							"where t0.\"ItemCode\" = '" + f.ItemCode + "' and t0.\"BatchNum\" = '" + f.Lote + "' " +
+									"and t0.\"DocDate\" between '" + f.FecIni + "' and '" + f.FecFin + "' " +
+									"and t0.\"BaseType\" in (13,14,15,16) and t0.\"Direction\"<>'2'" +
+							"order by t0.\"DocDate\",t0.\"CardCode\",t0.\"BaseEntry\" ";
+			HanaConnection hcn = new HanaConnection(uti.cadHana);
+			try
+			{
+				hcn.Open();
+				HanaCommand hcmd = new HanaCommand(query, hcn);
+				hcmd.CommandType = CommandType.Text;
+				HanaDataReader hdr = hcmd.ExecuteReader();
+				while (hdr.Read())
+				{
+					VentasArtLote_E o = new VentasArtLote_E();
+					if (!hdr.IsDBNull(0)) { o.ItemName = hdr.GetString(0); }
+					if (!hdr.IsDBNull(1)) { o.ItemCode = hdr.GetString(1); }
+					if (!hdr.IsDBNull(2)) { o.BatchNum = hdr.GetString(2); }
+					if (!hdr.IsDBNull(3)) { o.DocDate = hdr.GetDateTime(3); }
+					if (!hdr.IsDBNull(4)) { o.Comprobante = hdr.GetString(4); }
+					if (!hdr.IsDBNull(5)) { o.CardCode = hdr.GetString(5); }
+					if (!hdr.IsDBNull(6)) { o.CardName = hdr.GetString(6); }
+					if (!hdr.IsDBNull(7)) { o.CantPza = hdr.GetDecimal(7); }
+					if (!hdr.IsDBNull(8)) { o.CantCja = hdr.GetDecimal(8); }
+					if (!hdr.IsDBNull(9)) { o.Vendedor = hdr.GetString(9); }
+					if (!hdr.IsDBNull(10)) { o.Correo = hdr.GetString(10); }
+					lista.Add(o);
+				}
+				hdr.Close();
+			}
+			catch { }
+			finally { hcn.Close(); }
+			return lista;
+		}
+		// tablas de reportes
+		DataTable definirTabla(List<string> campos, List<Type> tipos, string nombre)
+		{
+			DataTable tb = new DataTable(nombre);
+			int i = 0;
+			foreach (string campo in campos)
+			{
+				DataColumn dc = new DataColumn(campo, tipos[i]);
+				dc.ReadOnly = true;
+				tb.Columns.Add(dc);
+				i++;
+			}
+			return tb;
+		}
+		public DataTable tbReporteKardex(FrmKardex_E f)
+		{
+			List<string> campos = new List<string>();
+			List<Type> tipos = new List<Type>();
+			campos.Add("Nro"); tipos.Add(typeof(int));
+			campos.Add("DescProducto"); tipos.Add(typeof(string));
+			campos.Add("CodProducto"); tipos.Add(typeof(string));
+			campos.Add("RegSanitario"); tipos.Add(typeof(string));
+			campos.Add("FechaCont"); tipos.Add(typeof(string));
+			campos.Add("FacturaGuiaBoleta"); tipos.Add(typeof(string));
+			campos.Add("ProvEstab"); tipos.Add(typeof(string));
+			campos.Add("Ruc"); tipos.Add(typeof(string));
+			campos.Add("Lote"); tipos.Add(typeof(string));
+			campos.Add("CantLoteIngreso"); tipos.Add(typeof(decimal));
+			campos.Add("CantLoteSalida"); tipos.Add(typeof(decimal));
+			campos.Add("CantIngreso"); tipos.Add(typeof(decimal));
+			campos.Add("CantSalida"); tipos.Add(typeof(decimal));
+			campos.Add("AcumuladoLote"); tipos.Add(typeof(decimal));
+			campos.Add("AcumuladoProducto"); tipos.Add(typeof(decimal));
+			campos.Add("BaseType"); tipos.Add(typeof(double));
+			campos.Add("Direction"); tipos.Add(typeof(int));
+			campos.Add("Warehouse"); tipos.Add(typeof(string));
+			campos.Add("CreatedBy"); tipos.Add(typeof(int));
+			DataTable tb = definirTabla(campos, tipos, "DataTable1");
+			HanaConnection cn = new HanaConnection(uti.cadHana);
+			try
+			{
+				CultureInfo culture = new CultureInfo("en-US");
+				string HANASQL = string.Empty;
+				switch (f.WhsCode)
+				{
+					case "01":
+						if (f.Lote == null || f.Lote == "") { HANASQL = "CALL " + uti.schemaHana + "MARIA_KARDEX303_V1('" + f.FecIni + "', '" + f.FecFin + "', '" + f.ItemCode + "')"; }
+						else { HANASQL = "CALL " + uti.schemaHana + "MARIA_KARDEX303_LOTES_V1('" + f.FecIni + "', '" + f.FecFin + "', '" + f.ItemCode + "','" + f.Lote + "')"; }
+						break;
+					case "02":
+						if (f.Lote == null || f.Lote == "") { HANASQL = "CALL " + uti.schemaHana + "DIEGO_KARDEX502_V1('" + f.FecIni + "', '" + f.FecFin + "', '" + f.ItemCode + "')"; }
+						else { HANASQL = "CALL " + uti.schemaHana + "DIEGO_KARDEX502_LOTES_V1('" + f.FecIni + "', '" + f.FecFin + "', '" + f.ItemCode + "','" + f.Lote + "')"; }
+						break;
+					case "03":
+						if (f.Lote == null || f.Lote == "") { HANASQL = "CALL " + uti.schemaHana + "DIEGO_KARDEX_ALM03_V1('" + f.FecIni + "', '" + f.FecFin + "', '" + f.ItemCode + "')"; }
+						else { HANASQL = "CALL " + uti.schemaHana + "DIEGO_KARDEX_ALM03_LOTES_V1('" + f.FecIni + "', '" + f.FecFin + "', '" + f.ItemCode + "','" + f.Lote + "')"; }
+						break;
+					case "04":
+						if (f.Lote == null || f.Lote == "") { HANASQL = "CALL " + uti.schemaHana + "DIEGO_KARDEX_ALM04_V1('" + f.FecIni + "', '" + f.FecFin + "', '" + f.ItemCode + "')"; }
+						else { HANASQL = "CALL " + uti.schemaHana + "DIEGO_KARDEX_ALM04_LOTES_V1('" + f.FecIni + "', '" + f.FecFin + "', '" + f.ItemCode + "','" + f.Lote + "')"; }
+						break;
+					case "05":
+						if (f.Lote == null || f.Lote == "") { HANASQL = "CALL " + uti.schemaHana + "DIEGO_KARDEX_ALM05_V1('" + f.FecIni + "', '" + f.FecFin + "', '" + f.ItemCode + "')"; }
+						else { HANASQL = "CALL " + uti.schemaHana + "DIEGO_KARDEX_ALM05_LOTES_V1('" + f.FecIni + "', '" + f.FecFin + "', '" + f.ItemCode + "','" + f.Lote + "')"; }
+						break;
+					case "09":
+						if (f.Lote == null || f.Lote == "") { HANASQL = "CALL " + uti.schemaHana + "MARIA_KARDEX_ALM06_V1('" + f.FecIni + "', '" + f.FecFin + "', '" + f.ItemCode + "')"; }
+						else { HANASQL = "CALL " + uti.schemaHana + "MARIA_KARDEX_ALM06_LOTES_V1('" + f.FecIni + "', '" + f.FecFin + "', '" + f.ItemCode + "','" + f.Lote + "')"; }
+						break;
+					case "ALM07":
+						if (f.Lote == null || f.Lote == "") { HANASQL = "CALL " + uti.schemaHana + "DIEGO_KARDEX_ALM07_V1('" + f.FecIni + "', '" + f.FecFin + "', '" + f.ItemCode + "')"; }
+						else { HANASQL = "CALL " + uti.schemaHana + "DIEGO_KARDEX_ALM07_LOTES_V1('" + f.FecIni + "', '" + f.FecFin + "', '" + f.ItemCode + "','" + f.Lote + "')"; }
+						break;
+
+				}
+				cn.Open();
+				HanaCommand cmd = new HanaCommand(HANASQL, cn);
+				cmd.CommandType = CommandType.Text;
+				HanaDataReader dr = cmd.ExecuteReader();
+				int nro = 1;
+				while (dr.Read())
+				{
+					if (dr.GetString(18).Equals("MOSTRAR"))
+					{
+						DataRow row = tb.NewRow();
+						row["Nro"] = nro++;
+						row["DescProducto"] = dr.GetString(0);
+						row["CodProducto"] = dr.GetString(1);
+						row["RegSanitario"] = dr.GetString(2);
+						row["FechaCont"] = dr.GetDateTime(3).ToString("dd/MM/yyyy");
+						row["FacturaGuiaBoleta"] = dr.GetString(4);
+						row["ProvEstab"] = dr.GetString(5);
+						row["Ruc"] = dr.GetString(6);
+						row["Lote"] = dr.GetString(7);
+						row["CantLoteIngreso"] = Math.Round(decimal.Parse(dr.GetString(8)));
+						row["CantLoteSalida"] = Math.Round(decimal.Parse(dr.GetString(9)));
+						row["CantIngreso"] = Math.Round(decimal.Parse(dr.GetString(10)));
+						row["CantSalida"] = Math.Round(decimal.Parse(dr.GetString(11)));
+						row["AcumuladoLote"] = Math.Round(decimal.Parse(dr.GetString(12), culture));
+						row["AcumuladoProducto"] = Math.Round(decimal.Parse(dr.GetString(13), culture));
+						row["BaseType"] = dr.GetDouble(14);
+						row["Direction"] = dr.GetInt32(15);
+						row["Warehouse"] = dr.GetString(16);
+						row["CreatedBy"] = dr.GetInt32(17);
+						tb.Rows.Add(row);
+					}
+				}
+				dr.Close();
+				cn.Close();
+			}
+			catch { cn.Close(); }
+			return tb;
+		}
+
+		public DataTable tbReportePreciosOpm(string FecIni, string FecFin)
+		{
+			List<string> campos = new List<string>();
+			List<Type> tipos = new List<Type>();
+			campos.Add("Orden"); tipos.Add(typeof(string));
+			campos.Add("Codigo"); tipos.Add(typeof(string));
+			campos.Add("Descripcion"); tipos.Add(typeof(string));
+			campos.Add("PrecioMinimo"); tipos.Add(typeof(string));
+			campos.Add("PrecioMaximo"); tipos.Add(typeof(string));
+			campos.Add("PrecioMediano"); tipos.Add(typeof(string));
+			campos.Add("PrecioPromedio"); tipos.Add(typeof(string));
+			campos.Add("RegistroSanitario"); tipos.Add(typeof(string));
+			DataTable tb = definirTabla(campos, tipos, "DataTableReportePrecios");
+			int i = 0;
+			foreach (PreciosOpm_E p in ReportePreciosOpm(FecIni, FecFin))
+			{
+				DataRow row = tb.NewRow();
+				row["Orden"] = i++;
+				row["Codigo"] = p.ItemCode;
+				row["Descripcion"] = p.Dscription;
+				row["PrecioMinimo"] = Math.Round(p.PreMinimo, 2);
+				row["PrecioMaximo"] = Math.Round(p.PreMaximo, 2);
+				row["PrecioMediano"] = Math.Round(p.PreMediano, 2);
+				row["PrecioPromedio"] = Math.Round(p.PrePromedio, 2);
+				row["RegistroSanitario"] = p.MnfSerial;
+				tb.Rows.Add(row);
+			}
+			return tb;
+		}
+		public DataTable tbReporteBalanceControladosIngreso(FrmBalanceControlados_E f)
+		{
+			List<string> campos = new List<string>();
+			List<Type> tipos = new List<Type>();
+			campos.Add("CodProducto"); tipos.Add(typeof(string));
+			campos.Add("NombreGenerico"); tipos.Add(typeof(string));
+			campos.Add("NombreComercial"); tipos.Add(typeof(string));
+			campos.Add("RegSanitario"); tipos.Add(typeof(string));
+			campos.Add("Concentracion"); tipos.Add(typeof(string));
+			campos.Add("FormaPresentacion"); tipos.Add(typeof(string));
+			campos.Add("FormaFamaceutica"); tipos.Add(typeof(string));
+			campos.Add("NroLote"); tipos.Add(typeof(string));
+			campos.Add("CantLote"); tipos.Add(typeof(decimal));
+			campos.Add("Proveedor"); tipos.Add(typeof(string));
+			campos.Add("RucProveedor"); tipos.Add(typeof(string));
+			campos.Add("CalleJrAvN"); tipos.Add(typeof(string));
+			campos.Add("Distrito"); tipos.Add(typeof(string));
+			campos.Add("Provincia"); tipos.Add(typeof(string));
+			campos.Add("Departamento"); tipos.Add(typeof(string));
+			campos.Add("NroFacturaNcredito"); tipos.Add(typeof(string));
+			campos.Add("Fecha"); tipos.Add(typeof(string));
+			campos.Add("TipoControlado"); tipos.Add(typeof(string));
+			DataTable tb = definirTabla(campos, tipos, "DataTable2");
+			string query = "call " + uti.schemaHana + "DIEGO_BAL_CONT_INGRESO_V1('" + f.FecIni + "','" + f.FecFin + "','" + f.TipoControlado + "')";
+			try
+			{
+				HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
+				while (hdr.Read())
+				{
+					DataRow row = tb.NewRow();
+					if (!hdr.IsDBNull(0)) { row["CodProducto"] = hdr.GetString(0); }
+					if (!hdr.IsDBNull(1)) { row["NombreGenerico"] = hdr.GetString(1); }
+					if (!hdr.IsDBNull(2)) { row["NombreComercial"] = hdr.GetString(2); }
+					if (!hdr.IsDBNull(3)) { row["RegSanitario"] = hdr.GetString(3); }
+					if (!hdr.IsDBNull(4)) { row["Concentracion"] = hdr.GetString(4); }
+					if (!hdr.IsDBNull(5)) { row["FormaPresentacion"] = hdr.GetString(5); }
+					if (!hdr.IsDBNull(6)) { row["FormaFamaceutica"] = hdr.GetString(6); }
+					if (!hdr.IsDBNull(7)) { row["NroLote"] = hdr.GetString(7); }
+					if (!hdr.IsDBNull(8)) { row["CantLote"] = Math.Round(hdr.GetDecimal(8), 0); }
+					if (!hdr.IsDBNull(9)) { row["Proveedor"] = hdr.GetString(9); }
+					if (!hdr.IsDBNull(10)) { row["RucProveedor"] = hdr.GetString(10); }
+					if (!hdr.IsDBNull(11)) { row["CalleJrAvN"] = hdr.GetString(11); }
+					if (!hdr.IsDBNull(12)) { row["Distrito"] = hdr.GetString(12); }
+					if (!hdr.IsDBNull(13)) { row["Provincia"] = hdr.GetString(13); }
+					if (!hdr.IsDBNull(14)) { row["Departamento"] = hdr.GetString(14); }
+					if (!hdr.IsDBNull(15)) { row["NroFacturaNcredito"] = hdr.GetString(15); }
+					if (!hdr.IsDBNull(16)) { row["Fecha"] = hdr.GetDateTime(16).ToString("dd/MM/yyyy"); }
+					if (f.TipoControlado == "S") { row["TipoControlado"] = "PSICOTROTICOS"; }
+					else if (f.TipoControlado == "P") { row["TipoControlado"] = "PRECURSORES"; }
+					else if (f.TipoControlado == "E") { row["TipoControlado"] = "ESTUPEFACIENTES"; }
+					if (!hdr.IsDBNull(15) && !hdr.GetValue(15).Equals("AC--"))
+					{
+						tb.Rows.Add(row);
+					}
+
+				}
+				hdr.Close();
+			}
+			catch { }
+			return tb;
+		}
+		public DataTable tbReporteBalanceControladosEgresos(FrmBalanceControlados_E f)
+		{
+			List<string> campos = new List<string>();
+			List<Type> tipos = new List<Type>();
+			campos.Add("CodProducto"); tipos.Add(typeof(string));
+			campos.Add("NombreGenerico"); tipos.Add(typeof(string));
+			campos.Add("NombreComercial"); tipos.Add(typeof(string));
+			campos.Add("RegSanitario"); tipos.Add(typeof(string));
+			campos.Add("Concentracion"); tipos.Add(typeof(string));
+			campos.Add("FormaPresentacion"); tipos.Add(typeof(string));
+			campos.Add("FormaFamaceutica"); tipos.Add(typeof(string));
+			campos.Add("NroLote"); tipos.Add(typeof(string));
+			campos.Add("CantLote"); tipos.Add(typeof(decimal));
+			campos.Add("Establecimiento"); tipos.Add(typeof(string));
+			campos.Add("RucEstab"); tipos.Add(typeof(string));
+			campos.Add("CalleJrAvN"); tipos.Add(typeof(string));
+			campos.Add("Distrito"); tipos.Add(typeof(string));
+			campos.Add("Provincia"); tipos.Add(typeof(string));
+			campos.Add("Departamento"); tipos.Add(typeof(string));
+			campos.Add("NroFactura"); tipos.Add(typeof(string));
+			campos.Add("Fecha"); tipos.Add(typeof(string));
+			campos.Add("TipoControlado"); tipos.Add(typeof(string));
+			DataTable tb = definirTabla(campos, tipos, "DataTable3");
+			string query = "call " + uti.schemaHana + "DIEGO_BAL_CONT_EGRESO_V2('" + f.FecIni + "','" + f.FecFin + "','" + f.TipoControlado + "')";
+			try
+			{
+				HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
+				while (hdr.Read())
+				{
+					DataRow row = tb.NewRow();
+					if (!hdr.IsDBNull(0)) { row["CodProducto"] = hdr.GetString(0); }
+					if (!hdr.IsDBNull(1)) { row["NombreGenerico"] = hdr.GetString(1); }
+					if (!hdr.IsDBNull(2)) { row["NombreComercial"] = hdr.GetString(2); }
+					if (!hdr.IsDBNull(3)) { row["RegSanitario"] = hdr.GetString(3); }
+					if (!hdr.IsDBNull(4)) { row["Concentracion"] = hdr.GetString(4); }
+					if (!hdr.IsDBNull(5)) { row["FormaPresentacion"] = hdr.GetString(5); }
+					if (!hdr.IsDBNull(6)) { row["FormaFamaceutica"] = hdr.GetString(6); }
+					if (!hdr.IsDBNull(7)) { row["NroLote"] = hdr.GetString(7); }
+					if (!hdr.IsDBNull(8)) { row["CantLote"] = Math.Round(hdr.GetDecimal(8), 0); }
+					if (!hdr.IsDBNull(9)) { row["Establecimiento"] = hdr.GetString(9); }
+					if (!hdr.IsDBNull(10)) { row["RucEstab"] = hdr.GetString(10); }
+					if (!hdr.IsDBNull(11)) { row["CalleJrAvN"] = hdr.GetString(11); }
+					if (!hdr.IsDBNull(12)) { row["Distrito"] = hdr.GetString(12); }
+					if (!hdr.IsDBNull(13)) { row["Provincia"] = hdr.GetString(13); }
+					if (!hdr.IsDBNull(14)) { row["Departamento"] = hdr.GetString(14); }
+					if (!hdr.IsDBNull(15)) { row["NroFactura"] = hdr.GetString(15); }
+					if (!hdr.IsDBNull(16)) { row["Fecha"] = hdr.GetDateTime(16).ToString("dd/MM/yyyy"); }
+					if (f.TipoControlado == "S") { row["TipoControlado"] = "PSICOTROPICOS"; }
+					else if (f.TipoControlado == "P") { row["TipoControlado"] = "PRECURSORES"; }
+					else if (f.TipoControlado == "E") { row["TipoControlado"] = "ESTUPEFACIENTES"; }
+					if (!(hdr.IsDBNull(15) || hdr.IsDBNull(8) || Math.Round(hdr.GetDecimal(8), 0) == 0.00M))
+					{
+						tb.Rows.Add(row);
+					}
+
+				}
+				hdr.Close();
+			}
+			catch { }
+			return tb;
+		}
+		public DataTable tbReporteBalanceControladosConsolidado(FrmBalanceControlados_E f)
+		{
+			List<string> campos = new List<string>();
+			List<Type> tipos = new List<Type>();
+			campos.Add("RazonSocial"); tipos.Add(typeof(string));
+			campos.Add("NmComercial"); tipos.Add(typeof(string));
+			campos.Add("RucCob"); tipos.Add(typeof(string));
+			campos.Add("Direccion"); tipos.Add(typeof(string));
+			campos.Add("Telefono2"); tipos.Add(typeof(string));
+			campos.Add("Quimico"); tipos.Add(typeof(string));
+			campos.Add("Correo"); tipos.Add(typeof(string));
+			campos.Add("Año"); tipos.Add(typeof(int));
+			campos.Add("CodProducto"); tipos.Add(typeof(string));
+			campos.Add("NombreGenerico"); tipos.Add(typeof(string));
+			campos.Add("NombreComercial"); tipos.Add(typeof(string));
+			campos.Add("Concentracion"); tipos.Add(typeof(string));
+			campos.Add("FormaFamaceutica"); tipos.Add(typeof(string));
+			campos.Add("SaldoAnterior"); tipos.Add(typeof(decimal));
+			campos.Add("Compra"); tipos.Add(typeof(decimal));
+			campos.Add("Venta"); tipos.Add(typeof(decimal));
+			campos.Add("OtrosIngresosNC"); tipos.Add(typeof(decimal));
+			campos.Add("OtrosEgresosDEV"); tipos.Add(typeof(decimal));
+			campos.Add("OtrosEgresosSAM"); tipos.Add(typeof(decimal));
+			campos.Add("BaseType"); tipos.Add(typeof(int));
+			campos.Add("CreatedBy"); tipos.Add(typeof(int));
+			campos.Add("TipoControlado"); tipos.Add(typeof(string));
+			campos.Add("Trimestre"); tipos.Add(typeof(string));
+			DataTable tb = definirTabla(campos, tipos, "DataTable4");
+			string query = "call " + uti.schemaHana + "DIEGO_BAL_CONT_CONSOLIDADO_V3('" + f.FecIni + "','" + f.TipoControlado + "')";
+			try
+			{
+				HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
+				while (hdr.Read())
+				{
+					DataRow row = tb.NewRow();
+					if (!hdr.IsDBNull(0)) { row["RazonSocial"] = hdr.GetString(0); }
+					if (!hdr.IsDBNull(1)) { row["NmComercial"] = hdr.GetString(1); }
+					if (!hdr.IsDBNull(2)) { row["RucCob"] = hdr.GetString(2); }
+					if (!hdr.IsDBNull(3)) { row["Direccion"] = hdr.GetString(3); }
+					if (!hdr.IsDBNull(4)) { row["Telefono2"] = "01-3267430 anexo 201"; }
+					if (!hdr.IsDBNull(5)) { row["Quimico"] = "PAMELA COLLAHUA SENOSAIN"; }
+					if (!hdr.IsDBNull(6)) { row["Correo"] = hdr.GetString(6); }
+					if (!hdr.IsDBNull(7)) { row["Año"] = hdr.GetInt32(7); }
+					if (!hdr.IsDBNull(8)) { row["CodProducto"] = hdr.GetString(8); }
+					if (!hdr.IsDBNull(9)) { row["NombreGenerico"] = hdr.GetString(9); }
+					if (!hdr.IsDBNull(10)) { row["NombreComercial"] = hdr.GetString(10); }
+					if (!hdr.IsDBNull(11)) { row["Concentracion"] = hdr.GetString(11); }
+					if (!hdr.IsDBNull(12)) { row["FormaFamaceutica"] = hdr.GetString(12); }
+					if (!hdr.IsDBNull(13)) { row["SaldoAnterior"] = Math.Round(hdr.GetDecimal(13), 0); }
+					if (!hdr.IsDBNull(14)) { row["Compra"] = Math.Round(hdr.GetDecimal(14), 0); }
+					if (!hdr.IsDBNull(15)) { row["Venta"] = Math.Round(hdr.GetDecimal(15), 0); }
+					if (!hdr.IsDBNull(16)) { row["OtrosIngresosNC"] = Math.Round(hdr.GetDecimal(16), 0); }
+					if (!hdr.IsDBNull(17)) { row["OtrosEgresosDEV"] = Math.Round(hdr.GetDecimal(17), 0); }
+					if (!hdr.IsDBNull(18)) { row["BaseType"] = hdr.GetInt32(18); }
+					if (!hdr.IsDBNull(19)) { row["CreatedBy"] = hdr.GetInt32(19); }
+					if (f.TipoControlado == "S") { row["TipoControlado"] = "PSICOTROTICOS"; }
+					else if (f.TipoControlado == "P") { row["TipoControlado"] = "PRECURSORES"; }
+					else if (f.TipoControlado == "E") { row["TipoControlado"] = "ESTUPEFACIENTES"; }
+					DateTime dt = DateTime.Parse(f.FecIni);
+					if (dt.Month == 1) { row["Trimestre"] = "I"; }
+					else if (dt.Month == 4) { row["Trimestre"] = "II"; }
+					else if (dt.Month == 7) { row["Trimestre"] = "III"; }
+					else if (dt.Month == 10) { row["Trimestre"] = "IV"; }
+
+					tb.Rows.Add(row);
+				}
+				hdr.Close();
+			}
+			catch { }
+			return tb;
+		}
+		public DataTable tbReporteLibroControlados(FrmBalanceControlados_E f)
+		{
+			List<string> campos = new List<string>();
+			List<Type> tipos = new List<Type>();
+			campos.Add("CodProducto"); tipos.Add(typeof(string));
+			campos.Add("NombreGenerico"); tipos.Add(typeof(string));
+			campos.Add("NombreComercial"); tipos.Add(typeof(string));
+			campos.Add("Concentracion"); tipos.Add(typeof(string));
+			campos.Add("FormaPresentacion"); tipos.Add(typeof(string));
+			campos.Add("FormaFamaceutica"); tipos.Add(typeof(string));
+			campos.Add("CantLote"); tipos.Add(typeof(decimal));
+			campos.Add("Proveedor"); tipos.Add(typeof(string));
+			campos.Add("NroFacturaNcredito"); tipos.Add(typeof(string));
+			campos.Add("Fecha"); tipos.Add(typeof(string));
+			campos.Add("TipoControlado"); tipos.Add(typeof(string));
+			campos.Add("Tipo"); tipos.Add(typeof(string));
+			DataTable tb = definirTabla(campos, tipos, "DataTable6");
+			string query = "call " + uti.schemaHana + "DIEGO_BAL_CONT_INGRESO_V1('" + f.FecIni + "','" + f.FecFin + "','" + f.TipoControlado + "')";
+			try
+			{
+				HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
+				while (hdr.Read())
+				{
+					DataRow row = tb.NewRow();
+					if (!hdr.IsDBNull(0)) { row["CodProducto"] = hdr.GetString(0); }
+					if (!hdr.IsDBNull(1)) { row["NombreGenerico"] = hdr.GetString(1); }
+					if (!hdr.IsDBNull(2)) { row["NombreComercial"] = hdr.GetString(2); }
+					if (!hdr.IsDBNull(4)) { row["Concentracion"] = hdr.GetString(4); }
+					if (!hdr.IsDBNull(5)) { row["FormaPresentacion"] = hdr.GetString(5); }
+					if (!hdr.IsDBNull(6)) { row["FormaFamaceutica"] = hdr.GetString(6); }
+					if (!hdr.IsDBNull(8)) { row["Tipo"] = "INGRESO"; }
+					if (!hdr.IsDBNull(8)) { row["CantLote"] = Math.Round(hdr.GetDecimal(8), 0); }
+					if (!hdr.IsDBNull(9)) { row["Proveedor"] = hdr.GetString(9); }
+					if (!hdr.IsDBNull(15)) { row["NroFacturaNcredito"] = hdr.GetString(15); }
+					if (!hdr.IsDBNull(16)) { row["Fecha"] = hdr.GetDateTime(16).ToString("dd/MM/yyyy"); }
+					if (f.TipoControlado == "S") { row["TipoControlado"] = "PSICOTROTICOS"; }
+					else if (f.TipoControlado == "P") { row["TipoControlado"] = "PRECURSORES"; }
+					else if (f.TipoControlado == "E") { row["TipoControlado"] = "ESTUPEFACIENTES"; }
+					tb.Rows.Add(row);
+				}
+				hdr.Close();
+			}
+			catch { }
+			DataTable t1 = new DataTable();
+			t1 = tb;
+
+			string query2 = "call " + uti.schemaHana + "DIEGO_BAL_CONT_EGRESO_V2('" + f.FecIni + "','" + f.FecFin + "','" + f.TipoControlado + "')";
+			try
+			{
+				HanaDataReader hdr = db.HanaExecuteReaderNoSp(query2);
+				while (hdr.Read())
+				{
+					DataRow row = tb.NewRow();
+					if (!hdr.IsDBNull(0)) { row["CodProducto"] = hdr.GetString(0); }
+					if (!hdr.IsDBNull(1)) { row["NombreGenerico"] = hdr.GetString(1); }
+					if (!hdr.IsDBNull(2)) { row["NombreComercial"] = hdr.GetString(2); }
+					if (!hdr.IsDBNull(4)) { row["Concentracion"] = hdr.GetString(4); }
+					if (!hdr.IsDBNull(5)) { row["FormaPresentacion"] = hdr.GetString(5); }
+					if (!hdr.IsDBNull(6)) { row["FormaFamaceutica"] = hdr.GetString(6); }
+					if (!hdr.IsDBNull(8)) { row["Tipo"] = "EGRESO"; }
+					if (!hdr.IsDBNull(8)) { row["CantLote"] = Math.Round(hdr.GetDecimal(8), 0); }
+					if (!hdr.IsDBNull(9)) { row["Proveedor"] = hdr.GetString(9); }
+					if (!hdr.IsDBNull(15)) { row["NroFacturaNcredito"] = hdr.GetString(15); }
+					if (!hdr.IsDBNull(16)) { row["Fecha"] = hdr.GetDateTime(16).ToString("dd/MM/yyyy"); }
+					if (f.TipoControlado == "S") { row["TipoControlado"] = "PSICOTROPICOS"; }
+					else if (f.TipoControlado == "P") { row["TipoControlado"] = "PRECURSORES"; }
+					else if (f.TipoControlado == "E") { row["TipoControlado"] = "ESTUPEFACIENTES"; }
+					if (!(hdr.IsDBNull(15) || hdr.IsDBNull(8) || Math.Round(hdr.GetDecimal(8), 0) == 0.00M))
+					{
+						t1.Rows.Add(row);
+					}
+
+				}
+				hdr.Close();
+			}
+			catch { }
+			return t1;
+
+		}
+	}
+}

@@ -1,0 +1,266 @@
+﻿
+@{
+    ViewBag.Title = "PedidosOnline";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li class="current"><em>Pedidos Online</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">PEDIDOS ONLINE</h3></div>
+
+    <div class="row pl-2 w-100 py-2 div-pedidoonline-pc">
+        <div class="d-flex col-lg-2 col-md-3 col-sm-4 col-5">
+            <a href="@Url.Action("CrearPedidoOnline", "Ventas")" class="btn btn-warning font-weight-bold mx-1" title="Nuevo Pedido">
+                <i class="icon icon-plus"></i> Nuevo Pedido
+            </a>
+
+            <button type="button" class="btn btn-cobefar font-weight-bold mx-1" title="Filtros" data-toggle="modal" data-target="#modalFiltros">
+                <i class="icon icon-filter"></i> Filtros
+            </button>
+
+            <button type="button" class="btn btn-info font-weight-bold mx-1" title="Migrar" onclick="migrarArticulos();">
+                <i class="icon icon-stack"></i> Migrar Artículos
+            </button>
+        </div>
+    </div>
+
+    <div class="row pl-2 w-100 py-2 div-pedidoonline-mobile">
+        <div class="d-flex col-lg-2 col-md-3 col-sm-4 col-5">
+            <a href="@Url.Action("CrearPedidoOnline", "Ventas")" class="btn btn-warning font-weight-bold mx-1" title="Nuevo Pedido">
+                <i class="icon icon-plus"></i> Nuevo Pedido
+            </a>
+
+            <button type="button" class="btn btn-cobefar font-weight-bold mx-1" title="Filtros" data-toggle="modal" data-target="#modalFiltros">
+                <i class="icon icon-filter"></i> Filtros
+            </button>
+        </div>
+    </div>
+
+    <div class="row pl-2 w-100 py-2 div-pedidoonline-mobile">
+        <div class="d-flex col-lg-2 col-md-3 col-sm-4 col-5">
+            <button type="button" class="btn btn-info font-weight-bold mx-1" title="Migrar" onclick="migrarArticulos();">
+                <i class="icon icon-stack"></i> Migrar Artículos
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<form name="frm" id="frm">
+    <div class="bg-dark pt-4">
+        <table id="tbl_listadoPedidos" class="table table-light table-sm table-hover cls-dataTable" cellspacing="0" width="100%">
+            <thead class="thead-dark">
+                <tr>
+                    <th class="text-center">Cod. Cliente</th>
+                    <th class="text-center" style="width: 120px">Cliente</th>
+                    <th class="text-center">Fecha</th>
+                    <th class="text-center">Vendedor</th>
+                    <th class="text-center" style="width: 120px">Estado</th>
+                    <th class="text-center">Ticket</th>
+                    <th class="text-center">Acción</th>
+                    <th class="text-center"></th>
+                    <th class="text-center"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    string btnCancelado = "btn-danger";
+                    string btnRecibido = "btn-success";
+                    string btnTicketVenta = "btn-secondary disabled";
+                    string disabled = string.Empty;
+                    string disabledRecibido = string.Empty;
+                    string btnUrlTicket = "#";
+
+                    if (item.Estado.Equals("BORRADOR") || item.Estado.Equals("CANCELADO"))
+                    {
+                        disabled = "disabled"; disabledRecibido = "disabled";
+                        btnCancelado = "btn-secondary"; btnRecibido = "btn-secondary";
+                    }
+                    else if (item.Estado.Equals("RECIBIDO"))
+                    {
+                        btnRecibido = "btn-secondary disabled";
+                        btnTicketVenta = "btn-warning";
+                        btnUrlTicket = $"/Ventas/CreaTicketVenta?DocEntry={item.DocEntryTicket}&Tipo=PedidoOnline";
+                        disabledRecibido = "disabled";
+                    }
+                    <tr>
+                        <td class="text-center">@item.CardCode</td>
+                        <td class="text-center">@item.CardName</td>
+                        <td class="text-center">@item.FechaCreacion</td>
+                        <td class="text-center">@item.Vendedor</td>
+                        <td class="text-center">@item.Estado</td>
+                        <td class="text-center">@item.DocNumTicket</td>
+                        <td class="text-center">
+                            <a href="@Url.Action("VerPedidoOnline", "Ventas", new { Id = item.Id })" class="btn btn-sm btn-info mx-1 my-lg-0 my-sm-1" title="Recibir Pedido">
+                                <i class="icon-eye" title="Ver Pedido"></i>
+                            </a>
+                            @* Habilitado solo para Manager y Sup Ventas *@
+                            @if (ViewBag.RolUsuario.Equals(1) || ViewBag.RolUsuario.Equals(6))
+                            {
+                                <button type="button" class="btn btn-sm @btnRecibido mx-1 my-lg-0 my-sm-1" title="Recibir Pedido" onclick="enviarDatosPedido(@item.Id, @item.DocEntryTicket, 'REC')" @disabledRecibido>
+                                    <i class="icon icon-checkmark" title="Recibir Pedido"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm @btnCancelado mx-1 my-lg-0 my-sm-1" title="Cancelar Pedido" onclick="enviarDatosPedido(@item.Id, @item.DocEntryTicket, 'CAN')" @disabled>
+                                    <i class="icon icon-blocked" title="Cancelar Pedido"></i>
+                                </button>
+                            }
+                        </td>
+                        <td class="text-center">
+                            <a href="/Ventas/ExportarDetallePedidoOnline?Id=@item.Id&CardCode=@item.CardCode" class="btn btn-sm btn-cobefar font-weight-bold my-lg-0 my-sm-1" title="Descargar Excel Detalle Pedido">
+                                <i class="icon icon-file-excel"></i> Detalle Pedido
+                            </a>
+
+                            <a href="@btnUrlTicket" class="btn btn-sm @btnTicketVenta my-lg-0 my-sm-1" title="Ticket Venta">
+                                <i class="icon-redo2"></i> Ticket Venta
+                            </a>
+                        </td>
+                        <td class="text-center">
+                        </td>
+                    </tr>
+                }
+
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modalFiltros" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header bg-cobefar text-white">
+                    <h5 class="modal-title" id="exampleModalLabel">Filtros</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true" class="text-white">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="row mt-4">
+                        <div class="col-lg-12 table-responsive">
+                            <label for="CardName" class="text-cobefar font-weight-bold">Cliente:</label>
+                            <input type="text" name="CardName" class="form-control border-success" autocomplete="off">
+                        </div>
+                    </div>
+
+                    @* Habilitado solo para Manager y Sup Ventas *@
+                    @if (ViewBag.RolUsuario.Equals(1) || ViewBag.RolUsuario.Equals(6))
+                    {
+                        <div class="row mt-4">
+                            <div class="col-lg-12 table-responsive">
+                                <label for="Vendedor" class="text-cobefar font-weight-bold">Vendedor:</label>
+                                <input type="text" name="Vendedor" class="form-control border-success" autocomplete="off">
+                            </div>
+                        </div>
+                    }
+
+
+                    <div class="row mt-4">
+                        <div class="col-lg-5 col-md-5 col-sm-5 col-5 table-responsive">
+                            <label for="Estado" class="text-cobefar font-weight-bold">Estado:</label>
+                            <select name="Estado" class="form-control bg-cobefar text-white">
+                                <option value="">Seleccione</option>
+                                <option value="BORRADOR">BORRADOR</option>
+                                <option value="CREADO">CREADO</option>
+                                <option value="RECIBIDO">RECIBIDO</option>
+                                <option value="CANCELADO">CANCELADO</option>
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class='icon-cross'></i> Cerrar</button>
+                    <button type="submit" class="btn btn-cobefar"><i class='icon-search'></i> Buscar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    function cambiarEstadoPedidoOnline(idORDR, docEntryTicket, accion) {
+        $.ajax({
+            url: '/Ventas/CambiarEstadoPedidoOnline',
+            type: 'POST',
+            dataType: 'json',
+            data: { Id: idORDR, DocEntryTicket: docEntryTicket, Accion: accion }
+        }).done(function (response) {
+            $('#tbl_listadoPedidos > tbody').html(response.Lista);
+            Swal.fire(response.Mensaje);
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            console.log(jqXHR.status + textStatus + errorThrown);
+        });
+    }
+
+    function enviarDatosPedido(idORDR, docEntryTicket, accion) {
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: 'btn btn-success mx-4',
+                cancelButton: 'btn btn-danger mx-4'
+            },
+            buttonsStyling: false
+        })
+
+        if (accion == 'CAN') {
+            swalWithBootstrapButtons.fire({
+                title: '¿Está seguro(a) de cancelar el pedido?',
+                text: "Este proceso es irreversible",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: "<i class='icon-checkmark'></i> Si, estoy seguro(a)",
+                cancelButtonText: "<i class='icon-cross'></i> Cancelar",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    cambiarEstadoPedidoOnline(idORDR, docEntryTicket, accion);
+                }
+            });
+        } else if (accion == 'REC') {
+            cambiarEstadoPedidoOnline(idORDR, docEntryTicket, accion);
+        }
+
+    }
+
+    function migrarArticulos() {
+        $.ajax({
+            url: '/Ventas/VerificarMigracionArticulos',
+            type: 'POST',
+            dataType: 'json',
+        }).done(function (response) {
+            if (response == true) {         // true: en caso se este ejecutando una migración
+                Swal.fire('Migración en curso, por favor volver a consultar artículos en un lapso de 3 minutos.');
+            } else {
+                if (response == false) {
+                    Swal.fire({
+                        html: '<img src="/imagenes/index/ReportesDigemid/cargando.gif" />',
+                        //closeOnCancel: false,
+                        allowOutsideClick: false,
+                        showCancelButton: false,
+                        showConfirmButton: false
+                    });
+
+                    $.ajax({
+                        url: '/Ventas/MigrarArticulos',
+                        type: 'POST',
+                    }).done(function (response) {
+                        swal.close();
+                        Swal.fire(response);
+                    }).fail(function (jqXHR, textStatus, errorThrown) {
+                        console.log(jqXHR.status + textStatus + errorThrown);
+                    });
+                }
+            }
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            console.log(jqXHR.status + textStatus + errorThrown);
+        });
+    }
+</script>

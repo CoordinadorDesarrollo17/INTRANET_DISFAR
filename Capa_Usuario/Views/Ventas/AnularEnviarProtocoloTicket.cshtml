@@ -1,0 +1,191 @@
+﻿@model Capa_Entidad.Ventas_ENT.TablasSql.ORTV_E
+@using Capa_Entidad.Ventas_ENT.TablasSql
+@{
+    ViewBag.Title = "AnularEnviarProtocoloTicket";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h4>ANULAR REALIZAR PROTOCOLO A TICKET</h4>
+<p style="color:yellow; font-weight:700">@ViewBag.Mensaje</p>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+<table class="table-responsive">
+    <tr>
+        <td>
+            <a id="accion" href="@Url.Action("ListadoTicketsProtocolos", "Ventas")" class="btn btn-light">
+                <span>Volver Atras</span>
+            </a>
+        </td>
+        <td colspan="3"><input type="submit" class="btn btn-danger" value="AnularRealizarProtocolo" /></td>
+    </tr>
+    <tr>
+        <th>@Html.DisplayNameFor(model => model.EstadoProtocolo):</th>
+        <td>@Html.EditorFor(model => model.EstadoProtocolo, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+        <th>@Html.DisplayNameFor(model => model.Protocolo): </th>
+        <td>@Html.EditorFor(model => model.Protocolo, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+        <th>@Html.DisplayNameFor(model => model.Correo): </th>
+        <td>@Html.EditorFor(model => model.Correo, new { htmlAttributes = new { @class = "form-control", @readonly = "true", @style = "width:350px" } })</td>
+    </tr>
+</table>
+<br />
+}
+
+<table class="table-responsive">
+    <tr>
+        <th>TipoVenta</th>
+        <td>@Html.EditorFor(model => model.TipoVenta, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+        <th>@Html.DisplayNameFor(model => model.Embalaje)</th>
+        <td>@Html.EditorFor(model => model.Embalaje, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+        <th>NumTicket</th>
+        <td>@Html.EditorFor(model => model.DocNum, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+        <td>@Html.EditorFor(model => model.EstadoPedido, new { htmlAttributes = new { @class = "form-control bg-warning", @readonly = "true" } })</td>
+    </tr>
+    <tr>
+        <th>@Html.DisplayNameFor(model => model.FechaTicket)</th>
+        <td>@Html.EditorFor(model => model.FechaTicket, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+        <th>@Html.DisplayNameFor(model => model.CardName)</th>
+        <td colspan="4">@Html.EditorFor(model => model.CardName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+    </tr>
+    <tr>
+        <th>LugarDestino</th>
+        <td>@Html.EditorFor(model => model.LugarDestino, new { htmlAttributes = new { @class = "form-control bg-warning", @readonly = "true" } })</td>
+        <th>@Html.DisplayNameFor(model => model.Agencia)</th>
+        <td colspan="4">@Html.EditorFor(model => model.Agencia, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+    </tr>
+    <tr>
+        <th>@Html.DisplayNameFor(model => model.DirDestino1) </th>
+        <td colspan="6">@Html.EditorFor(model => model.DirDestino1, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+    </tr>
+    <tr>
+        <th>@Html.DisplayNameFor(model => model.DirDestino2) </th>
+        <td colspan="6">@Html.EditorFor(model => model.DirDestino2, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+    </tr>
+    <tr><td colspan="10" style="color: aquamarine; text-shadow: 2px 2px 1px rgba(0,0,0,0.7); "><strong>ESPECIFICACIONES DE RECOJO</strong></td></tr>
+    <tr>
+        <th>@Html.DisplayNameFor(model => model.NombrePer1)</th>
+        <td colspan="3">@Html.EditorFor(model => model.NombrePer1, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+        <th>@Html.DisplayNameFor(model => model.TelfPer1)</th>
+        <td>@Html.EditorFor(model => model.TelfPer1, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+    </tr>
+    <tr>
+        <th>@Html.DisplayNameFor(model => model.TipoDocPer1)</th>
+        <td>@Html.EditorFor(model => model.TipoDocPer1, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+        <th>@Html.DisplayNameFor(model => model.DocPer1)</th>
+        <td>@Html.EditorFor(model => model.DocPer1, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+    </tr>
+    <tr>
+        <th>@Html.DisplayNameFor(model => model.NombrePer2)</th>
+        <td colspan="3">@Html.EditorFor(model => model.NombrePer2, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+        <th>@Html.DisplayNameFor(model => model.TelfPer2)</th>
+        <td>@Html.EditorFor(model => model.TelfPer2, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+    </tr>
+    <tr>
+        <th>@Html.DisplayNameFor(model => model.TipoDocPer2)</th>
+        <td>@Html.EditorFor(model => model.TipoDocPer2, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+        <th>@Html.DisplayNameFor(model => model.DocPer2)</th>
+        <td>@Html.EditorFor(model => model.DocPer2, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+    </tr>
+    <tr>
+        <th>@Html.DisplayNameFor(model => model.Protocolo)</th>
+        <td>@Html.EditorFor(model => model.Protocolo, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+        <th>@Html.DisplayNameFor(model => model.Correo)</th>
+        <td colspan="3">@Html.EditorFor(model => model.Correo, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+    </tr>
+    <tr>
+        <th>@Html.DisplayNameFor(model => model.Observaciones)</th>
+        <td colspan="5">@Html.EditorFor(model => model.Observaciones, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+    </tr>
+    <tr>
+        <th>@Html.DisplayNameFor(model => model.Observaciones2)</th>
+        <td colspan="5">@Html.EditorFor(model => model.Observaciones2, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+    </tr>
+    <tr>
+        <th>@Html.DisplayNameFor(model => model.PropietarioDesc)</th>
+        <td colspan="3">@Html.EditorFor(model => model.PropietarioDesc, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+        <th>@Html.DisplayNameFor(model => model.HoraTicket)</th>
+        <td>@Html.EditorFor(model => model.HoraTicket, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+    </tr>
+</table>
+<table class="table-responsive" id="detallesPedidos">
+    <tr><td colspan="10" style="color: aquamarine; text-shadow: 2px 2px 1px rgba(0,0,0,0.7); "><strong>DETALLES DE PEDIDOS</strong></td></tr>
+    <tr style="background-color:darkgreen">
+        <th>#</th>
+        <th>Monto</th>
+        <th>Nro SAP</th>
+        <th>TipoComprobante</th>
+        <th>Vendedor</th>
+        <th>LugarDeEntrega</th>
+        <th>Obs</th>
+    </tr>
+    @foreach (RTV1_E dt in Model.Det)
+    {
+        <tbody class="table-light">
+            <tr>
+                <td>@Html.DisplayFor(model => dt.Linea)</td>
+                <td>@Html.DisplayFor(model => dt.Monto)</td>
+                <td>@Html.DisplayFor(model => dt.NroSap)</td>
+                <td>@Html.DisplayFor(model => dt.TipoComprobante)</td>
+                <td>@Html.DisplayFor(model => dt.Vendedor)</td>
+                <td>@Html.DisplayFor(model => dt.LugarDeEntrega)</td>
+                <td>@Html.DisplayFor(model => dt.Observaciones)</td>
+            </tr>
+        </tbody>
+    }
+</table>
+
+<table class="table-responsive">
+    <tr><td colspan="10" style="color: aquamarine; text-shadow: 2px 2px 1px rgba(0,0,0,0.7); "><strong>DETALLES DE PAGOS</strong></td></tr>
+    <tr>
+        <th>Monto Total</th>
+        <td colspan="2">@Html.EditorFor(model => model.MontoTotal, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+        <th class="col-2">Tiempo de entrega</th>
+        <td>@Html.EditorFor(model => model.TiempoEntrega, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+    </tr>
+    <tr>
+        <th>Flete (Taxi)</th>
+        <td colspan="2">@Html.EditorFor(model => model.Flete, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+        <th class="col-2">Deuda de cliente</th>
+        <td>@Html.EditorFor(model => model.DeudaCliente, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+    </tr>
+    <tr>
+        <th>Gasto de envio</th>
+        <td colspan="2">@Html.EditorFor(model => model.GastoEnvio, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+        <th class="col-2">Deuda de la Empresa</th>
+        <td>@Html.EditorFor(model => model.DeudaEmpresa, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+    </tr>
+    <tr>
+        <th>Descuento NC</th>
+        <td colspan="2">@Html.EditorFor(model => model.DescuentoNC, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+        <th class="col-2">Fecha NC</th>
+        <td>@Html.EditorFor(model => model.FechaNC, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+    </tr>
+    <tr>
+        <th>Monto Final</th>
+        <td colspan="2">@Html.EditorFor(model => model.MontoFinal, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+    </tr>
+    <tr>
+        <th>@Html.DisplayNameFor(model => model.Comentario)</th>
+        <td colspan="5">@Html.EditorFor(model => model.Comentario, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+    </tr>
+    <tr><td colspan="10" style="color: aquamarine; text-shadow: 2px 2px 1px rgba(0,0,0,0.7); "><strong>CAJA</strong></td></tr>
+</table>
+<table class="table-responsive">
+    <tr>
+        <th>Estado de Pago</th>
+        <td>@Html.EditorFor(model => model.EstadoPago, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+        <th class="col-3" style="text-align:right">Forma de Pago</th>
+        <td colspan="3">@Html.EditorFor(model => model.FormaPago, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+    </tr>
+    <tr>
+        <th>Monto Recibido</th>
+        <td>@Html.EditorFor(model => model.MontoRecibido, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+        <th class="col-3" style="text-align:right">Fecha de Pago</th>
+        <td colspan="3">@Html.EditorFor(model => model.FechaPago, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+    </tr>
+    <tr>
+        <th>CajeroDesc</th>
+        <td colspan="3">@Html.EditorFor(model => model.CajeroDesc, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
+    </tr>
+</table>

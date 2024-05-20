@@ -1,0 +1,921 @@
+﻿@model Capa_Entidad.Ventas_ENT.TablasSql.ORTV_E
+@using Capa_Entidad.Ventas_ENT.TablasSql;
+@using Capa_Entidad.Seguridad_ENT
+@{
+    ViewBag.Title = "SeguimientoDeTicket";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Usuario_E user = (Usuario_E)Session["UsuarioId"];
+    Dictionary<string, CC_ORTV_E> flujoEstados = new Dictionary<string, CC_ORTV_E>(ViewBag.flujoEstadosTicket);
+}
+
+<script>
+    $(document).ready(function () {
+        $("#btnEdit").hide();
+        if (@user.IdRol== 1 || @user.IdRol== 6) {
+            $("#btnEdit").show();
+        }
+        var vinculado = $("#VinculacionTicket").val();
+        if (vinculado == "SI") { $("#divVinculados").show(); }
+        else { $("#divVinculados").hide(); }
+    });
+</script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("ListadoTickets", "Ventas")">Listado de tickets</a></li>
+            <li class="current"><em>Seguimiento de ticket</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">SEGUIMIENTO DE TICKET</h3></div>
+    <div class="d-flex pl-2 w-100 py-2">
+
+        <div id="btnEdit" class="mx-2">
+            <a class="btn btn-warning" href="@Url.Action("EditarTicketVentaSup", "Ventas", new { DocEntry=Model.DocEntry})">
+                <i class="icon icon-pencil"></i><span class="font-weight-bold"> Editar Encabezado</span>
+            </a>
+        </div>
+
+        @if (@Request["view"] == "despacho" && @ViewBag.BtnNuevaSolicitud == true)
+        {
+            <div class="mx-2">
+                <a class="btn btn-info" href="@Url.Action("NuevaSolicitud", "AtencionCliente", new { DocNumTicket = Model.DocNum})" target="_blank">
+                    <i class="icon icon-plus"></i><span class="font-weight-bold"> Nueva Solicitud</span>
+                </a>
+            </div>
+        }
+
+    </div>
+</div>
+
+
+<div class="bg-form-pestanas-cobefar pt-4">
+    <nav>
+        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+            <a class="nav-link active" id="nav-flujo-estados-tab" data-toggle="tab" href="#nav-flujo-estados" role="tab" aria-controls="nav-flujo-estados" aria-selected="true">
+                Flujo de Estados
+            </a>
+            <a class="nav-link" id="nav-datos-pedidos-tab" data-toggle="tab" href="#nav-datos-pedidos" role="tab" aria-controls="nav-datos-pedidos" aria-selected="false">
+                Datos Pedido
+            </a>
+            <a class="nav-link" id="nav-especif-recojo-tab" data-toggle="tab" href="#nav-especif-recojo" role="tab" aria-controls="nav-especif-recojo" aria-selected="false">
+                Especificaciones de Recojo
+            </a>
+            <a class="nav-link" id="nav-det-pedidos-tab" data-toggle="tab" href="#nav-det-pedidos" role="tab" aria-controls="nav-det-pedidos" aria-selected="false">
+                Detalles de Pedidos
+            </a>
+            <a class="nav-link" id="nav-caja-tab" data-toggle="tab" href="#nav-caja" role="tab" aria-controls="nav-caja" aria-selected="false">
+                Caja
+            </a>
+        </div>
+    </nav>
+
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+        <div class="tab-content" id="nav-tabContent">
+
+            <div class="tab-pane fade show active" id="nav-flujo-estados" role="tabpanel" aria-labelledby="nav-flujo-estados-tab">
+                <div class="bg-section-form p-4 bg-form-cobefar">
+                    <h2 class="text-cobefar font-weight-bold">FLUJO DE ESTADOS</h2>
+
+                    <div class="row mt-2">
+                        <div class="col-lg-6">
+                            @if (ViewBag.MostrarBotonCambiarEstado)
+                            {
+                                <input class="btn btn-sm btn-success" type="submit" name="@ViewBag.NameBotonEstado" value="@ViewBag.ValueBotonEstado" />
+                            }
+                        </div>
+                    </div>
+                    @if (@flujoEstados["CANCELAR"].Operario != null && @flujoEstados["CANCELAR"].FechaOperacion != null)
+                    {
+                        <div class="row mt-4">
+                            <div class="col-lg-12">
+                                <ul class="timeline">
+                                    <li class="li complete">
+                                        <div class="bg-danger text-center font-12">
+                                            <p class="text-white">Ticket CANCELADO</p>
+                                        </div>
+                                        <div class="timestamp">
+                                            <span class="author font-12 text-danger font-weight-bold">@flujoEstados["CANCELAR"].Operario.Substring(0, 12) </span>
+                                            <span class="date text-center font-12"><i class="icon icon-calendar text-danger"></i> @flujoEstados["CANCELAR"].FechaOperacion<br /><i class="icon icon-clock text-danger"></i> @flujoEstados["CANCELAR"].HoraOperacion</span>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    }
+
+                    @if (@flujoEstados["ANULAR"].Operario != null && flujoEstados["ANULAR"].FechaOperacion != null)
+                    {
+                        <div class="row mt-4">
+                            <div class="col-lg-12">
+                                <ul class="timeline">
+                                    <li class="li complete">
+                                        <div class="bg-danger text-center font-12">
+                                            <p class="text-white">Ticket ANULADO</p>
+                                        </div>
+                                        <div class="timestamp">
+                                            <span class="author font-12 text-danger font-weight-bold">@flujoEstados["ANULAR"].Operario.Substring(0, 12) </span>
+                                            <span class="date text-center font-12"><i class="icon icon-calendar text-danger"></i> @flujoEstados["ANULAR"].FechaOperacion<br /><i class="icon icon-clock text-danger"></i> @flujoEstados["ANULAR"].HoraOperacion</span>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    }
+
+
+                    <div class="row scrollHorizontal" style="padding-top: 20px; padding-bottom: 10px">
+                        <div class="col-lg-12">
+
+                            <ul class="timeline" id="timeline">
+                                @if (flujoEstados["SEPARAR"].Operario != null && flujoEstados["SEPARAR"].FechaOperacion != null)
+                                {
+                                    <li class="li complete">
+                                        <div class="timestamp">
+                                            <span class="author font-12">@flujoEstados["SEPARAR"].Operario.Substring(0, 12)</span>
+                                            <span class="date text-center font-12"><i class="icon icon-calendar text-warning"></i> @flujoEstados["SEPARAR"].FechaOperacion<br /><i class="icon icon-clock text-warning"></i> @flujoEstados["SEPARAR"].HoraOperacion</span>
+                                        </div>
+                                        <div class="status-danger text-center font-12">
+                                            <p>Vendedor<br />SEPARÓ<br />el ticket</p>
+                                        </div>
+                                        <div class="row" style="padding-bottom: 160px">
+                                        </div>
+                                    </li>
+                                }
+                                @if (flujoEstados["REGISTRAR"].Operario != null && flujoEstados["REGISTRAR"].FechaOperacion != null)
+                                {
+                                    <li class="li complete">
+                                        <div class="timestamp">
+                                            <span class="author font-12">@flujoEstados["REGISTRAR"].Operario.Substring(0, 12)</span>
+                                            <span class="date text-center font-12"><i class="icon icon-calendar text-warning"></i> @flujoEstados["REGISTRAR"].FechaOperacion<br /><i class="icon icon-clock text-warning"></i> @flujoEstados["REGISTRAR"].HoraOperacion</span>
+                                        </div>
+                                        <div class="status-danger text-center font-12">
+                                            <p> Vendedor puso<br />en ABIERTO<br />el ticket	</p>
+                                        </div>
+                                        <div class="row" style="padding-bottom: 160px">
+                                        </div>
+                                    </li>
+                                }
+
+                                @if (Model.hayRecibir && flujoEstados["RECIBIR"].Operario != null && flujoEstados["RECIBIR"].FechaOperacion != null)
+                                {
+                                    <li class="li complete">
+                                        <div class="timestamp">
+                                            <span class="author font-12">@flujoEstados["RECIBIR"].Operario.Substring(0, 12)</span>
+                                            <span class="date text-center font-12"><i class="icon icon-calendar text-info"></i> @flujoEstados["RECIBIR"].FechaOperacion<br /><i class="icon icon-clock text-info"></i> @flujoEstados["RECIBIR"].HoraOperacion</span>
+                                        </div>
+                                        <div class="status-info text-center font-12">
+                                            <p>Almacén<br />RECIBIÓ<br />el ticket</p>
+                                        </div>
+                                        <div class="row justify-content-center">
+                                            <a href="/Ventas/PdfTacoComentarios?DocEntry=@Model.DocEntry" class="btn btn-sm btn-light border-danger my-1"><i class="icon-file-pdf text-danger"> </i> Taco<br /> Comentarios</a>
+                                        </div>
+                                        @if (Model.Estado.Equals("RECIBIDO"))
+                                        {
+                                            <div class="row" style="padding-bottom: 60px">
+                                                <div class="row justify-content-center">
+                                                    @Html.Raw(ViewBag.BtnAnularRecibido)
+                                                </div>
+                                            </div>
+                                        }
+                                        else
+                                        { <div class="row" style="padding-bottom: 100px"></div>}
+                                    </li>
+                                }
+
+                                @if (Model.hayFinPicking && flujoEstados["FIN PICKING"].Operario != null && flujoEstados["FIN PICKING"].FechaOperacion != null)
+                                {
+                                    <li class="li complete">
+                                        <div class="timestamp">
+                                            <span class="author font-12">@flujoEstados["FIN PICKING"].Operario.Substring(0, 12) </span>
+                                            <span class="date text-center font-12"><i class="icon icon-calendar text-info"></i> @flujoEstados["FIN PICKING"].FechaOperacion<br /><i class="icon icon-clock text-info"></i> @flujoEstados["FIN PICKING"].HoraOperacion</span>
+                                        </div>
+                                        <div class="status-info text-center font-12">
+                                            <p>Encargado de piso<br />PICKEO<br />el pedido</p>
+                                        </div>
+
+                                        <div class="row justify-content-center">
+                                            @Html.Raw(ViewBag.BtnAnularSacando)
+                                        </div>
+                                        <div class="row" style="padding-bottom: 160px">
+                                        </div>
+                                    </li>
+                                }
+                                else if (Model.hayIniPicking && flujoEstados["INICIO PICKING"].Operario != null && flujoEstados["INICIO PICKING"].FechaOperacion != null)
+                                {
+                                    <li class="li complete">
+                                        <div class="timestamp">
+                                            <span class="author font-12">@flujoEstados["INICIO PICKING"].Operario.Substring(0, 12)</span>
+                                            <span class="date text-center font-12"><i class="icon icon-calendar text-info"></i> @flujoEstados["INICIO PICKING"].FechaOperacion<br /><i class="icon icon-clock text-info"></i> @flujoEstados["INICIO PICKING"].HoraOperacion</span>
+                                        </div>
+                                        <div class="status-info text-center font-12">
+                                            <p>Encargado de piso<br />está PICKEANDO<br />el pedido</p>
+                                        </div>
+
+                                        <div class="row" style="padding-bottom: 160px">
+                                        </div>
+                                    </li>
+                                }
+
+                                @if (Model.hayFinVerificar && flujoEstados["FIN VERIFICAR"].Operario != null && flujoEstados["FIN VERIFICAR"].FechaOperacion != null)
+                                {
+                                    <li class="li complete">
+                                        <div class="timestamp">
+                                            <span class="author font-12">@flujoEstados["FIN VERIFICAR"].Operario.Substring(0, 12) </span>
+                                            <span class="date text-center font-12"><i class="icon icon-calendar text-info"></i> @flujoEstados["FIN VERIFICAR"].FechaOperacion<br /><i class="icon icon-clock text-info"></i> @flujoEstados["FIN VERIFICAR"].HoraOperacion</span>
+                                        </div>
+                                        <div class="status-info text-center font-12">
+                                            <p>Pedido<br />VERIFICADO</p>
+                                        </div>
+
+                                        <div class="row" style="padding-bottom: 178px">
+                                        </div>
+                                    </li>
+                                }
+                                else if (Model.hayIniVerificar && flujoEstados["INICIO VERIFICAR"].Operario != null && flujoEstados["INICIO VERIFICAR"].FechaOperacion != null)
+                                {
+                                    <li class="li complete">
+                                        <div class="timestamp">
+                                            <span class="author font-12">@flujoEstados["INICIO VERIFICAR"].Operario.Substring(0, 12) </span>
+                                            <span class="date text-center font-12"><i class="icon icon-calendar text-info"></i> @flujoEstados["INICIO VERIFICAR"].FechaOperacion<br /><i class="icon icon-clock text-info"></i> @flujoEstados["INICIO VERIFICAR"].HoraOperacion</span>
+                                        </div>
+                                        <div class="status-info text-center font-12">
+                                            <p>VERIFICANDO<br />el pedido</p>
+                                        </div>
+
+                                        <div class="row" style="padding-bottom: 178px">
+                                        </div>
+                                    </li>
+                                }
+
+                                @if (Model.hayFinEmpacar && flujoEstados["FIN EMPACAR"].Operario != null && flujoEstados["FIN EMPACAR"].FechaOperacion != null)
+                                {
+                                    <li class="li complete">
+                                        <div class="timestamp mt-1">
+                                            <span class="author font-12">@flujoEstados["FIN EMPACAR"].Operario.Substring(0, 12) </span>
+                                            <span class="date text-center font-12"><i class="icon icon-calendar"></i> @flujoEstados["FIN EMPACAR"].FechaOperacion<br /><i class="icon icon-clock"></i> @flujoEstados["FIN EMPACAR"].HoraOperacion</span>
+                                        </div>
+                                        <div class="status text-center font-12">
+                                            <p>El pedido se EMPACÓ</p>
+                                        </div>
+
+                                        @if ((ViewBag.IdRol == 1 || ViewBag.IdRol == 4) && Model.Estado == "EMPACADO")
+                                        {
+
+                                            <div class="row justify-content-center font-14 font-weight-bold p-1">Cajas : <span class="ml-1">  @Model.Cajas</span></div>
+                                            <div class="row justify-content-center">
+                                                @Html.EditorFor(model => model.Cajas, new { htmlAttributes = new { @class = "form-control text-center border-success w-25", @readonly = true, @hidden = true } })
+                                                @Html.EditorFor(model => model.CajasNuevo, new { htmlAttributes = new { @class = "form-control text-center border-success w-25" } })
+                                            </div>
+
+                                            <div class="row justify-content-center font-14 font-weight-bold p-1">NroMesa : <span class="ml-1">   @Model.NroMesa</span></div>
+                                            <div class="row justify-content-center ">
+                                                @Html.EditorFor(model => model.NroMesa, new { htmlAttributes = new { @class = "form-control text-center border-success w-25", @readonly = true, @hidden = true } })
+                                                @Html.EditorFor(model => model.NroMesaNuevo, new { htmlAttributes = new { @class = "form-control text-center border-success w-25" } })
+                                            </div>
+                                            <div class="row justify-content-center">
+                                                <input class="btn btn-sm btn-success " type="submit" name="UPDATEEMP" value="ENVIAR DATOS" />
+                                            </div>
+                                            <div class="row justify-content-center mt-1 ">
+                                                @if (Model.LugarDestino == "Agencia Courier")
+                                                {
+                                                    <a href="/Ventas/PdfTRotuladoTicket?DocEntry=@Model.DocEntry" class="btn btn-sm btn-light border-danger"><i class="icon-file-pdf text-danger"> </i> Rotulado agencia</a>
+                                                }
+                                                else
+                                                {
+                                                    <a href="/Ventas/PdfTacoEmpaque?DocEntry=@Model.DocEntry" class="btn btn-sm btn-light border-danger"><i class="icon-file-pdf text-danger"> </i> Taco Empaque</a>
+                                                }
+                                            </div>
+
+                                        }
+                                        else
+                                        {
+                                            <div class="row justify-content-center font-14 font-weight-bold">Cajas:</div>
+                                            <div class="row justify-content-center">
+                                                @Html.EditorFor(model => model.Cajas, new { htmlAttributes = new { @class = "form-control text-center border-success w-50", @readonly = true } })<br />
+                                            </div>
+
+                                            <div class="row justify-content-center mt-2 font-14 font-weight-bold">NroMesa:</div>
+                                            <div class="row justify-content-center">
+                                                @Html.EditorFor(model => model.NroMesa, new { htmlAttributes = new { @class = "form-control text-center border-success w-50", @readonly = true } })
+                                            </div>
+                                            <div class="row justify-content-center mt-1 ">
+                                                @if (Model.LugarDestino == "Agencia Courier")
+                                                {
+                                                    <a href="/Ventas/PdfTRotuladoTicket?DocEntry=@Model.DocEntry" class="btn btn-sm btn-light border-danger"><i class="icon-file-pdf text-danger"> </i> Rotulado agencia</a>
+                                                }
+                                                else
+                                                {
+                                                    <a href="/Ventas/PdfTacoEmpaque?DocEntry=@Model.DocEntry" class="btn btn-sm btn-light border-danger"><i class="icon-file-pdf text-danger"> </i> Taco Empaque</a>
+                                                }
+                                            </div>
+                                            <div class="row" style="padding-bottom: 40px">
+                                            </div>
+                                        }
+
+                                    </li>
+                                }
+                                else if (Model.hayIniEmpacar && flujoEstados["INICIO EMPACAR"].Operario != null && flujoEstados["INICIO EMPACAR"].FechaOperacion != null)
+                                {
+                                    <li class="li complete">
+                                        <div class="timestamp mt-1">
+                                            <span class="author font-12">@flujoEstados["INICIO EMPACAR"].Operario.Substring(0, 12) </span>
+                                            <span class="date text-center font-12"><i class="icon icon-calendar"></i> @flujoEstados["INICIO EMPACAR"].FechaOperacion<br /><i class="icon icon-clock"></i> @flujoEstados["INICIO EMPACAR"].HoraOperacion</span>
+                                        </div>
+                                        <div class="status text-center font-12">
+                                            <p>EMPACANDO <br />el pedido</p>
+                                        </div>
+
+                                        <div class="row" style="padding-bottom: 183px">
+                                        </div>
+                                    </li>
+                                }
+
+                                @if (Model.Det6 != null && Model.Det6.Count > 0 && flujoEstados["PESAR"].Operario != null && flujoEstados["PESAR"].FechaOperacion != null)
+                                {
+                                    <li class="li complete">
+                                        <div class="timestamp mt-1">
+                                            <span class="author font-12">@flujoEstados["PESAR"].Operario.Substring(0, 12)</span>
+                                            <span class="date text-center font-12"><i class="icon icon-calendar"></i> @flujoEstados["PESAR"].FechaOperacion<br /><i class="icon icon-clock"></i> @flujoEstados["PESAR"].HoraOperacion</span>
+                                        </div>
+                                        <div class="status text-center font-12">
+                                            <p>El pedido<br />fue PESADO</p>
+                                        </div>
+
+                                        <div class="row justify-content-center font-14 font-weight-bold">Peso Total (Kg.):</div>
+                                        <div class="row justify-content-center">
+                                            <input type="text" class="form-control text-center border-success w-50" value="@if (ViewBag.pesoTotal != null) { Write(ViewBag.pesoTotal); }" readonly />
+                                        </div>
+
+                                        <div class="row" style="padding-bottom: 124px">
+                                        </div>
+                                    </li>
+                                }
+
+
+                                @if (Model.hayEnviar && flujoEstados["ENVIAR"].Operario != null && flujoEstados["ENVIAR"].FechaOperacion != null)
+                                {
+                                    <li class="li complete">
+                                        <div class="timestamp">
+                                            <span class="author font-12">@flujoEstados["ENVIAR"].Operario.Substring(0, 12) </span>
+                                            <span class="date text-center font-12"><i class="icon icon-calendar"></i> @flujoEstados["ENVIAR"].FechaOperacion<br /><i class="icon icon-clock"></i> @flujoEstados["ENVIAR"].HoraOperacion</span>
+                                        </div>
+                                        <div class="status-dark text-center font-12">
+                                            <p>Pedido fue<br />ENVIADO en el<br />transporte (opcional)</p>
+                                        </div>
+                                        <div class="row " style="padding-bottom: 160px"></div>
+                                            <!--<div class="position-absolute font-12 ml-4">-->
+                                            @*INDICA QUE HAY UNA RUTA RELACIONADA*@
+                                            @*@{ if (Model.orru.DocNum != 0 )
+            {
+                <p>
+                    <span class="font-weight-bold">Propietario: </span><br />@if (Model.orru.Propietario != null && Model.orru.Propietario.Length > 12)
+                    {@Model.orru.Propietario.Substring(0, 12);
+                }
+                </p>
+                <p><span class="font-weight-bold">Conductor:</span><br /> @if (Model.orru.TransDesc != null && Model.orru.TransDesc.Length > 12) { Write(Model.orru.TransDesc.Substring(0, 12)); }</p>
+                <p><span class="font-weight-bold">Copiloto1: </span><br />@if (Model.orru.CopilDesc != null && Model.orru.CopilDesc.Length > 12) { Write(Model.orru.CopilDesc.Substring(0, 12)); }</p>
+                <p><span class="font-weight-bold">Copiloto2:</span><br />@if (Model.orru.Copil2Desc != null && Model.orru.Copil2Desc.Length > 12) { Write(Model.orru.Copil2Desc.Substring(0, 12)); }</p>
+                <p><span class="font-weight-bold">N° Ruta:</span><br />@Model.orru.DocNum</p>
+            }
+        }*@
+                                            <!--</div>
+
+    </div>-->
+</li>
+                                }
+
+                                @if (Model.hayEntregar && flujoEstados["ENTREGAR"].Operario != null && flujoEstados["ENTREGAR"].FechaOperacion != null)
+                                {
+                                    <li class="li complete">
+                                        <div class="timestamp">
+                                            <span class="author font-12">@flujoEstados["ENTREGAR"].Operario.Substring(0, 12) </span>
+                                            <span class="date text-center font-12"><i class="icon icon-calendar"></i> @flujoEstados["ENTREGAR"].FechaOperacion<br /><i class="icon icon-clock"></i> @flujoEstados["ENTREGAR"].HoraOperacion</span>
+                                        </div>
+                                        <div class="status text-center font-12">
+                                            <p>
+                                                Pedido fue<br />ENTREGADO<br />al cliente
+                                            </p>
+                                        </div>
+                                        <div class="row justify-content-center">
+                                            <a href="@Url.Action("EvidenciaReparto", "Rutas", new { DocEntry = Model.DocEntry, TipoRuta = "Ventas" })" class="btn btn-sm btn-primary"><i class="icon icon-image"></i> Evidencia</a>
+                                        </div>
+
+
+                                        <div class="row" style="padding-bottom: 130px">
+
+                                        </div>
+                                    </li>
+                                }
+
+                                @if (Model.EstadoFacturacion == "FACTURADO" && flujoEstados["FACTURAR"].Operario != null && flujoEstados["FACTURAR"].FechaOperacion != null)
+                                {
+                                    <li class="li complete">
+                                        <div class="timestamp">
+                                            <span class="author font-12">@flujoEstados["FACTURAR"].Operario.Substring(0, 12) </span>
+                                            <span class="date text-center font-12"><i class="icon icon-calendar"></i> @flujoEstados["FACTURAR"].FechaOperacion<br /><i class="icon icon-clock"></i> @flujoEstados["FACTURAR"].HoraOperacion</span>
+                                        </div>
+                                        <div class="status text-center font-12">
+                                            <p>El pedido<br />fue<br />FACTURADO</p>
+                                        </div>
+                                        <div class="row" style="padding-bottom: 160px">
+                                        </div>
+                                    </li>
+                                }
+
+                            </ul>
+
+                        </div>
+                    </div>
+
+                    @if (@*@Request["view"] == "despacho"&& *@  Model.Estado.Equals("PREENVIO") || Model.Estado.Equals("ENVIADO") || Model.Estado.Equals("ENTREGADO"))
+{
+if (Model.orru != null && Model.orru.DocNum != 0)
+{
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-8 mb-2">
+                            <div class="font-14 text-center p-2" style="background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 5px;">
+                                <p><span class="font-weight-bold">Documentos Impresos por: </span>@Model.orru.Propietario <strong> Fecha :  </strong>@Convert.ToDateTime(Model.orru.FechaDoc).ToString("yyyy-MM-dd") <strong>Hora: </strong> @Model.orru.HoraRegistro</p>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 mb-2">
+                            <div class="font-14 text-center p-2" style="background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 5px;">
+                                <p><span class="font-weight-bold">N° Ruta: </span>@Model.orru.DocNum</p>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-4 mb-2">
+                            <div class="font-14 text-center p-2" style="background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 5px;">
+                                <p><span class="font-weight-bold">Conductor: </span>@if (Model.orru.TransDesc != null && Model.orru.TransDesc.Length > 12) { Write(Model.orru.TransDesc.Substring(0, 12)); }</p>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 mb-2">
+                            <div class="font-14 text-center p-2" style="background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 5px;">
+                                <p><span class="font-weight-bold">Copiloto1: </span>@if (Model.orru.CopilDesc != null && Model.orru.CopilDesc.Length > 12) { Write(Model.orru.CopilDesc.Substring(0, 12)); }</p>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 mb-2">
+                            <div class="font-14 text-center p-2" style="background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 5px;">
+                                <p><span class="font-weight-bold">Copiloto2: </span>@if (Model.orru.Copil2Desc != null && Model.orru.Copil2Desc.Length > 12) { Write(Model.orru.Copil2Desc.Substring(0, 12)); }</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            }
+
+                <div class="row mt-4 mx-1">
+                    <div class="col-lg-12 p-2 border border-success">
+                        <span class="text-dark form-label font-weight-bold font-18">Comentario:</span> @Model.Comentario
+                    </div>
+                </div>
+
+                if (Model.Det2 != null)
+                {
+                    <div class="row mt-4">
+                        <div class="col-lg-12">
+                            <table class="table table-hover table-bordered" id="detallesPedidos">
+                                <thead class="bg-cobefar">
+                                    <tr>
+                                        <th class="text-center">#</th>
+                                        <th class="text-center">Monto</th>
+                                        <th class="text-center">Nro SAP</th>
+                                        <th class="text-center">Tipo Doc</th>
+                                        <th class="text-center">Vendedor</th>
+                                        <th class="text-center">LugarDeEntrega</th>
+                                        <th class="text-center">Observación</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (RTV2_E dt in Model.Det2)
+                                    {
+                                        <tr>
+                                            <td class="text-center">@Html.DisplayFor(model => dt.Linea)</td>
+                                            <td class="text-center" style="background-color:#33FFC6">S/@Html.DisplayFor(model => dt.Monto)</td>
+                                            <td class="text-center">@Html.DisplayFor(model => dt.NroSap)</td>
+                                            <td class="text-center">@Html.DisplayFor(model => dt.TipoComprobante)</td>
+                                            <td class="text-center">@Html.DisplayFor(model => dt.Vendedor)</td>
+                                            <td class="text-center" style="background-color:#33FFC6">@Html.DisplayFor(model => dt.LugarDeEntrega)</td>
+                                            <td class="text-center" style="background-color:#33FFC6">@Html.DisplayFor(model => dt.Observaciones)</td>
+                                        </tr>
+                                    }
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                }
+            }
+
+
+                </div>
+            </div>
+
+
+
+            <div class="tab-pane fade" id="nav-datos-pedidos" role="tabpanel" aria-labelledby="nav-datos-pedidos-tab">
+                <div class="bg-section-form p-4 bg-form-cobefar">
+                    <h2 class="text-cobefar font-weight-bold">DATOS PEDIDO</h2>
+                    <div class="row mt-4">
+                        <div class="col-lg-3">
+                            <label for="DocNum" class="text-dark form-label font-weight-bold font-18">Nro Ticket:</label>
+                            @Html.EditorFor(model => model.DocNum, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                        </div>
+
+                        <div class="col-lg-3">
+                            <label for="Embalaje" class="text-dark form-label font-weight-bold font-18">Embalaje:</label>
+                            @Html.EditorFor(model => model.Embalaje, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                        </div>
+
+                        <div class="col-lg-3">
+                            <label for="TipoVenta" class="text-dark form-label font-weight-bold font-18">Tipo Venta:</label>
+                            @Html.EditorFor(model => model.TipoVenta, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                        </div>
+
+                        <div class="col-lg-3">
+                            <label for="Estado" class="text-dark form-label font-weight-bold font-18">Estado Pedido:</label>
+                            @Html.EditorFor(model => model.Estado, new { htmlAttributes = new { @class = "form-control text-center bg-warning", @readonly = "true" } })
+                        </div>
+                    </div>
+
+
+                    <div class="row mt-4">
+                        <div class="col-lg-3">
+                            <label for="FechaTicket" class="text-dark form-label font-weight-bold font-18">@Html.DisplayNameFor(m => m.FechaSapTicket):</label>
+                            @if (Model.FechaSapTicket != null)
+                            {
+                                <input type="date" id="FechaSapTicket" name="FechaSapTicket" class="form-control text-center border-success" value="@Model.FechaSapTicket" readonly />
+                            }
+                            else
+                            {
+                                <input type="text" id="FechaSapTicket" name="FechaSapTicket" class="form-control text-center border-success" value="" readonly />
+                            }
+                        </div>
+
+                        <div class="col-lg-9">
+                            <label for="CardName" class="text-dark form-label font-weight-bold font-18">Cliente:</label>
+                            @Html.EditorFor(model => model.CardName, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                        </div>
+                    </div>
+
+
+                    <div class="row mt-4">
+                        <div class="col-lg-3">
+                            <label for="LugarDestino" class="text-dark form-label font-weight-bold font-18">Lugar Destino:</label>
+                            <input type="text" class="form-control text-center bg-warning" id="LugarDestino" name="LugarDestino" value="@if (Model.LugarDestino != null) { Write(Model.LugarDestino); }" readonly>
+                        </div>
+                        <div class="col-lg-3">
+                            <label for="Agencia" class="text-dark form-label font-weight-bold font-18">Agencia:</label>
+                            <input type="text" class="form-control text-center border-success" id="Agencia" name="Agencia" value="@if (Model.Agencia != null) { Write(Model.Agencia); }" readonly>
+                        </div>
+                        <div class="col-lg-3">
+                            <label for="Zona" class="text-dark form-label font-weight-bold font-18">Zona:</label>
+                            <input type="text" class="form-control text-center border-success" id="Zona" name="Zona" value="@if (Model.Zona != null) { Write(Model.Zona); }" readonly>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-lg-12">
+                            <label for="DirDestino" class="text-dark form-label font-weight-bold font-18">DirDestino:</label>
+                            <input type="text" class="form-control border-success text-box single-line" id="DirDestino" name="DirDestino" value="@if (Model.DirDestino != null) { Write(Model.DirDestino); }" readonly>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-lg-12">
+                            <label for="DirDestino2" class="text-dark form-label font-weight-bold font-18">DirDestino2:</label>
+                            <input type="text" class="form-control border-success text-box single-line" id="DirDestino2" name="DirDestino2" value="@if (Model.Det3 != null) { if (Model.Det3.Count >= 2) { Write(Model.Det3[1].Calle +" "+Model.Det3[1].Distrito+" "+Model.Det3[1].Provincia+" "+Model.Det3[1].Departamento); } }" readonly>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-lg-4">
+                            <label for="EnvioAgencia" class="text-dark form-label font-weight-bold font-18">Envío Agencia:</label>
+                            <input type="text" id="EnvioAgencia" name="EnvioAgencia" value="@if (Model.EnvioAgencia != null) { Write(Model.EnvioAgencia); }" class="form-control text-center border-success" readonly />
+                        </div>
+
+                        <div class="col-lg-8">
+                            <label for="Referencia" class="text-dark form-label font-weight-bold font-18">Referencia:</label>
+                            <input type="text" id="Referencia" name="Referencia" value="@if (Model.Referencia != null) { Write(Model.Referencia); }" class="form-control text-center border-success" readonly />
+                        </div>
+                    </div>
+
+                </div>
+
+            </div><!-- // TAB 2 -->
+
+            <div class="tab-pane fade" id="nav-especif-recojo" role="tabpanel" aria-labelledby="nav-especif-recojo-tab">
+                <div class="bg-section-form p-4 bg-form-cobefar">
+                    <h2 class="text-cobefar font-weight-bold">ESPECIFICACIONES DE RECOJO</h2>
+
+                    <div class="row mt-4">
+                        <div class="col-lg-5">
+                            <label for="NombrePer" class="text-dark form-label font-weight-bold font-18">Nombres:</label>
+                            <input type="text" name="NombrePer" value="@if (Model.Det1 != null) { if (Model.Det1.Count >= 1) { Write(Model.Det1[0].NombrePer); } }" class="form-control border-success" readonly />
+                        </div>
+
+                        <div class="col-lg-2">
+                            <label for="TelfPer" class="text-dark form-label font-weight-bold font-18">Teléfono:</label>
+                            <input type="text" name="TelfPer" value="@if (Model.Det1 != null) { if (Model.Det1.Count >= 1) { Write(Model.Det1[0].TelfPer); } }" class="form-control text-center border-success" readonly />
+                        </div>
+
+                        <div class="col-lg-2">
+                            <label for="TipoDocPer" class="text-dark form-label font-weight-bold font-18">Tipo de Doc:</label>
+                            <input type="text" name="TipoDocPer" value="@if (Model.Det1 != null) { if (Model.Det1.Count >= 1) { Write(Model.Det1[0].TipoDocPer); } }" class="form-control text-center border-success" readonly />
+                        </div>
+
+                        <div class="col-lg-3">
+                            <label for="DocPer" class="text-dark form-label font-weight-bold font-18">Nro Doc:</label>
+                            <input type="text" name="DocPer" value="@if (Model.Det1 != null) { if (Model.Det1.Count >= 1) { Write(Model.Det1[0].DocPer); } }" class="form-control text-center border-success" readonly />
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-lg-4">
+                            <label for="Observaciones" class="text-dark form-label font-weight-bold font-18">Coordinación del pedido:</label>
+                            @Html.TextAreaFor(model => model.Observaciones, new { @class = "form-control border-success", @readonly = "true", @rows = "5" })
+                        </div>
+                        <div class="col-lg-4">
+                            <label for="Observaciones3" class="text-dark form-label font-weight-bold font-18">Observación adicional:</label>
+                            @Html.TextAreaFor(model => model.Observaciones3, new { @class = "form-control border-success", @readonly = "true", @rows = "5" })
+                        </div>
+                        <div class="col-lg-4">
+                            <label for="Vendedor" class="text-dark form-label font-weight-bold font-18">Vendedor:</label>
+                            @Html.EditorFor(model => model.Vendedor, new { htmlAttributes = new { @class = "form-control border-success", @readonly = "true" } })
+
+                            <label for="HoraTicket" class="text-dark form-label font-weight-bold font-18">Hora Ticket:</label>
+                            @Html.EditorFor(model => model.HoraRegistro, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                        </div>
+                    </div>
+                        <div class="col-lg-3 mt-4">
+                            <label class="text-dark form-label font-weight-bold font-18">Vinculación de ticket</label>
+                            <input id="VinculacionTicket" class="form-control text-center border-success" value="@Model.Observaciones2" readonly />
+                        </div>
+
+                        <div class="col-lg-8  mt-4" id="divVinculados">
+                            <table id="DetallesVinculados" class="table table-sm">
+                                <thead class="bg-success">
+                                    <tr>
+                                        <th class="text-center">#</th>
+                                        <th class="text-center">Ticket</th>
+                                        <th hidden>Ruc</th>
+                                        <th class="text-center">Cliente</th>
+                                        <th class="text-center">Monto</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    @if (Model.Det7 != null && Model.Det7.Count > 0)
+                                    {
+                                        foreach (var dt in Model.Det7)
+                                        {
+                                            <tr>
+                                                <td><input class='form-control text-center' value='@dt.Linea' readonly /></td>
+                                                <td><input class='form-control text-center' value='@dt.DocNumVinc' readonly /></td>
+                                                <td hidden><input class='form-control text-center' value='@dt.CardCode' readonly /></td>
+                                                <td><input class='form-control text-center' value='@dt.CardName' readonly /></td>
+                                                <td><input class='form-control text-center' value='@dt.MontoFinal' readonly /></td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="nav-det-pedidos" role="tabpanel" aria-labelledby="nav-det-pedidos-tab">
+                <div class="bg-section-form p-4 bg-form-cobefar">
+                    <h2 class="text-cobefar font-weight-bold">DETALLES DE PEDIDOS</h2>
+
+                    @if (Model.Det2 != null)
+                    {
+                        <div class="row mt-4">
+                            <div class="col-lg-12">
+                                <table class="table table-hover table-bordered" id="detallesPedidos">
+                                    <thead>
+                                        <tr style="background-color:darkgreen">
+                                            <th class="text-center">#</th>
+                                            <th class="text-center">Monto</th>
+                                            <th class="text-center">Nro SAP</th>
+                                            <th class="text-center">Tipo Doc</th>
+                                            <th class="text-center">Vendedor</th>
+                                            <th class="text-center">LugarDeEntrega</th>
+                                            <th class="text-center">AlmOrigen</th>
+                                            <th class="text-center">Observación</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (RTV2_E dt in Model.Det2)
+                                        {
+                                            <tr>
+                                                <td class="text-center">@Html.DisplayFor(model => dt.Linea)</td>
+                                                <td class="text-center" style="background-color:#33FFC6">S/@Html.DisplayFor(model => dt.Monto)</td>
+                                                <td class="text-center">@Html.DisplayFor(model => dt.NroSap)</td>
+                                                <td class="text-center">@Html.DisplayFor(model => dt.TipoComprobante)</td>
+                                                <td class="text-center">@Html.DisplayFor(model => dt.Vendedor)</td>
+                                                <td class="text-center" style="background-color:#33FFC6">@Html.DisplayFor(model => dt.LugarDeEntrega)</td>
+                                                <td class="text-center" style="background-color:#33FFC6">@Html.DisplayFor(model => dt.AlmacenSalida)</td>
+                                                <td class="text-center" style="background-color:#33FFC6">@Html.DisplayFor(model => dt.Observaciones)</td>
+                                            </tr>
+                                        }
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    }
+
+
+                    <div class="row mt-4">
+                        <div class="col-lg-4">
+                            <label for="MontoTotal" class="text-dark form-label font-weight-bold font-18">Monto Total:</label>
+                            @Html.EditorFor(model => model.MontoTotal, new { htmlAttributes = new { @class = "form-control font-weight-bold bg-warning", @readonly = "true" } })
+                        </div>
+
+                        <div class="col-lg-4">
+                            <label for="TiempoEntrega" class="px-2 bg-cobefar text-white form-label font-weight-bold font-18">Tiempo de entrega:</label>
+                            @Html.EditorFor(model => model.TiempoEntrega, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                        </div>
+                    </div>
+
+
+                    <div class="row mt-4">
+                        <div class="col-lg-4">
+                            <label for="Flete" class="text-dark form-label font-weight-bold font-18">Flete (Taxi):</label>
+                            @Html.EditorFor(model => model.Flete, new { htmlAttributes = new { @class = "form-control font-weight-bold border-success", @readonly = "true" } })
+                        </div>
+
+                        <div class="col-lg-4">
+                            <label for="DeudaCliente" class="text-dark form-label font-weight-bold font-18">Deuda de cliente:</label>
+                            @Html.EditorFor(model => model.DeudaCliente, new { htmlAttributes = new { @class = "form-control font-weight-bold border-success", @readonly = "true" } })
+                        </div>
+                    </div>
+
+
+                    <div class="row mt-4">
+                        <div class="col-lg-4">
+                            <label for="GastoEnvio" class="text-dark form-label font-weight-bold font-18">Gasto de envío:</label>
+                            @Html.EditorFor(model => model.GastoEnvio, new { htmlAttributes = new { @class = "form-control font-weight-bold border-success", @readonly = "true" } })
+                        </div>
+
+                        <div class="col-lg-4">
+                            <label for="DeudaEmpresa" class="text-dark form-label font-weight-bold font-18">Deuda empresa:</label>
+                            @Html.EditorFor(model => model.DeudaEmpresa, new { htmlAttributes = new { @class = "form-control font-weight-bold border-success", @readonly = "true" } })
+                        </div>
+                    </div>
+
+
+                    <div class="row mt-4">
+                        <div class="col-lg-4">
+                            <label for="DescuentoNC" class="text-dark form-label font-weight-bold font-18">Descuento NC:</label>
+                            @Html.EditorFor(model => model.DescuentoNC, new { htmlAttributes = new { @class = "form-control font-weight-bold border-success", @readonly = "true" } })
+                        </div>
+                        <div class="col-lg-4">
+                            <label for="Regalo" class="text-dark form-label font-weight-bold font-18">Regalo:</label>
+                            @if (Model.Det5 != null && Model.Det5.Count >= 1)
+                            {
+                                <input class="form-control border-success" id="Regalo" value="@Model.Det5[0].RegCate - @Model.Det5[0].RegTipo" readonly />
+                                <div hidden>@Html.DisplayFor(model => model.Det5[0].RegCate) - @Html.DisplayFor(model => model.Det5[0].RegTipo)</div>
+                            }
+                            else
+                            {
+                                <input class="form-control border-success" id="Regalo" value="" readonly />
+                            }
+
+                        </div>
+
+                        <div class="col-lg-2">
+                            <label for="RegCant" class="text-dark form-label font-weight-bold font-18">CantRegalo:</label>
+                            <div class="d-flex">
+                                <input class="form-control border-success" value="@if (Model.Det5 != null) { if (Model.Det5.Count >= 1) { Write(decimal.Round(Model.Det5[0].RegCant, 0)); } }" id="RegCant" name="RegCant" readonly />
+                                <div id="RptClienteRegalos" class="btn btn-primary" onclick="clienteRegalos();" hidden>SaldoReg</div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    @if (Model.Det4 != null && Model.Det4.Count > 0)
+                    {
+                        <div class="row mt-4">
+                            <div class="col-lg-12">
+                                <table class="table table-hover table-bordered">
+                                    <thead class="bg-cobefar text-white">
+                                        <tr>
+                                            <td class="text-center"><strong>#</strong></td>
+                                            <td class="text-center"><strong>Monto NC</strong></td>
+                                            <td class="text-center"><strong>Fecha</strong></td>
+                                            <td class="text-center"><strong>Nro SAP</strong></td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (RTV4_E d2 in Model.Det4)
+                                        {
+                                            if (d2.Nc != null)
+                                            {
+                                                <tr>
+                                                    <td class="text-center">@d2.Linea</td>
+                                                    <td class="text-center">@d2.Nc.DocTotal</td>
+                                                    <td class="text-center">@d2.Nc.DocDate</td>
+                                                    <td class="text-center">@d2.Nc.DocNum</td>
+                                                </tr>
+                                            }
+
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    }
+
+
+                    <div class="row mt-4">
+                        <div class="col-lg-4">
+                            <label for="MontoFinal" class="text-dark form-label font-weight-bold font-18">Monto Final:</label>
+                            @Html.EditorFor(model => model.MontoFinal, new { htmlAttributes = new { @class = "form-control font-weight-bold border-success", @readonly = "true" } })
+                        </div>
+                    </div>
+
+
+                    <div class="row mt-4">
+                        <div class="col-lg-12">
+                            <label for="Comentario" class="px-2 bg-cobefar text-white form-label font-weight-bold font-18">Comentario:</label>
+                            @Html.TextAreaFor(model => model.Comentario, new { @class = "form-control border-success", @readonly = "true", @rows = "4" })
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="nav-caja" role="tabpanel" aria-labelledby="nav-caja-tab">
+                <div class="bg-section-form p-4 bg-form-cobefar">
+                    <h2 class="text-cobefar font-weight-bold">CAJA</h2>
+
+                    <div class="row mt-4">
+                        <div class="col-lg-3">
+                            <label for="EstadoPago" class="text-dark form-label font-weight-bold font-18">Estado de Pago:</label>
+                            @Html.EditorFor(model => model.EstadoPago, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                        </div>
+
+                        <div class="col-lg-3">
+                            <label for="FormaPago" class="text-dark form-label font-weight-bold font-18">Forma de Pago:</label>
+                            @Html.EditorFor(model => model.FormaPago, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                        </div>
+
+                        <div class="col-lg-3">
+                            <label for="MontoRecibido" class="text-dark form-label font-weight-bold font-18">Monto Recibido:</label>
+                            @Html.EditorFor(model => model.MontoRecibido, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                        </div>
+
+                        <div class="col-lg-3">
+                            <label for="FechaPago" class="text-dark form-label font-weight-bold font-18">Fecha de Pago:</label>
+                            @{
+                                if (Model.FechaPago != null)
+                                {
+                                    <input type="date" id="FechaPago" name="FechaPago" class="form-control text-center border-success" value="@Model.FechaPago" readonly />
+                                }
+                                else
+                                {
+                                    <input type="text" id="FechaPago" name="FechaPago" class="form-control text-center border-success" value="" readonly />
+                                }
+                            }
+
+                        </div>
+                    </div>
+
+
+                    <div class="row mt-4">
+                        <div class="col-lg-6">
+                            <label for="Cajero" class="text-dark form-label font-weight-bold font-18">CajeroDesc:</label>
+                            <input type="text" id="Cajero" name="Cajero" class="form-control text-center border-success" value="@Model.Cajero" readonly />
+                        </div>
+
+                        <div class="col-lg-3">
+                            <label for="HoraPago" class="text-dark  form-label font-weight-bold font-18">Hora Pago:</label>
+                            @Html.EditorFor(model => model.HoraPago, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div><!-- // TABS-CONTENT -->
+
+    }
+</div><!-- // PESTAÑAS -->
+
+<script>
+    if ('@ViewBag.Mensaje' != "") {
+        Swal.fire('@ViewBag.Mensaje');
+    }
+</script>

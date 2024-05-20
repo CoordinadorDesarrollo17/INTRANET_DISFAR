@@ -1,0 +1,164 @@
+﻿@model IEnumerable<Capa_Entidad.Ventas_ENT.Tablas.ORDR_E>
+@using Capa_Entidad.General_ENT.Tablas
+@{
+    ViewBag.Title = "ListadoOrdenesDeVenta";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    $(document).ready(function () {
+        $('.double-scroll').doubleScroll();
+    });
+    function filtrar() {
+        var object = $("#frm").serialize();
+        $(location).attr('href', "/DireccionTecnica/ListadoOrdenesDeVenta?" + object);
+    }
+</script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li class="current"><em>Listado órdenes de venta</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO ORDENES DE VENTA</h3></div>
+</div>
+
+<div class="bg-form-pestanas-cobefar">
+    <div class="bg-dark pt-4">
+        <form name="frm" id="frm">
+            <table class="table table-light table-sm table-hover cls-dataTable" cellspacing="0" width="100%">
+                <thead class="thead-dark">
+                    <tr>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.DocNum)
+                            <input type="text" name="DocNum" class="form-control" onchange="filtrar();" value="@if (ViewBag.Ordr.DocNum != 0) { Write(ViewBag.Ordr.DocNum); } " />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.DocDate)
+                            <input type="date" name="DocDate" class="form-control" onchange="filtrar();" value="@ViewBag.Ordr.DocDate" />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.CardName)
+                            <input type="text" name="CardName" class="form-control" onchange="filtrar();" value="@ViewBag.Ordr.CardName" autocomplete="off" />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.CardCode)
+                            <input type="text" name="CardCode" class="form-control" onchange="filtrar();" value="@ViewBag.Ordr.CardCode" autocomplete="off" />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.SlpCode)
+                            <select name="SlpCode" class="form-control" onchange="filtrar();">
+                                <option value="0">Seleccione</option>
+                                @foreach (OSLP_E os in ViewBag.ListaOslp)
+                                {
+                                    if (ViewBag.Ordr.SlpCode == os.SlpCode)
+                                    {
+                                        <option value="@os.SlpCode" selected>@os.SlpName</option>
+
+                                    }
+                                    else
+                                    {
+                                        <option value="@os.SlpCode">@os.SlpName</option>
+                                    }
+                                }
+                            </select>
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.DocTotal)
+                            <input type="text" name="DocTotal" class="form-control" onchange="filtrar();" value="@ViewBag.Ordr.DocTotal" />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.Comments)
+                            <input type="text" name="Comments" class="form-control" onchange="filtrar();" value="@ViewBag.Ordr.Comments" />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.U_SYP_STATUS)
+                            <input type="text" name="U_SYP_STATUS" class="form-control" onchange="filtrar();" value="@ViewBag.Ordr.U_SYP_STATUS" />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.U_COB_LUGAREN)
+                            <select name="U_COB_LUGAREN" class="form-control" onchange="filtrar();">
+                                <option value="">Seleccione</option>
+                                @foreach (COB_LUG_ENTREGA_E c in ViewBag.ListaLugarEntregas)
+                                {
+                                    if (ViewBag.Ordr.U_COB_LUGAREN == c.Code)
+                                    {
+                                        <option value="@c.Code" selected>@c.Name</option>
+
+                                    }
+                                    else
+                                    {
+                                        <option value="@c.Code">@c.Name</option>
+                                    }
+                                }
+                            </select>
+                        </th>
+                        <th class="text-center">
+                            Comprobante<br />Vinculado
+                        </th>
+                        <th class="text-center"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr id="fila">
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.DocNum)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.DocDate)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.CardName)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.CardCode)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.SlpCode)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.DocTotal)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.Comments)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.U_SYP_STATUS)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.U_COB_LUGAREN)
+                            </td>
+                            <td class="text-center font-14">
+                                @foreach (var c in item.ComprobantesVinculados)
+                                {
+                                    if (c.NumAtCard.Contains("F"))
+                                    {
+                                        @Html.ActionLink(c.NumAtCard, "ListadoFacturasDeVenta", new { DocNum = c.DocNum }, htmlAttributes: new { @target = "_blank", @class= "text-primary" })<br />
+                                    }
+                                    else
+                                    {
+                                        @Html.ActionLink(c.NumAtCard, "ListadoBoletasDeVenta", new { DocNum = c.DocNum }, htmlAttributes: new { @target = "_blank", @class = "text-primary" })<br />
+                                    }
+
+                                }
+                            </td>
+                            <td class="text-center">
+                                <a href="@Url.Action("LayoutOrdenDeVenta", "DireccionTecnica", new { DocNum = item.DocNum })" target="_blank" class="btn btn-sm btn-cobefar"><i class="icon-eye"></i> Ver Layout</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                
+
+            </table>
+        </form>
+    </div>
+    
+</div>
+

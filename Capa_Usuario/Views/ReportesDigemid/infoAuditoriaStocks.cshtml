@@ -1,0 +1,146 @@
+﻿@using Capa_Entidad.General_ENT.Tablas
+@using Capa_Entidad.Almacen_ENT.Tablas
+@{
+    Layout = null;
+}
+<script>
+    $(document).ready(function () { });
+    function prueba(dom) {
+        if ($(dom).val().length > 3) {
+            $.ajax('/ReportesDigemid/ListaProductosAuditoria',
+                {
+                    data: { "ItemName": $(dom).val(), "ItemCode": $(dom).val() },
+                    dataType: 'html',
+                    cache: false,
+                    type: 'post',
+                })
+                .done(function (response) {
+                    $('#dvListaProductos').html(response);
+                });
+        }
+    }
+    function rpt() {
+        $('#Reporte').html('<img src="/imagenes/index/ReportesDigemid/cargando.gif" />');
+        var parametros = $("#frm").serialize();
+        $.ajax('/ReportesDigemid/tbReporteAuditoriaStocks',
+            {
+                data: parametros,
+                dataType: 'html',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                $('#Reporte').html(response);
+            });
+    }
+    function validarCheck(check, id, valor) {
+        if ($("#" + check).prop("checked") == false) {
+            $("#" + id).val("");
+        }
+        else { $("#" + id).val(valor);; }
+    }
+</script>
+<style>
+    #scroll {
+        border: 1px solid;
+        height: 100px;
+        width: 100%;
+        overflow-y: scroll;
+        overflow-x: hidden;
+    }
+</style>
+<div id="dvListaProductos">
+    <datalist id="ListaProductos">
+    </datalist>
+</div>
+
+<div class="container" style="padding: 2%; background-color: rgb(220, 220, 220);">
+    <form id="frm" method="post">
+        <h3 class="text-cobefar font-weight-bold text-center">AUDITORIA DE STOCK: Criterios de selección</h3>
+
+        <div class="row mt-4">
+            <div class="col-lg-4">
+                <label for="TipoFecha" class="text-dark font-weight-bold font-18">TipoFecha:</label>
+                <select name="TipoFecha" class="form-control bg-cobefar text-white border-success">
+                    <option value="CreateDate">Fecha de sistema</option>
+                    <option value="DocDate">Fecha de contabilización</option>
+                </select>
+            </div>
+
+            <div class="col-lg-3">
+                <label for="FecIni" class="text-dark font-weight-bold font-18">Desde:</label>
+                <input name="FecIni" type="date" class="form-control border-success" />
+            </div>
+
+            <div class="col-lg-3">
+                <label for="FecFin" class="text-dark font-weight-bold font-18">Hasta:</label>
+                <input name="FecFin" type="date" class="form-control border-success" />
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-3">
+                <label for="FecIni" class="text-dark font-weight-bold font-18">Código Desde:</label>
+                <input type="search" name="ArtIni" class="form-control border-success" list="ListaProductos" onkeyup="prueba(this);" />
+            </div>
+
+            <div class="col-lg-3">
+                <label for="FecFin" class="text-dark font-weight-bold font-18">Código Hasta:</label>
+                <input type="search" name="ArtFin" class="form-control border-success" list="ListaProductos" onkeyup="prueba(this);" />
+            </div>
+
+            <div class="col-lg-4">
+                <label for="ItmsGrpCod" class="text-dark font-weight-bold font-18">Grupo de artículos:</label>
+                <select name="ItmsGrpCod" class="form-control bg-cobefar text-white border-success">
+                    <option value="">Todos</option>
+                    @foreach (OITB_E g in ViewBag.ListaGrupoArticulos)
+                    {
+                        <option value="@g.ItmsGrpCod">@g.ItmsGrpNam</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-12">
+                <table class="table table-light table-hover table-bordered">
+                    <thead class="bg-success">
+                        <tr>
+                            <th class="text-center">Almacenes</th>
+                            <th class="text-center">Código de almacén</th>
+                            <th class="text-center">Nombre de almacén</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ int i = 0;}
+                        @foreach (OWHS_E o in ViewBag.ListaAlmacenes)
+                        {
+                            <tr>
+                                <td class="text-center">
+                                    <label class="text-dark"><input type="checkbox" name="" id="check_@i" checked style="transform: scale(2);display:inline-block " onclick="validarCheck('check_@i','AlmacenesWhsCode_@i','@o.WhsCode');" /></label>
+                                    <input type="hidden" class="text-dark" name="Almacenes[@i].WhsCode" id="AlmacenesWhsCode_@i" value="@o.WhsCode" readonly />
+                                </td>
+                                <td class="text-center">
+                                    <label class="text-dark">@o.WhsCode</label>
+                                </td>
+                                <td class="text-center">
+                                    <label class="text-dark">@o.WhsName</label>
+                                </td>
+                            </tr>
+                            { i++; }
+                        }
+                    </tbody>
+                    
+                </table>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-4">
+                <button type="button" class="btn btn-success" onclick="rpt();"><i class="icon-checkmark"></i> OK</button>
+            </div>
+        </div>
+
+    </form>
+
+</div>

@@ -1,0 +1,179 @@
+﻿@model IEnumerable<Capa_Entidad.Rutas_ENT.TablasSql.ORRU_E>
+@using Capa_Entidad.General_ENT.TablasSql;
+@{
+    ViewBag.Title = "ListadoRutas";
+    List<OVEH_E> listaVeh = (List<OVEH_E>)ViewBag.listaVeh;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    $(document).ready(function () {
+    });
+    function filtrar() {
+        var object = $("#frm").serialize();
+        $(location).attr('href', "/Rutas/ListadoRutas?" + object);
+    }
+    function GenerarReporteTemp() {
+        var o = $("#frmReporteTemp").serialize();
+        window.open("/Rutas/RptControlTemperaturaHumedad?" + o, "_blank");
+    }
+</script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="/Index/Sesion">Inicio</a></li>
+            <li class="current"><em>Listado de rutas</em></li>
+        </ol>
+    </nav>
+</div>
+
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO DE RUTAS</h3></div>
+
+    <div class="d-flex pl-2 w-100 py-2">
+        <a id="accion" href="@Url.Action("CrearOrdenDeRuta", "Rutas")" class="btn btn-primary">Crear orden de ruta</a>
+        <a id="accion" href="@Url.Action("CrearOrdenDeRutaAlm", "Rutas")" class="btn btn-primary">Crear orden de ruta almacenes</a>
+        <a id="accion" href="@Url.Action("GestionarChoferes", "Rutas")" class="btn btn-warning">Choferes</a>
+        <a id="accion" href="@Url.Action("GestionarVehiculos", "Rutas")" class="btn btn-success">Vehículos</a>
+        <button id="accion" type="button" class="btn btn-info" data-toggle="modal" data-target="#exampleModal">ReporteTemp</button>
+    </div>
+</div>
+
+
+<div class="bg-dark pt-4">
+    <form name="frm" id="frm">
+        <table class="table table-light table-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
+            <thead class="thead-dark">
+                <tr>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.DocNum)<br />
+                        @if (ViewBag.Orru != null && ViewBag.Orru.DocNum > 0)
+                        {
+                            <input class="form-control" type="text" name="DocNum" onchange="filtrar();" value="@ViewBag.Orru.DocNum" />
+                        }
+                        else
+                        { <input class="form-control" type="text" name="DocNum" onchange="filtrar();" />}
+
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.TipoRuta)<br />
+                        <select name="TipoRuta" class="form-control" onchange="filtrar();">
+                            <option value=""></option>
+                            <option value="VC" @if (ViewBag.Orru != null && ViewBag.Orru.TipoRuta == "VC") { Write("selected"); }>Almacen 01</option>
+                            <option value="VD" @if (ViewBag.Orru != null && ViewBag.Orru.TipoRuta == "VD") { Write("selected"); }>Domicilio</option>
+                            <option value="TA" @if (ViewBag.Orru != null && ViewBag.Orru.TipoRuta == "TA") { Write("selected"); }>Traslados</option>
+                            <option value="VA" @if (ViewBag.Orru != null && ViewBag.Orru.TipoRuta == "VA") { Write("selected"); }>Almacen 06</option>
+                        </select>
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.TransDesc)<br />
+                        <select name="TransDesc" class="form-control" onchange="filtrar();">
+                            <option value=""></option>
+                            @foreach (var t in ViewBag.ListaTransportistas)
+                            {
+                                <option value="@t.U_SYP_CHNO" @if (ViewBag.Orru != null && ViewBag.Orru.TransDesc == t.U_SYP_CHNO) { Write("selected"); }>@t.U_SYP_CHNO</option>
+                            }
+                        </select>
+                    </th>
+                    <th class="text-center" style="width: 150px;">
+                        @Html.DisplayNameFor(model => model.FechaDoc)<br />
+                        @if (ViewBag.Orru != null && ViewBag.Orru.FechaDoc != null)
+                        {
+                            <input type="date" name="FechaDoc" class="form-control text-center" style="width: 150px; height:38px;" value="@ViewBag.Orru.FechaDoc.ToString("yyyy-MM-dd")" onchange="filtrar();" />
+                        }
+                        else
+                        { <input type="date" name="FechaDoc" class="form-control text-center" style="width: 150px; height:38px;" onchange="filtrar();" />}
+
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.Estado)<br />
+                        <select name="Estado" class="form-control" onchange="filtrar();">
+                            <option value=""></option>
+                            <option value="CREADO" @if (ViewBag.Orru != null && ViewBag.Orru.Estado == "CREADO") { Write("selected"); }>CREADO</option>
+                            <option value="EDITADO" @if (ViewBag.Orru != null && ViewBag.Orru.Estado == "EDITADO") { Write("selected"); }>EDITADO</option>
+                            <option value="ANULADO" @if (ViewBag.Orru != null && ViewBag.Orru.Estado == "ANULADO") { Write("selected"); }>ANULADO</option>
+                        </select>
+                    </th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Where(x => x.TipoRuta != "VG"))
+                {
+                    <tr>
+                        <td class="text-center @if (ViewBag.DocNum == item.DocNum) { Write("bg-success");  }">
+                            @Html.DisplayFor(modelItem => item.DocNum)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.TipoRuta)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.TransDesc)
+                        </td>
+                        <td class="text-center">@String.Format("{0:dd/MM/yyyy}", item.FechaDoc)</td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.Estado)
+                        </td>
+
+                        <td class="text-center">
+                            <a href="@Url.Action( "EditarOrdenDeRuta", "Rutas", new { DocEntry = item.DocEntry } )"><i title="Editar" class="icon-pencil2 text-purple  font-18"></i></a>
+                        </td>
+                        <td class="text-center">
+                            <a href="@Url.Action( "DocumentoRutas", "Rutas", new { DocEntry = item.DocEntry, TipoRuta = item.TipoRuta } )"><i title="Pdf" class="icon-file-pdf text-danger font-18"></i></a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </form>
+</div>
+
+<!-- Modal -->
+<form id="frmReporteTemp" method="post">
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-cobefar text-white">
+                    <h5 class="modal-title" id="exampleModalLabel">Reporte de control temperatura y humedad</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body text-center">
+                    <span style="float:left;margin-left:50px;"><strong>Vehículo</strong></span>
+                    <div style="float:right;margin-right:50px;">
+                        <select type="text" name="Placa" class="form-control">
+                            <option value="">Seleccione</option>
+                            @foreach (OVEH_E obj in listaVeh)
+                            {
+                                <option value="@obj.U_SYP_VEPL">@obj.U_SYP_VEPL</option>
+
+                            }
+                        </select>
+                    </div>
+                    <br /><br />
+                    <span style="float:left;margin-left:50px;"><strong>Fecha Entrega</strong></span>
+                    <div style="float:right;margin-right:50px;">
+                        <input name="FechaTerEn" type="date" class="form-control" />
+                    </div>
+                    <br /><br />
+                    <span style="float:left;margin-left:50px;"><strong>Termohigrómetro</strong></span>
+                    <div style="float:right;margin-right:50px;">
+                        <select name="Serie" class="form-control">
+                            <option value="SerieT1" selected>T1</option>
+                            <option value="SerieT2">T2</option>
+                        </select>
+                    </div>
+                    <br /><br />
+                    <br />
+                    <div style="float:right;margin-right:50px;">
+                        <button type="button" class="btn btn-success" onclick="GenerarReporteTemp();">Generar</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

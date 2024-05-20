@@ -1,0 +1,59 @@
+﻿@{
+    Layout = null;
+}
+<script>
+    function calcular() {
+        var parametros = $("#frm").serialize();
+        $.ajax('/DireccionTecnica/CalculadoraPdfXampp',
+            {
+                data : parametros,
+                dataType: 'json',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                Swal.fire(response);
+            });
+    }
+</script>
+
+
+<div class="container" style="padding: 2%; background-color:rgb(220, 220, 220);">
+    <h3 class="text-cobefar font-weight-bold text-center">ACTA DESPACHO</h3>
+
+    <form id="frm">
+        <div class="row mt-4">
+            <div class="col-lg-3">
+                <label class="text-dark font-weight-bold font-18">Fecha:</label>
+                <input name="Fecha" type="date" class="form-control border-success" />
+                <input name="opcion" type="hidden" value="4" />
+            </div>
+
+            <div class="col-lg-4">
+                <label class="text-dark font-weight-bold font-18">EstadoDocumento:</label>
+                <select name="U_SYP_STATUS" class="form-control bg-cobefar text-white">
+                    <option value="">Seleccione</option>
+                    <option value="V">Vigente</option>
+                    <option value="A">AnuladoSunat</option>
+                    <option value="I">AnuladoInterno</option>
+                </select>
+            </div>
+
+            <div class="col-lg-4">
+                <label class="text-dark font-weight-bold font-18">LugarDeEntrega:</label>
+                <select name="U_COB_LUGAREN" class="form-control bg-cobefar text-white">
+                    <option value="03">ALMACEN 03</option>
+                    <option value="05">ALMACEN 05</option>
+                    <option value="ALM07">ALMACEN 07</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-6">
+                <button id="Generar" type="button" class="btn btn-success" onclick="calcular()"><i class="icon-checkmark"></i> Calcular</button>
+            </div>
+        </div>
+        
+    </form>
+</div>

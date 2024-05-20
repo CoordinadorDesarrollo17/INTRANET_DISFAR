@@ -1,0 +1,148 @@
+﻿@model IEnumerable<Capa_Entidad.ReportesDigemid_ENT.ActaRecepcionVt_E>
+
+@{
+    ViewBag.Title = "ActaRecepcionVt";
+    Layout = null;
+    var m = Model.ToList()[0];
+}
+<style>
+    .conBorde td {
+        border: 1px solid;
+    }
+</style>
+
+<table border=0>
+    <tr>
+        <td colspan=2><img width="120" height="50" src="~/imagenes/logoventa2.jpg" /></td>
+        <td></td>
+        <td></td>
+        <td colspan="2" style="text-align:right;"><strong>REG-008-02</strong></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td></td>
+        <td width="650" align='center'><strong>ACTA DE RECEPCION DE PRODUCTOS - COBEFAR S.A.C.</strong></td>
+        <td></td>
+        <td></td>
+        <td width="180px"></td>
+    </tr>
+    <tr>
+        <td width="180px"><strong>FECHA : @m.T0_DocDate</strong></td>
+        <td></td>
+        <td></td>
+        <td width="100px"><strong>GUIA N° : </strong></td>
+        <td colspan="2" style="text-align:left"> @m.T0_U_COB_TIPODOC-@m.T0_U_COB_SERIE-@m.T0_U_COB_CORDOC</td>
+    </tr>
+    <tr>
+        <td width="180px"><strong>PROCEDENCIA : </strong></td>
+        <td width="110px">ALMACEN @m.Almacen</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+</table>
+
+<table border=0 style="font-size:9px;text-align:center">
+    <tr class="conBorde">
+        <td width=25px>Cantidad Programada</td>
+        <td width=25px>Cantidad Recibida</td>
+        <td width=200px>DESCRIPCION DEL PRODUCTO</td>
+        <td width=95px>FABRICANTE</td>
+        <td width=50px>LOTE SERIE</td>
+        <td width=35px>FECHA VCTO</td>
+        <td width=55px>NRO R.S.</td>
+        <td width=40px colspan=2>PROTOCOLO DE ANALISIS</td>
+        <td width=40px colspan=2>CAJAS LIMPIAS</td>
+        <td width=40px colspan=2>EMBALAJE CERRADO</td>
+        <td width=40px colspan=2>CONSGINA CONDICION DE EMBALAJE</td>
+        <td width=60px>CONDICION ALMACENAMIENTO</td>
+        <td width=40px colspan=2>MANCHADO DERRAME ARRUGADO QUEBRADO HUMEDO</td>
+        <td width=40px colspan=2>PRODUCTO CORRESPONDE AL DOCUMENTO</td>
+        <td width=40px colspan=2>VEHICULO LIMPIO Y EQUIPADO CONDICION ADECUADA</td>
+    </tr>
+    <tr class="conBorde">
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>SI</td>
+        <td>NO</td>
+        <td>SI</td>
+        <td>NO</td>
+        <td>SI</td>
+        <td>NO</td>
+        <td>SI</td>
+        <td>NO</td>
+        <td></td>
+        <td>SI</td>
+        <td>NO</td>
+        <td>SI</td>
+        <td>NO</td>
+        <td>SI</td>
+        <td>NO</td>
+
+    </tr>
+    @foreach (var item in Model)
+    {
+        <tr class="conBorde">
+            <td>@Math.Round(item.Quantity, 0)</td>
+            <td>@Math.Round(item.Quantity, 0)</td>
+            <td style="text-align:left">@item.T8_FrgnName &nbsp;@item.Concentracion &nbsp;@item.FormaPresentacion &nbsp;@item.FormaFarmaceutica</td>
+            <td>@item.Fabricante</td>
+            <td>@item.T4_DistNumber</td>
+            <td>@item.T4_ExpDate</td>
+            <td>@item.T4_MnfSerial</td>
+            <td><img width="7" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
+            <td></td>
+            <td><img width="7" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
+            <td></td>
+            <td><img width="7" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
+            <td></td>
+            <td><img width="7" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
+            <td></td>
+            <td>@item.T7_Location</td>
+            <td></td>
+            <td><img width="7" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
+            <td><img width="7" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
+            <td></td>
+            <td><img width="7" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
+            <td></td>
+        </tr>
+    }
+
+    <tr>
+        <td colspan=2>OBSERVACIONES: </td>
+        <td colspan=20>NINGUNA</td>
+    </tr>
+    <tr>
+        <td colspan="22" height="80"></td>
+    </tr>
+    <tr>
+        <td colspan="3"></td>
+        <td colspan="3" align="center" style="border-bottom: solid 1px">
+            @if (ViewBag.FirmaResponsable != null)
+            {<img src="@ViewBag.FirmaResponsable" width="150" />}
+        </td>
+        <td></td>
+        <td colspan="7" align="center" style="border-bottom: solid 1px"></td>
+        <td colspan="9"></td>
+    </tr>
+    <tr>
+        <td colspan="3"></td>
+        <td colspan="3" align="center">RESPONSABLE DE ALMACEN</td>
+        <td></td>
+        <td colspan="7" align="center">PERSONA QUE ENTREGA</td>
+        <td colspan="9"></td>
+    </tr>
+    <tr>
+        <td colspan="3"></td>
+        <td colspan="3" align="center">(sello y firma)</td>
+        <td></td>
+        <td colspan="7" align="center">(sello y firma)</td>
+        <td colspan="9"></td>
+    </tr>
+</table>

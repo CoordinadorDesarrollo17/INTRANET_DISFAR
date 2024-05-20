@@ -1,0 +1,75 @@
+﻿<div class="bg-section-form p-4 bg-form-cobefar">
+    <div class="row">
+        <div class="col-12">
+            <div class="row justify-content-center">
+                <div class="col-11">
+                    <input type="hidden" id="CodLaboratorio" value="@Model.CodLaboratorio" />
+
+                    <div class="row mt-4">
+                        <div class="col-8">
+                            <span class="font-weight-bold pr-2">Código artículo:</span> @Model.CodArticulo
+                        </div>
+
+                        <div class="col-4">
+                            <span class="font-weight-bold pr-2">Registro sanitario:</span> @Model.RegistroSanitario
+                        </div>
+                    </div>
+
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            <span class="font-weight-bold pr-2">Descripción artículo:</span> @Model.DescArticulo
+                        </div>
+                    </div>
+
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            <label class="text-dark font-weight-bold pr-2">Observación:</label>
+                            <textarea id="Observacion" name="Observacion" class="form-control border-success" rows="4"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <button type="button" class="btn btn-sm btn-success" onclick="agregarObs('@Model.CodArticulo', '@Model.RegistroSanitario')"><i class="icon-plus"></i> Agregar observación</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function agregarObs(codArticulo, registroSanitario) {
+        $.ajax({
+            url: '/DireccionTecnica/AgregarObservacion',
+            type: 'POST',
+            data: {
+                "CodArticulo": codArticulo,
+                "RegistroSanitario": registroSanitario,
+                "Descripcion": $('#Observacion').val(),
+                "CodLaboratorio": $('#CodLaboratorio').val()
+            }
+        }).done(function (response) {
+            Swal.fire({
+                title: response.Mensaje,
+                text: "Actualizando información...",
+                allowEscapeKey: false,
+                allowOutsideClick: false,
+                showConfirmButton: false
+            });
+
+            $('#modalInfo').modal('hide');
+            $('#div_listado').load(`@Url.Action("ListarRegistrosSanitarios")?${window.location.search.substring(1)}`).fadeIn("fast");
+
+            // Ocultar el mensaje después de 6 segundos
+            setTimeout(function () {
+                Swal.close();
+            }, 6000); // tiempo en milisegundos
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            console.log(jqXHR.status + textStatus + errorThrown);
+        });
+    }
+</script>

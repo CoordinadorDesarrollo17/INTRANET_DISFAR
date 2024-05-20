@@ -1,0 +1,45 @@
+﻿@using Capa_Entidad.Ventas_ENT.Formularios
+@{
+    Layout = null;
+    FrmAnCtVentas_E frm = (FrmAnCtVentas_E)ViewBag.frm;
+    var jss = new System.Web.Script.Serialization.JavaScriptSerializer();
+    var InfoJson = jss.Serialize(frm);
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>AnCtVentas</title>
+    <link href="~/Content/bootstrap3.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/icomoon/style.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/Scripts/bootstrap3.min.js"></script>
+    <script src="~/Scripts/Frameworks/sweetalert2@11.js"></script>
+    <script>
+        function rpt(action,caja) {
+            $('#'+caja).html('<img src="/imagenes/index/ReportesDigemid/cargando.gif" />');
+            var parametros = JSON.parse('@Html.Raw(InfoJson)');
+            $.ajax('/Ventas/'+action,
+                {
+                    data: parametros,
+                    dataType: 'html',
+                    cache: false,
+                    type: 'post'
+                })
+                .done(function (response) {
+                    $('#' + caja).html(response);
+                });
+        }
+    </script>
+</head>
+<body onload="rpt('RptAnCtVentas', 'rpt1');
+    setTimeout(function () { rpt('RptAnCtVentas2', 'rpt2'); $('iframe').css('height', '500px');$('iframe').css('width', '1100px'); }, 11000);">
+    <div id="rpt1" >
+    </div>
+    
+    <div id="rpt2" >
+    </div>
+</body>
+</html>

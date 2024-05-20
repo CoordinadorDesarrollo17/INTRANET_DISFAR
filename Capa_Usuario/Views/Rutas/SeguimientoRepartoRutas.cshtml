@@ -1,0 +1,500 @@
+﻿@model Capa_Entidad.Rutas_ENT.TablasSql.ORRU_E
+@using Capa_Entidad.Rutas_ENT.TablasSql
+@{
+    ViewBag.Title = "SeguimientoRepartoRutas";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    #Detalles input, #Detalles textarea, #Detalles td {
+        font-size: 12px;
+    }
+</style>
+<script>
+    function abrirModalImp(docEntryRuta, docEntryTicket) {
+        var modalId = "ModalImpresion" + docEntryTicket;
+        if ($("#" + modalId).length) {
+            // Si el modal ya existe, solo lo mostramos
+            $("#" + modalId).modal('show');
+        } else {
+            crearModal(docEntryRuta, docEntryTicket, function (htmlTableDocumentos) {
+                var docNum = docEntryTicket + 2000000000;
+                var modalHtml = "<div class='modal' id='" + modalId + "' tabindex='-1' role='dialog' aria-labelledby='" + modalId + "Label' aria-hidden='true'>" +
+                    "<div class='modal-dialog modal-dialog-centered modal-lg' role='document'>" +
+                    "<div class='modal-content'>" +
+                    "<div class='modal-header bg-cobefar text-white'>" +
+                    "<h5 class='modal-title' id='" + modalId + "Label'>COMPROBANTES ELECTRÓNICOS IMPRIMIBLES <br>NroTicket : " + docNum + "</h5>" +
+                    "<button type='button' class='close' data-dismiss='modal' aria-label='Close'>" +
+                    "<span aria-hidden='true'>&times;</span>" +
+                    "</button>" +
+                    "</div>" +
+                    "<div class='modal-body'>" +
+                    htmlTableDocumentos +
+                    "</div>" +
+                    "<div class='modal-footer'>" +
+                    "<button type='button' class='btn btn-secondary' data-dismiss='modal'>Cerrar</button>" +
+                    "<button type='button' class='btn btn-blue' id='btnImp" + docEntryTicket + "' onclick='ImprimirMasivamenteDocumentos(" + docEntryTicket + ",\"" + modalId + "\")'>" +
+                    "<i class=''icon icon-printer'> </i> Imprimir todo" +
+                    "</button>" +
+                    "</div>" +
+                    "</div>" +
+                    "</div>" +
+                    "</div>";
+                $("body").append(modalHtml);
+                $("#" + modalId).modal('show');
+            });
+        }
+    } 
+    function crearModal(docEntryRuta, docEntryTicket,callback){
+        //buscar documentos comprobantes desde RRU01
+        if (docEntryRuta >0 && docEntryTicket >0) {
+            var parametros = { "DocEntryTicket": docEntryTicket };
+            $.ajax({
+                url: '/Rutas/buscarDocumentosRuta',
+                data: parametros,
+                dataType: 'html',
+                cache: false,
+                type: 'post'
+            })
+                .done(function (response) {
+                    // Llama al callback y pasa el resultado de la solicitud AJAX como argumento
+                    callback(response);
+                });
+        }
+    }
+    //function ImprimirUnitarioDocumento(NumAtCard, DocNumTicket) {
+    //    var parametros = {
+    //        "NumAtCard": NumAtCard,
+    //        "DocNumTicket": DocNumTicket
+    //    };
+    //    return new Promise(function (resolve, reject) {
+    //        $.ajax({
+    //            url: '/Rutas/PdfComprobanteSap',
+    //            data: parametros,
+    //            dataType: 'json',
+    //            cache: false,
+    //            type: 'post'
+    //        }).done(function (response) {
+    //            resolve(); // Resolvemos la promesa una vez que la impresión unitaria se haya completado, esto genera que no salten mensajes de exito por cada documento impreso sino uno al final para todos
+    //        }).fail(function (error) {
+    //            reject(error); // Rechazamos la promesa en caso de error
+    //        });
+    //    });
+    //}
+    function ImprimirUnitarioDocumento(NumAtCard, DocNumTicket, Masivo) {
+        return new Promise(function (resolve, reject) {
+           /* if (Masivo == false) {
+                var loadingSwal = Swal.fire({
+                    title: 'Imprimiendo...',
+                    text: 'Por favor, espera mientras se imprime el documento.',
+                    imageUrl: '/imagenes/index/ReportesDigemid/impresion.gif',
+                    imageWidth: 500,
+                    imageHeight: 400,
+                    allowEscapeKey: false,
+                    allowOutsideClick: false,
+                    showConfirmButton: false
+                });
+            }*/
+            var MensajeImpresion = "";
+            var parametros = {
+                "NumAtCard": NumAtCard,
+                "DocNumTicket": DocNumTicket,
+                "Impresora": $("#Impresora").val()
+            };
+            $.ajax({
+                url: '/Rutas/PdfComprobanteSap',
+                data: parametros,
+                dataType: 'json',
+                cache: false,
+                type: 'post'
+            }).done(function (response) {
+                MensajeImpresion = response.Mensaje;
+                if (Masivo) {
+                    if (MensajeImpresion != "" && MensajeImpresion != "undefined") {
+                        resolve(MensajeImpresion);
+                    } else {
+                        resolve(null);
+                    }
+                } else {
+                    if (MensajeImpresion != "" && MensajeImpresion != "undefined") {
+                       // loadingSwal.close();
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Aviso de impresión',
+                            text: 'Se termino la impresión. ' + MensajeImpresion,
+                            showConfirmButton: true
+                        }).then(function () {
+                            resolve('success');
+                        });
+
+                    }
+                    /**else {
+                        loadingSwal.close();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Aviso de impresión',
+                            text: 'Se imprimió el documento. ',
+                            showConfirmButton: true
+                        }).then(function () {
+                            resolve('success');
+                        });
+
+                    }*/
+                }
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                reject(textStatus || errorThrown);
+            });
+        });
+    }
+    async function ImprimirMasivamenteDocumentos(docEntryTicket, idModal) {
+        if (docEntryTicket > 0) {
+            var parametros = { "DocEntryTicket": docEntryTicket };
+            var MensajeImpresionMasivo = null;
+            /*
+            Swal.fire({
+                title: 'Imprimiendo...',
+                text: 'Por favor, espera mientras se imprimen los documentos.',
+                imageUrl: '/imagenes/index/ReportesDigemid/impresion.gif',
+                imageWidth: 500,
+                imageHeight: 400,
+                allowEscapeKey: false,
+                allowOutsideClick: false,
+                showConfirmButton: false
+            });
+            */
+            $('#btnImp' + docEntryTicket).prop('disabled', true);
+
+            try {
+                var response = await $.ajax({
+                    url: '/Rutas/buscarComprobantesTicket',
+                    data: parametros,
+                    dataType: 'json',
+                    cache: false,
+                    type: 'post'
+                });
+
+                var DocNumTicket = docEntryTicket + 2000000000;
+
+                for (const correlativo of response) {
+                    try {
+                        await ImprimirUnitarioDocumento(correlativo, DocNumTicket, true);
+                    } catch (error) {
+                        console.error("Error ImprimirUnitarioDocumento:", error);
+                        $('#btnImp' + docEntryTicket).prop('disabled', false);
+                    }
+                }
+
+                $('#' + idModal).modal('hide');
+                $('#btnImp' + docEntryTicket).prop('disabled', false);
+
+            } catch (error) {
+                console.error("Error ImprimirMasivamenteDocumentos:", error);
+                $('#btnImp' + docEntryTicket).prop('disabled', false);
+                MensajeImpresionMasivo = "Error en la impresión masiva: " + error;
+            } finally {
+              //  Swal.close(); // Cierra alerta con imagen de impresión
+                if (MensajeImpresionMasivo != null && MensajeImpresionMasivo != "") {
+                    Swal.fire({
+                        icon: 'warning',
+                        text: 'Los documentos se han impreso exitosamente. ' + MensajeImpresionMasivo,
+                        showConfirmButton: false,
+                        timer: 3000,
+                    });
+                } /*else {
+                    Swal.fire({
+                        icon: 'success',
+                        text: 'Los documentos se han impreso exitosamente. ',
+                        showConfirmButton: false,
+                        timer: 2000,
+                    });
+                }*/
+            }
+        }
+    }
+
+    </script>
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("ListadoRepartos", "Rutas")">Listado de repartos</a></li>
+            <li class="current"><em>Seguimiento de @ViewBag.Vista.ToLower()</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">SEGUIMIENTO DE @ViewBag.Vista</h3></div>
+</div>
+
+<div class="bg-form-pestanas-cobefar">
+    <div class="bg-section-form p-4 bg-form-cobefar">
+        <form>
+            @*<div class="row">
+                <div class="col-lg-3">
+                    <label for="Impresora" class="text-dark form-label font-weight-bold font-18">Impresora: </label>
+                    <select id="Impresora" class="form-control bg-cobefar text-white">
+                        <option value="">Seleccione</option>
+                        <option value="DESPACHO">Despacho</option>
+                        <option value="DESPACHO_1">Despacho 1</option>
+                        <option value="DESPACHO_2">Despacho 2</option>
+                        <option value="DESPACHO_3">Despacho 3</option>
+                    </select>
+                </div>
+            </div>*@
+            <div class="row">
+                <div class="col-lg-2">
+                    <label for="DocNum" class="text-dark form-label font-weight-bold font-18">Nro Ruta:</label>
+                    @Html.EditorFor(model => model.DocNum, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                </div>
+
+                <div class="col-lg-2">
+                    <label class="text-dark form-label font-weight-bold font-18">Estado:</label>
+                    @Html.EditorFor(model => model.Estado, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                </div>
+
+                <div class="col-lg-2">
+                    <label class="text-dark form-label font-weight-bold font-18">Tipo Ruta:</label>
+                    @Html.EditorFor(model => model.TipoRuta, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                </div>
+
+                <div class="col-lg-4">
+                    <label class="text-dark form-label font-weight-bold font-18">Chofer:</label>
+                    @Html.EditorFor(model => model.TransDesc, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-2">
+                    <label class="text-dark form-label font-weight-bold font-18">Serie T1:</label>
+                    @Html.EditorFor(model => model.SerieT1, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                </div>
+
+                <div class="col-lg-2">
+                    <label class="text-dark form-label font-weight-bold font-18">Serie T2:</label>
+                    @Html.EditorFor(model => model.SerieT2, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                </div>
+
+                <div class="col-lg-2">
+                    <label class="text-dark form-label font-weight-bold font-18">Total Cajas:</label>
+                    <input type="text" value="@Model.TotCajas()" class="form-control text-center border-success" readonly />
+                </div>
+
+
+
+                <div class="col-lg-2">
+                    <label class="text-dark form-label font-weight-bold font-18">Vehículo:</label>
+                    @Html.EditorFor(model => model.VehiculoCod, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                </div>
+
+                <div class="col-lg-2">
+                    <label class="text-dark form-label font-weight-bold font-18">Placa:</label>
+                    @Html.EditorFor(model => model.Placa, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                </div>
+            </div>
+
+
+            @if (Model.TipoRuta != "AC")
+            {
+                <div class="row mt-4">
+                    <div class="col-lg-3">
+                        <label class="text-dark form-label font-weight-bold font-18">Copiloto1:</label>
+                        @Html.EditorFor(model => model.CopilDesc, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                    </div>
+
+                    <div class="col-lg-3">
+                        <label class="text-dark form-label font-weight-bold font-18">Copiloto2:</label>
+                        @Html.EditorFor(model => model.Copil2Desc, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                    </div>
+
+                    <div class="col-lg-3">
+                        <label class="text-dark form-label font-weight-bold font-18">Copiloto3:</label>
+                        @Html.EditorFor(model => model.Copil3Desc, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                    </div>
+                    <div class="col-lg-3">
+                        <label class="text-dark form-label font-weight-bold font-18">Copiloto4:</label>
+                        @Html.EditorFor(model => model.Copil4Desc, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                    </div>
+                </div>
+            }
+
+            <div class="row mt-4">
+                <div class="col-lg-2">
+                    <label class="text-dark form-label font-weight-bold font-18">Fecha Cont:</label>
+                    <input type="text" id="FechaCont" name="FechaCont" class="form-control text-center border-success" value="@String.Format("{0:dd/MM/yyyy}", Model.FechaCont)" readonly />
+                </div>
+
+                <div class="col-lg-2">
+                    <label class="text-dark form-label font-weight-bold font-18">Fecha Doc:</label>
+                    <input type="text" id="FechaDoc" name="FechaDoc" class="form-control text-center border-success" value="@String.Format("{0:dd/MM/yyyy}", Model.FechaDoc)" readonly />
+                </div>
+
+                <div class="col-lg-2">
+                    <label class="text-dark form-label font-weight-bold font-18">Almacén Origen:</label>
+                    @Html.EditorFor(model => model.AlmOrigenDesc, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                </div>
+
+                <div class="col-lg-2">
+                    <label class="text-dark form-label font-weight-bold font-18">Almacén Destino:</label>
+                    @Html.EditorFor(model => model.AlmDestinoDesc, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                </div>
+
+                <div class="col-lg-4">
+                    <label class="text-dark form-label font-weight-bold font-18">Propietario:</label>
+                    @Html.EditorFor(model => model.Propietario, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-3">
+                    <label class="text-dark form-label font-weight-bold font-18">TiempoPac:</label>
+                    @Html.EditorFor(model => model.TiempoPac, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                </div>
+
+                <div class="col-lg-9">
+                    <label class="text-dark form-label font-weight-bold font-18">Observaciones:</label>
+                    @Html.EditorFor(model => model.Observaciones, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-3">
+                    <label class="text-dark form-label font-weight-bold font-18">TiempoIniEn:</label>
+                    @Html.EditorFor(model => model.TiempoIniEn, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                </div>
+                <div class="col-lg-3">
+                    <label class="text-dark form-label font-weight-bold font-18">Operario Inicio:</label>
+                    @Html.EditorFor(model => model.OpInicio, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                </div>
+
+                <div class="col-lg-3">
+                    <label class="text-dark form-label font-weight-bold font-18">TiempoTerEn:</label>
+                    @Html.EditorFor(model => model.TiempoTerEn, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                </div>
+
+                <div class="col-lg-3">
+                    <label class="text-dark form-label font-weight-bold font-18">Operario Termino:</label>
+                    @Html.EditorFor(model => model.OpTermino, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                </div>
+            </div>
+
+            <div class="table-responsive mt-4 bg-dark pt-4">
+                <table id="Detalles" class="table table-light table-md table-hover" cellspacing="0" width="100%">
+                    <thead class="bg-success">
+                        <tr>
+                            <th class="text-center">#</th>
+                            <th class="text-center">Socio</th>
+                            <th class="text-center">Ticket</th>
+                            <th class="text-center">Guias</th>
+                            <th class="text-center">Cajas</th>
+                            <th class="text-center">Obs</th>
+                            <th class="text-center">Direccion</th>
+                            <th class="text-center">MontoFinal</th>
+                            <th class="text-center">Envio</th>
+                            <th class="text-center">Estado</th>
+                            <th class="text-center">TempI1</th>
+                            <th class="text-center">TempI2</th>
+                            <th class="text-center">HumedI1</th>
+                            <th class="text-center">HumedI2</th>
+                            <th class="text-center">TempF1</th>
+                            <th class="text-center">TempF2</th>
+                            <th class="text-center">HumedF1</th>
+                            <th class="text-center">HumedF2</th>
+                            <th class="text-center">OpEnt</th>
+                            <th class="text-center">TiempoEnt</th>
+                            <th class="text-center">ImgEvidencia</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    @if (Model.TipoRuta == "TA")
+                    {
+                        if (Model.DetRRU1 != null)
+                        {
+                            <tbody class="table-light">
+                                @foreach (RRU1_E dt in Model.DetRRU1)
+                                {
+                                    <tr>
+                                        <td class="text-center">@Html.DisplayFor(model => dt.Linea)</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td class="text-center">@Html.DisplayFor(model => dt.Guia)</td>
+                                        <td class="text-center">@Html.DisplayFor(model => dt.Cajas)</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td class="text-center">@Html.DisplayFor(model => dt.Estado)</td>
+                                        <td class="text-center">@Html.DisplayFor(model => dt.TempI1)</td>
+                                        <td class="text-center">@Html.DisplayFor(model => dt.TempI2)</td>
+                                        <td class="text-center">@Html.DisplayFor(model => dt.HumedI1)</td>
+                                        <td class="text-center">@Html.DisplayFor(model => dt.HumedI2)</td>
+                                        <td class="text-center">@Html.DisplayFor(model => dt.TempF1)</td>
+                                        <td class="text-center">@Html.DisplayFor(model => dt.TempF2)</td>
+                                        <td class="text-center">@Html.DisplayFor(model => dt.HumedF1)</td>
+                                        <td class="text-center">@Html.DisplayFor(model => dt.HumedF2)</td>
+                                        <td class="text-center">@Html.DisplayFor(model => dt.OpEntrega)</td>
+                                        <td class="text-center">@Html.DisplayFor(model => dt.FechaEntrega)</td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        }
+                    }
+                    else
+                    {
+                        if (Model.DetRRU0 != null)
+                        {
+                            <tbody class="table-light">
+                                @foreach (RRU0_E dt in Model.DetRRU0)
+                                {
+                                    string styleLiberado = "";
+                                    if (dt.Estado.Equals("LIBERADO") || dt.Estado.Equals("ANULADO"))
+                                    {
+                                        styleLiberado = "bg-danger text-white";
+                                    }
+                                    <tr class="@styleLiberado">
+                                        <td class="text-center">@Html.DisplayFor(model => dt.Linea)</td>
+                                        <td>@Html.DisplayFor(model => dt.Socio)</td>
+                                        <td class="text-center">@Html.DisplayFor(model => dt.DocEntryTicket)</td>
+                                        <td class="text-center">@Html.DisplayFor(model => dt.Guias)</td>
+                                        <td class="text-center">@Html.DisplayFor(model => dt.Cajas)</td>
+                                        <td class="text-center">@Html.DisplayFor(model => dt.Observaciones)</td>
+                                        <td class="text-center">@Html.DisplayFor(model => dt.Direcciones)</td>
+                                        <td class="text-center">S/ @Html.DisplayFor(model => dt.MontoFinal)</td>
+                                        <td class="text-center">S/ @Html.DisplayFor(model => dt.Envio)</td>
+                                        <td class="text-center">@Html.DisplayFor(model => dt.Estado)</td>
+                                        <td class="text-center">@Html.DisplayFor(model => dt.TempI1)</td>
+                                        <td class="text-center">@Html.DisplayFor(model => dt.TempI2)</td>
+                                        <td class="text-center">@Html.DisplayFor(model => dt.HumedI1)</td>
+                                        <td class="text-center">@Html.DisplayFor(model => dt.HumedI2)</td>
+                                        <td class="text-center">@Html.DisplayFor(model => dt.TempF1)</td>
+                                        <td class="text-center">@Html.DisplayFor(model => dt.TempF2)</td>
+                                        <td class="text-center">@Html.DisplayFor(model => dt.HumedF1)</td>
+                                        <td class="text-center">@Html.DisplayFor(model => dt.HumedF2)</td>
+                                        <td class="text-center">@Html.DisplayFor(model => dt.OpEntrega)</td>
+                                        <td class="text-center">@Html.DisplayFor(model => dt.FechaEntrega)</td>
+                                        <td class="text-center">
+                                            @if (dt.Estado == "ENTREGADO")
+                                            {
+                                                <a href="@Url.Action("EvidenciaReparto", "Rutas", new { DocEntry = dt.DocEntryTicket,TipoRuta="Ventas"} )" class="btn btn-primary">ImgEvidencia</a>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (dt.Estado != "ANULADO" && dt.Estado != "LIBERADO")
+                                            {<button type="button" class="btn btn-warning btn-sm" onclick="abrirModalImp(@Model.DetRRU0[0].DocEntry,@dt.DocEntryTicket)"><i class="icon icon-printer"></i></button>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        }
+                    }
+
+                </table>
+                <br />
+            </div>
+        </form>
+    </div>
+
+</div>

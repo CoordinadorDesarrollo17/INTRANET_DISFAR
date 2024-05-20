@@ -1,0 +1,66 @@
+﻿@model Capa_Entidad.General_ENT.TablasSql.DNLAB_E
+@using Capa_Entidad.General_ENT.TablasSql
+
+@{
+    ViewBag.Title = "RegistroDNLAB";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<DNLAB_E> lista = (List<DNLAB_E>)ViewBag.Listado;
+}
+<h4>REGISTRO DE DÍAS NO LABORABLES</h4>
+
+<a style="float:left" href="@Url.Action("Sesion", "Index")" class="btn btn-light">
+    <span><strong>Volver Atras</strong></span>
+</a>
+<br />
+<br />
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.Label("Seleccione dia no laborable")
+            <div class="col-md-4">
+                <div><input id="Fecha" type="date" name="Fecha" value="" class="form-control" /></div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div id="accion">
+                <input type="submit" value="Guardar" class="btn btn-success" />
+            </div>
+            <div id="accion">
+                <input type="button" value="Ver Listado" data-toggle="modal" data-target="#exampleModal" class="btn btn-info" />
+            </div>
+
+        </div>
+        <br /> <br />
+    </div>
+}
+
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Registro actual de Dias No Laborables</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @foreach (DNLAB_E obj in lista)
+                {<p style="font-size:11px">@obj.Fecha</p>}
+            </div>
+        </div>
+    </div>
+</div><br /><br /><br /><br />
+
+<script>
+    if ('@ViewBag.Mensaje' != "") {
+        swal.fire({
+            title: "@ViewBag.Mensaje",
+            text: "Presione OK para continuar"
+        })
+    };
+
+</script>

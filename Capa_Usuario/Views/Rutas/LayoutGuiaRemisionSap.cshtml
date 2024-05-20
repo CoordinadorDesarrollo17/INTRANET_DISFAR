@@ -1,0 +1,209 @@
+﻿@model IEnumerable<Capa_Entidad.Almacen_ENT.Tablas.Guia_Remision_E>
+
+@{
+    Layout = null;
+    var Cab = Model.ToList()[0];
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LayoutGuiaRemisionSap</title>
+    <style>
+        * {
+            /* font-family: 'Verdana';*/ font-family: 'Arial Unicode MS';
+        }
+        .page-break {
+            page-break-before: always;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        td, th {
+            padding: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        @if (ViewBag.Tipo == "T")
+        {
+            <div style="width: 100%; display: inline-block; border: 2px solid green; vertical-align: top; padding: 5px; border-radius: 15px; margin-bottom: 15px; box-sizing: border-box; ">
+                <table style="font-size:12px;text-align:left" border="0">
+                    <tr>
+                        <td style="width:180px"><strong>Motivo de traslado : </strong></td>
+                        <td>Traslado entre establecimientos de la misma empresa</td>
+                        <td><strong>Direc. Punto partida : </strong></td>
+                        <td>@Cab.DirSalida<br /></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Modalidad de traslado :</strong></td>
+                        <td style="width:180px">Transporte privado</td>
+                        <td><strong>Direc. Punto llegada : </strong></td>
+                        <td>@Cab.DirLlegada</td>
+                    </tr>
+                </table>
+            </div>
+        }
+        else if (ViewBag.Tipo == "E")
+        {
+            <div style="width: 100%; display: inline-block; border: 2px solid green; vertical-align: top; padding: 5px; border-radius: 15px; margin-bottom: 15px; box-sizing: border-box; ">
+                <table style="font-size:11px;text-align:left" border="0">
+                    <tr>
+                        <td style="width:150px"><strong>Motivo de traslado :</strong> </td>
+                        <td>Venta</td>
+                        <td><strong>Direc. Punto partida :</strong> </td>
+                        <td>@Cab.DirSalida</td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-3"><strong>Modalidad de traslado : </strong> </td>
+                        <td style="width:150px">Transporte privado</td>
+                        <td><strong>Direc. Punto llegada :</strong> </td>
+                        <td>@Cab.DirCliente</td>
+                    </tr>
+                </table>
+            </div>
+        }
+        <div style="width: 100%; display: inline-block; border: 2px solid green; vertical-align: top; padding: 5px; border-radius: 15px; margin-bottom: 15px; box-sizing: border-box; ">
+            <table style="font-size:11px;text-align:left" border="0">
+                <tr><td colspan="3"><strong>DATOS DEL CONDUCTOR Y UNIDAD DE TRANSPORTE:</strong></td></tr>
+                <tr>
+                    <td><strong>Conductor :</strong> </td>
+                    <td>@Cab.Conductor</td>
+                    <td><strong>Marca : </strong></td>
+                    <td>@Cab.Marca</td>
+                </tr>
+                <tr>
+                    <td><strong>DNI : </strong></td>
+                    <td>@Cab.DNI_Conduc</td>
+                    <td><strong>Placa : </strong></td>
+                    <td>@Cab.Placa</td>
+                </tr>
+                <tr>
+                    <td><strong>LICENCIA : </strong> </td>
+                    <td>@Cab.Licencia</td>
+                    <td><strong>RUC : </strong></td>
+                    <td>@Cab.RucTransportista</td>
+                </tr>
+                <tr>
+                    <td colspan="2"> </td>
+                    <td><strong>Razón social :</strong></td>
+                    <td></td>
+                </tr>
+            </table>
+        </div>
+
+        <table border="1" style="font-size:11px;">
+            @*@{*@
+                <tr>
+                    <th style="width: 60px;">CANT.</th>
+                    <th style="width: 400px;">DESCRIPCION</th>
+                    <th style="width: 50px;">LAB.</th>
+                    <th style="width: 50px;">LOTE</th>
+                    <th style="width: 70px;">FECHA<br /> VC.</th>
+                    <th style="width: 60px;">UNID.</th>
+                </tr>
+                @foreach (var item in Model)
+                {
+                <tr style="text-align:center; page-break-inside: avoid;">
+                    <td style="width: 60px;">
+                        @Math.Round(item.cantVta(), 0)
+                        @item.UM()
+                    </td>
+                    <td style="width: 400px; text-align:left !important;">
+                        @Html.DisplayFor(modelItem => item.DescripcionArticulo)
+                    </td>
+                    <td style="width: 50px;">
+                        @Html.DisplayFor(modelItem => item.Laboratorio)
+                    </td>
+                    <td style="width: 50px;">
+                        @Html.DisplayFor(modelItem => item.LoteNum)
+                    </td>
+                    <td style="width: 70px;">
+                        @Html.DisplayFor(modelItem => item.VctoLote)
+                    </td>
+                    <td style="width: 60px;">
+                        @Html.DisplayFor(modelItem => item.UniMedida)
+                    </td>
+                </tr>
+                }
+                @*
+                    var counter = 0;
+
+
+                    foreach (var item in Model)
+                    {
+                        if (counter % 33 == 0)
+                        {
+                            if (counter != 0)
+                            { @Html.Raw("</table><div class='page-break' ></div><table border='1' style='font-size:11px;'> <tr>\r\n                <th style=\"width: 60px;\">CANT.</th>\r\n                <th style=\"width: 400px;\">DESCRIPCION</th>\r\n                <th style=\"width: 50px;\">LAB.</th>\r\n                <th style=\"width: 50px;\">LOTE</th>\r\n                <th style=\"width: 70px;\">FECHA<br /> VC.</th>\r\n                <th style=\"width: 60px;\">UNID.</th>\r\n            </tr>")
+
+                        }
+
+                    }
+                    else
+                    {
+                    <tr style="text-align:center; page-break-inside: avoid;">
+                        <td style="width: 60px;">
+                            @Math.Round(item.cantVta(), 0)
+                            @item.UM()
+                        </td>
+                        <td style="width: 400px; text-align:left !important;">
+                            @Html.DisplayFor(modelItem => item.DescripcionArticulo)
+                        </td>
+                        <td style="width: 50px;">
+                            @Html.DisplayFor(modelItem => item.Laboratorio)
+                        </td>
+                        <td style="width: 50px;">
+                            @Html.DisplayFor(modelItem => item.LoteNum)
+                        </td>
+                        <td style="width: 70px;">
+                            @Html.DisplayFor(modelItem => item.VctoLote)
+                        </td>
+                        <td style="width: 60px;">
+                            @Html.DisplayFor(modelItem => item.UniMedida)
+                        </td>
+                    </tr>
+                }
+
+               counter++;
+            }
+
+                }*@
+            </table>
+        <table style="font-size:11px;margin-top:20px;" border="0">
+            <tr>
+                <td>
+                    @if (ViewBag.Tipo == "T")
+                    {<strong>N° Bultos : </strong>@Cab.Bulto}
+                else if (ViewBag.Tipo == "E")
+                {
+                    <strong>Encargado de recojo :</strong> @Cab.Texto}
+                </td>
+            </tr>
+
+            <tr>
+                <td style="padding:20px;font-size:11px;margin-right:10%">
+                    <div style="border: 2px solid black; border-radius: 5px; padding: 10px; text-align:center">
+                        Una vez salida la mercaderia del almacen no hay lugar a
+                        reclamo o devolucion, los gastos o riesgos de transporte
+                        corren por cuenta del cliente.
+                    </div>
+                </td>
+                <td style="padding: 0px 5px 0px 15px; font-size: 11px;width:50%">
+                    <p>
+                        Representación impresa -Guia de Remisión Electronica.
+                        Consultada de comprobante https://www.cobefar.com.pe/
+                        http://181.224.227.28/fe/
+                    </p>
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>
+
+
+

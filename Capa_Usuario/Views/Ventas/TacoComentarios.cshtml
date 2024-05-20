@@ -1,0 +1,251 @@
+﻿@model Capa_Entidad.Ventas_ENT.TablasSql.ORTV_E
+@using Capa_Entidad.Ventas_ENT.TablasSql
+@{
+    Layout = null;
+    string fondo = "";
+    if (Model.LugarDestino == "Centro")
+    {
+        fondo = "#90FBED";
+    }
+    else if (Model.LugarDestino == "Agencia" || Model.LugarDestino == "Agencia Courier" || Model.LugarDestino == "Domicilio")
+    {
+        fondo = "#F3FF00";
+    }
+    else if (Model.LugarDestino == "Arriola")
+    {
+        fondo = "#FD932A";
+    }
+}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" charset="utf-8" />
+    <title>TacoComentarios</title>
+</head>
+<body>
+    <table border="1" width="100%">
+        <tr><th colspan="2">TacoComentarios</th></tr>
+        <tr style="background:@fondo">
+            <td width="30%"><strong>@Html.DisplayNameFor(model => model.DocNum): </strong></td>
+            <td width="75%">@Html.DisplayFor(model => model.DocNum)</td>
+        </tr>
+        <tr style="background:@fondo">
+            <td><strong>@Html.DisplayNameFor(model => model.CardName): </strong></td>
+            <td>@Html.DisplayFor(model => model.CardName)</td>
+        </tr>
+        <tr style="background:@fondo">
+            <td><strong>@Html.DisplayNameFor(model => model.TiempoEntrega): </strong></td>
+            <td>@Convert.ToDateTime(Model.TiempoEntrega).ToString("dd/MM/yyyy hh:mm tt")</td>
+        </tr>
+        <tr style="background:@fondo">
+            <td><strong>@Html.DisplayNameFor(model => model.MontoTotal): </strong></td>
+            <td>S/ @Html.DisplayFor(model => model.MontoTotal)</td>
+        </tr>
+        <tr style="background:@fondo">
+            <td><strong>OrdenesVenta(@Model.Det2.Count()): </strong></td>
+            <td>
+                @foreach (RTV2_E d in Model.Det2)
+                {
+                    @(d.NroSap + ", ")
+                }
+            </td>
+        </tr>
+        <tr style="background:@fondo">
+            <td><strong>@Html.DisplayNameFor(model => model.Embalaje): </strong></td>
+            @if (Model.Embalaje != null)
+            {
+                if (Model.Embalaje.Equals("CP"))
+                {
+                    <td>Caja provincia</td>
+                }
+                else if (Model.Embalaje.Equals("CL"))
+                {
+                    <td>Caja lima</td>
+                }
+            }
+        </tr>
+        <tr style="background:@fondo">
+            <td><strong>@Html.DisplayNameFor(model => model.LugarDestino): </strong></td>
+            <td>@Html.DisplayFor(model => model.LugarDestino)</td>
+        </tr>
+        <tr>
+            <td><strong>@Html.DisplayNameFor(model => model.Vendedor): </strong></td>
+            <td>@Html.DisplayFor(model => model.Vendedor)</td>
+        </tr>
+        <tr style="background:@fondo">
+            <td><strong>@Html.DisplayNameFor(model => model.Observaciones): </strong></td>
+            <td width="50%">@Html.DisplayFor(model => model.Observaciones)/@Html.DisplayFor(model => model.Observaciones3)</td>
+        </tr>
+        <tr>
+            <td><strong>Vinculación de ticket(s): </strong></td>
+            <td>
+                @if (Model.Det7 != null && Model.Det7.Count > 0)
+                {
+                    // Obtener una lista de todos los valores de DocNumVinc
+                    var docNumVincList = Model.Det7.Select(dt => dt.DocNumVinc).ToList();
+
+                    var docNumVincConcatenado = string.Join(",", docNumVincList);
+
+                    <p>@docNumVincConcatenado</p>
+                }
+
+            </td>
+                </tr>
+                <tr>
+                    <td><strong>Sacador:</strong></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><strong>Chequeador: </strong></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><strong>Encajador: </strong></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><strong>TiempoChequeo(f/h): </strong></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><strong># Mesa: </strong></td>
+                    <td></td>
+                </tr>
+                @if (Model.LugarDestino != null && !(Model.LugarDestino.Equals("Agencia") || Model.LugarDestino.Equals("Agencia Courier") || Model.LugarDestino.Equals("Domicilio")))
+                {
+                    <tr>
+                        <td><strong>Nombre: <br />Doc. Ident.: <br />Firma: </strong></td>
+                        <td></td>
+                    </tr>
+                }
+
+                @if (Model.LugarDestino != "Centro" && Model.Det3 != null && Model.Det3.Count >= 2)
+                {
+                    if (!string.IsNullOrEmpty(Model.Det3[1].Calle) && Model.Det3[1].Calle.Length > 0)
+                    {
+                        if (Model.LugarDestino == "Agencia" || Model.LugarDestino == "Agencia Courier")
+                        {
+                            if (Model.EnvioAgencia == "Oficina de agencia")
+                            {
+                                <tr>
+                                    <td colspan="2">
+                                        @Model.Det3[1].Distrito-@Model.Det3[1].Provincia-@Model.Det3[1].Departamento
+                                        @if (Model.Referencia != null)
+                                        {<b>REF.: Model.Referencia.ToUpper()</b>}
+                                        else if (Model.Det3[1].Calle != null)
+                                        { @Model.Det3[1].Calle.ToUpper()}
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="2">
+                                        @Model.Det3[1].Calle  @if (Model.Referencia != null)
+                                        {<b>REF.:Model.Referencia.ToUpper()</b>}
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+
+                            if (Model.EnvioAgencia == "Oficina de agencia")
+                            {
+                                if (Model.Det3 != null && Model.Det3.Count > 0)
+                                {
+                                    <tr>
+                                        <td colspan="2">@Model.Det3[0].Distrito - @Model.Det3[0].Provincia - @Model.Det3[0].Departamento </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                if (Model.Det3 != null && Model.Det3.Count > 1)
+                                {
+                                    <tr>
+                                        <td colspan="2">@Model.Det3[1].Distrito - @Model.Det3[1].Provincia - @Model.Det3[1].Departamento </td>
+                                    </tr>
+                                }
+                            }
+                        }
+                    }
+
+                }
+                else if (!string.IsNullOrEmpty(Model.DirDestino) && Model.DirDestino.Length > 0)
+                {
+                    if (Model.LugarDestino == "Agencia" || Model.LugarDestino == "Agencia Courier")
+                    {
+                        if (Model.EnvioAgencia == "Oficina de agencia")
+                        {
+                            if (Model.Det3 != null && Model.Det3.Count > 0)
+                            {
+                                <tr>
+                                    <td colspan="2">
+                                        @Model.Det3[0].Distrito - @Model.Det3[0].Provincia - @Model.Det3[0].Departamento
+                                        @if (Model.Referencia != null)
+                                        {<b>REF.: @Model.Referencia.ToUpper()</b>}
+                                    </td>
+                                </tr>
+                            }
+
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="2">
+                                    @Model.DirDestino @if (Model.Referencia != null)
+                                    {<b>REF.: @Model.Referencia.ToUpper()</b>}
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        if (Model.EnvioAgencia == "Oficina de agencia")
+                        {
+                            if (Model.Det3 != null && Model.Det3.Count > 0)
+                            {
+                                <tr>
+                                    <td colspan="2">@Model.Det3[0].Distrito-@Model.Det3[0].Provincia-@Model.Det3[0].Departamento</td>
+                                </tr>
+                            }
+
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="2">@Model.DirDestino</td>
+                            </tr>
+                        }
+
+                    }
+                }
+
+                <tr>
+                    <td><strong>@Html.DisplayNameFor(model => model.Comentario): </strong></td>
+                    <td width="50%">@Html.DisplayFor(model => model.Comentario)</td>
+                </tr>
+
+                @if (Model.Det5 != null && Model.Det5.Count >= 1)
+                {
+                    if (Model.Det5[0].IdReg > 0)
+                    {
+                        string fondoReg = "";
+                        if (Model.Det5[0].RegTipo.ToLower() == "a") { fondoReg = "#C8E3F3"; }
+                        else if (Model.Det5[0].RegTipo.ToLower() == "b") { fondoReg = "#F2F526"; }
+                        else if (Model.Det5[0].RegTipo.ToLower() == "c") { fondoReg = "#F1EFDD"; }
+                        else if (Model.Det5[0].RegTipo.ToLower() == "navideno" || Model.Det5[0].RegTipo.ToLower() == "d") { fondoReg = "#D6B581"; }
+                        else if (Model.Det5[0].RegTipo.ToLower() == "donofrio") { fondoReg = "skyblue"; }
+                        <tr style="background:@fondoReg">
+                            <td>
+                                <strong>Regalo</strong>
+                            <td>@(Math.Round(Model.Det5[0].RegCant, 0) + " " + Model.Det5[0].RegCate + " " + Model.Det5[0].RegTipo)</td>
+                        </tr>
+                    }
+                }
+            </table>
+
+</body>
+</html>

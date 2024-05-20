@@ -1,0 +1,42 @@
+﻿
+@{
+    Layout = null;
+}
+<script>
+    $(document).ready(function () { });
+    function rpt() {
+        $('#Reporte').html('<img src="/imagenes/index/ReportesDigemid/cargando.gif" />');
+        var parametros = $("#frm").serialize();
+        $.ajax('/Ventas/RptVentVendDias',
+            {
+                data: parametros,
+                dataType: 'html',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                $('#Reporte').html(response);
+            });
+    }
+</script>
+<div class="container" style="padding: 2%; background-color: rgb(220, 220, 220);">
+    <h3 class="text-cobefar font-weight-bold text-center">VENTAS VENDEDOR DÍAS</h3>
+
+    <form id="frm">
+        @Html.AntiForgeryToken()
+
+        <div class="row mt-4">
+            <div class="col-lg-3">
+                <label for="Fecha" class="text-dark font-weight-bold font-18">Fecha Ticket:</label>
+                <input id="Fecha" name="Fecha" type="date" class="form-control border-success" />
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-6">
+                <button id="Generar" type="button" class="btn btn-success" onclick="rpt();"><i class="icon-checkmark"></i> Generar</button>
+            </div>
+        </div>
+
+    </form>
+</div>

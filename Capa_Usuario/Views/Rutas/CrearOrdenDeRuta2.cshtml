@@ -1,0 +1,457 @@
+﻿@model Capa_Entidad.Rutas_ENT.TablasSql.ORRU_E
+@using Capa_Entidad.General_ENT.TablasSql
+@{
+    ViewBag.Title = "CrearOrdenDeRuta";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<OWHS_E> lstOriDest = (List<OWHS_E>)ViewBag.ListaOrigenesDestinos;
+
+    String urlAction = Url.Action("ListadoRutas", "Rutas"), tituloListado = "Listado de rutas", tituloTipoRep = "";
+    if(ViewBag.TipoRep == "Re")
+        {
+        urlAction = Url.Action("ListadoRepartos", "Rutas");
+        tituloListado = "Listado de repartos";
+        tituloTipoRep = "Registrar Hoja de Reparto";
+    }else if (ViewBag.TipoRep == "Ru")
+    {
+        tituloTipoRep = "Registrar Hoja de Ruta";
+    }
+}
+<script>
+    $(document).ready(function () { });
+    var contDet = 0;
+
+    function seleccionarVerif() {
+        let chk = $('#chk_verifTodos').is(':checked');
+        if (chk) {
+            $('.cls-chkVerif').prop('checked', true);
+        } else {
+            $('.cls-chkVerif').prop('checked', false);
+        }
+    }
+
+    function enviarValSelect(idi, idf, attrf) {
+        $("#" + idf).val($("#" + idi + " option:selected").attr(attrf));
+    }
+    function enviarValList(idi, idList, idf, attrf) {
+        $("#" + idf).val($("#" + idList + " option[value='" + $("#" + idi).val() + "']").attr(attrf));
+    }
+    function stringNull(cad) {
+        if (cad == null || cad == "null") { return ""; }
+        else { return cad; }
+    }
+    function listarTickets() {
+        $("#TDocNum").val(""); $("#TSocio").val(""); $("#TDocEntry").val("");
+        $("#TGuias").val(""); $("#TCajas").val(""); $("#TObservaciones").val("");
+        $("#TMontoFinal").val(""); $("#TEnvio").val(""); $("#TDirecciones").val("");
+        $("#btnAgregar").css("display", "none");
+
+        var parametros = {
+            "FechaCont": $("#FechaCont").val(), "TipoRuta": $("#TipoRuta").val()
+        };
+        var contList = "";
+        $.ajax('/Rutas/JsonListaTickets',
+            {
+                data: parametros,
+                dataType: 'json',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                $.each(response, function (key, value) {
+                    contList += "<option value='" + value.DocNum + "' DocEntry=" +
+                        value.DocEntry + " Cajas=" + value.Cajas + " Observaciones='" + stringNull(value.Observaciones) +
+                        "' MontoFinal='" + value.MontoFinal + "' Envio='" + value.GastoEnvio +
+                        "' Direcciones='" + stringNull(value.DirDestino)  +
+                        "' CardName='" + value.CardName + "'>" + value.CardName + "</option>";
+                });
+                $("#ListaTickets").html(contList);
+            });
+    }
+    function solicitarDatosDet() {
+        $("#TSocio").val(""); $("#TDocEntry").val("");
+        $("#TGuias").val(""); $("#TCajas").val(""); $("#TObservaciones").val("");
+        $("#TMontoFinal").val(""); $("#TEnvio").val(""); $("#TDirecciones").val("");
+        $("#btnAgregar").css("display", "none");
+
+        $("#TDocEntry").val($("#ListaTickets option[value='" + $("#TDocNum").val() + "']").attr("DocEntry"));
+        $("#TSocio").val($("#ListaTickets option[value='" + $("#TDocNum").val() + "']").attr("CardName"));
+        $("#TCajas").val($("#ListaTickets option[value='" + $("#TDocNum").val() + "']").attr("Cajas"));
+        $("#TObservaciones").val($("#ListaTickets option[value='" + $("#TDocNum").val() + "']").attr("Observaciones"));
+        $("#TMontoFinal").val($("#ListaTickets option[value='" + $("#TDocNum").val() + "']").attr("MontoFinal"));
+        $("#TEnvio").val($("#ListaTickets option[value='" + $("#TDocNum").val() + "']").attr("Envio"));
+        $("#TDirecciones").val($("#ListaTickets option[value='" + $("#TDocNum").val() + "']").attr("Direcciones"));
+
+        var parametros = {
+            "DocNum": $("#ListaTickets option[value='" + $("#TDocNum").val() + "']").val(),
+            "TipoRuta": $("#TipoRuta").val()
+        };
+        $.ajax('/Rutas/infoGuiasTransferenciaTicketsVenta',
+            {
+                data: parametros,
+                dataType: 'html',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                $("#TGuias").val(response);
+                $("#btnAgregar").css("display", "block");
+            });
+    }
+    function agregarDetalles() {
+
+        if (validarUnicoCampoTabla($("#TDocEntry").val(), "Detalles") == false) { return; }
+        if ($("#TDocEntry").val() == null || $("#TDocEntry").val() == "") { return; }
+        $("#Detalles ").append(
+            "<tr>" +
+            "<td><input name='DetRRU0[" + contDet + "].Linea' type='text' value='" + (contDet + 1) + "' class='form-control' readonly/></td>" +
+            "<td hidden><input name='DetRRU0[" + contDet + "].DocEntryTicket' type='text' value='" + $("#TDocEntry").val() + "' class='form-control'  readonly/></td>" +
+            "<td><input name='DetRRU0[" + contDet + "].DocNumTicket' type='text' value='" + $("#TDocNum").val() + "' class='form-control' style='font-size:11px' readonly/></td>" +
+            "<td><input name='DetRRU0[" + contDet + "].Socio' type='text' value='" + $("#TSocio").val() + "' class='form-control' readonly/></td>" +
+            "<td><textarea name='DetRRU0[" + contDet + "].Guias' type='text' value='" + $("#TGuias").val() + "'  style='height:100px;'  class='form-control' readonly>" + $("#TGuias").val() + "</textarea></td>" +
+            "<td><input name='DetRRU0[" + contDet + "].Cajas' type='text' value='" + $("#TCajas").val() + "'  class='form-control' readonly/></td>" +
+            "<td><input name='DetRRU0[" + contDet + "].Observaciones' type='text' value='" + $("#TObservaciones").val() + "' class='form-control' readonly/></td>" +
+            "<td><textarea name='DetRRU0[" + contDet + "].Direcciones' type='text' value='" + $("#TDirecciones").val() + "' style='height:100px;' class='form-control' readonly >" + $("#TDirecciones").val() + "</textarea></td>" +
+            "<td><input name='DetRRU0[" + contDet + "].MontoFinal' type='text' value='" + $("#TMontoFinal").val() + "' class='form-control' readonly/></td>" +
+            "<td><input name='DetRRU0[" + contDet + "].Envio' type='text' value='" + $("#TEnvio").val() + "' class='form-control' readonly/></td>" +
+            "<td><input name='DetRRU0[" + contDet + "].Verificado' type='checkbox' class='cls-chkVerif'  readonly/></td>" +
+            "<td><a href='SeguimientoDeTicket?DocEntry=" + $("#TDocEntry").val() +
+            "' target='_blank' style='cursor:pointer' class='btn btn-primary btn-sm' onclick=window.open(this.href,this.target,'width=500,height=350,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');><i class='icon-truck'></i></a></td>" +
+            "<td><button type='button' class='btn btn-danger btn-sm' onclick='borrarTrTable1(this)'>Borrar</button></td>" +
+            "</tr>"
+        );
+        contDet++;
+        $("#TDocEntry").val(""); $("#TSocio").val(""); $("#TDocNum").val(""); $("#TGuias").val(""); $("#TCajas").val("");
+        $("#TObservaciones").val(""); $("#TDirecciones").val(""); $("#TMontoFinal").val(""); $("#TEnvio").val("");
+        $("#btnAgregar").css("display", "none");
+        calcularTotalCajas();
+    }
+    function validarUnicoCampoTabla(identificador, idTabla) {
+        var sinRegistro = true;
+        $("#" + idTabla + " tr").find('td:eq(1) input').each(function () {
+            iden = $(this).val();
+            if (iden == identificador) { swal.fire("El valor ya se encuentra en la tabla", "Verifique", "warning"); sinRegistro = false; }
+        })
+        return sinRegistro;
+    }
+    function borrarTrTable1(dom) {
+        var i = -1;
+        $(dom).closest('tr').remove();
+
+        contDet = contDet - 1;
+        $("#Detalles tr").each(function (index, htm) {
+            iden1 = $(htm).find("td:eq(0) input");
+            iden1.attr("name", "DetRRU0[" + i + "].Linea");
+            iden1.val(i + 1);
+            iden1 = $(htm).find("td:eq(1) input");
+            iden1.attr("name", "DetRRU0[" + i + "].DocEntryTicket");
+            iden1 = $(htm).find("td:eq(2) input");
+            iden1.attr("name", "DetRRU0[" + i + "].DocNumTicket");
+            iden1 = $(htm).find("td:eq(3) input");
+            iden1.attr("name", "DetRRU0[" + i + "].Socio");
+            iden1 = $(htm).find("td:eq(4) textarea");
+            iden1.attr("name", "DetRRU0[" + i + "].Guias");
+            iden1 = $(htm).find("td:eq(5) input");
+            iden1.attr("name", "DetRRU0[" + i + "].Cajas");
+            iden1 = $(htm).find("td:eq(6) input");
+            iden1.attr("name", "DetRRU0[" + i + "].Observaciones");
+            iden1 = $(htm).find("td:eq(7) textarea");
+            iden1.attr("name", "DetRRU0[" + i + "].Direcciones");
+            iden1 = $(htm).find("td:eq(8) input");
+            iden1.attr("name", "DetRRU0[" + i + "].MontoFinal");
+            iden1 = $(htm).find("td:eq(9) input");
+            iden1.attr("name", "DetRRU0[" + i + "].Envio");
+            iden1 = $(htm).find("td:eq(10) input");
+            iden1.attr("name", "DetRRU0[" + i + "].Verificado");
+            i = i + 1;
+        })
+        calcularTotalCajas();
+    }
+    function validarEnviarFormulario() {
+        var object = $("#form").serialize();
+        $.ajax('/Rutas/validarRuta',
+            {
+                data: object,
+                dataType: 'html',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                if (response != "Ok") { swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false }
+                else { $("#form").submit(); }
+            });
+    }
+    function calcularTotalCajas() {
+        cajas = 0;
+        $("#Detalles tr").find('td:eq(5) input').each(function () {
+            cajas += $(this).val() * 1;
+        })
+        $("#TotalCajas").val(cajas);
+    }
+</script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="/Index/Sesion">Inicio</a></li>
+            <li><a href="@urlAction">@tituloListado</a></li>
+            <li class="current"><em>Crear documento</em></li>
+        </ol>
+    </nav>
+</div>
+
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">CREAR DOCUMENTO</h3></div>
+</div>
+
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "form" }))
+{
+    @Html.AntiForgeryToken()
+    <input name="TipoRep" type="hidden" value="@ViewBag.TipoRep" readonly />
+    <div class="bg-form-pestanas-cobefar pt-4 bg-section-form p-4 bg-form-cobefar">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        @if (ViewBag.TipoRep == "Re")
+        {
+            <h3 class="text-cobefar font-weight-bold text-center">Registrar Hoja de Reparto</h3>
+        }
+        else if (ViewBag.TipoRep == "Ru")
+        {
+            <h3 class="text-cobefar font-weight-bold text-center">Registrar Hoja de Ruta</h3>
+        }
+
+        <div class="row mt-4">
+            <div class="col-lg-3">
+                <label for="TipoRuta" class="text-dark form-label font-weight-bold font-18">TipoRuta:</label>
+                <select name="TipoRuta" id="TipoRuta" class="form-control bg-cobefar text-white" onchange="listarTickets();">>
+                    <option value="">Seleccione</option>
+                    <option value="VC">Centro (ALM 01)</option>
+                    <option value="VA">Arriola (ALM 06)</option>
+                </select>
+            </div>
+        </div>
+        
+        <h3 class="text-cobefar font-weight-bold mt-4">ESTADO DE DOCUMENTO</h3>
+
+        <div class="row mt-4 mb-4">
+            <div class="col-lg-3">
+                <label for="DocNum" class="text-dark form-label font-weight-bold font-18">DocNum:</label>
+                @Html.EditorFor(model => model.DocNum, new { htmlAttributes = new { @class = "form-control border-success", @readonly = "true" } })
+            </div>
+
+            <div class="col-lg-3">
+                <label for="DocNum" class="text-dark form-label font-weight-bold font-18">TransDesc:</label>
+                <select name="TransDesc" id="TransDesc" class="form-control bg-cobefar text-white border-success" onchange="enviarValSelect('TransDesc', 'TransCod','Code');">
+                    <option value="" Code="">Seleccione</option>
+                    @foreach (var t in ViewBag.ListaChoferes)
+                    {
+                        <option value="@t.U_SYP_CHNO" Code="@t.Code">@t.U_SYP_CHNO</option>
+                    }
+                </select>
+                @Html.EditorFor(model => model.TransCod, new { htmlAttributes = new { @class = "form-control border-success", @type = "hidden", @readonly = "true" } })
+            </div>
+
+            <div class="col-lg-3">
+                <label for="VehiculoCod" class="text-dark form-label font-weight-bold font-18">VehiculoCod:</label>
+                <select name="VehiculoCod" id="VehiculoCod" class="form-control bg-cobefar text-white border-success"
+                        onchange="enviarValSelect('VehiculoCod', 'Placa', 'U_SYP_VEPL');
+                                        enviarValSelect('VehiculoCod', 'Marca', 'U_SYP_VEMA');
+                                        enviarValSelect('VehiculoCod', 'Modelo', 'U_SYP_VEMO');">
+                    <option value="">Seleccione</option>
+                    @foreach (var t in ViewBag.ListaVehiculos)
+                    {
+                        <option value="@t.Code" U_SYP_VEPL="@t.U_SYP_VEPL" U_SYP_VEMA="@t.U_SYP_VEMA" U_SYP_VEMO="@t.U_SYP_VEMO">@t.Code</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-lg-3">
+                <label for="Placa" class="text-dark form-label font-weight-bold font-18">Placa:</label>
+                @Html.EditorFor(model => model.Placa, new { htmlAttributes = new { @class = "form-control border-success", @readonly = "true" } })
+            </div>
+        </div>
+
+        @Html.EditorFor(model => model.Marca, new { htmlAttributes = new { @class = "form-control", @readonly = "true", @type = "hidden" } })
+        @Html.EditorFor(model => model.Modelo, new { htmlAttributes = new { @class = "form-control", @readonly = "true", @type = "hidden" } })
+
+        <div class="row mt-4">
+            <div class="col-lg-3">
+                <label for="CopilDesc" class="text-dark form-label font-weight-bold font-18">CopilDesc:</label>
+                @Html.EditorFor(model => model.CopilDesc, new { htmlAttributes = new { @class = "form-control border-success", @type = "search", @list = "ListaCopilotos", @autocomplete = "off" } })
+                <datalist id="ListaCopilotos">
+                    @foreach (var c in ViewBag.ListaCopilotos)
+                    {
+                        <option value="@c.Nombres @c.Apellidos"></option>
+                    }
+                </datalist>
+            </div>
+
+            <div class="col-lg-3">
+                <label for="Copil2Desc" class="text-dark form-label font-weight-bold font-18">Copil2Desc:</label>
+                @Html.EditorFor(model => model.Copil2Desc, new { htmlAttributes = new { @class = "form-control border-success", @type = "search", @list = "ListaCopilotos", @autocomplete = "off" } })
+            </div>
+
+            @*<div class="col-lg-3">
+                <label for="Copil3Desc" class="text-dark form-label font-weight-bold font-18">Copil3Desc:</label>
+                @Html.EditorFor(model => model.Copil3Desc, new { htmlAttributes = new { @class = "form-control border-success", @type = "search", @list = "ListaCopilotos" } })
+            </div>
+
+            <div class="col-lg-3">
+                <label for="Copil4Desc" class="text-dark form-label font-weight-bold font-18">Copil4Desc:</label>
+                @Html.EditorFor(model => model.Copil4Desc, new { htmlAttributes = new { @class = "form-control border-success", @type = "search", @list = "ListaCopilotos" } })
+            </div>*@
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-3">
+                <label for="FechaCont" class="text-dark form-label font-weight-bold font-18">FechaCont:</label>
+                <input type="date" name="FechaCont" id="FechaCont" class="form-control border-success" onchange="listarTickets();" />
+            </div>
+
+            <div class="col-lg-3">
+                <label for="FechaDoc" class="text-dark form-label font-weight-bold font-18">FechaDoc:</label>
+                <input type="date" name="FechaDoc" class="form-control border-success" readonly />
+            </div>
+
+            <div class="col-lg-3">
+                <label for="AlmOrigenDesc" class="text-dark form-label font-weight-bold font-18">Almacén de Origen:</label>
+                <input type="hidden" id="AlmOrigenCod" name="AlmOrigenCod" value="" />
+                <input type="hidden" id="AlmOrigenDesc2" name="AlmOrigenDesc2" value="" />
+                <select name="AlmOrigenDesc" id="AlmOrigenDesc" class="form-control bg-cobefar text-white"
+                        onchange="enviarValSelect('AlmOrigenDesc', 'AlmOrigenCod','almorigencod');enviarValSelect('AlmOrigenDesc', 'AlmOrigenDesc2','almorigendesc2');">
+                    <option value="">Seleccione</option>
+                    @foreach (var l in lstOriDest.Where(x => x.WhsCode != "06" && x.WhsCode != "07" && x.WhsCode != "00"))
+                    {
+                        <option value="@l.WhsName" almorigencod="@l.WhsCode" almorigendesc2="@(l.Street+" "+l.StreetNo+" "+l.Building+" "+l.Block+" "+l.City+" "+l.County)">
+                            @l.WhsName
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <div id="div_almacen-destino" class="col-lg-3">
+                <label for="AlmDestinoDesc" class="text-dark form-label font-weight-bold font-18">Almacén de Destino:</label>
+                <input type="hidden" id="AlmDestinoCod" name="AlmDestinoCod" value="" />
+                <input type="hidden" id="AlmDestinoDesc2" name="AlmDestinoDesc2" value="" />
+                <select name="AlmDestinoDesc" id="AlmDestinoDesc" class="form-control bg-cobefar text-white"
+                        onchange="enviarValSelect('AlmDestinoDesc', 'AlmDestinoCod','almdestinocod');enviarValSelect('AlmDestinoDesc', 'AlmDestinoDesc2','almdestinodesc2');">
+                    <option value="">Seleccione</option>
+                    @foreach (var l in lstOriDest.Where(x => x.WhsCode != "06" && x.WhsCode != "07" && x.WhsCode != "00"))
+                    {
+                        <option value="@l.WhsName" almdestinocod="@l.WhsCode" almdestinodesc2="@(l.Street+" "+l.StreetNo+" "+l.Building+" "+l.Block+" "+l.City+" "+l.County)">
+                            @l.WhsName
+                        </option>
+                    }
+                </select>
+            </div>
+
+        </div>
+
+
+        <div class="row mt-4">
+            <div class="col-lg-3">
+                <label for="Propietario" class="text-dark form-label font-weight-bold font-18">Propietario:</label>
+                @Html.EditorFor(model => model.Propietario, new { htmlAttributes = new { @class = "form-control border-success", @readonly = "true" } })
+            </div>
+
+            <div class="col-lg-3">
+                <label for="TiempoPac" class="text-dark form-label font-weight-bold font-18">TiempoPac:</label>
+                <input type="datetime-local" class="form-control border-success" name="TiempoPac" />
+            </div>
+
+            <div class="col-lg-2">
+                <label for="TotalCajas" class="text-dark form-label font-weight-bold font-18">TotalCajas:</label>
+                <input id="TotalCajas" type="text" class="form-control border-success" readonly />
+            </div>
+
+        </div>
+
+        <div class="row mt-4 mb-4">
+            <div class="col-lg-12">
+                <label for="Observaciones" class="text-dark form-label font-weight-bold font-18">Observaciones:</label>
+                @Html.EditorFor(model => model.Observaciones, new { htmlAttributes = new { @class = "form-control border-success" } })
+            </div>
+        </div>
+
+        <h3 class="text-cobefar font-weight-bold">DETALLE DE RUTA</h3>
+
+        <div class="mt-4">
+            <table class="table table-light table-sm table-hover table-responsive-sm">
+                <thead class="bg-dark">
+                    <tr>
+                        <th class="text-center">#</th>
+                        <th hidden>DocEntryT</th>
+                        <th class="text-center">DocNum</th>
+                        <th class="text-center">Socio</th>
+                        <th class="text-center">Guias</th>
+                        <th class="text-center">Cajas</th>
+                        <th class="text-center">Obs.</th>
+                        <th class="text-center">Direcciones</th>
+                        <th class="text-center">MontoFinal</th>
+                        <th class="text-center">Envio</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="text-center" style="vertical-align: middle !important"><input type="hidden" id="TLinea" value="0" />0</td>
+                        <td hidden><input type="hidden" id="TDocEntry" readonly /></td>
+                        <td class="text-center"><input type="search" id="TDocNum" list="ListaTickets" onchange="solicitarDatosDet();" class="form-control" /></td>
+                        <td class="text-center"><input type="text" id="TSocio" class="form-control" readonly /></td>
+                        <td class="text-center"><input type="text" id="TGuias" class="form-control" readonly /></td>
+                        <td class="text-center"><input type="text" id="TCajas" class="form-control" readonly /></td>
+                        <td class="text-center"><input id="TObservaciones" class="form-control" readonly /></td>
+                        <td class="text-center"><input id="TDirecciones" class="form-control" readonly /></td>
+                        <td class="text-center"><input id="TMontoFinal" class="form-control" readonly /></td>
+                        <td class="text-center"><input id="TEnvio" class="form-control" readonly /></td>
+                        <td class="text-center"><button id="btnAgregar" style="display:none;" class="btn btn-info btn-sm" type="button" onclick="agregarDetalles();">Agregar</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div>
+            <input type="checkbox" id="chk_verifTodos" onclick="seleccionarVerif()" /> <label for="chk_verifTodos" class="text-dark font-weight-bold">Seleccionar Todos</label>
+        </div>
+
+        <div class="table-responsive mt-4">
+            <table id="Detalles" class="table table-light table-sm table-hover ">
+                <thead class="bg-success">
+                    <tr>
+                        <th class="text-center">#</th>
+                        <th hidden>DocEntryT</th>
+                        <th class="text-center">NroTicket</th>
+                        <th class="text-center">Socio</th>
+                        <th class="text-center">Guias</th>
+                        <th class="text-center">Cajas</th>
+                        <th class="text-center">Obs.</th>
+                        <th class="text-center">Direcciones</th>
+                        <th class="text-center">MontoFinal</th>
+                        <th class="text-center">Envio</th>
+                        <th class="text-center">Verif.</th>
+                        <th colspan="2"></th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <datalist id="ListaTickets"></datalist>
+
+        <div class="row mt-4">
+            <div class="col-lg-4">
+                <button type="button" class="btn btn-success" onclick="validarEnviarFormulario();"><i class="icon icon-plus"></i> Crear</button>
+            </div>
+        </div>
+    </div>
+}
+
+<script>
+    if ('@ViewBag.Mensaje' != "") {
+        Swal.fire({
+            icon: '',
+            text: `@ViewBag.Mensaje`
+        })
+    }
+</script>

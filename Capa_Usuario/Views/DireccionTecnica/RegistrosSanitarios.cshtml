@@ -1,0 +1,110 @@
+﻿@{
+    ViewBag.Title = "Registros Sanitarios - DIRECCIÓN TÉCNICA";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles{
+    <link href="~/Content/css/alertify.min.css" rel="stylesheet" />
+    <link href="~/Content/css/semantic.min.css" rel="stylesheet" />
+}
+
+@section Scripts{
+    <script src="~/Content/js/alertify.min.js"></script>
+}
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li class="current"><em>Listado de registros sanitarios</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO DE REGISTROS SANITARIOS</h3></div>
+</div>
+
+<div id="div_listado" class="bg-dark pt-4">
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="modalInfo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-cobefar text-white">
+                <h5 class="modal-title" id="exampleModalLabel">Registros Sanitarios</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" class="text-white">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div id="div_vistaParcial" class="col-12">
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class='icon-cross'></i> Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        Swal.fire({
+            title: 'Cargando',
+            text: 'Por favor, espere...',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            onBeforeOpen: () => {
+                Swal.showLoading();
+            }
+        });
+        $.ajax({
+            url: '/DireccionTecnica/ListarRegistrosSanitarios?'+window.location.search.substring(1),
+            type: 'POST',
+        }).done(function (response) {
+            $('#div_listado').html(response); Swal.close();
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            console.log(jqXHR.status + textStatus + errorThrown); Swal.close();
+        });
+
+
+        //$('#div_listado').load(`Url.Action("ListarRegistrosSanitarios")?${window.location.search.substring(1)}`).fadeIn("fast");
+
+        var consultarRSExpirados = function () {
+            $.ajax({
+                url: '/DireccionTecnica/ConsultarRegistrosSanitariosExpirados',
+                type: 'POST',
+                dataType: 'json',
+            }).done(function (response) {
+                //console.log(response.Datos);
+                if (response.Datos.length >= 1) {
+                    for (let indice in response.Datos) {
+                        //console.log(response.Datos[indice]);
+                        alertify.set('notifier', 'position', 'bottom-right');
+                        var msj = alertify.error(response.Datos[indice]);
+                        var url = `/DireccionTecnica/RegistrosSanitarios?CodArticulo=${response.Datos[indice]}`;
+
+                        msj.callback = function (isClicked) {
+                            if (isClicked)
+                                window.location.assign(url);
+                        };
+                    }
+                }
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR.status + textStatus + errorThrown);
+            });
+        }
+
+        // 4 min
+        setInterval(consultarRSExpirados, 15000);
+    });
+
+    function exportarListado() {
+        $(location).attr('href', `/Ventas/ExportarListadoTicketsACuadrar?${window.location.search.substring(1)}`);
+    }
+</script>

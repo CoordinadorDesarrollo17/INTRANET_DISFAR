@@ -1,0 +1,141 @@
+﻿@{
+    Layout = null;
+}
+
+<style>
+    #div_plantillaRpt div * {
+        font-family: "Arial", sans-serif !important;
+        font-size: 12px;
+    }
+
+    .impresion {
+        width: 100%;
+        margin-left: -1% !important;
+        background-color: white;
+    }
+
+    thead {
+        display: table-header-group
+    }
+
+    tfoot {
+        display: table-row-group
+    }
+
+    tr {
+        page-break-inside: avoid
+    }
+</style>
+
+<div class="impresion mt-4" style="width: 100%">
+    <table width="100%">
+        <tbody>
+            <tr>
+                <td class="border-0 text-left" width="250"><img src="~/Content/img/logo-drogueria-cobefar.jpg" width="150"></td>
+                <td class="border-0 text-center" width="500"><h5 class="font-weight-bold">KÁRDEX CONTROL DE EXISTENCIAS</h5>@Model.WhsName</td>
+                <td width="180" class="border-0 text-left font-weight-bold"><div>REG-009-03</div></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table width="100%" style="margin-top: 40px;">
+        <tr>
+            <td class="border-0 p-0 text-left" width="250"><b>DESCRIPCIÓN DEL PRODUCTO: </b>@Model.ItemName</td>
+        </tr>
+        <tr>
+            <td class="border-0 p-0 text-left" width="250"><b>CÓDIGO DE PRODUCTO: </b>@Model.ItemCode</td>
+        </tr>
+        @if (!string.IsNullOrEmpty(Model.Lote))
+        {
+            <tr>
+                <td class="border-0 p-0 text-left" width="250"><b>LOTE: </b>@Model.Lote</td>
+            </tr>
+        }
+
+    </table>
+
+    <table id="tbl_detalle" class="table table-bordered text-center" width="100%" style="margin-top: 40px;">
+        <thead class="text-dark">
+            <tr>
+                <th class="border text-dark" style="vertical-align: middle">REGISTRO SANITARIO</th>
+                <th class="border text-dark" style="vertical-align: middle">FECHA DEL MOVIMIENTO</th>
+                <th class="border text-dark" width="120" style="vertical-align: middle">DOCUMENTOS EMITIDOS</th>
+                <th class="border text-dark" style="vertical-align: middle">PROVEEDOR O ESTABLECIMIENTO</th>
+                <th class="border text-dark" style="vertical-align: middle">RUC</th>
+                @if (string.IsNullOrEmpty(Model.Lote))
+                {
+                    <th class="border text-dark" style="vertical-align: middle">LOTE</th>
+                }
+                <th class="border text-dark" style="vertical-align: middle">INGRESO (POR UNIDAD)</th>
+                <th class="border text-dark" style="vertical-align: middle">SALIDA (POR UNIDAD)</th>
+                <th class="border text-dark" style="vertical-align: middle">SALDO POR LOTE</th>
+                <th class="border text-dark" style="vertical-align: middle">SALDO POR PRODUCTO</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.DetKardexAlmacenes != null && Model.DetKardexAlmacenes.Count >= 1)
+            {
+                foreach (var det in Model.DetKardexAlmacenes)
+                {
+                    <tr>
+                        <td>@det.RegSanitario</td>
+                        <td>@det.FechaCont</td>
+                        <td>@det.FacturaGuiaBoleta</td>
+                        <td>@det.ProvEstab</td>
+                        <td>@det.Ruc</td>
+                        @if (string.IsNullOrEmpty(Model.Lote))
+                        {
+                            <td>@det.Lote</td>
+                        }
+                        <td>@det.CantIngreso</td>
+                        <td>@det.CantSalida</td>
+                        <td>@det.AcumuladoLote</td>
+                        <td>@det.AcumuladoProducto</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function descargarPDF() {
+        printJS({ printable: 'div_plantillaRpt', type: 'html', targetStyles: ['*'] })
+    }
+
+    function descargarExcel(tableID, filename = '') {
+        //window.open('/ReportesDigemid/RptExcelKardexAlmacenes?WhsCode=' + $('#WhsCode').val() + '&FecIni=' + $('#FecIni').val() + '&FecFin=' + $('#FecFin').val() + '&ItemCode=' + $('#ItemCode').val() + '&Lote=' + $('#Lote').val(), '_blank');
+        
+            var downloadLink;
+            var dataType = 'application/vnd.ms-excel';
+            var tableSelect = document.getElementById(tableID);
+            var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
+            tableHTML = "<meta http-equiv=\"content-type\" content=\"application/vnd.ms-excel; charset=UTF-8\">" + tableHTML;
+            //tableHTML = decodeURIComponent(escape(tableHTML));
+            // Specify file name
+            filename = filename ? filename + '.xls' : 'excel_data.xls';
+
+            // Create download link element
+            downloadLink = document.createElement("a");
+
+            document.body.appendChild(downloadLink);
+
+            if (navigator.msSaveOrOpenBlob) {
+                var blob = new Blob(['ufeff', tableHTML], {
+                    //type: dataType
+                    type: "text/plain;charset=utf-8;"
+                });
+                navigator.msSaveOrOpenBlob(blob, filename);
+            } else {
+                // Create a link to the file
+                downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
+
+                // Setting the file name
+                downloadLink.download = filename;
+
+                //triggering the function
+                downloadLink.click();
+            }
+        }
+    
+</script>

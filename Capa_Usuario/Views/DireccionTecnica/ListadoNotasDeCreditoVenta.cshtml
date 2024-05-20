@@ -1,0 +1,99 @@
+﻿@model IEnumerable<Capa_Entidad.Ventas_ENT.Tablas.ORIN_E>
+
+@{
+    ViewBag.Title = "ListadoNotasDeCreditoVenta";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    $(document).ready(function () {
+    });
+    function filtrar() {
+        var object = $("#frm").serialize();
+        $(location).attr('href', "/DireccionTecnica/ListadoNotasDeCreditoVenta?" + object);
+    }
+</script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li class="current"><em>Listado de notas de crédito - venta</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO DE NOTAS DE CRÉDITO - VENTA</h3></div>
+</div>
+
+<div class="bg-form-pestanas-cobefar">
+    <div class="bg-dark">
+        <form name="frm" id="frm">
+            <table class="table table-light table-sm table-hover cls-dataTable" cellspacing="0" width="100%">
+                <thead class="thead-dark">
+                    <tr>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.DocNum)
+                            <input type="text" name="DocNum" class="form-control" onchange="filtrar();" value="@if(ViewBag.Orin.DocNum != 0) { Write(ViewBag.Orin.DocNum); } " />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.DocDate)
+                            <input type="date" name="DocDate" class="form-control input_date-filtro-table" onchange="filtrar();"  value="@ViewBag.Orin.DocDate" />
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.CardName)<br />
+                            <input type="text" name="CardName" class="form-control" onchange="filtrar();" value="@ViewBag.Orin.CardName" />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.NumAtCard)
+                            <input type="text" name="NumAtCard" class="form-control" onchange="filtrar();" value="@ViewBag.Orin.NumAtCard" />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.DocTotal)
+                            <input type="text" name="DocTotal" class="form-control" onchange="filtrar();" value="@if(ViewBag.Orin.DocTotal != 0) { Write(ViewBag.Orin.DocTotal); } " />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.U_SYP_STATUS)
+                            <input type="text" name="U_SYP_STATUS" class="form-control" onchange="filtrar();" value="@ViewBag.Orin.U_SYP_STATUS" />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.RefFactura)
+                            <input type="text" name="RefFactura" class="form-control" onchange="filtrar();" value="@ViewBag.Orin.RefFactura" />
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.DocNum)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.DocDate)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.CardName)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.NumAtCard)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.DocTotal)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.U_SYP_STATUS)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.RefFactura)
+                        </td>
+                        <td class="text-center">
+                            <a href="@Url.Action("NotaDeCreditoVentaArticulos", "DireccionTecnica", new { DocEntry = item.DocEntry })" target = "_blank" class="btn btn-sm btn-warning"><i class="icon-eye"></i> Ver documento</a>
+                        </td>
+                    </tr>
+                }
+
+            </table>
+        </form>
+    </div>
+</div>

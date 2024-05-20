@@ -1,0 +1,181 @@
+﻿@model IEnumerable<Capa_Entidad.Almacen_ENT.TablasSql.IPE2_E>
+@using Capa_Entidad.Almacen_ENT.TablasSql
+@{
+    ViewBag.Title = "CargarDatosSap";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    OIPE_E oipeE = (OIPE_E)ViewBag.Oipe;
+}
+<script>
+    $(document).ready(function () {
+    });
+    function progresoMigracion() {
+        let timerInterval
+        Swal.fire({
+            title: 'Progreso de migración...',
+            html: 'Se esta migrando los artículos en <b></b> milisegundos.',
+            timer: 50000,
+            timerProgressBar: true,
+            didOpen: () => {
+                Swal.showLoading()
+                const b = Swal.getHtmlContainer().querySelector('b')
+                timerInterval = setInterval(() => {
+                    b.textContent = Swal.getTimerLeft()
+                }, 100)
+            },
+            willClose: () => {
+                clearInterval(timerInterval)
+            }
+        }).then((result) => {
+            if (result.dismiss === Swal.DismissReason.timer) {
+                console.log('I was closed by the timer')
+            }
+        })
+    }
+
+</script>
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="/Index/Sesion">Inicio</a></li>
+            <li><a href="@Url.Action("GestionPeriodos","Almacen")">Gestión de periodos</a></li>
+            <li class="current"><em>Cargar datos SAP</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">CARGAR DATOS SAP</h3></div>
+
+    <div class="d-flex pl-2 w-100 py-2">
+        <div class="mx-2">
+            <a class="btn btn-warning" href="@Url.Action("MigrarArticulos", "Almacen", new { DocEntry = oipeE.DocEntry })" onclick="progresoMigracion();">Migrar Artículos</a>
+            <a class="btn btn-success" href="@Url.Action("CargarArticulosMigrados", "Almacen", new { DocEntry = oipeE.DocEntry })"><i class="icon icon-upload"></i> Cargar</a>
+        </div>
+    </div>
+</div>
+
+<div class="bg-form-pestanas-cobefar pt-4 bg-section-form p-4 bg-form-cobefar">
+    <div class="row mt-2">
+        <div class="col-lg-1">
+            <label class="text-dark form-label font-weight-bold font-18">N°:</label>
+            @oipeE.DocEntry
+        </div>
+
+        <div class="col-lg-3">
+            <label class="text-dark form-label font-weight-bold font-18">Periodo:</label>
+            @oipeE.Descripcion
+        </div>
+
+        <div class="col-lg-3">
+            <label class="text-dark form-label font-weight-bold font-18">Fecha Inicio:</label>
+            @Convert.ToDateTime(oipeE.FecIni).ToString("dd/MM/yyyy")
+        </div>
+
+        <div class="col-lg-3">
+            <label class="text-dark form-label font-weight-bold font-18">Fecha Fin:</label>
+            @Convert.ToDateTime(oipeE.FecFin).ToString("dd/MM/yyyy")
+        </div>
+
+        <div class="col-lg-2">
+            <label class="text-dark form-label font-weight-bold font-18">Estado de Datos:</label>
+            @oipeE.EstadoDatos
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-lg-4">
+            <label class="text-dark form-label font-weight-bold font-18">Operario de carga:</label>
+            @oipeE.OpCarga
+        </div>
+
+        <div class="col-lg-4">
+            <label class="text-dark form-label font-weight-bold font-18">TiempoCarga:</label>
+            @oipeE.FechaCarga
+        </div>
+    </div>
+
+        <div class="row mt-4">
+            <table class="table table-light table-sm table-hover table-responsive-md" cellspacing="0" width="100%">
+                <thead class="thead-dark">
+                    <tr>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.ItemCode)
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.BatchNum)
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.WhsCode)
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.ItemName)
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.ExpDate)
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.Quantity)
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.NumInBuy)
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.AvgPrice)
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.ItmsGrpCod)
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.ItemCode)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.BatchNum)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.WhsCode)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.ItemName)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.ExpDate)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.Quantity)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.NumInBuy)
+                            </td>
+                            <td class="text-center">
+                                @item.CostoIgv()
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.ItmsGrpCod)
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+
+<script>
+    if ('@ViewBag.Mensaje' != "") {
+        swal.fire({
+            title: "@ViewBag.Mensaje",
+            text: "Presione OK para continuar",
+            icon: "warning"
+        })
+    };
+</script>

@@ -1,0 +1,583 @@
+@model Capa_Entidad.Ventas_ENT.TablasSql.ORTV_E
+@using Capa_Entidad.Ventas_ENT.TablasSql
+@{
+    ViewBag.Title = "Autorizar Ticket Reparto";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<Capa_Entidad.Caja_ENT.OPP_E> pagosParciales = (List<Capa_Entidad.Caja_ENT.OPP_E>)ViewBag.PagosParciales;
+    // Los pagos parciales solo serán realizados por usuarios CAJA, SCAJA
+    // Descomenta la siguiente línea y comentar la que continua para habilitar los pagos parciales cuando se requieran.
+    //bool verPagosParciales = (ViewBag.TipoPago == "PMI" || ViewBag.TipoPago == "SP") && (ViewBag.EstadoContraEntrega == "AUTORIZADO" || ViewBag.EstadoContraEntrega == "VALIDADO" || ViewBag.EstadoContraEntrega == "CUADRADO");
+    bool verPagosParciales = false;
+    bool verDetalleReparto = (ViewBag.DescTipoPago != "");
+}
+
+<style>
+    .swal-wide {
+        width: 850px !important;
+    }
+
+        .swal-wide:hover {
+            transform: scale(1.5);
+        }
+</style>
+
+<div class="pt-4">
+    <div class="px-3 pt-3 bg-dark border-cabecera-seccion pb-2"><h3 class="titulo-seccion">AUTORIZAR TICKET REPARTO</h3></div>
+</div>
+
+<div class="bg-form-pestanas-cobefar pt-4">
+    <nav>
+        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+            @if (verDetalleReparto)
+            {
+                <a class="nav-link active" id="nav-det-reparto-tab" data-toggle="tab" href="#nav-det-reparto" role="tab" aria-controls="nav-det-reparto" aria-selected="true">
+                    Detalle de Reparto
+                </a>
+            }
+        </div>
+    </nav>
+    @using (Html.BeginForm("PagarTicketVenta", "Caja", FormMethod.Post, new { id = "form" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="tab-content" id="nav-tabContent">
+            <input type="hidden" id="DocEntry" name="DocEntry" value="@Model.DocEntry" readonly />
+            @if (verDetalleReparto)
+            {
+                List<string> comprobantes = (List<string>)ViewBag.Comprobantes;
+                int numComprobante = 1, numSlide = 1, dataSlideTo = 0;
+                decimal montoTotalRecibido = (decimal)ViewBag.MontoRecibidoEfectivo + (decimal)ViewBag.MontoRecibidoDeposito;
+
+                <div class="tab-pane fade show active" id="nav-det-reparto" role="tabpanel" aria-labelledby="nav-det-reparto-tab">
+                    <div class="bg-section-form p-4 bg-form-cobefar">
+                        <h2 class="text-cobefar font-weight-bold">DETALLE DE REPARTO</h2>
+
+                        <div class="row mt-3 justify-content-center">
+                            <div class="col-sm-12 col-md-6 col-lg-6 border-right">
+                                <div class="row mb-4">
+                                    <div class="col-6">
+                                        <label class="text-cobefar font-weight-bold font-18">Nro Ticket:</label>
+                                        <input type="text" class="form-control border-success text-center" value="@Model.DocNum" disabled />
+                                    </div>
+
+                                    <div class="col-6">
+                                        <label class="text-cobefar font-weight-bold font-18">RUC:</label>
+                                        <input type="text" class="form-control border-success text-center" value="@Model.CardCode" disabled />
+                                    </div>
+                                </div>
+
+                                <div class="row mb-4">
+                                    <div class="col-12">
+                                        <label class="text-cobefar font-weight-bold font-18">Cliente:</label>
+                                        <input type="text" class="form-control border-success text-center" value="@Model.CardName" disabled />
+                                    </div>
+                                </div>
+
+                                <div class="row mb-4">
+                                    <div class="col-6">
+                                        <label class="text-cobefar font-weight-bold font-18">Tipo de pago:</label>
+                                        <input type="text" class="form-control border-success text-center" value="@ViewBag.DescTipoPago" disabled />
+                                    </div>
+
+                                    <div class="col-6">
+                                        <label class="text-cobefar font-weight-bold font-18">Estado Contra-entrega:</label>
+                                        <input type="text" class="form-control border-success text-center" value="@ViewBag.EstadoContraEntrega" disabled />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row mt-2 justify-content-center">
+                                    <div class="col-11">
+                                        <table class="table table-hover table-bordered">
+                                            <thead class="bg-dark">
+                                                <tr>
+                                                    <th class="text-center">Efectivo<br />recibido</th>
+                                                    <th class="text-center">Depósito<br />recibido</th>
+                                                    <th class="text-center">Total recibido</th>
+                                                    <th class="text-center">Pagos Parciales</th>
+                                                    <th class="text-center">Monto final<br />ticket</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td class="text-center text-dark">
+                                                        @ViewBag.MontoRecibidoEfectivo
+                                                        <input type="hidden" class="form-control text-center bg-warning" value="@ViewBag.MontoRecibidoEfectivo" disabled />
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @ViewBag.MontoRecibidoDeposito
+                                                        <input type="hidden" class="form-control border-success text-center" value="@ViewBag.MontoRecibidoDeposito" disabled />
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @montoTotalRecibido
+                                                        <input type="hidden" id="MontoRecibidoEntrega" class="form-control border-success text-center" value="@montoTotalRecibido" disabled />
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @ViewBag.TotalPagosParciales
+                                                        <input type="hidden" id="TotalPagosParciales" class="form-control border-success text-center" value="@ViewBag.TotalPagosParciales" disabled />
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <input type="text" id="MontoFinalTicket" class="form-control border-light text-center text-white @if (Model.MontoFinal.Equals(montoTotalRecibido+ViewBag.TotalPagosParciales)) { Write("bg-success"); } else { Write("bg-danger"); }" value="@Model.MontoFinal" disabled />
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                </div>
+
+                                @*<div class="form-group row mt-2">
+                                        <label class="col-sm-4 col-form-label text-dark font-weight-bold font-18">Efectivo recibido:</label>
+                                        <div class="col-sm-3">
+                                            <input type="text" class="form-control border-success text-center bg-warning" text-center value="@ViewBag.MontoRecibidoEfectivo" disabled />
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row mt-2">
+                                        <label class="col-sm-4 col-form-label text-dark font-weight-bold font-18">Depósito recibido:</label>
+                                        <div class="col-sm-3">
+                                            <input type="text" class="form-control border-success text-center" value="@ViewBag.MontoRecibidoDeposito" disabled />
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row mt-2">
+                                        <label class="col-sm-4 col-form-label text-dark font-weight-bold font-18">Total recibido (Entrega):</label>
+                                        <div class="col-sm-3">
+                                            <input type="text" id="MontoRecibidoEntrega" class="form-control border-success text-center" value="@montoTotalRecibido" disabled />
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row mt-2">
+                                        <label class="col-sm-4 col-form-label text-dark font-weight-bold font-18">Total recibido<br />(P. Parciales):</label>
+                                        <div class="col-sm-3">
+                                            <input type="text" id="TotalPagosParciales" class="form-control border-success text-center" value="@ViewBag.TotalPagosParciales" disabled />
+                                        </div>
+                                    </div>
+
+                                    <hr class="w-55" />
+
+                                    <div class="form-group row">
+                                        <label class="col-sm-4 col-form-label text-dark font-weight-bold font-18">Monto final ticket:</label>
+                                        <div class="col-sm-3">
+                                            <input type="text" id="MontoFinalTicket" class="form-control border-success text-center text-white @if (Model.MontoFinal.Equals(montoTotalRecibido+ViewBag.TotalPagosParciales)) { Write("bg-success"); } else { Write("bg-danger"); }" value="@Model.MontoFinal" disabled />
+                                        </div>
+                                    </div>*@
+                            </div>
+
+                            <div class="col-sm-12 col-md-6 col-lg-6">
+                                <div class="row justify-content-center">
+                                    <div class="col-10">
+                                        @if (comprobantes != null && comprobantes.Count >= 1)
+                                        {
+                                            <div id="carouselExampleIndicators" class="carousel slide w-75 mx-auto" data-ride="carousel">
+                                                <ol class="carousel-indicators">
+                                                    @foreach (var adj in comprobantes)
+                                                    {
+                                                        <li data-target="#carouselExampleIndicators" data-slide-to="@dataSlideTo" class="@{ if (numSlide.Equals(1)) { Write("active"); }}"></li>
+                                                        ++numSlide;
+                                                    }
+                                                </ol>
+                                                <div class="carousel-inner">
+                                                    @foreach (var adj in comprobantes)
+                                                    {
+                                                        <div class="carousel-item @{ if (numComprobante.Equals(1)) { Write("active"); }}">
+                                                            <img id="img_@numComprobante" width="360" style="max-height: 300px" class="d-block w-100" src="@adj" alt="" onclick="maximizarImg(this.id)">
+                                                        </div>
+                                                        ++numComprobante;
+                                                    }
+                                                </div>
+                                                <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+                                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                                    <span class="sr-only">Previous</span>
+                                                </a>
+                                                <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+                                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                                    <span class="sr-only">Next</span>
+                                                </a>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+
+                                <div class="row justify-content-center">
+                                    <div class="col-10">
+                                        <!--  C A J A  -->
+                                        @if (ViewBag.ComentarioCaja != null && !string.IsNullOrEmpty(ViewBag.ComentarioCaja.ToString()))
+                                        {
+                                            <div class="form-group row mt-4 justify-content-center font-18 text-cobefar">
+                                                <span class="w-75 font-weight-bold">Comentario CAJA</span>
+                                            </div>
+
+                                            <div class="form-group row mt-2 justify-content-center font-18 text-danger">
+                                                <textarea class="form-control text-uppercase border-success w-75" rows="6" disabled>@ViewBag.ComentarioCaja</textarea>
+                                            </div>
+                                        }
+
+                                        <!--   V E N T A S   - AUTORIZAR ENTREGA -->
+                                        @if (ViewBag.TipoPago == "PCE" && ViewBag.MontoRecibidoEfectivo > 2000)
+                                        {
+                                            <div class="form-group row mt-4 justify-content-center font-18 text-white">
+                                                <span class="w-75 bg-danger px-3 py-2"><b>NOTA: </b> El monto en efectivo registrado por el transportista supera los S/ 2000.</span>
+                                            </div>
+                                        }
+                                        else if (ViewBag.TipoPago == "PMI" && montoTotalRecibido != Model.MontoFinal)
+                                        {
+                                            <div class="form-group row mt-4 mb-4 justify-content-center font-18 text-white">
+                                                <span class="w-75 bg-danger px-3 py-2"><b>NOTA: </b>El monto total registrado por el transportista no es igual al monto final del ticket.</span>
+                                            </div>
+                                        }
+
+
+                                        <div class="form-group row font-18 text-cobefar">
+                                            <span class="font-weight-bold">Comentario VENTAS</span>
+                                        </div>
+
+                                        <div class="form-group row mt-2 justify-content-center font-18">
+                                            <textarea id="ComentarioVentas" name="ComentarioVentas" class="form-control text-uppercase border-success" rows="4" placeholder="Escribe aquí el motivo de autorización o rechazo..." @if (ViewBag.EstadoContraEntrega != "PENDIENTE" && ViewBag.EstadoContraEntrega != "VALIDADO") { Write("disabled"); }>@ViewBag.ComentarioVentas</textarea>
+                                        </div>
+
+                                        @if (ViewBag.TipoPago == "PMI" || ViewBag.TipoPago == "SP")
+                                        {
+                                            <div class="form-group row mt-4 font-18 text-cobefar">
+                                                <span class="font-weight-bold">Fecha Compromiso de Pago</span>
+                                            </div>
+
+                                            if (ViewBag.FechaCompromisoPago == null && (ViewBag.EstadoContraEntrega == "PENDIENTE" || ViewBag.EstadoContraEntrega == "VALIDADO"))
+                                            {
+                                                <div class="form-group row mt-2 font-18 text-danger">
+                                                    <div>
+                                                        <input type="date" id="FechaCompromisoPago" name="FechaCompromisoPago" class="form-control border-success" />
+                                                    </div>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="form-group row mt-2 font-18 text-dark">
+                                                    <div>
+                                                        <input type="text" class="form-control border-success text-center" value="@ViewBag.FechaCompromisoPago" disabled />
+                                                    </div>
+                                                </div>
+                                            }
+                                        }
+
+                                        @if (Model.EstadoPago != "PAGADO" && ViewBag.EstadoContraEntrega != "AUTORIZADO" && ViewBag.EstadoContraEntrega != "RECHAZADO" && ViewBag.EstadoContraEntrega != "ANULADO")
+                                        {
+                                            <div class="form-group row mt-4 justify-content-center font-18 text-danger">
+                                                <button type="button" class="btn btn-sm btn-danger mx-2" onclick="rechazarTicket(@ViewBag.IdOTC)"><i class="icon-cross"></i> Rechazar</button>
+                                                <button type="button" class="btn btn-sm btn-success mx-2" onclick="autorizarTicket(@ViewBag.IdOTC)"><i class="icon-checkmark"></i> Autorizar</button>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+
+                                @if (verPagosParciales)
+                                {
+                                    <hr class="w-55">
+                                    <div class="row justify-content-center mt-4">
+                                        <h2 class="text-cobefar font-weight-bold">PAGOS PARCIALES</h2>
+                                    </div>
+
+                                    <div class="row justify-content-center">
+                                        <div class="form-group row mt-2">
+                                            <label class="col-sm-6 col-form-label text-dark font-weight-bold font-18">Ingresar pago parcial:</label>
+                                            <div class="col-sm-6 d-flex">
+                                                <input type="number" id="pago_parcial" class="form-control border-success text-center cls-numeric" />
+                                                <button type="button" class="btn btn-sm bg-cobefar" onclick="agregarPagoParcial($('#pago_parcial').val())"><i class="text-white icon-plus"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row mt-2 justify-content-center">
+                                        <div class="col-10">
+                                            <form id="frm_pagosParciales">
+                                                <table id="tbl_pagosParciales" class="table table-hover table-bordered">
+                                                    <thead class="bg-cobefar text-white">
+                                                        <tr>
+                                                            <th class="text-center">#</th>
+                                                            <th class="text-center">Pago</th>
+                                                            <th class="text-center">Fecha Registro</th>
+                                                            <th class="text-center">Registrado Por</th>
+                                                            <th></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @if (pagosParciales != null)
+                                                        {
+                                                            int numFila = 1;
+
+                                                            foreach (var pago in pagosParciales)
+                                                            {
+                                                                string clsPagoEliminado = string.Empty;
+                                                                if (pago.Estado == "0") { clsPagoEliminado = "bg-danger text-white"; }
+                                                                <tr id="tr_@pago.IdOPP" class="cls-fila @clsPagoEliminado">
+                                                                    <td class="text-center">@numFila</td>
+                                                                    <td class="text-center"><input type="hidden" id="pago_@pago.IdOPP" class="@if (pago.Estado == "1") { Write("cls-monto"); }" value="@pago.Monto" />@pago.Monto</td>
+                                                                    <td class="text-center">@pago.FechaRegistro</td>
+                                                                    <td class="text-center">@pago.RegistradoPor</td>
+                                                                    <td class="text-center">
+                                                                        @if (pago.Estado == "1")
+                                                                        {
+                                                                            <button type="button" id="btn_eliminar_@pago.IdOPP" class="btn btn-sm btn-danger" onclick="eliminarPagoParcial(@pago.IdOPP)"><i class="icon-bin text-white"></i></button>
+                                                                        }
+                                                                    </td>
+                                                                </tr>
+                                                                ++numFila;
+                                                            }
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </form>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mt-2 justify-content-center">
+                                        <div class="col-sm-8">
+                                            <button type="button" id="btn_AgregarPagos" class="btn btn-sm bg-success text-white" onclick="agregarPagos()"><i class=" icon-plus"></i> Agregar pagos</button>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                    </div>
+                </div><!-- // TAB REPARTO -->
+            }
+        </div>
+    }
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#btn_AgregarPagos').css('display', 'none');
+
+        // Desactivar tecla "Enter"
+        window.addEventListener("keypress", function (event) {
+            if (event.key == "Enter") {
+                event.preventDefault();
+            }
+        }, false);
+    });
+
+
+    const swalWithBootstrapButtons = Swal.mixin({
+        customClass: {
+            confirmButton: 'btn btn-success mx-3',
+            cancelButton: 'btn btn-danger mx-3'
+        },
+        buttonsStyling: false
+    })
+
+    if ('@ViewBag.Mensaje' != "") {
+        Swal.fire('@ViewBag.Mensaje');
+    }
+
+    deshabilitarRetroceso();
+
+    function maximizarImg(idImg) {
+        let img = $('#' + idImg).attr('src');
+        Swal.fire({
+            imageUrl: `${img}`,
+            imageWidth: 800,
+            customClass: 'swal-wide',
+            showCancelButton: false,
+            showConfirmButton: false
+        });
+    }
+
+    function rechazarTicket(idOTC) {
+        if (idOTC * 1 > 0) {
+            if ($("#ComentarioVentas").val().trim() != '') {
+                swalWithBootstrapButtons.fire({
+                    title: '¿Está seguro(a) de RECHAZAR la solicitud?',
+                    text: "El transportista tendrá que enviar una nueva solicitud.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: "<i class='icon-checkmark'></i> Si, estoy seguro(a)",
+                    cancelButtonText: "<i class='icon-cross'></i> Cancelar",
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '/Caja/RechazarTC',
+                            type: 'POST',
+                            dataType: 'json',
+                            data: { 'DocEntryTicket': $('#DocEntry').val(), 'IdOTC': idOTC, 'ComentarioVentas': $('#ComentarioVentas').val(), 'Area': 'V' }
+                        }).done(function (response) {
+                            if (response.Mensaje == 'OK') {
+                                Swal.fire({
+                                    title: "Procesando rechazo...",
+                                    text: "Espere un momento por favor"
+                                });
+
+                                setInterval(function () {
+                                    location.reload();
+                                    //window.location.href = window.location;
+                                }, 2000);
+                            }
+                        }).fail(function (jqXHR, textStatus, errorThrown) {
+                            console.log(jqXHR.status + textStatus + errorThrown);
+                        });
+                    }
+                });
+            } else {
+                Swal.fire('Para rechazar una solicitud, debe agregar un comentario');
+            }
+        } else {
+            console.log('Verificar el IdOTC que no sea cero');
+        }
+    }
+
+    function autorizarTicket(idOTC) {
+        if (idOTC*1 > 0) {
+            let ruta = '';
+            let datos = {};
+            let tipoPago = `@ViewBag.TipoPago`;
+
+            if( tipoPago == "PMI" || tipoPago == "SP") {
+                datos = {
+                    'DocEntryTicket': $('#DocEntry').val(), 'IdOTC': idOTC, 'ComentarioVentas': $('#ComentarioVentas').val(), 'FechaCompromisoPago': $('#FechaCompromisoPago').val()
+                }
+            } else {
+                datos = {
+                    'DocEntryTicket': $('#DocEntry').val(), 'IdOTC': idOTC, 'ComentarioVentas': $('#ComentarioVentas').val()
+                }
+            }
+
+            // Comentario de ventas es obligatorio
+            if ($('#ComentarioVentas').val() != '') {
+                ruta = '/Caja/AutorizarTC';
+            } else {
+                Swal.fire('Es obligatorio agregar el motivo de autorización o rechazo');
+                return;
+            }
+
+            $.ajax({
+                url: ruta,
+                type: 'POST',
+                dataType: 'json',
+                data: datos
+            }).done(function (response) {
+                if (response.Mensaje == 'OK') {
+                    Swal.fire({
+                        title: "Actualizando información...",
+                        text: "Espere un momento por favor"
+                    });
+
+                    setInterval(function () {
+                        location.reload();
+                    }, 2200);
+                } else {
+                    Swal.fire(response.Mensaje);
+                }
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR.status + textStatus + errorThrown);
+            });
+        }
+    }
+
+    function calcularPagosParciales() {
+        let pagoTotal = parseFloat(0);
+        let montoRecibidoEntrega = parseFloat($('#MontoRecibidoEntrega').val());
+
+        $('.cls-monto').each(function (indice, obj) {
+            //console.log(parseFloat(obj.value));
+            pagoTotal += parseFloat(obj.value);
+        });
+
+        $('#TotalPagosParciales').val(parseFloat(pagoTotal));
+        pagoTotal += montoRecibidoEntrega;
+
+        if (pagoTotal > $('#MontoRecibido').val()) {
+            $('#btn_AgregarPagos').css('display', 'none');
+            Swal.fire({ title: "Los pagos parciales ingresados superan el monto final del ticket", icon: "error" });
+            return;
+        } else {
+            $('#btn_AgregarPagos').css('display', 'block');
+        }
+
+        // Para mostrar/ocultar los botones iniciales
+        if (pagoTotal == $('#MontoRecibido').val()) {
+            $('#MontoFinalTicket').removeClass('bg-danger');
+            $('#MontoFinalTicket').addClass('bg-success');
+        } else {
+            $('#MontoFinalTicket').removeClass('bg-success');
+            $('#MontoFinalTicket').addClass('bg-danger');
+        }
+    }
+
+
+    function eliminarFila() {
+        let indice = $("#tbl_pagosParciales  tr").index(this);
+        $('#tbl_pagosParciales').find(`tr:eq(${indice})`).remove()
+
+        calcularPagosParciales();
+    }
+
+    function agregarPagoParcial(pagoParcial) {
+        let arrIndices = [];
+        let num = $('.cls-fila').length * 1;
+        let pago = parseFloat(pagoParcial).toFixed(2);
+
+        let fila = `<tr class="cls-fila">
+                            <td class="text-center">${num+1}</td>
+                            <td class="text-center"><input type="hidden" class="cls-monto cls-pagoIngresado" value="${pago}" />${pago}</td>
+                            <td></td>
+                            <td></td>
+                            <td class="text-center"><button type="button" class="btn btn-sm btn-danger" onclick="eliminarFila()"><i class="icon-bin text-white"></i></button></td>
+                        </tr>`;
+
+        $('#tbl_pagosParciales > tbody').append(fila);
+
+        calcularPagosParciales();
+    }
+
+    function agregarPagos() {
+        let arrMontos = [];
+
+        $('.cls-pagoIngresado').each(function (indice, obj) {
+            //console.log(indice + " " + obj.value);
+            arrMontos.push(parseFloat(obj.value).toFixed(2));
+        });
+
+        $.ajax({
+            url: '/Caja/AgregarPagosParciales',
+            type: 'POST',
+            data: { "pagos": arrMontos, "docEntryTicket": $('#DocEntry').val() }
+         }).done(function (response) {
+             Swal.fire({ title: response.Mensaje, text: "Actualizando información..."});
+
+             setInterval(function () {
+                 location.reload();
+             }, 2500);
+         }).fail(function (jqXHR, textStatus, errorThrown) {
+             console.log(jqXHR.status + textStatus + errorThrown);
+         });
+    }
+
+    function eliminarPagoParcial(id) {
+        swalWithBootstrapButtons.fire({
+            title: '¿Está seguro(a) de ELIMINAR el pago parcial seleccionado?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: "<i class='icon-checkmark'></i> Si, estoy seguro(a)",
+            cancelButtonText: "<i class='icon-cross'></i> Cancelar",
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                  $.ajax({
+                      url: '/Caja/EliminarPagoParcial',
+                      type: 'POST',
+                      dataType: 'json',
+                      data: { 'Id': id }
+                  }).done(function (response) {
+                      Swal.fire(response.Mensaje);
+                      $(`#tr_${id}`).addClass("bg-danger text-white");
+                      $(`#btn_eliminar_${id}`).css('display', 'none');
+                      $(`#pago_${id}`).removeClass('cls-monto');
+                  }).fail(function (jqXHR, textStatus, errorThrown) {
+                      console.log(jqXHR.status + textStatus + errorThrown);
+                  });
+            }
+        });
+
+        calcularPagosParciales();
+    }
+</script>

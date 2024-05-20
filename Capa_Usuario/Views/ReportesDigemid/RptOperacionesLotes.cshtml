@@ -1,0 +1,277 @@
+﻿@{
+    Layout = null;
+}
+
+<style>
+    .impresion {
+        width: 100%;
+        margin-left: -1% !important;
+        background-color: white;
+    }
+
+    thead {
+        display: table-header-group
+    }
+
+    tfoot {
+        display: table-row-group
+    }
+
+    tr {
+        page-break-inside: avoid
+    }
+
+    .habilitar-scroll {
+        height: 300px;
+        line-height: 1em;
+        overflow-x: hidden;
+        overflow-y: scroll;
+        width: 100%;
+    }
+
+    .styled-table th,
+    .styled-table td {
+        padding: 12px 15px;
+    }
+</style>
+
+<div class="bg-dark mt-4 pt-4" style="width: 100%">
+    <table id="tbl_operacionesNroLote" class="table table-light table-sm table-hover table-bordered text-center" style="font-size: 15px" cellpadding="0" cellspacing="0">
+        <thead class="text-dark">
+            <tr>
+                <th class="border text-dark" style="vertical-align: middle">#</th>
+                <th class="border text-dark" style="vertical-align: middle">NÚMERO DE ARTÍCULO</th>
+                <th class="border text-dark" style="vertical-align: middle">DESCRIPCIÓN</th>
+                <th class="border text-dark" style="vertical-align: middle">LOTE</th>
+                <th class="border text-dark" style="vertical-align: middle">ALMACÉN</th>
+                <th class="border text-dark" style="vertical-align: middle">NOMBRE DE ALMACÉN</th>
+                <th class="border text-dark" style="vertical-align: middle">CANTIDAD</th>
+                <th class="border text-dark" style="vertical-align: middle">IMPUTADO TOTAL</th>
+                <th class="border text-dark" style="vertical-align: middle">REGISTRO SANITARIO</th>
+                <th class="border text-dark" style="vertical-align: middle">FECHA VENCIMIENTO</th>
+                <th class="border text-dark" style="vertical-align: middle">FECHA ADMISIÓN</th>
+                <th class="border text-dark" style="vertical-align: middle">TEMPERATURA</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Count >= 1)
+            {
+                int num = 1;
+                foreach (var det in Model)
+                {
+                    <tr id="tr_@num" class="cls-tdSombra">
+                        <td onclick="mostrarDetalle(@num, '@det.ItemCode', '@det.DistNumber', '@det.WhsCode')">@num</td>
+                        <td onclick="mostrarDetalle(@num, '@det.ItemCode', '@det.DistNumber', '@det.WhsCode')">@det.ItemCode</td>
+                        <td onclick="mostrarDetalle(@num, '@det.ItemCode', '@det.DistNumber', '@det.WhsCode')">@det.ItemName</td>
+                        <td onclick="mostrarDetalle(@num, '@det.ItemCode', '@det.DistNumber', '@det.WhsCode')">@det.DistNumber</td>
+                        <td onclick="mostrarDetalle(@num, '@det.ItemCode', '@det.DistNumber', '@det.WhsCode')">@det.WhsCode</td>
+                        <td onclick="mostrarDetalle(@num, '@det.ItemCode', '@det.DistNumber', '@det.WhsCode')">@det.WhsName</td>
+                        <td onclick="mostrarDetalle(@num, '@det.ItemCode', '@det.DistNumber', '@det.WhsCode')">@det.QuantityTotal</td>
+                        <td onclick="mostrarDetalle(@num, '@det.ItemCode', '@det.DistNumber', '@det.WhsCode')">@det.ImputadoTotal</td>
+                        <td onclick="mostrarDetalle(@num, '@det.ItemCode', '@det.DistNumber', '@det.WhsCode')">@det.MnfSerial</td>
+                        <td onclick="mostrarDetalle(@num, '@det.ItemCode', '@det.DistNumber', '@det.WhsCode')">@det.ExpDate</td>
+                        <td onclick="mostrarDetalle(@num, '@det.ItemCode', '@det.DistNumber', '@det.WhsCode')">@det.FechaAdmision</td>
+                        <td onclick="mostrarDetalle(@num, '@det.ItemCode', '@det.DistNumber', '@det.WhsCode')">@det.Temperatura</td>
+                    </tr>
+                    ++num;
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+<div id="div_detalle" class="mt-4" style="display: none">
+    <div class="row mb-3 pr-3 pl-3">
+        <div class="col-6">
+            <h4>DETALLE OPERACIONES DE NÚMEROS DE LOTE</h4>
+        </div>
+    </div>
+
+    <div class="row pr-3 pl-3">
+        <div class="col-2">
+            <div class="custom-control custom-radio">
+                <input type="radio" id="rad_ordenarFecha1" name="rad_ordenarFecha" class="custom-control-input" onclick="sortTable('ASC')">
+                <label class="custom-control-label text-dark" for="rad_ordenarFecha1">Ordenar Fecha (ASC)</label>
+            </div>
+        </div>
+
+        <div class="col-2">
+            <div class="custom-control custom-radio">
+                <input type="radio" id="rad_ordenarFecha2" name="rad_ordenarFecha" class="custom-control-input" onclick="sortTable('DESC')">
+                <label class="custom-control-label text-dark" for="rad_ordenarFecha2">Ordenar Fecha (DESC)</label>
+            </div>
+        </div>
+
+        <div class="col-8 d-flex justify-content-end">
+            <button type="button" class="btn btn-cobefar" onclick="exportTableToExcel('DetOpeLotes')"><i class="icon-file-excel"></i> Exportar a Excel</button>
+        </div>
+    </div>
+
+    <div id="div_cargando"></div>
+
+    <div class="col habilitar-scroll mt-4" style="width: 100%">
+        <table id="DetOpeLotes" class="table table-bordered text-center styled-table" style="font-size: 13px;" width="100%">
+        </table>
+    </div>
+</div>
+
+
+<script>
+    $('#tbl_operacionesNroLote').DataTable({
+        "ordering": true,
+        "scrollX": true,
+        pageLength: 5, /*---- PARA INICIALIZAR LA PAGINACIÓN */
+        lengthMenu: [5, 10, 15], /* RANGO PAGINACIÓN */
+    });
+
+
+
+    function mostrarDetalle(idTR, artIni, lote, almIni/*, fecIni, fecFin*/) {
+        // limpiamos todas las filas excepto la fila seleccionada
+        $(`.cls-tdSombra`).each(function (index, obj) {
+            if (obj.id != idTR) {
+                $('#' + obj.id).css('background', 'white');
+            }            
+        });
+
+        $(`#tr_${idTR}`).css({ "background": "lightblue" });
+
+        let parametros = {
+            "ArtIni": artIni, "Lote": lote, "AlmIni": almIni, "FecIni": $('#FecIni').val(), "FecFin": $('#FecFin').val(), "cab": "No"
+        };
+
+        $('#DetOpeLotes > tbody').html('');
+        $('#div_cargando').html('<img src="/imagenes/index/ReportesDigemid/cargando.gif" />');
+        $('#div_detalle').css('display', 'block');
+
+        $.ajax('/ReportesDigemid/RptOperacionesLotesDet',
+            {
+                data: parametros,
+                dataType: 'json',
+                cache: false,
+                type: 'post',
+            })
+            .done(function (response) {
+                $('#div_cargando').html('');
+
+                let contenido = `<thead class="bg-cobefar"><tr>
+                        <th class="border text-white" height="40" style="vertical-align: middle">Nro</th>
+                        <th class="border text-white" width="140" height="40" style="vertical-align: middle">Documento</th>
+                        <th class="border text-white" width="110" height="40" style="vertical-align: middle">Fecha</th>
+                        <th class="border text-white" height="40" style="vertical-align: middle">Almacén</th>
+                        <th class="border text-white" height="40" style="vertical-align: middle">NombreDeAlmacén</th>
+                        <th class="border text-white" height="40" style="vertical-align: middle">NombreDeProveedor</th>
+                        <th class="border text-white" height="40" style="vertical-align: middle">Lote</th>
+                        <th class="border text-white" height="40" style="vertical-align: middle">Cantidad</th>
+                        <th class="border text-white" height="40" style="vertical-align: middle">Imputado</th>
+                        <th class="border text-white" height="40" style="vertical-align: middle">Sentido</th>
+                    </tr></thead>`;
+
+                $.each(response, function (key, value) {
+                    contenido += `<tr>
+                                            <td>${key + 1}</td>
+                                            <td>${value.Abreviatura} ${value.DocNum}</td>
+                                            <td>${value.DocDate}</td>
+                                            <td>${value.WhsCode}</td>
+                                            <td>${value.WhsName}</td>
+                                            <td>${value.CardName}</td>
+                                            <td>${value.DistNumber}</td>
+                                            <td>${value.Quantity}</td>
+                                            <td>${value.Imputado}</td>
+                                            <td>${value.Sentido}</td>
+                                        </tr>`;
+                });
+
+                $('#DetOpeLotes').html(contenido);
+
+                //$('#DetOpeLotes').DataTable({
+                //    "ordering": true,
+                //    "scrollX": true,
+                //    pageLength: 1000, /*---- PARA INICIALIZAR LA PAGINACIÓN */
+                //});
+            });
+    }
+
+
+    function exportTableToExcel(tableID, filename = '') {
+        var downloadLink;
+        var dataType = 'application/vnd.ms-excel';
+        var tableSelect = document.getElementById(tableID);
+        var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
+        tableHTML = "<meta http-equiv=\"content-type\" content=\"application/vnd.ms-excel; charset=UTF-8\">" + tableHTML;
+        //tableHTML = decodeURIComponent(escape(tableHTML));
+        // Specify file name
+        filename = filename ? filename + '.xls' : 'excel_data.xls';
+
+        // Create download link element
+        downloadLink = document.createElement("a");
+
+        document.body.appendChild(downloadLink);
+
+        if (navigator.msSaveOrOpenBlob) {
+            var blob = new Blob(['ufeff', tableHTML], {
+                //type: dataType
+                type: "text/plain;charset=utf-8;"
+            });
+            navigator.msSaveOrOpenBlob(blob, filename);
+        } else {
+            // Create a link to the file
+            downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
+
+            // Setting the file name
+            downloadLink.download = filename;
+
+            //triggering the function
+            downloadLink.click();
+        }
+    }
+
+
+    function sortTable(tipo) {
+        if (tipo != '') {
+            var table, rows, switching, i, x, y, shouldSwitch;
+            table = document.getElementById("DetOpeLotes");
+            switching = true;
+            /*Make a loop that will continue until
+            no switching has been done:*/
+            while (switching) {
+                //start by saying: no switching is done:
+                switching = false;
+                rows = table.rows;
+                /*Loop through all table rows (except the
+                first, which contains table headers):*/
+                for (i = 1; i < (rows.length - 1); i++) {
+                    //start by saying there should be no switching:
+                    shouldSwitch = false;
+                    /*Get the two elements you want to compare,
+                    one from current row and one from the next:*/
+                    x = rows[i].getElementsByTagName("TD")[2];                  // Campo "Fecha BD"
+                    y = rows[i + 1].getElementsByTagName("TD")[2];          // Campo "Fecha BD"
+                    //check if the two rows should switch place:
+                    if (tipo == 'ASC') {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (tipo == 'DESC') {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+
+                }
+                if (shouldSwitch) {
+                    /*If a switch has been marked, make the switch
+                    and mark that a switch has been done:*/
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                }
+
+            }
+        }        
+
+    }
+</script>

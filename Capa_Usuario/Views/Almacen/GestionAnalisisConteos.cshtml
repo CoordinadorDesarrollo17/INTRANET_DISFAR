@@ -1,0 +1,176 @@
+﻿@model IEnumerable<Capa_Entidad.Almacen_ENT.TablasSql.OIAR_E>
+@using Capa_Entidad.Almacen_ENT.TablasSql
+@using Capa_Entidad.General_ENT.Tablas
+@{
+    ViewBag.Title = "GestionAnalisisConteos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    OIAR_E a = (OIAR_E)ViewBag.Oiar;
+    List<OWHS_E> ow = (List<OWHS_E>)ViewBag.Almacenes;
+}
+<script>
+    $(document).ready(function () {
+    });
+    function filtrar() {
+        var object = $("#frm").serialize();
+        $(location).attr('href', "/Almacen/GestionAnalisisConteos?" + object);
+    }
+</script>
+
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("ContabilizacionInventario", "Almacen")">Módulo contabilización inventario</a></li>
+            <li class="current"><em>Gestión análisis de conteos</em></li>
+        </ol>
+    </nav>
+</div>
+
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">GESTIÓN ANÁLISIS DE CONTEOS</h3></div>
+</div>
+
+
+
+
+@if (@OIPE_E.PeriodoSeleccionado != null)
+{
+    <div class="alert alert-danger mb-0" role="alert">
+        @OIPE_E.PeriodoSeleccionado.Descripcion
+        Almacenes:
+        @OIPE_E.PeriodoSeleccionado.enlistarDetAlmacenes()
+    </div>
+}
+
+<div class="bg-dark pt-4">
+    <form name="frm" id="frm">
+        <table class="table table-light table-sm table-hover cls-dataTable" cellspacing="0" width="100%">
+            <thead class="thead-dark">
+                <tr>
+                    <th class="text-center" style="width:100px;">
+                        N°
+                        <input type="text" name="DocEntry" class="form-control" onchange="filtrar();" value="@if (ViewBag.Oiar.DocEntry > 0) { Write(ViewBag.Oiar.DocEntry); }" />
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayName("OpAnalisisC")
+                        @if (a.DetFases != null && a.DetFases.Count > 0)
+                        {
+                            <input type="text" name="DetFases[0].Operario" class="form-control" onchange="filtrar();" value="@a.DetFases[0].Operario" />
+                        }
+                        else
+                        { <input type="text" name="DetFases[0].Operario" class="form-control" onchange="filtrar();" value="" />}
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayName("Equipo")
+                        <input type="text" name="DocEntryEqu" class="form-control" onchange="filtrar();" value="@if (ViewBag.Oiar.DocEntryEqu > 0) { Write(ViewBag.Oiar.DocEntryEqu); }" />
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayName("Almacen")
+                        <select name="WhsCode" id="Almacen" class="form-control" onchange="filtrar();">
+                            <option value="">Seleccione</option>
+                            @foreach (OWHS_E obj in ow)
+                            {
+                                if (a.WhsCode != null && a.WhsCode == obj.WhsCode)
+                                {
+                                    <option value="@obj.WhsCode" selected>@obj.WhsName</option>
+                                }
+                                else
+                                {
+                                    <option value="@obj.WhsCode">@obj.WhsName</option>
+                                }
+                            }
+                        </select>
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.Piso)
+                        <input type="number" name="Piso" class="form-control" onchange="filtrar();" value="@if (ViewBag.Oiar.Piso > 0) { Write(ViewBag.Oiar.Piso); }" />
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayName("CodArticulo")
+                        <input type="text" name="ItemCode" class="form-control" onchange="filtrar();" value="@ViewBag.Oiar.ItemCode" />
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayName("Articulo")
+                        <input type="text" name="ItemName" class="form-control" onchange="filtrar();" value="@ViewBag.Oiar.ItemName" />
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayName("Lotes")
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.Estado)
+                        <select name="Estado" id="Estado" class="form-control" onchange="filtrar();">
+                            <option value="">Seleccione</option>
+                            <option value="ReContado" @if (a.Estado == "ReContado") { Write("selected"); }>ReContado</option>
+                            <option value="EnAnalisis" @if (a.Estado == "EnAnalisis") { Write("selected"); }>EnAnalisis</option>
+                            <option value="Analizado" @if (a.Estado == "Analizado") { Write("selected"); }>Analizado</option>
+                        </select>
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayName("Fase")
+                    </th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.DocEntry)
+                        </td>
+                        <td>
+                            @if (item.DetFases != null && item.DetFases.Count > 4 && item.Fase > 5)
+                            {@item.DetFases[4].Operario}
+                        else
+                        { <label></label>}
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.DocEntryEqu)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.WhsCode)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.Piso)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.ItemCode)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.ItemName)
+                        </td>
+                        <td class="text-center">
+                            @if (item.DetFases != null && item.DetFases.Count > 5)
+                            {
+                                @item.DetFases[5].enlistarLotes()
+                            }
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.Estado)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.Fase)
+                        </td>
+                        <td class="text-center">
+                            @Html.ActionLink("Iniciar Análisis", "IniciarAnalisisConteo", new { id = item.DocEntry }, new { @class = "btn btn-primary" })
+                        </td>
+                        <td class="text-center">
+                            @if (!item.Estado.Equals("ReContado"))
+                            {
+                                @Html.ActionLink("Terminar Análisis", "TerminarAnalisisConteo", new { id = item.DocEntry }, new { @class = "btn btn-danger" })
+
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+
+
+
+        </table>
+    </form>
+</div>
+

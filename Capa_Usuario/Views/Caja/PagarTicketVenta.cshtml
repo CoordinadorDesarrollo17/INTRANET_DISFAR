@@ -1,0 +1,1069 @@
+﻿@model Capa_Entidad.Ventas_ENT.TablasSql.ORTV_E
+@using Capa_Entidad.Ventas_ENT.TablasSql
+@{
+    ViewBag.Title = "Pagar Ticket";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<Capa_Entidad.Caja_ENT.OPP_E> pagosParciales = (List<Capa_Entidad.Caja_ENT.OPP_E>)ViewBag.PagosParciales;
+    bool verDetalleReparto = !string.IsNullOrEmpty(ViewBag.DescTipoPago) && ViewBag.IdOTC > 0;
+    //bool verPagosParciales =  (decimal)ViewBag.TotalPagosParciales > 0 && ViewBag.EstadoContraEntrega == "CUADRADO" || (ViewBag.TipoPago == "PMI" && (ViewBag.EstadoContraEntrega == "VALIDADO" || ViewBag.EstadoContraEntrega == "AUTORIZADO")) || (ViewBag.TipoPago == "SP" && ViewBag.EstadoContraEntrega == "AUTORIZADO");
+    bool verPagosParciales = ((decimal)ViewBag.MontoRecibidoEfectivo + (decimal)ViewBag.MontoRecibidoDeposito + (decimal)ViewBag.TotalPagosParciales < Model.MontoFinal) || (decimal)ViewBag.TotalPagosParciales > 0;
+    bool permisoCaja = ViewBag.IdRol == 1 || ViewBag.IdRol == 8 || ViewBag.IdRol == 9;
+    bool verBotonesPagarAnular = ViewBag.TipoPago == "PCE" || ((ViewBag.TipoPago == "SP" || ViewBag.TipoPago == "PMI") && ViewBag.EstadoContraEntrega == "AUTORIZADO") || ((ViewBag.TipoPago == "PCD" || ViewBag.TipoPago == "PMI") && ViewBag.EstadoContraEntrega == "VALIDADO");
+}
+
+<style>
+    .swal-wide {
+        width: 850px !important;
+    }
+
+        .swal-wide:hover {
+            transform: scale(1.5);
+        }
+</style>
+
+<script>
+    $(document).ready(function () {
+        validacionCajero();
+    });
+
+    function validacionCajero() {
+        $('#infoListaCajeros').on('change', function () {
+            $('#infoCajero input').val($("#infoListaCajeros #ListaCajeros option[value='" + $("#infoListaCajeros input").val() + "']").attr("empID"));
+        });
+    }
+    function ConfirGastoEnv() {
+        var o = $("#form").serialize();
+        $(location).attr('href', "/Caja/ConfGastEnvio?" + o);
+    }
+</script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("Index", "Caja")">Listado de tickets</a></li>
+            <li class="current"><em>Pagar ticket</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">PAGAR TICKET DE VENTA</h3></div>
+</div>
+
+<div class="bg-form-pestanas-cobefar pt-4">
+    <nav>
+        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+            @if (permisoCaja)
+            {
+                <a class="nav-link active" id="nav-caja-tab" data-toggle="tab" href="#nav-caja" role="tab" aria-controls="nav-caja" aria-selected="true">
+                    Caja
+                </a>
+                <a class="nav-link" id="nav-datos-pedidos-tab" data-toggle="tab" href="#nav-datos-pedidos" role="tab" aria-controls="nav-datos-pedidos" aria-selected="false">
+                    Datos Pedido
+                </a>
+                <a class="nav-link" id="nav-especif-recojo-tab" data-toggle="tab" href="#nav-especif-recojo" role="tab" aria-controls="nav-especif-recojo" aria-selected="false">
+                    Especificaciones de Recojo
+                </a>
+                <a class="nav-link" id="nav-det-pedidos-tab" data-toggle="tab" href="#nav-det-pedidos" role="tab" aria-controls="nav-det-pedidos" aria-selected="false">
+                    Detalle del Pedido
+                </a>
+            }
+
+            @if (verDetalleReparto)
+            {
+                <a class="nav-link" id="nav-det-reparto-tab" data-toggle="tab" href="#nav-det-reparto" role="tab" aria-controls="nav-det-reparto" aria-selected="false">
+                    Detalle de Reparto
+                </a>
+            }
+        </div>
+    </nav>
+    @using (Html.BeginForm("PagarTicketVenta", "Caja", FormMethod.Post, new { id = "form" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="tab-content" id="nav-tabContent">
+            @if (permisoCaja)
+            {
+                <div class="tab-pane fade show active" id="nav-caja" role="tabpanel" aria-labelledby="nav-caja-tab">
+                    <div class="bg-section-form p-4 bg-form-cobefar">
+                        <h2 class="text-cobefar font-weight-bold">CAJA</h2>
+                        <div class="row mt-4">
+                            <div class="col-xl-4 col-lg-4">
+                                <label for="EstadoPago" class="text-dark form-label font-weight-bold font-18">Estado de Pago:</label>
+                                <input type="text" class="form-control text-center border-success" id="EstadoPago" name="EstadoPago" value="@Model.EstadoPago" readonly>
+                            </div>
+
+                            <div class="col-xl-4 col-lg-4">
+                                <label for="FormaPago" class="text-dark form-label font-weight-bold font-18">Forma de Pago:</label>
+                                <select name="FormaPago" class="form-control bg-cobefar text-white">
+                                    <option value="DEPOSITO" @{ if (Model.FormaPago != null && Model.FormaPago.Equals("DEPOSITO")) { Write("selected"); } }>DEPÓSITO</option>
+                                    <option value="EFECTIVO" @{ if (Model.FormaPago != null && Model.FormaPago == "EFECTIVO") { Write("selected"); } }>EFECTIVO</option>
+                                    <option value="EFE/CAPON" @{ if (Model.FormaPago != null && Model.FormaPago.Equals("EFE/CAPON")) { Write("selected"); } }>EFE/CAPON</option>
+                                </select>
+                            </div>
+
+                            <div class="col-xl-4 col-lg-4">
+                                <label for="EstadoGasto" class="text-dark form-label font-weight-bold font-18">Estado de Gasto:</label>
+                                <input type="text" class="form-control text-center border-success" id="EstadoGasto" name="EstadoGasto" value="@Model.EstadoGasto" readonly>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-xl-4 col-lg-4">
+                                <label for="MontoRecibido" class="text-dark form-label font-weight-bold font-18">Monto Recibido:</label>
+                                <input type="text" class="form-control text-center font-weight-bold border-success" id="MontoRecibido" name="MontoRecibido" value="@Model.MontoFinal">
+                            </div>
+
+                            <div class="col-xl-4 col-lg-4">
+                                <label for="FechaPago" class="text-dark form-label font-weight-bold font-18">Fecha de Pago:</label>
+                                @if (Model.FechaPago != null)
+                                {
+                                    <input name="FechaPago" type="date" value="@Model.FechaPago" class="form-control text-center border-success" readonly />
+                                }
+                                else
+                                {
+                                    <input name="FechaPago" type="text" value="" class="form-control text-center border-success" readonly />
+                                }
+                            </div>
+
+                            <div class="col-xl-4 col-lg-4">
+                                <label for="GastoEnvio" class="text-dark form-label font-weight-bold font-18">Gasto de Envío:</label>
+                                <input type="text" class="form-control text-center font-weight-bold border-success" id="GastoEnvio" name="GastoEnvio" value="@Model.GastoEnvio" readonly>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-xl-4 col-lg-4">
+                                <label for="Cajero" class="text-dark form-label font-weight-bold font-18">CajeroDesc:</label>
+                                <input type="text" class="form-control border-success" id="Cajero" name="Cajero" value="@Model.Cajero" readonly>
+                            </div>
+
+                            <div class="col-xl-4 col-lg-4">
+                                <label for="HoraPago" class="text-dark form-label font-weight-bold font-18">Hora de Pago:</label>
+                                <input type="text" class="form-control text-center border-success" id="HoraPago" name="HoraPago" value="@Model.HoraPago" readonly>
+                            </div>
+
+                            <div class="col-xl-4 col-lg-4">
+                                <label for="PagoEnv" class="text-dark form-label font-weight-bold font-18">Pago de Envío:</label>
+                                <input type="text" class="form-control text-center font-weight-bold border-success" id="PagoEnv" name="PagoEnv" value="@Model.PagoEnv">
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-xl-8 col-lg-8">
+                                <div class="d-flex">
+                                    <input type="text" class="form-control border-success" name="DetOpe" placeholder="Texto Confirmación" />
+                                    @if (Model.EstadoGasto != "CONFIRMADO")
+                                    {
+                                        <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#Modal">
+                                            <i class="icon icon-drawer"></i> Confirmar Gasto Envío
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="col-xl-4 col-lg-4">
+                                <a href="@Url.Action("EvidenciaReparto", "Rutas", new { DocEntry = Model.DocEntry, TipoRuta = "Ventas" })" class="btn btn-dark"><i class="icon icon-image"></i> ImgEvidencia</a>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-xl-12 col-lg-12 d-flex">
+                                @if (ViewBag.IdOTC > 0)
+                                {
+                                    if ((decimal)ViewBag.MontoRecibidoEfectivo + (decimal)ViewBag.MontoRecibidoDeposito + (decimal)ViewBag.TotalPagosParciales == Model.MontoFinal && verBotonesPagarAnular == true)
+                                    {
+
+                                        if (Model.EstadoPago != "PAGADO")
+                                        {
+                                            <div id="div_pagar">
+                                                <button type="submit" name="Pagar" class="btn btn-success"><i class="icon icon-coin-dollar"></i> Pagar</button>
+                                            </div>
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if (Model.EstadoPago != "PAGADO")
+                                    {
+                                        <button name="Pagar" type="submit" class="btn btn-success"><i class="icon icon-coin-dollar"></i> Pagar</button>
+                                    }
+                                    else
+                                    {
+                                        <button name="AnularPago" type="button" class="btn btn-danger" onclick="anularPago()">
+                                            <i class="icon icon-blocked"></i> Anular Pago
+                                        </button>
+                                    }
+
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="nav-datos-pedidos" role="tabpanel" aria-labelledby="nav-datos-pedidos-tab">
+                    <div class="bg-section-form p-4 bg-form-cobefar">
+                        <h2 class="text-cobefar font-weight-bold">DATOS PEDIDO</h2>
+                        <div class="row mt-4">
+                            <div class="col-lg-3">
+                                <label for="TipoVenta" class="text-dark form-label font-weight-bold font-18">TipoVenta:</label>
+                                <input type="text" id="TipoVenta" name="TipoVenta" value="@Model.TipoVenta" class="form-control text-center border-success" readonly />
+                            </div>
+
+                            <div class="col-lg-3">
+                                <label for="Embalaje" class="text-dark form-label font-weight-bold font-18">Embalaje:</label>
+                                <input type="text" id="Embalaje" name="Embalaje" value="@Model.Embalaje" class="form-control text-center border-success" readonly />
+                            </div>
+
+                            <div class="col-lg-3">
+                                <label class="text-dark form-label font-weight-bold font-18">NumTicket:</label>
+                                <input type="text" id="DocNum" name="DocNum" value="@Model.DocNum" class="form-control text-center border-success" readonly />
+                                <input type="hidden" id="DocEntryTicket" name="DocEntryTicket" value="@Model.DocEntry" readonly />
+                            </div>
+
+                            <div class="col-lg-3">
+                                <label class="text-dark form-label font-weight-bold font-18">Estado:</label>
+                                <input id="Estado" type="text" name="Estado" value="@Model.Estado" class="form-control text-center bg-warning" readonly />
+                            </div>
+                        </div>
+
+
+                        <div class="row mt-4">
+                            <div class="col-lg-3">
+                                <label class="text-dark form-label font-weight-bold font-18">FechaTk:</label>
+                                <input id="FechaSapTicket" type="date" name="FechaSapTicket" value="@Model.FechaSapTicket" class="form-control text-center border-success" readonly />
+                            </div>
+
+                            <div class="col-lg-6">
+                                <label class="text-dark form-label font-weight-bold font-18">Cliente:</label>
+                                <input type='search' id="CardName" name="CardName" list='ListaClientes' class="form-control text-center border-success" value="@Model.CardName" readonly>
+                            </div>
+
+                            <div class="col-lg-3">
+                                <label class="text-dark form-label font-weight-bold font-18">Código Cliente:</label>
+                                <input type="text" id="CardCode" name="CardCode" class="form-control text-center border-success" readonly value="@Model.CardCode">
+                            </div>
+
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-lg-3">
+                                <label class="text-dark form-label font-weight-bold font-18">LugarDestino:</label>
+                                <input type="text" id="LugarDestino" name="LugarDestino" class="form-control text-center border-success" value="@Model.LugarDestino" readonly />
+                            </div>
+
+                            <div class="col-lg-3">
+                                <label class="text-dark form-label font-weight-bold font-18">Agencia:</label>
+                                <input type="text" id="Agencia" name="Agencia" class="form-control text-center border-success" value="@Model.Agencia" readonly />
+                            </div>
+                        </div>
+
+
+                        <div class="row mt-4">
+                            <div class="col-lg-12">
+                                <label class="text-dark form-label font-weight-bold font-18">DirDestino1:</label>
+                                <input type="text" id="DirDestino" name="DirDestino" class="form-control border-success" value="@Model.DirDestino" readonly />
+                            </div>
+
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-lg-12">
+                                <label for="DirDestino2" class="text-dark form-label font-weight-bold font-18">DirDestino2:</label>
+                                <input type="text" id="DirDestino2" name="Det3[1].Calle" class="form-control border-success" value="@if (Model.Det3 != null) { if (Model.Det3.Count >= 2) { Write(Model.Det3[1].Calle); }}" readonly />
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div><!-- // TAB 2 -->
+
+                <div class="tab-pane fade" id="nav-especif-recojo" role="tabpanel" aria-labelledby="nav-especif-recojo-tab">
+                    <div class="bg-section-form p-4 bg-form-cobefar">
+                        <h2 class="text-cobefar font-weight-bold">ESPECIFICACIONES DE RECOJO</h2>
+                        <div class="row mt-4">
+                            <div class="col-lg-5">
+                                <label for="NombrePer" class="text-dark form-label font-weight-bold font-18">Nombres Per1:</label>
+                                <input class="form-control text-center border-success" id="Det1_NombrePer_0" name="Det1[0].NombrePer" type="text" value="@if (Model.Det1 != null && Model.Det1.Count >= 1) { Write(Model.Det1[0].NombrePer); }" readonly>
+                            </div>
+
+                            <div class="col-lg-2">
+                                <label for="TelfPer" class="text-dark form-label font-weight-bold font-18">Teléfono Per1:</label>
+                                <input type="number" id="TelfPer" name="Det1[0].TelfPer" class="form-control text-center border-success" value="@if (Model.Det1 != null && Model.Det1.Count >= 1) { Write(Model.Det1[0].TelfPer); }" readonly />
+                            </div>
+
+                            <div class="col-lg-3">
+                                <label for="TipoDocPer" class="text-dark form-label font-weight-bold font-18">Tipo de Doc Per1:</label>
+                                <input type="text" id="TipoDocPer" name="Det1[0].TipoDocPer" class="form-control text-center border-success" value="@if (Model.Det1 != null && Model.Det1.Count >= 1) { Write(Model.Det1[0].TipoDocPer); }" readonly />
+
+                            </div>
+
+                            <div class="col-lg-2">
+                                <label for="DocPer" class="text-dark form-label font-weight-bold font-18">Nro Doc Per1:</label>
+                                <input class="form-control text-center border-success" id="Det1_DocPer_0" name="Det1[0].DocPer" type="text" value="@if (Model.Det1 != null && Model.Det1.Count >= 1) { Write(Model.Det1[0].DocPer); }" readonly>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-lg-12">
+                                <label for="Correo" class="text-dark form-label font-weight-bold font-18">Observaciones:</label>
+                                <textarea id="Observaciones" name="Observaciones" class="form-control border-success" rows="4" readonly>@Model.Observaciones</textarea>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-lg-12">
+                                <label for="Correo" class="text-dark form-label font-weight-bold font-18">Observaciones2:</label>
+                                <textarea id="Observaciones2" name="Observaciones2" class="form-control border-success" rows="4" readonly>@Model.Observaciones2</textarea>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-lg-6">
+                                <label for="Vendedor" class="text-dark form-label font-weight-bold font-18">Vendedor:</label>
+                                <input name="Vendedor" id="Vendedor" value="@Model.Vendedor" class="form-control border-success" readonly />
+                            </div>
+
+                            <div class="col-lg-2">
+                                <label for="HoraRegistro" class="text-dark form-label font-weight-bold font-18">Hora Registro:</label>
+                                <input type="time" name="HoraRegistro" id="HoraRegistro" value="@Model.HoraRegistro" class="form-control text-center border-success" readonly />
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="nav-det-pedidos" role="tabpanel" aria-labelledby="nav-det-pedidos-tab">
+                    <div class="bg-section-form p-4 bg-form-cobefar">
+                        <h2 class="text-cobefar font-weight-bold">DETALLES DE PEDIDOS</h2>
+                        <div class="row mt-4">
+                            <div class="col-lg-12">
+                                <table class="table table-hover table-bordered">
+                                    <thead class='bg-dark text-white'>
+                                        <tr>
+                                            <th class='text-center'>#</th>
+                                            <th class='text-center'>VER</th>
+                                            <th class='text-center'>Monto</th>
+                                            <th class='text-center'>Nro SAP</th>
+                                            <th class='text-center'>Tipo Comprobante</th>
+                                            <th class='text-center'>Vendedor</th>
+                                            <th class='text-center'>Lugar de Entrega</th>
+                                            <th class='text-center font-24'>Observación</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (Model.Det2 != null && Model.Det2.Count >= 1)
+                                        {
+                                            foreach (var dt in Model.Det2)
+                                            {
+                                                <tr>
+                                                    <td class="text-center"><input id="Linea@(dt.Linea)" name='Det2[@(dt.Linea - 1)].Linea' type='hidden' value='@dt.Linea' />@dt.Linea</td>
+                                                    <td class="text-center"><input id="Verificar@(dt.Linea)" name="Det2[@(dt.Linea - 1)].Verificar" type="checkbox" checked readonly onclick="javascript: return false;" /></td>
+                                                    <td class="text-center"><input id="Monto@(dt.Linea)" name='Det2[@(dt.Linea - 1)].Monto' type='hidden' value='@dt.Monto' />@dt.Monto</td>
+                                                    <td class="text-center"><input id="NroSap@(dt.Linea)" name='Det2[@(dt.Linea - 1)].NroSap' type='hidden' value='@dt.NroSap' />@dt.NroSap</td>
+                                                    <td class="text-center"><input id="TipoComprobante@(dt.Linea)" name='Det2[@(dt.Linea - 1)].TipoComprobante' type='hidden' value='@dt.TipoComprobante'>@dt.TipoComprobante</td>
+                                                    <td class="text-center"><input id="Vendedor@(dt.Linea)" name='Det2[@(dt.Linea - 1)].Vendedor' type='hidden' value='@dt.Vendedor' />@dt.Vendedor</td>
+                                                    <td class="text-center"><input id="LugarDeEntrega@(dt.Linea)" name='Det2[@(dt.Linea - 1)].LugarDeEntrega' type='hidden' value='@dt.LugarDeEntrega' />@dt.LugarDeEntrega</td>
+                                                    <td class="text-center"><input id="Observaciones@(dt.Linea)" name='Det2[@(dt.Linea - 1)].Observaciones' type='hidden' size=30 value='@dt.Observaciones' />@dt.Observaciones</td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-lg-4">
+                                <label for="MontoTotal" class="text-dark form-label font-weight-bold font-18">MontoTotal:</label>
+                                <input name="MontoTotal" id="MontoTotal" value="@Model.MontoTotal" class="form-control font-weight-bold border-success" readonly />
+                            </div>
+                        </div>
+
+
+                        <div class="row mt-4">
+                            <div class="col-lg-4">
+                                <label for="Flete" class="text-dark form-label font-weight-bold font-18">Flete:</label>
+                                <input name="Flete" id="Flete" value="@Model.Flete" class="form-control font-weight-bold border-success" onchange="validacionVerificarMontos();" readonly />
+                            </div>
+
+                            <div class="col-lg-4">
+                                <label for="DeudaCliente" class="text-dark form-label font-weight-bold font-18">DeudaCliente:</label>
+                                <input name="DeudaCliente" id="DeudaCliente" value="@Model.DeudaCliente" class="form-control font-weight-bold border-success" onchange="validacionVerificarMontos();" readonly />
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-lg-4">
+                                <label for="GastoEnvio" class="text-dark form-label font-weight-bold font-18">GastoEnvio:</label>
+                                <input name="GastoEnvio" id="GastoEnvio" value="@Model.GastoEnvio" class="form-control font-weight-bold border-success" onchange="validacionVerificarMontos();" readonly />
+                            </div>
+
+                            <div class="col-lg-4">
+                                <label for="DeudaEmpresa" class="text-dark form-label font-weight-bold font-18">DeudaEmpresa:</label>
+                                <input name="DeudaEmpresa" id="DeudaEmpresa" value="@Model.DeudaEmpresa" class="form-control font-weight-bold border-success" onchange="validacionVerificarMontos();" readonly />
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-lg-4">
+                                <label for="DescuentoNC" class="text-dark form-label font-weight-bold font-18">DescuentoNC:</label>
+                                <input name="DescuentoNC" id="DescuentoNC" value="@Model.DescuentoNC" class="form-control font-weight-bold border-success" onchange="validacionVerificarMontos();" readonly />
+                            </div>
+
+                            <div class="col-lg-4">
+                                <label for="FechaNC" class="text-dark form-label font-weight-bold font-18">FechaNC:</label>
+                                @{
+                                    if (Model.FechaNC != null)
+                                    {
+                                        <input type="date" id="FechaNC" name="FechaNC" class="form-control border-success" value="@Model.FechaNC" readonly />
+                                    }
+                                    else
+                                    {
+                                        <input type="text" id="FechaNC" name="FechaNC" class="form-control border-success" value="" readonly />
+                                    }
+                                }
+                            </div>
+                        </div>
+
+                        @if (Model.Det4 != null && Model.Det4.Count >= 1)
+                        {
+                            <div class="row mt-4">
+                                <div class="col-lg-12">
+                                    <table class="table table-hover table-bordered">
+
+
+                                        <thead class="thead-dark">
+                                            <tr>
+                                                <th class="text-center">#</th>
+                                                <th class="text-center">Monto NC</th>
+                                                <th class="text-center">Fecha</th>
+                                                <th class="text-center">Nro SAP</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (RTV4_E d2 in Model.Det4)
+                                            {
+                                                if (d2.Nc != null)
+                                                {
+                                                    <tr>
+                                                        <td>@d2.Linea</td>
+                                                        <td>@d2.Nc.DocTotal</td>
+                                                        <td>@d2.Nc.DocDate</td>
+                                                        <td>@d2.Nc.DocNum</td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+
+                                    </table>
+                                </div>
+                            </div>
+                        }
+
+
+                        <div class="row mt-4">
+                            <div class="col-lg-4">
+                                <label for="MontoFinal" class="text-dark form-label font-weight-bold font-18">MontoFinal:</label>
+                                <input id="MontoFinal" name="MontoFinal" type="text" value="@Model.MontoFinal" readonly class="form-control font-weight-bold border-success" />
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-lg-8">
+                                <label for="Comentario" class="text-dark form-label font-weight-bold font-18">Comentario:</label>
+                                <textarea id="Observaciones" name="Comentario" class="form-control border-success" rows="4" readonly>@Model.Comentario</textarea>
+                            </div>
+                        </div>
+
+                    </div>
+                </div><!-- // TAB 3 -->
+            }
+
+            @if (verDetalleReparto)
+            {
+                List<string> comprobantes = (List<string>)ViewBag.Comprobantes;
+                int numComprobante = 1, numSlide = 1, dataSlideTo = 0;
+                decimal montoTotalRecibido = (decimal)ViewBag.MontoRecibidoEfectivo + (decimal)ViewBag.MontoRecibidoDeposito;
+
+                <div class="tab-pane fade" id="nav-det-reparto" role="tabpanel" aria-labelledby="nav-det-reparto-tab">
+                    <div class="bg-section-form p-4 bg-form-cobefar">
+                        <h2 class="text-cobefar font-weight-bold">DETALLE DE REPARTO</h2>
+                        <input type="hidden" name="IdOTC" value="@ViewBag.IdOTC" />
+
+                        <div class="row mt-3 justify-content-center">
+                            <div class="col-5 border-right">
+                                <div class="row justify-content-center">
+                                    <div class="col-12">
+                                        @if (comprobantes != null && comprobantes.Count >= 1)
+                                        {
+                                            <div id="carouselExampleIndicators" class="carousel slide w-75 mx-auto" data-ride="carousel">
+                                                <ol class="carousel-indicators">
+                                                    @foreach (var adj in comprobantes)
+                                                    {
+                                                        <li data-target="#carouselExampleIndicators" data-slide-to="@dataSlideTo" class="@{ if (numSlide.Equals(1)) { Write("active"); }}"></li>
+                                                        ++numSlide;
+                                                    }
+                                                </ol>
+                                                <div class="carousel-inner">
+                                                    @foreach (var adj in comprobantes)
+                                                    {
+                                                        <div class="carousel-item @{ if (numComprobante.Equals(1)) { Write("active"); }}">
+                                                            <img id="img_@numComprobante" width="360" style="max-height: 300px" class="d-block w-100" src="@adj" alt="" onclick="maximizarImg(this.id)">
+                                                        </div>
+                                                        ++numComprobante;
+                                                    }
+                                                </div>
+                                                <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+                                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                                    <span class="sr-only">Previous</span>
+                                                </a>
+                                                <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+                                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                                    <span class="sr-only">Next</span>
+                                                </a>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+
+                                @if (ViewBag.ComentarioAdjunto != "")
+                                {
+                                    <div class="row justify-content-center">
+                                        <div class="col-12">
+                                            <div class="form-group row mt-4 justify-content-center font-18 text-cobefar">
+                                                <span class="w-75 font-weight-bold">Comentario ADJUNTO</span>
+                                            </div>
+
+                                            <div class="form-group row mt-2 justify-content-center font-18 text-danger">
+                                                <textarea class="form-control text-uppercase border-success w-75" rows="4" disabled>@ViewBag.ComentarioAdjunto</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+
+                                @if ((comprobantes != null && comprobantes.Count >= 1) || ViewBag.ComentarioAdjunto != "")
+                                {
+                                    <hr class="w-55">
+                                }
+
+                                <div class="form-group row justify-content-center">
+                                    <label class="col-sm-5 col-form-label text-dark font-weight-bold font-18">Tipo de pago:</label>
+                                    <div class="col-sm-6">
+                                        <input type="text" class="form-control border-success text-center" value="@ViewBag.DescTipoPago" disabled />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row mt-2 justify-content-center">
+                                    <label class="col-sm-5 col-form-label text-dark font-weight-bold font-18">Estado Contra-entrega:</label>
+                                    <div class="col-sm-6">
+                                        <input type="text" class="form-control border-success text-center" value="@ViewBag.EstadoContraEntrega" disabled />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row mt-2 justify-content-center">
+                                    <div class="col-11">
+                                        <table class="table table-hover table-bordered">
+                                            <thead class="bg-dark">
+                                                <tr>
+                                                    <th class="text-center">Efectivo<br />recibido</th>
+                                                    <th class="text-center">Depósito<br />recibido</th>
+                                                    <th class="text-center">Total recibido (Entrega)</th>
+                                                    <th class="text-center">Pagos Parciales</th>
+                                                    <th class="text-center">Monto final<br />ticket</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td class="text-center text-dark">
+                                                        @ViewBag.MontoRecibidoEfectivo
+                                                        <input type="hidden" class="form-control text-center bg-warning" value="@ViewBag.MontoRecibidoEfectivo" disabled />
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @ViewBag.MontoRecibidoDeposito
+                                                        <input type="hidden" class="form-control border-success text-center" value="@ViewBag.MontoRecibidoDeposito" disabled />
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @montoTotalRecibido
+                                                        <input type="hidden" id="MontoRecibidoEntrega" class="form-control border-success text-center" value="@montoTotalRecibido" disabled />
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <input type="text" id="TotalPagosParciales" class="form-control border-success text-center" value="@ViewBag.TotalPagosParciales" disabled />
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <input type="text" id="MontoFinalTicket" class="form-control border-light text-center text-white @if (Model.MontoFinal.Equals(montoTotalRecibido+ViewBag.TotalPagosParciales)) { Write("bg-success"); } else { Write("bg-danger"); }" value="@Model.MontoFinal" disabled />
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class="col-7">
+                                <div class="row justify-content-center">
+                                    <div class="col-10">
+                                        @if (ViewBag.TipoPago == "PMI" && montoTotalRecibido != Model.MontoFinal)
+                                        {
+                                            <div class="form-group row justify-content-center font-18 text-white">
+                                                <span class="w-75 bg-danger px-3 py-2"><b>NOTA: </b>El monto total ingresado por el transportista no es igual al monto final del ticket.</span>
+                                            </div>
+                                        }
+
+                                        @if (ViewBag.TipoPago != "PCE" && ViewBag.TipoPago != "SP" && ViewBag.MontoRecibidoDeposito > 0)
+                                        {
+                                            <div class="form-group row mt-4 justify-content-center font-18 text-danger">
+                                                <label class="col-sm-3 col-form-label text-dark font-weight-bold font-18">Saldo a favor:</label>
+                                                <div class="col-sm-3">
+                                                    @if (ViewBag.EstadoContraEntrega == "PENDIENTE")
+                                                    {
+                                                        <select id="SaldoAFavor" name="SaldoAFavor" class="form-control bg-cobefar text-white">
+                                                            <option value="NO">NO</option>
+                                                            <option value="SI">SI</option>
+                                                        </select>
+                                                    }
+                                                    else
+                                                    {
+                                                        <input type="text" class="form-control border-success text-center" value="@ViewBag.SaldoAFavor" disabled />
+                                                    }
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row mt-4 justify-content-center font-18 text-cobefar">
+                                                <span class="w-75 font-weight-bold">Comentario CAJA</span>
+                                            </div>
+
+                                            <div class="form-group row mt-2 justify-content-center font-18 text-danger">
+                                                <textarea id="ComentarioCaja" name="ComentarioCaja" class="form-control text-uppercase border-success w-75" rows="4" placeholder="@if (ViewBag.EstadoContraEntrega == "PENDIENTE" ) { Write("Escribe aquí el motivo de validación o rechazo..."); }" @if (ViewBag.EstadoContraEntrega != "PENDIENTE") { Write("disabled"); }>@ViewBag.ComentarioCaja</textarea>
+                                            </div>
+
+                                            if (ViewBag.EstadoContraEntrega == "PENDIENTE")
+                                            {
+                                                <div class="form-group row mt-2 mb-4 justify-content-center font-18 text-danger">
+                                                    <button type="button" class="btn btn-sm btn-danger mx-2" onclick="rechazarTicket('@ViewBag.IdOTC', 'ComentarioCaja')"><i class="icon-cross"></i> Rechazar</button>
+                                                    <button type="button" class="btn btn-sm btn-warning mx-2" onclick="validarEntregaTicket('@ViewBag.IdOTC')"><i class="icon-checkmark"></i> Validar Depósito</button>
+                                                </div>
+                                            }
+                                        }
+
+                                        @if (ViewBag.ComentarioVentas != null && !string.IsNullOrEmpty(ViewBag.ComentarioVentas.ToString()))
+                                        {
+                                            <div class="form-group row justify-content-center font-18 text-cobefar">
+                                                <span class="w-75 font-weight-bold">Comentario VENTAS</span>
+                                            </div>
+
+                                            <div class="form-group row mt-2 justify-content-center font-18">
+                                                <textarea class="form-control text-uppercase border-success w-75" rows="4" disabled>@ViewBag.ComentarioVentas</textarea>
+                                            </div>
+                                        }
+
+                                        @if (ViewBag.FechaCompromisoPago != null && !string.IsNullOrEmpty(ViewBag.FechaCompromisoPago.ToString()))
+                                        {
+                                            <div class="form-group row mt-2 justify-content-center font-18 text-dark">
+                                                <span class="font-weight-bold mr-3 mt-1">Fecha Compromiso de Pago: </span>
+                                                <div class="col-sm-3">
+                                                    <input type="text" class="form-control border-success text-center" value="@ViewBag.FechaCompromisoPago" disabled />
+                                                </div>
+                                            </div>
+                                        }
+
+                                        <hr class="w-55">
+
+                                    </div>
+                                </div>
+
+                                @if (verPagosParciales)
+                                {
+
+
+
+                                    <div class="row justify-content-center mt-4">
+                                        <h2 class="text-cobefar font-weight-bold">PAGOS PARCIALES</h2>
+                                    </div>
+
+                                    if (ViewBag.EstadoContraEntrega != "CUADRADO")
+                                    {
+                                        <div class="row justify-content-center">
+                                            <div class="row mt-2">
+                                                <div class="col-12 d-flex justify-content-center">
+                                                    <input type="number" id="pago_parcial" class="form-control border-success text-center" placeholder="Ingresar monto" style="width: 250px;" />
+                                                    <select id="tipo_pagoParcial" class="form-control border-success bg-cobefar text-white mx-2" style="width: 150px;">
+                                                        <option value="NORMAL">NORMAL</option>
+                                                        <option value="NC">NC</option>
+                                                    </select>
+                                                    <button type="button" class="btn btn-sm btn-warning" onclick="agregarPagoParcial($('#pago_parcial').val(), $('#tipo_pagoParcial').val())" style="width: 50px;"><i class="icon-plus"></i></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+
+
+                                    <div class="form-group row mt-2 justify-content-center">
+                                        <div class="col-8">
+                                            <form id="frm_pagosParciales">
+                                                <table id="tbl_pagosParciales" class="table table-hover table-bordered">
+                                                    <thead class="bg-cobefar text-white">
+                                                        <tr>
+                                                            <th class="text-center">#</th>
+                                                            <th class="text-center">Pago</th>
+                                                            <th class="text-center">Tipo Pago Parcial</th>
+                                                            <th class="text-center">Fecha Registro</th>
+                                                            <th class="text-center">Registrado Por</th>
+                                                            @if (ViewBag.EstadoContraEntrega != "CUADRADO")
+                                                            {
+                                                                <th></th>
+                                                            }
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @if (pagosParciales != null)
+                                                        {
+                                                            int numFila = 1;
+
+                                                            foreach (var pago in pagosParciales)
+                                                            {
+                                                                string clsPagoEliminado = string.Empty;
+                                                                if (pago.Estado == "0") { clsPagoEliminado = "bg-danger text-white"; }
+                                                                <tr id="tr_@pago.IdOPP" class="cls-fila @clsPagoEliminado">
+                                                                    <td class="text-center">@numFila</td>
+                                                                    <td class="text-center"><input type="hidden" id="pago_@pago.IdOPP" class="@if (pago.Estado == "1") { Write("cls-monto"); }" value="@pago.Monto" />@pago.Monto</td>
+                                                                    <td class="text-center">@pago.Comentario</td>
+                                                                    <td class="text-center">@pago.FechaRegistro</td>
+                                                                    <td class="text-center">@pago.RegistradoPor</td>
+                                                                    @if (ViewBag.EstadoContraEntrega != "CUADRADO")
+                                                                    {
+                                                                        <td class="text-center">
+                                                                            @if (pago.Estado == "1")
+                                                                            {
+                                                                                <button type="button" id="btn_eliminar_@pago.IdOPP" class="btn btn-sm btn-danger" onclick="eliminarPagoParcial(@pago.IdOPP)"><i class="icon-bin text-white"></i></button>
+                                                                            }
+                                                                        </td>
+                                                                    }
+                                                                </tr>
+                                                                ++numFila;
+                                                            }
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </form>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mt-2 justify-content-center">
+                                        <div class="col-sm-8">
+                                            <button type="button" id="btn_AgregarPagos" class="btn btn-sm bg-success text-white" onclick="agregarPagos('@ViewBag.IdOTC')"><i class=" icon-plus"></i> Agregar pagos</button>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                    </div>
+                </div><!-- // TAB REPARTO -->
+            }
+        </div>
+    }
+</div>
+
+<div class="modal" id="Modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-cobefar text-white">
+                <h5 class="modal-title" id="exampleModalLabel">¿Seguro(a) de Confirmar Gasto Envío? </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span class="text-white" aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <span class="text-danger font-weight-bold">Este proceso es irreversible.</span>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-success" type="button" onclick="ConfirGastoEnv();"><i class="icon icon-checkmark"></i> SI</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="icon icon-cross"></i> NO</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#btn_AgregarPagos').css('display', 'none');
+
+        // Desactivar tecla "Enter"
+        window.addEventListener("keypress", function (event) {
+            if (event.key == "Enter") {
+                event.preventDefault();
+            }
+        }, false);
+    });
+
+    function anularPago() {
+        Swal.fire({
+            title: '¿Estás seguro(a) de anular el pago?',
+            text: 'Esta acción anulará el pago del ticket.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#dc3545',
+            confirmButtonText: 'Sí, anular pago',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Si se confirma, enviar el formulario
+                $("#form").attr("action", "/Caja/AnularPagoTicketVenta");
+                $("#form").submit();
+            }
+        });
+    }
+
+    const swalWithBootstrapButtons = Swal.mixin({
+        customClass: {
+            confirmButton: 'btn btn-success mx-3',
+            cancelButton: 'btn btn-danger mx-3'
+        },
+        buttonsStyling: false
+    })
+
+    if ('@ViewBag.Mensaje' != "") {
+        Swal.fire('@ViewBag.Mensaje');
+    }
+
+    deshabilitarRetroceso();
+
+    function maximizarImg(idImg) {
+        let img = $('#' + idImg).attr('src');
+        Swal.fire({
+            imageUrl: `${img}`,
+            imageWidth: 800,
+            customClass: 'swal-wide',
+            showCancelButton: false,
+            showConfirmButton: false
+        });
+    }
+
+    function rechazarTicket(idOTC, idCampoComentario) {
+        if (idOTC * 1 > 0) {
+            let comentarioCaja = $("#" + idCampoComentario).val();
+
+            if (comentarioCaja.trim() != '') {
+                swalWithBootstrapButtons.fire({
+                    title: '¿Está seguro(a) de RECHAZAR la solicitud?',
+                    text: "El transportista tendrá que enviar una nueva solicitud.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: "<i class='icon-checkmark'></i> Si, estoy seguro(a)",
+                    cancelButtonText: "<i class='icon-cross'></i> Cancelar",
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '/Caja/RechazarTC',
+                            type: 'POST',
+                            dataType: 'json',
+                            data: { 'DocEntryTicket': $('#DocEntryTicket').val(), 'IdOTC': idOTC, 'ComentarioCaja': comentarioCaja, 'Area': 'C' }
+                        }).done(function (response) {
+                            if (response.Mensaje == 'OK') {
+                                Swal.fire({
+                                    title: "Procesando rechazo...",
+                                    text: "Espere un momento por favor"
+                                });
+
+                                setInterval(function () {
+                                    location.reload();
+                                    //window.location.href = window.location;
+                                }, 2000);
+                            }
+                        }).fail(function (jqXHR, textStatus, errorThrown) {
+                            console.log(jqXHR.status + textStatus + errorThrown);
+                        });
+                    }
+                });
+            } else {
+                Swal.fire('Para rechazar una solicitud, debe agregar un comentario');
+            }
+        } else {
+            console.log('Verificar el IdOTC que no sea cero');
+        }
+    }
+
+    function validarEntregaTicket(idOTC) {
+        let comentarioCaja= $('#ComentarioCaja').val().trim();
+
+        if (idOTC * 1 <= 0) {
+            return;
+        }
+
+        if (comentarioCaja === '') {
+            Swal.fire('Es obligatorio agregar el motivo de autorización');
+            return;
+        }
+
+        let datos = {
+            'DocEntryTicket': $('#DocEntryTicket').val(),
+            'IdOTC': idOTC,
+            'ComentarioCaja': comentarioCaja,
+            'SaldoAFavor': $('#SaldoAFavor').val()
+        };
+
+        $.ajax({
+            url: '/Caja/ValidarTC',
+            type: 'POST',
+            dataType: 'json',
+            data: datos
+        }).done(function (response) {
+            if (response.Mensaje == 'OK') {
+                Swal.fire({
+                    title: "Procesando validación...",
+                    text: "Espere un momento por favor"
+                });
+
+                setTimeout(() => {
+                    location.reload();
+                }, 2200);
+            } else {
+                Swal.fire(response.Mensaje);
+            }
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            console.log(jqXHR.status + textStatus + errorThrown);
+        });
+
+    }
+
+    function calcularPagosParciales() {
+        let pagoTotal = parseFloat(0);
+        const montoRecibidoEntrega = parseFloat($('#MontoRecibidoEntrega').val());
+        const montoRecibido = parseFloat($('#MontoRecibido').val());
+
+        $('.cls-monto').each(function (indice, obj) {
+            //console.log(parseFloat(obj.value));
+            pagoTotal += parseFloat(obj.value);
+        });
+
+        $('#TotalPagosParciales').val(parseFloat(pagoTotal));
+        pagoTotal += montoRecibidoEntrega;
+
+        if (pagoTotal > montoRecibido) {
+            eliminarFila();
+            $('#btn_AgregarPagos').css('display', 'none');
+            Swal.fire({ title: "Los pagos parciales ingresados superan el monto final del ticket", icon: "error" });
+            return;
+        } else {
+            $('#btn_AgregarPagos').css('display', 'block');
+        }
+
+        // Para mostrar/ocultar los botones iniciales
+        const divPagar = $('#div_pagar');
+        const montoFinalTicket = $('#MontoFinalTicket');
+
+        if (pagoTotal === montoRecibido) {
+            divPagar.css('display', 'block');
+            montoFinalTicket.removeClass('bg-danger').addClass('bg-success');
+        } else {
+            divPagar.css('display', 'none');
+            montoFinalTicket.removeClass('bg-success').addClass('bg-danger');
+        }
+    }
+
+
+    function eliminarFila() {
+        let indice = $("#tbl_pagosParciales  tr").index(this);
+        $('#tbl_pagosParciales').find(`tr:eq(${indice})`).remove()
+
+        calcularPagosParciales();
+    }
+
+    function agregarPagoParcial(pagoParcial, tipoPagoParcial) {
+        if (pagoParcial == "" || pagoParcial*1 < 0) {
+            Swal.fire('El monto ingresado debe ser mayor a cero');
+            return;
+        }
+
+        if (tipoPagoParcial === "" || (tipoPagoParcial !== "NORMAL" && tipoPagoParcial !== "NC")) {
+            Swal.fire('El pago parcial debe ser NORMAL o NC');
+            return;
+        }
+
+        let num = $('.cls-fila').length * 1;
+        let pago = parseFloat(pagoParcial).toFixed(2);
+
+        let fila = `<tr class="cls-fila">
+                            <td class="text-center">${num+1}</td>
+                            <td class="text-center">
+                                <input type="hidden" class="cls-monto cls-pagoIngresado" value="${pago}" />${pago}
+                            </td>
+                            <td class="text-center">
+                                <input type="hidden" class="cls-tipoPagoParcial" value="${tipoPagoParcial}" />${tipoPagoParcial}
+                            </td>
+                            <td></td>
+                            <td></td>
+                            <td class="text-center"><button type="button" class="btn btn-sm btn-danger" onclick="eliminarFila()"><i class="icon-bin text-white"></i></button></td>
+                        </tr>`;
+
+        $('#tbl_pagosParciales > tbody').append(fila);
+
+        // Calculamos el total de pagos parciales
+        calcularPagosParciales();
+    }
+
+    function agregarPagos(idOTC) {
+        let arrMontos = [];
+        let arrTiposPagoParcial = [];
+
+        $('.cls-pagoIngresado').each(function (indice, obj) {
+            //console.log(indice + " " + obj.value);
+            arrMontos.push(parseFloat(obj.value).toFixed(2));
+        });
+
+        $('.cls-tipoPagoParcial').each(function (indice, obj) {
+            //console.log(indice + " " + obj.value);
+            arrTiposPagoParcial.push(obj.value);
+        });
+
+        $.ajax({
+            url: '/Caja/AgregarPagosParciales',
+            type: 'POST',
+            data: { "pagos": arrMontos, "docEntryTicket": $('#DocEntryTicket').val(), "idOTC": idOTC, "tiposPagosParciales": arrTiposPagoParcial }
+         }).done(function (response) {
+             Swal.fire({ title: response.Mensaje, text: "Actualizando información..."});
+
+             setInterval(() => {
+                 location.reload();
+             }, 2500);
+         }).fail(function (jqXHR, textStatus, errorThrown) {
+             console.log(jqXHR.status + textStatus + errorThrown);
+         });
+    }
+
+    function eliminarPagoParcial(id) {
+        swalWithBootstrapButtons.fire({
+            title: '¿Está seguro(a) de ELIMINAR el pago parcial seleccionado?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: "<i class='icon-checkmark'></i> Si, estoy seguro(a)",
+            cancelButtonText: "<i class='icon-cross'></i> Cancelar",
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                  $.ajax({
+                      url: '/Caja/EliminarPagoParcial',
+                      type: 'POST',
+                      dataType: 'json',
+                      data: { 'Id': id }
+                  }).done(function (response) {
+                      Swal.fire(response.Mensaje);
+                      $(`#tr_${id}`).addClass("bg-danger text-white");
+                      $(`#btn_eliminar_${id}`).css('display', 'none');
+                      $(`#pago_${id}`).removeClass('cls-monto');
+                      calcularPagosParciales();
+                  }).fail(function (jqXHR, textStatus, errorThrown) {
+                      console.log(jqXHR.status + textStatus + errorThrown);
+                  });
+            }
+        });
+
+        calcularPagosParciales();
+    }
+</script>

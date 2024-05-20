@@ -1,0 +1,62 @@
+﻿<div class="bg-section-form p-4 bg-form-cobefar">
+    <div class="row">
+        <div class="col-12">
+            <div class="row justify-content-center">
+                <div class="col-11">
+                    <div class="row mt-4">
+                        <div class="col-8">
+                            <span class="font-weight-bold pr-2">Código artículo:</span> @Model[0].CodArticulo
+                        </div>
+
+                        <div class="col-4">
+                            <span class="font-weight-bold pr-2">Registro sanitario:</span> @Model[0].RegistroSanitario
+                        </div>
+                    </div>
+
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            <span class="font-weight-bold pr-2">Descripción artículo:</span> @Model[0].DescArticulo
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-12 bg-dark pt-4">
+                            <table id="tbl_observaciones" class="table table-light table-bordered table-hover" cellspacing="0" width="100%">
+                                <thead class="bg-success">
+                                    <tr>
+                                        <th class="text-center">#</th>
+                                        <th class="text-center">Observación</th>
+                                        <th class="text-center">Registrado Por</th>
+                                        <th class="text-center">Fecha Registro</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model != null && Model.Count >= 1)
+                                    {
+                                        int num = 1;
+                                        foreach (var m in Model)
+                                        {
+                                            <tr>
+                                                <th class="text-dark text-center">@num</th>
+                                                <th class="text-dark text-center">@m.Descripcion</th>
+                                                <th class="text-dark text-center">@m.RegistradoPor</th>
+                                                <th class="text-dark text-center">@m.FechaRegistro</th>
+                                            </tr>
+                                            ++num;
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var tableObs = $('#tbl_observaciones').DataTable();
+    tableObs.columns.adjust().draw();
+</script>

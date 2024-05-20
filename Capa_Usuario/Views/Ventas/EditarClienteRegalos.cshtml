@@ -1,0 +1,179 @@
+﻿@model Capa_Entidad.Ventas_ENT.TablasSql.OCLR_E
+@using Capa_Entidad.Ventas_ENT.TablasSql
+@{
+    ViewBag.Title = "EditarClienteRegalos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<OREG_E> u = (List<OREG_E>)ViewBag.Regalos;
+}
+
+<script>
+    $(document).ready(function () {
+
+    });
+    var cont = 0;
+    function agregarTabla(id, cant) {
+        var valId = $("#" + id);
+        var valCategoria = $("#listaRegalos option[value='" + valId.val() + "']").attr("categoria");
+        var valTipo = $("#listaRegalos option[value='" + valId.val() + "']").attr("tipo");
+        if (valId.val() == null || valId.val() == "") { swal.fire("No ha seleccionado un regalo", "Verifique", "warning"); return; }
+        if (valTipo == null || valTipo == "") { swal.fire("No ha seleccionado un regalo existente", "Verifique", "warning"); return; }
+        var valCant = $("#" + cant).val();
+        if (valCant < 0 || valCant == "" || valCant == null) { swal.fire("No ha ingresado una cantidad válida", "Verifique", "warning"); return; }
+        if (validarUnicoCampoTabla(valId.val(), "Det")) {
+            $("#Det > tbody").append("<tr><td><input class='form-control'  value='" + (cont + 1) + " ' readonly /></td>" +
+                "<td hidden><input class= 'form-control' name = 'Det[" + cont + "].IdReg' value = '" + valId.val() + "' readonly /></td >" +
+                "<td><input class= 'form-control' name = 'Det[" + cont + "].Categoria' value = '" + valCategoria + "' readonly /></td >" +
+                "<td><input class='form-control' name='Det[" + cont + "].Tipo' value='" + valTipo + "' readonly /></td >" +
+                "<td><input class='form-control' name='Det[" + cont + "].Cantidad'  value='" + valCant + "' readonly /></td > <td>" +
+                "<button type='button' onclick='borrarTrTable1(this)' class='btn btn-danger'>Retirar</button></td></tr>"
+
+            );
+            cont = cont + 1;
+        }
+        $("#" + id).val("");
+        $("#" + cant).val("");
+
+    }
+
+    function borrarTrTable1(dom) {
+        var i = -1;
+        $(dom).closest('tr').remove();
+
+        cont = cont - 1;
+        $("#Det" + " tr").each(function (index, htm) {
+            iden1 = $(htm).find("td:eq(0) input");
+            iden1.attr("name", "Det[" + i + "].Linea");
+            iden1.val(i + 1);
+            iden2 = $(htm).find("td:eq(1) input");
+            iden2.attr("name", "Det[" + i + "].IdReg");
+            iden3 = $(htm).find("td:eq(2) input");
+            iden3.attr("name", "Det[" + i + "].Categoria");
+            iden4 = $(htm).find("td:eq(3) input");
+            iden4.attr("name", "Det[" + i + "].Tipo");
+            iden5 = $(htm).find("td:eq(4) input");
+            iden5.attr("name", "Det[" + i + "].Cantidad");
+            i = i + 1;
+        })
+
+    }
+    function validarUnicoCampoTabla(identificador, idTabla) {
+        var sinRegistro = true;
+        $("#" + idTabla + " tr").find('td:eq(1) input').each(function () {
+            iden = $(this).val();
+            if (iden == identificador) { swal.fire("El valor ya se encuentra en la tabla", "Verifique", "warning"); sinRegistro = false; }
+        })
+        return sinRegistro;
+    }
+    function validarEditar() {
+        var object = $("#EditarClienteRegalos").serialize();
+        $.ajax('/Ventas/validarEditarClienteRegalo',
+            {
+                data: object,
+                dataType: 'html',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                if (response != "true") { swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false }
+                else { $("#EditarClienteRegalos").submit(); }
+            });
+    }
+
+
+</script>
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("GestionRegalos", "Ventas")">Módulo gestión regalos</a></li>
+            <li><a href="@Url.Action("GestionClienteRegalos", "Ventas")">Gestión Regalo-Cliente</a></li>
+            <li class="current"><em>Editar Cliente Regalos</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">EDITAR CLIENTE REGALOS</h3></div>
+</div>
+
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "EditarClienteRegalos", enctype = "multipart/form-data", autocomplete = "off" }))
+{
+    @Html.AntiForgeryToken()
+<div class="bg-form-pestanas-cobefar p-4 bg-form-cobefar">
+    <div class="row">
+        <div class="col-lg-2">
+            <label for="CardCode" class="text-dark font-weight-bold font-18">RUC:</label>
+            <input class="form-control border-success" type="text" id="CardCode" list="listaClientes" name="CardCode" value="@Model.CardCode" readonly />
+        </div>
+
+        <div class="col-lg-6">
+            <label for="CardName" class="text-dark form-label font-weight-bold font-18">Razon Social:</label>
+            <input class="form-control border-success" type="text" name="CardName" id="CardName" value="@Model.CardName" readonly />
+        </div>
+
+        <div class="col-lg-2">
+            <label for="estado" class="text-dark form-label font-weight-bold font-18">Lista Regalo:</label>
+            <input type="search" id="Regalos" list="listaRegalos" class="form-control border-success" />
+            <datalist id="listaRegalos">
+                @foreach (OREG_E obj in u)
+                {
+                    <option categoria="@obj.Categoria" tipo="@obj.Tipo" value="@obj.Id">@(obj.Categoria + " " + obj.Tipo)</option>
+                }
+            </datalist>
+        </div>
+
+    </div>
+
+    <div class="row mt-4">
+        <div class=" col-lg-2">
+            <label for="Cantidad" class="text-dark form-label font-weight-bold font-18">Cantidad:</label>
+
+            <div class="d-flex">
+                <input type="number" id="Cantidad" name="Cantidad" class="form-control border-success" />
+                <button type="button" class="btn btn-info" onclick="agregarTabla('Regalos','Cantidad');">Agregar</button>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class=" col-lg-12">
+            <table id="Det" class="table-striped table-hover table-sm">
+                <thead class="bg-cobefar text-white">
+                    <tr>
+                        <th class="text-center" style="width:100px">#</th>
+                        <th hidden>IdReg</th>
+                        <th class="text-center" style="width:300px">Categoria</th>
+                        <th class="text-center" style="width:200px">Tipo</th>
+                        <th class="text-center" style="width:200px">Cantidad</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                @{ int i = 0; }
+                @foreach (var obj in Model.Det)
+                {
+                    <tr>
+                        <td><input class='form-control' type='text' value='@(i+1)' readonly /></td>
+                        <td hidden><input class='form-control' type='text' name='Det[@i].IdReg' value='@obj.IdReg' readonly /></td>
+                        <td><input class='form-control' type='text' name='Det[@i].Categoria' value='@obj.Categoria' readonly /></td>
+                        <td><input class='form-control' type='text' name='Det[@i].Tipo' value='@obj.Tipo' readonly /></td>
+                        <td><input class='form-control' type='text' name='Det[@i].Cantidad' value='@((int)obj.Cantidad)' readonly /></td>
+                        <td><button type='button' class='btn btn-danger' onclick='borrarTrTable1(this)'>Retirar</button></td>
+                    </tr>
+                    i++;
+                }
+            </table>
+            <script>cont=@i;</script>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-lg-2">
+            <button type="button" class="btn btn-success" onclick="validarEditar();"><i class="icon icon-pencil"></i> Editar</button>
+        </div>
+    </div>
+
+</div>   
+
+}

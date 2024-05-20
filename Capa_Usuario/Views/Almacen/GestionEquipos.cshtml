@@ -1,0 +1,145 @@
+﻿@model IEnumerable<Capa_Entidad.Almacen_ENT.TablasSql.OIEQ_E>
+@using Capa_Entidad.Almacen_ENT.TablasSql
+@using Capa_Entidad.General_ENT.Tablas
+
+@{
+    ViewBag.Title = "GestionEquipos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    OIEQ_E f = (OIEQ_E)ViewBag.Oieq;
+    List<OWHS_E> ow = (List<OWHS_E>)ViewBag.Almacenes;
+}
+<script>
+    $(document).ready(function () {
+    });
+    function filtrar() {
+        var object = $("#frm").serialize();
+        $(location).attr('href', "/Almacen/GestionEquipos?" + object);
+    }
+</script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("ContabilizacionInventario", "Almacen")">Módulo contabilización inventario</a></li>
+            <li class="current"><em>Gestión de equipos</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">GESTIÓN DE EQUIPOS</h3></div>
+
+    <div class="d-flex pl-2 w-100 py-2">
+
+        <div class="mx-2">
+            @Html.ActionLink("Nuevo Equipo Conteo", "NuevoEquipo", null, new { Tipo = "Conteo" }, new { @class = "btn btn-success" })
+            @Html.ActionLink("Nuevo Equipo ReConteo", "NuevoEquipo", null, new { Tipo = "ReConteo" }, new { @class = "btn btn-warning" })
+            @Html.ActionLink("Nuevo Equipo Analisis", "NuevoEquipo", null, new { Tipo = "Analisis" }, new { @class = "btn btn-info" })
+        </div>
+
+    </div>
+</div>
+
+<div class="bg-form-pestanas-cobefar">
+    <div class="alert alert-danger mb-0" role="alert">
+        @if (@OIPE_E.PeriodoSeleccionado != null)
+        {
+            @OIPE_E.PeriodoSeleccionado.Descripcion
+            Write("- Almacenes: ");
+            @OIPE_E.PeriodoSeleccionado.enlistarDetAlmacenes()
+        }
+    </div>
+
+    <div class="table-responsive bg-dark pt-4">
+        <form name="frm" id="frm">
+            <table class="table table-light table-hover cls-dataTable" cellspacing="0" width="100%">
+                <thead class="thead-dark">
+                    <tr>
+                        <th class="text-center">
+                            @Html.DisplayName("N#")
+                            <input type="text" name="DocEntry" class="form-control" style="width:80px;" onchange="filtrar();" value="@if (!ViewBag.Oieq.DocEntry.Equals(0)) { Write(ViewBag.Oieq.DocEntry); }" autocomplete="off" />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayName("Periodo")
+                            <input type="text" name="DescripcionPeriodo" class="form-control" onchange="filtrar();" value="@ViewBag.Oieq.DescripcionPeriodo" autocomplete="off" />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.Nombre)
+                            <input type="text" name="Nombre" class="form-control" onchange="filtrar();" value="@ViewBag.Oieq.Nombre" autocomplete="off" />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayName("Almacen")
+                            <select name="WhsCode" id="Almacen" class="form-control" onchange="filtrar();">
+                                <option value="">Seleccione</option>
+                                @foreach (OWHS_E obj in ow)
+                                {
+                                    if (f.WhsCode != null && f.WhsCode == obj.WhsCode)
+                                    {
+                                        <option value="@obj.WhsCode" selected>@obj.WhsName</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@obj.WhsCode">@obj.WhsName</option>
+                                    }
+                                }
+                            </select>
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.Piso)
+                            <input type="text" name="Piso" class="form-control" style="width:60px" onchange="filtrar();" value="@if (!f.Piso.Equals(0)) { Write(f.Piso); }" />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.Estado)
+                            <input type="text" name="Estado" class="form-control" onchange="filtrar();" value="@f.Estado" />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.FechaRegistro)
+                            <input type="date" name="FechaRegistro" class="form-control input_date-filtro-table text-center" style="height:38px;" onchange="filtrar();" value="@f.FechaRegistro" />
+                        </th>
+                        <th class="text-center"></th>
+                        <th class="text-center"></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.DocEntry)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.DescripcionPeriodo)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.Nombre)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.WhsCode)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.Piso)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.Estado)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.FechaRegistro)
+                            </td>
+                            <td class="text-center">
+                                <a href="@Url.Action("EditarEquipo", "Almacen", new { id = item.DocEntry })" class="btn btn-primary"><i class="icon-pencil"></i> Editar</a>
+                            </td>
+                            <td class="text-center">
+                                <a href="@Url.Action("EliminarEquipo", "Almacen", new { id = item.DocEntry })" class = "btn btn-danger"><i class="icon-bin"></i></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                
+
+            </table>
+        </form>
+    </div>
+    
+</div>

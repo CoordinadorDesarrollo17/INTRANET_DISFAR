@@ -1,0 +1,113 @@
+﻿@model Capa_Entidad.Ventas_ENT.TablasSql.OREG_E
+
+@{
+    ViewBag.Title = "InactivarRegalo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(document).ready(function () {
+
+    });
+    function guardarInactivarRegalo() {
+        var object = $("#InactivarRegalo").serialize();
+        $(location).attr('href', "/Ventas/InactivarRegaloPost?" + object);
+    }
+    function revertirInactivarRegalo() {
+        var object = $("#InactivarRegalo").serialize();
+        $(location).attr('href', "/Ventas/RevertirInactivarRegalo?" + object);
+    }
+    function inactivar() {
+        var object = $("#InactivarRegalo").serialize();
+        $.ajax('/Ventas/validarInactivarRegalo',
+            {
+                data: object,
+                dataType: 'html',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                if (response != "true") { swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false }
+                else { guardarInactivarRegalo(); }
+            });
+    }
+
+    function revertirInactivar() {
+        var object = $("#InactivarRegalo").serialize();
+        $.ajax('/Ventas/validarRevertirInactivar',
+            {
+                data: object,
+                dataType: 'html',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                if (response != "true") { swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false }
+                else { revertirInactivarRegalo(); }
+            });
+    }
+
+</script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("GestionRegalos", "Ventas")">Módulo gestión regalos</a></li>
+            <li class="current"><em>Inactivar regalo</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">INACTIVAR REGALO</h3></div>
+</div>
+
+<div class="bg-form-pestanas-cobefar p-4 bg-form-cobefar">
+    @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "InactivarRegalo", enctype = "multipart/form-data" }))
+    {
+        <div class="row">
+            <div class="col-lg-4">
+                <label class="text-dark font-weight-bold font-18">Categoría:</label>
+                <input class="form-control border-success" name="Categoria" value="@Model.Categoria" readonly />
+            </div>
+
+            <div class="col-lg-4">
+                <label for="CardName" class="text-dark form-label font-weight-bold font-18">Tipo:</label>
+                <input class="form-control border-success" name="Tipo" value="@Model.Tipo" readonly />
+            </div>
+
+            <div class="col-lg-2">
+                <label class="text-dark font-weight-bold font-18">Estado:</label>
+                <input class="form-control text-center border-success" name="Estado" value="@Model.Estado" readonly />
+            </div>
+
+            <div class="col-lg-2">
+                <label class="text-dark form-label font-weight-bold font-18">Stock:</label>
+                <input type="text" name="StockTotal" class="form-control text-center border-success" value="@((int)Model.StockTotal)" readonly />
+                <input type="hidden" name="Id" value="@Model.Id" />
+                <input type="hidden" name="StockComp" value="@((int)Model.StockComp)" />
+                <input type="hidden" name="StockDisp" value="@((int)Model.StockDisp)" />
+                <input type="hidden" name="FechaRegistro" value="@Model.FechaRegistro" />
+                <input type="hidden" name="HoraRegistro" value="@Model.HoraRegistro" />
+                <input type="hidden" name="OpRegistro" value="@Model.OpRegistro" />
+            </div>
+
+        </div>
+
+
+        <div class="row mt-4">
+            <div class="col-lg-6">
+                @if (Model.Estado == "Activo")
+                {
+                    <button id="accion" type="button" class="btn btn-danger" onclick="inactivar();"><i class="icon icon-blocked"></i> Inactivar</button>
+                }else
+                {
+                    <button id="accion" type="button" class="btn btn-warning" onclick="revertirInactivar();"><i class="icon icon-history"></i> Revertir</button>
+                }
+
+
+            </div>
+        </div>
+    }
+</div>

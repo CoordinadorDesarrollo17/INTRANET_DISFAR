@@ -1,0 +1,167 @@
+﻿@model Capa_Entidad.Rutas_ENT.TablasSql.ORRU_E
+@using Capa_Entidad.Rutas_ENT.TablasSql
+@{
+    ViewBag.Title = "AnularOrdenDeRuta";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    string listado = string.Empty, urlListado = string.Empty;
+
+    if (ViewBag.TipoRep == "Re")
+    {
+        listado = "Listado de repartos";
+        urlListado = @Url.Action("ListadoRepartos", "Rutas");
+    }
+    else
+    {
+        listado = "Listado de rutas";
+        urlListado = @Url.Action("ListadoRutas", "Rutas");
+    }
+}
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@urlListado">@listado</a></li>
+            <li class="current"><em>Anulación de orden de ruta</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">ANULACIÓN DE ORDEN DE RUTA</h3></div>
+</div>
+
+
+
+<div class="bg-form-pestanas-cobefar pt-4 bg-section-form p-4 bg-form-cobefar">
+    <h3 class="text-cobefar font-weight-bold">ORDEN DE REGISTRO DE RUTAS</h3>
+
+
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+        <div class="row mt-4">
+            <div class="col-lg-6">
+                <button type="submit" class="btn btn-danger"><i class="icon-blocked"></i> Anular Order de Ruta</button>
+            </div>
+        </div>
+    }
+
+
+    <div class="row mt-4">
+        <div class="col-lg-3">
+            <label for="TipoRuta" class="text-dark form-label font-weight-bold font-18">TipoRuta:</label> @Model.TipoRuta
+        </div>
+
+        <div class="col-lg-3">
+            <label for="TipoRuta" class="text-dark form-label font-weight-bold font-18">Estado de documento:</label> @Model.Estado
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-lg-3">
+            <label class="text-dark form-label font-weight-bold font-18">@Html.DisplayNameFor(model => model.TransDesc): </label> @Model.TransDesc
+        </div>
+
+        <div class="col-lg-3">
+            <label class="text-dark form-label font-weight-bold font-18">@Html.DisplayNameFor(model => model.Placa): </label> @Model.Placa
+        </div>
+        <div class="col-lg-3">
+            <label class="text-dark form-label font-weight-bold font-18">@Html.DisplayNameFor(model => model.DocNum): </label> @Model.DocNum
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-lg-3">
+            <label class="text-dark form-label font-weight-bold font-18">@Html.DisplayNameFor(model => model.CopilDesc): </label> @Model.CopilDesc
+        </div>
+
+        <div class="col-lg-3">
+            <label class="text-dark form-label font-weight-bold font-18">@Html.DisplayNameFor(model => model.Copil2Desc): </label> @Model.Copil2Desc
+        </div>
+        <div class="col-lg-3">
+            <label class="text-dark form-label font-weight-bold font-18">@Html.DisplayNameFor(model => model.FechaCont): </label> @Model.FechaCont.ToString().Substring(0, 10)
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-lg-3">
+            <label class="text-dark form-label font-weight-bold font-18">@Html.DisplayNameFor(model => model.CopilDesc): </label> @Model.Copil3Desc
+        </div>
+
+        <div class="col-lg-3">
+            <label class="text-dark form-label font-weight-bold font-18">@Html.DisplayNameFor(model => model.Copil2Desc): </label> @Model.Copil4Desc
+        </div>
+        <div class="col-lg-3">
+            <label class="text-dark form-label font-weight-bold font-18">@Html.DisplayNameFor(model => model.FechaCont): </label> @Model.FechaDoc.ToString().Substring(0, 10)
+        </div>
+    </div>
+
+
+    <div class="row mt-4">
+        <div class="col-lg-3">
+            <label class="text-dark form-label font-weight-bold font-18">@Html.DisplayNameFor(model => model.AlmOrigenDesc): </label> @Model.AlmOrigenDesc
+        </div>
+
+        <div class="col-lg-3">
+            <label class="text-dark form-label font-weight-bold font-18">@Html.DisplayNameFor(model => model.AlmDestinoDesc): </label> @Model.AlmDestinoDesc
+        </div>
+        <div class="col-lg-3">
+            <label class="text-dark form-label font-weight-bold font-18">@Html.DisplayNameFor(model => model.TiempoPac): </label> @Model.TiempoPac
+        </div>
+    </div>
+
+
+    <div class="row mt-4">
+        <div class="col-lg-3">
+            <label class="text-dark form-label font-weight-bold font-18">@Html.DisplayNameFor(model => model.Propietario): </label> @Model.Propietario
+        </div>
+
+        <div class="col-lg-3">
+            <label class="text-dark form-label font-weight-bold font-18">@Html.DisplayNameFor(model => model.Observaciones): </label> @Model.Observaciones
+        </div>
+        <div class="col-lg-3">
+            <label class="text-dark form-label font-weight-bold font-18">@Html.DisplayNameFor(model => model.TiempoPac): </label> @Model.TiempoPac
+        </div>
+    </div>
+
+
+    <div class="row mt-4">
+        <div class="col-lg-3">
+            <label class="text-dark form-label font-weight-bold font-18">CONTENIDO @Html.DisplayNameFor(model => model.TotalCajas): </label> @Model.TotalCajas
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-lg-8">
+            <table class="table table-sm table-hover table-responsive-md table-bordered" cellspacing="0" width="100%">
+                <thead class="bg-success text-white">
+                    <tr>
+                        <td class="text-center font-weight-bold">#</td>
+                        <td class="text-center font-weight-bold">Guia</td>
+                        <td class="text-center font-weight-bold">NroSap</td>
+                        <td class="text-center font-weight-bold">Estado</td>
+                    </tr>
+                </thead>
+
+                @foreach (RRU1_E d in Model.DetRRU1)
+                {
+                    <tr>
+                        <td class="text-center">@d.Linea</td>
+                        <td class="text-center">@d.Guia</td>
+                        <td class="text-center">@d.NroSap</td>
+                        <td class="text-center">@d.Estado</td>
+                    </tr>
+                }
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    if ('@ViewBag.Mensaje' != "") {
+        Swal.fire('@ViewBag.Mensaje');
+    }
+</script>

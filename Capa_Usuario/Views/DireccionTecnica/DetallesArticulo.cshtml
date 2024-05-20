@@ -1,0 +1,114 @@
+﻿@model Capa_Entidad.Almacen_ENT.Tablas.OITM_E
+@using Capa_Entidad.Almacen_ENT.Tablas
+@using Capa_Negocio.General_NEG.Tablas
+@{
+    ViewBag.Title = "DetallesArticulo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<OITW_E> listaOitw = (List<OITW_E>)ViewBag.listaOitw;
+    OWHS_N owhsN = (OWHS_N)ViewBag.Owhs;
+}
+    <div class="pt-4">
+        <nav>
+            <ol class="cd-breadcrumb bg-dark">
+                <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+                <li><a href="@Url.Action("ListadoMaestroDeArticulos", "DireccionTecnica")">Listado maestro de artículos</a></li>
+                <li class="current"><em>Detalles de artículos</em></li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="bg-dark border-cabecera-seccion pb-2">
+        <div class="px-3 pt-3"><h3 class="titulo-seccion">DETALLES DE ARTÍCULO</h3></div>
+    </div>
+
+<table class="table table-light">
+    <tr>
+        <td width="400px"><strong>@Html.DisplayNameFor(model => model.ItemCode) :</strong> @Html.DisplayFor(model => model.ItemCode)</td>
+        <td width="200px"></td>
+        <td></td>
+        <td><strong>@Html.DisplayNameFor(model => model.U_SYP_FAMILIA) :</strong> @Html.DisplayFor(model => model.U_SYP_FAMILIA)</td>
+    </tr>
+    <tr>
+        <td><strong>@Html.DisplayNameFor(model => model.ItemName) :</strong> @Html.DisplayFor(model => model.ItemName)</td>
+        <td></td>
+        <td></td>
+        <td><strong>@Html.DisplayNameFor(model => model.U_SYP_DFAM) :</strong> @Html.DisplayFor(model => model.U_SYP_DFAM)</td>
+    </tr>
+    <tr>
+        <td><strong>@Html.DisplayNameFor(model => model.FrgnName) :</strong> @Html.DisplayFor(model => model.FrgnName)</td>
+        <td></td>
+        <td></td>
+        <td><strong>@Html.DisplayNameFor(model => model.U_SYP_SUBFAMILIA) :</strong> @Html.DisplayFor(model => model.U_SYP_SUBFAMILIA)</td>
+    </tr>
+    <tr>
+        <td><strong>@Html.DisplayNameFor(model => model.ItmsGrpCod) :</strong> @Html.DisplayFor(model => model.ItmsGrpCod)</td>
+        <td></td>
+        <td></td>
+        <td><strong>@Html.DisplayNameFor(model => model.U_SYP_DSFAM) :</strong> @Html.DisplayFor(model => model.U_SYP_DSFAM)</td>
+    </tr>
+    <tr>
+        <td><strong>@Html.DisplayNameFor(model => model.BuyUnitMsr) :</strong> @Html.DisplayFor(model => model.BuyUnitMsr)</td>
+        <td></td>
+        <td></td>
+        <td><strong>@Html.DisplayNameFor(model => model.U_SYP_FORM) :</strong> @Html.DisplayFor(model => model.U_SYP_FORM)</td>
+    </tr>
+    <tr>
+        <td><strong>@Html.DisplayNameFor(model => model.Price) :</strong> @Html.DisplayFor(model => model.Price)</td>
+        <td></td>
+        <td></td>
+        <td><strong>@Html.DisplayNameFor(model => model.U_SYP_FFSIMP) :</strong> @Html.DisplayFor(model => model.U_SYP_FFSIMP)</td>
+    </tr>
+    <tr>
+        <td colspan="3"></td>
+        <td><strong>@Html.DisplayNameFor(model => model.U_SYP_FFDET) :</strong> @Html.DisplayFor(model => model.U_SYP_FFDET)</td>
+    </tr>
+    <tr>
+        <td><strong>GENERAL</strong></td>
+        <td></td>
+        <td></td>
+        <td><strong>@Html.DisplayNameFor(model => model.U_SYP_FORPR) :</strong> @Html.DisplayFor(model => model.U_SYP_FORPR)</td>
+    </tr>
+    <tr>
+        <td><strong>@Html.DisplayNameFor(model => model.FirmName) :</strong> @Html.DisplayFor(model => model.FirmName)</td>
+        <td></td>
+        <td></td>
+        <td><strong>@Html.DisplayNameFor(model => model.U_SYP_FABRICANTE) :</strong> @Html.DisplayFor(model => model.U_SYP_FABRICANTE)</td>
+    </tr>
+    <tr>
+        <td><strong>@Html.DisplayNameFor(model => model.AsstStatus) :</strong> @Html.DisplayFor(model => model.AsstStatus)</td>
+        <td></td>
+        <td></td>
+        <td><strong>@Html.DisplayNameFor(model => model.U_SYP_TCONTROLADO) :</strong> @Html.DisplayFor(model => model.U_SYP_TCONTROLADO)</td>
+    </tr>
+</table>
+
+<table class="table table-bordered bg-light table-hover">
+    <tr>
+        <td colspan="3"><span class="text-cobefar font-weight-bold font-18">INVENTARIO</span></td>
+        <td colspan="4" align="right">@*@Html.ActionLink("Operaciones de lote","")*@</td>
+    </tr>
+    <thead class="bg-success">
+        <tr>
+            <th class="text-center">#</th>
+            <th>Nombre de Almacen</th>
+            <th class="text-center">Codigo de Almacen</th>
+            <th class="text-center">En Stock</th>
+            <th class="text-center">Comprometido</th>
+            <th class="text-center">Pedido</th>
+            <th class="text-center">Disponible</th>
+        </tr>
+    </thead>
+    @{ int i = 1;}
+    @foreach (OITW_E o in ViewBag.listaOitw)
+    {
+        <tr>
+            <td class="text-center">@(i++)</td>
+            <td>@owhsN.buscarAlmacen(o.WhsCode).WhsName</td>
+            <td class="text-center">@o.WhsCode</td>
+            <td class="text-center">@o.OnHand</td>
+            <td class="text-center">@o.IsCommited</td>
+            <td class="text-center">@o.OnOrder</td>
+            <td class="text-center">@o.Disponible()</td>
+        </tr>
+    }
+</table>

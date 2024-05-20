@@ -1,0 +1,144 @@
+/* tamaño del contennedor y configuraciones principales*/
+body
+{	
+	
+
+	
+	
+	
+
+}
+.contenedor
+{   
+	background-image: url('../imagenes/fondo_body.jpg');
+	background-size: 960px ;	
+	width: 960px;
+	margin: auto;
+
+}
+div{
+	box-sizing: border-box;
+}
+/*-------------------------------------*/
+.encabezado
+{
+	width: 960px;
+	height: 150px;
+	
+}
+
+.encabezado .e1 img
+{
+	margin-right: 25px;
+	width: 170px;
+	height: auto;
+	border-radius:20px;
+}
+
+.encabezado .e2 h1
+{
+	color: green;
+	text-align: center;
+
+}
+
+/*-------------------------------------*/
+.cuerpo
+{
+	width: 960px;
+	height: 480px;
+		
+}
+
+.cuerpo .c1 p
+{
+	padding-left: 15px;
+	color: blue;
+}
+.cuerpo .c2
+{
+	padding-left: 220px;
+}
+.cuerpo .c2 div input
+{
+	width: 230px;
+	height: 200px;
+	cursor: pointer;
+
+
+}
+.cuerpo .c2 div button
+{
+	width: 230px;
+	height: 200px;
+	cursor: pointer;
+
+
+}
+.cuerpo .boton4
+{
+	background-color: orange;
+}
+.cuerpo .c2 .c2_1 , .c2_2
+{	
+	padding-left: 25px;
+	padding-bottom: 25px;
+	float: left;
+}
+.cuerpo .c2 .c2_3 , .c2_4
+{	
+	padding-left: 25px;
+	padding-bottom: 25px;
+	float: left;
+}
+
+/*-----VACIOS----------*/
+.vacio1 , .vacio2
+{
+	
+	clear: both;
+}
+/*------------PIE----------------*/
+
+.pie 
+{
+	width: 960px;
+	height: 180px;
+	background-color: lightblue;
+}
+
+.pie .p3 ul .img1
+{
+	padding-left: 30px;
+	width: 30px;
+	height: 15px;
+}
+.pie .p3 ul .img2
+{
+	padding-left: 50px;
+	width: 30px;
+	height: 15px;
+}
+.pie .p3 ul .img3
+{
+	padding-left: 45px;
+	width: 30px;
+	height: 15px;
+}
+.pie .p3 ul .img4
+{
+	padding-left: 59px;
+	width: 30px;
+	height: 15px;
+}
+.pie .p1 , .p2 , .p3
+{	
+	
+	float: left;
+	width: 250px;
+	box-sizing: border-box;
+	padding-left: 10px;
+}
+
+/*---diseño de botones--*/
+

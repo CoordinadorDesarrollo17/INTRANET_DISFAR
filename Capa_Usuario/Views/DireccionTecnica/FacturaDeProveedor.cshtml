@@ -1,0 +1,64 @@
+﻿@model Capa_Entidad.Compras_ENT.Tablas.OPCH_E
+
+@{
+    ViewBag.Title = "FacturaDeProveedor";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("ListadoFacturasDeProveedores", "DireccionTecnica")">Listado facturas de proveedores</a></li>
+            <li class="current"><em>Factura de proveedor</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">FACTURA DE PROVEEDOR</h3></div>
+</div>
+
+<div class="bg-form-pestanas-cobefar p-3">
+    <p class="pb-2 mb-2 border-bottom border-success"><b>DOCNUM :</b> @Model.DocNum</p>
+    <p class="pb-2 mb-2 border-bottom border-success"><b>FECHA DE CONTABILIZACION:</b> @Model.DocDate</p>
+    <p class="pb-2 mb-2 border-bottom border-success"><b>FECHA DE DOCUMENTO :</b> @Model.TaxDate</p>
+    <p class="pb-2 mb-2 border-bottom border-success"><b>PROVEEDOR :</b> @Model.CardName</p>
+    <p class="pb-2 mb-2 border-bottom border-success"><b>NRO COMPROBANTE :</b> @Model.NumAtCard </p>
+    <p class="pb-2 mb-2 border-bottom border-success"><b>ESTADO :</b> @Model.U_SYP_STATUS </p>
+    <p class="pb-2 mb-2 border-bottom border-success"><b>TOTAL :</b> @Model.DocTotal </p>
+    <p class="mb-0"><b>COMENTARIO :</b> @Model.Comments  </p>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="pb-20 pt-30">
+                <table class="table table-light table-sm table-hover table-responsive-md" cellspacing="0" width="100%">
+                    <thead class="bg-success">
+                        <tr>
+                            <th class="text-center">#</th>
+                            <th class="text-center">CÓDIGO</th>
+                            <th class="text-center">DESCRIPCIÓN</th>
+                            <th class="text-center">CANTIDAD</th>
+                            <th class="text-center">ALMACÉN</th>
+                            <th class="text-center">U.M. </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var d in Model.det)
+                        {
+                            <tr>
+                                <td class="text-center">@d.LineNum</td>
+                                <td class="text-center">@d.ItemCode</td>
+                                <td class="text-center">@d.Dscription</td>
+                                <td class="text-center">@d.Quantity</td>
+                                <td class="text-center">@d.WhsCode</td>
+                                <td class="text-center">@d.UomCode</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+

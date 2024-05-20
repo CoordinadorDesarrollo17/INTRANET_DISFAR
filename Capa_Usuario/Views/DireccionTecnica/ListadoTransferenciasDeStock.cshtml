@@ -1,0 +1,192 @@
+﻿@model IEnumerable<Capa_Entidad.Almacen_ENT.Tablas.OWTR_E>
+@using Capa_Entidad.General_ENT.Tablas
+@{
+    ViewBag.Title = "ListadoTransferenciasStock";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    $(document).ready(function () {
+    });
+    function filtrar() {
+        var object = $("#frm").serialize();
+        $(location).attr('href', "/DireccionTecnica/ListadoTransferenciasDeStock?" + object);
+    }
+</script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li class="current"><em>Listado transferencias de stock</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO TRANSFERENCIAS DE STOCK</h3></div>
+</div>
+
+
+<div class="bg-form-pestanas-cobefar">
+    <div class="bg-dark">
+        <form name="frm" id="frm">
+            <table class="table table-light table-sm table-hover cls-dataTable" cellspacing="0" width="100%">
+                <thead class="thead-dark">
+                    <tr>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.DocNum)
+                            <input type="text" name="DocNum" class="form-control" onchange="filtrar();" value="@if (ViewBag.Owtr.DocNum != 0) { Write(ViewBag.Owtr.DocNum); }" />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.DocDate)
+                            <input type="date" name="DocDate" class="form-control" style="width:150px;" onchange="filtrar();" value="@ViewBag.Owtr.DocDate" />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.U_BPP_FECINITRA)
+                            <input type="date" name="U_BPP_FECINITRA" class="form-control" style="width:150px;" onchange="filtrar();" value="@ViewBag.Owtr.U_BPP_FECINITRA" />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.Filler)
+                            <select name="Filler" class="form-control input_filtro-table" onchange="filtrar();">
+                                <option value="">Seleccione</option>
+                                @foreach (OWHS_E os in ViewBag.Almacenes)
+                                {
+                                    if (ViewBag.Owtr.Filler == os.WhsCode)
+                                    {
+                                        <option value="@os.WhsCode" selected>@os.WhsName</option>
+
+                                    }
+                                    else
+                                    {
+                                        <option value="@os.WhsCode">@os.WhsName</option>
+                                    }
+                                }
+                            </select>
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.ToWhsCode)
+                            <select name="ToWhsCode" class="form-control input_filtro-table" onchange="filtrar();">
+                                <option value="">Seleccione</option>
+                                @foreach (OWHS_E os in ViewBag.Almacenes)
+                                {
+                                    if (ViewBag.Owtr.ToWhsCode == os.WhsCode)
+                                    {
+                                        <option value="@os.WhsCode" selected>@os.WhsName</option>
+
+                                    }
+                                    else
+                                    {
+                                        <option value="@os.WhsCode">@os.WhsName</option>
+                                    }
+                                }
+                            </select>
+                        </th>
+                        <th class="text-center">
+                            Guia
+                            <input type="text" name="U_SYP_MDCD" class="form-control" onchange="filtrar();" value="@ViewBag.Owtr.U_SYP_MDCD" />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.U_SYP_STATUS)
+                            <input type="text" name="U_SYP_STATUS" class="form-control" onchange="filtrar();" value="@ViewBag.Owtr.U_SYP_STATUS" />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.SlpCode)
+                            <select name="SlpCode" class="form-control input_filtro-table" onchange="filtrar();">
+                                <option value="0">Seleccione</option>
+                                @foreach (OSLP_E os in ViewBag.ListaOslp)
+                                {
+                                    if (ViewBag.Owtr.SlpCode == os.SlpCode)
+                                    {
+                                        <option value="@os.SlpCode" selected>@os.SlpName</option>
+
+                                    }
+                                    else
+                                    {
+                                        <option value="@os.SlpCode">@os.SlpName</option>
+                                    }
+                                }
+                            </select>
+                        </th>
+                        <th class="text-center">
+                            Estado<br />
+                            <select name="Estado" class="form-control" style="width: 130px" onchange="filtrar();">
+                                <option value="">Seleccione</option>
+                                <option value="Pendiente" @if (ViewBag.Owtr.Estado != null && ViewBag.Owtr.Estado.Equals("Pendiente")) { Write("selected"); }>Pendiente</option>
+                                <option value="Realizado" @if (ViewBag.Owtr.Estado != null && ViewBag.Owtr.Estado.Equals("Realizado")) { Write("selected"); }>Realizado</option>
+                            </select>
+                        </th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr id="fila">
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.DocNum)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.DocDate)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.U_BPP_FECINITRA)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.Filler)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.ToWhsCode)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.U_SYP_MDTD)-@Html.DisplayFor(modelItem => item.U_SYP_MDSD)-@Html.DisplayFor(modelItem => item.U_SYP_MDCD)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.U_SYP_STATUS)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.SlpCode)
+                            </td>
+                            <td class="text-center">
+                                <select name="Estado" class="form-control-sm bg-cobefar text-white" style="width: 130px" onchange="cambiarEstadoOWTR(@item.DocNum, this.value)">
+                                    <option value="Pendiente" @if (item.Estado != null && item.Estado.Equals("Pendiente")) { Write("selected"); }>Pendiente</option>
+                                    <option value="Realizado" @if (item.Estado != null && item.Estado.Equals("Realizado")) { Write("selected"); }>Realizado</option>
+                                </select>
+
+                            </td>
+                            <td class="text-center">
+                                <a href="@Url.Action("ActaRecepcionTs", "DireccionTecnica", new { DocEntry = item.DocEntry })" target="_blank" class="btn btn-sm btn-primary">A. Recepción</a>
+                            </td>
+                            <td class="text-center">
+                                <a href="@Url.Action("ActaDespachoTs", "DireccionTecnica", new { DocEntry = item.DocEntry })" target="_blank" class="btn btn-sm btn-success">A. Despacho</a>
+                            </td>
+                            <td class="text-center">
+                                <a href="@Url.Action("OrganolepticoTs", "DireccionTecnica", new { DocEntry = item.DocEntry })" target="_blank" class="btn btn-sm btn-dark">Organoléptico</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+
+            </table>
+        </form>
+    </div>
+</div>
+
+<script>
+    function cambiarEstadoOWTR(docNum, valor) {
+        $.ajax({
+            url: '/DireccionTecnica/CambiarEstadoOWTR',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                'DocNumSAP': docNum, 'Estado': valor
+            }
+        }).done(function (response) {
+            Swal.fire(response.Mensaje);
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            console.log(jqXHR.status + textStatus + errorThrown);
+        });
+    }
+</script>

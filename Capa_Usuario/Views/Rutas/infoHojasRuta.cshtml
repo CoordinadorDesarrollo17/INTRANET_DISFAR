@@ -1,0 +1,149 @@
+﻿@model Capa_Entidad.Rutas_ENT.TablasSql.ORRU_E
+@using Capa_Entidad.General_ENT.TablasSql
+@{
+    Layout = null;
+}
+<script>
+    $(document).ready(function () { });
+    function rpt() {
+        $('#Reporte').html('<img src="/imagenes/index/ReportesDigemid/cargando.gif" />');
+        var parametros = $("#frm").serialize();
+        $(location).attr('href', "/Rutas/RptHojasRuta?" + parametros);
+        $('#Reporte').html("");
+    }
+</script>
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+</head>
+<body>
+    @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="container" style="padding: 2%; background-color:rgb(220, 220, 220);">
+            <h3 class="text-cobefar font-weight-bold text-center">ANÁLISIS DE HOJAS DE RUTA</h3>
+            <div class="row mt-4">
+                <div class="col-lg-3">
+                    <label for="AlmIni" class="text-dark font-weight-bold font-18">Almacén Origen:</label>
+                    <select id="AlmIni" name="AlmIni" class="form-control bg-cobefar text-white">
+                        <option value="">Seleccione</option>
+                        @foreach (OWHS_E obj in ViewBag.Almacenes)
+                        {
+                            <option value="@obj.WhsCode">@obj.WhsName</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="AlmFin" class="text-dark font-weight-bold font-18">Almacén Destino:</label>
+                    <select id="AlmFin" name="AlmFin" class="form-control bg-cobefar text-white">
+                        <option value="">Seleccione</option>
+                        @foreach (OWHS_E obj in ViewBag.Almacenes)
+                        {
+                            <option value="@obj.WhsCode">@obj.WhsName</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="TipoRuta" class="text-dark font-weight-bold font-18">Tipo de Ruta:</label>
+                    <select id="TipoRuta" name="TipoRuta" class="form-control bg-cobefar text-white">
+                        <option value="">Seleccione</option>
+                        <option value="VC">VC-Centro</option>
+                        <option value="VD">VD-Domicilio</option>
+                        <option value="VA">VA-Arriola</option>
+                        <option value="VG">VG-Agencia</option>
+                        <option value="AC">AC-Agencia Courier</option>
+                    </select>
+                </div>
+                
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-3">
+                    <label for="FecConIni" class="text-dark font-weight-bold font-18">Fecha Cont. Desde:</label>
+                    @Html.EditorFor(model => model.FecConIni, new { htmlAttributes = new { @class = "form-control border-success", @type = "date" } })
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="FecConFin" class="text-dark font-weight-bold font-18">Fecha Cont. Hasta:</label>
+                    @Html.EditorFor(model => model.FecConFin, new { htmlAttributes = new { @class = "form-control border-success", @type = "date" } })
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="Estado" class="text-dark font-weight-bold font-18">Estado:</label>
+                    <select class="form-control bg-cobefar text-white" id="Estado" name="Estado">
+                        <option value="">Seleccione</option>
+                        <option value="TERMINADO">TERMINADO</option>
+                        <option value="ENVIADO">ENVIADO</option>
+                        <option value="EDITADO">EDITADO</option>
+                        <option value="CREADO">CREADO</option>
+                        <option value="ANULADO">ANULADO</option>
+                    </select>
+                </div>
+            </div>  
+
+            <div class="row mt-4">
+                <div class="col-lg-6">
+                    <label for="TransDesc" class="text-dark font-weight-bold font-18">Transportista:</label>
+                    <select name="TransDesc" class="form-control bg-cobefar text-white">
+                        <option value="">Seleccione</option>
+                        @foreach (var t in ViewBag.Transportistas)
+                        {
+                            <option value="@t.U_SYP_CHNO" TransCod="@t.Code">@t.U_SYP_CHNO</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="Placa" class="text-dark font-weight-bold font-18">Placa:</label>
+                    <select name="Placa" class="form-control bg-cobefar text-white">
+                        <option value="">Seleccione</option>
+                        @foreach (var p in ViewBag.ListaVehiculos)
+                        {
+                            <option value="@p.U_SYP_VEPL">@p.U_SYP_VEPL</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-6">
+                    <label for="CardCode" class="text-dark font-weight-bold font-18">Cliente:</label>
+                    <input type="search" class="form-control border-success" list="ListaClientes" name="CardCode">
+                    <datalist id="ListaClientes">
+                        @foreach (var obj in ViewBag.Clientes)
+                        {
+                            <option CardCode="@obj.CardCode" value="@obj.CardCode">@obj.CardName</option>
+                        }
+                    </datalist>
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="MontoTotalIni" class="text-dark font-weight-bold font-18">Montos Tot. Desde S/:</label>
+                    @Html.EditorFor(model => model.MontoTotalIni, new { htmlAttributes = new { @class = "form-control border-success" } })
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="MontoTotalFin" class="text-dark font-weight-bold font-18">Montos Tot. Hasta S/:</label>
+                    @Html.EditorFor(model => model.MontoTotalFin, new { htmlAttributes = new { @class = "form-control border-success" } })
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-4">
+                    <button id="Generar" type="button" class="btn btn-success" onclick="rpt()"><i class="icon icon-checkmark"></i> Generar</button>
+                </div>
+                
+            </div>
+
+            
+        </div>
+    }
+</body>
+</html>
+
+

@@ -1,0 +1,414 @@
+﻿@model IEnumerable<Capa_Entidad.Ventas_ENT.Tablas.NotaCreditoDebito_E>
+
+@{
+    Layout = null;
+    var Cab = Model.ToList()[0];
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LayoutNotaCDSap</title>
+    <style>
+        * {
+            /* font-family: 'Verdana';*/ font-family: 'Arial Unicode MS';
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;font-size:11px;
+        }
+
+        th, td {
+            padding: 2px;
+        }
+
+    </style>
+</head>
+<body>
+    <div>
+        <div>
+            <table style="font-size:11px;text-align:center;border-collapse:collapse" border="1">
+                <tr >
+                    <td>TIPO DE DOC.</td>
+                    <td>SERIE Y CORRELATIVO</td>
+                    <td>FECHA DEL DOCUMENTO</td>
+                    <td>FECHA DE EMISIÓN</td>
+                    <td width="250px">VENDEDOR</td>
+                </tr>
+                <tr>
+                    <td>@Cab.TipoDocRel</td>
+                    <td>@Cab.SerieDocRel-@Cab.CorreDocRel</td>
+                    <td>@Cab.DocDateRel</td>
+                    <td>@Cab.DocDate</td>
+                    <td>@Cab.ElaboradoPor</td>
+                </tr>
+            </table>
+        </div>
+
+        @if (ViewBag.Tipo == "NC" && ViewBag.SubTipo == "S")
+        {
+
+            <table border="1">
+                <tr style="text-align:center">
+                    <th style="width: 100px;">CANT.</th>
+                    <th style="width: 400px;">DESCRIPCIÓN</th>
+                    <th style="width: 100px;">P. UNITARIO</th>
+                    <th style="width: 100px;">PRECIO<br />VENTA</th>
+                </tr>
+                @foreach (var item in Model)
+                {
+                <tr style=" page-break-inside: avoid;">
+                    <td style="width: 100px;">
+                        @Html.DisplayFor(modelItem => item.Cantidad)
+                    </td>
+                    <td style="width: 400px;">
+                        @Html.DisplayFor(modelItem => item.DescripcionLinea)
+                    </td>
+                    <td style="width: 100px;">
+                        @Html.DisplayFor(modelItem => item.PrecioLinea)
+                    </td>
+                    <td style="width: 100px;">
+                        @Html.DisplayFor(modelItem => item.PrecioLinea)
+                    </td>
+                </tr>
+                }
+                @*@{var counter = 0;
+
+
+        foreach (var item in Model)
+        {
+            if (counter % 20 == 0)
+            {
+                if (counter != 0)
+                { @Html.Raw("</table><div class='page-break'></div><table border='1' style='font-size:11px;'>   <tr><th style=\"width: 100px;\">CANT.</th>\r\n                    <th style=\"width: 400px;\">DESCRIPCIÓN</th>\r\n                    <th style=\"width: 100px;\">P. UNITARIO</th>\r\n                    <th style=\"width: 100px;\">PRECIO<br />VENTA</th>      </tr>")
+
+            }
+        }*@
+                @*<tr style=" page-break-inside: avoid;">
+                <td style="width: 100px;">
+                    @Html.DisplayFor(modelItem => item.Cantidad)
+                </td>
+                <td style="width: 400px;">
+                    @Html.DisplayFor(modelItem => item.DescripcionLinea)
+                </td>
+                <td style="width: 100px;">
+                    @Html.DisplayFor(modelItem => item.PrecioLinea)
+                </td>
+                <td style="width: 100px;">
+                    @Html.DisplayFor(modelItem => item.PrecioLinea)
+                </td>
+            </tr>
+
+        }
+
+        counter++;
+        }*@
+
+
+            </table>
+        }
+        else if (ViewBag.Tipo == "ND")
+        {
+    <table border="1">
+        <tr style="text-align:center">
+            <th style="width: 100px;">ITEM</th>
+            <th style="width: 400px;">DESCRIPCIÓN</th>
+            <th style="width: 100px;">VALOR<br />UNITARIO</th>
+            <th style="width: 100px;">PRECIO<br />VENTA</th>
+        </tr>
+        @foreach (var item in Model) { 
+        <tr style="page-break-inside: avoid;">
+            <td style="width: 100px;">
+                @Html.DisplayFor(modelItem => item.CodigoGasto)
+            </td>
+            <td style="width: 400px;">
+                @Html.DisplayFor(modelItem => item.DescripcionLinea)
+            </td>
+            <td style="width: 100px;">
+                @Html.DisplayFor(modelItem => item.PrecioLinea)
+            </td>
+            <td style="width: 100px;">
+                @Html.DisplayFor(modelItem => item.PrecioLinea)
+            </td>
+        </tr>
+        }
+
+        @*@{
+            var counter = 0;
+            foreach (var item in Model)
+            {
+                if (counter % 20 == 0)
+                {
+                    if (counter != 0)
+                    {
+                        @Html.Raw("</table><div class='page-break'></div><table border='1'><tr><th style=\"width: 100px;\">ITEM</th><th style=\"width: 400px;\">DESCRIPCIÓN</th><th style=\"width: 100px;\">VALOR<br />UNITARIO</th><th style=\"width: 100px;\">PRECIO<br />VENTA</th></tr>")
+                    }
+                }
+                <tr style="page-break-inside: avoid;">
+                    <td style="width: 100px;">
+                        @Html.DisplayFor(modelItem => item.CodigoGasto)
+                    </td>
+                    <td style="width: 400px;">
+                        @Html.DisplayFor(modelItem => item.DescripcionLinea)
+                    </td>
+                    <td style="width: 100px;">
+                        @Html.DisplayFor(modelItem => item.PrecioLinea)
+                    </td>
+                    <td style="width: 100px;">
+                        @Html.DisplayFor(modelItem => item.PrecioLinea)
+                    </td>
+                </tr>
+                counter++;
+            }
+        }*@
+    </table>
+
+        }
+        else if (ViewBag.Tipo == "NC" && ViewBag.SubTipo == "I")
+        {
+    <table border="1" style="text-align:center">
+        <tr>
+            <th style="width: 50px;">CANTIDAD</th>
+            <th style="width: 260px;">DESCRIPCION</th>
+            <th style="width: 50px;">LAB.</th>
+            <th style="width: 80px;">LOTE</th>
+            <th style="width: 100px;">FECHA<br />VENC.</th>
+            <th style="width: 100px;">PRECIO<br />UNIT.</th>
+            <th style="width: 80px;">DSCTO<br />%</th>
+            <th style="width: 100px;">V. VENTA<br />NETO</th>
+            <th style="width: 100px;">PRECIO<br />VENTA</th>
+        </tr>
+        @foreach (var item in Model)
+        {
+        <tr style="page-break-inside: avoid;">
+            <td style="width: 50px;">
+                @Html.DisplayFor(modelItem => item.CantidadL)
+            </td>
+            <td style="width: 260px;">
+                @Html.DisplayFor(modelItem => item.DescripcionLinea)
+            </td>
+            <td style="width: 50px;">
+                @Html.DisplayFor(modelItem => item.Laboratorio)
+            </td>
+            <td style="width: 80px;">
+                @Html.DisplayFor(modelItem => item.LoteNum)
+            </td>
+            <td style="width: 100px;">
+                @Html.DisplayFor(modelItem => item.VencLote)
+            </td>
+            <td style="width: 100px;">
+                @Math.Round(item.F_ItemPrecio(), 2)
+            </td>
+            <td style="width: 80px;">
+                @Html.DisplayFor(modelItem => item.Descuento)
+            </td>
+            <td style="width: 100px;">
+                @Html.DisplayFor(modelItem => item.PreVentaNeto)
+            </td>
+            <td style="width: 100px;">
+                @Math.Round(item.ItemTotalxLot(), 2)
+            </td>
+        </tr>
+        }
+        @*@{
+        var counter = 0;
+        foreach (var item in Model)
+        {
+            if (counter % 20 == 0)
+            {
+                if (counter != 0)
+                {
+                    @Html.Raw("</table><div class='page-break'></div><table border='1'><tr><th style=\"width: 50px;\">CANTIDAD</th>\r\n                    <th style=\"width: 260px;\">DESCRIPCION</th>\r\n                    <th style=\"width: 50px;\">LAB.</th><th style=\"width: 80px;\">LOTE</th><th style=\"width: 100px;\">FECHA<br />VENC.</th><th style=\"width: 100px;\">PRECIO<br />UNIT.</th><th style=\"width: 80px;\">DSCTO<br />%</th><th style=\"width: 100px;\">V. VENTA<br />NETO</th><th style=\"width: 100px;\">PRECIO<br />VENTA</th></tr>")
+                }
+            }*@
+        @*<tr style="page-break-inside: avoid;">
+                    <td style="width: 50px;">
+                        @Html.DisplayFor(modelItem => item.CantidadL)
+                    </td>
+                    <td style="width: 260px;">
+                        @Html.DisplayFor(modelItem => item.DescripcionLinea)
+                    </td>
+                    <td style="width: 50px;">
+                        @Html.DisplayFor(modelItem => item.Laboratorio)
+                    </td>
+                    <td style="width: 80px;">
+                        @Html.DisplayFor(modelItem => item.LoteNum)
+                    </td>
+                    <td style="width: 100px;">
+                        @Html.DisplayFor(modelItem => item.VencLote)
+                    </td>
+                    <td style="width: 100px;">
+                        @Math.Round(item.F_ItemPrecio(), 2)
+                    </td>
+                    <td style="width: 80px;">
+                        @Html.DisplayFor(modelItem => item.Descuento)
+                    </td>
+                    <td style="width: 100px;">
+                        @Html.DisplayFor(modelItem => item.PreVentaNeto)
+                    </td>
+                    <td style="width: 100px;">
+                        @Math.Round(item.ItemTotalxLot(), 2)
+                    </td>
+                </tr>
+                counter++;
+            }
+        }*@
+    </table>
+
+        }
+        <h6><strong>MOTIVO: </strong>@Cab.Motivo<br /><br /></h6>
+    </div>
+    <div class="footer">
+        <table style="font-size: 11px; margin-bottom: 20px; page-break-inside: avoid;" border="1">
+            <tr>
+                <td>
+                    SON:@Cab.TotalL()
+                </td>
+            </tr>
+            </table>
+            <table>
+            <tr>
+                <td style="text-align:center;padding:10px;font-size:11px">
+                    <img src="~/imagenes/index/encabezado/barras.png" width="140" height="50" /><br />
+                    Autorizado mediante N° R.S. 300-2014/SUNAT<br />
+                    Representación impresa de la Factura Electrónica. <br />Puede ser consultada
+                    en www.cobefar.com.pe
+                </td>
+                <td style="border-bottom: 2px solid black; border-top: 2px solid black; border-left: 2px solid black; padding: 0px 5px 0px 15px; font-size: 11px;">
+                    <p>
+                        <strong>GERENTE DE VENTAS	      </strong><br />
+                        Cel.:982577809			     <br />
+                        Telf.:4281248			     <br />
+                        <strong>VENTAS PROVINCIA</strong>		     <br />
+                        958950318 / 971559893        <br />
+                        997895353				     <br />
+                        <strong>VENTAS POR MAYOR</strong>	         <br />
+                        933567704 / 956381409
+                    </p>
+                </td>
+                <td style="border-bottom: 2px solid black; border-top: 2px solid black; border-right: 2px solid black; padding: 0px 5px 0px 15px; font-size: 11px;">
+                    <p>
+                        <strong>VENTAS LIMA</strong><br />
+                        954121505 / 933514870 / 982768938<br />
+                        939391010 / 932766022 / 933514897<br />
+                        986789108 / 986789103 / 942810044<br />
+                        977190699 / 980576206<br />
+                        950156844 / 980914611<br />
+                        939392020<br />
+                        Telf.: 4280115 / 4274304
+                    </p>
+                </td>
+                <td rowspan="2">
+                    @if (ViewBag.Tipo == "NC" && ViewBag.SubTipo == "S")
+                    {
+                        <table style="font-size:12px;padding:0" border="1">
+                            <tr>
+                                <td>VALOR DE VENTA</td>
+                                <td>S/</td>
+                                <td style="text-align:right">@Math.Round(Cab.PreUnitSinIgv, 2)</td>
+                            </tr>
+                            <tr>
+                                <td> I.G.V 18%</td>
+                                <td>S/</td>
+                                <td style="text-align:right">@Math.Round(Cab.Impuesto, 2)</td>
+                            </tr>
+                            <tr>
+                                <td> TOTAL</td>
+                                <td>S/</td>
+                                <td style="text-align:right">@Math.Round((Math.Round(Cab.Impuesto, 2) + Cab.PreUnitSinIgv), 2)</td>
+                            </tr>
+                        </table>
+                    }
+                    else if (ViewBag.Tipo == "ND")
+                    {
+                        <table style="font-size:12px;padding:0" border="1">
+                            <tr>
+                                <td>VALOR DE VENTA</td>
+                                <td>S/</td>
+                                <td style="text-align:right">@Math.Round(Cab.PrecioLinea, 2)</td>
+                            </tr>
+                            <tr>
+                                <td> I.G.V 18%</td>
+                                <td>S/</td>
+                                <td style="text-align:right">@Math.Round(Cab.Impuesto, 2)</td>
+                            </tr>
+                            <tr>
+                                <td> TOTAL</td>
+                                <td>S/</td>
+                                <td style="text-align:right">@Math.Round(Cab.DocTotal,2)</td>
+                            </tr>
+                        </table>
+                    }
+                    else
+                    {
+                        <table style="font-size:12px;padding:0" border="1">
+                            <tr>
+                                <td>Op. Gravada</td>
+                                <td>S/</td>
+                                <td style="text-align:right">@Math.Round(Cab.Tgrabado(Cab.Sum_Topgratuita(Model.ToList()), Cab.Sum_Tinafecto(Model.ToList())), 2)</td>
+                            </tr>
+                            <tr>
+                                <td>Desc.&nbsp;Globales</td>
+                                <td>S/</td>
+                                <td style="text-align:right"></td>
+                            </tr>
+                            <tr>
+                                <td> I.G.V 18%</td>
+                                <td>S/</td>
+                                <td style="text-align:right">@Math.Round(Cab.Impuesto, 2)</td>
+                            </tr>
+                            <tr>
+                                <td> Op. Inafecta</td>
+                                <td>S/</td>
+                                <td style="text-align:right">@Cab.F_Tinafecto(Cab.Sum_Tinafecto(Model.ToList()))</td>
+                            </tr>
+                            <tr>
+                                <td> Op. exonerada</td>
+                                <td>S/</td>
+                                <td style="text-align:right"></td>
+                            </tr>
+                            <tr>
+                                <td>Op. gratuita</td>
+                                <td>S/</td>
+                                <td style="text-align:right">@Cab.F_Topgratuita(Cab.Sum_Topgratuita(Model.ToList()))</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3"><hr /></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight:600">Importe Total</td>
+                                <td style="font-weight:600"> S/</td>
+                                <td style="font-weight: 600; text-align: right"> @Math.Round(Cab.TotalFactura(Cab.Sum_Topgratuita(Model.ToList())), 2)</td>
+                            </tr>
+                        </table>
+                    }
+                </td>
+            <tr>
+                <td></td>
+                <td style="text-align:center;border-bottom:2px solid black;border-left:2px solid black;border-right:2px solid black;font-size:12px" colspan="2">
+                    <br />
+                    <strong>CANCELADO<br /><br /></strong>
+
+                    Lima...........de.................................del 20.....<br /><br />
+
+                    ------------------------------------------<br />
+                    COBEFAR S.A.C.
+
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td colspan="5">
+                    Nota: No aceptamos devoluciones ni reclamos después de la entrega de la mercadería
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>
+
+
+

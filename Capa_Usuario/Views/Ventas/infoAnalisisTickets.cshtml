@@ -1,0 +1,204 @@
+﻿@model Capa_Entidad.Ventas_ENT.Formularios.FrmAnalisisTicket_E
+@using Capa_Entidad.General_ENT.TablasSql
+
+@{
+    Layout = null;
+}
+<script>
+    $(document).ready(function () { });
+    function rpt() {
+        if ($('#FecIni').val() == '' || $('#FecFin').val() == '') {
+            $('#FecIni').addClass("bg-danger text-white");
+            $('#FecFin').addClass("bg-danger text-white");
+            Swal.fire("Debe elegir un rango de fechas para los tickets");
+        } else {
+            $('#FecIni').removeClass("bg-danger text-white");
+            $('#FecFin').removeClass("bg-danger text-white");
+
+            $('#Reporte').html('<img src="/imagenes/index/ReportesDigemid/cargando.gif" />');
+            var parametros = $("#frm").serialize();
+            $(location).attr('href', "/Ventas/RptAnalisisTickets?" + parametros);
+            $('#Reporte').html("");
+        }
+    }
+</script>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+</head>
+<body>
+
+    <div class="container" style="padding: 2%; background-color:rgb(220, 220, 220);">
+        <h3 class="text-cobefar font-weight-bold text-center">ANÁLISIS DE TICKETS</h3>
+
+        @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm" }))
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="row mt-4">
+                <div class="col-lg-4">
+                    <label for="AlmacenSalida" class="text-dark font-weight-bold font-18">Almacen(Origen):</label>
+                    <select id="AlmacenSalida" name="AlmacenSalida" class="form-control bg-cobefar text-white border-success">
+                        <option value="">Seleccione</option>
+                        @foreach (OWHS_E obj in ViewBag.Almacenes)
+                        {
+                            <option value="@obj.WhsCode">@obj.WhsName</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-lg-4">
+                    <label for="AlmIni" class="text-dark font-weight-bold font-18">Almacenes(Lug.Ent.) Desde:</label>
+                    <select class="form-control bg-cobefar text-white border-success" name="AlmIni" id="Almacen">
+                        <option value="">Seleccione</option>
+                        @foreach (OWHS_E obj in ViewBag.Almacenes)
+                        {
+                            <option value="@obj.WhsName">@obj.WhsName</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-lg-4">
+                    <label for="AlmIni" class="text-dark font-weight-bold font-18">Almacenes(Lug.Ent.) Hasta:</label>
+                    <select class="form-control bg-cobefar text-white border-success" name="AlmFin" id="Almacen">
+                        <option value="">Seleccione</option>
+                        @foreach (OWHS_E obj in ViewBag.Almacenes)
+                        {
+                            <option value="@obj.WhsName">@obj.WhsName</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-4">
+                    <label for="Estado" class="text-dark font-weight-bold font-18">Estado:</label>
+                    <select class="form-control bg-cobefar text-white border-success" name="Estado">
+                        <option value="">Seleccione</option>
+                        <option value="ABIERTO">ABIERTO</option>
+                        <option value="RECIBIDO">RECIBIDO</option>
+                        <option value="PICKEANDO">PICKEANDO</option>
+                        <option value="VERIFICANDO">VERIFICANDO</option>
+                        <option value="EMPACANDO">EMPACANDO</option>
+                        <option value="EMPACADO">EMPACADO</option>
+                        <option value="PESADO">PESADO</option>
+                        <option value="ENVIADO">ENVIADO</option>
+                        <option value="ENTREGADO">ENTREGADO</option>
+                        <option value="ANULADO">ANULADO</option>
+                        <option value="CANCELADO">CANCELADO</option>
+                    </select>
+                </div>
+
+                <div class="col-lg-4">
+                    <label for="Estado" class="text-dark font-weight-bold font-18">Fecha Ticket Desde:</label>
+                    @Html.EditorFor(model => model.FecIni, new { htmlAttributes = new { @class = "form-control border-success", @type = "date", @required = true } })
+                </div>
+
+                <div class="col-lg-4">
+                    <label for="Estado" class="text-dark font-weight-bold font-18">Fecha Ticket Hasta:</label>
+                    @Html.EditorFor(model => model.FecFin, new { htmlAttributes = new { @class = "form-control border-success", @type = "date", @required = true } })
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-6">
+                    <label for="CardCode" class="text-dark font-weight-bold font-18">Cliente:</label>
+                    <input type="search" class="form-control border-success" list="ListaClientes" name="CardCode" autocomplete="off">
+                    <datalist id="ListaClientes">
+                        @foreach (var obj in ViewBag.Clientes)
+                        {
+                            <option CardCode="@obj.CardCode" value="@obj.CardCode">@obj.CardName</option>
+                        }
+                    </datalist>
+                </div>
+
+                <div class="col-lg-6">
+                    <label for="LugarDestino" class="text-dark font-weight-bold font-18">Lugar Destino:</label>
+                    <select name="LugarDestino" class="form-control bg-cobefar text-white border-success">
+                        <option value="">Seleccione</option>
+                        <option value="Arriola">Arriola</option>
+                        <option value="Domicilio">Domicilio</option>
+                        <option value="Centro">Centro</option>
+                        <option value="Agencia">Agencia</option>
+                        <option value="Agencia Courier">Agencia Courier</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-6">
+                    <label for="TipoOperario" class="text-dark font-weight-bold font-18">Tipo Operario:</label>
+                    <select name="TipoOperario" class="form-control bg-cobefar text-white border-success">
+                        <option value="">Seleccione</option>
+                        <option value="OpSeparo">OpSeparo</option>
+                        <option value="OpAbierto">OpAbierto</option>
+                        <option value="OpRecibido">OpRecibir</option>
+                        <option value="OpPicking">OpPicking (principal)</option>
+                        <option value="OpPicking2">OpPicking (apoyo)</option>
+                        <option value="OpVerificador">OpVerificador (principal)</option>
+                        <option value="OpVerificador2">OpVerificador (apoyo) </option>
+                        <option value="OpEmpacado">OpEmpacador (principal)</option>
+                        <option value="OpEmpacado2">OpEmpacador (apoyo) </option>
+                        <option value="OpEnvio">OpEnvio</option>
+                        <option value="OpEntrega">OpEntrega</option>
+                        <option value="OpAnular">OpAnular</option>
+                        <option value="OpCancelar">OpCancelar</option>
+                        <option value="OpFacturacion">OpFacturacion</option>
+                    </select>
+                </div>
+
+                <div class="col-lg-6">
+                    <label class="text-dark font-weight-bold font-18">Nombre Operario:</label>
+                    <input type="search" class="form-control border-success" list="ListaOperarios" name="Operario" autocomplete="off">
+                    <datalist id="ListaOperarios">
+                        @foreach (var bean in ViewBag.Operarios)
+                        {
+                            <option nombre="@bean.Nombres @bean.Apellidos" id="@bean.Id">@bean.Nombres @bean.Apellidos</option>
+                        }
+                    </datalist>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-4">
+                    <label for="FormaPago" class="text-dark font-weight-bold font-18">Forma de Pago:</label>
+                    <select class="form-control bg-cobefar text-white border-success" name="FormaPago" id="FormaPago">
+                        <option value="">Seleccione</option>
+                        <option value="EFE/CAPON">EFE/CAPON</option>
+                        <option value="EFECTIVO">EFECTIVO</option>
+                        <option value="DEPOSITO">DEPOSITO</option>
+                    </select>
+                </div>
+                <div class="col-lg-4">
+                    <label for="MontoFinalIni" class="text-dark font-weight-bold font-18">Montos Finales Desde S/:</label>
+                    @Html.EditorFor(model => model.MontoFinalIni, new { htmlAttributes = new { @class = "form-control border-success", @autocomplete = "off" } })
+                </div>
+
+                <div class="col-lg-4">
+                    <label for="MontoFinalIni" class="text-dark font-weight-bold font-18">Montos Finales Hasta S/:</label>
+                    @Html.EditorFor(model => model.MontoFinalFin, new { htmlAttributes = new { @class = "form-control border-success", @autocomplete = "off" } })
+                </div>
+                <div class="col-lg-4">
+                    <label class="text-dark font-weight-bold font-18">Forma de Pago:</label>
+                    <select class="form-control bg-cobefar text-white border-success" name="FormaPagoFil" id="FormaPagoFil">
+                        <option value="">Seleccione</option>
+                        <option value="EFE/CAPON">EFE/CAPON</option>
+                        <option value="EFECTIVO">EFECTIVO</option>
+                        <option value="DEPOSITO">DEPOSITO</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-6">
+                    <button id="Generar" type="button" class="btn btn-success" onclick="rpt()"><i class="icon-checkmark"></i> Generar</button>
+                </div>
+            </div>
+
+        }
+    </div>
+
+</body>
+</html>

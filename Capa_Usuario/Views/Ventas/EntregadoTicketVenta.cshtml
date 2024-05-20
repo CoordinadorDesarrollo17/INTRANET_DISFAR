@@ -1,0 +1,430 @@
+﻿@model Capa_Entidad.Ventas_ENT.TablasSql.ORTV_E
+@using Capa_Entidad.Ventas_ENT.TablasSql
+@using Capa_Entidad.Seguridad_ENT
+@{
+    ViewBag.Title = "EntregadoTicketVenta";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    //string selectedRegEstado = "", descripcionRegalo = "";
+    //decimal cantRegalo = 0;
+    //if (Model.Det5.Count() >= 1) {
+    //    if (Model.Det5[0].RegEstado == "Entregado") {
+    //        selectedRegEstado = "selected";
+    //    }
+
+    //    descripcionRegalo = $"{Model.Det5[0].RegCate} - {Model.Det5[0].RegTipo}";
+    //    cantRegalo = Decimal.Round(Model.Det5[0].RegCant, 0);
+    //}
+}
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("ListadoTicketsDespacho", "Ventas")">Listado tickets de despacho</a></li>
+            <li class="current"><em>Entregado ticket de venta</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">ENTREGADO TICKET DE VENTA</h3></div>
+</div>
+
+<div class="bg-form-pestanas-cobefar pt-4">
+    <nav>
+        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+            <a class="nav-link active" id="nav-entregado-tab" data-toggle="tab" href="#nav-entregado" role="tab" aria-controls="nav-entregado" aria-selected="true">
+                Entregado
+            </a>
+            <a class="nav-link" id="nav-datos-pedidos-tab" data-toggle="tab" href="#nav-datos-pedidos" role="tab" aria-controls="nav-datos-pedidos" aria-selected="false">
+                Datos Pedido
+            </a>
+            <a class="nav-link" id="nav-especif-recojo-tab" data-toggle="tab" href="#nav-especif-recojo" role="tab" aria-controls="nav-especif-recojo" aria-selected="false">
+                Especificaciones de Recojo
+            </a>
+            <a class="nav-link" id="nav-det-pedidos-tab" data-toggle="tab" href="#nav-det-pedidos" role="tab" aria-controls="nav-det-pedidos" aria-selected="false">
+                Detalles de Pedidos
+            </a>
+            <a class="nav-link" id="nav-caja-tab" data-toggle="tab" href="#nav-caja" role="tab" aria-controls="nav-caja" aria-selected="false">
+                Caja
+            </a>
+        </div>
+    </nav>
+
+    @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "EntregadoTicketVenta" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="tab-content" id="nav-tabContent">
+
+            <div class="tab-pane fade show active" id="nav-entregado" role="tabpanel" aria-labelledby="nav-entregado-tab">
+                <div class="bg-section-form p-4 bg-form-cobefar">
+                    <h2 class="mt-4 text-cobefar font-weight-bold">ENTREGADO</h2>
+                    <input name="DocEntry" value="@Model.DocEntry" readonly type="hidden" />
+
+                    <div class="form-group row mt-4 ml-1">
+                        <label class="col-sm-2 bg-cobefar text-center text-white py-2 px-2 col-form-label font-weight-bold font-18">Cajas:</label>
+                        <div class="col-lg-2">
+                            <input type="text" class="form-control border-success text-center" value="@Model.Cajas" readonly />
+                        </div>
+
+                        <div class="col-lg-2">
+                            <button type="submit" class="btn btn-success"><i class="icon icon-checkmark"></i> Entregado</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-4 ml-1">
+                        <label for="FechaOperacion" class="col-sm-2 bg-cobefar text-white text-center py-2 px-2 col-form-label font-weight-bold font-18">Fecha Operación:</label>
+                        <div class="col-lg-2">
+                            @Html.EditorFor(model => model.FechaOperacion, new { htmlAttributes = new { @class = "form-control border-success", @readonly = "true" } })
+                        </div>
+
+
+                        <label for="HoraOperacion" class="col-sm-2 bg-cobefar text-white text-center py-2 px-2 col-form-label font-weight-bold font-18">Hora Operación:</label>
+                        <div class="col-lg-2">
+                            @Html.EditorFor(model => model.HoraOperacion, new { htmlAttributes = new { @class = "form-control border-success", @readonly = "true" } })
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-4 ml-1">
+                        <label for="Operario" class="col-sm-2 bg-cobefar text-white text-center py-2 px-2 col-form-label font-weight-bold font-18">Operario:</label>
+                        <div class="col-lg-4">
+                            @Html.EditorFor(model => model.Operario, new { htmlAttributes = new { @class = "form-control border-success", @readonly = "true" } })
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group row mt-4 ml-1">
+                        <label for="OpSacando" class="col-sm-2 bg-cobefar text-center text-white py-2 px-2 col-form-label font-weight-bold font-18">Estado Regalo:</label>
+                        <div class="col-lg-2">
+                            <select name="Det5[0].RegEstado" class="form-control bg-cobefar text-white" style="height: 38px">
+                                <option value="">Pendiente</option>
+                                <option value="Entregado" @ViewBag.SelectedRegEstado>Entregado</option>
+                            </select>
+                        </div>
+
+                        <label for="OpSacando" class="col-sm-2 bg-cobefar text-center text-white py-2 px-2 col-form-label font-weight-bold font-18">Regalo:</label>
+                        <div class="col-lg-3">
+                            <input type="text" class="form-control border-success" value="@ViewBag.DescripcionRegalo" readonly />
+                        </div>
+
+
+                        <label for="OpSacando" class="col-sm-1 bg-cobefar text-center text-white py-2 px-2 col-form-label font-weight-bold font-18">CantReg:</label>
+                        <div class="col-lg-2">
+                            <input type="text" class="form-control border-success" value="@ViewBag.CantRegalo" readonly />
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+
+            <div class="tab-pane fade" id="nav-datos-pedidos" role="tabpanel" aria-labelledby="nav-datos-pedidos-tab">
+                <div class="bg-section-form p-4 bg-form-cobefar">
+                    <h2 class="mt-4 text-cobefar font-weight-bold">DATOS PEDIDO</h2>
+
+                    <div class="row mt-4">
+                        <div id="infoFechaTicket" class="col-lg-2">
+                            <label for="FechaRegistro" class="text-dark form-label font-weight-bold font-18">Fecha Registro:</label>
+                            <input id="FechaRegistro" type="date" name="FechaRegistro" value="@Model.FechaRegistro" class="form-control text-center border-success" readonly>
+                        </div>
+                        <div class="col-lg-2">
+                            <label for="TipoVenta" class="text-dark form-label font-weight-bold font-18">Tipo de Venta:</label>
+                            <input type="text" name="TipoVenta" value="@Model.TipoVenta" class="form-control text-center border-success" readonly />
+                        </div>
+
+                        <div class="col-lg-3">
+                            <label for="Embalaje" class="text-dark form-label font-weight-bold font-18">Embalaje:</label>
+                            <input type="text" name="Embalaje" value="@Model.Embalaje" class="form-control text-center border-success" readonly />
+                        </div>
+
+                        <div class="col-lg-2">
+                            <label for="DocNum" class="text-dark form-label font-weight-bold font-18">DocNum Ticket:</label>
+                            <input type="text" name="DocNum" value="@Model.DocNum" class="form-control text-center border-success" readonly />
+                        </div>
+
+                        <div class="col-lg-2">
+                            <label for="Estado" class="text-dark form-label font-weight-bold font-18">Estado:</label>
+                            <input type="text" name="Estado" value="@Model.Estado" class="form-control text-center bg-warning" readonly />
+                        </div>
+
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-lg-6">
+                            <label for="CardName" class="text-dark form-label font-weight-bold font-18">Cliente:</label>
+                            <input type="text" id="CardName" name="CardName" list='ListaClientes' class="form-control border-success" value="@Model.CardName" readonly />
+                        </div>
+
+                        <div class="col-lg-3">
+                            <label for="LugarDestino" class="text-dark form-label font-weight-bold font-18">Lugar destino:</label>
+                            <input type="text" id="LugarDestino" name="LugarDestino" class="form-control text-center border-success" value="@Model.LugarDestino" readonly />
+                        </div>
+
+                        <div class="col-lg-3">
+                            <label class="text-dark form-label font-weight-bold font-18">Agencia:</label>
+                            <input type="text" name="Agencia" id="Agencia" value="@Model.Agencia" class="form-control border-success" readonly />
+                        </div>
+
+                    </div>
+
+
+                    <div class="row mt-4">
+                        <div class="col-lg-7">
+                            <label class="text-dark form-label font-weight-bold font-18">DirDestino:</label>
+                            <input type="text" name="DirDestino" id="DirDestino" value="@Model.DirDestino" class="form-control border-success" readonly />
+                        </div>
+                    </div>
+
+                </div>
+            </div><!-- // TAB DATOS PEDIDO -->
+
+
+            <div class="tab-pane fade" id="nav-especif-recojo" role="tabpanel" aria-labelledby="nav-especif-recojo-tab">
+                <div class="bg-section-form p-4 bg-form-cobefar">
+                    <h2 class="mt-4 text-cobefar font-weight-bold">ESPECIFICACIONES DE RECOJO</h2>
+
+                    <div class="row mt-4">
+                        <div class="col-lg-6">
+                            <label for="Observaciones" class="text-dark form-label font-weight-bold font-18">Coordinación del pedido</label>
+                            @Html.TextAreaFor(model => model.Observaciones, new { @class = "form-control border-success", @readonly = "true", @rows = "4" })
+                        </div>
+
+                        <div class="col-lg-6">
+                            <label class="text-dark form-label font-weight-bold font-18">Vinculación de ticket</label>
+                            @Html.TextAreaFor(model => model.Observaciones2, new { @class = "form-control border-success", @readonly = "true", @rows = "4" })
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+
+                        <div class="col-lg-4">
+                            <label class="text-dark form-label font-weight-bold font-18">Vendedor:</label>
+                            <input name="Vendedor" value="@Model.Vendedor" class="form-control text-center border-success" readonly />
+                        </div>
+
+                        <div class="col-lg-2">
+                            <label class="text-dark form-label font-weight-bold font-18">Hora Registro:</label>
+                            <input type="time" class="form-control text-center border-success" value="@Model.HoraRegistro" readonly />
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div><!-- // TAB ESPECIFICACIONES DE RECOJO -->
+
+
+            <div class="tab-pane fade" id="nav-det-pedidos" role="tabpanel" aria-labelledby="nav-det-pedidos-tab">
+                <div class="bg-section-form p-4 bg-form-cobefar">
+                    <div id="div_detallesPedidos" class="row mt-4">
+                        <div class="col-lg-12">
+                            <table class="table table-hover table-bordered" id="detallesPedidos">
+                                <thead class='bg-dark text-white'>
+                                    <tr>
+                                        <th class='text-center'>#</th>
+                                        <th class='text-center'>VER</th>
+                                        <th class='text-center'>Monto</th>
+                                        <th class='text-center'>Nro SAP</th>
+                                        <th class='text-center'>Tipo Comprobante</th>
+                                        <th class='text-center'>Vendedor</th>
+                                        <th class='text-center'>Lugar de Entrega</th>
+                                        <th class='text-center'>ALM Salida</th>
+                                        <th class='text-center font-24'>Observación</th>
+                                    </tr>
+                                </thead>
+                                <tbody style='background: #D1D1D1'>
+                                    @if (Model.Det2 != null && Model.Det2.Count >= 1)
+                                    {
+                                        foreach (var dt in Model.Det2)
+                                        {
+                                            <tr>
+                                                <td class="text-center">@dt.Linea</td>
+                                                <td class="text-center"><input id="Verificar@(dt.Linea)" name="Det2[@(dt.Linea - 1)].Verificar" type="checkbox" checked readonly onclick="javascript: return false;" /></td>
+                                                <td class="text-center">@dt.Monto</td>
+                                                <td class="text-center">@dt.NroSap</td>
+                                                <td class="text-center">@dt.TipoComprobante</td>
+                                                <td class="text-center font-11">@dt.Vendedor</td>
+                                                <td class="text-center">@dt.LugarDeEntrega</td>
+                                                <td class="text-center">@dt.AlmacenSalida</td>
+                                                <td class="text-center">@dt.Observaciones</td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+
+                    <h2 class="mt-4 text-cobefar font-weight-bold">DETALLES DE PAGO</h2>
+                    <div class="row mt-4">
+                        <div class="col-lg-3">
+                            <label for="MontoTotal" class="text-dark form-label font-weight-bold font-18">Monto Total:</label>
+                            @Html.EditorFor(model => model.MontoTotal, new { htmlAttributes = new { @class = "form-control font-weight-bold border-success", @readonly = "true" } })
+                        </div>
+
+                        <div class="col-lg-3">
+                            <label for="TiempoEntrega" class="text-dark form-label font-weight-bold font-18">Tiempo de Entrega:</label>
+                            @Html.EditorFor(model => model.TiempoEntrega, new { htmlAttributes = new { @class = "form-control cls-dateTime border-success", @type = "text", @readonly = "true" } })
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-lg-3">
+                            <label for="Flete" class="text-dark form-label font-weight-bold font-18">Flete (Taxi):</label>
+                            <div id="infoFlete">@Html.EditorFor(model => model.Flete, new { htmlAttributes = new { @class = "form-control font-weight-bold border-success", @readonly = "true" } })</div>
+                        </div>
+
+                        <div class="col-lg-3">
+                            <label for="DeudaCliente" class="text-dark form-label font-weight-bold font-18">Deuda de cliente:</label>
+                            @Html.EditorFor(model => model.DeudaCliente, new { htmlAttributes = new { @class = "form-control font-weight-bold border-success", @readonly = "true" } })
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-lg-3">
+                            <label for="GastoEnvio" class="text-dark form-label font-weight-bold font-18">Gasto de Envío:</label>
+                            @Html.EditorFor(model => model.GastoEnvio, new { htmlAttributes = new { @class = "form-control font-weight-bold border-success", @readonly = "true" } })
+                        </div>
+
+                        <div class="col-lg-3">
+                            <label for="DeudaEmpresa" class="text-dark form-label font-weight-bold font-18">Deuda de Empresa:</label>
+                            <div id="infoDeudaEmpresa">@Html.EditorFor(model => model.DeudaEmpresa, new { htmlAttributes = new { @class = "form-control font-weight-bold border-success", @readonly = "true" } })</div>
+                        </div>
+
+                    </div><!-- FIN ROW -->
+
+                    <div class="row mt-4">
+                        <div class="col-lg-3">
+                            <label for="DescuentoNC" class="text-dark form-label font-weight-bold font-18">Descuento NC:</label>
+                            @Html.EditorFor(model => model.DescuentoNC, new { htmlAttributes = new { @class = "form-control font-weight-bold border-success", @readonly = "true" } })
+                        </div>
+
+                        <div class="col-lg-3">
+                            <label for="FechaNC" class="text-dark form-label font-weight-bold font-18">Fecha NC:</label>
+                            @if (Model.FechaNC != null)
+                            {
+                                <input type="date" name="FechaNC" class="form-control font-weight-bold border-success" value="@Model.FechaNC" readonly />
+                            }
+                            else
+                            {
+                                <input type="text" name="FechaNC" class="form-control font-weight-bold border-success" value="" readonly />
+                            }
+
+                        </div>
+
+                    </div><!-- FIN ROW -->
+
+                    @if (Model.Det4 != null && Model.Det4.Count >= 1)
+                    {
+                        <div class="row mt-4">
+                            <div class="col-lg-6">
+                                <table class="table table-hover table-bordered" style="background:#BAFDDF;">
+                                    <thead class="thead-dark text-white">
+                                        <tr>
+                                            <th class="text-center">#</th>
+                                            <th class="text-center">Monto NC</th>
+                                            <th class="text-center">Fecha</th>
+                                            <th class="text-center">Nro SAP</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (RTV4_E d2 in Model.Det4)
+                                        {
+                                            if (d2.Nc != null)
+                                            {
+                                                <tr>
+                                                    <td class="text-center">@d2.Linea</td>
+                                                    <td class="text-center">@d2.Nc.DocTotal</td>
+                                                    <td class="text-center">@d2.Nc.DocDate</td>
+                                                    <td class="text-center">@d2.Nc.DocNum</td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="row mt-4">
+                        <div class="col-lg-3">
+                            <label for="MontoFinal" class="text-dark form-label font-weight-bold font-18">Monto Final:</label>
+                            <div id="infoMontoFinal"><input id="MontoFinal" name="MontoFinal" type="text" value="@Model.MontoFinal" readonly class="form-control font-weight-bold border-success" /></div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-lg-12">
+                            <label for="Comentario" class="text-dark form-label font-weight-bold font-18">Comentario:</label>
+                            @Html.TextAreaFor(model => model.Comentario, new { @class = "form-control border-success w-75", @readonly = "true", @rows = "4" })
+                        </div>
+                    </div>
+
+                    @{ if (Model.Estado == "ABIERTO" && Model.EstadoPago != "PAGADO")
+                        {
+                            <div class="row mt-4">
+                                <div class="col-lg-6">
+                                    <button type="submit" id="Editar" class="btn btn-success"><i class="icon icon-pencil2"></i> Editar</button>
+                                    <button type="button" id="Verificar" class="btn btn-primary"><i class="icon icon-clipboard"></i> Verificar Datos</button>
+                                </div>
+                            </div>
+                        } }
+
+
+                </div>
+            </div><!-- // DETALLE DE PEDIDOS -->
+
+
+            <div class="tab-pane fade" id="nav-caja" role="tabpanel" aria-labelledby="nav-caja-tab">
+                <div class="bg-section-form p-4 bg-form-cobefar">
+                    <h2 class="text-cobefar font-weight-bold">CAJA</h2>
+                    <div class="row mt-4">
+                        <div class="col-lg-3">
+                            <label for="EstadoPago" class="text-dark form-label font-weight-bold font-18">Estado de Pago:</label>
+                            @Html.EditorFor(model => model.EstadoPago, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                        </div>
+
+                        <div class="col-lg-3">
+                            <label for="FormaPago" class="text-dark form-label font-weight-bold font-18">Forma de Pago:</label>
+                            @Html.EditorFor(model => model.FormaPago, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                        </div>
+
+
+                        <div class="col-lg-3">
+                            <label for="MontoRecibido" class="text-dark form-label font-weight-bold font-18">Monto Recibido:</label>
+                            @Html.EditorFor(model => model.MontoRecibido, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                        </div>
+
+                        <div class="col-lg-3">
+                            <label for="FechaPago" class="text-dark form-label font-weight-bold font-18">Fecha de Pago:</label>
+                            @Html.EditorFor(model => model.FechaPago, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-lg-6">
+                            <label for="Cajero" class="text-dark form-label font-weight-bold font-18">CajeroDesc:</label>
+                            <input type="text" name="Cajero" class="form-control border-success" value="@Model.Cajero" readonly />
+                        </div>
+
+                    </div>
+                </div>
+            </div><!-- // TAB CAJA -->
+
+        </div>
+    }
+
+
+</div>
+
+
+<script>
+    if ('@ViewBag.Mensaje' != "") {
+        Swal.fire('@ViewBag.Mensaje');
+    }
+</script>

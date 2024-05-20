@@ -1,0 +1,994 @@
+﻿@using Capa_Entidad.General_ENT.TablasSql;
+@using Capa_Entidad.Almacen_ENT.Tablas;
+@using Capa_Entidad.SocioNegocios_ENT.Tablas;
+@using Capa_Entidad.Almacen_ENT.TablasSql;
+@{
+    ViewBag.Title = "Nueva Devolución";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<OWHS_E> Almacenes = (List<OWHS_E>)ViewBag.Almacenes;
+    List<MotivosDevoluciones_E> MotivosDevoluciones = (List<MotivosDevoluciones_E>)ViewBag.MotivosDevoluciones;
+    List<SubmotivosDevoluciones_E> Submotivos = (List<SubmotivosDevoluciones_E>)ViewBag.SubmotivosDevoluciones;
+    List<OMRC_E> Laboratorios = (List<OMRC_E>)ViewBag.Laboratorios;
+    List<OCRD_E> Proveedores = (List<Capa_Entidad.SocioNegocios_ENT.Tablas.OCRD_E>)ViewBag.ListaProveedores;
+}
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("DevolucionMercancias", "Almacen")">Listado de devoluciones</a></li>
+            <li class="current"><em>Nueva Devolución</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">NUEVA DEVOLUCIÓN</h3></div>
+</div>
+
+<form action="/Almacen/NuevaDevolucion" method="post" id="frmNuevaDevolucion">
+    <div class="bg-form-pestanas-cobefar pt-4 bg-section-form p-4 bg-form-cobefar">
+        <div class="row">
+            <div class="col-lg-2 my-2">
+                <label class="text-dark form-label font-weight-bold font-18">RUC:</label>
+                <input type="text" name="CardCode" id="CardCode" class="form-control border-success text-center" placeholder="ABRIR BUSCADOR" data-toggle="modal" data-target="#modalListaProveedores" onclick="ajustarColumnasDataTable()" autocomplete="off" readonly required>
+            </div>
+
+            <div class="col-lg-5 my-2">
+                <label class="text-dark form-label font-weight-bold font-18">Proveedor:</label>
+                <input type="search" name="CardName" id="CardName" class="form-control border-success text-center" autocomplete="off" readonly required>
+            </div>
+
+            @* Habilitado para usuarios tipo MANAGER y OPERARIO DIGEMID *@
+            @if (ViewBag.RolUsuario != null && (ViewBag.RolUsuario == 1 || ViewBag.RolUsuario == 3))
+            {
+                <div class="col-lg-2 my-2">
+                    <label class="text-dark form-label font-weight-bold font-18">Retiro de mercado:</label>
+                    <select name="RM" id="RetiroMercado" class="form-control bg-cobefar text-white border-success" style="width: 150px" onchange="validarRetiroMercado(this.value)" required>
+                        <option value="true">SI</option>
+                        <option value="false" selected>NO</option>
+                    </select>
+                </div>
+            }
+
+            <div class="col-lg-3 my-2" id="div_SinEM">
+                <label class="text-dark form-label font-weight-bold font-18">Entrada de mercancía:</label>
+                <select name="SinEM" id="SinEM" class="form-control bg-cobefar text-white border-success" style="width: 150px" required>
+                    <option value="false" selected>SI</option>
+                    <option value="true">NO</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-2">
+                <label for="WhsCode" class="text-dark form-label font-weight-bold font-18">Almacén de origen:</label>
+                <select name="WhsCode" id="WhsCode" class="form-control bg-cobefar text-white border-success" onchange="completarDireccionAlmacen();" required>
+                    <option value="">Seleccione</option>
+                    @if (Almacenes != null && Almacenes.Count() >= 1)
+                    {
+                        foreach (var alm in Almacenes)
+                        {
+                            <option value="@alm.WhsCode" direccion="@alm.Street @alm.StreetNo">@alm.WhsName</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="col-lg-5">
+                <label class="text-dark form-label font-weight-bold font-18">Dirección Almacén:</label>
+                <input type="text" id="direccion_alm" class="form-control border-success text-center" value="" required readonly>
+            </div>
+
+            <div class="col-lg-5 d-flex align-items-end justify-content-end">
+                <label for="factura_unica" class="text-dark form-label font-weight-bold font-18 mt-3 mr-3">Factura única:</label>
+                <input type="text" name="CardName" id="factura_unica" class="form-control border-success text-center" value="" style="width: 300px;" autocomplete="off" onkeyup="completarRefFactura(this.value);">
+            </div>
+        </div>
+
+        <div class="row mt-4">
+
+            <div class="col-lg-2">
+                <button type="button" id="btn_modalArticulos" data-toggle="modal" data-target="#modalArticulos" hidden></button>
+                <button type="button" class="btn btn-warning" onclick="agregarArticulos();"><i class="icon icon-plus"></i> Agregar Artículos</button>
+            </div>
+            <div class="col-lg-2">
+                <button id="btn_nuevo_articulo" type="button" class="btn btn-info" data-toggle="collapse" data-target="#div_nuevoArticulo" aria-expanded="false" aria-controls="div_nuevoArticulo"><i class="icon icon-plus"></i> Nuevo Artículo</button>
+                <button type="button" class="btn btn-primary" id="btn_consultarRM" onclick="agregarArticulosRM();" style="display: none"><i class="icon icon-search"></i> Consultar RM </button>
+                <button type="button" id="btn_modalArticulosRM" data-toggle="modal" data-target="#modalArticulosRM" hidden></button>
+            </div>
+        </div>
+        <div id="div_nuevoArticulo" class="collapse">
+            <div class="card card-body bg-dark m-4 p-4">
+                <div class="row">
+                    <div class="col-lg-4">
+                        <label class="text-white font-weight-bold">Laboratorio:</label>
+                        <select id="lab_nuevoArticulo" class="form-control bg-cobefar text-white" onchange="$('#codprod_nuevoArticulo').val(''), $('#prod_nuevoArticulo').val(''); buscarProducto(this.id, 'div_productosNuevoArticulo');">
+                            <option value="">Seleccione</option>
+                            @if (Laboratorios != null && Laboratorios.Count() >= 1)
+                            {
+                                foreach (var lab in Laboratorios)
+                                {
+                                    <option value="@lab.FirmCode">@lab.U_SYP_DESC</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <label for="prod_nuevoArticulo" class="text-white font-weight-bold">Producto:</label>
+                        <input type="search" id="prod_nuevoArticulo" list='ListaProductos' class="form-control border-success" onchange="cargarItemCode()" autocomplete="off" />
+                        <div id="div_productosNuevoArticulo"></div>
+                    </div>
+
+                    <div class="col-lg-2">
+                        <label for="codprod_nuevoArticulo" class="text-white font-weight-bold">Cód. producto:</label>
+                        <input type="text" id="codprod_nuevoArticulo" class="form-control border-success text-center" readonly />
+                        <input type="hidden" id="BuyUnitMsr_nuevoArticulo" readonly />
+                        <input type="hidden" id="NumInBuy_nuevoArticulo" readonly />
+                        <input type="hidden" id="FirmCode_nuevoArticulo" readonly />
+                        <input type="hidden" id="FirmName_nuevoArticulo" readonly />
+                    </div>
+
+                    <div class="col-lg-2 d-flex justify-content-center align-items-center">
+
+                        <button type="button" class="btn btn-success" onclick="agregarDetalleDevolucion($('#codprod_nuevoArticulo').val(), $('#prod_nuevoArticulo').val(), $('#FirmCode_nuevoArticulo').val(), $('#FirmName_nuevoArticulo').val(), '' , '' , $('#BuyUnitMsr_nuevoArticulo').val(), '' , $('#NumInBuy_nuevoArticulo').val(), 0, 'NUEVO','','',0);"><i class='icon-plus'></i> </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row pt-4 mt-4">
+            <div class="col-lg-12 table-responsive">
+                <table id="tbl_detalleDevolucion" class="table table-light table-sm table-bordered table-hover" cellpadding="0" width="100%">
+                    <thead class="bg-cobefar">
+                        <tr>
+                            <th hidden></th>
+                            <th hidden></th>
+                            @*Guarda MaxQuantity*@
+                            <th hidden></th>
+                            @*Guarda MaxQuantityOIBT*@
+                            <th hidden></th>
+                            @*Guarda NumInBuyKey*@
+                            <th hidden></th>
+                            <th hidden></th>
+                            <th class="text-center">Descripción del producto</th>
+                            <th class="text-center">Lote</th>
+                            <th class="text-center">Cantidad</th>
+                            <th class="text-center">UM</th>
+                            <th class="text-center">Motivo</th>
+                            <th class="text-center">Submotivo</th>
+                            <th class="text-center">Ref. Factura</th>
+                            <th class="text-center">Observación</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="div_generarDev" class="row mt-4">
+            <div class="col-lg-6">
+                <button type="button" class="btn btn-success" id="btn_enviarFormulario" onclick="validarFormulario()"><i class="icon-checkmark"></i> Generar Devolución</button>
+            </div>
+        </div>
+
+    </div>
+</form>
+
+<!-- Modal -->
+<div class="modal fade" id="modalArticulos" tabindex="1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-full-width">
+        <div class="modal-content">
+            <div class="modal-header bg-cobefar text-white">
+                <h5 class="modal-title" id="exampleModalLabel">Búsqueda de artículos</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" class="text-white">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="div_fil_tbl">
+                    <div class="row">
+                        <div id="div_fechaEntrada" class="col-lg-2 my-2">
+                            <label class="text-cobefar font-weight-bold">Fecha de entrada:</label>
+                            <input type="date" id="DocDate" name="DocDate" class="form-control border-success text-center" />
+                        </div>
+
+                        <div id="div_docNum" class="col-lg-2 my-2">
+                            <label for="DocNum" class="text-cobefar font-weight-bold">DocNum:</label>
+                            <input type="text" id="DocNum" name="DocNum" class="form-control border-success text-center" autocomplete="off" />
+                        </div>
+
+                        <div class="col-lg-4 my-2">
+                            <label class="text-cobefar font-weight-bold">Laboratorio:</label>
+                            <select id="Laboratorio" name="Laboratorio" class="form-control bg-cobefar text-white" onchange="limpiarCampos(); buscarProducto(this.id, 'div_listaProductos');">
+                                <option value="">Seleccione</option>
+                                @if (Laboratorios != null && Laboratorios.Count() >= 1)
+                                {
+                                    foreach (var lab in Laboratorios)
+                                    {
+                                        <option value="@lab.FirmCode">@lab.U_SYP_DESC</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-lg-4 d-flex align-items-center justify-content-end">
+                            <div id="div_sinEntradaMercancia" class="form-check mr-4">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-2">
+                        <div class="col-lg-4 my-2">
+                            <label class="text-cobefar font-weight-bold">Producto:</label>
+                            <input type="search" id="ItemName" list='ListaProductos' class="form-control border-success" onchange="cargarItemName()" autocomplete="off" />
+                            <div id="div_listaProductos"></div>
+                        </div>
+
+                        <div class="col-lg-2 my-2">
+                            <label for="ItemCode" class="text-cobefar font-weight-bold">Cód. producto:</label>
+                            <input type="text" id="ItemCode" name="ItemCode" class="form-control border-success text-center" readonly />
+                        </div>
+
+                        <div class="col-lg-2 my-2">
+                            <label class="text-cobefar font-weight-bold">Lote:</label>
+                            <input type="text" id="BatchNum" name="BatchNum" list="ListaLotes" class="form-control border-success text-center" autocomplete="off" />
+                            <div id="div_listaLotes"></div>
+                        </div>
+
+                        <div id="div_refFactura" class="col-lg-2 my-2">
+                            <label class="text-cobefar font-weight-bold">Ref. Factura:</label>
+                            <input type="text" id="NumAtCard" name="NumAtCard" class="form-control border-success text-center" autocomplete="off" />
+                        </div>
+                        <div class="col-lg-2 d-flex align-items-end">
+                            <button type="button" class="btn btn-cobefar mb-2" onclick="filtrarArticulo()"><i class="icon-filter"></i> Filtrar</button>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div id="div_tbl" class="row mt-4" style="display: none;">
+                    <div class="col-lg-12 table-responsive">
+                        <table id="tbl_listaArticulos" class="table table-bordered table-hover">
+                            <thead class="bg-success">
+                                <tr>
+                                    <th class="text-center" style="width: 45%">Artículo</th>
+                                    <th class="text-center">Lote</th>
+                                    <th class="text-center">Fec. Venc</th>
+                                    <th class="text-center">UM</th>
+                                    <th class="text-center">Ref. Factura</th>
+                                    <th class="text-center">Agregar</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btn_cerrarModal" class="btn btn-secondary" data-dismiss="modal"><i class='icon-cross'></i> Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal RM -->
+<div class="modal fade" id="modalArticulosRM" tabindex="2" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-full-width">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title" id="exampleModalLabel">Búsqueda de artículos - RM </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" class="text-white">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-3 my-2">
+                        <label class="text-dark font-weight-bold">Laboratorio:</label>
+                        <select id="LaboratorioRM" class="form-control bg-info text-white" onchange="limpiarCampos(); buscarProductoRM(this.id, 'div_listaProductosRM');">
+                            <option value="">Seleccione</option>
+                            @if (Laboratorios != null && Laboratorios.Count() >= 1)
+                            {
+                                foreach (var lab in Laboratorios)
+                                {
+                                    <option value="@lab.FirmCode">@lab.U_SYP_DESC</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-lg-3 my-2">
+                        <label for="ItemNameRM" class="text-dark font-weight-bold">Producto:</label>
+                        <input type="search" id="ItemNameRM" list='ListaProductosRM' class="form-control border-primary" autocomplete="off" onchange="cargarItemCodeRM()" />
+                        <div id="div_listaProductosRM"></div>
+                    </div>
+                    <div class="col-lg-2 my-2">
+                        <label for="ItemCodeRM" class="text-dark font-weight-bold">Cód. producto:</label>
+                        <input type="text" id="ItemCodeRM" class="form-control border-primary text-center" readonly />
+                    </div>
+                    <div class="col-lg-2 my-2">
+                        <label class="text-dark font-weight-bold">Lote:</label>
+                        <input type="text" id="BatchNumRM" name="BatchNum" list="ListaLotes" class="form-control border-primary text-center" autocomplete="off" />
+                        <input type="text" id="WhsCodeRM" value="06" hidden />
+                    </div>
+
+                    <div class="col-lg-2  d-flex align-items-end">
+                        <button type="button" class="btn btn-dark mb-2" onclick="filtrarArticuloRM()"><i class="icon-filter"></i> Filtrar</button>
+                    </div>
+                </div>
+
+                <div id="div_tblRM" class="row mt-4" style="display: none;">
+                    <div class="col-lg-12 table-responsive">
+                        <table id="tbl_listaArticulosRM" class="table table-bordered table-hover">
+                            <thead class="bg-info">
+                                <tr>
+                                    <th class="text-center" style="width: 45%">Artículo</th>
+                                    <th class="text-center">Lote</th>
+                                    <th class="text-center">Fecha Venc</th>
+                                    <th class="text-center">Cantidad Pz</th>
+                                    <th class="text-center">Ver Factura(s)</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btn_cerrarModalRM" class="btn btn-secondary" data-dismiss="modal"><i class='icon-cross'></i> Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="display: none">
+    <datalist id="ListaSubmotivos">
+        @if (Submotivos != null && Submotivos.Count() >= 1)
+        {
+            foreach (var obs in Submotivos)
+            {
+                <option idmotivo="@obs.IdMotivo" id="@obs.IdSubmotivo" value="@obs.Descripcion">@obs.Descripcion</option>
+            }
+        }
+    </datalist>
+</div>
+
+<!-- Modal Lista Proveedores -->
+<div class="modal fade" id="modalListaProveedores" tabindex="1" aria-labelledby="exampleModalListaProveedores" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-cobefar text-white">
+                <h5 class="modal-title" id="exampleModalListaProveedores">Lista de Proveedores</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" class="text-white">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row mt-2">
+                    <div class="col-lg-12 my-2">
+                        <div class="bg-dark pt-4">
+                            <table id="tbl_listaProveedores" class="table table-light table-sm table-bordered table-hover" cellspacing="0" width="100%">
+                                <thead class="bg-cobefar">
+                                    <tr>
+                                        <th class="text-center">#</th>
+                                        <th class="text-center">RUC</th>
+                                        <th class="text-center">Razón Social</th>
+                                        <th class="text-center">Seleccionar</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{ int num = 1;}
+                                    @foreach (var prov in Proveedores)
+                                    {
+                                        <tr>
+                                            <td class="text-center">@num</td>
+                                            <td class="text-center">@prov.CardCode</td>
+                                            <td class="text-center">@prov.CardName</td>
+                                            <td class="text-center"><button type="button" class="btn btn-sm btn-warning" onclick='seleccionarProveedor("@prov.CardCode", "@prov.CardName")'><i class="icon-checkmark"></i></button></td>
+                                        </tr>
+                                        num++;
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btn_cerrarModalProveedores" class="btn btn-secondary" data-dismiss="modal"><i class='icon-cross'></i> Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    if ('@ViewBag.Mensaje' != "") {
+            Swal.fire('@ViewBag.Mensaje');
+        }
+    $(document).ready(function () {
+        validarRetiroMercado($('#RetiroMercado').val());
+    });
+    var num = 0;
+
+    function ajustarColumnasDataTable() {
+        $("#tbl_listaProveedores").dataTable().fnDestroy();
+
+        var tableProveedores = $('#tbl_listaProveedores').DataTable({
+            language: {
+                searchPlaceholder: "RUC o Razón Social"
+            } });
+        tableProveedores.columns.adjust().draw();
+    }
+
+    //busca facturas solo de RM
+    function buscarFacturas(ItemCode, BatchNum, Quantity) {
+        Swal.fire({
+            html: '<img src="/imagenes/index/ReportesDigemid/cargando.gif" />',
+            //closeOnCancel: false,
+            allowOutsideClick: false,
+            showCancelButton: false,
+            showConfirmButton: false
+        });
+
+        $.ajax({
+            url: '/Almacen/BuscarFacturas',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                'ItemCode': ItemCode, 'BatchNum': BatchNum,'U_COB_LUGAREN': '06','Quantity':Quantity
+            }
+        }).done(function (response) {
+            swal.close();
+            $('#btn_modalArticulos').click(); $('#btn_cerrarModalRM').click(); $('#div_fil_tbl').css('display', 'none');
+            $('#div_tbl').css('display', 'block');
+            if (response != '') {
+                $('#tbl_listaArticulos > tbody').html(response);
+            } else {
+                $('#tbl_listaArticulos > tbody').html('<tr><td colspan="6">Sin datos para mostrar.</td></tr>');
+            }
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            console.log(jqXHR.status + textStatus + errorThrown);
+        });
+    }
+
+    function limpiarCampos(campoExcluyente = '') {
+        $('#DocDate').val('');
+        $('#DocNum').val('');
+        $('#ItemName').val('');
+        $('#ItemCode').val('');
+        $('#BatchNum').val('');
+        $('#ListaProductos').html('');
+        $('#ListaLotes').html('');
+        //si hay un laboratorio previamente buscado seguir mostrando la lista de productos para minimizar tiempos de busqueda
+        if ($('#Laboratorio').val() != '') { buscarProducto('Laboratorio', 'div_listaProductos'); }
+        if (campoExcluyente != 'NumAtCard'){           // Por solicitud, indicaron que cuando se busque por Ref. Factura no se borre lo previamente buscado
+            $('#NumAtCard').val('');
+            $('#tbl_listaArticulos > tbody').html('');
+        }
+    }
+
+    function limpiarCamposRM() {
+        $('#ItemNameRM').val('');
+        $('#ItemCodeRM').val('');
+        $('#BatchNumRM').val('');
+        $('#ListaProductosRM').html('');
+        $('#tbl_listaArticulosRM > tbody').html('');
+    }
+
+    function agregarArticulos() {
+        //siempre mostrar filtros
+        $('#div_fil_tbl').css('display', 'block');
+        // Sin entrada de mercancía
+        if ($('#SinEM').val() == 'true') {
+            $('#div_fechaEntrada').css('display', 'none');
+            $('#div_docNum').css('display', 'none');
+            $('#div_refFactura').css('display', 'none');
+        } else {
+            $('#div_fechaEntrada').css('display', 'block');
+            $('#div_docNum').css('display', 'block');
+            $('#div_refFactura').css('display', 'block');
+        }
+
+        if ($('#CardCode').val() == '') {
+            Swal.fire('Por favor escoger un Proveedor');
+        } else if ($('#RetiroMercado').val() == '') {
+            Swal.fire('Por favor seleccionar Retiro de mercado');
+        } else if ($('#WhsCode').val() == '') {
+            Swal.fire('Por favor seleccionar Almacén');
+        } else {
+            $('#Laboratorio').val('');
+            if ($('#CardCode').val() == 'P20100204330' && $('#NumAtCard').val() == '') {
+                $('#Laboratorio').val('143');       // SET DEFAULT PORTUGAL
+                buscarProducto('Laboratorio', 'div_listaProductos');
+            }
+
+            limpiarCampos('NumAtCard');
+            $('#btn_modalArticulos').click();
+        }
+    }
+
+    function agregarArticulosRM() {
+        if ($('#WhsCode').val() != '06' ) {
+             Swal.fire('Seleccionar Almacén de origen -> AREA DE DEVOLUCIONES');
+        } else {
+            $('#Laboratorio').val('');
+            if ($('#CardCode').val() == 'P20100204330' && $('#NumAtCard').val() == '') {
+                $('#Laboratorio').val('143');       // SET DEFAULT PORTUGAL
+                buscarProducto('Laboratorio', 'div_listaProductos');
+            }
+            limpiarCampos('NumAtCard');
+            $('#btn_modalArticulosRM').click();
+
+        }
+    }
+
+    function cargarItemName() {
+        let itemName = $('#ItemName').val();
+        let itemCode = $(`#ListaProductos option[value='${itemName}']`).attr("itemcode");
+        $('#ItemCode').val(itemCode);
+
+        if (typeof itemCode !== 'undefined' && itemCode != '') {
+            $.ajax({
+                url: '/Almacen/BuscarLotesProducto',
+                type: 'POST',
+                dataType: 'json',
+                data: { 'ItemCode': itemCode, 'WhsCode': $('#WhsCode').val() }
+            }).done(function (response) {
+                if (response != '') {
+                    $('#div_listaLotes').html(response);
+                } else {
+                    $('#div_listaLotes').html('');
+                }
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR.status + textStatus + errorThrown);
+            });
+        }
+    }
+
+    function obtenerAtributoSelect(atributo, idOrigen, idDestino) {
+        let valorOrigen = $(`#${idOrigen}`).val();
+        let valorDestino = $(`#${idOrigen} option[value='${valorOrigen}']`).attr(`${atributo}`);
+        $(`#${idDestino}`).val(valorDestino);
+        //setea la cantidad ingresada si cambia de CAJA a PZA
+        //let arrId = idDestino.split("_");
+        //let indice = arrId[1];
+        //$(`#QuantityIngresada_${indice}`).val(0);
+    }
+
+    function buscarProducto(idSelect, lista) {
+        if ($(`#${idSelect}`).val() != '') {
+            Swal.fire({
+                html: '<img src="/imagenes/index/ReportesDigemid/cargando.gif" />',
+                //closeOnCancel: false,
+                allowOutsideClick: false,
+                showCancelButton: false,
+                showConfirmButton: false
+            });
+
+            $.ajax({
+                url: '/Almacen/BuscarProducto',
+                type: 'POST',
+                dataType: 'json',
+                data: { 'FirmCode': $(`#${idSelect}`).val() }
+            }).done(function (response) {
+                swal.close();
+                if (response != '') {
+                    $('#ItemName').focus();
+                    $(`#${lista}`).html(response);
+
+                } else {
+                    $(`#${lista}`).html('');
+                }
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR.status + textStatus + errorThrown);
+            });
+        }
+    }
+
+    function validarFiltrosArticulo() {
+        let result = false;
+        //cuando el usuario elije NO en entrada mercancia este dato $('#SinEM').val() viaja como true
+
+        //cuando es Devolucion normal sin retiro de mercado
+        if ($('#RetiroMercado').val() == 'false' && $('#SinEM').val() == 'false' && $('#DocNum').val() == '' && $('#NumAtCard').val() == '' && ($('#ItemName').val() == '' || $('#ItemCode').val() == '' || $('#BatchNum').val() == '')) {
+            $('#tbl_listaArticulos > tbody').html('');
+            result = false;
+            Swal.fire('Es obligatorio ingresar el DocNum o Producto o Factura');
+        } else {
+                //caso: sin entrada de mercancia
+            if ($('#SinEM').val() == 'true') {
+                if ($('#ItemName').val() == '' || $('#ItemCode').val() == '' || $('#BatchNum').val() == '') {
+                    $('#tbl_listaArticulos > tbody').html('');
+                    Swal.fire('Los campos: Producto, Cód. producto y Lote son obligatorios.');
+                    result = false;
+                }
+                else { result = true; }
+            } else {
+                if ($('#DocDate').val() == '' && $('#ItemCode').val() == '' && $('#DocNum').val() == '' && $('#BatchNum').val() == '' && $('#NumAtCard').val() == '') {
+                    $('#tbl_listaArticulos > tbody').html('');
+                    Swal.fire('Por favor, escoger el campo a filtrar: Fecha de entrada, DocNum, Producto o Lote.');
+                    result = false;
+                } else {
+                    result = true;
+                }
+            }
+        }
+        return result;
+    }
+
+    function buscarProductoRM() {
+        if ($('#LaboratorioRM').val() != '') {
+            Swal.fire({
+                html: '<img src="/imagenes/index/ReportesDigemid/cargando.gif" />',
+                //closeOnCancel: false,
+                allowOutsideClick: false,
+                showCancelButton: false,
+                showConfirmButton: false
+            });
+
+            $.ajax({
+                url: '/Almacen/BuscarProductoRM',
+                type: 'POST',
+                dataType: 'json',
+                data: { 'FirmCode': $('#LaboratorioRM').val() }
+            }).done(function (response) {
+                swal.close();
+                if (response != '') {
+                    $('#div_listaProductosRM').html(response);
+                    $('#ItemNameRM').focus();
+                } else {
+                    $('#div_listaProductosRM').html('');
+                }
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR.status + textStatus + errorThrown);
+            });
+        }
+    }
+
+    function cargarItemCodeRM() {
+        let itemNameRM = $('#ItemNameRM').val();
+        let itemCodeRM = $(`#ListaProductosRM option[value='${itemNameRM}']`).attr("itemcode");
+        $('#ItemCodeRM').val(itemCodeRM);
+    }
+
+    function filtrarArticulo() {
+        if (validarFiltrosArticulo() == true) {
+            Swal.fire({
+                html: '<img src="/imagenes/index/ReportesDigemid/cargando.gif" />',
+                //closeOnCancel: false,
+                allowOutsideClick: false,
+                showCancelButton: false,
+                showConfirmButton: false
+            });
+
+            $.ajax({
+                url: '/Almacen/FiltrarArticulo',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    'DocDate': $('#DocDate').val(), 'DocNum': $('#DocNum').val(), 'ItemCode': $('#ItemCode').val(), 'BatchNum': $('#BatchNum').val(),
+                    'CardCode': $('#CardCode').val(), 'U_COB_LUGAREN': $('#WhsCode').val(), 'RM': $('#RetiroMercado').val(), 'SinEM': $('#SinEM').val(), 'NumAtCard': $('#NumAtCard').val()
+                }
+            }).done(function (response) {
+                swal.close();
+                $('#div_tbl').css('display', 'block');
+                if (response != '') {
+                    $('#tbl_listaArticulos > tbody').html(response);
+                } else {
+                    $('#tbl_listaArticulos > tbody').html('<tr><td colspan="6">Sin datos para mostrar.</td></tr>');
+                }
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR.status + textStatus + errorThrown);
+            });
+       }
+    }
+
+    function filtrarArticuloRM() {
+            if ( $('#ItemCodeRM').val() == '' && $('#BatchNumRM').val() == '') {
+                Swal.fire('Por favor, escoger el campo a filtrar Producto o Lote.');
+            } else {
+                Swal.fire({
+                    html: '<img src="/imagenes/index/ReportesDigemid/cargando.gif" />',
+                    allowOutsideClick: false,
+                    showCancelButton: false,
+                    showConfirmButton: false
+                });
+
+                $.ajax({
+                    url: '/Almacen/FiltrarArticuloOIBT',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        'ItemCode': $('#ItemCodeRM').val(), 'BatchNum': $('#BatchNumRM').val(), 'WhsCode': $('#WhsCodeRM').val(),'Quantity' :1
+}
+                }).done(function (response) {
+                    swal.close();
+                    $('#div_tblRM').css('display', 'block');
+                    if (response != '') {
+                        $('#tbl_listaArticulosRM > tbody').html(response);
+                    } else {
+                        $('#tbl_listaArticulosRM > tbody').html('<tr><td colspan="5">Sin datos para mostrar.</td></tr>');
+                    }
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    console.log(jqXHR.status + textStatus + errorThrown);
+                });
+            }
+    }
+
+    function completarRefFactura(textoIngresado = '') {
+        if (textoIngresado != '') {
+            $('.cls-factura-unica').attr('readonly', 'true');
+            $('.cls-factura-unica').val(textoIngresado);
+        } else {
+            $('.cls-factura-unica').removeAttr('readonly');
+            $('.cls-factura-unica').val('');
+        }
+    }
+
+    function reconstruirTabla() {
+        num = $('.cls-filaDevolucion').length;
+
+        var i = 0;
+
+        $("#tbl_detalleDevolucion tr").each(function (index, htm) {
+            if (htm.id != '') {
+                iden1 = $(htm).find("td:eq(0) input");
+                iden1.attr("name", "DetalleDevolucion[" + i + "].ItemCode");
+
+                iden1 = $(htm).find("td:eq(1) input");
+                iden1.attr("id", "MaxQuantity_" + i);
+                iden1.attr("name", "DetalleDevolucion[" + i + "].MaxQuantity");
+
+                iden1 = $(htm).find("td:eq(2) input");
+                iden1.attr("id", "MaxQuantityOIBT_" + i);
+                iden1.attr("name", "DetalleDevolucion[" + i + "].MaxQuantityOIBT");
+
+                iden1 = $(htm).find("td:eq(3) input");
+                iden1.attr("id", "NumInBuyKey_" + i);
+                iden1.attr("name", "DetalleDevolucion[" + i + "].NumInBuyKey");
+
+                iden1 = $(htm).find("td:eq(4) input");
+                iden1.attr("id", "BuyUnitMsr_" + i);
+                iden1.attr("name", "DetalleDevolucion[" + i + "].BuyUnitMsr");
+
+                iden1 = $(htm).find("td:eq(5) input");
+                iden1.attr("name", "DetalleDevolucion[" + i + "].FirmCode");
+
+                iden1 = $(htm).find("td:eq(6) input");
+                iden1.attr("name", "DetalleDevolucion[" + i + "].ItemName");
+
+                iden1 = $(htm).find("td:eq(7) input#lote");
+                iden1.attr("name", "DetalleDevolucion[" + i + "].BatchNum");
+
+                iden1 = $(htm).find("td:eq(7) input#fechaV");
+                iden1.attr("name", "DetalleDevolucion[" + i + "].ExpDate");
+
+                iden1 = $(htm).find("td:eq(8) input");
+                iden1.attr("id", "QuantityIngresada_" + i);
+                iden1.attr("name", "DetalleDevolucion[" + i + "].Quantity");
+
+                iden1 = $(htm).find("td:eq(9) select");
+                iden1.attr("id", "NumInBuy_" + i);
+                iden1.attr("name", "DetalleDevolucion[" + i + "].NumInBuy");
+
+                iden1 = $(htm).find("td:eq(10) select");
+                iden1.attr("id", "Motivo_" + i);
+                iden1.attr("name", "DetalleDevolucion[" + i + "].Motivo");
+
+                iden1 = $(htm).find("td:eq(11) select");
+                iden1.attr("id", "ListaObsxMotivo_" + i);
+                iden1.attr("name", "DetalleDevolucion[" + i + "].Submotivo");
+
+                iden1 = $(htm).find("td:eq(12) input");
+                iden1.attr("name", "DetalleDevolucion[" + i + "].RefFactura");
+
+                iden1 = $(htm).find("td:eq(13) input");
+                iden1.attr("name", "DetalleDevolucion[" + i + "].Observacion");
+
+                i++;
+            }
+        })
+    }
+
+    function borrarFila(id) {
+        $('#tr_' + id).remove();
+        reconstruirTabla();
+
+        if ($('.cls-filaDevolucion').length >= 1) {
+            $('#CardName').attr('readonly', true);
+        } else {
+            $('#CardName').attr('readonly', false);
+        }
+
+    }
+
+    function agregarDetalleDevolucion(ItemCode, Dscription, FirmCode, FirmName, BatchNum, ExpDate, BuyUnitMsr, NumAtCard, NumInBuy, Quantity, tipoArticulo, CardCode, CardName, QuantityOIBT) {
+        if (ItemCode != '' && Dscription != '') {
+            /********** MENSAJE: Artículo agregado **********/
+            Swal.fire({
+                icon: 'success',
+                title: 'Artículo agregado',
+                timer: 1000,
+                showConfirmButton: false,
+                timerProgressBar: true,
+            })
+            //solo para retiro mercado
+            if ($("#RetiroMercado").val() == 'true') {
+                let CardCodeActual = $('#CardCode').val();
+                if (CardCodeActual != '') {
+                    if (CardCodeActual != CardCode) {
+                        /********** MENSAJE: CardCode diferente en RM **********/
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Ha seleccionado un proveedor distinto, se eliminara la tabla detalle',
+                            timer: 4000,
+                            showConfirmButton: true,
+                            timerProgressBar: true,
+                        })
+                        $('#tbl_detalleDevolucion > tbody').html('');
+                        reconstruirTabla();
+
+                    }
+                }
+                $('#CardCode').val(CardCode); $('#CardName').val(CardName);
+            }
+
+            /********** Campos a mostrar dependiente si es artículo existente o no existente **********/
+            let filaBatchNum, filaExpDate = '';
+
+            if (BatchNum != '') {
+                filaBatchNum = `<input type="hidden" id="lote" name="DetalleDevolucion[${num}].BatchNum" value="${BatchNum}" />${BatchNum}`;
+            } else {
+                filaBatchNum = `<input type="text" id="lote" name="DetalleDevolucion[${num}].BatchNum" class="form-control border-success" value="" required/>`;
+            }
+
+            if (ExpDate != '') {
+                filaExpDate = `<input type="hidden" id="fechaV"  name="DetalleDevolucion[${num}].ExpDate" value="${ExpDate}" />${ExpDate}`;
+            } else {
+                filaExpDate = `<input type="date" id="fechaV" name="DetalleDevolucion[${num}].ExpDate" class="form-control border-success" value="" required />`;
+            }
+
+
+            /********** Armamos la fila para la tabla **********/
+            fila = `<tr id="tr_${num}" class="cls-filaDevolucion">
+                                <td hidden><input type="hidden" name="DetalleDevolucion[${num}].ItemCode" value="${ItemCode}" /></td>
+                                <td hidden><input type="hidden" id="MaxQuantity_${num}" name="DetalleDevolucion[${num}].MaxQuantity" value="${Quantity}" /></td>
+                                <td hidden><input type="hidden" id="MaxQuantityOIBT_${num}" name="DetalleDevolucion[${num}].MaxQuantityOIBT" value="${QuantityOIBT}" /></td>
+                                <td hidden><input type="hidden" id="NumInBuyKey_${num}" name="DetalleDevolucion[${num}].NumInBuyKey" value="${NumInBuy}"  /></td>
+                                <td hidden><input type="hidden" id="BuyUnitMsr_${num}" name="DetalleDevolucion[${num}].BuyUnitMsr" /></td>
+                                <td hidden><input type="hidden" name="DetalleDevolucion[${num}].FirmCode" value="${FirmCode}" />${FirmName}</td>
+                                <td class="text-center"><input type='hidden' name='DetalleDevolucion[${num}].ItemName' value='${Dscription}' />${Dscription}</td>
+                                <td class="font-14 text-center">${filaBatchNum}<br/><span class="text-danger font-weight-bold">Fecha V.:</span><br/>${filaExpDate}</td>
+
+                               <td><input type="number" id="QuantityIngresada_${num}" name="DetalleDevolucion[${num}].Quantity" class="form-control border-success text-center" tipoarticulo="${tipoArticulo}" value="${QuantityOIBT}" style="width: 100px; " required  min="1" /></td>
+                                <td class="text-center">
+                                    <select id="NumInBuy_${num}" name="DetalleDevolucion[${num}].NumInBuy" class="form-control bg-cobefar text-white" style="width: 140px;" onchange="obtenerAtributoSelect('tipo', this.id, 'BuyUnitMsr_${num}')" required>
+                                        <option value="${NumInBuy}" tipo="${BuyUnitMsr}">${BuyUnitMsr}</option>
+                                        <option value="1" tipo="PZA">PZA</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <select id="Motivo_${num}" name="DetalleDevolucion[${num}].Motivo" class="form-control bg-cobefar text-white cls-select2" onchange="cargarMotivos(this.id)" style="width: 200px;" required>
+                                        <option value="">Seleccione</option>
+                                        @if (MotivosDevoluciones != null && MotivosDevoluciones.Count() >= 1)
+                                        {
+                                            foreach (var md in MotivosDevoluciones)
+                                            {
+                                                <option value="@md.IdMotivo">@md.Descripcion</option>
+                                            }
+                                        }
+                                    </select>
+                                </td>
+                                <td><select name="DetalleDevolucion[${num}].Submotivo" id="ListaObsxMotivo_${num}" class="form-control bg-cobefar text-white cls-select2" style="width: 260px;"></select></td>
+                                <td><input type="text" name="DetalleDevolucion[${num}].RefFactura" class="form-control border-success text-center cls-factura-unica" value="${NumAtCard}" style="width: 170px;" required></td>
+                                <td><input type="text" name="DetalleDevolucion[${num}].Observacion" class="form-control border-success text-center font-14" autocomplete="off"></td>
+                                <td><button type="button" class="btn btn-danger" onclick="borrarFila(${num})"><i class="icon-bin"></i></button></td>
+                            </tr>`;
+
+            //$('#btn_cerrarModal').click();      // Cerramos el modal de la búsqueda de artículos
+            //agregamos a la fila el nuevo item
+            $('#tbl_detalleDevolucion > tbody').append(fila);
+            $(`.cls-select2`).select2();
+            obtenerAtributoSelect('tipo', `NumInBuy_${num}`, `BuyUnitMsr_${num}`);          // seteamos el campo oculto BuyUnitMsr_${num}
+            ++num;
+            if ($('.cls-filaDevolucion').length >= 1) {
+                $('#CardName').attr('readonly', true);
+            } else {
+                $('#CardName').attr('readonly', false);
+            }
+
+        } else {
+            Swal.fire('El producto no puede ser vacío');
+        }
+    }
+
+    function completarDireccionAlmacen() {
+        let direccionALM = $(`#WhsCode option[value='${$('#WhsCode').val()}']`).attr('direccion');
+        $('#direccion_alm').val(direccionALM);
+    }
+
+    function validarRetiroMercado(valor) {
+        if (valor == 'true') {
+            const $selectWhsCode = document.querySelector('#WhsCode');
+            $selectWhsCode.value = '06';
+            completarDireccionAlmacen();
+            $('#div_fechaEntrada').css('display', 'none');
+            $('#div_docNum').css('display', 'none');
+            $('#div_refFactura').css('display', 'none');
+            $('#btn_consultarRM').css('display', 'block');
+            $('#btn_nuevo_articulo').css('display', 'none');
+            $('#factura_unica').attr('readonly', true);
+            $('#div_SinEM').css('display', 'none');
+
+        } else {
+            $('#div_fechaEntrada').css('display', 'block');
+            $('#div_docNum').css('display', 'block');
+            $('#div_refFactura').css('display', 'block');
+            $('#btn_consultarRM').css('display', 'none');
+            $('#btn_nuevo_articulo').css('display', 'block');
+            $('#factura_unica').attr('readonly', false);
+            $('#div_SinEM').css('display', 'block');
+
+        }
+    }
+
+    function cargarItemCode() {
+        let itemName = $('#prod_nuevoArticulo').val();
+        let itemCode = $(`#ListaProductos option[value='${itemName}']`).attr("itemcode");
+        let buyUnitMsr = $(`#ListaProductos option[value='${itemName}']`).attr("buyunitmsr");
+        let numInBuy = $(`#ListaProductos option[value='${itemName}']`).attr("numinbuy");
+        let firmCode = $(`#ListaProductos option[value='${itemName}']`).attr("firmcode");
+        let firmName = $(`#ListaProductos option[value='${itemName}']`).attr("firmname");
+
+        // Campos hidden para que se puedan insertar en el detalle como cuando se busca por productos que están en la BD
+        $('#codprod_nuevoArticulo').val(itemCode);
+        $('#BuyUnitMsr_nuevoArticulo').val(buyUnitMsr);
+        $('#NumInBuy_nuevoArticulo').val(numInBuy);
+        $('#FirmCode_nuevoArticulo').val(firmCode);
+        $('#FirmName_nuevoArticulo').val(firmName);
+    }
+
+    function cargarMotivos(idCampoMotivo = '') {
+        if (idCampoMotivo != '') {
+            let arrId = idCampoMotivo.split("_");
+            let indice = arrId[1];
+            let idMotivo = $(`#Motivo_${indice}`).val();
+            console.log(arrId);
+            let opciones = '';
+            $(`#ListaObsxMotivo_${indice}`).html('');
+
+            $(`#ListaSubmotivos option[idmotivo='${idMotivo}']`).each(function (index2, obj2) {
+                opciones += `<option value="${obj2.id}">${obj2.value}</option>`;
+            });
+
+            $(`#ListaObsxMotivo_${indice}`).append(opciones);
+        }
+
+
+    }
+
+    function validarFormulario() {
+        //valida cantidades por detallado segun itemCode y BatchNum
+
+        var object = $("#frmNuevaDevolucion").serialize();
+        $.ajax('/Almacen/ValidarDatosDevolucion',
+            {
+                data: object,
+                dataType: 'html',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                if (response != "true") { Swal.fire(response); }
+                else { $("#frmNuevaDevolucion").submit(); }
+            });
+    }
+
+    function seleccionarProveedor(ruc, razonSocial) {
+        $('#CardCode').val(ruc);
+        $('#CardName').val(razonSocial);
+        $('#btn_cerrarModalProveedores').click();
+    }
+</script>

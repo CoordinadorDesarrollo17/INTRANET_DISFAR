@@ -1,0 +1,76 @@
+﻿@model Capa_Entidad.Ventas_ENT.TablasSql.LDS1_E
+@{
+    ViewBag.Title = "AgregarDetLibroSaldo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    String cliente = "";
+    if (ViewBag.LibroSaldo != null)
+    {
+        cliente = $" - {ViewBag.LibroSaldo.CardName}";
+    }
+}
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("ListadoLibrosSaldo", "Ventas")">Listado libros saldo</a></li>
+            <li class="current"><em>Agregar operación</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">AGREGAR OPERACIÓN <span class="text-cobefar-2">@cliente</span></h3></div>
+</div>
+
+<div class="bg-form-pestanas-cobefar p-4 bg-form-cobefar">
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+    <div class="row">
+        <div class="col-lg-2">
+            <label for="CardCode" class="text-dark font-weight-bold font-18">CardCode:</label>
+            @Html.EditorFor(model => model.CardCode, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+        </div>
+
+        <div class="col-lg-2">
+            <label for="FechaOpe" class="text-dark form-label font-weight-bold font-18">FechaOpe:</label>
+            @Html.EditorFor(model => model.FechaOpe, new { htmlAttributes = new { @class = "form-control border-success", @type = "date" } })
+        </div>
+
+        <div class="col-lg-4">
+            <label for="Operacion" class="text-dark form-label font-weight-bold font-18">Operación:</label>
+            @Html.DropDownListFor(model => model.Operacion
+                                                    , new SelectList(new List<SelectListItem>{
+                                                                        new SelectListItem{Text="Seleccione",Value=""},
+                                                                        new SelectListItem{Text="Egreso por Pago de Envio Courier",Value="EnvioE"},
+                                                                        new SelectListItem{Text="Ingreso por Deposito de cliente", Value="DepositoI"} }
+                                                                    , "Value", "Text"), htmlAttributes: new { @class = "form-control bg-cobefar text-white border-success", @onchange = "cargarSocios('Tipo');" })
+        </div>
+
+        <div class="col-lg-4">
+            <label for="DetOpe" class="text-dark form-label font-weight-bold font-18">DetOpe:</label>
+            @Html.EditorFor(model => model.DetOpe, new { htmlAttributes = new { @class = "form-control border-success" } })
+        </div>
+
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-lg-2">
+            <label for="Ingreso" class="text-dark form-label font-weight-bold font-18">Ingreso:</label>
+            @Html.EditorFor(model => model.Ingreso, new { htmlAttributes = new { @class = "form-control border-success" } })
+        </div>
+
+        <div class="col-lg-2">
+            <label for="Egreso" class="text-dark form-label font-weight-bold font-18">Egreso:</label>
+            @Html.EditorFor(model => model.Egreso, new { htmlAttributes = new { @class = "form-control border-success" } })
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-lg-2">
+            <button type="submit" class="btn btn-success"><i class="icon icon-plus"></i> Crear</button>
+        </div>
+    </div>
+    }
+</div>

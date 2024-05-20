@@ -1,0 +1,84 @@
+﻿@using Capa_Entidad.Almacen_ENT.TablasSql;
+@using Capa_Entidad.Seguridad_ENT
+@{
+    ViewBag.Title = "ContabilizacionInventario";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .conBorde td {
+        border: 1px solid;
+    }
+
+    #fila td {
+        font-size: 11px;
+    }
+
+    #btnfucsia {
+        background-color: fuchsia;
+        width: 90%;
+        margin-left: 2px;
+        margin-bottom: 20px;
+        padding: 10px;
+    }
+
+    #inv_btn {
+        width: 90%;
+        margin-left: 2px;
+        margin-bottom: 20px;
+        padding: 10px;
+    }
+
+        #btnfucsia :hover, #inv_btn :hover {
+            color: yellow;
+        }
+
+
+    #inv_btn a, #btnfucsia a {
+        color: white;
+        font-weight: 500;
+    }
+</style>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="/Index/Sesion">Inicio</a></li>
+            <li class="current"><em>Módulo contabilización inventario</em></li>
+        </ol>
+    </nav>
+</div>
+
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">MÓDULO CONTABILIZACION INVENTARIO</h3></div>
+</div>
+
+<div class="bg-form-pestanas-cobefar pt-4 bg-section-form p-4 bg-form-cobefar">
+
+    @if (@OIPE_E.PeriodoSeleccionado != null)
+    {
+    <div class="alert alert-danger" role="alert">
+        @("Periodo Seleccionado: " + OIPE_E.PeriodoSeleccionado.Descripcion + " ---- Almacenes: " + OIPE_E.PeriodoSeleccionado.enlistarDetAlmacenes())
+    </div>
+     }
+        
+        <section id="group">
+            <a href="@Url.Action("GestionConteos", "Almacen")"  class="btn btn-success">Conteo</a>
+            <a href="@Url.Action("GestionReconteos", "Almacen")"  class="btn btn-warning">Reconteo</a>
+            <a href="@Url.Action("GestionAnalisisConteos", "Almacen")" class="btn btn-cobefar">AnalisisCont</a>
+            <a href="@Url.Action("GestionPeriodos", "Almacen")"  class="btn btn-dark">Definir Periodo</a>
+            <a href="@Url.Action("GestionEquipos", "Almacen")"  class="btn btn-primary">Definir Equipos</a>
+            <a href="@Url.Action("ReportesContabilizacionInventario", "Almacen")" class="btn btn-info">Reportes</a>
+        </section>
+    </div>
+
+
+<script>
+    if ('@ViewBag.Mensaje' != "") {
+        swal.fire({
+            title: "@ViewBag.Mensaje",
+            text: "Presione OK para continuar",
+            icon: "warning"
+        })
+    };
+</script>

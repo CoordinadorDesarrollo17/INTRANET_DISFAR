@@ -1,0 +1,60 @@
+﻿@model IEnumerable<Capa_Entidad.AtencionCliente_ENT.TablasSql.OSAT_E>
+
+@{
+    ViewBag.Title = "ReporteReclamosCliente";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="bg-dark border-cabecera-seccion pb-2 pt-3">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">REPORTE RECLAMOS CLIENTE</h3></div>
+</div>
+
+<table class="table table-light table-sm table-hover">
+    <thead class="thead-dark">
+        <tr>
+            <th class="text-center">
+                @Html.DisplayNameFor(model => model.DocEntry)
+            </th>
+            <th class="text-center">
+                @Html.DisplayNameFor(model => model.DocNum)
+            </th>
+            <th class="text-center">
+                @Html.DisplayNameFor(model => model.Estado)
+            </th>
+            <th class="text-center">
+                @Html.DisplayNameFor(model => model.Resultado)
+            </th>
+            <th class="text-center">
+                @Html.DisplayNameFor(model => model.TipoSolucion)
+            </th>
+            <th class="text-center">
+                @Html.DisplayNameFor(model => model.Solucion)
+            </th>
+        </tr>
+    </thead>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td class="text-center">
+                    @Html.DisplayFor(modelItem => item.DocEntry)
+                </td>
+                <td class="text-center">
+                    @Html.DisplayFor(modelItem => item.DocNum)
+                </td>
+                <td class="text-center">
+                    @Html.DisplayFor(modelItem => item.Estado)
+                </td>
+                <td class="text-center">
+                    @Html.DisplayFor(modelItem => item.Resultado)
+                </td>
+                <td class="text-center">
+                    @Html.DisplayFor(modelItem => item.TipoSolucion)
+                </td>
+                <td class="text-center">
+                    @Html.DisplayFor(modelItem => item.Solucion)
+                </td>
+            </tr>
+        }
+
+</table>

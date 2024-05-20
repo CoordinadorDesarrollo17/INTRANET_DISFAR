@@ -1,0 +1,100 @@
+﻿@model Capa_Entidad.Seguridad_ENT.Usuario_E
+
+@{
+    ViewBag.Title = "EditarUsuario";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    <script src="~/Scripts/TI_Sistemas/Usuario.js"></script>
+    <script>mostrarMensaje(`@ViewBag.Mensaje`)</script>
+}
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("GestionPermisos", "TI_Sistemas")">Módulo gestión de permisos</a></li>
+            <li class="current"><em>Editar usuario</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">EDITAR USUARIO</h3></div>
+</div>
+
+<div class="bg-form-pestanas-cobefar p-4 bg-form-cobefar">
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+        <div class="row">
+            <div class="col-lg-3">
+                <label class="text-dark form-label font-weight-bold font-18">Nombres:</label>
+                <input type="text" class="form-control border-success text-center" value="@Model.Nombres" disabled>
+            </div>
+
+            <div class="col-lg-3">
+                <label class="text-dark form-label font-weight-bold font-18">Apellidos:</label>
+                <input type="text" class="form-control border-success text-center" value="@Model.Apellidos" disabled>
+            </div>
+
+            <div class="col-lg-4">
+                <label for="Email" class="text-dark form-label font-weight-bold font-18">Email:</label>
+                <input type="email" id="Email" name="Email" class="form-control border-success" value="@Model.Email">
+            </div>
+
+            <div class="col-lg-2">
+                <label for="CodigoSap" class="text-dark form-label font-weight-bold font-18">CodigoSap:</label>
+                <input type="number" class="form-control border-success" id="CodigoSap" name="CodigoSap" min="1" value="@if(Model.CodigoSap != 0) { Write(Model.CodigoSap); }" oninput="validarValor(this)" autocomplete="off">
+            </div>
+
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-3">
+                <label class="text-dark form-label font-weight-bold font-18">Rol:</label>
+                <input type="text" class="form-control border-success text-center" value="@ViewBag.RolUsuario" disabled />
+            </div>
+
+            <div class="col-lg-2">
+                <label class="text-dark font-weight-bold font-18">Usuario:</label>
+                <input class="form-control text-center border-success" id="Usuario" name="Usuario" readonly type="text" value="@{ Write(Model.Prefijo+Model.Id); } ">
+                <input type="hidden" id="Prefijo" name="Prefijo" value="@Model.Prefijo">
+                <input type="hidden" id="Id" name="Id" value="@Model.Id">
+            </div>
+
+            <div class="col-lg-3">
+                <label for="WhsCode" class="text-dark form-label font-weight-bold font-18">Almacén:</label>
+                <select name="WhsCode" class="form-control bg-cobefar text-white border-success">
+                    <option value="">Seleccione</option>
+                    @foreach (var almacen in new[] { "01", "03", "06", "07" })
+                    {
+                        <option value="@almacen" @(Model.WhsCode == almacen ? "selected" : "")>
+                            ALM @almacen @(almacen == "01" ? "(Centro)" : "") @(almacen == "03" ? "(Arriola)" : "")
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-lg-2">
+                <label class="text-dark form-label font-weight-bold font-18">Activo:</label>
+                <input type="text" class="form-control border-success text-center" value="@(Model.Activo == 1 ? "SI" : "NO")" disabled />
+            </div>
+
+            <div class="col-lg-2">
+                <label for="FechaRegistro" class="text-dark form-label font-weight-bold font-18">Fecha Registro:</label>
+                @Html.EditorFor(model => model.FechaRegistro, new { htmlAttributes = new { @class = "form-control text-center border-success", @Value = Model.FechaRegistro.ToString(), @readonly = "true" } })
+            </div>
+        </div>
+
+        if (Model.Activo == 1)
+        {
+            <div class="row mt-4">
+                <div class="col-lg-2">
+                    <button type="submit" class="btn btn-success"><i class="icon icon-checkmark"></i> Guardar cambios</button>
+                </div>
+            </div>
+        }
+    }
+</div>

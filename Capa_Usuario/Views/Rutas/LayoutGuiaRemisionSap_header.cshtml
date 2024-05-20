@@ -1,0 +1,108 @@
+﻿@model IEnumerable<Capa_Entidad.Almacen_ENT.Tablas.Guia_Remision_E>
+
+@{
+    Layout = null;
+    var Cab = Model.ToList()[0];
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LayoutGuiaRemisionSap</title>
+    <style>
+        * {
+           /* font-family: 'Verdana';
+            */ font-family: 'Arial Unicode MS';
+        }
+       
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+     
+    </style>
+</head>
+<body style="margin-top: 0;">
+    <div>
+        <table border="0">
+            <tr>
+                <td style="font-size: 10px; text-align: center; position: relative;">
+                    <img style="float:left" src="~/imagenes/logoventa2.jpg" width="230" height="90" /><br />
+                    www.cobefar.com.pe
+                    <img src="~/imagenes/index/encabezado/bpa.jpg" width="55" height="50" style="position: absolute; top: 5px; right: 0;" />
+                </td>
+                <td style="text-align:left;font-size:10px; max-width:300px;">
+                    <strong>Dom. Fiscal:</strong> Cal.Carlos Pedemonte Nro. 145B Int. 2pis <br />
+                    Urb. Lotización Ex Fundo El Pino Lima - Lima - San Luis<br />
+                    <strong>Almacén:</strong> Av. Nicolás Arriola N°2955-2963, 2do. Piso <br />
+                    Urb. Mercurio - San Luis - Lima - Lima<br />
+                    <strong>Almacén:</strong> Jr. Antonio Miroquezada N° 806 Int. 303 <br />
+                    Lima - Lima - Lima<br />
+                    <strong>Teléfono:</strong> 428-1248<br />
+                    <strong>Email:</strong> cobefar.ventas@gmail.com
+                </td>
+                <td style="font-size: 18px !important; text-align: center;">
+                    <div style="border: 2px solid green; vertical-align: top; padding: 5px; border-radius: 15px;">
+                        <div style="height:10px;"></div> R.U.C. 20600546041   <div style="height:25px;"></div>
+                        <strong style="font-size:20px">GUÍA DE REMISIÓN </strong><br />
+                        <strong>ELECTRÓNICA REMITENTE</strong><div style="height:25px;"></div>
+                        @Cab.NumAtCard <div style="height:10px;">
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+        @if (ViewBag.Tipo == "T")
+        {
+            <div style="width: 100%; display: inline-block; border: 2px solid green; vertical-align: top; padding: 5px; border-radius: 15px; margin: 15px 0px 15px 0px; box-sizing: border-box; ">
+                <table style="font-size:12px;" border="0">
+                    <tr>
+                        <td><strong>Destinatario :</strong></td>
+                        <td>@Cab.NombreBD</td>
+                        <td><strong>Fecha de emisión :</strong> </td>
+                        <td>@Cab.DocDate</td>
+                    </tr>
+                    <tr>
+                        <td><strong>R.U.C.: </strong></td>
+                        <td>@Cab.RucBD</td>
+                        <td><strong>Fecha de traslado :</strong> </td>
+                        <td>@Cab.FechaTrasl</td>
+                    </tr>
+                </table>
+            </div>
+      
+        }
+        else if (ViewBag.Tipo == "E")
+        {
+            <div style="width: 100%; display: inline-block; border: 2px solid green; vertical-align: top; padding: 5px; border-radius: 15px; margin: 15px 0px 15px 0px; box-sizing: border-box; ">
+                <table style="font-size:12px;text-align:left" border="0">
+                    <tr>
+                        <td><strong>Destinatario :</strong></td>
+                        <td>@Cab.CardName</td>
+                        <td><strong>Fecha de emisión : </strong></td>
+                        <td>@Cab.DocDate</td>
+                    </tr>
+                    <tr>
+                        <td><strong>R.U.C.:</strong> </td>
+                        <td>
+                            @if (Cab.CardCode.Length == 12)
+                            {@Cab.CardCode.Substring(1, 11)}
+                        else
+                        {@Cab.CardCode}
+                        </td>
+                        <td><strong>Fecha de traslado :</strong> </td>
+                        <td>@Cab.FechaTrasl</td>
+                    </tr>
+                </table>
+            </div>
+         
+        }
+    </div>
+
+</body>
+</html>
+
+
+

@@ -1,0 +1,44 @@
+﻿@model Capa_Entidad.Ventas_ENT.TablasSql.OCLR_E
+
+@{
+    ViewBag.Title = "ReporteClienteRegalos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    dt{
+        color:white;
+    }
+</style>
+
+<div class="pt-4">
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">REPORTE CLIENTE REGALOS</h3></div>
+</div>
+
+<div class="bg-dark pt-4">
+    <div class="text-white ml-3 mb-4">
+        <span class="text-cobefar-2">Cliente: </span>@Html.DisplayFor(model => model.CardName)
+    </div>
+
+    <table class="table table-light table-sm table-hover table-responsive-md" cellspacing="0" width="100%">
+        <thead class="thead-dark">
+            <tr>
+                <th class="text-center">Categoría</th>
+                <th class="text-center">Tipo</th>
+                <th class="text-center">Cantidad</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var o in Model.Det)
+            {
+                <tr>
+                    <td class="text-center">@o.Categoria</td>
+                    <td class="text-center">@o.Tipo</td>
+                    <td class="text-center">@o.Cantidad</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

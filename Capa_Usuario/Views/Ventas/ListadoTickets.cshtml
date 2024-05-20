@@ -1,0 +1,389 @@
+﻿@model IEnumerable<Capa_Entidad.Ventas_ENT.TablasSql.ORTV_E>
+@using Capa_Entidad.Seguridad_ENT
+@{
+    ViewBag.Title = "ListadoTickets";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var hoy = DateTime.Now;
+    List<Usuario_E> u = (List<Usuario_E>)ViewBag.Vendedores;
+}
+
+@section Styles{
+    <link href="~/Content/css/alertify.min.css" rel="stylesheet" />
+    <link href="~/Content/css/semantic.min.css" rel="stylesheet" />
+}
+
+@section Scripts{
+    <script src="~/Content/js/alertify.min.js"></script>
+}
+
+<script>
+    function filtrar() {
+        var object = $("#frm").serialize();
+        $(location).attr('href', "/Ventas/ListadoTickets?" + object);
+    }
+    function RptAnVentas() {
+        var object = $("#frmAnVtn").serialize();
+        $(location).attr("href", "/Ventas/AnCtVentas?" + object);
+    }
+</script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li class="current"><em>Listado de Tickets</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO DE TICKETS</h3></div>
+
+    <div class="d-flex pl-2 w-100 py-2">
+
+        <div class="mx-2">
+            <a id="accion" href="@Url.Action("CreaTicketVenta", "Ventas")" class="btn btn-success font-weight-bold" title="Crear Ticket Nuevo">
+                <i class="icon icon-plus"></i> Crear Ticket Nuevo
+            </a>
+
+            <a id="accion" href="#" class="btn btn-warning font-weight-bold" title="Documentos" data-toggle="modal" data-target="#MdAnVentas">
+                <i class="icon icon-stats-dots"></i> AnVentas
+            </a>
+
+            <a id="accion" href="@Url.Action("GestionVendedores", "Ventas")" class="btn btn-info font-weight-bold" title="Vendedores">
+                <i class="icon icon-user"></i> Vendedores
+            </a>
+        </div>
+
+    </div>
+</div>
+
+<div class="alert alert-danger mb-0" role="alert">
+    <span class="text-danger font-weight-bold">Tickets Separados:</span>
+    <p>
+        @if (ViewBag.ListaTicketsSeparados.Count >= 1)
+        {
+            foreach (var ts in ViewBag.ListaTicketsSeparados)
+            {
+                <a href="/Ventas/CreaTicketVenta?DocEntry=@ts.DocEntry">@ts.DocNum ,</a>
+            }
+        }
+
+    </p>
+</div>
+
+<form name="frm" id="frm">
+    <div class="bg-dark pt-4">
+        <table class="table table-light table-sm table-hover cls-dataTable50 border-success" cellspacing="0" width="100%">
+            <thead class="thead-dark">
+                <tr>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.DocNum)
+                        <br />
+                        @if (ViewBag.Ortv != null && ViewBag.Ortv.DocNum > 0)
+                        {
+                            <input type="text" name="DocNum" class="form-control input_filtro-table" style="width:100px" onchange="filtrar();" value="@ViewBag.Ortv.DocNum" />
+                        }
+                        else
+                        { <input type="text" name="DocNum" class="form-control input_filtro-table" style="width: 100px " onchange="filtrar();" />}
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.FechaSapTicket)
+                        <br />
+                        @if (ViewBag.Ortv != null && ViewBag.Ortv.FechaSapTicket != null)
+                        {
+                            <input type="date" name="FechaSapTicket" class="form-control input_date-filtro-table" style="width: 120px" value="@ViewBag.Ortv.FechaSapTicket" onchange="filtrar();" />
+                        }
+                        else
+                        { <input type="date" name="FechaSapTicket" class="form-control input_date-filtro-table" style="width: 120px" onchange="filtrar();" />}
+
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.CardName)
+                        <br />
+                        @if (ViewBag.Ortv != null && ViewBag.Ortv.CardName != null)
+                        {
+                            <input type="text" name="CardName" class="form-control input_filtro-table" onchange="filtrar();" value="@ViewBag.Ortv.CardName" />
+                        }
+                        else
+                        { <input type="text" name="CardName" class="form-control input_filtro-table" onchange="filtrar();" />}
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.Vendedor)
+                        <br />
+                        @if (ViewBag.Ortv != null && ViewBag.Ortv.Vendedor != null)
+                        {
+                            <input type="text" name="Vendedor" class="form-control input_filtro-table" onchange="filtrar();" value="@ViewBag.Ortv.Vendedor" />
+                        }
+                        else
+                        { <input type="text" name="Vendedor" class="form-control input_filtro-table" onchange="filtrar();" />}
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.MontoFinal)
+                        <br />
+                        @if (ViewBag.Ortv != null && ViewBag.Ortv.MontoFinal > 0)
+                        {
+                            <input type="text" name="MontoFinal" class="form-control input_filtro-table" onchange="filtrar();" value="@ViewBag.Ortv.MontoFinal" />
+                        }
+                        else
+                        { <input type="text" name="MontoFinal" class="form-control input_filtro-table" onchange="filtrar();" />}
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.HoraRegistro)
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.LugarDestino)
+                        <br />
+                        <select name="LugarDestino" id="LugarDestino" class="form-control select_filtro-table" style="width: 100px" onchange="filtrar();">
+                            <option value=""></option>
+                            <option value="Arriola" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Arriola") { Write("selected"); } }>Arriola</option>
+                            <option value="Agencia" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Agencia") { Write("selected"); } }>Agencia</option>
+                            <option value="Agencia Courier" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Agencia Courier") { Write("selected"); } }>Agencia Courier</option>
+                            <option value="Domicilio" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Domicilio") { Write("selected"); } }>Domicilio</option>
+                            <option value="Centro" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Centro") { Write("selected"); } }>Centro</option>
+                            <option value="Arriola07" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Arriola07") { Write("selected"); } }>Arriola07</option>
+                        </select>
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.Estado)
+                        <br />
+                        <select name="Estado" id="Estado" class="form-control select_filtro-table" onchange="filtrar();">
+                            <option value=""></option>
+                            <option value="SEPARADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "SEPARADO") { Write("selected"); } }>SEPARADO</option>
+                            <option value="ABIERTO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ABIERTO") { Write("selected"); } }>ABIERTO</option>
+                            <option value="RECIBIDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "RECIBIDO") { Write("selected"); } }>RECIBIDO</option>
+                            <option value="PICKEANDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "PICKEANDO") { Write("selected"); } }>PICKEANDO</option>
+                            <option value="VERIFICANDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "VERIFICANDO") { Write("selected"); } }>VERIFICANDO</option>
+                            <option value="EMPACANDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "EMPACANDO") { Write("selected"); } }>EMPACANDO</option>
+                            <option value="EMPACADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "EMPACADO") { Write("selected"); } }>EMPACADO</option>
+                            <option value="PESADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "PESADO") { Write("selected"); } }>PESADO</option>
+                            <option value="ENVIADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ENVIADO") { Write("selected"); } }>ENVIADO</option>
+                            <option value="ENTREGADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ENTREGADO") { Write("selected"); } }>ENTREGADO</option>
+                            <option value="ANULADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ANULADO") { Write("selected"); } }>ANULADO</option>
+                            <option value="CANCELADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "CANCELADO") { Write("selected"); } }>CANCELADO</option>
+                        </select>
+
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.EstadoPago)
+                        <br />
+                        <select name="EstadoPago" id="EstadoPago" class="form-control select_filtro-table" onchange="filtrar();">
+                            <option value=""></option>
+                            <option value="PENDIENTE" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.EstadoPago == "PENDIENTE") { Write("selected"); } }>PENDIENTE</option>
+                            <option value="PAGADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.EstadoPago == "PAGADO") { Write("selected"); }}>PAGADO</option>
+                        </select>
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.EstadoGasto)
+                        <br />
+                        <select name="EstadoGasto" id="EstadoGasto" class="form-control select_filtro-table" onchange="filtrar();">
+                            <option value=""></option>
+                            <option value="PENDIENTE" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.EstadoGasto == "PENDIENTE") { Write("selected"); } }>PENDIENTE</option>
+                            <option value="CONFIRMADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.EstadoGasto == "CONFIRMADO") { Write("selected"); }}>CONFIRMADO</option>
+                        </select>
+                    </th>
+                    <th class="text-center">
+                        PagoEnvio
+                        <select name="PagoEnv" class="form-control select_filtro-table" style="width:65px" onchange="filtrar();">
+                            <option value="0.00" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.PagoEnv == 0.00M) { Write("selected"); } }></option>
+                            <option value="0.01" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.PagoEnv == 0.01M) { Write("selected"); } }>SI</option>
+                        </select>
+                    </th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr id="fila">
+                        <td class="text-center">
+                            <div class="@if (ViewBag.DocNum == item.DocNum) { Write("bg-success"); }">@Html.DisplayFor(modelItem => item.DocNum)</div>
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.FechaSapTicket)
+                        </td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(item.CardName)) { Write(item.CardName); }
+                        </td>
+                        <td>
+                            @item.Vendedor
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.MontoFinal)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.HoraRegistro)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.LugarDestino)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.Estado)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.EstadoPago)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.EstadoGasto)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.PagoEnv)
+                        </td>
+                        <td class="text-center">
+                            @if (item.Estado.Equals("SEPARADO") || item.Estado.Equals("ABIERTO"))
+                            {
+                                <a href="@Url.Action("EditarTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="mx-1"><i title="Editar ticket" class="text-purple icon-pencil2"></i></a>
+                            }
+                        </td>
+                        <td class="text-center">
+                            @if ((item.Estado.Equals("SEPARADO") || item.Estado.Equals("ABIERTO")) && (ViewBag.IdRol == 1 || ViewBag.IdRol == 6 || ViewBag.IdRol == 7))
+                            {
+                                <a href="#" onclick="cancelarTicket(@item.DocEntry);" class="mx-1"><i title="Cancelar ticket" class="text-danger icon-bin2"></i></a>
+                            }
+                        </td>
+                        <td class="text-center">
+                            @if (item.Estado != "SEPARADO")
+                            {
+                                <a href="@Url.Action( "SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry  } )" type="button" target="_self" class="mx-1"
+                                   onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;">
+                                    <i title="Seguimiento de ticket" class="text-dark icon-truck"></i>
+                                </a>
+                            }
+                        </td>
+                        <td class="text-center">
+                            @if (item.Estado != "SEPARADO")
+                            {
+                                <a href="@Url.Action( "GenerarPDF", "Ventas", new { DocEntry = item.DocEntry  } )" target="_blank" class="mx-1"><i title="Documento PDF del ticket" class="text-danger icon-file-pdf"></i></a>
+                            }
+                        </td>
+                        <td class="text-center">
+                            @if (item.Estado == "ENTREGADO")
+                            {
+                                <a href="@Url.Action( "EvidenciaReparto", "Rutas", new { DocEntry = item.DocEntry , TipoRuta="Ventas"} )" class="mx-1"><i title="Evidencia" class="text-primary icon-image"></i></a>
+                            }
+                        </td>
+
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</form>
+<!--Modals-->
+<div class="modal fade" id="MdAnVentas" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-cobefar text-white">
+                <h5 class="modal-title" id="exampleModalLabel">Reporte Analítico Ventas</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span class="text-white" aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <form id="frmAnVtn">
+                    <div class="form-group row">
+                        <label class="col-sm-2 col-form-label bg-cobefar text-white text-center py-2 px-2 mx-1">Desde:</label>
+                        <div class="col-lg-6">
+                            <input type="date" class="form-control border-success" name="FecIni" value="" />
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-2 col-form-label bg-cobefar text-white text-center py-2 px-2 mx-1">Hasta:</label>
+                        <div class="col-lg-6">
+                            <input type="date" class="form-control border-success" name="FecFin" value="" />
+                        </div>
+                    </div>
+                    <div class="form-group row">
+
+                        <label class="col-sm-3 col-form-label bg-cobefar text-white text-center py-2 px-2 mx-1">Vendedor:</label>
+                        <div class="col-lg-2">
+                            <input type="search" class="form-control border-success" style="width: 150px" name="DocEntry" list="listaVendedores" autocomplete="off" />
+                            <datalist id="listaVendedores">
+                                @foreach (Usuario_E obj in u)
+                                {
+                                    <option value="@obj.DocEntry" nombre="@obj.Nombres @obj.Apellidos">@obj.Nombres @obj.Apellidos</option>
+                                }
+                            </datalist>
+                        </div>
+                    </div>
+
+                    <div class="form-group row justify-content-end">
+                        <div class="col-lg-4">
+                            <button class="btn btn-success" type="button" onclick="RptAnVentas();"><i class="icon icon-checkmark"></i> Generar</button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    if ('@ViewBag.Mensaje' != "") {
+        Swal.fire('@ViewBag.Mensaje');
+    }
+
+    function cancelarTicket(DocEntry) {
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: 'btn btn-success mx-4',
+                cancelButton: 'btn btn-danger mx-4'
+            },
+            buttonsStyling: false
+        })
+
+        swalWithBootstrapButtons.fire({
+            title: '¿Está seguro(a) de cancelar el ticket?',
+            text: "Este proceso es irreversible",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: "<i class='icon-checkmark'></i> Si, estoy seguro(a)",
+            cancelButtonText: "<i class='icon-cross'></i> No",
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                location.href = '/Ventas/CancelarTicket?DocEntry=' + DocEntry + '&vista=ListadoTickets';
+            }
+        });
+    }
+
+
+    $(document).ready(function () {
+        var consultarNuevasSolicitudes = function () {
+            $.ajax({
+                url: '/Caja/ObtenerSolicitudesAutorizar',
+                type: 'POST',
+                dataType: 'json',
+            }).done(function (response) {
+                if (response.Datos.length >= 1) {
+                    for (let indice in response.Datos) {
+                        //console.log(response.Datos[indice]);
+                        alertify.set('notifier', 'position', 'bottom-right');
+                        alertify.set('notifier', 'delay', 15);     // 15 seg
+
+                        var msj = alertify.warning(`Ticket N° ${response.Datos[indice].DocNumTicket} pendiente a autorizar`);
+
+                        msj.callback = function (isClicked) {
+                            if (isClicked)
+                                window.open(`/Ventas/AutorizarTicketReparto?DocEntry=${response.Datos[indice].DocEntryTicket}&IdOTC=${response.Datos[indice].IdOTC}`, '_blank', 'width=1200,height=720,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');
+                        };
+                    }
+                }
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR.status + textStatus + errorThrown);
+            });
+        }
+
+        // MANAGER - SVENTAS
+        if (@ViewBag.IdRol == 1 || @ViewBag.IdRol == 6) {
+            // Intervalo de 15 seg.  
+            setInterval(consultarNuevasSolicitudes, 15000);
+        }
+
+        });
+</script>

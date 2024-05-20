@@ -1,0 +1,162 @@
+﻿@model IEnumerable<Capa_Entidad.Compras_ENT.Tablas.OPDN_E>
+@using Capa_Entidad.General_ENT.Tablas
+@{
+    ViewBag.Title = "ListadoEntradasDeMercancias";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Dictionary<string, string> opcEstadoDoc = new Dictionary<string, string>() { { "A", "Anulado" }, { "I", "Anulado Interno" }, { "V", "Vigente" } };
+}
+<script>
+    $(document).ready(function () { });
+    function filtrar() {
+        var object = $("#frm").serialize();
+        $(location).attr('href', "/DireccionTecnica/ListadoEntradasDeMercancias?" + object);
+    }
+</script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li class="current"><em>Listado entrada de mercancías</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO ENTRADA DE MERCANCÍAS</h3></div>
+</div>
+
+<div class="bg-form-pestanas-cobefar">
+    <div class="bg-dark">
+        <form name="frm" id="frm">
+            <table class="table table-light table-sm table-hover cls-dataTable" cellspacing="0" width="100%">
+                <thead class="thead-dark">
+                    <tr>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.DocNum)
+                            <input type="text" name="DocNum" class="form-control" onchange="filtrar();" value="@if (ViewBag.Opdn.DocNum != 0) { Write(ViewBag.Opdn.DocNum); } " />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.DocDate)
+                            <input type="date" name="DocDate" class="form-control input_date-filtro-table" style="height: 38px" onchange="filtrar();" value="@ViewBag.Opdn.DocDate" />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.CardName)
+                            <input type="text" name="CardName" class="form-control" onchange="filtrar();" value="@ViewBag.Opdn.CardName" />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.NumAtCard)
+                            <input type="text" name="NumAtCard" class="form-control" onchange="filtrar();" value="@ViewBag.Opdn.NumAtCard" />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.DocTotal)
+                            <input type="text" name="DocTotal" class="form-control" onchange="filtrar();" value="@if (ViewBag.Opdn.DocTotal != 0) { Write(ViewBag.Opdn.DocTotal); } " />
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.U_SYP_STATUS)
+                            <select name="U_SYP_STATUS" class="form-control" onchange="filtrar();">
+                                <option value="">Seleccione</option>
+                                <option value="A" @if (ViewBag.Opdn.U_SYP_STATUS == "A") { Write("selected"); }>Anulado</option>
+                                <option value="I" @if (ViewBag.Opdn.U_SYP_STATUS == "I") { Write("selected"); }>Anulado Interno</option>
+                                <option value="V" @if (ViewBag.Opdn.U_SYP_STATUS == "V") { Write("selected"); }>Vigente</option>
+                            </select>
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.Almacen)
+                            <select name="Almacen" class="form-control" onchange="filtrar();">
+                                <option value="">Seleccione</option>
+                                @foreach (OWHS_E os in ViewBag.Almacenes)
+                                {
+                                    if (ViewBag.Opdn.Almacen == os.WhsCode)
+                                    {
+                                        <option value="@os.WhsCode" selected>@os.WhsName</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@os.WhsCode">@os.WhsName</option>
+                                    }
+                                }
+                            </select>
+                        </th>
+                        <th class="text-center">
+                            Estado
+                            <select name="sqlopdn.Estado" class="form-control" onchange="filtrar();">
+                                <option value="">Seleccione</option>
+                                @if (ViewBag.Opdn.sqlopdn != null && ViewBag.Opdn.sqlopdn.Estado == "REALIZADO")
+                                {
+                                    <option value="REALIZADO" selected>REALIZADO</option>
+                                }
+                                else
+                                {
+                                    <option value="REALIZADO">REALIZADO</option>
+                                }
+                                @if (ViewBag.Opdn.sqlopdn != null && ViewBag.Opdn.sqlopdn.Estado == "PENDIENTE")
+                                {
+                                    <option value="PENDIENTE" selected>PENDIENTE</option>
+                                }
+                                else
+                                {
+                                    <option value="PENDIENTE">PENDIENTE</option>
+                                }
+                            </select>
+                        </th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @{int num = 1; }
+                    @foreach (var item in Model)
+                    {
+                        string estadoMercancia = "PENDIENTE";
+                        if (item.sqlopdn.Estado != null)
+                        {
+                            estadoMercancia = item.sqlopdn.Estado;
+                        }
+                        <tr id="fila">
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.DocNum)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.DocDate)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.CardName)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.NumAtCard)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.DocTotal)
+                            </td>
+                            <td class="text-center">
+                                @opcEstadoDoc[item.U_SYP_STATUS]
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.Almacen)
+                            </td>
+                            <td class="text-center">
+                                @estadoMercancia
+                            </td>
+                            <td class="text-center">
+                                <a href="@Url.Action("ActaRecepcionEm", "DireccionTecnica", new { DocEntry = item.DocEntry, Almacen = item.Almacen })" target="_blank" class="btn btn-sm btn-primary my-1" title="Acta Recepción">A. Recepción</a>
+                            </td>
+                            <td class="text-center">
+                                <a href="@Url.Action("OrganolepticoEm", "DireccionTecnica", new { DocEntry = item.DocEntry, Almacen = item.Almacen })" target="_blank" class="btn btn-sm btn-dark my-1" title="Formato Organoléptico">Formato Organoléptico</a>
+                            </td>
+                            <td class="text-center">
+                                <a href="@Url.Action("RealizarEntradaDeMercancias", "DireccionTecnica", new { DocEntry = item.DocEntry })" class="btn btn-sm btn-success my-1"><i class="icon-checkmark"></i> Realizar</a>
+                                <a href="@Url.Action("AnularRealizarEntradaDeMercancias", "DireccionTecnica", new { DocEntry = item.DocEntry })" class="btn btn-sm btn-danger my-1"><i class="icon-blocked"></i> Realizar</a>
+                            </td>
+                        </tr>
+                        ++num;
+                    }
+                </tbody>
+
+
+            </table>
+        </form>
+    </div>
+</div>

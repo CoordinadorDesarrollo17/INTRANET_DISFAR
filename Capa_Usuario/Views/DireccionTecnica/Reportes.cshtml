@@ -1,0 +1,119 @@
+﻿@using ReportViewerForMvc;
+@using Microsoft.Reporting.WebForms;
+@using Capa_Entidad.Almacen_ENT.Tablas;
+@{
+    ViewBag.Title = "Reportes Dirección Técnica";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<OMRC_E> Laboratorios = (List<OMRC_E>)ViewBag.Laboratorios;
+}
+
+@section Styles{
+    <link rel="stylesheet" type="text/css" href="~/Content/css/print.min.css" />
+}
+
+<style>
+    li {
+        list-style-type: none;
+    }
+
+    .cuerpo {
+        padding: 1%;
+        width: 100%;
+        height: 300px;
+    }
+
+    section .section1 {
+        float: left;
+        width: 25%;
+    }
+
+    section .section2 {
+        float: left;
+        width: 75%;
+    }
+</style>
+<script>
+    $(document).ready(function () { });
+    function cargarFormulario(info) {
+        Swal.fire({
+            html: '<img src="/imagenes/index/ReportesDigemid/cargando.gif" />',
+            //closeOnCancel: false,
+            allowOutsideClick: false,
+            showCancelButton: false,
+            showConfirmButton: false
+        });
+
+
+        $.ajax('/ReportesDigemid/' + info,
+            {
+                //data : parametros,
+                dataType: 'html',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                swal.close();
+                Swal.fire("Formulario generado");
+                $('#Formulario').html(response);
+                $('#div_botonesDescarga').html('');
+                $('#Reporte').html('');
+                $('#div_plantillaRpt').html('');
+            });
+    }
+</script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li class="current"><em>Reportes de dirección técnica</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">REPORTES DE DIRECCIÓN TÉCNICA</h3></div>
+</div>
+
+<div class="bg-form-pestanas-cobefar pt-2 bg-section-form bg-form-cobefar">
+    <div class="cuerpo">
+        <section>
+            <div class="section1">
+                <ul>
+                    <li id="Kardex"><button class="btn btn-warning m-2" onclick="cargarFormulario('infoKardex')"><strong>Kardex de Almacenes</strong></button></li>
+                    <li id="BalanceCont"><button class="btn btn-warning m-2" onclick="cargarFormulario('infoBalanceControlados')"><strong>Productos Controlados</strong></button></li>
+                    <li id="AudiStocks"><button class="btn btn-warning m-2" onclick="cargarFormulario('infoAuditoriaStocks')"><strong>Reporte de Auditoria de Stocks</strong></button></li>
+                    <li id="OperaLotes"><button class="btn btn-warning m-2" onclick="cargarFormulario('infoOperacionesLotes')"><strong>Reporte de Operaciones de Lote</strong></button></li>
+                    <li id="PreciosOpm"><button class="btn btn-warning m-2" onclick="cargarFormulario('infoPreciosOpm')"><strong>Reporte de Precios O.P.M.</strong></button></li>
+                    <li id="VentasArtLote"><button class="btn btn-warning m-2" onclick="cargarFormulario('infoVentasArtLote')"><strong>Ventas Art-Lote</strong></button></li>
+                    <li id="RegistrosSanitarios"><button class="btn btn-warning m-2" onclick="cargarFormulario('InfoRegistroSanitario')"><strong>Registros Sanitarios</strong></button></li>
+                </ul>
+            </div>
+            <div id="Formulario" class="section2">
+            </div>
+        </section>
+    </div>
+
+    <datalist id="ListaLaboratorios" style="display: none;">
+        <option value="">Seleccione</option>
+        @if (Laboratorios != null && Laboratorios.Count() >= 1)
+        {
+            foreach (var lab in Laboratorios)
+            {
+                <option firmcode="@lab.FirmCode" value="@lab.U_SYP_DESC"></option>
+            }
+        }
+    </datalist>
+
+    <table id="Reporte" class="table-responsive" style="background-color:white">
+    </table>
+
+    <div id="div_botonesDescarga" class="d-flex justify-content-center bg-white"></div>
+
+    <div id="div_plantillaRpt" class="d-flex justify-content-center bg-white"></div>
+</div>
+
+@section Scripts{
+    <script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
+    <script src="~/Content/js/print.min.js"></script>
+}

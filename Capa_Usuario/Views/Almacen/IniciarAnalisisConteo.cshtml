@@ -1,0 +1,256 @@
+﻿@model Capa_Entidad.Almacen_ENT.TablasSql.OIAR_E
+@using Capa_Entidad.Seguridad_ENT
+@using Capa_Entidad.Almacen_ENT.TablasSql
+
+@{
+    ViewBag.Title = "IniciarAnalisisConteo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    IAR11_E iar11 = (IAR11_E)ViewBag.Iar11;
+    IAR1_E iar1 = new IAR1_E();
+    List<Usuario_E> u = (List<Usuario_E>)ViewBag.Miembros;
+
+}
+<script>
+    $(document).ready(function () {
+    });
+    var contUser = 0;
+    function llenarTabla(id) {
+        var Usuario = $("#" + id);
+        var Nombre = $("#listaApoyos option[value='" + Usuario.val() + "']").attr("nombre");
+        var Observacion = $("#ObsApoyo").val();
+        if (Usuario.val() == null || Usuario.val() == "") { swal.fire("No ha seleccionado un personal de apoyo", "Verifique", "warning"); return; }
+        if (Nombre == null || Nombre == "") { swal.fire("Personal no existente", "Verifique", "warning"); return; }
+        if (validarUnicoCampoTabla(Usuario.val(), "DetallesAnalisisConteo")) {
+            $("#DetallesAnalisisConteo").append("<tr><td hidden><input class='form-control' name='DetFases[0].DetApoyos[" + contUser + "].Linea' value='" + (contUser + 1) + " ' readonly /></td>" +
+                "<td><input class= 'form-control text-center' name = 'DetFases[0].DetApoyos[" + contUser + "].Id' value = '" + Usuario.val() + "' readonly /></td >" +
+                "<td><input class='form-control text-center' name='DetFases[0].DetApoyos[" + contUser + "].Nombre' value='" + Nombre + "'  readonly /></td>" +
+                "<td><input class= 'form-control text-center' name = 'DetFases[0].DetApoyos[" + contUser + "].ObsApoyo' value = '" + Observacion + "' readonly /></td >" +
+                "<td><button type='button' onclick='borrarTrTable(this)' class='btn btn-danger'>Retirar</button></td></tr>");
+            contUser = contUser + 1;
+        }
+        $("#" + id).val("");
+        $("#ObsApoyo").val("");
+    }
+    function borrarTrTable(dom) {
+        var i = -1;
+        $(dom).closest('tr').remove();
+        contUser = contUser - 1;
+        $("#DetallesAnalisisConteo" + " tr").each(function (index, htm) {
+            iden1 = $(htm).find("td:eq(0) input");
+            iden1.attr("name", "DetFases[0].DetApoyos[" + i + "].Linea");
+            iden1.val(i + 1);
+            iden2 = $(htm).find("td:eq(1) input");
+            iden2.attr("name", "DetFases[0].DetApoyos[" + i + "].Id");
+            iden3 = $(htm).find("td:eq(2) input");
+            iden3.attr("name", "DetFases[0].DetApoyos[" + i + "].Nombre");
+            iden3 = $(htm).find("td:eq(3) input");
+            iden3.attr("name", "DetFases[0].DetApoyos[" + i + "].ObsApoyo");
+            i = i + 1;
+        })
+    }
+    function validarUnicoCampoTabla(identificador, idTabla) {
+        var sinRegistro = true;
+        $("#" + idTabla + " tr").find('td:eq(1) input').each(function () {
+            iden = $(this).val();
+            if (iden == identificador) { swal.fire("El valor ya se encuentra en la tabla", "Verifique", "warning"); sinRegistro = false; }
+        })
+        return sinRegistro;
+    }
+    function guardarAnalisisConteo() {
+        var object = $("#IniciarAnalisisConteo").serialize();
+        $(location).attr('href', "/Almacen/IniciarAnalisisConteoPost?" + object);
+    }
+    function revertirAnalisisConteo() {
+        var object = $("#IniciarAnalisisConteo").serialize();
+        $(location).attr('href', "/Almacen/RevertirInicioAnalisisConteo?" + object);
+    }
+    function validaInicioAnalisisConteo() {
+        var object = $("#IniciarAnalisisConteo").serialize();
+        $.ajax('/Almacen/validarInicioAnalisisConteo',
+            {
+                data: object,
+                dataType: 'html',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                if (response != "true") { swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false }
+                else { guardarAnalisisConteo(); }
+            });
+    }
+    function validaRevertirInicioAnalisisConteo() {
+        var object = $("#IniciarAnalisisConteo").serialize();
+        $.ajax('/Almacen/validarRevertirInicioAnalisisConteo',
+            {
+                data: object,
+                dataType: 'html',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                if (response != "true") { swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false }
+                else { revertirAnalisisConteo(); }
+            });
+    }
+
+</script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("ContabilizacionInventario", "Almacen")">Módulo contabilización inventario</a></li>
+            <li><a href="@Url.Action("GestionAnalisisConteos", "Almacen")">Gestión análisis de conteos</a></li>
+            <li class="current"><em>Iniciar conteo</em></li>
+        </ol>
+    </nav>
+</div>
+
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">INICIAR ANÁLISIS DE CONTEOS</h3></div>
+</div>
+
+
+@if (@OIPE_E.PeriodoSeleccionado != null)
+{
+    <div class="alert alert-danger mb-0" role="alert">
+        @("Periodo Seleccionado: " + OIPE_E.PeriodoSeleccionado.Descripcion + " ---- Almacenes: " + OIPE_E.PeriodoSeleccionado.enlistarDetAlmacenes())
+    </div>
+}
+
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "IniciarAnalisisConteo" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="bg-form-pestanas-cobefar pt-4 bg-section-form p-4 bg-form-cobefar">
+        <div class="row mt-2">
+            <div class="col-lg-1">
+                <label for="DocEntryEqu" class="text-dark form-label font-weight-bold font-18">Equipo:</label>
+                <input class="form-control border-success text-center" id="DocEntryEqu" type="text" name="DocEntryEqu" readonly value="@Model.DocEntryEqu" />
+            </div>
+
+            <div class="col-lg-2">
+                <label for="WhsCode" class="text-dark form-label font-weight-bold font-18">Almacén:</label>
+                <input class="form-control border-success text-center" type="text" name="WhsCode" readonly value="@Model.WhsCode" />
+            </div>
+
+            <div class="col-lg-1">
+                <label for="Piso" class="text-dark form-label font-weight-bold font-18">Piso:</label>
+                <input class="form-control border-success text-center" type="text" name="Piso" readonly value="@Model.Piso" />
+            </div>
+
+            <input id="" type="hidden" name="DocEntryPer" value="@Model.DocEntryPer" />
+
+            <div class="col-lg-4">
+                <label for="Operario" class="text-dark form-label font-weight-bold font-18">OpAnalisis:</label>
+                <input class="form-control border-success" type="text" name="DetFases[0].Operario" readonly value="@if (Model.Fase > 5) { Write(Model.DetFases[4].Operario); }" />
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-lg-3">
+                <label class="text-dark form-label font-weight-bold font-18">TiempoInicio - FechaFase:</label>
+                <input class="form-control border-success" type="text" name="DetFases[0].FechaFase" readonly value="@if (Model.Fase > 5) { Write(Model.DetFases[4].FechaFase); }" />
+            </div>
+
+            <div class="col-lg-3">
+                <label class="text-dark form-label font-weight-bold font-18">TiempoInicio - HoraFase:</label>
+                <input class="form-control border-success" type="text" name="DetFases[0].HoraFase" readonly value="@if (Model.Fase > 5) { Write(Model.DetFases[4].HoraFase); }" />
+            </div>
+
+            <div class="col-lg-6">
+                <label class="text-dark form-label font-weight-bold font-18">Observación:</label>
+                <input class="form-control border-success" id="Observacion" type="text" name="DetFases[0].Observacion" @if (Model.Fase > 5) { Write("readonly"); } value="@if (Model.Fase > 5) { Write(Model.DetFases[4].Observacion); }" autocomplete="off" />
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-lg-2">
+                <label class="text-dark form-label font-weight-bold font-18">Nº:</label>
+                <input class="form-control border-success text-center" type="text" name="DocEntry" readonly value="@Model.DocEntry" />
+            </div>
+
+            <div class="col-lg-2">
+                <label class="text-dark form-label font-weight-bold font-18">Estado:</label>
+                <input class="form-control border-success text-center" type="text" name="Estado" readonly value="@Model.Estado" />
+            </div>
+
+            <div class="col-lg-6">
+                <label class="text-dark form-label font-weight-bold font-18">Artículo ItemName:</label>
+                <input class="form-control border-success text-center" type="text" name="ItemName" readonly value="@Model.ItemName" />
+            </div>
+
+            <div class="col-lg-2">
+                <label class="text-dark form-label font-weight-bold font-18">Artículo ItemCode:</label>
+                <input class="form-control border-success text-center" type="text" name="ItemCode" readonly value="@Model.ItemCode" />
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-lg-4">
+                <label class="text-dark form-label font-weight-bold font-18">Apoyos:</label>
+                <input class="form-control border-success" type="search" id="Apoyos" list="listaApoyos" />
+                <datalist id="listaApoyos">
+                    @foreach (Usuario_E obj in u)
+                    {
+                        <option value="@obj.Prefijo@obj.Id" nombre="@obj.Nombres  @obj.Apellidos">@obj.Nombres  @obj.Apellidos</option>
+                    }
+                </datalist>
+            </div>
+
+            <div class="col-lg-6">
+                <label class="text-dark form-label font-weight-bold font-18">ObsApoyo:</label>
+                <div class="d-flex ">
+                    <input class="form-control border-success" id="ObsApoyo" type="text" value="" autocomplete="off" />
+                    @if (Model.DetFases.Count <= 4)
+                    {
+                        <button type="button" class="btn btn-info" onclick="llenarTabla('Apoyos');"><i class="icon-plus"></i> Agregar</button>
+                    }
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-lg-8">
+                <table id="DetallesAnalisisConteo" class="table table-hover table-sm ">
+                    <thead class="bg-success">
+                        <tr>
+                            <th class="text-center">Usuario</th>
+                            <th class="text-center">Nombre</th>
+                            <th class="text-center">Observacion</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-light">
+                        @if (Model.DetFases.Count > 4 && Model.DetFases[4].DetApoyos.Count > 0)
+                        {
+                            foreach (IAR11_E obj in Model.DetFases[4].DetApoyos)
+                            {
+                                <tr>
+                                    <td>@obj.Id</td>
+                                    <td>@obj.Nombre</td>
+                                    <td>@obj.ObsApoyo</td>
+                                    <td></td>
+                                </tr>
+
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-lg-6">
+                <button id="accion" type="button" class="btn btn-success" onclick="validaInicioAnalisisConteo();"><i class="icon-checkmark"></i> Iniciar Análisis</button>
+                <button id="accion" type="button" class="btn btn-danger" onclick=" validaRevertirInicioAnalisisConteo();"><i class="icon-undo"></i> RevertirInicio Análisis</button>
+            </div>
+
+        </div>
+    </div>
+}
+
+

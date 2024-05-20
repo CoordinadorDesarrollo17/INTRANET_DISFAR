@@ -1,0 +1,75 @@
+﻿
+@{
+    ViewBag.Title = "Sesion";
+    Layout = "~/Views/Shared/_Layout2.cshtml";
+}
+
+    <div class="container-body justify-content-center">
+        <div class="container-fluid" style="box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;">
+            <div class="row bg-cobefar">
+                <div class="col-lg-4 align-self-center">
+                    <div class="p-3">
+                        <img src="~/Content/img/logo-cobefar.png" height="50">
+                    </div>
+                </div>
+                
+                <div class="col-lg-8 d-flex align-self-center  justify-content-end ">
+                    <div class="align-self-center  justify-content-end mr-2 mb-0 mt-4">
+                        <p class="font-14 text-white">Bienvenido(a): <span class="font-weight-bold font-14">@ViewBag.NOMBRE</span></p>
+                    </div>
+
+                    <div class="align-self-center  justify-content-end mt-2">
+                        <a class="text-white font-weight-bold" href="@Url.Action("LogOut", "Index")" title="Cerrar Sesión"><i class="icon-exit font-24"></i></a>
+                    </div>
+                    <a class="navbar-brand">
+                    </a>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon text-white d-block d-sm-block d-md-block d-lg-none d-xl-none"><i class="icon-list"></i></span>
+                    </button>
+                </div>
+
+               
+                
+            </div>
+
+            <div class="row bg-white">
+                <nav class="navbar navbar-expand-lg">
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav mr-auto">
+                            @foreach (var area in ViewBag.AREAS)
+                            {
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="icon-menu"></i> @area.descripcion
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                        @foreach (var subArea in ViewBag.AREASFC)
+                                        {
+                                            if (subArea.id == area.id)
+                                            {
+                                                if (subArea.id == 6 && subArea.linea == 13)
+                                                {
+                                                    if (ViewBag.IDROL == 1 || ViewBag.IDROL == 3)
+                                                    {
+                                                        <a class="dropdown-item" href="@subArea.accion"><i class="icon-arrow-right2"></i> @subArea.subproceso</a>
+                                                    }
+                                                }
+                                                else
+                                                {<a class="dropdown-item" href="@subArea.accion"><i class="icon-arrow-right2"></i> @subArea.subproceso</a>
+                                            }
+                                        }
+                                    }
+                                    </div>
+                                </li>
+                            }
+
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+            
+        </div>
+        
+        
+ </div>

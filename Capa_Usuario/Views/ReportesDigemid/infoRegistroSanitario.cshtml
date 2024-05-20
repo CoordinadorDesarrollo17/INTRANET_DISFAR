@@ -1,0 +1,79 @@
+@{
+    Layout = null;
+}
+
+<div class="container" style="padding: 2%; background-color: rgb(220, 220, 220);">
+    <h3 class="text-cobefar font-weight-bold text-center">REGISTROS SANITARIOS: Criterios de Selección</h3>
+
+    <form id="frm">
+        <div class="row mt-4">
+            <div class="col-lg-5">
+                <label class="text-dark font-weight-bold font-18">Laboratorio:</label>
+                <input type="search" id="Laboratorio" name="Laboratorio" class="form-control border-success text-center" list="ListaLaboratorios" onchange="obtenerArticulos(this.value)" />
+            </div>
+
+            <div class="col-lg-7">
+                <label class="text-dark font-weight-bold font-18">Producto:</label>
+                <input type="hidden" id="CodArticulo" name="CodArticulo" />
+                <input type="search" id="DescArticulo" list="ListaProductos" class="form-control border-success text-center" autocomplete="off" onchange="obtenerItemCode(this.value, 'CodArticulo')">
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-4">
+                <button type="button" class="btn btn-success" onclick="exportarExcel()"><i class="icon-checkmark"></i> Generar</button>
+            </div>
+        </div>
+
+    </form>
+</div>
+
+<div id="dvListaProductos">
+    <datalist id="ListaProductos">
+    </datalist>
+</div>
+
+<script>
+    function obtenerArticulos(lab) {
+        $('#CodArticulo').val('');
+        $('#DescArticulo').val('');
+
+        if (lab != '') {
+            let firmCode = $(`#ListaLaboratorios option[value='${lab}']`).attr("firmcode");
+            $('#dvListaProductos').html('');
+
+            Swal.fire({
+                html: '<img src="/imagenes/index/ReportesDigemid/cargando.gif" />',
+                //closeOnCancel: false,
+                allowOutsideClick: false,
+                showCancelButton: false,
+                showConfirmButton: false
+            });
+
+            $.ajax('/ReportesDigemid/ListaProductosAuditoria',
+                {
+                    data: { "FirmCode": firmCode },
+                    dataType: 'html',
+                    cache: false,
+                    type: 'post',
+                }).done(function (response) {
+                    swal.close();
+                    if (response != '') { $('#dvListaProductos').html(response); } else { $('#dvListaProductos').html(''); }
+                });
+        } else { Swal.fire('Por favor escoger un laboratorio'); }
+    }
+
+    function obtenerItemCode(itemName, idArticulo) {
+        let itemCode = $(`#ListaProductos option[value='${itemName}']`).attr("itemcode");
+        $('#' + idArticulo).val(itemCode);
+    }
+
+    function exportarExcel() {
+        let lab = $('#Laboratorio').val();
+
+        if (lab != '') {
+            let firmCode = $(`#ListaLaboratorios option[value='${lab}']`).attr("firmcode");
+            $(location).attr('href', `/ReportesDigemid/RptExcelRegistroSanitario?CodArticulo=` + $('#CodArticulo').val() + `&FirmCode=${firmCode}`);
+        } else { Swal.fire('Por favor escoger un laboratorio'); }
+    }
+</script>
