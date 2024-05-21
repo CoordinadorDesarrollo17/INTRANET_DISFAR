@@ -8,7 +8,7 @@
     //bool verPagosParciales =  (decimal)ViewBag.TotalPagosParciales > 0 && ViewBag.EstadoContraEntrega == "CUADRADO" || (ViewBag.TipoPago == "PMI" && (ViewBag.EstadoContraEntrega == "VALIDADO" || ViewBag.EstadoContraEntrega == "AUTORIZADO")) || (ViewBag.TipoPago == "SP" && ViewBag.EstadoContraEntrega == "AUTORIZADO");
     bool verPagosParciales = ((decimal)ViewBag.MontoRecibidoEfectivo + (decimal)ViewBag.MontoRecibidoDeposito + (decimal)ViewBag.TotalPagosParciales < Model.MontoFinal) || (decimal)ViewBag.TotalPagosParciales > 0;
     bool permisoCaja = ViewBag.IdRol == 1 || ViewBag.IdRol == 8 || ViewBag.IdRol == 9;
-    bool verBotonesPagarAnular = ViewBag.TipoPago == "PCE" || ((ViewBag.TipoPago == "SP" || ViewBag.TipoPago == "PMI") && ViewBag.EstadoContraEntrega == "AUTORIZADO") || ((ViewBag.TipoPago == "PCD" || ViewBag.TipoPago == "PMI") && ViewBag.EstadoContraEntrega == "VALIDADO");
+    bool verBotonesPagarAnular = ViewBag.TipoPago == "PCE" || ((ViewBag.TipoPago == "SP" || ViewBag.TipoPago == "PCD" || ViewBag.TipoPago == "PMI") && ViewBag.EstadoContraEntrega == "AUTORIZADO") || ((ViewBag.TipoPago == "PCD" || ViewBag.TipoPago == "PMI") && ViewBag.EstadoContraEntrega == "VALIDADO");
 }
 
 <style>
