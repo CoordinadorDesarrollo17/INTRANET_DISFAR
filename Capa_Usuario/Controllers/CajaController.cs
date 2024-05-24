@@ -132,7 +132,7 @@ namespace Capa_Usuario.Controllers
                 catch (Exception e)
                 {
                     ViewBag.Mensaje = e.Message;
-                    return RedirectToAction("PagarTicketVenta", new { DocEntry = ticket.DocEntry, Mensaje = ViewBag.Mensaje });
+                    return RedirectToAction("PagarTicketVenta", new { DocEntry = DocEntryTicket, Mensaje = ViewBag.Mensaje });
                 }
             }
             else if (acceso == "E_Login")
