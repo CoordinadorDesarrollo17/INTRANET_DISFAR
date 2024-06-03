@@ -5,6 +5,7 @@ using Capa_Datos.SocioNegocios_DAO.Tablas;
 using System.Data.SqlClient;
 using System.Collections.Generic;
 using System.Linq;
+using Capa_Negocio.Seguridad_NEG;
 
 namespace Capa_Usuario
 {
@@ -16,6 +17,7 @@ namespace Capa_Usuario
         public void StartAsync()
         {
             _timer = new Timer(migracion, null, TimeSpan.Zero, TimeSpan.FromDays(1));
+            _timer = new Timer(inactivarUsuario, null, TimeSpan.Zero, TimeSpan.FromDays(2));
             _timer = new Timer(cambiarEstadoNCAplicada, null, TimeSpan.Zero, TimeSpan.FromDays(1));
         }
 
@@ -29,6 +31,15 @@ namespace Capa_Usuario
             OCRD_D ocrdD = new OCRD_D();
             ocrdD.Migrar();
         }
+         public void inactivarUsuario(object state)
+        {
+            Usuario_N ousrN = new Usuario_N();
+            var listaUsuariosActivos = ousrN.ListaUsuarios(new Capa_Entidad.Seguridad_ENT.Usuario_E { Activo=1});
+            foreach (var f in listaUsuariosActivos) { 
+                if (f.DiferenciaDias > 30) { ousrN.Inactivar(f); }
+            }
+        }
+        
         public void cambiarEstadoNCAplicada(object state)
         {
             if (DateTime.Now.Hour == 1 && DateTime.Now.Minute == 0)

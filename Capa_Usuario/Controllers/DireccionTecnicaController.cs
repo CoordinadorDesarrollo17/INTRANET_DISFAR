@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
+using System.Web.Services.Description;
 
 namespace Capa_Usuario.Controllers
 {
@@ -267,6 +268,30 @@ namespace Capa_Usuario.Controllers
                     break;
             }
             return Json(mensaje);
+
+        }
+        public JsonResult DetalleCalculadoraPdf(int opcion, string Fecha, string U_SYP_STATUS, string U_COB_LUGAREN, string TipoComprobante)
+        {
+            List<(string,int)> resultado = new List<(string, int)>() ; 
+            OINV_N oinv = new OINV_N(); OWTR_N owtr = new OWTR_N(); ODLN_N odln = new ODLN_N();
+            switch (opcion)
+            {
+                case 1:
+                    resultado = owtr.DetalleCalculadoraPdf(Fecha, U_SYP_STATUS, U_COB_LUGAREN);
+                    break;
+                case 2:
+                    resultado = oinv.DetalleCalculadoraPdfOINV(Fecha, U_SYP_STATUS, U_COB_LUGAREN, TipoComprobante);
+                    break;
+                case 3:
+                    resultado = owtr.DetalleCalculadoraPdfOWTR(Fecha, U_SYP_STATUS, U_COB_LUGAREN);
+                    break;
+                    
+                case 4:
+                    resultado = odln.DetalleCalculadoraPdf(Fecha, U_SYP_STATUS, U_COB_LUGAREN);
+                    break;
+
+            }
+            return Json(resultado);
 
         }
         public ActionResult frmActaRecepcion()

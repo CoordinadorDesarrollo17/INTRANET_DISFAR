@@ -1,9 +1,13 @@
 ﻿using Capa_Entidad.Almacen_ENT.Tablas;
 using Capa_Entidad.Rutas_ENT.TablasSql;
 using Capa_Entidad.Ventas_ENT.Tablas;
+using DocumentFormat.OpenXml.Office2013.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Wordprocessing;
 using Sap.Data.Hana;
 using System;
 using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace Capa_Datos.Ventas_DAO.Tablas
 {
@@ -236,5 +240,51 @@ namespace Capa_Datos.Ventas_DAO.Tablas
             catch { }
             return doc;
         }
+        public List<(string, int)> DetalleCalculadoraPdf(string Fecha, string U_SYP_STATUS, string U_COB_LUGAREN)
+        {
+            List<(string, int)> detalles = new List<(string, int)>();
+            string filtros = string.Empty;
+
+            if (!string.IsNullOrEmpty(Fecha))
+            {
+                filtros += " and \"U_BPP_FECINITRA\"='" + Fecha + "'";
+            }
+            if (!string.IsNullOrEmpty(U_SYP_STATUS))
+            {
+                if (U_SYP_STATUS == "V")
+                {
+                    filtros += " and \"CANCELED\"='N'";
+                }
+                filtros += " and \"U_SYP_STATUS\"='" + U_SYP_STATUS + "'";
+            }
+            if (!string.IsNullOrEmpty(U_COB_LUGAREN))
+            {
+                filtros += " and \"U_COB_LUGAREN\"='" + U_COB_LUGAREN + "'";
+            }
+
+            string query = $"SELECT TO_CHAR(\"DocDate\", 'YYYY-MM-DD') AS \"FECHADOC\", COUNT(*) AS \"CANTIDAD\" FROM {uti.schemaHana}ODLN WHERE \"DocEntry\" > 0 {filtros} AND \"DocDate\" in (SELECT distinct \"DocDate\" FROM {uti.schemaHana}ODLN WHERE \"DocEntry\" > 0 {filtros} ) GROUP BY \"DocDate\" ORDER BY \"DocDate\" ASC";
+
+            try
+            {
+                HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
+
+                while (hdr.Read())
+                {
+                    if (!hdr.IsDBNull(0) && !hdr.IsDBNull(1))
+                    {
+                        detalles.Add((hdr.GetString(0), hdr.GetInt32(1)));
+                    }
+                }
+
+                hdr.Close();
+            }
+            catch (Exception ex)
+            {
+                // Manejar la excepción de manera adecuada
+            }
+
+            return detalles;
+        }
+
     }
 }

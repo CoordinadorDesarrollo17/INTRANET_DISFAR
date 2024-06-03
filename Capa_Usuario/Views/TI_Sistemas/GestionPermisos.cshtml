@@ -13,7 +13,7 @@
         var object = $("#frm").serialize();
         $(location).attr('href', "/TI_Sistemas/GestionPermisos?" + object);
     }
-    function eliminar(DocEntry) {
+    function inactivar(DocEntry) {
         Swal.fire({
             title: '¿Está seguro(a) de inactivar este usuario?',
             text: "Este usuario ya no podrá acceder a la INTRANET",
@@ -27,7 +27,7 @@
         }).then(result => {
             if (result.value) {
                 var parametros = { "DocEntry": DocEntry };
-                $.ajax('/TI_Sistemas/EliminarUsuario',
+                $.ajax('/TI_Sistemas/InactivarUsuario',
                     {
                         data: parametros,
                         dataType: 'json',
@@ -114,7 +114,7 @@
                                 <a href="@Url.Action("EditarUsuario", "TI_Sistemas", new { DocEntry = item.DocEntry } )" class="btn btn-sm btn-info">
                                     <i class="icon icon-pencil"></i> Editar
                                 </a>
-                                <button type="button" onclick="eliminar('@item.DocEntry');" class="btn btn-sm btn-danger">
+                                <button type="button" onclick="inactivar('@item.DocEntry');" class="btn btn-sm btn-danger">
                                     <i class="icon icon-blocked"></i> Inactivar
                                 </button>
                             }

@@ -1,6 +1,8 @@
 ﻿using Capa_Datos.Almacen_DAO.Tablas;
 using Capa_Entidad.Almacen_ENT.Tablas;
 using Capa_Entidad.Rutas_ENT.TablasSql;
+using Sap.Data.Hana;
+using System;
 using System.Collections.Generic;
 
 namespace Capa_Negocio.Almacen_NEG.Tablas
@@ -27,6 +29,16 @@ namespace Capa_Negocio.Almacen_NEG.Tablas
         public string CalcularPdfsActaDespachoOWTR(string Fecha, string U_SYP_STATUS, string U_COB_LUGAREN)
         {
             return oD.CalcularPdfsActaDespachoOWTR(Fecha, U_SYP_STATUS, U_COB_LUGAREN);
+        }
+        public List<(string, int)> DetalleCalculadoraPdf(string Fecha, string U_SYP_STATUS, string U_COB_LUGAREN)
+        {
+            
+            return oD.DetalleCalculadoraPdf(Fecha,U_SYP_STATUS,U_COB_LUGAREN);
+        }
+        public List<(string, int)> DetalleCalculadoraPdfOWTR(string Fecha, string U_SYP_STATUS, string U_COB_LUGAREN)
+        {
+
+            return oD.DetalleCalculadoraPdfOWTR(Fecha, U_SYP_STATUS, U_COB_LUGAREN);
         }
         public List<TEMP_RRU01_E> GuiasRemisionSap(int DocNum, string WhsCode)
         {

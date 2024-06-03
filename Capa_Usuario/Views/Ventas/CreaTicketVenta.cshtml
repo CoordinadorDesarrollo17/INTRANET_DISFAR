@@ -46,12 +46,11 @@
         }
          
     });
-
+    
     if ('@ViewBag.Mensaje' != "") {
         Swal.fire('@ViewBag.Mensaje');
     }
-
-
+    
     //Habilitacion de pestañas, solo se usa para crear
     function determinarCamposTab(id, tipoCampo, mensaje) {
         let result = true;
@@ -275,7 +274,7 @@
                 });
             });
     }
-    /***************************envio de formulario (solo para crear) ********************/
+    /***************************envio de formulario  ********************/
     function enviarFormulario() {
         var tipoVenta = $("#TipoVenta").val();
         var lugarDestino = $("#LugarDestino").val();
@@ -389,6 +388,13 @@
                                 <option value="ContraEntrega" @{ if (Model.TipoVenta == "ContraEntrega") { Write("selected"); } }>ContraEntrega</option>
                             </select>
                         </div>
+                        <div class="col-lg-2">
+                            <label for="Presupuesto" class="text-dark form-label font-weight-bold font-18">Presupuesto:</label>
+                            <select name="Visible" id="Visible" class="form-control bg-cobefar text-white">
+                                <option value="SI" @{ if (Model.Visible == "SI") { Write("selected"); } }>NO</option>
+                                <option value="NO" @{ if (Model.Visible == "NO") { Write("selected"); } }>SI</option>
+                            </select>
+                        </div>
                         <div class="col-lg-2" id="div_FormaPago">
                             <label class="text-dark font-weight-bold font-18">Forma de Pago:</label>
                             <select class="form-control bg-cobefar text-white" name="FormaPago" id="FormaPago">
@@ -399,7 +405,7 @@
                             </select>
                         </div>
 
-                        <div class="col-lg-3">
+                        <div class="col-lg-2">
                             <label for="Embalaje" class="text-dark form-label font-weight-bold font-18">Embalaje:</label>
                             <select name="Embalaje" id="Embalaje" class="form-control  bg-cobefar text-white">
                                 <option value="">Seleccione</option>
@@ -408,7 +414,7 @@
                             </select>
                         </div>
 
-                        <div class="col-lg-3">
+                        <div class="col-lg-2">
                             <label for="DocNum" class="text-dark form-label font-weight-bold font-18">DocNum Ticket:</label>
                             <input type="text" id="DocNum" name="DocNum" value="@Model.DocNum" class="txt-validacion form-control text-center border-success" readonly />
                         </div>
@@ -695,7 +701,7 @@
 
                         <div class="col-lg-3">
                             <label for="DeudaEmpresa" class="text-dark form-label font-weight-bold font-18">Deuda de Empresa:</label>
-                            <div id="infoDeudaEmpresa">@Html.EditorFor(model => model.DeudaEmpresa, new { htmlAttributes = new { @class = "form-control border-success", @onchange = "validacionVerificarMontos('');", @readonly = "true" } })</div>
+                            <div id="infoDeudaEmpresa">@Html.EditorFor(model => model.DeudaEmpresa, new { htmlAttributes = new { @class = "form-control border-success", @onchange = "validacionVerificarMontos('');" } })</div>
                         </div>
 
                     </div><!-- FIN ROW -->
@@ -767,7 +773,6 @@
 
                     <div class="row mt-4">
                         <div class="col-lg-6">
-                            <button type="button" id="Registar" class="btn btn-success" onclick="enviarFormulario();"><i class="icon icon-plus"></i> Registrar</button>
                             <button type="button" id="Verificar" class="btn btn-primary"><i class="icon icon-clipboard"></i> Verificar Datos</button>
                         </div>
                     </div>

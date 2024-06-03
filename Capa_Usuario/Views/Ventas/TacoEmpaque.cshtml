@@ -2,23 +2,6 @@
 
 @{
     Layout = null;
-    /*
-    string styleBgTicket = string.Empty;
-
-
-    if (Model.LugarDestino == "Arriola")
-    {
-        styleBgTicket = "#FF6800";        // naranja
-    }
-    else if (Model.LugarDestino == "Centro")
-    {
-        styleBgTicket = "#0AC5EA";        // celeste
-    }
-    else if (Model.LugarDestino == "Domicilio" || Model.LugarDestino == "Agencia" || Model.LugarDestino == "Agencia Courier")
-    {
-        styleBgTicket = "#F7F30E";        // amarillo
-    }
-    */
 
     string tipoEntrega = string.Empty;
     if (Model != null && Model.LugarDestino == "Arriola")
@@ -52,7 +35,11 @@
         }
 
         tr, td, font, span {
-            font-family: Arial;
+            font-family: Verdana;
+            
+        }
+        td {
+            padding: 3px;
         }
 
         .v-top {
@@ -63,34 +50,31 @@
 
 <body>
     <div id='c_tablas' style='float: left;  background: white; width:100%;'>
-        <table border="1" cellspacing="0" width="100%" style="background-color:@ViewBag.ColorTabla;">
+        <table border="1" cellspacing="0" width="100%" >
             <tr>
-                <td colspan="7"><img width="100" src='/imagenes/logoventa2.jpg' /></td>
+                <td colspan="7" style="text-align:center"><img width="120" height="40" src='/imagenes/logoventa2.jpg' /></td>
                 <td colspan="5" class="text-center"><font size="@ViewBag.Letra" px><strong>ANEXO-008-03</strong></font></td>
             </tr>
             @*<tr style="background-color: @styleBgTicket">*@
             <tr>
                 <td colspan="12">
-                    <span><strong>Nro. Ticket: </strong>@Html.DisplayFor(model => model.DocNum)</span>
+                    <span><strong>Nro. Ticket: </strong></span><span style="font-weight: bold; text-align: center;font-size:23px">@Html.DisplayFor(model => model.DocNum)</span>
                 </td>
             </tr>
             @*<tr style="background-color: @styleBgTicket">*@
             <tr>
-                <td colspan="12" height="30px">
-                    <span><strong>@Html.DisplayNameFor(model => model.CardName): </strong>@Html.DisplayFor(model => model.CardName)</span>
+                <td colspan="12" height="40px">
+                    <strong>Cliente: </strong><span style="font-weight: bold; font-size: 18px">@Html.DisplayFor(model => model.CardName)</span>
                 </td>
             </tr>
             <tr>
                 <td colspan="8" rowspan="2" height="20" width="100%" class="v-top">
-                    <span>
-                        <strong>
-                            Documentos: <br />@ViewBag.Guias
-                        </strong>
+                    <span style="font-weight:600;">
+                       Documentos: <br />@ViewBag.Guias
                     </span>
                 </td>
                 <td colspan="4">
-                    @*<td colspan="4" style="background-color: @styleBgTicket">*@
-                    <span><strong>@Html.DisplayNameFor(model => model.MontoTotal):</strong><br /> S/ @Html.DisplayFor(model => model.MontoTotal)</span>
+                    <span><strong>@Html.DisplayNameFor(model => model.MontoTotal):</strong><br /></span> <span style="font-weight: bold; text-align: center;font-size:18px">S/ @Html.DisplayFor(model => model.MontoTotal)</span>
                 </td>
             </tr>
             <tr>
@@ -178,7 +162,7 @@
                     <br />@subH[1]
                 </td>
                 <td colspan="4" class="text-center v-top"  style="border-top-style: hidden;">
-                    <span style="font-weight: bold; text-align: center">@Html.DisplayFor(model => model.Cajas)</span>
+                    <span style="font-weight: bold; text-align: center;font-size:20px">@Html.DisplayFor(model => model.Cajas)</span>
                 </td>
             </tr>
 

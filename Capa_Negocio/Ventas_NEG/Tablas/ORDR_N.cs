@@ -15,5 +15,10 @@ namespace Capa_Negocio.Ventas_NEG.Tablas
         {
             return oD.listadoOrdenesDeVenta(fo);
         }
+        public ORDR_E obtenerOrdenDeVenta(int DocNum)
+        {
+            return oD.obtenerOrdenDeVenta(DocNum);
+        }
+        
     }
 }

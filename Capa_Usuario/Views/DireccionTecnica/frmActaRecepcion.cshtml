@@ -5,16 +5,51 @@
 <script>
     function calcular() {
         var parametros = $("#frm").serialize();
-        $.ajax('/DireccionTecnica/CalculadoraPdfXampp',
-            {
-                data: parametros,
-                dataType: 'json',
-                cache: false,
-                type: 'post'
-            })
-            .done(function (response) {
-                Swal.fire(response);
+        // Primera solicitud AJAX para traer la cantidad total de documentos a descargar
+        var request1 = $.ajax('/DireccionTecnica/CalculadoraPdfXampp', {
+            data: parametros,
+            dataType: 'json',
+            cache: false,
+            type: 'post'
+        });
+
+        // Segunda solicitud AJAX para traer el detallado en forma de tabla sobre las fechas y cantidades que contienen ese documento
+        var request2 = $.ajax('/DireccionTecnica/DetalleCalculadoraPdf', {
+            data: parametros,
+            dataType: 'json',
+            cache: false,
+            type: 'post'
+        });
+
+        $.when(request1, request2).done(function (response1, response2) {
+            var mensaje = "PDF's en total: " + response1[0] + "\n\n";
+            var tablaHTML = "";
+            if (response2[0].length > 0) {
+                tablaHTML += "<table style='width: 100%; border-collapse: collapse;' border=1>";
+                tablaHTML += "<thead>";
+                tablaHTML += "<tr style='background-color: #2E7D32; color: #FFFFFF; text-align: center;'>";
+                tablaHTML += "<th style='padding: 8px;'>FechaDoc</th>";
+                tablaHTML += "<th style='padding: 8px;'>Cantidad</th>";
+                tablaHTML += "</tr>";
+                tablaHTML += "</thead>";
+                tablaHTML += "<tbody>";
+
+                $.each(response2[0], function (index, item) {
+                    tablaHTML += "<tr style='text-align: center;'>";
+                    tablaHTML += "<td style='padding: 8px;'>" + item.Item1 + "</td>";
+                    tablaHTML += "<td style='padding: 8px;'>" + item.Item2 + "</td>";
+                    tablaHTML += "</tr>";
+                });
+
+                tablaHTML += "</tbody>";
+                tablaHTML += "</table>";
+            }
+            mensaje += "</br></br>" + tablaHTML;
+
+            Swal.fire({
+                html: mensaje
             });
+        });
     }
 </script>
 

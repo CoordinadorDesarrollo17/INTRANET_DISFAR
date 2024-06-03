@@ -453,7 +453,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                                             OR (TC.MontoRecibidoEfectivo + TC.MontoRecibidoDeposito < VT.MontoFinal AND TC.MontoRecibidoDeposito > 0 AND TC.TipoPago = 'PMI' AND TC.Estado = 'VALIDADO') 
                                             OR (TC.MontoRecibidoEfectivo + TC.MontoRecibidoDeposito < VT.MontoFinal AND TC.MontoRecibidoEfectivo > 0 AND TC.TipoPago = 'PMI' AND TC.Estado = 'PENDIENTE')
 	                                        , 'PENDIENTE', '') = 'PENDIENTE'
-	                                    AND TC.Estado NOT IN ('AUTORIZADO', 'ANULADO', 'CUADRADO')";
+	                                    AND TC.Estado NOT IN ('AUTORIZADO', 'ANULADO', 'CUADRADO','RECHAZADO')";
 
                     using (SqlCommand cmd = new SqlCommand(query, cn))
                     {

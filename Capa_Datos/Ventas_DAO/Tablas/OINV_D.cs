@@ -263,95 +263,6 @@ namespace Capa_Datos.Ventas_DAO.Tablas
             catch { cn.Close(); }
             return guias;
         }
-        public string CalcularPdfsActaDespachoOINV(string Fecha, string U_SYP_STATUS, string U_COB_LUGAREN, string TipoComprobante)
-        {
-            string doc = string.Empty;
-            string filtros = string.Empty;
-
-            if (!string.IsNullOrEmpty(Fecha))
-            {
-                filtros += " and (\"DocDate\"='" + Fecha + "' or \"U_BPP_FECINITRA\"='" + Fecha + "')";
-            }
-            if (!string.IsNullOrEmpty(U_SYP_STATUS))
-            {
-                if (U_SYP_STATUS == "V") { filtros += " and \"CANCELED\"='N'"; }
-                filtros += " and \"U_SYP_STATUS\"='" + U_SYP_STATUS + "'";
-            }
-            if (!string.IsNullOrEmpty(U_COB_LUGAREN))
-            {
-                filtros += " and \"U_COB_LUGAREN\"='" + U_COB_LUGAREN + "'";
-            }
-            /*
-            if(TieneGuia!=null && TieneGuia!="")
-            {
-                if (TieneGuia.Equals("Si")) { filtros += " and \"U_COB_CORDOC\" is not null"; }
-                if (TieneGuia.Equals("No")) { filtros += " and \"U_COB_CORDOC\" is null"; }
-            }*/
-            if (!string.IsNullOrEmpty(TipoComprobante))
-            {
-                filtros += " and \"Series\" in(select \"Series\" from " + uti.schemaHana + "nnm1 where \"SeriesName\" like '" + TipoComprobante + "V%')";
-            }
-            string query = "select \"DocDate\", \"U_BPP_FECINITRA\"  from " + uti.schemaHana + " OINV where \"DocEntry\">0 " + filtros;
-            try
-            {
-                HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
-                List<OINV_E> lis = new List<OINV_E>();
-                while (hdr.Read())
-                {
-                    OINV_E o = new OINV_E();
-                    o.DocDate = hdr.GetDateTime(0).ToString("yyyy-MM-dd");
-                    if (!hdr.IsDBNull(1)) { o.U_BPP_FECINITRA = hdr.GetDateTime(1).ToString("yyyy-MM-dd"); }
-                    lis.Add(o);
-                }
-                int total = 0;
-                if (lis.Count > 0)
-                {
-                    foreach (var item in lis)
-                    { if (string.IsNullOrEmpty(item.U_BPP_FECINITRA)) { item.U_BPP_FECINITRA = Fecha; } }
-                }
-                total = lis.Where(x => x.U_BPP_FECINITRA == Fecha).Count();
-                doc = "Son " + total + " Documentos";
-                hdr.Close();
-            }
-            catch { }
-            return doc;
-        }
-        public string CalcularPdfsDescarga(string DocDate, string U_SYP_STATUS, string U_COB_LUGAREN, string TieneGuia, string TipoComprobante)
-        {
-            string doc = "";
-            string filtros = "";
-            if (DocDate != null && DocDate != "")
-            {
-                filtros += " and \"DocDate\"='" + DocDate + "'";
-            }
-            if (U_SYP_STATUS != null && U_SYP_STATUS != "")
-            {
-                filtros += " and \"U_SYP_STATUS\"='" + U_SYP_STATUS + "'";
-            }
-            if (U_COB_LUGAREN != null && U_COB_LUGAREN != "")
-            {
-                filtros += " and \"U_COB_LUGAREN\"='" + U_COB_LUGAREN + "'";
-            }
-            if (TieneGuia != null && TieneGuia != "")
-            {
-                if (TieneGuia.Equals("Si")) { filtros += " and \"U_COB_CORDOC\" is not null"; }
-                if (TieneGuia.Equals("No")) { filtros += " and \"U_COB_CORDOC\" is null"; }
-            }
-            if (TipoComprobante != null && TipoComprobante != "")
-            {
-                filtros += " and \"Series\" in(select \"Series\" from " + uti.schemaHana + "nnm1 where \"SeriesName\" like '" + TipoComprobante + "V%')";
-            }
-            string query = "select count(*) from " + uti.schemaHana + "oinv where \"DocEntry\">0 " + filtros;
-            try
-            {
-                HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
-                hdr.Read();
-                doc = "Son " + hdr.GetInt32(0) + " Documentos";
-                hdr.Close();
-            }
-            catch { }
-            return doc;
-        }
         public List<ComprobanteDePago_E> buscarFacturaBoletaSap(string NumAtCard)
         {
             List<ComprobanteDePago_E> lista = new List<ComprobanteDePago_E>();
@@ -642,6 +553,129 @@ namespace Capa_Datos.Ventas_DAO.Tablas
             }
             catch { }
             return lista;
+        }
+        //public string CalcularPdfsDescarga(string DocDate, string U_SYP_STATUS, string U_COB_LUGAREN, string TieneGuia, string TipoComprobante)
+        //{
+        //    string doc = "";
+        //    string filtros = "";
+        //    if (DocDate != null && DocDate != "")
+        //    {
+        //        filtros += " and \"DocDate\"='" + DocDate + "'";
+        //    }
+        //    if (U_SYP_STATUS != null && U_SYP_STATUS != "")
+        //    {
+        //        filtros += " and \"U_SYP_STATUS\"='" + U_SYP_STATUS + "'";
+        //    }
+        //    if (U_COB_LUGAREN != null && U_COB_LUGAREN != "")
+        //    {
+        //        filtros += " and \"U_COB_LUGAREN\"='" + U_COB_LUGAREN + "'";
+        //    }
+        //    if (TieneGuia != null && TieneGuia != "")
+        //    {
+        //        if (TieneGuia.Equals("Si")) { filtros += " and \"U_COB_CORDOC\" is not null"; }
+        //        if (TieneGuia.Equals("No")) { filtros += " and \"U_COB_CORDOC\" is null"; }
+        //    }
+        //    if (TipoComprobante != null && TipoComprobante != "")
+        //    {
+        //        filtros += " and \"Series\" in(select \"Series\" from " + uti.schemaHana + "nnm1 where \"SeriesName\" like '" + TipoComprobante + "V%')";
+        //    }
+        //    string query = "select count(*) from " + uti.schemaHana + "oinv where \"DocEntry\">0 " + filtros;
+        //    try
+        //    {
+        //        HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
+        //        hdr.Read();
+        //        doc = "Son " + hdr.GetInt32(0) + " Documentos";
+        //        hdr.Close();
+        //    }
+        //    catch { }
+        //    return doc;
+        //}
+        public string CalcularPdfsActaDespachoOINV(string Fecha, string U_SYP_STATUS, string U_COB_LUGAREN, string TipoComprobante)
+        {
+            string doc = string.Empty; int total = 0;
+            string filtros = string.Empty;
+
+            if (!string.IsNullOrEmpty(Fecha))
+            {
+                filtros += " and (\"DocDate\"='" + Fecha + "' or \"U_BPP_FECINITRA\"='" + Fecha + "') AND COALESCE(\"U_BPP_FECINITRA\" , \"DocDate\")='" + Fecha + "'";
+            }
+            if (!string.IsNullOrEmpty(U_SYP_STATUS))
+            {
+                if (U_SYP_STATUS == "V") { filtros += " and \"CANCELED\"='N'"; }
+                filtros += " and \"U_SYP_STATUS\"='" + U_SYP_STATUS + "'";
+            }
+            if (!string.IsNullOrEmpty(U_COB_LUGAREN))
+            {
+                filtros += " and \"U_COB_LUGAREN\"='" + U_COB_LUGAREN + "'";
+            }
+            /*
+            if(TieneGuia!=null && TieneGuia!="")
+            {
+                if (TieneGuia.Equals("Si")) { filtros += " and \"U_COB_CORDOC\" is not null"; }
+                if (TieneGuia.Equals("No")) { filtros += " and \"U_COB_CORDOC\" is null"; }
+            }*/
+            if (!string.IsNullOrEmpty(TipoComprobante))
+            {
+                filtros += " and \"Series\" in(select \"Series\" from " + uti.schemaHana + "nnm1 where \"SeriesName\" like '" + TipoComprobante + "V%')";
+            }
+            string query = "select COUNT(*) from " + uti.schemaHana + " OINV where \"DocEntry\">0 " + filtros;
+            try
+            {
+                HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
+                hdr.Read();
+                doc = "Son " + hdr.GetInt32(0) + " Documentos";
+                hdr.Close();
+            }
+            catch { }
+            return doc;
+        }
+        public List<(string, int)> DetalleCalculadoraPdfOINV(string Fecha, string U_SYP_STATUS, string U_COB_LUGAREN, string TipoComprobante)
+        {
+            List<(string, int)> detalles = new List<(string, int)>();
+            string filtros = string.Empty;
+
+            if (!string.IsNullOrEmpty(Fecha))
+            {
+                filtros += " and (\"DocDate\"='" + Fecha + "' or \"U_BPP_FECINITRA\"='" + Fecha + "') AND COALESCE(\"U_BPP_FECINITRA\" , \"DocDate\")='" + Fecha + "'";
+            }
+            if (!string.IsNullOrEmpty(U_SYP_STATUS))
+            {
+                if (U_SYP_STATUS == "V")
+                {
+                    filtros += " and \"CANCELED\"='N'";
+                }
+                filtros += " and \"U_SYP_STATUS\"='" + U_SYP_STATUS + "'";
+            }
+            if (!string.IsNullOrEmpty(U_COB_LUGAREN))
+            {
+                filtros += " and \"U_COB_LUGAREN\"='" + U_COB_LUGAREN + "'";
+            }
+            if (!string.IsNullOrEmpty(TipoComprobante))
+            {
+                filtros += " and \"Series\" in(select \"Series\" from " + uti.schemaHana + "nnm1 where \"SeriesName\" like '" + TipoComprobante + "V%')";
+            }
+            string query = $"SELECT TO_CHAR(\"DocDate\", 'YYYY-MM-DD') AS \"FECHADOC\", COUNT(*) AS \"CANTIDAD\" FROM {uti.schemaHana}OINV WHERE \"DocEntry\" > 0 {filtros} AND \"DocDate\" in (SELECT distinct \"DocDate\" FROM {uti.schemaHana}OINV WHERE \"DocEntry\" > 0 {filtros} ) GROUP BY \"DocDate\" ORDER BY \"DocDate\" ASC";
+
+            try
+            {
+                HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
+
+                while (hdr.Read())
+                {
+                    if (!hdr.IsDBNull(0) && !hdr.IsDBNull(1))
+                    {
+                        detalles.Add((hdr.GetString(0), hdr.GetInt32(1)));
+                    }
+                }
+
+                hdr.Close();
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            return detalles;
         }
     }
 }

@@ -69,17 +69,44 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
             ORRU_E orruE = orruN.obtenerOrdenDeRuta(o.DocEntry);
             if (orruE.Estado != "CREADO") { throw new Exception("Solo puede agregar a documento CREADO"); }
             ORTV_N ortvN = new ORTV_N();
-            ORTV_E ortvE = ortvN.obtenerTicket(o.DocEntryTicket);
-            if (ortvE.LugarDestino.Equals("Agencia Courier") && orruE.TipoRuta.Equals("AC")) { if (ortvE.Estado != "PESADO") { throw new Exception("El ticket debe estar Pesado"); } }
+            ORTV_E t = ortvN.obtenerTicket(o.DocEntryTicket);
+            if (t.LugarDestino.Equals("Agencia Courier") && orruE.TipoRuta.Equals("AC")) { if (t.Estado != "PESADO") { throw new Exception("El ticket debe estar Pesado"); } }
             else
             {
-                if (ortvE.Estado != "EMPACADO" && ortvE.Estado != "PESADO") { throw new Exception("El ticket debe estar Empacado o Pesado"); }
+                if (t.Estado != "EMPACADO" && t.Estado != "PESADO") { throw new Exception("El ticket debe estar Empacado o Pesado"); }
             }
-            if (ortvE.LugarDestino.Equals("Agencia") || ortvE.LugarDestino.Equals("Agencia Courier") || ortvE.LugarDestino.Equals("Domicilio"))
+            if (t.LugarDestino.Equals("Agencia") || t.LugarDestino.Equals("Agencia Courier") || t.LugarDestino.Equals("Domicilio"))
             {
-                if (ortvE.TipoVenta == "Normal")
+                if (t.TipoVenta == "Normal")
                 {
-                    if (ortvE.EstadoPago != "PAGADO") { throw new Exception("El ticket normal de Agencia  o Domicilio debe estar pagado "); }
+                    if (t.EstadoPago != "PAGADO") { throw new Exception("El ticket normal de Agencia  o Domicilio debe estar pagado "); }
+                }
+            }
+            if (string.IsNullOrEmpty(t.EstadoFacturacion) || t.EstadoFacturacion.Equals("PENDIENTE")) { throw new Exception("El ticket no tiene guía emitida, retirar de la tabla."); }
+           
+            o.DocNumTicket = t.DocNum; o.Cajas = t.Cajas; o.Envio = t.GastoEnvio; o.MontoFinal = t.MontoFinal;o.Observaciones = t.Observaciones; o.Socio = t.CardName; o.Verificado = "on";
+            
+            if (t.Det3 != null)
+            {
+                if (t.Det3.Count >= 2)
+                {
+                    o.Direcciones = t.DirDestino + t.Det3[1].Calle;
+                }
+                else
+                {
+                    o.Direcciones = t.DirDestino;
+                }
+            }
+
+            if (string.IsNullOrEmpty(o.Guias))
+            {
+                throw new Exception("El ticket no tiene guias en linea " + o.Linea);
+            }
+            else
+            {
+                if (!Regex.IsMatch(o.Guias, @"\d"))
+                {
+                    throw new Exception("El ticket no tiene guias en linea " + o.Linea);
                 }
             }
             ////buscar vinculados solo en caso de Domicilio para validar que todos son enviados juntos en la misma hoja de ruta.
@@ -96,34 +123,6 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
             //        }
             //    }
             //}
-            o.DocNumTicket = ortvE.DocNum; o.Cajas = ortvE.Cajas; o.Envio = ortvE.GastoEnvio; o.MontoFinal = ortvE.MontoFinal;
-            o.Observaciones = ortvE.Observaciones; o.Verificado = "on";
-            o.Socio = ortvE.CardName;
-            if (ortvE.Det3 != null)
-            {
-                if (ortvE.Det3.Count >= 2)
-                {
-                    o.Direcciones = ortvE.DirDestino + ortvE.Det3[1].Calle;
-                }
-                else
-                {
-                    o.Direcciones = ortvE.DirDestino;
-                }
-
-            }
-
-            if (string.IsNullOrEmpty(o.Guias))
-            {
-                throw new Exception("El ticket no tiene guias en linea " + o.Linea);
-            }
-            else
-            {
-                if (!Regex.IsMatch(o.Guias, @"\d"))
-                {
-                    throw new Exception("El ticket no tiene guias en linea " + o.Linea);
-                }
-            }
-
             rru0D.agregarRRU0(o);
         }
         public RRU0_E buscarRRU0(int DocEntry, int Linea)

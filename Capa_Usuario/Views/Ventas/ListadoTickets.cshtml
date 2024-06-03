@@ -5,6 +5,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     var hoy = DateTime.Now;
     List<Usuario_E> u = (List<Usuario_E>)ViewBag.Vendedores;
+    Usuario_E usu = (Usuario_E)ViewBag.CodSapVendedor;
 }
 
 @section Styles{
@@ -26,7 +27,6 @@
         $(location).attr("href", "/Ventas/AnCtVentas?" + object);
     }
 </script>
-
 <div class="pt-4">
     <nav>
         <ol class="cd-breadcrumb bg-dark">
@@ -74,7 +74,7 @@
 
 <form name="frm" id="frm">
     <div class="bg-dark pt-4">
-        <table class="table table-light table-sm table-hover cls-dataTable50 border-success" cellspacing="0" width="100%">
+        <table class="table table-light table-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
             <thead class="thead-dark">
                 <tr>
                     <th class="text-center">
@@ -97,6 +97,9 @@
                         else
                         { <input type="date" name="FechaSapTicket" class="form-control input_date-filtro-table" style="width: 120px" onchange="filtrar();" />}
 
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.HoraRegistro)
                     </th>
                     <th>
                         @Html.DisplayNameFor(model => model.CardName)
@@ -127,9 +130,6 @@
                         }
                         else
                         { <input type="text" name="MontoFinal" class="form-control input_filtro-table" onchange="filtrar();" />}
-                    </th>
-                    <th class="text-center">
-                        @Html.DisplayNameFor(model => model.HoraRegistro)
                     </th>
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.LugarDestino)
@@ -199,30 +199,39 @@
             <tbody>
                 @foreach (var item in Model)
                 {
-                    <tr id="fila">
+                    string styleVisible = "";
+                    if (item.Visible.Equals("NO"))
+                    {
+                        styleVisible = "bg-skyblue";
+
+                    }
+                    <tr id="fila" class="@styleVisible">
                         <td class="text-center">
                             <div class="@if (ViewBag.DocNum == item.DocNum) { Write("bg-success"); }">@Html.DisplayFor(modelItem => item.DocNum)</div>
                         </td>
                         <td class="text-center">
                             @Html.DisplayFor(modelItem => item.FechaSapTicket)
                         </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.HoraRegistro)
+                        </td>
                         <td>
                             @if (!string.IsNullOrEmpty(item.CardName)) { Write(item.CardName); }
                         </td>
-                        <td>
+                        <td class="text-center">
                             @item.Vendedor
                         </td>
                         <td class="text-center">
                             @Html.DisplayFor(modelItem => item.MontoFinal)
                         </td>
                         <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.HoraRegistro)
-                        </td>
-                        <td class="text-center">
                             @Html.DisplayFor(modelItem => item.LugarDestino)
                         </td>
                         <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.Estado)
+                            @if (item.Visible != null && item.Visible.Equals("NO"))
+                            {<span>PRESUPUESTO</span> }
+                            else
+                            {@Html.DisplayFor(modelItem => item.Estado)}
                         </td>
                         <td class="text-center">
                             @Html.DisplayFor(modelItem => item.EstadoPago)
@@ -322,7 +331,16 @@
         </div>
     </div>
 </div>
+<style>
+    .alertify-notifier .ajs-message.ajs-success {
+        background-color: #6495ED;
+    }
+    .alertify-notifier .ajs-message.ajs-warning {
+        background-color: #FFD700;
+    }
 
+
+</style>
 <script>
     if ('@ViewBag.Mensaje' != "") {
         Swal.fire('@ViewBag.Mensaje');
@@ -354,35 +372,136 @@
 
 
     $(document).ready(function () {
+
         var consultarNuevasSolicitudes = function () {
+            alertify.set('notifier', 'position', 'top-right');
+            alertify.set('notifier', 'delay', 15);
             $.ajax({
                 url: '/Caja/ObtenerSolicitudesAutorizar',
                 type: 'POST',
                 dataType: 'json',
             }).done(function (response) {
+                var contador = 0;
                 if (response.Datos.length >= 1) {
-                    for (let indice in response.Datos) {
-                        //console.log(response.Datos[indice]);
-                        alertify.set('notifier', 'position', 'bottom-right');
-                        alertify.set('notifier', 'delay', 15);     // 15 seg
+                    response.Datos.forEach(function (solicitud) {
+                        if (contador < 7) {
 
-                        var msj = alertify.warning(`Ticket N° ${response.Datos[indice].DocNumTicket} pendiente a autorizar`);
+                            var mensaje = `<div style="font-size: 13px;margin: 0;padding:0;">
+                                            <div style="text-align:center;font-weigth:700">
+                                            <button class="btn btn-success" id="autorizar-${solicitud.DocNumTicket}" style="font-size: 12px; margin-left: 5px;  color: white; border: none; padding: 3px 8px; border-radius: 3px;"><i class="icon icon-search"></i></button>
+                                            Autorizar ticket N° ${solicitud.DocNumTicket}
+                                            </div>
+                                            </div>`;
+                            var msj = alertify.warning(mensaje);
 
-                        msj.callback = function (isClicked) {
-                            if (isClicked)
-                                window.open(`/Ventas/AutorizarTicketReparto?DocEntry=${response.Datos[indice].DocEntryTicket}&IdOTC=${response.Datos[indice].IdOTC}`, '_blank', 'width=1200,height=720,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');
-                        };
-                    }
+                            $(`#autorizar-${solicitud.DocNumTicket}`).on('click', function () {
+                                var url = `/Ventas/AutorizarTicketReparto?DocEntry=${solicitud.DocEntryTicket}&IdOTC=${solicitud.IdOTC}`;
+                                window.open(url, '_blank', 'width=1200,height=720,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');
+                            });
+                            $(`#cerrar-${solicitud.DocNumTicket}`).on('click', function () {
+                                msj.close();
+                            });
+                            contador++;
+                        } else {
+                            return false;
+                        }
+                    });
                 }
             }).fail(function (jqXHR, textStatus, errorThrown) {
                 console.log(jqXHR.status + textStatus + errorThrown);
             });
         }
 
-        // MANAGER - SVENTAS
-        if (@ViewBag.IdRol == 1 || @ViewBag.IdRol == 6) {
-            // Intervalo de 15 seg.  
-            setInterval(consultarNuevasSolicitudes, 15000);
+        var consultarPresupuestos = function () {
+            alertify.set('notifier', 'position', 'bottom-right');
+            alertify.set('notifier', 'delay', 15);
+
+            var docEntryUsuario = @ViewBag.DocEntryUsuario;
+            $.ajax({
+                url: '/Ventas/ListarTicketsNoVisiblesPagados',
+                type: 'POST',
+                dataType: 'json',
+                data: { DocEntryUsuario: docEntryUsuario }, 
+            }).done(function (response) {
+                var contador = 0;
+                if (response.Datos.length >= 1) {
+                    response.Datos.forEach(function (tk) {
+                        if (contador < 7) {
+                            var mensaje = `<div style="font-size: 13px;margin: 0;padding:0;">
+                            <div style="text-align:center;font-weigth:700:">
+                                    <button class="btn btn-success" id="ver-${tk.DocNum}" style="font-size: 12px; margin-left: 5px;  color: white; border: none; padding: 3px 8px; border-radius: 3px;"><i class="icon icon-search"></i></button>
+                                    Abrir Ticket N° ${tk.DocNum}
+                                    </div> 
+                               </div>`;
+                        var msj = alertify.success(mensaje);
+
+                        $(`#ver-${tk.DocNum}`).on('click', function () {
+
+                            var modalHtml = `
+                            <div class="modal fade" id="modal-${tk.DocNum}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="exampleModalLabel">Confirmación</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            ¿Desea que recepción visualice ticket Nro ${tk.DocNum}?
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" id="modal-si-button-${tk.DocNum}" class="btn btn-primary">Sí</button>
+                                            <button type="button" id="modal-no-button-${tk.DocNum}" class="btn btn-secondary" data-dismiss="modal">No</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>`;
+
+                            $('body').append(modalHtml);
+
+                            $('#modal-' + tk.DocNum).modal('show');
+
+                            $(document).on('click', `#modal-si-button-${tk.DocNum}`, function () {
+                                
+                                $.ajax({
+                                    url: '/Ventas/CambiarVisibleTicket?DocEntry=' + tk.DocEntry,
+                                    type: 'POST',
+                                    dataType: 'json'
+                                }).done(function (response) {
+                                    location.reload();
+                                }).fail(function (jqXHR, textStatus, errorThrown) {
+                                    console.log(jqXHR.status + textStatus + errorThrown);
+                                });
+
+                                $('#modal-' + tk.DocNum).modal('hide');
+                            });
+                            $(document).on('click', `#modal-no-button-${tk.DocNum}`, function () {
+                               
+                                $('#modal-' + tk.DocNum).modal('hide');
+                            });
+                        });
+                        $(`#cerrar2-${tk.DocNum}`).on('click', function () {
+                            msj.close();
+                        });
+                            contador++;
+                        } else {
+                            return false;
+                        }
+                    });
+                }
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR.status + textStatus + errorThrown);
+            });
+        }
+
+        // MANAGER - SVENTAS - VENTAS
+        if (@ViewBag.IdRol == 1 || @ViewBag.IdRol == 6 || @ViewBag.IdRol == 7) {
+            setInterval(consultarPresupuestos, 20000);
+            if (@ViewBag.IdRol == 1 || @ViewBag.IdRol == 6) {
+                setInterval(consultarNuevasSolicitudes, 20000);
+            }
+
         }
 
         });

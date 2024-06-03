@@ -20,12 +20,10 @@ namespace Capa_Negocio.Seguridad_NEG
         {
             return usuario_D.listaUsuariosPermisos(filtro, idRol);
         }
-
         public Dictionary<string, string> generarId(int idRol)
         {
             return usuario_D.generarId(idRol);
         }
-
         public Usuario_E buscarUsuario(int DocEntry)
         {
             return usuario_D.buscarUsuario(DocEntry);
@@ -61,9 +59,9 @@ namespace Capa_Negocio.Seguridad_NEG
         {
             return usuario_D.editarUsuario(u);
         }
-        public string eliminarUsuario(Usuario_E obj)
+        public string Inactivar(Usuario_E obj)
         {
-            return usuario_D.eliminarUsuario(obj);
+            return usuario_D.Inactivar(obj);
         }
         public Usuario_E BuscarDocEntryUsuario(string Usuario)
         {

@@ -126,7 +126,7 @@
                 </tr>
             </thead>
             <tbody class="text-dark">
-                @foreach (var item in Model.Where(x => x.Estado != "SEPARADO"))
+                @foreach (var item in Model.Where(x => x.Estado != "SEPARADO" && (x.Visible == "SI" || x.Visible == null)))
                 {
                     bool condIniPicking = false, condIniVerificar = false, condIniEmpacar = false, condIniPickingExc = false, condFinEmpacarExc = false,
                             condFinPicking = false, condFinVerificar = false, condFinEmpacar = false;

@@ -217,6 +217,7 @@
                 <select name="EstadoFacturacion" id="EstadoFacturacion" class="form-control  @bgEstadoFacturacion" onchange="filtrar();">
                     <option value="">EstadoFacturacion</option>
                     <option value="PENDIENTE" @{ if (e != null && e.EstadoFacturacion == "PENDIENTE") { Write("selected"); } }>PENDIENTE</option>
+                    <option value="GRE EMITIDA" @{ if (e != null && e.EstadoFacturacion == "GRE EMITIDA") { Write("selected"); }}>GRE EMITIDA</option>
                     <option value="FACTURADO" @{ if (e != null && e.EstadoFacturacion == "FACTURADO") { Write("selected"); }}>FACTURADO</option>
                 </select>
             </div>
@@ -295,6 +296,7 @@
                         else
                         { <input type="text" name="MontoFinal" class="form-control input_filtro-table" onchange="filtrar();" />}
                     </th>
+                    <th>DescNC</th>
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.LugarDestino)
                         <br />
@@ -312,18 +314,12 @@
                         <br />
                         <select name="Estado" id="Estado" class="form-control select_filtro-table" style="width:100px" onchange="filtrar();">
                             <option value=""></option>
-                            <option value="ABIERTO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ABIERTO") { Write("selected"); } }>ABIERTO</option>
-                            <option value="RECIBIDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "RECIBIDO") { Write("selected"); } }>RECIBIDO</option>
-                            <option value="PICKEANDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "PICKEANDO") { Write("selected"); } }>PICKEANDO</option>
-                            <option value="VERIFICANDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "VERIFICANDO") { Write("selected"); } }>VERIFICANDO</option>
                             <option value="EMPACANDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "EMPACANDO") { Write("selected"); } }>EMPACANDO</option>
                             <option value="EMPACADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "EMPACADO") { Write("selected"); } }>EMPACADO</option>
                             <option value="PESADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "PESADO") { Write("selected"); } }>PESADO</option>
                             <option value="PREENVIO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "PREENVIO") { Write("selected"); } }>PREENVIO</option>
                             <option value="ENVIADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ENVIADO") { Write("selected"); } }>ENVIADO</option>
                             <option value="ENTREGADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ENTREGADO") { Write("selected"); } }>ENTREGADO</option>
-                            <option value="ANULADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ANULADO") { Write("selected"); } }>ANULADO</option>
-                            <option value="CANCELADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "CANCELADO") { Write("selected"); } }>CANCELADO</option>
                         </select>
 
                     </th>
@@ -357,33 +353,35 @@
             <tbody>
                 @foreach (var item in Model.Where(x => x.Estado != "SEPARADO"))
                 {
-                    bool verCheck = false, condEntregar = false, condPesar = false, condAnularPesar = false, condAnularEntrega = false;
-                    String styleEstado = "", claseDocNum = (ViewBag.DocNum == item.DocNum ? "d-flex bg-success" : "d-flex align-self-center form-inline");
-
-                    // TipoVenta: normal && EstadoPago: pagado
-                    // TipoVenta: Credito && EstadoPago: pendiente
-
+                    bool verCheck = false;
+                    bool condEntregar = false;
+                    bool condPesar = false;
+                    bool condAnularPesar = false;
+                    bool condAnularEntrega = false;
+                    string styleEstado = "";
+                    string claseDocNum = (ViewBag.DocNum == item.DocNum ? "d-flex bg-success" : "d-flex align-self-center form-inline");
 
                     if (item.Estado.Equals("ENVIADO"))
                     {
-                        if ((item.TipoVenta == "Normal" && item.EstadoPago == "PAGADO")
-                          || (item.TipoVenta == "Credito" && (item.EstadoPago == "PENDIENTE" || item.EstadoPago == "PAGADO")) || (item.TipoVenta == "ContraEntrega")
-                          )
+                        if (item.LugarDestino != "Agencia")
                         {
-                            condEntregar = true;
+                            if ((item.TipoVenta == "Normal" && item.EstadoPago == "PAGADO")
+                               || (item.TipoVenta == "Credito" && (item.EstadoPago == "PENDIENTE" || item.EstadoPago == "PAGADO"))
+                               || (item.TipoVenta == "ContraEntrega"))
+                            {
+                                condEntregar = true;
+                            }
                         }
                     }
 
-                    if (item.Estado.Equals("EMPACADO"))
+                    if (item.Estado.Equals("EMPACADO") && (item.LugarDestino.Equals("Agencia Courier") || item.LugarDestino.Equals("Agencia")))
                     {
-                        if (item.LugarDestino.Equals("Agencia Courier") || item.LugarDestino.Equals("Agencia"))
-                        {
-                            condPesar = true;
-                        }
-                        else
-                        {
-                            condEntregar = true;
-                        }
+                        condPesar = true;
+                    }
+
+                    if (item.Estado.Equals("PESADO") && (item.LugarDestino.Equals("Agencia Courier") || item.LugarDestino.Equals("Agencia")))
+                    {
+                        condAnularPesar = true;
                     }
                     else if (item.Estado.Equals("ENTREGADO"))
                     {
@@ -395,29 +393,14 @@
                         styleEstado = "background-color: #F2F526; font-weight: bold;";
                     }
 
-
-                    if (item.Estado.Equals("PESADO") && (item.LugarDestino.Equals("Agencia Courier") || item.LugarDestino.Equals("Agencia")))
+                    if (item.Det5 != null && item.Det5.Count >= 1 && item.Estado.Equals("ENTREGADO") && item.Det5[0].RegEstado != "PENDIENTE")
                     {
-                        condAnularPesar = true;
-                        condEntregar = true;
+                        condAnularEntrega = true;
                     }
 
-
-
-                    if (item.Det5 != null && item.Det5.Count >= 1 && item.Estado.Equals("ENTREGADO"))
-                    {
-                        if (item.Det5[0].RegEstado != "PENDIENTE")
-                        {
-                            condAnularEntrega = true;
-                        }
-                    }
-
-
-                    if (
-                        (item.LugarDestino == "Arriola" || item.LugarDestino == "Centro") &&
-                        item.EstadoFacturacion == "FACTURADO" && item.Estado == "ENVIADO" &&
-                        e.CardName != null && (condEntregar == true)
-                        )
+                    if ((item.LugarDestino == "Arriola" || item.LugarDestino == "Centro")
+                        && item.EstadoFacturacion == "FACTURADO" && item.Estado == "ENVIADO"
+                        && e.CardName != null && condEntregar)
                     {
                         verCheck = true;
                     }
@@ -425,7 +408,6 @@
                     {
                         claseDocNum += " ml-3";
                     }
-
 
                     <tr id="fila">
                         <td style="width: 120px">
@@ -443,6 +425,16 @@
                         <td class="text-left">@Html.DisplayFor(modelItem => item.CardName)</td>
                         <td class="text-center">@Html.DisplayFor(modelItem => item.Vendedor)</td>
                         <td class="text-center">@Html.DisplayFor(modelItem => item.MontoFinal)</td>
+                        <td class="text-center">
+                            @if (item.DescuentoNC > 0)
+                            {
+                                <label class="px-2 py-1" style="background-color:deepskyblue"> @Html.DisplayFor(modelItem => item.DescuentoNC)</label>
+                            }
+                            else
+                            {
+                                @Html.DisplayFor(modelItem => item.DescuentoNC)
+                            }
+                        </td>
                         <td class="text-center">@Html.DisplayFor(modelItem => item.LugarDestino)</td>
                         <td class="text-center" style="@styleEstado">@Html.DisplayFor(modelItem => item.Estado)</td>
                         <td class="text-center">@Html.DisplayFor(modelItem => item.EstadoPago)</td>
@@ -460,6 +452,14 @@
                                 <a href="@Url.Action( "AnularPesadoTicket", "Ventas", new { DocEntry = item.DocEntry  } )" class="btn btn-danger btn-sm" title="AnularPesado">
                                     <span>Anular Pesado</span>
                                 </a>
+                            }
+                        </td>
+                        <td>
+                            @if (item.EstadoFacturacion!=null && item.EstadoFacturacion.Equals("FACTURADO"))
+                            {
+                                <button type="button" class="btn btn-cobefar btn-sm" title="VER DOCUMENTOS" onclick="abrirModalDocumentos(@item.DocEntry)">
+                                    <i class="icon-search"> </i>Docs
+                                </button>
                             }
                         </td>
                         <td>
@@ -489,15 +489,16 @@
                                 <i class="icon-truck"></i>
                             </a>
                         </td>
+                        @* DESHABILITADO EL CANCELAR POR ESTE MODULO
                         <td>
-                            @*@if (idRolUsuario == 1 || (idRolUsuario == 4 && !item.Estado.Equals("ENTREGADO")))
-        {
-            <a href="#" class="btn btn-danger btn-sm" title="Cancelar" onclick="cancelarTicket(@item.DocEntry);">
-                <i class="icon-cross"></i>
-            </a>
-        }*@
+                            @if (idRolUsuario == 1 || (idRolUsuario == 4 && !item.Estado.Equals("ENTREGADO")))
+                            {
+                                <a href="#" class="btn btn-danger btn-sm" title="Cancelar" onclick="cancelarTicket(@item.DocEntry);">
+                                    <i class="icon-cross"></i>
+                                </a>
+                            }
                         </td>
-
+                        *@
                     </tr>
                 }
             </tbody>
@@ -522,8 +523,169 @@
     if ('@ViewBag.Mensaje' != "") {
         Swal.fire('@ViewBag.Mensaje');
     }
+    function abrirModalDocumentos(DocEntry) {
+        var modalId = "ModalComprobantes" + DocEntry;
 
-    /*function cancelarTicket(DocEntry) {
+        if ($("#" + modalId).length > 0) {
+            $("#" + modalId).modal('show');
+            return;
+        }
+        
+        // Si el modal no existe, crear uno nuevo
+        Promise.all([buscarDocumentos(DocEntry), buscarNotaCreditoVenta(DocEntry)])
+            .then(function (responses) {
+                var htmlTableDocumentos = responses[0];
+                var htmlTableNotasCredito = responses[1];
+                var docNum = DocEntry + 2000000000;
+                var modalHtml = `<div class='modal' id='${modalId}' tabindex='-1' role='dialog' aria-labelledby='${modalId}Label' aria-hidden='true'>
+                        <div class='modal-dialog modal-dialog-centered modal-lg' role='document'>
+                            <div class='modal-content'>
+                                <div class='modal-header bg-cobefar text-white'>
+                                    <h5 class='modal-title' id='${modalId}Label'>DOCUMENTOS <br>NroTicket : ${docNum}</h5>
+                                    <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+                                        <span aria-hidden='true'>&times;</span>
+                                    </button>
+                                </div>
+                                <div class='modal-body'>
+                                    ${htmlTableDocumentos}
+                                    ${htmlTableNotasCredito}
+                                </div>
+                                <div class='modal-footer'>
+                                    <button type='button' class='btn btn-secondary' data-dismiss='modal'>Cerrar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                $("body").append(modalHtml);
+                // Una vez que se ha agregado el HTML del modal al cuerpo del documento, ábrelo : Esto evita que se muestre un modal vacio por demora en query SAP 
+                $("#" + modalId).modal('show');
+            })
+            .catch(function (error) {
+                console.error(error);
+            });
+    }
+
+    function buscarDocumentos(DocEntry) {
+        return new Promise(function (resolve, reject) {
+            if (DocEntry !== '') {
+                var tableHtml = '';
+                var parametros = { "DocEntry": DocEntry };
+                // Método que busca Boletas y Facturas
+                $.ajax({
+                    url: '/Ventas/buscarFacturasyBoletas',
+                    data: parametros,
+                    dataType: 'json',
+                    cache: false,
+                    type: 'post'
+                })
+                    .done(function (response) {
+                        if (response.length > 0) {
+                            var totalMonto = 0; // Inicializar la variable para la suma de montos
+                            tableHtml += `<div class='table-responsive w-100'>
+                        <span>FACTURAS Y BOLETAS</span>
+                    <table border='2' style='width: 100%; border-color: green; text-align: center;' class='w-100'>
+                        <thead>
+                            <tr>
+                                <th class='text-dark text-center'>Correlativo</th>
+                                <th class='text-dark text-center'>Fecha Cont</th>
+                                <th class='text-dark text-center'>Fecha Ini Traslado</th>
+                                <th class='text-dark text-center'>Doc Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+
+                            // Recorrer response para agregarlo a la tabla y sumar los montos
+                            response.forEach(function (obj) {
+                                totalMonto += parseFloat(obj.DocTotal); // Sumar el monto al total
+                                tableHtml += `<tr>
+                            <td>${obj.NumAtCard}</td>
+                            <td>${obj.DocDate}</td>
+                            <td>${obj.U_BPP_FECINITRA}</td>
+                            <td>${parseFloat(obj.DocTotal).toFixed(2)}</td>
+                          </tr>`;
+                            });
+
+                            tableHtml += `       </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" class="text-right"><strong>Total:</strong></td>
+                            <td>${totalMonto.toFixed(2)}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>`;
+                        }
+                    })
+                    .always(function () {
+                        resolve(tableHtml);
+                    })
+                    .fail(function (xhr, status, error) {
+                        reject(error);
+                    });
+            }
+        });
+    }
+
+    function buscarNotaCreditoVenta(DocEntry) {
+        return new Promise(function (resolve, reject) {
+            if (DocEntry !== '') {
+                var tableHtml = '';
+                var parametros = { "DocEntry": DocEntry };
+                // Método que busca NC
+                $.ajax({
+                    url: '/Ventas/buscarNotaCreditoVenta',
+                    data: parametros,
+                    dataType: 'json',
+                    cache: false,
+                    type: 'post'
+                })
+                    .done(function (response) {
+                        if (response.length > 0) {
+                            var totalMonto = 0; // Inicializar la variable para la suma de montos
+                            tableHtml += `<div class='table-responsive w-100'>
+                        <span>NOTAS DE CREDITO</span>
+                            <table border='2' style='width: 100%; border-color: green; text-align: center;' class='w-100'>
+                                <thead>
+                                    <tr>
+                                        <th class='text-dark text-center'>DocNum</th>
+                                        <th class='text-dark text-center'>Fecha Cont</th>
+                                        <th class='text-dark text-center'>Doc Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>`;
+
+                            // Recorrer response para agregarlo a la tabla y sumar los montos
+                            response.forEach(function (obj) {
+                                totalMonto += parseFloat(obj.Nc.DocTotal); // Sumar el monto al total
+                                tableHtml += `<tr>
+                                        <td>${obj.Nc.DocNum}</td>
+                                        <td>${obj.Nc.DocDate}</td>
+                                        <td>${parseFloat(obj.Nc.DocTotal).toFixed(2)}</td>
+                                      </tr>`;
+                            });
+
+                            tableHtml += `       </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <td colspan="2" class="text-right"><strong>Total:</strong></td>
+                                                        <td>${totalMonto.toFixed(2)}</td>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>`;
+                        }
+                    })
+                    .always(function () {
+                        resolve(tableHtml);
+                    })
+                    .fail(function (xhr, status, error) {
+                        reject(error);
+                    });
+            }
+        });
+    }
+    //anteriormente se podia cancelar en este modulo, por el momento deshabilitado
+    function cancelarTicket(DocEntry) {
         const swalWithBootstrapButtons = Swal.mixin({
             customClass: {
                 confirmButton: 'btn btn-success mx-4',
@@ -542,8 +704,10 @@
             reverseButtons: true
         }).then((result) => {
             if (result.isConfirmed) {
-                location.href = '/Ventas/CancelarTicket?DocEntry=' + DocEntry  +'&vista=ListadoTicketsDespacho';
+                location.href = '/Ventas/CancelarTicket?DocEntry=' + DocEntry + '&vista=ListadoTicketsDespacho';
             }
         });
-    }*/
+    }
 </script>
+
+

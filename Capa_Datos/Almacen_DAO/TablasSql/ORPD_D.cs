@@ -392,7 +392,7 @@ namespace Capa_Datos.Almacen_DAO.TablasSql
             {
                 if (!string.IsNullOrEmpty(Filtros.FechaDesde) && !string.IsNullOrEmpty(Filtros.FechaHasta))
                 {
-                    condWhere += $" AND DEV.FechaDevolucion BETWEEN '{Filtros.FechaDesde}' AND '{Filtros.FechaHasta}'";
+                    condWhere += $" AND (SELECT TOP 1 FechaOperacion FROM al.cc_ORPD WHERE DocEntry = DEV.DocEntry AND Operacion = 'REGISTRAR') BETWEEN '{Filtros.FechaDesde}' AND '{Filtros.FechaHasta}'";
                 }
 
                 if (!string.IsNullOrEmpty(Filtros.RefFactura))

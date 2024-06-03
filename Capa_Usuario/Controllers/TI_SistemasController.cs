@@ -157,7 +157,7 @@ namespace Capa_Usuario.Controllers
             }
         }
 
-        public ActionResult EliminarUsuario(int DocEntry, int idOperation = 1505)
+        public ActionResult InactivarUsuario(int DocEntry, int idOperation = 1505)
         {
             switch (verificacionAccesos(idOperation))
             {
@@ -165,7 +165,7 @@ namespace Capa_Usuario.Controllers
                     try
                     {
                         Usuario_E obj = uN.buscarUsuario(DocEntry);
-                        uN.eliminarUsuario(obj);
+                        uN.Inactivar(obj);
                         return RedirectToAction("GestionPermisos");
                     }
                     catch (Exception e)

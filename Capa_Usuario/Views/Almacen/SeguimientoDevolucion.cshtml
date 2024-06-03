@@ -69,26 +69,21 @@
             </div>
         </div>
 
-        <div class="row mt-4 mb-2">
-            <div class="col-lg-5 d-flex">
-                <label class="text-dark form-label font-weight-bold font-18">Levantamiento de conformidad:</label>
-                <select name="LevConformidad" id="LevConformidad" class="form-control bg-cobefar text-white border-success mx-4" style="width: 150px" required>
+        <div class="row mt-4">
+            <div class="col-lg-3 d-flex">
+                <label class="text-dark form-label font-weight-bold font-16">Levantamiento de conformidad:</label>
+                <select name="LevConformidad" id="LevConformidad" class="form-control bg-success text-white border-success mx-4" style="width: 150px" required>
                     <option value="SI">SI</option>
                     <option value="NO" selected>NO</option>
                 </select>
             </div>
-        </div>
-
-        <div class="row mt-4">
-            <div class="col-lg-2">
-                <button type="button" class="btn btn-info" id="btn_modalDocumentos" data-toggle="modal" data-target="#modalDocumentos" onclick="validarLevConformidad()"><i class="icon-checkmark"></i> Generar Documentos</button>
-            </div>
-            <div class="col-lg-2">
-                <button type="button" class="btn btn-warning" id="btn_modalCorreo" data-toggle="modal" data-target="#modalCorreo"><i class="icon-mail"></i> Enviar Correo</button>
+            <div class="col-lg-2 d-flex">
+                <button type="button" class="btn btn-info flex-fill mr-2" id="btn_modalDocumentos" data-toggle="modal" data-target="#modalDocumentos" onclick="validarLevConformidad()"><i class="icon-checkmark"></i> Generar Documentos</button>
+                <button type="button" class="btn btn-warning flex-fill" id="btn_modalCorreo" data-toggle="modal" data-target="#modalCorreo"><i class="icon-mail"></i> Enviar Correo</button>
             </div>
         </div>
 
-        <div class="row pt-4 mt-4">
+        <div class="row pt-2 mt-2">
             <div class="col-lg-12 table-responsive bg-dark pt-4">
                 <table id="tbl_listaDevoluciones" class="table table-light table-sm table-bordered table-hover cls-dataTable" cellspacing="0" width="100%">
                     <thead class="bg-cobefar">

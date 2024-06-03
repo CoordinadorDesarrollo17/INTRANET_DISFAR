@@ -34,7 +34,6 @@
     <nav>
         <ol class="cd-breadcrumb bg-dark">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
-            <li><a href="@Url.Action("ListadoFacturasDeVenta", "DireccionTecnica")">Listado facturas de venta</a></li>
             <li class="current"><em>Calcular descarga PDFS</em></li>
         </ol>
     </nav>
@@ -45,14 +44,15 @@
 </div>
 
 <div class="bg-form-pestanas-cobefar">
-    <div class="">
+    <div>
+        <span class="text-danger font-12">**Considerar que las fechas que aparecen en la tabla representa la fecha de generación del documento</span>
         <div class="row mt-2">
             <div class="col-lg-3">
                 <ul>
-                    <li class="alm_16"><button class="btn btn-success m-2 w-100" onclick="cargarFormulario('frmActaRecepcion')"><strong>Acta Recepcion y Organo Leptico</strong></button></li>
+                    <li class="alm_16"><button class="btn btn-success m-2 w-100" onclick="cargarFormulario('frmActaRecepcion')"><strong>Acta Recepción y Organo Léptico</strong></button></li>
                     <li class="alm_16"><button class="btn btn-success m-2 w-100" onclick="cargarFormulario('frmActaDespachoOINV')"><strong>Acta Despacho <br />ALM 01 y 06</strong></button></li>
-                    <li class="alm_357"><button class="btn btn-success m-2 w-100" onclick="cargarFormulario('frmActaDespachoOWTR')"><strong>Acta Despacho trasl <br />ALM 03, 05, 07</strong></button></li>
-                    <li class="alm_357"><button class="btn btn-success m-2 w-100" onclick="cargarFormulario('frmActaDespachoODLN')"><strong>Acta Despacho venta <br /> ALM 03, 05, 07</strong></button></li>
+                    <li class="alm_357"><button class="btn btn-success m-2 w-100" onclick="cargarFormulario('frmActaDespachoOWTR')"><strong>Acta Despacho trasl <br />ALM 03, 07</strong></button></li>
+                    <li class="alm_357"><button class="btn btn-success m-2 w-100" onclick="cargarFormulario('frmActaDespachoODLN')"><strong>Acta Despacho venta <br /> ALM 03, 07</strong></button></li>
                 </ul>
             </div>
             <div id="Formulario" class="col-lg-9 p-4">

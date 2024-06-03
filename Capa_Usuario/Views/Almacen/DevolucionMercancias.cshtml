@@ -58,6 +58,8 @@
                     <th class="text-center">DocNum<br /><div class="d-flex justify-content-center"><input type="text" name="DocNum" id="filtro_DocNum" class="form-control text-center filtrosDevolucion" autocomplete="off" style="width: 100px" onchange="filtrar();" value="@if (ViewBag.Devolucion.DocNum != 0) { Write(ViewBag.Devolucion.DocNum); }" /></div></th>
                     <th class="text-center">Almacen<br /><div class="d-flex justify-content-center"><input type="text" name="WhsCode" class="form-control text-center filtrosDevolucion" autocomplete="off" style="width: 50px" onchange="filtrar();" value="@if (!string.IsNullOrEmpty(ViewBag.Devolucion.WhsCode)) { Write(ViewBag.Devolucion.WhsCode); }" /></div></th>
                     <th class="text-center">Fecha Registro</th>
+                    <th class="text-center">Correlativo</th>
+                    <th class="text-center">Fecha Devolución</th>
                     <th class="text-center">Proveedor<br /><div class="d-flex justify-content-center"><input type="text" name="CardName" class="form-control text-center filtrosDevolucion" autocomplete="off" style="width: 300px" onchange="filtrar();" value="@ViewBag.Devolucion.CardName" /></div></th>
                     <th class="text-center">Registrado por</th>
                     <th class="text-center">
@@ -88,6 +90,8 @@
                             <td class="text-center">@m.DocNum</td>
                             <td class="text-center">@m.WhsCode</td>
                             <td class="text-center">@m.FechaOperacion</td>
+                            <td class="text-center">@m.Correlativo</td>
+                            <td class="text-center">@m.FechaDevolucion</td>
                             <td class="text-center">@m.CardName</td>
                             <td class="text-center">@m.Operario</td>
                             <td class="text-center">@m.Estado</td>
@@ -148,12 +152,12 @@
                 <div class="modal-body">
                     <div class="row mb-4">
                         <div class="col-lg-3 col-md-3">
-                            <label class="text-cobefar font-weight-bold">Fecha Dev. Desde:</label>
+                            <label class="text-cobefar font-weight-bold">Fecha Registro Desde:</label>
                             <input type="date" id="FechaDesde" name="FechaDesde" class="form-control border-success text-center" />
                         </div>
 
                         <div class="col-lg-3 col-md-3">
-                            <label class="text-cobefar font-weight-bold">Fecha Dev. Hasta:</label>
+                            <label class="text-cobefar font-weight-bold">Fecha Registro Hasta:</label>
                             <input type="date" id="FechaHasta" name="FechaHasta" class="form-control border-success text-center" />
                         </div>
 

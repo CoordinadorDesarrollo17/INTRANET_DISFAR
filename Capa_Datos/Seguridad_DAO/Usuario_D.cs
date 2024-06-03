@@ -67,48 +67,63 @@ namespace Capa_Datos
             catch (Exception e) { cn.Close(); throw new Exception(e.Message); }
             return u;
         }
-
         public Usuario_E buscarUsuarioSesion(string user, string pass)
         {
             Usuario_E u = null;
             SqlConnection cn = new SqlConnection(uti.cadSql);
 
-            string query = @"
-                            SELECT
-                                DocEntry, Prefijo, Id, Nombres, Apellidos, Email, IdRol, Activo, FechaRegistro, HoraRegistro, OpRegistro, WhsCode, CodigoSap,ClaveEmail
-                            FROM OUSR 
-                            WHERE Activo = 1 AND CONCAT(Prefijo,Id) = @user AND CONVERT(VARCHAR(MAX), DECRYPTBYPASSPHRASE('pwC0B3F@R', Password)) = @pass";
+            string query = @"SELECT
+                        DocEntry, Prefijo, Id, Nombres, Apellidos, Email, IdRol, Activo, FechaRegistro, HoraRegistro, OpRegistro, WhsCode, CodigoSap, ClaveEmail
+                    FROM OUSR 
+                    WHERE Activo = 1 AND CONCAT(Prefijo,Id) = @user AND CONVERT(VARCHAR(MAX), DECRYPTBYPASSPHRASE('pwC0B3F@R', Password)) = @pass";
+
+            string updateQuery = @"UPDATE OUSR
+                           SET FechaUltimoIngreso = GETDATE()
+                           WHERE Activo = 1 AND CONCAT(Prefijo,Id) = @user AND CONVERT(VARCHAR(MAX), DECRYPTBYPASSPHRASE('pwC0B3F@R', Password)) = @pass";
 
             try
             {
                 cn.Open();
-                using (SqlCommand cmd = new SqlCommand(query, cn))
+                using (SqlTransaction transaction = cn.BeginTransaction())
                 {
-                    cmd.Parameters.AddWithValue("@user", user);
-                    cmd.Parameters.AddWithValue("@pass", pass);
-
-                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    using (SqlCommand cmd = new SqlCommand(query, cn, transaction))
                     {
-                        if (dr.Read())
-                        {
-                            u = new Usuario_E();
+                        cmd.Parameters.AddWithValue("@user", user);
+                        cmd.Parameters.AddWithValue("@pass", pass);
 
-                            if (!dr.IsDBNull(0)) { u.DocEntry = dr.GetInt32(0); }
-                            if (!dr.IsDBNull(1)) { u.Prefijo = dr.GetString(1); }
-                            if (!dr.IsDBNull(2)) { u.Id = dr.GetString(2); }
-                            if (!dr.IsDBNull(3)) { u.Nombres = dr.GetString(3); }
-                            if (!dr.IsDBNull(4)) { u.Apellidos = dr.GetString(4); }
-                            if (!dr.IsDBNull(5)) { u.Email = dr.GetString(5); }
-                            if (!dr.IsDBNull(6)) { u.IdRol = dr.GetInt32(6); }
-                            if (!dr.IsDBNull(7)) { u.Activo = dr.GetInt32(7); }
-                            if (!dr.IsDBNull(8)) { u.FechaRegistro = dr.GetDateTime(8).ToString("yyyy-MM-dd"); }
-                            if (!dr.IsDBNull(9)) { u.HoraRegistro = dr.GetTimeSpan(9).ToString(); }
-                            if (!dr.IsDBNull(10)) { u.OperarioRegistro = dr.GetString(10); }
-                            if (!dr.IsDBNull(11)) { u.WhsCode = dr.GetString(11); }
-                            if (!dr.IsDBNull(12)) { u.CodigoSap = dr.GetInt32(12); }
-                            if (!dr.IsDBNull(13)) { u.ClaveEmail = dr.GetString(13); }
+                        using (SqlDataReader dr = cmd.ExecuteReader())
+                        {
+                            if (dr.Read())
+                            {
+                                u = new Usuario_E();
+
+                                if (!dr.IsDBNull(0)) { u.DocEntry = dr.GetInt32(0); }
+                                if (!dr.IsDBNull(1)) { u.Prefijo = dr.GetString(1); }
+                                if (!dr.IsDBNull(2)) { u.Id = dr.GetString(2); }
+                                if (!dr.IsDBNull(3)) { u.Nombres = dr.GetString(3); }
+                                if (!dr.IsDBNull(4)) { u.Apellidos = dr.GetString(4); }
+                                if (!dr.IsDBNull(5)) { u.Email = dr.GetString(5); }
+                                if (!dr.IsDBNull(6)) { u.IdRol = dr.GetInt32(6); }
+                                if (!dr.IsDBNull(7)) { u.Activo = dr.GetInt32(7); }
+                                if (!dr.IsDBNull(8)) { u.FechaRegistro = dr.GetDateTime(8).ToString("yyyy-MM-dd"); }
+                                if (!dr.IsDBNull(9)) { u.HoraRegistro = dr.GetTimeSpan(9).ToString(); }
+                                if (!dr.IsDBNull(10)) { u.OperarioRegistro = dr.GetString(10); }
+                                if (!dr.IsDBNull(11)) { u.WhsCode = dr.GetString(11); }
+                                if (!dr.IsDBNull(12)) { u.CodigoSap = dr.GetInt32(12); }
+                                if (!dr.IsDBNull(13)) { u.ClaveEmail = dr.GetString(13); }
+                            }
                         }
                     }
+
+                    // Actualizar FechaUltimoIngreso
+                    using (SqlCommand updateCmd = new SqlCommand(updateQuery, cn, transaction))
+                    {
+                        updateCmd.Parameters.AddWithValue("@user", user);
+                        updateCmd.Parameters.AddWithValue("@pass", pass);
+                        updateCmd.ExecuteNonQuery();
+                    }
+
+                    transaction.Commit();
                 }
             }
             catch (Exception e)
@@ -118,7 +133,6 @@ namespace Capa_Datos
 
             return u;
         }
-
         public List<Usuario_E> ListaUsuarios(Usuario_E filtro)
         {
             List<Usuario_E> lista = new List<Usuario_E>();
@@ -127,6 +141,7 @@ namespace Capa_Datos
             if (filtro != null)
             {
                 if (filtro.DocEntry > 0) { fil += $" AND DocEntry LIKE '%{filtro.DocEntry}%'"; }
+                if (filtro.Activo != null) { fil += $" AND Activo={filtro.Activo}"; }
                 if (!string.IsNullOrEmpty(filtro.FechaRegistro)) { fil += $" AND FechaRegistro = '{filtro.FechaRegistro}'"; }
                 if (filtro.Nombres != null) { fil += $" AND CONCAT(Nombres,' ',Apellidos) LIKE '%{filtro.Nombres}%'"; }
                 if (filtro.IdRol >= 2)
@@ -141,8 +156,8 @@ namespace Capa_Datos
                 }
             }
 
-            string select = "DocEntry, Prefijo, Id, Nombres, Apellidos, Email, IdRol, Activo, CONVERT(varchar, FechaRegistro, 103) AS FechaRegistro, HoraRegistro, OpRegistro, WhsCode, CodigoSap";
-            string query = $"SELECT {select} FROM dbo.OUSR WHERE IdRol >= 1 " + fil + " ORDER BY DocEntry desc ";
+            string select = "DocEntry, Prefijo, Id, Nombres, Apellidos, Email, IdRol, Activo, CONVERT(varchar, FechaRegistro, 103) AS FechaRegistro, HoraRegistro, OpRegistro, WhsCode, CodigoSap, DATEDIFF(day, FechaUltimoIngreso, GETDATE()) AS DiferenciaDias ";
+            string query = $"SELECT {select} FROM dbo.OUSR WHERE IdRol >= 1 " + fil + " AND Activo=1 ORDER BY DocEntry desc ";
 
             using (SqlConnection cn = new SqlConnection(uti.cadSql))
             {
@@ -167,13 +182,23 @@ namespace Capa_Datos
                         if (!dr.IsDBNull(10)) { u.OperarioRegistro = dr.GetString(10); }
                         if (!dr.IsDBNull(11)) { u.WhsCode = dr.GetString(11); }
                         if (!dr.IsDBNull(12)) { u.CodigoSap = dr.GetInt32(12); }
+                        if (!dr.IsDBNull(13)) { u.DiferenciaDias = dr.GetInt32(13); }
                         lista.Add(u);
                     }
-                    dr.Close();
-                    cn.Close();
                 }
-                catch { cn.Close(); }
+                catch (Exception ex)
+                {
+                    throw new Exception("Error al ejecutar consulta: " + ex.Message);
+                }
+                finally
+                {
+                    if (cn.State != ConnectionState.Closed)
+                    {
+                        cn.Close();
+                    }
+                }
             }
+
 
             return lista;
         }
@@ -320,7 +345,7 @@ namespace Capa_Datos
             return msj;
         }
 
-        public string eliminarUsuario(Usuario_E usu)
+        public string Inactivar(Usuario_E usu)
         {
             string msj = string.Empty;
             using (SqlConnection cn = new SqlConnection(uti.cadSql))

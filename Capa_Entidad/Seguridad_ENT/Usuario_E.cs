@@ -10,7 +10,7 @@
         public string Email { get; set; }
         public string Password { get; set; }
         public int IdRol { get; set; }
-        public int Activo { get; set; }
+        public int? Activo { get; set; }
         public string FechaRegistro { get; set; } 
         public string HoraRegistro { get; set; }
         public string OperarioRegistro { get; set; }
@@ -21,5 +21,7 @@
 
         /******************** C A M P O S   Q U E   N O   S O N   D E   L A   T A B L A ********************/
         public string DescripcionRol { get; set; }
-	}
+        /****Campo calculado para ver dias sin conexion******/
+        public int DiferenciaDias { get; set; }
+    }
 }

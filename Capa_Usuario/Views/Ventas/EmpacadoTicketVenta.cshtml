@@ -62,7 +62,6 @@
                         <div class="col-lg-2">
                             @Html.EditorFor(model => model.FechaEmpacado, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
                         </div>
-
                         <label for="HoraEmpacado" class="col-sm-2 bg-cobefar text-white text-center py-2 px-2 col-form-label font-weight-bold font-18">Hora Empacado:</label>
                         <div class="col-lg-2">
                             @Html.EditorFor(model => model.HoraEmpacado, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
@@ -95,7 +94,6 @@
                                 <select class="form-control border-success" name="AlmProcedencia">
                                     <option value="">Seleccione</option>
                                     <option value="03">Almacen 03</option>
-                                    <option value="05">Almacen 05</option>
                                     <option value="ALM07">Almacen 07</option>
                                 </select>
                             </div>
@@ -118,9 +116,9 @@
 
 
                     <datalist id="ListaUsuarios">
-                        @foreach (Usuario_E u in ViewBag.ListaUsuarios)
+                        @foreach (string u in ViewBag.ListaUsuarios)
                         {
-                            <option value="@u.Nombres @u.Apellidos"></option>
+                            <option value="@u"></option>
                         }
                     </datalist>
 
@@ -459,9 +457,9 @@
         <input type="hidden" id="LugarDestino" name="LugarDestino"value="@Model.LugarDestino" />
 
         <datalist id="ListaUsuarios">
-            @foreach (Usuario_E u in ViewBag.ListaUsuarios)
+            @foreach (string u in ViewBag.ListaUsuarios)
             {
-                <option value="@u.Nombres">@u.Nombres</option>
+                <option value="@u"></option>
             }
         </datalist>
     }

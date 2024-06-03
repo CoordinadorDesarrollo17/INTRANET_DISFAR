@@ -1437,7 +1437,7 @@ namespace Capa_Usuario.Controllers
         {
             string[] estados = { "", "" };
             ORTV_N ortvN = new ORTV_N();
-            ORTV_E ortvE = new ORTV_E { FechaSapTicket = FechaSapTicket, EstadoFacturacion = "FACTURADO", Zona = Zona };
+            ORTV_E ortvE = new ORTV_E { FechaSapTicket = FechaSapTicket,  Zona = Zona };
             if (TipoRuta == "VD") { ortvE.LugarDestino = "Domicilio"; estados[0] = "EMPACADO"; ortvE.LugEntrega = AlmOrigenCod; }
             else if (TipoRuta == "VG")
             {

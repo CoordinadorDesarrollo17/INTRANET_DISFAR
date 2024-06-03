@@ -4,7 +4,7 @@
     ViewBag.Title = "ListadoTicketsRecepcion";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
-    String bgEstadoPago = "bg-cobefar text-white", bgLugarDestino = "bg-cobefar text-white", bgALMOrigen = "bg-cobefar text-white";
+    String bgEstadoPago = "bg-cobefar text-white", bgLugarDestino = "bg-cobefar text-white", bgAlmProcedencia = "bg-cobefar text-white";
     if (ViewBag.Ortv.EstadoPago != "" && ViewBag.Ortv.EstadoPago != null)
     {
         bgEstadoPago = "bg-warning";
@@ -33,10 +33,8 @@
 
 <form name="frm" id="frm">
     <div class="bg-dark border-cabecera-seccion pb-2">
-        <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO TICKETS RECEPCIÓN</h3></div>
-
+        <div class="px-3 pt-3"><h3 class="titulo-seccion"> LISTADO TICKETS RECEPCIÓN</h3></div>
         <div class="d-flex pl-2 w-100 py-2">
-
             <div class="mx-2">
                 <select name="EstadoPago" id="EstadoPago" class="form-control @bgEstadoPago" onchange="filtrar();">
                     <option value="">EstadoPago</option>
@@ -44,7 +42,6 @@
                     <option value="PAGADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.EstadoPago == "PAGADO") { Write("selected"); } }>PAGADO</option>
                 </select>
             </div>
-
             <div class="mx-2">
                 <select name="LugarDestino" id="LugarDestino" class="form-control @bgLugarDestino" onchange="filtrar();">
                     <option value="">LugarDestino</option>
@@ -56,14 +53,13 @@
                     <option value="Arriola07" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Arriola07") { Write("selected"); } }>Arriola07</option>
                 </select>
             </div>
-            @*<div class="mx-2">
-                <select name="ALMOrigen" id="ALMOrigen" class="form-control @bgALMOrigen" onchange="filtrar();">
-                    <option value="">ALM Origen</option>
-                    <option value="03">Almacén 03</option>
-                    <option value="05">Almacén 05</option>
-                    <option value="ALM07">Almacén 07</option>
+            <div class="mx-2">
+                <select name="AlmProcedencia" id="AlmProcedencia" class="form-control @bgAlmProcedencia" onchange="filtrar();">
+                    <option value="">Alm Procedencia</option>
+                    <option value="03" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.AlmProcedencia == "03") { Write("selected"); } }>Almacén 03</option>
+                    <option value="ALM07" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.AlmProcedencia == "ALM07") { Write("selected"); } }>Almacén 07</option>
                 </select>
-            </div>*@
+            </div>
         </div>
     </div>
 
@@ -153,7 +149,7 @@
                 </tr>
             </thead>
             <tbody class="text-dark">
-                @foreach (var item in Model.Where(x => x.Estado != "SEPARADO"))
+                @foreach (var item in Model.Where(x => x.Estado != "SEPARADO" && x.Visible=="SI").OrderBy(x=>x.Estado))
                 {
                     bool condRecibir = false, condAnularRecibir = false;
                     String styleEstado = "";
@@ -213,7 +209,7 @@
                             @if (condRecibir == true)
                             {
                                 <a href="@Url.Action("RecibirTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-success btn-sm" title="Recibir">
-                                    <i class="icon icon-checkmark"></i>
+                                    <i class="icon icon-checkmark"> </i>
                                 </a>
                             }
                         </td>
@@ -244,8 +240,7 @@
                         </td>
                         <td>
                             <a href="@Url.Action( "SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry  } )" class="btn btn-dark btn-sm" title="Seguimiento de ticket" type="button" target="_blank"
-                               onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;">
-                                <i class="icon-truck"></i>
+                               onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;"> <i class="icon-truck"></i>
                             </a>
                         </td>
 

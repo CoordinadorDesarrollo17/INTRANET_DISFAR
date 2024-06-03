@@ -48,6 +48,8 @@ namespace Capa_Usuario.Controllers
                                 $"<td class=\"text-center\">{dev.DocNum}</td>" +
                                 $"<td class=\"text-center\">{dev.WhsCode}</td>" +
                                  $"<td class=\"text-center\">{dev.FechaOperacion}</td>" +
+                                 $"<td class=\"text-center\">{dev.Correlativo}</td>" +
+                                 $"<td class=\"text-center\">{dev.FechaDevolucion}</td>" +
                                 $"<td class=\"text-center\">{dev.CardName}</td>" +
                                 $"<td class=\"text-center\">{dev.Operario}</td>" +
                                 $"<td class=\"text-center\">{dev.Estado}</td>" +
@@ -328,7 +330,7 @@ namespace Capa_Usuario.Controllers
                 var tbody = string.Empty;
                 string producto;
 
-                if (datos.SinEM == true)
+                if (datos.SinEM)
                 {
 
                     var listaArticulos1 = oibtN.listarArticulosLotes(new Capa_Entidad.Almacen_ENT.Tablas.OIBT_E { ItemCode = datos.ItemCode, BatchNum = datos.BatchNum, WhsCode = datos.U_COB_LUGAREN, Quantity = 1 }, true);
@@ -820,7 +822,9 @@ namespace Capa_Usuario.Controllers
                 string excelContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
                 var devoluciones = orpdN.ExportarExcelDevoluciones(devolucion);
 
-                using (var libro = new ExcelPackage())
+                if (devoluciones != null && devoluciones.Count >= 1)
+                {
+                    using (var libro = new ExcelPackage())
                 {
                     var worksheet = libro.Workbook.Worksheets.Add("ReporteHistoricoDevoluciones");
                     worksheet.Cells["A1"].LoadFromCollection(devoluciones, PrintHeaders: true);
@@ -841,7 +845,10 @@ namespace Capa_Usuario.Controllers
                     }
 
                     return File(libro.GetAsByteArray(), excelContentType, nombreArchivo);
+                
+                    }
                 }
+                else { return Content("No hay datos para exportar"); }
             }
             else if (verificacionAccesos(idOperation) == "E_Login") { return null; }
             else { return null; }

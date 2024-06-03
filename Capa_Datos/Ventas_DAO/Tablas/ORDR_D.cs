@@ -95,5 +95,20 @@ namespace Capa_Datos.Ventas_DAO.Tablas
             catch { }
             return DocEntry;
         }
+        public ORDR_E obtenerOrdenDeVenta(int DocNum)
+        {
+            ORDR_E orden = new ORDR_E();
+            //incluir los datos necesarios segun productividad
+            string query = "select \"CANCELED\" from " + uti.schemaHana + "ordr where \"DocNum\"=" + DocNum;
+            try
+            {
+                HanaDataReader dr = db.HanaExecuteReaderNoSp(query);
+                dr.Read();
+                if (!dr.IsDBNull(0)) { orden.CANCELED = dr.GetString(0); }
+                dr.Close();
+            }
+            catch { }
+            return orden;
+        }
     }
 }

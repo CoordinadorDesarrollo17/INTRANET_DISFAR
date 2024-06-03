@@ -17,9 +17,14 @@ namespace Capa_Negocio.Ventas_NEG.Tablas
         {
             return oD.CalcularPdfsActaDespachoODLN(Fecha, U_SYP_STATUS, U_COB_LUGAREN, TipoComprobante);
         }
+
         public List<Guia_Remision_E> buscarGuiaRemisionSap(string NumAtCard)
         {
             return oD.buscarGuiaRemisionSap(NumAtCard);
+        }
+        public List<(string, int)> DetalleCalculadoraPdf(string Fecha, string U_SYP_STATUS, string U_COB_LUGAREN)
+        {
+            return oD.DetalleCalculadoraPdf(Fecha, U_SYP_STATUS, U_COB_LUGAREN);
         }
     }
 }

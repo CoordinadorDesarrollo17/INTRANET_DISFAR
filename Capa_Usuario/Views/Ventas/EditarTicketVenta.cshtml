@@ -67,7 +67,43 @@
     if ('@ViewBag.Mensaje' != "") {
         Swal.fire('@ViewBag.Mensaje');
     }
+    function enviarFormulario() {
+        var tipoVenta = $("#TipoVenta").val();
+        var lugarDestino = $("#LugarDestino").val();
+        var te = $("#TiempoEntrega").val();
+        var coordinaciones = $("#Observaciones").val();
+        var agencia = $("#Agencia").val();
+        var envioagencia = $("#EnvioAgencia").val();
+        var referencia = $("#Referencia").val();
+        var mensaje = '<div class="my-swal-text">Tipo de Venta: <strong>' + tipoVenta + '</strong><br>Lugar de Destino: <strong>' + lugarDestino + '</strong><br>Coordinaciones: <strong>' + coordinaciones + '</strong><br>T.E: <strong>' + te + '</strong></div>';
+        if (lugarDestino === 'Agencia') {
 
+            mensaje = '<div class="my-swal-text">Tipo de Venta: <strong>' + tipoVenta + '</strong><br>Lugar de Destino: <strong>' + lugarDestino + '</strong><br>Coordinaciones: <strong>' + coordinaciones + '</strong><br>T.E: <strong>' + te + '</strong><br>Agencia: <strong>' + agencia + '</strong><br>Modo de envio: <strong>' + envioagencia + '</strong><br>Referencia: <strong>' + referencia + '</strong></div>';
+        }
+        // Mostrar aviso
+        Swal.fire({
+            title: 'Confirmación de envío',
+            html: mensaje,
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonText: 'Si, enviar',
+            cancelButtonText: 'No, corregir',
+            reverseButtons: true,
+            showLoaderOnConfirm: true,
+            preConfirm: function () {
+                $("#EditaTicketVenta").submit();
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+        }).then(function (result) {
+            if (result.dismiss === Swal.DismissReason.cancel) {
+                Swal.fire({
+                    title: 'Cancelado',
+                    text: 'Se ha cancelado el envío de datos.',
+                    icon: 'error'
+                });
+            }
+        });
+    }
 </script>
 <script src="~/Scripts/Ventas/TicketDeVenta.js"></script>
 <div class="pt-4">
@@ -134,8 +170,14 @@
                                 <option value="ContraEntrega" @{ if (Model.TipoVenta == "ContraEntrega") { Write("selected"); } }>ContraEntrega</option>
                             </select>
                         </div>
-
-                        <div class="col-lg-3">
+                        <div class="col-lg-2">
+                            <label for="Visible" class="text-dark form-label font-weight-bold font-18">Presupuesto:</label>
+                            <select name="Visible" id="Visible" class="form-control bg-cobefar text-white">
+                                <option value="NO" @{ if (Model.Visible == "NO") { Write("selected"); } }>SI</option>
+                                <option value="SI" @{ if (Model.Visible == "SI") { Write("selected"); } }>NO</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2">
                             <label for="Embalaje" class="text-dark form-label font-weight-bold font-18">Embalaje:</label>
                             <select name="Embalaje" id="Embalaje" class="form-control  bg-cobefar text-white border-success">
                                 <option value="">Seleccione</option>
@@ -144,7 +186,7 @@
                             </select>
                         </div>
 
-                        <div class="col-lg-3">
+                        <div class="col-lg-2">
                             <label for="DocNum" class="text-dark form-label font-weight-bold font-18">DocNum Ticket:</label>
                             <input type="text" name="DocNum" id="DocNum" value="@Model.DocNum" class="form-control text-center border-success" readonly />
                         </div>
@@ -610,7 +652,6 @@
                     {
                         <div class="row mt-4">
                             <div class="col-lg-6">
-                                <button type="submit" id="Editar" class="btn btn-success"><i class="icon icon-pencil2"></i> Editar</button>
                                 <button type="button" id="Verificar" class="btn btn-primary"><i class="icon icon-clipboard"></i> Verificar Datos</button>
                             </div>
                         </div>

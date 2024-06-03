@@ -15,7 +15,7 @@ namespace Capa_Entidad.Almacen_ENT.ReportesSql
         [DisplayName("FECHA CREACIÓN")] public string FechaCreacion { get; set; }
         [DisplayName("RUC")] public string CardCode { get; set; }
         [DisplayName("RAZÓN SOCIAL")] public string CardName { get; set; }
-        [DisplayName("FECHA DEV.")] public string FechaDevolucion { get; set; }
+        [DisplayName("FECHA DEVOLUCIÓN")] public string FechaDevolucion { get; set; }
         [DisplayName("ESTADO")] public string Estado { get; set; }
         [DisplayName("CÓDIGO")] public string ItemCode { get; set; }
         [DisplayName("DESCRIPCIÓN DEL PRODUCTO")] public string ItemName { get; set; }

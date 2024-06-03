@@ -41,5 +41,9 @@ namespace Capa_Negocio.Ventas_NEG.Tablas
         {
             return oD.buscarNotaDebitoSap(NumAtCard);
         }
+        public List<(string, int)> DetalleCalculadoraPdfOINV(string Fecha, string U_SYP_STATUS, string U_COB_LUGAREN, string TipoComprobante)
+        {
+            return oD.DetalleCalculadoraPdfOINV(Fecha, U_SYP_STATUS, U_COB_LUGAREN, TipoComprobante);
+        }
     }
 }

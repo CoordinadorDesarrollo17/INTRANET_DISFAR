@@ -515,7 +515,6 @@ function listarNotasDeCreditoV() {
             validacionVerificarMontos('');
         });
 }
-//v
 function ObtieneDeudasSaldos() {
     var parametros = { "CardCode": $("#CardCode").val() };
     $.ajax('/Ventas/ObtieneDeudasSaldos',
@@ -531,23 +530,41 @@ function ObtieneDeudasSaldos() {
             else { $("#DeudaCliente").val(response.SaldoActual * -1); }
         });
 }
-//v
 function verificacionDatos(estado) {
     $("#Verificar").on('click', function (e) {
         var object;
         if (estado == '') {
-             object = $("#CreaTicketVenta").serialize();
-        } else { object = $("#EditaTicketVenta").serialize(); }
-        $.ajax('/Ventas/ValidarDatosTicket',
-            {
-                data: object,
-                dataType: 'html',
-                cache: false,
-                type: 'post'
-            })
+            object = $("#CreaTicketVenta").serialize();
+        } else {
+            object = $("#EditaTicketVenta").serialize();
+        }
+        $.ajax('/Ventas/ValidarDatosTicket', {
+            data: object,
+            dataType: 'html',
+            cache: false,
+            type: 'post'
+        })
             .done(function (response) {
-                if (response != "true") { Swal.fire(response); }
-                else { Swal.fire("Datos Ok"); }
+                if (response != "true") {
+                    Swal.fire(response);
+                } else {
+                    Swal.fire({
+                        title: 'Datos Ok',
+                        html: '<button type="button" id="cancelar" class="btn btn-secondary">Cancelar</button> <button type="button" id="enviarForm" class="btn btn-success"><i class="icon icon-plus"></i> Enviar </button> ',
+                        showCloseButton: false,
+                        showCancelButton: false,
+                        showConfirmButton: false, 
+                    });
+                    // Agregar evento onclick al botón enviarFormulario
+                    $("#enviarForm").on('click', function (e) {
+                        enviarFormulario();
+                    });
+                    // Agregar evento onclick al botón cancelar
+                    $("#cancelar").on('click', function (e) {
+                        Swal.close(); // Cerrar el modal
+                    });
+                }
             });
+
     });
 }

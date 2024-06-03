@@ -199,7 +199,7 @@
                                     <button type="button" class="btn btn-success btn-sm d-block d-sm-block d-md-block d-lg-none d-xl-none mx-1" data-toggle="modal" data-target="#M1" onclick="llenarModal1(@item.DocEntry,@item.DocNum,0,0);">Ini</button>
 
                                 }
-                                @if (item.Estado.Equals("CREADO"))
+                                @if (item.Estado.Equals("CREADO")|| item.Estado.Equals("ENVIADO"))
                                 {
                                     <a href="@Url.Action("EditarOrdenDeRuta", "Rutas", new { DocEntry = item.DocEntry, TipoRep = "Re" })" class="d-none d-sm-none d-md-none d-lg-block d-xl-block btn btn-info btn-sm mx-1"><i title="Editar" class="icon-pencil"></i></a>
                                 }

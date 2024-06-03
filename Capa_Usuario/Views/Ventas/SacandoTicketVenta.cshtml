@@ -91,9 +91,9 @@
                     </div>
 
                     <datalist id="ListaUsuarios">
-                        @foreach (Usuario_E u in ViewBag.ListaUsuarios)
+                        @foreach (string u in ViewBag.ListaUsuarios)
                         {
-                            <option value="@u.Nombres @u.Apellidos"></option>
+                            <option value="@u"></option>
                         }
                     </datalist>
 

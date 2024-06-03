@@ -282,6 +282,51 @@ namespace Capa_Datos.Almacen_DAO.Tablas
             catch { }
             return doc;
         }
+        public List<(string, int)> DetalleCalculadoraPdf(string Fecha, string U_SYP_STATUS, string U_COB_LUGAREN)
+        {
+            List<(string, int)> detalles = new List<(string, int)>();
+            string filtros = string.Empty;
+
+            if (!string.IsNullOrEmpty(Fecha))
+            {
+                filtros += " and \"U_BPP_FECINITRA\"='" + Fecha + "'";
+            }
+            if (!string.IsNullOrEmpty(U_SYP_STATUS))
+            {
+                if (U_SYP_STATUS == "V")
+                {
+                    filtros += " and \"CANCELED\"='N'";
+                }
+                filtros += " and \"U_SYP_STATUS\"='" + U_SYP_STATUS + "'";
+            }
+            if (!string.IsNullOrEmpty(U_COB_LUGAREN))
+            {
+                filtros += " and \"U_COB_LUGAREN\"='" + U_COB_LUGAREN + "'";
+            }
+
+            string query = $"SELECT TO_CHAR(\"DocDate\", 'YYYY-MM-DD') AS \"FECHADOC\", COUNT(*) AS \"CANTIDAD\" FROM {uti.schemaHana}OWTR WHERE \"DocEntry\" > 0 AND \"U_SYP_MDCD\" is not null AND  \"U_SYP_MDSD\" is not null  {filtros} AND \"DocDate\" in (SELECT distinct \"DocDate\" FROM {uti.schemaHana}OWTR WHERE \"DocEntry\" > 0 AND \"U_SYP_MDCD\" is not null AND  \"U_SYP_MDSD\" is not null {filtros} ) GROUP BY \"DocDate\" ORDER BY \"DocDate\" ASC";
+
+            try
+            {
+                HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
+
+                while (hdr.Read())
+                {
+                    if (!hdr.IsDBNull(0) && !hdr.IsDBNull(1))
+                    {
+                        detalles.Add((hdr.GetString(0), hdr.GetInt32(1)));
+                    }
+                }
+
+                hdr.Close();
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            return detalles;
+        }
         public string CalcularPdfsActaDespachoOWTR(string Fecha, string U_SYP_STATUS, string U_COB_LUGAREN)
         {
             string doc = string.Empty;
@@ -310,6 +355,51 @@ namespace Capa_Datos.Almacen_DAO.Tablas
             }
             catch { }
             return doc;
+        }
+        public List<(string, int)> DetalleCalculadoraPdfOWTR(string Fecha, string U_SYP_STATUS, string U_COB_LUGAREN)
+        {
+            List<(string, int)> detalles = new List<(string, int)>();
+            string filtros = string.Empty;
+
+            if (!string.IsNullOrEmpty(Fecha))
+            {
+                filtros += " and \"U_BPP_FECINITRA\"='" + Fecha + "'";
+            }
+            if (!string.IsNullOrEmpty(U_SYP_STATUS))
+            {
+                if (U_SYP_STATUS == "V")
+                {
+                    filtros += " and \"CANCELED\"='N'";
+                }
+                filtros += " and \"U_SYP_STATUS\"='" + U_SYP_STATUS + "'";
+            }
+            if (!string.IsNullOrEmpty(U_COB_LUGAREN))
+            {
+                filtros += " and \"Filler\"='" + U_COB_LUGAREN + "'";
+            }
+
+            string query = $"SELECT TO_CHAR(\"DocDate\", 'YYYY-MM-DD') AS \"FECHADOC\", COUNT(*) AS \"CANTIDAD\" FROM {uti.schemaHana}OWTR WHERE \"DocEntry\" > 0 AND \"ToWhsCode\" IN ('09','01') {filtros} AND \"DocDate\" in (SELECT distinct \"DocDate\" FROM {uti.schemaHana}OWTR WHERE \"DocEntry\" > 0 AND  \"ToWhsCode\" IN ('09','01') {filtros} ) GROUP BY \"DocDate\" ORDER BY \"DocDate\" ASC";
+
+            try
+            {
+                HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
+
+                while (hdr.Read())
+                {
+                    if (!hdr.IsDBNull(0) && !hdr.IsDBNull(1))
+                    {
+                        detalles.Add((hdr.GetString(0), hdr.GetInt32(1)));
+                    }
+                }
+
+                hdr.Close();
+            }
+            catch (Exception ex)
+            {
+                
+            }
+
+            return detalles;
         }
     }
 }

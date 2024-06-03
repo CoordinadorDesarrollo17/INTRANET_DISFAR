@@ -62,6 +62,7 @@ namespace Capa_Entidad.Ventas_ENT.TablasSql
         public string AlmProcedencia { get; set; }
         public string Zona { get; set; }
         public int Notificado { get; set; }
+        public string Visible { get; set; }
         public string Guias { get; set; }
 
         /********** AnularTicketVenta **********/
