@@ -18,28 +18,29 @@ namespace Capa_Usuario
         {
             _timer = new Timer(migracion, null, TimeSpan.Zero, TimeSpan.FromDays(1));
             _timer = new Timer(inactivarUsuario, null, TimeSpan.Zero, TimeSpan.FromDays(2));
-            _timer = new Timer(cambiarEstadoNCAplicada, null, TimeSpan.Zero, TimeSpan.FromDays(1));
+            //_timer = new Timer(cambiarEstadoNCAplicada, null, TimeSpan.Zero, TimeSpan.FromDays(1));
         }
 
         public void StopAsync()
         {
             _timer?.Change(Timeout.Infinite, 0);
         }
-        
+
         public void migracion(object state)
         {
             OCRD_D ocrdD = new OCRD_D();
             ocrdD.Migrar();
         }
-         public void inactivarUsuario(object state)
+        public void inactivarUsuario(object state)
         {
             Usuario_N ousrN = new Usuario_N();
-            var listaUsuariosActivos = ousrN.ListaUsuarios(new Capa_Entidad.Seguridad_ENT.Usuario_E { Activo=1});
-            foreach (var f in listaUsuariosActivos) { 
+            var listaUsuariosActivos = ousrN.ListaUsuarios(new Capa_Entidad.Seguridad_ENT.Usuario_E { Activo = 1 });
+            foreach (var f in listaUsuariosActivos)
+            {
                 if (f.DiferenciaDias > 30) { ousrN.Inactivar(f); }
             }
         }
-        
+
         public void cambiarEstadoNCAplicada(object state)
         {
             if (DateTime.Now.Hour == 1 && DateTime.Now.Minute == 0)

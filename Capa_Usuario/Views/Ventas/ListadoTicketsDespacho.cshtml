@@ -216,7 +216,6 @@
             <div class="mx-2">
                 <select name="EstadoFacturacion" id="EstadoFacturacion" class="form-control  @bgEstadoFacturacion" onchange="filtrar();">
                     <option value="">EstadoFacturacion</option>
-                    <option value="PENDIENTE" @{ if (e != null && e.EstadoFacturacion == "PENDIENTE") { Write("selected"); } }>PENDIENTE</option>
                     <option value="GRE EMITIDA" @{ if (e != null && e.EstadoFacturacion == "GRE EMITIDA") { Write("selected"); }}>GRE EMITIDA</option>
                     <option value="FACTURADO" @{ if (e != null && e.EstadoFacturacion == "FACTURADO") { Write("selected"); }}>FACTURADO</option>
                 </select>
@@ -314,6 +313,9 @@
                         <br />
                         <select name="Estado" id="Estado" class="form-control select_filtro-table" style="width:100px" onchange="filtrar();">
                             <option value=""></option>
+                            <option value="ABIERTO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ABIERTO") { Write("selected"); } }>ABIERTO</option>
+                            <option value="RECIBIDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "RECIBIDO") { Write("selected"); } }>RECIBIDO</option>
+                            <option value="PICKEANDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "PICKEANDO") { Write("selected"); } }>PICKEANDO</option>
                             <option value="EMPACANDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "EMPACANDO") { Write("selected"); } }>EMPACANDO</option>
                             <option value="EMPACADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "EMPACADO") { Write("selected"); } }>EMPACADO</option>
                             <option value="PESADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "PESADO") { Write("selected"); } }>PESADO</option>
@@ -351,7 +353,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in Model.Where(x => x.Estado != "SEPARADO"))
+                @foreach (var item in Model)
                 {
                     bool verCheck = false;
                     bool condEntregar = false;
@@ -455,7 +457,7 @@
                             }
                         </td>
                         <td>
-                            @if (item.EstadoFacturacion!=null && item.EstadoFacturacion.Equals("FACTURADO"))
+                            @if (item.EstadoFacturacion!=null && (item.EstadoFacturacion.Equals("GRE EMITIDA") || item.EstadoFacturacion.Equals("FACTURADO")))
                             {
                                 <button type="button" class="btn btn-cobefar btn-sm" title="VER DOCUMENTOS" onclick="abrirModalDocumentos(@item.DocEntry)">
                                     <i class="icon-search"> </i>Docs

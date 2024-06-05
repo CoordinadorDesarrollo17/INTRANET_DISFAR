@@ -45,8 +45,8 @@ namespace Capa_Usuario.Controllers
                     lista.Add("00", "");                     // ---- aquí el problema 
                     lista.Add("01", "186");                     // DESPACHO25 - Mireya Roman Silva
                     lista.Add("ALM01", "186");                     // DESPACHO25 - Mireya Roman Silva
-                    lista.Add("02", "186");                     // DESPACHO25 - Mireya Roman Silva
-                    lista.Add("ALM02", "186");                     // DESPACHO25 - Mireya Roman Silva
+                    lista.Add("02", "834");                     // DESPACHO86 - Hemerson Richard Laura Paucar 
+                    lista.Add("ALM02", "834");                     // DESPACHO86  - Hemerson Richard Laura Paucar 
                     lista.Add("03", "185");                     // DESPACHO23 - Julio Roman Silva
                     lista.Add("ALM03", "185");                     // DESPACHO23 - Julio Roman Silva
                     lista.Add("05", "697");                     // SALM30 - Jesus Angel Nunahuanca Cordova

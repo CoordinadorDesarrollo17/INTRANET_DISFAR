@@ -13,7 +13,7 @@
     bgEstadoTicket = bgEstandar,
     bgDocNum = bgEstandar;
 
-    if (ticket.DocNum >0)
+    if (ticket.DocNum > 0)
     {
         bgDocNum = "bg-warning";
     }
@@ -53,6 +53,9 @@
     $(document).ready(function () {
         modTabla();
     });
+    function clearZona() {
+        $('#Zona').val('');
+    }
     function filtrar() {
         var object = $("#frm").serialize();
         $(location).attr('href', "/Ventas/ListadoTicketsFacturacion?" + object);
@@ -85,7 +88,7 @@
             $("#tablaFacturacion th:nth-child(11)").hide();
         }
     }
-    
+
 </script>
 
 <div class="pt-4">
@@ -149,7 +152,7 @@
             </div>
 
             <div class="mx-2">
-                <select name="LugarDestino" id="LugarDestino" class="form-control @bgLugarDestino" onchange="filtrar(); modTabla();">
+                <select name="LugarDestino" id="LugarDestino" class="form-control @bgLugarDestino" onchange="clearZona(); modTabla(); filtrar();">
                     <option value="">LugarDestino</option>
                     <option value="Arriola" @{ if (ViewBag.Ortv != null && ticket.LugarDestino == "Arriola") { Write("selected"); } }>Arriola</option>
                     <option value="Agencia" @{ if (ViewBag.Ortv != null && ticket.LugarDestino == "Agencia") { Write("selected"); } }>Agencia</option>
@@ -177,13 +180,6 @@
                 <tr>
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.DocNum)
-                        @*<br />
-                        @if (ViewBag.Ortv != null && ViewBag.Ortv.DocNum > 0)
-                        {
-                            <input type="text" name="DocNum" class="form-control input_filtro-table" onchange="filtrar();" value="@ViewBag.Ortv.DocNum" />
-                        }
-                        else
-                        { <input type="text" name="DocNum" class="form-control input_filtro-table" onchange="filtrar();" />}*@
                     </th>
                     <th>
                         @Html.DisplayNameFor(model => model.CardName)<br />
@@ -228,7 +224,22 @@
                         { <input type="date" id="TiempoEntrega" name="TiempoEntrega" class="form-control" style="width: 130px;font-size:11px" value="@Html.Raw(DateTime.Today)" onchange="filtrar();" />}
                     </th>
                     <th class="text-center">Persona de recojo </th>
-                    <th class="text-center">Zona</th>
+                    <th class="text-center">
+                        Zona
+                        <select name="Zona" id="Zona" class="form-control select_filtro-table font-11" onchange="filtrar();">
+                            <option value="">Seleccione</option>
+                            <option value="CONO CENTRO" @{ if (ViewBag.Ortv != null && ticket.Zona == "CONO CENTRO") { Write("selected"); }}>CONO CENTRO</option>
+                            <option value="CONO SUR" @{ if (ViewBag.Ortv != null && ticket.Zona == "CONO SUR") { Write("selected"); }}>CONO SUR</option>
+                            <option value="CONO NORTE2" @{ if (ViewBag.Ortv != null && ticket.Zona == "CONO NORTE2") { Write("selected"); }}>CONO NORTE2</option>
+                            <option value="CONO ESTE2" @{ if (ViewBag.Ortv != null && ticket.Zona == "CONO ESTE2") { Write("selected"); }}>CONO ESTE2</option>
+                            <option value="PREVENTA" @{ if (ViewBag.Ortv != null && ticket.Zona == "PREVENTA") { Write("selected"); }}>PREVENTA</option>
+                            <option value="ARRIOLA" @{ if (ViewBag.Ortv != null && ticket.Zona == "ARRIOLA") { Write("selected"); }}>ARRIOLA</option>
+                            <option value="CONO ESTE1" @{ if (ViewBag.Ortv != null && ticket.Zona == "CONO ESTE1") { Write("selected"); }}>CONO ESTE1</option>
+                            <option value="CONO NORTE1" @{ if (ViewBag.Ortv != null && ticket.Zona == "CONO NORTE1") { Write("selected"); }}>CONO NORTE1</option>
+                            <option value="AGENCIA" @{ if (ViewBag.Ortv != null && ticket.Zona == "AGENCIA") { Write("selected"); }}>AGENCIA</option>
+                            <option value="CALLAO" @{ if (ViewBag.Ortv != null && ticket.Zona == "CALLAO") { Write("selected"); }}>CALLAO</option>
+                        </select>
+                    </th>
                     <th></th>
                     <th></th>
                     <th></th>
@@ -239,15 +250,9 @@
                 </tr>
             </thead>
             <tbody class="text-dark">
-                @foreach (var item in Model.Where(x => x.Estado == "EMPACANDO" ||
-                                                   x.Estado == "EMPACADO" ||
-                                                   x.Estado == "PESADO" ||
-                                                   x.Estado == "ENVIADO" ||
-                                                   x.Estado == "PREENVIO" ||
-                                                   x.Estado == "ENTREGADO").OrderBy(x =>
-                                      x.EstadoFacturacion == "PENDIENTE" ? 0 :
-                                      x.EstadoFacturacion == "GRE EMITIDA" ? 1 :
-                                       x.EstadoFacturacion == "FACTURADO" ? 2: 3))
+                @foreach (var item in Model.OrderBy(x => x.EstadoFacturacion == "PENDIENTE" ? 0 :
+                                                  x.EstadoFacturacion == "GRE EMITIDA" ? 1 :
+                                                   x.EstadoFacturacion == "FACTURADO" ? 2 : 3))
                 {
                     string styleAnulado = "", styleText = "";
                     if (item.Estado.Equals("ANULADO") || item.Estado.Equals("CANCELADO"))
@@ -271,10 +276,10 @@
                                 {
                                     string styleObs = (@dt.Observaciones != "") ? "background-color: #00FFFF;" : "";
                                     string colorTipoComprobante = "background-color: #FCC5CA;";
-                                 
+
                                     if (dt.TipoComprobante == "Factura")
                                     {
-                                        colorTipoComprobante = ""; 
+                                        colorTipoComprobante = "";
                                     }
                                     else if (dt.TipoComprobante == "Boleta")
                                     {
@@ -317,11 +322,9 @@
                             {
                                 styleTiempoEntrega = "background-color:chartreuse";
                             }
-
                             <td class="text-center" style="width: 130px; @styleTiempoEntrega">
                                 <div class="mx-2">@item.TiempoEntrega</div>
                             </td>
-
                         }
                         else
                         {
@@ -360,7 +363,8 @@
                                     Flete = ViewBag.Ortv.Flete,
                                     DescuentoNC = ViewBag.Ortv.DescuentoNC,
                                     EstadoFacturacion = ViewBag.Ortv.EstadoFacturacion,
-                                    LugarDestino = ViewBag.Ortv.LugarDestino  } )">
+                                    LugarDestino = ViewBag.Ortv.LugarDestino,
+                                    Zona=ViewBag.Ortv.Zona } )">
                                     <i class="icon icon-file-text2"></i>
                                 </a>
                             }
@@ -379,7 +383,8 @@
                                 Flete = ViewBag.Ortv.Flete,
                                 DescuentoNC = ViewBag.Ortv.DescuentoNC,
                                 EstadoFacturacion = ViewBag.Ortv.EstadoFacturacion,
-                                LugarDestino = ViewBag.Ortv.LugarDestino  } )" type="button" target="_self" class="btn btn-danger btn-sm" title="REVERTIR EMITIR GUIAS">
+                                LugarDestino = ViewBag.Ortv.LugarDestino
+                                ,Zona=ViewBag.Ortv.Zona } )" type="button" target="_self" class="btn btn-danger btn-sm" title="REVERTIR EMITIR GUIAS">
                                     <i class="icon icon-blocked"></i>
                                 </a>
                             }
@@ -398,7 +403,8 @@
                                     Flete = ViewBag.Ortv.Flete,
                                     DescuentoNC = ViewBag.Ortv.DescuentoNC,
                                     EstadoFacturacion = ViewBag.Ortv.EstadoFacturacion,
-                                    LugarDestino = ViewBag.Ortv.LugarDestino  } )">
+                                    LugarDestino = ViewBag.Ortv.LugarDestino,
+                                    Zona=ViewBag.Ortv.Zona} )">
                                     <i class="icon icon-file-text2"></i>
                                 </a>
                             }
@@ -417,7 +423,8 @@
                                 Flete = ViewBag.Ortv.Flete,
                                 DescuentoNC = ViewBag.Ortv.DescuentoNC,
                                 EstadoFacturacion = ViewBag.Ortv.EstadoFacturacion,
-                                LugarDestino = ViewBag.Ortv.LugarDestino  } )" type="button" target="_self" class="btn btn-danger btn-sm" title="ANULAR FACTURADO">
+                                LugarDestino = ViewBag.Ortv.LugarDestino,
+                                Zona=ViewBag.Ortv.Zona} )" type="button" target="_self" class="btn btn-danger btn-sm" title="ANULAR FACTURADO">
                                     <i class="icon icon-blocked"></i>
                                 </a>
                             }

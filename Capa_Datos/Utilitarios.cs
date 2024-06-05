@@ -38,9 +38,9 @@ namespace Capa_Datos
             //this.cadAccess = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=E:\COBEFARSAC\RECURSOS HUMANOS\ATTBACKUP.mdb;Persist Security Info=False;";
 
             //Intranet
-            //this.serverSql = @"WIN-DC\DIEGO_BD"; this.passwordSql = "@Ndr@de123"; this.BDsql = "INTRANET_V2_PRUEBA"; this.userSql = "sa";
+            this.serverSql = @"WIN-DC\DIEGO_BD"; this.passwordSql = "@Ndr@de123"; this.BDsql = "INTRANET_V2"; this.userSql = "sa";
             //this.serverSql = @"TI-05";this.BDsql = "BASE_30_05_24";this.userSql = "sa"; this.passwordSql = "TICOBE@R789";
-            this.serverSql = @"SVR-IIS"; this.BDsql = "BASE_30_05_24"; this.userSql = "sa"; this.passwordSql = "TICOBE@R789"; 
+            //this.serverSql = @"SVR-IIS"; this.BDsql = "BASE_30_05_24"; this.userSql = "sa"; this.passwordSql = "TICOBE@R789"; 
 
             this.cadSql = @"Server=" + this.serverSql + ";database=" + this.BDsql + ";user id=" + this.userSql + ";password=" + this.passwordSql + ";Min Pool Size=0;Max Pool Size=10024;Pooling=true";
             
@@ -65,34 +65,34 @@ namespace Capa_Datos
             }
             catch { }
         }
-        //public string obtieneMonto(string monto)
-        //{
-        //    int i = 1;
-        //    string montoTotal = "E";
-        //    string pattern = @"S\/.?.?.?[0-9]+(,[0-9]+)?\.[0-9]+";
-        //    MatchCollection matches = Regex.Matches(monto.Replace(" ", ""), pattern, RegexOptions.IgnoreCase);
-        //    foreach (Match match in matches)
-        //    {
-        //        montoTotal = match.Value;
-        //        if (i == 2) { break; }
-        //        i++;
-        //    }
-        //    return montoTotal;
-        //}
-        //public decimal obtieneMontoVal(string comment)
-        //{
-        //    decimal monto = (decimal)0.00;
-        //    string pattern = @"[0-9]+(,[0-9]+)?\.[0-9]+";
-        //    MatchCollection matches = Regex.Matches(comment.Replace(" ", ""), pattern, RegexOptions.IgnoreCase);
-        //    try { monto = decimal.Parse(matches[0].Value); }
-        //    catch { }
-        //    return monto;
-        //}
-        //public string msjError(int HResult)
-        //{
-        //    string msj = "";
-        //    if (HResult == -2146232060) { msj = "El valor ya se encuentra registrado"; }
-        //    return msj;
-        //}
+        public string obtieneMonto(string monto)
+        {
+            int i = 1;
+            string montoTotal = "E";
+            string pattern = @"S\/.?.?.?[0-9]+(,[0-9]+)?\.[0-9]+";
+            MatchCollection matches = Regex.Matches(monto.Replace(" ", ""), pattern, RegexOptions.IgnoreCase);
+            foreach (Match match in matches)
+            {
+                montoTotal = match.Value;
+                if (i == 2) { break; }
+                i++;
+            }
+            return montoTotal;
+        }
+        public decimal obtieneMontoVal(string comment)
+        {
+            decimal monto = (decimal)0.00;
+            string pattern = @"[0-9]+(,[0-9]+)?\.[0-9]+";
+            MatchCollection matches = Regex.Matches(comment.Replace(" ", ""), pattern, RegexOptions.IgnoreCase);
+            try { monto = decimal.Parse(matches[0].Value); }
+            catch { }
+            return monto;
+        }
+        public string msjError(int HResult)
+        {
+            string msj = "";
+            if (HResult == -2146232060) { msj = "El valor ya se encuentra registrado"; }
+            return msj;
+        }
     }
 }

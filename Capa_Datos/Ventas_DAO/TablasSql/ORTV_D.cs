@@ -143,8 +143,18 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             List<ORTV_E> lista = new List<ORTV_E>();
             string condWhere = string.Empty, subConsulta = string.Empty;
 
-            if (user.IdRol == 7) { condWhere += $" AND t0.CodSapVendedor='{user.CodigoSap}'"; }
-
+            if (user.IdRol == 7) { 
+                condWhere += $" AND t0.CodSapVendedor='{user.CodigoSap}'"; 
+            }
+            if (user.IdRol == 54)
+            {
+                condWhere += $" AND t0.Estado in ('PICKEANDO','EMPACANDO','EMPACADO','PESADO','ENVIADO','PREENVIO','ENTREGADO')";
+            }
+            if (user.IdRol == 53) {
+               condWhere += $" AND t0.Estado in ( 'PICKEANDO','EMPACANDO','EMPACADO','PESADO','ENVIADO','PREENVIO','ENTREGADO')" +
+                    $" AND t0.EstadoFacturacion in ('GRE EMITIDA','FACTURADO')";
+            }
+            
             if (t != null)
             {
                 if (t.DocNum > 0) { condWhere += $" AND t0.DocNum like  '%{t.DocNum}%'"; }
@@ -161,6 +171,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 if (t.PagoEnv == 0.01M) { condWhere += " AND t0.PagoEnv>0"; }
                 if (t.EstadoFacturacion != null) { condWhere += $" AND t0.EstadoFacturacion='{t.EstadoFacturacion}'"; }
                 if (t.TipoVenta != null) { condWhere += $" AND t0.TipoVenta ='{t.TipoVenta}'"; }
+                if (t.Zona != null) { condWhere += $" AND t0.Zona ='{t.Zona}'"; }
                 if (t.TiempoEntrega != null)
                 {
                     if (t.NombreVista != null)
@@ -193,7 +204,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             {
                 //LOS QUERYS COMENTADOS BUSCAN MINIMIZAR LA CONSULTA EN UN RANGO DE 2022 A 2024, AUN NO SE APLICA
                 //string select = "TOP 100 t0.DocEntry, t0.DocNum FROM vt.ORTV t0 inner join vt.CC_ORTV t1 on t1.DocEntry=t0.DocEntry ";
-                string select = "TOP 100 t0.DocEntry, t0.DocNum FROM vt.ORTV t0 ";
+                string select = "TOP 500 t0.DocEntry, t0.DocNum FROM vt.ORTV t0 ";
                 string query = $"SELECT {select} WHERE t0.DocEntry>0 {subConsulta} {condWhere} ORDER BY t0.DocNum DESC";
                 //string query = $"SELECT {select} WHERE t1.Operacion='SEPARAR' and t1.FechaOperacion between '2022-01-01' and getdate() {subConsulta} {condWhere} ORDER BY t0.DocNum DESC";
 
@@ -362,7 +373,17 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                                     ticket.OpEmpacadoApoyo = operariosEmpacando;
                                 }
                             }
-                            lista.Add(ticket);
+                            if (user.IdRol == 53 || user.IdRol == 54)
+                            {
+                                if (ticket.hayFinVerificar)
+                                {
+                                    lista.Add(ticket);
+                                }
+                            }
+                            else
+                            {
+                                lista.Add(ticket);
+                            }
                         }
                     }
 

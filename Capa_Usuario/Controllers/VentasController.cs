@@ -627,7 +627,8 @@ namespace Capa_Usuario.Controllers
                 //Si el DocNum es diferente a 0 todos los datos necesarios del ticket se llenan en ViewBag.Ortv ( para que muestre en el filtro)
                 if (DocNum > 0)
                 {
-                    var DocEntry = DocNum - 2000000000; var ticketUnico = tkN.obtenerTicket(DocEntry);
+                    var DocEntry = DocNum - 2000000000;
+                    var ticketUnico = tkN.obtenerTicket(DocEntry);
                     ticket.LugarDestino = ticketUnico.LugarDestino;
                     ticket.Estado = ticketUnico.Estado;
                     ticket.EstadoFacturacion = ticketUnico.EstadoFacturacion;
@@ -660,6 +661,7 @@ namespace Capa_Usuario.Controllers
                     DescuentoNC = ticketPost.DescuentoNC,
                     EstadoFacturacion = ticketPost.EstadoFacturacion,
                     LugarDestino = ticketPost.LugarDestino,
+                    Zona = ticketPost.Zona,
                     Mensaje = string.Empty
                 };
                 bool hayFinVerificar = false; int DocNum = 0;
@@ -728,6 +730,7 @@ namespace Capa_Usuario.Controllers
                     DescuentoNC = ticketPost.DescuentoNC,
                     EstadoFacturacion = ticketPost.EstadoFacturacion,
                     LugarDestino = ticketPost.LugarDestino,
+                    Zona = ticketPost.Zona,
                     Mensaje = string.Empty
                 };
 
@@ -766,6 +769,7 @@ namespace Capa_Usuario.Controllers
                     DescuentoNC = ticketPost.DescuentoNC,
                     EstadoFacturacion = ticketPost.EstadoFacturacion,
                     LugarDestino = ticketPost.LugarDestino,
+                    Zona = ticketPost.Zona,
                     Mensaje = string.Empty
                 };
 
@@ -805,6 +809,7 @@ namespace Capa_Usuario.Controllers
                     DescuentoNC = ticketPost.DescuentoNC,
                     EstadoFacturacion = ticketPost.EstadoFacturacion,
                     LugarDestino = ticketPost.LugarDestino,
+                    Zona = ticketPost.Zona,
                     Mensaje = string.Empty
                 };
 
@@ -900,7 +905,7 @@ namespace Capa_Usuario.Controllers
             List<RTV4_E> nc = ortvN.obtenerDet4Ticket(DocEntry);
             return Json(nc);
         }
-        
+
         public ActionResult ListadoTicketsRecepcion(int DocNum = 0, ORTV_E ticket = null, string Mensaje = "", int idOperation = 701)
         {
             if (verificacionAccesos(idOperation) == "C_Access")
@@ -1555,69 +1560,39 @@ namespace Capa_Usuario.Controllers
             {
                 Usuario_E user = (Usuario_E)Session["UsuarioId"];
                 ViewBag.DocNum = DocNum;
-
                 ViewBag.almacenUsuario = user.WhsCode;
                 ViewBag.idRolUsuario = user.IdRol;
                 ViewBag.Mensaje = Mensaje;
                 ticket.NombreVista = "ListadoTicketsDespacho";
-                if (user.WhsCode!=null && (user.WhsCode.Equals("01") || user.WhsCode.Equals("06")))
+                if (user.WhsCode != null)
                 {
-                    ticket.EstadoFacturacion = "FACTURADO"; 
+                    if (user.WhsCode.Equals("01"))
+                    {
+                        ticket.LugarDestino = "Centro";
+                    }
+                    else if (user.WhsCode.Equals("06"))
+                    {
+                        ticket.LugarDestino = "Arriola";
+                    }
                 }
                 var lista = ticketN.listarTicketsVenta(user, ticket);
-                lista = lista.Where(x => x.LugarDestino != null).ToList();
+
                 if (user.IdRol == 53)
                 {
-                    switch (user.WhsCode)
+                    lista = lista.OrderBy(x =>
                     {
-                        case "01":
-                            lista = lista.Where(x => x.LugarDestino.Equals("Centro") &&
-                         (x.Estado == "EMPACANDO" || x.Estado == "EMPACADO" ||
-                          x.Estado == "PREENVIO" || x.Estado == "ENVIADO" ||
-                          x.Estado == "ENTREGADO"))
-                         .OrderBy(x =>
-                         {
-                             if (x.Estado == "ENVIADO")
-                                 return 0;
-                             if (x.Estado == "PREENVIO")
-                                 return 1;
-                             if (x.Estado == "EMPACADO")
-                                 return 2;
-                             if (x.Estado == "EMPACANDO")
-                                 return 3;
-                             if (x.Estado == "ENTREGADO")
-                                 return 4;
-                             return 5; 
-                         })
-                         .ThenBy(x => x.TiempoEntrega) 
-                         .ToList();
-                            break;
-                        case "06":
-                            lista = lista.Where(x => x.LugarDestino.Equals("Arriola") &&
-                        (x.Estado == "EMPACANDO" || x.Estado == "EMPACADO" ||
-                         x.Estado == "PREENVIO" || x.Estado == "ENVIADO" ||
-                         x.Estado == "ENTREGADO"))
-                        .OrderBy(x =>
-                        {
-                            if (x.Estado == "ENVIADO")
-                                return 0;
-                            if (x.Estado == "PREENVIO")
-                                return 1;
-                            if (x.Estado == "EMPACADO")
-                                return 2;
-                            if (x.Estado == "EMPACANDO")
-                                return 3;
-                            if (x.Estado == "ENTREGADO")
-                                return 4;
-                            return 5;
-                        })
-                        .ThenBy(x => x.TiempoEntrega)
-                        .ToList();
-                            break;
-                        default:
-                            lista = lista.Where(x => x.DocEntry > 0).ToList();
-                            break;
-                    }
+                        if (x.Estado == "PICKEANDO")
+                            return 0;
+                        if (x.Estado == "EMPACADO")
+                            return 1;
+                        if (x.Estado == "PREENVIO")
+                            return 2;
+                        if (x.Estado == "ENVIADO")
+                            return 3;
+                        if (x.Estado == "ENTREGADO")
+                            return 4;
+                        return 5;
+                    }).ToList();
 
                 }
                 ViewBag.Ortv = ticket;
