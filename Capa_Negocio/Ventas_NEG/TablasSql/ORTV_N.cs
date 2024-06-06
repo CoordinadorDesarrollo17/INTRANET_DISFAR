@@ -277,6 +277,11 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         {
             return ticketV.editarVisibilidadTicket(DocEntry);
         }
+        public int registrarImpresionTicket(int DocEntry,string Operario)
+        {
+            return ticketV.registrarImpresionTicket(DocEntry,Operario);
+        }
+        
         public int cancelarTicket(int DocEntry, string Operario, int IdRol)
         {
             ORTV_E t = ticketV.obtenerTicket(DocEntry);

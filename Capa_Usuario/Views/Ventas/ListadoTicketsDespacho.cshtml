@@ -18,7 +18,7 @@
 
     /*
      * Se mostrará el botón Pesar para los usuarios con idRol = 1
-     * Se mostrará el botón Pesar para los usuarios que tenga el WhsCode (almacén) vacíos o "03" (Arriola)
+     * Se mostrará el botón Pesar para los usuarios que tenga el WhsCode (almacén) vacíos o "03" 
      */
     if (String.IsNullOrEmpty(almacenUsuario) || almacenUsuario == "03" || idRolUsuario == 1)
     {
@@ -249,20 +249,20 @@
                         <br />
                         @if (e != null && e.DocNum > 0)
                         {
-                            <input type="text" name="DocNum" class="form-control input_filtro-table" style="width: 110px" onchange="filtrar();" value="@e.DocNum" />
+                            <input type="text" name="DocNum" class="form-control input_filtro-table" onchange="filtrar();" value="@e.DocNum" />
                         }
                         else
-                        { <input type="text" name="DocNum" class="form-control input_filtro-table" style="width: 110px" onchange="filtrar();" />}
+                        { <input type="text" name="DocNum" class="form-control input_filtro-table" onchange="filtrar();" />}
                     </th>
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.FechaSapTicket)
                         <br />
                         @if (e != null && e.FechaSapTicket != null)
                         {
-                            <input type="date" name="FechaSapTicket" class="form-control input_date-filtro-table" style="width: 100px" value="@e.FechaSapTicket" onchange="filtrar();" />
+                            <input type="date" name="FechaSapTicket" class="form-control input_date-filtro-table" value="@e.FechaSapTicket" onchange="filtrar();" />
                         }
                         else
-                        { <input type="date" name="FechaSapTicket" class="form-control input_date-filtro-table" style="width: 100px" onchange="filtrar();" />}
+                        { <input type="date" name="FechaSapTicket" class="form-control input_date-filtro-table" onchange="filtrar();" />}
 
                     </th>
                     <th>
@@ -270,10 +270,10 @@
                         <br />
                         @if (e != null && e.CardName != null)
                         {
-                            <input type="text" name="CardName" class="form-control input_filtro-table" style="width: 200px" onchange="filtrar();" value="@e.CardName" />
+                            <input type="text" name="CardName" class="form-control input_filtro-table" onchange="filtrar();" value="@e.CardName" />
                         }
                         else
-                        { <input type="text" name="CardName" class="form-control input_filtro-table" style="width: 200px" onchange="filtrar();" />}
+                        { <input type="text" name="CardName" class="form-control input_filtro-table"  onchange="filtrar();" />}
                     </th>
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.Vendedor)
@@ -316,6 +316,7 @@
                             <option value="ABIERTO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ABIERTO") { Write("selected"); } }>ABIERTO</option>
                             <option value="RECIBIDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "RECIBIDO") { Write("selected"); } }>RECIBIDO</option>
                             <option value="PICKEANDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "PICKEANDO") { Write("selected"); } }>PICKEANDO</option>
+                            <option value="VERIFICANDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "VERIFICANDO") { Write("selected"); } }>VERIFICANDO</option>
                             <option value="EMPACANDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "EMPACANDO") { Write("selected"); } }>EMPACANDO</option>
                             <option value="EMPACADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "EMPACADO") { Write("selected"); } }>EMPACADO</option>
                             <option value="PESADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "PESADO") { Write("selected"); } }>PESADO</option>
@@ -349,12 +350,18 @@
                     <th></th>
                     <th></th>
                     <th></th>
-                    <th></th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var item in Model)
                 {
+                    string styleImpreso = "";
+                    if (item.Impreso>0)
+                    {
+                        styleImpreso = "bg-skyblue";
+
+                    }
+
                     bool verCheck = false;
                     bool condEntregar = false;
                     bool condPesar = false;
@@ -368,8 +375,8 @@
                         if (item.LugarDestino != "Agencia")
                         {
                             if ((item.TipoVenta == "Normal" && item.EstadoPago == "PAGADO")
-                               || (item.TipoVenta == "Credito" && (item.EstadoPago == "PENDIENTE" || item.EstadoPago == "PAGADO"))
-                               || (item.TipoVenta == "ContraEntrega"))
+                            || (item.TipoVenta == "Credito" && (item.EstadoPago == "PENDIENTE" || item.EstadoPago == "PAGADO"))
+                            || (item.TipoVenta == "ContraEntrega"))
                             {
                                 condEntregar = true;
                             }
@@ -401,8 +408,8 @@
                     }
 
                     if ((item.LugarDestino == "Arriola" || item.LugarDestino == "Centro")
-                        && item.EstadoFacturacion == "FACTURADO" && item.Estado == "ENVIADO"
-                        && e.CardName != null && condEntregar)
+                    && item.EstadoFacturacion == "FACTURADO" && item.Estado == "ENVIADO"
+                    && e.CardName != null && condEntregar)
                     {
                         verCheck = true;
                     }
@@ -411,7 +418,7 @@
                         claseDocNum += " ml-3";
                     }
 
-                    <tr id="fila">
+                    <tr id="fila" class="@styleImpreso">
                         <td style="width: 120px">
                             <div class="@claseDocNum">
                                 @if (verCheck == true)
@@ -441,69 +448,68 @@
                         <td class="text-center" style="@styleEstado">@Html.DisplayFor(modelItem => item.Estado)</td>
                         <td class="text-center">@Html.DisplayFor(modelItem => item.EstadoPago)</td>
                         <td class="text-center">@Html.DisplayFor(modelItem => item.TipoVenta)</td>
-                        <td class="text-center">@item.TiempoEntrega.ToString()</td>
+                        <td class="text-center">@Convert.ToDateTime(item.TiempoEntrega).ToString("dd/MM/yyyy HH:mm:ss")</td>
                         <td>
-                            @if (condPesar == true && verBtnPesar == true)
+                            @if (condPesar && verBtnPesar)
                             {
-                                <a href="@Url.Action( "PesadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry  } )" class="btn btn-primary btn-sm" title="Pesar">
+                                <a href="@Url.Action("PesadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-primary btn-sm" title="Pesar">
                                     <span>Pesar</span>
                                 </a>
                             }
-                            @if (condAnularPesar == true && verBtnPesar == true)
+
+                            @if (condAnularPesar && verBtnPesar)
                             {
-                                <a href="@Url.Action( "AnularPesadoTicket", "Ventas", new { DocEntry = item.DocEntry  } )" class="btn btn-danger btn-sm" title="AnularPesado">
+                                <a href="@Url.Action("AnularPesadoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm" title="Anular Pesado">
                                     <span>Anular Pesado</span>
                                 </a>
                             }
-                        </td>
-                        <td>
-                            @if (item.EstadoFacturacion!=null && (item.EstadoFacturacion.Equals("GRE EMITIDA") || item.EstadoFacturacion.Equals("FACTURADO")))
+
+                            @if (item.EstadoFacturacion != null && (item.EstadoFacturacion.Equals("GRE EMITIDA") || item.EstadoFacturacion.Equals("FACTURADO")))
                             {
                                 <button type="button" class="btn btn-cobefar btn-sm" title="VER DOCUMENTOS" onclick="abrirModalDocumentos(@item.DocEntry)">
                                     <i class="icon-search"> </i>Docs
                                 </button>
                             }
-                        </td>
-                        <td>
-                            @if (item.LugarDestino != "Agencia Courier" && condEntregar == true)
 
+                            @if (condEntregar)
                             {
-                                <a href="@Url.Action( "EntregadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry  } )" class="btn btn-success btn-sm" title="Entregar"><span>Entregar</span></a>
-                            }
-                            else if (item.Estado == "PESADO" && condEntregar == true)
-                            {
-                                <a href="@Url.Action( "EntregadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry  } )" class="btn btn-success btn-sm" title="Entregar"><span>Entregar</span></a>
-                            }
-
-                            @if (condAnularEntrega == true)
-                            {
-
-                                <a href="@Url.Action("AnularEntregadoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-warning btn-sm" title="AnularEntrega">
-                                    <span>Anular <br /> Entrega</span>
+                                <a href="@Url.Action("EntregadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-success btn-sm" title="Entregar">
+                                    <span>Entregar</span>
                                 </a>
+                            }
+                            else if (item.Estado == "PESADO" && condEntregar)
+                            {
+                                <a href="@Url.Action("EntregadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-success btn-sm" title="Entregar">
+                                    <span>Entregar</span>
+                                </a>
+                            }
 
+                            @if (condAnularEntrega)
+                            {
+                                <a href="@Url.Action("AnularEntregadoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-warning btn-sm" title="Anular Entrega">
+                                    <span>Anular Entrega</span>
+                                </a>
                             }
                         </td>
 
                         <td>
-                            <a href="@Url.Action( "SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry, view = "despacho"  } )" class="btn btn-dark btn-sm" title="Seguimiento de ticket" type="button" target="_blank"
-                               onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;">
+                            <a href="@Url.Action("SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry, view = "despacho" })" class="btn btn-dark btn-sm" title="Seguimiento de ticket" type="button" target="_blank" onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;">
                                 <i class="icon-truck"></i>
                             </a>
                         </td>
-                        @* DESHABILITADO EL CANCELAR POR ESTE MODULO
+
                         <td>
-                            @if (idRolUsuario == 1 || (idRolUsuario == 4 && !item.Estado.Equals("ENTREGADO")))
+                            @if (idRolUsuario == 53 || idRolUsuario == 1)
                             {
-                                <a href="#" class="btn btn-danger btn-sm" title="Cancelar" onclick="cancelarTicket(@item.DocEntry);">
-                                    <i class="icon-cross"></i>
+                                <a href="#" class="btn btn-naranja btn-sm" title="Imprimir" onclick="registrarImpresion(@item.DocEntry);">
+                                    <i class="icon-printer"></i>
                                 </a>
                             }
                         </td>
-                        *@
+
                     </tr>
-                }
-            </tbody>
+                    }
+                </tbody>
         </table>
     </div>
 </form>
@@ -521,6 +527,7 @@
 </div>
 
 
+
 <script>
     if ('@ViewBag.Mensaje' != "") {
         Swal.fire('@ViewBag.Mensaje');
@@ -532,7 +539,7 @@
             $("#" + modalId).modal('show');
             return;
         }
-        
+
         // Si el modal no existe, crear uno nuevo
         Promise.all([buscarDocumentos(DocEntry), buscarNotaCreditoVenta(DocEntry)])
             .then(function (responses) {
@@ -559,7 +566,7 @@
                         </div>
                     </div>`;
                 $("body").append(modalHtml);
-                // Una vez que se ha agregado el HTML del modal al cuerpo del documento, ábrelo : Esto evita que se muestre un modal vacio por demora en query SAP 
+                // Una vez que se ha agregado el HTML del modal al cuerpo del documento, ábrelo : Esto evita que se muestre un modal vacio por demora en query SAP
                 $("#" + modalId).modal('show');
             })
             .catch(function (error) {
@@ -709,6 +716,19 @@
                 location.href = '/Ventas/CancelarTicket?DocEntry=' + DocEntry + '&vista=ListadoTicketsDespacho';
             }
         });
+    }
+    function registrarImpresion(DocEntry) {
+       
+        $.ajax({
+            url: '/Ventas/RegistrarImpresion?DocEntry=' + DocEntry,
+            type: 'POST',
+            dataType: 'json'
+        }).done(function (response) {
+            location.reload();
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            console.log(jqXHR.status + textStatus + errorThrown);
+        });
+
     }
 </script>
 

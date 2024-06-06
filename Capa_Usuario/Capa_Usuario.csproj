@@ -1074,7 +1074,6 @@
     <Content Include="Views\Ventas\NuevoClienteRegalo.cshtml" />
     <Content Include="Views\Ventas\EditarClienteRegalos.cshtml" />
     <Content Include="Views\Ventas\ReporteReclamosCliente.cshtml" />
-    <Content Include="Views\Index\Index - BKP 24-05-23.cshtml" />
     <Content Include="Views\TI_Sistemas\AdministrarRolOperacion.cshtml" />
     <Content Include="Views\TI_Sistemas\EditarUsuario.cshtml" />
     <Content Include="Views\TI_Sistemas\GestionPermisos.cshtml" />

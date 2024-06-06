@@ -1,18 +1,14 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "Login";
     Layout = "~/Views/Shared/_Layout2.cshtml";
 }
 
-<div class="row mt-4 justify-content-center" style="min-height: 600px; ">
-    <div class="col-lg-6 bg-cobefar d-flex align-items-end" style="box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;">
-        <div class="p-5">
-            <div>
-                <video src="~/Content/img/video-presentacion-24-05-23.mp4" autoplay loop muted width="100%"></video>
-            </div>
-
-            <div class="copyright mt-4 mb-0">
-                <span class="text-cobefar-2">CONTACTO:</span>
+<div class="row mt-4 justify-content-center" style="min-height: 900px;">
+    <div class="col-lg-6 bg-cobefar d-flex align-items-end" id="div_video" style="box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px; position: relative;">
+        <video src="~/Content/img/video-presentacion-24-05-23.mp4" autoplay loop muted playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;"></video>
+        <div class="p-5" style="z-index: 1;">
+            <div class="copyright mt-4 mb-0" id="copyright">
+                <span class="text-cobefar-2"><strong>CONTACTO:</strong></span>
                 <div class="my-3">
                     <span class="text-cobefar-2">> </span><span class="text-white">soporte@cobefar.com.pe</span><br />
                     <span class="text-cobefar-2">>> </span><span class="text-white">desarrollo@cobefar.com.pe</span><br />
@@ -26,32 +22,28 @@
         </div>
     </div>
 
-    <div class="col-lg-4 px-4 py-3 bg-white d-flex align-items-center" style="opacity: 0.95; box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;">
-        <div class="row justify-content-center">
-            <div class="col-lg-12 text-center">
+    <div class="col-lg-4 px-4 py-3 bg-white d-flex align-items-center justify-content-center" style="opacity: 0.95; box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;">
+        <div>
+            <div class="text-center mb-4">
                 <img src="~/Content/img/logo-drogueria-cobefar.jpg" class="img-fluid" width="250" />
             </div>
 
-            <div class="col-lg-12">
-                <form action="Index/Login" method="post">
-                    <div class="glyphicon-align-center mt-3">
-                        <label class="text-cobefar font-weight-bold">Usuario:</label>
-                        <input class="form-control border-success" type="text" name="User" placeholder="Ingrese su usuario" />
-                    </div>
-                    <div class="form-group mt-3">
-                        <label class="text-cobefar font-weight-bold">Contraseña:</label>
-                        <input class="form-control border-success" type="password" name="Pass" placeholder="Ingrese su contraseña" />
-                    </div>
+            <form action="Index/Login" method="post">
+                <div class="form-group">
+                    <label class="text-cobefar font-weight-bold">Usuario:</label>
+                    <input class="form-control border-success" type="text" name="User" placeholder="Ingrese su usuario" />
+                </div>
+                <div class="form-group">
+                    <label class="text-cobefar font-weight-bold">Contraseña:</label>
+                    <input class="form-control border-success" type="password" name="Pass" placeholder="Ingrese su contraseña" />
+                </div>
 
-                    <div class="mt-3">
-                        <button type="submit" class="btn btn-cobefar btn-block">Ingresar</button>
-                    </div>
-                </form>
-            </div>
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-cobefar btn-block">Ingresar</button>
+                </div>
+            </form>
         </div>
-
     </div>
-
 </div>
 
 <script>
@@ -59,3 +51,4 @@
         Swal.fire('@TempData["Mensaje"]');
     }
 </script>
+

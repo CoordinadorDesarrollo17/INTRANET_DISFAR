@@ -87,6 +87,8 @@ namespace Capa_Entidad.Ventas_ENT.TablasSql
         public string LugEntrega { get; set; }
         public string DetOpe { get; set; }
         public decimal PesoTotal { get; set; }
+        public int Impreso { get; set; }
+        
 
         /**** LISTADO TICKETS RECEPCIÓN ****/
         public string HoraRecibir { get; set; }

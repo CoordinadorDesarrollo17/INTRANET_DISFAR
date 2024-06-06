@@ -23,6 +23,7 @@ using DocumentFormat.OpenXml.Drawing;
 using Microsoft.Reporting.WebForms;
 using Microsoft.ReportingServices.ReportProcessing.ReportObjectModel;
 using OfficeOpenXml;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 using OfficeOpenXml.Table;
 using Rotativa;
 using System;
@@ -3490,8 +3491,18 @@ namespace Capa_Usuario.Controllers
         public JsonResult CambiarVisibleTicket(int DocEntry)
         {
             verificacionAccesos(0); ORTV_N ortvN = new ORTV_N(); var result = ortvN.editarVisibilidadTicket(DocEntry);
-            return Json(new { Datos = result }); ;
+            return Json(new { Datos = result }); 
         }
+        public JsonResult RegistrarImpresion(int DocEntry)
+        {
+            verificacionAccesos(0);
+            Usuario_E user = (Usuario_E)Session["UsuarioId"];
+            var Operario = $"{user.Nombres} {user.Apellidos}";
+            ORTV_N ortvN = new ORTV_N(); 
+            var result = ortvN.registrarImpresionTicket(DocEntry, Operario);
+            return Json(new { Datos = result });
+        }
+        
 
 
     }

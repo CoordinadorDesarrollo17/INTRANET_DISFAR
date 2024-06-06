@@ -38,7 +38,9 @@ namespace Capa_Datos
             //this.cadAccess = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=E:\COBEFARSAC\RECURSOS HUMANOS\ATTBACKUP.mdb;Persist Security Info=False;";
 
             //Intranet
-            this.serverSql = @"WIN-DC\DIEGO_BD"; this.passwordSql = "@Ndr@de123"; this.BDsql = "INTRANET_V2"; this.userSql = "sa";
+            //this.serverSql = @"WIN-DC\DIEGO_BD"; this.passwordSql = "@Ndr@de123"; this.BDsql = "INTRANET_V2"; this.userSql = "sa";
+            this.serverSql = @"WIN-DC\DIEGO_BD"; this.passwordSql = "@Ndr@de123"; this.BDsql = "BASE_06_06_24"; this.userSql = "sa";
+
             //this.serverSql = @"TI-05";this.BDsql = "BASE_30_05_24";this.userSql = "sa"; this.passwordSql = "TICOBE@R789";
             //this.serverSql = @"SVR-IIS"; this.BDsql = "BASE_30_05_24"; this.userSql = "sa"; this.passwordSql = "TICOBE@R789"; 
 

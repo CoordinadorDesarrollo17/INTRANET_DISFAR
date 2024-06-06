@@ -715,7 +715,16 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
         transition: all 200ms ease-in;
     }
 }
+/* Ocultar video en dispositivos móviles */
+@media (max-width: 768px) {
+    .bg-cobefar video {
+        display: none;
+    }
 
+    #div_video {
+        display: none !important;
+    }
+}
 /*
 html, body {
     width: 100%;

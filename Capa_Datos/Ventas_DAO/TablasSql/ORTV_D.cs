@@ -141,17 +141,19 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
         public List<ORTV_E> listarTicketsVenta(Usuario_E user, ORTV_E t)
         {
             List<ORTV_E> lista = new List<ORTV_E>();
-            string condWhere = string.Empty, subConsulta = string.Empty;
+            string condWhere = string.Empty;
+            string whereSubConsulta = string.Empty;
+
 
             if (user.IdRol == 7) { 
                 condWhere += $" AND t0.CodSapVendedor='{user.CodigoSap}'"; 
             }
             if (user.IdRol == 54)
             {
-                condWhere += $" AND t0.Estado in ('PICKEANDO','EMPACANDO','EMPACADO','PESADO','ENVIADO','PREENVIO','ENTREGADO')";
+                condWhere += $" AND t0.Estado in ('PICKEANDO','VERIFICANDO','EMPACANDO','EMPACADO','PESADO','ENVIADO','PREENVIO','ENTREGADO')";
             }
             if (user.IdRol == 53) {
-               condWhere += $" AND t0.Estado in ( 'PICKEANDO','EMPACANDO','EMPACADO','PESADO','ENVIADO','PREENVIO','ENTREGADO')" +
+               condWhere += $" AND t0.Estado in ( 'PICKEANDO','VERIFICANDO','EMPACANDO','EMPACADO','PESADO','ENVIADO','PREENVIO','ENTREGADO')" +
                     $" AND t0.EstadoFacturacion in ('GRE EMITIDA','FACTURADO')";
             }
             
@@ -190,7 +192,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 {
                     if (t.NombreVista.Equals("ListadoTickets"))
                     {
-                        subConsulta = "AND (SELECT top 1 FechaOperacion from vt.CC_ORTV where Operacion='SEPARAR' and DocEntry=t0.DocEntry  order by FechaOperacion DESC, HoraOperacion desc) between dateadd(day,-1000,getdate()) and getdate()";
+                        whereSubConsulta = "AND (SELECT top 1 FechaOperacion from vt.CC_ORTV where Operacion='SEPARAR' and DocEntry=t0.DocEntry  order by FechaOperacion DESC, HoraOperacion desc) between dateadd(day,-1000,getdate()) and getdate()";
                     }
                 }
                 if (t.EstadoGasto != null) { condWhere += $" AND t0.EstadoGasto='{t.EstadoGasto}'"; }
@@ -204,8 +206,8 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             {
                 //LOS QUERYS COMENTADOS BUSCAN MINIMIZAR LA CONSULTA EN UN RANGO DE 2022 A 2024, AUN NO SE APLICA
                 //string select = "TOP 100 t0.DocEntry, t0.DocNum FROM vt.ORTV t0 inner join vt.CC_ORTV t1 on t1.DocEntry=t0.DocEntry ";
-                string select = "TOP 500 t0.DocEntry, t0.DocNum FROM vt.ORTV t0 ";
-                string query = $"SELECT {select} WHERE t0.DocEntry>0 {subConsulta} {condWhere} ORDER BY t0.DocNum DESC";
+                string select = $"TOP 400 t0.DocEntry, t0.DocNum ,CASE WHEN EXISTS (SELECT * FROM vt.CC_ORTV_print WHERE DocEntryTicket = t0.DocEntry) THEN 1 ELSE 0 END  FROM vt.ORTV t0 ";
+                string query = $"SELECT {select} WHERE t0.DocEntry>0 {whereSubConsulta} {condWhere} ORDER BY t0.DocNum DESC";
                 //string query = $"SELECT {select} WHERE t1.Operacion='SEPARAR' and t1.FechaOperacion between '2022-01-01' and getdate() {subConsulta} {condWhere} ORDER BY t0.DocNum DESC";
 
                 //string query = $"SELECT {select} WHERE (select TOP 1 FechaOperacion from vt.CC_ORTV where DocEntry=t0.DocEntry and Operacion='SEPARAR') between '2022-01-01' and getdate() {subConsulta} {condWhere} ORDER BY t0.DocNum DESC";
@@ -228,6 +230,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                             RTV12_D datosRTV12 = new RTV12_D();
                             RTV13_D datosRTV13 = new RTV13_D();
                             ticket = obtenerTicket(dr.GetInt32(0));
+                            ticket.Impreso= dr.GetInt32(2);
                             ticket.Vendedor = (ticket.Vendedor.Length > 15) ? ticket.Vendedor.Substring(0, 15) : ticket.Vendedor;
                             ticket.FechaSapTicket = (ticket.FechaSapTicket != null) ? Convert.ToDateTime(ticket.FechaSapTicket).ToString("dd/MM/yyyy") : null;  //usando funcion local
 
@@ -1174,6 +1177,22 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 SqlCommand cmd = new SqlCommand("UPDATE vt.ortv SET Visible='SI' where DocEntry=@DocEntry", cn);
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.AddWithValue("@DocEntry", DocEntry);
+                cmd.ExecuteNonQuery();
+                cn.Close();
+            }
+            catch { }
+            return DocEntry;
+        }
+        public int registrarImpresionTicket(int DocEntry,string Operario)
+        {
+            SqlConnection cn = new SqlConnection(uti.cadSql);
+            try
+            {
+                cn.Open();
+                SqlCommand cmd = new SqlCommand("INSERT INTO vt.CC_ORTV_print VALUES (@DocEntry,getdate(),null,@Operario)", cn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.AddWithValue("@DocEntry", DocEntry);
+                cmd.Parameters.AddWithValue("@Operario", Operario);
                 cmd.ExecuteNonQuery();
                 cn.Close();
             }
