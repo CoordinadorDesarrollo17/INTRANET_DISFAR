@@ -691,6 +691,7 @@
                                                     <select id="tipo_pagoParcial" class="form-control border-success bg-cobefar text-white mx-2" style="width: 150px;">
                                                         <option value="NORMAL">NORMAL</option>
                                                         <option value="NC">NC</option>
+                                                        <option value="ANTICIPO">ANTICIPO</option>
                                                     </select>
                                                     <button type="button" class="btn btn-sm btn-warning" onclick="agregarPagoParcial($('#pago_parcial').val(), $('#tipo_pagoParcial').val())" style="width: 50px;"><i class="icon-plus"></i></button>
                                                 </div>
@@ -932,20 +933,21 @@
     }
 
     function calcularPagosParciales() {
-        let pagoTotal = parseFloat(0);
-        const montoRecibidoEntrega = parseFloat($('#MontoRecibidoEntrega').val());
-        const montoRecibido = parseFloat($('#MontoRecibido').val());
+        let pagoTotal = 0;
+        const montoRecibidoEntrega = parseFloat($('#MontoRecibidoEntrega').val()).toFixed(2);
+        const montoRecibido = parseFloat($('#MontoRecibido').val()).toFixed(2);
 
-        $('.cls-monto').each(function (indice, obj) {
-            //console.log(parseFloat(obj.value));
-            pagoTotal += parseFloat(obj.value);
+        document.querySelectorAll('.cls-monto').forEach(function (obj) {
+            let monto = parseFloat(obj.value);
+            if (!isNaN(monto)) {
+                pagoTotal += monto;
+            }
         });
 
         $('#TotalPagosParciales').val(parseFloat(pagoTotal));
-        pagoTotal += montoRecibidoEntrega;
+        let suma = (parseFloat(pagoTotal) + parseFloat(montoRecibidoEntrega)).toFixed(2);
 
-        if (pagoTotal > montoRecibido) {
-            eliminarFila();
+        if (parseFloat(suma) > parseFloat(montoRecibido)) {
             $('#btn_AgregarPagos').css('display', 'none');
             Swal.fire({ title: "Los pagos parciales ingresados superan el monto final del ticket", icon: "error" });
             return;
@@ -957,7 +959,7 @@
         const divPagar = $('#div_pagar');
         const montoFinalTicket = $('#MontoFinalTicket');
 
-        if (pagoTotal === montoRecibido) {
+        if (parseFloat(suma) === parseFloat(montoRecibido)) {
             divPagar.css('display', 'block');
             montoFinalTicket.removeClass('bg-danger').addClass('bg-success');
         } else {
@@ -966,39 +968,47 @@
         }
     }
 
-
-    function eliminarFila() {
-        let indice = $("#tbl_pagosParciales  tr").index(this);
-        $('#tbl_pagosParciales').find(`tr:eq(${indice})`).remove()
-
+    $(document).on('click', '.btn.eliminar-fila', function () {
+        $(this).closest('.cls-fila').remove();
         calcularPagosParciales();
-    }
+    });
 
-    function agregarPagoParcial(pagoParcial, tipoPagoParcial) {
-        if (pagoParcial == "" || pagoParcial*1 < 0) {
+    function agregarPagoParcial(montoIngresado, tipoPagoParcial) {
+        if (parseFloat(montoIngresado) < 1 || isNaN(parseFloat(montoIngresado))) {
             Swal.fire('El monto ingresado debe ser mayor a cero');
             return;
         }
 
-        if (tipoPagoParcial === "" || (tipoPagoParcial !== "NORMAL" && tipoPagoParcial !== "NC")) {
-            Swal.fire('El pago parcial debe ser NORMAL o NC');
+        if (tipoPagoParcial === "" || (tipoPagoParcial !== "NORMAL" && tipoPagoParcial !== "NC" && tipoPagoParcial !== "ANTICIPO")) {
+            Swal.fire('El pago parcial debe ser NORMAL o NC o ANTICIPO');
+            return;
+        }
+
+        let montoFinalTicket = parseFloat(document.getElementById("MontoFinalTicket").value).toFixed(2);
+
+        let montoRecibidoEntrega = parseFloat(document.getElementById("MontoRecibidoEntrega").value).toFixed(2);
+        let totalPagosParciales = parseFloat(document.getElementById("TotalPagosParciales").value).toFixed(2);
+        let pagoParcial = parseFloat(montoIngresado).toFixed(2);
+        let sumaMontosRecibidos = (parseFloat(montoRecibidoEntrega) + parseFloat(totalPagosParciales) + parseFloat(pagoParcial)).toFixed(2);
+
+        if (parseFloat(sumaMontosRecibidos) > parseFloat(montoFinalTicket)){
+            Swal.fire({ title: "Los pagos parciales ingresados superan el monto final del ticket", icon: "error" });
             return;
         }
 
         let num = $('.cls-fila').length * 1;
-        let pago = parseFloat(pagoParcial).toFixed(2);
 
         let fila = `<tr class="cls-fila">
                             <td class="text-center">${num+1}</td>
                             <td class="text-center">
-                                <input type="hidden" class="cls-monto cls-pagoIngresado" value="${pago}" />${pago}
+                                <input type="hidden" class="cls-monto cls-pagoIngresado" value="${pagoParcial}" />${pagoParcial}
                             </td>
                             <td class="text-center">
                                 <input type="hidden" class="cls-tipoPagoParcial" value="${tipoPagoParcial}" />${tipoPagoParcial}
                             </td>
                             <td></td>
                             <td></td>
-                            <td class="text-center"><button type="button" class="btn btn-sm btn-danger" onclick="eliminarFila()"><i class="icon-bin text-white"></i></button></td>
+                            <td class="text-center"><button type="button" class="btn btn-sm btn-danger eliminar-fila"><i class="icon-bin text-white"></i></button></td>
                         </tr>`;
 
         $('#tbl_pagosParciales > tbody').append(fila);
