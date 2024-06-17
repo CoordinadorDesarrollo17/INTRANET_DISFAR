@@ -1,5 +1,6 @@
 ﻿using Capa_Entidad.Ventas_ENT.Tablas;
 using Sap.Data.Hana;
+using System;
 using System.Collections.Generic;
 
 namespace Capa_Datos.Ventas_DAO.Tablas
@@ -9,7 +10,7 @@ namespace Capa_Datos.Ventas_DAO.Tablas
         DBHelper db = new DBHelper(); Utilitarios uti = new Utilitarios();
         OINV_D oinvD = new OINV_D();
         ODLN_D odlnD = new ODLN_D();
-        public List<ORDR_E> listadoOrdenesDeVenta(ORDR_E fo)
+        public List<ORDR_E> listadoOrdenesDeVenta(ORDR_E fo, bool mostrarCompVinculados)
         {
             List<ORDR_E> lista = new List<ORDR_E>();
             string filtros = "";
@@ -44,7 +45,7 @@ namespace Capa_Datos.Ventas_DAO.Tablas
                     if (!hdr.IsDBNull(8)) { o.Comments = hdr.GetString(8); }
                     if (!hdr.IsDBNull(9)) { o.U_SYP_STATUS = hdr.GetString(9); }
                     if (!hdr.IsDBNull(10)) { o.U_COB_LUGAREN = hdr.GetString(10); }
-                    o.ComprobantesVinculados = oinvD.listadoComprobantesPorOrdr(o.DocEntry);
+                    o.ComprobantesVinculados = mostrarCompVinculados == true ? oinvD.listadoComprobantesPorOrdr(o.DocEntry) : null;
                     lista.Add(o);
                 }
                 hdr.Close();

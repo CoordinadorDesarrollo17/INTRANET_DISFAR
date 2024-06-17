@@ -1151,6 +1151,9 @@
     <Content Include="Views\ReportesDigemid\infoRegistroSanitario.cshtml" />
     <Content Include="Views\Ventas\AutorizarTicketReparto.cshtml" />
     <Content Include="Views\Ventas\ListadoTicketsVenta.cshtml" />
+    <Content Include="Views\Shared\DireccionTecnica\ListadoOrdenesVenta_VT.cshtml" />
+    <Content Include="Views\Shared\DireccionTecnica\ListadoOrdenesVenta_DT.cshtml" />
+    <Content Include="Views\Ventas\PDF\PDF_OrdenesDeVentas.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

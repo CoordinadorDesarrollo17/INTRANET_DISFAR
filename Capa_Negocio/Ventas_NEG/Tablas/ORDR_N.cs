@@ -11,9 +11,9 @@ namespace Capa_Negocio.Ventas_NEG.Tablas
     public class ORDR_N
     {
         ORDR_D oD = new ORDR_D();
-        public List<ORDR_E> listadoOrdenesDeVenta(ORDR_E fo)
+        public List<ORDR_E> listadoOrdenesDeVenta(ORDR_E fo, bool mostrarCompVinculados)
         {
-            return oD.listadoOrdenesDeVenta(fo);
+            return oD.listadoOrdenesDeVenta(fo, mostrarCompVinculados);
         }
         public ORDR_E obtenerOrdenDeVenta(int DocNum)
         {

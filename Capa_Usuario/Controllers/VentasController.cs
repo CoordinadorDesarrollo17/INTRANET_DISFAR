@@ -68,6 +68,8 @@ namespace Capa_Usuario.Controllers
                 ViewBag.DocNum = DocNum;
                 ViewBag.Ortv = t;
                 ViewBag.Vendedores = u_N.listaUsuariosPermisos(null, 6);        // Usado como Filtro en el botón AnVentas (Reporte Analítico Ventas)
+                ViewBag.CodSapVendedor = user != null && user.IdRol != 6 ? user.CodigoSap : 0;
+
                 if (mensaje != null) { ViewBag.Mensaje = mensaje; }
 
                 return View(ticketN.ListarTicketsAreaVenta(user, t));
@@ -855,7 +857,7 @@ namespace Capa_Usuario.Controllers
             List<string> FB = new List<string>();
             foreach (var orden in obj.Det2)
             {
-                List<Capa_Entidad.Ventas_ENT.Tablas.ORDR_E> Ordenes = ordrN.listadoOrdenesDeVenta(new Capa_Entidad.Ventas_ENT.Tablas.ORDR_E { DocNum = orden.NroSap });
+                List<Capa_Entidad.Ventas_ENT.Tablas.ORDR_E> Ordenes = ordrN.listadoOrdenesDeVenta(new Capa_Entidad.Ventas_ENT.Tablas.ORDR_E { DocNum = orden.NroSap }, true);
                 if (Ordenes.Count > 0)
                 {
                     foreach (var x in Ordenes[0].ComprobantesVinculados)
@@ -889,6 +891,7 @@ namespace Capa_Usuario.Controllers
                 Capa_Negocio.Almacen_NEG.Tablas.OWTR_N owtrN = new Capa_Negocio.Almacen_NEG.Tablas.OWTR_N();
                 if (ticket.LugarDestino.Equals("Centro")) { WhsCode = "01"; }
                 else if (ticket.LugarDestino.Equals("Arriola")) { WhsCode = "09"; }
+
                 Guias = owtrN.GuiasTicketTransferencia(ticket.DocNum, WhsCode);
             }
             else
@@ -3413,6 +3416,7 @@ namespace Capa_Usuario.Controllers
             { return RedirectToAction("Error", "Index"); }
         }
 
+
         private string verificacionAccesos(int ope)
         {
             string nombreOperacion = this.ControllerContext.RouteData.Values["action"].ToString();
@@ -3526,18 +3530,18 @@ namespace Capa_Usuario.Controllers
         public JsonResult CambiarVisibleTicket(int DocEntry)
         {
             verificacionAccesos(0); ORTV_N ortvN = new ORTV_N(); var result = ortvN.editarVisibilidadTicket(DocEntry);
-            return Json(new { Datos = result }); 
+            return Json(new { Datos = result });
         }
         public JsonResult RegistrarImpresion(int DocEntry)
         {
             verificacionAccesos(0);
             Usuario_E user = (Usuario_E)Session["UsuarioId"];
             var Operario = $"{user.Nombres} {user.Apellidos}";
-            ORTV_N ortvN = new ORTV_N(); 
+            ORTV_N ortvN = new ORTV_N();
             var result = ortvN.registrarImpresionTicket(DocEntry, Operario);
             return Json(new { Datos = result });
         }
-        
+
 
 
     }

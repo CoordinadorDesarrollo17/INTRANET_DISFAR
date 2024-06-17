@@ -1,8 +1,12 @@
 ﻿using Capa_Entidad.Almacen_ENT.Tablas;
+﻿using Capa_Datos;
+using Capa_Entidad.Almacen_ENT.Tablas;
 using Capa_Entidad.Compras_ENT.Tablas;
 using Capa_Entidad.DireccionTecnica_ENT.TablasSql;
 using Capa_Entidad.General_ENT.Tablas;
 using Capa_Entidad.General_ENT.TablasSql;
+using Capa_Entidad.ReportesDigemid_ENT;
+using Capa_Entidad.ReportesDigemid_ENT.Formularios;
 using Capa_Entidad.Seguridad_ENT;
 using Capa_Entidad.Ventas_ENT.Tablas;
 using Capa_Entidad.Ventas_ENT.TablasSql;
@@ -14,6 +18,8 @@ using Capa_Negocio.ReportesDigemid_NEG;
 using Capa_Negocio.Seguridad_NEG;
 using Capa_Negocio.Ventas_NEG.Tablas;
 using Capa_Negocio.Ventas_NEG.TablasSql;
+using DocumentFormat.OpenXml.Math;
+using Rotativa;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,6 +32,7 @@ namespace Capa_Usuario.Controllers
     {
         Rol1_N rol1 = new Rol1_N(); int modulo = 3;
         DocumentosDig_N dgN = new DocumentosDig_N();
+        COB_LUG_ENTREGA_N lugarEntN = new COB_LUG_ENTREGA_N();
         /** 
          * Método para buscar el responsable de almacén de las actas de recepción y despacho 
          * @param {String} tipoFirma - Para saber que tipo de firma estamos buscando 
@@ -116,23 +123,7 @@ namespace Capa_Usuario.Controllers
             verificacionAccesos(0);
             return RedirectToAction("Sesion", "Index");
         }
-        public ActionResult ListadoOrdenesDeVenta(Capa_Entidad.Ventas_ENT.Tablas.ORDR_E of, int idOperation = 1701)
-        {
-            OSLP_N osN = new OSLP_N();
-            COB_LUG_ENTREGA_N cN = new COB_LUG_ENTREGA_N();
-            Capa_Negocio.Ventas_NEG.Tablas.ORDR_N ordrN = new Capa_Negocio.Ventas_NEG.Tablas.ORDR_N();
-            if (verificacionAccesos(idOperation) == "C_Access")
-            {
-                if (of != null) { ViewBag.Ordr = of; } else { ViewBag.Ordr = new Capa_Entidad.Ventas_ENT.Tablas.ORDR_E(); }
-                ViewBag.ListaOslp = osN.listadoOslp("VENTA");
-                ViewBag.ListaLugarEntregas = cN.listadoLugaresDeEntrega();
-                return View(ordrN.listadoOrdenesDeVenta(of));
-            }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
-            else
-            { return RedirectToAction("Error", "Index"); }
-        }
+
         public ActionResult LayoutOrdenDeVenta(int DocNum, int idOperation = 1702)
         {
             if (verificacionAccesos(idOperation) == "C_Access")
@@ -886,6 +877,63 @@ namespace Capa_Usuario.Controllers
             var result = orsN.ConsultarRegistrosSanitariosExpirados();
 
             return Json(new { Datos = result });
+        }
+        /************************  Ó R D E N E S   D E   V E N T A ************************/
+        public ActionResult ListadoOrdenesDeVenta(Capa_Entidad.Ventas_ENT.Tablas.ORDR_E filtros, int idOperation = 1701)
+        {
+            switch (verificacionAccesos(idOperation))
+            {
+                case "C_Access":
+                    var usuario = Session["UsuarioId"] as Usuario_E;
+                    int idRol = usuario?.IdRol ?? 0;
+
+                    // VENTAS o SVENTAS
+                    bool versionVentas = new List<int> { 6, 7 }.Contains(idRol);
+                    ViewBag.CargarLista = versionVentas == true ? "ListadoOrdenesVenta_VT" : "ListadoOrdenesVenta_DT";
+                    ViewBag.SlpCode = filtros?.SlpCode ?? 0;
+
+                    return View();
+
+                case "E_Login":
+                    return RedirectToAction("Index", "Index");
+
+                default:
+                    return RedirectToAction("Error", "Index");
+            }
+        }
+
+        [HttpGet]
+        public ActionResult ListarOrdenesVenta(Capa_Entidad.Ventas_ENT.Tablas.ORDR_E filtros, string version, int idOperation = 1701)
+        {
+            var usuario = Session["UsuarioId"] as Usuario_E;
+            int idRol = usuario?.IdRol ?? 0;
+
+            ViewBag.IdRol = idRol;
+            ViewBag.Ordr = filtros ?? new Capa_Entidad.Ventas_ENT.Tablas.ORDR_E();
+            ViewBag.ListaOslp = new OSLP_N().listadoOslp("VENTA");
+            var lugaresEntregas = new Capa_Negocio.General_NEG.TablasSql.OWHS_N().listarAlmacenes(new[] { "01", "03", "09", "ALM07" });
+            ViewBag.ListaLugarEntregas = lugaresEntregas;
+
+            ViewBag.Almacenes = lugaresEntregas?.ToDictionary(item => item.WhsCode, item => item.WhsName) ?? new Dictionary<string, string>();
+
+            // NO mostrar cuando sea VENTAS o SVENTAS
+            // En caso de realizar una modificación, también realizarlo en su vista parcial
+            bool mostrarCompVinculados = !new List<int> { 6, 7 }.Contains(idRol);
+            var lista = new Capa_Negocio.Ventas_NEG.Tablas.ORDR_N().listadoOrdenesDeVenta(filtros, mostrarCompVinculados);
+
+            return PartialView($"DireccionTecnica/{version}", lista);
+        }
+
+        public ActionResult ExportarPdfOrdenesVenta(Capa_Entidad.Ventas_ENT.Tablas.ORDR_E filtros)
+        {
+            return new ActionAsPdf("PDF_OrdenesDeVentas", new { DocNum = filtros.DocNum }) { FileName = $"OV_{filtros.DocNum}.pdf", PageOrientation = Rotativa.Options.Orientation.Portrait, PageSize = Rotativa.Options.Size.A4 };
+        }
+
+        public ActionResult PDF_OrdenesDeVentas(OrdenDeVenta_E filtros)
+        {
+            var lista = new ORTV_N().obtenerOrdenDeVenta(filtros.DocNum);
+
+            return View("~/Views/Ventas/PDF/PDF_OrdenesDeVentas.cshtml", lista);
         }
         /************************************************************************************/
         private string verificacionAccesos(int ope)

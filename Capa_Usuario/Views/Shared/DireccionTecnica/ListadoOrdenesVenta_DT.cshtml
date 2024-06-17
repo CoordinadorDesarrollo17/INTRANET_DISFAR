@@ -1,0 +1,116 @@
+﻿@using Capa_Entidad.General_ENT.Tablas
+@{
+    var selectedLugarEntrega = ViewBag.Ordr.U_COB_LUGAREN;
+    var listaLugarEntregas = ViewBag.ListaLugarEntregas as IEnumerable<Capa_Entidad.General_ENT.TablasSql.OWHS_E>;
+    var selectedCodigoSAP = ViewBag.Ordr.SlpCode;
+    var listaCodigoSAP = ViewBag.ListaOslp as IEnumerable<OSLP_E>;
+    var almacenes = (Dictionary<string, string>)(ViewBag.Almacenes);
+    var estados = new Dictionary<string, string> { { "V", "VIGENTE" } };
+}
+
+<table id="tbl_listaOV" class="table table-light table-responsive table-hover" width="100%">
+    <thead class="thead-dark">
+        <tr>
+            <th class="text-center">
+                <label>NroVenta</label>
+                <input type="text" name="DocNum" class="form-control-sm text-center border cls-numeric" onchange="filtrar();" value="@if (ViewBag.Ordr.DocNum != 0) { Write(ViewBag.Ordr.DocNum); }" style="width: 120px;" />
+            </th>
+            <th class="text-center">
+                <label>FechaCont</label>
+                <input type="date" name="DocDate" class="form-control-sm text-center border" onchange="filtrar();" value="@ViewBag.Ordr.DocDate" />
+            </th>
+            <th class="text-center">
+                <label>Nombre</label><br />
+                <input type="text" name="CardName" class="form-control-sm text-center border w-100" onchange="filtrar();" value="@ViewBag.Ordr.CardName" autocomplete="off" />
+            </th>
+            <th class="text-center">
+                <label>Cliente</label>
+                <input type="text" name="CardCode" class="form-control-sm text-center border" onchange="filtrar();" value="@ViewBag.Ordr.CardCode" autocomplete="off" style="width: 140px;" />
+            </th>
+            <th class="text-center">
+                <label>Vendedor</label>
+                <select name="SlpCode" class="form-control-sm border" onchange="filtrar();">
+                    <option value="0">Seleccione</option>
+                    @foreach (var item in listaCodigoSAP)
+                    {
+                        <option value="@item.SlpCode" @(item.SlpCode == selectedCodigoSAP ? "selected" : "")>@item.SlpName</option>
+                    }
+                </select>
+            </th>
+            <th class="text-center">
+                <label>Total</label>
+                <input type="text" name="DocTotal" class="form-control-sm text-center border" onchange="filtrar();" value="@if (ViewBag.Ordr.DocTotal != 0) { Write(ViewBag.Ordr.DocTotal); }" />
+            </th>
+            <th class="text-center" style="width: 140px;">
+                <label>Comentario</label>
+            </th>
+            <th class="text-center">
+                <label>Estado</label>
+            </th>
+            <th class="text-center">
+                <label>Lugar de Entrega</label>
+                <select name="U_COB_LUGAREN" class="form-control-sm border" onchange="filtrar();">
+                    <option value="">Seleccione</option>
+                    @foreach (var item in listaLugarEntregas)
+                    {
+                        <option value="@item.WhsCode" @(item.WhsCode == selectedLugarEntrega ? "selected" : "")>@item.WhsName</option>
+                    }
+                </select>
+            </th>
+            <th class="text-center">
+                Comprobante<br />Vinculado
+            </th>
+            <th class="text-center"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null)
+        {
+            foreach (var item in Model)
+            {
+                var vendedor = listaCodigoSAP.FirstOrDefault(oslp => oslp.SlpCode == item.SlpCode);
+                <tr id="fila">
+                    <td class="text-center">@item.DocNum</td>
+                    <td class="text-center">@item.DocDate</td>
+                    <td class="text-center">@item.CardName</td>
+                    <td class="text-center">@item.CardCode</td>
+                    <td class="text-center">@if (vendedor != null) { Write(vendedor.SlpName); }</td>
+                    <td class="text-center">@item.DocTotal</td>
+                    <td class="text-center">@item.Comments</td>
+                    <td class="text-center">@estados[item.U_SYP_STATUS]</td>
+                    <td class="text-center">@almacenes[item.U_COB_LUGAREN]</td>
+                    <td class="text-center font-14">
+                        @foreach (var c in item.ComprobantesVinculados)
+                        {
+                            string metodo = c.NumAtCard.Contains("F") ? "ListadoFacturasDeVenta" : "ListadoBoletasDeVenta";
+
+                            <a href="@Url.Action(metodo, "DireccionTecnica", new { DocNum = c.DocNum })" target="_blank" class="text-primary font-weight-bold">@c.NumAtCard</a>
+                        }
+                    </td>
+                    <td class="text-center">
+                        <a href="@Url.Action("LayoutOrdenDeVenta", "DireccionTecnica", new { DocNum = item.DocNum })" target="_self" class="btn btn-sm btn-cobefar"><i class="icon-eye"></i> Ver Layout</a>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+<script>
+    (function () {
+        var table_ov = $('#tbl_listaOV').DataTable({
+            "ordering": false,
+            "pageLength": 25,                 /* PARA INICIALIZAR LA PAGINACIÓN */
+            "lengthMenu": [25, 50],   /* RANGO PAGINACIÓN */
+        });
+
+        table_ov.columns.adjust().draw();
+
+        $('.cls-numeric').keypress(function (tecla) {
+            // enter y [0-9]
+            if (tecla.keyCode != 13 && (tecla.keyCode < 48 || tecla.keyCode > 57)) {
+                return false;
+            }
+        });
+    })();
+</script>
