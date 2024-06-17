@@ -5,7 +5,6 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     var hoy = DateTime.Now;
     List<Usuario_E> u = (List<Usuario_E>)ViewBag.Vendedores;
-    Usuario_E usu = (Usuario_E)ViewBag.CodSapVendedor;
 }
 
 @section Styles{
@@ -38,6 +37,7 @@
 
 <div class="bg-dark border-cabecera-seccion pb-2">
     <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO DE TICKETS</h3></div>
+
     <div class="d-flex pl-2 w-100 py-2">
 
         <div class="mx-2">
@@ -52,6 +52,8 @@
             <a id="accion" href="@Url.Action("GestionVendedores", "Ventas")" class="btn btn-info font-weight-bold" title="Vendedores">
                 <i class="icon icon-user"></i> Vendedores
             </a>
+
+            <button type="button" id="btn_ordenesVenta" class="btn btn-orange font-weight-bold" data-codsapvendedor="@ViewBag.CodSapVendedor"><i class="icon-file-text2 font-weight-bold"></i> Órdenes de Venta</button>
         </div>
 
     </div>
@@ -329,16 +331,26 @@
         </div>
     </div>
 </div>
+
 <style>
     .alertify-notifier .ajs-message.ajs-success {
         background-color: #6495ED;
     }
+
     .alertify-notifier .ajs-message.ajs-warning {
         background-color: #FFD700;
     }
-
-
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('btn_ordenesVenta').addEventListener('click', () => {
+            let codSapVendedor = document.getElementById("btn_ordenesVenta").dataset.codsapvendedor;
+            window.location.href = '@Url.Action("ListadoOrdenesDeVenta", "DireccionTecnica")?SlpCode=' + codSapVendedor;
+        });
+    });
+</script>
+
 <script>
     if ('@ViewBag.Mensaje' != "") {
         Swal.fire('@ViewBag.Mensaje');
@@ -419,7 +431,7 @@
                 url: '/Ventas/ListarTicketsNoVisiblesPagados',
                 type: 'POST',
                 dataType: 'json',
-                data: { DocEntryUsuario: docEntryUsuario }, 
+                data: { DocEntryUsuario: docEntryUsuario },
             }).done(function (response) {
                 var contador = 0;
                 if (response.Datos.length >= 1) {
@@ -429,7 +441,7 @@
                             <div style="text-align:center;font-weigth:700:">
                                     <button class="btn btn-success" id="ver-${tk.DocNum}" style="font-size: 12px; margin-left: 5px;  color: white; border: none; padding: 3px 8px; border-radius: 3px;"><i class="icon icon-search"></i></button>
                                     Abrir Ticket N° ${tk.DocNum}
-                                    </div> 
+                                    </div>
                                </div>`;
                         var msj = alertify.success(mensaje);
 
@@ -461,7 +473,7 @@
                             $('#modal-' + tk.DocNum).modal('show');
 
                             $(document).on('click', `#modal-si-button-${tk.DocNum}`, function () {
-                                
+
                                 $.ajax({
                                     url: '/Ventas/CambiarVisibleTicket?DocEntry=' + tk.DocEntry,
                                     type: 'POST',
@@ -475,7 +487,7 @@
                                 $('#modal-' + tk.DocNum).modal('hide');
                             });
                             $(document).on('click', `#modal-no-button-${tk.DocNum}`, function () {
-                               
+
                                 $('#modal-' + tk.DocNum).modal('hide');
                             });
                         });
@@ -502,5 +514,5 @@
 
         }
 
-        });
+    });
 </script>

@@ -94,7 +94,7 @@
                 <h1>INTRANET - VERSIÓN PRUEBAS</h1>
             </div>*@
 
-        <div class="container" style="width: 100%; background-color: #F0F0F0; box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;">
+        <div id="div_container2" class="container" style="width: 100%; background-color: #F0F0F0; box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;">
             <!--<div class="container" style="width: 100%; background-color: rgba(87, 96, 85,0.99);">-->
             @RenderBody()
         </div>
@@ -170,6 +170,86 @@
 
         });
 
+        function validarTexto(input) {
+            // Expresión regular que permite caracteres alfanuméricos, "-", ".", "°", letras con tildes y acento agudo
+            var regex = /^[a-zA-Z0-9áéíóúñÑÁÉÍÓÚüÜ \-\.°']+$/;
+
+            // Comprobar si la cadena coincide con la expresión regular
+            if (regex.test(input)) {
+                // La cadena es válida
+                return true;
+            } else {
+                // La cadena contiene caracteres no permitidos
+                return false;
+            }
+        }
+
+        function permitirSoloNumeros(id) {
+            let campo = document.getElementById(id);
+
+            campo.addEventListener('input', function () {
+                var valor = campo.value;
+                var regex = /^[0-9]*$/; // Expresión regular para permitir solo números
+
+                if (!regex.test(valor)) {
+                    campo.value = valor.replace(/\D/g, ''); // Elimina todos los caracteres que no son dígitos
+                }
+            });
+        }
+
+        function limitarMaxCaracteres(id, max) {
+            let campo = document.getElementById(id);
+
+            campo.addEventListener('input', function () {
+                if (campo.value.length > max) {
+                    campo.value = campo.value.slice(0, max);
+                }
+            });
+        }
+
+        // Para que funcione, el parámetro "texto" debe llegar en minúscula: toLowerCase()
+        function capitalizarTexto(texto) {
+            return texto.replace(/\b\w/g, function (l) {
+                return l.toUpperCase();
+            });
+        }
+
+        // botones sweet alert
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: 'btn btn-success mx-3',
+                cancelButton: 'btn btn-danger mx-3'
+            },
+            buttonsStyling: false
+        })
+
+        function cargando() {
+            Swal.fire({
+                html: '<img src="/imagenes/index/ReportesDigemid/cargando.gif" />',
+                allowOutsideClick: false,
+                showCancelButton: false,
+                showConfirmButton: false
+            });
+        }
+
+        function cargarContenido(idDiv, url) {
+            document.getElementById(idDiv).innerHTML = "";
+
+            Swal.fire({
+                title: 'Cargando...',
+                text: 'Por favor, espere.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            $("#" + idDiv).load(url, function () {
+                $(this).fadeIn("fast", function () {
+                    Swal.close();
+                });
+            });
+        }
     </script>
 
     @RenderSection("Scripts", required: false)
