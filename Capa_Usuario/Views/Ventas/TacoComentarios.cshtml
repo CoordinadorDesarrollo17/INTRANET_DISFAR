@@ -132,7 +132,7 @@
                                     <td colspan="2">
                                         @Model.Det3[1].Distrito-@Model.Det3[1].Provincia-@Model.Det3[1].Departamento
                                         @if (Model.Referencia != null)
-                                        {<b>REF.: Model.Referencia.ToUpper()</b>}
+                                        {<b>REF.: @Model.Referencia.ToUpper()</b>}
                                         else if (Model.Det3[1].Calle != null)
                                         { @Model.Det3[1].Calle.ToUpper()}
                                     </td>
@@ -143,7 +143,7 @@
                                 <tr>
                                     <td colspan="2">
                                         @Model.Det3[1].Calle  @if (Model.Referencia != null)
-                                        {<b>REF.:Model.Referencia.ToUpper()</b>}
+                                        {<b>REF.:@Model.Referencia.ToUpper()</b>}
                                     </td>
                                 </tr>
                             }

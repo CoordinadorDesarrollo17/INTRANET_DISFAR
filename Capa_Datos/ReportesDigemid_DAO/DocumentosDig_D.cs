@@ -391,7 +391,6 @@ namespace Capa_Datos.ReportesDigemid_DAO
 					if (!hdr2.IsDBNull(17)) { o.SlpName = hdr2.GetString(17); }
 					if (!hdr2.IsDBNull(18)) { o.Comentarios = hdr2.GetString(18); }
 					if (!hdr2.IsDBNull(19)) { o.DocTotal = hdr2.GetDecimal(19); }
-					if (!hdr2.IsDBNull(20)) { o.Almacen = hdr2.GetString(20); }
 					if (!hdr2.IsDBNull(22)) { o.RegSanit = hdr2.GetString(22); }
 					lista.Add(o);
 				}
