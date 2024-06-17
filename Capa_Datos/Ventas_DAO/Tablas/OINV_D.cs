@@ -131,6 +131,7 @@ namespace Capa_Datos.Ventas_DAO.Tablas
                 " INNER JOIN " + uti.schemaHana + "RDR1 T2 ON T2.\"DocEntry\" = T1.\"BaseEntry\" AND T2.\"ObjType\" = T1.\"BaseType\"" +
                                                     " AND T2.\"LineNum\" = T1.\"BaseLine\" AND T2.\"DocEntry\" =" + DocEntryOrden +
                 " WHERE T0.\"CANCELED\" = 'N' GROUP BY T0.\"DocEntry\",T0.\"DocNum\",T0.\"NumAtCard\"";
+
             string query2 = "SELECT T4.\"DocEntry\",T4.\"DocNum\",T4.\"NumAtCard\" FROM " + uti.schemaHana + "ODLN T0 " +
                 " INNER JOIN " + uti.schemaHana + "DLN1 T1 ON T1.\"DocEntry\" = T0.\"DocEntry\"" +
                 " INNER JOIN " + uti.schemaHana + "RDR1 T2 ON T2.\"DocEntry\" = T1.\"BaseEntry\" AND T2.\"ObjType\" = T1.\"BaseType\"" +
@@ -554,42 +555,6 @@ namespace Capa_Datos.Ventas_DAO.Tablas
             catch { }
             return lista;
         }
-        //public string CalcularPdfsDescarga(string DocDate, string U_SYP_STATUS, string U_COB_LUGAREN, string TieneGuia, string TipoComprobante)
-        //{
-        //    string doc = "";
-        //    string filtros = "";
-        //    if (DocDate != null && DocDate != "")
-        //    {
-        //        filtros += " and \"DocDate\"='" + DocDate + "'";
-        //    }
-        //    if (U_SYP_STATUS != null && U_SYP_STATUS != "")
-        //    {
-        //        filtros += " and \"U_SYP_STATUS\"='" + U_SYP_STATUS + "'";
-        //    }
-        //    if (U_COB_LUGAREN != null && U_COB_LUGAREN != "")
-        //    {
-        //        filtros += " and \"U_COB_LUGAREN\"='" + U_COB_LUGAREN + "'";
-        //    }
-        //    if (TieneGuia != null && TieneGuia != "")
-        //    {
-        //        if (TieneGuia.Equals("Si")) { filtros += " and \"U_COB_CORDOC\" is not null"; }
-        //        if (TieneGuia.Equals("No")) { filtros += " and \"U_COB_CORDOC\" is null"; }
-        //    }
-        //    if (TipoComprobante != null && TipoComprobante != "")
-        //    {
-        //        filtros += " and \"Series\" in(select \"Series\" from " + uti.schemaHana + "nnm1 where \"SeriesName\" like '" + TipoComprobante + "V%')";
-        //    }
-        //    string query = "select count(*) from " + uti.schemaHana + "oinv where \"DocEntry\">0 " + filtros;
-        //    try
-        //    {
-        //        HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
-        //        hdr.Read();
-        //        doc = "Son " + hdr.GetInt32(0) + " Documentos";
-        //        hdr.Close();
-        //    }
-        //    catch { }
-        //    return doc;
-        //}
         public string CalcularPdfsActaDespachoOINV(string Fecha, string U_SYP_STATUS, string U_COB_LUGAREN, string TipoComprobante)
         {
             string doc = string.Empty; int total = 0;

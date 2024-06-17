@@ -951,12 +951,10 @@
     <Content Include="Scripts\jquery-1.10.2.min.map" />
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\Index\AccesoUsuario.cshtml" />
     <Content Include="Views\Index\Index.cshtml" />
     <Content Include="Views\Index\Sesion.cshtml" />
     <Content Include="Views\ReportesDigemid\reporteViewer.cshtml" />
     <Content Include="Views\ReportesDigemid\infoKardex.cshtml" />
-    <Content Include="Views\Index\RH_Personal.cshtml" />
     <Content Include="Views\Index\Error.cshtml" />
     <Content Include="Views\Ventas\ListadoTickets.cshtml" />
     <Content Include="Views\Ventas\CreaTicketVenta.cshtml" />
@@ -1108,7 +1106,6 @@
     <Content Include="Views\Rutas\infoHojasCargoDetallado.cshtml" />
     <Content Include="Views\Rutas\ListadoEntregaRepartos.cshtml" />
     <Content Include="Views\Shared\_Layout_inicial.cshtml" />
-    <Content Include="Views\Index\Login - Copia.cshtml" />
     <Content Include="Views\Rutas\CrearOrdenDeRuta2.cshtml" />
     <Content Include="Views\Rutas\infoTicketsPesaje.cshtml" />
     <Content Include="Views\DireccionTecnica\frmActaDespachoODLN.cshtml" />
