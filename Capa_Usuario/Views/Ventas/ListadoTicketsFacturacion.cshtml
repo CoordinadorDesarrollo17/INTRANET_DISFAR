@@ -253,19 +253,6 @@
                 @foreach (var item in Model.Where(x=>x.DocNum!=2000237628))
                 {
                     string style = "", styleText = "";
-                    //if (ViewBag.IdRol != null && ViewBag.IdRol == 54)
-                    //{
-                    //    if ((item.EstadoFacturacion.Equals("PENDIENTE") ||
-                    //        item.EstadoFacturacion.Equals("GRE EMITIDA"))
-                    //        && (item.Estado.Equals("VERIFICADO") ||
-                    //        item.Estado.Equals("EMPACANDO") ||
-                    //        item.Estado.Equals("EMPACADO") ||
-                    //        item.Estado.Equals("PESADO")))
-                    //    {
-                    //        style = "bg-skyblue";
-
-                    //    }
-                    //}
                     if (item.Estado.Equals("ANULADO") || item.Estado.Equals("CANCELADO"))
                     {
                         style = "bg-danger text-white";
