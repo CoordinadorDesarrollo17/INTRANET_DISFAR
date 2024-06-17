@@ -15,6 +15,18 @@ namespace Capa_Usuario.Controllers
         Rol1_N rol1 = new Rol1_N();
         BaseDeDatos_N bd_N = new BaseDeDatos_N();
         Utilitarios_N utiN = new Utilitarios_N();
+
+        private string ObtenerIPCliente()
+        {
+            string clientIp = Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
+            if (string.IsNullOrEmpty(clientIp))
+            {
+                clientIp = Request.ServerVariables["REMOTE_ADDR"];
+            }
+            return clientIp;
+
+        }
+
         public ActionResult Index()
         {
             return View();
@@ -46,6 +58,18 @@ namespace Capa_Usuario.Controllers
         {
             try
             {
+                string direccionIP = ObtenerIPCliente();
+                string[] segmentos = direccionIP != "::1" ? direccionIP.Split('.') : null;
+
+                // Prohibido el acceso del segmento 3 y 9 por solicitud de María
+                if (segmentos != null && new string[] { "3", "9" }.Contains(segmentos[2]))
+                {
+                    TempData["Mensaje"] = "Acceso restringido";
+                    TempData.Keep("Mensaje");
+
+                    return RedirectToAction("Index");
+                }
+
                 Usuario_E usuario = new Usuario_N().buscarUsuarioSesion(user, pass);
 
                 if (usuario != null)
