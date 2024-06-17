@@ -23,14 +23,14 @@
     <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO TICKETS DE ALMACÉN</h3></div>
 
     @*@if (ViewBag.ExportarExcelPicking == "SI")
-    {*@
-        <div class="row pl-2 w-100">
-            <div class="d-flex col-lg-8 col-md-6 col-sm-12 col-6">
-                <button type="button" class="btn btn-success font-weight-bold mx-1 my-1" title="Descargar Reporte Errores de Picking" data-toggle="modal" data-target="#modalReporte" onclick="">
-                    <i class="icon icon-file-excel"></i> Errores de Picking
-                </button>
-            </div>
+        {*@
+    <div class="row pl-2 w-100">
+        <div class="d-flex col-lg-8 col-md-6 col-sm-12 col-6">
+            <button type="button" class="btn btn-success font-weight-bold mx-1 my-1" title="Descargar Reporte Errores de Picking" data-toggle="modal" data-target="#modalReporte" onclick="">
+                <i class="icon icon-file-excel"></i> Errores de Picking
+            </button>
         </div>
+    </div>
     @*}*@
 
 </div>
@@ -300,7 +300,7 @@
                                 @if (condFinEmpacar && (ViewBag.RolSupervisor == 50 || ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 52 || ViewBag.RolSupervisor == 53 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4))
                                 {
 
-                                <a href="@Url.Action( "EmpacadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry  } )" class="btn btn-naranja btn-sm">Fin <br />Empacar</a>
+                                    <a href="@Url.Action( "EmpacadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry  } )" class="btn btn-naranja btn-sm">Fin <br />Empacar</a>
                                 }
                             </td>
                         }
@@ -441,22 +441,30 @@
 @if (Request["DescargarPDF"] == "1")
 {
     <script>
-    Swal.fire('En breve se descargará el TacoEmpaque o Rotulado');
-        if ('@Request["LugarDestino"].ToString()'== 'Agencia Courier') {
-            location.href = '/Ventas/PdfTRotuladoTicket?DocEntry=' + @Request["NumTicket"];
-        }
-        else {
-            location.href = '/Ventas/PdfTacoEmpaque?DocEntry=' + @Request["NumTicket"];
-        }
+        Swal.fire({
+            text: 'En breve se descargará el TacoEmpaque o Rotulado',
+            timer: 1500,
+            timerProgressBar: true,
+            showConfirmButton: false
+        });
 
+        if ('@Request["LugarDestino"].ToString()' == 'Agencia') {
+            location.href = '/Ventas/PdfTacoEmpaque?DocEntry=' + @Request["NumTicket"];
+
+            setTimeout(function () {
+                location.href = '/Ventas/PdfRotuladoTicket?DocEntry=' + @Request["NumTicket"];
+            }, 5000);
+        } else {
+              location.href = '/Ventas/PdfTacoEmpaque?DocEntry=' + @Request["NumTicket"];
+        }
     </script>
+    
 }
 
 <script>
     if ('@ViewBag.Mensaje' != "") {
         Swal.fire('@ViewBag.Mensaje');
     }
-
 
     function cancelarTicket(DocEntry) {
         const swalWithBootstrapButtons = Swal.mixin({

@@ -1107,7 +1107,7 @@
     <Content Include="Views\Rutas\AnularHojaCargo.cshtml" />
     <Content Include="Views\Rutas\infoHojasCargoDetallado.cshtml" />
     <Content Include="Views\Rutas\ListadoEntregaRepartos.cshtml" />
-    <Content Include="Views\Shared\_Layout2.cshtml" />
+    <Content Include="Views\Shared\_Layout_inicial.cshtml" />
     <Content Include="Views\Index\Login - Copia.cshtml" />
     <Content Include="Views\Rutas\CrearOrdenDeRuta2.cshtml" />
     <Content Include="Views\Rutas\infoTicketsPesaje.cshtml" />
@@ -1153,6 +1153,7 @@
     <Content Include="Views\Shared\DireccionTecnica\RegistrosSanitarios\AgregarObservaciones.cshtml" />
     <Content Include="Views\ReportesDigemid\infoRegistroSanitario.cshtml" />
     <Content Include="Views\Ventas\AutorizarTicketReparto.cshtml" />
+    <Content Include="Views\Ventas\ListadoTicketsVenta.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

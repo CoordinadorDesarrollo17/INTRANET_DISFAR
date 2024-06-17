@@ -18,6 +18,8 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
     {
         ORTV_D ticketV = new ORTV_D(); CC_ORTV_D ccTicket = new CC_ORTV_D();
         public object t { get; private set; }
+        
+        
         //public string generaTablaTicketsVenta(ORTV_E filtro, int days, string[] estados)
         //{
         //    return ticketV.generaTablaTicketsVenta(filtro, days, estados);
@@ -794,5 +796,24 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         {
             return ticketV.obtenerDet4Ticket(DocEntry, DocNum);
         }
+        // Alisson Romero
+        public string EstadoTicket(int docEntry)
+        { return ticketV.EstadoTicket(docEntry); }
+        public int DocNumTicket(int docEntry)
+        { return ticketV.DocNumTicket(docEntry); }
+        public int DocNumTicketLike(int docNumLike)
+        { return ticketV.DocNumTicketLike(docNumLike); }
+        public int DocEntryTicket(int docNum)
+        { return ticketV.DocEntryTicket(docNum); }
+        public List<ORTV_E> ListarTicketsAreaVenta(Usuario_E user, ORTV_E t)
+        { return ticketV.ListarTicketsAreaVenta(user, t); }
+        public int CantidadTicketsFacturacion(string estadoFacturacion) //Trae la cantidad de tickets PENDIENTES o GRE EMITIDA para vista de facturaciòn
+        {
+            return ticketV.CantidadTicketsFacturacion(estadoFacturacion);
         }
+        public ORTV_E ObtenerTicketFacturacion(int docEntry)// Trae datos especificos para un ticket en controller facturacion
+        { return ticketV.ObtenerTicketFacturacion(docEntry);}
+        public List<ORTV_E> ListarTicketsAreaFacturacion(Usuario_E user, ORTV_E t)
+        { return ticketV.ListarTicketsAreaFacturacion(user, t); }
+    }
 }

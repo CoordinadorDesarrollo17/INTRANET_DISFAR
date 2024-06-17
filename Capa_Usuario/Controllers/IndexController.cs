@@ -110,7 +110,7 @@ namespace Capa_Usuario.Controllers
         }
         public ActionResult VT_Tickets(int idOperation = 500)
         {
-            return validaAccesos((Usuario_E)Session["UsuarioId"], idOperation, "Index", "ListadoTickets", "Ventas", "Error");
+            return validaAccesos((Usuario_E)Session["UsuarioId"], idOperation, "Index", "ListadoTicketsVenta", "Ventas", "Error");
         }
         public ActionResult VT_TicketsFacturacion(int idOperation = 600)
         {

@@ -18,8 +18,8 @@ using Capa_Negocio.Ventas_NEG.TablasSql;
 using CrystalDecisions.CrystalReports.Engine;
 using CrystalDecisions.Shared;
 using DocumentFormat.OpenXml.Drawing;
-
-//using DocumentFormat.OpenXml.Spreadsheet;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
 using Microsoft.Reporting.WebForms;
 using Microsoft.ReportingServices.ReportProcessing.ReportObjectModel;
 using OfficeOpenXml;
@@ -57,7 +57,26 @@ namespace Capa_Usuario.Controllers
 
             return colorTicket;
         }
+        public ActionResult ListadoTicketsVenta(int DocNum = 0, ORTV_E t = null, string mensaje = null, int idOperation = 501)
+        {
+            if (verificacionAccesos(idOperation) == "C_Access")
+            {
+                Usuario_E user = (Usuario_E)Session["UsuarioId"];
+                ViewBag.DocEntryUsuario = user.DocEntry;
+                ViewBag.IdRol = user.IdRol;
+                ViewBag.ListaTicketsSeparados = ticketN.listarTicketsSeparados(user.CodigoSap);
+                ViewBag.DocNum = DocNum;
+                ViewBag.Ortv = t;
+                ViewBag.Vendedores = u_N.listaUsuariosPermisos(null, 6);        // Usado como Filtro en el botón AnVentas (Reporte Analítico Ventas)
+                if (mensaje != null) { ViewBag.Mensaje = mensaje; }
 
+                return View(ticketN.ListarTicketsAreaVenta(user, t));
+            }
+            else if (verificacionAccesos(idOperation) == "E_Login")
+            { return RedirectToAction("Index", "Index"); }
+            else
+            { return RedirectToAction("Error", "Index"); }
+        }
         public JsonResult ObtenerDatosTicket(int docEntry)
         {
             verificacionAccesos(0);         // Validar sesion logueada, solo para ajax
@@ -73,28 +92,6 @@ namespace Capa_Usuario.Controllers
             {
                 return Json(new { Mensaje = e.Message });
             }
-        }
-
-        public ActionResult ListadoTickets(int DocNum = 0, ORTV_E t = null, string mensaje = null, int idOperation = 501)
-        {
-            if (verificacionAccesos(idOperation) == "C_Access")
-            {
-                Usuario_E user = (Usuario_E)Session["UsuarioId"];
-                ViewBag.DocEntryUsuario = user.DocEntry;
-                ViewBag.IdRol = user.IdRol;
-                ViewBag.ListaTicketsSeparados = ticketN.listarTicketsSeparados(user.CodigoSap);
-                ViewBag.DocNum = DocNum;
-                ViewBag.Ortv = t;
-                ViewBag.Vendedores = u_N.listaUsuariosPermisos(null, 6);        // Usado como Filtro en el botón AnVentas (Reporte Analítico Ventas)
-                if (mensaje != null) { ViewBag.Mensaje = mensaje; }
-                t.NombreVista = "ListadoTickets";
-
-                return View(ticketN.listarTicketsVenta(user, t));
-            }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
-            else
-            { return RedirectToAction("Error", "Index"); }
         }
         public JsonResult buscarTicket(int DocNum = 0)
         {
@@ -152,7 +149,7 @@ namespace Capa_Usuario.Controllers
                     ticket.OpRegistro = $"{user.Nombres} {user.Apellidos}";
                     ticket.WhsCodeLog = $"{user.WhsCode}";
                     int DocNum = ticketN.registrarTicket(ticket);
-                    return RedirectToAction("ListadoTickets", new { DocNum = DocNum });
+                    return RedirectToAction("ListadoTicketsVenta", new { DocNum = DocNum });
                 }
                 catch (Exception e)
                 {
@@ -219,7 +216,7 @@ namespace Capa_Usuario.Controllers
                     t.Vendedor = $"{user.Nombres} {user.Apellidos}";     // Seteamos el usuario Propietario con el nombre del usuario en sesiòn
                     t.WhsCodeLog = $"{user.WhsCode}";
                     ticketN.editarTicket(DocEntry, t);
-                    return RedirectToAction("ListadoTickets", new { DocNum = t.DocNum });
+                    return RedirectToAction("ListadoTicketsVenta", new { DocNum = t.DocNum });
                 }
                 catch (Exception e)
                 {
@@ -386,7 +383,7 @@ namespace Capa_Usuario.Controllers
                 }
                 catch
                 {
-                    return RedirectToAction("ListadoTickets");
+                    return RedirectToAction("ListadoTicketsVenta");
                 }
             }
             else if (verificacionAccesos(idOperation) == "E_Login")
@@ -488,7 +485,7 @@ namespace Capa_Usuario.Controllers
                 }
                 catch
                 {
-                    return RedirectToAction("ListadoTickets");
+                    return RedirectToAction("ListadoTicketsVenta");
                 }
             }
             else if (verificacionAccesos(idOperation) == "E_Login")
@@ -624,21 +621,33 @@ namespace Capa_Usuario.Controllers
             if (verificacionAccesos(idOperation) == "C_Access")
             {
                 Usuario_E user = (Usuario_E)Session["UsuarioId"]; ORTV_N tkN = new ORTV_N();
+                ViewBag.IdRol = user.IdRol;
                 ViewBag.DocNum = DocNum;
-                //Si el DocNum es diferente a 0 todos los datos necesarios del ticket se llenan en ViewBag.Ortv ( para que muestre en el filtro)
+                //Si el filtro DocNum es diferente a 0 todos los datos necesarios del ticket se llenan en ViewBag.Ortv (para que muestre en el filtro)
                 if (DocNum > 0)
                 {
-                    var DocEntry = DocNum - 2000000000;
-                    var ticketUnico = tkN.obtenerTicket(DocEntry);
+                    DocNum = tkN.DocNumTicketLike(DocNum); 
+                    var DocEntry = tkN.DocEntryTicket(DocNum);
+                    var ticketUnico = tkN.ObtenerTicketFacturacion(DocEntry);
                     ticket.LugarDestino = ticketUnico.LugarDestino;
-                    ticket.Estado = ticketUnico.Estado;
                     ticket.EstadoFacturacion = ticketUnico.EstadoFacturacion;
-                    ticket.FechaSapTicket = ticketUnico.FechaSapTicket;
-                    ViewBag.Ortv = ticket;
+                    ticket.DocNum = DocNum;
+                    ViewBag.Ortv = ticket; ViewBag.DocNum = DocNum;
                 }
                 else { ViewBag.Ortv = ticket; }
                 ViewBag.Mensaje = Mensaje;
-                return View(ticketN.listarTicketsVenta(user, ticket));
+                var lista = ticketN.ListarTicketsAreaFacturacion(user, ticket);
+                if (ViewBag.IdRol != null && ViewBag.IdRol == 54)
+                {
+                    lista = lista.OrderBy(x => x.EstadoFacturacion == "PENDIENTE" ? 0 :
+                                                      x.EstadoFacturacion == "GRE EMITIDA" ? 1 :
+                                                      x.EstadoFacturacion == "FACTURADO" ? 2 : 3).ThenBy(x=>x.TiempoEntrega).ToList();
+                }
+                var cantPendiente = ticketN.CantidadTicketsFacturacion("PENDIENTE");
+                var cantGreEmitida = ticketN.CantidadTicketsFacturacion("GRE EMITIDA");
+                ViewBag.CP = cantPendiente;
+                ViewBag.CG = cantGreEmitida;
+                return View(lista);
             }
             else if (verificacionAccesos(idOperation) == "E_Login")
             { return RedirectToAction("Index", "Index"); }
@@ -665,6 +674,7 @@ namespace Capa_Usuario.Controllers
                     Zona = ticketPost.Zona,
                     Mensaje = string.Empty
                 };
+
                 bool hayFinVerificar = false; int DocNum = 0;
                 try
                 {
@@ -696,7 +706,6 @@ namespace Capa_Usuario.Controllers
                         {
                             //pasa EstadoFacturacion a GRE EMITIDA
                             DocNum = ticketN.emitirGuia(DocEntry, u);
-                            //datos.DocNum = DocNum;
                         }
                         else { throw new Exception("El ticket " + DocEntry + " no tiene guías en SAP."); }
                     }
@@ -2980,27 +2989,7 @@ namespace Capa_Usuario.Controllers
             verificacionAccesos(0);
             return RedirectToAction("PdfTicketVenta", new { DocEntry = DocEntry });
         }
-        public ActionResult RotuladoTicket(int DocEntry)
-        {
-            verificacionAccesos(0);
-            ORTV_N ortvN = new ORTV_N(); object obj = null;
-            try
-            {
-                obj = ortvN.obtenerTicket(DocEntry);
-            }
-            catch { }
-            return View(obj);
-        }
-        public ActionResult PdfRotuladoTicket(int DocEntry)
-        {
-            verificacionAccesos(0);
-            ORTV_E t = ticketN.obtenerTicket(DocEntry);
-            if (!t.Estado.Equals("EMPACADO"))
-            {
-                return RedirectToAction("ListadoTicketsAlmacen", new { DocNum = t.DocNum, Mensaje = "El ticket debe estar EMPACADO" });
-            }
-            return new ActionAsPdf("RotuladoTicket", new { DocEntry = DocEntry }) { FileName = "RotuladoTicket" + DocEntry + ".pdf", PageOrientation = Rotativa.Options.Orientation.Landscape, PageSize = Rotativa.Options.Size.A6 };
-        }
+
         /*******************datos de form*****************/
         public JsonResult infoContactosVentasSocio(string CardCode)
         {
@@ -3142,7 +3131,21 @@ namespace Capa_Usuario.Controllers
 
         }
 
-        /**********Documentos imprimibles para el proceso de tickets **************/
+        /**********Documentos imprimibles para el proceso de tickets (OPERACIONES) **************/
+        public ActionResult PdfTacoComentarios(int DocEntry)
+        {
+            verificacionAccesos(0);
+            ORTV_E ticket = ticketN.obtenerTicket(DocEntry);
+            List<CC_ORTV_E> ticketAbierto = ccORTV_N.ListarCC_ORTV(DocEntry, "REGISTRAR");
+
+            // Si el ticket no está ABIERTO y en el control de cambios nunca hubo un movimiento
+            if (ticket.Estado != "ABIERTO" && ticketAbierto[0].FechaOperacion == "")
+            {
+                return RedirectToAction("ListadoTicketsRecepcion", new { DocNum = ticket.DocNum, Mensaje = "El ticket debe estar ABIERTO" });
+            }
+
+            return new ActionAsPdf("TacoComentarios", new { DocEntry = DocEntry }) { FileName = "TacoComentario" + DocEntry + ".pdf", PageOrientation = Rotativa.Options.Orientation.Portrait, PageSize = Rotativa.Options.Size.A6 };
+        }
         public ActionResult TacoComentarios(int DocEntry)
         {
             verificacionAccesos(0);
@@ -3164,97 +3167,32 @@ namespace Capa_Usuario.Controllers
             }
             catch { return View(new ORTV_E()); }
         }
-        public ActionResult PdfTacoComentarios(int DocEntry)
+        public ActionResult PdfRotuladoTicket(int DocEntry)
         {
             verificacionAccesos(0);
-            ORTV_E ticket = ticketN.obtenerTicket(DocEntry);
-            List<CC_ORTV_E> ticketAbierto = ccORTV_N.ListarCC_ORTV(DocEntry, "REGISTRAR");
-
-            // Si el ticket no está ABIERTO y en el control de cambios nunca hubo un movimiento
-            if (ticket.Estado != "ABIERTO" && ticketAbierto[0].FechaOperacion == "")
+            ORTV_N ortvN = new ORTV_N();
+            var estado = ortvN.EstadoTicket(DocEntry);
+            var docNum = ortvN.DocNumTicket(DocEntry);
+            if (!estado.Equals("EMPACADO"))
             {
-                return RedirectToAction("ListadoTicketsRecepcion", new { DocNum = ticket.DocNum, Mensaje = "El ticket debe estar ABIERTO" });
+                return RedirectToAction("ListadoTicketsAlmacen", new { DocNum = docNum, Mensaje = "El ticket debe estar EMPACADO" });
             }
-
-            return new ActionAsPdf("TacoComentarios", new { DocEntry = DocEntry }) { FileName = "TacoComentario" + DocEntry + ".pdf", PageOrientation = Rotativa.Options.Orientation.Portrait, PageSize = Rotativa.Options.Size.A6 };
+            return new ActionAsPdf("RotuladoTicket", new { DocEntry = DocEntry }) { FileName = "RotuladoTicket" + DocEntry + ".pdf", PageOrientation = Rotativa.Options.Orientation.Landscape, PageSize = Rotativa.Options.Size.A4 };
+            //var pdfRotuladoTicket = new ActionAsPdf("RotuladoTicket", new { DocEntry = DocEntry }) { FileName = "RotuladoTicket.pdf", PageOrientation = Rotativa.Options.Orientation.Landscape, PageSize = Rotativa.Options.Size.A4 };
+            //var pdfTacoEmpaque = new ActionAsPdf("TacoEmpaque", new { DocEntry = DocEntry }) { FileName = "PdfTacoEmpaque.pdf", PageOrientation = Rotativa.Options.Orientation.Landscape, PageSize = Rotativa.Options.Size.A4 };
+         
         }
-        public ActionResult TacoEmpaque(int DocEntry)
+        public ActionResult RotuladoTicket(int DocEntry)
         {
             verificacionAccesos(0);
+            ORTV_N ortvN = new ORTV_N();
+            object obj = null;
             try
             {
-                RTV12_D datosRTV12 = new RTV12_D();
-                RTV13_D datosRTV13 = new RTV13_D();
-                List<CC_ORTV_E> ticketVerificando = new List<CC_ORTV_E>(); List<CC_ORTV_E> ticketEmpacado = new List<CC_ORTV_E>();
-                ORTV_E ticket = ticketN.obtenerTicket(DocEntry);
-                if (ticket.Estado.Equals("EMPACADO")
-                    || ticket.Estado.Equals("PREENVIO")
-                    || ticket.Estado.Equals("ENVIADO")
-                    || ticket.Estado.Equals("ENTREGADO"))
-                {
-                    /* Trae el operario de verificacion principal */
-                    ticketVerificando = ccORTV_N.ListarCC_ORTV(DocEntry, "FIN VERIFICAR");
-                    ticket.OpVerificado = ticketVerificando[0].Operario;
-
-                    /* Trae los operarios de verificado de apoyo*/
-                    List<string> operariosChequeando = datosRTV12.BuscarOperariosChequeando(ticket.DocEntry);
-                    if (operariosChequeando != null)
-                    {
-                        ticket.OpVerificadoApoyo = operariosChequeando;
-                    }
-                }
-
-                if (ticket.Cajas >= 1)
-                {
-                    // Trae el operario de empacado principal
-                    ticketEmpacado = ccORTV_N.ListarCC_ORTV(DocEntry, "FIN EMPACAR");
-                    List<string> operariosEmpacando = datosRTV13.BuscarOperariosEmpacando(DocEntry);
-
-                    // Trae los operarios de empacado de apoyo
-                    if (operariosEmpacando != null) { ticket.OpEmpacadoApoyo = operariosEmpacando; }
-                }
-                //obtener guias
-                if (ticket.LugarDestino.Equals("Arriola") || ticket.LugarDestino.Equals("Centro"))
-                {
-                    string WhsCode = string.Empty;
-                    Capa_Negocio.Almacen_NEG.Tablas.OWTR_N owtrN = new Capa_Negocio.Almacen_NEG.Tablas.OWTR_N();
-                    if (ticket.LugarDestino.Equals("Centro")) { WhsCode = "01"; }
-                    else if (ticket.LugarDestino.Equals("Arriola")) { WhsCode = "09"; }
-
-                    ViewBag.Guias = owtrN.GuiasTicketTransferencia(ticket.DocNum, WhsCode);
-                }
-                else { ViewBag.Guias = ticketN.GuiasTicket(DocEntry); }
-                if (ticketVerificando.Count() > 0) { ticket.OpVerificado = ticketVerificando[0].Operario; }
-
-                ViewBag.Letra = 4;
-                ViewBag.ColorTicket = ResaltarTicket(ticket.LugarDestino);
-
-                if (ticketEmpacado.Count() > 0)
-                {
-                    try
-                    {
-                        DateTime dt = Convert.ToDateTime(ticketEmpacado[0].FechaOperacion);
-                        ticket.FechaEmpacado = dt.ToString("dd/MM/yyyy");
-                        ticket.HoraEmpacado = ticketEmpacado[0].HoraOperacion;
-                        ticket.OpEmpacado = ticketEmpacado[0].Operario;
-                    }
-                    catch { }
-                }
-
-                if (ticket.TiempoEntrega != null)
-                {
-                    try
-                    {
-                        DateTime dt = Convert.ToDateTime(ticket.TiempoEntrega);
-                        dt = dt.AddMinutes(-70);
-                        ticket.TiempoEntrega = Convert.ToDateTime(dt.ToString("dd/MM/yyyy hh:mm tt"));
-                    }
-                    catch { }
-
-                }
-                return View(ticket);
+                obj = ortvN.obtenerTicket(DocEntry);
             }
-            catch { return View(new ORTV_E()); }
+            catch { }
+            return View(obj);
         }
         public ActionResult PdfTacoEmpaque(int DocEntry)
         {
@@ -3262,6 +3200,103 @@ namespace Capa_Usuario.Controllers
             return new ActionAsPdf("TacoEmpaque", new { DocEntry = DocEntry }) { FileName = "PdfTacoEmpaque.pdf", PageOrientation = Rotativa.Options.Orientation.Portrait, PageSize = Rotativa.Options.Size.A6 };
 
         }
+        public ActionResult TacoEmpaque(int DocEntry)
+        {
+            try
+            {
+                verificacionAccesos(0);
+                ORTV_N ortvN = new ORTV_N();
+                var ticket = ortvN.obtenerTicket(DocEntry);
+
+                if (EsEstadoEmpacado(ticket.Estado))
+                {
+                    ObtenerOperariosVerificacion(ticket, DocEntry);
+                    ObtenerOperariosEmpacado(ticket, DocEntry);
+                    AsignarGuias(ticket);
+                    AsignarFechaHoraEmpacado(ticket);
+                    AjustarTiempoEntrega(ticket);
+                }
+                else
+                {
+                    return RedirectToAction("ListadoTicketsAlmacen", new { DocNum = ticket.DocNum, Mensaje = "El ticket debe estar EMPACADO" });
+                }
+
+                ViewBag.Letra = 4;
+                ViewBag.ColorTicket = ResaltarTicket(ticket.LugarDestino);
+
+                return View(ticket);
+            }
+            catch 
+            {
+                return View(new ORTV_E());
+            }
+        }
+        private bool EsEstadoEmpacado(string estado)
+        {
+            return estado.Equals("EMPACADO") || estado.Equals("PREENVIO") || estado.Equals("ENVIADO") || estado.Equals("ENTREGADO");
+        }
+        private void ObtenerOperariosVerificacion(ORTV_E ticket, int docEntry)
+        {
+            var ticketVerificando = ccORTV_N.ListarCC_ORTV(docEntry, "FIN VERIFICAR");
+            if (ticketVerificando.Any())
+            {
+                ticket.OpVerificado = ticketVerificando[0].Operario;
+                var operariosChequeando = new RTV12_D().BuscarOperariosChequeando(ticket.DocEntry);
+                if (operariosChequeando != null)
+                {
+                    ticket.OpVerificadoApoyo = operariosChequeando;
+                }
+            }
+        }
+        private void ObtenerOperariosEmpacado(ORTV_E ticket, int docEntry)
+        {
+            if (ticket.Cajas >= 1)
+            {
+                var ticketEmpacado = ccORTV_N.ListarCC_ORTV(docEntry, "FIN EMPACAR");
+                var operariosEmpacando = new RTV13_D().BuscarOperariosEmpacando(docEntry);
+                if (operariosEmpacando != null)
+                {
+                    ticket.OpEmpacadoApoyo = operariosEmpacando;
+                }
+            }
+        }
+        private void AsignarGuias(ORTV_E ticket)
+        {
+            if (ticket.LugarDestino.Equals("Arriola") || ticket.LugarDestino.Equals("Centro"))
+            {
+                var owtrN = new Capa_Negocio.Almacen_NEG.Tablas.OWTR_N();
+                string whsCode = ticket.LugarDestino.Equals("Centro") ? "01" : "09";
+                ViewBag.Guias = owtrN.GuiasTicketTransferencia(ticket.DocNum, whsCode);
+            }
+            else
+            {
+                ViewBag.Guias = ticketN.GuiasTicket(ticket.DocEntry);
+            }
+        }
+        private void AsignarFechaHoraEmpacado(ORTV_E ticket)
+        {
+            var ticketEmpacado = ccORTV_N.ListarCC_ORTV(ticket.DocEntry, "FIN EMPACAR");
+            if (ticketEmpacado.Any())
+            {
+                DateTime dt;
+                if (DateTime.TryParse(ticketEmpacado[0].FechaOperacion, out dt))
+                {
+                    ticket.FechaEmpacado = dt.ToString("dd/MM/yyyy");
+                    ticket.HoraEmpacado = ticketEmpacado[0].HoraOperacion;
+                    ticket.OpEmpacado = ticketEmpacado[0].Operario;
+                }
+            }
+        }
+        private void AjustarTiempoEntrega(ORTV_E ticket)
+        {
+            if (ticket.TiempoEntrega != null)
+            {
+                DateTime dt = Convert.ToDateTime(ticket.TiempoEntrega);
+                dt = dt.AddMinutes(-70);
+                ticket.TiempoEntrega = Convert.ToDateTime(dt.ToString("dd/MM/yyyy hh:mm tt"));
+            }
+        }
+
         public ActionResult OrdenDeVenta(int DocNum)
         {
             verificacionAccesos(0);
@@ -3458,7 +3493,7 @@ namespace Capa_Usuario.Controllers
                     t.OpRegistro = $"{user.Nombres} {user.Apellidos}";
                     t.WhsCodeLog = $"{user.WhsCode}";
                     ticketN.editarTicketSup(DocEntry, user.IdRol, t);
-                    return RedirectToAction("ListadoTickets", new { DocNum = t.DocNum });
+                    return RedirectToAction("ListadoTicketsVenta", new { DocNum = t.DocNum });
                 }
                 catch (Exception e)
                 {

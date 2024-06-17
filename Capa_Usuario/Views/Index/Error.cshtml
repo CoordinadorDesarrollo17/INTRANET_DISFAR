@@ -3,7 +3,14 @@
     ViewBag.Title = "Error";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li class="current"><em>Error de permisos</em></li>
+        </ol>
+    </nav>
+</div>
 <h4>ERROR</h4>
 <strong>Error no tiene permiso para acceder a este Recurso<br />Contacte al soporte de Sistemas</strong>
 
