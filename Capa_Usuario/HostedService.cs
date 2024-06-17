@@ -18,7 +18,7 @@ namespace Capa_Usuario
         {
             _timer = new Timer(migracion, null, TimeSpan.Zero, TimeSpan.FromDays(1));
             _timer = new Timer(inactivarUsuario, null, TimeSpan.Zero, TimeSpan.FromDays(2));
-            //_timer = new Timer(cambiarEstadoNCAplicada, null, TimeSpan.Zero, TimeSpan.FromDays(1));
+            _timer = new Timer(cambiarEstadoNCAplicada, null, TimeSpan.Zero, TimeSpan.FromDays(1));
         }
 
         public void StopAsync()
@@ -43,8 +43,8 @@ namespace Capa_Usuario
 
         public void cambiarEstadoNCAplicada(object state)
         {
-            if (DateTime.Now.Hour == 1 && DateTime.Now.Minute == 0)
-            {
+            //if (DateTime.Now.Hour == 1 && DateTime.Now.Minute == 0)
+            //{
                 Capa_Negocio.Almacen_NEG.Tablas.ORPD_N orpdN_Hana = new Capa_Negocio.Almacen_NEG.Tablas.ORPD_N();
                 Capa_Negocio.Almacen_NEG.TablasSql.ORPD_N orpdN = new Capa_Negocio.Almacen_NEG.TablasSql.ORPD_N();
                 List<Capa_Entidad.Almacen_ENT.TablasSql.ORPD_E> listaDev = orpdN.ListarDevoluciones(new Capa_Entidad.Almacen_ENT.TablasSql.ORPD_E { Estado = "RECOGIDO" });
@@ -72,7 +72,7 @@ namespace Capa_Usuario
 
 
                 }
-            }
+            //}
 
         }
 
