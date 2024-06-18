@@ -3,6 +3,7 @@ using Capa_Negocio;
 using Capa_Negocio.Seguridad_NEG;
 using Capa_Negocio.Ventas_NEG.TablasSql;
 using System;
+using System.Linq;
 using System.Web.Mvc;
 using System.Web.Services.Description;
 

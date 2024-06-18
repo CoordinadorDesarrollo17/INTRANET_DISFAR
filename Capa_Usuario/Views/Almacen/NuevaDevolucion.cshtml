@@ -10,8 +10,10 @@
     List<SubmotivosDevoluciones_E> Submotivos = (List<SubmotivosDevoluciones_E>)ViewBag.SubmotivosDevoluciones;
     List<OMRC_E> Laboratorios = (List<OMRC_E>)ViewBag.Laboratorios;
     List<OCRD_E> Proveedores = (List<Capa_Entidad.SocioNegocios_ENT.Tablas.OCRD_E>)ViewBag.ListaProveedores;
-}
 
+    
+   
+}
 <div class="pt-4">
     <nav>
         <ol class="cd-breadcrumb bg-dark">
@@ -409,7 +411,11 @@
         }
     $(document).ready(function () {
         validarRetiroMercado($('#RetiroMercado').val());
+        
     });
+    var num = 1;
+    var fechaActual = new Date();
+    var fechaActualISO = fechaActual.toISOString().slice(0, 10);
     var num = 0;
 
     function ajustarColumnasDataTable() {
@@ -586,7 +592,6 @@
             });
         }
     }
-
     function validarFiltrosArticulo() {
         let result = false;
         //cuando el usuario elije NO en entrada mercancia este dato $('#SinEM').val() viaja como true
@@ -847,7 +852,7 @@
             if (ExpDate != '') {
                 filaExpDate = `<input type="hidden" id="fechaV"  name="DetalleDevolucion[${num}].ExpDate" value="${ExpDate}" />${ExpDate}`;
             } else {
-                filaExpDate = `<input type="date" id="fechaV" name="DetalleDevolucion[${num}].ExpDate" class="form-control border-success" value="" required />`;
+                filaExpDate = `<input type="date" id="fechaV" name="DetalleDevolucion[${num}].ExpDate" class="form-control border-success" value="" required min="${fechaActualISO}" />`;
             }
 
 

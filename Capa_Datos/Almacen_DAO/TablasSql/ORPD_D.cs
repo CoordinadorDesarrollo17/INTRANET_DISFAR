@@ -51,7 +51,7 @@ namespace Capa_Datos.Almacen_DAO.TablasSql
 
             using (SqlConnection cn = new SqlConnection(uti.cadSql))
             {
-                string query = $"SELECT DISTINCT TOP 100 DEV.DocEntry, DEV.DocNum, CONVERT(varchar,DEV.FechaDevolucion,103) AS 'FechaDevolucion',CONVERT(varchar, DEV.HoraDevolucion,8), DEV.Correlativo, DEV.WhsCode, DEV.CardCode, DEV.CardName, DEV.Estado, DEV.RetiroMercado, DEV.Correo, DEV.TiempoCorreoEnviado , DEV.Comentario FROM al.ORPD DEV {join} WHERE DEV.DocEntry > 0 {condWhere} ORDER BY DEV.DocEntry DESC";
+                string query = $"SELECT DISTINCT TOP 100 DEV.DocEntry, DEV.DocNum, CONVERT(varchar,DEV.FechaDevolucion,103) AS 'FechaDevolucion',CONVERT(varchar, DEV.HoraDevolucion,8), DEV.Correlativo, DEV.WhsCode, DEV.CardCode, DEV.CardName, DEV.Estado, DEV.RetiroMercado, DEV.Correo, DEV.TiempoCorreoEnviado , DEV.Comentario FROM al.ORPD DEV {join} WHERE 1=1 {condWhere} ORDER BY DEV.DocEntry DESC";
                 SqlCommand cmd = new SqlCommand(query, cn);         // prepara
                                                                     //cmd.Parameters.AddWithValue("@DocEntry", DocEntry);
                 cn.Open();

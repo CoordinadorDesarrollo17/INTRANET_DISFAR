@@ -633,6 +633,7 @@ namespace Capa_Usuario.Controllers
                     var ticketUnico = tkN.ObtenerTicketFacturacion(DocEntry);
                     ticket.LugarDestino = ticketUnico.LugarDestino;
                     ticket.EstadoFacturacion = ticketUnico.EstadoFacturacion;
+                    ticket.Estado = ticketUnico.Estado;
                     ticket.DocNum = DocNum;
                     ViewBag.Ortv = ticket; ViewBag.DocNum = DocNum;
                 }

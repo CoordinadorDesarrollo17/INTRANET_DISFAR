@@ -18,7 +18,7 @@ namespace Capa_Usuario
         {
             _timer = new Timer(migracion, null, TimeSpan.Zero, TimeSpan.FromDays(1));
             _timer = new Timer(inactivarUsuario, null, TimeSpan.Zero, TimeSpan.FromDays(2));
-            _timer = new Timer(cambiarEstadoNCAplicada, null, TimeSpan.Zero, TimeSpan.FromDays(1));
+            //_timer = new Timer(cambiarEstadoNCAplicada, null, TimeSpan.Zero, TimeSpan.FromMinutes(30));
         }
 
         public void StopAsync()
@@ -43,11 +43,9 @@ namespace Capa_Usuario
 
         public void cambiarEstadoNCAplicada(object state)
         {
-            //if (DateTime.Now.Hour == 1 && DateTime.Now.Minute == 0)
-            //{
                 Capa_Negocio.Almacen_NEG.Tablas.ORPD_N orpdN_Hana = new Capa_Negocio.Almacen_NEG.Tablas.ORPD_N();
                 Capa_Negocio.Almacen_NEG.TablasSql.ORPD_N orpdN = new Capa_Negocio.Almacen_NEG.TablasSql.ORPD_N();
-                List<Capa_Entidad.Almacen_ENT.TablasSql.ORPD_E> listaDev = orpdN.ListarDevoluciones(new Capa_Entidad.Almacen_ENT.TablasSql.ORPD_E { Estado = "RECOGIDO" });
+                List<Capa_Entidad.Almacen_ENT.TablasSql.ORPD_E> listaDev = orpdN.ListarDevoluciones(new Capa_Entidad.Almacen_ENT.TablasSql.ORPD_E { Estado = "RECOGIDO" }).OrderBy(x =>x.DocEntry).ToList();
                 foreach (Capa_Entidad.Almacen_ENT.TablasSql.ORPD_E obj in listaDev)
                 {
 
@@ -58,7 +56,6 @@ namespace Capa_Usuario
 
                     if (sonTodasIguales)
                     {
-
                         //si la lista de devoluciones tiene en su detallado factura unica, buscamos el archivo en estado Cerrado a nivel de SAP y la devolucion pasa a NC APLICADA
                         orpdN_Hana.BuscarDevolucion(Dev1, FechaFormateada, Dev1.CardCode, Dev1.DetalleDevolucion[0].RefFactura);
 
@@ -72,9 +69,8 @@ namespace Capa_Usuario
 
 
                 }
-            //}
 
-        }
+    }
 
         public void Dispose()
         {

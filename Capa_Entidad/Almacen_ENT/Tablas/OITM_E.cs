@@ -27,6 +27,8 @@ namespace Capa_Entidad.Almacen_ENT.Tablas
         [DisplayName("Estado")]
         public int FirmCode { get; set; }
         public string AsstStatus { get; set; }
+        public string validFor { get; set; }
+        public string U_COB_EST_SKU { get; set; }
         [DisplayName("Observacion")]
         public string UserText { get; set; }
         [DisplayName("En Stock")]

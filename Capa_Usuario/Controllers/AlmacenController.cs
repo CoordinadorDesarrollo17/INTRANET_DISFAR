@@ -275,7 +275,8 @@ namespace Capa_Usuario.Controllers
             {
                 OITM_N oitmN = new OITM_N();
                 var datalist = "<datalist id='ListaProductos'>";
-                var listaProductos = oitmN.Listar(new OITM_E { FirmCode = datos.FirmCode });
+                //Solo lista productos Activos
+                var listaProductos = oitmN.Listar(new OITM_E { FirmCode = datos.FirmCode, validFor="Y"/*, U_COB_EST_SKU = "01"*/});
 
                 if (listaProductos != null && listaProductos.Count >= 1)
                 {
@@ -294,6 +295,7 @@ namespace Capa_Usuario.Controllers
                 return null;
             }
         }
+        
         public JsonResult BuscarLotesProducto(Capa_Entidad.Almacen_ENT.Tablas.OIBT_E filtros)
         {
             verificacionAccesos(0);         // Validar sesion logueada, solo para ajax
