@@ -926,7 +926,7 @@ namespace Capa_Usuario.Controllers
 
         public ActionResult ExportarPdfOrdenesVenta(Capa_Entidad.Ventas_ENT.Tablas.ORDR_E filtros)
         {
-            return new ActionAsPdf("PDF_OrdenesDeVentas", new { DocNum = filtros.DocNum }) { FileName = $"OV_{filtros.DocNum}.pdf", PageOrientation = Rotativa.Options.Orientation.Portrait, PageSize = Rotativa.Options.Size.A4 };
+            return new ActionAsPdf("PDF_OrdenesDeVentas", new { DocNum = filtros.DocNum }) { FileName = $"{filtros.CardName}.pdf", PageOrientation = Rotativa.Options.Orientation.Portrait, PageSize = Rotativa.Options.Size.A4 };
         }
 
         public ActionResult PDF_OrdenesDeVentas(OrdenDeVenta_E filtros)

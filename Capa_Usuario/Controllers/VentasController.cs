@@ -23,6 +23,7 @@ using iTextSharp.text.pdf;
 using Microsoft.Reporting.WebForms;
 using Microsoft.ReportingServices.ReportProcessing.ReportObjectModel;
 using OfficeOpenXml;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 using OfficeOpenXml.Table;
 using Rotativa;
@@ -41,7 +42,9 @@ namespace Capa_Usuario.Controllers
     {
         Usuario_N u_N = new Usuario_N(); Rol1_N rol1 = new Rol1_N(); int modulo = 5;
         ORTV_N ticketN = new ORTV_N(); OLDS_N lN = new OLDS_N();
-        CC_ORTV_N ccORTV_N = new CC_ORTV_N();       // Control de cambios de estado de tickets	
+        CC_ORTV_N ccORTV_N = new CC_ORTV_N();      
+
+        //VENTAS COMERCIAL
         protected string ResaltarTicket(string LugarDestino = "")
         {
             string colorTicket = "#FFFFFF";
@@ -97,9 +100,8 @@ namespace Capa_Usuario.Controllers
         }
         public JsonResult buscarTicket(int DocNum = 0)
         {
-            Usuario_E user = (Usuario_E)Session["UsuarioId"];
             ORTV_N ortvN = new ORTV_N();
-            ORTV_E ticket = ortvN.listarTicketsVenta(user, new ORTV_E { DocNum = DocNum }).FirstOrDefault();
+            ORTV_E ticket = ortvN.ObtenerTicketVenta(DocNum);
             if (ticket != null)
             {
                 List<RTV2_E> nuevoDet2 = new List<RTV2_E>();
@@ -237,7 +239,31 @@ namespace Capa_Usuario.Controllers
             else
             { return RedirectToAction("Error", "Index"); }
         }
+        public void VerificarOpSeguimiento(Dictionary<string, Object> datos, string Request)
+        {
+            verificacionAccesos(0);
+            int Op = 0;
+            if (datos["accion"].Equals("RECIBIDO")) { Op = 508; }
+            if (datos["accion"].Equals("ANULARRECIBIDO")) { Op = 509; }
+            if (datos["accion"].Equals("EMPACADO")) { Op = 512; }
+            if (datos["accion"].Equals("ANULAREMPACADO")) { Op = 513; }
+            if (datos["accion"].Equals("ENVIADO")) { Op = 514; }
+            if (datos["accion"].Equals("ANULARENVIADO")) { Op = 515; }
+            if (datos["accion"].Equals("ENTREGADO")) { Op = 516; }
+            if (datos["accion"].Equals("ANULARENTREGADO")) { Op = 517; }
+            //cambiar datos de NroMesa y Cajas
+            if (datos["accion"].Equals("UPDATEEMP")) { Op = 599; }
+            if (verificacionAccesos(Op).Equals("C_Access"))
+            {
+                //ticketN.editarSeguimientoTicket(estado, DocEntry, tc);
+                ticketN.EditarTicketDesdeSeguimiento(datos, Request);
+            }
+            else
+            {
+                throw new Exception("Error Ud. no tiene permiso esta operacion.");
+            }
 
+        }
         public ActionResult SeguimientoDeTicket(int DocEntry, string Mensaje, int idOperation = 507)
         {
             if (verificacionAccesos(idOperation) == "C_Access")
@@ -495,7 +521,6 @@ namespace Capa_Usuario.Controllers
             else
             { return RedirectToAction("Error", "Index"); }
         }
-        //op 508--517
         public ActionResult CancelarTicket(int DocEntry, string vista, int idOperation = 518)
         {
             if (verificacionAccesos(idOperation) == "C_Access")
@@ -520,132 +545,358 @@ namespace Capa_Usuario.Controllers
             else
             { return RedirectToAction("Error", "Index"); }
         }
-        /*FORMATO DE AGENCIA*/
-        public ActionResult RptFormatoAgencia(int idOperation = 520)
+        /*************************** P E D I D O S  O N L I N E ***************************/
+        [HttpGet]
+        public ActionResult PedidosOnline(Capa_Entidad.Ventas_ENT.TablasSql.ORDR_E datos, int idOperation = 1326)
         {
             if (verificacionAccesos(idOperation) == "C_Access")
             {
-                ReportClass rc = new ReportClass();
-                rc.FileName = Server.MapPath("/Reportes/RptVentas/RptFormatoAgencia.rpt");
+                Capa_Negocio.Ventas_NEG.TablasSql.ORDR_N pedidoN = new Capa_Negocio.Ventas_NEG.TablasSql.ORDR_N();
+                Capa_Negocio.Almacen_NEG.TablasSql.OIBT_N oibtN = new Capa_Negocio.Almacen_NEG.TablasSql.OIBT_N();
+                Usuario_E usu = (Usuario_E)Session["UsuarioId"];
+                ViewBag.RolUsuario = usu.IdRol;
+                oibtN.TemporizarMigrarArticulos();
 
-                Capa_Negocio.Utilitarios_N utiN = new Capa_Negocio.Utilitarios_N();
-                var coninfo = utiN.getConexion();
-                TableLogOnInfo logoninfo = new TableLogOnInfo();
-                Tables tables;
-                tables = rc.Database.Tables;
-                foreach (CrystalDecisions.CrystalReports.Engine.Table item in tables)
+                // 7: Op Ventas
+                if (usu.IdRol.Equals(7))
                 {
-                    logoninfo = item.LogOnInfo;
-                    logoninfo.ConnectionInfo = coninfo;
-                    item.ApplyLogOnInfo(logoninfo);
+                    datos.Vendedor = $"{usu.Nombres} {usu.Apellidos}";
                 }
-                Response.Buffer = false;
-                Response.ClearContent();
-                Response.ClearHeaders();
-                Stream stream = rc.ExportToStream(ExportFormatType.PortableDocFormat);
-                stream.Seek(0, SeekOrigin.Begin);
-                return File(stream, "application/pdf", "FormatoAgencia.pdf");
+
+                return View(pedidoN.ListarPedidosOnline(datos));
             }
             else if (verificacionAccesos(idOperation) == "E_Login")
             { return RedirectToAction("Index", "Index"); }
             else
             { return RedirectToAction("Error", "Index"); }
         }
-        public ActionResult RptFormatoAgenciaExcel(int idOperation = 521)
+        public JsonResult BuscarCliente(OCRD_E cliente)
+        {
+            if (!cliente.CardName.Equals(""))
+            {
+                OCRD_N ocrdN = new OCRD_N();
+                var datalist = "<datalist id='ListaClientes'>";
+                var listaClientes = ocrdN.BuscarCliente(cliente);
 
+                if (listaClientes.Count >= 1)
+                {
+                    foreach (var c in listaClientes)
+                    {
+                        datalist += $"<option CardCode='{c.CardCode}' value='{c.CardName}'></option>";
+                    }
+                }
+
+                datalist += "</datalist>";
+
+                return Json(datalist);
+            }
+            else
+            {
+                return null;
+            }
+        }
+        public JsonResult MigrarArticulos()
+        {
+            Capa_Negocio.Almacen_NEG.TablasSql.OIBT_N oibtN = new Capa_Negocio.Almacen_NEG.TablasSql.OIBT_N();
+            oibtN.MigrarArticulos();
+
+            return Json("Migración realizada");
+        }
+        public JsonResult VerificarMigracionArticulos()
+        {
+            verificacionAccesos(0);         // Validar sesion logueada, solo para ajax
+            Capa_Negocio.Almacen_NEG.TablasSql.OIBT_N oibtN = new Capa_Negocio.Almacen_NEG.TablasSql.OIBT_N();
+            var result = oibtN.VerificarMigracionArticulos();
+
+            return Json(result);
+        }
+        public JsonResult BuscarArticulo(Capa_Entidad.Almacen_ENT.TablasSql.OIBT_E articulo)
+        {
+            verificacionAccesos(0);         // Validar sesion logueada, solo para ajax
+            if (!string.IsNullOrEmpty(articulo.ItemName) || !string.IsNullOrEmpty(articulo.PrincActivo))
+            {
+                Capa_Negocio.Almacen_NEG.TablasSql.OIBT_N oibtN = new Capa_Negocio.Almacen_NEG.TablasSql.OIBT_N();
+                var tbody = string.Empty;
+                var listaArticulos = oibtN.BuscarArticulo(articulo);
+
+                foreach (var art in listaArticulos)
+                {
+                    tbody += "<tr>" +
+                                    $"<td><button type=\"button\" class=\"btn btn-warning\" onclick=\"agregarDetallePedido('{art.ItemCode}', '{art.ItemName}', '{art.NumInBuy}', '{art.BuyUnitMsr}', '{art.SalUnitMsr}', '{art.BatchNum}', '{art.PorVender}', '{art.ExpDate}', {art.Price}, {art.Id});\"><i class='icon-plus'></i> </button></td>" +
+                                    $"<td><span class='text-danger font-weight-bold'>{art.ItemCode}</span></br>{art.ItemName}</td>" +
+                                    $"<td class='text-center'>{art.Price}</td>" +
+                                    $"<td class='text-center'>{art.PrecioxCaja}</td>" +
+                                    $"<td class='text-center'>{art.PorVender}</td>" +
+                                    $"<td class='text-center'>{art.ExpDate}</td>" +
+                                    $"<td class='text-center'>{art.PrincActivo}</td>" +
+                                    $"<td class='text-center'>{art.Observacion}</td>" +
+                                    $"<td class='text-center'>{art.CajonM}</td>" +
+                                    //$"<td><div class=\"d-flex justify-content-center\"><select id='undmed_{art.Id}' class='form-control bg-cobefar text-white border-sucess' style='width: 100px'><option value=''>Selec.</option><option value='PZA'>PZA</option><option value='CAJA'>CAJA</option></select></div></td>" +
+                                    //$"<td class='text-center'><input type='hidden' id='stock_disponible_{art.Id}' value='{Convert.ToInt32(art.Quantity)}' /> {Convert.ToInt32(art.Quantity)}</td>" +
+                                    //$"<td><input type='number' id='cantidad_{art.Id}' class='form-control border-success' /></td>" +
+                                    "<tr>";
+                }
+
+                return Json(tbody);
+            }
+            else
+            {
+                return null;
+            }
+        }
+        public JsonResult VerificarCliente(int DocEntry, string CardCode)
+        {
+            verificacionAccesos(0);         // Validar sesion logueada, solo para ajax
+            ORTV_N ortvN = new ORTV_N();
+            var result = ortvN.obtenerTicket(DocEntry);
+            string msj = string.Empty;
+
+            if (CardCode != result.CardCode)
+            {
+                msj = "El cliente no debe ser distinto del creado en PedidosOnline";
+            }
+
+            return Json(msj);
+        }
+        [HttpGet]
+        public ActionResult CrearPedidoOnline(Capa_Entidad.Ventas_ENT.TablasSql.ORDR_E Pedido, int idOperation = 1327)
         {
             if (verificacionAccesos(idOperation) == "C_Access")
             {
-                ORTV_N ortvN = new ORTV_N();
+                return View(Pedido);
+            }
+            else if (verificacionAccesos(idOperation) == "E_Login")
+            { return RedirectToAction("Index", "Index"); }
+            else
+            { return RedirectToAction("Error", "Index"); }
+        }
+        [HttpPost]
+        public ActionResult CrearPedidoOnline(Capa_Entidad.Ventas_ENT.TablasSql.ORDR_E Pedido, List<Capa_Entidad.Almacen_ENT.TablasSql.OIBT_E> DetallePedido, int idOperation = 1327)
+        {
+            if (verificacionAccesos(idOperation) == "C_Access")
+            {
+                Capa_Negocio.Ventas_NEG.TablasSql.ORDR_N ordrN = new Capa_Negocio.Ventas_NEG.TablasSql.ORDR_N();
+                Usuario_E usu = (Usuario_E)Session["UsuarioId"];
+                try
+                {
+                    Pedido.CodSapVendedor = usu.CodigoSap;
+                    Pedido.Vendedor = $"{usu.Nombres} {usu.Apellidos}";
+                    ordrN.RegistrarPedidoOnline(Pedido, DetallePedido);
+                    return RedirectToAction("PedidosOnline", new { Id = Pedido.Id });
+                }
+                catch (Exception e)
+                {
+                    ViewBag.Mensaje = e.Message;
+                    return View(Pedido);
+                }
+            }
+            else if (verificacionAccesos(idOperation) == "E_Login")
+            { return RedirectToAction("Index", "Index"); }
+            else
+            { return RedirectToAction("Error", "Index"); }
+        }
+        [HttpGet]
+        public ActionResult VerPedidoOnline(Capa_Entidad.Ventas_ENT.TablasSql.ORDR_E pedido, int idOperation = 1327)
+        {
+            if (verificacionAccesos(idOperation) == "C_Access")
+            {
+                Capa_Negocio.Ventas_NEG.TablasSql.ORDR_N ordrN = new Capa_Negocio.Ventas_NEG.TablasSql.ORDR_N();
+                List<Capa_Entidad.Ventas_ENT.TablasSql.ORDR_E> datos = ordrN.ListarPedidosOnline(pedido);
+
+                return View(datos);
+            }
+            else if (verificacionAccesos(idOperation) == "E_Login")
+            { return RedirectToAction("Index", "Index"); }
+            else
+            { return RedirectToAction("Error", "Index"); }
+        }
+        [HttpPost]
+        public ActionResult EditarPedidoOnline(int idORDR, List<Capa_Entidad.Almacen_ENT.TablasSql.OIBT_E> DetallePedido, int idOperation = 1327)
+        {
+            if (verificacionAccesos(idOperation) == "C_Access")
+            {
+                Capa_Negocio.Ventas_NEG.TablasSql.ORDR_N ordrN = new Capa_Negocio.Ventas_NEG.TablasSql.ORDR_N();
+
+                try
+                {
+                    ordrN.EditarPedidoOnline(idORDR, DetallePedido);
+                    return RedirectToAction("PedidosOnline");
+                }
+                catch (Exception e)
+                {
+                    ViewBag.Mensaje = e.Message;
+                    return RedirectToAction("EditarPedidoOnline");
+                }
+            }
+            else if (verificacionAccesos(idOperation) == "E_Login")
+            { return RedirectToAction("Index", "Index"); }
+            else
+            { return RedirectToAction("Error", "Index"); }
+        }
+        protected string CargarListaPedidosOnline()
+        {
+            Capa_Negocio.Ventas_NEG.TablasSql.ORDR_N pedidoN = new Capa_Negocio.Ventas_NEG.TablasSql.ORDR_N();
+            var listaPedidosOnline = pedidoN.ListarPedidosOnline(null);
+            string lista = string.Empty;
+
+            foreach (var ped in listaPedidosOnline)
+            {
+                string btnCancelado = "btn-danger";
+                string btnRecibido = "btn-success";
+                string btnTicketVenta = "btn-secondary disabled";
+                string disabled = string.Empty;
+                string disabledRecibido = string.Empty;
+                string btnUrlTicket = "#";
+
+                if (ped.Estado.Equals("CANCELADO") || ped.Estado.Equals("BORRADOR"))
+                {
+                    disabled = "disabled"; disabledRecibido = "disabled";
+                    btnCancelado = "btn-secondary"; btnRecibido = "btn-secondary";
+                }
+                else if (ped.Estado.Equals("RECIBIDO"))
+                {
+                    btnRecibido = "btn-secondary disabled";
+                    btnTicketVenta = "btn-warning";
+                    btnUrlTicket = $"/Ventas/CreaTicketVenta?DocEntry={ped.DocEntryTicket}&Tipo=PedidoOnline";
+                    disabledRecibido = "disabled";
+                }
+
+                lista += "<tr>" +
+                                $"<td class=\"text-center\">{ped.CardCode}</td>" +
+                                $"<td class=\"text -center\">{ped.CardName}</td>" +
+                                $"<td class=\"text-center\" >{ped.FechaCreacion}</td>" +
+                                $"<td class=\"text-center\">{ped.Vendedor}</td>" +
+                                $"<td class=\"text-center\">{ped.Estado}</td>" +
+                                $"<td class=\"text-center\">{ped.DocNumTicket}</td>" +
+                                "<td class=\"text-center\">" +
+                                    $"<a href =\"/Ventas/VerPedidoOnline?Id={ped.Id}\" class=\"btn btn-sm btn-info mx-1 my-lg-0 my-sm-1\" title=\"Recibir Pedido\">" +
+                                        "<i class=\"icon-eye\" title=\"Ver Pedido\"></i>" +
+                                    "</a>" +
+                                    $"<button class=\"btn btn-sm {btnRecibido} mx-1 my-lg-0 my-sm-1\" title=\"Recibir Pedido\" onclick=\"enviarDatosPedido({ped.Id}, {ped.DocEntryTicket}, 'REC')\" {disabledRecibido}>" +
+                                        "<i class=\"icon icon-checkmark\" title=\"Recibir Pedido\"></i>" +
+                                    "</button>" +
+                                    $"<button type='button' class=\"btn btn-sm {btnCancelado} mx-1 my-lg-0 my-sm-1\" title=\"Cancelar Pedido\" onclick=\"enviarDatosPedido({ped.Id}, {ped.DocEntryTicket}, 'CAN')\" {disabled}>" +
+                                        "<i class=\"icon icon-blocked\" title=\"Cancelar Pedido\"></i>" +
+                                    "</button>" +
+                                "</td>" +
+                                "<td class=\"text-center\">" +
+                                    $"<a href=\"/Ventas/ExportarDetallePedidoOnline?Id={ped.Id}&CardCode={ped.CardCode}\" class=\"btn btn-sm btn-cobefar font-weight-bold my-lg-0 my-sm-1\" title=\"Descargar Excel Detalle Pedido\"><i class=\"icon icon-file-excel\"></i> Detalle Pedido</a>" +
+                                    $"<a href=\"{btnUrlTicket}\" class=\"btn btn-sm {btnTicketVenta} my-lg-0 my-sm-1\" title=\"Ticket Venta\"><i class=\"icon-redo2\"></i> Ticket Venta</a>" +
+                                "</td>" +
+                            "</tr>";
+            }
+
+            return lista;
+        }
+        public JsonResult CambiarEstadoPedidoOnline(Capa_Entidad.Ventas_ENT.TablasSql.ORDR_E Pedido, string Accion)
+        {
+            if (Pedido.Id >= 1)
+            {
+                Capa_Negocio.Ventas_NEG.TablasSql.ORDR_N pedidoN = new Capa_Negocio.Ventas_NEG.TablasSql.ORDR_N();
+                Usuario_E usu = (Usuario_E)Session["UsuarioId"];
+
+                if (Accion.Equals("REC"))
+                {
+                    Pedido.VendedorRecibido = $"{usu.Nombres} {usu.Apellidos}";
+                }
+                else if (Accion.Equals("CAN"))
+                {
+                    Pedido.VendedorCancelado = $"{usu.Nombres} {usu.Apellidos}";
+                }
+
+                var result = pedidoN.CambiarEstadoPedidoOnline(Pedido, Accion);
+
+                Dictionary<string, string> data = new Dictionary<string, string>{
+                    { "Lista", CargarListaPedidosOnline() }, { "Mensaje", result },
+                };
+
+                return Json(data);
+            }
+            else
+            {
+                return null;
+            }
+        }
+        public ActionResult ExportarDetallePedidoOnline(Capa_Entidad.Ventas_ENT.TablasSql.ORDR_E Pedido, int idOperation = 1327)
+        {
+            if (verificacionAccesos(idOperation) == "C_Access")
+            {
+                RDR1_N detPedidoN = new RDR1_N();
+                string nombreArchivo = $"DetallePedido_{Pedido.CardCode}.xlsx";
                 string excelContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-                var formatoAgencia = ortvN.listarTicketsAgencia();
+                var solicitudes = detPedidoN.ExportarDetallePedidosOnline(Pedido.Id);
+
                 using (var libro = new ExcelPackage())
                 {
-                    var worksheet = libro.Workbook.Worksheets.Add("FormatoAgencia");
-                    worksheet.Cells["A1"].LoadFromCollection(formatoAgencia, PrintHeaders: true);
+                    var worksheet = libro.Workbook.Worksheets.Add("DetallePedido");
+                    worksheet.Cells["A1"].LoadFromCollection(solicitudes, PrintHeaders: true);
 
-                    for (var col = 1; col <= 13; col++)
+                    if (solicitudes != null)
                     {
-                        worksheet.Column(col).AutoFit();
+                        if (solicitudes.Count >= 1)
+                        {
+                            for (var col = 1; col <= 4; col++)
+                            {
+                                worksheet.Column(col).AutoFit();
+                            }
+
+                            var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: solicitudes.Count + 1, toColumn: 4), "DetallePedido");
+                            tabla.ShowHeader = true;
+                            tabla.TableStyle = TableStyles.Medium2;
+                        }
                     }
-                    var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: formatoAgencia.Count + 1, toColumn: 13), "FormatoAgencia");
-                    tabla.ShowHeader = true;
-                    tabla.TableStyle = TableStyles.Medium2;
-                    return File(libro.GetAsByteArray(), excelContentType, "FormatoAgencia.xlsx");
+
+                    return File(libro.GetAsByteArray(), excelContentType, nombreArchivo);
                 }
             }
             else if (verificacionAccesos(idOperation) == "E_Login") { return null; }
             else { return null; }
         }
-        public void VerificarOpSeguimiento(/*string estado, int docEntry, int docNum, string tipoMantenimiento*/ Dictionary<string, Object> datos, string Request)
-        {
-            verificacionAccesos(0);
-            int Op = 0;
-            if (datos["accion"].Equals("RECIBIDO")) { Op = 508; }
-            if (datos["accion"].Equals("ANULARRECIBIDO")) { Op = 509; }
-            if (datos["accion"].Equals("EMPACADO")) { Op = 512; }
-            if (datos["accion"].Equals("ANULAREMPACADO")) { Op = 513; }
-            if (datos["accion"].Equals("ENVIADO")) { Op = 514; }
-            if (datos["accion"].Equals("ANULARENVIADO")) { Op = 515; }
-            if (datos["accion"].Equals("ENTREGADO")) { Op = 516; }
-            if (datos["accion"].Equals("ANULARENTREGADO")) { Op = 517; }
-            //cambiar datos de NroMesa y Cajas
-            if (datos["accion"].Equals("UPDATEEMP")) { Op = 599; }
-            if (verificacionAccesos(Op).Equals("C_Access"))
-            {
-                //ticketN.editarSeguimientoTicket(estado, DocEntry, tc);
-                ticketN.EditarTicketDesdeSeguimiento(datos, Request);
-            }
-            else
-            {
-                throw new Exception("Error Ud. no tiene permiso esta operacion.");
-            }
 
-        }
+        //FACTURACION
+
         /*public ActionResult ListadoTicketsGuiasRemision(int DocNum = 0, ORTV_E ticket = null, string Mensaje = "", int idOperation = 2801)
-        {
-            if (verificacionAccesos(idOperation) == "C_Access")
-            {
-                Usuario_E user = (Usuario_E)Session["UsuarioId"];
-                ViewBag.DocNum = DocNum;
-                ViewBag.Ortv = ticket;
-                if (string.IsNullOrEmpty(ticket.EstadoFacturacion)) { ticket.EstadoFacturacion = "PENDIENTE"; }
-                ViewBag.Mensaje = Mensaje;
-                return View(ticketN.listarTicketsVenta(user, ticket));
-            }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
-            else
-            { return RedirectToAction("Error", "Index"); }
-        }*/
+       {
+           if (verificacionAccesos(idOperation) == "C_Access")
+           {
+               Usuario_E user = (Usuario_E)Session["UsuarioId"];
+               ViewBag.DocNum = DocNum;
+               ViewBag.Ortv = ticket;
+               if (string.IsNullOrEmpty(ticket.EstadoFacturacion)) { ticket.EstadoFacturacion = "PENDIENTE"; }
+               ViewBag.Mensaje = Mensaje;
+               return View(ticketN.listarTicketsVenta(user, ticket));
+           }
+           else if (verificacionAccesos(idOperation) == "E_Login")
+           { return RedirectToAction("Index", "Index"); }
+           else
+           { return RedirectToAction("Error", "Index"); }
+       }*/
         public ActionResult ListadoTicketsFacturacion(int DocNum = 0, ORTV_E ticket = null, string Mensaje = "", int idOperation = 601)
         {
             if (verificacionAccesos(idOperation) == "C_Access")
             {
-                Usuario_E user = (Usuario_E)Session["UsuarioId"]; ORTV_N tkN = new ORTV_N();
-                ViewBag.IdRol = user.IdRol;
-                ViewBag.DocNum = DocNum;
+                Usuario_E user = (Usuario_E)Session["UsuarioId"]; 
+                ORTV_N tkN = new ORTV_N();
+                ViewBag.IdRol = user.IdRol; ViewBag.DocNum = DocNum;
+
                 //Si el filtro DocNum es diferente a 0 todos los datos necesarios del ticket se llenan en ViewBag.Ortv (para que muestre en el filtro)
                 if (DocNum > 0)
                 {
-                    DocNum = tkN.DocNumTicketLike(DocNum); 
+                    DocNum = tkN.DocNumTicketLike(DocNum);
                     var DocEntry = tkN.DocEntryTicket(DocNum);
                     var ticketUnico = tkN.ObtenerTicketFacturacion(DocEntry);
                     ticket.LugarDestino = ticketUnico.LugarDestino;
                     ticket.EstadoFacturacion = ticketUnico.EstadoFacturacion;
                     ticket.Estado = ticketUnico.Estado;
                     ticket.DocNum = DocNum;
-                    ViewBag.Ortv = ticket; ViewBag.DocNum = DocNum;
+                    ViewBag.Ortv = ticket; 
+                    ViewBag.DocNum = DocNum;
                 }
                 else { ViewBag.Ortv = ticket; }
+
                 ViewBag.Mensaje = Mensaje;
                 var lista = ticketN.ListarTicketsAreaFacturacion(user, ticket);
-                if (ViewBag.IdRol != null && ViewBag.IdRol == 54)
-                {
-                    lista = lista.OrderBy(x => x.EstadoFacturacion == "PENDIENTE" ? 0 :
-                                                      x.EstadoFacturacion == "GRE EMITIDA" ? 1 :
-                                                      x.EstadoFacturacion == "FACTURADO" ? 2 : 3).ThenBy(x=>x.TiempoEntrega).ToList();
-                }
+           
                 var cantPendiente = ticketN.CantidadTicketsFacturacion("PENDIENTE");
                 var cantGreEmitida = ticketN.CantidadTicketsFacturacion("GRE EMITIDA");
                 ViewBag.CP = cantPendiente;
@@ -844,7 +1095,6 @@ namespace Capa_Usuario.Controllers
             else
             { return RedirectToAction("Error", "Index"); }
         }
-
         /*
          * 
          * Buscar Facturas y Boletas relacionadas al ticket
@@ -919,17 +1169,24 @@ namespace Capa_Usuario.Controllers
             List<RTV4_E> nc = ortvN.obtenerDet4Ticket(DocEntry);
             return Json(nc);
         }
-
+        
+        //RECEPCION
         public ActionResult ListadoTicketsRecepcion(int DocNum = 0, ORTV_E ticket = null, string Mensaje = "", int idOperation = 701)
         {
             if (verificacionAccesos(idOperation) == "C_Access")
             {
                 Usuario_E user = (Usuario_E)Session["UsuarioId"];
                 ViewBag.DocNum = DocNum;
-                ViewBag.Ortv = ticket;
+                if (DocNum > 0)
+                {
+                    ticket.DocNum = DocNum;
+                    ViewBag.Ortv = ticket; 
+                    ViewBag.DocNum = DocNum;
+                }
+                else { ViewBag.Ortv = ticket; }
                 ViewBag.Mensaje = Mensaje;
                 ViewBag.IdRol = user.IdRol;
-                return View(ticketN.listarTicketsVenta(user, ticket));
+                return View(ticketN.ListarTicketsAreaRecepcion(user, ticket));
             }
             else if (verificacionAccesos(idOperation) == "E_Login")
             { return RedirectToAction("Index", "Index"); }
@@ -995,6 +1252,8 @@ namespace Capa_Usuario.Controllers
             else
             { return RedirectToAction("Error", "Index"); }
         }
+
+        //PICKING PACKING
         public ActionResult ListadoTicketsAlmacen(int DocNum = 0, ORTV_E t = null, string Mensaje = "", int idOperation = 801)
         {
             if (verificacionAccesos(idOperation) == "C_Access")
@@ -1018,7 +1277,7 @@ namespace Capa_Usuario.Controllers
                 //    }
                 //}
 
-                return View(ticketN.listarTicketsVenta(user, t));
+                return View(ticketN.ListarTicketsAreaAlmacén(user, t));
             }
             else if (verificacionAccesos(idOperation) == "E_Login")
             { return RedirectToAction("Index", "Index"); }
@@ -1479,95 +1738,7 @@ namespace Capa_Usuario.Controllers
             else
             { return RedirectToAction("Error", "Index"); }
         }
-
-        public ActionResult PesadoTicketVenta(int DocEntry, int idOperation = 806)
-        {
-            if (verificacionAccesos(idOperation) == "C_Access")
-            {
-                try
-                {
-                    ViewBag.Mensaje = "¿Está seguro(a) de cambiar el estado a PESADO?";
-                    return View(ticketN.obtenerTicket(DocEntry));
-                }
-                catch (Exception e) { ViewBag.Mensaje = e.Message; return View(); }
-            }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
-            else
-            { return RedirectToAction("Error", "Index"); }
-        }
-        [HttpPost]
-        public ActionResult PesadoTicketVenta(int DocEntry, ORTV_E t, int idOperation = 806)
-        {
-            if (verificacionAccesos(idOperation) == "C_Access")
-            {
-                try
-                {
-                    Usuario_E usu = (Usuario_E)Session["UsuarioId"];
-                    ORTV_E tc = ticketN.obtenerTicket(DocEntry);
-                    tc.OpRegistro = $"{usu.Nombres} {usu.Apellidos}";
-                    if (t.Det6 != null && t.Det6.Count > 0)
-                    {
-                        for (int i = 0; i > t.Det6.Count; i++)
-                        {
-                            t.Det6[i].UniMed = "KG";
-                        }
-                    }
-                    tc.Det6 = t.Det6;
-                    int DocNum = ticketN.editarSeguimientoTicket("PESADO", DocEntry, tc);
-
-                    return RedirectToAction("ListadoTicketsDespacho", new { DocNum = DocNum, Mensaje = "Pesado Correctamente" });
-                }
-                catch (Exception e)
-                {
-                    ViewBag.Mensaje = e.Message;
-                    return View(ticketN.obtenerTicket(DocEntry));
-                }
-            }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
-            else
-            { return RedirectToAction("Error", "Index"); }
-        }
-        [HttpGet]
-        public ActionResult AnularPesadoTicket(int DocEntry, int idOperation = 807)
-        {
-            if (verificacionAccesos(idOperation) == "C_Access")
-            {
-                try
-                {
-                    ViewBag.Mensaje = "¿Está seguro(a) de ANULAR PESADO?";
-                    return View(ticketN.obtenerTicket(DocEntry));
-                }
-                catch (Exception e) { ViewBag.Mensaje = e.Message; return View(); }
-            }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
-            else
-            { return RedirectToAction("Error", "Index"); }
-        }
-        [HttpPost]
-        public ActionResult AnularPesadoTicket(int DocEntry, ORTV_E nulo, int idOperation = 807)
-        {
-            if (verificacionAccesos(idOperation) == "C_Access")
-            {
-                try
-                {
-                    Usuario_E usu = (Usuario_E)Session["UsuarioId"];
-                    ORTV_E ticket = ticketN.obtenerTicket(DocEntry);
-                    ticket.OpRegistro = $"{usu.Nombres} {usu.Apellidos}";
-                    int DocNum = ticketN.editarSeguimientoTicket("ANULARPESADO", DocEntry, ticket);
-                    ViewBag.Mensaje = "Proceso de pesado anulado correctamente";
-                    return RedirectToAction("ListadoTicketsDespacho", new { DocNum = DocNum });
-                }
-                catch (Exception e) { ViewBag.Mensaje = e.Message; return View(ticketN.obtenerTicket(DocEntry)); }
-            }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
-            else
-            { return RedirectToAction("Error", "Index"); }
-        }
-        //para despacho 901+
+        //DESPACHO
         public ActionResult ListadoTicketsDespacho(int DocNum = 0, ORTV_E ticket = null, string Mensaje = "", int idOperation = 901)
         {
             if (verificacionAccesos(idOperation) == "C_Access")
@@ -1577,7 +1748,6 @@ namespace Capa_Usuario.Controllers
                 ViewBag.almacenUsuario = user.WhsCode;
                 ViewBag.idRolUsuario = user.IdRol;
                 ViewBag.Mensaje = Mensaje;
-                ticket.NombreVista = "ListadoTicketsDespacho";
                 if (user.WhsCode != null)
                 {
                     if (user.WhsCode.Equals("01"))
@@ -1589,7 +1759,7 @@ namespace Capa_Usuario.Controllers
                         ticket.LugarDestino = "Arriola";
                     }
                 }
-                var lista = ticketN.listarTicketsVenta(user, ticket);
+                var lista = ticketN.ListarTicketsAreaDespacho(user, ticket);
 
                 if (user.IdRol == 53)
                 {
@@ -1597,15 +1767,21 @@ namespace Capa_Usuario.Controllers
                     {
                         if (x.Estado == "PICKEANDO")
                             return 0;
-                        if (x.Estado == "EMPACADO")
+                        if (x.Estado == "VERIFICANDO")
                             return 1;
-                        if (x.Estado == "PREENVIO")
+                        if (x.Estado == "EMPACANDO")
                             return 2;
-                        if (x.Estado == "ENVIADO")
+                        if (x.Estado == "EMPACADO")
                             return 3;
-                        if (x.Estado == "ENTREGADO")
+                        if (x.Estado == "PESADO")
                             return 4;
-                        return 5;
+                        if (x.Estado == "PREENVIO")
+                            return 5;
+                        if (x.Estado == "ENVIADO")
+                            return 6;
+                        if (x.Estado == "ENTREGADO")
+                            return 7;
+                        return 8;
                     }).ToList();
 
                 }
@@ -1716,6 +1892,155 @@ namespace Capa_Usuario.Controllers
             else
             { return RedirectToAction("Error", "Index"); }
         }
+        public ActionResult RptFormatoAgencia(int idOperation = 520)
+        {
+            if (verificacionAccesos(idOperation) == "C_Access")
+            {
+                ReportClass rc = new ReportClass();
+                rc.FileName = Server.MapPath("/Reportes/RptVentas/RptFormatoAgencia.rpt");
+
+                Capa_Negocio.Utilitarios_N utiN = new Capa_Negocio.Utilitarios_N();
+                var coninfo = utiN.getConexion();
+                TableLogOnInfo logoninfo = new TableLogOnInfo();
+                Tables tables;
+                tables = rc.Database.Tables;
+                foreach (CrystalDecisions.CrystalReports.Engine.Table item in tables)
+                {
+                    logoninfo = item.LogOnInfo;
+                    logoninfo.ConnectionInfo = coninfo;
+                    item.ApplyLogOnInfo(logoninfo);
+                }
+                Response.Buffer = false;
+                Response.ClearContent();
+                Response.ClearHeaders();
+                Stream stream = rc.ExportToStream(ExportFormatType.PortableDocFormat);
+                stream.Seek(0, SeekOrigin.Begin);
+                return File(stream, "application/pdf", "FormatoAgencia.pdf");
+            }
+            else if (verificacionAccesos(idOperation) == "E_Login")
+            { return RedirectToAction("Index", "Index"); }
+            else
+            { return RedirectToAction("Error", "Index"); }
+        }
+        public ActionResult RptFormatoAgenciaExcel(int idOperation = 521)
+
+        {
+            if (verificacionAccesos(idOperation) == "C_Access")
+            {
+                ORTV_N ortvN = new ORTV_N();
+                string excelContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                var formatoAgencia = ortvN.listarTicketsAgencia();
+                using (var libro = new ExcelPackage())
+                {
+                    var worksheet = libro.Workbook.Worksheets.Add("FormatoAgencia");
+                    worksheet.Cells["A1"].LoadFromCollection(formatoAgencia, PrintHeaders: true);
+
+                    for (var col = 1; col <= 13; col++)
+                    {
+                        worksheet.Column(col).AutoFit();
+                    }
+                    var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: formatoAgencia.Count + 1, toColumn: 13), "FormatoAgencia");
+                    tabla.ShowHeader = true;
+                    tabla.TableStyle = TableStyles.Medium2;
+                    return File(libro.GetAsByteArray(), excelContentType, "FormatoAgencia.xlsx");
+                }
+            }
+            else if (verificacionAccesos(idOperation) == "E_Login") { return null; }
+            else { return null; }
+        }
+        public JsonResult CalcularPesoTotal(ORTV_E t)
+        {
+            return Json(ticketN.CalcularPesoTotal(t));
+        }
+        public ActionResult PesadoTicketVenta(int DocEntry, int idOperation = 806)
+        {
+            if (verificacionAccesos(idOperation) == "C_Access")
+            {
+                try
+                {
+                    ViewBag.Mensaje = "¿Está seguro(a) de cambiar el estado a PESADO?";
+                    return View(ticketN.obtenerTicket(DocEntry));
+                }
+                catch (Exception e) { ViewBag.Mensaje = e.Message; return View(); }
+            }
+            else if (verificacionAccesos(idOperation) == "E_Login")
+            { return RedirectToAction("Index", "Index"); }
+            else
+            { return RedirectToAction("Error", "Index"); }
+        }
+        [HttpPost]
+        public ActionResult PesadoTicketVenta(int DocEntry, ORTV_E t, int idOperation = 806)
+        {
+            if (verificacionAccesos(idOperation) == "C_Access")
+            {
+                try
+                {
+                    Usuario_E usu = (Usuario_E)Session["UsuarioId"];
+                    ORTV_E tc = ticketN.obtenerTicket(DocEntry);
+                    tc.OpRegistro = $"{usu.Nombres} {usu.Apellidos}";
+                    if (t.Det6 != null && t.Det6.Count > 0)
+                    {
+                        for (int i = 0; i > t.Det6.Count; i++)
+                        {
+                            t.Det6[i].UniMed = "KG";
+                        }
+                    }
+                    tc.Det6 = t.Det6;
+                    int DocNum = ticketN.editarSeguimientoTicket("PESADO", DocEntry, tc);
+
+                    return RedirectToAction("ListadoTicketsDespacho", new { DocNum = DocNum, Mensaje = "Pesado Correctamente" });
+                }
+                catch (Exception e)
+                {
+                    ViewBag.Mensaje = e.Message;
+                    return View(ticketN.obtenerTicket(DocEntry));
+                }
+            }
+            else if (verificacionAccesos(idOperation) == "E_Login")
+            { return RedirectToAction("Index", "Index"); }
+            else
+            { return RedirectToAction("Error", "Index"); }
+        }
+        [HttpGet]
+        public ActionResult AnularPesadoTicket(int DocEntry, int idOperation = 807)
+        {
+            if (verificacionAccesos(idOperation) == "C_Access")
+            {
+                try
+                {
+                    ViewBag.Mensaje = "¿Está seguro(a) de ANULAR PESADO?";
+                    return View(ticketN.obtenerTicket(DocEntry));
+                }
+                catch (Exception e) { ViewBag.Mensaje = e.Message; return View(); }
+            }
+            else if (verificacionAccesos(idOperation) == "E_Login")
+            { return RedirectToAction("Index", "Index"); }
+            else
+            { return RedirectToAction("Error", "Index"); }
+        }
+        [HttpPost]
+        public ActionResult AnularPesadoTicket(int DocEntry, ORTV_E nulo, int idOperation = 807)
+        {
+            if (verificacionAccesos(idOperation) == "C_Access")
+            {
+                try
+                {
+                    Usuario_E usu = (Usuario_E)Session["UsuarioId"];
+                    ORTV_E ticket = ticketN.obtenerTicket(DocEntry);
+                    ticket.OpRegistro = $"{usu.Nombres} {usu.Apellidos}";
+                    int DocNum = ticketN.editarSeguimientoTicket("ANULARPESADO", DocEntry, ticket);
+                    ViewBag.Mensaje = "Proceso de pesado anulado correctamente";
+                    return RedirectToAction("ListadoTicketsDespacho", new { DocNum = DocNum });
+                }
+                catch (Exception e) { ViewBag.Mensaje = e.Message; return View(ticketN.obtenerTicket(DocEntry)); }
+            }
+            else if (verificacionAccesos(idOperation) == "E_Login")
+            { return RedirectToAction("Index", "Index"); }
+            else
+            { return RedirectToAction("Error", "Index"); }
+        }
+        
+        //LIBROS SALDOS
         public ActionResult ListadoLibrosSaldo(OLDS_E li = null, int idOperation = 1301)
         {
             if (verificacionAccesos(idOperation) == "C_Access")
@@ -1845,6 +2170,8 @@ namespace Capa_Usuario.Controllers
             else
             { return RedirectToAction("Error", "Index"); }
         }
+
+        //REPORTES
         public ActionResult ReportesVentas(int idOperation = 1306)
         {
             if (verificacionAccesos(idOperation) == "C_Access")
@@ -2635,318 +2962,8 @@ namespace Capa_Usuario.Controllers
             Capa_Negocio.Ventas_NEG.TablasSql.OCLR_N oclrN = new Capa_Negocio.Ventas_NEG.TablasSql.OCLR_N();
             return Json(oclrN.buscarClienteRegalo(CardCode));
         }
-        public JsonResult CalcularPesoTotal(ORTV_E t)
-        {
-            return Json(ticketN.CalcularPesoTotal(t));
-        }
 
-        /*************************** P E D I D O S  O N L I N E ***************************/
-        [HttpGet]
-        public ActionResult PedidosOnline(Capa_Entidad.Ventas_ENT.TablasSql.ORDR_E datos, int idOperation = 1326)
-        {
-            if (verificacionAccesos(idOperation) == "C_Access")
-            {
-                Capa_Negocio.Ventas_NEG.TablasSql.ORDR_N pedidoN = new Capa_Negocio.Ventas_NEG.TablasSql.ORDR_N();
-                Capa_Negocio.Almacen_NEG.TablasSql.OIBT_N oibtN = new Capa_Negocio.Almacen_NEG.TablasSql.OIBT_N();
-                Usuario_E usu = (Usuario_E)Session["UsuarioId"];
-                ViewBag.RolUsuario = usu.IdRol;
-                oibtN.TemporizarMigrarArticulos();
-
-                // 7: Op Ventas
-                if (usu.IdRol.Equals(7))
-                {
-                    datos.Vendedor = $"{usu.Nombres} {usu.Apellidos}";
-                }
-
-                return View(pedidoN.ListarPedidosOnline(datos));
-            }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
-            else
-            { return RedirectToAction("Error", "Index"); }
-        }
-        public JsonResult BuscarCliente(OCRD_E cliente)
-        {
-            if (!cliente.CardName.Equals(""))
-            {
-                OCRD_N ocrdN = new OCRD_N();
-                var datalist = "<datalist id='ListaClientes'>";
-                var listaClientes = ocrdN.BuscarCliente(cliente);
-
-                if (listaClientes.Count >= 1)
-                {
-                    foreach (var c in listaClientes)
-                    {
-                        datalist += $"<option CardCode='{c.CardCode}' value='{c.CardName}'></option>";
-                    }
-                }
-
-                datalist += "</datalist>";
-
-                return Json(datalist);
-            }
-            else
-            {
-                return null;
-            }
-        }
-        public JsonResult MigrarArticulos()
-        {
-            Capa_Negocio.Almacen_NEG.TablasSql.OIBT_N oibtN = new Capa_Negocio.Almacen_NEG.TablasSql.OIBT_N();
-            oibtN.MigrarArticulos();
-
-            return Json("Migración realizada");
-        }
-        public JsonResult VerificarMigracionArticulos()
-        {
-            verificacionAccesos(0);         // Validar sesion logueada, solo para ajax
-            Capa_Negocio.Almacen_NEG.TablasSql.OIBT_N oibtN = new Capa_Negocio.Almacen_NEG.TablasSql.OIBT_N();
-            var result = oibtN.VerificarMigracionArticulos();
-
-            return Json(result);
-        }
-        public JsonResult BuscarArticulo(Capa_Entidad.Almacen_ENT.TablasSql.OIBT_E articulo)
-        {
-            verificacionAccesos(0);         // Validar sesion logueada, solo para ajax
-            if (!string.IsNullOrEmpty(articulo.ItemName) || !string.IsNullOrEmpty(articulo.PrincActivo))
-            {
-                Capa_Negocio.Almacen_NEG.TablasSql.OIBT_N oibtN = new Capa_Negocio.Almacen_NEG.TablasSql.OIBT_N();
-                var tbody = string.Empty;
-                var listaArticulos = oibtN.BuscarArticulo(articulo);
-
-                foreach (var art in listaArticulos)
-                {
-                    tbody += "<tr>" +
-                                    $"<td><button type=\"button\" class=\"btn btn-warning\" onclick=\"agregarDetallePedido('{art.ItemCode}', '{art.ItemName}', '{art.NumInBuy}', '{art.BuyUnitMsr}', '{art.SalUnitMsr}', '{art.BatchNum}', '{art.PorVender}', '{art.ExpDate}', {art.Price}, {art.Id});\"><i class='icon-plus'></i> </button></td>" +
-                                    $"<td><span class='text-danger font-weight-bold'>{art.ItemCode}</span></br>{art.ItemName}</td>" +
-                                    $"<td class='text-center'>{art.Price}</td>" +
-                                    $"<td class='text-center'>{art.PrecioxCaja}</td>" +
-                                    $"<td class='text-center'>{art.PorVender}</td>" +
-                                    $"<td class='text-center'>{art.ExpDate}</td>" +
-                                    $"<td class='text-center'>{art.PrincActivo}</td>" +
-                                    $"<td class='text-center'>{art.Observacion}</td>" +
-                                    $"<td class='text-center'>{art.CajonM}</td>" +
-                                    //$"<td><div class=\"d-flex justify-content-center\"><select id='undmed_{art.Id}' class='form-control bg-cobefar text-white border-sucess' style='width: 100px'><option value=''>Selec.</option><option value='PZA'>PZA</option><option value='CAJA'>CAJA</option></select></div></td>" +
-                                    //$"<td class='text-center'><input type='hidden' id='stock_disponible_{art.Id}' value='{Convert.ToInt32(art.Quantity)}' /> {Convert.ToInt32(art.Quantity)}</td>" +
-                                    //$"<td><input type='number' id='cantidad_{art.Id}' class='form-control border-success' /></td>" +
-                                    "<tr>";
-                }
-
-                return Json(tbody);
-            }
-            else
-            {
-                return null;
-            }
-        }
-        public JsonResult VerificarCliente(int DocEntry, string CardCode)
-        {
-            verificacionAccesos(0);         // Validar sesion logueada, solo para ajax
-            ORTV_N ortvN = new ORTV_N();
-            var result = ortvN.obtenerTicket(DocEntry);
-            string msj = string.Empty;
-
-            if (CardCode != result.CardCode)
-            {
-                msj = "El cliente no debe ser distinto del creado en PedidosOnline";
-            }
-
-            return Json(msj);
-        }
-        [HttpGet]
-        public ActionResult CrearPedidoOnline(Capa_Entidad.Ventas_ENT.TablasSql.ORDR_E Pedido, int idOperation = 1327)
-        {
-            if (verificacionAccesos(idOperation) == "C_Access")
-            {
-                return View(Pedido);
-            }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
-            else
-            { return RedirectToAction("Error", "Index"); }
-        }
-        [HttpPost]
-        public ActionResult CrearPedidoOnline(Capa_Entidad.Ventas_ENT.TablasSql.ORDR_E Pedido, List<Capa_Entidad.Almacen_ENT.TablasSql.OIBT_E> DetallePedido, int idOperation = 1327)
-        {
-            if (verificacionAccesos(idOperation) == "C_Access")
-            {
-                Capa_Negocio.Ventas_NEG.TablasSql.ORDR_N ordrN = new Capa_Negocio.Ventas_NEG.TablasSql.ORDR_N();
-                Usuario_E usu = (Usuario_E)Session["UsuarioId"];
-                try
-                {
-                    Pedido.CodSapVendedor = usu.CodigoSap;
-                    Pedido.Vendedor = $"{usu.Nombres} {usu.Apellidos}";
-                    ordrN.RegistrarPedidoOnline(Pedido, DetallePedido);
-                    return RedirectToAction("PedidosOnline", new { Id = Pedido.Id });
-                }
-                catch (Exception e)
-                {
-                    ViewBag.Mensaje = e.Message;
-                    return View(Pedido);
-                }
-            }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
-            else
-            { return RedirectToAction("Error", "Index"); }
-        }
-        [HttpGet]
-        public ActionResult VerPedidoOnline(Capa_Entidad.Ventas_ENT.TablasSql.ORDR_E pedido, int idOperation = 1327)
-        {
-            if (verificacionAccesos(idOperation) == "C_Access")
-            {
-                Capa_Negocio.Ventas_NEG.TablasSql.ORDR_N ordrN = new Capa_Negocio.Ventas_NEG.TablasSql.ORDR_N();
-                List<Capa_Entidad.Ventas_ENT.TablasSql.ORDR_E> datos = ordrN.ListarPedidosOnline(pedido);
-
-                return View(datos);
-            }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
-            else
-            { return RedirectToAction("Error", "Index"); }
-        }
-        [HttpPost]
-        public ActionResult EditarPedidoOnline(int idORDR, List<Capa_Entidad.Almacen_ENT.TablasSql.OIBT_E> DetallePedido, int idOperation = 1327)
-        {
-            if (verificacionAccesos(idOperation) == "C_Access")
-            {
-                Capa_Negocio.Ventas_NEG.TablasSql.ORDR_N ordrN = new Capa_Negocio.Ventas_NEG.TablasSql.ORDR_N();
-
-                try
-                {
-                    ordrN.EditarPedidoOnline(idORDR, DetallePedido);
-                    return RedirectToAction("PedidosOnline");
-                }
-                catch (Exception e)
-                {
-                    ViewBag.Mensaje = e.Message;
-                    return RedirectToAction("EditarPedidoOnline");
-                }
-            }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
-            else
-            { return RedirectToAction("Error", "Index"); }
-        }
-        protected string CargarListaPedidosOnline()
-        {
-            Capa_Negocio.Ventas_NEG.TablasSql.ORDR_N pedidoN = new Capa_Negocio.Ventas_NEG.TablasSql.ORDR_N();
-            var listaPedidosOnline = pedidoN.ListarPedidosOnline(null);
-            string lista = string.Empty;
-
-            foreach (var ped in listaPedidosOnline)
-            {
-                string btnCancelado = "btn-danger";
-                string btnRecibido = "btn-success";
-                string btnTicketVenta = "btn-secondary disabled";
-                string disabled = string.Empty;
-                string disabledRecibido = string.Empty;
-                string btnUrlTicket = "#";
-
-                if (ped.Estado.Equals("CANCELADO") || ped.Estado.Equals("BORRADOR"))
-                {
-                    disabled = "disabled"; disabledRecibido = "disabled";
-                    btnCancelado = "btn-secondary"; btnRecibido = "btn-secondary";
-                }
-                else if (ped.Estado.Equals("RECIBIDO"))
-                {
-                    btnRecibido = "btn-secondary disabled";
-                    btnTicketVenta = "btn-warning";
-                    btnUrlTicket = $"/Ventas/CreaTicketVenta?DocEntry={ped.DocEntryTicket}&Tipo=PedidoOnline";
-                    disabledRecibido = "disabled";
-                }
-
-                lista += "<tr>" +
-                                $"<td class=\"text-center\">{ped.CardCode}</td>" +
-                                $"<td class=\"text -center\">{ped.CardName}</td>" +
-                                $"<td class=\"text-center\" >{ped.FechaCreacion}</td>" +
-                                $"<td class=\"text-center\">{ped.Vendedor}</td>" +
-                                $"<td class=\"text-center\">{ped.Estado}</td>" +
-                                $"<td class=\"text-center\">{ped.DocNumTicket}</td>" +
-                                "<td class=\"text-center\">" +
-                                    $"<a href =\"/Ventas/VerPedidoOnline?Id={ped.Id}\" class=\"btn btn-sm btn-info mx-1 my-lg-0 my-sm-1\" title=\"Recibir Pedido\">" +
-                                        "<i class=\"icon-eye\" title=\"Ver Pedido\"></i>" +
-                                    "</a>" +
-                                    $"<button class=\"btn btn-sm {btnRecibido} mx-1 my-lg-0 my-sm-1\" title=\"Recibir Pedido\" onclick=\"enviarDatosPedido({ped.Id}, {ped.DocEntryTicket}, 'REC')\" {disabledRecibido}>" +
-                                        "<i class=\"icon icon-checkmark\" title=\"Recibir Pedido\"></i>" +
-                                    "</button>" +
-                                    $"<button type='button' class=\"btn btn-sm {btnCancelado} mx-1 my-lg-0 my-sm-1\" title=\"Cancelar Pedido\" onclick=\"enviarDatosPedido({ped.Id}, {ped.DocEntryTicket}, 'CAN')\" {disabled}>" +
-                                        "<i class=\"icon icon-blocked\" title=\"Cancelar Pedido\"></i>" +
-                                    "</button>" +
-                                "</td>" +
-                                "<td class=\"text-center\">" +
-                                    $"<a href=\"/Ventas/ExportarDetallePedidoOnline?Id={ped.Id}&CardCode={ped.CardCode}\" class=\"btn btn-sm btn-cobefar font-weight-bold my-lg-0 my-sm-1\" title=\"Descargar Excel Detalle Pedido\"><i class=\"icon icon-file-excel\"></i> Detalle Pedido</a>" +
-                                    $"<a href=\"{btnUrlTicket}\" class=\"btn btn-sm {btnTicketVenta} my-lg-0 my-sm-1\" title=\"Ticket Venta\"><i class=\"icon-redo2\"></i> Ticket Venta</a>" +
-                                "</td>" +
-                            "</tr>";
-            }
-
-            return lista;
-        }
-        public JsonResult CambiarEstadoPedidoOnline(Capa_Entidad.Ventas_ENT.TablasSql.ORDR_E Pedido, string Accion)
-        {
-            if (Pedido.Id >= 1)
-            {
-                Capa_Negocio.Ventas_NEG.TablasSql.ORDR_N pedidoN = new Capa_Negocio.Ventas_NEG.TablasSql.ORDR_N();
-                Usuario_E usu = (Usuario_E)Session["UsuarioId"];
-
-                if (Accion.Equals("REC"))
-                {
-                    Pedido.VendedorRecibido = $"{usu.Nombres} {usu.Apellidos}";
-                }
-                else if (Accion.Equals("CAN"))
-                {
-                    Pedido.VendedorCancelado = $"{usu.Nombres} {usu.Apellidos}";
-                }
-
-                var result = pedidoN.CambiarEstadoPedidoOnline(Pedido, Accion);
-
-                Dictionary<string, string> data = new Dictionary<string, string>{
-                    { "Lista", CargarListaPedidosOnline() }, { "Mensaje", result },
-                };
-
-                return Json(data);
-            }
-            else
-            {
-                return null;
-            }
-        }
-        public ActionResult ExportarDetallePedidoOnline(Capa_Entidad.Ventas_ENT.TablasSql.ORDR_E Pedido, int idOperation = 1327)
-        {
-            if (verificacionAccesos(idOperation) == "C_Access")
-            {
-                RDR1_N detPedidoN = new RDR1_N();
-                string nombreArchivo = $"DetallePedido_{Pedido.CardCode}.xlsx";
-                string excelContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-                var solicitudes = detPedidoN.ExportarDetallePedidosOnline(Pedido.Id);
-
-                using (var libro = new ExcelPackage())
-                {
-                    var worksheet = libro.Workbook.Worksheets.Add("DetallePedido");
-                    worksheet.Cells["A1"].LoadFromCollection(solicitudes, PrintHeaders: true);
-
-                    if (solicitudes != null)
-                    {
-                        if (solicitudes.Count >= 1)
-                        {
-                            for (var col = 1; col <= 4; col++)
-                            {
-                                worksheet.Column(col).AutoFit();
-                            }
-
-                            var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: solicitudes.Count + 1, toColumn: 4), "DetallePedido");
-                            tabla.ShowHeader = true;
-                            tabla.TableStyle = TableStyles.Medium2;
-                        }
-                    }
-
-                    return File(libro.GetAsByteArray(), excelContentType, nombreArchivo);
-                }
-            }
-            else if (verificacionAccesos(idOperation) == "E_Login") { return null; }
-            else { return null; }
-        }
+        
         /**********************************************************************************************************/
         public ActionResult reporteViewer(ReportViewer rp)
         {
@@ -3525,7 +3542,7 @@ namespace Capa_Usuario.Controllers
         public JsonResult ListarTicketsNoVisiblesPagados(int DocEntryUsuario)
         {
             verificacionAccesos(0); ORTV_N ortvN = new ORTV_N(); Usuario_N usuN = new Usuario_N(); Usuario_E u = usuN.buscarUsuario(DocEntryUsuario);
-            var result = ortvN.listarTicketsVenta(u, new ORTV_E { Estado = "ABIERTO" }).Where(x => x.Visible == "NO" && x.EstadoPago == "PAGADO").OrderBy(x => x.FechaPago + " " + x.HoraPago).ToList();
+            var result = ortvN.ListarTicketsAreaVenta(u, new ORTV_E { Estado = "ABIERTO" }).Where(x => x.Visible == "NO" && x.EstadoPago == "PAGADO").OrderBy(x => x.FechaPago + " " + x.HoraPago).ToList();
             return Json(new { Datos = result });
         }
         public JsonResult CambiarVisibleTicket(int DocEntry)

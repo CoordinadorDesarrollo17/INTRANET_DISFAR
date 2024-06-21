@@ -449,8 +449,7 @@
         });
 
         if ('@Request["LugarDestino"].ToString()' == 'Agencia') {
-            //location.href = '/Ventas/PdfRotuladoTicket?DocEntry=' + @Request["NumTicket"];
-            location.href = '/Ventas/PdfTacoEmpaque?DocEntry=' + @Request["NumTicket"];
+            location.href = '/Ventas/PdfRotuladoTicket?DocEntry=' + @Request["NumTicket"];
         } else {
               location.href = '/Ventas/PdfTacoEmpaque?DocEntry=' + @Request["NumTicket"];
         }

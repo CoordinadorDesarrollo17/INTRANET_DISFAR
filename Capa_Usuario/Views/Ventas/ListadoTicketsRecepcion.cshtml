@@ -4,7 +4,7 @@
     ViewBag.Title = "ListadoTicketsRecepcion";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
-    String bgEstadoPago = "bg-cobefar text-white", bgLugarDestino = "bg-cobefar text-white", bgAlmProcedencia = "bg-cobefar text-white";
+    String bgEstadoPago = "bg-cobefar text-white", bgLugarDestino = "bg-cobefar text-white";
     if (ViewBag.Ortv.EstadoPago != "" && ViewBag.Ortv.EstadoPago != null)
     {
         bgEstadoPago = "bg-warning";
@@ -14,6 +14,7 @@
     {
         bgLugarDestino = "bg-warning";
     }
+
 }
 <script>
     function filtrar() {
@@ -47,17 +48,8 @@
                     <option value="">LugarDestino</option>
                     <option value="Arriola" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Arriola") { Write("selected"); } }>Arriola</option>
                     <option value="Agencia" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Agencia") { Write("selected"); } }>Agencia</option>
-                    <option value="Agencia Courier" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Agencia Courier") { Write("selected"); } }>Agencia Courier</option>
                     <option value="Domicilio" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Domicilio") { Write("selected"); } }>Domicilio</option>
                     <option value="Centro" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Centro") { Write("selected"); } }>Centro</option>
-                    <option value="Arriola07" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Arriola07") { Write("selected"); } }>Arriola07</option>
-                </select>
-            </div>
-            <div class="mx-2">
-                <select name="AlmProcedencia" id="AlmProcedencia" class="form-control @bgAlmProcedencia" onchange="filtrar();">
-                    <option value="">Alm Procedencia</option>
-                    <option value="03" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.AlmProcedencia == "03") { Write("selected"); } }>Almacén 03</option>
-                    <option value="ALM07" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.AlmProcedencia == "ALM07") { Write("selected"); } }>Almacén 07</option>
                 </select>
             </div>
         </div>
@@ -78,14 +70,14 @@
                         { <input type="text" name="DocNum" class="form-control" onchange="filtrar();" />}
                     </th>
                     <th class="text-center">
-                        @Html.DisplayNameFor(model => model.FechaSapTicket)
+                        Fecha ticket
                         <br />
                         @if (ViewBag.Ortv != null && ViewBag.Ortv.FechaSapTicket != null)
                         {
-                            <input type="date" name="FechaSapTicket" style="font-size:12px; width: 120px" class="form-control" value="@ViewBag.Ortv.FechaSapTicket" onchange="filtrar();" />
+                            <input type="date" name="FechaSapTicket" style="font-size:12px;" class="form-control" value="@ViewBag.Ortv.FechaSapTicket" onchange="filtrar();" />
                         }
                         else
-                        { <input type="date" name="FechaSapTicket" style="font-size:12px; width: 120px" class="form-control" onchange="filtrar();" />}
+                        { <input type="date" name="FechaSapTicket" style="font-size:12px;" class="form-control" onchange="filtrar();" />}
                     </th>
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.CardName)
@@ -96,7 +88,7 @@
                         else
                         { <input type="text" name="CardName" class="form-control" onchange="filtrar();" />}
                     </th>
-                    <th class="text-center">Orden<br /> Venta</th>
+                    <th class="text-center">Orden de venta SAP</th>
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.Vendedor)
                         <br />
@@ -108,7 +100,7 @@
                         { <input type="text" name="Vendedor" class="form-control" onchange="filtrar();" />}
                     </th>
                     <th class="text-center">
-                        Monto
+                        Monto total
                         <br />
                         @if (ViewBag.Ortv != null && ViewBag.Ortv.MontoTotal > 0)
                         {
@@ -129,6 +121,7 @@
                             <option value="EMPACANDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "EMPACANDO") { Write("selected"); } }>EMPACANDO</option>
                             <option value="EMPACADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "EMPACADO") { Write("selected"); } }>EMPACADO</option>
                             <option value="PESADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "PESADO") { Write("selected"); } }>PESADO</option>
+                            <option value="PREENVIO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "PREENVIO") { Write("selected"); } }>PREENVIO</option>
                             <option value="ENVIADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ENVIADO") { Write("selected"); } }>ENVIADO</option>
                             <option value="ENTREGADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ENTREGADO") { Write("selected"); } }>ENTREGADO</option>
                             <option value="ANULADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ANULADO") { Write("selected"); } }>ANULADO</option>
@@ -136,20 +129,20 @@
                         </select>
                     </th>
                     <th class="text-center">
-                        Fecha<br />Abierto
+                        Fecha y hora<br />abierto
                     </th>
-                    <th class="text-center">Tipo<br />Venta</th>
-                    <th class="text-center">Estado<br />Pago</th>
+                    <th class="text-center">Tipo de venta</th>
+                    <th class="text-center">Estado de pago</th>
                     <th class="text-center">@Html.DisplayNameFor(model => model.LugarDestino)</th>
                     <th class="bg-success text-center text-white">Recibir</th>
-                    <th class="bg-danger text-center text-white">Anular Recibir</th>
+                    <th class="bg-danger text-center text-white">Anular<br /> Recibir</th>
                     <th></th>
                     <th></th>
                     <th></th>
                 </tr>
             </thead>
             <tbody class="text-dark">
-                @foreach (var item in Model.Where(x => x.Estado != "SEPARADO" && x.Visible=="SI").OrderBy(x=>x.Estado))
+                @foreach (var item in Model)
                 {
                     bool condRecibir = false, condAnularRecibir = false;
                     String styleEstado = "";
@@ -176,7 +169,7 @@
                         <td>
                             @Html.DisplayFor(modelItem => item.CardName)
                         </td>
-                        <td>
+                        <td class="text-center">
                             @if (item.Det2 != null)
                             {
                                 foreach (RTV2_E d in item.Det2)
@@ -194,8 +187,6 @@
                         <td class="text-center" @styleEstado>@Html.DisplayFor(modelItem => item.Estado)</td>
                         <td class="text-center">
                             <span class="">@item.FechaAbierto</span>
-                            <br />
-                            <span class="">@item.HoraAbierto</span>
                         </td>
                         <td class="text-center">@item.TipoVenta</td>
                         <td class="text-center">

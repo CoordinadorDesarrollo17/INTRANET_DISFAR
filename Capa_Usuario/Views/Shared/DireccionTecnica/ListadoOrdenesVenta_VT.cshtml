@@ -9,104 +9,253 @@
     var estados = new Dictionary<string, string> { { "V", "VIGENTE" } };
 }
 
-<table id="tbl_listaOV" class="table table-light table-responsive table-hover" width="100%">
-    <thead class="thead-dark">
-        <tr>
-            <th class="text-center">
-                <label>NroVenta</label>
-                <input type="text" name="DocNum" class="form-control-sm text-center border cls-numeric" onchange="filtrar();" value="@if (ViewBag.Ordr.DocNum != 0) { Write(ViewBag.Ordr.DocNum); }" style="width: 120px;" />
-            </th>
-            <th class="text-center">
-                <label>FechaCont</label>
-                <input type="date" name="DocDate" class="form-control-sm text-center border" onchange="filtrar();" value="@ViewBag.Ordr.DocDate" />
-            </th>
-            <th class="text-center">
-                <label>Nombre</label><br />
-                <input type="text" name="CardName" class="form-control-sm text-center border w-100" onchange="filtrar();" value="@ViewBag.Ordr.CardName" autocomplete="off" />
-            </th>
-            <th class="text-center">
-                <label>Cliente</label>
-                <input type="text" name="CardCode" class="form-control-sm text-center border" onchange="filtrar();" value="@ViewBag.Ordr.CardCode" autocomplete="off" style="width: 140px;" />
-            </th>
+    <table id="tbl_listaOV"  class="table table-light table-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
 
-            @if (mostrarFiltroVendedor)
-            {
+        <thead class="thead-dark">
+            <tr>
                 <th class="text-center">
-                    <label>Vendedor</label>
-                    <select name="SlpCode" class="form-control-sm border" onchange="filtrar();">
-                        <option value="0">Seleccione</option>
-                        @foreach (var item in listaCodigoSAP)
+                    <label>NroVenta</label>
+                    <input type="text" name="DocNum" class="form-controltext-center border cls-numeric" onchange="filtrar();" value="@if (ViewBag.Ordr.DocNum != 0) { Write(ViewBag.Ordr.DocNum); }" style="width: 120px;" />
+                </th>
+                <th class="text-center">
+                    <label>FechaCont</label>
+                    <input type="date" name="DocDate" class="form-control text-center border" onchange="filtrar();" value="@ViewBag.Ordr.DocDate" />
+                </th>
+                <th class="text-center">
+                    <label>Nombre</label><br />
+                    <input type="text" name="CardName" class="form-controltext-center border w-100" onchange="filtrar();" value="@ViewBag.Ordr.CardName" autocomplete="off" />
+                </th>
+                <th class="text-center">
+                    <label>Cliente</label>
+                    <input type="text" name="CardCode" class="form-control text-center border" onchange="filtrar();" value="@ViewBag.Ordr.CardCode" autocomplete="off" style="width: 140px;" />
+                </th>
+
+                @if (mostrarFiltroVendedor)
+                {
+                    <th class="text-center">
+                        <label>Vendedor</label>
+                        <select name="SlpCode" class="form-control border" onchange="filtrar();">
+                            <option value="0">Seleccione</option>
+                            @foreach (var item in listaCodigoSAP)
+                            {
+                                <option value="@item.SlpCode" @(item.SlpCode == selectedCodigoSAP ? "selected" : "")>@item.SlpName</option>
+                            }
+                        </select>
+                    </th>
+                }
+                <th class="text-center">
+                    <label>Total</label>
+                    <input type="text" name="DocTotal" class="form-control text-center border" onchange="filtrar();" value="@if (ViewBag.Ordr.DocTotal != 0) { Write(ViewBag.Ordr.DocTotal); }" />
+                </th>
+                <th class="text-center" style="width: 140px;">
+                    <label>Comentario</label>
+                </th>
+                <th class="text-center">
+                    <label>Estado</label>
+                </th>
+                <th class="text-center">
+                    <label>Lugar de Entrega</label>
+                    <select name="U_COB_LUGAREN" class="form-control border" onchange="filtrar();">
+                        <option value="">Seleccione</option>
+                        @foreach (var item in listaLugarEntregas)
                         {
-                            <option value="@item.SlpCode" @(item.SlpCode == selectedCodigoSAP ? "selected" : "")>@item.SlpName</option>
+                            <option value="@item.WhsCode" @(item.WhsCode == selectedLugarEntrega ? "selected" : "")>@item.WhsName</option>
                         }
                     </select>
                 </th>
-            }
-            <th class="text-center">
-                <label>Total</label>
-                <input type="text" name="DocTotal" class="form-control-sm text-center border" onchange="filtrar();" value="@if (ViewBag.Ordr.DocTotal != 0) { Write(ViewBag.Ordr.DocTotal); }" />
-            </th>
-            <th class="text-center" style="width: 140px;">
-                <label>Comentario</label>
-            </th>
-            <th class="text-center">
-                <label>Estado</label>
-            </th>
-            <th class="text-center">
-                <label>Lugar de Entrega</label>
-                <select name="U_COB_LUGAREN" class="form-control-sm border" onchange="filtrar();">
-                    <option value="">Seleccione</option>
-                    @foreach (var item in listaLugarEntregas)
-                    {
-                        <option value="@item.WhsCode" @(item.WhsCode == selectedLugarEntrega ? "selected" : "")>@item.WhsName</option>
-                    }
-                </select>
-            </th>
-            <th class="text-center"></th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (Model != null)
-        {
-            foreach (var item in Model)
+                <th class="text-center"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null)
             {
-                <tr id="fila">
-                    <td class="text-center">@item.DocNum</td>
-                    <td class="text-center">@item.DocDate</td>
-                    <td class="text-center">@item.CardName</td>
-                    <td class="text-center">@item.CardCode</td>
-                    @if (mostrarFiltroVendedor)
-                    {
-                        <td class="text-center">@item.SlpCode</td>
-                    }
-                    <td class="text-center">@item.DocTotal.ToString("F2")</td>
-                    <td class="text-center">@item.Comments</td>
-                    <td class="text-center">@estados[item.U_SYP_STATUS]</td>
-                    <td class="text-center">@almacenes[item.U_COB_LUGAREN]</td>
-                    <td class="text-center">
-                        <a href="@Url.Action("LayoutOrdenDeVenta", "DireccionTecnica", new { DocNum = item.DocNum })" target="_self" class="btn btn-sm btn-cobefar"><i class="icon-eye"></i> Ver Layout</a>
-                    </td>
-                </tr>
+                foreach (var item in Model)
+                {
+                    <tr id="fila">
+                        <td class="text-center">@item.DocNum</td>
+                        <td class="text-center">@item.DocDate</td>
+                        <td class="text-center">@item.CardName</td>
+                        <td class="text-center">@item.CardCode</td>
+                        @if (mostrarFiltroVendedor)
+                        {
+                            <td class="text-center">@item.SlpCode</td>
+                        }
+                        <td class="text-center">@item.DocTotal.ToString("F2")</td>
+                        <td class="text-center">@item.Comments</td>
+                        <td class="text-center">@estados[item.U_SYP_STATUS]</td>
+                        <td class="text-center">@almacenes[item.U_COB_LUGAREN]</td>
+                        <td class="text-center">
+                            <a href="@Url.Action("LayoutOrdenDeVenta", "DireccionTecnica", new { DocNum = item.DocNum })" target="_self" class="btn btn-sm btn-cobefar"><i class="icon-eye"></i> Ver Layout</a>
+                        </td>
+                    </tr>
+                }
             }
-        }
-    </tbody>
-</table>
+        </tbody>
+    </table>
 
-<script>
-    (function () {
-        var table_ov = $('#tbl_listaOV').DataTable({
-            "ordering": false,
-            "pageLength": 25,                 /* PARA INICIALIZAR LA PAGINACIÓN */
-            "lengthMenu": [25, 50],   /* RANGO PAGINACIÓN */
+    <script>
+        (function () {
+            var table_ov = $('#tbl_listaOV').DataTable({
+                "ordering": false,
+                "pageLength": 25,                 /* PARA INICIALIZAR LA PAGINACIÓN */
+                "lengthMenu": [25, 50],   /* RANGO PAGINACIÓN */
+            });
+
+            //table_ov.columns.adjust().draw();
+
+            $('.cls-numeric').keypress(function (tecla) {
+                // enter y [0-9]
+                if (tecla.keyCode != 13 && (tecla.keyCode < 48 || tecla.keyCode > 57)) {
+                    return false;
+                }
+            });
+        })();
+    </script>
+    <script src="~/Content/Libs/datatables/js/jquery.dataTables.min.js"></script>
+    <script src="~/Content/Libs/datatables/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/Content/Libs/datatables/js/dataTables.responsive.min.js"></script>
+    <script src="~/Content/Libs/datatables/js/responsive.bootstrap4.min.js"></script>
+    <script async>
+        // Si existe el elemento en DOM
+        $(document).ready(function () {
+            if (document.getElementsByClassName("cls-dataTable").length > 0) {
+                $('.cls-dataTable').DataTable({
+                    "ordering": false,
+                    "scrollX": true
+                });
+            }
+
+            if (document.getElementsByClassName("cls-dataTable50").length > 0) {
+                $('.cls-dataTable50').DataTable({
+                    "searching": false,
+                    "ordering": false,
+                    "scrollX": true,
+                    pageLength: 50, /*---- PARA INICIALIZAR LA PAGINACIÓN */
+                    lengthMenu: [50, 100, 150], /* RANGO PAGINACIÓN */
+                });
+            }
+
+            if (document.getElementsByClassName("cls-dataTable20").length > 0) {
+                $('.cls-dataTable20').DataTable({
+                    "searching": false,
+                    "ordering": false,
+                    "scrollX": true,
+                    pageLength: 20, /*---- PARA INICIALIZAR LA PAGINACIÓN */
+                    lengthMenu: [20, 40, 60, 80, 100, 120], /* RANGO PAGINACIÓN */
+                });
+            }
+
+            if (document.getElementsByClassName("cls-dataTable30").length > 0) {
+                $('.cls-dataTable30').DataTable({
+                    "ordering": false,
+                    "scrollX": true,
+                    pageLength: 30, /*---- PARA INICIALIZAR LA PAGINACIÓN */
+                    lengthMenu: [30, 60, 90, 120], /* RANGO PAGINACIÓN */
+                });
+            }
+
+            if (document.getElementsByClassName("cls-dateTimeDespacho").length > 0) {
+                $.datetimepicker.setLocale('es');
+                jQuery('.cls-dateTimeDespacho').datetimepicker({ step: 1 });
+            }
+
+            if (document.getElementsByClassName("cls-dateTimeVentas").length > 0) {
+                $.datetimepicker.setLocale('es');
+
+                var fechaActual = new Date();
+                var fechaMaxima = new Date(fechaActual.getTime());
+                fechaMaxima.setDate(fechaMaxima.getDate() + 10);
+                var maxDateFormatted = fechaMaxima.toISOString().slice(0, 16);
+                var DateActualFormatted = fechaActual.toISOString().slice(0, 16);
+
+                jQuery('.cls-dateTimeVentas').datetimepicker({
+                    maxDate: maxDateFormatted,
+                    minDate: DateActualFormatted,
+
+                });
+            }
+
+
         });
 
-        table_ov.columns.adjust().draw();
+        function validarTexto(input) {
+            // Expresión regular que permite caracteres alfanuméricos, "-", ".", "°", letras con tildes y acento agudo
+            var regex = /^[a-zA-Z0-9áéíóúñÑÁÉÍÓÚüÜ \-\.°']+$/;
 
-        $('.cls-numeric').keypress(function (tecla) {
-            // enter y [0-9]
-            if (tecla.keyCode != 13 && (tecla.keyCode < 48 || tecla.keyCode > 57)) {
+            // Comprobar si la cadena coincide con la expresión regular
+            if (regex.test(input)) {
+                // La cadena es válida
+                return true;
+            } else {
+                // La cadena contiene caracteres no permitidos
                 return false;
             }
-        });
-    })();
-</script>
+        }
+
+        function permitirSoloNumeros(id) {
+            let campo = document.getElementById(id);
+
+            campo.addEventListener('input', function () {
+                var valor = campo.value;
+                var regex = /^[0-9]*$/; // Expresión regular para permitir solo números
+
+                if (!regex.test(valor)) {
+                    campo.value = valor.replace(/\D/g, ''); // Elimina todos los caracteres que no son dígitos
+                }
+            });
+        }
+
+        function limitarMaxCaracteres(id, max) {
+            let campo = document.getElementById(id);
+
+            campo.addEventListener('input', function () {
+                if (campo.value.length > max) {
+                    campo.value = campo.value.slice(0, max);
+                }
+            });
+        }
+
+        // Para que funcione, el parámetro "texto" debe llegar en minúscula: toLowerCase()
+        function capitalizarTexto(texto) {
+            return texto.replace(/\b\w/g, function (l) {
+                return l.toUpperCase();
+            });
+        }
+
+        // botones sweet alert
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: 'btn btn-success mx-3',
+                cancelButton: 'btn btn-danger mx-3'
+            },
+            buttonsStyling: false
+        })
+
+        function cargando() {
+            Swal.fire({
+                html: '<img src="/imagenes/index/ReportesDigemid/cargando.gif" />',
+                allowOutsideClick: false,
+                showCancelButton: false,
+                showConfirmButton: false
+            });
+        }
+
+        function cargarContenido(idDiv, url) {
+            document.getElementById(idDiv).innerHTML = "";
+
+            Swal.fire({
+                title: 'Cargando...',
+                text: 'Por favor, espere.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            $("#" + idDiv).load(url, function () {
+                $(this).fadeIn("fast", function () {
+                    Swal.close();
+                });
+            });
+        }
+    </script>

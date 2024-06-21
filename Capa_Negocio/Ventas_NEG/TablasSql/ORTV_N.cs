@@ -18,8 +18,6 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
     {
         ORTV_D ticketV = new ORTV_D(); CC_ORTV_D ccTicket = new CC_ORTV_D();
         public object t { get; private set; }
-        
-        
         //public string generaTablaTicketsVenta(ORTV_E filtro, int days, string[] estados)
         //{
         //    return ticketV.generaTablaTicketsVenta(filtro, days, estados);
@@ -283,7 +281,6 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         {
             return ticketV.registrarImpresionTicket(DocEntry,Operario);
         }
-        
         public int cancelarTicket(int DocEntry, string Operario, int IdRol)
         {
             ORTV_E t = ticketV.obtenerTicket(DocEntry);
@@ -714,7 +711,6 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         {
             return ticketV.GuiasTicket(DocEntry);
         }
-
         public Tickets buscarTicket(int DocEntry)
         {
             return ticketV.buscarTicket(DocEntry);
@@ -755,7 +751,6 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
 
             return ticket;
         }
-
         public void editarTicketSup(int DocEntry, int idRol, ORTV_E ticket)
         {
             ORTV_E t = ticketV.obtenerTicket(DocEntry);
@@ -813,7 +808,16 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         }
         public ORTV_E ObtenerTicketFacturacion(int docEntry)// Trae datos especificos para un ticket en controller facturacion
         { return ticketV.ObtenerTicketFacturacion(docEntry);}
+        public ORTV_E ObtenerTicketVenta(int docEntry)// Trae datos especificos para un ticket con Det2
+        { return ticketV.ObtenerTicketVenta(docEntry); }
         public List<ORTV_E> ListarTicketsAreaFacturacion(Usuario_E user, ORTV_E t)
         { return ticketV.ListarTicketsAreaFacturacion(user, t); }
+        public List<ORTV_E> ListarTicketsAreaRecepcion(Usuario_E user, ORTV_E t)
+        { return ticketV.ListarTicketsAreaRecepcion(user, t); }
+        public List<ORTV_E> ListarTicketsAreaAlmacén(Usuario_E user, ORTV_E t)
+        { return ticketV.ListarTicketsAreaAlmacén(user, t); }
+        public List<ORTV_E> ListarTicketsAreaDespacho(Usuario_E user, ORTV_E t)
+        { return ticketV.ListarTicketsAreaDespacho(user, t); }
+        
     }
 }

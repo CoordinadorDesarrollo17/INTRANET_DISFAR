@@ -89,14 +89,14 @@
                         { <input type="text" name="DocNum" class="form-control input_filtro-table" style="width: 100px " onchange="filtrar();" autocomplete="off"/>}
                     </th>
                     <th class="text-center">
-                        @Html.DisplayNameFor(model => model.FechaSapTicket)
+                        Fecha ticket
                         <br />
                         @if (ViewBag.Ortv != null && ViewBag.Ortv.FechaSapTicket != null)
                         {
-                            <input type="date" name="FechaSapTicket" class="form-control input_date-filtro-table" style="width: 150px" value="@ViewBag.Ortv.FechaSapTicket" onchange="filtrar();" autocomplete="off"/>
+                            <input type="date" name="FechaSapTicket" class="form-control input_date-filtro-table" value="@ViewBag.Ortv.FechaSapTicket" onchange="filtrar();" autocomplete="off"/>
                         }
                         else
-                        { <input type="date" name="FechaSapTicket" class="form-control input_date-filtro-table" style="width: 150px" onchange="filtrar();" autocomplete="off"/>}
+                        { <input type="date" name="FechaSapTicket" class="form-control input_date-filtro-table" onchange="filtrar();" autocomplete="off"/>}
 
                     </th>
                     <th class="text-center">
@@ -213,7 +213,7 @@
                             @Html.DisplayFor(modelItem => item.FechaSapTicket)
                         </td>
                         <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.HoraRegistro)
+                            @Html.DisplayFor(modelItem => item.HoraAbierto)
                         </td>
                         <td>
                             @if (!string.IsNullOrEmpty(item.CardName)) { Write(item.CardName); }

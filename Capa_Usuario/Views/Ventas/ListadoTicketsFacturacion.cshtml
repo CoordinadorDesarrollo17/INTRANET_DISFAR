@@ -250,7 +250,7 @@
                 </tr>
             </thead>
             <tbody class="text-dark">
-                @foreach (var item in Model.Where(x=>x.DocNum!=2000302593))
+                @foreach (var item in Model.Where(x => x.DocNum != 2000302593))
                 {
                     string style = "", styleText = "";
                     if (item.Estado.Equals("ANULADO") || item.Estado.Equals("CANCELADO"))
@@ -334,16 +334,16 @@
                         <td style="max-width:200px">
                             @if (item.Det1 != null)
                             {
-                                            if (item.Det1.Count >= 1)
-                                            {
-                                                if (item.Det1[0].NombrePer != null)
-                                                {
-                                                    Write(item.Det1[0].NombrePer);
+                                if (item.Det1.Count >= 1)
+                                {
+                                    if (item.Det1[0].NombrePer != null)
+                                    {
+                                        Write(item.Det1[0].NombrePer);
                                         <br />
                                         Write($"{item.Det1[0].TipoDocPer}: {item.Det1[0].DocPer}");
-                                                }
-                                            }
-                                        }
+                                    }
+                                }
+                            }
                         </td>
                         <td>
                             @Html.DisplayFor(modelItem => item.Zona)
@@ -352,8 +352,8 @@
                             @if ((item.Estado.Equals("VERIFICANDO") || item.Estado.Equals("EMPACANDO") || item.Estado.Equals("EMPACADO") || item.Estado.Equals("PESADO") ||
                                 item.Estado.Equals("ENVIADO")) && item.hayFinVerificar)
                             {
-                                            if (item.EstadoFacturacion == "PENDIENTE")
-                                            {
+                                if (item.EstadoFacturacion == "PENDIENTE")
+                                {
                                     <a class="btn btn-success btn-sm" title="EMITIR GUIAS" href="@Url.Action("EmitirGuiasTicketVenta", "Ventas", new
                                         {
                                             DocEntry = item.DocEntry,

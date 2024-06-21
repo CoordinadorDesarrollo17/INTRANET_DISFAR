@@ -128,7 +128,6 @@ function agregarDatos(ubi, dis, pro, dep, zona) {
     $("#DirDestino2").attr('readonly', false);
     $("#DirDestino2").focus();
 }
-
 function agregarDatosOficina(cal, ubi, dis, pro, dep) {
     $("#DirDestino2").val(cal);
     $("#Ubigeo2").val(ubi);
