@@ -808,7 +808,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         }
         public ORTV_E ObtenerTicketFacturacion(int docEntry)// Trae datos especificos para un ticket en controller facturacion
         { return ticketV.ObtenerTicketFacturacion(docEntry); }
-        public ORTV_E ObtenerTicketVenta(int docEntry)// Trae datos especificos para un ticket con Det2
+        public ORTV_E ObtenerTicketVenta(int docEntry)// Trae datos especificos para un ticket con Det2 y Det3 ( usa vinculacion )
         { return ticketV.ObtenerTicketVenta(docEntry); }
         public List<ORTV_E> ListarTicketsAreaFacturacion(Usuario_E user, ORTV_E t)
         { return ticketV.ListarTicketsAreaFacturacion(user, t); }
