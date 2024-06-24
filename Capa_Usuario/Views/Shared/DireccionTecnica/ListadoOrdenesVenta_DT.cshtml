@@ -5,10 +5,10 @@
     var selectedCodigoSAP = ViewBag.Ordr.SlpCode;
     var listaCodigoSAP = ViewBag.ListaOslp as IEnumerable<OSLP_E>;
     var almacenes = (Dictionary<string, string>)(ViewBag.Almacenes);
-    var estados = new Dictionary<string, string> { { "V", "VIGENTE" } };
+    var estados = new Dictionary<string, string> { { "N", "NO" }, { "Y", "SI" } };
 }
 
-<table id="tbl_listaOV" class="table table-light table-responsive table-hover" width="100%">
+<table id="tbl_listaOV" class="table table-light table-sm table-hover table-responsive-lg table-responsive-md" cellspacing="0" width="100%">
     <thead class="thead-dark">
         <tr>
             <th class="text-center">
@@ -17,7 +17,7 @@
             </th>
             <th class="text-center">
                 <label>FechaCont</label>
-                <input type="date" name="DocDate" class="form-control-sm text-center border" onchange="filtrar();" value="@ViewBag.Ordr.DocDate" />
+                <input type="date" name="DocDate" class="form-control-sm border text-center" onchange="filtrar();" value="@ViewBag.Ordr.DocDate" style="width: 140px;" />
             </th>
             <th class="text-center">
                 <label>Nombre</label><br />
@@ -25,7 +25,7 @@
             </th>
             <th class="text-center">
                 <label>Cliente</label>
-                <input type="text" name="CardCode" class="form-control-sm text-center border" onchange="filtrar();" value="@ViewBag.Ordr.CardCode" autocomplete="off" style="width: 140px;" />
+                <input type="text" name="CardCode" class="form-control-sm border text-center" onchange="filtrar();" value="@ViewBag.Ordr.CardCode" autocomplete="off" style="width: 140px;" />
             </th>
             <th class="text-center">
                 <label>Vendedor</label>
@@ -39,17 +39,22 @@
             </th>
             <th class="text-center">
                 <label>Total</label>
-                <input type="text" name="DocTotal" class="form-control-sm text-center border" onchange="filtrar();" value="@if (ViewBag.Ordr.DocTotal != 0) { Write(ViewBag.Ordr.DocTotal); }" />
+                <input type="text" name="DocTotal" class="form-control-sm border text-center" onchange="filtrar();" value="@if (ViewBag.Ordr.DocTotal != 0) { Write(ViewBag.Ordr.DocTotal); }" style="width: 120px;" />
             </th>
             <th class="text-center" style="width: 140px;">
                 <label>Comentario</label>
             </th>
             <th class="text-center">
-                <label>Estado</label>
+                <label>Cancelados</label>
+                <select name="CANCELED" class="form-control-sm border" onchange="filtrar();" style="width: 130px;">
+                    <option value="">Seleccione</option>
+                    <option value="N" @if (ViewBag.Ordr.CANCELED == "N") { Write("selected"); }>NO</option>
+                    <option value="Y" @if (ViewBag.Ordr.CANCELED == "Y") { Write("selected"); }>SI</option>
+                </select>
             </th>
             <th class="text-center">
                 <label>Lugar de Entrega</label>
-                <select name="U_COB_LUGAREN" class="form-control-sm border" onchange="filtrar();">
+                <select name="U_COB_LUGAREN" class="form-control-sm border" onchange="filtrar();" style="width: 130px;">
                     <option value="">Seleccione</option>
                     @foreach (var item in listaLugarEntregas)
                     {
@@ -77,7 +82,7 @@
                     <td class="text-center">@if (vendedor != null) { Write(vendedor.SlpName); }</td>
                     <td class="text-center">@item.DocTotal</td>
                     <td class="text-center">@item.Comments</td>
-                    <td class="text-center">@estados[item.U_SYP_STATUS]</td>
+                    <td class="text-center">@estados[item.CANCELED]</td>
                     <td class="text-center">@almacenes[item.U_COB_LUGAREN]</td>
                     <td class="text-center font-14">
                         @foreach (var c in item.ComprobantesVinculados)

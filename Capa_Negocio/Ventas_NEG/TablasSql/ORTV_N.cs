@@ -277,9 +277,9 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         {
             return ticketV.editarVisibilidadTicket(DocEntry);
         }
-        public int registrarImpresionTicket(int DocEntry,string Operario)
+        public int registrarImpresionTicket(int DocEntry, string Operario)
         {
-            return ticketV.registrarImpresionTicket(DocEntry,Operario);
+            return ticketV.registrarImpresionTicket(DocEntry, Operario);
         }
         public int cancelarTicket(int DocEntry, string Operario, int IdRol)
         {
@@ -807,7 +807,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             return ticketV.CantidadTicketsFacturacion(estadoFacturacion);
         }
         public ORTV_E ObtenerTicketFacturacion(int docEntry)// Trae datos especificos para un ticket en controller facturacion
-        { return ticketV.ObtenerTicketFacturacion(docEntry);}
+        { return ticketV.ObtenerTicketFacturacion(docEntry); }
         public ORTV_E ObtenerTicketVenta(int docEntry)// Trae datos especificos para un ticket con Det2
         { return ticketV.ObtenerTicketVenta(docEntry); }
         public List<ORTV_E> ListarTicketsAreaFacturacion(Usuario_E user, ORTV_E t)
@@ -818,6 +818,6 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         { return ticketV.ListarTicketsAreaAlmacén(user, t); }
         public List<ORTV_E> ListarTicketsAreaDespacho(Usuario_E user, ORTV_E t)
         { return ticketV.ListarTicketsAreaDespacho(user, t); }
-        
+
     }
 }

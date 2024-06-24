@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Windows.Forms;
 
 namespace Capa_Datos.Ventas_DAO.TablasSql
 {
@@ -744,7 +745,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                             oregD.CompromisosStock(ticket);
                         }
                     }
-                   
+
                     tran.Commit();
                     //FUTURA CONEXION A SOPHOS SERVER PARA TRAER DATOS DE UN TICKET.
                     /*using (SqlConnection cnSophos = new SqlConnection(uti.cadSophos))
@@ -918,7 +919,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             catch { }
             return DocEntry;
         }
-        public int registrarImpresionTicket(int DocEntry,string Operario)
+        public int registrarImpresionTicket(int DocEntry, string Operario)
         {
             SqlConnection cn = new SqlConnection(uti.cadSql);
             try
@@ -1524,7 +1525,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                         cmd.Parameters.AddWithValue("@Cajas", ticket.Cajas);
                         cmd.Parameters.AddWithValue("@NroMesa", ticket.NroMesa);
                         cmd.Parameters.AddWithValue("@AlmProcedencia", ticket.AlmProcedencia);
-                        if (!string.IsNullOrEmpty(ticket.Operario) &&  ticket.Operario == "07")
+                        if (!string.IsNullOrEmpty(ticket.Operario) && ticket.Operario == "07")
                         { cmd.Parameters.AddWithValue("@Almacen", ticket.Operario); }
 
                         if (ticket.Det13 != null && ticket.Det13.Count > 1)
@@ -2800,7 +2801,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 }
                 catch (Exception)
                 {
-                    throw; 
+                    throw;
                 }
             }
 
@@ -2902,7 +2903,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
         public int CantidadTicketsFacturacion(string estadoFacturacion)
         {
             int cant = 0;
-            string query = $"select COUNT(*) from vt.ortv T0 WHERE T0.EstadoFacturacion = @estadoFacturacion and T0.Estado IN ('VERIFICANDO','EMPACADO','EMPACANDO','PESADO') and T0.DocNum not in (2000302593) " +
+            string query = $"select COUNT(*) from vt.ortv T0 WHERE T0.EstadoFacturacion = @estadoFacturacion and T0.Estado IN ('PICKEANDO','VERIFICANDO','EMPACADO','EMPACANDO','PESADO','PREENVIO','ENVIADO') and T0.DocNum not in (2000302593) " +
                 "AND EXISTS(SELECT 1 FROM VT.CC_ORTV WHERE DocEntry=T0.DocEntry AND Operacion='FIN VERIFICAR') AND NOT EXISTS (SELECT 1 FROM VT.CC_ORTV WHERE DocEntry=T0.DocEntry AND Operacion='ANULAR FIN VERIFICAR' " +
                 "AND(SELECT TOP 1 Id FROM VT.CC_ORTV WHERE DocEntry=T0.DocEntry AND Operacion='FIN VERIFICAR' ORDER BY 1 DESC) < (SELECT TOP 1 Id FROM VT.CC_ORTV WHERE DocEntry=T0.DocEntry AND Operacion='ANULAR FIN VERIFICAR' ORDER BY 1 DESC))";
 
@@ -3048,7 +3049,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 condWhere += t.EstadoGasto != null ? $" AND t0.EstadoGasto='{t.EstadoGasto}'" : "";
                 condWhere += t.PagoEnv == 0.01M ? " AND t0.PagoEnv>0" : "";
             }
-        
+
 
             string query = $"SELECT TOP 100 t0.DocEntry, t0.DocNum, t0.CardCode, t0.CardName, t0.Estado,t0.FechaSapTicket, (Select top 1 HoraOperacion from vt.CC_ORTV where DocEntry=t0.DocEntry " +
                 $" and Operacion='REGISTRAR' order by FechaOperacion,HoraOperacion desc ) as 'HoraAbierto',t0.LugarDestino,t0.CodSapVendedor,t0.Vendedor,t0.MontoFinal,t0.EstadoPago,t0.EstadoGasto," +
@@ -3115,7 +3116,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     if (user.IdRol == 54)
                     {
                         condWhere += $" AND t0.EstadoFacturacion in ('PENDIENTE','GRE EMITIDA') " +
-                            $"AND t0.Estado in ('VERIFICANDO','EMPACANDO','EMPACADO','PESADO','PREENVIO','ENVIADO')";
+                            $"AND t0.Estado in ('PICKEANDO','VERIFICANDO','EMPACANDO','EMPACADO','PESADO','PREENVIO','ENVIADO')";
                         orderby = "CASE WHEN t0.EstadoFacturacion = 'PENDIENTE' THEN 0 WHEN t0.EstadoFacturacion = 'GRE EMITIDA' THEN 1 WHEN t0.EstadoFacturacion = 'FACTURADO' THEN 2 ELSE 3 END, t0.TiempoEntrega";
 
                     }
@@ -3127,7 +3128,6 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     condWhere += t.CardName != null ? $" AND t0.CardName like '%{t.CardName}%'" : "";
                     condWhere += t.Vendedor != null ? $" AND t0.Vendedor like '%{t.Vendedor}%'" : "";
                     condWhere += t.Zona != null ? $" AND t0.Zona ='{t.Zona}'" : "";
-                    condWhere += t.MontoFinal > 0 ? $" AND t0.MontoFinal like '{t.MontoFinal}%'" : "";
                     condWhere += t.LugarDestino != null ? $" AND t0.LugarDestino='{t.LugarDestino}'" : "";
                     condWhere += t.Estado != null ? $" AND t0.Estado='{t.Estado}'" : "";
                     condWhere += t.EstadoFacturacion != null ? $" AND t0.EstadoFacturacion='{t.EstadoFacturacion}'" : "";
@@ -3137,11 +3137,11 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     condWhere += t.Flete == 0.01M ? " AND t0.Flete>0" : "";
                     condWhere += t.DescuentoNC == 0.01M ? " AND t0.DescuentoNC>0" : "";
                     condWhere += t.TiempoEntrega != null ? $" AND CONVERT(char(10), t0.TiempoEntrega,126) = '{Convert.ToDateTime(t.TiempoEntrega).ToString("yyyy-MM-dd")}'" : "";
-                    
+
                 }
 
             }
-            
+
 
             string query = $"SELECT TOP 100 t0.DocEntry, t0.DocNum, t0.CardCode, t0.CardName, t0.Estado,t0.FechaSapTicket, (Select top 1 HoraOperacion from vt.CC_ORTV where DocEntry=t0.DocEntry " +
                 $" and Operacion='REGISTRAR' order by FechaOperacion,HoraOperacion desc ) as 'HoraAbierto',t0.LugarDestino,t0.Flete,t0.Vendedor,t0.EstadoPago,t0.EstadoGasto," +
@@ -3185,7 +3185,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                             ticket.Det2 = obtenerDet2Ticket(ticket.DocEntry); if (ticket.Det2.Count == 0) { ticket.Det2 = null; }     //Ordenes de venta
 
                             //BUSCO SI TIENE FIN VERIFICAR EN CASO DE QUE NO HAYA FILTRO DE ESTADO
-                            CC_ORTV_D ccOrtv = new CC_ORTV_D(); 
+                            CC_ORTV_D ccOrtv = new CC_ORTV_D();
                             ticket.hayFinVerificar = false;
                             var hayFinVerificar = ccOrtv.ListarCC_ORTV(ticket.DocEntry, "FIN VERIFICAR", false);
                             var hayAnularFinVerificar = ccOrtv.ListarCC_ORTV(ticket.DocEntry, "ANULAR FIN VERIFICAR", false);
@@ -3222,7 +3222,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                         }
                     }
                 }
-                catch (Exception e){ throw new Exception(e.Message); }
+                catch (Exception e) { throw new Exception(e.Message); }
             }
 
             return lista;
@@ -3239,15 +3239,16 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 if (t.DocNum == 0 && t.FechaSapTicket == null && t.CardName == null && t.Vendedor == null && t.MontoTotal == 0 && t.LugarDestino == null && t.Estado == null
                      && t.EstadoPago == null)
                 {
-                    if (user.IdRol == 5)
+                    if (user.IdRol == 5 || user.IdRol == 4 || user.IdRol == 51)
                     {
                         condWhere += $" AND t0.Visible in ('SI') AND t0.Estado in ('ABIERTO','RECIBIDO') ";
-                        orderby = "t0.Estado";
+                        if (!string.IsNullOrEmpty(t.AlmProcedencia)) { condWhere += $"AND (t0.LugarDestino IN ('Centro', 'Arriola') OR (t0.LugarDestino IN ('Domicilio', 'Agencia') and ((SELECT TOP 1 T2.AlmacenSalida FROM vt.RTV2 T2 WHERE T2.AlmacenSalida NOT IN ('07', '06') AND T2.DocEntry = t0.DocEntry) ='{t.AlmProcedencia}' )))"; }
+                        orderby = "t0.Estado ,t0.FechaSapTicket desc";
                     }
                 }
                 else
                 {
-                    if (user.IdRol == 5)
+                    if (user.IdRol == 5 || user.IdRol == 4 || user.IdRol == 51)
                     {
                         condWhere += $" AND t0.Visible in ('SI')";
                     }
@@ -3259,8 +3260,10 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     condWhere += t.LugarDestino != null ? $" AND t0.LugarDestino='{t.LugarDestino}'" : "";
                     condWhere += t.Estado != null ? $" AND t0.Estado='{t.Estado}'" : "";
                     condWhere += t.EstadoPago != null ? $" AND t0.EstadoPago='{t.EstadoPago}'" : "";
+                    condWhere += t.AlmProcedencia != null ? $"AND (t0.LugarDestino IN ('Centro', 'Arriola') OR (t0.LugarDestino IN ('Domicilio', 'Agencia') and ((SELECT TOP 1 T2.AlmacenSalida FROM vt.RTV2 T2 WHERE T2.AlmacenSalida NOT IN ('07', '06') AND T2.DocEntry = t0.DocEntry) ='{t.AlmProcedencia}' )))" : "";
                 }
             }
+
             string query = $"SELECT TOP 100 t0.DocEntry, t0.DocNum, t0.CardCode, t0.CardName, t0.Estado,t0.FechaSapTicket, (Select top 1 concat(FechaOperacion,' ',HoraOperacion) from vt.CC_ORTV where DocEntry=t0.DocEntry " +
                 $" and Operacion='REGISTRAR' order by FechaOperacion,HoraOperacion desc ) as 'TiempoAbierto',t0.LugarDestino,t0.Vendedor,t0.EstadoPago, t0.TipoVenta,t0.MontoTotal FROM vt.ORTV t0  WHERE 1=1 {condWhere} ORDER BY {orderby}";
 
@@ -3296,7 +3299,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                             ticket.Det2 = obtenerDet2Ticket(ticket.DocEntry); if (ticket.Det2.Count == 0) { ticket.Det2 = null; }     //Ordenes de venta
                             lista.Add(ticket);
                         }
-                    }   
+                    }
                 }
                 catch (Exception e) { throw new Exception(e.Message); }
             }
@@ -3306,16 +3309,19 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
         public List<ORTV_E> ListarTicketsAreaAlmacén(Usuario_E user, ORTV_E t)
         {
             List<ORTV_E> lista = new List<ORTV_E>();
+            CC_ORTV_D ccORTV = new CC_ORTV_D();
+
             string condWhere = string.Empty;
             if (t != null)
             {
                 condWhere += $" AND t0.Estado not in ('SEPARADO')";
-              
+
                 condWhere += t.DocNum > 0 ? $" AND t0.DocNum= {t.DocNum}" : "";
                 condWhere += t.FechaSapTicket != null ? $" AND t0.FechaSapTicket='{t.FechaSapTicket}'" : "";
                 condWhere += t.CardName != null ? $" AND t0.CardName like '%{t.CardName}%'" : "";
                 condWhere += t.Vendedor != null ? $" AND t0.Vendedor like '%{t.Vendedor}%'" : "";
                 condWhere += t.Zona != null ? $" AND t0.Zona ='{t.Zona}'" : "";
+                condWhere += t.MontoTotal > 0 ? $" AND t0.MontoTotal like '{t.MontoTotal}%'" : "";
                 condWhere += t.MontoFinal > 0 ? $" AND t0.MontoFinal like '{t.MontoFinal}%'" : "";
                 condWhere += t.LugarDestino != null ? $" AND t0.LugarDestino='{t.LugarDestino}'" : "";
                 condWhere += t.Estado != null ? $" AND t0.Estado='{t.Estado}'" : "";
@@ -3327,13 +3333,11 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 condWhere += t.DescuentoNC == 0.01M ? " AND t0.DescuentoNC>0" : "";
                 condWhere += t.TiempoEntrega != null ? $" AND CONVERT(char(10), t0.TiempoEntrega,126) = '{Convert.ToDateTime(t.TiempoEntrega).ToString("yyyy-MM-dd")}'" : "";
 
-
             }
-
 
             string query = $"SELECT TOP 100 t0.DocEntry, t0.DocNum, t0.CardCode, t0.CardName, t0.Estado,t0.FechaSapTicket, (Select top 1 HoraOperacion from vt.CC_ORTV where DocEntry=t0.DocEntry " +
                 $" and Operacion='REGISTRAR' order by FechaOperacion,HoraOperacion desc ) as 'HoraAbierto',t0.LugarDestino,t0.Flete,t0.Vendedor,t0.EstadoPago,t0.EstadoGasto," +
-                $" t0.PagoEnv,t0.TipoVenta ,t0.EstadoFacturacion,t0.DescuentoNC,t0.Zona,t0.TiempoEntrega FROM vt.ORTV t0  WHERE 1=1 {condWhere} ORDER BY t0.DocNum DESC";
+                $" t0.PagoEnv,t0.TipoVenta ,t0.EstadoFacturacion,t0.DescuentoNC,t0.Zona,t0.TiempoEntrega ,t0.MontoTotal,t0.Cajas FROM vt.ORTV t0  WHERE 1=1 {condWhere} ORDER BY t0.DocNum DESC";
 
             using (SqlConnection cn = new SqlConnection(uti.cadSql))
             {
@@ -3348,7 +3352,19 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     {
                         while (dr.Read())
                         {
-                            ORTV_E ticket = new ORTV_E();
+                            ORTV_E ticket = new ORTV_E()
+                            {
+                                hayFinPicking = false,
+                                hayFinVerificar = false,
+                                hayFinEmpacar = false,
+                                hayIniPicking = false,
+                                hayIniVerificar = false,
+                                hayIniEmpacar = false
+                            };
+
+                            RTV11_D datosRTV11 = new RTV11_D();
+                            RTV12_D datosRTV12 = new RTV12_D();
+                            RTV13_D datosRTV13 = new RTV13_D();
                             if (!dr.IsDBNull(0)) { ticket.DocEntry = dr.GetInt32(0); }
                             if (!dr.IsDBNull(1)) { ticket.DocNum = dr.GetInt32(1); }
                             if (!dr.IsDBNull(2)) { ticket.CardCode = dr.GetString(2); }
@@ -3367,11 +3383,227 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                             if (!dr.IsDBNull(15)) { ticket.DescuentoNC = dr.GetDecimal(15); }
                             if (!dr.IsDBNull(16)) { ticket.Zona = dr.GetString(16); }
                             if (!dr.IsDBNull(17)) { ticket.TiempoEntrega = dr.GetDateTime(17); }
+                            if (!dr.IsDBNull(18)) { ticket.MontoTotal = dr.GetDecimal(18); }
+                            if (!dr.IsDBNull(19)) { ticket.Cajas = dr.GetInt32(19); }
                             ticket.Vendedor = (ticket.Vendedor.Length > 15) ? ticket.Vendedor.Substring(0, 15) : ticket.Vendedor;
                             ticket.FechaSapTicket = (ticket.FechaSapTicket != null) ? Convert.ToDateTime(ticket.FechaSapTicket).ToString("dd/MM/yyyy") : null;
 
+                            //Buscamos el ultimo estado del ticket excluyendo a los estados que no trascienden en las operaciones del ticket.
+                            ticket.ultimoCCEstado = ccTicket.ListarCC_ORTV(ticket.DocEntry, null, true).FirstOrDefault()?.Operacion;
+
+                            ticket.aptoIniVerificar = false; ticket.aptoFinVerificar = false;
+
+                            /********************************************************PICKING***********************************************************************************/
+                            // Buscar tanto "INICIO PICKING" como "ANULAR INICIO PICKING"
+                            List<CC_ORTV_E> ticketOperaciones = ccORTV.ObtenerOperacionesTicket(ticket.DocEntry, new List<string> { "INICIO PICKING", "ANULAR INICIO PICKING" });
+
+                            // Encontrar la última operación relevante (INICIO PICKING o ANULAR INICIO PICKING)
+                            CC_ORTV_E ultimaOperacion = ticketOperaciones.OrderByDescending(x => x.Id).FirstOrDefault();
+
+                            // Determinar si hay operación de INICIO PICKING activa
+                            if (ultimaOperacion != null)
+                            {
+                                if (ultimaOperacion.Operacion == "INICIO PICKING")
+                                {
+                                    ticket.hayIniPicking = true;
+                                }
+                                else if (ultimaOperacion.Operacion == "ANULAR INICIO PICKING")
+                                {
+                                    ticket.hayIniPicking = false;
+                                }
+                            }
+
+                            //Si el ticket está en estado "PICKEANDO" hay inicio picking
+                            if (ticket.Estado.Equals("PICKEANDO"))
+                            {
+                                ticket.hayIniPicking = true;
+                            }
+
+                            // Obtener las operaciones "FIN PICKING" y "ANULAR FIN PICKING"
+                            List<CC_ORTV_E> ticketOperacionesFinPicking = ccORTV.ObtenerOperacionesTicket(ticket.DocEntry, new List<string> { "FIN PICKING", "ANULAR FIN PICKING" });
+
+                            // Ordenar las operaciones por Id descendente para obtener la más reciente primero
+                            CC_ORTV_E ultimaOperacionFinPicking = ticketOperacionesFinPicking.OrderByDescending(x => x.Id).FirstOrDefault();
+
+                            // Determinar si hay operación de FIN PICKING activa
+                            ticket.hayFinPicking = ultimaOperacionFinPicking?.Operacion == "FIN PICKING";
+
+                            // Determinar si hay operación de ANULAR FIN PICKING activa
+                            if (ultimaOperacionFinPicking?.Operacion == "ANULAR FIN PICKING")
+                            {
+                                ticket.hayFinPicking = false;
+                            }
+                            // Determinar aptitud para FIN VERIFICAR según la última operación de FIN PICKING
+                            ticket.aptoFinVerificar = ultimaOperacionFinPicking?.Operacion == "FIN PICKING";
+
+                            // Si el ticket está en estado "PICKEANDO", considerar que hay FIN PICKING
+                            if (ticket.Estado.Equals("PICKEANDO"))
+                            {
+                                ticket.hayFinPicking = true;
+                                ticket.aptoFinVerificar = true; // Asumiendo que siempre que hay FIN PICKING, se puede iniciar la verificación
+                            }
+                            /********************************************************VERIFICAR*********************************************************************************/
+
+                            // Buscar tanto "INICIO VERIFICAR" como "ANULAR INICIO VERIFICAR"
+                            List<CC_ORTV_E> ticketOperacionesVerif = ccORTV.ObtenerOperacionesTicket(ticket.DocEntry, new List<string> { "INICIO VERIFICAR", "ANULAR INICIO VERIFICAR" });
+                            // Encontrar la última operación relevante (INICIO VERIFICAR o ANULAR INICIO VERIFICAR)
+                            CC_ORTV_E ultimaOperacionVerif = ticketOperacionesVerif.OrderByDescending(x => x.Id).FirstOrDefault();
+                            // Determinar si hay operación de INICIO VERIFICAR activa
+                            if (ultimaOperacionVerif != null)
+                            {
+                                if (ultimaOperacionVerif.Operacion == "INICIO VERIFICAR")
+                                {
+                                    // Validar si existe ANULAR INICIO VERIFICAR y comparar fecha y hora
+                                    CC_ORTV_E ultimaAnularVerif = ticketOperacionesVerif.FirstOrDefault(x => x.Operacion == "ANULAR INICIO VERIFICAR");
+                                    if (ultimaAnularVerif != null && DateTime.Parse(ultimaOperacionVerif.FechaOperacion + " " + ultimaOperacionVerif.HoraOperacion) < DateTime.Parse(ultimaAnularVerif.FechaOperacion + " " + ultimaAnularVerif.HoraOperacion))
+                                    {
+                                        // Si el ANULAR INICIO VERIFICAR es más reciente, no hay INICIO VERIFICAR válido
+                                        ticket.aptoIniVerificar = true;
+                                        ticket.hayIniVerificar = false;
+                                    }
+                                    else
+                                    {
+                                        ticket.aptoIniVerificar = false;
+                                        ticket.hayIniVerificar = true;
+                                    }
+                                }
+                                else if (ultimaOperacionVerif.Operacion == "ANULAR INICIO VERIFICAR")
+                                {
+                                    ticket.aptoIniVerificar = true;
+                                    ticket.hayIniVerificar = false;
+                                }
+                            }
+                            // Si hay INICIO PICKING, habilitar el INICIO VERIFICAR solo si el ticket está PICKEANDO
+                            if (ticket.hayIniPicking && ticket.Estado == "PICKEANDO")
+                            {
+                                ticket.aptoIniVerificar = true;
+                            }
+                            // Validar si el ticket está PICKEANDO pero no tiene INICIO PICKING ni INICIO VERIFICAR previo
+                            if (ticket.Estado == "PICKEANDO" && !ticket.hayIniPicking && !ticket.hayIniVerificar)
+                            {
+                                ticket.aptoIniVerificar = true;
+                            }
+                            // Si el ticket no está PICKEANDO, deshabilitar INICIO VERIFICAR
+                            if (ticket.Estado != "PICKEANDO")
+                            {
+                                ticket.aptoIniVerificar = false;
+                                ticket.hayIniVerificar = false;
+                            }
+                            // Obtener las operaciones "FIN VERIFICAR" y "ANULAR FIN VERIFICAR"
+                            List<CC_ORTV_E> ticketOperacionesFinVerificar = ccORTV.ObtenerOperacionesTicket(ticket.DocEntry, new List<string> { "FIN VERIFICAR", "ANULAR FIN VERIFICAR" });
+
+                            // Ordenar las operaciones por Id descendente para obtener la más reciente primero
+                            CC_ORTV_E ultimaOperacionFinVerificar = ticketOperacionesFinVerificar.OrderByDescending(x => x.Id).FirstOrDefault();
+
+                            // Determinar si hay operación de FIN VERIFICAR activa
+                            ticket.hayFinVerificar = ultimaOperacionFinVerificar?.Operacion == "FIN VERIFICAR";
+
+                            // Si la última operación es "ANULAR FIN VERIFICAR", establecer hayFinVerificar como false
+                            if (ultimaOperacionFinVerificar?.Operacion == "ANULAR FIN VERIFICAR")
+                            {
+                                ticket.hayFinVerificar = false;
+                            }
+
+                            /**********************************************************PACKING**********************************************************************************/
+
+                            // Obtener las operaciones "INICIO EMPACAR" y "ANULAR INICIO EMPACAR"
+                            List<CC_ORTV_E> ticketOperacionesEmpacar = ccORTV.ObtenerOperacionesTicket(ticket.DocEntry, new List<string> { "INICIO EMPACAR", "ANULAR INICIO EMPACAR" });
+                            // Ordenar las operaciones por Id descendente para obtener la más reciente primero
+                            CC_ORTV_E ultimaOperacionEmpacar = ticketOperacionesEmpacar.OrderByDescending(x => x.Id).FirstOrDefault();
+                            // Determinar si hay operación de INICIO EMPACAR activa
+                            ticket.hayIniEmpacar = ultimaOperacionEmpacar?.Operacion == "INICIO EMPACAR";
+                            // Si el ticket está en estado "EMPACANDO", considerar que hay INICIO EMPACAR
+                            if (ticket.Estado.Equals("EMPACANDO")) { ticket.hayIniEmpacar = true; }
+
+                            // Obtener las operaciones "FIN EMPACAR" y "ANULAR FIN EMPACAR"
+                            List<CC_ORTV_E> ticketOperacionesFinEmpacar = ccORTV.ObtenerOperacionesTicket(ticket.DocEntry, new List<string> { "FIN EMPACAR", "ANULAR FIN EMPACAR" });
+
+                            // Ordenar las operaciones por Id descendente para obtener la más reciente primero
+                            CC_ORTV_E ultimaOperacionFinEmpacar = ticketOperacionesFinEmpacar.OrderByDescending(x => x.Id).FirstOrDefault();
+
+                            // Determinar si hay operación de FIN EMPACAR activa
+                            ticket.hayFinEmpacar = ultimaOperacionFinEmpacar?.Operacion == "FIN EMPACAR";
+
+                            // Si la última operación es "ANULAR FIN EMPACAR", establecer hayFinEmpacar como false
+                            if (ultimaOperacionFinEmpacar?.Operacion == "ANULAR FIN EMPACAR")
+                            {
+                                ticket.hayFinEmpacar = false;
+                            }
+
+                            // Determinar aptitud para FIN VERIFICAR
+                            ticket.aptoFinVerificar = true; // Inicialmente se asume que es apto
+
+                            // Validar condiciones que pueden hacer que no sea apto para FIN VERIFICAR
+                            if (ticket.Estado != "VERIFICANDO" && ticket.Estado != "PICKEANDO")
+                            {
+                                ticket.aptoFinVerificar = false; // No está en estado VERIFICANDO ni PICKEANDO
+                            }
+                            if (ticket.ultimoCCEstado == "FIN VERIFICAR")
+                            {
+                                ticket.aptoFinVerificar = false; // Ya se registró FIN VERIFICAR previamente
+                            }
+                            if (!ticket.hayIniVerificar)
+                            {
+                                ticket.aptoFinVerificar = false; // No hay INICIO VERIFICAR
+                            }
+                            if (ticket.hayFinVerificar)
+                            {
+                                ticket.aptoFinVerificar = false; // Ya se registró FIN VERIFICAR
+                            }
+
+
+
+                            /**************************************/
+                            /**************************************/
+                            if (ticket.hayFinPicking)
+                            {
+                                // Trae el operario de picking principal y sus apoyos 
+                                List<CC_ORTV_E> ticketSacando = ccORTV.ListarCC_ORTV(ticket.DocEntry, "FIN PICKING");
+                                if (ticketSacando != null && ticketSacando.Count > 0)
+                                {
+                                    ticket.OpSacando = ticketSacando[0].Operario;
+                                }
+                                List<string> operariosSacando = datosRTV11.BuscarOperariosSacando(ticket.DocEntry);
+                                if (operariosSacando != null && operariosSacando.Count > 0)
+                                {
+                                    ticket.OpSacandoApoyo = operariosSacando;
+                                }
+                            }
+                            if (ticket.hayFinVerificar)
+                            {
+                                // Trae el operario de verificacion principal y sus apoyos 
+                                List<CC_ORTV_E> ticketVerificando = ccORTV.ListarCC_ORTV(ticket.DocEntry, "FIN VERIFICAR");
+                                if (ticketVerificando != null && ticketVerificando.Count > 0)
+                                {
+                                    ticket.OpVerificado = ticketVerificando[0].Operario;
+
+                                    List<string> operariosChequeando = datosRTV12.BuscarOperariosChequeando(ticket.DocEntry);
+                                    if (operariosChequeando != null && operariosChequeando.Count > 0)
+                                    {
+                                        ticket.OpVerificadoApoyo = operariosChequeando;
+                                    }
+                                }
+
+                                if (ticket.hayFinEmpacar && ticket.Cajas >= 1)
+                                {
+                                    // Trae el operario de packing principal y sus apoyos
+                                    List<CC_ORTV_E> ticketEmpacando = ccORTV.ListarCC_ORTV(ticket.DocEntry, "FIN EMPACAR");
+                                    if (ticketEmpacando != null && ticketEmpacando.Count > 0) { ticket.OpEmpacado = ticketEmpacando[0].Operario; }
+                                    List<string> operariosEmpacando = datosRTV13.BuscarOperariosEmpacando(ticket.DocEntry);
+                                    if (operariosEmpacando != null && operariosEmpacando.Count > 0)
+                                    {
+                                        ticket.OpEmpacadoApoyo = operariosEmpacando;
+                                    }
+                                }
+                            }
+                            /**************************************/
+                            /**************************************/
+
+
+
+
                             lista.Add(ticket);
-                            
+
 
                         }
                     }
@@ -3399,7 +3631,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 }
                 else
                 {
-                    condWhere += t.DocNum > 0 ? $" AND t0.DocNum like '%{t.DocNum}%" : "";
+                    condWhere += t.DocNum > 0 ? $" AND t0.DocNum like '%{t.DocNum}%'" : "";
                     condWhere += t.FechaSapTicket != null ? $" AND t0.FechaSapTicket='{t.FechaSapTicket}'" : "";
                     condWhere += t.CardName != null ? $" AND t0.CardName like '%{t.CardName}%'" : "";
                     condWhere += t.Vendedor != null ? $" AND t0.Vendedor like '%{t.Vendedor}%'" : "";
@@ -3417,7 +3649,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 
             string query = $"SELECT TOP 100 t0.DocEntry, t0.DocNum, t0.CardCode, t0.CardName, t0.Estado,t0.FechaSapTicket, (Select top 1 HoraOperacion from vt.CC_ORTV where DocEntry=t0.DocEntry " +
                 $" and Operacion='REGISTRAR' order by FechaOperacion,HoraOperacion desc ) as 'HoraAbierto',t0.LugarDestino,t0.Flete,t0.Vendedor,t0.EstadoPago,t0.EstadoGasto," +
-                $" t0.PagoEnv,t0.TipoVenta ,t0.EstadoFacturacion,t0.DescuentoNC,t0.TiempoEntrega ,CASE WHEN EXISTS (SELECT * FROM vt.CC_ORTV_print WHERE DocEntryTicket = t0.DocEntry) THEN 1 ELSE 0 END FROM vt.ORTV t0  WHERE 1=1 {condWhere} ORDER BY t0.DocNum desc";
+                $" t0.PagoEnv,t0.TipoVenta ,t0.EstadoFacturacion,t0.DescuentoNC,t0.TiempoEntrega ,CASE WHEN EXISTS (SELECT * FROM vt.CC_ORTV_print WHERE DocEntryTicket = t0.DocEntry) THEN 1 ELSE 0 END,T0.MontoFinal FROM vt.ORTV t0  WHERE 1=1 {condWhere} ORDER BY t0.DocNum desc";
 
             using (SqlConnection cn = new SqlConnection(uti.cadSql))
             {
@@ -3451,6 +3683,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                             if (!dr.IsDBNull(15)) { ticket.DescuentoNC = dr.GetDecimal(15); }
                             if (!dr.IsDBNull(16)) { ticket.TiempoEntrega = dr.GetDateTime(16); }
                             if (!dr.IsDBNull(17)) { ticket.Impreso = dr.GetInt32(17); }
+                            if (!dr.IsDBNull(18)) { ticket.MontoFinal = dr.GetDecimal(18); }
                             ticket.Vendedor = (ticket.Vendedor.Length > 15) ? ticket.Vendedor.Substring(0, 15) : ticket.Vendedor;
                             ticket.FechaSapTicket = (ticket.FechaSapTicket != null) ? Convert.ToDateTime(ticket.FechaSapTicket).ToString("dd/MM/yyyy") : null;
                             lista.Add(ticket);
@@ -3710,6 +3943,6 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 
             return lista;
         }
-        
+
     }
 }

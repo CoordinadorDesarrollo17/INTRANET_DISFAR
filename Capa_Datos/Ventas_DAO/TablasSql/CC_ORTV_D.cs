@@ -13,6 +13,60 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
          * Enviar que estado se desea buscar en el parametro @operacion, este solo mostrará el último en caso exista más de 1 (por ejm al Editar Ticket)
          * En caso este parametro se envíe vacío, listará todos los cambios que se han realizado
          */
+
+        public List<CC_ORTV_E> ObtenerOperacionesTicket(int DocEntry, List<string> tiposOperacion, bool excluir = false)
+        {
+            List<CC_ORTV_E> lista = new List<CC_ORTV_E>();
+            string condWhere = string.Empty, top = string.Empty;
+
+            if (excluir) { condWhere = $"AND Operacion not in ('EDITAR','EDITAR SUPERVISOR','FACTURAR','ANULAR FACTURAR','GUIA EMITIDA','REVERTIR GUIA')"; }
+            // Si se buscan tipos de operación específicos
+            if (tiposOperacion != null && tiposOperacion.Count > 0)
+            {
+                string tiposOperacionString = string.Join("','", tiposOperacion);
+                condWhere += $"AND Operacion IN ('{tiposOperacionString}')";
+            }
+
+            // Query para obtener la última operación por tipo de operación y DocEntry
+            string query = $@"
+            SELECT Id, DocEntry, Operacion, Operario, CONVERT(varchar, FechaOperacion, 103) AS FechaOperacion, HoraOperacion
+            FROM vt.CC_ORTV
+            WHERE DocEntry = @DocEntry {condWhere}
+            AND Id IN (SELECT MAX(Id) FROM vt.CC_ORTV WHERE DocEntry = @DocEntry {condWhere} GROUP BY Operacion)
+            ORDER BY Operacion, Id DESC";
+
+            SqlConnection cn = new SqlConnection(uti.cadSql);
+            try
+            {
+                cn.Open();
+                SqlCommand cmd = new SqlCommand(query, cn);
+                cmd.Parameters.AddWithValue("@DocEntry", DocEntry);
+                SqlDataReader dr = cmd.ExecuteReader();
+
+                while (dr.Read())
+                {
+                    CC_ORTV_E cc = new CC_ORTV_E();
+                    cc.Id = dr.GetInt32(0);
+                    cc.DocEntry = dr.GetInt32(1);
+                    cc.Operacion = dr.GetString(2);
+                    cc.Operario = dr.GetString(3);
+                    cc.FechaOperacion = dr.GetString(4);
+                    cc.HoraOperacion = dr.GetTimeSpan(5).ToString();
+                    lista.Add(cc);
+                }
+
+                dr.Close();
+                cn.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al obtener operaciones: {ex.Message}");
+                cn.Close();
+            }
+
+            return lista;
+        }
+
         public List<CC_ORTV_E> ListarCC_ORTV(int DocEntry, string operacion, bool excluir = false)
         {
             List<CC_ORTV_E> lista = new List<CC_ORTV_E>();

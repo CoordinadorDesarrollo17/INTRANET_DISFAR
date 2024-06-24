@@ -1,5 +1,4 @@
 ﻿@model IEnumerable<Capa_Entidad.Ventas_ENT.Tablas.ORDR_E>
-@using Capa_Entidad.General_ENT.Tablas
 @{
     ViewBag.Title = "ListadoOrdenesDeVenta";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -26,20 +25,23 @@
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        let cargarLista = "ListarOrdenesVenta?version=" + '@ViewBag.CargarLista' +'&SlpCode='+'@ViewBag.SlpCode';
-        cargarContenido("div_listadoOV", cargarLista);
-    });
+        var cargarLista = '@ViewBag.CargarLista';
+        var slpCode = '@ViewBag.SlpCode';
+
+        document.addEventListener("DOMContentLoaded", function () {
+            let listado = `ListarOrdenesVenta?version=${cargarLista }&SlpCode=${ slpCode }`;
+            cargarContenido("div_listadoOV", listado);
+        });
+
 
     function filtrar() {
         var form = $("#frm").serialize();
-        let slpCode = '@ViewBag.SlpCode';
 
         if (slpCode * 1 > 0) {
             form += `&SlpCode=${slpCode}`;
         }
 
-        let listaFiltrada = "ListarOrdenesVenta?version=" + '@ViewBag.CargarLista' + `&${form}`;
+        let listaFiltrada = `ListarOrdenesVenta?version=${cargarLista}&${form}`;
         cargarContenido("div_listadoOV", listaFiltrada);
     }
 </script>

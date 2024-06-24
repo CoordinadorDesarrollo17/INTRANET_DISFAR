@@ -42,7 +42,7 @@ namespace Capa_Usuario.Controllers
     {
         Usuario_N u_N = new Usuario_N(); Rol1_N rol1 = new Rol1_N(); int modulo = 5;
         ORTV_N ticketN = new ORTV_N(); OLDS_N lN = new OLDS_N();
-        CC_ORTV_N ccORTV_N = new CC_ORTV_N();      
+        CC_ORTV_N ccORTV_N = new CC_ORTV_N();
 
         //VENTAS COMERCIAL
         protected string ResaltarTicket(string LugarDestino = "")
@@ -875,7 +875,7 @@ namespace Capa_Usuario.Controllers
         {
             if (verificacionAccesos(idOperation) == "C_Access")
             {
-                Usuario_E user = (Usuario_E)Session["UsuarioId"]; 
+                Usuario_E user = (Usuario_E)Session["UsuarioId"];
                 ORTV_N tkN = new ORTV_N();
                 ViewBag.IdRol = user.IdRol; ViewBag.DocNum = DocNum;
 
@@ -889,14 +889,14 @@ namespace Capa_Usuario.Controllers
                     ticket.EstadoFacturacion = ticketUnico.EstadoFacturacion;
                     ticket.Estado = ticketUnico.Estado;
                     ticket.DocNum = DocNum;
-                    ViewBag.Ortv = ticket; 
+                    ViewBag.Ortv = ticket;
                     ViewBag.DocNum = DocNum;
                 }
                 else { ViewBag.Ortv = ticket; }
 
                 ViewBag.Mensaje = Mensaje;
                 var lista = ticketN.ListarTicketsAreaFacturacion(user, ticket);
-           
+
                 var cantPendiente = ticketN.CantidadTicketsFacturacion("PENDIENTE");
                 var cantGreEmitida = ticketN.CantidadTicketsFacturacion("GRE EMITIDA");
                 ViewBag.CP = cantPendiente;
@@ -1169,7 +1169,7 @@ namespace Capa_Usuario.Controllers
             List<RTV4_E> nc = ortvN.obtenerDet4Ticket(DocEntry);
             return Json(nc);
         }
-        
+
         //RECEPCION
         public ActionResult ListadoTicketsRecepcion(int DocNum = 0, ORTV_E ticket = null, string Mensaje = "", int idOperation = 701)
         {
@@ -1177,15 +1177,28 @@ namespace Capa_Usuario.Controllers
             {
                 Usuario_E user = (Usuario_E)Session["UsuarioId"];
                 ViewBag.DocNum = DocNum;
+                if (user.WhsCode != null && (user.IdRol == 5 || user.IdRol == 4 || user.IdRol == 51))
+                {
+                    if (user.WhsCode.Equals("03"))
+                    {
+                        ticket.AlmProcedencia = "03";
+                    }
+                    else if (user.WhsCode.Equals("07"))
+                    {
+                        ticket.AlmProcedencia = "07";
+                    }
+                }
                 if (DocNum > 0)
                 {
                     ticket.DocNum = DocNum;
-                    ViewBag.Ortv = ticket; 
+                    ViewBag.Ortv = ticket;
                     ViewBag.DocNum = DocNum;
                 }
                 else { ViewBag.Ortv = ticket; }
+
                 ViewBag.Mensaje = Mensaje;
                 ViewBag.IdRol = user.IdRol;
+
                 return View(ticketN.ListarTicketsAreaRecepcion(user, ticket));
             }
             else if (verificacionAccesos(idOperation) == "E_Login")
@@ -1264,18 +1277,6 @@ namespace Capa_Usuario.Controllers
                 ViewBag.DocNum = DocNum;
                 ViewBag.Ortv = t;
                 ViewBag.Mensaje = Mensaje;
-
-                //OOPE_N opeN = new OOPE_N();
-                //var operaciones = opeN.listarOperacionesRolModulo(modulo, user.IdRol);
-
-                //if (operaciones != null && operaciones.Count >= 1)
-                //{
-                //    foreach (var item in operaciones)
-                //    {
-                //        // Saber si el usuario en sesion tiene permiso para exportar excel - errores de picking
-                //        if (item.id.Equals(810)) { ViewBag.ExportarExcelPicking = "SI"; } else { ViewBag.ExportarExcelPicking = "NO"; }
-                //    }
-                //}
 
                 return View(ticketN.ListarTicketsAreaAlmacén(user, t));
             }
@@ -2039,7 +2040,7 @@ namespace Capa_Usuario.Controllers
             else
             { return RedirectToAction("Error", "Index"); }
         }
-        
+
         //LIBROS SALDOS
         public ActionResult ListadoLibrosSaldo(OLDS_E li = null, int idOperation = 1301)
         {
@@ -2963,7 +2964,7 @@ namespace Capa_Usuario.Controllers
             return Json(oclrN.buscarClienteRegalo(CardCode));
         }
 
-        
+
         /**********************************************************************************************************/
         public ActionResult reporteViewer(ReportViewer rp)
         {
@@ -3201,7 +3202,7 @@ namespace Capa_Usuario.Controllers
             return new ActionAsPdf("RotuladoTicket", new { DocEntry = DocEntry }) { FileName = "RotuladoTicket" + DocEntry + ".pdf", PageOrientation = Rotativa.Options.Orientation.Landscape, PageSize = Rotativa.Options.Size.A4 };
             //var pdfRotuladoTicket = new ActionAsPdf("RotuladoTicket", new { DocEntry = DocEntry }) { FileName = "RotuladoTicket.pdf", PageOrientation = Rotativa.Options.Orientation.Landscape, PageSize = Rotativa.Options.Size.A4 };
             //var pdfTacoEmpaque = new ActionAsPdf("TacoEmpaque", new { DocEntry = DocEntry }) { FileName = "PdfTacoEmpaque.pdf", PageOrientation = Rotativa.Options.Orientation.Landscape, PageSize = Rotativa.Options.Size.A4 };
-         
+
         }
         public ActionResult RotuladoTicket(int DocEntry)
         {
@@ -3247,7 +3248,7 @@ namespace Capa_Usuario.Controllers
 
                 return View(ticket);
             }
-            catch 
+            catch
             {
                 return View(new ORTV_E());
             }

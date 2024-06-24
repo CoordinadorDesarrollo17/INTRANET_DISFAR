@@ -124,7 +124,7 @@
 <script>
    document.addEventListener('DOMContentLoaded', function () {
        document.getElementById('btn_descargarPDF').addEventListener('click', () => {
-           window.location.href = '@Url.Action("ExportarPdfOrdenesVenta", "DireccionTecnica")?DocNum=' + '@Model.First().DocNum';
+           window.location.href = '@Url.Action("ExportarPdfOrdenesVenta", "DireccionTecnica")?DocNum=' + '@Model.First().DocNum' + '&CardName=' +'@Model.First().CardName';
        });
    });
 </script>

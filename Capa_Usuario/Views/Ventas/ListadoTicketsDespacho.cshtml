@@ -18,7 +18,7 @@
 
     /*
      * Se mostrará el botón Pesar para los usuarios con idRol = 1
-     * Se mostrará el botón Pesar para los usuarios que tenga el WhsCode (almacén) vacíos o "03" 
+     * Se mostrará el botón Pesar para los usuarios que tenga el WhsCode (almacén) vacíos o "03"
      */
     if (String.IsNullOrEmpty(almacenUsuario) || almacenUsuario == "03" || idRolUsuario == 1)
     {
@@ -273,7 +273,7 @@
                             <input type="text" name="CardName" class="form-control input_filtro-table" onchange="filtrar();" value="@e.CardName" />
                         }
                         else
-                        { <input type="text" name="CardName" class="form-control input_filtro-table"  onchange="filtrar();" />}
+                        { <input type="text" name="CardName" class="form-control input_filtro-table" onchange="filtrar();" />}
                     </th>
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.Vendedor)
@@ -356,7 +356,7 @@
                 @foreach (var item in Model)
                 {
                     string styleImpreso = "";
-                    if (item.Impreso>0)
+                    if (item.Impreso > 0)
                     {
                         styleImpreso = "bg-skyblue";
 
@@ -508,8 +508,8 @@
                         </td>
 
                     </tr>
-                    }
-                </tbody>
+                }
+            </tbody>
         </table>
     </div>
 </form>
@@ -718,7 +718,7 @@
         });
     }
     function registrarImpresion(DocEntry) {
-       
+
         $.ajax({
             url: '/Ventas/RegistrarImpresion?DocEntry=' + DocEntry,
             type: 'POST',

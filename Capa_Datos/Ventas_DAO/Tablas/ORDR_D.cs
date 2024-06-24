@@ -14,18 +14,22 @@ namespace Capa_Datos.Ventas_DAO.Tablas
         {
             List<ORDR_E> lista = new List<ORDR_E>();
             string filtros = "";
+            bool filtroCanceledDefault = true;
+
             if (fo != null)
             {
-                if (fo.DocNum > 0) { filtros += " and \"DocNum\" =" + fo.DocNum; }
-                if (fo.DocDate != null) { filtros += " and \"DocDate\"='" + fo.DocDate + "'"; }
-                if (fo.CardName != null) { filtros += " and UPPER(\"CardName\") like UPPER('%" + fo.CardName + "%')"; }
-                if (fo.CardCode != null) { filtros += " and UPPER(\"CardCode\") like UPPER('%" + fo.CardCode + "')"; }
-                if (fo.SlpCode > 0) { filtros += " and \"SlpCode\"=" + fo.SlpCode; }
-                if (fo.DocTotal > 0.00M) { filtros += " and \"DocTotal\" like '%" + fo.DocTotal + "%'"; }
-                if (fo.Comments != null) { filtros += " and UPPER(\"Comments\") like UPPER('%" + fo.Comments + "%')"; }
-                if (fo.U_SYP_STATUS != null) { filtros += " and UPPER(\"U_SYP_STATUS\")=UPPER('" + fo.U_SYP_STATUS + "')"; }
-                if (fo.U_COB_LUGAREN != null) { filtros += " and \"U_COB_LUGAREN\"='" + fo.U_COB_LUGAREN + "'"; }
+                if (fo.DocNum > 0) { filtros += " and \"DocNum\" =" + fo.DocNum; filtroCanceledDefault = false; }
+                if (fo.DocDate != null) { filtros += " and \"DocDate\"='" + fo.DocDate + "'"; filtroCanceledDefault = false; }
+                if (fo.CardName != null) { filtros += " and UPPER(\"CardName\") like UPPER('%" + fo.CardName + "%')"; filtroCanceledDefault = false; }
+                if (fo.CardCode != null) { filtros += " and UPPER(\"CardCode\") like UPPER('%" + fo.CardCode + "')"; filtroCanceledDefault = false; }
+                if (fo.SlpCode > 0) { filtros += " and \"SlpCode\"=" + fo.SlpCode; filtroCanceledDefault = false; }
+                if (fo.DocTotal > 0.00M) { filtros += " and \"DocTotal\" like '%" + fo.DocTotal + "%'"; filtroCanceledDefault = false; }
+                if (fo.Comments != null) { filtros += " and UPPER(\"Comments\") like UPPER('%" + fo.Comments + "%')"; filtroCanceledDefault = false; }
+                if (fo.U_SYP_STATUS != null) { filtros += " and UPPER(\"U_SYP_STATUS\")=UPPER('" + fo.U_SYP_STATUS + "')"; filtroCanceledDefault = false; }
+                if (fo.U_COB_LUGAREN != null) { filtros += " and \"U_COB_LUGAREN\"='" + fo.U_COB_LUGAREN + "'"; filtroCanceledDefault = false; }
+                if (fo.CANCELED != null) { filtros += $" and \"CANCELED\"='{fo.CANCELED}'"; } else if (filtroCanceledDefault) { filtros += $" and \"CANCELED\"='N'"; }
             }
+
             string query = "select top 50 \"DocEntry\",\"DocNum\",\"CANCELED\",\"DocDate\",\"CardCode\",\"CardName\",\"DocTotal\",\"SlpCode\",\"Comments\",\"U_SYP_STATUS\",\"U_COB_LUGAREN\"   from " + uti.schemaHana + "ordr where \"DocEntry\">0 " + filtros + " order by 1 desc";
 
             try
