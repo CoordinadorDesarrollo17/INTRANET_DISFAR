@@ -3192,17 +3192,7 @@ namespace Capa_Usuario.Controllers
         public ActionResult PdfRotuladoTicket(int DocEntry)
         {
             verificacionAccesos(0);
-            ORTV_N ortvN = new ORTV_N();
-            var estado = ortvN.EstadoTicket(DocEntry);
-            var docNum = ortvN.DocNumTicket(DocEntry);
-            if (!estado.Equals("EMPACADO"))
-            {
-                return RedirectToAction("ListadoTicketsAlmacen", new { DocNum = docNum, Mensaje = "El ticket debe estar EMPACADO" });
-            }
             return new ActionAsPdf("RotuladoTicket", new { DocEntry = DocEntry }) { FileName = "RotuladoTicket" + DocEntry + ".pdf", PageOrientation = Rotativa.Options.Orientation.Landscape, PageSize = Rotativa.Options.Size.A4 };
-            //var pdfRotuladoTicket = new ActionAsPdf("RotuladoTicket", new { DocEntry = DocEntry }) { FileName = "RotuladoTicket.pdf", PageOrientation = Rotativa.Options.Orientation.Landscape, PageSize = Rotativa.Options.Size.A4 };
-            //var pdfTacoEmpaque = new ActionAsPdf("TacoEmpaque", new { DocEntry = DocEntry }) { FileName = "PdfTacoEmpaque.pdf", PageOrientation = Rotativa.Options.Orientation.Landscape, PageSize = Rotativa.Options.Size.A4 };
-
         }
         public ActionResult RotuladoTicket(int DocEntry)
         {
@@ -3211,7 +3201,7 @@ namespace Capa_Usuario.Controllers
             object obj = null;
             try
             {
-                obj = ortvN.obtenerTicket(DocEntry);
+                obj = ortvN.obtenerTicketRotulado(DocEntry);
             }
             catch { }
             return View(obj);

@@ -9,7 +9,7 @@
     <title>RotuladoTicket</title>
     <style type="text/css">
         body {
-            font-size: 48px;
+            font-size: 50px;
             font-family: Verdana;
         }
 
@@ -17,12 +17,15 @@
             overflow: auto;
             height: 100%;
         }
+        .subrayado {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
     @for (int i = 0; i < Model.Cajas; i++)
     {
-        <div class="container" style="padding: 50px; border: 4px dotted black; margin-top:50px; @((i == Model.Cajas - 1) ? "" : "page-break-after: always;")">
+        <div class="container" style="padding: 50px;vertical-align:central; border: 5px dotted black; margin-top:50px; @((i == Model.Cajas - 1) ? "" : "page-break-after: always;")">
             <table border="1" cellspacing="0" width="100%" style="text-align:center;">
                 <tr><th colspan="2">DESTINATARIO</th></tr>
 
@@ -30,7 +33,7 @@
                 {
                     <tr>
                         <td colspan="2" style="padding:30px">
-                            @Model.Det1[0].NombrePer.ToUpper()
+                            <p class="subrayado">@Model.Det1[0].NombrePer.ToUpper()</p>
                         </td>
                     </tr>
                 }
