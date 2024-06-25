@@ -791,7 +791,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         {
             return ticketV.obtenerDet4Ticket(DocEntry, DocNum);
         }
-        // Alisson Romero
+        // Reformulando metodos
         public string EstadoTicket(int docEntry)
         { return ticketV.EstadoTicket(docEntry); }
         public int DocNumTicket(int docEntry)
@@ -818,6 +818,10 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         { return ticketV.ListarTicketsAreaAlmacén(user, t); }
         public List<ORTV_E> ListarTicketsAreaDespacho(Usuario_E user, ORTV_E t)
         { return ticketV.ListarTicketsAreaDespacho(user, t); }
+        public ORTV_E obtenerTicketRotulado(int DocEntry)
+        {return ticketV.obtenerTicketRotulado(DocEntry);}
+        public ORTV_E obtenerTicketTacoEmpaque(int DocEntry)
+        {return ticketV.obtenerTicketTacoEmpaque(DocEntry);}
 
     }
 }

@@ -47,7 +47,6 @@ namespace Capa_Datos
             this.cadSql = @"Server=" + this.serverSql + ";database=" + this.BDsql + ";user id=" + this.userSql + ";password=" + this.passwordSql + ";Min Pool Size=0;Max Pool Size=10024;Pooling=true";
             
             this.directorioGeneral = @"D:\"; this.directorioFileServer = @"D:\COBEFARWEBFILES\";
-
             //this.directorioGeneral = @"C\";this.directorioFileServer = @"C:\COBEFARWEBFILES\";
             
             //CORREO 
