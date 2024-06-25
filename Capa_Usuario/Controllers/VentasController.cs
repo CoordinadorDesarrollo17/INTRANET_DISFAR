@@ -105,13 +105,19 @@ namespace Capa_Usuario.Controllers
             if (ticket != null)
             {
                 List<RTV2_E> nuevoDet2 = new List<RTV2_E>();
-                foreach (RTV2_E t in ticket.Det2)
+
+                if (ticket.Det2 != null)
                 {
-                    if (t.AlmacenSalida != "06" && t.AlmacenSalida != "09" && t.Monto > 0)
+                    foreach (RTV2_E t in ticket.Det2)
                     {
-                        nuevoDet2.Add(t);
+                        if (t.AlmacenSalida != "06" && t.AlmacenSalida != "09" && t.Monto > 0)
+                        {
+                            nuevoDet2.Add(t);
+                        }
                     }
-                }
+                }               
+
+
                 if (nuevoDet2.Count > 0)
                 {
                     ticket.Det2 = nuevoDet2;

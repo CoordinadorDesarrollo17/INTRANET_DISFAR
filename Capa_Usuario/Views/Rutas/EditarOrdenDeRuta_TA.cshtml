@@ -386,52 +386,62 @@
                         <option value="">Seleccione</option>
                         @foreach (var l in lstOriDest)
                         {
-                            <option value="@l.WhsName" AlmOrigenCod="@l.WhsCode"
-                                    AlmOrigenDesc2="@(l.Street+" "+l.StreetNo+" "+l.Building+" "+l.Block+" "+l.City+" "+l.County)" @if (Model.AlmOrigenCod == l.WhsCode) { Write("selected"); }>
-                                @l.WhsName
-                            </option>
+                        <option value="@l.WhsName" AlmOrigenCod="@l.WhsCode"
+                                AlmOrigenDesc2="@(l.Street+" "+l.StreetNo+" "+l.Building+" "+l.Block+" "+l.City+" "+l.County)" @if (Model.AlmOrigenCod == l.WhsCode) { Write("selected"); }>
+                            @l.WhsName
+                        </option>
                         }
                     </select>
                     @Html.EditorFor(model => model.AlmOrigenCod, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
                     @Html.EditorFor(model => model.AlmOrigenDesc2, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
                 </div>
 
+                
                 <div class="col-lg-2" id="div_almacen-destino">
                     <label class="text-dark form-label font-weight-bold font-18">Almacén de Destino:</label>
-                    <input type="text" class="form-control text-center border-success" name="AlmDestinoDesc" value="@Model.AlmDestinoDesc" readonly />
+                    <select name="AlmDestinoDesc" id="AlmDestinoDesc" class="form-control bg-cobefar text-white" onchange="enviarValSelect('AlmDestinoDesc', 'AlmDestinoCod', 'almdestinocod'); enviarValSelect('AlmDestinoDesc', 'AlmDestinoDesc2', 'almdestinodesc2'); listarTickets();">
+                        <option value="">Seleccione</option>
+                        @foreach (var l in lstOriDest)
+     {
+                        <option value="@l.WhsName" almdestinocod="@l.WhsCode"
+                                almdestinodesc2="@(l.Street+" "+l.StreetNo+" "+l.Building+" "+l.Block+" "+l.City+" "+l.County)" @if (Model.AlmDestinoCod == l.WhsCode) { Write("selected"); }>
+                            @l.WhsName
+                        </option>
+     }
+                    </select>
                     @Html.EditorFor(model => model.AlmDestinoCod, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
                     @Html.EditorFor(model => model.AlmDestinoDesc2, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
                 </div>
                 @*@if (Model.TipoRuta != "AC")
-                    {
-                        <div class="col-lg-2">
-                            <label for="VehiculoCod" class="text-dark form-label font-weight-bold font-18">Código Vehículo:</label>
-                            <input name="VehiculoCod" id="VehiculoCod" class="form-control border-success text-center" value="@Model.VehiculoCod" readonly />
-                        </div>
-                    }*@
+        {
+            <div class="col-lg-2">
+                <label for="VehiculoCod" class="text-dark form-label font-weight-bold font-18">Código Vehículo:</label>
+                <input name="VehiculoCod" id="VehiculoCod" class="form-control border-success text-center" value="@Model.VehiculoCod" readonly />
+            </div>
+        }*@
                 @if (Model.TipoRuta != "AC")
                 {
-                    <div class="col-lg-3">
-                        <label for="VehiculoCod" class="text-dark form-label font-weight-bold font-18">VehículoCod:</label>
-                        <select name="VehiculoCod" id="VehiculoCod" class="form-control bg-cobefar text-white"
-                                onchange="enviarValSelect('VehiculoCod', 'Placa', 'U_SYP_VEPL'); enviarValSelect('VehiculoCod', 'Marca', 'U_SYP_VEMA'); enviarValSelect('VehiculoCod', 'Modelo', 'U_SYP_VEMO');">
-                            <option value="">Seleccione</option>
-                            @foreach (var t in Vehiculos)
+                <div class="col-lg-3">
+                    <label for="VehiculoCod" class="text-dark form-label font-weight-bold font-18">VehículoCod:</label>
+                    <select name="VehiculoCod" id="VehiculoCod" class="form-control bg-cobefar text-white"
+                            onchange="enviarValSelect('VehiculoCod', 'Placa', 'U_SYP_VEPL'); enviarValSelect('VehiculoCod', 'Marca', 'U_SYP_VEMA'); enviarValSelect('VehiculoCod', 'Modelo', 'U_SYP_VEMO');">
+                        <option value="">Seleccione</option>
+                        @foreach (var t in Vehiculos)
                             {
-                                <option value="@t.Code" U_SYP_VEPL="@t.U_SYP_VEPL" U_SYP_VEMA="@t.U_SYP_VEMA" U_SYP_VEMO="@t.U_SYP_VEMO" @if (Model.VehiculoCod == t.Code) { Write("selected"); }>@t.Code</option>
+                        <option value="@t.Code" U_SYP_VEPL="@t.U_SYP_VEPL" U_SYP_VEMA="@t.U_SYP_VEMA" U_SYP_VEMO="@t.U_SYP_VEMO" @if (Model.VehiculoCod == t.Code) { Write("selected"); }>@t.Code</option>
                             }
-                        </select>
-                    </div>
+                    </select>
+                </div>
                 }
                 <div class="col-lg-2">
                     <label for="Placa" class="text-dark form-label font-weight-bold font-18">Placa:</label>
                     @if (Model.TipoRuta != "AC")
                     {
-                        @Html.EditorFor(model => model.Placa, new { htmlAttributes = new { @class = "text-center form-control border-success", @readonly = "true" } })
+                    @Html.EditorFor(model => model.Placa, new { htmlAttributes = new { @class = "text-center form-control border-success", @readonly = "true" } })
                     }
                     else
                     {
-                        @Html.EditorFor(model => model.Placa, new { htmlAttributes = new { @class = "text-center form-control border-success" } })
+                    @Html.EditorFor(model => model.Placa, new { htmlAttributes = new { @class = "text-center form-control border-success" } })
                     }
 
                     @Html.EditorFor(model => model.Marca, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
