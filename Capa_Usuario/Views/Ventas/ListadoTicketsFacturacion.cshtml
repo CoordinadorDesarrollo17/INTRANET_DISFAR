@@ -349,7 +349,7 @@
                             @Html.DisplayFor(modelItem => item.Zona)
                         </td>
                         <td>
-                            @if ((item.Estado.Equals("VERIFICANDO") || item.Estado.Equals("EMPACANDO") || item.Estado.Equals("EMPACADO") || item.Estado.Equals("PESADO") ||
+                            @if ((item.Estado.Equals("PICKEANDO") || item.Estado.Equals("VERIFICANDO") || item.Estado.Equals("EMPACANDO") || item.Estado.Equals("EMPACADO") || item.Estado.Equals("PESADO") || item.Estado.Equals("PREENVIO") ||
                                 item.Estado.Equals("ENVIADO")) && item.hayFinVerificar)
                             {
                                 if (item.EstadoFacturacion == "PENDIENTE")
