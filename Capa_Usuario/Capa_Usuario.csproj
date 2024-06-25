@@ -1154,6 +1154,7 @@
     <Content Include="Views\Shared\DireccionTecnica\ListadoOrdenesVenta_VT.cshtml" />
     <Content Include="Views\Shared\DireccionTecnica\ListadoOrdenesVenta_DT.cshtml" />
     <Content Include="Views\Ventas\PDF\PDF_OrdenesDeVentas.cshtml" />
+    <Content Include="Views\Rutas\EditarOrdenDeRuta_TA.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
