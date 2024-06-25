@@ -344,6 +344,7 @@
                             <option value="ContraEntrega" @{ if (e != null && e.TipoVenta == "ContraEntrega") { Write("selected"); } }>ContraEntrega</option>
                         </select>
                     </th>
+                    <th class="text-center">Cant.<br />Cajas</th>
                     <th class="text-center">
                         Tiempo Entrega
                     </th>
@@ -448,6 +449,7 @@
                         <td class="text-center" style="@styleEstado">@Html.DisplayFor(modelItem => item.Estado)</td>
                         <td class="text-center">@Html.DisplayFor(modelItem => item.EstadoPago)</td>
                         <td class="text-center">@Html.DisplayFor(modelItem => item.TipoVenta)</td>
+                        <td class="text-center font-weight-bold">@item.Cajas</td>
                         <td class="text-center">@Convert.ToDateTime(item.TiempoEntrega).ToString("dd/MM/yyyy HH:mm:ss")</td>
                         <td>
                             @if (condPesar && verBtnPesar)
