@@ -154,7 +154,7 @@
                                 <th></th>
                             }
                         }
-                        <th></th>
+                        @*<th></th>*@
                         <th></th>
                         <th></th>
                     </tr>
@@ -395,7 +395,7 @@
                             }
                         }
 
-                        <td class="text-center">
+                        @*<td class="text-center">
                             @if ((item.Estado.Equals("EMPACADO") || item.Estado.Equals("PREENVIO") || item.Estado.Equals("ENVIADO") || item.Estado.Equals("PESADO")) && (ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 11))
                             {
 
@@ -411,7 +411,7 @@
                                     }
                                 }
                             }
-                        </td>
+                        </td>*@
                         <td>
                             @if ((item.Estado.Equals("EMPACADO") || item.Estado.Equals("PESADO") || item.Estado.Equals("PREENVIO") || item.Estado.Equals("ENVIADO") || item.Estado.Equals("ENTREGADO")) && item.LugarDestino.Equals("Agencia"))
                             {
@@ -491,7 +491,7 @@
         </div>
     </div>
 
-    @*@if (Request["DescargarPDF"] == "1")
+    @if (Request["DescargarPDF"] == "1")
     {
         <script>
         Swal.fire({
@@ -500,15 +500,11 @@
             timerProgressBar: true,
             showConfirmButton: false
         });
-
-        if ('@Request["LugarDestino"].ToString()' == 'Agencia') {
-            location.href = '/Ventas/PdfTacoEmpaque?DocEntry=' + @Request["NumTicket"];
-        } else {
-              location.href = '/Ventas/PdfTacoEmpaque?DocEntry=' + @Request["NumTicket"];
-        }
+        location.href = '/Ventas/PdfTacoEmpaque?DocEntry=' + @Request["NumTicket"];
+      
         </script>
 
-    }*@
+    }
 
     <script>
     if ('@ViewBag.Mensaje' != "") {
