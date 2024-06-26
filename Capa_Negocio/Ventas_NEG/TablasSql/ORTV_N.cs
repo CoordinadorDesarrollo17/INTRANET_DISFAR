@@ -819,9 +819,9 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         public List<ORTV_E> ListarTicketsAreaDespacho(Usuario_E user, ORTV_E t)
         { return ticketV.ListarTicketsAreaDespacho(user, t); }
         public ORTV_E obtenerTicketRotulado(int DocEntry)
-        { return ticketV.obtenerTicketRotulado(DocEntry); }
+        {return ticketV.obtenerTicketRotulado(DocEntry);}
         public ORTV_E obtenerTicketTacoEmpaque(int DocEntry)
-        { return ticketV.obtenerTicketTacoEmpaque(DocEntry); }
+        {return ticketV.obtenerTicketTacoEmpaque(DocEntry);}
 
     }
 }
