@@ -5,13 +5,6 @@
 
 
 # Custom
-
-.editorconfig
-*.xsc
-*.xsd
-*.xss
-*.rdlc
-
 # User-specific files
 *.rsuser
 *.suo
@@ -26,9 +19,7 @@
 mono_crash.*
 
 # Build results
-[Dd]ebug/
 [Dd]ebugPublic/
-[Rr]elease/
 [Rr]eleases/
 x64/
 x86/
@@ -36,7 +27,6 @@ x86/
 [Aa][Rr][Mm]/
 [Aa][Rr][Mm]64/
 bld/
-[Bb]in/
 [Oo]bj/
 [Oo]ut/
 [Ll]og/

@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="DS_VentSkuCliDias" targetNamespace="http://tempuri.org/DS_VentSkuCliDias.xsd" xmlns:mstns="http://tempuri.org/DS_VentSkuCliDias.xsd" xmlns="http://tempuri.org/DS_VentSkuCliDias.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections />
+        <Tables />
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="DS_VentSkuCliDias" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:EnableTableAdapterManager="true" msprop:Generator_DataSetName="DS_VentSkuCliDias" msprop:Generator_UserDSName="DS_VentSkuCliDias">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="VentSkuCliDias" msprop:Generator_TableClassName="VentSkuCliDiasDataTable" msprop:Generator_TableVarName="tableVentSkuCliDias" msprop:Generator_TablePropName="VentSkuCliDias" msprop:Generator_RowDeletingName="VentSkuCliDiasRowDeleting" msprop:Generator_RowChangingName="VentSkuCliDiasRowChanging" msprop:Generator_RowEvHandlerName="VentSkuCliDiasRowChangeEventHandler" msprop:Generator_RowDeletedName="VentSkuCliDiasRowDeleted" msprop:Generator_UserTableName="VentSkuCliDias" msprop:Generator_RowChangedName="VentSkuCliDiasRowChanged" msprop:Generator_RowEvArgName="VentSkuCliDiasRowChangeEvent" msprop:Generator_RowClassName="VentSkuCliDiasRow">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="ItemCode" msprop:Generator_ColumnVarNameInTable="columnItemCode" msprop:Generator_ColumnPropNameInRow="ItemCode" msprop:Generator_ColumnPropNameInTable="ItemCodeColumn" msprop:Generator_UserColumnName="ItemCode" type="xs:string" minOccurs="0" />
+              <xs:element name="ItemName" msprop:Generator_ColumnVarNameInTable="columnItemName" msprop:Generator_ColumnPropNameInRow="ItemName" msprop:Generator_ColumnPropNameInTable="ItemNameColumn" msprop:Generator_UserColumnName="ItemName" type="xs:string" minOccurs="0" />
+              <xs:element name="CardCode" msprop:Generator_ColumnVarNameInTable="columnCardCode" msprop:Generator_ColumnPropNameInRow="CardCode" msprop:Generator_ColumnPropNameInTable="CardCodeColumn" msprop:Generator_UserColumnName="CardCode" type="xs:string" minOccurs="0" />
+              <xs:element name="CardName" msprop:Generator_ColumnVarNameInTable="columnCardName" msprop:Generator_ColumnPropNameInRow="CardName" msprop:Generator_ColumnPropNameInTable="CardNameColumn" msprop:Generator_UserColumnName="CardName" type="xs:string" minOccurs="0" />
+              <xs:element name="Total" msprop:Generator_ColumnVarNameInTable="columnTotal" msprop:Generator_ColumnPropNameInRow="Total" msprop:Generator_ColumnPropNameInTable="TotalColumn" msprop:Generator_UserColumnName="Total" type="xs:decimal" minOccurs="0" />
+              <xs:element name="TotalCant" msprop:Generator_ColumnVarNameInTable="columnTotalCant" msprop:Generator_ColumnPropNameInRow="TotalCant" msprop:Generator_ColumnPropNameInTable="TotalCantColumn" msprop:Generator_UserColumnName="TotalCant" type="xs:decimal" minOccurs="0" />
+              <xs:element name="TotDia1" msprop:Generator_ColumnVarNameInTable="columnTotDia1" msprop:Generator_ColumnPropNameInRow="TotDia1" msprop:Generator_ColumnPropNameInTable="TotDia1Column" msprop:Generator_UserColumnName="TotDia1" type="xs:decimal" minOccurs="0" />
+              <xs:element name="TotDia2" msprop:Generator_ColumnVarNameInTable="columnTotDia2" msprop:Generator_ColumnPropNameInRow="TotDia2" msprop:Generator_ColumnPropNameInTable="TotDia2Column" msprop:Generator_UserColumnName="TotDia2" type="xs:decimal" minOccurs="0" />
+              <xs:element name="TotDia3" msprop:Generator_ColumnVarNameInTable="columnTotDia3" msprop:Generator_ColumnPropNameInRow="TotDia3" msprop:Generator_ColumnPropNameInTable="TotDia3Column" msprop:Generator_UserColumnName="TotDia3" type="xs:decimal" minOccurs="0" />
+              <xs:element name="TotDia4" msprop:Generator_ColumnVarNameInTable="columnTotDia4" msprop:Generator_ColumnPropNameInRow="TotDia4" msprop:Generator_ColumnPropNameInTable="TotDia4Column" msprop:Generator_UserColumnName="TotDia4" type="xs:decimal" minOccurs="0" />
+              <xs:element name="TotDia5" msprop:Generator_ColumnVarNameInTable="columnTotDia5" msprop:Generator_ColumnPropNameInRow="TotDia5" msprop:Generator_ColumnPropNameInTable="TotDia5Column" msprop:Generator_UserColumnName="TotDia5" type="xs:decimal" minOccurs="0" />
+              <xs:element name="TotDia6" msprop:Generator_ColumnVarNameInTable="columnTotDia6" msprop:Generator_ColumnPropNameInRow="TotDia6" msprop:Generator_ColumnPropNameInTable="TotDia6Column" msprop:Generator_UserColumnName="TotDia6" type="xs:decimal" minOccurs="0" />
+              <xs:element name="TotDia7" msprop:Generator_ColumnVarNameInTable="columnTotDia7" msprop:Generator_ColumnPropNameInRow="TotDia7" msprop:Generator_ColumnPropNameInTable="TotDia7Column" msprop:Generator_UserColumnName="TotDia7" type="xs:decimal" minOccurs="0" />
+              <xs:element name="CantDia1" msprop:Generator_ColumnVarNameInTable="columnCantDia1" msprop:Generator_ColumnPropNameInRow="CantDia1" msprop:Generator_ColumnPropNameInTable="CantDia1Column" msprop:Generator_UserColumnName="CantDia1" type="xs:decimal" minOccurs="0" />
+              <xs:element name="CantDia2" msprop:Generator_ColumnVarNameInTable="columnCantDia2" msprop:Generator_ColumnPropNameInRow="CantDia2" msprop:Generator_ColumnPropNameInTable="CantDia2Column" msprop:Generator_UserColumnName="CantDia2" type="xs:decimal" minOccurs="0" />
+              <xs:element name="CantDia3" msprop:Generator_ColumnVarNameInTable="columnCantDia3" msprop:Generator_ColumnPropNameInRow="CantDia3" msprop:Generator_ColumnPropNameInTable="CantDia3Column" msprop:Generator_UserColumnName="CantDia3" type="xs:decimal" minOccurs="0" />
+              <xs:element name="CantDia4" msprop:Generator_ColumnVarNameInTable="columnCantDia4" msprop:Generator_ColumnPropNameInRow="CantDia4" msprop:Generator_ColumnPropNameInTable="CantDia4Column" msprop:Generator_UserColumnName="CantDia4" type="xs:decimal" minOccurs="0" />
+              <xs:element name="CantDia5" msprop:Generator_ColumnVarNameInTable="columnCantDia5" msprop:Generator_ColumnPropNameInRow="CantDia5" msprop:Generator_ColumnPropNameInTable="CantDia5Column" msprop:Generator_UserColumnName="CantDia5" type="xs:decimal" minOccurs="0" />
+              <xs:element name="CantDia6" msprop:Generator_ColumnVarNameInTable="columnCantDia6" msprop:Generator_ColumnPropNameInRow="CantDia6" msprop:Generator_ColumnPropNameInTable="CantDia6Column" msprop:Generator_UserColumnName="CantDia6" type="xs:decimal" minOccurs="0" />
+              <xs:element name="CantDia7" msprop:Generator_ColumnVarNameInTable="columnCantDia7" msprop:Generator_ColumnPropNameInRow="CantDia7" msprop:Generator_ColumnPropNameInTable="CantDia7Column" msprop:Generator_UserColumnName="CantDia7" type="xs:decimal" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
