@@ -3387,6 +3387,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 
                 condWhere += t.DocNum > 0 ? $" AND t0.DocNum like '%{t.DocNum}%'" : "";
                 condWhere += t.FechaSapTicket != null ? $" AND t0.FechaSapTicket='{t.FechaSapTicket}'" : "";
+                condWhere += t.LugarDestino != null ? $" AND t0.LugarDestino='{t.LugarDestino}'" : "";
                 condWhere += t.CardName != null ? $" AND t0.CardName like '%{t.CardName}%'" : "";
                 condWhere += t.Vendedor != null ? $" AND t0.Vendedor like '%{t.Vendedor}%'" : "";
                 condWhere += t.Zona != null ? $" AND t0.Zona ='{t.Zona}'" : "";
@@ -3406,7 +3407,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 
             string query = $"SELECT TOP 100 t0.DocEntry, t0.DocNum, t0.CardCode, t0.CardName, t0.Estado,t0.FechaSapTicket, (Select top 1 HoraOperacion from vt.CC_ORTV where DocEntry=t0.DocEntry " +
                 $" and Operacion='REGISTRAR' order by FechaOperacion,HoraOperacion desc ) as 'HoraAbierto',t0.LugarDestino,t0.Flete,t0.Vendedor,t0.EstadoPago,t0.EstadoGasto," +
-                $" t0.PagoEnv,t0.TipoVenta ,t0.EstadoFacturacion,t0.DescuentoNC,t0.Zona,t0.TiempoEntrega ,t0.MontoTotal,t0.Cajas FROM vt.ORTV t0  WHERE 1=1 {condWhere} ORDER BY t0.DocNum DESC";
+                $" t0.PagoEnv,t0.TipoVenta ,t0.EstadoFacturacion,t0.DescuentoNC,t0.Zona,t0.TiempoEntrega ,t0.MontoTotal,t0.Cajas,t0.LugarDestino FROM vt.ORTV t0  WHERE 1=1 {condWhere} ORDER BY t0.DocNum DESC";
 
             using (SqlConnection cn = new SqlConnection(uti.cadSql))
             {
@@ -3454,6 +3455,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                             if (!dr.IsDBNull(17)) { ticket.TiempoEntrega = dr.GetDateTime(17); }
                             if (!dr.IsDBNull(18)) { ticket.MontoTotal = dr.GetDecimal(18); }
                             if (!dr.IsDBNull(19)) { ticket.Cajas = dr.GetInt32(19); }
+                            if (!dr.IsDBNull(20)) { ticket.LugarDestino = dr.GetString(20); }
                             ticket.Vendedor = (ticket.Vendedor.Length > 15) ? ticket.Vendedor.Substring(0, 15) : ticket.Vendedor;
                             ticket.FechaSapTicket = (ticket.FechaSapTicket != null) ? Convert.ToDateTime(ticket.FechaSapTicket).ToString("dd/MM/yyyy") : null;
 
