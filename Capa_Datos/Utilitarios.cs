@@ -18,6 +18,7 @@ namespace Capa_Datos
         public string Smtp;
         public string directorioFileServer;
         public string directorioGeneral;
+        public string directorioLogs;
         public string cadSophos;
         public string serverSophos;
         public string userSophos;
@@ -26,7 +27,7 @@ namespace Capa_Datos
         public Utilitarios()
         {
             //Sophos
-            this.serverSophos= @"WIN-TERMINALSAP\\COBEFAR";this.userSophos = "sa";this.BDSophossql = "SOPHOS_INT_PROD";this.passwordSophosSql = "C0B3F@r_2022";
+            this.serverSophos = @"WIN-TERMINALSAP\\COBEFAR"; this.userSophos = "sa"; this.BDSophossql = "SOPHOS_INT_PROD"; this.passwordSophosSql = "C0B3F@r_2022";
             this.cadSophos = @"Server=" + this.serverSophos + ";database=" + this.BDSophossql + ";user id=" + this.userSophos + ";password=" + this.passwordSophosSql + ";Min Pool Size=0;Max Pool Size=10024;Pooling=true";
 
             //Hana
@@ -36,19 +37,19 @@ namespace Capa_Datos
 
             //Access
             //this.cadAccess = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=E:\COBEFARSAC\RECURSOS HUMANOS\ATTBACKUP.mdb;Persist Security Info=False;";
-
-            //Intranet
-            //this.serverSql = @"WIN-DC\DIEGO_BD"; this.passwordSql = "@Ndr@de123"; this.BDsql = "INTRANET_V2"; this.userSql = "sa";
-            this.serverSql = @"WIN-DC\DIEGO_BD"; this.passwordSql = "@Ndr@de123"; this.BDsql = "BASE_06_06_24"; this.userSql = "sa";
-
-            //this.serverSql = @"TI-05";this.BDsql = "BASE_30_05_24";this.userSql = "sa"; this.passwordSql = "TICOBE@R789";
-            //this.serverSql = @"SVR-IIS"; this.BDsql = "BASE_30_05_24"; this.userSql = "sa"; this.passwordSql = "TICOBE@R789"; 
+           
+            // Servidor 151
+            this.directorioGeneral = @"C\";
+            this.directorioFileServer = @"C:\COBEFARWEBFILES\";
+            this.directorioLogs = @"C:\COBEFARWEBLOGS\";
+            this.serverSql = @"SVR-IIS";
+            //this.BDsql = "DIRECTORIO_TELEFONICO_07-05";
+            this.BDsql = "DIRECTORIO_TELEFONICO_10_06";
+            this.userSql = "sa";
+            this.passwordSql = "TICOBE@R789";
 
             this.cadSql = @"Server=" + this.serverSql + ";database=" + this.BDsql + ";user id=" + this.userSql + ";password=" + this.passwordSql + ";Min Pool Size=0;Max Pool Size=10024;Pooling=true";
-            
-            this.directorioGeneral = @"D:\"; this.directorioFileServer = @"D:\COBEFARWEBFILES\";
-            //this.directorioGeneral = @"C\";this.directorioFileServer = @"C:\COBEFARWEBFILES\";
-            
+
             //CORREO 
             this.Smtp = "smtp.gmail.com";
             this.CodigoSmtp = 25;
@@ -57,7 +58,7 @@ namespace Capa_Datos
         {
             try
             {
-                string nombre = @"D:\COBEFARWEBLOGS\" + BDsql + "_log_" + DateTime.Now.ToString("yyyyMMdd") + ".txt";
+                string nombre = directorioLogs + BDsql + "_log_" + DateTime.Now.ToString("yyyyMMdd") + ".txt";
                 //string nombre = @"C:\COBEFARWEBLOGS\" + BDsql + "_log_" + DateTime.Now.ToString("yyyyMMdd") + ".txt";
                 using (System.IO.StreamWriter file = new System.IO.StreamWriter(nombre, true))
                 {
