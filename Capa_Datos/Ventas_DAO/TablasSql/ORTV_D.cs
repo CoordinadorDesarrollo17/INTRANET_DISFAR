@@ -294,7 +294,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 if (!dr.IsDBNull(3)) { t.Referencia = dr.GetString(3); }
                 if (!dr.IsDBNull(4)) { t.Cajas = dr.GetInt32(4); }
                 if (!dr.IsDBNull(5)) { t.EnvioAgencia = dr.GetString(5); }
-                
+
                 dr.Close();
                 cn.Close();
 
@@ -3071,8 +3071,8 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             try
             {
                 cn.Open();
-                SqlCommand cmd = new SqlCommand("select top 1 DocEntry,DocNum,Estado,Zona,Referencia,LugarDestino,AlmProcedencia,CardCode,CardName,MontoFinal from vt.ORTV where DocEntry=" + DocEntry+ "" +
-                    " or DocNum like '%"+ DocEntry+"%' ", cn);
+                SqlCommand cmd = new SqlCommand("select top 1 DocEntry,DocNum,Estado,Zona,Referencia,LugarDestino,AlmProcedencia,CardCode,CardName,MontoFinal from vt.ORTV where DocEntry=" + DocEntry + "" +
+                    " or DocNum like '%" + DocEntry + "%' ", cn);
                 cmd.CommandType = CommandType.Text;
                 SqlDataReader dr = cmd.ExecuteReader();
                 dr.Read();
@@ -3694,7 +3694,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     if (t.DocNum == 0 && t.FechaSapTicket == null && t.CardName == null && t.Vendedor == null && t.MontoFinal == 0 && t.Estado == null
                     && t.EstadoFacturacion == null && t.EstadoPago == null && t.TipoVenta == null && t.TiempoEntrega == null)
                     {
-                   
+
                         condWhere += $" AND t0.Estado in ( 'PICKEANDO','VERIFICANDO','EMPACANDO','EMPACADO','PESADO','ENVIADO','PREENVIO','ENTREGADO') " +
                             $"AND t0.EstadoFacturacion in ('GRE EMITIDA','FACTURADO') AND t0.LugarDestino='{t.LugarDestino}'";
                     }

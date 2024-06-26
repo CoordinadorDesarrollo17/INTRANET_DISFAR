@@ -1,446 +1,443 @@
 ﻿@model IEnumerable<Capa_Entidad.Ventas_ENT.TablasSql.ORTV_E>
-    @{
-        ViewBag.Title = "ListadoTicketsAlmacen";
-        Layout = "~/Views/Shared/_Layout.cshtml";
+@{
+    ViewBag.Title = "ListadoTicketsAlmacen";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    function filtrar() {
+        var object = $("#frm").serialize();
+        $(location).attr('href', "/Ventas/ListadoTicketsAlmacen?" + object);
     }
-    <script>
-        function filtrar() {
-            var object = $("#frm").serialize();
-            $(location).attr('href', "/Ventas/ListadoTicketsAlmacen?" + object);
-        }
-    </script>
+</script>
 
-    <div class="pt-4">
-        <nav>
-            <ol class="cd-breadcrumb bg-dark">
-                <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
-                <li class="current"><em>Listado de tickets de almacén</em></li>
-            </ol>
-        </nav>
-    </div>
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li class="current"><em>Listado de tickets de almacén</em></li>
+        </ol>
+    </nav>
+</div>
 
-    <div class="bg-dark border-cabecera-seccion pb-2">
-        <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO TICKETS DE ALMACÉN</h3></div>
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO TICKETS DE ALMACÉN</h3></div>
 
-        @*@if (ViewBag.ExportarExcelPicking == "SI")
-            {*@
-        <div class="row pl-2 w-100">
-            <div class="d-flex col-lg-8 col-md-6 col-sm-12 col-6">
-                <button type="button" class="btn btn-success font-weight-bold mx-1 my-1" title="Descargar Reporte Errores de Picking" data-toggle="modal" data-target="#modalReporte" onclick="">
-                    <i class="icon icon-file-excel"></i> Errores de Picking
-                </button>
-            </div>
+    <div class="row pl-2 w-100">
+        <div class="d-flex col-lg-8 col-md-6 col-sm-12 col-6">
+            <button type="button" class="btn btn-success font-weight-bold mx-1 my-1" title="Descargar Reporte Errores de Picking" data-toggle="modal" data-target="#modalReporte" onclick="">
+                <i class="icon icon-file-excel"></i> Errores de Picking
+            </button>
         </div>
-        @*}*@
-
     </div>
-    <form name="frm" id="frm">
-        <div class="bg-dark pt-4">
-            <table class="table table-light table-sm table-responsive-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
-                <thead class="thead-dark">
-                    <tr>
-                        <th class="text-center">
-                            @Html.DisplayNameFor(model => model.DocNum)
-                            @if (ViewBag.Ortv != null && ViewBag.Ortv.DocNum > 0)
-                            {
-                                <input type="text" name="DocNum" class="form-control input_filtro-table cls-numeric" onchange="filtrar();" value="@ViewBag.Ortv.DocNum" />
-                            }
-                            else
-                            { <input type="text" name="DocNum" class="form-control input_filtro-table cls-numeric" onchange="filtrar();" />}
-                        </th>
-                        <th class="text-center">
-                            @Html.DisplayNameFor(model => model.FechaSapTicket)
-                            <br />
-                            @if (ViewBag.Ortv != null && ViewBag.Ortv.FechaSapTicket != null)
-                            {
-                                <input type="date" name="FechaSapTicket" class="form-control input_date-filtro-table" value="@ViewBag.Ortv.FechaSapTicket" onchange="filtrar();" autocomplete="off" />
-                            }
-                            else
-                            { <input type="date" name="FechaSapTicket" class="form-control input_date-filtro-table" onchange="filtrar();" autocomplete="off" />}
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.CardName)
-                            <br />
-                            @if (ViewBag.Ortv != null && ViewBag.Ortv.CardName != null)
-                            {
-                                <input type="text" name="CardName" class="form-control input_filtro-table" onchange="filtrar();" value="@ViewBag.Ortv.CardName" autocomplete="off" />
-                            }
-                            else
-                            { <input type="text" name="CardName" class="form-control input_filtro-table" onchange="filtrar();" autocomplete="off" />}
-                        </th>
-                        <th class="text-center">
-                            MontoTotal
-                            <br />
-                            @if (ViewBag.Ortv != null && ViewBag.Ortv.MontoTotal > 0)
-                            {
-                                <input type="text" name="MontoTotal" class="form-control input_filtro-table" onchange="filtrar();" value="@ViewBag.Ortv.MontoTotal" />
-                            }
-                            else
-                            { <input type="text" name="MontoTotal" class="form-control input_filtro-table" onchange="filtrar();" />}
-                        </th>
-                        <th class="text-center">
-                            @Html.DisplayNameFor(model => model.Estado)
-                            <br />
-                            <select name="Estado" id="Estado" class="form-control select_filtro-table" onchange="filtrar();">
-                                <option value=""></option>
-                                <option value="ABIERTO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ABIERTO") { Write("selected"); } }>ABIERTO</option>
-                                <option value="RECIBIDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "RECIBIDO") { Write("selected"); } }>RECIBIDO</option>
-                                <option value="PICKEANDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "PICKEANDO") { Write("selected"); } }>PICKEANDO</option>
-                                <option value="VERIFICANDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "VERIFICANDO") { Write("selected"); } }>VERIFICANDO</option>
-                                <option value="EMPACANDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "EMPACANDO") { Write("selected"); } }>EMPACANDO</option>
-                                <option value="EMPACADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "EMPACADO") { Write("selected"); } }>EMPACADO</option>
-                                <option value="PESADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "PESADO") { Write("selected"); } }>PESADO</option>
-                                <option value="PREENVIO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "PREENVIO") { Write("selected"); } }>PREENVIO</option>
-                                <option value="ENVIADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ENVIADO") { Write("selected"); } }>ENVIADO</option>
-                                <option value="ENTREGADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ENTREGADO") { Write("selected"); } }>ENTREGADO</option>
-                                <option value="ANULADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ANULADO") { Write("selected"); } }>ANULADO</option>
-                                <option value="CANCELADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "CANCELADO") { Write("selected"); } }>CANCELADO</option>
-                            </select>
-                        </th>
-                        <th class="text-center">
-                            @Html.DisplayNameFor(model => model.OpSacando)
-                        </th>
-                        <th class="text-center">
-                            @Html.DisplayNameFor(model => model.OpVerificado)
-                        </th>
-                        <th class="text-center">
-                            @Html.DisplayNameFor(model => model.OpEmpacado)
-                        </th>
-                        <th class="text-center">
-                            @Html.DisplayNameFor(model => model.Cajas)
-                        </th>
-                        <th class="text-center">
-                            Tiempo Entrega
-                        </th>
+ 
+</div>
+<form name="frm" id="frm">
+    <div class="bg-dark pt-4">
+        <table class="table table-light table-sm table-responsive-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
+            <thead class="thead-dark">
+                <tr>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.DocNum)
+                        @if (ViewBag.Ortv != null && ViewBag.Ortv.DocNum > 0)
+                        {
+                            <input type="text" name="DocNum" class="form-control input_filtro-table cls-numeric" onchange="filtrar();" value="@ViewBag.Ortv.DocNum" />
+                        }
+                        else
+                        { <input type="text" name="DocNum" class="form-control input_filtro-table cls-numeric" onchange="filtrar();" />}
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.FechaSapTicket)
+                        <br />
+                        @if (ViewBag.Ortv != null && ViewBag.Ortv.FechaSapTicket != null)
+                        {
+                            <input type="date" name="FechaSapTicket" class="form-control input_date-filtro-table" value="@ViewBag.Ortv.FechaSapTicket" onchange="filtrar();" autocomplete="off" />
+                        }
+                        else
+                        { <input type="date" name="FechaSapTicket" class="form-control input_date-filtro-table" onchange="filtrar();" autocomplete="off" />}
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.CardName)
+                        <br />
+                        @if (ViewBag.Ortv != null && ViewBag.Ortv.CardName != null)
+                        {
+                            <input type="text" name="CardName" class="form-control input_filtro-table" onchange="filtrar();" value="@ViewBag.Ortv.CardName" autocomplete="off" />
+                        }
+                        else
+                        { <input type="text" name="CardName" class="form-control input_filtro-table" onchange="filtrar();" autocomplete="off" />}
+                    </th>
+                    <th class="text-center">
+                        MontoTotal
+                        <br />
+                        @if (ViewBag.Ortv != null && ViewBag.Ortv.MontoTotal > 0)
+                        {
+                            <input type="text" name="MontoTotal" class="form-control input_filtro-table" onchange="filtrar();" value="@ViewBag.Ortv.MontoTotal" />
+                        }
+                        else
+                        { <input type="text" name="MontoTotal" class="form-control input_filtro-table" onchange="filtrar();" />}
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.Estado)
+                        <br />
+                        <select name="Estado" id="Estado" class="form-control select_filtro-table" onchange="filtrar();">
+                            <option value=""></option>
+                            <option value="ABIERTO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ABIERTO") { Write("selected"); } }>ABIERTO</option>
+                            <option value="RECIBIDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "RECIBIDO") { Write("selected"); } }>RECIBIDO</option>
+                            <option value="PICKEANDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "PICKEANDO") { Write("selected"); } }>PICKEANDO</option>
+                            <option value="VERIFICANDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "VERIFICANDO") { Write("selected"); } }>VERIFICANDO</option>
+                            <option value="EMPACANDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "EMPACANDO") { Write("selected"); } }>EMPACANDO</option>
+                            <option value="EMPACADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "EMPACADO") { Write("selected"); } }>EMPACADO</option>
+                            <option value="PESADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "PESADO") { Write("selected"); } }>PESADO</option>
+                            <option value="PREENVIO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "PREENVIO") { Write("selected"); } }>PREENVIO</option>
+                            <option value="ENVIADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ENVIADO") { Write("selected"); } }>ENVIADO</option>
+                            <option value="ENTREGADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ENTREGADO") { Write("selected"); } }>ENTREGADO</option>
+                            <option value="ANULADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ANULADO") { Write("selected"); } }>ANULADO</option>
+                            <option value="CANCELADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "CANCELADO") { Write("selected"); } }>CANCELADO</option>
+                        </select>
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.OpSacando)
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.OpVerificado)
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.OpEmpacado)
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.Cajas)
+                    </th>
+                    <th class="text-center">
+                        Tiempo Entrega
+                    </th>
 
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
 
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody class="text-dark">
-                    @foreach (var item in Model.Where(x => x.Estado != "SEPARADO" && (x.Visible == "SI" || x.Visible == null)))
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody class="text-dark">
+                @foreach (var item in Model.Where(x => x.Estado != "SEPARADO" && (x.Visible == "SI" || x.Visible == null)))
+                {
+                    bool condIniPicking = false, condIniVerificar = false, condIniEmpacar = false, condIniPickingExc = false, condFinEmpacarExc = false,
+                            condFinPicking = false, condFinVerificar = false, condFinEmpacar = false;
+
+                    @*El boton "INICIO PICKING" solo se habilita si y solo si el ticket tiene como ultimo estado "RECIBIR" y se encuentra en estado general RECIBIDO. Tambien si no existe un inicio picking ni fin picking vigente*@
+                    if (Convert.ToDateTime(item.FechaSapTicket) > Convert.ToDateTime("10-09-2023") && item.Estado == "RECIBIDO" && (item.ultimoCCEstado == "RECIBIR" || item.ultimoCCEstado == "ANULAR INICIO PICKING") && item.hayIniPicking == false && item.hayFinPicking == false)
                     {
-                        bool condIniPicking = false, condIniVerificar = false, condIniEmpacar = false, condIniPickingExc = false, condFinEmpacarExc = false,
-                                condFinPicking = false, condFinVerificar = false, condFinEmpacar = false;
+                        condIniPicking = true;
+                    }
+                    @*El boton "FIN PICKING" solo se habilita si y solo si el ticket se encuentra en estado PICKEANDO, el ultimo estado no es fin picking, tiene que tener vigente un inicio picking pero no un fin picking*@
+                    if (Convert.ToDateTime(item.FechaSapTicket) > Convert.ToDateTime("10-09-2023") && item.Estado == "PICKEANDO" && item.ultimoCCEstado != "FIN PICKING" && item.hayIniPicking && item.hayFinPicking == false)
+                    {
+                        condFinPicking = true;
+                    }
+                    @*El boton "INICIO VERIFICAR" solo se habilita si el atributo aptoIniVerificar esta como true, esto viene desde ORTV Datos*@
+                    if (Convert.ToDateTime(item.FechaSapTicket) > Convert.ToDateTime("10-09-2023") && item.aptoIniVerificar)
+                    {
+                        condIniVerificar = true;
+                    }
+                    @*El boton "FIN VERIFICAR" solo se habilita si el atributo aptoFinVerificar esta como true, esto viene desde ORTV Datos *@
+                    if (Convert.ToDateTime(item.FechaSapTicket) > Convert.ToDateTime("10-09-2023") && item.aptoFinVerificar)
+                    {
+                        condFinVerificar = true;
+                    }
+                    @*El boton "INICIO EMPACAR" solo se habilita si y solo si el ticket tiene como ultimo estado "INICIO VERIFICAR" o "FIN VERIFICAR" o "ANULAR INICIO EMPACAR" o "FIN PICKING" o "ANULAR FIN VERIFICAR" y cuando el estado de ticket esta en PICKEANDO o en VERIFICANDO y que el ticket tenga vigente un Inicio Picking, asi como inicio verificar, pero no un inicio empacar. El estado general del ticket debe estar en estado diferente a EMPACANDO *@
+                    if (Convert.ToDateTime(item.FechaSapTicket) > Convert.ToDateTime("10-09-2023") && (item.ultimoCCEstado == "INICIO VERIFICAR" || item.ultimoCCEstado == "FIN VERIFICAR" || item.ultimoCCEstado == "ANULAR INICIO EMPACAR" || item.ultimoCCEstado == "FIN PICKING" || item.ultimoCCEstado == "ANULAR FIN VERIFICAR") && (item.Estado == "PICKEANDO" || item.Estado == "VERIFICANDO") && item.hayIniPicking && item.hayIniVerificar && item.hayIniEmpacar == false && item.Estado != "EMPACANDO")
+                    {
+                        condIniEmpacar = true;
+                    }
+                    @*El boton "FIN EMPACAR" solo se habilita si y solo si el ticket tiene como ultimo estado "INICIO EMPACAR o ANULAR FIN EMPACAR o fIN VERIFICAR" y el estado general del ticket esta en PICKEANDO o VERIFICANDO o EMPACANDO. Tambien validaremos que tenga un proceso de fin picking vigente, fin verificar, inicio empacar y no tenga un fin empacar*@
+                    if (Convert.ToDateTime(item.FechaSapTicket) > Convert.ToDateTime("10-09-2023") && (item.ultimoCCEstado == "INICIO EMPACAR" || item.ultimoCCEstado == "ANULAR FIN EMPACAR" || item.ultimoCCEstado == "FIN VERIFICAR") && (item.Estado == "PICKEANDO" || item.Estado == "VERIFICANDO" || item.Estado == "EMPACANDO") && item.hayFinPicking && item.hayFinVerificar && item.hayIniEmpacar && item.hayFinEmpacar == false)
+                    {
+                        condFinEmpacar = true;
+                    }
+                    /**********************exclusivo para almacen 05- 07 **************************/
+                    if (Convert.ToDateTime(item.FechaSapTicket) > Convert.ToDateTime("10-09-2023") && item.Estado == "RECIBIDO" && (item.ultimoCCEstado == "RECIBIR" || item.ultimoCCEstado == "ANULAR INICIO PICKING") && item.hayIniPicking == false)
+                    {
+                        condIniPickingExc = true;
+                    }
+                    if (Convert.ToDateTime(item.FechaSapTicket) > Convert.ToDateTime("10-09-2023") && (item.ultimoCCEstado == "INICIO PICKING" || item.ultimoCCEstado == "ANULAR FIN PICKING") && item.Estado == "PICKEANDO" && item.hayFinPicking == false)
+                    {
+                        condFinEmpacarExc = true;
+                    }
 
-                        @*El boton "INICIO PICKING" solo se habilita si y solo si el ticket tiene como ultimo estado "RECIBIR" y se encuentra en estado general RECIBIDO. Tambien si no existe un inicio picking ni fin picking vigente*@
-                        if (Convert.ToDateTime(item.FechaSapTicket) > Convert.ToDateTime("10-09-2023") && item.Estado == "RECIBIDO" && (item.ultimoCCEstado == "RECIBIR" || item.ultimoCCEstado == "ANULAR INICIO PICKING") && item.hayIniPicking == false && item.hayFinPicking == false)
-                        {
-                            condIniPicking = true;
-                        }
-                        @*El boton "FIN PICKING" solo se habilita si y solo si el ticket se encuentra en estado PICKEANDO, el ultimo estado no es fin picking, tiene que tener vigente un inicio picking pero no un fin picking*@
-                        if (Convert.ToDateTime(item.FechaSapTicket) > Convert.ToDateTime("10-09-2023") && item.Estado == "PICKEANDO" && item.ultimoCCEstado != "FIN PICKING" && item.hayIniPicking && item.hayFinPicking == false)
-                        {
-                            condFinPicking = true;
-                        }
-                        @*El boton "INICIO VERIFICAR" solo se habilita si el atributo aptoIniVerificar esta como true, esto viene desde ORTV Datos*@
-                        if (Convert.ToDateTime(item.FechaSapTicket) > Convert.ToDateTime("10-09-2023") && item.aptoIniVerificar)
-                        {
-                            condIniVerificar = true;
-                        }
-                        @*El boton "FIN VERIFICAR" solo se habilita si el atributo aptoFinVerificar esta como true, esto viene desde ORTV Datos *@
-                        if (Convert.ToDateTime(item.FechaSapTicket) > Convert.ToDateTime("10-09-2023") && item.aptoFinVerificar)
-                        {
-                            condFinVerificar = true;
-                        }
-                        @*El boton "INICIO EMPACAR" solo se habilita si y solo si el ticket tiene como ultimo estado "INICIO VERIFICAR" o "FIN VERIFICAR" o "ANULAR INICIO EMPACAR" o "FIN PICKING" o "ANULAR FIN VERIFICAR" y cuando el estado de ticket esta en PICKEANDO o en VERIFICANDO y que el ticket tenga vigente un Inicio Picking, asi como inicio verificar, pero no un inicio empacar. El estado general del ticket debe estar en estado diferente a EMPACANDO *@
-                        if (Convert.ToDateTime(item.FechaSapTicket) > Convert.ToDateTime("10-09-2023") && (item.ultimoCCEstado == "INICIO VERIFICAR" || item.ultimoCCEstado == "FIN VERIFICAR" || item.ultimoCCEstado == "ANULAR INICIO EMPACAR" || item.ultimoCCEstado == "FIN PICKING" || item.ultimoCCEstado == "ANULAR FIN VERIFICAR") && (item.Estado == "PICKEANDO" || item.Estado == "VERIFICANDO") && item.hayIniPicking && item.hayIniVerificar && item.hayIniEmpacar == false && item.Estado != "EMPACANDO")
-                        {
-                            condIniEmpacar = true;
-                        }
-                        @*El boton "FIN EMPACAR" solo se habilita si y solo si el ticket tiene como ultimo estado "INICIO EMPACAR o ANULAR FIN EMPACAR o fIN VERIFICAR" y el estado general del ticket esta en PICKEANDO o VERIFICANDO o EMPACANDO. Tambien validaremos que tenga un proceso de fin picking vigente, fin verificar, inicio empacar y no tenga un fin empacar*@
-                        if (Convert.ToDateTime(item.FechaSapTicket) > Convert.ToDateTime("10-09-2023") && (item.ultimoCCEstado == "INICIO EMPACAR" || item.ultimoCCEstado == "ANULAR FIN EMPACAR" || item.ultimoCCEstado == "FIN VERIFICAR") && (item.Estado == "PICKEANDO" || item.Estado == "VERIFICANDO" || item.Estado == "EMPACANDO") && item.hayFinPicking && item.hayFinVerificar && item.hayIniEmpacar && item.hayFinEmpacar == false)
-                        {
-                            condFinEmpacar = true;
-                        }
-                        /**********************exclusivo para almacen 05- 07 **************************/
-                        if (Convert.ToDateTime(item.FechaSapTicket) > Convert.ToDateTime("10-09-2023") && item.Estado == "RECIBIDO" && (item.ultimoCCEstado == "RECIBIR" || item.ultimoCCEstado == "ANULAR INICIO PICKING") && item.hayIniPicking == false)
-                        {
-                            condIniPickingExc = true;
-                        }
-                        if (Convert.ToDateTime(item.FechaSapTicket) > Convert.ToDateTime("10-09-2023") && (item.ultimoCCEstado == "INICIO PICKING" || item.ultimoCCEstado == "ANULAR FIN PICKING") && item.Estado == "PICKEANDO" && item.hayFinPicking == false)
-                        {
-                            condFinEmpacarExc = true;
-                        }
-
-                        <tr id="fila">
-                            <td class="text-center">
-                                @if (ViewBag.DocNum == item.DocNum)
-                                {<div class="bg-success"> @Html.DisplayFor(modelItem => item.DocNum) </div>}
-                            else
-                            {<span class=""> @Html.DisplayFor(modelItem => item.DocNum) </span>}
-                            </td>
-                            <td class="text-center">
-                                <span class=""> @item.FechaSapTicket </span>
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.CardName)
-                            </td>
-                            <td class="text-center">
-                                S/ @Html.DisplayFor(modelItem => item.MontoTotal)
-                            </td>
-                            <td class="text-center">
-                                @Html.DisplayFor(modelItem => item.Estado)
-                            </td>
-                            <td class="text-center" style="font-size:11px">
-                                @if (item.OpSacandoApoyo != null && item.OpSacandoApoyo.Count >= 1)
-                                {
-                                    Write(item.OpSacando + ", " + string.Join(", ", item.OpSacandoApoyo));
-                                }
-                                else
-                                {
-                                    @item.OpSacando
-                                }
-                            </td>
-                            <td class="text-center" style="font-size:11px">
-                                @if (item.OpVerificadoApoyo != null && item.OpVerificadoApoyo.Count >= 1)
-                                {
-                                    Write(item.OpVerificado + ", " + string.Join(", ", item.OpVerificadoApoyo));
-                                }
-                                else
-                                {
-                                    @item.OpVerificado
-                                }
-                            </td>
-                            <td class="text-center" style="font-size:11px">
-                                @if (item.OpEmpacadoApoyo != null && item.OpEmpacadoApoyo.Count >= 1)
-                                {
-                                    Write(item.OpEmpacado + ", " + string.Join(", ", item.OpEmpacadoApoyo));
-                                }
-                                else
-                                {
-                                    @item.OpEmpacado
-                                }
-                            </td>
-                            <td class="text-center">
-                                @if (item.Cajas > 0)
-                                {
-                                    @Html.DisplayFor(modelItem => item.Cajas)
-                                }
-                            </td>
-                            <td class="text-center">
-                                @if (item.TiempoEntrega != null)
-                                {
-                                    Write(Convert.ToDateTime(item.TiempoEntrega).ToShortDateString());
-                                    <br />
-                                    Write(Convert.ToDateTime(item.TiempoEntrega).TimeOfDay);
-                                }
-                            </td>
-
-                            @if (!string.IsNullOrEmpty(ViewBag.AlmUsuario) && (ViewBag.AlmUsuario == "05" || ViewBag.AlmUsuario == "07"))
+                    <tr id="fila">
+                        <td class="text-center">
+                            @if (ViewBag.DocNum == item.DocNum)
+                            {<div class="bg-success"> @Html.DisplayFor(modelItem => item.DocNum) </div>}
+                        else
+                        {<span class=""> @Html.DisplayFor(modelItem => item.DocNum) </span>}
+                        </td>
+                        <td class="text-center">
+                            <span class=""> @item.FechaSapTicket </span>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.CardName)
+                        </td>
+                        <td class="text-center">
+                            S/ @Html.DisplayFor(modelItem => item.MontoTotal)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.Estado)
+                        </td>
+                        <td class="text-center" style="font-size:11px">
+                            @if (item.OpSacandoApoyo != null && item.OpSacandoApoyo.Count >= 1)
                             {
-                                <td if="ip-if" class="text-center">
-                                    @*El boton "INICIO PICKING" solo se habilita si y solo si, el ticket tiene como ultimo estado "RECIBIR" y se encuentra en estado general RECIBIDO*@
-                                    @if (condIniPickingExc && (ViewBag.RolSupervisor == 50 || ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 52 || ViewBag.RolSupervisor == 53 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4))
-                                    {
-                                        <a href="@Url.Action("IniciarSacandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-success btn-sm"> Inicio <br /> Picking </a>
-                                    }
-                                </td>
-                                <td class="text-center">
-                                    @*El boton "FIN EMPACAR" solo se habilita si el ticket tiene cantidad de cajas mayor a cero (quiere decir que ya ha sido verificado) y si tiene como ultimo estado en la tabla control de cambios "INICIO EMPACAR" o "ANULAR FIN EMPACAR" asi mismo tiene que estar en estado general EMPACANDO o VERIFICANDO*@
-                                    @if (condFinEmpacarExc && (ViewBag.RolSupervisor == 50 || ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 52 || ViewBag.RolSupervisor == 53 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4))
-                                    {
-                                        <a href="@Url.Action( "EmpacadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry  } )" class="btn btn-naranja btn-sm">Fin <br />Empacar</a>
-                                    }
-                                </td>
-
+                                Write(item.OpSacando + ", " + string.Join(", ", item.OpSacandoApoyo));
                             }
                             else
                             {
-                                <td id="ip-else" class="text-center">
-                                    @*El boton "INICIO PICKING" solo se habilita si y solo si, el ticket tiene como ultimo estado "RECIBIR" y se encuentra en estado general RECIBIDO*@
-                                    @if (condIniPicking && (ViewBag.RolSupervisor == 50 || ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 52 || ViewBag.RolSupervisor == 53 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4))
-                                    {
-                                        <a href="@Url.Action("IniciarSacandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-success btn-sm"> Inicio <br /> Picking </a>
-                                    }
-                                </td>
+                                @item.OpSacando
+                            }
+                        </td>
+                        <td class="text-center" style="font-size:11px">
+                            @if (item.OpVerificadoApoyo != null && item.OpVerificadoApoyo.Count >= 1)
+                            {
+                                Write(item.OpVerificado + ", " + string.Join(", ", item.OpVerificadoApoyo));
+                            }
+                            else
+                            {
+                                @item.OpVerificado
+                            }
+                        </td>
+                        <td class="text-center" style="font-size:11px">
+                            @if (item.OpEmpacadoApoyo != null && item.OpEmpacadoApoyo.Count >= 1)
+                            {
+                                Write(item.OpEmpacado + ", " + string.Join(", ", item.OpEmpacadoApoyo));
+                            }
+                            else
+                            {
+                                @item.OpEmpacado
+                            }
+                        </td>
+                        <td class="text-center">
+                            @if (item.Cajas > 0)
+                            {
+                                @Html.DisplayFor(modelItem => item.Cajas)
+                            }
+                        </td>
+                        <td class="text-center">
+                            @if (item.TiempoEntrega != null)
+                            {
+                                Write(Convert.ToDateTime(item.TiempoEntrega).ToShortDateString());
+                                <br />
+                                Write(Convert.ToDateTime(item.TiempoEntrega).TimeOfDay);
+                            }
+                        </td>
 
+                        @if (!string.IsNullOrEmpty(ViewBag.AlmUsuario) && ViewBag.AlmUsuario == "07")
+                        {
+                            <td if="ip-if" class="text-center">
+                                @*El boton "INICIO PICKING" solo se habilita si y solo si, el ticket tiene como ultimo estado "RECIBIR" y se encuentra en estado general RECIBIDO*@
+                                @if (condIniPickingExc && (ViewBag.RolSupervisor == 50 || ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 52 || ViewBag.RolSupervisor == 53 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4))
+                                {
+                                    <a href="@Url.Action("IniciarSacandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-success btn-sm"> Inicio <br /> Picking </a>
+                                }
+                            </td>
+                            <td class="text-center">
+                                @*El boton "FIN EMPACAR" solo se habilita si el ticket tiene cantidad de cajas mayor a cero (quiere decir que ya ha sido verificado) y si tiene como ultimo estado en la tabla control de cambios "INICIO EMPACAR" o "ANULAR FIN EMPACAR" asi mismo tiene que estar en estado general EMPACANDO o VERIFICANDO*@
+                                @if (condFinEmpacarExc && (ViewBag.RolSupervisor == 50 || ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 52 || ViewBag.RolSupervisor == 53 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4))
+                                {
+                                    <a href="@Url.Action( "EmpacadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry  } )" class="btn btn-naranja btn-sm">Fin <br />Empacar</a>
+                                }
+                            </td>
+
+                        }
+                        else
+                        {
+                            <td id="ip-else" class="text-center">
+                                @*El boton "INICIO PICKING" solo se habilita si y solo si, el ticket tiene como ultimo estado "RECIBIR" y se encuentra en estado general RECIBIDO*@
+                                @if (condIniPicking && (ViewBag.RolSupervisor == 50 || ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 52 || ViewBag.RolSupervisor == 53 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4))
+                                {
+                                    <a href="@Url.Action("IniciarSacandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-success btn-sm"> Inicio <br /> Picking </a>
+                                }
+                            </td>
+
+                            <td class="text-center">
+                                @*El boton "FIN PICKING" solo se habilita si y solo si el ticket se encuentra en estado PICKEANDO*@
+                                @if (condFinPicking && (ViewBag.RolSupervisor == 50 || ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 52 || ViewBag.RolSupervisor == 53 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4))
+                                {
+                                    <a href="@Url.Action("SacandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-success btn-sm"> Fin <br /> Picking </a>
+                                }
+                            </td>
+
+                            <td class="text-center">
+                                @*El boton "INICIO VERIFICAR" solo se habilita si y solo si el ticket tiene como ultimo estado "FIN PICKING" o "INICIO PICKING" o "ANULAR INICIO VERIFICAR"*@
+                                @if (condIniVerificar && (ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4))
+                                {
+                                    <a href="@Url.Action("IniciarVerificandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-amarillo btn-sm"> Inicio <br /> Verificar </a>
+                                }
+                            </td>
+
+                            <td class="text-center">
+                                @*El boton "FIN VERIFICAR" solo se habilita en dos casos, si el ticket tiene en su tabla de control de cambios el FIN PICKING, pero si en caso tambien se encuentra un ANULAR FIN PICKING se tendra que comparar la fecha y hora para saber con certeza que el FIN PICKING se ha dado, o tambien si el ticket esta en estado general VERIFICANDO*@
+                                @if (condFinVerificar && (ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4))
+                                {
+                                    <a href="@Url.Action("VerificadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-amarillo btn-sm">Fin <br /> Verificar </a>
+                                }
+                            </td>
+
+                            <td class="text-center">
+                                @*El boton "INICIO EMPACAR" solo se habilita si y solo si el ticket tiene como ultimo estado "INICIO VERIFICAR" o "FIN VERIFICAR" o "ANULAR INICIO EMPACAR" y cuando el estado de ticket esta en PICKEANDO o en VERIFICANDO*@
+                                @if (condIniEmpacar && (ViewBag.RolSupervisor == 50 || ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 52 || ViewBag.RolSupervisor == 53 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4))
+                                {
+                                    <a href="@Url.Action("IniciarEmpacandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-naranja btn-sm"> Inicio <br /> Empacar </a>
+                                }
+                            </td>
+
+                            <td class="text-center">
+                                @*El boton "FIN EMPACAR" solo se habilita si el ticket tiene cantidad de cajas mayor a cero (quiere decir que ya ha sido verificado) y si tiene como ultimo estado en la tabla control de cambios "INICIO EMPACAR" o "ANULAR FIN EMPACAR" asi mismo tiene que estar en estado general EMPACANDO o VERIFICANDO*@
+                                @if (condFinEmpacar && (ViewBag.RolSupervisor == 50 || ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 52 || ViewBag.RolSupervisor == 53 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4))
+                                {
+
+                                    <a href="@Url.Action( "EmpacadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry  } )" class="btn btn-naranja btn-sm">Fin <br />Empacar</a>
+                                }
+                            </td>
+                        }
+
+                        @if (ViewBag.RolSupervisor == 4 || ViewBag.RolSupervisor == 1)
+                        {
+                            if (!string.IsNullOrEmpty(ViewBag.AlmUsuario) && (ViewBag.AlmUsuario == "05" || ViewBag.AlmUsuario == "07"))
+                            {
                                 <td class="text-center">
-                                    @*El boton "FIN PICKING" solo se habilita si y solo si el ticket se encuentra en estado PICKEANDO*@
-                                    @if (condFinPicking && (ViewBag.RolSupervisor == 50 || ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 52 || ViewBag.RolSupervisor == 53 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4))
+                                    @if ((item.ultimoCCEstado == "INICIO PICKING" || item.ultimoCCEstado == "ANULAR FIN PICKING") && item.hayIniPicking && item.Estado == "PICKEANDO" && item.hayFinPicking == false)
                                     {
-                                        <a href="@Url.Action("SacandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-success btn-sm"> Fin <br /> Picking </a>
+
+                                        <a href="@Url.Action("AnularIniciarSacandoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Inicio Picking</a>
                                     }
-                                </td>
-
-                                <td class="text-center">
-                                    @*El boton "INICIO VERIFICAR" solo se habilita si y solo si el ticket tiene como ultimo estado "FIN PICKING" o "INICIO PICKING" o "ANULAR INICIO VERIFICAR"*@
-                                    @if (condIniVerificar && (ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4))
+                                    @if (item.Estado == "EMPACADO")
                                     {
-                                        <a href="@Url.Action("IniciarVerificandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-amarillo btn-sm"> Inicio <br /> Verificar </a>
-                                    }
-                                </td>
-
-                                <td class="text-center">
-                                    @*El boton "FIN VERIFICAR" solo se habilita en dos casos, si el ticket tiene en su tabla de control de cambios el FIN PICKING, pero si en caso tambien se encuentra un ANULAR FIN PICKING se tendra que comparar la fecha y hora para saber con certeza que el FIN PICKING se ha dado, o tambien si el ticket esta en estado general VERIFICANDO*@
-                                    @if (condFinVerificar && (ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4))
-                                    {
-                                        <a href="@Url.Action("VerificadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-amarillo btn-sm">Fin <br /> Verificar </a>
-                                    }
-                                </td>
-
-                                <td class="text-center">
-                                    @*El boton "INICIO EMPACAR" solo se habilita si y solo si el ticket tiene como ultimo estado "INICIO VERIFICAR" o "FIN VERIFICAR" o "ANULAR INICIO EMPACAR" y cuando el estado de ticket esta en PICKEANDO o en VERIFICANDO*@
-                                    @if (condIniEmpacar && (ViewBag.RolSupervisor == 50 || ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 52 || ViewBag.RolSupervisor == 53 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4))
-                                    {
-                                        <a href="@Url.Action("IniciarEmpacandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-naranja btn-sm"> Inicio <br /> Empacar </a>
-                                    }
-                                </td>
-
-                                <td class="text-center">
-                                    @*El boton "FIN EMPACAR" solo se habilita si el ticket tiene cantidad de cajas mayor a cero (quiere decir que ya ha sido verificado) y si tiene como ultimo estado en la tabla control de cambios "INICIO EMPACAR" o "ANULAR FIN EMPACAR" asi mismo tiene que estar en estado general EMPACANDO o VERIFICANDO*@
-                                    @if (condFinEmpacar && (ViewBag.RolSupervisor == 50 || ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 52 || ViewBag.RolSupervisor == 53 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4))
-                                    {
-
-                                        <a href="@Url.Action( "EmpacadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry  } )" class="btn btn-naranja btn-sm">Fin <br />Empacar</a>
+                                        <a href="@Url.Action("AnularEmpacadoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Fin Empacar</a>
                                     }
                                 </td>
                             }
-
-                            @if (ViewBag.RolSupervisor == 4 || ViewBag.RolSupervisor == 1)
+                            else
                             {
-                                if (!string.IsNullOrEmpty(ViewBag.AlmUsuario) && (ViewBag.AlmUsuario == "05" || ViewBag.AlmUsuario == "07"))
-                                {
-                                    <td class="text-center">
-                                        @if ((item.ultimoCCEstado == "INICIO PICKING" || item.ultimoCCEstado == "ANULAR FIN PICKING") && item.hayIniPicking && item.Estado == "PICKEANDO" && item.hayFinPicking == false)
-                                        {
+                                <td class="text-center">
 
-                                            <a href="@Url.Action("AnularIniciarSacandoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Inicio Picking</a>
-                                        }
-                                        @if (item.Estado == "EMPACADO")
-                                        {
-                                            <a href="@Url.Action("AnularEmpacadoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Fin Empacar</a>
-                                        }
-                                    </td>
+                                    @if ((item.ultimoCCEstado == "INICIO PICKING" || item.ultimoCCEstado == "ANULAR FIN PICKING" || item.ultimoCCEstado == "ANULAR INICIO VERIFICAR") && item.hayIniPicking && item.Estado == "PICKEANDO" && item.hayFinPicking == false)
+                                    {
+                                        <a href="@Url.Action("AnularIniciarSacandoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Inicio Picking</a>
+                                    }
+
+                                    @if ((item.ultimoCCEstado == "FIN PICKING" || item.ultimoCCEstado == "ANULAR INICIO VERIFICAR") && item.hayFinPicking)
+                                    {
+                                        <a href="@Url.Action("AnularSacandoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Fin Picking</a>
+                                    }
+                                    @if ((item.ultimoCCEstado == "INICIO VERIFICAR" || item.ultimoCCEstado == "ANULAR FIN VERIFICAR" || item.ultimoCCEstado == "ANULAR INICIO EMPACAR") && item.hayIniVerificar && item.hayFinVerificar == false)
+                                    {
+                                        <a href="@Url.Action("AnularIniciarVerificandoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Inicio Verificar</a>
+                                    }
+                                    @if ((item.ultimoCCEstado == "FIN VERIFICAR" || item.ultimoCCEstado == "ANULAR INICIO EMPACAR") && item.hayFinVerificar)
+                                    {
+                                        <a href="@Url.Action("AnularVerificadoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Fin Verificar</a>
+                                    }
+                                    @if ((item.ultimoCCEstado == "INICIO EMPACAR" || item.ultimoCCEstado == "ANULAR FIN EMPACAR") && item.hayIniEmpacar && item.hayFinEmpacar == false)
+                                    {
+                                        <a href="@Url.Action("AnularIniciarEmpacandoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Inicio Empacar</a>
+                                    }
+                                    @if (item.Estado == "EMPACADO")
+                                    {
+                                        <a href="@Url.Action("AnularEmpacadoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Fin Empacar</a>
+
+                                    }
+                                </td>
+                            }
+                        }
+
+                        <td class="text-center">
+                            @if ((item.Estado.Equals("EMPACADO") || item.Estado.Equals("PREENVIO") || item.Estado.Equals("ENVIADO") || item.Estado.Equals("PESADO")) && (ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 11))
+                            {
+
+                                if ((item.LugarDestino.Equals("Centro") || item.LugarDestino.Equals("Arriola")))
+                                {
+                                    <a href="#" class="btn btn-danger btn-sm" onclick="cancelarTicket(@item.DocEntry);"><i title="CANCELAR" class="icon-cross text-light"></i></a>
                                 }
                                 else
                                 {
-                                    <td class="text-center">
-
-                                        @if ((item.ultimoCCEstado == "INICIO PICKING" || item.ultimoCCEstado == "ANULAR FIN PICKING" || item.ultimoCCEstado == "ANULAR INICIO VERIFICAR") && item.hayIniPicking && item.Estado == "PICKEANDO" && item.hayFinPicking == false)
-                                        {
-                                            <a href="@Url.Action("AnularIniciarSacandoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Inicio Picking</a>
-                                        }
-
-                                        @if ((item.ultimoCCEstado == "FIN PICKING" || item.ultimoCCEstado == "ANULAR INICIO VERIFICAR") && item.hayFinPicking)
-                                        {
-                                            <a href="@Url.Action("AnularSacandoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Fin Picking</a>
-                                        }
-                                        @if ((item.ultimoCCEstado == "INICIO VERIFICAR" || item.ultimoCCEstado == "ANULAR FIN VERIFICAR" || item.ultimoCCEstado == "ANULAR INICIO EMPACAR") && item.hayIniVerificar && item.hayFinVerificar == false)
-                                        {
-                                            <a href="@Url.Action("AnularIniciarVerificandoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Inicio Verificar</a>
-                                        }
-                                        @if ((item.ultimoCCEstado == "FIN VERIFICAR" || item.ultimoCCEstado == "ANULAR INICIO EMPACAR") && item.hayFinVerificar)
-                                        {
-                                            <a href="@Url.Action("AnularVerificadoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Fin Verificar</a>
-                                        }
-                                        @if ((item.ultimoCCEstado == "INICIO EMPACAR" || item.ultimoCCEstado == "ANULAR FIN EMPACAR") && item.hayIniEmpacar && item.hayFinEmpacar == false)
-                                        {
-                                            <a href="@Url.Action("AnularIniciarEmpacandoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Inicio Empacar</a>
-                                        }
-                                        @if (item.Estado == "EMPACADO")
-                                        {
-                                            <a href="@Url.Action("AnularEmpacadoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Fin Empacar</a>
-
-                                        }
-                                    </td>
-                                }
-                            }
-
-                            <td class="text-center">
-                                @if ((item.Estado.Equals("EMPACADO") || item.Estado.Equals("PREENVIO") || item.Estado.Equals("ENVIADO") || item.Estado.Equals("PESADO")) && (ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 11))
-                                {
-
-                                    if ((item.LugarDestino.Equals("Centro") || item.LugarDestino.Equals("Arriola")))
+                                    if (item.Estado.Equals("EMPACADO") || item.Estado.Equals("PESADO"))
                                     {
                                         <a href="#" class="btn btn-danger btn-sm" onclick="cancelarTicket(@item.DocEntry);"><i title="CANCELAR" class="icon-cross text-light"></i></a>
                                     }
-                                    else
-                                    {
-                                        if (item.Estado.Equals("EMPACADO") || item.Estado.Equals("PESADO"))
-                                        {
-                                            <a href="#" class="btn btn-danger btn-sm" onclick="cancelarTicket(@item.DocEntry);"><i title="CANCELAR" class="icon-cross text-light"></i></a>
-                                        }
-                                    }
                                 }
-                            </td>
+                            }
+                        </td>
 
-                            <td class="text-center">
-                                <a href="@Url.Action( "SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry  } )" type="button" target="_blank" class="btn btn-dark btn-sm"
-                                   onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;">
-                                    <i title="Seguimiento de ticket" class="icon-truck"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    </form>
+                        <td class="text-center">
+                            <a href="@Url.Action( "SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry  } )" type="button" target="_blank" class="btn btn-dark btn-sm"
+                               onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;">
+                                <i title="Seguimiento de ticket" class="icon-truck"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</form>
 
-    <!-- Modal -->
-    <div class="modal fade" id="modalReporte" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-cobefar text-white">
-                    <h5 class="modal-title" id="exampleModalLabel">Reporte - Errores de Picking</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true" class="text-white">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="frm_rptErroresPicking">
-                        <div class="row mb-4">
-                            <div class="col-lg-3 col-md-3">
-                                <label class="text-cobefar font-weight-bold">Fecha Ticket Desde:</label>
-                                <input type="date" id="FechaTicketDesdeEP" name="FechaTicketDesdeEP" class="form-control border-success text-center" />
-                            </div>
-
-                            <div class="col-lg-3 col-md-3">
-                                <label class="text-cobefar font-weight-bold">Fecha Ticket Hasta:</label>
-                                <input type="date" id="FechaTicketHastaEP" name="FechaTicketHastaEP" class="form-control border-success text-center" />
-                            </div>
-
-                            <div class="col-lg-3 col-md-3">
-                                <label class="text-cobefar font-weight-bold">Estado:</label>
-                                <select type="text" id="EstadoEP" name="EstadoEP" class="form-control bg-cobefar text-white" autocomplete="off">
-                                    <option value="1">Activos</option>
-                                    <option value="0">Inactivos</option>
-                                    <option value="">Todos</option>
-                                </select>
-                            </div>
-
-                            <div class="col-lg-3">
-                                <label class="text-cobefar font-weight-bold">Nro Ticket:</label>
-                                <input type="text" id="DocNumTicketEP" name="DocNumTicketEP" class="form-control border-success text-center cls-numeric" />
-                            </div>
+<!-- Modal -->
+<div class="modal fade" id="modalReporte" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-cobefar text-white">
+                <h5 class="modal-title" id="exampleModalLabel">Reporte - Errores de Picking</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" class="text-white">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="frm_rptErroresPicking">
+                    <div class="row mb-4">
+                        <div class="col-lg-3 col-md-3">
+                            <label class="text-cobefar font-weight-bold">Fecha Ticket Desde:</label>
+                            <input type="date" id="FechaTicketDesdeEP" name="FechaTicketDesdeEP" class="form-control border-success text-center" />
                         </div>
 
-                        <div class="row mt-2">
-                            <div class="col-lg-12 d-flex justify-content-end">
-                                <button type="button" class="btn btn-cobefar mb-2" onclick="validarFiltrosReporte()"><i class="icon-checkmark"></i> Generar Reporte</button>
-                            </div>
+                        <div class="col-lg-3 col-md-3">
+                            <label class="text-cobefar font-weight-bold">Fecha Ticket Hasta:</label>
+                            <input type="date" id="FechaTicketHastaEP" name="FechaTicketHastaEP" class="form-control border-success text-center" />
                         </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" id="btn_cerrarModal" class="btn btn-secondary" data-dismiss="modal"><i class='icon-cross'></i> Cerrar</button>
-                </div>
+
+                        <div class="col-lg-3 col-md-3">
+                            <label class="text-cobefar font-weight-bold">Estado:</label>
+                            <select type="text" id="EstadoEP" name="EstadoEP" class="form-control bg-cobefar text-white" autocomplete="off">
+                                <option value="1">Activos</option>
+                                <option value="0">Inactivos</option>
+                                <option value="">Todos</option>
+                            </select>
+                        </div>
+
+                        <div class="col-lg-3">
+                            <label class="text-cobefar font-weight-bold">Nro Ticket:</label>
+                            <input type="text" id="DocNumTicketEP" name="DocNumTicketEP" class="form-control border-success text-center cls-numeric" />
+                        </div>
+                    </div>
+
+                    <div class="row mt-2">
+                        <div class="col-lg-12 d-flex justify-content-end">
+                            <button type="button" class="btn btn-cobefar mb-2" onclick="validarFiltrosReporte()"><i class="icon-checkmark"></i> Generar Reporte</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btn_cerrarModal" class="btn btn-secondary" data-dismiss="modal"><i class='icon-cross'></i> Cerrar</button>
             </div>
         </div>
     </div>
+</div>
 
-    @if (Request["DescargarPDF"] == "1")
-    {
-        <script>
+@if (Request["DescargarPDF"] == "1")
+{
+    <script>
         Swal.fire({
             text: 'En breve se descargará el TacoEmpaque o Rotulado',
             timer: 1500,
@@ -453,11 +450,11 @@
         } else {
               location.href = '/Ventas/PdfTacoEmpaque?DocEntry=' + @Request["NumTicket"];
         }
-        </script>
+    </script>
 
-    }
+}
 
-    <script>
+<script>
     if ('@ViewBag.Mensaje' != "") {
         Swal.fire('@ViewBag.Mensaje');
     }
@@ -505,4 +502,4 @@
             return false;
         }
     });
-    </script>
+</script>

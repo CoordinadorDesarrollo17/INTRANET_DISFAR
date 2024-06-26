@@ -5,26 +5,6 @@
 
 
 # Custom
-/Capa_Usuario/imagenes/**
-/Capa_Usuario/Content/img/**
-/Capa_Usuario/Content/icomoon/**
-/Capa_Usuario/Content/js/**
-/Capa_Usuario/Web.config
-/Capa_Usuario/Web.Debug.config
-/Capa_Usuario/Web.Release.config
-/Capa_Usuario/Views/web.config
-/Capa_Usuario/SqlServerTypes/**
-/Capa_Usuario/Reportes/RptVentas/**
-/Capa_Usuario/Rotativa/**
-/Capa_Usuario/Reportes/RptRutas/**
-/Capa_Usuario/Reportes/RptInventario/**
-/Capa_Usuario/Reportes/RptAtencionCliente/**
-/Capa_Usuario/Reportes/RptDireccionTecnica/**
-/Capa_Usuario/Properties/
-/Capa_Usuario/packages.config/
-
-/Capa_Negocio/Properties/
-/Capa_Entidad/Properties/
 
 .editorconfig
 *.xsc
