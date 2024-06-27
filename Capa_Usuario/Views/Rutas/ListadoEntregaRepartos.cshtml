@@ -544,16 +544,16 @@
                             <div class="col">
                                 <label class="col-form-label font-weight-bold text-dark">TERMOHIGROMETRO 1</label>
                                 <label class="col-form-label text-dark">Temperatura Final 1</label><br />
-                                <input type="number" step="00.1" class="form-control border-success" name="TempF1" ><br />
+                                <input type="number" step="00.1" class="form-control border-success" name="TempF1"><br />
                                 <label class="col-form-label text-dark">Humedad Final 1</label><br />
-                                <input type="number" class="form-control border-success" name="HumedF1" >
+                                <input type="number" class="form-control border-success" name="HumedF1">
                             </div>
                             <div class="col">
                                 <label class="col-form-label font-weight-bold text-dark">TERMOHIGROMETRO 2</label><br />
                                 <label class="col-form-label text-dark">Temperatura Final 2</label><br />
-                                <input type="number" step="00.1" class="form-control border-success" name="TempF2" ><br />
+                                <input type="number" step="00.1" class="form-control border-success" name="TempF2"><br />
                                 <label class="col-form-label text-dark">Humedad Final 2</label><br />
-                                <input type="number" class="form-control border-success" name="HumedF2" >
+                                <input type="number" class="form-control border-success" name="HumedF2">
                             </div>
                         </div>
                     </div>
@@ -732,6 +732,9 @@
     });
 
     function solicitarValidacion() {
+        let btn_solicitarValidacion = document.querySelector('#btn_cerrarModalProveedores');
+        btn_solicitarValidacion.disabled = true;
+
         let formdata = new FormData();
         let arrImgs = $('#ImgAdjunta')[0].files;
         let cantidadImgs = arrImgs.length;
@@ -782,6 +785,7 @@
             } else {
                 if (response.Mensaje != '') {
                     Swal.fire(response.Mensaje);
+                    btn_solicitarValidacion.disabled = false;
                 } else {
                     // redirección a ENTREGAR PEDIDO
                     window.location.href = `/Rutas/EntregarDetReparto?DocEntry=${response.DocEntry}&Linea=${response.Linea}&TipoRep=${response.TipoRep}&TipoVenta=${response.TipoVenta}`;
@@ -790,7 +794,6 @@
         }).fail(function (jqXHR, textStatus, errorThrown) {
             console.log(jqXHR.status + textStatus + errorThrown);
         });
-
     }
 
     function verRespuesta(docEntryTicket, idOTC) {

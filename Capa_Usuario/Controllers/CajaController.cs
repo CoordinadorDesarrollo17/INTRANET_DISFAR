@@ -17,6 +17,7 @@ namespace Capa_Usuario.Controllers
     {
         private int modulo = 8;
         private OTC_N otcN = new OTC_N();
+        private static readonly object _lock = new object();
 
         // Vista general para el listado de tickets a cuadrar
         public ActionResult Index(int idOperation = 3000)
@@ -241,12 +242,22 @@ namespace Capa_Usuario.Controllers
         public JsonResult ValidarMontoFinalTicket(OTC_E tc, string lineaORRU, string tipoRepORRU)
         {
             VerificarAccesos(0);    // Validar sesion logueada, solo para ajax
+            var ticket = new ORTV_N().obtenerTicket((int)tc.DocEntryTicket);
             Usuario_E usu = (Usuario_E)Session["UsuarioId"];
-
             tc.PersonaEntrega = $"{usu.Nombres} {usu.Apellidos}";
 
-            var ticket = new ORTV_N().obtenerTicket((int)tc.DocEntryTicket);
-            var result = !ticket.EstadoPago.Equals("PAGADO") ? otcN.ValidarRegistroTC(tc) : "El ticket ya se encuentra PAGADO. Actualizar el listado.";
+            string result;
+            lock (_lock)
+            {
+                if (ticket.EstadoPago.Equals("PAGADO"))
+                {
+                    result = "El ticket ya se encuentra PAGADO. Actualizar el listado.";
+                }
+                else
+                {
+                    result = otcN.ValidarRegistroTC(tc);
+                }
+            }
 
             string proceso = result.Equals("Se solicitó la VALIDACIÓN") ? "OK" : string.Empty;
 

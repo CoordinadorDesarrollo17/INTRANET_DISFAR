@@ -1278,7 +1278,8 @@ namespace Capa_Usuario.Controllers
                 ViewBag.Ortv = t;
                 ViewBag.Mensaje = Mensaje;
 
-                return View(ticketN.ListarTicketsAreaAlmacén(user, t));
+                return View(ticketN.listarTicketsVenta(user, t));
+                //return View(ticketN.ListarTicketsAreaAlmacén(user, t));
             }
             else if (verificacionAccesos(idOperation) == "E_Login")
             { return RedirectToAction("Index", "Index"); }

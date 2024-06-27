@@ -20,11 +20,7 @@
 /Capa_Usuario/Reportes/RptInventario/**
 /Capa_Usuario/Reportes/RptAtencionCliente/**
 /Capa_Usuario/Reportes/RptDireccionTecnica/**
-/Capa_Usuario/Properties/
 /Capa_Usuario/packages.config/
-
-/Capa_Negocio/Properties/
-/Capa_Entidad/Properties/
 
 .editorconfig
 *.xsc
