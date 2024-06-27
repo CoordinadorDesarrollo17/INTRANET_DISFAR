@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Capa_Entidad;
 using System.Data;
 using System.Data.SqlClient;
-using System.Data.SQLite;
 namespace Capa_Datos
 {
     public class Area_D

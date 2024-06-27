@@ -33,20 +33,13 @@ namespace Capa_Datos
             //Hana
             this.cadHana = "Server=192.168.1.37:30015;UserName=B1ADMIN;Password=Passw0rd;";
             this.schemaHana = "\"B1H_COBEFAR_2018\".";
-            //this.schemaHana = "\"BASE_22_04_2024\".";
 
-            //Access
-            //this.cadAccess = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=E:\COBEFARSAC\RECURSOS HUMANOS\ATTBACKUP.mdb;Persist Security Info=False;";
-           
-            // Servidor 151
-            this.directorioGeneral = @"C\";
-            this.directorioFileServer = @"C:\COBEFARWEBFILES\";
-            this.directorioLogs = @"C:\COBEFARWEBLOGS\";
-            this.serverSql = @"SVR-IIS";
-            //this.BDsql = "DIRECTORIO_TELEFONICO_07-05";
-            this.BDsql = "DIRECTORIO_TELEFONICO_10_06";
-            this.userSql = "sa";
-            this.passwordSql = "TICOBE@R789";
+            
+            this.serverSql = @"WIN-DC\DIEGO_BD"; this.passwordSql = "@Ndr@de123"; this.BDsql = "BASE_06_06_24"; this.userSql = "sa";
+    
+            this.directorioGeneral = @"D\";
+            this.directorioFileServer = @"D:\COBEFARWEBFILES\";
+            this.directorioLogs = @"D:\COBEFARWEBLOGS\";
 
             this.cadSql = @"Server=" + this.serverSql + ";database=" + this.BDsql + ";user id=" + this.userSql + ";password=" + this.passwordSql + ";Min Pool Size=0;Max Pool Size=10024;Pooling=true";
 
@@ -59,36 +52,12 @@ namespace Capa_Datos
             try
             {
                 string nombre = directorioLogs + BDsql + "_log_" + DateTime.Now.ToString("yyyyMMdd") + ".txt";
-                //string nombre = @"C:\COBEFARWEBLOGS\" + BDsql + "_log_" + DateTime.Now.ToString("yyyyMMdd") + ".txt";
                 using (System.IO.StreamWriter file = new System.IO.StreamWriter(nombre, true))
                 {
                     file.WriteLine("Usuario:" + user + ";Accion:" + mensaje + ";Operacion:" + operacion + ";Ip:" + ip + ";Equipo:" + equipo + ";Fecha:" + DateTime.Now.ToString());
                 }
             }
             catch { }
-        }
-        public string obtieneMonto(string monto)
-        {
-            int i = 1;
-            string montoTotal = "E";
-            string pattern = @"S\/.?.?.?[0-9]+(,[0-9]+)?\.[0-9]+";
-            MatchCollection matches = Regex.Matches(monto.Replace(" ", ""), pattern, RegexOptions.IgnoreCase);
-            foreach (Match match in matches)
-            {
-                montoTotal = match.Value;
-                if (i == 2) { break; }
-                i++;
-            }
-            return montoTotal;
-        }
-        public decimal obtieneMontoVal(string comment)
-        {
-            decimal monto = (decimal)0.00;
-            string pattern = @"[0-9]+(,[0-9]+)?\.[0-9]+";
-            MatchCollection matches = Regex.Matches(comment.Replace(" ", ""), pattern, RegexOptions.IgnoreCase);
-            try { monto = decimal.Parse(matches[0].Value); }
-            catch { }
-            return monto;
         }
         public string msjError(int HResult)
         {
