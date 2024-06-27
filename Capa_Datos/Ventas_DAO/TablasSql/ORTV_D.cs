@@ -2963,7 +2963,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
         public int CantidadTicketsFacturacion(string estadoFacturacion)
         {
             int cant = 0;
-            string query = $"select COUNT(*) from vt.ortv T0 WHERE T0.EstadoFacturacion = @estadoFacturacion and T0.Estado IN ('PICKEANDO','VERIFICANDO','EMPACADO','EMPACANDO','PESADO','PREENVIO','ENVIADO') and T0.DocNum not in (2000302593) " +
+            string query = $"select COUNT(*) from vt.ortv T0 WHERE T0.EstadoFacturacion = @estadoFacturacion and T0.Estado IN ('PICKEANDO','VERIFICANDO','EMPACADO','EMPACANDO','PESADO','PREENVIO','ENVIADO') and T0.DocNum not in (2000302593,2000237628) " +
                 "AND EXISTS(SELECT 1 FROM VT.CC_ORTV WHERE DocEntry=T0.DocEntry AND Operacion='FIN VERIFICAR') AND NOT EXISTS (SELECT 1 FROM VT.CC_ORTV WHERE DocEntry=T0.DocEntry AND Operacion='ANULAR FIN VERIFICAR' " +
                 "AND(SELECT TOP 1 Id FROM VT.CC_ORTV WHERE DocEntry=T0.DocEntry AND Operacion='FIN VERIFICAR' ORDER BY 1 DESC) < (SELECT TOP 1 Id FROM VT.CC_ORTV WHERE DocEntry=T0.DocEntry AND Operacion='ANULAR FIN VERIFICAR' ORDER BY 1 DESC))";
 
@@ -3089,8 +3089,8 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 dr.Close();
                 cn.Close();
 
-                t.Det2 = obtenerDet2Ticket(DocEntry); if (t.Det2.Count == 0) { t.Det2 = null; }     //Ordenes de venta
-                t.Det3 = obtenerDet3Ticket(DocEntry); if (t.Det3.Count == 0) { t.Det3 = null; }     //Direcciones
+                t.Det2 = obtenerDet2Ticket(t.DocEntry); if (t.Det2.Count == 0) { t.Det2 = null; }     //Ordenes de venta
+                t.Det3 = obtenerDet3Ticket(t.DocEntry); if (t.Det3.Count == 0) { t.Det3 = null; }     //Direcciones
 
 
             }
@@ -3178,14 +3178,14 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             string condWhere = string.Empty, orderby = "t0.DocNum DESC";
             if (t != null)
             {
-                condWhere += $" AND t0.Estado not in ('SEPARADO')";
+                condWhere += $" AND t0.Estado not in ('SEPARADO') and T0.DocNum not in (2000302593,2000237628)";
                 if (t.DocNum == 0 && t.FechaSapTicket == null && t.CardName == null && t.Vendedor == null && t.Zona == null && t.MontoFinal == 0 && t.LugarDestino == null && t.Estado == null
                     && t.EstadoFacturacion == null && t.EstadoPago == null && t.TipoVenta == null && t.EstadoGasto == null && t.Flete != 0.01M && t.DescuentoNC != 0.01M && t.TiempoEntrega == null)
                 {
                     if (user.IdRol == 54)
                     {
                         condWhere += $" AND t0.EstadoFacturacion in ('PENDIENTE','GRE EMITIDA') " +
-                            $"AND t0.Estado in ('PICKEANDO','VERIFICANDO','EMPACANDO','EMPACADO','PESADO','PREENVIO','ENVIADO')";
+                            $"AND t0.Estado in ('PICKEANDO','VERIFICANDO','EMPACANDO','EMPACADO','PESADO','PREENVIO','ENVIADO') AND T0.Estado NOT IN ('CANCELADO','ANULADO')";
                         orderby = "CASE WHEN t0.EstadoFacturacion = 'PENDIENTE' THEN 0 WHEN t0.EstadoFacturacion = 'GRE EMITIDA' THEN 1 WHEN t0.EstadoFacturacion = 'FACTURADO' THEN 2 ELSE 3 END, t0.TiempoEntrega";
 
                     }
@@ -3429,8 +3429,10 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                                 hayFinEmpacar = false,
                                 hayIniPicking = false,
                                 hayIniVerificar = false,
-                                hayIniEmpacar = false
-                            };
+                                hayIniEmpacar = false,
+                                aptoIniVerificar = false, 
+                                aptoFinVerificar = false
+                        };
 
                             RTV11_D datosRTV11 = new RTV11_D();
                             RTV12_D datosRTV12 = new RTV12_D();
@@ -3462,169 +3464,180 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                             //Buscamos el ultimo estado del ticket excluyendo a los estados que no trascienden en las operaciones del ticket.
                             ticket.ultimoCCEstado = ccTicket.ListarCC_ORTV(ticket.DocEntry, null, true).FirstOrDefault()?.Operacion;
 
-                            ticket.aptoIniVerificar = false; ticket.aptoFinVerificar = false;
+                            /******************************************************************************************************************************************/
 
-                            /********************************************************PICKING***********************************************************************************/
-                            // Buscar tanto "INICIO PICKING" como "ANULAR INICIO PICKING"
-                            List<CC_ORTV_E> ticketOperaciones = ccORTV.ObtenerOperacionesTicket(ticket.DocEntry, new List<string> { "INICIO PICKING", "ANULAR INICIO PICKING" });
+                            // Revisamos si hay INICIO PICKING
+                            List<CC_ORTV_E> ticketIniPicking = ccORTV.ListarCC_ORTV(ticket.DocEntry, "INICIO PICKING");
 
-                            // Encontrar la última operación relevante (INICIO PICKING o ANULAR INICIO PICKING)
-                            CC_ORTV_E ultimaOperacion = ticketOperaciones.OrderByDescending(x => x.Id).FirstOrDefault();
+                            // Revisamos si hay ANULAR INICIO PICKING
+                            List<CC_ORTV_E> ticketAnularIniPicking = ccORTV.ListarCC_ORTV(ticket.DocEntry, "ANULAR INICIO PICKING");
+                            List<CC_ORTV_E> listaIPick = new List<CC_ORTV_E>() { ticketIniPicking[0], ticketAnularIniPicking[0] };
+                            var listaIPickOrd = listaIPick.OrderByDescending(x => x.Id);
 
-                            // Determinar si hay operación de INICIO PICKING activa
-                            if (ultimaOperacion != null)
+                            // Determinamos el estado de inicio de Picking
+                            if (listaIPickOrd.FirstOrDefault().Operacion == "INICIO PICKING")
                             {
-                                if (ultimaOperacion.Operacion == "INICIO PICKING")
-                                {
-                                    ticket.hayIniPicking = true;
-                                }
-                                else if (ultimaOperacion.Operacion == "ANULAR INICIO PICKING")
-                                {
-                                    ticket.hayIniPicking = false;
-                                }
+                                ticket.hayIniPicking = true;
+                            }
+                            else if (listaIPickOrd.FirstOrDefault().Operacion == "ANULAR INICIO PICKING")
+                            {
+                                ticket.hayIniPicking = false;
                             }
 
-                            //Si el ticket está en estado "PICKEANDO" hay inicio picking
+                            // Si el ticket está en estado "PICKEANDO", siempre hay un inicio de Picking
                             if (ticket.Estado.Equals("PICKEANDO"))
                             {
                                 ticket.hayIniPicking = true;
                             }
 
-                            // Obtener las operaciones "FIN PICKING" y "ANULAR FIN PICKING"
-                            List<CC_ORTV_E> ticketOperacionesFinPicking = ccORTV.ObtenerOperacionesTicket(ticket.DocEntry, new List<string> { "FIN PICKING", "ANULAR FIN PICKING" });
+                            // Revisamos si hay FIN PICKING
+                            List<CC_ORTV_E> ticketFinPicking = ccORTV.ListarCC_ORTV(ticket.DocEntry, "FIN PICKING");
 
-                            // Ordenar las operaciones por Id descendente para obtener la más reciente primero
-                            CC_ORTV_E ultimaOperacionFinPicking = ticketOperacionesFinPicking.OrderByDescending(x => x.Id).FirstOrDefault();
+                            // Revisamos si hay ANULAR FIN PICKING
+                            List<CC_ORTV_E> ticketAnularFinPicking = ccORTV.ListarCC_ORTV(ticket.DocEntry, "ANULAR FIN PICKING");
+                            List<CC_ORTV_E> listaPicking = new List<CC_ORTV_E>() { ticketFinPicking[0], ticketAnularFinPicking[0] };
+                            var listaPickingOrd = listaPicking.OrderByDescending(x => x.Id);
 
-                            // Determinar si hay operación de FIN PICKING activa
-                            ticket.hayFinPicking = ultimaOperacionFinPicking?.Operacion == "FIN PICKING";
-
-                            // Determinar si hay operación de ANULAR FIN PICKING activa
-                            if (ultimaOperacionFinPicking?.Operacion == "ANULAR FIN PICKING")
+                            // Determinamos si el ticket es apto para verificar el fin de Picking
+                            if (listaPickingOrd.FirstOrDefault().Operacion == "FIN PICKING")
                             {
+                                ticket.aptoFinVerificar = true;
+                                ticket.hayFinPicking = true;
+                            }
+                            else if (listaPickingOrd.FirstOrDefault().Operacion == "ANULAR FIN PICKING")
+                            {
+                                ticket.aptoFinVerificar = false;
                                 ticket.hayFinPicking = false;
                             }
-                            // Determinar aptitud para FIN VERIFICAR según la última operación de FIN PICKING
-                            ticket.aptoFinVerificar = ultimaOperacionFinPicking?.Operacion == "FIN PICKING";
 
-                            // Si el ticket está en estado "PICKEANDO", considerar que hay FIN PICKING
-                            if (ticket.Estado.Equals("PICKEANDO"))
-                            {
-                                ticket.hayFinPicking = true;
-                                ticket.aptoFinVerificar = true; // Asumiendo que siempre que hay FIN PICKING, se puede iniciar la verificación
-                            }
-                            /********************************************************VERIFICAR*********************************************************************************/
+                            // Revisamos si hay INICIO VERIFICAR
+                            List<CC_ORTV_E> ticketIniVerificar = ccORTV.ListarCC_ORTV(ticket.DocEntry, "INICIO VERIFICAR");
 
-                            // Buscar tanto "INICIO VERIFICAR" como "ANULAR INICIO VERIFICAR"
-                            List<CC_ORTV_E> ticketOperacionesVerif = ccORTV.ObtenerOperacionesTicket(ticket.DocEntry, new List<string> { "INICIO VERIFICAR", "ANULAR INICIO VERIFICAR" });
-                            // Encontrar la última operación relevante (INICIO VERIFICAR o ANULAR INICIO VERIFICAR)
-                            CC_ORTV_E ultimaOperacionVerif = ticketOperacionesVerif.OrderByDescending(x => x.Id).FirstOrDefault();
-                            // Determinar si hay operación de INICIO VERIFICAR activa
-                            if (ultimaOperacionVerif != null)
+                            // Revisamos si hay ANULAR INICIO VERIFICAR
+                            List<CC_ORTV_E> ticketAnularIniVerificar = ccORTV.ListarCC_ORTV(ticket.DocEntry, "ANULAR INICIO VERIFICAR");
+                            List<CC_ORTV_E> listaVerif = new List<CC_ORTV_E>() { ticketIniVerificar[0], ticketAnularIniVerificar[0] };
+                            var listaVerifOrd = listaVerif.OrderByDescending(x => x.Id);
+
+                            // Determinamos si el inicio de Verificar es apto
+                            if (listaVerifOrd.FirstOrDefault().Operacion == "INICIO VERIFICAR")
                             {
-                                if (ultimaOperacionVerif.Operacion == "INICIO VERIFICAR")
-                                {
-                                    // Validar si existe ANULAR INICIO VERIFICAR y comparar fecha y hora
-                                    CC_ORTV_E ultimaAnularVerif = ticketOperacionesVerif.FirstOrDefault(x => x.Operacion == "ANULAR INICIO VERIFICAR");
-                                    if (ultimaAnularVerif != null && DateTime.Parse(ultimaOperacionVerif.FechaOperacion + " " + ultimaOperacionVerif.HoraOperacion) < DateTime.Parse(ultimaAnularVerif.FechaOperacion + " " + ultimaAnularVerif.HoraOperacion))
-                                    {
-                                        // Si el ANULAR INICIO VERIFICAR es más reciente, no hay INICIO VERIFICAR válido
-                                        ticket.aptoIniVerificar = true;
-                                        ticket.hayIniVerificar = false;
-                                    }
-                                    else
-                                    {
-                                        ticket.aptoIniVerificar = false;
-                                        ticket.hayIniVerificar = true;
-                                    }
-                                }
-                                else if (ultimaOperacionVerif.Operacion == "ANULAR INICIO VERIFICAR")
-                                {
-                                    ticket.aptoIniVerificar = true;
-                                    ticket.hayIniVerificar = false;
-                                }
+                                ticket.aptoIniVerificar = false;
+                                ticket.hayIniVerificar = true;
                             }
-                            // Si hay INICIO PICKING, habilitar el INICIO VERIFICAR solo si el ticket está PICKEANDO
-                            if (ticket.hayIniPicking && ticket.Estado == "PICKEANDO")
+                            else if (listaVerifOrd.FirstOrDefault().Operacion == "ANULAR INICIO VERIFICAR")
+                            {
+                                ticket.aptoIniVerificar = true;
+                                ticket.hayIniVerificar = false;
+                            }
+
+                            // Si hay inicio de Picking, el inicio de Verificar también es apto
+                            if (ticket.hayIniPicking)
                             {
                                 ticket.aptoIniVerificar = true;
                             }
-                            // Validar si el ticket está PICKEANDO pero no tiene INICIO PICKING ni INICIO VERIFICAR previo
-                            if (ticket.Estado == "PICKEANDO" && !ticket.hayIniPicking && !ticket.hayIniVerificar)
+
+                            // Si hay inicio de Verificar, el inicio de Verificar no es apto
+                            if (ticket.hayIniVerificar)
                             {
-                                ticket.aptoIniVerificar = true;
+                                ticket.aptoIniVerificar = false;
                             }
-                            // Si el ticket no está PICKEANDO, deshabilitar INICIO VERIFICAR
+
+                            // Si el estado del ticket no es "PICKEANDO", el inicio de Verificar no es apto
                             if (ticket.Estado != "PICKEANDO")
                             {
                                 ticket.aptoIniVerificar = false;
-                                ticket.hayIniVerificar = false;
                             }
-                            // Obtener las operaciones "FIN VERIFICAR" y "ANULAR FIN VERIFICAR"
-                            List<CC_ORTV_E> ticketOperacionesFinVerificar = ccORTV.ObtenerOperacionesTicket(ticket.DocEntry, new List<string> { "FIN VERIFICAR", "ANULAR FIN VERIFICAR" });
 
-                            // Ordenar las operaciones por Id descendente para obtener la más reciente primero
-                            CC_ORTV_E ultimaOperacionFinVerificar = ticketOperacionesFinVerificar.OrderByDescending(x => x.Id).FirstOrDefault();
+                            // Revisamos si hay FIN VERIFICAR
+                            List<CC_ORTV_E> ticketFinVerificar = ccORTV.ListarCC_ORTV(ticket.DocEntry, "FIN VERIFICAR");
 
-                            // Determinar si hay operación de FIN VERIFICAR activa
-                            ticket.hayFinVerificar = ultimaOperacionFinVerificar?.Operacion == "FIN VERIFICAR";
+                            // Revisamos si hay ANULAR FIN VERIFICAR
+                            List<CC_ORTV_E> ticketAnularFinVerificar = ccORTV.ListarCC_ORTV(ticket.DocEntry, "ANULAR FIN VERIFICAR");
+                            List<CC_ORTV_E> listaFVerif = new List<CC_ORTV_E>() { ticketFinVerificar[0], ticketAnularFinVerificar[0] };
+                            var listaFVerifOrd = listaFVerif.OrderByDescending(x => x.Id);
 
-                            // Si la última operación es "ANULAR FIN VERIFICAR", establecer hayFinVerificar como false
-                            if (ultimaOperacionFinVerificar?.Operacion == "ANULAR FIN VERIFICAR")
+                            // Determinamos si hay fin de Verificar
+                            if (listaFVerifOrd.FirstOrDefault().Operacion == "FIN VERIFICAR")
+                            {
+                                ticket.hayFinVerificar = true;
+                            }
+                            else if (listaFVerifOrd.FirstOrDefault().Operacion == "ANULAR FIN VERIFICAR")
                             {
                                 ticket.hayFinVerificar = false;
                             }
 
-                            /**********************************************************PACKING**********************************************************************************/
+                            // Revisamos si hay INICIO EMPACAR
+                            List<CC_ORTV_E> ticketIniEmpacar = ccORTV.ListarCC_ORTV(ticket.DocEntry, "INICIO EMPACAR");
 
-                            // Obtener las operaciones "INICIO EMPACAR" y "ANULAR INICIO EMPACAR"
-                            List<CC_ORTV_E> ticketOperacionesEmpacar = ccORTV.ObtenerOperacionesTicket(ticket.DocEntry, new List<string> { "INICIO EMPACAR", "ANULAR INICIO EMPACAR" });
-                            // Ordenar las operaciones por Id descendente para obtener la más reciente primero
-                            CC_ORTV_E ultimaOperacionEmpacar = ticketOperacionesEmpacar.OrderByDescending(x => x.Id).FirstOrDefault();
-                            // Determinar si hay operación de INICIO EMPACAR activa
-                            ticket.hayIniEmpacar = ultimaOperacionEmpacar?.Operacion == "INICIO EMPACAR";
-                            // Si el ticket está en estado "EMPACANDO", considerar que hay INICIO EMPACAR
-                            if (ticket.Estado.Equals("EMPACANDO")) { ticket.hayIniEmpacar = true; }
+                            // Revisamos si hay ANULAR INICIO EMPACAR
+                            List<CC_ORTV_E> ticketAnularIniEmpacar = ccORTV.ListarCC_ORTV(ticket.DocEntry, "ANULAR INICIO EMPACAR");
+                            List<CC_ORTV_E> listaEmp = new List<CC_ORTV_E>() { ticketIniEmpacar[0], ticketAnularIniEmpacar[0] };
+                            var listaEmpOrd = listaEmp.OrderByDescending(x => x.Id);
 
-                            // Obtener las operaciones "FIN EMPACAR" y "ANULAR FIN EMPACAR"
-                            List<CC_ORTV_E> ticketOperacionesFinEmpacar = ccORTV.ObtenerOperacionesTicket(ticket.DocEntry, new List<string> { "FIN EMPACAR", "ANULAR FIN EMPACAR" });
+                            // Determinamos si hay inicio de Empacar
+                            if (listaEmpOrd.FirstOrDefault().Operacion == "INICIO EMPACAR")
+                            {
+                                ticket.hayIniEmpacar = true;
+                            }
+                            else if (listaEmpOrd.FirstOrDefault().Operacion == "ANULAR INICIO EMPACAR")
+                            {
+                                ticket.hayIniEmpacar = false;
+                            }
 
-                            // Ordenar las operaciones por Id descendente para obtener la más reciente primero
-                            CC_ORTV_E ultimaOperacionFinEmpacar = ticketOperacionesFinEmpacar.OrderByDescending(x => x.Id).FirstOrDefault();
+                            // Si el estado del ticket es "EMPACANDO", siempre hay inicio de Empacar
+                            if (ticket.Estado.Equals("EMPACANDO"))
+                            {
+                                ticket.hayIniEmpacar = true;
+                            }
 
-                            // Determinar si hay operación de FIN EMPACAR activa
-                            ticket.hayFinEmpacar = ultimaOperacionFinEmpacar?.Operacion == "FIN EMPACAR";
+                            // Revisamos si hay FIN EMPACAR
+                            List<CC_ORTV_E> ticketFinEmpacar = ccORTV.ListarCC_ORTV(ticket.DocEntry, "FIN EMPACAR");
 
-                            // Si la última operación es "ANULAR FIN EMPACAR", establecer hayFinEmpacar como false
-                            if (ultimaOperacionFinEmpacar?.Operacion == "ANULAR FIN EMPACAR")
+                            // Revisamos si hay ANULAR FIN EMPACAR
+                            List<CC_ORTV_E> ticketAnularFinEmpacar = ccORTV.ListarCC_ORTV(ticket.DocEntry, "ANULAR FIN EMPACAR");
+                            List<CC_ORTV_E> listaFEmpac = new List<CC_ORTV_E>() { ticketFinEmpacar[0], ticketAnularFinEmpacar[0] };
+                            var listaFEmpacOrd = listaFEmpac.OrderByDescending(x => x.Id);
+
+                            // Determinamos si hay fin de Empacar
+                            if (listaFEmpacOrd.FirstOrDefault().Operacion == "FIN EMPACAR")
+                            {
+                                ticket.hayFinEmpacar = true;
+                            }
+                            else if (listaFEmpacOrd.FirstOrDefault().Operacion == "ANULAR FIN EMPACAR")
                             {
                                 ticket.hayFinEmpacar = false;
                             }
 
-                            // Determinar aptitud para FIN VERIFICAR
-                            ticket.aptoFinVerificar = true; // Inicialmente se asume que es apto
+                            // Determinamos el estado de aptitud para verificar el fin de Verificar
+                            if (ticket.Estado == "VERIFICANDO")
+                            {
+                                ticket.aptoFinVerificar = true;
+                            }
 
-                            // Validar condiciones que pueden hacer que no sea apto para FIN VERIFICAR
+                            // Si el estado del ticket no es "VERIFICANDO" ni "PICKEANDO", no es apto para verificar el fin de Verificar
                             if (ticket.Estado != "VERIFICANDO" && ticket.Estado != "PICKEANDO")
                             {
-                                ticket.aptoFinVerificar = false; // No está en estado VERIFICANDO ni PICKEANDO
+                                ticket.aptoFinVerificar = false;
                             }
+
+                            // Si el último centro de costo en estado fue "FIN VERIFICAR", no es apto para verificar el fin de Verificar
                             if (ticket.ultimoCCEstado == "FIN VERIFICAR")
                             {
-                                ticket.aptoFinVerificar = false; // Ya se registró FIN VERIFICAR previamente
+                                ticket.aptoFinVerificar = false;
                             }
-                            if (!ticket.hayIniVerificar)
+
+                            // Si no hay inicio de Verificar, no es apto para verificar el fin de Verificar
+                            if (ticket.hayIniVerificar == false)
                             {
-                                ticket.aptoFinVerificar = false; // No hay INICIO VERIFICAR
+                                ticket.aptoFinVerificar = false;
                             }
+
+                            // Si hay fin de Verificar, no es apto para verificar el fin de Verificar
                             if (ticket.hayFinVerificar)
                             {
-                                ticket.aptoFinVerificar = false; // Ya se registró FIN VERIFICAR
+                                ticket.aptoFinVerificar = false;
                             }
 
-
-
-                            /**************************************/
                             /**************************************/
                             if (ticket.hayFinPicking)
                             {
@@ -3667,7 +3680,6 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                                     }
                                 }
                             }
-                            /**************************************/
                             /**************************************/
 
 

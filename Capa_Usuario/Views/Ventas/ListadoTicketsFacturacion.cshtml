@@ -203,7 +203,7 @@
                         <th>
                             Estado Ticket
                             <select name="Estado" id="Estado" class="form-control select_filtro-table" onchange="filtrar();">
-                                <option value="">Selccione</option>
+                                <option value="">Seleccione</option>
                                 <option value="PICKEANDO" @{ if (ViewBag.Ortv != null && ticket.Estado == "PICKEANDO") { Write("selected"); } }>PICKEANDO</option>
                                 <option value="VERIFICANDO" @{ if (ViewBag.Ortv != null && ticket.Estado == "VERIFICANDO") { Write("selected"); } }>VERIFICANDO</option>
                                 <option value="EMPACANDO" @{ if (ViewBag.Ortv != null && ticket.Estado == "EMPACANDO") { Write("selected"); } }>EMPACANDO</option>
