@@ -28,7 +28,6 @@ namespace Capa_Datos
 
             return roles[IdRol];
         }
-
         public Usuario_E buscarUsuario(int DocEntry)
         {
             Usuario_E u = new Usuario_E();
@@ -232,13 +231,13 @@ namespace Capa_Datos
             {
                 string query = @"
                                             SELECT
-                                                USU.DocEntry, USU.Prefijo, USU.Id, USU.Nombres, USU.Apellidos, USU.Email, USU.Password, USU.IdRol, USU.Activo, CONVERT(varchar, USU.FechaRegistro, 103) AS FechaRegistro, USU.HoraRegistro, USU.OpRegistro, USU.WhsCode, ROL.Nombre
+                                                USU.DocEntry, USU.Prefijo, USU.Id, USU.Nombres, USU.Apellidos, USU.Email, USU.Password, USU.IdRol, USU.Activo, CONVERT(varchar, USU.FechaRegistro, 103) AS FechaRegistro, USU.HoraRegistro, USU.OpRegistro, USU.WhsCode, ROL.Nombre, USU.CodigoSap
                                             FROM
                                                 OUSR USU
                                             INNER JOIN
                                                 OROL ROL ON ROL.Id = USU.IdRol
                                             WHERE
-                                                1 = 1 " + condWhere + @" ORDER BY DocEntry DESC";
+                                                1 = 1 " + condWhere + @" ORDER BY USU.Nombres";
                 SqlCommand cmd = new SqlCommand(query, cn);
                 cn.Open();
 
@@ -265,6 +264,7 @@ namespace Capa_Datos
                             if (!dr.IsDBNull(11)) { u.OperarioRegistro = dr.GetString(11); }
                             if (!dr.IsDBNull(12)) { u.WhsCode = dr.GetString(12); }
                             if (!dr.IsDBNull(13)) { u.DescripcionRol = dr.GetString(13); }
+                            if (!dr.IsDBNull(14)) { u.CodigoSap = dr.GetInt32(14); }
 
                             lista.Add(u);
                         }
@@ -282,7 +282,6 @@ namespace Capa_Datos
 
             return lista;
         }
-
         public string CrearUsuario(Usuario_E usu, string opRegistro)
         {
             string msj = string.Empty;
@@ -319,7 +318,6 @@ namespace Capa_Datos
 
             return msj;
         }
-
         public string editarUsuario(Usuario_E u)
         {
             string msj = string.Empty;
@@ -344,7 +342,6 @@ namespace Capa_Datos
 
             return msj;
         }
-
         public string Inactivar(Usuario_E usu)
         {
             string msj = string.Empty;
@@ -371,7 +368,6 @@ namespace Capa_Datos
 
             return msj;
         }
-
         public Dictionary<string, string> generarId(int idRol)
         {
             Dictionary<string, string> accesoUsuario = new Dictionary<string, string>();
@@ -450,7 +446,6 @@ namespace Capa_Datos
 
             return u;
         }
-
         public int BuscarUsuarioRol(string nombres, string apellidos, int idRol)
         {
             int result = 0;
