@@ -237,7 +237,7 @@ namespace Capa_Datos
                                             INNER JOIN
                                                 OROL ROL ON ROL.Id = USU.IdRol
                                             WHERE
-                                                1 = 1 " + condWhere + @" ORDER BY USU.Nombres";
+                                                1 = 1 " + condWhere + @" AND USU.Activo=1 ORDER BY USU.Nombres";
                 SqlCommand cmd = new SqlCommand(query, cn);
                 cn.Open();
 

@@ -17,15 +17,17 @@
             overflow: auto;
             height: 100%;
         }
+
         .subrayado {
             text-decoration: underline;
         }
     </style>
 </head>
 <body>
-    @for (int i = 0; i < Model.Cajas; i++)
+    @if (Model.Estado.Equals("PICKEANDO") || Model.Estado.Equals("VERIFICANDO") || Model.Estado.Equals("EMPACANDO"))
     {
-        <div class="container" style="padding: 50px;vertical-align:central; border: 5px dotted black; margin-top:50px; @((i == Model.Cajas - 1) ? "" : "page-break-after: always;")">
+
+        <div class="container" style="padding: 50px;vertical-align:central; border: 5px dotted black; margin-top:50px;">
             <table border="1" cellspacing="0" width="100%" style="text-align:center;">
                 <tr><th colspan="2">DESTINATARIO</th></tr>
 
@@ -92,13 +94,94 @@
                     }
 
                 }
-                <tr><th>NRO DOCUMENTO</th> <th>CANT CAJAS</th></tr>
+                <tr><th>NRO DOCUMENTO</th></tr>
                 <tr>
                     <td style="padding:10px">@Model.DocNum</td>
-                    <td style="padding:10px">@(i + 1) de @Model.Cajas</td>
                 </tr>
             </table>
         </div>
+
+
+    }
+    else
+    {
+        for (int i = 0; i < Model.Cajas; i++)
+        {
+            <div class="container" style="padding: 50px;vertical-align:central; border: 5px dotted black; margin-top:50px; @((i == Model.Cajas - 1) ? "" : "page-break-after: always;")">
+                <table border="1" cellspacing="0" width="100%" style="text-align:center;">
+                    <tr><th colspan="2">DESTINATARIO</th></tr>
+
+                    @if (Model.Det1 != null && Model.Det1.Count > 0)
+                    {
+                        <tr>
+                            <td colspan="2" style="padding:25px">
+                                <p class="subrayado">@Model.Det1[0].NombrePer.ToUpper()</p>
+                            </td>
+                        </tr>
+                    }
+
+                    <tr><th colspan="2">PUNTO DE LLEGADA</th></tr>
+
+                    @if (Model.Det3 != null && Model.Det3.Count >= 2 && !string.IsNullOrEmpty(Model.Det3[1].Calle) && Model.Det3[1].Calle.Length > 0)
+                    {
+                        if (Model.EnvioAgencia == "Oficina de agencia")
+                        {
+                            <tr>
+                                <td colspan="2" style="padding:30px">
+                                    @Model.Det3[1].Distrito.ToUpper()-@Model.Det3[1].Provincia.ToUpper()-@Model.Det3[1].Departamento.ToUpper()
+                                    @if (Model.Referencia != null)
+                                    {<b>REF.: @Model.Referencia.ToUpper()</b>}
+                                else if (Model.Det3[1].Calle != null)
+                                { @Model.Det3[1].Calle.ToUpper()}
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="2" style="padding:30px">
+                                    @Model.Det3[1].Calle.ToUpper()  @if (Model.Referencia != null)
+                                    {<b>REF.:@Model.Referencia.ToUpper()</b>}
+                                </td>
+                            </tr>
+                        }
+
+                    }
+                    else if (!string.IsNullOrEmpty(Model.DirDestino) && Model.DirDestino.Length > 0)
+                    {
+                        if (Model.EnvioAgencia == "Oficina de agencia")
+                        {
+                            if (Model.Det3 != null && Model.Det3.Count > 0)
+                            {
+                                <tr>
+                                    <td colspan="2" style="padding:30px">
+                                        @Model.Det3[0].Distrito.ToUpper() - @Model.Det3[0].Provincia.ToUpper() - @Model.Det3[0].Departamento.ToUpper()
+                                        @if (Model.Referencia != null)
+                                        {<b>REF.: @Model.Referencia.ToUpper()</b>}
+                                    </td>
+                                </tr>
+                            }
+
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="2" style="padding:30px">
+                                    @Model.DirDestino.ToUpper() @if (Model.Referencia != null)
+                                    {<b>REF.: @Model.Referencia.ToUpper()</b>}
+                                </td>
+                            </tr>
+                        }
+
+                    }
+                    <tr><th>NRO DOCUMENTO</th> <th>CANT CAJAS</th></tr>
+                    <tr>
+                        <td style="padding:10px">@Model.DocNum</td>
+                        <td style="padding:10px">@(i + 1) de @Model.Cajas</td>
+                    </tr>
+                </table>
+            </div>
+        }
     }
 </body>
 </html>

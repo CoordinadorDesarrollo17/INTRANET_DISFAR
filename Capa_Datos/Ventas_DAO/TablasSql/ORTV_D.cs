@@ -284,7 +284,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             try
             {
                 cn.Open();
-                SqlCommand cmd = new SqlCommand("select DocEntry,DocNum,DirDestino,Referencia,Cajas,EnvioAgencia from vt.ORTV where DocEntry=" + DocEntry, cn);
+                SqlCommand cmd = new SqlCommand("select DocEntry,DocNum,DirDestino,Referencia,Cajas,EnvioAgencia,Estado from vt.ORTV where DocEntry=" + DocEntry, cn);
                 cmd.CommandType = CommandType.Text;
                 SqlDataReader dr = cmd.ExecuteReader();
                 dr.Read();
@@ -294,6 +294,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 if (!dr.IsDBNull(3)) { t.Referencia = dr.GetString(3); }
                 if (!dr.IsDBNull(4)) { t.Cajas = dr.GetInt32(4); }
                 if (!dr.IsDBNull(5)) { t.EnvioAgencia = dr.GetString(5); }
+                if (!dr.IsDBNull(6)) { t.Estado = dr.GetString(6); }
                 
                 dr.Close();
                 cn.Close();
