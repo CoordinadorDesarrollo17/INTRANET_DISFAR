@@ -413,7 +413,7 @@
                             }
                         </td>*@
                         <td>
-                            @if ((item.Estado.Equals("EMPACADO") || item.Estado.Equals("PESADO") || item.Estado.Equals("PREENVIO") || item.Estado.Equals("ENVIADO") || item.Estado.Equals("ENTREGADO")) && item.LugarDestino.Equals("Agencia"))
+                            @if ((item.Estado.Equals("PICKEANDO")|| item.Estado.Equals("VERIFICANDO")|| item.Estado.Equals("EMPACANDO") || item.Estado.Equals("EMPACADO") || item.Estado.Equals("PESADO") || item.Estado.Equals("PREENVIO") || item.Estado.Equals("ENVIADO") || item.Estado.Equals("ENTREGADO")) && item.LugarDestino.Equals("Agencia"))
                             {
                                 <a href="@Url.Action( "PdfRotuladoTicket", "Ventas", new { DocEntry = item.DocEntry  } )" title="Rotulado">
                                     <i class="icon-file-pdf text-danger bordered mt-2 font-30"></i>
