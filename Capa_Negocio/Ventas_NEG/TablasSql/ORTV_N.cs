@@ -288,7 +288,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             // Cuando el ticket esta en "SEPARADO" o "ABIERTO" solo lo podran cancelar Rol (Sup Ventas,Op Ventas)
             if (t.Estado.Equals("SEPARADO") || t.Estado.Equals("ABIERTO"))
             {
-                if (IdRol == 6 || IdRol == 7) { continuarCancelarTicket = true; }
+                if (IdRol == 6 || IdRol == 7 || IdRol == 12) { continuarCancelarTicket = true; }
             }
             // Cuando el ticket esta en "RECIBIDO" o "PICKEANDO" O "VERIFICANDO" O "EMPACANDO" solo lo podran cancelar Rol (Op Recepcion)
             else if (t.Estado.Equals("RECIBIDO") || t.Estado.Equals("PICKEANDO") || t.Estado.Equals("VERIFICANDO") || t.Estado.Equals("EMPACANDO"))
