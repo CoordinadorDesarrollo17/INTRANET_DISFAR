@@ -1195,7 +1195,7 @@ namespace Capa_Usuario.Controllers
                     }
                     else if (user.WhsCode.Equals("07"))
                     {
-                        ticket.AlmProcedencia = "07";
+                        ticket.AlmProcedencia = "ALM07";
                     }
                 }
                 if (DocNum > 0)
