@@ -12,7 +12,7 @@
         );
     }
 </script>
-<h4>AGREGAR SALDO ANTERIOR</h4>
+<div class="px-3 pt-3"><h3 class="titulo-seccion">AGREGAR SALDO ANTERIOR</h3></div>
 <a id="accion" href="@Url.Action("ListadoSaldosAnteriores", "DireccionTecnica")" class="btn btn-light">
     <span><strong>Volver Atras</strong></span>
 </a>
@@ -52,7 +52,7 @@
             <datalist id="listaArticulos">
                 @foreach (OITM_E a in ViewBag.ListaArticulos)
                 {
-                    <option ItemCode="@a.ItemCode" U_SYP_TCONTROLADO="@a.U_SYP_TCONTROLADO" value="@a.ItemName"></option>
+                    <option ItemCode="@a.ItemCode" U_SYP_TCONTROLADO="@a.U_SYP_TCONTROLADO" value="@a.ItemCode - @a.ItemName"></option>
                 }
             </datalist>
         </div>

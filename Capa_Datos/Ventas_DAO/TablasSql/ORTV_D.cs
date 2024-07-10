@@ -3180,6 +3180,14 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             if (t != null)
             {
                 condWhere += $" AND t0.Estado not in ('SEPARADO') and T0.DocNum not in (2000302593,2000237628)";
+                if (string.IsNullOrEmpty(t.Estado) && user.IdRol == 54)
+                {
+                    condWhere += "and T0.DocNum not in (2000302593, 2000237628) " +
+                    "AND EXISTS(SELECT 1 FROM VT.CC_ORTV WHERE DocEntry=T0.DocEntry AND Operacion='FIN VERIFICAR') AND NOT EXISTS (SELECT 1 FROM VT.CC_ORTV WHERE DocEntry=T0.DocEntry AND Operacion='ANULAR FIN VERIFICAR' " +
+                    "AND(SELECT TOP 1 Id FROM VT.CC_ORTV WHERE DocEntry=T0.DocEntry AND Operacion='FIN VERIFICAR' ORDER BY 1 DESC) < (SELECT TOP 1 Id FROM VT.CC_ORTV WHERE DocEntry=T0.DocEntry AND Operacion='ANULAR FIN VERIFICAR' ORDER BY 1 DESC))";
+
+                }
+
                 if (t.DocNum == 0 && t.FechaSapTicket == null && t.CardName == null && t.Vendedor == null && t.Zona == null && t.MontoFinal == 0 && t.LugarDestino == null && t.Estado == null
                     && t.EstadoFacturacion == null && t.EstadoPago == null && t.TipoVenta == null && t.EstadoGasto == null && t.Flete != 0.01M && t.DescuentoNC != 0.01M && t.TiempoEntrega == null)
                 {
@@ -3189,6 +3197,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                             $"AND t0.Estado in ('PICKEANDO','VERIFICANDO','EMPACANDO','EMPACADO','PESADO','PREENVIO','ENVIADO') AND T0.Estado NOT IN ('CANCELADO','ANULADO')";
                         orderby = "CASE WHEN t0.EstadoFacturacion = 'PENDIENTE' THEN 0 WHEN t0.EstadoFacturacion = 'GRE EMITIDA' THEN 1 WHEN t0.EstadoFacturacion = 'FACTURADO' THEN 2 ELSE 3 END, t0.TiempoEntrega";
 
+                        
                     }
                 }
                 else
@@ -3212,8 +3221,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 
             }
 
-
-            string query = $"SELECT TOP 100 t0.DocEntry, t0.DocNum, t0.CardCode, t0.CardName, t0.Estado,t0.FechaSapTicket, (Select top 1 HoraOperacion from vt.CC_ORTV where DocEntry=t0.DocEntry " +
+            string query = $"SELECT TOP 150 t0.DocEntry, t0.DocNum, t0.CardCode, t0.CardName, t0.Estado,t0.FechaSapTicket, (Select top 1 HoraOperacion from vt.CC_ORTV where DocEntry=t0.DocEntry " +
                 $" and Operacion='REGISTRAR' order by FechaOperacion,HoraOperacion desc ) as 'HoraAbierto',t0.LugarDestino,t0.Flete,t0.Vendedor,t0.EstadoPago,t0.EstadoGasto," +
                 $" t0.PagoEnv,t0.TipoVenta ,t0.EstadoFacturacion,t0.DescuentoNC,t0.Zona,t0.TiempoEntrega FROM vt.ORTV t0  WHERE 1=1 {condWhere} ORDER BY {orderby}";
 
@@ -3275,19 +3283,20 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                                 ticket.hayFinVerificar = true;
                             }
 
-                            if (user.IdRol == 54)
-                            {
-                                if (string.IsNullOrEmpty(t.Estado))
-                                { if (ticket.hayFinVerificar) { lista.Add(ticket); } }
-                                else
-                                {
-                                    lista.Add(ticket);
-                                }
-                            }
-                            else
-                            {
-                                lista.Add(ticket);
-                            }
+                            //if (user.IdRol == 54)
+                            //{
+                            //    if (string.IsNullOrEmpty(t.Estado))
+                            //    { if (ticket.hayFinVerificar) { lista.Add(ticket); } }
+                            //    else
+                            //    {
+                            //        lista.Add(ticket);
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    lista.Add(ticket);
+                            //}
+                            lista.Add(ticket);
 
                         }
                     }

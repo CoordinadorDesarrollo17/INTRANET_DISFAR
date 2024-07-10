@@ -67,7 +67,17 @@
         </tr>
         <tr style="background:@fondo">
             <td><strong>@Html.DisplayNameFor(model => model.LugarDestino): </strong></td>
-            <td>@Html.DisplayFor(model => model.LugarDestino)</td>
+            <td>
+
+                @if (Model.LugarDestino == "Agencia" && !string.IsNullOrEmpty(Model.Agencia))
+                {
+                    @Model.LugarDestino  <span> - </span>  @Model.Agencia
+                }
+                else
+                {
+                    @Html.DisplayFor(model => model.LugarDestino)
+                }
+            </td>
         </tr>
         <tr>
             <td><strong>@Html.DisplayNameFor(model => model.Vendedor): </strong></td>
