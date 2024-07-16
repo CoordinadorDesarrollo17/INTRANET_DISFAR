@@ -21,20 +21,20 @@
         var object = $("#frm").serialize();
         $(location).attr('href', "/Ventas/ListadoTicketsVenta?" + object);
     }
-    function RptAnVentas() {
-        var object = $("#frmAnVtn").serialize();
-        $(location).attr("href", "/Ventas/AnCtVentas?" + object);
-    }
-    function seleccionarVendedor(CodigoSap) {
+    //function RptAnVentas() {
+    //    var object = $("#frmAnVtn").serialize();
+    //    $(location).attr("href", "/Ventas/AnCtVentas?" + object);
+    //}
+    //function seleccionarVendedor(CodigoSap) {
 
-        // Obtener los valores de Nombres y Apellidos del data-attributes del option seleccionado
-        var nombres = $('#selectVendedores option:selected').data('nombres');
-        var apellidos = $('#selectVendedores option:selected').data('apellidos');
+    //    // Obtener los valores de Nombres y Apellidos del data-attributes del option seleccionado
+    //    var nombres = $('#selectVendedores option:selected').data('nombres');
+    //    var apellidos = $('#selectVendedores option:selected').data('apellidos');
 
-        $('#CodigovendedorInput').val(CodigoSap);
-        $('#NombresvendedorInput').val(nombres);
-        $('#ApellidosvendedorInput').val(apellidos);
-    }
+    //    $('#CodigovendedorInput').val(CodigoSap);
+    //    $('#NombresvendedorInput').val(nombres);
+    //    $('#ApellidosvendedorInput').val(apellidos);
+    //}
     function enviarDatosTicketReemplazo() {
     var codigoVendedor = $('#CodigovendedorInput').val();
     var nombreVendedor = $('#NombresvendedorInput').val();
@@ -113,16 +113,16 @@
                     Crear Ticket
                 </a>
             }
-
-            <a id="accion" href="#" class="btn btn-warning font-weight-bold" title="Documentos" data-toggle="modal" data-target="#MdAnVentas">
-                <i class="icon icon-stats-dots"></i> AnVentas
-            </a>
-
-            <a id="accion" href="@Url.Action("GestionVendedores", "Ventas")" class="btn btn-info font-weight-bold" title="Vendedores">
-                <i class="icon icon-user"></i> Vendedores
-            </a>
-
             <button type="button" id="btn_ordenesVenta" class="btn btn-orange font-weight-bold" data-codsapvendedor="@ViewBag.CodSapVendedor"><i class="icon-file-text2 font-weight-bold"></i> Órdenes de Venta</button>
+            @*<a id="accion" href="#" class="btn btn-warning font-weight-bold" title="Documentos" data-toggle="modal" data-target="#MdAnVentas">
+            <i class="icon icon-stats-dots"></i> AnVentas
+        </a>
+
+        <a id="accion" href="@Url.Action("GestionVendedores", "Ventas")" class="btn btn-info font-weight-bold" title="Vendedores">
+            <i class="icon icon-user"></i> Vendedores
+        </a>
+
+            *@
         </div>
 
     </div>
@@ -314,7 +314,7 @@
                         <td class="text-center">
                             @if (item.Estado.Equals("SEPARADO") || item.Estado.Equals("ABIERTO"))
                             {
-                                <a href="@Url.Action("EditarTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="mx-1"><i title="Editar ticket" class="text-purple icon-pencil2"></i></a>
+                                <a href="@Url.Action("EditarTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="mx-1"><i title="Editar ticket" class="text-purple icon-pencil"></i></a>
                             }
                         </td>
                         <td class="text-center">
@@ -335,7 +335,7 @@
                         <td class="text-center">
                             @if (item.Estado != "SEPARADO")
                             {
-                                <a href="@Url.Action( "GenerarPDF", "Ventas", new { DocEntry = item.DocEntry  } )" target="_blank" class="mx-1"><i title="Documento PDF del ticket" class="text-danger icon-file-pdf"></i></a>
+                                <a href="@Url.Action( "GenerarPDF", "Ventas", new { DocEntry = item.DocEntry  } )" target="_blank" class="mx-1"><i title="PDF de ticket" class="text-danger icon-file-pdf"></i></a>
                             }
                         </td>
                         <td class="text-center">
