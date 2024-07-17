@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using System.Web.Services.Description;
+using Capa_Negocio.DireccionTecnica_NEG.TablasHANA;
 
 namespace Capa_Usuario.Controllers
 {
@@ -832,6 +833,7 @@ namespace Capa_Usuario.Controllers
         {
             OORS_N rsN = new OORS_N();
             ViewBag.ORS = datos;
+            ViewBag.ListaEstadosRS = new COB_ESTA_RS_N().ListarEstadoRegistrosSanitarios();
 
             return PartialView("DireccionTecnica/RegistrosSanitarios/ListadoRegistrosSanitarios", rsN.ListarRegistrosSanitarios(datos));
         }
