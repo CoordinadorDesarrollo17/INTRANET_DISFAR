@@ -120,6 +120,7 @@
     <Compile Include="Compras_DAO\Tablas\OPDN_D.cs" />
     <Compile Include="DBHelper.cs" />
     <Compile Include="DireccionTecnica_DAO\Reportes\ReportesDigemid_D.cs" />
+    <Compile Include="DireccionTecnica_DAO\TablasHANA\COB_ESTA_RS_D.cs" />
     <Compile Include="DireccionTecnica_DAO\TablasSql\OORS_D.cs" />
     <Compile Include="DireccionTecnica_DAO\TablasSql\SQL_OWTR_D.cs" />
     <Compile Include="General_DAO\TablasSql\COUR_D.cs" />
