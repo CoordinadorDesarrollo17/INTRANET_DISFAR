@@ -250,6 +250,7 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
             {
                 foreach (RRU0_E a in o.DetRRU0.Where(x => x.Estado != "LIBERADO"))
                 {
+                    if (a.Ticket?.EstadoFacturacion != "FACTURADO") { throw new Exception($"El ticket {a.DocNumTicket} no se encuentra FACTURADO"); }
                     if (a.Estado != "PREENVIO") { throw new Exception("El ticket " + a.DocNumTicket + " no esta en PREENVIO"); }
                     if (o.TipoRuta != "VG" && o.TipoRuta != "AC")
                     {
