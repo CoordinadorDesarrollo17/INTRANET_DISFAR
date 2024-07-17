@@ -121,7 +121,7 @@ namespace Capa_Usuario.Controllers
 
             return Json(ticket);
         }
-        public ActionResult CreaTicketVenta(int DocEntry = 0, int idOperation = 502)
+        public ActionResult CreaTicketVenta(int DocEntry = 0,Usuario_E u=null, int idOperation = 502)
         {
             if (verificacionAccesos(idOperation) == "C_Access")
             {
@@ -135,7 +135,17 @@ namespace Capa_Usuario.Controllers
                 ViewBag.Agencias = couN.Listar();
                 ViewBag.Usuario = $"{user.Prefijo}{user.Id}";
                 if (DocEntry > 0) { return View(ticketN.obtenerTicket(DocEntry)); }
-                else { return View(ticketN.separarTicket(user)); }
+                else {
+                    //Si usuario entidad llega con data al GET se entiende que el ticket esta siendo separado por un vendedor de reemplazo.
+                    if (u != null && u.CodigoSap > 0 && !string.IsNullOrEmpty(u.Nombres) && !string.IsNullOrEmpty(u.Apellidos) && user.IdRol==12)
+                    {
+                        return View(ticketN.separarTicket(u));
+                    }
+                    else
+                    {
+                        return View(ticketN.separarTicket(user));
+                    }
+                }
             }
             else if (verificacionAccesos(idOperation) == "E_Login")
             { return RedirectToAction("Index", "Index"); }
@@ -1185,7 +1195,7 @@ namespace Capa_Usuario.Controllers
                     }
                     else if (user.WhsCode.Equals("07"))
                     {
-                        ticket.AlmProcedencia = "07";
+                        ticket.AlmProcedencia = "ALM07";
                     }
                 }
                 if (DocNum > 0)
@@ -1278,8 +1288,8 @@ namespace Capa_Usuario.Controllers
                 ViewBag.Ortv = t;
                 ViewBag.Mensaje = Mensaje;
 
-                return View(ticketN.listarTicketsVenta(user, t));
-                //return View(ticketN.ListarTicketsAreaAlmacén(user, t));
+                //return View(ticketN.listarTicketsVenta(user, t));
+                return View(ticketN.ListarTicketsAreaAlmacén(user, t));
             }
             else if (verificacionAccesos(idOperation) == "E_Login")
             { return RedirectToAction("Index", "Index"); }

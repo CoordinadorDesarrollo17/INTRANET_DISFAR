@@ -373,7 +373,7 @@
 
                     if (item.Estado.Equals("ENVIADO"))
                     {
-                        if (item.LugarDestino != "Agencia")
+                        if (item.LugarDestino == "Centro" || item.LugarDestino == "Arriola")
                         {
                             if ((item.TipoVenta == "Normal" && item.EstadoPago == "PAGADO")
                             || (item.TipoVenta == "Credito" && (item.EstadoPago == "PENDIENTE" || item.EstadoPago == "PAGADO"))
@@ -408,9 +408,7 @@
                         condAnularEntrega = true;
                     }
 
-                    if ((item.LugarDestino == "Arriola" || item.LugarDestino == "Centro")
-                    && item.EstadoFacturacion == "FACTURADO" && item.Estado == "ENVIADO"
-                    && e.CardName != null && condEntregar)
+                    if (item.EstadoFacturacion == "FACTURADO" && item.Estado == "ENVIADO" && e.CardName != null && condEntregar)
                     {
                         verCheck = true;
                     }
@@ -449,7 +447,12 @@
                         <td class="text-center" style="@styleEstado">@Html.DisplayFor(modelItem => item.Estado)</td>
                         <td class="text-center">@Html.DisplayFor(modelItem => item.EstadoPago)</td>
                         <td class="text-center">@Html.DisplayFor(modelItem => item.TipoVenta)</td>
-                        <td class="text-center font-weight-bold">@item.Cajas</td>
+                        <td class="text-center font-weight-bold">
+                            @if (item.Cajas > 0)
+                            {
+                                @Html.DisplayFor(modelItem => item.Cajas)
+                            }
+                        </td>
                         <td class="text-center">@Convert.ToDateTime(item.TiempoEntrega).ToString("dd/MM/yyyy HH:mm:ss")</td>
                         <td>
                             @if (condPesar && verBtnPesar)

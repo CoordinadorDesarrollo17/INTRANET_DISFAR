@@ -154,8 +154,8 @@
                                 <th></th>
                             }
                         }
-                        @*<th></th>*@
                         <th></th>
+                        @*<th></th>*@
                         <th></th>
                     </tr>
                 </thead>
@@ -395,7 +395,7 @@
                             }
                         }
 
-                        @*<td class="text-center">
+                        <td class="text-center">
                             @if ((item.Estado.Equals("EMPACADO") || item.Estado.Equals("PREENVIO") || item.Estado.Equals("ENVIADO") || item.Estado.Equals("PESADO")) && (ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 11))
                             {
 
@@ -411,9 +411,9 @@
                                     }
                                 }
                             }
-                        </td>*@
-                        <td>
-                            @if ((item.Estado.Equals("EMPACADO") || item.Estado.Equals("PESADO") || item.Estado.Equals("PREENVIO") || item.Estado.Equals("ENVIADO") || item.Estado.Equals("ENTREGADO")) && item.LugarDestino.Equals("Agencia"))
+                        </td>
+                        @*<td>
+                            @if ((item.Estado.Equals("PICKEANDO")|| item.Estado.Equals("VERIFICANDO")|| item.Estado.Equals("EMPACANDO") || item.Estado.Equals("EMPACADO") || item.Estado.Equals("PESADO") || item.Estado.Equals("PREENVIO") || item.Estado.Equals("ENVIADO") || item.Estado.Equals("ENTREGADO")) && item.LugarDestino.Equals("Agencia"))
                             {
                                 <a href="@Url.Action( "PdfRotuladoTicket", "Ventas", new { DocEntry = item.DocEntry  } )" title="Rotulado">
                                     <i class="icon-file-pdf text-danger bordered mt-2 font-30"></i>
@@ -425,7 +425,7 @@
                                     <i class="icon-file-pdf text-danger bordered mt-2 font-30"></i>
                                 </a>
                             }
-                        </td>
+                        </td>*@
                         <td class="text-center">
                             <a href="@Url.Action( "SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry  } )" type="button" target="_blank" class="btn btn-dark btn-sm"
                                onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;">
