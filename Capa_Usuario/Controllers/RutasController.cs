@@ -158,31 +158,42 @@ namespace Capa_Usuario.Controllers
             else
             { return RedirectToAction("Error", "Index"); }
         }
+
         public ActionResult EditarOrdenDeRuta(int DocEntry, string TipoRep, int idOperation = 203)
         {
-            if (verificacionAccesos(idOperation) == "C_Access")
+            switch (verificacionAccesos(idOperation))
             {
-                OCHO_N ochoN = new OCHO_N();
-                COUR_N courN = new COUR_N();
-                Usuario_E user = (Usuario_E)Session["UsuarioId"];
+                case "C_Access":
+                    var user = (Usuario_E)Session["UsuarioId"];
+                    var datosOrdenRuta = orruN.obtenerOrdenDeRuta(DocEntry);
+                    var filtrosAlm = Array.Empty<string>();
+                    var nombreVista = "EditarOrdenDeRuta";
 
-                ViewBag.UsuarioSesion = $"{user.Nombres} {user.Apellidos}";
-                ViewBag.Mensaje = string.Empty;
-                ViewBag.TipoRep = TipoRep;
-                ViewBag.ListaChoferes = ochoN.listaChoferes(0, null);
-                ViewBag.ListaVehiculos = ovehN.listaVeh(0, null);
-                ViewBag.ListaCopilotos = ousrN.ListaUsuarios(new Usuario_E { IdRol = 4 });
-                ViewBag.ListaOrigenesDestinos = owhsN.listarAlmacenes();
-                ViewBag.Agencias = courN.Listar();
-                var datosOrdenRuta = orruN.obtenerOrdenDeRuta(DocEntry);
+                    if (datosOrdenRuta?.TipoRuta == "TA")
+                    {
+                        nombreVista = "EditarOrdenDeRuta_TA";
+                        filtrosAlm = new string[] { "01", "02", "03", "04", "09", "ALM07", "ALM08","CUAR07" };
+                    }
 
-                return View(datosOrdenRuta);
+                    ViewBag.UsuarioSesion = $"{user.Nombres} {user.Apellidos}";
+                    ViewBag.Mensaje = string.Empty;
+                    ViewBag.TipoRep = TipoRep;
+                    ViewBag.ListaChoferes = new OCHO_N().listaChoferes(0, null);
+                    ViewBag.ListaVehiculos = ovehN.listaVeh(0, null);
+                    ViewBag.ListaCopilotos = ousrN.ListaUsuarios(new Usuario_E { IdRol = 4 });
+                    ViewBag.Agencias = new COUR_N().Listar();
+                    ViewBag.ListaOrigenesDestinos = owhsN.listarAlmacenes(filtrosAlm);
+
+                    return View(nombreVista, datosOrdenRuta);
+
+                case "E_Login":
+                    return RedirectToAction("Index", "Index");
+
+                default:
+                    return RedirectToAction("Error", "Index");
             }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
-            else
-            { return RedirectToAction("Error", "Index"); }
         }
+
         [HttpPost]
         public ActionResult EditarOrdenDeRuta(ORRU_E o, string TipoRep, int idOperation = 203)
         {
@@ -640,7 +651,7 @@ namespace Capa_Usuario.Controllers
 
                 ViewBag.TipoRep = TipoRep;
                 ViewBag.Mensaje = msj;
-                
+
                 return View(lista);
             }
             else if (verificacionAccesos(idOperation) == "E_Login")
@@ -1394,10 +1405,11 @@ namespace Capa_Usuario.Controllers
             string[] estados = { "", "" };
             ORTV_N ortvN = new ORTV_N();
             ORTV_E ortvE = new ORTV_E { FechaSapTicket = FechaSapTicket, EstadoFacturacion = "FACTURADO", Zona = Zona };
-            if (TipoRuta == "VD") { 
-                ortvE.LugarDestino = "Domicilio"; 
-                estados[0] = "EMPACADO"; 
-                ortvE.LugEntrega = AlmOrigenCod; 
+            if (TipoRuta == "VD")
+            {
+                ortvE.LugarDestino = "Domicilio";
+                estados[0] = "EMPACADO";
+                ortvE.LugEntrega = AlmOrigenCod;
             }
             else if (TipoRuta == "VG")
             {
@@ -1437,7 +1449,7 @@ namespace Capa_Usuario.Controllers
         {
             string[] estados = { "", "" };
             ORTV_N ortvN = new ORTV_N();
-            ORTV_E ortvE = new ORTV_E { FechaSapTicket = FechaSapTicket,  Zona = Zona };
+            ORTV_E ortvE = new ORTV_E { FechaSapTicket = FechaSapTicket, Zona = Zona };
             if (TipoRuta == "VD") { ortvE.LugarDestino = "Domicilio"; estados[0] = "EMPACADO"; ortvE.LugEntrega = AlmOrigenCod; }
             else if (TipoRuta == "VG")
             {
