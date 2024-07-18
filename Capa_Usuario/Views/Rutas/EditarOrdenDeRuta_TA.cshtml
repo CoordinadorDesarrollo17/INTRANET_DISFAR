@@ -1,0 +1,786 @@
+﻿@model Capa_Entidad.Rutas_ENT.TablasSql.ORRU_E
+@using Capa_Entidad.General_ENT.TablasSql
+@using Capa_Entidad.Seguridad_ENT
+@{
+    ViewBag.Title = "EditarOrdenDeRuta _TA";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string tituloHoja = string.Empty, tituloListado = string.Empty, urlActionBreadcrumb = string.Empty;
+    int btnEditarDetalle = 0;
+
+    List<OWHS_E> lstOriDest = (List<OWHS_E>)ViewBag.ListaOrigenesDestinos;
+    List<OVEH_E> Vehiculos = (List<OVEH_E>)ViewBag.ListaVehiculos;
+    List<COUR_E> Agencias = new List<COUR_E>(ViewBag.Agencias);
+    List<OCHO_E> Choferes = new List<OCHO_E>(ViewBag.ListaChoferes);
+    List<Usuario_E> Copilotos = new List<Usuario_E>(ViewBag.ListaCopilotos);
+
+    if (Model.Propietario == ViewBag.UsuarioSesion && Model.TipoRuta.Equals("TA"))
+    {
+        btnEditarDetalle = 1;
+    }
+
+    if (ViewBag.TipoRep == "Re")
+    {
+        tituloHoja = "Editar Hoja de Reparto";
+        tituloListado = "Listado de repartos";
+        urlActionBreadcrumb = Url.Action("ListadoRepartos", "Rutas");
+    }
+    else
+    {
+        tituloHoja = "Editar Hoja de Ruta";
+        tituloListado = "Listado de rutas";
+        urlActionBreadcrumb = Url.Action("ListadoRutas", "Rutas");
+    }
+}
+<style>
+    #Detalles input, #Detalles textarea, #Detalles td {
+        font-size: 12px;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        $("#btn-NoEnviados").hide();
+        validarTipoRuta('@Model.TipoRuta','@Model.Estado');
+        var tabla = $('#detalleRuta').DataTable();
+        listarTickets('@Model.Estado');
+    });
+    function agregarTicketsDetalle() {
+        let tabla = $('#detalleRuta').DataTable();
+        var nrows = 0;
+        $("#Detalles tr").each(function () {
+            nrows++;
+        })
+        let checkboxesSeleccionados = tabla.rows({ page: 'all' }).nodes().to$().find('.cls-chkVerif:checked');
+
+        if (checkboxesSeleccionados.length > 0) {
+            checkboxesSeleccionados.each(function () {
+                var tr = $(this).closest('tr');
+                // Ver si esa fila tiene vinculados
+                var vinculados = tr.find('input[id^="Vinculados"]').val();
+
+                // Verificamos si hay valores en vinculados
+                if (vinculados != null && vinculados != "") {
+                    // Separamos los valores por la coma
+                    var valoresVinculados = vinculados.split(",");
+                    // Iteramos sobre los docnum vinculados
+                    for (var i = 0; i < valoresVinculados.length; i++) {
+                        var docnum = valoresVinculados[i].trim();
+
+                        var found = false;
+
+                        checkboxesSeleccionados.each(function () {
+                            var tr = $(this).closest('tr');
+                            if (tr.find('input[id^="DocNum"]').val() === docnum && $(this).prop('checked')) {
+                                found = true;
+                                return false;
+                            }
+                        });
+
+                        //buscamos en los valores que ya han sido agregados a la tabla llamada Detalles
+                        var tablaDetallesAgregados = $('#Detalles');
+                        if (tablaDetallesAgregados.find('tbody tr').length > 0) {
+                            // Recorrer todas las filas de la tabla
+                            tablaDetallesAgregados.find('tbody tr').each(function () {
+                                // Obtener el valor del campo con id que comienza con "DocNumTDet" en la fila actual
+                                var valorDocNum = $(this).find('input[id^="DocNumTDet"]').val();
+                                // Verificar si el valor obtenido es igual a la variable "docnum"
+                                if (valorDocNum === docnum) {
+                                    found = true;
+                                    return false;
+                                }
+                            });
+                        }
+
+                        if (!found && vinculados !== "") {
+                            Swal.fire("Debe agregar a su detalle tambien los vinculados: '" + vinculados + "'");
+                            return;
+                        }
+                    }
+                }
+
+                // Obtener los valores relevantes de la fila y pasarlos a agregarItem
+                var docEntry = tr.find('input[id^="DocEntry"]').val();
+                var docNum = tr.find('input[id^="DocNum"]').val();
+                var cardName = tr.find('input[id^="CardName"]').val();
+                var guias = tr.find('input[id^="Guías"]').val();
+                var cajas = tr.find('input[id^="Cajas"]').val();
+                var obs = tr.find('input[id^="Obs"]').val();
+                var direcciones = tr.find('input[id^="Direcciones"]').val();
+                var montoFinal = tr.find('input[id^="MontoFinal"]').val();
+                var envio = tr.find('input[id^="Envio"]').val();
+
+                agregarItem(docEntry, docNum, cardName, guias, cajas, obs, direcciones, montoFinal, envio);
+            });
+
+            checkboxesSeleccionados.prop('checked', false);
+            $("#chk_verifTodos").prop('checked', false);
+            // Abrir el primer modal de impresión esperando 2 segundos
+            //setTimeout(() => {
+            //    if (nrows == 0) {
+            //        abrirModalImp(0, true);
+            //    } else {
+            //        nrows--;
+            //        abrirModalImp(nrows, true);
+            //    }
+            //}, 2000);
+            // Se posiciona en la tabla de detallado final
+            $('html, body').animate({
+                scrollTop: $('#divDetalleRuta').offset().top
+            }, 1000);
+        }
+
+        else {
+            // Si no hay tickets seleccionados, mostrar mensaje de alerta
+            Swal.fire('Sin tickets seleccionados', 'Por favor, selecciona al menos un ticket.', 'warning');
+        }
+    }
+    var contDet = 0;
+    function agregarItem(docEntry, docNum, cardName, guias, cajas, obs, direcciones, montoFinal, envio) {
+    if (validarUnicoCampoTabla(docEntry, "Detalles") == false) {
+        return false;
+    } else {
+        if (docEntry == null || docEntry == "") {
+            return false;
+        }
+        $("#Detalles").append(
+            "<tr>" +
+            "<td><input name='DetRRU0[" + contDet + "].Linea' type='text' value='" + (contDet + 1) + "' style='width:40px' class='form-control' readonly/></td>" +
+            "<td hidden><input name='DetRRU0[" + contDet + "].DocEntryTicket' id='DocEntryTDet'" + contDet + " type='text' value='" + docEntry + "'  class='form-control'  readonly/></td>" +
+            "<td><input name='DetRRU0[" + contDet + "].DocNumTicket' id='DocNumTDet" + contDet +"' type='text' value='" + docNum + "' style='width:110px' class='form-control' readonly/></td>" +
+            "<td><input name='DetRRU0[" + contDet + "].Socio' type='text' value='" + cardName + "' style='width:200px' class='form-control' readonly/></td>" +
+            "<td><textarea name='DetRRU0[" + contDet + "].Guias' type='text' value='" + guias + "'  class='form-control' readonly>" + guias + "</textarea></td>" +
+            "<td><input name='DetRRU0[" + contDet + "].Cajas' type='text' value='" + cajas + "' style='width:40px' class='form-control' readonly/></td>" +
+            "<td><input name='DetRRU0[" + contDet + "].Observaciones' type='text' value='" + obs + "' class='form-control' readonly/></td>" +
+            "<td><textarea name='DetRRU0[" + contDet + "].Direcciones' type='text' value='" + direcciones + "' class='form-control' readonly >" + direcciones + "</textarea></td>" +
+            "<td><input name='DetRRU0[" + contDet + "].MontoFinal' type='text' value='" + montoFinal + "' class='form-control' readonly/></td>" +
+            "<td><input name='DetRRU0[" + contDet + "].Envio' type='text' value='" + envio + "' class='form-control' readonly/></td>" +
+            "<td><a href='SeguimientoDeTicket?DocEntry=" + docEntry + "' target='_blank' style='cursor:pointer' class='btn btn-primary btn-sm' onclick=window.open(this.href,this.target,'width=500,height=350,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');><i class='icon-truck'></i></a></td>" +
+            "<td colspan='3' class='d-flex justify-content-center' id=acc" + (contDet + 1) + "><button type='button' class='btn btn-cobefar btn-sm mr-2' onclick='grabarTrTable1(@Model.DocEntry," + (contDet + 1) + "," + docEntry +")'><i class='icon icon-lock'> </i>Grabar</button><button type='button' class='btn btn-warning btn-sm mr-2' onclick='abrirModalImp(" + docEntry + ",false)'><i class='icon icon-printer'></i></button><button type='button' class='btn btn-danger btn-sm' onclick='borrarTrTable1(this)'><i class='icon icon-bin'></i></button></td > " +
+            "</tr>"
+        );
+
+        calcularTotalCajas();
+        //metodo para grabar en la tabla temporal al.TEMP_RRU01 registro de todos los correlativos de documentos (F,B,G,NC,ND), debe retornar html con todos los documentos creados
+        //grabarTempDocumentos(docEntry, docNum, function (htmlTableDocumentos) {
+        //    // Crea un modal de impresión y agréga al cuerpo del documento
+        //    var modalId = "ModalImpresion" + docEntry;
+        //    var modalHtml = "<div class='modal' id='" + modalId + "' tabindex='-1' role='dialog' aria-labelledby='" + modalId + "Label' aria-hidden='true'>" +
+        //        "<div class='modal-dialog modal-dialog-centered modal-lg' role='document'>" +
+        //        "<div class='modal-content'>" +
+        //        "<div class='modal-header bg-cobefar text-white'>" +
+        //        "<h5 class='modal-title' id='" + modalId + "Label'>COMPROBANTES ELECTRÓNICOS IMPRIMIBLES <br>NroTicket : " + docNum + "</h5>" +
+        //        "<button type='button' class='close' data-dismiss='modal' aria-label='Close'>" +
+        //        "<span aria-hidden='true'>&times;</span>" +
+        //        "</button>" +
+        //        "</div>" +
+        //        "<div class='modal-body'>" +
+        //        htmlTableDocumentos +
+        //        "</div>" +
+        //        "<div class='modal-footer'>" +
+        //        "<button type='button' class='btn btn-secondary' data-dismiss='modal'>Cerrar</button>" +
+        //        "<button type='button' class='btn btn-blue' id='btnImp" + docEntry + "' onclick='ImprimirMasivamenteDocumentos(event," + docEntry + ",\"" + modalId + "\")'>" +
+        //        "<i class=''icon icon-printer'> </i> Imprimir todo" +
+        //        "</button>" +
+        //        "</div>" +
+        //        "</div>" +
+        //        "</div>" +
+        //        "</div>";
+        //    $("body").append(modalHtml);
+
+
+        //});
+        contDet++;
+        return true;
+    }
+}
+    function borrarTrTable1(dom) {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: 'Esta acción no se puede deshacer.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var i = -1;
+                var docEntryTicketToDelete = $(dom).closest('tr').find("td:eq(1) input").val();
+                var modalIdToDelete = "ModalImpresion" + docEntryTicketToDelete;
+
+                $(dom).closest('tr').remove();
+
+                contDet = contDet - 1;
+                $("#Detalles tr").each(function (index, htm) {
+                    iden1 = $(htm).find("td:eq(0) input");
+                    iden1.attr("name", "DetRRU0[" + i + "].Linea");
+                    iden1.val(i + 1);
+                    iden1 = $(htm).find("td:eq(1) input");
+                    iden1.attr("name", "DetRRU0[" + i + "].DocEntryTicket");
+                    iden1 = $(htm).find("td:eq(2) input");
+                    iden1.attr("name", "DetRRU0[" + i + "].DocNumTicket");
+                    iden1 = $(htm).find("td:eq(3) input");
+                    iden1.attr("name", "DetRRU0[" + i + "].Socio");
+                    iden1 = $(htm).find("td:eq(4) textarea");
+                    iden1.attr("name", "DetRRU0[" + i + "].Guias");
+                    iden1 = $(htm).find("td:eq(5) input");
+                    iden1.attr("name", "DetRRU0[" + i + "].Cajas");
+                    iden1 = $(htm).find("td:eq(6) input");
+                    iden1.attr("name", "DetRRU0[" + i + "].Observaciones");
+                    iden1 = $(htm).find("td:eq(7) textarea");
+                    iden1.attr("name", "DetRRU0[" + i + "].Direcciones");
+                    iden1 = $(htm).find("td:eq(8) input");
+                    iden1.attr("name", "DetRRU0[" + i + "].MontoFinal");
+                    iden1 = $(htm).find("td:eq(9) input");
+                    iden1.attr("name", "DetRRU0[" + i + "].Envio");
+                    i = i + 1;
+                });
+                calcularTotalCajas();
+                // Eliminamos el modal correspondiente al DocEntryTicket eliminado
+                $("#" + modalIdToDelete).remove();
+                //Swal.fire('Eliminado', 'El item ha sido eliminado correctamente.', 'success');
+            }
+        });
+    }
+    //funciones que solo se usan para EditarOrdenDeRuta
+    function liberarTrTable1(DocEntry, Linea, DocEntryTicket, idreg) {
+        Swal.fire({
+          title: '¿Está seguro(a) de liberar?',
+          text: "Este proceso es irreversible!",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Si'
+          }).then((result) => {
+              if (result.isConfirmed) {
+                var parametros = { "DocEntry": DocEntry, "Linea": Linea, "DocEntryTicket": DocEntryTicket };
+                $.ajax('/Rutas/liberarRRU0',
+                    {
+                        data: parametros,
+                        dataType: 'html',
+                        cache: false,
+                        type: 'post'
+                    })
+                    .done(function (response) {
+                        if (response == "ok") {
+                            $("#" + idreg).css("background", "lightgray");
+                            Swal.fire(
+                                'Ticket liberado exitosamente',
+                                '',
+                                'success'
+                            )
+                        }
+                        else {
+                            swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false;
+                        }
+                    });
+              }
+          })
+    }
+    function grabarTrTable1(DocEntryRu, Linea, DocEntryTi) {
+        let Guias = $("textarea[name='DetRRU0["+(Linea-1)+"].Guias']").val();
+        Swal.fire({
+          title: '¿Está seguro(a) de grabar?',
+          text: "Este proceso es irreversible!",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Si'
+          }).then((result) => {
+              if (result.isConfirmed) {
+                  var object = { "DocEntry": DocEntryRu, "Linea": Linea, "DocEntryTicket": DocEntryTi, "Guias": Guias };
+                    $.ajax('/Rutas/agregarRRU0',
+                        {
+                            data: object,
+                            dataType: 'html',
+                            cache: false,
+                            type: 'post'
+                        })
+                        .done(function (response) {
+                            if (response != "ok") { swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" });  return false }
+                            else {
+                                swal.fire({ title: 'Ticket agregado al detalle de ruta', text: "Presione OK para continuar", icon: "success" });
+                                $("#acc" + Linea).html("<button type='button' class='btn btn-blue btn-sm' onclick=liberarTrTable1(" + DocEntryRu + "," + Linea + "," + DocEntryTi + "," + '"' + 'reg' + Linea + '"' + ")><i class='icon icon-unlocked'>  </i>Liberar</button> ");
+                                return false
+                            }
+                        });
+              }
+          })
+    }
+
+</script>
+<script src="~/Scripts/Rutas/HojaDeReparto.js"></script>
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@urlActionBreadcrumb">@tituloListado</a></li>
+            <li class="current"><em>Editar Documento</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="d-flex justify-content-between px-3 pt-3">
+        <h3 class="titulo-seccion">@tituloHoja.ToUpper()</h3>
+        <div class="col-md-4 text-right">
+            <div class="alert alert-danger text-center text-primary" role="alert" id="btn-NoEnviados">
+                <a href="#" onclick="verTicketsNoEnviados()"></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="bg-form-pestanas-cobefar">
+
+    <div class="bg-section-form p-4 bg-form-cobefar">
+        @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "form" }))
+        {
+            @Html.AntiForgeryToken()
+            <input name="TipoRep" type="hidden" value="@ViewBag.TipoRep" readonly />
+            <input name="DocEntry" id="doc_entry" type="hidden" value="@Model.DocEntry" readonly />
+            @*<div class="row">
+                    <div class="col-lg-3">
+                        <label for="Impresora" class="text-dark form-label font-weight-bold font-18">Impresora: </label>
+                        <select id="Impresora" class="form-control bg-cobefar text-white">
+                            <option value="">Seleccione</option>
+                            <option value="DESPACHO">Despacho</option>
+                            <option value="DESPACHO_1">Despacho 1</option>
+                            <option value="DESPACHO_2">Despacho 2</option>
+                            <option value="DESPACHO_3">Despacho 3</option>
+                        </select>
+                    </div>
+                </div>*@
+            <div class="row mb-4 mt-4">
+                <div class="col-lg-2">
+                    <label for="TipoRuta" class="text-dark form-label font-weight-bold font-18">Tipo de Ruta:</label>
+                    <input type="text" value="@Model.TipoRuta" id="TipoRuta" name="TipoRuta" class="text-center form-control border-success" readonly />
+                </div>
+                <div class="col-lg-2">
+                    <label for="FechaSapTicket" class="text-dark form-label font-weight-bold font-18">Fecha de tickets:</label>
+                    <input type="date" class="text-center form-control border-success" name="FechaCont" id="FechaSapTicket" value="@String.Format("{0:yyyy-MM-dd}", Model.FechaCont)" onchange="listarTickets();" />
+                </div>
+
+                <div class="col-lg-2">
+                    <label for="DocNum" class="text-dark form-label font-weight-bold font-18">Número documento:</label>
+                    @Html.EditorFor(model => model.DocNum, new { htmlAttributes = new { @class = "text-center form-control border-success", @readonly = "true" } })
+                </div>
+                <div class="col-lg-2">
+                    <label class="text-dark form-label font-weight-bold font-18">Fecha de registro:</label>
+                    <input type="date" class="text-center form-control border-success" name="FechaDoc" value="@String.Format("{0:yyyy-MM-dd}", Model.FechaDoc)" readonly />
+                </div>
+
+                <div class="col-lg-2">
+                    <label for="Estado" class="text-dark form-label font-weight-bold font-18">Estado:</label>
+                    @Html.EditorFor(model => model.Estado, new { htmlAttributes = new { @class = "text-center form-control border-success", @readonly = "true" } })
+                </div>
+
+            </div>
+            <div class="row mt-lg-4">
+                <div class="col-lg-2" id="div_almacen-origen">
+                    <label class="text-dark form-label font-weight-bold font-18">Almacén de Origen:</label>
+                    <select name="AlmOrigenDesc" id="AlmOrigenDesc" class="form-control bg-cobefar text-white" onchange="enviarValSelect('AlmOrigenDesc', 'AlmOrigenCod', 'AlmOrigenCod'); enviarValSelect('AlmOrigenDesc', 'AlmOrigenDesc2', 'AlmOrigenDesc2'); listarTickets(); ">
+                        <option value="">Seleccione</option>
+                        @foreach (var l in lstOriDest.Where(x => x.WhsCode != "CUAR07"))
+                        {
+                        <option value="@l.WhsName" AlmOrigenCod="@l.WhsCode"
+                                AlmOrigenDesc2="@(l.Street+" "+l.StreetNo+" "+l.Building+" "+l.Block+" "+l.City+" "+l.County)" @if (Model.AlmOrigenCod == l.WhsCode) { Write("selected"); }>
+                            @l.WhsName
+                        </option>
+                        }
+                    </select>
+                    @Html.EditorFor(model => model.AlmOrigenCod, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+                    @Html.EditorFor(model => model.AlmOrigenDesc2, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+                </div>
+
+                
+                <div class="col-lg-2" id="div_almacen-destino">
+                    <label class="text-dark form-label font-weight-bold font-18">Almacén de Destino:</label>
+                    <select name="AlmDestinoDesc" id="AlmDestinoDesc" class="form-control bg-cobefar text-white" onchange="enviarValSelect('AlmDestinoDesc', 'AlmDestinoCod', 'almdestinocod'); enviarValSelect('AlmDestinoDesc', 'AlmDestinoDesc2', 'almdestinodesc2'); listarTickets();">
+                        <option value="">Seleccione</option>
+                        @foreach (var l in lstOriDest)
+     {
+                        <option value="@l.WhsName" almdestinocod="@l.WhsCode"
+                                almdestinodesc2="@(l.Street+" "+l.StreetNo+" "+l.Building+" "+l.Block+" "+l.City+" "+l.County)" @if (Model.AlmDestinoCod == l.WhsCode) { Write("selected"); }>
+                            @l.WhsName
+                        </option>
+     }
+                    </select>
+                    @Html.EditorFor(model => model.AlmDestinoCod, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+                    @Html.EditorFor(model => model.AlmDestinoDesc2, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+                </div>
+                @*@if (Model.TipoRuta != "AC")
+        {
+            <div class="col-lg-2">
+                <label for="VehiculoCod" class="text-dark form-label font-weight-bold font-18">Código Vehículo:</label>
+                <input name="VehiculoCod" id="VehiculoCod" class="form-control border-success text-center" value="@Model.VehiculoCod" readonly />
+            </div>
+        }*@
+                @if (Model.TipoRuta != "AC")
+                {
+                <div class="col-lg-3">
+                    <label for="VehiculoCod" class="text-dark form-label font-weight-bold font-18">VehículoCod:</label>
+                    <select name="VehiculoCod" id="VehiculoCod" class="form-control bg-cobefar text-white"
+                            onchange="enviarValSelect('VehiculoCod', 'Placa', 'U_SYP_VEPL'); enviarValSelect('VehiculoCod', 'Marca', 'U_SYP_VEMA'); enviarValSelect('VehiculoCod', 'Modelo', 'U_SYP_VEMO');">
+                        <option value="">Seleccione</option>
+                        @foreach (var t in Vehiculos)
+                            {
+                        <option value="@t.Code" U_SYP_VEPL="@t.U_SYP_VEPL" U_SYP_VEMA="@t.U_SYP_VEMA" U_SYP_VEMO="@t.U_SYP_VEMO" @if (Model.VehiculoCod == t.Code) { Write("selected"); }>@t.Code</option>
+                            }
+                    </select>
+                </div>
+                }
+                <div class="col-lg-2">
+                    <label for="Placa" class="text-dark form-label font-weight-bold font-18">Placa:</label>
+                    @if (Model.TipoRuta != "AC")
+                    {
+                    @Html.EditorFor(model => model.Placa, new { htmlAttributes = new { @class = "text-center form-control border-success", @readonly = "true" } })
+                    }
+                    else
+                    {
+                    @Html.EditorFor(model => model.Placa, new { htmlAttributes = new { @class = "text-center form-control border-success" } })
+                    }
+
+                    @Html.EditorFor(model => model.Marca, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+                    @Html.EditorFor(model => model.Modelo, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="Propietario" class="text-dark form-label font-weight-bold font-18">Propietario:</label>
+                    @Html.EditorFor(model => model.Propietario, new { htmlAttributes = new { @class = "text-center form-control border-success", @readonly = "true" } })
+                </div>
+            </div>
+            <div class="row mt-lg-4">
+                <div class="col-lg-3">
+                    <label for="TransDesc" class="text-dark form-label font-weight-bold font-18">Transportista:</label>
+                    @if (Model.TipoRuta == "AC")
+                    {
+                        @Html.EditorFor(model => model.TransDesc, new { htmlAttributes = new { @class = "text-center form-control border-success", @autocomplete = "off" } })
+                    }
+                    else
+                    {
+                        <select name="TransDesc" id="TransDesc" class="form-control bg-cobefar text-white" onchange="enviarValSelect('TransDesc', 'TransCod','Code');">
+                            <option value="" TransCod="">Seleccione</option>
+                            @foreach (var t in Choferes)
+                            {
+                                <option value="@t.U_SYP_CHNO" Code="@t.Code" @if (Model.TransCod == t.Code) { Write("selected"); }>@t.U_SYP_CHNO</option>
+                            }
+                        </select>
+                        @Html.EditorFor(model => model.TransCod, new { htmlAttributes = new { @class = "form-control ", @type = "hidden", @readonly = "true" } })
+                    }
+                </div>
+
+                @if (Model.TipoRuta != "AC")
+                {
+
+                    <div class="col-lg-3">
+                        <label for="CopilDesc" class="text-dark form-label font-weight-bold font-18">Copiloto 1:</label>
+                        @Html.EditorFor(model => model.CopilDesc, new { htmlAttributes = new { @class = "text-center form-control border-success", @type = "search", @list = "ListaCopilotos" } })
+                        <datalist id="ListaCopilotos">
+                            @foreach (var c in Copilotos)
+                            {
+                                <option value="@(c.Nombres +" "+c.Apellidos)"></option>
+                            }
+                        </datalist>
+                    </div>
+
+                }
+                <div class="col-lg-3">
+                    <label for="Copil2Desc" class="text-dark form-label font-weight-bold font-18">Copiloto 2:</label>
+                    @Html.EditorFor(model => model.Copil2Desc, new
+                    {
+                        htmlAttributes = new
+                        {
+                            @type = "search",
+                            @class = "text-center form-control border-success",
+                            @list = "ListaCopilotos"@*, @onchange = "enviarValList('Copil2Desc','ListaCopilotos','Copil2Cod','CopilCod');"*@}
+})
+                </div>
+
+
+            </div>
+            if (Model.TipoRuta == "AC")
+            {
+                <div class="row mt-lg-4">
+                    <div class="col-lg-3">
+                        <label for="Agencia" class="text-dark form-label font-weight-bold font-18">Agencia:</label>
+                        <select name="Agencia" id="Agencia" class="form-control bg-cobefar text-white" onchange="enviarValSelect('Agencia', 'RucAgencia', 'ruc'); listarTickets(); ">
+                            <option value="">Seleccione</option>
+                            @foreach (var i in Agencias)
+                            {
+                                <option ruc="@i.Ruc" value="@i.Nombre" @if (Model.Agencia == i.Nombre) { Write("selected"); }>@i.Nombre</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-lg-2">
+                        <label for="RucAgencia" class="text-dark form-label font-weight-bold font-18">RUC:</label>
+                        <input name="RucAgencia" id="RucAgencia" class="text-center form-control border-success" value=@Model.RucAgencia readonly />
+                    </div>
+                </div>
+            }
+            <div class="row mt-lg-4 mb-4">
+                <div class="col-lg-3">
+                    <label class="text-dark form-label font-weight-bold font-18">Tiempo de entrega pactado: </label>
+                    <input type="datetime-local" class="text-center form-control border-success" name="TiempoPac" id="TiempoPac" value="@Convert.ToDateTime(Model.TiempoPac).ToString("yyyy-MM-ddTHH:mm:ss")" />
+                </div>
+                <div class="col-lg-2">
+                    <label for="TotalCajas" class="text-dark form-label font-weight-bold font-18">Total de cajas:</label>
+                    <input id="TotalCajas" type="text" class="text-center form-control border-success" value="@Model.TotCajas()" readonly />
+                </div>
+                <div class="col-lg-5">
+                    <label for="Observaciones" class="text-dark form-label font-weight-bold font-18">Observaciones:</label>
+                    @Html.EditorFor(model => model.Observaciones, new { htmlAttributes = new { @class = "form-control border-success" } })
+                </div>
+                <div class="col-lg-2 p-2">
+                    <div class="mt-lg-4"><button type="button" class="btn btn-success" onclick="validarEnviarFormulario('@Model.Estado');"><i class="icon icon-pencil"></i> Editar Encabezado</button></div>
+                </div>
+            </div>
+
+
+            if (Model.DetRRU0 != null && Model.DetRRU0.Count > 0)
+            {
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <input type="checkbox" id="chk_verifTodos" onclick="seleccionarVerif()" /> <label for="chk_verifTodos" class="text-dark font-weight-bold">Seleccionar Todos</label>
+                        </div>
+                        <div class="col-md-9 text-right">
+                            <button type="button" class="btn btn-sm btn-blue" id="btn-Agregar" onclick="agregarTicketsDetalle()"><i class="icon icon-plus">    </i> Agregar ticket(s)</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <div class="col-lg-12 bg-dark p-3">
+                        <table id="detalleRuta" class="table table-light table-sm table-hover cls-dataTable font-14" cellspacing="0" width="100%">
+                            <thead class="bg-cobefar text-white">
+                                <tr>
+                                    <th class="text-center"></th>
+                                    <th class="text-center">#</th>
+                                    <th hidden>DocEntryTicket</th>
+                                    <th class="text-center">NroTicket</th>
+                                    <th hidden>CodSocio</th>
+                                    <th class="text-center" style="width:250px">Socio</th>
+                                    <th class="text-center" style="width:450px">Guías</th>
+                                    <th class="text-center">Cajas</th>
+                                    <th hidden>Obs.</th>
+                                    <th hidden>Direcciones</th>
+                                    <th class="text-center" style="width:70px">Agencia</th>
+                                    <th class="text-center">Monto final</th>
+                                    <th hidden>Envio</th>
+                                    <th class="text-center">Tipo de venta</th>
+                                    <th class="text-center">Estado de pago</th>
+                                </tr>
+                            </thead>
+
+                        </table>
+                    </div>
+                </div>
+
+
+                <h3 class="text-cobefar font-weight-bold mt-2">
+                    DETALLE DE RUTA<br /><small class="font-14 text-danger">* El ticket impreso se colorea de fondo azul claro</small>
+                </h3>
+                <div id="divDetalleRuta">
+                    <div class="mt-2">
+                        <table id="Detalles" class="table table-light table-md table-hover" cellspacing="0" width="100%">
+                            <thead class="bg-success">
+                                <tr>
+                                    <th class="text-center">#</th>
+                                    <th hidden>DocEntryT</th>
+                                    <th class="text-center">NroTicket</th>
+                                    <th class="text-center">Socio</th>
+                                    <th class="text-center">Guias</th>
+                                    <th class="text-center">Cajas</th>
+                                    <th class="text-center">Obs.</th>
+                                    <th class="text-center">Direcciones</th>
+                                    <th class="text-center">MontoFinal</th>
+                                    <th class="text-center">Envio</th>
+                                    <th class="text-center"></th>
+                                    <th class="text-center"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{ string style = "";}
+                                @foreach (var det in Model.DetRRU0)
+                                {
+                                    if (det.Estado == "LIBERADO") { style = "background:lightgray;"; } else { style = ""; }
+                                    <tr id="reg@(det.Linea)" style="@style">
+                                        <td><input name='DetRRU0[@(det.Linea - 1)].Linea' type='hidden' class="form-control border-success" value='@det.Linea' style='width:40px;' readonly />@det.Linea</td>
+                                        <td hidden><input name='DetRRU0[@(det.Linea - 1)].DocEntryTicket' type='text' class="form-control border-success" value='@det.DocEntryTicket' style='width:80px;' readonly /></td>
+                                        <td><input name='DetRRU0[@(det.Linea - 1)].DocNumTicket' id="DocNumTDet@(det.Linea)" type='hidden' class="form-control border-success" value='@det.DocNumTicket' readonly />@det.DocNumTicket</td>
+                                        <td><input name='DetRRU0[@(det.Linea - 1)].Socio' type='hidden' class="form-control border-success" value='@det.Socio' style='width:100px;' readonly />@det.Socio</td>
+                                        <td><input name='DetRRU0[@(det.Linea - 1)].Guias' type='hidden' class="form-control border-success" value='@det.Guias' style='width:100px;' readonly />@det.Guias</td>
+                                        <td class="text-center"><input name='DetRRU0[@(det.Linea - 1)].Cajas' type='hidden' class="form-control border-success" value='@det.Cajas' readonly />@det.Cajas</td>
+                                        <td><input name='DetRRU0[@(det.Linea - 1)].Observaciones' type='hidden' class="form-control border-success" value='@det.Observaciones' style='width:100px;' readonly />@det.Observaciones</td>
+                                        <td><textarea name='DetRRU0[@(det.Linea - 1)].Direcciones' class="form-control border-success" readonly>@det.Direcciones</textarea></td>
+                                        <td class="text-center"><input name='DetRRU0[@(det.Linea - 1)].MontoFinal' type='hidden' class="form-control border-success" value='@det.MontoFinal' style='width:90px;' readonly />@det.MontoFinal</td>
+                                        <td class="text-center"><input name='DetRRU0[@(det.Linea - 1)].Envio' type='hidden' class="form-control border-success" value='@det.Envio' style='width:50px;' readonly />@det.Envio</td>
+                                        <td><a href='SeguimientoDeTicket?DocEntry=@det.DocEntryTicket' target='_blank' class="btn btn-sm btn-primary" style='cursor:pointer' onclick="window.open(this.href,this.target,'width=500,height=350,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');"><i class="icon-truck"></i></a></td>
+                                        <td class="d-flex justify-content-center" colspan="3"><button type='button' class='btn btn-sm btn-blue' onclick='liberarTrTable1(@det.DocEntry,@det.Linea,@det.DocEntryTicket,"reg@(det.Linea)")'><i class="icon icon-unlocked">  </i>Liberar</button></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            }
+
+            if (Model.DetRRU1 != null && Model.DetRRU1.Count > 0)
+            {
+                <table class="table table-light table-sm table-hover table-responsive table-bordered" cellspacing="0" width="100%" id="Detalles1">
+                    <tr class="bg-cobefar">
+                        <th class="text-center">#</th>
+                        <th class="text-center">Guia</th>
+                        <th class="text-center">NroSap</th>
+                        <th class="text-center">Cajas</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-center">Verif.</th>
+                    </tr>
+                    @{string style1 = "";}
+                    @foreach (var det in Model.DetRRU1)
+                    {
+                        if (det.Estado == "LIBERADO") { style1 = "background:lightgray;"; } else { style1 = ""; }
+                        <tr id="reg@(det.Linea)" class="cls-colorFilaGuia" style="@style1" onclick="listarDetalleGuia(@det.DocEntry, @det.Linea, this.id, @btnEditarDetalle)">
+                            <td class="text-center"><input name='DetRRU1[@(det.Linea-1)].Linea' type='hidden' value='@det.Linea' readonly />@det.Linea</td>
+                            <td class="text-center"><input name='DetRRU1[@(det.Linea-1)].Guia' type='hidden' value='@det.Guia' readonly />@det.Guia</td>
+                            <td class="text-center"><input name='DetRRU1[@(det.Linea-1)].NroSap' type='hidden' value='@det.NroSap' readonly />@det.NroSap</td>
+                            <td class="text-center"><input name='DetRRU1[@(det.Linea-1)].Cajas' type='hidden' value='@det.Cajas' readonly />@det.Cajas</td>
+                            <td class="text-center"><input name='DetRRU1[@(det.Linea-1)].Estado' type='hidden' value='@det.Estado' readonly />@det.Estado</td>
+                            <td class="text-center"><input name='DetRRU1[@(det.Linea-1)].Verificado' type='checkbox' style='width:50px;' readonly /></td>
+                        </tr>
+
+                    }
+
+                </table>
+            }
+            <script>
+                contDet=@Model.DetRRU0.Count
+            </script>
+
+
+        }
+
+        @if (Model.DetRRU11 != null && Model.DetRRU11.Count > 0)
+        {
+            <form id="frm_detalle" name="frm_detalle">
+                <input type="hidden" id="baselinea_RRU11" name="baselinea_RRU11" value="" />
+                @if (btnEditarDetalle == 1)
+                {
+                    <div class="row mt-lg-4">
+                        <div class="col-lg-12 d-flex justify-content-end">
+                            <button type="button" class="btn btn-success" onclick="editarDetalle();"><i class="icon icon-pencil"></i> Editar Detalle</button>
+                        </div>
+                    </div>
+                }
+                <div class="row  mt-lg-4">
+                    <div class="col-lg-12">
+
+                        <table id="tbl_detRRu11" class='table table-bordered table-hover table-secondary'>
+                            <thead class="bg-dark">
+                                <tr>
+                                    <th class="text-center">Baselinea</th>
+                                    <th class="text-center">Línea</th>
+                                    <th class="text-center">Producto</th>
+                                    <th class="text-center">Lote</th>
+                                    <th class="text-center">Cant.</th>
+                                    <th class="text-center">Lab.</th>
+                                    <th class="text-center">Unid.Med.</th>
+                                    <th class="text-center">CajasMaster</th>
+                                </tr>
+                            </thead>
+                            <tbody style="background-color: #e9ecef">
+                                <tr>
+                                    <td colspan="8">No existen datos para mostrar</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+
+                    </div>
+                </div>
+            </form>
+        }
+    </div>
+</div>
+<!-- Modal para ver tickets no enviados-->
+<div class="modal" id="ModalTicketsNE" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-cobefar text-light">
+                <h5 class="modal-title" id="exampleModalLabel">Relación de tickets</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="mt-2">
+                    <table id="tableModalNE" class="table table-bordered table-sm table-hover" cellspacing="0" width="100%">
+                        <thead class="bg-dark">
+                            <tr>
+                                <th class="text-center">DocNum</th>
+                                <th class="text-center">Fecha</th>
+                                <th class="text-center">Cliente</th>
+                                <th class="text-center">Monto Final</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@if (!string.IsNullOrEmpty(ViewBag.Mensaje))
+{
+    <script>
+     var mensaje = '@Html.Raw(ViewBag.Mensaje)';
+        Swal.fire({
+            text: mensaje,
+            showConfirmButton: false,
+            timer: 2000
+        });
+    </script>
+}
+<script>
+    function listarDetalleGuia(baseEntry, linea, idTR, btnEditarDetalle) {
+        $.ajax({
+            url: '/Rutas/ObtenerDetalleOrdenRuta',
+            type: 'POST',
+            data: { BaseEntry: baseEntry, BaseLinea: linea, HabilitarBotonEditar: btnEditarDetalle },
+        }).done(function (response) {
+            Swal.fire(response.mensaje);
+            $('#baselinea_RRU11').val(linea);
+            if (response.existeDatos) {
+                $(".cls-colorFilaGuia").css('background-color', 'white');
+                $("#" + idTR).css('background-color', 'yellow');
+            }
+            $("#tbl_detRRu11 > tbody").html(response.lista);
+        });
+    }
+    function editarDetalle() {
+        $.ajax({
+            url: '/Rutas/EditarDetalleOrdenRuta',
+            type: 'POST',
+            data: $('#frm_detalle').serialize() + '&BaseEntry=' + $('#doc_entry').val() + '&BaseLinea=' + $('#baselinea_RRU11').val(),
+            dataType: 'JSON',
+        }).done(function (response) {
+            Swal.fire({
+                confirmButtonColor: '#26653D',
+                closeOnCancel: false,
+                allowOutsideClick: false,
+                showCancelButton: false,
+                text: response.mensaje,
+            }).then((result) => {
+                if (result.isConfirmed && response.nrocajas == true) {
+                    location.reload();
+                }
+            })
+
+        });
+    }
+</script>

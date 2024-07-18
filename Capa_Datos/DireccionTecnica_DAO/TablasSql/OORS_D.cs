@@ -108,15 +108,6 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
             List<OORS_E> lista = null;
             string condWhere = string.Empty;
 
-            Dictionary<string, string> estadoOpciones = new Dictionary<string, string>
-            {
-                ["01"] = "VIGENTE",
-                ["02"] = "AGOTAMIENTO DE STOCK",
-                ["03"] = "VENCIDO",
-                ["04"] = "PROCESO DE REINSCRIPCIÓN",
-                ["05"] = "CANCELADO"
-            };
-
             if (rs != null)
             {
                 if (!string.IsNullOrEmpty(rs.RegistroSanitario)) { condWhere += $" AND BTN.\"MnfSerial\" = '{rs.RegistroSanitario}'"; }
@@ -126,31 +117,31 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                 if (!string.IsNullOrEmpty(rs.Estado)) { condWhere += $" AND ITM.\"U_COB_ESTRS\" = '{rs.Estado}'"; }
             }
 
-            string query = @"
-                            SELECT TOP 50 
-                                BTN.""MnfSerial"", 
-                                ITM.""ItemCode"", 
-                                ITM.""FirmCode"", 
-                                ITM.""ItemName"", 
-                                TO_CHAR(ITM.""U_COB_FECH_RS"", 'YYYY-MM-DD'), 
-                                ITM.""U_COB_OREGS"", 
-                                ITM.""U_COB_ESTRS"" 
-                            FROM 
-                                " + uti.schemaHana + @"OIBT IBT 
-                            INNER JOIN 
-                                " + uti.schemaHana + @"OITM ITM ON ITM.""ItemCode"" = IBT.""ItemCode""
-                            LEFT JOIN 
-                                " + uti.schemaHana + @"OBTN BTN ON BTN.""ItemCode"" = ITM.""ItemCode""
-                            WHERE 
-                                BTN.""MnfSerial"" != '' AND IBT.""Quantity"" > 0 " + condWhere + @"
-                            GROUP BY 
-                                BTN.""MnfSerial"", 
-                                ITM.""ItemCode"", 
-                                ITM.""FirmCode"", 
-                                ITM.""ItemName"", 
-                                TO_CHAR(ITM.""U_COB_FECH_RS"", 'YYYY-MM-DD'), 
-                                ITM.""U_COB_OREGS"", 
-                                ITM.""U_COB_ESTRS""";
+            string query = @" SELECT TOP 50 
+                                                    BTN.""MnfSerial"", 
+                                                    ITM.""ItemCode"", 
+                                                    ITM.""FirmCode"", 
+                                                    ITM.""ItemName"", 
+                                                    TO_CHAR(ITM.""U_COB_FECH_RS"", 'YYYY-MM-DD'), 
+                                                    ITM.""U_COB_OREGS"", 
+                                                    EST.""Name"" 
+                                                FROM 
+                                                    " + uti.schemaHana + @"OIBT IBT 
+                                                INNER JOIN 
+                                                    " + uti.schemaHana + @"OITM ITM ON ITM.""ItemCode"" = IBT.""ItemCode""
+                                                LEFT JOIN 
+                                                    " + uti.schemaHana + @"OBTN BTN ON BTN.""ItemCode"" = ITM.""ItemCode""
+                                                LEFT JOIN " + uti.schemaHana + @"""@COB_ESTA_RS"" EST ON EST.""Code"" = ITM.""U_COB_ESTRS""
+                                               WHERE 
+                                                    BTN.""MnfSerial"" != '' AND IBT.""Quantity"" > 0 " + condWhere + @"
+                                                GROUP BY 
+                                                    BTN.""MnfSerial"", 
+                                                    ITM.""ItemCode"", 
+                                                    ITM.""FirmCode"", 
+                                                    ITM.""ItemName"", 
+                                                    TO_CHAR(ITM.""U_COB_FECH_RS"", 'YYYY-MM-DD'), 
+                                                    ITM.""U_COB_OREGS"", 
+                                                    EST.""Name""";
 
             try
             {
@@ -167,7 +158,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                         if (!hdr.IsDBNull(3)) { obj.DescArticulo = hdr.GetString(3); }
                         if (!hdr.IsDBNull(4)) { obj.FechaVenc = hdr.GetString(4); }
                         if (!hdr.IsDBNull(5)) { obj.Comentario = hdr.GetString(5); }
-                        if (!hdr.IsDBNull(6)) { obj.Estado = estadoOpciones[hdr.GetString(6)]; }
+                        if (!hdr.IsDBNull(6)) { obj.Estado = hdr.GetString(6); }
                         obj.IdOORS = ObtenerIdOORS(hdr.GetString(0), hdr.GetString(1));
 
                         lista.Add(obj);
@@ -232,7 +223,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                       BTN.""MnfSerial"" != '' AND 
                       ITM.""U_COB_FECH_RS"" != '' AND 
                       DAYS_BETWEEN(CURRENT_DATE, TO_CHAR(ITM.""U_COB_FECH_RS"", 'YYYY-MM-DD')) IN (0, 5, 15) AND 
-                      ITM.""U_COB_ESTRS"" IN ('01', '02')
+                      ITM.""U_COB_ESTRS"" IN ('01', '02', '06')
                 GROUP BY 
                       ITM.""ItemCode"", 
                       TO_CHAR(ITM.""U_COB_FECH_RS"", 'YYYY-MM-DD')";

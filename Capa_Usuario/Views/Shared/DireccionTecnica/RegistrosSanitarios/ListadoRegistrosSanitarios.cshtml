@@ -9,14 +9,13 @@
                 <th class="text-center">Comentario</th>
                 <th class="text-center">
                     Estado<br />
-                    <select id="estado" name="Estado" class="form-control-sm bg-cobefar text-white" onchange="$('#frm').submit();">
-                        <option value="">Seleccione</option>
-                        <option value="01" @if (!string.IsNullOrEmpty(ViewBag.ORS.Estado) && ViewBag.ORS.Estado.Equals("01")) { Write("selected"); }>Vigente</option>
-                        <option value="02" @if (!string.IsNullOrEmpty(ViewBag.ORS.Estado) && ViewBag.ORS.Estado.Equals("02")) { Write("selected"); }>Agotamiento de Stock</option>
-                        <option value="03" @if (!string.IsNullOrEmpty(ViewBag.ORS.Estado) && ViewBag.ORS.Estado.Equals("03")) { Write("selected"); }>Vencido</option>
-                        <option value="04" @if (!string.IsNullOrEmpty(ViewBag.ORS.Estado) && ViewBag.ORS.Estado.Equals("04")) { Write("selected"); }>Proceso de Reinscripción</option>
-                        <option value="05" @if (!string.IsNullOrEmpty(ViewBag.ORS.Estado) && ViewBag.ORS.Estado.Equals("05")) { Write("selected"); }>Cancelado</option>
-                    </select>
+                          <select id="estado" name="Estado" class="form-control-sm bg-cobefar text-white" onchange="$('#frm').submit();">
+                              <option value="">Seleccione</option>
+                              @foreach (var item in ViewBag.ListaEstadosRS)
+                              {
+                                  <option value="@item.Code"  @if (!string.IsNullOrEmpty(ViewBag.ORS.Estado) && ViewBag.ORS.Estado == item.Code) { Write("selected"); }>@item.Name</option>
+                              }
+                          </select>
                 </th>
                 <th class="text-center"></th>
                 <th class="text-center"></th>
@@ -85,7 +84,7 @@
         }).fail(function (jqXHR, textStatus, errorThrown) {
             console.log(jqXHR.status + textStatus + errorThrown);
         });
-        
+
         $('#modalInfo').modal('show');
     }
 
