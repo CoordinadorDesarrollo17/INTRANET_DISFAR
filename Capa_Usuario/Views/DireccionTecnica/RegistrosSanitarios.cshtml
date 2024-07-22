@@ -64,7 +64,7 @@
             }
         });
         $.ajax({
-            url: '/DireccionTecnica/ListarRegistrosSanitarios?'+window.location.search.substring(1),
+            url: '/DireccionTecnica/ListarRegistrosSanitarios?' + window.location.search.substring(1),
             type: 'POST',
         }).done(function (response) {
             $('#div_listado').html(response); Swal.close();
@@ -84,10 +84,12 @@
                 //console.log(response.Datos);
                 if (response.Datos.length >= 1) {
                     for (let indice in response.Datos) {
-                        //console.log(response.Datos[indice]);
+                        //console.log(response);
+                        let mensajeNotificacion = response.Datos[indice];
                         alertify.set('notifier', 'position', 'bottom-right');
-                        var msj = alertify.error(response.Datos[indice]);
-                        var url = `/DireccionTecnica/RegistrosSanitarios?CodArticulo=${response.Datos[indice]}`;
+                        var msj = alertify.error(mensajeNotificacion);
+                        let codArticulo = extraerCodArticulo(mensajeNotificacion);
+                        var url = `/DireccionTecnica/RegistrosSanitarios?CodArticulo=${codArticulo}`;
 
                         msj.callback = function (isClicked) {
                             if (isClicked)
@@ -106,5 +108,11 @@
 
     function exportarListado() {
         $(location).attr('href', `/Ventas/ExportarListadoTicketsACuadrar?${window.location.search.substring(1)}`);
+    }
+
+    function extraerCodArticulo(input) {
+        const pattern = /Cód\. Artículo:\s*(\w+)\s*vencerá/;
+        const match = input.match(pattern);
+        return match ? match[1] : null;
     }
 </script>
