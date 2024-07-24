@@ -92,6 +92,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                        " ORDER BY T0.\"DocDate\",T0.\"CardCode\",T0.\"DocEntry\"", hcn);
                 hcmd.CommandType = CommandType.Text;
                 HanaDataReader hdr = hcmd.ExecuteReader();
+
                 while (hdr.Read())
                 {
                     OrdenDeVenta_E o = new OrdenDeVenta_E();
@@ -101,6 +102,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     o.DocTotal = hdr.GetDecimal(2);
                     o.LugarDeEntrega = hdr.GetString(3);
                     o.AlmacenSalida = hdr.GetString(4);
+
                     lista.Add(o);
                 }
                 hdr.Close();
