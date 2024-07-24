@@ -1540,7 +1540,6 @@ namespace Capa_Usuario.Controllers
                     var listaUsuarios = u_N.ListaUsuarios(new Usuario_E() { Prefijo = "ALM" });
                     var usuariosDistinct = listaUsuarios.Select(x => $"{x.Nombres} {x.Apellidos}").Distinct().ToList();
                     ViewBag.ListaUsuarios = usuariosDistinct;
-                    //return RedirectToAction("ListadoTicketsAlmacen", new { DocNum = DocNum,Mensaje= "Ticket se ha verificado" });
                     return Json(new { DocNum = DocNum, Mensaje = $"Ticket {DocNum} verificado correctamente" });
                 }
                 catch (Exception e)
@@ -1650,14 +1649,6 @@ namespace Capa_Usuario.Controllers
                     var usuariosDistinct = listaUsuarios.Select(x => $"{x.Nombres} {x.Apellidos}").Distinct().ToList();
                     ViewBag.ListaUsuarios = usuariosDistinct;
                     ORTV_E ticket = ticketN.obtenerTicket(DocEntry);
-                    /* al ser una vista restringida nunca se usara que muestre los operarios de este estado
-					 List<CC_ORTV_E> ticketEmpacado = new List<CC_ORTV_E>();
-					if (ticketEmpacado != null && ticketEmpacado.Count >= 1)
-					{  ticket.OpEmpacado = ticketEmpacado[0].Operario;
-						ticket.FechaEmpacado = ticketEmpacado[0].FechaOperacion;
-						ticket.HoraEmpacado = ticketEmpacado[0].HoraOperacion;
-					}*/
-
                     return View(ticket);
                 }
                 catch (Exception e)
@@ -1681,22 +1672,27 @@ namespace Capa_Usuario.Controllers
             {
                 try
                 {
-                    Usuario_E u = (Usuario_E)Session["UsuarioId"];
-                    ORTV_E tc = ticketN.obtenerTicket(DocEntry);
-                    tc.OpRegistro = $"{u.Nombres} {u.Apellidos}";
-                    tc.Cajas = ticketPost.Cajas;
-                    tc.NroMesa = ticketPost.NroMesa;
-                    tc.AlmProcedencia = ticketPost.AlmProcedencia;
-                    tc.Operario = u.WhsCode;
-                    tc.Det13 = ticketPost.Det13;        // OpEmpacador 2 y OpEmpacador 3
-                                                        //envia el dato de WhsCode del usuario
-                    tc.Operario = u.WhsCode;
-                    int DocNum = ticketN.editarSeguimientoTicket("FIN EMPACAR", DocEntry, tc);
+                    Usuario_E usuario = (Usuario_E)Session["UsuarioId"];
+                    ORTV_E ticket = ticketN.obtenerTicket(DocEntry);
+                    ticket.OpRegistro = $"{usuario.Nombres} {usuario.Apellidos}";
+                    ticket.Cajas = ticketPost.Cajas;
+                    ticket.NroMesa = ticketPost.NroMesa;
+                    ticket.AlmProcedencia = ticketPost.AlmProcedencia;
+                    ticket.Operario = usuario.WhsCode;      //envia el dato de WhsCode del usuario
+                    ticket.Det13 = ticketPost.Det13;        // OpEmpacador 2 y OpEmpacador 3
+                                                            
+                    int DocNum = ticketN.editarSeguimientoTicket("FIN EMPACAR", DocEntry, ticket);
                     var listaUsuarios = u_N.ListaUsuarios(new Usuario_E() { Prefijo = "ALM" });
                     var usuariosDistinct = listaUsuarios.Select(x => $"{x.Nombres} {x.Apellidos}").Distinct().ToList();
                     ViewBag.ListaUsuarios = usuariosDistinct;
-                    return RedirectToAction("ListadoTicketsAlmacen", new { DocNum = DocNum, Mensaje = "Ticket empacado correctamente", DescargarPDF = 1, NumTicket = DocEntry, LugarDestino = ticketPost.LugarDestino });
-                }
+                    if (ticket.LugarDestino.Equals("Agencia"))
+                    {
+                        return RedirectToAction("ListadoTicketsAlmacen", new { DocNum = DocNum, Mensaje = "Ticket empacado correctamente", DescargarPDF = 0, NumTicket = DocEntry, LugarDestino = ticketPost.LugarDestino });
+                    }
+                    else { 
+                        return RedirectToAction("ListadoTicketsAlmacen", new { DocNum = DocNum, Mensaje = "Ticket empacado correctamente", DescargarPDF = 1, NumTicket = DocEntry, LugarDestino = ticketPost.LugarDestino });
+                    }
+                 }
                 catch (Exception e)
                 {
                     ViewBag.Mensaje = e.Message;
