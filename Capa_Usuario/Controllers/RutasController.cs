@@ -1077,7 +1077,7 @@ namespace Capa_Usuario.Controllers
                 {
                     foreach (RRU0_E r0 in o.DetRRU0)
                     {
-                        r0.Ticket = ortvN.obtenerTicket(r0.DocEntryTicket);
+                        r0.Ticket = ortvN.ObtenerDatosCompletosTicket(r0.DocEntryTicket);
                     }
                 }
                 return View(o);
@@ -1150,7 +1150,7 @@ namespace Capa_Usuario.Controllers
                 string Destino = string.Empty;
                 ORTV_N ortvN = new ORTV_N(); COUR_N courN = new COUR_N(); OUR2_N oN = new OUR2_N();
                 RTV6_N rtv6N = new RTV6_N();
-                ORTV_E obj = ortvN.obtenerTicket(DocEntry);
+                ORTV_E obj = ortvN.ObtenerDatosCompletosTicket(DocEntry);
                 var Courier = courN.Obtener(obj.Agencia);
                 if (obj.LugarDestino == "Agencia Courier")
                 {
@@ -1208,7 +1208,7 @@ namespace Capa_Usuario.Controllers
             {
                 string msj;
                 ORTV_N ortvN = new ORTV_N(); RRU0_N rru0N = new RRU0_N();
-                var tc = ortvN.obtenerTicket(DocEntryTicket);
+                var tc = ortvN.ObtenerDatosCompletosTicket(DocEntryTicket);
 
                 RRU0_E rru0E = rru0N.buscarRRU0(DocEntry, Linea);
                 if (TipoRuta == "AC" /*&& tc.IdReg == 0 */)
@@ -1484,7 +1484,7 @@ namespace Capa_Usuario.Controllers
         //    OINV_N oinvN = new OINV_N();
         //    ORIN_N orinN = new ORIN_N();
         //    TEMP_RRU01_N negTemp = new TEMP_RRU01_N();
-        //    ORTV_E ticket = negTicket.obtenerTicket(DocEntryTicket); List<TEMP_RRU01_E> Documentos = new List<TEMP_RRU01_E>();
+        //    ORTV_E ticket = negTicket.ObtenerDatosCompletosTicket(DocEntryTicket); List<TEMP_RRU01_E> Documentos = new List<TEMP_RRU01_E>();
         //    /********************************************************GUIAS REMISION ************************************************/
         //    List<TEMP_RRU01_E> GuiasRemision = new List<TEMP_RRU01_E>();
         //    if (ticket.LugarDestino.Equals("Domicilio") || ticket.LugarDestino.Equals("Agencia"))
@@ -2018,7 +2018,7 @@ namespace Capa_Usuario.Controllers
                 {
                     foreach (RRU0_E r0 in o.DetRRU0)
                     {
-                        r0.Ticket = ortvN.obtenerTicket(r0.DocEntryTicket);
+                        r0.Ticket = ortvN.ObtenerDatosCompletosTicket(r0.DocEntryTicket);
                     }
                 }
             }
@@ -2037,7 +2037,7 @@ namespace Capa_Usuario.Controllers
                 {
                     foreach (RRU0_E r0 in o.DetRRU0)
                     {
-                        r0.Ticket = ortvN.obtenerTicket(r0.DocEntryTicket);
+                        r0.Ticket = ortvN.ObtenerDatosCompletosTicket(r0.DocEntryTicket);
                     }
                 }
             }
@@ -2056,7 +2056,7 @@ namespace Capa_Usuario.Controllers
                 {
                     foreach (RRU0_E r0 in o.DetRRU0)
                     {
-                        r0.Ticket = ortvN.obtenerTicket(r0.DocEntryTicket);
+                        r0.Ticket = ortvN.ObtenerDatosCompletosTicket(r0.DocEntryTicket);
                     }
                 }
             }
@@ -2075,7 +2075,7 @@ namespace Capa_Usuario.Controllers
                 {
                     foreach (RRU0_E r0 in o.DetRRU0)
                     {
-                        r0.Ticket = ortvN.obtenerTicket(r0.DocEntryTicket);
+                        r0.Ticket = ortvN.ObtenerDatosCompletosTicket(r0.DocEntryTicket);
                     }
                 }
             }

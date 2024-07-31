@@ -1,15 +1,42 @@
 ﻿@model IEnumerable<Capa_Entidad.Ventas_ENT.TablasSql.ORTV_E>
 @{
-    ViewBag.Title = "ListadoTicketsAlmacen";
+    ViewBag.Title = "ListadoTicketsPickingPacking";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <script>
     function filtrar() {
         var object = $("#frm").serialize();
-        $(location).attr('href', "/Ventas/ListadoTicketsAlmacen?" + object);
+        $(location).attr('href', "/Ventas/ListadoTicketsPickingPacking?" + object);
     }
 </script>
+<style>
+    .table-hover-custom tbody tr:hover {
+        background-color: #d5f5e3;
+        cursor: pointer;
+    }
 
+    i {
+        font-size: 20px;
+    }
+
+    .btn-guinda {
+        background-color: #a43b3b;
+        border-color: #a43b3b;
+        color: #fff;
+    }
+
+    .btn-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+
+        .btn-container a {
+            margin-bottom: 10px; /* Espaciado entre botones */
+        }
+</style>
 <div class="pt-4">
     <nav>
         <ol class="cd-breadcrumb bg-dark">
@@ -22,8 +49,6 @@
 <div class="bg-dark border-cabecera-seccion pb-2">
     <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO TICKETS DE ALMACÉN</h3></div>
 
-    @*@if (ViewBag.ExportarExcelPicking == "SI")
-        {*@
     <div class="row pl-2 w-100">
         <div class="d-flex col-lg-8 col-md-6 col-sm-12 col-6">
             <button type="button" class="btn btn-success font-weight-bold mx-1 my-1" title="Descargar Reporte Errores de Picking" data-toggle="modal" data-target="#modalReporte" onclick="">
@@ -31,12 +56,11 @@
             </button>
         </div>
     </div>
-    @*}*@
 
 </div>
 <form name="frm" id="frm">
-    <div class="bg-dark pt-4">
-        <table class="table table-light table-sm table-responsive-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
+    <div class="bg-dark pt-2 table-responsive">
+        <table class="table table-light cls-dataTable50 table-hover-custom" cellspacing="0" width="100%">
             <thead class="thead-dark">
                 <tr>
                     <th class="text-center">
@@ -127,6 +151,7 @@
                     <th class="text-center">
                         Tiempo Entrega
                     </th>
+                    @*12 columnas*@
                     @if (!string.IsNullOrEmpty(ViewBag.AlmUsuario) && ViewBag.AlmUsuario == "07")
                     {
                         <th></th>
@@ -134,10 +159,6 @@
                     }
                     else
                     {
-                        <th></th>
-                        <th></th>
-
-                        <th></th>
                         <th></th>
                         <th></th>
                         <th></th>
@@ -274,21 +295,37 @@
                                 Write(Convert.ToDateTime(item.TiempoEntrega).TimeOfDay);
                             }
                         </td>
-
+                        @*12 columnas*@
                         @if (!string.IsNullOrEmpty(ViewBag.AlmUsuario) && ViewBag.AlmUsuario == "07")
                         {
                             <td if="ip-if" class="text-center">
                                 @*El boton "INICIO PICKING" solo se habilita si y solo si, el ticket tiene como ultimo estado "RECIBIR" y se encuentra en estado general RECIBIDO*@
                                 @if (condIniPickingExc && (ViewBag.RolSupervisor == 50 || ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 52 || ViewBag.RolSupervisor == 53 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4))
                                 {
-                                    <a href="@Url.Action("IniciarSacandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-success btn-sm"> Inicio <br /> Picking </a>
+                                    @*<a href="@Url.Action("IniciarSacandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-success btn-sm"> Inicio <br /> Picking </a>*@
+                                    <a href="@Url.Action("IniciarSacandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })"
+                                       class="btn btn-cobefar btn-sm"
+                                       data-toggle="tooltip"
+                                       data-placement="top"
+                                       title="Inicio Picking">
+                                        <i class="icon icon-play2"></i>
+                                    </a>
+
                                 }
+
                             </td>
                             <td class="text-center">
                                 @*El boton "FIN EMPACAR" solo se habilita si el ticket tiene cantidad de cajas mayor a cero (quiere decir que ya ha sido verificado) y si tiene como ultimo estado en la tabla control de cambios "INICIO EMPACAR" o "ANULAR FIN EMPACAR" asi mismo tiene que estar en estado general EMPACANDO o VERIFICANDO*@
                                 @if (condFinEmpacarExc && (ViewBag.RolSupervisor == 50 || ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 52 || ViewBag.RolSupervisor == 53 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4))
                                 {
-                                    <a href="@Url.Action( "EmpacadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry  } )" class="btn btn-naranja btn-sm">Fin <br />Empacar</a>
+                                    @*<a href="@Url.Action( "EmpacadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry  } )" class="btn btn-naranja btn-sm">Fin <br />Empacar</a>*@
+                                    <a href="@Url.Action("EmpacadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })"
+                                       class="btn btn-naranja btn-sm"
+                                       data-toggle="tooltip"
+                                       data-placement="top"
+                                       title="Fin Packing">
+                                        <i class="icon icon-stop"></i>
+                                    </a>
                                 }
                             </td>
 
@@ -297,50 +334,99 @@
                         {
                             <td id="ip-else" class="text-center">
                                 @*El boton "INICIO PICKING" solo se habilita si y solo si, el ticket tiene como ultimo estado "RECIBIR" y se encuentra en estado general RECIBIDO*@
-                                @if (condIniPicking && (ViewBag.RolSupervisor == 50 || ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 52 || ViewBag.RolSupervisor == 53 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4))
+                                @if ((ViewBag.RolSupervisor == 50 || ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 52 || ViewBag.RolSupervisor == 53 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4))
                                 {
-                                    <a href="@Url.Action("IniciarSacandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-success btn-sm"> Inicio <br /> Picking </a>
-                                }
-                            </td>
+                                    <div class="btn-container">
+                                        @if (condIniPicking)
+                                        {
+                                            @*<a href="@Url.Action("IniciarSacandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-success btn-sm"> Inicio <br /> Picking </a>*@
+                                            <a href="@Url.Action("IniciarSacandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })"
+                                               class="btn btn-cobefar btn-sm"
+                                               data-toggle="tooltip"
+                                               data-placement="top"
+                                               title="Inicio Picking">
+                                                <i class="icon icon-play2"></i>
+                                            </a>
+                                        }
+                                        @if (condFinPicking)
+                                        {
+                                            @*El boton "FIN PICKING" solo se habilita si y solo si el ticket se encuentra en estado PICKEANDO*@
 
-                            <td class="text-center">
-                                @*El boton "FIN PICKING" solo se habilita si y solo si el ticket se encuentra en estado PICKEANDO*@
-                                @if (condFinPicking && (ViewBag.RolSupervisor == 50 || ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 52 || ViewBag.RolSupervisor == 53 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4))
-                                {
-                                    <a href="@Url.Action("SacandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-success btn-sm"> Fin <br /> Picking </a>
+                                            @*<a href="@Url.Action("SacandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-success btn-sm"> Fin <br /> Picking </a>*@
+                                            <a href="@Url.Action("SacandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })"
+                                               class="btn btn-cobefar btn-sm"
+                                               data-toggle="tooltip"
+                                               data-placement="top"
+                                               title="Fin Picking">
+                                                <i class="icon icon-stop"></i>
+                                            </a>
+                                        }
+                                    </div>
                                 }
                             </td>
 
                             <td class="text-center">
                                 @*El boton "INICIO VERIFICAR" solo se habilita si y solo si el ticket tiene como ultimo estado "FIN PICKING" o "INICIO PICKING" o "ANULAR INICIO VERIFICAR"*@
-                                @if (condIniVerificar && (ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4))
+                                @if (ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4)
                                 {
-                                    <a href="@Url.Action("IniciarVerificandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-amarillo btn-sm"> Inicio <br /> Verificar </a>
-                                }
-                            </td>
-
-                            <td class="text-center">
-                                @*El boton "FIN VERIFICAR" solo se habilita en dos casos, si el ticket tiene en su tabla de control de cambios el FIN PICKING, pero si en caso tambien se encuentra un ANULAR FIN PICKING se tendra que comparar la fecha y hora para saber con certeza que el FIN PICKING se ha dado, o tambien si el ticket esta en estado general VERIFICANDO*@
-                                @if (condFinVerificar && (ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4))
-                                {
-                                    <a href="@Url.Action("VerificadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-amarillo btn-sm">Fin <br /> Verificar </a>
+                                    <div class="btn-container">
+                                        @if (condIniVerificar)
+                                        {
+                                            @*<a href="@Url.Action("IniciarVerificandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-amarillo btn-sm"> Inicio <br /> Verificar </a>*@
+                                            <a href="@Url.Action("IniciarVerificandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })"
+                                               class="btn btn-amarillo btn-sm"
+                                               data-toggle="tooltip"
+                                               data-placement="top"
+                                               title="Inicio Verificar">
+                                                <i class="icon icon-play2"></i>
+                                            </a>
+                                        }
+                                        @*El boton "FIN VERIFICAR" solo se habilita en dos casos, si el ticket tiene en su tabla de control de cambios el FIN PICKING, pero si en caso tambien se encuentra un ANULAR FIN PICKING se tendra que comparar la fecha y hora para saber con certeza que el FIN PICKING se ha dado, o tambien si el ticket esta en estado general VERIFICANDO*@
+                                        @if (condFinVerificar)
+                                        {
+                                            @*<a href="@Url.Action("VerificadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-amarillo btn-sm">Fin <br /> Verificar </a>*@
+                                            <a href="@Url.Action("VerificadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })"
+                                               class="btn btn-amarillo btn-sm"
+                                               data-toggle="tooltip"
+                                               data-placement="top"
+                                               title="Fin Verificar">
+                                                <i class="icon icon-stop"></i>
+                                            </a>
+                                        }
+                                    </div>
                                 }
                             </td>
 
                             <td class="text-center">
                                 @*El boton "INICIO EMPACAR" solo se habilita si y solo si el ticket tiene como ultimo estado "INICIO VERIFICAR" o "FIN VERIFICAR" o "ANULAR INICIO EMPACAR" y cuando el estado de ticket esta en PICKEANDO o en VERIFICANDO*@
-                                @if (condIniEmpacar && (ViewBag.RolSupervisor == 50 || ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 52 || ViewBag.RolSupervisor == 53 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4))
+                                @if (ViewBag.RolSupervisor == 50 || ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 52 || ViewBag.RolSupervisor == 53 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4)
                                 {
-                                    <a href="@Url.Action("IniciarEmpacandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-naranja btn-sm"> Inicio <br /> Empacar </a>
-                                }
-                            </td>
+                                    <div class="btn-container">
+                                        @if (condIniEmpacar)
+                                        {
+                                            @*<a href="@Url.Action("IniciarEmpacandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-naranja btn-sm"> Inicio <br /> Empacar </a>*@
+                                            <a href="@Url.Action("IniciarEmpacandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })"
+                                               class="btn btn-naranja btn-sm"
+                                               data-toggle="tooltip"
+                                               data-placement="top"
+                                               title="Inicio Packing">
+                                                <i class="icon icon-play2"></i>
+                                            </a>
+                                        }
+                                        @if (condFinEmpacar)
+                                        {
+                                            @*El boton "FIN EMPACAR" solo se habilita si el ticket tiene cantidad de cajas mayor a cero (quiere decir que ya ha sido verificado) y si tiene como ultimo estado en la tabla control de cambios "INICIO EMPACAR" o "ANULAR FIN EMPACAR" asi mismo tiene que estar en estado general EMPACANDO o VERIFICANDO*@
 
-                            <td class="text-center">
-                                @*El boton "FIN EMPACAR" solo se habilita si el ticket tiene cantidad de cajas mayor a cero (quiere decir que ya ha sido verificado) y si tiene como ultimo estado en la tabla control de cambios "INICIO EMPACAR" o "ANULAR FIN EMPACAR" asi mismo tiene que estar en estado general EMPACANDO o VERIFICANDO*@
-                                @if (condFinEmpacar && (ViewBag.RolSupervisor == 50 || ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 52 || ViewBag.RolSupervisor == 53 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4))
-                                {
-
-                                    <a href="@Url.Action( "EmpacadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry  } )" class="btn btn-naranja btn-sm">Fin <br />Empacar</a>
+                                            @*<a href="@Url.Action( "EmpacadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry  } )" class="btn btn-naranja btn-sm">Fin <br />Empacar</a>*@
+                                            <a href="@Url.Action("EmpacadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })"
+                                               class="btn btn-naranja btn-sm"
+                                               data-toggle="tooltip"
+                                               data-placement="top"
+                                               title="Fin Packing">
+                                                <i class="icon icon-stop"></i>
+                                            </a>
+                                        }
+                                    </div>
                                 }
                             </td>
                         }
@@ -353,11 +439,26 @@
                                     @if ((item.ultimoCCEstado == "INICIO PICKING" || item.ultimoCCEstado == "ANULAR FIN PICKING") && item.hayIniPicking && item.Estado == "PICKEANDO" && item.hayFinPicking == false)
                                     {
 
-                                        <a href="@Url.Action("AnularIniciarSacandoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Inicio Picking</a>
+                                        @*<a href="@Url.Action("AnularIniciarSacandoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Inicio Picking</a>*@
+
+                                        <a href="@Url.Action("AnularIniciarSacandoTicket", "Ventas", new { DocEntry = item.DocEntry })"
+                                           class="btn btn-danger btn-sm"
+                                           data-toggle="tooltip"
+                                           data-placement="top"
+                                           title="Anular Inicio Picking">
+                                            <i class="icon icon-undo"></i>
+                                        </a>
                                     }
                                     @if (item.Estado == "EMPACADO")
                                     {
-                                        <a href="@Url.Action("AnularEmpacadoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Fin Empacar</a>
+                                        @*<a href="@Url.Action("AnularEmpacadoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Fin Empacar</a>*@
+                                        <a href="@Url.Action("AnularEmpacadoTicket", "Ventas", new { DocEntry = item.DocEntry })"
+                                           class="btn btn-danger btn-sm"
+                                           data-toggle="tooltip"
+                                           data-placement="top"
+                                           title="Anular Fin Packing">
+                                            <i class="icon icon-undo"></i>
+                                        </a>
                                     }
                                 </td>
                             }
@@ -367,29 +468,70 @@
 
                                     @if ((item.ultimoCCEstado == "INICIO PICKING" || item.ultimoCCEstado == "ANULAR FIN PICKING" || item.ultimoCCEstado == "ANULAR INICIO VERIFICAR") && item.hayIniPicking && item.Estado == "PICKEANDO" && item.hayFinPicking == false)
                                     {
-                                        <a href="@Url.Action("AnularIniciarSacandoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Inicio Picking</a>
+                                        @*<a href="@Url.Action("AnularIniciarSacandoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Inicio Picking</a>*@
+                                        <a href="@Url.Action("AnularIniciarSacandoTicket", "Ventas", new { DocEntry = item.DocEntry })"
+                                           class="btn btn-danger btn-sm"
+                                           data-toggle="tooltip"
+                                           data-placement="top"
+                                           title="Anular Inicio Picking">
+                                            <i class="icon icon-undo"></i>
+                                        </a>
                                     }
 
                                     @if ((item.ultimoCCEstado == "FIN PICKING" || item.ultimoCCEstado == "ANULAR INICIO VERIFICAR") && item.hayFinPicking)
                                     {
-                                        <a href="@Url.Action("AnularSacandoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Fin Picking</a>
+                                        @*<a href="@Url.Action("AnularSacandoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Fin Picking</a>*@
+                                        <a href="@Url.Action("AnularSacandoTicket", "Ventas", new { DocEntry = item.DocEntry })"
+                                           class="btn btn-danger btn-sm"
+                                           data-toggle="tooltip"
+                                           data-placement="top"
+                                           title="Anular Fin Picking">
+                                            <i class="icon icon-undo"></i>
+                                        </a>
                                     }
                                     @if ((item.ultimoCCEstado == "INICIO VERIFICAR" || item.ultimoCCEstado == "ANULAR FIN VERIFICAR" || item.ultimoCCEstado == "ANULAR INICIO EMPACAR") && item.hayIniVerificar && item.hayFinVerificar == false)
                                     {
-                                        <a href="@Url.Action("AnularIniciarVerificandoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Inicio Verificar</a>
+                                        @*<a href="@Url.Action("AnularIniciarVerificandoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Inicio Verificar</a>*@
+                                        <a href="@Url.Action("AnularIniciarVerificandoTicket", "Ventas", new { DocEntry = item.DocEntry })"
+                                           class="btn btn-danger btn-sm"
+                                           data-toggle="tooltip"
+                                           data-placement="top"
+                                           title="Anular Inicio Verificar">
+                                            <i class="icon icon-undo"></i>
+                                        </a>
                                     }
                                     @if ((item.ultimoCCEstado == "FIN VERIFICAR" || item.ultimoCCEstado == "ANULAR INICIO EMPACAR") && item.hayFinVerificar)
                                     {
-                                        <a href="@Url.Action("AnularVerificadoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Fin Verificar</a>
+                                        @*<a href="@Url.Action("AnularVerificadoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Fin Verificar</a>*@
+                                        <a href="@Url.Action("AnularVerificadoTicket", "Ventas", new { DocEntry = item.DocEntry })"
+                                           class="btn btn-danger btn-sm"
+                                           data-toggle="tooltip"
+                                           data-placement="top"
+                                           title="Anular Fin Verificar">
+                                            <i class="icon icon-undo"></i>
+                                        </a>
                                     }
                                     @if ((item.ultimoCCEstado == "INICIO EMPACAR" || item.ultimoCCEstado == "ANULAR FIN EMPACAR") && item.hayIniEmpacar && item.hayFinEmpacar == false)
                                     {
-                                        <a href="@Url.Action("AnularIniciarEmpacandoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Inicio Empacar</a>
+                                        @*<a href="@Url.Action("AnularIniciarEmpacandoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Inicio Empacar</a>*@
+                                        <a href="@Url.Action("AnularIniciarEmpacandoTicket", "Ventas", new { DocEntry = item.DocEntry })"
+                                           class="btn btn-danger btn-sm"
+                                           data-toggle="tooltip"
+                                           data-placement="top"
+                                           title="Anular Inicio Packing">
+                                            <i class="icon icon-undo"></i>
+                                        </a>
                                     }
                                     @if (item.Estado == "EMPACADO")
                                     {
-                                        <a href="@Url.Action("AnularEmpacadoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Fin Empacar</a>
-
+                                        @*<a href="@Url.Action("AnularEmpacadoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Fin Empacar</a>*@
+                                        <a href="@Url.Action("AnularEmpacadoTicket", "Ventas", new { DocEntry = item.DocEntry })"
+                                           class="btn btn-danger btn-sm"
+                                           data-toggle="tooltip"
+                                           data-placement="top"
+                                           title="Anular Fin Packing">
+                                            <i class="icon icon-undo"></i>
+                                        </a>
                                     }
                                 </td>
                             }
@@ -401,13 +543,27 @@
 
                                 if ((item.LugarDestino.Equals("Centro") || item.LugarDestino.Equals("Arriola")))
                                 {
-                                    <a href="#" class="btn btn-danger btn-sm" onclick="cancelarTicket(@item.DocEntry);"><i title="CANCELAR" class="icon-cross text-light"></i></a>
+                                    @*<a href="#" class="btn btn-danger btn-sm" onclick="cancelarTicket(@item.DocEntry);"><i title="CANCELAR" class="icon-cross text-light"></i></a>*@
+                                    <a href="#" onclick="cancelarTicket(@item.DocEntry);"
+                                       class="btn btn-danger btn-sm"
+                                       data-toggle="tooltip"
+                                       data-placement="top"
+                                       title="Cancelar ticket">
+                                        <i class="icon icon-cancel-circle"></i>
+                                    </a>
                                 }
                                 else
                                 {
                                     if (item.Estado.Equals("EMPACADO") || item.Estado.Equals("PESADO"))
                                     {
-                                        <a href="#" class="btn btn-danger btn-sm" onclick="cancelarTicket(@item.DocEntry);"><i title="CANCELAR" class="icon-cross text-light"></i></a>
+                                        @*<a href="#" class="btn btn-danger btn-sm" onclick="cancelarTicket(@item.DocEntry);"><i title="CANCELAR" class="icon-cross text-light"></i></a>*@
+                                        <a href="#" onclick="cancelarTicket(@item.DocEntry);"
+                                           class="btn btn-danger btn-sm"
+                                           data-toggle="tooltip"
+                                           data-placement="top"
+                                           title="Cancelar ticket">
+                                            <i class="icon icon-cancel-circle"></i>
+                                        </a>
                                     }
                                 }
                             }
@@ -415,21 +571,52 @@
                         <td>
                             @if ((item.Estado.Equals("PICKEANDO") || item.Estado.Equals("VERIFICANDO") || item.Estado.Equals("EMPACANDO") || item.Estado.Equals("EMPACADO") || item.Estado.Equals("PESADO") || item.Estado.Equals("PREENVIO") || item.Estado.Equals("ENVIADO") || item.Estado.Equals("ENTREGADO")) && item.LugarDestino.Equals("Agencia"))
                             {
-                                <a href="@Url.Action( "PdfRotuladoTicket", "Ventas", new { DocEntry = item.DocEntry  } )" title="Rotulado">
-                                    <i class="icon-file-pdf text-danger bordered mt-2 font-30"></i>
-                                </a>
+                                <div class="btn-container">
+                                    <a href="@Url.Action("PdfRotuladoTicket", "Ventas", new { DocEntry = item.DocEntry })"
+                                       class="btn btn-info btn-sm"
+                                       data-toggle="tooltip"
+                                       data-placement="top"
+                                       title="Descargar Rotulado">
+                                        <i class="icon icon-info"></i>
+                                    </a>
+
+                                    @if (!item.Estado.Equals("PICKEANDO"))
+                                    {
+                                        <a href="@Url.Action("ConsultarDocumentos", "Ventas", new { DocEntry = item.DocEntry })"
+                                           class="btn btn-guinda btn-sm btn-descarga-pdf"
+                                           data-toggle="tooltip"
+                                           data-placement="top"
+                                           title="Facturas">
+                                            <i class="icon icon-file-pdf"></i>
+                                        </a>
+                                    }
+                                </div>
                             }
+
                             else if ((item.Estado.Equals("EMPACADO") || item.Estado.Equals("PREENVIO") || item.Estado.Equals("ENVIADO") || item.Estado.Equals("ENTREGADO")) && !item.LugarDestino.Equals("Agencia"))
                             {
-                                <a href="@Url.Action( "PdfTacoEmpaque", "Ventas", new { DocEntry = item.DocEntry  } )" title="TacoEmpaque">
-                                    <i class="icon-file-pdf text-danger bordered mt-2 font-30"></i>
+                                //FACTURA PARA OTROS DESTINOS
+
+                                <a href="@Url.Action("ConsultarDocumentos", "Ventas", new { DocEntry = item.DocEntry })"
+                                   class="btn btn-guinda btn-sm btn-descarga-pdf"
+                                   data-toggle="tooltip"
+                                   data-placement="top"
+                                   title="Facturas">
+                                    <i class="icon icon-file-pdf"></i>
                                 </a>
                             }
                         </td>
                         <td class="text-center">
-                            <a href="@Url.Action( "SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry  } )" type="button" target="_blank" class="btn btn-dark btn-sm"
-                               onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;">
-                                <i title="Seguimiento de ticket" class="icon-truck"></i>
+                            @*<a href="@Url.Action( "SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry  } )" type="button" target="_blank" class="btn btn-dark btn-sm"
+                                   onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;">
+                                    <i title="Seguimiento de ticket" class="icon-truck"></i>
+                                </a>*@
+                            <a href="@Url.Action("SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry })" type="button" target="_blank" onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;"
+                               class="btn btn-dark btn-sm"
+                               data-toggle="tooltip"
+                               data-placement="top"
+                               title="Seguimiento de ticket">
+                                <i class="icon icon-truck font-15"></i>
                             </a>
                         </td>
                     </tr>
@@ -438,6 +625,23 @@
         </table>
     </div>
 </form>
+
+<!-- Modal de carga -->
+<div id="loadingModal" class="modal" tabindex="-1" role="dialog" style="display:none;">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cargando...</h5>
+            </div>
+            <div class="modal-body">
+                <p>Por favor, espere mientras se carga la información.</p>
+                <div class="spinner-border" role="status">
+                    <span class="sr-only">Cargando...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Modal -->
 <div class="modal fade" id="modalReporte" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -490,26 +694,33 @@
         </div>
     </div>
 </div>
-
-@if (Request["DescargarPDF"] == "1")
-{
-    <script>
-        Swal.fire({
-            text: 'En breve se descargará el TacoEmpaque',
-            timer: 1500,
-            timerProgressBar: true,
-            showConfirmButton: false
-        });
-        location.href = '/Ventas/PdfTacoEmpaque?DocEntry=' + @Request["NumTicket"];
-
-    </script>
-
-}
 <script>
-    if ('@ViewBag.Mensaje' != "") {
-        Swal.fire('@ViewBag.Mensaje');
-    }
+    $(document).ready(function () {
+            // Inicializar tooltips
+        $('[data-toggle="tooltip"]').tooltip();
 
+            // Mostrar mensaje si ViewBag.Mensaje no está vacío
+            if ('@ViewBag.Mensaje' !== "") {
+                Swal.fire('@ViewBag.Mensaje');
+            }
+
+    
+            $('.btn-descarga-pdf').on('click', function (event) {
+                event.preventDefault();
+
+                // Obtener la URL del enlace
+                var url = $(this).attr('href');
+
+                // Abrir la URL en una nueva ventana
+                window.open(url, '_blank', 'noopener,noreferrer');
+
+            });
+        
+
+
+    });
+
+    // Función para cancelar ticket
     function cancelarTicket(DocEntry) {
         const swalWithBootstrapButtons = Swal.mixin({
             customClass: {
@@ -517,7 +728,7 @@
                 cancelButton: 'btn btn-danger mx-4'
             },
             buttonsStyling: false
-        })
+        });
 
         swalWithBootstrapButtons.fire({
             title: '¿Está seguro(a) de cancelar el ticket?',
@@ -529,28 +740,55 @@
             reverseButtons: true
         }).then((result) => {
             if (result.isConfirmed) {
-                location.href = '/Ventas/CancelarTicket?DocEntry=' + DocEntry + '&vista=ListadoTicketsAlmacen';
+                location.href = `/Ventas/CancelarTicket?DocEntry=${DocEntry}&vista=ListadoTicketsPickingPacking`;
             }
         });
     }
 
+    // Función para validar filtros de reporte
     function validarFiltrosReporte() {
-        let fechaTicketDesde = document.getElementById("FechaTicketDesdeEP").value;
-        let fechaTicketHasta = document.getElementById("FechaTicketHastaEP").value;
-        let estado = document.getElementById("EstadoEP").value;
-        let docNumTicket = document.getElementById("DocNumTicketEP").value;
+        const fechaTicketDesde = document.getElementById("FechaTicketDesdeEP").value;
+        const fechaTicketHasta = document.getElementById("FechaTicketHastaEP").value;
+        const estado = document.getElementById("EstadoEP").value;
+        const docNumTicket = document.getElementById("DocNumTicketEP").value;
 
-        if (docNumTicket =='' && (fechaTicketDesde == '' || fechaTicketHasta == '')) {
+        // Verificar si se seleccionó un rango de fecha válido
+        if (docNumTicket === '' && (fechaTicketDesde === '' || fechaTicketHasta === '')) {
             Swal.fire('Por favor seleccione un rango de fecha válido');
         } else {
-            let params = `FechaTicketDesde=${fechaTicketDesde}&FechaTicketHasta=${fechaTicketHasta}&Estado=${estado}&DocNumTicket=${docNumTicket}`;
-            window.open(`/Ventas/ExportarReporteErroresPicking?${params}`, '_blank', 'noopener, noreferrer');
+            const params = new URLSearchParams({
+                FechaTicketDesde: fechaTicketDesde,
+                FechaTicketHasta: fechaTicketHasta,
+                Estado: estado,
+                DocNumTicket: docNumTicket
+            }).toString();
+
+            window.open(`/Ventas/ExportarReporteErroresPicking?${params}`, '_blank', 'noopener,noreferrer');
         }
     }
 
-    $('.cls-numeric').keypress(function (tecla) {
-        if ((tecla.charCode < 48 || tecla.charCode > 57) && tecla.charCode != 13) {
-            return false;
+    // Validar que solo se ingresen números
+    $('.cls-numeric').keypress(function (event) {
+        const charCode = event.charCode;
+
+        if ((charCode < 48 || charCode > 57) && charCode !== 13) {
+            event.preventDefault();
         }
     });
 </script>
+
+@*Si el valor request de DescargarPDF es 1, automatiza la descarga*@
+@if (Request["DescargarPDF"] == "1")
+{
+    <script>
+        Swal.fire({
+            text: 'En breve se descargará el TacoEmpaque',
+            timer: 1000,
+            timerProgressBar: true,
+            showConfirmButton: false
+        });
+        location.href = '/Ventas/PdfTacoEmpaque?DocEntry=' + @Request["NumTicket"];
+
+    </script>
+
+}

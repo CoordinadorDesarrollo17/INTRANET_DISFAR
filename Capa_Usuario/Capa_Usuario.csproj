@@ -974,7 +974,7 @@
     <Content Include="Views\Rutas\DocumentoRutasDomicilio.cshtml" />
     <Content Include="Views\Ventas\ListadoTicketsFacturacion.cshtml" />
     <Content Include="Views\Ventas\ListadoTicketsRecepcion.cshtml" />
-    <Content Include="Views\Ventas\ListadoTicketsAlmacen.cshtml" />
+    <Content Include="Views\Ventas\ListadoTicketsPickingPacking.cshtml" />
     <Content Include="Views\Ventas\SacandoTicketVenta.cshtml" />
     <Content Include="Views\Ventas\EmpacadoTicketVenta.cshtml" />
     <Content Include="Views\Ventas\AnularSacandoTicket.cshtml" />
@@ -1157,6 +1157,8 @@
     <Content Include="Views\Shared\DireccionTecnica\ListadoOrdenesVenta_DT.cshtml" />
     <Content Include="Views\Ventas\PDF\PDF_OrdenesDeVentas.cshtml" />
     <Content Include="Views\Rutas\EditarOrdenDeRuta_TA.cshtml" />
+    <Content Include="Views\Ventas\LayoutFacturaBoletaSap.cshtml" />
+    <Content Include="Views\Ventas\LayoutFacturaBoletaSap_header.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

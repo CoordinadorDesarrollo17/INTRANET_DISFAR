@@ -205,7 +205,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 
             return lista;
         }
-        public ORTV_E obtenerTicket(int DocEntry)
+        public ORTV_E ObtenerDatosCompletosTicket(int DocEntry)
         {
             ORTV_E t = new ORTV_E();
             SqlConnection cn = new SqlConnection(uti.cadSql);
@@ -279,7 +279,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             catch (Exception e) { cn.Close(); throw new Exception(e.Message); }
             return t;
         }
-        public ORTV_E obtenerTicketRotulado(int DocEntry)
+        public ORTV_E ObtenerTicketRotulado(int DocEntry)
         {
             ORTV_E t = new ORTV_E();
             SqlConnection cn = new SqlConnection(uti.cadSql);
@@ -308,7 +308,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             catch (Exception e) { cn.Close(); throw new Exception(e.Message); }
             return t;
         }
-        public ORTV_E obtenerTicketTacoEmpaque(int DocEntry)
+        public ORTV_E ObtenerTicketTacoEmpaque(int DocEntry)
         {
             ORTV_E t = new ORTV_E();
             SqlConnection cn = new SqlConnection(uti.cadSql);
@@ -335,6 +335,32 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 
                 dr.Close();
                 cn.Close();
+
+            }
+            catch (Exception e) { cn.Close(); throw new Exception(e.Message); }
+            return t;
+        }
+        public ORTV_E ObtenerTicketFacturas(int DocEntry)
+        {
+            ORTV_E t = new ORTV_E();
+            SqlConnection cn = new SqlConnection(uti.cadSql);
+            try
+            {
+                cn.Open();
+                SqlCommand cmd = new SqlCommand("select DocEntry,DocNum,LugarDestino,MontoFinal,EstadoFacturacion,Estado from vt.ORTV where DocEntry=" + DocEntry, cn);
+                cmd.CommandType = CommandType.Text;
+                SqlDataReader dr = cmd.ExecuteReader();
+                dr.Read();
+                t.DocEntry = dr.GetInt32(0);
+                t.DocNum = dr.GetInt32(1);
+                if (!dr.IsDBNull(2)) { t.LugarDestino = dr.GetString(2); }
+                if (!dr.IsDBNull(3)) { t.MontoFinal = dr.GetDecimal(3); }
+                if (!dr.IsDBNull(4)) { t.EstadoFacturacion = dr.GetString(4); }
+                if (!dr.IsDBNull(5)) { t.Estado = dr.GetString(5); }
+
+                dr.Close();
+                cn.Close();
+                t.Det2 = obtenerDet2Ticket(DocEntry); if (t.Det2.Count == 0) { t.Det2 = null; }       //Ordenes
 
             }
             catch (Exception e) { cn.Close(); throw new Exception(e.Message); }
@@ -827,7 +853,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
         public int editarTicket(int DocEntry, ORTV_E ticket)
         {
             int status = -1; string ZonaTk = string.Empty;
-            ORTV_E auxTK = obtenerTicket(DocEntry);
+            ORTV_E auxTK = ObtenerDatosCompletosTicket(DocEntry);
             SqlConnection cn = new SqlConnection(uti.cadSql);
             try
             {
@@ -1094,7 +1120,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
         public int pagarTicket(int DocEntry, ORTV_E ticket)
         {   // tipo UPG update pago
             int status = -1;
-            ORTV_E auxTK = obtenerTicket(DocEntry);
+            ORTV_E auxTK = ObtenerDatosCompletosTicket(DocEntry);
             SqlConnection cn = new SqlConnection(uti.cadSql);
             try
             {
@@ -1152,7 +1178,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
         public int anularPagoTicket(int DocEntry)
         {   //TIPO MANT UAPG UPDATE ANULAR PAGO
             int status = -1;
-            ORTV_E auxTK = obtenerTicket(DocEntry);
+            ORTV_E auxTK = ObtenerDatosCompletosTicket(DocEntry);
             SqlConnection cn = new SqlConnection(uti.cadSql);
             try
             {
@@ -1326,7 +1352,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
         public int cancelarTicket(int DocEntry, string Estado, string Operario)
         {   //tipo mant UAN
             int status = -1;
-            ORTV_E auxTK = obtenerTicket(DocEntry);
+            ORTV_E auxTK = ObtenerDatosCompletosTicket(DocEntry);
             SqlConnection cn = new SqlConnection(uti.cadSql);
             try
             {
@@ -1467,7 +1493,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             bool gestionStock = false;
             string TipoMantenimiento = string.Empty;
 
-            ORTV_E auxTK = obtenerTicket(DocEntry);
+            ORTV_E auxTK = ObtenerDatosCompletosTicket(DocEntry);
             if (Estado.Equals("RECIBIDO"))
             { TipoMantenimiento = "USRE"; }                     // update seguimiento recibir
             else if (Estado.Equals("ANULARRECIBIDO"))
@@ -1684,7 +1710,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             SqlConnection cn = new SqlConnection(uti.cadSql);
             try
             {
-                t = obtenerTicket(DocEntry);
+                t = ObtenerDatosCompletosTicket(DocEntry);
                 cn.Open();
                 SqlCommand cmd = new SqlCommand("vt.MANT_ORTV", cn);
                 cmd.CommandType = CommandType.StoredProcedure;
@@ -1707,7 +1733,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             SqlConnection cn = new SqlConnection(uti.cadSql);
             try
             {
-                t = obtenerTicket(DocEntry);
+                t = ObtenerDatosCompletosTicket(DocEntry);
                 cn.Open();
                 SqlCommand cmd = new SqlCommand("vt.MANT_ORTV", cn);
                 cmd.CommandType = CommandType.StoredProcedure;
@@ -1730,7 +1756,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             SqlConnection cn = new SqlConnection(uti.cadSql);
             try
             {
-                t = obtenerTicket(DocEntry);
+                t = ObtenerDatosCompletosTicket(DocEntry);
                 cn.Open();
                 SqlCommand cmd = new SqlCommand("vt.MANT_ORTV", cn);
                 cmd.CommandType = CommandType.StoredProcedure;
@@ -1753,7 +1779,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             SqlConnection cn = new SqlConnection(uti.cadSql);
             try
             {
-                t = obtenerTicket(DocEntry);
+                t = ObtenerDatosCompletosTicket(DocEntry);
                 cn.Open();
                 SqlCommand cmd = new SqlCommand("vt.MANT_ORTV", cn);
                 cmd.CommandType = CommandType.StoredProcedure;
@@ -2199,7 +2225,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
         //Metodos desde Hojas de Reparto
         public void preenviar(int DocEntry, string Operario, SqlTransaction tran, SqlConnection cn)
         {
-            ORTV_E tk = obtenerTicket(DocEntry);
+            ORTV_E tk = ObtenerDatosCompletosTicket(DocEntry);
             try
             {
                 SqlCommand cmd = new SqlCommand("vt.MANT_ORTV", cn, tran)
@@ -2218,7 +2244,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
         }
         public void liberar(int DocEntry, string Operario, SqlTransaction tran, SqlConnection cn)
         {
-            ORTV_E tk = obtenerTicket(DocEntry);
+            ORTV_E tk = ObtenerDatosCompletosTicket(DocEntry);
 
             if (tk.Estado != "PREENVIO" && tk.Estado != "ENVIADO")
             {
@@ -2247,7 +2273,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
         }
         public void enviar(ORTV_E o, SqlTransaction tran, SqlConnection cn)
         {
-            ORTV_E ortvE = obtenerTicket(o.DocEntry);
+            ORTV_E ortvE = ObtenerDatosCompletosTicket(o.DocEntry);
             if (ortvE.Estado != "PREENVIO") { throw new Exception("Error envio: El ticket " + ortvE.DocNum + " no esta preenvio"); }
 
             try
@@ -2269,7 +2295,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
         public void entregar(ORTV_E o, SqlTransaction tran, SqlConnection cn)
         {
             bool gestionarStock = false;
-            ORTV_E ortvE = obtenerTicket(o.DocEntry);
+            ORTV_E ortvE = ObtenerDatosCompletosTicket(o.DocEntry);
 
             if (ortvE.Estado != "ENVIADO") { throw new Exception("Error entrega: El ticket " + ortvE.DocNum + " no esta enviado"); }
             //para las rutas hacia agencia con regalo siempre pasa a ENTREGADO internamente
@@ -3885,7 +3911,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                             RTV11_D datosRTV11 = new RTV11_D();
                             RTV12_D datosRTV12 = new RTV12_D();
                             RTV13_D datosRTV13 = new RTV13_D();
-                            ticket = obtenerTicket(dr.GetInt32(0));
+                            ticket = ObtenerDatosCompletosTicket(dr.GetInt32(0));
                             ticket.Impreso = dr.GetInt32(2);
                             ticket.Vendedor = (ticket.Vendedor.Length > 15) ? ticket.Vendedor.Substring(0, 15) : ticket.Vendedor;
                             ticket.FechaSapTicket = (ticket.FechaSapTicket != null) ? Convert.ToDateTime(ticket.FechaSapTicket).ToString("dd/MM/yyyy") : null;  //usando funcion local

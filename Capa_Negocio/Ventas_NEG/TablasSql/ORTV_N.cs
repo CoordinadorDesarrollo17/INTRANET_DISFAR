@@ -51,10 +51,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         {
             return ticketV.separarTicket(u);
         }
-        public ORTV_E obtenerTicket(int DocEntry)
-        {
-            return ticketV.obtenerTicket(DocEntry);
-        }
+
         public int registrarTicket(ORTV_E ticket)
         {
             validarDatosTicket(ticket, 0);
@@ -65,7 +62,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 {
                     foreach (var det7 in ticket.Det7)
                     {
-                        var TkPrincipal = obtenerTicket(DocEntryTicket((int)det7.DocNumVinc));
+                        var TkPrincipal = ObtenerDatosCompletosTicket(DocEntryTicket((int)det7.DocNumVinc));
                         if (TkPrincipal.Estado != "ABIERTO" && TkPrincipal.Estado != "RECIBIDO" && TkPrincipal.Estado != "PICKEANDO" && TkPrincipal.Estado != "PICKEADO" && TkPrincipal.Estado != "VERIFICANDO" && TkPrincipal.Estado != "VERIFICADO" && TkPrincipal.Estado != "EMPACANDO" && TkPrincipal.Estado != "EMPACADO" && TkPrincipal.Estado != "PESADO")
                         {
                             throw new Exception("El ticket que quiere vincular en linea " + det7.Linea + " se encuentra fuera de un estado modificable.");
@@ -244,7 +241,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         }
         public int editarTicket(int DocEntry, ORTV_E ticket)
         {
-            ORTV_E t = ticketV.obtenerTicket(DocEntry);
+            ORTV_E t = ticketV.ObtenerDatosCompletosTicket(DocEntry);
             validarDatosTicket(ticket, 0);
             if (t.EstadoPago != null && t.EstadoPago.Equals("PAGADO")) { throw new Exception("NO PUEDE EDITAR UN TICKET PAGADO"); }
             if (!t.Estado.Equals("ABIERTO")) { throw new Exception("NO PUEDE EDITAR UN TICKET " + t.Estado); }
@@ -258,7 +255,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                     foreach (var det7 in ticket.Det7)
                     {
                         var DocEntryPrincipal = DocEntryTicket((int)det7.DocNumVinc);
-                        var TkPrincipal = obtenerTicket(DocEntryPrincipal);
+                        var TkPrincipal = ObtenerDatosCompletosTicket(DocEntryPrincipal);
                         if (TkPrincipal.Estado != "ABIERTO" && TkPrincipal.Estado != "RECIBIDO" && TkPrincipal.Estado != "PICKEANDO" && TkPrincipal.Estado != "PICKEADO" && TkPrincipal.Estado != "VERIFICANDO" && TkPrincipal.Estado != "VERIFICADO" && TkPrincipal.Estado != "EMPACANDO" && TkPrincipal.Estado != "EMPACADO" && TkPrincipal.Estado != "PESADO")
                         {
                             throw new Exception("El ticket que quiere vincular en linea " + det7.Linea + " se encuentra fuera de un estado modificable. (EMPACADO).");
@@ -283,7 +280,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         }
         public int cancelarTicket(int DocEntry, string Operario, int IdRol)
         {
-            ORTV_E t = ticketV.obtenerTicket(DocEntry);
+            ORTV_E t = ticketV.ObtenerDatosCompletosTicket(DocEntry);
             bool continuarCancelarTicket = false;
             // Cuando el ticket esta en "SEPARADO" o "ABIERTO" solo lo podran cancelar Rol (Sup Ventas,Op Ventas)
             if (t.Estado.Equals("SEPARADO") || t.Estado.Equals("ABIERTO"))
@@ -318,7 +315,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
          */
         public int EditarTicketDesdeSeguimiento(Dictionary<string, Object> datos, string Request)
         {
-            ORTV_E ticket = obtenerTicket(Convert.ToInt32(datos["docEntryTicket"]));
+            ORTV_E ticket = ObtenerDatosCompletosTicket(Convert.ToInt32(datos["docEntryTicket"]));
 
             if (datos["estadoTicket"].Equals("RECIBIDO") && Request.Equals("CAMBIAR A RECIBIDO"))
             {
@@ -593,7 +590,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             }
             else if (Estado.Equals("ANULARENTREGADO"))
             {
-                var to = obtenerTicket(t.DocEntry);
+                var to = ObtenerDatosCompletosTicket(t.DocEntry);
                 if (!t.Estado.Equals("ENTREGADO")) { throw new Exception("Solo puedes ANULARENTREGADO a un ticket ENTREGADO"); }
                 if (to.Det5 != null && to.Det5.Count >= 1)
                 {
@@ -604,21 +601,21 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         }
         public int emitirGuia(int DocEntry, Usuario_E u)
         {
-            ORTV_E t = obtenerTicket(DocEntry);
+            ORTV_E t = ObtenerDatosCompletosTicket(DocEntry);
             if (t.Estado.Equals("CANCELADO") || t.Estado.Equals("ANULADO")) { throw new Exception("No puede emitir guia en este ticket."); }
             if (!t.EstadoFacturacion.Equals("PENDIENTE")) { throw new Exception("El ticket no puede emitir guias."); }
             return ticketV.emitirGuia(DocEntry, u);
         }
         public int revertirGuiasTicket(int DocEntry, String operario)
         {
-            ORTV_E t = obtenerTicket(DocEntry);
+            ORTV_E t = ObtenerDatosCompletosTicket(DocEntry);
             if (!t.EstadoFacturacion.Equals("GRE EMITIDA")) { throw new Exception("No se puede revertir el proceso de guias"); }
             return ticketV.revertirGuiasTicket(DocEntry, operario);
         }
         public int facturarTicket(int DocEntry, Usuario_E u)
         {
             Utilitarios uti = new Utilitarios(); Capa_Datos.Ventas_DAO.Tablas.OINV_D oinvD = new Capa_Datos.Ventas_DAO.Tablas.OINV_D();
-            ORTV_E t = obtenerTicket(DocEntry);
+            ORTV_E t = ObtenerDatosCompletosTicket(DocEntry);
             //validamos que existan facturas o boletas
             List<int> OrdenesSap = new List<int>();
             foreach (var ordr in t.Det2)
@@ -651,7 +648,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         }
         public int revertirFacturarTicket(int DocEntry, String operario)
         {
-            ORTV_E t = obtenerTicket(DocEntry);
+            ORTV_E t = ObtenerDatosCompletosTicket(DocEntry);
             if (!t.EstadoFacturacion.Equals("FACTURADO")) { throw new Exception("No se puede revertir el proceso de facturado"); }
             return ticketV.revertirFacturarTicket(DocEntry, operario);
         }
@@ -753,7 +750,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         }
         public void editarTicketSup(int DocEntry, int idRol, ORTV_E ticket)
         {
-            ORTV_E t = ticketV.obtenerTicket(DocEntry);
+            ORTV_E t = ticketV.ObtenerDatosCompletosTicket(DocEntry);
             validarDatosTicket(ticket, idRol);
             switch (t.Estado)
             {
@@ -772,7 +769,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 {
                     foreach (var det7 in ticket.Det7)
                     {
-                        var TkPrincipal = obtenerTicket(Convert.ToInt32(det7.DocNumVinc - 2000000000));
+                        var TkPrincipal = ObtenerDatosCompletosTicket(Convert.ToInt32(det7.DocNumVinc - 2000000000));
                         if (TkPrincipal.Estado != "ABIERTO" && TkPrincipal.Estado != "RECIBIDO" && TkPrincipal.Estado != "PICKEANDO" && TkPrincipal.Estado != "PICKEADO" && TkPrincipal.Estado != "VERIFICANDO" && TkPrincipal.Estado != "VERIFICADO" && TkPrincipal.Estado != "EMPACANDO" && TkPrincipal.Estado != "EMPACADO" && TkPrincipal.Estado != "PESADO")
                         {
                             throw new Exception("El ticket que quiere vincular en linea " + det7.Linea + " se encuentra fuera de un estado modificable.");
@@ -806,10 +803,21 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         {
             return ticketV.CantidadTicketsFacturacion(estadoFacturacion);
         }
+        public ORTV_E ObtenerDatosCompletosTicket(int DocEntry)
+        {
+            return ticketV.ObtenerDatosCompletosTicket(DocEntry);
+        }
         public ORTV_E ObtenerTicketFacturacion(int docEntry)// Trae datos especificos para un ticket en controller facturacion
         { return ticketV.ObtenerTicketFacturacion(docEntry); }
         public ORTV_E ObtenerTicketVenta(int docEntry)// Trae datos especificos para un ticket con Det2 y Det3 ( usa vinculacion )
         { return ticketV.ObtenerTicketVenta(docEntry); }
+
+        public ORTV_E ObtenerTicketFacturas(int docEntry)
+        { return ticketV.ObtenerTicketFacturas(docEntry);}
+        public ORTV_E ObtenerTicketRotulado(int docEntry)
+        { return ticketV.ObtenerTicketRotulado(docEntry); }
+        public ORTV_E ObtenerTicketTacoEmpaque(int docEntry)
+        { return ticketV.ObtenerTicketTacoEmpaque(docEntry); }
         public List<ORTV_E> ListarTicketsAreaFacturacion(Usuario_E user, ORTV_E t)
         { return ticketV.ListarTicketsAreaFacturacion(user, t); }
         public List<ORTV_E> ListarTicketsAreaRecepcion(Usuario_E user, ORTV_E t)
@@ -818,10 +826,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         { return ticketV.ListarTicketsAreaAlmacén(user, t); }
         public List<ORTV_E> ListarTicketsAreaDespacho(Usuario_E user, ORTV_E t)
         { return ticketV.ListarTicketsAreaDespacho(user, t); }
-        public ORTV_E obtenerTicketRotulado(int DocEntry)
-        {return ticketV.obtenerTicketRotulado(DocEntry);}
-        public ORTV_E obtenerTicketTacoEmpaque(int DocEntry)
-        {return ticketV.obtenerTicketTacoEmpaque(DocEntry);}
+       
 
     }
 }

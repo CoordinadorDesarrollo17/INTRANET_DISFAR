@@ -264,6 +264,7 @@ namespace Capa_Datos.Ventas_DAO.Tablas
             catch { cn.Close(); }
             return guias;
         }
+
         public List<ComprobanteDePago_E> buscarFacturaBoletaSap(string NumAtCard)
         {
             List<ComprobanteDePago_E> lista = new List<ComprobanteDePago_E>();
@@ -302,40 +303,43 @@ namespace Capa_Datos.Ventas_DAO.Tablas
                             if (!hdr.IsDBNull(3)) { c.TipoDoc = hdr.GetString(3); }
                             if (!hdr.IsDBNull(4)) { c.SerieDoc = hdr.GetString(4); }
                             if (!hdr.IsDBNull(5)) { c.CorreDoc = hdr.GetString(5); }
-                            if (!hdr.IsDBNull(6)) { c.NumGuias = hdr.GetString(6); }
-                            if (!hdr.IsDBNull(7)) { c.NombreSocio = hdr.GetString(7); }
-                            if (!hdr.IsDBNull(8)) { c.DirPagar = hdr.GetString(8); }
-                            if (!hdr.IsDBNull(9)) { c.Ruc = hdr.GetString(9); }
-                            if (!hdr.IsDBNull(10)) { c.Fecha = hdr.GetDateTime(10).ToString("dd/MM/yyyy"); }
-                            if (!hdr.IsDBNull(11)) { c.FechaVencimiento = hdr.GetDateTime(11).ToLongDateString(); }
-                            if (!hdr.IsDBNull(12)) { c.MonedaLetras = hdr.GetString(12); }
-                            if (!hdr.IsDBNull(13)) { c.ItemCode = hdr.GetString(13); }
-                            if (!hdr.IsDBNull(14)) { c.Descripcion = hdr.GetString(14); }
-                            if (!hdr.IsDBNull(15)) { c.DocNumTicket = hdr.GetString(15); }
-                            if (!hdr.IsDBNull(16)) { c.Um = hdr.GetString(16); }
-                            if (!hdr.IsDBNull(17)) { c.Cantidad = Math.Round(hdr.GetDecimal(17), 0); }
-                            if (!hdr.IsDBNull(18)) { c.PreUnitSinIgv = hdr.GetDecimal(18); }
-                            if (!hdr.IsDBNull(19)) { c.Descuento = hdr.GetDecimal(19); }
-                            if (!hdr.IsDBNull(20)) { c.PreVentaNeto = hdr.GetDecimal(20); }
-                            if (!hdr.IsDBNull(21)) { c.PrecioVenta = hdr.GetDecimal(21); }
-                            if (!hdr.IsDBNull(22)) { c.ItemPrecio = hdr.GetDecimal(22); }
-                            if (!hdr.IsDBNull(23)) { c.ItemTotal = hdr.GetDecimal(23); }
-                            if (!hdr.IsDBNull(24)) { c.FechaEntrega = hdr.GetDateTime(24).ToString("dd/MM/yyyy"); }
-                            if (!hdr.IsDBNull(25)) { c.Impuesto = hdr.GetDecimal(25); }
-                            if (!hdr.IsDBNull(26)) { c.DocTotal = hdr.GetDecimal(26); }
-                            if (!hdr.IsDBNull(27)) { c.PorcenImpto = hdr.GetDecimal(27); }
-                            if (!hdr.IsDBNull(28)) { c.LoteNum = hdr.GetString(28); }
-                            if (!hdr.IsDBNull(29)) { c.CantidadL = hdr.GetDecimal(29); }
-                            if (!hdr.IsDBNull(30)) { c.TieneAnticipo = hdr.GetInt32(30); }
-                            if (!hdr.IsDBNull(31)) { c.Laboratorio = hdr.GetString(31); }
-                            if (!hdr.IsDBNull(32)) { c.VctoLote = hdr.GetDateTime(32).ToString("dd/MM/yyyy"); }
-                            if (!hdr.IsDBNull(33)) { c.QUMVta = Math.Round(hdr.GetDecimal(33), 0); }
-                            if (!hdr.IsDBNull(34)) { c.CondPago = hdr.GetString(34); }
-                            if (!hdr.IsDBNull(35)) { c.NroOrdVenta = hdr.GetInt32(35); }
-                            if (!hdr.IsDBNull(36)) { c.CodImpuesto = hdr.GetString(36); }
-                            if (!hdr.IsDBNull(37)) { c.Almacen = hdr.GetString(37); }
-                            if (!hdr.IsDBNull(38)) { c.PtoPartida = hdr.GetString(38); }
-                            if (!hdr.IsDBNull(39)) { c.DirEnvio = hdr.GetString(39); }
+                            if (!hdr.IsDBNull(6)) { c.NroOCCliente = hdr.GetString(6); }
+                            if (!hdr.IsDBNull(7)) { c.NumGuias = hdr.GetString(7); }
+                            if (!hdr.IsDBNull(8)) { c.NombreSocio = hdr.GetString(8); }
+                            if (!hdr.IsDBNull(9)) { c.DirPagar = hdr.GetString(9); }
+                            if (!hdr.IsDBNull(10)) { c.Ruc = hdr.GetString(10); }
+                            if (!hdr.IsDBNull(11)) { c.Fecha = hdr.GetDateTime(11).ToString("dd/MM/yyyy"); }
+                            if (!hdr.IsDBNull(12)) { c.FechaVencimiento = hdr.GetDateTime(12).ToLongDateString(); }
+                            if (!hdr.IsDBNull(13)) { c.MonedaLetras = hdr.GetString(13); }
+                            if (!hdr.IsDBNull(14)) { c.ItemCode = hdr.GetString(14); }
+                            if (!hdr.IsDBNull(15)) { c.Descripcion = hdr.GetString(15); }
+                            if (!hdr.IsDBNull(16)) { c.DocNumTicket = hdr.GetString(16); }
+                            if (!hdr.IsDBNull(17)) { c.Um = hdr.GetString(17); }
+                            if (!hdr.IsDBNull(18)) { c.Cantidad = Math.Round(hdr.GetDecimal(18), 0); }
+                            if (!hdr.IsDBNull(19)) { c.PreUnitSinIgv = hdr.GetDecimal(19); }
+                            if (!hdr.IsDBNull(20)) { c.Descuento = hdr.GetDecimal(20); }
+                            if (!hdr.IsDBNull(21)) { c.PreVentaNeto = hdr.GetDecimal(21); }
+                            if (!hdr.IsDBNull(22)) { c.PrecioVenta = hdr.GetDecimal(22); }
+                            if (!hdr.IsDBNull(23)) { c.ItemPrecio = hdr.GetDecimal(23); }
+                            if (!hdr.IsDBNull(24)) { c.ItemTotal = hdr.GetDecimal(24); }
+                            if (!hdr.IsDBNull(25)) { c.FechaEntrega = hdr.GetDateTime(25).ToString("dd/MM/yyyy"); }
+                            if (!hdr.IsDBNull(26)) { c.Impuesto = hdr.GetDecimal(26); }
+                            if (!hdr.IsDBNull(27)) { c.DocTotal = hdr.GetDecimal(27); }
+                            if (!hdr.IsDBNull(28)) { c.PorcenImpto = hdr.GetDecimal(28); }
+                            if (!hdr.IsDBNull(29)) { c.LoteNum = hdr.GetString(29); }
+                            if (!hdr.IsDBNull(30)) { c.CantidadL = hdr.GetDecimal(30); }
+                            if (!hdr.IsDBNull(31)) { c.TieneAnticipo = hdr.GetInt32(31); }
+                            if (!hdr.IsDBNull(32)) { c.Laboratorio = hdr.GetString(32); }
+                            if (!hdr.IsDBNull(33)) { c.VctoLote = hdr.GetDateTime(33).ToString("dd/MM/yyyy"); }
+                            if (!hdr.IsDBNull(34)) { c.QUMVta = Math.Round(hdr.GetDecimal(34), 0); }
+                            if (!hdr.IsDBNull(35)) { c.CondPago = hdr.GetString(35); }
+                            if (!hdr.IsDBNull(36)) { c.NroOrdVenta = hdr.GetInt32(36); }
+                            if (!hdr.IsDBNull(37)) { c.CodImpuesto = hdr.GetString(37); }
+                            if (!hdr.IsDBNull(38)) { c.Almacen = hdr.GetString(38); }
+                            if (!hdr.IsDBNull(39)) { c.PtoPartida = hdr.GetString(39); }
+                            if (!hdr.IsDBNull(40)) { c.DirEnvio = hdr.GetString(40); }
+
+
                             lista.Add(c);
                         }
                     }
@@ -456,20 +460,20 @@ namespace Capa_Datos.Ventas_DAO.Tablas
         {
             List<TEMP_RRU01_E> lista = new List<TEMP_RRU01_E>();
 
-            string query1 = "SELECT 'OINV',T0.\"U_SYP_MDTD\",T0.\"U_SYP_MDSD\",T0.\"U_SYP_MDCD\",to_char(T0.\"DocDate\",'YYYY-MM-DD'),to_char(T0.\"U_BPP_FECINITRA\",'YYYY-MM-DD')  FROM " + uti.schemaHana + "OINV T0 " +
+            string query1 = "SELECT 'OINV',T0.\"U_SYP_MDTD\",T0.\"U_SYP_MDSD\",T0.\"U_SYP_MDCD\",to_char(T0.\"DocDate\",'YYYY-MM-DD'),to_char(T0.\"U_BPP_FECINITRA\",'YYYY-MM-DD'),T0.\"DocTotal\"  FROM " + uti.schemaHana + "OINV T0 " +
                 " INNER JOIN " + uti.schemaHana + "INV1 T1 ON T1.\"DocEntry\" = T0.\"DocEntry\"" +
                 " INNER JOIN " + uti.schemaHana + "RDR1 T2 ON T2.\"DocEntry\" = T1.\"BaseEntry\" AND T2.\"ObjType\" = T1.\"BaseType\"" +
                                                     " AND T2.\"LineNum\" = T1.\"BaseLine\" AND T2.\"DocEntry\" =" + DocEntryOrden +
-                " WHERE T0.\"CANCELED\" = 'N' GROUP BY T0.\"U_SYP_MDTD\",T0.\"U_SYP_MDSD\",T0.\"U_SYP_MDCD\",to_char(T0.\"DocDate\",'YYYY-MM-DD'),to_char(T0.\"U_BPP_FECINITRA\",'YYYY-MM-DD') ";
+                " WHERE T0.\"CANCELED\" = 'N' GROUP BY T0.\"U_SYP_MDTD\",T0.\"U_SYP_MDSD\",T0.\"U_SYP_MDCD\",to_char(T0.\"DocDate\",'YYYY-MM-DD'),to_char(T0.\"U_BPP_FECINITRA\",'YYYY-MM-DD'),T0.\"DocTotal\" ";
 
-            string query2 = " SELECT 'OINV',T4.\"U_SYP_MDTD\",T4.\"U_SYP_MDSD\",T4.\"U_SYP_MDCD\",to_char(T4.\"DocDate\",'YYYY-MM-DD'),to_char(T4.\"U_BPP_FECINITRA\",'YYYY-MM-DD')  FROM " + uti.schemaHana + "ODLN T0 " +
+            string query2 = " SELECT 'OINV',T4.\"U_SYP_MDTD\",T4.\"U_SYP_MDSD\",T4.\"U_SYP_MDCD\",to_char(T4.\"DocDate\",'YYYY-MM-DD'),to_char(T4.\"U_BPP_FECINITRA\",'YYYY-MM-DD'),T4.\"DocTotal\"  FROM " + uti.schemaHana + "ODLN T0 " +
                 " INNER JOIN " + uti.schemaHana + "DLN1 T1 ON T1.\"DocEntry\" = T0.\"DocEntry\"" +
                 " INNER JOIN " + uti.schemaHana + "RDR1 T2 ON T2.\"DocEntry\" = T1.\"BaseEntry\" AND T2.\"ObjType\" = T1.\"BaseType\"" +
                                                     " AND T2.\"LineNum\" = T1.\"BaseLine\" AND T2.\"DocEntry\" = " + DocEntryOrden +
                 " INNER JOIN " + uti.schemaHana + "INV1 T3 ON T3.\"BaseEntry\" = T1.\"DocEntry\" AND T3.\"BaseType\" = T1.\"ObjType\"" +
                                                     " AND T3.\"BaseLine\" = T1.\"LineNum\" " +
                 " INNER JOIN " + uti.schemaHana + "OINV T4 ON T4.\"DocEntry\" = T3.\"DocEntry\" AND T4.\"CANCELED\" = 'N' " +
-                " WHERE T0.\"CANCELED\" = 'N' GROUP BY  T4.\"U_SYP_MDTD\",T4.\"U_SYP_MDSD\",T4.\"U_SYP_MDCD\",to_char(T4.\"DocDate\",'YYYY-MM-DD'),to_char(T4.\"U_BPP_FECINITRA\",'YYYY-MM-DD')";
+                " WHERE T0.\"CANCELED\" = 'N' GROUP BY  T4.\"U_SYP_MDTD\",T4.\"U_SYP_MDSD\",T4.\"U_SYP_MDCD\",to_char(T4.\"DocDate\",'YYYY-MM-DD'),to_char(T4.\"U_BPP_FECINITRA\",'YYYY-MM-DD'),T4.\"DocTotal\"";
 
 
             try
@@ -495,6 +499,7 @@ namespace Capa_Datos.Ventas_DAO.Tablas
                         if (!hdr.IsDBNull(3)) { obj.U_SYP_MDCD = hdr.GetString(3); }
                         if (!hdr.IsDBNull(4)) { obj.DocDate = hdr.GetString(4); }
                         if (!hdr.IsDBNull(5)) { obj.U_BPP_FECINITRA = hdr.GetString(5); }
+                        if (!hdr.IsDBNull(6)) { obj.DocTotal = hdr.GetDecimal(6); }
 
                     }
                     lista.Add(obj);
@@ -520,6 +525,7 @@ namespace Capa_Datos.Ventas_DAO.Tablas
                         if (!hdr2.IsDBNull(3)) { obj.U_SYP_MDCD = hdr2.GetString(3); }
                         if (!hdr2.IsDBNull(4)) { obj.DocDate = hdr2.GetString(4); }
                         if (!hdr2.IsDBNull(5)) { obj.U_BPP_FECINITRA = hdr2.GetString(5); }
+                        if (!hdr2.IsDBNull(6)) { obj.DocTotal = hdr2.GetDecimal(6); }
 
                     }
                     lista.Add(obj);

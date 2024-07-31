@@ -12,6 +12,7 @@ namespace Capa_Entidad.ReportesDigemid_ENT.Reportes
         public string TipoDoc { get; set; }
         public string SerieDoc { get; set; }
         public string CorreDoc { get; set; }
+        public string NroOCCliente { get; set; }
         public string NumGuias { get; set; }
         public string NombreSocio { get; set; }
         public string DirPagar { get; set; }

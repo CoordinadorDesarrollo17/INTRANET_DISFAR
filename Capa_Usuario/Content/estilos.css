@@ -274,8 +274,16 @@ a {
     color: white;
 }
 .btn-amarillo {
-    background-color: yellow;
-    color: darkblue
+    background-color: #f9c74f; /* Amarillo suave */
+    border-color: #f9c74f; /* Color del borde */
+    color: #333; /* Color del texto */
+    transition: background-color 0.3s, border-color 0.3s; /* Transición suave */
+}
+
+.btn-amarillo:hover {
+    background-color: #f8b400; /* Amarillo más oscuro en hover */
+    border-color: #f8b400; /* Color del borde en hover */
+    color: #fff; /* Color del texto en hover */
 }
  
 .swal2-styled.swal2-confirm {

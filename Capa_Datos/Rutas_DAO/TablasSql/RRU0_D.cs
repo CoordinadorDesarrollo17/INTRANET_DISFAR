@@ -240,7 +240,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
         {
             ORTV_D ortvD = new ORTV_D(); List<RRU0_E> lis = new List<RRU0_E>(); lis.Add(o);
             ORRU_E orruE = orruD.obtenerOrdenDeRuta(o.DocEntry);
-            var tk = ortvD.obtenerTicket(o.DocEntryTicket);
+            var tk = ortvD.ObtenerDatosCompletosTicket(o.DocEntryTicket);
 
             SqlConnection cn = new SqlConnection(uti.cadSql);
             try
