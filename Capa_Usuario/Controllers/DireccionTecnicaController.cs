@@ -913,7 +913,7 @@ namespace Capa_Usuario.Controllers
             ViewBag.IdRol = idRol;
             ViewBag.Ordr = filtros ?? new Capa_Entidad.Ventas_ENT.Tablas.ORDR_E();
             ViewBag.ListaOslp = new OSLP_N().listadoOslp("VENTA");
-            var lugaresEntregas = new Capa_Negocio.General_NEG.TablasSql.OWHS_N().listarAlmacenes(new[] { "01", "03", "09", "ALM07" });
+            var lugaresEntregas = new Capa_Negocio.General_NEG.TablasSql.OWHS_N().listarAlmacenes(new[] { "01", "03", "09", "ALM07","07"});
             ViewBag.ListaLugarEntregas = lugaresEntregas;
 
             ViewBag.Almacenes = lugaresEntregas?.ToDictionary(item => item.WhsCode, item => item.WhsName) ?? new Dictionary<string, string>();
