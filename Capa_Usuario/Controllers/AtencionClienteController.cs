@@ -516,101 +516,101 @@ namespace Capa_Usuario.Controllers
             else
             { return RedirectToAction("Error", "Index"); }
         }
-        public ActionResult RptDocEnvio(int id, int idOperation = 2709)
-        {
-            if (verificacionAccesos(idOperation) == "C_Access")
-            {
-                ReportClass rc = new ReportClass();
-                rc.FileName = Server.MapPath("~/Reportes/RptAtencionCliente/RptDocEnvio.rpt");
-                rc.SetParameterValue("@DocEntry", id);
-                Usuario_E user = (Usuario_E)Session["UsuarioId"];
-                rc.SetParameterValue("@Remitente", user.Nombres + " " + user.Apellidos);
+        //public ActionResult RptDocEnvio(int id, int idOperation = 2709)
+        //{
+        //    if (verificacionAccesos(idOperation) == "C_Access")
+        //    {
+        //        ReportClass rc = new ReportClass();
+        //        rc.FileName = Server.MapPath("~/Reportes/RptAtencionCliente/RptDocEnvio.rpt");
+        //        rc.SetParameterValue("@DocEntry", id);
+        //        Usuario_E user = (Usuario_E)Session["UsuarioId"];
+        //        rc.SetParameterValue("@Remitente", user.Nombres + " " + user.Apellidos);
 
-                Capa_Negocio.Utilitarios_N utiN = new Capa_Negocio.Utilitarios_N();
-                var coninfo = utiN.getConexion();
-                TableLogOnInfo logoninfo = new TableLogOnInfo();
-                Tables tables;
-                tables = rc.Database.Tables;
-                foreach (Table item in tables)
-                {
-                    logoninfo = item.LogOnInfo;
-                    logoninfo.ConnectionInfo = coninfo;
-                    item.ApplyLogOnInfo(logoninfo);
-                }
-                Response.Buffer = false;
-                Response.ClearContent();
-                Response.ClearHeaders();
-                Stream stream = rc.ExportToStream(ExportFormatType.WordForWindows);
-                stream.Seek(0, SeekOrigin.Begin);
-                return File(stream, "application/msword", "DocEnvio.doc");
-            }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
-            else
-            { return RedirectToAction("Error", "Index"); }
-        }
-        public ActionResult RptDocReg016(int id, int idOperation = 2709)
-        {
-            if (verificacionAccesos(idOperation) == "C_Access")
-            {
-                ReportClass rc = new ReportClass();
-                rc.FileName = Server.MapPath("/Reportes/RptAtencionCliente/RptDocReg016.rpt");
-                rc.SetParameterValue("@DocEntry", id);
+        //        Capa_Negocio.Utilitarios_N utiN = new Capa_Negocio.Utilitarios_N();
+        //        var coninfo = utiN.getConexion();
+        //        TableLogOnInfo logoninfo = new TableLogOnInfo();
+        //        Tables tables;
+        //        tables = rc.Database.Tables;
+        //        foreach (Table item in tables)
+        //        {
+        //            logoninfo = item.LogOnInfo;
+        //            logoninfo.ConnectionInfo = coninfo;
+        //            item.ApplyLogOnInfo(logoninfo);
+        //        }
+        //        Response.Buffer = false;
+        //        Response.ClearContent();
+        //        Response.ClearHeaders();
+        //        Stream stream = rc.ExportToStream(ExportFormatType.WordForWindows);
+        //        stream.Seek(0, SeekOrigin.Begin);
+        //        return File(stream, "application/msword", "DocEnvio.doc");
+        //    }
+        //    else if (verificacionAccesos(idOperation) == "E_Login")
+        //    { return RedirectToAction("Index", "Index"); }
+        //    else
+        //    { return RedirectToAction("Error", "Index"); }
+        //}
+        //public ActionResult RptDocReg016(int id, int idOperation = 2709)
+        //{
+        //    if (verificacionAccesos(idOperation) == "C_Access")
+        //    {
+        //        ReportClass rc = new ReportClass();
+        //        rc.FileName = Server.MapPath("/Reportes/RptAtencionCliente/RptDocReg016.rpt");
+        //        rc.SetParameterValue("@DocEntry", id);
 
-                Capa_Negocio.Utilitarios_N utiN = new Capa_Negocio.Utilitarios_N();
-                var coninfo = utiN.getConexion();
-                TableLogOnInfo logoninfo = new TableLogOnInfo();
-                Tables tables;
-                tables = rc.Database.Tables;
-                foreach (Table item in tables)
-                {
-                    logoninfo = item.LogOnInfo;
-                    logoninfo.ConnectionInfo = coninfo;
-                    item.ApplyLogOnInfo(logoninfo);
-                }
-                Response.Buffer = false;
-                Response.ClearContent();
-                Response.ClearHeaders();
-                Stream stream = rc.ExportToStream(ExportFormatType.PortableDocFormat);
-                stream.Seek(0, SeekOrigin.Begin);
-                return File(stream, "application/pdf", "RptDocReg016.pdf");
-            }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
-            else
-            { return RedirectToAction("Error", "Index"); }
-        }
-        public ActionResult RptDocReg015(int id, int idOperation = 2709)
-        {
-            if (verificacionAccesos(idOperation) == "C_Access")
-            {
-                ReportClass rc = new ReportClass();
-                rc.FileName = Server.MapPath("/Reportes/RptAtencionCliente/RptDocReg015.rpt");
-                rc.SetParameterValue("@DocEntry", id);
+        //        Capa_Negocio.Utilitarios_N utiN = new Capa_Negocio.Utilitarios_N();
+        //        var coninfo = utiN.getConexion();
+        //        TableLogOnInfo logoninfo = new TableLogOnInfo();
+        //        Tables tables;
+        //        tables = rc.Database.Tables;
+        //        foreach (Table item in tables)
+        //        {
+        //            logoninfo = item.LogOnInfo;
+        //            logoninfo.ConnectionInfo = coninfo;
+        //            item.ApplyLogOnInfo(logoninfo);
+        //        }
+        //        Response.Buffer = false;
+        //        Response.ClearContent();
+        //        Response.ClearHeaders();
+        //        Stream stream = rc.ExportToStream(ExportFormatType.PortableDocFormat);
+        //        stream.Seek(0, SeekOrigin.Begin);
+        //        return File(stream, "application/pdf", "RptDocReg016.pdf");
+        //    }
+        //    else if (verificacionAccesos(idOperation) == "E_Login")
+        //    { return RedirectToAction("Index", "Index"); }
+        //    else
+        //    { return RedirectToAction("Error", "Index"); }
+        //}
+        //public ActionResult RptDocReg015(int id, int idOperation = 2709)
+        //{
+        //    if (verificacionAccesos(idOperation) == "C_Access")
+        //    {
+        //        ReportClass rc = new ReportClass();
+        //        rc.FileName = Server.MapPath("/Reportes/RptAtencionCliente/RptDocReg015.rpt");
+        //        rc.SetParameterValue("@DocEntry", id);
 
-                Capa_Negocio.Utilitarios_N utiN = new Capa_Negocio.Utilitarios_N();
-                var coninfo = utiN.getConexion();
-                TableLogOnInfo logoninfo = new TableLogOnInfo();
-                Tables tables;
-                tables = rc.Database.Tables;
-                foreach (Table item in tables)
-                {
-                    logoninfo = item.LogOnInfo;
-                    logoninfo.ConnectionInfo = coninfo;
-                    item.ApplyLogOnInfo(logoninfo);
-                }
-                Response.Buffer = false;
-                Response.ClearContent();
-                Response.ClearHeaders();
-                Stream stream = rc.ExportToStream(ExportFormatType.PortableDocFormat);
-                stream.Seek(0, SeekOrigin.Begin);
-                return File(stream, "application/pdf", "RptDocReg015.pdf");
-            }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
-            else
-            { return RedirectToAction("Error", "Index"); }
-        }
+        //        Capa_Negocio.Utilitarios_N utiN = new Capa_Negocio.Utilitarios_N();
+        //        var coninfo = utiN.getConexion();
+        //        TableLogOnInfo logoninfo = new TableLogOnInfo();
+        //        Tables tables;
+        //        tables = rc.Database.Tables;
+        //        foreach (Table item in tables)
+        //        {
+        //            logoninfo = item.LogOnInfo;
+        //            logoninfo.ConnectionInfo = coninfo;
+        //            item.ApplyLogOnInfo(logoninfo);
+        //        }
+        //        Response.Buffer = false;
+        //        Response.ClearContent();
+        //        Response.ClearHeaders();
+        //        Stream stream = rc.ExportToStream(ExportFormatType.PortableDocFormat);
+        //        stream.Seek(0, SeekOrigin.Begin);
+        //        return File(stream, "application/pdf", "RptDocReg015.pdf");
+        //    }
+        //    else if (verificacionAccesos(idOperation) == "E_Login")
+        //    { return RedirectToAction("Index", "Index"); }
+        //    else
+        //    { return RedirectToAction("Error", "Index"); }
+        //}
         public FileResult ArchivoSolicitud(int id, int linea, int idOperation = 2710)
         {
             if (verificacionAccesos(idOperation) == "C_Access")
@@ -661,8 +661,6 @@ namespace Capa_Usuario.Controllers
             else if (verificacionAccesos(idOperation) == "E_Login") { return null; }
             else { return null; }
         }
-
-        //metodos ajax
         public JsonResult listarArticulosTicket(int DocNumTicket)
         {
             return Json(osatN.buscarDatosTicket(DocNumTicket));
@@ -733,7 +731,7 @@ namespace Capa_Usuario.Controllers
                 if ((rol1.verificarAccesoOperacion(user.IdRol, ope, nombreOperacion, modulo) == 1) || (user.IdRol == 1))
                 {
                     Capa_Negocio.Utilitarios_N utiN = new Capa_Negocio.Utilitarios_N();
-                    utiN.registrarLog($"{user.Prefijo} {user.Id}", "intento de " + nombreOperacion, ope, Request.UserHostAddress, Request.UserHostName);
+                    utiN.registrarLog($"{user.Prefijo} {user.Id}", "Operación: " + nombreOperacion, ope, Request.UserHostAddress, Request.UserHostName);
                     return "C_Access";
                 }
                 else

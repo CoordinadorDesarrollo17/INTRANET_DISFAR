@@ -290,7 +290,7 @@
                     }
 
                     <!-- Modal -->
-                    <div class="modal fade" id="M@(item.DocEntry)" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <!--<div class="modal fade" id="M@(item.DocEntry)" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered" role="document">
                             <div class="modal-content">
                                 <div class="modal-header">
@@ -316,7 +316,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div>-->
                 }
             </tbody>
 
@@ -327,7 +327,7 @@
 </div>
 
 
-<div class="modal fade" id="modal_detalleLab" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+@*<div class="modal fade" id="modal_detalleLab" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header bg-cobefar text-white">
@@ -340,9 +340,9 @@
             </div>
         </div>
     </div>
-</div>
+</div>*@
 
-<script>
+@*<script>
     function verDetalleLab(docEntry) {
         $.ajax('/AtencionCliente/ObtenerDetalleSolicitud',
             {
@@ -379,4 +379,4 @@
                 $('#contenido_modal').html(modal);
             });
     }
-</script>
+</script>*@
