@@ -22,20 +22,16 @@ using System.Net.Mail;
 using System.Web.Mvc;
 using TableStyles = OfficeOpenXml.Table.TableStyles;
 
-
 namespace Capa_Usuario.Controllers
 {
     public class AlmacenController : Controller
     {
-
-        Rol1_N rol1 = new Rol1_N(); int modulo = 2;
-        public ActionResult volverAlMenu()
-        {
-            verificacionAccesos(0);
-            return RedirectToAction("Sesion", "Index");
-        }
+        int modulo = 2;
+        Rol1_N rol1 = new Rol1_N();
         //OPERACIONES DE 100 A 199 DISPONIBLES PARA DEVOLUCIONES
         //PROCESO DEVOLUCIONES DE MERCADERIA
+
+        /********************************* D E V O L U C I O N E S ********************************/
         protected string CargarListaDevoluciones(Capa_Entidad.Almacen_ENT.TablasSql.ORPD_E devolucion)
         {
             Capa_Negocio.Almacen_NEG.TablasSql.ORPD_N orpdN = new Capa_Negocio.Almacen_NEG.TablasSql.ORPD_N();
@@ -276,7 +272,7 @@ namespace Capa_Usuario.Controllers
                 OITM_N oitmN = new OITM_N();
                 var datalist = "<datalist id='ListaProductos'>";
                 //Solo lista productos Activos
-                var listaProductos = oitmN.Listar(new OITM_E { FirmCode = datos.FirmCode, validFor="Y"/*, U_COB_EST_SKU = "01"*/});
+                var listaProductos = oitmN.Listar(new OITM_E { FirmCode = datos.FirmCode, validFor = "Y"/*, U_COB_EST_SKU = "01"*/});
 
                 if (listaProductos != null && listaProductos.Count >= 1)
                 {
@@ -295,7 +291,7 @@ namespace Capa_Usuario.Controllers
                 return null;
             }
         }
-        
+
         public JsonResult BuscarLotesProducto(Capa_Entidad.Almacen_ENT.Tablas.OIBT_E filtros)
         {
             verificacionAccesos(0);         // Validar sesion logueada, solo para ajax
@@ -815,6 +811,7 @@ namespace Capa_Usuario.Controllers
                 return Json(new { Mensaje = "Sin Datos" });
             }
         }
+
         public ActionResult ExportarReporteHistoricoDevoluciones(Capa_Entidad.Almacen_ENT.ReportesSql.RptFiltrosHistoricoDevoluciones_E devolucion, int idOperation = 105)
         {
             if (verificacionAccesos(idOperation) == "C_Access")
@@ -827,27 +824,27 @@ namespace Capa_Usuario.Controllers
                 if (devoluciones != null && devoluciones.Count >= 1)
                 {
                     using (var libro = new ExcelPackage())
-                {
-                    var worksheet = libro.Workbook.Worksheets.Add("ReporteHistoricoDevoluciones");
-                    worksheet.Cells["A1"].LoadFromCollection(devoluciones, PrintHeaders: true);
-
-                    if (devoluciones != null)
                     {
-                        if (devoluciones.Count >= 1)
+                        var worksheet = libro.Workbook.Worksheets.Add("ReporteHistoricoDevoluciones");
+                        worksheet.Cells["A1"].LoadFromCollection(devoluciones, PrintHeaders: true);
+
+                        if (devoluciones != null)
                         {
-                            for (var col = 1; col <= 20; col++)
+                            if (devoluciones.Count >= 1)
                             {
-                                worksheet.Column(col).AutoFit();
+                                for (var col = 1; col <= 20; col++)
+                                {
+                                    worksheet.Column(col).AutoFit();
+                                }
+
+                                var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: devoluciones.Count + 1, toColumn: 20), "ReporteHistoricoDevoluciones");
+                                tabla.ShowHeader = true;
+                                tabla.TableStyle = TableStyles.Medium2;
                             }
-
-                            var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: devoluciones.Count + 1, toColumn: 20), "ReporteHistoricoDevoluciones");
-                            tabla.ShowHeader = true;
-                            tabla.TableStyle = TableStyles.Medium2;
                         }
-                    }
 
-                    return File(libro.GetAsByteArray(), excelContentType, nombreArchivo);
-                
+                        return File(libro.GetAsByteArray(), excelContentType, nombreArchivo);
+
                     }
                 }
                 else { return Content("No hay datos para exportar"); }
@@ -855,7 +852,7 @@ namespace Capa_Usuario.Controllers
             else if (verificacionAccesos(idOperation) == "E_Login") { return null; }
             else { return null; }
         }
-        /******************************** MOTIVOS DEVOLUCIONES ********************************/
+
         protected string CargarListaMotivosDevoluciones()
         {
             MotivosDevoluciones_N mdN = new MotivosDevoluciones_N();
@@ -1010,8 +1007,7 @@ namespace Capa_Usuario.Controllers
             }
         }
 
-        /*********************************************************************************************/
-
+        /*************************************** I N V E N T A R I O ***************************************/
         public ActionResult ContabilizacionInventario(string msj = "", int idOperation = 1601)
         {
             if (verificacionAccesos(idOperation) == "C_Access")
@@ -1276,6 +1272,8 @@ namespace Capa_Usuario.Controllers
             else
             { return RedirectToAction("Error", "Index"); }
         }
+
+        /*********************************** E Q U I P O S   I N V E N T A R I O ***********************************/
         public ActionResult GestionEquipos(Capa_Entidad.Almacen_ENT.TablasSql.OIEQ_E filtro, int idOperation = 1612)
         {
             OIEQ_N oieqN = new OIEQ_N();
@@ -1448,6 +1446,8 @@ namespace Capa_Usuario.Controllers
             else
             { return RedirectToAction("Error", "Index"); }
         }
+
+        /*********************************** C O N T E O   I N V E N T A R I O ***********************************/
         public ActionResult GestionConteos(Capa_Entidad.Almacen_ENT.TablasSql.OIAR_E filtro, int idOperation = 1616, string tipo = "Conteo")
         {
             if (verificacionAccesos(idOperation) == "C_Access")
@@ -1625,6 +1625,8 @@ namespace Capa_Usuario.Controllers
             else
             { return RedirectToAction("Error", "Index"); }
         }
+
+        /*********************************** R E C O N T E O   I N V E N T A R I O ***********************************/
         public ActionResult GestionReconteos(Capa_Entidad.Almacen_ENT.TablasSql.OIAR_E filtro, int idOperation = 1622, string tipo = "Reconteo")
         {
             if (verificacionAccesos(idOperation) == "C_Access")
@@ -1758,6 +1760,8 @@ namespace Capa_Usuario.Controllers
             else
             { return RedirectToAction("Error", "Index"); }
         }
+
+        /******************************* A N Á L I S I S   C O N T E O   I N V E N T A R I O *******************************/
         public ActionResult GestionAnalisisConteos(Capa_Entidad.Almacen_ENT.TablasSql.OIAR_E filtro, int idOperation = 1627, string tipo = "Analisis")
         {
             if (verificacionAccesos(idOperation) == "C_Access")
@@ -1893,6 +1897,8 @@ namespace Capa_Usuario.Controllers
             else
             { return RedirectToAction("Error", "Index"); }
         }
+
+        /******************* R E P O R T E S   I N V E N T A R I O *******************/
         public ActionResult ReportesContabilizacionInventario(int idOperation = 1632)
         {
             if (verificacionAccesos(idOperation) == "C_Access")
@@ -1918,7 +1924,7 @@ namespace Capa_Usuario.Controllers
             { return RedirectToAction("Error", "Index"); }
         }
 
-        //validaciones
+        /*********************** V A L I D A C I O N E S ***********************/
         public ActionResult validarNuevoPeriodo(Capa_Entidad.Almacen_ENT.TablasSql.OIPE_E obj)
         {
             OIPE_N oipeN = new OIPE_N();

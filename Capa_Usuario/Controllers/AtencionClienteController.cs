@@ -18,10 +18,12 @@ namespace Capa_Usuario.Controllers
 {
     public class AtencionClienteController : Controller
     {
-        Rol1_N rol1 = new Rol1_N(); int modulo = 7;
+        int modulo = 7;
+        Rol1_N rol1 = new Rol1_N();
         OSAT_N osatN = new OSAT_N();
         SAT1_N sat1N = new SAT1_N();
 
+        /************************** R E C L A M O S **************************/
         protected Dictionary<string, string> DatosSolicitud(string tipoVenta, string canalVenta, string errorAlm)
         {
             if (string.IsNullOrEmpty(tipoVenta)) { tipoVenta = ""; }

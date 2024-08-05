@@ -4,129 +4,90 @@
     ViewBag.Title = "EditarSaldoAnterior";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<h4>EDITAR SALDO ANTERIOR</h4>
-<a id="accion" href="@Url.Action("ListadoSaldosAnteriores", "DireccionTecnica")" class="btn btn-light">
-    <span><strong>Volver Atras</strong></span>
-</a>
-<br />
-<br />
-<div class="alert-info">@ViewBag.Mensaje</div>
-@using (Html.BeginForm())
-{
-    @Html.AntiForgeryToken()
 
-    <div class="form-horizontal">
-        <div class="form-group">
-            <div class="col-md-3">
-                @Html.EditorFor(model => model.Code, new { htmlAttributes = new { @class = "form-control", @readonly = "true", @type = "hidden" } })
-                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
-            </div>
-        </div>
-        <div class="form-group">
-            @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-3">
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-dark">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("Reportes", "DireccionTecnica")">Reportes</a></li>
+            <li><a href="@Url.Action("ListadoSaldosAnteriores", "DireccionTecnica")">Listado saldos anteriores</a></li>
+            <li class="current"><em>Editar saldo anterior</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">EDITAR SALDO ANTERIOR</h3></div>
+</div>
+
+<div class="bg-white bg-form-cobefar p-4">
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+
+        @Html.EditorFor(model => model.Code, new { htmlAttributes = new { @class = "form-control", @readonly = "true", @type = "hidden" } })
+        @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+
+        <div class="row mb-4">
+            <div class="col-lg-3">
+                <label for="Name" class="text-dark form-label font-weight-bold">Código:</label>
                 @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
                 @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
             </div>
-        </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.U_COB_DESCRIPCION, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-6">
+            <div class="col-lg-6">
+                <label class="text-dark form-label font-weight-bold">Descripción:</label>
                 @Html.EditorFor(model => model.U_COB_DESCRIPCION, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
                 @Html.ValidationMessageFor(model => model.U_COB_DESCRIPCION, "", new { @class = "text-danger" })
             </div>
-        </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.U_COB_TIPOCONT, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-5">
+            <div class="col-lg-3">
+                <label for="Name" class="text-dark form-label font-weight-bold">Tipo Controlado:</label>
                 <select name="U_COB_TIPOCONT" id="U_COB_TIPOCONT" class="form-control">
                     <option value="">Seleccione</option>
-                    @if (Model.U_COB_TIPOCONT == "P")
-                    {
-                        <option value="P" selected>Precursor</option>
-                    }
-                    else
-                    {
-                        <option value="P">Precursor</option>
-                    }
-                    @if (Model.U_COB_TIPOCONT == "E")
-                    {
-                        <option value="E" selected>Estupefaciente</option>
-                    }
-                    else
-                    {
-                        <option value="E">Estupefaciente</option>
-                    }
-                    @if (Model.U_COB_TIPOCONT == "S")
-                    {
-                        <option value="S" selected>Psicotropico</option>
-                    }
-                    else
-                    {
-                        <option value="S">Psicotropico</option>
-                    }
+                    <option value="P" @(Model.U_COB_TIPOCONT == "P" ? "selected" : "")>Precursor</option>
+                    <option value="E" @(Model.U_COB_TIPOCONT == "E" ? "selected" : "")>Estupefaciente</option>
+                    <option value="S" @(Model.U_COB_TIPOCONT == "S" ? "selected" : "")>Psicotropico</option>
                 </select>
+
                 @Html.ValidationMessageFor(model => model.U_COB_TIPOCONT, "", new { @class = "text-danger" })
             </div>
+
         </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.U_COB_TRIMESTRE, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-5">
+        <div class="row mb-4">
+            <div class="col-lg-3">
+                <label for="U_COB_TRIMESTRE" class="text-dark form-label font-weight-bold">Trimestre:</label>
+
                 <select name="U_COB_TRIMESTRE" class="form-control">
                     <option value="">Seleccione</option>
-                    @if (Model.U_COB_TRIMESTRE == 1)
-                    {
-                        <option value="1" selected>1 Trimestre</option>
-                    }
-                    else
-                    {
-                        <option value="1">1 Trimestre</option>
-                    }
-                    @if (Model.U_COB_TRIMESTRE == 2)
-                    {
-                        <option value="2" selected>2 Trimestre</option>
-                    }
-                    else
-                    {
-                        <option value="2">2 Trimestre</option>
-                    }
-                    @if (Model.U_COB_TRIMESTRE == 3)
-                    {
-                        <option value="3" selected>3 Trimestre</option>
-                    }
-                    else
-                    {
-                        <option value="3">3 Trimestre</option>
-                    }
-                    @if (Model.U_COB_TRIMESTRE == 4)
-                    {
-                        <option value="4" selected>4 Trimestre</option>
-                    }
-                    else
-                    {
-                        <option value="4">4 Trimestre</option>
-                    }
+                    <option value="1" @(Model.U_COB_TRIMESTRE == 1 ? "selected" : "")>1 Trimestre</option>
+                    <option value="2" @(Model.U_COB_TRIMESTRE == 2 ? "selected" : "")>2 Trimestre</option>
+                    <option value="3" @(Model.U_COB_TRIMESTRE == 3 ? "selected" : "")>3 Trimestre</option>
+                    <option value="4" @(Model.U_COB_TRIMESTRE == 4 ? "selected" : "")>4 Trimestre</option>
                 </select>
-                @Html.ValidationMessageFor(model => model.U_COB_TRIMESTRE, "", new { @class = "text-danger" })
-            </div>
-        </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.U_COB_SALDOANTE, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-4">
+                @Html.ValidationMessageFor(model => model.U_COB_TRIMESTRE, "", new { @class = "text-danger" })
+
+            </div>
+
+            <div class="col-lg-3">
+                <label for="Name" class="text-dark form-label font-weight-bold">Saldo Actual:</label>
                 @Html.EditorFor(model => model.U_COB_SALDOANTE, new { htmlAttributes = new { @class = "form-control" } })
                 @Html.ValidationMessageFor(model => model.U_COB_SALDOANTE, "", new { @class = "text-danger" })
             </div>
         </div>
 
-        <div class="form-group">
-            <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Editar" class="btn btn-success" />
+        <div class="row">
+            <div class="col-lg-12">
+                <button type="submit" class="btn btn-success"><i class="icon-checkmark"></i>  Guardar cambios</button>
             </div>
         </div>
-    </div>
-}
+    }
+</div>
 
+<script>
+    if ('@ViewBag.Mensaje' != "") {
+        Swal.fire('@ViewBag.Mensaje');
+    }
+</script>

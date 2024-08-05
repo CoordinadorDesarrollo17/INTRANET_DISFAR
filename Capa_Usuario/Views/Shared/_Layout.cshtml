@@ -263,6 +263,14 @@
             buttonsStyling: false
         })
 
+        const Toast = Swal.mixin({
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        });
+
         function cargando() {
             Swal.fire({
                 html: '<img src="/imagenes/index/ReportesDigemid/cargando.gif" />',
@@ -284,10 +292,38 @@
                 }
             });
 
-            $("#" + idDiv).load(url, function () {
-                $(this).fadeIn("fast", function () {
-                    Swal.close();
+            fetch(url)
+                .then(response => response.text())
+                .then(data => {
+                    setTimeout(() => {
+                        Swal.close();
+                    }, 1000); // 1000 ms = 1 second
+                    document.getElementById(idDiv).innerHTML = data;
+                    return true;  // Asegurarse de que se devuelve algo para que .then() pueda encadenarse
+                })
+                .catch(error => {
+                    console.error('Error al cargar la vista parcial:', error);
+                    return false;  // En caso de error, devuelve false
                 });
+
+            //$("#" + idDiv).load(url, function () {
+            //    $(this).fadeIn("fast", function () {
+            //        Swal.close();
+            //    });
+            //});
+        }
+
+        // Función para gestionar el valor de un datalist hacia un input con cualquier dataAttribute
+        function gestionarValorDatalist(inputElementId, dataListId, outputElementId, dataAttribute) {
+            document.getElementById(inputElementId).addEventListener('input', function () {
+                document.getElementById(outputElementId).value = "";
+                const input = this.value;
+                const selectedOption = Array.from(document.querySelectorAll(`#${dataListId} option`))
+                    .find(option => option.value === input);
+
+                if (selectedOption) {
+                    document.getElementById(outputElementId).value = selectedOption.dataset[dataAttribute];
+                }
             });
         }
     </script>

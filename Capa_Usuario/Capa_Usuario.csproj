@@ -1074,10 +1074,8 @@
     <Content Include="Views\Ventas\NuevoClienteRegalo.cshtml" />
     <Content Include="Views\Ventas\EditarClienteRegalos.cshtml" />
     <Content Include="Views\Ventas\ReporteReclamosCliente.cshtml" />
-    <Content Include="Views\TI_Sistemas\AdministrarRolOperacion.cshtml" />
     <Content Include="Views\TI_Sistemas\EditarUsuario.cshtml" />
     <Content Include="Views\TI_Sistemas\GestionPermisos.cshtml" />
-    <Content Include="Views\TI_Sistemas\GestionRolOperacion.cshtml" />
     <Content Include="Views\Rutas\infoHojasRuta.cshtml" />
     <Content Include="Views\Rutas\ReportesRutas.cshtml" />
     <Content Include="Views\Ventas\GestionVendedores.cshtml" />
@@ -1157,6 +1155,7 @@
     <Content Include="Views\Shared\DireccionTecnica\ListadoOrdenesVenta_DT.cshtml" />
     <Content Include="Views\Ventas\PDF\PDF_OrdenesDeVentas.cshtml" />
     <Content Include="Views\Rutas\EditarOrdenDeRuta_TA.cshtml" />
+    <Content Include="Views\Shared\TI_Sistemas\AsignacionPermisos.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

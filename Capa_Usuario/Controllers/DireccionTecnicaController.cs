@@ -1,6 +1,5 @@
 ﻿using Capa_Entidad.Almacen_ENT.Tablas;
 ﻿using Capa_Datos;
-using Capa_Entidad.Almacen_ENT.Tablas;
 using Capa_Entidad.Compras_ENT.Tablas;
 using Capa_Entidad.DireccionTecnica_ENT.TablasSql;
 using Capa_Entidad.General_ENT.Tablas;
@@ -118,11 +117,6 @@ namespace Capa_Usuario.Controllers
             }
 
             return result;
-        }
-        public ActionResult volverAlMenu()
-        {
-            verificacionAccesos(0);
-            return RedirectToAction("Sesion", "Index");
         }
 
         public ActionResult LayoutOrdenDeVenta(int DocNum, int idOperation = 1702)

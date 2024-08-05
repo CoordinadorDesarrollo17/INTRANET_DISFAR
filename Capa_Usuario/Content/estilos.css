@@ -1,5 +1,6 @@
 ﻿/*@import url('https://fonts.googleapis.com/css2?family=Rubik&display=swap');*/
-@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+/*@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+*/
 * {
     margin: 0px;
     padding: 0px;
@@ -14,15 +15,17 @@
     font-weight: 600;
     text-shadow: 2px 2px 1px rgba(0,0,0,0.7);
     color: white;
-    font-size:23px;
+    font-size: 23px;
 }
 
 th, label {
     color: white;
 }
+
 .bg-skyblue {
-    background-color:#ADD8E6;
+    background-color: #ADD8E6;
 }
+
 td {
     padding: 5px;
 }
@@ -88,6 +91,12 @@ footer {
     vertical-align: middle;
     border-bottom: hidden;
     border-top: hidden;
+}
+
+.table tbody tr {
+    vertical-align: middle;
+    /*    border-bottom: hidden;
+    border-top: hidden;*/
 }
 
 .shadow-inputs-form {
@@ -246,38 +255,87 @@ a {
     border-radius: 10px 10px 0px 0px;
 }
 
-/* Fondos */
+/*** Fondos ***/
 .bg-cobefar {
     background-color: #26653D !important;
     /*background-color: darkgoldenrod !important;*/
 }
 
+.bg-cobefar-2 {
+    background-color: #96c03d !important;
+}
+
+.bg-cobefar-3 {
+    background-color: #15937E !important;
+}
+
+    .bg-cobefar-3:hover {
+        background-color: #93152a !important;
+        outline: none;
+    }
+
+.bg-cobefar-4 {
+    background-color: #156993 !important;
+}
+
+    .bg-cobefar-4:hover {
+        background-color: #93152a !important;
+        outline: none;
+    }
+
+.bg-colorComplementario {
+    background-color: #93152a !important;
+}
+
 .bg-form-pestanas-cobefar {
     background-color: #FAFAFA !important;
 }
+
+.bg-blancoHumo {
+    background-color: #F1F1F1;
+}
+
+.bg-grisClaro {
+    background-color: #DDDDDD;
+}
 /******************************/
-    /* Botones */
-    .btn-cobefar {
+/* Botones */
+.btn-cobefar {
     background-color: #26653D;
     color: white;
 }
 
-.btn-orange, .btn-naranja{
+.btn-cobefar-2 {
+    background-color: #156993;
+    border-color: #156993;
+    color: white;
+}
+
+    .btn-cobefar-2:hover {
+        background-color: #135a82;
+        border-color: #135a82;
+        color: white;
+    }
+
+.btn-orange, .btn-naranja {
     background-color: orangered;
     color: white;
 }
-.btn-naranja:hover {
-    color: darkblue;
-}
+
+    .btn-naranja:hover {
+        color: darkblue;
+    }
+
 .btn-blue, .btn-blue:hover {
     background-color: darkblue;
     color: white;
 }
+
 .btn-amarillo {
     background-color: yellow;
     color: darkblue
 }
- 
+
 .swal2-styled.swal2-confirm {
     border: 0;
     border-radius: 0.25em;
@@ -308,7 +366,6 @@ a {
         max-width: 1140px;
     }
 }
-
 
 .modal-full-width {
     max-width: 100%;
@@ -776,4 +833,121 @@ video {
 
 .text-capitalized {
     text-transform: capitalize;
+}
+
+
+/*** BORDES ***/
+.border-grisAzulado {
+    border-color: #8492A6 !important;
+}
+
+.input-cobefar:focus {
+    border-color: #28a745 !important; /* Color de borde cuando el input está enfocado */
+    outline: none; /* Quita el resaltado predeterminado al enfocar */
+    box-shadow: none; /* Quita la sombra predeterminada al enfocar */
+}
+
+.bg-breadcumb {
+    background-image: url('img/green-background-abstract.jpg');
+    background-attachment: fixed;
+    background-size: cover;
+}
+
+.bg-headerModals {
+    background-image: url('img/green-background-abstract.jpg');
+    background-attachment: fixed;
+}
+
+.bg-cardCobefar {
+    background-image: url('img/white-background-abstract.jpg');
+    background-repeat: no-repeat;
+    background-position-x: 100%;
+    background-position-y: 50%;
+}
+
+.div-hover:hover {
+    background-color: #CFD8DC; /* Cambia este color por el que prefieras */
+    outline: none; /* Esto elimina el borde predeterminado que aparece al enfocar */
+}
+
+.text-desbordes {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media (max-width: 1280px) {
+    .px-3cols {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+}
+
+@media (min-width: 1281px) and (max-width: 1600px) {
+    .px-3cols {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
+
+@media (min-width: 1601px) and (min-width: 1900px) {
+    .px-3cols {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+    /*
+    .px-1 {
+        padding-left: 0.25rem;
+        padding-right: 0.25rem;
+    }
+
+    .px-2 {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }*/
+}
+
+.border-radius-20 {
+    border-radius: 20px;
+}
+
+
+
+/* PARA PAGINACIONES */
+.pagination {
+    margin-top: 20px;
+}
+
+    .pagination a {
+        display: inline-block;
+        padding: 5px 10px;
+        background-color: #f2f2f2;
+        color: #333;
+        text-decoration: none;
+        border: 1px solid #ccc;
+    }
+
+        .pagination a:hover {
+            background-color: #ddd;
+        }
+
+    .pagination .active {
+        background-color: #333;
+        color: #fff;
+    }
+
+.position-absolute-cobefar {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin-top: 10px; /* Ajusta el margen superior según sea necesario */
+    margin-right: 10px; /* Ajusta el margen derecho según sea necesario */
+}
+
+.position-absolute-cobefar-2 {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    margin-bottom: 10px; /* Ajusta el margen superior según sea necesario */
+    margin-left: 10px; /* Ajusta el margen derecho según sea necesario */
 }

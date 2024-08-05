@@ -21,7 +21,8 @@
 
         /******************** C A M P O S   Q U E   N O   S O N   D E   L A   T A B L A ********************/
         public string DescripcionRol { get; set; }
-        /****Campo calculado para ver dias sin conexion******/
-        public int DiferenciaDias { get; set; }
+        public int DiferenciaDias { get; set; }         // Campo calculado para ver dias sin conexion
+        public string Password2 { get; set; }
+        public int EmpleadoID { get; set; }
     }
 }

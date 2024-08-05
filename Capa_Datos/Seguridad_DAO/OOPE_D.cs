@@ -6,45 +6,79 @@ using System.Threading.Tasks;
 using System.Data;
 using Capa_Entidad.Seguridad_ENT;
 using System.Data.SqlClient;
+using Capa_Entidad.Ventas_ENT.TablasSql;
+using System.IO;
 
 namespace Capa_Datos.Seguridad_DAO
 {
     public class OOPE_D
     {
         Utilitarios uti = new Utilitarios();
-        DBHelper db = new DBHelper();
-        public List<OOPE_E> listarOperacionesRolModulo(int idModulo, int idRol)
+
+        public List<OOPE_E> ListarOperaciones(OOPE_E filtros)
         {
-            List<OOPE_E> lista = new List<OOPE_E>();
-            string query = "";
-            if (idRol == 0)
-            {
-                query = "SELECT t0.* FROM OOPE t0 where t0.idModulo = " + idModulo;
-            }
-            else
-            {
-                query = "SELECT t0.* FROM OOPE t0 inner join ROL1 t1 on t1.idOperacion=t0.id " +
-                                "where t0.idModulo = " + idModulo + " and t1.idRol =" + idRol;
-            }
+            List<OOPE_E> lista = null;
 
             try
             {
-                SqlDataReader dr = db.ExecuteReaderNoSp(query);
-                while (dr.Read())
+                using (SqlConnection cn = new SqlConnection(uti.cadSql))
                 {
-                    OOPE_E o = new OOPE_E();
-                    o.id = dr.GetInt32(0);
-                    o.nombre = dr.GetString(1);
-                    o.idModulo = dr.GetInt32(2);
-                    lista.Add(o);
+                    SqlCommand cmd = new SqlCommand();
+                    cmd.Connection = cn;
+
+                    StringBuilder sb = new StringBuilder();
+
+                    sb.Append("SELECT OP.Id, OP.Nombre, OP.IdModulo, OP.Grup_OpeId, GOPE.Controlador");
+                    sb.Append(" FROM dbo.OOPE OP");
+                    sb.Append(" INNER JOIN dbo.GRUP_OPE GOPE ON OP.Grup_OpeID = GOPE.Id");
+                    sb.Append(" WHERE 1 = 1");
+
+                    if (filtros != null)
+                    {
+                        if (filtros.idModulo > 0)
+                        {
+                            sb.Append(" AND OP.IdModulo = @IdModulo");
+                            cmd.Parameters.AddWithValue("@IdModulo", filtros.idModulo);
+                        }
+                    }
+
+                    cmd.CommandText = sb.ToString();
+                    cn.Open();
+
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        if (dr.HasRows)
+                        {
+                            lista = new List<OOPE_E>();
+
+                            while (dr.Read())
+                            {
+                                OOPE_E obj = new OOPE_E();
+
+                                if (!dr.IsDBNull(0)) { obj.id = dr.GetInt32(0); }
+                                if (!dr.IsDBNull(1)) { obj.nombre = dr.GetString(1); }
+                                if (!dr.IsDBNull(2)) { obj.idModulo = dr.GetInt32(2); }
+                                if (!dr.IsDBNull(3)) { obj.Grup_OpeID = dr.GetInt32(3); }
+                                if (!dr.IsDBNull(4)) { obj.Controlador = dr.GetString(4); }
+
+                                lista.Add(obj);
+                            }
+                        }
+                    }
+                    cn.Close();
                 }
-                dr.Close();
             }
-            catch { }
+            catch (Exception ex)
+            {
+                RegistrarError(ex, "OOPE_D - ListarOperaciones");
+            }
+
             return lista;
         }
 
+        private void RegistrarError(Exception ex, string nombreArchivo)
+        {
+            File.AppendAllText(uti.directorioLogs + nombreArchivo + ".txt", $"{DateTime.Now}: {ex.Message}\n {ex.StackTrace}\n");
+        }
     }
 }
-
-
