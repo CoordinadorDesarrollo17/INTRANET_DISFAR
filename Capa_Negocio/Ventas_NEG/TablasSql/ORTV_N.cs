@@ -122,7 +122,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                             if (!(lugEn.Equals("ALMACÉN N°3") || lugEn.Equals("ALMACÉN FALTANTES") || lugEn.Equals("ALMACÉN N°7"))) { throw new Exception("El lugar de entrega debe ser válido."); }
                             if (!d.LugarDeEntrega.Equals(lugEn) && !d.LugarDeEntrega.Equals("ALMACÉN FALTANTES")) { throw new Exception("No coinciden los lugares de entrega en el detalle."); }
                         }
-                        else
+                        else if (!d.LugarDeEntrega.Equals("ALMACÉN FALTANTES"))
                         {
                             lugEn = d.LugarDeEntrega;
                             if (!(lugEn.Equals("ALMACÉN N°3") || lugEn.Equals("ALMACÉN FALTANTES") || lugEn.Equals("ALMACÉN N°7"))) { throw new Exception("El lugar de entrega debe ser válido."); }
@@ -139,7 +139,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                             if (!lugEn.Equals("ALMACÉN N°6") && !lugEn.Equals("ALMACÉN FALTANTES")) { throw new Exception("El lugar de entrega debe ser 'ALMACÉN N°6' o 'ALMACÉN FALTANTES'."); }
                             if (!d.LugarDeEntrega.Equals(lugEn) && !d.LugarDeEntrega.Equals("ALMACÉN FALTANTES")) { throw new Exception("No coinciden los lugares de entrega en el detalle."); }
                         }
-                        else
+                        else if (!d.LugarDeEntrega.Equals("ALMACÉN FALTANTES"))
                         {
                             lugEn = d.LugarDeEntrega;
                             if (!lugEn.Equals("ALMACÉN N°6") && !lugEn.Equals("ALMACÉN FALTANTES")) { throw new Exception("El lugar de entrega debe ser 'ALMACÉN N°6' o 'ALMACÉN FALTANTES'."); }
@@ -161,13 +161,14 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                         if (lugEn != string.Empty)
                         {
                             if (!(lugEn.Equals("ALMACÉN N°3") || lugEn.Equals("ALMACÉN FALTANTES") || lugEn.Equals("ALMACÉN N°7"))) { throw new Exception("El lugar de entrega no es válido."); }
+
                             if (!d.LugarDeEntrega.Equals(lugEn) && !d.LugarDeEntrega.Equals("ALMACÉN FALTANTES")) { throw new Exception("No coinciden los lugares de entrega en el detalle."); }
 
                         }
-                        else
+                        else if (!d.LugarDeEntrega.Equals("ALMACÉN FALTANTES"))
                         {
-                            lugEn = d.LugarDeEntrega;
-                            if (!(lugEn.Equals("ALMACÉN N°3") || lugEn.Equals("ALMACÉN FALTANTES") || lugEn.Equals("ALMACÉN N°7"))) { throw new Exception("El lugar de entrega no es válido."); }
+                                lugEn = d.LugarDeEntrega;
+                                if (!(lugEn.Equals("ALMACÉN N°3") || lugEn.Equals("ALMACÉN FALTANTES") || lugEn.Equals("ALMACÉN N°7"))) { throw new Exception("El lugar de entrega no es válido."); }
                         }
                     }
                 }
@@ -181,7 +182,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                             if (!lugEn.Equals("ALMACÉN N°1") && !lugEn.Equals("ALMACÉN FALTANTES")) { throw new Exception("El lugar de entrega solo debe ser 'ALMACÉN N°1' o 'ALMACÉN FALTANTES'."); }
                             if (!d.LugarDeEntrega.Equals(lugEn) && !d.LugarDeEntrega.Equals("ALMACÉN FALTANTES")) { throw new Exception("No coinciden los lugares de entrega en el detalle."); }
                         }
-                        else
+                        else if (!d.LugarDeEntrega.Equals("ALMACÉN FALTANTES"))
                         {
                             lugEn = d.LugarDeEntrega;
                             if (!lugEn.Equals("ALMACÉN N°1") && !lugEn.Equals("ALMACÉN FALTANTES")) { throw new Exception("El lugar de entrega solo debe ser 'ALMACÉN N°1' o 'ALMACÉN FALTANTES'."); }
