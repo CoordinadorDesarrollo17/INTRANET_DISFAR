@@ -307,7 +307,7 @@ namespace Capa_Usuario.Controllers
             else
             { return Content("Sin permisos ni accesos"); }
         }
-        public ActionResult AnularOrdenDeRuta(int DocEntry, string TipoRep, int idOperation = 204) // falta agregar operacion a bd
+        public ActionResult AnularOrdenDeRuta(int DocEntry, string TipoRep, int idOperation = 204) 
         {
             if (verificacionAccesos(idOperation) == "C_Access")
             {
