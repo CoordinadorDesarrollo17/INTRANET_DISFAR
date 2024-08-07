@@ -1159,6 +1159,7 @@
     <Content Include="Views\Rutas\EditarOrdenDeRuta_TA.cshtml" />
     <Content Include="Views\Ventas\LayoutFacturaBoletaSap.cshtml" />
     <Content Include="Views\Ventas\LayoutFacturaBoletaSap_header.cshtml" />
+    <Content Include="Views\Ventas\ListadoTicketsAlmacen.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

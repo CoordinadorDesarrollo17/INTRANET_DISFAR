@@ -11,7 +11,7 @@
     });
     function filtrar() {
         var object = $("#frm").serialize();
-        $(location).attr('href', "/Ventas/ListadoTicketsPickingPacking?" + object);
+        $(location).attr('href', "/Ventas/ListadoTicketsAlmacen?" + object);
     }
 </script>
 
@@ -19,7 +19,7 @@
     <nav>
         <ol class="cd-breadcrumb bg-dark">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
-            <li><a href="@Url.Action("ListadoTicketsPickingPacking", "Ventas")">Listado de tickets de almacén</a></li>
+            <li><a href="@Url.Action("ListadoTicketsAlmacen", "Ventas")">Listado de tickets de almacén</a></li>
             <li class="current"><em>Fin Empacar ticket de venta</em></li>
         </ol>
     </nav>

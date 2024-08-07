@@ -16,14 +16,14 @@
     $(document).ready(function () { });
     function filtrar() {
         var object = $("#frm").serialize();
-        $(location).attr('href', "/Ventas/ListadoTicketsPickingPacking?" + object);
+        $(location).attr('href', "/Ventas/ListadoTicketsAlmacen?" + object);
     }</script>
 
 <div class="pt-4">
     <nav>
         <ol class="cd-breadcrumb bg-dark">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
-            <li><a href="@Url.Action("ListadoTicketsPickingPacking", "Ventas")">Listado de tickets de almacén</a></li>
+            <li><a href="@Url.Action("ListadoTicketsAlmacen", "Ventas")">Listado de tickets de almacén</a></li>
             <li class="current"><em>Verificando ticket de venta</em></li>
         </ol>
     </nav>
@@ -680,7 +680,7 @@
 
             const result = await response.json();
             //Swal.fire(result.Mensaje);
-            window.location.replace(`/Ventas/ListadoTicketsPickingPacking?DocNum=${result.DocNum}`);
+            window.location.replace(`/Ventas/ListadoTicketsAlmacen?DocNum=${result.DocNum}`);
 
         } catch (e) {
             console.error(e);

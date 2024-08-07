@@ -347,14 +347,14 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             try
             {
                 cn.Open();
-                SqlCommand cmd = new SqlCommand("select DocEntry,DocNum,LugarDestino,MontoFinal,EstadoFacturacion,Estado from vt.ORTV where DocEntry=" + DocEntry, cn);
+                SqlCommand cmd = new SqlCommand("select DocEntry,DocNum,LugarDestino,MontoTotal,EstadoFacturacion,Estado from vt.ORTV where DocEntry=" + DocEntry, cn);
                 cmd.CommandType = CommandType.Text;
                 SqlDataReader dr = cmd.ExecuteReader();
                 dr.Read();
                 t.DocEntry = dr.GetInt32(0);
                 t.DocNum = dr.GetInt32(1);
                 if (!dr.IsDBNull(2)) { t.LugarDestino = dr.GetString(2); }
-                if (!dr.IsDBNull(3)) { t.MontoFinal = dr.GetDecimal(3); }
+                if (!dr.IsDBNull(3)) { t.MontoTotal = dr.GetDecimal(3); }
                 if (!dr.IsDBNull(4)) { t.EstadoFacturacion = dr.GetString(4); }
                 if (!dr.IsDBNull(5)) { t.Estado = dr.GetString(5); }
 

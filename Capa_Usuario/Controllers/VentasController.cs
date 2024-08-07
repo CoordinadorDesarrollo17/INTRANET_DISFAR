@@ -1295,7 +1295,7 @@ namespace Capa_Usuario.Controllers
             List<TEMP_RRU01_E> documentosDistinct = ObtenerDocumentosDistinct(OrdenesSap, oinvN);
 
             decimal MontoFinalFacturas = documentosDistinct.Sum(f => f.DocTotal);
-            if (ortvE.MontoFinal != MontoFinalFacturas)
+            if (ortvE.MontoTotal != MontoFinalFacturas)
             {
                 return new HttpStatusCodeResult(400, "Los montos no coinciden.");
             }
@@ -1426,7 +1426,7 @@ namespace Capa_Usuario.Controllers
             OINV_N oinvN = new OINV_N(); ViewBag.Tipo = Tipo; ViewBag.DocNumTicket = DocNumTicket;
             return View(oinvN.buscarFacturaBoletaSap(NumAtCard));
         }
-        public ActionResult ListadoTicketsPickingPacking(int DocNum = 0, ORTV_E t = null, string Mensaje = "", int idOperation = 801)
+        public ActionResult ListadoTicketsAlmacen(int DocNum = 0, ORTV_E t = null, string Mensaje = "", int idOperation = 801)
         {
             if (verificacionAccesos(idOperation) == "C_Access")
             {
@@ -1444,6 +1444,7 @@ namespace Capa_Usuario.Controllers
             else
             { return RedirectToAction("Error", "Index"); }
         }
+        
         public ActionResult IniciarSacandoTicketVenta(int DocEntry, int idOperation = 802)
         {
             if (verificacionAccesos(idOperation) == "C_Access")
@@ -1455,11 +1456,11 @@ namespace Capa_Usuario.Controllers
                     tc.OpRegistro = $"{u.Nombres} {u.Apellidos}";
                     int DocNum = ticketN.editarSeguimientoTicket("INICIO PICKING", DocEntry, tc);
 
-                    return RedirectToAction("ListadoTicketsPickingPacking", new { DocNum = DocNum, Mensaje = "Ticket se está pickeando" });
+                    return RedirectToAction("ListadoTicketsAlmacen", new { DocNum = DocNum, Mensaje = "Ticket se está pickeando" });
                 }
                 catch (Exception e)
                 {
-                    return RedirectToAction("ListadoTicketsPickingPacking", new { Mensaje = e.Message });
+                    return RedirectToAction("ListadoTicketsAlmacen", new { Mensaje = e.Message });
                 }
             }
             else if (verificacionAccesos(idOperation) == "E_Login")
@@ -1479,9 +1480,9 @@ namespace Capa_Usuario.Controllers
                     ticket.OpRegistro = $"{usu.Nombres} {usu.Apellidos}";
                     ticket.RolSupervisor = usu.IdRol;
                     int DocNum = ticketN.editarSeguimientoTicket("ANULAR INICIO PICKING", DocEntry, ticket);
-                    return RedirectToAction("ListadoTicketsPickingPacking", new { DocNum = DocNum, Mensaje = "Se ha anulado el proceso de iniciar picking" });
+                    return RedirectToAction("ListadoTicketsAlmacen", new { DocNum = DocNum, Mensaje = "Se ha anulado el proceso de iniciar picking" });
                 }
-                catch (Exception e) { return RedirectToAction("ListadoTicketsPickingPacking", new { Mensaje = e.Message }); }
+                catch (Exception e) { return RedirectToAction("ListadoTicketsAlmacen", new { Mensaje = e.Message }); }
 
             }
             else if (verificacionAccesos(idOperation) == "E_Login")
@@ -1532,7 +1533,7 @@ namespace Capa_Usuario.Controllers
                     tc.Det11[0].Operario = tc.OpRegistro;                   // Seteamos elOpSacando quién es el usuario en sesión
                     ViewBag.datosSacador = ccORTV_N.ListarCC_ORTV(DocEntry, "FIN PICKING");
                     int DocNum = ticketN.editarSeguimientoTicket("FIN PICKING", DocEntry, tc);
-                    return RedirectToAction("ListadoTicketsPickingPacking", new { DocNum = DocNum, Mensaje = "Ticket ha sido pickeado" });
+                    return RedirectToAction("ListadoTicketsAlmacen", new { DocNum = DocNum, Mensaje = "Ticket ha sido pickeado" });
                 }
                 catch (Exception e)
                 {
@@ -1574,7 +1575,7 @@ namespace Capa_Usuario.Controllers
                     ticket.OpRegistro = $"{usu.Nombres} {usu.Apellidos}";
                     ticket.RolSupervisor = usu.IdRol;
                     int DocNum = ticketN.editarSeguimientoTicket("ANULAR FIN PICKING", DocEntry, ticket);
-                    return RedirectToAction("ListadoTicketsPickingPacking", new { DocNum = DocNum });
+                    return RedirectToAction("ListadoTicketsAlmacen", new { DocNum = DocNum });
                 }
                 catch (Exception e) { ViewBag.Mensaje = e.Message; return View(ticketN.ObtenerDatosCompletosTicket(DocEntry)); }
             }
@@ -1593,11 +1594,11 @@ namespace Capa_Usuario.Controllers
                     ORTV_E tc = ticketN.ObtenerDatosCompletosTicket(DocEntry);
                     tc.OpRegistro = $"{u.Nombres} {u.Apellidos}";
                     int DocNum = ticketN.editarSeguimientoTicket("INICIO VERIFICAR", DocEntry, tc);
-                    return RedirectToAction("ListadoTicketsPickingPacking", new { DocNum = DocNum, Mensaje = "Verificando el Ticket" });
+                    return RedirectToAction("ListadoTicketsAlmacen", new { DocNum = DocNum, Mensaje = "Verificando el Ticket" });
                 }
                 catch (Exception e)
                 {
-                    return RedirectToAction("ListadoTicketsPickingPacking", new { Mensaje = e.Message });
+                    return RedirectToAction("ListadoTicketsAlmacen", new { Mensaje = e.Message });
                 }
             }
             else if (verificacionAccesos(idOperation) == "E_Login")
@@ -1616,9 +1617,9 @@ namespace Capa_Usuario.Controllers
                     ticket.OpRegistro = $"{usu.Nombres} {usu.Apellidos}";
                     ticket.RolSupervisor = usu.IdRol;
                     int DocNum = ticketN.editarSeguimientoTicket("ANULAR INICIO VERIFICAR", DocEntry, ticket);
-                    return RedirectToAction("ListadoTicketsPickingPacking", new { DocNum = DocNum, Mensaje = "Inicio de verificación ANULADO" });
+                    return RedirectToAction("ListadoTicketsAlmacen", new { DocNum = DocNum, Mensaje = "Inicio de verificación ANULADO" });
                 }
-                catch (Exception e) { return RedirectToAction("ListadoTicketsPickingPacking", new { Mensaje = e.Message }); }
+                catch (Exception e) { return RedirectToAction("ListadoTicketsAlmacen", new { Mensaje = e.Message }); }
             }
             else if (verificacionAccesos(idOperation) == "E_Login")
             { return RedirectToAction("Index", "Index"); }
@@ -1733,7 +1734,7 @@ namespace Capa_Usuario.Controllers
                     ticket.OpRegistro = $"{usu.Nombres} {usu.Apellidos}";
                     ticket.RolSupervisor = usu.IdRol;
                     int DocNum = ticketN.editarSeguimientoTicket("ANULAR FIN VERIFICAR", DocEntry, ticket);
-                    return RedirectToAction("ListadoTicketsPickingPacking", new { DocNum = DocNum });
+                    return RedirectToAction("ListadoTicketsAlmacen", new { DocNum = DocNum });
                 }
                 catch (Exception e) { ViewBag.Mensaje = e.Message; return View(ticketN.ObtenerDatosCompletosTicket(DocEntry)); }
             }
@@ -1752,11 +1753,11 @@ namespace Capa_Usuario.Controllers
                     ORTV_E tc = ticketN.ObtenerDatosCompletosTicket(DocEntry);
                     tc.OpRegistro = $"{u.Nombres} {u.Apellidos}";
                     int DocNum = ticketN.editarSeguimientoTicket("INICIO EMPACAR", DocEntry, tc);
-                    return RedirectToAction("ListadoTicketsPickingPacking", new { DocNum = DocNum, Mensaje = "Empacando Ticket" });
+                    return RedirectToAction("ListadoTicketsAlmacen", new { DocNum = DocNum, Mensaje = "Empacando Ticket" });
                 }
                 catch (Exception e)
                 {
-                    return RedirectToAction("ListadoTicketsPickingPacking", new { Mensaje = e.Message });
+                    return RedirectToAction("ListadoTicketsAlmacen", new { Mensaje = e.Message });
                 }
             }
             else if (verificacionAccesos(idOperation) == "E_Login")
@@ -1775,9 +1776,9 @@ namespace Capa_Usuario.Controllers
                     ticket.OpRegistro = $"{usu.Nombres} {usu.Apellidos}";
                     ticket.RolSupervisor = usu.IdRol;
                     int DocNum = ticketN.editarSeguimientoTicket("ANULAR INICIO EMPACAR", DocEntry, ticket);
-                    return RedirectToAction("ListadoTicketsPickingPacking", new { DocNum = DocNum, Mensaje = "Inicio de empaque anulado" });
+                    return RedirectToAction("ListadoTicketsAlmacen", new { DocNum = DocNum, Mensaje = "Inicio de empaque anulado" });
                 }
-                catch (Exception e) { return RedirectToAction("ListadoTicketsPickingPacking", new { Mensaje = e.Message }); }
+                catch (Exception e) { return RedirectToAction("ListadoTicketsAlmacen", new { Mensaje = e.Message }); }
             }
             else if (verificacionAccesos(idOperation) == "E_Login")
             { return RedirectToAction("Index", "Index"); }
@@ -1835,10 +1836,10 @@ namespace Capa_Usuario.Controllers
                     ViewBag.ListaUsuarios = usuariosDistinct;
                     if (ticket.LugarDestino.Equals("Agencia"))
                     {
-                        return RedirectToAction("ListadoTicketsPickingPacking", new { DocNum = DocNum, Mensaje = "Ticket empacado correctamente", DescargarPDF = 0, NumTicket = DocEntry, LugarDestino = ticketPost.LugarDestino });
+                        return RedirectToAction("ListadoTicketsAlmacen", new { DocNum = DocNum, Mensaje = "Ticket empacado correctamente", DescargarPDF = 0, NumTicket = DocEntry, LugarDestino = ticketPost.LugarDestino });
                     }
                     else { 
-                        return RedirectToAction("ListadoTicketsPickingPacking", new { DocNum = DocNum, Mensaje = "Ticket empacado correctamente", DescargarPDF = 1, NumTicket = DocEntry, LugarDestino = ticketPost.LugarDestino });
+                        return RedirectToAction("ListadoTicketsAlmacen", new { DocNum = DocNum, Mensaje = "Ticket empacado correctamente", DescargarPDF = 1, NumTicket = DocEntry, LugarDestino = ticketPost.LugarDestino });
                     }
                  }
                 catch (Exception e)
@@ -1885,7 +1886,7 @@ namespace Capa_Usuario.Controllers
                     ticket.RolSupervisor = usu.IdRol;
                     ticket.Operario = usu.WhsCode;
                     int DocNum = ticketN.editarSeguimientoTicket("ANULAR FIN EMPACAR", DocEntry, ticket);
-                    return RedirectToAction("ListadoTicketsPickingPacking", new { DocNum = DocNum });
+                    return RedirectToAction("ListadoTicketsAlmacen", new { DocNum = DocNum });
                 }
                 catch (Exception e) { return RedirectToAction("AnularEmpacadoTicket", new { DocEntry, Mensaje = e.Message }); }
             }
@@ -3385,7 +3386,7 @@ namespace Capa_Usuario.Controllers
                 }
                 else
                 {
-                    return RedirectToAction("ListadoTicketsPickingPacking", new { DocNum = ticket.DocNum, Mensaje = "El ticket debe estar EMPACADO" });
+                    return RedirectToAction("ListadoTicketsAlmacen", new { DocNum = ticket.DocNum, Mensaje = "El ticket debe estar EMPACADO" });
                 }
 
                 ViewBag.Letra = 4;

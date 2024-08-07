@@ -6,6 +6,7 @@
 <script>
     function filtrar() {
         var object = $("#frm").serialize();
+        //$(location).attr('href', "/Ventas/ListadoTicketsAlmacen?" + object);
         $(location).attr('href', "/Ventas/ListadoTicketsAlmacen?" + object);
     }
 </script>
@@ -740,6 +741,7 @@
             reverseButtons: true
         }).then((result) => {
             if (result.isConfirmed) {
+                //location.href = `/Ventas/CancelarTicket?DocEntry=${DocEntry}&vista=ListadoTicketsAlmacen`;
                 location.href = `/Ventas/CancelarTicket?DocEntry=${DocEntry}&vista=ListadoTicketsAlmacen`;
             }
         });
