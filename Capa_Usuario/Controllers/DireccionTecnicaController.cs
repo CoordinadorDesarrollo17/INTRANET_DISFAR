@@ -1,38 +1,51 @@
 ﻿using Capa_Entidad.Almacen_ENT.Tablas;
-﻿using Capa_Datos;
 using Capa_Entidad.Compras_ENT.Tablas;
 using Capa_Entidad.DireccionTecnica_ENT.TablasSql;
 using Capa_Entidad.General_ENT.Tablas;
 using Capa_Entidad.General_ENT.TablasSql;
 using Capa_Entidad.ReportesDigemid_ENT;
-using Capa_Entidad.ReportesDigemid_ENT.Formularios;
 using Capa_Entidad.Seguridad_ENT;
 using Capa_Entidad.Ventas_ENT.Tablas;
-using Capa_Entidad.Ventas_ENT.TablasSql;
 using Capa_Negocio.Almacen_NEG.Tablas;
 using Capa_Negocio.DireccionTecnica_NEG.TablasSql;
 using Capa_Negocio.General_NEG.Tablas;
 using Capa_Negocio.General_NEG.TablasSql;
 using Capa_Negocio.ReportesDigemid_NEG;
-using Capa_Negocio.Seguridad_NEG;
 using Capa_Negocio.Ventas_NEG.Tablas;
 using Capa_Negocio.Ventas_NEG.TablasSql;
-using DocumentFormat.OpenXml.Math;
 using Rotativa;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
-using System.Web.Services.Description;
 using Capa_Negocio.DireccionTecnica_NEG.TablasHANA;
+using Capa_Usuario.Helpers;
+using Capa_Negocio;
 
 namespace Capa_Usuario.Controllers
 {
     public class DireccionTecnicaController : Controller
     {
-        Rol1_N rol1 = new Rol1_N(); int modulo = 3;
         DocumentosDig_N dgN = new DocumentosDig_N();
-        COB_LUG_ENTREGA_N lugarEntN = new COB_LUG_ENTREGA_N();
+
+        /************************* C O N F I G U R A C I Ó N *************************/
+        private ActionResult VerificarPermiso(int idOperation)
+        {
+            var accesoHelper = new Capa_Entidad.AccessoHelper_E
+            {
+                OpeID = idOperation,
+                usuario = (Usuario_E)Session["UsuarioId"],
+                controllerDestino = this.ControllerContext.RouteData.Values["controller"].ToString(),
+                action = this.ControllerContext.RouteData.Values["action"].ToString(),
+                userHostAddress = Request.UserHostAddress,
+                userHostName = Request.UserHostName
+            };
+
+            return AccesoHelper.GestionarAccesoController(this, accesoHelper);
+        }
+        /********************************************************************/
+
+
         /** 
          * Método para buscar el responsable de almacén de las actas de recepción y despacho 
          * @param {String} tipoFirma - Para saber que tipo de firma estamos buscando 
@@ -121,33 +134,37 @@ namespace Capa_Usuario.Controllers
 
         public ActionResult LayoutOrdenDeVenta(int DocNum, int idOperation = 1702)
         {
-            if (verificacionAccesos(idOperation) == "C_Access")
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 return RedirectToAction("OrdenDeVenta", "Ventas", new { DocNum = DocNum });
             }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
             else
-            { return RedirectToAction("Error", "Index"); }
+            {
+                return resultadoAcceso;
+            }
         }
         public ActionResult ListadoFacturasDeVenta(OINV_E fil, int idOperation = 1801)
         {
-            COB_LUG_ENTREGA_N cN = new COB_LUG_ENTREGA_N();
-            OINV_N oinvN = new OINV_N();
-            if (verificacionAccesos(idOperation) == "C_Access")
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 if (fil != null) { ViewBag.Oinv = fil; } else { ViewBag.Oinv = new OINV_E(); }
-                ViewBag.ListaLugarEntregas = cN.listadoLugaresDeEntrega();
-                return View(oinvN.listadoFacturasDeVenta(fil));
+                ViewBag.ListaLugarEntregas = new COB_LUG_ENTREGA_N().listadoLugaresDeEntrega();
+                return View(new OINV_N().listadoFacturasDeVenta(fil));
             }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
             else
-            { return RedirectToAction("Error", "Index"); }
+            {
+                return resultadoAcceso;
+            }
         }
         public ActionResult ActaRecepcionVt(int DocEntry, int idOperation = 1802)
         {
-            if (verificacionAccesos(idOperation) == "C_Access")
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 var result = dgN.ConsultarActaRecepcionVt(DocEntry);
 
@@ -164,14 +181,16 @@ namespace Capa_Usuario.Controllers
 
                 return View(result);
             }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
             else
-            { return RedirectToAction("Error", "Index"); }
+            {
+                return resultadoAcceso;
+            }
         }
         public ActionResult ActaDespachoVt(int DocEntry, int idOperation = 1803)
         {
-            if (verificacionAccesos(idOperation) == "C_Access")
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 var result = dgN.ConsultarActaDespachoVt(DocEntry);
 
@@ -188,15 +207,18 @@ namespace Capa_Usuario.Controllers
 
                 return View(result);
             }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
             else
-            { return RedirectToAction("Error", "Index"); }
+            {
+                return resultadoAcceso;
+            }
         }
         public ActionResult OrganolepticoVt(int DocEntry, int idOperation = 1804)
         {
-            if (verificacionAccesos(idOperation) == "C_Access")
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
+                Utilitarios_N utilitarios = new Utilitarios_N();
                 var orgVT = dgN.ConsultarOrganolepticoVt(DocEntry);
                 if (orgVT != null && orgVT.Count() >= 1)
                 {
@@ -209,29 +231,31 @@ namespace Capa_Usuario.Controllers
                     }
                 }
 
-                string FilePathDT = "D:\\COBEFARWEBFILES\\Firmas\\FirmaPamelaCollahuaSenosain.png";
+                string FilePathDT = utilitarios.directorioFileServer + "Firmas\\FirmaPamelaCollahuaSenosain.png";
                 byte[] archivoDT = System.IO.File.ReadAllBytes(FilePathDT);
                 var base64DT = Convert.ToBase64String(archivoDT); //La propiedad de tu modelo que es byte[]
                 ViewBag.FirmaDT = String.Format("data:image/gif;base64,{0}", base64DT); // Damos formato para indicar que se trata de una cadena base64
 
                 return View(orgVT);
             }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
             else
-            { return RedirectToAction("Error", "Index"); }
+            {
+                return resultadoAcceso;
+            }
         }
 
         public ActionResult CalcularPdfsDescarga(int idOperation = 1805)
         {
-            if (verificacionAccesos(idOperation) == "C_Access")
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 return View();
             }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
             else
-            { return RedirectToAction("Error", "Index"); }
+            {
+                return resultadoAcceso;
+            }
         }
 
         public JsonResult CalculadoraPdfXampp(int opcion, string Fecha, string U_SYP_STATUS, string U_COB_LUGAREN, string TipoComprobante)
@@ -299,90 +323,94 @@ namespace Capa_Usuario.Controllers
 
         public ActionResult ComprobanteDePago(int DocEntry, string Tipo, int idOperation = 1806)
         {
-            if (verificacionAccesos(idOperation) == "C_Access")
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 ViewBag.Tipo = Tipo;
                 return View(dgN.ConsultarComprobanteDePago(DocEntry));
             }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
             else
-            { return RedirectToAction("Error", "Index"); }
+            {
+                return resultadoAcceso;
+            }
         }
         public ActionResult ListadoBoletasDeVenta(OINV_E fil, int idOperation = 1901)
         {
-            Capa_Negocio.General_NEG.Tablas.COB_LUG_ENTREGA_N cN = new Capa_Negocio.General_NEG.Tablas.COB_LUG_ENTREGA_N();
-            Capa_Negocio.Ventas_NEG.Tablas.OINV_N oinvN = new Capa_Negocio.Ventas_NEG.Tablas.OINV_N();
-            if (verificacionAccesos(idOperation) == "C_Access")
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 if (fil != null) { ViewBag.Oinv = fil; } else { ViewBag.Oinv = new OINV_E(); }
-                ViewBag.ListaLugarEntregas = cN.listadoLugaresDeEntrega();
-                return View(oinvN.listadoBoletasDeVenta(fil));
+                ViewBag.ListaLugarEntregas = new Capa_Negocio.General_NEG.Tablas.COB_LUG_ENTREGA_N().listadoLugaresDeEntrega();
+                return View(new Capa_Negocio.Ventas_NEG.Tablas.OINV_N().listadoBoletasDeVenta(fil));
             }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
             else
-            { return RedirectToAction("Error", "Index"); }
+            {
+                return resultadoAcceso;
+            }
         }
         public ActionResult ListadoEntregasDeVenta(ODLN_E fil, int idOperation = 2001)
         {
-            ODLN_N odlnN = new ODLN_N();
-            COB_LUG_ENTREGA_N cN = new COB_LUG_ENTREGA_N();
-            if (verificacionAccesos(idOperation) == "C_Access")
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 if (fil != null) { ViewBag.Odln = fil; } else { ViewBag.Odln = new ODLN_E(); }
-                ViewBag.ListaLugarEntregas = cN.listadoLugaresDeEntrega();
-                return View(odlnN.listarEntregasVenta(fil));
+                ViewBag.ListaLugarEntregas = new COB_LUG_ENTREGA_N().listadoLugaresDeEntrega();
+                return View(new ODLN_N().listarEntregasVenta(fil));
             }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
             else
-            { return RedirectToAction("Error", "Index"); }
+            {
+                return resultadoAcceso;
+            }
         }
         public ActionResult ListadoNotasDeCreditoVenta(ORIN_E fil, int idOperation = 2101)
         {
-            ORIN_N orinN = new ORIN_N();
-            if (verificacionAccesos(idOperation) == "C_Access")
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 if (fil != null) { ViewBag.Orin = fil; } else { ViewBag.Orin = new ORIN_E(); }
-                return View(orinN.listarNotasDeCredito(fil));
+                return View(new ORIN_N().listarNotasDeCredito(fil));
             }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
             else
-            { return RedirectToAction("Error", "Index"); }
+            {
+                return resultadoAcceso;
+            }
         }
         public ActionResult NotaDeCreditoVentaArticulos(int DocEntry, int idOperation = 2102)
         {
-            if (verificacionAccesos(idOperation) == "C_Access")
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 return View(dgN.ConsultarNotaCreditoVentaArticulos(DocEntry));
             }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
             else
-            { return RedirectToAction("Error", "Index"); }
+            {
+                return resultadoAcceso;
+            }
         }
         public ActionResult ListadoTransferenciasDeStock(OWTR_E fil, int idOperation = 2201)
         {
-            Capa_Negocio.Almacen_NEG.Tablas.OWTR_N owN = new Capa_Negocio.Almacen_NEG.Tablas.OWTR_N();
-            Capa_Negocio.General_NEG.Tablas.OSLP_N osN = new Capa_Negocio.General_NEG.Tablas.OSLP_N();
-            Capa_Negocio.General_NEG.Tablas.OWHS_N owhN = new Capa_Negocio.General_NEG.Tablas.OWHS_N();
-            if (verificacionAccesos(idOperation) == "C_Access")
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 if (fil != null) { ViewBag.Owtr = fil; } else { ViewBag.Owtr = new OWTR_E(); }
-                ViewBag.Almacenes = owhN.ListarAlmacenes();
-                ViewBag.ListaOslp = osN.listadoOslp("ALM");
-                return View(owN.listadoTransferenciasStock(fil));
+                ViewBag.Almacenes = new Capa_Negocio.General_NEG.Tablas.OWHS_N().ListarAlmacenes();
+                ViewBag.ListaOslp = new Capa_Negocio.General_NEG.Tablas.OSLP_N().listadoOslp("ALM");
+                return View(new Capa_Negocio.Almacen_NEG.Tablas.OWTR_N().listadoTransferenciasStock(fil));
             }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
             else
-            { return RedirectToAction("Error", "Index"); }
+            {
+                return resultadoAcceso;
+            }
         }
         public JsonResult CambiarEstadoOWTR(SQL_OWTR_E datos)
         {
-            verificacionAccesos(0);         // Validar sesion logueada, solo para ajax
+            //verificacionAccesos(0);         // Validar sesion logueada, solo para ajax
             if (datos.DocNumSAP >= 1 && !string.IsNullOrEmpty(datos.Estado))
             {
                 Usuario_E usu = (Usuario_E)Session["UsuarioId"];
@@ -402,7 +430,9 @@ namespace Capa_Usuario.Controllers
         }
         public ActionResult ActaRecepcionTs(int DocEntry, int idOperation = 2202)
         {
-            if (verificacionAccesos(idOperation) == "C_Access")
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 var result = dgN.ConsultarActaRecepcionTs(DocEntry);
 
@@ -419,14 +449,16 @@ namespace Capa_Usuario.Controllers
 
                 return View(result);
             }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
             else
-            { return RedirectToAction("Error", "Index"); }
+            {
+                return resultadoAcceso;
+            }
         }
         public ActionResult ActaDespachoTs(int DocEntry, int idOperation = 2203)
         {
-            if (verificacionAccesos(idOperation) == "C_Access")
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 var result = dgN.ConsultarActaDespachoTs(DocEntry);
 
@@ -443,15 +475,18 @@ namespace Capa_Usuario.Controllers
 
                 return View(result);
             }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
             else
-            { return RedirectToAction("Error", "Index"); }
+            {
+                return resultadoAcceso;
+            }
         }
         public ActionResult OrganolepticoTs(int DocEntry, int idOperation = 2204)
         {
-            if (verificacionAccesos(idOperation) == "C_Access")
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
+                Utilitarios_N utilitarios = new Utilitarios_N();
                 var orgTS = dgN.ConsultarOrganolepticoTs(DocEntry);
 
                 if (orgTS != null && orgTS.Count() >= 1)
@@ -465,37 +500,39 @@ namespace Capa_Usuario.Controllers
                     }
                 }
 
-                string FilePathDT = "D:\\COBEFARWEBFILES\\Firmas\\FirmaPamelaCollahuaSenosain.png";
+                string FilePathDT = utilitarios.directorioFileServer + "Firmas\\FirmaPamelaCollahuaSenosain.png";
                 byte[] archivoDT = System.IO.File.ReadAllBytes(FilePathDT);
                 var base64DT = Convert.ToBase64String(archivoDT); //La propiedad de tu modelo que es byte[]
                 ViewBag.FirmaDT = String.Format("data:image/gif;base64,{0}", base64DT); // Damos formato para indicar que se trata de una cadena base64
 
                 return View(orgTS);
             }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
             else
-            { return RedirectToAction("Error", "Index"); }
+            {
+                return resultadoAcceso;
+            }
         }
         public ActionResult ListadoEntradasDeMercancias(Capa_Entidad.Compras_ENT.Tablas.OPDN_E fil, int idOperation = 2301)
         {
-            Capa_Negocio.General_NEG.Tablas.OWHS_N owhN = new Capa_Negocio.General_NEG.Tablas.OWHS_N();
-            Capa_Negocio.Compras_NEG.Tablas.OPDN_N opdnN = new Capa_Negocio.Compras_NEG.Tablas.OPDN_N();
-            if (verificacionAccesos(idOperation) == "C_Access")
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                ViewBag.Almacenes = owhN.ListarAlmacenes("todos");
+                ViewBag.Almacenes = new Capa_Negocio.General_NEG.Tablas.OWHS_N().ListarAlmacenes("todos");
                 if (fil != null) { ViewBag.Opdn = fil; } else { ViewBag.Opdn = new Capa_Entidad.Compras_ENT.Tablas.OPDN_E(); }
-                return View(opdnN.listadoEntradaMercancias(fil));
+                return View(new Capa_Negocio.Compras_NEG.Tablas.OPDN_N().listadoEntradaMercancias(fil));
             }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
             else
-            { return RedirectToAction("Error", "Index"); }
+            {
+                return resultadoAcceso;
+            }
         }
 
         public ActionResult ActaRecepcionEm(int DocEntry, string Almacen, int idOperation = 2302)
         {
-            if (verificacionAccesos(idOperation) == "C_Access")
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 var result = dgN.ConsultarActaRecepcionEm(DocEntry);
 
@@ -512,15 +549,18 @@ namespace Capa_Usuario.Controllers
 
                 return View(result);
             }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
             else
-            { return RedirectToAction("Error", "Index"); }
+            {
+                return resultadoAcceso;
+            }
         }
         public ActionResult OrganolepticoEm(int DocEntry, string Almacen, int idOperation = 2303)
         {
-            if (verificacionAccesos(idOperation) == "C_Access")
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
+                Utilitarios_N utilitarios = new Utilitarios_N();
                 var orgEM = dgN.ConsultarOrganolepticoEm(DocEntry);
 
                 if (orgEM != null && orgEM.Count() >= 1)
@@ -534,270 +574,283 @@ namespace Capa_Usuario.Controllers
                     }
                 }
 
-                string FilePathDT = "D:\\COBEFARWEBFILES\\Firmas\\FirmaPamelaCollahuaSenosain.png";
+                string FilePathDT =  utilitarios.directorioFileServer+"Firmas\\FirmaPamelaCollahuaSenosain.png";
                 byte[] archivoDT = System.IO.File.ReadAllBytes(FilePathDT);
                 var base64DT = Convert.ToBase64String(archivoDT); //La propiedad de tu modelo que es byte[]
                 ViewBag.FirmaDT = String.Format("data:image/gif;base64,{0}", base64DT); // Damos formato para indicar que se trata de una cadena base64
 
                 return View(orgEM);
             }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
             else
-            { return RedirectToAction("Error", "Index"); }
+            {
+                return resultadoAcceso;
+            }
         }
         public ActionResult RealizarEntradaDeMercancias(int DocEntry, int idOperation = 2304)
         {
-            Capa_Negocio.Compras_NEG.Tablas.OPDN_N opdnN = new Capa_Negocio.Compras_NEG.Tablas.OPDN_N();
-            if (verificacionAccesos(idOperation) == "C_Access")
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                return View(opdnN.buscarEntradaMercancias(DocEntry));
+                return View(new Capa_Negocio.Compras_NEG.Tablas.OPDN_N().buscarEntradaMercancias(DocEntry));
             }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
             else
-            { return RedirectToAction("Error", "Index"); }
+            {
+                return resultadoAcceso;
+            }
         }
         [HttpPost]
         public ActionResult RealizarEntradaDeMercancias(SQL_OPDN_E s, int idOperation = 2304)
         {
-            Capa_Negocio.Compras_NEG.Tablas.SQL_OPDN_N SqlOpdnN = new Capa_Negocio.Compras_NEG.Tablas.SQL_OPDN_N();
-            Capa_Negocio.Compras_NEG.Tablas.OPDN_N opdnN = new Capa_Negocio.Compras_NEG.Tablas.OPDN_N();
-            if (verificacionAccesos(idOperation) == "C_Access")
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 Usuario_E user = (Usuario_E)Session["UsuarioId"];
                 s.OpRealizacion = $"{user.Nombres} {user.Apellidos}";
                 s.ObjType = 20;
                 try
                 {
-                    SqlOpdnN.realizarSqlEntradaDeMercancias(s);
+                    new Capa_Negocio.Compras_NEG.Tablas.SQL_OPDN_N().realizarSqlEntradaDeMercancias(s);
                     ViewBag.Mensaje = s.DocEntry;
                     return RedirectToAction("ListadoEntradasDeMercancias");
                 }
-                catch (Exception e) { ViewBag.Mensaje = e.Message; return View(opdnN.buscarEntradaMercancias(s.DocEntry)); }
+                catch (Exception e) { ViewBag.Mensaje = e.Message; return View(new Capa_Negocio.Compras_NEG.Tablas.OPDN_N().buscarEntradaMercancias(s.DocEntry)); }
             }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
             else
-            { return RedirectToAction("Error", "Index"); }
+            {
+                return resultadoAcceso;
+            }
         }
         public ActionResult AnularRealizarEntradaDeMercancias(int DocEntry, int idOperation = 2305)
         {
-            Capa_Negocio.Compras_NEG.Tablas.OPDN_N opdnN = new Capa_Negocio.Compras_NEG.Tablas.OPDN_N();
-            if (verificacionAccesos(idOperation) == "C_Access")
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                return View(opdnN.buscarEntradaMercancias(DocEntry));
+                return View(new Capa_Negocio.Compras_NEG.Tablas.OPDN_N().buscarEntradaMercancias(DocEntry));
             }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
             else
-            { return RedirectToAction("Error", "Index"); }
+            {
+                return resultadoAcceso;
+            }
         }
         [ActionName("AnularRealizarEntradaDeMercancias")]
         [HttpPost]
         public ActionResult AnularRealizarEntradaDeMercanciasPost(int DocEntry, int idOperation = 2305)
         {
-            Capa_Negocio.Compras_NEG.Tablas.SQL_OPDN_N SqlOpdnN = new Capa_Negocio.Compras_NEG.Tablas.SQL_OPDN_N();
-            Capa_Negocio.Compras_NEG.Tablas.OPDN_N opdnN = new Capa_Negocio.Compras_NEG.Tablas.OPDN_N();
-            if (verificacionAccesos(idOperation) == "C_Access")
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 try
                 {
-                    SqlOpdnN.eliminarSqlEntradaDeMercancias(DocEntry);
+                    new Capa_Negocio.Compras_NEG.Tablas.SQL_OPDN_N().eliminarSqlEntradaDeMercancias(DocEntry);
                     ViewBag.Mensaje = DocEntry;
                     return RedirectToAction("ListadoEntradasDeMercancias");
                 }
-                catch (Exception e) { ViewBag.Mensaje = e.Message; return View(opdnN.buscarEntradaMercancias(DocEntry)); }
+                catch (Exception e) { ViewBag.Mensaje = e.Message; return View(new Capa_Negocio.Compras_NEG.Tablas.OPDN_N().buscarEntradaMercancias(DocEntry)); }
             }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
             else
-            { return RedirectToAction("Error", "Index"); }
+            {
+                return resultadoAcceso;
+            }
         }
         public ActionResult ListadoFacturasDeProveedores(OPCH_E fil, int idOperation = 2401)
         {
-            Capa_Negocio.Compras_NEG.Tablas.OPCH_N opchN = new Capa_Negocio.Compras_NEG.Tablas.OPCH_N();
-            if (verificacionAccesos(idOperation) == "C_Access")
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 if (fil != null) { ViewBag.Opch = fil; } else { ViewBag.Opch = new OPCH_E(); }
-                return View(opchN.listadoFacturasProveedores(fil));
+                return View(new Capa_Negocio.Compras_NEG.Tablas.OPCH_N().listadoFacturasProveedores(fil));
             }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
             else
-            { return RedirectToAction("Error", "Index"); }
+            {
+                return resultadoAcceso;
+            }
         }
+
         public ActionResult FacturaDeProveedor(int DocEntry, int idOperation = 2402)
         {
-            Capa_Negocio.Compras_NEG.Tablas.OPCH_N opchN = new Capa_Negocio.Compras_NEG.Tablas.OPCH_N();
-            if (verificacionAccesos(idOperation) == "C_Access")
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                return View(opchN.buscarFacturaProveedor(DocEntry));
+                return View(new Capa_Negocio.Compras_NEG.Tablas.OPCH_N().buscarFacturaProveedor(DocEntry));
             }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
             else
-            { return RedirectToAction("Error", "Index"); }
+            {
+                return resultadoAcceso;
+            }
         }
         public ActionResult ListadoMaestroDeArticulos(OITM_E fil, int idOperation = 2501)
         {
-            Capa_Negocio.Almacen_NEG.Tablas.OITM_N oitmN = new Capa_Negocio.Almacen_NEG.Tablas.OITM_N();
-            if (verificacionAccesos(idOperation) == "C_Access")
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 if (fil != null) { ViewBag.fil = fil; } else { ViewBag.fil = new OITM_E(); }
-                return View(oitmN.Listar(fil));
+                return View(new Capa_Negocio.Almacen_NEG.Tablas.OITM_N().Listar(fil));
             }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
             else
-            { return RedirectToAction("Error", "Index"); }
+            {
+                return resultadoAcceso;
+            }
         }
         public ActionResult DetallesArticulo(string ItemCode, int idOperation = 2502)
         {
-            Capa_Negocio.Almacen_NEG.Tablas.OITM_N oitmN = new Capa_Negocio.Almacen_NEG.Tablas.OITM_N();
-            Capa_Negocio.Almacen_NEG.Tablas.OITW_N oitwN = new Capa_Negocio.Almacen_NEG.Tablas.OITW_N();
-            Capa_Negocio.General_NEG.Tablas.OWHS_N owhsN = new Capa_Negocio.General_NEG.Tablas.OWHS_N();
-            if (verificacionAccesos(idOperation) == "C_Access")
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                ViewBag.Owhs = owhsN;
-                ViewBag.listaOitw = oitwN.listarDetArticulosInv(ItemCode);
-                return View(oitmN.buscarArticulo(ItemCode));
+                ViewBag.Owhs = new Capa_Negocio.General_NEG.Tablas.OWHS_N();
+                ViewBag.listaOitw = new Capa_Negocio.Almacen_NEG.Tablas.OITW_N().listarDetArticulosInv(ItemCode);
+                return View(new Capa_Negocio.Almacen_NEG.Tablas.OITM_N().buscarArticulo(ItemCode));
             }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
             else
-            { return RedirectToAction("Error", "Index"); }
+            {
+                return resultadoAcceso;
+            }
         }
         public ActionResult Reportes(int idOperation = 2601)
         {
-            if (verificacionAccesos(idOperation) == "C_Access")
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 OMRC_N omrcN = new OMRC_N();
                 ViewBag.Laboratorios = omrcN.listarFabricantes();
 
                 return View();
             }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
             else
-            { return RedirectToAction("Error", "Index"); }
+            {
+                return resultadoAcceso;
+            }
         }
         //aciones dentRo de reportes
         public ActionResult ListadoSaldosAnteriores(COB_SALDO_E fil, string Mensaje = "", int idOperation = 2602)
         {
-            Capa_Negocio.General_NEG.Tablas.COB_SALDO_N cobN = new Capa_Negocio.General_NEG.Tablas.COB_SALDO_N();
-            if (verificacionAccesos(idOperation) == "C_Access")
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 if (fil == null) { ViewBag.fil = new COB_SALDO_E(); } else { ViewBag.fil = fil; }
                 ViewBag.Mensaje = Mensaje;
-                return View(cobN.listarSaldosAnteriores(fil));
+                return View(new Capa_Negocio.General_NEG.Tablas.COB_SALDO_N().listarSaldosAnteriores(fil));
             }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
             else
-            { return RedirectToAction("Error", "Index"); }
+            {
+                return resultadoAcceso;
+            }
         }
         public ActionResult AgregarSaldoAnterior(int idOperation = 2603)
         {
-            Capa_Negocio.Almacen_NEG.Tablas.OITM_N oitmN = new Capa_Negocio.Almacen_NEG.Tablas.OITM_N();
-            if (verificacionAccesos(idOperation) == "C_Access")
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 OITM_E o = new OITM_E() { ItmsGrpCod = 103 };
-                ViewBag.ListaArticulos = oitmN.Listar(o);
+                ViewBag.ListaArticulos = new Capa_Negocio.Almacen_NEG.Tablas.OITM_N().Listar(o);
                 ViewBag.Mensaje = "";
                 return View(new COB_SALDO_E());
             }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
             else
-            { return RedirectToAction("Error", "Index"); }
+            {
+                return resultadoAcceso;
+            }
         }
         [HttpPost]
         public ActionResult AgregarSaldoAnterior(COB_SALDO_E c, int idOperation = 2603)
         {
-            Capa_Negocio.Almacen_NEG.Tablas.OITM_N oitmN = new Capa_Negocio.Almacen_NEG.Tablas.OITM_N();
-            Capa_Negocio.General_NEG.Tablas.COB_SALDO_N cobN = new Capa_Negocio.General_NEG.Tablas.COB_SALDO_N();
-            if (verificacionAccesos(idOperation) == "C_Access")
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 try
                 {
-                    cobN.agregarSaldoAnterior(c);
+                    new Capa_Negocio.General_NEG.Tablas.COB_SALDO_N().agregarSaldoAnterior(c);
                     return RedirectToAction("ListadoSaldosAnteriores", new { Mensaje = c.Name + " Agregado correctamente" });
                 }
                 catch (Exception e)
                 {
                     ViewBag.Mensaje = e.Message;
                     OITM_E o = new OITM_E() { ItmsGrpCod = 103 };
-                    ViewBag.ListaArticulos = oitmN.Listar(o);
+                    ViewBag.ListaArticulos = new Capa_Negocio.Almacen_NEG.Tablas.OITM_N().Listar(o);
                     return View(c);
                 }
             }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
             else
-            { return RedirectToAction("Error", "Index"); }
+            {
+                return resultadoAcceso;
+            }
         }
 
         public ActionResult EditarSaldoAnterior(string Code, int idOperation = 2604)
         {
-            Capa_Negocio.Almacen_NEG.Tablas.OITM_N oitmN = new Capa_Negocio.Almacen_NEG.Tablas.OITM_N();
-            Capa_Negocio.General_NEG.Tablas.COB_SALDO_N cobN = new Capa_Negocio.General_NEG.Tablas.COB_SALDO_N();
-            if (verificacionAccesos(idOperation) == "C_Access")
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 OITM_E o = new OITM_E() { ItmsGrpCod = 103 };
-                ViewBag.ListaArticulos = oitmN.Listar(o);
+                ViewBag.ListaArticulos = new Capa_Negocio.Almacen_NEG.Tablas.OITM_N().Listar(o);
                 ViewBag.Mensaje = "";
-                return View(cobN.buscarSaldoAnterior(Code));
+                return View(new Capa_Negocio.General_NEG.Tablas.COB_SALDO_N().buscarSaldoAnterior(Code));
             }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
             else
-            { return RedirectToAction("Error", "Index"); }
+            {
+                return resultadoAcceso;
+            }
         }
         [HttpPost]
         public ActionResult EditarSaldoAnterior(COB_SALDO_E c, int idOperation = 2604)
         {
-            Capa_Negocio.Almacen_NEG.Tablas.OITM_N oitmN = new Capa_Negocio.Almacen_NEG.Tablas.OITM_N();
-            Capa_Negocio.General_NEG.Tablas.COB_SALDO_N cobN = new Capa_Negocio.General_NEG.Tablas.COB_SALDO_N();
-            if (verificacionAccesos(idOperation) == "C_Access")
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 try
                 {
-                    cobN.editarSaldoAnterior(c);
+                    new Capa_Negocio.General_NEG.Tablas.COB_SALDO_N().editarSaldoAnterior(c);
                     return RedirectToAction("ListadoSaldosAnteriores", new { Mensaje = c.Name + " Editado correctamente" });
                 }
                 catch (Exception e)
                 {
                     OITM_E o = new OITM_E() { ItmsGrpCod = 103 };
-                    ViewBag.ListaArticulos = oitmN.Listar(o);
+                    ViewBag.ListaArticulos = new Capa_Negocio.Almacen_NEG.Tablas.OITM_N().Listar(o);
                     ViewBag.Mensaje = e.Message;
                     return View(c);
                 }
             }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
             else
-            { return RedirectToAction("Error", "Index"); }
+            {
+                return resultadoAcceso;
+            }
         }
         public ActionResult EliminarSaldoAnterior(string Code, int idOperation = 2605)
         {
-            Capa_Negocio.General_NEG.Tablas.COB_SALDO_N cobN = new Capa_Negocio.General_NEG.Tablas.COB_SALDO_N();
-            if (verificacionAccesos(idOperation) == "C_Access")
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                return View(cobN.buscarSaldoAnterior(Code));
+                return View(new Capa_Negocio.General_NEG.Tablas.COB_SALDO_N().buscarSaldoAnterior(Code));
             }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
             else
-            { return RedirectToAction("Error", "Index"); }
+            {
+                return resultadoAcceso;
+            }
         }
         [ActionName("EliminarSaldoAnterior")]
         [HttpPost]
         public ActionResult EliminarSaldoAnteriorPost(string Code, int idOperation = 2605)
-        {
-            Capa_Negocio.General_NEG.Tablas.COB_SALDO_N cobN = new Capa_Negocio.General_NEG.Tablas.COB_SALDO_N();
-            if (verificacionAccesos(idOperation) == "C_Access")
+        {            
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
+                Capa_Negocio.General_NEG.Tablas.COB_SALDO_N cobN = new Capa_Negocio.General_NEG.Tablas.COB_SALDO_N();
+
                 try
                 {
                     cobN.eliminarSaldoAnterior(Code);
@@ -805,21 +858,25 @@ namespace Capa_Usuario.Controllers
                 }
                 catch (Exception e) { ViewBag.Mensaje = e.Message; return View(cobN.buscarSaldoAnterior(Code)); }
             }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
             else
-            { return RedirectToAction("Error", "Index"); }
+            {
+                return resultadoAcceso;
+            }
         }
 
         /********************* R E G I S T R O S   S A N I T A R I O S *********************/
         public ActionResult RegistrosSanitarios(int idOperation = 2900)
         {
-            if (verificacionAccesos(idOperation) == "C_Access")
-            { return View(); }
-            else if (verificacionAccesos(idOperation) == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                return View();
+            }
             else
-            { return RedirectToAction("Error", "Index"); }
+            {
+                return resultadoAcceso;
+            }
         }
 
         // Listado interno dentro de RegistrosSanitarios para ser reutilizable
@@ -855,7 +912,7 @@ namespace Capa_Usuario.Controllers
 
         public JsonResult AgregarObservacion(OORS_E rs)
         {
-            verificacionAccesos(0);     // Validar sesion logueada, solo para ajax
+            //verificacionAccesos(0);     // Validar sesion logueada, solo para ajax
             Usuario_E usu = (Usuario_E)Session["UsuarioId"];
             rs.RegistradoPor = $"{usu.Nombres} {usu.Apellidos}";
 
@@ -867,7 +924,7 @@ namespace Capa_Usuario.Controllers
 
         public JsonResult ConsultarRegistrosSanitariosExpirados()
         {
-            verificacionAccesos(0);         // Validar sesion logueada, solo para ajax
+            //verificacionAccesos(0);         // Validar sesion logueada, solo para ajax
 
             OORS_N orsN = new OORS_N();
             var result = orsN.ConsultarRegistrosSanitariosExpirados();
@@ -877,24 +934,23 @@ namespace Capa_Usuario.Controllers
         /************************  Ó R D E N E S   D E   V E N T A ************************/
         public ActionResult ListadoOrdenesDeVenta(Capa_Entidad.Ventas_ENT.Tablas.ORDR_E filtros, int idOperation = 1701)
         {
-            switch (verificacionAccesos(idOperation))
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                case "C_Access":
-                    var usuario = Session["UsuarioId"] as Usuario_E;
-                    int idRol = usuario?.IdRol ?? 0;
+                var usuario = Session["UsuarioId"] as Usuario_E;
+                int idRol = usuario?.IdRol ?? 0;
 
-                    // VENTAS o SVENTAS
-                    bool versionVentas = new List<int> { 6, 7 }.Contains(idRol);
-                    ViewBag.CargarLista = versionVentas == true ? "ListadoOrdenesVenta_VT" : "ListadoOrdenesVenta_DT";
-                    ViewBag.SlpCode = filtros?.SlpCode ?? 0;
+                // VENTAS o SVENTAS
+                bool versionVentas = new List<int> { 6, 7 }.Contains(idRol);
+                ViewBag.CargarLista = versionVentas == true ? "ListadoOrdenesVenta_VT" : "ListadoOrdenesVenta_DT";
+                ViewBag.SlpCode = filtros?.SlpCode ?? 0;
 
-                    return View();
-
-                case "E_Login":
-                    return RedirectToAction("Index", "Index");
-
-                default:
-                    return RedirectToAction("Error", "Index");
+                return View();
+            }
+            else
+            {
+                return resultadoAcceso;
             }
         }
 
@@ -930,25 +986,6 @@ namespace Capa_Usuario.Controllers
             var lista = new ORTV_N().obtenerOrdenDeVenta(filtros.DocNum);
 
             return View("~/Views/Ventas/PDF/PDF_OrdenesDeVentas.cshtml", lista);
-        }
-        /************************************************************************************/
-        private string verificacionAccesos(int ope)
-        {
-            string nombreOperacion = this.ControllerContext.RouteData.Values["action"].ToString();
-            Usuario_E user = (Usuario_E)Session["UsuarioId"];
-            if (user == null)
-            { return "E_Login"; }
-            else
-            {
-                if ((rol1.verificarAccesoOperacion(user.IdRol, ope, nombreOperacion, modulo) == 1) || (user.IdRol == 1))
-                {
-                    Capa_Negocio.Utilitarios_N utiN = new Capa_Negocio.Utilitarios_N();
-                    utiN.registrarLog(user.Prefijo + user.Id, "intento de " + nombreOperacion, ope, Request.UserHostAddress, Request.UserHostName);
-                    return "C_Access";
-                }
-                else
-                { return "E_Access"; }
-            }
-        }
+        }        
     }
 }

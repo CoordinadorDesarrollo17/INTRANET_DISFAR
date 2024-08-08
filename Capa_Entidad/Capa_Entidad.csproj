@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AccessoHelper_E.cs" />
     <Compile Include="Almacen_ENT\ReportesSql\ContInv_E.cs" />
     <Compile Include="Almacen_ENT\ReportesSql\RptCorreoDevolucion_E.cs" />
     <Compile Include="Almacen_ENT\ReportesSql\RptHistoricoDevoluciones_E.cs" />

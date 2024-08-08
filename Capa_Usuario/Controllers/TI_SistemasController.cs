@@ -6,164 +6,175 @@ using Capa_Entidad.Seguridad_ENT;
 using Capa_Negocio.General_NEG.TablasSql;
 using Capa_Negocio.Seguridad_NEG.TablasSql;
 using Capa_Negocio.RecursosHumanos_NEG.TablasSQL;
+using Capa_Usuario.Helpers;
 
 namespace Capa_Usuario.Controllers
 {
     public class TI_SistemasController : Controller
     {
-        int modulo = 1;
-        private readonly Capa_Negocio.Helpers helper = new Capa_Negocio.Helpers();
         Usuario_N uN = new Usuario_N();
         Orol_N orolN = new Orol_N();
 
+        /************************* C O N F I G U R A C I Ó N *************************/
+        private ActionResult VerificarPermiso(int idOperation)
+        {
+            var accesoHelper = new Capa_Entidad.AccessoHelper_E
+            {
+                OpeID = idOperation,
+                usuario = (Usuario_E)Session["UsuarioId"],
+                controllerDestino = this.ControllerContext.RouteData.Values["controller"].ToString(),
+                action = this.ControllerContext.RouteData.Values["action"].ToString(),
+                userHostAddress = Request.UserHostAddress,
+                userHostName = Request.UserHostName
+            };
+
+            return AccesoHelper.GestionarAccesoController(this, accesoHelper);
+        }
+        /********************************************************************/
+
         public ActionResult GestionPermisos(Usuario_E filtro, string Mensaje = "", int idOperation = 1502)
         {
-            switch (VerificarAccesos(idOperation))
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                case "C_Access":
-                    var usuarioSesion = (Usuario_E)Session["UsuarioId"];
+                var usuarioSesion = (Usuario_E)Session["UsuarioId"];
 
-                    ViewBag.Mensaje = Mensaje;
-                    ViewBag.Usuario = filtro;
-                    ViewBag.Roles = orolN.listarRoles(usuarioSesion.IdRol);
+                ViewBag.Mensaje = Mensaje;
+                ViewBag.Usuario = filtro;
+                ViewBag.Roles = orolN.listarRoles(usuarioSesion.IdRol);
 
-                    return View(uN.listaUsuariosPermisos(filtro, usuarioSesion.IdRol));
-
-                case "E_Login":
-                    return RedirectToAction("Index", "Index");
-
-                default:
-                    return RedirectToAction("Error", "Index");
+                return View(uN.listaUsuariosPermisos(filtro, usuarioSesion.IdRol));
+            }
+            else
+            {
+                return resultadoAcceso;
             }
         }
 
         public ActionResult CrearUsuario(int idOperation = 1503)
         {
-            switch (VerificarAccesos(idOperation))
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                case "C_Access":
-                    Usuario_E usuarioSesion = (Usuario_E)Session["UsuarioId"];
-                    ViewBag.Empleados = new OEMPL_N().ListarEmpleados(null);
-                    ViewBag.Roles = orolN.listarRoles(usuarioSesion.IdRol);
-                    ViewBag.Sedes = new SEDE_N().ListarSedesParaCrearUsuario(null);
+                Usuario_E usuarioSesion = (Usuario_E)Session["UsuarioId"];
+                ViewBag.Empleados = new OEMPL_N().ListarEmpleados(null);
+                ViewBag.Roles = orolN.listarRoles(usuarioSesion.IdRol);
+                ViewBag.Sedes = new SEDE_N().ListarSedesParaCrearUsuario(null);
 
-                    return View(new Usuario_E());
-
-                case "E_Login":
-                    return RedirectToAction("Index", "Index");
-
-                default:
-                    return RedirectToAction("Error", "Index");
+                return View(new Usuario_E());
+            }
+            else
+            {
+                return resultadoAcceso;
             }
         }
 
         [HttpPost]
         public ActionResult CrearUsuario(Usuario_E datosPost, int idOperation = 1503)
         {
-            switch (VerificarAccesos(idOperation))
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                case "C_Access":
-                    var usuarioSesion = (Usuario_E)Session["UsuarioId"];
-                    ViewBag.Rol = usuarioSesion.IdRol;
+                var usuarioSesion = (Usuario_E)Session["UsuarioId"];
+                ViewBag.Rol = usuarioSesion.IdRol;
 
-                    try
-                    {
-                        var result = uN.crearUsuario(datosPost, $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}");
+                try
+                {
+                    var result = uN.crearUsuario(datosPost, $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}");
 
-                        return RedirectToAction("GestionPermisos", new { result.Mensaje });
-                    }
-                    catch (Exception e)
-                    {
-                        ViewBag.Mensaje = e.Message;
-                        ViewBag.Empleados = new OEMPL_N().ListarEmpleados(null);
-                        ViewBag.Roles = orolN.listarRoles(usuarioSesion.IdRol);
-                        return View(datosPost);
-                    }
-
-                case "E_Login":
-                    return RedirectToAction("Index", "Index");
-
-                default:
-                    return RedirectToAction("Error", "Index");
+                    return RedirectToAction("GestionPermisos", new { result.Mensaje });
+                }
+                catch (Exception e)
+                {
+                    ViewBag.Mensaje = e.Message;
+                    ViewBag.Empleados = new OEMPL_N().ListarEmpleados(null);
+                    ViewBag.Roles = orolN.listarRoles(usuarioSesion.IdRol);
+                    return View(datosPost);
+                }
+            }
+            else
+            {
+                return resultadoAcceso;
             }
         }
 
         public ActionResult EditarUsuario(int DocEntry, int idOperation = 1504)
         {
-            switch (VerificarAccesos(idOperation))
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                case "C_Access":
-                    var usuario = uN.buscarUsuario(DocEntry);
-                    usuario.Password2 = usuario.Password;
-                    ViewBag.RolUsuario = orolN.ObtenerRol(usuario.IdRol);
-                    ViewBag.Sedes = new SEDE_N().ListarSedesParaCrearUsuario(null);
+                var usuario = uN.buscarUsuario(DocEntry);
+                usuario.Password2 = usuario.Password;
+                ViewBag.RolUsuario = orolN.ObtenerRol(usuario.IdRol);
+                ViewBag.Sedes = new SEDE_N().ListarSedesParaCrearUsuario(null);
 
-                    return View(usuario);
-
-                case "E_Login":
-                    return RedirectToAction("Index", "Index");
-
-                default:
-                    return RedirectToAction("Error", "Index");
+                return View(usuario);
+            }
+            else
+            {
+                return resultadoAcceso;
             }
         }
 
         [HttpPost]
         public ActionResult EditarUsuario(Usuario_E datosPost, int idOperation = 1504)
         {
-            switch (VerificarAccesos(idOperation))
+
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                case "C_Access":
-                    var mensaje = uN.EditarUsuario(datosPost);
+                var mensaje = uN.EditarUsuario(datosPost);
 
-                    if (!string.IsNullOrEmpty(mensaje))
-                    {
-                        var usuario = uN.buscarUsuario(datosPost.DocEntry);
-                        usuario.Email = datosPost.Email;
-                        usuario.CodigoSap = datosPost.CodigoSap;
-                        usuario.Password = datosPost.Password;
-                        usuario.Password2 = datosPost.Password2;
+                if (!string.IsNullOrEmpty(mensaje))
+                {
+                    var usuario = uN.buscarUsuario(datosPost.DocEntry);
+                    usuario.Email = datosPost.Email;
+                    usuario.CodigoSap = datosPost.CodigoSap;
+                    usuario.Password = datosPost.Password;
+                    usuario.Password2 = datosPost.Password2;
 
-                        ViewBag.RolUsuario = orolN.ObtenerRol(usuario.IdRol);
-                        ViewBag.Mensaje = mensaje;
+                    ViewBag.RolUsuario = orolN.ObtenerRol(usuario.IdRol);
+                    ViewBag.Mensaje = mensaje;
 
-                        return View(usuario);
-                    }
-                    else
-                    {
-                        return RedirectToAction("GestionPermisos");
-                    }
-
-                case "E_Login":
-                    return RedirectToAction("Index", "Index");
-
-                default:
-                    return RedirectToAction("Error", "Index");
+                    return View(usuario);
+                }
+                else
+                {
+                    return RedirectToAction("GestionPermisos");
+                }
+            }
+            else
+            {
+                return resultadoAcceso;
             }
         }
 
         public ActionResult InactivarUsuario(int DocEntry, int idOperation = 1505)
         {
-            switch (VerificarAccesos(idOperation))
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                case "C_Access":
-                    try
-                    {
-                        Usuario_E obj = uN.buscarUsuario(DocEntry);
-                        uN.Inactivar(obj);
-                        return RedirectToAction("GestionPermisos");
-                    }
-                    catch (Exception e)
-                    {
-                        ViewBag.Mensaje = e.Message;
-                        return RedirectToAction("GestionPermisos");
-                    }
-
-                case "E_Login":
-                    return RedirectToAction("Index", "Index");
-
-                default:
-                    return RedirectToAction("Error", "Index");
+                try
+                {
+                    Usuario_E obj = uN.buscarUsuario(DocEntry);
+                    uN.Inactivar(obj);
+                    return RedirectToAction("GestionPermisos");
+                }
+                catch (Exception e)
+                {
+                    ViewBag.Mensaje = e.Message;
+                    return RedirectToAction("GestionPermisos");
+                }
+            }
+            else
+            {
+                return resultadoAcceso;
             }
         }
 
@@ -187,17 +198,17 @@ namespace Capa_Usuario.Controllers
 
         public JsonResult AsignarPermisosPorRol(List<int> operaciones, int rolID, int idOperation = 4001)
         {
-            string acceso = VerificarAccesos(idOperation);
+            string acceso = AccesoHelper.VerificarAccesos(idOperation, (Usuario_E)Session["UsuarioId"], this.ControllerContext.RouteData.Values["controller"].ToString(), Request.UserHostAddress, Request.UserHostName);
 
-            //if (string.IsNullOrEmpty(acceso) || !acceso.Equals("C_Access"))
-            //{
-            //    return Json(new { Mensaje = "Error crítico", Comentario = new List<string>() { "No cuentas con permisos para realizar esta acción." }, Icono = "error" });
-            //}
+            if (string.IsNullOrEmpty(acceso) || !acceso.Equals("C_Access"))
+            {
+                return Json(new { Mensaje = "Error crítico", Comentario = new List<string>() { "No cuentas con permisos para realizar esta acción." }, Icono = "error" });
+            }
 
-            //if (form == null || (form != null && form.IdNumero <= 0))
-            //{
-            //    return Json(new { Mensaje = "Error crítico", Comentario = new List<string>() { "Número no válido." }, Icono = "error" });
-            //}
+            if (operaciones == null || rolID <= 0)
+            {
+                return Json(new { Mensaje = "Error crítico", Comentario = new List<string>() { "Recargar página e intentar de nuevo." }, Icono = "error" });
+            }
 
             var mensajeError = new ROL_OPE_N().AsignarPermisosPorRol(operaciones, rolID);
             string mensaje = string.IsNullOrEmpty(mensajeError) ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
@@ -208,17 +219,17 @@ namespace Capa_Usuario.Controllers
 
         public JsonResult AsignarPermisosPorUsuario(List<int> operaciones, int usrDocEntry, int idOperation = 4001)
         {
-            string acceso = VerificarAccesos(idOperation);
+            string acceso = AccesoHelper.VerificarAccesos(idOperation, (Usuario_E)Session["UsuarioId"], this.ControllerContext.RouteData.Values["controller"].ToString(), Request.UserHostAddress, Request.UserHostName);
 
-            //if (string.IsNullOrEmpty(acceso) || !acceso.Equals("C_Access"))
-            //{
-            //    return Json(new { Mensaje = "Error crítico", Comentario = new List<string>() { "No cuentas con permisos para realizar esta acción." }, Icono = "error" });
-            //}
+            if (string.IsNullOrEmpty(acceso) || !acceso.Equals("C_Access"))
+            {
+                return Json(new { Mensaje = "Error crítico", Comentario = new List<string>() { "No cuentas con permisos para realizar esta acción." }, Icono = "error" });
+            }
 
-            //if (form == null || (form != null && form.IdNumero <= 0))
-            //{
-            //    return Json(new { Mensaje = "Error crítico", Comentario = new List<string>() { "Número no válido." }, Icono = "error" });
-            //}
+            if (operaciones == null || usrDocEntry <= 0)
+            {
+                return Json(new { Mensaje = "Error crítico", Comentario = new List<string>() { "Recargar página e intentar de nuevo." }, Icono = "error" });
+            }
 
             var mensajeError = new OUSR_OPE_N().AsignarPermisosPorUsuario(operaciones, usrDocEntry);
             string mensaje = string.IsNullOrEmpty(mensajeError) ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
@@ -233,12 +244,5 @@ namespace Capa_Usuario.Controllers
             return Json(uN.generarId(idRol));
         }
 
-        private string VerificarAccesos(int idOperation)
-        {
-            Usuario_E usu = (Usuario_E)Session["UsuarioId"];
-            string nombreOperacion = this.ControllerContext.RouteData.Values["action"].ToString();
-
-            return helper.VerificarAccesos(idOperation, usu, nombreOperacion, modulo, Request.UserHostAddress, Request.UserHostName);
-        }
     }
 }

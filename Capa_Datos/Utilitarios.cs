@@ -50,7 +50,7 @@ namespace Capa_Datos
             this.Smtp = "smtp.gmail.com";
             this.CodigoSmtp = 25;
         }
-        public void registrarLog(string user, string mensaje, int operacion, string ip, string equipo)
+        public void RegistrarLog(string user, string mensaje, int operacion, string ip, string equipo)
         {
             try
             {

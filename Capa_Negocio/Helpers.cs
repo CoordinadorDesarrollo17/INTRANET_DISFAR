@@ -12,24 +12,6 @@ namespace Capa_Negocio
 {
     public class Helpers
     {
-        public string VerificarAccesos(int ope, Usuario_E usu, string nombreOperacion, int modulo, string userHostAddress, string userHostName)
-        {
-            if (usu == null)
-            {
-                return "E_Login";
-            }
-
-            if (usu.IdRol == 1 || new Rol1_N().verificarAccesoOperacion(usu.IdRol, ope, nombreOperacion, modulo) == 1)
-            {
-                new Capa_Negocio.Utilitarios_N().registrarLog($"{usu.Prefijo} {usu.Id}", $"intento de {nombreOperacion}", ope, userHostAddress, userHostName);
-                return "C_Access";
-            }
-            else
-            {
-                return "E_Access";
-            }
-        }
-
         public string SanitizarTexto(string texto)
         {
             // Escapar comillas simples en SQL
