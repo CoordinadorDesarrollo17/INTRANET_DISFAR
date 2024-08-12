@@ -21,11 +21,11 @@ namespace Capa_Negocio.Seguridad_NEG
 
             foreach (var registro in lista)
             {
-                if (!registrosPorControlador.ContainsKey(registro.Controlador))
+                if (!registrosPorControlador.ContainsKey(registro.ModuloNombre))
                 {
-                    registrosPorControlador[registro.Controlador] = new List<OOPE_E>();
+                    registrosPorControlador[registro.ModuloNombre] = new List<OOPE_E>();
                 }
-                registrosPorControlador[registro.Controlador].Add(registro);
+                registrosPorControlador[registro.ModuloNombre].Add(registro);
             }
 
             return registrosPorControlador;

@@ -325,7 +325,7 @@ namespace Capa_Datos
                     // Recuperar el valor de DocEntry
                     docEntry = (int)outputDocEntry.Value;
 
-                    mensaje = "Usuario creado satisfactoriamente";
+                    mensaje = $"Usuario: {usu.Prefijo}{usu.Id} y Contraseña: {usu.Password} creados";
                 }
                 catch (Exception ex)
                 {

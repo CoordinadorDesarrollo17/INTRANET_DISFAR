@@ -1,6 +1,7 @@
 ﻿using Capa_Entidad;
 using Capa_Entidad.Seguridad_ENT;
 using Capa_Negocio.Seguridad_NEG;
+using Capa_Negocio.Seguridad_NEG.TablasSql;
 using Org.BouncyCastle.Asn1.Ocsp;
 using System.Collections.Generic;
 using System.Web.Mvc;
@@ -75,8 +76,8 @@ namespace Capa_Usuario.Helpers
                 return "E_Login";
             }
 
-            int modulo = ObtenerDesignacionModulos(nombreOperacion);
-            if (usu.IdRol == 1 || new Rol1_N().VerificarAccesoOperacion(usu.IdRol, ope, nombreOperacion, modulo) == 1)
+           //int modulo = ObtenerDesignacionModulos(nombreOperacion);
+            if (usu.IdRol == 1 || new ROL_OPE_N().VerificarAccesoOperacion(usu.IdRol, ope) == 1)
             {
                 new Capa_Negocio.Utilitarios_N().RegistrarLog($"{usu.Prefijo} {usu.Id}", $"intento de {nombreOperacion}", ope, userHostAddress, userHostName);
                 return "C_Access";

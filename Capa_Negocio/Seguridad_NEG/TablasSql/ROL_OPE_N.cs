@@ -12,6 +12,11 @@ namespace Capa_Negocio.Seguridad_NEG.TablasSql
     {
         ROL_OPE_D rolOpeD = new ROL_OPE_D();
 
+        public int VerificarAccesoOperacion(int rolID, int opeID)
+        {
+            return rolOpeD.VerificarAccesoOperacion(rolID, opeID);
+        }
+
         public List<int> ObtenerOperacionesPorRol(int rolID)
         {
             List<ROL_OPE_E> operaciones = rolOpeD.ListarGrupoOperacionesPorRol(rolID);

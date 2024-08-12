@@ -35,11 +35,11 @@
                     <label for="radioOptions" class="text-dark form-label font-weight-bold">¿Es empleado(a) de COBEFAR?:</label>
                     <div id="radioOptions">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="empleadoCobefar" id="emplCobefar1" value="SI">
+                            <input class="form-check-input" type="radio" name="empleadoCobefar" id="emplCobefar1" value="SI" @if (!string.IsNullOrWhiteSpace(Model.EmpleadoCobefar) && Model.EmpleadoCobefar == "SI") { Write("checked"); }>
                             <label class="form-check-label text-dark" for="emplCobefar1">Sí</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="empleadoCobefar" id="emplCobefar2" value="NO">
+                            <input class="form-check-input" type="radio" name="empleadoCobefar" id="emplCobefar2" value="NO" @if (!string.IsNullOrWhiteSpace(Model.EmpleadoCobefar) && Model.EmpleadoCobefar == "NO") { Write("checked"); }>
                             <label class="form-check-label text-dark" for="emplCobefar2">No</label>
                         </div>
                     </div>
@@ -47,33 +47,34 @@
             </div>
         </div>
 
-        <div id="div_inputsForm" style="display:none;">
+        <div id="div_inputsForm" style="@if (string.IsNullOrWhiteSpace(Model.EmpleadoCobefar)) { Write("display:none;"); }">
             <div class="row">
-                <div id="div_listaEmpleados" class="col-lg-4">
+                <div id="div_listaEmpleados" class="col-lg-4" style="@if (!string.IsNullOrWhiteSpace(Model.EmpleadoCobefar) && Model.EmpleadoCobefar == "NO") { Write("display:none;"); }">
                     <label for="Apellidos" class="text-dark form-label font-weight-bold">Nombres y Apellidos:</label>
                     <input type="hidden" id="empleadoId" name="empleadoId" />
+                    <input type="hidden" id="sedeId" name="sedeId" />
                     <input type="search" list="listaEmpleados" id="inputEmpleados" class="form-control" placeholder="Buscar empleado..." autocomplete="off" />
                     <datalist id="listaEmpleados">
                         @foreach (var empl in ViewBag.Empleados)
                         {
-                            <option value="@empl.NombresApellidos" data-idempleado="@empl.Id"></option>
+                            <option value="@empl.NombresApellidos" data-idempleado="@empl.Id" data-idsede="@((empl.DatosLaborales != null) ? empl.DatosLaborales.SedeID.ToString() : "")"></option>
                         }
                     </datalist>
                 </div>
 
-                <div id="div_nombres" class="col-lg-3" style="display: none;">
+                <div id="div_nombres" class="col-lg-3" style="@if (!string.IsNullOrWhiteSpace(Model.EmpleadoCobefar) && Model.EmpleadoCobefar == "SI") { Write("display:none;"); }">
                     <label for="Nombres" class="text-dark form-label font-weight-bold ">Nombres:</label>
-                    <input type="text" id="Nombres" name="Nombres" class="form-control text-capitalized" autocomplete="off">
+                    <input type="text" id="Nombres" name="Nombres" class="form-control text-capitalized" value="@if (!string.IsNullOrWhiteSpace(Model.Nombres)) { Write(Model.Nombres); }" autocomplete="off">
                 </div>
 
-                <div id="div_apellidos" class="col-lg-3" style="display: none;">
+                <div id="div_apellidos" class="col-lg-3" style="@if (!string.IsNullOrWhiteSpace(Model.EmpleadoCobefar) && Model.EmpleadoCobefar == "SI") { Write("display:none;"); }">
                     <label for="Apellidos" class="text-dark form-label font-weight-bold ">Apellidos:</label>
-                    <input type="text" id="Apellidos" name="Apellidos" class="form-control text-capitalized" autocomplete="off">
+                    <input type="text" id="Apellidos" name="Apellidos" class="form-control text-capitalized" value="@if (!string.IsNullOrWhiteSpace(Model.Apellidos)) { Write(Model.Apellidos); }" autocomplete="off">
                 </div>
 
                 <div class="col-lg-4">
                     <label for="Email" class="text-dark form-label font-weight-bold">Email:</label>
-                    <input type="email" id="Email" name="Email" class="form-control input-cobefar" autocomplete="off" />
+                    <input type="email" id="Email" name="Email" class="form-control input-cobefar" value="@if (!string.IsNullOrWhiteSpace(Model.Email)) { Write(Model.Email); }" autocomplete="off" />
                 </div>
 
                 <div class="col-lg-2">

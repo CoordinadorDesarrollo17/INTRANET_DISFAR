@@ -92,47 +92,47 @@ namespace Capa_Negocio.General_NEG.TablasSql
             return sedes;
         }
 
-        public string EditarSede(SEDE_E datosPOST)
-        {
-            var datosSede = sedeD.ObtenerDatosSede(datosPOST.Id);
-            var datosEmpleado = new OEMPL_D().ListarEmpleados(new OEMPL_E { Estado = "1", DatosLaborales = new EMPL1_E { IdSede = datosPOST.Id } });
+        //public string EditarSede(SEDE_E datosPOST)
+        //{
+        //    var datosSede = sedeD.ObtenerDatosSede(datosPOST.Id);
+        //    var datosEmpleado = new OEMPL_D().ListarEmpleados(new OEMPL_E { Estado = "1", DatosLaborales = new EMPL1_E { IdSede = datosPOST.Id } });
 
-            if (datosSede == null)
-            {
-                return "No se encontró sede a editar.";
-            }
+        //    if (datosSede == null)
+        //    {
+        //        return "No se encontró sede a editar.";
+        //    }
 
-            if (datosEmpleado != null && datosEmpleado.Count >= 1 && datosPOST.Estado == "0")
-            {
-                return "Para inactivar la sede, no debe tener ningún empleado relacionado.";
-            }
+        //    if (datosEmpleado != null && datosEmpleado.Count >= 1 && datosPOST.Estado == "0")
+        //    {
+        //        return "Para inactivar la sede, no debe tener ningún empleado relacionado.";
+        //    }
 
-            if (string.IsNullOrEmpty(datosPOST.Estado))
-            {
-                datosPOST.Estado = datosSede.Estado;
-            }
+        //    if (string.IsNullOrEmpty(datosPOST.Estado))
+        //    {
+        //        datosPOST.Estado = datosSede.Estado;
+        //    }
 
-            return sedeD.EditarSede(datosPOST);
-        }
+        //    return sedeD.EditarSede(datosPOST);
+        //}
 
-        public string EliminarSede(int idSede)
-        {
-            var datosSede = sedeD.ObtenerDatosSede(idSede);
-            var datosEmpleado = new OEMPL_D().ListarEmpleados(new OEMPL_E { DatosLaborales = new EMPL1_E { IdSede = idSede } });
+        //public string EliminarSede(int idSede)
+        //{
+        //    var datosSede = sedeD.ObtenerDatosSede(idSede);
+        //    var datosEmpleado = new OEMPL_D().ListarEmpleados(new OEMPL_E { DatosLaborales = new EMPL1_E { IdSede = idSede } });
 
-            if (datosSede != null)
-            {
-                if (datosEmpleado != null)
-                {
-                    return "Para eliminar la sede, ningún empleado debe encontrarse relacionado.";
-                }
+        //    if (datosSede != null)
+        //    {
+        //        if (datosEmpleado != null)
+        //        {
+        //            return "Para eliminar la sede, ningún empleado debe encontrarse relacionado.";
+        //        }
 
-                return sedeD.EliminarSede(idSede);
-            }
-            else
-            {
-                return "No se encontró sede a eliminar.";
-            }
-        }
+        //        return sedeD.EliminarSede(idSede);
+        //    }
+        //    else
+        //    {
+        //        return "No se encontró sede a eliminar.";
+        //    }
+        //}
     }
 }

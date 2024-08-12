@@ -18,7 +18,7 @@ namespace Capa_Negocio.Seguridad_NEG.TablasSql
             List<OUSR_OPE_E> operaciones = usrOpeD.ListarOperacionesPorUsuario(usrDocEntry);
 
             return operaciones
-                .GroupBy(op => op.Grup_OpeControlador)
+                .GroupBy(op => op.ModuloNombre)
                 .ToDictionary(g => g.Key, g => g.Select(op => op.OpeID).ToList());
         }
 

@@ -28,17 +28,17 @@ namespace Capa_Datos.Seguridad_DAO
 
                     StringBuilder sb = new StringBuilder();
 
-                    sb.Append("SELECT OP.Id, OP.Nombre, OP.IdModulo, OP.Grup_OpeId, GOPE.Controlador");
+                    sb.Append("SELECT OP.Id, OP.Nombre, OP.IdModulo, MD.Nombre");
                     sb.Append(" FROM dbo.OOPE OP");
-                    sb.Append(" INNER JOIN dbo.GRUP_OPE GOPE ON OP.Grup_OpeID = GOPE.Id");
+                    sb.Append(" INNER JOIN dbo.OMOD MD ON OP.IdModulo = MD.Id");
                     sb.Append(" WHERE 1 = 1");
 
                     if (filtros != null)
                     {
-                        if (filtros.idModulo > 0)
+                        if (filtros.IdModulo > 0)
                         {
                             sb.Append(" AND OP.IdModulo = @IdModulo");
-                            cmd.Parameters.AddWithValue("@IdModulo", filtros.idModulo);
+                            cmd.Parameters.AddWithValue("@IdModulo", filtros.IdModulo);
                         }
                     }
 
@@ -55,11 +55,10 @@ namespace Capa_Datos.Seguridad_DAO
                             {
                                 OOPE_E obj = new OOPE_E();
 
-                                if (!dr.IsDBNull(0)) { obj.id = dr.GetInt32(0); }
-                                if (!dr.IsDBNull(1)) { obj.nombre = dr.GetString(1); }
-                                if (!dr.IsDBNull(2)) { obj.idModulo = dr.GetInt32(2); }
-                                if (!dr.IsDBNull(3)) { obj.Grup_OpeID = dr.GetInt32(3); }
-                                if (!dr.IsDBNull(4)) { obj.Controlador = dr.GetString(4); }
+                                if (!dr.IsDBNull(0)) { obj.Id = dr.GetInt32(0); }
+                                if (!dr.IsDBNull(1)) { obj.Nombre = dr.GetString(1); }
+                                if (!dr.IsDBNull(2)) { obj.IdModulo = dr.GetInt32(2); }
+                                if (!dr.IsDBNull(3)) { obj.ModuloNombre = dr.GetString(3); }
 
                                 lista.Add(obj);
                             }

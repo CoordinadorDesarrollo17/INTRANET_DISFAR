@@ -35,7 +35,27 @@
         }
     });
 
+
+    document.getElementById('inputEmpleados').addEventListener('change', function () {
+        const sedeMapping = {
+            "1": "01",
+            "2": "03",
+            "4": "06",
+            "5": "07"
+        };
+
+        const idsede = document.getElementById("sedeId").value;
+        const whsCode = sedeMapping[idsede];
+
+        if (whsCode) {
+            document.getElementById("WhsCode").value = whsCode;
+        } else {
+            document.getElementById("WhsCode").value = "";
+        }
+    });
+
     gestionarValorDatalist('inputEmpleados', 'listaEmpleados', 'empleadoId', 'idempleado');
+    gestionarValorDatalist('inputEmpleados', 'listaEmpleados', 'sedeId', 'idsede');
     gestionarValorDatalist('inputRoles', 'listaRoles', 'idRol', 'idrol');
 });
 

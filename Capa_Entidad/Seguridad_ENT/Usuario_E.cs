@@ -11,7 +11,7 @@
         public string Password { get; set; }
         public int IdRol { get; set; }
         public int? Activo { get; set; }
-        public string FechaRegistro { get; set; } 
+        public string FechaRegistro { get; set; }
         public string HoraRegistro { get; set; }
         public string OperarioRegistro { get; set; }
         public string WhsCode { get; set; }
@@ -24,5 +24,6 @@
         public int DiferenciaDias { get; set; }         // Campo calculado para ver dias sin conexion
         public string Password2 { get; set; }
         public int EmpleadoID { get; set; }
+        public string EmpleadoCobefar { get; set; }     // Campo para selección SI/NO
     }
 }

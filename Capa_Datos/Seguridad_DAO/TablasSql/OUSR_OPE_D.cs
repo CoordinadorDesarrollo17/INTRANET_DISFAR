@@ -27,10 +27,10 @@ namespace Capa_Datos.Seguridad_DAO.TablasSql
 
                     var sb = new StringBuilder();
 
-                    sb.Append("SELECT UO.Id, UO.UsrDocEntry, UO.OpeID, OP.Nombre, OP.IdModulo, OP.Grup_OpeID, GO.Controlador")
+                    sb.Append("SELECT UO.Id, UO.UsrDocEntry, UO.OpeID, OP.Nombre, OP.IdModulo, MD.Nombre")
                     .Append(" FROM OUSR_OPE UO")
                     .Append(" LEFT JOIN OOPE OP ON UO.OpeID = OP.Id")
-                    .Append(" LEFT JOIN GRUP_OPE GO ON OP.Grup_OpeId = GO.Id")
+                    .Append(" LEFT JOIN OMOD MD ON OP.IdModulo = MD.Id")
                     .Append(" WHERE UO.UsrDocEntry = @UsrDocEntry");
 
                     cmd.Parameters.AddWithValue("@UsrDocEntry", usrDocEntry);
@@ -51,8 +51,7 @@ namespace Capa_Datos.Seguridad_DAO.TablasSql
                                 if (!dr.IsDBNull(2)) { obj.OpeID = dr.GetInt32(2); }
                                 if (!dr.IsDBNull(3)) { obj.OpeNombre = dr.GetString(3); }
                                 if (!dr.IsDBNull(4)) { obj.OpeIdModulo = dr.GetInt32(4); }
-                                if (!dr.IsDBNull(5)) { obj.Grup_OpeID = dr.GetInt32(5); }
-                                if (!dr.IsDBNull(6)) { obj.Grup_OpeControlador = dr.GetString(6); }
+                                if (!dr.IsDBNull(5)) { obj.ModuloNombre = dr.GetString(5); }
 
                                 lista.Add(obj);
                             }
@@ -100,7 +99,7 @@ namespace Capa_Datos.Seguridad_DAO.TablasSql
                 }
                 catch (Exception ex)
                 {
-                    RegistrarError(ex, "CARGO_OPE_D - AsignarPermisosPorUsuario");        // Registro de error
+                    RegistrarError(ex, "OUSR_OPE_D - AsignarPermisosPorUsuario");        // Registro de error
                     mensajeError = "Ocurrió un error al asignar permisos. Por favor, comunicarse con SISTEMAS.";
                 }
             }

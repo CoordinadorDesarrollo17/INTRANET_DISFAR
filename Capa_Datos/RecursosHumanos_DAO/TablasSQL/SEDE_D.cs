@@ -144,7 +144,7 @@ namespace Capa_Datos.General_DAO
 
                         if (!string.IsNullOrEmpty(filtros.Estado))
                         {
-                            sb.Append(" AND SD.Estado LIKE @Estado");
+                            sb.Append(" AND SD.Estado = @Estado");
                             cmd.Parameters.AddWithValue("@Estado", filtros.Estado);
                         }
                     }

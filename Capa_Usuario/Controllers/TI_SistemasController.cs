@@ -7,6 +7,7 @@ using Capa_Negocio.General_NEG.TablasSql;
 using Capa_Negocio.Seguridad_NEG.TablasSql;
 using Capa_Negocio.RecursosHumanos_NEG.TablasSQL;
 using Capa_Usuario.Helpers;
+using System.Linq;
 
 namespace Capa_Usuario.Controllers
 {
@@ -44,7 +45,7 @@ namespace Capa_Usuario.Controllers
                 ViewBag.Usuario = filtro;
                 ViewBag.Roles = orolN.listarRoles(usuarioSesion.IdRol);
 
-                return View(uN.listaUsuariosPermisos(filtro, usuarioSesion.IdRol));
+                return View(uN.listaUsuariosPermisos(filtro, usuarioSesion.IdRol).OrderByDescending(x => x.FechaRegistro).ToList());
             }
             else
             {
@@ -59,7 +60,8 @@ namespace Capa_Usuario.Controllers
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 Usuario_E usuarioSesion = (Usuario_E)Session["UsuarioId"];
-                ViewBag.Empleados = new OEMPL_N().ListarEmpleados(null);
+               // ViewBag.Empleados = new OEMPL_N().ListarEmpleados(new Capa_Entidad.RecursosHumanos_ENT.TablasSQL.OEMPL_E { Estado = "1" });
+                ViewBag.Empleados = new OEMPL_N().ListarEmpleadosConDatosLaborales(new Capa_Entidad.RecursosHumanos_ENT.TablasSQL.OEMPL_E { Estado = "1" }, null);
                 ViewBag.Roles = orolN.listarRoles(usuarioSesion.IdRol);
                 ViewBag.Sedes = new SEDE_N().ListarSedesParaCrearUsuario(null);
 
@@ -90,8 +92,10 @@ namespace Capa_Usuario.Controllers
                 catch (Exception e)
                 {
                     ViewBag.Mensaje = e.Message;
-                    ViewBag.Empleados = new OEMPL_N().ListarEmpleados(null);
+                    ViewBag.Empleados = new OEMPL_N().ListarEmpleadosConDatosLaborales(new Capa_Entidad.RecursosHumanos_ENT.TablasSQL.OEMPL_E { Estado = "1" }, null);
                     ViewBag.Roles = orolN.listarRoles(usuarioSesion.IdRol);
+                    ViewBag.Sedes = new SEDE_N().ListarSedesParaCrearUsuario(null);
+
                     return View(datosPost);
                 }
             }
@@ -139,6 +143,7 @@ namespace Capa_Usuario.Controllers
                     usuario.Password2 = datosPost.Password2;
 
                     ViewBag.RolUsuario = orolN.ObtenerRol(usuario.IdRol);
+                    ViewBag.Sedes = new SEDE_N().ListarSedesParaCrearUsuario(null);
                     ViewBag.Mensaje = mensaje;
 
                     return View(usuario);

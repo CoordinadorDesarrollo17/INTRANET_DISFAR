@@ -38,9 +38,8 @@
                                 @foreach (var item in Model[controlador])
                                 {
                                     <div class="form-check">
-                                        @*<input id="idOperacion_@item.id" class="form-check-input chk-item grupo_@controlador" type="checkbox" value="@item.id" name="idOperacion" @if (tieneControlador) { if (ViewBag.Operaciones[controlador].Contains(item.id)) { Write("checked"); }; } />*@
-                                        <input id="idOperacion_@item.id" class="form-check-input chk-item grupo_@controlador" type="checkbox" value="@item.id" name="idOperacion" @if (ViewBag.Operaciones.Contains(item.id)) { Write("checked"); } />
-                                        <label class="form-check-label text-dark" for="idOperacion_@item.id">@item.nombre</label>
+                                        <input id="idOperacion_@item.Id" class="form-check-input chk-item grupo_@controlador" type="checkbox" value="@item.Id" name="idOperacion" @if (ViewBag.Operaciones.Contains(item.Id)) { Write("checked"); } />
+                                        <label class="form-check-label text-dark" for="idOperacion_@item.Id">@item.Nombre</label>
                                     </div>
                                 }
                             </div>

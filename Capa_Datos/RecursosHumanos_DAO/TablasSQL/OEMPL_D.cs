@@ -103,6 +103,7 @@ namespace Capa_Datos.RecursosHumanos_DAO
                         }
                     }
 
+                    sb.Append(" ORDER BY EMP.Nombres ");
                     cmd.CommandText = sb.ToString();
 
                     cn.Open();

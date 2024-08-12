@@ -114,6 +114,7 @@
     <Compile Include="Operaciones_NEG\TablasSql\OTEP_N.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RecursosHumanos_NEG\TablasSQL\CARGO_N.cs" />
+    <Compile Include="RecursosHumanos_NEG\TablasSQL\EMPL1_N.cs" />
     <Compile Include="RecursosHumanos_NEG\TablasSQL\OEMPL_N.cs" />
     <Compile Include="RecursosHumanos_NEG\TablasSQL\SEDE_N.cs" />
     <Compile Include="ReportesDigemid_NEG\DocumentosDig_N.cs" />

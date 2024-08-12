@@ -36,7 +36,7 @@ namespace Capa_Datos
 
             // Servidor .151
             this.serverSql = @"SVR-IIS"; 
-            this.BDsql = "REAJUSTES_INTRANET"; 
+            this.BDsql = "PRUEBA_REAJUSTES"; 
             this.userSql = "sa";
             this.passwordSql = "TICOBE@R789";
 

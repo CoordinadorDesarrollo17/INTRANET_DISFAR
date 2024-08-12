@@ -14,6 +14,27 @@ namespace Capa_Datos.Seguridad_DAO.TablasSql
     {
         Utilitarios uti = new Utilitarios();
 
+        public int VerificarAccesoOperacion(int idRol, int idOperacion)
+        {
+            int result = -1;
+
+            using (SqlConnection cn = new SqlConnection(uti.cadSql))
+            {
+                string query = "SELECT COUNT(*) FROM ROL_OPE WHERE RolID = @idRol AND OpeID = @idOperacion";
+
+                using (SqlCommand cmd = new SqlCommand(query, cn))
+                {
+                    cmd.Parameters.AddWithValue("@idRol", idRol);
+                    cmd.Parameters.AddWithValue("@idOperacion", idOperacion);
+
+                    cn.Open();
+                    result = (int)cmd.ExecuteScalar();
+                }
+            }
+
+            return result;
+        }
+
         public List<ROL_OPE_E> ListarGrupoOperacionesPorRol(int rolID)
         {
             List<ROL_OPE_E> lista = new List<ROL_OPE_E>();

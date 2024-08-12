@@ -9,7 +9,6 @@
         /********** C A M P O S   Q U E   N O   S O N   D E   L A   T A B L A **********/
         public string OpeNombre { get; set; }
         public int OpeIdModulo{ get; set; }
-        public int Grup_OpeID { get; set; }
-        public string Grup_OpeControlador { get; set; }
+        public string ModuloNombre{ get; set; }
     }
 }
