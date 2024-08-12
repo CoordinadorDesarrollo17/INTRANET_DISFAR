@@ -17,8 +17,8 @@ namespace Capa_Usuario
         public void StartAsync()
         {
             _timer = new Timer(migracion, null, TimeSpan.Zero, TimeSpan.FromDays(1));
-            _timer = new Timer(inactivarUsuario, null, TimeSpan.Zero, TimeSpan.FromDays(5));
-            _timer = new Timer(cambiarEstadoNCAplicada, null, TimeSpan.Zero, TimeSpan.FromDays(1));
+            _timer = new Timer(inactivarUsuario, null, TimeSpan.Zero, TimeSpan.FromDays(2));
+            //_timer = new Timer(cambiarEstadoNCAplicada, null, TimeSpan.Zero, TimeSpan.FromMinutes(30));
         }
 
         public void StopAsync()
@@ -37,7 +37,7 @@ namespace Capa_Usuario
             var listaUsuariosActivos = ousrN.ListaUsuarios(new Capa_Entidad.Seguridad_ENT.Usuario_E { Activo = 1 });
             foreach (var f in listaUsuariosActivos)
             {
-                if (f.DiferenciaDias > 50) { ousrN.Inactivar(f); }
+                if (f.DiferenciaDias > 30) { ousrN.Inactivar(f); }
             }
         }
 
