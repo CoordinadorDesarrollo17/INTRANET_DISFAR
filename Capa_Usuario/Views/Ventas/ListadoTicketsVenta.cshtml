@@ -4,7 +4,7 @@
     ViewBag.Title = "ListadoTicketsVenta";
     Layout = "~/Views/Shared/_Layout.cshtml";
     var hoy = DateTime.Now;
-    List<Usuario_E> u = (List<Usuario_E>)ViewBag.Vendedores;
+    List<Usuario_E> usuarios = (List<Usuario_E>)ViewBag.Vendedores;
 }
 
 @section Styles{
@@ -25,16 +25,15 @@
     //    var object = $("#frmAnVtn").serialize();
     //    $(location).attr("href", "/Ventas/AnCtVentas?" + object);
     //}
-    //function seleccionarVendedor(CodigoSap) {
 
-    //    // Obtener los valores de Nombres y Apellidos del data-attributes del option seleccionado
-    //    var nombres = $('#selectVendedores option:selected').data('nombres');
-    //    var apellidos = $('#selectVendedores option:selected').data('apellidos');
+    function seleccionarVendedor(CodigoSap) {
+        var nombres = $('#selectVendedores option:selected').data('nombres');
+        var apellidos = $('#selectVendedores option:selected').data('apellidos');
 
-    //    $('#CodigovendedorInput').val(CodigoSap);
-    //    $('#NombresvendedorInput').val(nombres);
-    //    $('#ApellidosvendedorInput').val(apellidos);
-    //}
+        $('#CodigovendedorInput').val(CodigoSap);
+        $('#NombresvendedorInput').val(nombres);
+        $('#ApellidosvendedorInput').val(apellidos);
+    }
     function enviarDatosTicketReemplazo() {
     var codigoVendedor = $('#CodigovendedorInput').val();
     var nombreVendedor = $('#NombresvendedorInput').val();
@@ -381,7 +380,7 @@
                         <div class="col-lg-2">
                             <input type="search" class="form-control border-success" style="width: 150px" name="DocEntry" list="listaVendedores" autocomplete="off" />
                             <datalist id="listaVendedores">
-                                @foreach (Usuario_E obj in u)
+                                @foreach (Usuario_E obj in usuarios)
                                 {
                                     <option value="@obj.DocEntry" nombre="@obj.Nombres @obj.Apellidos">@obj.Nombres @obj.Apellidos</option>
                                 }
@@ -414,7 +413,7 @@
                 <label for="selectVendedores">Seleccionar vendedor:</label>
                 <select id="selectVendedores" class="form-control" onchange="seleccionarVendedor(this.value)">
                     <option value="">Seleccione..</option>
-                    @foreach (var vendedor in u)
+                    @foreach (var vendedor in usuarios)
                     {
                         <option value="@vendedor.CodigoSap" data-nombres="@vendedor.Nombres" data-apellidos="@vendedor.Apellidos">@vendedor.Nombres @vendedor.Apellidos</option>
                     }
