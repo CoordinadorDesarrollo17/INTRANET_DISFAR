@@ -342,7 +342,7 @@ namespace Capa_Datos.ReportesDigemid_DAO
                         if (!hdr.IsDBNull(32)) { c.VctoLote = hdr.GetDateTime(32).ToString("dd/MM/yyyy"); }
                         if (!hdr.IsDBNull(33)) { c.QUMVta = Math.Round(hdr.GetDecimal(33), 0); }
                         if (!hdr.IsDBNull(34)) { c.CondPago = hdr.GetString(34); }
-                        if (!hdr.IsDBNull(35)) { c.NroOrdVenta = hdr.GetInt32(35); }
+                        if (!hdr.IsDBNull(35)) { c.NroOrdVenta = hdr.GetString(35); }
                         if (!hdr.IsDBNull(36)) { c.CodImpuesto = hdr.GetString(36); }
                         if (!hdr.IsDBNull(37)) { c.Almacen = hdr.GetString(37); }
                         if (!hdr.IsDBNull(38)) { c.PtoPartida = hdr.GetString(38); }

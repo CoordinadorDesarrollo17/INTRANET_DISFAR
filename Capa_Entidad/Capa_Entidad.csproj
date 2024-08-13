@@ -104,6 +104,7 @@
     <Compile Include="Compras_ENT\Tablas\SQL_OPDN_E.cs" />
     <Compile Include="Compras_ENT\Tablas\OPCH_E.cs" />
     <Compile Include="Compras_ENT\Tablas\OPDN_E.cs" />
+    <Compile Include="ComprobantesContables_ENT\Comprobante_E.cs" />
     <Compile Include="DireccionTecnica_ENT\Reportes\BalanceControlados\RptBalanceControladosConsolidado_E.cs" />
     <Compile Include="DireccionTecnica_ENT\Reportes\BalanceControlados\RptBalanceControladosEgreso_E.cs" />
     <Compile Include="DireccionTecnica_ENT\Reportes\BalanceControlados\RptBalanceControladosIngreso_E_E.cs" />

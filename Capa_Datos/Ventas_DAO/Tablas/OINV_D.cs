@@ -1,4 +1,5 @@
-﻿using Capa_Entidad.ReportesDigemid_ENT.Reportes;
+﻿using Capa_Entidad.ComprobantesContables_ENT;
+using Capa_Entidad.ReportesDigemid_ENT.Reportes;
 using Capa_Entidad.Rutas_ENT.TablasSql;
 using Capa_Entidad.Ventas_ENT.Tablas;
 using Sap.Data.Hana;
@@ -269,8 +270,8 @@ namespace Capa_Datos.Ventas_DAO.Tablas
         {
             List<ComprobanteDePago_E> lista = new List<ComprobanteDePago_E>();
             int DocEntry = 0;
-            //busca DocEntry de NumAtCard en OINV
-            string queryDE = $"SELECT  \"DocEntry\" FROM {uti.schemaHana}OINV  WHERE \"U_SYP_MDTD\" || '-' ||\"U_SYP_MDSD\" || '-' || \"U_SYP_MDCD\" = '{NumAtCard}'";
+            //Busca DocEntry de NumAtCard en OINV
+            string queryDE = $"SELECT \"DocEntry\" FROM {uti.schemaHana}OINV  WHERE \"U_SYP_MDTD\" || '-' ||\"U_SYP_MDSD\" || '-' || \"U_SYP_MDCD\" = '{NumAtCard}'";
             HanaConnection cn = new HanaConnection(uti.cadHana);
             try
             {
@@ -333,7 +334,7 @@ namespace Capa_Datos.Ventas_DAO.Tablas
                             if (!hdr.IsDBNull(33)) { c.VctoLote = hdr.GetDateTime(33).ToString("dd/MM/yyyy"); }
                             if (!hdr.IsDBNull(34)) { c.QUMVta = Math.Round(hdr.GetDecimal(34), 0); }
                             if (!hdr.IsDBNull(35)) { c.CondPago = hdr.GetString(35); }
-                            if (!hdr.IsDBNull(36)) { c.NroOrdVenta = hdr.GetInt32(36); }
+                            if (!hdr.IsDBNull(36)) { c.NroOrdVenta = hdr.GetString(36); }
                             if (!hdr.IsDBNull(37)) { c.CodImpuesto = hdr.GetString(37); }
                             if (!hdr.IsDBNull(38)) { c.Almacen = hdr.GetString(38); }
                             if (!hdr.IsDBNull(39)) { c.PtoPartida = hdr.GetString(39); }
@@ -428,114 +429,8 @@ namespace Capa_Datos.Ventas_DAO.Tablas
             }
             return lista;
         }
-        public TEMP_RRU01_E obtenerGuiaRemision(string NumAtCard)
-        {
-            TEMP_RRU01_E obj = new TEMP_RRU01_E();
-            string query = $"SELECT 'OINV', \"U_COB_TIPODOC\", \"U_COB_SERIE\", \"U_COB_CORDOC\", TO_CHAR(\"DocDate\", 'YYYY-MM-DD'), TO_CHAR(\"U_BPP_FECINITRA\", 'YYYY-MM-DD'), 'G' FROM {uti.schemaHana}OINV  WHERE \"U_COB_TIPODOC\"||'-'||\"U_COB_SERIE\" ||'-'||\"U_COB_CORDOC\" = '{NumAtCard}'";
-
-            HanaConnection cn = new HanaConnection(uti.cadHana);
-            try
-            {
-                cn.Open();
-                HanaCommand cmd = new HanaCommand(query, cn);
-                cmd.CommandType = System.Data.CommandType.Text;
-                HanaDataReader dr = cmd.ExecuteReader();
-                while (dr.Read())
-                {
-                    if (!dr.IsDBNull(0)) { obj.TablaSAP = dr.GetString(0); }
-                    if (!dr.IsDBNull(1)) { obj.U_SYP_MDTD = dr.GetString(1); }
-                    if (!dr.IsDBNull(2)) { obj.U_SYP_MDSD = dr.GetString(2); }
-                    if (!dr.IsDBNull(3)) { obj.U_SYP_MDCD = dr.GetString(3); }
-                    if (!dr.IsDBNull(4)) { obj.DocDate = dr.GetString(4); }
-                    if (!dr.IsDBNull(5)) { obj.U_BPP_FECINITRA = dr.GetString(5); }
-                    if (!dr.IsDBNull(6)) { obj.Identificador = dr.GetString(6); }
-                }
-                dr.Close();
-                cn.Close();
-            }
-            catch { cn.Close(); }
-            return obj;
-        }
-        public List<TEMP_RRU01_E> FactBoletaSap(int DocEntryOrden)
-        {
-            List<TEMP_RRU01_E> lista = new List<TEMP_RRU01_E>();
-
-            string query1 = "SELECT 'OINV',T0.\"U_SYP_MDTD\",T0.\"U_SYP_MDSD\",T0.\"U_SYP_MDCD\",to_char(T0.\"DocDate\",'YYYY-MM-DD'),to_char(T0.\"U_BPP_FECINITRA\",'YYYY-MM-DD'),T0.\"DocTotal\"  FROM " + uti.schemaHana + "OINV T0 " +
-                " INNER JOIN " + uti.schemaHana + "INV1 T1 ON T1.\"DocEntry\" = T0.\"DocEntry\"" +
-                " INNER JOIN " + uti.schemaHana + "RDR1 T2 ON T2.\"DocEntry\" = T1.\"BaseEntry\" AND T2.\"ObjType\" = T1.\"BaseType\"" +
-                                                    " AND T2.\"LineNum\" = T1.\"BaseLine\" AND T2.\"DocEntry\" =" + DocEntryOrden +
-                " WHERE T0.\"CANCELED\" = 'N' GROUP BY T0.\"U_SYP_MDTD\",T0.\"U_SYP_MDSD\",T0.\"U_SYP_MDCD\",to_char(T0.\"DocDate\",'YYYY-MM-DD'),to_char(T0.\"U_BPP_FECINITRA\",'YYYY-MM-DD'),T0.\"DocTotal\" ";
-
-            string query2 = " SELECT 'OINV',T4.\"U_SYP_MDTD\",T4.\"U_SYP_MDSD\",T4.\"U_SYP_MDCD\",to_char(T4.\"DocDate\",'YYYY-MM-DD'),to_char(T4.\"U_BPP_FECINITRA\",'YYYY-MM-DD'),T4.\"DocTotal\"  FROM " + uti.schemaHana + "ODLN T0 " +
-                " INNER JOIN " + uti.schemaHana + "DLN1 T1 ON T1.\"DocEntry\" = T0.\"DocEntry\"" +
-                " INNER JOIN " + uti.schemaHana + "RDR1 T2 ON T2.\"DocEntry\" = T1.\"BaseEntry\" AND T2.\"ObjType\" = T1.\"BaseType\"" +
-                                                    " AND T2.\"LineNum\" = T1.\"BaseLine\" AND T2.\"DocEntry\" = " + DocEntryOrden +
-                " INNER JOIN " + uti.schemaHana + "INV1 T3 ON T3.\"BaseEntry\" = T1.\"DocEntry\" AND T3.\"BaseType\" = T1.\"ObjType\"" +
-                                                    " AND T3.\"BaseLine\" = T1.\"LineNum\" " +
-                " INNER JOIN " + uti.schemaHana + "OINV T4 ON T4.\"DocEntry\" = T3.\"DocEntry\" AND T4.\"CANCELED\" = 'N' " +
-                " WHERE T0.\"CANCELED\" = 'N' GROUP BY  T4.\"U_SYP_MDTD\",T4.\"U_SYP_MDSD\",T4.\"U_SYP_MDCD\",to_char(T4.\"DocDate\",'YYYY-MM-DD'),to_char(T4.\"U_BPP_FECINITRA\",'YYYY-MM-DD'),T4.\"DocTotal\"";
-
-
-            try
-            {
-                HanaDataReader hdr = db.HanaExecuteReaderNoSp(query1);
-
-                while (hdr.Read())
-                {
-                    TEMP_RRU01_E obj = new TEMP_RRU01_E();
-                    if (!hdr.IsDBNull(0)) { obj.TablaSAP = hdr.GetString(0); }
-                    if (!hdr.IsDBNull(1)) { obj.U_SYP_MDTD = hdr.GetString(1); }
-                    if (!hdr.IsDBNull(2))
-                    {
-                        obj.U_SYP_MDSD = hdr.GetString(2);
-                        if (obj.U_SYP_MDSD.Contains("F"))
-                        {
-                            obj.Identificador = "F";
-                        }
-                        else if (obj.U_SYP_MDSD.Contains("B"))
-                        {
-                            obj.Identificador = "B";
-                        }
-                        if (!hdr.IsDBNull(3)) { obj.U_SYP_MDCD = hdr.GetString(3); }
-                        if (!hdr.IsDBNull(4)) { obj.DocDate = hdr.GetString(4); }
-                        if (!hdr.IsDBNull(5)) { obj.U_BPP_FECINITRA = hdr.GetString(5); }
-                        if (!hdr.IsDBNull(6)) { obj.DocTotal = hdr.GetDecimal(6); }
-
-                    }
-                    lista.Add(obj);
-                }
-                hdr.Close();
-                HanaDataReader hdr2 = db.HanaExecuteReaderNoSp(query2);
-                while (hdr2.Read())
-                {
-                    TEMP_RRU01_E obj = new TEMP_RRU01_E();
-                    if (!hdr2.IsDBNull(0)) { obj.TablaSAP = hdr2.GetString(0); }
-                    if (!hdr2.IsDBNull(1)) { obj.U_SYP_MDTD = hdr2.GetString(1); }
-                    if (!hdr2.IsDBNull(2))
-                    {
-                        obj.U_SYP_MDSD = hdr2.GetString(2);
-                        if (obj.U_SYP_MDSD.Contains("F"))
-                        {
-                            obj.Identificador = "F";
-                        }
-                        else if (obj.U_SYP_MDSD.Contains("B"))
-                        {
-                            obj.Identificador = "B";
-                        }
-                        if (!hdr2.IsDBNull(3)) { obj.U_SYP_MDCD = hdr2.GetString(3); }
-                        if (!hdr2.IsDBNull(4)) { obj.DocDate = hdr2.GetString(4); }
-                        if (!hdr2.IsDBNull(5)) { obj.U_BPP_FECINITRA = hdr2.GetString(5); }
-                        if (!hdr2.IsDBNull(6)) { obj.DocTotal = hdr2.GetDecimal(6); }
-
-                    }
-                    lista.Add(obj);
-                }
-                hdr2.Close();
-
-            }
-            catch { }
-            return lista;
-        }
+        
+       
         public List<TEMP_RRU01_E> NotasDebitoSap(string FBConcatenadas)
         {
             List<TEMP_RRU01_E> lista = new List<TEMP_RRU01_E>();

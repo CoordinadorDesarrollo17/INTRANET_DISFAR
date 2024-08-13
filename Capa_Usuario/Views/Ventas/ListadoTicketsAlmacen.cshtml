@@ -6,7 +6,6 @@
 <script>
     function filtrar() {
         var object = $("#frm").serialize();
-        //$(location).attr('href', "/Ventas/ListadoTicketsAlmacen?" + object);
         $(location).attr('href', "/Ventas/ListadoTicketsAlmacen?" + object);
     }
 </script>
@@ -583,13 +582,34 @@
 
                                     @if (!item.Estado.Equals("PICKEANDO"))
                                     {
-                                        <a href="@Url.Action("ConsultarDocumentos", "Ventas", new { DocEntry = item.DocEntry })"
-                                           class="btn btn-guinda btn-sm btn-descarga-pdf"
-                                           data-toggle="tooltip"
-                                           data-placement="top"
-                                           title="Facturas">
+                                        <button onclick="descargarComprobante(@item.DocEntry,'F')"
+                                                class="btn btn-guinda btn-sm btn-descarga-pdf"
+                                                data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="Facturas">
                                             <i class="icon icon-file-pdf"></i>
-                                        </a>
+                                        </button>
+                                        <button onclick="descargarComprobante(@item.DocEntry,'NC')"
+                                                class="btn btn-guinda btn-sm btn-descarga-pdf"
+                                                data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="Nota de crédito">
+                                            <i class="icon icon-file-pdf"></i>
+                                        </button>
+                                        <button onclick="descargarComprobante(@item.DocEntry,'ND')"
+                                                class="btn btn-guinda btn-sm btn-descarga-pdf"
+                                                data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="Nota de Débito">
+                                            <i class="icon icon-file-pdf"></i>
+                                        </button>
+                                        <button onclick="descargarComprobante(@item.DocEntry,'G')"
+                                                class="btn btn-guinda btn-sm btn-descarga-pdf"
+                                                data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="Guias">
+                                            <i class="icon icon-file-pdf"></i>
+                                        </button>
                                     }
                                 </div>
                             }
@@ -598,21 +618,38 @@
                             {
                                 //FACTURA PARA OTROS DESTINOS
 
-                                <a href="@Url.Action("ConsultarDocumentos", "Ventas", new { DocEntry = item.DocEntry })"
-                                   class="btn btn-guinda btn-sm btn-descarga-pdf"
-                                   data-toggle="tooltip"
-                                   data-placement="top"
-                                   title="Facturas">
+                                <button onclick="descargarComprobante(@item.DocEntry,'F')"
+                                        class="btn btn-guinda btn-sm btn-descarga-pdf"
+                                        data-toggle="tooltip"
+                                        data-placement="top"
+                                        title="Facturas">
                                     <i class="icon icon-file-pdf"></i>
-                                </a>
+                                </button>
+                                <button onclick="descargarComprobante(@item.DocEntry,'NC')"
+                                        class="btn btn-guinda btn-sm btn-descarga-pdf"
+                                        data-toggle="tooltip"
+                                        data-placement="top"
+                                        title="Nota de crédito">
+                                    <i class="icon icon-file-pdf"></i>
+                                </button>
+                                <button onclick="descargarComprobante(@item.DocEntry,'ND')"
+                                        class="btn btn-guinda btn-sm btn-descarga-pdf"
+                                        data-toggle="tooltip"
+                                        data-placement="top"
+                                        title="Nota de Débito">
+                                    <i class="icon icon-file-pdf"></i>
+                                </button>
+                                <button onclick="descargarComprobante(@item.DocEntry,'G')"
+                                        class="btn btn-guinda btn-sm btn-descarga-pdf"
+                                        data-toggle="tooltip"
+                                        data-placement="top"
+                                        title="Guias">
+                                    <i class="icon icon-file-pdf"></i>
+                                </button>
                             }
                         </td>
                         <td class="text-center">
-                            @*<a href="@Url.Action( "SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry  } )" type="button" target="_blank" class="btn btn-dark btn-sm"
-                                   onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;">
-                                    <i title="Seguimiento de ticket" class="icon-truck"></i>
-                                </a>*@
-                            <a href="@Url.Action("SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry })" type="button" target="_blank" onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;"
+                            <a href="@Url.Action("SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry,Tipo="F" })" type="button" target="_blank" onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;"
                                class="btn btn-dark btn-sm"
                                data-toggle="tooltip"
                                data-placement="top"
@@ -697,30 +734,35 @@
 </div>
 <script>
     $(document).ready(function () {
-            // Inicializar tooltips
+
         $('[data-toggle="tooltip"]').tooltip();
 
-            // Mostrar mensaje si ViewBag.Mensaje no está vacío
-            if ('@ViewBag.Mensaje' !== "") {
-                Swal.fire('@ViewBag.Mensaje');
-            }
-
-    
-            $('.btn-descarga-pdf').on('click', function (event) {
-                event.preventDefault();
-
-                // Obtener la URL del enlace
-                var url = $(this).attr('href');
-
-                // Abrir la URL en una nueva ventana
-                window.open(url, '_blank', 'noopener,noreferrer');
-
-            });
-        
-
-
+        if ('@ViewBag.Mensaje' !== "") {
+            Swal.fire('@ViewBag.Mensaje');
+        }
     });
+    function descargarComprobante(DocEntry, Tipo) {
+        $.ajax({
+            url: '@Url.Action("CrearYObtenerDocumento", "ComprobantesContables")',
+            type: 'GET',
+            data: { DocEntry: DocEntry, Tipo: Tipo },
+            success: function (response) {
+                if (response.success) {
+                        var url = $(this).attr('href');
 
+                    window.open(url, '_blank', 'noopener,noreferrer');
+
+                    window.open(response.fileUrl, '_blank', 'noopener,noreferrer');
+                } else {
+                    Swal.fire('Error', response.message, 'error');
+
+                }
+            },
+            error: function (xhr, status, error) {
+                Swal.fire('Error', 'Ocurrió un error en la solicitud: ' + error, 'error');
+            }
+        });
+    }
     // Función para cancelar ticket
     function cancelarTicket(DocEntry) {
         const swalWithBootstrapButtons = Swal.mixin({
@@ -741,7 +783,6 @@
             reverseButtons: true
         }).then((result) => {
             if (result.isConfirmed) {
-                //location.href = `/Ventas/CancelarTicket?DocEntry=${DocEntry}&vista=ListadoTicketsAlmacen`;
                 location.href = `/Ventas/CancelarTicket?DocEntry=${DocEntry}&vista=ListadoTicketsAlmacen`;
             }
         });

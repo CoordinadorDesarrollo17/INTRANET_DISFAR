@@ -795,6 +795,7 @@
     <Compile Include="Controllers\AtencionClienteController.cs" />
     <Compile Include="Controllers\CajaController.cs" />
     <Compile Include="Controllers\ComprasController.cs" />
+    <Compile Include="Controllers\ComprobantesContablesController.cs" />
     <Compile Include="Controllers\DireccionTecnicaController.cs" />
     <Compile Include="Controllers\IndexController.cs" />
     <Compile Include="Controllers\ReportesDigemidController.cs" />
@@ -958,7 +959,6 @@
     <Content Include="Views\ReportesDigemid\reporteViewer.cshtml" />
     <Content Include="Views\ReportesDigemid\infoKardex.cshtml" />
     <Content Include="Views\Index\Error.cshtml" />
-    <Content Include="Views\Ventas\ListadoTickets.cshtml" />
     <Content Include="Views\Ventas\CreaTicketVenta.cshtml" />
     <Content Include="Views\Ventas\EditarTicketVenta.cshtml" />
     <Content Include="Views\Caja\PagarTicketVenta.cshtml" />
@@ -974,7 +974,6 @@
     <Content Include="Views\Rutas\DocumentoRutasDomicilio.cshtml" />
     <Content Include="Views\Ventas\ListadoTicketsFacturacion.cshtml" />
     <Content Include="Views\Ventas\ListadoTicketsRecepcion.cshtml" />
-    <Content Include="Views\Ventas\ListadoTicketsPickingPacking.cshtml" />
     <Content Include="Views\Ventas\SacandoTicketVenta.cshtml" />
     <Content Include="Views\Ventas\EmpacadoTicketVenta.cshtml" />
     <Content Include="Views\Ventas\AnularSacandoTicket.cshtml" />
@@ -1137,12 +1136,10 @@
     <Content Include="Views\ReportesDigemid\RptOperacionesLotes.cshtml" />
     <Content Include="Views\Rutas\Reportes\RptControlTemperaturaHumedad.cshtml" />
     <Content Include="Views\Ventas\ListadoTicketsGuiasRemision.cshtml" />
-    <Content Include="Views\Rutas\LayoutFacturaBoletaSap.cshtml" />
-    <Content Include="Views\Rutas\LayoutFacturaBoletaSap_header.cshtml" />
-    <Content Include="Views\Rutas\LayoutGuiaRemisionSap.cshtml" />
-    <Content Include="Views\Rutas\LayoutGuiaRemisionSap_header.cshtml" />
-    <Content Include="Views\Rutas\LayoutNotaCreditoDebitoSap.cshtml" />
-    <Content Include="Views\Rutas\LayoutNotaCreditoDebitoSap_header.cshtml" />
+    <Content Include="Views\ComprobantesContables\LayoutGuia.cshtml" />
+    <Content Include="Views\ComprobantesContables\LayoutGuia_header.cshtml" />
+    <Content Include="Views\ComprobantesContables\LayoutNotaCreditoDebito.cshtml" />
+    <Content Include="Views\ComprobantesContables\LayoutNotaCreditoDebito_header.cshtml" />
     <Content Include="Views\Caja\Index.cshtml" />
     <Content Include="Views\Shared\Ventas\ValidarTicketACuadrar.cshtml" />
     <Content Include="Views\Shared\Caja\ListadoTickets.cshtml" />
@@ -1160,6 +1157,8 @@
     <Content Include="Views\Ventas\LayoutFacturaBoletaSap.cshtml" />
     <Content Include="Views\Ventas\LayoutFacturaBoletaSap_header.cshtml" />
     <Content Include="Views\Ventas\ListadoTicketsAlmacen.cshtml" />
+    <Content Include="Views\ComprobantesContables\LayoutFactura.cshtml" />
+    <Content Include="Views\ComprobantesContables\LayoutFactura_header.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

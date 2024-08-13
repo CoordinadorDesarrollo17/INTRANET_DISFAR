@@ -1,5 +1,6 @@
 ﻿using Capa_Datos;
 using Capa_Datos.Ventas_DAO.TablasSql;
+using Capa_Entidad.ComprobantesContables_ENT;
 using Capa_Entidad.Rutas_ENT.ReportesSql;
 using Capa_Entidad.Rutas_ENT.TablasSql;
 using Capa_Entidad.Seguridad_ENT;
@@ -30,10 +31,6 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         public List<ORTV_E> listarTicketsRepartosNoEnviados(ORTV_E filtro, string[] estados)
         {
             return ticketV.listarTicketsRepartosNoEnviados(filtro, estados);
-        }
-        public List<ORTV_E> listarTicketsVenta(Usuario_E user, ORTV_E t)
-        {
-            return ticketV.listarTicketsVenta(user, t);
         }
         public List<string> BuscarVinculados(int DocEntry, int DocNum)
         {
@@ -716,10 +713,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         {
             return ticketV.CalcularPesoTotal(t);
         }
-        public List<TEMP_RRU01_E> GuiasRemisionSap(int DocEntry)
-        {
-            return ticketV.GuiasRemisionSap(DocEntry);
-        }
+        
         public List<Tickets> buscarVariosTickets(int[] arrDocNum)
         {
             return ticketV.buscarVariosTickets(arrDocNum);
@@ -811,9 +805,10 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         { return ticketV.ObtenerTicketFacturacion(docEntry); }
         public ORTV_E ObtenerTicketVenta(int docEntry)// Trae datos especificos para un ticket con Det2 y Det3 ( usa vinculacion )
         { return ticketV.ObtenerTicketVenta(docEntry); }
-
-        public ORTV_E ObtenerTicketFacturas(int docEntry)
-        { return ticketV.ObtenerTicketFacturas(docEntry);}
+        public ORTV_E ObtenerReferenciaEstadosTicket(ORTV_E ticket)
+        { return ticketV.ObtenerReferenciaEstadosTicket(ticket);}
+        public ORTV_E ObtenerDatosTicketParaDocumentos(int docEntry)
+        { return ticketV.ObtenerDatosTicketParaDocumentos(docEntry);}
         public ORTV_E ObtenerTicketRotulado(int docEntry)
         { return ticketV.ObtenerTicketRotulado(docEntry); }
         public ORTV_E ObtenerTicketTacoEmpaque(int docEntry)
@@ -826,7 +821,8 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         { return ticketV.ListarTicketsAreaAlmacén(user, t); }
         public List<ORTV_E> ListarTicketsAreaDespacho(Usuario_E user, ORTV_E t)
         { return ticketV.ListarTicketsAreaDespacho(user, t); }
-       
+        
+
 
     }
 }

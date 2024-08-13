@@ -17,8 +17,8 @@ namespace Capa_Usuario
         public void StartAsync()
         {
             _timer = new Timer(migracion, null, TimeSpan.Zero, TimeSpan.FromDays(1));
-            _timer = new Timer(inactivarUsuario, null, TimeSpan.Zero, TimeSpan.FromDays(2));
-            //_timer = new Timer(cambiarEstadoNCAplicada, null, TimeSpan.Zero, TimeSpan.FromMinutes(30));
+            _timer = new Timer(inactivarUsuario, null, TimeSpan.Zero, TimeSpan.FromDays(5));
+            _timer = new Timer(cambiarEstadoNCAplicada, null, TimeSpan.Zero, TimeSpan.FromDays(1));
         }
 
         public void StopAsync()
