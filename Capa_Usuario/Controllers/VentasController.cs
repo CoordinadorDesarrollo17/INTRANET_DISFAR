@@ -1,7 +1,7 @@
-﻿using Capa_Datos;
+﻿using Aspose.Pdf.Annotations;
+using Capa_Datos;
 using Capa_Datos.Ventas_DAO.TablasSql;
 using Capa_Entidad.Almacen_ENT.Tablas;
-using Capa_Entidad.AtencionCliente_ENT.TablasSql;
 using Capa_Entidad.Rutas_ENT.TablasSql;
 using Capa_Entidad.Seguridad_ENT;
 using Capa_Entidad.SocioNegocios_ENT.Tablas;
@@ -19,14 +19,10 @@ using Capa_Negocio.Ventas_NEG.Tablas;
 using Capa_Negocio.Ventas_NEG.TablasSql;
 using CrystalDecisions.CrystalReports.Engine;
 using CrystalDecisions.Shared;
-using DocumentFormat.OpenXml.Drawing;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using Microsoft.Reporting.WebForms;
-using Microsoft.ReportingServices.ReportProcessing.ReportObjectModel;
 using OfficeOpenXml;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 using OfficeOpenXml.Table;
 using Rotativa;
 using Sap.Data.Hana;
@@ -35,9 +31,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.util;
-using System.Web;
 using System.Web.Mvc;
-using System.Windows;
 
 namespace Capa_Usuario.Controllers
 {
@@ -45,7 +39,7 @@ namespace Capa_Usuario.Controllers
     {
         Usuario_N u_N = new Usuario_N(); Rol1_N rol1 = new Rol1_N(); int modulo = 5;
         ORTV_N ticketN = new ORTV_N(); OLDS_N lN = new OLDS_N();
-        CC_ORTV_N ccORTV_N = new CC_ORTV_N();
+        CC_ORTV_N ccORTV = new CC_ORTV_N();
 
         //VENTAS COMERCIAL
         protected string ResaltarTicket(string LugarDestino = "")
@@ -101,6 +95,7 @@ namespace Capa_Usuario.Controllers
                 return Json(new { Mensaje = e.Message });
             }
         }
+        //buscarTicketAVincular en TicketVenta.js
         public JsonResult buscarTicket(int DocNum = 0)
         {
             ORTV_N ortvN = new ORTV_N();
@@ -124,7 +119,7 @@ namespace Capa_Usuario.Controllers
 
             return Json(ticket);
         }
-        public ActionResult CreaTicketVenta(int DocEntry = 0,Usuario_E u=null, int idOperation = 502)
+        public ActionResult CreaTicketVenta(int DocEntry = 0, Usuario_E u = null, int idOperation = 502)
         {
             if (verificacionAccesos(idOperation) == "C_Access")
             {
@@ -140,7 +135,7 @@ namespace Capa_Usuario.Controllers
                 if (DocEntry > 0) { return View(ticketN.ObtenerDatosCompletosTicket(DocEntry)); }
                 else {
                     //Si usuario entidad llega con data al GET se entiende que el ticket esta siendo separado por un vendedor de reemplazo.
-                    if (u != null && u.CodigoSap > 0 && !string.IsNullOrEmpty(u.Nombres) && !string.IsNullOrEmpty(u.Apellidos) && user.IdRol==12)
+                    if (u != null && u.CodigoSap > 0 && !string.IsNullOrEmpty(u.Nombres) && !string.IsNullOrEmpty(u.Apellidos) && user.IdRol == 12)
                     {
                         return View(ticketN.separarTicket(u));
                     }
@@ -252,6 +247,7 @@ namespace Capa_Usuario.Controllers
             else
             { return RedirectToAction("Error", "Index"); }
         }
+
         public void VerificarOpSeguimiento(Dictionary<string, Object> datos, string Request)
         {
             verificacionAccesos(0);
@@ -292,91 +288,10 @@ namespace Capa_Usuario.Controllers
                     RTV6_N rtv6_N = new RTV6_N();
                     ORTV_E ticket = ticketN.ObtenerDatosCompletosTicket(DocEntry);
                     ticket.orru = orruN.obtenerOrdenDeRutaTicket(DocEntry);
-                    ViewBag.flujoEstadosTicket = ccORTV_N.ListarCC_FlujoEstados(DocEntry);
+                    ViewBag.flujoEstadosTicket = ccORTV.ListarCC_FlujoEstados(DocEntry);
 
-                    ticket.hayIniPicking = false;
-                    ticket.hayIniVerificar = false;
-                    ticket.hayIniEmpacar = false;
-                    ticket.hayFinPicking = false;
-                    ticket.hayFinVerificar = false;
-                    ticket.hayFinEmpacar = false;
-                    ticket.hayRecibir = false; ticket.hayEnviar = true; ticket.hayEntregar = false;
-
-                    // Revisamos si hay RECIBIR
-                    List<CC_ORTV_E> tkRecibido = ccORTV_N.ListarCC_ORTV(ticket.DocEntry, "RECIBIR");
-                    List<CC_ORTV_E> tkAnRecibido = ccORTV_N.ListarCC_ORTV(ticket.DocEntry, "ANULAR RECIBIR");
-                    List<CC_ORTV_E> listRecibir = new List<CC_ORTV_E>() { tkRecibido[0], tkAnRecibido[0] };
-                    var listRecibirOrd = listRecibir.OrderByDescending(x => x.Id);
-                    if (listRecibirOrd.FirstOrDefault().Operacion == "RECIBIR") { ticket.hayRecibir = true; }
-                    else if (listRecibirOrd.FirstOrDefault().Operacion == "ANULAR RECIBIR") { ticket.hayRecibir = false; }
-                    // Revisamos si hay ENVIAR
-                    List<CC_ORTV_E> tkEnviado = ccORTV_N.ListarCC_ORTV(ticket.DocEntry, "ENVIAR");
-                    List<CC_ORTV_E> tkAnEnviado = ccORTV_N.ListarCC_ORTV(ticket.DocEntry, "ANULAR ENVIAR");
-                    List<CC_ORTV_E> listEnviar = new List<CC_ORTV_E>() { tkEnviado[0], tkAnEnviado[0] };
-                    var listEnviarOrd = listEnviar.OrderByDescending(x => x.Id);
-                    if (listEnviarOrd.FirstOrDefault().Operacion == "ENVIAR") { ticket.hayEnviar = true; }
-                    else if (listEnviarOrd.FirstOrDefault().Operacion == "ANULAR ENVIAR") { ticket.hayEnviar = false; }
-                    // Revisamos si hay ENTREGAR
-                    List<CC_ORTV_E> tkEntregar = ccORTV_N.ListarCC_ORTV(ticket.DocEntry, "ENTREGAR");
-                    List<CC_ORTV_E> tkAnEntregar = ccORTV_N.ListarCC_ORTV(ticket.DocEntry, "ANULAR ENTREGAR");
-                    List<CC_ORTV_E> listEntregar = new List<CC_ORTV_E>() { tkEntregar[0], tkAnEntregar[0] };
-                    var listEntregarOrd = listEntregar.OrderByDescending(x => x.Id);
-                    if (listEntregarOrd.FirstOrDefault().Operacion == "ENTREGAR") { ticket.hayEntregar = true; }
-                    else if (listEntregarOrd.FirstOrDefault().Operacion == "ANULAR ENTREGAR") { ticket.hayEntregar = false; }
-
-                    // Revisamos si hay INICIO PICKING
-                    List<CC_ORTV_E> ticketIniPicking = ccORTV_N.ListarCC_ORTV(ticket.DocEntry, "INICIO PICKING");
-                    // Revisamos si hay ANULAR INICIO PICKING
-                    List<CC_ORTV_E> ticketAnularIniPicking = ccORTV_N.ListarCC_ORTV(ticket.DocEntry, "ANULAR INICIO PICKING");
-                    List<CC_ORTV_E> listaIPick = new List<CC_ORTV_E>() { ticketIniPicking[0], ticketAnularIniPicking[0] };
-                    var listaIPickOrd = listaIPick.OrderByDescending(x => x.Id);
-                    if (listaIPickOrd.FirstOrDefault().Operacion == "INICIO PICKING") { ticket.hayIniPicking = true; }
-                    else if (listaIPickOrd.FirstOrDefault().Operacion == "ANULAR INICIO PICKING") { ticket.hayIniPicking = false; }
-
-                    // Revisamos si hay INICIO VERIFICAR
-                    List<CC_ORTV_E> ticketIniVerificar = ccORTV_N.ListarCC_ORTV(ticket.DocEntry, "INICIO VERIFICAR");
-                    // Revisamos si hay ANULAR INICIO VERIFICAR
-                    List<CC_ORTV_E> ticketAnularIniVerificar = ccORTV_N.ListarCC_ORTV(ticket.DocEntry, "ANULAR INICIO VERIFICAR");
-                    List<CC_ORTV_E> listaVerif = new List<CC_ORTV_E>() { ticketIniVerificar[0], ticketAnularIniVerificar[0] };
-                    var listaVerifOrd = listaVerif.OrderByDescending(x => x.Id);
-                    if (listaVerifOrd.FirstOrDefault().Operacion == "INICIO VERIFICAR") { ticket.aptoIniVerificar = false; ticket.hayIniVerificar = true; }
-                    else if (listaVerifOrd.FirstOrDefault().Operacion == "ANULAR INICIO VERIFICAR") { ticket.aptoIniVerificar = true; ticket.hayIniVerificar = false; }
-
-                    // Revisamos si hay INICIO EMPACAR
-                    List<CC_ORTV_E> ticketIniEmpacar = ccORTV_N.ListarCC_ORTV(ticket.DocEntry, "INICIO EMPACAR");
-                    // Revisamos si hay ANULAR INICIO EMPACAR
-                    List<CC_ORTV_E> ticketAnularIniEmpacar = ccORTV_N.ListarCC_ORTV(ticket.DocEntry, "ANULAR INICIO EMPACAR");
-                    List<CC_ORTV_E> listaEmp = new List<CC_ORTV_E>() { ticketIniEmpacar[0], ticketAnularIniEmpacar[0] };
-                    var listaEmpOrd = listaEmp.OrderByDescending(x => x.Id);
-                    if (listaEmpOrd.FirstOrDefault().Operacion == "INICIO EMPACAR") { ticket.hayIniEmpacar = true; }
-                    else if (listaEmpOrd.FirstOrDefault().Operacion == "ANULAR INICIO EMPACAR") { ticket.hayIniEmpacar = false; }
-
-                    // Revisamos si hay FIN PICKING
-                    List<CC_ORTV_E> ticketFinPicking = ccORTV_N.ListarCC_ORTV(ticket.DocEntry, "FIN PICKING");
-                    // Revisamos si hay ANULAR FIN PICKING
-                    List<CC_ORTV_E> ticketAnularFinPicking = ccORTV_N.ListarCC_ORTV(ticket.DocEntry, "ANULAR FIN PICKING");
-                    List<CC_ORTV_E> listaPicking = new List<CC_ORTV_E>() { ticketFinPicking[0], ticketAnularFinPicking[0] };
-                    var listaPickingOrd = listaPicking.OrderByDescending(x => x.Id);
-                    if (listaPickingOrd.FirstOrDefault().Operacion == "FIN PICKING") { ticket.hayFinPicking = true; }
-                    else if (listaPickingOrd.FirstOrDefault().Operacion == "ANULAR FIN PICKING") { ticket.hayFinPicking = false; }
-
-                    // Revisamos si hay FIN VERIFICAR
-                    List<CC_ORTV_E> ticketFinVerificar = ccORTV_N.ListarCC_ORTV(ticket.DocEntry, "FIN VERIFICAR");
-                    // Revisamos si hay ANULAR FIN VERIFICAR
-                    List<CC_ORTV_E> ticketAnularFinVerificar = ccORTV_N.ListarCC_ORTV(ticket.DocEntry, "ANULAR FIN VERIFICAR");
-                    List<CC_ORTV_E> listaFVerif = new List<CC_ORTV_E>() { ticketFinVerificar[0], ticketAnularFinVerificar[0] };
-                    var listaFVerifOrd = listaFVerif.OrderByDescending(x => x.Id);
-                    if (listaFVerifOrd.FirstOrDefault().Operacion == "FIN VERIFICAR") { ticket.hayFinVerificar = true; }
-                    else if (listaFVerifOrd.FirstOrDefault().Operacion == "ANULAR FIN VERIFICAR") { ticket.hayFinVerificar = false; }
-
-                    // Revisamos si hay FIN EMPACAR
-                    List<CC_ORTV_E> ticketFinEmpacar = ccORTV_N.ListarCC_ORTV(ticket.DocEntry, "FIN EMPACAR");
-                    // Revisamos si hay ANULAR FIN EMPACAR
-                    List<CC_ORTV_E> ticketAnularFinEmpacar = ccORTV_N.ListarCC_ORTV(ticket.DocEntry, "ANULAR FIN EMPACAR");
-                    List<CC_ORTV_E> listaFEmpac = new List<CC_ORTV_E>() { ticketFinEmpacar[0], ticketAnularFinEmpacar[0] };
-                    var listaFEmpacOrd = listaFEmpac.OrderByDescending(x => x.Id);
-                    if (listaFEmpacOrd.FirstOrDefault().Operacion == "FIN EMPACAR") { ticket.hayFinEmpacar = true; }
-                    else if (listaFEmpacOrd.FirstOrDefault().Operacion == "ANULAR FIN EMPACAR") { ticket.hayFinEmpacar = false; }
+                    //consulta referencia para los estados, acopla los nuevos datos sin perder lo anterior consultado.
+                    ticketN.ObtenerReferenciaEstadosTicket(ticket);
 
                     /**************peso total******************/
                     if (ticket.Det6 != null && ticket.Det6.Count >= 1)
@@ -387,7 +302,6 @@ namespace Capa_Usuario.Controllers
                     ViewBag.ValueBotonEstado = "";
                     ViewBag.MostrarBotonCambiarEstado = false;
                     ViewBag.BtnAnularRecibido = "";
-                    //ViewBag.BtnAnularEntregado = "<button class=\"btn btn-sm btn-secondary\" disabled>ANULAR ENT.</button>";
 
                     if (ticket.Estado != null)
                     {
@@ -408,16 +322,6 @@ namespace Capa_Usuario.Controllers
                         {
                             ViewBag.BtnAnularRecibido = "<input class='btn btn-sm btn-danger my-1' type='submit' name='ANULARRECIBIDO' value='ANULAR RECIBIDO' />";
                         }
-                        /*else if (ticket.Estado.Equals("PESADO") || ticket.Estado.Equals("EMPACADO") && (permisoAlm || usu.IdRol.Equals(52)))
-                        {
-                            ViewBag.NameBotonEstado = "ENTREGADO";
-                            ViewBag.ValueBotonEstado = "CAMBIAR A ENTREGADO";
-                            ViewBag.MostrarBotonCambiarEstado = true;
-                        }
-                        else if (ticket.Estado.Equals("ENTREGADO") && (usu.IdRol.Equals(53) || usu.IdRol.Equals(1) || usu.IdRol.Equals(6)))
-                        {
-                            ViewBag.BtnAnularEntregado = "<input class=\"btn btn-sm btn-danger\" type=\"submit\" name=\"ANULARENTREGADO\" value=\"ANULAR ENTREGADO\" />";
-                        }*/
                     }
                     ViewBag.IdRol = usu.IdRol;
                     return View(ticket);
@@ -517,8 +421,8 @@ namespace Capa_Usuario.Controllers
 
                     t = ticketN.ObtenerDatosCompletosTicket(DocEntry);
                     t.orru = orruN.obtenerOrdenDeRutaTicket(DocEntry);
-                    ViewBag.flujoEstadosTicket = ccORTV_N.ListarCC_FlujoEstados(DocEntry);
-                    ViewBag.ultimoEstadoTicket = ccORTV_N.UltimoEstadoCC_ORTV(DocEntry);
+                    ViewBag.flujoEstadosTicket = ccORTV.ListarCC_FlujoEstados(DocEntry);
+                    ViewBag.ultimoEstadoTicket = ccORTV.UltimoEstadoCC_ORTV(DocEntry);
                     ViewBag.pesoTotal = rtv6_N.ObtenerPesoTotal(DocEntry);
                     ViewBag.IdRol = usu.IdRol;
 
@@ -946,8 +850,8 @@ namespace Capa_Usuario.Controllers
                 try
                 {
                     Usuario_E u = (Usuario_E)Session["UsuarioId"];
-                    List<CC_ORTV_E> ticketFinVerificar = ccORTV_N.ListarCC_ORTV(DocEntry, "FIN VERIFICAR");
-                    List<CC_ORTV_E> ticketAnularFinVerificar = ccORTV_N.ListarCC_ORTV(DocEntry, "ANULAR FIN VERIFICAR");
+                    List<CC_ORTV_E> ticketFinVerificar = ccORTV.ListarCC_ORTV(DocEntry, "FIN VERIFICAR");
+                    List<CC_ORTV_E> ticketAnularFinVerificar = ccORTV.ListarCC_ORTV(DocEntry, "ANULAR FIN VERIFICAR");
                     List<CC_ORTV_E> listaCC = new List<CC_ORTV_E>() { ticketFinVerificar[0], ticketAnularFinVerificar[0] }.OrderByDescending(x => x.Id).ToList();
                     if (listaCC.FirstOrDefault().Operacion == "FIN VERIFICAR") { hayFinVerificar = true; }
                     else if (listaCC.FirstOrDefault().Operacion == "ANULAR FIN VERIFICAR") { hayFinVerificar = false; }
@@ -1182,7 +1086,6 @@ namespace Capa_Usuario.Controllers
             List<RTV4_E> nc = ortvN.obtenerDet4Ticket(DocEntry);
             return Json(nc);
         }
-
         //RECEPCION
         public ActionResult ListadoTicketsRecepcion(int DocNum = 0, ORTV_E ticket = null, string Mensaje = "", int idOperation = 701)
         {
@@ -1278,154 +1181,7 @@ namespace Capa_Usuario.Controllers
             else
             { return RedirectToAction("Error", "Index"); }
         }
-        public ActionResult ConsultarDocumentos(int DocEntry)
-        {
-            // Busca facturas y boletas de SAP HANA
-            Utilitarios uti = new Utilitarios();
-            ORTV_N ortvN = new ORTV_N();
-            OINV_N oinvN = new OINV_N();
-            ORTV_E ortvE = ortvN.ObtenerTicketFacturas(DocEntry);
-
-            if (ortvE.Estado.Equals("ANULADO") || ortvE.Estado.Equals("CANCELADO") || ortvE.Det2 == null || ortvE.Det2.Count == 0)
-            {
-                return new HttpStatusCodeResult(404, "No se encontraron documentos.");
-            }
-
-            List<int> OrdenesSap = ObtenerOrdenesSap(ortvE.Det2, uti);
-            List<TEMP_RRU01_E> documentosDistinct = ObtenerDocumentosDistinct(OrdenesSap, oinvN);
-
-            decimal MontoFinalFacturas = documentosDistinct.Sum(f => f.DocTotal);
-            if (ortvE.MontoTotal != MontoFinalFacturas)
-            {
-                return new HttpStatusCodeResult(400, "Los montos no coinciden.");
-            }
-
-            using (MemoryStream combinedPdfStream = new MemoryStream())
-            {
-                using (Document document = new Document())
-                {
-                    PdfCopy copy = new PdfCopy(document, combinedPdfStream);
-                    document.Open();
-
-                    foreach (var f in documentosDistinct)
-                    {
-                        AgregarComprobanteAlPdf(f, ortvE.DocNum, copy);
-                    }
-
-                    document.Close();
-                }
-
-                // Retorna el PDF combinado
-                return File(combinedPdfStream.ToArray(), "application/pdf", $"Docs_{ortvE.DocNum}.pdf");
-            }
-        }
-        private List<int> ObtenerOrdenesSap(List<RTV2_E> det2List, Utilitarios uti)
-        {
-            List<int> ordenesSap = new List<int>();
-            foreach (var ordr in det2List)
-            {
-                string query = $"SELECT \"DocEntry\" FROM {uti.schemaHana}ordr WHERE \"DocNum\" = '{ordr.NroSap}' AND \"CANCELED\" = 'N'";
-                using (HanaConnection cn = new HanaConnection(uti.cadHana))
-                {
-                    try
-                    {
-                        cn.Open();
-                        using (HanaCommand cmd = new HanaCommand(query, cn))
-                        {
-                            using (HanaDataReader dr = cmd.ExecuteReader())
-                            {
-                                if (dr.Read() && !dr.IsDBNull(0))
-                                {
-                                    ordenesSap.Add(dr.GetInt32(0));
-                                }
-                            }
-                        }
-                    }
-                    catch
-                    {
-                        
-                    }
-                }
-            }
-            return ordenesSap;
-        }
-        private List<TEMP_RRU01_E> ObtenerDocumentosDistinct(List<int> ordenesSap, OINV_N oinvN)
-        {
-            List<TEMP_RRU01_E> documentos = new List<TEMP_RRU01_E>();
-            foreach (var docEntryOrden in ordenesSap)
-            {
-                var docsDocEntryOrden = oinvN.FactBoletaSap(docEntryOrden);
-                documentos.AddRange(docsDocEntryOrden.Where(f => !string.IsNullOrEmpty(f.U_SYP_MDCD)));
-            }
-            return documentos.Distinct().ToList();
-        }
-        private void AgregarComprobanteAlPdf(TEMP_RRU01_E documento, int docNum, PdfCopy copy)
-        {
-            var pdfResult = new ActionAsPdf(null);
-            string fileName = "Layout" + documento.U_SYP_MDCD + ".pdf";
-
-            var parametros = new
-            {
-                NumAtCard = $"{documento.U_SYP_MDTD}-{documento.U_SYP_MDSD}-{documento.U_SYP_MDCD}",
-                Tipo = documento.U_SYP_MDTD.Equals("01") ? "F" : "B",
-                DocNumTicket = docNum
-            };
-            string _headerUrl = Url.Action("LayoutFacturaBoletaSap_header", "Ventas", parametros, "http");
-
-            pdfResult = new ActionAsPdf("LayoutFacturaBoletaSap", new { NumAtCard = parametros.NumAtCard, DocNum = docNum })
-            {
-                FileName = fileName,
-                PageOrientation = Rotativa.Options.Orientation.Portrait,
-                CustomSwitches = "--header-html " + _headerUrl + " --header-spacing 0 ",
-                PageSize = Rotativa.Options.Size.A4,
-                PageMargins = new Rotativa.Options.Margins(75, 10, 20, 10)
-            };
-
-            var pdfBytes = pdfResult.BuildFile(ControllerContext);
-
-            // Usar MemoryStream para procesar el PDF
-            using (var pdfStream = new MemoryStream(pdfBytes))
-            {
-                // Leer el PDF original
-                using (var pdfReader = new PdfReader(pdfStream))
-                {
-                    // Aplicar paginación al PDF antes de agregarlo al documento combinado
-                    using (MemoryStream paginatedPdfStream = new MemoryStream())
-                    {
-                        // Crear un nuevo PdfStamper en el MemoryStream paginado
-                        using (PdfStamper stamper = new PdfStamper(pdfReader, paginatedPdfStream))
-                        {
-                            int totalPages = pdfReader.NumberOfPages;
-
-                            for (int i = 1; i <= totalPages; i++)
-                            {
-                                PdfContentByte content = stamper.GetUnderContent(i);
-                                // Agrega la paginación
-                                iTextSharp.text.Font font = FontFactory.GetFont("Helvetica", BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
-                                Phrase phrase = new Phrase($"Página {i} de {totalPages}", font);
-                                ColumnText.ShowTextAligned(content, Element.ALIGN_CENTER, phrase, 300, 30, 0);
-                            }
-                        }
-                       
-                        using (var paginatedPdfReader = new PdfReader(paginatedPdfStream.ToArray()))
-                        {
-                            // Agregar el PDF paginado al documento combinado
-                            copy.AddDocument(paginatedPdfReader);
-                        }
-                    }
-                }
-            }
-        }
-        public ActionResult LayoutFacturaBoletaSap(string NumAtCard, string DocNum)
-        {
-            OINV_N oinvN = new OINV_N(); ViewBag.DocNumTicket = DocNum;
-            return View(oinvN.buscarFacturaBoletaSap(NumAtCard));
-        }
-        public ActionResult LayoutFacturaBoletaSap_header(string NumAtCard, string Tipo,int DocNumTicket)
-        {
-            OINV_N oinvN = new OINV_N(); ViewBag.Tipo = Tipo; ViewBag.DocNumTicket = DocNumTicket;
-            return View(oinvN.buscarFacturaBoletaSap(NumAtCard));
-        }
+        //PICKING PACKING
         public ActionResult ListadoTicketsAlmacen(int DocNum = 0, ORTV_E t = null, string Mensaje = "", int idOperation = 801)
         {
             if (verificacionAccesos(idOperation) == "C_Access")
@@ -1444,7 +1200,6 @@ namespace Capa_Usuario.Controllers
             else
             { return RedirectToAction("Error", "Index"); }
         }
-        
         public ActionResult IniciarSacandoTicketVenta(int DocEntry, int idOperation = 802)
         {
             if (verificacionAccesos(idOperation) == "C_Access")
@@ -1531,7 +1286,7 @@ namespace Capa_Usuario.Controllers
                     tc.OpRegistro = $"{u.Nombres} {u.Apellidos}";
                     tc.Det11 = t.Det11;                                                 // OpSacador 2, OpSacador 3 y OpSacador 4
                     tc.Det11[0].Operario = tc.OpRegistro;                   // Seteamos elOpSacando quién es el usuario en sesión
-                    ViewBag.datosSacador = ccORTV_N.ListarCC_ORTV(DocEntry, "FIN PICKING");
+                    ViewBag.datosSacador = ccORTV.ListarCC_ORTV(DocEntry, "FIN PICKING");
                     int DocNum = ticketN.editarSeguimientoTicket("FIN PICKING", DocEntry, tc);
                     return RedirectToAction("ListadoTicketsAlmacen", new { DocNum = DocNum, Mensaje = "Ticket ha sido pickeado" });
                 }
@@ -3120,7 +2875,6 @@ namespace Capa_Usuario.Controllers
             return Json(oclrN.buscarClienteRegalo(CardCode));
         }
 
-
         /**********************************************************************************************************/
         public ActionResult reporteViewer(ReportViewer rp)
         {
@@ -3314,7 +3068,7 @@ namespace Capa_Usuario.Controllers
         {
             verificacionAccesos(0);
             ORTV_E ticket = ticketN.ObtenerDatosCompletosTicket(DocEntry);
-            List<CC_ORTV_E> ticketAbierto = ccORTV_N.ListarCC_ORTV(DocEntry, "REGISTRAR");
+            List<CC_ORTV_E> ticketAbierto = ccORTV.ListarCC_ORTV(DocEntry, "REGISTRAR");
 
             // Si el ticket no está ABIERTO y en el control de cambios nunca hubo un movimiento
             if (ticket.Estado != "ABIERTO" && ticketAbierto[0].FechaOperacion == "")
@@ -3405,7 +3159,7 @@ namespace Capa_Usuario.Controllers
         }
         private void ObtenerOperariosVerificacion(ORTV_E ticket, int docEntry)
         {
-            var ticketVerificando = ccORTV_N.ListarCC_ORTV(docEntry, "FIN VERIFICAR");
+            var ticketVerificando = ccORTV.ListarCC_ORTV(docEntry, "FIN VERIFICAR");
             if (ticketVerificando.Any())
             {
                 ticket.OpVerificado = ticketVerificando[0].Operario;
@@ -3420,7 +3174,7 @@ namespace Capa_Usuario.Controllers
         {
             if (ticket.Cajas >= 1)
             {
-                var ticketEmpacado = ccORTV_N.ListarCC_ORTV(docEntry, "FIN EMPACAR");
+                var ticketEmpacado = ccORTV.ListarCC_ORTV(docEntry, "FIN EMPACAR");
                 var operariosEmpacando = new RTV13_D().BuscarOperariosEmpacando(docEntry);
                 if (operariosEmpacando != null)
                 {
@@ -3443,7 +3197,7 @@ namespace Capa_Usuario.Controllers
         }
         private void AsignarFechaHoraEmpacado(ORTV_E ticket)
         {
-            var ticketEmpacado = ccORTV_N.ListarCC_ORTV(ticket.DocEntry, "FIN EMPACAR");
+            var ticketEmpacado = ccORTV.ListarCC_ORTV(ticket.DocEntry, "FIN EMPACAR");
             if (ticketEmpacado.Any())
             {
                 DateTime dt;
@@ -3580,8 +3334,6 @@ namespace Capa_Usuario.Controllers
             else
             { return RedirectToAction("Error", "Index"); }
         }
-
-
         private string verificacionAccesos(int ope)
         {
             string nombreOperacion = this.ControllerContext.RouteData.Values["action"].ToString();
@@ -3686,17 +3438,20 @@ namespace Capa_Usuario.Controllers
             verificacionAccesos(0);
             return Json(oN.Listar().Where(x => x.NombreAgencia == nombreAgencia));
         }
+        //Metodo para listar tickets pagados en caja para ventas
         public JsonResult ListarTicketsNoVisiblesPagados(int DocEntryUsuario)
         {
             verificacionAccesos(0); ORTV_N ortvN = new ORTV_N(); Usuario_N usuN = new Usuario_N(); Usuario_E u = usuN.buscarUsuario(DocEntryUsuario);
             var result = ortvN.ListarTicketsAreaVenta(u, new ORTV_E { Estado = "ABIERTO" }).Where(x => x.Visible == "NO" && x.EstadoPago == "PAGADO").OrderBy(x => x.FechaPago + " " + x.HoraPago).ToList();
             return Json(new { Datos = result });
         }
+        //Metodo que permite visibilidad a Recepcion
         public JsonResult CambiarVisibleTicket(int DocEntry)
         {
             verificacionAccesos(0); ORTV_N ortvN = new ORTV_N(); var result = ortvN.editarVisibilidadTicket(DocEntry);
             return Json(new { Datos = result });
         }
+        //Registra impresion de documentos de un ticket para despacho (centro y arriola)
         public JsonResult RegistrarImpresion(int DocEntry)
         {
             verificacionAccesos(0);

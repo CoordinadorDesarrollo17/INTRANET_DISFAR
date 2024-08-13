@@ -42,7 +42,7 @@ namespace Capa_Entidad.ReportesDigemid_ENT.Reportes
         public string VctoLote { get; set; }
         public decimal QUMVta { get; set; }
         public string CondPago { get; set; }
-        public int NroOrdVenta { get; set; }
+        public string NroOrdVenta { get; set; }
         public string CodImpuesto { get; set; }
         public string Almacen { get; set; }
         public string PtoPartida { get; set; }

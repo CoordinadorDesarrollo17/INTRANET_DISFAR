@@ -93,6 +93,7 @@
     <Compile Include="Compras_NEG\Tablas\OPCH_N.cs" />
     <Compile Include="Compras_NEG\Tablas\OPDN_N.cs" />
     <Compile Include="Compras_NEG\Tablas\SQL_OPDN_N.cs" />
+    <Compile Include="ComprobantesContables_NEG\Comprobante_N.cs" />
     <Compile Include="DireccionTecnica_NEG\Reportes\ReportesDigemid_N.cs" />
     <Compile Include="DireccionTecnica_NEG\TablasHANA\COB_ESTA_RS_N.cs" />
     <Compile Include="DireccionTecnica_NEG\TablasSql\OORS_N.cs" />

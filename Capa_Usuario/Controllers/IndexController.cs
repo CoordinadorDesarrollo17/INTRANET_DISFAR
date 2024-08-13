@@ -145,10 +145,6 @@ namespace Capa_Usuario.Controllers
         {
             return validaAccesos((Usuario_E)Session["UsuarioId"], idOperation, "Index", "ListadoTicketsRecepcion", "Ventas", "Error");
         }
-        //public ActionResult VT_TicketsPickingPacking(int idOperation = 800)
-        //{
-        //    return validaAccesos((Usuario_E)Session["UsuarioId"], idOperation, "Index", "ListadoTicketsAlmacen", "Ventas", "Error");
-        //}
         public ActionResult VT_TicketsAlmacen(int idOperation = 800)
         {
             return validaAccesos((Usuario_E)Session["UsuarioId"], idOperation, "Index", "ListadoTicketsAlmacen", "Ventas", "Error");
