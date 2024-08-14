@@ -401,13 +401,13 @@
 
                                 if ((item.LugarDestino.Equals("Centro") || item.LugarDestino.Equals("Arriola")))
                                 {
-                                    <a href="#" class="btn btn-danger btn-sm" onclick="cancelarTicket(@item.DocEntry);"><i title="CANCELAR" class="icon-cross text-light"></i></a>
+                                    <a href="#" class="btn btn-sm btn-light" onclick="cancelarTicket(@item.DocEntry);" data-toggle="tooltip" data-placement="top" title="Cancelar"><i class="icon-cross text-danger"></i></a>
                                 }
                                 else
                                 {
                                     if (item.Estado.Equals("EMPACADO") || item.Estado.Equals("PESADO"))
                                     {
-                                        <a href="#" class="btn btn-danger btn-sm" onclick="cancelarTicket(@item.DocEntry);"><i title="CANCELAR" class="icon-cross text-light"></i></a>
+                                        <a href="#" class="btn btn-sm btn-light" onclick="cancelarTicket(@item.DocEntry);" data-toggle="tooltip" data-placement="top" title="Cancelar"><i class="icon-cross text-danger"></i></a>
                                     }
                                 }
                             }
@@ -415,21 +415,21 @@
                         <td>
                             @if ((item.Estado.Equals("PICKEANDO") || item.Estado.Equals("VERIFICANDO") || item.Estado.Equals("EMPACANDO") || item.Estado.Equals("EMPACADO") || item.Estado.Equals("PESADO") || item.Estado.Equals("PREENVIO") || item.Estado.Equals("ENVIADO") || item.Estado.Equals("ENTREGADO")) && item.LugarDestino.Equals("Agencia"))
                             {
-                                <a href="@Url.Action( "PdfRotuladoTicket", "Ventas", new { DocEntry = item.DocEntry  } )" title="Rotulado">
+                                <a href="@Url.Action( "PdfRotuladoTicket", "Ventas", new { DocEntry = item.DocEntry  } )" data-toggle="tooltip" data-placement="top" title="Rotulado">
                                     <i class="icon-file-pdf text-danger bordered mt-2 font-30"></i>
                                 </a>
                             }
                             else if ((item.Estado.Equals("EMPACADO") || item.Estado.Equals("PREENVIO") || item.Estado.Equals("ENVIADO") || item.Estado.Equals("ENTREGADO")) && !item.LugarDestino.Equals("Agencia"))
                             {
-                                <a href="@Url.Action( "PdfTacoEmpaque", "Ventas", new { DocEntry = item.DocEntry  } )" title="TacoEmpaque">
+                                <a href="@Url.Action( "PdfTacoEmpaque", "Ventas", new { DocEntry = item.DocEntry  } )" data-toggle="tooltip" data-placement="top" title="TacoEmpaque">
                                     <i class="icon-file-pdf text-danger bordered mt-2 font-30"></i>
                                 </a>
                             }
                         </td>
                         <td class="text-center">
-                            <a href="@Url.Action( "SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry  } )" type="button" target="_blank" class="btn btn-dark btn-sm"
+                            <a href="@Url.Action( "SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry  } )" type="button" target="_blank" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Seguimiento de Ticket" 
                                onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;">
-                                <i title="Seguimiento de ticket" class="icon-truck"></i>
+                                <i class="icon-truck text-dark"></i>
                             </a>
                         </td>
                     </tr>

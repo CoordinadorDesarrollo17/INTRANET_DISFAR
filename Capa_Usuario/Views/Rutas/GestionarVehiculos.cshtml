@@ -104,9 +104,9 @@
 
 
     <form name="frm2" id="frm2">
-        <div class="pt-3 mt-4 bg-dark">
+        <div class="pt-3 mt-4 bg-light">
             <table class="table table-light table-sm table-hover cls-dataTable" cellspacing="0" width="100%">
-                <thead class="thead-dark">
+                <thead class="bg-cobefar-6">
                     <tr>
                         <th class="text-center">
                             <input name="TipoRep" value="@ViewBag.TipoRep" type="hidden" readonly />
@@ -208,7 +208,7 @@
                             @Html.DisplayFor(modelItem => item.SerieT2)
                         </td>
                         <td>
-                            <a href="@Url.Action("EliminarVehiculo", "Rutas", new { DocEntry = item.Code,TipoRep=ViewBag.TipoRep })" class="btn btn-danger"><i class="icon icon-bin2"></i></a>
+                            <a href="@Url.Action("EliminarVehiculo", "Rutas", new { DocEntry = item.Code,TipoRep=ViewBag.TipoRep })" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Eliminar Vehículo"><i class="icon icon-bin2 text-danger"></i></a>
                         </td>
                     </tr>
                 }

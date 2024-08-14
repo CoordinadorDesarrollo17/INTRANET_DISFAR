@@ -13,7 +13,7 @@
     }
 </script>
 
-<div class="pt-4">
+<div class="pt-3">
     <nav>
         <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
@@ -27,27 +27,27 @@
 </div>
 
 
-<div class="bg-form-pestanas-cobefar">
-    <div class="bg-dark">
+<div class="pt-3 bg-form-pestanas-cobefar">
+    <div class="bg-white">
         <form name="frm" id="frm">
             <table class="table table-light table-sm table-hover cls-dataTable" cellspacing="0" width="100%">
-                <thead class="thead-dark">
+                <thead class="bg-cobefar-6">
                     <tr>
                         <th class="text-center">
                             @Html.DisplayNameFor(model => model.DocNum)
-                            <input type="text" name="DocNum" class="form-control" onchange="filtrar();" value="@if (ViewBag.Owtr.DocNum != 0) { Write(ViewBag.Owtr.DocNum); }" />
+                            <input type="text" name="DocNum" class="form-control-sm border" onchange="filtrar();" value="@if (ViewBag.Owtr.DocNum != 0) { Write(ViewBag.Owtr.DocNum); }" />
                         </th>
                         <th class="text-center">
                             @Html.DisplayNameFor(model => model.DocDate)
-                            <input type="date" name="DocDate" class="form-control" style="width:150px;" onchange="filtrar();" value="@ViewBag.Owtr.DocDate" />
+                            <input type="date" name="DocDate" class="form-control-sm border" style="width:150px;" onchange="filtrar();" value="@ViewBag.Owtr.DocDate" />
                         </th>
                         <th class="text-center">
                             @Html.DisplayNameFor(model => model.U_BPP_FECINITRA)
-                            <input type="date" name="U_BPP_FECINITRA" class="form-control" style="width:150px;" onchange="filtrar();" value="@ViewBag.Owtr.U_BPP_FECINITRA" />
+                            <input type="date" name="U_BPP_FECINITRA" class="form-control-sm border" style="width:150px;" onchange="filtrar();" value="@ViewBag.Owtr.U_BPP_FECINITRA" />
                         </th>
                         <th class="text-center">
                             @Html.DisplayNameFor(model => model.Filler)
-                            <select name="Filler" class="form-control input_filtro-table" onchange="filtrar();">
+                            <select name="Filler" class="form-control-sm border" onchange="filtrar();">
                                 <option value="">Seleccione</option>
                                 @foreach (OWHS_E os in ViewBag.Almacenes)
                                 {
@@ -65,7 +65,7 @@
                         </th>
                         <th class="text-center">
                             @Html.DisplayNameFor(model => model.ToWhsCode)
-                            <select name="ToWhsCode" class="form-control input_filtro-table" onchange="filtrar();">
+                            <select name="ToWhsCode" class="form-control-sm border" onchange="filtrar();">
                                 <option value="">Seleccione</option>
                                 @foreach (OWHS_E os in ViewBag.Almacenes)
                                 {
@@ -83,7 +83,7 @@
                         </th>
                         <th class="text-center">
                             Guia
-                            <input type="text" name="U_SYP_MDCD" class="form-control" onchange="filtrar();" value="@ViewBag.Owtr.U_SYP_MDCD" />
+                            <input type="text" name="U_SYP_MDCD" class="form-control-sm border" onchange="filtrar();" value="@ViewBag.Owtr.U_SYP_MDCD" />
                         </th>
                         <th class="text-center">
                             @Html.DisplayNameFor(model => model.U_SYP_STATUS)
@@ -149,7 +149,7 @@
                                 @Html.DisplayFor(modelItem => item.SlpCode)
                             </td>
                             <td class="text-center">
-                                <select name="Estado" class="form-control-sm bg-cobefar text-white" style="width: 130px" onchange="cambiarEstadoOWTR(@item.DocNum, this.value)">
+                                <select name="Estado" class="form-control-sm border-success" style="width: 130px" onchange="cambiarEstadoOWTR(@item.DocNum, this.value)">
                                     <option value="Pendiente" @if (item.Estado != null && item.Estado.Equals("Pendiente")) { Write("selected"); }>Pendiente</option>
                                     <option value="Realizado" @if (item.Estado != null && item.Estado.Equals("Realizado")) { Write("selected"); }>Realizado</option>
                                 </select>

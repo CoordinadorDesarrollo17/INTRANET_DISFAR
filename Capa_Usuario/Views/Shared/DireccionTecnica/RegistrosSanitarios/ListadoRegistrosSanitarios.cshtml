@@ -1,6 +1,6 @@
 ﻿<form name="frm" id="frm">
     <table id="tbl_listadoRS" class="table table-light table-sm table-hover" cellspacing="0" width="100%">
-        <thead class="thead-dark">
+        <thead class="bg-cobefar-6">
             <tr>
                 <th class="text-center">Registro Sanitario<br /><input type="text" id="registroSanitario" name="RegistroSanitario" class="form-control-sm text-center border" value="@ViewBag.ORS.RegistroSanitario" autocomplete="off" onchange="$('#frm').submit();" /></th>
                 <th class="text-center">Cód. Artículo<br /><input type="text" id="codArticulo" name="CodArticulo" class="form-control-sm text-center border text-uppercase" value="@ViewBag.ORS.CodArticulo" autocomplete="off" onchange="$('#frm').submit();" /></th>
@@ -9,7 +9,7 @@
                 <th class="text-center">Comentario</th>
                 <th class="text-center">
                     Estado<br />
-                          <select id="estado" name="Estado" class="form-control-sm bg-cobefar text-white" onchange="$('#frm').submit();">
+                          <select id="estado" name="Estado" class="form-control-sm border text-white" onchange="$('#frm').submit();">
                               <option value="">Seleccione</option>
                               @foreach (var item in ViewBag.ListaEstadosRS)
                               {

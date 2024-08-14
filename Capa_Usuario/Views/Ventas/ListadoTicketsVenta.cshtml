@@ -97,33 +97,32 @@
 
 <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
     <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO DE TICKETS</h3></div>
+</div>
 
+<div class="bg-white d-flex pl-2 w-100 py-3">
+    <div class="mx-2">
+        @if (ViewBag.IdRol == 12)
+        {
+            <a id="accion" href="#" class="btn btn-success font-weight-bold" data-toggle="modal" data-target="#modalVendedores">
+                Crear Ticket
+            </a>
+        }
+        else
+        {
+            <a id="accion" href="@Url.Action("CreaTicketVenta", "Ventas")" class="btn btn-success font-weight-bold" title="Crear Ticket Nuevo">
+                <i class="icon-plus"></i>  Nuevo ticket
+            </a>
+        }
+        <button type="button" id="btn_ordenesVenta" class="btn btn-orange font-weight-bold" data-codsapvendedor="@ViewBag.CodSapVendedor"><i class="icon-file-text2 font-weight-bold"></i> Órdenes de Venta</button>
+        @*<a id="accion" href="#" class="btn btn-warning font-weight-bold" title="Documentos" data-toggle="modal" data-target="#MdAnVentas">
+                <i class="icon icon-stats-dots"></i> AnVentas
+            </a>
 
-    <div class="d-flex pl-2 w-100 py-2">
-        <div class="mx-2">
-            @if (ViewBag.IdRol == 12)
-            {
-                <a id="accion" href="#" class="btn btn-success font-weight-bold" data-toggle="modal" data-target="#modalVendedores">
-                    Crear Ticket
-                </a>
-            }
-            else
-            {
-                <a id="accion" href="@Url.Action("CreaTicketVenta", "Ventas")" class="btn btn-success font-weight-bold" title="Crear Ticket Nuevo">
-                    <i class="icon-plus"></i>  Nuevo ticket
-                </a>
-            }
-            <button type="button" id="btn_ordenesVenta" class="btn btn-orange font-weight-bold" data-codsapvendedor="@ViewBag.CodSapVendedor"><i class="icon-file-text2 font-weight-bold"></i> Órdenes de Venta</button>
-            @*<a id="accion" href="#" class="btn btn-warning font-weight-bold" title="Documentos" data-toggle="modal" data-target="#MdAnVentas">
-                    <i class="icon icon-stats-dots"></i> AnVentas
-                </a>
+            <a id="accion" href="@Url.Action("GestionVendedores", "Ventas")" class="btn btn-info font-weight-bold" title="Vendedores">
+                <i class="icon icon-user"></i> Vendedores
+            </a>
 
-                <a id="accion" href="@Url.Action("GestionVendedores", "Ventas")" class="btn btn-info font-weight-bold" title="Vendedores">
-                    <i class="icon icon-user"></i> Vendedores
-                </a>
-
-            *@
-        </div>
+        *@
     </div>
 </div>
 
@@ -151,10 +150,10 @@
                         <br />
                         @if (ViewBag.Ortv != null && ViewBag.Ortv.DocNum > 0)
                         {
-                            <input type="text" name="DocNum" class="form-control-sm border" onchange="filtrar();" value="@ViewBag.Ortv.DocNum" autocomplete="off" />
+                            <input type="text" name="DocNum" class="form-control-sm border w-75" onchange="filtrar();" value="@ViewBag.Ortv.DocNum" autocomplete="off" />
                         }
                         else
-                        { <input type="text" name="DocNum" class="form-control-sm border" onchange="filtrar();" autocomplete="off" />}
+                        { <input type="text" name="DocNum" class="form-control-sm border w-75" onchange="filtrar();" autocomplete="off" />}
                     </th>
                     <th class="text-center">
                         Fecha ticket
@@ -185,20 +184,20 @@
                         <br />
                         @if (ViewBag.Ortv != null && ViewBag.Ortv.Vendedor != null)
                         {
-                            <input type="text" name="Vendedor" class="form-control-sm border" onchange="filtrar();" value="@ViewBag.Ortv.Vendedor" autocomplete="off" />
+                            <input type="text" name="Vendedor" class="form-control-sm border w-100" onchange="filtrar();" value="@ViewBag.Ortv.Vendedor" autocomplete="off" />
                         }
                         else
-                        { <input type="text" name="Vendedor" class="form-control-sm border" onchange="filtrar();" autocomplete="off" />}
+                        { <input type="text" name="Vendedor" class="form-control-sm border w-100" onchange="filtrar();" autocomplete="off" />}
                     </th>
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.MontoFinal)
                         <br />
                         @if (ViewBag.Ortv != null && ViewBag.Ortv.MontoFinal > 0)
                         {
-                            <input type="text" name="MontoFinal" class="form-control-sm border" onchange="filtrar();" value="@ViewBag.Ortv.MontoFinal" autocomplete="off" />
+                            <input type="text" name="MontoFinal" class="form-control-sm border w-75" onchange="filtrar();" value="@ViewBag.Ortv.MontoFinal" autocomplete="off" />
                         }
                         else
-                        { <input type="text" name="MontoFinal" class="form-control-sm border" onchange="filtrar();" autocomplete="off" />}
+                        { <input type="text" name="MontoFinal" class="form-control-sm border w-75" onchange="filtrar();" autocomplete="off" />}
                     </th>
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.LugarDestino)

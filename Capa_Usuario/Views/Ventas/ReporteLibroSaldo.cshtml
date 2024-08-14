@@ -20,21 +20,20 @@
     </div>
 
 
-<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
-    <div class="px-3 pt-3"><h3 class="titulo-seccion">REPORTE LIBRO SALDO</h3></div>
-</div>
-
-<div class="bg-dark pt-2">
-    <div class="text-white ml-3 mb-4">
-        <span class="text-cobefar-2 font-18">Cliente: </span><span class="font-18">@Html.DisplayFor(model => model.CardName)</span><br />
-        <span class="text-cobefar-2 font-18">Ope: </span><span class="font-18">@Html.DisplayFor(model => model.NroOpe)</span><br />
-        <span class="text-cobefar-2 font-18">SaldoActual: </span><span class="font-18">@Html.DisplayFor(model => model.SaldoActual)</span>
+    <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
+        <div class="px-3 pt-3"><h3 class="titulo-seccion">REPORTE LIBRO SALDO</h3></div>
+        <div class="text-white ml-3 my-3">
+            <span class="text-cobefar-2 font-18">Cliente: </span><span class="font-18">@Html.DisplayFor(model => model.CardName)</span><br />
+            <span class="text-cobefar-2 font-18">Ope: </span><span class="font-18">@Html.DisplayFor(model => model.NroOpe)</span><br />
+            <span class="text-cobefar-2 font-18">SaldoActual: </span><span class="font-18">S/ @Html.DisplayFor(model => model.SaldoActual)</span>
+        </div>
     </div>
 
+<div class="bg-white bg-form-cobefar">
     <table class="table table-light table-sm table-hover table-responsive-md" cellspacing="0" width="100%">
         @if (Model.Det != null && Model.Det.Count > 0)
         {
-            <thead class="thead-dark">
+            <thead class="bg-cobefar-6">
                 <tr>
                     <th class="text-center">@Html.DisplayNameFor(model => model.Det[0].Linea)</th>
                     <th class="text-center">@Html.DisplayNameFor(model => model.Det[0].FechaOpe)</th>

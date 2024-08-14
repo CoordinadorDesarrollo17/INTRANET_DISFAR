@@ -53,7 +53,7 @@ footer {
 .container-body {
     display: flex;
     justify-content: space-between;
-    padding: 10px 25px;    
+    padding: 10px 25px;
 }
 
 .container-footer {
@@ -256,6 +256,14 @@ a {
 
 .text-purple {
     color: #7C00F7;
+}
+
+.text-orange {
+    color: orangered;
+}
+
+.text-darkblue {
+    color: darkblue;
 }
 
 .border-cabecera-seccion {
