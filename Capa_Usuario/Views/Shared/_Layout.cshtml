@@ -21,6 +21,7 @@
             margin: 0;
             padding: 0;
             background-image: url('/Content/img/bg-cobefar-v2.png');
+            /*background: linear-gradient(to right, #518730 0%,#26653d 100%);*/
             background-position: center center;
             background-attachment: fixed;
             background-size: cover;
@@ -94,16 +95,18 @@
         <div class="container-footer bg-dark pt-4">
             <div class="copyright mb-2">
                 <span class="text-cobefar-2">CONTACTO:</span>
-                soporte@cobefar.com.pe
+                soporte.ti@cobefar.com.pe
                 <span class="text-cobefar-2">|</span>
-                desarrollo@cobefar.com.pe
+                coordinador.ti@@cobefar.com.pe
                 <span class="text-cobefar-2">|</span>
-                sistemas@cobefar.com.pe
+                soporte.desarrollo@cobefar.com.pe
+                <span class="text-cobefar-2">|</span>
+                coordinador.desarrollo@cobefar.com.pe
             </div>            © Todos los derechos reservados - <span class="text-cobefar-2">COBEFAR S.A.C </span>
             <br />
             <small>
-                ALM01: Jr. Antonio Miroquesada N°806 3er piso-Int 303 – Cercado de Lima/
-                ALM06: Calle Mariano Jose de Arce N° 159-163 INT. MZ.C,LOTE.01, 1° Y 2° piso Urb. Mercurio - San Luis
+                <span class="text-cobefar-2">ALM01:</span> Jr. Antonio Miroquesada N°806 3er piso-Int 303 – Cercado de Lima
+                <span class="text-cobefar-2">| ALM06:</span> Calle Mariano Jose de Arce N° 159-163 INT. MZ.C,LOTE.01, 1° Y 2° piso Urb. Mercurio - San Luis
             </small>
         </div>
     </footer>
@@ -150,6 +153,8 @@
     <script async>
         // Si existe el elemento en DOM
         $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip();   
+
             if (document.getElementsByClassName("cls-dataTable").length > 0) {
                 $('.cls-dataTable').DataTable({
                     "ordering": false,

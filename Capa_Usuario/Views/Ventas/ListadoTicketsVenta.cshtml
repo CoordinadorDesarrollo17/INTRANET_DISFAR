@@ -47,12 +47,12 @@
 
     Swal.fire({
         title: 'Enviando datos...',
-        allowOutsideClick: false, 
+        allowOutsideClick: false,
         onBeforeOpen: () => {
-            Swal.showLoading(); 
+            Swal.showLoading();
         }
     });
-    
+
     $.ajax({
         type: 'GET',
         url: '@Url.Action("CreaTicketVenta", "Ventas")',
@@ -65,7 +65,7 @@
                 icon: 'success',
                 title: 'Datos enviados correctamente',
                 showConfirmButton: false,
-                timer: 1500 
+                timer: 1500
             });
         },
         error: function(xhr, status, error) {
@@ -86,20 +86,20 @@
 </script>
 
 
-<div class="pt-4">
+<div class="pt-3">
     <nav>
-        <ol class="cd-breadcrumb bg-dark">
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
             <li class="current"><em>Listado de Tickets</em></li>
         </ol>
     </nav>
 </div>
 
-<div class="bg-dark border-cabecera-seccion pb-2">
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
     <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO DE TICKETS</h3></div>
 
-    <div class="d-flex pl-2 w-100 py-2">
 
+    <div class="d-flex pl-2 w-100 py-2">
         <div class="mx-2">
             @if (ViewBag.IdRol == 12)
             {
@@ -109,22 +109,21 @@
             }
             else
             {
-        <a id="accion" href="@Url.Action("CreaTicketVenta", "Ventas")" class="btn btn-success font-weight-bold" title="Crear Ticket Nuevo">
-            <i class="icon-plus"></i>  Nuevo ticket
-        </a>
+                <a id="accion" href="@Url.Action("CreaTicketVenta", "Ventas")" class="btn btn-success font-weight-bold" title="Crear Ticket Nuevo">
+                    <i class="icon-plus"></i>  Nuevo ticket
+                </a>
             }
             <button type="button" id="btn_ordenesVenta" class="btn btn-orange font-weight-bold" data-codsapvendedor="@ViewBag.CodSapVendedor"><i class="icon-file-text2 font-weight-bold"></i> Órdenes de Venta</button>
             @*<a id="accion" href="#" class="btn btn-warning font-weight-bold" title="Documentos" data-toggle="modal" data-target="#MdAnVentas">
-            <i class="icon icon-stats-dots"></i> AnVentas
-        </a>
+                    <i class="icon icon-stats-dots"></i> AnVentas
+                </a>
 
-        <a id="accion" href="@Url.Action("GestionVendedores", "Ventas")" class="btn btn-info font-weight-bold" title="Vendedores">
-            <i class="icon icon-user"></i> Vendedores
-        </a>
+                <a id="accion" href="@Url.Action("GestionVendedores", "Ventas")" class="btn btn-info font-weight-bold" title="Vendedores">
+                    <i class="icon icon-user"></i> Vendedores
+                </a>
 
             *@
         </div>
-
     </div>
 </div>
 
@@ -143,19 +142,19 @@
 </div>
 
 <form name="frm" id="frm">
-    <div class="bg-dark pt-4">
-        <table class="table table-light table-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
-            <thead class="thead-dark">
+    <div class="bg-white bg-form-cobefar pt-3">
+        <table class="table table-light table-sm table-hover font-14 cls-dataTable50" cellspacing="0" width="100%">
+            <thead class="bg-cobefar-6">
                 <tr>
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.DocNum)
                         <br />
                         @if (ViewBag.Ortv != null && ViewBag.Ortv.DocNum > 0)
                         {
-                            <input type="text" name="DocNum" class="form-control input_filtro-table"  onchange="filtrar();" value="@ViewBag.Ortv.DocNum" autocomplete="off" />
+                            <input type="text" name="DocNum" class="form-control-sm border" onchange="filtrar();" value="@ViewBag.Ortv.DocNum" autocomplete="off" />
                         }
                         else
-                        { <input type="text" name="DocNum" class="form-control input_filtro-table"  onchange="filtrar();" autocomplete="off" />}
+                        { <input type="text" name="DocNum" class="form-control-sm border" onchange="filtrar();" autocomplete="off" />}
                     </th>
                     <th class="text-center">
                         Fecha ticket
@@ -172,39 +171,39 @@
                         @Html.DisplayNameFor(model => model.HoraRegistro)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.CardName)
+                        <span class="pl-2">@Html.DisplayNameFor(model => model.CardName)</span>
                         <br />
                         @if (ViewBag.Ortv != null && ViewBag.Ortv.CardName != null)
                         {
-                            <input type="text" name="CardName" class="form-control input_filtro-table" onchange="filtrar();" value="@ViewBag.Ortv.CardName" autocomplete="off" />
+                            <input type="text" name="CardName" class="form-control-sm border w-100" onchange="filtrar();" value="@ViewBag.Ortv.CardName" autocomplete="off" />
                         }
                         else
-                        { <input type="text" name="CardName" class="form-control input_filtro-table" onchange="filtrar();" autocomplete="off" />}
+                        { <input type="text" name="CardName" class="form-control-sm border w-100" onchange="filtrar();" autocomplete="off" />}
                     </th>
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.Vendedor)
                         <br />
                         @if (ViewBag.Ortv != null && ViewBag.Ortv.Vendedor != null)
                         {
-                            <input type="text" name="Vendedor" class="form-control input_filtro-table" onchange="filtrar();" value="@ViewBag.Ortv.Vendedor" autocomplete="off" />
+                            <input type="text" name="Vendedor" class="form-control-sm border" onchange="filtrar();" value="@ViewBag.Ortv.Vendedor" autocomplete="off" />
                         }
                         else
-                        { <input type="text" name="Vendedor" class="form-control input_filtro-table" onchange="filtrar();" autocomplete="off" />}
+                        { <input type="text" name="Vendedor" class="form-control-sm border" onchange="filtrar();" autocomplete="off" />}
                     </th>
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.MontoFinal)
                         <br />
                         @if (ViewBag.Ortv != null && ViewBag.Ortv.MontoFinal > 0)
                         {
-                            <input type="text" name="MontoFinal" class="form-control input_filtro-table" onchange="filtrar();" value="@ViewBag.Ortv.MontoFinal" autocomplete="off" />
+                            <input type="text" name="MontoFinal" class="form-control-sm border" onchange="filtrar();" value="@ViewBag.Ortv.MontoFinal" autocomplete="off" />
                         }
                         else
-                        { <input type="text" name="MontoFinal" class="form-control input_filtro-table" onchange="filtrar();" autocomplete="off" />}
+                        { <input type="text" name="MontoFinal" class="form-control-sm border" onchange="filtrar();" autocomplete="off" />}
                     </th>
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.LugarDestino)
                         <br />
-                        <select name="LugarDestino" id="LugarDestino" class="form-control select_filtro-table" onchange="filtrar();">
+                        <select name="LugarDestino" id="LugarDestino" class="form-control-sm border" onchange="filtrar();">
                             <option value=""></option>
                             <option value="Arriola" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Arriola") { Write("selected"); } }>Arriola</option>
                             <option value="Agencia" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Agencia") { Write("selected"); } }>Agencia</option>
@@ -215,7 +214,7 @@
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.Estado)
                         <br />
-                        <select name="Estado" id="Estado" class="form-control select_filtro-table" onchange="filtrar();">
+                        <select name="Estado" id="Estado" class="form-control-sm border" onchange="filtrar();">
                             <option value=""></option>
                             <option value="SEPARADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "SEPARADO") { Write("selected"); } }>SEPARADO</option>
                             <option value="ABIERTO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ABIERTO") { Write("selected"); } }>ABIERTO</option>
@@ -236,7 +235,7 @@
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.EstadoPago)
                         <br />
-                        <select name="EstadoPago" id="EstadoPago" class="form-control select_filtro-table" onchange="filtrar();">
+                        <select name="EstadoPago" id="EstadoPago" class="form-control-sm border" onchange="filtrar();">
                             <option value=""></option>
                             <option value="PENDIENTE" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.EstadoPago == "PENDIENTE") { Write("selected"); } }>PENDIENTE</option>
                             <option value="PAGADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.EstadoPago == "PAGADO") { Write("selected"); }}>PAGADO</option>
@@ -245,7 +244,7 @@
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.EstadoGasto)
                         <br />
-                        <select name="EstadoGasto" id="EstadoGasto" class="form-control select_filtro-table" onchange="filtrar();">
+                        <select name="EstadoGasto" id="EstadoGasto" class="form-control-sm border" onchange="filtrar();">
                             <option value=""></option>
                             <option value="PENDIENTE" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.EstadoGasto == "PENDIENTE") { Write("selected"); } }>PENDIENTE</option>
                             <option value="CONFIRMADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.EstadoGasto == "CONFIRMADO") { Write("selected"); }}>CONFIRMADO</option>
@@ -253,7 +252,7 @@
                     </th>
                     <th class="text-center">
                         PagoEnvio
-                        <select name="PagoEnv" class="form-control select_filtro-table" style="width:80px" onchange="filtrar();">
+                        <select name="PagoEnv" class="form-control-sm border" style="width:80px" onchange="filtrar();">
                             <option value="0.00" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.PagoEnv == 0.00M) { Write("selected"); } }></option>
                             <option value="0.01" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.PagoEnv == 0.01M) { Write("selected"); } }>SI</option>
                         </select>
@@ -285,7 +284,7 @@
                             @Html.DisplayFor(modelItem => item.HoraAbierto)
                         </td>
                         <td>
-                            @if (!string.IsNullOrEmpty(item.CardName)) { Write(item.CardName); }
+                            <span class="pl-2">@if (!string.IsNullOrEmpty(item.CardName)) { Write(item.CardName); }</span>
                         </td>
                         <td class="text-center">
                             @item.Vendedor
@@ -314,19 +313,19 @@
                         <td class="text-center">
                             @if (item.Estado.Equals("SEPARADO") || item.Estado.Equals("ABIERTO"))
                             {
-                                <a href="@Url.Action("EditarTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="mx-1"><i title="Editar ticket" class="text-purple icon-pencil"></i></a>
+                                <a href="@Url.Action("EditarTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Editar ticket"><i class="text-purple icon-pencil"></i></a>
                             }
                         </td>
                         <td class="text-center">
                             @if ((item.Estado.Equals("SEPARADO") || item.Estado.Equals("ABIERTO")) && (ViewBag.IdRol == 1 || ViewBag.IdRol == 6 || ViewBag.IdRol == 7 || ViewBag.IdRol == 12))
                             {
-                                <a href="#" onclick="cancelarTicket(@item.DocEntry);" class="mx-1"><i title="Cancelar ticket" class="text-danger icon-bin2"></i></a>
+                                <a href="#" onclick="cancelarTicket(@item.DocEntry);" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Cancelar ticket"><i class="text-danger icon-bin2"></i></a>
                             }
                         </td>
                         <td class="text-center">
                             @if (item.Estado != "SEPARADO")
                             {
-                                <a href="@Url.Action( "SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry  } )" type="button" target="_self" class="mx-1"
+                                <a href="@Url.Action( "SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry  } )" type="button" target="_self" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="PDF de ticket"
                                    onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;">
                                     <i title="Seguimiento de ticket" class="text-dark icon-truck"></i>
                                 </a>
@@ -335,13 +334,13 @@
                         <td class="text-center">
                             @if (item.Estado != "SEPARADO")
                             {
-                                <a href="@Url.Action( "GenerarPDF", "Ventas", new { DocEntry = item.DocEntry  } )" target="_blank" class="mx-1"><i title="PDF de ticket" class="text-danger icon-file-pdf"></i></a>
+                                <a href="@Url.Action( "GenerarPDF", "Ventas", new { DocEntry = item.DocEntry  } )" target="_blank" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="PDF de ticket"><i class="text-danger icon-file-pdf"></i></a>
                             }
                         </td>
                         <td class="text-center">
                             @if (item.Estado == "ENTREGADO")
                             {
-                                <a href="@Url.Action( "EvidenciaReparto", "Rutas", new { DocEntry = item.DocEntry , TipoRuta="Ventas"} )" class="mx-1"><i title="Evidencia" class="text-primary icon-image"></i></a>
+                                <a href="@Url.Action( "EvidenciaReparto", "Rutas", new { DocEntry = item.DocEntry , TipoRuta="Ventas"} )" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Evidencia"><i class="text-primary icon-image"></i></a>
                             }
                         </td>
 

@@ -36,7 +36,7 @@ td {
 }
 
 footer {
-    background-color: #484948;
+    background-color: #424242 !important;
     width: 100%;
     color: white;
     bottom: 0;
@@ -53,10 +53,11 @@ footer {
 .container-body {
     display: flex;
     justify-content: space-between;
-    padding: 10px 25px;
+    padding: 10px 25px;    
 }
 
 .container-footer {
+    background-color: #424242 !important;
     width: 100%;
     padding: 10px;
     text-align: center;
@@ -64,6 +65,12 @@ footer {
 
 .column1, .column2 {
     max-width: 600px;
+}
+
+
+/* Reemplaza el color de fondo para la clase table-hover */
+.table-hover tbody tr:hover {
+    background-color: #d5f5e3 !important;
 }
 
 
@@ -106,7 +113,7 @@ footer {
 .cd-breadcrumb, .cd-multi-steps {
     /*width: 90%;
       max-width: 768px;*/
-    padding: 0.5em 1em;
+    padding: 0.2em 1em;
     margin-top: 0px;
     /*margin: 1em auto;*/
     /*background-color: #edeff0;*/
@@ -212,7 +219,7 @@ footer {
     }
 
         .cd-breadcrumb li, .cd-multi-steps li {
-            margin: 1.2em 0;
+            margin: 0.6em 0;
         }
 
             .cd-breadcrumb li::after, .cd-multi-steps li::after {
@@ -282,6 +289,24 @@ a {
         background-color: #93152a !important;
         outline: none;
     }
+
+.bg-cobefar-5 {
+    background-color: #46AD80 !important;
+}
+
+.bg-cobefar-6 {
+    background-color: #3C8F7C !important;
+}
+
+.bg-cobefar-degradado-1 {
+    background: linear-gradient(to right, #000 0%,#009879 100%)
+}
+
+.table .thead-cobefar th {
+    color: white;
+    background-color: #46AD80;
+    border-color: #dee2e6;
+}
 
 .bg-colorComplementario {
     background-color: #93152a !important;
@@ -378,8 +403,10 @@ a {
 .page-item.active .page-link {
     z-index: 3;
     color: #fff;
-    background-color: #26653D;
-    border-color: #26653D;
+    /*background-color: #26653D;
+    border-color: #26653D;*/
+    background-color: #3C8F7C;
+    border-color: #3C8F7C;
 }
 
 .page-link {
@@ -407,7 +434,7 @@ div.dataTables_wrapper div.dataTables_length label {
     text-align: left !important;
     white-space: nowrap !important;
     padding-left: 10px !important;
-    color: white !important;
+    color: #333 !important;
 }
 
 /* Head: Buscar */
@@ -416,7 +443,7 @@ div.dataTables_wrapper div.dataTables_filter label {
     white-space: nowrap;
     text-align: left;
     padding-right: 10px;
-    color: white !important;
+    color: #333 !important;
 }
 
 /* footer: Mostrando */
@@ -424,9 +451,13 @@ div.dataTables_wrapper div.dataTables_info {
     padding-top: 0.85em;
     white-space: nowrap;
     padding-left: 10px;
-    color: white;
+    color: #333;
 }
 
+th {
+    height: 40px; /* Ajusta esta altura según tus necesidades */
+    vertical-align: middle; /* Centra el texto verticalmente */
+}
 
 /* footer: Paginaciòn */
 div.dataTables_wrapper div.dataTables_paginate ul.pagination {

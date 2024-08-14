@@ -10,34 +10,34 @@
     }
 </script>
 
-<div class="pt-4">
+<div class="pt-3">
     <nav>
-        <ol class="cd-breadcrumb bg-dark">
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
             <li class="current"><em>Listado de tickets de almacén</em></li>
         </ol>
     </nav>
 </div>
 
-<div class="bg-dark border-cabecera-seccion pb-2">
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
     <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO TICKETS DE ALMACÉN</h3></div>
-
-    @*@if (ViewBag.ExportarExcelPicking == "SI")
-        {*@
-    <div class="row pl-2 w-100">
-        <div class="d-flex col-lg-8 col-md-6 col-sm-12 col-6">
-            <button type="button" class="btn btn-success font-weight-bold mx-1 my-1" title="Descargar Reporte Errores de Picking" data-toggle="modal" data-target="#modalReporte" onclick="">
-                <i class="icon icon-file-excel"></i> Errores de Picking
-            </button>
-        </div>
-    </div>
-    @*}*@
-
 </div>
+
+@*@if (ViewBag.ExportarExcelPicking == "SI")
+    {*@
+<div class="bg-white d-flex pl-2 w-100 py-2">
+    <button type="button" class="btn btn-success mx-1 my-1" title="Descargar Reporte Errores de Picking" data-toggle="modal" data-target="#modalReporte" onclick="">
+        <i class="icon icon-file-excel"></i> Errores de Picking
+    </button>
+</div>
+
+@*}*@
+
+
 <form name="frm" id="frm">
-    <div class="bg-dark pt-4">
+    <div class="bg-white bg-form-cobefar">
         <table class="table table-light table-sm table-responsive-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
-            <thead class="thead-dark">
+            <thead class="bg-cobefar-6">
                 <tr>
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.DocNum)

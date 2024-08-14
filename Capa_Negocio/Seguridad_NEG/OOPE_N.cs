@@ -15,7 +15,7 @@ namespace Capa_Negocio.Seguridad_NEG
 
         public Dictionary<string, List<OOPE_E>> ListarOperaciones(OOPE_E filtros)
         {
-            var lista = opeD.ListarOperaciones(filtros);
+            var lista = opeD.ListarOperaciones(filtros).OrderBy(x => x.ModuloNombre);
 
             var registrosPorControlador = new Dictionary<string, List<OOPE_E>>();
 
