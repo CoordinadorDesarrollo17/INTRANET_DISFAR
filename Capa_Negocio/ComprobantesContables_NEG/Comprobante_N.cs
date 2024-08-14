@@ -20,6 +20,7 @@ namespace Capa_Negocio.ComprobantesContables_NEG
         {return compD.ObtenerEncabezadoFacturas(DocEntryOrden);}
         public List<Comprobante_E> ObtenerEncabezadoNotaCredito(int DocNum)
         { return compD.ObtenerEncabezadoNotaCredito(DocNum); }
-
+        public List<Comprobante_E> ObtenerEncabezadoNotaDebito(int DocNum, string FacturasConcatenadas)
+        { return compD.ObtenerEncabezadoNotaDebito(DocNum,FacturasConcatenadas); }
     }
 }

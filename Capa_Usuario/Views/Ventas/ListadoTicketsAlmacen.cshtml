@@ -14,28 +14,32 @@
         background-color: #d5f5e3;
         cursor: pointer;
     }
-
     i {
         font-size: 20px;
     }
 
-    .btn-guinda {
-        background-color: #a43b3b;
-        border-color: #a43b3b;
-        color: #fff;
-    }
-
     .btn-container {
         display: flex;
-        flex-direction: column;
         align-items: center;
         justify-content: center;
         height: 100%;
     }
 
         .btn-container a {
-            margin-bottom: 10px; /* Espaciado entre botones */
+            margin-bottom: 10px;
         }
+
+    .btn-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px; 
+        justify-content: center; 
+    }
+    .modal-body {
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* Centra el contenido del modal horizontalmente */
+    }
 </style>
 <div class="pt-4">
     <nav>
@@ -51,7 +55,7 @@
 
     <div class="row pl-2 w-100">
         <div class="d-flex col-lg-8 col-md-6 col-sm-12 col-6">
-            <button type="button" class="btn btn-success font-weight-bold mx-1 my-1" title="Descargar Reporte Errores de Picking" data-toggle="modal" data-target="#modalReporte" onclick="">
+            <button type="button" class="btn btn-success font-weight-bold mx-1 my-1" title="Descargar Reporte Errores de Picking" data-toggle="modal" data-target="#modalReporte">
                 <i class="icon icon-file-excel"></i> Errores de Picking
             </button>
         </div>
@@ -304,7 +308,7 @@
                                 {
                                     @*<a href="@Url.Action("IniciarSacandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-success btn-sm"> Inicio <br /> Picking </a>*@
                                     <a href="@Url.Action("IniciarSacandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })"
-                                       class="btn btn-cobefar btn-sm"
+                                       class="btn btn-light text-success btn-sm"
                                        data-toggle="tooltip"
                                        data-placement="top"
                                        title="Inicio Picking">
@@ -320,7 +324,7 @@
                                 {
                                     @*<a href="@Url.Action( "EmpacadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry  } )" class="btn btn-naranja btn-sm">Fin <br />Empacar</a>*@
                                     <a href="@Url.Action("EmpacadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })"
-                                       class="btn btn-naranja btn-sm"
+                                       class="btn btn-light text-naranja btn-sm"
                                        data-toggle="tooltip"
                                        data-placement="top"
                                        title="Fin Packing">
@@ -341,7 +345,7 @@
                                         {
                                             @*<a href="@Url.Action("IniciarSacandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-success btn-sm"> Inicio <br /> Picking </a>*@
                                             <a href="@Url.Action("IniciarSacandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })"
-                                               class="btn btn-cobefar btn-sm"
+                                               class="btn btn-light text-success btn-sm"
                                                data-toggle="tooltip"
                                                data-placement="top"
                                                title="Inicio Picking">
@@ -354,7 +358,7 @@
 
                                             @*<a href="@Url.Action("SacandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-success btn-sm"> Fin <br /> Picking </a>*@
                                             <a href="@Url.Action("SacandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })"
-                                               class="btn btn-cobefar btn-sm"
+                                               class="btn btn-light text-success btn-sm"
                                                data-toggle="tooltip"
                                                data-placement="top"
                                                title="Fin Picking">
@@ -374,7 +378,7 @@
                                         {
                                             @*<a href="@Url.Action("IniciarVerificandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-amarillo btn-sm"> Inicio <br /> Verificar </a>*@
                                             <a href="@Url.Action("IniciarVerificandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })"
-                                               class="btn btn-amarillo btn-sm"
+                                               class="btn btn-light text-warning btn-sm"
                                                data-toggle="tooltip"
                                                data-placement="top"
                                                title="Inicio Verificar">
@@ -386,7 +390,7 @@
                                         {
                                             @*<a href="@Url.Action("VerificadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-amarillo btn-sm">Fin <br /> Verificar </a>*@
                                             <a href="@Url.Action("VerificadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })"
-                                               class="btn btn-amarillo btn-sm"
+                                               class="btn btn-light text-warning btn-sm"
                                                data-toggle="tooltip"
                                                data-placement="top"
                                                title="Fin Verificar">
@@ -404,9 +408,8 @@
                                     <div class="btn-container">
                                         @if (condIniEmpacar)
                                         {
-                                            @*<a href="@Url.Action("IniciarEmpacandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-naranja btn-sm"> Inicio <br /> Empacar </a>*@
                                             <a href="@Url.Action("IniciarEmpacandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })"
-                                               class="btn btn-naranja btn-sm"
+                                               class="btn btn-light text-naranja btn-sm"
                                                data-toggle="tooltip"
                                                data-placement="top"
                                                title="Inicio Packing">
@@ -417,9 +420,8 @@
                                         {
                                             @*El boton "FIN EMPACAR" solo se habilita si el ticket tiene cantidad de cajas mayor a cero (quiere decir que ya ha sido verificado) y si tiene como ultimo estado en la tabla control de cambios "INICIO EMPACAR" o "ANULAR FIN EMPACAR" asi mismo tiene que estar en estado general EMPACANDO o VERIFICANDO*@
 
-                                            @*<a href="@Url.Action( "EmpacadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry  } )" class="btn btn-naranja btn-sm">Fin <br />Empacar</a>*@
                                             <a href="@Url.Action("EmpacadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })"
-                                               class="btn btn-naranja btn-sm"
+                                               class="btn btn-light text-naranja  btn-sm"
                                                data-toggle="tooltip"
                                                data-placement="top"
                                                title="Fin Packing">
@@ -438,11 +440,8 @@
                                 <td class="text-center">
                                     @if ((item.ultimoCCEstado == "INICIO PICKING" || item.ultimoCCEstado == "ANULAR FIN PICKING") && item.hayIniPicking && item.Estado == "PICKEANDO" && item.hayFinPicking == false)
                                     {
-
-                                        @*<a href="@Url.Action("AnularIniciarSacandoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Inicio Picking</a>*@
-
                                         <a href="@Url.Action("AnularIniciarSacandoTicket", "Ventas", new { DocEntry = item.DocEntry })"
-                                           class="btn btn-danger btn-sm"
+                                           class="btn btn-light text-danger btn-sm"
                                            data-toggle="tooltip"
                                            data-placement="top"
                                            title="Anular Inicio Picking">
@@ -451,9 +450,8 @@
                                     }
                                     @if (item.Estado == "EMPACADO")
                                     {
-                                        @*<a href="@Url.Action("AnularEmpacadoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Fin Empacar</a>*@
                                         <a href="@Url.Action("AnularEmpacadoTicket", "Ventas", new { DocEntry = item.DocEntry })"
-                                           class="btn btn-danger btn-sm"
+                                           class="btn btn-light text-danger btn-sm"
                                            data-toggle="tooltip"
                                            data-placement="top"
                                            title="Anular Fin Packing">
@@ -468,9 +466,8 @@
 
                                     @if ((item.ultimoCCEstado == "INICIO PICKING" || item.ultimoCCEstado == "ANULAR FIN PICKING" || item.ultimoCCEstado == "ANULAR INICIO VERIFICAR") && item.hayIniPicking && item.Estado == "PICKEANDO" && item.hayFinPicking == false)
                                     {
-                                        @*<a href="@Url.Action("AnularIniciarSacandoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Inicio Picking</a>*@
                                         <a href="@Url.Action("AnularIniciarSacandoTicket", "Ventas", new { DocEntry = item.DocEntry })"
-                                           class="btn btn-danger btn-sm"
+                                           class="btn btn-light text-danger btn-sm"
                                            data-toggle="tooltip"
                                            data-placement="top"
                                            title="Anular Inicio Picking">
@@ -480,9 +477,8 @@
 
                                     @if ((item.ultimoCCEstado == "FIN PICKING" || item.ultimoCCEstado == "ANULAR INICIO VERIFICAR") && item.hayFinPicking)
                                     {
-                                        @*<a href="@Url.Action("AnularSacandoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Fin Picking</a>*@
                                         <a href="@Url.Action("AnularSacandoTicket", "Ventas", new { DocEntry = item.DocEntry })"
-                                           class="btn btn-danger btn-sm"
+                                           class="btn btn-light text-danger btn-sm"
                                            data-toggle="tooltip"
                                            data-placement="top"
                                            title="Anular Fin Picking">
@@ -491,9 +487,8 @@
                                     }
                                     @if ((item.ultimoCCEstado == "INICIO VERIFICAR" || item.ultimoCCEstado == "ANULAR FIN VERIFICAR" || item.ultimoCCEstado == "ANULAR INICIO EMPACAR") && item.hayIniVerificar && item.hayFinVerificar == false)
                                     {
-                                        @*<a href="@Url.Action("AnularIniciarVerificandoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Inicio Verificar</a>*@
                                         <a href="@Url.Action("AnularIniciarVerificandoTicket", "Ventas", new { DocEntry = item.DocEntry })"
-                                           class="btn btn-danger btn-sm"
+                                           class="btn btn-light text-danger btn-sm"
                                            data-toggle="tooltip"
                                            data-placement="top"
                                            title="Anular Inicio Verificar">
@@ -502,9 +497,8 @@
                                     }
                                     @if ((item.ultimoCCEstado == "FIN VERIFICAR" || item.ultimoCCEstado == "ANULAR INICIO EMPACAR") && item.hayFinVerificar)
                                     {
-                                        @*<a href="@Url.Action("AnularVerificadoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Fin Verificar</a>*@
                                         <a href="@Url.Action("AnularVerificadoTicket", "Ventas", new { DocEntry = item.DocEntry })"
-                                           class="btn btn-danger btn-sm"
+                                           class="btn btn-light text-danger btn-sm"
                                            data-toggle="tooltip"
                                            data-placement="top"
                                            title="Anular Fin Verificar">
@@ -513,9 +507,8 @@
                                     }
                                     @if ((item.ultimoCCEstado == "INICIO EMPACAR" || item.ultimoCCEstado == "ANULAR FIN EMPACAR") && item.hayIniEmpacar && item.hayFinEmpacar == false)
                                     {
-                                        @*<a href="@Url.Action("AnularIniciarEmpacandoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Inicio Empacar</a>*@
                                         <a href="@Url.Action("AnularIniciarEmpacandoTicket", "Ventas", new { DocEntry = item.DocEntry })"
-                                           class="btn btn-danger btn-sm"
+                                           class="btn btn-light text-danger btn-sm"
                                            data-toggle="tooltip"
                                            data-placement="top"
                                            title="Anular Inicio Packing">
@@ -524,9 +517,8 @@
                                     }
                                     @if (item.Estado == "EMPACADO")
                                     {
-                                        @*<a href="@Url.Action("AnularEmpacadoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm">Anular<br /> Fin Empacar</a>*@
                                         <a href="@Url.Action("AnularEmpacadoTicket", "Ventas", new { DocEntry = item.DocEntry })"
-                                           class="btn btn-danger btn-sm"
+                                           class="btn btn-light text-danger btn-sm"
                                            data-toggle="tooltip"
                                            data-placement="top"
                                            title="Anular Fin Packing">
@@ -543,9 +535,8 @@
 
                                 if ((item.LugarDestino.Equals("Centro") || item.LugarDestino.Equals("Arriola")))
                                 {
-                                    @*<a href="#" class="btn btn-danger btn-sm" onclick="cancelarTicket(@item.DocEntry);"><i title="CANCELAR" class="icon-cross text-light"></i></a>*@
                                     <a href="#" onclick="cancelarTicket(@item.DocEntry);"
-                                       class="btn btn-danger btn-sm"
+                                       class="btn btn-light text-danger btn-sm"
                                        data-toggle="tooltip"
                                        data-placement="top"
                                        title="Cancelar ticket">
@@ -556,9 +547,8 @@
                                 {
                                     if (item.Estado.Equals("EMPACADO") || item.Estado.Equals("PESADO"))
                                     {
-                                        @*<a href="#" class="btn btn-danger btn-sm" onclick="cancelarTicket(@item.DocEntry);"><i title="CANCELAR" class="icon-cross text-light"></i></a>*@
                                         <a href="#" onclick="cancelarTicket(@item.DocEntry);"
-                                           class="btn btn-danger btn-sm"
+                                           class="btn btn-light text-danger btn-sm"
                                            data-toggle="tooltip"
                                            data-placement="top"
                                            title="Cancelar ticket">
@@ -568,95 +558,44 @@
                                 }
                             }
                         </td>
-                        <td>
-                            @if ((item.Estado.Equals("PICKEANDO") || item.Estado.Equals("VERIFICANDO") || item.Estado.Equals("EMPACANDO") || item.Estado.Equals("EMPACADO") || item.Estado.Equals("PESADO") || item.Estado.Equals("PREENVIO") || item.Estado.Equals("ENVIADO") || item.Estado.Equals("ENTREGADO")) && item.LugarDestino.Equals("Agencia"))
-                            {
-                                <div class="btn-container">
-                                    <a href="@Url.Action("PdfRotuladoTicket", "Ventas", new { DocEntry = item.DocEntry })"
-                                       class="btn btn-info btn-sm"
-                                       data-toggle="tooltip"
-                                       data-placement="top"
-                                       title="Descargar Rotulado">
-                                        <i class="icon icon-info"></i>
-                                    </a>
-
-                                    @if (!item.Estado.Equals("PICKEANDO"))
-                                    {
-                                        <button onclick="descargarComprobante(@item.DocEntry,'F')"
-                                                class="btn btn-guinda btn-sm btn-descarga-pdf"
-                                                data-toggle="tooltip"
-                                                data-placement="top"
-                                                title="Facturas">
-                                            <i class="icon icon-file-pdf"></i>
-                                        </button>
-                                        <button onclick="descargarComprobante(@item.DocEntry,'NC')"
-                                                class="btn btn-guinda btn-sm btn-descarga-pdf"
-                                                data-toggle="tooltip"
-                                                data-placement="top"
-                                                title="Nota de crédito">
-                                            <i class="icon icon-file-pdf"></i>
-                                        </button>
-                                        <button onclick="descargarComprobante(@item.DocEntry,'ND')"
-                                                class="btn btn-guinda btn-sm btn-descarga-pdf"
-                                                data-toggle="tooltip"
-                                                data-placement="top"
-                                                title="Nota de Débito">
-                                            <i class="icon icon-file-pdf"></i>
-                                        </button>
-                                        <button onclick="descargarComprobante(@item.DocEntry,'G')"
-                                                class="btn btn-guinda btn-sm btn-descarga-pdf"
-                                                data-toggle="tooltip"
-                                                data-placement="top"
-                                                title="Guias">
-                                            <i class="icon icon-file-pdf"></i>
-                                        </button>
-                                    }
-                                </div>
-                            }
-
-                            else if ((item.Estado.Equals("EMPACADO") || item.Estado.Equals("PREENVIO") || item.Estado.Equals("ENVIADO") || item.Estado.Equals("ENTREGADO")) && !item.LugarDestino.Equals("Agencia"))
-                            {
-                                //FACTURA PARA OTROS DESTINOS
-
-                                <button onclick="descargarComprobante(@item.DocEntry,'F')"
-                                        class="btn btn-guinda btn-sm btn-descarga-pdf"
-                                        data-toggle="tooltip"
-                                        data-placement="top"
-                                        title="Facturas">
-                                    <i class="icon icon-file-pdf"></i>
-                                </button>
-                                <button onclick="descargarComprobante(@item.DocEntry,'NC')"
-                                        class="btn btn-guinda btn-sm btn-descarga-pdf"
-                                        data-toggle="tooltip"
-                                        data-placement="top"
-                                        title="Nota de crédito">
-                                    <i class="icon icon-file-pdf"></i>
-                                </button>
-                                <button onclick="descargarComprobante(@item.DocEntry,'ND')"
-                                        class="btn btn-guinda btn-sm btn-descarga-pdf"
-                                        data-toggle="tooltip"
-                                        data-placement="top"
-                                        title="Nota de Débito">
-                                    <i class="icon icon-file-pdf"></i>
-                                </button>
-                                <button onclick="descargarComprobante(@item.DocEntry,'G')"
-                                        class="btn btn-guinda btn-sm btn-descarga-pdf"
-                                        data-toggle="tooltip"
-                                        data-placement="top"
-                                        title="Guias">
-                                    <i class="icon icon-file-pdf"></i>
-                                </button>
-                            }
-                        </td>
                         <td class="text-center">
-                            <a href="@Url.Action("SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry,Tipo="F" })" type="button" target="_blank" onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;"
-                               class="btn btn-dark btn-sm"
+                            <a href="@Url.Action("SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry, Tipo = "F" })" type="button" target="_blank" onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;"
+                               class="btn btn-light text-dark btn-sm"
                                data-toggle="tooltip"
                                data-placement="top"
                                title="Seguimiento de ticket">
                                 <i class="icon icon-truck font-15"></i>
                             </a>
                         </td>
+                        <td>
+                            @{
+                                var validStatesAgencia = new List<string> { "PICKEANDO", "VERIFICANDO", "EMPACANDO", "EMPACADO", "PREENVIO", "ENVIADO", "PESADO", "ENTREGADO" };
+                                var validStatesOtrosDestinos = new List<string> { "EMPACADO", "PREENVIO", "ENVIADO", "PESADO", "ENTREGADO" };
+                                if (item.LugarDestino == "Agencia" && validStatesAgencia.Contains(item.Estado))
+                                {
+
+                                    <button type="button" onclick="generarHtmlComprobantes(@item.DocEntry,'@item.Estado','@item.LugarDestino');"
+                                            class="btn btn-light btn-sm text-primary"
+                                            data-placement="top"
+                                            title="Ver Comprobantes"
+                                            data-toggle="modal" data-target="#comprobantesModal">
+                                        <i class="icon icon-folder-download"></i>
+                                    </button>
+
+                                }
+                                else if (!item.LugarDestino.Equals("Agencia") && validStatesOtrosDestinos.Contains(item.Estado))
+                                {
+                                    <button type="button" onclick="generarHtmlComprobantes(@item.DocEntry,'@item.Estado','@item.LugarDestino');"
+                                            class="btn btn-light btn-sm text-primary"
+                                            data-placement="top"
+                                            title="Ver Comprobantes"
+                                            data-toggle="modal" data-target="#comprobantesModal">
+                                        <i class="icon icon-folder-download"></i>
+                                    </button>
+                                }
+                            }
+                        </td>
+
                     </tr>
                 }
             </tbody>
@@ -664,22 +603,27 @@
     </div>
 </form>
 
-<!-- Modal de carga -->
-<div id="loadingModal" class="modal" tabindex="-1" role="dialog" style="display:none;">
-    <div class="modal-dialog" role="document">
+<!-- Modal de documentos contables -->
+<div id="comprobantesModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Cargando...</h5>
+            <div class="modal-header bg-cobefar text-light">
+                <h5 class="modal-title"><strong>Documentos de ticket</strong></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
-            <div class="modal-body">
-                <p>Por favor, espere mientras se carga la información.</p>
+            <div id="modal-body-comprobantes" class="modal-body">
+                <!-- Contenido del modal -->
+                @*<p>Por favor, espere mientras se carga la información.</p>
                 <div class="spinner-border" role="status">
                     <span class="sr-only">Cargando...</span>
-                </div>
+                </div>*@
             </div>
         </div>
     </div>
 </div>
+
 
 <!-- Modal -->
 <div class="modal fade" id="modalReporte" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -734,90 +678,140 @@
 </div>
 <script>
     $(document).ready(function () {
-
         $('[data-toggle="tooltip"]').tooltip();
 
-        if ('@ViewBag.Mensaje' !== "") {
-            Swal.fire('@ViewBag.Mensaje');
+                    if ('@ViewBag.Mensaje' !== "") {
+                        Swal.fire('@ViewBag.Mensaje');
+                    }
+                });
+    function generarHtmlComprobantes(docEntry, estado, lugarDestino) {
+        var html = '';
+
+        // Contenedor general para los botones
+        html += '<div class="btn-group" role="group">';
+
+        // Condiciones para el botón de "Descargar Rotulado"
+        if (lugarDestino === "Agencia" && ["PICKEANDO", "VERIFICANDO", "EMPACANDO", "EMPACADO", "PESADO", "PREENVIO", "ENVIADO"].includes(estado)) {
+            html += '  <button type="button" onclick="pdfRotulo(\'' + encodeURIComponent(docEntry) + '\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Descargar Rotulado">';
+            html += '        <i class="icon icon-file-pdf"><span class="text-dark small"> Rótulo </span>  </i>';
+            html += '    </button>';
+
+            if (estado !== "PICKEANDO") {
+                html += '<button type="button" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'F\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Facturas">';
+                html += '    <i class="icon icon-file-pdf"><span class="text-dark small"> Facturas </span></i>';
+                html += '</button>';
+                html += '<button type="button" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'G\')" class="btn btn-light  text-danger" data-toggle="tooltip" data-placement="top" title="Guías">';
+                html += '    <i class="icon icon-file-pdf"><span class="text-dark small"> Guías </span></i>';
+                html += '</button>';
+                html += '<button type="button" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'NC\')" class="btn btn-light  text-danger" data-toggle="tooltip" data-placement="top" title="Notas de crédito">';
+                html += '    <i class="icon icon-file-pdf"><span class="text-dark small"> Crédito </span></i>';
+                html += '</button>';
+                html += '<button type="button" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'ND\')" class="btn btn-light  text-danger" data-toggle="tooltip" data-placement="top" title="Notas de débito">';
+                html += '    <i class="icon icon-file-pdf"><span class="text-dark small"> Débito </span></i>';
+                html += '</button>';
+            }
         }
-    });
-    function descargarComprobante(DocEntry, Tipo) {
+        else if (["EMPACADO", "PREENVIO", "ENVIADO", "ENTREGADO"].includes(estado) && lugarDestino !== "Agencia") {
+            html += '<button type="button" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'F\')" class="btn btn-light  text-danger" data-toggle="tooltip" data-placement="top" title="Facturas">';
+            html += '    <i class="icon icon-file-pdf"><span class="text-dark small"> Facturas </span></i>';
+            html += '</button>';
+            html += '<button type="button" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'G\')" class="btn btn-light  text-danger" data-toggle="tooltip" data-placement="top" title="Guías">';
+            html += '    <i class="icon icon-file-pdf"><span class="text-dark small"> Guías </span></i>';
+            html += '</button>';
+            html += '<button type="button" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'NC\')" class="btn btn-light  text-danger" data-toggle="tooltip" data-placement="top" title="Notas de crédito">';
+            html += '    <i class="icon icon-file-pdf"><span class="text-dark small"> Crédito </span></i>';
+            html += '</button>';
+            html += '<button type="button" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'ND\')" class="btn btn-light  text-danger" data-toggle="tooltip" data-placement="top" title="Notas de débito">';
+            html += '    <i class="icon icon-file-pdf"><span class="text-dark small"> Débito </span></i>';
+            html += '</button>';
+        }
+
+        html += '</div>';
+
+        document.getElementById('modal-body-comprobantes').innerHTML = html;
+        $('#comprobantesModal').modal('show');
+    }
+
+
+                //Funcion para descargar comprobantes contables
+
+                function descargarComprobante(DocEntry, Tipo) {
         $.ajax({
-            url: '@Url.Action("CrearYObtenerDocumento", "ComprobantesContables")',
+                    url: '@Url.Action("CrearYObtenerDocumento", "ComprobantesContables")',
             type: 'GET',
             data: { DocEntry: DocEntry, Tipo: Tipo },
             success: function (response) {
-                if (response.success) {
-                        var url = $(this).attr('href');
-
-                    window.open(url, '_blank', 'noopener,noreferrer');
-
-                    window.open(response.fileUrl, '_blank', 'noopener,noreferrer');
-                } else {
-                    Swal.fire('Error', response.message, 'error');
-
-                }
-            },
+                            if (response.success) {
+                                window.open(response.fileUrl, '_blank', 'noopener,noreferrer');
+                            } else {
+                                Swal.fire('Error', response.message, 'error');
+                            }
+                        },
             error: function (xhr, status, error) {
-                Swal.fire('Error', 'Ocurrió un error en la solicitud: ' + error, 'error');
-            }
-        });
+                            Swal.fire('Error', 'Ocurrió un error en la solicitud: ' + error, 'error');
+                        }
+                    });
     }
-    // Función para cancelar ticket
-    function cancelarTicket(DocEntry) {
-        const swalWithBootstrapButtons = Swal.mixin({
-            customClass: {
-                confirmButton: 'btn btn-success mx-4',
-                cancelButton: 'btn btn-danger mx-4'
-            },
-            buttonsStyling: false
-        });
 
-        swalWithBootstrapButtons.fire({
-            title: '¿Está seguro(a) de cancelar el ticket?',
+    function pdfRotulo(docEntry) {
+
+        location.href = '/Ventas/PdfRotuladoTicket?DocEntry='+docEntry;
+    }
+                // Función para cancelar ticket
+                function cancelarTicket(DocEntry) {
+                    const swalWithBootstrapButtons = Swal.mixin({
+                    customClass: {
+                        confirmButton: 'btn btn-success mx-4',
+                cancelButton: 'btn btn-danger mx-4'
+                    },
+            buttonsStyling: false
+                    });
+
+                    swalWithBootstrapButtons.fire({
+                    title: '¿Está seguro(a) de cancelar el ticket?',
             text: "Este proceso es irreversible",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: "<i class='icon-checkmark'></i> Si, estoy seguro(a)",
             cancelButtonText: "<i class='icon-cross'></i> Cancelar",
             reverseButtons: true
-        }).then((result) => {
+                    }).then((result) => {
             if (result.isConfirmed) {
                 location.href = `/Ventas/CancelarTicket?DocEntry=${DocEntry}&vista=ListadoTicketsAlmacen`;
             }
         });
-    }
+                }
 
-    // Función para validar filtros de reporte
-    function validarFiltrosReporte() {
-        const fechaTicketDesde = document.getElementById("FechaTicketDesdeEP").value;
-        const fechaTicketHasta = document.getElementById("FechaTicketHastaEP").value;
-        const estado = document.getElementById("EstadoEP").value;
-        const docNumTicket = document.getElementById("DocNumTicketEP").value;
+                // Función para validar filtros de reporte
+                function validarFiltrosReporte() {
+                    const fechaTicketDesde = document.getElementById("FechaTicketDesdeEP").value;
+                    const fechaTicketHasta = document.getElementById("FechaTicketHastaEP").value;
+                    const estado = document.getElementById("EstadoEP").value;
+                    const docNumTicket = document.getElementById("DocNumTicketEP").value;
 
-        // Verificar si se seleccionó un rango de fecha válido
-        if (docNumTicket === '' && (fechaTicketDesde === '' || fechaTicketHasta === '')) {
-            Swal.fire('Por favor seleccione un rango de fecha válido');
-        } else {
-            const params = new URLSearchParams({
+                    // Verificar si se seleccionó un rango de fecha válido
+                    if (docNumTicket === '' && (fechaTicketDesde === '' || fechaTicketHasta === '')) {
+                        Swal.fire('Por favor seleccione un rango de fecha válido');
+                    } else {
+                        const params = new URLSearchParams({
                 FechaTicketDesde: fechaTicketDesde,
                 FechaTicketHasta: fechaTicketHasta,
                 Estado: estado,
                 DocNumTicket: docNumTicket
             }).toString();
 
-            window.open(`/Ventas/ExportarReporteErroresPicking?${params}`, '_blank', 'noopener,noreferrer');
+                window.open(`/Ventas/ExportarReporteErroresPicking?${params}`, '_blank', 'noopener,noreferrer');
         }
     }
 
     // Validar que solo se ingresen números
     $('.cls-numeric').keypress(function (event) {
-        const charCode = event.charCode;
+                    const charCode = event.charCode;
 
-        if ((charCode < 48 || charCode > 57) && charCode !== 13) {
+                    if ((charCode < 48 || charCode > 57) && charCode !== 13) {
             event.preventDefault();
-        }
-    });
+                    }
+                });
 </script>
 
 @*Si el valor request de DescargarPDF es 1, automatiza la descarga*@
