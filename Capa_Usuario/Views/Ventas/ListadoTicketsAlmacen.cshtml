@@ -606,7 +606,7 @@
 
 <!-- Modal de documentos contables -->
 <div id="comprobantesModal" class="modal fade" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header bg-cobefar text-light">
                 <h5 class="modal-title"><strong>Documentos de ticket</strong></h5>
@@ -673,22 +673,7 @@
         </div>
     </div>
 </div>
-<!-- Modal para mostrar mensaje de carga -->
-<div class="modal fade" id="loadingModal" tabindex="-1" role="dialog" aria-labelledby="loadingModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-cobefar">
-                <h5 class="modal-title text-light" id="exampleModalLabel">Aviso</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p>Por favor, espere mientras se carga la información.</p>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 @*Si el valor request de DescargarPDF es 1, automatiza la descarga*@
 @if (Request["DescargarPDF"] == "1")
@@ -766,33 +751,36 @@
         if (btn) {
             btn.disabled = true;
         }
-        $('#loadingModal').modal('show');
+        //$('#loadingModal').modal('show');
+        cargando();
 
-        $.ajax({
-            url: '@Url.Action("CrearYObtenerDocumento", "ComprobantesContables")',
-            type: 'GET',
-            data: { DocEntry: DocEntry, Tipo: Tipo },
-            success: function (response) {
-                if (response.success) {
-                    window.open(response.fileUrl, '_blank', 'noopener,noreferrer');
-                    $('#loadingModal').modal('hide');
-                } else {
-                    Swal.fire('Error', response.message, 'error');
-                    $('#loadingModal').modal('hide');
+            $.ajax({
+                url: '@Url.Action("CrearYObtenerDocumento", "ComprobantesContables")',
+                type: 'GET',
+                data: { DocEntry: DocEntry, Tipo: Tipo },
+                success: function (response) {
+                    if (response.success) {
+                        window.open(response.fileUrl, '_blank', 'noopener,noreferrer');
+                    } else {
+                        Swal.fire('Error', response.message, 'error').then(() => {
+                            //$('#loadingModal').modal('hide');
+                            Swal.close();
+                        });
+                    }
+                },
+                error: function (xhr, status, error) {
+                    Swal.fire('Error', 'Ocurrió un error en la solicitud: ' + error, 'error');
+                },
+                complete: function () {
+                    //$('#loadingModal').modal('hide');
+                    Swal.close();
+                    if (btn) {
+                        btn.disabled = false;
+                    }
                 }
-                if (btn) {
-                    btn.disabled = false;
-                }
-            },
-            error: function (xhr, status, error) {
-                Swal.fire('Error', 'Ocurrió un error en la solicitud: ' + error, 'error');
-                $('#loadingModal').modal('hide');
-                if (btn) {
-                    btn.disabled = false;
-                }
-            }
-        });
+            });
     }
+
 
     function pdfRotulo(docEntry) {
         location.href = '/Ventas/PdfRotuladoTicket?DocEntry=' + docEntry;

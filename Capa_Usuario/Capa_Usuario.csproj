@@ -1154,8 +1154,6 @@
     <Content Include="Views\Shared\DireccionTecnica\ListadoOrdenesVenta_DT.cshtml" />
     <Content Include="Views\Ventas\PDF\PDF_OrdenesDeVentas.cshtml" />
     <Content Include="Views\Rutas\EditarOrdenDeRuta_TA.cshtml" />
-    <Content Include="Views\Ventas\LayoutFacturaBoletaSap.cshtml" />
-    <Content Include="Views\Ventas\LayoutFacturaBoletaSap_header.cshtml" />
     <Content Include="Views\Ventas\ListadoTicketsAlmacen.cshtml" />
     <Content Include="Views\ComprobantesContables\LayoutFactura.cshtml" />
     <Content Include="Views\ComprobantesContables\LayoutFactura_header.cshtml" />
