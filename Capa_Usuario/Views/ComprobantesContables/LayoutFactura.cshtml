@@ -15,9 +15,9 @@
             font-family: 'Verdana', sans-serif;
             font-size: 12px;
         }
-        .page-break {
+       /* .page-break {
             page-break-before: always;
-        }
+        }*/
 
         table {
             border-collapse: collapse;
@@ -28,12 +28,6 @@
         padding: 5px;
         
         }
-        .bordered-table {
-            border-collapse: collapse;
-            width: 100%;
-            border-spacing: 0;
-        }
-
 
     </style>
 
@@ -53,7 +47,7 @@
     </div>
 
     <br />
-    <table style="font-size:12px;text-align:center;border-collapse:collapse;" border="1">
+    <table border="1" style="text-align:center;">
         <tr>
             <td width="250px">VENDEDOR</td>
             <td>COND. PAGO</td>
@@ -149,16 +143,14 @@
         </tr>
     </table>
         <table style="font-size: 11px; page-break-inside: avoid;" border="0">
-
             <tr>
                 <td style="text-align:center;padding:5px;font-size:11px;max-width:300px;">
                     <img src="~/imagenes/index/encabezado/barras.png" width="140" height="45" /><br />
                     Autorizado mediante N° R.S. 300-2014/SUNAT<br />
-                    Representación impresa de la Factura Electrónica. Puede<br />
-                    ser consultada<br />
+                    Representación impresa de la Factura Electrónica. Puede ser consultada<br />
                     en <strong>www.cobefar.com.pe</strong>
-                    <br />
-                    <strong style="font-size:12px">Nota: No aceptamos devoluciones ni reclamos después de la entrega de la mercadería</strong>
+                    <br /><br />
+                    <strong style="font-size:11px">Nota: No aceptamos devoluciones ni reclamos después de la entrega de la mercadería</strong>
 
                 </td>
                 <td style="border-bottom: 2px solid black; border-top: 2px solid black; border-left: 2px solid black; padding: 0px 5px 0px 15px; font-size: 10px; max-width: 180px;">
@@ -222,8 +214,8 @@
                         </tr>
                         <tr>
                             <td style="font-weight:600">Importe Total</td>
-                            <td style="font-weight:600"> S/</td>
-                            <td style="font-weight: 600; text-align: right"> @Math.Round(Cab.TotalFactura(Cab.Sum_Topgratuita(Model.ToList())), 2)</td>
+                            <td style="font-weight:600">S/</td>
+                            <td style="font-weight:600; text-align: right"> @Math.Round(Cab.TotalFactura(Cab.Sum_Topgratuita(Model.ToList())), 2)</td>
                         </tr>
                     </table>
                 </td>

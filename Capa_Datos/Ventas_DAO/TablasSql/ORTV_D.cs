@@ -3068,7 +3068,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             try
             {
                 cn.Open();
-                SqlCommand cmd = new SqlCommand("select DocEntry,DocNum,LugarDestino,MontoTotal,EstadoFacturacion,Estado,Flete,GastoEnvio from vt.ORTV where DocEntry=" + DocEntry, cn);
+                SqlCommand cmd = new SqlCommand("select DocEntry,DocNum,LugarDestino,MontoTotal,EstadoFacturacion,Estado,Flete,GastoEnvio,DescuentoNC from vt.ORTV where DocEntry=" + DocEntry, cn);
                 cmd.CommandType = CommandType.Text;
                 SqlDataReader dr = cmd.ExecuteReader();
                 dr.Read();
@@ -3080,6 +3080,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 if (!dr.IsDBNull(5)) { t.Estado = dr.GetString(5); }
                 if (!dr.IsDBNull(6)) { t.Flete = dr.GetDecimal(6); }
                 if (!dr.IsDBNull(7)) { t.GastoEnvio = dr.GetDecimal(7); }
+                if (!dr.IsDBNull(8)) { t.DescuentoNC = dr.GetDecimal(8); }
 
                 dr.Close();
                 cn.Close();
@@ -3534,7 +3535,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                             ticket.ultimoCCEstado = ccTicket.ListarCC_ORTV(ticket.DocEntry, null, true).FirstOrDefault()?.Operacion;
 
                             //consulta referencia para los estados, acopla los nuevos datos sin perder lo anterior consultado.
-                            //ObtenerReferenciaEstadosTicket(ticket);
+                            ObtenerReferenciaEstadosTicket(ticket);
 
                             /**************************************/
                             if (ticket.hayFinPicking)

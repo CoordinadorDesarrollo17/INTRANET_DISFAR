@@ -2,10 +2,12 @@
 using Capa_Entidad.Almacen_ENT.Tablas;
 using Capa_Entidad.ComprobantesContables_ENT;
 using Capa_Entidad.Rutas_ENT.TablasSql;
+using Capa_Entidad.Ventas_ENT.TablasSql;
 using Sap.Data.Hana;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.IO.Packaging;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -43,10 +45,7 @@ namespace Capa_Datos.ComprobantesContables_ENT
                 }
                 dr.Close();
             }
-            catch
-            {
-                // Manejo de errores
-            }
+            catch {}
             finally
             {
                 cn.Close();
@@ -55,17 +54,17 @@ namespace Capa_Datos.ComprobantesContables_ENT
         }
         private Comprobante_E obtenerGuiaRemisionODLN(string NumAtCard)
         {
-            string query = $"SELECT 'ODLN', \"U_SYP_MDTD\", \"U_SYP_MDSD\", \"U_SYP_MDCD\", TO_CHAR(\"DocDate\", 'YYYY-MM-DD'), TO_CHAR(\"U_BPP_FECINITRA\", 'YYYY-MM-DD'),'G' FROM {uti.schemaHana}ODLN WHERE \"NumAtCard\" ='{NumAtCard}'";
+            string query = $"SELECT 'ODLN', \"U_SYP_MDTD\", \"U_SYP_MDSD\", \"U_SYP_MDCD\", TO_CHAR(\"DocDate\", 'YYYY-MM-DD'), TO_CHAR(\"U_BPP_FECINITRA\", 'YYYY-MM-DD'),'G',null FROM {uti.schemaHana}ODLN WHERE \"NumAtCard\" ='{NumAtCard}'";
             return EjecutarConsultaComprobante(query).FirstOrDefault();
         }
         private Comprobante_E obtenerGuiaRemisionOINV(string NumAtCard)
         {
-            string query = $"SELECT 'OINV', \"U_COB_TIPODOC\", \"U_COB_SERIE\", \"U_COB_CORDOC\", TO_CHAR(\"DocDate\", 'YYYY-MM-DD'), TO_CHAR(\"U_BPP_FECINITRA\", 'YYYY-MM-DD'), 'G' FROM {uti.schemaHana}OINV WHERE \"U_COB_TIPODOC\"||'-'||\"U_COB_SERIE\" ||'-'||\"U_COB_CORDOC\" = '{NumAtCard}'";
+            string query = $"SELECT 'OINV', \"U_COB_TIPODOC\", \"U_COB_SERIE\", \"U_COB_CORDOC\", TO_CHAR(\"DocDate\", 'YYYY-MM-DD'), TO_CHAR(\"U_BPP_FECINITRA\", 'YYYY-MM-DD'), 'G',null FROM {uti.schemaHana}OINV WHERE \"U_COB_TIPODOC\"||'-'||\"U_COB_SERIE\" ||'-'||\"U_COB_CORDOC\" = '{NumAtCard}'";
             return EjecutarConsultaComprobante(query).FirstOrDefault();
         }
         private Comprobante_E obtenerGuiaRemisionOWTR(string NumAtCard)
         {
-            string query = $"SELECT 'OWTR', \"U_SYP_MDTD\", \"U_SYP_MDSD\", \"U_SYP_MDCD\", TO_CHAR(\"DocDate\", 'YYYY-MM-DD'), TO_CHAR(\"U_BPP_FECINITRA\", 'YYYY-MM-DD'),'G' FROM {uti.schemaHana}OWTR WHERE \"U_SYP_MDTD\" || '-' ||\"U_SYP_MDSD\" || '-' || \"U_SYP_MDCD\" = '{NumAtCard}'";
+            string query = $"SELECT 'OWTR', \"U_SYP_MDTD\", \"U_SYP_MDSD\", \"U_SYP_MDCD\", TO_CHAR(\"DocDate\", 'YYYY-MM-DD'), TO_CHAR(\"U_BPP_FECINITRA\", 'YYYY-MM-DD'),'G',null FROM {uti.schemaHana}OWTR WHERE \"U_SYP_MDTD\" || '-' ||\"U_SYP_MDSD\" || '-' || \"U_SYP_MDCD\" = '{NumAtCard}'";
             return EjecutarConsultaComprobante(query).FirstOrDefault();
         }
         //
@@ -147,93 +146,124 @@ namespace Capa_Datos.ComprobantesContables_ENT
             Ventas_DAO.Tablas.ODLN_D odln = new Ventas_DAO.Tablas.ODLN_D();
             OINV_D oinv = new OINV_D();
             SqlConnection cn = new SqlConnection(uti.cadSql);
+
             try
             {
                 cn.Open();
-                SqlCommand cmd = new SqlCommand("select NroSap from vt.rtv2 where DocEntry=" + DocEntry, cn);
+                string query = "SELECT NroSap FROM vt.rtv2 WHERE DocEntry = @DocEntry";
+                SqlCommand cmd = new SqlCommand(query, cn);
+                cmd.Parameters.AddWithValue("@DocEntry", DocEntry);
                 SqlDataReader dr = cmd.ExecuteReader();
+
                 while (dr.Read())
                 {
                     if (!dr.IsDBNull(0))
                     {
-                        guiasTicket += ordrD.guiasTraslado(dr.GetInt32(0));
-
+                        var guiaEncontrada= ordrD.guiasTraslado(dr.GetInt32(0));
+                        if (!string.IsNullOrEmpty(guiaEncontrada) && guiaEncontrada.Trim()!=",") { guiasTicket += guiaEncontrada; }
                     }
                 }
-                //separamos las guias del concatenado y buscamos su detalle
-                List<string> ItemGuias = guiasTicket.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
 
-                foreach (var NumAtCard in ItemGuias)
+                // Separamos las guías del concatenado y buscamos su detalle
+                List<string> itemGuias = guiasTicket.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+
+                foreach (var numAtCard in itemGuias)
                 {
-                    Comprobante_E obj = new Comprobante_E();
-                    obj = obtenerGuiaRemisionODLN(NumAtCard);
-                    if (obj!= null && string.IsNullOrEmpty(obj.U_SYP_MDCD))
+                    Comprobante_E obj = obtenerGuiaRemisionODLN(numAtCard);
+
+                    if (obj != null && string.IsNullOrEmpty(obj.U_SYP_MDCD))
                     {
-                        obj = obtenerGuiaRemisionOINV(NumAtCard);
+                        obj = obtenerGuiaRemisionOINV(numAtCard);
                     }
 
-                    lista.Add(obj);
+                    else if (obj != null)
+                    {
+                        lista.Add(obj);
+                    }
                 }
 
                 dr.Close();
-                cn.Close();
             }
-            catch { cn.Close(); }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+            finally
+            {
+                if (cn.State == System.Data.ConnectionState.Open)
+                {
+                    cn.Close();
+                }
+            }
+
             return lista;
         }
+
+
         public List<Comprobante_E> ObtenerEncabezadoGuiasTransferencia(int DocNum, string WhsCode)
         {
-            List<Comprobante_E> lista = new List<Comprobante_E>();
-            string guias = string.Empty;
+            var lista = new List<Comprobante_E>();
+            var itemGuias = new List<string>();
+
             string query = "SELECT top 10 IFNULL(T0.\"U_SYP_MDTD\" || '-' || T0.\"U_SYP_MDSD\" || '-' || T0.\"U_SYP_MDCD\", '') as \"GUIAS\" " +
                            $"FROM {uti.schemaHana}OWTR T0 WHERE T0.\"CANCELED\" = 'N' AND T0.\"U_SYP_MDTD\" IS NOT NULL AND T0.\"U_SYP_MDSD\" IS NOT NULL " +
                            $"AND T0.\"U_SYP_MDCD\" IS NOT NULL AND T0.\"ToWhsCode\" ='{WhsCode}' AND T0.\"U_COB_LUGAREN\" ='{WhsCode}' " +
                            $"AND T0.\"Comments\" like '%{DocNum}%' ORDER BY T0.\"DocEntry\" desc";
 
-            HanaConnection cn = new HanaConnection(uti.cadHana);
             try
             {
-                cn.Open();
-                HanaCommand cmd = new HanaCommand(query, cn)
+                using (var cn = new HanaConnection(uti.cadHana))
                 {
-                    CommandType = System.Data.CommandType.Text
-                };
-                HanaDataReader dr = cmd.ExecuteReader();
-                while (dr.Read())
-                {
-                    if (!dr.IsDBNull(0)) { guias += dr.GetString(0) + ","; }
+                    cn.Open();
+                    using (var cmd = new HanaCommand(query, cn))
+                    {
+                        cmd.CommandType = System.Data.CommandType.Text;
+
+                        using (var dr = cmd.ExecuteReader())
+                        {
+                            while (dr.Read())
+                            {
+                                if (!dr.IsDBNull(0))
+                                {
+                                    var guia = dr.GetString(0);
+                                    if (!string.IsNullOrEmpty(guia))
+                                    {
+                                        itemGuias.Add(guia);
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
 
-                List<string> ItemGuias = guias.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-                dr.Close();
-
-                foreach (var NumAtCard in ItemGuias)
+               
+                foreach (var numAtCard in itemGuias)
                 {
-                    Comprobante_E obj = obtenerGuiaRemisionOWTR(NumAtCard);
-                    if (!string.IsNullOrEmpty(obj.U_SYP_MDCD)) { lista.Add(obj); }
+                    var obj = obtenerGuiaRemisionOWTR(numAtCard);
+                    if (!string.IsNullOrEmpty(obj.U_SYP_MDCD))
+                    {
+                        lista.Add(obj);
+                    }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // Manejo de errores
             }
-            finally
-            {
-                cn.Close();
-            }
+
             return lista;
         }
+
         public List<Comprobante_E> ObtenerEncabezadoFacturas(int DocEntryOrden)
         {
             // Consulta para buscar en FACTURAS DE VENTA
-            string query1 = "SELECT 'OINV',T0.\"U_SYP_MDTD\",T0.\"U_SYP_MDSD\",T0.\"U_SYP_MDCD\",to_char(T0.\"DocDate\",'YYYY-MM-DD'),to_char(T0.\"U_BPP_FECINITRA\",'YYYY-MM-DD'),'FB',T0.\"DocTotal\"  FROM " + uti.schemaHana + "OINV T0 " +
+            string query1 = "SELECT 'OINV',T0.\"U_SYP_MDTD\",T0.\"U_SYP_MDSD\",T0.\"U_SYP_MDCD\",to_char(T0.\"DocDate\",'YYYY-MM-DD'),to_char(T0.\"U_BPP_FECINITRA\",'YYYY-MM-DD'),'F',T0.\"DocTotal\"  FROM " + uti.schemaHana + "OINV T0 " +
                             " INNER JOIN " + uti.schemaHana + "INV1 T1 ON T1.\"DocEntry\" = T0.\"DocEntry\"" +
                             " INNER JOIN " + uti.schemaHana + "RDR1 T2 ON T2.\"DocEntry\" = T1.\"BaseEntry\" AND T2.\"ObjType\" = T1.\"BaseType\"" +
                             " AND T2.\"LineNum\" = T1.\"BaseLine\" AND T2.\"DocEntry\" =" + DocEntryOrden +
                             " WHERE T0.\"CANCELED\" = 'N' GROUP BY T0.\"U_SYP_MDTD\",T0.\"U_SYP_MDSD\",T0.\"U_SYP_MDCD\",to_char(T0.\"DocDate\",'YYYY-MM-DD'),to_char(T0.\"U_BPP_FECINITRA\",'YYYY-MM-DD'),T0.\"DocTotal\" ";
 
             // Consulta para buscar en ENTREGAS DE VENTA (Caso de Domicilio y agencia)
-            string query2 = " SELECT 'OINV',T4.\"U_SYP_MDTD\",T4.\"U_SYP_MDSD\",T4.\"U_SYP_MDCD\",to_char(T4.\"DocDate\",'YYYY-MM-DD'),to_char(T4.\"U_BPP_FECINITRA\",'YYYY-MM-DD'),'FB',T4.\"DocTotal\"  FROM " + uti.schemaHana + "ODLN T0 " +
+            string query2 = " SELECT 'OINV',T4.\"U_SYP_MDTD\",T4.\"U_SYP_MDSD\",T4.\"U_SYP_MDCD\",to_char(T4.\"DocDate\",'YYYY-MM-DD'),to_char(T4.\"U_BPP_FECINITRA\",'YYYY-MM-DD'),'F',T4.\"DocTotal\"  FROM " + uti.schemaHana + "ODLN T0 " +
                             " INNER JOIN " + uti.schemaHana + "DLN1 T1 ON T1.\"DocEntry\" = T0.\"DocEntry\"" +
                             " INNER JOIN " + uti.schemaHana + "RDR1 T2 ON T2.\"DocEntry\" = T1.\"BaseEntry\" AND T2.\"ObjType\" = T1.\"BaseType\"" +
                             " AND T2.\"LineNum\" = T1.\"BaseLine\" AND T2.\"DocEntry\" = " + DocEntryOrden +
@@ -251,9 +281,28 @@ namespace Capa_Datos.ComprobantesContables_ENT
 
             return lista1;
         }
-        public List<Comprobante_E> ObtenerEncabezadoNotaCredito(int DocNum)
+        public List<Comprobante_E> ObtenerEncabezadoNotaCredito(List<RTV4_E> NotasCredito, string FacturasConcatenadas)
         {
-            string query = "select 'ORIN',\"U_SYP_MDTD\",\"U_SYP_MDSD\",\"U_SYP_MDCD\", TO_CHAR(\"DocDate\",'YYYY-MM-DD'),'NC'  from " + uti.schemaHana + "ORIN where \"DocNum\"=" + DocNum;
+            String AndWhere = string.Empty;
+            List<int> listDocNumNotas = new List<int>();
+            if (NotasCredito != null && NotasCredito.Count() > 0)
+            {
+                foreach (var NotaCredito in NotasCredito)
+                {
+                    listDocNumNotas.Add(NotaCredito.Nc.DocNum);
+                }
+            }
+            string DocNumNotasConcatenadas = string.Join(", ", listDocNumNotas);
+            if (DocNumNotasConcatenadas.Trim().Length > 0)
+            {AndWhere = $" OR \"DocNum\" in ({DocNumNotasConcatenadas}) "; }
+
+            string query = $"SELECT 'ORIN',\"U_SYP_MDTD\",\"U_SYP_MDSD\",\"U_SYP_MDCD\", TO_CHAR(\"DocDate\",'YYYY-MM-DD'),to_char(\"U_BPP_FECINITRA\", 'YYYY-MM-DD'),'NC',\"DocTotal\"  from {uti.schemaHana}ORIN where (\"U_SYP_MDTO\" || '-' || \"U_SYP_MDSO\" || '-' || \"U_SYP_MDCO\") IN ('{FacturasConcatenadas}') {AndWhere}";
+            List<Comprobante_E> lista = EjecutarConsultaComprobante(query);
+            return lista;
+        }
+        public List<Comprobante_E> ObtenerEncabezadoNotaDebito(int DocNum, string FacturasConcatenadas)
+        {
+            string query = $"SELECT 'OINV', \"U_SYP_MDTD\", \"U_SYP_MDSD\", \"U_SYP_MDCD\", to_char(\"DocDate\", 'YYYY-MM-DD'), to_char(\"U_BPP_FECINITRA\", 'YYYY-MM-DD'), 'ND', \"DocTotal\" FROM {uti.schemaHana}OINV WHERE \"U_SYP_MDTD\" = '08' AND (\"U_SYP_MDTO\" || '-' || \"U_SYP_MDSO\" || '-' || \"U_SYP_MDCO\") IN ('{FacturasConcatenadas}')";
             List<Comprobante_E> lista = EjecutarConsultaComprobante(query);
             return lista;
         }

@@ -27,9 +27,9 @@
 }
 
 <script>
-    $(document).ready(function () {
+    //$(document).ready(function () {
 
-    });
+    //});
     function filtrar() {
         var object = $("#frm").serialize();
         $(location).attr('href', "/Ventas/ListadoTicketsDespacho?" + object);
@@ -506,7 +506,7 @@
                         <td>
                             @if (idRolUsuario == 53 || idRolUsuario == 1)
                             {
-                                <a href="#" class="btn btn-naranja btn-sm" title="Imprimir" onclick="registrarImpresion(@item.DocEntry);">
+                                <a href="#" class="btn btn-light btn-sm" title="Imprimir" onclick="registrarImpresion(@item.DocEntry);">
                                     <i class="icon-printer"></i>
                                 </a>
                             }

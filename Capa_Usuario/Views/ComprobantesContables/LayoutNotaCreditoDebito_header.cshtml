@@ -12,68 +12,74 @@
     <title>LayoutNotaCDSap</title>
     <style>
         * {
-            /* font-family: 'Verdana';*/ font-family: 'Arial Unicode MS';
+            font-family: 'Verdana', sans-serif;
+            font-size: 12px;
         }
-
         table {
             border-collapse: collapse;
             width: 100%;
+        }
+
+        th, td {
+            padding: 5px;
         }
      
     </style>
 </head>
 <body>
     <div>
-        <table border="0" width="100%">
+        <table border="0">
             <tr>
-                <td style="font-size: 10px; text-align: center; position: relative;">
+                <td style="font-size: 10px; text-align: left; position: relative;">
                     <img style="float:left" src="~/imagenes/logoventa2.jpg" width="230" height="90" /><br />
-                    www.cobefar.com.pe
+                    www.cobefar.com.pe<br /><br />
+                    <strong>N° TICKET:</strong> @ViewBag.DocNumTicket
+                    <!-- Imagen superpuesta en la esquina superior derecha -->
                     <img src="~/imagenes/index/encabezado/bpa.jpg" width="55" height="50" style="position: absolute; top: 5px; right: 0;" />
                 </td>
                 <td style="text-align:left;font-size:10px; max-width:300px;">
-                    <strong>Dom. Fiscal:</strong> Cal.Carlos Pedemonte Nro. 145B <br />Int. 2pis
-                    Urb. Lotización Ex Fundo El Pino<br /> Lima - Lima - San Luis<br />
-                    <strong>Almacén:</strong> Av. Nicolás Arriola N°2955-2963, 2do. <br />Piso
+                    <strong>Dom. Fiscal:</strong> Cal.Carlos Pedemonte Nro. 145B Int. 2pis <br />
+                    Urb. Lotización Ex Fundo El Pino  Lima - Lima - San Luis<br />
+                    <strong>Almacén:</strong> Av. Nicolás Arriola N°2955-2963, 2do. Piso <br />
                     Urb. Mercurio - San Luis - Lima - Lima<br />
-                    <strong>Almacén:</strong> Jr. Antonio Miroquezada N° 806 Int. <br />303
-                    Lima - Lima - Lima<br />
-                    <strong>Almacén:</strong> Jr. Antonio Miroquezada N° 806 Int. <br />502
+                    <strong>Almacén:</strong> Jr. Antonio Miroquezada N° 806 Int. 303<br />
                     Lima - Lima - Lima<br />
                     <strong>Teléfono:</strong> 428-1248<br />
                     <strong>Email:</strong> cobefar.ventas@gmail.com
                 </td>
-                <td style="font-size: 18px !important; text-align: center;">
-                    <div style="border: 2px solid green; vertical-align: top; padding: 5px; border-radius: 15px;">
-                        <div style="height:10px;"></div>
-                        R.U.C. 20600546041
-                        <div style="height:25px;"></div>
+                <td>
+                    <div style="border: 2px solid green; vertical-align: top; padding: 5px; border-radius: 15px; font-size: 20px !important; text-align: center;">
+                        <div style="margin: 10px 0;"></div>
+                        <div style="font-size: 20px !important; text-align: center;">R.U.C. 20600546041</div>
+                        <div style="margin: 25px 0;"></div>
                         @if (ViewBag.Tipo == "NC")
                         {
-                            <strong style="font-size:20px">NOTA DE CRÉDITO<br />ELECTRÓNICA</strong>
+                            <strong style="font-size: 20px !important; text-align: center;">NOTA DE CRÉDITO<br />ELECTRÓNICA</strong>
                         }
                         else if (ViewBag.Tipo == "ND")
                         {
-                            <strong style="font-size:20px">NOTA DE DÉBITO<br />ELECTRÓNICA</strong>
+                            <strong style="font-size: 20px !important; text-align: center;">NOTA DE DÉBITO<br />ELECTRÓNICA</strong>
                         }
-                        <div style="height:25px;"></div>N° @Cab.SerieDoc-@Cab.CorreDoc<div style="height:10px;"></div>
+                        <div style="margin: 25px 0;"></div>
+                        <div style="font-size: 20px !important; text-align: center;">N° @Cab.SerieDoc-@Cab.CorreDoc</div>
+                        <div style="margin: 10px 0;"></div>
                     </div>
                 </td>
             </tr>
         </table>
-        <div style="width: 67%; display: inline-block; border: 2px solid green; vertical-align: top; padding: 5px; border-radius: 15px;margin-bottom:15px">
-            <table style="font-size:12px;text-align:left" border="0">
+        <div style="width:65%; display: inline-block; border: 2px solid green; vertical-align: top; padding: 5px; border-radius: 15px;margin-bottom:15px">
+            <table style="text-align:left" border="0">
                 <tr>
-                    <td><strong>Cliente: </strong></td>
+                    <td>Cliente:</td>
                     <td><text>@Cab.NombreSocio</text></td>
                 </tr>
                 <tr>
-                    <td><strong>Dirección:</strong> </td>
+                    <td>Dirección:</td>
                     <td colspan="3" width="400px">@Cab.DirPagar</td>
 
                 </tr>
                 <tr>
-                    <td><strong>R.U.C.: </strong></td>
+                    <td>R.U.C.:</td>
                     <td colspan="3">@Cab.Ruc</td>
 
                 </tr>
@@ -81,13 +87,11 @@
 
             </table>
         </div>
-        <div style="width: 27%; display: inline-block; text-align:left;font-size:12px;margin-left:3%">
+        <div style="width:30%; display: inline-block; text-align:left;">
             <br />
             <table>
-                <tr>
-                    <td><strong>FECHA DE EMISIÓN:</strong> @Cab.DocDate</td>
-                </tr>
-                <tr><td><strong>MONEDA :</strong> @Cab.MonedaLetras</td>   </tr>
+                <tr><td>FECHA DE EMISIÓN: @Cab.DocDate</td></tr>
+                <tr><td>MONEDA:@Cab.MonedaLetras</td>   </tr>
             </table>
         </div>
     </div>

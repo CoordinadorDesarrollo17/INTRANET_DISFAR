@@ -261,14 +261,15 @@ a {
     background-color: #26653D;
     color: white;
 }
+.text-naranja, .text-naranja:hover {
+    color: orangered;
+}
 
-.btn-orange, .btn-naranja{
+.btn-orange{
     background-color: orangered;
     color: white;
 }
-.btn-naranja:hover {
-    color: darkblue;
-}
+
 .btn-blue, .btn-blue:hover {
     background-color: darkblue;
     color: white;

@@ -81,13 +81,22 @@ namespace Capa_Usuario.Controllers
                     }
                     break;
                 case "NC":
-                    foreach (var NotaCredito in obj.Det4)
+                    List<Comprobante_E> Facturas = new List<Comprobante_E>();
+                    foreach (var docEntryOrden in listDocEntrySap)
                     {
-                        documentos.AddRange(compN.ObtenerEncabezadoNotaCredito(NotaCredito.Nc.DocNum));
+                        Facturas = compN.ObtenerEncabezadoFacturas(docEntryOrden);
                     }
+                    string FacturasConcatenadas = string.Join(", ", Facturas.Select(x => $"{x.U_SYP_MDTD}-{x.U_SYP_MDSD}-{x.U_SYP_MDCD}"));
+                    documentos.AddRange(compN.ObtenerEncabezadoNotaCredito(obj.Det4, FacturasConcatenadas));
                     break;
                 case "ND":
-                   
+                    List<Comprobante_E> FacturasParaNotaDébito = new List<Comprobante_E>();
+                    foreach (var docEntryOrden in listDocEntrySap)
+                    {
+                        Facturas = compN.ObtenerEncabezadoFacturas(docEntryOrden);
+                    }
+                    string FacturasConcatenadasParaNotaDébito = string.Join(", ", FacturasParaNotaDébito.Select(x => $"{x.U_SYP_MDTD}-{x.U_SYP_MDSD}-{x.U_SYP_MDCD}"));
+                    documentos.AddRange(compN.ObtenerEncabezadoNotaDebito(obj.DocNum, FacturasConcatenadasParaNotaDébito));
                     break;
             }
 
@@ -105,10 +114,9 @@ namespace Capa_Usuario.Controllers
             ORTV_N ortvN = new ORTV_N();
             OINV_N oinvN = new OINV_N();
 
-
             ORTV_E ortvE = ortvN.ObtenerDatosTicketParaDocumentos(DocEntry);
 
-            if (ortvE.Estado.Equals("ANULADO") || ortvE.Estado.Equals("CANCELADO") )
+            if (ortvE.Estado.Equals("ANULADO") || ortvE.Estado.Equals("CANCELADO"))
             {
                 return Json(new { success = false, message = "Ticket en un estado no valido para la descarga de documentos" }, JsonRequestBehavior.AllowGet);
             }
@@ -116,43 +124,42 @@ namespace Capa_Usuario.Controllers
             {
                 return Json(new { success = false, message = "No se encontraron órdenes SAP, revise el estado del ticket." }, JsonRequestBehavior.AllowGet);
             }
-            else if ((ortvE.Det4 == null || ortvE.Det4.Count == 0  ||ortvE.DescuentoNC == 0) && Tipo.Equals("NC"))
-            {
-                return Json(new { success = false, message = "No existen notas de crédito." }, JsonRequestBehavior.AllowGet);
-            } 
-
+            //else if ((ortvE.Det4 == null || ortvE.Det4.Count == 0 || ortvE.DescuentoNC == 0) && Tipo.Equals("NC"))
+            //{
+            //    return Json(new { success = false, message = "No existen notas de crédito." }, JsonRequestBehavior.AllowGet);
+            //}
+            //else if (ortvE.Flete == 0 && ortvE.GastoEnvio == 0  && Tipo.Equals("ND"))
+            //{
+            //    return Json(new { success = false, message = "No existen notas de débito." }, JsonRequestBehavior.AllowGet);
+            //}
             string fileUrl = string.Empty; string fileName = string.Empty;
             List<int> listDocEntryOrdenesVenta = ObtenerDocEntryOV(ortvE.Det2);
             List<Comprobante_E> documentos = new List<Comprobante_E>();
             documentos = ObtenerEncabezados(listDocEntryOrdenesVenta, ortvE, Tipo);
-            if (documentos != null)
+            if (documentos != null && documentos.Count>0)
             {
                 switch (Tipo)
                 {
                 case "F":
                     fileName = $"Facturas_{ortvE.DocNum}.pdf";
-                    decimal MontoFinalFacturas = documentos.Sum(f => f.DocTotal);
-                    if (ortvE.MontoTotal != MontoFinalFacturas)
-                    { return Json(new { success = false, message = "Los montos de facturas no coinciden con lo emitido." }, JsonRequestBehavior.AllowGet);}
+                        decimal MontoFinalFacturas = documentos.Sum(f => f.DocTotal);
+                        if (ortvE.MontoTotal != MontoFinalFacturas)
+                        { return Json(new { success = false, message = "Los montos de facturas no coinciden con lo emitido." }, JsonRequestBehavior.AllowGet);}
                     break;
                 case "ND":
                     fileName = $"NotasDebito_{ortvE.DocNum}.pdf";
-                        decimal MontoFinalNotasDebito = documentos.Sum(f => f.DocTotal);
-                        if (ortvE.Flete + ortvE.GastoEnvio != MontoFinalNotasDebito)
-                        { return Json(new { success = false, message = "Los montos de notas débito no coinciden con lo emitido." }, JsonRequestBehavior.AllowGet); }
-                        break;
+                    break;
                 case "NC":
                     fileName = $"NotasCredito_{ortvE.DocNum}.pdf";
-                    decimal MontoFinalNotasCredito = documentos.Sum(f => f.DocTotal);
-                    if (ortvE.DescuentoNC != MontoFinalNotasCredito)
-                    { return Json(new { success = false, message = "Los montos de notas crédito no coinciden con lo emitido." }, JsonRequestBehavior.AllowGet); }
+                        decimal MontoFinalNotasCredito = documentos.Sum(f => f.DocTotal);
+                        if (ortvE.DescuentoNC > MontoFinalNotasCredito)
+                        { return Json(new { success = false, message = "Los montos de notas crédito no superan lo emitido." }, JsonRequestBehavior.AllowGet); }
                      break;
                 case "G":
                     fileName = $"Guias_{ortvE.DocNum}.pdf";
                     break;
                 default:
                     return Json(new { success = false, message = "Tipo del documento no reconocido." }, JsonRequestBehavior.AllowGet);
-
                 }
            
                 GeneracionDocumentoPDF(documentos, ortvE.DocNum, Tipo, fileName); 
@@ -160,7 +167,7 @@ namespace Capa_Usuario.Controllers
                 fileUrl = Url.Action("DocumentoElectronico", "ComprobantesContables", new { fileName = fileName }, Request.Url.Scheme);
                 return Json(new { success = true, fileUrl = fileUrl }, JsonRequestBehavior.AllowGet);
             }
-            else { return Json(new { success = true, message = "Los documentos no fueron encontrados." }, JsonRequestBehavior.AllowGet); }
+            else { return Json(new { success = false, message = "No hay documentos encontrados." }, JsonRequestBehavior.AllowGet); }
             
 
         }
@@ -237,7 +244,7 @@ namespace Capa_Usuario.Controllers
                         PageOrientation = Rotativa.Options.Orientation.Portrait,
                         CustomSwitches = "--header-html " + _headerUrlNotaCredito + " --header-spacing 0 ",
                         PageSize = Rotativa.Options.Size.A4,
-                        PageMargins = new Rotativa.Options.Margins(80, 10, 20, 10)
+                        PageMargins = new Rotativa.Options.Margins(65, 10, 20, 10)
                     };
                     break;
                 case "G":
@@ -253,7 +260,7 @@ namespace Capa_Usuario.Controllers
                         PageOrientation = Rotativa.Options.Orientation.Portrait,
                         CustomSwitches = "--header-html " + _headerUrlGuia + " --header-spacing 0 ",
                         PageSize = Rotativa.Options.Size.A4,
-                        PageMargins = new Rotativa.Options.Margins(75, 10, 20, 10)
+                        PageMargins = new Rotativa.Options.Margins(70, 10, 20, 10)
                     };
 
                     break;

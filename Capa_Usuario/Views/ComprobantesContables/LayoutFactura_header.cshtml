@@ -15,6 +15,7 @@
     <style>
         * {
             font-family: 'Verdana', sans-serif;
+            font-size: 12px;
         }
         table {
             width: 100%;
@@ -28,7 +29,7 @@
     </style>
 
 </head>
-<body style="margin-top: 0;">
+<body>
     <div>
         <table border="0">
             <tr>
@@ -46,32 +47,33 @@
                     Urb. Mercurio - San Luis - Lima - Lima<br />
                     <strong>Almacén:</strong> Jr. Antonio Miroquezada N° 806 Int. 303<br />
                     Lima - Lima - Lima<br />
-                    <strong>Almacén:</strong> Jr. Antonio Miroquezada N° 806 Int. 502<br />
-                    Lima - Lima - Lima<br />
+                    @*<strong>Almacén:</strong> Jr. Antonio Miroquezada N° 806 Int. 502<br />
+                    Lima - Lima - Lima<br />*@
                     <strong>Teléfono:</strong> 428-1248<br />
                     <strong>Email:</strong> cobefar.ventas@gmail.com
                 </td>
-                <td style="font-size:20px !important;text-align:center;">
-                    <div style="border: 2px solid green; vertical-align: top; padding: 5px; border-radius: 15px;">
-                        <div style="height:10px;"></div>
-                        R.U.C. 20600546041
-                        <div style="height:25px;"></div>
+                <td>
+                    <div style="border: 2px solid green; vertical-align: top; padding: 5px; border-radius: 15px;font-size: 20px !important; text-align: center;">
+                        <div style="margin: 10px 0;"></div>
+                        <div style="font-size: 20px !important; text-align: center;">R.U.C. 20600546041</div>
+                        <div style="margin: 25px 0;"></div>
                         @if (ViewBag.Tipo == "F")
                         {
-                            <strong style="font-size:20px;">FACTURA ELECTRÓNICA</strong>
+                            <strong style="font-size: 20px !important; text-align: center;">FACTURA ELECTRÓNICA</strong>
                         }
                         else
                         {
-                            <strong style="font-size:20px">BOLETA ELECTRÓNICA</strong>
+                            <strong style="font-size: 20px !important; text-align: center;">BOLETA ELECTRÓNICA</strong>
                         }
-                        <div style="height:25px;"></div>
-                        N° @Cab.SerieDoc-@Cab.CorreDoc<div style="height:10px;"></div>
+                        <div style="margin: 25px 0;"></div>
+                        <div style="font-size: 20px !important; text-align: center;">N° @Cab.SerieDoc-@Cab.CorreDoc</div>
+                        <div style="margin: 10px 0;"></div>
                     </div>
                 </td>
             </tr>
         </table>
         <div style="width: 65%; display: inline-block; border: 2px solid green; vertical-align: top; padding: 5px; border-radius: 15px;margin-bottom:15px">
-            <table style="font-size:12px;text-align:left" border="0">
+            <table style="text-align:left" border="0">
                 <tr>
                     <td>Cliente:</td>
                     <td><text>@Cab.NombreSocio</text></td>
@@ -93,7 +95,7 @@
 
             </table>
         </div>
-        <div style="width: 30%; display: inline-block; text-align:left;font-size:12px">
+        <div style="width: 30%; display: inline-block; text-align:left;">
             <br />
             <table>
                 <tr><td>FECHA DE EMISIÓN: @Convert.ToDateTime(Cab.Fecha).ToLongDateString()</td></tr>

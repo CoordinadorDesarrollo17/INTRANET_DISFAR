@@ -429,33 +429,7 @@ namespace Capa_Datos.Ventas_DAO.Tablas
             }
             return lista;
         }
-        
-       
-        public List<TEMP_RRU01_E> NotasDebitoSap(string FBConcatenadas)
-        {
-            List<TEMP_RRU01_E> lista = new List<TEMP_RRU01_E>();
-            string query = $"SELECT 'OINV', T0.\"U_SYP_MDTD\", T0.\"U_SYP_MDSD\", T0.\"U_SYP_MDCD\", to_char(T0.\"DocDate\", 'YYYY-MM-DD'), to_char(T0.\"U_BPP_FECINITRA\", 'YYYY-MM-DD'), 'ND' FROM {uti.schemaHana}OINV T0 WHERE T0.\"U_SYP_MDTD\" = '08' AND (T0.\"U_SYP_MDTO\" || '-' || T0.\"U_SYP_MDSO\" || '-' || T0.\"U_SYP_MDCO\") IN ('{FBConcatenadas}') ";
-            try
-            {
-                HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
 
-                while (hdr.Read())
-                {
-                    TEMP_RRU01_E obj = new TEMP_RRU01_E();
-                    if (!hdr.IsDBNull(0)) { obj.TablaSAP = hdr.GetString(0); }
-                    if (!hdr.IsDBNull(1)) { obj.U_SYP_MDTD = hdr.GetString(1); }
-                    if (!hdr.IsDBNull(2)) { obj.U_SYP_MDSD = hdr.GetString(2); }
-                    if (!hdr.IsDBNull(3)) { obj.U_SYP_MDCD = hdr.GetString(3); }
-                    if (!hdr.IsDBNull(4)) { obj.DocDate = hdr.GetString(4); }
-                    if (!hdr.IsDBNull(5)) { obj.U_BPP_FECINITRA = hdr.GetString(5); }
-                    if (!hdr.IsDBNull(6)) { obj.Identificador = hdr.GetString(6); }
-                    lista.Add(obj);
-                }
-                hdr.Close();
-            }
-            catch { }
-            return lista;
-        }
         public string CalcularPdfsActaDespachoOINV(string Fecha, string U_SYP_STATUS, string U_COB_LUGAREN, string TipoComprobante)
         {
             string doc = string.Empty; int total = 0;
