@@ -572,7 +572,7 @@
                             @{
                                 var validStatesAgencia = new List<string> { "PICKEANDO", "VERIFICANDO", "EMPACANDO", "EMPACADO", "PREENVIO", "ENVIADO", "PESADO", "ENTREGADO" };
                                 var validStatesOtrosDestinos = new List<string> { "EMPACADO", "PREENVIO", "ENVIADO", "PESADO", "ENTREGADO" };
-                                if (item.LugarDestino == "Agencia" && validStatesAgencia.Contains(item.Estado))
+                                if (item.LugarDestino!= null && item.LugarDestino == "Agencia" && validStatesAgencia.Contains(item.Estado))
                                 {
 
                                     <button type="button" onclick="generarHtmlComprobantes(@item.DocEntry,'@item.Estado','@item.LugarDestino');"
@@ -584,7 +584,7 @@
                                     </button>
 
                                 }
-                                else if (!item.LugarDestino.Equals("Agencia") && validStatesOtrosDestinos.Contains(item.Estado))
+                                else if (item.LugarDestino != null&&!item.LugarDestino.Equals("Agencia") && validStatesOtrosDestinos.Contains(item.Estado))
                                 {
                                     <button type="button" onclick="generarHtmlComprobantes(@item.DocEntry,'@item.Estado','@item.LugarDestino');"
                                             class="btn btn-light btn-sm text-primary"
