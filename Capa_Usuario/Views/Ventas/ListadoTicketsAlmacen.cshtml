@@ -14,6 +14,7 @@
         background-color: #d5f5e3;
         cursor: pointer;
     }
+
     i {
         font-size: 20px;
     }
@@ -32,9 +33,10 @@
     .btn-group {
         display: flex;
         flex-wrap: wrap;
-        gap: 10px; 
-        justify-content: center; 
+        gap: 10px;
+        justify-content: center;
     }
+
     .modal-body {
         display: flex;
         flex-direction: column;
@@ -244,7 +246,7 @@
                             @Html.DisplayFor(modelItem => item.CardName)
                         </td>
                         <td class="text-center">
-                            S/ @Html.DisplayFor(modelItem => item.MontoTotal)
+                            @Html.DisplayFor(modelItem => item.MontoTotal)
                         </td>
                         <td class="text-center">
                             @Html.DisplayFor(modelItem => item.Estado)
@@ -314,7 +316,6 @@
                                        title="Inicio Picking">
                                         <i class="icon icon-play2"></i>
                                     </a>
-
                                 }
 
                             </td>
@@ -559,7 +560,7 @@
                             }
                         </td>
                         <td class="text-center">
-                            <a href="@Url.Action("SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry, Tipo = "F" })" type="button" target="_blank" onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;"
+                            <a href="@Url.Action("SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry})" type="button" target="_blank" onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;"
                                class="btn btn-light text-dark btn-sm"
                                data-toggle="tooltip"
                                data-placement="top"
@@ -614,11 +615,7 @@
                 </button>
             </div>
             <div id="modal-body-comprobantes" class="modal-body">
-                <!-- Contenido del modal -->
-                @*<p>Por favor, espere mientras se carga la información.</p>
-                <div class="spinner-border" role="status">
-                    <span class="sr-only">Cargando...</span>
-                </div>*@
+                @*Contenido de modal llega desde function js*@
             </div>
         </div>
     </div>
@@ -676,143 +673,22 @@
         </div>
     </div>
 </div>
-<script>
-    $(document).ready(function () {
-        $('[data-toggle="tooltip"]').tooltip();
-
-                    if ('@ViewBag.Mensaje' !== "") {
-                        Swal.fire('@ViewBag.Mensaje');
-                    }
-                });
-    function generarHtmlComprobantes(docEntry, estado, lugarDestino) {
-        var html = '';
-
-        // Contenedor general para los botones
-        html += '<div class="btn-group" role="group">';
-
-        // Condiciones para el botón de "Descargar Rotulado"
-        if (lugarDestino === "Agencia" && ["PICKEANDO", "VERIFICANDO", "EMPACANDO", "EMPACADO", "PESADO", "PREENVIO", "ENVIADO"].includes(estado)) {
-            html += '  <button type="button" onclick="pdfRotulo(\'' + encodeURIComponent(docEntry) + '\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Descargar Rotulado">';
-            html += '        <i class="icon icon-file-pdf"><span class="text-dark small"> Rótulo </span>  </i>';
-            html += '    </button>';
-
-            if (estado !== "PICKEANDO") {
-                html += '<button type="button" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'F\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Facturas">';
-                html += '    <i class="icon icon-file-pdf"><span class="text-dark small"> Facturas </span></i>';
-                html += '</button>';
-                html += '<button type="button" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'G\')" class="btn btn-light  text-danger" data-toggle="tooltip" data-placement="top" title="Guías">';
-                html += '    <i class="icon icon-file-pdf"><span class="text-dark small"> Guías </span></i>';
-                html += '</button>';
-                html += '<button type="button" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'NC\')" class="btn btn-light  text-danger" data-toggle="tooltip" data-placement="top" title="Notas de crédito">';
-                html += '    <i class="icon icon-file-pdf"><span class="text-dark small"> Crédito </span></i>';
-                html += '</button>';
-                html += '<button type="button" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'ND\')" class="btn btn-light  text-danger" data-toggle="tooltip" data-placement="top" title="Notas de débito">';
-                html += '    <i class="icon icon-file-pdf"><span class="text-dark small"> Débito </span></i>';
-                html += '</button>';
-            }
-        }
-        else if (["EMPACADO", "PREENVIO", "ENVIADO", "ENTREGADO"].includes(estado) && lugarDestino !== "Agencia") {
-            html += '<button type="button" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'F\')" class="btn btn-light  text-danger" data-toggle="tooltip" data-placement="top" title="Facturas">';
-            html += '    <i class="icon icon-file-pdf"><span class="text-dark small"> Facturas </span></i>';
-            html += '</button>';
-            html += '<button type="button" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'G\')" class="btn btn-light  text-danger" data-toggle="tooltip" data-placement="top" title="Guías">';
-            html += '    <i class="icon icon-file-pdf"><span class="text-dark small"> Guías </span></i>';
-            html += '</button>';
-            html += '<button type="button" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'NC\')" class="btn btn-light  text-danger" data-toggle="tooltip" data-placement="top" title="Notas de crédito">';
-            html += '    <i class="icon icon-file-pdf"><span class="text-dark small"> Crédito </span></i>';
-            html += '</button>';
-            html += '<button type="button" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'ND\')" class="btn btn-light  text-danger" data-toggle="tooltip" data-placement="top" title="Notas de débito">';
-            html += '    <i class="icon icon-file-pdf"><span class="text-dark small"> Débito </span></i>';
-            html += '</button>';
-        }
-
-        html += '</div>';
-
-        document.getElementById('modal-body-comprobantes').innerHTML = html;
-        $('#comprobantesModal').modal('show');
-    }
-
-
-                //Funcion para descargar comprobantes contables
-
-                function descargarComprobante(DocEntry, Tipo) {
-        $.ajax({
-                    url: '@Url.Action("CrearYObtenerDocumento", "ComprobantesContables")',
-            type: 'GET',
-            data: { DocEntry: DocEntry, Tipo: Tipo },
-            success: function (response) {
-                            if (response.success) {
-                                window.open(response.fileUrl, '_blank', 'noopener,noreferrer');
-                            } else {
-                                Swal.fire('Error', response.message, 'error');
-                            }
-                        },
-            error: function (xhr, status, error) {
-                            Swal.fire('Error', 'Ocurrió un error en la solicitud: ' + error, 'error');
-                        }
-                    });
-    }
-
-    function pdfRotulo(docEntry) {
-
-        location.href = '/Ventas/PdfRotuladoTicket?DocEntry='+docEntry;
-    }
-                // Función para cancelar ticket
-                function cancelarTicket(DocEntry) {
-                    const swalWithBootstrapButtons = Swal.mixin({
-                    customClass: {
-                        confirmButton: 'btn btn-success mx-4',
-                cancelButton: 'btn btn-danger mx-4'
-                    },
-            buttonsStyling: false
-                    });
-
-                    swalWithBootstrapButtons.fire({
-                    title: '¿Está seguro(a) de cancelar el ticket?',
-            text: "Este proceso es irreversible",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: "<i class='icon-checkmark'></i> Si, estoy seguro(a)",
-            cancelButtonText: "<i class='icon-cross'></i> Cancelar",
-            reverseButtons: true
-                    }).then((result) => {
-            if (result.isConfirmed) {
-                location.href = `/Ventas/CancelarTicket?DocEntry=${DocEntry}&vista=ListadoTicketsAlmacen`;
-            }
-        });
-                }
-
-                // Función para validar filtros de reporte
-                function validarFiltrosReporte() {
-                    const fechaTicketDesde = document.getElementById("FechaTicketDesdeEP").value;
-                    const fechaTicketHasta = document.getElementById("FechaTicketHastaEP").value;
-                    const estado = document.getElementById("EstadoEP").value;
-                    const docNumTicket = document.getElementById("DocNumTicketEP").value;
-
-                    // Verificar si se seleccionó un rango de fecha válido
-                    if (docNumTicket === '' && (fechaTicketDesde === '' || fechaTicketHasta === '')) {
-                        Swal.fire('Por favor seleccione un rango de fecha válido');
-                    } else {
-                        const params = new URLSearchParams({
-                FechaTicketDesde: fechaTicketDesde,
-                FechaTicketHasta: fechaTicketHasta,
-                Estado: estado,
-                DocNumTicket: docNumTicket
-            }).toString();
-
-                window.open(`/Ventas/ExportarReporteErroresPicking?${params}`, '_blank', 'noopener,noreferrer');
-        }
-    }
-
-    // Validar que solo se ingresen números
-    $('.cls-numeric').keypress(function (event) {
-                    const charCode = event.charCode;
-
-                    if ((charCode < 48 || charCode > 57) && charCode !== 13) {
-            event.preventDefault();
-                    }
-                });
-</script>
+<!-- Modal para mostrar mensaje de carga -->
+<div class="modal fade" id="loadingModal" tabindex="-1" role="dialog" aria-labelledby="loadingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-cobefar">
+                <h5 class="modal-title text-light" id="exampleModalLabel">Aviso</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Por favor, espere mientras se carga la información.</p>
+            </div>
+        </div>
+    </div>
+</div>
 
 @*Si el valor request de DescargarPDF es 1, automatiza la descarga*@
 @if (Request["DescargarPDF"] == "1")
@@ -829,3 +705,153 @@
     </script>
 
 }
+
+<script>
+    $(document).ready(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+
+        if ('@ViewBag.Mensaje' !== "") {
+            Swal.fire('@ViewBag.Mensaje');
+        }
+    });
+
+    function generarHtmlComprobantes(docEntry, estado, lugarDestino) {
+        var html = '<div class="btn-group" role="group">';
+
+        // Condiciones para el botón de "Descargar Rotulado"
+        if (lugarDestino === "Agencia" && ["PICKEANDO", "VERIFICANDO", "EMPACANDO", "EMPACADO", "PESADO", "PREENVIO", "ENVIADO", "ENTREGADO"].includes(estado)) {
+            html += '<button type="button" onclick="pdfRotulo(\'' + encodeURIComponent(docEntry) + '\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Descargar Rotulado">';
+            html += '<i class="icon icon-file-pdf"><span class="text-dark small"> Rótulo </span></i>';
+            html += '</button>';
+
+            if (estado !== "PICKEANDO") {
+                html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="F" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'F\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Facturas">';
+                html += '<i class="icon icon-file-pdf"><span class="text-dark small"> Facturas </span></i>';
+                html += '</button>';
+                html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="G" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'G\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Guías">';
+                html += '<i class="icon icon-file-pdf"><span class="text-dark small"> Guías </span></i>';
+                html += '</button>';
+                html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="NC" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'NC\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Notas de crédito">';
+                html += '<i class="icon icon-file-pdf"><span class="text-dark small"> Crédito </span></i>';
+                html += '</button>';
+                html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="ND" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'ND\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Notas de débito">';
+                html += '<i class="icon icon-file-pdf"><span class="text-dark small"> Débito </span></i>';
+                html += '</button>';
+            }
+        } else if (["EMPACADO", "PREENVIO", "ENVIADO", "ENTREGADO"].includes(estado) && lugarDestino !== "Agencia") {
+            html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="F" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'F\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Facturas">';
+            html += '<i class="icon icon-file-pdf"><span class="text-dark small"> Facturas </span></i>';
+            html += '</button>';
+            html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="G" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'G\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Guías">';
+            html += '<i class="icon icon-file-pdf"><span class="text-dark small"> Guías </span></i>';
+            html += '</button>';
+            html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="NC" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'NC\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Notas de crédito">';
+            html += '<i class="icon icon-file-pdf"><span class="text-dark small"> Crédito </span></i>';
+            html += '</button>';
+            html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="ND" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'ND\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Notas de débito">';
+            html += '<i class="icon icon-file-pdf"><span class="text-dark small"> Débito </span></i>';
+            html += '</button>';
+        }
+
+
+        html += '</div>';
+
+        document.getElementById('modal-body-comprobantes').innerHTML = html;
+        $('#comprobantesModal').modal('show');
+    }
+
+    // Función para descargar comprobantes contables
+    function descargarComprobante(DocEntry, Tipo) {
+        const btn = document.querySelector(`[data-docentry="${DocEntry}"][data-tipo="${Tipo}"]`);
+        if (btn) {
+            btn.disabled = true;
+        }
+        $('#loadingModal').modal('show');
+
+        $.ajax({
+            url: '@Url.Action("CrearYObtenerDocumento", "ComprobantesContables")',
+            type: 'GET',
+            data: { DocEntry: DocEntry, Tipo: Tipo },
+            success: function (response) {
+                if (response.success) {
+                    window.open(response.fileUrl, '_blank', 'noopener,noreferrer');
+                    $('#loadingModal').modal('hide');
+                } else {
+                    Swal.fire('Error', response.message, 'error');
+                    $('#loadingModal').modal('hide');
+                }
+                if (btn) {
+                    btn.disabled = false;
+                }
+            },
+            error: function (xhr, status, error) {
+                Swal.fire('Error', 'Ocurrió un error en la solicitud: ' + error, 'error');
+                $('#loadingModal').modal('hide');
+                if (btn) {
+                    btn.disabled = false;
+                }
+            }
+        });
+    }
+
+    function pdfRotulo(docEntry) {
+        location.href = '/Ventas/PdfRotuladoTicket?DocEntry=' + docEntry;
+        $('#comprobantesModal').modal('hide');
+    }
+
+    // Función para cancelar ticket
+    function cancelarTicket(DocEntry) {
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: 'btn btn-success mx-4',
+                cancelButton: 'btn btn-danger mx-4'
+            },
+            buttonsStyling: false
+        });
+
+        swalWithBootstrapButtons.fire({
+            title: '¿Está seguro(a) de cancelar el ticket?',
+            text: "Este proceso es irreversible",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: "<i class='icon-checkmark'></i> Si, estoy seguro(a)",
+            cancelButtonText: "<i class='icon-cross'></i> Cancelar",
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                location.href = `/Ventas/CancelarTicket?DocEntry=${DocEntry}&vista=ListadoTicketsAlmacen`;
+            }
+        });
+    }
+
+    // Función para validar filtros de reporte
+    function validarFiltrosReporte() {
+        const fechaTicketDesde = document.getElementById("FechaTicketDesdeEP").value;
+        const fechaTicketHasta = document.getElementById("FechaTicketHastaEP").value;
+        const estado = document.getElementById("EstadoEP").value;
+        const docNumTicket = document.getElementById("DocNumTicketEP").value;
+
+        // Verificar si se seleccionó un rango de fecha válido
+        if (docNumTicket === '' && (fechaTicketDesde === '' || fechaTicketHasta === '')) {
+            Swal.fire('Por favor seleccione un rango de fecha válido');
+        } else {
+            const params = new URLSearchParams({
+                FechaTicketDesde: fechaTicketDesde,
+                FechaTicketHasta: fechaTicketHasta,
+                Estado: estado,
+                DocNumTicket: docNumTicket
+            }).toString();
+
+            window.open(`/Ventas/ExportarReporteErroresPicking?${params}`, '_blank', 'noopener,noreferrer');
+        }
+    }
+
+    // Validar que solo se ingresen números
+    $('.cls-numeric').keypress(function (event) {
+        const charCode = event.charCode;
+
+        if ((charCode < 48 || charCode > 57) && charCode !== 13) {
+            event.preventDefault();
+        }
+    });
+</script>
