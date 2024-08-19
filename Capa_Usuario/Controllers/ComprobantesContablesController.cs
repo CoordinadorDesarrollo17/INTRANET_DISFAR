@@ -66,7 +66,7 @@ namespace Capa_Usuario.Controllers
                 case "F":
                     foreach (var docEntryOrden in listDocEntrySap)
                     {
-                        documentos.AddRange(compN.ObtenerEncabezadoFacturas(docEntryOrden));
+                        documentos.AddRange(compN.ObtenerEncabezadoFacturas(docEntryOrden, obj.LugarDestino));
                     }
                     break;
                 case "G":
@@ -84,7 +84,7 @@ namespace Capa_Usuario.Controllers
                     List<Comprobante_E> Facturas = new List<Comprobante_E>();
                     foreach (var docEntryOrden in listDocEntrySap)
                     {
-                        Facturas = compN.ObtenerEncabezadoFacturas(docEntryOrden);
+                        Facturas = compN.ObtenerEncabezadoFacturas(docEntryOrden, obj.LugarDestino);
                     }
                     string FacturasConcatenadas = string.Join(", ", Facturas.Select(x => $"{x.U_SYP_MDTD}-{x.U_SYP_MDSD}-{x.U_SYP_MDCD}"));
                     documentos.AddRange(compN.ObtenerEncabezadoNotaCredito(obj.Det4, FacturasConcatenadas));
@@ -93,7 +93,7 @@ namespace Capa_Usuario.Controllers
                     List<Comprobante_E> FacturasParaNotaDébito = new List<Comprobante_E>();
                     foreach (var docEntryOrden in listDocEntrySap)
                     {
-                        Facturas = compN.ObtenerEncabezadoFacturas(docEntryOrden);
+                        Facturas = compN.ObtenerEncabezadoFacturas(docEntryOrden,obj.LugarDestino);
                     }
                     string FacturasConcatenadasParaNotaDébito = string.Join(", ", FacturasParaNotaDébito.Select(x => $"{x.U_SYP_MDTD}-{x.U_SYP_MDSD}-{x.U_SYP_MDCD}"));
                     documentos.AddRange(compN.ObtenerEncabezadoNotaDebito(obj.DocNum, FacturasConcatenadasParaNotaDébito));
@@ -124,14 +124,6 @@ namespace Capa_Usuario.Controllers
             {
                 return Json(new { success = false, message = "No se encontraron órdenes SAP, revise el estado del ticket." }, JsonRequestBehavior.AllowGet);
             }
-            //else if ((ortvE.Det4 == null || ortvE.Det4.Count == 0 || ortvE.DescuentoNC == 0) && Tipo.Equals("NC"))
-            //{
-            //    return Json(new { success = false, message = "No existen notas de crédito." }, JsonRequestBehavior.AllowGet);
-            //}
-            //else if (ortvE.Flete == 0 && ortvE.GastoEnvio == 0  && Tipo.Equals("ND"))
-            //{
-            //    return Json(new { success = false, message = "No existen notas de débito." }, JsonRequestBehavior.AllowGet);
-            //}
             string fileUrl = string.Empty; string fileName = string.Empty;
             List<int> listDocEntryOrdenesVenta = ObtenerDocEntryOV(ortvE.Det2);
             List<Comprobante_E> documentos = new List<Comprobante_E>();

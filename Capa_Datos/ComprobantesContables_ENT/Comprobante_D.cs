@@ -250,17 +250,15 @@ namespace Capa_Datos.ComprobantesContables_ENT
 
             return lista;
         }
-        public List<Comprobante_E> ObtenerEncabezadoFacturas(int DocEntryOrden)
+        public List<Comprobante_E> ObtenerEncabezadoFacturas(int DocEntryOrden,string LugarDestino)
         {
-            // Consulta para buscar en FACTURAS DE VENTA
-            string query1 = "SELECT 'OINV',T0.\"U_SYP_MDTD\",T0.\"U_SYP_MDSD\",T0.\"U_SYP_MDCD\",to_char(T0.\"DocDate\",'YYYY-MM-DD'),to_char(T0.\"U_BPP_FECINITRA\",'YYYY-MM-DD'),'F',T0.\"DocTotal\"  FROM " + uti.schemaHana + "OINV T0 " +
-                            " INNER JOIN " + uti.schemaHana + "INV1 T1 ON T1.\"DocEntry\" = T0.\"DocEntry\"" +
-                            " INNER JOIN " + uti.schemaHana + "RDR1 T2 ON T2.\"DocEntry\" = T1.\"BaseEntry\" AND T2.\"ObjType\" = T1.\"BaseType\"" +
-                            " AND T2.\"LineNum\" = T1.\"BaseLine\" AND T2.\"DocEntry\" =" + DocEntryOrden +
-                            " WHERE T0.\"CANCELED\" = 'N' GROUP BY T0.\"U_SYP_MDTD\",T0.\"U_SYP_MDSD\",T0.\"U_SYP_MDCD\",to_char(T0.\"DocDate\",'YYYY-MM-DD'),to_char(T0.\"U_BPP_FECINITRA\",'YYYY-MM-DD'),T0.\"DocTotal\" ";
-
-            // Consulta para buscar en ENTREGAS DE VENTA (Caso de Domicilio y agencia)
-            string query2 = " SELECT 'OINV',T4.\"U_SYP_MDTD\",T4.\"U_SYP_MDSD\",T4.\"U_SYP_MDCD\",to_char(T4.\"DocDate\",'YYYY-MM-DD'),to_char(T4.\"U_BPP_FECINITRA\",'YYYY-MM-DD'),'F',T4.\"DocTotal\"  FROM " + uti.schemaHana + "ODLN T0 " +
+            string query = string.Empty;
+            switch (LugarDestino)
+            {
+                case "Domicilio":
+                case "Agencia":
+                    //Consulta las entregas en tabla ODLN
+                    query = " SELECT 'OINV',T4.\"U_SYP_MDTD\",T4.\"U_SYP_MDSD\",T4.\"U_SYP_MDCD\",to_char(T4.\"DocDate\",'YYYY-MM-DD'),to_char(T4.\"U_BPP_FECINITRA\",'YYYY-MM-DD'),'F',T4.\"DocTotal\"  FROM " + uti.schemaHana + "ODLN T0 " +
                             " INNER JOIN " + uti.schemaHana + "DLN1 T1 ON T1.\"DocEntry\" = T0.\"DocEntry\"" +
                             " INNER JOIN " + uti.schemaHana + "RDR1 T2 ON T2.\"DocEntry\" = T1.\"BaseEntry\" AND T2.\"ObjType\" = T1.\"BaseType\"" +
                             " AND T2.\"LineNum\" = T1.\"BaseLine\" AND T2.\"DocEntry\" = " + DocEntryOrden +
@@ -268,15 +266,20 @@ namespace Capa_Datos.ComprobantesContables_ENT
                             " AND T3.\"BaseLine\" = T1.\"LineNum\" " +
                             " INNER JOIN " + uti.schemaHana + "OINV T4 ON T4.\"DocEntry\" = T3.\"DocEntry\" AND T4.\"CANCELED\" = 'N' " +
                             " WHERE T0.\"CANCELED\" = 'N' GROUP BY  T4.\"U_SYP_MDTD\",T4.\"U_SYP_MDSD\",T4.\"U_SYP_MDCD\",to_char(T4.\"DocDate\",'YYYY-MM-DD'),to_char(T4.\"U_BPP_FECINITRA\",'YYYY-MM-DD'),T4.\"DocTotal\"";
+                    break;
+                case "Arriola":
+                case "Centro":
+                    //Consulta las facturas en tabla OINV
+                    query = "SELECT 'OINV',T0.\"U_SYP_MDTD\",T0.\"U_SYP_MDSD\",T0.\"U_SYP_MDCD\",to_char(T0.\"DocDate\",'YYYY-MM-DD'),to_char(T0.\"U_BPP_FECINITRA\",'YYYY-MM-DD'),'F',T0.\"DocTotal\"  FROM " + uti.schemaHana + "OINV T0 " +
+                            " INNER JOIN " + uti.schemaHana + "INV1 T1 ON T1.\"DocEntry\" = T0.\"DocEntry\"" +
+                            " INNER JOIN " + uti.schemaHana + "RDR1 T2 ON T2.\"DocEntry\" = T1.\"BaseEntry\" AND T2.\"ObjType\" = T1.\"BaseType\"" +
+                            " AND T2.\"LineNum\" = T1.\"BaseLine\" AND T2.\"DocEntry\" =" + DocEntryOrden +
+                            " WHERE T0.\"CANCELED\" = 'N' GROUP BY T0.\"U_SYP_MDTD\",T0.\"U_SYP_MDSD\",T0.\"U_SYP_MDCD\",to_char(T0.\"DocDate\",'YYYY-MM-DD'),to_char(T0.\"U_BPP_FECINITRA\",'YYYY-MM-DD'),T0.\"DocTotal\" ";
+                    break;
+            }
 
-           
-            List<Comprobante_E> lista1 = EjecutarConsultaComprobante(query1);
-            List<Comprobante_E> lista2 = EjecutarConsultaComprobante(query2);
-
-            // Combinar las listas
-            lista1.AddRange(lista2);
-
-            return lista1;
+            List<Comprobante_E> lista = EjecutarConsultaComprobante(query);
+            return lista;
         }
         public List<Comprobante_E> ObtenerEncabezadoNotaCredito(List<RTV4_E> NotasCredito, string FacturasConcatenadas)
         {

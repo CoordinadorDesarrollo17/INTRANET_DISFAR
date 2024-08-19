@@ -16,8 +16,8 @@ namespace Capa_Negocio.ComprobantesContables_NEG
         { return compD.ObtenerEncabezadoGuias(DocEntry); }
         public List<Comprobante_E> ObtenerEncabezadoGuiasTransferencia(int DocNum,string WhsCode) //Metodo para traer datos principales de guia remision en transferencias ( casos centro y arriola) 
         { return compD.ObtenerEncabezadoGuiasTransferencia(DocNum,WhsCode); }
-        public List<Comprobante_E> ObtenerEncabezadoFacturas(int DocEntryOrden)
-        {return compD.ObtenerEncabezadoFacturas(DocEntryOrden);}
+        public List<Comprobante_E> ObtenerEncabezadoFacturas(int DocEntryOrden,string LugarDestino)
+        {return compD.ObtenerEncabezadoFacturas(DocEntryOrden,LugarDestino);}
         public List<Comprobante_E> ObtenerEncabezadoNotaCredito(List<RTV4_E> NotasCredito, string FacturasConcatenadas)
         { return compD.ObtenerEncabezadoNotaCredito(NotasCredito, FacturasConcatenadas); }
         public List<Comprobante_E> ObtenerEncabezadoNotaDebito(int DocNum, string FacturasConcatenadas)
