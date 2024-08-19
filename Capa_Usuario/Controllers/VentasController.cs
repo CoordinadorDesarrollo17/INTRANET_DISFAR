@@ -3101,12 +3101,24 @@ namespace Capa_Usuario.Controllers
         }
         public ActionResult PdfRotuladoTicket(int DocEntry)
         {
-            verificacionAccesos(0);
-            return new ActionAsPdf("RotuladoTicket", new { DocEntry = DocEntry }) { FileName = "RotuladoTicket" + DocEntry + ".pdf", PageOrientation = Rotativa.Options.Orientation.Landscape, PageSize = Rotativa.Options.Size.A4 };
+            var pdfResult = new ActionAsPdf("RotuladoTicket", new { DocEntry = DocEntry })
+            {
+                FileName = "RotuladoTicket" + DocEntry + ".pdf",
+                PageOrientation = Rotativa.Options.Orientation.Landscape,
+                PageSize = Rotativa.Options.Size.A4
+            };
+
+            var pdfResponse = pdfResult.BuildFile(ControllerContext);
+            Response.Clear();
+            Response.ContentType = "application/pdf";
+            Response.AddHeader("Content-Disposition", "inline; filename=RotuladoTicket" + DocEntry + ".pdf");
+            Response.BinaryWrite(pdfResponse);
+            Response.End();
+
+            return new EmptyResult();
         }
         public ActionResult RotuladoTicket(int DocEntry)
         {
-            verificacionAccesos(0);
             ORTV_N ortvN = new ORTV_N();
             object obj = null;
             try
@@ -3218,7 +3230,6 @@ namespace Capa_Usuario.Controllers
                 ticket.TiempoEntrega = Convert.ToDateTime(dt.ToString("dd/MM/yyyy hh:mm tt"));
             }
         }
-
         public ActionResult OrdenDeVenta(int DocNum)
         {
             verificacionAccesos(0);
@@ -3289,8 +3300,6 @@ namespace Capa_Usuario.Controllers
             else if (verificacionAccesos(idOperation) == "E_Login") { return null; }
             else { return null; }
         }
-        /***********************************************/
-
 
         /****************************** P A G O   C O N T R A E N T R E G A ******************************/
         [HttpGet]

@@ -198,14 +198,12 @@ namespace Capa_Datos.ComprobantesContables_ENT
 
             return lista;
         }
-
-
         public List<Comprobante_E> ObtenerEncabezadoGuiasTransferencia(int DocNum, string WhsCode)
         {
             var lista = new List<Comprobante_E>();
             var itemGuias = new List<string>();
 
-            string query = "SELECT top 10 IFNULL(T0.\"U_SYP_MDTD\" || '-' || T0.\"U_SYP_MDSD\" || '-' || T0.\"U_SYP_MDCD\", '') as \"GUIAS\" " +
+            string query = "SELECT top 100 IFNULL(T0.\"U_SYP_MDTD\" || '-' || T0.\"U_SYP_MDSD\" || '-' || T0.\"U_SYP_MDCD\", '') as \"GUIAS\" " +
                            $"FROM {uti.schemaHana}OWTR T0 WHERE T0.\"CANCELED\" = 'N' AND T0.\"U_SYP_MDTD\" IS NOT NULL AND T0.\"U_SYP_MDSD\" IS NOT NULL " +
                            $"AND T0.\"U_SYP_MDCD\" IS NOT NULL AND T0.\"ToWhsCode\" ='{WhsCode}' AND T0.\"U_COB_LUGAREN\" ='{WhsCode}' " +
                            $"AND T0.\"Comments\" like '%{DocNum}%' ORDER BY T0.\"DocEntry\" desc";
@@ -252,7 +250,6 @@ namespace Capa_Datos.ComprobantesContables_ENT
 
             return lista;
         }
-
         public List<Comprobante_E> ObtenerEncabezadoFacturas(int DocEntryOrden)
         {
             // Consulta para buscar en FACTURAS DE VENTA

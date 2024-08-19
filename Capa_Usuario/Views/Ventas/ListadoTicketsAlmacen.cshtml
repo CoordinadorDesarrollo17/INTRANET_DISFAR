@@ -32,7 +32,6 @@
 
     .btn-group {
         display: flex;
-        flex-wrap: wrap;
         gap: 10px;
         justify-content: center;
     }
@@ -309,13 +308,13 @@
                                 @if (condIniPickingExc && (ViewBag.RolSupervisor == 50 || ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 52 || ViewBag.RolSupervisor == 53 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4))
                                 {
                                     @*<a href="@Url.Action("IniciarSacandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-success btn-sm"> Inicio <br /> Picking </a>*@
-                                    <a href="@Url.Action("IniciarSacandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })"
-                                       class="btn btn-light text-success btn-sm"
-                                       data-toggle="tooltip"
-                                       data-placement="top"
-                                       title="Inicio Picking">
-                                        <i class="icon icon-play2"></i>
-                                    </a>
+                                <a href="@Url.Action("IniciarSacandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })"
+                                   class="btn btn-light text-success btn-sm"
+                                   data-toggle="tooltip"
+                                   data-placement="top"
+                                   title="Inicio Picking">
+                                    <img src="~/imagenes/picking.png" width="30" height="30" />
+                                </a>
                                 }
 
                             </td>
@@ -324,13 +323,13 @@
                                 @if (condFinEmpacarExc && (ViewBag.RolSupervisor == 50 || ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 52 || ViewBag.RolSupervisor == 53 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4))
                                 {
                                     @*<a href="@Url.Action( "EmpacadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry  } )" class="btn btn-naranja btn-sm">Fin <br />Empacar</a>*@
-                                    <a href="@Url.Action("EmpacadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })"
-                                       class="btn btn-light text-naranja btn-sm"
-                                       data-toggle="tooltip"
-                                       data-placement="top"
-                                       title="Fin Packing">
-                                        <i class="icon icon-stop"></i>
-                                    </a>
+                                <a href="@Url.Action("EmpacadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })"
+                                   class="btn btn-light text-naranja btn-sm"
+                                   data-toggle="tooltip"
+                                   data-placement="top"
+                                   title="Fin Packing">
+                                    <img src="~/imagenes/packing.png" width="30" height="30" />
+                                </a>
                                 }
                             </td>
 
@@ -345,13 +344,13 @@
                                         @if (condIniPicking)
                                         {
                                             @*<a href="@Url.Action("IniciarSacandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-success btn-sm"> Inicio <br /> Picking </a>*@
-                                            <a href="@Url.Action("IniciarSacandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })"
-                                               class="btn btn-light text-success btn-sm"
-                                               data-toggle="tooltip"
-                                               data-placement="top"
-                                               title="Inicio Picking">
-                                                <i class="icon icon-play2"></i>
-                                            </a>
+                                        <a href="@Url.Action("IniciarSacandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })"
+                                           class="btn btn-light text-success btn-sm"
+                                           data-toggle="tooltip"
+                                           data-placement="top"
+                                           title="Inicio Picking">
+                                            <img src="~/imagenes/picking.png" width="30" height="30" />
+                                        </a>
                                         }
                                         @if (condFinPicking)
                                         {
@@ -363,7 +362,7 @@
                                                data-toggle="tooltip"
                                                data-placement="top"
                                                title="Fin Picking">
-                                                <i class="icon icon-stop"></i>
+                                                <img src="~/imagenes/picking.png" width="30" height="30"/>
                                             </a>
                                         }
                                     </div>
@@ -383,20 +382,20 @@
                                                data-toggle="tooltip"
                                                data-placement="top"
                                                title="Inicio Verificar">
-                                                <i class="icon icon-play2"></i>
+                                                <img src="~/imagenes/verificar.png" width="30" height="30" />
                                             </a>
                                         }
                                         @*El boton "FIN VERIFICAR" solo se habilita en dos casos, si el ticket tiene en su tabla de control de cambios el FIN PICKING, pero si en caso tambien se encuentra un ANULAR FIN PICKING se tendra que comparar la fecha y hora para saber con certeza que el FIN PICKING se ha dado, o tambien si el ticket esta en estado general VERIFICANDO*@
                                         @if (condFinVerificar)
                                         {
                                             @*<a href="@Url.Action("VerificadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-amarillo btn-sm">Fin <br /> Verificar </a>*@
-                                            <a href="@Url.Action("VerificadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })"
-                                               class="btn btn-light text-warning btn-sm"
-                                               data-toggle="tooltip"
-                                               data-placement="top"
-                                               title="Fin Verificar">
-                                                <i class="icon icon-stop"></i>
-                                            </a>
+                                        <a href="@Url.Action("VerificadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })"
+                                           class="btn btn-light text-warning btn-sm"
+                                           data-toggle="tooltip"
+                                           data-placement="top"
+                                           title="Fin Verificar">
+                                            <img src="~/imagenes/verificar.png" width="30" height="30"/>
+                                        </a>
                                         }
                                     </div>
                                 }
@@ -414,7 +413,7 @@
                                                data-toggle="tooltip"
                                                data-placement="top"
                                                title="Inicio Packing">
-                                                <i class="icon icon-play2"></i>
+                                                <img src="~/imagenes/packing.png" width="30" height="30" />
                                             </a>
                                         }
                                         @if (condFinEmpacar)
@@ -426,7 +425,7 @@
                                                data-toggle="tooltip"
                                                data-placement="top"
                                                title="Fin Packing">
-                                                <i class="icon icon-stop"></i>
+                                                <img src="~/imagenes/packing.png" width="30" height="30" />
                                             </a>
                                         }
                                     </div>
@@ -606,7 +605,7 @@
 
 <!-- Modal de documentos contables -->
 <div id="comprobantesModal" class="modal fade" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header bg-cobefar text-light">
                 <h5 class="modal-title"><strong>Documentos de ticket</strong></h5>
@@ -707,37 +706,36 @@
         if (lugarDestino === "Agencia" && ["PICKEANDO", "VERIFICANDO", "EMPACANDO", "EMPACADO", "PESADO", "PREENVIO", "ENVIADO", "ENTREGADO"].includes(estado)) {
             html += '<button type="button" onclick="pdfRotulo(\'' + encodeURIComponent(docEntry) + '\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Descargar Rotulado">';
             html += '<i class="icon icon-file-pdf"><span class="text-dark small"> Rótulo </span></i>';
-            html += '</button>';
+            html += '</button><br />';
 
             if (estado !== "PICKEANDO") {
-                html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="F" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'F\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Facturas">';
-                html += '<i class="icon icon-file-pdf"><span class="text-dark small"> Facturas </span></i>';
-                html += '</button>';
-                html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="G" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'G\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Guías">';
-                html += '<i class="icon icon-file-pdf"><span class="text-dark small"> Guías </span></i>';
-                html += '</button>';
-                html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="NC" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'NC\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Notas de crédito">';
-                html += '<i class="icon icon-file-pdf"><span class="text-dark small"> Crédito </span></i>';
-                html += '</button>';
-                html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="ND" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'ND\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Notas de débito">';
-                html += '<i class="icon icon-file-pdf"><span class="text-dark small"> Débito </span></i>';
-                html += '</button>';
+                html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="F" data-toggle="tooltip" data-placement="top" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'F\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Facturas">';
+                html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Facturas </span></i>';
+                html += '</button><br />';
+                html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="G" data-toggle="tooltip" data-placement="top" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'G\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Guías">';
+                html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Guías </span></i>';
+                html += '</button><br />';
+                html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="NC" data-toggle="tooltip" data-placement="top" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'NC\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Notas de crédito">';
+                html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Notas Crédito </span></i>';
+                html += '</button><br />';
+                html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="ND" data-toggle="tooltip" data-placement="top" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'ND\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Notas de débito">';
+                html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Notas Débito </span></i>';
+                html += '</button><br />';
             }
         } else if (["EMPACADO", "PREENVIO", "ENVIADO", "ENTREGADO"].includes(estado) && lugarDestino !== "Agencia") {
-            html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="F" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'F\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Facturas">';
-            html += '<i class="icon icon-file-pdf"><span class="text-dark small"> Facturas </span></i>';
-            html += '</button>';
-            html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="G" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'G\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Guías">';
-            html += '<i class="icon icon-file-pdf"><span class="text-dark small"> Guías </span></i>';
-            html += '</button>';
-            html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="NC" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'NC\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Notas de crédito">';
-            html += '<i class="icon icon-file-pdf"><span class="text-dark small"> Crédito </span></i>';
-            html += '</button>';
-            html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="ND" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'ND\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Notas de débito">';
-            html += '<i class="icon icon-file-pdf"><span class="text-dark small"> Débito </span></i>';
-            html += '</button>';
+            html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="F" data-toggle="tooltip" data-placement="top" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'F\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Facturas">';
+            html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Facturas </span></i>';
+            html += '</button><br />';
+            html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="G" data-toggle="tooltip" data-placement="top" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'G\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Guías">';
+            html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Guías </span></i>';
+            html += '</button><br />';
+            html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="NC" data-toggle="tooltip" data-placement="top" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'NC\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Notas de crédito">';
+            html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Notas Crédito </span></i>';
+            html += '</button><br />';
+            html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="ND" data-toggle="tooltip" data-placement="top" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'ND\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Notas de débito">';
+            html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Notas Débito </span></i>';
+            html += '</button><br />';
         }
-
 
         html += '</div>';
 
@@ -751,7 +749,6 @@
         if (btn) {
             btn.disabled = true;
         }
-        //$('#loadingModal').modal('show');
         cargando();
 
             $.ajax({
@@ -763,7 +760,6 @@
                         window.open(response.fileUrl, '_blank', 'noopener,noreferrer');
                     } else {
                         Swal.fire('Error', response.message, 'error').then(() => {
-                            //$('#loadingModal').modal('hide');
                             Swal.close();
                         });
                     }
@@ -772,7 +768,6 @@
                     Swal.fire('Error', 'Ocurrió un error en la solicitud: ' + error, 'error');
                 },
                 complete: function () {
-                    //$('#loadingModal').modal('hide');
                     Swal.close();
                     if (btn) {
                         btn.disabled = false;
@@ -781,9 +776,8 @@
             });
     }
 
-
     function pdfRotulo(docEntry) {
-        location.href = '/Ventas/PdfRotuladoTicket?DocEntry=' + docEntry;
+        window.open('@Url.Action("PdfRotuladoTicket", "Ventas")' + '?DocEntry=' + docEntry, '_blank', 'noopener,noreferrer');
         $('#comprobantesModal').modal('hide');
     }
 

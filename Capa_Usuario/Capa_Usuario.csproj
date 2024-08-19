@@ -366,6 +366,9 @@
     <Content Include="Content\img\checkAzul.png" />
     <Content Include="Content\img\escudo_nacional.png" />
     <Content Include="imagenes\index\ReportesDigemid\impresion.gif" />
+    <Content Include="imagenes\packing.png" />
+    <Content Include="imagenes\picking.png" />
+    <Content Include="imagenes\verificar.png" />
     <Content Include="libman.json" />
     <None Include="Properties\PublishProfiles\CustomProfile.pubxml" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
