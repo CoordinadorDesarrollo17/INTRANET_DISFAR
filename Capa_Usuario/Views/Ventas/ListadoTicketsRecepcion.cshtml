@@ -216,8 +216,8 @@
                         <td>
                             @if (item.Estado.Equals("ABIERTO"))
                             {
-                                <a href="@Url.Action( "PdfTacoComentarios", "Ventas", new { DocEntry = item.DocEntry  } )" title="PDF Taco Comentarios">
-                                    <i class="icon-file-pdf text-danger bordered mt-2 font-30"></i>
+                                <a class="btn btn-sm btn-light" href="@Url.Action( "PdfTacoComentarios", "Ventas", new { DocEntry = item.DocEntry  } )"  data-toggle="tooltip" data-placement="top"  title="PDF Taco Comentarios">
+                                    <i class="icon-file-pdf text-danger bordered"></i>
                                 </a>
                             }
                             <input type="hidden" id="pdf_taco_comentarios" value="@item.DocEntry" />
@@ -276,7 +276,6 @@
     }
 
     function descargarTacoComentarios(DocEntry) {
-        //$('#' + id)[0].click();
         location.href = '/Ventas/PdfTacoComentarios?DocEntry=' + DocEntry;
     }
 </script>

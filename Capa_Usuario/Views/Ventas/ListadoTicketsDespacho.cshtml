@@ -350,6 +350,7 @@
                     <th></th>
                     <th></th>
                     <th></th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -456,48 +457,48 @@
                         <td>
                             @if (condPesar && verBtnPesar)
                             {
-                                <a href="@Url.Action("PesadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-primary btn-sm" title="Pesar">
+                                <a href="@Url.Action("PesadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-primary " title="Pesar">
                                     <span>Pesar</span>
                                 </a>
                             }
 
                             @if (condAnularPesar && verBtnPesar)
                             {
-                                <a href="@Url.Action("AnularPesadoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm" title="Anular Pesado">
+                                <a href="@Url.Action("AnularPesadoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger " title="Anular Pesado">
                                     <span>Anular Pesado</span>
                                 </a>
                             }
 
-                            @if (item.EstadoFacturacion != null && (item.EstadoFacturacion.Equals("GRE EMITIDA") || item.EstadoFacturacion.Equals("FACTURADO")))
-                            {
-                                <button type="button" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Ver Documentos" onclick="abrirModalDocumentos(@item.DocEntry)">
-                                    <i class="icon-search text-cobefar"> </i><span class="text-cobefar"> Docs</span>
-                                </button>
-                            }
-
                             @if (condEntregar)
                             {
-                                <a href="@Url.Action("EntregadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-success btn-sm" title="Entregar">
-                                    <span>Entregar</span>
+                                <a href="@Url.Action("EntregadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-light text-success" data-toggle="tooltip" data-placement="top" title="Entregar pedido">
+                                    <i class="icon icon-checkmark"></i>
                                 </a>
                             }
                             else if (item.Estado == "PESADO" && condEntregar)
                             {
-                                <a href="@Url.Action("EntregadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-success btn-sm" title="Entregar">
-                                    <span>Entregar</span>
+                                <a href="@Url.Action("EntregadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-success" data-toggle="tooltip" data-placement="top" title="Entregar">
+                                    <i class="icon icon-checkmark"></i>
                                 </a>
                             }
 
                             @if (condAnularEntrega)
                             {
-                                <a href="@Url.Action("AnularEntregadoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-warning btn-sm" title="Anular Entrega">
-                                    <span>Anular Entrega</span>
+                                <a href="@Url.Action("AnularEntregadoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Anular Entrega">
+                                    <i class="icon icon-undo"></i>
                                 </a>
                             }
                         </td>
-
                         <td>
-                            <a href="@Url.Action("SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry, view = "despacho" })" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Seguimiento de ticket" type="button" target="_blank" onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;">
+                            @if (item.EstadoFacturacion != null && (item.EstadoFacturacion.Equals("GRE EMITIDA") || item.EstadoFacturacion.Equals("FACTURADO")))
+                            {
+                                <button type="button" class="btn  btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Ver Documentos" onclick="abrirModalDocumentos(@item.DocEntry)">
+                                    <i class="icon icon-file-empty"></i>
+                                </button>
+                            }
+                        </td>
+                        <td>
+                            <a href="@Url.Action("SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry, view = "despacho" })" class="btn  btn-light" data-toggle="tooltip" data-placement="top" title="Seguimiento de ticket" type="button" target="_blank" onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;">
                                 <i class="icon-truck text-dark"></i>
                             </a>
                         </td>
@@ -505,7 +506,7 @@
                         <td>
                             @if (idRolUsuario == 53 || idRolUsuario == 1)
                             {
-                                <a href="#" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Imprimir" onclick="registrarImpresion(@item.DocEntry);">
+                                <a href="#" class="btn  btn-light" data-toggle="tooltip" data-placement="top" title="Imprimir" onclick="registrarImpresion(@item.DocEntry);">
                                     <i class="icon-printer text-orange"></i>
                                 </a>
                             }
