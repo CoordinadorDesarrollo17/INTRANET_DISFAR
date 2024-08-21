@@ -26,10 +26,6 @@ namespace Capa_Negocio.Ventas_NEG.Tablas
         {
             return oD.CalcularPdfsActaDespachoOINV(Fecha, U_SYP_STATUS, U_COB_LUGAREN, TipoComprobante);
         }
-        public List<ComprobanteDePago_E> buscarFacturaBoletaSap(string NumAtCard)
-        {
-            return oD.buscarFacturaBoletaSap(NumAtCard);
-        }
         public List<NotaCreditoDebito_E> buscarNotaDebitoSap(string NumAtCard)
         {
             return oD.buscarNotaDebitoSap(NumAtCard);

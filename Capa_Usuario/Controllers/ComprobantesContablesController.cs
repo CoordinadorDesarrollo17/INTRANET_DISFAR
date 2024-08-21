@@ -19,12 +19,16 @@ using Capa_Entidad.Ventas_ENT.Tablas;
 using Capa_Negocio.Almacen_NEG.Tablas;
 using Capa_Datos.Almacen_DAO.Tablas;
 using Capa_Negocio.ComprobantesContables_NEG;
+using Capa_Entidad.ReportesDigemid_ENT.Reportes;
 
 namespace Capa_Usuario.Controllers
 {
     public class ComprobantesContablesController : Controller
     {
-        Utilitarios uti = new Utilitarios(); ODLN_N odlN = new ODLN_N(); OWTR_N owtrN = new OWTR_N(); ORTV_N ortvN = new ORTV_N(); OINV_N oinvN = new OINV_N();
+        Utilitarios uti = new Utilitarios(); /*ODLN_N odlN = new ODLN_N(); OWTR_N owtrN = new OWTR_N();*/ 
+        ORTV_N ortvN = new ORTV_N(); 
+        OINV_N oinvN = new OINV_N();
+        Comprobante_N compN= new Comprobante_N();
         private List<int> ObtenerDocEntryOV(List<RTV2_E> det2List)
         {
             List<int> ordenes = new List<int>();
@@ -72,12 +76,11 @@ namespace Capa_Usuario.Controllers
                 case "G":
                     if (obj.LugarDestino.Equals("Domicilio") || obj.LugarDestino.Equals("Agencia"))
                     {
-                        documentos.AddRange(compN.ObtenerEncabezadoGuias(obj.DocEntry));
+                        documentos.AddRange(compN.ObtenerEncabezadoGuiasPorEntrega(listDocEntrySap));
                     }
                     else
                     {
-                        string WhsCode = obj.LugarDestino.Equals("Arriola") ? "09" : "01";
-                        documentos.AddRange(compN.ObtenerEncabezadoGuiasTransferencia(obj.DocNum, WhsCode));
+                        documentos.AddRange(compN.ObtenerEncabezadoGuiasTransferencia(obj));
                     }
                     break;
                 case "NC":
@@ -93,10 +96,10 @@ namespace Capa_Usuario.Controllers
                     List<Comprobante_E> FacturasParaNotaDébito = new List<Comprobante_E>();
                     foreach (var docEntryOrden in listDocEntrySap)
                     {
-                        Facturas = compN.ObtenerEncabezadoFacturas(docEntryOrden,obj.LugarDestino);
+                        FacturasParaNotaDébito = compN.ObtenerEncabezadoFacturas(docEntryOrden,obj.LugarDestino);
                     }
                     string FacturasConcatenadasParaNotaDébito = string.Join(", ", FacturasParaNotaDébito.Select(x => $"{x.U_SYP_MDTD}-{x.U_SYP_MDSD}-{x.U_SYP_MDCD}"));
-                    documentos.AddRange(compN.ObtenerEncabezadoNotaDebito(obj.DocNum, FacturasConcatenadasParaNotaDébito));
+                    documentos.AddRange(compN.ObtenerEncabezadoNotaDebito(FacturasConcatenadasParaNotaDébito));
                     break;
             }
 
@@ -115,18 +118,19 @@ namespace Capa_Usuario.Controllers
             OINV_N oinvN = new OINV_N();
 
             ORTV_E ortvE = ortvN.ObtenerDatosTicketParaDocumentos(DocEntry);
-
-            if (ortvE.Estado.Equals("ANULADO") || ortvE.Estado.Equals("CANCELADO"))
+            List<int> listDocEntryOrdenesVenta = ObtenerDocEntryOV(ortvE.Det2);
+             if (ortvE.Estado.Equals("ANULADO") || ortvE.Estado.Equals("CANCELADO"))
             {
                 return Json(new { success = false, message = "Ticket en un estado no valido para la descarga de documentos" }, JsonRequestBehavior.AllowGet);
             }
-            else if (ortvE.Det2 == null || ortvE.Det2.Count == 0)
+            else if (ortvE.Det2 == null || ortvE.Det2.Count == 0 || listDocEntryOrdenesVenta == null || listDocEntryOrdenesVenta.Count == 0)
             {
-                return Json(new { success = false, message = "No se encontraron órdenes SAP, revise el estado del ticket." }, JsonRequestBehavior.AllowGet);
+                return Json(new { success = false, message = "No se encontraron órdenes SAP activas, revise el estado del ticket y órdenes." }, JsonRequestBehavior.AllowGet);
             }
             string fileUrl = string.Empty; string fileName = string.Empty;
-            List<int> listDocEntryOrdenesVenta = ObtenerDocEntryOV(ortvE.Det2);
+            
             List<Comprobante_E> documentos = new List<Comprobante_E>();
+
             documentos = ObtenerEncabezados(listDocEntryOrdenesVenta, ortvE, Tipo);
             if (documentos != null && documentos.Count>0)
             {
@@ -243,10 +247,12 @@ namespace Capa_Usuario.Controllers
                     var parametrosGuia = new
                     {
                         NumAtCard = NumAtCard,
-                        DocNumTicket = docNum
+                        DocNumTicket = docNum,
+                        Tabla = documento.TablaSAP
                     };
                     string _headerUrlGuia = Url.Action("LayoutGuia_header", "ComprobantesContables", parametrosGuia, "http");
-                    pdfResult = new ActionAsPdf("LayoutGuia", new { NumAtCard = NumAtCard})
+                    //pdfResult = new ActionAsPdf("LayoutGuia", new { NumAtCard = NumAtCard, documento.Identificador })
+                    pdfResult = new ActionAsPdf("LayoutGuia", parametrosGuia)
                     {
                         FileName = fileName,
                         PageOrientation = Rotativa.Options.Orientation.Portrait,
@@ -256,8 +262,6 @@ namespace Capa_Usuario.Controllers
                     };
 
                     break;
-                   
-
             }
 
             var pdfBytes = pdfResult.BuildFile(ControllerContext);
@@ -311,46 +315,39 @@ namespace Capa_Usuario.Controllers
         //
         public ActionResult LayoutFactura_header(string NumAtCard, string Tipo, int DocNumTicket)
         {
-            ViewBag.Tipo = Tipo; ViewBag.DocNumTicket = DocNumTicket;
-            return View(oinvN.buscarFacturaBoletaSap(NumAtCard));
+            var factura = ObtenerDetalleFactura(NumAtCard);
+            ViewBag.Tipo = Tipo; 
+            ViewBag.DocNumTicket = DocNumTicket;
+            return View(factura);
         }
-        public ActionResult LayoutFactura(string NumAtCard, string DocNum)
+        public ActionResult LayoutFactura(string NumAtCard)
         {
-            ViewBag.DocNumTicket = DocNum;
-            return View(oinvN.buscarFacturaBoletaSap(NumAtCard));
+            var factura = ObtenerDetalleFactura(NumAtCard);
+            return View(factura);
         }
         //
-        public ActionResult LayoutGuia_header(string NumAtCard, string DocNumTicket)
+        public ActionResult LayoutGuia_header(string NumAtCard, string DocNumTicket, string Tabla)
         {
-            var guia = ObtenerGuiaRemision(NumAtCard, out string tipo);
+            var guia = ObtenerDetalleGuia(NumAtCard, Tabla);
             ViewBag.DocNumTicket = DocNumTicket;
-            ViewBag.Tipo = tipo;
+            ViewBag.Tipo = Tabla.Equals("OWTR") ? "T" : "E";
             return View(guia);
         }
-
-        public ActionResult LayoutGuia(string NumAtCard)
+        public ActionResult LayoutGuia(string NumAtCard,string Tabla)
         {
-            var guia = ObtenerGuiaRemision(NumAtCard, out string tipo);
-            ViewBag.Tipo = tipo;
+            var guia = ObtenerDetalleGuia(NumAtCard, Tabla);
+            ViewBag.Tipo = Tabla.Equals("OWTR") ?  "T" : "E";
             return View(guia);
         }
-
-        private List<Guia_Remision_E> ObtenerGuiaRemision(string numAtCard, out string tipo)
+        private List<Guia_Remision_E> ObtenerDetalleGuia(string numAtCard, string Tabla)
         {
-            List<Guia_Remision_E> guia = odlN.buscarGuiaRemisionSap(numAtCard);
-            if (guia == null || guia.Count == 0)
-            {
-                tipo = "T";  // Transferencia
-                guia = owtrN.buscarGuiaRemisionSap(numAtCard);
-            }
-            else
-            {
-                tipo = "E";  // Entrega
-            }
-
+            List<Guia_Remision_E> guia = compN.ObtenerDetalleGuia(numAtCard, Tabla);
             return guia;
         }
-        //
+        private List<ComprobanteDePago_E> ObtenerDetalleFactura(string numAtCard)
+        {
+            return compN.ObtenerDetalleFactura(numAtCard);
+        }
         public ActionResult LayoutNotaCreditoDebito_header(string NumAtCard, string DocNumTicket)
         {
             var (nota, tipo, subTipo) = ObtenerNotaCreditoDebito(NumAtCard);

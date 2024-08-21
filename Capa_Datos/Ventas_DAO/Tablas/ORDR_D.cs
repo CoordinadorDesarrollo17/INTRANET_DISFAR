@@ -77,6 +77,7 @@ namespace Capa_Datos.Ventas_DAO.Tablas
 
             string guiaRem = odlnD.buscarGuiasRemision(DocEntry);
             string guiasTras = oinvD.buscarGuiasTrasladoSinEnt(DocEntry);
+            //y a no se usa
             string guiasTrasEnt = string.Empty;
             foreach (ODLN_E o in odlnD.listarEntregasPorNroVenta(DocEntry))
             {

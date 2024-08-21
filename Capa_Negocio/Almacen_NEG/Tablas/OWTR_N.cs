@@ -1,5 +1,6 @@
 ﻿using Capa_Datos.Almacen_DAO.Tablas;
 using Capa_Entidad.Almacen_ENT.Tablas;
+using Capa_Entidad.ComprobantesContables_ENT;
 using Capa_Entidad.Rutas_ENT.TablasSql;
 using Sap.Data.Hana;
 using System;

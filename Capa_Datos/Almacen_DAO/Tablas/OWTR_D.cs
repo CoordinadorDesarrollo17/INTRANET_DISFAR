@@ -1,5 +1,6 @@
 ﻿using Capa_Datos.DireccionTecnica_DAO.TablasSql;
 using Capa_Entidad.Almacen_ENT.Tablas;
+using Capa_Entidad.ComprobantesContables_ENT;
 using Capa_Entidad.Rutas_ENT.TablasSql;
 using Sap.Data.Hana;
 using System;
@@ -98,7 +99,6 @@ namespace Capa_Datos.Almacen_DAO.Tablas
         {
             List<Guia_Remision_E> lista = new List<Guia_Remision_E>();
             int DocEntry = 0;
-            //busca DocEntry de NumAtCard en OWTR
             string queryDE = $"SELECT  \"DocEntry\" FROM {uti.schemaHana}OWTR  WHERE \"U_SYP_MDTD\" || '-' ||\"U_SYP_MDSD\" || '-' || \"U_SYP_MDCD\" = '{NumAtCard}'";
             HanaConnection cn = new HanaConnection(uti.cadHana);
             try

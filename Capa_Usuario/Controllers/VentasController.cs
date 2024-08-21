@@ -2,6 +2,7 @@
 using Capa_Datos;
 using Capa_Datos.Ventas_DAO.TablasSql;
 using Capa_Entidad.Almacen_ENT.Tablas;
+using Capa_Entidad.ComprobantesContables_ENT;
 using Capa_Entidad.Rutas_ENT.TablasSql;
 using Capa_Entidad.Seguridad_ENT;
 using Capa_Entidad.SocioNegocios_ENT.Tablas;

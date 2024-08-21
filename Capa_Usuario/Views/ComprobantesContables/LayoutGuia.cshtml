@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Capa_Entidad.Almacen_ENT.Tablas.Guia_Remision_E>
+﻿@model IEnumerable<Capa_Entidad.ComprobantesContables_ENT.Guia_Remision_E>
 
 @{
     Layout = null;
@@ -43,13 +43,13 @@
                     <tr>
                         <td style="width:100px"><strong>Motivo de traslado : </strong></td>
                         <td>Traslado entre establecimientos de la misma empresa</td>
-                        <td><strong>Direc. Punto partida : </strong></td>
+                        <td style="width:150px"><strong>Direc. Punto partida : </strong></td>
                         <td>@Cab.DirSalida<br /></td>
                     </tr>
                     <tr>
                         <td style="width:100px"><strong>Modalidad de traslado :</strong></td>
                         <td>Transporte privado</td>
-                        <td><strong>Direc. Punto llegada : </strong></td>
+                        <td style="width:150px"><strong>Direc. Punto llegada : </strong></td>
                         <td>@Cab.DirLlegada</td>
                     </tr>
                 </table>
@@ -62,13 +62,13 @@
                     <tr>
                         <td style="width:100px"><strong>Motivo de traslado :</strong> </td>
                         <td>Venta</td>
-                        <td><strong>Direc. Punto partida :</strong> </td>
+                        <td style="width:150px"><strong>Direc. Punto partida :</strong> </td>
                         <td>@Cab.DirSalida</td>
                     </tr>
                     <tr>
                         <td style="width:100px"><strong>Modalidad de traslado : </strong> </td>
                         <td>Transporte privado</td>
-                        <td><strong>Direc. Punto llegada :</strong> </td>
+                        <td style="width:150px"><strong>Direc. Punto llegada :</strong> </td>
                         <td>@Cab.DirCliente</td>
                     </tr>
                 </table>

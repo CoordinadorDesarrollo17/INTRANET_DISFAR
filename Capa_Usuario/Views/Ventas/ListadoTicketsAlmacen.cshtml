@@ -709,30 +709,30 @@
             html += '</button><br />';
 
             if (estado !== "PICKEANDO") {
-                html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="F" data-toggle="tooltip" data-placement="top" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'F\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Facturas">';
+                html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="F" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'F\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Facturas">';
                 html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Facturas </span></i>';
                 html += '</button><br />';
-                html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="G" data-toggle="tooltip" data-placement="top" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'G\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Guías">';
+                html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="G" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'G\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Guías">';
                 html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Guías </span></i>';
                 html += '</button><br />';
-                html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="NC" data-toggle="tooltip" data-placement="top" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'NC\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Notas de crédito">';
+                html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="NC" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'NC\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Notas de crédito">';
                 html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Notas Crédito </span></i>';
                 html += '</button><br />';
-                html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="ND" data-toggle="tooltip" data-placement="top" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'ND\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Notas de débito">';
+                html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="ND" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'ND\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Notas de débito">';
                 html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Notas Débito </span></i>';
                 html += '</button><br />';
             }
         } else if (["EMPACADO", "PREENVIO", "ENVIADO", "ENTREGADO"].includes(estado) && lugarDestino !== "Agencia") {
-            html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="F" data-toggle="tooltip" data-placement="top" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'F\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Facturas">';
+            html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="F" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'F\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Facturas">';
             html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Facturas </span></i>';
             html += '</button><br />';
-            html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="G" data-toggle="tooltip" data-placement="top" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'G\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Guías">';
+            html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="G" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'G\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Guías">';
             html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Guías </span></i>';
             html += '</button><br />';
-            html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="NC" data-toggle="tooltip" data-placement="top" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'NC\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Notas de crédito">';
+            html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="NC" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'NC\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Notas de crédito">';
             html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Notas Crédito </span></i>';
             html += '</button><br />';
-            html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="ND" data-toggle="tooltip" data-placement="top" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'ND\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Notas de débito">';
+            html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="ND" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'ND\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Notas de débito">';
             html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Notas Débito </span></i>';
             html += '</button><br />';
         }
@@ -745,36 +745,48 @@
 
     // Función para descargar comprobantes contables
     function descargarComprobante(DocEntry, Tipo) {
-        const btn = document.querySelector(`[data-docentry="${DocEntry}"][data-tipo="${Tipo}"]`);
-        if (btn) {
-            btn.disabled = true;
-        }
-        cargando();
+    const btn = document.querySelector(`[data-docentry="${DocEntry}"][data-tipo="${Tipo}"]`);
 
-            $.ajax({
-                url: '@Url.Action("CrearYObtenerDocumento", "ComprobantesContables")',
-                type: 'GET',
-                data: { DocEntry: DocEntry, Tipo: Tipo },
-                success: function (response) {
-                    if (response.success) {
-                        window.open(response.fileUrl, '_blank', 'noopener,noreferrer');
-                    } else {
-                        Swal.fire('Error', response.message, 'error').then(() => {
-                            Swal.close();
-                        });
-                    }
-                },
-                error: function (xhr, status, error) {
-                    Swal.fire('Error', 'Ocurrió un error en la solicitud: ' + error, 'error');
-                },
-                complete: function () {
-                    Swal.close();
-                    if (btn) {
-                        btn.disabled = false;
-                    }
-                }
-            });
+        if (btn) {
+        btn.disabled = true;
     }
+
+        Swal.fire({
+            title: 'Cargando...',
+            text: 'Por favor, espere mientras se procesa la solicitud.',
+            allowOutsideClick: true,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        $.ajax({
+            url: '@Url.Action("CrearYObtenerDocumento", "ComprobantesContables")',
+            type: 'GET',
+            data: { DocEntry: DocEntry, Tipo: Tipo },
+            success: function (response) {
+                console.log(response);
+                if (response.success) {
+                    window.open(response.fileUrl, '_blank', 'noopener,noreferrer');
+                    Swal.close();
+                } else {
+                    Swal.fire('Error', response.message, 'error').then(() => {
+                        Swal.close();
+                    });
+                }
+            },
+            error: function (xhr, status, error) {
+                Swal.fire('Error', 'Ocurrió un error en la solicitud: ' + error, 'error').then(() => {
+                    Swal.close();
+                });
+            },
+            complete: function () {
+                if (btn) {
+                    btn.disabled = false;
+                }
+            }
+        });
+}
 
     function pdfRotulo(docEntry) {
         window.open('@Url.Action("PdfRotuladoTicket", "Ventas")' + '?DocEntry=' + docEntry, '_blank', 'noopener,noreferrer');

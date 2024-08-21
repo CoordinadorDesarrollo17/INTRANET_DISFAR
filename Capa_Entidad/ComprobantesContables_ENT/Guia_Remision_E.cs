@@ -1,4 +1,5 @@
-﻿namespace Capa_Entidad.Almacen_ENT.Tablas
+﻿
+namespace Capa_Entidad.ComprobantesContables_ENT
 {
     public class Guia_Remision_E
     {

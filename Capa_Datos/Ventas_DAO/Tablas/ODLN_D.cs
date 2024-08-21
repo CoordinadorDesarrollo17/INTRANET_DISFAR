@@ -1,4 +1,5 @@
 ﻿using Capa_Entidad.Almacen_ENT.Tablas;
+using Capa_Entidad.ComprobantesContables_ENT;
 using Capa_Entidad.Rutas_ENT.TablasSql;
 using Capa_Entidad.Ventas_ENT.Tablas;
 using DocumentFormat.OpenXml.Office2013.Excel;
@@ -91,7 +92,6 @@ namespace Capa_Datos.Ventas_DAO.Tablas
         {
             List<Guia_Remision_E> lista = new List<Guia_Remision_E>();
             int DocEntry = 0;
-            //busca DocEntry de NumAtCard en ODLN
             string queryDE = $"SELECT  \"DocEntry\" FROM {uti.schemaHana}ODLN  WHERE \"NumAtCard\" = '{NumAtCard}'";
             HanaConnection cn = new HanaConnection(uti.cadHana);
             try
