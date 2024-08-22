@@ -1,6 +1,5 @@
 ﻿using Capa_Datos.Ventas_DAO.TablasSql;
 using Capa_Entidad.Almacen_ENT.Tablas;
-using Capa_Entidad.AtencionCliente_ENT.TablasSql;
 using Capa_Entidad.Seguridad_ENT;
 using Capa_Entidad.SocioNegocios_ENT.Tablas;
 using Capa_Entidad.Ventas_ENT.Reportes;
@@ -17,24 +16,16 @@ using Capa_Negocio.Ventas_NEG.Tablas;
 using Capa_Negocio.Ventas_NEG.TablasSql;
 using CrystalDecisions.CrystalReports.Engine;
 using CrystalDecisions.Shared;
-using DocumentFormat.OpenXml.Drawing;
-using iTextSharp.text;
-using iTextSharp.text.pdf;
 using Microsoft.Reporting.WebForms;
-using Microsoft.ReportingServices.ReportProcessing.ReportObjectModel;
 using OfficeOpenXml;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 using OfficeOpenXml.Table;
 using Rotativa;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.util;
-using System.Web;
 using System.Web.Mvc;
-using System.Windows;
+using System.Net.Http;
 
 namespace Capa_Usuario.Controllers
 {
@@ -3035,7 +3026,14 @@ namespace Capa_Usuario.Controllers
         }
         public ActionResult infoListaOrdenesDeVenta(string Fecha, string CardCode, int DocNum)
         {
-            return Content(ticketN.generaInfoListaOrdenesDeVenta(Fecha, CardCode, DocNum));
+            var (htmlContent, tipoVenta) = ticketN.generaInfoListaOrdenesDeVenta(Fecha, CardCode, DocNum);
+            var response = new
+            {
+                HtmlContent = htmlContent,
+                TipoVenta = tipoVenta
+            };
+
+            return Json(response, JsonRequestBehavior.AllowGet);
         }
         public ActionResult infoListaNotasDeCreditoV(string CardCode)
         {

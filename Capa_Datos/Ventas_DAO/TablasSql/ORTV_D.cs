@@ -7,9 +7,11 @@ using Capa_Entidad.SocioNegocios_ENT.Tablas;
 using Capa_Entidad.Ventas_ENT.Reportes;
 using Capa_Entidad.Ventas_ENT.Tablas;
 using Capa_Entidad.Ventas_ENT.TablasSql;
+using DocumentFormat.OpenXml.EMMA;
 using Microsoft.ReportingServices.ReportProcessing.ReportObjectModel;
 using Sap.Data.Hana;
 using System;
+using System.Text;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -76,65 +78,92 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             catch { hcn.Close(); }
             return lista;
         }
-        public List<OrdenDeVenta_E> ListarOrdenesdeVenta(string fecha, string cardCode, int docNum) //HANA TABLA ORDR (ORDEN DE VENTA)
+        public List<OrdenDeVenta_E> ListarOrdenesdeVenta(string fecha, string cardCode, int docNum)
         {
             var lista = new List<OrdenDeVenta_E>();
-            HanaConnection hcn = new HanaConnection(uti.cadHana);
-            try
+            using (var hcn = new HanaConnection(uti.cadHana))
             {
-                hcn.Open();
-                HanaCommand hcmd = new HanaCommand("SELECT T0.\"DocNum\",(select \"SlpName\" from " + uti.schemaHana + "oslp where \"SlpCode\" = T0.\"SlpCode\") " +
-                       " ,\"DocTotal\",(select \"Name\" from " + uti.schemaHana + "\"@COB_LUG_ENTREGA\" where \"Code\"=T0.\"U_COB_LUGAREN\") , T1.\"WhsCode\" " +
-                       "FROM " + uti.schemaHana + "ORDR T0 inner join " + uti.schemaHana +
-                       "RDR1 T1 on T1.\"DocEntry\"= T0.\"DocEntry\" WHERE T0.\"DocDate\" = '" + fecha + "' " +
-                       "AND T0.\"CardCode\" = '" + cardCode + "' AND T0.\"Comments\"='" + docNum + "' AND T0.\"CANCELED\"= 'N' GROUP BY T0.\"DocEntry\", " +
-                       "T0.\"DocNum\", T0.\"SlpCode\", T0.\"DocTotal\", T0.\"U_COB_LUGAREN\", T1.\"WhsCode\", T0.\"DocDate\", T0.\"CardCode\"" +
-                       " ORDER BY T0.\"DocDate\",T0.\"CardCode\",T0.\"DocEntry\"", hcn);
-                hcmd.CommandType = CommandType.Text;
-                HanaDataReader hdr = hcmd.ExecuteReader();
-
-                while (hdr.Read())
+                try
                 {
-                    OrdenDeVenta_E o = new OrdenDeVenta_E();
-                    o.DocNum = hdr.GetInt32(0);
-                    o.CardCode = cardCode;
-                    o.SlpName = hdr.GetString(1);
-                    o.DocTotal = hdr.GetDecimal(2);
-                    o.LugarDeEntrega = hdr.GetString(3);
-                    o.AlmacenSalida = hdr.GetString(4);
+                    hcn.Open();
 
-                    lista.Add(o);
+                    var query = $@"
+                SELECT T0.""DocNum"",
+                       S.""SlpName"",
+                       T0.""DocTotal"",
+                       L.""Name"",
+                       T1.""WhsCode"",
+                       P.""PymntGroup""
+                FROM {uti.schemaHana}ORDR T0
+                INNER JOIN {uti.schemaHana}RDR1 T1 ON T1.""DocEntry"" = T0.""DocEntry""
+                INNER JOIN {uti.schemaHana}OSLP S ON S.""SlpCode"" = T0.""SlpCode""
+                INNER JOIN {uti.schemaHana}""@COB_LUG_ENTREGA"" L ON L.""Code"" = T0.""U_COB_LUGAREN""
+                INNER JOIN {uti.schemaHana}OCTG P ON P.""GroupNum"" = T0.""GroupNum""
+                WHERE T0.""DocDate"" = '{fecha}'
+                  AND T0.""CardCode"" = '{cardCode}'
+                  AND T0.""Comments"" ='{docNum}'
+                  AND T0.""CANCELED"" = 'N'
+                GROUP BY T0.""DocEntry"", T0.""DocNum"", T0.""SlpCode"", T0.""DocTotal"",
+                         T0.""U_COB_LUGAREN"", T1.""WhsCode"", T0.""DocDate"", T0.""CardCode"", T0.""GroupNum"",
+                         S.""SlpName"", L.""Name"", P.""PymntGroup""
+                ORDER BY T0.""DocDate"", T0.""CardCode"", T0.""DocEntry""";
+
+                    var hcmd = new HanaCommand(query, hcn);
+
+
+                    using (var hdr = hcmd.ExecuteReader())
+                    {
+                        while (hdr.Read())
+                        {
+                            var o = new OrdenDeVenta_E
+                            {
+                                DocNum = hdr.GetInt32(0),
+                                CardCode = cardCode,
+                                SlpName = hdr.GetString(1),
+                                DocTotal = hdr.GetDecimal(2),
+                                LugarDeEntrega = hdr.GetString(3),
+                                AlmacenSalida = hdr.GetString(4),
+                                TipoVenta = hdr.GetString(5) // Crédito, contado.
+                            };
+
+                            lista.Add(o);
+                        }
+                    }
                 }
-                hdr.Close();
-                hcn.Close();
+                catch
+                {
+                }
             }
-            catch { hcn.Close(); }
             return lista;
         }
         public List<OrdenDeVenta_E> ListarOrdenesdeVentaFinales(string fecha, string cardCode, int docNum)
         {
             List<OrdenDeVenta_E> lista = new List<OrdenDeVenta_E>();
-            SqlConnection cn = new SqlConnection(uti.cadSql);
-            try
+            using (SqlConnection cn = new SqlConnection(uti.cadSql))
             {
                 cn.Open();
-                //Primero se realiza un foreach de la primera lista que obtenemos de HANA para obtener la lista general con los filtros enviados
-                // Para porteriormente discriminar todos los tickets que su @Estado = 'Anulado'  O 'CANCELADO' porque este estado solo se obtiene en la base intermedia(SQL Server) mas no en HANA
 
-                foreach (OrdenDeVenta_E o in ListarOrdenesdeVenta(fecha, cardCode, docNum))
+                //Primero se realiza un foreach de la primera lista que obtenemos de HANA para obtener la lista general con los filtros enviados
+                var ordenes = ListarOrdenesdeVenta(fecha, cardCode, docNum);
+
+                foreach (OrdenDeVenta_E o in ordenes)
                 {
-                    SqlCommand cmd = new SqlCommand("select T1.NroSap from " +
-                        " vt.ORTV T0 inner join vt.RTV2 T1 on T1.DocEntry = T0.DocEntry " +
-                         " where T0.Estado not in ('CANCELADO','ANULADO') and NroSap=" + o.DocNum, cn);
-                    int DocNum = Convert.ToInt32(cmd.ExecuteScalar());
-                    if (DocNum != o.DocNum)
+                    using (SqlCommand cmd = new SqlCommand(
+                        "select COUNT(1) from vt.ORTV T0 inner join vt.RTV2 T1 on T1.DocEntry = T0.DocEntry " +
+                        " where T0.Estado not in ('CANCELADO','ANULADO') and NroSap=@DocNum", cn)) // Consulta en la intranet tabla RTV2 para saber si la orden ya se uso.
+
                     {
-                        lista.Add(o);
+                        cmd.Parameters.AddWithValue("@DocNum", o.DocNum);
+
+                        int count = (int)cmd.ExecuteScalar();
+                        if (count == 0)
+                        {
+                            lista.Add(o);
+                        }
+
                     }
                 }
-                cn.Close();
             }
-            catch (Exception ex) { cn.Close(); Console.WriteLine($"Error de SQL: {ex.Message}"); }
             return lista;
         }
         //metodo usa un procedure para buscar tickets vinculados, solo se usa en la creacion y agregacion de tickets(Editar) en las hojas de ruta
@@ -2089,28 +2118,37 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             }
             return info;
         }
-        public string generaInfoListaOrdenesDeVenta(string fecha, string cardCode, int docNum)
+        public (string HtmlContent, string TipoVenta) generaInfoListaOrdenesDeVenta(string fecha, string cardCode, int docNum)
         {
-            string info = "<thead class='bg-dark text-white'><tr><th class='text-center'>#</th><th class='text-center'>VER</th><th class='text-center'>Monto</th>" +
-                              "<th class='text-center'>Nro SAP</th><th class='text-center'>Tipo Comprobante</th><th class='text-center'>Vendedor</th>" +
-                              "<th class='text-center'>Lugar de Entrega</th><th class='text-center'>ALM Salida</th><th class='text-center font-24'>Observación</th></tr></thead><tbody style='background: #D1D1D1'>";
+            string info = string.Empty;
             int linea = 1;
             List<OrdenDeVenta_E> lista = ListarOrdenesdeVentaFinales(fecha, cardCode, docNum);
-            foreach (OrdenDeVenta_E o in lista)
+            string tipoVenta = lista.Select(x => x.TipoVenta).Distinct().SingleOrDefault();
+
+            //Verifica si existe un solo TipoVenta en todas las órdenes relacionadas
+
+            if (tipoVenta != null && lista.Select(x => x.TipoVenta).Distinct().Count() == 1)
             {
-                info += "<tr><td  class='text-center'><input id='Linea" + linea + "' name='Det2[" + (linea - 1) + "].Linea' type='hidden' value='" + linea + "' readonly />" + linea + "</td>" +
-                    "<td class='text-center'><input id='Verificar" + linea + "' name='Det2[" + (linea - 1) + "].Verificar' type='checkbox' onclick=\"validacionVerificarMontos('')\" /></td>" +
-                    "<td class='text-center'><input id='Monto" + linea + "' name='Det2[" + (linea - 1) + "].Monto' type='hidden' value='" + String.Format("{0:0.00}", o.DocTotal) + "' readonly />" + String.Format("{0:0.00}", o.DocTotal) + "</td>" +
-                    "<td class='text-center'><input id='NroSap" + linea + "' name='Det2[" + (linea - 1) + "].NroSap' type='hidden' value='" + o.DocNum + "' readonly size=8 />" + o.DocNum + "</td>" +
-                    "<td class='text-center'><select id='TipoComprobante" + linea + "' name='Det2[" + (linea - 1) + "].TipoComprobante' class='form-control'><option value=''>Seleccione</option><option value='Factura'>Factura</option><option value='Boleta'>Boleta</option><option value='F/B'>F/B</option></select></td>" +
-                    "<td class='text-center'><input id='Vendedor" + linea + "' name='Det2[" + (linea - 1) + "].Vendedor' type='hidden' value='" + o.SlpName + "' readonly />" + o.SlpName + "</td>" +
-                    "<td class='text-center'><input id='LugarDeEntrega" + linea + "' name='Det2[" + (linea - 1) + "].LugarDeEntrega' type='hidden' value='" + o.LugarDeEntrega + "' readonly />" + o.LugarDeEntrega + "</td>" +
-                    "<td class='text-center'><input id='AlmacenSalida" + linea + "' name='Det2[" + (linea - 1) + "].AlmacenSalida' type='hidden' value='" + o.AlmacenSalida + "' readonly />" + o.AlmacenSalida + "</td>" +
-                    "<td class='text-center' style=width:'500px'><input id='Observaciones" + linea + "' name='Det2[" + (linea - 1) + "].Observaciones' type='text' size='30' class='form-control' /></td></tr>";
-                linea++;
+                info += "<thead class='bg-cobefar text-white'><tr><th class='text-center'>#</th><th class='text-center'>VER</th><th class='text-center'>Monto</th>" +
+                              "<th class='text-center'>Nro SAP</th><th class='text-center'>Tipo Comprobante</th><th class='text-center'>Vendedor</th>" +
+                              "<th class='text-center'>Lugar de Entrega</th><th class='text-center'>ALM Salida</th><th class='text-center font-24'>Observación</th></tr></thead><tbody style='background: #D1D1D1'>";
+
+                foreach (OrdenDeVenta_E o in lista)
+                {
+                    info += "<tr><td  class='text-center'><input id='Linea" + linea + "' name='Det2[" + (linea - 1) + "].Linea' type='hidden' value='" + linea + "' readonly />" + linea + "</td>" +
+                        "<td class='text-center'><input id='Verificar" + linea + "' name='Det2[" + (linea - 1) + "].Verificar' type='checkbox' onclick=\"validacionVerificarMontos('')\" /></td>" +
+                        "<td class='text-center'><input id='Monto" + linea + "' name='Det2[" + (linea - 1) + "].Monto' type='hidden' value='" + String.Format("{0:0.00}", o.DocTotal) + "' readonly />" + String.Format("{0:0.00}", o.DocTotal) + "</td>" +
+                        "<td class='text-center'><input id='NroSap" + linea + "' name='Det2[" + (linea - 1) + "].NroSap' type='hidden' value='" + o.DocNum + "' readonly size=8 />" + o.DocNum + "</td>" +
+                        "<td class='text-center'><select id='TipoComprobante" + linea + "' name='Det2[" + (linea - 1) + "].TipoComprobante' class='form-control'><option value=''>Seleccione</option><option value='Factura'>Factura</option><option value='Boleta'>Boleta</option><option value='F/B'>F/B</option></select></td>" +
+                        "<td class='text-center'><input id='Vendedor" + linea + "' name='Det2[" + (linea - 1) + "].Vendedor' type='hidden' value='" + o.SlpName + "' readonly />" + o.SlpName + "</td>" +
+                        "<td class='text-center'><input id='LugarDeEntrega" + linea + "' name='Det2[" + (linea - 1) + "].LugarDeEntrega' type='hidden' value='" + o.LugarDeEntrega + "' readonly />" + o.LugarDeEntrega + "</td>" +
+                        "<td class='text-center'><input id='AlmacenSalida" + linea + "' name='Det2[" + (linea - 1) + "].AlmacenSalida' type='hidden' value='" + o.AlmacenSalida + "' readonly />" + o.AlmacenSalida + "</td>" +
+                        "<td class='text-center' style=width:'500px'><input id='Observaciones" + linea + "' name='Det2[" + (linea - 1) + "].Observaciones' type='text' size='30' class='form-control' /></td></tr>";
+                    linea++;
+                }
+                info += "</tbody>";
             }
-            info += "</tbody>";
-            return info;
+            return (info, tipoVenta);
         }
         public string generaInfoListaNotasDeCreditoV(string CardCode)
         {

@@ -8,7 +8,6 @@ namespace Capa_Entidad.ReportesDigemid_ENT
 {
     public class OrdenDeVenta_E
     {
-        public int DocEntry { get; set; }
         public int DocNum { get; set; }
         public string RucCliente { get; set; }
         public string CardCode { get; set; }
@@ -18,7 +17,7 @@ namespace Capa_Entidad.ReportesDigemid_ENT
         public string Fecha { get; set; }
         public string NombreBd { get; set; }
         public decimal DocTotal { get; set; }
-        public string SlpName { get; set; }//VENDEDOR
+        public string SlpName { get; set; }
         public string LugarDeEntrega { get; set; }
         public string Producto { get; set; }
         public string FechaVenc { get; set; }
@@ -29,7 +28,7 @@ namespace Capa_Entidad.ReportesDigemid_ENT
         public decimal PrecioProdIgvVend { get; set; }
         public decimal TotalProdIgvVend { get; set; }
         public string UniMedidVend { get; set; }
-        //agregado
         public string AlmacenSalida { get; set; }
+        public string TipoVenta { get; set; }
     }
 }

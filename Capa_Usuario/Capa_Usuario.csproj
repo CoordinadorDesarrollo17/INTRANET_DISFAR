@@ -958,7 +958,6 @@
     <Content Include="Views\ReportesDigemid\reporteViewer.cshtml" />
     <Content Include="Views\ReportesDigemid\infoKardex.cshtml" />
     <Content Include="Views\Index\Error.cshtml" />
-    <Content Include="Views\Ventas\ListadoTickets.cshtml" />
     <Content Include="Views\Ventas\CreaTicketVenta.cshtml" />
     <Content Include="Views\Ventas\EditarTicketVenta.cshtml" />
     <Content Include="Views\Caja\PagarTicketVenta.cshtml" />

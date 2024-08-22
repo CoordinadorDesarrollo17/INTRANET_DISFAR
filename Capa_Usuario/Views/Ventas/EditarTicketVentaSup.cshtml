@@ -68,7 +68,7 @@
       } else {
           $("#TiempoEntrega").prop('readonly', true);
       }
-      
+
   });
     var contUser = 0;
     //funcion para mostrar buscador de tickets a vincular
@@ -121,8 +121,6 @@
                                 }
                                 if (response.Det2.length > 0) {
                                     if (response.LugarDestino === 'Domicilio') {
-                                        //console.log("AS " + almacenSalida);
-                                        //console.log("AS " + almacenSalida);
                                         if (response.Det2[0].AlmacenSalida === almacenSalida) {
                                             if (DireccionEnvio === DireccionActual) {
                                                 if ((response.Zona && response.Zona.trim().toLowerCase() === Zona.trim().toLowerCase()) || (!response.Zona && !Zona.trim())) {
@@ -443,12 +441,16 @@
                         </div>
                         <div class="col-lg-2">
                             <label for="TipoVenta" class="text-dark form-label font-weight-bold font-18">Tipo de Venta:</label>
-                            <select name="TipoVenta" id="TipoVenta" class="form-control bg-cobefar text-white">
-                                <option value="">Seleccione</option>
-                                <option value="Normal" @{ if (Model.TipoVenta == "Normal") { Write("selected"); } }>Normal</option>
-                                <option value="Credito" @{ if (Model.TipoVenta == "Credito") { Write("selected"); } }>Crédito</option>
-                                <option value="ContraEntrega" @{ if (Model.TipoVenta == "ContraEntrega") { Write("selected"); } }>ContraEntrega</option>
-                            </select>
+                            @if (Model.TipoVenta != "Credito")
+                            {
+                                <select name="TipoVenta" id="TipoVenta" class="form-control bg-cobefar text-white">
+                                    <option value="">Seleccione</option>
+                                    <option value="Normal" @{ if (Model.TipoVenta == "Normal") { Write("selected"); } }>Normal</option>
+                                    <option value="ContraEntrega" @{ if (Model.TipoVenta == "ContraEntrega") { Write("selected"); } }>ContraEntrega</option>
+                                </select>
+                            }
+                            else
+                            { <input type="text" name="TipoVenta" id="TipoVenta" class="form-control text-center border-success" value="@Model.TipoVenta" readonly>}
                         </div>
                         <div class="col-lg-2">
                             <label for="FormaPago" class="text-dark form-label font-weight-bold font-18">Forma de Pago:</label>
@@ -516,7 +518,7 @@
                         <div class="row mt-4">
                             <div class="col-lg-9">
                                 @if (!string.IsNullOrEmpty(Model.DirDestino))
-                                {<label for="DirDestino" class="text-dark form-label"  id="DireccionEscogida">@Model.DirDestino </label>}
+                                {<label for="DirDestino" class="text-dark form-label" id="DireccionEscogida">@Model.DirDestino </label>}
                                 <select name="DirDestino" id="DirDestino" class="form-control bg-cobefar text-white border-success" onchange="enviarValSelect('DirDestino', 'Distrito', 'Distrito');enviarValSelect('DirDestino', 'Provincia', 'Provincia');enviarValSelect('DirDestino', 'Departamento', 'Departamento');enviarValSelect('DirDestino', 'Ubigeo', 'Ubigeo');enviarValSelect('DirDestino', 'Calle', 'Calle');enviarValSelect('DirDestino', 'Zona', 'Zona');muestraCampo()">
                                     <option value="">Seleccione</option>
                                 </select>
@@ -668,8 +670,8 @@
                         </div>
 
                     </div>
-                 
-                    
+
+
 
                 </div>
 

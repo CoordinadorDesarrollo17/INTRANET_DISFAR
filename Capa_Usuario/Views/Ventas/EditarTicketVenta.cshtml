@@ -15,9 +15,9 @@
     $(document).ready(function () {
         //verifica los datos del ticket apenas carga la pagina por si hubiera algun error desde la creacion
         verificacionDatos('@Model.Estado');
-        //segun el ruc del cliente trae  el desplegable de sus direcciones SAP 
+        //segun el ruc del cliente trae  el desplegable de sus direcciones SAP
         validacionDirDestino('@Model.Estado');
-        
+
         //si no existe direccion 2 en la creacion, campo debe estar inhabilitado
         if ($("#Ubigeo2").val()=='') {
              $("#DirDestino2").attr('readonly', true);
@@ -51,8 +51,8 @@
         } else {
             $("#Zona").prop("readonly", true);
         }
-       
-        //Caso especial para trabajar con Agencia Courier (solo contempla CRUZ DEL SUR): 
+
+        //Caso especial para trabajar con Agencia Courier (solo contempla CRUZ DEL SUR):
         if ($("#Agencia").val() == 'CRUZ DEL SUR' && $("#EnvioAgencia").val() == 'Oficina de agencia') {
             $("#btnOficinas").show();
             $("#btn_verTarifario").show();
@@ -163,12 +163,16 @@
                         </div>
                         <div class="col-lg-2">
                             <label for="TipoVenta" class="text-dark form-label font-weight-bold font-18">Tipo de Venta:</label>
-                            <select name="TipoVenta" id="TipoVenta" class="form-control bg-cobefar text-white">
-                                <option value="">Seleccione</option>
-                                <option value="Normal" @{ if (Model.TipoVenta == "Normal") { Write("selected"); } }>Normal</option>
-                                <option value="Credito" @{ if (Model.TipoVenta == "Credito") { Write("selected"); } }>Crédito</option>
-                                <option value="ContraEntrega" @{ if (Model.TipoVenta == "ContraEntrega") { Write("selected"); } }>ContraEntrega</option>
-                            </select>
+                            @if (Model.TipoVenta != "Credito")
+                            {
+                                <select name="TipoVenta" id="TipoVenta" class="form-control bg-cobefar text-white">
+                                    <option value="">Seleccione</option>
+                                    <option value="Normal" @{ if (Model.TipoVenta == "Normal") { Write("selected"); } }>Normal</option>
+                                    <option value="ContraEntrega" @{ if (Model.TipoVenta == "ContraEntrega") { Write("selected"); } }>ContraEntrega</option>
+                                </select>
+                            }
+                            else
+                            { <input type="text" name="TipoVenta" id="TipoVenta" class="form-control text-center border-success" value="@Model.TipoVenta" readonly>}
                         </div>
                         <div class="col-lg-2">
                             <label for="Visible" class="text-dark form-label font-weight-bold font-18">Presupuesto:</label>
@@ -247,7 +251,7 @@
                                 <label for="DirDestino" class="text-dark form-label font-weight-bold font-18">DirDestino: </label>
                                 @if (!string.IsNullOrEmpty(Model.DirDestino))
                                 {<label class="text-dark form-label font-16" id="DireccionEscogida">@Model.DirDestino </label>}
-                                <select name="DirDestino" id="DirDestino" class="form-control bg-cobefar text-white border-success" onchange="enviarValSelect('DirDestino', 'Distrito', 'Distrito');enviarValSelect('DirDestino', 'Provincia', 'Provincia');enviarValSelect('DirDestino', 'Departamento', 'Departamento');enviarValSelect('DirDestino', 'Ubigeo', 'Ubigeo');enviarValSelect('DirDestino', 'Calle', 'Calle');enviarValSelect('DirDestino', 'Zona', 'Zona');"@*muestraCampo()*@>
+                                <select name="DirDestino" id="DirDestino" class="form-control bg-cobefar text-white border-success" onchange="enviarValSelect('DirDestino', 'Distrito', 'Distrito');enviarValSelect('DirDestino', 'Provincia', 'Provincia');enviarValSelect('DirDestino', 'Departamento', 'Departamento');enviarValSelect('DirDestino', 'Ubigeo', 'Ubigeo');enviarValSelect('DirDestino', 'Calle', 'Calle');enviarValSelect('DirDestino', 'Zona', 'Zona');" @*muestraCampo()*@>
                                     <option value="">Seleccione</option>
                                 </select>
                                 <input type="hidden" id="Calle" name="Det3[0].Calle" />
@@ -281,7 +285,7 @@
                         <div class="row mt-4">
                             <div class="col-lg-7">
                                 <label class="text-dark form-label font-weight-bold font-18">DirDestino2:</label>
-                                <input type="text" name="Det3[1].Calle" id="DirDestino2" class="form-control border-success" value="@if (Model.Det3 != null && Model.Det3.Count >= 2 && Model.Det3[1].Calle != null) { Write(Model.Det3[1].Calle); }" autocomplete="off"  onkeyup="validarDirDestino2(this.value);" />
+                                <input type="text" name="Det3[1].Calle" id="DirDestino2" class="form-control border-success" value="@if (Model.Det3 != null && Model.Det3.Count >= 2 && Model.Det3[1].Calle != null) { Write(Model.Det3[1].Calle); }" autocomplete="off" onkeyup="validarDirDestino2(this.value);" />
                             </div>
                             <div class="col-lg-3 d-flex align-items-end">
                                 <button id="btnUbigeo" type="button" class="btn btn-warning mx-2" data-toggle="modal" data-target="#modalUbigeo"><i class="icon icon-location"></i> Selec. Ubigeo</button>

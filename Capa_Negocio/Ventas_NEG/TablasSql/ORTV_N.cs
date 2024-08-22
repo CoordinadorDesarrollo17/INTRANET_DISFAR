@@ -19,10 +19,6 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
     {
         ORTV_D ticketV = new ORTV_D(); CC_ORTV_D ccTicket = new CC_ORTV_D();
         public object t { get; private set; }
-        //public string generaTablaTicketsVenta(ORTV_E filtro, int days, string[] estados)
-        //{
-        //    return ticketV.generaTablaTicketsVenta(filtro, days, estados);
-        //}
         public List<ORTV_E> listarTicketsParaRepartos(ORTV_E filtro, string[] estados, out int cantidadTicketsNoEnviados)
         {
             return ticketV.listarTicketsParaRepartos(filtro, estados, out cantidadTicketsNoEnviados);
@@ -30,10 +26,6 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         public List<ORTV_E> listarTicketsRepartosNoEnviados(ORTV_E filtro, string[] estados)
         {
             return ticketV.listarTicketsRepartosNoEnviados(filtro, estados);
-        }
-        public List<ORTV_E> listarTicketsVenta(Usuario_E user, ORTV_E t)
-        {
-            return ticketV.listarTicketsVenta(user, t);
         }
         public List<string> BuscarVinculados(int DocEntry, int DocNum)
         {
@@ -699,8 +691,8 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         {
             return ticketV.generaInfoListaDirDestinos(CardCode);
         }
-        public string generaInfoListaOrdenesDeVenta(string fecha, string cardCode, int docNum)
-        {
+        public (string HtmlContent, string TipoVenta) generaInfoListaOrdenesDeVenta(string fecha, string cardCode, int docNum)
+        { 
             return ticketV.generaInfoListaOrdenesDeVenta(fecha, cardCode, docNum);
         }
         public string generaInfoListaNotasDeCreditoV(string CardCode)
