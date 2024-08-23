@@ -43,7 +43,7 @@ namespace Capa_Usuario.Controllers
 
                 ViewBag.Mensaje = Mensaje;
                 ViewBag.Usuario = filtro;
-                ViewBag.Roles = orolN.listarRoles(usuarioSesion.IdRol);
+                ViewBag.Roles = orolN.listarRoles(usuarioSesion.IdRol).Where(x => x.Id!=1);
 
                 return View(ousrN.listaUsuariosPermisos(filtro, usuarioSesion.IdRol).OrderByDescending(x => x.DocEntry).ToList());
             }
@@ -60,7 +60,6 @@ namespace Capa_Usuario.Controllers
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 Usuario_E usuarioSesion = (Usuario_E)Session["UsuarioId"];
-               // ViewBag.Empleados = new OEMPL_N().ListarEmpleados(new Capa_Entidad.RecursosHumanos_ENT.TablasSQL.OEMPL_E { Estado = "1" });
                 ViewBag.Empleados = new OEMPL_N().ListarEmpleadosConDatosLaborales(new Capa_Entidad.RecursosHumanos_ENT.TablasSQL.OEMPL_E { Estado = "1" }, null);
                 ViewBag.Roles = orolN.listarRoles(usuarioSesion.IdRol);
                 ViewBag.Sedes = new SEDE_N().ListarSedesParaCrearUsuario(null);

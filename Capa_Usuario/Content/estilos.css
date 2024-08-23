@@ -887,13 +887,13 @@ video {
 }
 
 .bg-breadcumb {
-    background-image: url('img/abstract-neon-lines-dark-background.jpg');
+    background-image: url('img/lines-dark-background.jpg');
     background-attachment: fixed;
     background-size: cover;
 }
 
 .bg-headerModals {
-    background-image: url('img/abstract-neon-lines-dark-background.jpg');
+    background-image: url('img/lines-dark-background.jpg');
     background-attachment: fixed;
     background-repeat: no-repeat;
     background-size: cover;
