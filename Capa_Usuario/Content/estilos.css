@@ -322,6 +322,7 @@ a {
 
 .bg-form-pestanas-cobefar {
     background-color: #FAFAFA !important;
+    min-height: calc(100vh - 250px);
 }
 
 .bg-blancoHumo {
@@ -349,7 +350,10 @@ a {
         border-color: #135a82;
         color: white;
     }
-
+.btn-fucsia, .btn-fucsia:hover {
+    background-color: fuchsia;
+    color: white;
+}
 .btn-orange, .btn-naranja {
     background-color: orangered;
     color: white;
