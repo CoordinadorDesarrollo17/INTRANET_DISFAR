@@ -15,31 +15,30 @@ namespace Capa_Negocio.Seguridad_NEG
 {
     public class Usuario_N
     {
-        Usuario_D usuario_D = new Usuario_D();
+        Usuario_D ousrD = new Usuario_D();
         Helpers helper = new Helpers();
 
         public List<Usuario_E> ListaUsuarios(Usuario_E filtro)
         {
-            return usuario_D.ListaUsuarios(filtro);
+            return ousrD.ListaUsuarios(filtro);
         }
         public List<Usuario_E> listaUsuariosPermisos(Usuario_E filtro, int idRol)
         {
-            return usuario_D.listaUsuariosPermisos(filtro, idRol);
+            return ousrD.listaUsuariosPermisos(filtro, idRol);
         }
         public Dictionary<string, string> generarId(int idRol)
         {
-            return usuario_D.generarId(idRol);
+            return ousrD.generarId(idRol);
         }
         public Usuario_E buscarUsuario(int DocEntry)
         {
-            return usuario_D.buscarUsuario(DocEntry);
+            return ousrD.buscarUsuario(DocEntry);
         }
         public Usuario_E buscarUsuarioSesion(string user, string pass)
         {
             //liberar los datos de inyecciones
-            return usuario_D.buscarUsuarioSesion(user, pass);
+            return ousrD.buscarUsuarioSesion(user, pass);
         }
-
         public Helper_E crearUsuario(Usuario_E datosPost, String opRegistro)
         {
             if (datosPost.EmpleadoID > 0)
@@ -57,7 +56,7 @@ namespace Capa_Negocio.Seguridad_NEG
             if (string.IsNullOrEmpty(datosPost.Apellidos) || string.IsNullOrEmpty(datosPost.Apellidos.Trim())) { throw new Exception("El campo Apellidos no puede ser vacío"); }
 
             // Buscamos si el usuario cuenta con un usuario con el mismo rol
-            var busquedaUsuario = usuario_D.BuscarUsuarioRol(datosPost.Nombres.Trim(), datosPost.Apellidos.Trim(), datosPost.IdRol);
+            var busquedaUsuario = ousrD.BuscarUsuarioRol(datosPost.Nombres.Trim(), datosPost.Apellidos.Trim(), datosPost.IdRol);
             if (busquedaUsuario > 0) { throw new Exception("Se detectó un usuario con los mismos Nombres y Apellidos"); }
 
             if (string.IsNullOrEmpty(datosPost.Id)) { throw new Exception("No puede registrar un ID vacío"); }
@@ -75,7 +74,7 @@ namespace Capa_Negocio.Seguridad_NEG
 
             // Generamos una contraseña por default
             datosPost.Password = GenerarContrasena(datosPost.Nombres.Trim(), datosPost.Apellidos.Trim(), datosPost.Id);
-            var result = usuario_D.CrearUsuario(datosPost, opRegistro);
+            var result = ousrD.CrearUsuario(datosPost, opRegistro);
 
             if (result.DocEntry > 0)
             {
@@ -85,7 +84,6 @@ namespace Capa_Negocio.Seguridad_NEG
 
             return result;
         }
-
         public string EditarUsuario(Usuario_E datosPost)
         {
             if (string.IsNullOrWhiteSpace(datosPost.Password))
@@ -113,19 +111,20 @@ namespace Capa_Negocio.Seguridad_NEG
                 return "La contraseña debe contener al menos 1 caracter especial.";
             }
 
-            return usuario_D.EditarUsuario(datosPost);
+            return ousrD.EditarUsuario(datosPost);
         }
-
         public string Inactivar(Usuario_E obj)
         {
-            return usuario_D.Inactivar(obj);
+            return ousrD.Inactivar(obj);
         }
-
+        public string Activar(Usuario_E obj)
+        {
+            return ousrD.Activar(obj);
+        }
         public Usuario_E BuscarDocEntryUsuario(string Usuario)
         {
-            return usuario_D.BuscarDocEntryUsuario(Usuario);
+            return ousrD.BuscarDocEntryUsuario(Usuario);
         }
-
         static string GenerarContrasena(string nombre, string apellido, string id)
         {
             // Obtener los primeros 3 caracteres del nombre y apellido

@@ -81,7 +81,7 @@ namespace Capa_Usuario.Controllers
                 ViewBag.ListaTicketsSeparados = ticketN.listarTicketsSeparados(user.CodigoSap);
                 ViewBag.DocNum = DocNum;
                 ViewBag.Ortv = t;
-                ViewBag.Vendedores = u_N.listaUsuariosPermisos(null, 6);        // Usado como Filtro en el botón AnVentas (Reporte Analítico Ventas)
+                ViewBag.Vendedores = u_N.listaUsuariosPermisos(new Usuario_E{Activo=1}, 6);        // Usado como Filtro en el botón AnVentas (Reporte Analítico Ventas)
                 ViewBag.CodSapVendedor = user != null && user.IdRol != 6 ? user.CodigoSap : 0;
 
                 if (mensaje != null) { ViewBag.Mensaje = mensaje; }

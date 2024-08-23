@@ -13,7 +13,7 @@ namespace Capa_Usuario.Controllers
 {
     public class TI_SistemasController : Controller
     {
-        Usuario_N uN = new Usuario_N();
+        Usuario_N ousrN = new Usuario_N();
         Orol_N orolN = new Orol_N();
 
         /************************* C O N F I G U R A C I Ó N *************************/
@@ -45,7 +45,7 @@ namespace Capa_Usuario.Controllers
                 ViewBag.Usuario = filtro;
                 ViewBag.Roles = orolN.listarRoles(usuarioSesion.IdRol);
 
-                return View(uN.listaUsuariosPermisos(filtro, usuarioSesion.IdRol).OrderByDescending(x => x.FechaRegistro).ToList());
+                return View(ousrN.listaUsuariosPermisos(filtro, usuarioSesion.IdRol).OrderByDescending(x => x.DocEntry).ToList());
             }
             else
             {
@@ -85,7 +85,7 @@ namespace Capa_Usuario.Controllers
 
                 try
                 {
-                    var result = uN.crearUsuario(datosPost, $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}");
+                    var result = ousrN.crearUsuario(datosPost, $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}");
 
                     return RedirectToAction("GestionPermisos", new { result.Mensaje });
                 }
@@ -111,7 +111,7 @@ namespace Capa_Usuario.Controllers
 
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                var usuario = uN.buscarUsuario(DocEntry);
+                var usuario = ousrN.buscarUsuario(DocEntry);
                 usuario.Password2 = usuario.Password;
                 ViewBag.RolUsuario = orolN.ObtenerRol(usuario.IdRol);
                 ViewBag.Sedes = new SEDE_N().ListarSedesParaCrearUsuario(null);
@@ -132,11 +132,11 @@ namespace Capa_Usuario.Controllers
 
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                var mensaje = uN.EditarUsuario(datosPost);
+                var mensaje = ousrN.EditarUsuario(datosPost);
 
                 if (!string.IsNullOrEmpty(mensaje))
                 {
-                    var usuario = uN.buscarUsuario(datosPost.DocEntry);
+                    var usuario = ousrN.buscarUsuario(datosPost.DocEntry);
                     usuario.Email = datosPost.Email;
                     usuario.CodigoSap = datosPost.CodigoSap;
                     usuario.Password = datosPost.Password;
@@ -167,8 +167,8 @@ namespace Capa_Usuario.Controllers
             {
                 try
                 {
-                    Usuario_E obj = uN.buscarUsuario(DocEntry);
-                    uN.Inactivar(obj);
+                    Usuario_E obj = ousrN.buscarUsuario(DocEntry);
+                    ousrN.Inactivar(obj);
                     return RedirectToAction("GestionPermisos");
                 }
                 catch (Exception e)
@@ -182,7 +182,30 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+        public ActionResult ActivarUsuario(int DocEntry, int idOperation = 1505)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
 
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                try
+                {
+                    Usuario_E obj = ousrN.buscarUsuario(DocEntry);
+                    ousrN.Activar(obj);
+                    return RedirectToAction("GestionPermisos");
+                }
+                catch (Exception e)
+                {
+                    ViewBag.Mensaje = e.Message;
+                    return RedirectToAction("GestionPermisos");
+                }
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
+        
         [HttpGet]
         public ActionResult VisualizarPermisosPorRol(int rolID)
         {
@@ -246,7 +269,7 @@ namespace Capa_Usuario.Controllers
         // infos
         public JsonResult infoIdUsuario(int idRol)
         {
-            return Json(uN.generarId(idRol));
+            return Json(ousrN.generarId(idRol));
         }
 
     }

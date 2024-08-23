@@ -213,6 +213,7 @@ namespace Capa_Datos
             {
                 if (filtro.DocEntry > 0) { condWhere += $" AND DocEntry = '{filtro.DocEntry}'"; }
                 if (filtro.Nombres != null) { condWhere += $" AND CONCAT(Nombres, ' ', Apellidos) LIKE '%{filtro.Nombres}%'"; }
+                if (filtro.Activo > 0) { condWhere += $" AND Activo=1"; }
             }
 
             if (idRol >= 2)
@@ -240,7 +241,7 @@ namespace Capa_Datos
                                             INNER JOIN
                                                 OROL ROL ON ROL.Id = USU.IdRol
                                             WHERE
-                                                1 = 1 " + condWhere + @" AND USU.Activo=1 ORDER BY USU.Nombres";
+                                                1 = 1 " + condWhere + @" ORDER BY USU.Nombres";
                 SqlCommand cmd = new SqlCommand(query, cn);
                 cn.Open();
 
@@ -377,7 +378,33 @@ namespace Capa_Datos
                     cn.Open();
                     SqlCommand cmd = new SqlCommand("dbo.MANT_OUSR", cn);
                     cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "D");
+                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "INC");
+                    cmd.Parameters.AddWithValue("@DocEntry", usu.DocEntry).Direction = ParameterDirection.InputOutput;
+                    cmd.ExecuteNonQuery();
+                }
+                catch (SqlException e)
+                {
+                    msj = e.Message;
+                }
+                catch (Exception e2)
+                {
+                    throw new Exception("Error : " + e2.Message);
+                }
+            }
+
+            return msj;
+        }
+        public string Activar(Usuario_E usu)
+        {
+            string msj = string.Empty;
+            using (SqlConnection cn = new SqlConnection(uti.cadSql))
+            {
+                try
+                {
+                    cn.Open();
+                    SqlCommand cmd = new SqlCommand("dbo.MANT_OUSR", cn);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "ACT");
                     cmd.Parameters.AddWithValue("@DocEntry", usu.DocEntry).Direction = ParameterDirection.InputOutput;
                     cmd.ExecuteNonQuery();
                 }
