@@ -7,23 +7,35 @@ using Capa_Entidad.Almacen_ENT.Tablas;
 using Capa_Entidad.ReportesDigemid_ENT.Formularios;
 using Capa_Entidad.ReportesDigemid_ENT.Reportes;
 using Capa_Negocio.ReportesDigemid_NEG;
-using Capa_Negocio.Seguridad_NEG;
 using Microsoft.Reporting.WebForms;
 using Rotativa;
 using Capa_Negocio.DireccionTecnica_NEG.Reportes;
-using Capa_Negocio.Ventas_NEG.TablasSql;
 using OfficeOpenXml;
 using OfficeOpenXml.Table;
-using Capa_Datos.DireccionTecnica_DAO.Reportes;
-using Capa_Entidad.DireccionTecnica_ENT.TablasSql;
+using Capa_Usuario.Helpers;
 
 namespace Capa_Usuario.Controllers
 {
     public class ReportesDigemidController : Controller
     {
-        DocumentosDig_N dN = new DocumentosDig_N(); int modulo = 3;
-        Rol1_N rol1 = new Rol1_N();
-        // GET: ReportesDigemid            
+        DocumentosDig_N dN = new DocumentosDig_N();
+
+        /************************* C O N F I G U R A C I Ó N *************************/
+        private ActionResult VerificarPermiso(int idOperation)
+        {
+            var accesoHelper = new Capa_Entidad.AccessoHelper_E
+            {
+                OpeID = idOperation,
+                usuario = (Usuario_E)Session["UsuarioId"],
+                controllerDestino = this.ControllerContext.RouteData.Values["controller"].ToString(),
+                action = this.ControllerContext.RouteData.Values["action"].ToString(),
+                userHostAddress = Request.UserHostAddress,
+                userHostName = Request.UserHostName
+            };
+
+            return AccesoHelper.GestionarAccesoController(this, accesoHelper);
+        }
+        /********************************************************************/
         public ActionResult infoKardex()
         {
             Capa_Negocio.General_NEG.Tablas.OWHS_N owhsN = new Capa_Negocio.General_NEG.Tablas.OWHS_N();
@@ -78,7 +90,7 @@ namespace Capa_Usuario.Controllers
         }
         public ActionResult tbReportePreciosOpm(string FecIni, string FecFin)
         {
-            verificacionAccesos(0);
+            //verificacionAccesos(0);
             ReportViewer rp = new ReportViewer();
             try
             {
@@ -96,7 +108,7 @@ namespace Capa_Usuario.Controllers
         }
         public ActionResult tbReporteOperacionesLotes(FrmOperacionesLotes_E f)
         {
-            verificacionAccesos(0);
+            //verificacionAccesos(0);
             ViewBag.Frm = f;
             try
             {
@@ -115,7 +127,7 @@ namespace Capa_Usuario.Controllers
         }
         public ActionResult tbReporteAuditoriaStocks(FrmAuditoriaStocks_E f)
         {
-            verificacionAccesos(0);
+            //verificacionAccesos(0);
             List<string> CodArticulos = new List<string>();
             ViewBag.CodArticulos = CodArticulos;
             try
@@ -135,7 +147,7 @@ namespace Capa_Usuario.Controllers
         }
         public ActionResult tbReporteKardex(FrmKardex_E f)
         {
-            verificacionAccesos(0);
+            //verificacionAccesos(0);
             ReportViewer rp = new ReportViewer();
             try
             {
@@ -170,7 +182,10 @@ namespace Capa_Usuario.Controllers
 
         public ActionResult RptExcelKardexAlmacenes(FrmKardex_E filtros, int idOperation = 1327)
         {
-            if (verificacionAccesos(idOperation) == "C_Access")
+
+            string acceso = AccesoHelper.VerificarAccesos(idOperation, (Usuario_E)Session["UsuarioId"], this.ControllerContext.RouteData.Values["action"].ToString(), Request.UserHostAddress, Request.UserHostName);
+
+            if (acceso == "C_Access")
             {
                 ReportesDigemid_N digN = new ReportesDigemid_N();
                 string nombreArchivo = $"RptKardexAlmacenes.xlsx";
@@ -200,8 +215,10 @@ namespace Capa_Usuario.Controllers
                     return File(libro.GetAsByteArray(), excelContentType, nombreArchivo);
                 }
             }
-            else if (verificacionAccesos(idOperation) == "E_Login") { return null; }
-            else { return null; }
+            else
+            {
+                return null;
+            }
         }
         /*****************************************************************************************/
 
@@ -214,7 +231,7 @@ namespace Capa_Usuario.Controllers
 
         public ActionResult RptBalanceControlados(FrmBalanceControlados_E filtros)
         {
-            verificacionAccesos(0);
+            //verificacionAccesos(0);
             ReportesDigemid_N digN = new ReportesDigemid_N();
             ReportViewer rp = new ReportViewer();
 
@@ -282,7 +299,7 @@ namespace Capa_Usuario.Controllers
         /********************** O P E R A C I O N E S   D E   N °   L O T E **********************/
         public ActionResult RptOperacionesLotes(FrmOperacionesLotes_E f)
         {
-            verificacionAccesos(0);
+            //verificacionAccesos(0);
             ViewBag.Frm = f;
             try
             {
@@ -312,7 +329,10 @@ namespace Capa_Usuario.Controllers
 
         public ActionResult RptExcelRegistroSanitario(string codArticulo, string firmCode, int idOperation = 1327)
         {
-            if (verificacionAccesos(idOperation) == "C_Access")
+
+            string acceso = AccesoHelper.VerificarAccesos(idOperation, (Usuario_E)Session["UsuarioId"], this.ControllerContext.RouteData.Values["action"].ToString(), Request.UserHostAddress, Request.UserHostName);
+
+            if (acceso == "C_Access")
             {
                 ReportesDigemid_N digN = new ReportesDigemid_N();
                 string nombreArchivo = $"RptExcelRegistroSanitario.xlsx";
@@ -342,14 +362,16 @@ namespace Capa_Usuario.Controllers
                     return File(libro.GetAsByteArray(), excelContentType, nombreArchivo);
                 }
             }
-            else if (verificacionAccesos(idOperation) == "E_Login") { return null; }
-            else { return null; }
+            else
+            {
+                return null;
+            }
         }
         /*******************************************************************************/
 
         public ActionResult tbReporteBalanceControlados(FrmBalanceControlados_E f)
         {
-            verificacionAccesos(0);
+            //verificacionAccesos(0);
             ReportViewer rp = new ReportViewer();
             try
             {
@@ -388,7 +410,7 @@ namespace Capa_Usuario.Controllers
 
         public ActionResult tbVentasArtLote(FrmKardex_E f)
         {
-            verificacionAccesos(0);
+            //verificacionAccesos(0);
             ReportViewer rp = new ReportViewer();
             try
             {
@@ -407,25 +429,6 @@ namespace Capa_Usuario.Controllers
         public ActionResult reporteViewer()
         {
             return View();
-        }
-
-        private string verificacionAccesos(int ope)
-        {
-            string nombreOperacion = this.ControllerContext.RouteData.Values["action"].ToString();
-            Usuario_E user = (Usuario_E)Session["UsuarioId"];
-            if (user == null)
-            { return "E_Login"; }
-            else
-            {
-                if ((rol1.verificarAccesoOperacion(user.IdRol, ope, nombreOperacion, modulo) == 1) || (user.IdRol == 1))
-                {
-                    Capa_Negocio.Utilitarios_N utiN = new Capa_Negocio.Utilitarios_N();
-                    //utiN.registrarLog(user.id, "intento de " + nombreOperacion, ope, Request.UserHostAddress, Request.UserHostName);
-                    return "C_Access";
-                }
-                else
-                { return "E_Access"; }
-            }
-        }
+        }        
     }
 }

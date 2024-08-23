@@ -59,7 +59,7 @@
 
 <div class="pt-4">
     <nav>
-        <ol class="cd-breadcrumb bg-dark">
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="/Index/Sesion">Inicio</a></li>
 
             @if (ViewBag.TipoRep == "Re")
@@ -76,7 +76,7 @@
     </nav>
 </div>
 
-<div class="bg-dark border-cabecera-seccion pb-2">
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
     <div class="px-3 pt-3"><h3 class="titulo-seccion">GESTIONAR CHOFERES</h3></div>
 </div>
 
@@ -86,7 +86,7 @@
         <div class="row mt-2">
             <div class="col-lg-4">
                 <label class="text-dark form-label font-weight-bold font-18">Nombres:</label>
-                <input class="form-control border-success" type="search" list="Lista" name="U_SYP_CHNO" id="U_SYP_CHNO" autocomplete="off" onChange="valorCampoList('Lista','U_SYP_CHNO','Code','id');">
+                <input class="form-control-sm border border-success" type="search" list="Lista" name="U_SYP_CHNO" id="U_SYP_CHNO" autocomplete="off" onChange="valorCampoList('Lista','U_SYP_CHNO','Code','id');">
                 <datalist id="Lista">
                     @foreach (var c in ViewBag.ListaOpRepartos)
                     {
@@ -98,17 +98,17 @@
             <div class="col-lg-3">
                 <input name="TipoRep" value="@ViewBag.TipoRep" type="hidden" readonly />
                 <label class="text-dark form-label font-weight-bold font-18">Usuario:</label>
-                <input type="text" class="form-control border-success" id="Code" name="Code" readonly>
+                <input type="text" class="form-control-sm border border-success" id="Code" name="Code" readonly>
             </div>
 
             <div class="col-lg-2">
                 <label class="text-dark form-label font-weight-bold font-18">DNI:</label>
-                <input type="text" class="form-control border-success" name="Name">
+                <input type="text" class="form-control-sm border border-success" name="Name">
             </div>
 
             <div class="col-lg-3">
                 <label class="text-dark form-label font-weight-bold font-18">Licencia:</label>
-                <input type="text" class="form-control border-success" name="U_SYP_CHLI">
+                <input type="text" class="form-control-sm border border-success" name="U_SYP_CHLI">
             </div>
 
 
@@ -119,50 +119,50 @@
         </div>
     </form>
 
-    <div class="mt-4 pt-4 bg-dark">
+    <div class="mt-4 bg-light bg-form-cobefar">
         <form name="frm2" id="frm2">
             <table class="table table-light table-sm table-hover cls-dataTable" cellspacing="0" width="100%">
-                <thead class="thead-dark">
+                <thead class="bg-cobefar-6">
                     <tr>
-                        <th>
+                        <th class="text-center">
                             <input name="TipoRep" value="@ViewBag.TipoRep" type="hidden" readonly />
                             @Html.DisplayName("Usuario")<br />
                             @if (ViewBag.Ocho != null && ViewBag.Ocho.Code != null)
                             {
-                                <input class="form-control" type="text" name="Code" onchange="filtrar();" value="@ViewBag.Ocho.Code" />
+                                <input class="form-control-sm border" type="text" name="Code" onchange="filtrar();" value="@ViewBag.Ocho.Code" />
                             }
                             else
-                            { <input class="form-control" type="text" name="Code" onchange="filtrar();" />}
+                            { <input class="form-control-sm border" type="text" name="Code" onchange="filtrar();" />}
 
                         </th>
                         <th class="text-center">
                             @Html.DisplayName("DNI")<br />
                             @if (ViewBag.Ocho != null && ViewBag.Ocho.Name != null)
                             {
-                                <input class="form-control" type="text" name="Name" onchange="filtrar();" value="@ViewBag.Ocho.Name" />
+                                <input class="form-control-sm border" type="text" name="Name" onchange="filtrar();" value="@ViewBag.Ocho.Name" />
                             }
                             else
-                            { <input class="form-control" type="text" name="Name" onchange="filtrar();" />}
+                            { <input class="form-control-sm border" type="text" name="Name" onchange="filtrar();" />}
 
                         </th>
                         <th class="text-center">
                             @Html.DisplayName("Licencia")<br />
                             @if (ViewBag.Ocho != null && ViewBag.Ocho.U_SYP_CHLI != null)
                             {
-                                <input class="form-control" type="text" name="U_SYP_CHLI" onchange="filtrar();" value="@ViewBag.Ocho.U_SYP_CHLI" />
+                                <input class="form-control-sm border" type="text" name="U_SYP_CHLI" onchange="filtrar();" value="@ViewBag.Ocho.U_SYP_CHLI" />
                             }
                             else
-                            { <input class="form-control" type="text" name="U_SYP_CHLI" onchange="filtrar();" />}
+                            { <input class="form-control-sm border" type="text" name="U_SYP_CHLI" onchange="filtrar();" />}
 
                         </th>
-                        <th class="text-center">
+                        <th>
                             @Html.DisplayName("Nombres")<br />
                             @if (ViewBag.Ocho != null && ViewBag.Ocho.U_SYP_CHNO != null)
                             {
-                                <input class="form-control" type="text" name="U_SYP_CHNO" onchange="filtrar();" value="@ViewBag.Ocho.U_SYP_CHNO" />
+                                <input class="form-control-sm border w-100" type="text" name="U_SYP_CHNO" onchange="filtrar();" value="@ViewBag.Ocho.U_SYP_CHNO" />
                             }
                             else
-                            { <input class="form-control" type="text" name="U_SYP_CHNO" onchange="filtrar();" />}
+                            { <input class="form-control-sm border w-100" type="text" name="U_SYP_CHNO" onchange="filtrar();" />}
 
                         </th>
                         <th></th>
@@ -185,7 +185,7 @@
                             @Html.DisplayFor(modelItem => item.U_SYP_CHNO)
                         </td>
                         <td class="text-center">
-                            <a href="#" onclick="eliminarChofer('@item.Code','@ViewBag.TipoRep')" class="btn btn-danger"><i class="icon icon-bin2"></i> </a>
+                            <a href="#" onclick="eliminarChofer('@item.Code','@ViewBag.TipoRep')" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Eliminar Chofer"><i class="icon icon-bin2 text-danger"></i> </a>
                         </td>
                     </tr>
                 }

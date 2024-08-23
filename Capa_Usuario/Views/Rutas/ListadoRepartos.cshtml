@@ -50,58 +50,55 @@
 
 <div class="pt-4">
     <nav>
-        <ol class="cd-breadcrumb bg-dark">
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
             <li class="current"><em>Listado de repartos</em></li>
         </ol>
     </nav>
 </div>
 
-<div class="bg-dark border-cabecera-seccion pb-2">
-    <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO DE REPARTOS</h3></div>
-
-    <div class="d-none d-sm-block pl-2 w-100 py-2">
-        <!-- GENERAR UN DROPDOWN ORDEN DE RUTA -->
-        <a id="accion" href="@Url.Action("CrearOrdenDeRuta", "Rutas",new {TipoRep="Re" })" class="btn btn-success">
-            Hoja de reparto
-        </a>
-        <a id="accion" href="@Url.Action("CrearOrdenDeRutaAlm", "Rutas",new {TipoRep="Re" })" class="btn btn-success">
-            Orden entre almacenes
-        </a>
-        @*<a id="accion" href="@Url.Action("CrearHojaDeCargo", "Rutas",new {TipoRep="Re" })" class="btn btn-success">
-                Hoja de cargo
-            </a>*@
-
-        <button data-toggle="modal" href="#ModalGestion" class="btn btn-warning d-none d-sm-none d-md-none d-lg-block d-xl-block">
-            <b>Módulo Gestión</b>
-        </button>
-    </div>
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO DE REPARTOS</h3></div>    
 </div>
 
+<div class="bg-white d-none d-sm-block pl-2 w-100 py-3">
+    <!-- GENERAR UN DROPDOWN ORDEN DE RUTA -->
+    <a id="accion" href="@Url.Action("CrearOrdenDeRuta", "Rutas",new {TipoRep="Re" })" class="btn btn-success">
+        Hoja de reparto
+    </a>
+    <a id="accion" href="@Url.Action("CrearOrdenDeRutaAlm", "Rutas",new {TipoRep="Re" })" class="btn btn-success">
+        Orden entre almacenes
+    </a>
+    @*<a id="accion" href="@Url.Action("CrearHojaDeCargo", "Rutas",new {TipoRep="Re" })" class="btn btn-success">
+            Hoja de cargo
+        </a>*@
 
-
+    <button data-toggle="modal" href="#ModalGestion" class="btn btn-warning d-none d-sm-none d-md-none d-lg-block d-xl-block">
+        <b>Módulo Gestión</b>
+    </button>
+</div>
 
 <div class="modal " id="ModalGestion" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content  border border-secondary">
-            <div class="modal-header bg-cobefar text-white">
+            <div class="modal-header bg-headerModals text-white">
                 <h5 class="modal-title" id="moduloGestionModal">MÓDULO PARA GESTIÓN</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+                    <span class="text-white" aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body bg-light">
                 <div class="d-flex justify-content-center">
-                    <a id="accion" href="@Url.Action("GestionarChoferes", "Rutas",new {TipoRep="Re" })" class="btn btn-cobefar d-none d-sm-none d-md-none d-lg-block d-xl-block">
+                    <a id="accion" href="@Url.Action("GestionarChoferes", "Rutas",new {TipoRep="Re" })" class="btn bg-cobefar-6 text-white d-none d-sm-none d-md-none d-lg-block d-xl-block">
                         <i class="icon-users"></i> Choferes
                     </a>
-                    <a id="accion" href="@Url.Action("GestionarVehiculos", "Rutas",new {TipoRep="Re" })" class="btn btn-cobefar d-none d-sm-none d-md-none d-lg-block d-xl-block">
+                    <a id="accion" href="@Url.Action("GestionarVehiculos", "Rutas",new {TipoRep="Re" })" class="btn bg-cobefar-6 text-white d-none d-sm-none d-md-none d-lg-block d-xl-block">
                         <i class="icon-truck"></i> Vehículos
                     </a>
-                    <a id="accion" href="@Url.Action("GestionarOficinas", "Rutas",new {TipoRep="Re" })" class="btn btn-cobefar d-none d-sm-none d-md-none d-lg-block d-xl-block">
+                    <a id="accion" href="@Url.Action("GestionarOficinas", "Rutas",new {TipoRep="Re" })" class="btn bg-cobefar-6 text-white d-none d-sm-none d-md-none d-lg-block d-xl-block">
                         <i class="icon-office"></i> Oficinas Courier
                     </a>
-                    <a id="accion" href="@Url.Action("GestionarTarifarios", "Rutas",new {TipoRep="Re" })" class="btn btn-cobefar d-none d-sm-none d-md-none d-lg-block d-xl-block">
+                    <a id="accion" href="@Url.Action("GestionarTarifarios", "Rutas",new {TipoRep="Re" })" class="btn bg-cobefar-6 text-white d-none d-sm-none d-md-none d-lg-block d-xl-block">
                         <i class="icon-book"></i> Tarifario
                     </a>
                 </div>
@@ -112,22 +109,22 @@
 
 
 <form name="frm" id="frm">
-    <div class="bg-dark pt-4">
+    <div class="bg-white bg-form-cobefar">
         <table class="table table-light table-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
-            <thead class="thead-dark">
+            <thead class="bg-cobefar-6">
                 <tr>
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.DocNum)<br />
                         @if (o != null && o.DocNum > 0)
                         {
-                            <input class="form-control" type="text" name="DocNum" onchange="filtrar();" value="@o.DocNum" />
+                            <input class="form-control-sm border w-50" type="text" name="DocNum" onchange="filtrar();" value="@o.DocNum" />
                         }
                         else
-                        { <input class="form-control" type="text" name="DocNum" onchange="filtrar();" />}
+                        { <input class="form-control-sm border w-50" type="text" name="DocNum" onchange="filtrar();" />}
                     </th>
                     <th class="text-center">
                         @Html.DisplayName("Tipo")<br />
-                        <select name="TipoRuta" class="form-control select_filtro-table" onchange="filtrar();">
+                        <select name="TipoRuta" class="form-control-sm border" onchange="filtrar();">
                             <option value=""></option>
                             <option value="AC" @if (o != null && o.TipoRuta == "AC") { Write("selected"); }>Agencia Courier</option>
                             <option value="VC" @if (o != null && o.TipoRuta == "VC") { Write("selected"); }>Almacen 01</option>
@@ -139,7 +136,7 @@
                     </th>
                     <th class="text-center">
                         Conductor<br />
-                        <select name="TransDesc" class="form-control" style="height: 40px" onchange="filtrar();">
+                        <select name="TransDesc" class="form-control-sm border" onchange="filtrar();">
                             <option value=""></option>
                             @foreach (var t in Choferes)
                             {
@@ -151,14 +148,14 @@
                         @Html.DisplayNameFor(model => model.TiempoPac)<br />
                         @if (o != null && o.TiempoPac != null)
                         {
-                            <input type="date" name="TiempoPac" class="form-control text-center" value="@Convert.ToDateTime(o.TiempoPac).ToString("yyyy-MM-dd")" onchange="filtrar();" />
+                            <input type="date" name="TiempoPac" class="form-control-sm border text-center" value="@Convert.ToDateTime(o.TiempoPac).ToString("yyyy-MM-dd")" onchange="filtrar();" />
                         }
                         else
-                        { <input type="date" name="TiempoPac" class="form-control text-center" onchange="filtrar();" />}
+                        { <input type="date" name="TiempoPac" class="form-control-sm border text-center" onchange="filtrar();" />}
                     </th>
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.Estado)<br />
-                        <select name="Estado" class="form-control select_filtro-table" onchange="filtrar();">
+                        <select name="Estado" class="form-control-sm border" onchange="filtrar();">
                             <option value=""></option>
                             <option value="CREADO" @if (o != null && o.Estado == "CREADO") { Write("selected"); }>CREADO</option>
                             <option value="ENVIADO" @if (o != null && o.Estado == "ENVIADO") { Write("selected"); }>ENVIADO</option>
@@ -201,22 +198,22 @@
                                 }
                                 @if (item.Estado.Equals("CREADO")|| item.Estado.Equals("ENVIADO"))
                                 {
-                                    <a href="@Url.Action("EditarOrdenDeRuta", "Rutas", new { DocEntry = item.DocEntry, TipoRep = "Re" })" class="d-none d-sm-none d-md-none d-lg-block d-xl-block btn btn-info btn-sm mx-1"><i title="Editar" class="icon-pencil"></i></a>
+                                    <a href="@Url.Action("EditarOrdenDeRuta", "Rutas", new { DocEntry = item.DocEntry, TipoRep = "Re" })" class="d-none d-sm-none d-md-none d-lg-block d-xl-block btn btn-sm btn-light mx-1" data-toggle="tooltip" data-placement="top" title="Editar"><i class="icon-pencil text-purple"></i></a>
                                 }
                                 @if (item.Estado.Equals("ENVIADO") && item.TotalCajas>0)
                                 {
                                     <a href="@Url.Action("ListadoEntregaRepartos", "Rutas", new {TipoRep="Re", DocEntry = item.DocEntry })" class="btn btn-warning btn-sm d-block d-sm-block d-md-block d-lg-none d-xl-none mx-1">Ent</a>
                                 }
-                                <a href="@Url.Action( "DocumentoRutas", "Rutas", new { DocEntry = item.DocEntry, TipoRuta = item.TipoRuta } )" class="btn btn-danger d-none d-sm-none d-md-none d-lg-block d-xl-block btn-sm mx-1"><i title="Pdf" class="icon-file-pdf"></i></a>
+                                <a href="@Url.Action( "DocumentoRutas", "Rutas", new { DocEntry = item.DocEntry, TipoRuta = item.TipoRuta } )" class="btn d-none d-sm-none d-md-none d-lg-block d-xl-block btn-sm btn-light mx-1" data-toggle="tooltip" data-placement="top" title="Pdf"><i class="icon-file-pdf text-danger"></i></a>
                                 @if (item.Estado.Equals("ENVIADO") && item.TotalCajas > 0)
                                 {
                                     <button type="button" class="btn btn-secondary btn-sm d-block d-sm-block d-md-block d-lg-none d-xl-none mx-1" data-toggle="modal" data-target="#M2" onclick="llenarModal2(@item.DocEntry, @item.DocNum);">Ter</button>
                                 }
-                                <a href="@Url.Action("SeguimientoRepartoRutas", "Rutas", new { DocEntry = item.DocEntry, Vista="REPARTOS" })" class="btn btn-blue btn-sm text-light d-none d-sm-none d-md-none d-lg-block d-xl-block mx-1"><i title="Seguimiento" class="icon-truck"></i></a>
+                                <a href="@Url.Action("SeguimientoRepartoRutas", "Rutas", new { DocEntry = item.DocEntry, Vista="REPARTOS" })" class="btn btn-sm btn-light text-light d-none d-sm-none d-md-none d-lg-block d-xl-block mx-1" data-toggle="tooltip" data-placement="top" title="Seguimiento"><i class="icon-truck text-dark"></i></a>
 
                                 @if (item.TipoRuta == "TA")
                                 {
-                                    <a href="@Url.Action( "AnularOrdenDeRuta", "Rutas", new { DocEntry = item.DocEntry,TipoRep="Re", Estado = item.Estado } )" class="btn btn-orange btn-sm d-none d-sm-none d-md-none d-lg-block d-xl-block mx-1"><i title="Anular" class="icon-blocked"></i></a>
+                                    <a href="@Url.Action( "AnularOrdenDeRuta", "Rutas", new { DocEntry = item.DocEntry,TipoRep="Re", Estado = item.Estado } )" class="btn btn-sm btn-light d-none d-sm-none d-md-none d-lg-block d-xl-block mx-1" data-toggle="tooltip" data-placement="top" title="Anular" ><i class="icon-blocked text-danger"></i></a>
                                 }
 
                                 @if (item.TipoRuta == "AC" && item.Estado != "TERMINADO")

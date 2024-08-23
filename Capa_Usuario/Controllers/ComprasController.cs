@@ -404,7 +404,7 @@ namespace Capa_Usuario.Controllers
             { return "E_Login"; }
             else
             {
-                if ((rol1.verificarAccesoOperacion(user.IdRol, ope, nombreOperacion, modulo) == 1) || (user.IdRol == 1))
+                if ((rol1.VerificarAccesoOperacion(user.IdRol, ope, nombreOperacion, modulo) == 1) || (user.IdRol == 1))
                 {
                     Capa_Negocio.Utilitarios_N utiN = new Capa_Negocio.Utilitarios_N();
                     //utiN.registrarLog(user.id, "intento de " + nombreOperacion, ope, Request.UserHostAddress, Request.UserHostName);
