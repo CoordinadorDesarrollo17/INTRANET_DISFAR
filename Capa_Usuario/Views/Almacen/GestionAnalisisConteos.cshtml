@@ -1,25 +1,28 @@
 ﻿@model IEnumerable<Capa_Entidad.Almacen_ENT.TablasSql.OIAR_E>
 @using Capa_Entidad.Almacen_ENT.TablasSql
 @using Capa_Entidad.General_ENT.Tablas
+
 @{
     ViewBag.Title = "GestionAnalisisConteos";
     Layout = "~/Views/Shared/_Layout.cshtml";
     OIAR_E a = (OIAR_E)ViewBag.Oiar;
     List<OWHS_E> ow = (List<OWHS_E>)ViewBag.Almacenes;
 }
+
 <script>
     $(document).ready(function () {
+        // Opcional: Añadir inicialización específica si es necesario
     });
+
     function filtrar() {
         var object = $("#frm").serialize();
         $(location).attr('href', "/Almacen/GestionAnalisisConteos?" + object);
     }
 </script>
 
-
 <div class="pt-4">
     <nav>
-        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+        <ol class="cd-breadcrumb bg-dark">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
             <li><a href="@Url.Action("ContabilizacionInventario", "Almacen")">Módulo contabilización inventario</a></li>
             <li class="current"><em>Gestión análisis de conteos</em></li>
@@ -27,20 +30,16 @@
     </nav>
 </div>
 
-
-<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
+<div class="bg-dark border-cabecera-seccion pb-2">
     <div class="px-3 pt-3"><h3 class="titulo-seccion">GESTIÓN ANÁLISIS DE CONTEOS</h3></div>
 </div>
 
-
-
-
-@if (@OIPE_E.PeriodoSeleccionado != null)
+@if (ViewBag.Oipe.PeriodoSeleccionado != null)
 {
     <div class="alert alert-danger mb-0" role="alert">
-        @OIPE_E.PeriodoSeleccionado.Descripcion
+        @ViewBag.Oipe.PeriodoSeleccionado.Descripcion
         Almacenes:
-        @OIPE_E.PeriodoSeleccionado.enlistarDetAlmacenes()
+        @ViewBag.Oipe.PeriodoSeleccionado.enlistarDetAlmacenes()
     </div>
 }
 
@@ -51,20 +50,15 @@
                 <tr>
                     <th class="text-center" style="width:100px;">
                         N°
-                        <input type="text" name="DocEntry" class="form-control" onchange="filtrar();" value="@if (ViewBag.Oiar.DocEntry > 0) { Write(ViewBag.Oiar.DocEntry); }" />
+                        <input type="text" name="DocEntry" class="form-control" onchange="filtrar();" value="@a.DocEntry" />
                     </th>
                     <th class="text-center">
                         @Html.DisplayName("OpAnalisisC")
-                        @if (a.DetFases != null && a.DetFases.Count > 0)
-                        {
-                            <input type="text" name="DetFases[0].Operario" class="form-control" onchange="filtrar();" value="@a.DetFases[0].Operario" />
-                        }
-                        else
-                        { <input type="text" name="DetFases[0].Operario" class="form-control" onchange="filtrar();" value="" />}
+                        <input type="text" name="DetFases[0].Operario" class="form-control" onchange="filtrar();" value="@if (a.DetFases != null && a.DetFases.Count > 0) { Write(a.DetFases[0].Operario); }" />
                     </th>
                     <th class="text-center">
                         @Html.DisplayName("Equipo")
-                        <input type="text" name="DocEntryEqu" class="form-control" onchange="filtrar();" value="@if (ViewBag.Oiar.DocEntryEqu > 0) { Write(ViewBag.Oiar.DocEntryEqu); }" />
+                        <input type="text" name="DocEntryEqu" class="form-control" onchange="filtrar();" value="@a.DocEntryEqu" />
                     </th>
                     <th class="text-center">
                         @Html.DisplayName("Almacen")
@@ -72,28 +66,21 @@
                             <option value="">Seleccione</option>
                             @foreach (OWHS_E obj in ow)
                             {
-                                if (a.WhsCode != null && a.WhsCode == obj.WhsCode)
-                                {
-                                    <option value="@obj.WhsCode" selected>@obj.WhsName</option>
-                                }
-                                else
-                                {
-                                    <option value="@obj.WhsCode">@obj.WhsName</option>
-                                }
+                                <option value="@obj.WhsCode" @if (a.WhsCode == obj.WhsCode) { <text> selected</text> }>@obj.WhsName</option>
                             }
                         </select>
                     </th>
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.Piso)
-                        <input type="number" name="Piso" class="form-control" onchange="filtrar();" value="@if (ViewBag.Oiar.Piso > 0) { Write(ViewBag.Oiar.Piso); }" />
+                        <input type="number" name="Piso" class="form-control" onchange="filtrar();" value="@a.Piso" />
                     </th>
                     <th class="text-center">
                         @Html.DisplayName("CodArticulo")
-                        <input type="text" name="ItemCode" class="form-control" onchange="filtrar();" value="@ViewBag.Oiar.ItemCode" />
+                        <input type="text" name="ItemCode" class="form-control" onchange="filtrar();" value="@a.ItemCode" />
                     </th>
                     <th class="text-center">
                         @Html.DisplayName("Articulo")
-                        <input type="text" name="ItemName" class="form-control" onchange="filtrar();" value="@ViewBag.Oiar.ItemName" />
+                        <input type="text" name="ItemName" class="form-control" onchange="filtrar();" value="@a.ItemName" />
                     </th>
                     <th class="text-center">
                         @Html.DisplayName("Lotes")
@@ -102,9 +89,9 @@
                         @Html.DisplayNameFor(model => model.Estado)
                         <select name="Estado" id="Estado" class="form-control" onchange="filtrar();">
                             <option value="">Seleccione</option>
-                            <option value="ReContado" @if (a.Estado == "ReContado") { Write("selected"); }>ReContado</option>
-                            <option value="EnAnalisis" @if (a.Estado == "EnAnalisis") { Write("selected"); }>EnAnalisis</option>
-                            <option value="Analizado" @if (a.Estado == "Analizado") { Write("selected"); }>Analizado</option>
+                            <option value="ReContado" @if (a.Estado == "ReContado") { <text> selected</text> }>ReContado</option>
+                            <option value="EnAnalisis" @if (a.Estado == "EnAnalisis") { <text> selected</text> }>EnAnalisis</option>
+                            <option value="Analizado" @if (a.Estado == "Analizado") { <text> selected</text> }>Analizado</option>
                         </select>
                     </th>
                     <th class="text-center">
@@ -121,11 +108,15 @@
                         <td class="text-center">
                             @Html.DisplayFor(modelItem => item.DocEntry)
                         </td>
-                        <td>
+                        <td class="text-center">
                             @if (item.DetFases != null && item.DetFases.Count > 4 && item.Fase > 5)
-                            {@item.DetFases[4].Operario}
-                        else
-                        { <label></label>}
+                            {
+                                @item.DetFases[4].Operario
+                            }
+                            else
+                            {
+                                <label></label>
+                            }
                         </td>
                         <td class="text-center">
                             @Html.DisplayFor(modelItem => item.DocEntryEqu)
@@ -158,19 +149,14 @@
                             @Html.ActionLink("Iniciar Análisis", "IniciarAnalisisConteo", new { id = item.DocEntry }, new { @class = "btn btn-primary" })
                         </td>
                         <td class="text-center">
-                            @if (!item.Estado.Equals("ReContado"))
+                            @if (item.Estado != "ReContado")
                             {
                                 @Html.ActionLink("Terminar Análisis", "TerminarAnalisisConteo", new { id = item.DocEntry }, new { @class = "btn btn-danger" })
-
                             }
                         </td>
                     </tr>
                 }
             </tbody>
-
-
-
         </table>
     </form>
 </div>
-
