@@ -313,6 +313,7 @@
     <Content Include="Content\img\logo-drogueria-cobefar.jpg" />
     <Content Include="Content\img\logo.png" />
     <Content Include="Content\img\video-presentacion-24-05-23.mp4" />
+    <Content Include="Content\img\white-background-abstract.jpg" />
     <Content Include="Content\js\alertify.min.js" />
     <Content Include="Content\js\bootstrap.bundle.js" />
     <Content Include="Content\js\bootstrap.bundle.min.js" />
