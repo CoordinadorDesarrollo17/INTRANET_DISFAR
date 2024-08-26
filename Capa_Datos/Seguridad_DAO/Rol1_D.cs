@@ -13,9 +13,10 @@ namespace Capa_Datos.Seguridad_DAO
     {
         Utilitarios uti = new Utilitarios();
         DBHelper db = new DBHelper();
-        public int verificarAccesoOperacion(int idRol, int idOperacion, string nombreOperacion, int modulo)
+
+        public int VerificarAccesoOperacion(int idRol, int idOperacion, string nombreOperacion, int modulo)
         {
-            registrarOperacion(idOperacion, nombreOperacion, modulo);
+            //RegistrarOperacion(idOperacion, nombreOperacion, modulo);
             int result = -1;
             SqlConnection cn = new SqlConnection(uti.cadSql);
             try
@@ -28,7 +29,8 @@ namespace Capa_Datos.Seguridad_DAO
             catch (Exception e) { cn.Close(); throw new Exception(e.Message); }
             return result;
         }
-        private void registrarOperacion(int idOperation, string operacion, int modulo)
+
+        private void RegistrarOperacion(int idOperation, string operacion, int modulo)
         {
             int existOpe = 1;
             string query = "";
@@ -48,8 +50,8 @@ namespace Capa_Datos.Seguridad_DAO
                 catch { }
             }
         }
-        /*alisson*/
-        public void crudOperacion(int idRol, int[] numeros)
+
+        public void CrudOperacion(int idRol, int[] numeros)
         {
 
             string query0 = ""; string query1 = ""; string query2 = "";

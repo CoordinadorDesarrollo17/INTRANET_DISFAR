@@ -23,24 +23,24 @@
 
 <div class="pt-4">
     <nav>
-        <ol class="cd-breadcrumb bg-dark">
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
             <li class="current"><em>Reportes de ventas</em></li>
         </ol>
     </nav>
 </div>
 
-<div class="bg-dark border-cabecera-seccion pb-2">
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
     <div class="px-3 pt-3"><h3 class="titulo-seccion">REPORTES DE VENTAS</h3></div>
 </div>
 
 
-<div class="bg-dark">
-    <div class="row pb-4 pr-4">
+<div class="bg-white bg-form-cobefar">
+    <div class="row pb-4 pr-4 pt-4">
         <div class="col-lg-3">
             <div class="d-flex justify-content-center align-self-center">
                 <div class="d-flex align-self-center mr-2"><i class="icon icon-stats-dots text-warning"></i></div>
-                <select class="form-control bg-cobefar text-white" onchange="cargarFormulario(this.value)" style="width: 260px">
+                <select class="form-control-sm border" onchange="cargarFormulario(this.value)" style="width: 260px">
                     <option value="">Seleccione Reporte</option>
                     <option value="infoAuditVtsCli">Auditoria ventas por cliente</option>
                     <option value="infoAnalisisVentas">Análisis de ventas</option>

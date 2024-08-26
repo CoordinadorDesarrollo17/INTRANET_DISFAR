@@ -1,5 +1,6 @@
 ﻿/*@import url('https://fonts.googleapis.com/css2?family=Rubik&display=swap');*/
-@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+/*@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+*/
 * {
     margin: 0px;
     padding: 0px;
@@ -14,15 +15,17 @@
     font-weight: 600;
     text-shadow: 2px 2px 1px rgba(0,0,0,0.7);
     color: white;
-    font-size:23px;
+    font-size: 23px;
 }
 
-th, label {
+th{
     color: white;
 }
+
 .bg-skyblue {
-    background-color:#ADD8E6;
+    background-color: #ADD8E6;
 }
+
 td {
     padding: 5px;
 }
@@ -33,7 +36,7 @@ td {
 }
 
 footer {
-    background-color: #484948;
+    background-color: #424242 !important;
     width: 100%;
     color: white;
     bottom: 0;
@@ -54,6 +57,7 @@ footer {
 }
 
 .container-footer {
+    background-color: #424242 !important;
     width: 100%;
     padding: 10px;
     text-align: center;
@@ -61,6 +65,12 @@ footer {
 
 .column1, .column2 {
     max-width: 600px;
+}
+
+
+/* Reemplaza el color de fondo para la clase table-hover */
+.table-hover tbody tr:hover {
+    background-color: #d5f5e3 !important;
 }
 
 
@@ -90,6 +100,12 @@ footer {
     border-top: hidden;
 }
 
+.table tbody tr {
+    vertical-align: middle;
+    /*    border-bottom: hidden;
+    border-top: hidden;*/
+}
+
 .shadow-inputs-form {
     box-shadow: rgba(0, 0, 0, 0.15) 0px 15px 25px, rgba(0, 0, 0, 0.05) 0px 5px 10px;
 }
@@ -97,7 +113,7 @@ footer {
 .cd-breadcrumb, .cd-multi-steps {
     /*width: 90%;
       max-width: 768px;*/
-    padding: 0.5em 1em;
+    padding: 0.2em 1em;
     margin-top: 0px;
     /*margin: 1em auto;*/
     /*background-color: #edeff0;*/
@@ -203,7 +219,7 @@ footer {
     }
 
         .cd-breadcrumb li, .cd-multi-steps li {
-            margin: 1.2em 0;
+            margin: 0.6em 0;
         }
 
             .cd-breadcrumb li::after, .cd-multi-steps li::after {
@@ -242,42 +258,121 @@ a {
     color: #7C00F7;
 }
 
+.text-orange {
+    color: orangered;
+}
+
+.text-darkblue {
+    color: darkblue;
+}
+
 .border-cabecera-seccion {
     border-radius: 10px 10px 0px 0px;
 }
 
-/* Fondos */
+/*** Fondos ***/
 .bg-cobefar {
     background-color: #26653D !important;
     /*background-color: darkgoldenrod !important;*/
 }
 
+.bg-cobefar-2 {
+    background-color: #96c03d !important;
+}
+
+.bg-cobefar-3 {
+    background-color: #15937E !important;
+}
+
+    .bg-cobefar-3:hover {
+        background-color: #93152a !important;
+        outline: none;
+    }
+
+.bg-cobefar-4 {
+    background-color: #156993 !important;
+}
+
+    .bg-cobefar-4:hover {
+        background-color: #93152a !important;
+        outline: none;
+    }
+
+.bg-cobefar-5 {
+    background-color: #46AD80 !important;
+}
+
+.bg-cobefar-6 {
+    background-color: #3C8F7C !important;
+}
+
+.bg-cobefar-degradado-1 {
+    background: linear-gradient(to right, #000 0%,#009879 100%)
+}
+
+.table .thead-cobefar th {
+    color: white;
+    background-color: #46AD80;
+    border-color: #dee2e6;
+}
+
+.bg-colorComplementario {
+    background-color: #93152a !important;
+}
+
 .bg-form-pestanas-cobefar {
     background-color: #FAFAFA !important;
+    min-height: calc(100vh - 250px);
+}
+
+.bg-blancoHumo {
+    background-color: #F1F1F1;
+}
+
+.bg-grisClaro {
+    background-color: #DDDDDD;
 }
 /******************************/
-    /* Botones */
-    .btn-cobefar {
+/* Botones */
+.btn-cobefar {
     background-color: #26653D;
     color: white;
 }
 
-.btn-orange, .btn-naranja{
+.btn-cobefar-2 {
+    background-color: #156993;
+    border-color: #156993;
+    color: white;
+}
+
+    .btn-cobefar-2:hover {
+        background-color: #135a82;
+        border-color: #135a82;
+        color: white;
+    }
+.btn-fucsia, .btn-fucsia:hover {
+    background-color: fuchsia;
+    color: white;
+}
+.btn-orange, .btn-naranja {
     background-color: orangered;
     color: white;
 }
-.btn-naranja:hover {
-    color: darkblue;
-}
+
+    .btn-naranja:hover {
+        color: darkblue;
+    }
+
 .btn-blue, .btn-blue:hover {
     background-color: darkblue;
     color: white;
 }
+
 .btn-amarillo {
     background-color: yellow;
     color: darkblue
 }
- 
+
 .swal2-styled.swal2-confirm {
     border: 0;
     border-radius: 0.25em;
@@ -309,7 +404,6 @@ a {
     }
 }
 
-
 .modal-full-width {
     max-width: 100%;
 }
@@ -321,8 +415,10 @@ a {
 .page-item.active .page-link {
     z-index: 3;
     color: #fff;
-    background-color: #26653D;
-    border-color: #26653D;
+    /*background-color: #26653D;
+    border-color: #26653D;*/
+    background-color: #3C8F7C;
+    border-color: #3C8F7C;
 }
 
 .page-link {
@@ -350,7 +446,7 @@ div.dataTables_wrapper div.dataTables_length label {
     text-align: left !important;
     white-space: nowrap !important;
     padding-left: 10px !important;
-    color: white !important;
+    color: #333 !important;
 }
 
 /* Head: Buscar */
@@ -359,7 +455,7 @@ div.dataTables_wrapper div.dataTables_filter label {
     white-space: nowrap;
     text-align: left;
     padding-right: 10px;
-    color: white !important;
+    color: #333 !important;
 }
 
 /* footer: Mostrando */
@@ -367,9 +463,13 @@ div.dataTables_wrapper div.dataTables_info {
     padding-top: 0.85em;
     white-space: nowrap;
     padding-left: 10px;
-    color: white;
+    color: #333;
 }
 
+th {
+    height: 40px; /* Ajusta esta altura según tus necesidades */
+    vertical-align: middle; /* Centra el texto verticalmente */
+}
 
 /* footer: Paginaciòn */
 div.dataTables_wrapper div.dataTables_paginate ul.pagination {
@@ -776,4 +876,123 @@ video {
 
 .text-capitalized {
     text-transform: capitalize;
+}
+
+
+/*** BORDES ***/
+.border-grisAzulado {
+    border-color: #8492A6 !important;
+}
+
+.input-cobefar:focus {
+    border-color: #28a745 !important; /* Color de borde cuando el input está enfocado */
+    outline: none; /* Quita el resaltado predeterminado al enfocar */
+    box-shadow: none; /* Quita la sombra predeterminada al enfocar */
+}
+
+.bg-breadcumb {
+    background-image: url('img/lines-dark-background.jpg');
+    background-attachment: fixed;
+    background-size: cover;
+}
+
+.bg-headerModals {
+    background-image: url('img/lines-dark-background.jpg');
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.bg-cardCobefar {
+    background-image: url('img/white-background-abstract.jpg');
+    background-repeat: no-repeat;
+    background-position-x: 100%;
+    background-position-y: 50%;
+}
+
+.div-hover:hover {
+    background-color: #CFD8DC; /* Cambia este color por el que prefieras */
+    outline: none; /* Esto elimina el borde predeterminado que aparece al enfocar */
+}
+
+.text-desbordes {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media (max-width: 1280px) {
+    .px-3cols {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+}
+
+@media (min-width: 1281px) and (max-width: 1600px) {
+    .px-3cols {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
+
+@media (min-width: 1601px) and (min-width: 1900px) {
+    .px-3cols {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+    /*
+    .px-1 {
+        padding-left: 0.25rem;
+        padding-right: 0.25rem;
+    }
+
+    .px-2 {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }*/
+}
+
+.border-radius-20 {
+    border-radius: 20px;
+}
+
+
+
+/* PARA PAGINACIONES */
+.pagination {
+    margin-top: 20px;
+}
+
+    .pagination a {
+        display: inline-block;
+        padding: 5px 10px;
+        background-color: #f2f2f2;
+        color: #333;
+        text-decoration: none;
+        border: 1px solid #ccc;
+    }
+
+        .pagination a:hover {
+            background-color: #ddd;
+        }
+
+    .pagination .active {
+        background-color: #333;
+        color: #fff;
+    }
+
+.position-absolute-cobefar {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin-top: 10px; /* Ajusta el margen superior según sea necesario */
+    margin-right: 10px; /* Ajusta el margen derecho según sea necesario */
+}
+
+.position-absolute-cobefar-2 {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    margin-bottom: 10px; /* Ajusta el margen superior según sea necesario */
+    margin-left: 10px; /* Ajusta el margen derecho según sea necesario */
 }

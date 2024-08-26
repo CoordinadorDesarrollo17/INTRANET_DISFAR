@@ -15,7 +15,7 @@
         if (Sel.val() == null || Sel.val() == "") { return; }
         if (validarUnicoCampoTabla(Sel.val(), "DetallesPeriodo1")) {
             $("#DetallesPeriodo1 > tbody").append("<tr><td><input class='form-control ' name='DetAlmacenes[" + contAlm + "].WhsCode' value='" + Sel.val() + "' readonly /></td><td><input class='form-control' name='DetAlmacenes[" + contAlm + "].WhsName' value='" + SelOpt + "'  readonly /></td><td>" +
-                "<button type='button' onclick='borrarTrTable(this)' class='btn btn-danger'>Retirar</button></td></tr>");
+                "<button type='button' onclick='borrarTrTable(this)' class='btn btn-danger'><i class='icon icon-bin'></i></button></td></tr>");
             contAlm = contAlm + 1;
         }
     }
@@ -23,7 +23,7 @@
         var i = -1;
         $(dom).closest('tr').remove();
         contAlm = contAlm - 1;
-        $("#DetallesPeriodo1 > tbody" + " tr").each(function (index, htm) {
+        $("#DetallesPeriodo1 tr").each(function (index, htm) {
             iden1 = $(htm).find("td:eq(0) input");
             iden1.attr("name", "DetAlmacenes[" + i + "].WhsCode");
             iden2 = $(htm).find("td:eq(1) input");
@@ -74,68 +74,68 @@
 @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "NuevoPeriodo" }))
 {
     @Html.AntiForgeryToken()
-<div class="bg-form-pestanas-cobefar pt-4 bg-section-form p-4 bg-form-cobefar">
-    <div class="row mt-4">
-        <div class="col-lg-5">
-            <label for="Descripcion" class="text-dark form-label font-weight-bold font-18">Descripción:</label>
-            @Html.EditorFor(model => model.Descripcion, new { htmlAttributes = new { @class = "form-control border-success", @size = 60 } })
+    <div class="bg-form-pestanas-cobefar pt-4 bg-section-form p-4 bg-form-cobefar">
+        <div class="row mt-4">
+            <div class="col-lg-5">
+                <label for="Descripcion" class="text-dark form-label font-weight-bold font-18">Descripción:</label>
+                @Html.EditorFor(model => model.Descripcion, new { htmlAttributes = new { @class = "form-control border-success", @size = 60 } })
+            </div>
+
+            <div class="col-lg-2">
+                <label for="FecInicioPer" class="text-dark form-label font-weight-bold font-18">Fecha Inicio:</label>
+                <div id="infoFecInicioPer"><input class="form-control text-center border-success" id="FecInicioPer" type="date" name="FecIni" value="" /></div>
+            </div>
+
+            <div class="col-lg-2">
+                <label for="FecFinPer" class="text-dark form-label font-weight-bold font-18">Fecha Fin:</label>
+                <div id="infoFecFinPer"><input class="form-control text-center border-success" id="FecFinPer" type="date" name="FecFin" value="" /></div>
+            </div>
+
+            <div class="col-lg-3">
+                <label for="Almacen" class="text-dark form-label font-weight-bold font-18">Almacén:</label>
+                <select name="Almacen" id="Almacen" class="form-control bg-cobefar text-white">
+                    <option value="">Seleccione</option>
+                    @foreach (OWHS_E obj in ViewBag.Almacenes)
+                    {
+                        <option value="@obj.WhsCode" WhsName="@obj.WhsName">@obj.WhsName</option>
+                    }
+                </select>
+            </div>
         </div>
 
-        <div class="col-lg-2">
-            <label for="FecInicioPer" class="text-dark form-label font-weight-bold font-18">Fecha Inicio:</label>
-            <div id="infoFecInicioPer"><input class="form-control text-center border-success" id="FecInicioPer" type="date" name="FecIni" value="" /></div>
+        <div class="row mt-4">
+            <div class="col-lg-4">
+                <button type="button" class="btn btn-cobefar" onclick="valorCamposSelect('Almacen');"><i class="icon icon-plus"></i> Agregar</button>
+            </div>
         </div>
 
-        <div class="col-lg-2">
-            <label for="FecFinPer" class="text-dark form-label font-weight-bold font-18">Fecha Fin:</label>
-            <div id="infoFecFinPer"><input class="form-control text-center border-success" id="FecFinPer" type="date" name="FecFin" value="" /></div>
+        <div class="row mt-4">
+            <div class="col-lg-6">
+                <table id="DetallesPeriodo1" class="table table-sm  table-hover">
+                    <thead class="bg-success text-light">
+                        <tr>
+                            <th class="text-center">Id</th>
+                            <th class="text-center">Descripcion</th>
+                            <th class="text-center"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
         </div>
 
-        <div class="col-lg-3">
-            <label for="Almacen" class="text-dark form-label font-weight-bold font-18">Almacén:</label>
-            <select name="Almacen" id="Almacen" class="form-control bg-cobefar text-white">
-                <option value="">Seleccione</option>
-                @foreach (OWHS_E obj in ViewBag.Almacenes)
-                {
-                    <option value="@obj.WhsCode" WhsName="@obj.WhsName">@obj.WhsName</option>
-                }
-            </select>
+        <div class="row mt-4">
+            <div class="col-lg-12">
+                @Html.EditorFor(model => model.Observaciones, "", new { htmlAttributes = new { @class = "form-control border-success", @placeholder = "Anote aquí sus observaciones", @autocomplete = "off" } })
+            </div>
         </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-4">
+                <button type="button" class="btn btn-success" onclick="validarEnviarFormulario();"><i class="icon icon-checkmark"></i> Registrar</button>
+            </div>
+        </div>
+
     </div>
-
-    <div class="row mt-4">
-        <div class="col-lg-4">
-            <button type="button" class="btn btn-cobefar" onclick="valorCamposSelect('Almacen');"><i class="icon icon-plus"></i> Agregar</button>
-        </div>
-    </div>
-
-    <div class="row mt-4">
-        <div class="col-lg-6">
-            <table id="DetallesPeriodo1" class="table table-sm  table-hover">
-                <thead class="bg-success">
-                    <tr>
-                        <th class="text-center">ID</th>
-                        <th class="text-center">Descripcion</th>
-                        <th class="text-center"></th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-        
-    </div>
-
-    <div class="row mt-4">
-        <div class="col-lg-12">
-            @Html.EditorFor(model => model.Observaciones, "", new { htmlAttributes = new { @class = "form-control border-success", @placeholder = "Anote aquí sus observaciones", @autocomplete = "off" } })
-        </div>
-    </div>
-
-    <div class="row mt-4">
-        <div class="col-lg-4">
-            <button type="button" class="btn btn-success" onclick="validarEnviarFormulario();"><i class="icon icon-checkmark"></i> Registrar</button>
-        </div>
-    </div>
-
-</div>
 }

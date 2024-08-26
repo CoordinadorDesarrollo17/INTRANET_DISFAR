@@ -8,12 +8,22 @@
     OIEQ_E f = (OIEQ_E)ViewBag.Oieq;
     List<OWHS_E> ow = (List<OWHS_E>)ViewBag.Almacenes;
 }
+
 <script>
     $(document).ready(function () {
+        $('#filterModal').on('shown.bs.modal', function () {
+            $('#DocEntry').focus();
+        });
+
+        $('#filterForm').on('submit', function (e) {
+            e.preventDefault();
+            var query = $(this).serialize();
+            window.location.href = "/Almacen/GestionEquipos?" + query;
+        });
     });
-    function filtrar() {
-        var object = $("#frm").serialize();
-        $(location).attr('href', "/Almacen/GestionEquipos?" + object);
+
+    function openFilterModal() {
+        $('#filterModal').modal('show');
     }
 </script>
 
@@ -28,118 +38,125 @@
 </div>
 
 <div class="bg-dark border-cabecera-seccion pb-2">
-    <div class="px-3 pt-3"><h3 class="titulo-seccion">GESTIÓN DE EQUIPOS</h3></div>
+    <div class="px-3 pt-3">
+        <h3 class="titulo-seccion">GESTIÓN DE EQUIPOS</h3>
+    </div>
 
     <div class="d-flex pl-2 w-100 py-2">
-
         <div class="mx-2">
-            @Html.ActionLink("Nuevo Equipo Conteo", "NuevoEquipo", null, new { Tipo = "Conteo" }, new { @class = "btn btn-success" })
-            @Html.ActionLink("Nuevo Equipo ReConteo", "NuevoEquipo", null, new { Tipo = "ReConteo" }, new { @class = "btn btn-warning" })
-            @Html.ActionLink("Nuevo Equipo Analisis", "NuevoEquipo", null, new { Tipo = "Analisis" }, new { @class = "btn btn-info" })
+            @Html.ActionLink("Nuevo Equipo Conteo", "NuevoEquipo", new { Tipo = "Conteo" }, new { @class = "btn btn-success" })
+            @Html.ActionLink("Nuevo Equipo ReConteo", "NuevoEquipo", new { Tipo = "ReConteo" }, new { @class = "btn btn-warning" })
+            @Html.ActionLink("Nuevo Equipo Análisis", "NuevoEquipo", new { Tipo = "Analisis" }, new { @class = "btn btn-info" })
+            <button class="btn btn-primary ml-2" data-toggle="modal" data-target="#filterModal">
+                <i class="icon-filter"></i> Filtrar
+            </button>
         </div>
-
     </div>
 </div>
 
-<div class="bg-form-pestanas-cobefar">
-    <div class="alert alert-danger mb-0" role="alert">
-        @if (@OIPE_E.PeriodoSeleccionado != null)
-        {
-            @OIPE_E.PeriodoSeleccionado.Descripcion
-            Write("- Almacenes: ");
-            @OIPE_E.PeriodoSeleccionado.enlistarDetAlmacenes()
-        }
-    </div>
+<div>
+    @if (@OIPE_E.PeriodoSeleccionado != null)
+    {
+        <div class="alert alert-danger mb-0" role="alert">
+            @("Periodo Seleccionado: " + OIPE_E.PeriodoSeleccionado.Descripcion + " ---- Almacenes: " + OIPE_E.PeriodoSeleccionado.enlistarDetAlmacenes())
+        </div>
+    }
 
     <div class="table-responsive bg-dark pt-4">
-        <form name="frm" id="frm">
-            <table class="table table-light table-hover cls-dataTable" cellspacing="0" width="100%">
-                <thead class="thead-dark">
+        <table class="table table-light table-hover cls-dataTable" cellspacing="0" width="100%">
+            <thead class="thead-dark">
+                <tr>
+                    <th class="text-center">N°</th>
+                    <th class="text-center">Periodo</th>
+                    <th class="text-center">Nombre</th>
+                    <th class="text-center">Almacen</th>
+                    <th class="text-center">Piso</th>
+                    <th class="text-center">Estado</th>
+                    <th class="text-center">Fecha Registro</th>
+                    <th class="text-center"></th>
+                    <th class="text-center"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
                     <tr>
-                        <th class="text-center">
-                            @Html.DisplayName("N#")
-                            <input type="text" name="DocEntry" class="form-control" style="width:80px;" onchange="filtrar();" value="@if (!ViewBag.Oieq.DocEntry.Equals(0)) { Write(ViewBag.Oieq.DocEntry); }" autocomplete="off" />
-                        </th>
-                        <th class="text-center">
-                            @Html.DisplayName("Periodo")
-                            <input type="text" name="DescripcionPeriodo" class="form-control" onchange="filtrar();" value="@ViewBag.Oieq.DescripcionPeriodo" autocomplete="off" />
-                        </th>
-                        <th class="text-center">
-                            @Html.DisplayNameFor(model => model.Nombre)
-                            <input type="text" name="Nombre" class="form-control" onchange="filtrar();" value="@ViewBag.Oieq.Nombre" autocomplete="off" />
-                        </th>
-                        <th class="text-center">
-                            @Html.DisplayName("Almacen")
-                            <select name="WhsCode" id="Almacen" class="form-control" onchange="filtrar();">
-                                <option value="">Seleccione</option>
-                                @foreach (OWHS_E obj in ow)
-                                {
-                                    if (f.WhsCode != null && f.WhsCode == obj.WhsCode)
-                                    {
-                                        <option value="@obj.WhsCode" selected>@obj.WhsName</option>
-                                    }
-                                    else
-                                    {
-                                        <option value="@obj.WhsCode">@obj.WhsName</option>
-                                    }
-                                }
-                            </select>
-                        </th>
-                        <th class="text-center">
-                            @Html.DisplayNameFor(model => model.Piso)
-                            <input type="text" name="Piso" class="form-control" style="width:60px" onchange="filtrar();" value="@if (!f.Piso.Equals(0)) { Write(f.Piso); }" />
-                        </th>
-                        <th class="text-center">
-                            @Html.DisplayNameFor(model => model.Estado)
-                            <input type="text" name="Estado" class="form-control" onchange="filtrar();" value="@f.Estado" />
-                        </th>
-                        <th class="text-center">
-                            @Html.DisplayNameFor(model => model.FechaRegistro)
-                            <input type="date" name="FechaRegistro" class="form-control input_date-filtro-table text-center" style="height:38px;" onchange="filtrar();" value="@f.FechaRegistro" />
-                        </th>
-                        <th class="text-center"></th>
-                        <th class="text-center"></th>
+                        <td class="text-center">@Html.DisplayFor(modelItem => item.DocEntry)</td>
+                        <td class="text-center">@Html.DisplayFor(modelItem => item.DescripcionPeriodo)</td>
+                        <td class="text-center">@Html.DisplayFor(modelItem => item.Nombre)</td>
+                        <td class="text-center">@Html.DisplayFor(modelItem => item.WhsCode)</td>
+                        <td class="text-center">@Html.DisplayFor(modelItem => item.Piso)</td>
+                        <td class="text-center">@Html.DisplayFor(modelItem => item.Estado)</td>
+                        <td class="text-center">@Html.DisplayFor(modelItem => item.FechaRegistro)</td>
+                        <td class="text-center">
+                            <a href="@Url.Action("EditarEquipo", "Almacen", new { id = item.DocEntry })" class="btn btn-light text-primary" data-toggle="tooltip" data-placement="top" title="Editar equipo">
+                                <i class="icon-pencil"></i>
+                            </a>
+                        </td>
+                        <td class="text-center">
+                            <a href="@Url.Action("EliminarEquipo", "Almacen", new { id = item.DocEntry })" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Eliminar equipo">
+                                <i class="icon-bin"></i>
+                            </a>
+                        </td>
                     </tr>
-                </thead>
-
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        <tr>
-                            <td class="text-center">
-                                @Html.DisplayFor(modelItem => item.DocEntry)
-                            </td>
-                            <td class="text-center">
-                                @Html.DisplayFor(modelItem => item.DescripcionPeriodo)
-                            </td>
-                            <td class="text-center">
-                                @Html.DisplayFor(modelItem => item.Nombre)
-                            </td>
-                            <td class="text-center">
-                                @Html.DisplayFor(modelItem => item.WhsCode)
-                            </td>
-                            <td class="text-center">
-                                @Html.DisplayFor(modelItem => item.Piso)
-                            </td>
-                            <td class="text-center">
-                                @Html.DisplayFor(modelItem => item.Estado)
-                            </td>
-                            <td class="text-center">
-                                @Html.DisplayFor(modelItem => item.FechaRegistro)
-                            </td>
-                            <td class="text-center">
-                                <a href="@Url.Action("EditarEquipo", "Almacen", new { id = item.DocEntry })" class="btn btn-primary"><i class="icon-pencil"></i> Editar</a>
-                            </td>
-                            <td class="text-center">
-                                <a href="@Url.Action("EliminarEquipo", "Almacen", new { id = item.DocEntry })" class = "btn btn-danger"><i class="icon-bin"></i></a>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-                
-
-            </table>
-        </form>
+                }
+            </tbody>
+        </table>
     </div>
-    
+</div>
+
+<!-- Modal de Filtros -->
+<div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filterModalLabel">Filtrar Equipos</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="filterForm">
+                    <div class="form-group">
+                        <label for="DocEntry">N°</label>
+                        <input type="text" id="DocEntry" name="DocEntry" class="form-control" value="@f.DocEntry" />
+                    </div>
+                    <div class="form-group">
+                        <label for="DescripcionPeriodo">Periodo</label>
+                        <input type="text" id="DescripcionPeriodo" name="DescripcionPeriodo" class="form-control" value="@f.DescripcionPeriodo" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Nombre">Nombre</label>
+                        <input type="text" id="Nombre" name="Nombre" class="form-control" value="@f.Nombre" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Almacen">Almacen</label>
+                        <select id="Almacen" name="WhsCode" class="form-control">
+                            <option value="">Seleccione</option>
+                            @foreach (var obj in ow)
+                            {
+                                <option value="@obj.WhsCode" @(f.WhsCode == obj.WhsCode ? "selected" : "")>@obj.WhsName</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="Piso">Piso</label>
+                        <input type="number" id="Piso" name="Piso" class="form-control" value="@f.Piso" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Estado">Estado</label>
+                        <input type="text" id="Estado" name="Estado" class="form-control" value="@f.Estado" />
+                    </div>
+                    <div class="form-group">
+                        <label for="FechaRegistro">Fecha Registro</label>
+                        <input type="date" id="FechaRegistro" name="FechaRegistro" class="form-control" value="@f.FechaRegistro" />
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                <button type="submit" class="btn btn-primary" form="filterForm">Aplicar Filtros</button>
+            </div>
+        </div>
+    </div>
 </div>
