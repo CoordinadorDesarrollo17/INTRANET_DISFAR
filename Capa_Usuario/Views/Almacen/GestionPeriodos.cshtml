@@ -24,7 +24,7 @@
 
 <div class="pt-4">
     <nav>
-        <ol class="cd-breadcrumb bg-dark">
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="/Index/Sesion">Inicio</a></li>
             <li><a href="@Url.Action("ContabilizacionInventario", "Almacen")">Módulo contabilización inventario</a></li>
             <li class="current"><em>Gestión de periodos</em></li>
@@ -33,23 +33,24 @@
 </div>
 
 
-<div class="bg-dark border-cabecera-seccion pb-2">
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
     <div class="px-3 pt-3"><h3 class="titulo-seccion">GESTIÓN DE PERIODOS</h3></div>
-
-    <div class="d-flex pl-2 w-100 py-2">
-        <div class="mx-2">
-            <a class="btn btn-success" href="@Url.Action("NuevoPeriodo", "Almacen")">
-                <i class="icon icon-plus"></i> Nuevo Periodo
-            </a>
-        </div>
-        <div class="mx-2">
-            <button class="btn btn-primary" data-toggle="modal" data-target="#filterModal">
-                <i class="icon icon-filter"></i> Filtrar
-            </button>
-        </div>
-    </div>
-
 </div>
+
+<div class="bg-white d-flex pl-2 w-100 py-2">
+    <div class="mx-2">
+        <a class="btn btn-success" href="@Url.Action("NuevoPeriodo", "Almacen")">
+            <i class="icon icon-plus"></i> Nuevo Periodo
+        </a>
+    </div>
+    <div class="mx-2">
+        <button class="btn btn-primary" data-toggle="modal" data-target="#filterModal">
+            <i class="icon icon-filter"></i> Filtrar
+        </button>
+    </div>
+</div>
+
+
 
 @if (@OIPE_E.PeriodoSeleccionado != null)
 {
@@ -58,69 +59,67 @@
     </div>
 }
 
-
-<div class="bg-dark pt-4">
-    <form name="frm" id="frm">
-        <table class="table table-light table-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
-            <thead class="thead-dark text-center">
-                <tr>
-                    <th>N#</th>
-                    <th>@Html.DisplayNameFor(model => model.Descripcion)</th>
-                    <th>@Html.DisplayNameFor(model => model.FecIni)</th>
-                    <th>@Html.DisplayNameFor(model => model.FecFin)</th>
-                    <th>Almacenes</th>
-                    <th>@Html.DisplayNameFor(model => model.FechaRegistro)</th>
-                    <th>@Html.DisplayNameFor(model => model.Estado)</th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr id="fila">
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.DocEntry)
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.Descripcion)
-                        </td>
-                        <td class="text-center">
-                            @Convert.ToString(string.Format("{0:dd/MM/yyyy}", item.FecIni))
-                        </td>
-                        <td class="text-center">
-                            @Convert.ToString(string.Format("{0:dd/MM/yyyy}", item.FecFin))
-                        </td>
-                        <td class="text-center">
-                            @item.enlistarDetAlmacenes()
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.FechaRegistro)
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.Estado)
-                        </td>
-
-                        <td class="text-center">
-                            <a href="@Url.Action("SeleccionarPeriodo", "Almacen", new { id = item.DocEntry })" class="btn btn-light text-success" data-toggle="tooltip" data-placement="top" title="Seleccionar Periodo"><i class="icon icon-checkmark2"></i></a>
-                        </td>
-                        <td class="text-center">
-                            <a href="@Url.Action("EditarPeriodo", "Almacen", new { id = item.DocEntry })" class="btn btn-light text-purple" data-toggle="tooltip" data-placement="top" title="Editar Periodo"><i class="icon icon-pencil"></i></a>
-                        </td>
-                        <td class="text-center">
-                            <a href="@Url.Action("CerrarPeriodo", "Almacen", new { id = item.DocEntry })" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Cerrar Periodo"><i class="icon icon-cross"></i></a>
-                        </td>
-                        <td class="text-center">
-                            <a href="@Url.Action("CargarDatosSap", "Almacen", new { id = item.DocEntry })" class="btn btn-light text-info" data-toggle="tooltip" data-placement="top" title="Migrar Datos desde SAP"><i class="icon icon-database"></i></a>
-                        </td>
+        <div class="bg-white bg-form-cobefar pt-3">
+            <table class="table table-light table-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
+                <thead class="bg-cobefar-6 text-center">
+                    <tr>
+                        <th>#</th>
+                        <th>@Html.DisplayNameFor(model => model.Descripcion)</th>
+                        <th>@Html.DisplayNameFor(model => model.FecIni)</th>
+                        <th>@Html.DisplayNameFor(model => model.FecFin)</th>
+                        <th>Almacenes</th>
+                        <th>@Html.DisplayNameFor(model => model.FechaRegistro)</th>
+                        <th>@Html.DisplayNameFor(model => model.Estado)</th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
                     </tr>
-                }
-            </tbody>
-        </table>
-    </form>
-</div>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr id="fila">
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.DocEntry)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.Descripcion)
+                            </td>
+                            <td class="text-center">
+                                @Convert.ToString(string.Format("{0:dd/MM/yyyy}", item.FecIni))
+                            </td>
+                            <td class="text-center">
+                                @Convert.ToString(string.Format("{0:dd/MM/yyyy}", item.FecFin))
+                            </td>
+                            <td class="text-center">
+                                @item.enlistarDetAlmacenes()
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.FechaRegistro)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.Estado)
+                            </td>
+
+                            <td class="text-center">
+                                <a href="@Url.Action("SeleccionarPeriodo", "Almacen", new { id = item.DocEntry })" class="btn btn-light text-success" data-toggle="tooltip" data-placement="top" title="Seleccionar Periodo"><i class="icon icon-checkmark2"></i></a>
+                            </td>
+                            <td class="text-center">
+                                <a href="@Url.Action("EditarPeriodo", "Almacen", new { id = item.DocEntry })" class="btn btn-light text-purple" data-toggle="tooltip" data-placement="top" title="Editar Periodo"><i class="icon icon-pencil"></i></a>
+                            </td>
+                            <td class="text-center">
+                                <a href="@Url.Action("CerrarPeriodo", "Almacen", new { id = item.DocEntry })" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Cerrar Periodo"><i class="icon icon-cross"></i></a>
+                            </td>
+                            <td class="text-center">
+                                <a href="@Url.Action("CargarDatosSap", "Almacen", new { id = item.DocEntry })" class="btn btn-light text-info" data-toggle="tooltip" data-placement="top" title="Migrar Datos desde SAP"><i class="icon icon-database"></i></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+   
+        </div>
 <!-- Modal para filtros -->
 <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">

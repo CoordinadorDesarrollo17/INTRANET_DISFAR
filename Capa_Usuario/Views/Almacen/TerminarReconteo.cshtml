@@ -51,7 +51,7 @@
                 "<td><input class='form-control' name='DetFases[0].DetContab[" + contUser + "].QuantityCajas' value='" + QuantityCajas + "' readonly /></td>" +
                 "<td><input class='form-control' name='DetFases[0].DetContab[" + contUser + "].QuantityPiezas' value='" + QuantityPiezas + "' readonly /></td>" +
                 "<td><input class='form-control' name='DetFases[0].DetContab[" + contUser + "].ObsLote' value='" + ObsLote + "' readonly /></td>" +
-                "<td><button type='button' onclick='borrarTrTable1(this," + '"' + BatchNum + '"' + ")' class='btn btn-danger'>Retirar</button></td></tr>");
+                "<td><button type='button' onclick='borrarTrTable1(this," + '"' + BatchNum + '"' + ")' class='btn btn-danger'><i class='icon-bin'> </i></button></td></tr>");
             contUser = contUser + 1;
             $("#Lotes option[value='" + BatchNum + "']").hide();
             if ($("#GrupoLotes").val() == "ConStock") { selectLotesConStock = $("#Lotes").html(); }
@@ -287,7 +287,7 @@
                     </tr>
                 </thead>
                 <tbody class="table-light">
-                    @if (Model.DetFases.Count > 3 && Model.DetFases[3].DetContab.Count > 0)
+                    @if (Model.DetFases!= null && Model.DetFases.Count > 3 && Model.DetFases[3].DetContab.Count > 0)
                     {
                         foreach (IAR12_E obj in Model.DetFases[3].DetContab)
                         {
@@ -309,8 +309,8 @@
 
     <div class="row mt-4">
         <div class="col-lg-6">
-            <button id="accion" type="button" class="btn btn-success" onclick="validarTerminoReconteo();"><i class="icon-checkmark"></i> TerminarReconteo</button>
-            <button id="accion" type="button" class="btn btn-danger" onclick="validarRevertirTerminoReconteo();"><i class="icon-undo"></i> RevertirTerminoReconteo</button>
+            <button id="accion" type="button" class="btn btn-success" onclick="validarTerminoReconteo();"><i class="icon-checkmark"></i> Terminar Reconteo</button>
+            <button id="accion" type="button" class="btn btn-danger" onclick="validarRevertirTerminoReconteo();"><i class="icon-undo"></i> Revertir</button>
         </div>
     </div>
 

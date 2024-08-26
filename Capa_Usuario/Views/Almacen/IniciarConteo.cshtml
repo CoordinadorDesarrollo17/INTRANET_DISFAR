@@ -15,11 +15,9 @@
 
     var contUser = 0;
     function llenarTabla(id) {
-        console.log(id);
         var Usuario = $("#" + id);
         var Nombre = $("#listaApoyos option[value='" + Usuario.val() + "']").attr("nombre");
         var Observacion = $("#ObsApoyo").val();
-        console.log(Observacion);
         if (Usuario.val() == null || Usuario.val() == "") { swal.fire("No ha seleccionado un personal de apoyo", "Verifique", "warning"); return; }
         if (Nombre == null || Nombre == "") { swal.fire("Personal no existente", "Verifique", "warning"); return; }
         if (validarUnicoCampoTabla(Usuario.val(), "DetallesConteo")) {
@@ -27,7 +25,7 @@
                 "<td><input class= 'form-control text-center' name = 'DetFases[0].DetApoyos[" + contUser + "].Id' value = '" + Usuario.val() + "' readonly /></td >" +
                 "<td><input class='form-control text-center' name='DetFases[0].DetApoyos[" + contUser + "].Nombre' value='" + Nombre + "'  readonly /></td>" +
                 "<td><input class= 'form-control' name = 'DetFases[0].DetApoyos[" + contUser + "].ObsApoyo' value = '" + Observacion + "' readonly /></td >" +
-                "<td><button type='button' onclick='borrarTrTable(this)' class='btn btn-danger'>Retirar</button></td></tr>");
+                "<td><button type='button' onclick='borrarTrTable(this)' class='btn btn-danger'><i class='icon-bin'> </i></button></td></tr>");
             contUser = contUser + 1;
         }
         $("#" + id + " > tbody").val("");
@@ -112,13 +110,14 @@
 
 <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
     <div class="px-3 pt-3"><h3 class="titulo-seccion">INICIAR CONTEO</h3></div>
+</div>
 
     <div class="d-flex pl-2 w-100 py-2">
         <div class="mx-2">
             @Html.ActionLink("Nuevo Conteo", "NuevoConteo", null, new { @class = "btn btn-success" })
         </div>
     </div>
-</div>
+
 
 @if (@OIPE_E.PeriodoSeleccionado != null)
 {
@@ -205,7 +204,6 @@
                 <label for="TiempoInicio" class="text-dark form-label font-weight-bold font-18">Apoyos:</label>
                 <input type="search" id="Apoyos" list="listaApoyos" class="form-control border-success text-center" />
                 <datalist id="listaApoyos">
-
                     @foreach (Usuario_E obj in u)
                     {
                         <option value="@obj.Prefijo@obj.Id" nombre="@obj.Nombres  @obj.Apellidos">@obj.Nombres  @obj.Apellidos</option>
@@ -217,7 +215,7 @@
                 <label for="ObsApoyo" class="text-dark form-label font-weight-bold font-18">Obs. Apoyo:</label>
                 <div class="d-flex">
                     <input id="ObsApoyo" type="text" value="" class="form-control border-success" />
-                    @if (Model.DetFases.Count ==  0)
+                    @if (Model.DetFases!= null &&  Model.DetFases.Count ==  0)
                     {
                         <button type="button" class="btn btn-info" onclick="llenarTabla('Apoyos');"><i class="icon-plus"></i> Agregar</button>
                     }
@@ -232,13 +230,14 @@
                 <table id="DetallesConteo" class="table table-hover table-bordered table-sm">
                     <thead class="bg-success">
                         <tr>
-                            <th class="text-center" width="220px">Usuario</th>
+                            <th class="text-center">Usuario</th>
                             <th class="text-center">Nombre</th>
                             <th class="text-center">Observación</th>
+                            <th class="text-center"></th>
                         </tr>
                     </thead>
                     <tbody>
-                        @if (Model.DetFases.Count > 0 && Model.DetFases[0].DetApoyos.Count > 0)
+                        @if (Model.DetFases != null && Model.DetFases.Count > 0 && Model.DetFases[0].DetApoyos.Count > 0)
                         {
                             foreach (IAR11_E obj in Model.DetFases[0].DetApoyos)
                             {
@@ -246,6 +245,7 @@
                                     <td class="text-center">@obj.Id</td>
                                     <td class="text-center">@obj.Nombre</td>
                                     <td class="text-center">@obj.ObsApoyo</td>
+                                    <td class="text-center"></td>
                                 </tr>
                             }
                         }
@@ -256,8 +256,8 @@
 
         <div class="row mt-4">
             <div class="col-lg-6">
-                <button id="accion" type="button" class="btn btn-success" onclick="validaInicioConteo();"><i class="icon-checkmark"></i> IniciarConteo</button>
-                <button id="accion" type="button" class="btn btn-danger" onclick=" validaRevertirInicioConteo();"><i class="icon-undo"></i> RevertirInicioConteo</button>
+                <button id="accion" type="button" class="btn btn-success" onclick="validaInicioConteo();"><i class="icon-checkmark"> </i> Iniciar Conteo</button>
+                <button id="accion" type="button" class="btn btn-danger" onclick=" validaRevertirInicioConteo();"><i class="icon-undo"> </i> Revertir </button>
             </div>
         </div>
     </div>

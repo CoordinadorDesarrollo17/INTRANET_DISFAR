@@ -51,7 +51,7 @@
                 "<td><input class='form-control' name='DetFases[0].DetContab[" + contUser + "].QuantityCajas' value='" + QuantityCajas + "' readonly /></td>" +
                 "<td><input class='form-control' name='DetFases[0].DetContab[" + contUser + "].QuantityPiezas' value='" + QuantityPiezas + "' readonly /></td>" +
                 "<td><input class='form-control' name='DetFases[0].DetContab[" + contUser + "].ObsLote' value='" + ObsLote + "' readonly /></td>" +
-                "<td><button type='button' onclick='borrarTrTable1(this," + '"' + BatchNum + '"' + ")' class='btn btn-danger'>Retirar</button></td></tr>");
+                "<td><button type='button' onclick='borrarTrTable1(this," + '"' + BatchNum + '"' + ")' class='btn btn-danger'><i class='icon-bin'> </i></button></td></tr>");
             contUser = contUser + 1;
             $("#Lotes option[value='" + BatchNum + "']").hide();
             if ($("#GrupoLotes").val() == "ConStock") { selectLotesConStock = $("#Lotes").html(); }
@@ -168,14 +168,14 @@
 </script>
 <div class="pt-4">
     <nav>
-        <ol class="cd-breadcrumb bg-dark">
-            <li><a href="/Index/Sesion">Inicio</a></li>
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
             <li><a href="@Url.Action("GestionAnalisisConteos","Almacen")">Gestión de análisis de conteos</a></li>
             <li class="current"><em>Terminar análisis de conteo</em></li>
         </ol>
     </nav>
 </div>
-<div class="bg-dark border-cabecera-seccion pb-2">
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
     <div class="px-3 pt-3"><h3 class="titulo-seccion">TERMINAR ANÁLISIS DE CONTEO</h3></div>
 </div>
 
@@ -306,8 +306,8 @@
         </div>
         <div class="row mt-4">
             <div class="col-lg-6">
-                <button id="accion" type="button" class="btn btn-success" onclick="validarTerminoAnalisisConteo();">TerminarAnalisis</button>
-                <button id="accion" type="button" class="btn btn-danger" onclick="validarRevertirTerminoAnalisisConteo();">RevertirTerminoAnalisis</button>
+                <button id="accion" type="button" class="btn btn-success" onclick="validarTerminoAnalisisConteo();">Terminar Análisis</button>
+                <button id="accion" type="button" class="btn btn-danger" onclick="validarRevertirTerminoAnalisisConteo();">Revertir</button>
             </div>
         </div>
         <div class="row mt-4">

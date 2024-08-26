@@ -25,7 +25,7 @@
                 "<td><input class= 'form-control text-center' name = 'DetFases[0].DetApoyos[" + contUser + "].Id' value = '" + Usuario.val() + "' readonly /></td >" +
                 "<td><input class='form-control text-center' name='DetFases[0].DetApoyos[" + contUser + "].Nombre' value='" + Nombre + "'  readonly /></td>" +
                 "<td><input class= 'form-control text-center' name = 'DetFases[0].DetApoyos[" + contUser + "].ObsApoyo' value = '" + Observacion + "' readonly /></td >" +
-                "<td><button type='button' onclick='borrarTrTable(this)' class='btn btn-danger'>Retirar</button></td></tr>");
+                "<td><button type='button' onclick='borrarTrTable(this)' class='btn btn-danger'><i class='icon-bin'> </i></button></td></tr>");
             contUser = contUser + 1;
         }
         $("#" + id).val("");
@@ -97,7 +97,7 @@
 
 <div class="pt-4">
     <nav>
-        <ol class="cd-breadcrumb bg-dark">
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
             <li><a href="@Url.Action("ContabilizacionInventario", "Almacen")">Módulo contabilización inventario</a></li>
             <li><a href="@Url.Action("GestionAnalisisConteos", "Almacen")">Gestión análisis de conteos</a></li>
@@ -106,8 +106,7 @@
     </nav>
 </div>
 
-
-<div class="bg-dark border-cabecera-seccion pb-2">
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
     <div class="px-3 pt-3"><h3 class="titulo-seccion">INICIAR ANÁLISIS DE CONTEOS</h3></div>
 </div>
 
@@ -221,19 +220,19 @@
                             <th class="text-center">Usuario</th>
                             <th class="text-center">Nombre</th>
                             <th class="text-center">Observacion</th>
-                            <th></th>
+                            <th class="text-center"></th>
                         </tr>
                     </thead>
                     <tbody class="table-light">
-                        @if (Model.DetFases.Count > 4 && Model.DetFases[4].DetApoyos.Count > 0)
+                        @if (Model.DetFases!= null && Model.DetFases.Count > 4 && Model.DetFases[4].DetApoyos.Count > 0)
                         {
                             foreach (IAR11_E obj in Model.DetFases[4].DetApoyos)
                             {
                                 <tr>
-                                    <td>@obj.Id</td>
-                                    <td>@obj.Nombre</td>
-                                    <td>@obj.ObsApoyo</td>
-                                    <td></td>
+                                    <td class="text-center">@obj.Id</td>
+                                    <td class="text-center">@obj.Nombre</td>
+                                    <td class="text-center">@obj.ObsApoyo</td>
+                                    <td class="text-center"></td>
                                 </tr>
 
                             }
