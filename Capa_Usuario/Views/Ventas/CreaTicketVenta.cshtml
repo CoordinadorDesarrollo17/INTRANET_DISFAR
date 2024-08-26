@@ -207,9 +207,11 @@
             var parametros = { "CardCode": CardCode, "Fecha": $('#infoFechaTicket input').val(), "DocNum": DocNum };
             var tipoVentaInput = $('#TipoVentaInput');
             var tipoVentaSelect = $('#TipoVentaSelect');
-            tipoVentaSelect.val(''); tipoVentaInput.val('');
-            tipoVentaSelect.hide();
-            tipoVentaInput.hide();
+            var tipoVentaSelect2 = $('#TipoVentaSelect2');
+
+            tipoVentaSelect.hide(); tipoVentaSelect.val(''); 
+            tipoVentaInput.hide(); tipoVentaInput.val('');
+            tipoVentaSelect2.hide(); tipoVentaSelect.val('');
             $.ajax('/Ventas/infoListaOrdenesDeVenta',
                 {
                     data: parametros,
@@ -224,23 +226,33 @@
 
                         var tipoVenta = response.TipoVenta ? response.TipoVenta.toUpperCase() : '';
                         // Mostrar/ocultar elementos según el valor de TipoVenta
-
-
-                        if (tipoVenta.startsWith('CREDITO')) {
-                            tipoVentaInput.show().val('Credito');
-                            tipoVentaSelect.hide();
-                        } else if (tipoVenta.includes('CONTADO')) {
-                            tipoVentaInput.hide();
-                            tipoVentaSelect.show().val('Normal');
+                        if ('@ViewBag.Usuario' !== 'VENTAS32' && '@ViewBag.Usuario' !== 'VENTAS05') {
+                            if (tipoVenta.startsWith('CREDITO')) {
+                                tipoVentaInput.show().val('Credito');
+                                tipoVentaSelect.hide();
+                                tipoVentaSelect2.hide();
+                            } else if (tipoVenta.includes('CONTADO')) {
+                                tipoVentaInput.hide();
+                                tipoVentaSelect2.hide();
+                                tipoVentaSelect.show().val('Normal');
+                            } else {
+                                tipoVentaInput.hide();
+                                tipoVentaSelect.hide();
+                                tipoVentaSelect2.hide();
+                            }
                         } else {
+                            tipoVentaSelect2.show();
                             tipoVentaInput.hide();
                             tipoVentaSelect.hide();
                         }
+
+                        
                     }
                     else {
-                        tipoVentaSelect.val(''); tipoVentaInput.val('');
+                        tipoVentaSelect.val(''); tipoVentaSelect2.val(''); tipoVentaInput.val('');
                         tipoVentaSelect.hide();
                         tipoVentaInput.hide();
+                        tipoVentaSelect2.hide();
                         Swal.fire('No existe elementos en la tabla de ordenes o el tipo de venta no es único.')
                     }
                 });
@@ -296,62 +308,21 @@
                 });
             });
     }
-    /***************************envio de formulario  ********************/
-    //function enviarFormulario() {
-    //    var tipoVenta ;
-
-    //    var tipoVentaInput = $('#TipoVentaInput');
-    //    var tipoVentaSelect = $('#TipoVentaSelect');
-    //    if (!tipoVentaSelect.val('')) { tipoVenta = tipoVentaSelect.val(); }
-    //    else { tipoVenta = tipoVentaInput.val(); }
-
-
-    //    var lugarDestino = $("#LugarDestino").val();
-    //    var te = $("#TiempoEntrega").val();
-    //    var coordinaciones = $("#Observaciones").val();
-    //    var agencia = $("#Agencia").val();
-    //    var envioagencia = $("#EnvioAgencia").val();
-    //    var referencia = $("#Referencia").val();
-    //    var mensaje = '<div class="my-swal-text">Tipo de Venta: <strong>' + tipoVenta + '</strong><br>Lugar de Destino: <strong>' + lugarDestino + '</strong><br>Coordinaciones: <strong>' + coordinaciones + '</strong><br>T.E: <strong>' + te + '</strong></div>';
-    //    if (lugarDestino === 'Agencia') {
-
-    //        mensaje = '<div class="my-swal-text">Tipo de Venta: <strong>' + tipoVenta + '</strong><br>Lugar de Destino: <strong>' + lugarDestino + '</strong><br>Coordinaciones: <strong>' + coordinaciones + '</strong><br>T.E: <strong>' + te + '</strong><br>Agencia: <strong>' + agencia + '</strong><br>Modo de envio: <strong>' + envioagencia + '</strong><br>Referencia: <strong>' + referencia + '</strong></div>';
-    //    }
-    //    // Mostrar aviso
-    //    Swal.fire({
-    //        title: 'Confirmación de envío',
-    //        html: mensaje,
-    //        icon: 'info',
-    //        showCancelButton: true,
-    //        confirmButtonText: 'Si, enviar',
-    //        cancelButtonText: 'No, corregir',
-    //        reverseButtons: true,
-    //        showLoaderOnConfirm: true,
-    //        preConfirm: function () {
-    //           $("#CreaTicketVenta").submit();
-    //        },
-    //        allowOutsideClick: () => !Swal.isLoading()
-    //    }).then(function (result) {
-    //        if (result.dismiss === Swal.DismissReason.cancel) {
-    //            Swal.fire({
-    //                title: 'Cancelado',
-    //                text: 'Se ha cancelado el envío de datos.',
-    //                icon: 'error'
-    //            });
-    //        }
-    //    });
-    //}
     function enviarFormulario() {
         var tipoVenta;
         var tipoVentaInput = $('#TipoVentaInput');
         var tipoVentaSelect = $('#TipoVentaSelect');
+        var tipoVentaSelect2 = $('#TipoVentaSelect2');
 
-        if (tipoVentaSelect.val()!='') {
+        if (tipoVentaSelect.val() != '') {
             tipoVenta = tipoVentaSelect.val();
-        } else {
+        } else if (tipoVentaSelect2.val() != '') {
+            tipoVenta = tipoVentaSelect2.val();
+        }
+        else {
             tipoVenta = tipoVentaInput.val();
         }
-
+        console.log(tipoVenta);
         var lugarDestino = $("#LugarDestino").val();
         var te = $("#TiempoEntrega").val();
         var coordinaciones = $("#Observaciones").val();
@@ -474,6 +445,13 @@
                                 <option value="Normal" @{ if (Model.TipoVenta == "Normal") { Write("selected"); } }>Normal</option>
                                 <option value="ContraEntrega" @{ if (Model.TipoVenta == "ContraEntrega") { Write("selected"); } }>ContraEntrega</option>
                             </select>
+                            <select id="TipoVentaSelect2" class="form-control bg-cobefar text-white" style="display: none;">
+                                <option value="">Seleccione</option>
+                                <option value="Normal" @{ if (Model.TipoVenta == "Normal") { Write("selected"); } }>Normal</option>
+                                <option value="ContraEntrega" @{ if (Model.TipoVenta == "ContraEntrega") { Write("selected"); } }>ContraEntrega</option>
+                                <option value="Credito" @{ if (Model.TipoVenta == "Credito") { Write("selected"); } }>Credito</option>
+                            </select>
+                            
                         </div>
                         <div class="col-lg-2">
                             <label for="Presupuesto" class="text-dark form-label font-weight-bold font-18">Presupuesto:</label>
@@ -637,7 +615,7 @@
 
                         <div class="col-lg-2">
                             <label for="TelfPer" class="text-dark form-label font-weight-bold font-18">Teléfono:</label>
-                            <input type="number" id="TelfPer" name="Det1[0].TelfPer" class="form-control text-center border-success" />
+                            <input type="text" id="TelfPer" name="Det1[0].TelfPer" class="form-control text-center border-success" />
                         </div>
 
                         <div class="col-lg-3">
