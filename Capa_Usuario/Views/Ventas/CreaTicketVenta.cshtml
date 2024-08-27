@@ -1,11 +1,14 @@
 ﻿@model Capa_Entidad.Ventas_ENT.TablasSql.ORTV_E
-@using Capa_Entidad.General_ENT.TablasSql
+@using Capa_Entidad.General_ENT.TablasSql;
+
+@using Capa_Entidad.Seguridad_ENT
 @{
     ViewBag.Title = "CrearTicketVenta";
     Layout = "~/Views/Shared/_Layout.cshtml";
     List<UBIG_E> Ubigeos = new List<UBIG_E>(ViewBag.Ubigeos);
     List<OUR1_E> Oficinas = new List<OUR1_E>(ViewBag.Oficinas);
     List<COUR_E> Agencias = new List<COUR_E>(ViewBag.Agencias);
+    var usuario = ViewBag.Usuario ;
 
 }
 <script src="~/Scripts/Ventas/TicketDeVenta.js"></script>
@@ -38,11 +41,12 @@
         // Inicializamos los tabs desactivados
         $('#nav-det-pedidos-tab').addClass('disabled');
         //solo para las vendedoras seleccionadas muestra el select FormaPago precargado con la opcion EFE/CAPON
-        if ('@ViewBag.Usuario' !== 'VENTAS32' && '@ViewBag.Usuario' !== 'VENTAS05') {
+        if ('@usuario' !== 'VENTAS32' && '@usuario' !== 'VENTAS05') {
             $("#div_FormaPago").hide();
+            $("input[name='FormaPago'], select[name='FormaPago']").val('');
         } else {
             $("#div_FormaPago").show();
-            $("#FormaPago").val("EFE/CAPON");
+            $("input[name='FormaPago'], select[name='FormaPago']").val("EFE/CAPON");
         }
 
     });
@@ -92,7 +96,6 @@
                 } else if ($('#TipoDocPer').val() == 'RUC') {
                     result = validarNroDoc(id, valorIngresado, 11);
                 } else if ($('#TipoDocPer').val() == 'CE') {
-                    //result = validarNroDoc(id, valorIngresado, 12);
                     result = validarNroDoc(id, valorIngresado, 9);
                 }
             } else {
@@ -296,51 +299,7 @@
                 });
             });
     }
-    /***************************envio de formulario  ********************/
-    //function enviarFormulario() {
-    //    var tipoVenta ;
 
-    //    var tipoVentaInput = $('#TipoVentaInput');
-    //    var tipoVentaSelect = $('#TipoVentaSelect');
-    //    if (!tipoVentaSelect.val('')) { tipoVenta = tipoVentaSelect.val(); }
-    //    else { tipoVenta = tipoVentaInput.val(); }
-
-
-    //    var lugarDestino = $("#LugarDestino").val();
-    //    var te = $("#TiempoEntrega").val();
-    //    var coordinaciones = $("#Observaciones").val();
-    //    var agencia = $("#Agencia").val();
-    //    var envioagencia = $("#EnvioAgencia").val();
-    //    var referencia = $("#Referencia").val();
-    //    var mensaje = '<div class="my-swal-text">Tipo de Venta: <strong>' + tipoVenta + '</strong><br>Lugar de Destino: <strong>' + lugarDestino + '</strong><br>Coordinaciones: <strong>' + coordinaciones + '</strong><br>T.E: <strong>' + te + '</strong></div>';
-    //    if (lugarDestino === 'Agencia') {
-
-    //        mensaje = '<div class="my-swal-text">Tipo de Venta: <strong>' + tipoVenta + '</strong><br>Lugar de Destino: <strong>' + lugarDestino + '</strong><br>Coordinaciones: <strong>' + coordinaciones + '</strong><br>T.E: <strong>' + te + '</strong><br>Agencia: <strong>' + agencia + '</strong><br>Modo de envio: <strong>' + envioagencia + '</strong><br>Referencia: <strong>' + referencia + '</strong></div>';
-    //    }
-    //    // Mostrar aviso
-    //    Swal.fire({
-    //        title: 'Confirmación de envío',
-    //        html: mensaje,
-    //        icon: 'info',
-    //        showCancelButton: true,
-    //        confirmButtonText: 'Si, enviar',
-    //        cancelButtonText: 'No, corregir',
-    //        reverseButtons: true,
-    //        showLoaderOnConfirm: true,
-    //        preConfirm: function () {
-    //           $("#CreaTicketVenta").submit();
-    //        },
-    //        allowOutsideClick: () => !Swal.isLoading()
-    //    }).then(function (result) {
-    //        if (result.dismiss === Swal.DismissReason.cancel) {
-    //            Swal.fire({
-    //                title: 'Cancelado',
-    //                text: 'Se ha cancelado el envío de datos.',
-    //                icon: 'error'
-    //            });
-    //        }
-    //    });
-    //}
     function enviarFormulario() {
         var tipoVenta;
         var tipoVentaInput = $('#TipoVentaInput');
@@ -473,6 +432,9 @@
                                 <option value="">Seleccione</option>
                                 <option value="Normal" @{ if (Model.TipoVenta == "Normal") { Write("selected"); } }>Normal</option>
                                 <option value="ContraEntrega" @{ if (Model.TipoVenta == "ContraEntrega") { Write("selected"); } }>ContraEntrega</option>
+                                @if (usuario == "VENTAS32" || usuario == "VENTAS05") {
+                                    <option value="Credito" @{ if (Model.TipoVenta == "Credito") { Write("selected"); } }>Credito</option>
+                                }
                             </select>
                         </div>
                         <div class="col-lg-2">
@@ -484,7 +446,7 @@
                         </div>
                         <div class="col-lg-2" id="div_FormaPago">
                             <label class="text-dark font-weight-bold font-18">Forma de Pago:</label>
-                            <select class="form-control bg-cobefar text-white" name="FormaPago" id="FormaPago">
+                            <select name="FormaPago" id="FormaPago" class="form-control bg-cobefar text-white">
                                 <option value="">Seleccione</option>
                                 <option value="EFE/CAPON" @{ if (Model.FormaPago != null && Model.FormaPago == "EFE/CAPON") { Write("selected"); } }>EFE/CAPON</option>
                                 <option value="EFECTIVO" @{ if (Model.FormaPago != null && Model.FormaPago == "EFECTIVO") { Write("selected"); } }>EFECTIVO</option>
@@ -912,16 +874,16 @@
 
 
                 <div class="row">
-                    <div class="col-lg-9"> <input type="text" id="busqueda_ubigeo" class="form-control" placeholder="Digite su busqueda" onkeyup="busqueda(this.value,'Ubigeos');" /></div>
+                    <div class="col-lg-9"><input type="text" id="busqueda_ubigeo" class="form-control" placeholder="Digite su busqueda" onkeyup="busqueda(this.value,'Ubigeos');" /></div>
                     <div class="col-lg-3"><button class="btn btn-success" data-dismiss="modal" onclick="$('#DirDestino2').val('').prop('readonly', true);$('#Ubigeo2').val('');$('#Distrito2').val('');$('#Provincia2').val('');$('#Departamento2').val('');reubicarZona('');">Limpiar datos</button></div>
                 </div>
                 <br />
 
                 <table id="Ubigeos" class="table table-light table-bordered table-sm table-hover text-center table-responsive-md">
                     <tr style="background-color:steelblue;color:white"><td>Ubigeo</td><td>Distrito</td><td>Provincia</td><td>Departamento</td><td></td></tr>
-                    @foreach (var o in Ubigeos)
-                    {
-                        <tbody>
+                    <tbody>
+                        @foreach (var o in Ubigeos)
+                        {
                             <tr>
                                 <td>@o.Ubigeo</td>
                                 <td>@o.Distrito</td>
@@ -929,9 +891,8 @@
                                 <td>@o.Departamento</td>
                                 <td><button class="btn btn-primary btn-sm" data-dismiss="modal" onclick="agregarDatos('@o.Ubigeo','@o.Distrito','@o.Provincia','@o.Departamento','@o.Zona')">Seleccionar</button></td>
                             </tr>
-                        </tbody>
-
-                    }
+                        }
+                    </tbody>
 
                 </table>
             </div>

@@ -9,6 +9,7 @@
     List<UBIG_E> Ubigeos = new List<UBIG_E>(ViewBag.Ubigeos);
     List<OUR1_E> Oficinas = new List<OUR1_E>(ViewBag.Oficinas);
     List<COUR_E> Agencias = new List<COUR_E>(ViewBag.Agencias);
+    var usuario = ViewBag.Usuario;
 }
 
 <script>
@@ -163,16 +164,28 @@
                         </div>
                         <div class="col-lg-2">
                             <label for="TipoVenta" class="text-dark form-label font-weight-bold font-18">Tipo de Venta:</label>
-                            @if (Model.TipoVenta != "Credito")
+                            @if (usuario == "VENTAS32" || usuario == "VENTAS05")
                             {
-                                <select name="TipoVenta" id="TipoVenta" class="form-control bg-cobefar text-white">
-                                    <option value="">Seleccione</option>
-                                    <option value="Normal" @{ if (Model.TipoVenta == "Normal") { Write("selected"); } }>Normal</option>
-                                    <option value="ContraEntrega" @{ if (Model.TipoVenta == "ContraEntrega") { Write("selected"); } }>ContraEntrega</option>
-                                </select>
+                                    <select name="TipoVenta" id="TipoVenta" class="form-control bg-cobefar text-white">
+                                        <option value="">Seleccione</option>
+                                        <option value="Normal" @{ if (Model.TipoVenta == "Normal") { Write("selected"); } }>Normal</option>
+                                        <option value="ContraEntrega" @{ if (Model.TipoVenta == "ContraEntrega") { Write("selected"); } }>ContraEntrega</option>
+                                        <option value="Credito" @{ if (Model.TipoVenta == "Credito") { Write("selected"); } }>Credito</option>
+                                    </select>
                             }
                             else
-                            { <input type="text" name="TipoVenta" id="TipoVenta" class="form-control text-center border-success" value="@Model.TipoVenta" readonly>}
+                            {
+                                if (Model.TipoVenta != "Credito")
+                                {
+                                    <select name="TipoVenta" id="TipoVenta" class="form-control bg-cobefar text-white">
+                                        <option value="">Seleccione</option>
+                                        <option value="Normal" @{ if (Model.TipoVenta == "Normal") { Write("selected"); } }>Normal</option>
+                                        <option value="ContraEntrega" @{ if (Model.TipoVenta == "ContraEntrega") { Write("selected"); } }>ContraEntrega</option>
+                                    </select>
+                                }
+                                else
+                                { <input type="text" name="TipoVenta" id="TipoVenta" class="form-control text-center border-success" value="@Model.TipoVenta" readonly>}
+                            }
                         </div>
                         <div class="col-lg-2">
                             <label for="Visible" class="text-dark form-label font-weight-bold font-18">Presupuesto:</label>

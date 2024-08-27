@@ -104,7 +104,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                     if (string.IsNullOrEmpty(ticket.Det1[0].TipoDocPer)) { throw new Exception("Debe llenar el tipo de documento personal."); }
                     if (string.IsNullOrEmpty(ticket.Det1[0].DocPer)) { throw new Exception("Debe llenar el número de documento personal."); }
                     if (string.IsNullOrEmpty(ticket.Det1[0].TelfPer)) { throw new Exception("Debe llenar el teléfono."); }
-                    if (ticket.Embalaje != "CP") { throw new Exception("El embalaje debe ser 'Caja Provincia'."); }
+                    if (ticket.Embalaje != "CP") { throw new Exception("El embalaje debe ser Caja Provincia."); }
 
                     string lugEn = string.Empty;
                     foreach (RTV2_E d in ticket.Det2.Where(x => x.Verificar == "on"))

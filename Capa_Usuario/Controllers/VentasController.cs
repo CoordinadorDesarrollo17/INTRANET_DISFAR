@@ -26,6 +26,7 @@ using System.IO;
 using System.Linq;
 using System.Web.Mvc;
 using System.Net.Http;
+using Microsoft.ReportingServices.ReportProcessing.ReportObjectModel;
 
 namespace Capa_Usuario.Controllers
 {
@@ -181,7 +182,7 @@ namespace Capa_Usuario.Controllers
             {
                 UBIG_N ubigN = new UBIG_N(); OUR1_N ofiN = new OUR1_N(); OCRD_N oN = new OCRD_N();
                 OCLR_N oclrN = new OCLR_N(); COUR_N couN = new COUR_N();
-                Usuario_E usu = (Usuario_E)Session["UsuarioId"];
+                Usuario_E user = (Usuario_E)Session["UsuarioId"];
 
                 ViewBag.ProveedoresConContactos = oN.listarSociosConContactos();
                 ORTV_E t = ticketN.obtenerTicket(DocEntry);
@@ -199,7 +200,8 @@ namespace Capa_Usuario.Controllers
                 ViewBag.Ubigeos = ubigN.Listar();
                 ViewBag.Oficinas = ofiN.Listar();
                 ViewBag.Agencias = couN.Listar();
-                ViewBag.IdRol = usu.IdRol;
+                ViewBag.IdRol = user.IdRol;
+                ViewBag.Usuario = $"{user.Prefijo}{user.Id}";
 
                 if (t.Estado.Equals("SEPARADO")) { return RedirectToAction("CreaTicketVenta", new { DocEntry = t.DocEntry }); }
                 else { return View(t); }
@@ -215,9 +217,9 @@ namespace Capa_Usuario.Controllers
         {
             if (verificacionAccesos(idOperation) == "C_Access")
             {
+                Usuario_E user = (Usuario_E)Session["UsuarioId"];
                 try
                 {
-                    Usuario_E user = (Usuario_E)Session["UsuarioId"];
                     t.Vendedor = $"{user.Nombres} {user.Apellidos}";     // Seteamos el usuario Propietario con el nombre del usuario en sesiòn
                     t.WhsCodeLog = $"{user.WhsCode}";
                     ticketN.editarTicket(DocEntry, t);
@@ -232,6 +234,7 @@ namespace Capa_Usuario.Controllers
                     ViewBag.Ubigeos = ubigN.Listar();
                     ViewBag.Oficinas = ofiN.Listar(); ViewBag.Agencias = couN.Listar();
                     ViewBag.ClienteRegalo = oclrN.buscarClienteRegalo(t.CardCode);
+                    ViewBag.Usuario = $"{user.Prefijo}{user.Id}";
                     return View(t);
                 }
             }
