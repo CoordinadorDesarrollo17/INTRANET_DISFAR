@@ -537,18 +537,14 @@ function verificacionDatos(estado) {
         if (estado === '') {
             var tipoVentaInput = $('#TipoVentaInput');
             var tipoVentaSelect = $('#TipoVentaSelect');
-            var tipoVentaSelect2 = $('#TipoVentaSelect2');
 
 
             if (tipoVentaSelect.val() != '') {
                 tipoVenta = tipoVentaSelect.val();
-            } else if (tipoVentaSelect2.val() != '') {
-                tipoVenta = tipoVentaSelect2.val();
             } else {
                 tipoVenta = tipoVentaInput.val();
             }
         } else { tipoVenta = $('#TipoVenta').val(); }
-
         var formSelector = estado === '' ? "#CreaTicketVenta" : "#EditaTicketVenta";
         var object = $(formSelector).serializeArray();
 
