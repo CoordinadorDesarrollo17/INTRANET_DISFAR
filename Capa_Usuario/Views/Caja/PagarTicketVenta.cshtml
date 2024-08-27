@@ -819,19 +819,12 @@
         });
     }
 
-    const swalWithBootstrapButtons = Swal.mixin({
-        customClass: {
-            confirmButton: 'btn btn-success mx-3',
-            cancelButton: 'btn btn-danger mx-3'
-        },
-        buttonsStyling: false
-    })
 
     if ('@ViewBag.Mensaje' != "") {
         Swal.fire('@ViewBag.Mensaje');
     }
 
-    deshabilitarRetroceso();
+    //deshabilitarRetroceso();
 
     function maximizarImg(idImg) {
         let img = $('#' + idImg).attr('src');

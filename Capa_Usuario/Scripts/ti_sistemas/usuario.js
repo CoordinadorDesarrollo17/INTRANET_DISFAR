@@ -1,4 +1,65 @@
-﻿function mostrarMensaje(mensaje) {
+﻿document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById('emplCobefar1').addEventListener('change', function () {
+        if (this.checked) {
+            document.getElementById('inputRoles').value = "";
+            document.getElementById('idRol').value = 0;
+            document.getElementById('usuario').value = "";
+            document.getElementById('CodigoSap').value = "";
+
+            document.getElementById('div_inputsForm').style.display = "block";
+            document.getElementById('div_listaEmpleados').style.display = "block";
+
+            document.getElementById('Nombres').value = "";
+            document.getElementById('div_nombres').style.display = "none";
+
+            document.getElementById('Apellidos').value = "";
+            document.getElementById('div_apellidos').style.display = "none";
+        }
+    });
+
+    document.getElementById('emplCobefar2').addEventListener('change', function () {
+        if (this.checked) {
+            document.getElementById('inputRoles').value = "";
+            document.getElementById('idRol').value = 0;
+            document.getElementById('usuario').value = "";
+            document.getElementById('CodigoSap').value = "";
+
+            document.getElementById('div_inputsForm').style.display = "block";
+            document.getElementById('div_listaEmpleados').style.display = "none";
+
+            document.getElementById('Nombres').value = "";
+            document.getElementById('div_nombres').style.display = "block";
+
+            document.getElementById('Apellidos').value = "";
+            document.getElementById('div_apellidos').style.display = "block";
+        }
+    });
+
+
+    document.getElementById('inputEmpleados').addEventListener('change', function () {
+        const sedeMapping = {
+            "1": "01",
+            "2": "03",
+            "4": "06",
+            "5": "07"
+        };
+
+        const idsede = document.getElementById("sedeId").value;
+        const whsCode = sedeMapping[idsede];
+
+        if (whsCode) {
+            document.getElementById("WhsCode").value = whsCode;
+        } else {
+            document.getElementById("WhsCode").value = "";
+        }
+    });
+
+    gestionarValorDatalist('inputEmpleados', 'listaEmpleados', 'empleadoId', 'idempleado');
+    gestionarValorDatalist('inputEmpleados', 'listaEmpleados', 'sedeId', 'idsede');
+    gestionarValorDatalist('inputRoles', 'listaRoles', 'idRol', 'idrol');
+});
+
+function mostrarMensaje(mensaje) {
     if (typeof mensaje === 'string' && mensaje.trim() !== '') {
         Swal.fire(mensaje);
     }
@@ -11,22 +72,37 @@ function validarCodigoSAP(input) {
     }
 }
 
-function infoIdUsuario(idRol) {
-    var idR = $(idRol).val();
-    if (idR == null || idR == "") { idR = 0; }
-    var parametros = { "idRol": idR };
+function infoIdUsuario(elemento) {
+    const opcionSeleccionada = Array.from(document.querySelectorAll('#listaRoles option'))
+        .find(option => option.value === elemento.value);
 
-    $.ajax('/TI_Sistemas/infoIdUsuario',
-        {
+    if (opcionSeleccionada) {
+        const idRol = opcionSeleccionada.dataset.idrol || 0;
+        const parametros = { idRol };
+
+        $.ajax('/TI_Sistemas/infoIdUsuario', {
             data: parametros,
             dataType: 'html',
             cache: false,
             type: 'post',
         })
-        .done(function (response) {
-            let result = JSON.parse(response);
-            $('#usuario').val(result.prefijo + result.id);
-            $('#prefijo').val(result.prefijo);
-            $('#id').val(result.id);
-        });
+            .done(response => {
+                try {
+                    const result = JSON.parse(response);
+                    $('#usuario').val(`${result.prefijo}${result.id}`);
+                    $('#prefijo').val(result.prefijo);
+                    $('#id').val(result.id);
+                } catch (e) {
+                    console.error('Error parsing response:', e);
+                }
+            })
+            .fail((jqXHR, textStatus, errorThrown) => {
+                console.error('AJAX request failed:', textStatus, errorThrown);
+            });
+    } else {
+        $('#usuario').val('');
+        $('#prefijo').val('');
+        $('#id').val('');
+        //console.error('No se encontró una opción válida');
+    }
 }

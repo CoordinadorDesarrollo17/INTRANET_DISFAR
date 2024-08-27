@@ -2,7 +2,7 @@
 @using Capa_Entidad.Ventas_ENT.TablasSql
 
 @{
-    ViewBag.Title = "GestionColaboradores";
+    ViewBag.Title = "GestionRegalos";
     Layout = "~/Views/Shared/_Layout.cshtml";
     OREG_E f = (OREG_E)ViewBag.Regalos;
 }
@@ -19,33 +19,32 @@
 
 <div class="pt-4">
     <nav>
-        <ol class="cd-breadcrumb bg-dark">
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
             <li class="current"><em>Módulo gestión regalos</em></li>
         </ol>
     </nav>
 </div>
 
-<div class="bg-dark border-cabecera-seccion pb-2">
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
     <div class="px-3 pt-3"><h3 class="titulo-seccion">MÓDULO GESTIÓN REGALOS</h3></div>
-
-    <div class="d-flex pl-2 w-100 py-2">
-
-        <div class="mx-2">
-            <a id="accion" href="@Url.Action("NuevoRegalo", "Ventas")" class="btn btn-success">
-                <i class="icon icon-plus"></i> Nuevo Regalo
-            </a>
-            <a id="accion" href="@Url.Action("GestionClienteRegalos", "Ventas")" class="btn btn-info">
-                <i class="icon icon-gift"></i> Regalos Clientes
-            </a>
-        </div>
-
-    </div>
 </div>
+<div class="bg-white d-flex pl-2 w-100 py-2">
 
-<div class="bg-dark pt-4">
-    <form name="frm" id="frm">
-        <table class="table table-light table-sm table-hover cls-dataTable" cellspacing="0" width="100%">
+    <div class="mx-2">
+        <a id="accion" href="@Url.Action("NuevoRegalo", "Ventas")" class="btn btn-success">
+            <i class="icon icon-plus"></i> Nuevo Regalo
+        </a>
+        <a id="accion" href="@Url.Action("GestionClienteRegalos", "Ventas")" class="btn btn-info">
+            <i class="icon icon-gift"></i> Regalos Clientes
+        </a>
+    </div>
+
+</div>
+<form name="frm" id="frm">
+    <div class="bg-white bg-form-cobefar">
+
+        <table class="table table-light table-sm table-responsive-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
             <thead class="thead-dark">
                 <tr>
                     <th class="text-center">
@@ -141,12 +140,8 @@
                 }
             </tbody>
         </table>
-
-    </form>
-
-
-
-</div>
+    </div>
+</form>
 <script>
     if ('@ViewBag.Mensaje' != "") {
         Swal.fire('@ViewBag.Mensaje')

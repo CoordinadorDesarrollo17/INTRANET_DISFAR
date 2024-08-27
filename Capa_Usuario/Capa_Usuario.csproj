@@ -306,12 +306,14 @@
     <Content Include="Content\img\bg-cobefar-v2.png" />
     <Content Include="Content\img\favicon-cobefar.png" />
     <Content Include="Content\img\firmas\firma.png" />
+    <Content Include="Content\img\lines-dark-background.jpg" />
     <Content Include="Content\img\logo con sombra.png" />
     <Content Include="Content\img\logo sin sombra.png" />
     <Content Include="Content\img\logo-cobefar.png" />
     <Content Include="Content\img\logo-drogueria-cobefar.jpg" />
     <Content Include="Content\img\logo.png" />
     <Content Include="Content\img\video-presentacion-24-05-23.mp4" />
+    <Content Include="Content\img\white-background-abstract.jpg" />
     <Content Include="Content\js\alertify.min.js" />
     <Content Include="Content\js\bootstrap.bundle.js" />
     <Content Include="Content\js\bootstrap.bundle.min.js" />
@@ -804,6 +806,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\AccesoHelper.cs" />
     <Compile Include="HostedService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reportes\DS_Kardex.Designer.cs">
@@ -1073,10 +1076,8 @@
     <Content Include="Views\Ventas\NuevoClienteRegalo.cshtml" />
     <Content Include="Views\Ventas\EditarClienteRegalos.cshtml" />
     <Content Include="Views\Ventas\ReporteReclamosCliente.cshtml" />
-    <Content Include="Views\TI_Sistemas\AdministrarRolOperacion.cshtml" />
     <Content Include="Views\TI_Sistemas\EditarUsuario.cshtml" />
     <Content Include="Views\TI_Sistemas\GestionPermisos.cshtml" />
-    <Content Include="Views\TI_Sistemas\GestionRolOperacion.cshtml" />
     <Content Include="Views\Rutas\infoHojasRuta.cshtml" />
     <Content Include="Views\Rutas\ReportesRutas.cshtml" />
     <Content Include="Views\Ventas\GestionVendedores.cshtml" />
@@ -1156,6 +1157,7 @@
     <Content Include="Views\Shared\DireccionTecnica\ListadoOrdenesVenta_DT.cshtml" />
     <Content Include="Views\Ventas\PDF\PDF_OrdenesDeVentas.cshtml" />
     <Content Include="Views\Rutas\EditarOrdenDeRuta_TA.cshtml" />
+    <Content Include="Views\Shared\TI_Sistemas\AsignacionPermisos.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

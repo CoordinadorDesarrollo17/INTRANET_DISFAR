@@ -387,7 +387,7 @@
 
 <div class="pt-4">
     <nav>
-        <ol class="cd-breadcrumb bg-dark">
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
             <li><a href="@Url.Action("ListadoTicketsVenta", "Ventas")">Listado de tickets</a></li>
             <li class="current"><em>Editar ticket de venta - SUPERVISORES</em></li>
@@ -395,7 +395,7 @@
     </nav>
 </div>
 
-<div class="bg-dark border-cabecera-seccion pb-2">
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
     <div class="px-3 pt-3"><h3 class="titulo-seccion">EDITAR TICKET DE VENTA - SUPERVISORES</h3></div>
 </div>
 
@@ -998,18 +998,18 @@
                     <tr style="background-color:steelblue;color:white"><td>Ubigeo</td><td>Distrito</td><td>Provincia</td><td>Departamento</td><td></td></tr>
                     @if (Ubigeos != null && Ubigeos.Count >= 1)
                     {
-                        foreach (var o in Ubigeos)
-                        {
-                            <tbody>
-                                <tr>
-                                    <td>@o.Ubigeo</td>
-                                    <td>@o.Distrito</td>
-                                    <td>@o.Provincia</td>
-                                    <td>@o.Departamento</td>
-                                    <td><button class="btn btn-primary btn-sm" data-dismiss="modal" onclick="agregarDatos('@o.Ubigeo','@o.Distrito','@o.Provincia','@o.Departamento','@o.Zona')">Seleccionar</button></td>
-                                </tr>
-                            </tbody>
-                        }
+                        <tbody>
+                            @foreach (var o in Ubigeos)
+                            {
+                            <tr>
+                                <td>@o.Ubigeo</td>
+                                <td>@o.Distrito</td>
+                                <td>@o.Provincia</td>
+                                <td>@o.Departamento</td>
+                                <td><button class="btn btn-primary btn-sm" data-dismiss="modal" onclick="agregarDatos('@o.Ubigeo','@o.Distrito','@o.Provincia','@o.Departamento','@o.Zona')">Seleccionar</button></td>
+                            </tr>
+                            }
+                        </tbody>
                     }
                 </table>
             </div>

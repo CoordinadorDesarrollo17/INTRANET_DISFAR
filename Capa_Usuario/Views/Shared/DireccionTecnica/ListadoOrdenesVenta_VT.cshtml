@@ -10,7 +10,7 @@
 }
 
 <table id="tbl_listaOV" class="table table-light table-sm table-hover table-responsive-lg table-responsive-md" cellspacing="0" width="100%">
-    <thead class="thead-dark">
+    <thead class="bg-cobefar-6">
         <tr>
             <th class="text-center">
                 <label>Nro Venta</label><br />
@@ -89,7 +89,7 @@
                     <td class="text-center">@estados[item.CANCELED]</td>
                     <td class="text-center">@almacenes[item.U_COB_LUGAREN]</td>
                     <td class="text-center">
-                        <a href="@Url.Action("LayoutOrdenDeVenta", "DireccionTecnica", new { DocNum = item.DocNum })" target="_self" class="btn btn-sm btn-cobefar"><i class="icon-eye"></i> Ver Layout</a>
+                        <a href="@Url.Action("LayoutOrdenDeVenta", "DireccionTecnica", new { DocNum = item.DocNum })" target="_self" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Ver Layout Orden de Venta"><i class="icon-eye text-dark"></i> </a>
                     </td>
                 </tr>
             }

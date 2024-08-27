@@ -10,34 +10,34 @@
     }
 </script>
 
-<div class="pt-4">
+<div class="pt-3">
     <nav>
-        <ol class="cd-breadcrumb bg-dark">
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
             <li class="current"><em>Listado de tickets de almacén</em></li>
         </ol>
     </nav>
 </div>
 
-<div class="bg-dark border-cabecera-seccion pb-2">
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
     <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO TICKETS DE ALMACÉN</h3></div>
-
-    @*@if (ViewBag.ExportarExcelPicking == "SI")
-        {*@
-    <div class="row pl-2 w-100">
-        <div class="d-flex col-lg-8 col-md-6 col-sm-12 col-6">
-            <button type="button" class="btn btn-success font-weight-bold mx-1 my-1" title="Descargar Reporte Errores de Picking" data-toggle="modal" data-target="#modalReporte" onclick="">
-                <i class="icon icon-file-excel"></i> Errores de Picking
-            </button>
-        </div>
-    </div>
-    @*}*@
-
 </div>
+
+@*@if (ViewBag.ExportarExcelPicking == "SI")
+    {*@
+<div class="bg-white d-flex pl-2 w-100 py-2">
+    <button type="button" class="btn btn-success mx-1 my-1" title="Descargar Reporte Errores de Picking" data-toggle="modal" data-target="#modalReporte" onclick="">
+        <i class="icon icon-file-excel"></i> Errores de Picking
+    </button>
+</div>
+
+@*}*@
+
+
 <form name="frm" id="frm">
-    <div class="bg-dark pt-4">
+    <div class="bg-white bg-form-cobefar">
         <table class="table table-light table-sm table-responsive-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
-            <thead class="thead-dark">
+            <thead class="bg-cobefar-6">
                 <tr>
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.DocNum)
@@ -401,13 +401,13 @@
 
                                 if ((item.LugarDestino.Equals("Centro") || item.LugarDestino.Equals("Arriola")))
                                 {
-                                    <a href="#" class="btn btn-danger btn-sm" onclick="cancelarTicket(@item.DocEntry);"><i title="CANCELAR" class="icon-cross text-light"></i></a>
+                                    <a href="#" class="btn btn-sm btn-light" onclick="cancelarTicket(@item.DocEntry);" data-toggle="tooltip" data-placement="top" title="Cancelar"><i class="icon-cross text-danger"></i></a>
                                 }
                                 else
                                 {
                                     if (item.Estado.Equals("EMPACADO") || item.Estado.Equals("PESADO"))
                                     {
-                                        <a href="#" class="btn btn-danger btn-sm" onclick="cancelarTicket(@item.DocEntry);"><i title="CANCELAR" class="icon-cross text-light"></i></a>
+                                        <a href="#" class="btn btn-sm btn-light" onclick="cancelarTicket(@item.DocEntry);" data-toggle="tooltip" data-placement="top" title="Cancelar"><i class="icon-cross text-danger"></i></a>
                                     }
                                 }
                             }
@@ -415,21 +415,21 @@
                         <td>
                             @if ((item.Estado.Equals("PICKEANDO") || item.Estado.Equals("VERIFICANDO") || item.Estado.Equals("EMPACANDO") || item.Estado.Equals("EMPACADO") || item.Estado.Equals("PESADO") || item.Estado.Equals("PREENVIO") || item.Estado.Equals("ENVIADO") || item.Estado.Equals("ENTREGADO")) && item.LugarDestino.Equals("Agencia"))
                             {
-                                <a href="@Url.Action( "PdfRotuladoTicket", "Ventas", new { DocEntry = item.DocEntry  } )" title="Rotulado">
+                                <a href="@Url.Action( "PdfRotuladoTicket", "Ventas", new { DocEntry = item.DocEntry  } )" data-toggle="tooltip" data-placement="top" title="Rotulado">
                                     <i class="icon-file-pdf text-danger bordered mt-2 font-30"></i>
                                 </a>
                             }
                             else if ((item.Estado.Equals("EMPACADO") || item.Estado.Equals("PREENVIO") || item.Estado.Equals("ENVIADO") || item.Estado.Equals("ENTREGADO")) && !item.LugarDestino.Equals("Agencia"))
                             {
-                                <a href="@Url.Action( "PdfTacoEmpaque", "Ventas", new { DocEntry = item.DocEntry  } )" title="TacoEmpaque">
+                                <a href="@Url.Action( "PdfTacoEmpaque", "Ventas", new { DocEntry = item.DocEntry  } )" data-toggle="tooltip" data-placement="top" title="TacoEmpaque">
                                     <i class="icon-file-pdf text-danger bordered mt-2 font-30"></i>
                                 </a>
                             }
                         </td>
                         <td class="text-center">
-                            <a href="@Url.Action( "SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry  } )" type="button" target="_blank" class="btn btn-dark btn-sm"
+                            <a href="@Url.Action( "SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry  } )" type="button" target="_blank" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Seguimiento de Ticket" 
                                onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;">
-                                <i title="Seguimiento de ticket" class="icon-truck"></i>
+                                <i class="icon-truck text-dark"></i>
                             </a>
                         </td>
                     </tr>

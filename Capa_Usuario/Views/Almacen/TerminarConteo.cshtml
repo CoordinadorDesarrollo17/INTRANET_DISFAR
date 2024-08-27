@@ -51,7 +51,7 @@
                 "<td><input class='form-control' name='DetFases[0].DetContab[" + contUser + "].QuantityCajas' value='" + QuantityCajas + "' readonly /></td>" +
                 "<td><input class='form-control' name='DetFases[0].DetContab[" + contUser + "].QuantityPiezas' value='" + QuantityPiezas + "' readonly /></td>" +
                 "<td><input class='form-control' name='DetFases[0].DetContab[" + contUser + "].ObsLote' value='" + ObsLote + "' readonly /></td>" +
-                "<td><button type='button' onclick='borrarTrTable1(this," + '"' + BatchNum + '"' + ")' class='btn btn-danger'>Retirar</button></td></tr>");
+                "<td><button type='button' onclick='borrarTrTable1(this," + '"' + BatchNum + '"' + ")' class='btn btn-danger'><i class='icon-bin'> </i></button></td></tr>");
             contUser = contUser + 1;
             $("#Lotes option[value='" + BatchNum + "']").hide();
             if ($("#GrupoLotes").val() == "ConStock") { selectLotesConStock = $("#Lotes").html(); }
@@ -170,15 +170,16 @@
 
 <div class="pt-4">
     <nav>
-        <ol class="cd-breadcrumb bg-dark">
-            <li><a href="/Index/Sesion">Inicio</a></li>
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("ContabilizacionInventario", "Almacen")">Módulo contabilización inventario</a></li>
             <li><a href="@Url.Action("GestionConteos","Almacen")">Gestión de conteos</a></li>
             <li class="current"><em>Terminar conteo</em></li>
         </ol>
     </nav>
 </div>
 
-<div class="bg-dark border-cabecera-seccion pb-2">
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
     <div class="px-3 pt-3"><h3 class="titulo-seccion">TERMINAR CONTEO</h3></div>
 </div>
 
@@ -290,7 +291,7 @@
                 </thead>
 
                 <tbody>
-                    @if (Model.DetFases.Count > 1 && Model.DetFases[1].DetContab.Count > 0)
+                    @if (Model.DetFases!=null && Model.DetFases.Count > 1 && Model.DetFases[1].DetContab.Count > 0)
                     {
                         foreach (IAR12_E obj in Model.DetFases[1].DetContab)
                         {

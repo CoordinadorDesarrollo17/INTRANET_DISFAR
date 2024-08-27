@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Globalization;
+using System.IO;
+using Capa_Entidad;
 using Capa_Entidad.Seguridad_ENT;
 using DocumentFormat.OpenXml.Office.Word;
 
@@ -17,13 +19,13 @@ namespace Capa_Datos
         {
             Dictionary<int, string> roles = new Dictionary<int, string>
                 {
-                    { 2, $" AND IdRol in({IdRol},3)" },								// SDT, DT
+                    { 2, $" AND IdRol in({IdRol},3)" },								            // SDT, DT
 					{ 4, $" AND IdRol in({IdRol},5,50,51,52,53,54)" },			// SALM, RECEP,PIK, ALM, ENC, DESPACHO, FACT
-					{ 6, $" AND IdRol in({IdRol},7)" },								// SVENTAS, VENTAS
-					{ 8, $" AND IdRol in({IdRol},9)" },								// SCAJA, CAJA
-					{ 10, $" AND IdRol in({IdRol})" },								// COMPRAS
-					{ 11, $" AND IdRol in({IdRol})" },								// SPATC
-					{ 55, $" AND IdRol in({IdRol})" }								// REPA
+					{ 6, $" AND IdRol in({IdRol},7)" },								            // SVENTAS, VENTAS
+					{ 8, $" AND IdRol in({IdRol},9)" },								            // SCAJA, CAJA
+					{ 10, $" AND IdRol in({IdRol})" },								            // COMPRAS
+					{ 11, $" AND IdRol in({IdRol})" },								            // SPATC
+					{ 55, $" AND IdRol in({IdRol})" }								            // REPA
 				};
 
             return roles[IdRol];
@@ -31,7 +33,7 @@ namespace Capa_Datos
         public Usuario_E buscarUsuario(int DocEntry)
         {
             Usuario_E u = new Usuario_E();
-            String select = "DocEntry, Prefijo, Id, Nombres, Apellidos, Email, IdRol, Activo, CONVERT(varchar, FechaRegistro, 103) AS FechaRegistro, HoraRegistro, OpRegistro, WhsCode, CodigoSap,ClaveEmail";
+            String select = "DocEntry, Prefijo, Id, Nombres, Apellidos, Email, CONVERT(VARCHAR(MAX), DECRYPTBYPASSPHRASE('pwC0B3F@R', Password)) AS Password, IdRol, Activo, CONVERT(varchar, FechaRegistro, 103) AS FechaRegistro, HoraRegistro, OpRegistro, WhsCode, CodigoSap,ClaveEmail";
             string query = $"select {select} from dbo.OUSR where DocEntry=@DocEntry";
 
             SqlConnection cn = new SqlConnection(uti.cadSql);
@@ -51,14 +53,15 @@ namespace Capa_Datos
                     if (!dr.IsDBNull(3)) { u.Nombres = dr.GetString(3); }
                     if (!dr.IsDBNull(4)) { u.Apellidos = dr.GetString(4); }
                     if (!dr.IsDBNull(5)) { u.Email = dr.GetString(5); }
-                    if (!dr.IsDBNull(6)) { u.IdRol = dr.GetInt32(6); }
-                    if (!dr.IsDBNull(7)) { u.Activo = dr.GetInt32(7); }
-                    if (!dr.IsDBNull(8)) { u.FechaRegistro = dr.GetString(8); }
-                    if (!dr.IsDBNull(9)) { u.HoraRegistro = dr.GetTimeSpan(9).ToString(); }
-                    if (!dr.IsDBNull(10)) { u.OperarioRegistro = dr.GetString(10); }
-                    if (!dr.IsDBNull(11)) { u.WhsCode = dr.GetString(11); }
-                    if (!dr.IsDBNull(12)) { u.CodigoSap = dr.GetInt32(12); }
-                    if (!dr.IsDBNull(13)) { u.ClaveEmail = dr.GetString(13); }
+                    if (!dr.IsDBNull(6)) { u.Password = dr.GetString(6); }
+                    if (!dr.IsDBNull(7)) { u.IdRol = dr.GetInt32(7); }
+                    if (!dr.IsDBNull(8)) { u.Activo = dr.GetInt32(8); }
+                    if (!dr.IsDBNull(9)) { u.FechaRegistro = dr.GetString(9); }
+                    if (!dr.IsDBNull(10)) { u.HoraRegistro = dr.GetTimeSpan(10).ToString(); }
+                    if (!dr.IsDBNull(11)) { u.OperarioRegistro = dr.GetString(11); }
+                    if (!dr.IsDBNull(12)) { u.WhsCode = dr.GetString(12); }
+                    if (!dr.IsDBNull(13)) { u.CodigoSap = dr.GetInt32(13); }
+                    if (!dr.IsDBNull(14)) { u.ClaveEmail = dr.GetString(14); }
                 }
                 dr.Close();
                 cn.Close();
@@ -208,8 +211,9 @@ namespace Capa_Datos
 
             if (filtro != null)
             {
-                if (filtro.DocEntry > 0) { condWhere += $" AND DocEntry LIKE '%{filtro.DocEntry}%'"; }
+                if (filtro.DocEntry > 0) { condWhere += $" AND DocEntry = '{filtro.DocEntry}'"; }
                 if (filtro.Nombres != null) { condWhere += $" AND CONCAT(Nombres, ' ', Apellidos) LIKE '%{filtro.Nombres}%'"; }
+                if (filtro.Activo > 0) { condWhere += $" AND Activo=1"; }
             }
 
             if (idRol >= 2)
@@ -237,7 +241,7 @@ namespace Capa_Datos
                                             INNER JOIN
                                                 OROL ROL ON ROL.Id = USU.IdRol
                                             WHERE
-                                                1 = 1 " + condWhere + @" AND USU.Activo=1 ORDER BY USU.Nombres";
+                                                1 = 1 " + condWhere + @" ORDER BY USU.Nombres";
                 SqlCommand cmd = new SqlCommand(query, cn);
                 cn.Open();
 
@@ -282,9 +286,10 @@ namespace Capa_Datos
 
             return lista;
         }
-        public string CrearUsuario(Usuario_E usu, string opRegistro)
+        public Helper_E CrearUsuario(Usuario_E usu, string opRegistro)
         {
-            string msj = string.Empty;
+            string mensaje = string.Empty;
+            int docEntry = 0;
 
             using (SqlConnection cn = new SqlConnection(uti.cadSql))
             {
@@ -307,37 +312,58 @@ namespace Capa_Datos
                     cmd.Parameters.AddWithValue("@OperarioRegistro", opRegistro);
                     cmd.Parameters.AddWithValue("@WhsCode", usu.WhsCode);
                     cmd.Parameters.AddWithValue("@CodigoSap", usu.CodigoSap);
+                    cmd.Parameters.AddWithValue("@EmpleadoID", usu.EmpleadoID);
+
+                    // Agregar parámetro de salida para DocEntry
+                    SqlParameter outputDocEntry = new SqlParameter("@DocEntry", SqlDbType.Int)
+                    {
+                        Direction = ParameterDirection.Output
+                    };
+                    cmd.Parameters.Add(outputDocEntry);
+
                     cmd.ExecuteNonQuery();
-                    msj = "Usuario creado satisfactoriamente";
+
+                    // Recuperar el valor de DocEntry
+                    docEntry = (int)outputDocEntry.Value;
+
+                    mensaje = $"Usuario: {usu.Prefijo}{usu.Id} y Contraseña: {usu.Password} creados";
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-                    throw new Exception(e.Message);
+                    RegistrarError(ex, "Usuario_D - CrearUsuario");
+                    mensaje = "Ocurrió un error al registrar usuario. Por favor, comunicarse con SISTEMAS.";
                 }
             }
 
-            return msj;
+            return new Helper_E { DocEntry = docEntry, Mensaje= mensaje };
         }
-        public string editarUsuario(Usuario_E u)
+        public string EditarUsuario(Usuario_E datos)
         {
             string msj = string.Empty;
 
             using (SqlConnection cn = new SqlConnection(uti.cadSql))
             {
+                cn.Open();
+
                 try
                 {
-                    cn.Open();
                     SqlCommand cmd = new SqlCommand("dbo.MANT_OUSR", cn);
                     cmd.CommandType = CommandType.StoredProcedure;
+
                     cmd.Parameters.AddWithValue("@TipoMantenimiento", "U");         // UPDATE
-                    cmd.Parameters.AddWithValue("@DocEntry", u.DocEntry);
-                    cmd.Parameters.AddWithValue("@Email", u.Email);
-                    cmd.Parameters.AddWithValue("@WhsCode", u.WhsCode);
-                    cmd.Parameters.AddWithValue("@CodigoSap", u.CodigoSap);
+                    cmd.Parameters.AddWithValue("@DocEntry", datos.DocEntry);
+                    cmd.Parameters.AddWithValue("@Email", datos.Email);
+                    cmd.Parameters.AddWithValue("@Password", datos.Password);
+                    cmd.Parameters.AddWithValue("@WhsCode", datos.WhsCode);
+                    cmd.Parameters.AddWithValue("@CodigoSap", datos.CodigoSap);
+
                     cmd.ExecuteNonQuery();
-                    msj = "Se editó el usuario seleccionado correctamente.";
                 }
-                catch (SqlException e) { msj = e.Message; }
+                catch (Exception ex)
+                {
+                    RegistrarError(ex, "Usuario_D - EditarUsuario");
+                    msj = "Ocurrió un error al registrar usuario. Por favor, comunicarse con SISTEMAS.";
+                }
             }
 
             return msj;
@@ -352,7 +378,33 @@ namespace Capa_Datos
                     cn.Open();
                     SqlCommand cmd = new SqlCommand("dbo.MANT_OUSR", cn);
                     cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "D");
+                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "INC");
+                    cmd.Parameters.AddWithValue("@DocEntry", usu.DocEntry).Direction = ParameterDirection.InputOutput;
+                    cmd.ExecuteNonQuery();
+                }
+                catch (SqlException e)
+                {
+                    msj = e.Message;
+                }
+                catch (Exception e2)
+                {
+                    throw new Exception("Error : " + e2.Message);
+                }
+            }
+
+            return msj;
+        }
+        public string Activar(Usuario_E usu)
+        {
+            string msj = string.Empty;
+            using (SqlConnection cn = new SqlConnection(uti.cadSql))
+            {
+                try
+                {
+                    cn.Open();
+                    SqlCommand cmd = new SqlCommand("dbo.MANT_OUSR", cn);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "ACT");
                     cmd.Parameters.AddWithValue("@DocEntry", usu.DocEntry).Direction = ParameterDirection.InputOutput;
                     cmd.ExecuteNonQuery();
                 }
@@ -465,6 +517,11 @@ namespace Capa_Datos
             }
 
             return result;
+        }
+
+        private void RegistrarError(Exception ex, string nombreArchivo)
+        {
+            File.AppendAllText(uti.directorioLogs + nombreArchivo + ".txt", $"{DateTime.Now}: {ex.Message}\n {ex.StackTrace}\n");
         }
     }
 }
