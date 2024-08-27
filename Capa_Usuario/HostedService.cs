@@ -37,7 +37,7 @@ namespace Capa_Usuario
             var listaUsuariosActivos = ousrN.ListaUsuarios(new Capa_Entidad.Seguridad_ENT.Usuario_E { Activo = 1 });
             foreach (var f in listaUsuariosActivos)
             {
-                if (f.DiferenciaDias > 30) { ousrN.Inactivar(f); }
+                if (f.DiferenciaDias > 50) { ousrN.Inactivar(f); }
             }
         }
 

@@ -2,8 +2,8 @@
 using Capa_Entidad.Seguridad_ENT;
 using Capa_Entidad.Ventas_ENT.TablasSql;
 using Capa_Negocio.Caja_NEG;
-using Capa_Negocio.Seguridad_NEG;
 using Capa_Negocio.Ventas_NEG.TablasSql;
+using Capa_Usuario.Helpers;
 using OfficeOpenXml;
 using OfficeOpenXml.Table;
 using System;
@@ -15,21 +15,39 @@ namespace Capa_Usuario.Controllers
 {
     public class CajaController : Controller
     {
-        private int modulo = 8;
         private OTC_N otcN = new OTC_N();
         private static readonly object _lock = new object();
+
+        /************************* C O N F I G U R A C I Ó N *************************/
+        private ActionResult VerificarPermiso(int idOperation)
+        {
+            var accesoHelper = new Capa_Entidad.AccessoHelper_E
+            {
+                OpeID = idOperation,
+                usuario = (Usuario_E)Session["UsuarioId"],
+                controllerDestino = this.ControllerContext.RouteData.Values["controller"].ToString(),
+                action = this.ControllerContext.RouteData.Values["action"].ToString(),
+                userHostAddress = Request.UserHostAddress,
+                userHostName = Request.UserHostName
+            };
+
+            return AccesoHelper.GestionarAccesoController(this, accesoHelper);
+        }
+
+        /********************************************************************/
 
         // Vista general para el listado de tickets a cuadrar
         public ActionResult Index(int idOperation = 3000)
         {
-            switch (VerificarAccesos(idOperation))
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                case "C_Access":
-                    return View();
-                case "E_Login":
-                    return RedirectToAction("Index", "Index");
-                default:
-                    return RedirectToAction("Error", "Index");
+                return View();
+            }
+            else
+            {
+                return resultadoAcceso;
             }
         }
 
@@ -44,9 +62,9 @@ namespace Capa_Usuario.Controllers
         [HttpGet]
         public ActionResult PagarTicketVenta(int docEntry, int idOTC = 0, string mensaje = null, int idOperation = 504)
         {
-            string acceso = VerificarAccesos(idOperation);
+            var resultadoAcceso = VerificarPermiso(idOperation);
 
-            if (acceso == "C_Access")
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 Usuario_E usu = (Usuario_E)Session["UsuarioId"];
                 ORTV_E ticket = new ORTV_N().ObtenerDatosCompletosTicket(docEntry);
@@ -80,18 +98,18 @@ namespace Capa_Usuario.Controllers
 
                 return View(ticket);
             }
-            else if (acceso == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
             else
-            { return RedirectToAction("Error", "Index"); }
+            {
+                return resultadoAcceso;
+            }
         }
 
         [HttpPost]
         public ActionResult PagarTicketVenta(int DocEntryTicket, ORTV_E ticket, int idOTC = 0, int idOperation = 504)
         {
-            string acceso = VerificarAccesos(idOperation);
+            var resultadoAcceso = VerificarPermiso(idOperation);
 
-            if (acceso == "C_Access")
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 try
                 {
@@ -136,55 +154,53 @@ namespace Capa_Usuario.Controllers
                     return RedirectToAction("PagarTicketVenta", new { DocEntry = DocEntryTicket, Mensaje = ViewBag.Mensaje });
                 }
             }
-            else if (acceso == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
             else
-            { return RedirectToAction("Error", "Index"); }
-
+            {
+                return resultadoAcceso;
+            }
         }
 
         public ActionResult ConfGastEnvio(ORTV_E o, int DocEntryTicket, int idOTC = 0, int idOperation = 504)
         {
-            string acceso = VerificarAccesos(idOperation);
+            var resultadoAcceso = VerificarPermiso(idOperation);
 
-            switch (acceso)
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                case "C_Access":
-                    try
+                try
+                {
+                    Usuario_E usu = Session["UsuarioId"] as Usuario_E;
+                    if (usu != null)
                     {
-                        Usuario_E usu = Session["UsuarioId"] as Usuario_E;
-                        if (usu != null)
-                        {
-                            o.OpRegistro = $"{usu.Nombres} {usu.Apellidos}";
-                            o.DocEntry = DocEntryTicket;
+                        o.OpRegistro = $"{usu.Nombres} {usu.Apellidos}";
+                        o.DocEntry = DocEntryTicket;
 
-                            otcN.ConfGastEnvio(o);
+                        otcN.ConfGastEnvio(o);
 
-                            return RedirectToAction("PagarTicketVenta", new { DocEntry = DocEntryTicket, IdOTC = idOTC });
-                        }
-                        else
-                        {
-                            // La sesión de usuario no está disponible
-                            return RedirectToAction("Error", "Index");
-                        }
+                        return RedirectToAction("PagarTicketVenta", new { DocEntry = DocEntryTicket, IdOTC = idOTC });
                     }
-                    catch (Exception e)
+                    else
                     {
-                        return RedirectToAction("PagarTicketVenta", new { DocEntry = DocEntryTicket, IdOTC = idOTC, mensaje = e.Message });
+                        // La sesión de usuario no está disponible
+                        return RedirectToAction("Error", "Index");
                     }
-                case "E_Login":
-                    return RedirectToAction("Index", "Index");
-                default:
-                    return RedirectToAction("Error", "Index");
+                }
+                catch (Exception e)
+                {
+                    return RedirectToAction("PagarTicketVenta", new { DocEntry = DocEntryTicket, IdOTC = idOTC, mensaje = e.Message });
+                }
+            }
+            else
+            {
+                return resultadoAcceso;
             }
         }
 
 
         public ActionResult AnularPagoTicketVenta(int DocEntryTicket, int idOTC = 0, int idOperation = 505)
         {
-            string acceso = VerificarAccesos(idOperation);
+            var resultadoAcceso = VerificarPermiso(idOperation);
 
-            if (acceso == "C_Access")
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 try
                 {
@@ -196,19 +212,19 @@ namespace Capa_Usuario.Controllers
                     return RedirectToAction("PagarTicketVenta", new { DocEntry = DocEntryTicket, IdOTC = idOTC, mensaje = e.Message });
                 }
             }
-            else if (acceso == "E_Login")
-            { return RedirectToAction("Index", "Index"); }
             else
-            { return RedirectToAction("Error", "Index"); }
+            {
+                return resultadoAcceso;
+            }
         }
 
         /********************************** P R O Y E C T O:   P A G O   E F E C T I V O **********************************/
 
         public ActionResult ExportarListadoTicketsACuadrar(ORTV_E filtro, int idOperation = 3000)
         {
-            string acceso = VerificarAccesos(idOperation);
+            var resultadoAcceso = VerificarPermiso(idOperation);
 
-            if (acceso == "C_Access")
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 int columnas = 18;
                 var listado = otcN.ExportarExcelTicketsACuadrar(filtro);
@@ -235,8 +251,10 @@ namespace Capa_Usuario.Controllers
                 }
                 else { return Content("No hay datos para exportar"); }
             }
-            else if (acceso == "E_Login") { return null; }
-            else { return null; }
+            else
+            {
+                return resultadoAcceso;
+            }
         }
 
         public JsonResult ValidarMontoFinalTicket(OTC_E tc, string lineaORRU, string tipoRepORRU)
@@ -266,7 +284,7 @@ namespace Capa_Usuario.Controllers
 
         public JsonResult ConsultarNuevasSolicitudesTC()
         {
-            VerificarAccesos(0);         // Validar sesion logueada, solo para ajax
+            //VerificarAccesos(0);         // Validar sesion logueada, solo para ajax
 
             var result = otcN.ConsultarNuevasSolicitudesTC();
 
@@ -275,7 +293,7 @@ namespace Capa_Usuario.Controllers
 
         public JsonResult ObtenerSolicitudesAutorizar()
         {
-            VerificarAccesos(0);         // Validar sesion logueada, solo para ajax
+            //VerificarAccesos(0);         // Validar sesion logueada, solo para ajax
 
             var result = otcN.ObtenerSolicitudesAutorizar();
 
@@ -284,7 +302,7 @@ namespace Capa_Usuario.Controllers
 
         public JsonResult ValidarTC(OTC_E tc)
         {
-            VerificarAccesos(0);    // Validar sesion logueada, solo para ajax
+            //VerificarAccesos(0);    // Validar sesion logueada, solo para ajax
             Usuario_E usu = (Usuario_E)Session["UsuarioId"];
             tc.PersonaEntrega = $"{usu.Nombres} {usu.Apellidos}";
             tc.Estado = "VALIDADO";
@@ -307,7 +325,7 @@ namespace Capa_Usuario.Controllers
 
         public JsonResult AutorizarTC(OTC_E tc)
         {
-            VerificarAccesos(0);         // Validar sesion logueada, solo para ajax
+            //VerificarAccesos(0);         // Validar sesion logueada, solo para ajax
             Usuario_E usu = (Usuario_E)Session["UsuarioId"];
             tc.PersonaEntrega = $"{usu.Nombres} {usu.Apellidos}";
             tc.Estado = "AUTORIZADO";
@@ -329,7 +347,7 @@ namespace Capa_Usuario.Controllers
 
         public JsonResult RechazarTC(OTC_E tc, string area)
         {
-            VerificarAccesos(0);    // Validar sesion logueada, solo para ajax
+            //VerificarAccesos(0);    // Validar sesion logueada, solo para ajax
             Usuario_E usu = (Usuario_E)Session["UsuarioId"];
             tc.PersonaEntrega = $"{usu.Nombres} {usu.Apellidos}";
             tc.Estado = "RECHAZADO";
@@ -351,7 +369,7 @@ namespace Capa_Usuario.Controllers
 
         public JsonResult AgregarPagosParciales(List<decimal> pagos, List<string> tiposPagosParciales, int docEntryTicket, int idOTC)
         {
-            VerificarAccesos(0);    // Validar sesion logueada, solo para ajax
+            //VerificarAccesos(0);    // Validar sesion logueada, solo para ajax
             Usuario_E usu = (Usuario_E)Session["UsuarioId"];
 
             // Se valida si la lista de pagos es nula o vacía al principio del método para evitar iterar sobre ella si no hay pagos que procesar
@@ -421,7 +439,7 @@ namespace Capa_Usuario.Controllers
          */
         public JsonResult EliminarPagoParcial(int id)
         {
-            VerificarAccesos(0);    // Validar sesion logueada, solo para ajax
+            //VerificarAccesos(0);    // Validar sesion logueada, solo para ajax
             Usuario_E usu = (Usuario_E)Session["UsuarioId"];
 
             var datos = new OPP_E { IdOPP = id, RegistradoPor = $"{usu.Nombres} {usu.Apellidos}" };
@@ -434,7 +452,7 @@ namespace Capa_Usuario.Controllers
 
         public JsonResult VerRespuestaSolicitud(int docEntryTicket, int idOTC)
         {
-            VerificarAccesos(0);    // Validar sesion logueada, solo para ajax
+            //VerificarAccesos(0);    // Validar sesion logueada, solo para ajax
 
             string msj = "Solicitud enviada sin respuesta";
             string tieneRespuesta = "NO";
@@ -451,28 +469,6 @@ namespace Capa_Usuario.Controllers
             }
 
             return Json(new { Mensaje = msj, Respuesta = tieneRespuesta });
-        }
-        /*****************************************************************************************************************/
-        private string VerificarAccesos(int ope)
-        {
-            Usuario_E usu = (Usuario_E)Session["UsuarioId"];
-
-            if (usu == null)
-            {
-                return "E_Login";
-            }
-
-            string nombreOperacion = this.ControllerContext.RouteData.Values["action"].ToString();
-
-            if (usu.IdRol == 1 || new Rol1_N().verificarAccesoOperacion(usu.IdRol, ope, nombreOperacion, new CajaController().modulo) == 1)
-            {
-                new Capa_Negocio.Utilitarios_N().registrarLog($"{usu.Prefijo} {usu.Id}", $"intento de {nombreOperacion}", ope, Request.UserHostAddress, Request.UserHostName);
-                return "C_Access";
-            }
-            else
-            {
-                return "E_Access";
-            }
         }
     }
 }

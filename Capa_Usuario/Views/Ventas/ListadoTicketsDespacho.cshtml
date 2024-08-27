@@ -9,7 +9,7 @@
     String almacenUsuario = (String)ViewBag.almacenUsuario;
     int idRolUsuario = (int)ViewBag.idRolUsuario;
 
-    String bgEstadoFacturacion = "bg-cobefar text-white";
+    String bgEstadoFacturacion = "bg-cobefar-6 text-white";
 
     if (e.EstadoFacturacion != "" && e.EstadoFacturacion != null)
     {
@@ -196,7 +196,7 @@
 
 <div class="pt-4">
     <nav>
-        <ol class="cd-breadcrumb bg-dark">
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
             <li class="current"><em>Listado tickets de despacho</em></li>
         </ol>
@@ -204,45 +204,44 @@
 </div>
 
 <form name="frm" id="frm">
-    <div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
         <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO TICKETS DE DESPACHO</h3></div>
-
-        <div class="d-flex pl-2 w-100 py-2">
-
-            <div class="mx-2">
-                <button type="button" id="btn_entregadomasivo" class="btn btn-success" onclick="gestionarEntregadoMasivo(0)" disabled><i class="icon icon-cloud-upload"></i> Entregado Masivo</button>
-            </div>
-
-            <div class="mx-2">
-                <select name="EstadoFacturacion" id="EstadoFacturacion" class="form-control  @bgEstadoFacturacion" onchange="filtrar();">
-                    <option value="">EstadoFacturacion</option>
-                    <option value="GRE EMITIDA" @{ if (e != null && e.EstadoFacturacion == "GRE EMITIDA") { Write("selected"); }}>GRE EMITIDA</option>
-                    <option value="FACTURADO" @{ if (e != null && e.EstadoFacturacion == "FACTURADO") { Write("selected"); }}>FACTURADO</option>
-                </select>
-            </div>
-
-            <div class="d-flex mx-2">
-                @if (e != null && e.TiempoEntrega != null)
-                {
-                    //var fechaConvert = e.TiempoEntrega.ToString().Substring(0, 10).Split('/');
-                    // var fechaFormateada = $"{fechaConvert[2]}-{fechaConvert[1]}-{fechaConvert[0]}";
-                    <input type="text" name="TiempoEntrega" class="form-control cls-dateTimeDespacho border-success" value="@e.TiempoEntrega" style="width: 200px" autocomplete="off" />
-                }
-                else
-                {
-                    <input type="text" name="TiempoEntrega" class="form-control cls-dateTimeDespacho border-success" style="width: 200px" autocomplete="off" />
-                }
-
-                <button class="btn btn-cobefar">Filtrar Tiempo Entrega</button>
-            </div>
-
-        </div>
     </div>
 
-    <div class="bg-dark pt-4">
+    <div class="bg-white d-flex pl-2 w-100 py-3">
+        <div class="mx-2">
+            <button type="button" id="btn_entregadomasivo" class="btn btn-success" onclick="gestionarEntregadoMasivo(0)" disabled><i class="icon icon-cloud-upload"></i> Entregado Masivo</button>
+        </div>
+
+        <div class="mx-2">
+            <select name="EstadoFacturacion" id="EstadoFacturacion" class="form-control  @bgEstadoFacturacion" onchange="filtrar();">
+                <option value="">EstadoFacturacion</option>
+                <option value="GRE EMITIDA" @{ if (e != null && e.EstadoFacturacion == "GRE EMITIDA") { Write("selected"); }}>GRE EMITIDA</option>
+                <option value="FACTURADO" @{ if (e != null && e.EstadoFacturacion == "FACTURADO") { Write("selected"); }}>FACTURADO</option>
+            </select>
+        </div>
+
+        <div class="d-flex mx-2">
+            @if (e != null && e.TiempoEntrega != null)
+            {
+                //var fechaConvert = e.TiempoEntrega.ToString().Substring(0, 10).Split('/');
+                // var fechaFormateada = $"{fechaConvert[2]}-{fechaConvert[1]}-{fechaConvert[0]}";
+                <input type="text" name="TiempoEntrega" class="form-control cls-dateTimeDespacho border-success" value="@e.TiempoEntrega" style="width: 200px" autocomplete="off" />
+            }
+            else
+            {
+                <input type="text" name="TiempoEntrega" class="form-control cls-dateTimeDespacho border-success" style="width: 200px" autocomplete="off" placeholder="Abrir calendario..."/>
+            }
+
+            <button class="btn btn-cobefar">Filtrar Tiempo Entrega</button>
+        </div>
+
+    </div>
+
+    <div class="bg-white bg-form-cobefar">
 
         <table class="table table-light table-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
-            <thead class="thead-dark">
+            <thead class="bg-cobefar-6">
                 <tr>
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.DocNum)
@@ -348,6 +347,7 @@
                     <th class="text-center">
                         Tiempo Entrega
                     </th>
+                    <th></th>
                     <th></th>
                     <th></th>
                     <th></th>
@@ -457,57 +457,57 @@
                         <td>
                             @if (condPesar && verBtnPesar)
                             {
-                                <a href="@Url.Action("PesadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-primary btn-sm" title="Pesar">
+                                <a href="@Url.Action("PesadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-primary " title="Pesar">
                                     <span>Pesar</span>
                                 </a>
                             }
 
                             @if (condAnularPesar && verBtnPesar)
                             {
-                                <a href="@Url.Action("AnularPesadoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm" title="Anular Pesado">
+                                <a href="@Url.Action("AnularPesadoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger " title="Anular Pesado">
                                     <span>Anular Pesado</span>
                                 </a>
                             }
 
-                            @if (item.EstadoFacturacion != null && (item.EstadoFacturacion.Equals("GRE EMITIDA") || item.EstadoFacturacion.Equals("FACTURADO")))
-                            {
-                                <button type="button" class="btn btn-cobefar btn-sm" title="VER DOCUMENTOS" onclick="abrirModalDocumentos(@item.DocEntry)">
-                                    <i class="icon-search"> </i>Docs
-                                </button>
-                            }
-
                             @if (condEntregar)
                             {
-                                <a href="@Url.Action("EntregadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-success btn-sm" title="Entregar">
-                                    <span>Entregar</span>
+                                <a href="@Url.Action("EntregadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-light text-success" data-toggle="tooltip" data-placement="top" title="Entregar pedido">
+                                    <i class="icon icon-checkmark"></i>
                                 </a>
                             }
                             else if (item.Estado == "PESADO" && condEntregar)
                             {
-                                <a href="@Url.Action("EntregadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-success btn-sm" title="Entregar">
-                                    <span>Entregar</span>
+                                <a href="@Url.Action("EntregadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-success" data-toggle="tooltip" data-placement="top" title="Entregar">
+                                    <i class="icon icon-checkmark"></i>
                                 </a>
                             }
 
                             @if (condAnularEntrega)
                             {
-                                <a href="@Url.Action("AnularEntregadoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-warning btn-sm" title="Anular Entrega">
-                                    <span>Anular Entrega</span>
+                                <a href="@Url.Action("AnularEntregadoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Anular Entrega">
+                                    <i class="icon icon-undo"></i>
                                 </a>
                             }
                         </td>
-
                         <td>
-                            <a href="@Url.Action("SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry, view = "despacho" })" class="btn btn-dark btn-sm" title="Seguimiento de ticket" type="button" target="_blank" onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;">
-                                <i class="icon-truck"></i>
+                            @if (item.EstadoFacturacion != null && (item.EstadoFacturacion.Equals("GRE EMITIDA") || item.EstadoFacturacion.Equals("FACTURADO")))
+                            {
+                                <button type="button" class="btn  btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Ver Documentos" onclick="abrirModalDocumentos(@item.DocEntry)">
+                                    <i class="icon icon-file-empty"></i>
+                                </button>
+                            }
+                        </td>
+                        <td>
+                            <a href="@Url.Action("SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry, view = "despacho" })" class="btn  btn-light" data-toggle="tooltip" data-placement="top" title="Seguimiento de ticket" type="button" target="_blank" onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;">
+                                <i class="icon-truck text-dark"></i>
                             </a>
                         </td>
 
                         <td>
                             @if (idRolUsuario == 53 || idRolUsuario == 1)
                             {
-                                <a href="#" class="btn btn-light btn-sm" title="Imprimir" onclick="registrarImpresion(@item.DocEntry);">
-                                    <i class="icon-printer"></i>
+                                <a href="#" class="btn  btn-light" data-toggle="tooltip" data-placement="top" title="Imprimir" onclick="registrarImpresion(@item.DocEntry);">
+                                    <i class="icon-printer text-orange"></i>
                                 </a>
                             }
                         </td>

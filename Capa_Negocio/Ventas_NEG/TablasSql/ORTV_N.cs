@@ -20,10 +20,6 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
     {
         ORTV_D ticketV = new ORTV_D(); CC_ORTV_D ccTicket = new CC_ORTV_D();
         public object t { get; private set; }
-        //public string generaTablaTicketsVenta(ORTV_E filtro, int days, string[] estados)
-        //{
-        //    return ticketV.generaTablaTicketsVenta(filtro, days, estados);
-        //}
         public List<ORTV_E> listarTicketsParaRepartos(ORTV_E filtro, string[] estados, out int cantidadTicketsNoEnviados)
         {
             return ticketV.listarTicketsParaRepartos(filtro, estados, out cantidadTicketsNoEnviados);
@@ -106,7 +102,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                     if (string.IsNullOrEmpty(ticket.Det1[0].TipoDocPer)) { throw new Exception("Debe llenar el tipo de documento personal."); }
                     if (string.IsNullOrEmpty(ticket.Det1[0].DocPer)) { throw new Exception("Debe llenar el número de documento personal."); }
                     if (string.IsNullOrEmpty(ticket.Det1[0].TelfPer)) { throw new Exception("Debe llenar el teléfono."); }
-                    if (ticket.Embalaje != "CP") { throw new Exception("El embalaje debe ser 'Caja Provincia'."); }
+                    if (ticket.Embalaje != "CP") { throw new Exception("El embalaje debe ser Caja Provincia."); }
 
                     string lugEn = string.Empty;
                     foreach (RTV2_E d in ticket.Det2.Where(x => x.Verificar == "on"))
@@ -693,8 +689,8 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         {
             return ticketV.generaInfoListaDirDestinos(CardCode);
         }
-        public string generaInfoListaOrdenesDeVenta(string fecha, string cardCode, int docNum)
-        {
+        public (string HtmlContent, string TipoVenta) generaInfoListaOrdenesDeVenta(string fecha, string cardCode, int docNum)
+        { 
             return ticketV.generaInfoListaOrdenesDeVenta(fecha, cardCode, docNum);
         }
         public string generaInfoListaNotasDeCreditoV(string CardCode)

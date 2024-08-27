@@ -12,7 +12,7 @@
 
 <div class="pt-4">
     <nav>
-        <ol class="cd-breadcrumb bg-dark">
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
             <li><a href="@Url.Action("GestionPermisos", "TI_Sistemas")">Módulo gestión de permisos</a></li>
             <li class="current"><em>Editar usuario</em></li>
@@ -20,71 +20,82 @@
     </nav>
 </div>
 
-<div class="bg-dark border-cabecera-seccion pb-2">
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
     <div class="px-3 pt-3"><h3 class="titulo-seccion">EDITAR USUARIO</h3></div>
 </div>
 
 <div class="bg-form-pestanas-cobefar p-4 bg-form-cobefar">
-    @using (Html.BeginForm())
+    @using (Html.BeginForm("EditarUsuario", "TI_Sistemas", FormMethod.Post, new { id = "form" }))
     {
         @Html.AntiForgeryToken()
+        @Html.Hidden("DocEntry", Model.DocEntry)
         <div class="row">
             <div class="col-lg-3">
-                <label class="text-dark form-label font-weight-bold font-18">Nombres:</label>
-                <input type="text" class="form-control border-success text-center" value="@Model.Nombres" disabled>
+                <label class="text-dark form-label font-weight-bold">Nombres:</label>
+                <input type="text" class="form-control input-cobefar text-center" value="@Model.Nombres" disabled>
             </div>
 
             <div class="col-lg-3">
-                <label class="text-dark form-label font-weight-bold font-18">Apellidos:</label>
-                <input type="text" class="form-control border-success text-center" value="@Model.Apellidos" disabled>
+                <label class="text-dark form-label font-weight-bold">Apellidos:</label>
+                <input type="text" class="form-control input-cobefar text-center" value="@Model.Apellidos" disabled>
             </div>
 
             <div class="col-lg-4">
-                <label for="Email" class="text-dark form-label font-weight-bold font-18">Email:</label>
-                <input type="email" id="Email" name="Email" class="form-control border-success" value="@Model.Email">
+                <label for="Email" class="text-dark form-label font-weight-bold">Email:</label>
+                <input type="email" id="Email" name="Email" class="form-control input-cobefar" value="@Model.Email" autocomplete="off">
             </div>
 
             <div class="col-lg-2">
-                <label for="CodigoSap" class="text-dark form-label font-weight-bold font-18">CodigoSap:</label>
-                <input type="number" class="form-control border-success" id="CodigoSap" name="CodigoSap" min="1" value="@if(Model.CodigoSap != 0) { Write(Model.CodigoSap); }" oninput="validarValor(this)" autocomplete="off">
+                <label for="CodigoSap" class="text-dark form-label font-weight-bold">CodigoSap:</label>
+                <input type="number" class="form-control input-cobefar" id="CodigoSap" name="CodigoSap" min="1" value="@if(Model.CodigoSap != 0) { Write(Model.CodigoSap); }" oninput="validarValor(this)" autocomplete="off" placeholder="(*) Solo para VENTAS">
             </div>
 
         </div>
 
         <div class="row mt-4">
             <div class="col-lg-3">
-                <label class="text-dark form-label font-weight-bold font-18">Rol:</label>
-                <input type="text" class="form-control border-success text-center" value="@ViewBag.RolUsuario" disabled />
+                <label class="text-dark form-label font-weight-bold">Rol:</label>
+                <input type="text" class="form-control input-cobefar text-center" value="@ViewBag.RolUsuario" disabled />
             </div>
 
-            <div class="col-lg-2">
-                <label class="text-dark font-weight-bold font-18">Usuario:</label>
-                <input class="form-control text-center border-success" id="Usuario" name="Usuario" readonly type="text" value="@{ Write(Model.Prefijo+Model.Id); } ">
+            <div class="col-lg-3">
+                <label class="text-dark font-weight-bold">Usuario:</label>
+                <input class="form-control text-center input-cobefar" id="Usuario" name="Usuario" readonly type="text" value="@{ Write(Model.Prefijo+Model.Id); } ">
                 <input type="hidden" id="Prefijo" name="Prefijo" value="@Model.Prefijo">
                 <input type="hidden" id="Id" name="Id" value="@Model.Id">
             </div>
 
-            <div class="col-lg-3">
-                <label for="WhsCode" class="text-dark form-label font-weight-bold font-18">Almacén:</label>
-                <select name="WhsCode" class="form-control bg-cobefar text-white border-success">
+            <div class="col-lg-2">
+                <label for="WhsCode" class="text-dark form-label font-weight-bold">Almacén:</label>
+                <select id="WhsCode" name="WhsCode" class="form-control input-cobefar">
                     <option value="">Seleccione</option>
-                    @foreach (var almacen in new[] { "01", "03", "06", "07" })
+                    @foreach (var sede in ViewBag.Sedes)
                     {
-                        <option value="@almacen" @(Model.WhsCode == almacen ? "selected" : "")>
-                            ALM @almacen @(almacen == "01" ? "(Centro)" : "") @(almacen == "03" ? "(Arriola)" : "")
-                        </option>
+                        <option value="@sede.IdAlterno" @(Model.WhsCode == sede.IdAlterno ? "selected" : "")>@sede.Nombre</option>
                     }
                 </select>
             </div>
+        </div>
 
-            <div class="col-lg-2">
-                <label class="text-dark form-label font-weight-bold font-18">Activo:</label>
-                <input type="text" class="form-control border-success text-center" value="@(Model.Activo == 1 ? "SI" : "NO")" disabled />
+        <div class="row mt-4">
+            <div class="col-lg-3">
+                <label for="Password" class="text-dark font-weight-bold">Contraseña:</label>
+                <input type="text" id="Password" name="Password" class="form-control input-cobefar" value="@Model.Password" autocomplete="off" />
+            </div>
+
+            <div class="col-lg-3">
+                <label for="Password2" class="text-dark form-label font-weight-bold">Repetir contraseña:</label>
+                <input type="text" id="Password2" name="Password2" class="form-control input-cobefar" value="@Model.Password2" autocomplete="off" />
             </div>
 
             <div class="col-lg-2">
-                <label for="FechaRegistro" class="text-dark form-label font-weight-bold font-18">Fecha Registro:</label>
-                @Html.EditorFor(model => model.FechaRegistro, new { htmlAttributes = new { @class = "form-control text-center border-success", @Value = Model.FechaRegistro.ToString(), @readonly = "true" } })
+                <label class="text-dark form-label font-weight-bold">Activo:</label>
+                <input type="text" class="form-control input-cobefar text-center" value="@(Model.Activo == 1 ? "SI" : "NO")" disabled />
+            </div>
+
+            <div class="col-lg-2">
+                <label for="FechaRegistro" class="text-dark form-label font-weight-bold">Fecha Registro:</label>
+                <input type="text" value="@Model.FechaRegistro.ToString()" class="form-control text-center input-cobefar" id="FechaRegistro" name="FechaRegistro" disabled>
             </div>
         </div>
 
@@ -92,9 +103,21 @@
         {
             <div class="row mt-4">
                 <div class="col-lg-2">
-                    <button type="submit" class="btn btn-success"><i class="icon icon-checkmark"></i> Guardar cambios</button>
+                    <button type="button" id="btn_guardarCambios" class="btn btn-success"><i class="icon icon-checkmark"></i> Guardar cambios</button>
                 </div>
             </div>
+
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    var btn = document.getElementById("btn_guardarCambios");
+                    var form = document.getElementById("form");
+
+                    btn.addEventListener("click", function () {
+                        btn.disabled = true;
+                        form.submit();
+                    });
+                });
+            </script>
         }
     }
 </div>

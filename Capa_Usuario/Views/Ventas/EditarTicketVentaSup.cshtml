@@ -68,7 +68,7 @@
       } else {
           $("#TiempoEntrega").prop('readonly', true);
       }
-      
+
   });
     var contUser = 0;
     //funcion para mostrar buscador de tickets a vincular
@@ -121,8 +121,6 @@
                                 }
                                 if (response.Det2.length > 0) {
                                     if (response.LugarDestino === 'Domicilio') {
-                                        //console.log("AS " + almacenSalida);
-                                        //console.log("AS " + almacenSalida);
                                         if (response.Det2[0].AlmacenSalida === almacenSalida) {
                                             if (DireccionEnvio === DireccionActual) {
                                                 if ((response.Zona && response.Zona.trim().toLowerCase() === Zona.trim().toLowerCase()) || (!response.Zona && !Zona.trim())) {
@@ -389,7 +387,7 @@
 
 <div class="pt-4">
     <nav>
-        <ol class="cd-breadcrumb bg-dark">
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
             <li><a href="@Url.Action("ListadoTicketsVenta", "Ventas")">Listado de tickets</a></li>
             <li class="current"><em>Editar ticket de venta - SUPERVISORES</em></li>
@@ -397,7 +395,7 @@
     </nav>
 </div>
 
-<div class="bg-dark border-cabecera-seccion pb-2">
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
     <div class="px-3 pt-3"><h3 class="titulo-seccion">EDITAR TICKET DE VENTA - SUPERVISORES</h3></div>
 </div>
 
@@ -444,10 +442,10 @@
                         <div class="col-lg-2">
                             <label for="TipoVenta" class="text-dark form-label font-weight-bold font-18">Tipo de Venta:</label>
                             <select name="TipoVenta" id="TipoVenta" class="form-control bg-cobefar text-white">
-                                <option value="">Seleccione</option>
-                                <option value="Normal" @{ if (Model.TipoVenta == "Normal") { Write("selected"); } }>Normal</option>
-                                <option value="Credito" @{ if (Model.TipoVenta == "Credito") { Write("selected"); } }>Crédito</option>
-                                <option value="ContraEntrega" @{ if (Model.TipoVenta == "ContraEntrega") { Write("selected"); } }>ContraEntrega</option>
+                                    <option value="">Seleccione</option>
+                                    <option value="Normal" @{ if (Model.TipoVenta == "Normal") { Write("selected"); } }>Normal</option>
+                                    <option value="ContraEntrega" @{ if (Model.TipoVenta == "ContraEntrega") { Write("selected"); } }>ContraEntrega</option>
+                                    <option value="Credito" @{ if (Model.TipoVenta == "Credito") { Write("selected"); } }>Credito</option>
                             </select>
                         </div>
                         <div class="col-lg-2">
@@ -516,7 +514,7 @@
                         <div class="row mt-4">
                             <div class="col-lg-9">
                                 @if (!string.IsNullOrEmpty(Model.DirDestino))
-                                {<label for="DirDestino" class="text-dark form-label"  id="DireccionEscogida">@Model.DirDestino </label>}
+                                {<label for="DirDestino" class="text-dark form-label" id="DireccionEscogida">@Model.DirDestino </label>}
                                 <select name="DirDestino" id="DirDestino" class="form-control bg-cobefar text-white border-success" onchange="enviarValSelect('DirDestino', 'Distrito', 'Distrito');enviarValSelect('DirDestino', 'Provincia', 'Provincia');enviarValSelect('DirDestino', 'Departamento', 'Departamento');enviarValSelect('DirDestino', 'Ubigeo', 'Ubigeo');enviarValSelect('DirDestino', 'Calle', 'Calle');enviarValSelect('DirDestino', 'Zona', 'Zona');muestraCampo()">
                                     <option value="">Seleccione</option>
                                 </select>
@@ -668,8 +666,8 @@
                         </div>
 
                     </div>
-                 
-                    
+
+
 
                 </div>
 
@@ -996,18 +994,18 @@
                     <tr style="background-color:steelblue;color:white"><td>Ubigeo</td><td>Distrito</td><td>Provincia</td><td>Departamento</td><td></td></tr>
                     @if (Ubigeos != null && Ubigeos.Count >= 1)
                     {
-                        foreach (var o in Ubigeos)
-                        {
-                            <tbody>
-                                <tr>
-                                    <td>@o.Ubigeo</td>
-                                    <td>@o.Distrito</td>
-                                    <td>@o.Provincia</td>
-                                    <td>@o.Departamento</td>
-                                    <td><button class="btn btn-primary btn-sm" data-dismiss="modal" onclick="agregarDatos('@o.Ubigeo','@o.Distrito','@o.Provincia','@o.Departamento','@o.Zona')">Seleccionar</button></td>
-                                </tr>
-                            </tbody>
-                        }
+                        <tbody>
+                            @foreach (var o in Ubigeos)
+                            {
+                            <tr>
+                                <td>@o.Ubigeo</td>
+                                <td>@o.Distrito</td>
+                                <td>@o.Provincia</td>
+                                <td>@o.Departamento</td>
+                                <td><button class="btn btn-primary btn-sm" data-dismiss="modal" onclick="agregarDatos('@o.Ubigeo','@o.Distrito','@o.Provincia','@o.Departamento','@o.Zona')">Seleccionar</button></td>
+                            </tr>
+                            }
+                        </tbody>
                     }
                 </table>
             </div>

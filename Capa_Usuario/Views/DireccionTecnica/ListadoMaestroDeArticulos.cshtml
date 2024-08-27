@@ -14,38 +14,38 @@
 
 <div class="pt-4">
     <nav>
-        <ol class="cd-breadcrumb bg-dark">
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
             <li class="current"><em>Listado maestro de artículos</em></li>
         </ol>
     </nav>
 </div>
 
-<div class="bg-dark border-cabecera-seccion pb-2">
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
     <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO MAESTRO DE ARTÍCULOS</h3></div>
 </div>
 
-<div class="bg-form-pestanas-cobefar">
-    <div class="bg-dark">
+<div class="pt-3 bg-form-pestanas-cobefar">
+    <div class="bg-white">
         <form name="frm" id="frm">
             <table class="table table-light table-sm table-hover cls-dataTable" cellspacing="0" width="100%">
-                <thead class="thead-dark">
+                <thead class="bg-cobefar-6">
                     <tr>
                         <th class="text-center">
                             @Html.DisplayNameFor(model => model.ItemCode)<br />
-                            <input type="text" name="ItemCode" class="form-control" onchange="filtrar();" value="@ViewBag.fil.ItemCode" />
+                            <input type="text" name="ItemCode" class="form-control-sm border" onchange="filtrar();" value="@ViewBag.fil.ItemCode" />
                         </th>
                         <th>
                             @Html.DisplayNameFor(model => model.ItemName)<br />
-                            <input type="text" name="ItemName" class="form-control" onchange="filtrar();" value="@ViewBag.fil.ItemName" />
+                            <input type="text" name="ItemName" class="form-control-sm border w-100" onchange="filtrar();" value="@ViewBag.fil.ItemName" />
                         </th>
                         <th class="text-center">
                             @Html.DisplayNameFor(model => model.UserText)<br />
-                            <input type="text" name="UserText" class="form-control" onchange="filtrar();" value="@ViewBag.fil.UserText" />
+                            <input type="text" name="UserText" class="form-control-sm border w-100" onchange="filtrar();" value="@ViewBag.fil.UserText" />
                         </th>
                         <th class="text-center">
                             @Html.DisplayNameFor(model => model.OnHand)<br />
-                            <input type="text" name="OnHand" class="form-control" onchange="filtrar();" value="@if (ViewBag.fil.OnHand != 0) { Write(ViewBag.fil.OnHand); } " />
+                            <input type="text" name="OnHand" class="form-control-sm border w-75" onchange="filtrar();" value="@if (ViewBag.fil.OnHand != 0) { Write(ViewBag.fil.OnHand); } " />
                         </th>
                         <th class="text-center">@Html.DisplayNameFor(model => model.BuyUnitMsr)</th>
                         <th></th>
@@ -71,7 +71,7 @@
                                 @Html.DisplayFor(modelItem => item.BuyUnitMsr)
                             </td>
                             <td class="text-center">
-                                <a href="@Url.Action("DetallesArticulo", "DireccionTecnica", new { ItemCode = item.ItemCode })" target="_blank" class="btn btn-sm btn-cobefar mx-2" title="Detalles">Ver Detalles</a>
+                                <a href="@Url.Action("DetallesArticulo", "DireccionTecnica", new { ItemCode = item.ItemCode })" target="_blank" class="btn btn-sm btn-light mx-2" data-toggle="tooltip" data-placement="top" title="Ver Detalles"><i class="icon-search text-cobefar"></i></a>
                             </td>
                         </tr>
                     }

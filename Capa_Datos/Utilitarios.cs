@@ -34,9 +34,8 @@ namespace Capa_Datos
             this.cadHana = "Server=192.168.1.37:30015;UserName=B1ADMIN;Password=Passw0rd;";
             this.schemaHana = "\"B1H_COBEFAR_2018\".";
 
-            this.serverSql = @"WIN-DC\DIEGO_BD"; this.passwordSql = "@Ndr@de123"; this.BDsql = "INTRANET_V2"; this.userSql = "sa";
-            //this.serverSql = @"192.168.1.151"; this.passwordSql = "TICOBE@R789"; this.BDsql = "BASE_15_08_24_OPERACIONES"; this.userSql = "sa";
-
+            //this.serverSql = @"WIN-DC\DIEGO_BD"; this.passwordSql = "@Ndr@de123"; this.BDsql = "INTRANET_V2"; this.userSql = "sa";
+            this.serverSql = @"192.168.1.151"; this.passwordSql = "TICOBE@R789"; this.BDsql = "INTRANET_V2"; this.userSql = "sa";
             this.directorioGeneral = @"D\";
             this.directorioFileServer = @"D:\COBEFARWEBFILES\";
             this.directorioLogs = @"D:\COBEFARWEBLOGS\";
@@ -47,7 +46,7 @@ namespace Capa_Datos
             this.Smtp = "smtp.gmail.com";
             this.CodigoSmtp = 25;
         }
-        public void registrarLog(string user, string mensaje, int operacion, string ip, string equipo)
+        public void RegistrarLog(string user, string mensaje, int operacion, string ip, string equipo)
         {
             try
             {

@@ -1,4 +1,5 @@
 ﻿using Capa_Datos;
+using Capa_Negocio.Seguridad_NEG;
 using CrystalDecisions.Shared;
 using System;
 using System.Collections.Generic;
@@ -15,13 +16,15 @@ namespace Capa_Negocio
         private string passwordSql { get; set; }
         private string schemaSql { get; set; }
         private string cadSql { get; set; }
-        public string directorioFileServer { get; set; } 
+        public string directorioFileServer { get; set; }
 
-        Utilitarios uti = new Utilitarios();
-        public void registrarLog(string user, string mensaje, int operacion, string ip, string equipo)
+        Utilitarios Utilitarios_D = new Utilitarios();
+
+        public void RegistrarLog(string user, string mensaje, int operacion, string ip, string equipo)
         {
-            uti.registrarLog(user, mensaje, operacion, ip,equipo);
+            Utilitarios_D.RegistrarLog(user, mensaje, operacion, ip,equipo);
         }
+
         public ConnectionInfo getConexion()
         {
             ConnectionInfo infocon = new ConnectionInfo();
@@ -31,10 +34,11 @@ namespace Capa_Negocio
             infocon.Password = passwordSql;
             return infocon;
         }
+
         public Utilitarios_N()
         {
-            serverSql = uti.serverSql;userSql = uti.userSql;passwordSql = uti.passwordSql;
-            schemaSql = uti.BDsql;cadSql = uti.cadSql;directorioFileServer = uti.directorioFileServer;
+            serverSql = Utilitarios_D.serverSql; userSql = Utilitarios_D.userSql; passwordSql = Utilitarios_D.passwordSql;
+            schemaSql = Utilitarios_D.BDsql; cadSql = Utilitarios_D.cadSql; directorioFileServer = Utilitarios_D.directorioFileServer;
         }
     }
 }

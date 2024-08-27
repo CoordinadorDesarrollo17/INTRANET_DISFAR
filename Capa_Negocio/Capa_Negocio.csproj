@@ -111,8 +111,13 @@
     <Compile Include="General_NEG\Tablas\COB_SALDO_N.cs" />
     <Compile Include="General_NEG\Tablas\OSLP_N.cs" />
     <Compile Include="General_NEG\Tablas\OWHS_N.cs" />
+    <Compile Include="Helpers.cs" />
     <Compile Include="Operaciones_NEG\TablasSql\OTEP_N.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RecursosHumanos_NEG\TablasSQL\CARGO_N.cs" />
+    <Compile Include="RecursosHumanos_NEG\TablasSQL\EMPL1_N.cs" />
+    <Compile Include="RecursosHumanos_NEG\TablasSQL\OEMPL_N.cs" />
+    <Compile Include="RecursosHumanos_NEG\TablasSQL\SEDE_N.cs" />
     <Compile Include="ReportesDigemid_NEG\DocumentosDig_N.cs" />
     <Compile Include="Rutas_NEG\TablasSql\ORRU_N.cs" />
     <Compile Include="Rutas_NEG\TablasSql\RRU01_N.cs" />
@@ -124,7 +129,9 @@
     <Compile Include="Seguridad_NEG\Orol_N.cs" />
     <Compile Include="Seguridad_NEG\Rol1_N.cs" />
     <Compile Include="Seguridad_NEG\TablasSql\AREA_N.cs" />
+    <Compile Include="Seguridad_NEG\TablasSql\OUSR_OPE_N.cs" />
     <Compile Include="Seguridad_NEG\TablasSql\REA1_N.cs" />
+    <Compile Include="Seguridad_NEG\TablasSql\ROL_OPE_N.cs" />
     <Compile Include="Seguridad_NEG\TablasSql\USR2_N.cs" />
     <Compile Include="Seguridad_NEG\Usuario_N.cs" />
     <Compile Include="SocioNegocios_NEG\Tablas\OCPR_N.cs" />

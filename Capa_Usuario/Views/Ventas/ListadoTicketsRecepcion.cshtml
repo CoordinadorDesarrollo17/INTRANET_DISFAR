@@ -4,7 +4,7 @@
     ViewBag.Title = "ListadoTicketsRecepcion";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
-    String bgEstadoPago = "bg-cobefar text-white", bgLugarDestino = "bg-cobefar text-white";
+    String bgEstadoPago = "bg-cobefar-6 text-white", bgLugarDestino = "bg-cobefar-6 text-white";
     if (ViewBag.Ortv.EstadoPago != "" && ViewBag.Ortv.EstadoPago != null)
     {
         bgEstadoPago = "bg-warning";
@@ -25,68 +25,69 @@
 
 <div class="pt-4">
     <nav>
-        <ol class="cd-breadcrumb bg-dark">
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
             <li class="current"><em>Listado tickets recepción</em></li>
         </ol>
     </nav>
 </div>
 
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion"> LISTADO TICKETS RECEPCIÓN</h3></div>
+</div>
+
 <form name="frm" id="frm">
-    <div class="bg-dark border-cabecera-seccion pb-2">
-        <div class="px-3 pt-3"><h3 class="titulo-seccion"> LISTADO TICKETS RECEPCIÓN</h3></div>
-        <div class="d-flex pl-2 w-100 py-2">
-            <div class="mx-2">
-                <select name="EstadoPago" id="EstadoPago" class="form-control @bgEstadoPago" onchange="filtrar();">
-                    <option value="">EstadoPago</option>
-                    <option value="PENDIENTE" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.EstadoPago == "PENDIENTE") { Write("selected"); } }>PENDIENTE</option>
-                    <option value="PAGADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.EstadoPago == "PAGADO") { Write("selected"); } }>PAGADO</option>
-                </select>
-            </div>
-            <div class="mx-2">
-                <select name="LugarDestino" id="LugarDestino" class="form-control @bgLugarDestino" onchange="filtrar();">
-                    <option value="">LugarDestino</option>
-                    <option value="Arriola" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Arriola") { Write("selected"); } }>Arriola</option>
-                    <option value="Agencia" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Agencia") { Write("selected"); } }>Agencia</option>
-                    <option value="Domicilio" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Domicilio") { Write("selected"); } }>Domicilio</option>
-                    <option value="Centro" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Centro") { Write("selected"); } }>Centro</option>
-                </select>
-            </div>
+    <div class="bg-white d-flex pl-2 w-100 py-3">
+        <div class="mx-2">
+            <select name="EstadoPago" id="EstadoPago" class="form-control @bgEstadoPago" onchange="filtrar();">
+                <option value="">EstadoPago</option>
+                <option value="PENDIENTE" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.EstadoPago == "PENDIENTE") { Write("selected"); } }>PENDIENTE</option>
+                <option value="PAGADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.EstadoPago == "PAGADO") { Write("selected"); } }>PAGADO</option>
+            </select>
+        </div>
+        <div class="mx-2">
+            <select name="LugarDestino" id="LugarDestino" class="form-control @bgLugarDestino" onchange="filtrar();">
+                <option value="">LugarDestino</option>
+                <option value="Arriola" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Arriola") { Write("selected"); } }>Arriola</option>
+                <option value="Agencia" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Agencia") { Write("selected"); } }>Agencia</option>
+                <option value="Domicilio" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Domicilio") { Write("selected"); } }>Domicilio</option>
+                <option value="Centro" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Centro") { Write("selected"); } }>Centro</option>
+            </select>
         </div>
     </div>
 
-    <div class="bg-dark table-responsive">
+    <div class="bg-white bg-form-cobefar">
         <table class="table table-light table-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
-            <thead class="thead-dark">
+            <thead class="bg-cobefar-6">
                 <tr>
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.DocNum)
                         <br />
                         @if (ViewBag.Ortv != null && ViewBag.Ortv.DocNum > 0)
                         {
-                            <input type="text" name="DocNum" class="form-control" onchange="filtrar();" value="@ViewBag.Ortv.DocNum" autocomplete="off" />
+                            <input type="text" name="DocNum" class="form-control-sm border w-75" onchange="filtrar();" value="@ViewBag.Ortv.DocNum" autocomplete="off" />
                         }
                         else
-                        { <input type="text" name="DocNum" class="form-control" onchange="filtrar();" />}
+                        { <input type="text" name="DocNum" class="form-control-sm border w-75" onchange="filtrar();" />}
                     </th>
                     <th class="text-center">
                         Fecha ticket
                         <br />
                         @if (ViewBag.Ortv != null && ViewBag.Ortv.FechaSapTicket != null)
                         {
-                            <input type="date" name="FechaSapTicket" style="font-size:12px;" class="form-control" value="@ViewBag.Ortv.FechaSapTicket" onchange="filtrar();" />
+                            <input type="date" name="FechaSapTicket" style="font-size:12px;" class="form-control-sm border" value="@ViewBag.Ortv.FechaSapTicket" onchange="filtrar();" />
                         }
                         else
-                        { <input type="date" name="FechaSapTicket" style="font-size:12px;" class="form-control" onchange="filtrar();" />}
+                        { <input type="date" name="FechaSapTicket" style="font-size:12px;" class="form-control-sm border" onchange="filtrar();" />}
                     </th>
-                    <th class="text-center">
-                        @Html.DisplayNameFor(model => model.CardName)
+                    <th>
+                        <span class="pl-2">@Html.DisplayNameFor(model => model.CardName)</span>
                         @if (ViewBag.Ortv != null && ViewBag.Ortv.CardName != null)
                         {
-                            <input type="text" name="CardName" class="form-control" onchange="filtrar();" value="@ViewBag.Ortv.CardName" autocomplete="off" />
+                            <input type="text" name="CardName" class="form-control-sm border w-100" onchange="filtrar();" value="@ViewBag.Ortv.CardName" autocomplete="off" />
                         }
                         else
-                        { <input type="text" name="CardName" class="form-control" onchange="filtrar();" />}
+                        { <input type="text" name="CardName" class="form-control-sm border w-100" onchange="filtrar();" />}
                     </th>
                     <th class="text-center">Orden de venta SAP</th>
                     <th class="text-center">
@@ -94,25 +95,25 @@
                         <br />
                         @if (ViewBag.Ortv != null && ViewBag.Ortv.Vendedor != null)
                         {
-                            <input type="text" name="Vendedor" class="form-control" onchange="filtrar();" value="@ViewBag.Ortv.Vendedor" />
+                            <input type="text" name="Vendedor" class="form-control-sm border" onchange="filtrar();" value="@ViewBag.Ortv.Vendedor" />
                         }
                         else
-                        { <input type="text" name="Vendedor" class="form-control" onchange="filtrar();" />}
+                        { <input type="text" name="Vendedor" class="form-control-sm border" onchange="filtrar();" />}
                     </th>
                     <th class="text-center">
                         Monto total
                         <br />
                         @if (ViewBag.Ortv != null && ViewBag.Ortv.MontoTotal > 0)
                         {
-                            <input type="text" name="MontoTotal" class="form-control" onchange="filtrar();" value="@ViewBag.Ortv.MontoTotal" autocomplete="off" />
+                            <input type="text" name="MontoTotal" class="form-control-sm border w-75" onchange="filtrar();" value="@ViewBag.Ortv.MontoTotal" autocomplete="off" />
                         }
                         else
-                        { <input type="text" name="MontoTotal" class="form-control" onchange="filtrar();" />}
+                        { <input type="text" name="MontoTotal" class="form-control-sm border w-75" onchange="filtrar();" />}
                     </th>
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.Estado)
                         <br />
-                        <select name="Estado" id="Estado" class="form-control" onchange="filtrar();">
+                        <select name="Estado" id="Estado" class="form-control-sm border" onchange="filtrar();">
                             <option value=""></option>
                             <option value="ABIERTO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ABIERTO") { Write("selected"); } }>ABIERTO</option>
                             <option value="RECIBIDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "RECIBIDO") { Write("selected"); } }>RECIBIDO</option>
@@ -166,9 +167,7 @@
                     <tr id="fila">
                         <td class="text-center">@item.DocNum</td>
                         <td class="text-center">@item.FechaSapTicket</td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.CardName)
-                        </td>
+                        <td><span class="pl-2">@Html.DisplayFor(modelItem => item.CardName)</span></td>
                         <td class="text-center">
                             @if (item.Det2 != null)
                             {
@@ -182,7 +181,7 @@
                             @Html.DisplayFor(modelItem => item.Vendedor)
                         </td>
                         <td class="text-center">
-                            S/ @Html.DisplayFor(modelItem => item.MontoTotal)
+                            @Html.DisplayFor(modelItem => item.MontoTotal)
                         </td>
                         <td class="text-center" @styleEstado>@Html.DisplayFor(modelItem => item.Estado)</td>
                         <td class="text-center">
@@ -199,8 +198,8 @@
                         <td class="text-center">
                             @if (condRecibir == true)
                             {
-                                <a href="@Url.Action("RecibirTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-success btn-sm" title="Recibir">
-                                    <i class="icon icon-checkmark"> </i>
+                                <a href="@Url.Action("RecibirTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Recibir">
+                                    <i class="icon icon-checkmark text-success"> </i>
                                 </a>
                             }
                         </td>
@@ -208,8 +207,8 @@
                             @if (condAnularRecibir == true)
                             {
 
-                                <a href="@Url.Action( "AnularRecibirTicketVenta", "Ventas", new { DocEntry = item.DocEntry  } )" class="btn btn-danger btn-sm" title="Anular Recibir">
-                                    <i class="icon icon-blocked"></i>
+                                <a href="@Url.Action( "AnularRecibirTicketVenta", "Ventas", new { DocEntry = item.DocEntry  } )" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Anular Recibir">
+                                    <i class="icon icon-blocked text-danger"></i>
                                 </a>
 
                             }
@@ -217,8 +216,8 @@
                         <td>
                             @if (item.Estado.Equals("ABIERTO"))
                             {
-                                <a href="@Url.Action( "PdfTacoComentarios", "Ventas", new { DocEntry = item.DocEntry  } )" title="PDF Taco Comentarios">
-                                    <i class="icon-file-pdf text-danger bordered mt-2 font-30"></i>
+                                <a class="btn btn-sm btn-light" href="@Url.Action( "PdfTacoComentarios", "Ventas", new { DocEntry = item.DocEntry  } )"  data-toggle="tooltip" data-placement="top"  title="PDF Taco Comentarios">
+                                    <i class="icon-file-pdf text-danger bordered"></i>
                                 </a>
                             }
                             <input type="hidden" id="pdf_taco_comentarios" value="@item.DocEntry" />
@@ -226,12 +225,13 @@
                         <td class="text-center">
                             @if ((item.Estado.Equals("RECIBIDO") || item.Estado.Equals("PICKEANDO") || item.Estado.Equals("VERIFICANDO") || item.Estado.Equals("EMPACANDO")) && (ViewBag.IdRol == 1 || ViewBag.IdRol == 5))
                             {
-                                <a href="#" class="btn btn-danger btn-sm" onclick="cancelarTicket(@item.DocEntry);"><i title="CANCELAR" class="icon-cross text-light"></i></a>
+                                <a href="#" class="btn btn-sm btn-light" onclick="cancelarTicket(@item.DocEntry);" data-toggle="tooltip" data-placement="top" title="Cancelar"><i class="icon-cross text-danger"></i></a>
                             }
                         </td>
                         <td>
-                            <a href="@Url.Action( "SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry  } )" class="btn btn-dark btn-sm" title="Seguimiento de ticket" type="button" target="_blank"
-                               onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;"> <i class="icon-truck"></i>
+                            <a href="@Url.Action( "SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry  } )" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Seguimiento de Ticket" type="button" target="_blank"
+                               onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;">
+                                <i class="icon-truck text-dark"></i>
                             </a>
                         </td>
 
@@ -276,7 +276,6 @@
     }
 
     function descargarTacoComentarios(DocEntry) {
-        //$('#' + id)[0].click();
         location.href = '/Ventas/PdfTacoComentarios?DocEntry=' + DocEntry;
     }
 </script>
