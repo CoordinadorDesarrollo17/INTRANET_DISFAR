@@ -441,16 +441,12 @@
                         </div>
                         <div class="col-lg-2">
                             <label for="TipoVenta" class="text-dark form-label font-weight-bold font-18">Tipo de Venta:</label>
-                            @if (Model.TipoVenta != "Credito")
-                            {
-                                <select name="TipoVenta" id="TipoVenta" class="form-control bg-cobefar text-white">
+                            <select name="TipoVenta" id="TipoVenta" class="form-control bg-cobefar text-white">
                                     <option value="">Seleccione</option>
                                     <option value="Normal" @{ if (Model.TipoVenta == "Normal") { Write("selected"); } }>Normal</option>
                                     <option value="ContraEntrega" @{ if (Model.TipoVenta == "ContraEntrega") { Write("selected"); } }>ContraEntrega</option>
-                                </select>
-                            }
-                            else
-                            { <input type="text" name="TipoVenta" id="TipoVenta" class="form-control text-center border-success" value="@Model.TipoVenta" readonly>}
+                                    <option value="Credito" @{ if (Model.TipoVenta == "Credito") { Write("selected"); } }>Credito</option>
+                            </select>
                         </div>
                         <div class="col-lg-2">
                             <label for="FormaPago" class="text-dark form-label font-weight-bold font-18">Forma de Pago:</label>

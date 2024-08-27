@@ -107,17 +107,17 @@
         <div class="mx-2">
             @if (ViewBag.IdRol == 12)
             {
-                <a id="accion" href="#" class="btn btn-success font-weight-bold" data-toggle="modal" data-target="#modalVendedores">
-                    Crear Ticket
+                <a id="accion" href="#" class="btn btn-success" data-toggle="modal" data-target="#modalVendedores">
+                    <i class="icon-plus"></i>  Nuevo ticket
                 </a>
             }
             else
             {
-                <a id="accion" href="@Url.Action("CreaTicketVenta", "Ventas")" class="btn btn-success font-weight-bold" title="Crear Ticket Nuevo">
+                <a id="accion" href="@Url.Action("CreaTicketVenta", "Ventas")" class="btn btn-success" title="Crear Ticket Nuevo">
                     <i class="icon-plus"></i>  Nuevo ticket
                 </a>
             }
-            <button type="button" id="btn_ordenesVenta" class="btn btn-orange font-weight-bold" data-codsapvendedor="@ViewBag.CodSapVendedor"><i class="icon-file-text2 font-weight-bold"></i> Órdenes de Venta</button>
+            <button type="button" id="btn_ordenesVenta" class="btn btn-orange " data-codsapvendedor="@ViewBag.CodSapVendedor"><i class="icon-file-text2"></i> Órdenes de Venta</button>
             <button type="button" class="btn btn-primary mx-2" data-toggle="modal" data-target="#filterModal"><i class="icon-filter"> </i> Filtrar</button>
 
         </div>
