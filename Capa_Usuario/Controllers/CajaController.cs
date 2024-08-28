@@ -259,7 +259,6 @@ namespace Capa_Usuario.Controllers
 
         public JsonResult ValidarMontoFinalTicket(OTC_E tc, string lineaORRU, string tipoRepORRU)
         {
-            VerificarAccesos(0);    // Validar sesion logueada, solo para ajax
             var ticket = new ORTV_N().ObtenerDatosCompletosTicket((int)tc.DocEntryTicket);
             Usuario_E usu = (Usuario_E)Session["UsuarioId"];
             tc.PersonaEntrega = $"{usu.Nombres} {usu.Apellidos}";
@@ -407,8 +406,6 @@ namespace Capa_Usuario.Controllers
 
             return Json(new { Mensaje = result });
         }
-
-
         /*
          public JsonResult AgregarPagosParciales(List<decimal> pagos, int docEntryTicket)
         {

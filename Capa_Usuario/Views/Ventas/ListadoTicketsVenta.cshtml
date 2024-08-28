@@ -458,18 +458,16 @@
 </style>
 
 <script>
+    if ('@ViewBag.Mensaje' != "") {
+    Swal.fire('@ViewBag.Mensaje');
+    }
+    //Consulta de ordenes de venta
     document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('btn_ordenesVenta').addEventListener('click', () => {
             let codSapVendedor = document.getElementById("btn_ordenesVenta").dataset.codsapvendedor;
             window.location.href = '@Url.Action("ListadoOrdenesDeVenta", "DireccionTecnica")?SlpCode=' + codSapVendedor;
         });
     });
-</script>
-
-<script>
-    if ('@ViewBag.Mensaje' != "") {
-        Swal.fire('@ViewBag.Mensaje');
-    }
 
     function cancelarTicket(DocEntry) {
         const swalWithBootstrapButtons = Swal.mixin({

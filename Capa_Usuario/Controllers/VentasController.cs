@@ -1,9 +1,5 @@
-﻿using Aspose.Pdf.Annotations;
-using Capa_Datos;
-using Capa_Datos.Ventas_DAO.TablasSql;
-using Capa_Entidad.Almacen_ENT.Tablas;
+﻿using Capa_Datos.Ventas_DAO.TablasSql;
 using Capa_Entidad.ComprobantesContables_ENT;
-using Capa_Entidad.Rutas_ENT.TablasSql;
 using Capa_Entidad.Seguridad_ENT;
 using Capa_Entidad.SocioNegocios_ENT.Tablas;
 using Capa_Entidad.Ventas_ENT.Reportes;
@@ -21,18 +17,15 @@ using Capa_Negocio.Ventas_NEG.TablasSql;
 using Capa_Usuario.Helpers;
 using CrystalDecisions.CrystalReports.Engine;
 using CrystalDecisions.Shared;
-using iTextSharp.text;
-using iTextSharp.text.pdf;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.Reporting.WebForms;
 using OfficeOpenXml;
 using OfficeOpenXml.Table;
 using Rotativa;
-using Sap.Data.Hana;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.util;
 using System.Web.Mvc;
 
 namespace Capa_Usuario.Controllers
@@ -324,7 +317,7 @@ namespace Capa_Usuario.Controllers
                     RTV6_N rtv6_N = new RTV6_N();
                     ORTV_E ticket = ticketN.ObtenerDatosCompletosTicket(DocEntry);
                     ticket.orru = orruN.obtenerOrdenDeRutaTicket(DocEntry);
-                    ViewBag.flujoEstadosTicket = ccORTV.ListarCC_FlujoEstados(DocEntry);
+                    ViewBag.flujoEstadosTicket = ccORTV_N.ListarCC_FlujoEstados(DocEntry);
 
                     //consulta referencia para los estados, acopla los nuevos datos sin perder lo anterior consultado.
                     ticketN.ObtenerReferenciaEstadosTicket(ticket);
@@ -458,8 +451,8 @@ namespace Capa_Usuario.Controllers
 
                     t = ticketN.ObtenerDatosCompletosTicket(DocEntry);
                     t.orru = orruN.obtenerOrdenDeRutaTicket(DocEntry);
-                    ViewBag.flujoEstadosTicket = ccORTV.ListarCC_FlujoEstados(DocEntry);
-                    ViewBag.ultimoEstadoTicket = ccORTV.UltimoEstadoCC_ORTV(DocEntry);
+                    ViewBag.flujoEstadosTicket = ccORTV_N.ListarCC_FlujoEstados(DocEntry);
+                    ViewBag.ultimoEstadoTicket = ccORTV_N.UltimoEstadoCC_ORTV(DocEntry);
                     ViewBag.pesoTotal = rtv6_N.ObtenerPesoTotal(DocEntry);
                     ViewBag.IdRol = usu.IdRol;
 
@@ -810,7 +803,7 @@ namespace Capa_Usuario.Controllers
 
                             var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: solicitudes.Count + 1, toColumn: 4), "DetallePedido");
                             tabla.ShowHeader = true;
-                            tabla.TableStyle = TableStyles.Medium2;
+                            tabla.TableStyle = OfficeOpenXml.Table.TableStyles.Medium2;
                         }
                     }
 
@@ -904,8 +897,8 @@ namespace Capa_Usuario.Controllers
                 try
                 {
                     Usuario_E u = (Usuario_E)Session["UsuarioId"];
-                    List<CC_ORTV_E> ticketFinVerificar = ccORTV.ListarCC_ORTV(DocEntry, "FIN VERIFICAR");
-                    List<CC_ORTV_E> ticketAnularFinVerificar = ccORTV.ListarCC_ORTV(DocEntry, "ANULAR FIN VERIFICAR");
+                    List<CC_ORTV_E> ticketFinVerificar = ccORTV_N.ListarCC_ORTV(DocEntry, "FIN VERIFICAR");
+                    List<CC_ORTV_E> ticketAnularFinVerificar = ccORTV_N.ListarCC_ORTV(DocEntry, "ANULAR FIN VERIFICAR");
                     List<CC_ORTV_E> listaCC = new List<CC_ORTV_E>() { ticketFinVerificar[0], ticketAnularFinVerificar[0] }.OrderByDescending(x => x.Id).ToList();
                     if (listaCC.FirstOrDefault().Operacion == "FIN VERIFICAR") { hayFinVerificar = true; }
                     else if (listaCC.FirstOrDefault().Operacion == "ANULAR FIN VERIFICAR") { hayFinVerificar = false; }
@@ -1362,7 +1355,7 @@ namespace Capa_Usuario.Controllers
                     tc.OpRegistro = $"{u.Nombres} {u.Apellidos}";
                     tc.Det11 = t.Det11;                                                 // OpSacador 2, OpSacador 3 y OpSacador 4
                     tc.Det11[0].Operario = tc.OpRegistro;                   // Seteamos elOpSacando quién es el usuario en sesión
-                    ViewBag.datosSacador = ccORTV.ListarCC_ORTV(DocEntry, "FIN PICKING");
+                    ViewBag.datosSacador = ccORTV_N.ListarCC_ORTV(DocEntry, "FIN PICKING");
                     int DocNum = ticketN.editarSeguimientoTicket("FIN PICKING", DocEntry, tc);
                     return RedirectToAction("ListadoTicketsAlmacen", new { DocNum = DocNum, Mensaje = "Ticket ha sido pickeado" });
                 }
@@ -1931,7 +1924,7 @@ namespace Capa_Usuario.Controllers
                 Capa_Negocio.Utilitarios_N utiN = new Capa_Negocio.Utilitarios_N();
                 var coninfo = utiN.getConexion();
                 TableLogOnInfo logoninfo = new TableLogOnInfo();
-                Tables tables;
+                CrystalDecisions.CrystalReports.Engine.Tables tables;
                 tables = rc.Database.Tables;
                 foreach (CrystalDecisions.CrystalReports.Engine.Table item in tables)
                 {
@@ -1971,7 +1964,7 @@ namespace Capa_Usuario.Controllers
                     }
                     var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: formatoAgencia.Count + 1, toColumn: 13), "FormatoAgencia");
                     tabla.ShowHeader = true;
-                    tabla.TableStyle = TableStyles.Medium2;
+                    tabla.TableStyle = OfficeOpenXml.Table.TableStyles.Medium2;
                     return File(libro.GetAsByteArray(), excelContentType, "FormatoAgencia.xlsx");
                 }
             }
@@ -2335,7 +2328,7 @@ namespace Capa_Usuario.Controllers
 
                             var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: analisisTickets.Count + 1, toColumn: 60), "AnalisisTickets");
                             tabla.ShowHeader = true;
-                            tabla.TableStyle = TableStyles.Medium2;
+                            tabla.TableStyle = OfficeOpenXml.Table.TableStyles.Medium2;
                         }
                     }
 
@@ -3281,13 +3274,63 @@ namespace Capa_Usuario.Controllers
             catch (Exception e) { return Content(e.Message); }
 
         }
+        public ActionResult ExportarExcelArticulos(int DocEntry)
+        {
+            Capa_Negocio.Ventas_NEG.Tablas.ORDR_N ordrN = new Capa_Negocio.Ventas_NEG.Tablas.ORDR_N();
+            ORTV_N tkN = new ORTV_N();
+            string nombreArchivo = "ReporteArticulos.xlsx";
+            string excelContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            List<RTV2_E> listaOrdenes = tkN.obtenerDet2Ticket(DocEntry);
+            List<int> listaDocNums = listaOrdenes.Select(item => item.NroSap).ToList();
+            var detalleOrdenes = ordrN.listadoDetalleOrdenesDeVenta(listaDocNums);
+
+            using (var libro = new ExcelPackage())
+            {
+                var worksheet = libro.Workbook.Worksheets.Add("ReporteArticulos");
+
+                // Cargar datos en la hoja.
+                worksheet.Cells["A1"].LoadFromCollection(detalleOrdenes, PrintHeaders: true);
+
+                using (var headerRange = worksheet.Cells[1, 1, 1, detalleOrdenes.First().GetType().GetProperties().Length])
+                {
+                    headerRange.Style.Font.Bold = true;
+                    headerRange.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                    headerRange.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                    headerRange.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                }
+
+                for (var col = 1; col <= detalleOrdenes.First().GetType().GetProperties().Length; col++)
+                {
+                    worksheet.Column(col).AutoFit();
+                }
+
+                worksheet.Column(3).Style.Numberformat.Format = "dd/MM/yyyy";
+
+                var allCells = worksheet.Cells[worksheet.Dimension.Address];
+                allCells.Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                allCells.Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                allCells.Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                allCells.Style.Border.Bottom.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+
+                if (detalleOrdenes != null && detalleOrdenes.Count >= 1)
+                {
+                    var range = new ExcelAddressBase(1, 1, detalleOrdenes.Count + 1, detalleOrdenes.First().GetType().GetProperties().Length);
+                    var tabla = worksheet.Tables.Add(range, "ReporteArticulos");
+                    tabla.ShowHeader = true;
+                    tabla.TableStyle = OfficeOpenXml.Table.TableStyles.Medium4;
+                }
+
+                return File(libro.GetAsByteArray(), excelContentType, nombreArchivo);
+            }
+        }
+
+
 
         /**********Documentos imprimibles para el proceso de tickets (OPERACIONES) **************/
         public ActionResult PdfTacoComentarios(int DocEntry)
         {
-            verificacionAccesos(0);
             ORTV_E ticket = ticketN.ObtenerDatosCompletosTicket(DocEntry);
-            List<CC_ORTV_E> ticketAbierto = ccORTV.ListarCC_ORTV(DocEntry, "REGISTRAR");
+            List<CC_ORTV_E> ticketAbierto = ccORTV_N.ListarCC_ORTV(DocEntry, "REGISTRAR");
 
             // Si el ticket no está ABIERTO y en el control de cambios nunca hubo un movimiento
             if (ticket.Estado != "ABIERTO" && ticketAbierto[0].FechaOperacion == "")
@@ -3299,7 +3342,6 @@ namespace Capa_Usuario.Controllers
         }
         public ActionResult TacoComentarios(int DocEntry)
         {
-            //verificacionAccesos(0);
             try
             {
                 ORTV_E t = ticketN.ObtenerDatosCompletosTicket(DocEntry);
@@ -3390,7 +3432,7 @@ namespace Capa_Usuario.Controllers
         }
         private void ObtenerOperariosVerificacion(ORTV_E ticket, int docEntry)
         {
-            var ticketVerificando = ccORTV.ListarCC_ORTV(docEntry, "FIN VERIFICAR");
+            var ticketVerificando = ccORTV_N.ListarCC_ORTV(docEntry, "FIN VERIFICAR");
             if (ticketVerificando.Any())
             {
                 ticket.OpVerificado = ticketVerificando[0].Operario;
@@ -3405,7 +3447,7 @@ namespace Capa_Usuario.Controllers
         {
             if (ticket.Cajas >= 1)
             {
-                var ticketEmpacado = ccORTV.ListarCC_ORTV(docEntry, "FIN EMPACAR");
+                var ticketEmpacado = ccORTV_N.ListarCC_ORTV(docEntry, "FIN EMPACAR");
                 var operariosEmpacando = new RTV13_D().BuscarOperariosEmpacando(docEntry);
                 if (operariosEmpacando != null)
                 {
@@ -3428,7 +3470,7 @@ namespace Capa_Usuario.Controllers
         }
         private void AsignarFechaHoraEmpacado(ORTV_E ticket)
         {
-            var ticketEmpacado = ccORTV.ListarCC_ORTV(ticket.DocEntry, "FIN EMPACAR");
+            var ticketEmpacado = ccORTV_N.ListarCC_ORTV(ticket.DocEntry, "FIN EMPACAR");
             if (ticketEmpacado.Any())
             {
                 DateTime dt;
@@ -3510,7 +3552,7 @@ namespace Capa_Usuario.Controllers
                         {
                             var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: erroresPicking.Count + 1, toColumn: 11), "ReporteErroresPicking");
                             tabla.ShowHeader = true;
-                            tabla.TableStyle = TableStyles.Medium2;
+                            tabla.TableStyle = OfficeOpenXml.Table.TableStyles.Medium2;
                         }
                     }
 

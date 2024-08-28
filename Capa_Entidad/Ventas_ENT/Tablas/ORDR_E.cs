@@ -37,5 +37,16 @@ namespace Capa_Entidad.Ventas_ENT.Tablas
         {
             ComprobantesVinculados = new List<OINV_E>();
         }
+        //para traer detalle desde SAP en Picking packing (Excel)
+        public class DetalleOrdenDeVenta
+        {
+            public int DocNum { get; set; }
+            public string SKU { get; set; }
+            public string Descripcion { get; set; }
+            public string Lote { get; set; }
+            public string FechaVenc { get; set; }
+            public decimal NumUnidVend { get; set; }
+            
+        }
     }
 }

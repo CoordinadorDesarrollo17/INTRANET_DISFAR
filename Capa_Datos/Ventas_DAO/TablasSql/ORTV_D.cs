@@ -258,7 +258,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             dr.Close();
             return lista;
         }
-        private List<RTV2_E> obtenerDet2Ticket(int DocEntry)
+        public List<RTV2_E> obtenerDet2Ticket(int DocEntry)
         {
             List<RTV2_E> lista = new List<RTV2_E>();
             string query = "select * from vt.RTV2 WHERE DocEntry=@DocEntry order by Linea";
@@ -1133,91 +1133,6 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 
             return lista;
         }
-        //public int anularTicket(int DocEntry, ORTV_E ticket)
-        //{   //tipo mant UAN
-        //	int status = -1;
-        //	ORTV_E auxTK = obtenerTicket(DocEntry);
-        //	SqlConnection cn = new SqlConnection(uti.cadSql);
-        //	try
-        //	{
-        //		cn.Open();
-        //		SqlTransaction tran = cn.BeginTransaction("transaccion1");
-        //		try
-        //		{
-        //			SqlCommand cmd = new SqlCommand("vt.MANT_ORTV", cn);
-        //			cmd.Transaction = tran;
-        //			cmd.CommandType = CommandType.StoredProcedure;
-        //			cmd.Parameters.AddWithValue("@TipoMantenimiento", "UAN");
-        //			cmd.Parameters.AddWithValue("@DocEntry", DocEntry);
-        //			cmd.Parameters.AddWithValue("@Estado", ticket.Estado);
-        //			cmd.Parameters.AddWithValue("@DocNum", ticket.DocNum);
-        //			cmd.Parameters.AddWithValue("@Operario", ticket.OpRegistro);
-        //			cmd.ExecuteNonQuery();
-        //			status = ticket.DocNum;
-
-        //			if (auxTK.CardCode != null && auxTK.CardName != null)
-        //			{
-        //				SqlCommand cmd2 = new SqlCommand("vt.MANT_OLDS", cn);
-        //				cmd2.Transaction = tran;
-        //				cmd2.CommandType = CommandType.StoredProcedure;
-        //				cmd2.Parameters.AddWithValue("@TipoMantenimiento", "AC");
-        //				cmd2.Parameters.AddWithValue("@C_CardCode", auxTK.CardCode);
-        //				cmd2.Parameters.AddWithValue("@C_CardName", auxTK.CardName);
-        //				cmd2.ExecuteNonQuery();
-        //				if (auxTK.DeudaCliente > 0)
-        //				{
-        //					SqlCommand cmd4 = new SqlCommand("vt.MANT_OLDS", cn);
-        //					cmd4.Transaction = tran;
-        //					cmd4.CommandType = CommandType.StoredProcedure;
-        //					cmd4.Parameters.AddWithValue("@TipoMantenimiento", "AD");
-        //					cmd4.Parameters.AddWithValue("@C_CardCode", auxTK.CardCode);
-        //					cmd4.Parameters.AddWithValue("@FechaOpe", auxTK.FechaRegistro);
-        //					cmd4.Parameters.AddWithValue("@Operacion", "ANULACIONVENTA");
-        //					cmd4.Parameters.AddWithValue("@DetOpe", "ANULACIONVENTA DeudaCliente, ticket:" + auxTK.DocNum + " MR:" + auxTK.MontoFinal);
-        //					cmd4.Parameters.AddWithValue("@Egreso", auxTK.DeudaCliente);
-        //					cmd4.Parameters.AddWithValue("@OperarioRegistro", ticket.OpRegistro);
-        //					cmd4.ExecuteNonQuery();
-        //				}
-        //				if (auxTK.DeudaEmpresa > 0)
-        //				{
-        //					SqlCommand cmd5 = new SqlCommand("vt.MANT_OLDS", cn);
-        //					cmd5.Transaction = tran;
-        //					cmd5.CommandType = CommandType.StoredProcedure;
-        //					cmd5.Parameters.AddWithValue("@TipoMantenimiento", "AD");
-        //					cmd5.Parameters.AddWithValue("@C_CardCode", auxTK.CardCode);
-        //					cmd5.Parameters.AddWithValue("@FechaOpe", auxTK.FechaRegistro);
-        //					cmd5.Parameters.AddWithValue("@Operacion", "ANULACIONVENTA");
-        //					cmd5.Parameters.AddWithValue("@DetOpe", "ANULACION-SALIDASALDO DeudaEmpresa, ticket:" + auxTK.DocNum + " MR:" + auxTK.MontoFinal);
-        //					cmd5.Parameters.AddWithValue("@Ingreso", auxTK.DeudaEmpresa);
-        //					cmd5.Parameters.AddWithValue("@OperarioRegistro", ticket.OpRegistro);
-        //					cmd5.ExecuteNonQuery();
-        //				}
-        //			}
-
-        //			tran.Commit();
-        //			cn.Close();
-        //		}
-        //		catch { tran.Rollback(); cn.Close(); throw new Exception("error y anulacion"); }
-        //	}
-        //	catch (Exception e) { status = 0; cn.Close(); throw new Exception("Error en anulacion: " + e.Message); }
-
-        //	if (status >= 1)
-        //	{
-        //		//regalos
-        //		if (auxTK.Det5.Count >= 1)
-        //		{
-        //			if (auxTK.Det5[0].IdReg > 0 && auxTK.Det5[0].RegCant > 0)
-        //			{
-        //				OREG_D oregD = new OREG_D();
-        //				auxTK.Det5[0].RegCant = -1 * auxTK.Det5[0].RegCant;
-        //				oregD.CompromisosStock(auxTK);
-        //			}
-
-        //		}
-        //	}
-
-        //	return status;
-        //}
         public int cancelarTicket(int DocEntry, string Estado, string Operario)
         {   //tipo mant UAN
             int status = -1;
