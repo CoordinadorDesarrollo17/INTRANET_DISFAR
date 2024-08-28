@@ -302,7 +302,7 @@ a {
 }
 
 .bg-cobefar-6 {
-    background-color: #3C8F7C !important;
+    background-color: #006450 !important;
 }
 
 .bg-cobefar-degradado-1 {
@@ -350,7 +350,15 @@ a {
     background-color: darkblue;
     color: white;
 }
-
+.btn-fucsia {
+    background-color: #640045;
+    color: #333;
+}
+    .btn-fucsia:hover {
+        background-color: #460833;
+        border-color: #a01a77;
+        color: #fff;
+    }
 .btn-amarillo {
     background-color: #f9c74f; /* Amarillo suave */
     border-color: #f9c74f; /* Color del borde */
