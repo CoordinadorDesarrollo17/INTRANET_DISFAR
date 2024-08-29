@@ -3,6 +3,7 @@ using Capa_Entidad.Almacen_ENT.Tablas;
 using Capa_Entidad.ComprobantesContables_ENT;
 using Capa_Entidad.ReportesDigemid_ENT.Reportes;
 using Capa_Entidad.Ventas_ENT.TablasSql;
+using Sap.Data.Hana;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,10 @@ namespace Capa_Negocio.ComprobantesContables_NEG
     public class Comprobante_N
     {
         Comprobante_D compD = new Comprobante_D();
+        public List<int> ObtenerDocEntryOV(List<RTV2_E> det2List)
+        {
+            return compD.ObtenerDocEntryOV(det2List);
+        }
         public List<Guia_Remision_E> ObtenerDetalleGuia(string NumAtCard,string Tabla)
         {return compD.ObtenerDetalleGuia(NumAtCard, Tabla);}
         public List<ComprobanteDePago_E> ObtenerDetalleFactura(string NumAtCard)

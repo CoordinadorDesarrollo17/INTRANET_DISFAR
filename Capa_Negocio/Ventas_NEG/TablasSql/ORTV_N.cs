@@ -375,15 +375,6 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 List<CC_ORTV_E> listaEstados = ccTicket.ListarCC_ORTV(DocEntry, null, true);
                 if (listaEstados.Count > 0)
                 {
-                    /*if (!string.IsNullOrEmpty(t.Operario) && (t.Operario == "05" || t.Operario == "07"))
-					{
-                        if (listaEstados.FirstOrDefault().Operacion != "INICIO PICKING" && listaEstados.FirstOrDefault().Operacion != "ANULAR FIN EMPACAR" )
-                        {
-                            throw new Exception("Solo puedes ANULAR INICIO PICKING  a un ticket con ultimo flujo INICIO PICKING O ANULAR FIN EMPACAR");
-                        }
-                    }
-					else { */
-
                     if (listaEstados.FirstOrDefault().Operacion != "INICIO PICKING" && listaEstados.FirstOrDefault().Operacion != "ANULAR FIN PICKING" && listaEstados.FirstOrDefault().Operacion != "ANULAR INICIO VERIFICAR")
                     {
                         throw new Exception("Solo puedes ANULAR INICIO PICKING  a un ticket con ultimo flujo INICIO PICKING O ANULAR FIN PICKING o ANULAR INICIO VERIFICAR");
@@ -608,34 +599,39 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         }
         public int facturarTicket(int DocEntry, Usuario_E u)
         {
-            Utilitarios uti = new Utilitarios(); Capa_Datos.Ventas_DAO.Tablas.OINV_D oinvD = new Capa_Datos.Ventas_DAO.Tablas.OINV_D();
+            Capa_Datos.Ventas_DAO.Tablas.OINV_D oinvD = new Capa_Datos.Ventas_DAO.Tablas.OINV_D();
+            Capa_Negocio.ComprobantesContables_NEG.Comprobante_N compN = new Capa_Negocio.ComprobantesContables_NEG.Comprobante_N();
             ORTV_E t = ObtenerDatosCompletosTicket(DocEntry);
             //validamos que existan facturas o boletas
-            List<int> OrdenesSap = new List<int>();
-            foreach (var ordr in t.Det2)
-            {
-                string query = $"SELECT \"DocEntry\" FROM {uti.schemaHana}ordr WHERE \"DocNum\" = '{ordr.NroSap}' AND \"CANCELED\" = 'N'";
-                HanaConnection cn = new HanaConnection(uti.cadHana);
-                try
-                {
-                    cn.Open();
-                    HanaCommand cmd = new HanaCommand(query, cn);
-                    cmd.CommandType = System.Data.CommandType.Text;
-                    HanaDataReader dr = cmd.ExecuteReader();
-                    dr.Read();
-                    if (!dr.IsDBNull(0)) { OrdenesSap.Add(dr.GetInt32(0)); }
-                    dr.Close();
-                    cn.Close();
-                }
-                catch { cn.Close(); }
-            }
+            List<int> OrdenesSap = compN.ObtenerDocEntryOV(t.Det2);
             List<OINV_E> ComprobantesVinculados = new List<OINV_E>();
             foreach (int DocEntryO in OrdenesSap)
-            {
+            {   
                 List<OINV_E> comprobantesPorOrden = oinvD.listadoComprobantesPorOrdr(DocEntryO);
                 ComprobantesVinculados.AddRange(comprobantesPorOrden);
             }
             if (ComprobantesVinculados.Count == 0) { throw new Exception("Este ticket no tiene facturas o boletas relacionadas desde SAP"); }
+            //valida que los montos de facturas o boletas sumen el monto total a pagar delticket.
+            if(ComprobantesVinculados.Sum(x => x.DocTotal) != t.MontoTotal) { throw new Exception("Los documentos emitidos no suman lo total a pagar por el cliente"); }
+           
+            //validamos que las guias esten completas
+            if (t.LugarDestino == "Centro" || t.LugarDestino == "Arriola")
+            {
+                //Valida cantidad de guias igual a cantidad de OV
+                int cantidadOrdenes = OrdenesSap.Count;
+                int cantidadGuias = compN.ObtenerEncabezadoGuiasTransferencia(t).Count();
+                if (cantidadGuias != cantidadOrdenes)
+                {
+                    throw new Exception("Guias emitidas no coincide: "+cantidadGuias+ "O.V: "+cantidadOrdenes);
+                }
+            }
+            else
+            { //Valida monto de entrega igual a monto de factura
+                decimal sumEntregas = compN.ObtenerEncabezadoGuiasPorEntrega(OrdenesSap).Sum(x => x.DocTotal);
+                decimal sumFacturas= ComprobantesVinculados.Sum(x => x.DocTotal);
+                if(sumFacturas!= sumEntregas) { throw new Exception("Montos no coinciden"); }
+            }
+            
             if (t.Estado.Equals("CANCELADO") || t.Estado.Equals("ANULADO")) { throw new Exception("No puede facturar en este ticket."); }
             if (!t.EstadoFacturacion.Equals("GRE EMITIDA")) { throw new Exception("El ticket no tiene guías emitidas"); }
             return tkD.facturarTicket(DocEntry, u);
@@ -791,13 +787,9 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         public List<ORTV_E> ListarTicketsAreaVenta(Usuario_E user, ORTV_E t)
         { return tkD.ListarTicketsAreaVenta(user, t); }
         public int CantidadTicketsFacturacion(string estadoFacturacion) //Trae la cantidad de tickets PENDIENTES o GRE EMITIDA para vista de facturaciòn
-        {
-            return tkD.CantidadTicketsFacturacion(estadoFacturacion);
-        }
+        {return tkD.CantidadTicketsFacturacion(estadoFacturacion);}
         public ORTV_E ObtenerDatosCompletosTicket(int DocEntry)
-        {
-            return tkD.ObtenerDatosCompletosTicket(DocEntry);
-        }
+        {return tkD.ObtenerDatosCompletosTicket(DocEntry);}
         public ORTV_E ObtenerTicketFacturacion(int docEntry)// Trae datos especificos para un ticket en controller facturacion
         { return tkD.ObtenerTicketFacturacion(docEntry); }
         public ORTV_E ObtenerTicketVenta(int docEntry)// Trae datos especificos para un ticket con Det2 y Det3 ( usa vinculacion )

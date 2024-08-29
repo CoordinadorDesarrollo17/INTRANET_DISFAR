@@ -25,40 +25,11 @@ namespace Capa_Usuario.Controllers
 {
     public class ComprobantesContablesController : Controller
     {
-        Utilitarios uti = new Utilitarios(); /*ODLN_N odlN = new ODLN_N(); OWTR_N owtrN = new OWTR_N();*/ 
+        Utilitarios uti = new Utilitarios(); 
         ORTV_N ortvN = new ORTV_N(); 
         OINV_N oinvN = new OINV_N();
         Comprobante_N compN= new Comprobante_N();
-        private List<int> ObtenerDocEntryOV(List<RTV2_E> det2List)
-        {
-            List<int> ordenes = new List<int>();
-            foreach (var ordr in det2List)
-            {
-                string query = $"SELECT TOP 100 \"DocEntry\" FROM {uti.schemaHana}ORDR WHERE \"DocNum\" = '{ordr.NroSap}' AND \"CANCELED\" = 'N'";
-                using (HanaConnection cn = new HanaConnection(uti.cadHana))
-                {
-                    try
-                    {
-                        cn.Open();
-                        using (HanaCommand cmd = new HanaCommand(query, cn))
-                        {
-                            using (HanaDataReader dr = cmd.ExecuteReader())
-                            {
-                                if (dr.Read() && !dr.IsDBNull(0))
-                                {
-                                    ordenes.Add(dr.GetInt32(0));
-                                }
-                            }
-                        }
-                    }
-                    catch
-                    {
-
-                    }
-                }
-            }
-            return ordenes;
-        }
+        
         private List<Comprobante_E> ObtenerEncabezados(List<int> listDocEntrySap, ORTV_E obj, string Tipo)
         {
             Comprobante_N compN = new Comprobante_N();
@@ -116,9 +87,9 @@ namespace Capa_Usuario.Controllers
         {
             ORTV_N ortvN = new ORTV_N();
             OINV_N oinvN = new OINV_N();
-
+            Comprobante_N compN = new Comprobante_N();
             ORTV_E ortvE = ortvN.ObtenerDatosTicketParaDocumentos(DocEntry);
-            List<int> listDocEntryOrdenesVenta = ObtenerDocEntryOV(ortvE.Det2);
+            List<int> listDocEntryOrdenesVenta = compN.ObtenerDocEntryOV(ortvE.Det2);
              if (ortvE.Estado.Equals("ANULADO") || ortvE.Estado.Equals("CANCELADO"))
             {
                 return Json(new { success = false, message = "Ticket en un estado no valido para la descarga de documentos" }, JsonRequestBehavior.AllowGet);

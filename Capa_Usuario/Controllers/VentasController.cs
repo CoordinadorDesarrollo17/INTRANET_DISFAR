@@ -525,7 +525,7 @@ namespace Capa_Usuario.Controllers
         {
             if (!cliente.CardName.Equals(""))
             {
-                OCRD_N ocrdN = new OCRD_N();
+                Capa_Negocio.SocioNegocios_NEG.TablasSql.OCRD_N ocrdN = new Capa_Negocio.SocioNegocios_NEG.TablasSql.OCRD_N();
                 var datalist = "<datalist id='ListaClientes'>";
                 var listaClientes = ocrdN.BuscarCliente(cliente);
 
@@ -1009,7 +1009,6 @@ namespace Capa_Usuario.Controllers
                 {
                     Usuario_E u = (Usuario_E)Session["UsuarioId"];
                     int DocNum = ticketN.facturarTicket(DocEntry, u);
-                    //datos.DocNum = DocNum;
                     return RedirectToAction("ListadoTicketsFacturacion", datos);
 
                 }

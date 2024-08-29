@@ -105,18 +105,21 @@ namespace Capa_Datos.Ventas_DAO.Tablas
         }
         public ORDR_E obtenerOrdenDeVenta(int DocNum)
         {
-            ORDR_E orden = new ORDR_E();
+            ORDR_E obj = new ORDR_E();
             //incluir los datos necesarios segun productividad
-            string query = "select \"CANCELED\" from " + uti.schemaHana + "ordr where \"DocNum\"=" + DocNum;
+            string query = $@"SELECT ""CANCELED"", ""ShipToCode""
+                  FROM {uti.schemaHana}ORDR
+                  WHERE ""DocNum"" = {DocNum}";
             try
             {
                 HanaDataReader dr = db.HanaExecuteReaderNoSp(query);
                 dr.Read();
-                if (!dr.IsDBNull(0)) { orden.CANCELED = dr.GetString(0); }
+                if (!dr.IsDBNull(0)) { obj.CANCELED = dr.GetString(0); }
+                if (!dr.IsDBNull(1)) { obj.ShipToCode = dr.GetString(1); }
                 dr.Close();
             }
             catch { }
-            return orden;
+            return obj;
         }
         public List<ORDR_E.DetalleOrdenDeVenta> listadoDetalleOrdenesDeVenta(List<int> docNums)
         {

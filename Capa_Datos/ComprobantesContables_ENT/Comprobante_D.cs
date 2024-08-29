@@ -23,6 +23,36 @@ namespace Capa_Datos.ComprobantesContables_ENT
     {
         readonly Utilitarios uti = new Utilitarios();
         readonly DBHelper db = new DBHelper();
+        public List<int> ObtenerDocEntryOV(List<RTV2_E> det2List)
+        {
+            List<int> ordenes = new List<int>();
+            foreach (var ordr in det2List)
+            {
+                string query = $"SELECT TOP 100 \"DocEntry\" FROM {uti.schemaHana}ORDR WHERE \"DocNum\" = '{ordr.NroSap}' AND \"CANCELED\" = 'N'";
+                using (HanaConnection cn = new HanaConnection(uti.cadHana))
+                {
+                    try
+                    {
+                        cn.Open();
+                        using (HanaCommand cmd = new HanaCommand(query, cn))
+                        {
+                            using (HanaDataReader dr = cmd.ExecuteReader())
+                            {
+                                if (dr.Read() && !dr.IsDBNull(0))
+                                {
+                                    ordenes.Add(dr.GetInt32(0));
+                                }
+                            }
+                        }
+                    }
+                    catch
+                    {
+
+                    }
+                }
+            }
+            return ordenes;
+        }
         private List<Comprobante_E> EjecutarConsultaComprobante(string query)
         {
             List<Comprobante_E> lista = new List<Comprobante_E>();
@@ -298,7 +328,7 @@ namespace Capa_Datos.ComprobantesContables_ENT
                     }
                     catch { cn.Close(); }
 
-                    query = $"SELECT 'ODLN', \"U_SYP_MDTD\", \"U_SYP_MDSD\", \"U_SYP_MDCD\", TO_CHAR(\"DocDate\", 'YYYY-MM-DD'), TO_CHAR(\"U_BPP_FECINITRA\", 'YYYY-MM-DD'),'G',null FROM {uti.schemaHana}ODLN WHERE \"NumAtCard\" in({guiasConcatenadas})";
+                    query = $"SELECT 'ODLN', \"U_SYP_MDTD\", \"U_SYP_MDSD\", \"U_SYP_MDCD\", TO_CHAR(\"DocDate\", 'YYYY-MM-DD'), TO_CHAR(\"U_BPP_FECINITRA\", 'YYYY-MM-DD'),'G',\"DocTotal\" FROM {uti.schemaHana}ODLN WHERE \"NumAtCard\" in({guiasConcatenadas})";
 
                     lista = EjecutarConsultaComprobante(query);
 

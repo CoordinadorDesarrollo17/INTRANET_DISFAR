@@ -134,6 +134,8 @@
     <Compile Include="Seguridad_NEG\TablasSql\ROL_OPE_N.cs" />
     <Compile Include="Seguridad_NEG\TablasSql\USR2_N.cs" />
     <Compile Include="Seguridad_NEG\Usuario_N.cs" />
+    <Compile Include="SocioNegocios_NEG\TablasSql\OCRD_N.cs" />
+    <Compile Include="SocioNegocios_NEG\Tablas\CRD1_N.cs" />
     <Compile Include="SocioNegocios_NEG\Tablas\OCPR_N.cs" />
     <Compile Include="SocioNegocios_NEG\Tablas\OCRD_N.cs" />
     <Compile Include="TI_Sistemas_NEG\OTSO_N.cs" />

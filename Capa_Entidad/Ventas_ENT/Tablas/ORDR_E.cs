@@ -30,6 +30,7 @@ namespace Capa_Entidad.Ventas_ENT.Tablas
         public string U_SYP_STATUS { get; set; }
         [DisplayName("LugarDeEntrega")]
         public string U_COB_LUGAREN { get; set; }
+        public string ShipToCode { get; set; }
         // campos para reportes ajenos a la tabla
         public List<OINV_E> ComprobantesVinculados { get; set; }
         //constructor

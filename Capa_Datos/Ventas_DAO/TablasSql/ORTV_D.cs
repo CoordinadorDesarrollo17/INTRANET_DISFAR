@@ -1553,7 +1553,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 cn.Close();
                 status = int.Parse(cmd.Parameters["@DocNum"].Value.ToString());
             }
-            catch (Exception e) { status = 0; cn.Close(); throw new Exception("Error en fact: " + e.Message); }
+            catch (Exception e) { status = 0; cn.Close(); throw new Exception("Error en facturacion: " + e.Message); }
             return status;
         }
         public int revertirFacturarTicket(int DocEntry, string operario)
@@ -3206,7 +3206,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 condWhere += $" AND t0.Estado not in ('SEPARADO') and T0.DocNum not in (2000302593,2000237628)";
                 if (string.IsNullOrEmpty(t.Estado) && user.IdRol == 54)
                 {
-                    condWhere += "and T0.DocNum not in (2000302593, 2000237628) " +
+                    condWhere += "and T0.DocNum not in (2000302593, 2000237628) " + 
                     "AND EXISTS(SELECT 1 FROM VT.CC_ORTV WHERE DocEntry=T0.DocEntry AND Operacion='FIN VERIFICAR') AND NOT EXISTS (SELECT 1 FROM VT.CC_ORTV WHERE DocEntry=T0.DocEntry AND Operacion='ANULAR FIN VERIFICAR' " +
                     "AND(SELECT TOP 1 Id FROM VT.CC_ORTV WHERE DocEntry=T0.DocEntry AND Operacion='FIN VERIFICAR' ORDER BY 1 DESC) < (SELECT TOP 1 Id FROM VT.CC_ORTV WHERE DocEntry=T0.DocEntry AND Operacion='ANULAR FIN VERIFICAR' ORDER BY 1 DESC))";
 
@@ -3240,7 +3240,6 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     condWhere += t.Flete == 0.01M ? " AND t0.Flete>0" : "";
                     condWhere += t.DescuentoNC == 0.01M ? " AND t0.DescuentoNC>0" : "";
                     condWhere += t.TiempoEntrega != null ? $" AND CONVERT(char(10), t0.TiempoEntrega,126) = '{Convert.ToDateTime(t.TiempoEntrega).ToString("yyyy-MM-dd")}'" : "";
-
                 }
 
             }
@@ -3279,12 +3278,26 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                             if (!dr.IsDBNull(13)) { ticket.TipoVenta = dr.GetString(13); }
                             if (!dr.IsDBNull(14)) { ticket.EstadoFacturacion = dr.GetString(14); }
                             if (!dr.IsDBNull(15)) { ticket.DescuentoNC = dr.GetDecimal(15); }
-                            if (!dr.IsDBNull(16)) { ticket.Zona = dr.GetString(16); }
+                            if (!dr.IsDBNull(16)) { ticket.Zona = dr.GetString(16);}
                             if (!dr.IsDBNull(17)) { ticket.TiempoEntrega = dr.GetDateTime(17); }
                             ticket.Vendedor = (ticket.Vendedor.Length > 15) ? ticket.Vendedor.Substring(0, 15) : ticket.Vendedor;
                             ticket.FechaSapTicket = (ticket.FechaSapTicket != null) ? Convert.ToDateTime(ticket.FechaSapTicket).ToString("dd/MM/yyyy") : null;
                             ticket.Det1 = obtenerDet1Ticket(ticket.DocEntry); if (ticket.Det1.Count == 0) { ticket.Det1 = null; }      //Datos de recojo
-                            ticket.Det2 = obtenerDet2Ticket(ticket.DocEntry); if (ticket.Det2.Count == 0) { ticket.Det2 = null; }     //Ordenes de venta
+                            ticket.Det2 = obtenerDet2Ticket(ticket.DocEntry); 
+                            if (ticket.Det2.Count == 0) { ticket.Det2 = null; }   
+                            else {
+                                var validLugarDestino= new List<string> { "Domicilio", "Agencia"};
+                                if (validLugarDestino.Contains(ticket.LugarDestino))
+                                {
+                                    //Verificar si la zona es diferente a la de orden de venta.
+                                    var ordrD = new Capa_Datos.Ventas_DAO.Tablas.ORDR_D();
+                                    var crd1D = new Capa_Datos.SocioNegocios_DAO.Tablas.CRD1_D();
+                                    var nroSap = ticket.Det2[0].NroSap;
+                                    var ordenDeVenta = ordrD.obtenerOrdenDeVenta(nroSap);
+                                    var zonaPedido = crd1D.BuscarZonaPedido(ordenDeVenta.ShipToCode, ticket.CardCode);
+                                    if (ticket.Zona != zonaPedido) { ticket.zonaDistinta = true; }
+                                }
+                            }
 
                             //BUSCO SI TIENE FIN VERIFICAR EN CASO DE QUE NO HAYA FILTRO DE ESTADO
                             CC_ORTV_D ccOrtv = new CC_ORTV_D();
@@ -3306,21 +3319,16 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                             {
                                 ticket.hayFinVerificar = true;
                             }
-
-                            //if (user.IdRol == 54)
-                            //{
-                            //    if (string.IsNullOrEmpty(t.Estado))
-                            //    { if (ticket.hayFinVerificar) { lista.Add(ticket); } }
-                            //    else
-                            //    {
-                            //        lista.Add(ticket);
-                            //    }
-                            //}
-                            //else
-                            //{
-                            //    lista.Add(ticket);
-                            //}
-                            lista.Add(ticket);
+                            //si solo se desea ver los tickets ya cargados que tengan una zona distinta
+                            if (t.zonaDistinta)
+                            {
+                                if(ticket.zonaDistinta){ lista.Add(ticket); }
+                            }
+                            else
+                            {
+                                lista.Add(ticket);
+                            }
+                            
 
                         }
                     }

@@ -71,7 +71,9 @@ footer {
 .table-hover tbody tr:hover {
     background-color: #d5f5e3 !important;
 }
-
+    .table-hover tbody tr:hover td {
+        color: black;
+    }
 
 @media screen and (max-width:1100px) {
     .container-body {
@@ -331,6 +333,11 @@ a {
 .bg-grisClaro {
     background-color: #DDDDDD;
 }
+
+.bg-anaranjado {
+    background-color: #e76a09;
+}
+
 /******************************/
 /* Botones */
 .btn-cobefar {
