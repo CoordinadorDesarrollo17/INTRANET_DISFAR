@@ -101,9 +101,8 @@
 <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
     <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO DE TICKETS</h3></div>
 </div>
-
+<form name="filterForm" id="filterForm">
     <div class="d-flex pl-2 w-100 py-3">
-
         <div class="mx-2">
             @if (ViewBag.IdRol == 12)
             {
@@ -121,8 +120,123 @@
             <button type="button" class="btn btn-primary mx-2" data-toggle="modal" data-target="#filterModal"><i class="icon-filter"> </i> Filtrar</button>
 
         </div>
+        <div>
+            <input type="text" name="DocNum" id="DocNum" class="form-control border-success" value="@(a.DocNum == 0 ? "" : a.DocNum.ToString())" autocomplete="off" placeholder="Buscar Nro Ticket..." onchange="filtrar();" />
         </div>
+        <div>
+            <input type="text" id="CardName" name="CardName" class="form-control border-success mx-3" value="@a.CardName" autocomplete="off" placeholder="Buscar Cliente..." onchange="filtrar();" />
+        </div>
+    </div>
+    <!-- Modal para Filtros -->
+    <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-cobefar text-light">
+                    <h5 class="modal-title" id="modalFiltrosLabel">Filtros de Búsqueda</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="FechaSapTicket">Fecha del Ticket</label>
+                                    <input type="date" id="FechaSapTicket" name="FechaSapTicket" class="form-control" value="@a.FechaSapTicket" autocomplete="off" />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="Vendedor">Vendedor</label>
+                                    <input type="text" id="Vendedor" name="Vendedor" class="form-control" value="@a.Vendedor" autocomplete="off" />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="MontoFinal">Monto Final</label>
+                                    <input type="text" id="MontoFinal" name="MontoFinal" class="form-control" value="@a.MontoFinal" autocomplete="off" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="LugarDestino">Lugar de Destino</label>
+                                    <select id="LugarDestino" name="LugarDestino" class="form-control">
+                                        <option value=""></option>
+                                        <option value="Arriola" @{ if (a.LugarDestino == "Arriola") { Write("selected"); } }>Arriola</option>
+                                        <option value="Agencia" @{ if (a.LugarDestino == "Agencia") { Write("selected"); } }>Agencia</option>
+                                        <option value="Domicilio" @{ if (a.LugarDestino == "Domicilio") { Write("selected"); } }>Domicilio</option>
+                                        <option value="Centro" @{ if (a.LugarDestino == "Centro") { Write("selected"); } }>Centro</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="Estado">Estado</label>
+                                    <select id="Estado" name="Estado" class="form-control">
+                                        <option value=""></option>
+                                        <option value="SEPARADO" @{ if (a.Estado == "SEPARADO") { Write("selected"); } }>SEPARADO</option>
+                                        <option value="ABIERTO" @{ if (a.Estado == "ABIERTO") { Write("selected"); } }>ABIERTO</option>
+                                        <option value="RECIBIDO" @{ if (a.Estado == "RECIBIDO") { Write("selected"); } }>RECIBIDO</option>
+                                        <option value="PICKEANDO" @{ if (a.Estado == "PICKEANDO") { Write("selected"); } }>PICKEANDO</option>
+                                        <option value="VERIFICANDO" @{ if (a.Estado == "VERIFICANDO") { Write("selected"); } }>VERIFICANDO</option>
+                                        <option value="EMPACANDO" @{ if (a.Estado == "EMPACANDO") { Write("selected"); } }>EMPACANDO</option>
+                                        <option value="EMPACADO" @{ if (a.Estado == "EMPACADO") { Write("selected"); } }>EMPACADO</option>
+                                        <option value="PESADO" @{ if (a.Estado == "PESADO") { Write("selected"); } }>PESADO</option>
+                                        <option value="PREENVIO" @{ if (a.Estado == "PREENVIO") { Write("selected"); } }>PREENVIO</option>
+                                        <option value="ENVIADO" @{ if (a.Estado == "ENVIADO") { Write("selected"); } }>ENVIADO</option>
+                                        <option value="ENTREGADO" @{ if (a.Estado == "ENTREGADO") { Write("selected"); } }>ENTREGADO</option>
+                                        <option value="ANULADO" @{ if (a.Estado == "ANULADO") { Write("selected"); } }>ANULADO</option>
+                                        <option value="CANCELADO" @{ if (a.Estado == "CANCELADO") { Write("selected"); } }>CANCELADO</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="EstadoPago">Estado de Pago</label>
+                                    <select id="EstadoPago" name="EstadoPago" class="form-control">
+                                        <option value=""></option>
+                                        <option value="PENDIENTE" @{ if (a.EstadoPago == "PENDIENTE") { Write("selected"); } }>PENDIENTE</option>
+                                        <option value="PAGADO" @{ if (a.EstadoPago == "PAGADO") { Write("selected"); } }>PAGADO</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="EstadoGasto">Estado de Gasto</label>
+                                    <select id="EstadoGasto" name="EstadoGasto" class="form-control">
+                                        <option value=""></option>
+                                        <option value="PENDIENTE" @{ if (a.EstadoGasto == "PENDIENTE") { Write("selected"); } }>PENDIENTE</option>
+                                        <option value="CONFIRMADO" @{ if (a.EstadoGasto == "CONFIRMADO") { Write("selected"); } }>CONFIRMADO</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="PagoEnv">Pago Envío</label>
+                                    <select id="PagoEnv" name="PagoEnv" class="form-control">
+                                        <option value="0.00" @{ if (a.PagoEnv == 0.00M) { Write("selected"); } }></option>
+                                        <option value="0.01" @{ if (a.PagoEnv == 0.01M) { Write("selected"); } }>SI</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" onclick="filtrar();">Aplicar Filtros</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
+
+</form>
 
 <div class="alert alert-danger mb-0" role="alert">
     <span class="text-danger font-weight-bold">Tickets Separados:</span>
@@ -137,230 +251,138 @@
 
     </p>
 </div>
-<!-- Modal para Filtros -->
-<div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-cobefar text-light">
-                <h5 class="modal-title" id="modalFiltrosLabel">Filtros de Búsqueda</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form name="filterForm" id="filterForm">
-                    <div class="form-group">
-                        <label for="DocNum">Número de Documento</label>
-                        <input type="text" id="DocNum" name="DocNum" class="form-control" value="@a.DocNum" autocomplete="off" />
-                    </div>
-                    <div class="form-group">
-                        <label for="FechaSapTicket">Fecha del Ticket</label>
-                        <input type="date" id="FechaSapTicket" name="FechaSapTicket" class="form-control" value="@a.FechaSapTicket" autocomplete="off" />
-                    </div>
-                    <div class="form-group">
-                        <label for="CardName">Nombre del Cliente</label>
-                        <input type="text" id="CardName" name="CardName" class="form-control" value="@a.CardName" autocomplete="off" />
-                    </div>
-                    <div class="form-group">
-                        <label for="Vendedor">Vendedor</label>
-                        <input type="text" id="Vendedor" name="Vendedor" class="form-control" value="@a.Vendedor" autocomplete="off" />
-                    </div>
-                    <div class="form-group">
-                        <label for="MontoFinal">Monto Final</label>
-                        <input type="text" id="MontoFinal" name="MontoFinal" class="form-control" value="@a.MontoFinal" autocomplete="off" />
-                    </div>
-                    <div class="form-group">
-                        <label for="LugarDestino">Lugar de Destino</label>
-                        <select id="LugarDestino" name="LugarDestino" class="form-control">
-                            <option value=""></option>
-                            <option value="Arriola" @{ if (a.LugarDestino == "Arriola") { Write("selected"); } }>Arriola</option>
-                            <option value="Agencia" @{ if (a.LugarDestino == "Agencia") { Write("selected"); } }>Agencia</option>
-                            <option value="Domicilio" @{ if (a.LugarDestino == "Domicilio") { Write("selected"); } }>Domicilio</option>
-                            <option value="Centro" @{ if (a.LugarDestino == "Centro") { Write("selected"); } }>Centro</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="Estado">Estado</label>
-                        <select id="Estado" name="Estado" class="form-control">
-                            <option value=""></option>
-                            <option value="SEPARADO" @{ if (a.Estado == "SEPARADO") { Write("selected"); } }>SEPARADO</option>
-                            <option value="ABIERTO" @{ if (a.Estado == "ABIERTO") { Write("selected"); } }>ABIERTO</option>
-                            <option value="RECIBIDO" @{ if (a.Estado == "RECIBIDO") { Write("selected"); } }>RECIBIDO</option>
-                            <option value="PICKEANDO" @{ if (a.Estado == "PICKEANDO") { Write("selected"); } }>PICKEANDO</option>
-                            <option value="VERIFICANDO" @{ if (a.Estado == "VERIFICANDO") { Write("selected"); } }>VERIFICANDO</option>
-                            <option value="EMPACANDO" @{ if (a.Estado == "EMPACANDO") { Write("selected"); } }>EMPACANDO</option>
-                            <option value="EMPACADO" @{ if (a.Estado == "EMPACADO") { Write("selected"); } }>EMPACADO</option>
-                            <option value="PESADO" @{ if (a.Estado == "PESADO") { Write("selected"); } }>PESADO</option>
-                            <option value="PREENVIO" @{ if (a.Estado == "PREENVIO") { Write("selected"); } }>PREENVIO</option>
-                            <option value="ENVIADO" @{ if (a.Estado == "ENVIADO") { Write("selected"); } }>ENVIADO</option>
-                            <option value="ENTREGADO" @{ if (a.Estado == "ENTREGADO") { Write("selected"); } }>ENTREGADO</option>
-                            <option value="ANULADO" @{ if (a.Estado == "ANULADO") { Write("selected"); } }>ANULADO</option>
-                            <option value="CANCELADO" @{ if (a.Estado == "CANCELADO") { Write("selected"); } }>CANCELADO</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="EstadoPago">Estado de Pago</label>
-                        <select id="EstadoPago" name="EstadoPago" class="form-control">
-                            <option value=""></option>
-                            <option value="PENDIENTE" @{ if (a.EstadoPago == "PENDIENTE") { Write("selected"); } }>PENDIENTE</option>
-                            <option value="PAGADO" @{ if (a.EstadoPago == "PAGADO") { Write("selected"); } }>PAGADO</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="EstadoGasto">Estado de Gasto</label>
-                        <select id="EstadoGasto" name="EstadoGasto" class="form-control">
-                            <option value=""></option>
-                            <option value="PENDIENTE" @{ if (a.EstadoGasto == "PENDIENTE") { Write("selected"); } }>PENDIENTE</option>
-                            <option value="CONFIRMADO" @{ if (a.EstadoGasto == "CONFIRMADO") { Write("selected"); } }>CONFIRMADO</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="PagoEnv">Pago Envío</label>
-                        <select id="PagoEnv" name="PagoEnv" class="form-control">
-                            <option value="0.00" @{ if (a.PagoEnv == 0.00M) { Write("selected"); } }></option>
-                            <option value="0.01" @{ if (a.PagoEnv == 0.01M) { Write("selected"); } }>SI</option>
-                        </select>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary" onclick="filtrar();">Aplicar Filtros</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 
-    <div class="bg-white bg-form-cobefar pt-3">
-        <table class="table table-light table-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
-            <thead class="bg-cobefar-6">
-                <tr>
-                    <th class="text-center">
-                        @Html.DisplayNameFor(model => model.DocNum)
-                    </th>
-                    <th class="text-center">
-                        Fecha Ticket
-                    </th>
-                    <th class="text-center">
-                        @Html.DisplayNameFor(model => model.HoraRegistro)
-                    </th>
-                    <th class="text-center">
-                        @Html.DisplayNameFor(model => model.CardName)
-                    </th>
-                    <th class="text-center">
-                        @Html.DisplayNameFor(model => model.Vendedor)
-                    </th>
-                    <th class="text-center">
-                        Monto Final
-                    </th>
-                    <th class="text-center">
-                        @Html.DisplayNameFor(model => model.LugarDestino)
-                    </th>
-                    <th class="text-center">
-                        @Html.DisplayNameFor(model => model.Estado)
-                    </th>
-                    <th class="text-center">
-                        Estado Pago
-                    </th>
-                    <th class="text-center">
-                        Estado Gasto
-                    </th>
-                    <th class="text-center">
-                        Pago Envio
-                    </th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
+
+<div class="bg-white bg-form-cobefar pt-3">
+    <table class="table table-light table-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
+        <thead class="bg-cobefar-6">
+            <tr>
+                <th class="text-center">
+                    @Html.DisplayNameFor(model => model.DocNum)
+                </th>
+                <th class="text-center">
+                    Fecha Ticket
+                </th>
+                <th class="text-center">
+                    @Html.DisplayNameFor(model => model.HoraRegistro)
+                </th>
+                <th class="text-center">
+                    @Html.DisplayNameFor(model => model.CardName)
+                </th>
+                <th class="text-center">
+                    @Html.DisplayNameFor(model => model.Vendedor)
+                </th>
+                <th class="text-center">
+                    Monto Final
+                </th>
+                <th class="text-center">
+                    @Html.DisplayNameFor(model => model.LugarDestino)
+                </th>
+                <th class="text-center">
+                    @Html.DisplayNameFor(model => model.Estado)
+                </th>
+                <th class="text-center">
+                    Estado Pago
+                </th>
+                <th class="text-center">
+                    Estado Gasto
+                </th>
+                <th class="text-center">
+                    Pago Envio
+                </th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                string styleVisible = "";
+                if (item.Visible.Equals("NO"))
                 {
-                    string styleVisible = "";
-                    if (item.Visible.Equals("NO"))
-                    {
-                        styleVisible = "bg-skyblue";
+                    styleVisible = "bg-skyblue";
 
-                    }
-                    <tr id="fila" class="@styleVisible">
-                        <td class="text-center">
-                            <div class="@if (ViewBag.DocNum == item.DocNum) { Write("bg-success"); }">@Html.DisplayFor(modelItem => item.DocNum)</div>
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.FechaSapTicket)
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.HoraAbierto)
-                        </td>
-                        <td>
-                            @if (!string.IsNullOrEmpty(item.CardName)) { Write(item.CardName); }
-                        </td>
-                        <td class="text-center">
-                            @item.Vendedor
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.MontoFinal)
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.LugarDestino)
-                        </td>
-                        <td class="text-center">
-                            @if (item.Visible != null && item.Visible.Equals("NO"))
-                            {<span>PRESUPUESTO</span> }
-                            else
-                            {@Html.DisplayFor(modelItem => item.Estado)}
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.EstadoPago)
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.EstadoGasto)
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.PagoEnv)
-                        </td>
-                        <td class="text-center">
-                            @if (item.Estado.Equals("SEPARADO") || item.Estado.Equals("ABIERTO"))
-                            {
-                                <a href="@Url.Action("EditarTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Editar ticket"><i class="text-purple icon-pencil"></i></a>
-                            }
-                        </td>
-                        <td class="text-center">
-                            @if ((item.Estado.Equals("SEPARADO") || item.Estado.Equals("ABIERTO")) && (ViewBag.IdRol == 1 || ViewBag.IdRol == 6 || ViewBag.IdRol == 7 || ViewBag.IdRol == 12))
-                            {
-                                <a href="#" onclick="cancelarTicket(@item.DocEntry);" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Cancelar ticket"><i class="text-danger icon-bin"></i></a>
-                            }
-                        </td>
-                        <td class="text-center">
-                            @if (item.Estado != "SEPARADO")
-                            {
-                                <a href="@Url.Action( "SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry  } )" type="button" target="_self" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="PDF de ticket"
-                                   onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;">
-                                    <i title="Seguimiento de ticket" class="text-dark icon-truck"></i>
-                                </a>
-                            }
-                        </td>
-                        <td class="text-center">
-                            @if (item.Estado != "SEPARADO")
-                            {
-                                <a href="@Url.Action( "GenerarPDF", "Ventas", new { DocEntry = item.DocEntry  } )" target="_blank" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="PDF de ticket"><i class="text-danger icon-file-pdf"></i></a>
-                            }
-                        </td>
-                        <td class="text-center">
-                            @if (item.Estado == "ENTREGADO")
-                            {
-                                <a href="@Url.Action( "EvidenciaReparto", "Rutas", new { DocEntry = item.DocEntry , TipoRuta="Ventas"} )" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Evidencia"><i class="text-primary icon-image"></i></a>
-                            }
-                        </td>
-
-                    </tr>
                 }
-            </tbody>
-        </table>
-    </div>
+                <tr id="fila" class="@styleVisible">
+                    <td class="text-center">
+                        <div class="@if (ViewBag.DocNum == item.DocNum) { Write("bg-success"); }">@Html.DisplayFor(modelItem => item.DocNum)</div>
+                    </td>
+                    <td class="text-center">
+                        @Html.DisplayFor(modelItem => item.FechaSapTicket)
+                    </td>
+                    <td class="text-center">
+                        @Html.DisplayFor(modelItem => item.HoraAbierto)
+                    </td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(item.CardName)) { Write(item.CardName); }
+                    </td>
+                    <td class="text-center">
+                        @item.Vendedor
+                    </td>
+                    <td class="text-center">
+                        @Html.DisplayFor(modelItem => item.MontoFinal)
+                    </td>
+                    <td class="text-center">
+                        @Html.DisplayFor(modelItem => item.LugarDestino)
+                    </td>
+                    <td class="text-center">
+                        @if (item.Visible != null && item.Visible.Equals("NO"))
+                        {<span>PRESUPUESTO</span> }
+                        else
+                        {@Html.DisplayFor(modelItem => item.Estado)}
+                    </td>
+                    <td class="text-center">
+                        @Html.DisplayFor(modelItem => item.EstadoPago)
+                    </td>
+                    <td class="text-center">
+                        @Html.DisplayFor(modelItem => item.EstadoGasto)
+                    </td>
+                    <td class="text-center">
+                        @Html.DisplayFor(modelItem => item.PagoEnv)
+                    </td>
+                    <td class="text-center">
+                        @if (item.Estado.Equals("SEPARADO") || item.Estado.Equals("ABIERTO"))
+                        {
+                            <a href="@Url.Action("EditarTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Editar ticket"><i class="text-purple icon-pencil"></i></a>
+                        }
+                    </td>
+                    <td class="text-center">
+                        @if ((item.Estado.Equals("SEPARADO") || item.Estado.Equals("ABIERTO")) && (ViewBag.IdRol == 1 || ViewBag.IdRol == 6 || ViewBag.IdRol == 7 || ViewBag.IdRol == 12))
+                        {
+                            <a href="#" onclick="cancelarTicket(@item.DocEntry);" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Cancelar ticket"><i class="text-danger icon-bin"></i></a>
+                        }
+                    </td>
+                    <td class="text-center">
+                        @if (item.Estado != "SEPARADO")
+                        {
+                            <a href="@Url.Action( "SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry  } )" type="button" target="_self" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="PDF de ticket"
+                               onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;">
+                                <i title="Seguimiento de ticket" class="text-dark icon-truck"></i>
+                            </a>
+                        }
+                    </td>
+                    <td class="text-center">
+                        @if (item.Estado != "SEPARADO")
+                        {
+                            <a href="@Url.Action( "GenerarPDF", "Ventas", new { DocEntry = item.DocEntry  } )" target="_blank" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="PDF de ticket"><i class="text-danger icon-file-pdf"></i></a>
+                        }
+                    </td>
+                    <td class="text-center">
+                        @if (item.Estado == "ENTREGADO")
+                        {
+                            <a href="@Url.Action( "EvidenciaReparto", "Rutas", new { DocEntry = item.DocEntry , TipoRuta="Ventas"} )" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Evidencia"><i class="text-primary icon-image"></i></a>
+                        }
+                    </td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
 <!--Modals-->
 <div class="modal fade" id="MdAnVentas" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
@@ -458,18 +480,16 @@
 </style>
 
 <script>
+    if ('@ViewBag.Mensaje' != "") {
+    Swal.fire('@ViewBag.Mensaje');
+    }
+    //Consulta de ordenes de venta
     document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('btn_ordenesVenta').addEventListener('click', () => {
             let codSapVendedor = document.getElementById("btn_ordenesVenta").dataset.codsapvendedor;
             window.location.href = '@Url.Action("ListadoOrdenesDeVenta", "DireccionTecnica")?SlpCode=' + codSapVendedor;
         });
     });
-</script>
-
-<script>
-    if ('@ViewBag.Mensaje' != "") {
-        Swal.fire('@ViewBag.Mensaje');
-    }
 
     function cancelarTicket(DocEntry) {
         const swalWithBootstrapButtons = Swal.mixin({
