@@ -17,7 +17,7 @@
     font-size: 23px;
 }
 
-th{
+th {
     color: white;
 }
 
@@ -302,7 +302,7 @@ a {
 }
 
 .bg-cobefar-6 {
-    background-color: #3C8F7C !important;
+    background-color: #006450 !important;
 }
 
 .bg-cobefar-degradado-1 {
@@ -338,39 +338,43 @@ a {
     color: white;
 }
 
-.btn-cobefar-2 {
-    background-color: #156993;
-    border-color: #156993;
-    color: white;
+.text-naranja, .text-naranja:hover {
+    color: orangered;
 }
 
-    .btn-cobefar-2:hover {
-        background-color: #135a82;
-        border-color: #135a82;
-        color: white;
-    }
-.btn-fucsia, .btn-fucsia:hover {
-    background-color: fuchsia;
-    color: white;
-}
-.btn-orange, .btn-naranja {
+.btn-orange {
     background-color: orangered;
     color: white;
 }
-
-    .btn-naranja:hover {
-        color: darkblue;
-    }
 
 .btn-blue, .btn-blue:hover {
     background-color: darkblue;
     color: white;
 }
 
-.btn-amarillo {
-    background-color: yellow;
-    color: darkblue
+.btn-fucsia {
+    background-color: #640045;
+    color: #333;
 }
+
+    .btn-fucsia:hover {
+        background-color: #460833;
+        border-color: #a01a77;
+        color: #fff;
+    }
+
+.btn-amarillo {
+    background-color: #f9c74f; /* Amarillo suave */
+    border-color: #f9c74f; /* Color del borde */
+    color: #333; /* Color del texto */
+    transition: background-color 0.3s, border-color 0.3s; /* Transición suave */
+}
+
+    .btn-amarillo:hover {
+        background-color: #f8b400; /* Amarillo más oscuro en hover */
+        border-color: #f8b400; /* Color del borde en hover */
+        color: #fff; /* Color del texto en hover */
+    }
 
 .swal2-styled.swal2-confirm {
     border: 0;
@@ -938,16 +942,6 @@ video {
         padding-left: 1.5rem;
         padding-right: 1.5rem;
     }
-    /*
-    .px-1 {
-        padding-left: 0.25rem;
-        padding-right: 0.25rem;
-    }
-
-    .px-2 {
-        padding-left: 0.5rem;
-        padding-right: 0.5rem;
-    }*/
 }
 
 .border-radius-20 {
