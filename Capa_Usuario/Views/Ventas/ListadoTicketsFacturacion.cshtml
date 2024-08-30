@@ -59,6 +59,11 @@
         var object = $("#frm").serialize();
         $(location).attr('href', "/Ventas/ListadoTicketsFacturacion?" + object);
     }
+    function cambiarLugarDestino(selectElement) {
+        if (selectElement.value === "true") {
+            $('#LugarDestino').val('Domicilio');
+        }
+    }
     function modTabla() {
         var LugarDestino = $("#LugarDestino").val();
         if (LugarDestino != null && LugarDestino != "") {
@@ -84,7 +89,6 @@
             $("#tablaFacturacion th:nth-child(11)").hide();
         }
     }
-
 </script>
 
 <div class="pt-4">
@@ -162,7 +166,7 @@
                 </select>
             </div>
             <div class="mx-2">
-                <select name="zonaDistinta" class="form-control @bgzonaDistinta" onchange="filtrar();">
+                <select name="zonaDistinta" class="form-control @bgzonaDistinta" onchange="cambiarLugarDestino(this);clearZona(); modTabla();filtrar();">
                     <option value="">ZonaDistinta</option>
                     <option value="true" @{ if (ticket != null && ticket.zonaDistinta) { Write("selected"); }}>SI</option>
                 </select>
@@ -200,7 +204,8 @@
                         <span class="pl-2">Tipo de Comprobante</span>
                     </th>
                     <th>
-                        Zona
+                        Zona 
+                        <br />
                         <select name="Zona" id="Zona" class="form-control-sm border" onchange="filtrar();">
                             <option value="">Seleccione</option>
                             <option value="CALLAO" @{ if (ticket != null && ticket.Zona == "CALLAO") { Write("selected"); }}>CALLAO</option>
@@ -265,7 +270,6 @@
                     <th></th>
                     <th></th>
                     <th></th>
-                    <th></th>
                 </tr>
             </thead>
             <tbody class="text-dark">
@@ -310,6 +314,10 @@
                         </td>
                         <td>
                             @Html.DisplayFor(modelItem => item.Zona)
+                            @if (item.zonaDistinta)
+                            {
+                                <button type="button" class="btn btn-danger btn-sm border-warning text-light font-weight-bold" data-toggle="tooltip" data-placement="top" title="ZONA POR CAMBIAR"><i class="icon-warning font-14"></i></button>
+                            }
                         </td>
                         <td>
                             @Html.DisplayFor(modelItem => item.Vendedor)
@@ -382,7 +390,8 @@
                                             DescuentoNC = ViewBag.Ortv.DescuentoNC,
                                             EstadoFacturacion = ViewBag.Ortv.EstadoFacturacion,
                                             LugarDestino = ViewBag.Ortv.LugarDestino,
-                                            Zona = ViewBag.Ortv.Zona
+                                            Zona = ViewBag.Ortv.Zona,
+                                            zonaDistinta = ViewBag.Ortv.zonaDistinta
                                 })">
                                         <i class="icon icon-file-text2 text-success"></i>
                                     </a>
@@ -392,7 +401,7 @@
                         <td>
                             @if (item.EstadoFacturacion == "GRE EMITIDA")
                             {
-                                <a href="@Url.Action( "RevertirEmitirGuiasTicketVenta", "Ventas", new { DocEntry = item.DocEntry,
+                                <a href="@Url.Action("RevertirEmitirGuiasTicketVenta", "Ventas", new { DocEntry = item.DocEntry,
                                 EstadoPago = ViewBag.Ortv.EstadoPago,
                                 TipoVenta = ViewBag.Ortv.TipoVenta,
                                 TiempoEntrega = ViewBag.Ortv.TiempoEntrega,
@@ -403,8 +412,10 @@
                                 Flete = ViewBag.Ortv.Flete,
                                 DescuentoNC = ViewBag.Ortv.DescuentoNC,
                                 EstadoFacturacion = ViewBag.Ortv.EstadoFacturacion,
-                                LugarDestino = ViewBag.Ortv.LugarDestino
-                                ,Zona=ViewBag.Ortv.Zona } )" type="button" target="_self" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Revertir emisión de guías">
+                                LugarDestino = ViewBag.Ortv.LugarDestino,
+                                Zona=ViewBag.Ortv.Zona ,
+                                zonaDistinta = ViewBag.Ortv.zonaDistinta
+                                    })" type="button" target="_self" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Revertir emisión de guías">
                                     <i class="icon icon-blocked text-danger"></i>
                                 </a>
                             }
@@ -424,7 +435,9 @@
                                     DescuentoNC = ViewBag.Ortv.DescuentoNC,
                                     EstadoFacturacion = ViewBag.Ortv.EstadoFacturacion,
                                     LugarDestino = ViewBag.Ortv.LugarDestino,
-                                    Zona=ViewBag.Ortv.Zona} )">
+                                    Zona = ViewBag.Ortv.Zona,
+                                    zonaDistinta = ViewBag.Ortv.zonaDistinta
+                                        })">
                                     <i class="icon icon-file-text2 text-success"></i>
                                 </a>
                             }
@@ -444,7 +457,9 @@
                                 DescuentoNC = ViewBag.Ortv.DescuentoNC,
                                 EstadoFacturacion = ViewBag.Ortv.EstadoFacturacion,
                                 LugarDestino = ViewBag.Ortv.LugarDestino,
-                                Zona=ViewBag.Ortv.Zona} )" type="button" target="_self" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Anular Facturado">
+                                Zona = ViewBag.Ortv.Zona,
+                                zonaDistinta = ViewBag.Ortv.zonaDistinta
+                                    })" type="button" target="_self" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Anular Facturado">
                                     <i class="icon icon-blocked text-danger"></i>
                                 </a>
                             }
@@ -454,12 +469,6 @@
                                onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no'); return false;">
                                 <i class="icon-truck"></i>
                             </a>
-                        </td>
-                        <td>
-                            @if (item.zonaDistinta)
-                            {
-                                <button type="button" class="btn btn-danger btn-sm border-warning text-light font-weight-bold" data-toggle="tooltip" data-placement="top" title="ZONA POR CAMBIAR"><i class="icon-warning font-14"></i></button>
-                            }
                         </td>
                         <td>
                             @if (item.EstadoFacturacion == "GRE EMITIDA" || item.EstadoFacturacion == "FACTURADO")

@@ -890,6 +890,7 @@ namespace Capa_Usuario.Controllers
                     EstadoFacturacion = ticketPost.EstadoFacturacion,
                     LugarDestino = ticketPost.LugarDestino,
                     Zona = ticketPost.Zona,
+                    zonaDistinta = ticketPost.zonaDistinta,
                     Mensaje = string.Empty
                 };
 
@@ -961,6 +962,7 @@ namespace Capa_Usuario.Controllers
                     EstadoFacturacion = ticketPost.EstadoFacturacion,
                     LugarDestino = ticketPost.LugarDestino,
                     Zona = ticketPost.Zona,
+                    zonaDistinta = ticketPost.zonaDistinta,
                     Mensaje = string.Empty
                 };
 
@@ -1002,6 +1004,7 @@ namespace Capa_Usuario.Controllers
                     EstadoFacturacion = ticketPost.EstadoFacturacion,
                     LugarDestino = ticketPost.LugarDestino,
                     Zona = ticketPost.Zona,
+                    zonaDistinta = ticketPost.zonaDistinta,
                     Mensaje = string.Empty
                 };
 
@@ -1043,6 +1046,7 @@ namespace Capa_Usuario.Controllers
                     EstadoFacturacion = ticketPost.EstadoFacturacion,
                     LugarDestino = ticketPost.LugarDestino,
                     Zona = ticketPost.Zona,
+                    zonaDistinta = ticketPost.zonaDistinta,
                     Mensaje = string.Empty
                 };
 

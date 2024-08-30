@@ -3280,7 +3280,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                             if (!dr.IsDBNull(15)) { ticket.DescuentoNC = dr.GetDecimal(15); }
                             if (!dr.IsDBNull(16)) { ticket.Zona = dr.GetString(16);}
                             if (!dr.IsDBNull(17)) { ticket.TiempoEntrega = dr.GetDateTime(17); }
-                            ticket.Vendedor = (ticket.Vendedor.Length > 15) ? ticket.Vendedor.Substring(0, 15) : ticket.Vendedor;
+                            //ticket.Vendedor = (ticket.Vendedor.Length > 15) ? ticket.Vendedor.Substring(0, 15) : ticket.Vendedor;
                             ticket.FechaSapTicket = (ticket.FechaSapTicket != null) ? Convert.ToDateTime(ticket.FechaSapTicket).ToString("dd/MM/yyyy") : null;
                             ticket.Det1 = obtenerDet1Ticket(ticket.DocEntry); if (ticket.Det1.Count == 0) { ticket.Det1 = null; }      //Datos de recojo
                             ticket.Det2 = obtenerDet2Ticket(ticket.DocEntry); 
