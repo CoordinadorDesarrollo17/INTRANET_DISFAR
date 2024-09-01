@@ -2,12 +2,14 @@
 using Sap.Data.Hana;
 using System;
 using System.Collections.Generic;
+using System.Data;
 
 namespace Capa_Datos.Ventas_DAO.Tablas
 {
     public class ORDR_D
     {
-        DBHelper db = new DBHelper(); Utilitarios uti = new Utilitarios();
+        Utilitarios uti = new Utilitarios();
+        DBHelper db = new DBHelper(); 
         OINV_D oinvD = new OINV_D();
         ODLN_D odlnD = new ODLN_D();
         public List<ORDR_E> listadoOrdenesDeVenta(ORDR_E fo, bool mostrarCompVinculados)
@@ -77,6 +79,7 @@ namespace Capa_Datos.Ventas_DAO.Tablas
 
             string guiaRem = odlnD.buscarGuiasRemision(DocEntry);
             string guiasTras = oinvD.buscarGuiasTrasladoSinEnt(DocEntry);
+            //y a no se usa
             string guiasTrasEnt = string.Empty;
             foreach (ODLN_E o in odlnD.listarEntregasPorNroVenta(DocEntry))
             {
@@ -102,18 +105,65 @@ namespace Capa_Datos.Ventas_DAO.Tablas
         }
         public ORDR_E obtenerOrdenDeVenta(int DocNum)
         {
-            ORDR_E orden = new ORDR_E();
+            ORDR_E obj = new ORDR_E();
             //incluir los datos necesarios segun productividad
-            string query = "select \"CANCELED\" from " + uti.schemaHana + "ordr where \"DocNum\"=" + DocNum;
+            string query = $@"SELECT ""CANCELED"", ""ShipToCode""
+                  FROM {uti.schemaHana}ORDR
+                  WHERE ""DocNum"" = {DocNum}";
             try
             {
                 HanaDataReader dr = db.HanaExecuteReaderNoSp(query);
                 dr.Read();
-                if (!dr.IsDBNull(0)) { orden.CANCELED = dr.GetString(0); }
+                if (!dr.IsDBNull(0)) { obj.CANCELED = dr.GetString(0); }
+                if (!dr.IsDBNull(1)) { obj.ShipToCode = dr.GetString(1); }
                 dr.Close();
             }
             catch { }
-            return orden;
+            return obj;
         }
+        public List<ORDR_E.DetalleOrdenDeVenta> listadoDetalleOrdenesDeVenta(List<int> docNums)
+        {
+            List<ORDR_E.DetalleOrdenDeVenta> lista = new List<ORDR_E.DetalleOrdenDeVenta>();
+
+            using (HanaConnection hcn = new HanaConnection(uti.cadHana))
+            {
+                try
+                {
+                    hcn.Open();
+
+                    foreach (int docNum in docNums)
+                    {
+                        using (HanaCommand hcmd = new HanaCommand(uti.schemaHana + "COBE_LIST_SKU_OV", hcn))
+                        {
+                            hcmd.CommandType = CommandType.StoredProcedure;
+                            hcmd.Parameters.AddWithValue("DocNum", docNum);
+
+                            using (HanaDataReader hdr = hcmd.ExecuteReader())
+                            {
+                                while (hdr.Read())
+                                {
+                                    ORDR_E.DetalleOrdenDeVenta obj = new ORDR_E.DetalleOrdenDeVenta
+                                    {
+                                        DocNum = !hdr.IsDBNull(0) ? hdr.GetInt32(0) : 0,
+                                        SKU = !hdr.IsDBNull(1) ? hdr.GetString(1) : null,
+                                        Descripcion = !hdr.IsDBNull(2) ? hdr.GetString(2) : null,
+                                        Lote = !hdr.IsDBNull(3) ? hdr.GetString(3) : null,
+                                        FechaVenc = !hdr.IsDBNull(4) ? hdr.GetDateTime(4).ToString("dd/MM/yyyy") : null,
+                                        NumUnidVend = !hdr.IsDBNull(5) ? hdr.GetDecimal(5) : 0
+                                    };
+
+                                    lista.Add(obj);
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex){}
+            }
+
+            return lista;
+        }
+
+
     }
 }

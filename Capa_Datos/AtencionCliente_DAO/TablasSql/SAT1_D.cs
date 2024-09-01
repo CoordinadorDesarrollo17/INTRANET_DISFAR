@@ -79,7 +79,7 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
             return lista;
         }
 
-        // Método de HANA
+        // Método de HANA - Mucho consumo de recursos cuando hay varios items
         public List<SAT1_E> listarArticulosTicket(int DocNumTicket)
         {
             int i = 0;
@@ -134,7 +134,6 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
             }
             return lista;
         }
-
         public List<SAT1_E> BuscarCodProductosTicket(int DocNumTicket)
         {
             int i = 0;

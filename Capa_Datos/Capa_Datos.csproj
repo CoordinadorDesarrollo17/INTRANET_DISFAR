@@ -118,6 +118,7 @@
     <Compile Include="Compras_DAO\Tablas\SQL_OPDN_D.cs" />
     <Compile Include="Compras_DAO\Tablas\OPCH_D.cs" />
     <Compile Include="Compras_DAO\Tablas\OPDN_D.cs" />
+    <Compile Include="ComprobantesContables_ENT\Comprobante_D.cs" />
     <Compile Include="DBHelper.cs" />
     <Compile Include="DireccionTecnica_DAO\Reportes\ReportesDigemid_D.cs" />
     <Compile Include="DireccionTecnica_DAO\TablasHANA\COB_ESTA_RS_D.cs" />
@@ -155,6 +156,8 @@
     <Compile Include="Seguridad_DAO\TablasSql\OUSR_OPE_D.cs" />
     <Compile Include="Seguridad_DAO\TablasSql\ROL_OPE_D.cs" />
     <Compile Include="Seguridad_DAO\TablasSql\USR2_D.cs" />
+    <Compile Include="SocioNegocios_DAO\TablasSql\OCRD_D.cs" />
+    <Compile Include="SocioNegocios_DAO\Tablas\CRD1_D.cs" />
     <Compile Include="SocioNegocios_DAO\Tablas\OCPR_D.cs" />
     <Compile Include="SocioNegocios_DAO\Tablas\OCRD_D.cs" />
     <Compile Include="Seguridad_DAO\Usuario_D.cs" />

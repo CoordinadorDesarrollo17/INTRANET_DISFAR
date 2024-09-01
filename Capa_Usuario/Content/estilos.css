@@ -71,7 +71,9 @@ footer {
 .table-hover tbody tr:hover {
     background-color: #d5f5e3 !important;
 }
-
+    .table-hover tbody tr:hover td {
+        color: black;
+    }
 
 @media screen and (max-width:1100px) {
     .container-body {
@@ -331,6 +333,11 @@ a {
 .bg-grisClaro {
     background-color: #DDDDDD;
 }
+
+.bg-anaranjado {
+    background-color: #e76a09;
+}
+
 /******************************/
 /* Botones */
 .btn-cobefar {
@@ -342,7 +349,7 @@ a {
     color: orangered;
 }
 
-.btn-orange {
+.btn-orange{
     background-color: orangered;
     color: white;
 }
@@ -351,18 +358,15 @@ a {
     background-color: darkblue;
     color: white;
 }
-
 .btn-fucsia {
     background-color: #640045;
     color: #333;
 }
-
     .btn-fucsia:hover {
         background-color: #460833;
         border-color: #a01a77;
         color: #fff;
     }
-
 .btn-amarillo {
     background-color: #f9c74f; /* Amarillo suave */
     border-color: #f9c74f; /* Color del borde */
@@ -370,11 +374,11 @@ a {
     transition: background-color 0.3s, border-color 0.3s; /* Transición suave */
 }
 
-    .btn-amarillo:hover {
-        background-color: #f8b400; /* Amarillo más oscuro en hover */
-        border-color: #f8b400; /* Color del borde en hover */
-        color: #fff; /* Color del texto en hover */
-    }
+.btn-amarillo:hover {
+    background-color: #f8b400; /* Amarillo más oscuro en hover */
+    border-color: #f8b400; /* Color del borde en hover */
+    color: #fff; /* Color del texto en hover */
+}
 
 .swal2-styled.swal2-confirm {
     border: 0;

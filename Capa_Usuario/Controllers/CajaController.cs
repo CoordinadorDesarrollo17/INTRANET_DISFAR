@@ -67,7 +67,7 @@ namespace Capa_Usuario.Controllers
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 Usuario_E usu = (Usuario_E)Session["UsuarioId"];
-                ORTV_E ticket = new ORTV_N().obtenerTicket(docEntry);
+                ORTV_E ticket = new ORTV_N().ObtenerDatosCompletosTicket(docEntry);
                 ticket.MontoRecibido = ticket.MontoFinal;
 
                 var result = otcN.ObtenerDatosTicketACuadrar(docEntry, idOTC);
@@ -123,7 +123,7 @@ namespace Capa_Usuario.Controllers
                     var totalPagosParciales = (result != null) ? oppN.ObtenerTotalPagos(result.IdOTC) : 0;
 
                     ORTV_N ticketN = new ORTV_N();
-                    var datosTicket = ticketN.obtenerTicket(DocEntryTicket);
+                    var datosTicket = ticketN.ObtenerDatosCompletosTicket(DocEntryTicket);
 
                     if (datosTicket.TipoVenta.Equals("ContraEntrega") && datosTicket.EstadoPago.Equals("PENDIENTE") && result != null)
                     {
@@ -259,8 +259,7 @@ namespace Capa_Usuario.Controllers
 
         public JsonResult ValidarMontoFinalTicket(OTC_E tc, string lineaORRU, string tipoRepORRU)
         {
-            //VerificarAccesos(0);    // Validar sesion logueada, solo para ajax
-            var ticket = new ORTV_N().obtenerTicket((int)tc.DocEntryTicket);
+            var ticket = new ORTV_N().ObtenerDatosCompletosTicket((int)tc.DocEntryTicket);
             Usuario_E usu = (Usuario_E)Session["UsuarioId"];
             tc.PersonaEntrega = $"{usu.Nombres} {usu.Apellidos}";
 
@@ -308,7 +307,7 @@ namespace Capa_Usuario.Controllers
             tc.Estado = "VALIDADO";
             string mensaje;
 
-            var datosTicket = new ORTV_N().obtenerTicket((int)tc.DocEntryTicket);
+            var datosTicket = new ORTV_N().ObtenerDatosCompletosTicket((int)tc.DocEntryTicket);
             string[] opcionesValidas = { "SEPARADO", "ANULADO", "CANCELADO", "ENTREGADO" };
 
             if (!opcionesValidas.Contains(datosTicket.Estado))
@@ -331,7 +330,7 @@ namespace Capa_Usuario.Controllers
             tc.Estado = "AUTORIZADO";
             string mensaje;
 
-            var datosTicket = new ORTV_N().obtenerTicket((int)tc.DocEntryTicket);
+            var datosTicket = new ORTV_N().ObtenerDatosCompletosTicket((int)tc.DocEntryTicket);
             string[] opcionesValidas = { "SEPARADO", "ANULADO", "CANCELADO", "ENTREGADO" };
 
             if (!opcionesValidas.Contains(datosTicket.Estado))
@@ -353,7 +352,7 @@ namespace Capa_Usuario.Controllers
             tc.Estado = "RECHAZADO";
             string mensaje;
 
-            var datosTicket = new ORTV_N().obtenerTicket((int)tc.DocEntryTicket);
+            var datosTicket = new ORTV_N().ObtenerDatosCompletosTicket((int)tc.DocEntryTicket);
             string[] opcionesValidas = { "SEPARADO", "ANULADO", "CANCELADO", "ENTREGADO" };
 
             if (!opcionesValidas.Contains(datosTicket.Estado))
@@ -407,8 +406,6 @@ namespace Capa_Usuario.Controllers
 
             return Json(new { Mensaje = result });
         }
-
-
         /*
          public JsonResult AgregarPagosParciales(List<decimal> pagos, int docEntryTicket)
         {

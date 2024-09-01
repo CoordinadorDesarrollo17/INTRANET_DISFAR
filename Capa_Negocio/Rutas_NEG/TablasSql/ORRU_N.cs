@@ -86,7 +86,7 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
                 {
                     if (d.DocEntryTicket > 0)
                     {
-                        ORTV_E t = ortvN.obtenerTicket(d.DocEntryTicket);
+                        ORTV_E t = ortvN.ObtenerDatosCompletosTicket(d.DocEntryTicket);
                         if (string.IsNullOrEmpty(t.EstadoFacturacion) || t.EstadoFacturacion.Equals("PENDIENTE")) { throw new Exception("El ticket en linea " + d.Linea + " no tiene guías emitida, retirar de la tabla."); }
                         if (string.IsNullOrEmpty(d.Guias))
                         {

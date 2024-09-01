@@ -1,8 +1,9 @@
-﻿using System.ComponentModel;
+﻿
+using System.ComponentModel;
 
-namespace Capa_Entidad.Rutas_ENT.TablasSql
+namespace Capa_Entidad.ComprobantesContables_ENT
 {
-    public class TEMP_RRU01_E
+    public class Comprobante_E
     {
         public int Id { get; set; }
         public string TablaSAP { get; set; }
@@ -23,8 +24,5 @@ namespace Capa_Entidad.Rutas_ENT.TablasSql
         public string FechaOperación { get; set; }
         public string HoraOperación { get; set; }
         public decimal DocTotal { get; set; }
-        
-
-
     }
 }

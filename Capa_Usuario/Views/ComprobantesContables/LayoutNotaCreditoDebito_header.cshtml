@@ -1,0 +1,105 @@
+﻿@model IEnumerable<Capa_Entidad.Ventas_ENT.Tablas.NotaCreditoDebito_E>
+
+@{
+    Layout = null;
+    var Cab = Model.ToList()[0];
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LayoutNotaCreditoDebito</title>
+    <style>
+        * {
+            font-family: 'Verdana', sans-serif;
+            font-size: 12px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            padding: 5px;
+        }
+     
+    </style>
+</head>
+<body>
+    <div>
+        <table border="0">
+            <tr>
+                <td style="font-size: 10px; text-align: left; position: relative;">
+                    <img style="float:left" src="~/imagenes/logoventa2.jpg" width="230" height="80" /><br />
+                    www.cobefar.com.pe<br /><br />
+                    <strong>N° TICKET:</strong> @ViewBag.DocNumTicket
+                    <!-- Imagen superpuesta en la esquina superior derecha -->
+                    <img src="~/imagenes/index/encabezado/bpa.jpg" width="45" height="40" style="position: absolute; top: 5px; right: 0;" />
+                </td>
+                <td style="text-align:left;font-size:10px; max-width:300px;">
+                    <strong>Dom. Fiscal:</strong> Cal.Carlos Pedemonte Nro. 145B Int. 2pis <br />
+                    Urb. Lotización Ex Fundo El Pino  Lima - Lima - San Luis<br />
+                    <strong>Almacén:</strong> Av. Nicolás Arriola N°2955-2963, 2do. Piso <br />
+                    Urb. Mercurio - San Luis - Lima - Lima<br />
+                    <strong>Almacén:</strong> Jr. Antonio Miroquezada N° 806 Int. 303<br />
+                    Lima - Lima - Lima<br />
+                    <strong>Teléfono:</strong> 428-1248<br />
+                    <strong>Email:</strong> cobefar.ventas@gmail.com
+                </td>
+                <td>
+                    <div style="border: 2px solid green; vertical-align: top; padding: 5px; border-radius: 15px; font-size: 20px !important; text-align: center;">
+                        <div style="margin: 10px 0;"></div>
+                        <div style="font-size: 20px !important; text-align: center;">R.U.C. 20600546041</div>
+                        <div style="margin: 25px 0;"></div>
+                        @if (ViewBag.Tipo == "NC")
+                        {
+                            <strong style="font-size: 20px !important; text-align: center;">NOTA DE CRÉDITO<br />ELECTRÓNICA</strong>
+                        }
+                        else if (ViewBag.Tipo == "ND")
+                        {
+                            <strong style="font-size: 20px !important; text-align: center;">NOTA DE DÉBITO<br />ELECTRÓNICA</strong>
+                        }
+                        <div style="margin: 25px 0;"></div>
+                        <div style="font-size: 20px !important; text-align: center;">N° @Cab.SerieDoc-@Cab.CorreDoc</div>
+                        <div style="margin: 10px 0;"></div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <div style="width:65%; display: inline-block; border: 2px solid green; vertical-align: top; padding: 5px; border-radius: 15px;margin-bottom:15px">
+            <table style="text-align:left" border="0">
+                <tr>
+                    <td>Cliente:</td>
+                    <td><text>@Cab.NombreSocio</text></td>
+                </tr>
+                <tr>
+                    <td>Dirección:</td>
+                    <td colspan="3" width="400px">@Cab.DirPagar</td>
+
+                </tr>
+                <tr>
+                    <td>R.U.C.:</td>
+                    <td colspan="3">@Cab.Ruc</td>
+
+                </tr>
+
+
+            </table>
+        </div>
+        <div style="width:30%; display: inline-block; text-align:left;">
+            <br />
+            <table>
+                <tr><td>FECHA DE EMISIÓN: @Cab.DocDate</td></tr>
+                <tr><td>MONEDA:@Cab.MonedaLetras</td>   </tr>
+            </table>
+        </div>
+    </div>
+
+    
+
+</body>
+</html>
+
+
+

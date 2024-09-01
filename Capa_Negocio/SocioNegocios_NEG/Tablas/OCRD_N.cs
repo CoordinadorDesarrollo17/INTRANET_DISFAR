@@ -11,19 +11,15 @@ namespace Capa_Negocio.SocioNegocios_NEG.Tablas
 {
     public class OCRD_N
     {
-		readonly OCRD_D oD = new OCRD_D();
+		readonly OCRD_D ocrD = new OCRD_D();
         public List<OCRD_E> listarSociosDeNegocios(OCRD_E filtro)
         {
-            return oD.listarSociosDeNegocios(filtro);
+            return ocrD.listarSociosDeNegocios(filtro);
         }
         public List<OCRD_E> listarSociosConContactos()
         {
-            return oD.listarSociosConContactos();
+            return ocrD.listarSociosConContactos();
         }
-
-		public List<OCRD_E> BuscarCliente(OCRD_E cliente)
-		{
-			return oD.BuscarCliente(cliente);
-		}
+		
 	}
 }
