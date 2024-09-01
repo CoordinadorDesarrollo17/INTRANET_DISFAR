@@ -3145,7 +3145,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             }
 
 
-            string query = $"SELECT TOP 100 t0.DocEntry, t0.DocNum, t0.CardCode, t0.CardName, t0.Estado,t0.FechaSapTicket, (Select top 1 HoraOperacion from vt.CC_ORTV where DocEntry=t0.DocEntry " +
+            string query = $"SELECT TOP 200 t0.DocEntry, t0.DocNum, t0.CardCode, t0.CardName, t0.Estado,t0.FechaSapTicket, (Select top 1 HoraOperacion from vt.CC_ORTV where DocEntry=t0.DocEntry " +
                 $" and Operacion='REGISTRAR' order by FechaOperacion,HoraOperacion desc ) as 'HoraAbierto',t0.LugarDestino,t0.CodSapVendedor,t0.Vendedor,t0.MontoFinal,t0.EstadoPago,t0.EstadoGasto," +
                 $" t0.PagoEnv,t0.Visible,t0.FechaPago,t0.HoraPago FROM vt.ORTV t0  WHERE t0.DocEntry>0 AND (SELECT top 1 FechaOperacion from vt.CC_ORTV where Operacion= 'SEPARAR' and DocEntry =" +
                 $" t0.DocEntry  order by FechaOperacion DESC, HoraOperacion desc) between dateadd(day,-1000, getdate()) and getdate() {condWhere} ORDER BY t0.DocNum DESC";
@@ -3182,7 +3182,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                             if (!dr.IsDBNull(14)) { ticket.Visible = dr.GetString(14); }
                             if (!dr.IsDBNull(15)) { ticket.FechaPago = dr.GetDateTime(15).ToString("yyyy-MM-dd"); }//Se usa en Metodo : ListarTicketsNoVisiblesPagados
                             if (!dr.IsDBNull(16)) { ticket.HoraPago = dr.GetTimeSpan(16).ToString(); }//Se usa en Metodo : ListarTicketsNoVisiblesPagados
-                            ticket.Vendedor = (ticket.Vendedor.Length > 15) ? ticket.Vendedor.Substring(0, 15) : ticket.Vendedor;
+                            //ticket.Vendedor = (ticket.Vendedor.Length > 15) ? ticket.Vendedor.Substring(0, 15) : ticket.Vendedor;
                             ticket.FechaSapTicket = (ticket.FechaSapTicket != null) ? Convert.ToDateTime(ticket.FechaSapTicket).ToString("dd/MM/yyyy") : null;
                             lista.Add(ticket);
 

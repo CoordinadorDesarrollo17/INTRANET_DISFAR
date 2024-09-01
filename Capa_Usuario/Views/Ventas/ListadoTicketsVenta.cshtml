@@ -29,7 +29,21 @@
         var object = $("#filterForm").serialize();
         $(location).attr('href', "/Ventas/ListadoTicketsVenta?" + object);
     }
-
+    function limpiarFiltros() {
+        const formulario = document.getElementById('filterForm');
+        //Limpia inputs
+        const inputs = formulario.querySelectorAll('input[type="text"], input[type="date"], input[type="number"], textarea');
+        inputs.forEach(input => {
+            input.value = '';
+        });
+        // Deseleccionar los valores de los select
+        const selects = formulario.querySelectorAll('select');
+        selects.forEach(select => {
+            select.selectedIndex = 0; // Selecciona la primera opción (considerar que debe ser valor vacío)
+        });
+        //Llama la funcion anterior para mandar al post
+        filtrar();
+    }
     function seleccionarVendedor(CodigoSap) {
         var nombres = $('#selectVendedores option:selected').data('nombres');
         var apellidos = $('#selectVendedores option:selected').data('apellidos');
@@ -117,16 +131,38 @@
                 </a>
             }
             <button type="button" id="btn_ordenesVenta" class="btn btn-orange " data-codsapvendedor="@ViewBag.CodSapVendedor"><i class="icon-file-text2"></i> Órdenes de Venta</button>
-            <button type="button" class="btn btn-primary mx-2" data-toggle="modal" data-target="#filterModal"><i class="icon-filter"> </i> Filtrar</button>
+            <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#filterModal"><i class="icon-filter"> </i> Filtrar</button>
 
         </div>
-        <div>
+        <div class="mx-2">
             <input type="text" name="DocNum" id="DocNum" class="form-control border-success" value="@(a.DocNum == 0 ? "" : a.DocNum.ToString())" autocomplete="off" placeholder="Buscar Nro Ticket..." onchange="filtrar();" />
         </div>
-        <div>
-            <input type="text" id="CardName" name="CardName" class="form-control border-success mx-3" value="@a.CardName" autocomplete="off" placeholder="Buscar Cliente..." onchange="filtrar();" />
+        <div class="mx-2">
+            <input type="text" id="CardName" name="CardName" class="form-control border-success" value="@a.CardName" autocomplete="off" placeholder="Buscar Cliente..." onchange="filtrar();" />
+        </div>
+        <div class="mx-2">
+            <input type="text" id="Vendedor" name="Vendedor" class="form-control border-success" value="@a.Vendedor" autocomplete="off" placeholder="Buscar Vendedor..." onchange="filtrar();"/>
+        </div>
+        <div class="mx-2">
+            <select id="Estado" name="Estado" class="form-control border-success" onchange="filtrar();">
+                <option value="">Seleccione Estado</option>
+                <option value="SEPARADO" @{ if (a.Estado == "SEPARADO") { Write("selected"); } }>SEPARADO</option>
+                <option value="ABIERTO" @{ if (a.Estado == "ABIERTO") { Write("selected"); } }>ABIERTO</option>
+                <option value="RECIBIDO" @{ if (a.Estado == "RECIBIDO") { Write("selected"); } }>RECIBIDO</option>
+                <option value="PICKEANDO" @{ if (a.Estado == "PICKEANDO") { Write("selected"); } }>PICKEANDO</option>
+                <option value="VERIFICANDO" @{ if (a.Estado == "VERIFICANDO") { Write("selected"); } }>VERIFICANDO</option>
+                <option value="EMPACANDO" @{ if (a.Estado == "EMPACANDO") { Write("selected"); } }>EMPACANDO</option>
+                <option value="EMPACADO" @{ if (a.Estado == "EMPACADO") { Write("selected"); } }>EMPACADO</option>
+                <option value="PESADO" @{ if (a.Estado == "PESADO") { Write("selected"); } }>PESADO</option>
+                <option value="PREENVIO" @{ if (a.Estado == "PREENVIO") { Write("selected"); } }>PREENVIO</option>
+                <option value="ENVIADO" @{ if (a.Estado == "ENVIADO") { Write("selected"); } }>ENVIADO</option>
+                <option value="ENTREGADO" @{ if (a.Estado == "ENTREGADO") { Write("selected"); } }>ENTREGADO</option>
+                <option value="ANULADO" @{ if (a.Estado == "ANULADO") { Write("selected"); } }>ANULADO</option>
+                <option value="CANCELADO" @{ if (a.Estado == "CANCELADO") { Write("selected"); } }>CANCELADO</option>
+            </select>
         </div>
     </div>
+
     <!-- Modal para Filtros -->
     <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
@@ -148,18 +184,10 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label for="Vendedor">Vendedor</label>
-                                    <input type="text" id="Vendedor" name="Vendedor" class="form-control" value="@a.Vendedor" autocomplete="off" />
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
                                     <label for="MontoFinal">Monto Final</label>
-                                    <input type="text" id="MontoFinal" name="MontoFinal" class="form-control" value="@a.MontoFinal" autocomplete="off" />
+                                    <input type="text" id="MontoFinal" name="MontoFinal" class="form-control" value="@(a.MontoFinal == 0 ? "" : a.MontoFinal.ToString())" autocomplete="off" />
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="LugarDestino">Lugar de Destino</label>
@@ -172,27 +200,8 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="Estado">Estado</label>
-                                    <select id="Estado" name="Estado" class="form-control">
-                                        <option value=""></option>
-                                        <option value="SEPARADO" @{ if (a.Estado == "SEPARADO") { Write("selected"); } }>SEPARADO</option>
-                                        <option value="ABIERTO" @{ if (a.Estado == "ABIERTO") { Write("selected"); } }>ABIERTO</option>
-                                        <option value="RECIBIDO" @{ if (a.Estado == "RECIBIDO") { Write("selected"); } }>RECIBIDO</option>
-                                        <option value="PICKEANDO" @{ if (a.Estado == "PICKEANDO") { Write("selected"); } }>PICKEANDO</option>
-                                        <option value="VERIFICANDO" @{ if (a.Estado == "VERIFICANDO") { Write("selected"); } }>VERIFICANDO</option>
-                                        <option value="EMPACANDO" @{ if (a.Estado == "EMPACANDO") { Write("selected"); } }>EMPACANDO</option>
-                                        <option value="EMPACADO" @{ if (a.Estado == "EMPACADO") { Write("selected"); } }>EMPACADO</option>
-                                        <option value="PESADO" @{ if (a.Estado == "PESADO") { Write("selected"); } }>PESADO</option>
-                                        <option value="PREENVIO" @{ if (a.Estado == "PREENVIO") { Write("selected"); } }>PREENVIO</option>
-                                        <option value="ENVIADO" @{ if (a.Estado == "ENVIADO") { Write("selected"); } }>ENVIADO</option>
-                                        <option value="ENTREGADO" @{ if (a.Estado == "ENTREGADO") { Write("selected"); } }>ENTREGADO</option>
-                                        <option value="ANULADO" @{ if (a.Estado == "ANULADO") { Write("selected"); } }>ANULADO</option>
-                                        <option value="CANCELADO" @{ if (a.Estado == "CANCELADO") { Write("selected"); } }>CANCELADO</option>
-                                    </select>
-                                </div>
-                            </div>
+                        </div>
+                        <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="EstadoPago">Estado de Pago</label>
@@ -203,8 +212,6 @@
                                     </select>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="EstadoGasto">Estado de Gasto</label>
@@ -229,13 +236,14 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-info" onclick="limpiarFiltros();">Limpiar</button>
                     <button type="button" class="btn btn-primary" onclick="filtrar();">Aplicar Filtros</button>
                 </div>
             </div>
         </div>
     </div>
 
-    
+
 </form>
 
 <div class="alert alert-danger mb-0" role="alert">
@@ -252,9 +260,7 @@
     </p>
 </div>
 
-
-
-<div class="bg-white bg-form-cobefar pt-3">
+<div class="bg-white bg-form-cobefar pt-2">
     <table class="table table-light table-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
         <thead class="bg-cobefar-6">
             <tr>
@@ -347,7 +353,7 @@
                     <td class="text-center">
                         @if (item.Estado.Equals("SEPARADO") || item.Estado.Equals("ABIERTO"))
                         {
-                            <a href="@Url.Action("EditarTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Editar ticket"><i class="text-purple icon-pencil"></i></a>
+                            <a href="@Url.Action("EditarTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Editar ticket"><i class="text-primary icon-pencil"></i></a>
                         }
                     </td>
                     <td class="text-center">
@@ -383,55 +389,7 @@
         </tbody>
     </table>
 </div>
-<!--Modals-->
-<div class="modal fade" id="MdAnVentas" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-cobefar text-white">
-                <h5 class="modal-title" id="exampleModalLabel">Reporte Analítico Ventas</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span class="text-white" aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body text-center">
-                <form id="frmAnVtn">
-                    <div class="form-group row">
-                        <label class="col-sm-2 col-form-label bg-cobefar text-white text-center py-2 px-2 mx-1">Desde:</label>
-                        <div class="col-lg-6">
-                            <input type="date" class="form-control border-success" name="FecIni" value="" />
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-sm-2 col-form-label bg-cobefar text-white text-center py-2 px-2 mx-1">Hasta:</label>
-                        <div class="col-lg-6">
-                            <input type="date" class="form-control border-success" name="FecFin" value="" />
-                        </div>
-                    </div>
-                    <div class="form-group row">
 
-                        <label class="col-sm-3 col-form-label bg-cobefar text-white text-center py-2 px-2 mx-1">Vendedor:</label>
-                        <div class="col-lg-2">
-                            <input type="search" class="form-control border-success" style="width: 150px" name="DocEntry" list="listaVendedores" autocomplete="off" />
-                            <datalist id="listaVendedores">
-                                @foreach (Usuario_E obj in usuarios)
-                                {
-                                    <option value="@obj.DocEntry" nombre="@obj.Nombres @obj.Apellidos">@obj.Nombres @obj.Apellidos</option>
-                                }
-                            </datalist>
-                        </div>
-                    </div>
-
-                    <div class="form-group row justify-content-end">
-                        <div class="col-lg-4">
-                            <button class="btn btn-success" type="button" onclick="RptAnVentas();"><i class="icon icon-checkmark"></i> Generar</button>
-                        </div>
-                    </div>
-
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 <!-- Modal para listar vendedores -->
 <div id="modalVendedores" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
@@ -467,8 +425,6 @@
     </div>
 </div>
 
-
-
 <style>
     .alertify-notifier .ajs-message.ajs-success {
         background-color: #6495ED;
@@ -480,42 +436,6 @@
 </style>
 
 <script>
-    if ('@ViewBag.Mensaje' != "") {
-    Swal.fire('@ViewBag.Mensaje');
-    }
-    //Consulta de ordenes de venta
-    document.addEventListener('DOMContentLoaded', function () {
-        document.getElementById('btn_ordenesVenta').addEventListener('click', () => {
-            let codSapVendedor = document.getElementById("btn_ordenesVenta").dataset.codsapvendedor;
-            window.location.href = '@Url.Action("ListadoOrdenesDeVenta", "DireccionTecnica")?SlpCode=' + codSapVendedor;
-        });
-    });
-
-    function cancelarTicket(DocEntry) {
-        const swalWithBootstrapButtons = Swal.mixin({
-            customClass: {
-                confirmButton: 'btn btn-success mx-4',
-                cancelButton: 'btn btn-danger mx-4'
-            },
-            buttonsStyling: false
-        })
-
-        swalWithBootstrapButtons.fire({
-            title: '¿Está seguro(a) de cancelar el ticket?',
-            text: "Este proceso es irreversible",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: "<i class='icon-checkmark'></i> Si, estoy seguro(a)",
-            cancelButtonText: "<i class='icon-cross'></i> No",
-            reverseButtons: true
-        }).then((result) => {
-            if (result.isConfirmed) {
-                location.href = '/Ventas/CancelarTicket?DocEntry=' + DocEntry + '&vista=ListadoTicketsVenta';
-            }
-        });
-    }
-
-
     $(document).ready(function () {
 
         var consultarNuevasSolicitudes = function () {
@@ -646,8 +566,40 @@
             if (@ViewBag.IdRol == 1 || @ViewBag.IdRol == 6) {
                 setInterval(consultarNuevasSolicitudes, 20000);
             }
-
         }
-
     });
+    if ('@ViewBag.Mensaje' != "") {
+    Swal.fire('@ViewBag.Mensaje');
+    }
+
+    //Consulta de ordenes de venta
+    document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('btn_ordenesVenta').addEventListener('click', () => {
+            let codSapVendedor = document.getElementById("btn_ordenesVenta").dataset.codsapvendedor;
+            window.location.href = '@Url.Action("ListadoOrdenesDeVenta", "DireccionTecnica")?SlpCode=' + codSapVendedor;
+        });
+    });
+    function cancelarTicket(DocEntry) {
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: 'btn btn-success mx-4',
+                cancelButton: 'btn btn-danger mx-4'
+            },
+            buttonsStyling: false
+        })
+
+        swalWithBootstrapButtons.fire({
+            title: '¿Está seguro(a) de cancelar el ticket?',
+            text: "Este proceso es irreversible",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: "<i class='icon-checkmark'></i> Si, estoy seguro(a)",
+            cancelButtonText: "<i class='icon-cross'></i> No",
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                location.href = '/Ventas/CancelarTicket?DocEntry=' + DocEntry + '&vista=ListadoTicketsVenta';
+            }
+        });
+    }
 </script>

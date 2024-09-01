@@ -17,7 +17,7 @@
     font-size: 23px;
 }
 
-th{
+th {
     color: white;
 }
 
@@ -344,6 +344,7 @@ a {
     background-color: #26653D;
     color: white;
 }
+
 .text-naranja, .text-naranja:hover {
     color: orangered;
 }
@@ -945,16 +946,6 @@ video {
         padding-left: 1.5rem;
         padding-right: 1.5rem;
     }
-    /*
-    .px-1 {
-        padding-left: 0.25rem;
-        padding-right: 0.25rem;
-    }
-
-    .px-2 {
-        padding-left: 0.5rem;
-        padding-right: 0.5rem;
-    }*/
 }
 
 .border-radius-20 {

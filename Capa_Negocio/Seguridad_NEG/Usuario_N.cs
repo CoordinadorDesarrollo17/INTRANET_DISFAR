@@ -106,10 +106,10 @@ namespace Capa_Negocio.Seguridad_NEG
                 return "Ingresar un correo válido.";
             }
 
-            if (helper.ContieneCaracterEspecial(datosPost.Password) == false)
-            {
-                return "La contraseña debe contener al menos 1 caracter especial.";
-            }
+            //if (helper.ContieneCaracterEspecial(datosPost.Password) == false)
+            //{
+            //    return "La contraseña debe contener al menos 1 caracter especial.";
+            //}
 
             return ousrD.EditarUsuario(datosPost);
         }
