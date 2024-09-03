@@ -89,7 +89,7 @@ namespace Capa_Negocio.AtencionCliente_NEG.TablasSql
         public void validarNuevaSolicitud(OSAT_E obj)
         {
             ORTV_D ortv_D = new ORTV_D();
-            ORTV_E ticket = ortv_D.obtenerTicket(obj.DocEntryTicket);
+            ORTV_E ticket = ortv_D.ObtenerDatosCompletosTicket(obj.DocEntryTicket);
 
             if (obj.Tipo == null) { throw new Exception("De Elegir un tipo de atencion"); }
             else if (obj.Tipo == "Devolucion")

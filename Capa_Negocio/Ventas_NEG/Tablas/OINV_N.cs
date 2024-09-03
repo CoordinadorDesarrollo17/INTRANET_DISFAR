@@ -1,4 +1,5 @@
 ﻿using Capa_Datos.Ventas_DAO.Tablas;
+using Capa_Entidad.ComprobantesContables_ENT;
 using Capa_Entidad.ReportesDigemid_ENT.Reportes;
 using Capa_Entidad.Rutas_ENT.TablasSql;
 using Capa_Entidad.Ventas_ENT.Tablas;
@@ -24,18 +25,6 @@ namespace Capa_Negocio.Ventas_NEG.Tablas
         public string CalcularPdfsActaDespachoOINV(string Fecha, string U_SYP_STATUS, string U_COB_LUGAREN, string TipoComprobante)
         {
             return oD.CalcularPdfsActaDespachoOINV(Fecha, U_SYP_STATUS, U_COB_LUGAREN, TipoComprobante);
-        }
-        public List<TEMP_RRU01_E> FactBoletaSap(int DocEntryOrden)
-        {
-            return oD.FactBoletaSap(DocEntryOrden);
-        }
-        public List<TEMP_RRU01_E> NotasDebitoSap(string FBConcatenadas)
-        {
-            return oD.NotasDebitoSap(FBConcatenadas);
-        }
-        public List<ComprobanteDePago_E> buscarFacturaBoletaSap(string NumAtCard)
-        {
-            return oD.buscarFacturaBoletaSap(NumAtCard);
         }
         public List<NotaCreditoDebito_E> buscarNotaDebitoSap(string NumAtCard)
         {

@@ -68,9 +68,9 @@
     }
 </style>
 
-<div class="pt-4">
+<div class="pt-3">
     <nav>
-        <ol class="cd-breadcrumb bg-dark">
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
             <li class="current"><em>Módulo gestión de solicitudes</em></li>
         </ol>
@@ -78,51 +78,49 @@
 </div>
 
 
-<div class="bg-dark border-cabecera-seccion pb-2">
-    <div class="px-3 pt-3"><h3 class="titulo-seccion">MÓDULO GESTIÓN DE SOLICITUDES</h3></div>
-
-    <div class="d-flex pl-2 w-100 py-2">
-
-        <div class="mx-2">
-            <a id="accion" style="float:left; margin-right:20px;" href="@Url.Action("NuevaSolicitud", "AtencionCliente")" class="btn btn-success">
-                <i class="icon icon-plus"></i> Nueva Solicitud
-            </a>
-
-            <button id="accion" onclick="excel();" class="btn btn-warning">
-                <i class="icon icon-file-excel"></i> Exportar a Excel
-            </button>
-        </div>
-
-    </div>
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">MÓDULO GESTIÓN DE SOLICITUDES</h3></div>    
 </div>
 
+<div class="bg-white d-flex pl-2 w-100 py-3">
 
+    <div class="mx-2">
+        <a id="accion" style="float:left; margin-right:20px;" href="@Url.Action("NuevaSolicitud", "AtencionCliente")" class="btn btn-success">
+            <i class="icon icon-plus"></i> Nueva Solicitud
+        </a>
 
-<div class="bg-dark pt-4">
+        <button id="accion" onclick="excel();" class="btn btn-warning">
+            <i class="icon icon-file-excel"></i> Exportar a Excel
+        </button>
+    </div>
+
+</div>
+
+<div class="bg-white">
     <form name="frm" id="frm">
 
         <table class="table table-light table-sm table-hover cls-dataTable " cellspacing="0" width="100%">
-            <thead class="thead-dark">
+            <thead class="bg-cobefar-6">
                 <tr>
-                    <th>
-                        @Html.DisplayNameFor(model => model.DocNum)
-                        <input type="text" name="DocNum" class="form-control" onchange="filtrar();" style="width: 110px" value="@ViewBag.Osat.DocNum" />
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.DocNum)<br />
+                        <input type="text" name="DocNum" class="form-control-sm border w-100" onchange="filtrar();" value="@ViewBag.Osat.DocNum" />
                     </th>
-                    <th>
+                    <th class="text-center">
                         TiempoRegistro
-                        <input type="date" name="FechaRegistro" class="form-control" onchange="filtrar();" style="width: 130px" value="@f.FechaRegistro" />
+                        <input type="date" name="FechaRegistro" class="form-control-sm border" onchange="filtrar();" value="@f.FechaRegistro" />
                     </th>
                     <th>
                         N° Ticket<br />
-                        <input type="text" name="DocNumTicket" class="form-control" onchange="filtrar();" value="@if (ViewBag.Osat.DocNumTicket >= 1) { Write(ViewBag.Osat.DocNumTicket); }" />
+                        <input type="text" name="DocNumTicket" class="form-control-sm border w-100" onchange="filtrar();" value="@if (ViewBag.Osat.DocNumTicket >= 1) { Write(ViewBag.Osat.DocNumTicket); }" />
                     </th>
                     <th>
                         Cliente<br />
-                        <input type="text" name='DetORTV[CardName]' class="form-control" onchange="filtrar();" value="@if (f.DetORTV != null) { Write(f.DetORTV["CardName"]); }" />
+                        <input type="text" name='DetORTV[CardName]' class="form-control-sm border w-100" onchange="filtrar();" value="@if (f.DetORTV != null) { Write(f.DetORTV["CardName"]); }" />
                     </th>
                     <th>
                         LugarDestino<br />
-                        <select type="text" name='DetORTV[LugarDestino]' class="form-control" onchange="filtrar();">
+                        <select type="text" name='DetORTV[LugarDestino]' class="form-control-sm border" onchange="filtrar();">
                             <option value="">Seleccione</option>
                             <option value="Arriola" @if (f.DetORTV != null) { if (f.DetORTV["LugarDestino"] == "Arriola") { Write("selected"); } }>Arriola</option>
                             <option value="Domicilio" @if (f.DetORTV != null) { if (f.DetORTV["LugarDestino"] == "Domicilio") { Write("selected"); } }>Domicilio</option>
@@ -133,7 +131,7 @@
                     </th>
                     <th>
                         @Html.DisplayNameFor(model => model.Estado)
-                        <select name="Estado" class="form-control" onchange="filtrar();" style="width: 120px;">
+                        <select name="Estado" class="form-control-sm border" onchange="filtrar();">
                             <option value="">Seleccione</option>
                             <option value="Registrado" @if (f.Estado == "Registrado") { Write("selected"); }>Registrado</option>
                             <option value="Proceso" @if (f.Estado == "Proceso") { Write("selected"); }>Proceso</option>
@@ -142,17 +140,17 @@
                             <option value="Anulado" @if (f.Estado == "Anulado") { Write("selected"); }>Anulado</option>
                         </select>
                     </th>
-                    <th>
+                    <th class="text-center">
                         @Html.DisplayNameFor(model => model.Resultado)
-                        <input type="text" name="Resultado" class="form-control" onchange="filtrar();" value="@ViewBag.Osat.Resultado" />
+                        <input type="text" name="Resultado" class="form-control-sm border" onchange="filtrar();" value="@ViewBag.Osat.Resultado" />
                     </th>
                     <th>
                         TiempoAtención
-                        <input type="date" name="FechaAtencion" class="form-control" onchange="filtrar();" style="width: 130px" value="@f.FechaAtencion" />
+                        <input type="date" name="FechaAtencion" class="form-control-sm border" onchange="filtrar();" style="width: 130px" value="@f.FechaAtencion" />
                     </th>
                     <th>
                         @Html.DisplayNameFor(model => model.Tipo)
-                        <select type="text" name="Tipo" class="form-control" onchange="filtrar();">
+                        <select type="text" name="Tipo" class="form-control-sm border" onchange="filtrar();">
                             <option value="">Seleccione</option>
                             <option value="Devolucion" @if (ViewBag.Osat.Tipo == "Devolucion") { Write("selected"); }>Devolucion</option>
                             <option value="Reclamo" @if (ViewBag.Osat.Tipo == "Reclamo") { Write("selected"); }>Reclamo</option>
@@ -161,7 +159,7 @@
                     </th>
                     <th>
                         @Html.DisplayNameFor(model => model.Factor)
-                        <select type="text" name="Factor" class="form-control" onchange="filtrar();">
+                        <select type="text" name="Factor" class="form-control-sm border" onchange="filtrar();">
                             <option value="">Seleccione</option>
                             <option value="Interno" @if (ViewBag.Osat.Factor == "Interno") { Write("selected"); }>Interno</option>
                             <option value="Externo" @if (ViewBag.Osat.Factor == "Externo") { Write("selected"); }>Externo</option>
@@ -170,7 +168,7 @@
                     </th>
                     <th>
                         DocFact<br />
-                        <input type="text" name="DocFact" id="doc_fact" style="width: 120px;" class="form-control input_cls-estandar" onchange="filtrar();" value="@f.DocFact" />
+                        <input type="text" name="DocFact" id="doc_fact" style="width: 120px;" class="form-control-sm border input_cls-estandar" onchange="filtrar();" value="@f.DocFact" />
                     </th>
                     <th></th>
                 </tr>
@@ -189,9 +187,7 @@
                         <td class="text-center">
                             @Html.DisplayFor(modelItem => item.DocNumTicket)
                         </td>
-                        <td class="text-center">
-                            @item.DetORTV["CardName"]
-                        </td>
+                        <td><span class="pl-2">@item.DetORTV["CardName"]</span></td>
                         <td class="text-center">
                             @item.DetORTV["LugarDestino"]
                         </td>
@@ -214,29 +210,29 @@
                             @item.enlistarDetSolicitudes()
                         </td>
                         <td style="width: 20px">
-                            <a href="@Url.Action( "DetallesSolicitud", "AtencionCliente", new { id = item.DocEntry })"><i title="Detalles" class="icon-search text-primary"></i></a>
+                            <a href="@Url.Action( "DetallesSolicitud", "AtencionCliente", new { id = item.DocEntry })" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Detalles Solicitud"><i class="icon-search text-primary"></i></a>
                             @*<a href="#"><i title="Ver Detalle" class="text-cobefar icon-eye" data-toggle="modal" data-target="#modal_detalleLab" onclick="verDetalleLab(@item.DocEntry);"></i></a>*@
                             @*<a href="#"><i title="Documentos" class="icon-folder-open text-warning" data-toggle="modal" data-target="#M@(item.DocEntry)"></i></a>*@
 
                             @if (item.Estado.Equals("Registrado"))
                             {
-                                <a href="@Url.Action( "EditarSolicitud", "AtencionCliente", new { id = item.DocEntry } )"><i title="Editar" class="text-purple icon-pencil2"></i></a>
-                                <a href="@Url.Action( "ProcesarSolicitud", "AtencionCliente",new { id = item.DocEntry } )"><i title="Procesar" class="icon-history"></i></a>
-                                <button style="border: none; background:none;" type="button" onclick="anular(@item.DocEntry);"><i title="Anular" class="icon-bin2 text-danger"></i></button>
+                                <a href="@Url.Action( "EditarSolicitud", "AtencionCliente", new { id = item.DocEntry } )" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Editar Solicitud"><i class="text-purple icon-pencil"></i></a>
+                                <a href="@Url.Action( "ProcesarSolicitud", "AtencionCliente",new { id = item.DocEntry } )" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Procesar Solicitud"><i class="icon-history"></i></a>
+                                <button style="border: none; background:none;" type="button" onclick="anular(@item.DocEntry);" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Anular Solicitud"><i class="icon-bin2 text-danger"></i></button>
                             }
                             else if (item.Estado.Equals("Proceso"))
                             {
-                                <a href="@Url.Action( "ProcesarSolicitud", "AtencionCliente",new { id = item.DocEntry } )"><i title="Procesar" class="icon-history"></i></a>
-                                <a href="@Url.Action( "AtenderSolicitud", "AtencionCliente", new { id = item.DocEntry } )"><i title="Atender" class="icon-clipboard"></i></a>
+                                <a href="@Url.Action( "ProcesarSolicitud", "AtencionCliente",new { id = item.DocEntry } )" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Procesar Solicitud"><i class="icon-history"></i></a>
+                                <a href="@Url.Action( "AtenderSolicitud", "AtencionCliente", new { id = item.DocEntry } )" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Atender Solicitud"><i class="icon-clipboard"></i></a>
                             }
                             else if (item.Estado.Equals("Atendido"))
                             {
-                                <a href="@Url.Action( "AtenderSolicitud", "AtencionCliente", new { id = item.DocEntry } )"><i title="Atender" class="icon-clipboard"></i></a>
-                                <a href="@Url.Action( "CulminarSolicitud", "AtencionCliente",new { id = item.DocEntry } )"><i title="Culminar" class="icon-pushpin"></i></a>
+                                <a href="@Url.Action( "AtenderSolicitud", "AtencionCliente", new { id = item.DocEntry } )" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Atender Solicitud"><i class="icon-clipboard"></i></a>
+                                <a href="@Url.Action( "CulminarSolicitud", "AtencionCliente",new { id = item.DocEntry } )" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Culminar Solicitud"><i class="icon-pushpin"></i></a>
                             }
                             else if (item.Estado.Equals("Culminado"))
                             {
-                                <a href="@Url.Action( "CulminarSolicitud", "AtencionCliente",new { id = item.DocEntry } )"><i title="Culminar" class="icon-pushpin"></i></a>
+                                <a href="@Url.Action( "CulminarSolicitud", "AtencionCliente",new { id = item.DocEntry } )" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Culminar Solicitud"><i class="icon-pushpin"></i></a>
                             }
                         </td>
                     </tr>

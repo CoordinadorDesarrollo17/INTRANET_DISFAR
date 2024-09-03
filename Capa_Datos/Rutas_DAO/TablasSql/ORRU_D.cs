@@ -286,7 +286,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
 					if (!dr2.IsDBNull(30)) { d.MontoRecibidoDeposito = dr2.GetDecimal(30); }
 
                     ORTV_D ortv = new ORTV_D();
-                    d.Ticket = ortv.obtenerTicket(d.DocEntryTicket);
+                    d.Ticket = ortv.ObtenerDatosCompletosTicket(d.DocEntryTicket);
 
                     o.DetRRU0.Add(d);
 				}
@@ -546,7 +546,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
 							// cambio de estado ticket
 							foreach (RRU0_E dr in RRU0_E.listaFinalDetalles(o.DetRRU0))
 							{
-								ORTV_E tcv = ticketD.obtenerTicket(dr.DocEntryTicket);
+								ORTV_E tcv = ticketD.ObtenerDatosCompletosTicket(dr.DocEntryTicket);
 								CC_ORTV_D ccORTV_D = new CC_ORTV_D();
 								List<CC_ORTV_E> estadoPesado = ccORTV_D.ListarCC_ORTV(tcv.DocEntry, "PESAR");
 								List<CC_ORTV_E> estadoEmpacado = ccORTV_D.ListarCC_ORTV(tcv.DocEntry, "FIN EMPACAR");

@@ -531,14 +531,33 @@ function ObtieneDeudasSaldos() {
 }
 function verificacionDatos(estado) {
     $("#Verificar").on('click', function (e) {
-        var object;
-        if (estado == '') {
-            object = $("#CreaTicketVenta").serialize();
-        } else {
-            object = $("#EditaTicketVenta").serialize();
-        }
-        $.ajax('/Ventas/ValidarDatosTicket', {
-            data: object,
+        e.preventDefault();
+        var tipoVenta;
+
+        if (estado === '') {
+            var tipoVentaInput = $('#TipoVentaInput');
+            var tipoVentaSelect = $('#TipoVentaSelect');
+
+
+            if (tipoVentaSelect.val() != '') {
+                tipoVenta = tipoVentaSelect.val();
+            } else {
+                tipoVenta = tipoVentaInput.val();
+            }
+        } else { tipoVenta = $('#TipoVenta').val(); }
+        var formSelector = estado === '' ? "#CreaTicketVenta" : "#EditaTicketVenta";
+        var object = $(formSelector).serializeArray();
+
+        var dataObject = {};
+        $.each(object, function (i, field) {
+            dataObject[field.name] = field.value;
+        });
+
+        dataObject.TipoVenta = tipoVenta;
+
+        $.ajax({
+            url: '/Ventas/ValidarDatosTicket',
+            data: dataObject,
             dataType: 'html',
             cache: false,
             type: 'post'
@@ -549,21 +568,23 @@ function verificacionDatos(estado) {
                 } else {
                     Swal.fire({
                         title: 'Datos Ok',
-                        html: '<button type="button" id="cancelar" class="btn btn-secondary">Cancelar</button> <button type="button" id="enviarForm" class="btn btn-success"><i class="icon icon-plus"></i> Enviar </button> ',
+                        html: '<button type="button" id="cancelar" class="btn btn-secondary">Cancelar</button> <button type="button" id="enviarForm" class="btn btn-success"><i class="icon icon-plus"></i> Enviar </button>',
                         showCloseButton: false,
                         showCancelButton: false,
-                        showConfirmButton: false, 
+                        showConfirmButton: false
                     });
-                    // Agregar evento onclick al botón enviarFormulario
-                    $("#enviarForm").on('click', function (e) {
+
+                    $("#enviarForm").on('click', function () {
                         enviarFormulario();
                     });
-                    // Agregar evento onclick al botón cancelar
-                    $("#cancelar").on('click', function (e) {
-                        Swal.close(); // Cerrar el modal
+
+                    $("#cancelar").on('click', function () {
+                        Swal.close();
                     });
                 }
+            })
+            .fail(function (xhr, status, error) {
+                console.error('Error:', error);
             });
-
     });
 }

@@ -15,53 +15,53 @@
     }
 </script>
 
-<div class="pt-4">
+<div class="pt-3">
     <nav>
-        <ol class="cd-breadcrumb bg-dark">
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
             <li class="current"><em>Listado facturas de proveedores</em></li>
         </ol>
     </nav>
 </div>
 
-<div class="bg-dark border-cabecera-seccion pb-2">
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
     <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO FACTURAS DE PROVEEDORES</h3></div>
 </div>
 
 
-<div class="bg-form-pestanas-cobefar">
-    <div class="bg-dark">
+<div class="pt-3 bg-form-pestanas-cobefar">
+    <div class="bg-white">
         <form name="frm" id="frm">
             <table class="table table-light table-sm table-hover cls-dataTable" id="tabla_Datos" cellspacing="0" width="100%">
-                <thead class="thead-dark">
+                <thead class="bg-cobefar-6">
                     <tr>
                         <th class="text-center">
-                            @Html.DisplayNameFor(model => model.DocNum)
-                            <input type="text" name="DocNum" class="form-control" style="width: 120px" onchange="filtrar();" value="@if (o.DocNum != 0) { Write(o.DocNum); } " />
+                            @Html.DisplayNameFor(model => model.DocNum)<br />
+                            <input type="text" name="DocNum" class="form-control-sm border" style="width: 120px" onchange="filtrar();" value="@if (o.DocNum != 0) { Write(o.DocNum); } " />
                         </th>
                         <th class="text-center">
-                            @Html.DisplayNameFor(model => model.DocDate)
-                            <input type="date" name="DocDate" class="form-control input_date-filtro-table" style="height: 38px" onchange="filtrar();" value="@o.DocDate" />
+                            @Html.DisplayNameFor(model => model.DocDate)<br />
+                            <input type="date" name="DocDate" class="form-control-sm border" onchange="filtrar();" value="@o.DocDate" />
                         </th>
                         <th class="text-center">
-                            @Html.DisplayNameFor(model => model.TaxDate)
-                            <input type="date" name="TaxDate" class="form-control input_date-filtro-table" style="height: 38px" onchange="filtrar();" value="@o.TaxDate" />
+                            @Html.DisplayNameFor(model => model.TaxDate)<br />
+                            <input type="date" name="TaxDate" class="form-control-sm border" onchange="filtrar();" value="@o.TaxDate" />
                         </th>
                         <th>
-                            @Html.DisplayNameFor(model => model.CardName)
-                            <input type="text" name="CardName" class="form-control" onchange="filtrar();" value="@o.CardName" />
+                            @Html.DisplayNameFor(model => model.CardName)<br />
+                            <input type="text" name="CardName" class="form-control-sm border" onchange="filtrar();" value="@o.CardName" />
                         </th>
                         <th class="text-center">
-                            @Html.DisplayNameFor(model => model.NumAtCard)
-                            <input type="text" name="NumAtCard" class="form-control" onchange="filtrar();" value="@o.NumAtCard" />
+                            @Html.DisplayNameFor(model => model.NumAtCard)<br>
+                            <input type="text" name="NumAtCard" class="form-control-sm border" onchange="filtrar();" value="@o.NumAtCard" />
                         </th>
                         <th class="text-center">
-                            @Html.DisplayNameFor(model => model.DocTotal)
-                            <input type="text" name="DocTotal" class="form-control" onchange="filtrar();" value="@if (o.DocTotal != 0) { Write(o.DocTotal); } " />
+                            @Html.DisplayNameFor(model => model.DocTotal)<br />
+                            <input type="text" name="DocTotal" class="form-control-sm border" onchange="filtrar();" value="@if (o.DocTotal != 0) { Write(o.DocTotal); } " />
                         </th>
                         <th class="text-center">
-                            @Html.DisplayNameFor(model => model.U_SYP_STATUS)
-                            <input type="text" name="U_SYP_STATUS" class="form-control" onchange="filtrar();" value="@o.U_SYP_STATUS" />
+                            @Html.DisplayNameFor(model => model.U_SYP_STATUS)<br />
+                            <input type="text" name="U_SYP_STATUS" class="form-control-sm border" onchange="filtrar();" value="@o.U_SYP_STATUS" />
                         </th>
                         <th class="text-center">
                             @Html.DisplayNameFor(model => model.entradasVinculadas)
@@ -101,7 +101,7 @@
                                 }
                             </td>
                             <td class="text-center">
-                                <a class="btn btn-success btn-sm" href="@Url.Action("FacturaDeProveedor" ,new { DocEntry = item.DocEntry })"><i class="icon-search"></i></a>
+                                <a class="btn btn-sm btn-light" href="@Url.Action("FacturaDeProveedor" ,new { DocEntry = item.DocEntry })" data-toggle="tooltip" data-placement="top" title="Factura Proveedor"><i class="icon-search text-dark"></i></a>
                             </td>
                         </tr>
                     }

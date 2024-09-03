@@ -9,7 +9,8 @@ namespace Capa_Datos.SocioNegocios_DAO.Tablas
 {
     public class OCRD_D
     {
-        DBHelper db = new DBHelper();Utilitarios uti = new Utilitarios();
+        DBHelper db = new DBHelper();
+        Utilitarios uti = new Utilitarios();
         public List<OCRD_E> listarSociosDeNegocios(OCRD_E filtro)
         {
             List<OCRD_E> lista = new List<OCRD_E>();
@@ -20,7 +21,7 @@ namespace Capa_Datos.SocioNegocios_DAO.Tablas
                 if (!string.IsNullOrEmpty(filtro.CardType)) { fil += " and T0.\"CardType\"='"+filtro.CardType+"'"; }
             }
             string query = "select T0.\"CardCode\",T0.\"CardName\",T0.\"CardType\",T0.\"GroupCode\",T0.\"Phone1\" " +
-                           " from " + uti.schemaHana + "ocrd T0 where T0.\"CardCode\" is not null "+
+                           " from " + uti.schemaHana + "OCRD T0 where T0.\"CardCode\" is not null "+
                            fil+" order by T0.\"CardName\"";
             try
             {
@@ -44,7 +45,7 @@ namespace Capa_Datos.SocioNegocios_DAO.Tablas
         {
             List<OCRD_E> lista = new List<OCRD_E>();
             string query = "select T0.\"CardCode\",T0.\"CardName\",T0.\"CardType\",T0.\"GroupCode\" "+
-                           " from "+uti.schemaHana+"ocrd T0 inner join "+uti.schemaHana+"ocpr T1 on T1.\"CardCode\" = T0.\"CardCode\" "+
+                           " from "+uti.schemaHana+"OCRD T0 inner join "+uti.schemaHana+"OCPR T1 on T1.\"CardCode\" = T0.\"CardCode\" "+
                            " group by T0.\"CardCode\",T0.\"CardName\",T0.\"CardType\",T0.\"GroupCode\" ";
             try
             {
@@ -63,7 +64,6 @@ namespace Capa_Datos.SocioNegocios_DAO.Tablas
             catch { }
             return lista;
         }
-
 		public int Migrar()
 		{
 			int status = 0;
@@ -83,9 +83,16 @@ namespace Capa_Datos.SocioNegocios_DAO.Tablas
 				cn.Close();
 			}
 			catch (Exception e2) { cn.Close(); throw new Exception("Error en eliminacion y conexion: " + e2.Message); }
-            string query1 = " INSERT INTO dbo.OCRD values(@CardCode, @CardName, @Address, @CreateDate);";
-            string query2 = "SELECT " +
-                                    "x.\"CardCode\" AS \"RUC\", x.\"CardName\" AS \"NOMBRE\", x.\"Address\" AS \"DIRECCION FISCAL\", TO_VARCHAR (x.\"CreateDate\", 'YYYY-MM-DD')  FROM " + uti.schemaHana + "OCRD x WHERE TO_VARCHAR (x.\"CreateDate\", 'YYYY-MM-DD') >= CURRENT_DATE ORDER BY x.\"CreateDate\" ASC";
+            string query1 = $@"INSERT INTO dbo.OCRD values(@CardCode, @CardName, @Address, @CreateDate);";
+            string query2 = $@"SELECT 
+                                x.""CardCode"" AS ""RUC"", 
+                                x.""CardName"" AS ""NOMBRE"", 
+                                x.""Address"" AS ""DIRECCION FISCAL"", 
+                                TO_VARCHAR(x.""CreateDate"", 'YYYY-MM-DD') AS ""FECHA CREACION""
+                            FROM {uti.schemaHana}OCRD x
+                            WHERE TO_VARCHAR(x.""CreateDate"", 'YYYY-MM-DD') >= TO_VARCHAR(CURRENT_DATE, 'YYYY-MM-DD')
+                            ORDER BY x.""CreateDate"" ASC";
+
             // DESCOMENTAR CUANDO SE QUIERA TRAER TODA LA TABLA COMPLETA SIN RESTRICCIONES "x.\"CardCode\" AS \"RUC\", x.\"CardName\" AS \"NOMBRE\", x.\"Address\" AS \"DIRECCION FISCAL\", TO_VARCHAR (x.\"CreateDate\", 'YYYY-MM-DD')  FROM " + uti.schemaHana + "OCRD x ORDER BY x.\"CreateDate\" ASC";
             try
             {
@@ -130,55 +137,7 @@ namespace Capa_Datos.SocioNegocios_DAO.Tablas
 			}
 			return status;
 		}
-
-		public List<OCRD_E> BuscarCliente(OCRD_E cliente)
-		{
-			List<OCRD_E> lista = new List<OCRD_E>();
-            string condWhere = string.Empty;
-
-            // TipoCliente "P" (proveedor), este filtro es para la búsqueda de proveedor en Nueva Devolución / Editar Devolución (VIEW: Almacén -> Devolución de Mercancías)
-            if (cliente.TipoCliente != null && cliente.TipoCliente.Equals("P"))
-            {
-                condWhere += " AND CardCode LIKE 'P%'";
-            }
-
-            using (SqlConnection cn = new SqlConnection(uti.cadSql))
-            {
-                string query = $"SELECT * FROM dbo.OCRD WHERE CardName LIKE '%{cliente.CardName}%' {condWhere} ORDER BY CardName ASC";
-
-				SqlCommand cmd = new SqlCommand(query, cn);         // prepara
-				cn.Open();
-
-				try
-				{
-					SqlDataReader dr = cmd.ExecuteReader();             // ejecuta
-
-					if (dr.HasRows)
-					{
-						while (dr.Read())
-						{
-							OCRD_E ocrd = new OCRD_E();
-
-							if (!dr.IsDBNull(0)) { ocrd.CardCode = dr.GetString(0); }
-							if (!dr.IsDBNull(1)) { ocrd.CardName = dr.GetString(1); }
-							if (!dr.IsDBNull(2)) { ocrd.Address = dr.GetString(2); }
-
-							lista.Add(ocrd);
-						}
-					}
-
-					dr.Close();
-				}
-				catch (Exception e)
-				{
-					throw new Exception(e.Message);
-				}
-
-				cn.Close();
-			}
-
-			return lista;
-		}
+		
 
 	}
 }

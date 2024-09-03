@@ -21,34 +21,66 @@
     });
     var perInfo = JSON.parse('@Html.Raw(perInfoJson)');
     var contUser = 0;
+
     function valorCampoList(id) {
         var Sel = $("#" + id);
         var SelOpt = $("#listaMiembros option[value='" + Sel.val() + "']").attr("nombre");
-        if (Sel.val() == null || Sel.val() == "") { swal.fire("No ha seleccionado un personal", "Verifique", "warning"); return; }
-        if (SelOpt == null || SelOpt == "") { swal.fire("No ha seleccionado un personal existente", "Verifique", "warning"); return; }
-        if (validarUnicoCampoTabla(Sel.val(), "DetallesEquipos1")) {
-            $("#DetallesEquipos1 > tbody").append("<tr><td><input class='form-control text-center' name='DetMiembros[" + contUser + "].Linea' value='" + (contUser+1) +" ' readonly /></td>"+
-                "<td><input class= 'form-control text-center' name = 'DetMiembros[" + contUser + "].Id' value = '" + Sel.val() + "' readonly /></td ><td><input class='form-control' name='DetMiembros[" + contUser + "].Nombre' value='" + SelOpt + "'  readonly /></td><td>" +
-                "<button type='button' onclick='borrarTrTable1(this)' class='btn btn-danger'>Retirar</button></td></tr>");
-            contUser = contUser + 1;
+
+        if (Sel.val() == null || Sel.val() == "") {
+            swal.fire("No ha seleccionado un personal", "Verifique", "warning");
+            return;
         }
+
+        if (SelOpt == null || SelOpt == "") {
+            swal.fire("No ha seleccionado un personal existente", "Verifique", "warning");
+            return;
+        }
+
+        if (validarUnicoCampoTabla(Sel.val(), "DetallesEquipos1")) {
+            $("#DetallesEquipos1 > tbody").append(
+                "<tr>" +
+                "<td><input class='form-control text-center' name='DetMiembros[" + contUser + "].Linea' value='" + (contUser + 1) + "' readonly /></td>" +
+                "<td><input class='form-control text-center' name='DetMiembros[" + contUser + "].Id' value='" + Sel.val() + "' readonly /></td>" +
+                "<td><input class='form-control' name='DetMiembros[" + contUser + "].Nombre' value='" + SelOpt + "' readonly /></td>" +
+                "<td><button type='button' onclick='borrarTrTable1(this)' class='btn btn-danger'><i class='icon-bin'> </i></button></td>" +
+                "</tr>"
+            );
+            contUser++;
+        }
+
         $("#" + id).val("");
     }
+
     var contLab = 0;
+
     function valorCampoList2(id) {
         var Sel = $("#" + id);
         var SelOpt = $("#listaLaboratorios option[value='" + Sel.val() + "']").attr("FirmName");
         var SelOpt2 = $("#listaLaboratorios option[value='" + Sel.val() + "']").attr("U_SYP_DESC");
-        if (Sel.val() == null || Sel.val() == "") { swal.fire("No ha seleccionado un laboratorio", "Verifique", "warning"); return; }
-        if (SelOpt2 == null || SelOpt2 == "") { swal.fire("No ha seleccionado un laboratorio existente", "Verifique", "warning"); return; }
-        if (validarUnicoCampoTabla(Sel.val(), "DetallesEquipos2")) {
-            $("#DetallesEquipos2 > tbody").append("<tr><td ><input class='form-control text-center' name='DetFabricantes[" + contLab + "].Linea' value='" + (contLab+1) + " ' style='width: 70px;' readonly /></td>" +
-                "<td hidden ><input class='form-control' name='DetFabricantes[" + contLab + "].FirmCode' value='" + Sel.val() + "'   /></td>" +
-                "<td><input class='form-control text-center' name='DetFabricantes[" + contLab + "].FirmName' value='" + SelOpt + "' style='width: 120px;' readonly /></td>" +
-                "<td><input class='form-control' name='DetFabricantes[" + contLab + "].U_SYP_DESC' value='" + SelOpt2 + "'  readonly /></td><td>" +
-                "<button type='button' onclick='borrarTrTable2(this)' class='btn btn-danger'>Retirar</button></td></tr>");
-            contLab = contLab + 1;
+
+        if (Sel.val() == null || Sel.val() == "") {
+            swal.fire("No ha seleccionado un laboratorio", "Verifique", "warning");
+            return;
         }
+
+        if (SelOpt2 == null || SelOpt2 == "") {
+            swal.fire("No ha seleccionado un laboratorio existente", "Verifique", "warning");
+            return;
+        }
+
+        if (validarUnicoCampoTabla(Sel.val(), "DetallesEquipos2")) {
+            $("#DetallesEquipos2 > tbody").append(
+                "<tr>" +
+                "<td><input class='form-control text-center' name='DetFabricantes[" + contLab + "].Linea' value='" + (contLab + 1) + "' readonly /></td>" +
+                "<td hidden><input class='form-control' name='DetFabricantes[" + contLab + "].FirmCode' value='" + Sel.val() + "' /></td>" +
+                "<td><input class='form-control text-center' name='DetFabricantes[" + contLab + "].FirmName' value='" + SelOpt + "' readonly /></td>" +
+                "<td><input class='form-control' name='DetFabricantes[" + contLab + "].U_SYP_DESC' value='" + SelOpt2 + "' readonly /></td>" +
+                "<td><button type='button' onclick='borrarTrTable2(this)' class='btn btn-danger'><i class='icon-bin'> </i></button></td>" +
+                "</tr>"
+            );
+            contLab++;
+        }
+
         $("#" + id).val("");
     }
 
@@ -130,7 +162,7 @@
 
 <div class="pt-4">
     <nav>
-        <ol class="cd-breadcrumb bg-dark">
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
             <li><a href="@Url.Action("ContabilizacionInventario", "Almacen")">Módulo contabilización inventario</a></li>
             <li><a href="@Url.Action("GestionEquipos", "Almacen")">Gestión equipos</a></li>
@@ -139,7 +171,7 @@
     </nav>
 </div>
 
-<div class="bg-dark border-cabecera-seccion pb-2">
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
     <div class="px-3 pt-3"><h3 class="titulo-seccion">EDITAR EQUIPO</h3></div>
 </div>
 
@@ -221,7 +253,7 @@
                     <label for="Miembros" class="text-dark form-label font-weight-bold font-18">Miembros:</label>
                     <div class="d-flex">
                         <input type="search" id="Miembros" list="listaMiembros" class="form-control border-success" />
-                        <button style="margin-right:10px" type="button" class="btn btn-info" onclick="valorCampoList('Miembros');">Agregar</button>
+                        <button  type="button" class="btn btn-info mr-2" onclick="valorCampoList('Miembros');">Agregar</button>
                     </div>
 
                     <datalist id="listaMiembros">
@@ -253,9 +285,9 @@
                     <table id="DetallesEquipos1" class="table table-sm ">
                         <thead class="bg-success">
                             <tr>
-                                <th class="text-center" style="width: 70px">#</th>
-                                <th class="text-center" style="width: 160px">User</th>
-                                <th class="text-center">Nombre</th>
+                                <th class="text-center">#</th>
+                                <th class="text-center">Usuario</th>
+                                <th class="text-center">Nombres</th>
                                 <th class="text-center"></th>
                             </tr>
                         </thead>
@@ -267,7 +299,7 @@
                                     <td><input class='form-control text-center' name='DetMiembros[@cont].Linea' value='@obj.Linea' readonly /></td>
                                     <td><input class='form-control text-center' name='DetMiembros[@cont].Id' value='@obj.Id' readonly /></td>
                                     <td><input class='form-control' name='DetMiembros[@cont].Nombre' value='@obj.Nombre' readonly /></td>
-                                    <td><button type='button' onclick='borrarTrTable1(this)' class='btn btn-danger'>Retirar</button></td>
+                                    <td><button type='button' onclick='borrarTrTable1(this)' class='btn btn-danger'><i class="icon-bin"> </i></button></td>
                                 </tr>
                                 cont++;
                             }
@@ -280,8 +312,8 @@
                     <table id="DetallesEquipos2" class="table table-sm">
                         <thead class="bg-success">
                             <tr>
-                                <th class="text-center" style="width: 70px">#</th>
-                                <th class="text-center" style="width: 90px">Cod</th>
+                                <th class="text-center">#</th>
+                                <th class="text-center">Codigo</th>
                                 <th class="text-center">Descripcion</th>
                                 <th class="text-center"></th>
                             </tr>
@@ -295,7 +327,7 @@
                                     <td hidden><input class='form-control' name='DetFabricantes[@cont2].FirmCode' value='@obj.FirmCode' readonly /></td>
                                     <td><input class='form-control text-center' name='DetFabricantes[@cont2].FirmName' value='@obj.FirmCode' readonly /></td>
                                     <td><input class='form-control' name='DetFabricantes[@cont2].U_SYP_DESC' value='@obj.U_SYP_DESC' readonly /></td>
-                                    <td><button type='button' onclick='borrarTrTable2(this)' class='btn btn-danger'>Retirar</button></td>
+                                    <td><button type='button' onclick='borrarTrTable2(this)' class='btn btn-danger'><i class="icon-bin"> </i></button></td>
                                 </tr>
                                 cont2++;
                             }

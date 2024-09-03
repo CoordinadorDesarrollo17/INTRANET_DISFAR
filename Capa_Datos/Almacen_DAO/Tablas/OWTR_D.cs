@@ -1,5 +1,6 @@
 ﻿using Capa_Datos.DireccionTecnica_DAO.TablasSql;
 using Capa_Entidad.Almacen_ENT.Tablas;
+using Capa_Entidad.ComprobantesContables_ENT;
 using Capa_Entidad.Rutas_ENT.TablasSql;
 using Sap.Data.Hana;
 using System;
@@ -98,7 +99,6 @@ namespace Capa_Datos.Almacen_DAO.Tablas
         {
             List<Guia_Remision_E> lista = new List<Guia_Remision_E>();
             int DocEntry = 0;
-            //busca DocEntry de NumAtCard en OWTR
             string queryDE = $"SELECT  \"DocEntry\" FROM {uti.schemaHana}OWTR  WHERE \"U_SYP_MDTD\" || '-' ||\"U_SYP_MDSD\" || '-' || \"U_SYP_MDCD\" = '{NumAtCard}'";
             HanaConnection cn = new HanaConnection(uti.cadHana);
             try
@@ -189,68 +189,6 @@ namespace Capa_Datos.Almacen_DAO.Tablas
                 }
                 catch (Exception e) { throw new Exception(e.Message); }
             }
-            return lista;
-        }
-        public TEMP_RRU01_E obtenerGuiaRemision(string NumAtCard)
-        {
-            TEMP_RRU01_E obj = new TEMP_RRU01_E();
-            string query = $"SELECT 'OWTR', \"U_SYP_MDTD\", \"U_SYP_MDSD\", \"U_SYP_MDCD\", TO_CHAR(\"DocDate\", 'YYYY-MM-DD'), TO_CHAR(\"U_BPP_FECINITRA\", 'YYYY-MM-DD'),'G' FROM {uti.schemaHana}OWTR  WHERE \"U_SYP_MDTD\" || '-' ||\"U_SYP_MDSD\" || '-' || \"U_SYP_MDCD\" = '{NumAtCard}'";
-            HanaConnection cn = new HanaConnection(uti.cadHana);
-            try
-            {
-                cn.Open();
-                HanaCommand cmd = new HanaCommand(query, cn);
-                cmd.CommandType = System.Data.CommandType.Text;
-                HanaDataReader dr = cmd.ExecuteReader();
-                while (dr.Read())
-                {
-                    if (!dr.IsDBNull(0)) { obj.TablaSAP = dr.GetString(0); }
-                    if (!dr.IsDBNull(1)) { obj.U_SYP_MDTD = dr.GetString(1); }
-                    if (!dr.IsDBNull(2)) { obj.U_SYP_MDSD = dr.GetString(2); }
-                    if (!dr.IsDBNull(3)) { obj.U_SYP_MDCD = dr.GetString(3); }
-                    if (!dr.IsDBNull(4)) { obj.DocDate = dr.GetString(4); }
-                    if (!dr.IsDBNull(5)) { obj.U_BPP_FECINITRA = dr.GetString(5); }
-                    if (!dr.IsDBNull(6)) { obj.Identificador = dr.GetString(6); }
-                }
-                dr.Close();
-                cn.Close();
-            }
-            catch { cn.Close(); }
-            return obj;
-        }
-        public List<TEMP_RRU01_E> GuiasRemisionSap(int DocNum, string WhsCode)
-        {
-            string guias = string.Empty; List<TEMP_RRU01_E> lista = new List<TEMP_RRU01_E>();
-            string query = "SELECT top 10 IFNULL(T0.\"U_SYP_MDTD\" || '-' || T0.\"U_SYP_MDSD\" || '-' || T0.\"U_SYP_MDCD\", '') as \"GUIAS\" " +
-                    "FROM " + uti.schemaHana + "OWTR T0 WHERE T0.\"CANCELED\" = 'N' AND T0.\"U_SYP_MDTD\" IS NOT NULL AND T0.\"U_SYP_MDSD\" IS NOT NULL " +
-                    "AND T0.\"U_SYP_MDCD\" IS NOT NULL AND T0.\"ToWhsCode\" ='" + WhsCode + "' AND T0.\"U_COB_LUGAREN\" ='" + WhsCode + "' " +
-                    "AND T0.\"Comments\" like '" + "%" + DocNum + "%" + "' ORDER BY T0.\"DocEntry\" desc";
-
-            HanaConnection cn = new HanaConnection(uti.cadHana);
-            try
-            {
-                cn.Open();
-                HanaCommand cmd = new HanaCommand(query, cn);
-                cmd.CommandType = System.Data.CommandType.Text;
-                HanaDataReader dr = cmd.ExecuteReader();
-                while (dr.Read())
-                {
-                    if (!dr.IsDBNull(0)) { guias += dr.GetString(0) + ","; }
-                }
-
-                //separamos las guias del concatenado y buscamos su detalle
-                List<string> ItemGuias = guias.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-
-                foreach (var NumAtCard in ItemGuias)
-                {
-                    TEMP_RRU01_E obj = obtenerGuiaRemision(NumAtCard);
-                    if (!string.IsNullOrEmpty(obj.U_SYP_MDCD)) { lista.Add(obj); }
-                }
-
-                dr.Close();
-                cn.Close();
-            }
-            catch { cn.Close(); }
             return lista;
         }
         public string CalcularPdfsActaRecepcion(string Fecha, string U_SYP_STATUS, string U_COB_LUGAREN)

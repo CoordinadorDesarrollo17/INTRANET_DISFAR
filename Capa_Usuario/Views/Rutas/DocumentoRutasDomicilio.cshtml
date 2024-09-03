@@ -111,7 +111,7 @@
                 <th align=center width=18%><font size="@ViewBag.Letra">FIRMA Y/O SELLO DE RECIBIDO</font></th>
 
             </tr>
-            @foreach (var det in Model2.DetRRU0.Where(x => x.Estado != "LIBERADO"))
+            @foreach (var det in Model2.DetRRU0.Where(x => x.Estado != "LIBERADO").OrderBy(x=>x.Linea).ToList())
             {
                 <tr>
                     <td><font size="@ViewBag.Letra">@det.Linea</font></td>
@@ -230,7 +230,7 @@
                         <th align=center width=18%><font size="@ViewBag.Letra">FIRMA Y/O SELLO DE RECIBIDO</font></th>
 
                     </tr>
-                    @foreach (var det in Model2.DetRRU0.Where(x => x.Ticket.Det5 != null && x.Ticket.Det5.Count > 0 && x.Ticket.Det5[0].RegCant > 0 && x.Estado != "LIBERADO"))
+                    @foreach (var det in Model2.DetRRU0.Where(x => x.Ticket.Det5 != null && x.Ticket.Det5.Count > 0 && x.Ticket.Det5[0].RegCant > 0 && x.Estado != "LIBERADO").OrderBy(x => x.Linea).ToList())
                     {
                         <tr>
                             <td><font size="@ViewBag.Letra">@det.Linea</font></td>
@@ -330,7 +330,7 @@
                     <th align=center width=5%><font size="@ViewBag.Letra"># CAJAS</font></th>
 
                 </tr>
-                @foreach (var det in Model2.DetRRU0.Where(x => x.Estado != "LIBERADO"))
+                @foreach (var det in Model2.DetRRU0.Where(x => x.Estado != "LIBERADO").OrderBy(x => x.Linea).ToList())
                 {
                     if (det.Ticket.Det3.Count >= 2)
                     {

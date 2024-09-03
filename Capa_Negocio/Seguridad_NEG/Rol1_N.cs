@@ -11,13 +11,14 @@ namespace Capa_Negocio.Seguridad_NEG
     public class Rol1_N
     {
         Rol1_D rol1 = new Rol1_D();
-        public int verificarAccesoOperacion(int idRol, int idOperacion, string nombreOperacion, int modulo)
+        public int VerificarAccesoOperacion(int idRol, int idOperacion, string nombreOperacion, int modulo)
         {
-            return rol1.verificarAccesoOperacion(idRol, idOperacion, nombreOperacion, modulo);
+            return rol1.VerificarAccesoOperacion(idRol, idOperacion, nombreOperacion, modulo);
         }
-        public void crudOperacion(int idRol, int[] numeros)
+
+        public void CrudOperacion(int idRol, int[] numeros)
         {
-            rol1.crudOperacion(idRol, numeros);
+            rol1.CrudOperacion(idRol, numeros);
         }
     }
 }

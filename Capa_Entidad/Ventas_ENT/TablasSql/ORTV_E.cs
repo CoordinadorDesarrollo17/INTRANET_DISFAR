@@ -155,7 +155,24 @@ namespace Capa_Entidad.Ventas_ENT.TablasSql
         public string EstadoContraEntrega { get; set; }     // Estado de la tabla OTC
         public string TipoPago { get; set; }                // TipoPago de la tabla OTC
         public int IdOTC { get; set; }                      // Para saber el Id de Tickets a Cuadrar
+        public bool zonaDistinta { get; set; }                      // Para saber el Id de Tickets a Cuadrar
+        public ORTV_E()
+        {
+            hayIniPicking = false;
+            hayIniVerificar = false;
+            hayIniEmpacar = false;
+            hayFinPicking = false;
+            hayFinVerificar = false;
+            hayFinEmpacar = false;
+            hayRecibir = false;
+            hayEnviar = false;  
+            hayEntregar = false;
+            aptoFinVerificar = false;
+            aptoIniVerificar=false;
+            zonaDistinta = false;
+        }
     }
+
     public class Tickets
     {
         public int DocEntry { get; set; }

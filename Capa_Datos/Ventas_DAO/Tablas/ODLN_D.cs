@@ -1,4 +1,5 @@
 ﻿using Capa_Entidad.Almacen_ENT.Tablas;
+using Capa_Entidad.ComprobantesContables_ENT;
 using Capa_Entidad.Rutas_ENT.TablasSql;
 using Capa_Entidad.Ventas_ENT.Tablas;
 using DocumentFormat.OpenXml.Office2013.Excel;
@@ -87,38 +88,10 @@ namespace Capa_Datos.Ventas_DAO.Tablas
             catch { cn.Close(); }
             return guias;
         }
-        public TEMP_RRU01_E obtenerGuiaRemision(string NumAtCard)
-        {
-            TEMP_RRU01_E obj = new TEMP_RRU01_E();
-            string query = $"SELECT 'ODLN', \"U_SYP_MDTD\", \"U_SYP_MDSD\", \"U_SYP_MDCD\", TO_CHAR(\"DocDate\", 'YYYY-MM-DD'), TO_CHAR(\"U_BPP_FECINITRA\", 'YYYY-MM-DD'),'G' FROM {uti.schemaHana}ODLN  WHERE \"NumAtCard\" ='{NumAtCard}'";
-            HanaConnection cn = new HanaConnection(uti.cadHana);
-            try
-            {
-                cn.Open();
-                HanaCommand cmd = new HanaCommand(query, cn);
-                cmd.CommandType = System.Data.CommandType.Text;
-                HanaDataReader dr = cmd.ExecuteReader();
-                while (dr.Read())
-                {
-                    if (!dr.IsDBNull(0)) { obj.TablaSAP = dr.GetString(0); }
-                    if (!dr.IsDBNull(1)) { obj.U_SYP_MDTD = dr.GetString(1); }
-                    if (!dr.IsDBNull(2)) { obj.U_SYP_MDSD = dr.GetString(2); }
-                    if (!dr.IsDBNull(3)) { obj.U_SYP_MDCD = dr.GetString(3); }
-                    if (!dr.IsDBNull(4)) { obj.DocDate = dr.GetString(4); }
-                    if (!dr.IsDBNull(5)) { obj.U_BPP_FECINITRA = dr.GetString(5); }
-                    if (!dr.IsDBNull(6)) { obj.Identificador = dr.GetString(6); }
-                }
-                dr.Close();
-                cn.Close();
-            }
-            catch { cn.Close(); }
-            return obj;
-        }
         public List<Guia_Remision_E> buscarGuiaRemisionSap(string NumAtCard)
         {
             List<Guia_Remision_E> lista = new List<Guia_Remision_E>();
             int DocEntry = 0;
-            //busca DocEntry de NumAtCard en ODLN
             string queryDE = $"SELECT  \"DocEntry\" FROM {uti.schemaHana}ODLN  WHERE \"NumAtCard\" = '{NumAtCard}'";
             HanaConnection cn = new HanaConnection(uti.cadHana);
             try

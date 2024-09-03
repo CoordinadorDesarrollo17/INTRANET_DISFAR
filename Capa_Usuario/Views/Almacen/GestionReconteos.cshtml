@@ -1,6 +1,7 @@
 ﻿@model IEnumerable<Capa_Entidad.Almacen_ENT.TablasSql.OIAR_E>
 @using Capa_Entidad.Almacen_ENT.TablasSql
 @using Capa_Entidad.General_ENT.Tablas
+
 @{
     ViewBag.Title = "GestionReconteos";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -9,9 +10,12 @@
 }
 <script>
     $(document).ready(function () {
+        $('#filterModal').on('shown.bs.modal', function () {
+            $('#filterModal input:first').focus();
+        });
     });
     function filtrar() {
-        var object = $("#frm").serialize();
+        var object = $("#filterForm").serialize();
         $(location).attr('href', "/Almacen/GestionReconteos?" + object);
     }
 </script>
@@ -26,15 +30,20 @@
     </nav>
 </div>
 
-
 <div class="bg-dark border-cabecera-seccion pb-2">
     <div class="px-3 pt-3"><h3 class="titulo-seccion">GESTIÓN DE RECONTEOS</h3></div>
-
-    @*<div class="d-flex pl-2 w-100 py-2">
-            <div class="mx-2">
-                @Html.ActionLink("Nuevo Conteo", "NuevoConteo", null, new { @class = "btn btn-success" })
-            </div>
-        </div>*@
+    <div class="d-flex pl-2 w-100 py-2">
+        <div class="mx-2">
+            <a class="btn btn-success" href="@Url.Action("NuevoReconteo", "Almacen")">
+                <i class="icon icon-plus"></i> Nuevo Reconteo
+            </a>
+        </div>
+        <div class="mx-2">
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#filterModal">
+                <i class="icon icon-filter"></i> Filtrar
+            </button>
+        </div>
+    </div>
 </div>
 
 @if (@OIPE_E.PeriodoSeleccionado != null)
@@ -47,126 +56,151 @@
         </p>
     </div>
 }
+
 <div class="bg-dark pt-4">
-    <form name="frm" id="frm">
-        <table class="table table-light table-sm table-hover cls-dataTable" cellspacing="0" width="100%">
+    <form name="filterForm" id="filterForm">
+        <table class="table table-light table-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
             <thead class="thead-dark">
                 <tr>
                     <th class="text-center">
                         @Html.DisplayName("N#")
-                        <input type="text" name="DocEntry" class="form-control" style="width:70px;" onchange="filtrar();" value="@if(!@ViewBag.Oiar.DocEntry.Equals(0)) { Write(ViewBag.Oiar.DocEntry); }" />
                     </th>
                     <th class="text-center">
                         @Html.DisplayName("OpRecontador")
-                        @if (a.DetFases != null && a.DetFases.Count > 0)
-                        {
-                            <input type="text" name="DetFases[0].Operario" class="form-control" style="width:120px;" onchange="filtrar();" value="@a.DetFases[0].Operario" />
-                        }
-                        else
-                        { <input type="text" name="DetFases[0].Operario" class="form-control" style="width:120px;" onchange="filtrar();" value="" />}
                     </th>
                     <th class="text-center">
                         @Html.DisplayName("Equipo")
-                        <input type="text" name="DocEntryEqu" class="form-control" style="width:70px;" onchange="filtrar();" value="@if (!@ViewBag.Oiar.DocEntryEqu.Equals(0)) { Write(ViewBag.Oiar.DocEntryEqu);  }" />
                     </th>
                     <th class="text-center">
                         @Html.DisplayName("Almacen")
-                        <select name="WhsCode" id="Almacen" class="form-control" onchange="filtrar();" style="width: 150px;">
-                            <option value="">Seleccione</option>
-                            @foreach (OWHS_E obj in ow)
-                            {
-                                if (a.WhsCode != null && a.WhsCode == obj.WhsCode)
-                                {
-                                    <option value="@obj.WhsCode" selected>@obj.WhsName</option>
-                                }
-                                else
-                                {
-                                    <option value="@obj.WhsCode">@obj.WhsName</option>
-                                }
-                            }
-                        </select>
                     </th>
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.Piso)
-                        <input type="number" name="Piso" class="form-control" style="width:60px;" onchange="filtrar();" value="@if (!@ViewBag.Oiar.Piso.Equals(0)) { Write(ViewBag.Oiar.Piso); }" autocomplete="off" />
                     </th>
                     <th class="text-center">
                         @Html.DisplayName("CodArticulo")
-                        <input type="text" name="ItemCode" class="form-control" style="width:80px;" onchange="filtrar();" value="@ViewBag.Oiar.ItemCode" autocomplete="off"/>
                     </th>
                     <th class="text-center">
                         @Html.DisplayName("Articulo")
-                        <input type="text" name="ItemName" class="form-control" style="width:180px;" onchange="filtrar();" value="@ViewBag.Oiar.ItemName" autocomplete="off"/>
                     </th>
                     <th class="text-center">
                         @Html.DisplayName("Lotes")
                     </th>
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.Estado)
-                        <select name="Estado" id="Estado" class="form-control" onchange="filtrar();" style="width: 110px;">
-                            <option value="">Seleccione</option>
-                            <option value="Contado" @if (a.Estado == "Contado") { Write("seleted"); }>Contado</option>
-                            <option value="EnReconteo" @if (a.Estado == "EnReconteo") { Write("seleted"); }>EnReconteo</option>
-                            <option value="Recontado" @if (a.Estado == "Recontado") { Write("seleted"); }>Recontado</option>
-                        </select>
                     </th>
                     <th class="text-center">
                         @Html.DisplayName("Fase")
                     </th>
                     <th></th>
                     <th></th>
-
                 </tr>
             </thead>
             <tbody>
                 @foreach (var item in Model)
                 {
                     <tr>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.DocEntry)
-                        </td>
+                        <td class="text-center">@Html.DisplayFor(modelItem => item.DocEntry)</td>
                         <td class="text-center">
                             @if (item.DetFases != null && item.DetFases.Count > 2 && item.Fase > 3)
-                            {@item.DetFases[2].Operario}
-                        else
-                        { <label></label>}
+                            {
+                                @item.DetFases[2].Operario
+                            }
+                            else
+                            {
+                                <label></label>
+                            }
                         </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.DocEntryEqu)
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.WhsCode)
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.Piso)
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.ItemCode)
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.ItemName)
-                        </td>
+                        <td class="text-center">@Html.DisplayFor(modelItem => item.DocEntryEqu)</td>
+                        <td class="text-center">@Html.DisplayFor(modelItem => item.WhsCode)</td>
+                        <td class="text-center">@Html.DisplayFor(modelItem => item.Piso)</td>
+                        <td class="text-center">@Html.DisplayFor(modelItem => item.ItemCode)</td>
+                        <td class="text-center">@Html.DisplayFor(modelItem => item.ItemName)</td>
                         <td class="text-center">
                             @if (item.DetFases != null && item.DetFases.Count > 3)
                             {
                                 @item.DetFases[3].enlistarLotes()
                             }
                         </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.Estado)
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.Fase)
-                        </td>
+                        <td class="text-center">@Html.DisplayFor(modelItem => item.Estado)</td>
+                        <td class="text-center">@Html.DisplayFor(modelItem => item.Fase)</td>
                         <td class="text-center">
                             @Html.ActionLink("Iniciar Reconteo", "IniciarReconteo", new { id = item.DocEntry }, new { @class = "btn btn-primary" })
                         </td>
                         @if (!item.Estado.Equals("Contado"))
                         {
-                            <td class="text-center">@Html.ActionLink("Terminar Reconteo", "TerminarReconteo", new { id = item.DocEntry }, new { @class = "btn btn-danger" })</td>                        }
+                            <td class="text-center">
+                                @Html.ActionLink("Terminar Reconteo", "TerminarReconteo", new { id = item.DocEntry }, new { @class = "btn btn-danger" })
+                            </td>
+                        }
                     </tr>
                 }
             </tbody>
         </table>
     </form>
+</div>
+
+<!-- Modal for filters -->
+<div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-cobefar text-light">
+                <h5 class="modal-title" id="filterModalLabel">Filtros de Búsqueda</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form name="filterForm" id="filterForm">
+                    <div class="form-group">
+                        <label for="DocEntry">N#</label>
+                        <input type="text" name="DocEntry" class="form-control" id="DocEntry" value="@a.DocEntry" autocomplete="off" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Operario">OpRecontador</label>
+                        <input type="text" name="DetFases[0].Operario" class="form-control" id="Operario" value="@if (a.DetFases != null && a.DetFases.Count > 0) { Write(a.DetFases[0].Operario); }" autocomplete="off" />
+                    </div>
+                    <div class="form-group">
+                        <label for="DocEntryEqu">Equipo</label>
+                        <input type="text" name="DocEntryEqu" class="form-control" id="DocEntryEqu" value="@a.DocEntryEqu" autocomplete="off" />
+                    </div>
+                    <div class="form-group">
+                        <label for="WhsCode">Almacen</label>
+                        <select name="WhsCode" id="WhsCode" class="form-control">
+                            <option value="">Seleccione</option>
+                            @foreach (OWHS_E obj in ow)
+                            {
+                                <option value="@obj.WhsCode" @if (a.WhsCode != null && a.WhsCode == obj.WhsCode) { Write("selected"); }>@obj.WhsName</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="Piso">Piso</label>
+                        <input type="number" name="Piso" class="form-control" id="Piso" value="@a.Piso" autocomplete="off" />
+                    </div>
+                    <div class="form-group">
+                        <label for="ItemCode">CodArticulo</label>
+                        <input type="text" name="ItemCode" class="form-control" id="ItemCode" value="@a.ItemCode" autocomplete="off" />
+                    </div>
+                    <div class="form-group">
+                        <label for="ItemName">Articulo</label>
+                        <input type="text" name="ItemName" class="form-control" id="ItemName" value="@a.ItemName" autocomplete="off" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Estado">Estado</label>
+                        <select name="Estado" id="Estado" class="form-control">
+                            <option value="">Seleccione</option>
+                            <option value="Contado" @if (a.Estado == "Contado") { Write("selected"); }>Contado</option>
+                            <option value="EnReconteo" @if (a.Estado == "EnReconteo") { Write("selected"); }>EnReconteo</option>
+                            <option value="Recontado" @if (a.Estado == "Recontado") { Write("selected"); }>Recontado</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" onclick="filtrar();">Aplicar Filtros</button>
+            </div>
+        </div>
+    </div>
 </div>

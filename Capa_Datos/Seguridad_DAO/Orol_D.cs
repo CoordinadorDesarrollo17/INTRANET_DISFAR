@@ -17,20 +17,20 @@ namespace Capa_Datos.Seguridad_DAO
         {
             List<Orol_E> lista = new List<Orol_E>();
             string query = "";
-            if (idRol == 1) { query = "select * from dbo.OROL order by 1"; }
-            else if (idRol == 2) { query = "select * from dbo.OROL where id in (" + idRol + ",3) order by 1 "; }
-            else if (idRol == 4) { query = "select * from dbo.OROL where id in (" + idRol + ",5,50,51,52,53,54,55) order by 1 "; }
-            else if (idRol == 6) { query = "select * from dbo.OROL where id in (" + idRol + ",7) order by 1 "; }
-            else if (idRol == 8) { query = "select * from dbo.OROL where id in (" + idRol + ",9) order by 1 "; }
-            else if (idRol == 10) { query = "select * from dbo.OROL where id in (" + idRol + ") order by 1 "; }
+            if (idRol == 1) { query = "select * from dbo.OROL ORDER BY Nombre ASC"; }
+            else if (idRol == 2) { query = "select * from dbo.OROL where id in (" + idRol + ",3) ORDER BY Nombre ASC "; }
+            else if (idRol == 4) { query = "select * from dbo.OROL where id in (" + idRol + ",5,50,51,52,53,54,55) ORDER BY Nombre ASC "; }
+            else if (idRol == 6) { query = "select * from dbo.OROL where id in (" + idRol + ",7) ORDER BY Nombre ASC "; }
+            else if (idRol == 8) { query = "select * from dbo.OROL where id in (" + idRol + ",9) ORDER BY Nombre ASC "; }
+            else if (idRol == 10) { query = "select * from dbo.OROL where id in (" + idRol + ") ORDER BY Nombre ASC "; }
             try
             {
                 SqlDataReader dr = db.ExecuteReaderNoSp(query);
                 while (dr.Read())
                 {
                     Orol_E o = new Orol_E();
-                    o.id = dr.GetInt32(0);
-                    if (!dr.IsDBNull(1)) { o.nombre = dr.GetString(1); }
+                    o.Id = dr.GetInt32(0);
+                    if (!dr.IsDBNull(1)) { o.Nombre = dr.GetString(1); }
                     if (!dr.IsDBNull(2)) { o.PrefijoId = dr.GetString(2); }
                     lista.Add(o);
                 }

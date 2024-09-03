@@ -69,7 +69,7 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
             ORRU_E orruE = orruN.obtenerOrdenDeRuta(o.DocEntry);
             if (orruE.Estado != "CREADO") { throw new Exception("Solo puede agregar a documento CREADO"); }
             ORTV_N ortvN = new ORTV_N();
-            ORTV_E t = ortvN.obtenerTicket(o.DocEntryTicket);
+            ORTV_E t = ortvN.ObtenerDatosCompletosTicket(o.DocEntryTicket);
             if (t.LugarDestino.Equals("Agencia Courier") && orruE.TipoRuta.Equals("AC")) { if (t.Estado != "PESADO") { throw new Exception("El ticket debe estar Pesado"); } }
             else
             {
@@ -136,7 +136,7 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
             ORRU_E orruE = orruN.obtenerOrdenDeRuta(o.DocEntry);
             RRU0_E rru0E = buscarRRU0(o.DocEntry, o.Linea);
 
-            ORTV_E ortvE = ortvN.obtenerTicket(rru0E.DocEntryTicket);
+            ORTV_E ortvE = ortvN.ObtenerDatosCompletosTicket(rru0E.DocEntryTicket);
             if (orruE.Estado != "ENVIADO") { throw new Exception("El reparto no se encuentra ENVIADO"); }
             if (rru0E.Estado != "ENVIADO") { throw new Exception("Solo puedes entregar detalle Enviado"); }
             if (ortvE.Det5 != null && ortvE.Det5.Count > 0 && ortvE.Det5[0].RegCant > 0 && ortvE.LugarDestino == "Domicilio")

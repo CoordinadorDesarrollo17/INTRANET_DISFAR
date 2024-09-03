@@ -22,7 +22,7 @@
 
 <div class="pt-4">
     <nav>
-        <ol class="cd-breadcrumb bg-dark">
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
             <li><a href="@Url.Action("ListadoTicketsVenta", "Ventas")">Listado de tickets</a></li>
             <li class="current"><em>Seguimiento de ticket</em></li>
@@ -30,7 +30,7 @@
     </nav>
 </div>
 
-<div class="bg-dark border-cabecera-seccion pb-2">
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
     <div class="px-3 pt-3"><h3 class="titulo-seccion">SEGUIMIENTO DE TICKET</h3></div>
     <div class="d-flex pl-2 w-100 py-2">
 
@@ -253,7 +253,6 @@
                                         </div>
                                     </li>
                                 }
-
                                 @if (Model.hayFinEmpacar && flujoEstados["FIN EMPACAR"].Operario != null && flujoEstados["FIN EMPACAR"].FechaOperacion != null)
                                 {
                                     <li class="li complete">
@@ -265,7 +264,7 @@
                                             <p>El pedido se EMPACÓ</p>
                                         </div>
 
-                                        @if ((ViewBag.IdRol == 1 || ViewBag.IdRol == 4) && Model.Estado == "EMPACADO")
+                                        @if ((ViewBag.IdRol == 1 || ViewBag.IdRol == 4 ) && Model.Estado == "EMPACADO")
                                         {
 
                                             <div class="row justify-content-center font-14 font-weight-bold p-1">Cajas : <span class="ml-1">  @Model.Cajas</span></div>

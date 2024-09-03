@@ -12,6 +12,7 @@ namespace Capa_Entidad.ReportesDigemid_ENT.Reportes
         public string TipoDoc { get; set; }
         public string SerieDoc { get; set; }
         public string CorreDoc { get; set; }
+        public string NroOCCliente { get; set; }
         public string NumGuias { get; set; }
         public string NombreSocio { get; set; }
         public string DirPagar { get; set; }
@@ -41,7 +42,7 @@ namespace Capa_Entidad.ReportesDigemid_ENT.Reportes
         public string VctoLote { get; set; }
         public decimal QUMVta { get; set; }
         public string CondPago { get; set; }
-        public int NroOrdVenta { get; set; }
+        public string NroOrdVenta { get; set; }
         public string CodImpuesto { get; set; }
         public string Almacen { get; set; }
         public string PtoPartida { get; set; }

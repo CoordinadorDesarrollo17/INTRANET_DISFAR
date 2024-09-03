@@ -1,5 +1,6 @@
 ﻿using Capa_Datos.Ventas_DAO.Tablas;
 using Capa_Entidad.Almacen_ENT.Tablas;
+using Capa_Entidad.ComprobantesContables_ENT;
 using Capa_Entidad.Ventas_ENT.Tablas;
 using System.Collections.Generic;
 

@@ -306,12 +306,14 @@
     <Content Include="Content\img\bg-cobefar-v2.png" />
     <Content Include="Content\img\favicon-cobefar.png" />
     <Content Include="Content\img\firmas\firma.png" />
+    <Content Include="Content\img\lines-dark-background.jpg" />
     <Content Include="Content\img\logo con sombra.png" />
     <Content Include="Content\img\logo sin sombra.png" />
     <Content Include="Content\img\logo-cobefar.png" />
     <Content Include="Content\img\logo-drogueria-cobefar.jpg" />
     <Content Include="Content\img\logo.png" />
     <Content Include="Content\img\video-presentacion-24-05-23.mp4" />
+    <Content Include="Content\img\white-background-abstract.jpg" />
     <Content Include="Content\js\alertify.min.js" />
     <Content Include="Content\js\bootstrap.bundle.js" />
     <Content Include="Content\js\bootstrap.bundle.min.js" />
@@ -366,6 +368,9 @@
     <Content Include="Content\img\checkAzul.png" />
     <Content Include="Content\img\escudo_nacional.png" />
     <Content Include="imagenes\index\ReportesDigemid\impresion.gif" />
+    <Content Include="imagenes\packing.png" />
+    <Content Include="imagenes\picking.png" />
+    <Content Include="imagenes\verificar.png" />
     <Content Include="libman.json" />
     <None Include="Properties\PublishProfiles\CustomProfile.pubxml" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
@@ -795,6 +800,7 @@
     <Compile Include="Controllers\AtencionClienteController.cs" />
     <Compile Include="Controllers\CajaController.cs" />
     <Compile Include="Controllers\ComprasController.cs" />
+    <Compile Include="Controllers\ComprobantesContablesController.cs" />
     <Compile Include="Controllers\DireccionTecnicaController.cs" />
     <Compile Include="Controllers\IndexController.cs" />
     <Compile Include="Controllers\ReportesDigemidController.cs" />
@@ -804,6 +810,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\AccesoHelper.cs" />
     <Compile Include="HostedService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reportes\DS_Kardex.Designer.cs">
@@ -958,7 +965,6 @@
     <Content Include="Views\ReportesDigemid\reporteViewer.cshtml" />
     <Content Include="Views\ReportesDigemid\infoKardex.cshtml" />
     <Content Include="Views\Index\Error.cshtml" />
-    <Content Include="Views\Ventas\ListadoTickets.cshtml" />
     <Content Include="Views\Ventas\CreaTicketVenta.cshtml" />
     <Content Include="Views\Ventas\EditarTicketVenta.cshtml" />
     <Content Include="Views\Caja\PagarTicketVenta.cshtml" />
@@ -974,7 +980,6 @@
     <Content Include="Views\Rutas\DocumentoRutasDomicilio.cshtml" />
     <Content Include="Views\Ventas\ListadoTicketsFacturacion.cshtml" />
     <Content Include="Views\Ventas\ListadoTicketsRecepcion.cshtml" />
-    <Content Include="Views\Ventas\ListadoTicketsAlmacen.cshtml" />
     <Content Include="Views\Ventas\SacandoTicketVenta.cshtml" />
     <Content Include="Views\Ventas\EmpacadoTicketVenta.cshtml" />
     <Content Include="Views\Ventas\AnularSacandoTicket.cshtml" />
@@ -1074,10 +1079,8 @@
     <Content Include="Views\Ventas\NuevoClienteRegalo.cshtml" />
     <Content Include="Views\Ventas\EditarClienteRegalos.cshtml" />
     <Content Include="Views\Ventas\ReporteReclamosCliente.cshtml" />
-    <Content Include="Views\TI_Sistemas\AdministrarRolOperacion.cshtml" />
     <Content Include="Views\TI_Sistemas\EditarUsuario.cshtml" />
     <Content Include="Views\TI_Sistemas\GestionPermisos.cshtml" />
-    <Content Include="Views\TI_Sistemas\GestionRolOperacion.cshtml" />
     <Content Include="Views\Rutas\infoHojasRuta.cshtml" />
     <Content Include="Views\Rutas\ReportesRutas.cshtml" />
     <Content Include="Views\Ventas\GestionVendedores.cshtml" />
@@ -1137,12 +1140,10 @@
     <Content Include="Views\ReportesDigemid\RptOperacionesLotes.cshtml" />
     <Content Include="Views\Rutas\Reportes\RptControlTemperaturaHumedad.cshtml" />
     <Content Include="Views\Ventas\ListadoTicketsGuiasRemision.cshtml" />
-    <Content Include="Views\Rutas\LayoutFacturaBoletaSap.cshtml" />
-    <Content Include="Views\Rutas\LayoutFacturaBoletaSap_header.cshtml" />
-    <Content Include="Views\Rutas\LayoutGuiaRemisionSap.cshtml" />
-    <Content Include="Views\Rutas\LayoutGuiaRemisionSap_header.cshtml" />
-    <Content Include="Views\Rutas\LayoutNotaCreditoDebitoSap.cshtml" />
-    <Content Include="Views\Rutas\LayoutNotaCreditoDebitoSap_header.cshtml" />
+    <Content Include="Views\ComprobantesContables\LayoutGuia.cshtml" />
+    <Content Include="Views\ComprobantesContables\LayoutGuia_header.cshtml" />
+    <Content Include="Views\ComprobantesContables\LayoutNotaCreditoDebito.cshtml" />
+    <Content Include="Views\ComprobantesContables\LayoutNotaCreditoDebito_header.cshtml" />
     <Content Include="Views\Caja\Index.cshtml" />
     <Content Include="Views\Shared\Ventas\ValidarTicketACuadrar.cshtml" />
     <Content Include="Views\Shared\Caja\ListadoTickets.cshtml" />
@@ -1157,6 +1158,10 @@
     <Content Include="Views\Shared\DireccionTecnica\ListadoOrdenesVenta_DT.cshtml" />
     <Content Include="Views\Ventas\PDF\PDF_OrdenesDeVentas.cshtml" />
     <Content Include="Views\Rutas\EditarOrdenDeRuta_TA.cshtml" />
+    <Content Include="Views\Ventas\ListadoTicketsAlmacen.cshtml" />
+    <Content Include="Views\ComprobantesContables\LayoutFactura.cshtml" />
+    <Content Include="Views\ComprobantesContables\LayoutFactura_header.cshtml" />
+    <Content Include="Views\Shared\TI_Sistemas\AsignacionPermisos.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
