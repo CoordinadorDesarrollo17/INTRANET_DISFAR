@@ -221,13 +221,13 @@
                     type: 'post',
                 })
                 .done(function (response) {
+                    console.log(response);
                     if (response.HtmlContent != '') {
                         $('#div_detallesPedidos').css('display', 'block');
                         $('#detallesPedidos').html(response.HtmlContent);
 
                         var tipoVenta = response.TipoVenta ? response.TipoVenta.toUpperCase() : '';
                         // Mostrar/ocultar elementos según el valor de TipoVenta
-
 
                         if (tipoVenta.startsWith('CREDITO')) {
                             tipoVentaInput.show().val('Credito');

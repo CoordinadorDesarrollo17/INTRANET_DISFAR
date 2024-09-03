@@ -1904,7 +1904,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             string info = string.Empty;
             int linea = 1;
             List<OrdenDeVenta_E> lista = ListarOrdenesdeVentaFinales(fecha, cardCode, docNum);
-            string tipoVenta = lista.Select(x => x.TipoVenta).Distinct().SingleOrDefault();
+            string tipoVenta = lista.Where(x => x.DocTotal != 0).Select(x => x.TipoVenta).Distinct().SingleOrDefault();
 
             //Verifica si existe un solo TipoVenta en todas las órdenes relacionadas
 
@@ -3103,7 +3103,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             // Revisamos si hay FIN EMPACAR y ANULAR FIN EMPACAR
             List<CC_ORTV_E> ticketFinEmpacar = ccORTV.ListarCC_ORTV(ticket.DocEntry, "FIN EMPACAR");
             List<CC_ORTV_E> ticketAnularFinEmpacar = ccORTV.ListarCC_ORTV(ticket.DocEntry, "ANULAR FIN EMPACAR");
-            ticket.hayFinEmpacar = ObtenerEstadoOperacion(ticketIniEmpacar, ticketAnularIniEmpacar, "FIN EMPACAR", "ANULAR FIN EMPACAR");
+            ticket.hayFinEmpacar = ObtenerEstadoOperacion(ticketFinEmpacar, ticketAnularFinEmpacar, "FIN EMPACAR", "ANULAR FIN EMPACAR");
 
             // Revisamos si hay ENVIAR o LIBERAR
             List<CC_ORTV_E> tkEnviado = ccORTV.ListarCC_ORTV(ticket.DocEntry, "ENVIAR");

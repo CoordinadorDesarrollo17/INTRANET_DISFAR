@@ -612,26 +612,17 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             }
             if (ComprobantesVinculados.Count == 0) { throw new Exception("Este ticket no tiene facturas o boletas relacionadas desde SAP"); }
             //valida que los montos de facturas o boletas sumen el monto total a pagar delticket.
-            if(ComprobantesVinculados.Sum(x => x.DocTotal) != t.MontoTotal) { throw new Exception("Los documentos emitidos no suman lo total a pagar por el cliente"); }
-           
+            //if(ComprobantesVinculados.Sum(x => x.DocTotal) != t.MontoTotal) { throw new Exception("Los documentos emitidos no suman lo total a pagar por el cliente"); }
+
             //validamos que las guias esten completas
-            if (t.LugarDestino == "Centro" || t.LugarDestino == "Arriola")
-            {
-                //Valida cantidad de guias igual a cantidad de OV
-                int cantidadOrdenes = OrdenesSap.Count;
-                int cantidadGuias = compN.ObtenerEncabezadoGuiasTransferencia(t).Count();
-                if (cantidadGuias != cantidadOrdenes)
-                {
-                    throw new Exception("Guias emitidas no coincide: "+cantidadGuias+ "O.V: "+cantidadOrdenes);
-                }
-            }
-            else
-            { //Valida monto de entrega igual a monto de factura
-                decimal sumEntregas = compN.ObtenerEncabezadoGuiasPorEntrega(OrdenesSap).Sum(x => x.DocTotal);
-                decimal sumFacturas= ComprobantesVinculados.Sum(x => x.DocTotal);
-                if(sumFacturas!= sumEntregas) { throw new Exception("Montos no coinciden"); }
-            }
-            
+            //if (!t.LugarDestino.Equals("Centro") && !t.LugarDestino.Equals("Arriola"))
+            //{
+            //    //Valida monto de entrega igual a monto de factura
+            //    decimal sumEntregas = compN.ObtenerEncabezadoGuiasPorEntrega(OrdenesSap).Sum(x => x.DocTotal);
+            //    decimal sumFacturas = ComprobantesVinculados.Sum(x => x.DocTotal);
+            //    if (sumFacturas != sumEntregas) { throw new Exception("Montos no coinciden"); }
+
+            //}
             if (t.Estado.Equals("CANCELADO") || t.Estado.Equals("ANULADO")) { throw new Exception("No puede facturar en este ticket."); }
             if (!t.EstadoFacturacion.Equals("GRE EMITIDA")) { throw new Exception("El ticket no tiene guías emitidas"); }
             return tkD.facturarTicket(DocEntry, u);

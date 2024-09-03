@@ -253,7 +253,6 @@
                                         </div>
                                     </li>
                                 }
-
                                 @if (Model.hayFinEmpacar && flujoEstados["FIN EMPACAR"].Operario != null && flujoEstados["FIN EMPACAR"].FechaOperacion != null)
                                 {
                                     <li class="li complete">
@@ -265,7 +264,7 @@
                                             <p>El pedido se EMPACÓ</p>
                                         </div>
 
-                                        @if ((ViewBag.IdRol == 1 || ViewBag.IdRol == 4) && Model.Estado == "EMPACADO")
+                                        @if ((ViewBag.IdRol == 1 || ViewBag.IdRol == 4 ) && Model.Estado == "EMPACADO")
                                         {
 
                                             <div class="row justify-content-center font-14 font-weight-bold p-1">Cajas : <span class="ml-1">  @Model.Cajas</span></div>
