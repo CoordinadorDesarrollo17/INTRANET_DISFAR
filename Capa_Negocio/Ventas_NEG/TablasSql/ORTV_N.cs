@@ -773,7 +773,9 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
 
 
 
-
+        public (string Persona , string documento) obtenerPersonaRecojoParaGuia(int docNum) { 
+            return tkD.obtenerPersonaRecojoParaGuia(docNum);
+        }
         // Reformulando metodos
         public (string HtmlContent, string TipoVenta) generaInfoListaOrdenesDeVenta(string fecha, string cardCode, int docNum)
         {

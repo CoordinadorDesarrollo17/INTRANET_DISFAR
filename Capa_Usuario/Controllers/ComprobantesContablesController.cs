@@ -222,7 +222,6 @@ namespace Capa_Usuario.Controllers
                         Tabla = documento.TablaSAP
                     };
                     string _headerUrlGuia = Url.Action("LayoutGuia_header", "ComprobantesContables", parametrosGuia, "http");
-                    //pdfResult = new ActionAsPdf("LayoutGuia", new { NumAtCard = NumAtCard, documento.Identificador })
                     pdfResult = new ActionAsPdf("LayoutGuia", parametrosGuia)
                     {
                         FileName = fileName,
@@ -304,9 +303,11 @@ namespace Capa_Usuario.Controllers
             ViewBag.Tipo = Tabla.Equals("OWTR") ? "T" : "E";
             return View(guia);
         }
-        public ActionResult LayoutGuia(string NumAtCard,string Tabla)
+        public ActionResult LayoutGuia(string NumAtCard,string Tabla,int DocNumTicket)
         {
             var guia = ObtenerDetalleGuia(NumAtCard, Tabla);
+            ORTV_N ortvN = new ORTV_N();
+            ViewBag.PersonaRecojo = ortvN.obtenerPersonaRecojoParaGuia(DocNumTicket);
             ViewBag.Tipo = Tabla.Equals("OWTR") ?  "T" : "E";
             return View(guia);
         }

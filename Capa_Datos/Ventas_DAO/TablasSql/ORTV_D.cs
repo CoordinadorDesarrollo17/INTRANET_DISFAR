@@ -1899,6 +1899,19 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             }
             return info;
         }
+        public (string Persona, string Documento) obtenerPersonaRecojoParaGuia(int docNum)
+        {
+            string Persona = ""; string Documento = "";
+            int docEntry= DocEntryTicket(docNum);
+            var tk = ObtenerTicketVenta(docEntry);
+            if (tk.LugarDestino.Equals("Domicilio") || tk.LugarDestino.Equals("Agencia")) {
+                List<RTV1_E> rtv1 = obtenerDet1Ticket(docEntry);
+                Persona = rtv1[0].NombrePer;
+                Documento = rtv1[0].DocPer;
+            }
+            
+            return (Persona, Documento);
+        }
         public (string HtmlContent, string TipoVenta) generaInfoListaOrdenesDeVenta(string fecha, string cardCode, int docNum)
         {
             string info = string.Empty;
