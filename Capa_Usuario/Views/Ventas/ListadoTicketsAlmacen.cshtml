@@ -463,7 +463,8 @@
                         {
                             <td class="text-center">
 
-                                @if ((item.ultimoCCEstado == "INICIO PICKING" || item.ultimoCCEstado == "ANULAR FIN PICKING" || item.ultimoCCEstado == "ANULAR INICIO VERIFICAR") && item.hayIniPicking && item.Estado == "PICKEANDO" && item.hayFinPicking == false)
+                                @if (((item.ultimoCCEstado == "INICIO PICKING" || item.ultimoCCEstado == "ANULAR FIN PICKING" || item.ultimoCCEstado == "ANULAR INICIO VERIFICAR") && item.hayIniPicking && item.Estado == "PICKEANDO" && !item.hayFinPicking)&&
+                                    !((item.ultimoCCEstado == "INICIO VERIFICAR" || item.ultimoCCEstado == "ANULAR FIN VERIFICAR" || item.ultimoCCEstado == "ANULAR INICIO EMPACAR" || item.ultimoCCEstado == "ANULAR FIN PICKING") && item.hayIniVerificar && !item.hayFinVerificar))
                                 {
                                     <a href="@Url.Action("AnularIniciarSacandoTicket", "Ventas", new { DocEntry = item.DocEntry })"
                                        class="btn btn-light text-danger btn-sm"
@@ -484,7 +485,7 @@
                                         <i class="icon icon-undo"></i>
                                     </a>
                                 }
-                                @if ((item.ultimoCCEstado == "INICIO VERIFICAR" || item.ultimoCCEstado == "ANULAR FIN VERIFICAR" || item.ultimoCCEstado == "ANULAR INICIO EMPACAR") && item.hayIniVerificar && item.hayFinVerificar == false)
+                                @if ((item.ultimoCCEstado == "INICIO VERIFICAR" || item.ultimoCCEstado == "ANULAR FIN VERIFICAR" || item.ultimoCCEstado == "ANULAR INICIO EMPACAR" || item.ultimoCCEstado == "ANULAR FIN PICKING") && item.hayIniVerificar && !item.hayFinVerificar)
                                 {
                                     <a href="@Url.Action("AnularIniciarVerificandoTicket", "Ventas", new { DocEntry = item.DocEntry })"
                                        class="btn btn-light text-danger btn-sm"

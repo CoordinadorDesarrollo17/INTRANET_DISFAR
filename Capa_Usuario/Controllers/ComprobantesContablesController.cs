@@ -89,7 +89,7 @@ namespace Capa_Usuario.Controllers
             OINV_N oinvN = new OINV_N();
             Comprobante_N compN = new Comprobante_N();
             ORTV_E ortvE = ortvN.ObtenerDatosTicketParaDocumentos(DocEntry);
-            List<int> listDocEntryOrdenesVenta = compN.ObtenerDocEntryOV(ortvE.Det2);
+            List<int> listDocEntryOrdenesVenta = compN.ObtenerDocEntryOV(ortvE.Det2,false);
              if (ortvE.Estado.Equals("ANULADO") || ortvE.Estado.Equals("CANCELADO"))
             {
                 return Json(new { success = false, message = "Ticket en un estado no valido para la descarga de documentos" }, JsonRequestBehavior.AllowGet);

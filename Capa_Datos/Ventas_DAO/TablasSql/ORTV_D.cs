@@ -3083,8 +3083,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             List<CC_ORTV_E> ticketFinPicking = ccORTV.ListarCC_ORTV(ticket.DocEntry, "FIN PICKING");
             List<CC_ORTV_E> ticketAnularFinPicking = ccORTV.ListarCC_ORTV(ticket.DocEntry, "ANULAR FIN PICKING");
             ticket.hayFinPicking = ObtenerEstadoOperacion(ticketFinPicking, ticketAnularFinPicking, "FIN PICKING", "ANULAR FIN PICKING");
-            ticket.aptoFinVerificar = ObtenerEstadoOperacion(ticketFinPicking, ticketAnularFinPicking, "FIN PICKING", "ANULAR FIN PICKING");
-
+            
             // Revisamos si hay INICIO VERIFICAR y ANULAR INICIO VERIFICAR
             List<CC_ORTV_E> ticketIniVerificar = ccORTV.ListarCC_ORTV(ticket.DocEntry, "INICIO VERIFICAR");
             List<CC_ORTV_E> ticketAnularIniVerificar = ccORTV.ListarCC_ORTV(ticket.DocEntry, "ANULAR INICIO VERIFICAR");
@@ -3114,11 +3113,12 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             List<CC_ORTV_E> tkEntregar = ccORTV.ListarCC_ORTV(ticket.DocEntry, "ENTREGAR");
             List<CC_ORTV_E> tkAnularEntregar = ccORTV.ListarCC_ORTV(ticket.DocEntry, "ANULAR ENTREGAR");
             ticket.hayEntregar = ObtenerEstadoOperacion(tkEntregar, tkAnularEntregar, "ENTREGAR", "ANULAR ENTREGAR");
-
+           
             // Establecer aptoIniVerificar en true si no hay inicio de Verificar o si hay inicio de Picking
             ticket.aptoIniVerificar = !ticket.hayIniVerificar && ticket.hayIniPicking;
-            //Establecer aptoFinVerificar  en true si hay inicio verificar y que no haya fin verificar y que ultimo estado no sea fin verificar
-            ticket.aptoFinVerificar = ticket.ultimoCCEstado != "FIN VERIFICAR" && ticket.hayIniVerificar && !ticket.hayFinVerificar;
+
+            //Establecer aptoFinVerificar  en true si hay inicio verificar y que no haya fin verificar y que ultimo estado no sea fin verificar y tiene que haber fin picking
+            ticket.aptoFinVerificar = ticket.ultimoCCEstado != "FIN VERIFICAR" && ticket.hayIniVerificar && !ticket.hayFinVerificar && ticket.hayFinPicking;
 
             return ticket;
         }

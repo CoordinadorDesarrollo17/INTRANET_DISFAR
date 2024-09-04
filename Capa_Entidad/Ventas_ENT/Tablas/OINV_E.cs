@@ -20,6 +20,7 @@ namespace Capa_Entidad.Ventas_ENT.Tablas
         public string NumAtCard { get; set; }
         [DisplayName("Total")]
         public decimal DocTotal { get; set; }
+        public decimal Max1099 { get; set; }
         [DisplayName("Estado")]
         public string U_SYP_STATUS { get; set; }
         [DisplayName("LugarDeEntrega")]
