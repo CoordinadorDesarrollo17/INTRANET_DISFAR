@@ -183,6 +183,10 @@ namespace Capa_Usuario.Controllers
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 Capa_Negocio.Almacen_NEG.TablasSql.ORPD_N orpdN = new Capa_Negocio.Almacen_NEG.TablasSql.ORPD_N();
+                Capa_Negocio.General_NEG.TablasSql.OWHS_N owhsN = new Capa_Negocio.General_NEG.TablasSql.OWHS_N();
+                Capa_Negocio.Almacen_NEG.TablasSql.MotivosDevoluciones_N mdN = new Capa_Negocio.Almacen_NEG.TablasSql.MotivosDevoluciones_N(); Capa_Negocio.Almacen_NEG.TablasSql.SubmotivosDevoluciones_N subN = new Capa_Negocio.Almacen_NEG.TablasSql.SubmotivosDevoluciones_N();
+                Capa_Negocio.Almacen_NEG.Tablas.OMRC_N omrcN = new Capa_Negocio.Almacen_NEG.Tablas.OMRC_N();
+                OCRD_N ocrdN = new OCRD_N();
                 Usuario_E usu = (Usuario_E)Session["UsuarioId"];
                 try
                 {
@@ -193,6 +197,11 @@ namespace Capa_Usuario.Controllers
                 catch (Exception e)
                 {
                     ViewBag.Mensaje = e.Message;
+                    ViewBag.RolUsuario = usu.IdRol;
+                    ViewBag.Laboratorios = omrcN.listarFabricantes();
+                    ViewBag.MotivosDevoluciones = mdN.ListarMotivosDevoluciones(new MotivosDevoluciones_E { Estado = "1" });
+                    ViewBag.SubmotivosDevoluciones = subN.ListarSubmotivosDevoluciones(new SubmotivosDevoluciones_E { Estado = "1" });
+                    ViewBag.ListaProveedores = ocrdN.listarSociosDeNegocios(new OCRD_E { CardType = "S" });     // Solo socios Proveedores
                     return View(Devolucion);
                 }
             }
@@ -317,7 +326,6 @@ namespace Capa_Usuario.Controllers
                 return null;
             }
         }
-
         public JsonResult BuscarLotesProducto(Capa_Entidad.Almacen_ENT.Tablas.OIBT_E filtros)
         {
             //verificacionAccesos(0);         // Validar sesion logueada, solo para ajax
@@ -390,6 +398,7 @@ namespace Capa_Usuario.Controllers
 
                         foreach (var art in listaArticulos2)
                         {
+                            
                             decimal QuantityConv = datos.Quantity / art.NumInBuy;
                             producto = art.Dscription.Replace("\x022", "&quot;");
                             tbody += "<tr>" +
@@ -398,7 +407,7 @@ namespace Capa_Usuario.Controllers
                                             $"<td class='text-center'>{art.ExpDate}</td>" +
                                             $"<td class='text-center'>{art.BuyUnitMsr}</td>" +
                                             $"<td class='text-center'>{art.NumAtCard}</td>" +
-                                            $"<td class='text-center'><button type=\"button\" class=\"btn btn-warning\" onclick=\"agregarDetalleDevolucion('{art.ItemCode}', '{producto}', '{art.FirmCode}', '{art.FirmName}', '{art.BatchNum}', '{art.ExpDate}', '{art.BuyUnitMsr}', '{art.NumAtCard}', '{art.NumInBuy}', {art.Quantity}, 'BD','{art.CardCode}','{art.CardName}',{QuantityConv});\"><i class='icon-plus'></i> </button></td>" +
+                                            $"<td class='text-center'><button type=\"button\" class=\"btn btn-warning\" onclick=\"agregarDetalleDevolucion('{art.ItemCode}', '{producto}', '{art.FirmCode}', '{art.FirmName}', '{art.BatchNum}', '{art.ExpDate}', '{art.BuyUnitMsr}', '{art.NumAtCard}', '{art.NumInBuy}', {art.Quantity}, 'BD','{art.CardCode}','{art.CardName}',{Math.Round(QuantityConv,2)});\"><i class='icon-plus'></i> </button></td>" +
                                             "<tr>";
                         }
                     }

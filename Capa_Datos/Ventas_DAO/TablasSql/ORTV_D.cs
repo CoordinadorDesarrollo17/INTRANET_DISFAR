@@ -1908,7 +1908,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 
             //Verifica si existe un solo TipoVenta en todas las órdenes relacionadas
 
-            if (tipoVenta != null && lista.Select(x => x.TipoVenta).Distinct().Count() == 1)
+            if (tipoVenta != null && lista.Where(x => x.DocTotal != 0).Select(x => x.TipoVenta).Distinct().Count() == 1)
             {
                 info += "<thead class='bg-cobefar text-white'><tr><th class='text-center'>#</th><th class='text-center'>VER</th><th class='text-center'>Monto</th>" +
                               "<th class='text-center'>Nro SAP</th><th class='text-center'>Tipo Comprobante</th><th class='text-center'>Vendedor</th>" +
