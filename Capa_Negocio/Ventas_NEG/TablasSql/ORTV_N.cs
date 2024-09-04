@@ -296,8 +296,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 else { if (IdRol == 11) { continuarCancelarTicket = true; } }
             }
             if (IdRol == 1) { continuarCancelarTicket = true; }
-
-            if (continuarCancelarTicket == false) { throw new Exception("NO SE PUEDE CANCELAR EL TICKET N° " + t.DocNum + " POR SU ESTADO " + t.Estado); }
+            if (!continuarCancelarTicket) { throw new Exception("NO SE PUEDE CANCELAR EL TICKET N° " + t.DocNum + " POR SU ESTADO " + t.Estado); }
             if (t.Estado.Equals("CANCELADO")) { throw new Exception("EL TICKET YA SE ENCUENTRA CANCELADO N°" + t.DocNum); }
             if (t.Estado.Equals("ENTREGADO")) { throw new Exception("EL TICKET YA SE ENCUENTRA ENTREGADO N°" + t.DocNum + " NO SE PUEDE CANCELAR"); }
             return tkD.cancelarTicket(DocEntry, t.Estado, Operario);
