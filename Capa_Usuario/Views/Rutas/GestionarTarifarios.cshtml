@@ -10,70 +10,67 @@
 
 @{ if (@Request["ticketventa"] != "1")
     {
-    <div class="pt-4">
-        <nav>
-            <ol class="cd-breadcrumb bg-cobefar-degradado-1">
-                <li><a href="/Index/Sesion">Inicio</a></li>
-                <li><a href="@Url.Action("ListadoRepartos", "Rutas")">Listado de Repartos</a></li>
-                <li class="current"><em>Gestionar Tarifario</em></li>
-            </ol>
-        </nav>
-    </div>
-
-    <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
-        <div class="px-3 pt-3"><h3 class="titulo-seccion">GESTIONAR TARIFARIO</h3></div>       
-    </div>
-
-    <div class="bg-white d-flex pl-2 w-100 py-2">
-        <div class="mx-2">
-            <a id="accion" data-toggle="modal" href="#ModalImportar" class="btn btn-cobefar text-white">Importar datos</a>
+        <div class="pt-4">
+            <nav>
+                <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+                    <li><a href="/Index/Sesion">Inicio</a></li>
+                    <li><a href="@Url.Action("ListadoRepartos", "Rutas")">Listado de Repartos</a></li>
+                    <li class="current"><em>Gestionar Tarifario</em></li>
+                </ol>
+            </nav>
         </div>
-    </div>
+
+        <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
+            <div class="px-3 pt-3"><h3 class="titulo-seccion">GESTIONAR TARIFARIO</h3></div>
+        </div>
 
         <div id="div_gestionarTarifario" class="pt-4 bg-white justify-content-center">
             <form name="frm_gestionarTarifario" id="frm_gestionarTarifario">
                 <div class="row d-flex mx-1">
                     <div class="col-lg-4 col-sm-8 col-xs-6">
-                            <label class="col-form-label text-dark form-label font-weight-bold font-18">DESTINO:</label>
-                            <select name="Destino" id="Destino" class="form-control bg-cobefar text-white cls-campoTarifario">
-                                <option value="">Seleccione...</option>
-                                @{ foreach (var ubi in Ubigeos)
-                                    {
-                                        <option value="@ubi.Distrito.ToUpper()">@ubi.Distrito.ToUpper()</option>
-                                    }
+                        <label class="col-form-label text-dark form-label font-weight-bold font-18">Destino:</label>
+                        <select name="Destino" id="Destino" class="form-control bg-cobefar text-white cls-campoTarifario">
+                            <option value="">Seleccione...</option>
+                            @{ foreach (var ubi in Ubigeos)
+                                {
+                                    <option value="@ubi.Distrito.ToUpper()">@ubi.Distrito.ToUpper()</option>
                                 }
-                            </select>
+                            }
+                        </select>
                     </div>
 
 
                     <div class="col-lg-2 col-sm-4 col-xs-2">
-                            <label class="col-form-label text-md-right text-dark form-label font-weight-bold font-18">TARIFA KG:</label>
-                            <input type="number" name="TarifaKg" id="TarifaKg" class="form-control border-success cls-campoTarifario" step=0.01 autocomplete="off" />
+                        <label class="col-form-label text-md-right text-dark form-label font-weight-bold font-18">Tarifa KG:</label>
+                        <input type="number" name="TarifaKg" id="TarifaKg" class="form-control border-success cls-campoTarifario" step=0.01 autocomplete="off" />
                     </div>
 
                     <div class="col-lg-2 col-sm-4 col-xs-2">
-                            <label for="PrecioBase" class="col-form-label text-md-right text-dark form-label font-weight-bold font-18">BASE:</label>
-                            <input type="number" name="PrecioBase" id="PrecioBase" class="form-control border-success cls-campoTarifario" step=0.01 autocomplete="off" />
+                        <label for="PrecioBase" class="col-form-label text-md-right text-dark form-label font-weight-bold font-18">Base:</label>
+                        <input type="number" name="PrecioBase" id="PrecioBase" class="form-control border-success cls-campoTarifario" step=0.01 autocomplete="off" />
                     </div>
 
 
                     <div class="col-lg-4 col-sm-8 col-xs-6">
-                            <label for="IdCourier" class=" col-form-label text-md-right text-dark form-label font-weight-bold font-18">AGENCIA:</label>
-                            <input type="hidden" id="IdTarifario" value="@Request["Id"]" />
-                            <select name="IdCourier" id="IdCourier" class="form-control bg-cobefar text-white cls-campoTarifario" style="width: 100%">
-                                <option value="">Seleccione...</option>
-                                @foreach (var i in Agencias)
-                                {
-                                    <option value="@i.Id">@i.Nombre</option>
-                                }
-                            </select>
+                        <label for="IdCourier" class=" col-form-label text-md-right text-dark form-label font-weight-bold font-18">Agencia:</label>
+                        <input type="hidden" id="IdTarifario" value="@Request["Id"]" />
+                        <select name="IdCourier" id="IdCourier" class="form-control bg-cobefar text-white cls-campoTarifario" style="width: 100%">
+                            <option value="">Seleccione...</option>
+                            @foreach (var i in Agencias)
+                            {
+                                <option value="@i.Id">@i.Nombre</option>
+                            }
+                        </select>
                     </div>
 
                 </div>
 
-                <div class="row d-flex mt-4 mx-1">
-                    <div id="div_botonesTarifario" class="col-lg-6 col-md-2">
+                <div class="row d-flex mt-4 mx-4">
+                    <div id="div_botonesTarifario">
                         <button type="button" id="btn_agregar" class="btn btn-success" onclick="validarFormulario();"><i class="icon icon-plus"></i> Agregar</button>
+                    </div>
+                    <div class="mx-2 d-flex">
+                        <a id="accion" data-toggle="modal" href="#ModalImportar" class="btn btn-info text-white">Importar datos</a>
                     </div>
                 </div>
 
@@ -90,26 +87,26 @@
             <input type="text" id="buscador" class="form-control border-success" />
         </div>
         <div class="col-xl-4 col-lg-4 col-md-12 col-12 mt-lg-0 mt-md-0 mt-3">
-            <button class="btn btn-primary" onclick="buscarTexto()"><i class="icon-search"></i> Buscar</button>
-            <button class="btn btn-warning" onclick="buscarTexto('mostrarTodo')"><i class="icon-list"></i> Mostrar Todo</button>
+            <button class="btn btn-ligth text-primary" onclick="buscarTexto()"><i class="icon-search"></i></button>
+            <button class="btn btn-ligth text-primary" onclick="buscarTexto('mostrarTodo')"> Limpiar </button>
         </div>
     </div>
 </div>
 
 
-<div class="bg-white d-flex justify-content-center">
+<div class="bg-white justify-content-center">
     <div class="w-100">
-        <table id="tbl_tarifarios" class="table table-hover table-responsive-sm bg-light">
+        <table id="tbl_tarifarios" class="table table-hover table-sm table-responsive-sm bg-light">
             <thead class="bg-cobefar-6">
                 <tr>
                     <th>#</th>
-                    <th>DESTINO</th>
-                    <th class="text-center">TARIFA / KG</th>
-                    <th class="text-center">BASE</th>
-                    <th class="text-center">AGENCIA</th>
+                    <th>Destino</th>
+                    <th class="text-center">Tarifa / KG</th>
+                    <th class="text-center">Base</th>
+                    <th class="text-center">Agencia</th>
                     @if (@Request["ticketventa"] != "1")
                     {
-                        <th class="text-center">ACCIÓN</th>
+                        <th class="text-center">Acciòn</th>
                     }
                 </tr>
             </thead>
@@ -126,8 +123,8 @@
                             @if (@Request["ticketventa"] != "1")
                             {
                                 <td class="text-center">
-                                    <button class="btn btn-primary mr-lg-2 mr-md-0 mr-sm-1" onclick="buscarTarifario(@tarif.Id)"><i class="icon-pencil"></i></button>
-                                    <button class="btn btn-danger ml-sm-1" onclick="mostrarMensaje('eliminar', 'EliminarTarifario', @tarif.Id)"><i class="icon-bin"></i></button>
+                                    <button class="btn btn-light text-primary mr-lg-2 mr-md-0 mr-sm-1" onclick="buscarTarifario(@tarif.Id)"><i class="icon-pencil"></i></button>
+                                    <button class="btn btn-light text-danger ml-sm-1" onclick="mostrarMensaje('eliminar', 'EliminarTarifario', @tarif.Id)"><i class="icon-bin"></i></button>
                                 </td>
                             }
                         </tr>
@@ -159,54 +156,65 @@
         </div>
     </div>
 </div>
-<div class="modal fade" id="ModalImportar" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
-    <div class="modal-dialog modal-lg " role="document">
+<div class="modal fade" id="ModalImportar" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
         @using (Html.BeginForm("ImportarExcel", "Rutas", FormMethod.Post, new { id = "formArchivo", enctype = "multipart/form-data", autocomplete = "off" }))
         {
             <div class="modal-content">
                 <div class="modal-header bg-cobefar text-white">
-                    <h5 class="modal-title">IMPORTAR DATOS EXCEL</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title" id="modalLabel">IMPORTAR DATOS EXCEL</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
                 <div class="modal-body bg-light">
-                    <div class="col-md-12">
-                        <label class="control-label text-dark"><span>Recuerde ubicar su archivo excel en D:\</span></label><br />
-                        <input id="i_file" type="file" class="form-control btn btn-primary m-2" accept=".xlsx" style="width:300px" />
-                        <input type="hidden" id="filename" name="filename" />
-                        <button type="button" class="btn btn-info" onclick="previsualizar()"> Previsualizar</button>
+                    <!-- Mensaje sobre la ubicación del archivo -->
+                    <div class="form-group">
+                        <label class="control-label text-dark">Recuerde ubicar su archivo Excel en D:\</label>
                     </div>
+
+                    <!-- Selección de archivo y botón de previsualización -->
+                    <div class="form-group">
+                        <label for="i_file" class="text-dark">Seleccione archivo:</label>
+                        <input id="i_file" name="file" type="file" class="form-control" accept=".xlsx" />
+                        <input type="hidden" id="filename" name="filename" />
+                        <button type="button" class="btn text-primary btn-light mt-2" onclick="previsualizar()">Previsualizar</button>
+                    </div>
+
+                    <!-- Selección de Agencia Courier -->
+                    <div class="form-group">
+                        <label for="IdCourier" class="text-dark form-label font-weight-bold">Agencia Courier:</label>
+                        <select id="IdCourier" name="IdCourier" class="form-control bg-cobefar text-white">
+                            <option value="0">Seleccione...</option>
+                            @foreach (var i in Agencias)
+                            {
+                                <option value="@i.Id">@i.Nombre</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Tabla para previsualización de datos -->
                     <div class="d-flex mb-4 justify-content-center">
                         <div class="w-100">
-                            <div class="row p-4">
-                                <div class="col-lg-12">
-                                    <label class="text-dark form-label font-weight-bold font-18">Agencia Courier:</label>
-                                    <select name="IdCourier" class="form-control bg-cobefar text-white col-md-5">
-                                        <option value="0">Seleccione...</option>
-                                        @foreach (var i in Agencias)
-                                        {
-                                            <option value="@i.Id">@i.Nombre</option>
-                                        }
-                                    </select>
-                                </div>
-                                
-                            </div>
                             <div class="overflow-auto">
-                                <table id="DetallesTarifario" style="height:200px" class="table table-hover table-sm bg-light">
+                                <table id="DetallesTarifario" class="table table-hover table-sm bg-light" style="height: 200px;">
+                                    <!-- Aquí irán los datos previsualizados -->
                                 </table>
                             </div>
                         </div>
                     </div>
-
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-success"><i class="icon-database"></i> Guardar datos</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal"> Cerrar</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="icon-database"></i> Guardar datos
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
                 </div>
-
             </div>
         }
     </div>
 </div>
+
 <script>
     if ('@ViewBag.Mensaje' != "") {
         Swal.fire({

@@ -728,6 +728,22 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
 
             return ticket;
         }
+        
+        public List<RTV4_E> obtenerDet4Ticket(int DocEntry, int DocNum = 0)
+        {
+            return tkD.obtenerDet4Ticket(DocEntry, DocNum);
+        }
+
+
+
+
+
+
+        // Reformulando metodos
+        public (string Persona, string documento) obtenerPersonaRecojoParaGuia(int docNum)
+        {
+            return tkD.obtenerPersonaRecojoParaGuia(docNum);
+        }
         public void editarTicketSup(int DocEntry, int idRol, ORTV_E ticket)
         {
             ORTV_E t = tkD.ObtenerDatosCompletosTicket(DocEntry);
@@ -749,7 +765,8 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 {
                     foreach (var det7 in ticket.Det7)
                     {
-                        var TkPrincipal = ObtenerDatosCompletosTicket(Convert.ToInt32(det7.DocNumVinc - 2000000000));
+                        int docEntry = DocEntryTicket(Convert.ToInt32(det7.DocNumVinc));
+                        var TkPrincipal = ObtenerDatosCompletosTicket(docEntry);
                         if (TkPrincipal.Estado != "ABIERTO" && TkPrincipal.Estado != "RECIBIDO" && TkPrincipal.Estado != "PICKEANDO" && TkPrincipal.Estado != "PICKEADO" && TkPrincipal.Estado != "VERIFICANDO" && TkPrincipal.Estado != "VERIFICADO" && TkPrincipal.Estado != "EMPACANDO" && TkPrincipal.Estado != "EMPACADO" && TkPrincipal.Estado != "PESADO")
                         {
                             throw new Exception("El ticket que quiere vincular en linea " + det7.Linea + " se encuentra fuera de un estado modificable.");
@@ -764,19 +781,6 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             }
             tkD.editarTicketSup(DocEntry, ticket);
         }
-        public List<RTV4_E> obtenerDet4Ticket(int DocEntry, int DocNum = 0)
-        {
-            return tkD.obtenerDet4Ticket(DocEntry, DocNum);
-        }
-
-
-
-
-
-        public (string Persona , string documento) obtenerPersonaRecojoParaGuia(int docNum) { 
-            return tkD.obtenerPersonaRecojoParaGuia(docNum);
-        }
-        // Reformulando metodos
         public (string HtmlContent, string TipoVenta) generaInfoListaOrdenesDeVenta(string fecha, string cardCode, int docNum)
         {
             return tkD.generaInfoListaOrdenesDeVenta(fecha, cardCode, docNum);
