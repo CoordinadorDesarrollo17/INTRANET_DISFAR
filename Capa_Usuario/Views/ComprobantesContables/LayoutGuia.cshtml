@@ -186,9 +186,11 @@
                 <td>
                     @if (ViewBag.Tipo == "T")
                     {<strong>N° Bultos : </strong>@Cab.Bulto}
-                else if (ViewBag.Tipo == "E")
-                {
-                    <strong>Encargado de recojo :</strong> @Cab.Texto}
+                    else if (ViewBag.Tipo == "E")
+                    {
+                    <strong>Encargado de recojo :</strong><br />
+                    <span>@ViewBag.PersonaRecojo.Item1</span><br />
+                    <span>@ViewBag.PersonaRecojo.Item2</span>}
                 </td>
             </tr>
 

@@ -291,11 +291,11 @@
             </div>
             <div class="col-lg-2">
                 <label for="FechaCont" class="text-dark form-label font-weight-bold font-18">Fecha de tickets:</label>
-                <input type="date" name="FechaCont" id="FechaSapTicket" class="form-control border-success" onchange="listarTickets();" />
+                <input type="date" name="FechaCont" id="FechaSapTicket" class="form-control border-success" onchange="listarTickets('');" />
             </div>
             <div class="col-lg-2">
                 <label for="Zona" class="text-dark form-label font-weight-bold font-18">Zona:</label>
-                <select id="Zona" class="form-control bg-cobefar text-white" onchange="listarTickets();">
+                <select id="Zona" class="form-control bg-cobefar text-white" onchange="listarTickets('');">
                     <option value="">Seleccione</option>
                     <option value="CALLAO">CALLAO</option>
                     <option value="CONO CENTRO">CONO CENTRO</option>
@@ -314,7 +314,7 @@
                 <input type="hidden" id="AlmOrigenCod" name="AlmOrigenCod" value="" />
                 <input type="hidden" id="AlmOrigenDesc2" name="AlmOrigenDesc2" value="" />
                 <select name="AlmOrigenDesc" id="AlmOrigenDesc" class="form-control bg-cobefar text-white"
-                        onchange="enviarValSelect('AlmOrigenDesc', 'AlmOrigenCod', 'almorigencod'); enviarValSelect('AlmOrigenDesc', 'AlmOrigenDesc2', 'almorigendesc2'); listarTickets();">
+                        onchange="enviarValSelect('AlmOrigenDesc', 'AlmOrigenCod', 'almorigencod'); enviarValSelect('AlmOrigenDesc', 'AlmOrigenDesc2', 'almorigendesc2'); listarTickets('');">
                     <option value="">Seleccione</option>
                     @foreach (var l in lstOriDest.Where(x => x.WhsCode == "03" || x.WhsCode == "ALM07"))
                     {

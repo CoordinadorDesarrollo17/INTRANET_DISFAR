@@ -23,12 +23,13 @@ namespace Capa_Datos.ComprobantesContables_ENT
     {
         readonly Utilitarios uti = new Utilitarios();
         readonly DBHelper db = new DBHelper();
-        public List<int> ObtenerDocEntryOV(List<RTV2_E> det2List)
+        public List<int> ObtenerDocEntryOV(List<RTV2_E> det2List,bool excluirCero)
         {
-            List<int> ordenes = new List<int>();
+            List<int> ordenes = new List<int>();  string filtro = string.Empty;
+            if (excluirCero) { filtro = "AND \"DocTotal\" > 0 "; }
             foreach (var ordr in det2List)
             {
-                string query = $"SELECT TOP 100 \"DocEntry\" FROM {uti.schemaHana}ORDR WHERE \"DocNum\" = '{ordr.NroSap}' AND \"CANCELED\" = 'N'";
+                string query = $"SELECT TOP 100 \"DocEntry\" FROM {uti.schemaHana}ORDR WHERE \"DocNum\" = '{ordr.NroSap}' AND \"CANCELED\" = 'N' {filtro}";
                 using (HanaConnection cn = new HanaConnection(uti.cadHana))
                 {
                     try
@@ -328,7 +329,7 @@ namespace Capa_Datos.ComprobantesContables_ENT
                     }
                     catch { cn.Close(); }
 
-                    query = $"SELECT 'ODLN', \"U_SYP_MDTD\", \"U_SYP_MDSD\", \"U_SYP_MDCD\", TO_CHAR(\"DocDate\", 'YYYY-MM-DD'), TO_CHAR(\"U_BPP_FECINITRA\", 'YYYY-MM-DD'),'G',\"DocTotal\" FROM {uti.schemaHana}ODLN WHERE \"NumAtCard\" in({guiasConcatenadas})";
+                    query = $"SELECT 'ODLN', \"U_SYP_MDTD\", \"U_SYP_MDSD\", \"U_SYP_MDCD\", TO_CHAR(\"DocDate\", 'YYYY-MM-DD'), TO_CHAR(\"U_BPP_FECINITRA\", 'YYYY-MM-DD'),'G',\"Max1099\" FROM {uti.schemaHana}ODLN WHERE \"NumAtCard\" in({guiasConcatenadas})";
 
                     lista = EjecutarConsultaComprobante(query);
 
