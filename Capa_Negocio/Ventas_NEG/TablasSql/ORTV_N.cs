@@ -157,8 +157,8 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                         }
                         else if (!d.LugarDeEntrega.Equals("ALMACÉN FALTANTES"))
                         {
-                                lugEn = d.LugarDeEntrega;
-                                if (!(lugEn.Equals("ALMACÉN N°3") || lugEn.Equals("ALMACÉN FALTANTES") || lugEn.Equals("ALMACÉN N°7"))) { throw new Exception("El lugar de entrega no es válido."); }
+                            lugEn = d.LugarDeEntrega;
+                            if (!(lugEn.Equals("ALMACÉN N°3") || lugEn.Equals("ALMACÉN FALTANTES") || lugEn.Equals("ALMACÉN N°7"))) { throw new Exception("El lugar de entrega no es válido."); }
                         }
                     }
                 }
@@ -425,7 +425,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 if (t.RolSupervisor != 4 && t.RolSupervisor != 11 && t.RolSupervisor != 1 && t.RolSupervisor != 5) { throw new Exception("No tiene permisos para revertir procesos"); }
                 List<CC_ORTV_E> listaEstados = ccTicket.ListarCC_ORTV(DocEntry, null, true);
                 if (listaEstados.Count > 0)
-                {   
+                {
                     if (listaEstados.FirstOrDefault().Operacion != "ANULAR FIN PICKING" && listaEstados.FirstOrDefault().Operacion != "INICIO VERIFICAR" && listaEstados.FirstOrDefault().Operacion != "ANULAR FIN VERIFICAR" && listaEstados.FirstOrDefault().Operacion != "ANULAR INICIO EMPACAR")
                     { throw new Exception("Solo puedes ANULAR INICIO VERIFICAR a un ticket con ultimo flujo INICIO VERIFICAR O ANULAR FIN VERIFICAR"); }
                 }
@@ -599,14 +599,19 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             Capa_Negocio.ComprobantesContables_NEG.Comprobante_N compN = new Capa_Negocio.ComprobantesContables_NEG.Comprobante_N();
             ORTV_E t = ObtenerDatosCompletosTicket(DocEntry);
             //validamos que existan facturas o boletas
-            List<int> OrdenesSap = compN.ObtenerDocEntryOV(t.Det2,true);
+            List<int> OrdenesSap = compN.ObtenerDocEntryOV(t.Det2, true);
 
             List<OINV_E> ComprobantesVinculados = new List<OINV_E>();
             foreach (int DocEntryO in OrdenesSap)
-            {   
+            {
                 List<OINV_E> comprobantesPorOrden = oinvD.listadoComprobantesPorOrdr(DocEntryO);
-                ComprobantesVinculados.AddRange(comprobantesPorOrden);
+
+                if (comprobantesPorOrden != null)
+                {
+                    ComprobantesVinculados.AddRange(comprobantesPorOrden.Where(cpo => cpo != null && !ComprobantesVinculados.Any(cv => cv != null && cv.NumAtCard == cpo.NumAtCard)));
+                }
             }
+
             if (ComprobantesVinculados.Count == 0) { throw new Exception("Este ticket no tiene facturas o boletas relacionadas desde SAP"); }
             //valida que el campo Max1099 de facturas o boletas encontradas sumen el monto total a pagar del ticket // El dato Max1099 cubre los anticipos 
             if (ComprobantesVinculados.Sum(x => x.Max1099) != t.MontoTotal) { throw new Exception("Los documentos emitidos no suman lo total a pagar por el cliente"); }
@@ -683,7 +688,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         {
             return tkD.generaInfoListaDirDestinos(CardCode);
         }
-        
+
         public string generaInfoListaNotasDeCreditoV(string CardCode)
         {
             return tkD.generaInfoListaNotasDeCreditoV(CardCode);
@@ -728,7 +733,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
 
             return ticket;
         }
-        
+
         public List<RTV4_E> obtenerDet4Ticket(int DocEntry, int DocNum = 0)
         {
             return tkD.obtenerDet4Ticket(DocEntry, DocNum);
@@ -796,17 +801,17 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         public List<ORTV_E> ListarTicketsAreaVenta(Usuario_E user, ORTV_E t)
         { return tkD.ListarTicketsAreaVenta(user, t); }
         public int CantidadTicketsFacturacion(string estadoFacturacion) //Trae la cantidad de tickets PENDIENTES o GRE EMITIDA para vista de facturaciòn
-        {return tkD.CantidadTicketsFacturacion(estadoFacturacion);}
+        { return tkD.CantidadTicketsFacturacion(estadoFacturacion); }
         public ORTV_E ObtenerDatosCompletosTicket(int DocEntry)
-        {return tkD.ObtenerDatosCompletosTicket(DocEntry);}
+        { return tkD.ObtenerDatosCompletosTicket(DocEntry); }
         public ORTV_E ObtenerTicketFacturacion(int docEntry)// Trae datos especificos para un ticket en controller facturacion
         { return tkD.ObtenerTicketFacturacion(docEntry); }
         public ORTV_E ObtenerTicketVenta(int docEntry)// Trae datos especificos para un ticket con Det2 y Det3 ( usa vinculacion )
         { return tkD.ObtenerTicketVenta(docEntry); }
         public ORTV_E ObtenerReferenciaEstadosTicket(ORTV_E ticket)
-        { return tkD.ObtenerReferenciaEstadosTicket(ticket);}
+        { return tkD.ObtenerReferenciaEstadosTicket(ticket); }
         public ORTV_E ObtenerDatosTicketParaDocumentos(int docEntry)
-        { return tkD.ObtenerDatosTicketParaDocumentos(docEntry);}
+        { return tkD.ObtenerDatosTicketParaDocumentos(docEntry); }
         public ORTV_E ObtenerTicketRotulado(int docEntry)
         { return tkD.ObtenerTicketRotulado(docEntry); }
         public ORTV_E ObtenerTicketTacoEmpaque(int docEntry)
