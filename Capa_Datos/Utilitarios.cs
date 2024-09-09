@@ -34,11 +34,11 @@ namespace Capa_Datos
             this.cadHana = "Server=192.168.1.37:30015;UserName=B1ADMIN;Password=Passw0rd;";
             //this.cadHana = "Server=172.16.55.36:30015;UserName=B1ADMIN;Password=Passw0rd;"; 
             this.schemaHana = "\"B1H_COBEFAR_2018\".";
-            this.serverSql = @"WIN-DC\DIEGO_BD"; this.passwordSql = "@Ndr@de123"; this.BDsql = "INTRANET_V2"; this.userSql = "sa";
-            //this.serverSql = @"192.168.1.151"; this.passwordSql = "TICOBE@R789"; this.BDsql = "BASE_03_09_24"; this.userSql = "sa";
-            this.directorioGeneral = @"D:\";
-            this.directorioFileServer = @"D:\COBEFARWEBFILES\";
-            this.directorioLogs = @"D:\COBEFARWEBLOGS\";
+            //this.serverSql = @"WIN-DC\DIEGO_BD"; this.passwordSql = "@Ndr@de123"; this.BDsql = "INTRANET_V2"; this.userSql = "sa";
+            this.serverSql = @"192.168.1.151"; this.passwordSql = "TICOBE@R789"; this.BDsql = "ADQUISICIONES"; this.userSql = "sa";
+            this.directorioGeneral = @"C:\";
+            this.directorioFileServer = @"C:\COBEFARWEBFILES\";
+            this.directorioLogs = @"C:\COBEFARWEBLOGS\";
 
             this.cadSql = @"Server=" + this.serverSql + ";database=" + this.BDsql + ";user id=" + this.userSql + ";password=" + this.passwordSql + ";Min Pool Size=0;Max Pool Size=10024;Pooling=true";
 

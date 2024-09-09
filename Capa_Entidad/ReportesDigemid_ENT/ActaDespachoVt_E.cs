@@ -34,5 +34,7 @@ namespace Capa_Entidad.ReportesDigemid_ENT
 		public string T0_U_COB_TIPODOC { get; set; }
 		public string T0_U_COB_SERIE { get; set; }
 		public string T0_U_COB_CORDOC { get; set; }
-	}
+        public string TaxOfficeAlmacen { get; set; }
+        public string Almacen { get; set; }
+    }
 }

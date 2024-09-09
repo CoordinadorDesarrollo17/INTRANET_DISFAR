@@ -76,6 +76,7 @@ namespace Capa_Usuario.Controllers
                     lista.Add("ALM06", "182");                     // DESPACHO20 - Yasmani Huarachi Mamani
                     lista.Add("09", "182");                     // DESPACHO20 - Yasmani Huarachi Mamani
                     lista.Add("ALM09", "182");                     // DESPACHO20 - Yasmani Huarachi Mamani
+                    lista.Add("07", "161");              // SALM1 - Carmen Condori Saravia
                     lista.Add("ALM07", "161");              // SALM1 - Carmen Condori Saravia
                     lista.Add("CUAR07", "161");             // SALM1 - Carmen Condori Saravia
                     lista.Add("DEV07", "161");              // SALM1 - Carmen Condori Saravia
@@ -170,7 +171,7 @@ namespace Capa_Usuario.Controllers
 
                 if (result != null && result[0].Almacen != null)
                 {
-                    var datosFirma = BuscarFirmas("ResponsableALMActas", result[0].Almacen);
+                    var datosFirma = BuscarFirmas("ResponsableALMActas", result[0].CodAlmacen);
 
                     if (datosFirma != null && datosFirma.Count >= 1)
                     {
@@ -222,7 +223,7 @@ namespace Capa_Usuario.Controllers
                 var orgVT = dgN.ConsultarOrganolepticoVt(DocEntry);
                 if (orgVT != null && orgVT.Count() >= 1)
                 {
-                    var result = BuscarFirmas("QuimicoFarmaceutico", orgVT[0].Almacen);
+                    var result = BuscarFirmas("QuimicoFarmaceutico", orgVT[0].TaxOfficeAlmacen);
 
                     if (result != null && result.Count >= 1)
                     {
@@ -438,7 +439,7 @@ namespace Capa_Usuario.Controllers
 
                 if (result != null && result[0].AlmacenDestino != null)
                 {
-                    var datosFirma = BuscarFirmas("ResponsableALMActas", result[0].AlmacenDestino);
+                    var datosFirma = BuscarFirmas("ResponsableALMActas", result[0].CodAlmacenDestino);
 
                     if (datosFirma != null && datosFirma.Count >= 1)
                     {
@@ -464,7 +465,7 @@ namespace Capa_Usuario.Controllers
 
                 if (result != null && result[0].AlmDestino != null)
                 {
-                    var datosFirma = BuscarFirmas("ResponsableALMActas", result[0].AlmOrigen);
+                    var datosFirma = BuscarFirmas("ResponsableALMActas", result[0].CodAlmOrigen);
 
                     if (datosFirma != null && datosFirma.Count >= 1)
                     {
@@ -489,9 +490,9 @@ namespace Capa_Usuario.Controllers
                 Utilitarios_N utilitarios = new Utilitarios_N();
                 var orgTS = dgN.ConsultarOrganolepticoTs(DocEntry);
 
-                if (orgTS != null && orgTS.Count() >= 1)
+                if (orgTS != null && orgTS.Any())
                 {
-                    var result = BuscarFirmas("QuimicoFarmaceutico", orgTS[0].AlmacenDestino);
+                    var result = BuscarFirmas("QuimicoFarmaceutico", orgTS[0].CodAlmacenDestino);
 
                     if (result != null && result.Count >= 1)
                     {
