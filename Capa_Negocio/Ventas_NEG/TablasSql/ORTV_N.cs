@@ -105,36 +105,36 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                     if (ticket.Embalaje != "CP") { throw new Exception("El embalaje debe ser Caja Provincia."); }
 
                     string lugEn = string.Empty;
-                    foreach (RTV2_E d in ticket.Det2.Where(x => x.Verificar == "on"))
-                    {
-                        if (lugEn != string.Empty)
-                        {
-                            if (!(lugEn.Equals("ALMACÉN N°3") || lugEn.Equals("ALMACÉN FALTANTES") || lugEn.Equals("ALMACÉN N°7"))) { throw new Exception("El lugar de entrega debe ser válido."); }
-                            if (!d.LugarDeEntrega.Equals(lugEn) && !d.LugarDeEntrega.Equals("ALMACÉN FALTANTES")) { throw new Exception("No coinciden los lugares de entrega en el detalle."); }
-                        }
-                        else if (!d.LugarDeEntrega.Equals("ALMACÉN FALTANTES"))
-                        {
-                            lugEn = d.LugarDeEntrega;
-                            if (!(lugEn.Equals("ALMACÉN N°3") || lugEn.Equals("ALMACÉN FALTANTES") || lugEn.Equals("ALMACÉN N°7"))) { throw new Exception("El lugar de entrega debe ser válido."); }
-                        }
-                    }
+                    //foreach (RTV2_E d in ticket.Det2.Where(x => x.Verificar == "on"))
+                    //{
+                    //    if (lugEn != string.Empty)
+                    //    {
+                    //        if (!(lugEn.Equals("ALMACÉN N°3") || lugEn.Equals("ALMACÉN FALTANTES") || lugEn.Equals("ALMACÉN N°7"))) { throw new Exception("El lugar de entrega debe ser válido."); }
+                    //        if (!d.LugarDeEntrega.Equals(lugEn) && !d.LugarDeEntrega.Equals("ALMACÉN FALTANTES")) { throw new Exception("No coinciden los lugares de entrega en el detalle."); }
+                    //    }
+                    //    else if (!d.LugarDeEntrega.Equals("ALMACÉN FALTANTES"))
+                    //    {
+                    //        lugEn = d.LugarDeEntrega;
+                    //        if (!(lugEn.Equals("ALMACÉN N°3") || lugEn.Equals("ALMACÉN FALTANTES") || lugEn.Equals("ALMACÉN N°7"))) { throw new Exception("El lugar de entrega debe ser válido."); }
+                    //    }
+                    //}
                 }
                 else if (ticket.LugarDestino.Equals("Arriola"))
                 {
                     string lugEn = string.Empty;
-                    foreach (RTV2_E d in ticket.Det2.Where(x => x.Verificar == "on"))
-                    {
-                        if (lugEn != string.Empty)
-                        {
-                            if (!lugEn.Equals("ALMACÉN N°6") && !lugEn.Equals("ALMACÉN FALTANTES")) { throw new Exception("El lugar de entrega debe ser 'ALMACÉN N°6' o 'ALMACÉN FALTANTES'."); }
-                            if (!d.LugarDeEntrega.Equals(lugEn) && !d.LugarDeEntrega.Equals("ALMACÉN FALTANTES")) { throw new Exception("No coinciden los lugares de entrega en el detalle."); }
-                        }
-                        else if (!d.LugarDeEntrega.Equals("ALMACÉN FALTANTES"))
-                        {
-                            lugEn = d.LugarDeEntrega;
-                            if (!lugEn.Equals("ALMACÉN N°6") && !lugEn.Equals("ALMACÉN FALTANTES")) { throw new Exception("El lugar de entrega debe ser 'ALMACÉN N°6' o 'ALMACÉN FALTANTES'."); }
-                        }
-                    }
+                    //foreach (RTV2_E d in ticket.Det2.Where(x => x.Verificar == "on"))
+                    //{
+                    //    if (lugEn != string.Empty)
+                    //    {
+                    //        if (!lugEn.Equals("ALMACÉN N°6") && !lugEn.Equals("ALMACÉN FALTANTES")) { throw new Exception("El lugar de entrega debe ser 'ALMACÉN N°6' o 'ALMACÉN FALTANTES'."); }
+                    //        if (!d.LugarDeEntrega.Equals(lugEn) && !d.LugarDeEntrega.Equals("ALMACÉN FALTANTES")) { throw new Exception("No coinciden los lugares de entrega en el detalle."); }
+                    //    }
+                    //    else if (!d.LugarDeEntrega.Equals("ALMACÉN FALTANTES"))
+                    //    {
+                    //        lugEn = d.LugarDeEntrega;
+                    //        if (!lugEn.Equals("ALMACÉN N°6") && !lugEn.Equals("ALMACÉN FALTANTES")) { throw new Exception("El lugar de entrega debe ser 'ALMACÉN N°6' o 'ALMACÉN FALTANTES'."); }
+                    //    }
+                    //}
                 }
                 else if (ticket.LugarDestino.Equals("Domicilio"))
                 {
@@ -146,38 +146,38 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                     if (string.IsNullOrEmpty(ticket.Det1[0].DocPer)) { throw new Exception("Debe llenar el número de documento personal."); }
                     if (string.IsNullOrEmpty(ticket.Det1[0].TelfPer)) { throw new Exception("Debe llenar el teléfono."); }
                     string lugEn = string.Empty;
-                    foreach (RTV2_E d in ticket.Det2.Where(x => x.Verificar == "on"))
-                    {
-                        if (lugEn != string.Empty)
-                        {
-                            if (!(lugEn.Equals("ALMACÉN N°3") || lugEn.Equals("ALMACÉN FALTANTES") || lugEn.Equals("ALMACÉN N°7"))) { throw new Exception("El lugar de entrega no es válido."); }
+                    //foreach (RTV2_E d in ticket.Det2.Where(x => x.Verificar == "on"))
+                    //{
+                    //    if (lugEn != string.Empty)
+                    //    {
+                    //        if (!(lugEn.Equals("ALMACÉN N°3") || lugEn.Equals("ALMACÉN FALTANTES") || lugEn.Equals("ALMACÉN N°7"))) { throw new Exception("El lugar de entrega no es válido."); }
 
-                            if (!d.LugarDeEntrega.Equals(lugEn) && !d.LugarDeEntrega.Equals("ALMACÉN FALTANTES")) { throw new Exception("No coinciden los lugares de entrega en el detalle."); }
+                    //        if (!d.LugarDeEntrega.Equals(lugEn) && !d.LugarDeEntrega.Equals("ALMACÉN FALTANTES")) { throw new Exception("No coinciden los lugares de entrega en el detalle."); }
 
-                        }
-                        else if (!d.LugarDeEntrega.Equals("ALMACÉN FALTANTES"))
-                        {
-                                lugEn = d.LugarDeEntrega;
-                                if (!(lugEn.Equals("ALMACÉN N°3") || lugEn.Equals("ALMACÉN FALTANTES") || lugEn.Equals("ALMACÉN N°7"))) { throw new Exception("El lugar de entrega no es válido."); }
-                        }
-                    }
+                    //    }
+                    //    else if (!d.LugarDeEntrega.Equals("ALMACÉN FALTANTES"))
+                    //    {
+                    //            lugEn = d.LugarDeEntrega;
+                    //            if (!(lugEn.Equals("ALMACÉN N°3") || lugEn.Equals("ALMACÉN FALTANTES") || lugEn.Equals("ALMACÉN N°7"))) { throw new Exception("El lugar de entrega no es válido."); }
+                    //    }
+                    //}
                 }
                 else if (ticket.LugarDestino.Equals("Centro"))
                 {
                     string lugEn = string.Empty;
-                    foreach (RTV2_E d in ticket.Det2.Where(x => x.Verificar == "on"))
-                    {
-                        if (lugEn != string.Empty)
-                        {
-                            if (!lugEn.Equals("ALMACÉN N°1") && !lugEn.Equals("ALMACÉN FALTANTES")) { throw new Exception("El lugar de entrega solo debe ser 'ALMACÉN N°1' o 'ALMACÉN FALTANTES'."); }
-                            if (!d.LugarDeEntrega.Equals(lugEn) && !d.LugarDeEntrega.Equals("ALMACÉN FALTANTES")) { throw new Exception("No coinciden los lugares de entrega en el detalle."); }
-                        }
-                        else if (!d.LugarDeEntrega.Equals("ALMACÉN FALTANTES"))
-                        {
-                            lugEn = d.LugarDeEntrega;
-                            if (!lugEn.Equals("ALMACÉN N°1") && !lugEn.Equals("ALMACÉN FALTANTES")) { throw new Exception("El lugar de entrega solo debe ser 'ALMACÉN N°1' o 'ALMACÉN FALTANTES'."); }
-                        }
-                    }
+                    //foreach (RTV2_E d in ticket.Det2.Where(x => x.Verificar == "on"))
+                    //{
+                    //    if (lugEn != string.Empty)
+                    //    {
+                    //        if (!lugEn.Equals("ALMACÉN N°1") && !lugEn.Equals("ALMACÉN FALTANTES")) { throw new Exception("El lugar de entrega solo debe ser 'ALMACÉN N°1' o 'ALMACÉN FALTANTES'."); }
+                    //        if (!d.LugarDeEntrega.Equals(lugEn) && !d.LugarDeEntrega.Equals("ALMACÉN FALTANTES")) { throw new Exception("No coinciden los lugares de entrega en el detalle."); }
+                    //    }
+                    //    else if (!d.LugarDeEntrega.Equals("ALMACÉN FALTANTES"))
+                    //    {
+                    //        lugEn = d.LugarDeEntrega;
+                    //        if (!lugEn.Equals("ALMACÉN N°1") && !lugEn.Equals("ALMACÉN FALTANTES")) { throw new Exception("El lugar de entrega solo debe ser 'ALMACÉN N°1' o 'ALMACÉN FALTANTES'."); }
+                    //    }
+                    //}
                 }
             }
             if (ticket.Det3 != null && ticket.Det3.Count >= 1)
