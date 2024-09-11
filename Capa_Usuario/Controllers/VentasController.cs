@@ -1623,7 +1623,7 @@ namespace Capa_Usuario.Controllers
                     ticket.OpRegistro = $"{usu.Nombres} {usu.Apellidos}";
                     ticket.RolSupervisor = usu.IdRol;
                     int DocNum = ticketN.editarSeguimientoTicket("ANULAR INICIO EMPACAR", DocEntry, ticket);
-                    return RedirectToAction("ListadoTicketsAlmacen", new { DocNum = DocNum, Mensaje = "Inicio de empaque anulado" });
+                    return RedirectToAction("ListadoTicketsAlmacen", new { DocNum = DocNum, Mensaje = "Inicio de packing anulado" });
                 }
                 catch (Exception e) { return RedirectToAction("ListadoTicketsAlmacen", new { Mensaje = e.Message }); }
             }
@@ -1685,13 +1685,14 @@ namespace Capa_Usuario.Controllers
                     var listaUsuarios = u_N.ListaUsuarios(new Usuario_E() { Prefijo = "ALM" });
                     var usuariosDistinct = listaUsuarios.Select(x => $"{x.Nombres} {x.Apellidos}").Distinct().ToList();
                     ViewBag.ListaUsuarios = usuariosDistinct;
+                    var mensaje = "Ticket terminó packing";
                     if (ticket.LugarDestino.Equals("Agencia"))
                     {
-                        return RedirectToAction("ListadoTicketsAlmacen", new { DocNum = DocNum, Mensaje = "Ticket empacado correctamente", DescargarPDF = 0, NumTicket = DocEntry, LugarDestino = ticketPost.LugarDestino });
+                        return RedirectToAction("ListadoTicketsAlmacen", new { DocNum = DocNum, Mensaje = mensaje, DescargarPDF = 0, NumTicket = DocEntry, LugarDestino = ticketPost.LugarDestino });
                     }
                     else
                     {
-                        return RedirectToAction("ListadoTicketsAlmacen", new { DocNum = DocNum, Mensaje = "Ticket empacado correctamente", DescargarPDF = 1, NumTicket = DocEntry, LugarDestino = ticketPost.LugarDestino });
+                        return RedirectToAction("ListadoTicketsAlmacen", new { DocNum = DocNum, Mensaje = mensaje, DescargarPDF = 1, NumTicket = DocEntry, LugarDestino = ticketPost.LugarDestino });
                     }
                 }
                 catch (Exception e)
@@ -1736,7 +1737,7 @@ namespace Capa_Usuario.Controllers
                 try
                 {
                     Usuario_E usu = (Usuario_E)Session["UsuarioId"];
-                    ViewBag.Mensaje = "Proceso de FIN EMPACAR anulado";
+                    ViewBag.Mensaje = "Se anuló termino de packing";
                     ORTV_E ticket = ticketN.ObtenerDatosCompletosTicket(DocEntry);
                     ticket.OpRegistro = $"{usu.Nombres} {usu.Apellidos}";
                     ticket.RolSupervisor = usu.IdRol;

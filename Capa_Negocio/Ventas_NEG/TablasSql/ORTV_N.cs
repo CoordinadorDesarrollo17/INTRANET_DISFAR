@@ -688,7 +688,6 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         {
             return tkD.generaInfoListaDirDestinos(CardCode);
         }
-
         public string generaInfoListaNotasDeCreditoV(string CardCode)
         {
             return tkD.generaInfoListaNotasDeCreditoV(CardCode);
@@ -733,11 +732,16 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
 
             return ticket;
         }
-
         public List<RTV4_E> obtenerDet4Ticket(int DocEntry, int DocNum = 0)
         {
             return tkD.obtenerDet4Ticket(DocEntry, DocNum);
         }
+
+
+
+
+
+
 
 
 
