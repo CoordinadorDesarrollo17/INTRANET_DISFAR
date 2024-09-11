@@ -9,8 +9,8 @@ namespace Capa_Entidad.ReportesDigemid_ENT
     public class OrganolepticoTs_E
     {
         public string T1_DocDate { get; set; }
-        public string AlmacenEnvio { get; set; }
-        public string AlmacenDestino { get; set; }
+        public string CodAlmacenEnvio { get; set; }
+        public string CodAlmacenDestino { get; set; }
         public string NroDeGuia { get; set; }
         public string T2_ItemCode { get; set; }
         public string T2_Dscription { get; set; }
@@ -24,5 +24,9 @@ namespace Capa_Entidad.ReportesDigemid_ENT
         public string FechaVenc { get; set; }
         public string RegistroSan { get; set; }
         public string CondAlmac { get; set; }
+        public string TaxOfficeAlmacenEnvio { get; set; }
+        public string AlmacenEnvio { get; set; }
+        public string TaxOfficeAlmacenDestino { get; set; }
+        public string AlmacenDestino { get; set; }
     }
 }
