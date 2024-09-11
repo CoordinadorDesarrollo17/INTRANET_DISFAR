@@ -3127,11 +3127,11 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             List<CC_ORTV_E> tkAnularEntregar = ccORTV.ListarCC_ORTV(ticket.DocEntry, "ANULAR ENTREGAR");
             ticket.hayEntregar = ObtenerEstadoOperacion(tkEntregar, tkAnularEntregar, "ENTREGAR", "ANULAR ENTREGAR");
            
-            // Establecer aptoIniVerificar en true si no hay inicio de Verificar o si hay inicio de Picking
+            // Establecer aptoIniVerificar en true si no hay un previo inicio Verificar y si hay inicio de Picking
             ticket.aptoIniVerificar = !ticket.hayIniVerificar && ticket.hayIniPicking;
 
-            //Establecer aptoFinVerificar  en true si hay inicio verificar y que no haya fin verificar y que ultimo estado no sea fin verificar y tiene que haber fin picking
-            ticket.aptoFinVerificar = ticket.ultimoCCEstado != "FIN VERIFICAR" && ticket.hayIniVerificar && !ticket.hayFinVerificar && ticket.hayFinPicking;
+            // Establecer aptoFinVerificar en true si hay inicio verificar y que no haya previamente un fin verificar y tiene que haber fin Picking
+            ticket.aptoFinVerificar = ticket.hayIniVerificar && !ticket.hayFinVerificar && ticket.hayFinPicking;
 
             return ticket;
         }
@@ -3503,13 +3503,12 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                             if (!dr.IsDBNull(18)) { ticket.MontoTotal = dr.GetDecimal(18); }
                             if (!dr.IsDBNull(19)) { ticket.Cajas = dr.GetInt32(19); }
                             if (!dr.IsDBNull(20)) { ticket.LugarDestino = dr.GetString(20); }
-                            ticket.Vendedor = (ticket.Vendedor.Length > 15) ? ticket.Vendedor.Substring(0, 15) : ticket.Vendedor;
                             ticket.FechaSapTicket = (ticket.FechaSapTicket != null) ? Convert.ToDateTime(ticket.FechaSapTicket).ToString("dd/MM/yyyy") : null;
 
                             //Buscamos el ultimo estado del ticket excluyendo a los estados que no trascienden en las operaciones del ticket.
                             ticket.ultimoCCEstado = ccTicket.ListarCC_ORTV(ticket.DocEntry, null, true).FirstOrDefault()?.Operacion;
 
-                            //consulta referencia para los estados, acopla los nuevos datos sin perder lo anterior consultado.
+                            //Consulta referencia para los estados, acopla los nuevos datos sin perder lo anterior consultado.
                             ObtenerReferenciaEstadosTicket(ticket);
 
                             /**************************************/
@@ -3555,7 +3554,6 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                                 }
                             }
                             lista.Add(ticket);
-
 
                         }
                     }

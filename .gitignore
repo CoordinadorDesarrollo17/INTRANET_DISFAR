@@ -21,6 +21,7 @@
 /Capa_Usuario/Reportes/RptAtencionCliente/**
 /Capa_Usuario/Reportes/RptDireccionTecnica/**
 /Capa_Usuario/packages.config/
+/Capa_Datos/Utilitarios.cs
 
 .editorconfig
 *.xsc

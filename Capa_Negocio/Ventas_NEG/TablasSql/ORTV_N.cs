@@ -109,13 +109,13 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                     {
                         if (lugEn != string.Empty)
                         {
-                            if (!(lugEn.Equals("ALMACÉN N°3") || lugEn.Equals("ALMACÉN FALTANTES") || lugEn.Equals("ALMACÉN N°7"))) { throw new Exception("El lugar de entrega debe ser válido."); }
+                            if (!(lugEn.Equals("ALMACÉN N°3") || lugEn.Equals("ALMACÉN FALTANTES") || lugEn.Equals("ALMACÉN N°6 (Ureta)"))) { throw new Exception("El lugar de entrega debe ser válido."); }
                             if (!d.LugarDeEntrega.Equals(lugEn) && !d.LugarDeEntrega.Equals("ALMACÉN FALTANTES")) { throw new Exception("No coinciden los lugares de entrega en el detalle."); }
                         }
                         else if (!d.LugarDeEntrega.Equals("ALMACÉN FALTANTES"))
                         {
                             lugEn = d.LugarDeEntrega;
-                            if (!(lugEn.Equals("ALMACÉN N°3") || lugEn.Equals("ALMACÉN FALTANTES") || lugEn.Equals("ALMACÉN N°7"))) { throw new Exception("El lugar de entrega debe ser válido."); }
+                            if (!(lugEn.Equals("ALMACÉN N°3") || lugEn.Equals("ALMACÉN FALTANTES") || lugEn.Equals("ALMACÉN N°6 (Ureta)"))) { throw new Exception("El lugar de entrega debe ser válido."); }
                         }
                     }
                 }
@@ -126,21 +126,21 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                     {
                         if (lugEn != string.Empty)
                         {
-                            if (!lugEn.Equals("ALMACÉN N°6") && !lugEn.Equals("ALMACÉN FALTANTES")) { throw new Exception("El lugar de entrega debe ser 'ALMACÉN N°6' o 'ALMACÉN FALTANTES'."); }
+                            if (!lugEn.Equals("ALMACÉN N°5 (Arriola)") && !lugEn.Equals("ALMACÉN FALTANTES")) { throw new Exception("El lugar de entrega debe ser 'ALMACÉN N°5 (Arriola)' o 'ALMACÉN FALTANTES'."); }
                             if (!d.LugarDeEntrega.Equals(lugEn) && !d.LugarDeEntrega.Equals("ALMACÉN FALTANTES")) { throw new Exception("No coinciden los lugares de entrega en el detalle."); }
                         }
                         else if (!d.LugarDeEntrega.Equals("ALMACÉN FALTANTES"))
                         {
                             lugEn = d.LugarDeEntrega;
-                            if (!lugEn.Equals("ALMACÉN N°6") && !lugEn.Equals("ALMACÉN FALTANTES")) { throw new Exception("El lugar de entrega debe ser 'ALMACÉN N°6' o 'ALMACÉN FALTANTES'."); }
+                            if (!lugEn.Equals("ALMACÉN N°5 (Arriola)") && !lugEn.Equals("ALMACÉN FALTANTES")) { throw new Exception("El lugar de entrega debe ser 'ALMACÉN N°5 (Arriola)' o 'ALMACÉN FALTANTES'."); }
                         }
-                    }
+                    }     
                 }
                 else if (ticket.LugarDestino.Equals("Domicilio"))
                 {
                     if (string.IsNullOrEmpty(ticket.Zona)) { throw new Exception("Debe existir una zona."); }
                     if (string.IsNullOrEmpty(ticket.DirDestino)) { throw new Exception("Debe llenar la dirección de destino."); }
-                    if (ticket.Det3 != null && ticket.Det3.Count >= 2 && !string.IsNullOrEmpty(ticket.Det3[1].Calle) && ticket.Det3[1].Calle.Length > 200) { throw new Exception("La dirección de destino excede el límite de 200 caracteres."); }
+                    if (ticket.Det3 != null && ticket.Det3.Count >= 2 && !string.IsNullOrEmpty(ticket.Det3[1].Calle) && ticket.Det3[1].Calle.Length > 200) { throw new Exception("La dirección de destino excede el límite de 200 caracteres."); }      
                     if (string.IsNullOrEmpty(ticket.Det1[0].NombrePer)) { throw new Exception("Debe llenar el nombre."); }
                     if (string.IsNullOrEmpty(ticket.Det1[0].TipoDocPer)) { throw new Exception("Debe llenar el tipo de documento personal."); }
                     if (string.IsNullOrEmpty(ticket.Det1[0].DocPer)) { throw new Exception("Debe llenar el número de documento personal."); }
@@ -150,7 +150,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                     {
                         if (lugEn != string.Empty)
                         {
-                            if (!(lugEn.Equals("ALMACÉN N°3") || lugEn.Equals("ALMACÉN FALTANTES") || lugEn.Equals("ALMACÉN N°7"))) { throw new Exception("El lugar de entrega no es válido."); }
+                            if (!(lugEn.Equals("ALMACÉN N°3") || lugEn.Equals("ALMACÉN FALTANTES") || lugEn.Equals("ALMACÉN N°6 (Ureta)"))) { throw new Exception("El lugar de entrega no es válido."); }
 
                             if (!d.LugarDeEntrega.Equals(lugEn) && !d.LugarDeEntrega.Equals("ALMACÉN FALTANTES")) { throw new Exception("No coinciden los lugares de entrega en el detalle."); }
 
@@ -158,7 +158,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                         else if (!d.LugarDeEntrega.Equals("ALMACÉN FALTANTES"))
                         {
                             lugEn = d.LugarDeEntrega;
-                            if (!(lugEn.Equals("ALMACÉN N°3") || lugEn.Equals("ALMACÉN FALTANTES") || lugEn.Equals("ALMACÉN N°7"))) { throw new Exception("El lugar de entrega no es válido."); }
+                            if (!(lugEn.Equals("ALMACÉN N°3") || lugEn.Equals("ALMACÉN FALTANTES") || lugEn.Equals("ALMACÉN N°6 (Ureta)"))) { throw new Exception("El lugar de entrega no es válido."); }
                         }
                     }
                 }
@@ -688,7 +688,6 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         {
             return tkD.generaInfoListaDirDestinos(CardCode);
         }
-
         public string generaInfoListaNotasDeCreditoV(string CardCode)
         {
             return tkD.generaInfoListaNotasDeCreditoV(CardCode);
@@ -733,11 +732,13 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
 
             return ticket;
         }
-
         public List<RTV4_E> obtenerDet4Ticket(int DocEntry, int DocNum = 0)
         {
             return tkD.obtenerDet4Ticket(DocEntry, DocNum);
         }
+
+
+
 
 
 
