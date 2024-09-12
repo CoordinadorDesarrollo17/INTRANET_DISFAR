@@ -126,12 +126,12 @@
                         @Html.DisplayName("Tipo")<br />
                         <select name="TipoRuta" class="form-control-sm border" onchange="filtrar();">
                             <option value=""></option>
-                            <option value="AC" @if (o != null && o.TipoRuta == "AC") { Write("selected"); }>Agencia Courier</option>
-                            <option value="VC" @if (o != null && o.TipoRuta == "VC") { Write("selected"); }>Almacen 01</option>
-                            <option value="VD" @if (o != null && o.TipoRuta == "VD") { Write("selected"); }>Domicilio</option>
-                            <option value="TA" @if (o != null && o.TipoRuta == "TA") { Write("selected"); }>Traslados</option>
-                            <option value="VA" @if (o != null && o.TipoRuta == "VA") { Write("selected"); }>Almacen 06</option>
-                            <option value="VG" @if (o != null && o.TipoRuta == "VG") { Write("selected"); }>Agencia</option>
+                            <option value="AC" @if (o != null && o.TipoRuta == "AC") { Write("selected"); }>AGENCIA COURIER</option>
+                            <option value="VC" @if (o != null && o.TipoRuta == "VC") { Write("selected"); }>CENTRO</option>
+                            <option value="VD" @if (o != null && o.TipoRuta == "VD") { Write("selected"); }>DOMICILIO</option>
+                            <option value="TA" @if (o != null && o.TipoRuta == "TA") { Write("selected"); }>TRASLADOS</option>
+                            <option value="VA" @if (o != null && o.TipoRuta == "VA") { Write("selected"); }>ARRIOLA</option>
+                            <option value="VG" @if (o != null && o.TipoRuta == "VG") { Write("selected"); }>AGENCIA</option>
                         </select>
                     </th>
                     <th class="text-center">
