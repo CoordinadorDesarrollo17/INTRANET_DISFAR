@@ -80,6 +80,8 @@ namespace Capa_Usuario.Controllers
                     lista.Add("ALM07", "161");              // SALM1 - Carmen Condori Saravia
                     lista.Add("CUAR07", "161");             // SALM1 - Carmen Condori Saravia
                     lista.Add("DEV07", "161");              // SALM1 - Carmen Condori Saravia
+                    lista.Add("08", "182");                     // ---- aquí el problema 
+                    lista.Add("ALM08", "182");                     // ---- aquí el problema 
                 }
                 else if (!string.IsNullOrEmpty(tipoFirma) && tipoFirma.Equals("QuimicoFarmaceutico"))
                 {
@@ -97,6 +99,7 @@ namespace Capa_Usuario.Controllers
                     lista.Add("ALM05", "197");              // Evelin Mamani Delgado (DT11)
                     lista.Add("09", "208");                     // 09 es equivalente a ALM06 - Diana Quiquia Urribarre (DT22)
                     lista.Add("ALM09", "208");              // 09 es equivalente a ALM06 - Diana Quiquia Urribarre (DT22)
+                    lista.Add("06", "206");                     //  María Aguirre Reyes (DT20) --- EQUIVALENTE A ALM03
                     lista.Add("07", "339");                     // Roly Gonzales Romero (DT05)
                     lista.Add("ALM07", "339");              // Roly Gonzales Romero (DT05)
                     lista.Add("CUAR07", "339");         // Roly Gonzales Romero (DT05)
