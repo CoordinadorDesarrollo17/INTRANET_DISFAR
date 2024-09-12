@@ -82,6 +82,7 @@ namespace Capa_Usuario.Controllers
                     lista.Add("DEV07", "161");              // SALM1 - Carmen Condori Saravia
                     lista.Add("08", "182");                     // ---- aquí el problema 
                     lista.Add("ALM08", "182");                     // ---- aquí el problema 
+                    lista.Add("10", "");                     // ---- aquí el problema 
                 }
                 else if (!string.IsNullOrEmpty(tipoFirma) && tipoFirma.Equals("QuimicoFarmaceutico"))
                 {
@@ -106,6 +107,7 @@ namespace Capa_Usuario.Controllers
                     lista.Add("DEV07", "339");              // Roly Gonzales Romero (DT05)
                     lista.Add("08", "208");                    // Diana Quiquia Urribarre (DT22)
                     lista.Add("ALM08", "208");             // Diana Quiquia Urribarre (DT22)
+                    lista.Add("10", "");                                // ---- aquí el problema 
                 }
 
                 string docEntryUsuario = lista[almacen];
@@ -468,7 +470,7 @@ namespace Capa_Usuario.Controllers
 
                 if (result != null && result[0].AlmDestino != null)
                 {
-                    var datosFirma = BuscarFirmas("ResponsableALMActas", result[0].CodAlmOrigen);
+                    var datosFirma = BuscarFirmas("ResponsableALMActas", result[0].TaxOfficeOrigen);
 
                     if (datosFirma != null && datosFirma.Count >= 1)
                     {
