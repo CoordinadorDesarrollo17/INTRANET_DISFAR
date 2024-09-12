@@ -95,7 +95,7 @@ namespace Capa_Negocio.Almacen_NEG.TablasSql
                         }
                         else
                         {
-                            if (CantidadIngresadaPz > MaxQuantityPermitidaPz) { throw new Exception("El producto " + obj.ItemName.Substring(0, 10) + "-" + obj.BatchNum + " excede la cantidad permitida"); }
+                           if (CantidadIngresadaPz > MaxQuantityPermitidaPz) { throw new Exception("El producto " + obj.ItemName.Substring(0, 10) + "-" + obj.BatchNum + " excede la cantidad permitida"); }
                         }
                     }
 

@@ -140,7 +140,7 @@
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.LugarDestino)
                         <br />
-                        <select name="LugarDestino" id="LugarDestino" class="form-control select_filtro-table" style="width: 100px" onchange="filtrar();">
+                        <select name="LugarDestino" id="LugarDestino" class="form-control select_filtro-table" onchange="filtrar();">
                             <option value=""></option>
                             <option value="Arriola" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Arriola") { Write("selected"); } }>Arriola</option>
                             <option value="Agencia" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Agencia") { Write("selected"); } }>Agencia</option>
@@ -463,7 +463,8 @@
                         {
                             <td class="text-center">
 
-                                @if ((item.ultimoCCEstado == "INICIO PICKING" || item.ultimoCCEstado == "ANULAR FIN PICKING" || item.ultimoCCEstado == "ANULAR INICIO VERIFICAR") && item.hayIniPicking && item.Estado == "PICKEANDO" && item.hayFinPicking == false)
+                                @if (((item.ultimoCCEstado == "INICIO PICKING" || item.ultimoCCEstado == "ANULAR FIN PICKING" || item.ultimoCCEstado == "ANULAR INICIO VERIFICAR") && item.hayIniPicking && item.Estado == "PICKEANDO" && !item.hayFinPicking)&&
+                                    !((item.ultimoCCEstado == "INICIO VERIFICAR" || item.ultimoCCEstado == "ANULAR FIN VERIFICAR" || item.ultimoCCEstado == "ANULAR INICIO EMPACAR" || item.ultimoCCEstado == "ANULAR FIN PICKING") && item.hayIniVerificar && !item.hayFinVerificar))
                                 {
                                     <a href="@Url.Action("AnularIniciarSacandoTicket", "Ventas", new { DocEntry = item.DocEntry })"
                                        class="btn btn-light text-danger btn-sm"
@@ -484,7 +485,7 @@
                                         <i class="icon icon-undo"></i>
                                     </a>
                                 }
-                                @if ((item.ultimoCCEstado == "INICIO VERIFICAR" || item.ultimoCCEstado == "ANULAR FIN VERIFICAR" || item.ultimoCCEstado == "ANULAR INICIO EMPACAR") && item.hayIniVerificar && item.hayFinVerificar == false)
+                                @if ((item.ultimoCCEstado == "INICIO VERIFICAR" || item.ultimoCCEstado == "ANULAR FIN VERIFICAR" || item.ultimoCCEstado == "ANULAR INICIO EMPACAR" || item.ultimoCCEstado == "ANULAR FIN PICKING") && item.hayIniVerificar && !item.hayFinVerificar)
                                 {
                                     <a href="@Url.Action("AnularIniciarVerificandoTicket", "Ventas", new { DocEntry = item.DocEntry })"
                                        class="btn btn-light text-danger btn-sm"
@@ -694,35 +695,34 @@
         });
         location.href = '/Ventas/ExportarExcelArticulos?DocEntry='+DocEntry;
     }
+
     function generarHtmlComprobantes(docEntry, estado, lugarDestino) {
         var html = '<div class="btn-group" role="group">';
-        //condiciones para el boton excel 
+        // Condiciones para el boton excel que descarga todos los SKU
         if (["PICKEANDO", "VERIFICANDO", "EMPACANDO", "EMPACADO", "PESADO", "PREENVIO", "ENVIADO", "ENTREGADO"].includes(estado)) {
             html += '<button type="button" onclick="excelOrdenesVenta(\'' + encodeURIComponent(docEntry) + '\')" class="btn btn-light text-success" data-toggle="tooltip" data-placement="top" title="Descargar Excel Artículos">';
             html += '<i class="icon icon-file-excel"><span class="text-dark small"> SKUs</span></i>';
             html += '</button><br />';
         }
-        // Condiciones para el botón de "Descargar Rotulado"
+        // Condiciones para el botón de "Descargar Rotulado" y otros documentos 
         if (lugarDestino === "Agencia" && ["PICKEANDO", "VERIFICANDO", "EMPACANDO", "EMPACADO", "PESADO", "PREENVIO", "ENVIADO", "ENTREGADO"].includes(estado)) {
             html += '<button type="button" onclick="pdfRotulo(\'' + encodeURIComponent(docEntry) + '\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Descargar Rotulado">';
             html += '<i class="icon icon-file-pdf"><span class="text-dark small"> Rótulo </span></i>';
             html += '</button><br />';
-
-            if (estado !== "PICKEANDO") {
-                html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="F" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'F\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Facturas">';
-                html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Facturas </span></i>';
-                html += '</button><br />';
-                html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="G" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'G\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Guías">';
-                html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Guías </span></i>';
-                html += '</button><br />';
-                html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="NC" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'NC\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Notas de crédito">';
-                html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Notas Crédito </span></i>';
-                html += '</button><br />';
-                html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="ND" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'ND\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Notas de débito">';
-                html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Notas Débito </span></i>';
-                html += '</button><br />';
-            }
-        } else if (["EMPACADO", "PREENVIO", "ENVIADO", "ENTREGADO"].includes(estado) && lugarDestino !== "Agencia") {
+            html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="F" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'F\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Facturas">';
+            html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Facturas </span></i>';
+            html += '</button><br />';
+            html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="G" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'G\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Guías">';
+            html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Guías </span></i>';
+            html += '</button><br />';
+            html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="NC" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'NC\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Notas de crédito">';
+            html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Notas Crédito </span></i>';
+            html += '</button><br />';
+            html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="ND" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'ND\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Notas de débito">';
+            html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Notas Débito </span></i>';
+            html += '</button><br />';
+            
+        } else if (["EMPACADO", "PREENVIO", "ENVIADO", "ENTREGADO"].includes(estado)) {
             html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="F" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'F\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Facturas">';
             html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Facturas </span></i>';
             html += '</button><br />';

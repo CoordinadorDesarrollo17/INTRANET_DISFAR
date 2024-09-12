@@ -48,7 +48,6 @@
             $("#div_FormaPago").show();
             $("input[name='FormaPago'], select[name='FormaPago']").val("EFE/CAPON");
         }
-
     });
 
     if ('@ViewBag.Mensaje' != "") {
@@ -234,7 +233,7 @@
                             tipoVentaSelect.hide();
                         } else if (tipoVenta.includes('CONTADO')) {
                             tipoVentaInput.hide();
-                            tipoVentaSelect.show().val('Normal');
+                            tipoVentaSelect.show();
                         } else {
                             tipoVentaInput.hide();
                             tipoVentaSelect.hide();

@@ -18,12 +18,12 @@ namespace Capa_Datos.General_DAO.Tablas
             if(alms==null)
             {
                 query = "SELECT T0.\"WhsCode\",T0.\"WhsName\" FROM " + uti.schemaHana + "OWHS T0" +
-                " WHERE T0.\"WhsCode\" NOT IN('00','06','07','08','CUAR07') ORDER BY T0.\"WhsCode\"";
+                " WHERE T0.\"WhsCode\" NOT IN('00','05','06','07','08','CUAR07', 'DEV05') ORDER BY T0.\"WhsCode\"";
             }
             else if(alms=="todos")
             {
                 query = "SELECT T0.\"WhsCode\",T0.\"WhsName\" FROM " + uti.schemaHana + "OWHS T0" +
-                " ORDER BY T0.\"WhsCode\"";
+                "  WHERE T0.\"WhsCode\" NOT IN('05', 'DEV05') ORDER BY T0.\"WhsCode\"";
             }
             try
             {

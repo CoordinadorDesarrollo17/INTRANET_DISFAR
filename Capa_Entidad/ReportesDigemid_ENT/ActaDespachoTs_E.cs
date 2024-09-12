@@ -23,5 +23,9 @@ namespace Capa_Entidad.ReportesDigemid_ENT
         public string FechaVcto { get; set; }
         public string RegistroSanit { get; set; }       
         public string CondicionAlm { get; set; }
+        public string CodAlmOrigen { get; set; }
+        public string TaxOfficeOrigen { get; set; }
+        public string CodAlmDestino { get; set; }
+        public string TaxOfficeDestino { get; set; }
     }
 }

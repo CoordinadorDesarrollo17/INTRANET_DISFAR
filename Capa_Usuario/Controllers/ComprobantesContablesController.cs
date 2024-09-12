@@ -89,7 +89,7 @@ namespace Capa_Usuario.Controllers
             OINV_N oinvN = new OINV_N();
             Comprobante_N compN = new Comprobante_N();
             ORTV_E ortvE = ortvN.ObtenerDatosTicketParaDocumentos(DocEntry);
-            List<int> listDocEntryOrdenesVenta = compN.ObtenerDocEntryOV(ortvE.Det2);
+            List<int> listDocEntryOrdenesVenta = compN.ObtenerDocEntryOV(ortvE.Det2,false);
              if (ortvE.Estado.Equals("ANULADO") || ortvE.Estado.Equals("CANCELADO"))
             {
                 return Json(new { success = false, message = "Ticket en un estado no valido para la descarga de documentos" }, JsonRequestBehavior.AllowGet);
@@ -222,7 +222,6 @@ namespace Capa_Usuario.Controllers
                         Tabla = documento.TablaSAP
                     };
                     string _headerUrlGuia = Url.Action("LayoutGuia_header", "ComprobantesContables", parametrosGuia, "http");
-                    //pdfResult = new ActionAsPdf("LayoutGuia", new { NumAtCard = NumAtCard, documento.Identificador })
                     pdfResult = new ActionAsPdf("LayoutGuia", parametrosGuia)
                     {
                         FileName = fileName,
@@ -304,9 +303,11 @@ namespace Capa_Usuario.Controllers
             ViewBag.Tipo = Tabla.Equals("OWTR") ? "T" : "E";
             return View(guia);
         }
-        public ActionResult LayoutGuia(string NumAtCard,string Tabla)
+        public ActionResult LayoutGuia(string NumAtCard,string Tabla,int DocNumTicket)
         {
             var guia = ObtenerDetalleGuia(NumAtCard, Tabla);
+            ORTV_N ortvN = new ORTV_N();
+            ViewBag.PersonaRecojo = ortvN.obtenerPersonaRecojoParaGuia(DocNumTicket);
             ViewBag.Tipo = Tabla.Equals("OWTR") ?  "T" : "E";
             return View(guia);
         }

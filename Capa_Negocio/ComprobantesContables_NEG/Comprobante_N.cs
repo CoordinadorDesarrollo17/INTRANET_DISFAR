@@ -15,9 +15,9 @@ namespace Capa_Negocio.ComprobantesContables_NEG
     public class Comprobante_N
     {
         Comprobante_D compD = new Comprobante_D();
-        public List<int> ObtenerDocEntryOV(List<RTV2_E> det2List)
+        public List<int> ObtenerDocEntryOV(List<RTV2_E> det2List,bool excluirCero)
         {
-            return compD.ObtenerDocEntryOV(det2List);
+            return compD.ObtenerDocEntryOV(det2List, excluirCero);
         }
         public List<Guia_Remision_E> ObtenerDetalleGuia(string NumAtCard,string Tabla)
         {return compD.ObtenerDetalleGuia(NumAtCard, Tabla);}

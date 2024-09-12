@@ -60,20 +60,20 @@
                     <td >@d.Ticket.CardCode.Substring(1, 11)</td>
                     <td  colspan="3">@d.Guias</td>
                     <td>@d.Ticket.Cajas</td>
-                    <td>@d.Ticket.Det3.Sum(x => x.Peso)</td>
-                    @if (string.IsNullOrEmpty(d.Ticket.DirDestino2))
+                    <td>@d.Ticket.Det6.Sum(x => x.Peso)</td>
+                    @if (d.Ticket.Det3 != null && d.Ticket.Det3.Count()>1 && !string.IsNullOrEmpty(d.Ticket.Det3[1].Calle))
                     {
-                        <td colspan="2">@d.Ticket.Det4[0].Distrito-@d.Ticket.Det4[0].Provincia-@d.Ticket.Det4[0].Departamento</td>
+                        <td colspan="2">@d.Ticket.Det3[1].Distrito-@d.Ticket.Det3[1].Provincia-@d.Ticket.Det3[1].Departamento</td>
                     }
                     else
                     {
-                        <td colspan="2">@d.Ticket.Det4[1].Distrito-@d.Ticket.Det4[1].Provincia-@d.Ticket.Det4[1].Departamento</td>
+                        <td colspan="2">@d.Ticket.Det3[0].Distrito-@d.Ticket.Det3[0].Provincia-@d.Ticket.Det3[0].Departamento</td>
 
                     }
 
                     <td >@d.Observaciones</td>
                 </tr>
-                pt += d.Ticket.Det3.Sum(x => x.Peso);
+                pt += d.Ticket.Det6.Sum(x => x.Peso);
                 i++;
             }
             @{pesototal = pt; }

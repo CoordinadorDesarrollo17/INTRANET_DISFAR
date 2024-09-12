@@ -364,7 +364,6 @@ function validacionVerificarMontos(estado) {
 function clienteRegalos() {
     window.open("/Ventas/ReporteClienteRegalos?CardCode=" + $("#CardCode").val(), null, 'width=800,height=450,top=100,left=100,toolbar=no,location=no,status=no,menubar=no')
 }
-//v
 function muestraCampo() {
     if ($("#LugarDestino").val() == 'Agencia' || $("#LugarDestino").val() == 'Agencia Courier') {
         $("#CamposAgDom").show(); $("#CamposAgencia").show();$("#Referencia").val("");
@@ -378,7 +377,6 @@ function muestraCampo() {
 
     }
 }
-//v
 //Solo se puede accionar cuando colocamos Agencia Courier y Modo envio (oficina de agencia)
 function buscarOficina() {
     $.ajax({
@@ -413,7 +411,6 @@ function buscarOficina() {
     });
 }
 //se usa para PO y para crear ticket venta 
-//v
 function validacionCliente(estado) {
     if (estado === '') {
         $('#infoFechaTicket').on('change', function () {
@@ -492,7 +489,6 @@ function verificarClientePO() {
 }
 /************************************ */
 //solo es usado en el crear ticket venta
-//v
 function listarNotasDeCreditoV() {
     var object = $("#CreaTicketVenta").serialize();
     $.ajax('/Ventas/infoListaNotasDeCreditoV',
