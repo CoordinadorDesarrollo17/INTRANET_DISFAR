@@ -307,7 +307,7 @@ namespace Capa_Usuario.Controllers
                 OITM_N oitmN = new OITM_N();
                 var datalist = "<datalist id='ListaProductos'>";
                 //Solo lista productos Activos
-                var listaProductos = oitmN.Listar(new OITM_E { FirmCode = datos.FirmCode, validFor = "Y"/*, U_COB_EST_SKU = "01"*/});
+                var listaProductos = oitmN.Listar(new OITM_E { FirmCode = datos.FirmCode, /*validFor = "Y"/*, U_COB_EST_SKU = "01"*/});
 
                 if (listaProductos != null && listaProductos.Count >= 1)
                 {
