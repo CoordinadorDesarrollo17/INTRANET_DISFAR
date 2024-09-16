@@ -62,52 +62,41 @@ namespace Capa_Usuario.Controllers
                 // ResponsableALMActas: ActaRecepcionEm, ActaRecepcionTs
                 if (!string.IsNullOrEmpty(tipoFirma) && tipoFirma.Equals("ResponsableALMActas"))
                 {
-                    lista.Add("00", "");                     // ---- aquí el problema 
-                    lista.Add("01", "186");                     // DESPACHO25 - Mireya Roman Silva
-                    lista.Add("ALM01", "186");                     // DESPACHO25 - Mireya Roman Silva
-                    lista.Add("02", "834");                     // DESPACHO86 - Hemerson Richard Laura Paucar 
-                    lista.Add("ALM02", "834");                     // DESPACHO86  - Hemerson Richard Laura Paucar 
-                    lista.Add("03", "185");                     // DESPACHO23 - Julio Roman Silva
-                    lista.Add("ALM03", "185");                     // DESPACHO23 - Julio Roman Silva
-                    lista.Add("05", "697");                     // SALM30 - Jesus Angel Nunahuanca Cordova
-                    lista.Add("ALM05", "697");                     // SALM30 - Jesus Angel Nunahuanca Cordova
-                    lista.Add("DEV05", "697");              // SALM30 - Jesus Angel Nunahuanca Cordova
-                    lista.Add("06", "182");                     // DESPACHO20 - Yasmani Huarachi Mamani
-                    lista.Add("ALM06", "182");                     // DESPACHO20 - Yasmani Huarachi Mamani
-                    lista.Add("09", "182");                     // DESPACHO20 - Yasmani Huarachi Mamani
-                    lista.Add("ALM09", "182");                     // DESPACHO20 - Yasmani Huarachi Mamani
-                    lista.Add("07", "161");              // SALM1 - Carmen Condori Saravia
-                    lista.Add("ALM07", "161");              // SALM1 - Carmen Condori Saravia
-                    lista.Add("CUAR07", "161");             // SALM1 - Carmen Condori Saravia
-                    lista.Add("DEV07", "161");              // SALM1 - Carmen Condori Saravia
-                    lista.Add("08", "182");                     // ---- aquí el problema 
-                    lista.Add("ALM08", "182");                     // ---- aquí el problema 
-                    lista.Add("10", "");                     // ---- aquí el problema 
+                    lista.Add("00", "");                        // ------  REVALORIZACION
+                    lista.Add("01", "186");                     // Mireya Roman Silva ALM01
+                    lista.Add("02", "834");                     // Hemerson Richard Laura Paucar ALM02
+                    lista.Add("03", "185");                     // Julio Roman Silva ALM03
+                    lista.Add("04", "");                        // ----- ALMACEN TERCIARIZADO, SIN RESPONSABLE
+                    lista.Add("05", "");                        // ----- NO EXISTE
+                    lista.Add("DEV05", "");                     // ----- NO EXISTE
+                    lista.Add("06", "185");                     // Julio Roman Silva ALM03
+                    lista.Add("07", "185");                     // Julio Roman Silva ALM03
+                    lista.Add("09", "182");                     // Yasmani Huarachi Mamani ALM05
+                    lista.Add("10", "185");                     // Julio Roman Silva ALM03 
+                    lista.Add("ALM07", "161");                  // Carmen Condori Saravia ALM06
+                    lista.Add("ALM08", "");                     // ---- ALMACEN TERCIARIZADO, SIN RESPONSABLE
+                    lista.Add("CUAR07", "161");                 // Carmen Condori Saravia ALM06
+                    lista.Add("DEV07", "161");                  // Carmen Condori Saravia ALM06
+                    
                 }
                 else if (!string.IsNullOrEmpty(tipoFirma) && tipoFirma.Equals("QuimicoFarmaceutico"))
                 {
-                    lista.Add("00", "206");                     // ALM Revalorización - Diana Quiquia Urribarre (DT22)
-                    lista.Add("01", "416");                     // Maryori Córdova García (SDT4)
-                    lista.Add("ALM01", "416");              // Maryori Córdova García (SDT4)
-                    lista.Add("02", "416");                     // Maryori Córdova García (SDT4)
-                    lista.Add("ALM02", "416");              // Maryori Córdova García (SDT4)
-                    lista.Add("03", "206");                     // María Aguirre Reyes (DT20)
-                    lista.Add("ALM03", "206");              // María Aguirre Reyes (DT20)
-                    lista.Add("ALM06", "206");              // María Aguirre Reyes (DT20) --- EQUIVALENTE A ALM03
-                    lista.Add("04", "208");                     // Diana Quiquia Urribarre (DT22)
-                    lista.Add("ALM04", "208");              // Diana Quiquia Urribarre (DT22)
-                    lista.Add("05", "197");                     // Evelin Mamani Delgado (DT11)
-                    lista.Add("ALM05", "197");              // Evelin Mamani Delgado (DT11)
-                    lista.Add("09", "208");                     // 09 es equivalente a ALM06 - Diana Quiquia Urribarre (DT22)
-                    lista.Add("ALM09", "208");              // 09 es equivalente a ALM06 - Diana Quiquia Urribarre (DT22)
-                    lista.Add("06", "206");                     //  María Aguirre Reyes (DT20) --- EQUIVALENTE A ALM03
-                    lista.Add("07", "339");                     // Roly Gonzales Romero (DT05)
-                    lista.Add("ALM07", "339");              // Roly Gonzales Romero (DT05)
-                    lista.Add("CUAR07", "339");         // Roly Gonzales Romero (DT05)
-                    lista.Add("DEV07", "339");              // Roly Gonzales Romero (DT05)
-                    lista.Add("08", "208");                    // Diana Quiquia Urribarre (DT22)
-                    lista.Add("ALM08", "208");             // Diana Quiquia Urribarre (DT22)
-                    lista.Add("10", "");                                // ---- aquí el problema 
+                    lista.Add("00", "");                        // ------ REVALORIZACION
+                    lista.Add("01", "416");                     // Maryori Córdova García ALM01
+                    lista.Add("02", "416");                     // Maryori Córdova García ALM01
+                    lista.Add("03", "206");                     // María Aguirre Reyes ALM03
+                    lista.Add("04", "208");                     // Diana Quiquia Urribarre
+                    lista.Add("05", "");                        // ----- NO EXISTE
+                    lista.Add("DEV05", "");                     // ----- NO EXISTE
+                    lista.Add("06", "206");                     // María Aguirre Reyes ALM03
+                    lista.Add("07", "206");                     // María Aguirre Reyes ALM03
+                    lista.Add("09", "208");                     // Diana Quiquia Urribarre 
+                    lista.Add("10", "206");                     // María Aguirre Reyes ALM03
+                    lista.Add("ALM07", "339");                  // Roly Gonzales Romero ALM06
+                    lista.Add("ALM08", "208");                  // Diana Quiquia Urribarre 
+                    lista.Add("CUAR07", "339");                 // Roly Gonzales Romero ALM06
+                    lista.Add("DEV07", "339");                  // Roly Gonzales Romero ALM06
+
                 }
 
                 string docEntryUsuario = lista[almacen];
@@ -228,7 +217,7 @@ namespace Capa_Usuario.Controllers
                 var orgVT = dgN.ConsultarOrganolepticoVt(DocEntry);
                 if (orgVT != null && orgVT.Count() >= 1)
                 {
-                    var result = BuscarFirmas("QuimicoFarmaceutico", orgVT[0].TaxOfficeAlmacen);
+                    var result = BuscarFirmas("QuimicoFarmaceutico", orgVT[0].CodAlmacen);
 
                     if (result != null && result.Count >= 1)
                     {
