@@ -468,9 +468,9 @@ namespace Capa_Usuario.Controllers
             {
                 var result = dgN.ConsultarActaDespachoTs(DocEntry);
 
-                if (result != null && result[0].AlmDestino != null)
+                if (result != null && result[0].CodAlmOrigen != null)
                 {
-                    var datosFirma = BuscarFirmas("ResponsableALMActas", result[0].TaxOfficeOrigen);
+                    var datosFirma = BuscarFirmas("ResponsableALMActas", result[0].CodAlmOrigen);
 
                     if (datosFirma != null && datosFirma.Count >= 1)
                     {
