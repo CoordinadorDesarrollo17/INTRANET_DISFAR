@@ -62,27 +62,22 @@ namespace Capa_Usuario.Controllers
                 // ResponsableALMActas: ActaRecepcionEm, ActaRecepcionTs
                 if (!string.IsNullOrEmpty(tipoFirma) && tipoFirma.Equals("ResponsableALMActas"))
                 {
-                    lista.Add("00", "");                     // ---- aquí el problema 
-                    lista.Add("01", "186");                     // DESPACHO25 - Mireya Roman Silva
-                    lista.Add("ALM01", "186");                     // DESPACHO25 - Mireya Roman Silva
-                    lista.Add("02", "834");                     // DESPACHO86 - Hemerson Richard Laura Paucar 
-                    lista.Add("ALM02", "834");                     // DESPACHO86  - Hemerson Richard Laura Paucar 
-                    lista.Add("03", "185");                     // DESPACHO23 - Julio Roman Silva
-                    lista.Add("ALM03", "185");                     // DESPACHO23 - Julio Roman Silva
-                    lista.Add("05", "697");                     // SALM30 - Jesus Angel Nunahuanca Cordova
-                    lista.Add("ALM05", "697");                     // SALM30 - Jesus Angel Nunahuanca Cordova
-                    lista.Add("DEV05", "697");              // SALM30 - Jesus Angel Nunahuanca Cordova
-                    lista.Add("06", "182");                     // DESPACHO20 - Yasmani Huarachi Mamani
-                    lista.Add("ALM06", "182");                     // DESPACHO20 - Yasmani Huarachi Mamani
-                    lista.Add("09", "182");                     // DESPACHO20 - Yasmani Huarachi Mamani
-                    lista.Add("ALM09", "182");                     // DESPACHO20 - Yasmani Huarachi Mamani
-                    lista.Add("07", "161");              // SALM1 - Carmen Condori Saravia
-                    lista.Add("ALM07", "161");              // SALM1 - Carmen Condori Saravia
-                    lista.Add("CUAR07", "161");             // SALM1 - Carmen Condori Saravia
-                    lista.Add("DEV07", "161");              // SALM1 - Carmen Condori Saravia
-                    lista.Add("08", "182");                     // ---- aquí el problema 
-                    lista.Add("ALM08", "182");                     // ---- aquí el problema 
-                    lista.Add("10", "");                     // ---- aquí el problema 
+                    lista.Add("00", "");                        // ----  REVALORIZACION
+                    lista.Add("01", "186");                     // Mireya Roman Silva ALM01
+                    lista.Add("02", "834");                     // Hemerson Richard Laura Paucar ALM02
+                    lista.Add("03", "185");                     // Julio Roman Silva ALM03
+                    lista.Add("04", "");                        // -----
+                    lista.Add("05", "");                        // -----
+                    lista.Add("DEV05", "");                     // -----
+                    lista.Add("06", "185");                     // Julio Roman Silva ALM03
+                    lista.Add("07", "185");                     // Julio Roman Silva ALM03
+                    lista.Add("09", "182");                     // Yasmani Huarachi Mamani ALM05
+                    lista.Add("10", "");                        // ---- 
+                    lista.Add("ALM07", "161");                  // Carmen Condori Saravia ALM06
+                    lista.Add("ALM08", "182");                  // ---- 
+                    lista.Add("CUAR07", "161");                 // Carmen Condori Saravia ALM06
+                    lista.Add("DEV07", "161");                  // Carmen Condori Saravia ALM06
+                    
                 }
                 else if (!string.IsNullOrEmpty(tipoFirma) && tipoFirma.Equals("QuimicoFarmaceutico"))
                 {
