@@ -3366,7 +3366,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     if (user.IdRol == 5 || user.IdRol == 4 || user.IdRol == 51)
                     {
                         condWhere += $" AND t0.Visible in ('SI') AND t0.Estado in ('ABIERTO','RECIBIDO') ";
-                        if (!string.IsNullOrEmpty(t.AlmProcedencia)) { condWhere += $"AND (t0.LugarDestino IN ('Centro', 'Arriola') OR (t0.LugarDestino IN ('Domicilio', 'Agencia') and ((SELECT TOP 1 T2.AlmacenSalida FROM vt.RTV2 T2 WHERE T2.AlmacenSalida NOT IN ('07', '06') AND T2.DocEntry = t0.DocEntry) ='{t.AlmProcedencia}' )))"; }
+                        if (!string.IsNullOrEmpty(t.AlmProcedencia)) { condWhere += $"AND (t0.LugarDestino IN ('Centro', 'Arriola') OR (t0.LugarDestino IN ('Domicilio', 'Agencia') and ((SELECT TOP 1 T2.AlmacenSalida FROM vt.RTV2 T2 WHERE T2.AlmacenSalida NOT IN ('06') AND T2.DocEntry = t0.DocEntry)  IN ('{t.AlmProcedencia}', '07') )))"; }
                         orderby = "t0.Estado ,t0.FechaSapTicket desc";
                     }
                 }
@@ -3384,7 +3384,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     condWhere += t.LugarDestino != null ? $" AND t0.LugarDestino='{t.LugarDestino}'" : "";
                     condWhere += t.Estado != null ? $" AND t0.Estado='{t.Estado}'" : "";
                     condWhere += t.EstadoPago != null ? $" AND t0.EstadoPago='{t.EstadoPago}'" : "";
-                    condWhere += t.AlmProcedencia != null ? $"AND (t0.LugarDestino IN ('Centro', 'Arriola') OR (t0.LugarDestino IN ('Domicilio', 'Agencia') and ((SELECT TOP 1 T2.AlmacenSalida FROM vt.RTV2 T2 WHERE T2.AlmacenSalida NOT IN ('07', '06') AND T2.DocEntry = t0.DocEntry) ='{t.AlmProcedencia}' )))" : "";
+                    condWhere += t.AlmProcedencia != null ? $"AND (t0.LugarDestino IN ('Centro', 'Arriola') OR (t0.LugarDestino IN ('Domicilio', 'Agencia') and ((SELECT TOP 1 T2.AlmacenSalida FROM vt.RTV2 T2 WHERE T2.AlmacenSalida NOT IN ('06') AND T2.DocEntry = t0.DocEntry) IN ('{t.AlmProcedencia}', '07') )))" : "";
                 }
             }
 
