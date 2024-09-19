@@ -28,13 +28,27 @@ namespace Capa_Datos.Almacen_DAO.TablasSql
             }
             else
             {
-                if (filtro.Quantity > 0) { fil += " and x.\"Quantity\">0"; }
-                if (filtro.WhsCode != null) { fil += " and x.\"WhsCode\"='" + filtro.WhsCode + "'"; }
-                if (filtro.ItemCode != null) { fil += " and x.\"ItemCode\"='" + filtro.ItemCode + "'"; }
-                query = "select x.\"ItemCode\",x.\"BatchNum\",x.\"WhsCode\",x.\"ItemName\",x.\"ExpDate\",x.\"Quantity\" " +
-                    ",(select \"AvgPrice\" from " + uti.schemaHana + "oitw where \"ItemCode\" = x.\"ItemCode\" and \"WhsCode\" = x.\"WhsCode\" ) as \"AvgPrice\" " +
-                " from " + uti.schemaHana + "OIBT x where x.\"ItemCode\" is not null " + filPer + fil + " order by x.\"ItemCode\"";
+                if (filtro.Quantity > 0)
+                {
+                    fil += " and x.\"Quantity\">0";
+                }
+                if (filtro.WhsCode != null)
+                {
+                    fil += " and x.\"WhsCode\"='" + filtro.WhsCode + "'";
+                }
+                if (filtro.ItemCode != null)
+                {
+                    fil += " and x.\"ItemCode\"='" + filtro.ItemCode + "'";
+                }
+                        query = $@"
+                select x.""ItemCode"", x.""BatchNum"", x.""WhsCode"", x.""ItemName"", x.""ExpDate"", x.""Quantity"", 
+                    (select ""AvgPrice"" from {uti.schemaHana}oitw 
+                     where ""ItemCode"" = x.""ItemCode"" and ""WhsCode"" = x.""WhsCode"") as ""AvgPrice"" 
+                from {uti.schemaHana}OIBT x 
+                where x.""ItemCode"" is not null {filPer} {fil} 
+                order by x.""ItemCode""";
             }
+
             try
             {
                 HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
