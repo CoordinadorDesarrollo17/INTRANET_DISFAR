@@ -194,7 +194,7 @@ namespace Capa_Usuario.Controllers
                         PageOrientation = Rotativa.Options.Orientation.Portrait,
                         CustomSwitches = "--header-html " + _headerUrlFactura + " --header-spacing 0 ",
                         PageSize = Rotativa.Options.Size.A4,
-                        PageMargins = new Rotativa.Options.Margins(75, 10, 20, 10)
+                        PageMargins = new Rotativa.Options.Margins(65, 10, 20, 10)
                     };
                     break;
                 case "ND":
