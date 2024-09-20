@@ -76,8 +76,11 @@ namespace Capa_Usuario.Helpers
                 return "E_Login";
             }
 
-           //int modulo = ObtenerDesignacionModulos(nombreOperacion);
-            if (usu.IdRol == 1 || new ROL_OPE_N().VerificarAccesoOperacion(usu.IdRol, ope) == 1)
+            var accesoRol = new ROL_OPE_N().VerificarAccesoOperacion(usu.IdRol, ope);
+            var accesoPersonalizado = new OUSR_OPE_N().VerificarAccesoOperacion(new OUSR_OPE_E { OpeID = ope, UsrDocEntry = usu.DocEntry });
+
+            //int modulo = ObtenerDesignacionModulos(nombreOperacion);
+            if (usu.IdRol == 1 || accesoRol == 1 || accesoPersonalizado == 1)
             {
                 new Capa_Negocio.Utilitarios_N().RegistrarLog($"{usu.Prefijo} {usu.Id}", $"intento de {nombreOperacion}", ope, userHostAddress, userHostName);
                 return "C_Access";
