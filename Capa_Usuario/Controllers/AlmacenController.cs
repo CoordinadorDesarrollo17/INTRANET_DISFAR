@@ -753,7 +753,6 @@ namespace Capa_Usuario.Controllers
             Dictionary<string, int> listaEncargados = new Dictionary<string, int>
             {
                 { "03", 185},					// Julio Roman Silva
-				{ "05", 697},					// Jesus Angel Nunahuanca Cordova
 				{ "06", 185},					// Julio Roman Silva
 				{ "DEV07", 161},			// Carmen Condori Saravia
 				{ "CUAR07", 161},			// Carmen Condori Saravia
