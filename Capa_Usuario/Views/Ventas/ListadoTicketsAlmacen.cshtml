@@ -370,7 +370,7 @@
 
                         <td class="text-center">
                             @*El boton "INICIO VERIFICAR" solo se habilita si y solo si el ticket tiene como ultimo estado "FIN PICKING" o "INICIO PICKING" o "ANULAR INICIO VERIFICAR"*@
-                            @if (ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4)
+                            @if (ViewBag.RolSupervisor == 50 || ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4)
                             {
                                 <div class="btn-container">
                                     @if (condIniVerificar)
