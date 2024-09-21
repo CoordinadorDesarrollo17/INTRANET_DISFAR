@@ -14,6 +14,27 @@ namespace Capa_Datos.Seguridad_DAO.TablasSql
     {
         Utilitarios uti = new Utilitarios();
 
+        public int VerificarAccesoOperacion(OUSR_OPE_E filtros)
+        {
+            int result = -1;
+
+            using (SqlConnection cn = new SqlConnection(uti.cadSql))
+            {
+                string query = "SELECT COUNT(*) FROM OUSR_OPE WHERE UsrDocEntry = @UsrDocEntry AND OpeID = @OpeID";
+
+                using (SqlCommand cmd = new SqlCommand(query, cn))
+                {
+                    cmd.Parameters.AddWithValue("@UsrDocEntry", filtros.UsrDocEntry);
+                    cmd.Parameters.AddWithValue("@OpeID", filtros.OpeID);
+
+                    cn.Open();
+                    result = (int)cmd.ExecuteScalar();
+                }
+            }
+
+            return result;
+        }
+
         public List<OUSR_OPE_E> ListarOperacionesPorUsuario(int usrDocEntry)
         {
             List<OUSR_OPE_E> lista = new List<OUSR_OPE_E>();

@@ -13,6 +13,11 @@ namespace Capa_Negocio.Seguridad_NEG.TablasSql
     {
         OUSR_OPE_D usrOpeD = new OUSR_OPE_D();
 
+        public int VerificarAccesoOperacion(OUSR_OPE_E filtros)
+        {
+            return usrOpeD.VerificarAccesoOperacion(filtros);
+        }
+
         public Dictionary<string, List<int>> AgruparOperacionesPorUsuario(int usrDocEntry)
         {
             List<OUSR_OPE_E> operaciones = usrOpeD.ListarOperacionesPorUsuario(usrDocEntry);
