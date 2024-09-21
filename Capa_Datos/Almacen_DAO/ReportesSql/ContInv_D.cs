@@ -9,65 +9,91 @@ namespace Capa_Datos.Almacen_DAO.ReportesSql
 {
     public class ContInv_D
     {
-        DBHelper db = new DBHelper();
+        DBHelper db = new DBHelper(); Utilitarios uti = new Utilitarios();
         public List<ContInv_E> RptContInv(OIAR_E o)
         {
             List<ContInv_E> lista = new List<ContInv_E>();
-            try
+
+            using (SqlConnection cn = new SqlConnection(uti.cadSql))
             {
-                SqlDataReader dr = db.ExecuteReader("al.RptContInv", o.DocEntryPer, o.ItemCode, o.Fase);
-                while (dr.Read())
+                try
                 {
-                    ContInv_E bean = new ContInv_E();
-                    if (!dr.IsDBNull(0)) { bean.DocEntryPer = dr.GetInt32(0); }
-                    if (!dr.IsDBNull(1)) { bean.DescripcionPer = dr.GetString(1); }
-                    if (!dr.IsDBNull(2)) { bean.FecIniPer = dr.GetDateTime(2).ToString("dd/MM/yyyy"); }
-                    if (!dr.IsDBNull(3)) { bean.FecFinPer = dr.GetDateTime(3).ToString("dd/MM/yyyy"); }
-                    if (!dr.IsDBNull(4)) { bean.Fase = dr.GetInt32(4); }
-                    if (!dr.IsDBNull(5)) { bean.NombreFase = dr.GetString(5); }
-                    if (!dr.IsDBNull(6)) { bean.WhsCode = dr.GetString(6); }
-                    if (!dr.IsDBNull(7)) { bean.ItemCode = dr.GetString(7); }
-                    if (!dr.IsDBNull(8)) { bean.ItemName = dr.GetString(8); }
-                    if (!dr.IsDBNull(9)) { bean.QuantityCajas = dr.GetDecimal(9); }
-                    if (!dr.IsDBNull(10)) { bean.QuantityPiezas = dr.GetDecimal(10); }
-                    if (!dr.IsDBNull(11)) { bean.Equipos = dr.GetString(11); }
-                    if (!dr.IsDBNull(12)) { bean.NumInBuy = dr.GetDecimal(12); }
-                    if (!dr.IsDBNull(13)) { bean.QuantityTotalPzSist = dr.GetDecimal(13); }
-                    if (bean.Fase == 3)
+                    cn.Open();
+                    using (SqlCommand cmd = new SqlCommand("al.RptContInv", cn))
                     {
-                        if (!dr.IsDBNull(15)) { bean.ParticipantesC = dr.GetString(15); }
-                        bean.inicializarConteo();
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.CommandTimeout = 120; // Tiempo en segundos
+
+                        // Agregar parámetros
+                        cmd.Parameters.AddWithValue("@DocEntryPer", o.DocEntryPer);
+                        cmd.Parameters.AddWithValue("@ItemCode", o.ItemCode);
+                        cmd.Parameters.AddWithValue("@Fase", o.Fase);
+
+                        using (SqlDataReader dr = cmd.ExecuteReader())
+                        {
+                            while (dr.Read())
+                            {
+                                ContInv_E bean = new ContInv_E
+                                {
+                                    DocEntryPer = dr.IsDBNull(0) ? 0 : dr.GetInt32(0),
+                                    DescripcionPer = dr.IsDBNull(1) ? string.Empty : dr.GetString(1),
+                                    FecIniPer = dr.IsDBNull(2) ? string.Empty : dr.GetDateTime(2).ToString("dd/MM/yyyy"),
+                                    FecFinPer = dr.IsDBNull(3) ? string.Empty : dr.GetDateTime(3).ToString("dd/MM/yyyy"),
+                                    Fase = dr.IsDBNull(4) ? 0 : dr.GetInt32(4),
+                                    NombreFase = dr.IsDBNull(5) ? string.Empty : dr.GetString(5),
+                                    WhsCode = dr.IsDBNull(6) ? string.Empty : dr.GetString(6),
+                                    ItemCode = dr.IsDBNull(7) ? string.Empty : dr.GetString(7),
+                                    ItemName = dr.IsDBNull(8) ? string.Empty : dr.GetString(8),
+                                    QuantityCajas = dr.IsDBNull(9) ? 0 : dr.GetDecimal(9),
+                                    QuantityPiezas = dr.IsDBNull(10) ? 0 : dr.GetDecimal(10),
+                                    Equipos = dr.IsDBNull(11) ? string.Empty : dr.GetString(11),
+                                    NumInBuy = dr.IsDBNull(12) ? 0 : dr.GetDecimal(12),
+                                    QuantityTotalPzSist = dr.IsDBNull(13) ? 0 : dr.GetDecimal(13)
+                                };
+
+                                // Procesamiento por fases
+                                switch (bean.Fase)
+                                {
+                                    case 3:
+                                        bean.ParticipantesC = dr.IsDBNull(15) ? string.Empty : dr.GetString(15);
+                                        bean.inicializarConteo();
+                                        break;
+                                    case 5:
+                                        bean.DifConteo = dr.IsDBNull(14) ? 0 : dr.GetDecimal(14);
+                                        bean.ParticipantesR = dr.IsDBNull(15) ? string.Empty : dr.GetString(15);
+                                        bean.inicializarReconteo();
+                                        break;
+                                    case 7:
+                                        bean.DifConteo = dr.IsDBNull(14) ? 0 : dr.GetDecimal(14);
+                                        bean.DifReConteo = dr.IsDBNull(15) ? 0 : dr.GetDecimal(15);
+                                        bean.DifAnalisis = dr.IsDBNull(16) ? 0 : dr.GetDecimal(16);
+                                        bean.AvgPrice = dr.IsDBNull(17) ? 0 : dr.GetDecimal(17);
+                                        bean.ObsLoteC = dr.IsDBNull(18) ? string.Empty : dr.GetString(18);
+                                        bean.ObsLoteR = dr.IsDBNull(19) ? string.Empty : dr.GetString(19);
+                                        bean.ObsLoteA = dr.IsDBNull(20) ? string.Empty : dr.GetString(20);
+                                        bean.BatchNum = dr.IsDBNull(21) ? string.Empty : dr.GetString(21);
+                                        bean.ExpDate = dr.IsDBNull(22) ? string.Empty : dr.GetDateTime(22).ToString("dd/MM/yyyy");
+                                        bean.Pisos = dr.IsDBNull(23) ? string.Empty : dr.GetString(23);
+                                        bean.ParticipantesC = dr.IsDBNull(24) ? string.Empty : dr.GetString(24);
+                                        bean.ParticipantesR = dr.IsDBNull(25) ? string.Empty : dr.GetString(25);
+                                        bean.ParticipantesA = dr.IsDBNull(26) ? string.Empty : dr.GetString(26);
+                                        bean.inicializarAnalisis();
+                                        break;
+                                }
+
+                                lista.Add(bean);
+                            }
+                        }
                     }
-                    else if (bean.Fase == 5)
-                    {
-                        if (!dr.IsDBNull(14)) { bean.DifConteo = dr.GetDecimal(14); }
-                        if (!dr.IsDBNull(15)) { bean.ParticipantesR = dr.GetString(15); }
-                        bean.inicializarReconteo();
-                    }
-                    else if (bean.Fase == 7)
-                    {
-                        if (!dr.IsDBNull(14)) { bean.DifConteo = dr.GetDecimal(14); }
-                        if (!dr.IsDBNull(15)) { bean.DifReConteo = dr.GetDecimal(15); }
-                        if (!dr.IsDBNull(16)) { bean.DifAnalisis = dr.GetDecimal(16); }
-                        if (!dr.IsDBNull(17)) { bean.AvgPrice = dr.GetDecimal(17); }
-                        if (!dr.IsDBNull(18)) { bean.ObsLoteC = dr.GetString(18); }
-                        if (!dr.IsDBNull(19)) { bean.ObsLoteR = dr.GetString(19); }
-                        if (!dr.IsDBNull(20)) { bean.ObsLoteA = dr.GetString(20); }
-                        if (!dr.IsDBNull(21)) { bean.BatchNum = dr.GetString(21); }
-                        if (!dr.IsDBNull(22)) { bean.ExpDate = dr.GetDateTime(22).ToString("dd/MM/yyyy"); }
-                        if (!dr.IsDBNull(23)) { bean.Pisos = dr.GetString(23); }
-                        if (!dr.IsDBNull(24)) { bean.ParticipantesC = dr.GetString(24); }
-                        if (!dr.IsDBNull(25)) { bean.ParticipantesR = dr.GetString(25); }
-                        if (!dr.IsDBNull(26)) { bean.ParticipantesA = dr.GetString(26); }
-                        bean.inicializarAnalisis();
-                    }
-                    lista.Add(bean);
                 }
-                dr.Close();
+                catch (Exception ex)
+                {
+                }
             }
-            catch { }
+
             return lista;
         }
+
         DataTable definirTabla(List<string> campos, List<Type> tipos, string nombre)
         {
             DataTable tb = new DataTable(nombre);
