@@ -1518,7 +1518,7 @@ namespace Capa_Usuario.Controllers
                 Usuario_E user = (Usuario_E)Session["UsuarioId"];
                 try
                 {
-                    List<Capa_Entidad.Almacen_ENT.TablasSql.OIEQ_E> equipoUsrPer2 = oieqN.buscarPertenenciaEquipo(user, Capa_Entidad.Almacen_ENT.TablasSql.OIPE_E.PeriodoSeleccionado, tipo);
+                    //List<Capa_Entidad.Almacen_ENT.TablasSql.OIEQ_E> equipoUsrPer2 = oieqN.buscarPertenenciaEquipo(user, Capa_Entidad.Almacen_ENT.TablasSql.OIPE_E.PeriodoSeleccionado, tipo);
                     ViewBag.Almacenes = owhsN.ListarAlmacenes();
                     return View(oiarN.Listar(filtro, user, tipo));
                 }
@@ -1681,11 +1681,12 @@ namespace Capa_Usuario.Controllers
         }
         public ActionResult RevertirTerminoConteo(Capa_Entidad.Almacen_ENT.TablasSql.OIAR_E obj, int idOperation = 1621)
         {
-            var resultadoAcceso = VerificarPermiso(idOperation);
+            //var resultadoAcceso = VerificarPermiso(idOperation);
 
-            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
-            {
-                OIAR_N oiarN = new OIAR_N();
+            //if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+
+            // {
+            OIAR_N oiarN = new OIAR_N();
                 try
                 {
                     Usuario_E user = (Usuario_E)Session["UsuarioId"];
@@ -1695,11 +1696,11 @@ namespace Capa_Usuario.Controllers
                 }
                 catch (Exception e)
                 { return RedirectToAction("TerminarConteo", new { id = obj.DocEntry, msj = e.Message }); }
-            }
-            else
-            {
-                return resultadoAcceso;
-            }
+            //}
+            //else
+            //{
+               // return resultadoAcceso;
+            //}
         }
 
         /*********************************** R E C O N T E O   I N V E N T A R I O ***********************************/
@@ -1715,7 +1716,7 @@ namespace Capa_Usuario.Controllers
                 Usuario_E user = (Usuario_E)Session["UsuarioId"];
                 try
                 {
-                    List<Capa_Entidad.Almacen_ENT.TablasSql.OIEQ_E> equipoUsrPer2 = oieqN.buscarPertenenciaEquipo(user, Capa_Entidad.Almacen_ENT.TablasSql.OIPE_E.PeriodoSeleccionado, tipo);
+                    //List<Capa_Entidad.Almacen_ENT.TablasSql.OIEQ_E> equipoUsrPer2 = oieqN.buscarPertenenciaEquipo(user, Capa_Entidad.Almacen_ENT.TablasSql.OIPE_E.PeriodoSeleccionado, tipo);
                     ViewBag.Almacenes = owhsN.ListarAlmacenes();
                     return View(oiarN.Listar(filtro, user, tipo));
                 }
@@ -1866,7 +1867,7 @@ namespace Capa_Usuario.Controllers
                 ViewBag.Oiar = filtro;
                 try
                 {
-                    List<Capa_Entidad.Almacen_ENT.TablasSql.OIEQ_E> equipoUsrPer2 = oieqN.buscarPertenenciaEquipo(user, Capa_Entidad.Almacen_ENT.TablasSql.OIPE_E.PeriodoSeleccionado, tipo);
+                    //List<Capa_Entidad.Almacen_ENT.TablasSql.OIEQ_E> equipoUsrPer2 = oieqN.buscarPertenenciaEquipo(user, Capa_Entidad.Almacen_ENT.TablasSql.OIPE_E.PeriodoSeleccionado, tipo);
                     ViewBag.Almacenes = owhsN.ListarAlmacenes();
                     return View(oiarN.Listar(filtro, user, tipo));
                 }

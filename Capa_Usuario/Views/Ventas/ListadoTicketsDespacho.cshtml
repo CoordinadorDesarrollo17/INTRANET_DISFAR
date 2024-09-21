@@ -507,8 +507,8 @@
                         <td>
                             @if (item.EstadoFacturacion != null && (item.EstadoFacturacion.Equals("GRE EMITIDA") || item.EstadoFacturacion.Equals("FACTURADO")))
                             {
-                                <button type="button" class="btn  btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Ver Documentos" onclick="abrirModalDocumentos(@item.DocEntry)">
-                                    <i class="icon icon-file-empty"></i>
+                                <button type="button" class="btn btn-light text-primary" data-toggle="tooltip" data-placement="top" title="Ver Documentos" onclick="abrirModalDocumentos(@item.DocEntry,'@item.Estado','@item.LugarDestino');">
+                                    <i class="icon icon-folder-download"></i>
                                 </button>
                             }
                         </td>
@@ -552,13 +552,55 @@
     if ('@ViewBag.Mensaje' != "") {
         Swal.fire('@ViewBag.Mensaje');
     }
-    function abrirModalDocumentos(DocEntry) {
+    function abrirModalDocumentos(DocEntry,estado,lugarDestino) {
         var modalId = "ModalComprobantes" + DocEntry;
 
         if ($("#" + modalId).length > 0) {
             $("#" + modalId).modal('show');
             return;
         }
+
+        var html = '<div class="btn-group" role="group">';
+        // Condiciones para el boton excel que descarga todos los SKU
+        if (["PICKEANDO", "VERIFICANDO", "EMPACANDO", "EMPACADO", "PESADO", "PREENVIO", "ENVIADO", "ENTREGADO"].includes(estado)) {
+            html += '<button type="button" onclick="excelOrdenesVenta(\'' + encodeURIComponent(DocEntry) + '\')" class="btn btn-light text-success" data-toggle="tooltip" data-placement="top" title="Descargar Excel Artículos">';
+            html += '<i class="icon icon-file-excel"><span class="text-dark small"> SKUs</span></i>';
+            html += '</button><br />';
+        }
+        // Condiciones para el botón de "Descargar Rotulado" y otros documentos
+        if (lugarDestino === "Agencia" && ["PICKEANDO", "VERIFICANDO", "EMPACANDO", "EMPACADO", "PESADO", "PREENVIO", "ENVIADO", "ENTREGADO"].includes(estado)) {
+            html += '<button type="button" onclick="pdfRotulo(\'' + encodeURIComponent(DocEntry) + '\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Descargar Rotulado">';
+            html += '<i class="icon icon-file-pdf"><span class="text-dark small"> Rótulo </span></i>';
+            html += '</button><br />';
+            html += '<button type="button" data-DocEntry="' + encodeURIComponent(DocEntry) + '" data-tipo="F" onclick="descargarComprobante(\'' + encodeURIComponent(DocEntry) + '\', \'F\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Facturas">';
+            html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Facturas </span></i>';
+            html += '</button><br />';
+            html += '<button type="button" data-DocEntry="' + encodeURIComponent(DocEntry) + '" data-tipo="G" onclick="descargarComprobante(\'' + encodeURIComponent(DocEntry) + '\', \'G\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Guías">';
+            html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Guías </span></i>';
+            html += '</button><br />';
+            html += '<button type="button" data-DocEntry="' + encodeURIComponent(DocEntry) + '" data-tipo="NC" onclick="descargarComprobante(\'' + encodeURIComponent(DocEntry) + '\', \'NC\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Notas de crédito">';
+            html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Notas Crédito </span></i>';
+            html += '</button><br />';
+            html += '<button type="button" data-DocEntry="' + encodeURIComponent(DocEntry) + '" data-tipo="ND" onclick="descargarComprobante(\'' + encodeURIComponent(DocEntry) + '\', \'ND\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Notas de débito">';
+            html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Notas Débito </span></i>';
+            html += '</button><br />';
+
+        } else if (["EMPACADO", "PREENVIO", "ENVIADO", "ENTREGADO"].includes(estado)) {
+            html += '<button type="button" data-DocEntry="' + encodeURIComponent(DocEntry) + '" data-tipo="F" onclick="descargarComprobante(\'' + encodeURIComponent(DocEntry) + '\', \'F\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Facturas">';
+            html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Facturas </span></i>';
+            html += '</button><br />';
+            html += '<button type="button" data-DocEntry="' + encodeURIComponent(DocEntry) + '" data-tipo="G" onclick="descargarComprobante(\'' + encodeURIComponent(DocEntry) + '\', \'G\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Guías">';
+            html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Guías </span></i>';
+            html += '</button><br />';
+            html += '<button type="button" data-DocEntry="' + encodeURIComponent(DocEntry) + '" data-tipo="NC" onclick="descargarComprobante(\'' + encodeURIComponent(DocEntry) + '\', \'NC\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Notas de crédito">';
+            html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Notas Crédito </span></i>';
+            html += '</button><br />';
+            html += '<button type="button" data-DocEntry="' + encodeURIComponent(DocEntry) + '" data-tipo="ND" onclick="descargarComprobante(\'' + encodeURIComponent(DocEntry) + '\', \'ND\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Notas de débito">';
+            html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Notas Débito </span></i>';
+            html += '</button><br />';
+        }
+
+        html += '</div>';
 
         // Si el modal no existe, crear uno nuevo
         Promise.all([buscarDocumentos(DocEntry), buscarNotaCreditoVenta(DocEntry)])
@@ -578,6 +620,8 @@
                                 <div class='modal-body'>
                                     ${htmlTableDocumentos}
                                     ${htmlTableNotasCredito}
+                                    <br>
+                                    ${html}
                                 </div>
                                 <div class='modal-footer'>
                                     <button type='button' class='btn btn-secondary' data-dismiss='modal'>Cerrar</button>
@@ -749,6 +793,52 @@
         });
 
     }
+
+        // Función para descargar comprobantes contables
+    function descargarComprobante(DocEntry, Tipo) {
+    const btn = document.querySelector(`[data-docentry="${DocEntry}"][data-tipo="${Tipo}"]`);
+
+        if (btn) {
+        btn.disabled = true;
+    }
+
+        Swal.fire({
+            title: 'Cargando...',
+            text: 'Por favor, espere mientras se procesa la solicitud.',
+            allowOutsideClick: true,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        $.ajax({
+            url: '@Url.Action("CrearYObtenerDocumento", "ComprobantesContables")',
+            type: 'GET',
+            data: { DocEntry: DocEntry, Tipo: Tipo },
+            success: function (response) {
+                console.log(response);
+                if (response.success) {
+                    window.open(response.fileUrl, '_blank', 'noopener,noreferrer');
+                    Swal.close();
+                } else {
+                    Swal.fire('Error', response.message, 'error').then(() => {
+                        Swal.close();
+                    });
+                }
+            },
+            error: function (xhr, status, error) {
+                Swal.fire('Error', 'Ocurrió un error en la solicitud: ' + error, 'error').then(() => {
+                    Swal.close();
+                });
+            },
+            complete: function () {
+                if (btn) {
+                    btn.disabled = false;
+                }
+            }
+        });
+    }
+
 </script>
 
 

@@ -564,7 +564,7 @@ namespace Capa_Datos.ReportesDigemid_DAO
         {
             List<PreciosOpm_E> lista = new List<PreciosOpm_E>();
             List<PreciosOpm_E> listaAux = new List<PreciosOpm_E>();
-            string query = "CALL " + uti.schemaHana + "DIEGO_RPT_REGVENTAS('" + FecIni + "','" + FecFin + "')";
+            string query = "CALL "+uti.schemaHana+"DIEGO_RPT_REGVENTAS('" + FecIni + "','" + FecFin + "')";
             try
             {
                 HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
