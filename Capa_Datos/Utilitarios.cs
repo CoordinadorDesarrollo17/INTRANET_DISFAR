@@ -31,7 +31,8 @@ namespace Capa_Datos
             this.cadSophos = @"Server=" + this.serverSophos + ";database=" + this.BDSophossql + ";user id=" + this.userSophos + ";password=" + this.passwordSophosSql + ";Min Pool Size=0;Max Pool Size=10024;Pooling=true";
 
             //Hana
-            this.cadHana = "Server=192.168.1.37:30015;UserName=B1ADMIN;Password=Passw0rd;";
+            //this.cadHana = "Server=192.168.1.37:30015;UserName=B1ADMIN;Password=Passw0rd;";
+            this.cadHana = "Server=172.16.55.36:30015;UserName=B1ADMIN;Password=Passw0rd;";
             this.schemaHana = "\"B1H_COBEFAR_2018\".";
             this.serverSql = @"WIN-DC\DIEGO_BD"; this.passwordSql = "@Ndr@de123"; this.BDsql = "INTRANET_V2"; this.userSql = "sa";
             this.directorioGeneral = @"D:\";
