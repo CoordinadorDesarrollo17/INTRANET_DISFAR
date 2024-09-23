@@ -30,109 +30,105 @@
     </nav>
 </div>
 
-<div class="bg-dark border-cabecera-seccion pb-2">
-    <div class="px-3 pt-3"><h3 class="titulo-seccion">GESTIÓN DE RECONTEOS</h3></div>
-    <div class="d-flex pl-2 w-100 py-2">
-
-        <div class="mx-2">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#filterModal">
-                <i class="icon icon-filter"></i> Filtrar
-            </button>
-        </div>
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">GESTIÓN DE RECONTEOS</h3>
+    </div>
+    </div>
+<div class="bg-white d-flex pl-2 w-100 py-2">
+    <div class="mx-2">
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#filterModal">
+            <i class="icon icon-filter"></i> Filtrar
+        </button>
     </div>
 </div>
 
 @if (@OIPE_E.PeriodoSeleccionado != null)
 {
     <div class="alert alert-danger mb-0" role="alert">
-        <p>
-            @OIPE_E.PeriodoSeleccionado.Descripcion
-            Almacenes:
-            @OIPE_E.PeriodoSeleccionado.enlistarDetAlmacenes()
-        </p>
+        @("Periodo Seleccionado: " + OIPE_E.PeriodoSeleccionado.Descripcion + " ---- Almacenes: " + OIPE_E.PeriodoSeleccionado.enlistarDetAlmacenes())
     </div>
 }
 
-<div class="bg-dark pt-4">
-        <table class="table table-light table-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
-            <thead class="thead-dark">
+<div class="bg-white bg-form-cobefar pt-3">
+    <table class="table table-light table-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
+        <thead class="bg-cobefar-6 text-center">
+            <tr>
+                <th class="text-center">
+                    @Html.DisplayName("N#")
+                </th>
+                <th class="text-center">
+                    @Html.DisplayName("OpRecontador")
+                </th>
+                <th class="text-center">
+                    @Html.DisplayName("Equipo")
+                </th>
+                <th class="text-center">
+                    @Html.DisplayName("Almacen")
+                </th>
+                <th class="text-center">
+                    @Html.DisplayNameFor(model => model.Piso)
+                </th>
+                <th class="text-center">
+                    @Html.DisplayName("CodArticulo")
+                </th>
+                <th class="text-center">
+                    @Html.DisplayName("Articulo")
+                </th>
+                <th class="text-center">
+                    @Html.DisplayName("Lotes")
+                </th>
+                <th class="text-center">
+                    @Html.DisplayNameFor(model => model.Estado)
+                </th>
+                <th class="text-center">
+                    @Html.DisplayName("Fase")
+                </th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
                 <tr>
-                    <th class="text-center">
-                        @Html.DisplayName("N#")
-                    </th>
-                    <th class="text-center">
-                        @Html.DisplayName("OpRecontador")
-                    </th>
-                    <th class="text-center">
-                        @Html.DisplayName("Equipo")
-                    </th>
-                    <th class="text-center">
-                        @Html.DisplayName("Almacen")
-                    </th>
-                    <th class="text-center">
-                        @Html.DisplayNameFor(model => model.Piso)
-                    </th>
-                    <th class="text-center">
-                        @Html.DisplayName("CodArticulo")
-                    </th>
-                    <th class="text-center">
-                        @Html.DisplayName("Articulo")
-                    </th>
-                    <th class="text-center">
-                        @Html.DisplayName("Lotes")
-                    </th>
-                    <th class="text-center">
-                        @Html.DisplayNameFor(model => model.Estado)
-                    </th>
-                    <th class="text-center">
-                        @Html.DisplayName("Fase")
-                    </th>
-                    <th></th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td class="text-center">@Html.DisplayFor(modelItem => item.DocEntry)</td>
-                        <td class="text-center">
-                            @if (item.DetFases != null && item.DetFases.Count > 2 && item.Fase > 3)
-                            {
-                                @item.DetFases[2].Operario
-                            }
-                            else
-                            {
-                                <label></label>
-                            }
-                        </td>
-                        <td class="text-center">@Html.DisplayFor(modelItem => item.DocEntryEqu)</td>
-                        <td class="text-center">@Html.DisplayFor(modelItem => item.WhsCode)</td>
-                        <td class="text-center">@Html.DisplayFor(modelItem => item.Piso)</td>
-                        <td class="text-center">@Html.DisplayFor(modelItem => item.ItemCode)</td>
-                        <td class="text-center">@Html.DisplayFor(modelItem => item.ItemName)</td>
-                        <td class="text-center">
-                            @if (item.DetFases != null && item.DetFases.Count > 3)
-                            {
-                                @item.DetFases[3].enlistarLotes()
-                            }
-                        </td>
-                        <td class="text-center">@Html.DisplayFor(modelItem => item.Estado)</td>
-                        <td class="text-center">@Html.DisplayFor(modelItem => item.Fase)</td>
-                        <td class="text-center">
-                            @Html.ActionLink("Iniciar Reconteo", "IniciarReconteo", new { id = item.DocEntry }, new { @class = "btn btn-primary" })
-                        </td>
-                        @if (!item.Estado.Equals("Contado"))
+                    <td class="text-center">@Html.DisplayFor(modelItem => item.DocEntry)</td>
+                    <td class="text-center">
+                        @if (item.DetFases != null && item.DetFases.Count > 2 && item.Fase > 3)
                         {
-                            <td class="text-center">
-                                @Html.ActionLink("Terminar Reconteo", "TerminarReconteo", new { id = item.DocEntry }, new { @class = "btn btn-danger" })
-                            </td>
+                            @item.DetFases[2].Operario
                         }
-                    </tr>
-                }
-            </tbody>
-        </table>
-   
+                        else
+                        {
+                            <label></label>
+                        }
+                    </td>
+                    <td class="text-center">@Html.DisplayFor(modelItem => item.DocEntryEqu)</td>
+                    <td class="text-center">@Html.DisplayFor(modelItem => item.WhsCode)</td>
+                    <td class="text-center">@Html.DisplayFor(modelItem => item.Piso)</td>
+                    <td class="text-center">@Html.DisplayFor(modelItem => item.ItemCode)</td>
+                    <td class="text-center">@Html.DisplayFor(modelItem => item.ItemName)</td>
+                    <td class="text-center">
+                        @if (item.DetFases != null && item.DetFases.Count > 3)
+                        {
+                            @item.DetFases[3].enlistarLotes()
+                        }
+                    </td>
+                    <td class="text-center">@Html.DisplayFor(modelItem => item.Estado)</td>
+                    <td class="text-center">@Html.DisplayFor(modelItem => item.Fase)</td>
+                    <td class="text-center">
+                        @Html.ActionLink("Iniciar Reconteo", "IniciarReconteo", new { id = item.DocEntry }, new { @class = "btn btn-primary" })
+                    </td>
+                    @if (!item.Estado.Equals("Contado"))
+                    {
+                        <td class="text-center">
+                            @Html.ActionLink("Terminar Reconteo", "TerminarReconteo", new { id = item.DocEntry }, new { @class = "btn btn-danger" })
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+
 </div>
 
 <!-- Modal for filters -->
