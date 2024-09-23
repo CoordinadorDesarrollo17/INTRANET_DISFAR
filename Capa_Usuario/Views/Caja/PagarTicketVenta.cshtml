@@ -967,7 +967,7 @@
     });
 
     function agregarPagoParcial(montoIngresado, tipoPagoParcial) {
-        if (parseFloat(montoIngresado) < 1 || isNaN(parseFloat(montoIngresado))) {
+        if (parseFloat(montoIngresado) < 0.01 || isNaN(parseFloat(montoIngresado))) {
             Swal.fire('El monto ingresado debe ser mayor a cero');
             return;
         }
