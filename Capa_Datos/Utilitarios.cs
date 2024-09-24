@@ -38,7 +38,10 @@ namespace Capa_Datos
             this.cadHana = "Server=172.16.55.36:30015;UserName=B1ADMIN;Password=Passw0rd;";
             this.schemaHana = "\"B1H_COBEFAR_2018\".";
             this.serverSql = @"WIN-DC\DIEGO_BD"; this.passwordSql = "@Ndr@de123"; this.BDsql = "BASE_110924"; this.userSql = "sa";
+<<<<<<< HEAD
 >>>>>>> 89b67c0 (CORRECIONES DE INVENTARIO)
+=======
+>>>>>>> master
             this.directorioGeneral = @"D:\";
             this.directorioFileServer = @"D:\COBEFARWEBFILES\";
             this.directorioLogs = @"D:\COBEFARWEBLOGS\";
