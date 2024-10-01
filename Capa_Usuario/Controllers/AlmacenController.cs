@@ -1054,7 +1054,6 @@ namespace Capa_Usuario.Controllers
             {
                 ViewBag.Mensaje = msj;
                 ViewBag.Usuario = (Capa_Entidad.Seguridad_ENT.Usuario_E)Session["UsuarioId"];
-                ViewBag.PeriodoSeleccionado = Capa_Entidad.Almacen_ENT.TablasSql.OIPE_E.PeriodoSeleccionado;
                 return View();
             }
             else
@@ -1518,7 +1517,7 @@ namespace Capa_Usuario.Controllers
                 Usuario_E user = (Usuario_E)Session["UsuarioId"];
                 try
                 {
-                    //List<Capa_Entidad.Almacen_ENT.TablasSql.OIEQ_E> equipoUsrPer2 = oieqN.buscarPertenenciaEquipo(user, Capa_Entidad.Almacen_ENT.TablasSql.OIPE_E.PeriodoSeleccionado, tipo);
+                    List<Capa_Entidad.Almacen_ENT.TablasSql.OIEQ_E> equipoUsrPer2 = oieqN.buscarPertenenciaEquipo(user, Capa_Entidad.Almacen_ENT.TablasSql.OIPE_E.PeriodoSeleccionado, tipo);
                     ViewBag.Almacenes = owhsN.ListarAlmacenes();
                     return View(oiarN.Listar(filtro, user, tipo));
                 }
@@ -1716,7 +1715,7 @@ namespace Capa_Usuario.Controllers
                 Usuario_E user = (Usuario_E)Session["UsuarioId"];
                 try
                 {
-                    //List<Capa_Entidad.Almacen_ENT.TablasSql.OIEQ_E> equipoUsrPer2 = oieqN.buscarPertenenciaEquipo(user, Capa_Entidad.Almacen_ENT.TablasSql.OIPE_E.PeriodoSeleccionado, tipo);
+                    List<Capa_Entidad.Almacen_ENT.TablasSql.OIEQ_E> equipoUsrPer2 = oieqN.buscarPertenenciaEquipo(user, Capa_Entidad.Almacen_ENT.TablasSql.OIPE_E.PeriodoSeleccionado, tipo);
                     ViewBag.Almacenes = owhsN.ListarAlmacenes();
                     return View(oiarN.Listar(filtro, user, tipo));
                 }
@@ -1867,7 +1866,7 @@ namespace Capa_Usuario.Controllers
                 ViewBag.Oiar = filtro;
                 try
                 {
-                    //List<Capa_Entidad.Almacen_ENT.TablasSql.OIEQ_E> equipoUsrPer2 = oieqN.buscarPertenenciaEquipo(user, Capa_Entidad.Almacen_ENT.TablasSql.OIPE_E.PeriodoSeleccionado, tipo);
+                    List<Capa_Entidad.Almacen_ENT.TablasSql.OIEQ_E> equipoUsrPer2 = oieqN.buscarPertenenciaEquipo(user, Capa_Entidad.Almacen_ENT.TablasSql.OIPE_E.PeriodoSeleccionado, tipo);
                     ViewBag.Almacenes = owhsN.ListarAlmacenes();
                     return View(oiarN.Listar(filtro, user, tipo));
                 }
@@ -2247,7 +2246,6 @@ namespace Capa_Usuario.Controllers
         }
         public ActionResult tbReporteContabilizacionInventario(Capa_Entidad.Almacen_ENT.TablasSql.OIAR_E o)
         {
-            //verificacionAccesos(0);
             o.DocEntryPer = Capa_Entidad.Almacen_ENT.TablasSql.OIPE_E.PeriodoSeleccionado.DocEntry;
             Capa_Negocio.Almacen_NEG.ReportesSql.ContInv_N contInv_N = new Capa_Negocio.Almacen_NEG.ReportesSql.ContInv_N();
             ReportViewer rp = new ReportViewer();
