@@ -305,7 +305,7 @@ namespace Capa_Usuario.Controllers
             {
                 OITM_N oitmN = new OITM_N();
                 var datalist = "<datalist id='ListaProductos'>";
-                var listaProductos = oitmN.Listar(new OITM_E { FirmCode = datos.FirmCode });
+                var listaProductos = oitmN.Listar(new OITM_E { FirmCode = datos.FirmCode});
 
                 if (listaProductos != null && listaProductos.Count >= 1)
                 {
