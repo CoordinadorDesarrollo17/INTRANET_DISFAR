@@ -301,13 +301,11 @@ namespace Capa_Usuario.Controllers
         }
         public JsonResult BuscarProducto(OITM_E datos)
         {
-            //verificacionAccesos(0);         // Validar sesion logueada, solo para ajax
             if (datos.FirmCode >= 1)
             {
                 OITM_N oitmN = new OITM_N();
                 var datalist = "<datalist id='ListaProductos'>";
-                //Solo lista productos Activos
-                var listaProductos = oitmN.Listar(new OITM_E { FirmCode = datos.FirmCode, /*validFor = "Y"/*, U_COB_EST_SKU = "01"*/});
+                var listaProductos = oitmN.Listar(new OITM_E { FirmCode = datos.FirmCode});
 
                 if (listaProductos != null && listaProductos.Count >= 1)
                 {
@@ -316,9 +314,7 @@ namespace Capa_Usuario.Controllers
                         datalist += $"<option ItemCode='{p.ItemCode}' FirmCode='{p.FirmCode}' FirmName='{p.U_SYP_FABRICANTE}' BuyUnitMsr='{p.BuyUnitMsr}' NumInBuy='{p.NumInBuy}' value='{p.ItemName}'></option>";
                     }
                 }
-
                 datalist += "</datalist>";
-
                 return Json(datalist);
             }
             else

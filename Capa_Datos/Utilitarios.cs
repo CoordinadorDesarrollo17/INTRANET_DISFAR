@@ -26,22 +26,9 @@ namespace Capa_Datos
         public string passwordSophosSql;
         public Utilitarios()
         {
-<<<<<<< HEAD
-            // File Directories
-=======
-            //Sophos
-            this.serverSophos = @"WIN-TERMINALSAP\\COBEFAR"; this.userSophos = "sa"; this.BDSophossql = "SOPHOS_INT_PROD"; this.passwordSophosSql = "C0B3F@r_2022";
-            this.cadSophos = @"Server=" + this.serverSophos + ";database=" + this.BDSophossql + ";user id=" + this.userSophos + ";password=" + this.passwordSophosSql + ";Min Pool Size=0;Max Pool Size=10024;Pooling=true";
 
-            //Hana
-            //this.cadHana = "Server=192.168.1.37:30015;UserName=B1ADMIN;Password=Passw0rd;";
-            this.cadHana = "Server=172.16.55.36:30015;UserName=B1ADMIN;Password=Passw0rd;";
-            this.schemaHana = "\"B1H_COBEFAR_2018\".";
-            this.serverSql = @"WIN-DC\DIEGO_BD"; this.passwordSql = "@Ndr@de123"; this.BDsql = "BASE_110924"; this.userSql = "sa";
-<<<<<<< HEAD
->>>>>>> 89b67c0 (CORRECIONES DE INVENTARIO)
-=======
->>>>>>> master
+            // File Directories
+
             this.directorioGeneral = @"D:\";
             this.directorioFileServer = @"D:\COBEFARWEBFILES\";
             this.directorioLogs = @"D:\COBEFARWEBLOGS\";
