@@ -584,3 +584,11 @@ function verificacionDatos(estado) {
             });
     });
 }
+function openPreliminar(docEntry) {
+    // Construir la URL para la acción en el servidor
+    var url = '@Url.Action("PreliminarLayoutOV_Ticket", "Ventas")' + '?DocEntry=' + docEntry;
+
+    // Abrir una nueva pestaña con el PDF generado
+    window.open(url, '_blank', 'noopener,noreferrer');
+}
+
