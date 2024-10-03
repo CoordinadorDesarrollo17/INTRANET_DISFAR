@@ -301,13 +301,11 @@ namespace Capa_Usuario.Controllers
         }
         public JsonResult BuscarProducto(OITM_E datos)
         {
-            //verificacionAccesos(0);         // Validar sesion logueada, solo para ajax
             if (datos.FirmCode >= 1)
             {
                 OITM_N oitmN = new OITM_N();
                 var datalist = "<datalist id='ListaProductos'>";
-                //Solo lista productos Activos
-                var listaProductos = oitmN.Listar(new OITM_E { FirmCode = datos.FirmCode, /*validFor = "Y"/*, U_COB_EST_SKU = "01"*/});
+                var listaProductos = oitmN.Listar(new OITM_E { FirmCode = datos.FirmCode });
 
                 if (listaProductos != null && listaProductos.Count >= 1)
                 {
@@ -316,9 +314,7 @@ namespace Capa_Usuario.Controllers
                         datalist += $"<option ItemCode='{p.ItemCode}' FirmCode='{p.FirmCode}' FirmName='{p.U_SYP_FABRICANTE}' BuyUnitMsr='{p.BuyUnitMsr}' NumInBuy='{p.NumInBuy}' value='{p.ItemName}'></option>";
                     }
                 }
-
                 datalist += "</datalist>";
-
                 return Json(datalist);
             }
             else
@@ -398,7 +394,7 @@ namespace Capa_Usuario.Controllers
 
                         foreach (var art in listaArticulos2)
                         {
-                            
+
                             decimal QuantityConv = datos.Quantity / art.NumInBuy;
                             producto = art.Dscription.Replace("\x022", "&quot;");
                             tbody += "<tr>" +
@@ -407,7 +403,7 @@ namespace Capa_Usuario.Controllers
                                             $"<td class='text-center'>{art.ExpDate}</td>" +
                                             $"<td class='text-center'>{art.BuyUnitMsr}</td>" +
                                             $"<td class='text-center'>{art.NumAtCard}</td>" +
-                                            $"<td class='text-center'><button type=\"button\" class=\"btn btn-warning\" onclick=\"agregarDetalleDevolucion('{art.ItemCode}', '{producto}', '{art.FirmCode}', '{art.FirmName}', '{art.BatchNum}', '{art.ExpDate}', '{art.BuyUnitMsr}', '{art.NumAtCard}', '{art.NumInBuy}', {art.Quantity}, 'BD','{art.CardCode}','{art.CardName}',{Math.Round(QuantityConv,2)});\"><i class='icon-plus'></i> </button></td>" +
+                                            $"<td class='text-center'><button type=\"button\" class=\"btn btn-warning\" onclick=\"agregarDetalleDevolucion('{art.ItemCode}', '{producto}', '{art.FirmCode}', '{art.FirmName}', '{art.BatchNum}', '{art.ExpDate}', '{art.BuyUnitMsr}', '{art.NumAtCard}', '{art.NumInBuy}', {art.Quantity}, 'BD','{art.CardCode}','{art.CardName}',{Math.Round(QuantityConv, 2)});\"><i class='icon-plus'></i> </button></td>" +
                                             "<tr>";
                         }
                     }
@@ -1686,19 +1682,19 @@ namespace Capa_Usuario.Controllers
 
             // {
             OIAR_N oiarN = new OIAR_N();
-                try
-                {
-                    Usuario_E user = (Usuario_E)Session["UsuarioId"];
-                    obj.DetFases[0].Operario = $"{user.Nombres} {user.Apellidos}";
-                    oiarN.RevertirTerminoConteo(obj);
-                    return RedirectToAction("GestionConteos", new { DocEntry = obj.DocEntry });
-                }
-                catch (Exception e)
-                { return RedirectToAction("TerminarConteo", new { id = obj.DocEntry, msj = e.Message }); }
+            try
+            {
+                Usuario_E user = (Usuario_E)Session["UsuarioId"];
+                obj.DetFases[0].Operario = $"{user.Nombres} {user.Apellidos}";
+                oiarN.RevertirTerminoConteo(obj);
+                return RedirectToAction("GestionConteos", new { DocEntry = obj.DocEntry });
+            }
+            catch (Exception e)
+            { return RedirectToAction("TerminarConteo", new { id = obj.DocEntry, msj = e.Message }); }
             //}
             //else
             //{
-               // return resultadoAcceso;
+            // return resultadoAcceso;
             //}
         }
 
