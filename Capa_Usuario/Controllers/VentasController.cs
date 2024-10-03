@@ -1,5 +1,6 @@
 ﻿using Capa_Datos.Ventas_DAO.TablasSql;
 using Capa_Entidad.ComprobantesContables_ENT;
+using Capa_Entidad.ReportesDigemid_ENT;
 using Capa_Entidad.Seguridad_ENT;
 using Capa_Entidad.SocioNegocios_ENT.Tablas;
 using Capa_Entidad.Ventas_ENT.Reportes;
@@ -7,6 +8,7 @@ using Capa_Entidad.Ventas_ENT.Tablas;
 using Capa_Entidad.Ventas_ENT.TablasSql;
 using Capa_Negocio.Almacen_NEG.Tablas;
 using Capa_Negocio.AtencionCliente_NEG.TablasSql;
+using Capa_Negocio.General_NEG.Tablas;
 using Capa_Negocio.General_NEG.TablasSql;
 using Capa_Negocio.Operaciones_NEG.TablasSql;
 using Capa_Negocio.Rutas_NEG.TablasSql;
@@ -27,6 +29,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Web.Mvc;
+using OWHS_N = Capa_Negocio.General_NEG.Tablas.OWHS_N;
 
 namespace Capa_Usuario.Controllers
 {
@@ -2241,7 +2244,7 @@ namespace Capa_Usuario.Controllers
             {
                 Capa_Negocio.General_NEG.Tablas.OSLP_N oslpN = new Capa_Negocio.General_NEG.Tablas.OSLP_N();
                 OCRD_N ocrdN = new OCRD_N();
-                OWHS_N owhsN = new OWHS_N();
+                Capa_Negocio.General_NEG.TablasSql.OWHS_N owhsN = new Capa_Negocio.General_NEG.TablasSql.OWHS_N();
                 Capa_Negocio.Almacen_NEG.Tablas.OMRC_N omrcN = new Capa_Negocio.Almacen_NEG.Tablas.OMRC_N();
                 ViewBag.Vendedores = new SelectList(oslpN.listadoOslp("VENTA"), "SlpCode", "SlpName");
                 ViewBag.Clientes = ocrdN.listarSociosDeNegocios(new OCRD_E { CardType = "C" });
@@ -2292,12 +2295,9 @@ namespace Capa_Usuario.Controllers
 
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                OWHS_N owhsN = new OWHS_N();
-                OCRD_N ocrdN = new OCRD_N();
-                Usuario_N usuarioN = new Usuario_N();
-                ViewBag.Almacenes = owhsN.listarAlmacenes();
-                ViewBag.Clientes = ocrdN.listarSociosDeNegocios(new OCRD_E { CardType = "C" });
-                ViewBag.Operarios = usuarioN.ListaUsuarios(null);
+                ViewBag.Almacenes = new Capa_Negocio.General_NEG.TablasSql.OWHS_N().listarAlmacenes();
+                ViewBag.Clientes = new Capa_Negocio.SocioNegocios_NEG.Tablas.OCRD_N().listarSociosDeNegocios(new OCRD_E { CardType = "C" });
+                ViewBag.Operarios = new Capa_Negocio.Seguridad_NEG.Usuario_N().ListaUsuarios(null);
                 return View();
             }
             else
@@ -2350,12 +2350,9 @@ namespace Capa_Usuario.Controllers
 
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                OCRD_N ocrdN = new OCRD_N();
-                Usuario_N usuarioN = new Usuario_N();
-                OWHS_N owhsN = new OWHS_N();
-                ViewBag.Almacenes = owhsN.listarAlmacenes();
-                ViewBag.Clientes = ocrdN.listarSociosDeNegocios(new OCRD_E { CardType = "C" });
-                ViewBag.Operarios = usuarioN.ListaUsuarios(null);
+                ViewBag.Almacenes = new Capa_Negocio.General_NEG.TablasSql.OWHS_N().listarAlmacenes();
+                ViewBag.Clientes = new Capa_Negocio.SocioNegocios_NEG.Tablas.OCRD_N().listarSociosDeNegocios(new OCRD_E { CardType = "C" });
+                ViewBag.Operarios = new Capa_Negocio.Seguridad_NEG.Usuario_N().ListaUsuarios(null);
                 return View();
             }
             else
