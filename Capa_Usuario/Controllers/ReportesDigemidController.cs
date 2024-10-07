@@ -174,8 +174,7 @@ namespace Capa_Usuario.Controllers
         /******************************* K Á R D E X   C O N T R O L   D E   E X I S T E N C I A S *******************************/
         public ActionResult RptKardexAlmacenes(FrmKardex_E filtros)
         {
-            ReportesDigemid_N digN = new ReportesDigemid_N();
-            filtros.DetKardexAlmacenes = digN.ReporteKardexAlmacenes(filtros);
+            filtros.DetKardexAlmacenes = new Capa_Negocio.DireccionTecnica_NEG.Reportes.ReportesDigemid_N().ReporteKardexAlmacenes(filtros);
 
             return View(filtros);
         }
