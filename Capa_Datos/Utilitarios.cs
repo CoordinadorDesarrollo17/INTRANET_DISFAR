@@ -6,7 +6,9 @@ namespace Capa_Datos
     public class Utilitarios
     {
         public string cadHana;
+        public string cadHanaOnPremise;
         public string schemaHana;
+        public string schemaHanaOnPremise;
         public string cadSqlite;
         public string cadAccess;
         public string serverSql;
@@ -36,6 +38,10 @@ namespace Capa_Datos
             // HANA Database Configuration
             this.cadHana = "Server=172.16.55.36:30015;UserName=B1ADMIN;Password=Passw0rd;";
             this.schemaHana = "\"B1H_COBEFAR_2018\".";
+
+            //Hana On Premise 
+            this.cadHanaOnPremise = "Server=192.168.1.37:30015;UserName=B1ADMIN;Password=Passw0rd;";
+            this.schemaHanaOnPremise = "\"B1H_COBEFAR_2018\".";
 
             // SQL Server Configuration
             this.serverSql = @"WIN-DC\DIEGO_BD";
