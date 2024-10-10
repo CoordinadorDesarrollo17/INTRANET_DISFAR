@@ -613,8 +613,12 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             }
 
             if (ComprobantesVinculados.Count == 0) { throw new Exception("Este ticket no tiene facturas o boletas relacionadas desde SAP"); }
+
             //valida que el campo Max1099 de facturas o boletas encontradas sumen el monto total a pagar del ticket // El dato Max1099 cubre los anticipos 
-            if (ComprobantesVinculados.Sum(x => x.Max1099) != t.MontoTotal) { throw new Exception("Los documentos emitidos no suman lo total a pagar por el cliente"); }
+            if (Math.Abs(ComprobantesVinculados.Sum(x => x.Max1099) - t.MontoTotal) > 0.10m || (t.MontoTotal - Math.Abs(ComprobantesVinculados.Sum(x => x.Max1099)) > 0.10m))
+            {
+                throw new Exception("Los documentos emitidos no suman lo total a pagar por el cliente.");
+            }
 
             //validamos que las guias esten completas, excluyendo 
             if (t.LugarDestino == "Centro" || t.LugarDestino == "Arriola")
