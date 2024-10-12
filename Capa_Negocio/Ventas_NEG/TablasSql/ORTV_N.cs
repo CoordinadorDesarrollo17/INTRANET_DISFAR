@@ -626,10 +626,11 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 //Valida cantidad de guias igual a cantidad de OV
                 int cantidadOrdenes = OrdenesSap.Count;
                 int cantidadGuias = compN.ObtenerEncabezadoGuiasTransferencia(t).Count();
-                if (cantidadGuias != cantidadOrdenes)
-                {
-                    throw new Exception("Cantidad de guías emitidas con ordenes de venta no coincide.");
-                }
+                //no estan realizando las transferencias entre almacenes lo cual provoca que no coincida
+                //if (cantidadGuias != cantidadOrdenes)
+                //{
+                //    throw new Exception("Cantidad de guías emitidas con ordenes de venta no coincide.");
+                //}
             }
             else
             { //Valida monto de entrega igual a monto de factura
