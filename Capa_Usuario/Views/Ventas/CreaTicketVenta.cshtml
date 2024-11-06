@@ -112,6 +112,7 @@
 
         return result;
     }
+
     function habilitarPestana(id, div, arrCampos) {
         if (!arrCampos.includes(false)) {
             $('#' + id).removeClass('disabled');
@@ -121,6 +122,7 @@
             $('#' + div).hide();
         }
     }
+
     function validarTabEspecifRecojo() {
         let camposVacios = false;
         let arrCampos = [];
@@ -140,6 +142,7 @@
 
         return camposVacios;
     }
+
     function validarTabDetPedido() {
         let arrCampos = [];
         if ($('#LugarDestino').val() == 'Arriola' || $('#LugarDestino').val() == 'Centro') {
@@ -164,6 +167,7 @@
         habilitarPestana('nav-det-pedidos-tab', 'div_det-pedidos', arrCampos);
         //}
     }
+
     function validarNroDoc(id, valorIngresado, cantidadCaracteres) {
         if (valorIngresado.length == cantidadCaracteres) {
             $('#' + id).removeClass('bg-danger text-white');
@@ -176,6 +180,7 @@
 
         return result;
     }
+
     function validarLugarDestino(valorIngresado) {
         let arrCampos = [];
         let result = false;
@@ -201,6 +206,7 @@
 
         return result;
     }
+
     function validacionOrdenesDeVenta() {
         $('#infoListaClientes input').on('change', function () {
             var CardCode = $("#infoListaClientes #ListaClientes option[value='" + $("#infoListaClientes input").val() + "']").attr("CardCode");
@@ -268,10 +274,11 @@
                 }
             });
     }
+
     function reporteReclamosCliente() {
         window.open("/Ventas/ReporteReclamosCliente?CardCode=" + $("#CardCode").val(), null, 'width=1080,height=450,top=100,left=100,toolbar=no,location=no,status=no,menubar=no')
     }
-    /*********************************** */
+
     //busca si cliente tiene regalo pendiente, para enviarlo
     function buscarClienteRegalo() {
         $('#Zona').val("")

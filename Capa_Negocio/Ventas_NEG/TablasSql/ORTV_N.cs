@@ -613,18 +613,30 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             }
 
             if (ComprobantesVinculados.Count == 0) { throw new Exception("Este ticket no tiene facturas o boletas relacionadas desde SAP"); }
-            //valida que el campo Max1099 de facturas o boletas encontradas sumen el monto total a pagar del ticket // El dato Max1099 cubre los anticipos 
-            if (ComprobantesVinculados.Sum(x => x.Max1099) != t.MontoTotal) { throw new Exception("Los documentos emitidos no suman lo total a pagar por el cliente"); }
 
-            //validamos que las guias esten completas, excluyendo 
-            if (t.LugarDestino == "Centro" || t.LugarDestino == "Arriola")
+            //valida que el campo Max1099 de facturas o boletas encontradas sumen el monto total a pagar del ticket // El dato Max1099 cubre los anticipos 
+            if (Math.Abs(ComprobantesVinculados.Sum(x => x.Max1099) - t.MontoTotal) > 0.10m || (t.MontoTotal - Math.Abs(ComprobantesVinculados.Sum(x => x.Max1099)) > 0.10m))
+            {
+                throw new Exception("Los documentos emitidos no suman lo total a pagar por el cliente.");
+            }
+
+            // Validamos que las guias esten completas
+            // Verificar si LugarDestino es "Centro" o "Arriola"
+            if (new[] { "Centro", "Arriola" }.Contains(t.LugarDestino))
             {
                 //Valida cantidad de guias igual a cantidad de OV
-                int cantidadOrdenes = OrdenesSap.Count;
-                int cantidadGuias = compN.ObtenerEncabezadoGuiasTransferencia(t).Count();
-                if (cantidadGuias != cantidadOrdenes)
+                int totalOrdenesVenta = OrdenesSap.Count;
+                int totalGuiasEmitidas = compN.ObtenerEncabezadoGuiasTransferencia(t).Count();
+
+                // Si existe un ítem en Det2 que tenga AlmacenSalida = "07" y LugarDeEntrega = "ALMACÉN FALTANTES",
+                // se obvia la restricción de comparar las cantidades de guías y órdenes de venta.
+                bool tieneItemExcluido = t.Det2.Any(item =>
+                    item.AlmacenSalida == "07" && item.LugarDeEntrega == "ALMACÉN FALTANTES");
+
+                // Si no se encuentra un ítem que permita excluir, se valida la cantidad
+                if (!tieneItemExcluido && totalGuiasEmitidas != totalOrdenesVenta)
                 {
-                    throw new Exception("Cantidad de guías emitidas con ordenes de venta no coincide.");
+                    throw new Exception("La cantidad de guías emitidas no coincide con la cantidad de órdenes de venta.");
                 }
             }
             else
