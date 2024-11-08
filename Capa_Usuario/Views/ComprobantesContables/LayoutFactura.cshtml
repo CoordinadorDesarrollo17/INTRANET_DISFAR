@@ -102,6 +102,32 @@
             </td>
         </tr>
     </table>
+    <!-- Nueva tabla para mostrar los valores de anticipo -->
+    @if (!string.IsNullOrEmpty(Cab.NroAnticipo))
+    {
+        <!-- Título del detalle de anticipo -->
+        <span style="font-weight: bold;">DETALLE DE ANTICIPO</span>
+
+        <!-- Tabla de anticipo alineada a la izquierda -->
+        <table style="width: 40%; margin: 10px 0; font-size: 10px; margin-top: 10px; border-collapse: collapse;" border="1">
+            <thead>
+                <tr>
+                    <th style="padding: 3px; text-align: center;">Factura</th>
+                    <th style="padding: 3px; text-align: center;">Monto</th>
+                    <th style="padding: 3px; text-align: center;">Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="text-align: center; padding: 3px;">@Cab.NroAnticipo</td>
+                    <td style="text-align: center; padding: 3px;">@Cab.AnticipoBruto.ToString("N2")</td>
+                    <td style="text-align: center; padding: 3px;">@Cab.FechaAnticipo</td>
+                </tr>
+            </tbody>
+        </table>
+        <br />
+
+    }
 
     <table style="font-size: 11px; page-break-inside: avoid;" border="0">
         <tr>
@@ -143,6 +169,11 @@
                         <td>Op.Gravada</td>
                         <td>S/</td>
                         <td style="text-align:right">@Math.Round(Cab.Tgrabado(Cab.Sum_Topgratuita(Model.ToList()), Cab.Sum_Tinafecto(Model.ToList())), 2)</td>
+                    </tr>
+                    <tr>
+                        <td>Anticipo</td>
+                        <td>S/</td>
+                        <td style="text-align:right">@Math.Round(Cab.Anticipo, 2)</td>
                     </tr>
                     <tr>
                         <td>Desc.&nbsp;Globales</td>

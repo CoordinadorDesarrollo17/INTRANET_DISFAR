@@ -109,10 +109,11 @@ namespace Capa_Usuario.Controllers
                 {
                 case "F":
                     fileName = $"Facturas_{ortvE.DocNum}.pdf";
-                        decimal MontoFinalFacturas = documentos.Sum(f => f.DocTotal);
-                        if (ortvE.MontoTotal != MontoFinalFacturas)
-                        { return Json(new { success = false, message = "Los montos de facturas no coinciden con lo emitido." }, JsonRequestBehavior.AllowGet);}
-                    break;
+                        //corregir para considerar anticipos
+                        //decimal MontoFinalFacturas = documentos.Sum(f => f.DocTotal);
+                        //if (ortvE.MontoTotal != MontoFinalFacturas)
+                        //{ return Json(new { success = false, message = "Los montos de facturas no coinciden con lo emitido." }, JsonRequestBehavior.AllowGet); }
+                        break;
                 case "ND":
                     fileName = $"NotasDebito_{ortvE.DocNum}.pdf";
                     break;

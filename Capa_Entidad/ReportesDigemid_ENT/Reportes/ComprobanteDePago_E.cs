@@ -13,6 +13,12 @@ namespace Capa_Entidad.ReportesDigemid_ENT.Reportes
         public string SerieDoc { get; set; }
         public string CorreDoc { get; set; }
         public string NroOCCliente { get; set; }
+        // Propiedades de Anticipo
+        public string TotalBase { get; set; }
+        public string NroAnticipo { get; set; }
+        public decimal Anticipo { get; set; }
+        public string FechaAnticipo { get; set; }
+        public decimal AnticipoBruto { get; set; }
         public string NumGuias { get; set; }
         public string NombreSocio { get; set; }
         public string DirPagar { get; set; }
