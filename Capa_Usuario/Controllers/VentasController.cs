@@ -2,6 +2,7 @@
 using Capa_Datos.Ventas_DAO.TablasSql;
 using Capa_Entidad.ComprobantesContables_ENT;
 using Capa_Entidad.ReportesDigemid_ENT;
+using Capa_Entidad.ReportesDigemid_ENT.Reportes;
 using Capa_Entidad.Seguridad_ENT;
 using Capa_Entidad.SocioNegocios_ENT.Tablas;
 using Capa_Entidad.Ventas_ENT.Reportes;
@@ -9,6 +10,7 @@ using Capa_Entidad.Ventas_ENT.Tablas;
 using Capa_Entidad.Ventas_ENT.TablasSql;
 using Capa_Negocio.Almacen_NEG.Tablas;
 using Capa_Negocio.AtencionCliente_NEG.TablasSql;
+using Capa_Negocio.ComprobantesContables_NEG;
 using Capa_Negocio.General_NEG.Tablas;
 using Capa_Negocio.General_NEG.TablasSql;
 using Capa_Negocio.Operaciones_NEG.TablasSql;
@@ -20,7 +22,10 @@ using Capa_Negocio.Ventas_NEG.TablasSql;
 using Capa_Usuario.Helpers;
 using CrystalDecisions.CrystalReports.Engine;
 using CrystalDecisions.Shared;
+using DocumentFormat.OpenXml.ExtendedProperties;
 using DocumentFormat.OpenXml.Spreadsheet;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
 using Microsoft.Reporting.WebForms;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
@@ -34,6 +39,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Mail;
 using System.Threading.Tasks;
+using System.util;
 using System.Web.Mvc;
 using OWHS_N = Capa_Negocio.General_NEG.Tablas.OWHS_N;
 
@@ -41,6 +47,7 @@ namespace Capa_Usuario.Controllers
 {
     public class VentasController : Controller
     {
+        Utilitarios uti = new Utilitarios();
         Usuario_N u_N = new Usuario_N();
         ORTV_N ticketN = new ORTV_N();
         OLDS_N lN = new OLDS_N();
@@ -1035,76 +1042,285 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+        /*******************************************************************************************************************************************************/
+        //MODIFICAR POR SERVICES
         public void EnviarCorreo(int docEntry, string correoCliente)
-        { 
+        {
             Utilitarios uti = new Utilitarios();
-            
-                string destinatario = correoCliente;
-                string remitente = "cobefar.facturacion@gmail.com";
-                string asunto = "COBEFAR SAC - DOCUMENTOS ELECTRONICOS";
-                string cuerpo = "<html><body><h3 style='color:green;'>Gracias por su compra - COBEFAR SAC</h3><p style='font-size:16px;font-weight:bold'>Estimado cliente,\n\n<br>Por medio de la presente adjuntamos sus comprobantes electronicos.<br></p><span>Área Comercial - COBEFAR SAC\n</span></body></html>";
+            string destinatario = correoCliente;
+            string remitente = "cobefar.facturacion@gmail.com";
+            string asunto = "COBEFAR SAC - DOCUMENTOS ELECTRONICOS";
+            string cuerpo = "<html><body><h3 style='color:green;'>Gracias por su compra - COBEFAR SAC</h3><p style='font-size:16px;font-weight:bold'>Estimado cliente,<br>Adjuntamos sus comprobantes electrónicos.</p><span>Área Comercial - COBEFAR SAC</span></body></html>";
 
-                MailMessage ms = new MailMessage(remitente, destinatario, asunto, cuerpo);
-                ms.IsBodyHtml = true;  
-
-
-                SmtpClient smtp = new SmtpClient(uti.Smtp, uti.CodigoSmtp);
-                smtp.EnableSsl = true;
-                smtp.Credentials = new NetworkCredential(remitente, "yrklhfztkobemclu");
-
-                //ADJUNTAR ARCHIVO PDF DE LAS FACTURAS
-
-                var root = Server.MapPath("~/PDF/");
-                if (!System.IO.Directory.Exists(@root))
-                {
-                    System.IO.Directory.CreateDirectory(@root);
-                }
-
-                var pdfname = String.Format("Facturas_" + docEntry + ".pdf");
-                var pathPdf = Path.Combine(root, pdfname);
-
-                pathPdf = Path.GetFullPath(pathPdf);
-            var url = Url.Action("FormatoFacturaCliente", "ComprobantesContables", new { DocEntry = docEntry, Tipo = "F" }, Request.Url.Scheme);
-
-            // Crear el objeto UrlAsPdf usando la URL generada
-            var something = new Rotativa.UrlAsPdf(url)
+            MailMessage ms = new MailMessage(remitente, destinatario, asunto, cuerpo)
             {
-                FileName = pdfname,
-                PageOrientation = Rotativa.Options.Orientation.Landscape,
-                PageSize = Rotativa.Options.Size.A4
+                IsBodyHtml = true
             };
-
-            // Generar el PDF en formato binario
-            var binary = something.BuildPdf(this.ControllerContext);
-
-            //var something = new Rotativa.ActionAsPdf("FormatoFacturaCliente", new { DocEntry = docEntry, Tipo = "F" })
-            //{
-            //    FileName = pdfname,
-            //    PageOrientation = Rotativa.Options.Orientation.Landscape,
-            //    PageSize = Rotativa.Options.Size.A4
-            //};
-
-            //var binary = something.BuildPdf(this.ControllerContext);
-                System.IO.File.Create(pathPdf).Close();
-                System.IO.File.WriteAllBytes(@pathPdf, binary);
-                
-                ms.Attachments.Add(new System.Net.Mail.Attachment(pathPdf));
-                try
+            string filePath = CrearYObtenerDocumento(docEntry, "F");
+            try
+            {
+                if (!string.IsNullOrEmpty(filePath) && System.IO.File.Exists(filePath))
                 {
-                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-                    smtp.Send(ms);
-                    ms.Dispose();
-                    
-                    System.IO.File.Delete(@pathPdf);
-
+                    ms.Attachments.Add(new Attachment(filePath));
                 }
-                catch (Exception ex)
+                else
                 {
-                    Console.WriteLine($"Error: {ex.Message}");
-                    
+                    throw new FileNotFoundException("No se encontró el archivo PDF para adjuntar.");
                 }
+
+                SmtpClient smtp = new SmtpClient(uti.Smtp, uti.CodigoSmtp)
+                {
+                    EnableSsl = true,
+                    Credentials = new NetworkCredential(remitente, "yrklhfztkobemclu")
+                };
+
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                smtp.Send(ms);
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al enviar el correo: {ex.Message}");
+            }
+            finally
+            {
+                if (!string.IsNullOrEmpty(filePath) && System.IO.File.Exists(filePath))
+                {
+                    try
+                    {
+                        System.IO.File.Delete(filePath);
+                        Console.WriteLine("Archivo PDF eliminado después del envío del correo.");
+                    }
+                    catch (Exception deleteEx)
+                    {
+                        Console.WriteLine($"Error al eliminar el archivo PDF: {deleteEx.Message}");
+                    }
+                }
+            }
         }
+        private List<Comprobante_E> ObtenerEncabezados(List<int> listDocEntrySap, ORTV_E obj, string Tipo)
+        {
+            Comprobante_N compN = new Comprobante_N();
+            List<Comprobante_E> documentos = new List<Comprobante_E>();
 
+            // Obtener los documentos basados en el tipo proporcionado
+            switch (Tipo)
+            {
+                case "F":
+                    foreach (var docEntryOrden in listDocEntrySap)
+                    {
+                        documentos.AddRange(compN.ObtenerEncabezadoFacturas(docEntryOrden, obj.LugarDestino));
+                    }
+                    break;
+                case "G":
+                    if (obj.LugarDestino.Equals("Domicilio") || obj.LugarDestino.Equals("Agencia"))
+                    {
+                        documentos.AddRange(compN.ObtenerEncabezadoGuiasPorEntrega(listDocEntrySap));
+                    }
+                    else
+                    {
+                        documentos.AddRange(compN.ObtenerEncabezadoGuiasTransferencia(obj));
+                    }
+                    break;
+                case "NC":
+                    List<Comprobante_E> Facturas = new List<Comprobante_E>();
+                    foreach (var docEntryOrden in listDocEntrySap)
+                    {
+                        Facturas = compN.ObtenerEncabezadoFacturas(docEntryOrden, obj.LugarDestino);
+                    }
+                    string FacturasConcatenadas = string.Join(", ", Facturas.Select(x => $"{x.U_SYP_MDTD}-{x.U_SYP_MDSD}-{x.U_SYP_MDCD}"));
+                    documentos.AddRange(compN.ObtenerEncabezadoNotaCredito(obj.Det4, FacturasConcatenadas));
+                    break;
+                case "ND":
+                    List<Comprobante_E> FacturasParaNotaDébito = new List<Comprobante_E>();
+                    foreach (var docEntryOrden in listDocEntrySap)
+                    {
+                        FacturasParaNotaDébito = compN.ObtenerEncabezadoFacturas(docEntryOrden, obj.LugarDestino);
+                    }
+                    string FacturasConcatenadasParaNotaDébito = string.Join(", ", FacturasParaNotaDébito.Select(x => $"{x.U_SYP_MDTD}-{x.U_SYP_MDSD}-{x.U_SYP_MDCD}"));
+                    documentos.AddRange(compN.ObtenerEncabezadoNotaDebito(FacturasConcatenadasParaNotaDébito));
+                    break;
+            }
+
+            // Filtrar documentos con U_SYP_MDCD no vacío y eliminar duplicados
+            var documentosFiltrados = documentos
+                .Where(d => !string.IsNullOrEmpty(d.U_SYP_MDCD))
+                .GroupBy(d => d.U_SYP_MDCD)
+                .Select(g => g.First())
+                .ToList();
+
+            return documentosFiltrados;
+        }
+        public string CrearYObtenerDocumento(int DocEntry, string Tipo)
+        {
+            ORTV_N ortvN = new ORTV_N();
+            Comprobante_N compN = new Comprobante_N();
+            ORTV_E ortvE = ortvN.ObtenerDatosTicketParaDocumentos(DocEntry);
+            List<int> listDocEntryOrdenesVenta = compN.ObtenerDocEntryOV(ortvE.Det2, false);
+
+            if (ortvE.Estado.Equals("ANULADO") || ortvE.Estado.Equals("CANCELADO"))
+            {
+                throw new InvalidOperationException("Ticket en un estado no válido para la descarga de documentos.");
+            }
+            else if (ortvE.Det2 == null || ortvE.Det2.Count == 0 || listDocEntryOrdenesVenta == null || listDocEntryOrdenesVenta.Count == 0)
+            {
+                throw new InvalidOperationException("No se encontraron órdenes SAP activas.");
+            }
+
+            List<Comprobante_E> documentos = ObtenerEncabezados(listDocEntryOrdenesVenta, ortvE, Tipo);
+            string fileName = string.Empty;
+
+            switch (Tipo)
+            {
+                case "F": fileName = $"Facturas_{ortvE.DocNum}.pdf"; break;
+                case "ND": fileName = $"NotasDebito_{ortvE.DocNum}.pdf"; break;
+                case "NC": fileName = $"NotasCredito_{ortvE.DocNum}.pdf"; break;
+                case "G": fileName = $"Guias_{ortvE.DocNum}.pdf"; break;
+                default: throw new InvalidOperationException("Tipo del documento no reconocido.");
+            }
+
+            GeneracionDocumentoPDF(documentos, ortvE.DocNum, Tipo, fileName);
+            string filePath = Path.Combine(uti.directorioFileServer, "Comprobantes", fileName);
+
+            return filePath;
+        }
+        private void GeneracionDocumentoPDF(List<Comprobante_E> documentosDistinct, int DocNum, string Tipo, string fileName)
+        {
+            Utilitarios uti = new Utilitarios();
+
+            //agrupa todos los documentos del mismo tipo en un solo pdf
+            string filePath = Path.Combine(uti.directorioFileServer, "Comprobantes", fileName);
+
+            using (MemoryStream combinedPdfStream = new MemoryStream())
+            {
+                using (Document document = new Document())
+                {
+                    PdfCopy copy = new PdfCopy(document, combinedPdfStream);
+                    document.Open();
+
+                    foreach (var f in documentosDistinct)
+                    {
+                        AgruparPdfSegunTipo(f, DocNum, copy, Tipo);
+                    }
+
+                    document.Close();
+                }
+
+                System.IO.File.WriteAllBytes(filePath, combinedPdfStream.ToArray());
+            }
+
+        }
+        private void AgruparPdfSegunTipo(Comprobante_E documento, int docNum, PdfCopy copy, string Tipo)
+        {
+            var pdfResult = new ActionAsPdf(null);
+            string NumAtCard = $"{documento.U_SYP_MDTD}-{documento.U_SYP_MDSD}-{documento.U_SYP_MDCD}";
+            string fileName = $"{documento.U_SYP_MDTD}_{documento.U_SYP_MDSD}_{documento.U_SYP_MDCD}.pdf";
+            //contemplar un caso de layout por cada tipo de documentos:
+            //Factura,
+            //Boleta,
+            //Guia,
+            //Nota credito,
+            //Nota debito 
+            switch (Tipo)
+            {
+
+                case "F":
+                    var parametrosFactura = new
+                    {
+                        NumAtCard = NumAtCard,
+                        Tipo = documento.U_SYP_MDTD.Equals("01") ? "F" : "B",
+                        DocNumTicket = docNum
+                    };
+
+                    string _headerUrlFactura = Url.Action("LayoutFactura_header", "ComprobantesContables", parametrosFactura, "http");
+
+                    pdfResult = new ActionAsPdf("LayoutFactura", new { NumAtCard = parametrosFactura.NumAtCard })
+                    {
+                        FileName = fileName,
+                        PageOrientation = Rotativa.Options.Orientation.Portrait,
+                        CustomSwitches = "--header-html " + _headerUrlFactura + " --header-spacing 0 ",
+                        PageSize = Rotativa.Options.Size.A4,
+                        PageMargins = new Rotativa.Options.Margins(65, 10, 20, 10)
+                    };
+                    break;
+                case "ND":
+                case "NC":
+                    var parametrosNotaCredito = new
+                    {
+                        NumAtCard = NumAtCard,
+                        DocNumTicket = docNum
+                    };
+                    string _headerUrlNotaCredito = Url.Action("LayoutNotaCreditoDebito_header", "ComprobantesContables", parametrosNotaCredito, "http");
+                    pdfResult = new ActionAsPdf("LayoutNotaCreditoDebito", new { NumAtCard = NumAtCard })
+                    {
+                        FileName = fileName,
+                        PageOrientation = Rotativa.Options.Orientation.Portrait,
+                        CustomSwitches = "--header-html " + _headerUrlNotaCredito + " --header-spacing 0 ",
+                        PageSize = Rotativa.Options.Size.A4,
+                        PageMargins = new Rotativa.Options.Margins(65, 10, 20, 10)
+                    };
+                    break;
+                case "G":
+                    var parametrosGuia = new
+                    {
+                        NumAtCard = NumAtCard,
+                        DocNumTicket = docNum,
+                        Tabla = documento.TablaSAP
+                    };
+                    string _headerUrlGuia = Url.Action("LayoutGuia_header", "ComprobantesContables", parametrosGuia, "http");
+                    pdfResult = new ActionAsPdf("LayoutGuia", parametrosGuia)
+                    {
+                        FileName = fileName,
+                        PageOrientation = Rotativa.Options.Orientation.Portrait,
+                        CustomSwitches = "--header-html " + _headerUrlGuia + " --header-spacing 0 ",
+                        PageSize = Rotativa.Options.Size.A4,
+                        PageMargins = new Rotativa.Options.Margins(70, 10, 20, 10)
+                    };
+
+                    break;
+            }
+
+            var pdfBytes = pdfResult.BuildFile(ControllerContext);
+
+            using (var pdfStream = new MemoryStream(pdfBytes))
+            {
+                using (var pdfReader = new PdfReader(pdfStream))
+                {
+                    // Aplicar paginación al PDF antes de agregarlo al documento combinado
+                    using (MemoryStream paginatedPdfStream = new MemoryStream())
+                    {
+                        using (PdfStamper stamper = new PdfStamper(pdfReader, paginatedPdfStream))
+                        {
+                            int totalPages = pdfReader.NumberOfPages;
+
+                            for (int i = 1; i <= totalPages; i++)
+                            {
+                                PdfContentByte content = stamper.GetUnderContent(i);
+                                iTextSharp.text.Font font = FontFactory.GetFont("Helvetica", BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
+                                Phrase phrase = new Phrase($"Página {i} de {totalPages}", font);
+                                ColumnText.ShowTextAligned(content, Element.ALIGN_CENTER, phrase, 300, 30, 0);
+                            }
+                        }
+
+                        using (var paginatedPdfReader = new PdfReader(paginatedPdfStream.ToArray()))
+                        {
+                            // Agregar el PDF paginado al documento combinado
+                            copy.AddDocument(paginatedPdfReader);
+                        }
+                    }
+                }
+            }
+        }
+        public ActionResult LayoutFactura(string NumAtCard)
+        {
+            var factura = ObtenerDetalleFactura(NumAtCard);
+            return View(factura);
+        }
+        private List<ComprobanteDePago_E> ObtenerDetalleFactura(string numAtCard)
+        {
+            return new Comprobante_N().ObtenerDetalleFactura(numAtCard);
+        }
+        /*******************************************************************************************************************/
         public ActionResult AnularFacturarTicketVenta(int DocEntry, ORTV_E ticketPost, int idOperation = 603)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);

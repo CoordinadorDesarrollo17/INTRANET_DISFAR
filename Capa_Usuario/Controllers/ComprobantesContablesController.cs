@@ -15,6 +15,7 @@ using Capa_Negocio.ComprobantesContables_NEG;
 using Capa_Entidad.ReportesDigemid_ENT.Reportes;
 using Capa_Entidad.General_ENT.TablasSql;
 using Capa_Negocio.General_NEG.TablasSql;
+using System;
 
 namespace Capa_Usuario.Controllers
 {
@@ -79,61 +80,6 @@ namespace Capa_Usuario.Controllers
             return documentosFiltrados;
         }
         
-        public ActionResult FormatoFacturaCliente(int DocEntry, string Tipo) // Metodo que genera el archivo pdf para el envio de correo al cliente
-        {
-            ORTV_N ortvN = new ORTV_N();
-            OINV_N oinvN = new OINV_N();
-            Comprobante_N compN = new Comprobante_N();
-            ORTV_E ortvE = ortvN.ObtenerDatosTicketParaDocumentos(DocEntry);
-            List<int> listDocEntryOrdenesVenta = compN.ObtenerDocEntryOV(ortvE.Det2, false);
-            if (ortvE.Estado.Equals("ANULADO") || ortvE.Estado.Equals("CANCELADO"))
-            {
-                return Json(new { success = false, message = "Ticket en un estado no valido para la descarga de documentos" }, JsonRequestBehavior.AllowGet);
-            }
-            else if (ortvE.Det2 == null || ortvE.Det2.Count == 0 || listDocEntryOrdenesVenta == null || listDocEntryOrdenesVenta.Count == 0)
-            {
-                return Json(new { success = false, message = "No se encontraron órdenes SAP activas, revise el estado del ticket y órdenes." }, JsonRequestBehavior.AllowGet);
-            }
-            string fileUrl = string.Empty; string fileName = string.Empty;
-
-            List<Comprobante_E> documentos = new List<Comprobante_E>();
-
-            documentos = ObtenerEncabezados(listDocEntryOrdenesVenta, ortvE, Tipo);
-            if (documentos != null && documentos.Count > 0)
-            {
-                //switch (Tipo)
-                //{
-                //    case "F":
-                //        fileName = $"Facturas_{ortvE.DocNum}.pdf";
-                //        //Corregir or los casos de anticipos
-                //        //decimal MontoFinalFacturas = documentos.Sum(f => f.DocTotal);
-                //        //if (ortvE.MontoTotal != MontoFinalFacturas)
-                //        //{ return Json(new { success = false, message = "Los montos de facturas no coinciden con lo emitido." }, JsonRequestBehavior.AllowGet); }
-                //        break;
-                //    case "ND":
-                //        fileName = $"NotasDebito_{ortvE.DocNum}.pdf";
-                //        break;
-                //    case "NC":
-                //        fileName = $"NotasCredito_{ortvE.DocNum}.pdf";
-                //        decimal MontoFinalNotasCredito = documentos.Sum(f => f.DocTotal);
-                //        if (ortvE.DescuentoNC > MontoFinalNotasCredito)
-                //        { return Json(new { success = false, message = "Los montos de notas crédito no superan lo emitido." }, JsonRequestBehavior.AllowGet); }
-                //        break;
-                //    case "G":
-                //        fileName = $"Guias_{ortvE.DocNum}.pdf";
-                //        break;
-                //    default:
-                //        return Json(new { success = false, message = "Tipo del documento no reconocido." }, JsonRequestBehavior.AllowGet);
-                //}
-                fileName = $"Facturas_{ortvE.DocNum}.pdf";
-                GeneracionDocumentoPDF(documentos, ortvE.DocNum, Tipo, fileName);
-                string filePath = Path.Combine(uti.directorioFileServer, "Comprobantes", fileName);
-                fileUrl = Url.Action("DocumentoElectronico", "ComprobantesContables", new { fileName = fileName }, Request.Url.Scheme);
-                return Json(new { success = true, fileUrl = fileUrl }, JsonRequestBehavior.AllowGet);
-            }
-            else { return Json(new { success = false, message = "No hay documentos encontrados." }, JsonRequestBehavior.AllowGet); }
-            //return View(datosDevolucion);
-        }
         public JsonResult CrearYObtenerDocumento(int DocEntry, string Tipo) // Metodo principal, ajax desde ListadoTicketsAlmacen
         {
             ORTV_N ortvN = new ORTV_N();
