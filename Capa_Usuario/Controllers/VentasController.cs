@@ -1,4 +1,5 @@
-﻿using Capa_Datos.Ventas_DAO.TablasSql;
+﻿using Capa_Datos;
+using Capa_Datos.Ventas_DAO.TablasSql;
 using Capa_Entidad.ComprobantesContables_ENT;
 using Capa_Entidad.ReportesDigemid_ENT;
 using Capa_Entidad.Seguridad_ENT;
@@ -22,12 +23,17 @@ using CrystalDecisions.Shared;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.Reporting.WebForms;
 using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using OfficeOpenXml.Table;
 using Rotativa;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Mail;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 using OWHS_N = Capa_Negocio.General_NEG.Tablas.OWHS_N;
 
@@ -816,24 +822,6 @@ namespace Capa_Usuario.Controllers
             else { return null; }
         }
 
-        //FACTURACION
-
-        /*public ActionResult ListadoTicketsGuiasRemision(int DocNum = 0, ORTV_E ticket = null, string Mensaje = "", int idOperation = 2801)
-       {
-           if (verificacionAccesos(idOperation) == "C_Access")
-           {
-               Usuario_E user = (Usuario_E)Session["UsuarioId"];
-               ViewBag.DocNum = DocNum;
-               ViewBag.Ortv = ticket;
-               if (string.IsNullOrEmpty(ticket.EstadoFacturacion)) { ticket.EstadoFacturacion = "PENDIENTE"; }
-               ViewBag.Mensaje = Mensaje;
-               return View(ticketN.listarTicketsVenta(user, ticket));
-           }
-           else if (verificacionAccesos(idOperation) == "E_Login")
-           { return RedirectToAction("Index", "Index"); }
-           else
-           { return RedirectToAction("Error", "Index"); }
-       }*/
         public ActionResult ListadoTicketsFacturacion(int DocNum = 0, ORTV_E ticket = null, string Mensaje = "", int idOperation = 601)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
@@ -1015,6 +1003,24 @@ namespace Capa_Usuario.Controllers
                 {
                     Usuario_E u = (Usuario_E)Session["UsuarioId"];
                     int DocNum = ticketN.facturarTicket(DocEntry, u);
+
+                    // Envío de correo automático en caso de clientes específicos
+                    var ticketFacturado = new ORTV_N().ObtenerDatosTicketParaDocumentos(DocEntry);
+
+                    var correosClientes = new Dictionary<string, string>
+                    {
+                        { "C20609641500", "lazartefajardojorge@gmail.com" },
+                        { "C20602748228", "lazartefajardojorge@gmail.com" },
+                        { "C20557398628", "distribuidoravgfarma@hotmail.com" },
+                        { "C20600765044", "eucelsrl@gmail.com" },
+                        { "C20611835559", "coordinador.desarrollo@cobefar.com.pe" }
+                    };
+
+                    // Verificar si el CardCode existe en el diccionario
+                    if (DocNum > 0 && correosClientes.TryGetValue(ticketFacturado.CardCode, out string correoCliente))
+                    {
+                        EnviarCorreo(ticketFacturado.DocEntry, correoCliente);
+                    }
                     return RedirectToAction("ListadoTicketsFacturacion", datos);
 
                 }
@@ -1029,6 +1035,76 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+        public void EnviarCorreo(int docEntry, string correoCliente)
+        { 
+            Utilitarios uti = new Utilitarios();
+            
+                string destinatario = correoCliente;
+                string remitente = "cobefar.facturacion@gmail.com";
+                string asunto = "COBEFAR SAC - DOCUMENTOS ELECTRONICOS";
+                string cuerpo = "<html><body><h3 style='color:green;'>Gracias por su compra - COBEFAR SAC</h3><p style='font-size:16px;font-weight:bold'>Estimado cliente,\n\n<br>Por medio de la presente adjuntamos sus comprobantes electronicos.<br></p><span>Área Comercial - COBEFAR SAC\n</span></body></html>";
+
+                MailMessage ms = new MailMessage(remitente, destinatario, asunto, cuerpo);
+                ms.IsBodyHtml = true;  
+
+
+                SmtpClient smtp = new SmtpClient(uti.Smtp, uti.CodigoSmtp);
+                smtp.EnableSsl = true;
+                smtp.Credentials = new NetworkCredential(remitente, "yrklhfztkobemclu");
+
+                //ADJUNTAR ARCHIVO PDF DE LAS FACTURAS
+
+                var root = Server.MapPath("~/PDF/");
+                if (!System.IO.Directory.Exists(@root))
+                {
+                    System.IO.Directory.CreateDirectory(@root);
+                }
+
+                var pdfname = String.Format("Facturas_" + docEntry + ".pdf");
+                var pathPdf = Path.Combine(root, pdfname);
+
+                pathPdf = Path.GetFullPath(pathPdf);
+            var url = Url.Action("FormatoFacturaCliente", "ComprobantesContables", new { DocEntry = docEntry, Tipo = "F" }, Request.Url.Scheme);
+
+            // Crear el objeto UrlAsPdf usando la URL generada
+            var something = new Rotativa.UrlAsPdf(url)
+            {
+                FileName = pdfname,
+                PageOrientation = Rotativa.Options.Orientation.Landscape,
+                PageSize = Rotativa.Options.Size.A4
+            };
+
+            // Generar el PDF en formato binario
+            var binary = something.BuildPdf(this.ControllerContext);
+
+            //var something = new Rotativa.ActionAsPdf("FormatoFacturaCliente", new { DocEntry = docEntry, Tipo = "F" })
+            //{
+            //    FileName = pdfname,
+            //    PageOrientation = Rotativa.Options.Orientation.Landscape,
+            //    PageSize = Rotativa.Options.Size.A4
+            //};
+
+            //var binary = something.BuildPdf(this.ControllerContext);
+                System.IO.File.Create(pathPdf).Close();
+                System.IO.File.WriteAllBytes(@pathPdf, binary);
+                
+                ms.Attachments.Add(new System.Net.Mail.Attachment(pathPdf));
+                try
+                {
+                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                    smtp.Send(ms);
+                    ms.Dispose();
+                    
+                    System.IO.File.Delete(@pathPdf);
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error: {ex.Message}");
+                    
+                }
+        }
+
         public ActionResult AnularFacturarTicketVenta(int DocEntry, ORTV_E ticketPost, int idOperation = 603)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
