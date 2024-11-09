@@ -750,8 +750,8 @@ namespace Capa_Usuario.Controllers
             {
                 { "03", 185},					// Julio Roman Silva
 				{ "06", 185},					// Julio Roman Silva
-				{ "DEV07", 161},			// Carmen Condori Saravia
-				{ "CUAR07", 161},			// Carmen Condori Saravia
+				{ "DEV07", 161},			    // Carmen Condori Saravia
+				{ "CUAR07", 161},			    // Carmen Condori Saravia
 			};
 
             var datosDevolucion = orpdN.ObtenerDevolucion(DocEntry);
