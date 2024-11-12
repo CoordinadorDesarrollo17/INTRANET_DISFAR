@@ -2578,8 +2578,8 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     else
                     {
                         Almacen_DAO.Tablas.OWTR_D owtrD = new Almacen_DAO.Tablas.OWTR_D();
-                        if (o.LugarDestino == "Arriola") { o.Guias = owtrD.GuiasTicketTransferencia(o.DocNum, "09"); }
-                        else { o.Guias = owtrD.GuiasTicketTransferencia(o.DocNum, "01"); }
+                        if (o.LugarDestino == "Arriola") { o.Guias = owtrD.GuiasTicketTransferencia(o.DocNum, "09",o.CardCode); }
+                        else { o.Guias = owtrD.GuiasTicketTransferencia(o.DocNum, "01",o.CardCode); }
                     }
                     lista.Add(o);
                 }

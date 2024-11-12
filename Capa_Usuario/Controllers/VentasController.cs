@@ -905,7 +905,7 @@ namespace Capa_Usuario.Controllers
                             if (ticket.LugarDestino.Equals("Centro")) { WhsCode = "01"; }
                             else if (ticket.LugarDestino.Equals("Arriola")) { WhsCode = "09"; }
 
-                            Guias = owtrN.GuiasTicketTransferencia(ticket.DocNum, WhsCode);
+                            Guias = owtrN.GuiasTicketTransferencia(ticket.DocNum, WhsCode,ticket.CardCode);
                         }
                         else
                         {
@@ -1185,17 +1185,17 @@ namespace Capa_Usuario.Controllers
         }
         public JsonResult buscarGuias(int DocEntry)
         {
-            ORTV_N negtik = new ORTV_N();
-            List<Guia_Remision_E> lista = new List<Guia_Remision_E>();
-            ORTV_E ticket = negtik.ObtenerDatosCompletosTicket(DocEntry); string Guias;
+            var lista = new List<Guia_Remision_E>();
+
+            var ticket = new ORTV_N().ObtenerDatosCompletosTicket(DocEntry);
+            string Guias = string.Empty;
             if (ticket.LugarDestino.Equals("Arriola") || ticket.LugarDestino.Equals("Centro"))
             {
                 string WhsCode = string.Empty;
-                Capa_Negocio.Almacen_NEG.Tablas.OWTR_N owtrN = new Capa_Negocio.Almacen_NEG.Tablas.OWTR_N();
                 if (ticket.LugarDestino.Equals("Centro")) { WhsCode = "01"; }
                 else if (ticket.LugarDestino.Equals("Arriola")) { WhsCode = "09"; }
 
-                Guias = owtrN.GuiasTicketTransferencia(ticket.DocNum, WhsCode);
+                Guias = new Capa_Negocio.Almacen_NEG.Tablas.OWTR_N().GuiasTicketTransferencia(ticket.DocNum, WhsCode,ticket.CardCode);
             }
             else
             {
@@ -3538,7 +3538,7 @@ namespace Capa_Usuario.Controllers
             {
                 var owtrN = new Capa_Negocio.Almacen_NEG.Tablas.OWTR_N();
                 string whsCode = ticket.LugarDestino.Equals("Centro") ? "01" : "09";
-                ViewBag.Guias = owtrN.GuiasTicketTransferencia(ticket.DocNum, whsCode);
+                ViewBag.Guias = owtrN.GuiasTicketTransferencia(ticket.DocNum, whsCode,ticket.CardCode);
             }
             else
             {

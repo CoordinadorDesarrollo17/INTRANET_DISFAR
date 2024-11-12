@@ -69,13 +69,13 @@ namespace Capa_Datos.Almacen_DAO.Tablas
             catch { }
             return lista;
         }
-        public string GuiasTicketTransferencia(int DocNum, string WhsCode)
+        public string GuiasTicketTransferencia(int DocNum, string WhsCode ,string CardCode)
         {
             string guias = string.Empty;
             string query = "SELECT top 10 IFNULL(T0.\"U_SYP_MDTD\" || '-' || T0.\"U_SYP_MDSD\" || '-' || T0.\"U_SYP_MDCD\", '') as \"GUIAS\" " +
                     "FROM " + uti.schemaHana + "OWTR T0 WHERE T0.\"CANCELED\" = 'N' AND T0.\"U_SYP_MDTD\" IS NOT NULL AND T0.\"U_SYP_MDSD\" IS NOT NULL " +
                     "AND T0.\"U_SYP_MDCD\" IS NOT NULL AND T0.\"ToWhsCode\" ='" + WhsCode + "' AND T0.\"U_COB_LUGAREN\" ='" + WhsCode + "' " +
-                    "AND T0.\"Comments\" like '" + "%" + DocNum + "%" + "' ORDER BY T0.\"DocEntry\" desc";
+                    "AND T0.\"Comments\" like '" + "%" + DocNum + "%" + "' AND T0.\"CardCode\" ='" + CardCode + "' ORDER BY T0.\"DocEntry\" desc";
 
             HanaConnection cn = new HanaConnection(uti.cadHana);
             try
