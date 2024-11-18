@@ -574,11 +574,11 @@
                             {
 
                                 <button type="button" onclick="generarHtmlComprobantes(@item.DocEntry,'@item.Estado','@item.LugarDestino');"
-                                        class="btn btn-light btn-sm text-primary"
+                                        class="btn btn-light btn-sm text-danger"
                                         data-placement="top"
                                         title="Ver Comprobantes"
                                         data-toggle="modal" data-target="#comprobantesModal">
-                                    <i class="icon icon-folder-download"></i>
+                                    <i class="icon icon-download"></i>
                                 </button>
                             }
                         }
@@ -595,10 +595,10 @@
 <div id="comprobantesModal" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
         <div class="modal-content">
-            <div class="modal-header bg-cobefar text-light">
+            <div class="modal-header bg-headerModals text-light">
                 <h5 class="modal-title"><strong>Documentos de ticket</strong></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+                    <span aria-hidden="true" class="text-light">&times;</span>
                 </button>
             </div>
             <div id="modal-body-comprobantes" class="modal-body">
@@ -696,60 +696,107 @@
         location.href = '/Ventas/ExportarExcelArticulos?DocEntry='+DocEntry;
     }
 
-    function generarHtmlComprobantes(docEntry, estado, lugarDestino) {
-        var html = '<div class="btn-group" role="group">';
-        // Condiciones para el boton excel que descarga todos los SKU
-        if (["PICKEANDO", "VERIFICANDO", "EMPACANDO", "EMPACADO", "PESADO", "PREENVIO", "ENVIADO", "ENTREGADO"].includes(estado)) {
-            html += '<button type="button" onclick="excelOrdenesVenta(\'' + encodeURIComponent(docEntry) + '\')" class="btn btn-light text-success" data-toggle="tooltip" data-placement="top" title="Descargar Excel Artículos">';
-            html += '<i class="icon icon-file-excel"><span class="text-dark small"> SKUs</span></i>';
-            html += '</button><br />';
-        }
-        // Condiciones para el botón de "Descargar Rotulado" y otros documentos 
-        if (lugarDestino === "Agencia" && ["PICKEANDO", "VERIFICANDO", "EMPACANDO", "EMPACADO", "PESADO", "PREENVIO", "ENVIADO", "ENTREGADO"].includes(estado)) {
-            html += '<button type="button" onclick="pdfRotulo(\'' + encodeURIComponent(docEntry) + '\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Descargar Rotulado">';
-            html += '<i class="icon icon-file-pdf"><span class="text-dark small"> Rótulo </span></i>';
-            html += '</button><br />';
-            html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="F" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'F\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Facturas">';
-            html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Facturas </span></i>';
-            html += '</button><br />';
-            html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="G" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'G\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Guías">';
-            html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Guías </span></i>';
-            html += '</button><br />';
-            html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="NC" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'NC\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Notas de crédito">';
-            html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Notas Crédito </span></i>';
-            html += '</button><br />';
-            html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="ND" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'ND\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Notas de débito">';
-            html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Notas Débito </span></i>';
-            html += '</button><br />';
-            
-        } else if (["EMPACADO", "PREENVIO", "ENVIADO", "ENTREGADO"].includes(estado)) {
-            html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="F" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'F\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Facturas">';
-            html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Facturas </span></i>';
-            html += '</button><br />';
-            html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="G" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'G\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Guías">';
-            html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Guías </span></i>';
-            html += '</button><br />';
-            html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="NC" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'NC\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Notas de crédito">';
-            html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Notas Crédito </span></i>';
-            html += '</button><br />';
-            html += '<button type="button" data-docentry="' + encodeURIComponent(docEntry) + '" data-tipo="ND" onclick="descargarComprobante(\'' + encodeURIComponent(docEntry) + '\', \'ND\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Notas de débito">';
-            html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Notas Débito </span></i>';
-            html += '</button><br />';
-        }
+    async function generarHtmlComprobantes(docEntry, estado, lugarDestino) {
+    let html = '<div class="btn-group" role="group">';
 
-        html += '</div>';
-
-        document.getElementById('modal-body-comprobantes').innerHTML = html;
-        $('#comprobantesModal').modal('show');
+    // Condiciones para el botón Excel que descarga todos los SKU
+    if (["PICKEANDO", "VERIFICANDO", "EMPACANDO", "EMPACADO", "PESADO", "PREENVIO", "ENVIADO", "ENTREGADO"].includes(estado)) {
+        html += `
+            <button type="button" onclick="excelOrdenesVenta('${encodeURIComponent(docEntry)}')"
+                class="btn btn-light text-success" data-toggle="tooltip"
+                data-placement="top" title="Descargar Excel Artículos">
+                <i class="icon icon-file-excel">
+                    <span class="text-dark small"> SKUs</span>
+                </i>
+            </button><br />
+        `;
     }
 
+    // Lógica para botones de documentos adicionales
+    if (lugarDestino === "Agencia" && ["PICKEANDO", "VERIFICANDO", "EMPACANDO", "EMPACADO", "PESADO", "PREENVIO", "ENVIADO", "ENTREGADO"].includes(estado)) {
+        const { existeNC, existeND } = await validarNotas(docEntry);
+
+        html += generarBotonesComprobantes(docEntry, existeNC, existeND);
+    } else if (["EMPACADO", "PREENVIO", "ENVIADO", "ENTREGADO"].includes(estado)) {
+        const { existeNC, existeND } = await validarNotas(docEntry);
+
+        html += generarBotonesComprobantes(docEntry, existeNC, existeND);
+    }
+
+    html += '</div>';
+    document.getElementById('modal-body-comprobantes').innerHTML = html;
+    $('#comprobantesModal').modal('show');
+}
+
+// Función para validar las notas
+async function validarNotas(docEntry) {
+    try {
+        const response = await $.ajax({
+            url: '@Url.Action("ExistenciaDeNotas", "ComprobantesContables")',
+            type: 'GET',
+            data: { DocEntry: docEntry }
+        });
+
+        return {
+            existeNC: response?.existeNC || "N",
+            existeND: response?.existeND || "N"
+        };
+    } catch (error) {
+        Swal.fire('Error', 'Ocurrió un error en la solicitud: ' + error, 'error');
+        return { existeNC: "N", existeND: "N" };
+    }
+}
+
+// Función para generar los botones de comprobantes
+function generarBotonesComprobantes(docEntry, existeNC, existeND) {
+    let html = `
+        <button type="button" data-docentry="${encodeURIComponent(docEntry)}" data-tipo="F"
+            onclick="descargarComprobante('${encodeURIComponent(docEntry)}', 'F')"
+            class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top"
+            title="Facturas">
+            <i class="icon icon-download"><span class="text-dark small"> Facturas </span></i>
+        </button><br />
+        <button type="button" data-docentry="${encodeURIComponent(docEntry)}" data-tipo="G"
+            onclick="descargarComprobante('${encodeURIComponent(docEntry)}', 'G')"
+            class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top"
+            title="Guías">
+            <i class="icon icon-download"><span class="text-dark small"> Guías </span></i>
+        </button><br />
+    `;
+
+    if (existeNC === "Y") {
+        html += `
+            <button type="button" data-docentry="${encodeURIComponent(docEntry)}" data-tipo="NC"
+                onclick="descargarComprobante('${encodeURIComponent(docEntry)}', 'NC')"
+                class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top"
+                title="Notas de crédito">
+                <i class="icon icon-download"><span class="text-dark small"> Notas de crédito </span></i>
+            </button><br />
+        `;
+    }
+
+    if (existeND === "Y") {
+        html += `
+            <button type="button" data-docentry="${encodeURIComponent(docEntry)}" data-tipo="ND"
+                onclick="descargarComprobante('${encodeURIComponent(docEntry)}', 'ND')"
+                class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top"
+                title="Notas de débito">
+                <i class="icon icon-download"><span class="text-dark small"> Notas de débito </span></i>
+            </button><br />
+        `;
+    }
+
+    return html;
+}
+
+
     // Función para descargar comprobantes contables
-    function descargarComprobante(DocEntry, Tipo) {
-    const btn = document.querySelector(`[data-docentry="${DocEntry}"][data-tipo="${Tipo}"]`);
+    function descargarComprobante(docEntry, tipo) {
+    const btn = document.querySelector(`[data-docentry="${docEntry}"][data-tipo="${tipo}"]`);
 
         if (btn) {
         btn.disabled = true;
-    }
+        }
 
         Swal.fire({
             title: 'Cargando...',
@@ -763,9 +810,8 @@
         $.ajax({
             url: '@Url.Action("CrearYObtenerDocumento", "ComprobantesContables")',
             type: 'GET',
-            data: { DocEntry: DocEntry, Tipo: Tipo },
+            data: { DocEntry: docEntry, Tipo: tipo },
             success: function (response) {
-                console.log(response);
                 if (response.success) {
                     window.open(response.fileUrl, '_blank', 'noopener,noreferrer');
                     Swal.close();

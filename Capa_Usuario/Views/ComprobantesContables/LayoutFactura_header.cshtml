@@ -13,7 +13,7 @@
     <style>
         * {
             font-family: 'Verdana', sans-serif;
-            font-size: 10px; /* Cambiado de 12px a 11px */
+            font-size: 10px;
         }
 
         table {
@@ -31,7 +31,6 @@
         <table border="0">
             <tr>
                 <td style="font-size: 9px; text-align: left; position: relative;">
-                    <!-- Cambiado de 10px a 9px -->
                     <img style="float:left" src="~/imagenes/logoventa2.jpg" width="230" height="80" /><br />
                     www.cobefar.com.pe<br /><br />
                     <strong>N° TICKET:</strong> @ViewBag.DocNumTicket
@@ -39,19 +38,19 @@
                     <img src="~/imagenes/index/encabezado/bpa.jpg" width="45" height="40" style="position: absolute; top: 5px; right: 0;" />
                 </td>
                 <td style="text-align:left;font-size:9px; max-width:300px;">
-                    <!-- Cambiado de 10px a 9px -->
-                    <strong>Dom. Fiscal:</strong> Cal.Carlos Pedemonte Nro. 145B Int. 2pis <br />
+                    <strong>Dom. Fiscal:</strong> Cal.Carlos Pedemonte Nro. 145b Int. 2pis <br />
                     Urb. Lotización Ex Fundo El Pino  Lima - Lima - San Luis<br />
                     <strong>Almacén:</strong> Av. Nicolás Arriola N°2955-2963, 2do. Piso <br />
                     Urb. Mercurio - San Luis - Lima - Lima<br />
                     <strong>Almacén:</strong> Jr. Antonio Miroquezada N° 806 Int. 303<br />
+                    Lima - Lima - Lima<br />
+                    <strong>Almacén:</strong> Jr. Antonio Miroquezada N° 806 Int. 502<br />
                     Lima - Lima - Lima<br />
                     <strong>Teléfono:</strong> 428-1248<br />
                     <strong>Email:</strong> cobefar.ventas@gmail.com
                 </td>
                 <td>
                     <div style="border: 2px solid green; vertical-align: top; padding: 5px; border-radius: 15px;font-size: 19px !important; text-align: center;">
-                        <!-- Cambiado de 20px a 19px -->
                         <div style="margin: 10px 0;"></div>
                         <div style="font-size: 19px !important; text-align: center;">R.U.C. 20600546041</div>
                         <div style="margin: 25px 0;"></div>
@@ -93,7 +92,7 @@
         <div style="width: 30%; display: inline-block; text-align:left;">
             <br />
             <table>
-                <tr><td>FECHA DE EMISIÓN: @Convert.ToDateTime(Cab.Fecha).ToLongDateString()</td></tr>
+                <tr><td>FECHA DE EMISIÓN: @Cab.Fecha</td></tr>
                 <tr><td>MONEDA: Soles</td></tr>
                 <tr><td>ALMÁCEN: @Cab.Almacen</td></tr>
             </table>

@@ -80,36 +80,43 @@ namespace Capa_Usuario.Controllers
             return documentosFiltrados;
         }
         
-        public JsonResult CrearYObtenerDocumento(int DocEntry, string Tipo) // Metodo principal, ajax desde ListadoTicketsAlmacen
+        public JsonResult CrearYObtenerDocumento(int DocEntry, string Tipo) // Metodo principal, ajax desde ListadoTicketsAlmacen (picking packing)
         {
             ORTV_N ortvN = new ORTV_N();
             OINV_N oinvN = new OINV_N();
             Comprobante_N compN = new Comprobante_N();
+
+            string fileUrl = string.Empty;
+            string fileName = string.Empty;
+
             ORTV_E ortvE = ortvN.ObtenerDatosTicketParaDocumentos(DocEntry);
             List<int> listDocEntryOrdenesVenta = compN.ObtenerDocEntryOV(ortvE.Det2,false);
-             if (ortvE.Estado.Equals("ANULADO") || ortvE.Estado.Equals("CANCELADO"))
-            {
-                return Json(new { success = false, message = "Ticket en un estado no valido para la descarga de documentos" }, JsonRequestBehavior.AllowGet);
-            }
-            else if (ortvE.Det2 == null || ortvE.Det2.Count == 0 || listDocEntryOrdenesVenta == null || listDocEntryOrdenesVenta.Count == 0)
-            {
-                return Json(new { success = false, message = "No se encontraron órdenes SAP activas, revise el estado del ticket y órdenes." }, JsonRequestBehavior.AllowGet);
-            }
-            string fileUrl = string.Empty; string fileName = string.Empty;
-            
             List<Comprobante_E> documentos = new List<Comprobante_E>();
 
+            //Primeras validaciones
+            if (ortvE.Estado.Equals("ANULADO") || ortvE.Estado.Equals("CANCELADO"))
+            {
+                return Json(new { success = false, message = "Ticket esta anulado o cancelado" }, JsonRequestBehavior.AllowGet);
+            }
+            else if (ortvE.Det2 == null || ortvE.Det2.Count == 0 || listDocEntryOrdenesVenta == null || listDocEntryOrdenesVenta.Count == 0) //Existencia de ordenes de venta validas
+            {
+                return Json(new { success = false, message = "No se encontraron órdenes SAP vigentes, revise el ticket." }, JsonRequestBehavior.AllowGet);
+            }
+
+            
+            //Hallamos documentos en relacion a las ordenes de venta y tipo
             documentos = ObtenerEncabezados(listDocEntryOrdenesVenta, ortvE, Tipo);
-            if (documentos != null && documentos.Count>0)
+
+            //solo llega un tipo de documento a la vez
+            if (documentos != null && documentos.Count > 0)
             {
                 switch (Tipo)
                 {
                 case "F":
                     fileName = $"Facturas_{ortvE.DocNum}.pdf";
-                        //corregir para considerar anticipos
-                        //decimal MontoFinalFacturas = documentos.Sum(f => f.DocTotal);
-                        //if (ortvE.MontoTotal != MontoFinalFacturas)
-                        //{ return Json(new { success = false, message = "Los montos de facturas no coinciden con lo emitido." }, JsonRequestBehavior.AllowGet); }
+                        decimal MontoFinalFacturas = documentos.Sum(f => f.DocTotal) + documentos.Sum(f => f.AnticipoBruto);
+                        if (ortvE.MontoTotal != MontoFinalFacturas)
+                        { return Json(new { success = false, message = "Los montos de facturas no coinciden con lo emitido." }, JsonRequestBehavior.AllowGet); }
                         break;
                 case "ND":
                     fileName = $"NotasDebito_{ortvE.DocNum}.pdf";
@@ -166,7 +173,7 @@ namespace Capa_Usuario.Controllers
             var pdfResult = new ActionAsPdf(null);
             string NumAtCard = $"{documento.U_SYP_MDTD}-{documento.U_SYP_MDSD}-{documento.U_SYP_MDCD}";
             string fileName = $"{documento.U_SYP_MDTD}_{documento.U_SYP_MDSD}_{documento.U_SYP_MDCD}.pdf";
-            //contemplar un caso de layout por cada tipo de documentos:
+            //Contemplar un caso de layout por cada tipo de documentos:
             //Factura,
             //Boleta,
             //Guia,
@@ -208,7 +215,7 @@ namespace Capa_Usuario.Controllers
                         PageOrientation = Rotativa.Options.Orientation.Portrait,
                         CustomSwitches = "--header-html " + _headerUrlNotaCredito + " --header-spacing 0 ",
                         PageSize = Rotativa.Options.Size.A4,
-                        PageMargins = new Rotativa.Options.Margins(65, 10, 20, 10)
+                        PageMargins = new Rotativa.Options.Margins(70, 10, 20, 10)
                     };
                     break;
                 case "G":
@@ -225,7 +232,7 @@ namespace Capa_Usuario.Controllers
                         PageOrientation = Rotativa.Options.Orientation.Portrait,
                         CustomSwitches = "--header-html " + _headerUrlGuia + " --header-spacing 0 ",
                         PageSize = Rotativa.Options.Size.A4,
-                        PageMargins = new Rotativa.Options.Margins(70, 10, 20, 10)
+                        PageMargins = new Rotativa.Options.Margins(65, 10, 20, 10)
                     };
 
                     break;
@@ -249,7 +256,7 @@ namespace Capa_Usuario.Controllers
                                 PdfContentByte content = stamper.GetUnderContent(i);
                                 iTextSharp.text.Font font = FontFactory.GetFont("Helvetica", BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
                                 Phrase phrase = new Phrase($"Página {i} de {totalPages}", font);
-                                ColumnText.ShowTextAligned(content, Element.ALIGN_CENTER, phrase, 300, 30, 0);
+                                ColumnText.ShowTextAligned(content, Element.ALIGN_RIGHT, phrase, 570, 30, 0);
                             }
                         }
 
@@ -279,92 +286,156 @@ namespace Capa_Usuario.Controllers
 
             return File(pathComplete, "application/pdf");
         }
-        //
+        //Metodos para obtener cabecera o detalle segun sea el caso.
+        private List<Guia_Remision_E> ObtenerGuia(string numAtCard, string Tabla, string tipo)
+        {
+            if (tipo == "Cabecera")
+            {
+                return compN.ObtenerCabeceraGuia(numAtCard, Tabla);
+            }
+            else { return compN.ObtenerDetalleGuia(numAtCard, Tabla); }
+
+        }
+        private List<ComprobanteDePago_E> ObtenerFactura(string numAtCard, string tipo)
+        {
+            if (tipo == "Cabecera") { return compN.ObtenerCabeceraFactura(numAtCard); }
+            else { return compN.ObtenerDetalleFactura(numAtCard); }
+        }
+        private (List<NotaCreditoDebito_E> nota, string tipoDocumento, string subTipo) ObtenerNotaCreditoDebito(string numAtCard, string tipo)
+        {
+            var tipoDocumento = "";
+            var subTipo = "";
+            List<NotaCreditoDebito_E> nota = new List<NotaCreditoDebito_E>();
+
+            if (numAtCard.Contains("FN") || numAtCard.Contains("BN")) // Nota de crédito ORIN
+            {
+                tipoDocumento = "NC";
+
+                // Nota Crédito puede ser Artículo y Servicio
+                var orinN = new ORIN_N();
+                // Hallar el subtipo 
+                var cabeceraNota = orinN.ObtenerCabecera(0, numAtCard);
+                subTipo = cabeceraNota.DocType;
+
+                if (tipo == "Cabecera")
+                {
+                    //Si solo busca cabecera trae los datos necesarios
+                    nota.Add(new NotaCreditoDebito_E
+                    {
+                        SerieDoc = cabeceraNota.SerieDoc,
+                        CorreDoc = cabeceraNota.CorreDoc,
+                        NombreSocio = cabeceraNota.CardName,
+                        DirPagar = cabeceraNota.DirPagar,
+                        Ruc = cabeceraNota.Ruc,
+                        DocDate = cabeceraNota.DocDate,
+                        MonedaLetras = cabeceraNota.MonedaLetras
+                    });
+                }
+
+                //Solo si estamos buscando el detalle de la nota se debe ingresar a otros metodos:
+                else if (tipo == "Cuerpo")
+                {
+                    if (subTipo.Equals("I"))
+                    {
+                        nota = orinN.ObtenerDetalleNotaCreditoArticulo(numAtCard);
+                    }
+                    else if (subTipo.Equals("S"))
+                    {
+                        nota = orinN.ObtenerDetalleNotaCreditoServicio(numAtCard);
+                    }
+                }
+            }
+            else if (numAtCard.Contains("FD") || numAtCard.Contains("BD")) // Nota de débito OINV
+            {
+                tipoDocumento = "ND";
+                var oinvN = new OINV_N();
+                // Nota de Débito solo puede ser Servicio
+                if (tipo == "Cuerpo")
+                {
+                    nota = oinvN.ObtenerDetalleNotaDebito(numAtCard);
+                }
+                else { nota.Add(oinvN.ObtenerCabeceraNotaDebito(numAtCard)); }
+            }
+
+            return (nota, tipoDocumento, subTipo);
+        }
+
+        public ActionResult LayoutGuia_header(string NumAtCard, string DocNumTicket, string Tabla)
+        {
+            var guia = ObtenerGuia(NumAtCard, Tabla, "Cabecera");
+            ViewBag.DocNumTicket = DocNumTicket;
+            ViewBag.Tipo = Tabla.Equals("OWTR") ? "T" : "E";
+            return View(guia);
+        }
+        public ActionResult LayoutGuia(string NumAtCard, string Tabla, int DocNumTicket)
+        {
+            var guia = ObtenerGuia(NumAtCard, Tabla, "Cuerpo");
+            ORTV_N ortvN = new ORTV_N();
+            ViewBag.PersonaRecojo = ortvN.obtenerPersonaRecojoParaGuia(DocNumTicket);
+            ViewBag.Tipo = Tabla.Equals("OWTR") ? "T" : "E";
+            return View(guia);
+        }
         public ActionResult LayoutFactura_header(string NumAtCard, string Tipo, int DocNumTicket)
         {
-            var factura = ObtenerDetalleFactura(NumAtCard);
+            var factura = ObtenerFactura(NumAtCard, "Cabecera");
             ViewBag.Tipo = Tipo; 
             ViewBag.DocNumTicket = DocNumTicket;
             return View(factura);
         }
         public ActionResult LayoutFactura(string NumAtCard)
         {
-            var factura = ObtenerDetalleFactura(NumAtCard);
+            var factura = ObtenerFactura(NumAtCard,"Cuerpo");
             return View(factura);
         }
-        //
-        public ActionResult LayoutGuia_header(string NumAtCard, string DocNumTicket, string Tabla)
+        public ActionResult LayoutNotaCreditoDebito_header(string numAtCard, string DocNumTicket)
         {
-            var guia = ObtenerDetalleGuia(NumAtCard, Tabla);
+            var (nota, tipo, subTipo) = ObtenerNotaCreditoDebito(numAtCard,"Cabecera");
             ViewBag.DocNumTicket = DocNumTicket;
-            ViewBag.Tipo = Tabla.Equals("OWTR") ? "T" : "E";
-            return View(guia);
+            ViewBag.Tipo = tipo;
+            return View(nota);
         }
-        public ActionResult LayoutGuia(string NumAtCard,string Tabla,int DocNumTicket)
+        public ActionResult LayoutNotaCreditoDebito(string numAtCard)
         {
-            var guia = ObtenerDetalleGuia(NumAtCard, Tabla);
+            var (nota, tipo, subTipo) = ObtenerNotaCreditoDebito(numAtCard,"Cuerpo");
+            ViewBag.Tipo = tipo;
+            ViewBag.SubTipo = subTipo;
+            return View(nota);
+        }
+        public JsonResult ExistenciaDeNotas(int DocEntry) // Metodo secundario para consulta existencia antes de habilitar botones en modal de listadoticketalmacen
+        {
             ORTV_N ortvN = new ORTV_N();
-            ViewBag.PersonaRecojo = ortvN.obtenerPersonaRecojoParaGuia(DocNumTicket);
-            ViewBag.Tipo = Tabla.Equals("OWTR") ?  "T" : "E";
-            return View(guia);
-        }
-        private List<Guia_Remision_E> ObtenerDetalleGuia(string numAtCard, string Tabla)
-        {
-            List<Guia_Remision_E> guia = compN.ObtenerDetalleGuia(numAtCard, Tabla);
-            return guia;
-        }
-        private List<ComprobanteDePago_E> ObtenerDetalleFactura(string numAtCard)
-        {
-            return compN.ObtenerDetalleFactura(numAtCard);
-        }
-        public ActionResult LayoutNotaCreditoDebito_header(string NumAtCard, string DocNumTicket)
-        {
-            var (nota, tipo, subTipo) = ObtenerNotaCreditoDebito(NumAtCard);
-            ViewBag.DocNumTicket = DocNumTicket;
-            ViewBag.Tipo = tipo;
-            ViewBag.SubTipo = subTipo;
-            return View(nota);
-        }
-        public ActionResult LayoutNotaCreditoDebito(string NumAtCard)
-        {
-            var (nota, tipo, subTipo) = ObtenerNotaCreditoDebito(NumAtCard);
-            ViewBag.Tipo = tipo;
-            ViewBag.SubTipo = subTipo;
-            return View(nota);
-        }
-        private (List<NotaCreditoDebito_E> nota, string tipo, string subTipo) ObtenerNotaCreditoDebito(string numAtCard)
-        {
-            OINV_N oinvN = new OINV_N();
-            ORIN_N orinN = new ORIN_N();
-            string tipo = "";
-            string subTipo = "";
-            List<NotaCreditoDebito_E> nota = new List<NotaCreditoDebito_E>();
+            Comprobante_N compN = new Comprobante_N();
 
-            if (numAtCard.Contains("FN") || numAtCard.Contains("BN")) // Nota de crédito ORIN
+            string existeNC = string.Empty;
+            string existeND = string.Empty;
+
+            ORTV_E ortvE = ortvN.ObtenerDatosTicketParaDocumentos(DocEntry);
+            List<int> listDocEntryOrdenesVenta = compN.ObtenerDocEntryOV(ortvE.Det2, false);
+
+            //Primeras validaciones
+            if (ortvE.Estado.Equals("ANULADO") || ortvE.Estado.Equals("CANCELADO"))
             {
-                tipo = "NC"; // Nota Crédito de Artículo y Servicio
-                List<ORIN_E> listOrin = orinN.listarNotasDeCredito(new ORIN_E { NumAtCard = numAtCard });
-                if (listOrin != null && listOrin.Count > 0)
-                {
-                    subTipo = listOrin[0].DocType;
-                }
-                if (subTipo.Equals("I"))
-                {
-                    nota = orinN.buscarNotaCreditoSapArticulo(numAtCard);
-                }
-                else if (subTipo.Equals("S"))
-                {
-                    nota = orinN.buscarNotaCreditoSapServicio(numAtCard);
-                }
+                return Json(new { success = false, message = "Ticket esta anulado o cancelado" }, JsonRequestBehavior.AllowGet);
             }
-            else if (numAtCard.Contains("FD") || numAtCard.Contains("BD")) // Nota de débito OINV
+            else if (ortvE.Det2 == null || ortvE.Det2.Count == 0 || listDocEntryOrdenesVenta == null || listDocEntryOrdenesVenta.Count == 0) //Existencia de ordenes de venta validas
             {
-                tipo = "ND"; // Nota de Débito solo Servicio
-                nota = oinvN.buscarNotaDebitoSap(numAtCard);
+                return Json(new { success = false, message = "No se encontraron órdenes SAP vigentes, revise el ticket." }, JsonRequestBehavior.AllowGet);
             }
 
-            return (nota, tipo, subTipo);
-        }
 
-    }
+            //Hallamos documentos en relacion a las ordenes de venta y tipo
+            var notaDebito = ObtenerEncabezados(listDocEntryOrdenesVenta, ortvE, "ND");
+            var notaCredito = ObtenerEncabezados(listDocEntryOrdenesVenta, ortvE, "NC");
+
+            if (notaCredito != null && notaCredito.Count() > 0) { existeNC = "Y"; }
+            if (notaDebito != null && notaDebito.Count() > 0) { existeND = "Y"; }
+
+            return Json(new 
+            { 
+                existeNC = existeNC,
+                existeND = existeND
+            }, 
+                JsonRequestBehavior.AllowGet);
+            }
+        }
 }

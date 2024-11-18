@@ -26,9 +26,13 @@ namespace Capa_Negocio.Ventas_NEG.Tablas
         {
             return oD.CalcularPdfsActaDespachoOINV(Fecha, U_SYP_STATUS, U_COB_LUGAREN, TipoComprobante);
         }
-        public List<NotaCreditoDebito_E> buscarNotaDebitoSap(string NumAtCard)
+        public NotaCreditoDebito_E ObtenerCabeceraNotaDebito(string NumAtCard)
         {
-            return oD.buscarNotaDebitoSap(NumAtCard);
+            return oD.ObtenerCabeceraNotaDebito(NumAtCard);
+        }
+        public List<NotaCreditoDebito_E> ObtenerDetalleNotaDebito(string NumAtCard)
+        {
+            return oD.ObtenerDetalleNotaDebito(NumAtCard);
         }
         public List<(string, int)> DetalleCalculadoraPdfOINV(string Fecha, string U_SYP_STATUS, string U_COB_LUGAREN, string TipoComprobante)
         {

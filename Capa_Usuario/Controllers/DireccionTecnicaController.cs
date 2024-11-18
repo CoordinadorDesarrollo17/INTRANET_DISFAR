@@ -367,7 +367,7 @@ namespace Capa_Usuario.Controllers
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 if (fil != null) { ViewBag.Orin = fil; } else { ViewBag.Orin = new ORIN_E(); }
-                return View(new ORIN_N().listarNotasDeCredito(fil));
+                return View(new ORIN_N().Listar(fil));
             }
             else
             {

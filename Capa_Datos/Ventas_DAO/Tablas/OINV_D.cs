@@ -267,8 +267,30 @@ namespace Capa_Datos.Ventas_DAO.Tablas
             catch { cn.Close(); }
             return guias;
         }
+        public NotaCreditoDebito_E ObtenerCabeceraNotaDebito(string numAtCard)
+        {
+            NotaCreditoDebito_E o = new NotaCreditoDebito_E();
+            string query = $"select \"U_SYP_MDSD\",\"U_SYP_MDCD\",\"CardName\",\"Address\",(SELECT \"LicTradNum\" FROM {uti.schemaHana}OCRD WHERE \"CardCode\" = {uti.schemaHana}OINV.\"CardCode\"),\"DocDate\",(SELECT \"CurrName\" FROM {uti.schemaHana}\"OCRN\" WHERE \"CurrCode\" = {uti.schemaHana}OINV.\"DocCur\")  FROM {uti.schemaHana}OINV where \"U_SYP_MDTD\" || '-' ||\"U_SYP_MDSD\" || '-' || \"U_SYP_MDCD\" ='{numAtCard}'";
+            try
+            {
+                HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
+                hdr.Read();
+                
+                if (!hdr.IsDBNull(0)) { o.SerieDoc = hdr.GetString(0); }
+                if (!hdr.IsDBNull(1)) { o.CorreDoc = hdr.GetString(1); }
+                if (!hdr.IsDBNull(2)) { o.NombreSocio = hdr.GetString(2); }
+                if (!hdr.IsDBNull(3)) { o.DirPagar = hdr.GetString(3); }
+                if (!hdr.IsDBNull(4)) { o.Ruc = hdr.GetString(4); }
+                if (!hdr.IsDBNull(5)) { o.DocDate = hdr.GetDateTime(5).ToString("dd/MM/yyyy"); }
+                if (!hdr.IsDBNull(6)) { o.MonedaLetras = hdr.GetString(6); }
 
-        public List<NotaCreditoDebito_E> buscarNotaDebitoSap(string NumAtCard)
+                hdr.Close();
+            }
+            catch { }
+            return o;
+        }
+    
+        public List<NotaCreditoDebito_E> ObtenerDetalleNotaDebito(string NumAtCard)
         {
             List<NotaCreditoDebito_E> lista = new List<NotaCreditoDebito_E>();
             int DocEntry = 0;
@@ -366,12 +388,6 @@ namespace Capa_Datos.Ventas_DAO.Tablas
             {
                 filtros += " and \"U_COB_LUGAREN\"='" + U_COB_LUGAREN + "'";
             }
-            /*
-            if(TieneGuia!=null && TieneGuia!="")
-            {
-                if (TieneGuia.Equals("Si")) { filtros += " and \"U_COB_CORDOC\" is not null"; }
-                if (TieneGuia.Equals("No")) { filtros += " and \"U_COB_CORDOC\" is null"; }
-            }*/
             if (!string.IsNullOrEmpty(TipoComprobante))
             {
                 filtros += " and \"Series\" in(select \"Series\" from " + uti.schemaHana + "nnm1 where \"SeriesName\" like '" + TipoComprobante + "V%')";
