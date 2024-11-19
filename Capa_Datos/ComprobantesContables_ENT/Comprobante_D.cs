@@ -133,7 +133,7 @@ namespace Capa_Datos.ComprobantesContables_ENT
             {
                 //TRANSFERENCIA
                 case "OWTR":
-                    query = $"SELECT (SELECT \"CompnyName\" FROM {uti.schemaHana}\"OADM\"),\"DocDate\",(SELECT \"TaxIdNum\" FROM {uti.schemaHana}\"OADM\"),\"U_BPP_FECINITRA\" FROM {uti.schemaHana}OWTR WHERE \"U_SYP_MDTD\" || '-' ||\"U_SYP_MDSD\" || '-' || \"U_SYP_MDCD\"='{NumAtCard}'";
+                    query = $"SELECT (SELECT \"CompnyName\" FROM {uti.schemaHana}\"OADM\"),\"DocDate\",(SELECT \"TaxIdNum\" FROM {uti.schemaHana}\"OADM\"),\"U_BPP_FECINITRA\",\"U_SYP_MDTD\" || '-' ||\"U_SYP_MDSD\" || '-' || \"U_SYP_MDCD\" FROM {uti.schemaHana}OWTR WHERE \"U_SYP_MDTD\" || '-' ||\"U_SYP_MDSD\" || '-' || \"U_SYP_MDCD\"='{NumAtCard}'";
                     try
                     {
                         HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
@@ -146,6 +146,7 @@ namespace Capa_Datos.ComprobantesContables_ENT
                                 if (!hdr.IsDBNull(1)) { c.DocDate = Convert.ToDateTime(hdr.GetString(1)).ToString("dd/MM/yyyy"); }
                                 if (!hdr.IsDBNull(2)) { c.RucBD = hdr.GetString(2); }
                                 if (!hdr.IsDBNull(3)) { c.FechaTrasl = Convert.ToDateTime(hdr.GetString(3)).ToString("dd/MM/yyyy"); }
+                                if (!hdr.IsDBNull(4)) { c.NumAtCard = hdr.GetString(4); }
 
                                 lista.Add(c);
                             }
@@ -156,7 +157,7 @@ namespace Capa_Datos.ComprobantesContables_ENT
                     break;
                 //ENTREGA
                 case "ODLN":
-                    query = $"SELECT \"CardName\",\"DocDate\",\"CardCode\",\"U_BPP_FECINITRA\" FROM {uti.schemaHana}ODLN WHERE \"NumAtCard\"='{NumAtCard}'";
+                    query = $"SELECT \"CardName\",\"DocDate\",\"CardCode\",\"U_BPP_FECINITRA\",\"NumAtCard\" FROM {uti.schemaHana}ODLN WHERE \"NumAtCard\"='{NumAtCard}'";
                     try
                     {
                         HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
@@ -169,7 +170,7 @@ namespace Capa_Datos.ComprobantesContables_ENT
                                 if (!hdr.IsDBNull(1)) { c.DocDate = Convert.ToDateTime(hdr.GetString(1)).ToString("dd/MM/yyyy"); }
                                 if (!hdr.IsDBNull(2)) { c.CardCode = hdr.GetString(2); }
                                 if (!hdr.IsDBNull(3)) { c.FechaTrasl = Convert.ToDateTime(hdr.GetString(3)).ToString("dd/MM/yyyy"); }
-
+                                if (!hdr.IsDBNull(4)) { c.NumAtCard = hdr.GetString(4); }
                                 lista.Add(c);
                             }
                         }
