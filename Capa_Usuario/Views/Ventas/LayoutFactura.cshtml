@@ -13,8 +13,9 @@
     <style>
         * {
             font-family: 'Verdana', sans-serif;
-            font-size: 10px; 
+            font-size: 10px; /* Cambiado de 12px a 11px */
         }
+
         table {
             border-collapse: collapse;
             width: 100%;
@@ -167,25 +168,17 @@
                     <tr>
                         <td>Op.Gravada</td>
                         <td>S/</td>
-                        @*<td style="text-align:right">@Math.Round(Cab.Tgrabado(Cab.Sum_Topgratuita(Model.ToList()), Cab.Sum_Tinafecto(Model.ToList())), 2)</td>*@
-                        <td style="text-align:right">@Cab.OpGravadas(Model.ToList())</td>
+                        <td style="text-align:right">@Math.Round(Cab.Tgrabado(Cab.Sum_Topgratuita(Model.ToList()), Cab.Sum_Tinafecto(Model.ToList())), 2)</td>
                     </tr>
                     <tr>
                         <td>Anticipo</td>
                         <td>S/</td>
-                        <td style="text-align:right">
-                        @if (Cab.Anticipo > 0) {
-                            <span>@Math.Round(Cab.Anticipo, 2)</span>
-                        }else{
-                            <span>0.00</span>
-                            }</td>
+                        <td style="text-align:right">@Math.Round(Cab.Anticipo, 2)</td>
                     </tr>
                     <tr>
                         <td>Desc.&nbsp;Globales</td>
                         <td>S/</td>
-                        <td style="text-align:right">
-                        <span>0.00</span>
-                        </td>
+                        <td style="text-align:right"></td>
                     </tr>
                     <tr>
                         <td><p>I.G.V 18%</p></td>
@@ -195,14 +188,12 @@
                     <tr>
                         <td>Op.Inafecta</td>
                         <td>S/</td>
-                        <td style="text-align:right">
-                        <span>0.00</span>
-                        </td>
+                        <td style="text-align:right"></td>
                     </tr>
                     <tr>
                         <td>Op.Exonerada</td>
                         <td>S/</td>
-                        <td style="text-align:right">@Cab.CalcularOpExoneradas(Model.ToList())</td>
+                        <td style="text-align:right">@Cab.F_Tinafecto(Cab.Sum_Tinafecto(Model.ToList()))</td>
                     </tr>
                     <tr>
                         <td>Op.Gratuita</td>

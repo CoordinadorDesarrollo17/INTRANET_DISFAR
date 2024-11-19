@@ -8,7 +8,6 @@ namespace Capa_Entidad.Ventas_ENT.Tablas
     {
         public int DocEntry { get; set; }
         public string ElaboradoPor { get; set; }
-        public string Pais { get; set; }
         public string NombreBD { get; set; }
         public string DireccionBD { get; set; }
         public string RucBD { get; set; }
