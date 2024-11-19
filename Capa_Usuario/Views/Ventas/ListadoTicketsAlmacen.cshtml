@@ -723,7 +723,7 @@
 
         html += generarBotonesComprobantes(docEntry, existeNC, existeND);
         
-    } else if (["EMPACADO", "PREENVIO", "ENVIADO", "ENTREGADO"].includes(estado)) {
+    } else if (["EMPACANDO","EMPACADO", "PREENVIO", "ENVIADO", "ENTREGADO"].includes(estado)) {
         const { existeNC, existeND } = await validarNotas(docEntry);
 
         html += generarBotonesComprobantes(docEntry, existeNC, existeND);
