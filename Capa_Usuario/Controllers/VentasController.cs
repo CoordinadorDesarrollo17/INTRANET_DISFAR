@@ -1016,11 +1016,9 @@ namespace Capa_Usuario.Controllers
 
                     var correosClientes = new Dictionary<string, string>
                     {
-                        { "C20609641500", "lazartefajardojorge@gmail.com" },
-                        { "C20602748228", "lazartefajardojorge@gmail.com" },
+                        { "C20609641500", "Juancarloshuapayalazarte@gmail.com" },
                         { "C20557398628", "distribuidoravgfarma@hotmail.com" },
-                        { "C20600765044", "eucelsrl@gmail.com" },
-                        { "C20611835559", "coordinador.desarrollo@cobefar.com.pe" }
+                        { "C20600765044", "eucelsrl@gmail.com" }
                     };
 
                     // Verificar si el CardCode existe en el diccionario
