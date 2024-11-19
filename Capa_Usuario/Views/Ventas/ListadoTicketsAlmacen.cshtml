@@ -714,9 +714,15 @@
 
     // Lógica para botones de documentos adicionales
     if (lugarDestino === "Agencia" && ["PICKEANDO", "VERIFICANDO", "EMPACANDO", "EMPACADO", "PESADO", "PREENVIO", "ENVIADO", "ENTREGADO"].includes(estado)) {
+        
+        html += '<button type="button" onclick="pdfRotulo(\'' + encodeURIComponent(docEntry) + '\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Descargar Rotulado">';
+        html += '<i class="icon icon-file-pdf"><span class="text-dark small"> Rótulo </span></i>';
+        html += '</button><br />';
+
         const { existeNC, existeND } = await validarNotas(docEntry);
 
         html += generarBotonesComprobantes(docEntry, existeNC, existeND);
+        
     } else if (["EMPACADO", "PREENVIO", "ENVIADO", "ENTREGADO"].includes(estado)) {
         const { existeNC, existeND } = await validarNotas(docEntry);
 
