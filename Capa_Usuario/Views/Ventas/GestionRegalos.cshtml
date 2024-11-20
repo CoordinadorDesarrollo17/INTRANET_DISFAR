@@ -9,15 +9,31 @@
 
 <script>
     $(document).ready(function () {
+        $('#filterModal').on('shown.bs.modal', function () {
+            $('#filterModal input:first').focus();
+        });
     });
     function filtrar() {
-        var object = $("#frm").serialize();
+        var object = $("#filterForm").serialize();
         $(location).attr('href', "/Ventas/GestionRegalos?" + object);
     }
+    function limpiarFiltros() {
+        const formulario = document.getElementById('filterForm');
 
+        const inputs = formulario.querySelectorAll('input[type="text"], input[type="date"], input[type="number"], textarea');
+        inputs.forEach(input => {
+            input.value = '';
+        });
+        const selects = formulario.querySelectorAll('select');
+        selects.forEach(select => {
+            select.selectedIndex = 0;
+        });
+        //Recarga llamando otra vez a la funcion
+        filtrar();
+    }
 </script>
 
-<div class="pt-4">
+<div class="pt-3">
     <nav>
         <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
@@ -28,78 +44,100 @@
 
 <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
     <div class="px-3 pt-3"><h3 class="titulo-seccion">MÓDULO GESTIÓN REGALOS</h3></div>
-</div>
-<div class="bg-white d-flex pl-2 w-100 py-2">
 
-    <div class="mx-2">
-        <a id="accion" href="@Url.Action("NuevoRegalo", "Ventas")" class="btn btn-success">
-            <i class="icon icon-plus"></i> Nuevo Regalo
-        </a>
-        <a id="accion" href="@Url.Action("GestionClienteRegalos", "Ventas")" class="btn btn-info">
-            <i class="icon icon-gift"></i> Regalos Clientes
-        </a>
+
+    <div class="row pl-2 w-100 py-1">
+        <div class="d-flex col-lg-8 col-md-6 col-sm-12 col-6">
+                <div class="mx-2">
+                    <a href="@Url.Action("NuevoRegalo", "Ventas")" class="btn btn-success ml-2">
+                        <i class="icon icon-plus"> </i> Nuevo Regalo
+                    </a>
+                    <a href="@Url.Action("GestionClienteRegalos", "Ventas")" class="btn btn-info ml-2">
+                        <i class="icon icon-gift"> </i> Regalos Clientes
+                    </a>
+                    <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#filterModal"><i class="icon-filter"> </i> Filtrar</button>
+                </div>
+        </div>
+    </div>
+</div>
+
+<form name="filterForm" id="filterForm">
+    
+    <!-- Modal para Filtros -->
+    <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-headerModals">
+                    <h5 class="modal-title text-light" id="modalFiltrosLabel">Filtros de Búsqueda</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true" class="text-light">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label for="Id">Id</label>
+                                    <input type="number" name="Id" id="Id" class="form-control" value="@if (!f.Id.Equals(0)) { Write(f.Id); }" />
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="Categoria">Categoría</label>
+                                    <input type="text" name="Categoria" id="Categoria" class="form-control" value="@f.Categoria" />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="Tipo">Tipo</label>
+                                    <input type="text" name="Tipo" id="Tipo" class="form-control" value="@f.Tipo" />
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="Estado">Estado </label>
+                                    <select name="Estado" id="Estado" class="form-control">
+                                        <option value=""></option>
+                                        <option value="Activo" @{ if (f.Estado == "Activo") { Write("selected"); } }>Activo</option>
+                                        <option value="Inactivo" @{ if (f.Estado == "Inactivo") { Write("selected"); } }>Inactivo</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-info" onclick="limpiarFiltros();">Limpiar</button>
+                    <button type="button" class="btn btn-primary" onclick="filtrar();">Aplicar Filtros</button>
+                </div>
+            </div>
+        </div>
     </div>
 
-</div>
-<form name="frm" id="frm">
-    <div class="bg-white bg-form-cobefar">
-
-        <table class="table table-light table-sm table-responsive-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
-            <thead class="thead-dark">
+    <div class="bg-white bg-form-cobefar pt-2">
+        <table class="table table-light table-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
+            <thead class="bg-cobefar-6">
                 <tr>
                     <th class="text-center">
                         @Html.DisplayName("Id")
-                        <br />
-                        <input type="number" name="Id" style="width:50px;" class="form-control input_filtro-table" onchange="filtrar();" value="@if (!f.Id.Equals(0)) { Write(f.Id); }" />
                     </th>
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.Categoria)
-                        <br />
-                        <input type="text" name="Categoria" class="form-control input_filtro-table" onchange="filtrar();" value="@f.Categoria" />
                     </th>
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.Tipo)
-                        <br />
-                        <input type="text" name="Tipo" class="form-control input_filtro-table" onchange="filtrar();" value="@f.Tipo" />
                     </th>
                     <th class="text-center">
                         @Html.DisplayName("Estado")
-                        <br />
-                        <select name="Estado" class="form-control select_filtro-table" onchange="filtrar();">
-                            <option value=""></option>
-                            @if (ViewBag.Regalos.Estado == "Activo")
-                            {
-                                <option value="Activo" selected>Activo</option>
-                            }
-                            else
-                            {
-                                <option value="Activo">Activo</option>
-                            }
-
-                            @if (ViewBag.Regalos.Estado == "Inactivo")
-                            {
-                                <option value="Inactivo" selected>Inactivo</option>
-                            }
-                            else
-                            {
-                                <option value="Inactivo">Inactivo</option>
-                            }
-
-                            @if (ViewBag.Regalos.Estado == "")
-                            {
-
-                                <option value="Activo">Activo</option>
-                                <option value="Inactivo">Inactivo</option>
-                            }
-                        </select>
-
                     </th>
-                    <th class="text-center">Stock Total</th>
-                    <th class="text-center">Stock Disp</th>
-                    <th class="text-center">Stock Comp</th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
+                    <th class="text-center"> Stock Total</th>
+                    <th class="text-center"> Disponible</th>
+                    <th class="text-center"> Comprometido</th>
+                    <th class="text-center"></th>
+                    <th class="text-center"></th>
+                    <th class="text-center"></th>
                 </tr>
             </thead>
             <tbody>
@@ -122,18 +160,18 @@
                         <td class="text-center">@Html.DisplayFor(modelItem => item.StockDisp)</td>
                         <td class="text-center">@Html.DisplayFor(modelItem => item.StockComp)</td>
                         <td class="text-center">
-                            <a href="@Url.Action( "GestionarStock", "Ventas", new { id = item.Id } )" class="btn btn-warning btn-sm">
-                                <i class="icon icon-clipboard"></i> GestionarStock
+                            <a href="@Url.Action( "GestionarStock", "Ventas", new { id = item.Id } )" class="btn btn-secondary">
+                                <i class="icon icon-clipboard"> </i> Administrar stock
                             </a>
                         </td>
                         <td class="text-center">
-                            <a href="@Url.Action("TransaccionesRegalo", "Ventas", new { id = item.Id } )" class="btn btn-primary btn-sm">
-                                <i class="icon icon-tab"></i> Transacciones
+                            <a href="@Url.Action("TransaccionesRegalo", "Ventas", new { id = item.Id } )" class="btn btn-cobefar">
+                                <i class="icon icon-tab"> </i>  Transacciones
                             </a>
                         </td>
                         <td class="text-center">
-                            <a href="@Url.Action("InactivarRegalo", "Ventas", new { id = item.Id } )" class="btn btn-danger btn-sm">
-                                <i class="icon icon-blocked"></i> InactivarRegalo
+                            <a href="@Url.Action("InactivarRegalo", "Ventas", new { id = item.Id } )" class="btn btn-danger">
+                                <i class="icon icon-blocked"> </i> Inactivar
                             </a>
                         </td>
                     </tr>
