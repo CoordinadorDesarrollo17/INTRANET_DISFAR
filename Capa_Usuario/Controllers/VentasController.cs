@@ -11,7 +11,6 @@ using Capa_Entidad.Ventas_ENT.TablasSql;
 using Capa_Negocio.Almacen_NEG.Tablas;
 using Capa_Negocio.AtencionCliente_NEG.TablasSql;
 using Capa_Negocio.ComprobantesContables_NEG;
-using Capa_Negocio.General_NEG.Tablas;
 using Capa_Negocio.General_NEG.TablasSql;
 using Capa_Negocio.Operaciones_NEG.TablasSql;
 using Capa_Negocio.Rutas_NEG.TablasSql;
@@ -22,26 +21,18 @@ using Capa_Negocio.Ventas_NEG.TablasSql;
 using Capa_Usuario.Helpers;
 using CrystalDecisions.CrystalReports.Engine;
 using CrystalDecisions.Shared;
-using DocumentFormat.OpenXml.ExtendedProperties;
-using DocumentFormat.OpenXml.Spreadsheet;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using Microsoft.Reporting.WebForms;
 using OfficeOpenXml;
-using OfficeOpenXml.Style;
-using OfficeOpenXml.Table;
 using Rotativa;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Net.Mail;
-using System.Threading.Tasks;
-using System.util;
 using System.Web.Mvc;
-using OWHS_N = Capa_Negocio.General_NEG.Tablas.OWHS_N;
 
 namespace Capa_Usuario.Controllers
 {
@@ -2679,15 +2670,17 @@ namespace Capa_Usuario.Controllers
             }
 
         }
+
+        //REGALOS
         public ActionResult GestionRegalos(OREG_E filtro, string mensaje, int idOperation = 1310)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
 
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                ViewBag.Regalos = filtro; ViewBag.Mensaje = mensaje;
-                OREG_N oregN = new OREG_N();
-                return View(oregN.listaRegalos(filtro));
+                ViewBag.Regalos = filtro; 
+                ViewBag.Mensaje = mensaje;
+                return View(new Capa_Negocio.Ventas_NEG.TablasSql.OREG_N().listaRegalos(filtro));
             }
             else
             {
@@ -2873,7 +2866,7 @@ namespace Capa_Usuario.Controllers
             }
             else { return null; }
         }
-        public ActionResult ReporteClienteRegalos(string CardCode, int idOperation = 502)
+        public ActionResult ReporteClienteRegalos(string CardCode, int idOperation = 522)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
 
@@ -2993,7 +2986,8 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-        public ActionResult ReporteReclamosCliente(string CardCode, int idOperation = 502)
+
+        public ActionResult ReporteReclamosCliente(string CardCode, int idOperation = 523)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
 
