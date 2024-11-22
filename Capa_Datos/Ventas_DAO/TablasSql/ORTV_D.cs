@@ -27,182 +27,76 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
         readonly DBHelper db = new DBHelper();
         CC_ORTV_D ccTicket = new CC_ORTV_D();
         OLDS_D lD = new OLDS_D();
-        public List<OCRD_E> listarClientes(string Fecha)
+
+        public List<ReporteRegalos> listarTicketsRegalo(string fechaTicket, string estadoTicket, string estadoRegalo)
         {
-            List<OCRD_E> lista = new List<OCRD_E>();
-            HanaConnection hcn = new HanaConnection(uti.cadHana);
-            try
+            List<ReporteRegalos> lista = new List<ReporteRegalos>();
+
+            using (SqlConnection cn = new SqlConnection(uti.cadSql))
             {
-                hcn.Open();
-                HanaCommand hcmd = new HanaCommand("SELECT DISTINCT \"CardCode\",\"CardName\" FROM " + uti.schemaHana + "ORDR WHERE \"DocDate\" " +
-                    "BETWEEN ADD_DAYS('" + Fecha + "',0) AND '" + Fecha + "' ORDER BY \"CardName\"", hcn);
-                HanaDataReader hdr = hcmd.ExecuteReader();
-                while (hdr.Read())
+                string query = "EXEC vt.ReporteRegalosCliente @FechaTicket, @EstadoTicket, @EstadoRegalo";
+                SqlCommand cmd = new SqlCommand(query, cn);
+
+                // Parámetro @FechaTicket
+                if (fechaTicket == null || fechaTicket.Trim() == "")
                 {
-                    OCRD_E c = new OCRD_E();
-                    c.CardCode = hdr.GetString(0);
-                    c.CardName = hdr.GetString(1);
-                    lista.Add(c);
+                    cmd.Parameters.AddWithValue("@FechaTicket", DBNull.Value);
                 }
-                hdr.Close();
-                hcn.Close();
-            }
-            catch { hcn.Close(); }
-            return lista;
-        }
-        public List<RTV3_E> listarDirDestinos(string CardCode)
-        {
-            List<RTV3_E> lista = new List<RTV3_E>();
-            HanaConnection hcn = new HanaConnection(uti.cadHana);
-            try
-            {
-                hcn.Open();
-                HanaCommand hcmd = new HanaCommand("select \"Address\"||': '||ifnull(\"Street\",'')||' '||ifnull(\"Block\",'') ||' '||ifnull(\"City\",'')||' '||ifnull(\"County\",'')as \"Dir\", \"Block\",\"City\",\"County\", \"ZipCode\", \"Street\" ,\"Address2\"  from " + uti.schemaHana + "crd1 where \"CardCode\"='" + CardCode + "' and \"Address\" like 'ENV%' ORDER BY \"LineNum\" ", hcn);
-                HanaDataReader hdr = hcmd.ExecuteReader();
-                while (hdr.Read())
+                else
                 {
-                    RTV3_E obj = new RTV3_E();
-
-                    if (!hdr.IsDBNull(0)) { obj.DirDestino = hdr.GetString(0); }
-                    if (!hdr.IsDBNull(1)) { obj.Distrito = hdr.GetString(1); }
-                    if (!hdr.IsDBNull(2)) { obj.Provincia = hdr.GetString(2); }
-                    if (!hdr.IsDBNull(3)) { obj.Departamento = hdr.GetString(3); }
-                    if (!hdr.IsDBNull(4)) { obj.Ubigeo = hdr.GetInt32(4); }
-                    if (!hdr.IsDBNull(5)) { obj.Calle = hdr.GetString(5); }
-                    if (!hdr.IsDBNull(6)) { obj.Zona = hdr.GetString(6); }
-
-                    lista.Add(obj);
+                    cmd.Parameters.AddWithValue("@FechaTicket", fechaTicket);
                 }
-                hdr.Close();
-                hcn.Close();
-            }
-            catch { hcn.Close(); }
-            return lista;
-        }
-        public List<OrdenDeVenta_E> ListarOrdenesdeVenta(string fecha, string cardCode, int docNum)
-        {
-            var lista = new List<OrdenDeVenta_E>();
-            using (var hcn = new HanaConnection(uti.cadHana))
-            {
-                try
+
+                // Parámetro @EstadoTicket
+                if (estadoTicket == null || estadoTicket.Trim() == "")
                 {
-                    hcn.Open();
+                    cmd.Parameters.AddWithValue("@EstadoTicket", DBNull.Value);
+                }
+                else
+                {
+                    cmd.Parameters.AddWithValue("@EstadoTicket", estadoTicket);
+                }
 
-                    var query = $@"
-                SELECT T0.""DocNum"",
-                       S.""SlpName"",
-                       T0.""DocTotal"",
-                       L.""Name"",
-                       T1.""WhsCode"",
-                       P.""PymntGroup""
-                FROM {uti.schemaHana}ORDR T0
-                INNER JOIN {uti.schemaHana}RDR1 T1 ON T1.""DocEntry"" = T0.""DocEntry""
-                INNER JOIN {uti.schemaHana}OSLP S ON S.""SlpCode"" = T0.""SlpCode""
-                INNER JOIN {uti.schemaHana}""@COB_LUG_ENTREGA"" L ON L.""Code"" = T0.""U_COB_LUGAREN""
-                INNER JOIN {uti.schemaHana}OCTG P ON P.""GroupNum"" = T0.""GroupNum""
-                WHERE T0.""DocDate"" = '{fecha}'
-                  AND T0.""CardCode"" = '{cardCode}'
-                  AND T0.""Comments"" ='{docNum}'
-                  AND T0.""CANCELED"" = 'N'
-                GROUP BY T0.""DocEntry"", T0.""DocNum"", T0.""SlpCode"", T0.""DocTotal"",
-                         T0.""U_COB_LUGAREN"", T1.""WhsCode"", T0.""DocDate"", T0.""CardCode"", T0.""GroupNum"",
-                         S.""SlpName"", L.""Name"", P.""PymntGroup""
-                ORDER BY T0.""DocDate"", T0.""CardCode"", T0.""DocEntry""";
-
-                    var hcmd = new HanaCommand(query, hcn);
+                // Parámetro @EstadoRegalo
+                if (estadoRegalo == null || estadoRegalo.Trim() == "")
+                {
+                    cmd.Parameters.AddWithValue("@EstadoRegalo", DBNull.Value);
+                }
+                else
+                {
+                    cmd.Parameters.AddWithValue("@EstadoRegalo", estadoRegalo);
+                }
 
 
-                    using (var hdr = hcmd.ExecuteReader())
+                cn.Open();
+
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    if (dr.HasRows)
                     {
-                        while (hdr.Read())
+                        while (dr.Read())
                         {
-                            var o = new OrdenDeVenta_E
+                            ReporteRegalos ticket = new ReporteRegalos
                             {
-                                DocNum = hdr.GetInt32(0),
-                                CardCode = cardCode,
-                                SlpName = hdr.GetString(1),
-                                DocTotal = hdr.GetDecimal(2),
-                                LugarDeEntrega = hdr.GetString(3),
-                                AlmacenSalida = hdr.GetString(4),
-                                TipoVenta = hdr.GetString(5) // Crédito, contado.
+                                DocNum = dr.IsDBNull(dr.GetOrdinal("DocNum")) ? 0 : dr.GetInt32(dr.GetOrdinal("DocNum")),
+                                FechaSapTicket = dr.IsDBNull(dr.GetOrdinal("FechaSapTicket")) ? null : dr.GetDateTime(dr.GetOrdinal("FechaSapTicket")).ToString("yyyy-MM-dd"),
+                                CardCode = dr.IsDBNull(dr.GetOrdinal("Ruc")) ? string.Empty : dr.GetString(dr.GetOrdinal("Ruc")),
+                                CardName = dr.IsDBNull(dr.GetOrdinal("Razon Social")) ? string.Empty : dr.GetString(dr.GetOrdinal("Razon Social")),
+                                Linea = dr.IsDBNull(dr.GetOrdinal("Linea")) ? 0 : dr.GetInt32(dr.GetOrdinal("Linea")),
+                                NombreRegalo = dr.IsDBNull(dr.GetOrdinal("Nombre regalo")) ? string.Empty : dr.GetString(dr.GetOrdinal("Nombre regalo")),
+                                Cantidad = dr.IsDBNull(dr.GetOrdinal("Cantidad")) ? 0 : dr.GetInt32(dr.GetOrdinal("Cantidad")),
+                                EstadoRegalo = dr.IsDBNull(dr.GetOrdinal("Estado entrega de regalo")) ? string.Empty : dr.GetString(dr.GetOrdinal("Estado entrega de regalo")),
+                                Estado = dr.IsDBNull(dr.GetOrdinal("Estado")) ? string.Empty : dr.GetString(dr.GetOrdinal("Estado"))
                             };
-
-                            lista.Add(o);
+                            lista.Add(ticket);
                         }
                     }
                 }
-                catch
-                {
-                }
             }
+
             return lista;
         }
-        public List<OrdenDeVenta_E> ListarOrdenesdeVentaFinales(string fecha, string cardCode, int docNum)
-        {
-            List<OrdenDeVenta_E> lista = new List<OrdenDeVenta_E>();
-            using (SqlConnection cn = new SqlConnection(uti.cadSql))
-            {
-                cn.Open();
 
-                //Primero se realiza un foreach de la primera lista que obtenemos de HANA para obtener la lista general con los filtros enviados
-                var ordenes = ListarOrdenesdeVenta(fecha, cardCode, docNum);
-
-                foreach (OrdenDeVenta_E o in ordenes)
-                {
-                    using (SqlCommand cmd = new SqlCommand(
-                        "select COUNT(1) from vt.ORTV T0 inner join vt.RTV2 T1 on T1.DocEntry = T0.DocEntry " +
-                        " where T0.Estado not in ('CANCELADO','ANULADO') and NroSap=@DocNum", cn)) // Consulta en la intranet tabla RTV2 para saber si la orden ya se uso.
-
-                    {
-                        cmd.Parameters.AddWithValue("@DocNum", o.DocNum);
-
-                        int count = (int)cmd.ExecuteScalar();
-                        if (count == 0)
-                        {
-                            lista.Add(o);
-                        }
-
-                    }
-                }
-            }
-            return lista;
-        }
-        //metodo usa un procedure para buscar tickets vinculados, solo se usa en la creacion y agregacion de tickets(Editar) en las hojas de ruta
-        public List<string> BuscarVinculados(int DocEntry, int DocNum)
-        {
-            List<string> listaVinculados = new List<string>();
-
-            using (SqlConnection cn = new SqlConnection(uti.cadSql))
-            {
-                cn.Open();
-                SqlCommand cmd = new SqlCommand("vt.TicketsVinculados", cn);
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@DocEntry", DocEntry);
-                cmd.Parameters.AddWithValue("@DocNum", DocNum);
-                SqlDataReader dr = cmd.ExecuteReader();
-                string vinculadosCadena;
-                while (dr.Read())
-                {
-                    if (!dr.IsDBNull(0))
-                    {
-                        vinculadosCadena = dr.GetString(0);
-                        string[] elementos = vinculadosCadena.Split(',');
-
-                        foreach (string elemento in elementos)
-                        {
-                            // Agregar el elemento a la lista si no está vacío y no existe en la lista, para evitar valores repetidos en caso lo hayan vinculado mas de una vez.
-                            if (!string.IsNullOrWhiteSpace(elemento) && !listaVinculados.Contains(elemento.Trim()))
-                            {
-                                listaVinculados.Add(elemento.Trim());
-                            }
-                        }
-                    }
-                }
-                dr.Close(); cn.Close();
-            }
-            return listaVinculados;
-        }
-        //metodo usado solo en la creacion de tickets
         public List<ORTV_E> listarTicketsSeparados(int Id)
         {
             List<ORTV_E> lista = new List<ORTV_E>();
@@ -456,16 +350,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             catch (Exception e) { throw new Exception("Error al obtener Det7 " + e.Message, e); }
             return lista;
         }
-        //metodos que cubren los diferentes estados del ticket
-        //SEPARADO
-        //ABIERTO
-        //RECIBIDO
-        //PICKEANDO
-        //PICKEADO
-        //VERIFICANDO
-        //VERIFICADO
-        //EMPACANDO
-        //EMPACADO
+        /**********************************************************************/
         public ORTV_E separarTicket(Usuario_E u)
         {
             //tipo mantenimiento AS(add separo) transaccion tipo A(add)
@@ -877,352 +762,186 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             catch { }
             return DocEntry;
         }
-        public int registrarImpresionTicket(int DocEntry, string Operario)
+        /**********************************************************************/
+        /********************** METODOS AUXILIARES privados ********************/
+        private List<OCRD_E> listarClientes(string Fecha)
         {
-            SqlConnection cn = new SqlConnection(uti.cadSql);
+            List<OCRD_E> lista = new List<OCRD_E>();
+            HanaConnection hcn = new HanaConnection(uti.cadHana);
             try
             {
-                cn.Open();
-                SqlCommand cmd = new SqlCommand("INSERT INTO vt.CC_ORTV_print VALUES (@DocEntry,getdate(),null,@Operario)", cn);
-                cmd.CommandType = CommandType.Text;
-                cmd.Parameters.AddWithValue("@DocEntry", DocEntry);
-                cmd.Parameters.AddWithValue("@Operario", Operario);
-                cmd.ExecuteNonQuery();
-                cn.Close();
-            }
-            catch { }
-            return DocEntry;
-        }
-        //metodo extraordinario para editar el ticket, *solo para supervisores de venta
-        public void editarTicketSup(int DocEntry, ORTV_E ticket)
-        {
-            SqlConnection cn = new SqlConnection(uti.cadSql);
-            try
-            {
-                string ZonaTk = string.Empty;
-                cn.Open();
-
-                switch (ticket.LugarDestino)
+                hcn.Open();
+                HanaCommand hcmd = new HanaCommand("SELECT DISTINCT \"CardCode\",\"CardName\" FROM " + uti.schemaHana + "ORDR WHERE \"DocDate\" " +
+                    "BETWEEN ADD_DAYS('" + Fecha + "',0) AND '" + Fecha + "' ORDER BY \"CardName\"", hcn);
+                HanaDataReader hdr = hcmd.ExecuteReader();
+                while (hdr.Read())
                 {
-                    case "Agencia":
-                    case "Agencia Courier":
-                        ZonaTk = "AGENCIA";
-                        break;
-                    case "Centro":
-                        ZonaTk = "CONO CENTRO";
-                        break;
-                    case "Arriola":
-                        ZonaTk = "ARRIOLA";
-                        break;
-                    case "Domicilio":
-                        ZonaTk = ticket.Zona;
-                        break;
+                    OCRD_E c = new OCRD_E();
+                    c.CardCode = hdr.GetString(0);
+                    c.CardName = hdr.GetString(1);
+                    lista.Add(c);
                 }
-
-                using (SqlCommand cmd = new SqlCommand("vt.MANT_ORTV", cn))
-                {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "USUPV");
-                    cmd.Parameters.AddWithValue("@Estado", ticket.Estado);
-                    cmd.Parameters.AddWithValue("@DocEntry", DocEntry);
-                    cmd.Parameters.AddWithValue("@DocNum", ticket.DocNum);
-                    cmd.Parameters.AddWithValue("@TipoVenta", ticket.TipoVenta);
-                    cmd.Parameters.AddWithValue("@DirDestino", ticket.DirDestino);
-                    cmd.Parameters.AddWithValue("@Zona", ZonaTk);
-                    cmd.Parameters.AddWithValue("@FormaPago", ticket.FormaPago);
-                    cmd.Parameters.AddWithValue("@Observaciones", ticket.Observaciones);
-                    cmd.Parameters.AddWithValue("@Observaciones2", ticket.Observaciones2);
-                    cmd.Parameters.AddWithValue("@Observaciones3", ticket.Observaciones3);
-                    cmd.Parameters.AddWithValue("@Operario", ticket.OpRegistro);
-                    cmd.Parameters.AddWithValue("@LugarDestino", ticket.LugarDestino);
-                    cmd.Parameters.AddWithValue("@Referencia", ticket.Referencia);
-
-                    if (ticket.LugarDestino.Equals("Agencia") || ticket.LugarDestino.Equals("Agencia Courier"))
-                    {
-                        cmd.Parameters.AddWithValue("@Agencia", ticket.Agencia);
-                        cmd.Parameters.AddWithValue("@EnvioAgencia", ticket.EnvioAgencia);
-                    }
-
-                    if (ticket.Estado.Equals("ABIERTO"))
-                    {
-                        cmd.Parameters.AddWithValue("@TiempoEntrega", ticket.TiempoEntrega);
-                    }
-
-                    if (ticket.Det1 != null && ticket.Det1.Count >= 1)
-                    {
-                        SqlParameter tbDet1 = new SqlParameter("@TPRTV1", SqlDbType.Structured);
-                        tbDet1.Value = RTV1_E.tbDetalle(ticket.Det1, ticket.DocEntry);
-                        tbDet1.TypeName = "vt.TPRTV1";
-                        cmd.Parameters.AddWithValue("@TPRTV1", tbDet1.Value);
-                    }
-                    if (ticket.Det2 != null && ticket.Det2.Count >= 1)
-                    {
-                        SqlParameter tbDet2 = new SqlParameter("@TPRTV2", SqlDbType.Structured);
-                        tbDet2.Value = RTV2_E.tbDetalle(ticket.Det2, ticket.DocEntry);
-                        tbDet2.TypeName = "vt.TPRTV2";
-                        cmd.Parameters.AddWithValue("@TPRTV2", tbDet2.Value);
-                    }
-                    if (ticket.Det3 != null && ticket.Det3.Count >= 1)
-                    {
-                        SqlParameter tbDet3 = new SqlParameter("@TPRTV3", SqlDbType.Structured);
-                        tbDet3.Value = RTV3_E.tbDetalle(ticket.Det3, ticket.DocEntry);
-                        tbDet3.TypeName = "vt.TPRTV3";
-                        cmd.Parameters.AddWithValue("@TPRTV3", tbDet3.Value);
-                    }
-                    // Si el ticket tiene vinculación "SI" en su campo Observaciones2 se mandan los datos de RTV7
-                    if (ticket.Observaciones2 == "SI" && ticket.Det7 != null && ticket.Det7.Count >= 1)
-                    {
-                        SqlParameter tbDet7 = new SqlParameter("@TPRTV7", SqlDbType.Structured);
-                        tbDet7.Value = RTV7_E.GenerarDataTable(ticket.Det7, ticket.DocEntry);
-                        tbDet7.TypeName = "vt.TPRTV7";
-                        cmd.Parameters.AddWithValue("@TPRTV7", tbDet7.Value);
-                    }
-
-                    cmd.ExecuteNonQuery();
-                }
+                hdr.Close();
+                hcn.Close();
             }
-            catch (Exception e)
-            {
-                throw new Exception("Error en edición: " + e.Message);
-            }
-        }
-        public int pagarTicket(int DocEntry, ORTV_E ticket)
-        {   // tipo UPG update pago
-            int status = -1;
-            ORTV_E auxTK = ObtenerDatosCompletosTicket(DocEntry);
-            SqlConnection cn = new SqlConnection(uti.cadSql);
-            try
-            {
-                cn.Open();
-                SqlTransaction tran = cn.BeginTransaction("transaccion1");
-                try
-                {
-                    SqlCommand cmd = new SqlCommand("vt.MANT_ORTV", cn);
-                    cmd.Transaction = tran;
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "UPG");
-                    cmd.Parameters.AddWithValue("@DocEntry", DocEntry);
-                    cmd.Parameters.AddWithValue("@DocNum", ticket.DocNum);
-                    cmd.Parameters.AddWithValue("@FormaPago", ticket.FormaPago);
-                    cmd.Parameters.AddWithValue("@MontoRecibido", ticket.MontoRecibido);
-                    cmd.Parameters.AddWithValue("@CodSapCajero", ticket.CodSapCajero);
-                    cmd.Parameters.AddWithValue("@Cajero", ticket.Cajero);
-                    cmd.Parameters.AddWithValue("@Estado", ticket.Estado);
-                    cmd.ExecuteNonQuery();
-                    status = ticket.DocNum;
-
-                    if (auxTK.CardCode != null && auxTK.CardName != null)
-                    {
-                        SqlCommand cmd2 = new SqlCommand("vt.MANT_OLDS", cn);
-                        cmd2.Transaction = tran;
-                        cmd2.CommandType = CommandType.StoredProcedure;
-                        cmd2.Parameters.AddWithValue("@TipoMantenimiento", "AC");           // AC: ADD CABECERA
-                        cmd2.Parameters.AddWithValue("@C_CardCode", auxTK.CardCode);
-                        cmd2.Parameters.AddWithValue("@C_CardName", auxTK.CardName);
-                        cmd2.ExecuteNonQuery();
-
-                        if (auxTK.GastoEnvio > 0)
-                        {
-                            SqlCommand cmd3 = new SqlCommand("vt.MANT_OLDS", cn);
-                            cmd3.Transaction = tran;
-                            cmd3.CommandType = CommandType.StoredProcedure;
-                            cmd3.Parameters.AddWithValue("@TipoMantenimiento", "AD");           // AD: ADD DETALLES
-                            cmd3.Parameters.AddWithValue("@C_CardCode", auxTK.CardCode);
-                            cmd3.Parameters.AddWithValue("@FechaOpe", auxTK.FechaSapTicket);
-                            cmd3.Parameters.AddWithValue("@Operacion", ticket.FormaPago);
-                            cmd3.Parameters.AddWithValue("@DetOpe", ticket.FormaPago + " GastoEnvio, ticket:" + auxTK.DocNum + " MR:" + ticket.MontoRecibido);
-                            cmd3.Parameters.AddWithValue("@Ingreso", auxTK.GastoEnvio);
-                            cmd3.Parameters.AddWithValue("@OperarioRegistro", ticket.Cajero);
-                            cmd3.ExecuteNonQuery();
-                        }
-                    }
-                    tran.Commit();
-                    cn.Close();
-                }
-                catch { status = 0; tran.Rollback(); cn.Close(); }
-            }
-            catch (Exception e) { status = 0; cn.Close(); throw new Exception("Error en pago: " + e.Message); }
-            return status;
-        }
-        public int anularPagoTicket(int DocEntry)
-        {   //TIPO MANT UAPG UPDATE ANULAR PAGO
-            int status = -1;
-            ORTV_E auxTK = ObtenerDatosCompletosTicket(DocEntry);
-            SqlConnection cn = new SqlConnection(uti.cadSql);
-            try
-            {
-                cn.Open();
-                SqlTransaction tran = cn.BeginTransaction("transaccion1");
-                try
-                {
-                    SqlCommand cmd = new SqlCommand("vt.MANT_ORTV", cn);
-                    cmd.Transaction = tran;
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "UAPG");
-                    cmd.Parameters.AddWithValue("@DocEntry", DocEntry);
-                    cmd.Parameters.AddWithValue("@DocNum", auxTK.DocNum);
-                    cmd.Parameters.AddWithValue("@Estado", auxTK.Estado);
-                    cmd.ExecuteNonQuery();
-                    //status = int.Parse(cmd.Parameters["@DocNum"].Value.ToString());
-                    status = auxTK.DocNum;
-
-                    if (auxTK.CardCode != null && auxTK.CardName != null)
-                    {
-                        SqlCommand cmd2 = new SqlCommand("vt.MANT_OLDS", cn);
-                        cmd2.Transaction = tran;
-                        cmd2.CommandType = CommandType.StoredProcedure;
-                        cmd2.Parameters.AddWithValue("@TipoMantenimiento", "AC");       // ADD CABECERA
-                        cmd2.Parameters.AddWithValue("@C_CardCode", auxTK.CardCode);
-                        cmd2.Parameters.AddWithValue("@C_CardName", auxTK.CardName);
-                        cmd2.ExecuteNonQuery();
-
-                        if (auxTK.GastoEnvio > 0)
-                        {
-                            SqlCommand cmd3 = new SqlCommand("vt.MANT_OLDS", cn);
-                            cmd3.Transaction = tran;
-                            cmd3.CommandType = CommandType.StoredProcedure;
-                            cmd3.Parameters.AddWithValue("@TipoMantenimiento", "AD");
-                            cmd3.Parameters.AddWithValue("@C_CardCode", auxTK.CardCode);
-                            cmd3.Parameters.AddWithValue("@FechaOpe", auxTK.FechaPago);
-                            cmd3.Parameters.AddWithValue("@Operacion", "ANULACIONPAGO");
-                            cmd3.Parameters.AddWithValue("@DetOpe", "ANULACIONPAGO GastoEnvio, ticket:" + auxTK.DocNum + " MR:" + auxTK.MontoRecibido);
-                            cmd3.Parameters.AddWithValue("@Egreso", auxTK.GastoEnvio);
-                            cmd3.Parameters.AddWithValue("@OperarioRegistro", auxTK.Vendedor);
-                            cmd3.ExecuteNonQuery();
-                        }
-                    }
-                    tran.Commit();
-                    cn.Close();
-                }
-                catch { status = 0; tran.Rollback(); cn.Close(); }
-            }
-            catch (Exception e) { status = 0; cn.Close(); throw new Exception("Error de anularpago: " + e.Message); }
-            return status;
-        }
-        public List<Rpt_TicketVenta_E> listarTicketsAgencia()
-        {
-            List<Rpt_TicketVenta_E> lista = new List<Rpt_TicketVenta_E>();
-            //SqlConnection cn = new SqlConnection(uti.cadSql);
-            try
-            {
-                //cn.Open();// SqlTransaction tran = cn.BeginTransaction("transaccion1");
-                SqlDataReader dr = db.ExecuteReader("RptFormatoAgencia");
-                while (dr.Read())
-                {
-                    Rpt_TicketVenta_E t = new Rpt_TicketVenta_E();
-                    if (!dr.IsDBNull(0)) { t.Almacen = dr.GetString(0); }
-                    if (!dr.IsDBNull(1)) { t.GastoEnvio = dr.GetDecimal(1); }
-                    if (!dr.IsDBNull(2)) { t.DocEntry = dr.GetInt32(2); }
-                    if (!dr.IsDBNull(3)) { t.Observaciones2 = dr.GetString(3); }
-                    if (!dr.IsDBNull(4)) { t.CardName = dr.GetString(4); }
-                    if (!dr.IsDBNull(5)) { t.NombrePer1 = dr.GetString(5); }
-                    if (!dr.IsDBNull(6)) { t.DocPer1 = dr.GetString(6); }
-                    if (!dr.IsDBNull(7)) { t.TelfPer1 = dr.GetString(7); }
-                    if (!dr.IsDBNull(8)) { t.PropietarioDesc = dr.GetString(8); }
-                    if (!dr.IsDBNull(9)) { t.Agencia = dr.GetString(9); }
-                    if (!dr.IsDBNull(10)) { t.DirDestino1 = dr.GetString(10); }
-                    if (!dr.IsDBNull(11)) { t.DirDestino2 = dr.GetString(11); }
-                    if (!dr.IsDBNull(12)) { t.Cajas = dr.GetInt32(12); }
-
-                    lista.Add(t);
-                }
-                dr.Close();
-
-            }
-            catch { }
-
+            catch { hcn.Close(); }
             return lista;
         }
-        public int cancelarTicket(int DocEntry, string Estado, string Operario)
-        {   //tipo mant UAN
-            int status = -1;
-            ORTV_E auxTK = ObtenerDatosCompletosTicket(DocEntry);
-            SqlConnection cn = new SqlConnection(uti.cadSql);
+        private List<RTV3_E> listarDirDestinos(string CardCode)
+        {
+            List<RTV3_E> lista = new List<RTV3_E>();
+            HanaConnection hcn = new HanaConnection(uti.cadHana);
             try
             {
-                cn.Open();
-                SqlTransaction tran = cn.BeginTransaction();
+                hcn.Open();
+                HanaCommand hcmd = new HanaCommand("select \"Address\"||': '||ifnull(\"Street\",'')||' '||ifnull(\"Block\",'') ||' '||ifnull(\"City\",'')||' '||ifnull(\"County\",'')as \"Dir\", \"Block\",\"City\",\"County\", \"ZipCode\", \"Street\" ,\"Address2\"  from " + uti.schemaHana + "crd1 where \"CardCode\"='" + CardCode + "' and \"Address\" like 'ENV%' ORDER BY \"LineNum\" ", hcn);
+                HanaDataReader hdr = hcmd.ExecuteReader();
+                while (hdr.Read())
+                {
+                    RTV3_E obj = new RTV3_E();
+
+                    if (!hdr.IsDBNull(0)) { obj.DirDestino = hdr.GetString(0); }
+                    if (!hdr.IsDBNull(1)) { obj.Distrito = hdr.GetString(1); }
+                    if (!hdr.IsDBNull(2)) { obj.Provincia = hdr.GetString(2); }
+                    if (!hdr.IsDBNull(3)) { obj.Departamento = hdr.GetString(3); }
+                    if (!hdr.IsDBNull(4)) { obj.Ubigeo = hdr.GetInt32(4); }
+                    if (!hdr.IsDBNull(5)) { obj.Calle = hdr.GetString(5); }
+                    if (!hdr.IsDBNull(6)) { obj.Zona = hdr.GetString(6); }
+
+                    lista.Add(obj);
+                }
+                hdr.Close();
+                hcn.Close();
+            }
+            catch { hcn.Close(); }
+            return lista;
+        }
+        private List<OrdenDeVenta_E> ListarOrdenesdeVenta(string fecha, string cardCode, int docNum)
+        {
+            var lista = new List<OrdenDeVenta_E>();
+            using (var hcn = new HanaConnection(uti.cadHana))
+            {
                 try
                 {
-                    SqlCommand cmd = new SqlCommand("vt.MANT_ORTV", cn);
-                    cmd.Transaction = tran;
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "UCA");           // update cancelar ticket
-                    cmd.Parameters.AddWithValue("@DocEntry", DocEntry);
-                    cmd.Parameters.AddWithValue("@DocNum", auxTK.DocNum);
-                    cmd.Parameters.AddWithValue("@Operario", Operario);
-                    cmd.Parameters.AddWithValue("@Estado", Estado);
-                    cmd.ExecuteNonQuery();
-                    status = auxTK.DocNum;
+                    hcn.Open();
 
-                    if (auxTK.CardCode != null && auxTK.CardName != null)
+                    var query = $@"
+                SELECT T0.""DocNum"",
+                       S.""SlpName"",
+                       T0.""DocTotal"",
+                       L.""Name"",
+                       T1.""WhsCode"",
+                       P.""PymntGroup""
+                FROM {uti.schemaHana}ORDR T0
+                INNER JOIN {uti.schemaHana}RDR1 T1 ON T1.""DocEntry"" = T0.""DocEntry""
+                INNER JOIN {uti.schemaHana}OSLP S ON S.""SlpCode"" = T0.""SlpCode""
+                INNER JOIN {uti.schemaHana}""@COB_LUG_ENTREGA"" L ON L.""Code"" = T0.""U_COB_LUGAREN""
+                INNER JOIN {uti.schemaHana}OCTG P ON P.""GroupNum"" = T0.""GroupNum""
+                WHERE T0.""DocDate"" = '{fecha}'
+                  AND T0.""CardCode"" = '{cardCode}'
+                  AND T0.""Comments"" ='{docNum}'
+                  AND T0.""CANCELED"" = 'N'
+                GROUP BY T0.""DocEntry"", T0.""DocNum"", T0.""SlpCode"", T0.""DocTotal"",
+                         T0.""U_COB_LUGAREN"", T1.""WhsCode"", T0.""DocDate"", T0.""CardCode"", T0.""GroupNum"",
+                         S.""SlpName"", L.""Name"", P.""PymntGroup""
+                ORDER BY T0.""DocDate"", T0.""CardCode"", T0.""DocEntry""";
+
+                    var hcmd = new HanaCommand(query, hcn);
+
+
+                    using (var hdr = hcmd.ExecuteReader())
                     {
-                        SqlCommand cmd2 = new SqlCommand("vt.MANT_OLDS", cn);
-                        cmd2.Transaction = tran;
-                        cmd2.CommandType = CommandType.StoredProcedure;
-                        cmd2.Parameters.AddWithValue("@TipoMantenimiento", "AC");
-                        cmd2.Parameters.AddWithValue("@C_CardCode", auxTK.CardCode);
-                        cmd2.Parameters.AddWithValue("@C_CardName", auxTK.CardName);
-                        cmd2.ExecuteNonQuery();
-                        if (auxTK.DeudaCliente > 0)
+                        while (hdr.Read())
                         {
-                            SqlCommand cmd4 = new SqlCommand("vt.MANT_OLDS", cn);
-                            cmd4.Transaction = tran;
-                            cmd4.CommandType = CommandType.StoredProcedure;
-                            cmd4.Parameters.AddWithValue("@TipoMantenimiento", "AD");
-                            cmd4.Parameters.AddWithValue("@C_CardCode", auxTK.CardCode);
-                            cmd4.Parameters.AddWithValue("@FechaOpe", auxTK.FechaSapTicket);
-                            cmd4.Parameters.AddWithValue("@Operacion", "ANULACIONVENTA");
-                            cmd4.Parameters.AddWithValue("@DetOpe", "ANULACIONVENTA DeudaCliente, ticket:" + auxTK.DocNum + " MR:" + auxTK.MontoFinal);
-                            cmd4.Parameters.AddWithValue("@Egreso", auxTK.DeudaCliente);
-                            cmd4.Parameters.AddWithValue("@OperarioRegistro", Operario);
-                            cmd4.ExecuteNonQuery();
-                        }
-                        if (auxTK.DeudaEmpresa > 0)
-                        {
-                            SqlCommand cmd5 = new SqlCommand("vt.MANT_OLDS", cn);
-                            cmd5.Transaction = tran;
-                            cmd5.CommandType = CommandType.StoredProcedure;
-                            cmd5.Parameters.AddWithValue("@TipoMantenimiento", "AD");
-                            cmd5.Parameters.AddWithValue("@C_CardCode", auxTK.CardCode);
-                            cmd5.Parameters.AddWithValue("@FechaOpe", auxTK.FechaSapTicket);
-                            cmd5.Parameters.AddWithValue("@Operacion", "ANULACIONVENTA");
-                            cmd5.Parameters.AddWithValue("@DetOpe", "ANULACION-SALIDASALDO DeudaEmpresa, ticket:" + auxTK.DocNum + " MR:" + auxTK.MontoFinal);
-                            cmd5.Parameters.AddWithValue("@Ingreso", auxTK.DeudaEmpresa);
-                            cmd5.Parameters.AddWithValue("@OperarioRegistro", Operario);
-                            cmd5.ExecuteNonQuery();
+                            var o = new OrdenDeVenta_E
+                            {
+                                DocNum = hdr.GetInt32(0),
+                                CardCode = cardCode,
+                                SlpName = hdr.GetString(1),
+                                DocTotal = hdr.GetDecimal(2),
+                                LugarDeEntrega = hdr.GetString(3),
+                                AlmacenSalida = hdr.GetString(4),
+                                TipoVenta = hdr.GetString(5) // Crédito, contado.
+                            };
+
+                            lista.Add(o);
                         }
                     }
-
-                    tran.Commit();
-                    cn.Close();
                 }
-                catch (Exception e1) { tran.Rollback(); cn.Close(); throw new Exception("error y anulacion: " + e1.Message); }
-            }
-
-            catch (Exception e2) { status = 0; cn.Close(); throw new Exception("Error en anulacion: " + e2.Message); }
-
-            if (status >= 1)
-            {
-                //Operaciones para regalos
-                if (auxTK.Det5 != null && auxTK.Det5.Count >= 1)
+                catch
                 {
-                    if (auxTK.Det5[0].IdReg > 0 && auxTK.Det5[0].RegCant > 0)
+                }
+            }
+            return lista;
+        }
+        private List<OrdenDeVenta_E> ListarOrdenesdeVentaFinales(string fecha, string cardCode, int docNum)
+        {
+            List<OrdenDeVenta_E> lista = new List<OrdenDeVenta_E>();
+            using (SqlConnection cn = new SqlConnection(uti.cadSql))
+            {
+                cn.Open();
+
+                //Primero se realiza un foreach de la primera lista que obtenemos de HANA para obtener la lista general con los filtros enviados
+                var ordenes = ListarOrdenesdeVenta(fecha, cardCode, docNum);
+
+                foreach (OrdenDeVenta_E o in ordenes)
+                {
+                    using (SqlCommand cmd = new SqlCommand(
+                        "select COUNT(1) from vt.ORTV T0 inner join vt.RTV2 T1 on T1.DocEntry = T0.DocEntry " +
+                        " where T0.Estado not in ('CANCELADO','ANULADO') and NroSap=@DocNum", cn)) // Consulta en la intranet tabla RTV2 para saber si la orden ya se uso.
+
                     {
-                        OREG_D oregD = new OREG_D();
-                        auxTK.Det5[0].RegCant = -1 * auxTK.Det5[0].RegCant;
-                        oregD.CompromisosStock(auxTK);
+                        cmd.Parameters.AddWithValue("@DocNum", o.DocNum);
+
+                        int count = (int)cmd.ExecuteScalar();
+                        if (count == 0)
+                        {
+                            lista.Add(o);
+                        }
+
                     }
                 }
             }
-
-            return status;
+            return lista;
         }
-        /*
-		 * Descripción: Método para editar el estado del ticket desde el view SeguimientoDeTicket
-		 * Parámetros: (int) @docEntry, (string) @tipoMantenimiento
-		 * Usos: SeguimientoDeTicket
-		 */
+        /***********************************************************************/
+        //Método usa un procedure para buscar tickets vinculados, solo se usa en el REGISTRO Y EDICION de la hoja de repartos
+        public List<string> BuscarVinculados(int DocEntry, int DocNum)
+        {
+            List<string> listaVinculados = new List<string>();
+
+            using (SqlConnection cn = new SqlConnection(uti.cadSql))
+            {
+                cn.Open();
+                SqlCommand cmd = new SqlCommand("vt.TicketsVinculados", cn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@DocEntry", DocEntry);
+                cmd.Parameters.AddWithValue("@DocNum", DocNum);
+                SqlDataReader dr = cmd.ExecuteReader();
+                string vinculadosCadena;
+                while (dr.Read())
+                {
+                    if (!dr.IsDBNull(0))
+                    {
+                        vinculadosCadena = dr.GetString(0);
+                        string[] elementos = vinculadosCadena.Split(',');
+
+                        foreach (string elemento in elementos)
+                        {
+                            // Agregar el elemento a la lista si no está vacío y no existe en la lista, para evitar valores repetidos en caso lo hayan vinculado mas de una vez.
+                            if (!string.IsNullOrWhiteSpace(elemento) && !listaVinculados.Contains(elemento.Trim()))
+                            {
+                                listaVinculados.Add(elemento.Trim());
+                            }
+                        }
+                    }
+                }
+                dr.Close(); cn.Close();
+            }
+            return listaVinculados;
+        }
+        /***********************************************************************/
+        /************** METODOS PRICIPALES QUE GENERAN TRANSACCION *************/
         public int EditarTicketDesdeSeguimiento(Dictionary<string, Object> datos)
         {
             int docNum = -1;
@@ -1487,6 +1206,359 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 
             return status;
         }
+        public int registrarImpresionTicket(int DocEntry, string Operario)
+        {
+            SqlConnection cn = new SqlConnection(uti.cadSql);
+            try
+            {
+                cn.Open();
+                SqlCommand cmd = new SqlCommand("INSERT INTO vt.CC_ORTV_print VALUES (@DocEntry,getdate(),null,@Operario)", cn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.AddWithValue("@DocEntry", DocEntry);
+                cmd.Parameters.AddWithValue("@Operario", Operario);
+                cmd.ExecuteNonQuery();
+                cn.Close();
+            }
+            catch { }
+            return DocEntry;
+        }
+        public void editarTicketSup(int DocEntry, ORTV_E ticket)
+        {
+            SqlConnection cn = new SqlConnection(uti.cadSql);
+            try
+            {
+                string ZonaTk = string.Empty;
+                cn.Open();
+
+                switch (ticket.LugarDestino)
+                {
+                    case "Agencia":
+                    case "Agencia Courier":
+                        ZonaTk = "AGENCIA";
+                        break;
+                    case "Centro":
+                        ZonaTk = "CONO CENTRO";
+                        break;
+                    case "Arriola":
+                        ZonaTk = "ARRIOLA";
+                        break;
+                    case "Domicilio":
+                        ZonaTk = ticket.Zona;
+                        break;
+                }
+
+                using (SqlCommand cmd = new SqlCommand("vt.MANT_ORTV", cn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "USUPV");
+                    cmd.Parameters.AddWithValue("@Estado", ticket.Estado);
+                    cmd.Parameters.AddWithValue("@DocEntry", DocEntry);
+                    cmd.Parameters.AddWithValue("@DocNum", ticket.DocNum);
+                    cmd.Parameters.AddWithValue("@TipoVenta", ticket.TipoVenta);
+                    cmd.Parameters.AddWithValue("@DirDestino", ticket.DirDestino);
+                    cmd.Parameters.AddWithValue("@Zona", ZonaTk);
+                    cmd.Parameters.AddWithValue("@FormaPago", ticket.FormaPago);
+                    cmd.Parameters.AddWithValue("@Observaciones", ticket.Observaciones);
+                    cmd.Parameters.AddWithValue("@Observaciones2", ticket.Observaciones2);
+                    cmd.Parameters.AddWithValue("@Observaciones3", ticket.Observaciones3);
+                    cmd.Parameters.AddWithValue("@Operario", ticket.OpRegistro);
+                    cmd.Parameters.AddWithValue("@LugarDestino", ticket.LugarDestino);
+                    cmd.Parameters.AddWithValue("@Referencia", ticket.Referencia);
+
+                    if (ticket.LugarDestino.Equals("Agencia") || ticket.LugarDestino.Equals("Agencia Courier"))
+                    {
+                        cmd.Parameters.AddWithValue("@Agencia", ticket.Agencia);
+                        cmd.Parameters.AddWithValue("@EnvioAgencia", ticket.EnvioAgencia);
+                    }
+
+                    if (ticket.Estado.Equals("ABIERTO"))
+                    {
+                        cmd.Parameters.AddWithValue("@TiempoEntrega", ticket.TiempoEntrega);
+                    }
+
+                    if (ticket.Det1 != null && ticket.Det1.Count >= 1)
+                    {
+                        SqlParameter tbDet1 = new SqlParameter("@TPRTV1", SqlDbType.Structured);
+                        tbDet1.Value = RTV1_E.tbDetalle(ticket.Det1, ticket.DocEntry);
+                        tbDet1.TypeName = "vt.TPRTV1";
+                        cmd.Parameters.AddWithValue("@TPRTV1", tbDet1.Value);
+                    }
+                    if (ticket.Det2 != null && ticket.Det2.Count >= 1)
+                    {
+                        SqlParameter tbDet2 = new SqlParameter("@TPRTV2", SqlDbType.Structured);
+                        tbDet2.Value = RTV2_E.tbDetalle(ticket.Det2, ticket.DocEntry);
+                        tbDet2.TypeName = "vt.TPRTV2";
+                        cmd.Parameters.AddWithValue("@TPRTV2", tbDet2.Value);
+                    }
+                    if (ticket.Det3 != null && ticket.Det3.Count >= 1)
+                    {
+                        SqlParameter tbDet3 = new SqlParameter("@TPRTV3", SqlDbType.Structured);
+                        tbDet3.Value = RTV3_E.tbDetalle(ticket.Det3, ticket.DocEntry);
+                        tbDet3.TypeName = "vt.TPRTV3";
+                        cmd.Parameters.AddWithValue("@TPRTV3", tbDet3.Value);
+                    }
+                    // Si el ticket tiene vinculación "SI" en su campo Observaciones2 se mandan los datos de RTV7
+                    if (ticket.Observaciones2 == "SI" && ticket.Det7 != null && ticket.Det7.Count >= 1)
+                    {
+                        SqlParameter tbDet7 = new SqlParameter("@TPRTV7", SqlDbType.Structured);
+                        tbDet7.Value = RTV7_E.GenerarDataTable(ticket.Det7, ticket.DocEntry);
+                        tbDet7.TypeName = "vt.TPRTV7";
+                        cmd.Parameters.AddWithValue("@TPRTV7", tbDet7.Value);
+                    }
+
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Error en edición: " + e.Message);
+            }
+        }
+        /**********************************************************************/
+        /******************** METODOS PRINCIPALES EN MODULOS ******************/
+
+
+
+
+
+        public int pagarTicket(int DocEntry, ORTV_E ticket)
+        {   // tipo UPG update pago
+            int status = -1;
+            ORTV_E auxTK = ObtenerDatosCompletosTicket(DocEntry);
+            SqlConnection cn = new SqlConnection(uti.cadSql);
+            try
+            {
+                cn.Open();
+                SqlTransaction tran = cn.BeginTransaction("transaccion1");
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("vt.MANT_ORTV", cn);
+                    cmd.Transaction = tran;
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "UPG");
+                    cmd.Parameters.AddWithValue("@DocEntry", DocEntry);
+                    cmd.Parameters.AddWithValue("@DocNum", ticket.DocNum);
+                    cmd.Parameters.AddWithValue("@FormaPago", ticket.FormaPago);
+                    cmd.Parameters.AddWithValue("@MontoRecibido", ticket.MontoRecibido);
+                    cmd.Parameters.AddWithValue("@CodSapCajero", ticket.CodSapCajero);
+                    cmd.Parameters.AddWithValue("@Cajero", ticket.Cajero);
+                    cmd.Parameters.AddWithValue("@Estado", ticket.Estado);
+                    cmd.ExecuteNonQuery();
+                    status = ticket.DocNum;
+
+                    if (auxTK.CardCode != null && auxTK.CardName != null)
+                    {
+                        SqlCommand cmd2 = new SqlCommand("vt.MANT_OLDS", cn);
+                        cmd2.Transaction = tran;
+                        cmd2.CommandType = CommandType.StoredProcedure;
+                        cmd2.Parameters.AddWithValue("@TipoMantenimiento", "AC");           // AC: ADD CABECERA
+                        cmd2.Parameters.AddWithValue("@C_CardCode", auxTK.CardCode);
+                        cmd2.Parameters.AddWithValue("@C_CardName", auxTK.CardName);
+                        cmd2.ExecuteNonQuery();
+
+                        if (auxTK.GastoEnvio > 0)
+                        {
+                            SqlCommand cmd3 = new SqlCommand("vt.MANT_OLDS", cn);
+                            cmd3.Transaction = tran;
+                            cmd3.CommandType = CommandType.StoredProcedure;
+                            cmd3.Parameters.AddWithValue("@TipoMantenimiento", "AD");           // AD: ADD DETALLES
+                            cmd3.Parameters.AddWithValue("@C_CardCode", auxTK.CardCode);
+                            cmd3.Parameters.AddWithValue("@FechaOpe", auxTK.FechaSapTicket);
+                            cmd3.Parameters.AddWithValue("@Operacion", ticket.FormaPago);
+                            cmd3.Parameters.AddWithValue("@DetOpe", ticket.FormaPago + " GastoEnvio, ticket:" + auxTK.DocNum + " MR:" + ticket.MontoRecibido);
+                            cmd3.Parameters.AddWithValue("@Ingreso", auxTK.GastoEnvio);
+                            cmd3.Parameters.AddWithValue("@OperarioRegistro", ticket.Cajero);
+                            cmd3.ExecuteNonQuery();
+                        }
+                    }
+                    tran.Commit();
+                    cn.Close();
+                }
+                catch { status = 0; tran.Rollback(); cn.Close(); }
+            }
+            catch (Exception e) { status = 0; cn.Close(); throw new Exception("Error en pago: " + e.Message); }
+            return status;
+        }
+        public int anularPagoTicket(int DocEntry)
+        {   //TIPO MANT UAPG UPDATE ANULAR PAGO
+            int status = -1;
+            ORTV_E auxTK = ObtenerDatosCompletosTicket(DocEntry);
+            SqlConnection cn = new SqlConnection(uti.cadSql);
+            try
+            {
+                cn.Open();
+                SqlTransaction tran = cn.BeginTransaction("transaccion1");
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("vt.MANT_ORTV", cn);
+                    cmd.Transaction = tran;
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "UAPG");
+                    cmd.Parameters.AddWithValue("@DocEntry", DocEntry);
+                    cmd.Parameters.AddWithValue("@DocNum", auxTK.DocNum);
+                    cmd.Parameters.AddWithValue("@Estado", auxTK.Estado);
+                    cmd.ExecuteNonQuery();
+                    //status = int.Parse(cmd.Parameters["@DocNum"].Value.ToString());
+                    status = auxTK.DocNum;
+
+                    if (auxTK.CardCode != null && auxTK.CardName != null)
+                    {
+                        SqlCommand cmd2 = new SqlCommand("vt.MANT_OLDS", cn);
+                        cmd2.Transaction = tran;
+                        cmd2.CommandType = CommandType.StoredProcedure;
+                        cmd2.Parameters.AddWithValue("@TipoMantenimiento", "AC");       // ADD CABECERA
+                        cmd2.Parameters.AddWithValue("@C_CardCode", auxTK.CardCode);
+                        cmd2.Parameters.AddWithValue("@C_CardName", auxTK.CardName);
+                        cmd2.ExecuteNonQuery();
+
+                        if (auxTK.GastoEnvio > 0)
+                        {
+                            SqlCommand cmd3 = new SqlCommand("vt.MANT_OLDS", cn);
+                            cmd3.Transaction = tran;
+                            cmd3.CommandType = CommandType.StoredProcedure;
+                            cmd3.Parameters.AddWithValue("@TipoMantenimiento", "AD");
+                            cmd3.Parameters.AddWithValue("@C_CardCode", auxTK.CardCode);
+                            cmd3.Parameters.AddWithValue("@FechaOpe", auxTK.FechaPago);
+                            cmd3.Parameters.AddWithValue("@Operacion", "ANULACIONPAGO");
+                            cmd3.Parameters.AddWithValue("@DetOpe", "ANULACIONPAGO GastoEnvio, ticket:" + auxTK.DocNum + " MR:" + auxTK.MontoRecibido);
+                            cmd3.Parameters.AddWithValue("@Egreso", auxTK.GastoEnvio);
+                            cmd3.Parameters.AddWithValue("@OperarioRegistro", auxTK.Vendedor);
+                            cmd3.ExecuteNonQuery();
+                        }
+                    }
+                    tran.Commit();
+                    cn.Close();
+                }
+                catch { status = 0; tran.Rollback(); cn.Close(); }
+            }
+            catch (Exception e) { status = 0; cn.Close(); throw new Exception("Error de anularpago: " + e.Message); }
+            return status;
+        }
+        public List<Rpt_TicketVenta_E> listarTicketsAgencia()
+        {
+            List<Rpt_TicketVenta_E> lista = new List<Rpt_TicketVenta_E>();
+            //SqlConnection cn = new SqlConnection(uti.cadSql);
+            try
+            {
+                //cn.Open();// SqlTransaction tran = cn.BeginTransaction("transaccion1");
+                SqlDataReader dr = db.ExecuteReader("RptFormatoAgencia");
+                while (dr.Read())
+                {
+                    Rpt_TicketVenta_E t = new Rpt_TicketVenta_E();
+                    if (!dr.IsDBNull(0)) { t.Almacen = dr.GetString(0); }
+                    if (!dr.IsDBNull(1)) { t.GastoEnvio = dr.GetDecimal(1); }
+                    if (!dr.IsDBNull(2)) { t.DocEntry = dr.GetInt32(2); }
+                    if (!dr.IsDBNull(3)) { t.Observaciones2 = dr.GetString(3); }
+                    if (!dr.IsDBNull(4)) { t.CardName = dr.GetString(4); }
+                    if (!dr.IsDBNull(5)) { t.NombrePer1 = dr.GetString(5); }
+                    if (!dr.IsDBNull(6)) { t.DocPer1 = dr.GetString(6); }
+                    if (!dr.IsDBNull(7)) { t.TelfPer1 = dr.GetString(7); }
+                    if (!dr.IsDBNull(8)) { t.PropietarioDesc = dr.GetString(8); }
+                    if (!dr.IsDBNull(9)) { t.Agencia = dr.GetString(9); }
+                    if (!dr.IsDBNull(10)) { t.DirDestino1 = dr.GetString(10); }
+                    if (!dr.IsDBNull(11)) { t.DirDestino2 = dr.GetString(11); }
+                    if (!dr.IsDBNull(12)) { t.Cajas = dr.GetInt32(12); }
+
+                    lista.Add(t);
+                }
+                dr.Close();
+
+            }
+            catch { }
+
+            return lista;
+        }
+        public int cancelarTicket(int DocEntry, string Estado, string Operario)
+        {   //tipo mant UAN
+            int status = -1;
+            ORTV_E auxTK = ObtenerDatosCompletosTicket(DocEntry);
+            SqlConnection cn = new SqlConnection(uti.cadSql);
+            try
+            {
+                cn.Open();
+                SqlTransaction tran = cn.BeginTransaction();
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("vt.MANT_ORTV", cn);
+                    cmd.Transaction = tran;
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "UCA");           // update cancelar ticket
+                    cmd.Parameters.AddWithValue("@DocEntry", DocEntry);
+                    cmd.Parameters.AddWithValue("@DocNum", auxTK.DocNum);
+                    cmd.Parameters.AddWithValue("@Operario", Operario);
+                    cmd.Parameters.AddWithValue("@Estado", Estado);
+                    cmd.ExecuteNonQuery();
+                    status = auxTK.DocNum;
+
+                    if (auxTK.CardCode != null && auxTK.CardName != null)
+                    {
+                        SqlCommand cmd2 = new SqlCommand("vt.MANT_OLDS", cn);
+                        cmd2.Transaction = tran;
+                        cmd2.CommandType = CommandType.StoredProcedure;
+                        cmd2.Parameters.AddWithValue("@TipoMantenimiento", "AC");
+                        cmd2.Parameters.AddWithValue("@C_CardCode", auxTK.CardCode);
+                        cmd2.Parameters.AddWithValue("@C_CardName", auxTK.CardName);
+                        cmd2.ExecuteNonQuery();
+                        if (auxTK.DeudaCliente > 0)
+                        {
+                            SqlCommand cmd4 = new SqlCommand("vt.MANT_OLDS", cn);
+                            cmd4.Transaction = tran;
+                            cmd4.CommandType = CommandType.StoredProcedure;
+                            cmd4.Parameters.AddWithValue("@TipoMantenimiento", "AD");
+                            cmd4.Parameters.AddWithValue("@C_CardCode", auxTK.CardCode);
+                            cmd4.Parameters.AddWithValue("@FechaOpe", auxTK.FechaSapTicket);
+                            cmd4.Parameters.AddWithValue("@Operacion", "ANULACIONVENTA");
+                            cmd4.Parameters.AddWithValue("@DetOpe", "ANULACIONVENTA DeudaCliente, ticket:" + auxTK.DocNum + " MR:" + auxTK.MontoFinal);
+                            cmd4.Parameters.AddWithValue("@Egreso", auxTK.DeudaCliente);
+                            cmd4.Parameters.AddWithValue("@OperarioRegistro", Operario);
+                            cmd4.ExecuteNonQuery();
+                        }
+                        if (auxTK.DeudaEmpresa > 0)
+                        {
+                            SqlCommand cmd5 = new SqlCommand("vt.MANT_OLDS", cn);
+                            cmd5.Transaction = tran;
+                            cmd5.CommandType = CommandType.StoredProcedure;
+                            cmd5.Parameters.AddWithValue("@TipoMantenimiento", "AD");
+                            cmd5.Parameters.AddWithValue("@C_CardCode", auxTK.CardCode);
+                            cmd5.Parameters.AddWithValue("@FechaOpe", auxTK.FechaSapTicket);
+                            cmd5.Parameters.AddWithValue("@Operacion", "ANULACIONVENTA");
+                            cmd5.Parameters.AddWithValue("@DetOpe", "ANULACION-SALIDASALDO DeudaEmpresa, ticket:" + auxTK.DocNum + " MR:" + auxTK.MontoFinal);
+                            cmd5.Parameters.AddWithValue("@Ingreso", auxTK.DeudaEmpresa);
+                            cmd5.Parameters.AddWithValue("@OperarioRegistro", Operario);
+                            cmd5.ExecuteNonQuery();
+                        }
+                    }
+
+                    tran.Commit();
+                    cn.Close();
+                }
+                catch (Exception e1) { tran.Rollback(); cn.Close(); throw new Exception("error y anulacion: " + e1.Message); }
+            }
+
+            catch (Exception e2) { status = 0; cn.Close(); throw new Exception("Error en anulacion: " + e2.Message); }
+
+            if (status >= 1)
+            {
+                //Operaciones para regalos
+                if (auxTK.Det5 != null && auxTK.Det5.Count >= 1)
+                {
+                    if (auxTK.Det5[0].IdReg > 0 && auxTK.Det5[0].RegCant > 0)
+                    {
+                        OREG_D oregD = new OREG_D();
+                        auxTK.Det5[0].RegCant = -1 * auxTK.Det5[0].RegCant;
+                        oregD.CompromisosStock(auxTK);
+                    }
+                }
+            }
+
+            return status;
+        }
+        /*
+		 * Descripción: Método para editar el estado del ticket desde el view SeguimientoDeTicket
+		 * Parámetros: (int) @docEntry, (string) @tipoMantenimiento
+		 * Usos: SeguimientoDeTicket
+		 */
+        
         public int emitirGuia(int DocEntry, Usuario_E u)
         {
             int status = -1;

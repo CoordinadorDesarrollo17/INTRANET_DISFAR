@@ -697,52 +697,16 @@
                 }
             });
         }
-        /*else if (tipoMantenimiento == 'NC') {
-            const swalWithBootstrapButtons = Swal.mixin({
-                customClass: {
-                    confirmButton: 'btn btn-success mx-4',
-                    cancelButton: 'btn btn-danger mx-4'
-                },
-                buttonsStyling: false
-            })
-
-            swalWithBootstrapButtons.fire({
-                title: '¿Está seguro(a) de aplicar NC y terminar proceso?',
-                text: "Este proceso es irreversible",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: "<i class='icon-checkmark'></i> Si, estoy seguro(a)",
-                cancelButtonText: "<i class='icon-cross'></i> Cancelar",
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: '/Almacen/CambiarEstadoDevolucion',
-                        type: 'POST',
-                        dataType: 'json',
-                        data: {
-                            'DocEntry': docEntry, 'DocNum': docNum, 'WhsCode': whsCode, 'TipoMantenimiento': tipoMantenimiento
-                        }
-                    }).done(function (response) {
-                        $('.filtrosDevolucion').val('');
-                        $('#filtro_DocNum').val(docNum);
-                        $('#tbl_listaSubmotivos').DataTable().columns.adjust().draw();
-                        Swal.fire(response.Mensaje);
-                        $('#tbl_listaDevoluciones > tbody').html(response.Lista);
-
-                    }).fail(function (jqXHR, textStatus, errorThrown) {
-                        console.log(jqXHR.status + textStatus + errorThrown);
-                    });
-                }
-            });
-        }*/
         else {
             $.ajax({
                 url: '/Almacen/CambiarEstadoDevolucion',
                 type: 'POST',
                 dataType: 'json',
                 data: {
-                    'DocEntry': docEntry, 'DocNum': docNum, 'WhsCode': whsCode, 'TipoMantenimiento': tipoMantenimiento
+                    'DocEntry': docEntry,
+                    'DocNum': docNum,
+                    'WhsCode': whsCode,
+                    'TipoMantenimiento': tipoMantenimiento
                 }
             }).done(function (response) {
                 $('.filtrosDevolucion').val('');
@@ -781,6 +745,7 @@
             console.log(jqXHR.status + textStatus + errorThrown);
         });
     }
+
     function ExportarReporteHistorico() {
         let habilitarDescarga = true;
         if ($('#EstadoReporte').val() != 'PENDIENTE DE RECOJO') {
@@ -809,6 +774,7 @@
             });
         } 
     }
+
     function cargarListaCliente(textoIngresado) {
         if (textoIngresado.length >= 5) {
             $.ajax({

@@ -31,6 +31,95 @@
         //Recarga llamando otra vez a la funcion
         filtrar();
     }
+    function ExporteReporteGeneralTicketsRegalos() {
+        // Crear el contenido del modal
+        const modalContent = `
+    <form id="formReporteRegalos">
+        <div class="form-group">
+            <label for="FechaSapTicket">Fecha SAP Ticket</label>
+            <input type="date" id="FechaSapTicket" class="form-control border-success" />
+        </div>
+        <div class="form-group">
+            <label for="EstadoTicket">Estado del Ticket</label>
+            <select id="EstadoTicket" class="form-control border-success">
+                <option value="">Seleccione</option>
+                <option value="SEPARADO">SEPARADO</option>
+                <option value="ABIERTO">ABIERTO</option>
+                <option value="RECIBIDO">RECIBIDO</option>
+                <option value="PICKEANDO">PICKEANDO</option>
+                <option value="VERIFICANDO">VERIFICANDO</option>
+                <option value="EMPACANDO">EMPACANDO</option>
+                <option value="EMPACADO">EMPACADO</option>
+                <option value="PESADO">PESADO</option>
+                <option value="PREENVIO">PREENVIO</option>
+                <option value="ENVIADO">ENVIADO</option>
+                <option value="ENTREGADO">ENTREGADO</option>
+                <option value="ANULADO">ANULADO</option>
+                <option value="CANCELADO">CANCELADO</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="EstadoRegalo">Estado del Regalo</label>
+            <select id="EstadoRegalo" class="form-control border-success">
+                <option value="">Seleccione Estado</option>
+                <option value="Pendiente">Pendiente</option>
+                <option value="Entregado">Entregado</option>
+            </select>
+        </div>
+    </form>
+`;
+
+
+        // Mostrar el modal
+        Swal.fire({
+            title: 'Reporte General de Tickets y Regalos',
+            html: modalContent,
+            showCancelButton: true,
+            confirmButtonText: 'Enviar',
+            cancelButtonText: 'Cancelar',
+            preConfirm: () => {
+                // Obtener valores de los inputs
+                const fechaTicket = document.getElementById('FechaSapTicket').value;
+                const estadoTicket = document.getElementById('EstadoTicket').value;
+                const estadoRegalo = document.getElementById('EstadoRegalo').value;
+
+                // Validar que al menos un campo esté lleno
+                if (!fechaTicket && !estadoTicket && !estadoRegalo) {
+                    Swal.showValidationMessage('Por favor, complete al menos un campo para filtrar');
+                    return false;
+                }
+
+                return { fechaTicket, estadoTicket, estadoRegalo };
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const { fechaTicket, estadoTicket, estadoRegalo } = result.value;
+                console.log(result.value);
+                // Enviar datos al servidor
+                $.ajax({
+                    url: '/Ventas/VerificarExistenciaDatos',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        'fechaTicket': fechaTicket,
+                        'estadoTicket': estadoTicket,
+                        'estadoRegalo': estadoRegalo
+                    }
+                }).done(function (response) {
+                    if (response.Mensaje !== "") {
+                        Swal.fire(response.Mensaje);
+                    } else {
+                        const params = `fechaTicket=${fechaTicket}&estadoTicket=${estadoTicket}&estadoRegalo=${estadoRegalo}`;
+                        window.open(`/Ventas/ExporteReporteGeneralTicketsRegalos?${params}`, '_blank', 'noopener, noreferrer');
+                    }
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    console.log(jqXHR.status + textStatus + errorThrown);
+                });
+            }
+        });
+    }
+
+
 </script>
 
 <div class="pt-3">
@@ -48,13 +137,14 @@
 
     <div class="row pl-2 w-100 py-1">
         <div class="d-flex col-lg-8 col-md-6 col-sm-12 col-6">
-                    <a href="@Url.Action("NuevoRegalo", "Ventas")" class="btn btn-success ml-2">
-                        <i class="icon icon-plus"> </i> Nuevo Regalo
-                    </a>
-                    <a href="@Url.Action("GestionClienteRegalos", "Ventas")" class="btn btn-info ml-2">
-                        <i class="icon icon-gift"> </i> Regalos Clientes
-                    </a>
-                    <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#filterModal"><i class="icon-filter"> </i> Filtrar</button>
+            <a href="@Url.Action("NuevoRegalo", "Ventas")" class="btn btn-success ml-2">
+                <i class="icon icon-plus"> </i> Nuevo Regalo
+            </a>
+            <a href="@Url.Action("GestionClienteRegalos", "Ventas")" class="btn btn-info ml-2">
+                <i class="icon icon-gift"> </i> Regalos Clientes
+            </a>
+            <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#filterModal"><i class="icon-filter"> </i> Filtrar</button>
+            <button type="button" class="btn btn-secondary ml-2" onclick="ExporteReporteGeneralTicketsRegalos()"><i class="icon-file-excel"></i> Generar Reporte</button>
         </div>
     </div>
 </div>

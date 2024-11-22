@@ -61,7 +61,6 @@ namespace Capa_Usuario.Controllers
         }
         /********************************************************************/
 
-        //VENTAS COMERCIAL
         protected string ResaltarTicket(string LugarDestino = "")
         {
             string colorTicket = "#FFFFFF";
@@ -118,7 +117,7 @@ namespace Capa_Usuario.Controllers
             }
         }
         //buscarTicketAVincular en TicketVenta.js
-        public JsonResult buscarTicket(int DocNum = 0)
+        public JsonResult buscarTicketAVincular(int DocNum = 0)
         {
             ORTV_N ortvN = new ORTV_N();
             ORTV_E ticket = ortvN.ObtenerTicketVenta(DocNum);
@@ -2719,8 +2718,8 @@ namespace Capa_Usuario.Controllers
                 }
                 catch (Exception e)
                 {
-                    ORTV_N ortvN = new ORTV_N();
-                    ViewBag.Mensaje = e.Message; ViewBag.Tickets = ortvN.ListarTicketsParaAtencion(); return View(obj);
+                    ViewBag.Mensaje = e.Message; 
+                    return View(obj);
                 }
             }
             else
@@ -2735,8 +2734,7 @@ namespace Capa_Usuario.Controllers
 
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                Capa_Negocio.Ventas_NEG.TablasSql.OREG_N oregN = new Capa_Negocio.Ventas_NEG.TablasSql.OREG_N();
-                ViewBag.Regalo = oregN.buscarRegalo(id);
+                ViewBag.Regalo = new Capa_Negocio.Ventas_NEG.TablasSql.OREG_N().buscarRegalo(id);
                 return View();
             }
             else
@@ -2751,18 +2749,17 @@ namespace Capa_Usuario.Controllers
 
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                Capa_Negocio.Ventas_NEG.TablasSql.OREG_N oregN = new Capa_Negocio.Ventas_NEG.TablasSql.OREG_N();
                 try
                 {
                     Usuario_E u = (Usuario_E)Session["UsuarioId"];
                     o2.Operario = $"{u.Nombres} {u.Apellidos}";
                     OREG_E o1 = new OREG_E() { Id = o2.IdReg };
-                    oregN.registrarGestionStock(o1, o2);
+                    new Capa_Negocio.Ventas_NEG.TablasSql.OREG_N().registrarGestionStock(o1, o2);
                     return RedirectToAction("GestionRegalos");
                 }
                 catch
                 {
-                    ViewBag.Regalo = oregN.buscarRegalo(o2.IdReg);
+                    ViewBag.Regalo = new Capa_Negocio.Ventas_NEG.TablasSql.OREG_N().buscarRegalo(o2.IdReg);
                     return View();
                 }
             }
@@ -2777,8 +2774,7 @@ namespace Capa_Usuario.Controllers
 
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                Capa_Negocio.Ventas_NEG.TablasSql.OREG_N oregN = new Capa_Negocio.Ventas_NEG.TablasSql.OREG_N();
-                return View(oregN.buscarRegalo(id));
+                return View(new Capa_Negocio.Ventas_NEG.TablasSql.OREG_N().buscarRegalo(id));
             }
             else
             {
@@ -2792,10 +2788,9 @@ namespace Capa_Usuario.Controllers
 
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                Capa_Negocio.Ventas_NEG.TablasSql.OREG_N oregN = new Capa_Negocio.Ventas_NEG.TablasSql.OREG_N();
                 try
                 {
-                    oregN.inactivarRegalo(obj);
+                    new Capa_Negocio.Ventas_NEG.TablasSql.OREG_N().inactivarRegalo(obj);
                     return RedirectToAction("GestionRegalos", new { Id = obj.Id });
                 }
                 catch (Exception e)
@@ -2812,10 +2807,9 @@ namespace Capa_Usuario.Controllers
 
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                Capa_Negocio.Ventas_NEG.TablasSql.OREG_N oregN = new Capa_Negocio.Ventas_NEG.TablasSql.OREG_N();
                 try
                 {
-                    oregN.revertirInactivarRegalo(obj);
+                    new Capa_Negocio.Ventas_NEG.TablasSql.OREG_N().revertirInactivarRegalo(obj);
                     return RedirectToAction("GestionRegalos", new { Id = obj.Id });
                 }
                 catch (Exception e)
@@ -2832,9 +2826,8 @@ namespace Capa_Usuario.Controllers
 
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                OREG_N oregN = new OREG_N(); OTRC_N otrcN = new OTRC_N();
-                ViewBag.Regalo = oregN.buscarRegalo(id);
-                return View(otrcN.listarTransacciones(new OTRC_E() { IdReg = id }));
+                ViewBag.Regalo = new Capa_Negocio.Ventas_NEG.TablasSql.OREG_N().buscarRegalo(id);
+                return View(new Capa_Negocio.Ventas_NEG.TablasSql.OTRC_N().listarTransacciones(new OTRC_E() { IdReg = id }));
             }
             else
             {
@@ -2847,21 +2840,60 @@ namespace Capa_Usuario.Controllers
 
             if (acceso == "C_Access")
             {
-                OREG_N oregN = new OREG_N(); OTRC_N otrcN = new OTRC_N();
-                ViewBag.Regalo = oregN.buscarRegalo(o.IdReg);
+                ViewBag.Regalo = new Capa_Negocio.Ventas_NEG.TablasSql.OREG_N().buscarRegalo(o.IdReg);
                 string excelContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-                var transacciones = otrcN.listarTransacciones(o);
+                var transacciones = new Capa_Negocio.Ventas_NEG.TablasSql.OTRC_N().listarTransacciones(o);
                 using (var libro = new ExcelPackage())
                 {
-                    var worksheet = libro.Workbook.Worksheets.Add("transacciones");
+                    var worksheet = libro.Workbook.Worksheets.Add("Transacciones");
                     worksheet.Cells["A1"].LoadFromCollection(transacciones, PrintHeaders: true);
                     for (var col = 1; col <= 12; col++)
                     {
                         worksheet.Column(col).AutoFit();
                     }
-                    var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: transacciones.Count + 1, toColumn: 12), "transacciones");
+                    var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: transacciones.Count + 1, toColumn: 12), "Transacciones");
                     tabla.ShowHeader = true;
-                    return File(libro.GetAsByteArray(), excelContentType, "Transacciones.xlsx");
+                    return File(libro.GetAsByteArray(), excelContentType, "TransaccionesRegalos.xlsx");
+                }
+            }
+            else { return null; }
+        }
+        public JsonResult VerificarExistenciaDatos(string fechaTicket, string estadoTicket, string estadoRegalo)
+        {
+            var result = new Capa_Negocio.Ventas_NEG.TablasSql.ORTV_N().listarTicketsRegalo(fechaTicket, estadoTicket, estadoRegalo);
+
+            if (result!= null && result.Count() > 0)
+            {
+                return Json(new { Mensaje = "" });
+            }
+            else
+            {
+                return Json(new { Mensaje = "Sin Datos" });
+            }
+        }
+        public ActionResult ExporteReporteGeneralTicketsRegalos(string fechaTicket,string estadoTicket,string estadoRegalo, int idOperation = 524)
+        {
+            string acceso = AccesoHelper.VerificarAccesos(idOperation, 
+                (Usuario_E)Session["UsuarioId"], 
+                this.ControllerContext.RouteData.Values["action"].ToString(), 
+                Request.UserHostAddress, 
+                Request.UserHostName);
+
+            if (acceso == "C_Access")
+            {
+                string excelContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                var result = new Capa_Negocio.Ventas_NEG.TablasSql.ORTV_N().listarTicketsRegalo(fechaTicket,estadoTicket,estadoRegalo);
+                using (var libro = new ExcelPackage())
+                {
+                    var worksheet = libro.Workbook.Worksheets.Add("ReporteRegalosEntregados");
+                    worksheet.Cells["A1"].LoadFromCollection(result, PrintHeaders: true);
+                    for (var col = 1; col <= 9; col++)
+                    {
+                        worksheet.Column(col).AutoFit();
+                    }
+                    var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: result.Count + 1, toColumn: 9), "ReporteRegalosEntregados");
+                    tabla.ShowHeader = true;
+                    return File(libro.GetAsByteArray(), excelContentType, "ReporteRegalosEntregados.xlsx");
                 }
             }
             else { return null; }
@@ -3412,7 +3444,7 @@ namespace Capa_Usuario.Controllers
             return RedirectToAction("PdfTicketVenta", new { DocEntry = DocEntry });
         }
 
-        /*******************datos de form*****************/
+        /***************** Formulario de ticket de venta *****************/
         public JsonResult infoContactosVentasSocio(string CardCode)
         {
             Capa_Negocio.SocioNegocios_NEG.Tablas.OCPR_N oN = new Capa_Negocio.SocioNegocios_NEG.Tablas.OCPR_N();
@@ -3441,6 +3473,7 @@ namespace Capa_Usuario.Controllers
         {
             return Content(ticketN.generaInfoListaNotasDeCreditoV(CardCode));
         }
+
         /**************Calculos y validaciones ,objetos*****************/
         public ActionResult validarEditarClienteRegalo(OCLR_E obj)
         {
@@ -3848,7 +3881,7 @@ namespace Capa_Usuario.Controllers
             else { return null; }
         }
 
-        /****************************** P A G O   C O N T R A E N T R E G A ******************************/
+        /***************************** P A G O   C O N T R A E N T R E G A ************************/
         [HttpGet]
         public ActionResult AutorizarTicketReparto(int docEntry, int idOTC, string mensaje = null, int idOperation = 504)
         {
@@ -3893,7 +3926,7 @@ namespace Capa_Usuario.Controllers
             }
         }
 
-        /***entrega masiva antony*************/
+        /****************************** E N T R E G A  M A S I V A ********************************/
         [HttpPost]
         public JsonResult gestionarEntregadoMasivo(int[] ticketsMasivo, int entregadoConRegalo)
         {

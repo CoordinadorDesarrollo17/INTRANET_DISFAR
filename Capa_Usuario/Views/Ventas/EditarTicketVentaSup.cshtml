@@ -77,12 +77,12 @@
         //mostrar el llenado de tickets vinculados si la eleccion es SI
         if (valor == "SI" && (LugarDestino === "Domicilio" || LugarDestino === "Agencia")) { $("#divVinculados").show(); }
         else { $("#selectVinculado").val('NO'); $("#divVinculados").hide(); $("#DetallesVinculados  tbody").html(''); contUser = 0; }
-    }
-    function buscarTicket(DocNum) {
+    } 
+    function buscarTicketAVincular(DocNum) {
         var DocNumPrincipal = $("#DocNum").val();
         if (DocNum == DocNumPrincipal) { swal.fire("No puede vincular el mismo número de ticket, hace redundancia."); } else {
             var parametros = { "DocNum": DocNum };
-            $.ajax('/Ventas/buscarTicket',
+            $.ajax('/Ventas/buscarTicketAVincular',
                 {
                     data: parametros,
                     dataType: 'json',
@@ -744,7 +744,7 @@
                                 <div class="input-group mb-3">
                                     <input type="text" class="form-control" id="searchInput" placeholder="Escriba su numero de ticket" aria-label="Buscar" aria-describedby="basic-addon2">
                                     <div class="input-group-append">
-                                        <button class="btn btn-outline-secondary" type="button" onclick="buscarTicket($('#searchInput').val())">Buscar</button>
+                                        <button class="btn btn-outline-secondary" type="button" onclick="buscarTicketAVincular($('#searchInput').val())">Buscar</button>
                                         <button class="btn btn-blue" type="button" onclick="agregarTicketVinculado($('#DocEntry').val(),$('#DocNumVinculado').val(),$('#RucClienteVinculado').val(),$('#ClienteVinculado').val(),$('#MontoFinalVinculado').val())">Agregar</button>
                                     </div>
                                 </div>

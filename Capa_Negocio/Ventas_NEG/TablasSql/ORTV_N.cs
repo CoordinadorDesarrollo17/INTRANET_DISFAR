@@ -19,28 +19,27 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
 {
     public class ORTV_N
     {
-        ORTV_D tkD = new ORTV_D(); CC_ORTV_D ccTicket = new CC_ORTV_D();
+        ORTV_D tkD = new ORTV_D(); 
+        CC_ORTV_D ccTicket = new CC_ORTV_D();
         public object t { get; private set; }
-        public List<ORTV_E> listarTicketsParaRepartos(ORTV_E filtro, string[] estados, out int cantidadTicketsNoEnviados)
+
+        public List<ReporteRegalos> listarTicketsRegalo(string fechaTicket, string estadoTicket, string estadoRegalo)
         {
-            return tkD.listarTicketsParaRepartos(filtro, estados, out cantidadTicketsNoEnviados);
-        }
-        public List<ORTV_E> listarTicketsRepartosNoEnviados(ORTV_E filtro, string[] estados)
-        {
-            return tkD.listarTicketsRepartosNoEnviados(filtro, estados);
-        }
-        public List<string> BuscarVinculados(int DocEntry, int DocNum)
-        {
-            return tkD.BuscarVinculados(DocEntry, DocNum);
-        }
-        public List<Rpt_TicketVenta_E> listarTicketsAgencia()
-        {
-            return tkD.listarTicketsAgencia();
+            return tkD.listarTicketsRegalo(fechaTicket, estadoTicket, estadoRegalo);
         }
         public List<ORTV_E> listarTicketsSeparados(int Id)
         {
             return tkD.listarTicketsSeparados(Id);
         }
+        public List<RTV2_E> obtenerDet2Ticket(int DocEntry)
+        {
+            return tkD.obtenerDet2Ticket(DocEntry);
+        }
+        public List<RTV4_E> obtenerDet4Ticket(int DocEntry, int DocNum = 0)
+        {
+            return tkD.obtenerDet4Ticket(DocEntry, DocNum);
+        }
+        /**********************************************************************/
         public ORTV_E separarTicket(Usuario_E u)
         {
             return tkD.separarTicket(u);
@@ -134,13 +133,13 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                             lugEn = d.LugarDeEntrega;
                             if (!lugEn.Equals("ALMACÉN N°5 (Arriola)") && !lugEn.Equals("ALMACÉN FALTANTES")) { throw new Exception("El lugar de entrega debe ser 'ALMACÉN N°5 (Arriola)' o 'ALMACÉN FALTANTES'."); }
                         }
-                    }     
+                    }
                 }
                 else if (ticket.LugarDestino.Equals("Domicilio"))
                 {
                     if (string.IsNullOrEmpty(ticket.Zona)) { throw new Exception("Debe existir una zona."); }
                     if (string.IsNullOrEmpty(ticket.DirDestino)) { throw new Exception("Debe llenar la dirección de destino."); }
-                    if (ticket.Det3 != null && ticket.Det3.Count >= 2 && !string.IsNullOrEmpty(ticket.Det3[1].Calle) && ticket.Det3[1].Calle.Length > 200) { throw new Exception("La dirección de destino excede el límite de 200 caracteres."); }      
+                    if (ticket.Det3 != null && ticket.Det3.Count >= 2 && !string.IsNullOrEmpty(ticket.Det3[1].Calle) && ticket.Det3[1].Calle.Length > 200) { throw new Exception("La dirección de destino excede el límite de 200 caracteres."); }
                     if (string.IsNullOrEmpty(ticket.Det1[0].NombrePer)) { throw new Exception("Debe llenar el nombre."); }
                     if (string.IsNullOrEmpty(ticket.Det1[0].TipoDocPer)) { throw new Exception("Debe llenar el tipo de documento personal."); }
                     if (string.IsNullOrEmpty(ticket.Det1[0].DocPer)) { throw new Exception("Debe llenar el número de documento personal."); }
@@ -267,43 +266,14 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         {
             return tkD.editarVisibilidadTicket(DocEntry);
         }
-        public int registrarImpresionTicket(int DocEntry, string Operario)
+        /**********************************************************************/
+        //Método usa un procedure para buscar tickets vinculados, solo se usa en el REGISTRO Y EDICION de la hoja de repartos
+        public List<string> BuscarVinculados(int DocEntry, int DocNum)
         {
-            return tkD.registrarImpresionTicket(DocEntry, Operario);
+            return tkD.BuscarVinculados(DocEntry, DocNum);
         }
-        public int cancelarTicket(int DocEntry, string Operario, int IdRol)
-        {
-            ORTV_E t = tkD.ObtenerDatosCompletosTicket(DocEntry);
-            bool continuarCancelarTicket = false;
-            // Cuando el ticket esta en "SEPARADO" o "ABIERTO" solo lo podran cancelar Rol (Sup Ventas,Op Ventas)
-            if (t.Estado.Equals("SEPARADO") || t.Estado.Equals("ABIERTO"))
-            {
-                if (IdRol == 6 || IdRol == 7 || IdRol == 12) { continuarCancelarTicket = true; }
-            }
-            // Cuando el ticket esta en "RECIBIDO" o "PICKEANDO" O "VERIFICANDO" O "EMPACANDO" solo lo podran cancelar Rol (Op Recepcion)
-            else if (t.Estado.Equals("RECIBIDO") || t.Estado.Equals("PICKEANDO") || t.Estado.Equals("VERIFICANDO") || t.Estado.Equals("EMPACANDO"))
-            {
-                if (IdRol == 5) { continuarCancelarTicket = true; }
-            }
-            // Cuando el ticket esta en "EMPACADO" o "PESADO" O "PREENVIO" O "ENVIADO" solo lo podran cancelar Rol (Sup Atencion al cliente)
-            else if (t.Estado.Equals("EMPACADO") || t.Estado.Equals("PESADO") || t.Estado.Equals("PREENVIO") || t.Estado.Equals("ENVIADO"))
-            {
-                if (t.Estado.Equals("PREENVIO") || t.Estado.Equals("ENVIADO"))
-                {
-                    //si el ticket es de centro y arriola podra cancelarse cuando este como preenvio y enviado
-                    if (t.LugarDestino.Equals("Centro") || t.LugarDestino.Equals("Arriola")) { if (IdRol == 11) { continuarCancelarTicket = true; } }
-                }
-                else { if (IdRol == 11) { continuarCancelarTicket = true; } }
-            }
-            if (IdRol == 1) { continuarCancelarTicket = true; }
-            if (!continuarCancelarTicket) { throw new Exception("NO SE PUEDE CANCELAR EL TICKET N° " + t.DocNum + " POR SU ESTADO " + t.Estado); }
-            if (t.Estado.Equals("CANCELADO")) { throw new Exception("EL TICKET YA SE ENCUENTRA CANCELADO N°" + t.DocNum); }
-            if (t.Estado.Equals("ENTREGADO")) { throw new Exception("EL TICKET YA SE ENCUENTRA ENTREGADO N°" + t.DocNum + " NO SE PUEDE CANCELAR"); }
-            return tkD.cancelarTicket(DocEntry, t.Estado, Operario);
-        }
-        /*
-         * Editar Ticket parámetros ilimitados
-         */
+        /***********************************************************************/
+        /************** METODOS PRICIPALES QUE GENERAN TRANSACCION *************/
         public int EditarTicketDesdeSeguimiento(Dictionary<string, Object> datos, string Request)
         {
             ORTV_E ticket = ObtenerDatosCompletosTicket(Convert.ToInt32(datos["docEntryTicket"]));
@@ -580,6 +550,68 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             }
             return tkD.editarSeguimientoTicket(Estado, DocEntry, t);
         }
+        public int registrarImpresionTicket(int DocEntry, string Operario)
+        {
+            return tkD.registrarImpresionTicket(DocEntry, Operario);
+        }
+        public int cancelarTicket(int DocEntry, string Operario, int IdRol)
+        {
+            ORTV_E t = tkD.ObtenerDatosCompletosTicket(DocEntry);
+            bool continuarCancelarTicket = false;
+            // Cuando el ticket esta en "SEPARADO" o "ABIERTO" solo lo podran cancelar Rol (Sup Ventas,Op Ventas)
+            if (t.Estado.Equals("SEPARADO") || t.Estado.Equals("ABIERTO"))
+            {
+                if (IdRol == 6 || IdRol == 7 || IdRol == 12) { continuarCancelarTicket = true; }
+            }
+            // Cuando el ticket esta en "RECIBIDO" o "PICKEANDO" O "VERIFICANDO" O "EMPACANDO" solo lo podran cancelar Rol (Op Recepcion)
+            else if (t.Estado.Equals("RECIBIDO") || t.Estado.Equals("PICKEANDO") || t.Estado.Equals("VERIFICANDO") || t.Estado.Equals("EMPACANDO"))
+            {
+                if (IdRol == 5) { continuarCancelarTicket = true; }
+            }
+            // Cuando el ticket esta en "EMPACADO" o "PESADO" O "PREENVIO" O "ENVIADO" solo lo podran cancelar Rol (Sup Atencion al cliente)
+            else if (t.Estado.Equals("EMPACADO") || t.Estado.Equals("PESADO") || t.Estado.Equals("PREENVIO") || t.Estado.Equals("ENVIADO"))
+            {
+                if (t.Estado.Equals("PREENVIO") || t.Estado.Equals("ENVIADO"))
+                {
+                    //si el ticket es de centro y arriola podra cancelarse cuando este como preenvio y enviado
+                    if (t.LugarDestino.Equals("Centro") || t.LugarDestino.Equals("Arriola")) { if (IdRol == 11) { continuarCancelarTicket = true; } }
+                }
+                else { if (IdRol == 11) { continuarCancelarTicket = true; } }
+            }
+            if (IdRol == 1) { continuarCancelarTicket = true; }
+            if (!continuarCancelarTicket) { throw new Exception("NO SE PUEDE CANCELAR EL TICKET N° " + t.DocNum + " POR SU ESTADO " + t.Estado); }
+            if (t.Estado.Equals("CANCELADO")) { throw new Exception("EL TICKET YA SE ENCUENTRA CANCELADO N°" + t.DocNum); }
+            if (t.Estado.Equals("ENTREGADO")) { throw new Exception("EL TICKET YA SE ENCUENTRA ENTREGADO N°" + t.DocNum + " NO SE PUEDE CANCELAR"); }
+            return tkD.cancelarTicket(DocEntry, t.Estado, Operario);
+        }
+
+        /**********************************************************************/
+        /******************** METODOS PRINCIPALES EN MODULOS ******************/
+
+
+
+
+        public List<ORTV_E> listarTicketsParaRepartos(ORTV_E filtro, string[] estados, out int cantidadTicketsNoEnviados)
+        {
+            return tkD.listarTicketsParaRepartos(filtro, estados, out cantidadTicketsNoEnviados);
+        }
+        public List<ORTV_E> listarTicketsRepartosNoEnviados(ORTV_E filtro, string[] estados)
+        {
+            return tkD.listarTicketsRepartosNoEnviados(filtro, estados);
+        }
+        
+        public List<Rpt_TicketVenta_E> listarTicketsAgencia()
+        {
+            return tkD.listarTicketsAgencia();
+        }
+        
+        
+        
+        
+        /*
+         * Editar Ticket parámetros ilimitados
+         */
+        
         public int emitirGuia(int DocEntry, Usuario_E u)
         {
             ORTV_E t = ObtenerDatosCompletosTicket(DocEntry);
@@ -744,10 +776,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
 
             return ticket;
         }
-        public List<RTV4_E> obtenerDet4Ticket(int DocEntry, int DocNum = 0)
-        {
-            return tkD.obtenerDet4Ticket(DocEntry, DocNum);
-        }
+
 
 
 
@@ -837,10 +866,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         { return tkD.ListarTicketsAreaAlmacén(user, t); }
         public List<ORTV_E> ListarTicketsAreaDespacho(Usuario_E user, ORTV_E t)
         { return tkD.ListarTicketsAreaDespacho(user, t); }
-        public List<RTV2_E> obtenerDet2Ticket(int DocEntry)
-        {
-            return tkD.obtenerDet2Ticket(DocEntry);
-        }
+
 
     }
 }
