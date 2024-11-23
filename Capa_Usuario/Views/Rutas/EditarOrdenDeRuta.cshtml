@@ -389,7 +389,7 @@
                     <label class="text-dark form-label font-weight-bold font-18">Almacén de Origen:</label>
                     <select name="AlmOrigenDesc" id="AlmOrigenDesc" class="form-control bg-cobefar text-white" onchange="enviarValSelect('AlmOrigenDesc', 'AlmOrigenCod', 'AlmOrigenCod'); enviarValSelect('AlmOrigenDesc', 'AlmOrigenDesc2', 'AlmOrigenDesc2'); listarTickets(); ">
                         <option value="">Seleccione</option>
-                        @foreach (var l in lstOriDest.Where(x => x.WhsCode == "03" || x.WhsCode == "ALM07"))
+                        @foreach (var l in lstOriDest.Where(x => x.WhsCode == "17"))
                         {
                             <option value="@l.WhsName" AlmOrigenCod="@l.WhsCode"
                                     AlmOrigenDesc2="@(l.Street+" "+l.StreetNo+" "+l.Building+" "+l.Block+" "+l.City+" "+l.County)" @if (Model.AlmOrigenCod == l.WhsCode) { Write("selected"); }>
