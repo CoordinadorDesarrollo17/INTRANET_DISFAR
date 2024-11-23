@@ -405,16 +405,21 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             {
                 if (t.Estado.Equals("CANCELADO")) { throw new Exception("El ticket esta CANCELADO"); }
                 List<CC_ORTV_E> listaEstados = ccTicket.ListarCC_ORTV(DocEntry, null, true);
-                if (listaEstados.Count > 0) { if (listaEstados.FirstOrDefault().Operacion == "ANULAR FIN PICKING") { throw new Exception("El ticket no es apto para FINALIZAR VERIFICAR"); } }
-                if (listaEstados.Count > 0) { if (listaEstados.FirstOrDefault().Operacion == "FIN VERIFICAR") { throw new Exception("El ticket ya FINALIZO VERIFICAR"); } }
-                if (t.Det12 == null || t.Det12[0].Operario == string.Empty && (t.Det12[1].Operario == string.Empty || t.Det12[2].Operario == string.Empty))
+                var ultimoEstado = listaEstados.DefaultIfEmpty(new CC_ORTV_E()).First().Operacion;
+                if (!string.IsNullOrEmpty(ultimoEstado) && new[] { "ANULAR FIN PICKING", "ANULAR INICIO VERIFICAR", "FIN VERIFICAR" }.Contains(ultimoEstado))
+                {
+                   throw new Exception("El ticket no es apto para FINALIZAR VERIFICAR"); 
+                } 
+                if (t.Det12 == null || t.Det12.Take(3).All(d => string.IsNullOrEmpty(d?.Operario)))
                 {
                     throw new Exception("Debe llenar el verificador");
                 }
             }
             else if (Estado.Equals("ANULAR FIN VERIFICAR"))
             {
-                if (t.RolSupervisor != 4 && t.RolSupervisor != 11 && t.RolSupervisor != 1 && t.RolSupervisor != 5) { throw new Exception("No tiene permisos para revertir procesos"); }
+                if (t.RolSupervisor != 4 && t.RolSupervisor != 11 && t.RolSupervisor != 1 && t.RolSupervisor != 5) { 
+                    throw new Exception("No tiene permisos para revertir procesos"); 
+                }
                 List<CC_ORTV_E> listaEstados = ccTicket.ListarCC_ORTV(DocEntry, null, true);
                 if (listaEstados.Count > 0)
                 {
@@ -422,7 +427,6 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                     {
                         throw new Exception("Solo puedes ANULAR FIN VERIFICAR  a un ticket con ultimo flujo FIN VERIFICAR O ANULAR INICIO EMPACAR");
                     }
-
                 }
             }
             else if (Estado.Equals("INICIO EMPACAR"))
