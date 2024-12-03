@@ -44,32 +44,32 @@
                 <label for="TiempoFin" class="text-dark form-label font-weight-bold font-18">Fecha Fin:</label>
                 <input class="form-control border-success" name="TiempoFin" type="date" id="TiempoFin" />
             </div>
-            <div class="col-lg-4">
+            <div class="col-lg-4 d-flex align-items-end">
                 <button class="btn btn-success" onclick="exportarTransacciones();"><i class="icon icon-file-excel"></i> Exportar transacciones</button>
             </div>
         </div>
     </form>
 
     <div class="bg-white bg-form-cobefar pt-3">
-        <table class="table table-light table-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
+        <table class="table table-light table-hover cls-dataTable50" cellspacing="0" width="100%">
             <thead class="bg-cobefar-6">
                 <tr>
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.Id)
                     </th>
                     <th class="text-center">
-                        @Html.DisplayName("NombreRegalo")
+                        @Html.DisplayName("Descripcion")
                     </th>
-                    <th>
+                    <th class="text-center">
                         @Html.DisplayName("Ruc")
                     </th>
-                    <th>
+                    <th class="text-center">
                         @Html.DisplayName("Razon Social")
                     </th>
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.Sentido)
                     </th>
-                    <th>
+                    <th class="text-center">
                         @Html.DisplayNameFor(model => model.Detalle)
                     </th>
                     <th class="text-center">
@@ -96,19 +96,19 @@
                         <td class="text-center">
                             @Html.DisplayFor(modelItem => item.Id)
                         </td>
-                        <td>
+                        <td class="text-center">
                             @Html.DisplayFor(modelItem => item.RegName)
                         </td>
-                        <td>
+                        <td class="text-center">
                             @Html.DisplayFor(modelItem => item.CardCode)
                         </td>
-                        <td>
+                        <td class="text-center">
                             @Html.DisplayFor(modelItem => item.CardName)
                         </td>
                         <td class="text-center">
                             @Html.DisplayFor(modelItem => item.Sentido)
                         </td>
-                        <td>
+                        <td class="text-center">
                             @Html.DisplayFor(modelItem => item.Detalle)
                         </td>
                         <td class="text-center">
