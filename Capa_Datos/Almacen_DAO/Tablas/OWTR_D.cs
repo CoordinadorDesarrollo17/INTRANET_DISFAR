@@ -29,7 +29,7 @@ namespace Capa_Datos.Almacen_DAO.Tablas
                 if (!string.IsNullOrEmpty(fil.U_SYP_MDCD)) { filtro += " and \"U_SYP_MDCD\" like '%" + fil.U_SYP_MDCD + "'"; }
                 if (!string.IsNullOrEmpty(fil.U_SYP_STATUS)) { filtro += " and UPPER(\"U_SYP_STATUS\")=UPPER('" + fil.U_SYP_STATUS + "')"; }
             }
-            string query = "select top 50 \"DocEntry\",\"DocNum\",\"DocDate\",\"Filler\",\"ToWhsCode\",\"SlpCode\",\"U_SYP_MDTD\",\"U_SYP_MDSD\",\"U_SYP_MDCD\",\"U_SYP_STATUS\", \"U_BPP_FECINITRA\"  from " + uti.schemaHana + "OWTR where \"DocEntry\">0 " + filtro + " order by 1 desc";
+            string query = "select top 500 \"DocEntry\",\"DocNum\",\"DocDate\",\"Filler\",\"ToWhsCode\",\"SlpCode\",\"U_SYP_MDTD\",\"U_SYP_MDSD\",\"U_SYP_MDCD\",\"U_SYP_STATUS\", \"U_BPP_FECINITRA\"  from " + uti.schemaHana + "OWTR where \"DocEntry\">0 " + filtro + " order by 1 desc";
             try
             {
                 HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);

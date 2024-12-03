@@ -22,7 +22,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 if (((int)filtro.Saldo) > 0) { fil += " and Saldo = " + filtro.Saldo + ""; }
             }
 
-            string query = "select top 10 CardCode,CardName,NroOpe,Saldo from vt.OCLR where 1=1 " + fil;
+            string query = "select CardCode,CardName,NroOpe,Saldo from vt.OCLR where 1=1 " + fil;
             try
             {
                 SqlDataReader dr = db.ExecuteReaderNoSp(query);
