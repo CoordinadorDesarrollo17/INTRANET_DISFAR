@@ -55,12 +55,14 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         public void validarEditarClienteRegalo(OCLR_E obj)
         {
             int i = 0;
-            foreach (CLR1_E detObj in obj.Det)
-            {
-                if (cadenaVacia(detObj.Categoria)) { throw new Exception("La categoria en la linea " + (i + 1) + " no puede estar vacia"); }
-                if (cadenaVacia(detObj.Tipo)) { throw new Exception("El tipo en la linea " + (i + 1) + " no puede estar vacia"); }
-                if (detObj.Cantidad < 0) { throw new Exception("la cantidad debe ser mayor a 0 linea: " + (i + 1)); }
-                i++;
+            if (obj.Det != null) {
+                foreach (CLR1_E detObj in obj.Det)
+                {
+                    if (cadenaVacia(detObj.Categoria)) { throw new Exception("La categoria en la linea " + (i + 1) + " no puede estar vacia"); }
+                    if (cadenaVacia(detObj.Tipo)) { throw new Exception("El tipo en la linea " + (i + 1) + " no puede estar vacia"); }
+                    if (detObj.Cantidad < 0) { throw new Exception("la cantidad debe ser mayor a 0 linea: " + (i + 1)); }
+                    i++;
+                }
             }
 
         }
