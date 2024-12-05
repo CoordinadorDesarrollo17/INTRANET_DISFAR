@@ -28,24 +28,34 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
         CC_ORTV_D ccTicket = new CC_ORTV_D();
         OLDS_D lD = new OLDS_D();
 
-        public List<ReporteRegalos> listarTicketsRegalo(string fechaTicket, string estadoTicket, string estadoRegalo)
+        public List<ReporteRegalos> listarTicketsRegalo(string fechaTicketDesde, string fechaTicketHasta, string estadoTicket, string estadoRegalo)
         {
             List<ReporteRegalos> lista = new List<ReporteRegalos>();
 
             using (SqlConnection cn = new SqlConnection(uti.cadSql))
             {
-                string query = "EXEC vt.ReporteRegalosCliente @FechaTicket, @EstadoTicket, @EstadoRegalo";
+                string query = "EXEC vt.ReporteRegalosCliente @FechaTicketDesde, @FechaTicketHasta, @EstadoTicket, @EstadoRegalo";
                 SqlCommand cmd = new SqlCommand(query, cn);
 
-                // Parámetro @FechaTicket
-                if (fechaTicket == null || fechaTicket.Trim() == "")
+                // Parámetro @FechaTicketDesde
+                if (fechaTicketDesde == null || fechaTicketDesde.Trim() == "")
                 {
-                    cmd.Parameters.AddWithValue("@FechaTicket", DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FechaTicketDesde", DBNull.Value);
                 }
                 else
                 {
-                    cmd.Parameters.AddWithValue("@FechaTicket", fechaTicket);
+                    cmd.Parameters.AddWithValue("@FechaTicketDesde", fechaTicketDesde);
                 }
+                // Parámetro @FechaTicketHasta
+                if (fechaTicketHasta == null || fechaTicketHasta.Trim() == "")
+                {
+                    cmd.Parameters.AddWithValue("@FechaTicketHasta", DBNull.Value);
+                }
+                else
+                {
+                    cmd.Parameters.AddWithValue("@FechaTicketHasta", fechaTicketHasta);
+                }
+
 
                 // Parámetro @EstadoTicket
                 if (estadoTicket == null || estadoTicket.Trim() == "")
@@ -76,18 +86,20 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     {
                         while (dr.Read())
                         {
-                            ReporteRegalos ticket = new ReporteRegalos
-                            {
-                                DocNum = dr.IsDBNull(dr.GetOrdinal("DocNum")) ? 0 : dr.GetInt32(dr.GetOrdinal("DocNum")),
-                                FechaSapTicket = dr.IsDBNull(dr.GetOrdinal("FechaSapTicket")) ? null : dr.GetDateTime(dr.GetOrdinal("FechaSapTicket")).ToString("yyyy-MM-dd"),
-                                CardCode = dr.IsDBNull(dr.GetOrdinal("Ruc")) ? string.Empty : dr.GetString(dr.GetOrdinal("Ruc")),
-                                CardName = dr.IsDBNull(dr.GetOrdinal("Razon Social")) ? string.Empty : dr.GetString(dr.GetOrdinal("Razon Social")),
-                                Linea = dr.IsDBNull(dr.GetOrdinal("Linea")) ? 0 : dr.GetInt32(dr.GetOrdinal("Linea")),
-                                NombreRegalo = dr.IsDBNull(dr.GetOrdinal("Nombre regalo")) ? string.Empty : dr.GetString(dr.GetOrdinal("Nombre regalo")),
-                                Cantidad = dr.IsDBNull(dr.GetOrdinal("Cantidad")) ? 0 : dr.GetInt32(dr.GetOrdinal("Cantidad")),
-                                EstadoRegalo = dr.IsDBNull(dr.GetOrdinal("Estado entrega de regalo")) ? string.Empty : dr.GetString(dr.GetOrdinal("Estado entrega de regalo")),
-                                Estado = dr.IsDBNull(dr.GetOrdinal("Estado")) ? string.Empty : dr.GetString(dr.GetOrdinal("Estado"))
-                            };
+                            ReporteRegalos ticket = new ReporteRegalos();
+
+                            ticket.DocNum = dr.IsDBNull(dr.GetOrdinal("DocNum")) ? 0 : dr.GetInt32(dr.GetOrdinal("DocNum"));
+                            ticket.FechaSapTicket = dr.IsDBNull(dr.GetOrdinal("FechaSapTicket")) ? null : dr.GetDateTime(dr.GetOrdinal("FechaSapTicket")).ToString("yyyy-MM-dd");
+                            ticket.CardCode = dr.IsDBNull(dr.GetOrdinal("Ruc")) ? string.Empty : dr.GetString(dr.GetOrdinal("Ruc"));
+                            ticket.CardName = dr.IsDBNull(dr.GetOrdinal("Razon Social")) ? string.Empty : dr.GetString(dr.GetOrdinal("Razon Social"));
+                            ticket.Linea = dr.IsDBNull(dr.GetOrdinal("Linea")) ? 0 : dr.GetInt32(dr.GetOrdinal("Linea"));
+                            ticket.NombreRegalo = dr.IsDBNull(dr.GetOrdinal("Nombre regalo")) ? string.Empty : dr.GetString(dr.GetOrdinal("Nombre regalo"));
+                            ticket.Cantidad = dr.IsDBNull(dr.GetOrdinal("Cantidad")) ? 0 : dr.GetInt32(dr.GetOrdinal("Cantidad"));
+                            ticket.EstadoRegalo = dr.IsDBNull(dr.GetOrdinal("Estado entrega de regalo")) ? string.Empty : dr.GetString(dr.GetOrdinal("Estado entrega de regalo"));
+                            ticket.Estado = dr.IsDBNull(dr.GetOrdinal("Estado")) ? string.Empty : dr.GetString(dr.GetOrdinal("Estado"));
+                            ticket.LugarDestino = dr.IsDBNull(dr.GetOrdinal("Lugar Destino")) ? string.Empty : dr.GetString(dr.GetOrdinal("Lugar Destino"));
+                            ticket.Vendedor = dr.IsDBNull(dr.GetOrdinal("Vendedor")) ? string.Empty : dr.GetString(dr.GetOrdinal("Vendedor"));
+
                             lista.Add(ticket);
                         }
                     }
@@ -1558,7 +1570,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 		 * Parámetros: (int) @docEntry, (string) @tipoMantenimiento
 		 * Usos: SeguimientoDeTicket
 		 */
-        
+
         public int emitirGuia(int DocEntry, Usuario_E u)
         {
             int status = -1;
@@ -1974,14 +1986,15 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
         public (string Persona, string Documento) obtenerPersonaRecojoParaGuia(int docNum)
         {
             string Persona = ""; string Documento = "";
-            int docEntry= DocEntryTicket(docNum);
+            int docEntry = DocEntryTicket(docNum);
             var tk = ObtenerTicketVenta(docEntry);
-            if (tk.LugarDestino.Equals("Domicilio") || tk.LugarDestino.Equals("Agencia")) {
+            if (tk.LugarDestino.Equals("Domicilio") || tk.LugarDestino.Equals("Agencia"))
+            {
                 List<RTV1_E> rtv1 = obtenerDet1Ticket(docEntry);
                 Persona = rtv1[0].NombrePer;
                 Documento = rtv1[0].DocPer;
             }
-            
+
             return (Persona, Documento);
         }
         public (string HtmlContent, string TipoVenta) generaInfoListaOrdenesDeVenta(string fecha, string cardCode, int docNum)
@@ -2650,8 +2663,8 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     else
                     {
                         Almacen_DAO.Tablas.OWTR_D owtrD = new Almacen_DAO.Tablas.OWTR_D();
-                        if (o.LugarDestino == "Arriola") { o.Guias = owtrD.GuiasTicketTransferencia(o.DocNum, "09",o.CardCode); }
-                        else { o.Guias = owtrD.GuiasTicketTransferencia(o.DocNum, "01",o.CardCode); }
+                        if (o.LugarDestino == "Arriola") { o.Guias = owtrD.GuiasTicketTransferencia(o.DocNum, "09", o.CardCode); }
+                        else { o.Guias = owtrD.GuiasTicketTransferencia(o.DocNum, "01", o.CardCode); }
                     }
                     lista.Add(o);
                 }
@@ -2938,8 +2951,8 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             try
             {
                 cn.Open();
-                SqlCommand cmd = new SqlCommand("select top 1 DocEntry,DocNum,Estado,Zona,Referencia,LugarDestino,AlmProcedencia,CardCode,CardName,MontoFinal from vt.ORTV where DocEntry=" + DocEntry+ "" +
-                    " or DocNum like '%"+ DocEntry+"%' ", cn);
+                SqlCommand cmd = new SqlCommand("select top 1 DocEntry,DocNum,Estado,Zona,Referencia,LugarDestino,AlmProcedencia,CardCode,CardName,MontoFinal from vt.ORTV where DocEntry=" + DocEntry + "" +
+                    " or DocNum like '%" + DocEntry + "%' ", cn);
                 cmd.CommandType = CommandType.Text;
                 SqlDataReader dr = cmd.ExecuteReader();
                 dr.Read();
@@ -3168,7 +3181,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             List<CC_ORTV_E> ticketFinPicking = ccORTV.ListarCC_ORTV(ticket.DocEntry, "FIN PICKING");
             List<CC_ORTV_E> ticketAnularFinPicking = ccORTV.ListarCC_ORTV(ticket.DocEntry, "ANULAR FIN PICKING");
             ticket.hayFinPicking = ObtenerEstadoOperacion(ticketFinPicking, ticketAnularFinPicking, "FIN PICKING", "ANULAR FIN PICKING");
-            
+
             // Revisamos si hay INICIO VERIFICAR y ANULAR INICIO VERIFICAR
             List<CC_ORTV_E> ticketIniVerificar = ccORTV.ListarCC_ORTV(ticket.DocEntry, "INICIO VERIFICAR");
             List<CC_ORTV_E> ticketAnularIniVerificar = ccORTV.ListarCC_ORTV(ticket.DocEntry, "ANULAR INICIO VERIFICAR");
@@ -3198,7 +3211,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             List<CC_ORTV_E> tkEntregar = ccORTV.ListarCC_ORTV(ticket.DocEntry, "ENTREGAR");
             List<CC_ORTV_E> tkAnularEntregar = ccORTV.ListarCC_ORTV(ticket.DocEntry, "ANULAR ENTREGAR");
             ticket.hayEntregar = ObtenerEstadoOperacion(tkEntregar, tkAnularEntregar, "ENTREGAR", "ANULAR ENTREGAR");
-           
+
             // Establecer aptoIniVerificar en true si no hay un previo inicio Verificar y si hay inicio de Picking
             ticket.aptoIniVerificar = !ticket.hayIniVerificar && ticket.hayIniPicking;
 
@@ -3305,7 +3318,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                             $"AND t0.Estado in ('PICKEANDO','VERIFICANDO','EMPACANDO','EMPACADO','PESADO','PREENVIO','ENVIADO') AND T0.Estado NOT IN ('CANCELADO','ANULADO')";
                         orderby = "CASE WHEN t0.EstadoFacturacion = 'PENDIENTE' THEN 0 WHEN t0.EstadoFacturacion = 'GRE EMITIDA' THEN 1 WHEN t0.EstadoFacturacion = 'FACTURADO' THEN 2 ELSE 3 END, t0.TiempoEntrega";
 
-                        
+
                     }
                 }
                 else
@@ -3362,15 +3375,16 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                             if (!dr.IsDBNull(13)) { ticket.TipoVenta = dr.GetString(13); }
                             if (!dr.IsDBNull(14)) { ticket.EstadoFacturacion = dr.GetString(14); }
                             if (!dr.IsDBNull(15)) { ticket.DescuentoNC = dr.GetDecimal(15); }
-                            if (!dr.IsDBNull(16)) { ticket.Zona = dr.GetString(16);}
+                            if (!dr.IsDBNull(16)) { ticket.Zona = dr.GetString(16); }
                             if (!dr.IsDBNull(17)) { ticket.TiempoEntrega = dr.GetDateTime(17); }
                             //ticket.Vendedor = (ticket.Vendedor.Length > 15) ? ticket.Vendedor.Substring(0, 15) : ticket.Vendedor;
                             ticket.FechaSapTicket = (ticket.FechaSapTicket != null) ? Convert.ToDateTime(ticket.FechaSapTicket).ToString("dd/MM/yyyy") : null;
                             ticket.Det1 = obtenerDet1Ticket(ticket.DocEntry); if (ticket.Det1.Count == 0) { ticket.Det1 = null; }      //Datos de recojo
-                            ticket.Det2 = obtenerDet2Ticket(ticket.DocEntry); 
-                            if (ticket.Det2.Count == 0) { ticket.Det2 = null; }   
-                            else {
-                                var validLugarDestino= new List<string> { "Domicilio", "Agencia"};
+                            ticket.Det2 = obtenerDet2Ticket(ticket.DocEntry);
+                            if (ticket.Det2.Count == 0) { ticket.Det2 = null; }
+                            else
+                            {
+                                var validLugarDestino = new List<string> { "Domicilio", "Agencia" };
                                 if (validLugarDestino.Contains(ticket.LugarDestino))
                                 {
                                     //Verificar si la zona es diferente a la de orden de venta.
@@ -3406,13 +3420,13 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                             //si solo se desea ver los tickets ya cargados que tengan una zona distinta
                             if (t.zonaDistinta)
                             {
-                                if(ticket.zonaDistinta){ lista.Add(ticket); }
+                                if (ticket.zonaDistinta) { lista.Add(ticket); }
                             }
                             else
                             {
                                 lista.Add(ticket);
                             }
-                            
+
 
                         }
                     }
@@ -3548,7 +3562,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                         while (dr.Read())
                         {
                             ORTV_E ticket = new ORTV_E();
-                            
+
                             RTV11_D datosRTV11 = new RTV11_D();
                             RTV12_D datosRTV12 = new RTV12_D();
                             RTV13_D datosRTV13 = new RTV13_D();

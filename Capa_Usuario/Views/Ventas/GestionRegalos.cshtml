@@ -36,8 +36,12 @@
         const modalContent = `
     <form id="formReporteRegalos">
         <div class="form-group">
-            <label for="FechaSapTicket">Fecha SAP Ticket</label>
-            <input type="date" id="FechaSapTicket" class="form-control border-success" />
+            <label for="FechaSapTicketDesde">Fecha Desde</label>
+            <input type="date" id="FechaSapTicketDesde" class="form-control border-success" />
+        </div>
+        <div class="form-group">
+            <label for="FechaSapTicketHasta">Fecha Hasta</label>
+            <input type="date" id="FechaSapTicketHasta" class="form-control border-success" />
         </div>
         <div class="form-group">
             <label for="EstadoTicket">Estado del Ticket</label>
@@ -79,21 +83,22 @@
             cancelButtonText: 'Cancelar',
             preConfirm: () => {
                 // Obtener valores de los inputs
-                const fechaTicket = document.getElementById('FechaSapTicket').value;
+                const fechaTicketDesde = document.getElementById('FechaSapTicketDesde').value;
+                const fechaTicketHasta = document.getElementById('FechaSapTicketHasta').value;
                 const estadoTicket = document.getElementById('EstadoTicket').value;
                 const estadoRegalo = document.getElementById('EstadoRegalo').value;
 
                 // Validar que al menos un campo esté lleno
-                if (!fechaTicket && !estadoTicket && !estadoRegalo) {
+                if (!fechaTicketDesde && !fechaTicketHasta && !estadoTicket && !estadoRegalo) {
                     Swal.showValidationMessage('Por favor, complete al menos un campo para filtrar');
                     return false;
                 }
 
-                return { fechaTicket, estadoTicket, estadoRegalo };
+                return { fechaTicketDesde, fechaTicketHasta, estadoTicket, estadoRegalo };
             }
         }).then((result) => {
             if (result.isConfirmed) {
-                const { fechaTicket, estadoTicket, estadoRegalo } = result.value;
+                const { fechaTicketDesde, fechaTicketHasta, estadoTicket, estadoRegalo } = result.value;
                 console.log(result.value);
                 // Enviar datos al servidor
                 $.ajax({
@@ -101,7 +106,8 @@
                     type: 'POST',
                     dataType: 'json',
                     data: {
-                        'fechaTicket': fechaTicket,
+                        'fechaTicketDesde': fechaTicketDesde,
+                        'fechaTicketHasta': fechaTicketHasta,
                         'estadoTicket': estadoTicket,
                         'estadoRegalo': estadoRegalo
                     }
@@ -109,7 +115,7 @@
                     if (response.Mensaje !== "") {
                         Swal.fire(response.Mensaje);
                     } else {
-                        const params = `fechaTicket=${fechaTicket}&estadoTicket=${estadoTicket}&estadoRegalo=${estadoRegalo}`;
+                        const params = `fechaTicketDesde=${fechaTicketDesde}&fechaTicketHasta=${fechaTicketHasta}&estadoTicket=${estadoTicket}&estadoRegalo=${estadoRegalo}`;
                         window.open(`/Ventas/ExporteReporteGeneralTicketsRegalos?${params}`, '_blank', 'noopener, noreferrer');
                     }
                 }).fail(function (jqXHR, textStatus, errorThrown) {

@@ -23,9 +23,9 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         CC_ORTV_D ccTicket = new CC_ORTV_D();
         public object t { get; private set; }
 
-        public List<ReporteRegalos> listarTicketsRegalo(string fechaTicket, string estadoTicket, string estadoRegalo)
+        public List<ReporteRegalos> listarTicketsRegalo(string fechaTicketDesde,string fechaTicketHasta, string estadoTicket, string estadoRegalo)
         {
-            return tkD.listarTicketsRegalo(fechaTicket, estadoTicket, estadoRegalo);
+            return tkD.listarTicketsRegalo(fechaTicketDesde, fechaTicketHasta,estadoTicket, estadoRegalo);
         }
         public List<ORTV_E> listarTicketsSeparados(int Id)
         {

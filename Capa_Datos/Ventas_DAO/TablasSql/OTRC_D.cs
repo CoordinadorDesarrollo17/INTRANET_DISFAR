@@ -20,7 +20,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 cmd.Transaction = tran;
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@TipoMantenimiento", "A");
-                cmd.Parameters.AddWithValue("@Id", o.Id).Direction = ParameterDirection.InputOutput;
+                //cmd.Parameters.AddWithValue("@Id", o.Id).Direction = ParameterDirection.InputOutput;
                 cmd.Parameters.AddWithValue("@IdReg", o.IdReg);
                 cmd.Parameters.AddWithValue("@RegName", o.RegName);
                 cmd.Parameters.AddWithValue("@CardCode", o.CardCode);
@@ -33,14 +33,14 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 cmd.ExecuteNonQuery();
 
                 //post transacciones
-                SqlCommand cmd2 = new SqlCommand("dbo.POST_TRANSACCIONES", cn);
-                cmd2.Transaction = tran;
-                cmd2.CommandType = CommandType.StoredProcedure;
-                cmd2.Parameters.AddWithValue("@Tipo", "A");
-                cmd2.Parameters.AddWithValue("@Tabla", "OTRC");
-                cmd2.Parameters.AddWithValue("@DocNum", cmd.Parameters["@Id"].Value);
-                cmd2.Parameters.AddWithValue("@DocEntry", cmd.Parameters["@Id"].Value);
-                cmd2.ExecuteNonQuery();
+                //SqlCommand cmd2 = new SqlCommand("dbo.POST_TRANSACCIONES", cn);
+                //cmd2.Transaction = tran;
+                //cmd2.CommandType = CommandType.StoredProcedure;
+                //cmd2.Parameters.AddWithValue("@Tipo", "A");
+                //cmd2.Parameters.AddWithValue("@Tabla", "OTRC");
+                //cmd2.Parameters.AddWithValue("@DocNum", cmd.Parameters["@Id"].Value);
+                //cmd2.Parameters.AddWithValue("@DocEntry", cmd.Parameters["@Id"].Value);
+                //cmd2.ExecuteNonQuery();
 
 				tran.Commit();
 			}

@@ -190,6 +190,10 @@ namespace Capa_Entidad.Ventas_ENT.TablasSql
         public string EstadoRegalo { get; set; }
         [DisplayName("Estado de Ticket")]
         public string Estado { get; set; }
+        [DisplayName("Lugar Destino")]
+        public string LugarDestino { get; set; }
+        [DisplayName("Vendedor")]
+        public string Vendedor { get; set; }
     }
 
     public class Tickets

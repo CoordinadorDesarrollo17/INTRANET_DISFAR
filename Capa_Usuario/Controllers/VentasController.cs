@@ -2858,9 +2858,9 @@ namespace Capa_Usuario.Controllers
             }
             else { return null; }
         }
-        public JsonResult VerificarExistenciaDatos(string fechaTicket, string estadoTicket, string estadoRegalo)
+        public JsonResult VerificarExistenciaDatos(string fechaTicketDesde,string fechaTicketHasta, string estadoTicket, string estadoRegalo)
         {
-            var result = new Capa_Negocio.Ventas_NEG.TablasSql.ORTV_N().listarTicketsRegalo(fechaTicket, estadoTicket, estadoRegalo);
+            var result = new Capa_Negocio.Ventas_NEG.TablasSql.ORTV_N().listarTicketsRegalo(fechaTicketDesde, fechaTicketHasta, estadoTicket, estadoRegalo);
 
             if (result!= null && result.Count() > 0)
             {
@@ -2871,7 +2871,7 @@ namespace Capa_Usuario.Controllers
                 return Json(new { Mensaje = "Sin Datos" });
             }
         }
-        public ActionResult ExporteReporteGeneralTicketsRegalos(string fechaTicket,string estadoTicket,string estadoRegalo, int idOperation = 524)
+        public ActionResult ExporteReporteGeneralTicketsRegalos(string fechaTicketDesde, string fechaTicketHasta, string estadoTicket,string estadoRegalo, int idOperation = 524)
         {
             string acceso = AccesoHelper.VerificarAccesos(idOperation, 
                 (Usuario_E)Session["UsuarioId"], 
@@ -2882,18 +2882,18 @@ namespace Capa_Usuario.Controllers
             if (acceso == "C_Access")
             {
                 string excelContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-                var result = new Capa_Negocio.Ventas_NEG.TablasSql.ORTV_N().listarTicketsRegalo(fechaTicket,estadoTicket,estadoRegalo);
+                var result = new Capa_Negocio.Ventas_NEG.TablasSql.ORTV_N().listarTicketsRegalo(fechaTicketDesde, fechaTicketHasta, estadoTicket,estadoRegalo);
                 using (var libro = new ExcelPackage())
                 {
                     var worksheet = libro.Workbook.Worksheets.Add("ReporteRegalosEntregados");
                     worksheet.Cells["A1"].LoadFromCollection(result, PrintHeaders: true);
-                    for (var col = 1; col <= 9; col++)
+                    for (var col = 1; col <= 11; col++)
                     {
                         worksheet.Column(col).AutoFit();
                     }
-                    var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: result.Count + 1, toColumn: 9), "ReporteRegalosEntregados");
+                    var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: result.Count + 1, toColumn: 11), "ReporteRegalosEntregados");
                     tabla.ShowHeader = true;
-                    return File(libro.GetAsByteArray(), excelContentType, "ReporteRegalosEntregados.xlsx");
+                    return File(libro.GetAsByteArray(), excelContentType, "ReporteRegalosTickets.xlsx");
                 }
             }
             else { return null; }
