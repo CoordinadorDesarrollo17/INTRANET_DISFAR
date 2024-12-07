@@ -853,9 +853,9 @@
                             </div>
                         </div>
 
-                        <input type="hidden" id="LineaRegalo" name="Det5[0].Linea" value="1" readonly />
-                        <input type="hidden" id="RegCate" name="Det5[0].RegCate" readonly />
-                        <input type="hidden" id="RegTipo" name="Det5[0].RegTipo" readonly />
+                        <input type="hidden" id="LineaRegalo" name="Det5[0].Linea" value="@if (Model.Det5 != null && Model.Det5.Count >= 1) { Write(Model.Det5[0].Linea); }" readonly />
+                        <input type="hidden" id="RegCate" name="Det5[0].RegCate" value="@if (Model.Det5 != null && Model.Det5.Count >= 1) { Write(Model.Det5[0].RegCate); }" readonly />
+                        <input type="hidden" id="RegTipo" name="Det5[0].RegTipo" value="@if (Model.Det5 != null && Model.Det5.Count >= 1) { Write(Model.Det5[0].RegTipo); }" readonly />
                     </div><!-- FIN ROW -->
 
                     @if (Model.Det4 != null && Model.Det4.Count >= 1)

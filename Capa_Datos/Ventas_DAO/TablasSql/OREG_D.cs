@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Data.SqlClient;
 using System.Data;
 using Capa_Entidad.Ventas_ENT;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Capa_Datos.Ventas_DAO.TablasSql
 {
@@ -74,6 +75,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 					cmd.Parameters.AddWithValue("@OpRegistro", obj.OpRegistro);
 
 					cmd.ExecuteNonQuery();
+
 					auxId = (int)cmd.Parameters["@Id"].Value;
 					//post transacciones
 					SqlCommand cmd2 = new SqlCommand("POST_TRANSACCIONES", cn);
@@ -85,9 +87,8 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 					cmd2.Parameters.AddWithValue("@DocEntry", cmd.Parameters["@Id"].Value);
 					cmd2.ExecuteNonQuery();
 					
-					tran.Commit();
-
-					otrcD.registrarTransaccion(new OTRC_E()
+                    //Revisado
+                    otrcD.registrarTransaccion(new OTRC_E()
 					{
 						IdReg = auxId,
 						RegName = obj.Categoria + " " + obj.Tipo,
@@ -95,7 +96,9 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 						Detalle = "Saldo Inicial",
 						Cantidad = obj.StockTotal,
 						Operario = obj.OpRegistro
-					});
+					},tran);
+
+					tran.Commit();
 				}
 				catch (Exception e) { tran.Rollback(); cn.Close(); throw new Exception("Error en creacion: " + e.Message); }
 				cn.Close();
@@ -176,95 +179,130 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 			catch (Exception e2) { cn.Close(); throw new Exception("Error en creacion y conexion: " + e2.Message); }
 			return status;
 		}
-		public void registrarGestionStockCrud(OREG_E obj, OTRC_E obj2)
-		{
-			RegistrarGestionStock(obj, obj2);
-		}
-		public void RegistrarGestionStock(OREG_E obj, OTRC_E obj2)
-		{
-			OTRC_D otrcD = new OTRC_D();
 
-			using (SqlConnection cn = new SqlConnection(uti.cadSql))
-			{
-				cn.Open();
-				SqlTransaction tran = cn.BeginTransaction("REGISTRAR GESTION STOCK");
+        //revisado
+        public void RegistrarGestionStock(OREG_E reg, OTRC_E obj, SqlTransaction tran = null)
+        {
+            bool status = false;
+            OTRC_D otrcD = new OTRC_D();
 
-				try
+            // Creamos una nueva conexión
+            using (SqlConnection cn = new SqlConnection(uti.cadSql))
+            {
+                // Abrimos la conexión
+                cn.Open();
+
+                // Si no se pasa una transacción, creamos una nueva
+                SqlTransaction transaction = tran ?? cn.BeginTransaction();
+
+                try
+                {
+                    // Ejecutamos el comando usando la transacción proporcionada o creada
+                    using (SqlCommand cmd = new SqlCommand("vt.MANT_OREG", cn, transaction))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
+                        cmd.Parameters.AddWithValue("@TipoMantenimiento", "US");            // Actualizar stock disponible
+                        cmd.Parameters.AddWithValue("@Id", reg.Id).Direction = ParameterDirection.InputOutput;
+                        cmd.Parameters.AddWithValue("@StockDisp", reg.StockDisp);
+
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    otrcD.registrarTransaccion(obj, transaction);
+
+                    status = true;
+
+                    // Si se creó una nueva transacción dentro del método, la confirmamos aquí
+                    if (tran == null)
+                    {
+                        transaction.Commit();
+                    }
+                }
+                catch (Exception e)
+                {
+                    if (tran == null)
+                    {
+                        transaction.Rollback();
+                    }
+
+                    status = false;
+                    throw new Exception("Error en creación de compromiso de stock: " + e.Message, e);
+                }
+            }
+        }
+
+
+        public void CompromisosStock(List<ORTV_E> listaTickets, SqlTransaction tran)
+        {
+            OTRC_D otrcD = new OTRC_D();
+            OCLR_D oclrD = new OCLR_D();
+            bool status = false;
+
+            try
+            {
+				foreach (var ticket in listaTickets)
 				{
-					SqlCommand cmd = new SqlCommand("vt.MANT_OREG", cn, tran);
-					cmd.CommandType = CommandType.StoredProcedure;
-					cmd.Parameters.AddWithValue("@TipoMantenimiento", "US");            // update stock disponible
-					cmd.Parameters.AddWithValue("@Id", obj.Id).Direction = ParameterDirection.InputOutput;
-					cmd.Parameters.AddWithValue("@StockDisp", obj.StockDisp);
-
-					cmd.ExecuteNonQuery();
-					tran.Commit();
-					otrcD.registrarTransaccion(obj2);
-				}
-				catch (Exception e) { tran.Rollback(); throw new Exception("Error en creacion: " + e.Message); }
-				cn.Close();
-			}
-				
-		}
-		public void CompromisosStock(ORTV_E ticket)
-		{
-			OTRC_D otrcD = new OTRC_D();
-			OCLR_D oclrD = new OCLR_D();
-			bool status = false;
-
-			SqlConnection cn = new SqlConnection(uti.cadSql);
-			cn.Open();
-			SqlTransaction tran = cn.BeginTransaction("COMPROMISOS STOCK");
-
-			try
-			{
-				SqlCommand cmd = new SqlCommand("vt.MANT_OREG", cn);
-				cmd.Transaction = tran;
-				cmd.CommandType = CommandType.StoredProcedure;
-				cmd.Parameters.AddWithValue("@TipoMantenimiento", "USC");
-				if (ticket.Det5 != null && ticket.Det5.Count > 0) { 
-				cmd.Parameters.AddWithValue("@Id", ticket.Det5[0].IdReg).Direction = ParameterDirection.InputOutput;
-				cmd.Parameters.AddWithValue("@StockComp", ticket.Det5[0].RegCant);
-				}
-				cmd.ExecuteNonQuery();
-				tran.Commit();
-				status = true;
-			}
-			catch (Exception e)
-			{
-				tran.Rollback();
-				status = false;
-				throw new Exception("Error en creacion: " + e.Message);
-			}
-			cn.Close();
-
-			// Solo cuando se haya ejecutado bien el MANT_OREG
-			if (status)
-			{
-				if (ticket.Det5 != null && ticket.Det5.Count > 0)
-				{
-					otrcD.registrarTransaccion(new OTRC_E()
+					if ((ticket.Estado == "SEPARADO" || ticket.Estado == "ABIERTO") && ticket.Det5 != null && ticket.Det5.Count > 0)
 					{
-						IdReg = ticket.Det5[0].IdReg,
-						RegName = ticket.Det5[0].RegCate + " " + ticket.Det5[0].RegTipo,
-						CardCode = ticket.CardCode,
-						CardName = ticket.CardName,
-						Sentido = "Asignacion",
-						Detalle = ticket.DocNum.ToString(),
-						Imputado = ticket.Det5[0].RegCant,
-						Operario = ticket.OpRegistro
-					});
-				}
+						if (ticket.Det5[0].RegCant > 0)
+						{
+							// Comprobar si el cliente tiene saldo suficiente, solo si esta ingresando un valor positivo,
+							// si es negativo se entiende que esta devolviendo el comprometido
+							if (!oclrD.ComprobarDispCliReg(new CLR1_E()
+							{
+								CardCode = ticket.CardCode,
+								IdReg = ticket.Det5[0].IdReg,
+								Cantidad = ticket.Det5[0].RegCant
+							}))
+							{
+								throw new Exception("El cliente no tiene saldo suficiente.");
+							}
+						}
+						using (SqlCommand cmd = new SqlCommand("vt.MANT_OREG", tran.Connection, tran))
+						{
+							cmd.CommandType = CommandType.StoredProcedure;
+							cmd.CommandTimeout = 120;
+							cmd.Parameters.AddWithValue("@TipoMantenimiento", "USC");
+							cmd.Parameters.AddWithValue("@Id", ticket.Det5[0].IdReg).Direction = ParameterDirection.InputOutput;
+							cmd.Parameters.AddWithValue("@StockComp", ticket.Det5[0].RegCant);
 
-				// solo si el ticket es separado o abierto
-				if ((ticket.Estado == "SEPARADO" || ticket.Estado == "ABIERTO") && ticket.Det5 != null && ticket.Det5.Count > 0)
-				{
-					if (!oclrD.ComprobarDispCliReg(new CLR1_E() { CardCode = ticket.CardCode, IdReg = ticket.Det5[0].IdReg, Cantidad = ticket.Det5[0].RegCant }))
-					{ throw new Exception("El cliente no tiene saldo"); }
-					oclrD.CompromisoClienteRegalo(new CLR1_E() { CardCode = ticket.CardCode, IdReg = ticket.Det5[0].IdReg, Cantidad = ticket.Det5[0].RegCant });
-				}
-			}
+							cmd.ExecuteNonQuery();
+						}
 
-		}
-	}
+						// Registrar la transacción de stock
+						otrcD.registrarTransaccion(new OTRC_E()
+						{
+							IdReg = ticket.Det5[0].IdReg,
+							RegName = ticket.Det5[0].RegCate + " " + ticket.Det5[0].RegTipo,
+							CardCode = ticket.CardCode,
+							CardName = ticket.CardName,
+							Sentido = "Asignacion",
+							Detalle = ticket.DocNum.ToString(),
+							Imputado = ticket.Det5[0].RegCant,
+							Operario = ticket.OpRegistro
+						}, tran);
+
+						// Registrar el compromiso con el cliente
+						oclrD.CompromisoClienteRegalo(new CLR1_E()
+						{
+							CardCode = ticket.CardCode,
+							IdReg = ticket.Det5[0].IdReg,
+							Cantidad = ticket.Det5[0].RegCant
+						}, tran);
+
+
+
+						status = true;
+					}
+				}
+            }
+            catch (Exception e)
+            {
+                status = false;
+                throw new Exception("Error en creación de compromiso de stock: " + e.Message, e);
+            }
+        }
+
+    }
 }

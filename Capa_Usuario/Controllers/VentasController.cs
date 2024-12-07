@@ -256,6 +256,7 @@ namespace Capa_Usuario.Controllers
                 try
                 {
                     t.Vendedor = $"{user.Nombres} {user.Apellidos}";     // Seteamos el usuario Propietario con el nombre del usuario en sesiòn
+                    t.OpRegistro = $"{user.Nombres} {user.Apellidos}";     // Seteamos el valor de OpRegistro para grabarlo en la transaccion de regalo si lo tuviera.
                     t.WhsCodeLog = $"{user.WhsCode}";
                     ticketN.editarTicket(DocEntry, t);
                     return RedirectToAction("ListadoTicketsVenta", new { DocNum = t.DocNum });
@@ -2743,7 +2744,7 @@ namespace Capa_Usuario.Controllers
             }
         }
         [HttpPost]
-        public ActionResult GestionarStock(OTRC_E o2, int idOperation = 1312)
+        public ActionResult GestionarStock(OTRC_E obj, int idOperation = 1312)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
 
@@ -2752,14 +2753,17 @@ namespace Capa_Usuario.Controllers
                 try
                 {
                     Usuario_E u = (Usuario_E)Session["UsuarioId"];
-                    o2.Operario = $"{u.Nombres} {u.Apellidos}";
-                    OREG_E o1 = new OREG_E() { Id = o2.IdReg };
-                    new Capa_Negocio.Ventas_NEG.TablasSql.OREG_N().registrarGestionStock(o1, o2);
+                    obj.Operario = $"{u.Nombres} {u.Apellidos}";
+
+                    new Capa_Negocio.Ventas_NEG.TablasSql.OREG_N().validarGestionStock(new OREG_E() { Id = obj.IdReg }, obj);
+                    if (obj.Sentido == "Salida") { obj.Cantidad = -1 * obj.Cantidad; }
+
+                    new Capa_Negocio.Ventas_NEG.TablasSql.OREG_N().RegistrarGestionStock(new OREG_E() { Id = obj.IdReg, StockDisp = obj.Cantidad }, obj);
                     return RedirectToAction("GestionRegalos");
                 }
                 catch
                 {
-                    ViewBag.Regalo = new Capa_Negocio.Ventas_NEG.TablasSql.OREG_N().buscarRegalo(o2.IdReg);
+                    ViewBag.Regalo = new Capa_Negocio.Ventas_NEG.TablasSql.OREG_N().buscarRegalo(obj.IdReg);
                     return View();
                 }
             }
@@ -2957,15 +2961,14 @@ namespace Capa_Usuario.Controllers
         }
         [HttpPost]
         public ActionResult NuevoClienteRegalo(OCLR_E obj, int idOperation = 1316)
-        {
+        {                                                              
             var resultadoAcceso = VerificarPermiso(idOperation);
 
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 try
                 {
-                    OCLR_N oclrN = new OCLR_N();
-                    oclrN.registrarClienteRegalo(obj);
+                    new Capa_Negocio.Ventas_NEG.TablasSql.OCLR_N().registrarClienteRegalo(obj);
                     return RedirectToAction("GestionClienteRegalos");
                 }
                 catch (Exception e)
@@ -2999,16 +3002,14 @@ namespace Capa_Usuario.Controllers
 
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                OREG_N oregN = new OREG_N();
-                OCLR_N oclrN = new OCLR_N();
                 try
                 {
-                    oclrN.editarClienteRegalo(obj);
+                    new Capa_Negocio.Ventas_NEG.TablasSql.OCLR_N().editarClienteRegalo(obj);
                     return RedirectToAction("GestionClienteRegalos", new { CardCode = obj.CardCode });
                 }
                 catch (Exception e)
                 {
-                    ViewBag.Regalos = oregN.listaRegalos(null);
+                    ViewBag.Regalos = new Capa_Negocio.Ventas_NEG.TablasSql.OREG_N().listaRegalos(null);
                     ViewBag.Mensaje = e.Message;
                     return View(obj);
                 }
