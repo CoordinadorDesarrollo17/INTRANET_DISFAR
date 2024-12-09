@@ -15,7 +15,7 @@ namespace Capa_Entidad.Ventas_ENT.TablasSql
         public string Tipo { get; set; }
         public decimal? Cantidad { get; set; }
         //
-        public static DataTable tbDetalle(List<CLR1_E> dt)
+        public static DataTable GenerarDataTable(List<CLR1_E> dt)
         {
             DataTable tb = new DataTable();
             tb.Columns.Add("CardCode", typeof(string));

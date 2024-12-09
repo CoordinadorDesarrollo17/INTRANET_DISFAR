@@ -223,9 +223,11 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                         OREG_E objRegalo = oregN.buscarRegalo(idReg);
                         if (ticket.Det5[0].RegCant <= 0) { throw new Exception("Debe llenar las cantidades para el regalo."); }
                         else if (!oclrN.comprobarDispCliReg(new CLR1_E { IdReg = ticket.Det5[0].IdReg, CardCode = ticket.CardCode, Cantidad = ticket.Det5[0].RegCant }))
-                        { throw new Exception("El cliente no tiene saldo de regalo disponible."); }
-                        if (objRegalo.Estado == "Inactivo") { throw new Exception("No puede dar regalos inactivos."); }
-                        if (objRegalo.StockDisp < ticket.Det5[0].RegCant) { throw new Exception("No hay stock disponible del regalo."); }
+                        { 
+                            throw new Exception($"Se desea asignar {ticket.Det5[0].RegCant} unds del regalo {ticket.Det5[0].RegCate} {ticket.Det5[0].RegTipo}, no dispone de suficiente asignado."); 
+                        }
+                        else if (objRegalo.Estado == "Inactivo") { throw new Exception("No puede dar regalos inactivos."); }
+                        else if (objRegalo.StockDisp < ticket.Det5[0].RegCant) { throw new Exception("No hay stock disponible del regalo."); }
                     }
                     else if (ticket.Det5[0].RegCant > 0) { throw new Exception("Debe llenar la cantidad del regalo."); }
                 }

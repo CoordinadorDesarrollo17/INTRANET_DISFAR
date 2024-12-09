@@ -9,44 +9,34 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
     public class OTRC_D
     {
         Utilitarios uti = new Utilitarios(); DBHelper db = new DBHelper();
-        public void registrarTransaccion(OTRC_E o)
+        //Revisado
+        public void registrarTransaccion(OTRC_E o, SqlTransaction tran)
         {
-            SqlConnection cn = new SqlConnection(uti.cadSql);
-            cn.Open();
-            SqlTransaction tran = cn.BeginTransaction("REGISTRO TRANSACCION");
-            try
+            try { 
+                using (SqlCommand cmd = new SqlCommand("vt.MANT_OTRC", tran.Connection, tran))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "A");
+                    cmd.Parameters.AddWithValue("@IdReg", o.IdReg);
+                    cmd.Parameters.AddWithValue("@RegName", o.RegName);
+                    cmd.Parameters.AddWithValue("@CardCode", o.CardCode);
+                    cmd.Parameters.AddWithValue("@CardName", o.CardName);
+                    cmd.Parameters.AddWithValue("@Sentido", o.Sentido);
+                    cmd.Parameters.AddWithValue("@Detalle", o.Detalle);
+                    cmd.Parameters.AddWithValue("@Cantidad", o.Cantidad);
+                    cmd.Parameters.AddWithValue("@Imputado", o.Imputado);
+                    cmd.Parameters.AddWithValue("@Operario", o.Operario);
+                
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception e)
             {
-                SqlCommand cmd = new SqlCommand("vt.MANT_OTRC", cn);
-                cmd.Transaction = tran;
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@TipoMantenimiento", "A");
-                //cmd.Parameters.AddWithValue("@Id", o.Id).Direction = ParameterDirection.InputOutput;
-                cmd.Parameters.AddWithValue("@IdReg", o.IdReg);
-                cmd.Parameters.AddWithValue("@RegName", o.RegName);
-                cmd.Parameters.AddWithValue("@CardCode", o.CardCode);
-                cmd.Parameters.AddWithValue("@CardName", o.CardName);
-                cmd.Parameters.AddWithValue("@Sentido", o.Sentido);
-                cmd.Parameters.AddWithValue("@Detalle", o.Detalle);
-                cmd.Parameters.AddWithValue("@Cantidad", o.Cantidad);
-                cmd.Parameters.AddWithValue("@Imputado", o.Imputado);
-                cmd.Parameters.AddWithValue("@Operario", o.Operario);
-                cmd.ExecuteNonQuery();
-
-                //post transacciones
-                //SqlCommand cmd2 = new SqlCommand("dbo.POST_TRANSACCIONES", cn);
-                //cmd2.Transaction = tran;
-                //cmd2.CommandType = CommandType.StoredProcedure;
-                //cmd2.Parameters.AddWithValue("@Tipo", "A");
-                //cmd2.Parameters.AddWithValue("@Tabla", "OTRC");
-                //cmd2.Parameters.AddWithValue("@DocNum", cmd.Parameters["@Id"].Value);
-                //cmd2.Parameters.AddWithValue("@DocEntry", cmd.Parameters["@Id"].Value);
-                //cmd2.ExecuteNonQuery();
-
-				tran.Commit();
-			}
-            catch (Exception e1) { tran.Rollback();  throw new Exception("Error en registro: " + e1.Message); }
-            cn.Close();
+                throw new Exception("Error en registro: " + e.Message);
+            }
         }
+
+
         public List<OTRC_E.RptTransacciones> listarTransacciones(OTRC_E filtro)
         {
             List<OTRC_E.RptTransacciones> lista = new List<OTRC_E.RptTransacciones>();
