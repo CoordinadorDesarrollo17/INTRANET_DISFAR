@@ -25,6 +25,7 @@ using iTextSharp.text;
 using iTextSharp.text.pdf;
 using Microsoft.Reporting.WebForms;
 using OfficeOpenXml;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using Rotativa;
 using System;
 using System.Collections.Generic;
@@ -484,7 +485,7 @@ namespace Capa_Usuario.Controllers
                     ORTV_N ortvN = new ORTV_N();
                     Usuario_E usu = (Usuario_E)Session["UsuarioId"];
                     string Operario = $"{usu.Nombres} {usu.Apellidos}";
-                    int DocNum = ortvN.cancelarTicket(DocEntry, Operario, usu.IdRol);
+                    int DocNum = ortvN.Cancelar(DocEntry, Operario, usu.IdRol);
 
                     return RedirectToAction(vista, new { DocNum = DocNum });
 
@@ -2145,7 +2146,7 @@ namespace Capa_Usuario.Controllers
                     }
 
                     ViewBag.Mensaje = "Entregado Correctamente";
-                    int DocNum = ticketN.editarSeguimientoTicket("ENTREGADO", DocEntry, ticket);
+                    int DocNum = ticketN.Entregar(ticket);
                     return RedirectToAction("ListadoTicketsDespacho", new { DocNum = DocNum });
                 }
                 catch (Exception e) { ViewBag.Mensaje = e.Message; return View(ticketN.ObtenerDatosCompletosTicket(DocEntry)); }

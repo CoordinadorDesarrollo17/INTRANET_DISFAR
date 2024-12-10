@@ -795,7 +795,6 @@ namespace Capa_Usuario.Controllers
                     {
                         RRU0_N rru0N = new RRU0_N();
                         r0.OpEntrega = $"{user.Nombres} {user.Apellidos}";
-
                         rru0N.entregarRRU0(r0);
                     }
                     return RedirectToAction("ListadoEntregaRepartos", new { DocEntry = r0.DocEntry, Linea = r0.Linea, TipoRep = TipoRep });
