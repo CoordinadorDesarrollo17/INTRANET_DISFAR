@@ -552,7 +552,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
 								List<CC_ORTV_E> estadoEmpacado = ccORTV_D.ListarCC_ORTV(tcv.DocEntry, "FIN EMPACAR");
 								if (o.TipoRuta == "AC" && tcv.Estado != "PESADO" && estadoPesado[0].FechaOperacion == null) { throw new Exception("El ticket no se encuentra pesado: " + tcv.DocNum); }
 								if (o.TipoRuta != "AC" && tcv.Estado != "EMPACADO" && estadoEmpacado[0].FechaOperacion == null) { throw new Exception("El ticket no esta empacado " + tcv.DocNum); }
-								ticketD.preenviar(tcv.DocEntry, o.Propietario, tran, cn);
+								ticketD.Preenviar(tcv.DocEntry, o.Propietario, tran, cn);
 							}
 						}
 
@@ -674,7 +674,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
 						foreach (RRU0_E a in o.DetRRU0.Where(x => x.Estado != "LIBERADO"))
 						{
 							rru0D.enviarRRU0(a, tran, cn);
-							ortvD.enviar(new ORTV_E { DocEntry = a.DocEntryTicket, Operario = o.Operario }, tran, cn);
+							ortvD.Enviar(new ORTV_E { DocEntry = a.DocEntryTicket, Operario = o.Operario }, tran, cn);
 						}
 					}
 					if (o.DetRRU1 != null && o.DetRRU1.Count > 0)

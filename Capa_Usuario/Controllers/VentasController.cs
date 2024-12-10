@@ -102,8 +102,6 @@ namespace Capa_Usuario.Controllers
         }
         public JsonResult ObtenerDatosTicket(int docEntry)
         {
-            //verificacionAccesos(0);         // Validar sesion logueada, solo para ajax
-
             try
             {
                 ORTV_N ortvN = new ORTV_N();
@@ -160,11 +158,11 @@ namespace Capa_Usuario.Controllers
                     //Si usuario entidad llega con data al GET se entiende que el ticket esta siendo separado por un vendedor de reemplazo.
                     if (u != null && u.CodigoSap > 0 && !string.IsNullOrEmpty(u.Nombres) && !string.IsNullOrEmpty(u.Apellidos) && user.IdRol == 12)
                     {
-                        return View(ticketN.separarTicket(u));
+                        return View(ticketN.Separar(u));
                     }
                     else
                     {
-                        return View(ticketN.separarTicket(user));
+                        return View(ticketN.Separar(user));
                     }
                 }
             }
@@ -185,7 +183,7 @@ namespace Capa_Usuario.Controllers
                     Usuario_E user = (Usuario_E)Session["UsuarioId"];
                     ticket.OpRegistro = $"{user.Nombres} {user.Apellidos}";
                     ticket.WhsCodeLog = $"{user.WhsCode}";
-                    int DocNum = ticketN.registrarTicket(ticket);
+                    int DocNum = ticketN.Registrar(ticket);
                     return RedirectToAction("ListadoTicketsVenta", new { DocNum = DocNum });
                 }
                 catch (Exception e)
@@ -258,7 +256,7 @@ namespace Capa_Usuario.Controllers
                     t.Vendedor = $"{user.Nombres} {user.Apellidos}";     // Seteamos el usuario Propietario con el nombre del usuario en sesiòn
                     t.OpRegistro = $"{user.Nombres} {user.Apellidos}";     // Seteamos el valor de OpRegistro para grabarlo en la transaccion de regalo si lo tuviera.
                     t.WhsCodeLog = $"{user.WhsCode}";
-                    ticketN.editarTicket(DocEntry, t);
+                    ticketN.Editar(DocEntry, t);
                     return RedirectToAction("ListadoTicketsVenta", new { DocNum = t.DocNum });
                 }
                 catch (Exception e)
@@ -3565,7 +3563,7 @@ namespace Capa_Usuario.Controllers
         {
             return Json(ticketN.CalcularMontos(t));
         }
-        public ActionResult ValidarDatosTicket(ORTV_E t)
+        public ActionResult ValidarDatosTicket(ORTV_E t) //llamada desde ajax por formularios de ticket
         {
             string status = "true";
             try
@@ -3573,21 +3571,10 @@ namespace Capa_Usuario.Controllers
                 Usuario_E user = (Usuario_E)Session["UsuarioId"];
                 t.Vendedor = $"{user.Nombres} {user.Apellidos}";
                 t.WhsCodeLog = $"{user.WhsCode}";
-                ticketN.validarDatosTicket(t, 0);
-                if (t.Estado == "SEPARADO" && t.Observaciones2 == "SI")
-                {
-                    if (t.Det7 != null && t.Det7.Count > 0)
-                    {
-                        foreach (var det7 in t.Det7)
-                        {
-                            if (string.IsNullOrEmpty(det7.CardCode) || string.IsNullOrEmpty(det7.CardName) || det7.DocNumVinc == 0 || det7.MontoFinal == 0)
-                            {
-                                throw new Exception("El ticket vinculado en la linea " + det7.Linea + " no cumple con los datos requeridos.");
-                            }
-                        }
-                    }
-                    else { throw new Exception("Debe vincular tickets"); }
-                }
+
+                ticketN.ValidarDatosTicket(t, 0);
+
+              
                 return Content(status);
             }
             catch (Exception e) { return Content(e.Message); }
@@ -3954,8 +3941,7 @@ namespace Capa_Usuario.Controllers
         [HttpPost]
         public JsonResult verTicketsNoEntregados(int[] arrTickets)
         {
-            //verificacionAccesos(0);         // Validar sesion logueada, solo para ajax
-            return Json(ticketN.buscarVariosTickets(arrTickets));
+            return Json(ticketN.BuscarVariosTickets(arrTickets));
         }
         public ActionResult EditarTicketVentaSup(int DocEntry, int idOperation = 503)
         {
@@ -4028,7 +4014,7 @@ namespace Capa_Usuario.Controllers
         public JsonResult CambiarVisibleTicket(int DocEntry)
         {
             //verificacionAccesos(0);
-            ORTV_N ortvN = new ORTV_N(); var result = ortvN.editarVisibilidadTicket(DocEntry);
+            ORTV_N ortvN = new ORTV_N(); var result = ortvN.EditarVisibilidadTicket(DocEntry);
             return Json(new { Datos = result });
         }
         //Registra impresion de documentos de un ticket para despacho (centro y arriola)
@@ -4038,7 +4024,7 @@ namespace Capa_Usuario.Controllers
             Usuario_E user = (Usuario_E)Session["UsuarioId"];
             var Operario = $"{user.Nombres} {user.Apellidos}";
             ORTV_N ortvN = new ORTV_N();
-            var result = ortvN.registrarImpresionTicket(DocEntry, Operario);
+            var result = ortvN.RegistrarImpresionTicket(DocEntry, Operario);
             return Json(new { Datos = result });
         }
 

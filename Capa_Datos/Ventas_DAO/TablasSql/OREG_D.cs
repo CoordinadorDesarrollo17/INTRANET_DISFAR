@@ -246,6 +246,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 tablaDatos.Columns.Add("IdReg", typeof(int));
                 tablaDatos.Columns.Add("StockComp", typeof(decimal));
 
+
                 DataTable tablaDatos2 = new DataTable();
                 tablaDatos2.Columns.Add("IdReg", typeof(int));
                 tablaDatos2.Columns.Add("RegName", typeof(string));

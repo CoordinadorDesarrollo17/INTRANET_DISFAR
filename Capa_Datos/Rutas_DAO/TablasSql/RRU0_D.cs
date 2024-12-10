@@ -48,7 +48,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                 SqlTransaction tran = cn.BeginTransaction();
                 try
                 {
-                    ortvD.preenviar(o.DocEntryTicket, o.Operario, tran, cn);
+                    ortvD.Preenviar(o.DocEntryTicket, o.Operario, tran, cn);
                     SqlCommand cmd = new SqlCommand("al.MANT_ORRU", cn, tran)
                     {
                         CommandType = CommandType.StoredProcedure
@@ -111,7 +111,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                             cmd.Parameters.AddWithValue("@ComentarioLiberado", o.ComentarioLiberado);
 
                             cmd.ExecuteNonQuery();
-                            new ORTV_D().liberar(o.DocEntryTicket, o.Operario, tran, cn);
+                            new ORTV_D().Liberar(o.DocEntryTicket, o.Operario, tran, cn);
                             tran.Commit();
                         }
                         catch (Exception ex)
@@ -142,7 +142,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                     cmd.Parameters.AddWithValue("@DocNum", 0).Direction = ParameterDirection.Output;
                     cmd.Parameters.AddWithValue("@Linea", o.Linea);
                     cmd.ExecuteNonQuery();
-                    ortvD.liberar(o.DocEntryTicket, o.Operario, tran, cn);
+                    ortvD.Liberar(o.DocEntryTicket, o.Operario, tran, cn);
                     tran.Commit();
                 }
                 catch { tran.Rollback(); cn.Close(); throw new Exception("error al anular detalle D:" + o.DocEntry + "-L:" + o.Linea); }
@@ -250,7 +250,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                 try
                 {
                     cn.Open();
-                    using (SqlTransaction tran = cn.BeginTransaction("PROCESO DE ENTREGA DE PEDIDOS EN REPARTOS"))
+                    using (SqlTransaction tran = cn.BeginTransaction("REPARTO DE PEDIDOS"))
                     {
                         try
                         {
@@ -291,7 +291,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                                         }
                                     }
 
-                                    ortvD.entregar(tk2, tran);
+                                    ortvD.Entregar(tk2, tran);
                                 }
                                 else if (orruE.TipoRuta == "AC")
                                 {
@@ -303,7 +303,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                                     ORTV_E tk2 = new ORTV_E { DocEntry = o.DocEntryTicket, OpRegistro = o.OpEntrega };
                                     tk2.Det5 = new List<RTV5_E>();
                                     tk2.Det5[0].RegEstado = RegEstado;
-                                    ortvD.entregar(tk2, tran);
+                                    ortvD.Entregar(tk2, tran);
                                 }
 
                                 // Guardar archivo si existe
