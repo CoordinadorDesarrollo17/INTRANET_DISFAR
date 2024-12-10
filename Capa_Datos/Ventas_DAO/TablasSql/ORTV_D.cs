@@ -28,7 +28,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
         CC_ORTV_D ccTicket = new CC_ORTV_D();
         OLDS_D lD = new OLDS_D();
         //Reporte para entrega de regalos en tickets
-        public List<ReporteRegalos> listarTicketsRegalo(string fechaTicketDesde, string fechaTicketHasta, string estadoTicket, string estadoRegalo)
+        public List<ReporteRegalos> ListarTicketsRegalo(string fechaTicketDesde, string fechaTicketHasta, string estadoTicket, string estadoRegalo)
         {
             List<ReporteRegalos> lista = new List<ReporteRegalos>();
 
@@ -286,7 +286,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             }
             return lista;
         }
-        private List<RTV5_E> obtenerDet5Ticket(int DocEntry)
+        public List<RTV5_E> obtenerDet5Ticket(int DocEntry)
         {
             List<RTV5_E> lista = new List<RTV5_E>();
             string query = "select * from vt.RTV5 where DocEntry=@DocEntry order by Linea";
@@ -363,7 +363,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             return lista;
         }
         /**********************************************************************/
-        public ORTV_E separarTicket(Usuario_E u)
+        public ORTV_E Separar(Usuario_E u)
         {
             //tipo mantenimiento AS(add separo) transaccion tipo A(add)
             ORTV_E t = new ORTV_E();
@@ -406,7 +406,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             return t;
         }
 
-        public int registrarTicket(ORTV_E ticket)
+        public int Registrar(ORTV_E ticket)
         {
             int status = -1;
             string zonaTk = ObtenerZonaDestino(ticket.LugarDestino,ticket.Zona);
@@ -429,7 +429,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                             // Si el ticket tiene deuda cliente, procesamos las operaciones relacionadas
                             if (ticket.CardCode != null && ticket.CardName != null)
                             {
-                                EjecutarOperacionesDeDeuda(cn, ticket,tran);
+                                EjecutarOperacionesDeDeuda(ticket,tran);
                             }
 
                             tran.Commit();
@@ -437,7 +437,6 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                         }
                         catch (Exception e1)
                         {
-                            // Si ocurre un error, hacer rollback
                             tran.Rollback();
                             throw new Exception("Error en registro: " + e1.Message);
                         }
@@ -445,7 +444,6 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 }
                 catch (Exception e2)
                 {
-                    // Si ocurre un error en la conexión o transacción
                     throw new Exception("Error en registro y conexión: " + e2.Message);
                 }
             }
@@ -508,51 +506,50 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 
             return cmd;
         }
-        private void EjecutarOperacionesDeDeuda(SqlConnection cn,  ORTV_E ticket, SqlTransaction tran)
+
+        private void EjecutarOperacionesDeDeuda(ORTV_E ticket, SqlTransaction tran)
         {
-            SqlCommand cmd2 = new SqlCommand("vt.MANT_OLDS", cn, tran)
+            SqlCommand cmd = new SqlCommand("vt.MANT_OLDS", tran.Connection, tran)
             {
                 CommandType = CommandType.StoredProcedure
             };
-            cmd2.Parameters.AddWithValue("@TipoMantenimiento", "AC");
-            cmd2.Parameters.AddWithValue("@C_CardCode", ticket.CardCode);
-            cmd2.Parameters.AddWithValue("@C_CardName", ticket.CardName);
-            cmd2.ExecuteNonQuery();
+            cmd.Parameters.AddWithValue("@TipoMantenimiento", "AC");
+            cmd.Parameters.AddWithValue("@C_CardCode", ticket.CardCode);
+            cmd.Parameters.AddWithValue("@C_CardName", ticket.CardName);
+
+            cmd.ExecuteNonQuery();
 
             if (ticket.DeudaCliente > 0)
             {
-                SqlCommand cmd4 = new SqlCommand("vt.MANT_OLDS", cn, tran)
-                {
-                    CommandType = CommandType.StoredProcedure
-                };
-                cmd4.Parameters.AddWithValue("@TipoMantenimiento", "AD");
-                cmd4.Parameters.AddWithValue("@C_CardCode", ticket.CardCode);
-                cmd4.Parameters.AddWithValue("@FechaOpe", ticket.FechaSapTicket);
-                cmd4.Parameters.AddWithValue("@Operacion", "VENTA");
-                cmd4.Parameters.AddWithValue("@DetOpe", "VENTA DeudaCliente, ticket:" + ticket.DocNum + " MR:" + ticket.MontoFinal);
-                cmd4.Parameters.AddWithValue("@Ingreso", ticket.DeudaCliente);
-                cmd4.Parameters.AddWithValue("@OperarioRegistro", ticket.OpRegistro);
-                cmd4.ExecuteNonQuery();
+                cmd.Parameters.Clear(); // Limpiar parámetros previos
+                cmd.Parameters.AddWithValue("@TipoMantenimiento", "AD");
+                cmd.Parameters.AddWithValue("@C_CardCode", ticket.CardCode);
+                cmd.Parameters.AddWithValue("@FechaOpe", ticket.FechaSapTicket);
+                cmd.Parameters.AddWithValue("@Operacion", "VENTA");
+                cmd.Parameters.AddWithValue("@DetOpe", "VENTA DeudaCliente, ticket:" + ticket.DocNum + " MR:" + ticket.MontoFinal);
+                cmd.Parameters.AddWithValue("@Ingreso", ticket.DeudaCliente);
+                cmd.Parameters.AddWithValue("@OperarioRegistro", ticket.OpRegistro);
+
+                cmd.ExecuteNonQuery();
             }
 
             if (ticket.DeudaEmpresa > 0)
             {
-                SqlCommand cmd5 = new SqlCommand("vt.MANT_OLDS", cn, tran)
-                {
-                    CommandType = CommandType.StoredProcedure
-                };
-                cmd5.Parameters.AddWithValue("@TipoMantenimiento", "AD");
-                cmd5.Parameters.AddWithValue("@C_CardCode", ticket.CardCode);
-                cmd5.Parameters.AddWithValue("@FechaOpe", ticket.FechaSapTicket);
-                cmd5.Parameters.AddWithValue("@Operacion", "VENTA");
-                cmd5.Parameters.AddWithValue("@DetOpe", "VENTA DeudaEmpresa, ticket:" + ticket.DocNum + " MR:" + ticket.MontoFinal);
-                cmd5.Parameters.AddWithValue("@Ingreso", ticket.DeudaEmpresa);
-                cmd5.Parameters.AddWithValue("@OperarioRegistro", ticket.OpRegistro);
-                cmd5.ExecuteNonQuery();
+                cmd.Parameters.Clear(); 
+                cmd.Parameters.AddWithValue("@TipoMantenimiento", "AD");
+                cmd.Parameters.AddWithValue("@C_CardCode", ticket.CardCode);
+                cmd.Parameters.AddWithValue("@FechaOpe", ticket.FechaSapTicket);
+                cmd.Parameters.AddWithValue("@Operacion", "VENTA");
+                cmd.Parameters.AddWithValue("@DetOpe", "VENTA DeudaEmpresa, ticket:" + ticket.DocNum + " MR:" + ticket.MontoFinal);
+                cmd.Parameters.AddWithValue("@Ingreso", ticket.DeudaEmpresa);
+                cmd.Parameters.AddWithValue("@OperarioRegistro", ticket.OpRegistro);
+
+                cmd.ExecuteNonQuery();
             }
+
         }
 
-        public int editarTicket(int docEntry, ORTV_E ticket)
+        public int Editar(int docEntry, ORTV_E ticket)
         {
             int status = -1;
             string zonaTk = ObtenerZonaDestino(ticket.LugarDestino,ticket.Zona);
@@ -716,6 +713,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 cmd.Parameters.Add(tbDet7);
             }
         }
+
         private List<ORTV_E> GenerarListaUnificadaStock(ORTV_E ticket, ORTV_E auxTK)
         {
             var ticketUnificado = new List<ORTV_E>();
@@ -748,7 +746,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 
         }
         
-        public int editarVisibilidadTicket(int DocEntry)
+        public int EditarVisibilidadTicket(int DocEntry)
         {
             SqlConnection cn = new SqlConnection(uti.cadSql);
             try
@@ -991,7 +989,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 
             return docNum;
         }
-        public int editarSeguimientoTicket(string Estado, int DocEntry, ORTV_E ticket)
+        public int EditarSeguimientoTicket(string Estado, int DocEntry, ORTV_E ticket)
         {
             int status = -1;
             bool gestionStock = false;
@@ -1047,7 +1045,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 
             SqlConnection cn = new SqlConnection(uti.cadSql);
             cn.Open();
-            SqlTransaction tran = cn.BeginTransaction("PROCESO DE ACTUALIZAR TICKET DESDE SEGUIMIENTO CONTROLLER");  
+            SqlTransaction tran = cn.BeginTransaction("ACTUALIZAR DESDE SEGUIMIENTO");  
 
             try
             {
@@ -1063,7 +1061,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 {
                     if (ticket.Det11 != null && ticket.Det11.Count > 1 && !string.IsNullOrEmpty(ticket.Det11[1].Operario))
                     {
-                        ticket.Det11.RemoveAt(0);  // Eliminamos el primer elemento porque este ya fue guardado en CC_ORTV
+                        ticket.Det11.RemoveAt(0);                           // Eliminamos el primer elemento porque este ya fue guardado en CC_ORTV
                         cmd.Parameters.AddWithValue("@MasOperariosSac", 1);
                         SqlParameter tbDet11 = new SqlParameter("@TPRTV11", SqlDbType.Structured);
                         tbDet11.Value = RTV11_E.tbDet11(ticket.Det11, ticket.DocEntry);
@@ -1071,8 +1069,90 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                         cmd.Parameters.AddWithValue("@TPRTV11", tbDet11.Value);
                     }
                 }
+                if (TipoMantenimiento == "UISVE")
+                {
+                    string EstadoNuevo = "PICKEANDO";
+                    var UltimaOperacion = ccTicket.ListarCC_ORTV(ticket.DocEntry, null, true).FirstOrDefault().Operacion;
+                    if (UltimaOperacion == "FIN PICKING") { EstadoNuevo = "VERIFICANDO"; }
+                    cmd.Parameters.AddWithValue("@EstadoNuevo", EstadoNuevo);
+                }
+                if (TipoMantenimiento.Equals("USVE"))
+                {
+                    // Verificadores de apoyo
+                    if (ticket.Det12 != null && ticket.Det12.Count > 1 && !String.IsNullOrEmpty(ticket.Det12[1].Operario))
+                    {
+                        ticket.Det12.RemoveAt(0);
+                        cmd.Parameters.AddWithValue("@MasOperariosChe", 1);
+                        SqlParameter tbDet12 = new SqlParameter("@TPRTV12", SqlDbType.Structured);
+                        tbDet12.Value = RTV12_E.tbDet12(ticket.Det12, ticket.DocEntry);
+                        tbDet12.TypeName = "vt.TPRTV12";
+                        cmd.Parameters.AddWithValue("@TPRTV12", tbDet12.Value);
+                    }
+                }
+                if (TipoMantenimiento == "UISEM")
+                {
+                    string EstadoNuevo = auxTK.Estado;
+                    var UltimaOperacion = ccTicket.ListarCC_ORTV(ticket.DocEntry, null, true).FirstOrDefault().Operacion;
+                    if (UltimaOperacion == "FIN VERIFICAR") { EstadoNuevo = "EMPACANDO"; }
+                    if (UltimaOperacion == "FIN PICKING") { EstadoNuevo = "VERIFICANDO"; }
+                    cmd.Parameters.AddWithValue("@EstadoNuevo", EstadoNuevo);
+                }
 
-                // Asegurar operaciones de stock, si es necesario
+                if (TipoMantenimiento.Equals("USAE"))
+                {
+                    string EstadoNuevo = string.Empty;
+                    if (!string.IsNullOrEmpty(ticket.Operario) && ticket.Operario == "07")
+                    {
+                        EstadoNuevo = "PICKEANDO";
+                    }
+                    else { EstadoNuevo = "EMPACANDO"; }
+                    cmd.Parameters.AddWithValue("@EstadoNuevo", EstadoNuevo);
+                    if (!string.IsNullOrEmpty(ticket.Operario) && ticket.Operario == "07")
+                    { cmd.Parameters.AddWithValue("@Almacen", ticket.Operario); }
+                }
+
+                //  Párametros enviados solo cuando Empacamos ticket
+                if (TipoMantenimiento.Equals("USEM"))
+                { // update seguimiento empacado
+                    cmd.Parameters.AddWithValue("@Cajas", ticket.Cajas);
+                    cmd.Parameters.AddWithValue("@NroMesa", ticket.NroMesa);
+                    cmd.Parameters.AddWithValue("@AlmProcedencia", ticket.AlmProcedencia);
+                    if (!string.IsNullOrEmpty(ticket.Operario) && ticket.Operario == "07")
+                    { cmd.Parameters.AddWithValue("@Almacen", ticket.Operario); }
+
+                    if (ticket.Det13 != null && ticket.Det13.Count > 1)
+                    {
+                        if (!string.IsNullOrEmpty(ticket.Det13[1].Operario))
+                        {
+                            // Empacadores de apoyo
+                            ticket.Det13.RemoveAt(0);                           // Eliminamos el primer elemento porque este ya fue guardado en CC_ORTV
+
+                            cmd.Parameters.AddWithValue("@MasOperariosEmp", 1);
+                            SqlParameter tbDet13 = new SqlParameter("@TPRTV13", SqlDbType.Structured);
+                            tbDet13.Value = RTV13_E.tbDet13(ticket.Det13, ticket.DocEntry);
+                            tbDet13.TypeName = "vt.TPRTV13";
+                            cmd.Parameters.AddWithValue("@TPRTV13", tbDet13.Value);
+                        }
+                    }
+                }
+
+
+                // datos de pesos
+                if (TipoMantenimiento.Equals("USPE") && ticket.Det6 != null && ticket.Det6.Count > 0)
+                {
+                    SqlParameter tbDet6 = new SqlParameter("@TPRTV6", SqlDbType.Structured);
+                    tbDet6.Value = RTV6_E.GenerarDataTable(ticket.Det6, ticket.DocEntry);
+                    tbDet6.TypeName = "vt.TPRTV6";
+                    cmd.Parameters.AddWithValue("@TPRTV6", tbDet6.Value);
+                }
+
+                /*se añadio para anular entregado diferente a Agencia*/
+                if (TipoMantenimiento.Equals("USAT"))
+                {
+                    cmd.Parameters.AddWithValue("@LugarDestino", ticket.LugarDestino);
+                }
+
+                // aqui va lo de regalos cuando es Entregado Ticket Venta
                 if (TipoMantenimiento.Equals("USET") && auxTK.Det5 != null && auxTK.Det5.Count >= 1)
                 {
                     if (auxTK.Det5[0].IdReg > 0 && auxTK.Det5[0].RegCant > 0)
@@ -1129,7 +1209,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             return status;
         }
 
-        public int registrarImpresionTicket(int DocEntry, string Operario)
+        public int RegistrarImpresionTicket(int DocEntry, string Operario)
         {
             SqlConnection cn = new SqlConnection(uti.cadSql);
             try
@@ -1145,7 +1225,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             catch { }
             return DocEntry;
         }
-        public void editarTicketSup(int DocEntry, ORTV_E ticket)
+        public void EditarTicketSup(int DocEntry, ORTV_E ticket)
         {
             SqlConnection cn = new SqlConnection(uti.cadSql);
             try
@@ -1241,7 +1321,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
         /**********************************************************************/
         /******************** METODOS PRINCIPALES EN MODULOS ******************/
 
-        public int pagarTicket(int DocEntry, ORTV_E ticket)
+        public int PagarTicket(int DocEntry, ORTV_E ticket)
         {   // tipo UPG update pago
             int status = -1;
             ORTV_E auxTK = ObtenerDatosCompletosTicket(DocEntry);
@@ -1299,7 +1379,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             catch (Exception e) { status = 0; cn.Close(); throw new Exception("Error en pago: " + e.Message); }
             return status;
         }
-        public int anularPagoTicket(int DocEntry)
+        public int AnularPagoTicket(int DocEntry)
         {   //TIPO MANT UAPG UPDATE ANULAR PAGO
             int status = -1;
             ORTV_E auxTK = ObtenerDatosCompletosTicket(DocEntry);
@@ -1354,7 +1434,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             catch (Exception e) { status = 0; cn.Close(); throw new Exception("Error de anularpago: " + e.Message); }
             return status;
         }
-        public List<Rpt_TicketVenta_E> listarTicketsAgencia()
+        public List<Rpt_TicketVenta_E> ListarTicketsAgencia()
         {
             List<Rpt_TicketVenta_E> lista = new List<Rpt_TicketVenta_E>();
             //SqlConnection cn = new SqlConnection(uti.cadSql);
@@ -1388,7 +1468,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 
             return lista;
         }
-        public int cancelarTicket(int DocEntry, string Estado, string Operario)
+        public int Cancelar(int DocEntry, string Estado, string Operario)
         {   //tipo mant UAN
             int status = -1;
             ORTV_E auxTK = ObtenerDatosCompletosTicket(DocEntry);
@@ -1482,7 +1562,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 		 * Usos: SeguimientoDeTicket
 		 */
 
-        public int emitirGuia(int DocEntry, Usuario_E u)
+        public int EmitirGuia(int DocEntry, Usuario_E u)
         {
             int status = -1;
             ORTV_E t;
@@ -1505,7 +1585,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             catch (Exception e) { status = 0; cn.Close(); throw new Exception("Error en emitir guia: " + e.Message); }
             return status;
         }
-        public int revertirGuiasTicket(int DocEntry, string operario)
+        public int RevertirGuiasTicket(int DocEntry, string operario)
         {
             int status = -1;
             ORTV_E t;
@@ -1528,7 +1608,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             catch (Exception e) { status = 0; cn.Close(); throw new Exception("Error en revertir guias: " + e.Message); }
             return status;
         }
-        public int facturarTicket(int DocEntry, Usuario_E u)
+        public int FacturarTicket(int DocEntry, Usuario_E u)
         {
             int status = -1;
             ORTV_E t;
@@ -1551,7 +1631,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             catch (Exception e) { status = 0; cn.Close(); throw new Exception("Error en facturacion: " + e.Message); }
             return status;
         }
-        public int revertirFacturarTicket(int DocEntry, string operario)
+        public int RevertirFacturarTicket(int DocEntry, string operario)
         {
             int status = -1;
             ORTV_E t;
@@ -1574,7 +1654,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             catch (Exception e) { status = 0; cn.Close(); throw new Exception("Error en AnFact: " + e.Message); }
             return status;
         }
-        public List<ORIN_E> listarNotasDeCreditoV(string CardCode)
+        public List<ORIN_E> ListarNotasDeCreditoV(string CardCode)
         {
             List<ORIN_E> lista = new List<ORIN_E>();
             string query = "SELECT \"DocEntry\",\"CardCode\",\"CardName\",\"DocTotal\",\"DocDate\",\"DocNum\" " +
@@ -1691,7 +1771,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             catch { cn.Close(); }
             return lista;
         }
-        public System.Data.DataTable tbRptAnalisisVentas(Capa_Entidad.Ventas_ENT.Formularios.FrmAnalisisVentas_E obj)
+        public System.Data.DataTable TbRptAnalisisVentas(Capa_Entidad.Ventas_ENT.Formularios.FrmAnalisisVentas_E obj)
         {
             List<string> campos = new List<string>();
             List<Type> tipos = new List<Type>();
@@ -1717,7 +1797,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             campos.Add("EstadoPago"); tipos.Add(typeof(string));
             campos.Add("LugEntregaSap"); tipos.Add(typeof(string));
 
-            DataTable tb = definirTabla(campos, tipos, "DataTableReporteAnalisisVentas");
+            DataTable tb = DefinirTabla(campos, tipos, "DataTableReporteAnalisisVentas");
             int i = 0;
             foreach (ORTV_E p in RptAnalisisVentas(obj))
             {
@@ -1831,7 +1911,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             }
             return t;
         }
-        public void confGastEnvio(ORTV_E o)
+        public void ConfGastEnvio(ORTV_E o)
         {
             string query = "update vt.ORTV set EstadoGasto='CONFIRMADO',PagoEnv=@PagoEnv where DocEntry=@DocEntry";
             SqlConnection cn = new SqlConnection(uti.cadSql);
@@ -1862,7 +1942,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             }
             catch { cn.Close(); }
         }
-        DataTable definirTabla(List<string> campos, List<Type> tipos, string nombre)
+        DataTable DefinirTabla(List<string> campos, List<Type> tipos, string nombre)
         {
             DataTable tb = new DataTable(nombre);
             int i = 0;
@@ -1875,7 +1955,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             }
             return tb;
         }
-        public string generaInfoListaClientes(string Fecha)
+        public string GeneraInfoListaClientes(string Fecha)
         {
             string info = "<datalist id='ListaClientes'>";
             foreach (OCRD_E x in listarClientes(Fecha))
@@ -1885,7 +1965,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             info += "</datalist>";
             return info;
         }
-        public string generaInfoListaDirDestinos(string CardCode)
+        public string GeneraInfoListaDirDestinos(string CardCode)
         {
             string info = "<option value=''>Seleccione</option>";
             foreach (RTV3_E x in listarDirDestinos(CardCode))
@@ -1894,7 +1974,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             }
             return info;
         }
-        public (string Persona, string Documento) obtenerPersonaRecojoParaGuia(int docNum)
+        public (string Persona, string Documento) ObtenerPersonaRecojoParaGuia(int docNum)
         {
             string Persona = ""; string Documento = "";
             int docEntry = DocEntryTicket(docNum);
@@ -1908,7 +1988,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 
             return (Persona, Documento);
         }
-        public (string HtmlContent, string TipoVenta) generaInfoListaOrdenesDeVenta(string fecha, string cardCode, int docNum)
+        public (string HtmlContent, string TipoVenta) GeneraInfoListaOrdenesDeVenta(string fecha, string cardCode, int docNum)
         {
             string info = string.Empty;
             int linea = 1;
@@ -1940,11 +2020,11 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             }
             return (info, tipoVenta);
         }
-        public string generaInfoListaNotasDeCreditoV(string CardCode)
+        public string GeneraInfoListaNotasDeCreditoV(string CardCode)
         {
             string info = string.Empty;
             int linea = 1;
-            List<ORIN_E> lista = listarNotasDeCreditoV(CardCode);
+            List<ORIN_E> lista = ListarNotasDeCreditoV(CardCode);
             if (lista.Count == 0) { return string.Empty; }
             foreach (ORIN_E n in lista)
             {
@@ -1986,7 +2066,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             return Guias;
         }
         //Metodos desde Hojas de Reparto
-        public void preenviar(int DocEntry, string Operario, SqlTransaction tran, SqlConnection cn)
+        public void Preenviar(int DocEntry, string Operario, SqlTransaction tran, SqlConnection cn)
         {
             ORTV_E tk = ObtenerDatosCompletosTicket(DocEntry);
             try
@@ -2005,7 +2085,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             }
             catch { tran.Rollback(); cn.Close(); }
         }
-        public void liberar(int DocEntry, string Operario, SqlTransaction tran, SqlConnection cn)
+        public void Liberar(int DocEntry, string Operario, SqlTransaction tran, SqlConnection cn)
         {
             ORTV_E tk = ObtenerDatosCompletosTicket(DocEntry);
 
@@ -2034,7 +2114,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 throw new Exception(e.Message);
             }
         }
-        public void enviar(ORTV_E o, SqlTransaction tran, SqlConnection cn)
+        public void Enviar(ORTV_E o, SqlTransaction tran, SqlConnection cn)
         {
             ORTV_E ortvE = ObtenerDatosCompletosTicket(o.DocEntry);
             if (ortvE.Estado != "PREENVIO") { throw new Exception("Error envio: El ticket " + ortvE.DocNum + " no esta preenvio"); }
@@ -2055,7 +2135,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             }
             catch (Exception e) { tran.Rollback(); cn.Close(); throw new Exception(e.Message); }
         }
-        public void entregar(ORTV_E o, SqlTransaction tran)
+        public void Entregar(ORTV_E o, SqlTransaction tran)
         {
             bool gestionarStock = false;
             ORTV_E ortvE = ObtenerDatosCompletosTicket(o.DocEntry);
@@ -2150,8 +2230,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             }
         }
 
-
-        public int entregarMasivoTicket(int DocEntry, Tickets t)
+        public int EntregarMasivoTicket(int DocEntry, Tickets t)
         {
             int status = 0, regalos = 0;
          
@@ -2228,9 +2307,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 
             return status;  
         }
-
-
-        public Tickets buscarTicket(int DocEntry)
+        public Tickets Buscar(int DocEntry)
         {
             Tickets result = new Tickets();
             string query = "select t0.DocEntry,t0.DocNum, t0.CardCode,t0.CardName, t0.Estado,t1.RegCant, t1.RegCate, t1.RegEstado, t1.IdReg  from vt.ORTV t0" +
@@ -2275,7 +2352,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             }
             return result;
         }
-        public List<Tickets> buscarVariosTickets(int[] arrDocNum)
+        public List<Tickets> BuscarVariosTickets(int[] arrDocNum)
         {
             List<Tickets> lista = new List<Tickets>();
             int cantidadElementos = arrDocNum.Count();
@@ -2558,7 +2635,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 
             return lista;
         }
-        public List<ORTV_E> listarTicketsParaRepartos(ORTV_E filtro, string[] estados, out int cantidadTicketsNoEnviados)
+        public List<ORTV_E> ListarTicketsParaRepartos(ORTV_E filtro, string[] estados, out int cantidadTicketsNoEnviados)
         {
             List<ORTV_E> lista = new List<ORTV_E>(); cantidadTicketsNoEnviados = 0;
             int cantidadElementos = estados.Count();
@@ -2624,7 +2701,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             catch { cn.Close(); }
             return lista;
         }
-        public List<ORTV_E> listarTicketsRepartosNoEnviados(ORTV_E filtro, string[] estados)
+        public List<ORTV_E> ListarTicketsRepartosNoEnviados(ORTV_E filtro, string[] estados)
         {
             List<ORTV_E> lista = new List<ORTV_E>();
             int cantidadElementos = estados.Count();
@@ -2659,7 +2736,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             catch { cn.Close(); }
             return lista;
         }
-        //
+
         public string EstadoTicket(int docEntry)
         {
             string estado = "";

@@ -37,7 +37,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             if (datosTicket.Estado.Equals("CANCELADO")) { throw new Exception("NO PUEDE PAGAR UN TICKET CANCELADO"); }
             if (datosTicket.EstadoPago.Equals("PAGADO")) { throw new Exception("EL TICKET YA SE ENCUENTRA PAGADO"); }
 
-            int docNumTicket = ticketV.pagarTicket(DocEntry, ticket);
+            int docNumTicket = ticketV.PagarTicket(DocEntry, ticket);
 
             // Para tickets a cuadrar (PAGO EFECTIVO)
             if (docNumTicket > 0)
@@ -62,7 +62,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             if (t.Estado.Equals("ENTREGADO")) { throw new Exception("NO PUEDES ANULARPAGO DE TICKET ENTREGADO"); }
             if (t.Estado.Equals("ENVIADO")) { throw new Exception("NO PUEDES ANULARPAGO DE TICKET ENVIADO"); }
             if (t.EstadoGasto == "CONFIRMADO") { throw new Exception("No puedes Anular Pago de EstadoGasto confirmado"); }
-            return ticketV.anularPagoTicket(DocEntry);
+            return ticketV.AnularPagoTicket(DocEntry);
         }
 
         public void ConfGastEnvio(ORTV_E o)
@@ -73,7 +73,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             if (ortvE.EstadoGasto == "CONFIRMADO") { throw new Exception("Error: El ticket ya esta confirmado"); }
             o.CardCode = ortvE.CardCode; o.GastoEnvio = ortvE.GastoEnvio; o.DocNum = ortvE.DocNum;
             if (o.DetOpe == null) { o.DetOpe = ""; }
-            ticketV.confGastEnvio(o);
+            ticketV.ConfGastEnvio(o);
         }
 
         public OTC_E ObtenerDatosTicketACuadrar(int docEntryTicket, int idOTC)

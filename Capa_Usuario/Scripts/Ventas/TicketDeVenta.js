@@ -202,7 +202,7 @@ function reporteLibroSaldo(estado) {
 }
 //Tickets vinculados :
 //funcion para mostrar buscador de tickets a vincular
-//v
+
 function mostrarTableTicketsVinculados(valor) {
     var LugarDestino = $("#LugarDestino").val();
     //mostrar el llenado de tickets vinculados si la eleccion es SI
@@ -313,8 +313,6 @@ function agregarTicketVinculado(DocEntry, DocNum, CardCode, CardName, MontoFinal
         $("#ClienteVinculado").val("");
         $("#RucClienteVinculado").val("");
     }
-
-
 }
 function borrarTrTablaVinculados(dom) {
     var i = -1;
@@ -337,7 +335,7 @@ function borrarTrTablaVinculados(dom) {
         i = i + 1;
     })
 }
-//v
+
 function validacionVerificarMontos(estado) {
     var object;
     if (estado === '') {
