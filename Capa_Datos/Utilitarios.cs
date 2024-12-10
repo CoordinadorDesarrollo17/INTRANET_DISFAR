@@ -47,8 +47,8 @@ namespace Capa_Datos
             this.serverSql = @"WIN-DC\DIEGO_BD";
             this.userSql = "sa";
             this.passwordSql = "@Ndr@de123";
-            this.BDsql = "INTRANET_V2";
-            //this.BDsql = "PRUEBAS_13_10";
+            //this.BDsql = "INTRANET_V2";
+            this.BDsql = "PRUEBAS_13_10";
 
             this.cadSql = $@"Server={this.serverSql};" +
                           $"Database={this.BDsql};" +

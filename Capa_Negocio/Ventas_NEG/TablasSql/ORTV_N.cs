@@ -814,22 +814,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 if (!t.Estado.Equals("PESADO")) { throw new Exception("Solo puedes ANULARPESADO a un ticket PESADO"); }
             }
             else if (Estado.Equals("ENTREGADO"))
-            {
-
-                if (t.Estado.Equals("ENTREGADO")) { throw new Exception("El ticket ya se encuentra  ENTREGADO"); }
-                if (!t.Estado.Equals("EMPACADO") && !t.Estado.Equals("PESADO") && !t.Estado.Equals("ENVIADO"))
-                {
-
-                    throw new Exception("El ticket debe estar en EMPACADO, PESADO o ENVIADO, debes revertir o continuar el proceso");
-                }
-
-
-                if (!t.EstadoFacturacion.Equals("FACTURADO")) { throw new Exception("Solo puedes entregar ticket facturado"); }
-                if (t.Det5 != null && t.Det5.Count >= 1)
-                {
-                    if (t.Det5[0].IdReg > 0) { if (t.Det5[0].RegEstado != "Entregado") { throw new Exception("Debe Entregar el regalo"); } }
-                }
-            }
+            { throw new Exception("NO SE PUEDE ENTREGAR POR ESTE FLUJO"); }
             else if (Estado.Equals("ANULARENTREGADO"))
             {
                 var to = ObtenerDatosCompletosTicket(t.DocEntry);
@@ -845,7 +830,21 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         {
             return tkD.RegistrarImpresionTicket(DocEntry, Operario);
         }
-        public int cancelarTicket(int DocEntry, string Operario, int IdRol)
+        public int Entregar(ORTV_E t)
+        {
+            if (t.Estado.Equals("ENTREGADO")) { throw new Exception("El ticket ya se encuentra ENTREGADO"); }
+            if (!t.Estado.Equals("ENVIADO"))
+            {
+                throw new Exception("El ticket debe estar en ENVIADO, debes revertir o continuar el proceso");
+            }
+            if (!t.EstadoFacturacion.Equals("FACTURADO")) { throw new Exception("Solo puedes entregar ticket facturado"); }
+            if (t.Det5 != null && t.Det5.Count >= 1)
+            {
+                if (t.Det5[0].IdReg > 0) { if (t.Det5[0].RegEstado != "Entregado") { throw new Exception("Debe entregar el regalo"); } }
+            }
+            return tkD.Entregar(t);
+        }
+        public int Cancelar(int DocEntry, string Operario, int IdRol)
         {
             ORTV_E t = tkD.ObtenerDatosCompletosTicket(DocEntry);
             bool continuarCancelarTicket = false;

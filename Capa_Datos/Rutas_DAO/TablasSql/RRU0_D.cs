@@ -291,7 +291,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                                         }
                                     }
 
-                                    ortvD.Entregar(tk2, tran);
+                                    ortvD.EntregarDesdeReparto(tk2, tran);
                                 }
                                 else if (orruE.TipoRuta == "AC")
                                 {
@@ -303,7 +303,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                                     ORTV_E tk2 = new ORTV_E { DocEntry = o.DocEntryTicket, OpRegistro = o.OpEntrega };
                                     tk2.Det5 = new List<RTV5_E>();
                                     tk2.Det5[0].RegEstado = RegEstado;
-                                    ortvD.Entregar(tk2, tran);
+                                    ortvD.EntregarDesdeReparto(tk2, tran);
                                 }
 
                                 // Guardar archivo si existe

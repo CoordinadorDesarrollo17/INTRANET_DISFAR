@@ -2153,98 +2153,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             }
             catch (Exception e) { tran.Rollback(); cn.Close(); throw new Exception(e.Message); }
         }
-
-        // public void Entregar(ORTV_E o, SqlTransaction tran)
-        // {
-        //     bool gestionarStock = false;
-        //     ORTV_E ortvE = ObtenerDatosCompletosTicket(o.DocEntry);
-
-        //     if (ortvE.Estado != "ENVIADO")
-        //     {
-        //         throw new Exception("Error entrega: El ticket " + ortvE.DocNum + " no está enviado");
-        //     }
-
-        //     // Para las rutas hacia agencia con regalo siempre pasa a ENTREGADO internamente
-        //     if (ortvE.LugarDestino == "Agencia" && ortvE.Det5 != null && ortvE.Det5.Count >= 1)
-        //     {
-        //         if (ortvE.Det5[0].IdReg > 0 && ortvE.Det5[0].RegCant > 0)
-        //         {
-        //             o.Det5[0].RegEstado = "Entregado";
-        //         }
-        //     }
-
-        //         try
-        //         {
-        //             using (SqlCommand cmd = new SqlCommand("vt.MANT_ORTV", tran.Connection, tran))  // Usamos la transacción proporcionada
-        //             {
-        //                 cmd.CommandType = CommandType.StoredProcedure;
-        //                 cmd.Parameters.AddWithValue("@TipoMantenimiento", "UETR");  // update entregar ticket desde ruta 
-        //                 cmd.Parameters.AddWithValue("@Operario", o.Operario);
-        //                 cmd.Parameters.AddWithValue("@DocEntry", o.DocEntry);
-        //                 cmd.Parameters.AddWithValue("@Estado", ortvE.Estado);  // Para la validación del Proc. Almacenado (que sea distinto ANULADO)
-        //                 cmd.Parameters.AddWithValue("@PagoEnv", ((object)o.PagoEnv) ?? DBNull.Value);
-        //                 cmd.Parameters.AddWithValue("@ClaveEnv", ((object)o.ClaveEnv) ?? DBNull.Value);
-        //                 cmd.Parameters.AddWithValue("@DocNum", 0).Direction = ParameterDirection.Output;
-
-        //                 // Manejo de Regalos (Det5)
-        //                 if (ortvE.Det5 != null && ortvE.Det5.Count >= 1)
-        //                 {
-        //                     if (ortvE.Det5[0].IdReg > 0 && ortvE.Det5[0].RegCant > 0)
-        //                     {
-        //                         if (o.Det5[0].RegEstado != "Entregado")
-        //                         {
-        //                             throw new Exception("Debe entregar regalo");
-        //                         }
-        //                         ortvE.Det5[0].RegEstado = o.Det5[0].RegEstado;
-
-        //                         SqlParameter tbDet5 = new SqlParameter("@TPRTV5", SqlDbType.Structured);
-        //                         tbDet5.Value = RTV5_E.GenerarDataTable(ortvE.Det5, ortvE.DocEntry);
-        //                         tbDet5.TypeName = "vt.TPRTV5";
-        //                         cmd.Parameters.AddWithValue("@TPRTV5", tbDet5.Value);
-
-        //                         gestionarStock = true;
-        //                     }
-        //                 }
-
-        //                 cmd.ExecuteNonQuery();  
-
-        //                 if (gestionarStock)
-        //                 {
-        //                     OREG_D oregD = new OREG_D();
-
-        //                     if (ortvE.Det5 != null && ortvE.Det5.Count > 0)
-        //                     {
-        //                         ortvE.Det5[0].RegCant = -1 * ortvE.Det5[0].RegCant;
-        //                         ortvE.OpRegistro = o.Operario;
-        //                         // Pasar la transacción para asegurar que las operaciones de stock se ejecuten bajo la misma transacción
-        //                         oregD.CompromisosStock(new List<ORTV_E> { ortvE }, tran);
-
-        //                         oregD.RegistrarGestionStock(
-        //                             new OREG_E() { Id = ortvE.Det5[0].IdReg, StockDisp = ortvE.Det5[0].RegCant },
-        //                             new OTRC_E()
-        //                             {
-        //                                 IdReg = ortvE.Det5[0].IdReg,
-        //                                 RegName = ortvE.Det5[0].RegCate + " " + ortvE.Det5[0].RegTipo,
-        //                                 CardCode = ortvE.CardCode,
-        //                                 CardName = ortvE.CardName,
-        //                                 Sentido = "Salida",
-        //                                 Detalle = ortvE.DocNum.ToString(),
-        //                                 Cantidad = ortvE.Det5[0].RegCant,
-        //                                 Operario = ortvE.OpRegistro
-        //                             },
-        //                             tran); 
-        //                     }
-        //                 }
-        //             }
-
-        //         }
-        //         catch (Exception e)
-        //         {
-        //             throw new Exception("Error al entregar el ticket: " + e.Message, e);
-        //         }
-        //}
-
-        public void Entregar(ORTV_E o, SqlTransaction tran)
+        public void EntregarDesdeReparto(ORTV_E o, SqlTransaction tran)
         {
             bool gestionarStock = false;
             ORTV_E ortvE = ObtenerDatosCompletosTicket(o.DocEntry);
@@ -2268,15 +2177,14 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 using (SqlCommand cmd = new SqlCommand("vt.MANT_ORTV", tran.Connection, tran))  // Usamos la transacción proporcionada
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "UETR");  // update entregar ticket desde ruta 
+                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "UETR");  
                     cmd.Parameters.AddWithValue("@Operario", o.Operario);
                     cmd.Parameters.AddWithValue("@DocEntry", o.DocEntry);
-                    cmd.Parameters.AddWithValue("@Estado", ortvE.Estado);  // Para la validación del Proc. Almacenado (que sea distinto ANULADO)
+                    cmd.Parameters.AddWithValue("@Estado", ortvE.Estado); 
                     cmd.Parameters.AddWithValue("@PagoEnv", ((object)o.PagoEnv) ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@ClaveEnv", ((object)o.ClaveEnv) ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@DocNum", 0).Direction = ParameterDirection.Output;
 
-                    // Manejo de Regalos (Det5)
                     if (ortvE.Det5 != null && ortvE.Det5.Count >= 1)
                     {
                         if (ortvE.Det5[0].IdReg > 0 && ortvE.Det5[0].RegCant > 0)
@@ -2296,22 +2204,19 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                         }
                     }
 
-                    cmd.ExecuteNonQuery();  // Ejecutar el stored procedure
+                    cmd.ExecuteNonQuery(); 
 
-                    // Si se gestionó stock, ejecutar las operaciones relacionadas
                     if (gestionarStock)
                     {
                         OREG_D oregD = new OREG_D();
 
                         if (ortvE.Det5 != null && ortvE.Det5.Count > 0)
                         {
-                            ortvE.Det5[0].RegCant = -1 * ortvE.Det5[0].RegCant;  // Ajuste de cantidad de regalo
+                            ortvE.Det5[0].RegCant = -1 * ortvE.Det5[0].RegCant; 
                             ortvE.OpRegistro = o.Operario;
 
-                            // Pasar la transacción para asegurar que las operaciones de stock se ejecuten bajo la misma transacción
                             oregD.CompromisosStock(new List<ORTV_E> { ortvE }, tran);
 
-                            // Registrar la gestión del stock
                             oregD.RegistrarGestionStock(
                                 new OREG_E() { Id = ortvE.Det5[0].IdReg, StockDisp = ortvE.Det5[0].RegCant },
                                 new OTRC_E()
@@ -2325,7 +2230,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                                     Cantidad = ortvE.Det5[0].RegCant,
                                     Operario = ortvE.OpRegistro
                                 },
-                                tran);  // Usamos la misma transacción
+                                tran);  
                         }
                     }
                 }
@@ -2333,9 +2238,83 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             }
             catch (Exception e)
             {
-                // En caso de error, hacer rollback y lanzar la excepción
                 throw new Exception("Error al entregar el ticket: " + e.Message, e);
             }
+        }
+        public int Entregar(ORTV_E t)
+        {
+            int status = 0, regalos = 0;
+
+            using (SqlConnection cn = new SqlConnection(uti.cadSql))
+            {
+                try
+                {
+                    cn.Open();
+                    using (SqlTransaction tran = cn.BeginTransaction("ENTREGA DE UN TICKET"))
+                    {
+                        using (SqlCommand cmd = new SqlCommand("vt.MANT_ORTV", cn, tran))
+                        {
+                            cmd.CommandType = CommandType.StoredProcedure;
+                            cmd.Parameters.AddWithValue("@TipoMantenimiento", "USET");
+                            cmd.Parameters.AddWithValue("@DocEntry", t.DocEntry);
+                            cmd.Parameters.AddWithValue("@DocNum", 0).Direction = ParameterDirection.Output;
+                            cmd.Parameters.AddWithValue("@Estado", t.Estado);
+
+                            // Gestión de Regalos
+                            if (t.Det5 != null && t.Det5.Count > 0)
+                            {
+                                cmd.Parameters.AddWithValue("@RegEstado", (t.Det5[0].IdReg > 0 && t.Det5[0].RegCant > 0) ? "Entregado" : t.Det5[0].RegEstado);
+                                regalos = 1;  // 1: SI
+                            }
+
+                            cmd.Parameters.AddWithValue("@TieneRegalos", regalos);
+                            cmd.Parameters.AddWithValue("@Operario", t.OpRegistro);
+
+                            cmd.ExecuteNonQuery();
+
+                            // Obtener el número de documento generado
+                            status = Convert.ToInt32(cmd.Parameters["@DocNum"].Value);
+                        }
+
+                        // Gestionar el stock si hay regalos
+                        if (status >= 1 && t.Det5 != null && t.Det5.Count > 0)
+                        {
+                            if (t.Det5[0].IdReg > 0 && t.Det5[0].RegCant > 0)
+                            {
+                                OREG_D oregD = new OREG_D();
+                                t.Det5[0].RegCant = -1 * t.Det5[0].RegCant;  // Restar cantidad del regalo
+
+                                // Registrar el compromiso de stock
+                                oregD.CompromisosStock(new List<ORTV_E> { t }, tran);
+
+                                // Registrar la gestión de stock
+                                oregD.RegistrarGestionStock(
+                                    new OREG_E() { Id = t.Det5[0].IdReg, StockDisp = t.Det5[0].RegCant },
+                                    new OTRC_E()
+                                    {
+                                        IdReg = t.Det5[0].IdReg,
+                                        RegName = t.Det5[0].RegCate + " " + t.Det5[0].RegTipo,
+                                        CardCode = t.CardCode,
+                                        CardName = t.CardName,
+                                        Sentido = "Salida",
+                                        Detalle = t.DocNum.ToString(),
+                                        Cantidad = t.Det5[0].RegCant,
+                                        Operario = t.OpRegistro
+                                    },
+                                    tran);
+                            }
+                        }
+
+                        tran.Commit();
+                    }
+                }
+                catch (Exception e)
+                {
+                    throw new Exception("Error al entregar el ticket masivo: " + e.Message, e);
+                }
+            }
+
+            return status;
         }
         public int EntregarMasivoTicket(int DocEntry, Tickets t)
         {
@@ -2346,7 +2325,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 try
                 {
                     cn.Open();
-                    using (SqlTransaction tran = cn.BeginTransaction("PROCESO DE ENTREGA MASIVA DE TICKETS"))
+                    using (SqlTransaction tran = cn.BeginTransaction("ENTREGA MASIVA DE TICKETS"))
                     {
                         // Creamos el comando asociado a la transacción
                         using (SqlCommand cmd = new SqlCommand("vt.MANT_ORTV", cn, tran))
