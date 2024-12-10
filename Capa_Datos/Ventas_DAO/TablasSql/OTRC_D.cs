@@ -36,6 +36,28 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             }
         }
 
+        public void registrarTransaccionDataTable(DataTable tablaDatos2, SqlTransaction tran)
+        {
+            try
+            {
+
+                using (SqlCommand cmd = new SqlCommand("vt.MANT_OTRC", tran.Connection, tran))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.CommandTimeout = 120;
+
+                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "AA");
+                    SqlParameter param = cmd.Parameters.AddWithValue("@TablaDatos", tablaDatos2);
+                    param.SqlDbType = SqlDbType.Structured;
+
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Error en registro: " + e.Message);
+            }
+        }
 
         public List<OTRC_E.RptTransacciones> listarTransacciones(OTRC_E filtro)
         {

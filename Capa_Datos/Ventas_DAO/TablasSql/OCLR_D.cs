@@ -165,26 +165,67 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             }
         }
         //Revisado
-        public void CompromisoClienteRegalo(CLR1_E obj, SqlTransaction tran)
+        //public void CompromisoClienteRegalo(CLR1_E obj, SqlTransaction tran)
+        //{
+        //    string query = "UPDATE vt.CLR1 SET Cantidad = Cantidad - @Cantidad WHERE CardCode = @CardCode AND IdReg = @IdReg; UPDATE vt.OCLR SET Saldo=Saldo - @Cantidad  WHERE CardCode = @CardCode ;";
+
+        //    try
+        //    {
+        //        using (SqlCommand cmd = new SqlCommand(query, tran.Connection, tran)) 
+        //        {
+        //            cmd.CommandType = CommandType.Text;
+        //            cmd.CommandTimeout = 120;
+        //            cmd.Parameters.AddWithValue("@CardCode", obj.CardCode);
+        //            cmd.Parameters.AddWithValue("@IdReg", obj.IdReg);
+        //            cmd.Parameters.AddWithValue("@Cantidad", obj.Cantidad);
+
+        //            cmd.ExecuteNonQuery();
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        throw new Exception($"Error al procesar compromiso para el cliente con CardCode: {obj.CardCode} y IdReg: {obj.IdReg}. Detalle: {e.Message}", e);
+        //    }
+        //}
+        public void CompromisoClienteRegaloDataTable(DataTable tablaDatos3, SqlTransaction tran)
         {
-            string query = "UPDATE vt.CLR1 SET Cantidad = Cantidad - @Cantidad WHERE CardCode = @CardCode AND IdReg = @IdReg; UPDATE vt.OCLR SET Saldo=Saldo - @Cantidad  WHERE CardCode = @CardCode ;";
+            string query = @"
+        UPDATE vt.CLR1 
+        SET Cantidad = Cantidad - @Cantidad 
+        WHERE CardCode = @CardCode AND IdReg = @IdReg;
+        
+        UPDATE vt.OCLR 
+        SET Saldo = Saldo - @Cantidad 
+        WHERE CardCode = @CardCode;";
 
             try
             {
-                using (SqlCommand cmd = new SqlCommand(query, tran.Connection, tran)) 
+                using (SqlCommand cmd = new SqlCommand(query, tran.Connection, tran))
                 {
                     cmd.CommandType = CommandType.Text;
                     cmd.CommandTimeout = 120;
-                    cmd.Parameters.AddWithValue("@CardCode", obj.CardCode);
-                    cmd.Parameters.AddWithValue("@IdReg", obj.IdReg);
-                    cmd.Parameters.AddWithValue("@Cantidad", obj.Cantidad);
 
-                    cmd.ExecuteNonQuery();
+                    // Añadimos los parámetros pero sin valores iniciales
+                    cmd.Parameters.Add("@CardCode", SqlDbType.NVarChar, 50);
+                    cmd.Parameters.Add("@IdReg", SqlDbType.Int);
+                    cmd.Parameters.Add("@Cantidad", SqlDbType.Decimal);
+
+                    // Iterar sobre las filas del DataTable
+                    foreach (DataRow row in tablaDatos3.Rows)
+                    {
+                        // Establecer valores de los parámetros desde la fila
+                        cmd.Parameters["@CardCode"].Value = row["CardCode"];
+                        cmd.Parameters["@IdReg"].Value = row["IdReg"];
+                        cmd.Parameters["@Cantidad"].Value = row["Cantidad"];
+
+                        // Ejecutar el comando
+                        cmd.ExecuteNonQuery();
+                    }
                 }
             }
             catch (Exception e)
             {
-                throw new Exception($"Error al procesar compromiso para el cliente con CardCode: {obj.CardCode} y IdReg: {obj.IdReg}. Detalle: {e.Message}", e);
+                throw new Exception("Error al procesar compromisos para los clientes. Detalle: " + e.Message, e);
             }
         }
 

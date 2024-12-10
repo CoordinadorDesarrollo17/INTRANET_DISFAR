@@ -8,6 +8,8 @@ using System.Data.SqlClient;
 using System.Data;
 using Capa_Entidad.Ventas_ENT;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using System.Windows.Forms;
+using DocumentFormat.OpenXml.Drawing;
 
 namespace Capa_Datos.Ventas_DAO.TablasSql
 {
@@ -232,7 +234,6 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             }
         }
 
-
         public void CompromisosStock(List<ORTV_E> listaTickets, SqlTransaction tran)
         {
             OTRC_D otrcD = new OTRC_D();
@@ -241,61 +242,95 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 
             try
             {
-				foreach (var ticket in listaTickets)
+                DataTable tablaDatos = new DataTable();
+                tablaDatos.Columns.Add("IdReg", typeof(int));
+                tablaDatos.Columns.Add("StockComp", typeof(decimal));
+
+                DataTable tablaDatos2 = new DataTable();
+                tablaDatos2.Columns.Add("IdReg", typeof(int));
+                tablaDatos2.Columns.Add("RegName", typeof(string));
+                tablaDatos2.Columns.Add("CardCode", typeof(string));
+                tablaDatos2.Columns.Add("CardName", typeof(string));
+                tablaDatos2.Columns.Add("Sentido", typeof(string)); //Asignacion
+                tablaDatos2.Columns.Add("Detalle", typeof(string));
+                tablaDatos2.Columns.Add("Cantidad", typeof(decimal));
+                tablaDatos2.Columns.Add("Imputado", typeof(decimal));
+                tablaDatos2.Columns.Add("Operario", typeof(string));
+
+
+                DataTable tablaDatos3 = new DataTable();
+                tablaDatos3.Columns.Add("CardCode", typeof(string));
+                tablaDatos3.Columns.Add("IdReg", typeof(int));
+                tablaDatos3.Columns.Add("Cantidad", typeof(decimal));
+
+
+                foreach (var ticket in listaTickets)
 				{
-					if ((ticket.Estado == "SEPARADO" || ticket.Estado == "ABIERTO") && ticket.Det5 != null && ticket.Det5.Count > 0)
-					{
-						if (ticket.Det5[0].RegCant > 0)
-						{
-							// Comprobar si el cliente tiene saldo suficiente, solo si esta ingresando un valor positivo,
-							// si es negativo se entiende que esta devolviendo el comprometido
-							if (!oclrD.ComprobarDispCliReg(new CLR1_E()
+                    if ((ticket.Estado == "SEPARADO" || ticket.Estado == "ABIERTO") && ticket.Det5 != null && ticket.Det5.Count > 0)
+                    {
+                        foreach (var regalo in ticket.Det5) {
+						
+							if (regalo.RegCant > 0)
 							{
-								CardCode = ticket.CardCode,
-								IdReg = ticket.Det5[0].IdReg,
-								Cantidad = ticket.Det5[0].RegCant
-							}))
-							{
-								throw new Exception("El cliente no tiene saldo suficiente.");
+								// Comprobar si el cliente tiene saldo suficiente, solo si esta ingresando un valor positivo,
+								// si es negativo se entiende que esta devolviendo el comprometido
+								if (!oclrD.ComprobarDispCliReg(new CLR1_E()
+								{
+									CardCode = ticket.CardCode,
+									IdReg = regalo.IdReg,
+									Cantidad = regalo.RegCant
+								}))
+								{
+									throw new Exception("El cliente no tiene saldo suficiente.");
+								}
 							}
-						}
-						using (SqlCommand cmd = new SqlCommand("vt.MANT_OREG", tran.Connection, tran))
-						{
-							cmd.CommandType = CommandType.StoredProcedure;
-							cmd.CommandTimeout = 120;
-							cmd.Parameters.AddWithValue("@TipoMantenimiento", "USC");
-							cmd.Parameters.AddWithValue("@Id", ticket.Det5[0].IdReg).Direction = ParameterDirection.InputOutput;
-							cmd.Parameters.AddWithValue("@StockComp", ticket.Det5[0].RegCant);
+							
+							tablaDatos.Rows.Add(regalo.IdReg,
+								regalo.RegCant);
 
-							cmd.ExecuteNonQuery();
-						}
+							tablaDatos2.Rows.Add(
+								regalo.IdReg,
+								regalo.RegCate + " " + regalo.RegTipo, 
+								ticket.CardCode,
+								ticket.CardName,
+								"Asignacion",
+                                ticket.DocNum.ToString(),
+								0,
+								regalo.RegCant,
+                                ticket.Vendedor
+                                );
 
-						// Registrar la transacción de stock
-						otrcD.registrarTransaccion(new OTRC_E()
-						{
-							IdReg = ticket.Det5[0].IdReg,
-							RegName = ticket.Det5[0].RegCate + " " + ticket.Det5[0].RegTipo,
-							CardCode = ticket.CardCode,
-							CardName = ticket.CardName,
-							Sentido = "Asignacion",
-							Detalle = ticket.DocNum.ToString(),
-							Imputado = ticket.Det5[0].RegCant,
-							Operario = ticket.OpRegistro
-						}, tran);
+                            tablaDatos3.Rows.Add(
+                                ticket.CardCode,
+                                regalo.IdReg,
+                                regalo.RegCant
+                                );
 
-						// Registrar el compromiso con el cliente
-						oclrD.CompromisoClienteRegalo(new CLR1_E()
-						{
-							CardCode = ticket.CardCode,
-							IdReg = ticket.Det5[0].IdReg,
-							Cantidad = ticket.Det5[0].RegCant
-						}, tran);
-
-
-
-						status = true;
-					}
+                        }
+                    }
 				}
+
+                using (SqlCommand cmd = new SqlCommand("vt.MANT_OREG", tran.Connection, tran))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.CommandTimeout = 120;
+
+                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "USCX");
+                    cmd.Parameters.AddWithValue("@Id", 0).Direction = ParameterDirection.InputOutput;
+                    SqlParameter param = cmd.Parameters.AddWithValue("@TablaDatos", tablaDatos);
+                    param.SqlDbType = SqlDbType.Structured;
+
+                    cmd.ExecuteNonQuery();
+                }
+
+				// Registrar la transacción de stock
+				otrcD.registrarTransaccionDataTable(tablaDatos2, tran);
+
+                // Registrar el compromiso con el cliente
+                oclrD.CompromisoClienteRegaloDataTable(tablaDatos3, tran);
+
+				status = true;
+					
             }
             catch (Exception e)
             {

@@ -405,7 +405,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             catch (Exception e2) { cn.Close(); throw new Exception("Error en creacion y conexion: " + e2.Message); }
             return t;
         }
-        //Revisado
+
         public int registrarTicket(ORTV_E ticket)
         {
             int status = -1;
@@ -551,7 +551,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 cmd5.ExecuteNonQuery();
             }
         }
-     
+
         public int editarTicket(int docEntry, ORTV_E ticket)
         {
             int status = -1;
@@ -716,6 +716,24 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 cmd.Parameters.Add(tbDet7);
             }
         }
+        private List<ORTV_E> GenerarListaUnificadaStock(ORTV_E ticket, ORTV_E auxTK)
+        {
+            var ticketUnificado = new List<ORTV_E>();
+
+            if (auxTK != null && auxTK.Det5?.Count >= 1 && auxTK.Det5[0].IdReg > 0)
+            {
+                auxTK.Det5[0].RegCant = -1 * auxTK.Det5[0].RegCant;
+                ticketUnificado.Add(auxTK);
+            }
+
+            if (ticket.Det5?.Count >= 1 && ticket.Det5[0].IdReg > 0)
+            {
+                ticketUnificado.Add(ticket);
+            }
+
+            return ticketUnificado;
+        }
+
         //Validado
         private void ProcesarCompromisosStock( ORTV_E ticket,SqlTransaction tran, ORTV_E auxTK = null)
         {
@@ -724,24 +742,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             if (ticket.Estado.Equals("SEPARADO") || ticket.Estado.Equals("ABIERTO"))
             {
                 //unir en una sola lista
-                var ticketUnificado = new List<ORTV_E>();
-                // Compromiso de stock del ticket anterior 
-                if (auxTK!=null && auxTK.Det5?.Count >= 1 && auxTK.Det5[0].IdReg > 0)
-                {
-
-                    auxTK.Det5[0].RegCant = -1 * auxTK.Det5[0].RegCant;
-                    auxTK.OpRegistro = ticket.OpRegistro;
-                    //auxTK.Det5[0].Tipo = "Devolucion de comprometido";
-                    ticketUnificado.Add(auxTK);
-                }
-
-                // Compromiso de stock del ticket actual
-                if (ticket.Det5?.Count >= 1 && ticket.Det5[0].IdReg > 0)
-                {
-                    //ticket.Det5[0].Tipo = "Asignacion de comprometido";
-                    ticketUnificado.Add(ticket);
-                }
-
+                var ticketUnificado = GenerarListaUnificadaStock(ticket, auxTK);
                 oregD.CompromisosStock(ticketUnificado, tran);
             }
                 
