@@ -261,7 +261,21 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 }
             }
         }
+        public void RegistroComprometidos(DataTable tablaDatos, SqlTransaction tran = null)
+        {
+            using (SqlCommand cmd = new SqlCommand("vt.MANT_OREG", tran.Connection, tran))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandTimeout = 120;
 
+                cmd.Parameters.AddWithValue("@TipoMantenimiento", "USCX");
+                cmd.Parameters.AddWithValue("@Id", 0).Direction = ParameterDirection.InputOutput;
+                SqlParameter param = cmd.Parameters.AddWithValue("@TablaDatos", tablaDatos);
+                param.SqlDbType = SqlDbType.Structured;
+
+                cmd.ExecuteNonQuery();
+            }
+        }
 
         public void CompromisosStock(List<ORTV_E> listaTickets, SqlTransaction tran)
         {
@@ -293,28 +307,26 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 tablaDatos3.Columns.Add("IdReg", typeof(int));
                 tablaDatos3.Columns.Add("Cantidad", typeof(decimal));
 
-
+                decimal cantidadDevolviendo = 0;
                 foreach (var ticket in listaTickets)
                 {
-                    if ((ticket.Estado == "SEPARADO" || ticket.Estado == "ABIERTO") && ticket.Det5 != null && ticket.Det5.Count > 0)
+                    if (ticket.Det5.Any())
                     {
                         foreach (var regalo in ticket.Det5)
                         {
-
-                            if (regalo.RegCant > 0)
-                            {
-                                // Comprobar si el cliente tiene saldo suficiente, solo si esta ingresando un valor positivo,
-                                // si es negativo se entiende que esta devolviendo el comprometido
+                            if (regalo.RegCant < 0) { cantidadDevolviendo = regalo.RegCant; }
+                            else {
+                                // Comprobar si el cliente tiene saldo suficiente considerando si se ha devuelvo en esta misma transaccion
                                 if (!oclrD.ComprobarDispCliReg(new CLR1_E()
                                 {
                                     CardCode = ticket.CardCode,
                                     IdReg = regalo.IdReg,
-                                    Cantidad = regalo.RegCant
+                                    Cantidad =  cantidadDevolviendo + regalo.RegCant
                                 }))
                                 {
                                     throw new Exception("El cliente no tiene saldo suficiente.");
                                 }
-                            }
+                             }
 
                             tablaDatos.Rows.Add(regalo.IdReg,
                                 regalo.RegCant);
@@ -341,18 +353,8 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     }
                 }
 
-                using (SqlCommand cmd = new SqlCommand("vt.MANT_OREG", tran.Connection, tran))
-                {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.CommandTimeout = 120;
 
-                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "USCX");
-                    cmd.Parameters.AddWithValue("@Id", 0).Direction = ParameterDirection.InputOutput;
-                    SqlParameter param = cmd.Parameters.AddWithValue("@TablaDatos", tablaDatos);
-                    param.SqlDbType = SqlDbType.Structured;
-
-                    cmd.ExecuteNonQuery();
-                }
+                RegistroComprometidos(tablaDatos, tran);
 
                 // Registrar la transacción de stock
                 otrcD.registrarTransaccionDataTable(tablaDatos2, tran);
