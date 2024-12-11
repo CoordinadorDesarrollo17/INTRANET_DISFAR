@@ -415,16 +415,32 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             string lugEn = string.Empty;
             foreach (RTV2_E d in ticket.Det2.Where(x => x.Verificar == "on"))
             {
+                // Si ya hay un lugar de entrega registrado
                 if (lugEn != string.Empty)
                 {
-                    if (!lugaresValidos.Contains(lugEn) && !d.LugarDeEntrega.Equals(lugEn) && !d.LugarDeEntrega.Equals("ALMACÉN FALTANTES"))
+                    // Verificar que el lugar de entrega sea uno de los lugares válidos
+                    if (!lugaresValidos.Contains(d.LugarDeEntrega))
+                    {
+                        throw new Exception("El lugar de entrega debe ser uno de los lugares válidos.");
+                    }
+
+                    // Verificar que el lugar de entrega en el detalle coincida con el lugar registrado
+                    if (!d.LugarDeEntrega.Equals(lugEn) && !d.LugarDeEntrega.Equals("ALMACÉN FALTANTES"))
+                    {
                         throw new Exception("No coinciden los lugares de entrega en el detalle.");
+                    }
                 }
+                // Si no hay un lugar de entrega registrado
                 else if (!d.LugarDeEntrega.Equals("ALMACÉN FALTANTES"))
                 {
+                    // Asignar el lugar de entrega
                     lugEn = d.LugarDeEntrega;
+
+                    // Verificar que el lugar de entrega sea válido
                     if (!lugaresValidos.Contains(lugEn))
+                    {
                         throw new Exception("El lugar de entrega no es válido.");
+                    }
                 }
             }
         }
@@ -507,8 +523,6 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                     {
                         var regalo = new Capa_Negocio.Ventas_NEG.TablasSql.OREG_N().buscarRegalo(idReg);
                         if (ticket.Det5[0].RegCant <= 0) throw new Exception("Debe llenar las cantidades para el regalo.");
-                        if (!new Capa_Negocio.Ventas_NEG.TablasSql.OCLR_N().comprobarDispCliReg(new CLR1_E { IdReg = ticket.Det5[0].IdReg, CardCode = ticket.CardCode, Cantidad = ticket.Det5[0].RegCant }))
-                            throw new Exception($"No dispone de suficiente stock del regalo.");
                         if (regalo.Estado == "Inactivo") throw new Exception("No puede dar regalos inactivos.");
                         if (regalo.StockDisp < ticket.Det5[0].RegCant) throw new Exception("No hay stock disponible del regalo.");
                     }
