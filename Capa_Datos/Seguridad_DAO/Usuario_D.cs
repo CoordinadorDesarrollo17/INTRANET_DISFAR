@@ -72,66 +72,102 @@ namespace Capa_Datos
         public Usuario_E buscarUsuarioSesion(string user, string pass)
         {
             Usuario_E u = null;
-            SqlConnection cn = new SqlConnection(uti.cadSql);
+  
 
-            string query = @"SELECT
-                        DocEntry, Prefijo, Id, Nombres, Apellidos, Email, IdRol, Activo, FechaRegistro, HoraRegistro, OpRegistro, WhsCode, CodigoSap, ClaveEmail
-                    FROM OUSR 
-                    WHERE Activo = 1 AND CONCAT(Prefijo,Id) = @user AND CONVERT(VARCHAR(MAX), DECRYPTBYPASSPHRASE('pwC0B3F@R', Password)) = @pass";
+            string query = @"SELECT *
+        FROM VT.OTRC
+        WHERE Sentido = 'Asignacion' AND DETALLE IN (
+            '2000351467', '2000351863', '2000351869', '2000351874', '2000351962', 
+            '2000351978', '2000352014', '2000352290', '2000352307', '2000352382', 
+            '2000352477', '2000352494', '2000353066', '2000353084', '2000353199', 
+            '2000353279', '2000353395', '2000353424', '2000353497', '2000353606', 
+            '2000353633', '2000353646', '2000353659', '2000353687', '2000353707', 
+            '2000353709', '2000353722', '2000353723', '2000353732', '2000353735', 
+            '2000353742', '2000353745', '2000353746', '2000353758', '2000353766', 
+            '2000353769', '2000353772', '2000353774', '2000353781', '2000353783', 
+            '2000353786', '2000353799', '2000353803', '2000353808', '2000353812', 
+            '2000353816', '2000353818', '2000353822', '2000353823', '2000353827', 
+            '2000353832', '2000353842', '2000353848', '2000353855', '2000353857', 
+            '2000353871', '2000353875', '2000353879', '2000353890', '2000353895', 
+            '2000353907', '2000353920', '2000353926', '2000353935', '2000353939', 
+            '2000353940', '2000353947', '2000353956', '2000353970', '2000354020', 
+            '2000354076', '2000354141',      
+        ) 
+        ORDER BY DETALLE DESC, Sentido ASC;";
 
-            string updateQuery = @"UPDATE OUSR
-                           SET FechaUltimoIngreso = GETDATE()
-                           WHERE Activo = 1 AND CONCAT(Prefijo,Id) = @user AND CONVERT(VARCHAR(MAX), DECRYPTBYPASSPHRASE('pwC0B3F@R', Password)) = @pass";
+            string insertQuery = @"
+INSERT INTO VT.OTRC (IdReg, RegName, CardCode, CardName, Sentido, Detalle, Cantidad, Imputado, Operario, FechaRegistro, HoraRegistro)
+VALUES (@IdReg, @RegName, @CardCode, @CardName, @Sentido, @Detalle, @Cantidad, @Imputado, @Operario, @FechaRegistro, @HoraRegistro);";
 
-            try
+
+            // Crear conexión
+            using (SqlConnection connection = new SqlConnection(uti.cadSql))
             {
-                cn.Open();
-                using (SqlTransaction transaction = cn.BeginTransaction())
+                connection.Open();
+
+                // Ejecutar la consulta para obtener los registros
+                SqlCommand selectCommand = new SqlCommand(query, connection);
+                SqlDataReader reader = selectCommand.ExecuteReader();
+
+                // Preparar la consulta para insertar los registros con 'Imputado' negativo
+                SqlCommand insertCommand = new SqlCommand(insertQuery, connection);
+                insertCommand.Parameters.Add(new SqlParameter("@IdReg", SqlDbType.Int));
+                insertCommand.Parameters.Add(new SqlParameter("@RegName", SqlDbType.VarChar));
+                insertCommand.Parameters.Add(new SqlParameter("@CardCode", SqlDbType.VarChar));
+                insertCommand.Parameters.Add(new SqlParameter("@CardName", SqlDbType.VarChar));
+                insertCommand.Parameters.Add(new SqlParameter("@Sentido", SqlDbType.VarChar));
+                insertCommand.Parameters.Add(new SqlParameter("@Detalle", SqlDbType.VarChar));
+                insertCommand.Parameters.Add(new SqlParameter("@Cantidad", SqlDbType.Decimal));
+                insertCommand.Parameters.Add(new SqlParameter("@Imputado", SqlDbType.Decimal));
+                insertCommand.Parameters.Add(new SqlParameter("@Operario", SqlDbType.VarChar));
+                insertCommand.Parameters.Add(new SqlParameter("@FechaRegistro", SqlDbType.Date));
+                insertCommand.Parameters.Add(new SqlParameter("@HoraRegistro", SqlDbType.Time));
+
+
+                // Iterar sobre los resultados y insertar en la base de datos
+                while (reader.Read())
                 {
-                    using (SqlCommand cmd = new SqlCommand(query, cn, transaction))
+                    // Obtener los valores de cada registro
+                    int idReg = Convert.ToInt32(reader["IdReg"]);
+                    string regname = reader["RegName"].ToString();
+                    string carcode = reader["CardCode"].ToString();
+                    string cardname = reader["CardName"].ToString();
+                    string sentido = reader["Sentido"].ToString();
+                    string detalle = reader["Detalle"].ToString();
+                   
+                    decimal cantidad = Convert.ToDecimal(reader["Cantidad"]);
+                    decimal imputado = Convert.ToDecimal(reader["Imputado"]);
+                    string operario = reader["Operario"].ToString();
+                    DateTime fechaRegistro = Convert.ToDateTime(reader["FechaRegistro"]);
+                    TimeSpan horaRegistro = TimeSpan.Parse(reader["HoraRegistro"].ToString());
+
+                    // Ajustar el valor de 'Imputado' a negativo
+                    imputado = -imputado;
+                    if (string.IsNullOrEmpty(operario))
                     {
-                        cmd.Parameters.AddWithValue("@user", user);
-                        cmd.Parameters.AddWithValue("@pass", pass);
-
-                        using (SqlDataReader dr = cmd.ExecuteReader())
-                        {
-                            if (dr.Read())
-                            {
-                                u = new Usuario_E();
-
-                                if (!dr.IsDBNull(0)) { u.DocEntry = dr.GetInt32(0); }
-                                if (!dr.IsDBNull(1)) { u.Prefijo = dr.GetString(1); }
-                                if (!dr.IsDBNull(2)) { u.Id = dr.GetString(2); }
-                                if (!dr.IsDBNull(3)) { u.Nombres = dr.GetString(3); }
-                                if (!dr.IsDBNull(4)) { u.Apellidos = dr.GetString(4); }
-                                if (!dr.IsDBNull(5)) { u.Email = dr.GetString(5); }
-                                if (!dr.IsDBNull(6)) { u.IdRol = dr.GetInt32(6); }
-                                if (!dr.IsDBNull(7)) { u.Activo = dr.GetInt32(7); }
-                                if (!dr.IsDBNull(8)) { u.FechaRegistro = dr.GetDateTime(8).ToString("yyyy-MM-dd"); }
-                                if (!dr.IsDBNull(9)) { u.HoraRegistro = dr.GetTimeSpan(9).ToString(); }
-                                if (!dr.IsDBNull(10)) { u.OperarioRegistro = dr.GetString(10); }
-                                if (!dr.IsDBNull(11)) { u.WhsCode = dr.GetString(11); }
-                                if (!dr.IsDBNull(12)) { u.CodigoSap = dr.GetInt32(12); }
-                                if (!dr.IsDBNull(13)) { u.ClaveEmail = dr.GetString(13); }
-                            }
-                        }
+                        operario = "Alisson Karina Romero Cabrera";
                     }
 
-                    // Actualizar FechaUltimoIngreso
-                    using (SqlCommand updateCmd = new SqlCommand(updateQuery, cn, transaction))
-                    {
-                        updateCmd.Parameters.AddWithValue("@user", user);
-                        updateCmd.Parameters.AddWithValue("@pass", pass);
-                        updateCmd.ExecuteNonQuery();
-                    }
 
-                    transaction.Commit();
+                    // Asignar los valores a los parámetros del comando INSERT
+                    insertCommand.Parameters["@IdReg"].Value = idReg;
+                    insertCommand.Parameters["@RegName"].Value = regname; // Asegúrate de asignar el valor correcto para RegName
+                    insertCommand.Parameters["@CardCode"].Value = carcode; // Asigna el valor correcto para CardCode
+                    insertCommand.Parameters["@CardName"].Value = cardname; // Asigna el valor correcto para CardName
+                    insertCommand.Parameters["@Sentido"].Value = sentido;
+                    insertCommand.Parameters["@Detalle"].Value = detalle;
+                    insertCommand.Parameters["@Cantidad"].Value = cantidad;
+                    insertCommand.Parameters["@Imputado"].Value = imputado;
+                    insertCommand.Parameters["@Operario"].Value = operario;
+                    insertCommand.Parameters["@FechaRegistro"].Value = fechaRegistro;
+                    insertCommand.Parameters["@HoraRegistro"].Value = horaRegistro;
+
+                    insertCommand.ExecuteNonQuery();
                 }
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
+                }
+            
+
+        
 
             return u;
         }

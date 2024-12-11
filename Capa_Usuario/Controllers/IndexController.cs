@@ -34,6 +34,12 @@ namespace Capa_Usuario.Controllers
 
         public ActionResult Sesion()
         {
+            //ejecutar este sql para tener una lista de dicha lista de resultados insertar en la tabla vt.otrc tal cual los mismos datos por cada registro pero convirtiendo el valor de imputado en negativo
+
+
+
+
+
             Usuario_E user = (Usuario_E)Session["UsuarioId"];
 
             if (user != null)

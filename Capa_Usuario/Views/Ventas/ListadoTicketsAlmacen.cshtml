@@ -9,15 +9,9 @@
         $(location).attr('href', "/Ventas/ListadoTicketsAlmacen?" + object);
     }
 </script>
-<style>
-    .table-hover-custom tbody tr:hover {
-        background-color: #d5f5e3;
-        cursor: pointer;
-    }
 
-    i {
-        font-size: 20px;
-    }
+<style>
+   
 
     .btn-container {
         display: flex;
@@ -577,8 +571,8 @@
                                 <button type="button" onclick="generarHtmlComprobantes(@item.DocEntry,'@item.Estado','@item.LugarDestino');"
                                         class="btn btn-light btn-sm text-danger"
                                         data-placement="top"
-                                        title="Ver Comprobantes"
-                                        data-toggle="modal" data-target="#comprobantesModal">
+                                        title="Descargar Comprobantes"
+                                        data-toggle="tooltip" >
                                     <i class="icon icon-download"></i>
                                 </button>
                             }
@@ -681,12 +675,15 @@
 
 <script>
     $(document).ready(function () {
+
         $('[data-toggle="tooltip"]').tooltip();
 
         if ('@ViewBag.Mensaje' !== "") {
             Swal.fire('@ViewBag.Mensaje');
         }
+
     });
+
     function excelOrdenesVenta(DocEntry) {
         Swal.fire({
             text: 'En breve se descargará el Excel',
@@ -720,37 +717,45 @@
         html += '<i class="icon icon-file-pdf"><span class="text-dark small"> Rótulo </span></i>';
         html += '</button><br />';
 
-        const { existeNC, existeND } = await validarNotas(docEntry);
+        }
+
+        const { existeNC, existeND, existeF, existeG } = await validarDocumentos(docEntry);
 
         html += generarBotonesComprobantes(docEntry, existeNC, existeND);
-        
-    } else if (["EMPACANDO","EMPACADO", "PREENVIO", "ENVIADO", "ENTREGADO"].includes(estado)) {
-        const { existeNC, existeND } = await validarNotas(docEntry);
 
-        html += generarBotonesComprobantes(docEntry, existeNC, existeND);
-    }
+        html += '</div>';
 
-    html += '</div>';
     document.getElementById('modal-body-comprobantes').innerHTML = html;
-    $('#comprobantesModal').modal('show');
+        $('#comprobantesModal').modal('show');
+
+        //Inicializar el tooltip dibujado en el modal
+        $('[data-toggle="tooltip"]').tooltip();
 }
 
-// Función para validar las notas
-async function validarNotas(docEntry) {
+// Función para validar ña existencia de los documentos antes de mostrar el boton de descarga
+    async function validarDocumentos(docEntry) {
     try {
         const response = await $.ajax({
-            url: '@Url.Action("ExistenciaDeNotas", "ComprobantesContables")',
+            url: '@Url.Action("ExistenciaDeDocumentos", "ComprobantesContables")',
             type: 'GET',
             data: { DocEntry: docEntry }
         });
 
         return {
             existeNC: response?.existeNC || "N",
-            existeND: response?.existeND || "N"
+            existeND: response?.existeND || "N",
+            existeF: response?.existeF || "N",
+            existeG: response?.existeG || "N"
         };
     } catch (error) {
         Swal.fire('Error', 'Ocurrió un error en la solicitud: ' + error, 'error');
-        return { existeNC: "N", existeND: "N" };
+        return {
+            existeNC: "N",
+            existeND: "N",
+            existeF: "N",
+            existeG: "N",
+
+        };
     }
 }
 
