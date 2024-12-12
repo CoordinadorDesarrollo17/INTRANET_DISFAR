@@ -382,6 +382,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
 
         private void ValidarAgencia(ORTV_E ticket)
         {
+            if (ticket.Embalaje != "CP") { throw new Exception("El embalaje debe ser Caja Provincia."); }
             if (string.IsNullOrEmpty(ticket.EnvioAgencia)) throw new Exception("Debe seleccionar el modo de envío.");
             if (ticket.EnvioAgencia.Equals("Oficina de agencia") && string.IsNullOrEmpty(ticket.Referencia)) throw new Exception("Debe llenar la referencia obligatoriamente.");
             if (ticket.EnvioAgencia.Equals("Domicilio de cliente") && !string.IsNullOrEmpty(ticket.Referencia)) throw new Exception("No debe llenar la referencia.");

@@ -401,15 +401,16 @@ namespace Capa_Usuario.Controllers
             ViewBag.SubTipo = subTipo;
             return View(nota);
         }
-        public JsonResult ExistenciaDeNotas(int DocEntry) // Metodo secundario para consulta existencia antes de habilitar botones en modal de listadoticketalmacen
+        public JsonResult ExistenciaDeDocumentos(int DocEntry) // Metodo secundario para consulta existencia antes de habilitar botones en modal de impresion de documentos 
         {
-            ORTV_N ortvN = new ORTV_N();
             Comprobante_N compN = new Comprobante_N();
 
-            string existeNC = string.Empty;
-            string existeND = string.Empty;
+            string existeNC = string.Empty,
+                existeND = string.Empty,
+                existeF= string.Empty,
+                existeG = string.Empty;
 
-            ORTV_E ortvE = ortvN.ObtenerDatosTicketParaDocumentos(DocEntry);
+            var ortvE = new Capa_Negocio.Ventas_NEG.TablasSql.ORTV_N().ObtenerDatosTicketParaDocumentos(DocEntry);
             List<int> listDocEntryOrdenesVenta = compN.ObtenerDocEntryOV(ortvE.Det2, false);
 
             //Primeras validaciones
@@ -426,14 +427,20 @@ namespace Capa_Usuario.Controllers
             //Hallamos documentos en relacion a las ordenes de venta y tipo
             var notaDebito = ObtenerEncabezados(listDocEntryOrdenesVenta, ortvE, "ND");
             var notaCredito = ObtenerEncabezados(listDocEntryOrdenesVenta, ortvE, "NC");
+            var factura = ObtenerEncabezados(listDocEntryOrdenesVenta, ortvE, "F");
+            var guia = ObtenerEncabezados(listDocEntryOrdenesVenta, ortvE, "G");
 
-            if (notaCredito != null && notaCredito.Count() > 0) { existeNC = "Y"; }
-            if (notaDebito != null && notaDebito.Count() > 0) { existeND = "Y"; }
+            if (notaCredito.Any()) { existeNC = "Y"; }
+            if (notaDebito.Any()) { existeND = "Y"; }
+            if (factura.Any()) { existeF = "Y"; }
+            if (guia.Any()) { existeG = "Y"; }
 
             return Json(new 
             { 
                 existeNC = existeNC,
-                existeND = existeND
+                existeND = existeND,
+                existeF = existeF,
+                existeG = existeG,
             }, 
                 JsonRequestBehavior.AllowGet);
             }
