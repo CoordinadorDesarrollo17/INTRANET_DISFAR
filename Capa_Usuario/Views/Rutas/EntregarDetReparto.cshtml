@@ -46,16 +46,18 @@
     function validarArchivo() {
         var fi = document.getElementById('Archivo');
         if (fi.files.length > 0) {
-            for (let i = 0; i <= fi.files.length - 1; i++) {
+            for (let i = 0; i < fi.files.length; i++) {
                 let fsize = fi.files.item(i).size;
-                let file = Math.round((fsize / 1024));
-                if (file >= 15360) {
-                    Swal.fire("Archivo adjunto supera el límite de 15 MB");
+                let fileSizeInMB = fsize / (1024 * 1024); 
+                if (fileSizeInMB > 5) {
+                    Swal.fire("El archivo adjunto supera el límite de 5 MB");
                     fi.value = null;
+                    return; 
                 }
-            }
+            } 
         }
     }
+
 </script>
 
 <div class="pt-4">

@@ -108,23 +108,30 @@
         var LugarDestino = $("#LugarDestino").val();
         if (LugarDestino != null && LugarDestino != "") {
             if (LugarDestino === "Agencia" || LugarDestino === "Agencia Courier") {
-                $("#tablaFacturacion tr td:nth-child(10)").show();
-                $("#tablaFacturacion th:nth-child(10)").show();
+
+                //Muestra la persona de recojo
+                $("#tablaFacturacion tr td:nth-child(11)").show();
+                $("#tablaFacturacion th:nth-child(11)").show();
+                //Oculta zona
                 $("#tablaFacturacion tr td:nth-child(5)").hide();
                 $("#tablaFacturacion th:nth-child(5)").hide();
+
             } else if (LugarDestino === "Domicilio") {
+                //Oculta la 
                 $("#tablaFacturacion tr td:nth-child(11)").hide();
                 $("#tablaFacturacion th:nth-child(11)").hide();
             }
             else if (LugarDestino === "Centro" || LugarDestino === "Arriola") {
                 $("#tablaFacturacion tr td:nth-child(5)").hide();
                 $("#tablaFacturacion th:nth-child(5)").hide();
+
                 $("#tablaFacturacion tr td:nth-child(11)").hide();
                 $("#tablaFacturacion th:nth-child(11)").hide();
             }
         } else {
             $("#tablaFacturacion tr td:nth-child(5)").hide();
             $("#tablaFacturacion th:nth-child(5)").hide();
+
             $("#tablaFacturacion tr td:nth-child(11)").hide();
             $("#tablaFacturacion th:nth-child(11)").hide();
         }
@@ -547,14 +554,14 @@
                 else
                 { <input type="text" name="DocNum" id="DocNum" class="form-control border-success input_filtro-table" onchange="filtrar();" placeholder="Buscar Nro Ticket..." />}
 
-            </div>
+            </div><!--1-->
             <div class="mx-2">
                 <select name="EstadoPago" id="EstadoPago" class="form-control @bgEstadoPago" onchange="filtrar();">
                     <option value="">EstadoPago</option>
                     <option value="PENDIENTE" @{ if (ticket != null && ticket.EstadoPago == "PENDIENTE") { Write("selected"); } }>PENDIENTE</option>
                     <option value="PAGADO" @{ if (ticket != null && ticket.EstadoPago == "PAGADO") { Write("selected"); }}>PAGADO</option>
                 </select>
-            </div>
+            </div><!--2-->
 
             <div class="mx-2">
                 <select id="TipoVenta" name="TipoVenta" class="form-control @bgTipoVenta" onchange="filtrar();">
@@ -563,7 +570,8 @@
                     <option value="Credito" @{ if (ticket != null && ticket.TipoVenta == "Credito") { Write("selected"); } }>Crédito</option>
                     <option value="ContraEntrega" @{ if (ticket != null && ticket.TipoVenta == "ContraEntrega") { Write("selected"); } }>ContraEntrega</option>
                 </select>
-            </div>
+            </div><!--3-->
+
             <div class="mx-2">
                 <select name="EstadoFacturacion" id="EstadoFacturacion" class="form-control  @bgEstadoFacturacion" onchange="filtrar();">
                     <option value="">EstadoFacturacion</option>
@@ -571,7 +579,7 @@
                     <option value="GRE EMITIDA" @{ if (ticket != null && ticket.EstadoFacturacion == "GRE EMITIDA") { Write("selected"); }}>GRE EMITIDA</option>
                     <option value="FACTURADO" @{ if (ticket != null && ticket.EstadoFacturacion == "FACTURADO") { Write("selected"); }}>FACTURADO</option>
                 </select>
-            </div>
+            </div><!--4-->
 
             <div class="mx-2">
                 <select name="LugarDestino" id="LugarDestino" class="form-control @bgLugarDestino" onchange="clearZona(); modTabla(); filtrar();">
@@ -581,13 +589,14 @@
                     <option value="Domicilio" @{ if (ticket != null && ticket.LugarDestino == "Domicilio") { Write("selected"); } }>Domicilio</option>
                     <option value="Centro" @{ if (ticket != null && ticket.LugarDestino == "Centro") { Write("selected"); }}>Centro</option>
                 </select>
-            </div>
+            </div><!--5-->
+
             <div class="mx-2">
                 <select name="zonaDistinta" class="form-control @bgzonaDistinta" onchange="cambiarLugarDestino(this);clearZona(); modTabla();filtrar();">
                     <option value="">ZonaDistinta</option>
                     <option value="true" @{ if (ticket != null && ticket.zonaDistinta) { Write("selected"); }}>SI</option>
                 </select>
-            </div>
+            </div><!--6-->
         </div>
 
     </div>
@@ -604,10 +613,10 @@
                         }
                         else
                         { <input type="date" name="FechaSapTicket" class="form-control-sm border" onchange="filtrar();" />}
-                    </th>
+                    </th><!--ntchild 1-->
                     <th>
                         @Html.DisplayNameFor(model => model.DocNum)
-                    </th>
+                    </th><!--2-->
                     <th>
                         <span class="pl-2">@Html.DisplayNameFor(model => model.CardName)</span><br />
                         @if (ticket != null && ticket.CardName != null)
@@ -616,10 +625,10 @@
                         }
                         else
                         { <input type="text" name="CardName" class="form-control-sm border w-100" onchange="filtrar();" />}
-                    </th>
+                    </th><!--3-->
                     <th>
                         <span class="pl-2">Tipo de Comprobante</span>
-                    </th>
+                    </th><!--4-->
                     <th>
                         Zona
                         <br />
@@ -636,10 +645,10 @@
                             <option value="ARRIOLA" @{ if (ticket != null && ticket.Zona == "ARRIOLA") { Write("selected"); }}>ARRIOLA</option>
                             <option value="AGENCIA" @{ if (ticket != null && ticket.Zona == "AGENCIA") { Write("selected"); }}>AGENCIA</option>
                         </select>
-                    </th>
+                    </th><!--5-->
                     <th>
                         @Html.DisplayNameFor(model => model.Vendedor)
-                    </th>
+                    </th><!--6-->
                     <th>
                         @Html.DisplayNameFor(model => model.Flete)
                         <br />
@@ -647,7 +656,7 @@
                             <option value="0.00" @{ if (ticket != null && ticket.Flete == 0.00M) { Write("selected"); }}></option>
                             <option value="0.01" @{ if (ticket != null && ticket.Flete == 0.01M) { Write("selected"); }}>SI</option>
                         </select>
-                    </th>
+                    </th><!--7-->
                     <th>
                         DsctoNC
                         <br />
@@ -655,7 +664,7 @@
                             <option value="0.00" @{ if (ticket != null && ticket.DescuentoNC == 0.00M) { Write("selected"); }}></option>
                             <option value="0.01" @{ if (ticket != null && ticket.DescuentoNC == 0.01M) { Write("selected"); }}>SI</option>
                         </select>
-                    </th>
+                    </th><!--8-->
                     <th>
                         Estado Ticket<br />
                         <select name="Estado" id="Estado" class="form-control-sm border" onchange="filtrar();">
@@ -669,7 +678,7 @@
                             <option value="ENVIADO" @{ if (ticket != null && ticket.Estado == "ENVIADO") { Write("selected"); } }>ENVIADO</option>
                             <option value="ENTREGADO" @{ if (ticket != null && ticket.Estado == "ENTREGADO") { Write("selected"); } }>ENTREGADO</option>
                         </select>
-                    </th>
+                    </th><!--9-->
                     <th>
                         Tiempo de entrega<br />
                         @if (ticket != null && ticket.TiempoEntrega != null)
@@ -678,17 +687,17 @@
                         }
                         else
                         { <input type="date" id="TiempoEntrega" name="TiempoEntrega" class="form-control-sm border" value="@Html.Raw(DateTime.Today)" onchange="filtrar();" />}
-                    </th>
-                    <th>Persona de recojo </th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
+                    </th><!--10-->
+                    <th>Persona de recojo </th><!--11-->
+                    <th></th><!--12-->
+                    <th></th><!--13-->
+                    <th></th><!--14-->
+                    <th></th><!--15-->
+                    <th></th><!--16-->
+                    <th></th><!--17-->
+                    <th></th><!--18-->
+                    <th></th><!--19-->
+                    <th></th><!--19-->
                 </tr>
             </thead>
             <tbody class="text-dark">
@@ -703,7 +712,9 @@
                         <td>
                             @Html.DisplayFor(modelItem => item.FechaSapTicket)
                         </td>
-                        <td class="font-weight-bold">@Html.DisplayFor(modelItem => item.DocNum)</td>
+                        <td class="font-weight-bold">
+                        @Html.DisplayFor(modelItem => item.DocNum)
+                        </td>
                         <td>
                             <span class="pl-2">@Html.DisplayFor(modelItem => item.CardName)</span>
                         </td>
@@ -757,7 +768,7 @@
                         <td>
                             @Html.DisplayFor(modelItem => item.Estado)
                         </td>
-
+                        
                         @if (item.TiempoEntrega != null)
                         {
                             string styleTiempoEntrega = string.Empty;
@@ -788,7 +799,7 @@
                                     }
                                 }
                             }
-                        </td>
+                        </td><!--11-->
                         <td>
                             @if ((item.Estado.Equals("PICKEANDO") || item.Estado.Equals("VERIFICANDO") || item.Estado.Equals("EMPACANDO") || item.Estado.Equals("EMPACADO") || item.Estado.Equals("PESADO") || item.Estado.Equals("PREENVIO") ||
                              item.Estado.Equals("ENVIADO")) && item.hayFinVerificar)
