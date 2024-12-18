@@ -9,10 +9,11 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
     public class OTRC_D
     {
         Utilitarios uti = new Utilitarios(); DBHelper db = new DBHelper();
-        //Revisado
-        public void registrarTransaccion(OTRC_E o, SqlTransaction tran)
+
+        public void RegistrarTransaccionDesdeRegalo(OTRC_E o, SqlTransaction tran)
         {
-            try { 
+            try
+            {
                 using (SqlCommand cmd = new SqlCommand("vt.MANT_OTRC", tran.Connection, tran))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
@@ -26,7 +27,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     cmd.Parameters.AddWithValue("@Cantidad", o.Cantidad);
                     cmd.Parameters.AddWithValue("@Imputado", o.Imputado);
                     cmd.Parameters.AddWithValue("@Operario", o.Operario);
-                
+
                     cmd.ExecuteNonQuery();
                 }
             }
@@ -36,7 +37,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             }
         }
 
-        public void registrarTransaccionDataTable(DataTable tablaDatos2, SqlTransaction tran)
+        public void RegistrarTransaccionDataTable(DataTable tablaDatos2, SqlTransaction tran)
         {
             try
             {

@@ -90,7 +90,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     cmd2.ExecuteNonQuery();
 
                     //Revisado
-                    otrcD.registrarTransaccion(new OTRC_E()
+                    otrcD.RegistrarTransaccionDesdeRegalo(new OTRC_E()
                     {
                         IdReg = auxId,
                         RegName = obj.Categoria + " " + obj.Tipo,
@@ -207,7 +207,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                         cmd.ExecuteNonQuery();
 
                         // Registrar transacción de stock
-                        otrcD.registrarTransaccion(obj, tran);
+                        otrcD.RegistrarTransaccionDesdeRegalo(obj, tran);
 
                         status = true;  // Indicamos que todo salió bien
                     }
@@ -244,7 +244,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                         }
 
                         // Registrar transacción de stock
-                        otrcD.registrarTransaccion(obj, transaction);
+                        otrcD.RegistrarTransaccionDesdeRegalo(obj, transaction);
 
                         status = true;  // Indicamos que todo salió bien
 
@@ -282,7 +282,8 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             OTRC_D otrcD = new OTRC_D();
             OCLR_D oclrD = new OCLR_D();
             bool status = false;
-
+            var ticketCapturado = listaTickets.DefaultIfEmpty(new ORTV_E { }).First();
+            var estado = ticketCapturado.Estado;
             try
             {
                 DataTable tablaDatos = new DataTable();
@@ -314,19 +315,20 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     {
                         foreach (var regalo in ticket.Det5)
                         {
-                            if (regalo.RegCant < 0) { cantidadDevolviendo = regalo.RegCant; }
-                            else {
+                            if (regalo.RegCant < 0 && (estado.Equals("SEPARADO") || estado.Equals("ABIERTO"))) { cantidadDevolviendo = regalo.RegCant; }
+                            else
+                            {
                                 // Comprobar si el cliente tiene saldo suficiente considerando si se ha devuelvo en esta misma transaccion
                                 if (!oclrD.ComprobarDispCliReg(new CLR1_E()
                                 {
                                     CardCode = ticket.CardCode,
                                     IdReg = regalo.IdReg,
-                                    Cantidad =  cantidadDevolviendo + regalo.RegCant
+                                    Cantidad = cantidadDevolviendo + regalo.RegCant
                                 }))
                                 {
                                     throw new Exception("El cliente no tiene saldo suficiente.");
                                 }
-                             }
+                            }
 
                             tablaDatos.Rows.Add(regalo.IdReg,
                                 regalo.RegCant);
@@ -357,10 +359,12 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 RegistroComprometidos(tablaDatos, tran);
 
                 // Registrar la transacción de stock
-                otrcD.registrarTransaccionDataTable(tablaDatos2, tran);
+                otrcD.RegistrarTransaccionDataTable(tablaDatos2, tran);
 
-                // Registrar el compromiso con el cliente
-                oclrD.CompromisoClienteRegaloDataTable(tablaDatos3, tran);
+                if (estado.Equals("SEPARADO") || estado.Equals("ABIERTO")) { 
+                    // Registrar el compromiso con el cliente
+                    oclrD.CompromisoClienteRegaloDataTable(tablaDatos3, tran);
+                }
 
                 status = true;
 
