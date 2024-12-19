@@ -874,7 +874,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
 
             // Si tiene un cambio de @Estado y @RegCant
             if (ticket.Det5 != null && ticket.Det5.Count() > 0)
-            {
+            {//si tiene el regalo tiene que esta en entregado siempre
                 if (ticket.Estado.Equals("ENVIADO") && (ticket.Det5[0].RegCant >= 1 && ticket.Det5[0].RegEstado != "Entregado" || (entregadoConRegalo == 1)))
                 {
                     tkD.EntregarMasivoTicket(DocEntry, ticket);

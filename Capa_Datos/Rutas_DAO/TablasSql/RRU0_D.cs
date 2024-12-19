@@ -286,25 +286,25 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                                         if (tk.Det5 != null && tk.Det5.Count > 0)
                                         {
                                             tk2.Det5 = new List<RTV5_E> { tk.Det5[0] };
-                                            // Para domicilio pasa el reg estado ENTREGADO
+                                            // Para domicilio envia el reg estado, puede ser pendiente o entregado
                                             if (orruE.TipoRuta == "VD") { tk2.Det5[0].RegEstado = o.Ticket.Det5[0].RegEstado; }
                                         }
                                     }
 
                                     ortvD.EntregarDesdeReparto(tk2, tran);
                                 }
-                                else if (orruE.TipoRuta == "AC")
-                                {
-                                    string RegEstado = string.Empty;
-                                    if (tk.Det5 != null && tk.Det5.Count >= 1)
-                                    {
-                                        if (tk.Det5[0].IdReg > 0) { RegEstado = "Entregado"; }
-                                    }
-                                    ORTV_E tk2 = new ORTV_E { DocEntry = o.DocEntryTicket, OpRegistro = o.OpEntrega };
-                                    tk2.Det5 = new List<RTV5_E>();
-                                    tk2.Det5[0].RegEstado = RegEstado;
-                                    ortvD.EntregarDesdeReparto(tk2, tran);
-                                }
+                                //else if (orruE.TipoRuta == "AC")
+                                //{
+                                //    string RegEstado = string.Empty;
+                                //    if (tk.Det5 != null && tk.Det5.Count >= 1)
+                                //    {
+                                //        if (tk.Det5[0].IdReg > 0) { RegEstado = "Entregado"; }
+                                //    }
+                                //    ORTV_E tk2 = new ORTV_E { DocEntry = o.DocEntryTicket, OpRegistro = o.OpEntrega };
+                                //    tk2.Det5 = new List<RTV5_E>();
+                                //    tk2.Det5[0].RegEstado = RegEstado;
+                                //    ortvD.EntregarDesdeReparto(tk2, tran);
+                                //}
 
                                 // Guardar archivo si existe
                                 if (o.Archivo != null)

@@ -8,7 +8,7 @@
     foreach (var d in Model.DetRRU0
     .Where(x => x.Estado != "LIBERADO" && x.Estado != "ANULADO" && x.Ticket.Det2 != null))
     {
-        var primerElemento = d.Ticket.Det2.FirstOrDefault(y => y.Monto > 0 && y.LugarDeEntrega != "06" && y.LugarDeEntrega != "07");
+        var primerElemento = d.Ticket.Det2.FirstOrDefault(y => y.Monto > 0 && y.LugarDeEntrega != "06" );
         if (primerElemento != null)
         {
             string almacenSalida = primerElemento.AlmacenSalida;
@@ -29,7 +29,7 @@
     foreach (var d in Model.DetRRU0
     .Where(x => x.Estado != "LIBERADO" && x.Estado != "ANULADO" && x.Ticket.Det2 != null))
     {
-        var primerElemento = d.Ticket.Det2.FirstOrDefault(y => y.Monto > 0 && y.AlmacenSalida != "06" && y.AlmacenSalida != "07");
+        var primerElemento = d.Ticket.Det2.FirstOrDefault(y => y.Monto > 0 && y.AlmacenSalida != "06" );
         if (primerElemento != null && primerElemento.AlmacenSalida.Equals("ALM07"))
         {
             listaDet2.Add(d);
@@ -161,15 +161,13 @@
                 <tr>
                     <th colspan="12" style="text-align:right">
                         Total Cajas ALM 3: @Model.DetRRU0.Where(x => x.Estado != "LIBERADO" && x.Estado != "ANULADO" &&
-x.Ticket.Det2.FirstOrDefault(s => s.Monto > 0 && s.AlmacenSalida != "06" &&
-s.AlmacenSalida != "07").AlmacenSalida.Equals("03")).Sum(x => x.Cajas)
+x.Ticket.Det2.FirstOrDefault(s => s.Monto > 0 && s.AlmacenSalida != "06" ).AlmacenSalida.Equals("03")).Sum(x => x.Cajas)
                     </th>
                 </tr>
                 <tr>
                     <th colspan="12" style="text-align:right">
                         Total Cajas ALM 6: @Model.DetRRU0.Where(x => x.Estado != "LIBERADO" && x.Estado != "ANULADO" &&
-x.Ticket.Det2.FirstOrDefault(s => s.Monto > 0 && s.AlmacenSalida != "06" &&
-s.AlmacenSalida != "07").AlmacenSalida.Equals("ALM07")).Sum(x => x.Cajas)
+x.Ticket.Det2.FirstOrDefault(s => s.Monto > 0 && s.AlmacenSalida != "06" ).AlmacenSalida.Equals("ALM07")).Sum(x => x.Cajas)
                     </th>
                 </tr>
             }
@@ -298,7 +296,7 @@ s.AlmacenSalida != "07").AlmacenSalida.Equals("ALM07")).Sum(x => x.Cajas)
                         <td style="text-align:center">
                             @if (d.Ticket.Det2 != null)
                             {
-                                var primerElemento = d.Ticket.Det2.FirstOrDefault(x => x.Monto > 0 && x.AlmacenSalida != "06" && x.AlmacenSalida != "07");
+                                var primerElemento = d.Ticket.Det2.FirstOrDefault(x => x.Monto > 0 && x.AlmacenSalida != "06" );
                                 if (primerElemento != null)
                                 {
                                     @primerElemento.AlmacenSalida

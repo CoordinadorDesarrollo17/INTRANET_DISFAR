@@ -420,7 +420,10 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     {
                         try
                         {
-                            ProcesarCompromisosStock(ticket, tran);
+                            if (ticket.Det5 != null && ticket.Det5.Any() && ticket.Det5[0].RegCant>0)
+                            {
+                                ProcesarCompromisosStock(ticket, tran); // en este proceso de creacion solo lo manda como positivo para la asignacion inicial del regalo si hubiera
+                            }
 
                             SqlCommand cmd = CrearComandoRegistrarTicket(cn, ticket, zonaTk);
                             cmd.Transaction = tran;
@@ -540,8 +543,8 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 cmd.Parameters.AddWithValue("@C_CardCode", ticket.CardCode);
                 cmd.Parameters.AddWithValue("@FechaOpe", ticket.FechaSapTicket);
                 cmd.Parameters.AddWithValue("@Operacion", "VENTA");
-                cmd.Parameters.AddWithValue("@DetOpe", "VENTA DeudaEmpresa, ticket:" + ticket.DocNum + " MR:" + ticket.MontoFinal);
-                cmd.Parameters.AddWithValue("@Ingreso", ticket.DeudaEmpresa);
+                cmd.Parameters.AddWithValue("@DetOpe", "SALIDASALDO DeudaEmpresa, ticket:" + ticket.DocNum + " MR:" + ticket.MontoFinal);
+                cmd.Parameters.AddWithValue("@Egreso", ticket.DeudaEmpresa);
                 cmd.Parameters.AddWithValue("@OperarioRegistro", ticket.OpRegistro);
 
                 cmd.ExecuteNonQuery();
@@ -564,8 +567,10 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     {
                         try
                         {
-                            ProcesarCompromisosStock(ticket, tran, auxTK);
-
+                            if (ticket.Det5!=null && ticket.Det5.Any() && ticket.Det5[0].RegCant > 0)
+                            {
+                                ProcesarCompromisosStock(ticket, tran, auxTK);
+                            }
                             // Crear el comando para actualizar el ticket y asociarlo con la transacción
                             SqlCommand cmd = CrearComandoActualizarTicket(cn, ticket, docEntry, zonaTk);
                             cmd.Transaction = tran;
@@ -732,7 +737,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             return ticketUnificado;
         }
 
-        //Validado
+        //Validado, se usa en crear y editar
         private void ProcesarCompromisosStock(ORTV_E ticket, SqlTransaction tran, ORTV_E auxTK = null)
         {
             OREG_D oregD = new OREG_D();
@@ -1155,6 +1160,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 // aqui va lo de regalos cuando es Entregado Ticket Venta
                 if (TipoMantenimiento.Equals("USET") && auxTK.Det5 != null && auxTK.Det5.Count >= 1)
                 {
+                    throw new Exception("ENTREGA CON REGALO DESDE SEG");
                     if (auxTK.Det5[0].IdReg > 0 && auxTK.Det5[0].RegCant > 0)
                     {
                         cmd.Parameters.AddWithValue("@TieneRegalos", 1);
@@ -1171,26 +1177,27 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 // Si se gestionan regalos o stock, ejecutamos esas operaciones bajo la misma transacción
                 if (gestionStock)
                 {
-                    OREG_D oregD = new OREG_D();
-                    auxTK.Det5[0].RegCant = -1 * auxTK.Det5[0].RegCant;
-                    auxTK.OpRegistro = ticket.OpRegistro;
+                    throw new Exception("ALTERACION DE REGALOS");
+                    //OREG_D oregD = new OREG_D();
+                    //auxTK.Det5[0].RegCant = -1 * auxTK.Det5[0].RegCant;
+                    //auxTK.OpRegistro = ticket.OpRegistro;
 
-                    oregD.CompromisosStock(new List<ORTV_E> { auxTK }, tran);
+                    //oregD.CompromisosStock(new List<ORTV_E> { auxTK }, tran);
 
-                    oregD.RegistrarGestionStock(
-                        new OREG_E() { Id = auxTK.Det5[0].IdReg, StockDisp = auxTK.Det5[0].RegCant },
-                        new OTRC_E()
-                        {
-                            IdReg = auxTK.Det5[0].IdReg,
-                            RegName = auxTK.Det5[0].RegCate + " " + auxTK.Det5[0].RegTipo,
-                            CardCode = auxTK.CardCode,
-                            CardName = auxTK.CardName,
-                            Sentido = "Salida",
-                            Detalle = auxTK.DocNum.ToString(),
-                            Cantidad = auxTK.Det5[0].RegCant,
-                            Operario = auxTK.OpRegistro
-                        }
-                    , tran);
+                    //oregD.RegistrarGestionStock(
+                    //    new OREG_E() { Id = auxTK.Det5[0].IdReg, StockDisp = auxTK.Det5[0].RegCant },
+                    //    new OTRC_E()
+                    //    {
+                    //        IdReg = auxTK.Det5[0].IdReg,
+                    //        RegName = auxTK.Det5[0].RegCate + " " + auxTK.Det5[0].RegTipo,
+                    //        CardCode = auxTK.CardCode,
+                    //        CardName = auxTK.CardName,
+                    //        Sentido = "Salida",
+                    //        Detalle = auxTK.DocNum.ToString(),
+                    //        Cantidad = auxTK.Det5[0].RegCant,
+                    //        Operario = auxTK.OpRegistro
+                    //    }
+                    //, tran);
                 }
 
                 tran.Commit();
@@ -1554,25 +1561,6 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             return status;
         }
 
-        // Método auxiliar para ejecutar la operación de deuda (refactorización)
-        private void EjecutarOperacionDeuda(string tipoMantenimiento, string cardCode, string cardName, decimal monto, string operacion, string detalle, string fechaOpe, string operarioRegistro, int docnum, decimal montofinal, SqlTransaction tran)
-        {
-            SqlCommand cmdDeuda = new SqlCommand("vt.MANT_OLDS", tran.Connection)
-            {
-                CommandType = CommandType.StoredProcedure,
-                Transaction = tran
-            };
-
-            cmdDeuda.Parameters.AddWithValue("@TipoMantenimiento", tipoMantenimiento);
-            cmdDeuda.Parameters.AddWithValue("@C_CardCode", cardCode);
-            cmdDeuda.Parameters.AddWithValue("@C_CardName", cardName);
-            cmdDeuda.Parameters.AddWithValue("@FechaOpe", fechaOpe);
-            cmdDeuda.Parameters.AddWithValue("@Operacion", operacion);
-            cmdDeuda.Parameters.AddWithValue("@DetOpe", detalle + ", ticket:" + docnum + " MR:" + montofinal);
-            cmdDeuda.Parameters.AddWithValue("@Egreso", monto);
-            cmdDeuda.Parameters.AddWithValue("@OperarioRegistro", operarioRegistro);
-            cmdDeuda.ExecuteNonQuery();
-        }
 
         /*
 		 * Descripción: Método para editar el estado del ticket desde el view SeguimientoDeTicket
@@ -2241,7 +2229,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 throw new Exception("Error al entregar el ticket: " + e.Message, e);
             }
         }
-        public int Entregar(ORTV_E t)
+        public int Entregar(ORTV_E t)//viene desde listado despacho cuando se entrega de centro y arriola
         {
             int status = 0, regalos = 0;
 
@@ -2250,7 +2238,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 try
                 {
                     cn.Open();
-                    using (SqlTransaction tran = cn.BeginTransaction("ENTREGA DE UN TICKET"))
+                    using (SqlTransaction tran = cn.BeginTransaction("ENTREGA DESDE DESPACHO"))
                     {
                         using (SqlCommand cmd = new SqlCommand("vt.MANT_ORTV", cn, tran))
                         {
@@ -2284,10 +2272,10 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                                 OREG_D oregD = new OREG_D();
                                 t.Det5[0].RegCant = -1 * t.Det5[0].RegCant;  // Restar cantidad del regalo
 
-                                // Registrar el compromiso de stock
+                                // Registrar EN OTRC un descuento de imputado como negativo
                                 oregD.CompromisosStock(new List<ORTV_E> { t }, tran);
-
-                                // Registrar la gestión de stock
+                                //HACER UN ENVIO DE TRANSACCION DE ASIGNACION NEGATIVA 
+                                // Registrar  en otrc la salida como negativo y el cambio en oreg
                                 oregD.RegistrarGestionStock(
                                     new OREG_E() { Id = t.Det5[0].IdReg, StockDisp = t.Det5[0].RegCant },
                                     new OTRC_E()
@@ -2316,6 +2304,8 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 
             return status;
         }
+       
+        //Entregado masivo desde despacho (centro y arriola)
         public int EntregarMasivoTicket(int DocEntry, Tickets t)
         {
             int status = 0, regalos = 0;
@@ -3258,11 +3248,11 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             var listaOrdenada = listaCombinada.OrderByDescending(x => x.Id).ToList();
 
             // Verificar la operación principal y anulada
-            if (listaOrdenada.Any() && listaOrdenada.FirstOrDefault().Operacion == operacionPrincipal)
+            if (listaOrdenada!=null && listaOrdenada.Any() && listaOrdenada.FirstOrDefault().Operacion == operacionPrincipal)
             {
                 return true;
             }
-            else if (listaOrdenada.Any() && listaOrdenada.FirstOrDefault().Operacion == operacionAnulada)
+            else if (listaOrdenada != null && listaOrdenada.Any() && listaOrdenada.FirstOrDefault().Operacion == operacionAnulada)
             {
                 return false;
             }
