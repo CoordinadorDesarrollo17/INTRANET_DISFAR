@@ -8,7 +8,7 @@
 }
 
 <script>
-    function excel() {
+    function exportarTransacciones() {
         var object = $("#frm").serialize();
         $(location).attr('href', "/Ventas/ExportarExcelTransReg?" + object);
     }
@@ -24,63 +24,52 @@
 </div>
 
 <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
-    <div class="px-3 pt-3"><h3 class="titulo-seccion">TRANSACCIONES DE REGALOS</h3></div>
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">TRANSACCIONES DE REGALOS - <small>@($"{reg.Categoria} {reg.Tipo}  ({@Convert.ToInt32(reg.StockTotal)} unds)")</small></h3>   </div>
 </div>
 
 <div class="bg-form-pestanas-cobefar p-4 bg-form-cobefar">
     <form name="frm" id="frm">
         <div class="row">
-            <div class="col-lg-4">
-                <label class="text-dark font-weight-bold font-18">Categoría:</label>
-                <input class="form-control border-success" value="@reg.Categoria" readonly />
+            <input value="@reg.Categoria" readonly type="hidden" name="Categoria" />
+            <input value="@reg.Tipo" readonly type="hidden" name="Tipo" />
+            <input value="@reg.StockTotal" readonly type="hidden" name="StockTotal" />
+            <input name="IdReg" type="hidden" value="@reg.Id" readonly />
+
+            <div class="col-lg-2">
+                <label for="TiempoIni" class="text-dark form-label font-weight-bold font-18">Fecha Inicial:</label>
+                <input class="form-control border-success" name="TiempoIni" type="date" id="TiempoIni" />
             </div>
 
             <div class="col-lg-2">
-                <label class="text-dark form-label font-weight-bold font-18">Stock Total:</label>
-                <input class="form-control border-success" value="@reg.StockTotal" readonly />
+                <label for="TiempoFin" class="text-dark form-label font-weight-bold font-18">Fecha Fin:</label>
+                <input class="form-control border-success" name="TiempoFin" type="date" id="TiempoFin" />
             </div>
-
-            <div class="col-lg-2">
-                <input name="IdReg" type="hidden" value="@reg.Id" readonly />
-                <label for="estado" class="text-dark form-label font-weight-bold font-18">Fecha Inicial:</label>
-                <input class="form-control border-success" name="TiempoIni" type="date" />
+            <div class="col-lg-4 d-flex align-items-end">
+                <button class="btn btn-success" onclick="exportarTransacciones();"><i class="icon icon-file-excel"></i> Exportar transacciones</button>
             </div>
-
-            <div class="col-lg-2">
-                <input name="IdReg" type="hidden" value="@reg.Id" readonly />
-                <label for="estado" class="text-dark form-label font-weight-bold font-18">Fecha Fin:</label>
-                <input class="form-control border-success" name="TiempoFin" type="date" />
-            </div>
-
         </div>
     </form>
 
-    <div class="row mt-4">
-        <div class="col-lg-4">
-            <button class="btn btn-cobefar" onclick="excel();"><i class="icon icon-file-excel"></i> Exportar a Excel</button>
-        </div>
-    </div>
-
-    <div class="row mt-4">
-        <table class="table table-light table-sm table-hover table-responsive-md" cellspacing="0" width="100%">
-            <thead class="thead-dark">
+    <div class="bg-white bg-form-cobefar pt-3">
+        <table class="table table-light table-hover cls-dataTable50" cellspacing="0" width="100%">
+            <thead class="bg-cobefar-6">
                 <tr>
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.Id)
                     </th>
                     <th class="text-center">
-                        @Html.DisplayName("NombreRegalo")
+                        @Html.DisplayName("Descripcion")
                     </th>
-                    <th>
+                    <th class="text-center">
                         @Html.DisplayName("Ruc")
                     </th>
-                    <th>
+                    <th class="text-center">
                         @Html.DisplayName("Razon Social")
                     </th>
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.Sentido)
                     </th>
-                    <th>
+                    <th class="text-center">
                         @Html.DisplayNameFor(model => model.Detalle)
                     </th>
                     <th class="text-center">
@@ -107,19 +96,19 @@
                         <td class="text-center">
                             @Html.DisplayFor(modelItem => item.Id)
                         </td>
-                        <td>
+                        <td class="text-center">
                             @Html.DisplayFor(modelItem => item.RegName)
                         </td>
-                        <td>
+                        <td class="text-center">
                             @Html.DisplayFor(modelItem => item.CardCode)
                         </td>
-                        <td>
+                        <td class="text-center">
                             @Html.DisplayFor(modelItem => item.CardName)
                         </td>
                         <td class="text-center">
                             @Html.DisplayFor(modelItem => item.Sentido)
                         </td>
-                        <td>
+                        <td class="text-center">
                             @Html.DisplayFor(modelItem => item.Detalle)
                         </td>
                         <td class="text-center">

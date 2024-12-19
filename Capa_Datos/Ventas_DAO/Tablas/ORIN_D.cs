@@ -8,11 +8,39 @@ namespace Capa_Datos.Ventas_DAO.Tablas
 {
     public class ORIN_D
     {
-        DBHelper db = new DBHelper(); Utilitarios uti = new Utilitarios();
-        public ORIN_E buscarNotaDeCredito(int DocEntry)
+        DBHelper db = new DBHelper(); 
+        Utilitarios uti = new Utilitarios();
+        public List<ORIN_E> Listar(ORIN_E fil)
+        {
+            List<ORIN_E> lista = new List<ORIN_E>();
+            string filtros = string.Empty;
+            if (filtros != null)
+            {
+                if (fil.DocNum > 0) { filtros += " and \"DocNum\" like '%" + fil.DocNum + "'"; }
+                if (!string.IsNullOrEmpty(fil.DocDate)) { filtros += " and \"DocDate\"='" + fil.DocDate + "'"; }
+                if (!string.IsNullOrEmpty(fil.CardName)) { filtros += " and UPPER(\"CardName\") like UPPER('%" + fil.CardName + "%')"; }
+                if (!string.IsNullOrEmpty(fil.NumAtCard)) { filtros += " and UPPER(\"NumAtCard\") like UPPER('%" + fil.NumAtCard + "')"; }
+                if (fil.DocTotal > 0.00M) { filtros += " and \"DocTotal\" like '%" + fil.DocTotal + "%'"; }
+                if (!string.IsNullOrEmpty(fil.U_SYP_STATUS)) { filtros += " and UPPER(\"U_SYP_STATUS\")=UPPER('" + fil.U_SYP_STATUS + "')"; }
+                if (!string.IsNullOrEmpty(fil.RefFactura)) { filtros += " and UPPER(IFNULL(\"U_SYP_MDTO\"||'-','')||IFNULL(\"U_SYP_MDSO\"||'-','')||IFNULL(\"U_SYP_MDCO\",'')) like UPPER('%" + fil.RefFactura + "%')"; }
+            }
+            string query = $"SELECT top 50 \"DocEntry\" from {uti.schemaHana}ORIN where \"DocEntry\">0 {filtros} ORDER BY 1 DESC";
+            try
+            {
+                HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
+                while (hdr.Read())
+                {
+                    lista.Add(ObtenerCabecera(hdr.GetInt32(0), ""));
+                }
+                hdr.Close();
+            }
+            catch { }
+            return lista;
+        }
+        public ORIN_E ObtenerCabecera(int docEntry,string numAtCard)
         {
             ORIN_E o = null;
-            string query = "select \"DocEntry\",\"DocNum\",\"DocDate\",\"CardName\",\"NumAtCard\",\"DocTotal\",\"U_SYP_STATUS\", IFNULL(\"U_SYP_MDTO\"||'-','')||IFNULL(\"U_SYP_MDSO\"||'-','')||IFNULL(\"U_SYP_MDCO\",''), \"DocType\" from " + uti.schemaHana + "ORIN where \"DocEntry\"=" + DocEntry;
+            string query = $"select \"DocEntry\",\"DocNum\",\"DocDate\",\"CardName\",\"NumAtCard\",\"DocTotal\",\"U_SYP_STATUS\", IFNULL(\"U_SYP_MDTO\"||'-','')||IFNULL(\"U_SYP_MDSO\"||'-','')||IFNULL(\"U_SYP_MDCO\",''), \"DocType\", \"U_SYP_MDSD\",\"U_SYP_MDCD\",\"Address\", (SELECT \"LicTradNum\" FROM {uti.schemaHana}OCRD WHERE \"CardCode\" = {uti.schemaHana}ORIN.\"CardCode\"),(SELECT \"CurrName\" FROM {uti.schemaHana}\"OCRN\" WHERE \"CurrCode\" = {uti.schemaHana}ORIN.\"DocCur\") from {uti.schemaHana}ORIN where \"DocEntry\"={docEntry} or \"NumAtCard\" ='{numAtCard}'";
             try
             {
                 HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
@@ -27,59 +55,18 @@ namespace Capa_Datos.Ventas_DAO.Tablas
                 if (!hdr.IsDBNull(6)) { o.U_SYP_STATUS = hdr.GetString(6); }
                 if (!hdr.IsDBNull(7)) { o.RefFactura = hdr.GetString(7); }
                 if (!hdr.IsDBNull(8)) { o.DocType = hdr.GetString(8); }
+                if (!hdr.IsDBNull(9)) { o.SerieDoc = hdr.GetString(9); }
+                if (!hdr.IsDBNull(10)) { o.CorreDoc = hdr.GetString(10); }
+                if (!hdr.IsDBNull(11)) { o.DirPagar = hdr.GetString(11); }
+                if (!hdr.IsDBNull(12)) { o.Ruc = hdr.GetString(12); }
+                if (!hdr.IsDBNull(13)) { o.MonedaLetras = hdr.GetString(13); }
 
                 hdr.Close();
             }
             catch { }
             return o;
         }
-        public List<ORIN_E> listarNotasDeCredito(ORIN_E fil)
-        {
-            List<ORIN_E> lista = new List<ORIN_E>();
-            string filtros = string.Empty;
-            if (filtros != null)
-            {
-                if (fil.DocNum > 0) { filtros += " and \"DocNum\" like '%" + fil.DocNum + "'"; }
-                if (!string.IsNullOrEmpty(fil.DocDate)) { filtros += " and \"DocDate\"='" + fil.DocDate + "'"; }
-                if (!string.IsNullOrEmpty(fil.CardName)) { filtros += " and UPPER(\"CardName\") like UPPER('%" + fil.CardName + "%')"; }
-                if (!string.IsNullOrEmpty(fil.NumAtCard)) { filtros += " and UPPER(\"NumAtCard\") like UPPER('%" + fil.NumAtCard + "')"; }
-                if (fil.DocTotal > 0.00M) { filtros += " and \"DocTotal\" like '%" + fil.DocTotal + "%'"; }
-                if (!string.IsNullOrEmpty(fil.U_SYP_STATUS)) { filtros += " and UPPER(\"U_SYP_STATUS\")=UPPER('" + fil.U_SYP_STATUS + "')"; }
-                if (!string.IsNullOrEmpty(fil.RefFactura)) { filtros += " and UPPER(IFNULL(\"U_SYP_MDTO\"||'-','')||IFNULL(\"U_SYP_MDSO\"||'-','')||IFNULL(\"U_SYP_MDCO\",'')) like UPPER('%" + fil.RefFactura + "%')"; }
-            }
-            string query = "select top 50 \"DocEntry\" from " + uti.schemaHana + "ORIN where \"DocEntry\">0 " + filtros + " order by 1 desc";
-            try
-            {
-                HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
-                while (hdr.Read())
-                {
-                    lista.Add(buscarNotaDeCredito(hdr.GetInt32(0)));
-                }
-                hdr.Close();
-            }
-            catch { }
-            return lista;
-        }
-        public TEMP_RRU01_E NotaCreditoSap(int DocNum)
-        {
-            TEMP_RRU01_E obj = new TEMP_RRU01_E();
-            string query = "select 'ORIN',\"U_SYP_MDTD\",\"U_SYP_MDSD\",\"U_SYP_MDCD\", TO_CHAR(\"DocDate\",'YYYY-MM-DD'),'NC'  from " + uti.schemaHana + "ORIN where \"DocNum\"=" + DocNum;
-            try
-            {
-                HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
-                hdr.Read();
-                if (!hdr.IsDBNull(0)) { obj.TablaSAP = hdr.GetString(0); }
-                if (!hdr.IsDBNull(1)) { obj.U_SYP_MDTD = hdr.GetString(1); }
-                if (!hdr.IsDBNull(2)) { obj.U_SYP_MDSD = hdr.GetString(2); }
-                if (!hdr.IsDBNull(3)) { obj.U_SYP_MDCD = hdr.GetString(3); }
-                if (!hdr.IsDBNull(4)) { obj.DocDate = hdr.GetString(4); }
-                if (!hdr.IsDBNull(5)) { obj.Identificador = hdr.GetString(5); }
-                hdr.Close();
-            }
-            catch { }
-            return obj;
-        }
-        public List<NotaCreditoDebito_E> buscarNotaCreditoSapServicio(string NumAtCard)
+        public List<NotaCreditoDebito_E> ObtenerDetalleNotaCreditoServicio(string NumAtCard)
         {
             List<NotaCreditoDebito_E> lista = new List<NotaCreditoDebito_E>();
             int DocEntry = 0;
@@ -140,7 +127,7 @@ namespace Capa_Datos.Ventas_DAO.Tablas
             }
             return lista;
         }
-        public List<NotaCreditoDebito_E> buscarNotaCreditoSapArticulo(string NumAtCard)
+        public List<NotaCreditoDebito_E> ObtenerDetalleNotaCreditoArticulo(string NumAtCard)
         {
             List<NotaCreditoDebito_E> lista = new List<NotaCreditoDebito_E>();
             int DocEntry = 0;

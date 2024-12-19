@@ -1,6 +1,7 @@
 ﻿using Humanizer;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Capa_Entidad.ReportesDigemid_ENT.Reportes
 {
@@ -13,6 +14,12 @@ namespace Capa_Entidad.ReportesDigemid_ENT.Reportes
         public string SerieDoc { get; set; }
         public string CorreDoc { get; set; }
         public string NroOCCliente { get; set; }
+        // Propiedades de Anticipo
+        public string TotalBase { get; set; }
+        public string NroAnticipo { get; set; }
+        public decimal Anticipo { get; set; }
+        public string FechaAnticipo { get; set; }
+        public decimal AnticipoBruto { get; set; }
         public string NumGuias { get; set; }
         public string NombreSocio { get; set; }
         public string DirPagar { get; set; }
@@ -139,6 +146,29 @@ namespace Capa_Entidad.ReportesDigemid_ENT.Reportes
             }
             return suma;
         }
+
+        public decimal OpGravadas(List<ComprobanteDePago_E> lista)
+        {
+            decimal opGravadas = 0.00M;
+
+            foreach (ComprobanteDePago_E c in lista.Where(x => x.CodImpuesto == "IGV"))
+            {
+                opGravadas += c.ItemTotal;
+            }
+            return Math.Round(opGravadas, 2);
+        }
+
+
+        public decimal CalcularOpExoneradas(List<ComprobanteDePago_E> lista)
+        {
+            decimal suma = 0.00M;
+            foreach (ComprobanteDePago_E c in lista.Where(x => x.CodImpuesto == "EXE_IGV"))
+            {
+                suma += c.PrecioVenta;
+            }
+            return Math.Round(suma, 2);
+        }
+
         public decimal Sum_Topgratuita(List<ComprobanteDePago_E> lista)
         {
             decimal suma = 0.00M;

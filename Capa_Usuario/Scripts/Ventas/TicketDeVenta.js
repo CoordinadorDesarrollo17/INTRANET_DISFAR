@@ -202,7 +202,7 @@ function reporteLibroSaldo(estado) {
 }
 //Tickets vinculados :
 //funcion para mostrar buscador de tickets a vincular
-//v
+
 function mostrarTableTicketsVinculados(valor) {
     var LugarDestino = $("#LugarDestino").val();
     //mostrar el llenado de tickets vinculados si la eleccion es SI
@@ -213,7 +213,7 @@ function buscarTicketAVincular(DocNum) {
     var DocNumPrincipal = $("#DocNum").val();
     if (DocNum == DocNumPrincipal) { swal.fire("No puede vincular el mismo número de ticket, hace redundancia."); } else {
         var parametros = { "DocNum": DocNum };
-        $.ajax('/Ventas/buscarTicket',
+        $.ajax('/Ventas/buscarTicketAVincular',
             {
                 data: parametros,
                 dataType: 'json',
@@ -291,7 +291,6 @@ function buscarTicketAVincular(DocNum) {
             });
     }
 }
-//v
 var cont = 0;
 function agregarTicketVinculado(DocEntry, DocNum, CardCode, CardName, MontoFinal) {
     if (DocNum == null || DocNum == "") { swal.fire("No es valido el DocNum a vincular", "Verifique", "warning"); return; }
@@ -314,8 +313,6 @@ function agregarTicketVinculado(DocEntry, DocNum, CardCode, CardName, MontoFinal
         $("#ClienteVinculado").val("");
         $("#RucClienteVinculado").val("");
     }
-
-
 }
 function borrarTrTablaVinculados(dom) {
     var i = -1;
@@ -338,7 +335,7 @@ function borrarTrTablaVinculados(dom) {
         i = i + 1;
     })
 }
-//v
+
 function validacionVerificarMontos(estado) {
     var object;
     if (estado === '') {

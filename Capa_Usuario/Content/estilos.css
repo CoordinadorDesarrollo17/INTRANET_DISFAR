@@ -66,13 +66,17 @@ footer {
     max-width: 600px;
 }
 
-
 /* Reemplaza el color de fondo para la clase table-hover */
+.table-hover {
+    cursor: pointer;
+}
+
 .table-hover tbody tr:hover {
     background-color: #d5f5e3 !important;
 }
     .table-hover tbody tr:hover td {
         color: black;
+   
     }
 
 @media screen and (max-width:1100px) {

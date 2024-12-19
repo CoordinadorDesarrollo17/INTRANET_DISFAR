@@ -741,16 +741,30 @@ namespace Capa_Usuario.Controllers
 
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                RRU0_N rru0N = new RRU0_N(); RRU1_N rru1N = new RRU1_N();
-                ORRU_E orru = orruN.obtenerOrdenDeRuta(DocEntry);
+                ORRU_E var = orruN.obtenerOrdenDeRuta(DocEntry);
 
-                ViewBag.TipoRuta = orru.TipoRuta;
+                ViewBag.TipoRuta = var?.TipoRuta ?? string.Empty;
                 ViewBag.TipoRep = TipoRep;
                 ViewBag.DocEntry = DocEntry;
                 ViewBag.Linea = Linea;
-                ViewBag.RRU0 = rru0N.buscarRRU0(DocEntry, Linea);
-                ViewBag.RRU1 = rru1N.buscarRRU1(DocEntry, Linea);
                 ViewBag.TipoVenta = tipoVenta;
+
+                if (var?.TipoRuta == "TA")
+                {
+                    ViewBag.RRU1 = var?.DetRRU1
+                   ?.Where(x => x.Linea == Linea)
+                   .DefaultIfEmpty(new RRU1_E { })
+                   .FirstOrDefault() ?? new RRU1_E();
+
+                }
+                else
+                {
+                    ViewBag.RRU0 = var?.DetRRU0
+                    ?.Where(x => x.Linea == Linea)
+                    .DefaultIfEmpty(new RRU0_E { })
+                    .FirstOrDefault() ?? new RRU0_E();
+                }
+               
 
                 return View();
             }
@@ -781,7 +795,6 @@ namespace Capa_Usuario.Controllers
                     {
                         RRU0_N rru0N = new RRU0_N();
                         r0.OpEntrega = $"{user.Nombres} {user.Apellidos}";
-
                         rru0N.entregarRRU0(r0);
                     }
                     return RedirectToAction("ListadoEntregaRepartos", new { DocEntry = r0.DocEntry, Linea = r0.Linea, TipoRep = TipoRep });

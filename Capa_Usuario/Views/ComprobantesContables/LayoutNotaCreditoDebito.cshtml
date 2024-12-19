@@ -15,9 +15,6 @@
             font-family: 'Verdana', sans-serif;
             font-size: 12px;
         }
-        /*.page-break {
-            page-break-before: always;
-        }*/
         table {
             border-collapse: collapse;
             width: 100%;
@@ -62,7 +59,7 @@
                 {
                 <tr style="text-align: center;page-break-inside:avoid;">
                     <td style="width: 100px;">
-                        @Html.DisplayFor(modelItem => item.Cantidad)
+                        @if (item.Cantidad > 0) { Math.Round(Convert.ToDouble(item.Cantidad), 0); }
                     </td>
                     <td style="width: 400px;">
                         @Html.DisplayFor(modelItem => item.DescripcionLinea)
@@ -75,39 +72,6 @@
                     </td>
                 </tr>
                 }
-                @*@{var counter = 0;
-
-
-        foreach (var item in Model)
-        {
-            if (counter % 20 == 0)
-            {
-                if (counter != 0)
-                { @Html.Raw("</table><div class='page-break'></div><table border='1' style='font-size:11px;'>   <tr><th style=\"width: 100px;\">CANT.</th>\r\n                    <th style=\"width: 400px;\">DESCRIPCIÓN</th>\r\n                    <th style=\"width: 100px;\">P. UNITARIO</th>\r\n                    <th style=\"width: 100px;\">PRECIO<br />VENTA</th>      </tr>")
-
-            }
-        }*@
-                @*<tr style=" page-break-inside: avoid;">
-                <td style="width: 100px;">
-                    @Html.DisplayFor(modelItem => item.Cantidad)
-                </td>
-                <td style="width: 400px;">
-                    @Html.DisplayFor(modelItem => item.DescripcionLinea)
-                </td>
-                <td style="width: 100px;">
-                    @Html.DisplayFor(modelItem => item.PrecioLinea)
-                </td>
-                <td style="width: 100px;">
-                    @Html.DisplayFor(modelItem => item.PrecioLinea)
-                </td>
-            </tr>
-
-        }
-
-        counter++;
-        }*@
-
-
             </table>
         }
         else if (ViewBag.Tipo == "ND")
@@ -135,35 +99,6 @@
             </td>
         </tr>
         }
-
-        @*@{
-            var counter = 0;
-            foreach (var item in Model)
-            {
-                if (counter % 20 == 0)
-                {
-                    if (counter != 0)
-                    {
-                        @Html.Raw("</table><div class='page-break'></div><table border='1'><tr><th style=\"width: 100px;\">ITEM</th><th style=\"width: 400px;\">DESCRIPCIÓN</th><th style=\"width: 100px;\">VALOR<br />UNITARIO</th><th style=\"width: 100px;\">PRECIO<br />VENTA</th></tr>")
-                    }
-                }
-                <tr style="page-break-inside: avoid;">
-                    <td style="width: 100px;">
-                        @Html.DisplayFor(modelItem => item.CodigoGasto)
-                    </td>
-                    <td style="width: 400px;">
-                        @Html.DisplayFor(modelItem => item.DescripcionLinea)
-                    </td>
-                    <td style="width: 100px;">
-                        @Html.DisplayFor(modelItem => item.PrecioLinea)
-                    </td>
-                    <td style="width: 100px;">
-                        @Html.DisplayFor(modelItem => item.PrecioLinea)
-                    </td>
-                </tr>
-                counter++;
-            }
-        }*@
     </table>
 
         }
@@ -171,7 +106,7 @@
         {
     <table border="1" style="text-align:center">
         <tr>
-            <th style="width: 50px;">CANTIDAD</th>
+            <th style="width: 80px;">CANTIDAD</th>
             <th style="width: 260px;">DESCRIPCION</th>
             <th style="width: 50px;">LAB.</th>
             <th style="width: 80px;">LOTE</th>
@@ -184,8 +119,10 @@
         @foreach (var item in Model)
         {
         <tr style="page-break-inside: avoid;">
-            <td style="width: 50px;">
-                @Html.DisplayFor(modelItem => item.CantidadL)
+            <td style="width: 80px;">
+                @Math.Round(Convert.ToDouble(item.CantidadL), 0)
+                @if (item.UmLinea.Equals("PZA"))
+                {<span>PZA</span>}
             </td>
             <td style="width: 260px;">
                 @Html.DisplayFor(modelItem => item.DescripcionLinea)
@@ -213,49 +150,6 @@
             </td>
         </tr>
         }
-        @*@{
-        var counter = 0;
-        foreach (var item in Model)
-        {
-            if (counter % 20 == 0)
-            {
-                if (counter != 0)
-                {
-                    @Html.Raw("</table><div class='page-break'></div><table border='1'><tr><th style=\"width: 50px;\">CANTIDAD</th>\r\n                    <th style=\"width: 260px;\">DESCRIPCION</th>\r\n                    <th style=\"width: 50px;\">LAB.</th><th style=\"width: 80px;\">LOTE</th><th style=\"width: 100px;\">FECHA<br />VENC.</th><th style=\"width: 100px;\">PRECIO<br />UNIT.</th><th style=\"width: 80px;\">DSCTO<br />%</th><th style=\"width: 100px;\">V. VENTA<br />NETO</th><th style=\"width: 100px;\">PRECIO<br />VENTA</th></tr>")
-                }
-            }*@
-        @*<tr style="page-break-inside: avoid;">
-                    <td style="width: 50px;">
-                        @Html.DisplayFor(modelItem => item.CantidadL)
-                    </td>
-                    <td style="width: 260px;">
-                        @Html.DisplayFor(modelItem => item.DescripcionLinea)
-                    </td>
-                    <td style="width: 50px;">
-                        @Html.DisplayFor(modelItem => item.Laboratorio)
-                    </td>
-                    <td style="width: 80px;">
-                        @Html.DisplayFor(modelItem => item.LoteNum)
-                    </td>
-                    <td style="width: 100px;">
-                        @Html.DisplayFor(modelItem => item.VencLote)
-                    </td>
-                    <td style="width: 100px;">
-                        @Math.Round(item.F_ItemPrecio(), 2)
-                    </td>
-                    <td style="width: 80px;">
-                        @Html.DisplayFor(modelItem => item.Descuento)
-                    </td>
-                    <td style="width: 100px;">
-                        @Html.DisplayFor(modelItem => item.PreVentaNeto)
-                    </td>
-                    <td style="width: 100px;">
-                        @Math.Round(item.ItemTotalxLot(), 2)
-                    </td>
-                </tr>
-                counter++;
-            }
-        }*@
     </table>
 
         }
@@ -370,7 +264,7 @@
                          <tr>
                              <td>Desc.&nbsp;Globales</td>
                              <td>S/</td>
-                             <td style="text-align:right"></td>
+                             <td style="text-align:right"><span>0.00</span></td>
                          </tr>
                          <tr>
                              <td> I.G.V 18%</td>
@@ -385,7 +279,7 @@
                          <tr>
                              <td> Op.Exonerada</td>
                              <td>S/</td>
-                             <td style="text-align:right"></td>
+                             <td style="text-align:right"><span>0.00</span></td>
                          </tr>
                          <tr>
                              <td>Op.Gratuita</td>

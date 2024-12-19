@@ -19,9 +19,9 @@ namespace Capa_Negocio.Almacen_NEG.Tablas
         {
             return oD.buscarGuiaRemisionSap(NumAtCard);
         }
-        public string GuiasTicketTransferencia(int DocNum, string WhsCode)
+        public string GuiasTicketTransferencia(int DocNum, string WhsCode,string CardCode)
         {
-            return oD.GuiasTicketTransferencia(DocNum, WhsCode);
+            return oD.GuiasTicketTransferencia(DocNum, WhsCode,CardCode);
         }
         public string CalcularPdfsActaRecepcion(string Fecha, string U_SYP_STATUS, string U_COB_LUGAREN)
         {

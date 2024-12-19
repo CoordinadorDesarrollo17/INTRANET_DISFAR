@@ -48,48 +48,472 @@
     }
 
 }
-<script>
-    $(document).ready(function () {
-        modTabla();
-    });
+
+<style>
+    .btn-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+
+        .btn-container a {
+            margin-bottom: 10px;
+        }
+
+    .btn-group {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+    }
+.modal-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centra el contenido del modal horizontalmente */
+}
+</style>
+
+@section Scripts{
+    <script>
+     $(document).ready(function () {
+            modTabla();
+            $('[data-toggle="tooltip"]').tooltip();
+
+            if ('@ViewBag.Mensaje' !== "") {
+                var mensaje = '@Html.Raw(ViewBag.Mensaje)';
+                Swal.fire({
+                    text: mensaje,
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+            }
+     });
+
     function clearZona() {
         $('#Zona').val('');
     }
+
     function filtrar() {
         var object = $("#frm").serialize();
         $(location).attr('href', "/Ventas/ListadoTicketsFacturacion?" + object);
     }
+
     function cambiarLugarDestino(selectElement) {
         if (selectElement.value === "true") {
             $('#LugarDestino').val('Domicilio');
         }
     }
+
     function modTabla() {
         var LugarDestino = $("#LugarDestino").val();
         if (LugarDestino != null && LugarDestino != "") {
             if (LugarDestino === "Agencia" || LugarDestino === "Agencia Courier") {
-                $("#tablaFacturacion tr td:nth-child(10)").show();
-                $("#tablaFacturacion th:nth-child(10)").show();
+
+                //Muestra la persona de recojo
+                $("#tablaFacturacion tr td:nth-child(11)").show();
+                $("#tablaFacturacion th:nth-child(11)").show();
+                //Oculta zona
                 $("#tablaFacturacion tr td:nth-child(5)").hide();
                 $("#tablaFacturacion th:nth-child(5)").hide();
+
             } else if (LugarDestino === "Domicilio") {
+                //Oculta la 
                 $("#tablaFacturacion tr td:nth-child(11)").hide();
                 $("#tablaFacturacion th:nth-child(11)").hide();
             }
             else if (LugarDestino === "Centro" || LugarDestino === "Arriola") {
                 $("#tablaFacturacion tr td:nth-child(5)").hide();
                 $("#tablaFacturacion th:nth-child(5)").hide();
+
                 $("#tablaFacturacion tr td:nth-child(11)").hide();
                 $("#tablaFacturacion th:nth-child(11)").hide();
             }
         } else {
             $("#tablaFacturacion tr td:nth-child(5)").hide();
             $("#tablaFacturacion th:nth-child(5)").hide();
+
             $("#tablaFacturacion tr td:nth-child(11)").hide();
             $("#tablaFacturacion th:nth-child(11)").hide();
         }
     }
-</script>
+
+    function confirmarFacturar(DocEntry) {
+    window.location.href = '/Ventas/FacturarTicketVenta?DocEntry=' + DocEntry;
+        }
+
+    function abrirModalFB(DocEntry) {
+        var modalId = "ModalComprobantes" + DocEntry;
+
+        // Verificar si el modal ya existe
+        if ($("#" + modalId).length > 0) {
+            // Si el modal ya existe, simplemente ábrelo
+            $("#" + modalId).modal('show');
+        }
+
+        // Si el modal no existe, crear uno nuevo
+        buscarFacturasyBoletas(DocEntry, function (htmlTableDocumentos) {
+            var docNum = DocEntry + 2000000000;
+            var modalHtml = `<div class='modal' id='${modalId}' tabindex='-1' role='dialog' aria-labelledby='${modalId}Label' aria-hidden='true'>
+                                <div class='modal-dialog modal-dialog-centered modal-lg' role='document'>
+                                    <div class='modal-content'>
+                                        <div class='modal-header bg-cobefar text-white'>
+                                            <h5 class='modal-title' id='${modalId}Label'>FACTURAS Y BOLETAS <br>NroTicket : ${docNum}</h5>
+                                            <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+                                                <span aria-hidden='true'>&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class='modal-body'>
+                                            ${htmlTableDocumentos}
+                                        </div>
+                                        <div class='modal-footer'>
+                                            <button type='button' class='btn btn-secondary' data-dismiss='modal'>Cerrar</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>`;
+            $("body").append(modalHtml);
+
+            $("#" + modalId).modal('show');
+        });
+        }
+
+    function revertirFacturacionTicket(DocEntry) {
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: 'btn btn-success mx-4',
+                cancelButton: 'btn btn-danger mx-4'
+            },
+            buttonsStyling: false
+        });
+
+        swalWithBootstrapButtons.fire({
+            title: '¿Está seguro(a) de revertir la facturación del ticket?',
+            text: "Este proceso es reversible",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: "<i class='icon-checkmark'></i> Si, estoy seguro(a)",
+            cancelButtonText: "<i class='icon-cross'></i> No",
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = '/Ventas/AnularFacturarTicketVenta?DocEntry=' + DocEntry + '&vista=ListadoTicketsFacturacion';
+            }
+        });
+        }
+
+    function buscarFacturasyBoletas(DocEntry, callback) {
+        if (DocEntry !== '') {
+            var parametros = { "DocEntry": DocEntry };
+
+            $.ajax({
+                url: '/Ventas/buscarFacturasyBoletas',
+                data: parametros,
+                dataType: 'json',
+                cache: false,
+                type: 'post'
+            })
+                .done(function (response) {
+                    var totalMonto = 0; // Inicializar la variable para la suma de montos
+                    var tableHtml = `<div class='table-responsive w-100'>
+                            <table border='2' style='width: 100%; border-color: green; text-align: center;' class='w-100'>
+                                <thead>
+                                    <tr>
+                                        <th class='text-dark text-center'>Correlativo</th>
+                                        <th class='text-dark text-center'>Fecha Cont</th>
+                                        <th class='text-dark text-center'>Fecha Ini Traslado</th>
+                                        <th class='text-dark text-center'>Doc Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>`;
+
+                    // Recorrer response para agregarlo a la tabla y sumar los montos
+                    response.forEach(function (obj) {
+                        totalMonto += parseFloat(obj.DocTotal); // Sumar el monto al total
+                        tableHtml += `<tr>
+                            <td>${obj.NumAtCard}</td>
+                            <td>${obj.DocDate}</td>
+                            <td>${obj.U_BPP_FECINITRA}</td>
+                            <td>${parseFloat(obj.DocTotal).toFixed(2)}</td>
+                          </tr>`;
+                    });
+
+                    tableHtml += `       </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" class="text-right"><strong>Total:</strong></td>
+                                    <td>${totalMonto.toFixed(2)}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>`;
+
+                    // Llama al callback y pasa el HTML
+                    callback(tableHtml);
+                });
+
+        }
+        }
+
+    function confirmarEmitirGuias(DocEntry) {
+               var docNum = "@(ViewBag.Ortv != null ? ViewBag.Ortv.DocNum : "")";
+                var estadoPago = "@(ViewBag.Ortv != null ? ViewBag.Ortv.EstadoPago : "")";
+                var tipoVenta = "@(ViewBag.Ortv != null ? ViewBag.Ortv.TipoVenta : "")";
+                var tiempoEntrega = "@(ViewBag.Ortv != null ? ViewBag.Ortv.TiempoEntrega : "")";
+                var estado = "@(ViewBag.Ortv != null ? ViewBag.Ortv.Estado : "")";
+                var fechaSapTicket = "@(ViewBag.Ortv != null ? ViewBag.Ortv.FechaSapTicket : "")";
+                var cardName = "@(ViewBag.Ortv != null ? ViewBag.Ortv.CardName : "")";
+                var vendedor = "@(ViewBag.Ortv != null ? ViewBag.Ortv.Vendedor : "")";
+                var flete = "@(ViewBag.Ortv != null ? ViewBag.Ortv.Flete : "")";
+                var descuentoNC = "@(ViewBag.Ortv != null ? ViewBag.Ortv.DescuentoNC : "")";
+                var estadoFacturacion = "@(ViewBag.Ortv != null ? ViewBag.Ortv.EstadoFacturacion : "")";
+                var lugarDestino = "@(ViewBag.Ortv != null ? ViewBag.Ortv.LugarDestino : "")";
+
+                window.location.href = "@Url.Action("EmitirGuiasTicketVenta", "Ventas")?DocEntry=" + DocEntry +
+                                                    "&DocNum=" + docNum +
+                                                    "&EstadoPago=" + estadoPago +
+                                                    "&TipoVenta=" + tipoVenta +
+                                                    "&TiempoEntrega=" + tiempoEntrega +
+                                                    "&Estado=" + estado +
+                                                    "&FechaSapTicket=" + fechaSapTicket +
+                                                    "&CardName=" + cardName +
+                                                    "&Vendedor=" + vendedor +
+                                                    "&Flete=" + flete +
+                                                    "&DescuentoNC=" + descuentoNC +
+                                                    "&EstadoFacturacion=" + estadoFacturacion +
+                                                    "&LugarDestino=" + lugarDestino;
+
+
+        }
+
+    function buscarGuias(DocEntry, callback) {
+        if (DocEntry !== '') {
+            var parametros = { "DocEntry": DocEntry };
+
+            $.ajax({
+                url: '/Ventas/buscarGuias',
+                data: parametros,
+                dataType: 'json',
+                cache: false,
+                type: 'post'
+            })
+                .done(function (response) {
+                    var tableHtml = "<div class='table-responsive w-100'><table  border='2' style='width: 100 %; border-color:green;text-align:center;' class='w-100'><thead><tr><th class='text-dark text-center'>Correlativo</th><th class='text-dark text-center'>Fecha Cont</th><th class='text-dark text-center'>Fecha Ini Traslado</th></tr></thead><tbody>";
+                    //recorrer response para agregarlo a la table
+                    response.forEach(function (obj) {
+
+                        tableHtml += '<tr><td>' + obj.NumAtCard + '</td><td>' + obj.DocDate + '</td><td>' + obj.FechaTrasl + '</td></tr>';
+                    });
+
+                    tableHtml += '</tbody></table></div>';
+                    // Llama al callback  pasa el Html
+                    callback(tableHtml);
+                });
+        }
+        }
+
+    function abrirModalGuias(DocEntry) {
+        var modalId = "ModalGuias" + DocEntry;
+
+        // Verificar si el modal ya existe
+        if ($("#" + modalId).length > 0) {
+            // Si el modal ya existe, simplemente ábrelo
+            $("#" + modalId).modal('show');
+            return; // Salir de la función
+        }
+
+        // Si el modal no existe, crear uno nuevo
+        buscarGuias(DocEntry, function (htmlTableDocumentos) {
+            var docNum = DocEntry + 2000000000;
+            var modalHtml = "<div class='modal' id='" + modalId + "' tabindex='-1' role='dialog' aria-labelledby='" + modalId + "Label' aria-hidden='true'>" +
+                "<div class='modal-dialog modal-dialog-centered modal-lg' role='document'>" +
+                "<div class='modal-content'>" +
+                "<div class='modal-header bg-cobefar text-white'>" +
+                "<h5 class='modal-title' id='" + modalId + "Label'>GUÍAS DE REMISIÓN <br>NroTicket : " + docNum + "</h5>" +
+                "<button type='button' class='close' data-dismiss='modal' aria-label='Close'>" +
+                "<span aria-hidden='true'>&times;</span>" +
+                "</button>" +
+                "</div>" +
+                "<div class='modal-body'>" +
+                htmlTableDocumentos +
+                "</div>" +
+                "<div class='modal-footer'>" +
+                "<button type='button' class='btn btn-secondary' data-dismiss='modal'>Cerrar</button>" +
+                "</div>" +
+                "</div>" +
+                "</div>" +
+                "</div>";
+            $("body").append(modalHtml);
+
+            // Una vez que se ha agregado el HTML del modal al cuerpo del documento, ábrelo
+            $("#" + modalId).modal('show');
+        });
+        }
+
+    function revertirEmitirGuiasTicket(DocEntry) {
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: 'btn btn-success mx-4',
+                cancelButton: 'btn btn-danger mx-4'
+            },
+            buttonsStyling: false
+        })
+
+        swalWithBootstrapButtons.fire({
+            title: '¿Está seguro(a) de revertir emision de guias del ticket?',
+            text: "Este proceso es reversible",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: "<i class='icon-checkmark'></i> Si, estoy seguro(a)",
+            cancelButtonText: "<i class='icon-cross'></i> No",
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                location.href = '/Ventas/RevertirEmitirGuiasTicketVenta?DocEntry=' + DocEntry + '&vista=ListadoTicketsGuiasRemision';
+            }
+        });
+        }
+
+    var tiempoRecarga = setTimeout(function () { window.location.reload() }, 90000);  //1.5 min
+
+    async function generarHtmlComprobantes(docEntry, estado, lugarDestino) {
+    let html = '<div class="btn-group" role="group">';
+
+        const { existeNC, existeND, existeF, existeG } = await validarDocumentos(docEntry);
+
+        html += generarBotonesComprobantes(docEntry, existeNC, existeND, existeF, existeG);
+
+        html += '</div>';
+
+        document.getElementById('modal-body-comprobantes').innerHTML = html;
+            $('#comprobantesModal').modal('show');
+
+            //Inicializar el tooltip dibujado en el modal
+            $('[data-toggle="tooltip"]').tooltip();
+    }
+
+    // Función para validar la existencia de los documentos antes de mostrar el boton de descarga
+    async function validarDocumentos(docEntry) {
+    try {
+        const response = await $.ajax({
+            url: '@Url.Action("ExistenciaDeDocumentos", "ComprobantesContables")',
+            type: 'GET',
+            data: { DocEntry: docEntry }
+        });
+
+        return {
+            existeNC: response?.existeNC || "N",
+            existeND: response?.existeND || "N",
+            existeF: response?.existeF || "N",
+            existeG: response?.existeG || "N"
+        };
+    } catch (error) {
+        Swal.fire('Error', 'Ocurrió un error en la solicitud: ' + error, 'error');
+        return {
+            existeNC: "N",
+            existeND: "N",
+            existeF: "N",
+            existeG: "N",
+
+        };
+    }
+}
+
+    // Función para generar los botones de comprobantes
+    function generarBotonesComprobantes(docEntry, existeNC, existeND, existeF, existeG) {
+        let html = ``;
+        if (existeF === "Y") {
+            html += `
+            <button type="button" data-docentry="${encodeURIComponent(docEntry)}" data-tipo="F"
+                onclick="descargarComprobante('${encodeURIComponent(docEntry)}', 'F')"
+                class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top"
+                title="Facturas">
+                <i class="icon icon-download"><span class="text-dark small"> Facturas </span></i>
+            </button><br />
+            `;
+        }
+
+        if (existeG === "Y") {
+        html += `
+            <button type="button" data-docentry="${encodeURIComponent(docEntry)}" data-tipo="G"
+                onclick="descargarComprobante('${encodeURIComponent(docEntry)}', 'G')"
+                class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top"
+                title="Guías">
+                <i class="icon icon-download"><span class="text-dark small"> Guías </span></i>
+            </button><br />
+        `;
+        }
+
+        if (existeNC === "Y") {
+            html += `
+                <button type="button" data-docentry="${encodeURIComponent(docEntry)}" data-tipo="NC"
+                    onclick="descargarComprobante('${encodeURIComponent(docEntry)}', 'NC')"
+                    class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top"
+                    title="Notas de crédito">
+                    <i class="icon icon-download"><span class="text-dark small"> Notas de crédito </span></i>
+                </button><br />
+            `;
+        }
+
+        if (existeND === "Y") {
+            html += `
+                <button type="button" data-docentry="${encodeURIComponent(docEntry)}" data-tipo="ND"
+                    onclick="descargarComprobante('${encodeURIComponent(docEntry)}', 'ND')"
+                    class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top"
+                    title="Notas de débito">
+                    <i class="icon icon-download"><span class="text-dark small"> Notas de débito </span></i>
+                </button><br />
+            `;
+        }
+
+        return html;
+    }
+
+    // Función para descargar comprobantes contables
+    function descargarComprobante(docEntry, tipo) {
+    const btn = document.querySelector(`[data-docentry="${docEntry}"][data-tipo="${tipo}"]`);
+
+        if (btn) {
+        btn.disabled = true;
+        }
+
+        Swal.fire({
+            title: 'Cargando...',
+            text: 'Por favor, espere mientras se procesa la solicitud.',
+            allowOutsideClick: true,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        $.ajax({
+            url: '@Url.Action("CrearYObtenerDocumento", "ComprobantesContables")',
+            type: 'GET',
+            data: { DocEntry: docEntry, Tipo: tipo },
+            success: function (response) {
+                if (response.success) {
+                    window.open(response.fileUrl, '_blank', 'noopener,noreferrer');
+                    Swal.close();
+                } else {
+                    Swal.fire('Error', response.message, 'error').then(() => {
+                        Swal.close();
+                    });
+                }
+            },
+            error: function (xhr, status, error) {
+                Swal.fire('Error', 'Ocurrió un error en la solicitud: ' + error, 'error').then(() => {
+                    Swal.close();
+                });
+            },
+            complete: function () {
+                if (btn) {
+                    btn.disabled = false;
+                }
+            }
+        });
+        }
+
+    </script>
+}
 
 <div class="pt-4">
     <nav>
@@ -109,10 +533,10 @@
         <!-- Alertas a la derecha -->
         <div class="mx-4 d-flex">
             <div class="mr-3">
-                <input type="text" value="PENDIENTES: @ViewBag.CP" onclick="$('#EstadoFacturacion').val('PENDIENTE'); filtrar();" class="form-control-sm border-danger bg-danger text-white font-weight-bold" readonly style="cursor:pointer"/>
+                <input type="text" value="PENDIENTES: @ViewBag.CP" onclick="$('#EstadoFacturacion').val('PENDIENTE'); filtrar();" class="form-control-sm border-danger bg-danger text-white font-weight-bold" readonly style="cursor:pointer" />
             </div>
             <div class="mr-3">
-                <input type="text" value="GRE EMITIDA: @ViewBag.CG" onclick="$('#EstadoFacturacion').val('GRE EMITIDA');filtrar();" class="form-control-sm border-warning bg-warning font-weight-bold" readonly style="cursor:pointer"/>
+                <input type="text" value="GRE EMITIDA: @ViewBag.CG" onclick="$('#EstadoFacturacion').val('GRE EMITIDA');filtrar();" class="form-control-sm border-warning bg-warning font-weight-bold" readonly style="cursor:pointer" />
             </div>
         </div>
     </div>
@@ -130,14 +554,14 @@
                 else
                 { <input type="text" name="DocNum" id="DocNum" class="form-control border-success input_filtro-table" onchange="filtrar();" placeholder="Buscar Nro Ticket..." />}
 
-            </div>
+            </div><!--1-->
             <div class="mx-2">
                 <select name="EstadoPago" id="EstadoPago" class="form-control @bgEstadoPago" onchange="filtrar();">
                     <option value="">EstadoPago</option>
                     <option value="PENDIENTE" @{ if (ticket != null && ticket.EstadoPago == "PENDIENTE") { Write("selected"); } }>PENDIENTE</option>
                     <option value="PAGADO" @{ if (ticket != null && ticket.EstadoPago == "PAGADO") { Write("selected"); }}>PAGADO</option>
                 </select>
-            </div>
+            </div><!--2-->
 
             <div class="mx-2">
                 <select id="TipoVenta" name="TipoVenta" class="form-control @bgTipoVenta" onchange="filtrar();">
@@ -146,7 +570,8 @@
                     <option value="Credito" @{ if (ticket != null && ticket.TipoVenta == "Credito") { Write("selected"); } }>Crédito</option>
                     <option value="ContraEntrega" @{ if (ticket != null && ticket.TipoVenta == "ContraEntrega") { Write("selected"); } }>ContraEntrega</option>
                 </select>
-            </div>
+            </div><!--3-->
+
             <div class="mx-2">
                 <select name="EstadoFacturacion" id="EstadoFacturacion" class="form-control  @bgEstadoFacturacion" onchange="filtrar();">
                     <option value="">EstadoFacturacion</option>
@@ -154,7 +579,7 @@
                     <option value="GRE EMITIDA" @{ if (ticket != null && ticket.EstadoFacturacion == "GRE EMITIDA") { Write("selected"); }}>GRE EMITIDA</option>
                     <option value="FACTURADO" @{ if (ticket != null && ticket.EstadoFacturacion == "FACTURADO") { Write("selected"); }}>FACTURADO</option>
                 </select>
-            </div>
+            </div><!--4-->
 
             <div class="mx-2">
                 <select name="LugarDestino" id="LugarDestino" class="form-control @bgLugarDestino" onchange="clearZona(); modTabla(); filtrar();">
@@ -164,13 +589,14 @@
                     <option value="Domicilio" @{ if (ticket != null && ticket.LugarDestino == "Domicilio") { Write("selected"); } }>Domicilio</option>
                     <option value="Centro" @{ if (ticket != null && ticket.LugarDestino == "Centro") { Write("selected"); }}>Centro</option>
                 </select>
-            </div>
+            </div><!--5-->
+
             <div class="mx-2">
                 <select name="zonaDistinta" class="form-control @bgzonaDistinta" onchange="cambiarLugarDestino(this);clearZona(); modTabla();filtrar();">
                     <option value="">ZonaDistinta</option>
                     <option value="true" @{ if (ticket != null && ticket.zonaDistinta) { Write("selected"); }}>SI</option>
                 </select>
-            </div>
+            </div><!--6-->
         </div>
 
     </div>
@@ -187,10 +613,10 @@
                         }
                         else
                         { <input type="date" name="FechaSapTicket" class="form-control-sm border" onchange="filtrar();" />}
-                    </th>
+                    </th><!--ntchild 1-->
                     <th>
                         @Html.DisplayNameFor(model => model.DocNum)
-                    </th>
+                    </th><!--2-->
                     <th>
                         <span class="pl-2">@Html.DisplayNameFor(model => model.CardName)</span><br />
                         @if (ticket != null && ticket.CardName != null)
@@ -199,12 +625,12 @@
                         }
                         else
                         { <input type="text" name="CardName" class="form-control-sm border w-100" onchange="filtrar();" />}
-                    </th>
+                    </th><!--3-->
                     <th>
                         <span class="pl-2">Tipo de Comprobante</span>
-                    </th>
+                    </th><!--4-->
                     <th>
-                        Zona 
+                        Zona
                         <br />
                         <select name="Zona" id="Zona" class="form-control-sm border" onchange="filtrar();">
                             <option value="">Seleccione</option>
@@ -219,10 +645,10 @@
                             <option value="ARRIOLA" @{ if (ticket != null && ticket.Zona == "ARRIOLA") { Write("selected"); }}>ARRIOLA</option>
                             <option value="AGENCIA" @{ if (ticket != null && ticket.Zona == "AGENCIA") { Write("selected"); }}>AGENCIA</option>
                         </select>
-                    </th>
+                    </th><!--5-->
                     <th>
                         @Html.DisplayNameFor(model => model.Vendedor)
-                    </th>
+                    </th><!--6-->
                     <th>
                         @Html.DisplayNameFor(model => model.Flete)
                         <br />
@@ -230,7 +656,7 @@
                             <option value="0.00" @{ if (ticket != null && ticket.Flete == 0.00M) { Write("selected"); }}></option>
                             <option value="0.01" @{ if (ticket != null && ticket.Flete == 0.01M) { Write("selected"); }}>SI</option>
                         </select>
-                    </th>
+                    </th><!--7-->
                     <th>
                         DsctoNC
                         <br />
@@ -238,7 +664,7 @@
                             <option value="0.00" @{ if (ticket != null && ticket.DescuentoNC == 0.00M) { Write("selected"); }}></option>
                             <option value="0.01" @{ if (ticket != null && ticket.DescuentoNC == 0.01M) { Write("selected"); }}>SI</option>
                         </select>
-                    </th>
+                    </th><!--8-->
                     <th>
                         Estado Ticket<br />
                         <select name="Estado" id="Estado" class="form-control-sm border" onchange="filtrar();">
@@ -252,7 +678,7 @@
                             <option value="ENVIADO" @{ if (ticket != null && ticket.Estado == "ENVIADO") { Write("selected"); } }>ENVIADO</option>
                             <option value="ENTREGADO" @{ if (ticket != null && ticket.Estado == "ENTREGADO") { Write("selected"); } }>ENTREGADO</option>
                         </select>
-                    </th>
+                    </th><!--9-->
                     <th>
                         Tiempo de entrega<br />
                         @if (ticket != null && ticket.TiempoEntrega != null)
@@ -261,15 +687,17 @@
                         }
                         else
                         { <input type="date" id="TiempoEntrega" name="TiempoEntrega" class="form-control-sm border" value="@Html.Raw(DateTime.Today)" onchange="filtrar();" />}
-                    </th>
-                    <th>Persona de recojo </th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
+                    </th><!--10-->
+                    <th>Persona de recojo </th><!--11-->
+                    <th></th><!--12-->
+                    <th></th><!--13-->
+                    <th></th><!--14-->
+                    <th></th><!--15-->
+                    <th></th><!--16-->
+                    <th></th><!--17-->
+                    <th></th><!--18-->
+                    <th></th><!--19-->
+                    <th></th><!--19-->
                 </tr>
             </thead>
             <tbody class="text-dark">
@@ -284,7 +712,9 @@
                         <td>
                             @Html.DisplayFor(modelItem => item.FechaSapTicket)
                         </td>
-                        <td class="font-weight-bold">@Html.DisplayFor(modelItem => item.DocNum)</td>
+                        <td class="font-weight-bold">
+                        @Html.DisplayFor(modelItem => item.DocNum)
+                        </td>
                         <td>
                             <span class="pl-2">@Html.DisplayFor(modelItem => item.CardName)</span>
                         </td>
@@ -338,7 +768,7 @@
                         <td>
                             @Html.DisplayFor(modelItem => item.Estado)
                         </td>
-
+                        
                         @if (item.TiempoEntrega != null)
                         {
                             string styleTiempoEntrega = string.Empty;
@@ -369,7 +799,7 @@
                                     }
                                 }
                             }
-                        </td>
+                        </td><!--11-->
                         <td>
                             @if ((item.Estado.Equals("PICKEANDO") || item.Estado.Equals("VERIFICANDO") || item.Estado.Equals("EMPACANDO") || item.Estado.Equals("EMPACADO") || item.Estado.Equals("PESADO") || item.Estado.Equals("PREENVIO") ||
                              item.Estado.Equals("ENVIADO")) && item.hayFinVerificar)
@@ -486,6 +916,22 @@
                                 </button>
                             }
                         </td>
+                        <td>
+                            @{
+                                var validStates = new List<string> { "PICKEANDO", "VERIFICANDO", "EMPACANDO", "EMPACADO", "PREENVIO", "ENVIADO", "PESADO", "ENTREGADO" };
+                                if (item.LugarDestino != null && validStates.Contains(item.Estado))
+                                {
+
+                                    <button type="button" onclick="generarHtmlComprobantes(@item.DocEntry,'@item.Estado','@item.LugarDestino');"
+                                            class="btn btn-light btn-sm text-danger"
+                                            data-placement="top"
+                                            title="Descargar Comprobantes"
+                                            data-toggle="tooltip">
+                                        <i class="icon icon-download"></i>
+                                    </button>
+                                }
+                            }
+                        </td>
 
                     </tr>
                 }
@@ -494,245 +940,19 @@
     </div>
 </form>
 
-@if (!string.IsNullOrEmpty(ViewBag.Mensaje))
-{
-    <script>
-     var mensaje = '@Html.Raw(ViewBag.Mensaje)';
-        Swal.fire({
-            text: mensaje,
-            showConfirmButton: false,
-            timer: 2000
-        });
-    </script>
-}
-<script>
-    function confirmarFacturar(DocEntry) {
-        window.location.href = '/Ventas/FacturarTicketVenta?DocEntry=' + DocEntry;
-    }
-    function abrirModalFB(DocEntry) {
-        var modalId = "ModalComprobantes" + DocEntry;
-
-        // Verificar si el modal ya existe
-        if ($("#" + modalId).length > 0) {
-            // Si el modal ya existe, simplemente ábrelo
-            $("#" + modalId).modal('show');
-        }
-
-        // Si el modal no existe, crear uno nuevo
-        buscarFacturasyBoletas(DocEntry, function (htmlTableDocumentos) {
-            var docNum = DocEntry + 2000000000;
-            var modalHtml = `<div class='modal' id='${modalId}' tabindex='-1' role='dialog' aria-labelledby='${modalId}Label' aria-hidden='true'>
-                                <div class='modal-dialog modal-dialog-centered modal-lg' role='document'>
-                                    <div class='modal-content'>
-                                        <div class='modal-header bg-cobefar text-white'>
-                                            <h5 class='modal-title' id='${modalId}Label'>FACTURAS Y BOLETAS <br>NroTicket : ${docNum}</h5>
-                                            <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
-                                                <span aria-hidden='true'>&times;</span>
-                                            </button>
-                                        </div>
-                                        <div class='modal-body'>
-                                            ${htmlTableDocumentos}
-                                        </div>
-                                        <div class='modal-footer'>
-                                            <button type='button' class='btn btn-secondary' data-dismiss='modal'>Cerrar</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>`;
-            $("body").append(modalHtml);
-
-            $("#" + modalId).modal('show');
-        });
-    }
-    function revertirFacturacionTicket(DocEntry) {
-        const swalWithBootstrapButtons = Swal.mixin({
-            customClass: {
-                confirmButton: 'btn btn-success mx-4',
-                cancelButton: 'btn btn-danger mx-4'
-            },
-            buttonsStyling: false
-        });
-
-        swalWithBootstrapButtons.fire({
-            title: '¿Está seguro(a) de revertir la facturación del ticket?',
-            text: "Este proceso es reversible",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: "<i class='icon-checkmark'></i> Si, estoy seguro(a)",
-            cancelButtonText: "<i class='icon-cross'></i> No",
-            reverseButtons: true
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = '/Ventas/AnularFacturarTicketVenta?DocEntry=' + DocEntry + '&vista=ListadoTicketsFacturacion';
-            }
-        });
-    }
-    function buscarFacturasyBoletas(DocEntry, callback) {
-        if (DocEntry !== '') {
-            var parametros = { "DocEntry": DocEntry };
-
-            $.ajax({
-                url: '/Ventas/buscarFacturasyBoletas',
-                data: parametros,
-                dataType: 'json',
-                cache: false,
-                type: 'post'
-            })
-                .done(function (response) {
-                    var totalMonto = 0; // Inicializar la variable para la suma de montos
-                    var tableHtml = `<div class='table-responsive w-100'>
-                            <table border='2' style='width: 100%; border-color: green; text-align: center;' class='w-100'>
-                                <thead>
-                                    <tr>
-                                        <th class='text-dark text-center'>Correlativo</th>
-                                        <th class='text-dark text-center'>Fecha Cont</th>
-                                        <th class='text-dark text-center'>Fecha Ini Traslado</th>
-                                        <th class='text-dark text-center'>Doc Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>`;
-
-                    // Recorrer response para agregarlo a la tabla y sumar los montos
-                    response.forEach(function (obj) {
-                        totalMonto += parseFloat(obj.DocTotal); // Sumar el monto al total
-                        tableHtml += `<tr>
-                            <td>${obj.NumAtCard}</td>
-                            <td>${obj.DocDate}</td>
-                            <td>${obj.U_BPP_FECINITRA}</td>
-                            <td>${parseFloat(obj.DocTotal).toFixed(2)}</td>
-                          </tr>`;
-                    });
-
-                    tableHtml += `       </tbody>
-                            <tfoot>
-                                <tr>
-                                    <td colspan="3" class="text-right"><strong>Total:</strong></td>
-                                    <td>${totalMonto.toFixed(2)}</td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>`;
-
-                    // Llama al callback y pasa el HTML
-                    callback(tableHtml);
-                });
-
-        }
-    }
-    function confirmarEmitirGuias(DocEntry) {
-               var docNum = "@(ViewBag.Ortv != null ? ViewBag.Ortv.DocNum : "")";
-                var estadoPago = "@(ViewBag.Ortv != null ? ViewBag.Ortv.EstadoPago : "")";
-                var tipoVenta = "@(ViewBag.Ortv != null ? ViewBag.Ortv.TipoVenta : "")";
-                var tiempoEntrega = "@(ViewBag.Ortv != null ? ViewBag.Ortv.TiempoEntrega : "")";
-                var estado = "@(ViewBag.Ortv != null ? ViewBag.Ortv.Estado : "")";
-                var fechaSapTicket = "@(ViewBag.Ortv != null ? ViewBag.Ortv.FechaSapTicket : "")";
-                var cardName = "@(ViewBag.Ortv != null ? ViewBag.Ortv.CardName : "")";
-                var vendedor = "@(ViewBag.Ortv != null ? ViewBag.Ortv.Vendedor : "")";
-                var flete = "@(ViewBag.Ortv != null ? ViewBag.Ortv.Flete : "")";
-                var descuentoNC = "@(ViewBag.Ortv != null ? ViewBag.Ortv.DescuentoNC : "")";
-                var estadoFacturacion = "@(ViewBag.Ortv != null ? ViewBag.Ortv.EstadoFacturacion : "")";
-                var lugarDestino = "@(ViewBag.Ortv != null ? ViewBag.Ortv.LugarDestino : "")";
-
-                window.location.href = "@Url.Action("EmitirGuiasTicketVenta", "Ventas")?DocEntry=" + DocEntry +
-                                                    "&DocNum=" + docNum +
-                                                    "&EstadoPago=" + estadoPago +
-                                                    "&TipoVenta=" + tipoVenta +
-                                                    "&TiempoEntrega=" + tiempoEntrega +
-                                                    "&Estado=" + estado +
-                                                    "&FechaSapTicket=" + fechaSapTicket +
-                                                    "&CardName=" + cardName +
-                                                    "&Vendedor=" + vendedor +
-                                                    "&Flete=" + flete +
-                                                    "&DescuentoNC=" + descuentoNC +
-                                                    "&EstadoFacturacion=" + estadoFacturacion +
-                                                    "&LugarDestino=" + lugarDestino;
-
-
-    }
-    function buscarGuias(DocEntry, callback) {
-        if (DocEntry !== '') {
-            var parametros = { "DocEntry": DocEntry };
-
-            $.ajax({
-                url: '/Ventas/buscarGuias',
-                data: parametros,
-                dataType: 'json',
-                cache: false,
-                type: 'post'
-            })
-                .done(function (response) {
-                    var tableHtml = "<div class='table-responsive w-100'><table  border='2' style='width: 100 %; border-color:green;text-align:center;' class='w-100'><thead><tr><th class='text-dark text-center'>Correlativo</th><th class='text-dark text-center'>Fecha Cont</th><th class='text-dark text-center'>Fecha Ini Traslado</th></tr></thead><tbody>";
-                    //recorrer response para agregarlo a la table
-                    response.forEach(function (obj) {
-
-                        tableHtml += '<tr><td>' + obj.NumAtCard + '</td><td>' + obj.DocDate + '</td><td>' + obj.FechaTrasl + '</td></tr>';
-                    });
-
-                    tableHtml += '</tbody></table></div>';
-                    // Llama al callback  pasa el Html
-                    callback(tableHtml);
-                });
-        }
-    }
-    function abrirModalGuias(DocEntry) {
-        var modalId = "ModalGuias" + DocEntry;
-
-        // Verificar si el modal ya existe
-        if ($("#" + modalId).length > 0) {
-            // Si el modal ya existe, simplemente ábrelo
-            $("#" + modalId).modal('show');
-            return; // Salir de la función
-        }
-
-        // Si el modal no existe, crear uno nuevo
-        buscarGuias(DocEntry, function (htmlTableDocumentos) {
-            var docNum = DocEntry + 2000000000;
-            var modalHtml = "<div class='modal' id='" + modalId + "' tabindex='-1' role='dialog' aria-labelledby='" + modalId + "Label' aria-hidden='true'>" +
-                "<div class='modal-dialog modal-dialog-centered modal-lg' role='document'>" +
-                "<div class='modal-content'>" +
-                "<div class='modal-header bg-cobefar text-white'>" +
-                "<h5 class='modal-title' id='" + modalId + "Label'>GUÍAS DE REMISIÓN <br>NroTicket : " + docNum + "</h5>" +
-                "<button type='button' class='close' data-dismiss='modal' aria-label='Close'>" +
-                "<span aria-hidden='true'>&times;</span>" +
-                "</button>" +
-                "</div>" +
-                "<div class='modal-body'>" +
-                htmlTableDocumentos +
-                "</div>" +
-                "<div class='modal-footer'>" +
-                "<button type='button' class='btn btn-secondary' data-dismiss='modal'>Cerrar</button>" +
-                "</div>" +
-                "</div>" +
-                "</div>" +
-                "</div>";
-            $("body").append(modalHtml);
-
-            // Una vez que se ha agregado el HTML del modal al cuerpo del documento, ábrelo
-            $("#" + modalId).modal('show');
-        });
-    }
-    function revertirEmitirGuiasTicket(DocEntry) {
-        const swalWithBootstrapButtons = Swal.mixin({
-            customClass: {
-                confirmButton: 'btn btn-success mx-4',
-                cancelButton: 'btn btn-danger mx-4'
-            },
-            buttonsStyling: false
-        })
-
-        swalWithBootstrapButtons.fire({
-            title: '¿Está seguro(a) de revertir emision de guias del ticket?',
-            text: "Este proceso es reversible",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: "<i class='icon-checkmark'></i> Si, estoy seguro(a)",
-            cancelButtonText: "<i class='icon-cross'></i> No",
-            reverseButtons: true
-        }).then((result) => {
-            if (result.isConfirmed) {
-                location.href = '/Ventas/RevertirEmitirGuiasTicketVenta?DocEntry=' + DocEntry + '&vista=ListadoTicketsGuiasRemision';
-            }
-        });
-    }
-    var tiempoRecarga = setTimeout(function () { window.location.reload() }, 90000);  //1.5 min
-</script>
+<!-- Modal de documentos contables -->
+<div id="comprobantesModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-headerModals text-light">
+                <h5 class="modal-title"><strong>Documentos de ticket</strong></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" class="text-light">&times;</span>
+                </button>
+            </div>
+            <div id="modal-body-comprobantes" class="modal-body">
+                @*Contenido de modal llega desde function js*@
+            </div>
+        </div>
+    </div>
+</div>

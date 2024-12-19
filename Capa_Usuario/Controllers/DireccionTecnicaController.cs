@@ -77,6 +77,7 @@ namespace Capa_Usuario.Controllers
                     lista.Add("ALM08", "");                     // ---- ALMACEN TERCIARIZADO, SIN RESPONSABLE
                     lista.Add("CUAR07", "161");                 // Carmen Condori Saravia ALM06
                     lista.Add("DEV07", "161");                  // Carmen Condori Saravia ALM06
+                    lista.Add("11", "");                  // 
                     
                 }
                 else if (!string.IsNullOrEmpty(tipoFirma) && tipoFirma.Equals("QuimicoFarmaceutico"))
@@ -96,6 +97,7 @@ namespace Capa_Usuario.Controllers
                     lista.Add("ALM08", "208");                  // Diana Quiquia Urribarre 
                     lista.Add("CUAR07", "339");                 // Roly Gonzales Romero ALM06
                     lista.Add("DEV07", "339");                  // Roly Gonzales Romero ALM06
+                    lista.Add("11", "");                  // 
 
                 }
 
@@ -367,7 +369,7 @@ namespace Capa_Usuario.Controllers
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 if (fil != null) { ViewBag.Orin = fil; } else { ViewBag.Orin = new ORIN_E(); }
-                return View(new ORIN_N().listarNotasDeCredito(fil));
+                return View(new ORIN_N().Listar(fil));
             }
             else
             {

@@ -24,5 +24,6 @@ namespace Capa_Entidad.ComprobantesContables_ENT
         public string FechaOperación { get; set; }
         public string HoraOperación { get; set; }
         public decimal DocTotal { get; set; }
+        public decimal AnticipoBruto { get; set; }
     }
 }

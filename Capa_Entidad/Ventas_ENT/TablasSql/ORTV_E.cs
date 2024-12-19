@@ -173,6 +173,29 @@ namespace Capa_Entidad.Ventas_ENT.TablasSql
         }
     }
 
+    public class ReporteRegalos
+    {
+        public int DocNum { get; set; }
+        [DisplayName("Fecha SAP Ticket")]
+        public string FechaSapTicket { get; set; }
+        [DisplayName("Ruc")]
+        public string CardCode { get; set; }
+        [DisplayName("Razón Social")]
+        public string CardName { get; set; }
+        public int Linea { get; set; }
+        [DisplayName("Nombre del Regalo")]
+        public string NombreRegalo { get; set; }
+        public int Cantidad { get; set; }
+        [DisplayName("Estado de Entrega del Regalo")]
+        public string EstadoRegalo { get; set; }
+        [DisplayName("Estado de Ticket")]
+        public string Estado { get; set; }
+        [DisplayName("Lugar Destino")]
+        public string LugarDestino { get; set; }
+        [DisplayName("Vendedor")]
+        public string Vendedor { get; set; }
+    }
+
     public class Tickets
     {
         public int DocEntry { get; set; }

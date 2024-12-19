@@ -60,17 +60,17 @@ namespace Capa_Usuario.Controllers
         {
             try
             {
-                string direccionIP = ObtenerIPCliente();
-                string[] segmentos = direccionIP != "::1" ? direccionIP.Split('.') : null;
+                //string direccionIP = ObtenerIPCliente();
+                //string[] segmentos = direccionIP != "::1" ? direccionIP.Split('.') : null;
 
-                // Prohibido el acceso del segmento 3 y 9 por solicitud de María
-                if (segmentos != null && new string[] { "3", "9" }.Contains(segmentos[2]))
-                {
-                    TempData["Mensaje"] = "Acceso restringido";
-                    TempData.Keep("Mensaje");
+                //// Prohibido el acceso del segmento 3 y 9 por solicitud de María
+                //if (segmentos != null && new string[] { "3", "9" }.Contains(segmentos[2]))
+                //{
+                //    TempData["Mensaje"] = "Acceso restringido";
+                //    TempData.Keep("Mensaje");
 
-                    return RedirectToAction("Index");
-                }
+                //    return RedirectToAction("Index");
+                //}
 
                 Usuario_E usuario = new Usuario_N().buscarUsuarioSesion(user, pass);
 

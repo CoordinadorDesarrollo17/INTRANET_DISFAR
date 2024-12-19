@@ -1,10 +1,7 @@
 ﻿using Capa_Datos;
-using Capa_Entidad.Almacen_ENT.Tablas;
-using Capa_Entidad.Almacen_ENT.TablasSql;
 using Capa_Entidad.General_ENT.TablasSql;
 using Capa_Entidad.Seguridad_ENT;
 using Capa_Entidad.SocioNegocios_ENT.Tablas;
-using Capa_Negocio.Almacen_NEG.Tablas;
 using Capa_Negocio.Almacen_NEG.TablasSql;
 using Capa_Negocio.General_NEG.TablasSql;
 using Capa_Negocio.Seguridad_NEG;
@@ -57,9 +54,9 @@ namespace Capa_Usuario.Controllers
                 string fila = "<tr>" +
                                 $"<td class=\"text-center\">{dev.DocNum}</td>" +
                                 $"<td class=\"text-center\">{dev.WhsCode}</td>" +
-                                 $"<td class=\"text-center\">{dev.FechaOperacion}</td>" +
-                                 $"<td class=\"text-center\">{dev.Correlativo}</td>" +
-                                 $"<td class=\"text-center\">{dev.FechaDevolucion}</td>" +
+                                $"<td class=\"text-center\">{dev.FechaOperacion}</td>" +
+                                $"<td class=\"text-center\">{dev.Correlativo}</td>" +
+                                $"<td class=\"text-center\">{dev.FechaDevolucion}</td>" +
                                 $"<td class=\"text-center\">{dev.CardName}</td>" +
                                 $"<td class=\"text-center\">{dev.Operario}</td>" +
                                 $"<td class=\"text-center\">{dev.Estado}</td>" +
@@ -68,11 +65,6 @@ namespace Capa_Usuario.Controllers
                 {
                     fila += $"<button type=\"button\" class=\"btn btn-sm btn-danger\" onclick=\"validarCambioEstadoDevolucion({dev.DocEntry}, {dev.DocNum}, '{dev.WhsCode}', 'AA')\" ><i title=\"Anular\" class=\"icon-bin\"></i></button>";
                 }
-                // Solo para Estado RECOGIDO y guardará "0" en el campo "SinNC" siempre y cuando no encuentre un NULL en NotaCredito línea x línea en RPD1
-                /*else if (dev.Estado.Equals("RECOGIDO") && dev.SinNC.Equals(0))
-                {
-                    fila += $"<button type=\"button\" class=\"btn btn-sm btn-success\" onclick=\"validarCambioEstadoDevolucion({dev.DocEntry}, {dev.DocNum}, '{dev.WhsCode}', 'NC')\" >NC Aplicada</button>";
-                }*/
                 fila += "</td>" +
                     "<td class=\"text-center\">";
                 if (dev.Estado.Equals("RECOGIDO"))
@@ -124,7 +116,7 @@ namespace Capa_Usuario.Controllers
                 ViewBag.Almacenes = owhsN.listarAlmacenes(arrWhsCode);
                 ViewBag.Laboratorios = omrcN.listarFabricantes();
                 ViewBag.Motivos = mdN.ListarMotivosDevoluciones(null);          // Solo para el modal Motivos
-                ViewBag.ListaParaSubmotivos = mdN.ListarMotivosDevoluciones(new MotivosDevoluciones_E { Estado = "1" });        // Esta lista es para la lista desplegable en el modal Observaciones
+                ViewBag.ListaParaSubmotivos = mdN.ListarMotivosDevoluciones(new Capa_Entidad.Almacen_ENT.TablasSql.MotivosDevoluciones_E { Estado = "1" });        // Esta lista es para la lista desplegable en el modal Observaciones
                 ViewBag.Submotivos = subN.ListarSubmotivosDevoluciones(null);
 
                 return View(result);
@@ -151,8 +143,8 @@ namespace Capa_Usuario.Controllers
                 string nombreVista = "NuevaDevolucion";
                 ViewBag.RolUsuario = usu.IdRol;
                 ViewBag.Laboratorios = omrcN.listarFabricantes();
-                ViewBag.MotivosDevoluciones = mdN.ListarMotivosDevoluciones(new MotivosDevoluciones_E { Estado = "1" });
-                ViewBag.SubmotivosDevoluciones = subN.ListarSubmotivosDevoluciones(new SubmotivosDevoluciones_E { Estado = "1" });
+                ViewBag.MotivosDevoluciones = mdN.ListarMotivosDevoluciones(new Capa_Entidad.Almacen_ENT.TablasSql.MotivosDevoluciones_E { Estado = "1" });
+                ViewBag.SubmotivosDevoluciones = subN.ListarSubmotivosDevoluciones(new Capa_Entidad.Almacen_ENT.TablasSql.SubmotivosDevoluciones_E { Estado = "1" });
                 ViewBag.ListaProveedores = ocrdN.listarSociosDeNegocios(new OCRD_E { CardType = "S" });     // Solo socios Proveedores
 
                 if (Almacen != null && Almacen.Equals("DEV07"))
@@ -199,8 +191,8 @@ namespace Capa_Usuario.Controllers
                     ViewBag.Mensaje = e.Message;
                     ViewBag.RolUsuario = usu.IdRol;
                     ViewBag.Laboratorios = omrcN.listarFabricantes();
-                    ViewBag.MotivosDevoluciones = mdN.ListarMotivosDevoluciones(new MotivosDevoluciones_E { Estado = "1" });
-                    ViewBag.SubmotivosDevoluciones = subN.ListarSubmotivosDevoluciones(new SubmotivosDevoluciones_E { Estado = "1" });
+                    ViewBag.MotivosDevoluciones = mdN.ListarMotivosDevoluciones(new Capa_Entidad.Almacen_ENT.TablasSql.MotivosDevoluciones_E { Estado = "1" });
+                    ViewBag.SubmotivosDevoluciones = subN.ListarSubmotivosDevoluciones(new Capa_Entidad.Almacen_ENT.TablasSql.SubmotivosDevoluciones_E { Estado = "1" });
                     ViewBag.ListaProveedores = ocrdN.listarSociosDeNegocios(new OCRD_E { CardType = "S" });     // Solo socios Proveedores
                     return View(Devolucion);
                 }
@@ -228,8 +220,8 @@ namespace Capa_Usuario.Controllers
                 string[] arrWhsCode = { datosDevolucion.WhsCode };
                 ViewBag.Almacenes = owhsN.listarAlmacenes(arrWhsCode);
                 ViewBag.Laboratorios = omrcN.listarFabricantes();
-                ViewBag.MotivosDevoluciones = mdN.ListarMotivosDevoluciones(new MotivosDevoluciones_E { Estado = "1" });
-                ViewBag.SubmotivosDevoluciones = subN.ListarSubmotivosDevoluciones(new SubmotivosDevoluciones_E { Estado = "1" });
+                ViewBag.MotivosDevoluciones = mdN.ListarMotivosDevoluciones(new Capa_Entidad.Almacen_ENT.TablasSql.MotivosDevoluciones_E { Estado = "1" });
+                ViewBag.SubmotivosDevoluciones = subN.ListarSubmotivosDevoluciones(new Capa_Entidad.Almacen_ENT.TablasSql.SubmotivosDevoluciones_E { Estado = "1" });
                 if (Almacen != null && Almacen.Equals("DEV07"))
                 {
                     return View("EditarDevolucionAlmDEV07", datosDevolucion);
@@ -299,13 +291,12 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-        public JsonResult BuscarProducto(OITM_E datos)
+        public JsonResult BuscarProducto(Capa_Entidad.Almacen_ENT.Tablas.OITM_E datos)
         {
             if (datos.FirmCode >= 1)
             {
-                OITM_N oitmN = new OITM_N();
                 var datalist = "<datalist id='ListaProductos'>";
-                var listaProductos = oitmN.Listar(new OITM_E { FirmCode = datos.FirmCode});
+                var listaProductos = new Capa_Negocio.Almacen_NEG.Tablas.OITM_N().Listar(new Capa_Entidad.Almacen_ENT.Tablas.OITM_E { FirmCode = datos.FirmCode});
 
                 if (listaProductos != null && listaProductos.Count >= 1)
                 {
@@ -348,12 +339,12 @@ namespace Capa_Usuario.Controllers
                 return null;
             }
         }
-        public JsonResult FiltrarArticulo(OPDN_E datos)
+        public JsonResult FiltrarArticulo(Capa_Entidad.Almacen_ENT.Tablas.OPDN_E datos)
         {
-            //verificacionAccesos(0);         // Validar sesion logueada, solo para ajax
+            
             if (!string.IsNullOrEmpty(datos.DocDate) || datos.DocNum >= 1 || !string.IsNullOrEmpty(datos.ItemCode) || !string.IsNullOrEmpty(datos.BatchNum) || !string.IsNullOrEmpty(datos.NumAtCard))
             {
-                OPDN_N opdnN = new OPDN_N();
+                Capa_Negocio.Almacen_NEG.Tablas.OPDN_N opdnN = new Capa_Negocio.Almacen_NEG.Tablas.OPDN_N();
                 Capa_Negocio.Almacen_NEG.Tablas.OIBT_N oibtN = new Capa_Negocio.Almacen_NEG.Tablas.OIBT_N();
                 var tbody = string.Empty;
                 string producto;
@@ -507,14 +498,13 @@ namespace Capa_Usuario.Controllers
             }
         }
         //para Retiro Mercado, se usa desde View NuevaDevolucion
-        public JsonResult BuscarProductoRM(OITM_E datos)
+        public JsonResult BuscarProductoRM(Capa_Entidad.Almacen_ENT.Tablas.OITM_E datos)
         {
             //verificacionAccesos(0);         // Validar sesion logueada, solo para ajax
             if (datos.FirmCode >= 1)
             {
-                OITM_N oitmN = new OITM_N();
                 var datalist = "<datalist id='ListaProductosRM'>";
-                var listaProductos = oitmN.Listar(new OITM_E { FirmCode = datos.FirmCode });
+                var listaProductos = new Capa_Negocio.Almacen_NEG.Tablas.OITM_N().Listar(new Capa_Entidad.Almacen_ENT.Tablas.OITM_E { FirmCode = datos.FirmCode });
 
                 if (listaProductos != null && listaProductos.Count >= 1)
                 {
@@ -561,12 +551,11 @@ namespace Capa_Usuario.Controllers
                 return null;
             }
         }
-        public JsonResult BuscarFacturas(OPDN_E obj)
+        public JsonResult BuscarFacturas(Capa_Entidad.Almacen_ENT.Tablas.OPDN_E obj)
         {
-            //verificacionAccesos(0);         // Validar sesion logueada, solo para ajax
             if (!string.IsNullOrEmpty(obj.ItemCode) || !string.IsNullOrEmpty(obj.BatchNum))
             {
-                OPDN_N opdnN = new OPDN_N();
+                Capa_Negocio.Almacen_NEG.Tablas.OPDN_N opdnN = new Capa_Negocio.Almacen_NEG.Tablas.OPDN_N();
                 var tbody = string.Empty;
                 string producto;
                 var listaArticulos = opdnN.Listar(obj);
@@ -595,7 +584,6 @@ namespace Capa_Usuario.Controllers
         }
         public JsonResult CambiarEstadoDevolucion(Capa_Entidad.Almacen_ENT.TablasSql.ORPD_E devolucion, string tipoMantenimiento)
         {
-            //verificacionAccesos(0);         // Validar sesion logueada, solo para ajax
             if (devolucion.DocEntry >= 1 && devolucion.DocNum >= 1)
             {
                 Usuario_E usu = (Usuario_E)Session["UsuarioId"];
@@ -750,8 +738,8 @@ namespace Capa_Usuario.Controllers
             {
                 { "03", 185},					// Julio Roman Silva
 				{ "06", 185},					// Julio Roman Silva
-				{ "DEV07", 161},			// Carmen Condori Saravia
-				{ "CUAR07", 161},			// Carmen Condori Saravia
+				{ "DEV07", 161},			    // Carmen Condori Saravia
+				{ "CUAR07", 161},			    // Carmen Condori Saravia
 			};
 
             var datosDevolucion = orpdN.ObtenerDevolucion(DocEntry);
@@ -793,11 +781,6 @@ namespace Capa_Usuario.Controllers
             List<Capa_Entidad.General_ENT.TablasSql.OWHS_E> listaAlm = owhsN.listarAlmacenes(arrWhsCode);
             ViewBag.Almacenes = listaAlm;
 
-            var ultimoEstado = ccOrpdN.UltimoEstadoCC_ORPD(DocEntry);
-
-            // Descomentar cuando necesiten que la firma solo se muestre cuando haya culminado el proceso
-            //if (ultimoEstado != null && listaAlm != null && (ultimoEstado.Equals("RECOGER") || ultimoEstado.Equals("TERMINAR")))
-            //{
             string FilePath, FilePathDT;
             firE.DocEntryUsuario = listaEncargados[listaAlm[0].WhsCode];
             var firma = firN.ListarFirmas(firE);
@@ -827,10 +810,7 @@ namespace Capa_Usuario.Controllers
 
         public JsonResult VerificarExistenciaDevConFiltros(Capa_Entidad.Almacen_ENT.ReportesSql.RptFiltrosHistoricoDevoluciones_E devolucion)
         {
-            //verificacionAccesos(0);         // Validar sesion logueada, solo para ajax
-
-            Capa_Negocio.Almacen_NEG.TablasSql.ORPD_N orpdN = new Capa_Negocio.Almacen_NEG.TablasSql.ORPD_N();
-            var result = orpdN.VerificarExistenciaDevolucion(devolucion);
+            var result = new Capa_Negocio.Almacen_NEG.TablasSql.ORPD_N().VerificarExistenciaDevolucion(devolucion);
 
             if (result)
             {
@@ -889,8 +869,7 @@ namespace Capa_Usuario.Controllers
 
         protected string CargarListaMotivosDevoluciones()
         {
-            MotivosDevoluciones_N mdN = new MotivosDevoluciones_N();
-            var motivos = mdN.ListarMotivosDevoluciones(null);
+            var motivos = new Capa_Negocio.Almacen_NEG.TablasSql.MotivosDevoluciones_N().ListarMotivosDevoluciones(null);
             string lista = string.Empty;
             string colorTexto = string.Empty;
             int num = 1;
@@ -920,17 +899,16 @@ namespace Capa_Usuario.Controllers
             return lista;
         }
 
-        public JsonResult NuevoMotivoDevolucion(MotivosDevoluciones_E motivo)
+        public JsonResult NuevoMotivoDevolucion(Capa_Entidad.Almacen_ENT.TablasSql.MotivosDevoluciones_E motivo)
         {
             //verificacionAccesos(0);         // Validar sesion logueada, solo para ajax
             if (!string.IsNullOrEmpty(motivo.Descripcion))
             {
                 Usuario_E usu = (Usuario_E)Session["UsuarioId"];
-                MotivosDevoluciones_N mdN = new MotivosDevoluciones_N();
 
                 motivo.Operario = $"{usu.Nombres} {usu.Apellidos}";
-                var result = mdN.RegistrarMotivoDevolucion(motivo);
-                var lista = mdN.ListarMotivosDevoluciones(new MotivosDevoluciones_E { Estado = "1" });
+                var result = new Capa_Negocio.Almacen_NEG.TablasSql.MotivosDevoluciones_N().RegistrarMotivoDevolucion(motivo);
+                var lista = new Capa_Negocio.Almacen_NEG.TablasSql.MotivosDevoluciones_N().ListarMotivosDevoluciones(new Capa_Entidad.Almacen_ENT.TablasSql.MotivosDevoluciones_E { Estado = "1" });
 
                 var optionSelect = "<option value=\"\">Seleccione</option>";
 
@@ -950,16 +928,14 @@ namespace Capa_Usuario.Controllers
             }
         }
 
-        public JsonResult EditarMotivoDevolucion(MotivosDevoluciones_E motivo)
+        public JsonResult EditarMotivoDevolucion(Capa_Entidad.Almacen_ENT.TablasSql.MotivosDevoluciones_E motivo)
         {
-            //verificacionAccesos(0);         // Validar sesion logueada, solo para ajax
+
             if (!string.IsNullOrEmpty(motivo.Descripcion))
             {
                 Usuario_E usu = (Usuario_E)Session["UsuarioId"];
-                MotivosDevoluciones_N mdN = new MotivosDevoluciones_N();
-
                 motivo.Operario = $"{usu.Nombres} {usu.Apellidos}";
-                var result = mdN.EditarMotivoDevolucion(motivo);
+                var result = new Capa_Negocio.Almacen_NEG.TablasSql.MotivosDevoluciones_N().EditarMotivoDevolucion(motivo);
 
                 return Json(new { Lista = CargarListaMotivosDevoluciones(), Mensaje = result });
             }
@@ -971,8 +947,7 @@ namespace Capa_Usuario.Controllers
 
         protected string CargarListaSubmotivosDevoluciones()
         {
-            SubmotivosDevoluciones_N obsN = new SubmotivosDevoluciones_N();
-            var submotivos = obsN.ListarSubmotivosDevoluciones(null);
+            var submotivos = new Capa_Negocio.Almacen_NEG.TablasSql.SubmotivosDevoluciones_N().ListarSubmotivosDevoluciones(null);
             string lista = string.Empty;
             string colorTexto = string.Empty;
             int num = 1;
@@ -1003,16 +978,14 @@ namespace Capa_Usuario.Controllers
             return lista;
         }
 
-        public JsonResult NuevoSubmotivoDevolucion(SubmotivosDevoluciones_E submotivo)
+        public JsonResult NuevoSubmotivoDevolucion(Capa_Entidad.Almacen_ENT.TablasSql.SubmotivosDevoluciones_E submotivo)
         {
-            //verificacionAccesos(0);         // Validar sesion logueada, solo para ajax
             if (!string.IsNullOrEmpty(submotivo.Descripcion))
             {
                 Usuario_E usu = (Usuario_E)Session["UsuarioId"];
-                SubmotivosDevoluciones_N obsN = new SubmotivosDevoluciones_N();
 
                 submotivo.Operario = $"{usu.Nombres} {usu.Apellidos}";
-                var result = obsN.RegistrarSubmotivoDevolucion(submotivo);
+                var result = new Capa_Negocio.Almacen_NEG.TablasSql.SubmotivosDevoluciones_N().RegistrarSubmotivoDevolucion(submotivo);
 
                 return Json(new { Lista = CargarListaSubmotivosDevoluciones(), Mensaje = result });
             }
@@ -1022,16 +995,15 @@ namespace Capa_Usuario.Controllers
             }
         }
 
-        public JsonResult EditarSubmotivoDevolucion(SubmotivosDevoluciones_E submotivo)
+        public JsonResult EditarSubmotivoDevolucion(Capa_Entidad.Almacen_ENT.TablasSql.SubmotivosDevoluciones_E submotivo)
         {
             //verificacionAccesos(0);         // Validar sesion logueada, solo para ajax
             if (!string.IsNullOrEmpty(submotivo.Descripcion))
             {
                 Usuario_E usu = (Usuario_E)Session["UsuarioId"];
-                SubmotivosDevoluciones_N obsN = new SubmotivosDevoluciones_N();
 
                 submotivo.Operario = $"{usu.Nombres} {usu.Apellidos}";
-                var result = obsN.EditarSubmotivoDevolucion(submotivo);
+                var result = new Capa_Negocio.Almacen_NEG.TablasSql.SubmotivosDevoluciones_N().EditarSubmotivoDevolucion(submotivo);
 
                 return Json(new { Lista = CargarListaSubmotivosDevoluciones(), Mensaje = result });
             }
@@ -1253,7 +1225,7 @@ namespace Capa_Usuario.Controllers
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 OIPE_N oipeN = new OIPE_N();
-                OIPE_E o = oipeN.Buscar(id, true);
+                Capa_Entidad.Almacen_ENT.TablasSql.OIPE_E o = oipeN.Buscar(id, true);
                 ViewBag.Oipe = o;
                 ViewBag.Mensaje = Mensaje;
                 return View(o.DetArticulos);
@@ -1350,13 +1322,11 @@ namespace Capa_Usuario.Controllers
 
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                Capa_Negocio.General_NEG.Tablas.OWHS_N owhsN = new Capa_Negocio.General_NEG.Tablas.OWHS_N(); Capa_Negocio.Seguridad_NEG.Usuario_N ouN = new Capa_Negocio.Seguridad_NEG.Usuario_N(); OMRC_N omrcN = new OMRC_N();
-                OIPE_N oipeN = new OIPE_N(); OIEQ_N oieqN = new OIEQ_N();
-
-                ViewBag.Almacenes = owhsN.ListarAlmacenes();
-                ViewBag.Miembros = ouN.ListaUsuarios(null);
-                ViewBag.Periodos = oipeN.listarPeriodosInventario(null);
-                ViewBag.Laboratorios = omrcN.listarFabricantes();
+                Capa_Negocio.Almacen_NEG.TablasSql.OIEQ_N oieqN = new Capa_Negocio.Almacen_NEG.TablasSql.OIEQ_N();
+                ViewBag.Almacenes = new Capa_Negocio.General_NEG.Tablas.OWHS_N().ListarAlmacenes();
+                ViewBag.Miembros = new Capa_Negocio.Seguridad_NEG.Usuario_N().ListaUsuarios(null);
+                ViewBag.Periodos = new Capa_Negocio.Almacen_NEG.TablasSql.OIPE_N().listarPeriodosInventario(null);
+                ViewBag.Laboratorios = new Capa_Negocio.Almacen_NEG.Tablas.OMRC_N().listarFabricantes();
                 obj.DocEntryPer = Capa_Entidad.Almacen_ENT.TablasSql.OIPE_E.PeriodoSeleccionado.DocEntry;
                 Usuario_E user = (Usuario_E)Session["UsuarioId"];
                 obj.Propietario = $"{user.Nombres} {user.Apellidos}";
@@ -1374,25 +1344,20 @@ namespace Capa_Usuario.Controllers
 
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                Capa_Negocio.General_NEG.Tablas.OWHS_N owhsN = new Capa_Negocio.General_NEG.Tablas.OWHS_N();
-                OIEQ_N oN = new OIEQ_N();
-                Capa_Negocio.Seguridad_NEG.Usuario_N ouN = new Capa_Negocio.Seguridad_NEG.Usuario_N();
-                OMRC_N omrcN = new OMRC_N();
-                OIPE_N oipeN = new OIPE_N();
                 try
                 {
                     Usuario_E user = (Usuario_E)Session["UsuarioId"];
                     obj.Propietario = $"{user.Nombres} {user.Apellidos}";
-                    oN.registrarNuevoEquipo(obj);
+                    new OIEQ_N().registrarNuevoEquipo(obj);
                     return RedirectToAction("GestionEquipos");
                 }
                 catch (Exception e)
                 {
                     ViewBag.Mensaje = e.Message;
-                    ViewBag.Almacenes = owhsN.ListarAlmacenes();
-                    ViewBag.Miembros = ouN.ListaUsuarios(null);
-                    ViewBag.Periodos = oipeN.listarPeriodosInventario(null);
-                    ViewBag.Laboratorios = omrcN.listarFabricantes(); return View(obj);
+                    ViewBag.Almacenes = new Capa_Negocio.General_NEG.Tablas.OWHS_N().ListarAlmacenes();
+                    ViewBag.Miembros = new Capa_Negocio.Seguridad_NEG.Usuario_N().ListaUsuarios(null);
+                    ViewBag.Periodos = new Capa_Negocio.Almacen_NEG.TablasSql.OIPE_N().listarPeriodosInventario(null);
+                    ViewBag.Laboratorios = new Capa_Negocio.Almacen_NEG.Tablas.OMRC_N().listarFabricantes(); return View(obj);
                 }
             }
             else
@@ -1431,10 +1396,8 @@ namespace Capa_Usuario.Controllers
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 Capa_Negocio.General_NEG.Tablas.OWHS_N owhsN = new Capa_Negocio.General_NEG.Tablas.OWHS_N();
-                OMRC_N l = new OMRC_N();
                 OIEQ_N oieqN = new OIEQ_N();
                 OIPE_N oipeN = new OIPE_N();
-                Usuario_N ouN = new Usuario_N();
                 try
                 {
                     Usuario_E user = (Usuario_E)Session["UsuarioId"];
@@ -1446,9 +1409,9 @@ namespace Capa_Usuario.Controllers
                 {
                     ViewBag.Mensaje = e.Message;
                     ViewBag.Almacenes = owhsN.ListarAlmacenes();
-                    ViewBag.Miembros = ouN.ListaUsuarios(new Usuario_E { IdRol = idRol });
+                    ViewBag.Miembros = new Capa_Negocio.Seguridad_NEG.Usuario_N().ListaUsuarios(new Usuario_E { IdRol = idRol });
                     ViewBag.Periodos = oipeN.listarPeriodosInventario(null);
-                    ViewBag.Laboratorios = l.listarFabricantes(); return View(obj);
+                    ViewBag.Laboratorios = new Capa_Negocio.Almacen_NEG.Tablas.OMRC_N().listarFabricantes(); return View(obj);
                 }
             }
             else
@@ -1465,7 +1428,7 @@ namespace Capa_Usuario.Controllers
                 ViewBag.Almacenes = new Capa_Negocio.General_NEG.Tablas.OWHS_N().ListarAlmacenes();
                 ViewBag.Miembros = new Usuario_N().ListaUsuarios(null);
                 ViewBag.Periodos = new OIPE_N().listarPeriodosInventario(null);
-                ViewBag.Laboratorios = new OMRC_N().listarFabricantes();
+                ViewBag.Laboratorios = new Capa_Negocio.Almacen_NEG.Tablas.OMRC_N().listarFabricantes();
                 return View(new OIEQ_N().buscarEquipos(id));
             }
             else
@@ -1640,8 +1603,8 @@ namespace Capa_Usuario.Controllers
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 Capa_Negocio.Almacen_NEG.TablasSql.OIAR_N oiarN = new Capa_Negocio.Almacen_NEG.TablasSql.OIAR_N(); Capa_Negocio.Almacen_NEG.TablasSql.IPE2_N ipe2N = new Capa_Negocio.Almacen_NEG.TablasSql.IPE2_N();
-                OIAR_E obj = oiarN.Buscar(id);
-                ViewBag.Lotes = ipe2N.listarArticulos(new IPE2_E { DocEntry = obj.DocEntryPer, ItemCode = obj.ItemCode, WhsCode = obj.WhsCode });
+                Capa_Entidad.Almacen_ENT.TablasSql.OIAR_E obj = oiarN.Buscar(id);
+                ViewBag.Lotes = ipe2N.listarArticulos(new Capa_Entidad.Almacen_ENT.TablasSql.IPE2_E { DocEntry = obj.DocEntryPer, ItemCode = obj.ItemCode, WhsCode = obj.WhsCode });
                 return View(obj);
             }
             else
@@ -1791,8 +1754,8 @@ namespace Capa_Usuario.Controllers
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 Capa_Negocio.Almacen_NEG.TablasSql.OIAR_N oiarN = new Capa_Negocio.Almacen_NEG.TablasSql.OIAR_N(); Capa_Negocio.Almacen_NEG.TablasSql.IPE2_N ipe2N = new Capa_Negocio.Almacen_NEG.TablasSql.IPE2_N();
-                OIAR_E obj = oiarN.Buscar(id);
-                ViewBag.Lotes = ipe2N.listarArticulos(new IPE2_E { DocEntry = obj.DocEntryPer, ItemCode = obj.ItemCode, WhsCode = obj.WhsCode });
+                Capa_Entidad.Almacen_ENT.TablasSql.OIAR_E obj = oiarN.Buscar(id);
+                ViewBag.Lotes = ipe2N.listarArticulos(new Capa_Entidad.Almacen_ENT.TablasSql.IPE2_E { DocEntry = obj.DocEntryPer, ItemCode = obj.ItemCode, WhsCode = obj.WhsCode });
                 return View(obj);
             }
             else
@@ -1941,9 +1904,13 @@ namespace Capa_Usuario.Controllers
 
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                Capa_Negocio.Almacen_NEG.TablasSql.OIAR_N oiarN = new Capa_Negocio.Almacen_NEG.TablasSql.OIAR_N(); Capa_Negocio.Almacen_NEG.TablasSql.IPE2_N ipe2N = new Capa_Negocio.Almacen_NEG.TablasSql.IPE2_N();
-                OIAR_E obj = oiarN.Buscar(id);
-                ViewBag.Lotes = ipe2N.listarArticulos(new IPE2_E { DocEntry = obj.DocEntryPer, ItemCode = obj.ItemCode, WhsCode = obj.WhsCode });
+                Capa_Entidad.Almacen_ENT.TablasSql.OIAR_E obj = new Capa_Negocio.Almacen_NEG.TablasSql.OIAR_N().Buscar(id);
+                ViewBag.Lotes = new Capa_Negocio.Almacen_NEG.TablasSql.IPE2_N().listarArticulos(
+                    new Capa_Entidad.Almacen_ENT.TablasSql.IPE2_E { 
+                        DocEntry = obj.DocEntryPer, 
+                        ItemCode = obj.ItemCode, 
+                        WhsCode = obj.WhsCode 
+                    });
                 return View(obj);
             }
             else
@@ -2005,13 +1972,13 @@ namespace Capa_Usuario.Controllers
 
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                OMRC_N omrcN = new OMRC_N();
                 OIAR_N oiarN = new OIAR_N();
                 try
                 {
-                    if (Capa_Entidad.Almacen_ENT.TablasSql.OIPE_E.PeriodoSeleccionado == null || Capa_Entidad.Almacen_ENT.TablasSql.OIPE_E.PeriodoSeleccionado.DocEntry == 0) { throw new Exception("no hay periodo Seleccionado"); }
+                    if (Capa_Entidad.Almacen_ENT.TablasSql.OIPE_E.PeriodoSeleccionado == null || Capa_Entidad.Almacen_ENT.TablasSql.OIPE_E.PeriodoSeleccionado.DocEntry == 0) { 
+                        throw new Exception("no hay periodo Seleccionado"); }
                     oiarN.validarVistaReportes(Capa_Entidad.Almacen_ENT.TablasSql.OIPE_E.PeriodoSeleccionado.DocEntry);
-                    ViewBag.Laboratorios = omrcN.listarFabricantes();
+                    ViewBag.Laboratorios = new Capa_Negocio.Almacen_NEG.Tablas.OMRC_N().listarFabricantes();
                     return View();
                 }
                 catch (Exception e)
@@ -2024,15 +1991,25 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-
-        /*********************** V A L I D A C I O N E S ***********************/
+        public JsonResult ObtenerDatosProducto(Capa_Entidad.Almacen_ENT.Tablas.OIBT_E datos, string limite = "1")
+        {
+            if (!string.IsNullOrEmpty(datos.ItemCode) || !string.IsNullOrEmpty(datos.ItemName))
+            {
+                var result = new Capa_Negocio.Almacen_NEG.Tablas.OIBT_N().listarArticulosLotes(datos, false, limite);
+                return Json(result);
+            }
+            else
+            {
+                return null;
+            }
+        }
+        /******************* V A L I D A C I O N E S  D E  I N V E N T A R I O ***********************/
         public ActionResult validarNuevoPeriodo(Capa_Entidad.Almacen_ENT.TablasSql.OIPE_E obj)
         {
-            OIPE_N oipeN = new OIPE_N();
             string status = "true";
             try
             {
-                oipeN.validarNuevoPeriodo(obj);
+                new Capa_Negocio.Almacen_NEG.TablasSql.OIPE_N().validarNuevoPeriodo(obj);
                 return Content(status);
             }
             catch (Exception e) { return Content(e.Message); }
@@ -2148,63 +2125,58 @@ namespace Capa_Usuario.Controllers
         }
         public ActionResult validarRevertirTerminoReconteo(Capa_Entidad.Almacen_ENT.TablasSql.OIAR_E obj)
         {
-            OIAR_N oiarN = new OIAR_N();
             string status = "true";
             try
             {
                 Usuario_E user = (Usuario_E)Session["UsuarioId"];
                 obj.DetFases[0].Operario = $"{user.Nombres} {user.Apellidos}";
-                oiarN.validarRevertirTerminoReconteo(obj);
+                new Capa_Negocio.Almacen_NEG.TablasSql.OIAR_N().validarRevertirTerminoReconteo(obj);
                 return Content(status);
             }
             catch (Exception e) { return Content(e.Message); }
         }
         public ActionResult validarInicioAnalisisConteo(Capa_Entidad.Almacen_ENT.TablasSql.OIAR_E obj)
         {
-            OIAR_N oiarN = new OIAR_N();
             string status = "true";
             try
             {
-                oiarN.validarInicioAnalisisConteo(obj);
+                new Capa_Negocio.Almacen_NEG.TablasSql.OIAR_N().validarInicioAnalisisConteo(obj);
                 return Content(status);
             }
             catch (Exception e) { return Content(e.Message); }
         }
         public ActionResult validarRevertirInicioAnalisisConteo(Capa_Entidad.Almacen_ENT.TablasSql.OIAR_E obj)
         {
-            OIAR_N oiarN = new OIAR_N();
             string status = "true";
             try
             {
                 Usuario_E user = (Usuario_E)Session["UsuarioId"];
                 obj.DetFases[0].Operario = $"{user.Nombres} {user.Apellidos}";
-                oiarN.validarRevertirInicioAnalisisConteo(obj);
+                new Capa_Negocio.Almacen_NEG.TablasSql.OIAR_N().validarRevertirInicioAnalisisConteo(obj);
                 return Content(status);
             }
             catch (Exception e) { return Content(e.Message); }
         }
         public ActionResult validarTerminoAnalisisConteo(Capa_Entidad.Almacen_ENT.TablasSql.OIAR_E obj)
         {
-            OIAR_N oiarN = new OIAR_N();
             string status = "true";
             try
             {
                 Usuario_E user = (Usuario_E)Session["UsuarioId"];
                 obj.DetFases[0].Operario = $"{user.Nombres} {user.Apellidos}";
-                oiarN.validarTerminoAnalisisConteo(obj);
+                new Capa_Negocio.Almacen_NEG.TablasSql.OIAR_N().validarTerminoAnalisisConteo(obj);
                 return Content(status);
             }
             catch (Exception e) { return Content(e.Message); }
         }
         public ActionResult validarRevertirTerminoAnalisisConteo(Capa_Entidad.Almacen_ENT.TablasSql.OIAR_E obj)
         {
-            OIAR_N oiarN = new OIAR_N();
             string status = "true";
             try
             {
                 Usuario_E user = (Usuario_E)Session["UsuarioId"];
                 obj.DetFases[0].Operario = $"{user.Nombres} {user.Apellidos}";
-                oiarN.validarRevertirTerminoAnalisisConteo(obj);
+                new Capa_Negocio.Almacen_NEG.TablasSql.OIAR_N().validarRevertirTerminoAnalisisConteo(obj);
                 return Content(status);
             }
             catch (Exception e) { return Content(e.Message); }
@@ -2212,28 +2184,22 @@ namespace Capa_Usuario.Controllers
         // metodos 
         public JsonResult listarArticulosUsrEquiSap(Capa_Entidad.Almacen_ENT.TablasSql.OIEQ_E eq)
         {
-            Capa_Negocio.Almacen_NEG.TablasSql.OIEQ_N oieqN = new Capa_Negocio.Almacen_NEG.TablasSql.OIEQ_N();
-            Capa_Negocio.Almacen_NEG.TablasSql.IPE2_N ipe2N = new Capa_Negocio.Almacen_NEG.TablasSql.IPE2_N();
-            List<Capa_Entidad.Almacen_ENT.TablasSql.IPE2_E> obj = ipe2N.listarArticulosUsrEquiSap(oieqN.buscarEquipos(eq.DocEntry));
+            List<Capa_Entidad.Almacen_ENT.TablasSql.IPE2_E> obj = new Capa_Negocio.Almacen_NEG.TablasSql.IPE2_N().listarArticulosUsrEquiSap(new Capa_Negocio.Almacen_NEG.TablasSql.OIEQ_N().buscarEquipos(eq.DocEntry));
             return Json(obj);
         }
         public JsonResult listarArticulosUsrEquiSql(Capa_Entidad.Almacen_ENT.TablasSql.OIEQ_E eq)
         {
-            Capa_Negocio.Almacen_NEG.TablasSql.OIEQ_N oieqN = new Capa_Negocio.Almacen_NEG.TablasSql.OIEQ_N();
-            Capa_Negocio.Almacen_NEG.TablasSql.IPE2_N ipe2N = new Capa_Negocio.Almacen_NEG.TablasSql.IPE2_N();
-            List<Capa_Entidad.Almacen_ENT.TablasSql.IPE2_E> obj = ipe2N.listarArticulosUsrEqui(oieqN.buscarEquipos(eq.DocEntry));
+            List<Capa_Entidad.Almacen_ENT.TablasSql.IPE2_E> obj = new Capa_Negocio.Almacen_NEG.TablasSql.IPE2_N().listarArticulosUsrEqui(new Capa_Negocio.Almacen_NEG.TablasSql.OIEQ_N().buscarEquipos(eq.DocEntry));
             return Json(obj);
         }
         public JsonResult listarLotesSinStock(Capa_Entidad.Almacen_ENT.TablasSql.IPE2_E ip)
         {
-            Capa_Negocio.Almacen_NEG.TablasSql.IPE2_N ipe2N = new Capa_Negocio.Almacen_NEG.TablasSql.IPE2_N();
-            List<Capa_Entidad.Almacen_ENT.TablasSql.IPE2_E> obj = ipe2N.listarLotesSinStock(ip);
+            List<Capa_Entidad.Almacen_ENT.TablasSql.IPE2_E> obj = new Capa_Negocio.Almacen_NEG.TablasSql.IPE2_N().listarLotesSinStock(ip);
             return Json(obj);
         }
         public ActionResult dataListArticulos(Capa_Entidad.Almacen_ENT.Tablas.OITM_E o)
         {
-            OITM_N oitmN = new OITM_N();
-            return Content(oitmN.datalistArticulos(o));
+            return Content(new Capa_Negocio.Almacen_NEG.Tablas.OITM_N().datalistArticulos(o));
         }
         //reportes
         public ActionResult reporteViewer()
@@ -2274,20 +2240,6 @@ namespace Capa_Usuario.Controllers
             return View("reporteViewer");
         }
 
-        public JsonResult ObtenerDatosProducto(Capa_Entidad.Almacen_ENT.Tablas.OIBT_E datos, string limite = "1")
-        {
-            //verificacionAccesos(0); // Validar sesion logueada, solo para ajax
-            if (!string.IsNullOrEmpty(datos.ItemCode) || !string.IsNullOrEmpty(datos.ItemName))
-            {
-                Capa_Negocio.Almacen_NEG.Tablas.OIBT_N oibtN = new Capa_Negocio.Almacen_NEG.Tablas.OIBT_N();
-                var result = oibtN.listarArticulosLotes(datos, false, limite);
-
-                return Json(result);
-            }
-            else
-            {
-                return null;
-            }
-        }
+        
     }
 }

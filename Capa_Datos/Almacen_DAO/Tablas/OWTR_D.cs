@@ -29,7 +29,7 @@ namespace Capa_Datos.Almacen_DAO.Tablas
                 if (!string.IsNullOrEmpty(fil.U_SYP_MDCD)) { filtro += " and \"U_SYP_MDCD\" like '%" + fil.U_SYP_MDCD + "'"; }
                 if (!string.IsNullOrEmpty(fil.U_SYP_STATUS)) { filtro += " and UPPER(\"U_SYP_STATUS\")=UPPER('" + fil.U_SYP_STATUS + "')"; }
             }
-            string query = "select top 50 \"DocEntry\",\"DocNum\",\"DocDate\",\"Filler\",\"ToWhsCode\",\"SlpCode\",\"U_SYP_MDTD\",\"U_SYP_MDSD\",\"U_SYP_MDCD\",\"U_SYP_STATUS\", \"U_BPP_FECINITRA\"  from " + uti.schemaHana + "OWTR where \"DocEntry\">0 " + filtro + " order by 1 desc";
+            string query = "select top 500 \"DocEntry\",\"DocNum\",\"DocDate\",\"Filler\",\"ToWhsCode\",\"SlpCode\",\"U_SYP_MDTD\",\"U_SYP_MDSD\",\"U_SYP_MDCD\",\"U_SYP_STATUS\", \"U_BPP_FECINITRA\"  from " + uti.schemaHana + "OWTR where \"DocEntry\">0 " + filtro + " order by 1 desc";
             try
             {
                 HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
@@ -69,13 +69,13 @@ namespace Capa_Datos.Almacen_DAO.Tablas
             catch { }
             return lista;
         }
-        public string GuiasTicketTransferencia(int DocNum, string WhsCode)
+        public string GuiasTicketTransferencia(int DocNum, string WhsCode ,string CardCode)
         {
             string guias = string.Empty;
             string query = "SELECT top 10 IFNULL(T0.\"U_SYP_MDTD\" || '-' || T0.\"U_SYP_MDSD\" || '-' || T0.\"U_SYP_MDCD\", '') as \"GUIAS\" " +
                     "FROM " + uti.schemaHana + "OWTR T0 WHERE T0.\"CANCELED\" = 'N' AND T0.\"U_SYP_MDTD\" IS NOT NULL AND T0.\"U_SYP_MDSD\" IS NOT NULL " +
                     "AND T0.\"U_SYP_MDCD\" IS NOT NULL AND T0.\"ToWhsCode\" ='" + WhsCode + "' AND T0.\"U_COB_LUGAREN\" ='" + WhsCode + "' " +
-                    "AND T0.\"Comments\" like '" + "%" + DocNum + "%" + "' ORDER BY T0.\"DocEntry\" desc";
+                    "AND T0.\"Comments\" like '" + "%" + DocNum + "%" + "' AND T0.\"CardCode\" ='" + CardCode + "' ORDER BY T0.\"DocEntry\" desc";
 
             HanaConnection cn = new HanaConnection(uti.cadHana);
             try
