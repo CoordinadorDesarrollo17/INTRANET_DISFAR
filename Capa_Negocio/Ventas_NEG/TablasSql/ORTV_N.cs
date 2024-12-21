@@ -786,7 +786,8 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 }
             }
             else
-            { //Valida monto de entrega igual a monto de factura
+            { 
+                //Valida monto de entrega igual a monto de factura
                 decimal sumEntregas = compN.ObtenerEncabezadoGuiasPorEntrega(OrdenesSap).Sum(x => x.DocTotal); // Trae Dato Max1099 de entrega lo inserta en variable DocTotal
                 decimal sumFacturas = ComprobantesVinculados.Sum(x => x.Max1099);
                 if (sumFacturas != sumEntregas) { throw new Exception("Montos no coinciden"); }

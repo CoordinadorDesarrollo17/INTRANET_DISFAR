@@ -126,12 +126,15 @@ namespace Capa_Datos.Ventas_DAO.Tablas
         }
         public List<OINV_E> listadoComprobantesPorOrdr(int DocEntryOrden)
         {
+            //Agregado recientemente para validar que una boleta o factura no sea procesada con nc AND NOT EXISTS...
             List<OINV_E> lista = new List<OINV_E>();
             string query1 = "SELECT T0.\"DocEntry\",T0.\"DocNum\",T0.\"NumAtCard\",T0.\"Max1099\" FROM " + uti.schemaHana + "OINV T0 " +
                 " INNER JOIN " + uti.schemaHana + "INV1 T1 ON T1.\"DocEntry\" = T0.\"DocEntry\"" +
                 " INNER JOIN " + uti.schemaHana + "RDR1 T2 ON T2.\"DocEntry\" = T1.\"BaseEntry\" AND T2.\"ObjType\" = T1.\"BaseType\"" +
                                                     " AND T2.\"LineNum\" = T1.\"BaseLine\" AND T2.\"DocEntry\" =" + DocEntryOrden +
-                " WHERE T0.\"CANCELED\" = 'N' GROUP BY T0.\"DocEntry\",T0.\"DocNum\",T0.\"NumAtCard\",T0.\"Max1099\"";
+                " WHERE T0.\"CANCELED\" = 'N' " +
+                " AND NOT EXISTS (SELECT 1 FROM ORIN WHERE \"U_SYP_MDTO\" || '-' || \"U_SYP_MDSO\" || '-' || \"U_SYP_MDCO\" = T0.\"NumAtCard\" )"+
+                " GROUP BY T0.\"DocEntry\",T0.\"DocNum\",T0.\"NumAtCard\",T0.\"Max1099\"";
 
             string query2 = "SELECT T4.\"DocEntry\",T4.\"DocNum\",T4.\"NumAtCard\",T4.\"Max1099\" FROM " + uti.schemaHana + "ODLN T0 " +
                 " INNER JOIN " + uti.schemaHana + "DLN1 T1 ON T1.\"DocEntry\" = T0.\"DocEntry\"" +
@@ -140,7 +143,9 @@ namespace Capa_Datos.Ventas_DAO.Tablas
                 " INNER JOIN " + uti.schemaHana + "INV1 T3 ON T3.\"BaseEntry\" = T1.\"DocEntry\" AND T3.\"BaseType\" = T1.\"ObjType\"" +
                                                     " AND T3.\"BaseLine\" = T1.\"LineNum\" " +
                 " INNER JOIN " + uti.schemaHana + "OINV T4 ON T4.\"DocEntry\" = T3.\"DocEntry\" AND T4.\"CANCELED\" = 'N' " +
-                " WHERE T0.\"CANCELED\" = 'N' GROUP BY T4.\"DocEntry\",T4.\"DocNum\",T4.\"NumAtCard\",T4.\"Max1099\"";
+                " WHERE T0.\"CANCELED\" = 'N' " +
+                " AND NOT EXISTS (SELECT 1 FROM ORIN WHERE \"U_SYP_MDTO\" || '-' || \"U_SYP_MDSO\" || '-' || \"U_SYP_MDCO\" = T4.\"NumAtCard\" )" +
+                " GROUP BY T4.\"DocEntry\",T4.\"DocNum\",T4.\"NumAtCard\",T4.\"Max1099\"";
 
             try
             {
