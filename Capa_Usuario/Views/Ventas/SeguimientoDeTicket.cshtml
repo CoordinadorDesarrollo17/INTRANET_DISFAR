@@ -6,6 +6,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     Usuario_E user = (Usuario_E)Session["UsuarioId"];
     Dictionary<string, CC_ORTV_E> flujoEstados = new Dictionary<string, CC_ORTV_E>(ViewBag.flujoEstadosTicket);
+    bool permisoCajas = ViewBag.permisoCajas == 1 ? true : false;
 }
 
 <script>
@@ -264,19 +265,19 @@
                                             <p>El pedido se EMPACÓ</p>
                                         </div>
 
-                                        @if ((ViewBag.IdRol == 1 || ViewBag.IdRol == 4 ) && Model.Estado == "EMPACADO")
+                                        @if (Model.Estado == "EMPACADO" && permisoCajas)
                                         {
 
                                             <div class="row justify-content-center font-14 font-weight-bold p-1">Cajas : <span class="ml-1">  @Model.Cajas</span></div>
                                             <div class="row justify-content-center">
-                                                @Html.EditorFor(model => model.Cajas, new { htmlAttributes = new { @class = "form-control text-center border-success w-25", @readonly = true, @hidden = true } })
-                                                @Html.EditorFor(model => model.CajasNuevo, new { htmlAttributes = new { @class = "form-control text-center border-success w-25" } })
+                                                @Html.EditorFor(model => model.Cajas, new { htmlAttributes = new { @class = "form-control text-center border-success w-50", @readonly = true, @hidden = true } })
+                                                @Html.EditorFor(model => model.CajasNuevo, new { htmlAttributes = new { @class = "form-control text-center border-success w-50" } })
                                             </div>
 
                                             <div class="row justify-content-center font-14 font-weight-bold p-1">NroMesa : <span class="ml-1">   @Model.NroMesa</span></div>
                                             <div class="row justify-content-center ">
-                                                @Html.EditorFor(model => model.NroMesa, new { htmlAttributes = new { @class = "form-control text-center border-success w-25", @readonly = true, @hidden = true } })
-                                                @Html.EditorFor(model => model.NroMesaNuevo, new { htmlAttributes = new { @class = "form-control text-center border-success w-25" } })
+                                                @Html.EditorFor(model => model.NroMesa, new { htmlAttributes = new { @class = "form-control text-center border-success w-50", @readonly = true, @hidden = true } })
+                                                @Html.EditorFor(model => model.NroMesaNuevo, new { htmlAttributes = new { @class = "form-control text-center border-success w-50" } })
                                             </div>
                                             <div class="row justify-content-center">
                                                 <input class="btn btn-sm btn-success " type="submit" name="UPDATEEMP" value="ENVIAR DATOS" />

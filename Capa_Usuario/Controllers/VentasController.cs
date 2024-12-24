@@ -15,6 +15,7 @@ using Capa_Negocio.General_NEG.TablasSql;
 using Capa_Negocio.Operaciones_NEG.TablasSql;
 using Capa_Negocio.Rutas_NEG.TablasSql;
 using Capa_Negocio.Seguridad_NEG;
+using Capa_Negocio.Seguridad_NEG.TablasSql;
 using Capa_Negocio.SocioNegocios_NEG.Tablas;
 using Capa_Negocio.Ventas_NEG.Tablas;
 using Capa_Negocio.Ventas_NEG.TablasSql;
@@ -359,6 +360,9 @@ namespace Capa_Usuario.Controllers
                         }
                     }
                     ViewBag.IdRol = usu.IdRol;
+
+                    ViewBag.permisoCajas = new OUSR_OPE_N().VerificarAccesoOperacion(new OUSR_OPE_E {  UsrDocEntry = usu.DocEntry, OpeID = 2024 });     // 2024: Actualizar Caja y Mesa
+
                     return View(ticket);
                 }
                 catch
@@ -375,7 +379,7 @@ namespace Capa_Usuario.Controllers
         public ActionResult SeguimientoDeTicket(int DocEntry, ORTV_E t, int idOperation = 507)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
-
+            
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 ORRU_N orruN = new ORRU_N();
