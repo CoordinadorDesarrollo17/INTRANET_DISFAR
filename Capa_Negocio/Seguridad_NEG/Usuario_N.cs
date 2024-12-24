@@ -96,9 +96,9 @@ namespace Capa_Negocio.Seguridad_NEG
                 return "Las contraseñas no coinciden.";
             }
 
-            if (datosPost.Password.Length < 8)
+            if (datosPost.Password.Length < 7)
             {
-                return "La contraseña debe tener mínimo 8 caracteres.";
+                return "La contraseña debe tener mínimo 7 caracteres.";
             }
 
             if (!string.IsNullOrWhiteSpace(datosPost.Email) && helper.EsCorreo(datosPost.Email) == false)
