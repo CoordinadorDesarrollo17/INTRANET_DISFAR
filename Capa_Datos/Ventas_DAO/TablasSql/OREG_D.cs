@@ -315,8 +315,13 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     if (ticket.Det5.Any())//primero entra el descuento por reposicion
                     {
                         foreach (var regalo in ticket.Det5)
+<<<<<<< HEAD
                         {//cuando es reposicion en la generacion de lista unificada se pone como negativo
                             if (regalo.RegCant < 0 && estado.Equals("ABIERTO")) { cantidadDevolviendo = regalo.RegCant; }
+=======
+                        {
+                            if (regalo.RegCant < 0 ) { cantidadDevolviendo = regalo.RegCant; }
+>>>>>>> 563c2b5 (correcion)
                             else
                             {
                                 // Comprobar si el cliente tiene saldo suficiente considerando si se ha devuelvo en esta misma transaccion
@@ -358,6 +363,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 
               
 
+<<<<<<< HEAD
                
                 //solo si esta el ticket en separado o abierto hace compromiso del stock 
                 if (estado.Equals("SEPARADO") || estado.Equals("ABIERTO"))
@@ -369,6 +375,18 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 }
                 // Registrar la transacción de stock en otrc
                 otrcD.RegistrarTransaccionDataTable(tablaDatos2, tran); //llega dos lineas de asignacion, 1 negativo y positivo al editar
+=======
+                RegistroComprometidos(tablaDatos, tran);
+
+                // Registrar la transacción de stock
+                otrcD.RegistrarTransaccionDataTable(tablaDatos2, tran);
+
+                //if (estado.Equals("SEPARADO") || estado.Equals("ABIERTO")) { 
+                    // Registrar el compromiso con el cliente
+                    oclrD.CompromisoClienteRegaloDataTable(tablaDatos3, tran);
+                //}
+
+>>>>>>> 563c2b5 (correcion)
                 status = true;
 
             }

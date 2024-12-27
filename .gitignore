@@ -28,6 +28,7 @@
 *.xsd
 *.xss
 *.rdlc
+*.zip
 
 # User-specific files
 *.rsuser
