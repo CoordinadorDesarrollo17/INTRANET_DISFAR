@@ -182,7 +182,6 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             catch (Exception e2) { cn.Close(); throw new Exception("Error en creacion y conexion: " + e2.Message); }
             return status;
         }
-
         //revisado
         public void RegistrarGestionStock(OREG_E reg, OTRC_E obj, SqlTransaction tran = null)
         {
@@ -277,7 +276,6 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 cmd.ExecuteNonQuery();
             }
         }
-
         public void CompromisosStock(List<ORTV_E> listaTickets, SqlTransaction tran)
         {
             OTRC_D otrcD = new OTRC_D();
@@ -356,9 +354,9 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     }
                 }
 
-              
 
-               
+
+
                 //solo si esta el ticket en separado o abierto hace compromiso del stock 
                 if (estado.Equals("SEPARADO") || estado.Equals("ABIERTO"))
                 {

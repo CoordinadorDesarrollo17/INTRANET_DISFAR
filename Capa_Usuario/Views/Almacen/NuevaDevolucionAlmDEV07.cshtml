@@ -672,7 +672,13 @@
                     type: 'post'
                 })
                 .done(function (response) {
-                    if (response != "true") { Swal.fire(response); }
+                    if (response != "true") {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'No se pudo completar la acción',
+                            text: response,
+                        });
+                    }
                     else { $("#frmNuevaDevolucionDEV07").submit(); }
                 });
     }

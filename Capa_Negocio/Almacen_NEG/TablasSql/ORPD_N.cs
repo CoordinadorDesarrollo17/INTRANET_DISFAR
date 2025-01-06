@@ -138,7 +138,7 @@ namespace Capa_Negocio.Almacen_NEG.TablasSql
                                 decimal MaxQuantityPermitidaPz = obj.NumInBuyKey * MaxQuantityTotal;
                                 if (Math.Round(SumCantIngPz, 2) > Math.Round(MaxQuantityPermitidaPz, 2))
                                 {
-                                    throw new Exception("El producto " + obj.ItemName.Substring(0, 10) + "-" + obj.BatchNum + " supera la cantidad maxima :" + MaxQuantityTotal);
+                                    throw new Exception( obj.ItemName+ " \n Lote: " + obj.BatchNum + "\n Supera la cantidad máxima: " + MaxQuantityTotal);
                                 }
                             }
                         }
