@@ -1163,6 +1163,7 @@
     <Content Include="Views\ComprobantesContables\LayoutFactura_header.cshtml" />
     <Content Include="Views\Shared\TI_Sistemas\AsignacionPermisos.cshtml" />
     <Content Include="Views\Ventas\LayoutFactura.cshtml" />
+    <Content Include="Views\Ventas\ListadoTicketsAutorizacionRegularizar.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

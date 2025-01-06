@@ -8,6 +8,7 @@ using Sap.Data.Hana;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Drawing;
 using System.Globalization;
 using System.Linq;
 
@@ -224,7 +225,6 @@ namespace Capa_Datos.DireccionTecnica_DAO.Reportes
                     if (!hdr.IsDBNull(12)) { con.FormaFamaceutica = hdr.GetString(12); }
                     if (!hdr.IsDBNull(13)) { con.SaldoAnterior = Math.Round(hdr.GetDecimal(13), 0); }
                     if (!hdr.IsDBNull(14)) { con.Compra = Math.Round(hdr.GetDecimal(14), 0); }
-                    if (!hdr.IsDBNull(14)) { con.Compra = Math.Round(hdr.GetDecimal(14), 0); }
                     if (!hdr.IsDBNull(15)) { con.Venta = Math.Round(hdr.GetDecimal(15), 0); }
                     if (!hdr.IsDBNull(16)) { con.OtrosIngresosNC = Math.Round(hdr.GetDecimal(16), 0); }
                     if (!hdr.IsDBNull(17)) { con.OtrosEgresosDEV = Math.Round(hdr.GetDecimal(17), 0); }
@@ -245,6 +245,32 @@ namespace Capa_Datos.DireccionTecnica_DAO.Reportes
                 hdr.Close();
             }
             catch { }
+            //insercion manual de un registro sin movimientos
+            lista.Add(new RptBalanceControladosConsolidado_E
+            {
+                RazonSocial = "COBEFAR S.A.C.",
+                NmComercial = "COBEFAR S.A.C.",
+                RucCob = "20600546041",
+                Direccion = "CAL.CARLOS PEDEMONTE NRO. 145B INT. 2PIS URB. LOTIZACION EX FUNDO EL PINO-SAN LUIS-LIMA\r\nLIMA",
+                Telefono2 = "01-3267430 anexo 201",
+                Quimico = "PAMELA COLLAHUA SENOSAIN",
+                Correo = "direcciontecnica@cobefar.com.pe",
+                Anio = 2024,
+                CodProducto = "FIN0196",
+                NombreGenerico = "Bromazepam",
+                NombreComercial = "BROMAZEPAM",
+                Concentracion = "3mg",
+                FormaFamaceutica = "TABLETA",
+                SaldoAnterior = 400,
+                Compra = 0,
+                Venta = 0,
+                OtrosIngresosNC = 0,
+                OtrosEgresosDEV = 0,
+                BaseType = 0,
+                CreatedBy = 0,
+                TipoControlado = "PSICOTROTICOS",
+                Trimestre = "III"
+            });
 
             return lista;
         }
