@@ -88,6 +88,7 @@ namespace Capa_Usuario.Controllers
                 ViewBag.DocEntryUsuario = user.DocEntry;
                 ViewBag.IdRol = user.IdRol;
                 ViewBag.ListaTicketsSeparados = ticketN.listarTicketsSeparados(user.CodigoSap);
+                ViewBag.FaltaRegularizar = ticketN.ListarTicketsPorRegularizarContraEntrega().Count();
                 ViewBag.DocNum = DocNum;
                 ViewBag.Ortv = t;
                 ViewBag.Vendedores = u_N.listaUsuariosPermisos(new Usuario_E{Activo=1}, 6);        // Usado como Filtro en el botón AnVentas (Reporte Analítico Ventas)
@@ -102,6 +103,30 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+
+
+        public ActionResult ListadoTicketsAutorizacionRegularizar(string mensaje = null, int idOperation = 501)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                if (!string.IsNullOrEmpty(mensaje))
+                {
+                    ViewBag.Mensaje = mensaje;
+                }
+
+                // Retorna la lista de objetos dinámicos como modelo
+                var listaTickets = ticketN.ListarTicketsPorRegularizarContraEntrega();
+                return View(listaTickets);
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
+
+
         public JsonResult ObtenerDatosTicket(int docEntry)
         {
             try
