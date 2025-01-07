@@ -460,7 +460,7 @@ namespace Capa_Datos.ComprobantesContables_ENT
                     }
                     catch { cn.Close(); }
 
-                    query = $"SELECT 'ODLN', \"U_SYP_MDTD\", \"U_SYP_MDSD\", \"U_SYP_MDCD\", TO_CHAR(\"DocDate\", 'YYYY-MM-DD'), TO_CHAR(\"U_BPP_FECINITRA\", 'YYYY-MM-DD'),'G',\"Max1099\",null FROM {uti.schemaHana}ODLN WHERE \"NumAtCard\" in({guiasConcatenadas})";
+                    query = $"SELECT 'ODLN', \"U_SYP_MDTD\", \"U_SYP_MDSD\", \"U_SYP_MDCD\", TO_CHAR(\"DocDate\", 'YYYY-MM-DD'), TO_CHAR(\"U_BPP_FECINITRA\", 'YYYY-MM-DD'),'G',\"Max1099\",null FROM {uti.schemaHana}ODLN WHERE \"CANCELED\" = 'N' AND \"NumAtCard\" in({guiasConcatenadas})";
 
                     lista = EjecutarConsultaComprobante(query);
 
