@@ -22,7 +22,11 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         ORTV_D tkD = new ORTV_D();
         CC_ORTV_D ccTicket = new CC_ORTV_D();
         public object t { get; private set; }
-
+        
+        public List<dynamic> ListarTicketsPorRegularizarContraEntrega()
+        {
+            return tkD.ListarTicketsPorRegularizarContraEntrega();
+        }
         public List<ReporteRegalos> listarTicketsRegalo(string fechaTicketDesde, string fechaTicketHasta, string estadoTicket, string estadoRegalo)
         {
             return tkD.ListarTicketsRegalo(fechaTicketDesde, fechaTicketHasta, estadoTicket, estadoRegalo);

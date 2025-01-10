@@ -145,32 +145,7 @@ namespace Capa_Usuario.Controllers
             }
             catch (Exception e) { ViewBag.Mensaje = e.Message; return View(new List<AuditoriaStocks_E>()); }
         }
-        public ActionResult tbReporteKardex(FrmKardex_E f)
-        {
-            //verificacionAccesos(0);
-            ReportViewer rp = new ReportViewer();
-            try
-            {
-                rp.ProcessingMode = ProcessingMode.Local;
-                rp.SizeToReportContent = true;
-                if (f.Lote == null || f.Lote == "")
-                {
-                    rp.LocalReport.ReportPath =
-                        Request.MapPath(Request.ApplicationPath) + @"Reportes\RptKardex.rdlc";
-                    rp.LocalReport.DataSources.Add(new ReportDataSource("DS_Kardex", dN.tbReporteKardex(f)));
-                }
-                else
-                {
-                    rp.LocalReport.ReportPath =
-                        Request.MapPath(Request.ApplicationPath) + @"Reportes\RptKardexLote.rdlc";
-                    rp.LocalReport.DataSources.Add(new ReportDataSource("DS_Kardex2", dN.tbReporteKardex(f)));
-                }
-                ViewBag.REPORTE = rp;
-            }
-            catch { }
-            return View("reporteViewer");
-        }
-
+       
         /******************************* K Á R D E X   C O N T R O L   D E   E X I S T E N C I A S *******************************/
         public ActionResult RptKardexAlmacenes(FrmKardex_E filtros)
         {
@@ -237,7 +212,7 @@ namespace Capa_Usuario.Controllers
             Dictionary<string, string> tipos = new Dictionary<string, string>
             {
                 {"P", "PRECURSORES" },
-                {"S", "PSICOTROTICOS" },
+                {"S", "PSICOTROPICOS" },
                 {"E", "ESTUPEFACIENTES" },
             };
 
@@ -268,25 +243,12 @@ namespace Capa_Usuario.Controllers
                     filtros.DetBalanceControladosConsolidado = digN.ReporteBalanceControladosConsolidado(filtros);
 
                     return View("BalanceControlados/RptBalanceControladosConsolidado", filtros);
-
-                    //rp.LocalReport.ReportPath =
-                    //	Request.MapPath(Request.ApplicationPath) + @"Reportes\RptDireccionTecnica\RptBalContConsolidado.rdlc";
-                    //rp.LocalReport.DataSources.Add(new ReportDataSource("DS_BalContConsolidado", dN.tbReporteBalanceControladosConsolidado(filtros)));
-
-                    //ViewBag.REPORTE = rp;
-                    //return View("reporteViewer");
                 }
                 else if (filtros.Informe.Equals("Libro Controlados"))
                 {
                     filtros.DetBalanceControladosLibroControlados = digN.ReporteBalanceControladosLibroControlados(filtros);
 
                     return View("BalanceControlados/RptBalanceControladosLibroControlados", filtros);
-                    //rp.LocalReport.ReportPath =
-                    //	Request.MapPath(Request.ApplicationPath) + @"Reportes\RptDireccionTecnica\RptBalControlados.rdlc";
-                    //rp.LocalReport.DataSources.Add(new ReportDataSource("DS_BalContIngreso", dN.tbReporteLibroControlados(filtros)));
-
-                    //ViewBag.REPORTE = rp;
-                    //return View("reporteViewer");
                 }
             }
             catch { }
@@ -367,45 +329,6 @@ namespace Capa_Usuario.Controllers
             }
         }
         /*******************************************************************************/
-
-        public ActionResult tbReporteBalanceControlados(FrmBalanceControlados_E f)
-        {
-            //verificacionAccesos(0);
-            ReportViewer rp = new ReportViewer();
-            try
-            {
-                rp.ProcessingMode = ProcessingMode.Local;
-                rp.SizeToReportContent = true;
-                if (f.Informe.Equals("Ingresos"))
-                {
-                    rp.LocalReport.ReportPath =
-                        Request.MapPath(Request.ApplicationPath) + @"Reportes\RptDireccionTecnica\RptBalContIngreso.rdlc";
-                    rp.LocalReport.DataSources.Add(new ReportDataSource("DS_BalContIngreso", dN.tbReporteBalanceControladosIngreso(f)));
-                }
-                else if (f.Informe.Equals("Egresos"))
-                {
-                    rp.LocalReport.ReportPath =
-                        Request.MapPath(Request.ApplicationPath) + @"Reportes\RptDireccionTecnica\RptBalContEgresos.rdlc";
-                    rp.LocalReport.DataSources.Add(new ReportDataSource("DS_BalContEgresos", dN.tbReporteBalanceControladosEgresos(f)));
-                }
-                else if (f.Informe.Equals("Consolidado"))
-                {
-                    rp.LocalReport.ReportPath =
-                        Request.MapPath(Request.ApplicationPath) + @"Reportes\RptDireccionTecnica\RptBalContConsolidado.rdlc";
-                    rp.LocalReport.DataSources.Add(new ReportDataSource("DS_BalContConsolidado", dN.tbReporteBalanceControladosConsolidado(f)));
-                }
-                else if (f.Informe.Equals("Libro Controlados"))
-                {
-                    rp.LocalReport.ReportPath =
-                        Request.MapPath(Request.ApplicationPath) + @"Reportes\RptDireccionTecnica\RptBalControlados.rdlc";
-                    rp.LocalReport.DataSources.Add(new ReportDataSource("DS_BalContIngreso", dN.tbReporteLibroControlados(f)));
-
-                }
-                ViewBag.REPORTE = rp;
-            }
-            catch { }
-            return View("reporteViewer");
-        }
 
         public ActionResult tbVentasArtLote(FrmKardex_E f)
         {

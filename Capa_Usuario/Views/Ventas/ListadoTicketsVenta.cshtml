@@ -113,7 +113,23 @@
 </div>
 
 <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
-    <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO DE TICKETS</h3></div>
+
+    <div class="mx-2 d-flex justify-content-between px-3 pt-3">
+        <div>
+            <h3 class="titulo-seccion">LISTADO DE TICKETS</h3>
+        </div>
+        @if (ViewBag.IdRol == 6 || ViewBag.IdRol == 1)
+        {
+            <div>
+                <input type="text" style="width: 250px; cursor: pointer"
+                       value="REGULARIZAR AUTORIZACION: @ViewBag.FaltaRegularizar"
+                       onclick="redirigirListadoRegularizar()"
+                       class="form-control-sm border-danger bg-danger text-white font-weight-bold"
+                       readonly />
+            </div>
+        }
+        </div>
+
 </div>
 <form name="filterForm" id="filterForm">
     <div class="d-flex pl-2 w-100 py-3">
@@ -130,7 +146,7 @@
                     <i class="icon-plus"></i>  Nuevo ticket
                 </a>
             }
-            <button type="button" id="btn_ordenesVenta" class="btn btn-orange" data-codsapvendedor="@ViewBag.CodSapVendedor"><i class="icon-file-text2"></i> Órdenes de Venta</button>
+            <button type="button" id="btn_ordenesVenta" class="btn btn-cobefar" data-codsapvendedor="@ViewBag.CodSapVendedor"><i class="icon-file-text2"></i> Órdenes de Venta</button>
             <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#filterModal"><i class="icon-filter"> </i> Filtrar</button>
 
         </div>
@@ -141,7 +157,7 @@
             <input type="text" id="CardName" name="CardName" class="form-control border-success" value="@a.CardName" autocomplete="off" placeholder="Buscar Cliente..." onchange="filtrar();" />
         </div>
         <div class="mx-2">
-            <input type="text" id="Vendedor" name="Vendedor" class="form-control border-success" value="@a.Vendedor" autocomplete="off" placeholder="Buscar Vendedor..." onchange="filtrar();"/>
+            <input type="text" id="Vendedor" name="Vendedor" class="form-control border-success" value="@a.Vendedor" autocomplete="off" placeholder="Buscar Vendedor..." onchange="filtrar();" />
         </div>
         <div class="mx-2">
             <select id="Estado" name="Estado" class="form-control border-success" onchange="filtrar();">
@@ -246,196 +262,199 @@
 
 </form>
 
-<div class="alert alert-danger mb-0" role="alert">
-    <span class="text-danger font-weight-bold">Tickets Separados:</span>
-    <p>
-        @if (ViewBag.ListaTicketsSeparados.Count >= 1)
-        {
-            foreach (var ts in ViewBag.ListaTicketsSeparados)
-            {
-                <a href="/Ventas/CreaTicketVenta?DocEntry=@ts.DocEntry">@ts.DocNum ,</a>
-            }
-        }
 
-    </p>
-</div>
 
-<div class="bg-white bg-form-cobefar pt-2">
-    <table class="table table-light table-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
-        <thead class="bg-cobefar-6">
-            <tr>
-                <th class="text-center">
-                    @Html.DisplayNameFor(model => model.DocNum)
-                </th>
-                <th class="text-center">
-                    Fecha Ticket
-                </th>
-                <th class="text-center">
-                    @Html.DisplayNameFor(model => model.HoraRegistro)
-                </th>
-                <th class="text-center">
-                    @Html.DisplayNameFor(model => model.CardName)
-                </th>
-                <th class="text-center">
-                    @Html.DisplayNameFor(model => model.Vendedor)
-                </th>
-                <th class="text-center">
-                    Monto Final
-                </th>
-                <th class="text-center">
-                    @Html.DisplayNameFor(model => model.LugarDestino)
-                </th>
-                <th class="text-center">
-                    @Html.DisplayNameFor(model => model.Estado)
-                </th>
-                <th class="text-center">
-                    Estado Pago
-                </th>
-                <th class="text-center">
-                    Estado Gasto
-                </th>
-                <th class="text-center">
-                    Pago Envio
-                </th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
+
+    <div class="alert alert-danger mb-0" role="alert">
+        <span class="text-danger font-weight-bold">Tickets Separados:</span>
+        <p>
+            @if (ViewBag.ListaTicketsSeparados.Count >= 1)
             {
-                string styleVisible = "";
-                if (item.Visible.Equals("NO"))
+                foreach (var ts in ViewBag.ListaTicketsSeparados)
                 {
-                    styleVisible = "bg-skyblue";
-
+                    <a href="/Ventas/CreaTicketVenta?DocEntry=@ts.DocEntry">@ts.DocNum ,</a>
                 }
-                <tr id="fila" class="@styleVisible">
-                    <td class="text-center">
-                        <div class="@if (ViewBag.DocNum == item.DocNum) { Write("bg-success"); }">@Html.DisplayFor(modelItem => item.DocNum)</div>
-                    </td>
-                    <td class="text-center">
-                        @Html.DisplayFor(modelItem => item.FechaSapTicket)
-                    </td>
-                    <td class="text-center">
-                        @Html.DisplayFor(modelItem => item.HoraAbierto)
-                    </td>
-                    <td>
-                        @if (!string.IsNullOrEmpty(item.CardName)) { Write(item.CardName); }
-                    </td>
-                    <td class="text-center">
-                        @item.Vendedor
-                    </td>
-                    <td class="text-center">
-                        @Html.DisplayFor(modelItem => item.MontoFinal)
-                    </td>
-                    <td class="text-center">
-                        @Html.DisplayFor(modelItem => item.LugarDestino)
-                    </td>
-                    <td class="text-center">
-                        @if (item.Visible != null && item.Visible.Equals("NO"))
-                        {<span>PRESUPUESTO</span> }
-                        else
-                        {@Html.DisplayFor(modelItem => item.Estado)}
-                    </td>
-                    <td class="text-center">
-                        @Html.DisplayFor(modelItem => item.EstadoPago)
-                    </td>
-                    <td class="text-center">
-                        @Html.DisplayFor(modelItem => item.EstadoGasto)
-                    </td>
-                    <td class="text-center">
-                        @Html.DisplayFor(modelItem => item.PagoEnv)
-                    </td>
-                    <td class="text-center">
-                        @if (item.Estado.Equals("SEPARADO") || item.Estado.Equals("ABIERTO"))
-                        {
-                            <a href="@Url.Action("EditarTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Editar ticket"><i class="text-primary icon-pencil"></i></a>
-                        }
-                    </td>
-                    <td class="text-center">
-                        @if ((item.Estado.Equals("SEPARADO") || item.Estado.Equals("ABIERTO")) && (ViewBag.IdRol == 1 || ViewBag.IdRol == 6 || ViewBag.IdRol == 7 || ViewBag.IdRol == 12))
-                        {
-                            <a href="#" onclick="cancelarTicket(@item.DocEntry);" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Cancelar ticket"><i class="text-danger icon-bin"></i></a>
-                        }
-                    </td>
-                    <td class="text-center">
-                        @if (item.Estado != "SEPARADO")
-                        {
-                            <a href="@Url.Action( "SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry  } )" type="button" target="_self" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="PDF de ticket"
-                               onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;">
-                                <i title="Seguimiento de ticket" class="text-dark icon-truck"></i>
-                            </a>
-                        }
-                    </td>
-                    <td class="text-center">
-                        @if (item.Estado != "SEPARADO")
-                        {
-                            <a href="@Url.Action( "GenerarPDF", "Ventas", new { DocEntry = item.DocEntry  } )" target="_blank" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="PDF de ticket"><i class="text-danger icon-file-pdf"></i></a>
-                        }
-                    </td>
-                    <td class="text-center">
-                        @if (item.Estado == "ENTREGADO")
-                        {
-                            <a href="@Url.Action( "EvidenciaReparto", "Rutas", new { DocEntry = item.DocEntry , TipoRuta="Ventas"} )" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Evidencia"><i class="text-primary icon-image"></i></a>
-                        }
-                    </td>
-
-                </tr>
             }
-        </tbody>
-    </table>
-</div>
 
-<!-- Modal para listar vendedores -->
-<div id="modalVendedores" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-cobefar text-white">
-                <h5 class="modal-title" id="exampleModalLabel">Selecciona vendedor</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span class="text-white" aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <label for="selectVendedores">Seleccionar vendedor:</label>
-                <select id="selectVendedores" class="form-control" onchange="seleccionarVendedor(this.value)">
-                    <option value="">Seleccione..</option>
-                    @foreach (var vendedor in usuarios)
+        </p>
+    </div>
+
+    <div class="bg-white bg-form-cobefar pt-2">
+        <table class="table table-light table-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
+            <thead class="bg-cobefar-6">
+                <tr>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.DocNum)
+                    </th>
+                    <th class="text-center">
+                        Fecha Ticket
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.HoraRegistro)
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.CardName)
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.Vendedor)
+                    </th>
+                    <th class="text-center">
+                        Monto Final
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.LugarDestino)
+                    </th>
+                    <th class="text-center">
+                        @Html.DisplayNameFor(model => model.Estado)
+                    </th>
+                    <th class="text-center">
+                        Estado Pago
+                    </th>
+                    <th class="text-center">
+                        Estado Gasto
+                    </th>
+                    <th class="text-center">
+                        Pago Envio
+                    </th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    string styleVisible = "";
+                    if (item.Visible.Equals("NO"))
                     {
-                        <option value="@vendedor.CodigoSap" data-nombres="@vendedor.Nombres" data-apellidos="@vendedor.Apellidos">@vendedor.Nombres @vendedor.Apellidos</option>
+                        styleVisible = "bg-skyblue";
+
                     }
-                </select>
-                <br />
-                <input type="text" id="CodigovendedorInput" class="form-control bg-success text-white font-weight-bold" readonly>
-                <br />
-                <input type="text" id="NombresvendedorInput" class="form-control bg-success text-white font-weight-bold" readonly>
-                <br />
-                <input type="text" id="ApellidosvendedorInput" class="form-control bg-success text-white font-weight-bold" readonly>
-            </div>
-            <div class="modal-footer">
-                <a id="accion" onclick="enviarDatosTicketReemplazo();" class="btn btn-secondary font-weight-bold text-white">
-                    Enviar
-                </a>
+                    <tr id="fila" class="@styleVisible">
+                        <td class="text-center">
+                            <div class="@if (ViewBag.DocNum == item.DocNum) { Write("bg-success"); }">@Html.DisplayFor(modelItem => item.DocNum)</div>
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.FechaSapTicket)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.HoraAbierto)
+                        </td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(item.CardName)) { Write(item.CardName); }
+                        </td>
+                        <td class="text-center">
+                            @item.Vendedor
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.MontoFinal)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.LugarDestino)
+                        </td>
+                        <td class="text-center">
+                            @if (item.Visible != null && item.Visible.Equals("NO"))
+                            {<span>PRESUPUESTO</span> }
+                            else
+                            {@Html.DisplayFor(modelItem => item.Estado)}
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.EstadoPago)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.EstadoGasto)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.PagoEnv)
+                        </td>
+                        <td class="text-center">
+                            @if (item.Estado.Equals("SEPARADO") || item.Estado.Equals("ABIERTO"))
+                            {
+                                <a href="@Url.Action("EditarTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Editar ticket"><i class="text-primary icon-pencil"></i></a>
+                            }
+                        </td>
+                        <td class="text-center">
+                            @if ((item.Estado.Equals("SEPARADO") || item.Estado.Equals("ABIERTO")) && (ViewBag.IdRol == 1 || ViewBag.IdRol == 6 || ViewBag.IdRol == 7 || ViewBag.IdRol == 12))
+                            {
+                                <a href="#" onclick="cancelarTicket(@item.DocEntry);" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Cancelar ticket"><i class="text-danger icon-bin"></i></a>
+                            }
+                        </td>
+                        <td class="text-center">
+                            @if (item.Estado != "SEPARADO")
+                            {
+                                <a href="@Url.Action( "SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry  } )" type="button" target="_self" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="PDF de ticket"
+                                   onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;">
+                                    <i title="Seguimiento de ticket" class="text-dark icon-truck"></i>
+                                </a>
+                            }
+                        </td>
+                        <td class="text-center">
+                            @if (item.Estado != "SEPARADO")
+                            {
+                                <a href="@Url.Action( "GenerarPDF", "Ventas", new { DocEntry = item.DocEntry  } )" target="_blank" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="PDF de ticket"><i class="text-danger icon-file-pdf"></i></a>
+                            }
+                        </td>
+                        <td class="text-center">
+                            @if (item.Estado == "ENTREGADO")
+                            {
+                                <a href="@Url.Action( "EvidenciaReparto", "Rutas", new { DocEntry = item.DocEntry , TipoRuta="Ventas"} )" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Evidencia"><i class="text-primary icon-image"></i></a>
+                            }
+                        </td>
+
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal para listar vendedores -->
+    <div id="modalVendedores" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-cobefar text-white">
+                    <h5 class="modal-title" id="exampleModalLabel">Selecciona vendedor</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span class="text-white" aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <label for="selectVendedores">Seleccionar vendedor:</label>
+                    <select id="selectVendedores" class="form-control" onchange="seleccionarVendedor(this.value)">
+                        <option value="">Seleccione..</option>
+                        @foreach (var vendedor in usuarios)
+                        {
+                            <option value="@vendedor.CodigoSap" data-nombres="@vendedor.Nombres" data-apellidos="@vendedor.Apellidos">@vendedor.Nombres @vendedor.Apellidos</option>
+                        }
+                    </select>
+                    <br />
+                    <input type="text" id="CodigovendedorInput" class="form-control bg-success text-white font-weight-bold" readonly>
+                    <br />
+                    <input type="text" id="NombresvendedorInput" class="form-control bg-success text-white font-weight-bold" readonly>
+                    <br />
+                    <input type="text" id="ApellidosvendedorInput" class="form-control bg-success text-white font-weight-bold" readonly>
+                </div>
+                <div class="modal-footer">
+                    <a id="accion" onclick="enviarDatosTicketReemplazo();" class="btn btn-secondary font-weight-bold text-white">
+                        Enviar
+                    </a>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<style>
-    .alertify-notifier .ajs-message.ajs-success {
-        background-color: #6495ED;
-    }
+    <style>
+        .alertify-notifier .ajs-message.ajs-success {
+            background-color: #6495ED;
+        }
 
-    .alertify-notifier .ajs-message.ajs-warning {
-        background-color: #FFD700;
-    }
-</style>
+        .alertify-notifier .ajs-message.ajs-warning {
+            background-color: #FFD700;
+        }
+    </style>
 
-<script>
+    <script>
     $(document).ready(function () {
 
         var consultarNuevasSolicitudes = function () {
@@ -451,10 +470,11 @@
                     response.Datos.forEach(function (solicitud) {
                         if (contador < 7) {
 
-                            var mensaje = `<div style="font-size: 13px;margin: 0;padding:0;">
-                                            <div style="text-align:center;font-weigth:700">
+                            var mensaje = `<div style="font-size: 11px;margin: 0;padding:0;">
+                                            <div style="text-align:center;font-weigth:600">
                                             <button class="btn btn-success" id="autorizar-${solicitud.DocNumTicket}" style="font-size: 12px; margin-left: 5px;  color: white; border: none; padding: 3px 8px; border-radius: 3px;"><i class="icon icon-search"></i></button>
-                                            Autorizar ticket N° ${solicitud.DocNumTicket}
+                                            Autorizar ticket N° ${solicitud.DocNumTicket}<br>
+                                            ${solicitud.Vendedor}
                                             </div>
                                             </div>`;
                             var msj = alertify.warning(mensaje);
@@ -601,5 +621,8 @@
                 location.href = '/Ventas/CancelarTicket?DocEntry=' + DocEntry + '&vista=ListadoTicketsVenta';
             }
         });
-    }
-</script>
+        }
+        function redirigirListadoRegularizar() {
+            window.location.href = '@Url.Action("ListadoTicketsAutorizacionRegularizar", "Ventas")';
+        }
+    </script>
