@@ -21,11 +21,6 @@
         border: 2px solid black !important;
     }
 
-        /*  td {
-        word-break: break-all
-    }*/
-
-
         .table-bordered th, .table-bordered td {
             border: 2px solid black !important;
         }
@@ -42,8 +37,6 @@
 
     .impresion {
         width: 100%;
-        /*   margin-left: -4% !important;
-        margin-right: -4% !important;*/
         background-color: white;
     }
 
@@ -107,50 +100,17 @@
             </tr>
         </thead>
         <tbody>
-            @*@if (Model.DetBalanceControladosEgreso != null && Model.DetBalanceControladosEgreso.Count >= 1)
-        {
-            foreach (var det in Model.DetBalanceControladosEgreso)
-            {
-                cantidadTotal += det.CantLote;
-                <tr>
-                    <td class="text-center border p-1"><div style="width: 83px">@det.CodProducto</div></td>
-                    <td class="text-center border p-1" style="word-break: break-all"><div style="width: 100px">@det.NombreGenerico</div></td>
-                    <td class="text-center border p-1"><div style="width: 101px">@det.NombreComercial</div></td>
-                    <td class="text-center border p-1"><div style="width: 111px">@det.RegSanitario</div></td>
-                    <td class="text-center border p-1"><div style="width: 97px; word-break: break-all">@det.Concentracion</div></td>
-                    <td class="text-center border p-1"><div style="width: 108px">@det.FormaPresentacion</div></td>
-                    <td class="text-center border p-1"><div style="width: 110px">@det.FormaFamaceutica</div></td>
-                    <td class="text-center border p-1"><div style="width: 110px">@det.NroLote</div></td>
-                    <td class="text-center border p-1"><div style="width: 83px">@det.CantLote</div></td>
-                    <td class="border p-1"><div class="pl-1 pr-1" style="width: 270px">@det.Establecimiento</div></td>
-                    <td class="text-center border p-1"><div style="width: 85px">@det.RucEstab</div></td>
-                    <td class="border p-1"><div style="width: 225px">@det.CalleJrAvN</div></td>
-                    <td class="text-center border p-1"><div style="width: 92px">@det.Distrito</div></td>
-                    <td class="text-center border p-1"><div style="width: 80px">@det.Provincia</div></td>
-                    <td class="text-center border p-1">@det.Departamento</td>
-                    <td class="text-center border p-1"><div style="width: 115px">@det.NroFactura</div></td>
-                    <td class="text-center border p-1">@det.Fecha</td>
-                </tr>
-            }
-            <tr>
-                <td class="text-center border font-weight-bold font-14" height="45" colspan="8" style="padding-bottom: 0px">TOTAL EGRESOS POR TRIMESTRE</td>
-                <td class="text-center border" style="padding-bottom: 0px">@cantidadTotal</td>
-                <td class="border" colspan="8"></td>
-            </tr>
-        }*@
-
-
             @if (Model.DetBalanceControladosEgreso != null && Model.DetBalanceControladosEgreso.Count >= 1)
             {
                 listaCodProducto.Add(Model.DetBalanceControladosEgreso[0].CodProducto);
-
                 foreach (var det in Model.DetBalanceControladosEgreso)
                 {
 
                     if (listaCodProducto[listaCodProducto.Count - 1].Equals(det.CodProducto))
                     {
                         cantidadTotal += det.CantLote;
-                        <tr>
+                        
+                        <tr class="@(det.NroFactura.Contains("09-") ? "bg-danger text-white" : "")">
                             <td class="text-center border p-1"><div style="width: 83px">@det.CodProducto</div></td>
                             <td class="text-center border p-1" style="word-break: break-all"><div style="width: 100px">@det.NombreGenerico</div></td>
                             <td class="text-center border p-1"><div style="width: 101px">@det.NombreComercial</div></td>
@@ -169,30 +129,6 @@
                             <td class="text-center border p-1"><div style="width: 115px">@det.NroFactura</div></td>
                             <td class="text-center border p-1">@det.Fecha</td>
                         </tr>
-
-
-
-
-
-                        @*<tr>
-                        <td class="text-center border p-1"><div style="width: 68px">@det.CodProducto</div></td>
-                        <td class="text-center border p-1" style="word-break: break-all"><div style="width: 115px">@det.NombreGenerico</div></td>
-                        <td class="text-center border p-1"><div style="width: 101px">@det.NombreComercial</div></td>
-                        <td class="text-center border p-1"><div style="width: 111px">@det.RegSanitario</div></td>
-                        <td class="text-center border p-1"><div style="width: 97px; word-break: break-all">@det.Concentracion</div></td>
-                        <td class="text-center border p-1"><div style="width: 108px">@det.FormaPresentacion</div></td>
-                        <td class="text-center border p-1"><div style="width: 110px">@det.FormaFamaceutica</div></td>
-                        <td class="text-center border p-1"><div style="width: 110px">@det.NroLote</div></td>
-                        <td class="text-center border p-1"><div style="width: 83px">@det.CantLote</div></td>
-                        <td class="border p-1"><div class="pl-1 pr-1" style="width: 270px">@det.Proveedor</div></td>
-                        <td class="text-center border p-1"><div style="width: 85px">@det.RucProveedor</div></td>
-                        <td class="border p-1"><div style="width: 225px">@det.CalleJrAvN</div></td>
-                        <td class="text-center border p-1"><div style="width: 92px">@det.Distrito</div></td>
-                        <td class="text-center border p-1"><div style="width: 80px">@det.Provincia</div></td>
-                        <td class="text-center border p-1">@det.Departamento</td>
-                        <td class="text-center border p-1"><div style="width: 115px">@det.NroFacturaNcredito</div></td>
-                        <td class="text-center border p-1">@det.Fecha</td>
-                    </tr>*@
                     }
                     else
                     {
@@ -233,28 +169,9 @@
                             <td class="text-center border p-1">@det.Fecha</td>
                         </tr>
 
-                        @*<tr>
-                        <td class="text-center border p-1"><div style="width: 68px">@det.CodProducto</div></td>
-                        <td class="text-center border p-1" style="word-break: break-all"><div style="width: 115px">@det.NombreGenerico</div></td>
-                        <td class="text-center border p-1"><div style="width: 101px">@det.NombreComercial</div></td>
-                        <td class="text-center border p-1"><div style="width: 111px">@det.RegSanitario</div></td>
-                        <td class="text-center border p-1"><div style="width: 97px; word-break: break-all">@det.Concentracion</div></td>
-                        <td class="text-center border p-1"><div style="width: 108px">@det.FormaPresentacion</div></td>
-                        <td class="text-center border p-1"><div style="width: 110px">@det.FormaFamaceutica</div></td>
-                        <td class="text-center border p-1"><div style="width: 110px">@det.NroLote</div></td>
-                        <td class="text-center border p-1"><div style="width: 83px">@det.CantLote</div></td>
-                        <td class="border p-1"><div class="pl-1 pr-1" style="width: 270px">@det.Proveedor</div></td>
-                        <td class="text-center border p-1"><div style="width: 85px">@det.RucProveedor</div></td>
-                        <td class="border p-1"><div style="width: 225px">@det.CalleJrAvN</div></td>
-                        <td class="text-center border p-1"><div style="width: 92px">@det.Distrito</div></td>
-                        <td class="text-center border p-1"><div style="width: 80px">@det.Provincia</div></td>
-                        <td class="text-center border p-1">@det.Departamento</td>
-                        <td class="text-center border p-1"><div style="width: 115px">@det.NroFacturaNcredito</div></td>
-                        <td class="text-center border p-1">@det.Fecha</td>
-                    </tr>*@
-
                         cantidadTotal += det.CantLote;
                         listaCodProducto.Add(det.CodProducto);
+                        
                     }
 
                 }
@@ -263,7 +180,10 @@
                     <td class="text-center border"></td>
                     <td class="text-center border"></td>
                     <td class="text-center border font-weight-bold font-14" height="45" colspan="6">TOTAL</td>
-                    <td class="text-center border font-weight-bold" style="font-size: 16px;">@cantidadTotal</td>
+                    <td class="text-center border font-weight-bold" style="font-size: 16px;">
+                        @cantidadTotal
+                    </td>
+
                     <td class="border"></td>
                     <td class="text-center border"></td>
                     <td class="border"></td>
@@ -273,8 +193,8 @@
                     <td class="text-center border"></td>
                     <td class="text-center border"></td>
                 </tr>
-            }
-        </tbody>
+             }
+</tbody>
     </table>
 
     <div class="row" style="margin-top: 200px; page-break-after: always">
