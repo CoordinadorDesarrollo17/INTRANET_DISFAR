@@ -133,7 +133,7 @@ namespace Capa_Datos.Ventas_DAO.Tablas
                 " INNER JOIN " + uti.schemaHana + "RDR1 T2 ON T2.\"DocEntry\" = T1.\"BaseEntry\" AND T2.\"ObjType\" = T1.\"BaseType\"" +
                                                     " AND T2.\"LineNum\" = T1.\"BaseLine\" AND T2.\"DocEntry\" =" + DocEntryOrden +
                 " WHERE T0.\"CANCELED\" = 'N' " +
-                " AND NOT EXISTS (SELECT 1 FROM ORIN WHERE \"U_SYP_MDTO\" || '-' || \"U_SYP_MDSO\" || '-' || \"U_SYP_MDCO\" = T0.\"NumAtCard\" )"+
+                $" AND NOT EXISTS (SELECT 1 FROM {uti.schemaHana}ORIN WHERE \"U_SYP_MDTO\" || '-' || \"U_SYP_MDSO\" || '-' || \"U_SYP_MDCO\" = T0.\"NumAtCard\" )" +
                 " GROUP BY T0.\"DocEntry\",T0.\"DocNum\",T0.\"NumAtCard\",T0.\"Max1099\"";
 
             string query2 = "SELECT T4.\"DocEntry\",T4.\"DocNum\",T4.\"NumAtCard\",T4.\"Max1099\" FROM " + uti.schemaHana + "ODLN T0 " +
@@ -144,7 +144,7 @@ namespace Capa_Datos.Ventas_DAO.Tablas
                                                     " AND T3.\"BaseLine\" = T1.\"LineNum\" " +
                 " INNER JOIN " + uti.schemaHana + "OINV T4 ON T4.\"DocEntry\" = T3.\"DocEntry\" AND T4.\"CANCELED\" = 'N' " +
                 " WHERE T0.\"CANCELED\" = 'N' " +
-                " AND NOT EXISTS (SELECT 1 FROM ORIN WHERE \"U_SYP_MDTO\" || '-' || \"U_SYP_MDSO\" || '-' || \"U_SYP_MDCO\" = T4.\"NumAtCard\" )" +
+                $" AND NOT EXISTS (SELECT 1 FROM {uti.schemaHana}ORIN WHERE \"U_SYP_MDTO\" || '-' || \"U_SYP_MDSO\" || '-' || \"U_SYP_MDCO\" = T4.\"NumAtCard\" )" +
                 " GROUP BY T4.\"DocEntry\",T4.\"DocNum\",T4.\"NumAtCard\",T4.\"Max1099\"";
 
             try
