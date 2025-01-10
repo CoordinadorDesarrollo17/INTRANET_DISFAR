@@ -149,35 +149,6 @@
             );
 
             calcularTotalCajas();
-            //metodo para grabar en la tabla temporal al.TEMP_RRU01 registro de todos los correlativos de documentos (F,B,G,NC,ND), debe retornar html con todos los documentos creados
-            //grabarTempDocumentos(docEntry, docNum, function (htmlTableDocumentos) {
-            //    // Crea un modal de impresión y agréga al cuerpo del documento
-            //    var modalId = "ModalImpresion" + docEntry;
-            //    var modalHtml = "<div class='modal' id='" + modalId + "' tabindex='-1' role='dialog' aria-labelledby='" + modalId + "Label' aria-hidden='true'>" +
-            //        "<div class='modal-dialog modal-dialog-centered modal-lg' role='document'>" +
-            //        "<div class='modal-content'>" +
-            //        "<div class='modal-header bg-cobefar text-white'>" +
-            //        "<h5 class='modal-title' id='" + modalId + "Label'>COMPROBANTES ELECTRÓNICOS IMPRIMIBLES <br>NroTicket : " + docNum + "</h5>" +
-            //        "<button type='button' class='close' data-dismiss='modal' aria-label='Close'>" +
-            //        "<span aria-hidden='true'>&times;</span>" +
-            //        "</button>" +
-            //        "</div>" +
-            //        "<div class='modal-body'>" +
-            //        htmlTableDocumentos +
-            //        "</div>" +
-            //        "<div class='modal-footer'>" +
-            //        "<button type='button' class='btn btn-secondary' data-dismiss='modal'>Cerrar</button>" +
-            //        "<button type='button' class='btn btn-blue' id='btnImp" + docEntry + "' onclick='ImprimirMasivamenteDocumentos(event," + docEntry + ",\"" + modalId + "\")'>" +
-            //        "<i class=''icon icon-printer'> </i> Imprimir todo" +
-            //        "</button>" +
-            //        "</div>" +
-            //        "</div>" +
-            //        "</div>" +
-            //        "</div>";
-            //    $("body").append(modalHtml);
-
-
-            //});
             contDet++;
             return true;
         }
@@ -358,7 +329,7 @@
         </div>
         <div class="row  mt-lg-4">
             <div class="col-lg-3">
-                <label for="TransDesc" class="text-dark form-label font-weight-bold font-18">Transportista:</label>
+                <label for="TransDesc" class="text-dark form-label font-weight-bold font-18">Conductor:</label>
                 @Html.EditorFor(model => model.TransCod, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
                 <select name="TransDesc" id="TransDesc" class="form-control bg-cobefar text-white border-success" onchange="enviarValSelect('TransDesc', 'TransCod','Code');">
                     <option value="" Code="">Seleccione</option>
