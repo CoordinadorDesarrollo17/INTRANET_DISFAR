@@ -186,7 +186,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 sb.Append(" CASE TC.TipoPago WHEN 'PCE' THEN 'PAGO COMPLETO (EFECTIVO)' WHEN 'PMI' THEN 'PAGO MIXTO O INCOMPLETO' WHEN 'PCD' THEN 'PAGO COMPLETO (DEPÓSITO)' WHEN 'SP' THEN 'SIN PAGO' ELSE '' END AS DescTipoPago, TC.Estado");
                 sb.Append(" FROM vt.ORTV VT");
                 sb.Append(" LEFT JOIN cj.OTC TC ON TC.DocEntryTicket = VT.DocEntry");
-                sb.Append($" WHERE VT.Estado != 'SEPARADO' AND TC.Estado != 'RECHAZADO' {condWhere} ORDER BY VT.DocNum DESC");
+                sb.Append($" WHERE VT.Estado != 'SEPARADO' AND (TC.Estado IS NULL OR TC.Estado != 'RECHAZADO')  {condWhere} ORDER BY VT.DocNum DESC");
 
                 string query = sb.ToString();
 
@@ -249,7 +249,6 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 
             return lista;
         }
-
         public List<OTC_E> ListarTicketsACuadrar(OTC_E tc = null)
         {
             List<OTC_E> lista = null;
