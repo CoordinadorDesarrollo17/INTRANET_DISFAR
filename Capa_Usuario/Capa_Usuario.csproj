@@ -610,6 +610,7 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
     <Content Include="Scripts\Rutas\HojaDeReparto.js" />
+    <Content Include="Scripts\Rutas\TransferenciaEntreAlmacenes.js" />
     <Content Include="Scripts\shared\jquery.doubleScroll.js" />
     <Content Include="Scripts\shared\snow.js" />
     <Content Include="Scripts\TI_Sistemas\Usuario.js" />
