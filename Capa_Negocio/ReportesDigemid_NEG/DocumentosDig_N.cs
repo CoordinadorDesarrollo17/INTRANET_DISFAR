@@ -98,26 +98,5 @@ namespace Capa_Negocio.ReportesDigemid_NEG
             return dD.ListaVentasArtLote(f);
         }
         
-        // moetodos de reportes
-        public DataTable tbReporteKardex(FrmKardex_E f)
-        {
-            return dD.tbReporteKardex(f);
-        }
-        public DataTable tbReporteBalanceControladosIngreso(FrmBalanceControlados_E f)
-        {
-            return dD.tbReporteBalanceControladosIngreso(f);
-        }
-        public DataTable tbReporteBalanceControladosEgresos(FrmBalanceControlados_E f)
-        {
-            return dD.tbReporteBalanceControladosEgresos(f);
-        }
-        public DataTable tbReporteBalanceControladosConsolidado(FrmBalanceControlados_E f)
-        {
-            return dD.tbReporteBalanceControladosConsolidado(f);
-        }
-        public DataTable tbReporteLibroControlados(FrmBalanceControlados_E f)
-        {
-            return dD.tbReporteLibroControlados(f);
-        }
     }
 }

@@ -1,11 +1,11 @@
 ﻿@model Capa_Entidad.Rutas_ENT.TablasSql.ORRU_E
-@using Capa_Entidad.Almacen_ENT.Tablas
 @using Capa_Entidad.General_ENT.TablasSql
 
 @{
     ViewBag.Title = "CrearOrdenDeRutaAlm";
     Layout = "~/Views/Shared/_Layout.cshtml";
     List<OWHS_E> lstOriDest = (List<OWHS_E>)ViewBag.ListaOrigenesDestinos;
+    List<OVEH_E> Vehiculos = (List<OVEH_E>)ViewBag.ListaVehiculos;
 
     string urlAction = Url.Action("ListadoRutas", "Rutas"), tituloListado = "Listado de rutas";
     if (ViewBag.TipoRep == "Re")
@@ -136,7 +136,7 @@
         }
     <div class="row mt-4 mb-4">
         <div class="col-lg-3">
-            <label for="TipoRuta" class="text-dark font-weight-bold font-18">TipoRuta:</label>
+            <label for="TipoRuta" class="text-dark font-weight-bold font-18">Tipo de Ruta:</label>
             <select name="TipoRuta" class="form-control bg-cobefar text-white">
                 <option value="TA" selected>Traslado Almacenes</option>
             </select>
@@ -150,18 +150,18 @@
                 <option value="OWTQ">Solicitud de traslado</option>
             </select>
         </div>
+
+        <div class="col-lg-3">
+            <label for="DocNum" class="text-dark form-label font-weight-bold font-18">Nro Documento:</label>
+            @Html.EditorFor(model => model.DocNum, new { htmlAttributes = new { @class = "form-control border-success", @readonly = "true" } })
+        </div>
     </div>
 
         <h3 class="text-cobefar font-weight-bold">ESTADO DE DOCUMENTO</h3>
 
         <div class="row mt-4 mb-4">
             <div class="col-lg-3">
-                <label for="DocNum" class="text-dark form-label font-weight-bold font-18">DocNum:</label>
-                @Html.EditorFor(model => model.DocNum, new { htmlAttributes = new { @class = "form-control border-success", @readonly = "true" } })
-            </div>
-
-            <div class="col-lg-3">
-                <label for="TransDesc" class="text-dark form-label font-weight-bold font-18">TransDesc:</label>
+                <label for="TransDesc" class="text-dark form-label font-weight-bold font-18">Conductor:</label>
                 @Html.EditorFor(model => model.TransCod, new { htmlAttributes = new { @class = "form-control", @type = "hidden", @readonly = "true" } })
                 <select name="TransDesc" id="TransDesc" class="form-control bg-cobefar text-white border-success" onchange="enviarValSelect('TransDesc', 'TransCod','Code');">
                     <option value="" Code="">Seleccione</option>
@@ -173,31 +173,24 @@
             </div>
 
             <div class="col-lg-3">
-                <label for="VehiculoCod" class="text-dark form-label font-weight-bold font-18">VehiculoCod:</label>
-                <select name="VehiculoCod" id="VehiculoCod" class="form-control bg-cobefar text-white"
-                        onchange="enviarValSelect('VehiculoCod', 'Placa', 'U_SYP_VEPL');
-                                        enviarValSelect('VehiculoCod', 'Marca', 'U_SYP_VEMA');
-                                        enviarValSelect('VehiculoCod', 'Modelo', 'U_SYP_VEMO');">
+                <label for="Placa" class="text-dark form-label font-weight-bold font-18">Placa:</label>
+                <select name="Placa" id="Placa" class="form-control bg-cobefar text-white border-success"
+                        onchange="enviarValSelect('Placa', 'VehiculoCod', 'Code');
+                                        enviarValSelect('Placa', 'Marca', 'U_SYP_VEMA');
+                                        enviarValSelect('Placa', 'Modelo', 'U_SYP_VEMO');">
                     <option value="">Seleccione</option>
-                    @foreach (var t in ViewBag.ListaVehiculos)
+                    @foreach (var t in Vehiculos)
                     {
-                        <option value="@t.Code" U_SYP_VEPL="@t.U_SYP_VEPL" U_SYP_VEMA="@t.U_SYP_VEMA" U_SYP_VEMO="@t.U_SYP_VEMO">@t.Code</option>
+                        <option value="@t.U_SYP_VEPL" Code="@t.Code" U_SYP_VEMA="@t.U_SYP_VEMA" U_SYP_VEMO="@t.U_SYP_VEMO">@t.U_SYP_VEPL</option>
                     }
                 </select>
-            </div>
-
-            <div class="col-lg-3">
-                <label for="Placa" class="text-dark form-label font-weight-bold font-18">Placa:</label>
                 @Html.EditorFor(model => model.Marca, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
                 @Html.EditorFor(model => model.Modelo, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
-                @Html.EditorFor(model => model.Placa, new { htmlAttributes = new { @class = "form-control border-success", @readonly = "true" } })
+                @Html.EditorFor(model => model.VehiculoCod, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
             </div>
-        </div>
-
-
-        <div class="row mt-4">
+        
             <div class="col-lg-3">
-                <label for="CopilDesc" class="text-dark form-label font-weight-bold font-18">CopilDesc:</label>
+                <label for="CopilDesc" class="text-dark form-label font-weight-bold font-18">Copiloto 1:</label>
                 @Html.EditorFor(model => model.CopilDesc, new { htmlAttributes = new { @class = "form-control border-success", @type = "search", @list = "ListaCopilotos", @autocomplete = "off" } })
                 <datalist id="ListaCopilotos">
                     @foreach (var c in ViewBag.ListaCopilotos)
@@ -208,30 +201,17 @@
             </div>
 
             <div class="col-lg-3">
-                <label for="Copil2Desc" class="text-dark form-label font-weight-bold font-18">Copil2Desc:</label>
+                <label for="Copil2Desc" class="text-dark form-label font-weight-bold font-18">Copiloto 2:</label>
                 @Html.EditorFor(model => model.Copil2Desc, new { htmlAttributes = new { @class = "form-control border-success", @type = "search", @list = "ListaCopilotos", @autocomplete = "off" } })
             </div>
-
-            @*<div class="col-lg-3">
-                    <label for="Copil3Desc" class="text-dark form-label font-weight-bold font-18">Copil3Desc:</label>
-                    @Html.EditorFor(model => model.Copil3Desc, new { htmlAttributes = new { @class = "form-control border-success", @type = "search", @list = "ListaCopilotos" } })
-                </div>
-
-                <div class="col-lg-3">
-                    <label for="Copil4Desc" class="text-dark form-label font-weight-bold font-18">Copil4Desc:</label>
-                    @Html.EditorFor(model => model.Copil4Desc, new { htmlAttributes = new { @class = "form-control border-success", @type = "search", @list = "ListaCopilotos" } })
-                </div>*@
         </div>
 
 
         <div class="row mt-4">
             <div class="col-lg-3">
-                <label for="FechaCont" class="text-dark form-label font-weight-bold font-18">FechaCont:</label>
-                <input type="date" name="FechaCont" id="FechaCont" class="form-control border-success" />
-            </div>
-
-            <div class="col-lg-3">
-                <label for="FechaDoc" class="text-dark form-label font-weight-bold font-18">FechaDoc:</label>
+                <input type="date" name="FechaCont" id="FechaCont" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control border-success" hidden />
+           
+                <label for="FechaDoc" class="text-dark form-label font-weight-bold font-18">Fecha Documento:</label>
                 <input type="date" name="FechaDoc" class="form-control border-success" readonly />
             </div>
 
@@ -242,7 +222,7 @@
                 <select name="AlmOrigenDesc" id="AlmOrigenDesc" class="form-control bg-cobefar text-white"
                         onchange="enviarValSelect('AlmOrigenDesc', 'AlmOrigenCod','almorigencod');enviarValSelect('AlmOrigenDesc', 'AlmOrigenDesc2','almorigendesc2');">
                     <option value="">Seleccione</option>
-                    @foreach (var l in lstOriDest.Where(x => x.WhsCode != "00"))
+                    @foreach (var l in lstOriDest.Where(x => x.WhsCode != "00"&& x.WhsCode != "05"))
                     {
                         <option value="@l.WhsName" almorigencod="@l.WhsCode" almorigendesc2="@(l.Street+" "+l.StreetNo+" "+l.Building+" "+l.Block+" "+l.City+" "+l.County)">
                             @l.WhsName
@@ -258,7 +238,7 @@
                 <select name="AlmDestinoDesc" id="AlmDestinoDesc" class="form-control bg-cobefar text-white"
                         onchange="enviarValSelect('AlmDestinoDesc', 'AlmDestinoCod','almdestinocod');enviarValSelect('AlmDestinoDesc', 'AlmDestinoDesc2','almdestinodesc2');">
                     <option value="">Seleccione</option>
-                    @foreach (var l in lstOriDest.Where(x => x.WhsCode != "00"))
+                    @foreach (var l in lstOriDest.Where(x => x.WhsCode != "00" && x.WhsCode != "05"))
                     {
                         <option value="@l.WhsName" almdestinocod="@l.WhsCode" almdestinodesc2="@(l.Street+" "+l.StreetNo+" "+l.Building+" "+l.Block+" "+l.City+" "+l.County)">
                             @l.WhsName

@@ -27,18 +27,6 @@
 <div class="bg-form-pestanas-cobefar">
     <div class="bg-section-form p-4 bg-form-cobefar">
         <form>
-            @*<div class="row">
-                <div class="col-lg-3">
-                    <label for="Impresora" class="text-dark form-label font-weight-bold font-18">Impresora: </label>
-                    <select id="Impresora" class="form-control bg-cobefar text-white">
-                        <option value="">Seleccione</option>
-                        <option value="DESPACHO">Despacho</option>
-                        <option value="DESPACHO_1">Despacho 1</option>
-                        <option value="DESPACHO_2">Despacho 2</option>
-                        <option value="DESPACHO_3">Despacho 3</option>
-                    </select>
-                </div>
-            </div>*@
             <div class="row">
                 <div class="col-lg-2">
                     <label for="DocNum" class="text-dark form-label font-weight-bold font-18">Nro Ruta:</label>
@@ -89,11 +77,7 @@
                     @Html.EditorFor(model => model.Placa, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
                 </div>
             </div>
-
-
-            @if (Model.TipoRuta != "AC")
-            {
-                <div class="row mt-4">
+            <div class="row mt-4">
                     <div class="col-lg-3">
                         <label class="text-dark form-label font-weight-bold font-18">Copiloto1:</label>
                         @Html.EditorFor(model => model.CopilDesc, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
@@ -103,18 +87,7 @@
                         <label class="text-dark form-label font-weight-bold font-18">Copiloto2:</label>
                         @Html.EditorFor(model => model.Copil2Desc, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
                     </div>
-
-                    <div class="col-lg-3">
-                        <label class="text-dark form-label font-weight-bold font-18">Copiloto3:</label>
-                        @Html.EditorFor(model => model.Copil3Desc, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
-                    </div>
-                    <div class="col-lg-3">
-                        <label class="text-dark form-label font-weight-bold font-18">Copiloto4:</label>
-                        @Html.EditorFor(model => model.Copil4Desc, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
-                    </div>
-                </div>
-            }
-
+            </div>
             <div class="row mt-4">
                 <div class="col-lg-2">
                     <label class="text-dark form-label font-weight-bold font-18">Fecha Cont:</label>

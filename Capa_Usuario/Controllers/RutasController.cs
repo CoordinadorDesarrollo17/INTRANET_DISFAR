@@ -191,13 +191,11 @@ namespace Capa_Usuario.Controllers
             {
                 var user = (Usuario_E)Session["UsuarioId"];
                 var datosOrdenRuta = orruN.obtenerOrdenDeRuta(DocEntry);
-                var filtrosAlm = Array.Empty<string>();
                 var nombreVista = "EditarOrdenDeRuta";
 
                 if (datosOrdenRuta?.TipoRuta == "TA")
                 {
                     nombreVista = "EditarOrdenDeRuta_TA";
-                    filtrosAlm = new string[] { "01", "02", "03", "04", "09", "ALM07", "ALM08", "CUAR07" };
                 }
 
                 ViewBag.UsuarioSesion = $"{user.Nombres} {user.Apellidos}";
@@ -207,7 +205,7 @@ namespace Capa_Usuario.Controllers
                 ViewBag.ListaVehiculos = ovehN.listaVeh(0, null);
                 ViewBag.ListaCopilotos = ousrN.ListaUsuarios(new Usuario_E { IdRol = 4 });
                 ViewBag.Agencias = new COUR_N().Listar();
-                ViewBag.ListaOrigenesDestinos = owhsN.listarAlmacenes(filtrosAlm);
+                ViewBag.ListaOrigenesDestinos = owhsN.listarAlmacenes();
 
                 return View(nombreVista, datosOrdenRuta);
             }

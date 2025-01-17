@@ -316,7 +316,7 @@ namespace Capa_Usuario.Controllers
 
                 mensaje = (result != null && result.Estado.Equals("VALIDADO")) ? "El ticket ya se encuentra VALIDADO" : otcN.CambiarEstadoTicketACuadrar(tc, "VALIDAR", "C");
             }
-            else { mensaje = "Este ticket no se puede validar"; }
+            else { mensaje = "El ticket no se puede validar"; }
 
             return Json(new { Mensaje = mensaje });
 
@@ -339,7 +339,7 @@ namespace Capa_Usuario.Controllers
 
                 mensaje = (result != null && result.Estado.Equals("AUTORIZADO")) ? "El ticket ya se encuentra AUTORIZADO" : otcN.CambiarEstadoTicketACuadrar(tc, "AUTORIZAR", "V");
             }
-            else { mensaje = "Este ticket no se puede validar"; }
+            else { mensaje = "El ticket no se puede autorizar"; }
 
             return Json(new { Mensaje = mensaje });
         }

@@ -66,14 +66,15 @@
         gap: 10px;
         justify-content: center;
     }
-.modal-body {
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* Centra el contenido del modal horizontalmente */
-}
+
+    .modal-body {
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* Centra el contenido del modal horizontalmente */
+    }
 </style>
 
-@section Scripts{
+
     <script>
      $(document).ready(function () {
             modTabla();
@@ -117,7 +118,7 @@
                 $("#tablaFacturacion th:nth-child(5)").hide();
 
             } else if (LugarDestino === "Domicilio") {
-                //Oculta la 
+                //Oculta la
                 $("#tablaFacturacion tr td:nth-child(11)").hide();
                 $("#tablaFacturacion th:nth-child(11)").hide();
             }
@@ -513,7 +514,7 @@
         }
 
     </script>
-}
+
 
 <div class="pt-4">
     <nav>
@@ -697,7 +698,6 @@
                     <th></th><!--17-->
                     <th></th><!--18-->
                     <th></th><!--19-->
-                    <th></th><!--19-->
                 </tr>
             </thead>
             <tbody class="text-dark">
@@ -713,7 +713,7 @@
                             @Html.DisplayFor(modelItem => item.FechaSapTicket)
                         </td>
                         <td class="font-weight-bold">
-                        @Html.DisplayFor(modelItem => item.DocNum)
+                            @Html.DisplayFor(modelItem => item.DocNum)
                         </td>
                         <td>
                             <span class="pl-2">@Html.DisplayFor(modelItem => item.CardName)</span>
@@ -768,7 +768,7 @@
                         <td>
                             @Html.DisplayFor(modelItem => item.Estado)
                         </td>
-                        
+
                         @if (item.TiempoEntrega != null)
                         {
                             string styleTiempoEntrega = string.Empty;

@@ -79,23 +79,23 @@ namespace Capa_Negocio.Almacen_NEG.TablasSql
             {  //si el detalle devolucion no esta vacio
                 foreach (var obj in detalleDevolucion)
                 {
-                    if (string.IsNullOrEmpty(obj.RefFactura) || obj.RefFactura.Length!=16) { throw new Exception("El producto " + obj.ItemName.Substring(0, 10) + "-" + obj.BatchNum + " no tiene una factura o esta mal ingresada"); }
+                    if (string.IsNullOrEmpty(obj.RefFactura) || obj.RefFactura.Length != 16) { throw new Exception("El producto " + obj.ItemName.Substring(0, 10) + "-" + obj.BatchNum + " no tiene una factura o esta mal ingresada"); }
                     if (obj.Quantity <= 0) { throw new Exception("El producto " + obj.ItemName.Substring(0, 10) + "-" + obj.BatchNum + " tiene una cantidad no valida"); }
                     if (string.IsNullOrEmpty(obj.BatchNum)) { throw new Exception("El producto " + obj.ItemName.Substring(0, 10) + "tiene un lote no valido"); }
                     if (string.IsNullOrEmpty(obj.ExpDate)) { throw new Exception("El producto " + obj.ItemName.Substring(0, 10) + "-" + obj.BatchNum + " tiene una fec venc no valida"); }
                     //solo para articulos existentes
                     if (obj.MaxQuantity > 0)
                     {
-                        decimal MaxQuantityPermitidaPz = obj.MaxQuantity * obj.NumInBuyKey;
-                        decimal MaxQuantityPermitidaOIBTPz = obj.MaxQuantityOIBT * obj.NumInBuyKey;
-                        decimal CantidadIngresadaPz = obj.Quantity * obj.NumInBuy;
+                        decimal MaxQuantityPermitidaPz = Math.Round(obj.MaxQuantity * obj.NumInBuyKey, 2);
+                        decimal MaxQuantityPermitidaOIBTPz = Math.Round(obj.MaxQuantityOIBT * obj.NumInBuyKey, 2);
+                        decimal CantidadIngresadaPz = Math.Round(obj.Quantity * obj.NumInBuy, 2);
                         if (MaxQuantityPermitidaOIBTPz > 0)
                         {
                             if (CantidadIngresadaPz > MaxQuantityPermitidaPz || CantidadIngresadaPz > MaxQuantityPermitidaOIBTPz) { throw new Exception("El producto " + obj.ItemName.Substring(0, 10) + "-" + obj.BatchNum + " excede la cantidad permitida"); }
                         }
                         else
                         {
-                           if (CantidadIngresadaPz > MaxQuantityPermitidaPz) { throw new Exception("El producto " + obj.ItemName.Substring(0, 10) + "-" + obj.BatchNum + " excede la cantidad permitida"); }
+                            if (CantidadIngresadaPz > MaxQuantityPermitidaPz) { throw new Exception("El producto " + obj.ItemName.Substring(0, 10) + "-" + obj.BatchNum + " excede la cantidad permitida"); }
                         }
                     }
 
@@ -125,20 +125,21 @@ namespace Capa_Negocio.Almacen_NEG.TablasSql
                         foreach (var obj in grupo.Value)
                         {
                             //solo para articulos existentes
-                            if (obj.MaxQuantity > 0) { 
-                            //suma y convierte la cantidad ingresada en piezas
-                            SumCantIngPz += obj.Quantity * obj.NumInBuy;
+                            if (obj.MaxQuantity > 0)
+                            {
+                                //suma y convierte la cantidad ingresada en piezas
+                                SumCantIngPz += obj.Quantity * obj.NumInBuy;
 
-                            if (obj.MaxQuantityOIBT > 0)
-                            {
-                                MaxQuantityTotal = obj.MaxQuantityOIBT;
-                            }
-                            else { MaxQuantityTotal = obj.MaxQuantity; }
-                            decimal MaxQuantityPermitidaPz = obj.NumInBuyKey * MaxQuantityTotal;
-                            if (SumCantIngPz > MaxQuantityPermitidaPz)
-                            {
-                                throw new Exception("El producto " + obj.ItemName.Substring(0, 10) + "-" + obj.BatchNum + " supera la cantidad maxima :" + MaxQuantityTotal);
-                            }
+                                if (obj.MaxQuantityOIBT > 0)
+                                {
+                                    MaxQuantityTotal = obj.MaxQuantityOIBT;
+                                }
+                                else { MaxQuantityTotal = obj.MaxQuantity; }
+                                decimal MaxQuantityPermitidaPz = obj.NumInBuyKey * MaxQuantityTotal;
+                                if (Math.Round(SumCantIngPz, 2) > Math.Round(MaxQuantityPermitidaPz, 2))
+                                {
+                                    throw new Exception( obj.ItemName+ " \n Lote: " + obj.BatchNum + "\n Supera la cantidad máxima: " + MaxQuantityTotal);
+                                }
                             }
                         }
                     }
@@ -147,10 +148,10 @@ namespace Capa_Negocio.Almacen_NEG.TablasSql
             }
         }
 
-         public bool VerificarExistenciaDevolucion(Capa_Entidad.Almacen_ENT.ReportesSql.RptFiltrosHistoricoDevoluciones_E filtros)
+        public bool VerificarExistenciaDevolucion(Capa_Entidad.Almacen_ENT.ReportesSql.RptFiltrosHistoricoDevoluciones_E filtros)
         {
-			return orpdD.VerificarExistenciaDevolucion(filtros);
-		}
-        
+            return orpdD.VerificarExistenciaDevolucion(filtros);
+        }
+
     }
 }

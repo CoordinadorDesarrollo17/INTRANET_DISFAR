@@ -10,6 +10,7 @@ using Capa_Entidad.Ventas_ENT;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using System.Windows.Forms;
 using DocumentFormat.OpenXml.Drawing;
+using DocumentFormat.OpenXml.Bibliography;
 
 namespace Capa_Datos.Ventas_DAO.TablasSql
 {
@@ -181,7 +182,6 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             catch (Exception e2) { cn.Close(); throw new Exception("Error en creacion y conexion: " + e2.Message); }
             return status;
         }
-
         //revisado
         public void RegistrarGestionStock(OREG_E reg, OTRC_E obj, SqlTransaction tran = null)
         {
@@ -276,7 +276,6 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 cmd.ExecuteNonQuery();
             }
         }
-
         public void CompromisosStock(List<ORTV_E> listaTickets, SqlTransaction tran)
         {
             OTRC_D otrcD = new OTRC_D();
@@ -285,7 +284,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             var ticketCapturado = listaTickets.DefaultIfEmpty(new ORTV_E { }).First();
             var estado = ticketCapturado.Estado;
             try
-            {
+            {//arma la estructura del datatable no asigna datos 
                 DataTable tablaDatos = new DataTable();
                 tablaDatos.Columns.Add("IdReg", typeof(int));
                 tablaDatos.Columns.Add("StockComp", typeof(decimal));
@@ -311,11 +310,11 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 decimal cantidadDevolviendo = 0;
                 foreach (var ticket in listaTickets)
                 {
-                    if (ticket.Det5.Any())
+                    if (ticket.Det5.Any())//primero entra el descuento por reposicion
                     {
                         foreach (var regalo in ticket.Det5)
-                        {
-                            if (regalo.RegCant < 0 && (estado.Equals("SEPARADO") || estado.Equals("ABIERTO"))) { cantidadDevolviendo = regalo.RegCant; }
+                        {//cuando es reposicion en la generacion de lista unificada se pone como negativo
+                            if (regalo.RegCant < 0 && estado.Equals("ABIERTO")) { cantidadDevolviendo = regalo.RegCant; }
                             else
                             {
                                 // Comprobar si el cliente tiene saldo suficiente considerando si se ha devuelvo en esta misma transaccion
@@ -329,10 +328,10 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                                     throw new Exception("El cliente no tiene saldo suficiente.");
                                 }
                             }
-
+                            //oreg
                             tablaDatos.Rows.Add(regalo.IdReg,
                                 regalo.RegCant);
-
+                            //otrc
                             tablaDatos2.Rows.Add(
                                 regalo.IdReg,
                                 regalo.RegCate + " " + regalo.RegTipo,
@@ -344,7 +343,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                                 regalo.RegCant,
                                 ticket.Vendedor
                                 );
-
+                            //oclr clr1
                             tablaDatos3.Rows.Add(
                                 ticket.CardCode,
                                 regalo.IdReg,
@@ -356,16 +355,18 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 }
 
 
-                RegistroComprometidos(tablaDatos, tran);
 
-                // Registrar la transacción de stock
-                otrcD.RegistrarTransaccionDataTable(tablaDatos2, tran);
 
-                if (estado.Equals("SEPARADO") || estado.Equals("ABIERTO")) { 
+                //solo si esta el ticket en separado o abierto hace compromiso del stock 
+                if (estado.Equals("SEPARADO") || estado.Equals("ABIERTO"))
+                {
+                    //llega 1 comprometido positivo al asignar, llega dos lineas de comprometido, 1 negativo y positivo al editar
+                    RegistroComprometidos(tablaDatos, tran);
                     // Registrar el compromiso con el cliente
-                    oclrD.CompromisoClienteRegaloDataTable(tablaDatos3, tran);
+                    oclrD.CompromisoClienteRegaloDataTable(tablaDatos3, tran);// llega dos lineas en caso de editar, se suma dos numeros y eso se resta al cliente
                 }
-
+                // Registrar la transacción de stock en otrc
+                otrcD.RegistrarTransaccionDataTable(tablaDatos2, tran); //llega dos lineas de asignacion, 1 negativo y positivo al editar
                 status = true;
 
             }
