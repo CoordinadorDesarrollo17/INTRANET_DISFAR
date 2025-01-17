@@ -1,0 +1,314 @@
+﻿@model Capa_Entidad.Rutas_ENT.TablasSql.ORRU_E
+@using Capa_Entidad.General_ENT.TablasSql
+@using Capa_Entidad.Seguridad_ENT
+@{
+    ViewBag.Title = "Editar Transferencia entre almacenes";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string tituloHoja = string.Empty, tituloListado = string.Empty, urlActionBreadcrumb = string.Empty;
+    int btnEditarDetalle = 0;
+
+    List<OWHS_E> lstOriDest = (List<OWHS_E>)ViewBag.ListaOrigenesDestinos;
+    List<Capa_Entidad.Repartos_ENT.TablasHana.SYP_VEHICU_E> Vehiculos = (List<Capa_Entidad.Repartos_ENT.TablasHana.SYP_VEHICU_E>)ViewBag.ListaVehiculos;
+    List<COUR_E> Agencias = new List<COUR_E>(ViewBag.Agencias);
+    List<string> Conductores = new List<string>(ViewBag.Conductores);
+    List<string> Copilotos = new List<string>(ViewBag.ListaCopilotos);
+
+    if (Model.Propietario == ViewBag.UsuarioSesion)
+    {
+        btnEditarDetalle = 1;
+    }
+
+    if (ViewBag.TipoRep == "Re")
+    {
+        tituloHoja = "Editar Transferencia entre Almacenes";
+        tituloListado = "Listado de repartos";
+        urlActionBreadcrumb = Url.Action("ListadoRepartos", "Rutas");
+    }
+    else
+    {
+        tituloHoja = "Editar Hoja de Ruta";
+        tituloListado = "Listado de rutas";
+        urlActionBreadcrumb = Url.Action("ListadoRutas", "Rutas");
+    }
+}
+
+
+<script src="~/Scripts/Rutas/TransferenciaEntreAlmacenes.js?v=@DateTime.Now.Ticks>" defer></script>
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@urlActionBreadcrumb">@tituloListado</a></li>
+            <li class="current"><em>Editar Transferencia</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
+    <div class="d-flex justify-content-between px-3 pt-3">
+        <h3 class="titulo-seccion">@tituloHoja.ToUpper()</h3>
+    </div>
+</div>
+
+
+<div class="bg-form-pestanas-cobefar">
+
+    <div class="bg-section-form p-4 bg-form-cobefar">
+        @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "form" }))
+        {
+            <input name="TipoRep" type="hidden" value="@ViewBag.TipoRep" readonly />
+            <input name="DocEntry" id="doc_entry" type="hidden" value="@Model.DocEntry" readonly />
+            <div class="row mb-4 mt-1">
+                <div class="col-lg-2">
+                    <label for="TipoRuta" class="text-dark form-label font-weight-bold font-18">Tipo de Ruta:</label>
+                    <input type="text" value="@Model.TipoRuta" id="TipoRuta" name="TipoRuta" class="text-center form-control border-success" readonly />
+                </div>
+                <div class="col-lg-2">
+                    <label for="FechaSapTicket" class="text-dark form-label font-weight-bold font-18">Fecha:</label>
+                    <input type="date" class="text-center form-control border-success" name="FechaCont" id="FechaSapTicket" value="@String.Format("{0:yyyy-MM-dd}", Model.FechaCont)" onchange="listarTickets();" />
+                </div>
+
+                <div class="col-lg-2">
+                    <label for="DocNum" class="text-dark form-label font-weight-bold font-18">Número documento:</label>
+                    @Html.EditorFor(model => model.DocNum, new { htmlAttributes = new { @class = "text-center form-control border-success", @readonly = "true" } })
+                </div>
+                <div class="col-lg-2">
+                    <label class="text-dark form-label font-weight-bold font-18">Fecha de registro:</label>
+                    <input type="date" class="text-center form-control border-success" name="FechaDoc" value="@String.Format("{0:yyyy-MM-dd}", Model.FechaDoc)" readonly />
+                </div>
+
+                <div class="col-lg-2">
+                    <label for="Estado" class="text-dark form-label font-weight-bold font-18">Estado:</label>
+                    @Html.EditorFor(model => model.Estado, new { htmlAttributes = new { @class = "text-center form-control border-success", @readonly = "true" } })
+                </div>
+
+            </div>
+            <div class="row mt-lg-4">
+                <div class="col-lg-2" id="div_almacen-origen">
+                    <label class="text-dark form-label font-weight-bold font-18">Almacén de Origen:</label>
+                    <select name="AlmOrigenDesc" id="AlmOrigenDesc" class="form-control bg-cobefar text-white" onchange="enviarValSelect('AlmOrigenDesc', 'AlmOrigenCod', 'AlmOrigenCod'); enviarValSelect('AlmOrigenDesc', 'AlmOrigenDesc2', 'AlmOrigenDesc2'); listarTickets(); ">
+                        <option value="">Seleccione</option>
+                        @foreach (var l in lstOriDest)
+                        {
+                            <option value="@l.WhsName" AlmOrigenCod="@l.WhsCode"
+                                    AlmOrigenDesc2="@(l.Street + " " + l.StreetNo + " " + l.Building + " " + l.Block + " " + l.City + " " + l.County)" @if (Model.AlmOrigenCod == l.WhsCode) { Write("selected"); }>
+                                @l.WhsName
+                            </option>
+                        }
+                    </select>
+                    @Html.EditorFor(model => model.AlmOrigenCod, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+                    @Html.EditorFor(model => model.AlmOrigenDesc2, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+                </div>
+
+
+                <div class="col-lg-2" id="div_almacen-destino">
+                    <label class="text-dark form-label font-weight-bold font-18">Almacén de Destino:</label>
+                    <select name="AlmDestinoDesc" id="AlmDestinoDesc" class="form-control bg-cobefar text-white" onchange="enviarValSelect('AlmDestinoDesc', 'AlmDestinoCod', 'almdestinocod'); enviarValSelect('AlmDestinoDesc', 'AlmDestinoDesc2', 'almdestinodesc2'); listarTickets();">
+                        <option value="">Seleccione</option>
+                        @foreach (var l in lstOriDest)
+                        {
+                            <option value="@l.WhsName" almdestinocod="@l.WhsCode"
+                                    almdestinodesc2="@(l.Street + " " + l.StreetNo + " " + l.Building + " " + l.Block + " " + l.City + " " + l.County)" @if (Model.AlmDestinoCod == l.WhsCode) { Write("selected"); }>
+                                @l.WhsName
+                            </option>
+                        }
+                    </select>
+                    @Html.EditorFor(model => model.AlmDestinoCod, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+                    @Html.EditorFor(model => model.AlmDestinoDesc2, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+                </div>
+                <div class="col-lg-2">
+                    <label for="VehiculoCod" class="text-dark form-label font-weight-bold font-18">Placa:</label>
+                    <select name="VehiculoCod" id="VehiculoCod" class="form-control bg-cobefar text-white"
+                            onchange="enviarValSelect('VehiculoCod', 'Placa', 'U_SYP_VEPL'); enviarValSelect('VehiculoCod', 'Marca', 'U_SYP_VEMA'); enviarValSelect('VehiculoCod', 'Modelo', 'U_SYP_VEMO');">
+                        <option value="">Seleccione</option>
+                        @foreach (var t in Vehiculos)
+                        {
+                            <option value="@t.Code" U_SYP_VEPL="@t.U_SYP_VEPL" U_SYP_VEMA="@t.U_SYP_VEMA" U_SYP_VEMO="@t.U_SYP_VEMO" @if (Model.VehiculoCod == t.Code) { Write("selected"); }>@t.U_SYP_VEPL</option>
+                        }
+                    </select>
+                </div>
+
+                @Html.EditorFor(model => model.Placa, new { htmlAttributes = new { @class = "text-center form-control border-success", @type = "hidden", @readonly = "true" } })
+                @Html.EditorFor(model => model.Marca, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+                @Html.EditorFor(model => model.Modelo, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+
+
+                <div class="col-lg-3">
+                    <label for="Propietario" class="text-dark form-label font-weight-bold font-18">Propietario:</label>
+                    @Html.EditorFor(model => model.Propietario, new { htmlAttributes = new { @class = "text-center form-control border-success", @readonly = "true" } })
+                </div>
+            </div>
+            <div class="row mt-lg-4">
+                <div class="col-lg-2">
+                    <label for="TransDesc" class="text-dark form-label font-weight-bold font-18">Conductor:</label>
+                    <select name="TransDesc" id="TransDesc" class="form-control bg-cobefar text-white">
+                        <option value="">Seleccione</option>
+                        @foreach (var x in Conductores)
+                        {
+                            <option value="@x" @if (Model.TransDesc == x) { Write("selected"); }>@x</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-lg-2">
+                    <label for="CopilDesc" class="text-dark form-label font-weight-bold font-18">Copiloto 1:</label>
+                    @Html.EditorFor(model => model.CopilDesc, new
+               {
+                   htmlAttributes = new
+                   {
+                       @type = "search",
+                       @class = "text-center form-control border-success",
+                       @list = "ListaCopilotos",
+                       @autocomplete = "off"
+                   }
+               })
+                    <datalist id="ListaCopilotos">
+                        @foreach (var x in Copilotos)
+                        {
+                            <option value="@x.ToUpper()"></option>
+                        }
+                    </datalist>
+                </div>
+                <div class="col-lg-2">
+                    <label for="Copil2Desc" class="text-dark form-label font-weight-bold font-18">Copiloto 2:</label>
+                    @Html.EditorFor(model => model.Copil2Desc, new
+               {
+                   htmlAttributes = new
+                   {
+                       @type = "search",
+                       @class = "text-center form-control border-success",
+                       @list = "ListaCopilotos",
+                       @autocomplete = "off"
+                   }
+               })
+                </div>
+
+                <div class="col-lg-2">
+                    <label class="text-dark form-label font-weight-bold font-18">Tiempo pactado: </label>
+                    <input type="datetime-local" class="text-center form-control border-success" name="TiempoPac" id="TiempoPac" value="@Convert.ToDateTime(Model.TiempoPac).ToString("yyyy-MM-ddTHH:mm:ss")" />
+                </div>
+                <div class="col-lg-1">
+                    <label for="TotalCajas" class="text-dark form-label font-weight-bold font-18"># Cajas:</label>
+                    <input id="TotalCajas" type="text" class="text-center form-control border-success" value="@Model.TotCajas()" readonly />
+                </div>
+                <div class="col-lg-3">
+                    <label for="Observaciones" class="text-dark form-label font-weight-bold font-18">Observaciones:</label>
+                    @Html.EditorFor(model => model.Observaciones, new { htmlAttributes = new { @class = "form-control border-success", @autocomplete = "off" } })
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <table class="table table-hover  table-bordered" cellspacing="0" width="100%" id="Detalles1">
+                    @if (Model.DetRRU1 != null && Model.DetRRU1.Count > 0)
+                    {
+                        <thead class="bg-success">
+                            <tr>
+                                <th class="text-center">#</th>
+                                <th class="text-center">Guia</th>
+                                <th class="text-center">NroSap</th>
+                                <th class="text-center">Cajas</th>
+                                <th class="text-center">Estado</th>
+                                <th class="text-center">Verif.</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var det in Model.DetRRU1)
+                            {
+                                string style1 = det.Estado == "LIBERADO" ? "background:lightgray;" : "";
+                                <tr id="reg@(det.Linea)" class="cls-colorFilaGuia" style="@style1" onclick="listarDetalleGuia(@det.DocEntry, @det.Linea, this.id, @btnEditarDetalle)">
+                                    <td class="text-center">
+                                        <input name="DetRRU1[@(det.Linea - 1)].Linea" type="hidden" value="@det.Linea" readonly />@det.Linea
+                                    </td>
+                                    <td class="text-center">
+                                        <input name="DetRRU1[@(det.Linea - 1)].Guia" type="hidden" value="@det.Guia" readonly />@det.Guia
+                                    </td>
+                                    <td class="text-center">
+                                        <input name="DetRRU1[@(det.Linea - 1)].NroSap" type="hidden" value="@det.NroSap" readonly />@det.NroSap
+                                    </td>
+                                    <td class="text-center">
+                                        <input name="DetRRU1[@(det.Linea - 1)].Cajas" type="hidden" value="@det.Cajas" readonly />@det.Cajas
+                                    </td>
+                                    <td class="text-center">
+                                        <input name="DetRRU1[@(det.Linea - 1)].Estado" type="hidden" value="@det.Estado" readonly />@det.Estado
+                                    </td>
+                                    <td class="text-center">
+                                        <input name="DetRRU1[@(det.Linea - 1)].Verificado" type="checkbox" style="width:50px;" disabled />
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    }
+                    else
+                    {
+                        <tbody>
+                            <tr>
+                                <td colspan="6" class="text-center">No existen datos para mostrar</td>
+                            </tr>
+                        </tbody>
+                    }
+                </table>
+            </div>
+        }
+
+            @if (Model.DetRRU11 != null && Model.DetRRU11.Count > 0)
+            {
+                <form id="frm_detalle" name="frm2_detalle">
+                    <input type="hidden" id="baselinea_RRU11" name="baselinea_RRU11" value="" />
+                    <!--Botones-->
+                    <div class="row d-flex justify-content-end">
+                        <div class="col-lg-5 d-flex justify-content-end">
+                            @if (btnEditarDetalle == 1)
+                            {
+                                <button type="button" class="btn btn-info ml-2" onclick="editarDetalle();"><i class="icon icon-pencil2"></i> Editar Detalle</button>
+                            }
+                            <button type="button" class="btn btn-cobefar-2 ml-2" onclick="validarEnviarFormulario('@Model.Estado');"> <i class="icon icon-pencil2"> </i> Editar Encabezado</button>
+                        </div>
+                    </div>
+
+
+                    <div class="row mt-lg-4">
+                        <div class="col-lg-12">
+                            <table id="tbl_detRRu11" class="table table-bordered table-hover table-secondary">
+                                <thead class="bg-dark">
+                                    <tr>
+                                        <th class="text-center">Baselinea</th>
+                                        <th class="text-center">Línea</th>
+                                        <th class="text-center">Producto</th>
+                                        <th class="text-center">Lote</th>
+                                        <th class="text-center">Cant.</th>
+                                        <th class="text-center">Lab.</th>
+                                        <th class="text-center">Unid.Med.</th>
+                                        <th class="text-center">CajasMaster</th>
+                                    </tr>
+                                </thead>
+                                <tbody style="background-color: #e9ecef">
+                                    <tr>
+                                        <td colspan="8" class="text-center">No existen datos para mostrar</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </form>
+                    }
+               
+
+
+            
+
+        </div>
+</div>
+
+
+@if (!string.IsNullOrEmpty(ViewBag.Mensaje))
+{
+    <script>
+     var mensaje = '@Html.Raw(ViewBag.Mensaje)';
+        Swal.fire({
+            text: mensaje,
+            showConfirmButton: false,
+            timer: 2000
+        });
+    </script>
+
+}
+
