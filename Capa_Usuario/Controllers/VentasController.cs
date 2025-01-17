@@ -141,7 +141,6 @@ namespace Capa_Usuario.Controllers
                 return Json(new { Mensaje = e.Message });
             }
         }
-        //buscarTicketAVincular en TicketVenta.js
         public JsonResult buscarTicketAVincular(int DocNum = 0)
         {
             ORTV_N ortvN = new ORTV_N();
@@ -3659,8 +3658,6 @@ namespace Capa_Usuario.Controllers
                 return File(libro.GetAsByteArray(), excelContentType, nombreArchivo);
             }
         }
-
-
 
         /**********Documentos imprimibles para el proceso de tickets (OPERACIONES) **************/
         public ActionResult PdfTacoComentarios(int DocEntry)

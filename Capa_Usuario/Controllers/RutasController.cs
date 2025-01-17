@@ -196,6 +196,7 @@ namespace Capa_Usuario.Controllers
                 if (datosOrdenRuta?.TipoRuta == "TA")
                 {
                     nombreVista = "EditarOrdenDeRuta_TA";
+                    //filtrosAlm = new string[] { "01", "02", "03", "04", "09", "ALM07", "ALM08", "CUAR07" };
                 }
 
                 ViewBag.UsuarioSesion = $"{user.Nombres} {user.Apellidos}";
