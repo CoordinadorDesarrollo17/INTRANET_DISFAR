@@ -35,7 +35,8 @@ namespace Capa_Datos
 
             // HANA Database Configuration
             this.cadHana = "Server=172.16.55.36:30015;UserName=B1ADMIN;Password=Passw0rd;";
-            this.schemaHana = "\"BASE_04_11_2024\".";
+            //this.schemaHana = "\"BASE_04_11_2024\".";
+            this.schemaHana = "\"B1H_COBEFAR_2018\".";
 
             //Hana On Premise 
             this.cadHanaOnPremise = "Server=192.168.1.37:30015;UserName=B1ADMIN;Password=Passw0rd;";
@@ -46,7 +47,8 @@ namespace Capa_Datos
             this.userSql = "sa";
             this.passwordSql = "@Ndr@de123";
             //this.BDsql = "INTRANET_V2";
-            this.BDsql = "BASE_131224";
+            //this.BDsql = "BASE_131224";
+            this.BDsql = "BASE_110924";
 
             this.cadSql = $@"Server={this.serverSql};" +
                           $"Database={this.BDsql};" +

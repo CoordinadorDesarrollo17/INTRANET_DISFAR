@@ -49,6 +49,19 @@ function actualizarCajas() {
     } else { return null; }
 }
 
+function validar() {
+    var form = $("#form");
+    $.ajax('/Rutas/validarNuevaHojaDeRepartoOTransferencia', {
+        data: form.serialize(),
+        dataType: 'html',
+        cache: false,
+        type: 'post'
+    })
+        .done(function (response) {
+            Swal.fire(response);
+        });
+}
+
 function listarGuias() {
     $(".select-guias").html();
     var htm = "<option value='' DocNum='' NumAtCard=''>Seleccione</option>";
@@ -69,35 +82,6 @@ function listarGuias() {
             });
             $(".select-guias").html(htm);
         })
-}
-
-function validarEnviarFormulario(estado) {
-    var object = $("#form").serialize();
-    if (estado === 'CREADO') {
-        $.ajax('/Rutas/validarDatosEncabezadoRuta',
-            {
-                data: object,
-                dataType: 'html',
-                cache: false,
-                type: 'post'
-            })
-            .done(function (response) {
-                if (response != "OK") { swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false }
-                else { $("#form").submit(); }
-            });
-    } else {
-        $.ajax('/Rutas/validarNuevaHojaDeRepartoOTransferencia',
-            {
-                data: object,
-                dataType: 'html',
-                cache: false,
-                type: 'post'
-            })
-            .done(function (response) {
-                if (response != "OK") { swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false }
-                else { swal.fire({ title: 'Validado correctamente', text: "Presione OK para continuar", icon: "success" }); return true }
-            });
-    }
 }
 
 /*funciones de edicion*/
@@ -140,3 +124,31 @@ function editarDetalle() {
     });
 }
 
+function validarEnviarFormulario(estado) {
+    var object = $("#form").serialize();
+    if (estado === 'CREADO') {
+        $.ajax('/Rutas/validarDatosEncabezadoRuta',
+            {
+                data: object,
+                dataType: 'html',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                if (response != "OK") { swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false }
+                else { $("#form").submit(); }
+            });
+    } else {
+        $.ajax('/Rutas/validarNuevaHojaDeRepartoOTransferencia',
+            {
+                data: object,
+                dataType: 'html',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                if (response != "OK") { swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false }
+                else { $("#form").submit(); }
+            });
+    }
+}

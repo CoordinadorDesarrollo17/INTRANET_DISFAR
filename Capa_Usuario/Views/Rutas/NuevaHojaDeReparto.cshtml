@@ -103,7 +103,7 @@
             <select name="AlmOrigenDesc" id="AlmOrigenDesc" class="form-control bg-cobefar text-white"
                     onchange="enviarValSelect('AlmOrigenDesc', 'AlmOrigenCod', 'almorigencod'); enviarValSelect('AlmOrigenDesc', 'AlmOrigenDesc2', 'almorigendesc2'); listarTickets('');">
                 <option value="">Seleccione</option>
-                @foreach (var l in lstOriDest.Where(x => x.WhsCode == "10" || x.WhsCode == "ALM07" || x.WhsCode == "17"))
+                @foreach (var l in lstOriDest.Where(x => x.WhsCode == "15" || x.WhsCode == "ALM07" || x.WhsCode == "16"))
                     {
                 <option value="@l.WhsName" almorigencod="@l.WhsCode" almorigendesc2="@(l.Street+" "+l.StreetNo+" "+l.Building+" "+l.Block+" "+l.City+" "+l.County)">
                     @l.WhsName

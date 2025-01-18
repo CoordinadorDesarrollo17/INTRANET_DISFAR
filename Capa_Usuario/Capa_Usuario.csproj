@@ -639,6 +639,7 @@
     <Compile Include="Controllers\ComprobantesContablesController.cs" />
     <Compile Include="Controllers\DireccionTecnicaController.cs" />
     <Compile Include="Controllers\IndexController.cs" />
+    <Compile Include="Controllers\RepartosController.cs" />
     <Compile Include="Controllers\ReportesDigemidController.cs" />
     <Compile Include="Controllers\RutasController.cs" />
     <Compile Include="Controllers\TI_SistemasController.cs" />
@@ -1000,6 +1001,10 @@
     <Content Include="Views\Shared\TI_Sistemas\AsignacionPermisos.cshtml" />
     <Content Include="Views\Ventas\LayoutFactura.cshtml" />
     <Content Include="Views\Ventas\ListadoTicketsAutorizacionRegularizar.cshtml" />
+    <Content Include="Views\Rutas\EditarTransferenciaEntreAlmacenes.cshtml" />
+    <Content Include="Views\Rutas\NuevaHojaDeReparto.cshtml" />
+    <Content Include="Views\Rutas\NuevaTransferenciaEntreAlmacenes.cshtml" />
+    <Content Include="Views\Rutas\EditarHojaDeReparto.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

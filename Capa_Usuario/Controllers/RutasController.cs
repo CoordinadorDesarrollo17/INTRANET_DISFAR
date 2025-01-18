@@ -116,19 +116,24 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-        public ActionResult CrearOrdenDeRuta(string TipoRep, int idOperation = 202)
+        private void CapturarViewBag(string tipoRep, string[] filtrosAlm = null, string mensaje = "", int filas = 30)
+        {
+            ViewBag.Mensaje = mensaje;
+            ViewBag.TipoRep = tipoRep;
+            ViewBag.Conductores = new Capa_Negocio.Repartos_NEG.TablasHana.SYP_CONDUC_N().listar();
+            ViewBag.ListaVehiculos = new Capa_Negocio.Repartos_NEG.TablasHana.SYP_VEHICU_N().listar();
+            ViewBag.ListaCopilotos = ousrN.listaCopilotos();
+            ViewBag.ListaOrigenesDestinos = owhsN.listarAlmacenes(filtrosAlm ?? Array.Empty<string>());
+            ViewBag.Filas = filas;
+        }
+        public ActionResult NuevaTransferenciaEntreAlmacenes(string TipoRep, int idOperation = 205)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
 
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                OCHO_N ochoN = new OCHO_N();
-                ViewBag.Mensaje = string.Empty;
-                ViewBag.TipoRep = TipoRep;
-                ViewBag.ListaChoferes = ochoN.listaChoferes(0, null);
-                ViewBag.ListaVehiculos = ovehN.listaVeh(0, null);
-                ViewBag.ListaCopilotos = ousrN.ListaUsuarios(new Usuario_E { IdRol = 55 });
-                ViewBag.ListaOrigenesDestinos = owhsN.listarAlmacenes();
+                var filtrosAlm = new string[] { "01", "02", "03", "04", "09", "17", "10", "ALM08", "CUAR07", "ALM07","16" };
+                CapturarViewBag(TipoRep, filtrosAlm);
                 return View(new ORRU_E());
             }
             else
@@ -137,7 +142,7 @@ namespace Capa_Usuario.Controllers
             }
         }
         [HttpPost]
-        public ActionResult CrearOrdenDeRuta(string TipoRep, ORRU_E o, int idOperation = 202)
+        public ActionResult NuevaTransferenciaEntreAlmacenes(ORRU_E o, string TipoRep, int idOperation = 205)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
 
@@ -147,34 +152,15 @@ namespace Capa_Usuario.Controllers
                 {
                     Usuario_E user = (Usuario_E)Session["UsuarioId"];
                     o.Propietario = $"{user.Nombres} {user.Apellidos}";
-                    int DocNum = orruN.CrearOrdenDeRuta(o);
-                    //ELIMINO LOS COMPROBANTES QUE SE RELACIONAN CON LOS TICKETS DE LA RUTA DESDE LA TABLA AL.TEMP_RRU01
-                    if (DocNum > 0)
-                    {
-                        TEMP_RRU01_N tempNeg = new TEMP_RRU01_N();
-                        foreach (var tk in o.DetRRU0)
-                        {
-                            tempNeg.Eliminar(tk.DocEntryTicket);
-                        }
-                    }
-                    if (TipoRep == "Re")
-                    {
-                        return RedirectToAction("ListadoRepartos", new { DocNum = DocNum });
-                    }
-                    else
-                    {
-                        return RedirectToAction("ListadoRutas", new { DocNum = DocNum });
-                    }
+                    int DocNum = orruN.NuevaHojaDeReparto(o);
+                    return TipoRep == "Re"
+                        ? RedirectToAction("ListadoRepartos", new { DocNum })
+                        : RedirectToAction("ListadoRutas", new { DocNum });
                 }
-                catch (Exception e)
+                catch
                 {
-                    OCHO_N ochoN = new OCHO_N();
-                    ViewBag.Mensaje = e.Message;
-                    ViewBag.ListaChoferes = ochoN.listaChoferes(0, null);
-                    ViewBag.ListaVehiculos = ovehN.listaVeh(0, null);
-                    ViewBag.ListaCopilotos = ousrN.ListaUsuarios(new Usuario_E { IdRol = 4 });
-                    ViewBag.ListaOrigenesDestinos = owhsN.listarAlmacenes();
-                    return View(new { TipoRep = TipoRep });
+                    CapturarViewBag(TipoRep);
+                    return View(o);
                 }
             }
             else
@@ -182,8 +168,48 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+        public ActionResult NuevaHojaDeReparto(string TipoRep, int idOperation = 202)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
 
-        public ActionResult EditarOrdenDeRuta(int DocEntry, string TipoRep, int idOperation = 203)
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                CapturarViewBag(TipoRep);
+                return View(new ORRU_E());
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
+        [HttpPost]
+        public ActionResult NuevaHojaDeReparto(ORRU_E o, string TipoRep, int idOperation = 202)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                try
+                {
+                    Usuario_E user = (Usuario_E)Session["UsuarioId"];
+                    o.Propietario = $"{user.Nombres} {user.Apellidos}";
+                    int DocNum = orruN.NuevaHojaDeReparto(o);
+                    return TipoRep == "Re"
+                        ? RedirectToAction("ListadoRepartos", new { DocNum })
+                        : RedirectToAction("ListadoRutas", new { DocNum });
+                }
+                catch (Exception e)
+                {
+                    CapturarViewBag(TipoRep, mensaje: e.Message);
+                    return View(new { TipoRep });
+                }
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
+        public ActionResult EditarHojaDeReparto(int DocEntry, string TipoRep, int idOperation = 203)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
 
@@ -191,22 +217,17 @@ namespace Capa_Usuario.Controllers
             {
                 var user = (Usuario_E)Session["UsuarioId"];
                 var datosOrdenRuta = orruN.obtenerOrdenDeRuta(DocEntry);
-                var nombreVista = "EditarOrdenDeRuta";
+                var filtrosAlm = Array.Empty<string>();
+                var nombreVista = "EditarHojaDeReparto";
 
                 if (datosOrdenRuta?.TipoRuta == "TA")
                 {
-                    nombreVista = "EditarOrdenDeRuta_TA";
-                    //filtrosAlm = new string[] { "01", "02", "03", "04", "09", "ALM07", "ALM08", "CUAR07" };
+                    nombreVista = "EditarTransferenciaEntreAlmacenes";
+                    filtrosAlm = new string[] { "01", "02", "03", "04", "09", "17", "10", "ALM08", "CUAR07", "ALM07" };
                 }
 
+                CapturarViewBag(TipoRep, filtrosAlm, mensaje: string.Empty);
                 ViewBag.UsuarioSesion = $"{user.Nombres} {user.Apellidos}";
-                ViewBag.Mensaje = string.Empty;
-                ViewBag.TipoRep = TipoRep;
-                ViewBag.ListaChoferes = new OCHO_N().listaChoferes(0, null);
-                ViewBag.ListaVehiculos = ovehN.listaVeh(0, null);
-                ViewBag.ListaCopilotos = ousrN.ListaUsuarios(new Usuario_E { IdRol = 4 });
-                ViewBag.Agencias = new COUR_N().Listar();
-                ViewBag.ListaOrigenesDestinos = owhsN.listarAlmacenes();
 
                 return View(nombreVista, datosOrdenRuta);
             }
@@ -217,7 +238,7 @@ namespace Capa_Usuario.Controllers
         }
 
         [HttpPost]
-        public ActionResult EditarOrdenDeRuta(ORRU_E o, string TipoRep, int idOperation = 203)
+        public ActionResult EditarHojaDeReparto(ORRU_E o, string TipoRep, int idOperation = 203)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
 
@@ -225,29 +246,17 @@ namespace Capa_Usuario.Controllers
             {
                 try
                 {
-                    ViewBag.Mensaje = "";
-                    ViewBag.TipoRep = TipoRep;
                     Usuario_E user = (Usuario_E)Session["UsuarioId"];
                     o.Propietario = $"{user.Nombres} {user.Apellidos}";
-                    int DocNum = orruN.EditarEncabezadoOrdenDeRuta(o);
-                    if (TipoRep == "Re")
-                    {
-                        return RedirectToAction("ListadoRepartos", new { DocNum = DocNum });
-                    }
-                    else
-                    {
-                        return RedirectToAction("ListadoRutas", new { DocNum = DocNum });
-                    }
+                    int DocNum = orruN.EditarHojaDeReparto(o);
+                    return TipoRep == "Re"
+                        ? RedirectToAction("ListadoRepartos", new { DocNum })
+                        : RedirectToAction("ListadoRutas", new { DocNum });
                 }
                 catch (Exception e)
                 {
-                    OCHO_N ochoN = new OCHO_N(); COUR_N courN = new COUR_N();
-                    ViewBag.Mensaje = e.Message;
-                    ViewBag.ListaChoferes = ochoN.listaChoferes(0, null);
-                    ViewBag.ListaVehiculos = ovehN.listaVeh(0, null);
-                    ViewBag.ListaCopilotos = ousrN.ListaUsuarios(new Usuario_E { IdRol = 4 });
-                    ViewBag.ListaOrigenesDestinos = owhsN.listarAlmacenes();
-                    ViewBag.Agencias = courN.Listar();
+                    CapturarViewBag(TipoRep, mensaje: e.Message);
+                    ViewBag.Agencias = new COUR_N().Listar();
                     return View(orruN.obtenerOrdenDeRuta(o.DocEntry));
                 }
             }
@@ -256,76 +265,19 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-        public ActionResult agregarRRU0(RRU0_E o, int idOperation = 203)
+
+        public ActionResult AgregarRRU0(RRU0_E o, int idOperation = 203)
         {
             string acceso = AccesoHelper.VerificarAccesos(idOperation, (Usuario_E)Session["UsuarioId"], this.ControllerContext.RouteData.Values["action"].ToString(), Request.UserHostAddress, Request.UserHostName);
 
             if (acceso == "C_Access")
             {
-                RRU0_N rru0N = new RRU0_N(); TEMP_RRU01_N tempNeg = new TEMP_RRU01_N(); RRU01_N rru01N = new RRU01_N(); ORRU_N orruN = new ORRU_N();
+                RRU0_N rru0N = new RRU0_N();
                 try
                 {
                     Usuario_E user = (Usuario_E)Session["UsuarioId"];
                     o.Operario = $"{user.Nombres} {user.Apellidos}";
-                    //var r = orruN.obtenerOrdenDeRuta(o.DocEntry);
-                    //if (r.TipoRuta == "VD" || r.TipoRuta == "VA" || r.TipoRuta == "VC" || r.TipoRuta == "VG")
-                    //{
-                    //    //obtiene del temp los documentos comprobantes nuevos que han sido agregados
-                    //    List<TEMP_RRU01_E> listaTemp = tempNeg.Obtener(o.DocEntryTicket);
-                    //    List<string> list = new List<string>(); List<TEMP_RRU01_E> tempPri = new List<TEMP_RRU01_E>();
-                    //    if (listaTemp.Count > 0)
-                    //    {
-                    //        foreach (var e in listaTemp)
-                    //        {
-                    //            if (e.Impreso == 0)
-                    //            {
-                    //                //lista de correlativos que no se imprimieron segun tabla temporal
-                    //                list.Add(e.U_SYP_MDTD + "-" + e.U_SYP_MDSD + "-" + e.U_SYP_MDCD);
-                    //            }
-                    //            else { tempPri.Add(e); }
-                    //        }
-                    //    }
-                    //    if (list.Count > 0)
-                    //    {
-                    //        for (int i = 0; i < list.Count; i++)
-                    //        {
-                    //            //busca el elemento en la tabla top 1 para saber si fue impreso antes
-                    //            RRU01_E rru01E = rru01N.BuscarCorrelativo(list[i]);
-                    //            if (rru01E.Id == 0)
-                    //            {
-                    //                //return Content("El ticket en linea " + o.Linea + " tiene documentos que no se han impreso. No puede agregar sin antes imprimir.");
-                    //            }
-
-                    //        }
-                    //    }
-                    //    if (tempPri != null && tempPri.Count > 0)
-                    //    {
-                    //        rru0N.agregarRRU0(o);
-                    //        foreach (var i in tempPri)
-                    //        {
-                    //            RRU01_E x = new RRU01_E { DocEntryORRU = o.DocEntry, DocEntryTicket = o.DocEntryTicket, TablaSAP = i.TablaSAP, Identificador = i.Identificador, U_BPP_FECINITRA = i.U_BPP_FECINITRA, U_SYP_MDTD = i.U_SYP_MDTD, U_SYP_MDSD = i.U_SYP_MDSD, U_SYP_MDCD = i.U_SYP_MDCD, DocDate = i.DocDate, Impreso = 1, Estado = "VIGENTE", Operario = o.Operario, FechaOperación = DateTime.Now.ToString("yyyy-MM-dd"), HoraOperación = DateTime.Now.ToString("HH:mm:ss") };
-                    //            rru01N.Agregar(x);
-                    //        }
-                    //        //eliminar documentos del temporal
-                    //        TEMP_RRU01_N temprru01N = new TEMP_RRU01_N();
-                    //        List<TEMP_RRU01_E> tempPriDistinct = tempPri
-                    //        .GroupBy(e => e.DocEntryTicket)
-                    //        .Select(group => group.First())
-                    //        .ToList();
-                    //        foreach (var j in tempPriDistinct)
-                    //        {
-                    //            temprru01N.Eliminar(j.DocEntryTicket);
-                    //        }
-                    //    }
-                    //    else
-                    //    {
-                    //        return Content("Error en grabacion de ticket: " + o.DocNumTicket + " dentro de ruta");
-                    //    }
-                    //}
-                    //else
-                    //{
-                    rru0N.agregarRRU0(o);
-                    //}
+                    rru0N.AgregarRRU0(o);
                 }
                 catch (Exception e) { return Content(e.Message); }
                 return Content("ok");
@@ -382,68 +334,7 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-        public ActionResult CrearOrdenDeRutaAlm(string TipoRep, int idOperation = 205)
-        {
-            var resultadoAcceso = VerificarPermiso(idOperation);
 
-            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
-            {
-                OCHO_N ochoN = new OCHO_N();
-                ViewBag.Mensaje = string.Empty;
-                ViewBag.TipoRep = TipoRep;
-                ViewBag.ListaChoferes = ochoN.listaChoferes(0, null);
-                ViewBag.ListaVehiculos = ovehN.listaVeh(0, null);
-                ViewBag.ListaCopilotos = ousrN.ListaUsuarios(new Usuario_E { IdRol = 4 });
-                ViewBag.ListaOrigenesDestinos = owhsN.listarAlmacenes();
-                ViewBag.Filas = 30;
-                return View(new ORRU_E());
-            }
-            else
-            {
-                return resultadoAcceso;
-            }
-        }
-
-        [HttpPost]
-        [ActionName("CrearOrdenDeRutaAlm")]
-        public ActionResult CrearOrdenDeRutaAlmPost(string TipoRep, ORRU_E o, int idOperation = 205)
-        {
-            var resultadoAcceso = VerificarPermiso(idOperation);
-
-            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
-            {
-                try
-                {
-                    Usuario_E user = (Usuario_E)Session["UsuarioId"];
-                    o.Propietario = $"{user.Nombres} {user.Apellidos}";
-                    int DocNum = orruN.CrearOrdenDeRuta(o);
-                    ViewBag.Mensaje = "Creado correctamente";
-                    if (TipoRep == "Re")
-                    {
-                        return RedirectToAction("ListadoRepartos", new { DocNum = DocNum });
-                    }
-                    else
-                    {
-                        return RedirectToAction("ListadoRutas", new { DocNum = DocNum });
-                    }
-                }
-                catch
-                {
-                    OCHO_N ochoN = new OCHO_N();
-                    ViewBag.Mensaje = string.Empty;
-                    ViewBag.ListaChoferes = ochoN.listaChoferes(0, null);
-                    ViewBag.ListaVehiculos = ovehN.listaVeh(0, null);
-                    ViewBag.ListaCopilotos = ousrN.ListaUsuarios(new Usuario_E { IdRol = 4 });
-                    ViewBag.ListaOrigenesDestinos = owhsN.listarAlmacenes();
-                    ViewBag.Filas = 30;
-                    return View(o);
-                }
-            }
-            else
-            {
-                return resultadoAcceso;
-            }
-        }
 
         public ActionResult ReportesRutas(int idOperation = 206)
         {
@@ -528,9 +419,9 @@ namespace Capa_Usuario.Controllers
 
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                OCHO_N ochoN = new OCHO_N();
+                Capa_Negocio.Repartos_NEG.TablasHana.SYP_CONDUC_N condN = new Capa_Negocio.Repartos_NEG.TablasHana.SYP_CONDUC_N();
                 ViewBag.DocNum = DocNum;
-                ViewBag.ListaTransportistas = ochoN.listaChoferes(0, null);
+                ViewBag.Conductores = condN.listar();
                 ViewBag.Mensaje = msj;
                 ViewBag.Orru = o;
                 return View(orruN.Listar(o));
@@ -740,30 +631,16 @@ namespace Capa_Usuario.Controllers
 
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                ORRU_E var = orruN.obtenerOrdenDeRuta(DocEntry);
+                RRU0_N rru0N = new RRU0_N(); RRU1_N rru1N = new RRU1_N();
+                ORRU_E orru = orruN.obtenerOrdenDeRuta(DocEntry);
 
-                ViewBag.TipoRuta = var?.TipoRuta ?? string.Empty;
+                ViewBag.TipoRuta = orru.TipoRuta;
                 ViewBag.TipoRep = TipoRep;
                 ViewBag.DocEntry = DocEntry;
                 ViewBag.Linea = Linea;
+                ViewBag.RRU0 = rru0N.BuscarRRU0(DocEntry, Linea);
+                ViewBag.RRU1 = rru1N.buscarRRU1(DocEntry, Linea);
                 ViewBag.TipoVenta = tipoVenta;
-
-                if (var?.TipoRuta == "TA")
-                {
-                    ViewBag.RRU1 = var?.DetRRU1
-                   ?.Where(x => x.Linea == Linea)
-                   .DefaultIfEmpty(new RRU1_E { })
-                   .FirstOrDefault() ?? new RRU1_E();
-
-                }
-                else
-                {
-                    ViewBag.RRU0 = var?.DetRRU0
-                    ?.Where(x => x.Linea == Linea)
-                    .DefaultIfEmpty(new RRU0_E { })
-                    .FirstOrDefault() ?? new RRU0_E();
-                }
-               
 
                 return View();
             }
@@ -794,7 +671,8 @@ namespace Capa_Usuario.Controllers
                     {
                         RRU0_N rru0N = new RRU0_N();
                         r0.OpEntrega = $"{user.Nombres} {user.Apellidos}";
-                        rru0N.entregarRRU0(r0);
+
+                        rru0N.EntregarRRU0(r0);
                     }
                     return RedirectToAction("ListadoEntregaRepartos", new { DocEntry = r0.DocEntry, Linea = r0.Linea, TipoRep = TipoRep });
                 }
@@ -805,6 +683,7 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+
         public ActionResult IniciarReparto(RRU0_E o, int idOperation = 217)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
@@ -833,6 +712,7 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+
         public ActionResult TerminarReparto(RRU0_E o, int idOperation = 218)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
@@ -859,45 +739,6 @@ namespace Capa_Usuario.Controllers
             }
         }
 
-        // Botón se encuentra oculto, es para Agencia Courier - ACTUALMENTE NO SE USA
-        public ActionResult TerminarHojaCargo(RRU0_E o, int idOperation = 218)
-        {
-            var resultadoAcceso = VerificarPermiso(idOperation);
-
-            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
-            {
-                ORRU_E obj = orruN.obtenerOrdenDeRuta(o.DocEntry);
-                try
-                {
-                    Usuario_E user = (Usuario_E)Session["UsuarioId"]; RRU0_N rru0N = new RRU0_N();
-                    obj.Operario = $"{user.Nombres} {user.Apellidos}";
-
-                    orruN.IniciarReparto(obj);
-
-                    foreach (var i in obj.DetRRU0)
-                    {
-                        if (i.Estado != "LIBERADO")
-                        {
-                            // Seteamos el usuario en sesión que está ejecutando esta acción
-                            i.OpEntrega = $"{user.Nombres} {user.Apellidos}";
-                            rru0N.entregarRRU0(i);
-                        }
-                    }
-                    obj = orruN.obtenerOrdenDeRuta(o.DocEntry);
-                    obj.Operario = $"{user.Nombres} {user.Apellidos}";
-                    orruN.TerminarReparto(obj);
-                    return RedirectToAction("ListadoRepartos", new { DocNum = obj.DocNum, msj = "Ruta terminada correctamente" });
-                }
-                catch (Exception e)
-                {
-                    return RedirectToAction("ListadoRepartos", new { DocNum = obj.DocNum, msj = e.Message });
-                }
-            }
-            else
-            {
-                return resultadoAcceso;
-            }
-        }
         public ActionResult RptControlTemperaturaHumedad(Rpt_TempHumed_E datos, string FechaTerEn, int idOperation = 219)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
@@ -939,6 +780,7 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+
         public ActionResult RptTempHumed(string Placa, string FechaTerEn, string Serie, int idOperation = 219)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
@@ -967,6 +809,7 @@ namespace Capa_Usuario.Controllers
             }
 
         }
+
         public FileResult EvidenciaReparto(int DocEntry, string TipoRuta, int idOperation = 220)
         {
             string acceso = AccesoHelper.VerificarAccesos(idOperation, (Usuario_E)Session["UsuarioId"], this.ControllerContext.RouteData.Values["action"].ToString(), Request.UserHostAddress, Request.UserHostName);
@@ -1000,6 +843,7 @@ namespace Capa_Usuario.Controllers
             }
             else { return null; }
         }
+
         public ActionResult DocumentoRutas(int DocEntry, string TipoRuta, int idOperation = 221)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
@@ -1042,7 +886,7 @@ namespace Capa_Usuario.Controllers
                 RRU0_N rru0N = new RRU0_N();
                 try
                 {
-                    rru0N.entregaMasivaDetRep(o);
+                    rru0N.EntregaMasivaDetRep(o);
                     return RedirectToAction("ListadoEntregaRepartos", new { TipoRep = "Re", DocEntry = o.DocEntry, msj = "Se entrego masivamente" });
                 }
                 catch (Exception e)
@@ -1053,6 +897,7 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+
         public ActionResult GestionarOficinas(OUR1_E o, string msj, int idOperation = 223)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
@@ -1070,6 +915,7 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+
         public ActionResult RegistrarOficina(OUR1_E o, int idOperation = 224)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
@@ -1097,6 +943,7 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }//no vista
+
         public ActionResult EliminarOficina(int Id, int idOperation = 225)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
@@ -1121,6 +968,7 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }//no vista 
+
         public ActionResult validarNuevaOficina(OUR1_E o)
         {
             string status = "true";
@@ -1132,83 +980,7 @@ namespace Capa_Usuario.Controllers
             }
             catch (Exception e) { return Content(e.Message); }
         }
-        public ActionResult CrearHojaDeCargo(string TipoRep, int idOperation = 226)
-        {
-            var resultadoAcceso = VerificarPermiso(idOperation);
 
-            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
-            {
-                COUR_N courN = new COUR_N();
-                ViewBag.Mensaje = "";
-                ViewBag.TipoRep = TipoRep;
-                ViewBag.ListaOrigenesDestinos = owhsN.listarAlmacenes();
-                ViewBag.Agencias = courN.Listar();
-                return View(new ORRU_E());
-            }
-            else
-            {
-                return resultadoAcceso;
-            }
-        }
-        [HttpPost]
-        public ActionResult CrearHojaDeCargo(ORRU_E o, int idOperation = 226)
-        {
-            var resultadoAcceso = VerificarPermiso(idOperation);
-
-            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
-            {
-                try
-                {
-                    Usuario_E user = (Usuario_E)Session["UsuarioId"];
-                    o.Propietario = $"{user.Nombres} {user.Apellidos}";
-                    int DocNum = orruN.CrearOrdenDeRuta(o);
-                    ViewBag.Mensaje = "Creado correctamente";
-                    ViewBag.TipoRep = "Re";
-
-                    return RedirectToAction("ListadoRepartos", new { DocNum = DocNum });
-                }
-                catch (Exception ex)
-                {
-                    OCHO_N ochoN = new OCHO_N(); COUR_N courN = new COUR_N();
-                    ViewBag.Mensaje = ex.Message;
-                    ViewBag.ListaChoferes = ochoN.listaChoferes(0, null);
-                    ViewBag.ListaVehiculos = ovehN.listaVeh(0, null);
-                    ViewBag.ListaCopilotos = ousrN.ListaUsuarios(new Usuario_E { IdRol = 4 });
-                    ViewBag.ListaOrigenesDestinos = owhsN.listarAlmacenes();
-                    ViewBag.Filas = 30;
-                    ViewBag.Agencias = courN.Listar();
-                    return View(o);
-                }
-            }
-            else
-            {
-                return resultadoAcceso;
-            }
-        }
-        public ActionResult AnularHojaCargo(int DocEntry, string TipoRep, string msj, int idOperation = 227)
-        {
-            var resultadoAcceso = VerificarPermiso(idOperation);
-
-            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
-            {
-                ORRU_N obj = new ORRU_N(); ORTV_N ortvN = new ORTV_N();
-                ViewBag.TipoRep = TipoRep;
-                ViewBag.Mensaje = msj;
-                var o = obj.obtenerOrdenDeRuta(DocEntry);
-                if (o.DetRRU0 != null)
-                {
-                    foreach (RRU0_E r0 in o.DetRRU0)
-                    {
-                        r0.Ticket = ortvN.ObtenerDatosCompletosTicket(r0.DocEntryTicket);
-                    }
-                }
-                return View(o);
-            }
-            else
-            {
-                return resultadoAcceso;
-            }
-        }
         public JsonResult RegistrarAgencia(COUR_E o, int idOperation = 228)
         {
             string acceso = AccesoHelper.VerificarAccesos(idOperation, (Usuario_E)Session["UsuarioId"], this.ControllerContext.RouteData.Values["action"].ToString(), Request.UserHostAddress, Request.UserHostName);
@@ -1345,7 +1117,7 @@ namespace Capa_Usuario.Controllers
                 ORTV_N ortvN = new ORTV_N(); RRU0_N rru0N = new RRU0_N();
                 var tc = ortvN.ObtenerDatosCompletosTicket(DocEntryTicket);
 
-                RRU0_E rru0E = rru0N.buscarRRU0(DocEntry, Linea);
+                RRU0_E rru0E = rru0N.BuscarRRU0(DocEntry, Linea);
                 if (TipoRuta == "AC" /*&& tc.IdReg == 0 */)
                 {
                     int i = ortvN.editarSeguimientoTicket("ANULARENTREGADO", DocEntryTicket, tc);
@@ -1372,7 +1144,7 @@ namespace Capa_Usuario.Controllers
                 {
                     Usuario_E user = (Usuario_E)Session["UsuarioId"];
                     o.Operario = $"{user.Nombres} {user.Apellidos}";
-                    rru0N.anularRRU0(o);
+                    rru0N.AnularRRU0(o);
                 }
                 catch (Exception e) { res = e.Message; return res; }
                 return res;
@@ -1380,140 +1152,20 @@ namespace Capa_Usuario.Controllers
             else
             { return res; }
         }
-        public ActionResult infoHojasCargo(int idOperation = 234)
-        {
-            var resultadoAcceso = VerificarPermiso(idOperation);
-
-            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
-            {
-                OCRD_N ocrdN = new OCRD_N(); OCHO_N ochoN = new OCHO_N();
-                ViewBag.Almacenes = owhsN.listarAlmacenes();
-                ViewBag.Clientes = ocrdN.listarSociosDeNegocios(new OCRD_E { CardType = "C" });
-                ViewBag.Transportistas = ochoN.listaChoferes(0, null);
-                ViewBag.ListaVehiculos = ovehN.listaVeh(0, null);
-                return View();
-            }
-            else
-            {
-                return resultadoAcceso;
-            }
-        }
-        public ActionResult infoHojasCargoDetallado(int idOperation = 234)
-        {
-            var resultadoAcceso = VerificarPermiso(idOperation);
-
-            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
-            {
-                OCRD_N ocrdN = new OCRD_N(); OCHO_N ochoN = new OCHO_N();
-                ViewBag.Almacenes = owhsN.listarAlmacenes();
-                ViewBag.Clientes = ocrdN.listarSociosDeNegocios(new OCRD_E { CardType = "C" });
-                ViewBag.Transportistas = ochoN.listaChoferes(0, null);
-                ViewBag.ListaVehiculos = ovehN.listaVeh(0, null);
-                return View();
-            }
-            else
-            {
-                return resultadoAcceso;
-            }
-        }
-        public ActionResult RptHojasCargo(ORRU_E o, int idOperation = 235)
-        {
-            if (string.IsNullOrEmpty(o.FecConIni) || string.IsNullOrEmpty(o.FecConFin))
-            {
-                return null;
-            }
-
-            string acceso = AccesoHelper.VerificarAccesos(idOperation, (Usuario_E)Session["UsuarioId"], this.ControllerContext.RouteData.Values["action"].ToString(), Request.UserHostAddress, Request.UserHostName);
-
-            if (acceso == "C_Access")
-            {
-
-                ORRU_N orruN = new ORRU_N();
-                string excelContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-                var reporte = orruN.ReporteHojasCargo(o);
-                using (var libro = new ExcelPackage())
-                {
-                    var worksheet = libro.Workbook.Worksheets.Add("ReporteHojasCargo");
-                    worksheet.Cells["A1"].LoadFromCollection(reporte, PrintHeaders: true);
-
-                    if (reporte != null)
-                    {
-                        if (reporte.Count >= 1)
-                        {
-                            for (var col = 1; col <= 36; col++)
-                            {
-                                worksheet.Column(col).AutoFit();
-                            }
-
-                            var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: reporte.Count + 1, toColumn: 36), "ReporteHojasCargo");
-
-                            tabla.ShowHeader = true;
-                            tabla.TableStyle = TableStyles.Medium2;
-                        }
-
-                    }
-
-                    return File(libro.GetAsByteArray(), excelContentType, "AnalisisHojasCargo.xlsx");
-                }
-            }
-            else { return null; }
-
-        }
-        public ActionResult RptHojasCargoDetallado(ORRU_E o, int idOperation = 236)
-        {
-            if (string.IsNullOrEmpty(o.FecConIni) || string.IsNullOrEmpty(o.FecConFin))
-            {
-                return null;
-            }
-
-            string acceso = AccesoHelper.VerificarAccesos(idOperation, (Usuario_E)Session["UsuarioId"], this.ControllerContext.RouteData.Values["action"].ToString(), Request.UserHostAddress, Request.UserHostName);
-
-            if (acceso == "C_Access")
-            {
-
-                ORRU_N orruN = new ORRU_N();
-                string excelContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-                var reporte = orruN.ReporteHojasCargoDet(o);
-                using (var libro = new ExcelPackage())
-                {
-                    var worksheet = libro.Workbook.Worksheets.Add("ReporteHojasCargoDet");
-                    worksheet.Cells["A1"].LoadFromCollection(reporte, PrintHeaders: true);
-
-                    if (reporte != null)
-                    {
-                        if (reporte.Count >= 1)
-                        {
-                            for (var col = 1; col <= 36; col++)
-                            {
-                                worksheet.Column(col).AutoFit();
-                            }
-                            var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: reporte.Count + 1, toColumn: 40), "ReporteHojasCargoDet");
-
-                            tabla.ShowHeader = true;
-                            tabla.TableStyle = TableStyles.Medium2;
-                        }
-                    }
-
-                    return File(libro.GetAsByteArray(), excelContentType, "AnalisisHojasCargoPesaje.xlsx");
-                }
-            }
-            else { return null; }
-
-        }
         public ActionResult SeguimientoDeTicket(int DocEntry)
         {
             return RedirectToAction("SeguimientoDeTicket", "Ventas", new { DocEntry = DocEntry });
         }
-        public ActionResult validarRuta(ORRU_E o)
+        public ActionResult validarNuevaHojaDeRepartoOTransferencia(ORRU_E o)
         {
             try
             {
-                orruN.validarDatosOrdenDeRuta(o);
+                orruN.validarNuevaHojaDeRepartoOTransferencia(o);
             }
             catch (Exception e) { return Content(e.Message); }
             return Content("OK");
         }
-        public ActionResult validarEditarRuta(ORRU_E o)
+        public ActionResult validarDatosEncabezadoRuta(ORRU_E o)
         {
             try
             {
@@ -1536,7 +1188,7 @@ namespace Capa_Usuario.Controllers
                 else
                 {
                     RRU0_N rru0N = new RRU0_N();
-                    rru0N.validarEntDetReparto(r0);
+                    rru0N.ValidarEntDetReparto(r0);
                 }
 
             }
@@ -1641,7 +1293,7 @@ namespace Capa_Usuario.Controllers
                 {
                     Usuario_E user = (Usuario_E)Session["UsuarioId"];
                     o.Operario = $"{user.Nombres} {user.Apellidos}";
-                    rru0N.liberarRRU0(o);
+                    rru0N.LiberarRRU0(o);
                 }
                 catch (Exception e) { return Content(e.Message); }
                 return Content("ok");
@@ -1814,7 +1466,6 @@ namespace Capa_Usuario.Controllers
         [HttpPost]
         public JsonResult EditarDetalleOrdenRuta(int BaseEntry, int BaseLinea, int[] DetRRU11, int idOperation = 203)
         {
-            //verificacionAccesos(0);
             bool nrocajas = false;
             string mensaje;
             if (Array.IndexOf(DetRRU11, 0) == -1)
@@ -1838,8 +1489,6 @@ namespace Capa_Usuario.Controllers
         [HttpPost]
         public JsonResult ObtenerDetalleOrdenRuta(int BaseEntry, int BaseLinea, int HabilitarBotonEditar, int idOperation = 203)
         {
-            //verificacionAccesos(0);
-
             string lista = string.Empty, mensaje = "No existe detalle sobre la guía seleccionada";
             bool existeDatos = false;
             RRU11_N rru11N = new RRU11_N();
@@ -1939,19 +1588,6 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-        /*public ActionResult infoGuiasTransferenciaTicketsVenta(int DocNum, string TipoRuta, int idOperation = 202)
-        {
-            if (verificacionAccesos(idOperation) == "C_Access")
-            {
-                Capa_Negocio.Almacen_NEG.Tablas.OWTR_N owtrN = new Capa_Negocio.Almacen_NEG.Tablas.OWTR_N();
-                if (TipoRuta == "VC") { TipoRuta = "01"; }
-                else if (TipoRuta == "VA") { TipoRuta = "09"; }
-
-                return Content(owtrN.GuiasTicketTransferencia(DocNum, TipoRuta));
-            }
-            else
-            { return Content(""); }
-        }*/
         public ActionResult infoDatosTraslado(string guia, int orden, string Origen)
         {
             return Content(orruN.infoListaProductosOWTQ(guia, orden, Origen));
