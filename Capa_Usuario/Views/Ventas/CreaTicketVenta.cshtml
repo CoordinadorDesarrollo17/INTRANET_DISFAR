@@ -1,12 +1,15 @@
 ﻿@model Capa_Entidad.Ventas_ENT.TablasSql.ORTV_E
-@using Capa_Entidad.General_ENT.TablasSql
+@using Capa_Entidad.General_ENT.TablasSql;
+
+@using Capa_Entidad.Seguridad_ENT
 @{
     ViewBag.Title = "CrearTicketVenta";
     Layout = "~/Views/Shared/_Layout.cshtml";
     List<UBIG_E> Ubigeos = new List<UBIG_E>(ViewBag.Ubigeos);
     List<OUR1_E> Oficinas = new List<OUR1_E>(ViewBag.Oficinas);
     List<COUR_E> Agencias = new List<COUR_E>(ViewBag.Agencias);
-    
+    var usuario = ViewBag.Usuario ;
+
 }
 <script src="~/Scripts/Ventas/TicketDeVenta.js"></script>
 <script>
@@ -38,19 +41,19 @@
         // Inicializamos los tabs desactivados
         $('#nav-det-pedidos-tab').addClass('disabled');
         //solo para las vendedoras seleccionadas muestra el select FormaPago precargado con la opcion EFE/CAPON
-        if ('@ViewBag.Usuario' !== 'VENTAS32' && '@ViewBag.Usuario' !== 'VENTAS05') {
+        if ('@usuario' !== 'VENTAS32' && '@usuario' !== 'VENTAS05') {
             $("#div_FormaPago").hide();
+            $("input[name='FormaPago'], select[name='FormaPago']").val('');
         } else {
             $("#div_FormaPago").show();
-            $("#FormaPago").val("EFE/CAPON");
+            $("input[name='FormaPago'], select[name='FormaPago']").val("EFE/CAPON");
         }
-         
     });
-    
+
     if ('@ViewBag.Mensaje' != "") {
         Swal.fire('@ViewBag.Mensaje');
     }
-    
+
     //Habilitacion de pestañas, solo se usa para crear
     function determinarCamposTab(id, tipoCampo, mensaje) {
         let result = true;
@@ -92,7 +95,6 @@
                 } else if ($('#TipoDocPer').val() == 'RUC') {
                     result = validarNroDoc(id, valorIngresado, 11);
                 } else if ($('#TipoDocPer').val() == 'CE') {
-                    //result = validarNroDoc(id, valorIngresado, 12);
                     result = validarNroDoc(id, valorIngresado, 9);
                 }
             } else {
@@ -110,6 +112,7 @@
 
         return result;
     }
+
     function habilitarPestana(id, div, arrCampos) {
         if (!arrCampos.includes(false)) {
             $('#' + id).removeClass('disabled');
@@ -119,6 +122,7 @@
             $('#' + div).hide();
         }
     }
+
     function validarTabEspecifRecojo() {
         let camposVacios = false;
         let arrCampos = [];
@@ -138,6 +142,7 @@
 
         return camposVacios;
     }
+
     function validarTabDetPedido() {
         let arrCampos = [];
         if ($('#LugarDestino').val() == 'Arriola' || $('#LugarDestino').val() == 'Centro') {
@@ -162,6 +167,7 @@
         habilitarPestana('nav-det-pedidos-tab', 'div_det-pedidos', arrCampos);
         //}
     }
+
     function validarNroDoc(id, valorIngresado, cantidadCaracteres) {
         if (valorIngresado.length == cantidadCaracteres) {
             $('#' + id).removeClass('bg-danger text-white');
@@ -174,6 +180,7 @@
 
         return result;
     }
+
     function validarLugarDestino(valorIngresado) {
         let arrCampos = [];
         let result = false;
@@ -199,27 +206,50 @@
 
         return result;
     }
+
     function validacionOrdenesDeVenta() {
         $('#infoListaClientes input').on('change', function () {
             var CardCode = $("#infoListaClientes #ListaClientes option[value='" + $("#infoListaClientes input").val() + "']").attr("CardCode");
             var DocNum = $('#DocNum').val();
             if (!CardCode) { CardCode = "" };
             var parametros = { "CardCode": CardCode, "Fecha": $('#infoFechaTicket input').val(), "DocNum": DocNum };
+            var tipoVentaInput = $('#TipoVentaInput');
+            var tipoVentaSelect = $('#TipoVentaSelect');
+            tipoVentaSelect.val(''); tipoVentaInput.val('');
+            tipoVentaSelect.hide();
+            tipoVentaInput.hide();
             $.ajax('/Ventas/infoListaOrdenesDeVenta',
                 {
                     data: parametros,
-                    dataType: 'html',
+                    dataType: 'json',
                     cache: false,
                     type: 'post',
                 })
                 .done(function (response) {
-                    if (response != '') {
+                    console.log(response);
+                    if (response.HtmlContent != '') {
                         $('#div_detallesPedidos').css('display', 'block');
-                        $('#detallesPedidos').html(response);
-                        var tabla = $('#detallesPedidos');
-                        if (tabla.find('tbody').children().length === 0) {
-                            Swal.fire('No existe elementos en la tabla de ordenes')
+                        $('#detallesPedidos').html(response.HtmlContent);
+
+                        var tipoVenta = response.TipoVenta ? response.TipoVenta.toUpperCase() : '';
+                        // Mostrar/ocultar elementos según el valor de TipoVenta
+
+                        if (tipoVenta.startsWith('CREDITO')) {
+                            tipoVentaInput.show().val('Credito');
+                            tipoVentaSelect.hide();
+                        } else if (tipoVenta.includes('CONTADO')) {
+                            tipoVentaInput.hide();
+                            tipoVentaSelect.show();
+                        } else {
+                            tipoVentaInput.hide();
+                            tipoVentaSelect.hide();
                         }
+                    }
+                    else {
+                        tipoVentaSelect.val(''); tipoVentaInput.val('');
+                        tipoVentaSelect.hide();
+                        tipoVentaInput.hide();
+                        Swal.fire('No existe elementos en la tabla de ordenes o el tipo de venta no es único.')
                     }
                 });
         });
@@ -244,10 +274,11 @@
                 }
             });
     }
+
     function reporteReclamosCliente() {
         window.open("/Ventas/ReporteReclamosCliente?CardCode=" + $("#CardCode").val(), null, 'width=1080,height=450,top=100,left=100,toolbar=no,location=no,status=no,menubar=no')
     }
-    /*********************************** */
+
     //busca si cliente tiene regalo pendiente, para enviarlo
     function buscarClienteRegalo() {
         $('#Zona').val("")
@@ -274,21 +305,34 @@
                 });
             });
     }
-    /***************************envio de formulario  ********************/
+
     function enviarFormulario() {
-        var tipoVenta = $("#TipoVenta").val();
+        var tipoVenta;
+        var tipoVentaInput = $('#TipoVentaInput');
+        var tipoVentaSelect = $('#TipoVentaSelect');
+
+        if (tipoVentaSelect.val()!='') {
+            tipoVenta = tipoVentaSelect.val();
+        } else {
+            tipoVenta = tipoVentaInput.val();
+        }
+
         var lugarDestino = $("#LugarDestino").val();
         var te = $("#TiempoEntrega").val();
         var coordinaciones = $("#Observaciones").val();
         var agencia = $("#Agencia").val();
         var envioagencia = $("#EnvioAgencia").val();
         var referencia = $("#Referencia").val();
-        var mensaje = '<div class="my-swal-text">Tipo de Venta: <strong>' + tipoVenta + '</strong><br>Lugar de Destino: <strong>' + lugarDestino + '</strong><br>Coordinaciones: <strong>' + coordinaciones + '</strong><br>T.E: <strong>' + te + '</strong></div>';
-        if (lugarDestino === 'Agencia') {
 
-            mensaje = '<div class="my-swal-text">Tipo de Venta: <strong>' + tipoVenta + '</strong><br>Lugar de Destino: <strong>' + lugarDestino + '</strong><br>Coordinaciones: <strong>' + coordinaciones + '</strong><br>T.E: <strong>' + te + '</strong><br>Agencia: <strong>' + agencia + '</strong><br>Modo de envio: <strong>' + envioagencia + '</strong><br>Referencia: <strong>' + referencia + '</strong></div>';
-        }
-        // Mostrar aviso
+        var mensaje = '<div class="my-swal-text">';
+         // Si el lugarDestino es otros diferente a 'Agencia'
+        if (lugarDestino !== 'Agencia') {
+            mensaje += 'Tipo de Venta: <strong>' + tipoVenta + '</strong><br>Lugar de Destino: <strong>' + lugarDestino + '</strong><br>Coordinaciones: <strong>' + coordinaciones + '</strong><br>T.E: <strong>' + te + '</strong></div>';
+        } else {
+        // Si el lugarDestino es 'Agencia'
+            mensaje += 'Tipo de Venta: <strong>' + tipoVenta + '</strong><br>Lugar de Destino: <strong>' + lugarDestino + '</strong><br>Coordinaciones: <strong>' + coordinaciones + '</strong><br>T.E: <strong>' + te + '</strong><br>Agencia: <strong>' + agencia + '</strong><br>Modo de envio: <strong>' + envioagencia + '</strong><br>Referencia: <strong>' + referencia + '</strong></div>';
+        } 
+
         Swal.fire({
             title: 'Confirmación de envío',
             html: mensaje,
@@ -299,7 +343,17 @@
             reverseButtons: true,
             showLoaderOnConfirm: true,
             preConfirm: function () {
-               $("#CreaTicketVenta").submit();
+                $('#TipoVentaHidden').remove();
+
+                $('<input>').attr({
+                    type: 'hidden',
+                    id: 'TipoVentaHidden',
+                    name: 'TipoVenta',
+                    value: tipoVenta
+                }).appendTo('#CreaTicketVenta');
+
+                // Hacer submit del formulario
+                $("#CreaTicketVenta").submit();
             },
             allowOutsideClick: () => !Swal.isLoading()
         }).then(function (result) {
@@ -320,12 +374,10 @@
         padding: 10px;
         font-size: 24px;
     }
-
- 
 </style>
 <div class="pt-4">
     <nav>
-        <ol class="cd-breadcrumb bg-dark">
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
             <li><a href="@Url.Action("ListadoTicketsVenta", "Ventas")">Listado de tickets</a></li>
             <li class="current"><em>Crear ticket de venta</em></li>
@@ -333,7 +385,7 @@
     </nav>
 </div>
 
-<div class="bg-dark border-cabecera-seccion pb-2">
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
     <div class="px-3 pt-3"><h3 class="titulo-seccion">CREAR TICKET DE VENTA</h3></div>
 </div>
 
@@ -363,10 +415,10 @@
             <div class="tab-pane fade show active" id="nav-datos-pedidos" role="tabpanel" aria-labelledby="nav-datos-pedidos-tab">
                 <div class="bg-section-form p-4 bg-form-cobefar">
                     <div class="row d-flex">
-                        <div class="col-10">
+                        <div class="col-lg-10 col-6">
                             <h2 class="mt-4 text-cobefar font-weight-bold">DATOS PEDIDO</h2>
                         </div>
-                        <div class="col-2 form-group row pt-4">
+                        <div class="col-lg-2 col-6 form-group row pt-4">
                             <div class="col-lg-12">
                                 <input type="hidden" id="DocEntry" name="DocEntry" value="@Model.DocEntry" readonly />
                                 <input type="text" id="Estado" name="Estado" value="@Model.Estado" class="form-control text-center bg-warning" readonly />
@@ -381,11 +433,15 @@
                         </div>
                         <div class="col-lg-2">
                             <label for="TipoVenta" class="text-dark form-label font-weight-bold font-18">Tipo de Venta:</label>
-                            <select name="TipoVenta" id="TipoVenta" class="form-control bg-cobefar text-white">
+
+                            <input type="text" id="TipoVentaInput" class="form-control text-center border-success" readonly style="display: none;">
+                            <select id="TipoVentaSelect" class="form-control bg-cobefar text-white" style="display: none;">
                                 <option value="">Seleccione</option>
                                 <option value="Normal" @{ if (Model.TipoVenta == "Normal") { Write("selected"); } }>Normal</option>
-                                <option value="Credito" @{ if (Model.TipoVenta == "Credito") { Write("selected"); } }>Crédito</option>
                                 <option value="ContraEntrega" @{ if (Model.TipoVenta == "ContraEntrega") { Write("selected"); } }>ContraEntrega</option>
+                                @if (usuario == "VENTAS32" || usuario == "VENTAS05") {
+                                    <option value="Credito" @{ if (Model.TipoVenta == "Credito") { Write("selected"); } }>Credito</option>
+                                }
                             </select>
                         </div>
                         <div class="col-lg-2">
@@ -397,7 +453,7 @@
                         </div>
                         <div class="col-lg-2" id="div_FormaPago">
                             <label class="text-dark font-weight-bold font-18">Forma de Pago:</label>
-                            <select class="form-control bg-cobefar text-white" name="FormaPago" id="FormaPago">
+                            <select name="FormaPago" id="FormaPago" class="form-control bg-cobefar text-white">
                                 <option value="">Seleccione</option>
                                 <option value="EFE/CAPON" @{ if (Model.FormaPago != null && Model.FormaPago == "EFE/CAPON") { Write("selected"); } }>EFE/CAPON</option>
                                 <option value="EFECTIVO" @{ if (Model.FormaPago != null && Model.FormaPago == "EFECTIVO") { Write("selected"); } }>EFECTIVO</option>
@@ -536,266 +592,266 @@
                 </div>
                 <!-- // -->
             </div><!-- // TAB 1 -->
-                    <!-- TAB 2 -->
-                    <div class="tab-pane fade" id="nav-especif-recojo" role="tabpanel" aria-labelledby="nav-especif-recojo-tab">
-                        <div id="div_especif_recojo" class="bg-section-form p-4 bg-form-cobefar">
-                            <h2 class="mt-4 text-cobefar font-weight-bold">ESPECIFICACIONES DE RECOJO</h2>
-                            <input type="hidden" name="Det1[0].Linea" value="1" />
-                            <input type="hidden" name="Det1[0].DocEntry" value="@Model.DocEntry" />
-                            <div class="row mt-4">
-                                <div class="col-lg-5">
-                                    <label for="NombrePer" class="text-dark form-label font-weight-bold font-18">Nombres:</label>
-                                    <input type="text" id="NombrePer" name="Det1[0].NombrePer" class="form-control border-success" />
-                                </div>
+            <!-- TAB 2 -->
+            <div class="tab-pane fade" id="nav-especif-recojo" role="tabpanel" aria-labelledby="nav-especif-recojo-tab">
+                <div id="div_especif_recojo" class="bg-section-form p-4 bg-form-cobefar">
+                    <h2 class="mt-4 text-cobefar font-weight-bold">ESPECIFICACIONES DE RECOJO</h2>
+                    <input type="hidden" name="Det1[0].Linea" value="1" />
+                    <input type="hidden" name="Det1[0].DocEntry" value="@Model.DocEntry" />
+                    <div class="row mt-4">
+                        <div class="col-lg-5">
+                            <label for="NombrePer" class="text-dark form-label font-weight-bold font-18">Nombres:</label>
+                            <input type="text" id="NombrePer" name="Det1[0].NombrePer" class="form-control border-success" />
+                        </div>
 
-                                <div class="col-lg-2">
-                                    <label for="TelfPer" class="text-dark form-label font-weight-bold font-18">Teléfono:</label>
-                                    <input type="number" id="TelfPer" name="Det1[0].TelfPer" class="form-control text-center border-success" />
-                                </div>
+                        <div class="col-lg-2">
+                            <label for="TelfPer" class="text-dark form-label font-weight-bold font-18">Teléfono:</label>
+                            <input type="number" id="TelfPer" name="Det1[0].TelfPer" class="form-control text-center border-success" />
+                        </div>
 
-                                <div class="col-lg-3">
-                                    <label for="TipoDocPer" class="text-dark form-label font-weight-bold font-18">Tipo de Doc:</label>
-                                    <select name="Det1[0].TipoDocPer" id="TipoDocPer" class="form-control bg-cobefar text-white">
-                                        <option value="">Seleccione</option>
-                                        <option value="DNI">DNI</option>
-                                        <option value="RUC">RUC</option>
-                                        <option value="CE">CARNET DE EXTRANJERIA</option>
-                                    </select>
-                                </div>
+                        <div class="col-lg-3">
+                            <label for="TipoDocPer" class="text-dark form-label font-weight-bold font-18">Tipo de Doc:</label>
+                            <select name="Det1[0].TipoDocPer" id="TipoDocPer" class="form-control bg-cobefar text-white">
+                                <option value="">Seleccione</option>
+                                <option value="DNI">DNI</option>
+                                <option value="RUC">RUC</option>
+                                <option value="CE">CARNET DE EXTRANJERIA</option>
+                            </select>
+                        </div>
 
-                                <div class="col-lg-2">
-                                    <label for="DocPer" class="text-dark form-label font-weight-bold font-18">Nro Doc:</label>
-                                    <input type="text" id="DocPer" name="Det1[0].DocPer" class="form-control text-center border-success" />
-                                </div>
+                        <div class="col-lg-2">
+                            <label for="DocPer" class="text-dark form-label font-weight-bold font-18">Nro Doc:</label>
+                            <input type="text" id="DocPer" name="Det1[0].DocPer" class="form-control text-center border-success" />
+                        </div>
 
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-lg-4">
+                            <label for="Observaciones" class="text-dark form-label font-weight-bold font-18">Coordinación del pedido</label>
+                            @Html.TextAreaFor(model => model.Observaciones, new { @class = "form-control border-success", @placeholder = "Ejm: Enviar obsequio a cliente, caja frágil", @rows = "4" })
+                        </div>
+                        <div class="col-lg-4">
+                            <label class="text-dark form-label font-weight-bold font-18">Observación adicional</label>
+                            @Html.TextAreaFor(model => model.Observaciones3, new { @class = "form-control border-success", @placeholder = "Ejm: Imprimir una copia de factura, coordin. con Juan Perez", @rows = "4" })
+                        </div>
+
+                        <div class="col-lg-4">
+                            <label class="text-dark form-label font-weight-bold font-18">Vendedor</label>
+                            <input name="Vendedor" value="@Model.Vendedor" class="form-control border-success" readonly />
+                        </div>
+                    </div>
+
+
+
+                </div>
+            </div>
+            <!-- // TAB 2 -->
+
+
+            <div class="tab-pane fade" id="nav-det-pedidos" role="tabpanel" aria-labelledby="nav-det-pedidos-tab">
+                <div id="div_det-pedidos" class="bg-section-form p-4 bg-form-cobefar">
+                    <div id="div_detallesPedidos" class="row mt-4" style="display: none">
+                        <div class="col-lg-12">
+                            <table class="table table-hover table-bordered" id="detallesPedidos">
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row mt-4">
+                        <div class="col-lg-12  d-flex">
+                            <label class="text-dark form-label font-weight-bold font-18 mr-4">Vinculación de ticket</label>
+                            <select class="form-control bg-cobefar text-light w-25" onchange="mostrarTableTicketsVinculados(this.value)" name="Observaciones2" id="selectVinculado">
+                                <option value="NO" selected>NO</option>
+                                <option value="SI">SI</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mt-4" id="divVinculados">
+                        <div class="col-lg-12 d-flex">
+                            <div class="col-lg-6">
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control" id="searchInput" placeholder="Escriba su numero de ticket" aria-label="Buscar" aria-describedby="basic-addon2">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-secondary" type="button" onclick="buscarTicketAVincular($('#searchInput').val())">Buscar</button>
+                                        <button class="btn btn-blue" type="button" onclick="agregarTicketVinculado($('#DocEntry').val(),$('#DocNumVinculado').val(),$('#RucClienteVinculado').val(),$('#ClienteVinculado').val(),$('#MontoFinalVinculado').val())">Agregar</button>
+                                    </div>
+                                </div>
+                                <table id="DetallesVinculados" class="table table-sm table-responsive">
+                                    <thead class="bg-success">
+                                        <tr>
+                                            <th hidden>DocEntry</th>
+                                            <th class="text-center">#</th>
+                                            <th class="text-center">Ticket</th>
+                                            <th hidden>Ruc</th>
+                                            <th class="text-center">Cliente</th>
+                                            <th class="text-center">Monto</th>
+                                            <th class="text-center"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
                             </div>
-
-                            <div class="row mt-4">
-                                <div class="col-lg-4">
-                                    <label for="Observaciones" class="text-dark form-label font-weight-bold font-18">Coordinación del pedido</label>
-                                    @Html.TextAreaFor(model => model.Observaciones, new { @class = "form-control border-success", @placeholder = "Ejm: Enviar obsequio a cliente, caja frágil", @rows = "4" })
-                                </div>
-                                <div class="col-lg-4">
-                                    <label class="text-dark form-label font-weight-bold font-18">Observación adicional</label>
-                                    @Html.TextAreaFor(model => model.Observaciones3, new { @class = "form-control border-success", @placeholder = "Ejm: Imprimir una copia de factura, coordin. con Juan Perez", @rows = "4" })
-                                </div>
-
-                                <div class="col-lg-4">
-                                    <label class="text-dark form-label font-weight-bold font-18">Vendedor</label>
-                                    <input name="Vendedor" value="@Model.Vendedor" class="form-control border-success" readonly />
+                            <div class="col-lg-6" id="InformacionTicketVinc">
+                                @*Se añadira el nombre de cliente y monto final*@
+                                <div class="row d-flex justify-content-between"><label class="font-weight-bold font-18 m-1 text-dark">Cliente: </label> <input class="form-control w-75" type="text" id="DocNumVinculado" readonly hidden /><input class="form-control w-75" type="text" id="RucClienteVinculado" readonly hidden /><input class="form-control w-75" type="text" id="ClienteVinculado" readonly /> </div>
+                                <div class="row d-flex justify-content-between">
+                                    <label class="font-weight-bold font-18 m-1 text-dark">Monto Final: </label><input class="form-control w-75" type="text" id="MontoFinalVinculado" readonly />
                                 </div>
                             </div>
-
-
 
                         </div>
                     </div>
-                    <!-- // TAB 2 -->
 
-
-                    <div class="tab-pane fade" id="nav-det-pedidos" role="tabpanel" aria-labelledby="nav-det-pedidos-tab">
-                        <div id="div_det-pedidos" class="bg-section-form p-4 bg-form-cobefar">
-                            <div id="div_detallesPedidos" class="row mt-4" style="display: none">
-                                <div class="col-lg-12">
-                                    <table class="table table-hover table-bordered" id="detallesPedidos">
-                                    </table>
-                                </div>
-                            </div>
-                            <div class="row mt-4">
-                                <div class="col-lg-12  d-flex">
-                                    <label class="text-dark form-label font-weight-bold font-18 mr-4">Vinculación de ticket</label>
-                                    <select class="form-control bg-cobefar text-light w-25" onchange="mostrarTableTicketsVinculados(this.value)" name="Observaciones2" id="selectVinculado">
-                                        <option value="NO" selected>NO</option>
-                                        <option value="SI">SI</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="row mt-4" id="divVinculados">
-                                <div class="col-lg-12 d-flex">
-                                    <div class="col-lg-6">
-                                        <div class="input-group mb-3">
-                                            <input type="text" class="form-control" id="searchInput" placeholder="Escriba su numero de ticket" aria-label="Buscar" aria-describedby="basic-addon2">
-                                            <div class="input-group-append">
-                                                <button class="btn btn-outline-secondary" type="button" onclick="buscarTicketAVincular($('#searchInput').val())">Buscar</button>
-                                                <button class="btn btn-blue" type="button" onclick="agregarTicketVinculado($('#DocEntry').val(),$('#DocNumVinculado').val(),$('#RucClienteVinculado').val(),$('#ClienteVinculado').val(),$('#MontoFinalVinculado').val())">Agregar</button>
-                                            </div>
-                                        </div>
-                                        <table id="DetallesVinculados" class="table table-sm table-responsive">
-                                            <thead class="bg-success">
-                                                <tr>
-                                                    <th hidden>DocEntry</th>
-                                                    <th class="text-center">#</th>
-                                                    <th class="text-center">Ticket</th>
-                                                    <th hidden>Ruc</th>
-                                                    <th class="text-center">Cliente</th>
-                                                    <th class="text-center">Monto</th>
-                                                    <th class="text-center"></th>
-                                                </tr>
-                                            </thead>
-                                            <tbody></tbody>
-                                        </table>
-                                    </div>
-                                    <div class="col-lg-6" id="InformacionTicketVinc">
-                                        @*Se añadira el nombre de cliente y monto final*@
-                                        <div class="row d-flex justify-content-between"><label class="font-weight-bold font-18 m-1 text-dark">Cliente: </label> <input class="form-control w-75" type="text" id="DocNumVinculado" readonly hidden /><input class="form-control w-75" type="text" id="RucClienteVinculado" readonly hidden /><input class="form-control w-75" type="text" id="ClienteVinculado" readonly /> </div>
-                                        <div class="row d-flex justify-content-between">
-                                            <label class="font-weight-bold font-18 m-1 text-dark">Monto Final: </label><input class="form-control w-75" type="text" id="MontoFinalVinculado" readonly />
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </div>
-
-                            <h2 class="mt-4 text-cobefar font-weight-bold">DETALLES DE PAGO</h2>
-                            <div class="row mt-4">
-                                <div class="col-lg-3">
-                                    <label for="MontoTotal" class="text-dark form-label font-weight-bold font-18">Monto Total:</label>
-                                    @Html.EditorFor(model => model.MontoTotal, new { htmlAttributes = new { @class = "form-control border-success", @readonly = "true" } })
-                                </div>
-
-                                <div class="col-lg-3">
-                                    <label for="TiempoEntrega" class="text-dark form-label font-weight-bold font-18">Tiempo de Entrega:</label>
-                                    @Html.EditorFor(model => model.TiempoEntrega, new { htmlAttributes = new { @class = "form-control cls-dateTimeVentas border-success", @type = "text", @autocomplete = "off" } })
-                                </div>
-                            </div>
-
-                            <div class="row mt-4">
-                                <div class="col-lg-3">
-                                    <label for="Flete" class="text-dark form-label font-weight-bold font-18">Flete (Taxi):</label>
-                                    <div id="infoFlete">@Html.EditorFor(model => model.Flete, new { htmlAttributes = new { @class = "form-control border-success", @onchange = "validacionVerificarMontos('');" } })</div>
-                                </div>
-
-                                <div class="col-lg-4">
-                                    <label for="DeudaCliente" class="text-dark form-label font-weight-bold font-18">Deuda de cliente:</label>
-                                    <div class="d-flex">
-                                        <div id="infoDeudaCliente"></div>
-                                        @Html.EditorFor(model => model.DeudaCliente, new { htmlAttributes = new { @class = "form-control border-success", @onchange = "validacionVerificarMontos('');" } })
-                                        <div class=""><a id="RptSaldo" class="btn btn-warning" onclick="reporteLibroSaldo('');">Saldo</a></div>
-
-                                        <div id="ReporteReclamos" class="ml-3"></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row mt-4">
-                                <div class="col-lg-3">
-                                    <label for="GastoEnvio" class="text-dark form-label font-weight-bold font-18">Gasto de Envío:</label>
-                                    @Html.EditorFor(model => model.GastoEnvio, new { htmlAttributes = new { @class = "form-control border-success", @onchange = "validacionVerificarMontos('');" } })
-                                </div>
-
-                                <div class="col-lg-3">
-                                    <label for="DeudaEmpresa" class="text-dark form-label font-weight-bold font-18">Deuda de Empresa:</label>
-                                    <div id="infoDeudaEmpresa">@Html.EditorFor(model => model.DeudaEmpresa, new { htmlAttributes = new { @class = "form-control border-success", @onchange = "validacionVerificarMontos('');" } })</div>
-                                </div>
-
-                            </div><!-- FIN ROW -->
-
-
-                            <div class="row mt-4">
-                                <div class="col-lg-3">
-                                    <label for="DescuentoNC" class="text-dark form-label font-weight-bold font-18">Descuento NC:</label>
-                                    <div class="d-flex">
-                                        <div id="infoDescuentoNC">@Html.EditorFor(model => model.DescuentoNC, new { htmlAttributes = new { @class = "form-control border-success", @onchange = "validacionVerificarMontos('');", @readonly = "true" } })</div>
-                                        <div>
-                                            <div class="btn btn-warning " style="cursor:pointer" onclick="listarNotasDeCreditoV();">...</div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-3">
-                                    <label for="IdReg" class="text-dark form-label font-weight-bold font-18">Regalo:</label>
-                                    <select name="Det5[0].IdReg" id="IdReg" class="form-control bg-cobefar text-white" onchange="enviarValSelect('IdReg', 'RegCate', 'Categoria'); enviarValSelect('IdReg', 'RegTipo', 'Tipo');">
-                                        <option value="">Seleccione</option>
-                                    </select>
-                                </div>
-
-                                <div class="col-lg-3">
-                                    <label for="RegCant" class="text-dark form-label font-weight-bold font-18">CantRegalo:</label>
-                                    <div class="d-flex">
-                                        <input type="number" id="RegCant" name="Det5[0].RegCant" class="form-control border-success" />
-                                        <a id="RptClienteRegalos" class="btn btn-warning" onclick="clienteRegalos();">SaldoReg</a>
-                                    </div>
-                                </div>
-
-                                <input type="hidden" id="LineaRegalo" name="Det5[0].Linea" value="1" readonly />
-                                <input type="hidden" id="RegCate" name="Det5[0].RegCate" readonly />
-                                <input type="hidden" id="RegTipo" name="Det5[0].RegTipo" readonly />
-                            </div><!-- FIN ROW -->
-
-                            <div class="row mt-4">
-                                <div class="col-lg-3">
-                                    <label for="MontoFinal" class="text-white bg-cobefar px-2 form-label font-weight-bold font-18">Monto Final:</label>
-                                    <div id="infoMontoFinal"><input id="MontoFinal" name="MontoFinal" type="text" readonly class="form-control border-success" /></div>
-                                </div>
-                            </div>
-
-                            <div id="div_detallesNC" class="row mt-4" style="display: none">
-                                <div class="col-lg-6">
-                                    <table id="detallesNC" class="table-bordered table-hover">
-                                        <thead class="bg-success text-white">
-                                            <tr>
-                                                <td class="text-center font-weight-bold">Ver</td>
-                                                <td class="text-center font-weight-bold">#</td>
-                                                <td class="text-center font-weight-bold">Monto</td>
-                                                <td class="text-center font-weight-bold">Fecha</td>
-                                                <td class="text-center font-weight-bold">Nro SAP</td>
-                                            </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
-                                </div>
-                            </div>
-
-
-                            <div class="row mt-4">
-                                <div class="col-lg-12">
-                                    <label for="Comentario" class="text-dark form-label font-weight-bold font-18">Comentario:</label>
-                                    @Html.TextAreaFor(model => model.Comentario, new { @class = "form-control border-success w-75", @placeholder = "Escribe aquí tu comentario", @rows = "4" })
-                                </div>
-                            </div>
-
-
-                            <div class="row mt-4">
-                                <div class="col-lg-6">
-                                    <button type="button" id="Verificar" class="btn btn-primary"><i class="icon icon-clipboard"></i> Verificar Datos</button>
-                                </div>
-                            </div>
-
+                    <h2 class="mt-4 text-cobefar font-weight-bold">DETALLES DE PAGO</h2>
+                    <div class="row mt-4">
+                        <div class="col-lg-3">
+                            <label for="MontoTotal" class="text-dark form-label font-weight-bold font-18">Monto Total:</label>
+                            @Html.EditorFor(model => model.MontoTotal, new { htmlAttributes = new { @class = "form-control border-success", @readonly = "true" } })
                         </div>
-                    </div><!-- // TAB 3 -->
 
-                    <div class="tab-pane fade" id="nav-caja" role="tabpanel" aria-labelledby="nav-caja-tab">
-                        <div class="bg-section-form p-4 bg-form-cobefar">
-                            <h2 class="mt-4 text-cobefar font-weight-bold">CAJA</h2>
-                            <div class="row mt-4">
-                                <div class="col-lg-3">
-                                    <label for="EstadoPago" class="text-dark form-label font-weight-bold font-18">Estado de Pago:</label>
-                                    @Html.EditorFor(model => model.EstadoPago, new { htmlAttributes = new { @class = "form-control border-success", @readonly = "true" } })
-                                </div>
+                        <div class="col-lg-3">
+                            <label for="TiempoEntrega" class="text-dark form-label font-weight-bold font-18">Tiempo de Entrega:</label>
+                            @Html.EditorFor(model => model.TiempoEntrega, new { htmlAttributes = new { @class = "form-control cls-dateTimeVentas border-success", @type = "text", @autocomplete = "off" } })
+                        </div>
+                    </div>
 
-                                <div class="col-lg-3">
-                                    <label for="FormaPago" class="text-dark form-label font-weight-bold font-18">Forma de Pago:</label>
-                                    @Html.EditorFor(model => model.FormaPago, new { htmlAttributes = new { @class = "form-control border-success", @readonly = "true" } })
-                                </div>
+                    <div class="row mt-4">
+                        <div class="col-lg-3">
+                            <label for="Flete" class="text-dark form-label font-weight-bold font-18">Flete (Taxi):</label>
+                            <div id="infoFlete">@Html.EditorFor(model => model.Flete, new { htmlAttributes = new { @class = "form-control border-success", @onchange = "validacionVerificarMontos('');" } })</div>
+                        </div>
 
-                                <div class="col-lg-2">
-                                    <label for="MontoRecibido" class="text-dark form-label font-weight-bold font-18">Monto Recibido:</label>
-                                    @Html.EditorFor(model => model.MontoRecibido, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
-                                </div>
+                        <div class="col-lg-4">
+                            <label for="DeudaCliente" class="text-dark form-label font-weight-bold font-18">Deuda de cliente:</label>
+                            <div class="d-flex">
+                                <div id="infoDeudaCliente"></div>
+                                @Html.EditorFor(model => model.DeudaCliente, new { htmlAttributes = new { @class = "form-control border-success", @onchange = "validacionVerificarMontos('');" } })
+                                <div class=""><a id="RptSaldo" class="btn btn-warning" onclick="reporteLibroSaldo('');">Saldo</a></div>
 
-                                <div class="col-lg-2">
-                                    <label for="FechaPago" class="text-dark form-label font-weight-bold font-18">Fecha de Pago:</label>
-                                    @Html.EditorFor(model => model.FechaPago, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
-                                </div>
+                                <div id="ReporteReclamos" class="ml-3"></div>
+                            </div>
+                        </div>
+                    </div>
 
-                                <div class="col-lg-2">
-                                    <label for="CodSapCajero" class="text-dark form-label font-weight-bold font-18">CajeroDesc:</label>
-                                    <input type="search" name="CodSapCajero" class="form-control border-success" value="0" readonly />
+                    <div class="row mt-4">
+                        <div class="col-lg-3">
+                            <label for="GastoEnvio" class="text-dark form-label font-weight-bold font-18">Gasto de Envío:</label>
+                            @Html.EditorFor(model => model.GastoEnvio, new { htmlAttributes = new { @class = "form-control border-success", @onchange = "validacionVerificarMontos('');" } })
+                        </div>
+
+                        <div class="col-lg-3">
+                            <label for="DeudaEmpresa" class="text-dark form-label font-weight-bold font-18">Deuda de Empresa:</label>
+                            <div id="infoDeudaEmpresa">@Html.EditorFor(model => model.DeudaEmpresa, new { htmlAttributes = new { @class = "form-control border-success", @onchange = "validacionVerificarMontos('');" } })</div>
+                        </div>
+
+                    </div><!-- FIN ROW -->
+
+
+                    <div class="row mt-4">
+                        <div class="col-lg-3">
+                            <label for="DescuentoNC" class="text-dark form-label font-weight-bold font-18">Descuento NC:</label>
+                            <div class="d-flex">
+                                <div id="infoDescuentoNC">@Html.EditorFor(model => model.DescuentoNC, new { htmlAttributes = new { @class = "form-control border-success", @onchange = "validacionVerificarMontos('');", @readonly = "true" } })</div>
+                                <div>
+                                    <div class="btn btn-warning " style="cursor:pointer" onclick="listarNotasDeCreditoV();">...</div>
                                 </div>
                             </div>
                         </div>
-                    </div><!-- // TAB 4 -->
+
+                        <div class="col-lg-3">
+                            <label for="IdReg" class="text-dark form-label font-weight-bold font-18">Regalo:</label>
+                            <select name="Det5[0].IdReg" id="IdReg" class="form-control bg-cobefar text-white" onchange="enviarValSelect('IdReg', 'RegCate', 'Categoria'); enviarValSelect('IdReg', 'RegTipo', 'Tipo');">
+                                <option value="">Seleccione</option>
+                            </select>
+                        </div>
+
+                        <div class="col-lg-3">
+                            <label for="RegCant" class="text-dark form-label font-weight-bold font-18">CantRegalo:</label>
+                            <div class="d-flex">
+                                <input type="number" id="RegCant" name="Det5[0].RegCant" class="form-control border-success" />
+                                <a id="RptClienteRegalos" class="btn btn-warning" onclick="clienteRegalos();">SaldoReg</a>
+                            </div>
+                        </div>
+
+                        <input type="hidden" id="LineaRegalo" name="Det5[0].Linea" value="1" readonly />
+                        <input type="hidden" id="RegCate" name="Det5[0].RegCate" readonly />
+                        <input type="hidden" id="RegTipo" name="Det5[0].RegTipo" readonly />
+                    </div><!-- FIN ROW -->
+
+                    <div class="row mt-4">
+                        <div class="col-lg-3">
+                            <label for="MontoFinal" class="text-white bg-cobefar px-2 form-label font-weight-bold font-18">Monto Final:</label>
+                            <div id="infoMontoFinal"><input id="MontoFinal" name="MontoFinal" type="text" readonly class="form-control border-success" /></div>
+                        </div>
+                    </div>
+
+                    <div id="div_detallesNC" class="row mt-4" style="display: none">
+                        <div class="col-lg-6">
+                            <table id="detallesNC" class="table-bordered table-hover">
+                                <thead class="bg-success text-white">
+                                    <tr>
+                                        <td class="text-center font-weight-bold">Ver</td>
+                                        <td class="text-center font-weight-bold">#</td>
+                                        <td class="text-center font-weight-bold">Monto</td>
+                                        <td class="text-center font-weight-bold">Fecha</td>
+                                        <td class="text-center font-weight-bold">Nro SAP</td>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+
+                    <div class="row mt-4">
+                        <div class="col-lg-12">
+                            <label for="Comentario" class="text-dark form-label font-weight-bold font-18">Comentario:</label>
+                            @Html.TextAreaFor(model => model.Comentario, new { @class = "form-control border-success w-75", @placeholder = "Escribe aquí tu comentario", @rows = "4" })
+                        </div>
+                    </div>
+
+
+                    <div class="row mt-4">
+                        <div class="col-lg-6">
+                            <button type="button" id="Verificar" class="btn btn-primary"><i class="icon icon-clipboard"></i> Verificar Datos</button>
+                        </div>
+                    </div>
+
                 </div>
+            </div><!-- // TAB 3 -->
+
+            <div class="tab-pane fade" id="nav-caja" role="tabpanel" aria-labelledby="nav-caja-tab">
+                <div class="bg-section-form p-4 bg-form-cobefar">
+                    <h2 class="mt-4 text-cobefar font-weight-bold">CAJA</h2>
+                    <div class="row mt-4">
+                        <div class="col-lg-3">
+                            <label for="EstadoPago" class="text-dark form-label font-weight-bold font-18">Estado de Pago:</label>
+                            @Html.EditorFor(model => model.EstadoPago, new { htmlAttributes = new { @class = "form-control border-success", @readonly = "true" } })
+                        </div>
+
+                        <div class="col-lg-3">
+                            <label for="FormaPago" class="text-dark form-label font-weight-bold font-18">Forma de Pago:</label>
+                            @Html.EditorFor(model => model.FormaPago, new { htmlAttributes = new { @class = "form-control border-success", @readonly = "true" } })
+                        </div>
+
+                        <div class="col-lg-2">
+                            <label for="MontoRecibido" class="text-dark form-label font-weight-bold font-18">Monto Recibido:</label>
+                            @Html.EditorFor(model => model.MontoRecibido, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                        </div>
+
+                        <div class="col-lg-2">
+                            <label for="FechaPago" class="text-dark form-label font-weight-bold font-18">Fecha de Pago:</label>
+                            @Html.EditorFor(model => model.FechaPago, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                        </div>
+
+                        <div class="col-lg-2">
+                            <label for="CodSapCajero" class="text-dark form-label font-weight-bold font-18">CajeroDesc:</label>
+                            <input type="search" name="CodSapCajero" class="form-control border-success" value="0" readonly />
+                        </div>
+                    </div>
+                </div>
+            </div><!-- // TAB 4 -->
+        </div>
     }
 
 </div>
@@ -825,16 +881,16 @@
 
 
                 <div class="row">
-                    <div class="col-lg-9"> <input type="text" id="busqueda_ubigeo" class="form-control" placeholder="Digite su busqueda" onkeyup="busqueda(this.value,'Ubigeos');" /></div>
+                    <div class="col-lg-9"><input type="text" id="busqueda_ubigeo" class="form-control" placeholder="Digite su busqueda" onkeyup="busqueda(this.value,'Ubigeos');" /></div>
                     <div class="col-lg-3"><button class="btn btn-success" data-dismiss="modal" onclick="$('#DirDestino2').val('').prop('readonly', true);$('#Ubigeo2').val('');$('#Distrito2').val('');$('#Provincia2').val('');$('#Departamento2').val('');reubicarZona('');">Limpiar datos</button></div>
                 </div>
                 <br />
 
                 <table id="Ubigeos" class="table table-light table-bordered table-sm table-hover text-center table-responsive-md">
                     <tr style="background-color:steelblue;color:white"><td>Ubigeo</td><td>Distrito</td><td>Provincia</td><td>Departamento</td><td></td></tr>
-                    @foreach (var o in Ubigeos)
-                    {
-                        <tbody>
+                    <tbody>
+                        @foreach (var o in Ubigeos)
+                        {
                             <tr>
                                 <td>@o.Ubigeo</td>
                                 <td>@o.Distrito</td>
@@ -842,9 +898,8 @@
                                 <td>@o.Departamento</td>
                                 <td><button class="btn btn-primary btn-sm" data-dismiss="modal" onclick="agregarDatos('@o.Ubigeo','@o.Distrito','@o.Provincia','@o.Departamento','@o.Zona')">Seleccionar</button></td>
                             </tr>
-                        </tbody>
-
-                    }
+                        }
+                    </tbody>
 
                 </table>
             </div>

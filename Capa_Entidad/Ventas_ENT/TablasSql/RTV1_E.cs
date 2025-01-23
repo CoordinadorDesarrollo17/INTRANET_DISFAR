@@ -32,7 +32,7 @@ namespace Capa_Entidad.Ventas_ENT.TablasSql
             }
             return lista;
         }
-        public static DataTable tbDetalle(List<RTV1_E> dt, int DocEntryC)
+        public static DataTable GenerarDataTable(List<RTV1_E> dt, int DocEntryC)
         {
             DataTable tb = new DataTable();
             tb.Columns.Add("DocEntry", typeof(int));

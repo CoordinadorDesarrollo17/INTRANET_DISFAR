@@ -118,6 +118,7 @@
     <Compile Include="Compras_DAO\Tablas\SQL_OPDN_D.cs" />
     <Compile Include="Compras_DAO\Tablas\OPCH_D.cs" />
     <Compile Include="Compras_DAO\Tablas\OPDN_D.cs" />
+    <Compile Include="ComprobantesContables_ENT\Comprobante_D.cs" />
     <Compile Include="DBHelper.cs" />
     <Compile Include="DireccionTecnica_DAO\Reportes\ReportesDigemid_D.cs" />
     <Compile Include="DireccionTecnica_DAO\TablasHANA\COB_ESTA_RS_D.cs" />
@@ -126,6 +127,7 @@
     <Compile Include="General_DAO\TablasSql\COUR_D.cs" />
     <Compile Include="General_DAO\TablasSql\DNLAB_D.cs" />
     <Compile Include="General_DAO\TablasSql\Firmas_D.cs" />
+    <Compile Include="General_DAO\TablasSql\OAGE_D.cs" />
     <Compile Include="General_DAO\TablasSql\OCHO_D.cs" />
     <Compile Include="General_DAO\TablasSql\OUR1_D.cs" />
     <Compile Include="General_DAO\TablasSql\OUR2_D.cs" />
@@ -138,6 +140,12 @@
     <Compile Include="General_DAO\Tablas\OWHS_D.cs" />
     <Compile Include="Operaciones_DAO\TablasSql\OTEP_D.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RecursosHumanos_DAO\TablasSQL\CARGO_D.cs" />
+    <Compile Include="RecursosHumanos_DAO\TablasSQL\EMPL1_D.cs" />
+    <Compile Include="RecursosHumanos_DAO\TablasSQL\OEMPL_D.cs" />
+    <Compile Include="RecursosHumanos_DAO\TablasSQL\SEDE_D.cs" />
+    <Compile Include="Repartos_DAO\TablasHana\SYP_CONDUC_D.cs" />
+    <Compile Include="Repartos_DAO\TablasHana\SYP_VEHICU_D.cs" />
     <Compile Include="ReportesDigemid_DAO\DocumentosDig_D.cs" />
     <Compile Include="Rutas_DAO\TablasSql\ORRU_D.cs" />
     <Compile Include="Rutas_DAO\TablasSql\RRU01_D.cs" />
@@ -148,7 +156,11 @@
     <Compile Include="Seguridad_DAO\OOPE_D.cs" />
     <Compile Include="Seguridad_DAO\Orol_D.cs" />
     <Compile Include="Seguridad_DAO\Rol1_D.cs" />
+    <Compile Include="Seguridad_DAO\TablasSql\OUSR_OPE_D.cs" />
+    <Compile Include="Seguridad_DAO\TablasSql\ROL_OPE_D.cs" />
     <Compile Include="Seguridad_DAO\TablasSql\USR2_D.cs" />
+    <Compile Include="SocioNegocios_DAO\TablasSql\OCRD_D.cs" />
+    <Compile Include="SocioNegocios_DAO\Tablas\CRD1_D.cs" />
     <Compile Include="SocioNegocios_DAO\Tablas\OCPR_D.cs" />
     <Compile Include="SocioNegocios_DAO\Tablas\OCRD_D.cs" />
     <Compile Include="Seguridad_DAO\Usuario_D.cs" />

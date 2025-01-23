@@ -31,13 +31,13 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 if (ticket.Cajero == null || ticket.Cajero.Equals("")) { throw new Exception("NO ELIGIÓ CAJERO"); }
             }
 
-            var datosTicket = ticketV.obtenerTicket(DocEntry);
+            var datosTicket = ticketV.ObtenerDatosCompletosTicket(DocEntry);
 
             if (ticket.MontoFinal != ticket.MontoRecibido) { throw new Exception("NO SE PAGO YA QUE LOS MONTOS NO COINCIDEN"); }
             if (datosTicket.Estado.Equals("CANCELADO")) { throw new Exception("NO PUEDE PAGAR UN TICKET CANCELADO"); }
             if (datosTicket.EstadoPago.Equals("PAGADO")) { throw new Exception("EL TICKET YA SE ENCUENTRA PAGADO"); }
 
-            int docNumTicket = ticketV.pagarTicket(DocEntry, ticket);
+            int docNumTicket = ticketV.PagarTicket(DocEntry, ticket);
 
             // Para tickets a cuadrar (PAGO EFECTIVO)
             if (docNumTicket > 0)
@@ -57,23 +57,23 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
 
         public int AnularPagoTicket(int DocEntry)
         {
-            ORTV_E t = ticketV.obtenerTicket(DocEntry);
+            ORTV_E t = ticketV.ObtenerDatosCompletosTicket(DocEntry);
             if (t.EstadoPago != null && !t.EstadoPago.Equals("PAGADO")) { throw new Exception("EL TICKET SE ENCUENTRA PENDIENTE"); }
             if (t.Estado.Equals("ENTREGADO")) { throw new Exception("NO PUEDES ANULARPAGO DE TICKET ENTREGADO"); }
             if (t.Estado.Equals("ENVIADO")) { throw new Exception("NO PUEDES ANULARPAGO DE TICKET ENVIADO"); }
             if (t.EstadoGasto == "CONFIRMADO") { throw new Exception("No puedes Anular Pago de EstadoGasto confirmado"); }
-            return ticketV.anularPagoTicket(DocEntry);
+            return ticketV.AnularPagoTicket(DocEntry);
         }
 
         public void ConfGastEnvio(ORTV_E o)
         {
-            ORTV_E ortvE = ticketV.obtenerTicket(o.DocEntry);
+            ORTV_E ortvE = ticketV.ObtenerDatosCompletosTicket(o.DocEntry);
             if (ortvE.EstadoPago != "PAGADO") { throw new Exception("Solo puedes confirmar ticket Pagado"); }
             if (o.PagoEnv <= 0) { throw new Exception("Pago envio no puede ser negativo o cero"); }
             if (ortvE.EstadoGasto == "CONFIRMADO") { throw new Exception("Error: El ticket ya esta confirmado"); }
             o.CardCode = ortvE.CardCode; o.GastoEnvio = ortvE.GastoEnvio; o.DocNum = ortvE.DocNum;
             if (o.DetOpe == null) { o.DetOpe = ""; }
-            ticketV.confGastEnvio(o);
+            ticketV.ConfGastEnvio(o);
         }
 
         public OTC_E ObtenerDatosTicketACuadrar(int docEntryTicket, int idOTC)
@@ -221,7 +221,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             if (datosTC == null || (datosTC.Estado != null && datosTC.Estado.Equals("RECHAZADO")))
             {
                 string[] tiposVentaValidos = { "ContraEntrega" };
-                var result = ticketV.obtenerTicket((int)tc.DocEntryTicket);
+                var result = ticketV.ObtenerDatosCompletosTicket((int)tc.DocEntryTicket);
 
                 if (result != null && tc.DocEntryTicket.Equals(result.DocEntry) && tiposVentaValidos.Contains(result.TipoVenta))
                 {
@@ -299,7 +299,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 return "Es obligatorio agregar el motivo de VALIDACIÓN";
             }
 
-            var datosTicket = new ORTV_D().obtenerTicket((int)tc.DocEntryTicket);
+            var datosTicket = new ORTV_D().ObtenerDatosCompletosTicket((int)tc.DocEntryTicket);
             if (datosTicket == null)
             {
                 return "Verificar datos del ticket. Reportarlo a SISTEMAS";
@@ -340,7 +340,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             OPP_D ppD = new OPP_D();
             var totalPagos = ppD.ObtenerTotalPagos(pp[0].IdOTC);
 
-            var datosTicket = new ORTV_D().obtenerTicket(docEntryTicket);
+            var datosTicket = new ORTV_D().ObtenerDatosCompletosTicket(docEntryTicket);
             var datosCaja = otcD.ObtenerDatosTicketACuadrar(docEntryTicket, pp[0].IdOTC);
 
             // Si el cliente cumplió con el compromiso de pago restante del ticket

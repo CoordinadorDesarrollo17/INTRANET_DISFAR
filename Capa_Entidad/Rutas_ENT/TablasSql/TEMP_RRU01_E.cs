@@ -22,6 +22,8 @@ namespace Capa_Entidad.Rutas_ENT.TablasSql
         public string Operario { get; set; }
         public string FechaOperación { get; set; }
         public string HoraOperación { get; set; }
+        public decimal DocTotal { get; set; }
+        
 
 
     }

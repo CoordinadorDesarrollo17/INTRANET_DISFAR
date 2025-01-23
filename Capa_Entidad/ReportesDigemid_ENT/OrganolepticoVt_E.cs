@@ -12,7 +12,7 @@ namespace Capa_Entidad.ReportesDigemid_ENT
         public string NroGuia { get; set; }
         public string FechaContab { get; set; }
         public string Cliente { get; set; }
-        public string Almacen { get; set; }
+        public string CodAlmacen { get; set; }
         public string CodUnidMed { get; set; }
         public decimal CantidadL { get; set; }
         public string Lote { get; set; }
@@ -24,5 +24,7 @@ namespace Capa_Entidad.ReportesDigemid_ENT
         public string FormaPresentacion { get; set; }
         public string Fabricante { get; set; }
         public string CondicionAl { get; set; }
+        public string TaxOfficeAlmacen { get; set; }
+        public string Almacen { get; set; }
     }
 }

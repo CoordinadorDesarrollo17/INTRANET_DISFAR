@@ -1,0 +1,53 @@
+﻿<div class="container">
+    <div class="row mb-2">
+
+        @{int contador = 0;}
+        @foreach (var controlador in Model.Keys)
+        {
+            //bool tieneControlador = false;
+
+            //if (ViewBag.Operaciones.ContainsKey(controlador))
+            //{
+            //    tieneControlador = true;
+            //}
+
+            if (contador % 3 == 0 && contador != 0)
+            {
+                @Html.Raw("</div><div class=\"row mb-2\">");
+            }
+            <div class="col-4">
+                <div class="accordion" id="accordion_@controlador">
+                    <div class="card">
+                        <div class="card-header bg-cobefar-6" id="heading_@controlador">
+                            <div class="d-flex align-items-center">
+                                <h5 class="mb-0">
+                                    <button type="button" class="btn bg-cobefar-6 text-white btn-block text-left" data-toggle="collapse" data-target="#collapse_@controlador" aria-expanded="false" aria-controls="collapse_@controlador">
+                                        <i class="icon-arrow-right"></i> @controlador
+                                    </button>
+                                </h5>
+                            </div>
+                        </div>
+
+                        <div id="collapse_@controlador" class="collapse" aria-labelledby="heading_@controlador" data-parent="#accordion_@controlador">
+                            <div class="card-body">
+                                <div class="form-check text-right mb-3">
+                                    <input class="form-check-input seleccionar-todos" type="checkbox" data-grupo="grupo_@controlador" id="chk_todos_@controlador">
+                                    <label class="form-check-label text-primary" for="chk_todos_@controlador">Seleccionar Todos</label>
+                                </div>
+
+                                @foreach (var item in Model[controlador])
+                                {
+                                    <div class="form-check">
+                                        <input id="idOperacion_@item.Id" class="form-check-input chk-item grupo_@controlador" type="checkbox" value="@item.Id" name="idOperacion" @if (ViewBag.Operaciones.Contains(item.Id)) { Write("checked"); } />
+                                        <label class="form-check-label text-dark" for="idOperacion_@item.Id">@item.Nombre</label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            ++contador;
+        }
+    </div>
+</div>

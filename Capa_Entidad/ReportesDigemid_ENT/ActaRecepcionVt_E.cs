@@ -18,7 +18,7 @@ namespace Capa_Entidad.ReportesDigemid_ENT
 		public string T0_TaxDate { get; set; }
 		public int T1_LineNum { get; set; }
 		public string T1_ItemCode { get; set; }
-		public string Almacen { get; set; }
+		public string CodAlmacen { get; set; }
 		public string T8_ItemName { get; set; }
 		public string T8_FrgnName { get; set; }
 		public string Concentracion { get; set; }
@@ -34,5 +34,7 @@ namespace Capa_Entidad.ReportesDigemid_ENT
 		public string T0_U_COB_TIPODOC { get; set; }
 		public string T0_U_COB_SERIE { get; set; }
 		public string T0_U_COB_CORDOC { get; set; }
+		public string TaxOffice { get; set; }
+		public string Almacen { get; set; }
     }
 }

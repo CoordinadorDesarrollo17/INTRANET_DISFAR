@@ -6,6 +6,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     Usuario_E user = (Usuario_E)Session["UsuarioId"];
     Dictionary<string, CC_ORTV_E> flujoEstados = new Dictionary<string, CC_ORTV_E>(ViewBag.flujoEstadosTicket);
+    bool permisoCajas = ViewBag.permisoCajas == 1 ? true : false;
 }
 
 <script>
@@ -22,7 +23,7 @@
 
 <div class="pt-4">
     <nav>
-        <ol class="cd-breadcrumb bg-dark">
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
             <li><a href="@Url.Action("ListadoTicketsVenta", "Ventas")">Listado de tickets</a></li>
             <li class="current"><em>Seguimiento de ticket</em></li>
@@ -30,7 +31,7 @@
     </nav>
 </div>
 
-<div class="bg-dark border-cabecera-seccion pb-2">
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
     <div class="px-3 pt-3"><h3 class="titulo-seccion">SEGUIMIENTO DE TICKET</h3></div>
     <div class="d-flex pl-2 w-100 py-2">
 
@@ -189,8 +190,11 @@
                                     </li>
                                 }
 
-                                @if (Model.hayFinPicking && flujoEstados["FIN PICKING"].Operario != null && flujoEstados["FIN PICKING"].FechaOperacion != null)
+                                @if (Model.hayFinPicking && flujoEstados["FIN PICKING"].Operario != null && flujoEstados["FIN PICKING"].FechaOperacion != null
+                                    && ((!string.IsNullOrEmpty(Model.AlmProcedencia) && Model.AlmProcedencia.Equals("03")) || !Model.Det2[0].AlmacenSalida.Equals("ALM07")))
                                 {
+                                    //if (new List<string> { "EMPACADO", "PESADO", "PREENVIO", "ENVIADO", "ENTREGADO", "CANCELADO" }.Contains(Model.Estado) ) )
+
                                     <li class="li complete">
                                         <div class="timestamp">
                                             <span class="author font-12">@flujoEstados["FIN PICKING"].Operario.Substring(0, 12) </span>
@@ -206,8 +210,10 @@
                                         <div class="row" style="padding-bottom: 160px">
                                         </div>
                                     </li>
+
                                 }
-                                else if (Model.hayIniPicking && flujoEstados["INICIO PICKING"].Operario != null && flujoEstados["INICIO PICKING"].FechaOperacion != null)
+                                else if (Model.hayIniPicking && flujoEstados["INICIO PICKING"].Operario != null && flujoEstados["INICIO PICKING"].FechaOperacion != null
+                                    && ((!string.IsNullOrEmpty(Model.AlmProcedencia) && Model.AlmProcedencia.Equals("03")) || !Model.Det2[0].AlmacenSalida.Equals("ALM07")))
                                 {
                                     <li class="li complete">
                                         <div class="timestamp">
@@ -222,8 +228,24 @@
                                         </div>
                                     </li>
                                 }
+                                //Caso almacen 06
+                                else if (Model.hayIniPicking && flujoEstados["INICIO PICKING"].Operario != null && flujoEstados["INICIO PICKING"].FechaOperacion != null)
+                                {
+                                    <li class="li complete">
+                                        <div class="timestamp">
+                                            <span class="author font-12">@flujoEstados["INICIO PICKING"].Operario.Substring(0, 12)</span>
+                                            <span class="date text-center font-12"><i class="icon icon-calendar text-info"></i> @flujoEstados["INICIO PICKING"].FechaOperacion<br /><i class="icon icon-clock text-info"></i> @flujoEstados["INICIO PICKING"].HoraOperacion</span>
+                                        </div>
+                                        <div class="status-info text-center font-12">
+                                            <p>Pedido<br />VERIFICADO</p>
+                                        </div>
 
-                                @if (Model.hayFinVerificar && flujoEstados["FIN VERIFICAR"].Operario != null && flujoEstados["FIN VERIFICAR"].FechaOperacion != null)
+                                        <div class="row" style="padding-bottom: 178px">
+                                        </div>
+                                    </li>
+                                }
+                                @if (Model.hayFinVerificar && flujoEstados["FIN VERIFICAR"].Operario != null && flujoEstados["FIN VERIFICAR"].FechaOperacion != null
+                                   && ((!string.IsNullOrEmpty(Model.AlmProcedencia) && Model.AlmProcedencia.Equals("03")) || !Model.Det2[0].AlmacenSalida.Equals("ALM07")))
                                 {
                                     <li class="li complete">
                                         <div class="timestamp">
@@ -238,7 +260,8 @@
                                         </div>
                                     </li>
                                 }
-                                else if (Model.hayIniVerificar && flujoEstados["INICIO VERIFICAR"].Operario != null && flujoEstados["INICIO VERIFICAR"].FechaOperacion != null)
+                                else if (Model.hayIniVerificar && flujoEstados["INICIO VERIFICAR"].Operario != null && flujoEstados["INICIO VERIFICAR"].FechaOperacion != null
+                                    && ((!string.IsNullOrEmpty(Model.AlmProcedencia) && Model.AlmProcedencia.Equals("03")) || !Model.Det2[0].AlmacenSalida.Equals("ALM07")))
                                 {
                                     <li class="li complete">
                                         <div class="timestamp">
@@ -253,7 +276,6 @@
                                         </div>
                                     </li>
                                 }
-
                                 @if (Model.hayFinEmpacar && flujoEstados["FIN EMPACAR"].Operario != null && flujoEstados["FIN EMPACAR"].FechaOperacion != null)
                                 {
                                     <li class="li complete">
@@ -265,19 +287,19 @@
                                             <p>El pedido se EMPACÓ</p>
                                         </div>
 
-                                        @if ((ViewBag.IdRol == 1 || ViewBag.IdRol == 4) && Model.Estado == "EMPACADO")
+                                        @if (Model.Estado == "EMPACADO" && permisoCajas)
                                         {
 
                                             <div class="row justify-content-center font-14 font-weight-bold p-1">Cajas : <span class="ml-1">  @Model.Cajas</span></div>
                                             <div class="row justify-content-center">
-                                                @Html.EditorFor(model => model.Cajas, new { htmlAttributes = new { @class = "form-control text-center border-success w-25", @readonly = true, @hidden = true } })
-                                                @Html.EditorFor(model => model.CajasNuevo, new { htmlAttributes = new { @class = "form-control text-center border-success w-25" } })
+                                                @Html.EditorFor(model => model.Cajas, new { htmlAttributes = new { @class = "form-control text-center border-success w-50", @readonly = true, @hidden = true } })
+                                                @Html.EditorFor(model => model.CajasNuevo, new { htmlAttributes = new { @class = "form-control text-center border-success w-50" } })
                                             </div>
 
                                             <div class="row justify-content-center font-14 font-weight-bold p-1">NroMesa : <span class="ml-1">   @Model.NroMesa</span></div>
                                             <div class="row justify-content-center ">
-                                                @Html.EditorFor(model => model.NroMesa, new { htmlAttributes = new { @class = "form-control text-center border-success w-25", @readonly = true, @hidden = true } })
-                                                @Html.EditorFor(model => model.NroMesaNuevo, new { htmlAttributes = new { @class = "form-control text-center border-success w-25" } })
+                                                @Html.EditorFor(model => model.NroMesa, new { htmlAttributes = new { @class = "form-control text-center border-success w-50", @readonly = true, @hidden = true } })
+                                                @Html.EditorFor(model => model.NroMesaNuevo, new { htmlAttributes = new { @class = "form-control text-center border-success w-50" } })
                                             </div>
                                             <div class="row justify-content-center">
                                                 <input class="btn btn-sm btn-success " type="submit" name="UPDATEEMP" value="ENVIAR DATOS" />
@@ -370,25 +392,25 @@
                                             <p>Pedido fue<br />ENVIADO en el<br />transporte (opcional)</p>
                                         </div>
                                         <div class="row " style="padding-bottom: 160px"></div>
-                                            <!--<div class="position-absolute font-12 ml-4">-->
-                                            @*INDICA QUE HAY UNA RUTA RELACIONADA*@
-                                            @*@{ if (Model.orru.DocNum != 0 )
-            {
-                <p>
-                    <span class="font-weight-bold">Propietario: </span><br />@if (Model.orru.Propietario != null && Model.orru.Propietario.Length > 12)
-                    {@Model.orru.Propietario.Substring(0, 12);
-                }
-                </p>
-                <p><span class="font-weight-bold">Conductor:</span><br /> @if (Model.orru.TransDesc != null && Model.orru.TransDesc.Length > 12) { Write(Model.orru.TransDesc.Substring(0, 12)); }</p>
-                <p><span class="font-weight-bold">Copiloto1: </span><br />@if (Model.orru.CopilDesc != null && Model.orru.CopilDesc.Length > 12) { Write(Model.orru.CopilDesc.Substring(0, 12)); }</p>
-                <p><span class="font-weight-bold">Copiloto2:</span><br />@if (Model.orru.Copil2Desc != null && Model.orru.Copil2Desc.Length > 12) { Write(Model.orru.Copil2Desc.Substring(0, 12)); }</p>
-                <p><span class="font-weight-bold">N° Ruta:</span><br />@Model.orru.DocNum</p>
-            }
-        }*@
-                                            <!--</div>
+                                        <!--<div class="position-absolute font-12 ml-4">-->
+                                        @*INDICA QUE HAY UNA RUTA RELACIONADA*@
+                                        @*@{ if (Model.orru.DocNum != 0 )
+                    {
+                        <p>
+                            <span class="font-weight-bold">Propietario: </span><br />@if (Model.orru.Propietario != null && Model.orru.Propietario.Length > 12)
+                            {@Model.orru.Propietario.Substring(0, 12);
+                        }
+                        </p>
+                        <p><span class="font-weight-bold">Conductor:</span><br /> @if (Model.orru.TransDesc != null && Model.orru.TransDesc.Length > 12) { Write(Model.orru.TransDesc.Substring(0, 12)); }</p>
+                        <p><span class="font-weight-bold">Copiloto1: </span><br />@if (Model.orru.CopilDesc != null && Model.orru.CopilDesc.Length > 12) { Write(Model.orru.CopilDesc.Substring(0, 12)); }</p>
+                        <p><span class="font-weight-bold">Copiloto2:</span><br />@if (Model.orru.Copil2Desc != null && Model.orru.Copil2Desc.Length > 12) { Write(Model.orru.Copil2Desc.Substring(0, 12)); }</p>
+                        <p><span class="font-weight-bold">N° Ruta:</span><br />@Model.orru.DocNum</p>
+                    }
+                }*@
+                                        <!--</div>
 
-    </div>-->
-</li>
+            </div>-->
+                                    </li>
                                 }
 
                                 @if (Model.hayEntregar && flujoEstados["ENTREGAR"].Operario != null && flujoEstados["ENTREGAR"].FechaOperacion != null)
@@ -792,7 +814,6 @@ if (Model.orru != null && Model.orru.DocNum != 0)
                             {
                                 <input class="form-control border-success" id="Regalo" value="" readonly />
                             }
-
                         </div>
 
                         <div class="col-lg-2">
@@ -846,7 +867,6 @@ if (Model.orru != null && Model.orru.DocNum != 0)
                         </div>
                     </div>
 
-
                     <div class="row mt-4">
                         <div class="col-lg-12">
                             <label for="Comentario" class="px-2 bg-cobefar text-white form-label font-weight-bold font-18">Comentario:</label>
@@ -892,7 +912,6 @@ if (Model.orru != null && Model.orru.DocNum != 0)
 
                         </div>
                     </div>
-
 
                     <div class="row mt-4">
                         <div class="col-lg-6">

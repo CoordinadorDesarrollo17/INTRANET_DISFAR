@@ -25,7 +25,7 @@
                 "<td><input class= 'form-control' name = 'DetFases[0].DetApoyos[" + contUser + "].Id' value = '" + Usuario.val() + "' readonly /></td >" +
                 "<td><input class='form-control' name='DetFases[0].DetApoyos[" + contUser + "].Nombre' value='" + Nombre + "'  readonly /></td>" +
                 "<td><input class= 'form-control' name = 'DetFases[0].DetApoyos[" + contUser + "].ObsApoyo' value = '" + Observacion + "' readonly /></td >" +
-                "<td><button type='button' onclick='borrarTrTable(this)' class='btn btn-danger'>Retirar</button></td></tr>");
+                "<td><button type='button' onclick='borrarTrTable(this)' class='btn btn-danger'><i class='icon-bin'> </i></button></td></tr>");
             contUser = contUser + 1;
         }
         $("#" + id).val("");
@@ -97,7 +97,7 @@
 
 <div class="pt-4">
     <nav>
-        <ol class="cd-breadcrumb bg-dark">
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
             <li><a href="@Url.Action("ContabilizacionInventario", "Almacen")">Módulo contabilización inventario</a></li>
             <li><a href="@Url.Action("GestionReconteos", "Almacen")">Gestión de reconteos</a></li>
@@ -107,15 +107,8 @@
 </div>
 
 
-<div class="bg-dark border-cabecera-seccion pb-2">
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
     <div class="px-3 pt-3"><h3 class="titulo-seccion">INICIAR RECONTEO</h3></div>
-
-    @*DESCOMENTAR FRAGMENTO EN CASO SE DESEA AGREGAR BOTONES
-            <div class="d-flex pl-2 w-100 py-2">
-            <div class="mx-2">
-                @Html.ActionLink("Nuevo Conteo", "NuevoConteo", null, new { @class = "btn btn-success" })
-            </div>
-        </div>*@
 </div>
 
 @if (@OIPE_E.PeriodoSeleccionado != null)
@@ -203,7 +196,6 @@
             <label for="TiempoInicio" class="text-dark form-label font-weight-bold font-18">Apoyos:</label>
             <input type="search" id="Apoyos" list="listaApoyos" class="form-control border-success text-center" />
             <datalist id="listaApoyos">
-
                 @foreach (Usuario_E obj in u)
                 {
                     <option value="@obj.Prefijo@obj.Id" nombre="@obj.Nombres  @obj.Apellidos">@obj.Nombres  @obj.Apellidos</option>
@@ -215,7 +207,7 @@
             <label for="TiempoInicio" class="text-dark form-label font-weight-bold font-18">Obs. Apoyo:</label>
             <div class="d-flex">
                 <input id="ObsApoyo" type="text" value="" class="form-control border-success" />
-                @if (Model.DetFases.Count == 2)
+                @if (Model.DetFases!=null && Model.DetFases.Count == 2)
                 {
                     <button type="button" class="btn btn-info" onclick="llenarTabla('Apoyos');"><i class="icon-plus"></i> Agregar</button>
                 }
@@ -228,24 +220,24 @@
     <div class="row mt-4">
         <div class="col-lg-10">
             <table id="DetallesReconteo" class="table table-sm ">
-                <thead class="bg-dark">
+                <thead class="bg-success">
                     <tr>
-                        <th class="text-center" width="220px">Usuario</th>
+                        <th class="text-center">Usuario</th>
                         <th class="text-center">Nombre</th>
                         <th class="text-center">Observación</th>
                         <th class="text-center"></th>
                     </tr>
                 </thead>
                 <tbody>
-                    @if (Model.DetFases.Count > 2 && Model.DetFases[2].DetApoyos.Count > 0)
+                    @if (Model.DetFases != null && Model.DetFases.Count > 2 && Model.DetFases[2].DetApoyos.Count > 0)
                     {
                         foreach (IAR11_E obj in Model.DetFases[2].DetApoyos)
                         {
                             <tr>
-                                <td>@obj.Id</td>
-                                <td>@obj.Nombre</td>
-                                <td>@obj.ObsApoyo</td>
-                                <td></td>
+                                <td class="text-center">@obj.Id</td>
+                                <td class="text-center">@obj.Nombre</td>
+                                <td class="text-center">@obj.ObsApoyo</td>
+                                <td class="text-center"></td>
                             </tr>
                         }
                     }

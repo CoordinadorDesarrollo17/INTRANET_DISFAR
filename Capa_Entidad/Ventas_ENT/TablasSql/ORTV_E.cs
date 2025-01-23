@@ -155,7 +155,47 @@ namespace Capa_Entidad.Ventas_ENT.TablasSql
         public string EstadoContraEntrega { get; set; }     // Estado de la tabla OTC
         public string TipoPago { get; set; }                // TipoPago de la tabla OTC
         public int IdOTC { get; set; }                      // Para saber el Id de Tickets a Cuadrar
+        public bool zonaDistinta { get; set; }                      // Para saber el Id de Tickets a Cuadrar
+        public ORTV_E()
+        {
+            hayIniPicking = false;
+            hayIniVerificar = false;
+            hayIniEmpacar = false;
+            hayFinPicking = false;
+            hayFinVerificar = false;
+            hayFinEmpacar = false;
+            hayRecibir = false;
+            hayEnviar = false;  
+            hayEntregar = false;
+            aptoFinVerificar = false;
+            aptoIniVerificar=false;
+            zonaDistinta = false;
+        }
     }
+
+    public class ReporteRegalos
+    {
+        public int DocNum { get; set; }
+        [DisplayName("Fecha SAP Ticket")]
+        public string FechaSapTicket { get; set; }
+        [DisplayName("Ruc")]
+        public string CardCode { get; set; }
+        [DisplayName("Razón Social")]
+        public string CardName { get; set; }
+        public int Linea { get; set; }
+        [DisplayName("Nombre del Regalo")]
+        public string NombreRegalo { get; set; }
+        public int Cantidad { get; set; }
+        [DisplayName("Estado de Entrega del Regalo")]
+        public string EstadoRegalo { get; set; }
+        [DisplayName("Estado de Ticket")]
+        public string Estado { get; set; }
+        [DisplayName("Lugar Destino")]
+        public string LugarDestino { get; set; }
+        [DisplayName("Vendedor")]
+        public string Vendedor { get; set; }
+    }
+
     public class Tickets
     {
         public int DocEntry { get; set; }

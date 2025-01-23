@@ -1,5 +1,6 @@
 ﻿using Capa_Datos;
 using Capa_Datos.Ventas_DAO.TablasSql;
+using Capa_Entidad.ComprobantesContables_ENT;
 using Capa_Entidad.Rutas_ENT.ReportesSql;
 using Capa_Entidad.Rutas_ENT.TablasSql;
 using Capa_Entidad.Seguridad_ENT;
@@ -10,6 +11,7 @@ using Sap.Data.Hana;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Web.UI.WebControls.WebParts;
 
@@ -17,47 +19,42 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
 {
     public class ORTV_N
     {
-        ORTV_D ticketV = new ORTV_D(); CC_ORTV_D ccTicket = new CC_ORTV_D();
+        ORTV_D tkD = new ORTV_D();
+        CC_ORTV_D ccTicket = new CC_ORTV_D();
         public object t { get; private set; }
-        //public string generaTablaTicketsVenta(ORTV_E filtro, int days, string[] estados)
-        //{
-        //    return ticketV.generaTablaTicketsVenta(filtro, days, estados);
-        //}
-        public List<ORTV_E> listarTicketsParaRepartos(ORTV_E filtro, string[] estados, out int cantidadTicketsNoEnviados)
+        
+        public List<dynamic> ListarTicketsPorRegularizarContraEntrega()
         {
-            return ticketV.listarTicketsParaRepartos(filtro, estados, out cantidadTicketsNoEnviados);
+            return tkD.ListarTicketsPorRegularizarContraEntrega();
         }
-        public List<ORTV_E> listarTicketsRepartosNoEnviados(ORTV_E filtro, string[] estados)
+        public List<ReporteRegalos> listarTicketsRegalo(string fechaTicketDesde, string fechaTicketHasta, string estadoTicket, string estadoRegalo)
         {
-            return ticketV.listarTicketsRepartosNoEnviados(filtro, estados);
-        }
-        public List<ORTV_E> listarTicketsVenta(Usuario_E user, ORTV_E t)
-        {
-            return ticketV.listarTicketsVenta(user, t);
-        }
-        public List<string> BuscarVinculados(int DocEntry, int DocNum)
-        {
-            return ticketV.BuscarVinculados(DocEntry, DocNum);
-        }
-        public List<Rpt_TicketVenta_E> listarTicketsAgencia()
-        {
-            return ticketV.listarTicketsAgencia();
+            return tkD.ListarTicketsRegalo(fechaTicketDesde, fechaTicketHasta, estadoTicket, estadoRegalo);
         }
         public List<ORTV_E> listarTicketsSeparados(int Id)
         {
-            return ticketV.listarTicketsSeparados(Id);
+            return tkD.listarTicketsSeparados(Id);
         }
-        public ORTV_E separarTicket(Usuario_E u)
+        public List<RTV2_E> obtenerDet2Ticket(int DocEntry)
         {
-            return ticketV.separarTicket(u);
+            return tkD.obtenerDet2Ticket(DocEntry);
         }
-        public ORTV_E obtenerTicket(int DocEntry)
+        public List<RTV4_E> obtenerDet4Ticket(int DocEntry, int DocNum = 0)
         {
-            return ticketV.obtenerTicket(DocEntry);
+            return tkD.obtenerDet4Ticket(DocEntry, DocNum);
         }
-        public int registrarTicket(ORTV_E ticket)
+        public List<RTV5_E> obtenerDet5Ticket(int DocEntry)
         {
-            validarDatosTicket(ticket, 0);
+            return tkD.obtenerDet5Ticket(DocEntry);
+        }
+        /**********************************************************************/
+        public ORTV_E Separar(Usuario_E u)
+        {
+            return tkD.Separar(u);
+        }
+        public int Registrar(ORTV_E ticket)
+        {
+            ValidarDatosTicket(ticket, 0);
             if (!ticket.Estado.Equals("SEPARADO")) { throw new Exception("EL TICKET DEBE TENER ESTADO SEPARADO"); }
             if (ticket.Observaciones2 == "SI")
             {
@@ -65,7 +62,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 {
                     foreach (var det7 in ticket.Det7)
                     {
-                        var TkPrincipal = obtenerTicket(DocEntryTicket((int)det7.DocNumVinc));
+                        var TkPrincipal = ObtenerDatosCompletosTicket(DocEntryTicket((int)det7.DocNumVinc));
                         if (TkPrincipal.Estado != "ABIERTO" && TkPrincipal.Estado != "RECIBIDO" && TkPrincipal.Estado != "PICKEANDO" && TkPrincipal.Estado != "PICKEADO" && TkPrincipal.Estado != "VERIFICANDO" && TkPrincipal.Estado != "VERIFICADO" && TkPrincipal.Estado != "EMPACANDO" && TkPrincipal.Estado != "EMPACADO" && TkPrincipal.Estado != "PESADO")
                         {
                             throw new Exception("El ticket que quiere vincular en linea " + det7.Linea + " se encuentra fuera de un estado modificable.");
@@ -78,173 +75,279 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 }
                 else { throw new Exception("Debe vincular tickets"); }
             }
-            return ticketV.registrarTicket(ticket);
+            return tkD.Registrar(ticket);
         }
-        public void validarDatosTicket(ORTV_E ticket, int IdRol)
+
+        /************************************VALIDACIONES***************************************/
+        public void ValidarDatosTicket(ORTV_E ticket, int IdRol)
         {
-            OREG_N oregN = new OREG_N();
-            OCLR_N oclrN = new OCLR_N();
-            if (ticket.Det2 == null || ticket.Det2.Count() == 0) { throw new Exception("No puede registrar con detalles vacíos."); }
-            else
+            try
             {
-                foreach (RTV2_E d in ticket.Det2)
+                // Validaciones generales del ticket
+                ValidarTicketGeneral(ticket);
+
+                // Validaciones de ordenes de venta
+                ValidarOrdenesVenta(ticket);
+
+                // Validaciones específicas según el lugar de destino
+                ValidarLugarDestino(ticket);
+
+                // Validaciones de datos persona de recojo
+                ValidarDatosPersonales(ticket);
+
+                // Validaciones de Direcciones
+                ValidarDirecciones(ticket);
+
+                // Validación de montos y flete
+                ValidarMontos(ticket);
+
+                // Validaciones adicionales
+                ValidarDeudasYGastos(ticket);
+
+                // Validaciones vinculados
+                ValidarVinculados(ticket);
+
+                // Validación de regalos (Det5)
+                if (IdRol == 0)
                 {
-                    if (d.Verificar == "on" && string.IsNullOrEmpty(d.TipoComprobante)) { throw new Exception("Debe llenar el tipo de comprobante en la línea: " + d.Linea); }
+                    ValidarRegalos(ticket);
                 }
+
             }
-            if (string.IsNullOrEmpty(ticket.FechaSapTicket)) { throw new Exception("No eligió la fecha del ticket."); }
-            if (ticket.DocNum <= 0) { throw new Exception("No seleccionó un número de ticket."); }
-            if (string.IsNullOrEmpty(ticket.CardCode) || string.IsNullOrEmpty(ticket.CardName)) { throw new Exception("No seleccionó un cliente."); }
-            if (string.IsNullOrEmpty(ticket.Embalaje)) { throw new Exception("No seleccionó el tipo de embalaje."); }
-            if (string.IsNullOrEmpty(ticket.TipoVenta)) { throw new Exception("No seleccionó el tipo de venta."); }
-            if (!string.IsNullOrEmpty(ticket.WhsCodeLog) && ticket.WhsCodeLog.Equals("01") && string.IsNullOrEmpty(ticket.FormaPago)) { throw new Exception("No seleccionó la forma de pago."); }
-            if (string.IsNullOrEmpty(ticket.LugarDestino)) { throw new Exception("No seleccionó el lugar de destino."); }
-            else
+            catch (Exception ex)
             {
-                if (ticket.LugarDestino.Equals("Agencia") || ticket.LugarDestino.Equals("Agencia Courier"))
-                {
-                    if (string.IsNullOrEmpty(ticket.EnvioAgencia)) { throw new Exception("Debe seleccionar el modo de envío."); }
-                    if (ticket.EnvioAgencia.Equals("Oficina de agencia") && string.IsNullOrEmpty(ticket.Referencia)) { throw new Exception("Debe llenar la referencia obligatoriamente."); }
-                    if (ticket.EnvioAgencia.Equals("Domicilio de cliente") && !string.IsNullOrEmpty(ticket.Referencia)) { throw new Exception("No debe llenar la referencia."); }
-                    if (string.IsNullOrEmpty(ticket.Agencia)) { throw new Exception("Debe llenar la agencia."); }
-                    if (string.IsNullOrEmpty(ticket.DirDestino)) { throw new Exception("Debe llenar la dirección de destino."); }
-                    if (string.IsNullOrEmpty(ticket.Det1[0].NombrePer)) { throw new Exception("Debe llenar el nombre."); }
-                    if (string.IsNullOrEmpty(ticket.Det1[0].TipoDocPer)) { throw new Exception("Debe llenar el tipo de documento personal."); }
-                    if (string.IsNullOrEmpty(ticket.Det1[0].DocPer)) { throw new Exception("Debe llenar el número de documento personal."); }
-                    if (string.IsNullOrEmpty(ticket.Det1[0].TelfPer)) { throw new Exception("Debe llenar el teléfono."); }
-                    if (ticket.Embalaje != "CP") { throw new Exception("El embalaje debe ser 'Caja Provincia'."); }
-
-                    string lugEn = string.Empty;
-                    foreach (RTV2_E d in ticket.Det2.Where(x => x.Verificar == "on"))
-                    {
-                        if (lugEn != string.Empty)
-                        {
-                            if (!(lugEn.Equals("ALMACÉN N°3") || lugEn.Equals("ALMACÉN FALTANTES") || lugEn.Equals("ALMACÉN N°7"))) { throw new Exception("El lugar de entrega debe ser válido."); }
-                            if (!d.LugarDeEntrega.Equals(lugEn) && !d.LugarDeEntrega.Equals("ALMACÉN FALTANTES")) { throw new Exception("No coinciden los lugares de entrega en el detalle."); }
-                        }
-                        else
-                        {
-                            lugEn = d.LugarDeEntrega;
-                            if (!(lugEn.Equals("ALMACÉN N°3") || lugEn.Equals("ALMACÉN FALTANTES") || lugEn.Equals("ALMACÉN N°7"))) { throw new Exception("El lugar de entrega debe ser válido."); }
-                        }
-                    }
-                }
-                else if (ticket.LugarDestino.Equals("Arriola"))
-                {
-                    string lugEn = string.Empty;
-                    foreach (RTV2_E d in ticket.Det2.Where(x => x.Verificar == "on"))
-                    {
-                        if (lugEn != string.Empty)
-                        {
-                            if (!lugEn.Equals("ALMACÉN N°6") && !lugEn.Equals("ALMACÉN FALTANTES")) { throw new Exception("El lugar de entrega debe ser 'ALMACÉN N°6' o 'ALMACÉN FALTANTES'."); }
-                            if (!d.LugarDeEntrega.Equals(lugEn) && !d.LugarDeEntrega.Equals("ALMACÉN FALTANTES")) { throw new Exception("No coinciden los lugares de entrega en el detalle."); }
-                        }
-                        else
-                        {
-                            lugEn = d.LugarDeEntrega;
-                            if (!lugEn.Equals("ALMACÉN N°6") && !lugEn.Equals("ALMACÉN FALTANTES")) { throw new Exception("El lugar de entrega debe ser 'ALMACÉN N°6' o 'ALMACÉN FALTANTES'."); }
-                        }
-                    }
-                }
-                else if (ticket.LugarDestino.Equals("Domicilio"))
-                {
-                    if (string.IsNullOrEmpty(ticket.Zona)) { throw new Exception("Debe existir una zona."); }
-                    if (string.IsNullOrEmpty(ticket.DirDestino)) { throw new Exception("Debe llenar la dirección de destino."); }
-                    if (ticket.Det3 != null && ticket.Det3.Count >= 2 && !string.IsNullOrEmpty(ticket.Det3[1].Calle) && ticket.Det3[1].Calle.Length > 200) { throw new Exception("La dirección de destino excede el límite de 200 caracteres."); }
-                    if (string.IsNullOrEmpty(ticket.Det1[0].NombrePer)) { throw new Exception("Debe llenar el nombre."); }
-                    if (string.IsNullOrEmpty(ticket.Det1[0].TipoDocPer)) { throw new Exception("Debe llenar el tipo de documento personal."); }
-                    if (string.IsNullOrEmpty(ticket.Det1[0].DocPer)) { throw new Exception("Debe llenar el número de documento personal."); }
-                    if (string.IsNullOrEmpty(ticket.Det1[0].TelfPer)) { throw new Exception("Debe llenar el teléfono."); }
-                    string lugEn = string.Empty;
-                    foreach (RTV2_E d in ticket.Det2.Where(x => x.Verificar == "on"))
-                    {
-                        if (lugEn != string.Empty)
-                        {
-                            if (!(lugEn.Equals("ALMACÉN N°3") || lugEn.Equals("ALMACÉN FALTANTES") || lugEn.Equals("ALMACÉN N°7"))) { throw new Exception("El lugar de entrega no es válido."); }
-                            if (!d.LugarDeEntrega.Equals(lugEn) && !d.LugarDeEntrega.Equals("ALMACÉN FALTANTES")) { throw new Exception("No coinciden los lugares de entrega en el detalle."); }
-
-                        }
-                        else
-                        {
-                            lugEn = d.LugarDeEntrega;
-                            if (!(lugEn.Equals("ALMACÉN N°3") || lugEn.Equals("ALMACÉN FALTANTES") || lugEn.Equals("ALMACÉN N°7"))) { throw new Exception("El lugar de entrega no es válido."); }
-                        }
-                    }
-                }
-                else if (ticket.LugarDestino.Equals("Centro"))
-                {
-                    string lugEn = string.Empty;
-                    foreach (RTV2_E d in ticket.Det2.Where(x => x.Verificar == "on"))
-                    {
-                        if (lugEn != string.Empty)
-                        {
-                            if (!lugEn.Equals("ALMACÉN N°1") && !lugEn.Equals("ALMACÉN FALTANTES")) { throw new Exception("El lugar de entrega solo debe ser 'ALMACÉN N°1' o 'ALMACÉN FALTANTES'."); }
-                            if (!d.LugarDeEntrega.Equals(lugEn) && !d.LugarDeEntrega.Equals("ALMACÉN FALTANTES")) { throw new Exception("No coinciden los lugares de entrega en el detalle."); }
-                        }
-                        else
-                        {
-                            lugEn = d.LugarDeEntrega;
-                            if (!lugEn.Equals("ALMACÉN N°1") && !lugEn.Equals("ALMACÉN FALTANTES")) { throw new Exception("El lugar de entrega solo debe ser 'ALMACÉN N°1' o 'ALMACÉN FALTANTES'."); }
-                        }
-                    }
-                }
+                throw new Exception($"Error en la validación: {ex.Message}");
             }
-            if (ticket.Det3 != null && ticket.Det3.Count >= 1)
-            {
-                if (ticket.Det3[0].Ubigeo > 0)
-                {
-                    if (string.IsNullOrEmpty(ticket.Det3[0].Calle)) { throw new Exception("Debe llenar la dirección de destino."); }
-                }
-            }
+        }
 
+        private void ValidarTicketGeneral(ORTV_E ticket)
+        {
+            if (ticket.Det2 == null || !ticket.Det2.Any()) throw new Exception("No puede registrar con detalles vacíos.");
+            if (string.IsNullOrEmpty(ticket.FechaSapTicket)) throw new Exception("No eligió la fecha del ticket.");
+            if (ticket.DocNum <= 0) throw new Exception("No seleccionó un número de ticket.");
+            if (string.IsNullOrEmpty(ticket.CardCode) || string.IsNullOrEmpty(ticket.CardName)) throw new Exception("No seleccionó un cliente.");
+            if (string.IsNullOrEmpty(ticket.Embalaje)) throw new Exception("No seleccionó el tipo de embalaje.");
+            if (string.IsNullOrEmpty(ticket.TipoVenta)) throw new Exception("No seleccionó el tipo de venta.");
+            if (!string.IsNullOrEmpty(ticket.WhsCodeLog) && ticket.WhsCodeLog.Equals("01") && string.IsNullOrEmpty(ticket.FormaPago)) throw new Exception("No seleccionó la forma de pago.");
+            if (string.IsNullOrEmpty(ticket.LugarDestino)) throw new Exception("No seleccionó el lugar de destino.");
             if (ticket.MontoTotal <= 0) { throw new Exception("No puede registrar un monto total en cero o negativo."); }
             if (ticket.MontoFinal <= 0) { throw new Exception("No se puede registrar un monto final en cero o negativo."); }
-
-
             if (string.IsNullOrEmpty(ticket.TiempoEntrega.ToString()) || ticket.TiempoEntrega == null) { throw new Exception("Debe llenar el tiempo de entrega."); }
+           
+        }
 
+        private void ValidarPersona(ORTV_E ticket)
+        {
+            if (ticket.Det1 == null || ticket.Det1.Count == 0)
+                throw new Exception("No se encuentran datos de la persona de recojo.");
+
+            var persona = ticket.Det1[0]; // Asumimos que Det1 tiene un solo elemento según el flujo
+
+            // Validaciones de los campos de la persona
+            if (string.IsNullOrEmpty(persona.NombrePer))
+                throw new Exception("Debe llenar el nombre.");
+            if (string.IsNullOrEmpty(persona.TipoDocPer))
+                throw new Exception("Debe llenar el tipo de documento personal.");
+            if (string.IsNullOrEmpty(persona.DocPer))
+                throw new Exception("Debe llenar el número de documento personal.");
+            if (string.IsNullOrEmpty(persona.TelfPer))
+                throw new Exception("Debe llenar el teléfono.");
+
+            // Validación específica para los tipos de documento (DNI, RUC, CE)
+            if (persona.TipoDocPer.Equals("DNI") && persona.DocPer.Length != 8)
+                throw new Exception("El DNI debe tener 8 dígitos.");
+            if (persona.TipoDocPer.Equals("RUC") && persona.DocPer.Length != 11)
+                throw new Exception("El RUC debe tener 11 dígitos.");
+            if (persona.TipoDocPer.Equals("CE") && persona.DocPer.Length != 9)
+                throw new Exception("El Carné de Extranjería debe tener 9 dígitos.");
+
+            // Validación para el teléfono
+            if (!string.IsNullOrEmpty(persona.TelfPer) && persona.TelfPer.Length != 9)
+                throw new Exception("El teléfono debe tener 9 dígitos.");
+        }
+
+        private void ValidarLugarDestino(ORTV_E ticket)
+        {
+            switch (ticket.LugarDestino)
+            {
+                case "Agencia":
+                case "Agencia Courier":
+                    ValidarAgencia(ticket);
+                    break;
+
+                case "Arriola":
+                    ValidarArriola(ticket);
+                    break;
+
+                case "Domicilio":
+                    ValidarDomicilio(ticket);
+                    break;
+
+                case "Centro":
+                    ValidarCentro(ticket);
+                    break;
+
+                default:
+                    throw new Exception("Lugar de destino no reconocido.");
+            }
+        }
+
+        private void ValidarAgencia(ORTV_E ticket)
+        {
+            if (ticket.Embalaje != "CP") { throw new Exception("El embalaje debe ser Caja Provincia."); }
+            if (string.IsNullOrEmpty(ticket.EnvioAgencia)) throw new Exception("Debe seleccionar el modo de envío.");
+            if (ticket.EnvioAgencia.Equals("Oficina de agencia") && string.IsNullOrEmpty(ticket.Referencia)) throw new Exception("Debe llenar la referencia obligatoriamente.");
+            if (ticket.EnvioAgencia.Equals("Domicilio de cliente") && !string.IsNullOrEmpty(ticket.Referencia)) throw new Exception("No debe llenar la referencia.");
+            if (string.IsNullOrEmpty(ticket.Agencia)) throw new Exception("Debe llenar la agencia.");
+            if (string.IsNullOrEmpty(ticket.DirDestino)) throw new Exception("Debe llenar la dirección de destino.");
+            ValidarPersona(ticket);
+            ValidarLugarDeEntrega(ticket, new List<string> { "DOMICILIO Y AGENCIA", "ALMACÉN FALTANTES", "ALMACÉN N°6 (Ureta)" });
+        }
+
+        private void ValidarArriola(ORTV_E ticket)
+        {
+            ValidarLugarDeEntrega(ticket, new List<string> { "ALMACÉN N°5 (Arriola)", "ALMACÉN FALTANTES", "ALMACÉN N°6 (Ureta)" });
+        }
+
+        private void ValidarDomicilio(ORTV_E ticket)
+        {
+            if (string.IsNullOrEmpty(ticket.Zona)) throw new Exception("Debe existir una zona.");
+            if (string.IsNullOrEmpty(ticket.DirDestino)) throw new Exception("Debe llenar la dirección de destino.");
+            if (ticket.Det3 != null && ticket.Det3.Count >= 2 && !string.IsNullOrEmpty(ticket.Det3[1].Calle) && ticket.Det3[1].Calle.Length > 200) throw new Exception("La dirección de destino excede el límite de 200 caracteres.");
+            ValidarPersona(ticket);
+            ValidarLugarDeEntrega(ticket, new List<string> { "DOMICILIO Y AGENCIA", "ALMACÉN FALTANTES", "ALMACÉN N°6 (Ureta)" });
+        }
+
+        private void ValidarCentro(ORTV_E ticket)
+        {
+            ValidarLugarDeEntrega(ticket, new List<string> { "ALMACÉN N°1", "ALMACÉN FALTANTES", "ALMACÉN N°6 (Ureta)" });
+        }
+
+        private void ValidarLugarDeEntrega(ORTV_E ticket, List<string> lugaresValidos)
+        {
+            string lugEn = string.Empty;
+            foreach (RTV2_E d in ticket.Det2.Where(x => x.Verificar == "on"))
+            {
+                // Si ya hay un lugar de entrega registrado
+                if (lugEn != string.Empty)
+                {
+                    // Verificar que el lugar de entrega sea uno de los lugares válidos
+                    if (!lugaresValidos.Contains(d.LugarDeEntrega))
+                    {
+                        throw new Exception("El lugar de entrega debe ser uno de los lugares válidos.");
+                    }
+
+                    // Verificar que el lugar de entrega en el detalle coincida con el lugar registrado
+                    if (!d.LugarDeEntrega.Equals(lugEn) && !d.LugarDeEntrega.Equals("ALMACÉN FALTANTES"))
+                    {
+                        throw new Exception("No coinciden los lugares de entrega en el detalle.");
+                    }
+                }
+                // Si no hay un lugar de entrega registrado
+                else if (!d.LugarDeEntrega.Equals("ALMACÉN FALTANTES"))
+                {
+                    // Asignar el lugar de entrega
+                    lugEn = d.LugarDeEntrega;
+
+                    // Verificar que el lugar de entrega sea válido
+                    if (!lugaresValidos.Contains(lugEn))
+                    {
+                        throw new Exception("El lugar de entrega no es válido.");
+                    }
+                }
+            }
+        }
+
+        private void ValidarOrdenesVenta(ORTV_E ticket)
+        {
+            foreach (RTV2_E d in ticket.Det2)
+            {
+                if (d.Verificar == "on" && string.IsNullOrEmpty(d.TipoComprobante))
+                    throw new Exception("Debe llenar el tipo de comprobante en la línea: " + d.Linea);
+            }
+        }
+
+        private void ValidarDirecciones(ORTV_E ticket)
+        {
+            if (ticket.Det3.Any())
+            {
+                if (ticket.Det3[0].Ubigeo > 0 && string.IsNullOrEmpty(ticket.Det3[0].Calle))
+                    throw new Exception("Debe llenar la dirección de destino.");
+            }
+        }
+
+        private void ValidarMontos(ORTV_E ticket)
+        {
+            if (ticket.MontoTotal <= 0) throw new Exception("No puede registrar un monto total en cero o negativo.");
+            if (ticket.MontoFinal <= 0) throw new Exception("No se puede registrar un monto final en cero o negativo.");
+            if (ticket.MontoTotal != CalcularMontos(ticket).MontoTotal) throw new Exception("El cálculo del monto total tuvo un error.");
+            if (ticket.MontoFinal != CalcularMontos(ticket).MontoFinal) throw new Exception("El cálculo del monto final tuvo un error.");
+        }
+
+        private void ValidarDatosPersonales(ORTV_E ticket)
+        {
             if (ticket.Det1 != null && ticket.Det1.Count > 0)
             {
-                if (!string.IsNullOrEmpty(ticket.Det1[0].TipoDocPer) && ticket.Det1[0].TipoDocPer.Equals("DNI") && (ticket.Det1[0].DocPer.Length != 8)) { throw new Exception("El DNI debe tener 8 dígitos."); }
-                if (!string.IsNullOrEmpty(ticket.Det1[0].TipoDocPer) && ticket.Det1[0].TipoDocPer.Equals("RUC") && (ticket.Det1[0].DocPer.Length != 11)) { throw new Exception("El RUC debe tener 11 dígitos."); }
-                if (!string.IsNullOrEmpty(ticket.Det1[0].TipoDocPer) && ticket.Det1[0].TipoDocPer.Equals("CE") && (ticket.Det1[0].DocPer.Length != 9)) { throw new Exception("El Carné de Extranjería debe tener 9 dígitos."); }
-                if (!string.IsNullOrEmpty(ticket.Det1[0].TelfPer) && ticket.Det1[0].TelfPer.Length != 9) { throw new Exception("El teléfono debe tener 9 dígitos."); }
-
-                if (string.IsNullOrEmpty(ticket.Det1[0].TipoDocPer) &&
-                    string.IsNullOrEmpty(ticket.Det1[0].DocPer) &&
-                    string.IsNullOrEmpty(ticket.Det1[0].TelfPer) &&
-                    string.IsNullOrEmpty(ticket.Det1[0].NombrePer)) { ticket.Det1 = null; }
+                var persona = ticket.Det1[0];
+                if (!string.IsNullOrEmpty(persona.TipoDocPer))
+                {
+                    if (persona.TipoDocPer.Equals("DNI") && persona.DocPer.Length != 8) throw new Exception("El DNI debe tener 8 dígitos.");
+                    if (persona.TipoDocPer.Equals("RUC") && persona.DocPer.Length != 11) throw new Exception("El RUC debe tener 11 dígitos.");
+                    if (persona.TipoDocPer.Equals("CE") && persona.DocPer.Length != 9) throw new Exception("El Carné de Extranjería debe tener 9 dígitos.");
+                }
+                if (!string.IsNullOrEmpty(persona.TelfPer) && persona.TelfPer.Length != 9) throw new Exception("El teléfono debe tener 9 dígitos.");
             }
+        }
 
-            if (ticket.Flete < 0) { throw new Exception("El flete no puede ser negativo."); }
-            if (ticket.DeudaCliente < 0) { throw new Exception("No puede registrar una deuda del cliente negativa."); }
-            if (ticket.GastoEnvio < 0) { throw new Exception("No puede registrar un gasto de envío negativo."); }
-            if (ticket.DeudaEmpresa < 0) { throw new Exception("No puede registrar una deuda de la empresa negativa."); }
-            if (ticket.DescuentoNC < 0) { throw new Exception("No puede registrar un descuento negativo."); }
-            if (ticket.MontoTotal != CalcularMontos(ticket).MontoTotal) { throw new Exception("El cálculo del monto total tuvo un error."); }
-            if (ticket.MontoFinal != CalcularMontos(ticket).MontoFinal) { throw new Exception("El cálculo del monto final tuvo un error."); }
-            if (IdRol == 0)
+        private void ValidarDeudasYGastos(ORTV_E ticket)
+        {
+            if (ticket.Flete < 0) throw new Exception("El flete no puede ser negativo.");
+            if (ticket.DeudaCliente < 0) throw new Exception("No puede registrar una deuda del cliente negativa.");
+            if (ticket.GastoEnvio < 0) throw new Exception("No puede registrar un gasto de envío negativo.");
+            if (ticket.DeudaEmpresa < 0) throw new Exception("No puede registrar una deuda de la empresa negativa.");
+            if (ticket.DescuentoNC < 0) throw new Exception("No puede registrar un descuento negativo.");
+        }
+
+        private void ValidarRegalos(ORTV_E ticket)
+        {
+            if (ticket.Det5.Any())
             {
-                if (ticket.Det5 != null && ticket.Det5.Count > 0)
+                var regalosPrevios = obtenerDet5Ticket(ticket.DocEntry);
+                var ticketDet5Proyectado = ticket.Det5.OrderBy(d => d.IdReg).Select(d => new { d.IdReg, d.RegCant, d.RegCate, d.RegTipo }).ToList();
+                var regalosPreviosProyectados = regalosPrevios.OrderBy(r => r.IdReg).Select(r => new { r.IdReg, r.RegCant, r.RegCate, r.RegTipo }).ToList();
+
+                bool sonIguales = ticketDet5Proyectado.SequenceEqual(regalosPreviosProyectados);
+                if (!sonIguales)
                 {
                     int idReg = ticket.Det5[0].IdReg;
                     if (idReg > 0)
                     {
-                        OREG_E objRegalo = oregN.buscarRegalo(idReg);
-                        if (ticket.Det5[0].RegCant <= 0) { throw new Exception("Debe llenar las cantidades para el regalo."); }
-                        else if (!oclrN.comprobarDispCliReg(new CLR1_E { IdReg = ticket.Det5[0].IdReg, CardCode = ticket.CardCode, Cantidad = ticket.Det5[0].RegCant }))
-                        { throw new Exception("El cliente no tiene saldo de regalo disponible."); }
-                        if (objRegalo.Estado == "Inactivo") { throw new Exception("No puede dar regalos inactivos."); }
-                        if (objRegalo.StockDisp < ticket.Det5[0].RegCant) { throw new Exception("No hay stock disponible del regalo."); }
+                        var regalo = new Capa_Negocio.Ventas_NEG.TablasSql.OREG_N().buscarRegalo(idReg);
+                        if (ticket.Det5[0].RegCant <= 0) throw new Exception("Debe llenar las cantidades para el regalo.");
+                        if (regalo.Estado == "Inactivo") throw new Exception("No puede dar regalos inactivos.");
+                        if (regalo.StockDisp < ticket.Det5[0].RegCant) throw new Exception("No hay stock disponible del regalo.");
                     }
-                    else if (ticket.Det5[0].RegCant > 0) { throw new Exception("Debe llenar la cantidad del regalo."); }
+                    else if (ticket.Det5[0].RegCant > 0) throw new Exception("Debe llenar la cantidad del regalo.");
                 }
             }
         }
-        public int editarTicket(int DocEntry, ORTV_E ticket)
+        private void ValidarVinculados(ORTV_E ticket)
         {
-            ORTV_E t = ticketV.obtenerTicket(DocEntry);
-            validarDatosTicket(ticket, 0);
+            if (ticket.Estado == "SEPARADO" && ticket.Observaciones2 == "SI")
+            {
+                if (!ticket.Det7.Any()){ throw new Exception("Debe vincular tickets");}
+
+                foreach (var det7 in ticket.Det7)
+                {
+                    if (string.IsNullOrEmpty(det7.CardCode) || string.IsNullOrEmpty(det7.CardName) || det7.DocNumVinc == 0 || det7.MontoFinal == 0)
+                        throw new Exception($"El ticket vinculado en la línea {det7.Linea} no cumple con los datos requeridos.");
+                }
+            }
+        }
+        public int Editar(int DocEntry, ORTV_E ticket)
+        {
+            ORTV_E t = tkD.ObtenerDatosCompletosTicket(DocEntry);
+            ValidarDatosTicket(ticket, 0);
             if (t.EstadoPago != null && t.EstadoPago.Equals("PAGADO")) { throw new Exception("NO PUEDE EDITAR UN TICKET PAGADO"); }
             if (!t.Estado.Equals("ABIERTO")) { throw new Exception("NO PUEDE EDITAR UN TICKET " + t.Estado); }
             if (ticket.GastoEnvio > 0) { ticket.EstadoGasto = "PENDIENTE"; }
@@ -257,7 +360,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                     foreach (var det7 in ticket.Det7)
                     {
                         var DocEntryPrincipal = DocEntryTicket((int)det7.DocNumVinc);
-                        var TkPrincipal = obtenerTicket(DocEntryPrincipal);
+                        var TkPrincipal = ObtenerDatosCompletosTicket(DocEntryPrincipal);
                         if (TkPrincipal.Estado != "ABIERTO" && TkPrincipal.Estado != "RECIBIDO" && TkPrincipal.Estado != "PICKEANDO" && TkPrincipal.Estado != "PICKEADO" && TkPrincipal.Estado != "VERIFICANDO" && TkPrincipal.Estado != "VERIFICADO" && TkPrincipal.Estado != "EMPACANDO" && TkPrincipal.Estado != "EMPACADO" && TkPrincipal.Estado != "PESADO")
                         {
                             throw new Exception("El ticket que quiere vincular en linea " + det7.Linea + " se encuentra fuera de un estado modificable. (EMPACADO).");
@@ -270,54 +373,24 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 }
                 else { throw new Exception("Debe vincular tickets"); }
             }
-            return ticketV.editarTicket(DocEntry, ticket);
+            return tkD.Editar(DocEntry, ticket);
         }
-        public int editarVisibilidadTicket(int DocEntry)
-        {
-            return ticketV.editarVisibilidadTicket(DocEntry);
-        }
-        public int registrarImpresionTicket(int DocEntry, string Operario)
-        {
-            return ticketV.registrarImpresionTicket(DocEntry, Operario);
-        }
-        public int cancelarTicket(int DocEntry, string Operario, int IdRol)
-        {
-            ORTV_E t = ticketV.obtenerTicket(DocEntry);
-            bool continuarCancelarTicket = false;
-            // Cuando el ticket esta en "SEPARADO" o "ABIERTO" solo lo podran cancelar Rol (Sup Ventas,Op Ventas)
-            if (t.Estado.Equals("SEPARADO") || t.Estado.Equals("ABIERTO"))
-            {
-                if (IdRol == 6 || IdRol == 7 || IdRol == 12) { continuarCancelarTicket = true; }
-            }
-            // Cuando el ticket esta en "RECIBIDO" o "PICKEANDO" O "VERIFICANDO" O "EMPACANDO" solo lo podran cancelar Rol (Op Recepcion)
-            else if (t.Estado.Equals("RECIBIDO") || t.Estado.Equals("PICKEANDO") || t.Estado.Equals("VERIFICANDO") || t.Estado.Equals("EMPACANDO"))
-            {
-                if (IdRol == 5) { continuarCancelarTicket = true; }
-            }
-            // Cuando el ticket esta en "EMPACADO" o "PESADO" O "PREENVIO" O "ENVIADO" solo lo podran cancelar Rol (Sup Atencion al cliente)
-            else if (t.Estado.Equals("EMPACADO") || t.Estado.Equals("PESADO") || t.Estado.Equals("PREENVIO") || t.Estado.Equals("ENVIADO"))
-            {
-                if (t.Estado.Equals("PREENVIO") || t.Estado.Equals("ENVIADO"))
-                {
-                    //si el ticket es de centro y arriola podra cancelarse cuando este como preenvio y enviado
-                    if (t.LugarDestino.Equals("Centro") || t.LugarDestino.Equals("Arriola")) { if (IdRol == 11) { continuarCancelarTicket = true; } }
-                }
-                else { if (IdRol == 11) { continuarCancelarTicket = true; } }
-            }
-            if (IdRol == 1) { continuarCancelarTicket = true; }
 
-            if (continuarCancelarTicket == false) { throw new Exception("NO SE PUEDE CANCELAR EL TICKET N° " + t.DocNum + " POR SU ESTADO " + t.Estado); }
-            if (t.EstadoPago != null && t.EstadoPago.Equals("PAGADO")) { throw new Exception("NO PUEDE CANCELAR UN TICKET PAGADO N°" + t.DocNum); }
-            if (t.Estado.Equals("CANCELADO")) { throw new Exception("EL TICKET YA SE ENCUENTRA CANCELADO N°" + t.DocNum); }
-            if (t.Estado.Equals("ENTREGADO")) { throw new Exception("EL TICKET YA SE ENCUENTRA ENTREGADO N°" + t.DocNum + " NO SE PUEDE CANCELAR"); }
-            return ticketV.cancelarTicket(DocEntry, t.Estado, Operario);
+        public int EditarVisibilidadTicket(int DocEntry)
+        {
+            return tkD.EditarVisibilidadTicket(DocEntry);
         }
-        /*
-         * Editar Ticket parámetros ilimitados
-         */
+        /**********************************************************************/
+        //Método usa un procedure para buscar tickets vinculados, solo se usa en el REGISTRO Y EDICION de la hoja de repartos
+        public List<string> BuscarVinculados(int DocEntry, int DocNum)
+        {
+            return tkD.BuscarVinculados(DocEntry, DocNum);
+        }
+        /***********************************************************************/
+        /************** METODOS PRICIPALES QUE GENERAN TRANSACCION *************/
         public int EditarTicketDesdeSeguimiento(Dictionary<string, Object> datos, string Request)
         {
-            ORTV_E ticket = obtenerTicket(Convert.ToInt32(datos["docEntryTicket"]));
+            ORTV_E ticket = ObtenerDatosCompletosTicket(Convert.ToInt32(datos["docEntryTicket"]));
 
             if (datos["estadoTicket"].Equals("RECIBIDO") && Request.Equals("CAMBIAR A RECIBIDO"))
             {
@@ -356,7 +429,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 }
             }
 
-            return ticketV.EditarTicketDesdeSeguimiento(datos);
+            return tkD.EditarTicketDesdeSeguimiento(datos);
         }
         public int editarSeguimientoTicket(string Estado, int DocEntry, ORTV_E t)
         {
@@ -383,15 +456,6 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 List<CC_ORTV_E> listaEstados = ccTicket.ListarCC_ORTV(DocEntry, null, true);
                 if (listaEstados.Count > 0)
                 {
-                    /*if (!string.IsNullOrEmpty(t.Operario) && (t.Operario == "05" || t.Operario == "07"))
-					{
-                        if (listaEstados.FirstOrDefault().Operacion != "INICIO PICKING" && listaEstados.FirstOrDefault().Operacion != "ANULAR FIN EMPACAR" )
-                        {
-                            throw new Exception("Solo puedes ANULAR INICIO PICKING  a un ticket con ultimo flujo INICIO PICKING O ANULAR FIN EMPACAR");
-                        }
-                    }
-					else { */
-
                     if (listaEstados.FirstOrDefault().Operacion != "INICIO PICKING" && listaEstados.FirstOrDefault().Operacion != "ANULAR FIN PICKING" && listaEstados.FirstOrDefault().Operacion != "ANULAR INICIO VERIFICAR")
                     {
                         throw new Exception("Solo puedes ANULAR INICIO PICKING  a un ticket con ultimo flujo INICIO PICKING O ANULAR FIN PICKING o ANULAR INICIO VERIFICAR");
@@ -446,26 +510,31 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 List<CC_ORTV_E> listaEstados = ccTicket.ListarCC_ORTV(DocEntry, null, true);
                 if (listaEstados.Count > 0)
                 {
-                    if (listaEstados.FirstOrDefault().Operacion != "INICIO VERIFICAR" && listaEstados.FirstOrDefault().Operacion != "ANULAR FIN VERIFICAR" && listaEstados.FirstOrDefault().Operacion != "ANULAR INICIO EMPACAR")
+                    if (listaEstados.FirstOrDefault().Operacion != "ANULAR FIN PICKING" && listaEstados.FirstOrDefault().Operacion != "INICIO VERIFICAR" && listaEstados.FirstOrDefault().Operacion != "ANULAR FIN VERIFICAR" && listaEstados.FirstOrDefault().Operacion != "ANULAR INICIO EMPACAR")
                     { throw new Exception("Solo puedes ANULAR INICIO VERIFICAR a un ticket con ultimo flujo INICIO VERIFICAR O ANULAR FIN VERIFICAR"); }
                 }
-
                 if (t.Estado.Equals("CANCELADO")) { throw new Exception("El ticket esta CANCELADO"); }
             }
             else if (Estado.Equals("FIN VERIFICAR"))
             {
                 if (t.Estado.Equals("CANCELADO")) { throw new Exception("El ticket esta CANCELADO"); }
                 List<CC_ORTV_E> listaEstados = ccTicket.ListarCC_ORTV(DocEntry, null, true);
-                if (listaEstados.Count > 0) { if (listaEstados.FirstOrDefault().Operacion == "ANULAR FIN PICKING") { throw new Exception("El ticket no es apto para FINALIZAR VERIFICAR"); } }
-                if (listaEstados.Count > 0) { if (listaEstados.FirstOrDefault().Operacion == "FIN VERIFICAR") { throw new Exception("El ticket ya FINALIZO VERIFICAR"); } }
-                if (t.Det12 == null || t.Det12[0].Operario == string.Empty && (t.Det12[1].Operario == string.Empty || t.Det12[2].Operario == string.Empty))
+                var ultimoEstado = listaEstados.DefaultIfEmpty(new CC_ORTV_E()).First().Operacion;
+                if (!string.IsNullOrEmpty(ultimoEstado) && new[] { "ANULAR FIN PICKING", "ANULAR INICIO VERIFICAR", "FIN VERIFICAR" }.Contains(ultimoEstado))
+                {
+                    throw new Exception("El ticket no es apto para FINALIZAR VERIFICAR");
+                }
+                if (t.Det12 == null || t.Det12.Take(3).All(d => string.IsNullOrEmpty(d?.Operario)))
                 {
                     throw new Exception("Debe llenar el verificador");
                 }
             }
             else if (Estado.Equals("ANULAR FIN VERIFICAR"))
             {
-                if (t.RolSupervisor != 4 && t.RolSupervisor != 11 && t.RolSupervisor != 1 && t.RolSupervisor != 5) { throw new Exception("No tiene permisos para revertir procesos"); }
+                if (t.RolSupervisor != 4 && t.RolSupervisor != 11 && t.RolSupervisor != 1 && t.RolSupervisor != 5)
+                {
+                    throw new Exception("No tiene permisos para revertir procesos");
+                }
                 List<CC_ORTV_E> listaEstados = ccTicket.ListarCC_ORTV(DocEntry, null, true);
                 if (listaEstados.Count > 0)
                 {
@@ -473,7 +542,6 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                     {
                         throw new Exception("Solo puedes ANULAR FIN VERIFICAR  a un ticket con ultimo flujo FIN VERIFICAR O ANULAR INICIO EMPACAR");
                     }
-
                 }
             }
             else if (Estado.Equals("INICIO EMPACAR"))
@@ -574,85 +642,170 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 if (!t.Estado.Equals("PESADO")) { throw new Exception("Solo puedes ANULARPESADO a un ticket PESADO"); }
             }
             else if (Estado.Equals("ENTREGADO"))
-            {
-
-                if (t.Estado.Equals("ENTREGADO")) { throw new Exception("El ticket ya se encuentra  ENTREGADO"); }
-                if (!t.Estado.Equals("EMPACADO") && !t.Estado.Equals("PESADO") && !t.Estado.Equals("ENVIADO"))
-                {
-
-                    throw new Exception("El ticket debe estar en EMPACADO, PESADO o ENVIADO, debes revertir o continuar el proceso");
-                }
-
-
-                if (!t.EstadoFacturacion.Equals("FACTURADO")) { throw new Exception("Solo puedes entregar ticket facturado"); }
-                if (t.Det5 != null && t.Det5.Count >= 1)
-                {
-                    if (t.Det5[0].IdReg > 0) { if (t.Det5[0].RegEstado != "Entregado") { throw new Exception("Debe Entregar el regalo"); } }
-                }
-            }
+            { throw new Exception("NO SE PUEDE ENTREGAR POR ESTE FLUJO"); }
             else if (Estado.Equals("ANULARENTREGADO"))
             {
-                var to = obtenerTicket(t.DocEntry);
+                var to = ObtenerDatosCompletosTicket(t.DocEntry);
                 if (!t.Estado.Equals("ENTREGADO")) { throw new Exception("Solo puedes ANULARENTREGADO a un ticket ENTREGADO"); }
                 if (to.Det5 != null && to.Det5.Count >= 1)
                 {
                     if ((to.Det5[0].IdReg > 0 || to.Det5[0].RegCant > 0) && to.Det5[0].RegEstado == "PENDIENTE") { throw new Exception("Solo puedes ANULAR ENTREGA a un ticket que no tenga regalo pendiente"); }
                 }
             }
-            return ticketV.editarSeguimientoTicket(Estado, DocEntry, t);
+            return tkD.EditarSeguimientoTicket(Estado, DocEntry, t);
         }
+        public int RegistrarImpresionTicket(int DocEntry, string Operario)
+        {
+            return tkD.RegistrarImpresionTicket(DocEntry, Operario);
+        }
+        public int Entregar(ORTV_E t)
+        {
+            if (t.Estado.Equals("ENTREGADO")) { throw new Exception("El ticket ya se encuentra ENTREGADO"); }
+            if (!t.Estado.Equals("ENVIADO"))
+            {
+                throw new Exception("El ticket debe estar en ENVIADO, debes revertir o continuar el proceso");
+            }
+            if (!t.EstadoFacturacion.Equals("FACTURADO")) { throw new Exception("Solo puedes entregar ticket facturado"); }
+            if (t.Det5 != null && t.Det5.Count >= 1)
+            {
+                if (t.Det5[0].IdReg > 0) { if (t.Det5[0].RegEstado != "Entregado") { throw new Exception("Debe entregar el regalo"); } }
+            }
+            return tkD.Entregar(t);
+        }
+        public int Cancelar(int DocEntry, string Operario, int IdRol)
+        {
+            ORTV_E t = tkD.ObtenerDatosCompletosTicket(DocEntry);
+            bool continuarCancelarTicket = false;
+            // Cuando el ticket esta en "SEPARADO" o "ABIERTO" solo lo podran cancelar Rol (Sup Ventas,Op Ventas)
+            if (t.Estado.Equals("SEPARADO") || t.Estado.Equals("ABIERTO"))
+            {
+                if (IdRol == 6 || IdRol == 7 || IdRol == 12) { continuarCancelarTicket = true; }
+            }
+            // Cuando el ticket esta en "RECIBIDO" o "PICKEANDO" O "VERIFICANDO" O "EMPACANDO" solo lo podran cancelar Rol (Op Recepcion)
+            else if (t.Estado.Equals("RECIBIDO") || t.Estado.Equals("PICKEANDO") || t.Estado.Equals("VERIFICANDO") || t.Estado.Equals("EMPACANDO"))
+            {
+                if (IdRol == 5) { continuarCancelarTicket = true; }
+            }
+            // Cuando el ticket esta en "EMPACADO" o "PESADO" O "PREENVIO" O "ENVIADO" solo lo podran cancelar Rol (Sup Atencion al cliente)
+            else if (t.Estado.Equals("EMPACADO") || t.Estado.Equals("PESADO") || t.Estado.Equals("PREENVIO") || t.Estado.Equals("ENVIADO"))
+            {
+                if (t.Estado.Equals("PREENVIO") || t.Estado.Equals("ENVIADO"))
+                {
+                    //si el ticket es de centro y arriola podra cancelarse cuando este como preenvio y enviado
+                    if (t.LugarDestino.Equals("Centro") || t.LugarDestino.Equals("Arriola")) { if (IdRol == 11) { continuarCancelarTicket = true; } }
+                }
+                else { if (IdRol == 11) { continuarCancelarTicket = true; } }
+            }
+            if (IdRol == 1) { continuarCancelarTicket = true; }
+            if (!continuarCancelarTicket) { throw new Exception("NO SE PUEDE CANCELAR EL TICKET N° " + t.DocNum + " POR SU ESTADO " + t.Estado); }
+            if (t.Estado.Equals("CANCELADO")) { throw new Exception("EL TICKET YA SE ENCUENTRA CANCELADO N°" + t.DocNum); }
+            if (t.Estado.Equals("ENTREGADO")) { throw new Exception("EL TICKET YA SE ENCUENTRA ENTREGADO N°" + t.DocNum + " NO SE PUEDE CANCELAR"); }
+            return tkD.Cancelar(DocEntry, t.Estado, Operario);
+        }
+
+        /**********************************************************************/
+        /******************** METODOS PRINCIPALES EN MODULOS ******************/
+
+
+
+
+        public List<ORTV_E> listarTicketsParaRepartos(ORTV_E filtro, string[] estados, out int cantidadTicketsNoEnviados)
+        {
+            return tkD.ListarTicketsParaRepartos(filtro, estados, out cantidadTicketsNoEnviados);
+        }
+        public List<ORTV_E> listarTicketsRepartosNoEnviados(ORTV_E filtro, string[] estados)
+        {
+            return tkD.ListarTicketsRepartosNoEnviados(filtro, estados);
+        }
+
+        public List<Rpt_TicketVenta_E> listarTicketsAgencia()
+        {
+            return tkD.ListarTicketsAgencia();
+        }
+
+
+
+
+        /*
+         * Editar Ticket parámetros ilimitados
+         */
+
         public int emitirGuia(int DocEntry, Usuario_E u)
         {
-            ORTV_E t = obtenerTicket(DocEntry);
+            ORTV_E t = ObtenerDatosCompletosTicket(DocEntry);
             if (t.Estado.Equals("CANCELADO") || t.Estado.Equals("ANULADO")) { throw new Exception("No puede emitir guia en este ticket."); }
             if (!t.EstadoFacturacion.Equals("PENDIENTE")) { throw new Exception("El ticket no puede emitir guias."); }
-            return ticketV.emitirGuia(DocEntry, u);
+            return tkD.EmitirGuia(DocEntry, u);
         }
         public int revertirGuiasTicket(int DocEntry, String operario)
         {
-            ORTV_E t = obtenerTicket(DocEntry);
+            ORTV_E t = ObtenerDatosCompletosTicket(DocEntry);
             if (!t.EstadoFacturacion.Equals("GRE EMITIDA")) { throw new Exception("No se puede revertir el proceso de guias"); }
-            return ticketV.revertirGuiasTicket(DocEntry, operario);
+            return tkD.RevertirGuiasTicket(DocEntry, operario);
         }
         public int facturarTicket(int DocEntry, Usuario_E u)
         {
-            Utilitarios uti = new Utilitarios(); Capa_Datos.Ventas_DAO.Tablas.OINV_D oinvD = new Capa_Datos.Ventas_DAO.Tablas.OINV_D();
-            ORTV_E t = obtenerTicket(DocEntry);
+            Capa_Datos.Ventas_DAO.Tablas.OINV_D oinvD = new Capa_Datos.Ventas_DAO.Tablas.OINV_D();
+            Capa_Negocio.ComprobantesContables_NEG.Comprobante_N compN = new Capa_Negocio.ComprobantesContables_NEG.Comprobante_N();
+            ORTV_E t = ObtenerDatosCompletosTicket(DocEntry);
             //validamos que existan facturas o boletas
-            List<int> OrdenesSap = new List<int>();
-            foreach (var ordr in t.Det2)
-            {
-                string query = $"SELECT \"DocEntry\" FROM {uti.schemaHana}ordr WHERE \"DocNum\" = '{ordr.NroSap}' AND \"CANCELED\" = 'N'";
-                HanaConnection cn = new HanaConnection(uti.cadHana);
-                try
-                {
-                    cn.Open();
-                    HanaCommand cmd = new HanaCommand(query, cn);
-                    cmd.CommandType = System.Data.CommandType.Text;
-                    HanaDataReader dr = cmd.ExecuteReader();
-                    dr.Read();
-                    if (!dr.IsDBNull(0)) { OrdenesSap.Add(dr.GetInt32(0)); }
-                    dr.Close();
-                    cn.Close();
-                }
-                catch { cn.Close(); }
-            }
+            List<int> OrdenesSap = compN.ObtenerDocEntryOV(t.Det2, true);
+
             List<OINV_E> ComprobantesVinculados = new List<OINV_E>();
             foreach (int DocEntryO in OrdenesSap)
             {
                 List<OINV_E> comprobantesPorOrden = oinvD.listadoComprobantesPorOrdr(DocEntryO);
-                ComprobantesVinculados.AddRange(comprobantesPorOrden);
+
+                if (comprobantesPorOrden != null)
+                {
+                    ComprobantesVinculados.AddRange(comprobantesPorOrden.Where(cpo => cpo != null && !ComprobantesVinculados.Any(cv => cv != null && cv.NumAtCard == cpo.NumAtCard)));
+                }
             }
+
             if (ComprobantesVinculados.Count == 0) { throw new Exception("Este ticket no tiene facturas o boletas relacionadas desde SAP"); }
+
+            //valida que el campo Max1099 de facturas o boletas encontradas sumen el monto total a pagar del ticket // El dato Max1099 cubre los anticipos 
+            if (Math.Abs(ComprobantesVinculados.Sum(x => x.Max1099) - t.MontoTotal) > 0.10m || (t.MontoTotal - Math.Abs(ComprobantesVinculados.Sum(x => x.Max1099)) > 0.10m))
+            {
+                throw new Exception("Los documentos emitidos no suman lo total a pagar por el cliente.");
+            }
+
+            // Validamos que las guias esten completas
+            // Verificar si LugarDestino es "Centro" o "Arriola"
+            if (new[] { "Centro", "Arriola" }.Contains(t.LugarDestino))
+            {
+                //Valida cantidad de guias igual a cantidad de OV
+                int totalOrdenesVenta = OrdenesSap.Count;
+                int totalGuiasEmitidas = compN.ObtenerEncabezadoGuiasTransferencia(t).Count();
+
+                // Si existe un ítem en Det2 que tenga AlmacenSalida = "07" y LugarDeEntrega = "ALMACÉN FALTANTES",
+                // se obvia la restricción de comparar las cantidades de guías y órdenes de venta.
+                bool tieneItemExcluido = t.Det2.Any(item =>
+                    item.AlmacenSalida == "07" && item.LugarDeEntrega == "ALMACÉN FALTANTES");
+
+                // Si no se encuentra un ítem que permita excluir, se valida la cantidad
+                if (!tieneItemExcluido && totalGuiasEmitidas != totalOrdenesVenta)
+                {
+                    throw new Exception("La cantidad de guías emitidas no coincide con la cantidad de órdenes de venta.");
+                }
+            }
+            else
+            { 
+                //Valida monto de entrega igual a monto de factura
+                decimal sumEntregas = compN.ObtenerEncabezadoGuiasPorEntrega(OrdenesSap).Sum(x => x.DocTotal); // Trae Dato Max1099 de entrega lo inserta en variable DocTotal
+                decimal sumFacturas = ComprobantesVinculados.Sum(x => x.Max1099);
+                if (sumFacturas != sumEntregas) { throw new Exception("Montos no coinciden"); }
+            }
+
             if (t.Estado.Equals("CANCELADO") || t.Estado.Equals("ANULADO")) { throw new Exception("No puede facturar en este ticket."); }
             if (!t.EstadoFacturacion.Equals("GRE EMITIDA")) { throw new Exception("El ticket no tiene guías emitidas"); }
-            return ticketV.facturarTicket(DocEntry, u);
+            return tkD.FacturarTicket(DocEntry, u);
         }
         public int revertirFacturarTicket(int DocEntry, String operario)
         {
-            ORTV_E t = obtenerTicket(DocEntry);
+            ORTV_E t = ObtenerDatosCompletosTicket(DocEntry);
             if (!t.EstadoFacturacion.Equals("FACTURADO")) { throw new Exception("No se puede revertir el proceso de facturado"); }
-            return ticketV.revertirFacturarTicket(DocEntry, operario);
+            return tkD.RevertirFacturarTicket(DocEntry, operario);
         }
         public int recibirTicket(int DocEntry, ORTV_E t)
         {
@@ -664,7 +817,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         }
         public List<RptAnalisisTickets_E> ListarRptAnalisisTickets(RptFiltrosAnalisisTickets_E datosFiltro)
         {
-            return ticketV.ListarRptAnalisisTickets(datosFiltro);
+            return tkD.ListarRptAnalisisTickets(datosFiltro);
         }
         public DataTable tbRptAnalisisVentas(Capa_Entidad.Ventas_ENT.Formularios.FrmAnalisisVentas_E obj)
         {
@@ -673,17 +826,17 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 throw new Exception("Debe elegir los lugares de entrega o dejarlos vacios");
             }
             if (!(obj.FecIni != null && obj.FecFin != null)) { throw new Exception("Debe completar las 2 fechas"); }
-            return ticketV.tbRptAnalisisVentas(obj);
+            return tkD.TbRptAnalisisVentas(obj);
         }
         //ATENCION AL CLIENTES
         public List<ORTV_E> ListarTicketsParaAtencion()
         {
-            return ticketV.ListarTicketsParaAtencion();
+            return tkD.ListarTicketsParaAtencion();
         }
         //*********CALCULOS****************//
         public ORTV_E CalcularMontos(ORTV_E t)
         {
-            return ticketV.CalcularMontos(t);
+            return tkD.CalcularMontos(t);
         }
         public List<Capa_Entidad.ReportesDigemid_ENT.OrdenDeVenta_E> obtenerOrdenDeVenta(int DocNum)
         {
@@ -692,68 +845,75 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         }
         public string generaInfoListaClientes(string Fecha)
         {
-            return ticketV.generaInfoListaClientes(Fecha);
+            return tkD.GeneraInfoListaClientes(Fecha);
         }
         public string generaInfoListaDirDestinos(string CardCode)
         {
-            return ticketV.generaInfoListaDirDestinos(CardCode);
-        }
-        public string generaInfoListaOrdenesDeVenta(string fecha, string cardCode, int docNum)
-        {
-            return ticketV.generaInfoListaOrdenesDeVenta(fecha, cardCode, docNum);
+            return tkD.GeneraInfoListaDirDestinos(CardCode);
         }
         public string generaInfoListaNotasDeCreditoV(string CardCode)
         {
-            return ticketV.generaInfoListaNotasDeCreditoV(CardCode);
+            return tkD.GeneraInfoListaNotasDeCreditoV(CardCode);
         }
         public string GuiasTicket(int DocEntry)
         {
-            return ticketV.GuiasTicket(DocEntry);
+            return tkD.GuiasTicket(DocEntry);
         }
-        public Tickets buscarTicket(int DocEntry)
+        public Tickets Buscar(int DocEntry)
         {
-            return ticketV.buscarTicket(DocEntry);
+            return tkD.Buscar(DocEntry);
         }
         public ORTV_E CalcularPesoTotal(ORTV_E t)
         {
-            return ticketV.CalcularPesoTotal(t);
+            return tkD.CalcularPesoTotal(t);
         }
-        public List<TEMP_RRU01_E> GuiasRemisionSap(int DocEntry)
+        public List<Tickets> BuscarVariosTickets(int[] arrDocNum)
         {
-            return ticketV.GuiasRemisionSap(DocEntry);
-        }
-        public List<Tickets> buscarVariosTickets(int[] arrDocNum)
-        {
-            return ticketV.buscarVariosTickets(arrDocNum);
+            return tkD.BuscarVariosTickets(arrDocNum);
         }
         public Tickets entregarMasivoTicket(int DocEntry, string OpEntrega, int entregadoConRegalo)
         {
             // Antes de entregar los tickets, buscaremos si tiene alguna actualización de datos
-            var ticket = buscarTicket(DocEntry);
+            var ticket = Buscar(DocEntry);
             ticket.Operario = OpEntrega;
 
             // Si tiene un cambio de @Estado y @RegCant
             if (ticket.Det5 != null && ticket.Det5.Count() > 0)
-            {
+            {//si tiene el regalo tiene que esta en entregado siempre
                 if (ticket.Estado.Equals("ENVIADO") && (ticket.Det5[0].RegCant >= 1 && ticket.Det5[0].RegEstado != "Entregado" || (entregadoConRegalo == 1)))
                 {
-                    ticketV.entregarMasivoTicket(DocEntry, ticket);
+                    tkD.EntregarMasivoTicket(DocEntry, ticket);
                 }
             }
             else
             {
                 if (ticket.Estado == "ENVIADO" && entregadoConRegalo == 0)
                 {
-                    ticketV.entregarMasivoTicket(DocEntry, ticket);
+                    tkD.EntregarMasivoTicket(DocEntry, ticket);
                 }
             }
 
             return ticket;
         }
+
+
+
+
+
+
+
+
+
+
+        // Reformulando metodos
+        public (string Persona, string documento) obtenerPersonaRecojoParaGuia(int docNum)
+        {
+            return tkD.ObtenerPersonaRecojoParaGuia(docNum);
+        }
         public void editarTicketSup(int DocEntry, int idRol, ORTV_E ticket)
         {
-            ORTV_E t = ticketV.obtenerTicket(DocEntry);
-            validarDatosTicket(ticket, idRol);
+            ORTV_E t = tkD.ObtenerDatosCompletosTicket(DocEntry);
+            ValidarDatosTicket(ticket, idRol);
             switch (t.Estado)
             {
                 case "ENTREGADO":
@@ -771,7 +931,8 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 {
                     foreach (var det7 in ticket.Det7)
                     {
-                        var TkPrincipal = obtenerTicket(Convert.ToInt32(det7.DocNumVinc - 2000000000));
+                        int docEntry = DocEntryTicket(Convert.ToInt32(det7.DocNumVinc));
+                        var TkPrincipal = ObtenerDatosCompletosTicket(docEntry);
                         if (TkPrincipal.Estado != "ABIERTO" && TkPrincipal.Estado != "RECIBIDO" && TkPrincipal.Estado != "PICKEANDO" && TkPrincipal.Estado != "PICKEADO" && TkPrincipal.Estado != "VERIFICANDO" && TkPrincipal.Estado != "VERIFICADO" && TkPrincipal.Estado != "EMPACANDO" && TkPrincipal.Estado != "EMPACADO" && TkPrincipal.Estado != "PESADO")
                         {
                             throw new Exception("El ticket que quiere vincular en linea " + det7.Linea + " se encuentra fuera de un estado modificable.");
@@ -784,43 +945,47 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 }
                 else { throw new Exception("Debe vincular tickets"); }
             }
-            ticketV.editarTicketSup(DocEntry, ticket);
+            tkD.EditarTicketSup(DocEntry, ticket);
         }
-        public List<RTV4_E> obtenerDet4Ticket(int DocEntry, int DocNum = 0)
+        public (string HtmlContent, string TipoVenta) generaInfoListaOrdenesDeVenta(string fecha, string cardCode, int docNum)
         {
-            return ticketV.obtenerDet4Ticket(DocEntry, DocNum);
+            return tkD.GeneraInfoListaOrdenesDeVenta(fecha, cardCode, docNum);
         }
-        // Reformulando metodos
         public string EstadoTicket(int docEntry)
-        { return ticketV.EstadoTicket(docEntry); }
+        { return tkD.EstadoTicket(docEntry); }
         public int DocNumTicket(int docEntry)
-        { return ticketV.DocNumTicket(docEntry); }
+        { return tkD.DocNumTicket(docEntry); }
         public int DocNumTicketLike(int docNumLike)
-        { return ticketV.DocNumTicketLike(docNumLike); }
+        { return tkD.DocNumTicketLike(docNumLike); }
         public int DocEntryTicket(int docNum)
-        { return ticketV.DocEntryTicket(docNum); }
+        { return tkD.DocEntryTicket(docNum); }
         public List<ORTV_E> ListarTicketsAreaVenta(Usuario_E user, ORTV_E t)
-        { return ticketV.ListarTicketsAreaVenta(user, t); }
+        { return tkD.ListarTicketsAreaVenta(user, t); }
         public int CantidadTicketsFacturacion(string estadoFacturacion) //Trae la cantidad de tickets PENDIENTES o GRE EMITIDA para vista de facturaciòn
-        {
-            return ticketV.CantidadTicketsFacturacion(estadoFacturacion);
-        }
+        { return tkD.CantidadTicketsFacturacion(estadoFacturacion); }
+        public ORTV_E ObtenerDatosCompletosTicket(int DocEntry)
+        { return tkD.ObtenerDatosCompletosTicket(DocEntry); }
         public ORTV_E ObtenerTicketFacturacion(int docEntry)// Trae datos especificos para un ticket en controller facturacion
-        { return ticketV.ObtenerTicketFacturacion(docEntry); }
+        { return tkD.ObtenerTicketFacturacion(docEntry); }
         public ORTV_E ObtenerTicketVenta(int docEntry)// Trae datos especificos para un ticket con Det2 y Det3 ( usa vinculacion )
-        { return ticketV.ObtenerTicketVenta(docEntry); }
+        { return tkD.ObtenerTicketVenta(docEntry); }
+        public ORTV_E ObtenerReferenciaEstadosTicket(ORTV_E ticket)
+        { return tkD.ObtenerReferenciaEstadosTicket(ticket); }
+        public ORTV_E ObtenerDatosTicketParaDocumentos(int docEntry)
+        { return tkD.ObtenerDatosTicketParaDocumentos(docEntry); }
+        public ORTV_E ObtenerTicketRotulado(int docEntry)
+        { return tkD.ObtenerTicketRotulado(docEntry); }
+        public ORTV_E ObtenerTicketTacoEmpaque(int docEntry)
+        { return tkD.ObtenerTicketTacoEmpaque(docEntry); }
         public List<ORTV_E> ListarTicketsAreaFacturacion(Usuario_E user, ORTV_E t)
-        { return ticketV.ListarTicketsAreaFacturacion(user, t); }
+        { return tkD.ListarTicketsAreaFacturacion(user, t); }
         public List<ORTV_E> ListarTicketsAreaRecepcion(Usuario_E user, ORTV_E t)
-        { return ticketV.ListarTicketsAreaRecepcion(user, t); }
+        { return tkD.ListarTicketsAreaRecepcion(user, t); }
         public List<ORTV_E> ListarTicketsAreaAlmacén(Usuario_E user, ORTV_E t)
-        { return ticketV.ListarTicketsAreaAlmacén(user, t); }
+        { return tkD.ListarTicketsAreaAlmacén(user, t); }
         public List<ORTV_E> ListarTicketsAreaDespacho(Usuario_E user, ORTV_E t)
-        { return ticketV.ListarTicketsAreaDespacho(user, t); }
-        public ORTV_E obtenerTicketRotulado(int DocEntry)
-        {return ticketV.obtenerTicketRotulado(DocEntry);}
-        public ORTV_E obtenerTicketTacoEmpaque(int DocEntry)
-        {return ticketV.obtenerTicketTacoEmpaque(DocEntry);}
+        { return tkD.ListarTicketsAreaDespacho(user, t); }
+
 
     }
 }

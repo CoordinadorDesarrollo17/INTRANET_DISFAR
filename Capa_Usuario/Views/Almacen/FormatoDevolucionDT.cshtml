@@ -167,7 +167,23 @@
                                 <th class="text-center border-dark font-weight-normal f12">@m.ItemName</th>
                                 <th class="text-center border-dark font-weight-normal f12">@m.BatchNum</th>
                                 <th class="text-center border-dark font-weight-normal f12">@m.ExpDateFormat</th>
-                                <th class="text-center border-dark font-weight-normal f12">@Convert.ToInt32(m.Quantity) @if (m.BuyUnitMsr.Equals("PZA")) { Write("("+m.BuyUnitMsr+")"); }</th>
+
+                                @{
+                                    // Convertimos Quantity a decimal para comprobar si tiene decimales
+                                    decimal quantity = Convert.ToDecimal(m.Quantity);
+                                    string displayQuantity;
+
+                                    // Verificamos si la cantidad tiene decimales
+                                    if (quantity % 1 != 0) // Tiene decimales
+                                    {
+                                        displayQuantity = (quantity * 100).ToString("0"); // Multiplicamos por 100 y convertimos a string sin decimales
+                                    }
+                                    else
+                                    {
+                                        displayQuantity = Convert.ToInt32(quantity).ToString(); // Convertimos a entero y a string
+                                    }
+                                }
+                                <th class="text-center border-dark font-weight-normal f12">@displayQuantity @if (m.BuyUnitMsr.Equals("PZA")) { Write(" (PZA)"); }</th>
                                 <th class="text-center border-dark font-weight-normal f12">@m.RefFactura</th>
                                 <th class="text-center border-dark font-weight-normal f12">@m.DescMotivo</th>
                                 <th class="text-center border-dark font-weight-normal f12">@obs</th>

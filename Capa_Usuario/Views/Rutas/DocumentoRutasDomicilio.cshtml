@@ -65,12 +65,6 @@
                 <td width=150px><font size="@ViewBag.Letra">@Html.DisplayFor(model2 => model2.Copil2Desc)</font></td>
             </tr>
             <tr>
-                <td><font size="@ViewBag.Letra"><strong>COPILOTO3: </strong></font></td>
-                <td width=150px><font size="@ViewBag.Letra">@Html.DisplayFor(model2 => model2.Copil3Desc)</font></td>
-                <td><font size="@ViewBag.Letra"><strong>COPILOTO4: </strong></font></td>
-                <td width=150px><font size="@ViewBag.Letra">@Html.DisplayFor(model2 => model2.Copil4Desc)</font></td>
-            </tr>
-            <tr>
                 <td><font size="@ViewBag.Letra"><strong>PLACA: </strong></font></td>
                 <td width=150px><font size="@ViewBag.Letra">@Html.DisplayFor(model2 => model2.Placa)</font></td>
                 <td><font size="@ViewBag.Letra"><strong>FECHA: </strong></font></td>
@@ -79,23 +73,29 @@
             <tr>
                 <td><font size="@ViewBag.Letra"><strong>HORA INICIO: </strong></font></td>
                 <td width=150px><font size="@ViewBag.Letra">@Convert.ToDateTime(Model.TiempoPac).ToString("HH:mm:ss")</font></td>
-                <td><font size="@ViewBag.Letra"><strong>HORA TERMINO: </strong></font></td>
-                @if (Model.TiempoTerEn != null)
-                {
-                    <td width=150px><font size="@ViewBag.Letra">@Model.TiempoTerEn</font></td>
-                }
-                else
-                {
-                    <td width=150px></td>
-                }
                 <td colspan=10><font size="@ViewBag.Letra">CONDICIÓN ALMACENAMIENTO : T° 15°C-25°C</font></td>
             </tr>
             <tr>
                 <td><font size="@ViewBag.Letra"><strong>ALM-ORIGEN: </strong></font></td>
-                <td colspan=6><font size="@ViewBag.Letra">@Html.DisplayFor(model2 => model2.AlmOrigenDesc);@Html.DisplayFor(model2 => model2.AlmOrigenDesc2)</font></td>
+                <td colspan="6">
+                    <font size="@ViewBag.Letra">
+                        <strong style="margin-right:30px">
+                            @if (Model2.AlmOrigenDesc.Equals("FACTURACION") || Model2.AlmOrigenDesc.Equals("PICKING"))
+                            {
+                                @:ALMACEN N°8
+                            }
+                            else
+                            {
+                                @Model2.AlmOrigenDesc
+                            }
+                        </strong>
+                        <br />
+                        @Html.DisplayFor(model2 => model2.AlmOrigenDesc2)
+                    </font>
+                </td>
             </tr>
         </table>
-        <table border=1 style=' width: 1275px'>
+        <table border=1 style='width: 1275px'>
             <tr>
                 <th width=2%><font size="@ViewBag.Letra">#</font></th>
                 <th align=center width=5%><font size="@ViewBag.Letra">NRO. TICKET</font></th>
@@ -111,7 +111,7 @@
                 <th align=center width=18%><font size="@ViewBag.Letra">FIRMA Y/O SELLO DE RECIBIDO</font></th>
 
             </tr>
-            @foreach (var det in Model2.DetRRU0.Where(x => x.Estado != "LIBERADO"))
+            @foreach (var det in Model2.DetRRU0.Where(x => x.Estado != "LIBERADO").OrderBy(x=>x.Linea).ToList())
             {
                 <tr>
                     <td><font size="@ViewBag.Letra">@det.Linea</font></td>
@@ -196,12 +196,6 @@
                         <td width=150px><font size="@ViewBag.Letra">@Html.DisplayFor(model2 => model2.Copil2Desc)</font></td>
                     </tr>
                     <tr>
-                        <td><font size="@ViewBag.Letra"><strong>COPILOTO3: </strong></font></td>
-                        <td width=150px><font size="@ViewBag.Letra">@Html.DisplayFor(model2 => model2.Copil3Desc)</font></td>
-                        <td><font size="@ViewBag.Letra"><strong>COPILOTO4: </strong></font></td>
-                        <td width=150px><font size="@ViewBag.Letra">@Html.DisplayFor(model2 => model2.Copil4Desc)</font></td>
-                    </tr>
-                    <tr>
                         <td><font size="@ViewBag.Letra"><strong>PLACA: </strong></font></td>
                         <td width=150px><font size="@ViewBag.Letra">@Html.DisplayFor(model2 => model2.Placa)</font></td>
                         <td><font size="@ViewBag.Letra"><strong>FECHA: </strong></font></td>
@@ -230,7 +224,7 @@
                         <th align=center width=18%><font size="@ViewBag.Letra">FIRMA Y/O SELLO DE RECIBIDO</font></th>
 
                     </tr>
-                    @foreach (var det in Model2.DetRRU0.Where(x => x.Ticket.Det5 != null && x.Ticket.Det5.Count > 0 && x.Ticket.Det5[0].RegCant > 0 && x.Estado != "LIBERADO"))
+                    @foreach (var det in Model2.DetRRU0.Where(x => x.Ticket.Det5 != null && x.Ticket.Det5.Count > 0 && x.Ticket.Det5[0].RegCant > 0 && x.Estado != "LIBERADO").OrderBy(x => x.Linea).ToList())
                     {
                         <tr>
                             <td><font size="@ViewBag.Letra">@det.Linea</font></td>
@@ -330,7 +324,7 @@
                     <th align=center width=5%><font size="@ViewBag.Letra"># CAJAS</font></th>
 
                 </tr>
-                @foreach (var det in Model2.DetRRU0.Where(x => x.Estado != "LIBERADO"))
+                @foreach (var det in Model2.DetRRU0.Where(x => x.Estado != "LIBERADO").OrderBy(x => x.Linea).ToList())
                 {
                     if (det.Ticket.Det3.Count >= 2)
                     {

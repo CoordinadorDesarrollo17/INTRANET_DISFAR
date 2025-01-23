@@ -28,7 +28,7 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
             }
         }
 
-        public void liberarRRU0(RRU0_E obj)
+        public void LiberarRRU0(RRU0_E obj)
         {
             ORRU_E orruE = orruN.obtenerOrdenDeRuta(obj.DocEntry);
             RRU0_E datosRRU0 = rru0D.buscarRRU0(obj.DocEntry, obj.Linea);
@@ -55,7 +55,7 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
             AnularTicketACuadrar(obj.DocEntryTicket, obj.DocNumTicket, obj.DocEntry, obj.OpEntrega, obj.IdOTC);
         }
 
-        public void anularRRU0(RRU0_E obj)
+        public void AnularRRU0(RRU0_E obj)
         {
             ORRU_E orruE = orruN.obtenerOrdenDeRuta(obj.DocEntry);
             if (orruE.Estado != "TERMINADO") { throw new Exception("No puede anular documento"); }
@@ -64,12 +64,12 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
             if (o.Estado != "ENTREGADO") { throw new Exception("Solo puede anular ticket en estado entregado"); }
             rru0D.anularRRU0(o);
         }
-        public void agregarRRU0(RRU0_E o)
+        public void AgregarRRU0(RRU0_E o)
         {
             ORRU_E orruE = orruN.obtenerOrdenDeRuta(o.DocEntry);
             if (orruE.Estado != "CREADO") { throw new Exception("Solo puede agregar a documento CREADO"); }
             ORTV_N ortvN = new ORTV_N();
-            ORTV_E t = ortvN.obtenerTicket(o.DocEntryTicket);
+            ORTV_E t = ortvN.ObtenerDatosCompletosTicket(o.DocEntryTicket);
             if (t.LugarDestino.Equals("Agencia Courier") && orruE.TipoRuta.Equals("AC")) { if (t.Estado != "PESADO") { throw new Exception("El ticket debe estar Pesado"); } }
             else
             {
@@ -125,18 +125,18 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
             //}
             rru0D.agregarRRU0(o);
         }
-        public RRU0_E buscarRRU0(int DocEntry, int Linea)
+        public RRU0_E BuscarRRU0(int DocEntry, int Linea)
         {
             return rru0D.buscarRRU0(DocEntry, Linea);
         }
 
-        public void validarEntDetReparto(RRU0_E o)
+        public void ValidarEntDetReparto(RRU0_E o)
         {
             ORTV_N ortvN = new ORTV_N();
             ORRU_E orruE = orruN.obtenerOrdenDeRuta(o.DocEntry);
-            RRU0_E rru0E = buscarRRU0(o.DocEntry, o.Linea);
+            RRU0_E rru0E = BuscarRRU0(o.DocEntry, o.Linea);
 
-            ORTV_E ortvE = ortvN.obtenerTicket(rru0E.DocEntryTicket);
+            ORTV_E ortvE = ortvN.ObtenerDatosCompletosTicket(rru0E.DocEntryTicket);
             if (orruE.Estado != "ENVIADO") { throw new Exception("El reparto no se encuentra ENVIADO"); }
             if (rru0E.Estado != "ENVIADO") { throw new Exception("Solo puedes entregar detalle Enviado"); }
             if (ortvE.Det5 != null && ortvE.Det5.Count > 0 && ortvE.Det5[0].RegCant > 0 && ortvE.LugarDestino == "Domicilio")
@@ -170,13 +170,13 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
             o.DocEntryTicket = rru0E.DocEntryTicket;
         }
 
-        public void entregarRRU0(RRU0_E o)
+        public void EntregarRRU0(RRU0_E o)
         {
-            validarEntDetReparto(o);
+            ValidarEntDetReparto(o);
             rru0D.entregarRRU0(o);
         }
 
-        public void entregaMasivaDetRep(RRU0_E o)
+        public void EntregaMasivaDetRep(RRU0_E o)
         {
             if (!(o.TempF1 >= 15 && o.TempF1 <= 25)) { throw new Exception("Temp1 final no cumple con el rango valido"); }
             if (!(o.HumedF1 >= 50 && o.HumedF1 <= 80)) { throw new Exception("Humed1 final no cumple con el rango valido"); }
@@ -185,7 +185,7 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
 
             ORRU_E orruE = orruN.obtenerOrdenDeRuta(o.DocEntry);
             if (orruE.Estado != "ENVIADO") { throw new Exception("El reparto debe estar enviado"); }
-            if (!(orruE.TipoRuta == "VC" || orruE.TipoRuta == "VA")) { throw new Exception("El reparto debe ser por traslado ventas almacen"); }
+            if (!(orruE.TipoRuta == "VC" || orruE.TipoRuta == "VA")) { throw new Exception("No se puede entregar masivamente en caso de rutas centro o arriola"); }
             foreach (RRU0_E r in orruE.DetRRU0.Where(x => x.Estado == "ENVIADO"))
             {
                 r.TempF1 = o.TempF1; r.HumedF1 = o.HumedF1;

@@ -48,7 +48,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                 SqlTransaction tran = cn.BeginTransaction();
                 try
                 {
-                    ortvD.preenviar(o.DocEntryTicket, o.Operario, tran, cn);
+                    ortvD.Preenviar(o.DocEntryTicket, o.Operario, tran, cn);
                     SqlCommand cmd = new SqlCommand("al.MANT_ORRU", cn, tran)
                     {
                         CommandType = CommandType.StoredProcedure
@@ -111,7 +111,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                             cmd.Parameters.AddWithValue("@ComentarioLiberado", o.ComentarioLiberado);
 
                             cmd.ExecuteNonQuery();
-                            new ORTV_D().liberar(o.DocEntryTicket, o.Operario, tran, cn);
+                            new ORTV_D().Liberar(o.DocEntryTicket, o.Operario, tran, cn);
                             tran.Commit();
                         }
                         catch (Exception ex)
@@ -142,7 +142,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                     cmd.Parameters.AddWithValue("@DocNum", 0).Direction = ParameterDirection.Output;
                     cmd.Parameters.AddWithValue("@Linea", o.Linea);
                     cmd.ExecuteNonQuery();
-                    ortvD.liberar(o.DocEntryTicket, o.Operario, tran, cn);
+                    ortvD.Liberar(o.DocEntryTicket, o.Operario, tran, cn);
                     tran.Commit();
                 }
                 catch { tran.Rollback(); cn.Close(); throw new Exception("error al anular detalle D:" + o.DocEntry + "-L:" + o.Linea); }
@@ -238,76 +238,99 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
 
         public void entregarRRU0(RRU0_E o)
         {
-            ORTV_D ortvD = new ORTV_D(); List<RRU0_E> lis = new List<RRU0_E>(); lis.Add(o);
+            ORTV_D ortvD = new ORTV_D();
+            List<RRU0_E> lis = new List<RRU0_E>();
+            lis.Add(o);
+
             ORRU_E orruE = orruD.obtenerOrdenDeRuta(o.DocEntry);
-            var tk = ortvD.obtenerTicket(o.DocEntryTicket);
+            var tk = ortvD.ObtenerDatosCompletosTicket(o.DocEntryTicket);
 
-            SqlConnection cn = new SqlConnection(uti.cadSql);
-            try
+            using (SqlConnection cn = new SqlConnection(uti.cadSql))
             {
-                cn.Open();
-                SqlTransaction tran = cn.BeginTransaction();
-
                 try
                 {
-                    if (o != null)
+                    cn.Open();
+                    using (SqlTransaction tran = cn.BeginTransaction("REPARTO DE PEDIDOS"))
                     {
-                        SqlCommand cmd = new SqlCommand("al.MANT_ORRU", cn, tran) { CommandType = CommandType.StoredProcedure };
-
-                        cmd.Parameters.AddWithValue("@TipoMantenimiento", "UEDR");
-                        cmd.Parameters.AddWithValue("@DocEntry", o.DocEntry).Direction = ParameterDirection.InputOutput;
-                        cmd.Parameters.AddWithValue("@DocNum", 0).Direction = ParameterDirection.Output;
-                        cmd.Parameters.AddWithValue("@Linea", o.Linea);
-                        cmd.Parameters.AddWithValue("@OpEntrega", o.OpEntrega);
-
-                        SqlParameter tbDet = new SqlParameter("@Det", SqlDbType.Structured);
-                        tbDet.Value = RRU0_E.tbDetalle(lis);
-                        tbDet.TypeName = "al.TPRRU0";
-                        cmd.Parameters.AddWithValue("@Det", tbDet.Value);
-
-                        cmd.ExecuteNonQuery();
-
-                        if (orruE.TipoRuta == "VD" || orruE.TipoRuta == "VG") // no puede ser VC ni VA
+                        try
                         {
-                            ORTV_E tk2 = new ORTV_E { DocEntry = o.DocEntryTicket, Operario = o.OpEntrega };
-
-                            if (o.Ticket != null)
+                            if (o != null)
                             {
-                                tk2.PagoEnv = o.Ticket.PagoEnv; tk2.ClaveEnv = o.Ticket.ClaveEnv;
-                                if (tk.Det5 != null && tk.Det5.Count > 0)
+                                SqlCommand cmd = new SqlCommand("al.MANT_ORRU", cn, tran)
                                 {
-                                    tk2.Det5 = new List<RTV5_E> { tk.Det5[0] };
-                                    //para domicilio pasa el reg estado ENTREGADO
-                                    if (orruE.TipoRuta == "VD") { tk2.Det5[0].RegEstado = o.Ticket.Det5[0].RegEstado; }
+                                    CommandType = CommandType.StoredProcedure
+                                };
+
+                                cmd.Parameters.AddWithValue("@TipoMantenimiento", "UEDR");
+                                cmd.Parameters.AddWithValue("@DocEntry", o.DocEntry).Direction = ParameterDirection.InputOutput;
+                                cmd.Parameters.AddWithValue("@DocNum", 0).Direction = ParameterDirection.Output;
+                                cmd.Parameters.AddWithValue("@Linea", o.Linea);
+                                cmd.Parameters.AddWithValue("@OpEntrega", o.OpEntrega);
+
+                                SqlParameter tbDet = new SqlParameter("@Det", SqlDbType.Structured);
+                                tbDet.Value = RRU0_E.tbDetalle(lis);
+                                tbDet.TypeName = "al.TPRRU0";
+                                cmd.Parameters.AddWithValue("@Det", tbDet.Value);
+
+                                cmd.ExecuteNonQuery();
+
+                                // Condición para manejar tipos de rutas
+                                if (orruE.TipoRuta == "VD" || orruE.TipoRuta == "VG") // no puede ser VC ni VA
+                                {
+                                    ORTV_E tk2 = new ORTV_E { DocEntry = o.DocEntryTicket, Operario = o.OpEntrega };
+
+                                    if (o.Ticket != null)
+                                    {
+                                        tk2.PagoEnv = o.Ticket.PagoEnv;
+                                        tk2.ClaveEnv = o.Ticket.ClaveEnv;
+                                        if (tk.Det5 != null && tk.Det5.Count > 0)
+                                        {
+                                            tk2.Det5 = new List<RTV5_E> { tk.Det5[0] };
+                                            // Para domicilio envia el reg estado, puede ser pendiente o entregado
+                                            if (orruE.TipoRuta == "VD") { tk2.Det5[0].RegEstado = o.Ticket.Det5[0].RegEstado; }
+                                        }
+                                    }
+
+                                    ortvD.EntregarDesdeReparto(tk2, tran);
+                                }
+                                //else if (orruE.TipoRuta == "AC")
+                                //{
+                                //    string RegEstado = string.Empty;
+                                //    if (tk.Det5 != null && tk.Det5.Count >= 1)
+                                //    {
+                                //        if (tk.Det5[0].IdReg > 0) { RegEstado = "Entregado"; }
+                                //    }
+                                //    ORTV_E tk2 = new ORTV_E { DocEntry = o.DocEntryTicket, OpRegistro = o.OpEntrega };
+                                //    tk2.Det5 = new List<RTV5_E>();
+                                //    tk2.Det5[0].RegEstado = RegEstado;
+                                //    ortvD.EntregarDesdeReparto(tk2, tran);
+                                //}
+
+                                // Guardar archivo si existe
+                                if (o.Archivo != null)
+                                {
+                                    Directory.CreateDirectory(uti.directorioFileServer + @"\Repartos\Evidencias\Ventas");
+                                    string pat = uti.directorioFileServer + @"\Repartos\Evidencias\Ventas\" + o.DocEntryTicket + Path.GetExtension(o.Archivo.FileName);
+                                    o.Archivo.SaveAs(pat);
                                 }
                             }
 
-                            ortvD.entregar(tk2, tran, cn);
+                            tran.Commit();
                         }
-                        else if (orruE.TipoRuta == "AC")
+                        catch (Exception e)
                         {
-                            string RegEstado = string.Empty;
-                            if (tk.Det5 != null && tk.Det5.Count >= 1) { if (tk.Det5[0].IdReg > 0) { RegEstado = "Entregado"; } }
-                            ORTV_E tk2 = new ORTV_E { DocEntry = o.DocEntryTicket, OpRegistro = o.OpEntrega };
-                            tk2.Det5 = new List<RTV5_E>();
-                            tk2.Det5[0].RegEstado = RegEstado;
-                            ortvD.entregar(tk2, tran, cn);
-                        }
-
-                        if (o.Archivo != null)
-                        {
-                            Directory.CreateDirectory(uti.directorioFileServer + @"\Repartos\Evidencias\Ventas");
-                            string pat = uti.directorioFileServer + @"\Repartos\Evidencias\Ventas\" + o.DocEntryTicket + Path.GetExtension(o.Archivo.FileName);
-                            o.Archivo.SaveAs(pat);
+                            
+                            tran.Rollback();
+                            throw new Exception(e.Message);
                         }
                     }
-
-                    tran.Commit();
+                }
+                catch
+                {
                     cn.Close();
                 }
-                catch (Exception e) { tran.Rollback(); cn.Close(); throw new Exception(e.Message); }
             }
-            catch { cn.Close(); }
         }
+
     }
 }

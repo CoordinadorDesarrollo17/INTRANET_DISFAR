@@ -1,77 +1,98 @@
 ﻿@using Capa_Entidad.Almacen_ENT.TablasSql;
-@using Capa_Entidad.Seguridad_ENT
 @{
     ViewBag.Title = "ContabilizacionInventario";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <style>
-    .conBorde td {
-        border: 1px solid;
-    }
-
-    #fila td {
-        font-size: 11px;
-    }
-
-    #btnfucsia {
-        background-color: fuchsia;
-        width: 90%;
-        margin-left: 2px;
-        margin-bottom: 20px;
-        padding: 10px;
-    }
-
-    #inv_btn {
-        width: 90%;
-        margin-left: 2px;
-        margin-bottom: 20px;
-        padding: 10px;
-    }
-
-        #btnfucsia :hover, #inv_btn :hover {
-            color: yellow;
-        }
-
-
-    #inv_btn a, #btnfucsia a {
+    .btn-custom {
+        width: 100%;
+        margin-bottom: 10px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         color: white;
         font-weight: 500;
+        text-decoration: none;
+        text-align: center;
+        font-size: 18px;
+    }
+
+        .btn-custom:hover {
+            color: yellow;
+            text-decoration: none;
+        }
+
+    .btn-icon {
+        font-size: 16px;
+        margin-right: 8px;
+    }
+
+    .bg-section-form {
+        background-color: #e9ecef;
+    }
+
+    .bg-form-cobefar {
+        background-color: #f8f9fa;
     }
 </style>
 
 <div class="pt-4">
     <nav>
-        <ol class="cd-breadcrumb bg-dark">
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="/Index/Sesion">Inicio</a></li>
             <li class="current"><em>Módulo contabilización inventario</em></li>
         </ol>
     </nav>
 </div>
 
-
-<div class="bg-dark border-cabecera-seccion pb-2">
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
     <div class="px-3 pt-3"><h3 class="titulo-seccion">MÓDULO CONTABILIZACION INVENTARIO</h3></div>
 </div>
 
 <div class="bg-form-pestanas-cobefar pt-4 bg-section-form p-4 bg-form-cobefar">
-
     @if (@OIPE_E.PeriodoSeleccionado != null)
     {
-    <div class="alert alert-danger" role="alert">
-        @("Periodo Seleccionado: " + OIPE_E.PeriodoSeleccionado.Descripcion + " ---- Almacenes: " + OIPE_E.PeriodoSeleccionado.enlistarDetAlmacenes())
-    </div>
-     }
-        
-        <section id="group">
-            <a href="@Url.Action("GestionConteos", "Almacen")"  class="btn btn-success">Conteo</a>
-            <a href="@Url.Action("GestionReconteos", "Almacen")"  class="btn btn-warning">Reconteo</a>
-            <a href="@Url.Action("GestionAnalisisConteos", "Almacen")" class="btn btn-cobefar">AnalisisCont</a>
-            <a href="@Url.Action("GestionPeriodos", "Almacen")"  class="btn btn-dark">Definir Periodo</a>
-            <a href="@Url.Action("GestionEquipos", "Almacen")"  class="btn btn-primary">Definir Equipos</a>
-            <a href="@Url.Action("ReportesContabilizacionInventario", "Almacen")" class="btn btn-info">Reportes</a>
-        </section>
-    </div>
+        <div class="alert alert-danger mb-0" role="alert">
+            @("Periodo Seleccionado: " + OIPE_E.PeriodoSeleccionado.Descripcion + " ---- Almacenes: " + OIPE_E.PeriodoSeleccionado.enlistarDetAlmacenes())
+        </div>
+    }
 
+    <section id="group" class="container pt-4">
+        <div class="row">
+            <div class="col-md-4 col-sm-6 col-12 mb-2">
+                <a href="@Url.Action("GestionPeriodos", "Almacen")" class="btn btn-danger btn-custom">
+                    <i class="icon icon-calendar btn-icon"></i> Definir Periodo
+                </a>
+            </div>
+            <div class="col-md-4 col-sm-6 col-12 mb-2">
+                <a href="@Url.Action("GestionEquipos", "Almacen")" class="btn btn-fucsia btn-custom">
+                    <i class="icon icon-users btn-icon"></i> Definir Equipos
+                </a>
+            </div>
+            <div class="col-md-4 col-sm-6 col-12 mb-2">
+                <a href="@Url.Action("GestionConteos", "Almacen")" class="btn btn-success btn-custom">
+                    <i class="icon icon-list btn-icon"></i> Conteo
+                </a>
+            </div>
+            <div class="col-md-4 col-sm-6 col-12 mb-2">
+                <a href="@Url.Action("GestionReconteos", "Almacen")" class="btn btn-warning btn-custom">
+                    <i class="icon icon-checkmark2 btn-icon"></i> Reconteo
+                </a>
+            </div>
+            <div class="col-md-4 col-sm-6 col-12 mb-2">
+                <a href="@Url.Action("GestionAnalisisConteos", "Almacen")" class="btn btn-primary btn-custom">
+                    <i class="icon icon-list-numbered btn-icon"></i> Análisis de Conteo
+                </a>
+            </div>
+            <div class="col-md-4 col-sm-6 col-12 mb-2">
+                <a href="@Url.Action("ReportesContabilizacionInventario", "Almacen")" class="btn btn-info btn-custom">
+                    <i class="icon icon-file-text btn-icon"></i> Reportes
+                </a>
+            </div>
+        </div>
+    </section>
+</div>
 
 <script>
     if ('@ViewBag.Mensaje' != "") {
@@ -79,6 +100,6 @@
             title: "@ViewBag.Mensaje",
             text: "Presione OK para continuar",
             icon: "warning"
-        })
-    };
+        });
+    }
 </script>

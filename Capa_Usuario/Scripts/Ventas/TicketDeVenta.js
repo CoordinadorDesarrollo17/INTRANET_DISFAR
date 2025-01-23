@@ -202,7 +202,7 @@ function reporteLibroSaldo(estado) {
 }
 //Tickets vinculados :
 //funcion para mostrar buscador de tickets a vincular
-//v
+
 function mostrarTableTicketsVinculados(valor) {
     var LugarDestino = $("#LugarDestino").val();
     //mostrar el llenado de tickets vinculados si la eleccion es SI
@@ -213,7 +213,7 @@ function buscarTicketAVincular(DocNum) {
     var DocNumPrincipal = $("#DocNum").val();
     if (DocNum == DocNumPrincipal) { swal.fire("No puede vincular el mismo número de ticket, hace redundancia."); } else {
         var parametros = { "DocNum": DocNum };
-        $.ajax('/Ventas/buscarTicket',
+        $.ajax('/Ventas/buscarTicketAVincular',
             {
                 data: parametros,
                 dataType: 'json',
@@ -229,7 +229,7 @@ function buscarTicketAVincular(DocNum) {
                     tabladetallesPedidos.find('tbody').children().each(function () {
                         var almacenSalidaValue = $(this).find("input[id^='AlmacenSalida']").val();
 
-                        if ((almacenSalidaValue === "03" || almacenSalidaValue === "ALM07") && !encontrado && $(this).find("input[id^='Verificar']:checked").length > 0) {
+                        if ((almacenSalidaValue === "16") && !encontrado && $(this).find("input[id^='Verificar']:checked").length > 0) {
                             encontrado = true;
                             almacenSalida = almacenSalidaValue;
                         }
@@ -280,7 +280,7 @@ function buscarTicketAVincular(DocNum) {
                                 }
                             }
                             else {
-                                swal.fire("Error: El ticket no tiene pedidos con almacen de origen 03 o ALM07.");
+                                swal.fire("Error: El ticket no tiene pedidos con almacen de origen Domicilio y Agencia.");
                             }
 
                         }
@@ -291,7 +291,6 @@ function buscarTicketAVincular(DocNum) {
             });
     }
 }
-//v
 var cont = 0;
 function agregarTicketVinculado(DocEntry, DocNum, CardCode, CardName, MontoFinal) {
     if (DocNum == null || DocNum == "") { swal.fire("No es valido el DocNum a vincular", "Verifique", "warning"); return; }
@@ -314,8 +313,6 @@ function agregarTicketVinculado(DocEntry, DocNum, CardCode, CardName, MontoFinal
         $("#ClienteVinculado").val("");
         $("#RucClienteVinculado").val("");
     }
-
-
 }
 function borrarTrTablaVinculados(dom) {
     var i = -1;
@@ -338,7 +335,7 @@ function borrarTrTablaVinculados(dom) {
         i = i + 1;
     })
 }
-//v
+
 function validacionVerificarMontos(estado) {
     var object;
     if (estado === '') {
@@ -364,7 +361,6 @@ function validacionVerificarMontos(estado) {
 function clienteRegalos() {
     window.open("/Ventas/ReporteClienteRegalos?CardCode=" + $("#CardCode").val(), null, 'width=800,height=450,top=100,left=100,toolbar=no,location=no,status=no,menubar=no')
 }
-//v
 function muestraCampo() {
     if ($("#LugarDestino").val() == 'Agencia' || $("#LugarDestino").val() == 'Agencia Courier') {
         $("#CamposAgDom").show(); $("#CamposAgencia").show();$("#Referencia").val("");
@@ -378,7 +374,6 @@ function muestraCampo() {
 
     }
 }
-//v
 //Solo se puede accionar cuando colocamos Agencia Courier y Modo envio (oficina de agencia)
 function buscarOficina() {
     $.ajax({
@@ -413,7 +408,6 @@ function buscarOficina() {
     });
 }
 //se usa para PO y para crear ticket venta 
-//v
 function validacionCliente(estado) {
     if (estado === '') {
         $('#infoFechaTicket').on('change', function () {
@@ -492,7 +486,6 @@ function verificarClientePO() {
 }
 /************************************ */
 //solo es usado en el crear ticket venta
-//v
 function listarNotasDeCreditoV() {
     var object = $("#CreaTicketVenta").serialize();
     $.ajax('/Ventas/infoListaNotasDeCreditoV',
@@ -531,14 +524,33 @@ function ObtieneDeudasSaldos() {
 }
 function verificacionDatos(estado) {
     $("#Verificar").on('click', function (e) {
-        var object;
-        if (estado == '') {
-            object = $("#CreaTicketVenta").serialize();
-        } else {
-            object = $("#EditaTicketVenta").serialize();
-        }
-        $.ajax('/Ventas/ValidarDatosTicket', {
-            data: object,
+        e.preventDefault();
+        var tipoVenta;
+
+        if (estado === '') {
+            var tipoVentaInput = $('#TipoVentaInput');
+            var tipoVentaSelect = $('#TipoVentaSelect');
+
+
+            if (tipoVentaSelect.val() != '') {
+                tipoVenta = tipoVentaSelect.val();
+            } else {
+                tipoVenta = tipoVentaInput.val();
+            }
+        } else { tipoVenta = $('#TipoVenta').val(); }
+        var formSelector = estado === '' ? "#CreaTicketVenta" : "#EditaTicketVenta";
+        var object = $(formSelector).serializeArray();
+
+        var dataObject = {};
+        $.each(object, function (i, field) {
+            dataObject[field.name] = field.value;
+        });
+
+        dataObject.TipoVenta = tipoVenta;
+
+        $.ajax({
+            url: '/Ventas/ValidarDatosTicket',
+            data: dataObject,
             dataType: 'html',
             cache: false,
             type: 'post'
@@ -549,21 +561,23 @@ function verificacionDatos(estado) {
                 } else {
                     Swal.fire({
                         title: 'Datos Ok',
-                        html: '<button type="button" id="cancelar" class="btn btn-secondary">Cancelar</button> <button type="button" id="enviarForm" class="btn btn-success"><i class="icon icon-plus"></i> Enviar </button> ',
+                        html: '<button type="button" id="cancelar" class="btn btn-secondary">Cancelar</button> <button type="button" id="enviarForm" class="btn btn-success"><i class="icon icon-plus"></i> Enviar </button>',
                         showCloseButton: false,
                         showCancelButton: false,
-                        showConfirmButton: false, 
+                        showConfirmButton: false
                     });
-                    // Agregar evento onclick al botón enviarFormulario
-                    $("#enviarForm").on('click', function (e) {
+
+                    $("#enviarForm").on('click', function () {
                         enviarFormulario();
                     });
-                    // Agregar evento onclick al botón cancelar
-                    $("#cancelar").on('click', function (e) {
-                        Swal.close(); // Cerrar el modal
+
+                    $("#cancelar").on('click', function () {
+                        Swal.close();
                     });
                 }
+            })
+            .fail(function (xhr, status, error) {
+                console.error('Error:', error);
             });
-
     });
 }

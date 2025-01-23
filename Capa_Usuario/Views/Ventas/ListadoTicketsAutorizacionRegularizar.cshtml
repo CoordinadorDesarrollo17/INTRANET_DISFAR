@@ -1,0 +1,112 @@
+﻿@model IEnumerable<dynamic>
+@{
+    ViewBag.Title = "ListadoTicketsAutorizacionRegularizar";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    function enviarDatosTicketReemplazo() {
+    var codigoVendedor = $('#CodigovendedorInput').val();
+    var nombreVendedor = $('#NombresvendedorInput').val();
+    var apellidoVendedor = $('#ApellidosvendedorInput').val();
+    var data = {
+        CodigoSap: codigoVendedor,
+        Nombres: nombreVendedor,
+        Apellidos: apellidoVendedor
+    };
+
+    Swal.fire({
+        title: 'Enviando datos...',
+        allowOutsideClick: false,
+        onBeforeOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    $.ajax({
+        type: 'GET',
+        url: '@Url.Action("CreaTicketVenta", "Ventas")',
+        data: data,
+        success: function(response) {
+        console.log('Datos enviados correctamente.');
+        $('#modalVendedores').hide();
+        location.reload();
+        Swal.fire({
+        icon: 'success',
+        title: 'Datos enviados correctamente',
+        showConfirmButton: false,
+        timer: 1500
+        });
+        },
+        error: function(xhr, status, error) {
+        console.error('Error al enviar datos:', error);
+        Swal.fire({
+        icon: 'error',
+        title: 'Error al enviar datos',
+        text: 'Por favor, inténtelo de nuevo más tarde.',
+        showConfirmButton: true
+        });
+        },
+        complete: function() {
+        Swal.close();
+        }
+        });
+        }
+
+</script>
+
+<div class="pt-3">
+    <nav>
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("ListadoTicketsVenta", "Ventas")">Listado de Tickets</a></li>
+            <li class="current"><em>Listado de Tickets por regularizar</em></li>
+        </ol>
+    </nav>
+</div>
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
+
+    <div class="mx-2 d-flex justify-content-between px-3 pt-3">
+        <div>
+            <h3 class="titulo-seccion">TICKETS POR REGULARIZAR AUTORIZACION</h3>
+        </div>
+    </div>
+
+</div>
+<div class="bg-white bg-form-cobefar pt-2">
+    <table class="table table-light table-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
+        <thead class="bg-cobefar-6">
+            <tr>
+                <th class="text-center">Ticket</th>
+                <th class="text-center">Cliente</th>
+                <th class="text-center">TipoPago</th>
+                <th class="text-center">Estado</th>
+                <th class="text-center">Monto Efectivo</th>
+                <th class="text-center">Monto Deposito</th>
+                <th class="text-center">Suma</th>
+                <th class="text-center">Registro</th>
+                <th class="text-center"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td class="text-center">@item.DocNumTicket</td>
+                    <td class="text-center" style="max-width:200px">@item.CardName</td>
+                    <td class="text-center">@item.TipoPago</td>
+                    <td class="text-center">@item.Estado</td>
+                    <td class="text-center">@item.MontoRecibidoEfectivo</td>
+                    <td class="text-center">@item.MontoRecibidoDeposito</td>
+                    <td class="text-center">@item.Suma</td>
+                    <td class="text-center">@item.Registro.Substring(0, Math.Min(10, @item.Registro.Length))</td>
+                    <td class="text-center"> <a href="#" onclick="autorizarContraEntrega(@item.DocNumTicket);" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Autorizar"><i class="text-success icon-checkmark"></i></a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+
+
+

@@ -3,8 +3,18 @@
 @{
     ViewBag.Title = "EntregarDetReparto";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    RRU0_E rru0E = (RRU0_E)ViewBag.RRU0;
-    RRU1_E rru1E = (RRU1_E)ViewBag.RRU1;
+
+    RRU0_E rru0E = new RRU0_E();
+    RRU1_E rru1E = new RRU1_E();
+    if (ViewBag.TipoRuta == "TA")
+    {
+        rru1E = (RRU1_E)ViewBag.RRU1;
+    }
+    else
+    {
+        rru0E = (RRU0_E)ViewBag.RRU0;
+    }
+
     string[] rutasValidas = { "VD", "VC", "VA", "TA" };
 }
 
@@ -36,21 +46,23 @@
     function validarArchivo() {
         var fi = document.getElementById('Archivo');
         if (fi.files.length > 0) {
-            for (let i = 0; i <= fi.files.length - 1; i++) {
+            for (let i = 0; i < fi.files.length; i++) {
                 let fsize = fi.files.item(i).size;
-                let file = Math.round((fsize / 1024));
-                if (file >= 15360) {
-                    Swal.fire("Archivo adjunto supera el límite de 15 MB");
+                let fileSizeInMB = fsize / (1024 * 1024); 
+                if (fileSizeInMB > 5) {
+                    Swal.fire("El archivo adjunto supera el límite de 5 MB");
                     fi.value = null;
+                    return; 
                 }
-            }
+            } 
         }
     }
+
 </script>
 
 <div class="pt-4">
     <nav>
-        <ol class="cd-breadcrumb bg-dark">
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
             <li><a href="@Url.Action("ListadoRutas", "Rutas")">Listado de Rutas</a></li>
             <li><a href="@Url.Action("ListadoEntregaRepartos", "Rutas",new { TipoRep=ViewBag.TipoRep,DocEntry=ViewBag.DocEntry})">Entrega Repartos</a></li>
@@ -59,7 +71,7 @@
     </nav>
 </div>
 
-<div class="bg-dark border-cabecera-seccion pb-2">
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
     <div class="px-3 pt-3"><h3 class="titulo-seccion">ENTREGAR DET. REPARTO</h3></div>
 </div>
 
@@ -70,7 +82,8 @@
             <div class="row mt-2">
 
                 <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                    @if (rru0E.DocEntry > 0)
+                    @if (ViewBag.TipoRuta != "TA"
+                        && rru0E.DocEntry > 0)
                     {
                         <div class="row mb-3 justify-content-center">
                             <div class="bg-cobefar text-white font-weight-bold px-2 py-1 font-18">Nro Ticket : @rru0E.DocNumTicket</div>

@@ -23,15 +23,15 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
         {
             return orruD.listarGuiasTraslado(Origen);
         }
-        public int CrearOrdenDeRuta(ORRU_E o)
+        public int NuevaHojaDeReparto(ORRU_E o)
         {
-            validarDatosOrdenDeRuta(o);
-            return orruD.CrearOrdenDeRuta(o);
+            validarNuevaHojaDeRepartoOTransferencia(o);
+            return orruD.NuevaHojaDeReparto(o);
         }
-        public int EditarEncabezadoOrdenDeRuta(ORRU_E o)
+        public int EditarHojaDeReparto(ORRU_E o)
         {
             validarDatosEncabezadoRuta(o);
-            return orruD.EditarOrdenDeRuta(o);
+            return orruD.EditarHojaDeReparto(o);
         }
         public int AnularOrdenDeRuta(int DocEntry, string OpRegistro)
         {
@@ -44,28 +44,17 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
         {
             return orruD.obtenerOrdenDeRuta(DocEntry);
         }
-        public void validarDatosOrdenDeRuta(ORRU_E o)
+        public void validarNuevaHojaDeRepartoOTransferencia(ORRU_E o)
         {
-            ORTV_N ortvN = new ORTV_N();
-
             if (string.IsNullOrEmpty(o.TipoRuta)) { throw new Exception("No lleno tipo de ruta encabezado"); }
             //Validacion solo para agencia courier
-            if (o.TipoRuta == "AC")
+            if (o.TipoRuta != "TA")
             {
-                if (string.IsNullOrEmpty(o.TransDesc)) { throw new Exception("Debe ingresar chofer"); }
-                if (string.IsNullOrEmpty(o.Agencia)) { throw new Exception("Debe ingresar agencia"); }
-                if (string.IsNullOrEmpty(o.RucAgencia)) { throw new Exception("No existe ruc de agencia"); }
-            }
-            //otros: (se selecciona los valores no se ingresan en input
-            else
-            {
-                if (string.IsNullOrEmpty(o.TransCod)) { throw new Exception("Debe elegir un chofer"); }
+                if (string.IsNullOrEmpty(o.TransDesc)) { throw new Exception("Debe elegir un conductor"); }
                 if (string.IsNullOrEmpty(o.VehiculoCod)) { throw new Exception("Debe elegir un vehiculo"); }
                 if (string.IsNullOrEmpty(o.CopilDesc)) { throw new Exception("El documento debe tener copiloto 1"); }
-
             }
             //Validaciones para cualquier tipo de ruta
-            if (string.IsNullOrEmpty(o.Placa)) { throw new Exception("El documento debe tener placa"); }
             if (o.FechaCont == null) { throw new Exception("No eligió FechaContabilizacion"); }
 
             //validaciones para tipos de ruta distinto a courier y agencia
@@ -86,7 +75,7 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
                 {
                     if (d.DocEntryTicket > 0)
                     {
-                        ORTV_E t = ortvN.obtenerTicket(d.DocEntryTicket);
+                        ORTV_E t = new Capa_Negocio.Ventas_NEG.TablasSql.ORTV_N().ObtenerDatosCompletosTicket(d.DocEntryTicket);
                         if (string.IsNullOrEmpty(t.EstadoFacturacion) || t.EstadoFacturacion.Equals("PENDIENTE")) { throw new Exception("El ticket en linea " + d.Linea + " no tiene guías emitida, retirar de la tabla."); }
                         if (string.IsNullOrEmpty(d.Guias))
                         {
@@ -117,7 +106,7 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
                         //buscar vinculados solo en caso de Domicilio para validar que todos son enviados juntos en la misma hoja de ruta.
                         if (t.LugarDestino == "Domicilio")
                         {
-                            var listTicketsVinculados = ortvN.BuscarVinculados(t.DocEntry, t.DocNum);
+                            var listTicketsVinculados = new Capa_Negocio.Ventas_NEG.TablasSql.ORTV_N().BuscarVinculados(t.DocEntry, t.DocNum);
                             foreach (string DocNumVinculado in listTicketsVinculados)
                             {
                                 //buscamos que el ticket vinculado se encuentre en la hoja de ruta creandose
@@ -133,41 +122,6 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
                         d.Cajas = t.Cajas;
                     }
                 }
-                //if (o.DetRRU0 != null && (o.TipoRuta == "VD" || o.TipoRuta == "VA" || o.TipoRuta == "VC" || o.TipoRuta == "VG"))
-                //{
-                //    TEMP_RRU01_N tempDoc = new TEMP_RRU01_N();
-                //    RRU01_N rru01Neg = new RRU01_N();
-                //    List<TEMP_RRU01_E> tempPri = new List<TEMP_RRU01_E>();
-                //    //foreach (var det in o.DetRRU0)
-                //    //{
-                //    //    //List<TEMP_RRU01_E> res = tempDoc.Obtener(det.DocEntryTicket);
-                //    //    //List<string> list = new List<string>();
-                //    //    //foreach (var e in res)
-                //    //    //{
-                //    //    //    if (e.Impreso == 0)
-                //    //    //    {
-                //    //    //        //lista de correlativos que no se imprimieron segun tabla temporal
-                //    //    //        list.Add(e.U_SYP_MDTD + "-" + e.U_SYP_MDSD + "-" + e.U_SYP_MDCD);
-                //    //    //    }
-                //    //    //    else { tempPri.Add(e); }
-                //    //    //}
-                //    //    //if (list.Count > 0)
-                //    //    //{
-                //    //    //    for (int i = 0; i < list.Count; i++)
-                //    //    //    {
-                //    //    //        //busca el elemento en la tabla top 1 para saber si fue impreso antes
-                //    //    //        RRU01_E rru01E = rru01Neg.BuscarCorrelativo(list[i]);
-                //    //    //       if (rru01E.Id == 0)
-                //    //    //        {
-                //    //    //            throw new Exception("El doc :" + list[i] + " no se ha impreso. No puede crear hoja de ruta sin antes imprimir todos los comprobantes.");
-                //    //    //        }
-
-                //    //    //    }
-                //    //    //}
-
-                //    //}
-                //    o.DetRRU01 = RRU01_E.compararTemp(tempPri);
-                //}
             }
             //Validaciones exclusivas para Transferencia entre almacenes ( tambien son parte de las hojas de ruta )
             else
@@ -208,32 +162,25 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
             ORRU_E orruE = obtenerOrdenDeRuta(o.DocEntry);
             if (orruE.Estado != "CREADO") { throw new Exception("Solo puede editar un documento creado"); }
             if (string.IsNullOrEmpty(o.TipoRuta)) { throw new Exception("No lleno tipo de ruta encabezado"); }
-            if (string.IsNullOrEmpty(o.Placa)) { throw new Exception("El documento debe tener placa"); }
+
             if (o.FechaCont == null) { throw new Exception("No eligió fecha de contabilizacion"); }
 
-            //validaciones para tipos de ruta distinto a courier y agencia
-            if (o.TipoRuta != "VG" && o.TipoRuta != "AC" && (string.IsNullOrEmpty(o.AlmOrigenCod) || string.IsNullOrEmpty(o.AlmOrigenDesc)))
+            //validaciones para tipos de ruta distinto a agencia
+            if (o.TipoRuta != "VG" && (string.IsNullOrEmpty(o.AlmOrigenCod) || string.IsNullOrEmpty(o.AlmOrigenDesc)))
             {
                 throw new Exception("No eligió almacén origen");
             }
-            if (o.TipoRuta != "VG" && o.TipoRuta != "AC" && (string.IsNullOrEmpty(o.AlmDestinoCod) || string.IsNullOrEmpty(o.AlmDestinoDesc)))
+            if (o.TipoRuta != "VG" && (string.IsNullOrEmpty(o.AlmDestinoCod) || string.IsNullOrEmpty(o.AlmDestinoDesc)))
             {
                 throw new Exception("No eligió almacén destino");
             }
 
             if (o.TiempoPac == null) { throw new Exception("Debe haber tiempo pactado"); }
-
-
-            //Validacion para casos de Agencia Courier ( datos ingresados por input)
-            if (o.TipoRuta == "AC")
+            if (o.TipoRuta != "TA")
             {
-                if (string.IsNullOrEmpty(o.Agencia)) { throw new Exception("Debe ingresar agencia"); }
-                if (string.IsNullOrEmpty(o.RucAgencia)) { throw new Exception("Debe ingresar ruc de agencia"); }
-            }
-            //Todos los casos distintos, donde se escoge los valores de un desplegable
-            else
-            {
-                if (string.IsNullOrEmpty(o.TransCod)) { throw new Exception("Debe elegir un chofer"); }
+                if (string.IsNullOrEmpty(o.Placa)) { throw new Exception("El documento debe tener placa"); }
+                //Todos los casos distintos, donde se escoge los valores de un desplegable
+                if (string.IsNullOrEmpty(o.TransDesc)) { throw new Exception("Debe elegir un conductor"); }
                 if (string.IsNullOrEmpty(o.VehiculoCod)) { throw new Exception("Debe elegir un vehiculo"); }
                 if (string.IsNullOrEmpty(o.CopilDesc)) { throw new Exception("El documento debe tener copiloto 1"); }
             }
@@ -308,14 +255,6 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
         public List<ORRU_E.RptRutas> ReporteHojasRuta(ORRU_E o)
         {
             return orruD.ReporteHojasRuta(o);
-        }
-        public List<ORRU_E.RptRutas> ReporteHojasCargo(ORRU_E o)
-        {
-            return orruD.ReporteHojasCargo(o);
-        }
-        public List<ORRU_E.RptRutasDet> ReporteHojasCargoDet(ORRU_E o)
-        {
-            return orruD.ReporteHojasCargoDet(o);
         }
         public List<RptPesaje_E> ListarRptPesaje(FiltroRptPesaje datosFiltro)
         {

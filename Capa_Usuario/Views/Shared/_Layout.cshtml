@@ -64,27 +64,24 @@
 <body>
     <div id="contenedor" class="container" style="width:100%;">
 
-        <header>
-            <div class="row py-2">
-                <div class="col-lg-8 col-md-8 col-sm-8">
-                    <p style="margin-bottom:0 !important">
-                        <a style="font-size: 14px; background-color: darkgreen" href="@Url.Action("LogOut", "Index")" class="btn btn-sm btn-cobefar">
-                            <i class="icon-switch">  </i>
-                        </a> <span id="statusBD" class="text-dark"></span>
-                    </p>
-                </div>
-                <div class="col-lg-4 col-md-4 justify-content-end d-none d-sm-flex align-items-center pl-1 w-100">
-                    <img src="~/Content/img/logo-cobefar.png" width="140" height="45" style="margin-right:5%">
-                </div>
+        <header class="bg-cobefar-degradado-1" style="width: 100%;  box-shadow: 0px 4px 8px rgba(0,0,0,0.2);">
+            <div class="px-2 py-2">
+                <div class="row align-items-center" style="height: 30px;">
+                    <div class="col-lg-6 col-md-6 col-sm-6 d-flex align-items-center">
+                        <a href="@Url.Action("LogOut", "Index")" class="btn btn-sm" style="background-color: #08fe56; color: black; border-radius: 15%;">
+                            <i class="icon-switch" style="font-size: 14px;"></i>
+                        </a>
+                        <span id="statusBD" class="text-light ml-3">Estado: Conectado</span>
+                    </div>
 
+                    <div class="col-lg-6 col-md-6 col-sm-6 d-flex justify-content-end align-items-center">
+                        <span class="text-light font-weight-bold mr-2" style="font-size: 14px;">Bienvenido(a): <span id="usuarioLogueado" style="color:lime">Está desconectado</span></span>
+                    </div>
+                </div>
             </div>
         </header>
 
-        @*<div class="row d-flex justify-content-center bg-danger  text-center text-white" style="width: 100%;  height: 50px;  z-index: 15;  top: 0%;  left: 50%;  margin: -100px 0 0 -150px;position: sticky">
-                <h1>INTRANET - VERSIÓN PRUEBAS</h1>
-            </div>*@
-
-        <div id="div_container2" class="container" style="width: 100%; background-color: #F0F0F0; box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;">
+        <div id="div_container2" class="container" style="width: 100%; background-color: #F0F0F0; box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 8px 8px;">
             @RenderBody()
         </div>
 
@@ -94,16 +91,18 @@
         <div class="container-footer bg-dark pt-4">
             <div class="copyright mb-2">
                 <span class="text-cobefar-2">CONTACTO:</span>
-                soporte@cobefar.com.pe
+                coordinador.ti@cobefar.com.pe 
                 <span class="text-cobefar-2">|</span>
-                desarrollo@cobefar.com.pe
+                soporte.ti@cobefar.com.pe 
                 <span class="text-cobefar-2">|</span>
-                sistemas@cobefar.com.pe
+                coordinador.desarrollo@cobefar.com.pe 
+                <span class="text-cobefar-2">|</span>
+                soporte.desarrollo@cobefar.com.pe
             </div>            © Todos los derechos reservados - <span class="text-cobefar-2">COBEFAR S.A.C </span>
             <br />
             <small>
-                ALM01: Jr. Antonio Miroquesada N°806 3er piso-Int 303 – Cercado de Lima/
-                ALM06: Calle Mariano Jose de Arce N° 159-163 INT. MZ.C,LOTE.01, 1° Y 2° piso Urb. Mercurio - San Luis
+                <span class="text-cobefar-2">ALM01:</span> Jr. Antonio Miroquesada N°806 3er piso-Int 303 – Cercado de Lima
+                <span class="text-cobefar-2">| ALM05:</span> Calle Mariano Jose de Arce N° 159-163 INT. MZ.C,LOTE.01, 1° Y 2° piso Urb. Mercurio - San Luis
             </small>
         </div>
     </footer>
@@ -111,6 +110,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             statusBD();
+            buscarUsuarioLogueado();
         });
 
         (function () {
@@ -120,6 +120,18 @@
             document.head.appendChild(link);
         })();
 
+         function buscarUsuarioLogueado() {
+             var parametros;
+             $.ajax('/Index/BuscarUsuarioLogueado', {
+                 data: parametros,
+                 dataType: 'html',
+                 cache: false,
+                 type: 'post',
+             })
+                 .done(function (response) {
+                     document.getElementById('usuarioLogueado').innerHTML = response;
+                 });
+         }
         function deshabilitarRetroceso() {
             window.location.hash = "no-back-button";
             window.location.hash = "Again-No-back-button" //chrome
@@ -150,6 +162,8 @@
     <script async>
         // Si existe el elemento en DOM
         $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip();   
+
             if (document.getElementsByClassName("cls-dataTable").length > 0) {
                 $('.cls-dataTable').DataTable({
                     "ordering": false,
@@ -159,7 +173,7 @@
 
             if (document.getElementsByClassName("cls-dataTable50").length > 0) {
                 $('.cls-dataTable50').DataTable({
-                    "searching": false,
+                    "searching": true,
                     "ordering": false,
                     "scrollX": true,
                     pageLength: 50, /*---- PARA INICIALIZAR LA PAGINACIÓN */
@@ -263,10 +277,18 @@
             buttonsStyling: false
         })
 
+        const Toast = Swal.mixin({
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        });
+
         function cargando() {
             Swal.fire({
                 html: '<img src="/imagenes/index/ReportesDigemid/cargando.gif" />',
-                allowOutsideClick: false,
+                allowOutsideClick: true,
                 showCancelButton: false,
                 showConfirmButton: false
             });
@@ -284,10 +306,38 @@
                 }
             });
 
-            $("#" + idDiv).load(url, function () {
-                $(this).fadeIn("fast", function () {
-                    Swal.close();
+            fetch(url)
+                .then(response => response.text())
+                .then(data => {
+                    setTimeout(() => {
+                        Swal.close();
+                    }, 1000); // 1000 ms = 1 second
+                    document.getElementById(idDiv).innerHTML = data;
+                    return true;  // Asegurarse de que se devuelve algo para que .then() pueda encadenarse
+                })
+                .catch(error => {
+                    console.error('Error al cargar la vista parcial:', error);
+                    return false;  // En caso de error, devuelve false
                 });
+
+            //$("#" + idDiv).load(url, function () {
+            //    $(this).fadeIn("fast", function () {
+            //        Swal.close();
+            //    });
+            //});
+        }
+
+        // Función para gestionar el valor de un datalist hacia un input con cualquier dataAttribute
+        function gestionarValorDatalist(inputElementId, dataListId, outputElementId, dataAttribute) {
+            document.getElementById(inputElementId).addEventListener('input', function () {
+                document.getElementById(outputElementId).value = "";
+                const input = this.value;
+                const selectedOption = Array.from(document.querySelectorAll(`#${dataListId} option`))
+                    .find(option => option.value === input);
+
+                if (selectedOption) {
+                    document.getElementById(outputElementId).value = selectedOption.dataset[dataAttribute];
+                }
             });
         }
     </script>

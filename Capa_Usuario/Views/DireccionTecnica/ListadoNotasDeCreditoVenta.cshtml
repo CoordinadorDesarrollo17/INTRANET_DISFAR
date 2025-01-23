@@ -13,24 +13,24 @@
     }
 </script>
 
-<div class="pt-4">
+<div class="pt-3">
     <nav>
-        <ol class="cd-breadcrumb bg-dark">
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
             <li class="current"><em>Listado de notas de crédito - venta</em></li>
         </ol>
     </nav>
 </div>
 
-<div class="bg-dark border-cabecera-seccion pb-2">
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
     <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO DE NOTAS DE CRÉDITO - VENTA</h3></div>
 </div>
 
-<div class="bg-form-pestanas-cobefar">
-    <div class="bg-dark">
+<div class="pt-3 bg-form-pestanas-cobefar">
+    <div class="bg-white">
         <form name="frm" id="frm">
             <table class="table table-light table-sm table-hover cls-dataTable" cellspacing="0" width="100%">
-                <thead class="thead-dark">
+                <thead class="bg-cobefar-6">
                     <tr>
                         <th class="text-center">
                             @Html.DisplayNameFor(model => model.DocNum)
@@ -88,7 +88,7 @@
                             @Html.DisplayFor(modelItem => item.RefFactura)
                         </td>
                         <td class="text-center">
-                            <a href="@Url.Action("NotaDeCreditoVentaArticulos", "DireccionTecnica", new { DocEntry = item.DocEntry })" target = "_blank" class="btn btn-sm btn-warning"><i class="icon-eye"></i> Ver documento</a>
+                            <a href="@Url.Action("NotaDeCreditoVentaArticulos", "DireccionTecnica", new { DocEntry = item.DocEntry })" target = "_blank" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Ver Nota de Crédito - Venta"><i class="icon-file-empty text-dark"></i> </a>
                         </td>
                     </tr>
                 }

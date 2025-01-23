@@ -17,7 +17,7 @@
 
 <div class="pt-4">
     <nav>
-        <ol class="cd-breadcrumb bg-dark">
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
             <li><a href="@Url.Action("ListadoTicketsAlmacen", "Ventas")">Listado de tickets de almacén</a></li>
             <li class="current"><em>Fin Empacar ticket de venta</em></li>
@@ -25,7 +25,7 @@
     </nav>
 </div>
 
-<div class="bg-dark border-cabecera-seccion pb-2">
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
     <div class="px-3 pt-3"><h3 class="titulo-seccion">FIN EMPACAR TICKET DE VENTA</h3></div>
 </div>
 
@@ -93,8 +93,10 @@
                             <div class="col-lg-2">
                                 <select class="form-control border-success" name="AlmProcedencia">
                                     <option value="">Seleccione</option>
-                                    <option value="03">Almacen 03</option>
-                                    <option value="ALM07">Almacen 07</option>
+                                    @*<option value="03">Almacen 03</option>*@
+                                    <option value="ALM07">Almacen 06</option>
+                                    <option value="16">FACTURACION</option>
+                                    <option value="15">PICKING</option>
                                 </select>
                             </div>
                         }

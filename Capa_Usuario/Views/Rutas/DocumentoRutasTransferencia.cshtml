@@ -61,14 +61,6 @@
                 <td colspan=4><font size="@ViewBag.Letra">@Html.DisplayFor(model2 => model2.Copil2Desc)</font></td>
                 <td colspan=7></td>
             </tr>
-            @*<tr>
-                <td><font size="@ViewBag.Letra"><strong>COPILOTO 3: </strong></font></td>
-                <td><font size="@ViewBag.Letra">@Html.DisplayFor(model2 => model2.Copil3Desc)</font></td>
-                <td></td>
-                <td><font size="@ViewBag.Letra"><strong>COPILOTO 4: </strong></font></td>
-                <td colspan=4><font size="@ViewBag.Letra">@Html.DisplayFor(model2 => model2.Copil4Desc)</font></td>
-                <td colspan=7></td>
-            </tr>*@
             <tr>
                 <td><font size="@ViewBag.Letra"><strong>PLACA: </strong></font></td>
                 <td><font size="@ViewBag.Letra">@Html.DisplayFor(model2 => model2.Placa)</font></td>
@@ -94,10 +86,25 @@
             </tr>
             <tr>
                 <td><font size="@ViewBag.Letra"><strong>ALM-ORIGEN: </strong></font></td>
-                <td colspan=6><font size="@ViewBag.Letra">@Html.DisplayFor(model2 => model2.AlmOrigenDesc);@Html.DisplayFor(model2 => model2.AlmOrigenDesc2)</font></td>
+                <td colspan="6">
+                    <font size="@ViewBag.Letra">
+                        <strong style="margin-right:30px">
+                            @if (Model2.AlmOrigenDesc.Equals("FACTURACION") || Model2.AlmOrigenDesc.Equals("PICKING"))
+                            {
+                                @:ALMACEN N°8
+                            }
+                            else
+                            {
+                                @Model2.AlmOrigenDesc
+                            }
+                        </strong>
+                        <br />
+                        @Html.DisplayFor(model2 => model2.AlmOrigenDesc2)
+                    </font>
+                </td>
                 <td></td>
                 <td><font size="@ViewBag.Letra"><strong>ALM-DESTINO: </strong></font></td>
-                <td colspan=6><font size="@ViewBag.Letra">@Html.DisplayFor(model2 => model2.AlmDestinoDesc);@Html.DisplayFor(model2 => model2.AlmDestinoDesc2)</font></td>
+                <td colspan=6><font size="@ViewBag.Letra">@Html.DisplayFor(model2 => model2.AlmDestinoDesc)<br />@Html.DisplayFor(model2 => model2.AlmDestinoDesc2)</font></td>
             </tr>
         </table>
         <table border=1>
@@ -113,7 +120,7 @@
             </tr>
             @if (Model2.DetRRU0 != null && Model2.DetRRU0.Count >= 1)
             {
-                foreach (var det in Model2.DetRRU0.Where(x => x.Estado != "LIBERADO"))
+                foreach (var det in Model2.DetRRU0.Where(x => x.Estado != "LIBERADO").OrderBy(x => x.Linea))
                 {
                     <tr>
                         <td><font size="@ViewBag.Letra">@det.Linea</font></td>

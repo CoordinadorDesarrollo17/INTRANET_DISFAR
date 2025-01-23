@@ -51,7 +51,7 @@
                 "<td><input class='form-control' name='DetFases[0].DetContab[" + contUser + "].QuantityCajas' value='" + QuantityCajas + "' readonly /></td>" +
                 "<td><input class='form-control' name='DetFases[0].DetContab[" + contUser + "].QuantityPiezas' value='" + QuantityPiezas + "' readonly /></td>" +
                 "<td><input class='form-control' name='DetFases[0].DetContab[" + contUser + "].ObsLote' value='" + ObsLote + "' readonly /></td>" +
-                "<td><button type='button' onclick='borrarTrTable1(this," + '"' + BatchNum + '"' + ")' class='btn btn-danger'>Retirar</button></td></tr>");
+                "<td><button type='button' onclick='borrarTrTable1(this," + '"' + BatchNum + '"' + ")' class='btn btn-danger'><i class='icon-bin'> </i></button></td></tr>");
             contUser = contUser + 1;
             $("#Lotes option[value='" + BatchNum + "']").hide();
             if ($("#GrupoLotes").val() == "ConStock") { selectLotesConStock = $("#Lotes").html(); }
@@ -166,47 +166,57 @@
             });
     }
 </script>
-<h4>TERMINAR ANÁLISIS DE CONTEO</h4>
-<p id="accion">
-    @Html.ActionLink("Volver atras", "GestionAnalisisConteos", null, new { @class = "btn btn-light" })
-</p>
-<br />
-<br />
-<div class="alert alert-danger" role="alert">
-    @if (@OIPE_E.PeriodoSeleccionado != null)
-    {
-        @("Periodo Seleccionado: " + OIPE_E.PeriodoSeleccionado.Descripcion + " ---- Almacenes: " + OIPE_E.PeriodoSeleccionado.enlistarDetAlmacenes())
-    }
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("GestionAnalisisConteos","Almacen")">Gestión de análisis de conteos</a></li>
+            <li class="current"><em>Terminar análisis de conteo</em></li>
+        </ol>
+    </nav>
 </div>
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">TERMINAR ANÁLISIS DE CONTEO</h3></div>
+</div>
+
+@if (@OIPE_E.PeriodoSeleccionado != null)
+{
+    <div class="alert alert-danger mb-0" role="alert">
+        @("Periodo Seleccionado: " + OIPE_E.PeriodoSeleccionado.Descripcion + " ----- Almacenes: " + OIPE_E.PeriodoSeleccionado.enlistarDetAlmacenes())
+    </div>
+}
 
 @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "TerminarAnalisisConteo" }))
 {
     @Html.AntiForgeryToken()
-    <table class="table-responsive">
-        <tr>
-            <th class="col-1">Equipo</th>
-            <td><input class="form-control" id="DocEntryEqu" type="text" name="DocEntryEqu" readonly value="@Model.DocEntryEqu" /></td>
+    <div class="bg-form-pestanas-cobefar pt-4 bg-section-form p-4 bg-form-cobefar">
+        <div class="row mt-2">
+            <div class="col-lg-2">
+                <label for="DocEntryEqu" class="text-dark form-label font-weight-bold font-18">Equipo:</label>
+                @Html.EditorFor(model => model.DocEntryEqu, new { htmlAttributes = new { @class = "form-control border-success text-center", @readonly = "true" } })
+            </div>
 
-            <th>Almacen</th>
-            <td><input class="form-control" type="text" name="WhsCode" readonly value="@Model.WhsCode" /></td>
+            <div class="col-lg-2">
+                <label for="WhsCode" class="text-dark form-label font-weight-bold font-18">Almacén:</label>
+                @Html.EditorFor(model => model.WhsCode, new { htmlAttributes = new { @class = "form-control border-success text-center", @readonly = "true" } })
+            </div>
 
-            <th>Piso</th>
-            <td><input class="form-control" type="text" name="Piso" readonly value="@Model.Piso" /></td>
-        </tr>
-    </table>
-    <table class="table-responsive">
-        <tr>
-            <th>Grupo Lotes</th>
-            <td>
-                <select id="GrupoLotes" onchange="listarLotes();" class="form-control">
+            <div class="col-lg-1">
+                <label for="Piso" class="text-dark form-label font-weight-bold font-18">Piso:</label>
+                @Html.EditorFor(model => model.Piso, new { htmlAttributes = new { @class = "form-control border-success text-center", @readonly = "true" } })
+            </div>
+
+            <div class="col-lg-2">
+                <label for="GrupoLotes" class="text-dark form-label font-weight-bold font-18">Grupo Lotes:</label>
+                <select id="GrupoLotes" onchange="listarLotes();" class="form-control bg-cobefar text-white">
                     <option value="ConStock" selected>ConStock</option>
                     <option value="SinStock">SinStock</option>
                     <option value="SinRegistro">SinRegistro</option>
                 </select>
-            </td>
-            <th>Lotes</th>
-            <td>
-                <select id="Lotes" onchange="llenarCampos();" class="form-control">
+            </div>
+            <div class="col-lg-2">
+                <label for="Lotes" class="text-dark form-label font-weight-bold font-18">Lotes:</label>
+                <select id="Lotes" onchange="llenarCampos();" class="form-control bg-cobefar text-white">
                     <option value="">Seleccione</option>
                     @foreach (IPE2_E obj in Lotes)
                     {
@@ -214,19 +224,27 @@
                     }
                 </select>
                 <input id="BatchNum" type="text" placeholder="Llene el lote" class="form-control" readonly />
-            </td>
-            <td>
-                <input id="ExpDate" type="date" readonly class="form-control" />
-            </td>
-        </tr>
-        <tr>
-            <th>StockCajas</th>
-            <td><input id="StockCajas" type="number" class="form-control" /></td>
-            <th>StockPiezas</th>
-            <td><input id="StockPiezas" type="number" class="form-control" /></td>
-            <th>Observacion por lote</th>
-            <td>
-                <input id="Obs" type="search" list="ListaObs" autocomplete="off" class="form-control" />
+            </div>
+
+            <div class="col-lg-2">
+                <label for="ExpDate" class="text-dark form-label font-weight-bold font-18">ExpDate:</label>
+                <input id="ExpDate" type="date" readonly class="form-control border-success text-center" />
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-lg-2">
+                <label for="StockCajas" class="text-dark form-label font-weight-bold font-18">StockCajas:</label>
+                <input id="StockCajas" type="number" class="form-control border-success" />
+            </div>
+
+            <div class="col-lg-2">
+                <label for="StockPiezas" class="text-dark form-label font-weight-bold font-18">StockPiezas:</label>
+                <input id="StockPiezas" type="number" class="form-control border-success" />
+            </div>
+
+            <div class="col-lg-4">
+                <label for="ListaObs" class="text-dark form-label font-weight-bold font-18">Observacion por lote:</label>
+                <input id="Obs" type="search" list="ListaObs" autocomplete="off" class="form-control border-success" />
                 <datalist id="ListaObs">
                     <option value="Roto"></option>
                     <option value="Maltratado"></option>
@@ -234,33 +252,51 @@
                     <option value="Sin Lote"></option>
                     <option value="Sin Lote y Fecha"></option>
                 </datalist>
-            </td>
-            @if (Model.DetFases.Count > 5)
-            {
-                <td><button type="button" class="btn btn-light" onclick="">Agregar</button></td>
-            }
-            else
-            {
-                <td><button type="button" class="btn btn-info" onclick="llenarTabla('DetArtDeCont12')">Agregar</button></td>
-            }
-        </tr>
-        <tr>
-            <td colspan="6">
-                <table id="DetArtDeCont12" class="table table-sm ">
-                    <tr>
-                        <th class="table-dark">#</th>
-                        <th class="table-dark">Lote</th>
-                        <th class="table-dark">F.v</th>
-                        <th class="table-dark">StockCajas</th>
-                        <th class="table-dark">StockPiezas</th>
-                        <th class="table-dark">Obs</th>
-                        <th class="table-dark"></th>
-                    </tr>
-                    @if (Model.DetFases.Count > 5 && Model.DetFases[5].DetContab.Count > 0)
-                    {
-                        foreach (IAR12_E obj in Model.DetFases[5].DetContab)
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-6">
+<<<<<<< HEAD
+<<<<<<< HEAD
+                @if (Model.DetFases.Count > 5)
+=======
+                @if (Model.DetFases.Count > 7)
+>>>>>>> 89b67c0 (CORRECIONES DE INVENTARIO)
+=======
+                @if (Model.DetFases.Count > 7)
+>>>>>>> master
+                {
+                    <button type="button" class="btn btn-cobefar" onclick=""><i class="icon-plus"></i> Agregar</button>
+                }
+                else
+                {
+                    <button type="button" class="btn btn-warning" onclick="llenarTabla('DetArtDeCont12')"><i class="icon-plus"></i> Agregar</button>
+                }
+            </div>
+        </div>
+
+
+        <div class="row mt-4">
+            <div class="col-lg-10">
+                <table id="DetArtDeCont12" class="table table-sm">
+                    <thead class="bg-success">
+                        <tr>
+                            <th class="text-center">#</th>
+                            <th class="text-center">Lote</th>
+                            <th class="text-center">F.v</th>
+                            <th class="text-center">StockCajas</th>
+                            <th class="text-center">StockPiezas</th>
+                            <th class="text-center">Obs</th>
+                            <th class="text-center"></th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-light">
+                        @if (Model.DetFases.Count > 5 && Model.DetFases[5].DetContab.Count > 0)
                         {
-                            <tbody class="table-light">
+                            foreach (IAR12_E obj in Model.DetFases[5].DetContab)
+                            {
+
                                 <tr>
                                     <td>@obj.Linea</td>
                                     <td>@obj.BatchNum</td>
@@ -270,55 +306,64 @@
                                     <td>@obj.ObsLote</td>
                                     <td></td>
                                 </tr>
-                            </tbody>
+                            }
                         }
-                    }
+                    </tbody>
                 </table>
-            </td>
-        </tr>
-    </table>
-    <div style="text-align:center">
-        <button id="accion" type="button" class="btn btn-success" onclick="validarTerminoAnalisisConteo();">TerminarAnalisis</button>
-        <button id="accion" type="button" class="btn btn-danger" onclick="validarRevertirTerminoAnalisisConteo();">RevertirTerminoAnalisis</button>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-lg-6">
+                <button id="accion" type="button" class="btn btn-success" onclick="validarTerminoAnalisisConteo();">Terminar Análisis</button>
+                <button id="accion" type="button" class="btn btn-danger" onclick="validarRevertirTerminoAnalisisConteo();">Revertir</button>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-lg-2">
+                <label for="FechaFase" class="text-dark form-label font-weight-bold font-18">Fecha Inicio AnálisisConteo:</label>
+                <input class="form-control border-success text-center" name="DetFases[0].FechaFase" value="@if (Model.DetFases != null && Model.DetFases.Count > 4) { Write(Model.DetFases[4].FechaFase); }" readonly />
+            </div>
+
+            <div class="col-lg-2">
+                <label for="HoraFase" class="text-dark form-label font-weight-bold font-18">Hora Inicio AnálisisConteo:</label>
+                <input class="form-control border-success text-center" name="DetFases[0].HoraFase" value="@if (Model.DetFases != null && Model.DetFases.Count > 4) { Write(Model.DetFases[4].HoraFase); }" readonly />
+            </div>
+
+            <div class="col-lg-4">
+                <label for="Operario" class="text-dark form-label font-weight-bold font-18">Op Contador:</label>
+                <input class="form-control border-success text-center" name="DetFases[0].Operario" value="@if (Model.DetFases != null && Model.DetFases.Count > 4) { Write(Model.DetFases[4].Operario); }" readonly />
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-lg-6">
+                <label for="HoraFase" class="text-dark form-label font-weight-bold font-18">Obs. de Inicio de Análisis:</label>
+                <input class="form-control border-success" value="@if (Model.DetFases != null && Model.DetFases.Count > 4) { Write(Model.DetFases[4].Observacion); }" readonly />
+            </div>
+
+            <div class="col-lg-6">
+                <label for="ItemName" class="text-dark form-label font-weight-bold font-18">Artículo:</label>
+                @Html.EditorFor(model => model.ItemName, new { htmlAttributes = new { @class = "form-control border-success text-center", @readonly = "true" } })
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-4">
+                <label for="ItemCode" class="text-dark form-label font-weight-bold font-18">Cod. Artículo:</label>
+                @Html.EditorFor(model => model.ItemCode, new { htmlAttributes = new { @class = "form-control border-success text-center", @readonly = "true" } })
+            </div>
+
+            <div class="col-lg-4">
+                <label for="DocEntry" class="text-dark form-label font-weight-bold font-18">Nro:</label>
+                @Html.EditorFor(model => model.DocEntry, new { htmlAttributes = new { @class = "form-control border-success text-center", @readonly = "true" } })
+            </div>
+
+            @Html.EditorFor(model => model.WhsCode, new { htmlAttributes = new { @class = "form-control border-success text-center", @readonly = "true", @type = "hidden" } })
+            <input id="TiempoRegistro" type="hidden" value="@Model.FechaRegistro" readonly />
+
+            <div class="col-lg-4">
+                <label for="DocEntry" class="text-dark form-label font-weight-bold font-18">Estado:</label>
+                @Html.EditorFor(model => model.Estado, new { htmlAttributes = new { @class = "form-control border-success text-center", @readonly = "true" } })
+            </div>
+        </div>
     </div>
-    <br />
-    <br />
-    <table>
-        <tr>
-            @if (Model.DetFases != null && Model.DetFases.Count > 4)
-            {
-                <th>TiempoInicioAnalisis</th>
-                <td><input class="form-control" value="@Model.DetFases[4].FechaFase" readonly /></td>
-                <td><input class="form-control" value="@Model.DetFases[4].HoraFase" readonly /></td>
-                <th>OpAnalisis</th>
-                <td><input class="form-control" name="DetFases[0].Operario" value="@Model.DetFases[4].Operario" readonly /></td>
-                <th>ObsInicioAnalisis</th>
-                <td colspan="2"><input class="form-control" value="@Model.DetFases[4].Observacion" readonly /></td>
-            }
-            else
-            {
-                <th>TiempoInicioAnalisis</th>
-                <td><input class="form-control" value="" readonly /></td>
-                <th>OpAnalisis</th>
-                <td><input class="form-control" value="" readonly /></td>
-                <th>ObsInicioAnalisis</th>
-                <td colspan="2"><input class="form-control" value="" readonly /></td>
-            }
-        </tr>
-        <tr>
-            <th>@Html.LabelFor(model => model.ItemName, htmlAttributes: new { @class = "control-label col-md-2" })</th>
-            <td colspan="3">@Html.EditorFor(model => model.ItemName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
-            <td>@Html.EditorFor(model => model.ItemCode, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
-            <th>@Html.LabelFor(model => model.DocEntry, htmlAttributes: new { @class = "control-label col-md-2" })</th>
-            <td>@Html.EditorFor(model => model.DocEntry, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
-            <td hidden>
-                @Html.EditorFor(model => model.WhsCode, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
-                <input id="TiempoRegistro" value="@Model.FechaRegistro" readonly />
-            </td>
-        </tr>
-        <tr>
-            <th>@Html.LabelFor(model => model.Estado, htmlAttributes: new { @class = "control-label col-md-2" })</th>
-            <td>@Html.EditorFor(model => model.Estado, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })</td>
-        </tr>
-    </table>
 }

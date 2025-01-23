@@ -20,5 +20,11 @@ namespace Capa_Entidad.Ventas_ENT.Tablas
         public string U_SYP_STATUS { get; set; }
         public string RefFactura { get; set; }
         public string DocType { get; set; }
+        //
+        public string SerieDoc { get; set; }
+        public string CorreDoc { get; set; }
+        public string DirPagar { get; set; }
+        public string Ruc { get; set; }
+        public string MonedaLetras { get; set; }
     }
 }

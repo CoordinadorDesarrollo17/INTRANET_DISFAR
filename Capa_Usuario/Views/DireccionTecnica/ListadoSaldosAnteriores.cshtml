@@ -4,6 +4,40 @@
     ViewBag.Title = "ListadoSaldosAnteriores";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+
+<style>
+    /* Head: Mostrar */
+    div.dataTables_wrapper div.dataTables_length label {
+        font-weight: normal !important;
+        text-align: left !important;
+        white-space: nowrap !important;
+        padding-left: 10px !important;
+        color: #26653D !important;
+    }
+
+    /* Head: Buscar */
+    div.dataTables_wrapper div.dataTables_filter label {
+        font-weight: normal;
+        white-space: nowrap;
+        text-align: left;
+        padding-right: 10px;
+        color: #26653D !important;
+    }
+
+    /* footer: Mostrando */
+    div.dataTables_wrapper div.dataTables_info {
+        padding-top: 0.85em;
+        white-space: nowrap;
+        padding-left: 10px;
+        color: #26653D;
+    }
+
+    th {
+        height: 40px; /* Ajusta esta altura según tus necesidades */
+        vertical-align: middle; /* Centra el texto verticalmente */
+    }
+</style>
+
 <script>
     $(document).ready(function () { });
     function filtrar() {
@@ -11,69 +45,104 @@
         $(location).attr('href', "/DireccionTecnica/ListadoSaldosAnteriores?" + object);
     }
 </script>
-<h4>LISTADO SALDOS ANTERIORES</h4>
-<div class="alert alert-success">@ViewBag.Mensaje</div>
-<a id="accion" href="@Url.Action("AgregarSaldoAnterior", "DireccionTecnica")" class="btn btn-light">
-    <span><strong>Agregar Articulo</strong></span>
-</a>
-<br />
-<br />
-<form name="frm" id="frm">
-    <table class="table table-light table-sm table-hover table-responsive" cellspacing="0" width="100%">
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Code)
-                <input type="text" name="Code" style="width:50px;font-size:13px;" onchange="filtrar();" value="@ViewBag.fil.Code" />
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-                <input type="text" name="Name" style="width:70px;font-size:13px;" onchange="filtrar();" value="@ViewBag.fil.Name" />
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.U_COB_DESCRIPCION)<br />
-                <input type="text" name="U_COB_DESCRIPCION" style="width:160px;font-size:13px;" onchange="filtrar();" value="@ViewBag.fil.U_COB_DESCRIPCION" />
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.U_COB_TIPOCONT)
-                <input type="text" name="U_COB_TIPOCONT" style="width:70px;font-size:13px;" onchange="filtrar();" value="@ViewBag.fil.U_COB_TIPOCONT" />
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.U_COB_TRIMESTRE)
-                <input type="text" name="U_COB_TRIMESTRE" style="width:50px;font-size:13px;" onchange="filtrar();" value="@ViewBag.fil.U_COB_TRIMESTRE" />
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.U_COB_SALDOANTE)
-                <input type="text" name="U_COB_SALDOANTE" style="width:90px;font-size:13px;" onchange="filtrar();" value="@ViewBag.fil.U_COB_SALDOANTE" />
-            </th>
-            <th></th>
-        </tr>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Code)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.U_COB_DESCRIPCION)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.U_COB_TIPOCONT)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.U_COB_TRIMESTRE)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.U_COB_SALDOANTE)
-                </td>
-                <td>
-                    <a href="@Url.Action( "EditarSaldoAnterior", "DireccionTecnica", new { Code = item.Code } )"><i title="Editar" class="icon-pencil2"></i></a>
-                    <a href="@Url.Action( "EliminarSaldoAnterior", "DireccionTecnica", new { Code = item.Code } )"><i title="Eliminar" class="icon-bin"></i></a>
-                </td>
-            </tr>
-        }
 
-    </table>
-</form>
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("Reportes", "DireccionTecnica")">Reportes</a></li>
+            <li class="current"><em>Listado saldos anteriores</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO SALDOS ANTERIORES</h3></div>
+</div>
+
+<div class="bg-white d-flex pl-2 w-100 py-4">
+    <a id="accion" href="@Url.Action("AgregarSaldoAnterior", "DireccionTecnica")" class="btn btn-warning">
+        <i class="icon-plus"></i> Agregar Artículo
+    </a>
+</div>
+
+<div class="bg-white bg-form-cobefar">
+    <form name="frm" id="frm">
+        <table id="tbl_listadoSaldoAnteriores" class="table table-light table-sm table-striped table-bordered table-hover font-14" width="100%">
+            <thead class="thead-dark">
+                <tr>
+                    <th class="text-center">
+                        Orden<br />
+                        <input type="text" name="Code" class="form-control-sm border" style="width: 100px;" onchange="filtrar();" value="@ViewBag.fil.Code" />
+                    </th>
+                    <th class="text-center">
+                        Código<br />
+                        <input type="text" name="Name" class="form-control-sm border" onchange="filtrar();" value="@ViewBag.fil.Name" />
+                    </th>
+                    <th class="text-center">
+                        Descripción<br />
+                        <input type="text" name="U_COB_DESCRIPCION" class="form-control-sm border w-100" onchange="filtrar();" value="@ViewBag.fil.U_COB_DESCRIPCION" />
+                    </th>
+                    <th class="text-center">
+                        Tipo Controlado<br />
+                        <input type="text" name="U_COB_TIPOCONT" class="form-control-sm border" style="width: 100px;" onchange="filtrar();" value="@ViewBag.fil.U_COB_TIPOCONT" />
+                    </th>
+                    <th class="text-center">
+                        Trimestre<br />
+                        <input type="text" name="U_COB_TRIMESTRE" class="form-control-sm border" style="width: 100px;" onchange="filtrar();" value="@if (ViewBag.fil.U_COB_TRIMESTRE > 0) { Write(ViewBag.fil.U_COB_TRIMESTRE); }" />
+                    </th>
+                    <th class="text-center">
+                        Saldo Actual<br />
+                        <input type="text" name="U_COB_SALDOANTE" class="form-control-sm border" style="width: 100px;" onchange="filtrar();" value="@if (ViewBag.fil.U_COB_SALDOANTE > 0) { Write(ViewBag.fil.U_COB_SALDOANTE); }" />
+                    </th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.Code)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.Name)
+                        </td>
+                        <td>
+                            <span class="pl-3">@Html.DisplayFor(modelItem => item.U_COB_DESCRIPCION)</span>
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.U_COB_TIPOCONT)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.U_COB_TRIMESTRE)
+                        </td>
+                        <td>
+                            <span class="pl-3"> @Html.DisplayFor(modelItem => item.U_COB_SALDOANTE)</span>
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex mx-2">
+                                <a href="@Url.Action( "EditarSaldoAnterior", "DireccionTecnica", new { Code = item.Code } )" class="btn btn-sm btn-cobefar-2 mr-2" title="Editar"><i class="icon-pencil"></i></a>
+                                <a href="@Url.Action( "EliminarSaldoAnterior", "DireccionTecnica", new { Code = item.Code } )" class="btn btn-sm btn-danger" title="Eliminar"><i class="icon-bin"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </form>
+</div>
+
+
+<script>
+    if ('@ViewBag.Mensaje' != "") {
+        Swal.fire('@ViewBag.Mensaje');
+    }
+
+    $(document).ready(function () {
+        $('#tbl_listadoSaldoAnteriores').DataTable({
+            ordering: false,
+            searching: false
+        });
+    });
+</script>

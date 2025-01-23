@@ -92,11 +92,12 @@ namespace Capa_Datos.Almacen_DAO.Tablas
                         lista.Add(o);
                     }
                     hdr.Close();
-                } 
+                }
             }
-            catch{}
+            catch { }
             return lista;
         }
+
 
 
     }

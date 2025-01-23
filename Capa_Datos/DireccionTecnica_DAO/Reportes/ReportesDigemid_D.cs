@@ -8,6 +8,7 @@ using Sap.Data.Hana;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Drawing;
 using System.Globalization;
 using System.Linq;
 
@@ -21,81 +22,93 @@ namespace Capa_Datos.DireccionTecnica_DAO.Reportes
         {
             List<RptKardexAlmacenes_E> lista = new List<RptKardexAlmacenes_E>();
             HanaConnection cn = new HanaConnection(uti.cadHana);
+
             try
             {
                 CultureInfo culture = new CultureInfo("en-US");
-                string HANASQL = string.Empty;
-                switch (f.WhsCode)
-                {
-                    case "01":
-                        if (f.Lote == null || f.Lote == "") { HANASQL = "CALL " + uti.schemaHana + "MARIA_KARDEX303_V1('" + f.FecIni + "', '" + f.FecFin + "', '" + f.ItemCode + "')"; }
-                        else { HANASQL = "CALL " + uti.schemaHana + "MARIA_KARDEX303_LOTES_V1('" + f.FecIni + "', '" + f.FecFin + "', '" + f.ItemCode + "','" + f.Lote + "')"; }
-                        break;
-                    case "02":
-                        if (f.Lote == null || f.Lote == "") { HANASQL = "CALL " + uti.schemaHana + "DIEGO_KARDEX502_V1('" + f.FecIni + "', '" + f.FecFin + "', '" + f.ItemCode + "')"; }
-                        else { HANASQL = "CALL " + uti.schemaHana + "DIEGO_KARDEX502_LOTES_V1('" + f.FecIni + "', '" + f.FecFin + "', '" + f.ItemCode + "','" + f.Lote + "')"; }
-                        break;
-                    case "03":
-                        if (f.Lote == null || f.Lote == "") { HANASQL = "CALL " + uti.schemaHana + "DIEGO_KARDEX_ALM03_V1('" + f.FecIni + "', '" + f.FecFin + "', '" + f.ItemCode + "')"; }
-                        else { HANASQL = "CALL " + uti.schemaHana + "DIEGO_KARDEX_ALM03_LOTES_V1('" + f.FecIni + "', '" + f.FecFin + "', '" + f.ItemCode + "','" + f.Lote + "')"; }
-                        break;
-                    case "04":
-                        if (f.Lote == null || f.Lote == "") { HANASQL = "CALL " + uti.schemaHana + "DIEGO_KARDEX_ALM04_V1('" + f.FecIni + "', '" + f.FecFin + "', '" + f.ItemCode + "')"; }
-                        else { HANASQL = "CALL " + uti.schemaHana + "DIEGO_KARDEX_ALM04_LOTES_V1('" + f.FecIni + "', '" + f.FecFin + "', '" + f.ItemCode + "','" + f.Lote + "')"; }
-                        break;
-                    case "05":
-                        if (f.Lote == null || f.Lote == "") { HANASQL = "CALL " + uti.schemaHana + "DIEGO_KARDEX_ALM05_V1('" + f.FecIni + "', '" + f.FecFin + "', '" + f.ItemCode + "')"; }
-                        else { HANASQL = "CALL " + uti.schemaHana + "DIEGO_KARDEX_ALM05_LOTES_V1('" + f.FecIni + "', '" + f.FecFin + "', '" + f.ItemCode + "','" + f.Lote + "')"; }
-                        break;
-                    case "09":
-                        if (f.Lote == null || f.Lote == "") { HANASQL = "CALL " + uti.schemaHana + "MARIA_KARDEX_ALM06_V1('" + f.FecIni + "', '" + f.FecFin + "', '" + f.ItemCode + "')"; }
-                        else { HANASQL = "CALL " + uti.schemaHana + "MARIA_KARDEX_ALM06_LOTES_V1('" + f.FecIni + "', '" + f.FecFin + "', '" + f.ItemCode + "','" + f.Lote + "')"; }
-                        break;
-                    case "ALM07":
-                        if (f.Lote == null || f.Lote == "") { HANASQL = "CALL " + uti.schemaHana + "DIEGO_KARDEX_ALM07_V1('" + f.FecIni + "', '" + f.FecFin + "', '" + f.ItemCode + "')"; }
-                        else { HANASQL = "CALL " + uti.schemaHana + "DIEGO_KARDEX_ALM07_LOTES_V1('" + f.FecIni + "', '" + f.FecFin + "', '" + f.ItemCode + "','" + f.Lote + "')"; }
-                        break;
-                }
+                string HANASQL = BuildSqlQuery(f);
+
                 cn.Open();
-                HanaCommand cmd = new HanaCommand(HANASQL, cn);
-                cmd.CommandType = CommandType.Text;
+                HanaCommand cmd = new HanaCommand(HANASQL, cn) { CommandType = CommandType.Text };
                 HanaDataReader dr = cmd.ExecuteReader();
 
                 while (dr.Read())
                 {
-                    if (dr.GetString(18).Equals("MOSTRAR") && !string.IsNullOrEmpty(dr.GetString(6)) && !dr.GetString(6).Equals("00000001"))
+                    if (dr.GetString(18).Equals("MOSTRAR") &&
+                        !dr.IsDBNull(4) && dr.GetString(4).Length > 9 &&
+                        !dr.IsDBNull(6) && !dr.GetString(6).Equals("00000001"))
                     {
-                        RptKardexAlmacenes_E kdx = new RptKardexAlmacenes_E();
-                        kdx.DescProducto = dr.GetString(0);
-                        kdx.CodProducto = dr.GetString(1);
-                        kdx.RegSanitario = dr.GetString(2);
-                        kdx.FechaCont = dr.GetDateTime(3).ToString("dd/MM/yyyy");
-                        kdx.FacturaGuiaBoleta = dr.GetString(4);
-                        kdx.ProvEstab = dr.GetString(5);
-                        kdx.Ruc = dr.GetString(6);
-                        kdx.Lote = dr.GetString(7);
-                        kdx.CantLoteIngreso = Math.Round(decimal.Parse(dr.GetString(8)));
-                        kdx.CantLoteSalida = Math.Round(decimal.Parse(dr.GetString(9)));
-                        kdx.CantIngreso = Math.Round(decimal.Parse(dr.GetString(10)));
-                        kdx.CantSalida = Math.Round(decimal.Parse(dr.GetString(11)));
-                        kdx.AcumuladoLote = Math.Round(decimal.Parse(dr.GetString(12), culture));
-                        kdx.AcumuladoProducto = Math.Round(decimal.Parse(dr.GetString(13), culture));
-                        kdx.BaseType = dr.GetDouble(14);
-                        kdx.Direction = dr.GetInt32(15);
-                        kdx.Warehouse = dr.GetString(16);
-                        kdx.CreatedBy = dr.GetInt32(17);
+                        RptKardexAlmacenes_E kdx = new RptKardexAlmacenes_E
+                        {
+                            DescProducto = dr.IsDBNull(0) ? null : dr.GetString(0),
+                            CodProducto = dr.IsDBNull(1) ? null : dr.GetString(1),
+                            RegSanitario = dr.IsDBNull(2) ? null : dr.GetString(2),
+                            FechaCont = dr.IsDBNull(3) ? null : dr.GetDateTime(3).ToString("dd/MM/yyyy"),
+                            FacturaGuiaBoleta = dr.IsDBNull(4) ? null : dr.GetString(4),
+                            ProvEstab = dr.IsDBNull(5) ? null : dr.GetString(5),
+                            Ruc = dr.IsDBNull(6) ? null : dr.GetString(6),
+                            Lote = dr.IsDBNull(7) ? null : dr.GetString(7),
+                            CantLoteIngreso = Math.Round(dr.IsDBNull(8) ? 0 : decimal.Parse(dr.GetString(8))),
+                            CantLoteSalida = Math.Round(dr.IsDBNull(9) ? 0 : decimal.Parse(dr.GetString(9))),
+                            CantIngreso = Math.Round(dr.IsDBNull(10) ? 0 : decimal.Parse(dr.GetString(10))),
+                            CantSalida = Math.Round(dr.IsDBNull(11) ? 0 : decimal.Parse(dr.GetString(11))),
+                            AcumuladoLote = Math.Round(dr.IsDBNull(12) ? 0 : decimal.Parse(dr.GetString(12), culture)),
+                            AcumuladoProducto = Math.Round(dr.IsDBNull(13) ? 0 : decimal.Parse(dr.GetString(13), culture)),
+                            BaseType = dr.IsDBNull(14) ? 0 : dr.GetDouble(14),
+                            Direction = dr.IsDBNull(15) ? 0 : dr.GetInt32(15),
+                            Warehouse = dr.IsDBNull(16) ? null : dr.GetString(16),
+                            CreatedBy = dr.IsDBNull(17) ? 0 : dr.GetInt32(17)
+                        };
                         lista.Add(kdx);
                     }
                 }
+
                 dr.Close();
             }
-            catch { }
+            catch (Exception ex)
+            {}
             finally
             {
                 cn.Close();
             }
+
             return lista;
         }
+
+        private string BuildSqlQuery(FrmKardex_E f)
+        {
+            string baseCall = $"CALL {uti.schemaHana}";
+            string loteCondition = string.IsNullOrEmpty(f.Lote) ? "V1" : "LOTES_V1";
+            string procedureName = string.Empty;
+
+            switch (f.WhsCode)
+            {
+                case "01":
+                    procedureName = "COBE_KARDEX303_" + loteCondition;
+                    break;
+                case "02":
+                    procedureName = "COBE_KARDEX502_" + loteCondition;
+                    break;
+                case "03":
+                    procedureName = "COBE_KARDEX_ALM03_" + loteCondition;
+                    break;
+                case "04":
+                    procedureName = "COBE_KARDEX_ALM04_" + loteCondition;
+                    break;
+                case "05":
+                    procedureName = "COBE_KARDEX_ALM05_" + loteCondition;
+                    break;
+                case "09":
+                    procedureName = "COBE_KARDEX_ALM06_" + loteCondition;
+                    break;
+                case "ALM07":
+                    procedureName = "COBE_KARDEX_ALM07_" + loteCondition;
+                    break;
+            }
+
+            return $"{baseCall}{procedureName}('{f.FecIni}', '{f.FecFin}', '{f.ItemCode}'{(string.IsNullOrEmpty(f.Lote) ? "" : $", '{f.Lote}'")})";
+        }
+
 
         /************************* B A L A N C E   C O N T R O L A D O S *************************/
         public List<RptBalanceControladosIngreso_E> ReporteBalanceControladosIngreso(FrmBalanceControlados_E f)
@@ -212,13 +225,12 @@ namespace Capa_Datos.DireccionTecnica_DAO.Reportes
                     if (!hdr.IsDBNull(12)) { con.FormaFamaceutica = hdr.GetString(12); }
                     if (!hdr.IsDBNull(13)) { con.SaldoAnterior = Math.Round(hdr.GetDecimal(13), 0); }
                     if (!hdr.IsDBNull(14)) { con.Compra = Math.Round(hdr.GetDecimal(14), 0); }
-                    if (!hdr.IsDBNull(14)) { con.Compra = Math.Round(hdr.GetDecimal(14), 0); }
                     if (!hdr.IsDBNull(15)) { con.Venta = Math.Round(hdr.GetDecimal(15), 0); }
                     if (!hdr.IsDBNull(16)) { con.OtrosIngresosNC = Math.Round(hdr.GetDecimal(16), 0); }
                     if (!hdr.IsDBNull(17)) { con.OtrosEgresosDEV = Math.Round(hdr.GetDecimal(17), 0); }
                     if (!hdr.IsDBNull(18)) { con.BaseType = hdr.GetInt32(18); }
                     if (!hdr.IsDBNull(19)) { con.CreatedBy = hdr.GetInt32(19); }
-                    if (f.TipoControlado == "S") { con.TipoControlado = "PSICOTROTICOS"; }
+                    if (f.TipoControlado == "S") { con.TipoControlado = "PSICOTROPICOS"; }
                     else if (f.TipoControlado == "P") { con.TipoControlado = "PRECURSORES"; }
                     else if (f.TipoControlado == "E") { con.TipoControlado = "ESTUPEFACIENTES"; }
                     DateTime dt = DateTime.Parse(f.FecIni);
@@ -226,14 +238,40 @@ namespace Capa_Datos.DireccionTecnica_DAO.Reportes
                     else if (dt.Month == 4) { con.Trimestre = "II"; }
                     else if (dt.Month == 7) { con.Trimestre = "III"; }
                     else if (dt.Month == 10) { con.Trimestre = "IV"; }
-
-                    lista.Add(con);
+                    lista.Add(con); 
 
                 }
                 hdr.Close();
             }
             catch { }
-
+            //if (f.TipoControlado == "S") {
+            //    //insercion manual de un registro sin movimientos
+            //    lista.Add(new RptBalanceControladosConsolidado_E
+            //    {
+            //        RazonSocial = "COBEFAR S.A.C.",
+            //        NmComercial = "COBEFAR S.A.C.",
+            //        RucCob = "20600546041",
+            //        Direccion = "CAL.CARLOS PEDEMONTE NRO. 145B INT. 2PIS URB. LOTIZACION EX FUNDO EL PINO-SAN LUIS-LIMA\r\nLIMA",
+            //        Telefono2 = "01-3267430 anexo 201",
+            //        Quimico = "PAMELA COLLAHUA SENOSAIN",
+            //        Correo = "direcciontecnica@cobefar.com.pe",
+            //        Anio = 2024,
+            //        CodProducto = "FIN0196",
+            //        NombreGenerico = "Bromazepam",
+            //        NombreComercial = "BROMAZEPAM",
+            //        Concentracion = "3mg",
+            //        FormaFamaceutica = "TABLETA",
+            //        SaldoAnterior = 400,
+            //        Compra = 0,
+            //        Venta = 0,
+            //        OtrosIngresosNC = 0,
+            //        OtrosEgresosDEV = 0,
+            //        BaseType = 0,
+            //        CreatedBy = 0,
+            //        TipoControlado = "PSICOTROPICOS",
+            //        Trimestre = "III"
+            //    });
+            //}
             return lista;
         }
 
@@ -260,7 +298,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.Reportes
                     if (!hdr.IsDBNull(9)) { lib.Proveedor = hdr.GetString(9); }
                     if (!hdr.IsDBNull(15)) { lib.NroFacturaNcredito = hdr.GetString(15); }
                     if (!hdr.IsDBNull(16)) { lib.Fecha = hdr.GetDateTime(16).ToString("dd/MM/yyyy"); }
-                    if (f.TipoControlado == "S") { lib.TipoControlado = "PSICOTROTICOS"; }
+                    if (f.TipoControlado == "S") { lib.TipoControlado = "PSICOTROPICOS"; }
                     else if (f.TipoControlado == "P") { lib.TipoControlado = "PRECURSORES"; }
                     else if (f.TipoControlado == "E") { lib.TipoControlado = "ESTUPEFACIENTES"; }
                     lista.Add(lib);
@@ -289,7 +327,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.Reportes
                     if (!hdr.IsDBNull(9)) { lib.Proveedor = hdr.GetString(9); }
                     if (!hdr.IsDBNull(15)) { lib.NroFacturaNcredito = hdr.GetString(15); }
                     if (!hdr.IsDBNull(16)) { lib.Fecha = hdr.GetDateTime(16).ToString("dd/MM/yyyy"); }
-                    if (f.TipoControlado == "S") { lib.TipoControlado = "PSICOTROTICOS"; }
+                    if (f.TipoControlado == "S") { lib.TipoControlado = "PSICOTROPICOS"; }
                     else if (f.TipoControlado == "P") { lib.TipoControlado = "PRECURSORES"; }
                     else if (f.TipoControlado == "E") { lib.TipoControlado = "ESTUPEFACIENTES"; }
 

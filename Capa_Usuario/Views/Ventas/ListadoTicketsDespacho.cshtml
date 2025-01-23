@@ -9,7 +9,7 @@
     String almacenUsuario = (String)ViewBag.almacenUsuario;
     int idRolUsuario = (int)ViewBag.idRolUsuario;
 
-    String bgEstadoFacturacion = "bg-cobefar text-white";
+    String bgEstadoFacturacion = "bg-cobefar-6 text-white";
 
     if (e.EstadoFacturacion != "" && e.EstadoFacturacion != null)
     {
@@ -27,9 +27,6 @@
 }
 
 <script>
-    $(document).ready(function () {
-
-    });
     function filtrar() {
         var object = $("#frm").serialize();
         $(location).attr('href', "/Ventas/ListadoTicketsDespacho?" + object);
@@ -196,7 +193,7 @@
 
 <div class="pt-4">
     <nav>
-        <ol class="cd-breadcrumb bg-dark">
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
             <li class="current"><em>Listado tickets de despacho</em></li>
         </ol>
@@ -204,45 +201,44 @@
 </div>
 
 <form name="frm" id="frm">
-    <div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
         <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO TICKETS DE DESPACHO</h3></div>
-
-        <div class="d-flex pl-2 w-100 py-2">
-
-            <div class="mx-2">
-                <button type="button" id="btn_entregadomasivo" class="btn btn-success" onclick="gestionarEntregadoMasivo(0)" disabled><i class="icon icon-cloud-upload"></i> Entregado Masivo</button>
-            </div>
-
-            <div class="mx-2">
-                <select name="EstadoFacturacion" id="EstadoFacturacion" class="form-control  @bgEstadoFacturacion" onchange="filtrar();">
-                    <option value="">EstadoFacturacion</option>
-                    <option value="GRE EMITIDA" @{ if (e != null && e.EstadoFacturacion == "GRE EMITIDA") { Write("selected"); }}>GRE EMITIDA</option>
-                    <option value="FACTURADO" @{ if (e != null && e.EstadoFacturacion == "FACTURADO") { Write("selected"); }}>FACTURADO</option>
-                </select>
-            </div>
-
-            <div class="d-flex mx-2">
-                @if (e != null && e.TiempoEntrega != null)
-                {
-                    //var fechaConvert = e.TiempoEntrega.ToString().Substring(0, 10).Split('/');
-                    // var fechaFormateada = $"{fechaConvert[2]}-{fechaConvert[1]}-{fechaConvert[0]}";
-                    <input type="text" name="TiempoEntrega" class="form-control cls-dateTimeDespacho border-success" value="@e.TiempoEntrega" style="width: 200px" autocomplete="off" />
-                }
-                else
-                {
-                    <input type="text" name="TiempoEntrega" class="form-control cls-dateTimeDespacho border-success" style="width: 200px" autocomplete="off" />
-                }
-
-                <button class="btn btn-cobefar">Filtrar Tiempo Entrega</button>
-            </div>
-
-        </div>
     </div>
 
-    <div class="bg-dark pt-4">
+    <div class="bg-white d-flex pl-2 w-100 py-3">
+        <div class="mx-2">
+            <button type="button" id="btn_entregadomasivo" class="btn btn-success" onclick="gestionarEntregadoMasivo(0)" disabled><i class="icon icon-cloud-upload"></i> Entregado Masivo</button>
+        </div>
+
+        <div class="mx-2">
+            <select name="EstadoFacturacion" id="EstadoFacturacion" class="form-control  @bgEstadoFacturacion" onchange="filtrar();">
+                <option value="">EstadoFacturacion</option>
+                <option value="GRE EMITIDA" @{ if (e != null && e.EstadoFacturacion == "GRE EMITIDA") { Write("selected"); }}>GRE EMITIDA</option>
+                <option value="FACTURADO" @{ if (e != null && e.EstadoFacturacion == "FACTURADO") { Write("selected"); }}>FACTURADO</option>
+            </select>
+        </div>
+
+        <div class="d-flex mx-2">
+            @if (e != null && e.TiempoEntrega != null)
+            {
+                //var fechaConvert = e.TiempoEntrega.ToString().Substring(0, 10).Split('/');
+                // var fechaFormateada = $"{fechaConvert[2]}-{fechaConvert[1]}-{fechaConvert[0]}";
+                <input type="text" name="TiempoEntrega" class="form-control cls-dateTimeDespacho border-success" value="@e.TiempoEntrega" style="width: 200px" autocomplete="off" />
+            }
+            else
+            {
+                <input type="text" name="TiempoEntrega" class="form-control cls-dateTimeDespacho border-success" style="width: 200px" autocomplete="off" placeholder="Abrir calendario..." />
+            }
+
+            <button class="btn btn-cobefar">Filtrar Tiempo Entrega</button>
+        </div>
+
+    </div>
+
+    <div class="bg-white bg-form-cobefar">
 
         <table class="table table-light table-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
-            <thead class="thead-dark">
+            <thead class="bg-cobefar-6">
                 <tr>
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.DocNum)
@@ -309,6 +305,23 @@
                         </select>
                     </th>
                     <th class="text-center">
+                        Zona
+                        <br />
+                        <select name="Zona" id="Zona" class="form-control select_filtro-table" onchange="filtrar();">
+                            <option value="">Seleccione</option>
+                            <option value="CALLAO" @{ if (e != null && e.Zona == "CALLAO") { Write("selected"); }}>CALLAO</option>
+                            <option value="CONO SUR" @{ if (e != null && e.Zona == "CONO SUR") { Write("selected"); }}>CONO SUR</option>
+                            <option value="CONO NORTE1" @{ if (e != null && e.Zona == "CONO NORTE1") { Write("selected"); }}>CONO NORTE1</option>
+                            <option value="CONO NORTE2" @{ if (e != null && e.Zona == "CONO NORTE2") { Write("selected"); }}>CONO NORTE2</option>
+                            <option value="CONO ESTE1" @{ if (e != null && e.Zona == "CONO ESTE1") { Write("selected"); }}>CONO ESTE1</option>
+                            <option value="CONO ESTE2" @{ if (e != null && e.Zona == "CONO ESTE2") { Write("selected"); }}>CONO ESTE2</option>
+                            <option value="CONO CENTRO" @{ if (e != null && e.Zona == "CONO CENTRO") { Write("selected"); }}>CONO CENTRO</option>
+                            <option value="PREVENTA" @{ if (e != null && e.Zona == "PREVENTA") { Write("selected"); }}>PREVENTA</option>
+                            <option value="ARRIOLA" @{ if (e != null && e.Zona == "ARRIOLA") { Write("selected"); }}>ARRIOLA</option>
+                            <option value="AGENCIA" @{ if (e != null && e.Zona == "AGENCIA") { Write("selected"); }}>AGENCIA</option>
+                        </select>
+                    </th>
+                    <th class="text-center">
                         @Html.DisplayNameFor(model => model.Estado)
                         <br />
                         <select name="Estado" id="Estado" class="form-control select_filtro-table" style="width:100px" onchange="filtrar();">
@@ -348,6 +361,7 @@
                     <th class="text-center">
                         Tiempo Entrega
                     </th>
+                    <th></th>
                     <th></th>
                     <th></th>
                     <th></th>
@@ -444,6 +458,7 @@
                             }
                         </td>
                         <td class="text-center">@Html.DisplayFor(modelItem => item.LugarDestino)</td>
+                        <td class="text-center">@Html.DisplayFor(modelItem => item.Zona)</td>
                         <td class="text-center" style="@styleEstado">@Html.DisplayFor(modelItem => item.Estado)</td>
                         <td class="text-center">@Html.DisplayFor(modelItem => item.EstadoPago)</td>
                         <td class="text-center">@Html.DisplayFor(modelItem => item.TipoVenta)</td>
@@ -457,57 +472,57 @@
                         <td>
                             @if (condPesar && verBtnPesar)
                             {
-                                <a href="@Url.Action("PesadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-primary btn-sm" title="Pesar">
+                                <a href="@Url.Action("PesadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-primary " title="Pesar">
                                     <span>Pesar</span>
                                 </a>
                             }
 
                             @if (condAnularPesar && verBtnPesar)
                             {
-                                <a href="@Url.Action("AnularPesadoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger btn-sm" title="Anular Pesado">
+                                <a href="@Url.Action("AnularPesadoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-danger " title="Anular Pesado">
                                     <span>Anular Pesado</span>
                                 </a>
                             }
 
-                            @if (item.EstadoFacturacion != null && (item.EstadoFacturacion.Equals("GRE EMITIDA") || item.EstadoFacturacion.Equals("FACTURADO")))
-                            {
-                                <button type="button" class="btn btn-cobefar btn-sm" title="VER DOCUMENTOS" onclick="abrirModalDocumentos(@item.DocEntry)">
-                                    <i class="icon-search"> </i>Docs
-                                </button>
-                            }
-
                             @if (condEntregar)
                             {
-                                <a href="@Url.Action("EntregadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-success btn-sm" title="Entregar">
-                                    <span>Entregar</span>
+                                <a href="@Url.Action("EntregadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-light text-success" data-toggle="tooltip" data-placement="top" title="Entregar pedido">
+                                    <i class="icon icon-checkmark"></i>
                                 </a>
                             }
                             else if (item.Estado == "PESADO" && condEntregar)
                             {
-                                <a href="@Url.Action("EntregadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-success btn-sm" title="Entregar">
-                                    <span>Entregar</span>
+                                <a href="@Url.Action("EntregadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-success" data-toggle="tooltip" data-placement="top" title="Entregar">
+                                    <i class="icon icon-checkmark"></i>
                                 </a>
                             }
 
                             @if (condAnularEntrega)
                             {
-                                <a href="@Url.Action("AnularEntregadoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-warning btn-sm" title="Anular Entrega">
-                                    <span>Anular Entrega</span>
+                                <a href="@Url.Action("AnularEntregadoTicket", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Anular Entrega">
+                                    <i class="icon icon-undo"></i>
                                 </a>
                             }
                         </td>
-
                         <td>
-                            <a href="@Url.Action("SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry, view = "despacho" })" class="btn btn-dark btn-sm" title="Seguimiento de ticket" type="button" target="_blank" onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;">
-                                <i class="icon-truck"></i>
+                            @if (item.EstadoFacturacion != null && (item.EstadoFacturacion.Equals("GRE EMITIDA") || item.EstadoFacturacion.Equals("FACTURADO")))
+                            {
+                                <button type="button" class="btn btn-light text-primary" data-toggle="tooltip" data-placement="top" title="Ver Documentos" onclick="abrirModalDocumentos(@item.DocEntry,'@item.Estado','@item.LugarDestino');">
+                                    <i class="icon icon-folder-download"></i>
+                                </button>
+                            }
+                        </td>
+                        <td>
+                            <a href="@Url.Action("SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry, view = "despacho" })" class="btn  btn-light" data-toggle="tooltip" data-placement="top" title="Seguimiento de ticket" type="button" target="_blank" onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;">
+                                <i class="icon-truck text-dark"></i>
                             </a>
                         </td>
 
                         <td>
                             @if (idRolUsuario == 53 || idRolUsuario == 1)
                             {
-                                <a href="#" class="btn btn-naranja btn-sm" title="Imprimir" onclick="registrarImpresion(@item.DocEntry);">
-                                    <i class="icon-printer"></i>
+                                <a href="#" class="btn  btn-light" data-toggle="tooltip" data-placement="top" title="Imprimir" onclick="registrarImpresion(@item.DocEntry);">
+                                    <i class="icon-printer text-orange"></i>
                                 </a>
                             }
                         </td>
@@ -537,13 +552,55 @@
     if ('@ViewBag.Mensaje' != "") {
         Swal.fire('@ViewBag.Mensaje');
     }
-    function abrirModalDocumentos(DocEntry) {
+    function abrirModalDocumentos(DocEntry,estado,lugarDestino) {
         var modalId = "ModalComprobantes" + DocEntry;
 
         if ($("#" + modalId).length > 0) {
             $("#" + modalId).modal('show');
             return;
         }
+
+        var html = '<div class="btn-group" role="group">';
+        // Condiciones para el boton excel que descarga todos los SKU
+        if (["PICKEANDO", "VERIFICANDO", "EMPACANDO", "EMPACADO", "PESADO", "PREENVIO", "ENVIADO", "ENTREGADO"].includes(estado)) {
+            html += '<button type="button" onclick="excelOrdenesVenta(\'' + encodeURIComponent(DocEntry) + '\')" class="btn btn-light text-success" data-toggle="tooltip" data-placement="top" title="Descargar Excel Artículos">';
+            html += '<i class="icon icon-file-excel"><span class="text-dark small"> SKUs</span></i>';
+            html += '</button><br />';
+        }
+        // Condiciones para el botón de "Descargar Rotulado" y otros documentos
+        if (lugarDestino === "Agencia" && ["PICKEANDO", "VERIFICANDO", "EMPACANDO", "EMPACADO", "PESADO", "PREENVIO", "ENVIADO", "ENTREGADO"].includes(estado)) {
+            html += '<button type="button" onclick="pdfRotulo(\'' + encodeURIComponent(DocEntry) + '\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Descargar Rotulado">';
+            html += '<i class="icon icon-file-pdf"><span class="text-dark small"> Rótulo </span></i>';
+            html += '</button><br />';
+            html += '<button type="button" data-DocEntry="' + encodeURIComponent(DocEntry) + '" data-tipo="F" onclick="descargarComprobante(\'' + encodeURIComponent(DocEntry) + '\', \'F\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Facturas">';
+            html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Facturas </span></i>';
+            html += '</button><br />';
+            html += '<button type="button" data-DocEntry="' + encodeURIComponent(DocEntry) + '" data-tipo="G" onclick="descargarComprobante(\'' + encodeURIComponent(DocEntry) + '\', \'G\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Guías">';
+            html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Guías </span></i>';
+            html += '</button><br />';
+            html += '<button type="button" data-DocEntry="' + encodeURIComponent(DocEntry) + '" data-tipo="NC" onclick="descargarComprobante(\'' + encodeURIComponent(DocEntry) + '\', \'NC\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Notas de crédito">';
+            html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Notas Crédito </span></i>';
+            html += '</button><br />';
+            html += '<button type="button" data-DocEntry="' + encodeURIComponent(DocEntry) + '" data-tipo="ND" onclick="descargarComprobante(\'' + encodeURIComponent(DocEntry) + '\', \'ND\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Notas de débito">';
+            html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Notas Débito </span></i>';
+            html += '</button><br />';
+
+        } else if (["EMPACADO", "PREENVIO", "ENVIADO", "ENTREGADO"].includes(estado)) {
+            html += '<button type="button" data-DocEntry="' + encodeURIComponent(DocEntry) + '" data-tipo="F" onclick="descargarComprobante(\'' + encodeURIComponent(DocEntry) + '\', \'F\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Facturas">';
+            html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Facturas </span></i>';
+            html += '</button><br />';
+            html += '<button type="button" data-DocEntry="' + encodeURIComponent(DocEntry) + '" data-tipo="G" onclick="descargarComprobante(\'' + encodeURIComponent(DocEntry) + '\', \'G\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Guías">';
+            html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Guías </span></i>';
+            html += '</button><br />';
+            html += '<button type="button" data-DocEntry="' + encodeURIComponent(DocEntry) + '" data-tipo="NC" onclick="descargarComprobante(\'' + encodeURIComponent(DocEntry) + '\', \'NC\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Notas de crédito">';
+            html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Notas Crédito </span></i>';
+            html += '</button><br />';
+            html += '<button type="button" data-DocEntry="' + encodeURIComponent(DocEntry) + '" data-tipo="ND" onclick="descargarComprobante(\'' + encodeURIComponent(DocEntry) + '\', \'ND\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Notas de débito">';
+            html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Notas Débito </span></i>';
+            html += '</button><br />';
+        }
+
+        html += '</div>';
 
         // Si el modal no existe, crear uno nuevo
         Promise.all([buscarDocumentos(DocEntry), buscarNotaCreditoVenta(DocEntry)])
@@ -563,6 +620,8 @@
                                 <div class='modal-body'>
                                     ${htmlTableDocumentos}
                                     ${htmlTableNotasCredito}
+                                    <br>
+                                    ${html}
                                 </div>
                                 <div class='modal-footer'>
                                     <button type='button' class='btn btn-secondary' data-dismiss='modal'>Cerrar</button>
@@ -723,7 +782,6 @@
         });
     }
     function registrarImpresion(DocEntry) {
-
         $.ajax({
             url: '/Ventas/RegistrarImpresion?DocEntry=' + DocEntry,
             type: 'POST',
@@ -735,6 +793,52 @@
         });
 
     }
+
+        // Función para descargar comprobantes contables
+    function descargarComprobante(DocEntry, Tipo) {
+    const btn = document.querySelector(`[data-docentry="${DocEntry}"][data-tipo="${Tipo}"]`);
+
+        if (btn) {
+        btn.disabled = true;
+    }
+
+        Swal.fire({
+            title: 'Cargando...',
+            text: 'Por favor, espere mientras se procesa la solicitud.',
+            allowOutsideClick: true,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        $.ajax({
+            url: '@Url.Action("CrearYObtenerDocumento", "ComprobantesContables")',
+            type: 'GET',
+            data: { DocEntry: DocEntry, Tipo: Tipo },
+            success: function (response) {
+                console.log(response);
+                if (response.success) {
+                    window.open(response.fileUrl, '_blank', 'noopener,noreferrer');
+                    Swal.close();
+                } else {
+                    Swal.fire('Error', response.message, 'error').then(() => {
+                        Swal.close();
+                    });
+                }
+            },
+            error: function (xhr, status, error) {
+                Swal.fire('Error', 'Ocurrió un error en la solicitud: ' + error, 'error').then(() => {
+                    Swal.close();
+                });
+            },
+            complete: function () {
+                if (btn) {
+                    btn.disabled = false;
+                }
+            }
+        });
+    }
+
 </script>
 
 

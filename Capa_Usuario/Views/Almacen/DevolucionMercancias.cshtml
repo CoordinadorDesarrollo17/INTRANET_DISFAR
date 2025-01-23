@@ -11,9 +11,9 @@
     List<SubmotivosDevoluciones_E> submotivos = (List<SubmotivosDevoluciones_E>)ViewBag.Submotivos;
 }
 
-<div class="pt-4">
+<div class="pt-3">
     <nav>
-        <ol class="cd-breadcrumb bg-dark">
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
             <li class="current"><em>Devolución de mercancías</em></li>
         </ol>
@@ -21,51 +21,50 @@
 </div>
 
 <form name="frm" id="frm">
-    <div class="bg-dark border-cabecera-seccion pb-2">
+    <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
         <div class="px-3 pt-3"><h3 class="titulo-seccion">DEVOLUCIÓN DE MERCANCÍAS</h3></div>
+    </div>
 
-        <div class="row pl-2 w-100 py-2">
-            <div class="d-flex col-lg-8 col-md-6 col-sm-12 col-6 my-lg-2 button-group">
-                <a href="@Url.Action("NuevaDevolucion", "Almacen")" class="btn btn-warning font-weight-bold mx-1 my-1" title="Nueva Devolución">
-                    <i class="icon icon-plus"></i> Nueva Devolución
-                </a>
+    <div class="bg-white d-flex w-100 py-3">
+        <div class="d-flex col-lg-8 col-md-6 col-sm-12 col-6 my-lg-2 button-group">
+            <a href="@Url.Action("NuevaDevolucion", "Almacen")" class="btn btn-warning mr-1 my-1" title="Nueva Devolución">
+                <i class="icon icon-plus"></i> Nueva Devolución
+            </a>
 
-                <a href="@Url.Action("NuevaDevolucion", "Almacen", new { Almacen ="DEV07"})" class="btn btn-primary font-weight-bold mx-1 my-1" title="ALM. DEV07">
-                    <i class="icon icon-plus"></i> DEV07
-                </a>
+            <a href="@Url.Action("NuevaDevolucion", "Almacen", new { Almacen ="DEV07"})" class="btn btn-primary mx-1 my-1" title="ALM. DEV07">
+                <i class="icon icon-plus"></i> DEV07
+            </a>
 
-                <button type="button" class="btn btn-success font-weight-bold mx-1 my-1" title="Descargar Reporte Histórico" data-toggle="modal" data-target="#modalReporte" onclick="limpiarCampos()">
-                    <i class="icon icon-file-excel"></i> Reporte Histórico
-                </button>
+            <button type="button" class="btn btn-success mx-1 my-1" title="Descargar Reporte Histórico" data-toggle="modal" data-target="#modalReporte" onclick="limpiarCampos()">
+                <i class="icon icon-file-excel"></i> Reporte Histórico
+            </button>
 
-                <button type="button" class="btn btn-info font-weight-bold mx-1 my-1" title="Motivos y Sub Motivos" data-toggle="modal" data-target="#modalMotivosyObs">
-                    <i class="icon icon-folder-open"></i> Motivos y Submotivos.
-                </button>
-            </div>
+            <button type="button" class="btn btn-info mx-1 my-1" title="Motivos y Sub Motivos" data-toggle="modal" data-target="#modalMotivosyObs">
+                <i class="icon icon-folder-open"></i> Motivos y Submotivos.
+            </button>
+        </div>
 
-            <div class="d-flex col-lg-4 col-md-6 col-sm-12 col-12 mt-sm-2 justify-content-lg-end justify-content-md-end justify-content-sm-center">
-                <input type="text" name="DetalleDevolucion[0].RefFactura" class="form-control text-center border-success filtrosDevolucion" placeholder="Buscar por factura..." style="width: 250px; height: 50px" value="@if (ViewBag.Devolucion.DetalleDevolucion != null && ViewBag.Devolucion.DetalleDevolucion.Count >= 1) { Write(ViewBag.Devolucion.DetalleDevolucion[0].RefFactura); }" onchange="filtrar();" />
-            </div>
+        <div class="d-flex col-lg-4 col-md-6 col-sm-12 col-12 mt-sm-2 justify-content-lg-end justify-content-md-end justify-content-sm-center">
+            <input type="text" name="DetalleDevolucion[0].RefFactura" class="form-control text-center border-success filtrosDevolucion" placeholder="Buscar por factura..." style="width: 250px; height: 50px" value="@if (ViewBag.Devolucion.DetalleDevolucion != null && ViewBag.Devolucion.DetalleDevolucion.Count >= 1) { Write(ViewBag.Devolucion.DetalleDevolucion[0].RefFactura); }" onchange="filtrar();" />
         </div>
     </div>
 
 
-
-    <div class="bg-dark pt-4">
+    <div class="bg-white">
         <table id="tbl_listaDevoluciones" class="table table-light table-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
-            <thead class="thead-dark">
+            <thead class="bg-cobefar-6">
                 <tr>
-                    <th class="text-center">DocNum<br /><div class="d-flex justify-content-center"><input type="text" name="DocNum" id="filtro_DocNum" class="form-control text-center filtrosDevolucion" autocomplete="off" style="width: 100px" onchange="filtrar();" value="@if (ViewBag.Devolucion.DocNum != 0) { Write(ViewBag.Devolucion.DocNum); }" /></div></th>
-                    <th class="text-center">Almacen<br /><div class="d-flex justify-content-center"><input type="text" name="WhsCode" class="form-control text-center filtrosDevolucion" autocomplete="off" style="width: 50px" onchange="filtrar();" value="@if (!string.IsNullOrEmpty(ViewBag.Devolucion.WhsCode)) { Write(ViewBag.Devolucion.WhsCode); }" /></div></th>
+                    <th class="text-center">DocNum<br /><div class="d-flex justify-content-center"><input type="text" name="DocNum" id="filtro_DocNum" class="form-control-sm border text-center filtrosDevolucion" autocomplete="off" style="width: 100px" onchange="filtrar();" value="@if (ViewBag.Devolucion.DocNum != 0) { Write(ViewBag.Devolucion.DocNum); }" /></div></th>
+                    <th class="text-center">Almacen<br /><div class="d-flex justify-content-center"><input type="text" name="WhsCode" class="form-control-sm border w-50 text-center filtrosDevolucion" autocomplete="off" style="width: 50px" onchange="filtrar();" value="@if (!string.IsNullOrEmpty(ViewBag.Devolucion.WhsCode)) { Write(ViewBag.Devolucion.WhsCode); }" /></div></th>
                     <th class="text-center">Fecha Registro</th>
                     <th class="text-center">Correlativo</th>
                     <th class="text-center">Fecha Devolución</th>
-                    <th class="text-center">Proveedor<br /><div class="d-flex justify-content-center"><input type="text" name="CardName" class="form-control text-center filtrosDevolucion" autocomplete="off" style="width: 300px" onchange="filtrar();" value="@ViewBag.Devolucion.CardName" /></div></th>
+                    <th class="text-center">Proveedor<br /><div class="d-flex justify-content-center"><input type="text" name="CardName" class="form-control-sm border text-center filtrosDevolucion" autocomplete="off" style="width: 300px" onchange="filtrar();" value="@ViewBag.Devolucion.CardName" /></div></th>
                     <th class="text-center">Registrado por</th>
                     <th class="text-center">
                         Estado<br />
                         <div class="d-flex justify-content-center">
-                            <select type="text" name="Estado" id="EstadoPost" class="form-control filtrosDevolucion" autocomplete="off" style="width: 200px" onchange="filtrar();">
+                            <select type="text" name="Estado" id="EstadoPost" class="form-control-sm border filtrosDevolucion" autocomplete="off" style="width: 200px" onchange="filtrar();">
                                 <option value="">Seleccione</option>
                                 <option value="PENDIENTE DE RECOJO" @if (ViewBag.Devolucion.Estado != null && ViewBag.Devolucion.Estado.Equals("PENDIENTE DE RECOJO")) { Write("selected"); }>Pendiente de recojo</option>
                                 <option value="RECOGIDO" @if (ViewBag.Devolucion.Estado != null && ViewBag.Devolucion.Estado.Equals("RECOGIDO")) { Write("selected"); }>Recogido</option>
@@ -75,6 +74,7 @@
                         </div>
                     </th>
 
+                    <th class="text-center"></th>
                     <th class="text-center"></th>
                     <th class="text-center"></th>
                     <th class="text-center"></th>
@@ -99,7 +99,7 @@
                             <td class="text-center">
                                 @if (m.Estado.Equals("PENDIENTE DE RECOJO"))
                                 {
-                                    <button type="button" class="btn btn-sm btn-danger" onclick="validarCambioEstadoDevolucion(@m.DocEntry,@m.DocNum,'@m.WhsCode','AA');"> <i title="Anular" class="icon-bin"></i></button>
+                                    <button type="button" class="btn btn-sm btn-light" onclick="validarCambioEstadoDevolucion(@m.DocEntry,@m.DocNum,'@m.WhsCode','AA');" data-toggle="tooltip" data-placement="top" title="Anular"> <i class="icon-bin2 text-danger"></i></button>
                                 }
                                 // Solo para Estado RECOGIDO y guardará "0" en el campo "SinNC" siempre y cuando no encuentre un NULL en NotaCredito línea x línea en RPD1
                                 @*else if (m.Estado.Equals("RECOGIDO") && m.SinNC.Equals(0))
@@ -110,11 +110,11 @@
                             <td class="text-center">
                                 @if (m.Estado.Equals("RECOGIDO"))
                                 {
-                                    <button type="button" class="btn btn-sm btn-orange" onclick="validarCambioEstadoDevolucion(@m.DocEntry, @m.DocNum, '@m.WhsCode', 'RR')"> Rv. recojo</button>
+                                    <button type="button" class="btn btn-sm btn-orange" onclick="validarCambioEstadoDevolucion(@m.DocEntry, @m.DocNum, '@m.WhsCode', 'RR')" data-toggle="tooltip" data-placement="top" title="Revertir Recojo">Rv. recojo</button>
                                 }
                                 @if (m.Estado.Equals("PENDIENTE DE RECOJO"))
                                 {
-                                    <button type="button" class="btn btn-sm btn-blue" onclick="validarCambioEstadoDevolucion(@m.DocEntry, @m.DocNum, '@m.WhsCode', 'R')"> Recogido</button>
+                                    <button type="button" class="btn btn-sm btn-blue" onclick="validarCambioEstadoDevolucion(@m.DocEntry, @m.DocNum, '@m.WhsCode', 'R')" data-toggle="tooltip" data-placement="top" title="Recogido">Recogido</button>
                                 }
                             </td>
                             <td class="text-center">
@@ -122,15 +122,15 @@
                                 {
                                     if (m.WhsCode.Equals("DEV07"))
                                     {
-                                        <a href="/Almacen/EditarDevolucion?DocEntry=@m.DocEntry&Almacen=DEV07" class="btn btn-sm btn-dark"> <i title="Editar Devolución - ALM DEV07" class="icon-pencil"></i></a>
+                                        <a href="/Almacen/EditarDevolucion?DocEntry=@m.DocEntry&Almacen=DEV07" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Editar Devolución - ALM DEV07" > <i class="icon-pencil text-purple"></i></a>
                                     }
                                     else
                                     {
-                                        <a href="/Almacen/EditarDevolucion?DocEntry=@m.DocEntry" class="btn btn-sm btn-dark"> <i title="Editar Devolución" class="icon-pencil"></i></a>
+                                        <a href="/Almacen/EditarDevolucion?DocEntry=@m.DocEntry" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Editar Devolución"> <i class="icon-pencil text-primary"></i></a>
                                     }
                                 }
                             </td>
-                            <td class="text-center"><a href="/Almacen/SeguimientoDevolucion?DocEntry=@m.DocEntry" class="btn btn-sm btn-warning"> <i title="Ver Devolución" class="icon-search"></i></a></td>
+                            <td class="text-center"><a href="/Almacen/SeguimientoDevolucion?DocEntry=@m.DocEntry" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Ver Devolución"> <i class="icon-search text-dark"></i></a></td>
                         </tr>
                     }
                 }
@@ -143,7 +143,7 @@
     <div class="modal fade" id="modalReporte" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header bg-cobefar text-white">
+                <div class="modal-header bg-headerModals text-white">
                     <h5 class="modal-title" id="exampleModalLabel">Reporte Histórico</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true" class="text-white">&times;</span>
@@ -314,9 +314,9 @@
 
                 <div class="row mb-4">
                     <div class="col-lg-12 col-md-12">
-                        <div class="bg-dark pt-4">
+                        <div class="bg-white">
                             <table id="tbl_listaMotivos" class="table table-light table-sm table-hover" cellspacing="0" width="100%">
-                                <thead class="thead-dark">
+                                <thead class="bg-cobefar-6">
                                     <tr>
                                         <th class="text-center">#</th>
                                         <th class="text-center">Motivo</th>
@@ -334,7 +334,7 @@
                                                 <td class="text-center">@num</td>
                                                 <td class="text-center">@m.Descripcion</td>
                                                 <td class="text-center font-weight-bold @if (m.Estado.Equals("1")) { Write("text-success"); } else { Write("text-danger"); }">@m.DescEstado</td>
-                                                <td class="text-center"><button type="button" class="btn btn-warning" onclick="llenarCamposMotivo (@m.IdMotivo, '@m.Descripcion')"><i title="Editar Motivo" class="icon-pencil"></i></button></td>
+                                                <td class="text-center"><button type="button" class="btn btn-sm btn-light" onclick="llenarCamposMotivo (@m.IdMotivo, '@m.Descripcion')" data-toggle="tooltip" data-placement="top" title="Editar Motivo"><i class="icon-pencil text-primary"></i></button></td>
                                             </tr>
                                             ++num;
                                         }
@@ -423,9 +423,9 @@
 
                 <div class="row mb-4">
                     <div class="col-lg-12 col-md-12">
-                        <div class="bg-dark pt-4">
+                        <div class="bg-white">
                             <table id="tbl_listaMotivos" class="table table-light table-sm table-hover" cellspacing="0" width="100%">
-                                <thead class="thead-dark">
+                                <thead class="bg-cobefar-6">
                                     <tr>
                                         <th class="text-center">#</th>
                                         <th class="text-center">Motivo</th>
@@ -515,9 +515,9 @@
 
                 <div class="row mb-4">
                     <div class="col-lg-12 col-md-12">
-                        <div class="bg-dark pt-4">
+                        <div class="bg-white">
                             <table id="tbl_listaSubmotivos" class="table table-light table-sm table-hover " cellspacing="0" width="100%">
-                                <thead class="thead-dark">
+                                <thead class="bg-cobefar-6">
                                     <tr>
                                         <th class="text-center">#</th>
                                         <th class="text-center">Motivo</th>
@@ -537,7 +537,7 @@
                                                 <td class="text-center">@o.DescMotivo</td>
                                                 <td class="text-center">@o.Descripcion</td>
                                                 <td class="text-center font-weight-bold @if (o.Estado.Equals("1")) { Write("text-success"); } else { Write("text-danger"); }">@o.DescEstado</td>
-                                                <td class="text-center"><button type="button" class="btn btn-warning" onclick="llenarCamposSubmotivo(@o.IdSubmotivo, '@o.Descripcion', @o.IdMotivo)"><i title="Editar Motivo" class="icon-pencil"></i></button></td>
+                                                <td class="text-center"><button type="button" class="btn btn-sm btn-light" onclick="llenarCamposSubmotivo(@o.IdSubmotivo, '@o.Descripcion', @o.IdMotivo)" data-toggle="tooltip" data-placement="top" title="Editar Motivo"><i class="icon-pencil text-primary"></i></button></td>
                                             </tr>
                                             ++num;
                                         }
@@ -697,52 +697,16 @@
                 }
             });
         }
-        /*else if (tipoMantenimiento == 'NC') {
-            const swalWithBootstrapButtons = Swal.mixin({
-                customClass: {
-                    confirmButton: 'btn btn-success mx-4',
-                    cancelButton: 'btn btn-danger mx-4'
-                },
-                buttonsStyling: false
-            })
-
-            swalWithBootstrapButtons.fire({
-                title: '¿Está seguro(a) de aplicar NC y terminar proceso?',
-                text: "Este proceso es irreversible",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: "<i class='icon-checkmark'></i> Si, estoy seguro(a)",
-                cancelButtonText: "<i class='icon-cross'></i> Cancelar",
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: '/Almacen/CambiarEstadoDevolucion',
-                        type: 'POST',
-                        dataType: 'json',
-                        data: {
-                            'DocEntry': docEntry, 'DocNum': docNum, 'WhsCode': whsCode, 'TipoMantenimiento': tipoMantenimiento
-                        }
-                    }).done(function (response) {
-                        $('.filtrosDevolucion').val('');
-                        $('#filtro_DocNum').val(docNum);
-                        $('#tbl_listaSubmotivos').DataTable().columns.adjust().draw();
-                        Swal.fire(response.Mensaje);
-                        $('#tbl_listaDevoluciones > tbody').html(response.Lista);
-
-                    }).fail(function (jqXHR, textStatus, errorThrown) {
-                        console.log(jqXHR.status + textStatus + errorThrown);
-                    });
-                }
-            });
-        }*/
         else {
             $.ajax({
                 url: '/Almacen/CambiarEstadoDevolucion',
                 type: 'POST',
                 dataType: 'json',
                 data: {
-                    'DocEntry': docEntry, 'DocNum': docNum, 'WhsCode': whsCode, 'TipoMantenimiento': tipoMantenimiento
+                    'DocEntry': docEntry,
+                    'DocNum': docNum,
+                    'WhsCode': whsCode,
+                    'TipoMantenimiento': tipoMantenimiento
                 }
             }).done(function (response) {
                 $('.filtrosDevolucion').val('');
@@ -781,6 +745,7 @@
             console.log(jqXHR.status + textStatus + errorThrown);
         });
     }
+
     function ExportarReporteHistorico() {
         let habilitarDescarga = true;
         if ($('#EstadoReporte').val() != 'PENDIENTE DE RECOJO') {
@@ -809,6 +774,7 @@
             });
         } 
     }
+
     function cargarListaCliente(textoIngresado) {
         if (textoIngresado.length >= 5) {
             $.ajax({

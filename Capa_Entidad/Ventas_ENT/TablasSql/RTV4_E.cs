@@ -27,7 +27,7 @@ namespace Capa_Entidad.Ventas_ENT.TablasSql
             }
             return lista;
         }
-        public static DataTable tbDetalle(List<RTV4_E> dt, ORTV_E ticket)
+        public static DataTable GenerarDataTable(List<RTV4_E> dt, ORTV_E ticket)
         {
             DataTable tb = new DataTable();
             tb.Columns.Add("DocEntry", typeof(int));

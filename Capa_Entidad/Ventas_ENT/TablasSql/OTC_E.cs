@@ -29,5 +29,6 @@ namespace Capa_Entidad.Ventas_ENT.TablasSql
         public string CardCode { get; set; }
         public string CardName { get; set; }
         public string DescTipoPago { get; set; }
+        public string Vendedor { get; set; }
     }
 }

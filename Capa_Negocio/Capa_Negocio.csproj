@@ -93,6 +93,7 @@
     <Compile Include="Compras_NEG\Tablas\OPCH_N.cs" />
     <Compile Include="Compras_NEG\Tablas\OPDN_N.cs" />
     <Compile Include="Compras_NEG\Tablas\SQL_OPDN_N.cs" />
+    <Compile Include="ComprobantesContables_NEG\Comprobante_N.cs" />
     <Compile Include="DireccionTecnica_NEG\Reportes\ReportesDigemid_N.cs" />
     <Compile Include="DireccionTecnica_NEG\TablasHANA\COB_ESTA_RS_N.cs" />
     <Compile Include="DireccionTecnica_NEG\TablasSql\OORS_N.cs" />
@@ -100,6 +101,7 @@
     <Compile Include="General_NEG\TablasSql\COUR_N.cs" />
     <Compile Include="General_NEG\TablasSql\DNLAB_N.cs" />
     <Compile Include="General_NEG\TablasSql\Firmas_N.cs" />
+    <Compile Include="General_NEG\TablasSql\OAGE_N.cs" />
     <Compile Include="General_NEG\TablasSql\OCHO_N.cs" />
     <Compile Include="General_NEG\TablasSql\OUR1_N.cs" />
     <Compile Include="General_NEG\TablasSql\OUR2_N.cs" />
@@ -110,8 +112,15 @@
     <Compile Include="General_NEG\Tablas\COB_SALDO_N.cs" />
     <Compile Include="General_NEG\Tablas\OSLP_N.cs" />
     <Compile Include="General_NEG\Tablas\OWHS_N.cs" />
+    <Compile Include="Helpers.cs" />
     <Compile Include="Operaciones_NEG\TablasSql\OTEP_N.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RecursosHumanos_NEG\TablasSQL\CARGO_N.cs" />
+    <Compile Include="RecursosHumanos_NEG\TablasSQL\EMPL1_N.cs" />
+    <Compile Include="RecursosHumanos_NEG\TablasSQL\OEMPL_N.cs" />
+    <Compile Include="RecursosHumanos_NEG\TablasSQL\SEDE_N.cs" />
+    <Compile Include="Repartos_NEG\TablasHana\SYP_CONDUC_N.cs" />
+    <Compile Include="Repartos_NEG\TablasHana\SYP_VEHICU_N.cs" />
     <Compile Include="ReportesDigemid_NEG\DocumentosDig_N.cs" />
     <Compile Include="Rutas_NEG\TablasSql\ORRU_N.cs" />
     <Compile Include="Rutas_NEG\TablasSql\RRU01_N.cs" />
@@ -123,9 +132,13 @@
     <Compile Include="Seguridad_NEG\Orol_N.cs" />
     <Compile Include="Seguridad_NEG\Rol1_N.cs" />
     <Compile Include="Seguridad_NEG\TablasSql\AREA_N.cs" />
+    <Compile Include="Seguridad_NEG\TablasSql\OUSR_OPE_N.cs" />
     <Compile Include="Seguridad_NEG\TablasSql\REA1_N.cs" />
+    <Compile Include="Seguridad_NEG\TablasSql\ROL_OPE_N.cs" />
     <Compile Include="Seguridad_NEG\TablasSql\USR2_N.cs" />
     <Compile Include="Seguridad_NEG\Usuario_N.cs" />
+    <Compile Include="SocioNegocios_NEG\TablasSql\OCRD_N.cs" />
+    <Compile Include="SocioNegocios_NEG\Tablas\CRD1_N.cs" />
     <Compile Include="SocioNegocios_NEG\Tablas\OCPR_N.cs" />
     <Compile Include="SocioNegocios_NEG\Tablas\OCRD_N.cs" />
     <Compile Include="TI_Sistemas_NEG\OTSO_N.cs" />

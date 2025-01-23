@@ -8,7 +8,8 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 {
     public class OCLR_D
     {
-        Utilitarios uti = new Utilitarios(); DBHelper db = new DBHelper();
+        Utilitarios uti = new Utilitarios(); 
+        DBHelper db = new DBHelper();
         CLR1_D clr1D = new CLR1_D();
         public List<OCLR_E> listadoRegaloCliente(OCLR_E filtro)
         {
@@ -22,7 +23,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 if (((int)filtro.Saldo) > 0) { fil += " and Saldo = " + filtro.Saldo + ""; }
             }
 
-            string query = "select top 10 CardCode,CardName,NroOpe,Saldo from vt.OCLR where 1=1 " + fil;
+            string query = "select CardCode,CardName,NroOpe,Saldo from vt.OCLR where 1=1 " + fil;
             try
             {
                 SqlDataReader dr = db.ExecuteReaderNoSp(query);
@@ -59,108 +60,175 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             catch { }
             return o;
         }
+        //Revisado
         public void registrarClienteRegalo(OCLR_E obj)
-        {
-            SqlConnection cn = new SqlConnection(uti.cadSql);
-            try
-            {
-                cn.Open();
-                SqlTransaction tran = cn.BeginTransaction("transaccion1");
-                try
-                {
-                    SqlCommand cmd = new SqlCommand("vt.MANT_OCLR", cn);
-                    cmd.Transaction = tran;
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "A");
-                    cmd.Parameters.AddWithValue("@CardCode", obj.CardCode);
-                    cmd.Parameters.AddWithValue("@CardName", obj.CardName);
-                    cmd.Parameters.AddWithValue("@NroOpe", obj.NroOpe);
-
-                    SqlParameter tbDet = new SqlParameter("@TPCLR1", SqlDbType.Structured);
-                    tbDet.Value = CLR1_E.tbDetalle(obj.Det);
-
-                    tbDet.TypeName = "dbo.TPCLR1";
-                    cmd.Parameters.AddWithValue("@TPCLR1", tbDet.Value);
-                    decimal cantidad = 0;
-                    int i = 0;
-                    foreach (CLR1_E detObj in obj.Det)
-                    {
-                        decimal detOCant = detObj.Cantidad ?? default(decimal);
-                        cantidad = cantidad + detOCant;
-                        i++;
-                    }
-                    cmd.Parameters.AddWithValue("@Saldo", cantidad);
-                    cmd.ExecuteNonQuery();
-                    tran.Commit();
-                }
-                catch (Exception e) { tran.Rollback(); cn.Close(); throw new Exception("Error en creacion: " + e.Message); }
-                cn.Close();
-            }
-            catch (Exception e2) { cn.Close(); throw new Exception("Error en creacion y conexion: " + e2.Message); }
-        }
-        public void editarClienteRegalo(OCLR_E obj)
-        {
-            SqlConnection cn = new SqlConnection(uti.cadSql);
-            try
-            {
-                cn.Open();
-                SqlTransaction tran = cn.BeginTransaction();
-                try
-                {
-                    SqlCommand cmd = new SqlCommand("vt.MANT_OCLR", cn);
-                    cmd.Transaction = tran;
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "U");
-                    cmd.Parameters.AddWithValue("@CardCode", obj.CardCode);
-
-                    SqlParameter tbDet = new SqlParameter("@TPCLR1", SqlDbType.Structured);
-                    tbDet.Value = CLR1_E.tbDetalle(obj.Det);
-
-                    tbDet.TypeName = "dbo.TPCLR1";
-                    cmd.Parameters.AddWithValue("@TPCLR1", tbDet.Value);
-                    decimal cantidad = 0;
-                    int i = 0;
-                    foreach (CLR1_E detObj in obj.Det)
-                    {
-                        decimal detOCant = detObj.Cantidad ?? default(decimal);
-                        cantidad = cantidad + detOCant;
-                        i++;
-                    }
-                    cmd.Parameters.AddWithValue("@Saldo", cantidad);
-
-                    cmd.ExecuteNonQuery();
-                    tran.Commit();
-                }
-                catch (Exception e) { tran.Rollback(); cn.Close(); throw new Exception("Error en creacion: " + e.Message); }
-                cn.Close();
-            }
-            catch (Exception e2) { cn.Close(); throw new Exception("Error en creacion y conexion: " + e2.Message); }
-        }
-        public void CompromisoClienteRegalo(CLR1_E obj)
         {
             using (SqlConnection cn = new SqlConnection(uti.cadSql))
             {
-                string query = "UPDATE vt.CLR1 SET Cantidad=Cantidad-@Cantidad WHERE CardCode=@CardCode AND IdReg=@IdReg";
-
-                cn.Open();
-                SqlTransaction tran = cn.BeginTransaction("ACTUALIZAR CLR1");
-
                 try
                 {
-                    SqlCommand cmd= new SqlCommand(query, cn, tran);         // prepara
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.AddWithValue("@CardCode", obj.CardCode);
-                    cmd.Parameters.AddWithValue("@IdReg", obj.IdReg);
-                    cmd.Parameters.AddWithValue("@Cantidad", obj.Cantidad);
-                    cmd.ExecuteNonQuery();
-                    tran.Commit();
-                }
-                catch (Exception e) { tran.Rollback(); throw new Exception(e.Message); }
+                    cn.Open();
+                    using (SqlTransaction tran = cn.BeginTransaction("TRANSACCION DE INSERT EN OCLR"))
+                    {
+                        try
+                        {
+                            SqlCommand cmd = new SqlCommand("vt.MANT_OCLR", cn, tran)
+                            {
+                                CommandType = CommandType.StoredProcedure
+                            };
 
-                cn.Close();
+                            cmd.Parameters.AddWithValue("@TipoMantenimiento", "A");
+                            cmd.Parameters.AddWithValue("@CardCode", obj.CardCode);
+                            cmd.Parameters.AddWithValue("@CardName", obj.CardName);
+                            cmd.Parameters.AddWithValue("@NroOpe", obj.NroOpe);
+
+                            SqlParameter tbDet = new SqlParameter("@TPCLR1", SqlDbType.Structured)
+                            {
+                                Value = CLR1_E.GenerarDataTable(obj.Det),
+                                TypeName = "dbo.TPCLR1"
+                            };
+                            cmd.Parameters.AddWithValue("@TPCLR1", tbDet.Value);
+
+                            decimal saldo = CalcularSaldo(obj.Det);
+                            cmd.Parameters.AddWithValue("@Saldo", saldo);
+
+                            cmd.ExecuteNonQuery();
+                            tran.Commit();
+                        }
+                        catch (Exception e)
+                        {
+                            tran.Rollback();
+                            throw new Exception("Error en creación de cliente regalo: " + e.Message);
+                        }
+                    }
+                }
+                catch (Exception e2)
+                {
+                    throw new Exception("Error en creación y conexión: " + e2.Message);
+                }
             }
-               
         }
+        //Agregado recientemente para registrar y editar
+        private decimal CalcularSaldo(IEnumerable<CLR1_E> detalles)
+        {
+            decimal cantidadTotal = 0;
+            foreach (CLR1_E detObj in detalles)
+            {
+                cantidadTotal += detObj.Cantidad ?? 0;
+            }
+            return cantidadTotal;
+        }
+        //Revisado
+        public void editarClienteRegalo(OCLR_E obj)
+        {
+            using (SqlConnection cn = new SqlConnection(uti.cadSql))
+            {
+                try
+                {
+                    cn.Open();
+                    using (SqlTransaction tran = cn.BeginTransaction("TRANSACCION DE UPDATE EN OCLR"))
+                    {
+                        try
+                        {
+                            SqlCommand cmd = new SqlCommand("vt.MANT_OCLR", cn, tran)
+                            {
+                                CommandType = CommandType.StoredProcedure
+                            };
+
+                            cmd.Parameters.AddWithValue("@TipoMantenimiento", "U");
+                            cmd.Parameters.AddWithValue("@CardCode", obj.CardCode);
+
+                            SqlParameter tbDet = new SqlParameter("@TPCLR1", SqlDbType.Structured)
+                            {
+                                Value = CLR1_E.GenerarDataTable(obj.Det),
+                                TypeName = "dbo.TPCLR1"
+                            };
+                            cmd.Parameters.AddWithValue("@TPCLR1", tbDet.Value);
+
+                            decimal saldo = CalcularSaldo(obj.Det);
+                            cmd.Parameters.AddWithValue("@Saldo", saldo);
+
+                            cmd.ExecuteNonQuery();
+                            tran.Commit();
+                        }
+                        catch (Exception e)
+                        {
+                            tran.Rollback();
+                            throw new Exception("Error en actualización de cliente regalo: " + e.Message);
+                        }
+                    }
+                }
+                catch (Exception e2)
+                {
+                    throw new Exception("Error en conexión o transacción: " + e2.Message);
+                }
+            }
+        }
+        //Revisado
+        //public void CompromisoClienteRegalo(CLR1_E obj, SqlTransaction tran)
+        //{
+        //    string query = "UPDATE vt.CLR1 SET Cantidad = Cantidad - @Cantidad WHERE CardCode = @CardCode AND IdReg = @IdReg; UPDATE vt.OCLR SET Saldo=Saldo - @Cantidad  WHERE CardCode = @CardCode ;";
+
+        //    try
+        //    {
+        //        using (SqlCommand cmd = new SqlCommand(query, tran.Connection, tran)) 
+        //        {
+        //            cmd.CommandType = CommandType.Text;
+        //            cmd.CommandTimeout = 120;
+        //            cmd.Parameters.AddWithValue("@CardCode", obj.CardCode);
+        //            cmd.Parameters.AddWithValue("@IdReg", obj.IdReg);
+        //            cmd.Parameters.AddWithValue("@Cantidad", obj.Cantidad);
+
+        //            cmd.ExecuteNonQuery();
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        throw new Exception($"Error al procesar compromiso para el cliente con CardCode: {obj.CardCode} y IdReg: {obj.IdReg}. Detalle: {e.Message}", e);
+        //    }
+        //}
+        public void CompromisoClienteRegaloDataTable(DataTable tablaDatos3, SqlTransaction tran)
+        {
+            string query = @"
+        UPDATE vt.CLR1 
+        SET Cantidad = Cantidad - @Cantidad 
+        WHERE CardCode = @CardCode AND IdReg = @IdReg;
+        
+        UPDATE vt.OCLR 
+        SET Saldo = Saldo - @Cantidad 
+        WHERE CardCode = @CardCode;";
+
+            try
+            {
+                using (SqlCommand cmd = new SqlCommand(query, tran.Connection, tran))
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandTimeout = 120;
+
+                    // Añadimos los parámetros pero sin valores iniciales
+                    cmd.Parameters.Add("@CardCode", SqlDbType.NVarChar, 50);
+                    cmd.Parameters.Add("@IdReg", SqlDbType.Int);
+                    cmd.Parameters.Add("@Cantidad", SqlDbType.Decimal);
+
+                    // Iterar sobre las filas del DataTable
+                    foreach (DataRow row in tablaDatos3.Rows)
+                    {
+                        // Establecer valores de los parámetros desde la fila
+                        cmd.Parameters["@CardCode"].Value = row["CardCode"];
+                        cmd.Parameters["@IdReg"].Value = row["IdReg"];
+                        cmd.Parameters["@Cantidad"].Value = row["Cantidad"];
+
+                        // Ejecutar el comando
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Error al procesar compromisos para los clientes. Detalle: " + e.Message, e);
+            }
+        }
+
         public bool ComprobarDispCliReg(CLR1_E obj)
         {
             bool r = false;
@@ -172,24 +240,6 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             }
             return r;
         }
-        // borrar
-        public void migrarClientesReg()
-        {
-            string query = "select \"CardCode\", \"CardName\" , sum(\"DocTotal\") " +
-                " from " + uti.schemaHana + "oinv where \"CANCELED\" = 'N' " +
-                " and \"DocDate\" between  '2021-01-01' and '2021-12-31' " +
-                "group by \"CardCode\",\"CardName\" " +
-                "having sum(\"DocTotal\")>1000 order by 3";
-            try
-            {
-                HanaDataReader dr = db.HanaExecuteReaderNoSp(query);
-                while (dr.Read())
-                {
 
-                }
-                dr.Close();
-            }
-            catch { }
-        }
     }
 }

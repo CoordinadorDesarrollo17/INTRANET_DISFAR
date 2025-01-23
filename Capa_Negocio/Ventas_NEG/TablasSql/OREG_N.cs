@@ -3,6 +3,7 @@ using Capa_Entidad.Ventas_ENT;
 using Capa_Entidad.Ventas_ENT.TablasSql;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -32,7 +33,10 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             if (cadenaVacia(obj.Tipo)) { throw new Exception("Debe llenar tipo"); }
             if (obj.Estado != "Activo" && obj.Estado != "Inactivo") { throw new Exception("Debe seleccionar un estado"); }
             if (obj.StockTotal <= 0) { throw new Exception("Debe ingresar un stock valido"); }
-
+        }
+        public void RegistrarGestionStock(OREG_E reg, OTRC_E obj)
+        {
+            oregD.RegistrarGestionStock(reg,  obj);
         }
         public OREG_E buscarRegalo(int id)
         {
@@ -47,13 +51,6 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         {
             validarRevertirInactivar(obj.Id);
             return oregD.revertirInactivarRegalo(obj);
-        }
-        public void registrarGestionStock(OREG_E obj, OTRC_E obj2)
-        {
-            validarGestionStock(obj, obj2);
-            if (obj2.Sentido == "Salida") { obj2.Cantidad = -1 * obj2.Cantidad; }
-            obj.StockDisp = obj2.Cantidad;
-            oregD.registrarGestionStockCrud(obj, obj2);
         }
         public void validarGestionStock(OREG_E obj, OTRC_E obj2)
         {

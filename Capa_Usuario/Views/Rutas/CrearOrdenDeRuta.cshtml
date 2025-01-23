@@ -149,35 +149,6 @@
             );
 
             calcularTotalCajas();
-            //metodo para grabar en la tabla temporal al.TEMP_RRU01 registro de todos los correlativos de documentos (F,B,G,NC,ND), debe retornar html con todos los documentos creados
-            //grabarTempDocumentos(docEntry, docNum, function (htmlTableDocumentos) {
-            //    // Crea un modal de impresión y agréga al cuerpo del documento
-            //    var modalId = "ModalImpresion" + docEntry;
-            //    var modalHtml = "<div class='modal' id='" + modalId + "' tabindex='-1' role='dialog' aria-labelledby='" + modalId + "Label' aria-hidden='true'>" +
-            //        "<div class='modal-dialog modal-dialog-centered modal-lg' role='document'>" +
-            //        "<div class='modal-content'>" +
-            //        "<div class='modal-header bg-cobefar text-white'>" +
-            //        "<h5 class='modal-title' id='" + modalId + "Label'>COMPROBANTES ELECTRÓNICOS IMPRIMIBLES <br>NroTicket : " + docNum + "</h5>" +
-            //        "<button type='button' class='close' data-dismiss='modal' aria-label='Close'>" +
-            //        "<span aria-hidden='true'>&times;</span>" +
-            //        "</button>" +
-            //        "</div>" +
-            //        "<div class='modal-body'>" +
-            //        htmlTableDocumentos +
-            //        "</div>" +
-            //        "<div class='modal-footer'>" +
-            //        "<button type='button' class='btn btn-secondary' data-dismiss='modal'>Cerrar</button>" +
-            //        "<button type='button' class='btn btn-blue' id='btnImp" + docEntry + "' onclick='ImprimirMasivamenteDocumentos(event," + docEntry + ",\"" + modalId + "\")'>" +
-            //        "<i class=''icon icon-printer'> </i> Imprimir todo" +
-            //        "</button>" +
-            //        "</div>" +
-            //        "</div>" +
-            //        "</div>" +
-            //        "</div>";
-            //    $("body").append(modalHtml);
-
-
-            //});
             contDet++;
             return true;
         }
@@ -236,7 +207,7 @@
 <script src="~/Scripts/Rutas/HojaDeReparto.js"></script>
 <div class="pt-4">
     <nav>
-        <ol class="cd-breadcrumb bg-dark">
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="/Index/Sesion">Inicio</a></li>
             <li><a href="@urlAction">@tituloListado</a></li>
             <li class="current"><em>Crear documento</em> </li>
@@ -244,7 +215,7 @@
     </nav>
 </div>
 
-<div class="bg-dark border-cabecera-seccion pb-2">
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
     <div class="d-flex justify-content-between px-3 pt-3">
         <h3 class="titulo-seccion">@tituloTipoRep.ToUpper()</h3>
         <div class="col-md-4 text-right">
@@ -291,11 +262,11 @@
             </div>
             <div class="col-lg-2">
                 <label for="FechaCont" class="text-dark form-label font-weight-bold font-18">Fecha de tickets:</label>
-                <input type="date" name="FechaCont" id="FechaSapTicket" class="form-control border-success" onchange="listarTickets();" />
+                <input type="date" name="FechaCont" id="FechaSapTicket" class="form-control border-success" onchange="listarTickets('');" />
             </div>
             <div class="col-lg-2">
                 <label for="Zona" class="text-dark form-label font-weight-bold font-18">Zona:</label>
-                <select id="Zona" class="form-control bg-cobefar text-white" onchange="listarTickets();">
+                <select id="Zona" class="form-control bg-cobefar text-white" onchange="listarTickets('');">
                     <option value="">Seleccione</option>
                     <option value="CALLAO">CALLAO</option>
                     <option value="CONO CENTRO">CONO CENTRO</option>
@@ -314,9 +285,9 @@
                 <input type="hidden" id="AlmOrigenCod" name="AlmOrigenCod" value="" />
                 <input type="hidden" id="AlmOrigenDesc2" name="AlmOrigenDesc2" value="" />
                 <select name="AlmOrigenDesc" id="AlmOrigenDesc" class="form-control bg-cobefar text-white"
-                        onchange="enviarValSelect('AlmOrigenDesc', 'AlmOrigenCod', 'almorigencod'); enviarValSelect('AlmOrigenDesc', 'AlmOrigenDesc2', 'almorigendesc2'); listarTickets();">
+                        onchange="enviarValSelect('AlmOrigenDesc', 'AlmOrigenCod', 'almorigencod'); enviarValSelect('AlmOrigenDesc', 'AlmOrigenDesc2', 'almorigendesc2'); listarTickets('');">
                     <option value="">Seleccione</option>
-                    @foreach (var l in lstOriDest.Where(x => x.WhsCode == "03" || x.WhsCode == "ALM07"))
+                    @foreach (var l in lstOriDest.Where(x => x.WhsCode == "17"))
                     {
                         <option value="@l.WhsName" almorigencod="@l.WhsCode" almorigendesc2="@(l.Street+" "+l.StreetNo+" "+l.Building+" "+l.Block+" "+l.City+" "+l.County)">
                             @l.WhsName
@@ -358,7 +329,7 @@
         </div>
         <div class="row  mt-lg-4">
             <div class="col-lg-3">
-                <label for="TransDesc" class="text-dark form-label font-weight-bold font-18">Transportista:</label>
+                <label for="TransDesc" class="text-dark form-label font-weight-bold font-18">Conductor:</label>
                 @Html.EditorFor(model => model.TransCod, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
                 <select name="TransDesc" id="TransDesc" class="form-control bg-cobefar text-white border-success" onchange="enviarValSelect('TransDesc', 'TransCod','Code');">
                     <option value="" Code="">Seleccione</option>
@@ -412,9 +383,9 @@
             </div>
         </div>
         <div class="mt-2">
-            <div class="col-lg-12 bg-dark p-3">
+            <div class="col-lg-12 bg-light bg-form-cobefar">
                 <table id="detalleRuta" class="table table-light table-sm table-hover cls-dataTable font-14" cellspacing="0" width="100%">
-                    <thead class="bg-cobefar text-white">
+                    <thead class="bg-cobefar-6 text-white">
                         <tr>
                             <th class="text-center"></th>
                             <th class="text-center">#</th>

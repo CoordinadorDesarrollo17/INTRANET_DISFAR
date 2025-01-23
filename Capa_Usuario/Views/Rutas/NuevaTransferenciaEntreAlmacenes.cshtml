@@ -1,0 +1,224 @@
+﻿@model Capa_Entidad.Rutas_ENT.TablasSql.ORRU_E
+@using Capa_Entidad.Almacen_ENT.Tablas
+@using Capa_Entidad.General_ENT.TablasSql
+
+@{
+    ViewBag.Title = "Nueva Transferencia entre Almacenes";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<OWHS_E> lstOriDest = (List<OWHS_E>)ViewBag.ListaOrigenesDestinos;
+
+    List<Capa_Entidad.Repartos_ENT.TablasHana.SYP_VEHICU_E> Vehiculos = (List<Capa_Entidad.Repartos_ENT.TablasHana.SYP_VEHICU_E>)ViewBag.ListaVehiculos;
+    List<string> Conductores = new List<string>(ViewBag.Conductores);
+    List<string> Copilotos = new List<string>(ViewBag.ListaCopilotos);
+
+    string urlAction = Url.Action("ListadoRutas", "Rutas"), tituloListado = "Listado de rutas";
+    if (ViewBag.TipoRep == "Re")
+    {
+        urlAction = Url.Action("ListadoRepartos", "Rutas");
+        tituloListado = "Listado de repartos";
+    }
+}
+
+<script>
+    $(document).ready(function () {
+        $('.select-guias').select2();
+    });
+</script>
+<script src="~/Scripts/Rutas/TransferenciaEntreAlmacenes.js?v=@DateTime.Now.Ticks>" defer></script>
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+            <li><a href="/Index/Sesion">Inicio</a></li>
+            <li><a href="@urlAction">@tituloListado</a></li>
+            <li class="current"><em>Crear orden de ruta entre almacenes</em></li>
+        </ol>
+    </nav>
+</div>
+
+
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">CREAR ORDEN DE RUTA ENTRE ALMACENES</h3></div>
+</div>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "form" }))
+{
+    <input name="TipoRep" type="hidden" value="@ViewBag.TipoRep" readonly />
+    <div class="bg-form-pestanas-cobefar pt-4 bg-section-form p-4 bg-form-cobefar">
+
+        <div class="row mt-4 mb-4">
+            <div class="col-lg-2">
+                <label for="FechaCont" class="text-dark form-label font-weight-bold font-18">Fecha:</label>
+                <input type="date" name="FechaCont" id="FechaCont" class="form-control border-success" />
+            </div>
+
+            <div class="col-lg-2">
+                <label for="TipoRuta" class="text-dark font-weight-bold font-18">Tipo de Ruta:</label>
+                <select name="TipoRuta" class="form-control bg-cobefar text-white">
+                    <option value="TA" selected>Traslado Almacenes</option>
+                </select>
+            </div>
+
+            <div class="col-lg-2">
+                <label for="Origen" class="text-dark font-weight-bold font-18">Origen:</label>
+                <select name="Origen" id="Origen" class="form-control bg-cobefar text-white" onchange="listarGuias()" required>
+                    <option value="">Seleccione</option>
+                    <option value="OWTR">Transferencias de stock</option>
+                    <option value="OWTQ">Solicitud de traslado</option>
+                </select>
+            </div>
+
+            <div class="col-lg-2">
+                <label for="AlmOrigenDesc" class="text-dark form-label font-weight-bold font-18">Almacén de Origen:</label>
+                <input type="hidden" id="AlmOrigenCod" name="AlmOrigenCod" value="" />
+                <input type="hidden" id="AlmOrigenDesc2" name="AlmOrigenDesc2" value="" />
+                <select name="AlmOrigenDesc" id="AlmOrigenDesc" class="form-control bg-cobefar text-white"
+                        onchange="enviarValSelect('AlmOrigenDesc', 'AlmOrigenCod','almorigencod');enviarValSelect('AlmOrigenDesc', 'AlmOrigenDesc2','almorigendesc2');">
+                    <option value="">Seleccione</option>
+                    @foreach (var l in lstOriDest.Where(x => x.WhsCode != "00" && x.WhsCode != "DEV05" && x.WhsCode != "05"))
+                    {
+                    <option value="@l.WhsName" almorigencod="@l.WhsCode" almorigendesc2="@(l.Street+" "+l.StreetNo+" "+l.Building+" "+l.Block+" "+l.City+" "+l.County)">
+                        @l.WhsName
+                    </option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-lg-2">
+                <label for="AlmDestinoDesc" class="text-dark form-label font-weight-bold font-18">Almacén de Destino:</label>
+                <input type="hidden" id="AlmDestinoCod" name="AlmDestinoCod" value="" />
+                <input type="hidden" id="AlmDestinoDesc2" name="AlmDestinoDesc2" value="" />
+                <select name="AlmDestinoDesc" id="AlmDestinoDesc" class="form-control bg-cobefar text-white"
+                        onchange="enviarValSelect('AlmDestinoDesc', 'AlmDestinoCod','almdestinocod');enviarValSelect('AlmDestinoDesc', 'AlmDestinoDesc2','almdestinodesc2');">
+                    <option value="">Seleccione</option>
+                    @foreach (var l in lstOriDest.Where(x => x.WhsCode != "00" && x.WhsCode != "DEV05" && x.WhsCode != "05"))
+                    {
+                    <option value="@l.WhsName" almdestinocod="@l.WhsCode" almdestinodesc2="@(l.Street+" "+l.StreetNo+" "+l.Building+" "+l.Block+" "+l.City+" "+l.County)">
+                        @l.WhsName
+                    </option>
+                    }
+                </select>
+            </div>
+            <div class="col-lg-2">
+                <label for="Placa" class="text-dark form-label font-weight-bold font-18">Placa:</label>
+                <select name="Placa" id="Placa" class="form-control bg-cobefar text-white border-success"
+                        onchange="enviarValSelect('Placa', 'VehiculoCod', 'Code');
+                      enviarValSelect('Placa', 'Marca', 'U_SYP_VEMA');
+                      enviarValSelect('Placa', 'Modelo', 'U_SYP_VEMO');">
+                    <option value="">Seleccione</option>
+                    @foreach (var t in Vehiculos)
+  {
+                    <option value="@t.U_SYP_VEPL" Code="@t.Code" U_SYP_VEMA="@t.U_SYP_VEMA" U_SYP_VEMO="@t.U_SYP_VEMO">@t.U_SYP_VEPL</option>
+  }
+                </select>
+                @Html.EditorFor(model => model.Marca, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+                @Html.EditorFor(model => model.Modelo, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+                @Html.EditorFor(model => model.VehiculoCod, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+            </div>
+        </div>
+
+        <div class="row mt-4 mb-4">
+            <div class="col-lg-2">
+                <label for="TransDesc" class="text-dark form-label font-weight-bold font-18">Conductor:</label>
+                <select name="TransDesc" id="TransDesc" class="form-control bg-cobefar text-white border-success">
+                    <option value="">Seleccione</option>
+                    @foreach (var x in Conductores)
+             {
+                    <option value="@x">@x</option>
+             }
+                </select>
+            </div>
+
+            <div class="col-lg-2">
+                <label for="CopilDesc" class="text-dark form-label font-weight-bold font-18">Copiloto 1:</label>
+                @Html.EditorFor(model => model.CopilDesc, new { htmlAttributes = new { @class = "form-control border-success", @type = "search", @list = "ListaCopilotos", @autocomplete = "off" } })
+                <datalist id="ListaCopilotos">
+                    @foreach (var x in Copilotos)
+                    {
+                    <option value="@x.ToUpper()"></option>
+                    }
+                </datalist>
+            </div>
+            <div class="col-lg-2">
+                <label for="Copil2Desc" class="text-dark form-label font-weight-bold font-18">Copiloto 2:</label>
+                @Html.EditorFor(model => model.Copil2Desc, new { htmlAttributes = new { @class = "form-control border-success", @type = "search", @list = "ListaCopilotos", @autocomplete = "off" } })
+            </div>
+
+            <div class="col-lg-2">
+                <label for="TiempoPac" class="text-dark form-label font-weight-bold font-18">Tiempo Pactado:</label>
+                <input type="datetime-local" class="form-control border-success" name="TiempoPac" />
+            </div>
+
+            <div class="col-lg-1">
+                <label for="TotalCajas" class="text-dark form-label font-weight-bold font-18"># Cajas:</label>
+                <input id="TotalCajas" type="text" class="form-control border-success" readonly />
+            </div>
+
+            <div class="col-lg-3">
+                <label for="Observaciones" class="text-dark form-label font-weight-bold font-18">Observaciones:</label>
+                @Html.EditorFor(model => model.Observaciones, new { htmlAttributes = new { @class = "form-control border-success", @autocomplete = "off" } })
+            </div>
+        </div>
+
+        <!--Botones-->
+        <div class="row d-flex justify-content-end">
+            <div class="col-lg-5 d-flex justify-content-end">
+                <button type="button" class="btn btn-cobefar-2 ml-2" id="Validar" onclick="validar();"><i class="icon icon-clipboard"> </i> Validar </button>
+                <button type="submit" class="btn btn-info ml-2"> <i class="icon icon-checkmark2"> </i> Guardar datos  </button>
+            </div>
+        </div>
+
+
+        <div class="mt-4">
+            <table class="table table-light table-sm" cellspacing="0" width="100%">
+                <thead class="bg-success">
+                    <tr>
+                        <th class="text-center">#</th>
+                        <th class="text-center">Guia</th>
+                        <th class="text-center">Nro de Traslado</th>
+                        <th class="text-center">Operario Envio</th>
+                        <th class="text-center">Cajas</th>
+                        <th class="text-center">Operario Recepcion</th>
+                        <th class="text-center">Verificado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 1; i <= (int)ViewBag.Filas; i++)
+                    {
+                    <tr>
+                        <td class="text-center"><input type="hidden" name="DetRRU1[@(i-1)].Linea" id="Linea@(i-1)" value="@i" />@i</td>
+                        <td class="text-center">
+                            <select name="DetRRU1[@(i-1)].Guia" id="DetRRU1@(i-1)Guia" class="form-control bg-cobefar text-white select-guias"
+                                    onchange="enviarValSelect('DetRRU1@(i-1)Guia', 'NroSap@(i-1)', 'DocNum');
+                                          enviarValSelect('DetRRU1@(i-1)Guia', 'OperarioEnvio@(i-1)', 'SlpName');
+                                          datosTraslado(@(i-1));actualizarCajas();" style="width: 220px">
+                                <option value="" DocNum="" SlpName="">Seleccione</option>
+                            </select>
+                        </td>
+                        <td class="text-center"><input name="DetRRU1[@(i-1)].NroSap" id="NroSap@(i-1)" class="form-control text-center border-success" readonly /></td>
+                        <td class="text-center"><input name="DetRRU1[@(i-1)].OpEnvio" id="OperarioEnvio@(i-1)" class="form-control text-center border-success font-14" readonly /></td>
+                        <td class="text-center"><input type="text" name="DetRRU1[@(i-1)].Cajas" id="DetRRU1@(i-1)Cajas" class="form-control text-center border-success" readonly size="5" /></td>
+                        <td class="text-center"><input name="DetRRU1[@(i-1)].OpRecepcion" type="text" class="form-control border-success" /></td>
+                        <td class="text-center" style="vertical-align:middle !important"><input type="checkbox" name="DetRRU1[@(i-1)].Verificado" class="form-control border-success" /></td>
+                    </tr>
+                    <tr>
+                        <td colspan="10" id="contenido-productos@(i-1)">
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <datalist id="ListaSocios"></datalist>
+
+    </div>
+}
+
+<script>
+    if ('@ViewBag.Mensaje' != "") {
+        Swal.fire({
+            icon: '',
+            text: `@ViewBag.Mensaje`
+        })
+    }
+</script>

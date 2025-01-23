@@ -1,0 +1,380 @@
+﻿@model Capa_Entidad.Rutas_ENT.TablasSql.ORRU_E
+@using Capa_Entidad.General_ENT.TablasSql
+@{
+    ViewBag.Title = "Editar Hoja de Reparto";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string tituloHoja = string.Empty, tituloListado = string.Empty, urlActionBreadcrumb = string.Empty;
+
+    List<OWHS_E> lstOriDest = (List<OWHS_E>)ViewBag.ListaOrigenesDestinos;
+    List<Capa_Entidad.Repartos_ENT.TablasHana.SYP_VEHICU_E> Vehiculos = (List<Capa_Entidad.Repartos_ENT.TablasHana.SYP_VEHICU_E>)ViewBag.ListaVehiculos;
+    List<string> Conductores = new List<string>(ViewBag.Conductores);
+    List<string> Copilotos = new List<string>(ViewBag.ListaCopilotos);
+
+    if (ViewBag.TipoRep == "Re")
+    {
+        tituloHoja = "Editar Hoja de Reparto";
+        tituloListado = "Listado de repartos";
+        urlActionBreadcrumb = Url.Action("ListadoRepartos", "Rutas");
+    }
+    else
+    {
+        tituloHoja = "Editar Hoja de Ruta";
+        tituloListado = "Listado de rutas";
+        urlActionBreadcrumb = Url.Action("ListadoRutas", "Rutas");
+    }
+    
+}
+<style>
+    #Detalles textarea {
+        font-size: 12px;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        listarTickets('@Model.Estado');
+    });
+    var contDet = 0;
+</script>
+ 
+   
+<script src="~/Scripts/Rutas/HojaDeReparto.js?v=@DateTime.Now.Ticks>" defer></script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@urlActionBreadcrumb">@tituloListado</a></li>
+            <li class="current"><em>Editar Documento</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
+    <div class="d-flex justify-content-between px-3 pt-3">
+        <h3 class="titulo-seccion">@tituloHoja.ToUpper()</h3>
+        <div class="col-md-4 text-right">
+            <div class="alert alert-danger text-center text-primary" role="alert" id="btn-NoEnviados">
+                <a href="#" onclick="verTicketsNoEnviados()"></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="bg-form-pestanas-cobefar">
+
+    <div class="bg-section-form p-4 bg-form-cobefar">
+        @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "form" }))
+        {
+
+            <input name="TipoRep" type="hidden" value="@ViewBag.TipoRep" readonly />
+            <input name="DocEntry" id="doc_entry" type="hidden" value="@Model.DocEntry" readonly />
+
+            <div class="row mb-4 mt-4">
+                <div class="col-lg-2">
+                    <label for="TipoRuta" class="text-dark form-label font-weight-bold font-18">Tipo de Ruta:</label>
+                    <input type="text" value="@Model.TipoRuta" id="TipoRuta" name="TipoRuta" class="text-center form-control border-success" readonly />
+                </div>
+
+                <div class="col-lg-2">
+                    <label for="DocNum" class="text-dark form-label font-weight-bold font-18">Documento:</label>
+                    @Html.EditorFor(model => model.DocNum, new { htmlAttributes = new { @class = "text-center form-control border-success", @readonly = "true" } })
+                </div>
+
+                <div class="col-lg-2">
+                    <label class="text-dark form-label font-weight-bold font-18">Fecha de registro:</label>
+                    <input type="date" class="text-center form-control border-success" name="FechaDoc" value="@String.Format("{0:yyyy-MM-dd}", Model.FechaDoc)" readonly />
+                </div>
+
+                <div class="col-lg-2">
+                    <label for="Estado" class="text-dark form-label font-weight-bold font-18">Estado:</label>
+                    @Html.EditorFor(model => model.Estado, new { htmlAttributes = new { @class = "text-center form-control border-success", @readonly = "true" } })
+                </div>
+                <div class="col-lg-3">
+                    <label for="Propietario" class="text-dark form-label font-weight-bold font-18">Propietario:</label>
+                    @Html.EditorFor(model => model.Propietario, new { htmlAttributes = new { @class = "text-center form-control border-success", @readonly = "true" } })
+                </div>
+            </div>
+
+            <div class="row mt-lg-4">
+                <div class="col-lg-2">
+                    <label for="FechaSapTicket" class="text-dark form-label font-weight-bold font-18">Fecha:</label>
+                    <input type="date" class="text-center form-control border-success" name="FechaCont" id="FechaSapTicket" value="@String.Format("{0:yyyy-MM-dd}", Model.FechaCont)" onchange="listarTickets();" />
+                </div>
+                <div class="col-lg-2">
+                    <label for="Zona" class="text-dark form-label font-weight-bold font-18">Zona:</label>
+                    <input id="Zona" class="form-control text-center border-success" value="@if (Model.DetRRU0 != null && Model.DetRRU0.Count() >= 1) { Write(Model.DetRRU0[0].Ticket.Zona);}" readonly />
+                </div>
+                <div class="col-lg-2" id="div_almacen-origen">
+                    <label class="text-dark form-label font-weight-bold font-18">Almacén de Origen:</label>
+                    <select name="AlmOrigenDesc" id="AlmOrigenDesc" class="form-control bg-cobefar text-white" onchange="enviarValSelect('AlmOrigenDesc', 'AlmOrigenCod', 'AlmOrigenCod'); enviarValSelect('AlmOrigenDesc', 'AlmOrigenDesc2', 'AlmOrigenDesc2'); listarTickets(); ">
+                        <option value="">Seleccione</option>
+                        @foreach (var l in lstOriDest.Where(x => x.WhsCode == "15" || x.WhsCode == "ALM07" || x.WhsCode == "16" || x.WhsCode == "03"))
+                        {
+                            <option value="@l.WhsName" AlmOrigenCod="@l.WhsCode"
+                                    AlmOrigenDesc2="@(l.Street+" "+l.StreetNo+" "+l.Building+" "+l.Block+" "+l.City+" "+l.County)" @if (Model.AlmOrigenCod == l.WhsCode) { Write("selected"); }>
+                                @l.WhsName
+                            </option>
+                        }
+                    </select>
+                    @Html.EditorFor(model => model.AlmOrigenCod, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+                    @Html.EditorFor(model => model.AlmOrigenDesc2, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+                </div>
+
+                <div class="col-lg-2" id="div_almacen-destino">
+                    <label class="text-dark form-label font-weight-bold font-18">Almacén de Destino:</label>
+                    <input type="text" class="form-control text-center border-success" name="AlmDestinoDesc" value="@Model.AlmDestinoDesc" readonly />
+                    @Html.EditorFor(model => model.AlmDestinoCod, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+                    @Html.EditorFor(model => model.AlmDestinoDesc2, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+                </div>
+                <div class="col-lg-2">
+                    <label for="VehiculoCod" class="text-dark form-label font-weight-bold font-18">Placa:</label>
+                    <select name="VehiculoCod" id="VehiculoCod" class="form-control bg-cobefar text-white"
+                            onchange="enviarValSelect('VehiculoCod', 'Placa', 'U_SYP_VEPL'); enviarValSelect('VehiculoCod', 'Marca', 'U_SYP_VEMA'); enviarValSelect('VehiculoCod', 'Modelo', 'U_SYP_VEMO');">
+                        <option value="">Seleccione</option>
+                        @foreach (var t in Vehiculos)
+                        {
+                            <option value="@t.Code" U_SYP_VEPL="@t.U_SYP_VEPL" U_SYP_VEMA="@t.U_SYP_VEMA" U_SYP_VEMO="@t.U_SYP_VEMO" @if (Model.VehiculoCod == t.Code) { Write("selected"); }>@t.U_SYP_VEPL</option>
+                        }
+                    </select>
+                </div>
+                <div>
+                    @Html.EditorFor(model => model.Placa, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+                    @Html.EditorFor(model => model.Marca, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+                    @Html.EditorFor(model => model.Modelo, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+                </div>
+                <div class="col-lg-2">
+                    <label for="TransDesc" class="text-dark form-label font-weight-bold font-18">Conductor:</label>
+                    <select name="TransDesc" id="TransDesc" class="form-control bg-cobefar text-white">
+                        @foreach (var x in Conductores)
+                        {
+                            <option value="@x" @if (Model.TransDesc == x) { Write("selected"); }>@x</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="row mt-lg-4">
+                <div class="col-lg-2">
+                    <label for="CopilDesc" class="text-dark form-label font-weight-bold font-18">Copiloto 1:</label>
+                    @Html.EditorFor(model => model.CopilDesc, new
+                    {
+                        htmlAttributes = new
+                        {
+                            @type = "search",
+                            @class = "text-center form-control border-success",
+                            @list = "ListaCopilotos",
+                            @autocomplete = "off"
+                        }
+                    })
+                    <datalist id="ListaCopilotos">
+                        @foreach (var x in Copilotos)
+                        {
+                            <option value="@x.ToUpper()"></option>
+                        }
+                    </datalist>
+                </div>
+
+                <div class="col-lg-2">
+                    <label for="Copil2Desc" class="text-dark form-label font-weight-bold font-18">Copiloto 2:</label>
+                    @Html.EditorFor(model => model.Copil2Desc, new
+                    {
+                        htmlAttributes = new
+                        {
+                            @type = "search",
+                            @class = "text-center form-control border-success",
+                            @list = "ListaCopilotos",
+                            @autocomplete = "off"
+                        }
+                    })
+                </div>
+
+                <div class="col-lg-2">
+                    <label class="text-dark form-label font-weight-bold font-18">Tiempo de entrega pactado: </label>
+                    <input type="datetime-local" class="text-center form-control border-success" name="TiempoPac" id="TiempoPac" value="@Convert.ToDateTime(Model.TiempoPac).ToString("yyyy-MM-ddTHH:mm:ss")" />
+                </div>
+
+                <div class="col-lg-2">
+                    <label for="TotalCajas" class="text-dark form-label font-weight-bold font-18">Total de cajas:</label>
+                    <input id="TotalCajas" type="text" class="text-center form-control border-success" value="@Model.TotCajas()" readonly />
+                </div>
+
+                <div class="col-lg-4">
+                    <label for="Observaciones" class="text-dark form-label font-weight-bold font-18">Observaciones:</label>
+                    @Html.EditorFor(model => model.Observaciones, new { htmlAttributes = new { @class = "form-control border-success",@autocomplete="off" } })
+                </div>
+            </div>
+            <!--Boton de editar datos de cabecera-->
+            <div class="row align-content-between py-lg-4">
+                    <div class="col-lg-10 align-bottom">
+                        <input type="checkbox" id="chk_verifTodos" onclick="seleccionarVerif()" /> <label for="chk_verifTodos" class="text-primary">Seleccionar Todos</label>
+                    </div>
+                    <div class="ml-auto mr-3 align-content-end">
+                        <button type="button" class="btn btn-cobefar-2 ml-2" id="btn-Agregar" onclick="agregarTicketsDetalle(true)"><i class="icon icon-plus">   </i> Agregar </button>
+                        <button type="button" class="btn btn-info" onclick="validarEnviarFormulario('@Model.Estado');">
+                            <i class="icon icon-pencil2"> </i> Editar
+                        </button>
+                    </div>
+            </div>
+
+
+            if (Model.DetRRU0 != null && Model.DetRRU0.Count > 0)
+            {
+                <div class="col-lg-12">
+                    <table id="detalleRuta" class="table table-light table-sm table-hover cls-dataTable" cellspacing="0" width="100%">
+                        <thead class="bg-cobefar text-white">
+                            <tr>
+                                <th class="text-center"></th>
+                                <th class="text-center">#</th>
+                                <th hidden>DocEntryTicket</th>
+                                <th class="text-center">NroTicket</th>
+                                <th hidden>CodSocio</th>
+                                <th class="text-center" style="width:250px">Socio</th>
+                                <th class="text-center" style="width:450px">Guías</th>
+                                <th class="text-center">Cajas</th>
+                                <th hidden>Obs.</th>
+                                <th hidden>Direcciones</th>
+                                <th class="text-center" style="width:70px">Agencia</th>
+                                <th class="text-center">Monto final</th>
+                                <th hidden>Envio</th>
+                                <th class="text-center">Tipo de venta</th>
+                                <th class="text-center">Estado de pago</th>
+                            </tr>
+                        </thead>
+
+                    </table>
+                </div>
+
+
+                <h3 class="text-cobefar font-weight-bold mt-2">
+                    DETALLE DE RUTA<br />
+                </h3>
+                <div id="divDetalleRuta">
+                    <div class="mt-2">
+                        <table id="Detalles" class="table table-light table-md table-hover" cellspacing="0" width="100%">
+                            <thead class="bg-success">
+                                <tr>
+                                    <th class="text-center">#</th>
+                                    <th hidden>DocEntryT</th>
+                                    <th class="text-center">NroTicket</th>
+                                    <th class="text-center">Socio</th>
+                                    <th class="text-center">Guias</th>
+                                    <th class="text-center">Cajas</th>
+                                    <th class="text-center">Obs.</th>
+                                    <th class="text-center">Direcciones</th>
+                                    <th class="text-center">MontoFinal</th>
+                                    <th class="text-center">Envio</th>
+                                    <th class="text-center"></th><!--Boton seguimiento-->
+                                    <th class="text-center"></th> <!--Boton liberar-->
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{ string style = "";}
+                                @foreach (var det in Model.DetRRU0)
+                                {
+                                    if (det.Estado == "LIBERADO") { style = "background:lightgray;"; } else { style = ""; }
+                                    <tr id="reg@(det.Linea)" style="@style">
+                                        <td><input name='DetRRU0[@(det.Linea - 1)].Linea' type='hidden' class="form-control border-success" value='@det.Linea' style='width:40px;' readonly />@det.Linea</td>
+                                        <td hidden><input name='DetRRU0[@(det.Linea - 1)].DocEntryTicket' type='text' class="form-control border-success" value='@det.DocEntryTicket' style='width:80px;' readonly /></td>
+                                        <td><input name='DetRRU0[@(det.Linea - 1)].DocNumTicket' id="DocNumTDet@(det.Linea)" type='hidden' class="form-control border-success" value='@det.DocNumTicket' readonly />@det.DocNumTicket</td>
+                                        <td><input name='DetRRU0[@(det.Linea - 1)].Socio' type='hidden' class="form-control border-success" value='@det.Socio' style='width:100px;' readonly />@det.Socio</td>
+                                        <td><input name='DetRRU0[@(det.Linea - 1)].Guias' type='hidden' class="form-control border-success" value='@det.Guias' style='width:100px;' readonly />@det.Guias</td>
+                                        <td class="text-center"><input name='DetRRU0[@(det.Linea - 1)].Cajas' type='hidden' class="form-control border-success" value='@det.Cajas' readonly />@det.Cajas</td>
+                                        <td><input name='DetRRU0[@(det.Linea - 1)].Observaciones' type='hidden' class="form-control border-success" value='@det.Observaciones' style='width:100px;' readonly />@det.Observaciones</td>
+                                        <td><textarea name='DetRRU0[@(det.Linea - 1)].Direcciones' class="form-control border-success" readonly>@det.Direcciones</textarea></td>
+                                        <td class="text-center"><input name='DetRRU0[@(det.Linea - 1)].MontoFinal' type='hidden' class="form-control border-success" value='@det.MontoFinal' style='width:90px;' readonly />@det.MontoFinal</td>
+                                        <td class="text-center"><input name='DetRRU0[@(det.Linea - 1)].Envio' type='hidden' class="form-control border-success" value='@det.Envio' style='width:50px;' readonly />@det.Envio</td>
+                                        <td><a href='SeguimientoDeTicket?DocEntry=@det.DocEntryTicket' target='_blank' class="btn btn-outline-primary" style='cursor:pointer' onclick="window.open(this.href,this.target,'width=500,height=350,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');"><i class="icon-truck"></i></a></td>
+                                        <td class="d-flex justify-content-center" colspan="2"><button type='button' class='btn btn-outline-danger' onclick='liberarLineaTabla(@det.DocEntry,@det.Linea,@det.DocEntryTicket,"reg@(det.Linea)")'><i class="icon icon-unlocked">  </i>Liberar</button></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            }
+           
+            <script>
+                contDet=@Model.DetRRU0.Count
+            </script>
+
+        }
+    </div>
+</div>
+<!-- Modal para ver tickets no enviados-->
+<div class="modal" id="ModalTicketsNE" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-cobefar text-light">
+                <h5 class="modal-title" id="exampleModalLabel">Relación de tickets</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="mt-2">
+                    <table id="tableModalNE" class="table table-bordered table-sm table-hover" cellspacing="0" width="100%">
+                        <thead class="bg-dark">
+                            <tr>
+                                <th class="text-center">DocNum</th>
+                                <th class="text-center">Fecha</th>
+                                <th class="text-center">Cliente</th>
+                                <th class="text-center">Monto Final</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@if (!string.IsNullOrEmpty(ViewBag.Mensaje))
+{
+    <script>
+     var mensaje = '@Html.Raw(ViewBag.Mensaje)';
+        Swal.fire({
+            text: mensaje,
+            showConfirmButton: false,
+            timer: 2000
+        });
+    </script>
+}
+<script>
+    function listarDetalleGuia(baseEntry, linea, idTR, btnEditarDetalle) {
+        $.ajax({
+            url: '/Rutas/ObtenerDetalleOrdenRuta',
+            type: 'POST',
+            data: { BaseEntry: baseEntry, BaseLinea: linea, HabilitarBotonEditar: btnEditarDetalle },
+        }).done(function (response) {
+            Swal.fire(response.mensaje);
+            $('#baselinea_RRU11').val(linea);
+            if (response.existeDatos) {
+                $(".cls-colorFilaGuia").css('background-color', 'white');
+                $("#" + idTR).css('background-color', 'yellow');
+            }
+            $("#tbl_detRRu11 > tbody").html(response.lista);
+        });
+    }
+    function editarDetalle() {
+        $.ajax({
+            url: '/Rutas/EditarDetalleOrdenRuta',
+            type: 'POST',
+            data: $('#frm_detalle').serialize() + '&BaseEntry=' + $('#doc_entry').val() + '&BaseLinea=' + $('#baselinea_RRU11').val(),
+            dataType: 'JSON',
+        }).done(function (response) {
+            Swal.fire({
+                confirmButtonColor: '#26653D',
+                closeOnCancel: false,
+                allowOutsideClick: false,
+                showCancelButton: false,
+                text: response.mensaje,
+            }).then((result) => {
+                if (result.isConfirmed && response.nrocajas == true) {
+                    location.reload();
+                }
+            })
+
+        });
+    }
+</script>

@@ -39,7 +39,7 @@
 
 <div class="pt-4">
     <nav>
-        <ol class="cd-breadcrumb bg-dark">
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
             <li><a href="@Url.Action("ContabilizacionInventario", "Almacen")">Módulo contabilización inventario</a></li>
             <li class="current"><em>Reportes de inventario</em></li>
@@ -47,19 +47,18 @@
     </nav>
 </div>
 
-<div class="bg-dark border-cabecera-seccion pb-2">
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
     <div class="px-3 pt-3"><h3 class="titulo-seccion">REPORTES DE INVENTARIO</h3></div>
 </div>
 
-<div class="bg-form-pestanas-cobefar">
-    <div class="alert alert-danger" role="alert">
-        @if (@OIPE_E.PeriodoSeleccionado != null)
-        {
-            @OIPE_E.PeriodoSeleccionado.Descripcion
-            Write(" - Almacenes: ");
-            @OIPE_E.PeriodoSeleccionado.enlistarDetAlmacenes()
-        }
+
+@if (@OIPE_E.PeriodoSeleccionado != null)
+{
+    <div class="alert alert-danger mb-0" role="alert">
+        @("Periodo Seleccionado: " + OIPE_E.PeriodoSeleccionado.Descripcion + " ---- Almacenes: " + OIPE_E.PeriodoSeleccionado.enlistarDetAlmacenes())
     </div>
+}
+
 
     <div class="bg-section-form p-4 bg-form-cobefar">
         <form id="frm">
