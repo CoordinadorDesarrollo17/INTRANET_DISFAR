@@ -4050,7 +4050,7 @@ namespace Capa_Usuario.Controllers
         public void PreliminarLayoutOV_Ticket(int docEntry)
         {
             var listaOrdenesTicket = new Capa_Negocio.Ventas_NEG.TablasSql.ORTV_N().obtenerDet2Ticket(docEntry);
-            
+
             // Crear un MemoryStream para el PDF combinado
             using (MemoryStream combinedPdfStream = new MemoryStream())
             {
@@ -4062,14 +4062,35 @@ namespace Capa_Usuario.Controllers
                     // Generar PDF para cada orden de venta
                     foreach (var orden in listaOrdenesTicket)
                     {
-                        // Lógica para generar un PDF individual por cada DocNum
                         string fileName = $"OrdenDeVenta_{orden.NroSap}.pdf";
                         var pdfResult = GenerarPdfParaOrden(orden.NroSap, fileName);
 
-                        // Agregar el PDF al documento combinado
+                        // Leer el PDF generado
                         using (var pdfReader = new PdfReader(pdfResult))
                         {
-                            copy.AddDocument(pdfReader);
+                            // Crear un MemoryStream para agregar la paginación
+                            using (MemoryStream paginatedPdfStream = new MemoryStream())
+                            {
+                                using (PdfStamper stamper = new PdfStamper(pdfReader, paginatedPdfStream))
+                                {
+                                    int totalPages = pdfReader.NumberOfPages;
+
+                                    // Agregar paginación a cada página
+                                    for (int i = 1; i <= totalPages; i++)
+                                    {
+                                        PdfContentByte content = stamper.GetUnderContent(i);
+                                        iTextSharp.text.Font font = FontFactory.GetFont("Helvetica", BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 10);
+                                        Phrase phrase = new Phrase($"Página {i} de {totalPages}", font);
+                                        ColumnText.ShowTextAligned(content, Element.ALIGN_RIGHT, phrase, 570, 30, 0); // Ajustar posición según sea necesario
+                                    }
+                                }
+
+                                // Agregar el PDF paginado al documento combinado
+                                using (var paginatedPdfReader = new PdfReader(paginatedPdfStream.ToArray()))
+                                {
+                                    copy.AddDocument(paginatedPdfReader);
+                                }
+                            }
                         }
                     }
 
@@ -4083,6 +4104,7 @@ namespace Capa_Usuario.Controllers
                 Response.End();
             }
         }
+
         private byte[] GenerarPdfParaOrden( int NroSap, string fileName)
         {
             // Aquí puedes implementar la lógica específica para generar el PDF de una orden
@@ -4092,10 +4114,11 @@ namespace Capa_Usuario.Controllers
                 FileName = fileName,
                 PageOrientation = Rotativa.Options.Orientation.Portrait,
                 PageSize = Rotativa.Options.Size.A4,
-                PageMargins = new Rotativa.Options.Margins(10, 10, 10, 10)
+                PageMargins = new Rotativa.Options.Margins(10, 10, 20, 10)
             };
 
             return pdfResult.BuildFile(ControllerContext);
+
         }
         public ActionResult PDF_OrdenesDeVentas(OrdenDeVenta_E filtros)
         {
