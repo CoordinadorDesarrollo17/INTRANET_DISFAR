@@ -104,7 +104,6 @@ namespace Capa_Usuario.Controllers
             }
         }
 
-
         public ActionResult ListadoTicketsAutorizacionRegularizar(string mensaje = null, int idOperation = 501)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
@@ -125,8 +124,6 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-
-
         public JsonResult ObtenerDatosTicket(int docEntry)
         {
             try

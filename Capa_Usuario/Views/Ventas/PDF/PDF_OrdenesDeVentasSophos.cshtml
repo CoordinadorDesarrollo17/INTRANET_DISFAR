@@ -111,16 +111,12 @@
                     <tr>
                         <td class="text-center p-1">
                             @{
-                                if (a.Ubicaciones != null )
+                                if (a.Ubicaciones != null)
                                 {
                                     foreach (var ubicacion in a.Ubicaciones)
                                     {
                                         <div>@ubicacion</div>
                                     }
-                                }
-                                else
-                                {
-                                    <div>Sin ubicaciones</div>
                                 }
                             }
                         </td>
