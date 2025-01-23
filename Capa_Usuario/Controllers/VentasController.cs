@@ -11,7 +11,6 @@ using Capa_Entidad.Ventas_ENT.TablasSql;
 using Capa_Negocio.Almacen_NEG.Tablas;
 using Capa_Negocio.AtencionCliente_NEG.TablasSql;
 using Capa_Negocio.ComprobantesContables_NEG;
-using Capa_Negocio.General_NEG.Tablas;
 using Capa_Negocio.General_NEG.TablasSql;
 using Capa_Negocio.Operaciones_NEG.TablasSql;
 using Capa_Negocio.Rutas_NEG.TablasSql;
@@ -23,13 +22,10 @@ using Capa_Negocio.Ventas_NEG.TablasSql;
 using Capa_Usuario.Helpers;
 using CrystalDecisions.CrystalReports.Engine;
 using CrystalDecisions.Shared;
-using DocumentFormat.OpenXml.ExtendedProperties;
-using DocumentFormat.OpenXml.Spreadsheet;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using Microsoft.Reporting.WebForms;
 using OfficeOpenXml;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using Rotativa;
 using System;
 using System.Collections.Generic;
@@ -48,6 +44,7 @@ namespace Capa_Usuario.Controllers
         ORTV_N ticketN = new ORTV_N();
         OLDS_N lN = new OLDS_N();
         CC_ORTV_N ccORTV_N = new CC_ORTV_N();
+        UBICACIONES_N ubicacionesN = new UBICACIONES_N();
 
         /************************* C O N F I G U R A C I Ó N *************************/
         private ActionResult VerificarPermiso(int idOperation)
@@ -4106,6 +4103,18 @@ namespace Capa_Usuario.Controllers
         public ActionResult PDF_OrdenesDeVentas(OrdenDeVenta_E filtros)
         {
             var lista = new ORTV_N().obtenerOrdenDeVenta(filtros.DocNum);
+            //agrega las ubicaciones a cada SKU()
+            //Datos en dbo.UBICACIONES
+            foreach(var ordr in lista)
+            {
+                //DAXO0005
+                ordr.Ubicaciones = ubicacionesN.BuscarUbicaciones(ordr.ItemCode);
+            }
+           
+            lista = lista
+        .OrderBy(x => x.Ubicaciones != null && x.Ubicaciones.Length > 0 ? x.Ubicaciones[0] : string.Empty)
+        .ToList();
+
             return View("~/Views/Ventas/PDF/PDF_OrdenesDeVentasSophos.cshtml", lista);
         }
     }

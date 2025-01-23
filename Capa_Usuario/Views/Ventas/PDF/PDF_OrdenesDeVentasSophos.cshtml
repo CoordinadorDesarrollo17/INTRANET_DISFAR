@@ -8,11 +8,11 @@
 
 <style>
     div * {
-        font-family: "Arial", Verdana, Helvetica, Sans-Serif !important;
+        font-family: Verdana !important;
     }
 
     table * {
-        font-family: Arial, Helvetica, sans-serif !important;
+        font-family: Verdana !important;
     }
 
     /* Asegúrate de que el padding se aplique correctamente */
@@ -93,14 +93,14 @@
     <table style="margin-top: 10px; font-size: 12.5px;" width="100%" border="1">
         <thead class="text-dark">
             <tr>
+                <th class="text-center border text-dark font-weight-bold">UBICACIÓN</th>
                 <th class="text-center border text-dark font-weight-bold">SKU</th>
                 <th class="text-center border text-dark font-weight-bold">DESCRIPCIÓN</th>
                 <th class="text-center border text-dark font-weight-bold">LOTE</th>
                 <th class="text-center border text-dark font-weight-bold">F.VCTO</th>
                 <th class="text-center border text-dark font-weight-bold">CANT</th>
-                <th class="text-center border text-dark font-weight-bold">UBICACION</th>
-                <th class="text-center border text-dark font-weight-bold">PRECIO</th>
-                <th class="text-center border text-dark font-weight-bold">TOTAL</th>
+                <th class="text-center border text-dark font-weight-bold">PRECIO UNIT</th>
+                <th class="text-center border text-dark font-weight-bold">PRECIO TOTAL</th>
             </tr>
         </thead>
         <tbody>
@@ -109,12 +109,26 @@
                 foreach (var a in Model)
                 {
                     <tr>
+                        <td class="text-center p-1">
+                            @{
+                                if (a.Ubicaciones != null )
+                                {
+                                    foreach (var ubicacion in a.Ubicaciones)
+                                    {
+                                        <div>@ubicacion</div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div>Sin ubicaciones</div>
+                                }
+                            }
+                        </td>
                         <td class="text-center p-1">@a.ItemCode</td>
                         <td class="p-1">@a.Producto</td>
                         <td class="text-center p-1">@a.Lote</td>
                         <td class="text-center p-1">@a.FechaVenc</td>
                         <td class="text-center p-1">@a.NumUnidVend</td>
-                        <td class="text-center p-1"></td>
                         <td class="text-center p-1">@a.PrecioProdIgvVend.ToString("F2")</td>
                         <td class="text-center p-1">@a.TotalProdIgvVend.ToString("F2")</td>
                     </tr>
@@ -137,18 +151,21 @@
                         <td class="font-weight-bold" style="width: 140px">COMENTARIOS:</td>
                         <td class="">@Model[0].Comentarios</td>
                     </tr>
-                    <tr>
-                        <td class="font-weight-bold text-right" colspan="2">&nbsp;</td>
-                    </tr>
+                    @*<tr>
+            <td class="font-weight-bold text-right" colspan="2">&nbsp;</td>
+        </tr>*@
                     <tr>
                         <td colspan="2">
-                            <table class="" width="100%" style="font-size: 14px;">
+                            <table  width="100%" style="font-size: 14px;">
                                 <tr>
                                     <td class="font-weight-bold text-right" style="width: 80%">TOTAL GENERAL:</td>
                                     <td class="font-weight-bold text-right" style="width: 20%">S/ @Model[0].DocTotal.ToString("F2")</td>
                                 </tr>
+                                <tr>
+                                    <td class="font-12 text-left">Fecha y hora de impresión: @DateTime.Now</td>
+                                </tr>
                             </table>
-                        </td>
+                    </td>
                     </tr>
                 </table>
             </div>

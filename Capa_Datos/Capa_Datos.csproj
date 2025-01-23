@@ -133,6 +133,7 @@
     <Compile Include="General_DAO\TablasSql\OUR2_D.cs" />
     <Compile Include="General_DAO\TablasSql\OVEH_D.cs" />
     <Compile Include="General_DAO\TablasSql\OWHS_D.cs" />
+    <Compile Include="General_DAO\TablasSql\UBICACIONES_D.cs" />
     <Compile Include="General_DAO\TablasSql\UBIG_D.cs" />
     <Compile Include="General_DAO\Tablas\COB_LUG_ENTREGA_D.cs" />
     <Compile Include="General_DAO\Tablas\COB_SALDO_D.cs" />
