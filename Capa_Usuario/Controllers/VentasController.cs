@@ -11,6 +11,7 @@ using Capa_Entidad.Ventas_ENT.TablasSql;
 using Capa_Negocio.Almacen_NEG.Tablas;
 using Capa_Negocio.AtencionCliente_NEG.TablasSql;
 using Capa_Negocio.ComprobantesContables_NEG;
+using Capa_Negocio.General_NEG.Tablas;
 using Capa_Negocio.General_NEG.TablasSql;
 using Capa_Negocio.Operaciones_NEG.TablasSql;
 using Capa_Negocio.Rutas_NEG.TablasSql;
@@ -22,6 +23,8 @@ using Capa_Negocio.Ventas_NEG.TablasSql;
 using Capa_Usuario.Helpers;
 using CrystalDecisions.CrystalReports.Engine;
 using CrystalDecisions.Shared;
+using DocumentFormat.OpenXml.ExtendedProperties;
+using DocumentFormat.OpenXml.Spreadsheet;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using Microsoft.Reporting.WebForms;
@@ -4050,8 +4053,60 @@ namespace Capa_Usuario.Controllers
             var result = ortvN.RegistrarImpresionTicket(DocEntry, Operario);
             return Json(new { Datos = result });
         }
+        public void PreliminarLayoutOV_Ticket(int docEntry)
+        {
+            var listaOrdenesTicket = new Capa_Negocio.Ventas_NEG.TablasSql.ORTV_N().obtenerDet2Ticket(docEntry);
+            
+            // Crear un MemoryStream para el PDF combinado
+            using (MemoryStream combinedPdfStream = new MemoryStream())
+            {
+                using (Document document = new Document())
+                {
+                    PdfCopy copy = new PdfCopy(document, combinedPdfStream);
+                    document.Open();
 
+                    // Generar PDF para cada orden de venta
+                    foreach (var orden in listaOrdenesTicket)
+                    {
+                        // Lógica para generar un PDF individual por cada DocNum
+                        string fileName = $"OrdenDeVenta_{orden.NroSap}.pdf";
+                        var pdfResult = GenerarPdfParaOrden(orden.NroSap, fileName);
 
+                        // Agregar el PDF al documento combinado
+                        using (var pdfReader = new PdfReader(pdfResult))
+                        {
+                            copy.AddDocument(pdfReader);
+                        }
+                    }
 
+                    document.Close();
+                }
+
+                // Guardar el PDF combinado en un archivo o devolverlo directamente
+                Response.ContentType = "application/pdf";
+                Response.AddHeader("content-disposition", "inline; filename=OrdenesDeVentaPreliminar.pdf");
+                Response.BinaryWrite(combinedPdfStream.ToArray());
+                Response.End();
+            }
+        }
+        private byte[] GenerarPdfParaOrden( int NroSap, string fileName)
+        {
+            // Aquí puedes implementar la lógica específica para generar el PDF de una orden
+            // Esto puede ser similar a lo que haces en AgruparPdfSegunTipo
+            var pdfResult = new ActionAsPdf("PDF_OrdenesDeVentas", new { DocNum = NroSap })
+            {
+                FileName = fileName,
+                PageOrientation = Rotativa.Options.Orientation.Portrait,
+                PageSize = Rotativa.Options.Size.A4,
+                PageMargins = new Rotativa.Options.Margins(10, 10, 10, 10)
+            };
+
+            return pdfResult.BuildFile(ControllerContext);
+        }
+        public ActionResult PDF_OrdenesDeVentas(OrdenDeVenta_E filtros)
+        {
+            var lista = new ORTV_N().obtenerOrdenDeVenta(filtros.DocNum);
+            return View("~/Views/Ventas/PDF/PDF_OrdenesDeVentasSophos.cshtml", lista);
+        }
     }
 }

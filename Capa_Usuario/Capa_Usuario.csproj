@@ -1005,6 +1005,7 @@
     <Content Include="Views\Rutas\NuevaHojaDeReparto.cshtml" />
     <Content Include="Views\Rutas\NuevaTransferenciaEntreAlmacenes.cshtml" />
     <Content Include="Views\Rutas\EditarHojaDeReparto.cshtml" />
+    <Content Include="Views\Ventas\PDF\PDF_OrdenesDeVentasSophos.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
