@@ -113,6 +113,15 @@ namespace Capa_Usuario.Controllers
         {
             return Content(bd_N.statusBD()); ;
         }
+        public ActionResult BuscarUsuarioLogueado()
+        {
+            Usuario_E user = (Usuario_E)Session["UsuarioId"];
+            if (user != null)
+            {
+                return Content($"{user.Nombres} {user.Apellidos}");
+            }
+            else { return null; }
+        }
 
         ///******************************** M Ó D U L O   A L M A C É N ********************************/
         public ActionResult ALM_Devoluciones(int idOperation = 100)

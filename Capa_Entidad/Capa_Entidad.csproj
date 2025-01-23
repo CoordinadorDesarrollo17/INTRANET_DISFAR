@@ -117,6 +117,7 @@
     <Compile Include="General_ENT\TablasSql\COUR_E.cs" />
     <Compile Include="General_ENT\TablasSql\DNLAB_E.cs" />
     <Compile Include="General_ENT\TablasSql\Firmas_E.cs" />
+    <Compile Include="General_ENT\TablasSql\OAGE_E.cs" />
     <Compile Include="General_ENT\TablasSql\OCHO_E.cs" />
     <Compile Include="General_ENT\TablasSql\OUR1_E.cs" />
     <Compile Include="General_ENT\TablasSql\OUR2_E.cs" />
@@ -134,6 +135,8 @@
     <Compile Include="RecursosHumanos_ENT\TablasSQL\EMPL1_E.cs" />
     <Compile Include="RecursosHumanos_ENT\TablasSQL\OEMPL_E.cs" />
     <Compile Include="RecursosHumanos_ENT\TablasSQL\SEDE_E.cs" />
+    <Compile Include="Repartos_ENT\TablasHana\SYP_CONDUC_E.cs" />
+    <Compile Include="Repartos_ENT\TablasHana\SYP_VEHICU_E.cs" />
     <Compile Include="ReportesDigemid_ENT\ActaDespachoTs_E.cs" />
     <Compile Include="ReportesDigemid_ENT\ActaDespachoVt_E.cs" />
     <Compile Include="ReportesDigemid_ENT\ActaRecepcionEm_E.cs" />

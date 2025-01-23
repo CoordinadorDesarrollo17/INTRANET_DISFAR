@@ -136,5 +136,9 @@ namespace Capa_Negocio.Seguridad_NEG
 
             return contrasena;
         }
+        public List<string> listaCopilotos()
+        {
+            return ousrD.listaCopilotos();
+        }
     }
 }
