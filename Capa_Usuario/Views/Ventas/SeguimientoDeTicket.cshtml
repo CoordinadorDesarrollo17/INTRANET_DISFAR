@@ -9,6 +9,8 @@
     bool permisoCajas = ViewBag.permisoCajas == 1 ? true : false;
 }
 
+<script src="~/Scripts/Ventas/TicketDeVenta.js"></script>
+
 <script>
     $(document).ready(function () {
         $("#btnEdit").hide();
@@ -724,6 +726,11 @@ if (Model.orru != null && Model.orru.DocNum != 0)
                     {
                         <div class="row mt-4">
                             <div class="col-lg-12">
+                                <div class="d-flex col-md-12 mb-4">
+                                    <button id="preliminarForm" type="submit" formaction="/Ventas/PreliminarLayoutOV_Ticket?docEntry=@Model.DocEntry" formmethod="post" class="btn btn-info ml-auto">
+                                        Ver preliminar de OV
+                                    </button>
+                                </div>
                                 <table class="table table-hover table-bordered" id="detallesPedidos">
                                     <thead>
                                         <tr style="background-color:darkgreen">

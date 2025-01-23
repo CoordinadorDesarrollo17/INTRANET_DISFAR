@@ -418,6 +418,13 @@
             </div><!-- // TAB 2 -->
             <div class="tab-pane fade" id="nav-det-pedidos" role="tabpanel" aria-labelledby="nav-det-pedidos-tab">
                 <div class="bg-section-form p-4 bg-form-cobefar">
+
+                    <div class="d-flex col-md-12">
+                        <button id="preliminarForm" type="submit" formaction="/Ventas/PreliminarLayoutOV_Ticket?docEntry=@Model.DocEntry" formmethod="post" class="btn btn-info ml-auto">
+                            Ver preliminar de OV
+                        </button>
+                    </div>
+
                     <div id="div_detallesPedidos" class="row mt-4">
                         <div class="col-lg-12">
                             <table class="table table-hover table-bordered" id="detallesPedidos">

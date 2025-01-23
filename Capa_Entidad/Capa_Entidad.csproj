@@ -123,6 +123,7 @@
     <Compile Include="General_ENT\TablasSql\OUR2_E.cs" />
     <Compile Include="General_ENT\TablasSql\OVEH_E.cs" />
     <Compile Include="General_ENT\TablasSql\OWHS_E.cs" />
+    <Compile Include="General_ENT\TablasSql\UBICACIONES_E.cs" />
     <Compile Include="General_ENT\TablasSql\UBIG_E.cs" />
     <Compile Include="General_ENT\Tablas\COB_LUG_ENTREGA_E.cs" />
     <Compile Include="General_ENT\Tablas\COB_SALDO_E.cs" />
