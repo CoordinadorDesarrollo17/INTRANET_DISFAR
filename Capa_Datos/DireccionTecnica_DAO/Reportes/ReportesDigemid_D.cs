@@ -8,6 +8,7 @@ using Sap.Data.Hana;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Drawing;
 using System.Globalization;
 using System.Linq;
 
@@ -20,7 +21,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.Reportes
         public List<RptKardexAlmacenes_E> ReporteKardexAlmacenes(FrmKardex_E f)
         {
             List<RptKardexAlmacenes_E> lista = new List<RptKardexAlmacenes_E>();
-            HanaConnection cn = new HanaConnection(uti.cadHanaOnPremise);
+            HanaConnection cn = new HanaConnection(uti.cadHana);
 
             try
             {
@@ -76,7 +77,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.Reportes
 
         private string BuildSqlQuery(FrmKardex_E f)
         {
-            string baseCall = $"CALL {uti.schemaHanaOnPremise}";
+            string baseCall = $"CALL {uti.schemaHana}";
             string loteCondition = string.IsNullOrEmpty(f.Lote) ? "V1" : "LOTES_V1";
             string procedureName = string.Empty;
 
@@ -224,13 +225,12 @@ namespace Capa_Datos.DireccionTecnica_DAO.Reportes
                     if (!hdr.IsDBNull(12)) { con.FormaFamaceutica = hdr.GetString(12); }
                     if (!hdr.IsDBNull(13)) { con.SaldoAnterior = Math.Round(hdr.GetDecimal(13), 0); }
                     if (!hdr.IsDBNull(14)) { con.Compra = Math.Round(hdr.GetDecimal(14), 0); }
-                    if (!hdr.IsDBNull(14)) { con.Compra = Math.Round(hdr.GetDecimal(14), 0); }
                     if (!hdr.IsDBNull(15)) { con.Venta = Math.Round(hdr.GetDecimal(15), 0); }
                     if (!hdr.IsDBNull(16)) { con.OtrosIngresosNC = Math.Round(hdr.GetDecimal(16), 0); }
                     if (!hdr.IsDBNull(17)) { con.OtrosEgresosDEV = Math.Round(hdr.GetDecimal(17), 0); }
                     if (!hdr.IsDBNull(18)) { con.BaseType = hdr.GetInt32(18); }
                     if (!hdr.IsDBNull(19)) { con.CreatedBy = hdr.GetInt32(19); }
-                    if (f.TipoControlado == "S") { con.TipoControlado = "PSICOTROTICOS"; }
+                    if (f.TipoControlado == "S") { con.TipoControlado = "PSICOTROPICOS"; }
                     else if (f.TipoControlado == "P") { con.TipoControlado = "PRECURSORES"; }
                     else if (f.TipoControlado == "E") { con.TipoControlado = "ESTUPEFACIENTES"; }
                     DateTime dt = DateTime.Parse(f.FecIni);
@@ -238,14 +238,40 @@ namespace Capa_Datos.DireccionTecnica_DAO.Reportes
                     else if (dt.Month == 4) { con.Trimestre = "II"; }
                     else if (dt.Month == 7) { con.Trimestre = "III"; }
                     else if (dt.Month == 10) { con.Trimestre = "IV"; }
-
-                    lista.Add(con);
+                    lista.Add(con); 
 
                 }
                 hdr.Close();
             }
             catch { }
-
+            //if (f.TipoControlado == "S") {
+            //    //insercion manual de un registro sin movimientos
+            //    lista.Add(new RptBalanceControladosConsolidado_E
+            //    {
+            //        RazonSocial = "COBEFAR S.A.C.",
+            //        NmComercial = "COBEFAR S.A.C.",
+            //        RucCob = "20600546041",
+            //        Direccion = "CAL.CARLOS PEDEMONTE NRO. 145B INT. 2PIS URB. LOTIZACION EX FUNDO EL PINO-SAN LUIS-LIMA\r\nLIMA",
+            //        Telefono2 = "01-3267430 anexo 201",
+            //        Quimico = "PAMELA COLLAHUA SENOSAIN",
+            //        Correo = "direcciontecnica@cobefar.com.pe",
+            //        Anio = 2024,
+            //        CodProducto = "FIN0196",
+            //        NombreGenerico = "Bromazepam",
+            //        NombreComercial = "BROMAZEPAM",
+            //        Concentracion = "3mg",
+            //        FormaFamaceutica = "TABLETA",
+            //        SaldoAnterior = 400,
+            //        Compra = 0,
+            //        Venta = 0,
+            //        OtrosIngresosNC = 0,
+            //        OtrosEgresosDEV = 0,
+            //        BaseType = 0,
+            //        CreatedBy = 0,
+            //        TipoControlado = "PSICOTROPICOS",
+            //        Trimestre = "III"
+            //    });
+            //}
             return lista;
         }
 
@@ -272,7 +298,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.Reportes
                     if (!hdr.IsDBNull(9)) { lib.Proveedor = hdr.GetString(9); }
                     if (!hdr.IsDBNull(15)) { lib.NroFacturaNcredito = hdr.GetString(15); }
                     if (!hdr.IsDBNull(16)) { lib.Fecha = hdr.GetDateTime(16).ToString("dd/MM/yyyy"); }
-                    if (f.TipoControlado == "S") { lib.TipoControlado = "PSICOTROTICOS"; }
+                    if (f.TipoControlado == "S") { lib.TipoControlado = "PSICOTROPICOS"; }
                     else if (f.TipoControlado == "P") { lib.TipoControlado = "PRECURSORES"; }
                     else if (f.TipoControlado == "E") { lib.TipoControlado = "ESTUPEFACIENTES"; }
                     lista.Add(lib);
@@ -301,7 +327,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.Reportes
                     if (!hdr.IsDBNull(9)) { lib.Proveedor = hdr.GetString(9); }
                     if (!hdr.IsDBNull(15)) { lib.NroFacturaNcredito = hdr.GetString(15); }
                     if (!hdr.IsDBNull(16)) { lib.Fecha = hdr.GetDateTime(16).ToString("dd/MM/yyyy"); }
-                    if (f.TipoControlado == "S") { lib.TipoControlado = "PSICOTROTICOS"; }
+                    if (f.TipoControlado == "S") { lib.TipoControlado = "PSICOTROPICOS"; }
                     else if (f.TipoControlado == "P") { lib.TipoControlado = "PRECURSORES"; }
                     else if (f.TipoControlado == "E") { lib.TipoControlado = "ESTUPEFACIENTES"; }
 

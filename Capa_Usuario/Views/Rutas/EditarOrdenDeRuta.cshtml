@@ -159,35 +159,6 @@
         );
 
         calcularTotalCajas();
-        //metodo para grabar en la tabla temporal al.TEMP_RRU01 registro de todos los correlativos de documentos (F,B,G,NC,ND), debe retornar html con todos los documentos creados
-        //grabarTempDocumentos(docEntry, docNum, function (htmlTableDocumentos) {
-        //    // Crea un modal de impresión y agréga al cuerpo del documento
-        //    var modalId = "ModalImpresion" + docEntry;
-        //    var modalHtml = "<div class='modal' id='" + modalId + "' tabindex='-1' role='dialog' aria-labelledby='" + modalId + "Label' aria-hidden='true'>" +
-        //        "<div class='modal-dialog modal-dialog-centered modal-lg' role='document'>" +
-        //        "<div class='modal-content'>" +
-        //        "<div class='modal-header bg-cobefar text-white'>" +
-        //        "<h5 class='modal-title' id='" + modalId + "Label'>COMPROBANTES ELECTRÓNICOS IMPRIMIBLES <br>NroTicket : " + docNum + "</h5>" +
-        //        "<button type='button' class='close' data-dismiss='modal' aria-label='Close'>" +
-        //        "<span aria-hidden='true'>&times;</span>" +
-        //        "</button>" +
-        //        "</div>" +
-        //        "<div class='modal-body'>" +
-        //        htmlTableDocumentos +
-        //        "</div>" +
-        //        "<div class='modal-footer'>" +
-        //        "<button type='button' class='btn btn-secondary' data-dismiss='modal'>Cerrar</button>" +
-        //        "<button type='button' class='btn btn-blue' id='btnImp" + docEntry + "' onclick='ImprimirMasivamenteDocumentos(event," + docEntry + ",\"" + modalId + "\")'>" +
-        //        "<i class=''icon icon-printer'> </i> Imprimir todo" +
-        //        "</button>" +
-        //        "</div>" +
-        //        "</div>" +
-        //        "</div>" +
-        //        "</div>";
-        //    $("body").append(modalHtml);
-
-
-        //});
         contDet++;
         return true;
     }
@@ -389,7 +360,7 @@
                     <label class="text-dark form-label font-weight-bold font-18">Almacén de Origen:</label>
                     <select name="AlmOrigenDesc" id="AlmOrigenDesc" class="form-control bg-cobefar text-white" onchange="enviarValSelect('AlmOrigenDesc', 'AlmOrigenCod', 'AlmOrigenCod'); enviarValSelect('AlmOrigenDesc', 'AlmOrigenDesc2', 'AlmOrigenDesc2'); listarTickets(); ">
                         <option value="">Seleccione</option>
-                        @foreach (var l in lstOriDest.Where(x => x.WhsCode == "03" || x.WhsCode == "ALM07"))
+                        @foreach (var l in lstOriDest.Where(x => x.WhsCode == "17"))
                         {
                             <option value="@l.WhsName" AlmOrigenCod="@l.WhsCode"
                                     AlmOrigenDesc2="@(l.Street+" "+l.StreetNo+" "+l.Building+" "+l.Block+" "+l.City+" "+l.County)" @if (Model.AlmOrigenCod == l.WhsCode) { Write("selected"); }>
@@ -407,40 +378,21 @@
                     @Html.EditorFor(model => model.AlmDestinoCod, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
                     @Html.EditorFor(model => model.AlmDestinoDesc2, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
                 </div>
-                @*@if (Model.TipoRuta != "AC")
-                    {
-                        <div class="col-lg-2">
-                            <label for="VehiculoCod" class="text-dark form-label font-weight-bold font-18">Código Vehículo:</label>
-                            <input name="VehiculoCod" id="VehiculoCod" class="form-control border-success text-center" value="@Model.VehiculoCod" readonly />
-                        </div>
-                    }*@
-                @if (Model.TipoRuta != "AC")
-                {
-                    <div class="col-lg-3">
-                        <label for="VehiculoCod" class="text-dark form-label font-weight-bold font-18">VehículoCod:</label>
-                        <select name="VehiculoCod" id="VehiculoCod" class="form-control bg-cobefar text-white"
-                                onchange="enviarValSelect('VehiculoCod', 'Placa', 'U_SYP_VEPL'); enviarValSelect('VehiculoCod', 'Marca', 'U_SYP_VEMA'); enviarValSelect('VehiculoCod', 'Modelo', 'U_SYP_VEMO');">
-                            <option value="">Seleccione</option>
-                            @foreach (var t in Vehiculos)
-                            {
-                                <option value="@t.Code" U_SYP_VEPL="@t.U_SYP_VEPL" U_SYP_VEMA="@t.U_SYP_VEMA" U_SYP_VEMO="@t.U_SYP_VEMO" @if (Model.VehiculoCod == t.Code) { Write("selected"); }>@t.Code</option>
-                            }
-                        </select>
-                    </div>
-                }
-                <div class="col-lg-2">
+                <div class="col-lg-3">
                     <label for="Placa" class="text-dark form-label font-weight-bold font-18">Placa:</label>
-                    @if (Model.TipoRuta != "AC")
-                    {
-                        @Html.EditorFor(model => model.Placa, new { htmlAttributes = new { @class = "text-center form-control border-success", @readonly = "true" } })
-                    }
-                    else
-                    {
-                        @Html.EditorFor(model => model.Placa, new { htmlAttributes = new { @class = "text-center form-control border-success" } })
-                    }
-
+                    <select name="Placa" id="Placa" class="form-control bg-cobefar text-white border-success"
+                            onchange="enviarValSelect('Placa', 'VehiculoCod', 'Code');
+                                        enviarValSelect('Placa', 'Marca', 'U_SYP_VEMA');
+                                        enviarValSelect('Placa', 'Modelo', 'U_SYP_VEMO');">
+                        <option value="">Seleccione</option>
+                        @foreach (var t in Vehiculos)
+                        {
+                            <option value="@t.U_SYP_VEPL" Code="@t.Code" U_SYP_VEMA="@t.U_SYP_VEMA" U_SYP_VEMO="@t.U_SYP_VEMO" @if (Model.Placa == t.U_SYP_VEPL) { Write("selected"); }>@t.U_SYP_VEPL</option>
+                        }
+                    </select>
                     @Html.EditorFor(model => model.Marca, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
                     @Html.EditorFor(model => model.Modelo, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+                    @Html.EditorFor(model => model.VehiculoCod, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
                 </div>
 
                 <div class="col-lg-3">
@@ -450,7 +402,7 @@
             </div>
             <div class="row mt-lg-4">
                 <div class="col-lg-3">
-                    <label for="TransDesc" class="text-dark form-label font-weight-bold font-18">Transportista:</label>
+                    <label for="TransDesc" class="text-dark form-label font-weight-bold font-18">Conductor:</label>
                     @if (Model.TipoRuta == "AC")
                     {
                         @Html.EditorFor(model => model.TransDesc, new { htmlAttributes = new { @class = "text-center form-control border-success", @autocomplete = "off" } })

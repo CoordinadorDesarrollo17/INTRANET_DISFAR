@@ -186,7 +186,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 sb.Append(" CASE TC.TipoPago WHEN 'PCE' THEN 'PAGO COMPLETO (EFECTIVO)' WHEN 'PMI' THEN 'PAGO MIXTO O INCOMPLETO' WHEN 'PCD' THEN 'PAGO COMPLETO (DEPÓSITO)' WHEN 'SP' THEN 'SIN PAGO' ELSE '' END AS DescTipoPago, TC.Estado");
                 sb.Append(" FROM vt.ORTV VT");
                 sb.Append(" LEFT JOIN cj.OTC TC ON TC.DocEntryTicket = VT.DocEntry");
-                sb.Append($" WHERE VT.Estado != 'SEPARADO' AND TC.Estado != 'RECHAZADO' {condWhere} ORDER BY VT.DocNum DESC");
+                sb.Append($" WHERE VT.Estado != 'SEPARADO' AND (TC.Estado IS NULL OR TC.Estado != 'RECHAZADO')  {condWhere} ORDER BY VT.DocNum DESC");
 
                 string query = sb.ToString();
 
@@ -249,7 +249,6 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 
             return lista;
         }
-
         public List<OTC_E> ListarTicketsACuadrar(OTC_E tc = null)
         {
             List<OTC_E> lista = null;
@@ -442,7 +441,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 using (SqlConnection cn = new SqlConnection(uti.cadSql))
                 {
                     string query = @"SELECT
-                                        TC.Id, TC.DocEntryTicket,TC.DocNumTicket
+                                        TC.Id, TC.DocEntryTicket,TC.DocNumTicket,VT.Vendedor
                                     FROM
                                         cj.OTC TC
                                     INNER JOIN
@@ -470,6 +469,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                                 if (!dr.IsDBNull(0)) { obj.IdOTC = dr.GetInt32(0); }
                                 if (!dr.IsDBNull(1)) { obj.DocEntryTicket = dr.GetInt32(1); }
                                 if (!dr.IsDBNull(2)) { obj.DocNumTicket = dr.GetInt32(2); }
+                                if (!dr.IsDBNull(3)) { obj.Vendedor = dr.GetString(3); }
 
                                 result.Add(obj);
                             }
@@ -497,8 +497,9 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                                     FROM cj.OTC TC 
                                     INNER JOIN vt.ORTV VT ON VT.DocEntry = TC.DocEntryTicket
                                     WHERE (TC.MontoRecibidoDeposito > 0 AND (TC.TipoPago = 'PMI' OR TC.TipoPago = 'PCD') AND TC.Estado = 'PENDIENTE')
-                                    AND (TC.MontoRecibidoEfectivo + TC.MontoRecibidoDeposito = VT.MontoFinal)
+                                   AND (TC.MontoRecibidoEfectivo + TC.MontoRecibidoDeposito = VT.MontoFinal)
                                     ";
+                    //Se agrego la ultima condicional solo caja visualiza  y atiende rapido si el pago es completo y por el contrario si es incompleto con deposito primero ventas coordina con el cliente para saber si pagara o no, Caja Valida buscando docnum y luego ventas Autoriza.
 
                     SqlCommand cmd = new SqlCommand(query, cn);         // prepara
                     cn.Open();

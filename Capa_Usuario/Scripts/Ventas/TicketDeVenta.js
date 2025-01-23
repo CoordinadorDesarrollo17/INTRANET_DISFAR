@@ -229,7 +229,7 @@ function buscarTicketAVincular(DocNum) {
                     tabladetallesPedidos.find('tbody').children().each(function () {
                         var almacenSalidaValue = $(this).find("input[id^='AlmacenSalida']").val();
 
-                        if ((almacenSalidaValue === "03" || almacenSalidaValue === "ALM07") && !encontrado && $(this).find("input[id^='Verificar']:checked").length > 0) {
+                        if ((almacenSalidaValue === "16") && !encontrado && $(this).find("input[id^='Verificar']:checked").length > 0) {
                             encontrado = true;
                             almacenSalida = almacenSalidaValue;
                         }
@@ -280,7 +280,7 @@ function buscarTicketAVincular(DocNum) {
                                 }
                             }
                             else {
-                                swal.fire("Error: El ticket no tiene pedidos con almacen de origen 03 o ALM07.");
+                                swal.fire("Error: El ticket no tiene pedidos con almacen de origen Domicilio y Agencia.");
                             }
 
                         }

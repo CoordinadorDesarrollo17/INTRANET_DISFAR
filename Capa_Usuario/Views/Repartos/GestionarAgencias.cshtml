@@ -1,0 +1,134 @@
+﻿@model IEnumerable<Capa_Entidad.General_ENT.TablasSql.OAGE_E>
+
+@{
+    ViewBag.Title = "Gestionar Agencias";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string urlAction = Url.Action("ListadoTicketsVenta", "Ventas"), tituloListado = "Listado de tickets";
+    if (ViewBag.TipoRep == "Re")
+    {
+        urlAction = Url.Action("ListadoRepartos", "Rutas");
+        tituloListado = "Listado de repartos";
+    }
+}
+
+<script>
+    $(document).ready(function () { });
+
+    function borrar(Id) {
+        Swal.fire({
+            title: '¿SEGURO QUE DESEA ELIMINAR AGENCIA?',
+            showCancelButton: true,
+            confirmButtonText: 'Confirmar',
+            confirmButtonColor: 'green'
+        }).then((result) => {
+         
+            if (result.isConfirmed) {
+                $(location).attr('href', "/Repartos/EliminarAgencia?Id=" + Id);
+            } 
+        })
+
+    }
+  
+    function registrar() {
+        var object = $("#formAgencia").serialize();
+        $.ajax('/Repartos/RegistrarAgencia',
+            {
+                data: object,
+                dataType: 'json',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                Swal.fire(response);
+            });
+        window.setTimeout(function () {
+            location.reload();
+        }, 3000);
+    }
+
+</script>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+            <li><a href="/Index/Sesion">Inicio</a></li>
+            <li><a href="@urlAction">@tituloListado</a></li>
+            <li class="current"><em>Gestionar agencias</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">GESTIONAR AGENCIAS</h3>
+    </div>
+</div>
+
+<div class="bg-form-pestanas-cobefar p-4 bg-form-cobefar">
+    <form name="formAgencia" id="formAgencia">
+        <div class="row mt-2 align-items-end">
+            <!-- Campo Nombre -->
+            <div class="col-lg-10 my-2">
+                <label for="Nombre" class="text-dark font-weight-bold font-18">Nombre:</label>
+                <input type="text" class="form-control border-success" name="Nombre" id="Nombre" required>
+            </div>
+
+            <!-- Botón Guardar Cambios -->
+            <div class="col-lg-2 my-2">
+                <button type="button" class="btn btn-success w-100" onclick="registrar();">
+                    <i class="icon icon-checkmark"></i> Guardar cambios
+                </button>
+            </div>
+        </div>
+    </form>
+
+
+    <div class="row mt-4 justify-content-center bg-light">
+        <div class="col-12">
+            <table id="Oficinas" class="table border table-light  table-hover table-responsive-md cls-dataTable" cellspacing="0" width="100%">
+                <thead class="bg-cobefar-6">
+                    <tr>
+                        <th class="text-center">
+                            @Html.DisplayName("Id")
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayName("Nombre")
+                        </th>
+                        <th></th>
+                    </tr>
+
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.Id)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.Nombre)
+                            </td>
+                            <td class="text-center">
+                                <button type="button" onclick="borrar(@item.Id)" class="btn btn-danger btn-sm"><i class="icon-bin"></i></button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+</div><!-- -->
+
+
+
+
+<script>
+
+    if ('@ViewBag.Mensaje' != "") {
+        Swal.fire({
+            icon: '',
+            text: `@ViewBag.Mensaje`
+        })
+    }
+</script>

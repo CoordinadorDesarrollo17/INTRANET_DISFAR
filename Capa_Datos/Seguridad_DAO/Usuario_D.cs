@@ -518,7 +518,44 @@ namespace Capa_Datos
 
             return result;
         }
+        public List<string> listaCopilotos()
+        {
+            string query = "SELECT concat(T.Nombres,' ',T.Apellidos) " +
+                           "FROM ousr T " +
+                           "INNER JOIN rrhh.OEMPL T0 " +
+                           "    ON T.EmpleadoID = T0.ID " +
+                           "WHERE T.idrol = 55 " +
+                           "    AND T.activo = 1 " +
+                           "    AND T0.NroDocumento NOT IN (SELECT Name FROM [al].[OCHO]);";
 
+            List<string> copilotos = new List<string>();
+
+            using (SqlConnection cn = new SqlConnection(uti.cadSql))
+            {
+                try
+                {
+                    cn.Open();
+                    SqlCommand cmd = new SqlCommand(query, cn);
+                    SqlDataReader dr = cmd.ExecuteReader();
+
+                    while (dr.Read())
+                    {
+
+                        if (!dr.IsDBNull(0))
+                        {
+                            string nombre = dr.GetString(0);
+                            copilotos.Add(nombre);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("An error occurred: " + ex.Message);
+                }
+            }
+
+            return copilotos;
+        }
         private void RegistrarError(Exception ex, string nombreArchivo)
         {
             File.AppendAllText(uti.directorioLogs + nombreArchivo + ".txt", $"{DateTime.Now}: {ex.Message}\n {ex.StackTrace}\n");

@@ -92,78 +92,6 @@
 </style>
 
 <div class="impresion mt-4 ml-0 mr-0 pl-0 pr-0" style="width: 100%">
-    @*<table width="100%">
-            <tr>
-                <td>
-
-                    <table width="100%" style="font-size: 12px">
-                        <tr>
-                            <td width="15%">
-                                <img width="55" src="~/Content/img/escudo_nacional.png" />
-                            </td>
-                            <td class="text-center" width="70%">
-                                <span class="font-weight-bold ">
-                                    MINISTERIO DE SALUD
-                                </span>
-                            </td>
-                            <td width="55">
-                                <div style="width: 55px"></div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td width="15%">
-                            </td>
-                            <td class="text-center" width="85%">
-                                <span>DIRECCIÓN GENERAL DE MEDICAMENTOS INSUMOS Y DROGAS</span><br />
-                                <span>DIRECCION EJECUTIVA DE AUTORIZACIONES SANITARIAS</span><br />
-                                <span>EQUIPO DE DROGAS</span>
-                            </td>
-                            <td width="55">
-                                <div style="width: 55px"></div>
-                            </td>
-                        </tr>
-                    </table>
-
-
-
-                </td>
-                <td>
-                    <div class="col-6 border-div2 text-center" style="font-size: 12px;">
-                        <span class="font-weight-bold">
-                            FORMATO DROG-PT-02
-                        </span><br />
-                        <span class="font-weight-bold">
-                            BALANCE TRIMESTRAL DE @Model.DescTipoControlado
-                        </span><br />
-                        <span class="font-weight-bold">DROGUERIAS</span><br />
-                        <span class="font-weight-bold">INCLUIDOS EN LAS LISTAS IVB</span><br />
-                        <span class="font-weight-bold">DECRETO SUPREMO Nº 023-2001-SA</span>
-
-                        <div class="d-flex justify-content-center">
-                            <table width="50%">
-                                <tr>
-                                    <td>TRIMESTRE Nº :</td>
-                                    <td>
-                                        @if (Model.DetBalanceControladosConsolidado != null && Model.DetBalanceControladosConsolidado.Count >= 1)
-                                        {
-                                            @Model.DetBalanceControladosConsolidado[0].Trimestre;
-                                        }
-                                    </td>
-                                    <td>TRIMESTRE</td>
-                                </tr>
-                                <tr>
-                                    <td class="pr-4 text-right">AÑO :</td>
-                                    <td></td>
-                                    <td class="text-left">2023</td>
-                                </tr>
-                            </table>
-                        </div>
-
-                    </div>
-                </td>
-            </tr>
-        </table>*@
-
 
     <div class="row justify-content-center">
         <div class="col-10">
@@ -364,12 +292,12 @@
                 <tbody>
                     @if (Model.DetBalanceControladosConsolidado != null && Model.DetBalanceControladosConsolidado.Count >= 1)
                     {
-                        listaCodProducto.Add(Model.DetBalanceControladosConsolidado[0].CodProducto);
+                        listaCodProducto.Add(Model.DetBalanceControladosConsolidado[0].CodProducto); // alimenta la lista de sku que se mostrarian.
 
                         foreach (var det in Model.DetBalanceControladosConsolidado)
                         {
-
-                            if (listaCodProducto[listaCodProducto.Count - 1].Equals(det.CodProducto))
+                            //itera en el detalle del producto controlado y sus movimientos para restar sumar
+                            if (listaCodProducto[listaCodProducto.Count - 1].Equals(det.CodProducto))//SANO
                             {
                                 sumCompra += det.Compra;
                                 sumOtrosIngresosNC += det.OtrosIngresosNC;
@@ -383,10 +311,7 @@
                             }
                             else
                             {
-
-                                // Agregamos el siguiente CodProducto
-                                listaCodProducto.Add(det.CodProducto);
-
+                                //Agregar una sola fila el resultado de lo que se calculo del anterior item code
                                 <tr>
                                     <td class="border text-center">@datos[0].CodProducto</td>
                                     <td class="text-center border p-1" style="word-break: break-all"><div style="width: 100%">@datos[0].NombreGenerico</div></td>
@@ -396,11 +321,34 @@
                                     <td class="border text-center">@datos[0].SaldoAnterior</td>
                                     <td class="border text-center">@sumCompra</td>
                                     <td class="border text-center">@sumOtrosIngresosNC</td>
-                                    <td class="border text-center">@sumVenta</td>
+                                    <td class="border text-center">
+                                        @*@if (datos[0].CodProducto.Equals("SANO0068"))
+                                        {
+                                            @(sumVenta - 40)
+                                        }
+                                        else
+                                        {*@
+                                            @sumVenta
+                                        @*}*@
+                                                                    
+                                    </td>
                                     <td class="border text-center">@sumOtrosEgresosDEV</td>
-                                    <td class="border text-center">@((saldoActual + datos[0].SaldoAnterior))</td>
+                                    <td class="border text-center">
+                                        @*@if (datos[0].CodProducto.Equals("SANO0068"))
+                                        {
+                                            @((saldoActual + datos[0].SaldoAnterior)+40)
+                                        }
+                                        else
+                                        {*@
+                                            @(saldoActual + datos[0].SaldoAnterior)
+                                        @*}*@
+
+                                    </td>
 
                                 </tr>
+
+                                // Agregamos el siguiente CodProducto
+                                listaCodProducto.Add(det.CodProducto);
 
                                 // Limpiamos las variables
                                 sumCompra = 0;
@@ -409,16 +357,15 @@
                                 sumOtrosEgresosDEV = 0;
                                 saldoActual = 0;
                                 datos.Clear();
-
-
-
+                                //agrega a Datos el siguiente producto
                                 datos.Add(det);
+                                //no se sabe la razon de su existencia peo no quitarlo
                                 sumCompra += det.Compra;
                                 sumOtrosIngresosNC += det.OtrosIngresosNC;
                                 sumVenta += det.Venta;
                                 sumOtrosEgresosDEV += det.OtrosEgresosDEV;
                                 sumOtrosEgresosSAM += det.OtrosEgresosSAM;
-                                saldoActual = sumCompra + sumOtrosIngresosNC - sumVenta - sumOtrosEgresosDEV-sumOtrosEgresosSAM;
+                                saldoActual = sumCompra + sumOtrosIngresosNC - sumVenta - sumOtrosEgresosDEV - sumOtrosEgresosSAM;
 
                             }
                         }

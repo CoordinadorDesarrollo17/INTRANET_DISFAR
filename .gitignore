@@ -5,10 +5,7 @@
 
 
 # Custom
-/Capa_Usuario/imagenes/**
-/Capa_Usuario/Content/img/**
 /Capa_Usuario/Content/icomoon/**
-/Capa_Usuario/Content/js/**
 /Capa_Usuario/Web.config
 /Capa_Usuario/Web.Debug.config
 /Capa_Usuario/Web.Release.config
@@ -29,6 +26,8 @@
 *.xss
 *.rdlc
 *.zip
+*.mp3
+*.mp4
 
 # User-specific files
 *.rsuser

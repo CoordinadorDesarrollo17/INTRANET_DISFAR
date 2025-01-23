@@ -18,6 +18,8 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Windows.Forms;
+using System.Deployment.Internal;
+using System.Dynamic;
 
 namespace Capa_Datos.Ventas_DAO.TablasSql
 {
@@ -27,8 +29,50 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
         readonly DBHelper db = new DBHelper();
         CC_ORTV_D ccTicket = new CC_ORTV_D();
         OLDS_D lD = new OLDS_D();
-        //Reporte para entrega de regalos en tickets
-        public List<ReporteRegalos> ListarTicketsRegalo(string fechaTicketDesde, string fechaTicketHasta, string estadoTicket, string estadoRegalo)
+        
+    //Lista de tickets con autorizacion fuera de horario que requeirn regularizar
+    public List<dynamic> ListarTicketsPorRegularizarContraEntrega()
+        {
+            List<dynamic> lista = new List<dynamic>();
+
+            using (SqlConnection cn = new SqlConnection(uti.cadSql))
+            {
+                string query = "EXEC [vt].[AutorizacionPorRegularizar]";
+                SqlCommand cmd = new SqlCommand(query, cn);
+
+                cn.Open();
+
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    if (dr.HasRows)
+                    {
+                        while (dr.Read())
+                        {
+                            dynamic ticket = new ExpandoObject();
+                            ticket.DocNumTicket = dr.IsDBNull(dr.GetOrdinal("DocNumTicket")) ? 0 : dr.GetInt32(dr.GetOrdinal("DocNumTicket"));
+                            ticket.TipoPago = dr.IsDBNull(dr.GetOrdinal("TipoPago")) ? string.Empty : dr.GetString(dr.GetOrdinal("TipoPago"));
+                            ticket.Estado = dr.IsDBNull(dr.GetOrdinal("Estado")) ? string.Empty : dr.GetString(dr.GetOrdinal("Estado"));
+                            ticket.MontoRecibidoEfectivo = dr.IsDBNull(dr.GetOrdinal("MontoRecibidoEfectivo")) ? 0 : dr.GetDecimal(dr.GetOrdinal("MontoRecibidoEfectivo"));
+                            ticket.MontoRecibidoDeposito = dr.IsDBNull(dr.GetOrdinal("MontoRecibidoDeposito")) ? 0 : dr.GetDecimal(dr.GetOrdinal("MontoRecibidoDeposito"));
+                            ticket.Suma = dr.IsDBNull(dr.GetOrdinal("Suma")) ? 0 : dr.GetDecimal(dr.GetOrdinal("Suma"));
+                            ticket.MontoFinal = dr.IsDBNull(dr.GetOrdinal("MontoFinal")) ? 0 : dr.GetDecimal(dr.GetOrdinal("MontoFinal"));
+                            ticket.TienePagoParcial = dr.IsDBNull(dr.GetOrdinal("TienePagoParcial")) ? string.Empty : dr.GetString(dr.GetOrdinal("TienePagoParcial"));
+                            ticket.Registro = dr.IsDBNull(dr.GetOrdinal("Registro")) ? string.Empty : dr.GetString(dr.GetOrdinal("Registro"));
+                            ticket.Cuadre = dr.IsDBNull(dr.GetOrdinal("Cuadre")) ? string.Empty : dr.GetString(dr.GetOrdinal("Cuadre"));
+                            ticket.CardName = dr.IsDBNull(dr.GetOrdinal("CardName")) ? string.Empty : dr.GetString(dr.GetOrdinal("CardName"));
+                            ticket.Vendedor = dr.IsDBNull(dr.GetOrdinal("Vendedor")) ? string.Empty : dr.GetString(dr.GetOrdinal("Vendedor"));
+
+                            lista.Add(ticket);
+                        }
+                    }
+                }
+            }
+
+            return lista;
+        }
+
+    //Reporte para entrega de regalos en tickets
+    public List<ReporteRegalos> ListarTicketsRegalo(string fechaTicketDesde, string fechaTicketHasta, string estadoTicket, string estadoRegalo)
         {
             List<ReporteRegalos> lista = new List<ReporteRegalos>();
 
@@ -108,7 +152,6 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 
             return lista;
         }
-
         public List<ORTV_E> listarTicketsSeparados(int Id)
         {
             List<ORTV_E> lista = new List<ORTV_E>();
@@ -3547,7 +3590,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     if (user.IdRol == 5 || user.IdRol == 4 || user.IdRol == 51)
                     {
                         condWhere += $" AND t0.Visible in ('SI') AND t0.Estado in ('ABIERTO','RECIBIDO') ";
-                        if (!string.IsNullOrEmpty(t.AlmProcedencia)) { condWhere += $"AND (t0.LugarDestino IN ('Centro', 'Arriola') OR (t0.LugarDestino IN ('Domicilio', 'Agencia') and ((SELECT TOP 1 T2.AlmacenSalida FROM vt.RTV2 T2 WHERE T2.AlmacenSalida NOT IN ('06') AND T2.DocEntry = t0.DocEntry) IN('{t.AlmProcedencia}','07') )))"; }
+                        if (!string.IsNullOrEmpty(t.AlmProcedencia)) { condWhere += $"AND (t0.LugarDestino IN ('Centro', 'Arriola') OR (t0.LugarDestino IN ('Domicilio', 'Agencia') and ((SELECT TOP 1 T2.AlmacenSalida FROM vt.RTV2 T2 WHERE T2.AlmacenSalida NOT IN ('07') AND T2.DocEntry = t0.DocEntry) IN ('16','15') )))"; }
                         orderby = "t0.Estado ,t0.FechaSapTicket desc";
                     }
                 }
@@ -3565,7 +3608,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     condWhere += t.LugarDestino != null ? $" AND t0.LugarDestino='{t.LugarDestino}'" : "";
                     condWhere += t.Estado != null ? $" AND t0.Estado='{t.Estado}'" : "";
                     condWhere += t.EstadoPago != null ? $" AND t0.EstadoPago='{t.EstadoPago}'" : "";
-                    condWhere += t.AlmProcedencia != null ? $"AND (t0.LugarDestino IN ('Centro', 'Arriola') OR (t0.LugarDestino IN ('Domicilio', 'Agencia') and ((SELECT TOP 1 T2.AlmacenSalida FROM vt.RTV2 T2 WHERE T2.AlmacenSalida NOT IN ('06') AND T2.DocEntry = t0.DocEntry) IN('{t.AlmProcedencia}','07') )))" : "";
+                    condWhere += t.AlmProcedencia != null ? $"AND (t0.LugarDestino IN ('Centro', 'Arriola') OR (t0.LugarDestino IN ('Domicilio', 'Agencia') and ((SELECT TOP 1 T2.AlmacenSalida FROM vt.RTV2 T2 WHERE T2.AlmacenSalida NOT IN ('07') AND T2.DocEntry = t0.DocEntry) IN('16','ALM07'))))" : "";
                 }
             }
 
