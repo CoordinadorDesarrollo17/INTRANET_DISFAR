@@ -90,7 +90,7 @@
                 <select name="AlmDestinoDesc" id="AlmDestinoDesc" class="form-control bg-cobefar text-white"
                         onchange="enviarValSelect('AlmDestinoDesc', 'AlmDestinoCod','almdestinocod');enviarValSelect('AlmDestinoDesc', 'AlmDestinoDesc2','almdestinodesc2');">
                     <option value="">Seleccione</option>
-                    @foreach (var l in lstOriDest.Where(x => x.WhsCode != "00"&& x.WhsCode != "DEV05" && x.WhsCode != "05"))
+                    @foreach (var l in lstOriDest.Where(x => x.WhsCode != "00" && x.WhsCode != "DEV05" && x.WhsCode != "05"))
                     {
                     <option value="@l.WhsName" almdestinocod="@l.WhsCode" almdestinodesc2="@(l.Street+" "+l.StreetNo+" "+l.Building+" "+l.Block+" "+l.City+" "+l.County)">
                         @l.WhsName

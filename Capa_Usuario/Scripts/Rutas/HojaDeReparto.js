@@ -13,7 +13,7 @@ function agregarTicketsDetalle(esEdicion) {
     $("#Detalles tr").each(function () {
         nrows++;
     })
-
+   /* console.log(nrows);*/
     let checkboxesSeleccionados = tablaDeTicketsPorEnviar.rows({ page: 'all' }).nodes().to$().find('.cls-chkVerif:checked');
 
     if (checkboxesSeleccionados.length > 0) {
@@ -100,7 +100,6 @@ function agregarItem(docEntry, docNum, cardName, guias, cajas, obs, direcciones,
         if (docEntry == null || docEntry == "") {
             return false;
         }
-
         // Construir la fila HTML de la tabla
         var fila = "<tr>" +
             "<td><input name='DetRRU0[" + contDet + "].Linea' type='text' value='" + (contDet + 1) + "' style='width:40px' class='form-control' readonly/></td>" +
@@ -132,7 +131,7 @@ function agregarItem(docEntry, docNum, cardName, guias, cajas, obs, direcciones,
         }
 
         fila += "</tr>";
-
+       
         // Agregar la fila al detalle de la tabla
         $("#Detalles").append(fila);
 
@@ -143,9 +142,9 @@ function agregarItem(docEntry, docNum, cardName, guias, cajas, obs, direcciones,
         contDet++;
 
         // Verificar si es edición y recargar la página
-        if (esEdicion) {
-            window.location.reload();
-        }
+        //if (esEdicion) {
+        //    window.location.reload();
+        //}
         return true;
     }
 }

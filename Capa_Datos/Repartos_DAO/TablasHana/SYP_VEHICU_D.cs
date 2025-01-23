@@ -24,7 +24,7 @@ namespace Capa_Datos.Repartos_DAO.TablasHana
                 ""U_SYP_CHOF"" AS ""Licencia""
 
             FROM 
-                 {uti.schemaHana}""@SYP_VEHICU"" where ""U_SYP_CHOF"" is not null";
+                 {uti.schemaHana}""@SYP_VEHICU""";
             try
             {
                 using (var hdr = db.HanaExecuteReaderNoSp(query))

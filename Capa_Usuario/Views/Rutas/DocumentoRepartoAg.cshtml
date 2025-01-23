@@ -8,7 +8,7 @@
     foreach (var d in Model.DetRRU0
     .Where(x => x.Estado != "LIBERADO" && x.Estado != "ANULADO" && x.Ticket.Det2 != null))
     {
-        var primerElemento = d.Ticket.Det2.FirstOrDefault(y => y.Monto > 0 &&  y.LugarDeEntrega != "07");
+        var primerElemento = d.Ticket.Det2.FirstOrDefault(y => y.Monto > 0 && y.LugarDeEntrega != "06");
         if (primerElemento != null)
         {
             string almacenSalida = primerElemento.AlmacenSalida;
@@ -29,7 +29,7 @@
     foreach (var d in Model.DetRRU0
     .Where(x => x.Estado != "LIBERADO" && x.Estado != "ANULADO" && x.Ticket.Det2 != null))
     {
-        var primerElemento = d.Ticket.Det2.FirstOrDefault(y => y.Monto > 0 &&  y.AlmacenSalida != "07");
+        var primerElemento = d.Ticket.Det2.FirstOrDefault(y => y.Monto > 0 && y.AlmacenSalida != "06");
         if (primerElemento != null && primerElemento.AlmacenSalida.Equals("ALM07"))
         {
             listaDet2.Add(d);
@@ -38,7 +38,7 @@
 
     }
     Model2.DetRRU0 = listaDet2;
-    
+
 }
 <!DOCTYPE html>
 <html>
@@ -56,13 +56,163 @@
     </style>
 </head>
 <body>
-  
-        <table border="1" style="border-collapse: collapse; width: 100%;">
+
+    <table border="1" style="border-collapse: collapse; width: 100%;">
+        <tr>
+            <th colspan="2">
+                <img src="~/imagenes/logoventa2.jpg" style="width:150px;height:60px;" />
+            </th>
+            <th colspan="2">FORMATO DE AGENCIA </th>
+            <th colspan="4">Chofer: @Model.TransDesc <br /> Nro: @Model.DocNum <br />Placa: @Model.Placa</th>
+            <th colspan="3">Copiloto1: @Model.CopilDesc <br />Copiloto2: @Model.Copil2Desc </th>
+            <th colspan="4" style="font-size:12px;">FECHA : @Model.TiempoPac<br />HORA : @Model.TiempoPac </th>
+        </tr>
+        <tr style="font-size:10px;">
+            <th>TICKET</th>
+            <th>OBSERVACIÓN</th>
+            <th>RAZÓN SOCIAL</th>
+            <th>PERSONA DE RECOJO</th>
+            <th>DNI</th>
+            <th>CELULAR</th>
+            <th>VENDEDOR</th>
+            <th>AGENCIA</th>
+            <th style="width:250px">DIRECCION</th>
+            <th style="width:100px">REFERENCIA</th>
+            <th>ENVIO AGENCIA</th>
+            <th>CAJAS</th>
+            <th>GASTO ENVÍO</th>
+            <th>VISTO</th>
+            <th>ALM</th>
+        </tr>
+        @foreach (var d in Model.DetRRU0.Where(x => x.Estado != "LIBERADO" && x.Estado != "ANULADO").OrderBy(x => x.Ticket.Agencia))
+        {
+            <tr style="font-size: 10px; page-break-inside: avoid;">
+                <td>@d.DocNumTicket</td>
+                <td>
+                    @if (d.Ticket.Det7 != null && d.Ticket.Det7.Count > 0)
+                    {
+                        // Obtener una lista de todos los valores de DocNumVinc
+                        var docNumVincList = d.Ticket.Det7.Select(dt => dt.DocNumVinc).ToList();
+
+                        var docNumVincConcatenado = string.Join(",", docNumVincList);
+
+                        <p>@docNumVincConcatenado</p>
+                    }
+                    <br />
+                    <p>@d.Ticket.Observaciones3</p>
+                </td>
+                <td>@d.Socio</td>
+                <td>@d.Ticket.Det1[0].NombrePer</td>
+                <td>@d.Ticket.Det1[0].DocPer</td>
+                <td>@d.Ticket.Det1[0].TelfPer</td>
+                <td>@d.Ticket.Vendedor</td>
+                <td>@d.Ticket.Agencia</td>
+                @if (d.Ticket.Det3.Count <= 1)
+                {       // si solo tiene 1 direcciòn
+                    if (d.Ticket.EnvioAgencia == "Oficina de agencia")
+                    {
+                        <td style="width:250px">@d.Ticket.Det3[0].Distrito-@d.Ticket.Det3[0].Provincia-@d.Ticket.Det3[0].Departamento</td>
+                    }
+                    else
+                    {
+                        <td style="width:250px">@d.Ticket.DirDestino</td>
+                    }
+
+                }
+                else
+                {
+                    if (d.Ticket.EnvioAgencia == "Oficina de agencia")
+                    {
+                        <td style="width:250px">@d.Ticket.Det3[1].Distrito-@d.Ticket.Det3[1].Provincia-@d.Ticket.Det3[1].Departamento</td>
+                    }
+                    else
+                    {
+                        <td style="width:250px">@d.Ticket.Det3[1].Calle</td>
+                    }
+                }
+
+                <td style="width:100px">@d.Ticket.Referencia</td>
+                <td>@d.Ticket.EnvioAgencia</td>
+                <td style="text-align:center">@d.Cajas</td>
+                @if (d.Envio > 0)
+                {
+                    <td style="background-color:yellow;border: red 2px solid">@d.Envio</td>
+                }
+                else
+                {
+                    <td>@d.Envio</td>
+                }
+                <td></td>
+                <td style="text-align:center">
+                    @if (d.Ticket.Det2 != null)
+                    {
+                        var primerElemento = d.Ticket.Det2.FirstOrDefault(x => x.Monto > 0 && x.AlmacenSalida != "06" && x.AlmacenSalida != "07");
+                        if (primerElemento != null)
+                        {
+                            @primerElemento.AlmacenSalida
+                        }
+                    }
+
+                </td>
+            </tr>
+        }
+        @if (validacionMultiplesAlmacenes)
+        {
+            <tr>
+                <th colspan="12" style="text-align:right">
+                    Total Cajas ALM 8: @Model.DetRRU0.Where(x => x.Estado != "LIBERADO" && x.Estado != "ANULADO" &&
+x.Ticket.Det2.FirstOrDefault(s => s.Monto > 0 && s.AlmacenSalida != "06").AlmacenSalida.Equals("16")).Sum(x => x.Cajas)
+                </th>
+            </tr>
+            <tr>
+                <th colspan="12" style="text-align:right">
+                    Total Cajas ALM 6: @Model.DetRRU0.Where(x => x.Estado != "LIBERADO" && x.Estado != "ANULADO" &&
+x.Ticket.Det2.FirstOrDefault(s => s.Monto > 0 && s.AlmacenSalida != "06").AlmacenSalida.Equals("ALM07")).Sum(x => x.Cajas)
+                </th>
+            </tr>
+        }
+        else
+        {
+            <tr>
+                <th colspan="12" style="text-align:right">
+                    Total Cajas: @Model.DetRRU0.Where(x => x.Estado != "LIBERADO" && x.Estado != "ANULADO").Sum(x => x.Cajas)
+                </th>
+            </tr>
+        }
+    </table>
+    <table>
+        <tr><td style="height:100px;"></td></tr>
+        <tr>
+            <td width=100px><font size="@ViewBag.Letra"></font></td>
+            <td><font size="@ViewBag.Letra">_________________________________</font></td>
+            <td><font size="@ViewBag.Letra"></font></td>
+            <td width=300px><font size="@ViewBag.Letra"></font></td>
+            <td><font size="@ViewBag.Letra">_________________________________</font></td>
+            <td><font size="@ViewBag.Letra"></font></td>
+        </tr>
+        <tr>
+            <td><font size="@ViewBag.Letra"></font></td>
+            <td style="text-align:center;font-weight:700"><font size="@ViewBag.Letra">TRANSPORTISTA </font></td>
+            <td><font size="@ViewBag.Letra"></font></td>
+            <td><font size="@ViewBag.Letra"></font></td>
+            <td style="text-align:center;font-weight:700"><font size="@ViewBag.Letra">VIGILANCIA</font></td>
+            <td><font size="@ViewBag.Letra"></font></td>
+        </tr>
+    </table>
+
+    <br />
+    <br />
+    <br />
+    <br />
+    @if (validacionMultiplesAlmacenes && Model2.DetRRU0 != null && Model2.DetRRU0.Count > 0)
+    {
+
+        <table border="1" style="page-break-before: always; border-collapse: collapse; width: 100%;">
             <tr>
                 <th colspan="2">
                     <img src="~/imagenes/logoventa2.jpg" style="width:150px;height:60px;" />
                 </th>
-                <th colspan="2">FORMATO DE AGENCIA </th>
+                <th colspan="2">FORMATO DE RECOJO <br />PARA ALM07</th>
                 <th colspan="4">Chofer: @Model.TransDesc <br /> Nro: @Model.DocNum <br />Placa: @Model.Placa</th>
                 <th colspan="3">Copiloto1: @Model.CopilDesc <br />Copiloto2: @Model.Copil2Desc </th>
                 <th colspan="4" style="font-size:12px;">FECHA : @Model.TiempoPac<br />HORA : @Model.TiempoPac </th>
@@ -70,13 +220,13 @@
             <tr style="font-size:10px;">
                 <th>TICKET</th>
                 <th>OBSERVACIÓN</th>
-                <th >RAZÓN SOCIAL</th>
+                <th>RAZÓN SOCIAL</th>
                 <th>PERSONA DE RECOJO</th>
                 <th>DNI</th>
                 <th>CELULAR</th>
                 <th>VENDEDOR</th>
                 <th>AGENCIA</th>
-                <th style="width:250px">DIRECCION</th>
+                <th style="width:200px">DIRECCION</th>
                 <th style="width:100px">REFERENCIA</th>
                 <th>ENVIO AGENCIA</th>
                 <th>CAJAS</th>
@@ -84,7 +234,7 @@
                 <th>VISTO</th>
                 <th>ALM</th>
             </tr>
-            @foreach (var d in Model.DetRRU0.Where(x => x.Estado != "LIBERADO" && x.Estado != "ANULADO").OrderBy(x => x.Ticket.Agencia))
+            @foreach (var d in Model2.DetRRU0.Where(x => x.Estado != "LIBERADO" && x.Estado != "ANULADO").OrderBy(x => x.Ticket.Agencia))
             {
                 <tr style="font-size: 10px; page-break-inside: avoid;">
                     <td>@d.DocNumTicket</td>
@@ -101,7 +251,7 @@
                         <br />
                         <p>@d.Ticket.Observaciones3</p>
                     </td>
-                    <td >@d.Socio</td>
+                    <td>@d.Socio</td>
                     <td>@d.Ticket.Det1[0].NombrePer</td>
                     <td>@d.Ticket.Det1[0].DocPer</td>
                     <td>@d.Ticket.Det1[0].TelfPer</td>
@@ -111,11 +261,11 @@
                     {       // si solo tiene 1 direcciòn
                         if (d.Ticket.EnvioAgencia == "Oficina de agencia")
                         {
-                            <td style="width:250px">@d.Ticket.Det3[0].Distrito-@d.Ticket.Det3[0].Provincia-@d.Ticket.Det3[0].Departamento</td>
+                            <td style="width:200px">@d.Ticket.Det3[0].Distrito-@d.Ticket.Det3[0].Provincia-@d.Ticket.Det3[0].Departamento</td>
                         }
                         else
                         {
-                            <td style="width:250px">@d.Ticket.DirDestino</td>
+                            <td style="width:200px">@d.Ticket.DirDestino</td>
                         }
 
                     }
@@ -123,11 +273,11 @@
                     {
                         if (d.Ticket.EnvioAgencia == "Oficina de agencia")
                         {
-                            <td style="width:250px">@d.Ticket.Det3[1].Distrito-@d.Ticket.Det3[1].Provincia-@d.Ticket.Det3[1].Departamento</td>
+                            <td style="width:200px">@d.Ticket.Det3[1].Distrito-@d.Ticket.Det3[1].Provincia-@d.Ticket.Det3[1].Departamento</td>
                         }
                         else
                         {
-                            <td style="width:250px">@d.Ticket.Det3[1].Calle</td>
+                            <td style="width:200px">@d.Ticket.Det3[1].Calle</td>
                         }
                     }
 
@@ -146,7 +296,7 @@
                     <td style="text-align:center">
                         @if (d.Ticket.Det2 != null)
                         {
-                            var primerElemento = d.Ticket.Det2.FirstOrDefault(x => x.Monto > 0 && x.AlmacenSalida != "10");
+                            var primerElemento = d.Ticket.Det2.FirstOrDefault(x => x.Monto > 0 && x.AlmacenSalida != "06");
                             if (primerElemento != null)
                             {
                                 @primerElemento.AlmacenSalida
@@ -157,19 +307,16 @@
                 </tr>
             }
             <tr>
-                    <th colspan="12" style="text-align:right">
-                        Total Cajas ALMACÉN N8: @Model.DetRRU0.Where(x => x.Estado != "LIBERADO" && x.Estado != "ANULADO" &&
-x.Ticket.Det2.FirstOrDefault(s => s.Monto > 0 && s.AlmacenSalida != "06" &&
-s.AlmacenSalida != "07").AlmacenSalida.Equals("16")).Sum(x => x.Cajas)
-                    </th>
-                </tr>
-                <tr>
-                    <th colspan="12" style="text-align:right">
-                        Total Cajas ALMACÉN N6: @Model.DetRRU0.Where(x => x.Estado != "LIBERADO" && x.Estado != "ANULADO" &&
-x.Ticket.Det2.FirstOrDefault(s => s.Monto > 0 && s.AlmacenSalida != "06" &&
-s.AlmacenSalida != "07").AlmacenSalida.Equals("ALM07")).Sum(x => x.Cajas)
-                    </th>
-                </tr>
+                <th colspan="12" style="text-align:right">Total Cajas ALM 6: @Model2.DetRRU0.Where(x => x.Estado != "LIBERADO" && x.Estado != "ANULADO").Sum(x => x.Cajas)</th>
+            </tr>
+        </table>
+        <table>
+            <tr><td style="height:100px;"></td></tr>
+            <tr>
+                <td width=100px><font size="@ViewBag.Letra"></font></td>
+                <td><font size="@ViewBag.Letra">_________________________________</font></td>
+                <td><font size="@ViewBag.Letra"></font></td>
+                <td width=300px><font size="@ViewBag.Letra"></font></td>
                 <td><font size="@ViewBag.Letra">_________________________________</font></td>
                 <td><font size="@ViewBag.Letra"></font></td>
             </tr>
@@ -182,137 +329,7 @@ s.AlmacenSalida != "07").AlmacenSalida.Equals("ALM07")).Sum(x => x.Cajas)
                 <td><font size="@ViewBag.Letra"></font></td>
             </tr>
         </table>
-  
-    <br />
-    <br />
-    <br />
-    <br />
-    @if (validacionMultiplesAlmacenes && Model2.DetRRU0 != null && Model2.DetRRU0.Count > 0)
-    {
-      
-            <table border="1" style="page-break-before: always; border-collapse: collapse; width: 100%;">
-                <tr>
-                    <th colspan="2">
-                        <img src="~/imagenes/logoventa2.jpg" style="width:150px;height:60px;" />
-                    </th>
-                    <th colspan="2">FORMATO DE RECOJO <br />PARA ALM07</th>
-                    <th colspan="4">Chofer: @Model.TransDesc <br /> Nro: @Model.DocNum <br />Placa: @Model.Placa</th>
-                    <th colspan="3">Copiloto1: @Model.CopilDesc <br />Copiloto2: @Model.Copil2Desc </th>
-                    <th colspan="4" style="font-size:12px;">FECHA : @Model.TiempoPac<br />HORA : @Model.TiempoPac </th>
-                </tr>
-                <tr style="font-size:10px;">
-                    <th>TICKET</th>
-                    <th>OBSERVACIÓN</th>
-                    <th >RAZÓN SOCIAL</th>
-                    <th>PERSONA DE RECOJO</th>
-                    <th>DNI</th>
-                    <th>CELULAR</th>
-                    <th>VENDEDOR</th>
-                    <th>AGENCIA</th>
-                    <th style="width:200px">DIRECCION</th>
-                    <th style="width:100px">REFERENCIA</th>
-                    <th>ENVIO AGENCIA</th>
-                    <th>CAJAS</th>
-                    <th>GASTO ENVÍO</th>
-                    <th>VISTO</th>
-                    <th>ALM</th>
-                </tr>
-                @foreach (var d in Model2.DetRRU0.Where(x => x.Estado != "LIBERADO" && x.Estado != "ANULADO").OrderBy(x => x.Ticket.Agencia))
-                {
-                    <tr style="font-size: 10px; page-break-inside: avoid;">
-                        <td>@d.DocNumTicket</td>
-                        <td>
-                            @if (d.Ticket.Det7 != null && d.Ticket.Det7.Count > 0)
-                            {
-                                // Obtener una lista de todos los valores de DocNumVinc
-                                var docNumVincList = d.Ticket.Det7.Select(dt => dt.DocNumVinc).ToList();
 
-                                var docNumVincConcatenado = string.Join(",", docNumVincList);
-
-                                <p>@docNumVincConcatenado</p>
-                            }
-                            <br />
-                            <p>@d.Ticket.Observaciones3</p>
-                        </td>
-                        <td >@d.Socio</td>
-                        <td>@d.Ticket.Det1[0].NombrePer</td>
-                        <td>@d.Ticket.Det1[0].DocPer</td>
-                        <td>@d.Ticket.Det1[0].TelfPer</td>
-                        <td>@d.Ticket.Vendedor</td>
-                        <td>@d.Ticket.Agencia</td>
-                        @if (d.Ticket.Det3.Count <= 1)
-                        {       // si solo tiene 1 direcciòn
-                            if (d.Ticket.EnvioAgencia == "Oficina de agencia")
-                            {
-                                <td style="width:200px">@d.Ticket.Det3[0].Distrito-@d.Ticket.Det3[0].Provincia-@d.Ticket.Det3[0].Departamento</td>
-                            }
-                            else
-                            {
-                                <td style="width:200px">@d.Ticket.DirDestino</td>
-                            }
-
-                        }
-                        else
-                        {
-                            if (d.Ticket.EnvioAgencia == "Oficina de agencia")
-                            {
-                                <td style="width:200px">@d.Ticket.Det3[1].Distrito-@d.Ticket.Det3[1].Provincia-@d.Ticket.Det3[1].Departamento</td>
-                            }
-                            else
-                            {
-                                <td style="width:200px">@d.Ticket.Det3[1].Calle</td>
-                            }
-                        }
-
-                        <td style="width:100px">@d.Ticket.Referencia</td>
-                        <td>@d.Ticket.EnvioAgencia</td>
-                        <td style="text-align:center">@d.Cajas</td>
-                        @if (d.Envio > 0)
-                        {
-                            <td style="background-color:yellow;border: red 2px solid">@d.Envio</td>
-                        }
-                        else
-                        {
-                            <td>@d.Envio</td>
-                        }
-                        <td></td>
-                        <td style="text-align:center">
-                            @if (d.Ticket.Det2 != null)
-                            {
-                                var primerElemento = d.Ticket.Det2.FirstOrDefault(x => x.Monto > 0 && x.AlmacenSalida != "06" && x.AlmacenSalida != "07");
-                                if (primerElemento != null)
-                                {
-                                    @primerElemento.AlmacenSalida
-                                }
-                            }
-
-                        </td>
-                    </tr>
-                }
-                <tr>
-                    <th colspan="12" style="text-align:right">Total Cajas ALM 6: @Model2.DetRRU0.Where(x => x.Estado != "LIBERADO" && x.Estado != "ANULADO").Sum(x => x.Cajas)</th>
-                </tr>
-            </table>
-            <table>
-                <tr><td style="height:100px;"></td></tr>
-                <tr>
-                    <td width=100px><font size="@ViewBag.Letra"></font></td>
-                    <td><font size="@ViewBag.Letra">_________________________________</font></td>
-                    <td><font size="@ViewBag.Letra"></font></td>
-                    <td width=300px><font size="@ViewBag.Letra"></font></td>
-                    <td><font size="@ViewBag.Letra">_________________________________</font></td>
-                    <td><font size="@ViewBag.Letra"></font></td>
-                </tr>
-                <tr>
-                    <td><font size="@ViewBag.Letra"></font></td>
-                    <td style="text-align:center;font-weight:700"><font size="@ViewBag.Letra">TRANSPORTISTA </font></td>
-                    <td><font size="@ViewBag.Letra"></font></td>
-                    <td><font size="@ViewBag.Letra"></font></td>
-                    <td style="text-align:center;font-weight:700"><font size="@ViewBag.Letra">VIGILANCIA</font></td>
-                    <td><font size="@ViewBag.Letra"></font></td>
-                </tr>
-            </table>
-          
-            }
-    </body>
+    }
+</body>
 </html>

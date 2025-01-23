@@ -1464,11 +1464,7 @@ namespace Capa_Usuario.Controllers
                 ViewBag.DocNum = DocNum;
                 if (user.WhsCode != null && (user.IdRol == 5 || user.IdRol == 4 || user.IdRol == 51))
                 {
-                    if (user.WhsCode.Equals("03"))
-                    {
-                        ticket.AlmProcedencia = "03";
-                    }
-                    else if (user.WhsCode.Equals("07"))
+                    if (user.WhsCode.Equals("07"))
                     {
                         ticket.AlmProcedencia = "ALM07";
                     }

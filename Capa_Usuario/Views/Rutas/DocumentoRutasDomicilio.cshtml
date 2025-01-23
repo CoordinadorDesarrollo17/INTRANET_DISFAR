@@ -77,7 +77,22 @@
             </tr>
             <tr>
                 <td><font size="@ViewBag.Letra"><strong>ALM-ORIGEN: </strong></font></td>
-                <td colspan=6><font size="@ViewBag.Letra"><strong style="margin-right:30px">@Html.DisplayFor(model2 => model2.AlmOrigenDesc)</strong>              @Html.DisplayFor(model2 => model2.AlmOrigenDesc2)</font></td>
+                <td colspan="6">
+                    <font size="@ViewBag.Letra">
+                        <strong style="margin-right:30px">
+                            @if (Model2.AlmOrigenDesc.Equals("FACTURACION") || Model2.AlmOrigenDesc.Equals("PICKING"))
+                            {
+                                @:ALMACEN N°8
+                            }
+                            else
+                            {
+                                @Model2.AlmOrigenDesc
+                            }
+                        </strong>
+                        <br />
+                        @Html.DisplayFor(model2 => model2.AlmOrigenDesc2)
+                    </font>
+                </td>
             </tr>
         </table>
         <table border=1 style='width: 1275px'>
@@ -179,12 +194,6 @@
                         <td width=150px><font size="@ViewBag.Letra">@Html.DisplayFor(model2 => model2.CopilDesc)</font></td>
                         <td><font size="@ViewBag.Letra"><strong>COPILOTO2: </strong></font></td>
                         <td width=150px><font size="@ViewBag.Letra">@Html.DisplayFor(model2 => model2.Copil2Desc)</font></td>
-                    </tr>
-                    <tr>
-                        <td><font size="@ViewBag.Letra"><strong>COPILOTO3: </strong></font></td>
-                        <td width=150px><font size="@ViewBag.Letra">@Html.DisplayFor(model2 => model2.Copil3Desc)</font></td>
-                        <td><font size="@ViewBag.Letra"><strong>COPILOTO4: </strong></font></td>
-                        <td width=150px><font size="@ViewBag.Letra">@Html.DisplayFor(model2 => model2.Copil4Desc)</font></td>
                     </tr>
                     <tr>
                         <td><font size="@ViewBag.Letra"><strong>PLACA: </strong></font></td>
