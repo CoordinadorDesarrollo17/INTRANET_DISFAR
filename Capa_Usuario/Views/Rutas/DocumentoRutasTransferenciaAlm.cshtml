@@ -69,10 +69,21 @@
     </tr>
     <tr>
         <td style="font-weight:bold;">ALM-ORIGEN: </td>
-        <td colspan=6>@Model.AlmOrigenDesc ; @Model.AlmOrigenDesc2</td>
+        <td colspan=6>
+            @if (Model.AlmOrigenDesc.Equals("FACTURACION") || Model.AlmOrigenDesc.Equals("PICKING"))
+            {
+                @:ALMACEN N°8
+            }
+            else
+            {
+                @Model.AlmOrigenDesc
+            }
+            <br />
+            @Model.AlmOrigenDesc2
+        </td>
         <td></td>
         <td style="font-weight:bold;">ALM-DESTINO: </td>
-        <td colspan=6> @Model.AlmDestinoDesc ; @Model.AlmDestinoDesc2</td>
+        <td colspan=6> @Model.AlmDestinoDesc <br /> @Model.AlmDestinoDesc2</td>
     </tr>
 </table>
 <table border=1 style="font-size:11px;">

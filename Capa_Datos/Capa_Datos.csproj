@@ -127,6 +127,7 @@
     <Compile Include="General_DAO\TablasSql\COUR_D.cs" />
     <Compile Include="General_DAO\TablasSql\DNLAB_D.cs" />
     <Compile Include="General_DAO\TablasSql\Firmas_D.cs" />
+    <Compile Include="General_DAO\TablasSql\OAGE_D.cs" />
     <Compile Include="General_DAO\TablasSql\OCHO_D.cs" />
     <Compile Include="General_DAO\TablasSql\OUR1_D.cs" />
     <Compile Include="General_DAO\TablasSql\OUR2_D.cs" />
@@ -143,6 +144,8 @@
     <Compile Include="RecursosHumanos_DAO\TablasSQL\EMPL1_D.cs" />
     <Compile Include="RecursosHumanos_DAO\TablasSQL\OEMPL_D.cs" />
     <Compile Include="RecursosHumanos_DAO\TablasSQL\SEDE_D.cs" />
+    <Compile Include="Repartos_DAO\TablasHana\SYP_CONDUC_D.cs" />
+    <Compile Include="Repartos_DAO\TablasHana\SYP_VEHICU_D.cs" />
     <Compile Include="ReportesDigemid_DAO\DocumentosDig_D.cs" />
     <Compile Include="Rutas_DAO\TablasSql\ORRU_D.cs" />
     <Compile Include="Rutas_DAO\TablasSql\RRU01_D.cs" />

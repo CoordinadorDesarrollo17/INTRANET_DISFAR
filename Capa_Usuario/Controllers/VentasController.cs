@@ -141,7 +141,6 @@ namespace Capa_Usuario.Controllers
                 return Json(new { Mensaje = e.Message });
             }
         }
-        //buscarTicketAVincular en TicketVenta.js
         public JsonResult buscarTicketAVincular(int DocNum = 0)
         {
             ORTV_N ortvN = new ORTV_N();
@@ -1465,11 +1464,7 @@ namespace Capa_Usuario.Controllers
                 ViewBag.DocNum = DocNum;
                 if (user.WhsCode != null && (user.IdRol == 5 || user.IdRol == 4 || user.IdRol == 51))
                 {
-                    if (user.WhsCode.Equals("03"))
-                    {
-                        ticket.AlmProcedencia = "03";
-                    }
-                    else if (user.WhsCode.Equals("07"))
+                    if (user.WhsCode.Equals("07"))
                     {
                         ticket.AlmProcedencia = "ALM07";
                     }
@@ -3659,8 +3654,6 @@ namespace Capa_Usuario.Controllers
                 return File(libro.GetAsByteArray(), excelContentType, nombreArchivo);
             }
         }
-
-
 
         /**********Documentos imprimibles para el proceso de tickets (OPERACIONES) **************/
         public ActionResult PdfTacoComentarios(int DocEntry)
