@@ -126,6 +126,7 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
             //Validaciones exclusivas para Transferencia entre almacenes ( tambien son parte de las hojas de ruta )
             else
             {
+                o.DetRRU1 = o.DetRRU1.Where(det => det.Guia != null).ToList();
                 foreach (RRU1_E r in o.DetRRU1)
                 {
                     if (r.Guia != null && r.Guia.Length > 0)
