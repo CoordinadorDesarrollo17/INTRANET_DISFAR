@@ -13,9 +13,6 @@ using System.Web.Mvc;
 using Capa_Entidad.Ventas_ENT.Tablas;
 using Capa_Negocio.ComprobantesContables_NEG;
 using Capa_Entidad.ReportesDigemid_ENT.Reportes;
-using Capa_Entidad.General_ENT.TablasSql;
-using Capa_Negocio.General_NEG.TablasSql;
-using System;
 
 namespace Capa_Usuario.Controllers
 {

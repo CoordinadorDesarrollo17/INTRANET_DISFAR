@@ -534,7 +534,8 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             cmd.Parameters.AddWithValue("@FormaPago", ticket.FormaPago);
             cmd.Parameters.AddWithValue("@Zona", zonaTk);
             cmd.Parameters.AddWithValue("@FechaNC", ticket.FechaNC);
-            cmd.Parameters.AddWithValue("@Visible", ticket.Visible);
+            cmd.Parameters.AddWithValue("@Presupuesto", ticket.Presupuesto);
+            cmd.Parameters.AddWithValue("@Visible", "NO");
 
             if (ticket.TiempoEntrega != null)
             {
@@ -690,7 +691,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             cmd.Parameters.AddWithValue("@DocNum", ticket.DocNum);
             cmd.Parameters.AddWithValue("@Operario", ticket.Vendedor);
             cmd.Parameters.AddWithValue("@Zona", zonaTk);
-            cmd.Parameters.AddWithValue("@Visible", ticket.Visible);
+            cmd.Parameters.AddWithValue("@Presupuesto", ticket.Presupuesto);
 
             AgregarDetallesComando(cmd, ticket, docEntry);
 
@@ -793,14 +794,30 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             }
 
         }
-
-        public int EditarVisibilidadTicket(int DocEntry)
+        //Automatico desde click a Boton Ver Layout
+        public int EditarVisibilidadTicket(int DocEntry,string OpImpresion)
         {
             SqlConnection cn = new SqlConnection(uti.cadSql);
             try
             {
                 cn.Open();
-                SqlCommand cmd = new SqlCommand("UPDATE vt.ortv SET Visible='SI' where DocEntry=@DocEntry", cn);
+                SqlCommand cmd = new SqlCommand("UPDATE vt.ortv SET Visible='SI' where DocEntry=@DocEntry;insert into vt.CC_ORTV values (@DocEntry,'IMPRIMIR','"+OpImpresion+ "',(select convert(varchar,getdate(),23)),(select convert(char(5),getdate(),108)))", cn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.AddWithValue("@DocEntry", DocEntry);
+                cmd.ExecuteNonQuery();
+                cn.Close();
+            }
+            catch { }
+            return DocEntry;
+        }
+        //Hace que sea visible para recepcion junto con ticket
+        public int EditarPresupuestoTicket(int DocEntry)
+        {
+            SqlConnection cn = new SqlConnection(uti.cadSql);
+            try
+            {
+                cn.Open();
+                SqlCommand cmd = new SqlCommand("UPDATE vt.ortv SET Presupuesto='NO' where DocEntry=@DocEntry", cn);
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.AddWithValue("@DocEntry", DocEntry);
                 cmd.ExecuteNonQuery();
@@ -3021,7 +3038,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             try
             {
                 cn.Open();
-                SqlCommand cmd = new SqlCommand("select DocEntry,DocNum,CardCode, CardName,Estado,TipoVenta,LugarDestino, DirDestino,Referencia,Agencia,EnvioAgencia,Embalaje,CodSapVendedor,Vendedor,MontoTotal,Flete,GastoEnvio,EstadoGasto,PagoEnv,ClaveEnv,TiempoEntrega,DescuentoNC,DeudaCliente,DeudaEmpresa,MontoFinal,FormaPago,MontoRecibido,EstadoPago,FechaPago,HoraPago,Cajero,Comentario,Cajas,NroMesa,FechaNC,EstadoFacturacion,FechaFacturacion,HoraFacturacion,OpFacturacion, Observaciones,Observaciones2,Observaciones3,FechaSapTicket, (Select top 1 FechaOperacion from vt.CC_ORTV where DocEntry=" + DocEntry + " and Operacion='REGISTRAR' order by FechaOperacion DESC,HoraOperacion DESC ) AS 'FECHA REGISTRO', (Select top 1 HoraOperacion from vt.CC_ORTV where DocEntry=" + DocEntry + " and Operacion='REGISTRAR' order by FechaOperacion,HoraOperacion desc ) AS 'HORA REGISTRO' ,Zona,Notificado,Visible  from vt.ORTV where DocEntry=" + DocEntry, cn);
+                SqlCommand cmd = new SqlCommand("select DocEntry,DocNum,CardCode, CardName,Estado,TipoVenta,LugarDestino, DirDestino,Referencia,Agencia,EnvioAgencia,Embalaje,CodSapVendedor,Vendedor,MontoTotal,Flete,GastoEnvio,EstadoGasto,PagoEnv,ClaveEnv,TiempoEntrega,DescuentoNC,DeudaCliente,DeudaEmpresa,MontoFinal,FormaPago,MontoRecibido,EstadoPago,FechaPago,HoraPago,Cajero,Comentario,Cajas,NroMesa,FechaNC,EstadoFacturacion,FechaFacturacion,HoraFacturacion,OpFacturacion, Observaciones,Observaciones2,Observaciones3,FechaSapTicket, (Select top 1 FechaOperacion from vt.CC_ORTV where DocEntry=" + DocEntry + " and Operacion='REGISTRAR' order by FechaOperacion DESC,HoraOperacion DESC ) AS 'FECHA REGISTRO', (Select top 1 HoraOperacion from vt.CC_ORTV where DocEntry=" + DocEntry + " and Operacion='REGISTRAR' order by FechaOperacion,HoraOperacion desc ) AS 'HORA REGISTRO' ,Zona,Notificado,Visible,Presupuesto  from vt.ORTV where DocEntry=" + DocEntry, cn);
                 cmd.CommandType = CommandType.Text;
                 SqlDataReader dr = cmd.ExecuteReader();
                 dr.Read();
@@ -3073,6 +3090,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 if (!dr.IsDBNull(45)) { t.Zona = dr.GetString(45); }
                 if (!dr.IsDBNull(46)) { t.Notificado = dr.GetInt32(46); }
                 if (!dr.IsDBNull(47)) { t.Visible = dr.GetString(47); }
+                if (!dr.IsDBNull(48)) { t.Presupuesto = dr.GetString(48); }
                 dr.Close();
                 cn.Close();
 
@@ -3123,7 +3141,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             try
             {
                 cn.Open();
-                SqlCommand cmd = new SqlCommand("select DocEntry,DocNum,CardCode, CardName,Estado,TipoVenta,LugarDestino, DirDestino,Referencia,Agencia,EnvioAgencia,Embalaje,CodSapVendedor,Vendedor,MontoTotal,Flete,GastoEnvio,EstadoGasto,PagoEnv,ClaveEnv,TiempoEntrega,DescuentoNC,DeudaCliente,DeudaEmpresa,MontoFinal,FormaPago,MontoRecibido,EstadoPago,FechaPago,HoraPago,Cajero,Comentario,Cajas,NroMesa,FechaNC,EstadoFacturacion,FechaFacturacion,HoraFacturacion,OpFacturacion, Observaciones,Observaciones2,Observaciones3,FechaSapTicket, (Select top 1 FechaOperacion from vt.CC_ORTV where DocEntry=" + DocEntry + " and Operacion='REGISTRAR' order by FechaOperacion DESC,HoraOperacion DESC ) AS 'FECHA REGISTRO', (Select top 1 HoraOperacion from vt.CC_ORTV where DocEntry=" + DocEntry + " and Operacion='REGISTRAR' order by FechaOperacion,HoraOperacion desc ) AS 'HORA REGISTRO' ,Zona,Notificado,Visible  from vt.ORTV where DocEntry=" + DocEntry, cn);
+                SqlCommand cmd = new SqlCommand("select DocEntry,DocNum,CardCode, CardName,Estado,TipoVenta,LugarDestino, DirDestino,Referencia,Agencia,EnvioAgencia,Embalaje,CodSapVendedor,Vendedor,MontoTotal,Flete,GastoEnvio,EstadoGasto,PagoEnv,ClaveEnv,TiempoEntrega,DescuentoNC,DeudaCliente,DeudaEmpresa,MontoFinal,FormaPago,MontoRecibido,EstadoPago,FechaPago,HoraPago,Cajero,Comentario,Cajas,NroMesa,FechaNC,EstadoFacturacion,FechaFacturacion,HoraFacturacion,OpFacturacion, Observaciones,Observaciones2,Observaciones3,FechaSapTicket, (Select top 1 FechaOperacion from vt.CC_ORTV where DocEntry=" + DocEntry + " and Operacion='REGISTRAR' order by FechaOperacion DESC,HoraOperacion DESC ) AS 'FECHA REGISTRO', (Select top 1 HoraOperacion from vt.CC_ORTV where DocEntry=" + DocEntry + " and Operacion='REGISTRAR' order by FechaOperacion,HoraOperacion desc ) AS 'HORA REGISTRO' ,Zona,Notificado,Visible,Presupuesto  from vt.ORTV where DocEntry=" + DocEntry, cn);
                 cmd.CommandType = CommandType.Text;
                 SqlDataReader dr = cmd.ExecuteReader();
                 dr.Read();
@@ -3175,6 +3193,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 if (!dr.IsDBNull(45)) { t.Zona = dr.GetString(45); }
                 if (!dr.IsDBNull(46)) { t.Notificado = dr.GetInt32(46); }
                 if (!dr.IsDBNull(47)) { t.Visible = dr.GetString(47); }
+                if (!dr.IsDBNull(48)) { t.Presupuesto = dr.GetString(48); }
                 dr.Close();
                 cn.Close();
 
@@ -3379,12 +3398,14 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 condWhere += t.EstadoPago != null ? $" AND t0.EstadoPago='{t.EstadoPago}'" : "";
                 condWhere += t.EstadoGasto != null ? $" AND t0.EstadoGasto='{t.EstadoGasto}'" : "";
                 condWhere += t.PagoEnv == 0.01M ? " AND t0.PagoEnv>0" : "";
+                condWhere += t.Visible !=null ? $" AND t0.Visible='{t.Visible}' AND T0.Estado not in ('CANCELADO','ANULADO')" : "";
+                condWhere += t.Presupuesto != null ? $" AND t0.Presupuesto='{t.Presupuesto}'" : "";
             }
 
 
             string query = $"SELECT TOP 200 t0.DocEntry, t0.DocNum, t0.CardCode, t0.CardName, t0.Estado,t0.FechaSapTicket, (Select top 1 HoraOperacion from vt.CC_ORTV where DocEntry=t0.DocEntry " +
                 $" and Operacion='REGISTRAR' order by FechaOperacion,HoraOperacion desc ) as 'HoraAbierto',t0.LugarDestino,t0.CodSapVendedor,t0.Vendedor,t0.MontoFinal,t0.EstadoPago,t0.EstadoGasto," +
-                $" t0.PagoEnv,t0.Visible,t0.FechaPago,t0.HoraPago FROM vt.ORTV t0  WHERE t0.DocEntry>0 AND (SELECT top 1 FechaOperacion from vt.CC_ORTV where Operacion= 'SEPARAR' and DocEntry =" +
+                $" t0.PagoEnv,t0.Visible,t0.FechaPago,t0.HoraPago,T0.Presupuesto FROM vt.ORTV t0  WHERE t0.DocEntry>0 AND (SELECT top 1 FechaOperacion from vt.CC_ORTV where Operacion= 'SEPARAR' and DocEntry =" +
                 $" t0.DocEntry  order by FechaOperacion DESC, HoraOperacion desc) between dateadd(day,-1000, getdate()) and getdate() {condWhere} ORDER BY t0.DocNum DESC";
 
             using (SqlConnection cn = new SqlConnection(uti.cadSql))
@@ -3418,8 +3439,8 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                             if (!dr.IsDBNull(13)) { ticket.PagoEnv = dr.GetDecimal(13); }
                             if (!dr.IsDBNull(14)) { ticket.Visible = dr.GetString(14); }
                             if (!dr.IsDBNull(15)) { ticket.FechaPago = dr.GetDateTime(15).ToString("yyyy-MM-dd"); }//Se usa en Metodo : ListarTicketsNoVisiblesPagados
-                            if (!dr.IsDBNull(16)) { ticket.HoraPago = dr.GetTimeSpan(16).ToString(); }//Se usa en Metodo : ListarTicketsNoVisiblesPagados
-                            //ticket.Vendedor = (ticket.Vendedor.Length > 15) ? ticket.Vendedor.Substring(0, 15) : ticket.Vendedor;
+                            if (!dr.IsDBNull(16)) { ticket.HoraPago = dr.GetTimeSpan(16).ToString(); }
+                            if (!dr.IsDBNull(17)) { ticket.Presupuesto = dr.GetString(17); }
                             ticket.FechaSapTicket = (ticket.FechaSapTicket != null) ? Convert.ToDateTime(ticket.FechaSapTicket).ToString("dd/MM/yyyy") : null;
                             lista.Add(ticket);
 
@@ -3589,8 +3610,8 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 {
                     if (user.IdRol == 5 || user.IdRol == 4 || user.IdRol == 51)
                     {
-                        condWhere += $" AND t0.Visible in ('SI') AND t0.Estado in ('ABIERTO','RECIBIDO') ";
-                        if (!string.IsNullOrEmpty(t.AlmProcedencia)) { condWhere += $"AND (t0.LugarDestino IN ('Centro', 'Arriola') OR (t0.LugarDestino IN ('Domicilio', 'Agencia') and ((SELECT TOP 1 T2.AlmacenSalida FROM vt.RTV2 T2 WHERE T2.AlmacenSalida NOT IN ('07') AND T2.DocEntry = t0.DocEntry) IN ('16','15') )))"; }
+                        condWhere += $" AND t0.Visible in ('SI') AND t0.Presupuesto in ('NO') AND t0.Estado in ('ABIERTO','RECIBIDO') ";
+                        if (!string.IsNullOrEmpty(t.AlmProcedencia)) { condWhere += $"AND (t0.LugarDestino IN ('Centro', 'Arriola') OR (t0.LugarDestino IN ('Domicilio', 'Agencia') and ((SELECT TOP 1 T2.AlmacenSalida FROM vt.RTV2 T2 WHERE T2.AlmacenSalida NOT IN ('07') AND T2.DocEntry = t0.DocEntry) IN ('16','15'))))"; }
                         orderby = "t0.Estado ,t0.FechaSapTicket desc";
                     }
                 }
@@ -3598,7 +3619,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 {
                     if (user.IdRol == 5 || user.IdRol == 4 || user.IdRol == 51)
                     {
-                        condWhere += $" AND t0.Visible in ('SI')";
+                        condWhere += $" AND t0.Visible in ('SI') AND t0.Presupuesto in ('NO') ";
                     }
                     condWhere += t.DocNum > 0 ? $" AND t0.DocNum like '%{t.DocNum}%'" : "";
                     condWhere += t.FechaSapTicket != null ? $" AND t0.FechaSapTicket='{t.FechaSapTicket}'" : "";

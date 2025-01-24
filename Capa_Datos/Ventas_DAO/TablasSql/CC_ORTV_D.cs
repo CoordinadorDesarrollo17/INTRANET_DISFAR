@@ -19,7 +19,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             List<CC_ORTV_E> lista = new List<CC_ORTV_E>();
             string condWhere = string.Empty, top = string.Empty;
 
-            if (excluir) { condWhere = $"AND Operacion not in ('EDITAR','EDITAR SUPERVISOR','FACTURAR','ANULAR FACTURAR','GUIA EMITIDA','REVERTIR GUIA')"; }
+            if (excluir) { condWhere = $"AND Operacion not in ('IMPRIMIR','EDITAR','EDITAR SUPERVISOR','FACTURAR','ANULAR FACTURAR','GUIA EMITIDA','REVERTIR GUIA')"; }
             // Si se buscan tipos de operación específicos
             if (tiposOperacion != null && tiposOperacion.Count > 0)
             {
@@ -76,7 +76,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 top = "TOP 1";
                 condWhere = $"AND Operacion = '{operacion}'";
             }
-            if (excluir) { condWhere = $"AND Operacion not in ('EDITAR','EDITAR SUPERVISOR','FACTURAR','ANULAR FACTURAR','GUIA EMITIDA','REVERTIR GUIA')"; }
+            if (excluir) { condWhere = $"AND Operacion not in ('IMPRIMIR','EDITAR','EDITAR SUPERVISOR','FACTURAR','ANULAR FACTURAR','GUIA EMITIDA','REVERTIR GUIA')"; }
             string query = $"SELECT {top} Id, DocEntry, Operacion, Operario, CONVERT(varchar, FechaOperacion, 103) AS FechaOperacion, HoraOperacion FROM vt.CC_ORTV WHERE DocEntry = @DocEntry {condWhere} ORDER BY Id DESC";
             SqlConnection cn = new SqlConnection(uti.cadSql);
             try
@@ -117,7 +117,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
         public Dictionary<string, CC_ORTV_E> ListarCC_FlujoEstados(int DocEntry)
         {
             Dictionary<string, CC_ORTV_E> lista = new Dictionary<string, CC_ORTV_E>();
-            string[] operaciones = {"SEPARAR","REGISTRAR", "EDITAR", "CANCELAR", "ANULAR","RECIBIR", "ANULAR RECIBIR", "FACTURAR", "ANULAR FACTURAR",
+            string[] operaciones = {"IMPRIMIR","SEPARAR","REGISTRAR", "EDITAR", "CANCELAR", "ANULAR","RECIBIR", "ANULAR RECIBIR", "FACTURAR", "ANULAR FACTURAR",
                                                     "INICIO PICKING","ANULAR INICIO PICKING","FIN PICKING", "ANULAR FIN PICKING","INICIO VERIFICAR","ANULAR INICIO VERIFICAR",
                                                     "FIN VERIFICAR","ANULAR FIN VERIFICAR", "INICIO EMPACAR","ANULAR INICIO EMPACAR","FIN EMPACAR", "ANULAR FIN EMPACAR",
                                                     "PESAR", "ANULAR PESAR","LIBERAR", "PREENVIAR", "ENVIAR", "ANULAR ENVIAR", "ENTREGAR", "ANULAR ENTREGAR", "EDITAR SUPERVISOR" };

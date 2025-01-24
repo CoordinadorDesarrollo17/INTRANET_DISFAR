@@ -375,10 +375,13 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             }
             return tkD.Editar(DocEntry, ticket);
         }
-
-        public int EditarVisibilidadTicket(int DocEntry)
+        public int EditarVisibilidadTicket(int DocEntry, string OpImpresion)
         {
-            return tkD.EditarVisibilidadTicket(DocEntry);
+            return tkD.EditarVisibilidadTicket(DocEntry, OpImpresion);
+        }
+        public int EditarPresupuestoTicket(int DocEntry)
+        {
+            return tkD.EditarPresupuestoTicket(DocEntry);
         }
         /**********************************************************************/
         //Método usa un procedure para buscar tickets vinculados, solo se usa en el REGISTRO Y EDICION de la hoja de repartos

@@ -67,30 +67,24 @@
 <div class="impresion mt-4 ml-0 mr-0 pl-0 pr-0" style="width: 100%">
     <table style="font-size: 16px" width="100%" border="0">
         <tr>
-            <td class="font-weight-bold" style="width: 50%; text-align: left;">@Model[0].NombreBd</td>
-            <td class="font-weight-bold" style="width: 50%; text-align: right;">ALMACÉN @Model[0].Almacen</td>
-        </tr>
-        <tr>
-            <td colspan="2" class="text-center font-weight-bold">FORMATO DE ORDEN DE VENTA</td>
-        </tr>
-        <tr>
-            <td colspan="2" class="text-center font-weight-bold">N° @Model[0].DocNum</td>
-        </tr>
-        <tr>
-            <td colspan="2" class="text-center font-weight-bold">@soloFecha.ToString("dd/MM/yyyy")</td>
+            <td colspan="2" class="text-center font-weight-bold">FORMATO DE ORDEN DE VENTA<br />
+            N° @Model[0].DocNum<br />
+            @soloFecha.ToString("dd/MM/yyyy")</td>
         </tr>
     </table>
 
-    <table class="" style="margin-top: 10px; font-size: 12.5px" width="100%">
+    <table style="margin-top: 10px; font-size: 12.5px" width="100%">
         <tr>
-            <td class="font-weight-bold" style="width: 10%">CLIENTE:</td>
-            <td style="width: 70%">@Model[0].CardName</td>
-            <td class="font-weight-bold text-right" style="width: 10%">RUC:</td>
-            <td style="width: 10%">@Model[0].RucCliente</td>
+            <td class="text-left" style="width: 60%;">
+                <span style="font-weight:600">ALMACÉN: </span> @Model[0].Almacen<br />
+                <span style="font-weight:600">CLIENTE: </span>@Model[0].CardName
+            </td>
+            <td class="text-right" style="width: 40%">
+            <span style="font-weight:600">RUC: </span>@Model[0].RucCliente</td>
         </tr>
     </table>
 
-    <table style="margin-top: 10px;font-size: 12px;" width="100%" border="1">
+    <table style="margin-top: 10px;font-size: 13px;" width="100%" border="1">
         <thead class="text-dark">
             <tr>
                 <th class="text-center border text-dark font-weight-bold">UBICACIÓN</th>
@@ -109,7 +103,7 @@
                 foreach (var a in Model)
                 {
                     <tr>
-                        <td class="text-center p-1">
+                        <td class="p-1">
                             @{
                                 if (a.Ubicaciones != null)
                                 {
@@ -120,7 +114,7 @@
                                 }
                             }
                         </td>
-                        <td class="text-center p-1">@a.ItemCode</td>
+                        <td class="p-1">@a.ItemCode</td>
                         <td class="p-1">@a.Producto</td>
                         <td class="text-center p-1">@a.Lote</td>
                         <td class="text-center p-1">@a.FechaVenc</td>
@@ -134,34 +128,31 @@
     </table>
 
     <div style="page-break-after: always"></div>
-
-    <div class="footer" style="margin-top: 20px;">
+    <div class="footer" style="margin-top: 10px;">
         <div class="row">
             <div class="col-12 d-flex justify-content-center">
-                <table class="" width="100%" style="font-size: 14px;">
+                <table class="" width="100%" style="font-size: 14px;padding:0;margin:0">
                     <tr>
                         <td class="font-weight-bold" style="width: 140px">VENDEDOR:</td>
                         <td class="">@Model[0].SlpName</td>
                     </tr>
                     <tr>
-                        <td class="font-weight-bold" style="width: 140px">COMENTARIOS:</td>
+                        <td class="font-weight-bold" style="width: 140px">NRO TICKET:</td>
                         <td class="">@Model[0].Comentarios</td>
                     </tr>
-                    @*<tr>
-            <td class="font-weight-bold text-right" colspan="2">&nbsp;</td>
-        </tr>*@
                     <tr>
                         <td colspan="2">
-                            <table  width="100%" style="font-size: 14px;">
+                            <table width="100%" style="font-size: 14px;">
                                 <tr>
-                                    <td class="font-weight-bold text-right" style="width: 80%">TOTAL GENERAL:</td>
-                                    <td class="font-weight-bold text-right" style="width: 20%">S/ @Model[0].DocTotal.ToString("F2")</td>
+                                    <td class="font-weight-bold text-right" style="width: 70%">TOTAL GENERAL:</td>
+                                    <td class="font-weight-bold text-right" style="width: 30%">S/ @Model[0].DocTotal.ToString("F2")<br /></td>
                                 </tr>
                                 <tr>
-                                    <td class="font-12 text-left">Fecha y hora de impresión: @DateTime.Now</td>
+                                    <td class="font-weight-bold text-right" style="width: 70%">Fecha y hora de impresión:</td>
+                                    <td class="text-right" style="width: 30%">@DateTime.Now</td>
                                 </tr>
                             </table>
-                    </td>
+                        </td>
                     </tr>
                 </table>
             </div>

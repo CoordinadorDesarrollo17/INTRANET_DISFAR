@@ -446,9 +446,9 @@
                         </div>
                         <div class="col-lg-2">
                             <label for="Presupuesto" class="text-dark form-label font-weight-bold font-18">Presupuesto:</label>
-                            <select name="Visible" id="Visible" class="form-control bg-cobefar text-white">
-                                <option value="SI" @{ if (Model.Visible == "SI") { Write("selected"); } }>NO</option>
-                                <option value="NO" @{ if (Model.Visible == "NO") { Write("selected"); } }>SI</option>
+                            <select name="Presupuesto" id="Presupuesto" class="form-control bg-cobefar text-white">
+                                <option value="NO" @{ if (Model.Presupuesto == "NO") { Write("selected"); } }>NO</option>
+                                <option value="SI" @{ if (Model.Presupuesto == "SI") { Write("selected"); } }>SI</option>
                             </select>
                         </div>
                         <div class="col-lg-2" id="div_FormaPago">

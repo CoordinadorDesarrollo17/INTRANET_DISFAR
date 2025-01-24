@@ -103,7 +103,6 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-
         public ActionResult ListadoTicketsAutorizacionRegularizar(string mensaje = null, int idOperation = 501)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
@@ -4031,12 +4030,22 @@ namespace Capa_Usuario.Controllers
             return Json(new { Datos = result });
         }
         //Metodo que permite visibilidad a Recepcion
-        public JsonResult CambiarVisibleTicket(int DocEntry)
+        public JsonResult CambiarPresupuestoTicket(int DocEntry)
         {
             //verificacionAccesos(0);
-            ORTV_N ortvN = new ORTV_N(); var result = ortvN.EditarVisibilidadTicket(DocEntry);
+            ORTV_N ortvN = new ORTV_N(); var result = ortvN.EditarPresupuestoTicket(DocEntry);
             return Json(new { Datos = result });
         }
+        public JsonResult CambiarVisibilidadTicket(int DocEntry)
+        {
+            //Se ejecuta desde la impresion de layout de un ticket de venta en ListadoTicketsVenta
+            ORTV_N ortvN = new ORTV_N();
+            Usuario_E user = (Usuario_E)Session["UsuarioId"];
+            var OpImpresion = $"{user.Nombres} {user.Apellidos}";
+            var result = ortvN.EditarVisibilidadTicket(DocEntry, OpImpresion);
+            return Json(new { NroTicket = result });
+        }
+            
         //Registra impresion de documentos de un ticket para despacho (centro y arriola)
         public JsonResult RegistrarImpresion(int DocEntry)
         {
@@ -4049,8 +4058,9 @@ namespace Capa_Usuario.Controllers
         }
         public void PreliminarLayoutOV_Ticket(int docEntry)
         {
-            var listaOrdenesTicket = new Capa_Negocio.Ventas_NEG.TablasSql.ORTV_N().obtenerDet2Ticket(docEntry);
-
+            Capa_Negocio.Ventas_NEG.TablasSql.ORTV_N ortvN = new Capa_Negocio.Ventas_NEG.TablasSql.ORTV_N();
+            var listaOrdenesTicket = ortvN.obtenerDet2Ticket(docEntry);
+            var docNumTicket = ortvN.DocNumTicket(docEntry);
             // Crear un MemoryStream para el PDF combinado
             using (MemoryStream combinedPdfStream = new MemoryStream())
             {
@@ -4079,9 +4089,12 @@ namespace Capa_Usuario.Controllers
                                     for (int i = 1; i <= totalPages; i++)
                                     {
                                         PdfContentByte content = stamper.GetUnderContent(i);
-                                        iTextSharp.text.Font font = FontFactory.GetFont("Helvetica", BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 10);
+                                        iTextSharp.text.Font font = FontFactory.GetFont("Helvetica", BaseFont.CP1250,BaseFont.NOT_EMBEDDED, 8);
                                         Phrase phrase = new Phrase($"Página {i} de {totalPages}", font);
-                                        ColumnText.ShowTextAligned(content, Element.ALIGN_RIGHT, phrase, 570, 30, 0); // Ajustar posición según sea necesario
+                                        ColumnText.ShowTextAligned(content, Element.ALIGN_RIGHT, phrase, 570, 810, 0);
+                                        
+                                        Phrase docNumPhrase = new Phrase($"Nro Ticket: {docNumTicket}", font);
+                                        ColumnText.ShowTextAligned(content, Element.ALIGN_RIGHT, docNumPhrase, 570, 795, 0); 
                                     }
                                 }
 
@@ -4114,7 +4127,7 @@ namespace Capa_Usuario.Controllers
                 FileName = fileName,
                 PageOrientation = Rotativa.Options.Orientation.Portrait,
                 PageSize = Rotativa.Options.Size.A4,
-                PageMargins = new Rotativa.Options.Margins(10, 10, 20, 10)
+                PageMargins = new Rotativa.Options.Margins(20, 5, 5, 5)
             };
 
             return pdfResult.BuildFile(ControllerContext);
@@ -4124,7 +4137,7 @@ namespace Capa_Usuario.Controllers
         {
             var lista = new ORTV_N().obtenerOrdenDeVenta(filtros.DocNum);
             //agrega las ubicaciones a cada SKU()
-            //Datos en dbo.UBICACIONES
+            //Datos en dbo.UBICACIONES POR EL MOMENTO 15
             foreach(var ordr in lista)
             {
                 //DAXO0005
