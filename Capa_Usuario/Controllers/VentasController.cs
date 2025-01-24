@@ -4090,11 +4090,15 @@ namespace Capa_Usuario.Controllers
                                     {
                                         PdfContentByte content = stamper.GetUnderContent(i);
                                         iTextSharp.text.Font font = FontFactory.GetFont("Helvetica", BaseFont.CP1250,BaseFont.NOT_EMBEDDED, 8);
+
                                         Phrase phrase = new Phrase($"Página {i} de {totalPages}", font);
-                                        ColumnText.ShowTextAligned(content, Element.ALIGN_RIGHT, phrase, 570, 810, 0);
+                                        Phrase fecha = new Phrase($"{ DateTime.Now }", font);
+                                        ColumnText.ShowTextAligned(content, Element.ALIGN_LEFT, fecha, 30, 810, 0);
+
+                                        ColumnText.ShowTextAligned(content, Element.ALIGN_CENTER, phrase, 290, 810, 0);
                                         
                                         Phrase docNumPhrase = new Phrase($"Nro Ticket: {docNumTicket}", font);
-                                        ColumnText.ShowTextAligned(content, Element.ALIGN_RIGHT, docNumPhrase, 570, 795, 0); 
+                                        ColumnText.ShowTextAligned(content, Element.ALIGN_RIGHT, docNumPhrase, 560, 810, 0); 
                                     }
                                 }
 
@@ -4127,7 +4131,7 @@ namespace Capa_Usuario.Controllers
                 FileName = fileName,
                 PageOrientation = Rotativa.Options.Orientation.Portrait,
                 PageSize = Rotativa.Options.Size.A4,
-                PageMargins = new Rotativa.Options.Margins(20, 5, 5, 5)
+                PageMargins = new Rotativa.Options.Margins(15, 10, 10, 10)
             };
 
             return pdfResult.BuildFile(ControllerContext);

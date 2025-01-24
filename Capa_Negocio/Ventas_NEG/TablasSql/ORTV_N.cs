@@ -206,7 +206,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
 
         private void ValidarArriola(ORTV_E ticket)
         {
-            ValidarLugarDeEntrega(ticket, new List<string> { "DOMICILIO Y AGENCIA","ALMACÉN N°5 (Arriola)", "ALMACÉN FALTANTES", "ALMACÉN N°6 (Ureta)" });
+            ValidarLugarDeEntrega(ticket, new List<string> { "ALMACÉN N°5 (Arriola)", "ALMACÉN FALTANTES", "ALMACÉN N°6 (Ureta)" });
         }
 
         private void ValidarDomicilio(ORTV_E ticket)
@@ -220,7 +220,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
 
         private void ValidarCentro(ORTV_E ticket)
         {
-            ValidarLugarDeEntrega(ticket, new List<string> { "DOMICILIO Y AGENCIA", "ALMACÉN N°1", "ALMACÉN FALTANTES", "ALMACÉN N°6 (Ureta)" });
+            ValidarLugarDeEntrega(ticket, new List<string> { "ALMACÉN N°1", "ALMACÉN FALTANTES", "ALMACÉN N°6 (Ureta)" });
         }
 
         private void ValidarLugarDeEntrega(ORTV_E ticket, List<string> lugaresValidos)
