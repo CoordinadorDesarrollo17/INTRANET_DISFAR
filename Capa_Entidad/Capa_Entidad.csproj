@@ -178,7 +178,6 @@
     <Compile Include="SocioNegocios_ENT\Tablas\OCRD_E.cs" />
     <Compile Include="Seguridad_ENT\Usuario_E.cs" />
     <Compile Include="TI_Sistemas_ENT\OTSO_E.cs" />
-    <Compile Include="Ventas_ENT\PaginacionImpresion_E.cs" />
     <Compile Include="Ventas_ENT\ReportesHana\VentCliDias_E.cs" />
     <Compile Include="Ventas_ENT\ReportesHana\VentSkuCliDias_E.cs" />
     <Compile Include="Ventas_ENT\ReportesHana\VentSkuDias_E.cs" />
