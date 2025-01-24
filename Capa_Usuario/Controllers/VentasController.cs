@@ -4137,13 +4137,14 @@ namespace Capa_Usuario.Controllers
         {
             var lista = new ORTV_N().obtenerOrdenDeVenta(filtros.DocNum);
             //agrega las ubicaciones a cada SKU()
-            //Datos en dbo.UBICACIONES POR EL MOMENTO 15
-            foreach(var ordr in lista)
+            if (lista != null && !lista[0].Almacen.Equals("ALM07"))
             {
-                //DAXO0005
-                ordr.Ubicaciones = ubicacionesN.BuscarUbicaciones(ordr.ItemCode);
+                foreach (var ordr in lista)
+                {
+                    ordr.Ubicaciones = ubicacionesN.BuscarUbicaciones(ordr.ItemCode);
+                }
             }
-           
+
             lista = lista
         .OrderBy(x => x.Ubicaciones != null && x.Ubicaciones.Length > 0 ? x.Ubicaciones[0] : string.Empty)
         .ToList();
