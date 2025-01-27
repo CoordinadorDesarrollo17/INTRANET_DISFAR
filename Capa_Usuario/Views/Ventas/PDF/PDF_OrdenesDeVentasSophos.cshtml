@@ -1,32 +1,27 @@
-﻿
+﻿@using Capa_Entidad.ReportesDigemid_ENT
+@model IEnumerable<OrdenDeVenta_E>
+
 @{
     Layout = null;
-    DateTime fecha = DateTime.Parse(Model[0].Fecha);
+    List<OrdenDeVenta_E> orden = new List<OrdenDeVenta_E>(Model);
+    DateTime fecha = DateTime.Parse(orden[0].Fecha);
     DateTime soloFecha = fecha.Date;
+
 }
 
 <link href="~/Content/css/bootstrap.css" rel="stylesheet" type="text/css" />
 
 <style>
-    div * {
-        font-family: Helvetica !important;
-    }
-
-    table * {
-        font-family: Helvetica !important;
-    }
-
-    /* Asegúrate de que el padding se aplique correctamente */
-    td, th {
-        padding: 10px !important;
+    * {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 12px;
     }
 
     .border {
-        /* Definir solo las partes de la tabla que necesitan borde */
-        border-top: 2px solid black !important;
-        border-bottom: 2px solid black !important;
-        border-right: 0px !important;
-        border-left: 0px !important;
+        border-top: 1px solid black !important;
+        border-bottom: 1px solid black !important;
+        border-right: 1px solid black !important;
+        border-left: 1px solid black !important;
     }
 
     .impresion {
@@ -34,121 +29,103 @@
         background-color: white;
     }
 
-    thead {
-        display: table-header-group;
-    }
-
     tfoot {
         display: table-row-group;
     }
 
     tr {
-        page-break-inside: avoid;
+        page-break-inside: avoid !important;
     }
 
-    .footer {
-        position: fixed;
-        bottom: 0;
-        width: 100%;
-        background-color: white;
-        padding: 20px 0;
-        page-break-after: always;
+    #cuerpoDetalle td, #cuerpoDetalle th {
+        padding: 10px;
     }
-
-        .footer table {
-            width: 100%;
-            font-size: 14px;
-        }
-
-        .footer .font-weight-bold {
-            font-weight: bold;
-        }
 </style>
-
 <div class="impresion mt-4 ml-0 mr-0 pl-0 pr-0" style="width: 100%">
-    <table style="font-size: 15px" width="100%" border="0" >
-        <tr>
-            <td colspan="2" class="text-center font-weight-bold">FORMATO DE ORDEN DE VENTA</td>
-        </tr>
-        <tr>
-            <td colspan="2" class="text-center font-weight-bold">N° @Model[0].DocNum</td>
-        </tr>
-        <tr>
-            <td colspan="2" class="text-center font-weight-bold">@soloFecha.ToString("dd/MM/yyyy")</td>
-        </tr>
-    </table>
-
-    <table class="" style="margin-top: 10px; font-size: 12.5px" width="100%">
-        <tr>
-            <td class="font-weight-bold" style="width: 10%">CLIENTE:</td>
-            <td style="width: 70%">@Model[0].CardName</td>
-            <td class="font-weight-bold text-right" style="width: 10%">RUC:</td>
-            <td style="width: 10%">@Model[0].RucCliente</td>
-        </tr>
-        <tr>
-            <td class="font-weight-bold" style="width: 10%">ALMACÉN:</td>
-            <td> @Model[0].Almacen</td>
-        </tr>
-    </table>
-
-    <table style="margin-top: 10px;font-size: 12px;" width="100%" border="1">
-        <thead class="text-dark">
+    <div>
+        <table id="cabecera" width="100%">
             <tr>
-                <th class="text-center border text-dark font-weight-bold">UBICACIÓN</th>
-                <th class="text-center border text-dark font-weight-bold">SKU</th>
-                <th class="text-center border text-dark font-weight-bold">DESCRIPCIÓN</th>
-                <th class="text-center border text-dark font-weight-bold">LOTE</th>
-                <th class="text-center border text-dark font-weight-bold">F.VCTO</th>
-                <th class="text-center border text-dark font-weight-bold">CANT</th>
-                <th class="text-center border text-dark font-weight-bold">PRECIO UNIT</th>
-                <th class="text-center border text-dark font-weight-bold">PRECIO TOTAL</th>
+                <td colspan="4" class="text-center font-weight-bold" style="font-size: 14px !important;">FORMATO DE ORDEN DE VENTA</td>
             </tr>
-        </thead>
-        <tbody>
-            @if (Model != null)
-            {
-                foreach (var a in Model)
-                {
             <tr>
-                <td class="text-center p-1">
-                    @{
-                                if (a.Ubicaciones != null)
-                                {
-                                    foreach (var ubicacion in a.Ubicaciones)
+                <td colspan="4" class="text-center font-weight-bold" style="font-size: 16px !important">N° @orden[0].DocNum</td>
+            </tr>
+            <tr>
+                <td class="font-weight-bold" style="width: 10%; font-size: 16px !important">FECHA:</td>
+                <td style="width: 50%; font-size: 16px !important">@soloFecha.ToString("dd/MM/yyyy")</td>
+                <td class="font-weight-bold text-left" style="width: 10%; font-size: 16px !important">ALMACÉN:</td>
+                <td class="font-weight-bold" style="width: 30%; font-size: 16px !important">
+                    @if (new List<string> { "01", "09" }.Contains(orden[0].Almacen)) { Write(ViewBag.AlmProcedencia); }
+                    else { Write(orden[0].Almacen); }
+                </td>
+
+            </tr>
+
+            <tr>
+
+                <td class="font-weight-bold" style="width: 10%; font-size: 16px !important">CLIENTE:</td>
+                <td class="font-weight-bold" style="width: 50%; font-size: 16px !important">@orden[0].CardName</td>
+                <td class="font-weight-bold text-left" style="width: 10%; font-size: 16px !important">VENDEDOR:</td>
+                <td style="width: 30%; font-size: 16px !important">
+                    @if (!string.IsNullOrEmpty(orden[0].SlpName) && orden[0].SlpName.Length > 15) { Write(orden[0].SlpName.Substring(0, 15)); }
+                    else { Write(orden[0].SlpName); }
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div style="margin-top: 10px;">
+        <table width="100%" id="cuerpoDetalle">
+            <thead>
+                <tr>
+                    <th class="text-center border text-dark font-weight-bold">UBICACIÓN</th>
+                    <th class="text-center border text-dark font-weight-bold">SKU</th>
+                    <th class="text-center border text-dark font-weight-bold">DESCRIPCIÓN</th>
+                    <th class="text-center border text-dark font-weight-bold">LOTE</th>
+                    <th class="text-center border text-dark font-weight-bold">F.VCTO</th>
+                    <th class="text-center border text-dark font-weight-bold">CANT</th>
+                    <th class="text-center border text-dark font-weight-bold">PRECIO UNIT</th>
+                    <th class="text-center border text-dark font-weight-bold">PRECIO TOTAL</th>
+                </tr>
+            </thead>
+            <tbody class="border">
+                @if (Model != null)
+                {
+                    foreach (var a in Model)
+                    {
+                        <tr>
+                            <td class="p-1 border">
+                                @{
+                                    if (a.Ubicaciones != null)
                                     {
-                        <div>@ubicacion</div>
+                                        foreach (var ubicacion in a.Ubicaciones)
+                                        {
+                                            <div>@ubicacion</div>
+                                        }
                                     }
                                 }
+                            </td>
+                            <td class="p-1 border">@a.ItemCode</td>
+                            <td class="p-1 border">@a.Producto</td>
+                            <td class="text-center p-1 border">@a.Lote</td>
+                            <td class="text-center p-1 border">@a.FechaVenc</td>
+                            <td class="text-center p-1 border">@a.UniMedidVend @a.NumUnidVend</td>
+                            <td class="text-center p-1 border">@a.PrecioProdIgvVend.ToString("F2")</td>
+                            <td class="text-center p-1 border">@a.TotalProdIgvVend.ToString("F2")</td>
+                        </tr>
                     }
-                </td>
-                <td class="text-center p-1">@a.ItemCode</td>
-                <td class="p-1">@a.Producto</td>
-                <td class="text-center p-1">@a.Lote</td>
-                <td class="text-center p-1">@a.FechaVenc</td>
-                <td class="text-center p-1">@a.UniMedidVend @a.NumUnidVend</td>
-                <td class="text-center p-1">@a.PrecioProdIgvVend.ToString("F2")</td>
-                <td class="text-center p-1">@a.TotalProdIgvVend.ToString("F2")</td>
-            </tr>
                 }
-            }
-        </tbody>
-    </table>
-
-    <div style="page-break-after: always"></div>
-
-    <div class="footer row">
-        <div class="col-12 d-flex justify-content-center">
-            <table width="100%" style="font-size: 13px;" class="align-content-between">
-                <tr>
-                    <td class="font-weight-bold text-left" style="width: 100px;">VENDEDOR:</td>
-                    <td class="text-left" style="width: 550px;">@Model[0].SlpName</td>
-                    <td class="font-weight-bold text-right" style="width: 200px;">TOTAL GENERAL:</td>
-                    <td class="text-left" style="width: 250px;">S/ @Model[0].DocTotal.ToString("F2")</td>
-                </tr>
-            </table>
-        </div>
-
+            </tbody>
+        </table>
+        <table width="100%" class="align-content-between" style="margin-top: 10px;">
+            <tr>
+                <td class="font-weight-bold text-left" style="width: 100px;"></td>
+                <td class="text-left" style="width: 450px;"></td>
+                <td class="font-weight-bold text-left" style="width: 300px; font-size: 16px !important">TOTAL GENERAL:</td>
+                <td class="font-weight-bold text-left" style="width: 250px; font-size: 16px !important">S/ @orden[0].DocTotal.ToString("F2")</td>
+            </tr>
+        </table>
     </div>
+    <div style="page-break-after: always"></div>
 </div>
 
 

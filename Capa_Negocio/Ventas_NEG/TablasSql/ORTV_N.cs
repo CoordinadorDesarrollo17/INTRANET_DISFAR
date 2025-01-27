@@ -22,7 +22,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         ORTV_D tkD = new ORTV_D();
         CC_ORTV_D ccTicket = new CC_ORTV_D();
         public object t { get; private set; }
-        
+
         public List<dynamic> ListarTicketsPorRegularizarContraEntrega()
         {
             return tkD.ListarTicketsPorRegularizarContraEntrega();
@@ -126,14 +126,20 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             if (string.IsNullOrEmpty(ticket.FechaSapTicket)) throw new Exception("No eligió la fecha del ticket.");
             if (ticket.DocNum <= 0) throw new Exception("No seleccionó un número de ticket.");
             if (string.IsNullOrEmpty(ticket.CardCode) || string.IsNullOrEmpty(ticket.CardName)) throw new Exception("No seleccionó un cliente.");
+            if (string.IsNullOrEmpty(ticket.LugarDestino)) throw new Exception("No seleccionó el lugar de destino.");
+            if (ticket.LugarDestino == "Arriola" || ticket.LugarDestino == "Centro")
+            {
+                if (string.IsNullOrEmpty(ticket.AlmProcedencia))
+                    throw new Exception("Debe seleccionar un almacen de procedencia");
+            }
             if (string.IsNullOrEmpty(ticket.Embalaje)) throw new Exception("No seleccionó el tipo de embalaje.");
             if (string.IsNullOrEmpty(ticket.TipoVenta)) throw new Exception("No seleccionó el tipo de venta.");
             if (!string.IsNullOrEmpty(ticket.WhsCodeLog) && ticket.WhsCodeLog.Equals("01") && string.IsNullOrEmpty(ticket.FormaPago)) throw new Exception("No seleccionó la forma de pago.");
-            if (string.IsNullOrEmpty(ticket.LugarDestino)) throw new Exception("No seleccionó el lugar de destino.");
+
             if (ticket.MontoTotal <= 0) { throw new Exception("No puede registrar un monto total en cero o negativo."); }
             if (ticket.MontoFinal <= 0) { throw new Exception("No se puede registrar un monto final en cero o negativo."); }
             if (string.IsNullOrEmpty(ticket.TiempoEntrega.ToString()) || ticket.TiempoEntrega == null) { throw new Exception("Debe llenar el tiempo de entrega."); }
-           
+            if (!string.IsNullOrEmpty(ticket.Zona) && ticket.Zona.Equals("AGENCIA") && !ticket.LugarDestino.Equals("Agencia")) { throw new Exception("Debe seleccionar Lugar destino Agencia"); }
         }
 
         private void ValidarPersona(ORTV_E ticket)
@@ -335,7 +341,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         {
             if (ticket.Estado == "SEPARADO" && ticket.Observaciones2 == "SI")
             {
-                if (!ticket.Det7.Any()){ throw new Exception("Debe vincular tickets");}
+                if (!ticket.Det7.Any()) { throw new Exception("Debe vincular tickets"); }
 
                 foreach (var det7 in ticket.Det7)
                 {
@@ -375,9 +381,9 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             }
             return tkD.Editar(DocEntry, ticket);
         }
-        public int EditarVisibilidadTicket(int DocEntry, string OpImpresion)
+        public int EditarVisibilidadTicket(int docEntry, string opImpresion, string proceso)
         {
-            return tkD.EditarVisibilidadTicket(DocEntry, OpImpresion);
+            return tkD.EditarVisibilidadTicket(docEntry, opImpresion, proceso);
         }
         public int EditarPresupuestoTicket(int DocEntry)
         {
@@ -587,7 +593,6 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             }
             else if (Estado.Equals("FIN EMPACAR"))
             {
-                if (t.LugarDestino == "Arriola" || t.LugarDestino == "Centro") { if (string.IsNullOrEmpty(t.AlmProcedencia)) { throw new Exception("Debe seleccionar Alm procedencia"); } }
                 if (t.Estado.Equals("CANCELADO")) { throw new Exception("El ticket esta CANCELADO"); }
                 if (t.Estado.Equals("EMPACADO")) { throw new Exception("El ticket ya se encuentra  EMPACADO"); }
                 List<CC_ORTV_E> listaEstados = ccTicket.ListarCC_ORTV(DocEntry, null, true);
@@ -789,7 +794,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 }
             }
             else
-            { 
+            {
                 //Valida monto de entrega igual a monto de factura
                 decimal sumEntregas = compN.ObtenerEncabezadoGuiasPorEntrega(OrdenesSap).Sum(x => x.DocTotal); // Trae Dato Max1099 de entrega lo inserta en variable DocTotal
                 decimal sumFacturas = ComprobantesVinculados.Sum(x => x.Max1099);
@@ -837,10 +842,10 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         {
             return tkD.CalcularMontos(t);
         }
-        public List<Capa_Entidad.ReportesDigemid_ENT.OrdenDeVenta_E> obtenerOrdenDeVenta(int DocNum)
+        public List<Capa_Entidad.ReportesDigemid_ENT.OrdenDeVenta_E> obtenerOrdenDeVenta(int docNum)
         {
             ReportesDigemid_NEG.DocumentosDig_N dN = new ReportesDigemid_NEG.DocumentosDig_N();
-            return dN.ConsultarOrdenDeVenta(DocNum);
+            return dN.ConsultarOrdenDeVenta(docNum);
         }
         public string generaInfoListaClientes(string Fecha)
         {
@@ -893,7 +898,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             }
 
             return ticket;
-        } 
+        }
 
         // Reformulando metodos
         public (string Persona, string documento) obtenerPersonaRecojoParaGuia(int docNum)

@@ -22,6 +22,7 @@ using Capa_Negocio.Ventas_NEG.TablasSql;
 using Capa_Usuario.Helpers;
 using CrystalDecisions.CrystalReports.Engine;
 using CrystalDecisions.Shared;
+using DocumentFormat.OpenXml.Presentation;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using Microsoft.Reporting.WebForms;
@@ -1458,13 +1459,13 @@ namespace Capa_Usuario.Controllers
             {
                 Usuario_E user = (Usuario_E)Session["UsuarioId"];
                 ViewBag.DocNum = DocNum;
-                if (user.WhsCode != null && (user.IdRol == 5 || user.IdRol == 4 || user.IdRol == 51))
-                {
-                    if (user.WhsCode.Equals("07"))
-                    {
-                        ticket.AlmProcedencia = "ALM07";
-                    }
-                }
+                //if (user.WhsCode != null && (user.IdRol == 5 || user.IdRol == 4 || user.IdRol == 51))
+                //{
+                //    if (user.WhsCode.Equals("07"))
+                //    {
+                //        ticket.AlmProcedencia = "ALM07";
+                //    }
+                //}
                 if (DocNum > 0)
                 {
                     ticket.DocNum = DocNum;
@@ -1980,7 +1981,6 @@ namespace Capa_Usuario.Controllers
                     ticket.OpRegistro = $"{usuario.Nombres} {usuario.Apellidos}";
                     ticket.Cajas = ticketPost.Cajas;
                     ticket.NroMesa = ticketPost.NroMesa;
-                    ticket.AlmProcedencia = ticketPost.AlmProcedencia;
                     ticket.Operario = usuario.WhsCode;      //envia el dato de WhsCode del usuario
                     ticket.Det13 = ticketPost.Det13;        // OpEmpacador 2 y OpEmpacador 3
 
@@ -4022,11 +4022,10 @@ namespace Capa_Usuario.Controllers
             return Json(oN.Listar().Where(x => x.NombreAgencia == nombreAgencia));
         }
         //Metodo para listar tickets pagados en caja para ventas
-        public JsonResult ListarTicketsNoVisiblesPagados(int DocEntryUsuario)
+        public JsonResult ListarTicketsPresupuestoPagados(int DocEntryUsuario)
         {
-            //verificacionAccesos(0);
             ORTV_N ortvN = new ORTV_N(); Usuario_N usuN = new Usuario_N(); Usuario_E u = usuN.buscarUsuario(DocEntryUsuario);
-            var result = ortvN.ListarTicketsAreaVenta(u, new ORTV_E { Estado = "ABIERTO" }).Where(x => x.Visible == "NO" && x.EstadoPago == "PAGADO").OrderBy(x => x.FechaPago + " " + x.HoraPago).ToList();
+            var result = ortvN.ListarTicketsAreaVenta(u, new ORTV_E { Estado = "ABIERTO" }).Where(x => x.Presupuesto == "SI" && x.EstadoPago == "PAGADO").OrderBy(x => x.FechaPago + " " + x.HoraPago).ToList();
             return Json(new { Datos = result });
         }
         //Metodo que permite visibilidad a Recepcion
@@ -4036,13 +4035,12 @@ namespace Capa_Usuario.Controllers
             ORTV_N ortvN = new ORTV_N(); var result = ortvN.EditarPresupuestoTicket(DocEntry);
             return Json(new { Datos = result });
         }
-        public JsonResult CambiarVisibilidadTicket(int DocEntry)
+        public JsonResult CambiarVisibilidadTicket(int docEntry, string proceso)
         {
             //Se ejecuta desde la impresion de layout de un ticket de venta en ListadoTicketsVenta
-            ORTV_N ortvN = new ORTV_N();
             Usuario_E user = (Usuario_E)Session["UsuarioId"];
-            var OpImpresion = $"{user.Nombres} {user.Apellidos}";
-            var result = ortvN.EditarVisibilidadTicket(DocEntry, OpImpresion);
+            var opImpresion = $"{user.Nombres} {user.Apellidos}";
+            var result = new Capa_Negocio.Ventas_NEG.TablasSql.ORTV_N().EditarVisibilidadTicket(docEntry, opImpresion, proceso);
             return Json(new { NroTicket = result });
         }
             
@@ -4058,9 +4056,7 @@ namespace Capa_Usuario.Controllers
         }
         public void PreliminarLayoutOV_Ticket(int docEntry)
         {
-            Capa_Negocio.Ventas_NEG.TablasSql.ORTV_N ortvN = new Capa_Negocio.Ventas_NEG.TablasSql.ORTV_N();
-            var listaOrdenesTicket = ortvN.obtenerDet2Ticket(docEntry);
-            var docNumTicket = ortvN.DocNumTicket(docEntry);
+            var ticket = new Capa_Negocio.Ventas_NEG.TablasSql.ORTV_N().ObtenerDatosTicketParaDocumentos(docEntry);
             // Crear un MemoryStream para el PDF combinado
             using (MemoryStream combinedPdfStream = new MemoryStream())
             {
@@ -4070,10 +4066,10 @@ namespace Capa_Usuario.Controllers
                     document.Open();
 
                     // Generar PDF para cada orden de venta
-                    foreach (var orden in listaOrdenesTicket)
+                    foreach (var orden in ticket.Det2)
                     {
                         string fileName = $"OrdenDeVenta_{orden.NroSap}.pdf";
-                        var pdfResult = GenerarPdfParaOrden(orden.NroSap, fileName);
+                        var pdfResult = GenerarPdfParaOrden(orden.NroSap, fileName, ticket.AlmProcedencia);
 
                         // Leer el PDF generado
                         using (var pdfReader = new PdfReader(pdfResult))
@@ -4089,16 +4085,17 @@ namespace Capa_Usuario.Controllers
                                     for (int i = 1; i <= totalPages; i++)
                                     {
                                         PdfContentByte content = stamper.GetUnderContent(i);
-                                        iTextSharp.text.Font font = FontFactory.GetFont("Helvetica", BaseFont.CP1250,BaseFont.NOT_EMBEDDED, 8);
+                                        iTextSharp.text.Font font = FontFactory.GetFont("Arial", BaseFont.CP1250,BaseFont.NOT_EMBEDDED, 10 , iTextSharp.text.Font.BOLD);
 
                                         Phrase phrase = new Phrase($"Página {i} de {totalPages}", font);
                                         Phrase fecha = new Phrase($"{ DateTime.Now }", font);
-                                        ColumnText.ShowTextAligned(content, Element.ALIGN_LEFT, fecha, 30, 810, 0);
-
-                                        ColumnText.ShowTextAligned(content, Element.ALIGN_CENTER, phrase, 290, 810, 0);
+                                        Phrase docNumPhrase = new Phrase($"Nro Ticket: {ticket.DocNum}", font);
                                         
-                                        Phrase docNumPhrase = new Phrase($"Nro Ticket: {docNumTicket}", font);
-                                        ColumnText.ShowTextAligned(content, Element.ALIGN_RIGHT, docNumPhrase, 560, 810, 0); 
+
+                                        ColumnText.ShowTextAligned(content, Element.ALIGN_LEFT, fecha, 30, 810, 0);
+                                        ColumnText.ShowTextAligned(content, Element.ALIGN_CENTER, phrase, 300, 810, 0);
+                                        ColumnText.ShowTextAligned(content, Element.ALIGN_RIGHT, docNumPhrase, 570, 810, 0); 
+
                                     }
                                 }
 
@@ -4122,37 +4119,33 @@ namespace Capa_Usuario.Controllers
             }
         }
 
-        private byte[] GenerarPdfParaOrden( int NroSap, string fileName)
+        private byte[] GenerarPdfParaOrden(int NroSap, string fileName, string almProcedencia)
         {
-            // Aquí puedes implementar la lógica específica para generar el PDF de una orden
-            // Esto puede ser similar a lo que haces en AgruparPdfSegunTipo
-            var pdfResult = new ActionAsPdf("PDF_OrdenesDeVentas", new { DocNum = NroSap })
+            var pdfResult = new ActionAsPdf("PDF_OrdenesDeVentas", new { docNum = NroSap, almProcedencia = almProcedencia })
             {
                 FileName = fileName,
                 PageOrientation = Rotativa.Options.Orientation.Portrait,
                 PageSize = Rotativa.Options.Size.A4,
-                PageMargins = new Rotativa.Options.Margins(15, 10, 10, 10)
+                PageMargins = new Rotativa.Options.Margins(20, 10, 30, 10)
             };
 
             return pdfResult.BuildFile(ControllerContext);
 
         }
-        public ActionResult PDF_OrdenesDeVentas(OrdenDeVenta_E filtros)
+        public ActionResult PDF_OrdenesDeVentas(int docNum, string almProcedencia)
         {
-            var lista = new ORTV_N().obtenerOrdenDeVenta(filtros.DocNum);
-            //agrega las ubicaciones a cada SKU()
-            if (lista != null && !lista[0].Almacen.Equals("ALM07"))
+            var lista = new ORTV_N().obtenerOrdenDeVenta(docNum);
+            
+            foreach (var ordr in lista)
             {
-                foreach (var ordr in lista)
-                {
-                    ordr.Ubicaciones = ubicacionesN.BuscarUbicaciones(ordr.ItemCode);
-                }
-            }
+                almProcedencia = string.IsNullOrEmpty(almProcedencia) ? ordr.Almacen : almProcedencia;
+                ordr.Ubicaciones = ubicacionesN.BuscarUbicaciones(ordr.ItemCode, ordr.Lote, almProcedencia);
 
+            }
             lista = lista
         .OrderBy(x => x.Ubicaciones != null && x.Ubicaciones.Length > 0 ? x.Ubicaciones[0] : string.Empty)
         .ToList();
-
+            ViewBag.AlmProcedencia = almProcedencia;
             return View("~/Views/Ventas/PDF/PDF_OrdenesDeVentasSophos.cshtml", lista);
         }
     }

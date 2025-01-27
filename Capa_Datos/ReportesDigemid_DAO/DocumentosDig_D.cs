@@ -381,14 +381,14 @@ namespace Capa_Datos.ReportesDigemid_DAO
             catch (Exception e) { throw new Exception(e.Message); }
             return lista;
         }
-        public List<OrdenDeVenta_E> ConsultarOrdenDeVenta(int DocNum)
+        public List<OrdenDeVenta_E> ConsultarOrdenDeVenta(int docNum)
         {
             List<OrdenDeVenta_E> lista = new List<OrdenDeVenta_E>();
             HanaConnection hcn = new HanaConnection(uti.cadHana);
             try
             {
                 hcn.Open();
-                HanaCommand hcmd = new HanaCommand("select \"DocEntry\" from " + uti.schemaHana + "ordr where \"DocNum\"=" + DocNum, hcn);
+                HanaCommand hcmd = new HanaCommand("select \"DocEntry\" from " + uti.schemaHana + "ordr where \"DocNum\"=" + docNum, hcn);
                 HanaDataReader dr = hcmd.ExecuteReader();
                 dr.Read();
                 int DocEntry = dr.GetInt32(0);
