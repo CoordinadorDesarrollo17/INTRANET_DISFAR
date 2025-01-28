@@ -19,13 +19,13 @@ namespace Capa_Datos.Almacen_DAO.TablasSql
             List<CC_ORPD_E> lista = new List<CC_ORPD_E>();
             String condWhere = "", top = "";
 
-            if (!string.IsNullOrEmpty(filtros.Operacion))
+            if (!string.IsNullOrWhiteSpace(filtros.Operacion))
             {
                 top = "TOP 1";
                 condWhere += $"AND Operacion = '{filtros.Operacion}'";
             }
 
-            if (!string.IsNullOrEmpty(filtros.Operario))
+            if (!string.IsNullOrWhiteSpace(filtros.Operario))
             {
                 top = "TOP 1";
                 condWhere += $"AND Operario LIKE '%{filtros.Operario}%'";

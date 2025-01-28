@@ -85,7 +85,7 @@ namespace Capa_Datos.Ventas_DAO.Tablas
             {
                 guiasTrasEnt += oinvD.buscarGuiasTrasladoConEnt(o.DocEntry);
             }
-            if (!string.IsNullOrEmpty(guiaRem)) { guia = guiaRem; }
+            if (!string.IsNullOrWhiteSpace(guiaRem)) { guia = guiaRem; }
             else { guia = guiasTras + guiasTrasEnt; }
             return guia;
         }

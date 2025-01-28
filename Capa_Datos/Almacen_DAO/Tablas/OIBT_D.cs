@@ -1,4 +1,5 @@
 ﻿using Capa_Entidad.Almacen_ENT.Tablas;
+using DocumentFormat.OpenXml.Drawing.Diagrams;
 using Sap.Data.Hana;
 using System;
 using System.Collections.Generic;
@@ -10,12 +11,24 @@ namespace Capa_Datos.Almacen_DAO.Tablas
 {
     public class OIBT_D
     {
-        readonly Utilitarios uti = new Utilitarios(); DBHelper db = new DBHelper();
+        readonly Utilitarios uti = new Utilitarios(); 
+        DBHelper db = new DBHelper();
+        public bool TieneValores<T>(T entidad) where T : class
+        {
+            if(entidad == null) return false;
+            return typeof(T).GetProperties().Any(x => x.GetValue(entidad) != null
+            && !string.IsNullOrWhiteSpace(x.GetValue(entidad)?.ToString()));
+        }
         public List<OIBT_E> ListarArticulosLotes(OIBT_E filtro = null, bool joinOITM = false, string limite = "500")
         {
-            List<OIBT_E> lista = new List<OIBT_E>();
-            string fil = string.Empty, query = string.Empty, select, innerJoin = string.Empty;
-            if (filtro == null)
+            var lista = new List<OIBT_E>();
+
+            string fil = string.Empty;
+            string query = string.Empty;
+            string select = string.Empty;
+            string innerJoin = string.Empty;
+
+            if (!TieneValores(filtro))
             {
                 query = "select top 50 \"ItemCode\",\"BatchNum\",\"WhsCode\",\"ItemName\",TO_CHAR(\"ExpDate\", 'YYYY-MM-DD'), \"Quantity\" " +
                 " from " + uti.schemaHana + "OIBT where \"ItemCode\" is not null order by \"ItemCode\"";
@@ -23,9 +36,9 @@ namespace Capa_Datos.Almacen_DAO.Tablas
             else
             {
                 if (filtro.Quantity > 0) { fil += " and T1.\"Quantity\">0"; }
-                if (!string.IsNullOrEmpty(filtro.WhsCode)) { fil += " and T1.\"WhsCode\"='" + filtro.WhsCode + "'"; }
-                if (!string.IsNullOrEmpty(filtro.ItemCode)) { fil += " and T1.\"ItemCode\"='" + filtro.ItemCode + "'"; }
-                if (!string.IsNullOrEmpty(filtro.BatchNum)) { fil += " and T1.\"BatchNum\"='" + filtro.BatchNum + "'"; }
+                if (!string.IsNullOrWhiteSpace(filtro.WhsCode)) { fil += " and T1.\"WhsCode\"='" + filtro.WhsCode + "'"; }
+                if (!string.IsNullOrWhiteSpace(filtro.ItemCode)) { fil += " and T1.\"ItemCode\"='" + filtro.ItemCode + "'"; }
+                if (!string.IsNullOrWhiteSpace(filtro.BatchNum)) { fil += " and T1.\"BatchNum\"='" + filtro.BatchNum + "'"; }
 
                 select = "T1.\"ItemCode\", T1.\"BatchNum\", T1.\"WhsCode\", T1.\"ItemName\", TO_CHAR(T1.\"ExpDate\", 'YYYY-MM-DD'), T1.\"Quantity\"";
 

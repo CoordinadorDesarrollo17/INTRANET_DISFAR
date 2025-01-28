@@ -269,7 +269,7 @@
                                     <td class="text-center"><input type='hidden' name='Det[@i].unitMsrF' id='Det@(i)unitMsrF' value='@obj.unitMsrF' readonly />@obj.unitMsrF</td>
                                     <td class="text-center"><input type='hidden' name='Det[@i].QuantityF' id='Det@(i)QuantityF' value='@((int)obj.QuantityF)' readonly />@((int)obj.QuantityF)</td>
                                     <td class="text-center"><input type='hidden' name='Det[@i].LineTotalF' id='Det@(i)LineTotalF' value='@((double)obj.LineTotalF)' readonly />@((double)obj.LineTotalF)</td>
-                                    <td class="text-center" style="width: 200px"><input type='@if (!string.IsNullOrEmpty(obj.OpResponsable)){Write("hidden");}else{Write("text");}' name='Det[@i].OpResponsable' id='Det@(i)OpResponsable' class="form-control" value='@obj.OpResponsable' list="usuarios" />@obj.OpResponsable</td>
+                                    <td class="text-center" style="width: 200px"><input type='@if (!string.IsNullOrWhiteSpace(obj.OpResponsable)){Write("hidden");}else{Write("text");}' name='Det[@i].OpResponsable' id='Det@(i)OpResponsable' class="form-control" value='@obj.OpResponsable' list="usuarios" />@obj.OpResponsable</td>
                                     <td class="text-center"><input type='hidden' name='Det[@i].AlmVenta' id='Det@(i)AlmVenta' value='@obj.AlmVenta' readonly />@obj.AlmVenta</td>
                                     <td></td>
 

@@ -69,7 +69,7 @@ namespace Capa_Usuario.Controllers
 
             // Filtrar documentos con U_SYP_MDCD no vacío y eliminar duplicados
             var documentosFiltrados = documentos
-                .Where(d => !string.IsNullOrEmpty(d.U_SYP_MDCD))
+                .Where(d => !string.IsNullOrWhiteSpace(d.U_SYP_MDCD))
                 .GroupBy(d => d.U_SYP_MDCD)
                 .Select(g => g.First())
                 .ToList();

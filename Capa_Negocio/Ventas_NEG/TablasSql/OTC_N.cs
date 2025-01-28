@@ -134,7 +134,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                         string mensaje = ValidarAdjunto(tc.ImgAdjunta);
 
                         // Validación correcta cuando el método ValidarAdjunto() no retorna ningún mensaje de error
-                        return string.IsNullOrEmpty(mensaje) ? string.Empty : mensaje;
+                        return string.IsNullOrWhiteSpace(mensaje) ? string.Empty : mensaje;
                     }
                     break;
 
@@ -167,7 +167,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                                 string mensaje = ValidarAdjunto(tc.ImgAdjunta);
 
                                 // Validación errónea cuando el método ValidarAdjunto() retorna ningún mensaje de error
-                                return string.IsNullOrEmpty(mensaje) ? string.Empty : mensaje;
+                                return string.IsNullOrWhiteSpace(mensaje) ? string.Empty : mensaje;
                             }
                             return string.Empty;
                         }
@@ -230,16 +230,16 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
 
                     if (AutorizarEntregaExcepcional())
                     {
-                        if (string.IsNullOrEmpty(tc.AutorizacionExcepcional)) { msj = "Es obligatorio justificar la autorización de la entrega"; }
+                        if (string.IsNullOrWhiteSpace(tc.AutorizacionExcepcional)) { msj = "Es obligatorio justificar la autorización de la entrega"; }
                     }
 
-                    if(string.IsNullOrEmpty(msj)) { msj = ValidarTipoPago(tc, result.MontoFinal); }
+                    if(string.IsNullOrWhiteSpace(msj)) { msj = ValidarTipoPago(tc, result.MontoFinal); }
 
                     // se valida en los casos que el textarea no sea visible en el FormData (JS)
-                    if (!string.IsNullOrEmpty(tc.AutorizacionExcepcional) && tc.AutorizacionExcepcional.Equals("undefined")) { tc.AutorizacionExcepcional = string.Empty; }
+                    if (!string.IsNullOrWhiteSpace(tc.AutorizacionExcepcional) && tc.AutorizacionExcepcional.Equals("undefined")) { tc.AutorizacionExcepcional = string.Empty; }
 
                     // Registrar solo si no existe mensaje de error en las validaciones anteriores
-                    if (string.IsNullOrEmpty(msj)) { otcD.RegistrarTicketACuadrar(tc); msj = "Se solicitó la VALIDACIÓN"; }
+                    if (string.IsNullOrWhiteSpace(msj)) { otcD.RegistrarTicketACuadrar(tc); msj = "Se solicitó la VALIDACIÓN"; }
                 }
                 else { msj = "No puede solicitar validación para este tipo de venta"; }
             }
@@ -266,14 +266,14 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             }
 
             string[] estadosValidos = { "PENDIENTE", "VALIDADO", "AUTORIZADO", "RECHAZADO", "CUADRADO" };
-            if (string.IsNullOrEmpty(tc.Estado) || !estadosValidos.Contains(tc.Estado))
+            if (string.IsNullOrWhiteSpace(tc.Estado) || !estadosValidos.Contains(tc.Estado))
             {
                 return "Estado no válido, verificar ticket a cuadrar";
             }
 
             var datosTC = otcD.ObtenerDatosTicketACuadrar((int)tc.DocEntryTicket, (int)tc.IdOTC);
 
-            if (datosTC == null || string.IsNullOrEmpty(datosTC.Estado))
+            if (datosTC == null || string.IsNullOrWhiteSpace(datosTC.Estado))
             {
                 return "Verificar el estado de la solicitud. Reportarlo a SISTEMAS";
             }

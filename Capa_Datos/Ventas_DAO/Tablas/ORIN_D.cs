@@ -17,12 +17,12 @@ namespace Capa_Datos.Ventas_DAO.Tablas
             if (filtros != null)
             {
                 if (fil.DocNum > 0) { filtros += " and \"DocNum\" like '%" + fil.DocNum + "'"; }
-                if (!string.IsNullOrEmpty(fil.DocDate)) { filtros += " and \"DocDate\"='" + fil.DocDate + "'"; }
-                if (!string.IsNullOrEmpty(fil.CardName)) { filtros += " and UPPER(\"CardName\") like UPPER('%" + fil.CardName + "%')"; }
-                if (!string.IsNullOrEmpty(fil.NumAtCard)) { filtros += " and UPPER(\"NumAtCard\") like UPPER('%" + fil.NumAtCard + "')"; }
+                if (!string.IsNullOrWhiteSpace(fil.DocDate)) { filtros += " and \"DocDate\"='" + fil.DocDate + "'"; }
+                if (!string.IsNullOrWhiteSpace(fil.CardName)) { filtros += " and UPPER(\"CardName\") like UPPER('%" + fil.CardName + "%')"; }
+                if (!string.IsNullOrWhiteSpace(fil.NumAtCard)) { filtros += " and UPPER(\"NumAtCard\") like UPPER('%" + fil.NumAtCard + "')"; }
                 if (fil.DocTotal > 0.00M) { filtros += " and \"DocTotal\" like '%" + fil.DocTotal + "%'"; }
-                if (!string.IsNullOrEmpty(fil.U_SYP_STATUS)) { filtros += " and UPPER(\"U_SYP_STATUS\")=UPPER('" + fil.U_SYP_STATUS + "')"; }
-                if (!string.IsNullOrEmpty(fil.RefFactura)) { filtros += " and UPPER(IFNULL(\"U_SYP_MDTO\"||'-','')||IFNULL(\"U_SYP_MDSO\"||'-','')||IFNULL(\"U_SYP_MDCO\",'')) like UPPER('%" + fil.RefFactura + "%')"; }
+                if (!string.IsNullOrWhiteSpace(fil.U_SYP_STATUS)) { filtros += " and UPPER(\"U_SYP_STATUS\")=UPPER('" + fil.U_SYP_STATUS + "')"; }
+                if (!string.IsNullOrWhiteSpace(fil.RefFactura)) { filtros += " and UPPER(IFNULL(\"U_SYP_MDTO\"||'-','')||IFNULL(\"U_SYP_MDSO\"||'-','')||IFNULL(\"U_SYP_MDCO\",'')) like UPPER('%" + fil.RefFactura + "%')"; }
             }
             string query = $"SELECT top 50 \"DocEntry\" from {uti.schemaHana}ORIN where \"DocEntry\">0 {filtros} ORDER BY 1 DESC";
             try

@@ -25,19 +25,19 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                 SqlCommand cmd = new SqlCommand();
                 cmd.Connection = cn;
 
-                if (!string.IsNullOrEmpty(registroSanitario))
+                if (!string.IsNullOrWhiteSpace(registroSanitario))
                 {
                     query.Append(" AND OBS.RegistroSanitario = @registroSanitario");
                     cmd.Parameters.AddWithValue("@registroSanitario", registroSanitario);
                 }
 
-                if (!string.IsNullOrEmpty(codArticulo))
+                if (!string.IsNullOrWhiteSpace(codArticulo))
                 {
                     query.Append(" AND CodArticulo = @codArticulo");
                     cmd.Parameters.AddWithValue("@codArticulo", codArticulo);
                 }
 
-                if (!string.IsNullOrEmpty(codLaboratorio))
+                if (!string.IsNullOrWhiteSpace(codLaboratorio))
                 {
                     query.Append(" AND OBS.CodLaboratorio = @codLaboratorio");
                     cmd.Parameters.AddWithValue("@codLaboratorio", codLaboratorio);
@@ -110,11 +110,11 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
 
             if (rs != null)
             {
-                if (!string.IsNullOrEmpty(rs.RegistroSanitario)) { condWhere += $" AND BTN.\"MnfSerial\" = '{rs.RegistroSanitario}'"; }
-                if (!string.IsNullOrEmpty(rs.CodArticulo)) { condWhere += $" AND ITM.\"ItemCode\" = '{rs.CodArticulo}'"; }
-                if (!string.IsNullOrEmpty(rs.DescArticulo)) { condWhere += $" AND ITM.\"ItemName\" LIKE '%{rs.DescArticulo.ToUpper()}%'"; }
-                if (!string.IsNullOrEmpty(rs.FechaVenc)) { condWhere += $" AND TO_CHAR(ITM.\"U_COB_FECH_RS\", 'YYYY-MM-DD') = '{rs.FechaVenc}'"; }
-                if (!string.IsNullOrEmpty(rs.Estado)) { condWhere += $" AND ITM.\"U_COB_ESTRS\" = '{rs.Estado}'"; }
+                if (!string.IsNullOrWhiteSpace(rs.RegistroSanitario)) { condWhere += $" AND BTN.\"MnfSerial\" = '{rs.RegistroSanitario}'"; }
+                if (!string.IsNullOrWhiteSpace(rs.CodArticulo)) { condWhere += $" AND ITM.\"ItemCode\" = '{rs.CodArticulo}'"; }
+                if (!string.IsNullOrWhiteSpace(rs.DescArticulo)) { condWhere += $" AND ITM.\"ItemName\" LIKE '%{rs.DescArticulo.ToUpper()}%'"; }
+                if (!string.IsNullOrWhiteSpace(rs.FechaVenc)) { condWhere += $" AND TO_CHAR(ITM.\"U_COB_FECH_RS\", 'YYYY-MM-DD') = '{rs.FechaVenc}'"; }
+                if (!string.IsNullOrWhiteSpace(rs.Estado)) { condWhere += $" AND ITM.\"U_COB_ESTRS\" = '{rs.Estado}'"; }
             }
 
             string query = @" SELECT TOP 50 

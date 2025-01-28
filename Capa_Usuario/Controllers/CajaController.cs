@@ -136,7 +136,7 @@ namespace Capa_Usuario.Controllers
                     }
 
                     // Si no existe un mensaje de error, se procede con el pago del ticket
-                    if (string.IsNullOrEmpty(ViewBag.Mensaje))
+                    if (string.IsNullOrWhiteSpace(ViewBag.Mensaje))
                     {
                         Usuario_E usu = (Usuario_E)Session["UsuarioId"];
                         ticket.CodSapCajero = usu.CodigoSap;
@@ -458,9 +458,9 @@ namespace Capa_Usuario.Controllers
 
             if (result != null)
             {
-                if (!string.IsNullOrEmpty(result.ComentarioVentas) || !string.IsNullOrEmpty(result.ComentarioCaja))
+                if (!string.IsNullOrWhiteSpace(result.ComentarioVentas) || !string.IsNullOrWhiteSpace(result.ComentarioCaja))
                 {
-                    msj = !string.IsNullOrEmpty(result.ComentarioVentas) ? result.ComentarioVentas : result.ComentarioCaja;
+                    msj = !string.IsNullOrWhiteSpace(result.ComentarioVentas) ? result.ComentarioVentas : result.ComentarioCaja;
                     tieneRespuesta = "SI";
                 }
             }

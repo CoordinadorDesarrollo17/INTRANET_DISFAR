@@ -144,14 +144,14 @@ namespace Capa_Datos
             {
                 if (filtro.DocEntry > 0) { fil += $" AND DocEntry LIKE '%{filtro.DocEntry}%'"; }
                 if (filtro.Activo != null) { fil += $" AND Activo={filtro.Activo}"; }
-                if (!string.IsNullOrEmpty(filtro.FechaRegistro)) { fil += $" AND FechaRegistro = '{filtro.FechaRegistro}'"; }
+                if (!string.IsNullOrWhiteSpace(filtro.FechaRegistro)) { fil += $" AND FechaRegistro = '{filtro.FechaRegistro}'"; }
                 if (filtro.Nombres != null) { fil += $" AND CONCAT(Nombres,' ',Apellidos) LIKE '%{filtro.Nombres}%'"; }
                 if (filtro.IdRol >= 2)
                 {
                     fil += Perfiles(filtro.IdRol);
                 }
 
-                if (!string.IsNullOrEmpty(filtro.Prefijo))
+                if (!string.IsNullOrWhiteSpace(filtro.Prefijo))
                 {
                     if (filtro.Prefijo.Equals("ALM")) { fil += $" AND Prefijo in ('ALM','PIK','DESPACHO','RECEP')"; }
                     else { fil += $" AND Prefijo = '{filtro.Prefijo}'"; }

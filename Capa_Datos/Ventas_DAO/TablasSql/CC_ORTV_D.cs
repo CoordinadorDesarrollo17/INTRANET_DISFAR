@@ -71,7 +71,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
         {
             List<CC_ORTV_E> lista = new List<CC_ORTV_E>();
             string condWhere = string.Empty, top = string.Empty;
-            if (!string.IsNullOrEmpty(operacion))
+            if (!string.IsNullOrWhiteSpace(operacion))
             {
                 top = "TOP 1";
                 condWhere = $"AND Operacion = '{operacion}'";

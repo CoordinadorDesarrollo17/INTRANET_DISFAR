@@ -353,7 +353,7 @@
                 @foreach (var item in Model)
                 {
                     string styleVisible = "";
-                    if (!string.IsNullOrEmpty(item.Presupuesto) && item.Presupuesto.Equals("SI"))
+                    if (!string.IsNullOrWhiteSpace(item.Presupuesto) && item.Presupuesto.Equals("SI"))
                     {
                         styleVisible = "bg-skyblue";
 
@@ -369,7 +369,7 @@
                             @Html.DisplayFor(modelItem => item.HoraAbierto)
                         </td>
                         <td>
-                            @if (!string.IsNullOrEmpty(item.CardName)) { Write(item.CardName); }
+                            @if (!string.IsNullOrWhiteSpace(item.CardName)) { Write(item.CardName); }
                         </td>
                         <td class="text-center">
                             @item.Vendedor

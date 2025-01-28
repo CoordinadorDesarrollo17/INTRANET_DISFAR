@@ -79,7 +79,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Almacen_DAO\ReportesSql\ContInv_D.cs" />
+    <Compile Include="Almacen_DAO\RptInternos\ContInv_D.cs" />
     <Compile Include="Almacen_DAO\TablasSql\CC_ORPD_D.cs" />
     <Compile Include="Almacen_DAO\TablasSql\CC_ORRU_D.cs" />
     <Compile Include="Almacen_DAO\TablasSql\MotivosDevoluciones_D.cs" />

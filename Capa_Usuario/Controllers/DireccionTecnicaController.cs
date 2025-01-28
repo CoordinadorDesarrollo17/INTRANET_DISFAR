@@ -57,10 +57,10 @@ namespace Capa_Usuario.Controllers
             Dictionary<string, string> lista = new Dictionary<string, string>();
             Dictionary<string, string> result = new Dictionary<string, string>();
 
-            if (!string.IsNullOrEmpty(almacen))
+            if (!string.IsNullOrWhiteSpace(almacen))
             {
                 // ResponsableALMActas: ActaRecepcionEm, ActaRecepcionTs
-                if (!string.IsNullOrEmpty(tipoFirma) && tipoFirma.Equals("ResponsableALMActas"))
+                if (!string.IsNullOrWhiteSpace(tipoFirma) && tipoFirma.Equals("ResponsableALMActas"))
                 {
                     lista.Add("00", "");                        // ------  REVALORIZACION
                     lista.Add("01", "186");                     // Mireya Roman Silva ALM01
@@ -80,7 +80,7 @@ namespace Capa_Usuario.Controllers
                     lista.Add("11", "");                  // 
                     
                 }
-                else if (!string.IsNullOrEmpty(tipoFirma) && tipoFirma.Equals("QuimicoFarmaceutico"))
+                else if (!string.IsNullOrWhiteSpace(tipoFirma) && tipoFirma.Equals("QuimicoFarmaceutico"))
                 {
                     lista.Add("00", "");                        // ------ REVALORIZACION
                     lista.Add("01", "416");                     // Maryori Córdova García ALM01
@@ -103,7 +103,7 @@ namespace Capa_Usuario.Controllers
 
                 string docEntryUsuario = lista[almacen];
 
-                if (!string.IsNullOrEmpty(docEntryUsuario))
+                if (!string.IsNullOrWhiteSpace(docEntryUsuario))
                 {
                     string FilePath;
                     Firmas_N firN = new Firmas_N();
@@ -408,7 +408,7 @@ namespace Capa_Usuario.Controllers
         public JsonResult CambiarEstadoOWTR(SQL_OWTR_E datos)
         {
             //verificacionAccesos(0);         // Validar sesion logueada, solo para ajax
-            if (datos.DocNumSAP >= 1 && !string.IsNullOrEmpty(datos.Estado))
+            if (datos.DocNumSAP >= 1 && !string.IsNullOrWhiteSpace(datos.Estado))
             {
                 Usuario_E usu = (Usuario_E)Session["UsuarioId"];
                 datos.OpRegistro = $"{usu.Nombres} {usu.Apellidos}";
