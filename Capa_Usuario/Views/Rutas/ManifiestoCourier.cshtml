@@ -61,7 +61,7 @@
                     <td  colspan="3">@d.Guias</td>
                     <td>@d.Ticket.Cajas</td>
                     <td>@d.Ticket.Det6.Sum(x => x.Peso)</td>
-                    @if (d.Ticket.Det3 != null && d.Ticket.Det3.Count()>1 && !string.IsNullOrEmpty(d.Ticket.Det3[1].Calle))
+                    @if (d.Ticket.Det3 != null && d.Ticket.Det3.Count()>1 && !string.IsNullOrWhiteSpace(d.Ticket.Det3[1].Calle))
                     {
                         <td colspan="2">@d.Ticket.Det3[1].Distrito-@d.Ticket.Det3[1].Provincia-@d.Ticket.Det3[1].Departamento</td>
                     }

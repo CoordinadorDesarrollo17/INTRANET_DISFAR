@@ -34,17 +34,17 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 verDetPed = true;
             }
 
-            if (pedido != null && !string.IsNullOrEmpty(pedido.CardName))
+            if (pedido != null && !string.IsNullOrWhiteSpace(pedido.CardName))
             {
                 condWhere += $" AND Cardname LIKE '%{pedido.CardName}%'";
             }
 
-            if (pedido != null && !string.IsNullOrEmpty(pedido.Vendedor))
+            if (pedido != null && !string.IsNullOrWhiteSpace(pedido.Vendedor))
             {
                 condWhere += $" AND Vendedor LIKE '%{pedido.Vendedor}%'";
             }
 
-            if (pedido != null && !string.IsNullOrEmpty(pedido.Estado))
+            if (pedido != null && !string.IsNullOrWhiteSpace(pedido.Estado))
             {
                 condWhere += $" AND Estado = '{pedido.Estado}'";
             }

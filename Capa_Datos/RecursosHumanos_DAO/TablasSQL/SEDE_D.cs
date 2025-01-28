@@ -142,7 +142,7 @@ namespace Capa_Datos.General_DAO
                             cmd.Parameters.AddWithValue("@UbigeoID", filtros.UbigeoID);
                         }
 
-                        if (!string.IsNullOrEmpty(filtros.Estado))
+                        if (!string.IsNullOrWhiteSpace(filtros.Estado))
                         {
                             sb.Append(" AND SD.Estado = @Estado");
                             cmd.Parameters.AddWithValue("@Estado", filtros.Estado);

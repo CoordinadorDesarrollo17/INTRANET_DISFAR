@@ -110,7 +110,7 @@ namespace Capa_Usuario.Controllers
 
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                if (!string.IsNullOrEmpty(mensaje))
+                if (!string.IsNullOrWhiteSpace(mensaje))
                 {
                     ViewBag.Mensaje = mensaje;
                 }
@@ -179,7 +179,7 @@ namespace Capa_Usuario.Controllers
                 if (DocEntry > 0) { return View(ticketN.ObtenerDatosCompletosTicket(DocEntry)); }
                 else {
                     //Si usuario entidad llega con data al GET se entiende que el ticket esta siendo separado por un vendedor de reemplazo.
-                    if (u != null && u.CodigoSap > 0 && !string.IsNullOrEmpty(u.Nombres) && !string.IsNullOrEmpty(u.Apellidos) && user.IdRol == 12)
+                    if (u != null && u.CodigoSap > 0 && !string.IsNullOrWhiteSpace(u.Nombres) && !string.IsNullOrWhiteSpace(u.Apellidos) && user.IdRol == 12)
                     {
                         return View(ticketN.Separar(u));
                     }
@@ -595,7 +595,7 @@ namespace Capa_Usuario.Controllers
         public JsonResult BuscarArticulo(Capa_Entidad.Almacen_ENT.TablasSql.OIBT_E articulo)
         {
             //verificacionAccesos(0);         // Validar sesion logueada, solo para ajax
-            if (!string.IsNullOrEmpty(articulo.ItemName) || !string.IsNullOrEmpty(articulo.PrincActivo))
+            if (!string.IsNullOrWhiteSpace(articulo.ItemName) || !string.IsNullOrWhiteSpace(articulo.PrincActivo))
             {
                 Capa_Negocio.Almacen_NEG.TablasSql.OIBT_N oibtN = new Capa_Negocio.Almacen_NEG.TablasSql.OIBT_N();
                 var tbody = string.Empty;
@@ -934,7 +934,7 @@ namespace Capa_Usuario.Controllers
                             Guias = ticketN.GuiasTicket(DocEntry);
                         }
                         //verificamos guias existentes desde SAP
-                        if (!string.IsNullOrEmpty(Guias) && Guias.Length > 6)
+                        if (!string.IsNullOrWhiteSpace(Guias) && Guias.Length > 6)
                         {
                             //pasa EstadoFacturacion a GRE EMITIDA
                             DocNum = ticketN.emitirGuia(DocEntry, u);
@@ -1072,7 +1072,7 @@ namespace Capa_Usuario.Controllers
             string filePath = CrearYObtenerDocumento(docEntry, "F");
             try
             {
-                if (!string.IsNullOrEmpty(filePath) && System.IO.File.Exists(filePath))
+                if (!string.IsNullOrWhiteSpace(filePath) && System.IO.File.Exists(filePath))
                 {
                     ms.Attachments.Add(new Attachment(filePath));
                 }
@@ -1097,7 +1097,7 @@ namespace Capa_Usuario.Controllers
             }
             finally
             {
-                if (!string.IsNullOrEmpty(filePath) && System.IO.File.Exists(filePath))
+                if (!string.IsNullOrWhiteSpace(filePath) && System.IO.File.Exists(filePath))
                 {
                     try
                     {
@@ -1157,7 +1157,7 @@ namespace Capa_Usuario.Controllers
 
             // Filtrar documentos con U_SYP_MDCD no vacío y eliminar duplicados
             var documentosFiltrados = documentos
-                .Where(d => !string.IsNullOrEmpty(d.U_SYP_MDCD))
+                .Where(d => !string.IsNullOrWhiteSpace(d.U_SYP_MDCD))
                 .GroupBy(d => d.U_SYP_MDCD)
                 .Select(g => g.First())
                 .ToList();
@@ -1401,11 +1401,11 @@ namespace Capa_Usuario.Controllers
             List<OINV_E> lista = new List<OINV_E>();
             foreach (var o in FB)
             {
-                if (!string.IsNullOrEmpty(o) && o.Contains("F"))
+                if (!string.IsNullOrWhiteSpace(o) && o.Contains("F"))
                 {
                     lista.Add(oinvNeg.listadoFacturasDeVenta(new OINV_E { NumAtCard = o }).FirstOrDefault());
                 }
-                else if (!string.IsNullOrEmpty(o) && o.Contains("B"))
+                else if (!string.IsNullOrWhiteSpace(o) && o.Contains("B"))
                 {
                     lista.Add(oinvNeg.listadoBoletasDeVenta(new OINV_E { NumAtCard = o }).FirstOrDefault());
                 }
@@ -1438,7 +1438,7 @@ namespace Capa_Usuario.Controllers
                 List<Guia_Remision_E> resultGuias = odlN.buscarGuiaRemisionSap(guiasSeparadas[i]);
                 if (resultGuias != null && resultGuias.Count() > 0)
                 {
-                    if (!string.IsNullOrEmpty(resultGuias[0].NumAtCard)) { lista.Add(odlN.buscarGuiaRemisionSap(guiasSeparadas[i])[0]); }
+                    if (!string.IsNullOrWhiteSpace(resultGuias[0].NumAtCard)) { lista.Add(odlN.buscarGuiaRemisionSap(guiasSeparadas[i])[0]); }
                 }
                 else { lista.Add(owtrN.buscarGuiaRemisionSap(guiasSeparadas[i])[0]); }
             }
@@ -1501,7 +1501,7 @@ namespace Capa_Usuario.Controllers
                     foreach (var ordenForEach in t.Det2)
                     {
                         var orden = ordrN.obtenerOrdenDeVenta(ordenForEach.NroSap);
-                        if (orden.CANCELED.Equals("Y") || string.IsNullOrEmpty(orden.CANCELED)) { todasvigentes = false; num = ordenForEach.NroSap; break; }
+                        if (orden.CANCELED.Equals("Y") || string.IsNullOrWhiteSpace(orden.CANCELED)) { todasvigentes = false; num = ordenForEach.NroSap; break; }
                     }
                     if (todasvigentes)
                     {
@@ -2160,7 +2160,7 @@ namespace Capa_Usuario.Controllers
                     ORTV_E ticket = ticketN.ObtenerDatosCompletosTicket(DocEntry);
                     ticket.OpRegistro = $"{usu.Nombres} {usu.Apellidos}";
 
-                    if (!String.IsNullOrEmpty(ticketPost.Det5[0].RegEstado))
+                    if (!String.IsNullOrWhiteSpace(ticketPost.Det5[0].RegEstado))
                     {
                         ticket.Det5[0].RegEstado = ticketPost.Det5[0].RegEstado;
                     }
@@ -3432,7 +3432,7 @@ namespace Capa_Usuario.Controllers
                 ORTV_E t = ticketN.ObtenerDatosCompletosTicket(DocEntry);
                 try
                 {
-                    if (!String.IsNullOrEmpty(t.LugarDestino))
+                    if (!String.IsNullOrWhiteSpace(t.LugarDestino))
                     {
                         if (t.LugarDestino == "Centro")
                         {

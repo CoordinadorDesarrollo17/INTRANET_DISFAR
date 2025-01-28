@@ -46,23 +46,23 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
         }
         public void validarNuevaHojaDeRepartoOTransferencia(ORRU_E o)
         {
-            if (string.IsNullOrEmpty(o.TipoRuta)) { throw new Exception("No lleno tipo de ruta encabezado"); }
+            if (string.IsNullOrWhiteSpace(o.TipoRuta)) { throw new Exception("No lleno tipo de ruta encabezado"); }
             //Validacion solo para agencia courier
             if (o.TipoRuta != "TA")
             {
-                if (string.IsNullOrEmpty(o.TransDesc)) { throw new Exception("Debe elegir un conductor"); }
-                if (string.IsNullOrEmpty(o.VehiculoCod)) { throw new Exception("Debe elegir un vehiculo"); }
-                if (string.IsNullOrEmpty(o.CopilDesc)) { throw new Exception("El documento debe tener copiloto 1"); }
+                if (string.IsNullOrWhiteSpace(o.TransDesc)) { throw new Exception("Debe elegir un conductor"); }
+                if (string.IsNullOrWhiteSpace(o.VehiculoCod)) { throw new Exception("Debe elegir un vehiculo"); }
+                if (string.IsNullOrWhiteSpace(o.CopilDesc)) { throw new Exception("El documento debe tener copiloto 1"); }
             }
             //Validaciones para cualquier tipo de ruta
             if (o.FechaCont == null) { throw new Exception("No eligió FechaContabilizacion"); }
 
             //validaciones para tipos de ruta distinto a courier y agencia
-            if (o.TipoRuta != "VG" && o.TipoRuta != "AC" && (string.IsNullOrEmpty(o.AlmOrigenCod) || string.IsNullOrEmpty(o.AlmOrigenDesc)))
+            if (o.TipoRuta != "VG" && o.TipoRuta != "AC" && (string.IsNullOrWhiteSpace(o.AlmOrigenCod) || string.IsNullOrWhiteSpace(o.AlmOrigenDesc)))
             {
                 throw new Exception("No eligió almacén origen");
             }
-            if (o.TipoRuta != "VG" && o.TipoRuta != "AC" && (string.IsNullOrEmpty(o.AlmDestinoCod) || string.IsNullOrEmpty(o.AlmDestinoDesc)))
+            if (o.TipoRuta != "VG" && o.TipoRuta != "AC" && (string.IsNullOrWhiteSpace(o.AlmDestinoCod) || string.IsNullOrWhiteSpace(o.AlmDestinoDesc)))
             {
                 throw new Exception("No eligió almacén destino");
             }
@@ -76,8 +76,8 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
                     if (d.DocEntryTicket > 0)
                     {
                         ORTV_E t = new Capa_Negocio.Ventas_NEG.TablasSql.ORTV_N().ObtenerDatosCompletosTicket(d.DocEntryTicket);
-                        if (string.IsNullOrEmpty(t.EstadoFacturacion) || t.EstadoFacturacion.Equals("PENDIENTE")) { throw new Exception("El ticket en linea " + d.Linea + " no tiene guías emitida, retirar de la tabla."); }
-                        if (string.IsNullOrEmpty(d.Guias))
+                        if (string.IsNullOrWhiteSpace(t.EstadoFacturacion) || t.EstadoFacturacion.Equals("PENDIENTE")) { throw new Exception("El ticket en linea " + d.Linea + " no tiene guías emitida, retirar de la tabla."); }
+                        if (string.IsNullOrWhiteSpace(d.Guias))
                         {
                             throw new Exception("El ticket no tiene guias en linea " + d.Linea);
                         }
@@ -162,16 +162,16 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
             //Solo edita los datos de encabezado de la hoja de ruta
             ORRU_E orruE = obtenerOrdenDeRuta(o.DocEntry);
             if (orruE.Estado != "CREADO") { throw new Exception("Solo puede editar un documento creado"); }
-            if (string.IsNullOrEmpty(o.TipoRuta)) { throw new Exception("No lleno tipo de ruta encabezado"); }
+            if (string.IsNullOrWhiteSpace(o.TipoRuta)) { throw new Exception("No lleno tipo de ruta encabezado"); }
 
             if (o.FechaCont == null) { throw new Exception("No eligió fecha de contabilizacion"); }
 
             //validaciones para tipos de ruta distinto a agencia
-            if (o.TipoRuta != "VG" && (string.IsNullOrEmpty(o.AlmOrigenCod) || string.IsNullOrEmpty(o.AlmOrigenDesc)))
+            if (o.TipoRuta != "VG" && (string.IsNullOrWhiteSpace(o.AlmOrigenCod) || string.IsNullOrWhiteSpace(o.AlmOrigenDesc)))
             {
                 throw new Exception("No eligió almacén origen");
             }
-            if (o.TipoRuta != "VG" && (string.IsNullOrEmpty(o.AlmDestinoCod) || string.IsNullOrEmpty(o.AlmDestinoDesc)))
+            if (o.TipoRuta != "VG" && (string.IsNullOrWhiteSpace(o.AlmDestinoCod) || string.IsNullOrWhiteSpace(o.AlmDestinoDesc)))
             {
                 throw new Exception("No eligió almacén destino");
             }
@@ -179,11 +179,11 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
             if (o.TiempoPac == null) { throw new Exception("Debe haber tiempo pactado"); }
             if (o.TipoRuta != "TA")
             {
-                if (string.IsNullOrEmpty(o.Placa)) { throw new Exception("El documento debe tener placa"); }
+                if (string.IsNullOrWhiteSpace(o.Placa)) { throw new Exception("El documento debe tener placa"); }
                 //Todos los casos distintos, donde se escoge los valores de un desplegable
-                if (string.IsNullOrEmpty(o.TransDesc)) { throw new Exception("Debe elegir un conductor"); }
-                if (string.IsNullOrEmpty(o.VehiculoCod)) { throw new Exception("Debe elegir un vehiculo"); }
-                if (string.IsNullOrEmpty(o.CopilDesc)) { throw new Exception("El documento debe tener copiloto 1"); }
+                if (string.IsNullOrWhiteSpace(o.TransDesc)) { throw new Exception("Debe elegir un conductor"); }
+                if (string.IsNullOrWhiteSpace(o.VehiculoCod)) { throw new Exception("Debe elegir un vehiculo"); }
+                if (string.IsNullOrWhiteSpace(o.CopilDesc)) { throw new Exception("El documento debe tener copiloto 1"); }
             }
 
         }

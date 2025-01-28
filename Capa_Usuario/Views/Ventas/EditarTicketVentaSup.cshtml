@@ -526,7 +526,7 @@
 
                         <div class="row mt-4">
                             <div class="col-lg-9">
-                                @if (!string.IsNullOrEmpty(Model.DirDestino))
+                                @if (!string.IsNullOrWhiteSpace(Model.DirDestino))
                                 {<label for="DirDestino" class="text-dark form-label" id="DireccionEscogida">@Model.DirDestino </label>}
                                 <select name="DirDestino" id="DirDestino" class="form-control bg-cobefar text-white border-success" onchange="enviarValSelect('DirDestino', 'Distrito', 'Distrito');enviarValSelect('DirDestino', 'Provincia', 'Provincia');enviarValSelect('DirDestino', 'Departamento', 'Departamento');enviarValSelect('DirDestino', 'Ubigeo', 'Ubigeo');enviarValSelect('DirDestino', 'Calle', 'Calle');enviarValSelect('DirDestino', 'Zona', 'Zona');muestraCampo()">
                                     <option value="">Seleccione</option>

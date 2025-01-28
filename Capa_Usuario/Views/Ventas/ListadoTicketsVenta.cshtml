@@ -370,7 +370,7 @@
                             @Html.DisplayFor(modelItem => item.HoraAbierto)
                         </td>
                         <td>
-                            @if (!string.IsNullOrEmpty(item.CardName)) { Write(item.CardName); }
+                            @if (!string.IsNullOrWhiteSpace(item.CardName)) { Write(item.CardName); }
                         </td>
                         <td class="text-center">
                             @item.Vendedor

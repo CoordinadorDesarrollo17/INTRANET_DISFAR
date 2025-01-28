@@ -37,7 +37,7 @@ namespace Capa_Negocio.Almacen_NEG.TablasSql
 
 			if (OIPE_E.PeriodoSeleccionado != null)
 			{
-				if (string.IsNullOrEmpty(OIPE_E.PeriodoSeleccionado.DocEntry.ToString())) { throw new Exception("No existe un periodo seleccionado"); }
+				if (string.IsNullOrWhiteSpace(OIPE_E.PeriodoSeleccionado.DocEntry.ToString())) { throw new Exception("No existe un periodo seleccionado"); }
 				if (objAux.DocEntry == OIPE_E.PeriodoSeleccionado.DocEntry) { throw new Exception("No se puede editar periodo Seleccionado"); }
 			}
 
@@ -78,9 +78,9 @@ namespace Capa_Negocio.Almacen_NEG.TablasSql
 		// validaciones pre
 		public void validarNuevoPeriodo(OIPE_E obj)
 		{
-			if (string.IsNullOrEmpty(obj.Descripcion)) { throw new Exception("Debe llenar Descripcion"); }
-			if (string.IsNullOrEmpty(obj.FecIni)) { throw new Exception("Debe llenar fecha inicio"); }
-			if (string.IsNullOrEmpty(obj.FecFin)) { throw new Exception("Debe llenar fecha fin"); }
+			if (string.IsNullOrWhiteSpace(obj.Descripcion)) { throw new Exception("Debe llenar Descripcion"); }
+			if (string.IsNullOrWhiteSpace(obj.FecIni)) { throw new Exception("Debe llenar fecha inicio"); }
+			if (string.IsNullOrWhiteSpace(obj.FecFin)) { throw new Exception("Debe llenar fecha fin"); }
 			if (obj.DetAlmacenes == null || obj.DetAlmacenes.Count == 0) { throw new Exception("El periodo debe tener al menos 1 almacen"); }
 		}
 	}

@@ -28,7 +28,7 @@ namespace Capa_Datos.General_DAO.TablasSql
                     condWhere += $" AND FIR.DocEntryUsuario IN ({string.Join(",", filtros.ListaDocEntryUsuario)})";
                 }
 
-                if (!string.IsNullOrEmpty(filtros.Nombres) || !string.IsNullOrEmpty(filtros.Apellidos))
+                if (!string.IsNullOrWhiteSpace(filtros.Nombres) || !string.IsNullOrWhiteSpace(filtros.Apellidos))
                 {
                     condWhere += $" AND CONCAT(FIR.Nombres, ' ', FIR.Apellidos) LIKE '%{filtros.Nombres}%'";
                 }

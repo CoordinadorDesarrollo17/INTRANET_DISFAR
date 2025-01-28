@@ -19,12 +19,12 @@ namespace Capa_Datos.Almacen_DAO.Tablas
                 if (filtro != null)
                 {
                     // CASO DEV07
-                    if (!string.IsNullOrEmpty(filtro.U_COB_LUGAREN) && filtro.U_COB_LUGAREN.Equals("DEV07"))
+                    if (!string.IsNullOrWhiteSpace(filtro.U_COB_LUGAREN) && filtro.U_COB_LUGAREN.Equals("DEV07"))
                     {
                         SP = $"{uti.schemaHana}\"COBE_LIST_TRANS_LOTES_DEV07\"";
                     }
                     // CASO 06 RETIRO MERCADO
-                    else if (!string.IsNullOrEmpty(filtro.U_COB_LUGAREN) && filtro.U_COB_LUGAREN.Equals("06"))
+                    else if (!string.IsNullOrWhiteSpace(filtro.U_COB_LUGAREN) && filtro.U_COB_LUGAREN.Equals("06"))
                     {
                         SP = $"{uti.schemaHana}\"COBE_LIST_TRANS_LOTES_06\"";
                     }
@@ -37,7 +37,7 @@ namespace Capa_Datos.Almacen_DAO.Tablas
                 }
                 HanaDataReader hdr = db.HanaExecuteReaderSp(SP, filtro.DocNum, ((object)filtro.DocDate) ?? String.Empty, ((object)filtro.ItemCode) ?? String.Empty, ((object)filtro.BatchNum) ?? String.Empty, ((object)filtro.CardCode) ?? String.Empty, ((object)filtro.U_COB_LUGAREN) ?? String.Empty, ((object)filtro.NumAtCard) ?? String.Empty);
 
-                if (!string.IsNullOrEmpty(filtro.U_COB_LUGAREN) && filtro.Quantity > 0 && (filtro.U_COB_LUGAREN.Equals("06") || filtro.U_COB_LUGAREN.Equals("DEV07")))
+                if (!string.IsNullOrWhiteSpace(filtro.U_COB_LUGAREN) && filtro.Quantity > 0 && (filtro.U_COB_LUGAREN.Equals("06") || filtro.U_COB_LUGAREN.Equals("DEV07")))
                 {
                     decimal sumQuantity = 0;
                     while (sumQuantity < filtro.Quantity && hdr.Read())

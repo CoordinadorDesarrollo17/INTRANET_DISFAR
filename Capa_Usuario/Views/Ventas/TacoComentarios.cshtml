@@ -69,7 +69,7 @@
             <td><strong>@Html.DisplayNameFor(model => model.LugarDestino): </strong></td>
             <td>
 
-                @if (Model.LugarDestino == "Agencia" && !string.IsNullOrEmpty(Model.Agencia))
+                @if (Model.LugarDestino == "Agencia" && !string.IsNullOrWhiteSpace(Model.Agencia))
                 {
                     @Model.LugarDestino  <span> - </span>  @Model.Agencia
                 }
@@ -132,7 +132,7 @@
 
                 @if (Model.LugarDestino != "Centro" && Model.Det3 != null && Model.Det3.Count >= 2)
                 {
-                    if (!string.IsNullOrEmpty(Model.Det3[1].Calle) && Model.Det3[1].Calle.Length > 0)
+                    if (!string.IsNullOrWhiteSpace(Model.Det3[1].Calle) && Model.Det3[1].Calle.Length > 0)
                     {
                         if (Model.LugarDestino == "Agencia" || Model.LugarDestino == "Agencia Courier")
                         {
@@ -183,7 +183,7 @@
                     }
 
                 }
-                else if (!string.IsNullOrEmpty(Model.DirDestino) && Model.DirDestino.Length > 0)
+                else if (!string.IsNullOrWhiteSpace(Model.DirDestino) && Model.DirDestino.Length > 0)
                 {
                     if (Model.LugarDestino == "Agencia" || Model.LugarDestino == "Agencia Courier")
                     {

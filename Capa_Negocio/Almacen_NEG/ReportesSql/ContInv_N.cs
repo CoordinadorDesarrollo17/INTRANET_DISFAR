@@ -1,4 +1,4 @@
-﻿using Capa_Datos.Almacen_DAO.ReportesSql;
+﻿using Capa_Datos.Almacen_DAO.RptInternos;
 using Capa_Entidad.Almacen_ENT.ReportesSql;
 using Capa_Entidad.Almacen_ENT.TablasSql;
 using System;

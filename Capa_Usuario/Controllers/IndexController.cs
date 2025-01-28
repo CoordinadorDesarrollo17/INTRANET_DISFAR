@@ -19,7 +19,7 @@ namespace Capa_Usuario.Controllers
         private string ObtenerIPCliente()
         {
             string clientIp = Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
-            if (string.IsNullOrEmpty(clientIp))
+            if (string.IsNullOrWhiteSpace(clientIp))
             {
                 clientIp = Request.ServerVariables["REMOTE_ADDR"];
             }

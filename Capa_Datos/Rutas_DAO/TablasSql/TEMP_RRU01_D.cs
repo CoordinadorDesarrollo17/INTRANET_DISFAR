@@ -114,7 +114,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                             string linkcorrelativo = $"<a onclick=\"ImprimirUnitarioDocumento(event,'{correlativo}',{DocNum},false)\" href=\"#\">{correlativo}</a>";
 
                             //string checkboxId = correlativo.Replace("-", "_"); // Reemplaza los guiones con guiones bajos para evitar problemas con el ID
-                            //string checkboxHtml = string.IsNullOrEmpty(correlativo) ? "" : $"<input type='checkbox' id='{checkboxId}'>";
+                            //string checkboxHtml = string.IsNullOrWhiteSpace(correlativo) ? "" : $"<input type='checkbox' id='{checkboxId}'>";
                             tabla += $"<td class='text-dark'>{linkcorrelativo}</td>";
                         }
 

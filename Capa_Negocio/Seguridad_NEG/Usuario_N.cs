@@ -52,16 +52,16 @@ namespace Capa_Negocio.Seguridad_NEG
                 }
             }
 
-            if (string.IsNullOrEmpty(datosPost.Nombres) || string.IsNullOrEmpty(datosPost.Nombres.Trim())) { throw new Exception("El campo Nombres no puede ser vacío"); }
-            if (string.IsNullOrEmpty(datosPost.Apellidos) || string.IsNullOrEmpty(datosPost.Apellidos.Trim())) { throw new Exception("El campo Apellidos no puede ser vacío"); }
+            if (string.IsNullOrWhiteSpace(datosPost.Nombres) || string.IsNullOrWhiteSpace(datosPost.Nombres.Trim())) { throw new Exception("El campo Nombres no puede ser vacío"); }
+            if (string.IsNullOrWhiteSpace(datosPost.Apellidos) || string.IsNullOrWhiteSpace(datosPost.Apellidos.Trim())) { throw new Exception("El campo Apellidos no puede ser vacío"); }
 
             // Buscamos si el usuario cuenta con un usuario con el mismo rol
             var busquedaUsuario = ousrD.BuscarUsuarioRol(datosPost.Nombres.Trim(), datosPost.Apellidos.Trim(), datosPost.IdRol);
             if (busquedaUsuario > 0) { throw new Exception("Se detectó un usuario con los mismos Nombres y Apellidos"); }
 
-            if (string.IsNullOrEmpty(datosPost.Id)) { throw new Exception("No puede registrar un ID vacío"); }
+            if (string.IsNullOrWhiteSpace(datosPost.Id)) { throw new Exception("No puede registrar un ID vacío"); }
             if (datosPost.IdRol <= 0) { throw new Exception("Debe seleccionar un ID de Rol válido"); }
-            if (string.IsNullOrEmpty(opRegistro)) { throw new Exception("Por favor cerrar sesión y volver a ingresar, gracias."); }
+            if (string.IsNullOrWhiteSpace(opRegistro)) { throw new Exception("Por favor cerrar sesión y volver a ingresar, gracias."); }
 
             // Verificar la longitud mínima del nombre completo
             if (datosPost.Nombres.TrimEnd().Length < 4) { throw new Exception("El campo Nombres debe tener más de 3 caracteres"); }

@@ -21,13 +21,13 @@ namespace Capa_Datos.Almacen_DAO.Tablas
             if (fil != null)
             {
                 if (fil.DocNum > 0) { filtro += " and \"DocNum\" like '%" + fil.DocNum + "'"; }
-                if (!string.IsNullOrEmpty(fil.DocDate)) { filtro += " and \"DocDate\"='" + fil.DocDate + "'"; }
-                if (!string.IsNullOrEmpty(fil.U_BPP_FECINITRA)) { filtro += " and \"U_BPP_FECINITRA\"='" + fil.U_BPP_FECINITRA + "'"; }
-                if (!string.IsNullOrEmpty(fil.Filler)) { filtro += " and \"Filler\"='" + fil.Filler + "'"; }
-                if (!string.IsNullOrEmpty(fil.ToWhsCode)) { if (fil.ToWhsCode == "ALM07") { filtro += " and \"ToWhsCode\" in ('" + fil.ToWhsCode + "','CUAR07')"; } else { filtro += " and \"ToWhsCode\"='" + fil.ToWhsCode + "'"; } }
+                if (!string.IsNullOrWhiteSpace(fil.DocDate)) { filtro += " and \"DocDate\"='" + fil.DocDate + "'"; }
+                if (!string.IsNullOrWhiteSpace(fil.U_BPP_FECINITRA)) { filtro += " and \"U_BPP_FECINITRA\"='" + fil.U_BPP_FECINITRA + "'"; }
+                if (!string.IsNullOrWhiteSpace(fil.Filler)) { filtro += " and \"Filler\"='" + fil.Filler + "'"; }
+                if (!string.IsNullOrWhiteSpace(fil.ToWhsCode)) { if (fil.ToWhsCode == "ALM07") { filtro += " and \"ToWhsCode\" in ('" + fil.ToWhsCode + "','CUAR07')"; } else { filtro += " and \"ToWhsCode\"='" + fil.ToWhsCode + "'"; } }
                 if (fil.SlpCode > 0) { filtro += " and \"SlpCode\"='" + fil.SlpCode + "'"; }
-                if (!string.IsNullOrEmpty(fil.U_SYP_MDCD)) { filtro += " and \"U_SYP_MDCD\" like '%" + fil.U_SYP_MDCD + "'"; }
-                if (!string.IsNullOrEmpty(fil.U_SYP_STATUS)) { filtro += " and UPPER(\"U_SYP_STATUS\")=UPPER('" + fil.U_SYP_STATUS + "')"; }
+                if (!string.IsNullOrWhiteSpace(fil.U_SYP_MDCD)) { filtro += " and \"U_SYP_MDCD\" like '%" + fil.U_SYP_MDCD + "'"; }
+                if (!string.IsNullOrWhiteSpace(fil.U_SYP_STATUS)) { filtro += " and UPPER(\"U_SYP_STATUS\")=UPPER('" + fil.U_SYP_STATUS + "')"; }
             }
             string query = "select top 500 \"DocEntry\",\"DocNum\",\"DocDate\",\"Filler\",\"ToWhsCode\",\"SlpCode\",\"U_SYP_MDTD\",\"U_SYP_MDSD\",\"U_SYP_MDCD\",\"U_SYP_STATUS\", \"U_BPP_FECINITRA\"  from " + uti.schemaHana + "OWTR where \"DocEntry\">0 " + filtro + " order by 1 desc";
             try
@@ -50,14 +50,14 @@ namespace Capa_Datos.Almacen_DAO.Tablas
 
                     SQL_OWTR_D owtrD = new SQL_OWTR_D();
                     var resultOWTR = owtrD.ObtenerOWTR(o.DocNum);
-                    o.Estado = (resultOWTR != null && !string.IsNullOrEmpty(resultOWTR.Estado)) ? resultOWTR.Estado : "Pendiente";
+                    o.Estado = (resultOWTR != null && !string.IsNullOrWhiteSpace(resultOWTR.Estado)) ? resultOWTR.Estado : "Pendiente";
 
                     // Si se filtrar por Estado, se considera de prioridad que solo se agreguen a la lista los que tienen el mismo Estado filtrado
-                    if (fil != null && !string.IsNullOrEmpty(fil.Estado) && fil.Estado.Equals(o.Estado))
+                    if (fil != null && !string.IsNullOrWhiteSpace(fil.Estado) && fil.Estado.Equals(o.Estado))
                     {
                         lista.Add(o);
                     }
-                    else if (string.IsNullOrEmpty(fil.Estado))
+                    else if (string.IsNullOrWhiteSpace(fil.Estado))
                     {
                         // En caso el usuario no filtre por Estado, entonces se agregarán todos a la lista sin excepción
                         lista.Add(o);
@@ -196,16 +196,16 @@ namespace Capa_Datos.Almacen_DAO.Tablas
             string doc = string.Empty;
             string filtros = string.Empty;
 
-            if (!string.IsNullOrEmpty(Fecha))
+            if (!string.IsNullOrWhiteSpace(Fecha))
             {
                 filtros += " and \"U_BPP_FECINITRA\"='" + Fecha + "'";
             }
-            if (!string.IsNullOrEmpty(U_SYP_STATUS))
+            if (!string.IsNullOrWhiteSpace(U_SYP_STATUS))
             {
                 if (U_SYP_STATUS == "V") { filtros += " and \"CANCELED\"='N'"; }
                 filtros += " and \"U_SYP_STATUS\"='" + U_SYP_STATUS + "'";
             }
-            if (!string.IsNullOrEmpty(U_COB_LUGAREN))
+            if (!string.IsNullOrWhiteSpace(U_COB_LUGAREN))
             {
                 filtros += " and \"U_COB_LUGAREN\"='" + U_COB_LUGAREN + "'";
             }
@@ -225,11 +225,11 @@ namespace Capa_Datos.Almacen_DAO.Tablas
             List<(string, int)> detalles = new List<(string, int)>();
             string filtros = string.Empty;
 
-            if (!string.IsNullOrEmpty(Fecha))
+            if (!string.IsNullOrWhiteSpace(Fecha))
             {
                 filtros += " and \"U_BPP_FECINITRA\"='" + Fecha + "'";
             }
-            if (!string.IsNullOrEmpty(U_SYP_STATUS))
+            if (!string.IsNullOrWhiteSpace(U_SYP_STATUS))
             {
                 if (U_SYP_STATUS == "V")
                 {
@@ -237,7 +237,7 @@ namespace Capa_Datos.Almacen_DAO.Tablas
                 }
                 filtros += " and \"U_SYP_STATUS\"='" + U_SYP_STATUS + "'";
             }
-            if (!string.IsNullOrEmpty(U_COB_LUGAREN))
+            if (!string.IsNullOrWhiteSpace(U_COB_LUGAREN))
             {
                 filtros += " and \"U_COB_LUGAREN\"='" + U_COB_LUGAREN + "'";
             }
@@ -270,16 +270,16 @@ namespace Capa_Datos.Almacen_DAO.Tablas
             string doc = string.Empty;
             string filtros = string.Empty;
 
-            if (!string.IsNullOrEmpty(Fecha))
+            if (!string.IsNullOrWhiteSpace(Fecha))
             {
                 filtros += " and \"U_BPP_FECINITRA\"='" + Fecha + "'";
             }
-            if (!string.IsNullOrEmpty(U_SYP_STATUS))
+            if (!string.IsNullOrWhiteSpace(U_SYP_STATUS))
             {
                 if (U_SYP_STATUS == "V") { filtros += " and \"CANCELED\"='N'"; }
                 filtros += " and \"U_SYP_STATUS\"='" + U_SYP_STATUS + "'";
             }
-            if (!string.IsNullOrEmpty(U_COB_LUGAREN))
+            if (!string.IsNullOrWhiteSpace(U_COB_LUGAREN))
             {
                 filtros += " and \"Filler\"='" + U_COB_LUGAREN + "'";
             }
@@ -299,11 +299,11 @@ namespace Capa_Datos.Almacen_DAO.Tablas
             List<(string, int)> detalles = new List<(string, int)>();
             string filtros = string.Empty;
 
-            if (!string.IsNullOrEmpty(Fecha))
+            if (!string.IsNullOrWhiteSpace(Fecha))
             {
                 filtros += " and \"U_BPP_FECINITRA\"='" + Fecha + "'";
             }
-            if (!string.IsNullOrEmpty(U_SYP_STATUS))
+            if (!string.IsNullOrWhiteSpace(U_SYP_STATUS))
             {
                 if (U_SYP_STATUS == "V")
                 {
@@ -311,7 +311,7 @@ namespace Capa_Datos.Almacen_DAO.Tablas
                 }
                 filtros += " and \"U_SYP_STATUS\"='" + U_SYP_STATUS + "'";
             }
-            if (!string.IsNullOrEmpty(U_COB_LUGAREN))
+            if (!string.IsNullOrWhiteSpace(U_COB_LUGAREN))
             {
                 filtros += " and \"Filler\"='" + U_COB_LUGAREN + "'";
             }

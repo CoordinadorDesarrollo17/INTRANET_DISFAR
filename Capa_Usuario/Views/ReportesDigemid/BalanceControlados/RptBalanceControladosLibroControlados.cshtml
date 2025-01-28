@@ -55,8 +55,8 @@
     }
 </style>
 
-<div class="@if (string.IsNullOrEmpty(impresion) || impresion.Equals("NO")) { Write("impresion"); } mt-4" style="width: 100%">
-    <table style="font-size: @if (string.IsNullOrEmpty(impresion) || impresion.Equals("NO")) { Write("12px"); } else { Write("10px"); }">
+<div class="@if (string.IsNullOrWhiteSpace(impresion) || impresion.Equals("NO")) { Write("impresion"); } mt-4" style="width: 100%">
+    <table style="font-size: @if (string.IsNullOrWhiteSpace(impresion) || impresion.Equals("NO")) { Write("12px"); } else { Write("10px"); }">
         <tr>
             <td>
                 HOJA N°4: SUSTENTO DE INGRESO Y EGRESO DE @Model.DescTipoControlado
@@ -69,7 +69,7 @@
         </tr>
     </table>
 
-    <table id="tbl_libroControlados" class="text-center" style="width: 100%; font-size: @if (string.IsNullOrEmpty(impresion) || impresion.Equals("NO")) { Write("12px"); } else { Write("10px"); }">
+    <table id="tbl_libroControlados" class="text-center" style="width: 100%; font-size: @if (string.IsNullOrWhiteSpace(impresion) || impresion.Equals("NO")) { Write("12px"); } else { Write("10px"); }">
         <thead id="tr_2daFila" class="text-dark">
             <tr>
                 <th class="text-dark" width="60" style="border: 2px solid black !important; text-align: center !important; vertical-align: middle">CÓDIGO</th>

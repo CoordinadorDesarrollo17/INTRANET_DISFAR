@@ -20,7 +20,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
 
         public int RegistrarPedidoOnline(ORDR_E Pedido, List<Capa_Entidad.Almacen_ENT.TablasSql.OIBT_E> DetallePedido)
         {
-            if (string.IsNullOrEmpty(Pedido.CardCode) || string.IsNullOrEmpty(Pedido.CardName) || string.IsNullOrEmpty(Pedido.WhsCode))
+            if (string.IsNullOrWhiteSpace(Pedido.CardCode) || string.IsNullOrWhiteSpace(Pedido.CardName) || string.IsNullOrWhiteSpace(Pedido.WhsCode))
             {
                 throw new Exception("El código de cliente, nombre de cliente y el almacén, son campos obligatorios.");
             }

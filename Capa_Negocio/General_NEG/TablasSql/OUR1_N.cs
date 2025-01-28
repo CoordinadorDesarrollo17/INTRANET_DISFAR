@@ -25,10 +25,10 @@ namespace Capa_Negocio.General_NEG.TablasSql
         }
         public void Validar(OUR1_E bean)
         {
-            if (string.IsNullOrEmpty(bean.Calle)) { throw new Exception("Debe ingresar calle"); }
-            if (string.IsNullOrEmpty(bean.Distrito)) { throw new Exception("Debe seleccionar distrito"); }
-            if (string.IsNullOrEmpty(bean.Provincia)) { throw new Exception("Debe seleccionar provincia"); }
-            if (string.IsNullOrEmpty(bean.Departamento)) { throw new Exception("Debe seleccionar departamento"); }
+            if (string.IsNullOrWhiteSpace(bean.Calle)) { throw new Exception("Debe ingresar calle"); }
+            if (string.IsNullOrWhiteSpace(bean.Distrito)) { throw new Exception("Debe seleccionar distrito"); }
+            if (string.IsNullOrWhiteSpace(bean.Provincia)) { throw new Exception("Debe seleccionar provincia"); }
+            if (string.IsNullOrWhiteSpace(bean.Departamento)) { throw new Exception("Debe seleccionar departamento"); }
         }
     }
 

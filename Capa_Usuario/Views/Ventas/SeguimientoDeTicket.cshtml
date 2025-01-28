@@ -193,7 +193,7 @@
                                 }
 
                                 @if (Model.hayFinPicking && flujoEstados["FIN PICKING"].Operario != null && flujoEstados["FIN PICKING"].FechaOperacion != null
-                                    && ((!string.IsNullOrEmpty(Model.AlmProcedencia) && Model.AlmProcedencia.Equals("03")) || !Model.Det2[0].AlmacenSalida.Equals("ALM07")))
+                                    && ((!string.IsNullOrWhiteSpace(Model.AlmProcedencia) && Model.AlmProcedencia.Equals("03")) || !Model.Det2[0].AlmacenSalida.Equals("ALM07")))
                                 {
                                     //if (new List<string> { "EMPACADO", "PESADO", "PREENVIO", "ENVIADO", "ENTREGADO", "CANCELADO" }.Contains(Model.Estado) ) )
 
@@ -215,7 +215,7 @@
 
                                 }
                                 else if (Model.hayIniPicking && flujoEstados["INICIO PICKING"].Operario != null && flujoEstados["INICIO PICKING"].FechaOperacion != null
-                                    && ((!string.IsNullOrEmpty(Model.AlmProcedencia) && Model.AlmProcedencia.Equals("03")) || !Model.Det2[0].AlmacenSalida.Equals("ALM07")))
+                                    && ((!string.IsNullOrWhiteSpace(Model.AlmProcedencia) && Model.AlmProcedencia.Equals("03")) || !Model.Det2[0].AlmacenSalida.Equals("ALM07")))
                                 {
                                     <li class="li complete">
                                         <div class="timestamp">
@@ -247,7 +247,7 @@
                                     </li>
                                 }
                                 @if (Model.hayFinVerificar && flujoEstados["FIN VERIFICAR"].Operario != null && flujoEstados["FIN VERIFICAR"].FechaOperacion != null
-                                   && ((!string.IsNullOrEmpty(Model.AlmProcedencia) && Model.AlmProcedencia.Equals("03")) || !Model.Det2[0].AlmacenSalida.Equals("ALM07")))
+                                   && ((!string.IsNullOrWhiteSpace(Model.AlmProcedencia) && Model.AlmProcedencia.Equals("03")) || !Model.Det2[0].AlmacenSalida.Equals("ALM07")))
                                 {
                                     <li class="li complete">
                                         <div class="timestamp">
@@ -263,7 +263,7 @@
                                     </li>
                                 }
                                 else if (Model.hayIniVerificar && flujoEstados["INICIO VERIFICAR"].Operario != null && flujoEstados["INICIO VERIFICAR"].FechaOperacion != null
-                                    && ((!string.IsNullOrEmpty(Model.AlmProcedencia) && Model.AlmProcedencia.Equals("03")) || !Model.Det2[0].AlmacenSalida.Equals("ALM07")))
+                                    && ((!string.IsNullOrWhiteSpace(Model.AlmProcedencia) && Model.AlmProcedencia.Equals("03")) || !Model.Det2[0].AlmacenSalida.Equals("ALM07")))
                                 {
                                     <li class="li complete">
                                         <div class="timestamp">
