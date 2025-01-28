@@ -52,9 +52,9 @@ namespace Capa_Negocio.ReportesDigemid_NEG
         {
             return dD.ConsultarComprobanteDePago(DocEntry);
         }
-        public List<OrdenDeVenta_E> ConsultarOrdenDeVenta(int DocNum)
+        public List<OrdenDeVenta_E> ConsultarOrdenDeVenta(int docNum)
         {
-            return dD.ConsultarOrdenDeVenta(DocNum);
+            return dD.ConsultarOrdenDeVenta(docNum);
         }
         public List<AuditoriaStocks_E> ReporteAuditoriaStocks(FrmAuditoriaStocks_E frm)
         {

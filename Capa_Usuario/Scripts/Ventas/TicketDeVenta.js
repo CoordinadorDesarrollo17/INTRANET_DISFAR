@@ -589,3 +589,13 @@ function openPreliminar(docEntry) {
     window.open(url, '_blank', 'noopener,noreferrer');
 }
 
+
+function validarLugarDestino(valor) {
+    if (valor == 'Centro' || valor == 'Arriola') {
+        document.querySelector('#div_AlmProcedencia').style.display = 'block'
+    } else {
+        document.querySelector('#div_AlmProcedencia').style.display = 'none'
+    }
+
+    return;
+}

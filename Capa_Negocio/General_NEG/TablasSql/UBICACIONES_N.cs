@@ -11,9 +11,9 @@ namespace Capa_Negocio.General_NEG.TablasSql
     public class UBICACIONES_N
     {
         UBICACIONES_D ubicacionesD = new UBICACIONES_D();
-        public string[] BuscarUbicaciones(string ItemCode)
+        public string[] BuscarUbicaciones(string itemCode, string lote, string almProcedencia)
         {
-            return ubicacionesD.BuscarUbicaciones(ItemCode);
+            return ubicacionesD.BuscarUbicaciones(itemCode, lote, almProcedencia);
         }
     }
 }

@@ -265,6 +265,7 @@
                                     <select id="Visible" name="Visible" class="form-control">
                                         <option value=""></option>
                                         <option value="SI" @{ if (a.Visible == "SI") { Write("selected"); } }>SI</option>
+                                        <option value="PI" @{ if (a.Visible == "PI") { Write("selected"); } }>EN PROCESO</option>
                                         <option value="NO" @{ if (a.Visible == "NO") { Write("selected"); } }>NO</option>
                                     </select>
                                 </div>
@@ -352,13 +353,13 @@
             <tbody>
                 @foreach (var item in Model)
                 {
-                    string styleVisible = "";
-                    if (!string.IsNullOrWhiteSpace(item.Presupuesto) && item.Presupuesto.Equals("SI"))
+                    string stylePresupuesto = "";
+                    if (!string.IsNullOrEmpty(item.Presupuesto) && item.Presupuesto.Equals("SI"))
                     {
-                        styleVisible = "bg-skyblue";
+                        stylePresupuesto = "bg-skyblue";
 
                     }
-                    <tr id="fila" class="@styleVisible">
+                    <tr id="fila" class="@stylePresupuesto">
                         <td class="text-center">
                             <div class="@if (ViewBag.DocNum == item.DocNum) { Write("bg-success"); }">@Html.DisplayFor(modelItem => item.DocNum)</div>
                         </td>
@@ -396,7 +397,11 @@
                             @Html.DisplayFor(modelItem => item.PagoEnv)
                         </td>
                         <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.Visible)
+                            @if (item.Visible != null && item.Visible.Equals("PI"))
+                            {<span>EN PROCESO</span>}
+                            else {
+                                Write(item.Visible);
+                            }
                         </td>
                         <td class="text-center">
                             @if (item.Estado.Equals("SEPARADO") || item.Estado.Equals("ABIERTO"))
@@ -541,7 +546,7 @@
 
             var docEntryUsuario = @ViewBag.DocEntryUsuario;
             $.ajax({
-                url: '/Ventas/ListarTicketsNoVisiblesPagados',
+                url: '/Ventas/ListarTicketsPresupuestoPagados',
                 type: 'POST',
                 dataType: 'json',
                 data: { DocEntryUsuario: docEntryUsuario },
@@ -658,7 +663,7 @@
 
     function darVisibilidadTicket(DocEntry) {
         $.ajax({
-            url: '/Ventas/CambiarVisibilidadTicket?DocEntry=' + DocEntry,
+            url: '/Ventas/CambiarVisibilidadTicket?docEntry=' + DocEntry +'&proceso=PI',
             type: 'POST',
             dataType: 'json'
         }).done(function (response) {

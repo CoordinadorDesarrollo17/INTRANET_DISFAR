@@ -87,19 +87,17 @@
                         <div class="col-lg-2">
                             @Html.EditorFor(model => model.NroMesa, new { htmlAttributes = new { @class = "form-control border-success", @type = "number" } })
                         </div>
-                        @if (Model.LugarDestino == "Centro" || Model.LugarDestino == "Arriola")
-                        {
-                            <label for="AlmProcedencia" class="col-sm-2 bg-cobefar text-white text-center py-2 px-2 col-form-label font-weight-bold font-18">Alm Procedencia:</label>
-                            <div class="col-lg-2">
-                                <select class="form-control border-success" name="AlmProcedencia">
-                                    <option value="">Seleccione</option>
-                                    @*<option value="03">Almacen 03</option>*@
-                                    <option value="ALM07">Almacen 06</option>
-                                    <option value="16">FACTURACION</option>
-                                    <option value="15">PICKING</option>
-                                </select>
-                            </div>
-                        }
+                        <label for="AlmProcedencia" class="col-sm-2 bg-cobefar text-white text-center py-2 px-2 col-form-label font-weight-bold font-18">Alm Procedencia:</label>
+                        <div class="col-lg-2">
+                            @{
+                                var nombreAlmacen = "";
+                                if ((Model.LugarDestino == "Centro" || Model.LugarDestino == "Arriola") && !string.IsNullOrEmpty(Model.AlmProcedencia))
+                                {
+                                    nombreAlmacen = Model.AlmProcedencia == "16" ? "Almacén Nro 8" : "Almacén Nro 6";
+                                }
+                            }
+                            <input type="text" class="form-control border-success" value="@nombreAlmacen" readonly />
+                        </div>
                     </div>
 
                     <div class="form-group row ml-1">
@@ -455,8 +453,8 @@
             </div><!-- // TAB CAJA -->
 
         </div>
-        <input type="hidden" id="pdf_descarga" name="DocEntry"value="@Model.DocEntry" />
-        <input type="hidden" id="LugarDestino" name="LugarDestino"value="@Model.LugarDestino" />
+        <input type="hidden" id="pdf_descarga" name="DocEntry" value="@Model.DocEntry" />
+        <input type="hidden" id="LugarDestino" name="LugarDestino" value="@Model.LugarDestino" />
 
         <datalist id="ListaUsuarios">
             @foreach (string u in ViewBag.ListaUsuarios)
