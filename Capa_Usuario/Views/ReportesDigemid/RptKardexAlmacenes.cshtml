@@ -45,7 +45,7 @@
         <tr>
             <td class="border-0 p-0 text-left" width="250"><b>CÓDIGO DE PRODUCTO: </b>@Model.ItemCode</td>
         </tr>
-        @if (!string.IsNullOrEmpty(Model.Lote))
+        @if (!string.IsNullOrWhiteSpace(Model.Lote))
         {
             <tr>
                 <td class="border-0 p-0 text-left" width="250"><b>LOTE: </b>@Model.Lote</td>
@@ -62,7 +62,7 @@
                 <th class="border text-dark" width="120" style="vertical-align: middle">DOCUMENTOS EMITIDOS</th>
                 <th class="border text-dark" style="vertical-align: middle">PROVEEDOR O ESTABLECIMIENTO</th>
                 <th class="border text-dark" style="vertical-align: middle">RUC</th>
-                @if (string.IsNullOrEmpty(Model.Lote))
+                @if (string.IsNullOrWhiteSpace(Model.Lote))
                 {
                     <th class="border text-dark" style="vertical-align: middle">LOTE</th>
                 }
@@ -83,7 +83,7 @@
                         <td>@det.FacturaGuiaBoleta</td>
                         <td>@det.ProvEstab</td>
                         <td>@det.Ruc</td>
-                        @if (string.IsNullOrEmpty(Model.Lote))
+                        @if (string.IsNullOrWhiteSpace(Model.Lote))
                         {
                             <td>@det.Lote</td>
                         }

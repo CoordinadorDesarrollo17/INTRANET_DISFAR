@@ -15,7 +15,7 @@ namespace Capa_Entidad.Ventas_ENT.TablasSql
             int ln = 1;
             foreach (RTV12_E d in dt)
             {
-                if (!string.IsNullOrEmpty(d.Operario)) { 
+                if (!string.IsNullOrWhiteSpace(d.Operario)) { 
                     d.DocEntry = DocEntryC;
                     d.Linea = ln;
                     lista.Add(d);

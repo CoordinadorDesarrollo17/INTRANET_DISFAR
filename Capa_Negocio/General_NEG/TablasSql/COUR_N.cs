@@ -21,9 +21,9 @@ namespace Capa_Negocio.General_NEG.TablasSql
         }
         public string Registrar(COUR_E bean)
         {
-            if (string.IsNullOrEmpty(bean.Nombre)) { return "Debe ingresar nombre"; }
-            if (string.IsNullOrEmpty(bean.Ruc) || bean.Ruc.Length!=11) { return "Debe ingresar ruc de 11 dígitos"; }
-            if (string.IsNullOrEmpty(bean.DireccionFiscal)) { return "Debe ingresar dirección fiscal"; }
+            if (string.IsNullOrWhiteSpace(bean.Nombre)) { return "Debe ingresar nombre"; }
+            if (string.IsNullOrWhiteSpace(bean.Ruc) || bean.Ruc.Length!=11) { return "Debe ingresar ruc de 11 dígitos"; }
+            if (string.IsNullOrWhiteSpace(bean.DireccionFiscal)) { return "Debe ingresar dirección fiscal"; }
             return cD.Registrar(bean);
         }
     }

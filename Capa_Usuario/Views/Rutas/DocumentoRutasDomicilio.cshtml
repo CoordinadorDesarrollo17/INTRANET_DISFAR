@@ -24,7 +24,7 @@
     {
         if (det.Ticket.Det3.Count >= 2)
         {
-            if (!string.IsNullOrEmpty(det.Ticket.Det3[1].Calle) || !string.IsNullOrEmpty(det.Ticket.Referencia))
+            if (!string.IsNullOrWhiteSpace(det.Ticket.Det3[1].Calle) || !string.IsNullOrWhiteSpace(det.Ticket.Referencia))
             {
                 lstDom2.Add(new RRU0_E() { DocEntry = det.DocEntry, Linea = det.Linea });
             }
@@ -328,7 +328,7 @@
                 {
                     if (det.Ticket.Det3.Count >= 2)
                     {
-                        if (!string.IsNullOrEmpty(det.Ticket.Det3[1].Calle) || !string.IsNullOrEmpty(det.Ticket.Referencia))
+                        if (!string.IsNullOrWhiteSpace(det.Ticket.Det3[1].Calle) || !string.IsNullOrWhiteSpace(det.Ticket.Referencia))
                         {
                             <tr>
                                 <td><font size="@ViewBag.Letra">@det.Linea</font></td>

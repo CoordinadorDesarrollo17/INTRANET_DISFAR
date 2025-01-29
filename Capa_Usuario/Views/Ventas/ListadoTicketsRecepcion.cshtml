@@ -4,7 +4,8 @@
     ViewBag.Title = "ListadoTicketsRecepcion";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
-    String bgEstadoPago = "bg-cobefar-6 text-white", bgLugarDestino = "bg-cobefar-6 text-white";
+    String bgEstadoPago = "bg-cobefar-6 text-white", bgLugarDestino = "bg-cobefar-6 text-white", bgAlmProcedencia = "bg-cobefar-6 text-white";
+
     if (ViewBag.Ortv.EstadoPago != "" && ViewBag.Ortv.EstadoPago != null)
     {
         bgEstadoPago = "bg-warning";
@@ -14,6 +15,11 @@
     {
         bgLugarDestino = "bg-warning";
     }
+    if (ViewBag.Ortv.AlmProcedencia != "" && ViewBag.Ortv.AlmProcedencia != null)
+    {
+        bgAlmProcedencia = "bg-warning";
+    }
+
 
 }
 <script>
@@ -52,6 +58,13 @@
                 <option value="Agencia" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Agencia") { Write("selected"); } }>Agencia</option>
                 <option value="Domicilio" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Domicilio") { Write("selected"); } }>Domicilio</option>
                 <option value="Centro" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Centro") { Write("selected"); } }>Centro</option>
+            </select>
+        </div>
+        <div class="mx-2">
+            <select name="AlmProcedencia" id="AlmProcedencia" class="form-control @bgAlmProcedencia" onchange="filtrar();">
+                <option value="">Almacen de procedencia</option>
+                <option value="16" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.AlmProcedencia == "16") { Write("selected"); } }>Almacen Nro 8</option>
+                <option value="ALM07" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.AlmProcedencia == "ALM07") { Write("selected"); } }>Almacen Nro 6</option>
             </select>
         </div>
     </div>

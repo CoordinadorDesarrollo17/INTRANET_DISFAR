@@ -81,7 +81,7 @@ namespace Capa_Usuario.Controllers
                         datos.IdRolUsuario = f.IdRolUsuario;
                         datos.DocEntryUsuario = f.DocEntryUsuario;
 
-                        if (!string.IsNullOrEmpty(FilePath))
+                        if (!string.IsNullOrWhiteSpace(FilePath))
                         {
                             byte[] archivo = System.IO.File.ReadAllBytes(FilePath);
                             var base64 = Convert.ToBase64String(archivo);                                               //La propiedad de tu modelo que es byte[]
@@ -189,7 +189,7 @@ namespace Capa_Usuario.Controllers
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 CapturarViewBag(TipoRep);
-                //ViewBag.ListaVehiculos = new Capa_Negocio.Repartos_NEG.TablasHana.SYP_VEHICU_N().listar().Where(x =>!string.IsNullOrEmpty(x.U_SYP_CHOF)).ToList();
+                //ViewBag.ListaVehiculos = new Capa_Negocio.Repartos_NEG.TablasHana.SYP_VEHICU_N().listar().Where(x =>!string.IsNullOrWhiteSpace(x.U_SYP_CHOF)).ToList();
                 return View(new ORRU_E());
             }
             else
@@ -399,7 +399,7 @@ namespace Capa_Usuario.Controllers
 
         public ActionResult RptHojasRuta(ORRU_E o, int idOperation = 208)
         {
-            if (string.IsNullOrEmpty(o.FecConIni) || string.IsNullOrEmpty(o.FecConFin))
+            if (string.IsNullOrWhiteSpace(o.FecConIni) || string.IsNullOrWhiteSpace(o.FecConFin))
             {
                 return null;
             }
@@ -1094,11 +1094,11 @@ namespace Capa_Usuario.Controllers
                     }
                     else if (obj.EnvioAgencia == "Domicilio de cliente")
                     {
-                        if (!string.IsNullOrEmpty(obj.Det3[0].Distrito))
+                        if (!string.IsNullOrWhiteSpace(obj.Det3[0].Distrito))
                         {
                             Destino = obj.Det3[0].Distrito.ToUpper();
                         }
-                        else if (!string.IsNullOrEmpty(obj.Det3[1].Distrito))
+                        else if (!string.IsNullOrWhiteSpace(obj.Det3[1].Distrito))
                         {
                             Destino = obj.Det3[1].Distrito.ToUpper();
                         }

@@ -31,7 +31,7 @@ namespace Capa_Datos.Almacen_DAO.TablasSql
                 if (filtro.WhsCode != null) { fil += " and WhsCode = '" + filtro.WhsCode + "'"; }
                 if (filtro.Piso > 0) { fil += " and Piso=" + filtro.Piso; }
                 if (filtro.Estado != null) { fil += " and Estado like '%" + filtro.Estado + "%'"; }
-                if (!string.IsNullOrEmpty(filtro.FechaRegistro)) { fil += " and FechaRegistro= '" + filtro.FechaRegistro + "'"; }
+                if (!string.IsNullOrWhiteSpace(filtro.FechaRegistro)) { fil += " and FechaRegistro= '" + filtro.FechaRegistro + "'"; }
                 if (filtro.DocEntryPer > 0) { fil += " and DocEntryPer=" + filtro.DocEntryPer; }
             }
             string query = "select top 50 DocEntry,Nombre,DocEntryPer,WhsCode,Piso,Estado,FechaRegistro, HoraRegistro from al.oieq " +

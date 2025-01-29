@@ -25,7 +25,7 @@ namespace Capa_Entidad.Ventas_ENT.TablasSql
             int ln = 1;
             foreach (RTV7_E reg in dt)
             {
-                if (!string.IsNullOrEmpty(reg.CardCode) && reg.DocNumVinc > 0)
+                if (!string.IsNullOrWhiteSpace(reg.CardCode) && reg.DocNumVinc > 0)
                 {
                     DataRow fila = tb.NewRow();
                     fila["DocEntry"] = DocEntry;

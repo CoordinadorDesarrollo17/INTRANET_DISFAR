@@ -268,7 +268,7 @@
                                                         <tr>
                                                             <td class="text-center" colspan="2">
                                                                 <div class="my-1">
-                                                                    @if (string.IsNullOrEmpty(m.EstadoTC) || m.EstadoTC.Equals("RECHAZADO"))
+                                                                    @if (string.IsNullOrWhiteSpace(m.EstadoTC) || m.EstadoTC.Equals("RECHAZADO"))
                                                                     {
                                                                         <button type="button" class="btn btn-info btn-sm my-1 font-weight-bold" onclick="enviarDatosModal('@m.MontoFinal', '@m.DocEntryTicket', '@ViewBag.TipoRep', '@m.Linea', '@m.DocEntry')"><i class="icon-bullhorn"></i> Solicitar Validación</button>
                                                                     }
@@ -443,7 +443,7 @@
                                 {
                                     <td class="text-center">
                                         <div class="my-1">
-                                            @if (string.IsNullOrEmpty(item.EstadoTC) || item.EstadoTC.Equals("RECHAZADO"))
+                                            @if (string.IsNullOrWhiteSpace(item.EstadoTC) || item.EstadoTC.Equals("RECHAZADO"))
                                             {
                                                 <button type="button" class="btn btn-info btn-sm my-1 font-weight-bold" onclick="enviarDatosModal('@item.MontoFinal', @item.DocEntryTicket, '@ViewBag.TipoRep', '@item.Linea', '@item.DocEntry')">
                                                     <i class="icon-bullhorn"></i> Solicitar Validación

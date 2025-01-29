@@ -46,7 +46,7 @@ namespace Capa_Negocio.General_NEG.TablasSql
             {
                 cargo.Nombre = helper.SanitizarTexto(cargo.Nombre);
                 var mensajeRegistro = cargoD.RegistrarCargo(cargo);
-                if (!string.IsNullOrEmpty(mensajeRegistro)) { errores.Add(mensajeRegistro); }
+                if (!string.IsNullOrWhiteSpace(mensajeRegistro)) { errores.Add(mensajeRegistro); }
             }
 
             // Devolver el mensaje de error como una cadena
@@ -72,7 +72,7 @@ namespace Capa_Negocio.General_NEG.TablasSql
         //        return "Para inactivar el cargo, no debe tener ningún empleado relacionado.";
         //    }
 
-        //    if (string.IsNullOrEmpty(datosPOST.Estado))
+        //    if (string.IsNullOrWhiteSpace(datosPOST.Estado))
         //    {
         //        datosPOST.Estado = datosCargo.Estado;
         //    }

@@ -107,6 +107,7 @@
     <Compile Include="General_NEG\TablasSql\OUR2_N.cs" />
     <Compile Include="General_NEG\TablasSql\OVEH_N.cs" />
     <Compile Include="General_NEG\TablasSql\OWHS_N.cs" />
+    <Compile Include="General_NEG\TablasSql\UBICACIONES_N.cs" />
     <Compile Include="General_NEG\TablasSql\UBIG_N.cs" />
     <Compile Include="General_NEG\Tablas\COB_LUG_ENTREGA_N.cs" />
     <Compile Include="General_NEG\Tablas\COB_SALDO_N.cs" />

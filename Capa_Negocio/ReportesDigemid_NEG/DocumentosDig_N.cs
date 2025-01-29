@@ -52,9 +52,9 @@ namespace Capa_Negocio.ReportesDigemid_NEG
         {
             return dD.ConsultarComprobanteDePago(DocEntry);
         }
-        public List<OrdenDeVenta_E> ConsultarOrdenDeVenta(int DocNum)
+        public List<OrdenDeVenta_E> ConsultarOrdenDeVenta(int docNum)
         {
-            return dD.ConsultarOrdenDeVenta(DocNum);
+            return dD.ConsultarOrdenDeVenta(docNum);
         }
         public List<AuditoriaStocks_E> ReporteAuditoriaStocks(FrmAuditoriaStocks_E frm)
         {
@@ -87,11 +87,11 @@ namespace Capa_Negocio.ReportesDigemid_NEG
         public List<VentasArtLote_E> ListaVentasArtLote(FrmKardex_E f)
         {
             
-            if(string.IsNullOrEmpty(f.FecIni)) { throw new Exception("No ingreso fecha inicial"); }
-            if (string.IsNullOrEmpty(f.FecFin)) { throw new Exception("No ingreso fecha final"); }
-            if (string.IsNullOrEmpty(f.ItemCode)){ throw new Exception("No ingreso el codigo de articulo"); }
+            if(string.IsNullOrWhiteSpace(f.FecIni)) { throw new Exception("No ingreso fecha inicial"); }
+            if (string.IsNullOrWhiteSpace(f.FecFin)) { throw new Exception("No ingreso fecha final"); }
+            if (string.IsNullOrWhiteSpace(f.ItemCode)){ throw new Exception("No ingreso el codigo de articulo"); }
 
-            if (string.IsNullOrEmpty(f.Lote)) { throw new Exception("No ingreso el lote de articulo"); }
+            if (string.IsNullOrWhiteSpace(f.Lote)) { throw new Exception("No ingreso el lote de articulo"); }
             MatchCollection matches = Regex.Matches(f.Lote, PatternIny, RegexOptions.IgnoreCase);
             if (matches.Count > 0) { throw new Exception("El lote tiene caracteres invalidos"); }
 

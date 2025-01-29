@@ -120,7 +120,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 
 			if (filtros != null)
 			{
-				if (!string.IsNullOrEmpty(filtros.FechaTicketDesde) && !string.IsNullOrEmpty(filtros.FechaTicketHasta))
+				if (!string.IsNullOrWhiteSpace(filtros.FechaTicketDesde) && !string.IsNullOrWhiteSpace(filtros.FechaTicketHasta))
 				{
 					condWhere += $" AND VT.FechaSapTicket BETWEEN '{filtros.FechaTicketDesde}' AND '{filtros.FechaTicketHasta}'";
 				}
@@ -130,7 +130,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 					condWhere += $" AND EP.DocNumTicket = '{filtros.DocNumTicket}'";
 				}
 
-				if (!string.IsNullOrEmpty(filtros.Estado))
+				if (!string.IsNullOrWhiteSpace(filtros.Estado))
 				{
 					condWhere += $" AND EP.Estado = '{filtros.Estado}'";
 				}

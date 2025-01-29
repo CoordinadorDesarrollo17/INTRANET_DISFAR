@@ -40,9 +40,9 @@ namespace Capa_Usuario.Controllers
         /************************** R E C L A M O S **************************/
         protected Dictionary<string, string> DatosSolicitud(string tipoVenta, string canalVenta, string errorAlm)
         {
-            if (string.IsNullOrEmpty(tipoVenta)) { tipoVenta = ""; }
-            if (string.IsNullOrEmpty(canalVenta)) { canalVenta = ""; }
-            if (string.IsNullOrEmpty(errorAlm)) { errorAlm = ""; }
+            if (string.IsNullOrWhiteSpace(tipoVenta)) { tipoVenta = ""; }
+            if (string.IsNullOrWhiteSpace(canalVenta)) { canalVenta = ""; }
+            if (string.IsNullOrWhiteSpace(errorAlm)) { errorAlm = ""; }
 
             Dictionary<string, string> opcionesTipoVenta = new Dictionary<string, string>
                 {

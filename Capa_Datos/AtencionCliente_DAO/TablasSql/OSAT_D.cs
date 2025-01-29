@@ -128,7 +128,7 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
                     objOSAT.DetORTV = detORTV;
                     List<CC_OSAT_E> DatosAtencion = ccOSAT_D.ListarCC_OSAT(dr.GetInt32(0), "ATENDER");
 
-                    if (DatosAtencion[0].Operacion == "ATENDER" && !String.IsNullOrEmpty(objOSAT.Resultado))
+                    if (DatosAtencion[0].Operacion == "ATENDER" && !String.IsNullOrWhiteSpace(objOSAT.Resultado))
                     {
                         objOSAT.FechaAtencion = DatosAtencion[0].FechaOperacion;
                     }
@@ -154,9 +154,9 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
         }
         protected Dictionary<string, string> DatosSolicitud(string tipoVenta, string canalVenta, string errorAlm)
         {
-            if (string.IsNullOrEmpty(tipoVenta)) { tipoVenta = ""; }
-            if (string.IsNullOrEmpty(canalVenta)) { canalVenta = ""; }
-            if (string.IsNullOrEmpty(errorAlm)) { errorAlm = ""; }
+            if (string.IsNullOrWhiteSpace(tipoVenta)) { tipoVenta = ""; }
+            if (string.IsNullOrWhiteSpace(canalVenta)) { canalVenta = ""; }
+            if (string.IsNullOrWhiteSpace(errorAlm)) { errorAlm = ""; }
 
             Dictionary<string, string> opcionesTipoVenta = new Dictionary<string, string>
                 {
@@ -776,8 +776,8 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
                             datosRTV1 = rtv1D.BuscarRTV1(dr.GetInt32(0));
                             if (datosRTV1.Count >= 1)
                             {
-                                objOSAT.Contacto = (!string.IsNullOrEmpty(datosRTV1[0].NombrePer)) ? datosRTV1[0].NombrePer : "";
-                                objOSAT.Telefono = (!string.IsNullOrEmpty(datosRTV1[0].TelfPer)) ? datosRTV1[0].TelfPer : "";
+                                objOSAT.Contacto = (!string.IsNullOrWhiteSpace(datosRTV1[0].NombrePer)) ? datosRTV1[0].NombrePer : "";
+                                objOSAT.Telefono = (!string.IsNullOrWhiteSpace(datosRTV1[0].TelfPer)) ? datosRTV1[0].TelfPer : "";
                             }
 
                             if (!dr.IsDBNull(1)) { DetORTV.Add("CardCode", dr.GetString(1)); }
