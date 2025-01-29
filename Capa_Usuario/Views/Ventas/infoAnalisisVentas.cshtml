@@ -34,7 +34,6 @@
     <h3 class="text-cobefar font-weight-bold text-center">ANÁLISIS DE VENTAS</h3>
 
     <form id="frm">
-        @Html.AntiForgeryToken()
         <div class="row mt-4">
             <div class="col-lg-4">
                 <label class="text-dark font-weight-bold font-18">Lugar de Entrega Desde:</label>
@@ -71,12 +70,12 @@
         <div class="row mt-4">
             <div class="col-lg-4">
                 <label for="FecIni" class="text-dark font-weight-bold font-18">Fecha Ticket Desde:</label>
-                @Html.EditorFor(model => model.FecIni, new { htmlAttributes = new { @class = "form-control border-success", @type = "date" } })
+                <input name="FecIni" id="FecIni" class="form-control border-success" type="date" />
             </div>
 
             <div class="col-lg-4">
                 <label for="FecFin" class="text-dark font-weight-bold font-18">Fecha Ticket Hasta:</label>
-                @Html.EditorFor(model => model.FecFin, new { htmlAttributes = new { @class = "form-control border-success", @type = "date" } })
+                <input name="FecFin" id="FecFin" class="form-control border-success" type="date" />
             </div>
         </div>
 
@@ -98,10 +97,8 @@
                     <option value="">Seleccione</option>
                     <option value="Arriola">Para Arriola</option>
                     <option value="Agencia">Para Agencia</option>
-                    <option value="Agencia Courier">Para Agencia Courier</option>
                     <option value="Domicilio">Para Domicilio</option>
                     <option value="Centro">Para Centro</option>
-                    <option value="Arriola07">Para Arriola07</option>
                 </select>
             </div>
         </div>
@@ -131,7 +128,7 @@
 
             <div class="col-lg-6">
                 <label for="Operario" class="text-dark font-weight-bold font-18">Nombre Operario:</label>
-                @Html.EditorFor(model => model.Operario, new { htmlAttributes = new { @class = "form-control border-success", @type = "search", @list = "ListaOperarios" } })
+                <input name="Operario" class="form-control border-success" list="ListaOperarios" type="search" />
                 <datalist id="ListaOperarios">
                     @foreach (var obj in ViewBag.Operarios)
                     {

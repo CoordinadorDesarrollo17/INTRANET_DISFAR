@@ -24,7 +24,7 @@
     <div class="bg-section-form p-4 bg-form-cobefar">
         @using (Html.BeginForm())
         {
-            @Html.AntiForgeryToken()
+            
             @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
             <div class="row">

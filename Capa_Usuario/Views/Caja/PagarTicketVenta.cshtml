@@ -79,7 +79,7 @@
     </nav>
     @using (Html.BeginForm("PagarTicketVenta", "Caja", FormMethod.Post, new { id = "form" }))
     {
-        @Html.AntiForgeryToken()
+        
         <div class="tab-content" id="nav-tabContent">
             @if (permisoCaja)
             {
