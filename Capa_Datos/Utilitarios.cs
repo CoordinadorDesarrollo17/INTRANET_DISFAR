@@ -29,9 +29,9 @@ namespace Capa_Datos
         public Utilitarios()
         {
             // File Directories
-            this.directorioGeneral = @"D:\";
-            this.directorioFileServer = @"D:\COBEFARWEBFILES\";
-            this.directorioLogs = @"D:\COBEFARWEBLOGS\";
+            this.directorioGeneral = @"E:\";
+            this.directorioFileServer = @"E:\COBEFARWEBFILES\";
+            this.directorioLogs = @"E:\COBEFARWEBLOGS\";
 
             // HANA Database Configuration
             this.cadHana = "Server=172.16.55.36:30015;UserName=B1ADMIN;Password=Passw0rd;";

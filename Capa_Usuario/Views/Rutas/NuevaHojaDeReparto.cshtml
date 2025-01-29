@@ -100,14 +100,14 @@
             <label for="AlmOrigenDesc" class="text-dark form-label font-weight-bold font-18">Almacén de Origen:</label>
             <input type="hidden" id="AlmOrigenCod" name="AlmOrigenCod" value="" />
             <input type="hidden" id="AlmOrigenDesc2" name="AlmOrigenDesc2" value="" />
-            <select name="AlmOrigenDesc" id="AlmOrigenDesc" class="form-control bg-cobefar text-white" >
+            <select name="AlmOrigenDesc" id="AlmOrigenDesc" class="form-control bg-cobefar text-white" onchange="enviarValSelect('AlmOrigenDesc', 'AlmOrigenCod', 'almorigencod'); enviarValSelect('AlmOrigenDesc', 'AlmOrigenDesc2', 'almorigendesc2'); listarTickets('')">
                 <option value="">Seleccione</option>
-                @foreach (var l in lstOriDest.Where(x => x.WhsCode == "16"))
-                    {
-                <option value="@l.WhsName" almorigencod="@l.WhsCode" almorigendesc2="@(l.Street+" "+l.StreetNo+" "+l.Building+" "+l.Block+" "+l.City+" "+l.County)" selected>
-                    @l.WhsName
-                </option>
-                    }
+                @foreach (var l in lstOriDest.Where(x => x.WhsCode == "16" || x.WhsCode == "ALM07"))
+                {
+                    <option value="@l.WhsName" almorigencod="@l.WhsCode" almorigendesc2="@(l.Street+" "+l.StreetNo+" "+l.Building+" "+l.Block+" "+l.City+" "+l.County)" selected>
+                        @l.WhsName
+                    </option>
+                }
             </select>
         </div>
         <div id="div_almacen-destino" class="col-lg-2">

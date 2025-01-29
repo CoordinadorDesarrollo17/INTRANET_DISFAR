@@ -796,7 +796,7 @@ namespace Capa_Usuario.Controllers
                                                                                      //}
             }
 
-            FilePathDT = "D:\\COBEFARWEBFILES\\Firmas\\FirmaPamelaCollahuaSenosain.png";
+            FilePathDT = "E:\\COBEFARWEBFILES\\Firmas\\FirmaPamelaCollahuaSenosain.png";
             byte[] archivoDT = System.IO.File.ReadAllBytes(FilePathDT);
             var base64DT = Convert.ToBase64String(archivoDT); //La propiedad de tu modelo que es byte[]
             ViewBag.FirmaDT = String.Format("data:image/gif;base64,{0}", base64DT); // Damos formato para indicar que se trata de una cadena base64
