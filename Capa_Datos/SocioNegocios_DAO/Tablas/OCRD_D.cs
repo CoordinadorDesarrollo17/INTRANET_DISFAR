@@ -17,8 +17,8 @@ namespace Capa_Datos.SocioNegocios_DAO.Tablas
             string fil = string.Empty;
             if(filtro!=null)
             {
-                if (!string.IsNullOrEmpty(filtro.CardName)) { fil += " and T0.\"CardName\" like '%" + filtro.CardName + "%'"; }
-                if (!string.IsNullOrEmpty(filtro.CardType)) { fil += " and T0.\"CardType\"='"+filtro.CardType+"'"; }
+                if (!string.IsNullOrWhiteSpace(filtro.CardName)) { fil += " and T0.\"CardName\" like '%" + filtro.CardName + "%'"; }
+                if (!string.IsNullOrWhiteSpace(filtro.CardType)) { fil += " and T0.\"CardType\"='"+filtro.CardType+"'"; }
             }
             string query = "select T0.\"CardCode\",T0.\"CardName\",T0.\"CardType\",T0.\"GroupCode\",T0.\"Phone1\" " +
                            " from " + uti.schemaHana + "OCRD T0 where T0.\"CardCode\" is not null "+
@@ -124,7 +124,7 @@ namespace Capa_Datos.SocioNegocios_DAO.Tablas
 						cmd.CommandType = CommandType.Text;
 						cmd.Parameters.AddWithValue("@CardCode", obj.CardCode);
 						cmd.Parameters.AddWithValue("@CardName", obj.CardName);
-                        cmd.Parameters.AddWithValue("@Address", !string.IsNullOrEmpty(obj.Address) ? obj.Address : "-");
+                        cmd.Parameters.AddWithValue("@Address", !string.IsNullOrWhiteSpace(obj.Address) ? obj.Address : "-");
                         cmd.Parameters.AddWithValue("@CreateDate", obj.CreateDate);
                         cmd.ExecuteNonQuery();
                         tran.Commit();

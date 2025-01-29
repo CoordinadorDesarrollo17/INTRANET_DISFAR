@@ -23,7 +23,7 @@ namespace Capa_Datos.Almacen_DAO.TablasSql
                 if (filtro.Descripcion != null) { fil += " and Descripcion like '%" + filtro.Descripcion + "%'"; }
                 if (filtro.FecIni != null) { fil += " and FecIni = '" + filtro.FecIni + "'"; }
                 if (filtro.FecFin != null) { fil += " and FecFin = '" + filtro.FecFin + "'"; }
-                if (!string.IsNullOrEmpty(filtro.FechaRegistro)) { fil += " and FechaRegistro = '" + filtro.FechaRegistro + "'"; }
+                if (!string.IsNullOrWhiteSpace(filtro.FechaRegistro)) { fil += " and FechaRegistro = '" + filtro.FechaRegistro + "'"; }
                 if (filtro.Estado != null) { fil += " and Estado like '%" + filtro.Estado + "%'"; }
             }
             string query = "select top 50 DocEntry,Descripcion,FecIni,FecFin,FechaRegistro,HoraRegistro,Estado from al.oipe " +

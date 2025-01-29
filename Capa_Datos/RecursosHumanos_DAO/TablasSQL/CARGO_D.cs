@@ -133,7 +133,7 @@ namespace Capa_Datos.RecursosHumanos_DAO
                             cmd.Parameters.AddWithValue("@Nombre", string.Format("%{0}%", filtros.Nombre));
                         }
 
-                        if (!string.IsNullOrEmpty(filtros.Estado))
+                        if (!string.IsNullOrWhiteSpace(filtros.Estado))
                         {
                             sb.Append(" AND CAR.Estado = @Estado");
                             cmd.Parameters.AddWithValue("@Estado", filtros.Estado);

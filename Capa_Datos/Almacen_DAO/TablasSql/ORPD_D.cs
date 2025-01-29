@@ -29,16 +29,16 @@ namespace Capa_Datos.Almacen_DAO.TablasSql
                     condWhere += $" AND DEV.DocNum = '{Filtros.DocNum}' ";
                 }
 
-                if (!string.IsNullOrEmpty(Filtros.CardName))
+                if (!string.IsNullOrWhiteSpace(Filtros.CardName))
                 {
                     condWhere += $" AND DEV.CardName LIKE '%{Filtros.CardName}%' ";
                 }
 
-                if (!string.IsNullOrEmpty(Filtros.Estado))
+                if (!string.IsNullOrWhiteSpace(Filtros.Estado))
                 {
                     condWhere += $" AND DEV.Estado = '{Filtros.Estado}' ";
                 }
-                if (!string.IsNullOrEmpty(Filtros.WhsCode))
+                if (!string.IsNullOrWhiteSpace(Filtros.WhsCode))
                 {
                     condWhere += $" AND DEV.WhsCode = '{Filtros.WhsCode}' ";
                 }
@@ -350,17 +350,17 @@ namespace Capa_Datos.Almacen_DAO.TablasSql
                     cmd.Parameters.AddWithValue("@DocNum", devolucion.DocNum);
 
                     // R: CAMBIAR A ESTADO RECOGIDO 
-                    if (!string.IsNullOrEmpty(tipoMantenimiento) && tipoMantenimiento.Equals("R"))
+                    if (!string.IsNullOrWhiteSpace(tipoMantenimiento) && tipoMantenimiento.Equals("R"))
                     {
                         cmd.Parameters.AddWithValue("@WhsCode", devolucion.WhsCode);
                     }
                     // AA: CAMBIAR A ESTADO ANULADO 
-                    if (!string.IsNullOrEmpty(tipoMantenimiento) && tipoMantenimiento.Equals("AA"))
+                    if (!string.IsNullOrWhiteSpace(tipoMantenimiento) && tipoMantenimiento.Equals("AA"))
                     {
                         cmd.Parameters.AddWithValue("@Comentario", devolucion.Comentario);
                     }
                     // EC: ENVIAR CORREO 
-                    if (!string.IsNullOrEmpty(tipoMantenimiento) && tipoMantenimiento.Equals("EC"))
+                    if (!string.IsNullOrWhiteSpace(tipoMantenimiento) && tipoMantenimiento.Equals("EC"))
                     {
                         cmd.Parameters.AddWithValue("@Correo", devolucion.Correo);
                     }
@@ -390,17 +390,17 @@ namespace Capa_Datos.Almacen_DAO.TablasSql
 
             if (Filtros != null)
             {
-                if (!string.IsNullOrEmpty(Filtros.FechaDesde) && !string.IsNullOrEmpty(Filtros.FechaHasta))
+                if (!string.IsNullOrWhiteSpace(Filtros.FechaDesde) && !string.IsNullOrWhiteSpace(Filtros.FechaHasta))
                 {
                     condWhere += $" AND (SELECT TOP 1 FechaOperacion FROM al.cc_ORPD WHERE DocEntry = DEV.DocEntry AND Operacion = 'REGISTRAR') BETWEEN '{Filtros.FechaDesde}' AND '{Filtros.FechaHasta}'";
                 }
 
-                if (!string.IsNullOrEmpty(Filtros.RefFactura))
+                if (!string.IsNullOrWhiteSpace(Filtros.RefFactura))
                 {
                     condWhere += $" AND DET.RefFactura LIKE '%{Filtros.RefFactura}%'";
                 }
 
-                if (!string.IsNullOrEmpty(Filtros.CardName))
+                if (!string.IsNullOrWhiteSpace(Filtros.CardName))
                 {
                     condWhere += $" AND DEV.CardName LIKE '%{Filtros.CardName}%' ";
                 }
@@ -408,17 +408,17 @@ namespace Capa_Datos.Almacen_DAO.TablasSql
                 {
                     condWhere += $" AND DEV.DocNum = {Filtros.DocNum} ";
                 }
-                if (!string.IsNullOrEmpty(Filtros.Estado))
+                if (!string.IsNullOrWhiteSpace(Filtros.Estado))
                 {
                     condWhere += $" AND DEV.Estado = '{Filtros.Estado}' ";
                 }
 
-                if (!string.IsNullOrEmpty(Filtros.ItemName))
+                if (!string.IsNullOrWhiteSpace(Filtros.ItemName))
                 {
                     condWhere += $" AND DET.ItemName LIKE '%{Filtros.ItemName}%' ";
                 }
 
-                if (!string.IsNullOrEmpty(Filtros.WhsCode))
+                if (!string.IsNullOrWhiteSpace(Filtros.WhsCode))
                 {
                     condWhere += $" AND DEV.WhsCode = '{Filtros.WhsCode}' ";
                 }
@@ -542,23 +542,23 @@ namespace Capa_Datos.Almacen_DAO.TablasSql
 
             if (filtros != null)
             {
-                if (!string.IsNullOrEmpty(filtros.FechaDesde) && !string.IsNullOrEmpty(filtros.FechaHasta))
+                if (!string.IsNullOrWhiteSpace(filtros.FechaDesde) && !string.IsNullOrWhiteSpace(filtros.FechaHasta))
                 {
                     condWhere += $" AND DEV.FechaDevolucion BETWEEN '{filtros.FechaDesde}' AND '{filtros.FechaHasta}'";
                 }
 
-                if (!string.IsNullOrEmpty(filtros.Estado))
+                if (!string.IsNullOrWhiteSpace(filtros.Estado))
                 {
                     condWhere += $" AND DEV.Estado = '{filtros.Estado}' ";
                 }
 
-                if (!string.IsNullOrEmpty(filtros.RefFactura))
+                if (!string.IsNullOrWhiteSpace(filtros.RefFactura))
                 {
                     join += " INNER JOIN al.RPD1 DET on DET.DocEntry = DEV.DocEntry";
                     condWhere += $" AND DET.RefFactura = '{filtros.RefFactura}' ";
                 }
 
-                if (!string.IsNullOrEmpty(filtros.WhsCode))
+                if (!string.IsNullOrWhiteSpace(filtros.WhsCode))
                 {
                     condWhere += $" AND DEV.WhsCode = '{filtros.WhsCode}' ";
                 }
@@ -568,18 +568,18 @@ namespace Capa_Datos.Almacen_DAO.TablasSql
                     condWhere += $" AND DEV.DocNum = '{filtros.DocNum}' ";
                 }
 
-                if (!string.IsNullOrEmpty(filtros.CardName))
+                if (!string.IsNullOrWhiteSpace(filtros.CardName))
                 {
                     condWhere += $" AND DEV.CardName LIKE '%{filtros.CardName}%' ";
                 }
 
-                if (!string.IsNullOrEmpty(filtros.ItemName))
+                if (!string.IsNullOrWhiteSpace(filtros.ItemName))
                 {
                     condWhere += $" AND DET.ItemName LIKE '%{filtros.ItemName}%' ";
                 }
             }
 
-            if (!string.IsNullOrEmpty(condWhere))
+            if (!string.IsNullOrWhiteSpace(condWhere))
             {
                 using (SqlConnection cn = new SqlConnection(uti.cadSql))
                 {

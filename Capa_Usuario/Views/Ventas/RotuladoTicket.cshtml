@@ -42,7 +42,7 @@
 
                 <tr><th colspan="2">PUNTO DE LLEGADA</th></tr>
 
-                @if (Model.Det3 != null && Model.Det3.Count >= 2 && !string.IsNullOrEmpty(Model.Det3[1].Calle) && Model.Det3[1].Calle.Length > 0)
+                @if (Model.Det3 != null && Model.Det3.Count >= 2 && !string.IsNullOrWhiteSpace(Model.Det3[1].Calle) && Model.Det3[1].Calle.Length > 0)
                 {
                     if (Model.EnvioAgencia == "Oficina de agencia")
                     {
@@ -67,7 +67,7 @@
                     }
 
                 }
-                else if (!string.IsNullOrEmpty(Model.DirDestino) && Model.DirDestino.Length > 0)
+                else if (!string.IsNullOrWhiteSpace(Model.DirDestino) && Model.DirDestino.Length > 0)
                 {
                     if (Model.EnvioAgencia == "Oficina de agencia")
                     {
@@ -122,7 +122,7 @@
 
                     <tr><th colspan="2">PUNTO DE LLEGADA</th></tr>
 
-                    @if (Model.Det3 != null && Model.Det3.Count >= 2 && !string.IsNullOrEmpty(Model.Det3[1].Calle) && Model.Det3[1].Calle.Length > 0)
+                    @if (Model.Det3 != null && Model.Det3.Count >= 2 && !string.IsNullOrWhiteSpace(Model.Det3[1].Calle) && Model.Det3[1].Calle.Length > 0)
                     {
                         if (Model.EnvioAgencia == "Oficina de agencia")
                         {
@@ -147,7 +147,7 @@
                         }
 
                     }
-                    else if (!string.IsNullOrEmpty(Model.DirDestino) && Model.DirDestino.Length > 0)
+                    else if (!string.IsNullOrWhiteSpace(Model.DirDestino) && Model.DirDestino.Length > 0)
                     {
                         if (Model.EnvioAgencia == "Oficina de agencia")
                         {

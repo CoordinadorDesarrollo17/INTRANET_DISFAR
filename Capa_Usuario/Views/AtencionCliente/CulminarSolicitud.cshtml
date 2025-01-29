@@ -168,7 +168,7 @@
                     <input type="text" id="Problema" name="Problema" class="form-control text-center border-success" value="@Model.Det[0].Problema" readonly />
                 </div>
 
-                @if (!string.IsNullOrEmpty(ViewBag.ErrorAlmacen))
+                @if (!string.IsNullOrWhiteSpace(ViewBag.ErrorAlmacen))
                 {
                     <div class="col-lg-4">
                         <label for="ErrorAlmacen" class="text-dark form-label font-weight-bold font-18">Error de almacén:</label>

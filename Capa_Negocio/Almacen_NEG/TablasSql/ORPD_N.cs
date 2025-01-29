@@ -28,7 +28,7 @@ namespace Capa_Negocio.Almacen_NEG.TablasSql
         }
         public int RegistrarDevolucion(ORPD_E devolucion, List<RPD1_E> detalleDevolucion)
         {
-            if (string.IsNullOrEmpty(devolucion.CardCode) || string.IsNullOrEmpty(devolucion.CardName) || string.IsNullOrEmpty(devolucion.WhsCode))
+            if (string.IsNullOrWhiteSpace(devolucion.CardCode) || string.IsNullOrWhiteSpace(devolucion.CardName) || string.IsNullOrWhiteSpace(devolucion.WhsCode))
             {
                 throw new Exception("El código de cliente, nombre de cliente y el almacén, son campos obligatorios.");
             }
@@ -79,10 +79,10 @@ namespace Capa_Negocio.Almacen_NEG.TablasSql
             {  //si el detalle devolucion no esta vacio
                 foreach (var obj in detalleDevolucion)
                 {
-                    if (string.IsNullOrEmpty(obj.RefFactura) || obj.RefFactura.Length != 16) { throw new Exception("El producto " + obj.ItemName.Substring(0, 10) + "-" + obj.BatchNum + " no tiene una factura o esta mal ingresada"); }
+                    if (string.IsNullOrWhiteSpace(obj.RefFactura) || obj.RefFactura.Length != 16) { throw new Exception("El producto " + obj.ItemName.Substring(0, 10) + "-" + obj.BatchNum + " no tiene una factura o esta mal ingresada"); }
                     if (obj.Quantity <= 0) { throw new Exception("El producto " + obj.ItemName.Substring(0, 10) + "-" + obj.BatchNum + " tiene una cantidad no valida"); }
-                    if (string.IsNullOrEmpty(obj.BatchNum)) { throw new Exception("El producto " + obj.ItemName.Substring(0, 10) + "tiene un lote no valido"); }
-                    if (string.IsNullOrEmpty(obj.ExpDate)) { throw new Exception("El producto " + obj.ItemName.Substring(0, 10) + "-" + obj.BatchNum + " tiene una fec venc no valida"); }
+                    if (string.IsNullOrWhiteSpace(obj.BatchNum)) { throw new Exception("El producto " + obj.ItemName.Substring(0, 10) + "tiene un lote no valido"); }
+                    if (string.IsNullOrWhiteSpace(obj.ExpDate)) { throw new Exception("El producto " + obj.ItemName.Substring(0, 10) + "-" + obj.BatchNum + " tiene una fec venc no valida"); }
                     //solo para articulos existentes
                     if (obj.MaxQuantity > 0)
                     {

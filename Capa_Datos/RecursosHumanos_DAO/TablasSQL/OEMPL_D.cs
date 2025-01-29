@@ -48,55 +48,55 @@ namespace Capa_Datos.RecursosHumanos_DAO
                             cmd.Parameters.AddWithValue("@NombresApellidos", string.Format("%{0}%", filtros.NombresApellidos));
                         }
 
-                        if (!string.IsNullOrEmpty(filtros.TipoDocumento))
+                        if (!string.IsNullOrWhiteSpace(filtros.TipoDocumento))
                         {
                             sb.Append(" AND EMP.TipoDocumento = @TipoDocumento");
                             cmd.Parameters.AddWithValue("@TipoDocumento", filtros.TipoDocumento);
                         }
 
-                        if (!string.IsNullOrEmpty(filtros.NroDocumento))
+                        if (!string.IsNullOrWhiteSpace(filtros.NroDocumento))
                         {
                             sb.Append(" AND EMP.NroDocumento = @NroDocumento");
                             cmd.Parameters.AddWithValue("@NroDocumento", filtros.NroDocumento);
                         }
 
-                        if (!string.IsNullOrEmpty(filtros.FechaNacimiento))
+                        if (!string.IsNullOrWhiteSpace(filtros.FechaNacimiento))
                         {
                             sb.Append(" AND EMP.FechaNacimiento = @FechaNacimiento");
                             cmd.Parameters.AddWithValue("@FechaNacimiento", filtros.FechaNacimiento);
                         }
 
-                        if (!string.IsNullOrEmpty(filtros.EstadoCivil))
+                        if (!string.IsNullOrWhiteSpace(filtros.EstadoCivil))
                         {
                             sb.Append(" AND EMP.EstadoCivil = @EstadoCivil");
                             cmd.Parameters.AddWithValue("@EstadoCivil", filtros.EstadoCivil);
                         }
 
-                        if (!string.IsNullOrEmpty(filtros.Genero))
+                        if (!string.IsNullOrWhiteSpace(filtros.Genero))
                         {
                             sb.Append(" AND EMP.Genero = @Genero");
                             cmd.Parameters.AddWithValue("@Genero", filtros.Genero);
                         }
 
-                        if (!string.IsNullOrEmpty(filtros.Nacionalidad))
+                        if (!string.IsNullOrWhiteSpace(filtros.Nacionalidad))
                         {
                             sb.Append(" AND EMP.Nacionalidad = @Nacionalidad");
                             cmd.Parameters.AddWithValue("@Nacionalidad", filtros.Nacionalidad);
                         }
 
-                        if (!string.IsNullOrEmpty(filtros.CorreoElectronico))
+                        if (!string.IsNullOrWhiteSpace(filtros.CorreoElectronico))
                         {
                             sb.Append(" AND EMP.CorreoElectronico = @CorreoElectronico");
                             cmd.Parameters.AddWithValue("@CorreoElectronico", filtros.CorreoElectronico);
                         }
 
-                        if (!string.IsNullOrEmpty(filtros.Celular))
+                        if (!string.IsNullOrWhiteSpace(filtros.Celular))
                         {
                             sb.Append(" AND EMP.Celular = @Celular");
                             cmd.Parameters.AddWithValue("@Celular", filtros.Celular);
                         }
 
-                        if (!string.IsNullOrEmpty(filtros.Estado))
+                        if (!string.IsNullOrWhiteSpace(filtros.Estado))
                         {
                             sb.Append(" AND EMP.Estado = @Estado");
                             cmd.Parameters.AddWithValue("@Estado", filtros.Estado);

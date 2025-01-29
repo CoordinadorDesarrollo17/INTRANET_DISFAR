@@ -107,9 +107,9 @@
                 </div>
                 <div class="col-lg-2" id="div_almacen-origen">
                     <label class="text-dark form-label font-weight-bold font-18">Almacén de Origen:</label>
-                    <select name="AlmOrigenDesc" id="AlmOrigenDesc" class="form-control bg-cobefar text-white" onchange="enviarValSelect('AlmOrigenDesc', 'AlmOrigenCod', 'AlmOrigenCod'); enviarValSelect('AlmOrigenDesc', 'AlmOrigenDesc2', 'AlmOrigenDesc2'); listarTickets(); ">
+                    <select name="AlmOrigenDesc" id="AlmOrigenDesc" class="form-control bg-cobefar text-white">
                         <option value="">Seleccione</option>
-                        @foreach (var l in lstOriDest.Where(x => x.WhsCode == "15" || x.WhsCode == "ALM07" || x.WhsCode == "16" || x.WhsCode == "03"))
+                        @foreach (var l in lstOriDest.Where(x => x.WhsCode == "16"))
                         {
                             <option value="@l.WhsName" AlmOrigenCod="@l.WhsCode"
                                     AlmOrigenDesc2="@(l.Street+" "+l.StreetNo+" "+l.Building+" "+l.Block+" "+l.City+" "+l.County)" @if (Model.AlmOrigenCod == l.WhsCode) { Write("selected"); }>
@@ -329,7 +329,7 @@
         </div>
     </div>
 </div>
-@if (!string.IsNullOrEmpty(ViewBag.Mensaje))
+@if (!string.IsNullOrWhiteSpace(ViewBag.Mensaje))
 {
     <script>
      var mensaje = '@Html.Raw(ViewBag.Mensaje)';

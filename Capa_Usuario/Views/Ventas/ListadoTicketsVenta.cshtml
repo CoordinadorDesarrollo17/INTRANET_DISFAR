@@ -248,6 +248,29 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="Presupuesto">Presupuesto</label>
+                                    <select id="Presupuesto" name="Presupuesto" class="form-control">
+                                        <option value=""></option>
+                                        <option value="SI" @{ if (a.Presupuesto == "SI") { Write("selected"); } }>SI</option>
+                                        <option value="NO" @{ if (a.Presupuesto == "NO") { Write("selected"); } }>NO</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="Visible">Impreso</label>
+                                    <select id="Visible" name="Visible" class="form-control">
+                                        <option value=""></option>
+                                        <option value="SI" @{ if (a.Visible == "SI") { Write("selected"); } }>SI</option>
+                                        <option value="PI" @{ if (a.Visible == "PI") { Write("selected"); } }>EN PROCESO</option>
+                                        <option value="NO" @{ if (a.Visible == "NO") { Write("selected"); } }>NO</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -316,6 +339,10 @@
                     <th class="text-center">
                         Pago Envio
                     </th>
+                    <th class="text-center">
+                        Impreso
+                    </th>
+                    <th></th>
                     <th></th>
                     <th></th>
                     <th></th>
@@ -326,13 +353,13 @@
             <tbody>
                 @foreach (var item in Model)
                 {
-                    string styleVisible = "";
-                    if (item.Visible.Equals("NO"))
+                    string stylePresupuesto = "";
+                    if (!string.IsNullOrEmpty(item.Presupuesto) && item.Presupuesto.Equals("SI"))
                     {
-                        styleVisible = "bg-skyblue";
+                        stylePresupuesto = "bg-skyblue";
 
                     }
-                    <tr id="fila" class="@styleVisible">
+                    <tr id="fila" class="@stylePresupuesto">
                         <td class="text-center">
                             <div class="@if (ViewBag.DocNum == item.DocNum) { Write("bg-success"); }">@Html.DisplayFor(modelItem => item.DocNum)</div>
                         </td>
@@ -343,7 +370,7 @@
                             @Html.DisplayFor(modelItem => item.HoraAbierto)
                         </td>
                         <td>
-                            @if (!string.IsNullOrEmpty(item.CardName)) { Write(item.CardName); }
+                            @if (!string.IsNullOrWhiteSpace(item.CardName)) { Write(item.CardName); }
                         </td>
                         <td class="text-center">
                             @item.Vendedor
@@ -355,10 +382,10 @@
                             @Html.DisplayFor(modelItem => item.LugarDestino)
                         </td>
                         <td class="text-center">
-                            @if (item.Visible != null && item.Visible.Equals("NO"))
+                            @if (item.Presupuesto != null && item.Presupuesto.Equals("SI"))
                             {<span>PRESUPUESTO</span> }
                             else
-                            {@Html.DisplayFor(modelItem => item.Estado)}
+                            {@Html.DisplayFor(modelItem => item.Estado) }
                         </td>
                         <td class="text-center">
                             @Html.DisplayFor(modelItem => item.EstadoPago)
@@ -368,6 +395,13 @@
                         </td>
                         <td class="text-center">
                             @Html.DisplayFor(modelItem => item.PagoEnv)
+                        </td>
+                        <td class="text-center">
+                            @if (item.Visible != null && item.Visible.Equals("PI"))
+                            {<span>EN PROCESO</span>}
+                            else {
+                                Write(item.Visible);
+                            }
                         </td>
                         <td class="text-center">
                             @if (item.Estado.Equals("SEPARADO") || item.Estado.Equals("ABIERTO"))
@@ -381,6 +415,15 @@
                                 <a href="#" onclick="cancelarTicket(@item.DocEntry);" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Cancelar ticket"><i class="text-danger icon-bin"></i></a>
                             }
                         </td>
+                        <td class="text-center">
+                            @if (item.Estado == "ABIERTO")
+                            {
+                                <button onclick="openPreliminar(@item.DocEntry)" id="boton_imprimir" class="btn btn-light text-primary">
+                                    <i class="icon-printer"> </i>
+                                </button>
+                            }
+                        </td>
+
                         <td class="text-center">
                             @if (item.Estado != "SEPARADO")
                             {
@@ -503,7 +546,7 @@
 
             var docEntryUsuario = @ViewBag.DocEntryUsuario;
             $.ajax({
-                url: '/Ventas/ListarTicketsNoVisiblesPagados',
+                url: '/Ventas/ListarTicketsPresupuestoPagados',
                 type: 'POST',
                 dataType: 'json',
                 data: { DocEntryUsuario: docEntryUsuario },
@@ -550,7 +593,7 @@
                             $(document).on('click', `#modal-si-button-${tk.DocNum}`, function () {
 
                                 $.ajax({
-                                    url: '/Ventas/CambiarVisibleTicket?DocEntry=' + tk.DocEntry,
+                                    url: '/Ventas/CambiarPresupuestoTicket?DocEntry=' + tk.DocEntry,
                                     type: 'POST',
                                     dataType: 'json'
                                 }).done(function (response) {
@@ -599,6 +642,62 @@
             window.location.href = '@Url.Action("ListadoOrdenesDeVenta", "DireccionTecnica")?SlpCode=' + codSapVendedor;
         });
     });
+
+    function openPreliminar(docEntry) {
+
+        var url = '@Url.Action("PreliminarLayoutOV_Ticket", "Ventas")' + '?DocEntry=' + docEntry;
+
+        bloquearBotonesImprimir();
+
+        window.open(url, '_blank', 'noopener,noreferrer');
+
+        darVisibilidadTicket(docEntry);
+    }
+
+    function bloquearBotonesImprimir() {
+       //Para evitar sobrecarga de consultas
+        document.querySelectorAll('#boton_imprimir').forEach(boton => {
+            boton.setAttribute('disabled', true); 
+        });
+    }
+
+    function darVisibilidadTicket(DocEntry) {
+        $.ajax({
+            url: '/Ventas/CambiarVisibilidadTicket?docEntry=' + DocEntry +'&proceso=PI',
+            type: 'POST',
+            dataType: 'json'
+        }).done(function (response) {
+                desbloquearBotonesImprimir();
+
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            console.log(jqXHR.status + textStatus + errorThrown);
+        });
+        }
+
+    function desbloquearBotonesImprimir() {
+        document.querySelectorAll('#boton_imprimir').forEach(boton => {
+            boton.removeAttribute('disabled'); // Habilitar el botón
+        });
+    }
+
+    @*function openPreliminar(docEntry) {
+        // Construir la URL para la acción en el servidor
+        var url = '@Url.Action("PreliminarLayoutOV_Ticket", "Ventas")' + '?DocEntry=' + docEntry;
+        window.open(url, '_blank', 'noopener,noreferrer');
+        darVisibilidadTicket(docEntry);
+
+    }
+
+    function darVisibilidadTicket(DocEntry) {
+        $.ajax({
+            url: '/Ventas/CambiarVisibilidadTicket?DocEntry=' + DocEntry,
+            type: 'POST',
+            dataType: 'json'
+        }).done(function (response) {
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            console.log(jqXHR.status + textStatus + errorThrown);
+        });
+    }*@
     function cancelarTicket(DocEntry) {
         const swalWithBootstrapButtons = Swal.mixin({
             customClass: {

@@ -79,7 +79,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Almacen_DAO\ReportesSql\ContInv_D.cs" />
+    <Compile Include="Almacen_DAO\RptInternos\ContInv_D.cs" />
     <Compile Include="Almacen_DAO\TablasSql\CC_ORPD_D.cs" />
     <Compile Include="Almacen_DAO\TablasSql\CC_ORRU_D.cs" />
     <Compile Include="Almacen_DAO\TablasSql\MotivosDevoluciones_D.cs" />
@@ -133,6 +133,7 @@
     <Compile Include="General_DAO\TablasSql\OUR2_D.cs" />
     <Compile Include="General_DAO\TablasSql\OVEH_D.cs" />
     <Compile Include="General_DAO\TablasSql\OWHS_D.cs" />
+    <Compile Include="General_DAO\TablasSql\UBICACIONES_D.cs" />
     <Compile Include="General_DAO\TablasSql\UBIG_D.cs" />
     <Compile Include="General_DAO\Tablas\COB_LUG_ENTREGA_D.cs" />
     <Compile Include="General_DAO\Tablas\COB_SALDO_D.cs" />

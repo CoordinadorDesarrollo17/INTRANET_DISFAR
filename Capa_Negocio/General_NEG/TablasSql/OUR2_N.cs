@@ -34,7 +34,7 @@ namespace Capa_Negocio.General_NEG.TablasSql
         {
             var result = Obtener(bean.IdCourier, bean.Destino);
             if (bean.IdCourier==0) { return "Debe seleccionar Agencia"; }
-            if (string.IsNullOrEmpty(bean.Destino)) { return "Debe seleccionar Destino"; }
+            if (string.IsNullOrWhiteSpace(bean.Destino)) { return "Debe seleccionar Destino"; }
             if (bean.TarifaKg<=0) { return "Debe ingresar Tarifa valida"; }
             if (bean.PrecioBase<=0) { return "Debe ingresar Precio Base valido"; }
             return oD.Registrar(bean); 
@@ -47,7 +47,7 @@ namespace Capa_Negocio.General_NEG.TablasSql
         public string Editar(OUR2_E bean)
         {
             if (bean.IdCourier == 0) { return  "Debe seleccionar Agencia"; }
-            if (string.IsNullOrEmpty(bean.Destino)) { return "Debe seleccionar Destino"; }
+            if (string.IsNullOrWhiteSpace(bean.Destino)) { return "Debe seleccionar Destino"; }
             if (bean.TarifaKg <= 0) { return "Debe ingresar Tarifa valida"; }
             if (bean.PrecioBase <= 0) { return "Debe ingresar Precio Base valido"; }
             return oD.Editar(bean);

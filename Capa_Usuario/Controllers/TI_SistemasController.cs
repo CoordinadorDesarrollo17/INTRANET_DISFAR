@@ -133,7 +133,7 @@ namespace Capa_Usuario.Controllers
             {
                 var mensaje = ousrN.EditarUsuario(datosPost);
 
-                if (!string.IsNullOrEmpty(mensaje))
+                if (!string.IsNullOrWhiteSpace(mensaje))
                 {
                     var usuario = ousrN.buscarUsuario(datosPost.DocEntry);
                     usuario.Email = datosPost.Email;
@@ -227,7 +227,7 @@ namespace Capa_Usuario.Controllers
         {
             string acceso = AccesoHelper.VerificarAccesos(idOperation, (Usuario_E)Session["UsuarioId"], this.ControllerContext.RouteData.Values["controller"].ToString(), Request.UserHostAddress, Request.UserHostName);
 
-            if (string.IsNullOrEmpty(acceso) || !acceso.Equals("C_Access"))
+            if (string.IsNullOrWhiteSpace(acceso) || !acceso.Equals("C_Access"))
             {
                 return Json(new { Mensaje = "Error crítico", Comentario = new List<string>() { "No cuentas con permisos para realizar esta acción." }, Icono = "error" });
             }
@@ -238,8 +238,8 @@ namespace Capa_Usuario.Controllers
             }
 
             var mensajeError = new ROL_OPE_N().AsignarPermisosPorRol(operaciones, rolID);
-            string mensaje = string.IsNullOrEmpty(mensajeError) ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
-            string iconoMensaje = string.IsNullOrEmpty(mensajeError) ? "success" : "warning";
+            string mensaje = string.IsNullOrWhiteSpace(mensajeError) ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
+            string iconoMensaje = string.IsNullOrWhiteSpace(mensajeError) ? "success" : "warning";
 
             return Json(new { Mensaje = mensaje, Comentario = new List<string>() { mensajeError }, Icono = iconoMensaje });
         }
@@ -248,7 +248,7 @@ namespace Capa_Usuario.Controllers
         {
             string acceso = AccesoHelper.VerificarAccesos(idOperation, (Usuario_E)Session["UsuarioId"], this.ControllerContext.RouteData.Values["controller"].ToString(), Request.UserHostAddress, Request.UserHostName);
 
-            if (string.IsNullOrEmpty(acceso) || !acceso.Equals("C_Access"))
+            if (string.IsNullOrWhiteSpace(acceso) || !acceso.Equals("C_Access"))
             {
                 return Json(new { Mensaje = "Error crítico", Comentario = new List<string>() { "No cuentas con permisos para realizar esta acción." }, Icono = "error" });
             }
@@ -259,8 +259,8 @@ namespace Capa_Usuario.Controllers
             }
 
             var mensajeError = new OUSR_OPE_N().AsignarPermisosPorUsuario(operaciones, usrDocEntry);
-            string mensaje = string.IsNullOrEmpty(mensajeError) ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
-            string iconoMensaje = string.IsNullOrEmpty(mensajeError) ? "success" : "warning";
+            string mensaje = string.IsNullOrWhiteSpace(mensajeError) ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
+            string iconoMensaje = string.IsNullOrWhiteSpace(mensajeError) ? "success" : "warning";
 
             return Json(new { Mensaje = mensaje, Comentario = new List<string>() { mensajeError }, Icono = iconoMensaje });
         }

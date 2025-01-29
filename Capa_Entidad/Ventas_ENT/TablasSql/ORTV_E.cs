@@ -63,6 +63,7 @@ namespace Capa_Entidad.Ventas_ENT.TablasSql
         public string Zona { get; set; }
         public int Notificado { get; set; }
         public string Visible { get; set; }
+        public string Presupuesto { get; set; }
         public string Guias { get; set; }
 
         /********** AnularTicketVenta **********/
@@ -88,6 +89,7 @@ namespace Capa_Entidad.Ventas_ENT.TablasSql
         public string DetOpe { get; set; }
         public decimal PesoTotal { get; set; }
         public int Impreso { get; set; }
+        public string OpImpresion { get; set; }
         
 
         /**** LISTADO TICKETS RECEPCIÓN ****/

@@ -20,7 +20,7 @@ namespace Capa_Datos.General_DAO.TablasSql
             SLDocument sld = new SLDocument(filepath);
             int iRow = 2;
             List<OUR2_E> list = new List<OUR2_E>();
-            while (!string.IsNullOrEmpty(sld.GetCellValueAsString(iRow, 1)))
+            while (!string.IsNullOrWhiteSpace(sld.GetCellValueAsString(iRow, 1)))
             {
                 OUR2_E bean = new OUR2_E();
                 bean.Destino = sld.GetCellValueAsString(iRow, 1);

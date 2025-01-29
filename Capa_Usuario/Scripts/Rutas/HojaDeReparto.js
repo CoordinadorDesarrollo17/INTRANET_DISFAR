@@ -2,6 +2,9 @@
 $(document).ready(function () {
     //ocultar boton de tickets no enviados al iniciar el DOM
     $("#btn-NoEnviados").hide();
+
+    enviarValSelect('AlmOrigenDesc', 'AlmOrigenCod', 'almorigencod');
+    enviarValSelect('AlmOrigenDesc', 'AlmOrigenDesc2', 'almorigendesc2');
 });
 
 //Funcion principal para agregar lineas al detalle

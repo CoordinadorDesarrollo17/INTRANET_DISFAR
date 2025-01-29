@@ -21,7 +21,7 @@ namespace Capa_Datos.Almacen_DAO.TablasSql
 
             if (filtro != null)
             {
-                if (!string.IsNullOrEmpty(filtro.Estado))
+                if (!string.IsNullOrWhiteSpace(filtro.Estado))
                 {
                     condWhere = $" AND SUB.Estado = '{filtro.Estado}'";
                 }

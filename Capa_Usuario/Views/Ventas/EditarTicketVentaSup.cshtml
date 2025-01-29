@@ -98,7 +98,7 @@
                         tabladetallesPedidos.find('tbody').children().each(function () {
                             var almacenSalidaValue = $(this).find("input[id^='AlmacenSalida']").val();
 
-                            if ((almacenSalidaValue === "17") && !encontrado && $(this).find("input[id^='Verificar']:checked").length > 0) {
+                            if ((almacenSalidaValue === "16") && !encontrado && $(this).find("input[id^='Verificar']:checked").length > 0) {
                                 encontrado = true;
                                 almacenSalida = almacenSalidaValue;
                             }
@@ -426,26 +426,32 @@
                     <h2 class="mt-4 text-cobefar font-weight-bold">DATOS PEDIDO</h2>
                     <div class="form-group row pt-4">
                         <div class="col-lg-10">
+                            <div id="infoFechaTicket" class="col-lg-2">
+                                <label for="FechaSapTicket" class="text-dark form-label font-weight-bold font-18">@Html.DisplayNameFor(m => m.FechaSapTicket):</label>
+                                <input id="FechaSapTicket" type="date" name="FechaSapTicket" value="@Model.FechaSapTicket" class="form-control text-center border-success" readonly>
+                            </div>
                         </div>
 
                         <div class="col-lg-2">
+                            <label></label>
                             <input type="hidden" id="DocEntry" name="DocEntry" value="@Model.DocEntry" readonly />
                             <input type="text" name="Estado" value="@Model.Estado" class="form-control text-center bg-warning" readonly />
                         </div>
                     </div>
 
                     <div class="row mt-4">
-                        <div id="infoFechaTicket" class="col-lg-2">
-                            <label for="FechaSapTicket" class="text-dark form-label font-weight-bold font-18">@Html.DisplayNameFor(m => m.FechaSapTicket):</label>
-                            <input id="FechaSapTicket" type="date" name="FechaSapTicket" value="@Model.FechaSapTicket" class="form-control text-center border-success" readonly>
+                        <div class="col-lg-2">
+                            <label for="DocNum" class="text-dark form-label font-weight-bold font-18">DocNum Ticket:</label>
+                            <input type="text" name="DocNum" id="DocNum" value="@Model.DocNum" class="form-control text-center border-success" readonly />
                         </div>
+
                         <div class="col-lg-2">
                             <label for="TipoVenta" class="text-dark form-label font-weight-bold font-18">Tipo de Venta:</label>
                             <select name="TipoVenta" id="TipoVenta" class="form-control bg-cobefar text-white">
-                                    <option value="">Seleccione</option>
-                                    <option value="Normal" @{ if (Model.TipoVenta == "Normal") { Write("selected"); } }>Normal</option>
-                                    <option value="ContraEntrega" @{ if (Model.TipoVenta == "ContraEntrega") { Write("selected"); } }>ContraEntrega</option>
-                                    <option value="Credito" @{ if (Model.TipoVenta == "Credito") { Write("selected"); } }>Credito</option>
+                                <option value="">Seleccione</option>
+                                <option value="Normal" @{ if (Model.TipoVenta == "Normal") { Write("selected"); } }>Normal</option>
+                                <option value="ContraEntrega" @{ if (Model.TipoVenta == "ContraEntrega") { Write("selected"); } }>ContraEntrega</option>
+                                <option value="Credito" @{ if (Model.TipoVenta == "Credito") { Write("selected"); } }>Credito</option>
                             </select>
                         </div>
                         <div class="col-lg-2">
@@ -453,7 +459,7 @@
                             @Html.EditorFor(model => model.FormaPago, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
                         </div>
 
-                        <div class="col-lg-3">
+                        <div class="col-lg-2">
                             <label for="Embalaje" class="text-dark form-label font-weight-bold font-18">Embalaje:</label>
                             <select name="Embalaje" id="Embalaje" class="form-control  bg-cobefar text-white border-success">
                                 <option value="">Seleccione</option>
@@ -462,10 +468,21 @@
                             </select>
                         </div>
 
-                        <div class="col-lg-3">
-                            <label for="DocNum" class="text-dark form-label font-weight-bold font-18">DocNum Ticket:</label>
-                            <input type="text" name="DocNum" id="DocNum" value="@Model.DocNum" class="form-control text-center border-success" readonly />
+                        <div id="div_AlmProcedencia" class="col-lg-2" style="@if (Model.AlmProcedencia != null && Model.AlmProcedencia != "") { Write("display: block"); } else { Write("display: none"); } ">
+                            <label for="AlmProcedencia" class="text-dark form-label font-weight-bold font-18">Alm. de procedencia:</label>
+                            <select name="AlmProcedencia" class="form-control bg-cobefar text-white">
+                                <option value="">Seleccione</option>
+                                <option value="ALM07" @if (Model.AlmProcedencia == "ALM07") { Write("selected"); }>Almacén Nro 6</option>
+                                <option value="16" @if (Model.AlmProcedencia == "16") { Write("selected"); }>Almacén Nro 8</option>
+                            </select>
                         </div>
+
+                        <div class="col-lg-2">
+                            <label for="LugarDestino" class="text-dark form-label font-weight-bold font-18">Lugar destino:</label>
+                            <input type="text" id="LugarDestino" name="LugarDestino" class="form-control text-center border-success" readonly value="@Model.LugarDestino">
+                        </div>
+
+
                     </div>
 
                     <div class="row mt-4">
@@ -479,11 +496,7 @@
                             <input type="text" id="CardCode" name="CardCode" class="form-control text-center border-success" readonly value="@Model.CardCode">
                         </div>
 
-                        <div class="col-lg-3">
-                            <label for="LugarDestino" class="text-dark form-label font-weight-bold font-18">Lugar destino:</label>
-                            <input type="text" id="LugarDestino" name="LugarDestino" class="form-control text-center border-success" readonly value="@Model.LugarDestino">
-                        </div>
-
+                       
                     </div>
 
                     <div id="CamposAgDom">
@@ -513,7 +526,7 @@
 
                         <div class="row mt-4">
                             <div class="col-lg-9">
-                                @if (!string.IsNullOrEmpty(Model.DirDestino))
+                                @if (!string.IsNullOrWhiteSpace(Model.DirDestino))
                                 {<label for="DirDestino" class="text-dark form-label" id="DireccionEscogida">@Model.DirDestino </label>}
                                 <select name="DirDestino" id="DirDestino" class="form-control bg-cobefar text-white border-success" onchange="enviarValSelect('DirDestino', 'Distrito', 'Distrito');enviarValSelect('DirDestino', 'Provincia', 'Provincia');enviarValSelect('DirDestino', 'Departamento', 'Departamento');enviarValSelect('DirDestino', 'Ubigeo', 'Ubigeo');enviarValSelect('DirDestino', 'Calle', 'Calle');enviarValSelect('DirDestino', 'Zona', 'Zona');muestraCampo()">
                                     <option value="">Seleccione</option>

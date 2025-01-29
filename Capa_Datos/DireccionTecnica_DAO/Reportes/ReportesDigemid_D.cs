@@ -78,7 +78,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.Reportes
         private string BuildSqlQuery(FrmKardex_E f)
         {
             string baseCall = $"CALL {uti.schemaHana}";
-            string loteCondition = string.IsNullOrEmpty(f.Lote) ? "V1" : "LOTES_V1";
+            string loteCondition = string.IsNullOrWhiteSpace(f.Lote) ? "V1" : "LOTES_V1";
             string procedureName = string.Empty;
 
             switch (f.WhsCode)
@@ -106,7 +106,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.Reportes
                     break;
             }
 
-            return $"{baseCall}{procedureName}('{f.FecIni}', '{f.FecFin}', '{f.ItemCode}'{(string.IsNullOrEmpty(f.Lote) ? "" : $", '{f.Lote}'")})";
+            return $"{baseCall}{procedureName}('{f.FecIni}', '{f.FecFin}', '{f.ItemCode}'{(string.IsNullOrWhiteSpace(f.Lote) ? "" : $", '{f.Lote}'")})";
         }
 
 
@@ -360,7 +360,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.Reportes
                 { "05", "CANCELADO" },
             };
 
-            if (!string.IsNullOrEmpty(codArticulo) || !string.IsNullOrEmpty(firmCode))
+            if (!string.IsNullOrWhiteSpace(codArticulo) || !string.IsNullOrWhiteSpace(firmCode))
             {
                 OORS_D orsD = new OORS_D();
                 var datosObs = orsD.ObtenerDatosObsRS("", codArticulo, firmCode);
