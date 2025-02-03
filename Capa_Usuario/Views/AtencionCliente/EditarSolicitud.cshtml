@@ -317,7 +317,7 @@
 <div class="bg-form-pestanas-cobefar">
     @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "EditarSolicitud", enctype = "multipart/form-data" }))
     {
-        @Html.AntiForgeryToken()
+        
         <div class="bg-section-form p-4 bg-form-cobefar">
             <h4 class="text-cobefar font-weight-bold">DATOS DE TICKET</h4>
             @Html.EditorFor(model => model.DocEntry, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })

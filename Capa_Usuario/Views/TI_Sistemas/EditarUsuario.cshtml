@@ -27,7 +27,7 @@
 <div class="bg-form-pestanas-cobefar p-4 bg-form-cobefar">
     @using (Html.BeginForm("EditarUsuario", "TI_Sistemas", FormMethod.Post, new { id = "form" }))
     {
-        @Html.AntiForgeryToken()
+        
         @Html.Hidden("DocEntry", Model.DocEntry)
         <div class="row">
             <div class="col-lg-3">
