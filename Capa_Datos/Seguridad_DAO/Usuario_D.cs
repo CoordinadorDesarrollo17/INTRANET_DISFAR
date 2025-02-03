@@ -14,18 +14,17 @@ namespace Capa_Datos
     {
         Utilitarios uti = new Utilitarios();
         DBHelper db = new DBHelper();
-
         public string Perfiles(int IdRol)
         {
             Dictionary<int, string> roles = new Dictionary<int, string>
                 {
                     { 2, $" AND IdRol in({IdRol},3)" },								            // SDT, DT
-					{ 4, $" AND IdRol in({IdRol},5,50,51,52,53,54)" },			// SALM, RECEP,PIK, ALM, ENC, DESPACHO, FACT
+					{ 4, $" AND IdRol in({IdRol},5,50,51,52,53,54)" },			            // SALM, RECEP,PIK, ALM, ENC, DESPACHO, FACT
 					{ 6, $" AND IdRol in({IdRol},7)" },								            // SVENTAS, VENTAS
 					{ 8, $" AND IdRol in({IdRol},9)" },								            // SCAJA, CAJA
-					{ 10, $" AND IdRol in({IdRol})" },								            // COMPRAS
-					{ 11, $" AND IdRol in({IdRol})" },								            // SPATC
-					{ 55, $" AND IdRol in({IdRol})" }								            // REPA
+					{ 10, $" AND IdRol in({IdRol})" },								                // COMPRAS
+					{ 11, $" AND IdRol in({IdRol})" },								                // SPATC
+					{ 55, $" AND IdRol in({IdRol})" }								                // REPA
 				};
 
             return roles[IdRol];
