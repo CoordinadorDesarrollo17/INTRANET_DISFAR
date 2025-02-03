@@ -91,7 +91,7 @@ namespace Capa_Negocio.Almacen_NEG.TablasSql
         {
             validarOperacionesDelPeriodo(obj.DocEntryPer);
             if (obj.DocEntryEqu == 0) { throw new Exception("Seleccione un equipo de trabajo"); }
-            if (string.IsNullOrEmpty(obj.ItemCode)) { throw new Exception("Seleccione un laboratorio y articulo"); }
+            if (string.IsNullOrWhiteSpace(obj.ItemCode)) { throw new Exception("Seleccione un laboratorio y articulo"); }
             if (obj.FirmCode == 0)
             {
                 obj.FirmCode = obj.FirmCode2;
@@ -141,8 +141,8 @@ namespace Capa_Negocio.Almacen_NEG.TablasSql
             int i = 0;
             foreach (IAR12_E iar12 in obj.DetFases[0].DetContab)
             {
-                if (string.IsNullOrEmpty(iar12.BatchNum)) { throw new Exception(" El lote en la linea " + (i + 1) + " no puede estar vacia"); }
-                if (string.IsNullOrEmpty(iar12.ExpDate)) { throw new Exception(" La Fecha Venc. en la linea " + (i + 1) + " no puede estar vacia"); }
+                if (string.IsNullOrWhiteSpace(iar12.BatchNum)) { throw new Exception(" El lote en la linea " + (i + 1) + " no puede estar vacia"); }
+                if (string.IsNullOrWhiteSpace(iar12.ExpDate)) { throw new Exception(" La Fecha Venc. en la linea " + (i + 1) + " no puede estar vacia"); }
                 if (iar12.QuantityCajas < 0) { throw new Exception(" El stock en cajas no puede ser negativo en linea " + (i + 1)); }
                 else if (iar12.QuantityCajas == 0)
                 {
@@ -183,8 +183,8 @@ namespace Capa_Negocio.Almacen_NEG.TablasSql
             int i = 0;
             foreach (IAR12_E iar12 in obj.DetFases[0].DetContab)
             {
-                if (string.IsNullOrEmpty(iar12.BatchNum)) { throw new Exception(" El lote en la linea " + (i + 1) + " no puede estar vacia"); }
-                if (string.IsNullOrEmpty(iar12.ExpDate)) { throw new Exception(" La Fecha Venc. en la linea " + (i + 1) + " no puede estar vacia"); }
+                if (string.IsNullOrWhiteSpace(iar12.BatchNum)) { throw new Exception(" El lote en la linea " + (i + 1) + " no puede estar vacia"); }
+                if (string.IsNullOrWhiteSpace(iar12.ExpDate)) { throw new Exception(" La Fecha Venc. en la linea " + (i + 1) + " no puede estar vacia"); }
                 if (iar12.QuantityCajas < 0) { throw new Exception(" El stock en cajas no puede ser negativo en linea " + (i + 1)); }
                 else if (iar12.QuantityCajas == 0)
                 {
@@ -226,8 +226,8 @@ namespace Capa_Negocio.Almacen_NEG.TablasSql
             int i = 0;
             foreach (IAR12_E iar12 in obj.DetFases[0].DetContab)
             {
-                if (string.IsNullOrEmpty(iar12.BatchNum)) { throw new Exception(" El lote en la linea " + (i + 1) + " no puede estar vacia"); }
-                if (string.IsNullOrEmpty(iar12.ExpDate)) { throw new Exception(" La Fecha Venc. en la linea " + (i + 1) + " no puede estar vacia"); }
+                if (string.IsNullOrWhiteSpace(iar12.BatchNum)) { throw new Exception(" El lote en la linea " + (i + 1) + " no puede estar vacia"); }
+                if (string.IsNullOrWhiteSpace(iar12.ExpDate)) { throw new Exception(" La Fecha Venc. en la linea " + (i + 1) + " no puede estar vacia"); }
                 if (iar12.QuantityCajas < 0) { throw new Exception(" El stock en cajas no puede ser negativo en linea " + (i + 1)); }
                 else if (iar12.QuantityCajas == 0)
                 {

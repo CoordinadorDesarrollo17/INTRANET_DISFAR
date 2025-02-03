@@ -26,9 +26,9 @@ namespace Capa_Datos.Almacen_DAO.TablasSql
 			else
 			{
 				if (filtro.Quantity > 0) { fil += " and \"Quantity\">0"; }
-				if (!string.IsNullOrEmpty(filtro.WhsCode)) { fil += " and \"WhsCode\"='" + filtro.WhsCode + "'"; }
-				if (!string.IsNullOrEmpty(filtro.ItemCode)) { fil += " and \"ItemCode\"='" + filtro.ItemCode + "'"; }
-				if (!string.IsNullOrEmpty(filtro.BatchNum)) { fil += " and \"BatchNum\"='" + filtro.BatchNum + "'"; }
+				if (!string.IsNullOrWhiteSpace(filtro.WhsCode)) { fil += " and \"WhsCode\"='" + filtro.WhsCode + "'"; }
+				if (!string.IsNullOrWhiteSpace(filtro.ItemCode)) { fil += " and \"ItemCode\"='" + filtro.ItemCode + "'"; }
+				if (!string.IsNullOrWhiteSpace(filtro.BatchNum)) { fil += " and \"BatchNum\"='" + filtro.BatchNum + "'"; }
 				query = "select top 500 \"ItemCode\",\"BatchNum\",\"WhsCode\",\"ItemName\", TO_CHAR(\"ExpDate\", 'YYYY-MM-DD'), \"Quantity\" " +
 				" from " + uti.schemaHana + "OIBT where \"ItemCode\" is not null " + fil + " order by \"ItemCode\"";
 			}

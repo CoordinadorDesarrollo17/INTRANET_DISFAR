@@ -29,9 +29,9 @@ namespace Capa_Datos
         public Utilitarios()
         {
             // File Directories
-            this.directorioGeneral = @"D:\";
-            this.directorioFileServer = @"D:\COBEFARWEBFILES\";
-            this.directorioLogs = @"D:\COBEFARWEBLOGS\";
+            this.directorioGeneral = @"E:\";
+            this.directorioFileServer = @"E:\COBEFARWEBFILES\";
+            this.directorioLogs = @"E:\COBEFARWEBLOGS\";
 
             // HANA Database Configuration
             this.cadHana = "Server=172.16.55.36:30015;UserName=B1ADMIN;Password=Passw0rd;";
@@ -43,12 +43,11 @@ namespace Capa_Datos
             this.schemaHanaOnPremise = "\"B1H_COBEFAR_2018\".";
 
             // SQL Server Configuration
-            this.serverSql = @"WIN-DC\DIEGO_BD";
+            this.serverSql = @"TI-05";
             this.userSql = "sa";
-            this.passwordSql = "@Ndr@de123";
-            this.BDsql = "INTRANET_V2";
-            //this.BDsql = "BASE_131224";
-            //this.BDsql = "BASE_110924";
+            this.passwordSql = "TICOBE@R789";
+
+            this.BDsql = "BASE_240125";
 
             this.cadSql = $@"Server={this.serverSql};" +
                           $"Database={this.BDsql};" +

@@ -4,7 +4,7 @@
     ViewBag.Title = "Pagar Ticket";
     Layout = "~/Views/Shared/_Layout.cshtml";
     List<Capa_Entidad.Caja_ENT.OPP_E> pagosParciales = (List<Capa_Entidad.Caja_ENT.OPP_E>)ViewBag.PagosParciales;
-    bool verDetalleReparto = !string.IsNullOrEmpty(ViewBag.DescTipoPago) && ViewBag.IdOTC > 0;
+    bool verDetalleReparto = !string.IsNullOrWhiteSpace(ViewBag.DescTipoPago) && ViewBag.IdOTC > 0;
     bool verPagosParciales = ((decimal)ViewBag.MontoRecibidoEfectivo + (decimal)ViewBag.MontoRecibidoDeposito + (decimal)ViewBag.TotalPagosParciales < Model.MontoFinal) || (decimal)ViewBag.TotalPagosParciales > 0;
     bool permisoCaja = ViewBag.IdRol == 1 || ViewBag.IdRol == 8 || ViewBag.IdRol == 9;
     bool verBotonesPagarAnular = ViewBag.TipoPago == "PCE" || ((ViewBag.TipoPago == "SP" || ViewBag.TipoPago == "PCD" || ViewBag.TipoPago == "PMI") && ViewBag.EstadoContraEntrega == "AUTORIZADO") || ((ViewBag.TipoPago == "PCD" || ViewBag.TipoPago == "PMI") && ViewBag.EstadoContraEntrega == "VALIDADO");
@@ -79,7 +79,7 @@
     </nav>
     @using (Html.BeginForm("PagarTicketVenta", "Caja", FormMethod.Post, new { id = "form" }))
     {
-        @Html.AntiForgeryToken()
+        
         <div class="tab-content" id="nav-tabContent">
             @if (permisoCaja)
             {
@@ -647,7 +647,7 @@
                                             }
                                         }
 
-                                        @if (ViewBag.ComentarioVentas != null && !string.IsNullOrEmpty(ViewBag.ComentarioVentas.ToString()))
+                                        @if (ViewBag.ComentarioVentas != null && !string.IsNullOrWhiteSpace(ViewBag.ComentarioVentas.ToString()))
                                         {
                                             <div class="form-group row justify-content-center font-18 text-cobefar">
                                                 <span class="w-75 font-weight-bold">Comentario VENTAS</span>
@@ -658,7 +658,7 @@
                                             </div>
                                         }
 
-                                        @if (ViewBag.FechaCompromisoPago != null && !string.IsNullOrEmpty(ViewBag.FechaCompromisoPago.ToString()))
+                                        @if (ViewBag.FechaCompromisoPago != null && !string.IsNullOrWhiteSpace(ViewBag.FechaCompromisoPago.ToString()))
                                         {
                                             <div class="form-group row mt-2 justify-content-center font-18 text-dark">
                                                 <span class="font-weight-bold mr-3 mt-1">Fecha Compromiso de Pago: </span>

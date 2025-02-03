@@ -13,9 +13,6 @@ using System.Web.Mvc;
 using Capa_Entidad.Ventas_ENT.Tablas;
 using Capa_Negocio.ComprobantesContables_NEG;
 using Capa_Entidad.ReportesDigemid_ENT.Reportes;
-using Capa_Entidad.General_ENT.TablasSql;
-using Capa_Negocio.General_NEG.TablasSql;
-using System;
 
 namespace Capa_Usuario.Controllers
 {
@@ -72,7 +69,7 @@ namespace Capa_Usuario.Controllers
 
             // Filtrar documentos con U_SYP_MDCD no vacío y eliminar duplicados
             var documentosFiltrados = documentos
-                .Where(d => !string.IsNullOrEmpty(d.U_SYP_MDCD))
+                .Where(d => !string.IsNullOrWhiteSpace(d.U_SYP_MDCD))
                 .GroupBy(d => d.U_SYP_MDCD)
                 .Select(g => g.First())
                 .ToList();

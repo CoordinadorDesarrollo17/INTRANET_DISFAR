@@ -44,12 +44,12 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     cmd2.Parameters.AddWithValue("@TipoPago", tc.TipoPago);
                     cmd2.Parameters.AddWithValue("@PersonaEntrega", tc.PersonaEntrega);
                     cmd2.Parameters.AddWithValue("@AutorizacionExcepcional", tc.AutorizacionExcepcional);
-                    cmd2.Parameters.AddWithValue("@ComentarioCaja", (!string.IsNullOrEmpty(tc.ComentarioCaja)) ? tc.ComentarioCaja.ToUpper() : "");
-                    cmd2.Parameters.AddWithValue("@ComentarioVentas", (!string.IsNullOrEmpty(tc.ComentarioVentas)) ? tc.ComentarioVentas.ToUpper() : "");
+                    cmd2.Parameters.AddWithValue("@ComentarioCaja", (!string.IsNullOrWhiteSpace(tc.ComentarioCaja)) ? tc.ComentarioCaja.ToUpper() : "");
+                    cmd2.Parameters.AddWithValue("@ComentarioVentas", (!string.IsNullOrWhiteSpace(tc.ComentarioVentas)) ? tc.ComentarioVentas.ToUpper() : "");
                     cmd2.Parameters.AddWithValue("@SaldoAFavor", tc.SaldoAFavor);
                     cmd2.Parameters.AddWithValue("@FechaCompromisoPago", tc.FechaCompromisoPago);
                     cmd2.Parameters.AddWithValue("@ComportamientoPago", tc.ComportamientoPago);
-                    cmd2.Parameters.AddWithValue("@ComentarioAdjunto", (!string.IsNullOrEmpty(tc.ComentarioAdjunto)) ? tc.ComentarioAdjunto.ToUpper() : "");
+                    cmd2.Parameters.AddWithValue("@ComentarioAdjunto", (!string.IsNullOrWhiteSpace(tc.ComentarioAdjunto)) ? tc.ComentarioAdjunto.ToUpper() : "");
 
                     if (tc.ImgAdjunta != null && tc.ImgAdjunta.Count >= 1)
                     {
@@ -174,8 +174,8 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 if (filtro1.EstadoPago != null) { condWhere += $" AND VT.EstadoPago = @EstadoPago"; param9 = true; }
                 if (filtro1.EstadoGasto != null) { condWhere += $" AND VT.EstadoGasto = @EstadoGasto"; param10 = true; }
                 if (filtro1.PagoEnv == 0.01M) { condWhere += $" AND VT.PagoEnv > @PagoEnv"; param11 = true; }
-                if (!string.IsNullOrEmpty(filtro1.TipoPago)) { condWhere += $" AND TC.TipoPago = @TipoPago"; param12 = true; }
-                if (!string.IsNullOrEmpty(filtro1.EstadoContraEntrega)) { condWhere += $" AND TC.Estado = @EstadoContraEntrega"; param13 = true; }
+                if (!string.IsNullOrWhiteSpace(filtro1.TipoPago)) { condWhere += $" AND TC.TipoPago = @TipoPago"; param12 = true; }
+                if (!string.IsNullOrWhiteSpace(filtro1.EstadoContraEntrega)) { condWhere += $" AND TC.Estado = @EstadoContraEntrega"; param13 = true; }
             }
 
             using (SqlConnection cn = new SqlConnection(uti.cadSql))
@@ -192,7 +192,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 
                 SqlCommand cmd = new SqlCommand(query, cn);         // prepara
 
-                if (filtro1 != null && !string.IsNullOrEmpty(condWhere))
+                if (filtro1 != null && !string.IsNullOrWhiteSpace(condWhere))
                 {
                     if (param1) { cmd.Parameters.AddWithValue("@DocNum", filtro1.DocNum); }
                     if (param2) { cmd.Parameters.AddWithValue("@FechaSapTicket", filtro1.FechaSapTicket); }
@@ -258,12 +258,12 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             if (tc != null)
             {
                 if (tc.DocNumTicket > 0) { condWhere += " AND TC.DocNumTicket = @DocNumTicket"; param1 = true; }
-                if (!string.IsNullOrEmpty(tc.FechaSapTicket)) { condWhere += " AND VT.FechaSapTicket = @FechaSapTicket"; param2 = true; }
-                if (!string.IsNullOrEmpty(tc.CardCode)) { condWhere += " AND VT.CardCode = @CardCode"; param3 = true; }
-                if (!string.IsNullOrEmpty(tc.CardName)) { condWhere += " AND VT.CardName LIKE @CardName"; param4 = true; }
-                if (!string.IsNullOrEmpty(tc.TipoPago)) { condWhere += " AND TC.TipoPago = @TipoPago"; param5 = true; }
-                if (!string.IsNullOrEmpty(tc.PersonaEntrega)) { condWhere += " AND TC.PersonaEntrega LIKE @PersonaEntrega"; param6 = true; }
-                if (!string.IsNullOrEmpty(tc.Estado)) { condWhere += " AND TC.Estado = @Estado"; param7 = true; }
+                if (!string.IsNullOrWhiteSpace(tc.FechaSapTicket)) { condWhere += " AND VT.FechaSapTicket = @FechaSapTicket"; param2 = true; }
+                if (!string.IsNullOrWhiteSpace(tc.CardCode)) { condWhere += " AND VT.CardCode = @CardCode"; param3 = true; }
+                if (!string.IsNullOrWhiteSpace(tc.CardName)) { condWhere += " AND VT.CardName LIKE @CardName"; param4 = true; }
+                if (!string.IsNullOrWhiteSpace(tc.TipoPago)) { condWhere += " AND TC.TipoPago = @TipoPago"; param5 = true; }
+                if (!string.IsNullOrWhiteSpace(tc.PersonaEntrega)) { condWhere += " AND TC.PersonaEntrega LIKE @PersonaEntrega"; param6 = true; }
+                if (!string.IsNullOrWhiteSpace(tc.Estado)) { condWhere += " AND TC.Estado = @Estado"; param7 = true; }
             }
 
             using (SqlConnection cn = new SqlConnection(uti.cadSql))
@@ -273,7 +273,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 sb.Append("SELECT TOP 100 TC.DocEntryTicket, TC.DocNumTicket, CONVERT(varchar, VT.FechaSapTicket, 103), REPLACE(VT.CardCode, 'C', ''), VT.CardName, TC.TipoPago, TC.PersonaEntrega, TC.Estado");
                 sb.Append(" FROM cj.OTC TC");
                 sb.Append(" LEFT JOIN vt.ORTV VT ON VT.DocEntry = TC.DocEntryTicket");
-                if (tc != null && !string.IsNullOrEmpty(condWhere))
+                if (tc != null && !string.IsNullOrWhiteSpace(condWhere))
                 {
                     sb.Append($" WHERE Id > 0 {condWhere}");
                 }
@@ -283,7 +283,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 
                 SqlCommand cmd = new SqlCommand(query, cn);         // prepara
 
-                if (tc != null && !string.IsNullOrEmpty(condWhere))
+                if (tc != null && !string.IsNullOrWhiteSpace(condWhere))
                 {
                     if (param1) { cmd.Parameters.AddWithValue("@DocNumTicket", tc.DocNumTicket); }
                     if (param2) { cmd.Parameters.AddWithValue("@FechaSapTicket", tc.FechaSapTicket); }
@@ -351,8 +351,8 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                             cmd.Parameters.AddWithValue("@Estado", tc.Estado);
                             cmd.Parameters.AddWithValue("@PersonaEntrega", tc.PersonaEntrega);
                             cmd.Parameters.AddWithValue("@Operacion", operacion);
-                            cmd.Parameters.AddWithValue("@ComentarioCaja", string.IsNullOrEmpty(tc.ComentarioCaja) ? string.Empty : tc.ComentarioCaja.ToUpper());
-                            cmd.Parameters.AddWithValue("@ComentarioVentas", string.IsNullOrEmpty(tc.ComentarioVentas) ? string.Empty : tc.ComentarioVentas.ToUpper());
+                            cmd.Parameters.AddWithValue("@ComentarioCaja", string.IsNullOrWhiteSpace(tc.ComentarioCaja) ? string.Empty : tc.ComentarioCaja.ToUpper());
+                            cmd.Parameters.AddWithValue("@ComentarioVentas", string.IsNullOrWhiteSpace(tc.ComentarioVentas) ? string.Empty : tc.ComentarioVentas.ToUpper());
                             cmd.Parameters.AddWithValue("@FechaCompromisoPago", tc.FechaCompromisoPago);
                             cmd.Parameters.AddWithValue("@SaldoAFavor", tc.SaldoAFavor);
 
@@ -607,13 +607,13 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                             cmd.Parameters.AddWithValue("@PagoEnv", 0);
                         }
 
-                        if (!string.IsNullOrEmpty(filtros.TipoPago))
+                        if (!string.IsNullOrWhiteSpace(filtros.TipoPago))
                         {
                             sb.Append(" AND TC.TipoPago = @TipoPago");
                             cmd.Parameters.AddWithValue("@TipoPago", filtros.TipoPago);
                         }
 
-                        if (!string.IsNullOrEmpty(filtros.EstadoContraEntrega))
+                        if (!string.IsNullOrWhiteSpace(filtros.EstadoContraEntrega))
                         {
                             sb.Append(" AND TC.Estado = @EstadoContraEntrega");
                             cmd.Parameters.AddWithValue("@EstadoContraEntrega", filtros.EstadoContraEntrega);
@@ -667,6 +667,37 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             }
 
             return lista;
+        }
+
+        public string RegularizarAutorizacion(int docNum, int idOTC, string operario)
+        {
+            string result;
+
+            using (SqlConnection cn = new SqlConnection(uti.cadSql))
+            {
+                cn.Open();
+
+                try
+                {
+                    SqlCommand cmd2 = new SqlCommand("INSERT INTO cj.CC_OTC VALUES(@IdOTC,'AUTORIZAR',@Operario,@Fecha,@Hora)", cn);
+
+                    cmd2.Parameters.AddWithValue("@DocNumTicket", docNum);
+                    cmd2.Parameters.AddWithValue("@IdOTC", idOTC);
+                    cmd2.Parameters.AddWithValue("@Fecha", DateTime.Now.ToShortDateString());
+                    cmd2.Parameters.AddWithValue("@Hora", DateTime.Now.TimeOfDay);
+                    cmd2.Parameters.AddWithValue("@Operario", operario);
+
+                    cmd2.ExecuteNonQuery();
+                    result = "Actualizacion enviada correctamente";
+                }
+                catch (Exception ex2)
+                {
+                    result = "Error al actualizar solicitud";
+                    throw new Exception("Error en registro: " + ex2.Message);
+                }
+            }
+
+            return result;
         }
     }
 }

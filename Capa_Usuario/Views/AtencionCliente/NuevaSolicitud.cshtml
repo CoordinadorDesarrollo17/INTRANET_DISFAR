@@ -39,7 +39,7 @@
 <div class="bg-form-pestanas-cobefar">
     @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "NuevaSolicitud", enctype = "multipart/form-data" }))
     {
-        @Html.AntiForgeryToken()
+        
 
         @Html.EditorFor(model => model.DocEntry, new { htmlAttributes = new { @class = "form-control", @type = "hidden" } })
 

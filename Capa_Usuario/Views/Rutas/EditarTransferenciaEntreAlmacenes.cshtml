@@ -298,7 +298,7 @@
 </div>
 
 
-@if (!string.IsNullOrEmpty(ViewBag.Mensaje))
+@if (!string.IsNullOrWhiteSpace(ViewBag.Mensaje))
 {
     <script>
      var mensaje = '@Html.Raw(ViewBag.Mensaje)';

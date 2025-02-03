@@ -11,7 +11,7 @@
     var usuario = ViewBag.Usuario ;
 
 }
-<script src="~/Scripts/Ventas/TicketDeVenta.js"></script>
+
 <script>
     $(document).ready(function () {
         //verifica los datos del ticket apenas carga la pagina
@@ -368,6 +368,7 @@
     }
 
 </script>
+<script src="~/Scripts/Ventas/TicketDeVenta.js"></script>
 <style>
     .my-swal-text {
         background-color: yellow;
@@ -410,27 +411,30 @@
 
     @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "CreaTicketVenta" }))
     {
-        @Html.AntiForgeryToken()
+        
         <div class="tab-content" id="nav-tabContent">
             <div class="tab-pane fade show active" id="nav-datos-pedidos" role="tabpanel" aria-labelledby="nav-datos-pedidos-tab">
                 <div class="bg-section-form p-4 bg-form-cobefar">
-                    <div class="row d-flex">
-                        <div class="col-lg-10 col-6">
-                            <h2 class="mt-4 text-cobefar font-weight-bold">DATOS PEDIDO</h2>
-                        </div>
-                        <div class="col-lg-2 col-6 form-group row pt-4">
-                            <div class="col-lg-12">
-                                <input type="hidden" id="DocEntry" name="DocEntry" value="@Model.DocEntry" readonly />
-                                <input type="text" id="Estado" name="Estado" value="@Model.Estado" class="form-control text-center bg-warning" readonly />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row mt-4">
+                    <h2 class="mt-4 text-cobefar font-weight-bold">DATOS PEDIDO</h2>
+                    <div class="form-group row pt-4">
                         <div id="infoFechaTicket" class="col-lg-2">
                             <label for="FechaSapTicket" class="text-dark form-label font-weight-bold font-18">@Html.DisplayNameFor(m => m.FechaSapTicket):</label>
                             <input id="FechaSapTicket" type="date" name="FechaSapTicket" value="" class="txt-validacion form-control text-center border-success">
                         </div>
+                        <div class="col-lg-8"></div>
+                        <div class="col-lg-2">
+                            <label></label>
+                            <input type="hidden" id="DocEntry" name="DocEntry" value="@Model.DocEntry" readonly />
+                            <input type="text" id="Estado" name="Estado" value="@Model.Estado" class="form-control text-center bg-warning" readonly />
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-lg-2">
+                            <label for="DocNum" class="text-dark form-label font-weight-bold font-18">DocNum Ticket:</label>
+                            <input type="text" id="DocNum" name="DocNum" value="@Model.DocNum" class="txt-validacion form-control text-center border-success" readonly />
+                        </div>
+
                         <div class="col-lg-2">
                             <label for="TipoVenta" class="text-dark form-label font-weight-bold font-18">Tipo de Venta:</label>
 
@@ -439,18 +443,51 @@
                                 <option value="">Seleccione</option>
                                 <option value="Normal" @{ if (Model.TipoVenta == "Normal") { Write("selected"); } }>Normal</option>
                                 <option value="ContraEntrega" @{ if (Model.TipoVenta == "ContraEntrega") { Write("selected"); } }>ContraEntrega</option>
-                                @if (usuario == "VENTAS32" || usuario == "VENTAS05") {
+                                @if (usuario == "VENTAS32" || usuario == "VENTAS05")
+                                {
                                     <option value="Credito" @{ if (Model.TipoVenta == "Credito") { Write("selected"); } }>Credito</option>
                                 }
                             </select>
                         </div>
+
                         <div class="col-lg-2">
-                            <label for="Presupuesto" class="text-dark form-label font-weight-bold font-18">Presupuesto:</label>
-                            <select name="Visible" id="Visible" class="form-control bg-cobefar text-white">
-                                <option value="SI" @{ if (Model.Visible == "SI") { Write("selected"); } }>NO</option>
-                                <option value="NO" @{ if (Model.Visible == "NO") { Write("selected"); } }>SI</option>
+                            <label for="Embalaje" class="text-dark form-label font-weight-bold font-18">Embalaje:</label>
+                            <select name="Embalaje" id="Embalaje" class="form-control  bg-cobefar text-white">
+                                <option value="">Seleccione</option>
+                                <option value="CL" @{ if (Model.Embalaje == "CL") { Write("selected"); } }>Caja Lima</option>
+                                <option value="CP" @{ if (Model.Embalaje == "CP") { Write("selected"); } }>Caja Provincia</option>
                             </select>
                         </div>
+
+                        <div class="col-lg-2">
+                            <label for="LugarDestino" class="text-dark form-label font-weight-bold font-18">Lugar destino:</label>
+                            <select name="LugarDestino" id="LugarDestino" class="form-control bg-cobefar text-white" onchange="muestraCampo(); mostrarOficinas(); mostrarTableTicketsVinculados($('#selectVinculado').val()); validarLugarDestino(this.value)">
+                                <option value="">Seleccione</option>
+                                <option value="Arriola" @{ if (Model.LugarDestino == "Arriola") { Write("selected"); } }>Para Arriola</option>
+                                <option value="Agencia" @{ if (Model.LugarDestino == "Agencia") { Write("selected"); } }>Para Agencia</option>
+                                <option value="Domicilio" @{ if (Model.LugarDestino == "Domicilio") { Write("selected"); } }>Para Domicilio</option>
+                                <option value="Centro" @{ if (Model.LugarDestino == "Centro") { Write("selected"); } }>Para Centro</option>
+                                <option value="Agencia Courier" @{ if (Model.LugarDestino == "Agencia Courier") { Write("selected"); } }>Para Agencia Courier</option>
+                            </select>
+                        </div>
+
+                        <div id="div_AlmProcedencia" class="col-lg-2" style="@if (Model.AlmProcedencia != null && Model.AlmProcedencia != "") { Write("display: block"); } else { Write("display: none"); } ">
+                            <label for="AlmProcedencia" class="text-dark form-label font-weight-bold font-18">Alm. de procedencia:</label>
+                            <select name="AlmProcedencia" id="AlmProcedencia" class="form-control bg-cobefar text-white">
+                                <option value="">Seleccione</option>
+                                <option value="ALM07" @if (Model.AlmProcedencia == "ALM07") { Write("selected"); }>Almacén Nro 6</option>
+                                <option value="16" @if (Model.AlmProcedencia == "16") { Write("selected"); }>Almacén Nro 8</option>
+                            </select>
+                        </div>
+
+                        <div class="col-lg-1">
+                            <label for="Presupuesto" class="text-dark form-label font-weight-bold font-18">Presupuesto:</label>
+                            <select name="Presupuesto" id="Presupuesto" class="form-control bg-cobefar text-white">
+                                <option value="NO" @{ if (Model.Presupuesto == "NO") { Write("selected"); } }>NO</option>
+                                <option value="SI" @{ if (Model.Presupuesto == "SI") { Write("selected"); } }>SI</option>
+                            </select>
+                        </div>
+
                         <div class="col-lg-2" id="div_FormaPago">
                             <label class="text-dark font-weight-bold font-18">Forma de Pago:</label>
                             <select name="FormaPago" id="FormaPago" class="form-control bg-cobefar text-white">
@@ -460,18 +497,8 @@
                                 <option value="DEPOSITO" @{ if (Model.FormaPago != null && Model.FormaPago == "DEPOSITO") { Write("selected"); } }>DEPOSITO</option>
                             </select>
                         </div>
-                        <div class="col-lg-2">
-                            <label for="Embalaje" class="text-dark form-label font-weight-bold font-18">Embalaje:</label>
-                            <select name="Embalaje" id="Embalaje" class="form-control  bg-cobefar text-white">
-                                <option value="">Seleccione</option>
-                                <option value="CL" @{ if (Model.Embalaje == "CL") { Write("selected"); } }>Caja Lima</option>
-                                <option value="CP" @{ if (Model.Embalaje == "CP") { Write("selected"); } }>Caja Provincia</option>
-                            </select>
-                        </div>
-                        <div class="col-lg-2">
-                            <label for="DocNum" class="text-dark form-label font-weight-bold font-18">DocNum Ticket:</label>
-                            <input type="text" id="DocNum" name="DocNum" value="@Model.DocNum" class="txt-validacion form-control text-center border-success" readonly />
-                        </div>
+
+
                     </div>
 
                     <div class="row mt-4">
@@ -487,17 +514,7 @@
                             <label for="CardCode" class="text-dark form-label font-weight-bold font-18">Código Cliente:</label>
                             <input type="text" id="CardCode" name="CardCode" class="form-control text-center border-success" readonly value="@Model.CardCode">
                         </div>
-                        <div class="col-lg-3">
-                            <label for="LugarDestino" class="text-dark form-label font-weight-bold font-18">Lugar destino:</label>
-                            <select name="LugarDestino" id="LugarDestino" class="form-control bg-cobefar text-white" onchange="muestraCampo(); mostrarOficinas(); mostrarTableTicketsVinculados($('#selectVinculado').val()); ">
-                                <option value="">Seleccione</option>
-                                <option value="Arriola" @{ if (Model.LugarDestino == "Arriola") { Write("selected"); } }>Para Arriola</option>
-                                <option value="Agencia" @{ if (Model.LugarDestino == "Agencia") { Write("selected"); } }>Para Agencia</option>
-                                <option value="Domicilio" @{ if (Model.LugarDestino == "Domicilio") { Write("selected"); } }>Para Domicilio</option>
-                                <option value="Centro" @{ if (Model.LugarDestino == "Centro") { Write("selected"); } }>Para Centro</option>
-                                <option value="Agencia Courier" @{ if (Model.LugarDestino == "Agencia Courier") { Write("selected"); } }>Para Agencia Courier</option>
-                            </select>
-                        </div>
+                        
                     </div>
 
                     <div id="CamposAgDom">

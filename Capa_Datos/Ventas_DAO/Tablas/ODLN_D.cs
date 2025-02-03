@@ -189,16 +189,16 @@ namespace Capa_Datos.Ventas_DAO.Tablas
             string doc = string.Empty;
             string filtros = string.Empty;
 
-            if (!string.IsNullOrEmpty(Fecha))
+            if (!string.IsNullOrWhiteSpace(Fecha))
             {
                 filtros += " and \"U_BPP_FECINITRA\"='" + Fecha + "'";
             }
-            if (!string.IsNullOrEmpty(U_SYP_STATUS))
+            if (!string.IsNullOrWhiteSpace(U_SYP_STATUS))
             {
                 if (U_SYP_STATUS == "V") { filtros += " and \"CANCELED\"='N'"; }
                 filtros += " and \"U_SYP_STATUS\"='" + U_SYP_STATUS + "'";
             }
-            if (!string.IsNullOrEmpty(U_COB_LUGAREN))
+            if (!string.IsNullOrWhiteSpace(U_COB_LUGAREN))
             {
                 filtros += " and \"U_COB_LUGAREN\"='" + U_COB_LUGAREN + "'";
             }
@@ -218,11 +218,11 @@ namespace Capa_Datos.Ventas_DAO.Tablas
             List<(string, int)> detalles = new List<(string, int)>();
             string filtros = string.Empty;
 
-            if (!string.IsNullOrEmpty(Fecha))
+            if (!string.IsNullOrWhiteSpace(Fecha))
             {
                 filtros += " and \"U_BPP_FECINITRA\"='" + Fecha + "'";
             }
-            if (!string.IsNullOrEmpty(U_SYP_STATUS))
+            if (!string.IsNullOrWhiteSpace(U_SYP_STATUS))
             {
                 if (U_SYP_STATUS == "V")
                 {
@@ -230,7 +230,7 @@ namespace Capa_Datos.Ventas_DAO.Tablas
                 }
                 filtros += " and \"U_SYP_STATUS\"='" + U_SYP_STATUS + "'";
             }
-            if (!string.IsNullOrEmpty(U_COB_LUGAREN))
+            if (!string.IsNullOrWhiteSpace(U_COB_LUGAREN))
             {
                 filtros += " and \"U_COB_LUGAREN\"='" + U_COB_LUGAREN + "'";
             }

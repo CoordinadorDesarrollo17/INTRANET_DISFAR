@@ -38,7 +38,7 @@
     </nav>
     @using (Html.BeginForm("PagarTicketVenta", "Caja", FormMethod.Post, new { id = "form" }))
     {
-        @Html.AntiForgeryToken()
+        
         <div class="tab-content" id="nav-tabContent">
             <input type="hidden" id="DocEntry" name="DocEntry" value="@Model.DocEntry" readonly />
             @if (verDetalleReparto)
@@ -200,7 +200,7 @@
                                 <div class="row justify-content-center">
                                     <div class="col-10">
                                         <!--  C A J A  -->
-                                        @if (ViewBag.ComentarioCaja != null && !string.IsNullOrEmpty(ViewBag.ComentarioCaja.ToString()))
+                                        @if (ViewBag.ComentarioCaja != null && !string.IsNullOrWhiteSpace(ViewBag.ComentarioCaja.ToString()))
                                         {
                                             <div class="form-group row mt-4 justify-content-center font-18 text-cobefar">
                                                 <span class="w-75 font-weight-bold">Comentario CAJA</span>

@@ -721,7 +721,7 @@
                         <td>
                             @if (item.Det2 != null)
                             {
-                                <div class=" pt-2">
+                                <div class="pt-2">
                                     @foreach (RTV2_E dt in item.Det2)
                                     {
                                         string styleObs = (@dt.Observaciones != "") ? "background-color: #00FFFF;color:black !important;" : "";
@@ -737,7 +737,15 @@
                                             colorTipoComprobante = "background-color: #E8C2F7;color:black !important;";
                                         }
                                         <p class="pl-2" style="@colorTipoComprobante @lineheight">@dt.Monto: @dt.TipoComprobante</p>
-                                        <p class="pl-2" style="@styleObs">@dt.Observaciones</p>
+                                        <p class="pl-2 text-sm-center" style="@styleObs">@dt.Observaciones</p>
+                                    }
+                                    @if (item.LugarDestino.Equals("Centro") || item.LugarDestino.Equals("Arriola"))
+                                    {
+                                    <p class="pl-2">Origen: @item.AlmProcedencia</p>
+                                    }
+                                    else
+                                    {
+                                    <p class="pl-2">Origen: @item.Det2.FirstOrDefault(y => y.Monto > 0 && y.AlmacenSalida != "06").AlmacenSalida</p>
                                     }
                                 </div>
                             }
@@ -770,11 +778,11 @@
                         </td>
 
                         @if (item.TiempoEntrega != null)
-                        {
+                        {                   
                             string styleTiempoEntrega = string.Empty;
-                            if (item.TiempoEntrega.ToString().Substring(0, 10) == DateTime.Now.ToString("dd/MM/yyyy"))
+                            if (Convert.ToDateTime(item.TiempoEntrega).ToString("dd/MM/yyyy") == DateTime.Now.ToString("dd/MM/yyyy"))
                             {
-                                styleTiempoEntrega = "background-color:chartreuse;color:black !important;";
+                                styleTiempoEntrega = "background-color:#DEFF00;color:black !important;";
                             }
                             <td style="width: 130px; @styleTiempoEntrega">
                                 <div class="mx-2">@Convert.ToDateTime(item.TiempoEntrega).ToString("dd/MM/yyyy HH:mm:ss")</div>

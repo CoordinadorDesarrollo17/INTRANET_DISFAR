@@ -13,7 +13,7 @@
                               <option value="">Seleccione</option>
                               @foreach (var item in ViewBag.ListaEstadosRS)
                               {
-                                  <option value="@item.Code"  @if (!string.IsNullOrEmpty(ViewBag.ORS.Estado) && ViewBag.ORS.Estado == item.Code) { Write("selected"); }>@item.Name</option>
+                                  <option value="@item.Code"  @if (!string.IsNullOrWhiteSpace(ViewBag.ORS.Estado) && ViewBag.ORS.Estado == item.Code) { Write("selected"); }>@item.Name</option>
                               }
                           </select>
                 </th>

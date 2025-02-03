@@ -50,7 +50,7 @@ namespace Capa_Negocio.General_NEG.TablasSql
             {
                 sede.Nombre = helper.SanitizarTexto(sede.Nombre);
                 var mensajeRegistro = sedeD.RegistrarSede(sede);
-                if (!string.IsNullOrEmpty(mensajeRegistro)) { errores.Add(mensajeRegistro); }
+                if (!string.IsNullOrWhiteSpace(mensajeRegistro)) { errores.Add(mensajeRegistro); }
             }
 
             // Devolver el mensaje de error como una cadena
@@ -107,7 +107,7 @@ namespace Capa_Negocio.General_NEG.TablasSql
         //        return "Para inactivar la sede, no debe tener ningún empleado relacionado.";
         //    }
 
-        //    if (string.IsNullOrEmpty(datosPOST.Estado))
+        //    if (string.IsNullOrWhiteSpace(datosPOST.Estado))
         //    {
         //        datosPOST.Estado = datosSede.Estado;
         //    }

@@ -23,7 +23,7 @@
 <div class="bg-white bg-form-cobefar p-4">
     @using (Html.BeginForm())
     {
-        @Html.AntiForgeryToken()
+        
 
         @Html.EditorFor(model => model.Code, new { htmlAttributes = new { @class = "form-control", @readonly = "true", @type = "hidden" } })
         @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })

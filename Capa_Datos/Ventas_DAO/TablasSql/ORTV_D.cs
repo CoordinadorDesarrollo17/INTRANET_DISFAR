@@ -20,6 +20,7 @@ using System.Linq;
 using System.Windows.Forms;
 using System.Deployment.Internal;
 using System.Dynamic;
+using DocumentFormat.OpenXml.Drawing;
 
 namespace Capa_Datos.Ventas_DAO.TablasSql
 {
@@ -49,6 +50,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                         while (dr.Read())
                         {
                             dynamic ticket = new ExpandoObject();
+                            ticket.IdOTC = dr.IsDBNull(dr.GetOrdinal("IdOTC")) ? 0 : dr.GetInt32(dr.GetOrdinal("IdOTC"));
                             ticket.DocNumTicket = dr.IsDBNull(dr.GetOrdinal("DocNumTicket")) ? 0 : dr.GetInt32(dr.GetOrdinal("DocNumTicket"));
                             ticket.TipoPago = dr.IsDBNull(dr.GetOrdinal("TipoPago")) ? string.Empty : dr.GetString(dr.GetOrdinal("TipoPago"));
                             ticket.Estado = dr.IsDBNull(dr.GetOrdinal("Estado")) ? string.Empty : dr.GetString(dr.GetOrdinal("Estado"));
@@ -532,9 +534,11 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             cmd.Parameters.AddWithValue("@Observaciones2", ticket.Observaciones2);
             cmd.Parameters.AddWithValue("@Observaciones3", ticket.Observaciones3);
             cmd.Parameters.AddWithValue("@FormaPago", ticket.FormaPago);
+            cmd.Parameters.AddWithValue("@AlmProcedencia", ticket.AlmProcedencia);
             cmd.Parameters.AddWithValue("@Zona", zonaTk);
             cmd.Parameters.AddWithValue("@FechaNC", ticket.FechaNC);
-            cmd.Parameters.AddWithValue("@Visible", ticket.Visible);
+            cmd.Parameters.AddWithValue("@Presupuesto", ticket.Presupuesto);
+            cmd.Parameters.AddWithValue("@Visible", "NO");
 
             if (ticket.TiempoEntrega != null)
             {
@@ -690,7 +694,8 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             cmd.Parameters.AddWithValue("@DocNum", ticket.DocNum);
             cmd.Parameters.AddWithValue("@Operario", ticket.Vendedor);
             cmd.Parameters.AddWithValue("@Zona", zonaTk);
-            cmd.Parameters.AddWithValue("@Visible", ticket.Visible);
+            cmd.Parameters.AddWithValue("@Presupuesto", ticket.Presupuesto);
+            cmd.Parameters.AddWithValue("@AlmProcedencia", ticket.AlmProcedencia);
 
             AgregarDetallesComando(cmd, ticket, docEntry);
 
@@ -793,14 +798,37 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             }
 
         }
-
-        public int EditarVisibilidadTicket(int DocEntry)
+        //Automatico desde click a Boton Ver Layout
+        public int EditarVisibilidadTicket(int docEntry,string opImpresion,string proceso)
         {
             SqlConnection cn = new SqlConnection(uti.cadSql);
             try
             {
                 cn.Open();
-                SqlCommand cmd = new SqlCommand("UPDATE vt.ortv SET Visible='SI' where DocEntry=@DocEntry", cn);
+                SqlCommand cmd = new SqlCommand();
+                if (proceso.Equals("PI")) // EN PROCESO DE IMPRESION
+                {
+                    cmd = new SqlCommand($"UPDATE vt.ortv SET Visible='{proceso}' where DocEntry=@DocEntry; insert into vt.CC_ORTV values (@DocEntry,'{proceso}','{opImpresion}',(select convert(varchar,getdate(),23)),(select convert(char(5),getdate(),108)))", cn);
+                }
+               
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.AddWithValue("@DocEntry", docEntry);
+                cmd.ExecuteNonQuery();
+                cn.Close();
+            }
+            catch { }
+
+
+            return docEntry;
+        }
+        //Hace que sea visible para recepcion junto con ticket
+        public int EditarPresupuestoTicket(int DocEntry)
+        {
+            SqlConnection cn = new SqlConnection(uti.cadSql);
+            try
+            {
+                cn.Open();
+                SqlCommand cmd = new SqlCommand("UPDATE vt.ortv SET Presupuesto='NO' where DocEntry=@DocEntry", cn);
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.AddWithValue("@DocEntry", DocEntry);
                 cmd.ExecuteNonQuery();
@@ -1104,10 +1132,11 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 cmd.Parameters.AddWithValue("@Estado", ticket.Estado);
                 cmd.Parameters.AddWithValue("@Operario", ticket.OpRegistro);
 
+              
                 // Detalles de OpSacando cuando existe más de 1 sacador
                 if (TipoMantenimiento == "USSA")
                 {
-                    if (ticket.Det11 != null && ticket.Det11.Count > 1 && !string.IsNullOrEmpty(ticket.Det11[1].Operario))
+                    if (ticket.Det11 != null && ticket.Det11.Count > 1 && !string.IsNullOrWhiteSpace(ticket.Det11[1].Operario))
                     {
                         ticket.Det11.RemoveAt(0);                           // Eliminamos el primer elemento porque este ya fue guardado en CC_ORTV
                         cmd.Parameters.AddWithValue("@MasOperariosSac", 1);
@@ -1117,17 +1146,17 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                         cmd.Parameters.AddWithValue("@TPRTV11", tbDet11.Value);
                     }
                 }
-                if (TipoMantenimiento == "UISVE")
+                else if (TipoMantenimiento == "UISVE")
                 {
                     string EstadoNuevo = "PICKEANDO";
                     var UltimaOperacion = ccTicket.ListarCC_ORTV(ticket.DocEntry, null, true).FirstOrDefault().Operacion;
                     if (UltimaOperacion == "FIN PICKING") { EstadoNuevo = "VERIFICANDO"; }
                     cmd.Parameters.AddWithValue("@EstadoNuevo", EstadoNuevo);
                 }
-                if (TipoMantenimiento.Equals("USVE"))
+                else if (TipoMantenimiento.Equals("USVE"))
                 {
                     // Verificadores de apoyo
-                    if (ticket.Det12 != null && ticket.Det12.Count > 1 && !String.IsNullOrEmpty(ticket.Det12[1].Operario))
+                    if (ticket.Det12 != null && ticket.Det12.Count > 1 && !String.IsNullOrWhiteSpace(ticket.Det12[1].Operario))
                     {
                         ticket.Det12.RemoveAt(0);
                         cmd.Parameters.AddWithValue("@MasOperariosChe", 1);
@@ -1137,7 +1166,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                         cmd.Parameters.AddWithValue("@TPRTV12", tbDet12.Value);
                     }
                 }
-                if (TipoMantenimiento == "UISEM")
+                else if (TipoMantenimiento == "UISEM")
                 {
                     string EstadoNuevo = auxTK.Estado;
                     var UltimaOperacion = ccTicket.ListarCC_ORTV(ticket.DocEntry, null, true).FirstOrDefault().Operacion;
@@ -1145,32 +1174,31 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     if (UltimaOperacion == "FIN PICKING") { EstadoNuevo = "VERIFICANDO"; }
                     cmd.Parameters.AddWithValue("@EstadoNuevo", EstadoNuevo);
                 }
-
-                if (TipoMantenimiento.Equals("USAE"))
+                else if (TipoMantenimiento.Equals("USAE"))
                 {
                     string EstadoNuevo = string.Empty;
-                    if (!string.IsNullOrEmpty(ticket.Operario) && ticket.Operario == "07")
+                    if (!string.IsNullOrWhiteSpace(ticket.Operario) && ticket.Operario == "07")
                     {
                         EstadoNuevo = "PICKEANDO";
                     }
                     else { EstadoNuevo = "EMPACANDO"; }
                     cmd.Parameters.AddWithValue("@EstadoNuevo", EstadoNuevo);
-                    if (!string.IsNullOrEmpty(ticket.Operario) && ticket.Operario == "07")
+                    if (!string.IsNullOrWhiteSpace(ticket.Operario) && ticket.Operario == "07")
                     { cmd.Parameters.AddWithValue("@Almacen", ticket.Operario); }
                 }
 
                 //  Párametros enviados solo cuando Empacamos ticket
-                if (TipoMantenimiento.Equals("USEM"))
+                else if (TipoMantenimiento.Equals("USEM"))
                 { // update seguimiento empacado
                     cmd.Parameters.AddWithValue("@Cajas", ticket.Cajas);
                     cmd.Parameters.AddWithValue("@NroMesa", ticket.NroMesa);
                     cmd.Parameters.AddWithValue("@AlmProcedencia", ticket.AlmProcedencia);
-                    if (!string.IsNullOrEmpty(ticket.Operario) && ticket.Operario == "07")
+                    if (!string.IsNullOrWhiteSpace(ticket.Operario) && ticket.Operario == "07")
                     { cmd.Parameters.AddWithValue("@Almacen", ticket.Operario); }
 
                     if (ticket.Det13 != null && ticket.Det13.Count > 1)
                     {
-                        if (!string.IsNullOrEmpty(ticket.Det13[1].Operario))
+                        if (!string.IsNullOrWhiteSpace(ticket.Det13[1].Operario))
                         {
                             // Empacadores de apoyo
                             ticket.Det13.RemoveAt(0);                           // Eliminamos el primer elemento porque este ya fue guardado en CC_ORTV
@@ -1186,7 +1214,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 
 
                 // datos de pesos
-                if (TipoMantenimiento.Equals("USPE") && ticket.Det6 != null && ticket.Det6.Count > 0)
+                else if (TipoMantenimiento.Equals("USPE") && ticket.Det6 != null && ticket.Det6.Count > 0)
                 {
                     SqlParameter tbDet6 = new SqlParameter("@TPRTV6", SqlDbType.Structured);
                     tbDet6.Value = RTV6_E.GenerarDataTable(ticket.Det6, ticket.DocEntry);
@@ -1195,13 +1223,13 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 }
 
                 /*se añadio para anular entregado diferente a Agencia*/
-                if (TipoMantenimiento.Equals("USAT"))
+                else if (TipoMantenimiento.Equals("USAT"))
                 {
                     cmd.Parameters.AddWithValue("@LugarDestino", ticket.LugarDestino);
                 }
 
                 // aqui va lo de regalos cuando es Entregado Ticket Venta
-                if (TipoMantenimiento.Equals("USET") && auxTK.Det5 != null && auxTK.Det5.Count >= 1)
+                else if (TipoMantenimiento.Equals("USET") && auxTK.Det5 != null && auxTK.Det5.Count >= 1)
                 {
                     throw new Exception("ENTREGA CON REGALO DESDE SEG");
                     if (auxTK.Det5[0].IdReg > 0 && auxTK.Det5[0].RegCant > 0)
@@ -1216,6 +1244,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 // Ejecutar comando para modificar el estado del ticket
                 cmd.ExecuteNonQuery();
                 status = ticket.DocNum;
+
 
                 // Si se gestionan regalos o stock, ejecutamos esas operaciones bajo la misma transacción
                 if (gestionStock)
@@ -1317,6 +1346,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     cmd.Parameters.AddWithValue("@Operario", ticket.OpRegistro);
                     cmd.Parameters.AddWithValue("@LugarDestino", ticket.LugarDestino);
                     cmd.Parameters.AddWithValue("@Referencia", ticket.Referencia);
+                    cmd.Parameters.AddWithValue("@AlmProcedencia", ticket.AlmProcedencia);
 
                     if (ticket.LugarDestino.Equals("Agencia") || ticket.LugarDestino.Equals("Agencia Courier"))
                     {
@@ -1746,11 +1776,11 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             int indice = Array.IndexOf(operarios, obj.TipoOperario);
 
 
-            if (!string.IsNullOrEmpty(obj.AlmIni) && !string.IsNullOrEmpty(obj.AlmFin)) { fil += " AND (select top 1 y.LugarDeEntrega from vt.RTV2 y where y.DocEntry=t0.DocEntry) between @AlmIni and @AlmFin"; }
-            if (!string.IsNullOrEmpty(obj.FecIni) && !string.IsNullOrEmpty(obj.FecFin)) { fil += " AND t0.FechaSapTicket between @FecIni and @FecFin"; }
-            if (!string.IsNullOrEmpty(obj.CardCode)) { fil += " AND t0.CardCode=@CardCode"; }
-            if (!string.IsNullOrEmpty(obj.LugarDestino)) { fil += " AND t0.LugarDestino=@LugarDestino"; }
-            if (!string.IsNullOrEmpty(obj.FormaPago)) { fil += " AND t0.FormaPago=@FormaPago"; }
+            if (!string.IsNullOrWhiteSpace(obj.AlmIni) && !string.IsNullOrWhiteSpace(obj.AlmFin)) { fil += " AND (select top 1 y.LugarDeEntrega from vt.RTV2 y where y.DocEntry=t0.DocEntry) between @AlmIni and @AlmFin"; }
+            if (!string.IsNullOrWhiteSpace(obj.FecIni) && !string.IsNullOrWhiteSpace(obj.FecFin)) { fil += " AND t0.FechaSapTicket between @FecIni and @FecFin"; }
+            if (!string.IsNullOrWhiteSpace(obj.CardCode)) { fil += " AND t0.CardCode=@CardCode"; }
+            if (!string.IsNullOrWhiteSpace(obj.LugarDestino)) { fil += " AND t0.LugarDestino=@LugarDestino"; }
+            if (!string.IsNullOrWhiteSpace(obj.FormaPago)) { fil += " AND t0.FormaPago=@FormaPago"; }
             if (obj.TipoOperario != null)
             {
                 // Si el Tipooperario se encuentra dentro de los valors de @operarios
@@ -1778,15 +1808,15 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 cn.Open();
                 SqlCommand cmd = new SqlCommand(query, cn);
                 cmd.CommandType = CommandType.Text;
-                if (!string.IsNullOrEmpty(obj.AlmIni)) { cmd.Parameters.AddWithValue("@AlmIni", obj.AlmIni); }
-                if (!string.IsNullOrEmpty(obj.AlmFin)) { cmd.Parameters.AddWithValue("@AlmFin", obj.AlmFin); }
-                if (!string.IsNullOrEmpty(obj.FecIni)) { cmd.Parameters.AddWithValue("@FecIni", obj.FecIni); }
-                if (!string.IsNullOrEmpty(obj.FecFin)) { cmd.Parameters.AddWithValue("@FecFin", obj.FecFin); }
-                if (!string.IsNullOrEmpty(obj.CardCode)) { cmd.Parameters.AddWithValue("@CardCode", obj.CardCode); }
-                if (!string.IsNullOrEmpty(obj.LugarDestino)) { cmd.Parameters.AddWithValue("@LugarDestino", obj.LugarDestino); }
-                if (!string.IsNullOrEmpty(obj.FormaPago)) { cmd.Parameters.AddWithValue("@FormaPago", obj.FormaPago); }
+                if (!string.IsNullOrWhiteSpace(obj.AlmIni)) { cmd.Parameters.AddWithValue("@AlmIni", obj.AlmIni); }
+                if (!string.IsNullOrWhiteSpace(obj.AlmFin)) { cmd.Parameters.AddWithValue("@AlmFin", obj.AlmFin); }
+                if (!string.IsNullOrWhiteSpace(obj.FecIni)) { cmd.Parameters.AddWithValue("@FecIni", obj.FecIni); }
+                if (!string.IsNullOrWhiteSpace(obj.FecFin)) { cmd.Parameters.AddWithValue("@FecFin", obj.FecFin); }
+                if (!string.IsNullOrWhiteSpace(obj.CardCode)) { cmd.Parameters.AddWithValue("@CardCode", obj.CardCode); }
+                if (!string.IsNullOrWhiteSpace(obj.LugarDestino)) { cmd.Parameters.AddWithValue("@LugarDestino", obj.LugarDestino); }
+                if (!string.IsNullOrWhiteSpace(obj.FormaPago)) { cmd.Parameters.AddWithValue("@FormaPago", obj.FormaPago); }
 
-                if (!string.IsNullOrEmpty(obj.Operario)) { cmd.Parameters.AddWithValue("@Operario", obj.Operario); }
+                if (!string.IsNullOrWhiteSpace(obj.Operario)) { cmd.Parameters.AddWithValue("@Operario", obj.Operario); }
 
                 SqlDataReader dr = cmd.ExecuteReader();
                 while (dr.Read())
@@ -2558,7 +2588,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     { "OpEmpacado2", "vt.RTV13" },
                 };
 
-            if (!string.IsNullOrEmpty(datosFiltro.TipoOperario) && datosFiltro.Operario != null)
+            if (!string.IsNullOrWhiteSpace(datosFiltro.TipoOperario) && datosFiltro.Operario != null)
             {
                 if (!datosFiltro.TipoOperario.Equals("OpPicking2") && !datosFiltro.TipoOperario.Equals("OpVerificador2") && !datosFiltro.TipoOperario.Equals("OpEmpacado2"))
                 {
@@ -2611,7 +2641,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             {
                 condWhere += $" AND T0.MontoFinal BETWEEN {datosFiltro.MontoFinalIni} and {datosFiltro.MontoFinalFin}";
             }
-            if (!string.IsNullOrEmpty(datosFiltro.FormaPagoFil))
+            if (!string.IsNullOrWhiteSpace(datosFiltro.FormaPagoFil))
             {
                 condWhere += $" AND T0.FormaPago='{datosFiltro.FormaPagoFil}'";
             }
@@ -2787,7 +2817,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     if (!dr.IsDBNull(6)) { o.GastoEnvio = dr.GetDecimal(6); }
                     if (!dr.IsDBNull(7)) { o.MontoFinal = dr.GetDecimal(7); }
                     o.DirDestino = !dr.IsDBNull(8) ? dr.GetString(8) : null;
-                    o.DirDestino = string.IsNullOrEmpty(o.DirDestino) || o.DirDestino.Trim() == "," ? null : o.DirDestino;
+                    o.DirDestino = string.IsNullOrWhiteSpace(o.DirDestino) || o.DirDestino.Trim() == "," ? null : o.DirDestino;
                     if (!dr.IsDBNull(9)) { o.Agencia = dr.GetString(9); }
                     if (!dr.IsDBNull(10)) { o.LugarDestino = dr.GetString(10); }
                     if (!dr.IsDBNull(11)) { o.Zona = dr.GetString(11); }
@@ -3021,7 +3051,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             try
             {
                 cn.Open();
-                SqlCommand cmd = new SqlCommand("select DocEntry,DocNum,CardCode, CardName,Estado,TipoVenta,LugarDestino, DirDestino,Referencia,Agencia,EnvioAgencia,Embalaje,CodSapVendedor,Vendedor,MontoTotal,Flete,GastoEnvio,EstadoGasto,PagoEnv,ClaveEnv,TiempoEntrega,DescuentoNC,DeudaCliente,DeudaEmpresa,MontoFinal,FormaPago,MontoRecibido,EstadoPago,FechaPago,HoraPago,Cajero,Comentario,Cajas,NroMesa,FechaNC,EstadoFacturacion,FechaFacturacion,HoraFacturacion,OpFacturacion, Observaciones,Observaciones2,Observaciones3,FechaSapTicket, (Select top 1 FechaOperacion from vt.CC_ORTV where DocEntry=" + DocEntry + " and Operacion='REGISTRAR' order by FechaOperacion DESC,HoraOperacion DESC ) AS 'FECHA REGISTRO', (Select top 1 HoraOperacion from vt.CC_ORTV where DocEntry=" + DocEntry + " and Operacion='REGISTRAR' order by FechaOperacion,HoraOperacion desc ) AS 'HORA REGISTRO' ,Zona,Notificado,Visible  from vt.ORTV where DocEntry=" + DocEntry, cn);
+                SqlCommand cmd = new SqlCommand("select DocEntry,DocNum,CardCode, CardName,Estado,TipoVenta,LugarDestino, DirDestino,Referencia,Agencia,EnvioAgencia,Embalaje,CodSapVendedor,Vendedor,MontoTotal,Flete,GastoEnvio,EstadoGasto,PagoEnv,ClaveEnv,TiempoEntrega,DescuentoNC,DeudaCliente,DeudaEmpresa,MontoFinal,FormaPago,MontoRecibido,EstadoPago,FechaPago,HoraPago,Cajero,Comentario,Cajas,NroMesa,FechaNC,EstadoFacturacion,FechaFacturacion,HoraFacturacion,OpFacturacion, Observaciones,Observaciones2,Observaciones3,FechaSapTicket, (Select top 1 FechaOperacion from vt.CC_ORTV where DocEntry=" + DocEntry + " and Operacion='REGISTRAR' order by FechaOperacion DESC,HoraOperacion DESC ) AS 'FECHA REGISTRO', (Select top 1 HoraOperacion from vt.CC_ORTV where DocEntry=" + DocEntry + " and Operacion='REGISTRAR' order by FechaOperacion,HoraOperacion desc ) AS 'HORA REGISTRO' ,Zona,Notificado,Visible,Presupuesto  from vt.ORTV where DocEntry=" + DocEntry, cn);
                 cmd.CommandType = CommandType.Text;
                 SqlDataReader dr = cmd.ExecuteReader();
                 dr.Read();
@@ -3073,6 +3103,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 if (!dr.IsDBNull(45)) { t.Zona = dr.GetString(45); }
                 if (!dr.IsDBNull(46)) { t.Notificado = dr.GetInt32(46); }
                 if (!dr.IsDBNull(47)) { t.Visible = dr.GetString(47); }
+                if (!dr.IsDBNull(48)) { t.Presupuesto = dr.GetString(48); }
                 dr.Close();
                 cn.Close();
 
@@ -3123,7 +3154,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             try
             {
                 cn.Open();
-                SqlCommand cmd = new SqlCommand("select DocEntry,DocNum,CardCode, CardName,Estado,TipoVenta,LugarDestino, DirDestino,Referencia,Agencia,EnvioAgencia,Embalaje,CodSapVendedor,Vendedor,MontoTotal,Flete,GastoEnvio,EstadoGasto,PagoEnv,ClaveEnv,TiempoEntrega,DescuentoNC,DeudaCliente,DeudaEmpresa,MontoFinal,FormaPago,MontoRecibido,EstadoPago,FechaPago,HoraPago,Cajero,Comentario,Cajas,NroMesa,FechaNC,EstadoFacturacion,FechaFacturacion,HoraFacturacion,OpFacturacion, Observaciones,Observaciones2,Observaciones3,FechaSapTicket, (Select top 1 FechaOperacion from vt.CC_ORTV where DocEntry=" + DocEntry + " and Operacion='REGISTRAR' order by FechaOperacion DESC,HoraOperacion DESC ) AS 'FECHA REGISTRO', (Select top 1 HoraOperacion from vt.CC_ORTV where DocEntry=" + DocEntry + " and Operacion='REGISTRAR' order by FechaOperacion,HoraOperacion desc ) AS 'HORA REGISTRO' ,Zona,Notificado,Visible  from vt.ORTV where DocEntry=" + DocEntry, cn);
+                SqlCommand cmd = new SqlCommand("select DocEntry,DocNum,CardCode, CardName,Estado,TipoVenta,LugarDestino, DirDestino,Referencia,Agencia,EnvioAgencia,Embalaje,CodSapVendedor,Vendedor,MontoTotal,Flete,GastoEnvio,EstadoGasto,PagoEnv,ClaveEnv,TiempoEntrega,DescuentoNC,DeudaCliente,DeudaEmpresa,MontoFinal,FormaPago,MontoRecibido,EstadoPago,FechaPago,HoraPago,Cajero,Comentario,Cajas,NroMesa,FechaNC,EstadoFacturacion,FechaFacturacion,HoraFacturacion,OpFacturacion, Observaciones,Observaciones2,Observaciones3,FechaSapTicket, (Select top 1 FechaOperacion from vt.CC_ORTV where DocEntry=" + DocEntry + " and Operacion='REGISTRAR' order by FechaOperacion DESC,HoraOperacion DESC ) AS 'FECHA REGISTRO', (Select top 1 HoraOperacion from vt.CC_ORTV where DocEntry=" + DocEntry + " and Operacion='REGISTRAR' order by FechaOperacion,HoraOperacion desc ) AS 'HORA REGISTRO' ,AlmProcedencia, Zona,Notificado,Visible,Presupuesto  from vt.ORTV where DocEntry=" + DocEntry, cn);
                 cmd.CommandType = CommandType.Text;
                 SqlDataReader dr = cmd.ExecuteReader();
                 dr.Read();
@@ -3172,9 +3203,11 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 if (!dr.IsDBNull(42)) { t.FechaSapTicket = dr.GetDateTime(42).ToString("yyyy-MM-dd"); }
                 if (!dr.IsDBNull(43)) { t.FechaRegistro = dr.GetDateTime(43).ToString("yyyy-MM-dd"); }
                 if (!dr.IsDBNull(44)) { t.HoraRegistro = dr.GetTimeSpan(44).ToString(); }
-                if (!dr.IsDBNull(45)) { t.Zona = dr.GetString(45); }
-                if (!dr.IsDBNull(46)) { t.Notificado = dr.GetInt32(46); }
-                if (!dr.IsDBNull(47)) { t.Visible = dr.GetString(47); }
+                if (!dr.IsDBNull(45)) { t.AlmProcedencia = dr.GetString(45); }
+                if (!dr.IsDBNull(46)) { t.Zona = dr.GetString(46); }
+                if (!dr.IsDBNull(47)) { t.Notificado = dr.GetInt32(47); }
+                if (!dr.IsDBNull(48)) { t.Visible = dr.GetString(48); }
+                if (!dr.IsDBNull(49)) { t.Presupuesto = dr.GetString(49); }
                 dr.Close();
                 cn.Close();
 
@@ -3258,7 +3291,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             try
             {
                 cn.Open();
-                SqlCommand cmd = new SqlCommand("select DocEntry,DocNum,LugarDestino,MontoTotal,EstadoFacturacion,Estado,Flete,GastoEnvio,DescuentoNC,CardCode from vt.ORTV where DocEntry=" + DocEntry, cn);
+                SqlCommand cmd = new SqlCommand("select DocEntry,DocNum,LugarDestino,MontoTotal,EstadoFacturacion,Estado,Flete,GastoEnvio,DescuentoNC,CardCode,AlmProcedencia from vt.ORTV where DocEntry=" + DocEntry, cn);
                 cmd.CommandType = CommandType.Text;
                 SqlDataReader dr = cmd.ExecuteReader();
                 dr.Read();
@@ -3272,6 +3305,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 if (!dr.IsDBNull(7)) { t.GastoEnvio = dr.GetDecimal(7); }
                 if (!dr.IsDBNull(8)) { t.DescuentoNC = dr.GetDecimal(8); }
                 if (!dr.IsDBNull(9)) { t.CardCode = dr.GetString(9); }
+                if (!dr.IsDBNull(10)) { t.AlmProcedencia = dr.GetString(10); }
 
                 dr.Close();
                 cn.Close();
@@ -3379,12 +3413,14 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 condWhere += t.EstadoPago != null ? $" AND t0.EstadoPago='{t.EstadoPago}'" : "";
                 condWhere += t.EstadoGasto != null ? $" AND t0.EstadoGasto='{t.EstadoGasto}'" : "";
                 condWhere += t.PagoEnv == 0.01M ? " AND t0.PagoEnv>0" : "";
+                condWhere += t.Visible !=null ? $" AND t0.Visible='{t.Visible}' AND T0.Estado not in ('CANCELADO','ANULADO')" : "";
+                condWhere += t.Presupuesto != null ? $" AND t0.Presupuesto='{t.Presupuesto}'" : "";
             }
 
 
             string query = $"SELECT TOP 200 t0.DocEntry, t0.DocNum, t0.CardCode, t0.CardName, t0.Estado,t0.FechaSapTicket, (Select top 1 HoraOperacion from vt.CC_ORTV where DocEntry=t0.DocEntry " +
                 $" and Operacion='REGISTRAR' order by FechaOperacion,HoraOperacion desc ) as 'HoraAbierto',t0.LugarDestino,t0.CodSapVendedor,t0.Vendedor,t0.MontoFinal,t0.EstadoPago,t0.EstadoGasto," +
-                $" t0.PagoEnv,t0.Visible,t0.FechaPago,t0.HoraPago FROM vt.ORTV t0  WHERE t0.DocEntry>0 AND (SELECT top 1 FechaOperacion from vt.CC_ORTV where Operacion= 'SEPARAR' and DocEntry =" +
+                $" t0.PagoEnv,t0.Visible,t0.FechaPago,t0.HoraPago,T0.Presupuesto FROM vt.ORTV t0  WHERE t0.DocEntry>0 AND (SELECT top 1 FechaOperacion from vt.CC_ORTV where Operacion= 'SEPARAR' and DocEntry =" +
                 $" t0.DocEntry  order by FechaOperacion DESC, HoraOperacion desc) between dateadd(day,-1000, getdate()) and getdate() {condWhere} ORDER BY t0.DocNum DESC";
 
             using (SqlConnection cn = new SqlConnection(uti.cadSql))
@@ -3418,8 +3454,8 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                             if (!dr.IsDBNull(13)) { ticket.PagoEnv = dr.GetDecimal(13); }
                             if (!dr.IsDBNull(14)) { ticket.Visible = dr.GetString(14); }
                             if (!dr.IsDBNull(15)) { ticket.FechaPago = dr.GetDateTime(15).ToString("yyyy-MM-dd"); }//Se usa en Metodo : ListarTicketsNoVisiblesPagados
-                            if (!dr.IsDBNull(16)) { ticket.HoraPago = dr.GetTimeSpan(16).ToString(); }//Se usa en Metodo : ListarTicketsNoVisiblesPagados
-                            //ticket.Vendedor = (ticket.Vendedor.Length > 15) ? ticket.Vendedor.Substring(0, 15) : ticket.Vendedor;
+                            if (!dr.IsDBNull(16)) { ticket.HoraPago = dr.GetTimeSpan(16).ToString(); }
+                            if (!dr.IsDBNull(17)) { ticket.Presupuesto = dr.GetString(17); }
                             ticket.FechaSapTicket = (ticket.FechaSapTicket != null) ? Convert.ToDateTime(ticket.FechaSapTicket).ToString("dd/MM/yyyy") : null;
                             lista.Add(ticket);
 
@@ -3441,7 +3477,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             if (t != null)
             {
                 condWhere += $" AND t0.Estado not in ('SEPARADO') and T0.DocNum not in (2000302593,2000237628)";
-                if (string.IsNullOrEmpty(t.Estado) && user.IdRol == 54)
+                if (string.IsNullOrWhiteSpace(t.Estado) && user.IdRol == 54)
                 {
                     condWhere += "AND EXISTS(SELECT 1 FROM VT.CC_ORTV WHERE DocEntry=T0.DocEntry AND Operacion='FIN VERIFICAR') AND NOT EXISTS (SELECT 1 FROM VT.CC_ORTV WHERE DocEntry=T0.DocEntry AND Operacion='ANULAR FIN VERIFICAR' " +
                     "AND(SELECT TOP 1 Id FROM VT.CC_ORTV WHERE DocEntry=T0.DocEntry AND Operacion='FIN VERIFICAR' ORDER BY 1 DESC) < (SELECT TOP 1 Id FROM VT.CC_ORTV WHERE DocEntry=T0.DocEntry AND Operacion='ANULAR FIN VERIFICAR' ORDER BY 1 DESC))";
@@ -3464,6 +3500,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 {
                     condWhere += t.DocNum > 0 ? $" AND t0.DocNum like '%{t.DocNum}%'" : "";
                     condWhere += t.FechaSapTicket != null ? $" AND t0.FechaSapTicket='{t.FechaSapTicket}'" : "";
+                    condWhere += t.AlmProcedencia != null ? $" AND t0.AlmProcedencia='{t.AlmProcedencia}'" : "";
                     condWhere += t.CardName != null ? $" AND t0.CardName like '%{t.CardName}%'" : "";
                     condWhere += t.Vendedor != null ? $" AND t0.Vendedor like '%{t.Vendedor}%'" : "";
                     condWhere += t.Zona != null ? $" AND t0.Zona ='{t.Zona}'" : "";
@@ -3480,9 +3517,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 
             }
 
-            string query = $"SELECT TOP 150 t0.DocEntry, t0.DocNum, t0.CardCode, t0.CardName, t0.Estado,t0.FechaSapTicket, (Select top 1 HoraOperacion from vt.CC_ORTV where DocEntry=t0.DocEntry " +
-                $" and Operacion='REGISTRAR' order by FechaOperacion,HoraOperacion desc ) as 'HoraAbierto',t0.LugarDestino,t0.Flete,t0.Vendedor,t0.EstadoPago,t0.EstadoGasto," +
-                $" t0.PagoEnv,t0.TipoVenta ,t0.EstadoFacturacion,t0.DescuentoNC,t0.Zona,t0.TiempoEntrega FROM vt.ORTV t0  WHERE 1=1 {condWhere} ORDER BY {orderby}";
+            string query = $"SELECT TOP 150 t0.DocEntry, t0.DocNum, t0.CardCode, t0.CardName, t0.Estado,t0.FechaSapTicket, (Select top 1 HoraOperacion from vt.CC_ORTV where DocEntry=t0.DocEntry and Operacion='REGISTRAR' order by FechaOperacion,HoraOperacion desc ) as 'HoraAbierto',t0.LugarDestino,t0.Flete,t0.Vendedor,t0.EstadoPago,t0.EstadoGasto,t0.PagoEnv,t0.TipoVenta ,t0.EstadoFacturacion,t0.DescuentoNC,t0.Zona,t0.TiempoEntrega,T0.AlmProcedencia FROM vt.ORTV t0  WHERE 1=1 {condWhere} ORDER BY {orderby}";
 
             using (SqlConnection cn = new SqlConnection(uti.cadSql))
             {
@@ -3516,7 +3551,8 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                             if (!dr.IsDBNull(15)) { ticket.DescuentoNC = dr.GetDecimal(15); }
                             if (!dr.IsDBNull(16)) { ticket.Zona = dr.GetString(16); }
                             if (!dr.IsDBNull(17)) { ticket.TiempoEntrega = dr.GetDateTime(17); }
-                            //ticket.Vendedor = (ticket.Vendedor.Length > 15) ? ticket.Vendedor.Substring(0, 15) : ticket.Vendedor;
+                            if (!dr.IsDBNull(18)) { ticket.AlmProcedencia = dr.GetString(18); }
+
                             ticket.FechaSapTicket = (ticket.FechaSapTicket != null) ? Convert.ToDateTime(ticket.FechaSapTicket).ToString("dd/MM/yyyy") : null;
                             ticket.Det1 = obtenerDet1Ticket(ticket.DocEntry); if (ticket.Det1.Count == 0) { ticket.Det1 = null; }      //Datos de recojo
                             ticket.Det2 = obtenerDet2Ticket(ticket.DocEntry);
@@ -3552,7 +3588,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                                 listOperacionVerificar.Add(hayAnularFinVerificar.FirstOrDefault());
                             }
                             var listaOrdenada = listOperacionVerificar.OrderByDescending(x => x.Id).ToList();
-                            if (listaOrdenada.FirstOrDefault() != null && !string.IsNullOrEmpty(listaOrdenada[0].Operacion) && listaOrdenada[0].Operacion.Equals("FIN VERIFICAR"))
+                            if (listaOrdenada.FirstOrDefault() != null && !string.IsNullOrWhiteSpace(listaOrdenada[0].Operacion) && listaOrdenada[0].Operacion.Equals("FIN VERIFICAR"))
                             {
                                 ticket.hayFinVerificar = true;
                             }
@@ -3584,13 +3620,20 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             if (t != null)
             {
                 condWhere += $" AND t0.Estado not in ('SEPARADO')";
+                //Cuando viene sin parametros de filtro 
                 if (t.DocNum == 0 && t.FechaSapTicket == null && t.CardName == null && t.Vendedor == null && t.MontoTotal == 0 && t.LugarDestino == null && t.Estado == null
                      && t.EstadoPago == null)
                 {
+                    //Y los roles conectados son:
+                    //4 supervisor almacen
+                    //5 operario almacen recepcion
+                    //51 operario almacen verificador
+
                     if (user.IdRol == 5 || user.IdRol == 4 || user.IdRol == 51)
                     {
-                        condWhere += $" AND t0.Visible in ('SI') AND t0.Estado in ('ABIERTO','RECIBIDO') ";
-                        if (!string.IsNullOrEmpty(t.AlmProcedencia)) { condWhere += $"AND (t0.LugarDestino IN ('Centro', 'Arriola') OR (t0.LugarDestino IN ('Domicilio', 'Agencia') and ((SELECT TOP 1 T2.AlmacenSalida FROM vt.RTV2 T2 WHERE T2.AlmacenSalida NOT IN ('07') AND T2.DocEntry = t0.DocEntry) IN ('16','15') )))"; }
+                        condWhere += $" AND t0.Visible in ('PI','SI') AND t0.Presupuesto in ('NO') AND t0.Estado in ('ABIERTO','RECIBIDO') ";
+                        condWhere += t.AlmProcedencia != null ? $" AND ((t0.LugarDestino IN ('Centro', 'Arriola') AND t0.AlmProcedencia IN ('{t.AlmProcedencia}')) " +
+                            $" OR (t0.LugarDestino IN ('Domicilio', 'Agencia') AND (SELECT TOP 1 T2.AlmacenSalida FROM vt.RTV2 T2 WHERE T2.AlmacenSalida NOT IN ('07') AND T2.DocEntry = t0.DocEntry) IN ('{t.AlmProcedencia}')))" : "";
                         orderby = "t0.Estado ,t0.FechaSapTicket desc";
                     }
                 }
@@ -3598,8 +3641,11 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 {
                     if (user.IdRol == 5 || user.IdRol == 4 || user.IdRol == 51)
                     {
-                        condWhere += $" AND t0.Visible in ('SI')";
+                        condWhere += $" AND t0.Visible in ('PI','SI') AND t0.Presupuesto in ('NO') ";
                     }
+                    //condWhere += t.AlmProcedencia != null ? $" AND (t0.LugarDestino IN ('Centro', 'Arriola') OR (t0.LugarDestino IN ('Domicilio', 'Agencia') and ((SELECT TOP 1 T2.AlmacenSalida FROM vt.RTV2 T2 WHERE T2.AlmacenSalida NOT IN ('07') AND T2.DocEntry = t0.DocEntry) IN('16','ALM07'))))" : "";
+                    condWhere += t.AlmProcedencia != null ? $" AND ((t0.LugarDestino IN ('Centro', 'Arriola') AND t0.AlmProcedencia IN ('{t.AlmProcedencia}')) " +
+                            $" OR (t0.LugarDestino IN ('Domicilio', 'Agencia') AND (SELECT TOP 1 T2.AlmacenSalida FROM vt.RTV2 T2 WHERE T2.AlmacenSalida NOT IN ('07') AND T2.DocEntry = t0.DocEntry) IN ('{t.AlmProcedencia}')))" : "";
                     condWhere += t.DocNum > 0 ? $" AND t0.DocNum like '%{t.DocNum}%'" : "";
                     condWhere += t.FechaSapTicket != null ? $" AND t0.FechaSapTicket='{t.FechaSapTicket}'" : "";
                     condWhere += t.CardName != null ? $" AND t0.CardName like '%{t.CardName}%'" : "";
@@ -3608,7 +3654,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     condWhere += t.LugarDestino != null ? $" AND t0.LugarDestino='{t.LugarDestino}'" : "";
                     condWhere += t.Estado != null ? $" AND t0.Estado='{t.Estado}'" : "";
                     condWhere += t.EstadoPago != null ? $" AND t0.EstadoPago='{t.EstadoPago}'" : "";
-                    condWhere += t.AlmProcedencia != null ? $"AND (t0.LugarDestino IN ('Centro', 'Arriola') OR (t0.LugarDestino IN ('Domicilio', 'Agencia') and ((SELECT TOP 1 T2.AlmacenSalida FROM vt.RTV2 T2 WHERE T2.AlmacenSalida NOT IN ('07') AND T2.DocEntry = t0.DocEntry) IN('16','ALM07'))))" : "";
+                    
                 }
             }
 

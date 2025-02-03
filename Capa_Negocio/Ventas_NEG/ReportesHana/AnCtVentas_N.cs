@@ -19,8 +19,8 @@ namespace Capa_Negocio.Ventas_NEG.ReportesHana
         public List<AnCtVentas_E> rptAnCtVentas(FrmAnCtVentas_E frm)
         {
             Usuario_E usr;
-            if (string.IsNullOrEmpty(frm.FecIni)) { throw new Exception("Debe seleccionar fecha Desde"); }
-            if (string.IsNullOrEmpty(frm.FecFin)) { throw new Exception("Debe seleccionar fecha Hasta"); }
+            if (string.IsNullOrWhiteSpace(frm.FecIni)) { throw new Exception("Debe seleccionar fecha Desde"); }
+            if (string.IsNullOrWhiteSpace(frm.FecFin)) { throw new Exception("Debe seleccionar fecha Hasta"); }
             /*
             if (frm.DayU <= 0)
             {

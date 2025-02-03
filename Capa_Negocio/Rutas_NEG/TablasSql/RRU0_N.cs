@@ -82,7 +82,7 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
                     if (t.EstadoPago != "PAGADO") { throw new Exception("El ticket normal de Agencia  o Domicilio debe estar pagado "); }
                 }
             }
-            if (string.IsNullOrEmpty(t.EstadoFacturacion) || t.EstadoFacturacion.Equals("PENDIENTE")) { throw new Exception("El ticket no tiene guía emitida, retirar de la tabla."); }
+            if (string.IsNullOrWhiteSpace(t.EstadoFacturacion) || t.EstadoFacturacion.Equals("PENDIENTE")) { throw new Exception("El ticket no tiene guía emitida, retirar de la tabla."); }
            
             o.DocNumTicket = t.DocNum; o.Cajas = t.Cajas; o.Envio = t.GastoEnvio; o.MontoFinal = t.MontoFinal;o.Observaciones = t.Observaciones; o.Socio = t.CardName; o.Verificado = "on";
             
@@ -98,7 +98,7 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
                 }
             }
 
-            if (string.IsNullOrEmpty(o.Guias))
+            if (string.IsNullOrWhiteSpace(o.Guias))
             {
                 throw new Exception("El ticket no tiene guias en linea " + o.Linea);
             }

@@ -20,7 +20,7 @@
      * Se mostrará el botón Pesar para los usuarios con idRol = 1
      * Se mostrará el botón Pesar para los usuarios que tenga el WhsCode (almacén) vacíos o "03"
      */
-    if (String.IsNullOrEmpty(almacenUsuario) || almacenUsuario == "03" || idRolUsuario == 1)
+    if (String.IsNullOrWhiteSpace(almacenUsuario) || almacenUsuario == "03" || idRolUsuario == 1)
     {
         verBtnPesar = true;
     }

@@ -22,11 +22,11 @@ using Capa_Negocio.Ventas_NEG.TablasSql;
 using Capa_Usuario.Helpers;
 using CrystalDecisions.CrystalReports.Engine;
 using CrystalDecisions.Shared;
+using DocumentFormat.OpenXml.Presentation;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using Microsoft.Reporting.WebForms;
 using OfficeOpenXml;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using Rotativa;
 using System;
 using System.Collections.Generic;
@@ -45,6 +45,7 @@ namespace Capa_Usuario.Controllers
         ORTV_N ticketN = new ORTV_N();
         OLDS_N lN = new OLDS_N();
         CC_ORTV_N ccORTV_N = new CC_ORTV_N();
+        UBICACIONES_N ubicacionesN = new UBICACIONES_N();
 
         /************************* C O N F I G U R A C I Ó N *************************/
         private ActionResult VerificarPermiso(int idOperation)
@@ -103,15 +104,13 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-
-
         public ActionResult ListadoTicketsAutorizacionRegularizar(string mensaje = null, int idOperation = 501)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
 
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                if (!string.IsNullOrEmpty(mensaje))
+                if (!string.IsNullOrWhiteSpace(mensaje))
                 {
                     ViewBag.Mensaje = mensaje;
                 }
@@ -125,7 +124,16 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+        //Actualiza Fecha Hora y Operario de Autorizacion en contraentrega fuera de horario.
+        public JsonResult RegularizarAutorizacion(int docNum, int idOTC)
+        {
+            Usuario_E usu = (Usuario_E)Session["UsuarioId"];
+            var operario = $"{usu.Nombres} {usu.Apellidos}";
 
+            var result = new OTC_N().RegularizarAutorizacion(docNum, idOTC, operario);
+
+            return Json(new { Mensaje = result });
+        }
 
         public JsonResult ObtenerDatosTicket(int docEntry)
         {
@@ -182,7 +190,7 @@ namespace Capa_Usuario.Controllers
                 if (DocEntry > 0) { return View(ticketN.ObtenerDatosCompletosTicket(DocEntry)); }
                 else {
                     //Si usuario entidad llega con data al GET se entiende que el ticket esta siendo separado por un vendedor de reemplazo.
-                    if (u != null && u.CodigoSap > 0 && !string.IsNullOrEmpty(u.Nombres) && !string.IsNullOrEmpty(u.Apellidos) && user.IdRol == 12)
+                    if (u != null && u.CodigoSap > 0 && !string.IsNullOrWhiteSpace(u.Nombres) && !string.IsNullOrWhiteSpace(u.Apellidos) && user.IdRol == 12)
                     {
                         return View(ticketN.Separar(u));
                     }
@@ -598,7 +606,7 @@ namespace Capa_Usuario.Controllers
         public JsonResult BuscarArticulo(Capa_Entidad.Almacen_ENT.TablasSql.OIBT_E articulo)
         {
             //verificacionAccesos(0);         // Validar sesion logueada, solo para ajax
-            if (!string.IsNullOrEmpty(articulo.ItemName) || !string.IsNullOrEmpty(articulo.PrincActivo))
+            if (!string.IsNullOrWhiteSpace(articulo.ItemName) || !string.IsNullOrWhiteSpace(articulo.PrincActivo))
             {
                 Capa_Negocio.Almacen_NEG.TablasSql.OIBT_N oibtN = new Capa_Negocio.Almacen_NEG.TablasSql.OIBT_N();
                 var tbody = string.Empty;
@@ -937,7 +945,7 @@ namespace Capa_Usuario.Controllers
                             Guias = ticketN.GuiasTicket(DocEntry);
                         }
                         //verificamos guias existentes desde SAP
-                        if (!string.IsNullOrEmpty(Guias) && Guias.Length > 6)
+                        if (!string.IsNullOrWhiteSpace(Guias) && Guias.Length > 6)
                         {
                             //pasa EstadoFacturacion a GRE EMITIDA
                             DocNum = ticketN.emitirGuia(DocEntry, u);
@@ -1075,7 +1083,7 @@ namespace Capa_Usuario.Controllers
             string filePath = CrearYObtenerDocumento(docEntry, "F");
             try
             {
-                if (!string.IsNullOrEmpty(filePath) && System.IO.File.Exists(filePath))
+                if (!string.IsNullOrWhiteSpace(filePath) && System.IO.File.Exists(filePath))
                 {
                     ms.Attachments.Add(new Attachment(filePath));
                 }
@@ -1100,7 +1108,7 @@ namespace Capa_Usuario.Controllers
             }
             finally
             {
-                if (!string.IsNullOrEmpty(filePath) && System.IO.File.Exists(filePath))
+                if (!string.IsNullOrWhiteSpace(filePath) && System.IO.File.Exists(filePath))
                 {
                     try
                     {
@@ -1160,7 +1168,7 @@ namespace Capa_Usuario.Controllers
 
             // Filtrar documentos con U_SYP_MDCD no vacío y eliminar duplicados
             var documentosFiltrados = documentos
-                .Where(d => !string.IsNullOrEmpty(d.U_SYP_MDCD))
+                .Where(d => !string.IsNullOrWhiteSpace(d.U_SYP_MDCD))
                 .GroupBy(d => d.U_SYP_MDCD)
                 .Select(g => g.First())
                 .ToList();
@@ -1404,11 +1412,11 @@ namespace Capa_Usuario.Controllers
             List<OINV_E> lista = new List<OINV_E>();
             foreach (var o in FB)
             {
-                if (!string.IsNullOrEmpty(o) && o.Contains("F"))
+                if (!string.IsNullOrWhiteSpace(o) && o.Contains("F"))
                 {
                     lista.Add(oinvNeg.listadoFacturasDeVenta(new OINV_E { NumAtCard = o }).FirstOrDefault());
                 }
-                else if (!string.IsNullOrEmpty(o) && o.Contains("B"))
+                else if (!string.IsNullOrWhiteSpace(o) && o.Contains("B"))
                 {
                     lista.Add(oinvNeg.listadoBoletasDeVenta(new OINV_E { NumAtCard = o }).FirstOrDefault());
                 }
@@ -1441,7 +1449,7 @@ namespace Capa_Usuario.Controllers
                 List<Guia_Remision_E> resultGuias = odlN.buscarGuiaRemisionSap(guiasSeparadas[i]);
                 if (resultGuias != null && resultGuias.Count() > 0)
                 {
-                    if (!string.IsNullOrEmpty(resultGuias[0].NumAtCard)) { lista.Add(odlN.buscarGuiaRemisionSap(guiasSeparadas[i])[0]); }
+                    if (!string.IsNullOrWhiteSpace(resultGuias[0].NumAtCard)) { lista.Add(odlN.buscarGuiaRemisionSap(guiasSeparadas[i])[0]); }
                 }
                 else { lista.Add(owtrN.buscarGuiaRemisionSap(guiasSeparadas[i])[0]); }
             }
@@ -1462,13 +1470,13 @@ namespace Capa_Usuario.Controllers
             {
                 Usuario_E user = (Usuario_E)Session["UsuarioId"];
                 ViewBag.DocNum = DocNum;
-                if (user.WhsCode != null && (user.IdRol == 5 || user.IdRol == 4 || user.IdRol == 51))
-                {
-                    if (user.WhsCode.Equals("07"))
-                    {
-                        ticket.AlmProcedencia = "ALM07";
-                    }
-                }
+                //if (user.WhsCode != null && (user.IdRol == 5 || user.IdRol == 4 || user.IdRol == 51))
+                //{
+                //    if (user.WhsCode.Equals("07"))
+                //    {
+                //        ticket.AlmProcedencia = "ALM07";
+                //    }
+                //}
                 if (DocNum > 0)
                 {
                     ticket.DocNum = DocNum;
@@ -1504,7 +1512,7 @@ namespace Capa_Usuario.Controllers
                     foreach (var ordenForEach in t.Det2)
                     {
                         var orden = ordrN.obtenerOrdenDeVenta(ordenForEach.NroSap);
-                        if (orden.CANCELED.Equals("Y") || string.IsNullOrEmpty(orden.CANCELED)) { todasvigentes = false; num = ordenForEach.NroSap; break; }
+                        if (orden.CANCELED.Equals("Y") || string.IsNullOrWhiteSpace(orden.CANCELED)) { todasvigentes = false; num = ordenForEach.NroSap; break; }
                     }
                     if (todasvigentes)
                     {
@@ -1984,7 +1992,6 @@ namespace Capa_Usuario.Controllers
                     ticket.OpRegistro = $"{usuario.Nombres} {usuario.Apellidos}";
                     ticket.Cajas = ticketPost.Cajas;
                     ticket.NroMesa = ticketPost.NroMesa;
-                    ticket.AlmProcedencia = ticketPost.AlmProcedencia;
                     ticket.Operario = usuario.WhsCode;      //envia el dato de WhsCode del usuario
                     ticket.Det13 = ticketPost.Det13;        // OpEmpacador 2 y OpEmpacador 3
 
@@ -2164,7 +2171,7 @@ namespace Capa_Usuario.Controllers
                     ORTV_E ticket = ticketN.ObtenerDatosCompletosTicket(DocEntry);
                     ticket.OpRegistro = $"{usu.Nombres} {usu.Apellidos}";
 
-                    if (!String.IsNullOrEmpty(ticketPost.Det5[0].RegEstado))
+                    if (!String.IsNullOrWhiteSpace(ticketPost.Det5[0].RegEstado))
                     {
                         ticket.Det5[0].RegEstado = ticketPost.Det5[0].RegEstado;
                     }
@@ -3436,7 +3443,7 @@ namespace Capa_Usuario.Controllers
                 ORTV_E t = ticketN.ObtenerDatosCompletosTicket(DocEntry);
                 try
                 {
-                    if (!String.IsNullOrEmpty(t.LugarDestino))
+                    if (!String.IsNullOrWhiteSpace(t.LugarDestino))
                     {
                         if (t.LugarDestino == "Centro")
                         {
@@ -4026,20 +4033,28 @@ namespace Capa_Usuario.Controllers
             return Json(oN.Listar().Where(x => x.NombreAgencia == nombreAgencia));
         }
         //Metodo para listar tickets pagados en caja para ventas
-        public JsonResult ListarTicketsNoVisiblesPagados(int DocEntryUsuario)
+        public JsonResult ListarTicketsPresupuestoPagados(int DocEntryUsuario)
         {
-            //verificacionAccesos(0);
             ORTV_N ortvN = new ORTV_N(); Usuario_N usuN = new Usuario_N(); Usuario_E u = usuN.buscarUsuario(DocEntryUsuario);
-            var result = ortvN.ListarTicketsAreaVenta(u, new ORTV_E { Estado = "ABIERTO" }).Where(x => x.Visible == "NO" && x.EstadoPago == "PAGADO").OrderBy(x => x.FechaPago + " " + x.HoraPago).ToList();
+            var result = ortvN.ListarTicketsAreaVenta(u, new ORTV_E { Estado = "ABIERTO" }).Where(x => x.Presupuesto == "SI" && x.EstadoPago == "PAGADO").OrderBy(x => x.FechaPago + " " + x.HoraPago).ToList();
             return Json(new { Datos = result });
         }
         //Metodo que permite visibilidad a Recepcion
-        public JsonResult CambiarVisibleTicket(int DocEntry)
+        public JsonResult CambiarPresupuestoTicket(int DocEntry)
         {
             //verificacionAccesos(0);
-            ORTV_N ortvN = new ORTV_N(); var result = ortvN.EditarVisibilidadTicket(DocEntry);
+            ORTV_N ortvN = new ORTV_N(); var result = ortvN.EditarPresupuestoTicket(DocEntry);
             return Json(new { Datos = result });
         }
+        public JsonResult CambiarVisibilidadTicket(int docEntry, string proceso)
+        {
+            //Se ejecuta desde la impresion de layout de un ticket de venta en ListadoTicketsVenta
+            Usuario_E user = (Usuario_E)Session["UsuarioId"];
+            var opImpresion = $"{user.Nombres} {user.Apellidos}";
+            var result = new Capa_Negocio.Ventas_NEG.TablasSql.ORTV_N().EditarVisibilidadTicket(docEntry, opImpresion, proceso);
+            return Json(new { NroTicket = result });
+        }
+            
         //Registra impresion de documentos de un ticket para despacho (centro y arriola)
         public JsonResult RegistrarImpresion(int DocEntry)
         {
@@ -4050,8 +4065,99 @@ namespace Capa_Usuario.Controllers
             var result = ortvN.RegistrarImpresionTicket(DocEntry, Operario);
             return Json(new { Datos = result });
         }
+        public void PreliminarLayoutOV_Ticket(int docEntry)
+        {
+            var ticket = new Capa_Negocio.Ventas_NEG.TablasSql.ORTV_N().ObtenerDatosTicketParaDocumentos(docEntry);
+            // Crear un MemoryStream para el PDF combinado
+            using (MemoryStream combinedPdfStream = new MemoryStream())
+            {
+                using (Document document = new Document())
+                {
+                    PdfCopy copy = new PdfCopy(document, combinedPdfStream);
+                    document.Open();
 
+                    // Generar PDF para cada orden de venta
+                    foreach (var orden in ticket.Det2)
+                    {
+                        string fileName = $"OrdenDeVenta_{orden.NroSap}.pdf";
+                        var pdfResult = GenerarPdfParaOrden(orden.NroSap, fileName, ticket.AlmProcedencia);
 
+                        // Leer el PDF generado
+                        using (var pdfReader = new PdfReader(pdfResult))
+                        {
+                            // Crear un MemoryStream para agregar la paginación
+                            using (MemoryStream paginatedPdfStream = new MemoryStream())
+                            {
+                                using (PdfStamper stamper = new PdfStamper(pdfReader, paginatedPdfStream))
+                                {
+                                    int totalPages = pdfReader.NumberOfPages;
 
+                                    // Agregar paginación a cada página
+                                    for (int i = 1; i <= totalPages; i++)
+                                    {
+                                        PdfContentByte content = stamper.GetUnderContent(i);
+                                        iTextSharp.text.Font font = FontFactory.GetFont("Arial", BaseFont.CP1250,BaseFont.NOT_EMBEDDED, 10 , iTextSharp.text.Font.BOLD);
+
+                                        Phrase phrase = new Phrase($"Página {i} de {totalPages}", font);
+                                        Phrase fecha = new Phrase($"{ DateTime.Now }", font);
+                                        Phrase docNumPhrase = new Phrase($"Nro Ticket: {ticket.DocNum}", font);
+                                        
+
+                                        ColumnText.ShowTextAligned(content, Element.ALIGN_LEFT, fecha, 30, 810, 0);
+                                        ColumnText.ShowTextAligned(content, Element.ALIGN_CENTER, phrase, 300, 810, 0);
+                                        ColumnText.ShowTextAligned(content, Element.ALIGN_RIGHT, docNumPhrase, 570, 810, 0); 
+
+                                    }
+                                }
+
+                                // Agregar el PDF paginado al documento combinado
+                                using (var paginatedPdfReader = new PdfReader(paginatedPdfStream.ToArray()))
+                                {
+                                    copy.AddDocument(paginatedPdfReader);
+                                }
+                            }
+                        }
+                    }
+
+                    document.Close();
+                }
+
+                // Guardar el PDF combinado en un archivo o devolverlo directamente
+                Response.ContentType = "application/pdf";
+                Response.AddHeader("content-disposition", "inline; filename=OrdenesDeVentaPreliminar.pdf");
+                Response.BinaryWrite(combinedPdfStream.ToArray());
+                Response.End();
+            }
+        }
+
+        private byte[] GenerarPdfParaOrden(int NroSap, string fileName, string almProcedencia)
+        {
+            var pdfResult = new ActionAsPdf("PDF_OrdenesDeVentas", new { docNum = NroSap, almProcedencia = almProcedencia })
+            {
+                FileName = fileName,
+                PageOrientation = Rotativa.Options.Orientation.Portrait,
+                PageSize = Rotativa.Options.Size.A4,
+                PageMargins = new Rotativa.Options.Margins(20, 10, 30, 10)
+            };
+
+            return pdfResult.BuildFile(ControllerContext);
+
+        }
+        public ActionResult PDF_OrdenesDeVentas(int docNum, string almProcedencia)
+        {
+            var lista = new ORTV_N().obtenerOrdenDeVenta(docNum);
+            
+            foreach (var ordr in lista)
+            {
+                almProcedencia = string.IsNullOrEmpty(almProcedencia) ? ordr.Almacen : almProcedencia;
+                ordr.Ubicaciones = ubicacionesN.BuscarUbicaciones(ordr.ItemCode, ordr.Lote, almProcedencia);
+
+            }
+            lista = lista
+        .OrderBy(x => x.Ubicaciones != null && x.Ubicaciones.Length > 0 ? x.Ubicaciones[0] : string.Empty)
+        .ToList();
+            ViewBag.AlmProcedencia = almProcedencia;
+            return View("~/Views/Ventas/PDF/PDF_OrdenesDeVentasSophos.cshtml", lista);
+        }
     }
 }

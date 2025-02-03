@@ -316,7 +316,7 @@ namespace Capa_Usuario.Controllers
         public JsonResult BuscarLotesProducto(Capa_Entidad.Almacen_ENT.Tablas.OIBT_E filtros)
         {
             //verificacionAccesos(0);         // Validar sesion logueada, solo para ajax
-            if (!string.IsNullOrEmpty(filtros.ItemCode))
+            if (!string.IsNullOrWhiteSpace(filtros.ItemCode))
             {
                 Capa_Negocio.Almacen_NEG.Tablas.OIBT_N oibtN = new Capa_Negocio.Almacen_NEG.Tablas.OIBT_N();
                 var datalist = "<datalist id='ListaLotes'>";
@@ -342,7 +342,7 @@ namespace Capa_Usuario.Controllers
         public JsonResult FiltrarArticulo(Capa_Entidad.Almacen_ENT.Tablas.OPDN_E datos)
         {
             
-            if (!string.IsNullOrEmpty(datos.DocDate) || datos.DocNum >= 1 || !string.IsNullOrEmpty(datos.ItemCode) || !string.IsNullOrEmpty(datos.BatchNum) || !string.IsNullOrEmpty(datos.NumAtCard))
+            if (!string.IsNullOrWhiteSpace(datos.DocDate) || datos.DocNum >= 1 || !string.IsNullOrWhiteSpace(datos.ItemCode) || !string.IsNullOrWhiteSpace(datos.BatchNum) || !string.IsNullOrWhiteSpace(datos.NumAtCard))
             {
                 Capa_Negocio.Almacen_NEG.Tablas.OPDN_N opdnN = new Capa_Negocio.Almacen_NEG.Tablas.OPDN_N();
                 Capa_Negocio.Almacen_NEG.Tablas.OIBT_N oibtN = new Capa_Negocio.Almacen_NEG.Tablas.OIBT_N();
@@ -368,9 +368,9 @@ namespace Capa_Usuario.Controllers
                                         "<tr>";
                     }
                 }
-                else if (!string.IsNullOrEmpty(datos.U_COB_LUGAREN) && datos.U_COB_LUGAREN.Equals("DEV07"))
+                else if (!string.IsNullOrWhiteSpace(datos.U_COB_LUGAREN) && datos.U_COB_LUGAREN.Equals("DEV07"))
                 {
-                    if (!string.IsNullOrEmpty(datos.ItemCode) && !string.IsNullOrEmpty(datos.BatchNum))
+                    if (!string.IsNullOrWhiteSpace(datos.ItemCode) && !string.IsNullOrWhiteSpace(datos.BatchNum))
                     {
                         List<Capa_Entidad.Almacen_ENT.Tablas.OIBT_E> listaOIBT = oibtN.listarArticulosLotes(new Capa_Entidad.Almacen_ENT.Tablas.OIBT_E { ItemCode = datos.ItemCode, BatchNum = datos.BatchNum, WhsCode = datos.U_COB_LUGAREN, Quantity = 1 }, true);
                         if (listaOIBT.Count() > 0)
@@ -419,10 +419,10 @@ namespace Capa_Usuario.Controllers
                     return Json(tbody);
 
                 }
-                else if (!string.IsNullOrEmpty(datos.U_COB_LUGAREN) && datos.U_COB_LUGAREN.Equals("06"))
+                else if (!string.IsNullOrWhiteSpace(datos.U_COB_LUGAREN) && datos.U_COB_LUGAREN.Equals("06"))
                 {
                     //EXCLUSIVO PARA RETIRO DE MERCADO
-                    if (!string.IsNullOrEmpty(datos.ItemCode) && !string.IsNullOrEmpty(datos.BatchNum))
+                    if (!string.IsNullOrWhiteSpace(datos.ItemCode) && !string.IsNullOrWhiteSpace(datos.BatchNum))
                     {
                         List<Capa_Entidad.Almacen_ENT.Tablas.OIBT_E> listaOIBT = oibtN.listarArticulosLotes(new Capa_Entidad.Almacen_ENT.Tablas.OIBT_E { ItemCode = datos.ItemCode, BatchNum = datos.BatchNum, WhsCode = datos.U_COB_LUGAREN, Quantity = 1 }, true);
                         if (listaOIBT.Count() > 0)
@@ -526,7 +526,7 @@ namespace Capa_Usuario.Controllers
         public JsonResult FiltrarArticuloOIBT(Capa_Entidad.Almacen_ENT.Tablas.OIBT_E datos)
         {
             //verificacionAccesos(0); // Validar sesion logueada, solo para ajax
-            if (!string.IsNullOrEmpty(datos.ItemCode) || !string.IsNullOrEmpty(datos.BatchNum))
+            if (!string.IsNullOrWhiteSpace(datos.ItemCode) || !string.IsNullOrWhiteSpace(datos.BatchNum))
             {
                 Capa_Negocio.Almacen_NEG.Tablas.OIBT_N oibtN = new Capa_Negocio.Almacen_NEG.Tablas.OIBT_N();
                 var tbody = string.Empty;
@@ -553,7 +553,7 @@ namespace Capa_Usuario.Controllers
         }
         public JsonResult BuscarFacturas(Capa_Entidad.Almacen_ENT.Tablas.OPDN_E obj)
         {
-            if (!string.IsNullOrEmpty(obj.ItemCode) || !string.IsNullOrEmpty(obj.BatchNum))
+            if (!string.IsNullOrWhiteSpace(obj.ItemCode) || !string.IsNullOrWhiteSpace(obj.BatchNum))
             {
                 Capa_Negocio.Almacen_NEG.Tablas.OPDN_N opdnN = new Capa_Negocio.Almacen_NEG.Tablas.OPDN_N();
                 var tbody = string.Empty;
@@ -625,8 +625,8 @@ namespace Capa_Usuario.Controllers
                 string cuerpo = "<html><body><h3 style='color:green;'>DEVOLUCION DE MERCADERIA- COBEFAR SAC</h3><p style='font-size:16px;font-weight:bold'>Estimado proveedor,\n\n<br>Por medio de la presente adjuntamos el formato para devolucion de productos con su detallado, por favor sirvase a revisarlo y responder este correo en la brevedad para pactar una fecha de entrega.<br></p><span>Área Devoluciones - COBEFAR SAC\n</span></body></html>";
                 MailMessage ms = new MailMessage(remitente, destinatario, asunto, cuerpo);
                 ms.IsBodyHtml = true;  // Indicar que el cuerpo es HTML
-                if (!string.IsNullOrEmpty(encargado.Email)) { ms.Bcc.Add(encargado.Email); }
-                if (!string.IsNullOrEmpty(Correo2)) { ms.Bcc.Add(Correo2); }
+                if (!string.IsNullOrWhiteSpace(encargado.Email)) { ms.Bcc.Add(encargado.Email); }
+                if (!string.IsNullOrWhiteSpace(Correo2)) { ms.Bcc.Add(Correo2); }
                 SmtpClient smtp = new SmtpClient(uti.Smtp, uti.CodigoSmtp);
                 smtp.EnableSsl = true;
                 smtp.Credentials = new NetworkCredential(remitente, encargado.ClaveEmail);
@@ -796,7 +796,7 @@ namespace Capa_Usuario.Controllers
                                                                                      //}
             }
 
-            FilePathDT = "D:\\COBEFARWEBFILES\\Firmas\\FirmaPamelaCollahuaSenosain.png";
+            FilePathDT = "E:\\COBEFARWEBFILES\\Firmas\\FirmaPamelaCollahuaSenosain.png";
             byte[] archivoDT = System.IO.File.ReadAllBytes(FilePathDT);
             var base64DT = Convert.ToBase64String(archivoDT); //La propiedad de tu modelo que es byte[]
             ViewBag.FirmaDT = String.Format("data:image/gif;base64,{0}", base64DT); // Damos formato para indicar que se trata de una cadena base64
@@ -902,7 +902,7 @@ namespace Capa_Usuario.Controllers
         public JsonResult NuevoMotivoDevolucion(Capa_Entidad.Almacen_ENT.TablasSql.MotivosDevoluciones_E motivo)
         {
             //verificacionAccesos(0);         // Validar sesion logueada, solo para ajax
-            if (!string.IsNullOrEmpty(motivo.Descripcion))
+            if (!string.IsNullOrWhiteSpace(motivo.Descripcion))
             {
                 Usuario_E usu = (Usuario_E)Session["UsuarioId"];
 
@@ -931,7 +931,7 @@ namespace Capa_Usuario.Controllers
         public JsonResult EditarMotivoDevolucion(Capa_Entidad.Almacen_ENT.TablasSql.MotivosDevoluciones_E motivo)
         {
 
-            if (!string.IsNullOrEmpty(motivo.Descripcion))
+            if (!string.IsNullOrWhiteSpace(motivo.Descripcion))
             {
                 Usuario_E usu = (Usuario_E)Session["UsuarioId"];
                 motivo.Operario = $"{usu.Nombres} {usu.Apellidos}";
@@ -980,7 +980,7 @@ namespace Capa_Usuario.Controllers
 
         public JsonResult NuevoSubmotivoDevolucion(Capa_Entidad.Almacen_ENT.TablasSql.SubmotivosDevoluciones_E submotivo)
         {
-            if (!string.IsNullOrEmpty(submotivo.Descripcion))
+            if (!string.IsNullOrWhiteSpace(submotivo.Descripcion))
             {
                 Usuario_E usu = (Usuario_E)Session["UsuarioId"];
 
@@ -998,7 +998,7 @@ namespace Capa_Usuario.Controllers
         public JsonResult EditarSubmotivoDevolucion(Capa_Entidad.Almacen_ENT.TablasSql.SubmotivosDevoluciones_E submotivo)
         {
             //verificacionAccesos(0);         // Validar sesion logueada, solo para ajax
-            if (!string.IsNullOrEmpty(submotivo.Descripcion))
+            if (!string.IsNullOrWhiteSpace(submotivo.Descripcion))
             {
                 Usuario_E usu = (Usuario_E)Session["UsuarioId"];
 
@@ -1993,7 +1993,7 @@ namespace Capa_Usuario.Controllers
         }
         public JsonResult ObtenerDatosProducto(Capa_Entidad.Almacen_ENT.Tablas.OIBT_E datos, string limite = "1")
         {
-            if (!string.IsNullOrEmpty(datos.ItemCode) || !string.IsNullOrEmpty(datos.ItemName))
+            if (!string.IsNullOrWhiteSpace(datos.ItemCode) || !string.IsNullOrWhiteSpace(datos.ItemName))
             {
                 var result = new Capa_Negocio.Almacen_NEG.Tablas.OIBT_N().listarArticulosLotes(datos, false, limite);
                 return Json(result);

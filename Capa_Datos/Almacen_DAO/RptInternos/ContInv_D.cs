@@ -5,7 +5,7 @@ using System.Data.SqlClient;
 using Capa_Entidad.Almacen_ENT.TablasSql;
 using System.Data;
 
-namespace Capa_Datos.Almacen_DAO.ReportesSql
+namespace Capa_Datos.Almacen_DAO.RptInternos
 {
     public class ContInv_D
     {

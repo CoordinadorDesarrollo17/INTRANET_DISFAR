@@ -100,12 +100,12 @@ namespace Capa_Negocio.AtencionCliente_NEG.TablasSql
             if (obj.Telefono == null && (!ticket.LugarDestino.Equals("Arriola") && !ticket.LugarDestino.Equals("Centro"))) { throw new Exception("Debe llenar el telefono"); }
             if (obj.DocNumTicket <= 0) { throw new Exception("De registrar un Nro de Ticket"); }
             if (obj.Det == null || obj.Det.Count == 0) { throw new Exception("La solicitud debe tener al menos 1 articulo"); }
-            if (string.IsNullOrEmpty(obj.Problema)) { throw new Exception("Debe elegir un problema"); }
+            if (string.IsNullOrWhiteSpace(obj.Problema)) { throw new Exception("Debe elegir un problema"); }
 
-            if (Convert.ToDateTime(ticket.FechaRegistro) >= Convert.ToDateTime("2024-03-04") && !string.IsNullOrEmpty(obj.Tipo) && !obj.Tipo.Equals("Reclamo"))
+            if (Convert.ToDateTime(ticket.FechaRegistro) >= Convert.ToDateTime("2024-03-04") && !string.IsNullOrWhiteSpace(obj.Tipo) && !obj.Tipo.Equals("Reclamo"))
             {
-                if (string.IsNullOrEmpty(obj.TipoVenta)) { throw new Exception("Debe elegir un tipo de venta"); }
-                if (string.IsNullOrEmpty(obj.CanalVenta)) { throw new Exception("Debe elegir un canal de venta"); }
+                if (string.IsNullOrWhiteSpace(obj.TipoVenta)) { throw new Exception("Debe elegir un tipo de venta"); }
+                if (string.IsNullOrWhiteSpace(obj.CanalVenta)) { throw new Exception("Debe elegir un canal de venta"); }
             }
 
             foreach (SAT1_E o in obj.Det)
@@ -121,8 +121,8 @@ namespace Capa_Negocio.AtencionCliente_NEG.TablasSql
                 {
                     if (Math.Round(o.LineTotalF, 2) != Math.Round((o.PriceAfVAT * o.QuantityF), 2)) { throw new Exception("Hubo un error al calcular el totalLinea en linea " + o.Linea); }
                 }
-                if (string.IsNullOrEmpty(o.Problema)) { throw new Exception("Debe elegir un problema"); }
-                if (string.IsNullOrEmpty(o.TipoError)) { throw new Exception("Debe elegir un tipo de error"); }
+                if (string.IsNullOrWhiteSpace(o.Problema)) { throw new Exception("Debe elegir un problema"); }
+                if (string.IsNullOrWhiteSpace(o.TipoError)) { throw new Exception("Debe elegir un tipo de error"); }
                 if (o.LineTotalF > (o.PriceAfVAT * o.Quantity)) { throw new Exception("La cantidad devuelta no puede superar a lo vendido en linea" + o.Linea); }
             }
             if (obj.Archivo != null)
@@ -159,10 +159,10 @@ namespace Capa_Negocio.AtencionCliente_NEG.TablasSql
             if (bean.Estado != "Registrado") { throw new Exception("Solo se puede editar en estado Registrado"); }
             if (obj.DocEntry == 0) { throw new Exception("Error al identificar el nro de solicitud"); }
             if (obj.Det == null || obj.Det.Count == 0) { throw new Exception("La solicitud debe tener al menos 1 articulo"); }
-            if (Convert.ToDateTime(bean.FechaRegistro) >= Convert.ToDateTime("2024-03-04") && !string.IsNullOrEmpty(obj.Tipo) && !obj.Tipo.Equals("Reclamo"))
+            if (Convert.ToDateTime(bean.FechaRegistro) >= Convert.ToDateTime("2024-03-04") && !string.IsNullOrWhiteSpace(obj.Tipo) && !obj.Tipo.Equals("Reclamo"))
             {
-                if (string.IsNullOrEmpty(obj.TipoVenta)) { throw new Exception("Debe elegir un tipo de venta"); }
-                if (string.IsNullOrEmpty(obj.CanalVenta)) { throw new Exception("Debe elegir un canal de venta"); }
+                if (string.IsNullOrWhiteSpace(obj.TipoVenta)) { throw new Exception("Debe elegir un tipo de venta"); }
+                if (string.IsNullOrWhiteSpace(obj.CanalVenta)) { throw new Exception("Debe elegir un canal de venta"); }
             }
 
             foreach (SAT1_E o in obj.Det)
@@ -180,8 +180,8 @@ namespace Capa_Negocio.AtencionCliente_NEG.TablasSql
                 }
                 if (bean.Tipo == "Reclamo")
                 {
-                    if (string.IsNullOrEmpty(o.Problema)) { throw new Exception("Debe elegir un problema"); }
-                    if (string.IsNullOrEmpty(o.TipoError)) { throw new Exception("Debe elegir un tipo de error"); }
+                    if (string.IsNullOrWhiteSpace(o.Problema)) { throw new Exception("Debe elegir un problema"); }
+                    if (string.IsNullOrWhiteSpace(o.TipoError)) { throw new Exception("Debe elegir un tipo de error"); }
                 }
                 if (o.LineTotalF > (o.PriceAfVAT * o.Quantity)) { throw new Exception("La cantidad devuelta no puede superar a lo vendido en linea" + o.Linea); }
             }
@@ -193,12 +193,12 @@ namespace Capa_Negocio.AtencionCliente_NEG.TablasSql
             if (bean.Estado == "Anulado") { throw new Exception("No se pueden hacer operaciones en solicitud en estado Anulado"); }
             if (bean.Estado != "Registrado") { throw new Exception("Solo se puede procesar en estado Registrado"); }
             if (obj.DocEntry == 0) { throw new Exception("Error al identificar el nro de solicitud"); }
-            if (string.IsNullOrEmpty(obj.Factor)) { throw new Exception("De Elegir un factor"); }
+            if (string.IsNullOrWhiteSpace(obj.Factor)) { throw new Exception("De Elegir un factor"); }
 
-            if (Convert.ToDateTime(bean.FechaRegistro) >= Convert.ToDateTime("2024-03-04") && !string.IsNullOrEmpty(obj.Tipo) && !obj.Tipo.Equals("Reclamo"))
+            if (Convert.ToDateTime(bean.FechaRegistro) >= Convert.ToDateTime("2024-03-04") && !string.IsNullOrWhiteSpace(obj.Tipo) && !obj.Tipo.Equals("Reclamo"))
             {
-                if (string.IsNullOrEmpty(obj.TipoVenta)) { throw new Exception("Debe elegir un tipo de venta"); }
-                if (string.IsNullOrEmpty(obj.CanalVenta)) { throw new Exception("Debe elegir un canal de venta"); }
+                if (string.IsNullOrWhiteSpace(obj.TipoVenta)) { throw new Exception("Debe elegir un tipo de venta"); }
+                if (string.IsNullOrWhiteSpace(obj.CanalVenta)) { throw new Exception("Debe elegir un canal de venta"); }
             }
 
             if (obj.Det == null || obj.Det.Count == 0) { throw new Exception("La solicitud debe tener al menos 1 articulo"); }
@@ -216,10 +216,10 @@ namespace Capa_Negocio.AtencionCliente_NEG.TablasSql
                     if (Math.Round(o.LineTotalF, 2) != Math.Round((o.PriceAfVAT * o.QuantityF), 2)) { throw new Exception("Hubo un error al calcular el totalLinea en linea " + o.Linea); }
                 }
                 if (o.LineTotalF > (o.PriceAfVAT * o.Quantity)) { throw new Exception("La cantidad devuelta no puede superar a lo vendido en linea" + o.Linea); }
-                if (string.IsNullOrEmpty(o.TipoError)) { throw new Exception("Debe elejir un tipo de error en linea " + o.Linea); }
+                if (string.IsNullOrWhiteSpace(o.TipoError)) { throw new Exception("Debe elejir un tipo de error en linea " + o.Linea); }
                 if (bean.Tipo == "Reclamo")
                 {
-                    if (string.IsNullOrEmpty(o.Problema)) { throw new Exception("Debe elegir un problema en linea " + o.Linea); }
+                    if (string.IsNullOrWhiteSpace(o.Problema)) { throw new Exception("Debe elegir un problema en linea " + o.Linea); }
                 }
             }
             if (obj.Archivo != null)
@@ -248,25 +248,25 @@ namespace Capa_Negocio.AtencionCliente_NEG.TablasSql
             if (bean.Estado == "Anulado") { throw new Exception("No se pueden hacer operaciones en solicitud en estado Anulado"); }
             if (bean.Estado != "Proceso") { throw new Exception("Solo se puede atender en estado Proceso"); }
             if (obj.DocEntry == 0) { throw new Exception("Error al identificar el nro de solicitud"); }
-            if (string.IsNullOrEmpty(obj.Factor)) { throw new Exception("Debe seleccionar un factor"); }
-            if (string.IsNullOrEmpty(obj.Resultado)) { throw new Exception("Debe seleccionar un resultado"); }
-            if (string.IsNullOrEmpty(obj.TipoSolucion)) { throw new Exception("Debe Elegir un tipo de solucion"); }
-            if (string.IsNullOrEmpty(obj.Solucion)) { throw new Exception("Debe registrar una solucion"); }
-            if (Convert.ToDateTime(bean.FechaRegistro) >= Convert.ToDateTime("2024-03-04") && !string.IsNullOrEmpty(obj.Tipo) && !obj.Tipo.Equals("Reclamo"))
+            if (string.IsNullOrWhiteSpace(obj.Factor)) { throw new Exception("Debe seleccionar un factor"); }
+            if (string.IsNullOrWhiteSpace(obj.Resultado)) { throw new Exception("Debe seleccionar un resultado"); }
+            if (string.IsNullOrWhiteSpace(obj.TipoSolucion)) { throw new Exception("Debe Elegir un tipo de solucion"); }
+            if (string.IsNullOrWhiteSpace(obj.Solucion)) { throw new Exception("Debe registrar una solucion"); }
+            if (Convert.ToDateTime(bean.FechaRegistro) >= Convert.ToDateTime("2024-03-04") && !string.IsNullOrWhiteSpace(obj.Tipo) && !obj.Tipo.Equals("Reclamo"))
             {
-                if (string.IsNullOrEmpty(obj.TipoVenta)) { throw new Exception("Debe elegir un tipo de venta"); }
-                if (string.IsNullOrEmpty(obj.CanalVenta)) { throw new Exception("Debe elegir un canal de venta"); }
+                if (string.IsNullOrWhiteSpace(obj.TipoVenta)) { throw new Exception("Debe elegir un tipo de venta"); }
+                if (string.IsNullOrWhiteSpace(obj.CanalVenta)) { throw new Exception("Debe elegir un canal de venta"); }
             }
 
             foreach (SAT1_E o in obj.Det)
             {
                 if (o.TareaFact == "N.C.")
                 {
-                    if (string.IsNullOrEmpty(o.ComprobanteVinc)) { throw new Exception("El campo comprobante debe ser ingresado si hay una NC vinculada linea:" + o.Linea); }
-                    if (string.IsNullOrEmpty(o.AlmTransf)) { throw new Exception("El campo almacen debe ser seleccionado si hay una NC vinculada linea:" + o.Linea); }
+                    if (string.IsNullOrWhiteSpace(o.ComprobanteVinc)) { throw new Exception("El campo comprobante debe ser ingresado si hay una NC vinculada linea:" + o.Linea); }
+                    if (string.IsNullOrWhiteSpace(o.AlmTransf)) { throw new Exception("El campo almacen debe ser seleccionado si hay una NC vinculada linea:" + o.Linea); }
                 }
 
-                if (!string.IsNullOrEmpty(o.TipoError) && o.TipoError.Equals("ErrorAlmacen") && !string.IsNullOrEmpty(obj.Resultado) && obj.Resultado.Equals("Procede") && string.IsNullOrEmpty(o.ErrorAlmacen))
+                if (!string.IsNullOrWhiteSpace(o.TipoError) && o.TipoError.Equals("ErrorAlmacen") && !string.IsNullOrWhiteSpace(obj.Resultado) && obj.Resultado.Equals("Procede") && string.IsNullOrWhiteSpace(o.ErrorAlmacen))
                 {
                     throw new Exception("Debe elegir un error de almacén");
                 }
@@ -286,20 +286,20 @@ namespace Capa_Negocio.AtencionCliente_NEG.TablasSql
             if (bean.Estado == "Anulado") { throw new Exception("No se pueden hacer operaciones en solicitud en estado Anulado"); }
             if (bean.Estado != "Atendido") { throw new Exception("Solo se puede culminar en estado Atendido"); }
             if (obj.DocEntry == 0) { throw new Exception("Error al identificar el nro de solicitud"); }
-            if (Convert.ToDateTime(bean.FechaRegistro) >= Convert.ToDateTime("2024-03-04") && !string.IsNullOrEmpty(obj.Tipo) && !obj.Tipo.Equals("Reclamo"))
+            if (Convert.ToDateTime(bean.FechaRegistro) >= Convert.ToDateTime("2024-03-04") && !string.IsNullOrWhiteSpace(obj.Tipo) && !obj.Tipo.Equals("Reclamo"))
             {
-                if (string.IsNullOrEmpty(obj.TipoVenta)) { throw new Exception("Debe elegir un tipo de venta"); }
-                if (string.IsNullOrEmpty(obj.CanalVenta)) { throw new Exception("Debe elegir un canal de venta"); }
+                if (string.IsNullOrWhiteSpace(obj.TipoVenta)) { throw new Exception("Debe elegir un tipo de venta"); }
+                if (string.IsNullOrWhiteSpace(obj.CanalVenta)) { throw new Exception("Debe elegir un canal de venta"); }
             }
 
             foreach (SAT1_E o in obj.Det)
             {
                 if (o.TareaFact == "N.C.")
                 {
-                    if (string.IsNullOrEmpty(o.ComprobanteFin)) { throw new Exception("El campo documento debe ser ingresado si hay una NC vinculada linea:" + o.Linea); }
+                    if (string.IsNullOrWhiteSpace(o.ComprobanteFin)) { throw new Exception("El campo documento debe ser ingresado si hay una NC vinculada linea:" + o.Linea); }
                 }
 
-                if (!string.IsNullOrEmpty(bean.TipoSolucion) && bean.TipoSolucion.Equals("NotaDeCredito") && (o.NCSAP <= 1 || o.NCSAP == null)) { throw new Exception("NC SAP ingresada no es válida"); }
+                if (!string.IsNullOrWhiteSpace(bean.TipoSolucion) && bean.TipoSolucion.Equals("NotaDeCredito") && (o.NCSAP <= 1 || o.NCSAP == null)) { throw new Exception("NC SAP ingresada no es válida"); }
             }
         }
         public void validarRevertirCulminarSolicitud(OSAT_E obj)

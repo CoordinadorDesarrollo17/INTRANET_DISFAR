@@ -144,7 +144,7 @@
                         Tiempo Entrega
                     </th>
                     @*12 columnas*@
-                    @if (!string.IsNullOrEmpty(ViewBag.AlmUsuario) && ViewBag.AlmUsuario == "07")
+                    @if (!string.IsNullOrWhiteSpace(ViewBag.AlmUsuario) && ViewBag.AlmUsuario == "07")
                     {
                         <th></th>
                         <th></th>
@@ -157,7 +157,7 @@
                     }
                     @if (ViewBag.RolSupervisor == 4 || ViewBag.RolSupervisor == 1)
                     {
-                        if (!string.IsNullOrEmpty(ViewBag.AlmUsuario) && ViewBag.AlmUsuario == "07")
+                        if (!string.IsNullOrWhiteSpace(ViewBag.AlmUsuario) && ViewBag.AlmUsuario == "07")
                         {
                             <th></th>
                         }
@@ -288,7 +288,7 @@
                             }
                         </td>
                         @*12 columnas*@
-                        @if (!string.IsNullOrEmpty(ViewBag.AlmUsuario) && ViewBag.AlmUsuario == "07")
+                        @if (!string.IsNullOrWhiteSpace(ViewBag.AlmUsuario) && ViewBag.AlmUsuario == "07")
                         {
                             <td if="ip-if" class="text-center">
                                 @*El boton "INICIO PICKING" solo se habilita si y solo si, el ticket tiene como ultimo estado "RECIBIR" y se encuentra en estado general RECIBIDO*@
@@ -422,7 +422,7 @@
 
                         @if (ViewBag.RolSupervisor == 4 || ViewBag.RolSupervisor == 1)
                         {
-                            if (!string.IsNullOrEmpty(ViewBag.AlmUsuario) && ViewBag.AlmUsuario == "07")
+                            if (!string.IsNullOrWhiteSpace(ViewBag.AlmUsuario) && ViewBag.AlmUsuario == "07")
                             {
                                 <td class="text-center">
                                     @if ((item.ultimoCCEstado == "INICIO PICKING" || item.ultimoCCEstado == "ANULAR FIN PICKING") && item.hayIniPicking && item.Estado == "PICKEANDO" && item.hayFinPicking == false)

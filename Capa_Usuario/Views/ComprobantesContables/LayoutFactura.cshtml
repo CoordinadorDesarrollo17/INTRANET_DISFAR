@@ -102,7 +102,7 @@
         </tr>
     </table>
     <!-- Nueva tabla para mostrar los valores de anticipo -->
-    @if (!string.IsNullOrEmpty(Cab.NroAnticipo))
+    @if (!string.IsNullOrWhiteSpace(Cab.NroAnticipo))
     {
         <!-- Título del detalle de anticipo -->
         <span style="font-weight: bold;">DETALLE DE ANTICIPO</span>

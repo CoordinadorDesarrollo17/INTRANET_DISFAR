@@ -216,7 +216,7 @@ namespace Capa_Usuario.Controllers
                 {"E", "ESTUPEFACIENTES" },
             };
 
-            if (!string.IsNullOrEmpty(filtros.TipoControlado))
+            if (!string.IsNullOrWhiteSpace(filtros.TipoControlado))
             {
                 filtros.DescTipoControlado = tipos[filtros.TipoControlado];
             }

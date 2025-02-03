@@ -17,11 +17,11 @@ namespace Capa_Datos.Almacen_DAO.Tablas
 			string filtros = string.Empty;
 			if (fil != null)
 			{
-				if (!string.IsNullOrEmpty(fil.ItemCode)) { filtros += " and upper(\"ItemCode\")like upper('%" + fil.ItemCode + "%')"; }
-				if (!string.IsNullOrEmpty(fil.ItemName)) { filtros += " and upper(\"ItemName\") like upper('%" + fil.ItemName + "%')"; }
-				if (!string.IsNullOrEmpty(fil.UserText)) { filtros += " and upper(\"UserText\") like upper('%" + fil.UserText + "%')"; }
-				if (!string.IsNullOrEmpty(fil.U_COB_EST_SKU)) { filtros += " and \"U_COB_EST_SKU\"='"+ fil.U_COB_EST_SKU + "'"; }
-				if (!string.IsNullOrEmpty(fil.validFor)) { filtros += " and \"validFor\"='" + fil.validFor+"'"; }
+				if (!string.IsNullOrWhiteSpace(fil.ItemCode)) { filtros += " and upper(\"ItemCode\")like upper('%" + fil.ItemCode + "%')"; }
+				if (!string.IsNullOrWhiteSpace(fil.ItemName)) { filtros += " and upper(\"ItemName\") like upper('%" + fil.ItemName + "%')"; }
+				if (!string.IsNullOrWhiteSpace(fil.UserText)) { filtros += " and upper(\"UserText\") like upper('%" + fil.UserText + "%')"; }
+				if (!string.IsNullOrWhiteSpace(fil.U_COB_EST_SKU)) { filtros += " and \"U_COB_EST_SKU\"='"+ fil.U_COB_EST_SKU + "'"; }
+				if (!string.IsNullOrWhiteSpace(fil.validFor)) { filtros += " and \"validFor\"='" + fil.validFor+"'"; }
 				if (fil.OnHand > 0.00M) { filtros += " and \"OnHand\" like '%" + fil.OnHand + "%'"; }
 				if (fil.FirmCode > 0) { filtros += " and \"FirmCode\"=" + fil.FirmCode; }
 				if (fil.ItmsGrpCod > 0) { filtros += " and \"ItmsGrpCod\"=" + fil.ItmsGrpCod; }
