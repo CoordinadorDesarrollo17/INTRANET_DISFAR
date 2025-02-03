@@ -50,6 +50,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                         while (dr.Read())
                         {
                             dynamic ticket = new ExpandoObject();
+                            ticket.IdOTC = dr.IsDBNull(dr.GetOrdinal("IdOTC")) ? 0 : dr.GetInt32(dr.GetOrdinal("IdOTC"));
                             ticket.DocNumTicket = dr.IsDBNull(dr.GetOrdinal("DocNumTicket")) ? 0 : dr.GetInt32(dr.GetOrdinal("DocNumTicket"));
                             ticket.TipoPago = dr.IsDBNull(dr.GetOrdinal("TipoPago")) ? string.Empty : dr.GetString(dr.GetOrdinal("TipoPago"));
                             ticket.Estado = dr.IsDBNull(dr.GetOrdinal("Estado")) ? string.Empty : dr.GetString(dr.GetOrdinal("Estado"));

@@ -5,54 +5,26 @@
 }
 
 <script>
-    function enviarDatosTicketReemplazo() {
-    var codigoVendedor = $('#CodigovendedorInput').val();
-    var nombreVendedor = $('#NombresvendedorInput').val();
-    var apellidoVendedor = $('#ApellidosvendedorInput').val();
-    var data = {
-        CodigoSap: codigoVendedor,
-        Nombres: nombreVendedor,
-        Apellidos: apellidoVendedor
-    };
+    function autorizarContraEntrega(docNumTicket,idOtc) {
+        var data = {
+            idOTC: idOtc,
+            docNum: docNumTicket
+        };
 
-    Swal.fire({
-        title: 'Enviando datos...',
-        allowOutsideClick: false,
-        onBeforeOpen: () => {
-            Swal.showLoading();
-        }
-    });
-
-    $.ajax({
-        type: 'GET',
-        url: '@Url.Action("CreaTicketVenta", "Ventas")',
-        data: data,
-        success: function(response) {
-        console.log('Datos enviados correctamente.');
-        $('#modalVendedores').hide();
-        location.reload();
-        Swal.fire({
-        icon: 'success',
-        title: 'Datos enviados correctamente',
-        showConfirmButton: false,
-        timer: 1500
-        });
-        },
-        error: function(xhr, status, error) {
-        console.error('Error al enviar datos:', error);
-        Swal.fire({
-        icon: 'error',
-        title: 'Error al enviar datos',
-        text: 'Por favor, inténtelo de nuevo más tarde.',
-        showConfirmButton: true
-        });
-        },
-        complete: function() {
-        Swal.close();
-        }
-        });
-        }
-
+        $, ajax({
+            type: 'POST',
+            url: '@Url.Action("RegularizarAutorizacion", "Ventas")',
+            data: data,
+            success: function (response) {
+                Swal.fire({
+                    icon: 'success',
+                    title: response.Mensaje,
+                    showConfirmButton: false,
+                    timer: 1500
+                }).then(() => {
+                    location.reload();
+                });
+     }
 </script>
 
 <div class="pt-3">
@@ -100,7 +72,7 @@
                     <td class="text-center">@item.MontoRecibidoDeposito</td>
                     <td class="text-center">@item.Suma</td>
                     <td class="text-center">@item.Registro.Substring(0, Math.Min(10, @item.Registro.Length))</td>
-                    <td class="text-center"> <a href="#" onclick="autorizarContraEntrega(@item.DocNumTicket);" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Autorizar"><i class="text-success icon-checkmark"></i></a></td>
+                    <td class="text-center"> <a href="#" onclick="autorizarContraEntrega(@item.DocNumTicket,@item.Id);" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Autorizar"><i class="text-success icon-checkmark"></i></a></td>
                 </tr>
             }
         </tbody>
