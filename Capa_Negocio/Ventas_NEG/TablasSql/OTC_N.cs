@@ -404,5 +404,9 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
 
             return arrImg;
         }
+        public string RegularizarAutorizacion(int docNum, int idOTC, string operario)
+        {
+            return new OTC_D().RegularizarAutorizacion(docNum, idOTC, operario); 
+        }
     }
 }

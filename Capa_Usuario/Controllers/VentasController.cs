@@ -124,6 +124,17 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+        //Actualiza Fecha Hora y Operario de Autorizacion en contraentrega fuera de horario.
+        public JsonResult RegularizarAutorizacion(int docNum, int idOTC)
+        {
+            Usuario_E usu = (Usuario_E)Session["UsuarioId"];
+            var operario = $"{usu.Nombres} {usu.Apellidos}";
+
+            var result = new OTC_N().RegularizarAutorizacion(docNum, idOTC, operario);
+
+            return Json(new { Mensaje = result });
+        }
+
         public JsonResult ObtenerDatosTicket(int docEntry)
         {
             try
