@@ -668,5 +668,36 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 
             return lista;
         }
+
+        public string RegularizarAutorizacion(int docNum, int idOTC, string operario)
+        {
+            string result;
+
+            using (SqlConnection cn = new SqlConnection(uti.cadSql))
+            {
+                cn.Open();
+
+                try
+                {
+                    SqlCommand cmd2 = new SqlCommand("INSERT INTO cj.CC_OTC VALUES(@IdOTC,'AUTORIZAR',@Operario,@Fecha,@Hora)", cn);
+
+                    cmd2.Parameters.AddWithValue("@DocNumTicket", docNum);
+                    cmd2.Parameters.AddWithValue("@IdOTC", idOTC);
+                    cmd2.Parameters.AddWithValue("@Fecha", DateTime.Now.ToShortDateString());
+                    cmd2.Parameters.AddWithValue("@Hora", DateTime.Now.TimeOfDay);
+                    cmd2.Parameters.AddWithValue("@Operario", operario);
+
+                    cmd2.ExecuteNonQuery();
+                    result = "Actualizacion enviada correctamente";
+                }
+                catch (Exception ex2)
+                {
+                    result = "Error al actualizar solicitud";
+                    throw new Exception("Error en registro: " + ex2.Message);
+                }
+            }
+
+            return result;
+        }
     }
 }

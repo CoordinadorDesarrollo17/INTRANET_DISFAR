@@ -31,7 +31,7 @@
 *.zip
 *.mp3
 *.mp4
-
+*.ini
 
 # Archivos de usuario y cachés #
 *.rsuser
