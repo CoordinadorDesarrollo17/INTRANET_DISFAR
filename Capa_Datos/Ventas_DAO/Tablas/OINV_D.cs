@@ -70,6 +70,7 @@ namespace Capa_Datos.Ventas_DAO.Tablas
             catch { }
             return lista;
         }
+
         public List<OINV_E> listadoBoletasDeVenta(OINV_E fil)
         {
             List<OINV_E> lista = new List<OINV_E>();
@@ -124,13 +125,14 @@ namespace Capa_Datos.Ventas_DAO.Tablas
             catch { }
             return lista;
         }
+
         public List<OINV_E> listadoComprobantesPorOrdr(int DocEntryOrden)
         {
-            List<OINV_E> lista = null;
+            List<OINV_E> lista = new List<OINV_E>();
 
             //Domicilio y agencia:
 
-                    string query1 = $@"
+            string query1 = $@"
             SELECT T4.""DocEntry"", T4.""DocNum"", T4.""NumAtCard"", T4.""Max1099"" 
             FROM {uti.schemaHana}ODLN T0
             INNER JOIN {uti.schemaHana}DLN1 T1 
@@ -152,7 +154,7 @@ namespace Capa_Datos.Ventas_DAO.Tablas
 
             //Centro y arriola:
 
-            string query2 = $@"
+                    string query2 = $@"
             SELECT T0.""DocEntry"", T0.""DocNum"", T0.""NumAtCard"", T0.""Max1099"" 
             FROM {uti.schemaHana}OINV T0
             INNER JOIN {uti.schemaHana}INV1 T1 
@@ -205,6 +207,7 @@ namespace Capa_Datos.Ventas_DAO.Tablas
             catch { }
             return lista;
         }
+
         public List<OINV_E> listadoComprobantesPorOrdrArticulo(int DocEntryOrden, string ItemCode)
         {
             List<OINV_E> lista = new List<OINV_E>();
@@ -250,6 +253,7 @@ namespace Capa_Datos.Ventas_DAO.Tablas
             catch { }
             return lista;
         }
+
         public string buscarGuiasTrasladoSinEnt(int DocEntryVenta)
         {
             string guias = "";
@@ -276,6 +280,7 @@ namespace Capa_Datos.Ventas_DAO.Tablas
             catch { cn.Close(); }
             return guias;
         }
+
         public string buscarGuiasTrasladoConEnt(int DocEntryEnt)
         {
             string guias = "";
@@ -302,6 +307,7 @@ namespace Capa_Datos.Ventas_DAO.Tablas
             catch { cn.Close(); }
             return guias;
         }
+
         public NotaCreditoDebito_E ObtenerCabeceraNotaDebito(string numAtCard)
         {
             NotaCreditoDebito_E o = new NotaCreditoDebito_E();
@@ -438,6 +444,7 @@ namespace Capa_Datos.Ventas_DAO.Tablas
             catch { }
             return doc;
         }
+
         public List<(string, int)> DetalleCalculadoraPdfOINV(string Fecha, string U_SYP_STATUS, string U_COB_LUGAREN, string TipoComprobante)
         {
             List<(string, int)> detalles = new List<(string, int)>();

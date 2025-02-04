@@ -338,6 +338,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 }
             }
         }
+
         private void ValidarVinculados(ORTV_E ticket)
         {
             if (ticket.Estado == "SEPARADO" && ticket.Observaciones2 == "SI")
@@ -351,6 +352,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 }
             }
         }
+
         public int Editar(int DocEntry, ORTV_E ticket)
         {
             ORTV_E t = tkD.ObtenerDatosCompletosTicket(DocEntry);
@@ -382,20 +384,24 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             }
             return tkD.Editar(DocEntry, ticket);
         }
+
         public int EditarVisibilidadTicket(int docEntry, string opImpresion, string proceso)
         {
             return tkD.EditarVisibilidadTicket(docEntry, opImpresion, proceso);
         }
+
         public int EditarPresupuestoTicket(int DocEntry)
         {
             return tkD.EditarPresupuestoTicket(DocEntry);
         }
+
         /**********************************************************************/
         //Método usa un procedure para buscar tickets vinculados, solo se usa en el REGISTRO Y EDICION de la hoja de repartos
         public List<string> BuscarVinculados(int DocEntry, int DocNum)
         {
             return tkD.BuscarVinculados(DocEntry, DocNum);
         }
+
         /***********************************************************************/
         /************** METODOS PRICIPALES QUE GENERAN TRANSACCION *************/
         public int EditarTicketDesdeSeguimiento(Dictionary<string, Object> datos, string Request)
@@ -441,6 +447,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
 
             return tkD.EditarTicketDesdeSeguimiento(datos);
         }
+
         public int editarSeguimientoTicket(string Estado, int DocEntry, ORTV_E t)
         {
             if (Estado.Equals("RECIBIDO"))
@@ -663,10 +670,12 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             }
             return tkD.EditarSeguimientoTicket(Estado, DocEntry, t);
         }
+
         public int RegistrarImpresionTicket(int DocEntry, string Operario)
         {
             return tkD.RegistrarImpresionTicket(DocEntry, Operario);
         }
+
         public int Entregar(ORTV_E t)
         {
             if (t.Estado.Equals("ENTREGADO")) { throw new Exception("El ticket ya se encuentra ENTREGADO"); }
@@ -681,6 +690,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             }
             return tkD.Entregar(t);
         }
+
         public int Cancelar(int DocEntry, string Operario, int IdRol)
         {
             ORTV_E t = tkD.ObtenerDatosCompletosTicket(DocEntry);
@@ -715,13 +725,11 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         /**********************************************************************/
         /******************** METODOS PRINCIPALES EN MODULOS ******************/
 
-
-
-
         public List<ORTV_E> listarTicketsParaRepartos(ORTV_E filtro, string[] estados, out int cantidadTicketsNoEnviados)
         {
             return tkD.ListarTicketsParaRepartos(filtro, estados, out cantidadTicketsNoEnviados);
         }
+
         public List<ORTV_E> listarTicketsRepartosNoEnviados(ORTV_E filtro, string[] estados)
         {
             return tkD.ListarTicketsRepartosNoEnviados(filtro, estados);
@@ -734,7 +742,6 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         /*
          * Editar Ticket parámetros ilimitados
          */
-
         public int emitirGuia(int DocEntry, Usuario_E u)
         {
             ORTV_E t = ObtenerDatosCompletosTicket(DocEntry);
