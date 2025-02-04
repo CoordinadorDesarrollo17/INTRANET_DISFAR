@@ -46,7 +46,7 @@
     </tr>
     <tr>
         <td style="font-weight:bold;">HORA INICIO: </td>
-        <td>@Model.TiempoPac.ToString().Substring(11, 8)</td>
+        <td>@Convert.ToDateTime(Model.TiempoPac).ToString("yyyy-MM-dd")</td>
         <td></td>
         <td style="font-weight:bold;">HORA TERMINO: </td>
         @if (Model.TiempoTerEn != "" && Model.TiempoTerEn != null)

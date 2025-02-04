@@ -7,6 +7,7 @@ using Capa_Entidad.Seguridad_ENT;
 using Capa_Entidad.Ventas_ENT.Reportes;
 using Capa_Entidad.Ventas_ENT.Tablas;
 using Capa_Entidad.Ventas_ENT.TablasSql;
+using Capa_Negocio.Ventas_NEG.Tablas;
 using Sap.Data.Hana;
 using System;
 using System.Collections.Generic;
@@ -768,11 +769,27 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
 
             if (ComprobantesVinculados.Count == 0) { throw new Exception("Este ticket no tiene facturas o boletas relacionadas desde SAP"); }
 
-            //valida que el campo Max1099 de facturas o boletas encontradas sumen el monto total a pagar del ticket // El dato Max1099 cubre los anticipos 
-            if (Math.Abs(ComprobantesVinculados.Sum(x => x.Max1099) - t.MontoTotal) > 0.10m || (t.MontoTotal - Math.Abs(ComprobantesVinculados.Sum(x => x.Max1099)) > 0.10m))
+            decimal sumNotasCredito = 0;
+
+            foreach (var o in ComprobantesVinculados)
+            {
+                var nc = new Capa_Negocio.Ventas_NEG.Tablas.ORIN_N()
+                    .Listar(new ORIN_E { RefFactura = o.NumAtCard })
+                    .DefaultIfEmpty(new ORIN_E())
+                    .First();
+
+                if (nc != null && nc.DocTotal > 0) { sumNotasCredito += nc.DocTotal; }
+            }
+
+
+            //valida que el campo Max1099 de facturas o boletas encontradas sumen el monto total a pagar del ticket 
+            // El dato Max1099 cubre los anticipos 
+            if (Math.Abs(ComprobantesVinculados.Sum(x => x.Max1099) - t.MontoTotal + sumNotasCredito ) > 0.10m ||
+                (t.MontoTotal - Math.Abs(ComprobantesVinculados.Sum(x => x.Max1099) + sumNotasCredito) > 0.10m))
             {
                 throw new Exception("Los documentos emitidos no suman lo total a pagar por el cliente.");
             }
+
 
             // Validamos que las guias esten completas
             // Verificar si LugarDestino es "Centro" o "Arriola"
@@ -798,7 +815,8 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 //Valida monto de entrega igual a monto de factura
                 decimal sumEntregas = compN.ObtenerEncabezadoGuiasPorEntrega(OrdenesSap).Sum(x => x.DocTotal); // Trae Dato Max1099 de entrega lo inserta en variable DocTotal
                 decimal sumFacturas = ComprobantesVinculados.Sum(x => x.Max1099);
-                if (sumFacturas != sumEntregas) { throw new Exception("Montos no coinciden"); }
+                    
+                if ((sumFacturas + sumNotasCredito) != sumEntregas) { throw new Exception("Montos no coinciden"); }
             }
 
             if (t.Estado.Equals("CANCELADO") || t.Estado.Equals("ANULADO")) { throw new Exception("No puede facturar en este ticket."); }

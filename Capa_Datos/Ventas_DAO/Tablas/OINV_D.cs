@@ -126,52 +126,82 @@ namespace Capa_Datos.Ventas_DAO.Tablas
         }
         public List<OINV_E> listadoComprobantesPorOrdr(int DocEntryOrden)
         {
-            //Agregado recientemente para validar que una boleta o factura no sea procesada con nc AND NOT EXISTS...
-            List<OINV_E> lista = new List<OINV_E>();
-            string query1 = "SELECT T0.\"DocEntry\",T0.\"DocNum\",T0.\"NumAtCard\",T0.\"Max1099\" FROM " + uti.schemaHana + "OINV T0 " +
-                " INNER JOIN " + uti.schemaHana + "INV1 T1 ON T1.\"DocEntry\" = T0.\"DocEntry\"" +
-                " INNER JOIN " + uti.schemaHana + "RDR1 T2 ON T2.\"DocEntry\" = T1.\"BaseEntry\" AND T2.\"ObjType\" = T1.\"BaseType\"" +
-                                                    " AND T2.\"LineNum\" = T1.\"BaseLine\" AND T2.\"DocEntry\" =" + DocEntryOrden +
-                " WHERE T0.\"CANCELED\" = 'N' " +
-                $" AND NOT EXISTS (SELECT 1 FROM {uti.schemaHana}ORIN WHERE \"U_SYP_MDTO\" || '-' || \"U_SYP_MDSO\" || '-' || \"U_SYP_MDCO\" = T0.\"NumAtCard\" )" +
-                " GROUP BY T0.\"DocEntry\",T0.\"DocNum\",T0.\"NumAtCard\",T0.\"Max1099\"";
+            List<OINV_E> lista = null;
 
-            string query2 = "SELECT T4.\"DocEntry\",T4.\"DocNum\",T4.\"NumAtCard\",T4.\"Max1099\" FROM " + uti.schemaHana + "ODLN T0 " +
-                " INNER JOIN " + uti.schemaHana + "DLN1 T1 ON T1.\"DocEntry\" = T0.\"DocEntry\"" +
-                " INNER JOIN " + uti.schemaHana + "RDR1 T2 ON T2.\"DocEntry\" = T1.\"BaseEntry\" AND T2.\"ObjType\" = T1.\"BaseType\"" +
-                                                    " AND T2.\"LineNum\" = T1.\"BaseLine\" AND T2.\"DocEntry\" = " + DocEntryOrden +
-                " INNER JOIN " + uti.schemaHana + "INV1 T3 ON T3.\"BaseEntry\" = T1.\"DocEntry\" AND T3.\"BaseType\" = T1.\"ObjType\"" +
-                                                    " AND T3.\"BaseLine\" = T1.\"LineNum\" " +
-                " INNER JOIN " + uti.schemaHana + "OINV T4 ON T4.\"DocEntry\" = T3.\"DocEntry\" AND T4.\"CANCELED\" = 'N' " +
-                " WHERE T0.\"CANCELED\" = 'N' " +
-                $" AND NOT EXISTS (SELECT 1 FROM {uti.schemaHana}ORIN WHERE \"U_SYP_MDTO\" || '-' || \"U_SYP_MDSO\" || '-' || \"U_SYP_MDCO\" = T4.\"NumAtCard\" )" +
-                " GROUP BY T4.\"DocEntry\",T4.\"DocNum\",T4.\"NumAtCard\",T4.\"Max1099\"";
+            //Domicilio y agencia:
+
+                    string query1 = $@"
+            SELECT T4.""DocEntry"", T4.""DocNum"", T4.""NumAtCard"", T4.""Max1099"" 
+            FROM {uti.schemaHana}ODLN T0
+            INNER JOIN {uti.schemaHana}DLN1 T1 
+                ON T1.""DocEntry"" = T0.""DocEntry""
+            INNER JOIN {uti.schemaHana}RDR1 T2 
+                ON T2.""DocEntry"" = T1.""BaseEntry"" 
+                AND T2.""ObjType"" = T1.""BaseType""
+                AND T2.""LineNum"" = T1.""BaseLine"" 
+                AND T2.""DocEntry"" = {DocEntryOrden}
+            INNER JOIN {uti.schemaHana}INV1 T3 
+                ON T3.""BaseEntry"" = T1.""DocEntry"" 
+                AND T3.""BaseType"" = T1.""ObjType""
+                AND T3.""BaseLine"" = T1.""LineNum""
+            INNER JOIN {uti.schemaHana}OINV T4 
+                ON T4.""DocEntry"" = T3.""DocEntry"" 
+                AND T4.""CANCELED"" = 'N' 
+            WHERE T0.""CANCELED"" = 'N' 
+            GROUP BY T4.""DocEntry"", T4.""DocNum"", T4.""NumAtCard"", T4.""Max1099""";
+
+            //Centro y arriola:
+
+            string query2 = $@"
+            SELECT T0.""DocEntry"", T0.""DocNum"", T0.""NumAtCard"", T0.""Max1099"" 
+            FROM {uti.schemaHana}OINV T0
+            INNER JOIN {uti.schemaHana}INV1 T1 
+                ON T1.""DocEntry"" = T0.""DocEntry""
+            INNER JOIN {uti.schemaHana}RDR1 T2 
+                ON T2.""DocEntry"" = T1.""BaseEntry"" 
+                AND T2.""ObjType"" = T1.""BaseType""
+                AND T2.""LineNum"" = T1.""BaseLine"" 
+                AND T2.""DocEntry"" = {DocEntryOrden}
+            WHERE T0.""CANCELED"" = 'N' 
+            GROUP BY T0.""DocEntry"", T0.""DocNum"", T0.""NumAtCard"", T0.""Max1099""";
 
             try
             {
-                HanaDataReader hdr = db.HanaExecuteReaderNoSp(query1);
-                while (hdr.Read())
+                using (HanaDataReader hdr = db.HanaExecuteReaderNoSp(query1))
                 {
-                    OINV_E o = new OINV_E();
-                    if (!hdr.IsDBNull(0)) { o.DocEntry = hdr.GetInt32(0); }
-                    if (!hdr.IsDBNull(1)) { o.DocNum = hdr.GetInt32(1); }
-                    if (!hdr.IsDBNull(2)) { o.NumAtCard = hdr.GetString(2); }
-                    if (!hdr.IsDBNull(3)) { o.Max1099 = hdr.GetDecimal(3); }
-                    lista.Add(o);
+                    while (hdr.Read())
+                    {
+                        lista.Add(new OINV_E
+                        {
+                            DocEntry = hdr.IsDBNull(0) ? 0 : hdr.GetInt32(0),
+                            DocNum = hdr.IsDBNull(1) ? 0 : hdr.GetInt32(1),
+                            NumAtCard = hdr.IsDBNull(2) ? string.Empty : hdr.GetString(2),
+                            Max1099 = hdr.IsDBNull(3) ? 0m : hdr.GetDecimal(3)
+                        });
+                    }
                 }
-                hdr.Close();
-                HanaDataReader hdr2 = db.HanaExecuteReaderNoSp(query2);
-                while (hdr2.Read())
+                if (lista.Count == 0)
                 {
-                    OINV_E o = new OINV_E();
-                    if (!hdr2.IsDBNull(0)) { o.DocEntry = hdr2.GetInt32(0); }
-                    if (!hdr2.IsDBNull(1)) { o.DocNum = hdr2.GetInt32(1); }
-                    if (!hdr2.IsDBNull(2)) { o.NumAtCard = hdr2.GetString(2); }
-                    if (!hdr2.IsDBNull(3)) { o.Max1099 = hdr2.GetDecimal(3); }
-                    lista.Add(o);
+                    using (HanaDataReader hdr2 = db.HanaExecuteReaderNoSp(query2))
+                    {
+                        while (hdr2.Read())
+                        {
+                            lista.Add(new OINV_E
+                            {
+                                DocEntry = hdr2.IsDBNull(0) ? 0 : hdr2.GetInt32(0),
+                                DocNum = hdr2.IsDBNull(1) ? 0 : hdr2.GetInt32(1),
+                                NumAtCard = hdr2.IsDBNull(2) ? string.Empty : hdr2.GetString(2),
+                                Max1099 = hdr2.IsDBNull(3) ? 0m : hdr2.GetDecimal(3)
+                            });
+                        }
+                    }
                 }
-                hdr2.Close();
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al ejecutar la consulta: {ex.Message}");
+            }
+
             catch { }
             return lista;
         }
