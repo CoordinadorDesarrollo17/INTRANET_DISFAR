@@ -150,8 +150,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                     " FROM " + uti.schemaHana + "" + Origen +
                     " T0  WHERE T0.CANCELED = 'N' AND T0.\"U_SYP_MDTD\" IS NOT NULL AND T0.\"U_SYP_MDSD\" IS NOT NULL " +
                     " AND T0.\"U_SYP_MDCD\" IS NOT NULL " +
-                    /*LINEA AGREGADA PARA SOLICITUDES DE GUIAS EXTRAORDINARIAS*/
-                    //" AND CONCAT(T0.\"U_SYP_MDTD\"||'-'||T0.\"U_SYP_MDSD\"||'-'||T0.\"U_SYP_MDCD\",'') IN ('09-T016-00000733')" +
+                    /*AGREGAR PARA SOLICITUDES DE GUIAS EXTRAORDINARIAS*/
                     " ORDER BY T0.\"DocEntry\" desc";
             try
             {
