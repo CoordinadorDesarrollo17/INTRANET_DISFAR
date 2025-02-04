@@ -398,12 +398,12 @@
                         }
                     }
 
-                    if (item.Estado.Equals("EMPACADO") && (item.LugarDestino.Equals("Agencia Courier") || item.LugarDestino.Equals("Agencia")))
+                    if (item.Estado.Equals("EMPACADO") && (item.LugarDestino.Equals("Domicilio") || item.LugarDestino.Equals("Agencia")))
                     {
                         condPesar = true;
                     }
 
-                    if (item.Estado.Equals("PESADO") && (item.LugarDestino.Equals("Agencia Courier") || item.LugarDestino.Equals("Agencia")))
+                    if (item.Estado.Equals("PESADO") && (item.LugarDestino.Equals("Domicilio") || item.LugarDestino.Equals("Agencia")))
                     {
                         condAnularPesar = true;
                     }

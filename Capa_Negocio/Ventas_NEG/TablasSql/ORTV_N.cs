@@ -762,6 +762,8 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             ORTV_E t = ObtenerDatosCompletosTicket(DocEntry);
             //validamos que existan facturas o boletas
             List<int> OrdenesSap = compN.ObtenerDocEntryOV(t.Det2, true);
+            //List<int> OrdenesSap = new List<int>();
+           // OrdenesSap.Add(1740988);
 
             List<OINV_E> ComprobantesVinculados = new List<OINV_E>();
             foreach (int DocEntryO in OrdenesSap)
@@ -791,8 +793,8 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
 
             //valida que el campo Max1099 de facturas o boletas encontradas sumen el monto total a pagar del ticket 
             // El dato Max1099 cubre los anticipos 
-            if (Math.Abs(ComprobantesVinculados.Sum(x => x.Max1099) - t.MontoTotal + sumNotasCredito ) > 0.10m ||
-                (t.MontoTotal - Math.Abs(ComprobantesVinculados.Sum(x => x.Max1099) + sumNotasCredito) > 0.10m))
+            if (Math.Abs(ComprobantesVinculados.Sum(x => x.Max1099) - t.MontoTotal ) > 0.10m ||
+                (t.MontoTotal - Math.Abs(ComprobantesVinculados.Sum(x => x.Max1099)) > 0.10m))
             {
                 throw new Exception("Los documentos emitidos no suman lo total a pagar por el cliente.");
             }
@@ -823,7 +825,9 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 decimal sumEntregas = compN.ObtenerEncabezadoGuiasPorEntrega(OrdenesSap).Sum(x => x.DocTotal); // Trae Dato Max1099 de entrega lo inserta en variable DocTotal
                 decimal sumFacturas = ComprobantesVinculados.Sum(x => x.Max1099);
                     
-                if ((sumFacturas + sumNotasCredito) != sumEntregas) { throw new Exception("Montos no coinciden"); }
+                if ((sumFacturas + sumNotasCredito) != sumEntregas ||
+                    sumFacturas  != sumEntregas
+                    ) { throw new Exception("Montos no coinciden"); }
             }
 
             if (t.Estado.Equals("CANCELADO") || t.Estado.Equals("ANULADO")) { throw new Exception("No puede facturar en este ticket."); }
