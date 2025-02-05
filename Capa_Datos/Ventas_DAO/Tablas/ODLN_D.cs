@@ -202,7 +202,7 @@ namespace Capa_Datos.Ventas_DAO.Tablas
             {
                 filtros += " and \"U_COB_LUGAREN\"='" + U_COB_LUGAREN + "'";
             }
-            string query = "select count(*)  from " + uti.schemaHana + " ODLN where \"DocEntry\">0 " + filtros;
+            string query = "select count(*)  from " + uti.schemaHana + "ODLN where 1=1 " + filtros;
             try
             {
                 HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);

@@ -918,16 +918,16 @@ namespace Capa_Usuario.Controllers
                     Mensaje = string.Empty
                 };
 
-                bool hayFinVerificar = false; int DocNum = 0;
+                bool hayFinEmpacar = false; int DocNum = 0;
                 try
                 {
                     Usuario_E u = (Usuario_E)Session["UsuarioId"];
-                    List<CC_ORTV_E> ticketFinVerificar = ccORTV_N.ListarCC_ORTV(DocEntry, "FIN VERIFICAR");
-                    List<CC_ORTV_E> ticketAnularFinVerificar = ccORTV_N.ListarCC_ORTV(DocEntry, "ANULAR FIN VERIFICAR");
-                    List<CC_ORTV_E> listaCC = new List<CC_ORTV_E>() { ticketFinVerificar[0], ticketAnularFinVerificar[0] }.OrderByDescending(x => x.Id).ToList();
-                    if (listaCC.FirstOrDefault().Operacion == "FIN VERIFICAR") { hayFinVerificar = true; }
-                    else if (listaCC.FirstOrDefault().Operacion == "ANULAR FIN VERIFICAR") { hayFinVerificar = false; }
-                    if (hayFinVerificar)
+                    List<CC_ORTV_E> ticketFinEmpacar = ccORTV_N.ListarCC_ORTV(DocEntry, "FIN EMPACAR");
+                    List<CC_ORTV_E> ticketAnularFinEmpacar = ccORTV_N.ListarCC_ORTV(DocEntry, "ANULAR FIN EMPACAR");
+                    List<CC_ORTV_E> listaCC = new List<CC_ORTV_E>() { ticketFinEmpacar[0], ticketAnularFinEmpacar[0] }.OrderByDescending(x => x.Id).ToList();
+                    if (listaCC.FirstOrDefault().Operacion == "FIN EMPACAR") { hayFinEmpacar = true; }
+                    else if (listaCC.FirstOrDefault().Operacion == "ANULAR FIN EMPACAR") { hayFinEmpacar = false; }
+                    if (hayFinEmpacar)
                     {
                         ORTV_N negtik = new ORTV_N();
                         ORTV_E ticket = negtik.ObtenerDatosCompletosTicket(DocEntry); string Guias = "";
@@ -952,7 +952,7 @@ namespace Capa_Usuario.Controllers
                         }
                         else { throw new Exception("El ticket " + DocEntry + " no tiene guías en SAP."); }
                     }
-                    else { throw new Exception("El ticket " + DocEntry + " no ha sido verificado."); }
+                    else { throw new Exception("El ticket " + DocEntry + " no ha sido empacado."); }
                     return RedirectToAction("ListadoTicketsFacturacion", datos);
                 }
                 catch (Exception e)
