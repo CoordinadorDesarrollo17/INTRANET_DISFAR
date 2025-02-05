@@ -3014,8 +3014,8 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
         {
             int cant = 0;
             string query = $"select COUNT(*) from vt.ortv T0 WHERE T0.EstadoFacturacion = @estadoFacturacion and T0.Estado IN ('PICKEANDO','VERIFICANDO','EMPACADO','EMPACANDO','PESADO','PREENVIO','ENVIADO') and T0.DocNum not in (2000302593,2000237628) " +
-                "AND EXISTS(SELECT 1 FROM VT.CC_ORTV WHERE DocEntry=T0.DocEntry AND Operacion='FIN VERIFICAR') AND NOT EXISTS (SELECT 1 FROM VT.CC_ORTV WHERE DocEntry=T0.DocEntry AND Operacion='ANULAR FIN VERIFICAR' " +
-                "AND(SELECT TOP 1 Id FROM VT.CC_ORTV WHERE DocEntry=T0.DocEntry AND Operacion='FIN VERIFICAR' ORDER BY 1 DESC) < (SELECT TOP 1 Id FROM VT.CC_ORTV WHERE DocEntry=T0.DocEntry AND Operacion='ANULAR FIN VERIFICAR' ORDER BY 1 DESC))";
+                "AND EXISTS(SELECT 1 FROM VT.CC_ORTV WHERE DocEntry=T0.DocEntry AND Operacion='FIN EMPACAR') AND NOT EXISTS (SELECT 1 FROM VT.CC_ORTV WHERE DocEntry=T0.DocEntry AND Operacion='ANULAR FIN EMPACAR' " +
+                "AND(SELECT TOP 1 Id FROM VT.CC_ORTV WHERE DocEntry=T0.DocEntry AND Operacion='FIN EMPACAR' ORDER BY 1 DESC) < (SELECT TOP 1 Id FROM VT.CC_ORTV WHERE DocEntry=T0.DocEntry AND Operacion='ANULAR FIN EMPACAR' ORDER BY 1 DESC))";
 
             using (SqlConnection cn = new SqlConnection(uti.cadSql))
             {
@@ -3479,8 +3479,8 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 condWhere += $" AND t0.Estado not in ('SEPARADO') and T0.DocNum not in (2000302593,2000237628)";
                 if (string.IsNullOrWhiteSpace(t.Estado) && user.IdRol == 54)
                 {
-                    condWhere += "AND EXISTS(SELECT 1 FROM VT.CC_ORTV WHERE DocEntry=T0.DocEntry AND Operacion='FIN VERIFICAR') AND NOT EXISTS (SELECT 1 FROM VT.CC_ORTV WHERE DocEntry=T0.DocEntry AND Operacion='ANULAR FIN VERIFICAR' " +
-                    "AND(SELECT TOP 1 Id FROM VT.CC_ORTV WHERE DocEntry=T0.DocEntry AND Operacion='FIN VERIFICAR' ORDER BY 1 DESC) < (SELECT TOP 1 Id FROM VT.CC_ORTV WHERE DocEntry=T0.DocEntry AND Operacion='ANULAR FIN VERIFICAR' ORDER BY 1 DESC))";
+                    condWhere += "AND EXISTS(SELECT 1 FROM VT.CC_ORTV WHERE DocEntry=T0.DocEntry AND Operacion='FIN EMPACAR') AND NOT EXISTS (SELECT 1 FROM VT.CC_ORTV WHERE DocEntry=T0.DocEntry AND Operacion='ANULAR FIN EMPACAR' " +
+                    "AND(SELECT TOP 1 Id FROM VT.CC_ORTV WHERE DocEntry=T0.DocEntry AND Operacion='FIN EMPACAR' ORDER BY 1 DESC) < (SELECT TOP 1 Id FROM VT.CC_ORTV WHERE DocEntry=T0.DocEntry AND Operacion='ANULAR FIN EMPACAR' ORDER BY 1 DESC))";
 
                 }
 
@@ -3572,25 +3572,25 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                                 }
                             }
 
-                            //BUSCO SI TIENE FIN VERIFICAR EN CASO DE QUE NO HAYA FILTRO DE ESTADO
+                            //BUSCO SI TIENE INICIO EMPACAR EN CASO DE QUE NO HAYA FILTRO DE ESTADO
                             CC_ORTV_D ccOrtv = new CC_ORTV_D();
-                            ticket.hayFinVerificar = false;
-                            var hayFinVerificar = ccOrtv.ListarCC_ORTV(ticket.DocEntry, "FIN VERIFICAR", false);
-                            var hayAnularFinVerificar = ccOrtv.ListarCC_ORTV(ticket.DocEntry, "ANULAR FIN VERIFICAR", false);
-                            List<CC_ORTV_E> listOperacionVerificar = new List<CC_ORTV_E>();
+                            ticket.hayFinEmpacar = false;
+                            var hayFinEmpacar = ccOrtv.ListarCC_ORTV(ticket.DocEntry, "FIN EMPACAR", false);
+                            var hayAnularFinEmpacar = ccOrtv.ListarCC_ORTV(ticket.DocEntry, "ANULAR FIN EMPACAR", false);
+                            List<CC_ORTV_E> listOperacion = new List<CC_ORTV_E>();
 
-                            if (hayFinVerificar != null && hayFinVerificar.Count > 0)
+                            if (hayFinEmpacar != null && hayFinEmpacar.Count > 0)
                             {
-                                listOperacionVerificar.Add(hayFinVerificar.FirstOrDefault());
+                                listOperacion.Add(hayFinEmpacar.FirstOrDefault());
                             }
-                            if (hayAnularFinVerificar != null && hayAnularFinVerificar.Count > 0)
+                            if (hayAnularFinEmpacar != null && hayAnularFinEmpacar.Count > 0)
                             {
-                                listOperacionVerificar.Add(hayAnularFinVerificar.FirstOrDefault());
+                                listOperacion.Add(hayAnularFinEmpacar.FirstOrDefault());
                             }
-                            var listaOrdenada = listOperacionVerificar.OrderByDescending(x => x.Id).ToList();
-                            if (listaOrdenada.FirstOrDefault() != null && !string.IsNullOrWhiteSpace(listaOrdenada[0].Operacion) && listaOrdenada[0].Operacion.Equals("FIN VERIFICAR"))
+                            var listaOrdenada = listOperacion.OrderByDescending(x => x.Id).ToList();
+                            if (listaOrdenada.FirstOrDefault() != null && !string.IsNullOrWhiteSpace(listaOrdenada[0].Operacion) && listaOrdenada[0].Operacion.Equals("FIN EMPACAR"))
                             {
-                                ticket.hayFinVerificar = true;
+                                ticket.hayFinEmpacar = true;
                             }
                             //si solo se desea ver los tickets ya cargados que tengan una zona distinta
                             if (t.zonaDistinta)

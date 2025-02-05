@@ -762,9 +762,6 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             ORTV_E t = ObtenerDatosCompletosTicket(DocEntry);
             //validamos que existan facturas o boletas
             List<int> OrdenesSap = compN.ObtenerDocEntryOV(t.Det2, true);
-            //List<int> OrdenesSap = new List<int>();
-           // OrdenesSap.Add(1740988);
-
             List<OINV_E> ComprobantesVinculados = new List<OINV_E>();
             foreach (int DocEntryO in OrdenesSap)
             {
@@ -790,7 +787,6 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 if (nc != null && nc.DocTotal > 0) { sumNotasCredito += nc.DocTotal; }
             }
 
-
             //valida que el campo Max1099 de facturas o boletas encontradas sumen el monto total a pagar del ticket 
             // El dato Max1099 cubre los anticipos 
             if (Math.Abs(ComprobantesVinculados.Sum(x => x.Max1099) - t.MontoTotal ) > 0.10m ||
@@ -798,7 +794,6 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             {
                 throw new Exception("Los documentos emitidos no suman lo total a pagar por el cliente.");
             }
-
 
             // Validamos que las guias esten completas
             // Verificar si LugarDestino es "Centro" o "Arriola"
@@ -808,10 +803,10 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 int totalOrdenesVenta = OrdenesSap.Count;
                 int totalGuiasEmitidas = compN.ObtenerEncabezadoGuiasTransferencia(t).Count();
 
-                // Si existe un ítem en Det2 que tenga AlmacenSalida = "07" y LugarDeEntrega = "ALMACÉN FALTANTES",
+                // Si existe un ítem en Det2 que tenga AlmacenSalida = "14" ,
                 // se obvia la restricción de comparar las cantidades de guías y órdenes de venta.
                 bool tieneItemExcluido = t.Det2.Any(item =>
-                    item.AlmacenSalida == "07" && item.LugarDeEntrega == "ALMACÉN FALTANTES");
+                    item.AlmacenSalida == "14");
 
                 // Si no se encuentra un ítem que permita excluir, se valida la cantidad
                 if (!tieneItemExcluido && totalGuiasEmitidas != totalOrdenesVenta)
