@@ -1,8 +1,9 @@
-﻿@model Capa_Entidad.AtencionCliente_ENT.TablasSql.OSAT_E
+﻿
 @using Capa_Entidad.Ventas_ENT.TablasSql
 @{
     ViewBag.Title = "NuevaSolicitud";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
 }
 <style>
     th {
@@ -37,11 +38,9 @@
 </div>
 
 <div class="bg-form-pestanas-cobefar">
-    @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "NuevaSolicitud", enctype = "multipart/form-data" }))
-    {
-        
+    <form id="NuevaSolicitud" method="post" enctype="multipart/form-data">
 
-        @Html.EditorFor(model => model.DocEntry, new { htmlAttributes = new { @class = "form-control", @type = "hidden" } })
+        <input type="hidden" class="form-control" id="DocEntry" name="DocEntry" value="" />
 
         <div class="bg-section-form p-4 bg-form-cobefar">
             <h4 class="text-cobefar font-weight-bold">DATOS DE TICKET</h4>
@@ -58,7 +57,7 @@
 
                 <div class="col-lg-3">
                     <label for="Estado" class="text-dark form-label font-weight-bold font-18">Estado:</label>
-                    @Html.EditorFor(model => model.Estado, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = true } })
+                    <input type="text" class="form-control text-center border-success" id="Estado" name="Estado" value="" readonly />
                 </div>
 
                 <div id="div_tipoVenta" class="col-lg-3" style="display: none">
@@ -110,22 +109,19 @@
 
             </div>
 
-            @Html.EditorFor(model => model.DocEntryTicket, new { htmlAttributes = new { @readonly = "true", @type = "hidden" } })
+            <input type="text" id="DocEntryTicket" name="DocEntryTicket" class="form-control border-success" value="" hidden readonly>
             <input type="hidden" id="CardCode" name="DetORTV[CardCode]" class="form-control border-success" value="" readonly />
             <input type="hidden" id="CardName" name="DetORTV[CardName]" class="form-control border-success" value="" readonly />
-            <!--Html.EditorFor(model => model.CardCode, new { htmlAttributes = new { readonly = "true", type = "hidden" } })
-            Html.EditorFor(model => model.CardName, new { htmlAttributes = new { readonly = "true", type = "hidden" } })
-            Html.EditorFor(model => model.Propietario, new { htmlAttributes = new { readonly = "true", type = "hidden" } })-->
-
+            
             <div class="row mt-4 mb-4">
                 <div class="col-lg-3">
                     <label for="FechaRegistro" class="text-dark form-label font-weight-bold font-18">Fecha de registro:</label>
-                    @Html.EditorFor(model => model.FechaRegistro, new { htmlAttributes = new { @class = "form-control border-success", @readonly = true } })
+                    <input type="text" id="FechaRegistro" name="FechaRegistro" class="form-control border-success" value="" readonly>
                 </div>
 
                 <div class="col-lg-6">
                     <label for="OpRegistro" class="text-dark form-label font-weight-bold font-18">Registrador:</label>
-                    @Html.EditorFor(model => model.OpRegistro, new { htmlAttributes = new { @class = "form-control border-success", @readonly = true } })
+                    <input type="text" id="OpRegistro" name="OpRegistro" class="form-control border-success" value="" readonly>
                 </div>
 
             </div>
@@ -140,7 +136,7 @@
 
                 <div class="col-lg-4">
                     <label for="Correo" class="text-dark form-label font-weight-bold font-18">Correo:</label>
-                    @Html.EditorFor(model => model.Correo, new { htmlAttributes = new { @class = "form-control border-success" } })
+                    <input type="email" id="Correo" name="Correo" class="form-control border-success" value="" readonly>
                 </div>
 
                 <div class="col-lg-2">
@@ -220,7 +216,7 @@
 
             <div class="row mt-4">
                 <div class="col-lg-4">
-                    @Html.TextBoxFor(x => x.Archivo, new { @type = "file", @accept = ".pdf, .zip, .docx, .xlsx, .png, .jpg, .jpeg, .rar", @class = "form-control border-success", @multiple = "multiple" })
+                    <input type="file" name="Archivo" class="form-control border-success" accept=".pdf,.zip,.docx,.xlsx,.png,.jpg,.jpeg,.rar" multiple>
                 </div>
 
                 <div class="col-lg-4">
@@ -236,7 +232,7 @@
 
         </div>
 
-    }
+    </form>
 </div>
 
 <div class="modal fade " id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -346,7 +342,7 @@
             showConfirmButton: false
         });
 
-        $.ajax('/AtencionCliente/listarArticulosTicket',
+        $.ajax('/AtencionCliente/ListarArticulosTicket',
             {
                 data: parametros,
                 dataType: 'json',
