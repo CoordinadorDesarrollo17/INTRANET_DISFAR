@@ -14,7 +14,7 @@ namespace Capa_Negocio.AtencionCliente_NEG.TablasSql
 
         public List<SAT1_E> ListarArticulosTicket(int docNumTicket)
         {
-            return sat1D.listarArticulosTicket(docNumTicket);
+            return sat1D.ListarArticulosTicket(docNumTicket);
         }
 
         public List<SAT1_E> BuscarCodProductosTicket(int docNumTicket)

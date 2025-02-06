@@ -60,7 +60,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
          *  Descripción: Método para obtener el NroSap ya sea por DocNum o DocEntry indicando explícitamente el tipo de campo con el que vamos a filtrar 
          *  Parámetros: @campo (string), @num (int)
          */
-        public List<RTV2_E> BuscarNroSAP(string campo, int num)
+        public List<RTV2_E> BuscarNroSAPDeTicket(string campo, int num)
         {
             string condWhere = "";
             List<RTV2_E> lista = new List<RTV2_E>();

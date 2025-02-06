@@ -638,7 +638,6 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             }
             else if (Estado.Equals("PESADO"))
             {
-                if (t.LugarDestino != "Agencia Courier" && t.LugarDestino != "Agencia") { throw new Exception("El ticket no puede ser pesado por tipo de lugar destino"); }
                 if (t.Estado.Equals("PESADO")) { throw new Exception("El ticket ya se encuentra  PESADO"); }
                 if (!t.Estado.Equals("EMPACADO")) { throw new Exception("Solo puedes poner PESADO a Ticket en EMPACADO ,debes revertir o continuar el proceso"); }
                 if (t.Det6 == null) { throw new Exception("El ticket debe contar con pesos registrados"); }
