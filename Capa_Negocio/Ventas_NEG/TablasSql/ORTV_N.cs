@@ -448,7 +448,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             return tkD.EditarTicketDesdeSeguimiento(datos);
         }
 
-        public int editarSeguimientoTicket(string Estado, int DocEntry, ORTV_E t)
+        public int editarSeguimientoTicket(string Estado, int DocEntry, ORTV_E t,int productosPendientes=0)
         {
             if (Estado.Equals("RECIBIDO"))
             {
@@ -667,7 +667,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                     if ((to.Det5[0].IdReg > 0 || to.Det5[0].RegCant > 0) && to.Det5[0].RegEstado == "PENDIENTE") { throw new Exception("Solo puedes ANULAR ENTREGA a un ticket que no tenga regalo pendiente"); }
                 }
             }
-            return tkD.EditarSeguimientoTicket(Estado, DocEntry, t);
+            return tkD.EditarSeguimientoTicket(Estado, DocEntry, t,productosPendientes);
         }
 
         public int RegistrarImpresionTicket(int DocEntry, string Operario)
