@@ -281,9 +281,13 @@ namespace Capa_Datos.Almacen_DAO.Tablas
             }
             if (!string.IsNullOrWhiteSpace(U_COB_LUGAREN))
             {
-                filtros += " and \"Filler\"='" + U_COB_LUGAREN + "'";
+                if (U_COB_LUGAREN == "15") { filtros += " and \"Filler\" in ('15','16')"; }
+                else
+                {
+                    filtros += " and \"Filler\"='" + U_COB_LUGAREN + "'";
+                }
             }
-            string query = "select count(*)  from " + uti.schemaHana + " OWTR  WHERE \"ToWhsCode\" IN ('09','01')  " + filtros;
+            string query = "select count(*)  from " + uti.schemaHana + " OWTR  WHERE \"ToWhsCode\" IN ('09','01','ALM07')  " + filtros;
             try
             {
                 HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
@@ -313,10 +317,14 @@ namespace Capa_Datos.Almacen_DAO.Tablas
             }
             if (!string.IsNullOrWhiteSpace(U_COB_LUGAREN))
             {
-                filtros += " and \"Filler\"='" + U_COB_LUGAREN + "'";
+                if (U_COB_LUGAREN == "15") { filtros += " and \"Filler\" in ('15','16')"; }
+                else
+                {
+                    filtros += " and \"Filler\"='" + U_COB_LUGAREN + "'";
+                }
             }
 
-            string query = $"SELECT TO_CHAR(\"DocDate\", 'YYYY-MM-DD') AS \"FECHADOC\", COUNT(*) AS \"CANTIDAD\" FROM {uti.schemaHana}OWTR WHERE \"DocEntry\" > 0 AND \"ToWhsCode\" IN ('09','01') {filtros} AND \"DocDate\" in (SELECT distinct \"DocDate\" FROM {uti.schemaHana}OWTR WHERE \"DocEntry\" > 0 AND  \"ToWhsCode\" IN ('09','01') {filtros} ) GROUP BY \"DocDate\" ORDER BY \"DocDate\" ASC";
+            string query = $"SELECT TO_CHAR(\"DocDate\", 'YYYY-MM-DD') AS \"FECHADOC\", COUNT(*) AS \"CANTIDAD\" FROM {uti.schemaHana}OWTR WHERE \"DocEntry\" > 0 AND \"ToWhsCode\" IN ('09','01') {filtros} AND \"DocDate\" in (SELECT distinct \"DocDate\" FROM {uti.schemaHana}OWTR WHERE \"DocEntry\" > 0 AND  \"ToWhsCode\" IN ('09','01','ALM07') {filtros} ) GROUP BY \"DocDate\" ORDER BY \"DocDate\" ASC";
 
             try
             {
