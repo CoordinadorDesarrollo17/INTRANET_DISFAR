@@ -1079,7 +1079,6 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
         public int EditarSeguimientoTicket(string Estado, int DocEntry, ORTV_E ticket, int productosPendientes =0 )
         {
             int status = -1;
-            bool gestionStock = false;
             string TipoMantenimiento = string.Empty;
 
             ORTV_E auxTK = ObtenerDatosCompletosTicket(DocEntry);
@@ -1242,56 +1241,17 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     cmd.Parameters.AddWithValue("@LugarDestino", ticket.LugarDestino);
                 }
 
-                // aqui va lo de regalos cuando es Entregado Ticket Venta
-                else if (TipoMantenimiento.Equals("USET") && auxTK.Det5 != null && auxTK.Det5.Count >= 1)
-                {
-                    throw new Exception("ENTREGA CON REGALO DESDE SEG");
-                    if (auxTK.Det5[0].IdReg > 0 && auxTK.Det5[0].RegCant > 0)
-                    {
-                        cmd.Parameters.AddWithValue("@TieneRegalos", 1);
-                        cmd.Parameters.AddWithValue("@RegEstado", ticket.Det5[0].RegEstado);
-
-                        gestionStock = true;
-                    }
-                }
 
                 // Ejecutar comando para modificar el estado del ticket
                 cmd.ExecuteNonQuery();
                 status = ticket.DocNum;
 
-
-                // Si se gestionan regalos o stock, ejecutamos esas operaciones bajo la misma transacción
-                if (gestionStock)
-                {
-                    throw new Exception("ALTERACION DE REGALOS");
-                    //OREG_D oregD = new OREG_D();
-                    //auxTK.Det5[0].RegCant = -1 * auxTK.Det5[0].RegCant;
-                    //auxTK.OpRegistro = ticket.OpRegistro;
-
-                    //oregD.CompromisosStock(new List<ORTV_E> { auxTK }, tran);
-
-                    //oregD.RegistrarGestionStock(
-                    //    new OREG_E() { Id = auxTK.Det5[0].IdReg, StockDisp = auxTK.Det5[0].RegCant },
-                    //    new OTRC_E()
-                    //    {
-                    //        IdReg = auxTK.Det5[0].IdReg,
-                    //        RegName = auxTK.Det5[0].RegCate + " " + auxTK.Det5[0].RegTipo,
-                    //        CardCode = auxTK.CardCode,
-                    //        CardName = auxTK.CardName,
-                    //        Sentido = "Salida",
-                    //        Detalle = auxTK.DocNum.ToString(),
-                    //        Cantidad = auxTK.Det5[0].RegCant,
-                    //        Operario = auxTK.OpRegistro
-                    //    }
-                    //, tran);
-                }
-
+               
                 tran.Commit();
             }
             catch (Exception e)
             {
                 tran.Rollback();
-                gestionStock = false;
                 throw new Exception("Error al editar en estado =>" + Estado + " " + e.Message);
             }
             finally
@@ -3024,10 +2984,41 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 
             return docentry;
         }
+        public int CantidadTicketsProductosPendientes()
+        {
+            int cant = 0;
+            string query = $"Select count(*) from vt.BusquedaProducto where Estado='PENDIENTE';";
+
+            using (SqlConnection cn = new SqlConnection(uti.cadSql))
+            {
+                try
+                {
+                    cn.Open();
+                    using (SqlCommand cmd = new SqlCommand(query, cn))
+                    {
+                       
+                        using (SqlDataReader dr = cmd.ExecuteReader())
+                        {
+                            if (dr.HasRows)
+                            {
+                                dr.Read();
+                                cant = dr.GetInt32(0);
+                            }
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+            }
+
+            return cant;
+        }
         public int CantidadTicketsFacturacion(string estadoFacturacion)
         {
             int cant = 0;
-            string query = $"select COUNT(*) from vt.ortv T0 WHERE T0.EstadoFacturacion = @estadoFacturacion and T0.Estado IN ('EMPACADO','PESADO','PREENVIO','ENVIADO') AND YEAR(T0.FechaSapTicket) = 2025  AND (Select  Estado from vt.BusquedaProducto where DocEntry=t0.DocEntry )='CONCLUIDO' ;";
+            string query = $"select COUNT(*) from vt.ortv T0 WHERE T0.EstadoFacturacion = @estadoFacturacion and T0.Estado IN ('EMPACADO','PESADO','PREENVIO','ENVIADO') AND YEAR(T0.FechaSapTicket) = 2025  AND ((Select  Estado from vt.BusquedaProducto where DocEntry=t0.DocEntry )='CONCLUIDO' or not exists (Select  Estado from vt.BusquedaProducto where DocEntry=t0.DocEntry ) ) ;";
 
             using (SqlConnection cn = new SqlConnection(uti.cadSql))
             {
@@ -3222,10 +3213,11 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 if (!dr.IsDBNull(49)) { t.Presupuesto = dr.GetString(49); }
                 if (!dr.IsDBNull(50)) {
                     var ProductoPendiente = dr.GetString(50);
-                    if(ProductoPendiente =="PENDIENTE")
+                    if(ProductoPendiente == "PENDIENTE")
                     {
                         t.ProductoPendiente = 1;
                     }
+                    else { t.ProductoPendiente = 0; }
                 }
 
                 dr.Close();
@@ -3496,10 +3488,9 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             string condWhere = string.Empty, orderby = "t0.DocNum DESC";
             if (t != null)
             {
-                condWhere += $" AND T0.Estado not in ('SEPARADO') AND YEAR(T0.FechaSapTicket) = 2025 ";
                 if (string.IsNullOrWhiteSpace(t.Estado) && user.IdRol == 54)
                 {
-                    condWhere += " and (Select  Estado from vt.BusquedaProducto where DocEntry=t0.DocEntry )='CONCLUIDO' ";
+                    condWhere += " and ((Select  Estado from vt.BusquedaProducto where DocEntry=t0.DocEntry )='CONCLUIDO' or not exists (Select  Estado from vt.BusquedaProducto where DocEntry=t0.DocEntry ))  ";
                 }
 
                 if (t.DocNum == 0 && t.FechaSapTicket == null && t.CardName == null && t.Vendedor == null && t.Zona == null && t.MontoFinal == 0 && t.LugarDestino == null && t.Estado == null
@@ -3507,8 +3498,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 {
                     if (user.IdRol == 54)
                     {
-                        condWhere += $" AND t0.EstadoFacturacion in ('PENDIENTE','GRE EMITIDA') " +
-                            $"AND t0.Estado in ('EMPACADO','PESADO','PREENVIO','ENVIADO') AND T0.Estado NOT IN ('CANCELADO','ANULADO')";
+                        condWhere += $" AND t0.EstadoFacturacion in ('PENDIENTE','GRE EMITIDA') AND T0.Estado NOT IN ('CANCELADO','ANULADO')";
                         orderby = "CASE WHEN t0.EstadoFacturacion = 'PENDIENTE' THEN 0 WHEN t0.EstadoFacturacion = 'GRE EMITIDA' THEN 1 WHEN t0.EstadoFacturacion = 'FACTURADO' THEN 2 ELSE 3 END, t0.TiempoEntrega";
                     }
                 }
@@ -3532,7 +3522,43 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 }
             }
 
-            string query = $"SELECT TOP 150 t0.DocEntry, t0.DocNum, t0.CardCode, t0.CardName, t0.Estado,t0.FechaSapTicket, (Select top 1 HoraOperacion from vt.CC_ORTV where DocEntry=t0.DocEntry and Operacion='REGISTRAR' order by FechaOperacion,HoraOperacion desc ) as 'HoraAbierto',t0.LugarDestino,t0.Flete,t0.Vendedor,t0.EstadoPago,t0.EstadoGasto,t0.PagoEnv,t0.TipoVenta ,t0.EstadoFacturacion,t0.DescuentoNC,t0.Zona,t0.TiempoEntrega,T0.AlmProcedencia, (Select  Estado from vt.BusquedaProducto where DocEntry=t0.DocEntry ) FROM vt.ORTV t0  WHERE 1=1 {condWhere} ORDER BY {orderby}";
+                    string query = $@"
+            SELECT TOP 150 
+                t0.DocEntry, 
+                t0.DocNum, 
+                t0.CardCode, 
+                t0.CardName, 
+                t0.Estado, 
+                t0.FechaSapTicket, 
+                (
+                    SELECT TOP 1 HoraOperacion 
+                    FROM vt.CC_ORTV 
+                    WHERE DocEntry = t0.DocEntry AND Operacion = 'REGISTRAR' 
+                    ORDER BY FechaOperacion, HoraOperacion DESC
+                ) AS 'HoraAbierto', 
+                t0.LugarDestino, 
+                t0.Flete, 
+                t0.Vendedor, 
+                t0.EstadoPago, 
+                t0.EstadoGasto, 
+                t0.PagoEnv, 
+                t0.TipoVenta, 
+                t0.EstadoFacturacion, 
+                t0.DescuentoNC, 
+                t0.Zona, 
+                t0.TiempoEntrega, 
+                t0.AlmProcedencia, 
+                (
+                    SELECT Estado 
+                    FROM vt.BusquedaProducto 
+                    WHERE DocEntry = t0.DocEntry
+                ) AS EstadoBusquedaProducto
+            FROM vt.ORTV t0  
+            WHERE 
+                T0.Estado NOT IN ('SEPARADO', 'ABIERTO', 'RECIBIDO', 'PICKEANDO', 'VERIFICANDO', 'VERIFICADO','EMPACANDO','ENTREGADO') 
+                AND YEAR(T0.FechaSapTicket) = 2025 
+                {condWhere} 
+            ORDER BY {orderby}";
 
             using (SqlConnection cn = new SqlConnection(uti.cadSql))
             {
@@ -3706,7 +3732,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             if (t != null)
             {
                 condWhere += $" AND t0.Estado not in ('SEPARADO')";
-
+                //ALISSON
                 condWhere += t.DocNum > 0 ? $" AND t0.DocNum like '%{t.DocNum}%'" : "";
                 condWhere += t.FechaSapTicket != null ? $" AND t0.FechaSapTicket='{t.FechaSapTicket}'" : "";
                 condWhere += t.LugarDestino != null ? $" AND t0.LugarDestino='{t.LugarDestino}'" : "";
@@ -3724,12 +3750,18 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 condWhere += t.Flete == 0.01M ? " AND t0.Flete>0" : "";
                 condWhere += t.DescuentoNC == 0.01M ? " AND t0.DescuentoNC>0" : "";
                 condWhere += t.TiempoEntrega != null ? $" AND CONVERT(char(10), t0.TiempoEntrega,126) = '{Convert.ToDateTime(t.TiempoEntrega).ToString("yyyy-MM-dd")}'" : "";
-
+                if (t.ProductoPendiente != null) { 
+                int valorProductoPendiente = (int)t.ProductoPendiente;
+                //Si es 0 esta en CONCLUIDO y si es 1 es PENDIENTE
+                var ProductoPendienteTexto = (valorProductoPendiente == 0) ? "CONCLUIDO" : "PENDIENTE";
+                condWhere += ProductoPendienteTexto != null ? $" AND (Select Estado from vt.BusquedaProducto where DocEntry=t0.DocEntry) ='{ProductoPendienteTexto}'" : "";
+            
+                }
             }
 
             string query = $"SELECT TOP 100 t0.DocEntry, t0.DocNum, t0.CardCode, t0.CardName, t0.Estado,t0.FechaSapTicket, (Select top 1 HoraOperacion from vt.CC_ORTV where DocEntry=t0.DocEntry " +
                 $" and Operacion='REGISTRAR' order by FechaOperacion,HoraOperacion desc ) as 'HoraAbierto',t0.LugarDestino,t0.Flete,t0.Vendedor,t0.EstadoPago,t0.EstadoGasto," +
-                $" t0.PagoEnv,t0.TipoVenta ,t0.EstadoFacturacion,t0.DescuentoNC,t0.Zona,t0.TiempoEntrega ,t0.MontoTotal,t0.Cajas,t0.LugarDestino FROM vt.ORTV t0  WHERE 1=1 {condWhere} ORDER BY t0.DocNum DESC";
+                $" t0.PagoEnv,t0.TipoVenta ,t0.EstadoFacturacion,t0.DescuentoNC,t0.Zona,t0.TiempoEntrega ,t0.MontoTotal,t0.Cajas,t0.LugarDestino, (Select Estado from vt.BusquedaProducto where DocEntry=t0.DocEntry) FROM vt.ORTV t0  WHERE 1=1 {condWhere} ORDER BY t0.DocNum DESC";
 
             using (SqlConnection cn = new SqlConnection(uti.cadSql))
             {
@@ -3770,6 +3802,17 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                             if (!dr.IsDBNull(18)) { ticket.MontoTotal = dr.GetDecimal(18); }
                             if (!dr.IsDBNull(19)) { ticket.Cajas = dr.GetInt32(19); }
                             if (!dr.IsDBNull(20)) { ticket.LugarDestino = dr.GetString(20); }
+                            if (!dr.IsDBNull(21))
+                            {
+                                var ProductoPendiente = dr.GetString(21);
+                                if (ProductoPendiente == "PENDIENTE")
+                                {
+                                    ticket.ProductoPendiente = 1;
+                                }
+                                else { ticket.ProductoPendiente = 0; }
+                            }
+                           
+
                             ticket.FechaSapTicket = (ticket.FechaSapTicket != null) ? Convert.ToDateTime(ticket.FechaSapTicket).ToString("dd/MM/yyyy") : null;
 
                             //Buscamos el ultimo estado del ticket excluyendo a los estados que no trascienden en las operaciones del ticket.

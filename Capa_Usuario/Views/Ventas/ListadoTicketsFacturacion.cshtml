@@ -809,8 +809,8 @@
                             }
                         </td><!--11-->
                         <td>
-                            @if ((item.Estado.Equals("PICKEANDO") || item.Estado.Equals("VERIFICANDO") || item.Estado.Equals("EMPACANDO") || item.Estado.Equals("EMPACADO") || item.Estado.Equals("PESADO") || item.Estado.Equals("PREENVIO") ||
-                             item.Estado.Equals("ENVIADO")) )
+                            @if ((item.Estado.Equals("EMPACADO") || item.Estado.Equals("PESADO") || item.Estado.Equals("PREENVIO") ||
+                             item.Estado.Equals("ENVIADO")))
                             {
                                 if (item.EstadoFacturacion == "PENDIENTE")
                                 {

@@ -884,10 +884,9 @@ namespace Capa_Usuario.Controllers
                 ViewBag.Mensaje = Mensaje;
                 var lista = ticketN.ListarTicketsAreaFacturacion(user, ticket);
 
-                var cantPendiente = ticketN.CantidadTicketsFacturacion("PENDIENTE");
-                var cantGreEmitida = ticketN.CantidadTicketsFacturacion("GRE EMITIDA");
-                ViewBag.CP = cantPendiente;
-                ViewBag.CG = cantGreEmitida;
+                ViewBag.CP = ticketN.CantidadTicketsFacturacion("PENDIENTE");
+                ViewBag.CG = ticketN.CantidadTicketsFacturacion("GRE EMITIDA");
+
                 return View(lista);
             }
             else
@@ -1573,6 +1572,7 @@ namespace Capa_Usuario.Controllers
                 ViewBag.DocNum = DocNum;
                 ViewBag.Ortv = t;
                 ViewBag.Mensaje = Mensaje;
+                ViewBag.ProductosPendientes = ticketN.CantidadTicketsProductosPendientes();
 
                 return View(ticketN.ListarTicketsAreaAlmacén(user, t));
             }

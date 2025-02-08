@@ -66,7 +66,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.Reportes
                 dr.Close();
             }
             catch (Exception ex)
-            {}
+            { throw new Exception("Error: " + ex.Message); }
             finally
             {
                 cn.Close();

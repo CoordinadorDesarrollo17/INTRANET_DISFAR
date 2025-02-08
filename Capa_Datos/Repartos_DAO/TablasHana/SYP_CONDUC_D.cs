@@ -34,7 +34,7 @@ namespace Capa_Datos.Repartos_DAO.TablasHana
             }
             catch (Exception ex)
             {
-                
+                throw new Exception("Error: " + ex.Message);
             }
 
             return lista;

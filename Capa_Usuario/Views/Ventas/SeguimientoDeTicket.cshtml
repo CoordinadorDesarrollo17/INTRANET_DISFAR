@@ -195,8 +195,6 @@
                                 @if (Model.hayFinPicking && flujoEstados["FIN PICKING"].Operario != null && flujoEstados["FIN PICKING"].FechaOperacion != null
                                     && ((!string.IsNullOrWhiteSpace(Model.AlmProcedencia) && Model.AlmProcedencia.Equals("03")) || !Model.Det2[0].AlmacenSalida.Equals("ALM07")))
                                 {
-                                    //if (new List<string> { "EMPACADO", "PESADO", "PREENVIO", "ENVIADO", "ENTREGADO", "CANCELADO" }.Contains(Model.Estado) ) )
-
                                     <li class="li complete">
                                         <div class="timestamp">
                                             <span class="author font-12">@flujoEstados["FIN PICKING"].Operario.Substring(0, 12) </span>

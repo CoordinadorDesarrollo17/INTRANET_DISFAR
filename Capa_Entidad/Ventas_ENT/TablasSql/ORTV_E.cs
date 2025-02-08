@@ -7,7 +7,7 @@ namespace Capa_Entidad.Ventas_ENT.TablasSql
 {
     public class ORTV_E
     {
-        [DisplayName("Pendiente de productos")] public int ProductoPendiente { get; set; }
+        [DisplayName("Producto pend.")] public int? ProductoPendiente { get; set; }
         [DisplayName("Nro Interno")] public int DocEntry { get; set; }
         [DisplayName("Nro Ticket")] public int DocNum { get; set; }
         public string CardCode { get; set; }

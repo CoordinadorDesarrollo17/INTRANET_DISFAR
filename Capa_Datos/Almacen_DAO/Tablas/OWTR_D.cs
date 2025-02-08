@@ -260,7 +260,7 @@ namespace Capa_Datos.Almacen_DAO.Tablas
             }
             catch (Exception ex)
             {
-
+                throw new Exception("Error: " + ex.Message);
             }
 
             return detalles;
@@ -342,7 +342,7 @@ namespace Capa_Datos.Almacen_DAO.Tablas
             }
             catch (Exception ex)
             {
-                
+                throw new Exception("Error: " + ex.Message);
             }
 
             return detalles;

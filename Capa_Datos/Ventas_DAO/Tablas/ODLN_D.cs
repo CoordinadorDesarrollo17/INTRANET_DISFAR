@@ -258,7 +258,7 @@ namespace Capa_Datos.Ventas_DAO.Tablas
             }
             catch (Exception ex)
             {
-                // Manejar la excepción de manera adecuada
+                throw new Exception("Error: " + ex.Message);
             }
 
             return detalles;

@@ -468,6 +468,7 @@ namespace Capa_Datos.ComprobantesContables_ENT
             }
             catch (Exception ex)
             {
+                throw new Exception("Error: " + ex.Message);
             }
 
             return lista;
