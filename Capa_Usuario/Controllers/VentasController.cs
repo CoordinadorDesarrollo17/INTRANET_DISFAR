@@ -1980,7 +1980,7 @@ namespace Capa_Usuario.Controllers
             }
         }
         [HttpPost]
-        public ActionResult EmpacadoTicketVenta(int DocEntry, ORTV_E ticketPost, int productosPendientes, int idOperation = 804)
+        public ActionResult EmpacadoTicketVenta(int DocEntry, ORTV_E ticketPost, int idOperation = 804)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
 
@@ -1995,8 +1995,9 @@ namespace Capa_Usuario.Controllers
                     ticket.NroMesa = ticketPost.NroMesa;
                     ticket.Operario = usuario.WhsCode;      //envia el dato de WhsCode del usuario
                     ticket.Det13 = ticketPost.Det13;        // OpEmpacador 2 y OpEmpacador 3
+                    ticket.ProductoPendiente = ticketPost.ProductoPendiente;        
 
-                    int DocNum = ticketN.editarSeguimientoTicket("FIN EMPACAR", DocEntry, ticket,productosPendientes);
+                    int DocNum = ticketN.editarSeguimientoTicket("FIN EMPACAR", DocEntry, ticket);
                     var listaUsuarios = u_N.ListaUsuarios(new Usuario_E() { Prefijo = "ALM" });
                     var usuariosDistinct = listaUsuarios.Select(x => $"{x.Nombres} {x.Apellidos}").Distinct().ToList();
                     ViewBag.ListaUsuarios = usuariosDistinct;

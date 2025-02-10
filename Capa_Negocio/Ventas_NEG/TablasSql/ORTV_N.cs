@@ -448,7 +448,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             return tkD.EditarTicketDesdeSeguimiento(datos);
         }
 
-        public int editarSeguimientoTicket(string Estado, int DocEntry, ORTV_E t,int productosPendientes=0)
+        public int editarSeguimientoTicket(string Estado, int DocEntry, ORTV_E t)
         {
             if (Estado.Equals("RECIBIDO"))
             {
@@ -668,7 +668,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                     if ((to.Det5[0].IdReg > 0 || to.Det5[0].RegCant > 0) && to.Det5[0].RegEstado == "PENDIENTE") { throw new Exception("Solo puedes ANULAR ENTREGA a un ticket que no tenga regalo pendiente"); }
                 }
             }
-            return tkD.EditarSeguimientoTicket(Estado, DocEntry, t,productosPendientes);
+            return tkD.EditarSeguimientoTicket(Estado, DocEntry, t);
         }
 
         public int RegistrarImpresionTicket(int DocEntry, string Operario)
@@ -820,9 +820,9 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 decimal sumEntregas = compN.ObtenerEncabezadoGuiasPorEntrega(OrdenesSap).Sum(x => x.DocTotal); // Trae Dato Max1099 de entrega lo inserta en variable DocTotal
                 decimal sumFacturas = ComprobantesVinculados.Sum(x => x.Max1099);
                     
-                if ((sumFacturas + sumNotasCredito) != sumEntregas ||
-                    sumFacturas  != sumEntregas
-                    ) { throw new Exception("Montos no coinciden"); }
+                //if ((sumFacturas + sumNotasCredito) != sumEntregas ||
+                //    sumFacturas  != sumEntregas
+                //    ) { throw new Exception("Montos no coinciden"); }
             }
 
             if (t.Estado.Equals("CANCELADO") || t.Estado.Equals("ANULADO")) { throw new Exception("No puede facturar en este ticket."); }
