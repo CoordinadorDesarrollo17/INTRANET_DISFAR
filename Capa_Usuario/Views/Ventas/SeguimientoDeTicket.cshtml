@@ -303,8 +303,16 @@
                                                 @Html.EditorFor(model => model.NroMesa, new { htmlAttributes = new { @class = "form-control text-center border-success w-50", @readonly = true, @hidden = true } })
                                                 @Html.EditorFor(model => model.NroMesaNuevo, new { htmlAttributes = new { @class = "form-control text-center border-success w-50" } })
                                             </div>
-                                            <div class="row justify-content-center">
-                                                <input class="btn btn-sm btn-success " type="submit" name="UPDATEEMP" value="ENVIAR DATOS" />
+                                            <div class="row justify-content-center ">
+                                                ¿Productos pendientes?
+                                                <select id="ProductoPendiente" name="ProductoPendiente" class="form-control border-success">
+                                                    <option value="1" @(Model != null && Model.ProductoPendiente == 1 ? "selected" : "")>SI</option>
+                                                    <option value="0" @(Model != null && Model.ProductoPendiente == 0 ? "selected" : "")>NO</option>
+                                                </select>
+
+                                            </div>
+                                            <div class="row justify-content-center mt-2">
+                                                <input class="btn btn-sm btn-cobefar " type="submit" name="UPDATEEMP" value="ENVIAR DATOS" />
                                             </div>
                                             <div class="row justify-content-center mt-1 ">
                                                 @if (Model.LugarDestino == "Agencia Courier")
