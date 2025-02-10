@@ -781,8 +781,8 @@ namespace Capa_Usuario.Controllers
                 {
                     Usuario_N usuN = new Usuario_N();
 
-                    var datosUsuario = usuN.BuscarDocEntryUsuario(resultTempHum[0].TransCod);
-                    var firmas = BuscarFirmas(new List<int> { datosUsuario.DocEntry, 414 });       // docEntry ejm
+                    var datosUsuario = usuN.BuscarDocEntryPorNombreCompleto(resultTempHum[0].Encargado);
+                    var firmas = BuscarFirmas(new List<int> { datosUsuario.DocEntry, 414 });     
 
                     if (firmas != null && firmas.Count >= 1)
                     {
