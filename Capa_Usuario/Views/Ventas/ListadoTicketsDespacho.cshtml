@@ -398,12 +398,12 @@
                         }
                     }
 
-                    if (item.Estado.Equals("EMPACADO") && (item.LugarDestino.Equals("Agencia Courier") || item.LugarDestino.Equals("Agencia")))
+                    if (item.Estado.Equals("EMPACADO"))
                     {
                         condPesar = true;
                     }
 
-                    if (item.Estado.Equals("PESADO") && (item.LugarDestino.Equals("Agencia Courier") || item.LugarDestino.Equals("Agencia")))
+                    if (item.Estado.Equals("PESADO"))
                     {
                         condAnularPesar = true;
                     }
@@ -585,7 +585,7 @@
             html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Notas Débito </span></i>';
             html += '</button><br />';
 
-        } else if (["EMPACADO", "PREENVIO", "ENVIADO", "ENTREGADO"].includes(estado)) {
+        } else if (["EMPACADO", "PESADO", "PREENVIO", "ENVIADO", "ENTREGADO"].includes(estado)) {
             html += '<button type="button" data-DocEntry="' + encodeURIComponent(DocEntry) + '" data-tipo="F" onclick="descargarComprobante(\'' + encodeURIComponent(DocEntry) + '\', \'F\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Facturas">';
             html += '<i class="icon icon-search"><span class="text-dark small"> Consultar Facturas </span></i>';
             html += '</button><br />';

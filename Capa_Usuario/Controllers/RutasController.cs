@@ -1226,38 +1226,27 @@ namespace Capa_Usuario.Controllers
         }
         public JsonResult infoTicketsReparto(string FechaSapTicket, string TipoRuta, string Zona, string AlmOrigenCod)
         {
-            string[] estados = { "", "" };
+            string[] estados = { "EMPACADO", "PESADO" };
             ORTV_N ortvN = new ORTV_N();
             ORTV_E ortvE = new ORTV_E { FechaSapTicket = FechaSapTicket, EstadoFacturacion = "FACTURADO", Zona = Zona };
             if (TipoRuta == "VD")
             {
                 ortvE.LugarDestino = "Domicilio";
-                estados[0] = "EMPACADO";
                 ortvE.LugEntrega = AlmOrigenCod;
             }
             else if (TipoRuta == "VG")
             {
                 ortvE.LugarDestino = "Agencia";
-                estados[0] = "EMPACADO";
-                estados[1] = "PESADO";
                 ortvE.LugEntrega = " ";
-            }
-            else if (TipoRuta == "AC")
-            {
-                ortvE.LugarDestino = "Agencia Courier";
-                estados[0] = "PESADO";
-                ortvE.LugEntrega = AlmOrigenCod;
             }
             else if (TipoRuta == "VC")
             {
                 ortvE.LugarDestino = "Centro";
-                estados[0] = "EMPACADO";
                 ortvE.LugEntrega = AlmOrigenCod;
             }
             else if (TipoRuta == "VA")
             {
                 ortvE.LugarDestino = "Arriola";
-                estados[0] = "EMPACADO";
                 ortvE.LugEntrega = AlmOrigenCod;
             }
             int cantidadTicketsNoEnviados;
@@ -1271,30 +1260,29 @@ namespace Capa_Usuario.Controllers
         }
         public JsonResult listarTicketsRepartosNoEnviados(string FechaSapTicket, string TipoRuta, string Zona, string AlmOrigenCod)
         {
-            string[] estados = { "", "" };
+            string[] estados = { "EMPACADO", "PESADO" };
             ORTV_N ortvN = new ORTV_N();
             ORTV_E ortvE = new ORTV_E { FechaSapTicket = FechaSapTicket, Zona = Zona };
-            if (TipoRuta == "VD") { ortvE.LugarDestino = "Domicilio"; estados[0] = "EMPACADO"; ortvE.LugEntrega = AlmOrigenCod; }
+            if (TipoRuta == "VD") { ortvE.LugarDestino = "Domicilio";  ortvE.LugEntrega = AlmOrigenCod; }
             else if (TipoRuta == "VG")
             {
-                ortvE.LugarDestino = "Agencia";
-                estados[0] = "EMPACADO";
-                estados[1] = "PESADO"; ortvE.LugEntrega = "";
+                 ortvE.LugarDestino = "Agencia";
+                 ortvE.LugEntrega = "";
             }
             else if (TipoRuta == "AC")
             {
                 ortvE.LugarDestino = "Agencia Courier";
-                estados[0] = "PESADO"; ortvE.LugEntrega = AlmOrigenCod;
+                ortvE.LugEntrega = AlmOrigenCod;
             }
             else if (TipoRuta == "VC")
             {
                 ortvE.LugarDestino = "Centro";
-                estados[0] = "EMPACADO"; ortvE.LugEntrega = AlmOrigenCod;
+                ortvE.LugEntrega = AlmOrigenCod;
             }
             else if (TipoRuta == "VA")
             {
                 ortvE.LugarDestino = "Arriola";
-                estados[0] = "EMPACADO"; ortvE.LugEntrega = AlmOrigenCod;
+                 ortvE.LugEntrega = AlmOrigenCod;
             }
             var resultado = ortvN.listarTicketsRepartosNoEnviados(ortvE, estados);
             return Json(resultado);

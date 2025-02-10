@@ -330,7 +330,6 @@ namespace Capa_Usuario.Controllers
 
             if (acceso == "C_Access")
             {
-                //ticketN.editarSeguimientoTicket(estado, DocEntry, tc);
                 ticketN.EditarTicketDesdeSeguimiento(datos, Request);
             }
             else
@@ -462,6 +461,7 @@ namespace Capa_Usuario.Controllers
                             datos.Add("tipoMantenimiento", "UDEMP");
                             datos.Add("NroMesa", t.NroMesaNuevo);
                             datos.Add("Cajas", t.CajasNuevo);
+                            datos.Add("ProductoPendiente", t.ProductoPendiente);
                             VerificarOpSeguimiento(datos, Request.Form["UPDATEEMP"]);
                             ViewBag.Mensaje = "Se envio los datos correctamente";
                         }
@@ -863,7 +863,8 @@ namespace Capa_Usuario.Controllers
             {
                 Usuario_E user = (Usuario_E)Session["UsuarioId"];
                 ORTV_N tkN = new ORTV_N();
-                ViewBag.IdRol = user.IdRol; ViewBag.DocNum = DocNum;
+                ViewBag.IdRol = user.IdRol; 
+                ViewBag.DocNum = DocNum;
 
                 //Si el filtro DocNum es diferente a 0 todos los datos necesarios del ticket se llenan en ViewBag.Ortv (para que muestre en el filtro)
                 if (DocNum > 0)
@@ -918,16 +919,16 @@ namespace Capa_Usuario.Controllers
                     Mensaje = string.Empty
                 };
 
-                bool hayFinVerificar = false; int DocNum = 0;
+                bool hayFinEmpacar = false; int DocNum = 0;
                 try
                 {
                     Usuario_E u = (Usuario_E)Session["UsuarioId"];
-                    List<CC_ORTV_E> ticketFinVerificar = ccORTV_N.ListarCC_ORTV(DocEntry, "FIN VERIFICAR");
-                    List<CC_ORTV_E> ticketAnularFinVerificar = ccORTV_N.ListarCC_ORTV(DocEntry, "ANULAR FIN VERIFICAR");
-                    List<CC_ORTV_E> listaCC = new List<CC_ORTV_E>() { ticketFinVerificar[0], ticketAnularFinVerificar[0] }.OrderByDescending(x => x.Id).ToList();
-                    if (listaCC.FirstOrDefault().Operacion == "FIN VERIFICAR") { hayFinVerificar = true; }
-                    else if (listaCC.FirstOrDefault().Operacion == "ANULAR FIN VERIFICAR") { hayFinVerificar = false; }
-                    if (hayFinVerificar)
+                    List<CC_ORTV_E> ticketFinEmpacar = ccORTV_N.ListarCC_ORTV(DocEntry, "FIN EMPACAR");
+                    List<CC_ORTV_E> ticketAnularFinEmpacar = ccORTV_N.ListarCC_ORTV(DocEntry, "ANULAR FIN EMPACAR");
+                    List<CC_ORTV_E> listaCC = new List<CC_ORTV_E>() { ticketFinEmpacar[0], ticketAnularFinEmpacar[0] }.OrderByDescending(x => x.Id).ToList();
+                    if (listaCC.FirstOrDefault().Operacion == "FIN EMPACAR") { hayFinEmpacar = true; }
+                    else if (listaCC.FirstOrDefault().Operacion == "ANULAR FIN EMPACAR") { hayFinEmpacar = false; }
+                    if (hayFinEmpacar)
                     {
                         ORTV_N negtik = new ORTV_N();
                         ORTV_E ticket = negtik.ObtenerDatosCompletosTicket(DocEntry); string Guias = "";
@@ -952,7 +953,7 @@ namespace Capa_Usuario.Controllers
                         }
                         else { throw new Exception("El ticket " + DocEntry + " no tiene guías en SAP."); }
                     }
-                    else { throw new Exception("El ticket " + DocEntry + " no ha sido verificado."); }
+                    else { throw new Exception("El ticket " + DocEntry + " no ha sido empacado."); }
                     return RedirectToAction("ListadoTicketsFacturacion", datos);
                 }
                 catch (Exception e)
@@ -1979,7 +1980,7 @@ namespace Capa_Usuario.Controllers
             }
         }
         [HttpPost]
-        public ActionResult EmpacadoTicketVenta(int DocEntry, ORTV_E ticketPost, int idOperation = 804)
+        public ActionResult EmpacadoTicketVenta(int DocEntry, ORTV_E ticketPost, int productosPendientes, int idOperation = 804)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
 
@@ -1995,7 +1996,7 @@ namespace Capa_Usuario.Controllers
                     ticket.Operario = usuario.WhsCode;      //envia el dato de WhsCode del usuario
                     ticket.Det13 = ticketPost.Det13;        // OpEmpacador 2 y OpEmpacador 3
 
-                    int DocNum = ticketN.editarSeguimientoTicket("FIN EMPACAR", DocEntry, ticket);
+                    int DocNum = ticketN.editarSeguimientoTicket("FIN EMPACAR", DocEntry, ticket,productosPendientes);
                     var listaUsuarios = u_N.ListaUsuarios(new Usuario_E() { Prefijo = "ALM" });
                     var usuariosDistinct = listaUsuarios.Select(x => $"{x.Nombres} {x.Apellidos}").Distinct().ToList();
                     ViewBag.ListaUsuarios = usuariosDistinct;
