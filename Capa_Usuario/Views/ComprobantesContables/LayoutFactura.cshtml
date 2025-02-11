@@ -13,8 +13,9 @@
     <style>
         * {
             font-family: 'Verdana', sans-serif;
-            font-size: 10px; 
+            font-size: 10px;
         }
+
         table {
             border-collapse: collapse;
             width: 100%;
@@ -168,23 +169,26 @@
                         <td>Op.Gravada</td>
                         <td>S/</td>
                         <td style="text-align:right">@Math.Round(Cab.Tgrabado(Cab.Sum_Topgratuita(Model.ToList()), Cab.Sum_Tinafecto(Model.ToList())), 2)</td>
-                        @*<td style="text-align:right">@Cab.OpGravadas(Model.ToList())</td>*@
                     </tr>
                     <tr>
                         <td>Anticipo</td>
                         <td>S/</td>
                         <td style="text-align:right">
-                        @if (Cab.Anticipo > 0) {
-                            <span>@Math.Round(Cab.Anticipo, 2)</span>
-                        }else{
-                            <span>0.00</span>
-                            }</td>
+                            @if (Cab.Anticipo > 0)
+                            {
+                                <span>@Math.Round(Cab.Anticipo, 2)</span>
+                            }
+                            else
+                            {
+                                <span>0.00</span>
+                            }
+                        </td>
                     </tr>
                     <tr>
                         <td>Desc.&nbsp;Globales</td>
                         <td>S/</td>
                         <td style="text-align:right">
-                        <span>0.00</span>
+                            <span>0.00</span>
                         </td>
                     </tr>
                     <tr>
@@ -196,7 +200,7 @@
                         <td>Op.Inafecta</td>
                         <td>S/</td>
                         <td style="text-align:right">
-                        <span>0.00</span>
+                            <span>0.00</span>
                         </td>
                     </tr>
                     <tr>
