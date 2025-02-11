@@ -25,6 +25,8 @@ namespace Capa_Negocio.ComprobantesContables_NEG
         {return compD.ObtenerDetalleGuia(NumAtCard, Tabla);}
         public List<ComprobanteDePago_E> ObtenerCabeceraFactura(string NumAtCard)
         { return compD.ObtenerCabeceraFactura(NumAtCard); }
+        public List<ComprobanteDePago_E> ObtenerDetalleFacturaAnterior(string NumAtCard)
+        { return compD.ObtenerDetalleFacturaAnterior(NumAtCard); }
         public List<ComprobanteDePago_E> ObtenerDetalleFactura(string NumAtCard)
         { return compD.ObtenerDetalleFactura(NumAtCard); }
         public List<Comprobante_E> ObtenerEncabezadoGuiasPorEntrega(List<int> listDocEntrySap) //Metodo para traer datos principales de guia remision en caso de Domicilio y Agencia

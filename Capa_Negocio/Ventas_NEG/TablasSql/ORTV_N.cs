@@ -671,9 +671,9 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             return tkD.EditarSeguimientoTicket(Estado, DocEntry, t);
         }
 
-        public int RegistrarImpresionTicket(int DocEntry, string Operario)
+        public int RegistrarImpresionTicket(int docEntry, string operario, string area)
         {
-            return tkD.RegistrarImpresionTicket(DocEntry, Operario);
+            return tkD.RegistrarImpresionTicket(docEntry, operario, area);
         }
 
         public int Entregar(ORTV_E t)

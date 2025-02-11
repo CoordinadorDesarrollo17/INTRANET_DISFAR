@@ -1262,21 +1262,22 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             return status;
         }
 
-        public int RegistrarImpresionTicket(int DocEntry, string Operario)
+        public int RegistrarImpresionTicket(int docEntry, string operario, string area)
         {
             SqlConnection cn = new SqlConnection(uti.cadSql);
             try
             {
                 cn.Open();
-                SqlCommand cmd = new SqlCommand("INSERT INTO vt.CC_ORTV_print VALUES (@DocEntry,getdate(),null,@Operario)", cn);
+                SqlCommand cmd = new SqlCommand("INSERT INTO vt.CC_ORTV_print VALUES (@DocEntry,getdate(),@Area,@Operario)", cn);
                 cmd.CommandType = CommandType.Text;
-                cmd.Parameters.AddWithValue("@DocEntry", DocEntry);
-                cmd.Parameters.AddWithValue("@Operario", Operario);
+                cmd.Parameters.AddWithValue("@DocEntry", docEntry);
+                cmd.Parameters.AddWithValue("@Operario", operario);
+                cmd.Parameters.AddWithValue("@Area", area);
                 cmd.ExecuteNonQuery();
                 cn.Close();
             }
             catch { }
-            return DocEntry;
+            return docEntry;
         }
         public void EditarTicketSup(int DocEntry, ORTV_E ticket)
         {
@@ -3552,7 +3553,8 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     SELECT Estado 
                     FROM vt.BusquedaProducto 
                     WHERE DocEntry = t0.DocEntry
-                ) AS EstadoBusquedaProducto
+                ) AS EstadoBusquedaProducto,
+                CASE WHEN EXISTS (SELECT * FROM vt.CC_ORTV_print WHERE DocEntryTicket = t0.DocEntry and Id_Usuario = 'Facturacion') THEN 1 ELSE 0 END
             FROM vt.ORTV t0  
             WHERE 
                 ((SELECT Estado FROM vt.BusquedaProducto WHERE DocEntry=T0.DocEntry) = 'CONCLUIDO' 
@@ -3598,7 +3600,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                                 if (EstadoProductoPendiente == "PENDIENTE") { ticket.ProductoPendiente = 1; }
                                 else { ticket.ProductoPendiente = 0;  }
                             }
-                            
+                            if (!dr.IsDBNull(20)) { ticket.Impreso = dr.GetInt32(20); }
                             ticket.FechaSapTicket = (ticket.FechaSapTicket != null) ? Convert.ToDateTime(ticket.FechaSapTicket).ToString("dd/MM/yyyy") : null;
                             ticket.Det1 = obtenerDet1Ticket(ticket.DocEntry); if (ticket.Det1.Count == 0) { ticket.Det1 = null; }      //Datos de recojo
                             ticket.Det2 = obtenerDet2Ticket(ticket.DocEntry);
@@ -3927,7 +3929,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 
             string query = $"SELECT TOP 100 t0.DocEntry, t0.DocNum, t0.CardCode, t0.CardName, t0.Estado,t0.FechaSapTicket, (Select top 1 HoraOperacion from vt.CC_ORTV where DocEntry=t0.DocEntry " +
                 $" and Operacion='REGISTRAR' order by FechaOperacion,HoraOperacion desc ) as 'HoraAbierto',t0.LugarDestino,t0.Flete,t0.Vendedor,t0.EstadoPago,t0.EstadoGasto," +
-                $" T0.PagoEnv,t0.TipoVenta ,t0.EstadoFacturacion,t0.DescuentoNC,t0.TiempoEntrega ,CASE WHEN EXISTS (SELECT * FROM vt.CC_ORTV_print WHERE DocEntryTicket = t0.DocEntry) THEN 1 ELSE 0 END,T0.MontoFinal, " +
+                $" T0.PagoEnv,t0.TipoVenta ,t0.EstadoFacturacion,t0.DescuentoNC,t0.TiempoEntrega ,CASE WHEN EXISTS (SELECT * FROM vt.CC_ORTV_print WHERE DocEntryTicket = t0.DocEntry and Id_Usuario = 'DespachoCentroArriola') THEN 1 ELSE 0 END,T0.MontoFinal, " +
                 $" T0.Cajas , T0.Zona FROM vt.ORTV t0  WHERE 1=1 {condWhere} ORDER BY t0.DocNum desc";
 
             using (SqlConnection cn = new SqlConnection(uti.cadSql))

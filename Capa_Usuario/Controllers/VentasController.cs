@@ -392,8 +392,6 @@ namespace Capa_Usuario.Controllers
                     }
                     ViewBag.IdRol = usu.IdRol;
 
-                    ViewBag.permisoCajas = new OUSR_OPE_N().VerificarAccesoOperacion(new OUSR_OPE_E {  UsrDocEntry = usu.DocEntry, OpeID = 2024 });     // 2024: Actualizar Caja y Mesa
-
                     return View(ticket);
                 }
                 catch
@@ -401,8 +399,7 @@ namespace Capa_Usuario.Controllers
                     return RedirectToAction("ListadoTicketsVenta");
                 }
             }
-            else
-            {
+            else            {
                 return resultadoAcceso;
             }
         }
@@ -1342,7 +1339,7 @@ namespace Capa_Usuario.Controllers
         }
         private List<ComprobanteDePago_E> ObtenerDetalleFactura(string numAtCard)
         {
-            return new Comprobante_N().ObtenerDetalleFactura(numAtCard);
+            return new Comprobante_N().ObtenerDetalleFacturaAnterior(numAtCard);
         }
         /*******************************************************************************************************************/
         public ActionResult AnularFacturarTicketVenta(int DocEntry, ORTV_E ticketPost, int idOperation = 603)
@@ -4058,13 +4055,12 @@ namespace Capa_Usuario.Controllers
         }
             
         //Registra impresion de documentos de un ticket para despacho (centro y arriola)
-        public JsonResult RegistrarImpresion(int DocEntry)
+        public JsonResult RegistrarImpresion(int docEntry, string area)
         {
-            //verificacionAccesos(0);
             Usuario_E user = (Usuario_E)Session["UsuarioId"];
-            var Operario = $"{user.Nombres} {user.Apellidos}";
+            var operario = $"{user.Nombres} {user.Apellidos}";
             ORTV_N ortvN = new ORTV_N();
-            var result = ortvN.RegistrarImpresionTicket(DocEntry, Operario);
+            var result = ortvN.RegistrarImpresionTicket(docEntry, operario,area);
             return Json(new { Datos = result });
         }
         public void PreliminarLayoutOV_Ticket(int docEntry)

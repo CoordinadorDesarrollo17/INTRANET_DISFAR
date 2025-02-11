@@ -46,17 +46,8 @@
     </tr>
     <tr>
         <td style="font-weight:bold;">HORA INICIO: </td>
-        <td>@Convert.ToDateTime(Model.TiempoPac).ToString("yyyy-MM-dd")</td>
+        <td>@Convert.ToDateTime(Model.TiempoPac).ToString("hh:mm:ss")</td>
         <td></td>
-        <td style="font-weight:bold;">HORA TERMINO: </td>
-        @if (Model.TiempoTerEn != "" && Model.TiempoTerEn != null)
-        {
-            <td><font size="@ViewBag.Letra">@Model.TiempoTerEn.ToString().Substring(11, 8)</font></td>
-        }
-        else
-        {
-            <td></td>
-        }
         <td colspan=10 style="font-weight:bold;">CONDICIÓN ALMACENAMIENTO : T° 15°C-25°C</td>
     </tr>
     <tr>
