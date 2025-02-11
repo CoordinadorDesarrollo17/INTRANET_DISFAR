@@ -105,7 +105,7 @@ namespace Capa_Usuario.Controllers
             {
                 OCHO_N ochoN = new OCHO_N();
                 ViewBag.DocNum = DocNum;
-                ViewBag.ListaTransportistas = ochoN.listaChoferes(0, null);
+                ViewBag.Conductores = new Capa_Negocio.Repartos_NEG.TablasHana.SYP_CONDUC_N().listar();
                 ViewBag.Mensaje = "";
                 ViewBag.Orru = o;
                 ViewBag.listaVeh = ovehN.listaVeh(0, null);

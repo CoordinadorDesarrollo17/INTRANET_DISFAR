@@ -837,6 +837,21 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             catch { }
             return DocEntry;
         }
+        public int EditarProductosPendientesTicket(int DocEntry)
+        {
+            SqlConnection cn = new SqlConnection(uti.cadSql);
+            try
+            {
+                cn.Open();
+                SqlCommand cmd = new SqlCommand("UPDATE VT.BUSQUEDAPRODUCTO SET Estado='CONCLUIDO' WHERE DocEntry=@DocEntry", cn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.AddWithValue("@DocEntry", DocEntry);
+                cmd.ExecuteNonQuery();
+                cn.Close();
+            }
+            catch { }
+            return DocEntry;
+        }
         /**********************************************************************/
         /********************** METODOS AUXILIARES privados ********************/
         private List<OCRD_E> listarClientes(string Fecha)
@@ -1036,17 +1051,6 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 {
                     cmd.Parameters.AddWithValue("@NroMesa", datos["NroMesa"]);
                     cmd.Parameters.AddWithValue("@Cajas", datos["Cajas"]);
-                    var ProductoPendiente = "";
-
-                    if (datos.ContainsKey("ProductoPendiente") && datos["ProductoPendiente"] != null)
-                    {
-                        // Convierte el valor a entero antes de comparar
-                        int valor = Convert.ToInt32(datos["ProductoPendiente"]);
-                        ProductoPendiente = (valor == 0) ? "CONCLUIDO" : "PENDIENTE";
-                    }
-
-                    cmd.Parameters.AddWithValue("@TextoProductoPendiente", ProductoPendiente);
-
                 }
                 /*se añadio para anular entregado diferente a Agencia*/
                 if (datos["tipoMantenimiento"].Equals("USAT"))

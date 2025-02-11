@@ -394,6 +394,10 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         {
             return tkD.EditarPresupuestoTicket(DocEntry);
         }
+        public int EditarProductosPendientesTicket(int DocEntry)
+        {
+            return tkD.EditarProductosPendientesTicket(DocEntry);
+        }
 
         /**********************************************************************/
         //Método usa un procedure para buscar tickets vinculados, solo se usa en el REGISTRO Y EDICION de la hoja de repartos
@@ -745,6 +749,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         public int emitirGuia(int DocEntry, Usuario_E u)
         {
             ORTV_E t = ObtenerDatosCompletosTicket(DocEntry);
+            if(t.ProductoPendiente != null && t.ProductoPendiente == 1) { throw new Exception("No puede emitir guia si esta pendiente de productos."); }
             if (t.Estado.Equals("CANCELADO") || t.Estado.Equals("ANULADO")) { throw new Exception("No puede emitir guia en este ticket."); }
             if (!t.EstadoFacturacion.Equals("PENDIENTE")) { throw new Exception("El ticket no puede emitir guias."); }
             return tkD.EmitirGuia(DocEntry, u);

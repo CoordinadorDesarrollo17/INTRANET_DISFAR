@@ -314,7 +314,7 @@ namespace Capa_Usuario.Controllers
         }
         public void VerificarOpSeguimiento(Dictionary<string, Object> datos, string Request)
         {
-            //verificacionAccesos(0);
+            
             int Op = 0;
             if (datos["accion"].Equals("RECIBIDO")) { Op = 508; }
             if (datos["accion"].Equals("ANULARRECIBIDO")) { Op = 509; }
@@ -326,11 +326,12 @@ namespace Capa_Usuario.Controllers
             if (datos["accion"].Equals("ANULARENTREGADO")) { Op = 517; }
             //cambiar datos de NroMesa y Cajas
             if (datos["accion"].Equals("UPDATEEMP")) { Op = 599; }
-
+       
             string acceso = AccesoHelper.VerificarAccesos(Op, (Usuario_E)Session["UsuarioId"], this.ControllerContext.RouteData.Values["action"].ToString(), "", "");
 
             if (acceso == "C_Access")
             {
+            
                 ticketN.EditarTicketDesdeSeguimiento(datos, Request);
             }
             else
@@ -421,6 +422,7 @@ namespace Capa_Usuario.Controllers
                     ORTV_E tc = ticketN.ObtenerDatosCompletosTicket(DocEntry);
                     tc.orru = orruN.obtenerOrdenDeRutaTicket(DocEntry);
 
+                  
                     // Creamos la estructura de parámetros para el método
                     Dictionary<string, Object> datos = new Dictionary<string, Object>()
                     {
@@ -452,6 +454,10 @@ namespace Capa_Usuario.Controllers
                         }
                         catch (Exception e) { ViewBag.Mensaje = e.Message; }
                     }
+                    else if (Request.Form["UPDATEPROD"] != null)
+                    {
+                        ticketN.EditarProductosPendientesTicket(DocEntry);
+                    }
                     else if (Request.Form["UPDATEEMP"] != null)
                     {
                         try
@@ -460,7 +466,6 @@ namespace Capa_Usuario.Controllers
                             datos.Add("tipoMantenimiento", "UDEMP");
                             datos.Add("NroMesa", t.NroMesaNuevo);
                             datos.Add("Cajas", t.CajasNuevo);
-                            datos.Add("ProductoPendiente", t.ProductoPendiente);
                             VerificarOpSeguimiento(datos, Request.Form["UPDATEEMP"]);
                             ViewBag.Mensaje = "Se envio los datos correctamente";
                         }
