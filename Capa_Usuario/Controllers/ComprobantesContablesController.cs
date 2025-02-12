@@ -139,6 +139,38 @@ namespace Capa_Usuario.Controllers
             else { return Json(new { success = false, message = "No hay documentos encontrados." }, JsonRequestBehavior.AllowGet); }
            
         }
+        //private void GeneracionDocumentoPDF(List<Comprobante_E> documentosDistinct, int DocNum, string Tipo, string fileName)
+        //{
+        //    Utilitarios uti = new Utilitarios();
+
+        //    // Agrupa todos los documentos del mismo tipo en un solo PDF
+        //    string filePath = Path.Combine(uti.directorioFileServer, "Comprobantes", fileName);
+
+        //    using (MemoryStream combinedPdfStream = new MemoryStream())
+        //    {
+        //        using (Document document = new Document())
+        //        {
+        //            PdfCopy copy = null;
+        //            try
+        //            {
+        //                document.Open();
+        //                copy = new PdfCopy(document, combinedPdfStream);
+
+        //                foreach (var f in documentosDistinct)
+        //                {
+        //                    AgruparPdfSegunTipo(f, DocNum, copy, Tipo);
+        //                }
+        //            }
+        //            finally
+        //            {
+        //                document.Close();
+        //                copy?.Close();
+        //            }
+        //        }
+
+        //        System.IO.File.WriteAllBytes(filePath, combinedPdfStream.ToArray());
+        //    }
+        //}
         private void GeneracionDocumentoPDF(List<Comprobante_E> documentosDistinct, int DocNum, string Tipo, string fileName)
         {
             Utilitarios uti = new Utilitarios();

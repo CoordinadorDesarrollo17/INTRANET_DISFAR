@@ -394,6 +394,10 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         {
             return tkD.EditarPresupuestoTicket(DocEntry);
         }
+        public int EditarProductosPendientesTicket(int DocEntry)
+        {
+            return tkD.EditarProductosPendientesTicket(DocEntry);
+        }
 
         /**********************************************************************/
         //Método usa un procedure para buscar tickets vinculados, solo se usa en el REGISTRO Y EDICION de la hoja de repartos
@@ -448,7 +452,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             return tkD.EditarTicketDesdeSeguimiento(datos);
         }
 
-        public int editarSeguimientoTicket(string Estado, int DocEntry, ORTV_E t,int productosPendientes=0)
+        public int editarSeguimientoTicket(string Estado, int DocEntry, ORTV_E t)
         {
             if (Estado.Equals("RECIBIDO"))
             {
@@ -602,6 +606,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             else if (Estado.Equals("FIN EMPACAR"))
             {
                 if (t.Estado.Equals("CANCELADO")) { throw new Exception("El ticket esta CANCELADO"); }
+                if (t.ProductoPendiente==null) { throw new Exception("Selecione Productos pendientes"); }
                 if (t.Estado.Equals("EMPACADO")) { throw new Exception("El ticket ya se encuentra  EMPACADO"); }
                 List<CC_ORTV_E> listaEstados = ccTicket.ListarCC_ORTV(DocEntry, null, true);
                 if (listaEstados.Count > 0)
@@ -667,12 +672,12 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                     if ((to.Det5[0].IdReg > 0 || to.Det5[0].RegCant > 0) && to.Det5[0].RegEstado == "PENDIENTE") { throw new Exception("Solo puedes ANULAR ENTREGA a un ticket que no tenga regalo pendiente"); }
                 }
             }
-            return tkD.EditarSeguimientoTicket(Estado, DocEntry, t,productosPendientes);
+            return tkD.EditarSeguimientoTicket(Estado, DocEntry, t);
         }
 
-        public int RegistrarImpresionTicket(int DocEntry, string Operario)
+        public int RegistrarImpresionTicket(int docEntry, string operario, string area)
         {
-            return tkD.RegistrarImpresionTicket(DocEntry, Operario);
+            return tkD.RegistrarImpresionTicket(docEntry, operario, area);
         }
 
         public int Entregar(ORTV_E t)
@@ -744,6 +749,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         public int emitirGuia(int DocEntry, Usuario_E u)
         {
             ORTV_E t = ObtenerDatosCompletosTicket(DocEntry);
+            if(t.ProductoPendiente != null && t.ProductoPendiente == 1) { throw new Exception("No puede emitir guia si esta pendiente de productos."); }
             if (t.Estado.Equals("CANCELADO") || t.Estado.Equals("ANULADO")) { throw new Exception("No puede emitir guia en este ticket."); }
             if (!t.EstadoFacturacion.Equals("PENDIENTE")) { throw new Exception("El ticket no puede emitir guias."); }
             return tkD.EmitirGuia(DocEntry, u);
@@ -819,9 +825,9 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 decimal sumEntregas = compN.ObtenerEncabezadoGuiasPorEntrega(OrdenesSap).Sum(x => x.DocTotal); // Trae Dato Max1099 de entrega lo inserta en variable DocTotal
                 decimal sumFacturas = ComprobantesVinculados.Sum(x => x.Max1099);
                     
-                if ((sumFacturas + sumNotasCredito) != sumEntregas ||
-                    sumFacturas  != sumEntregas
-                    ) { throw new Exception("Montos no coinciden"); }
+                //if ((sumFacturas + sumNotasCredito) != sumEntregas ||
+                //    sumFacturas  != sumEntregas
+                //    ) { throw new Exception("Montos no coinciden"); }
             }
 
             if (t.Estado.Equals("CANCELADO") || t.Estado.Equals("ANULADO")) { throw new Exception("No puede facturar en este ticket."); }
@@ -938,7 +944,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 case "ANULADO":
                 case "CANCELADO":
                     throw new Exception("NO PUEDE EDITAR UN TICKET EN ESTADO ENTREGADO,ANULADO O CANCELADO");
-                    break;
+                    
             }
 
             if (idRol != 1 && idRol != 6) { throw new Exception("NO TIENE PERMISOS PARA LA EDICION EXTRAORDINARIA"); }
@@ -979,6 +985,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         { return tkD.DocEntryTicket(docNum); }
         public List<ORTV_E> ListarTicketsAreaVenta(Usuario_E user, ORTV_E t)
         { return tkD.ListarTicketsAreaVenta(user, t); }
+        public int CantidadTicketsProductosPendientes() { return tkD.CantidadTicketsProductosPendientes(); }
         public int CantidadTicketsFacturacion(string estadoFacturacion) //Trae la cantidad de tickets PENDIENTES o GRE EMITIDA para vista de facturaciòn
         { return tkD.CantidadTicketsFacturacion(estadoFacturacion); }
         public ORTV_E ObtenerDatosCompletosTicket(int DocEntry)

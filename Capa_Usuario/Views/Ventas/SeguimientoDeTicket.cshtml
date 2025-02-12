@@ -195,8 +195,6 @@
                                 @if (Model.hayFinPicking && flujoEstados["FIN PICKING"].Operario != null && flujoEstados["FIN PICKING"].FechaOperacion != null
                                     && ((!string.IsNullOrWhiteSpace(Model.AlmProcedencia) && Model.AlmProcedencia.Equals("03")) || !Model.Det2[0].AlmacenSalida.Equals("ALM07")))
                                 {
-                                    //if (new List<string> { "EMPACADO", "PESADO", "PREENVIO", "ENVIADO", "ENTREGADO", "CANCELADO" }.Contains(Model.Estado) ) )
-
                                     <li class="li complete">
                                         <div class="timestamp">
                                             <span class="author font-12">@flujoEstados["FIN PICKING"].Operario.Substring(0, 12) </span>
@@ -302,27 +300,16 @@
                                             <div class="row justify-content-center ">
                                                 @Html.EditorFor(model => model.NroMesa, new { htmlAttributes = new { @class = "form-control text-center border-success w-50", @readonly = true, @hidden = true } })
                                                 @Html.EditorFor(model => model.NroMesaNuevo, new { htmlAttributes = new { @class = "form-control text-center border-success w-50" } })
+                                            </div><div class="row justify-content-center mt-2">
+                                                <input class="btn btn-sm btn-cobefar" type="submit" name="UPDATEEMP" value="ENVIAR DATOS" />
                                             </div>
-                                            <div class="row justify-content-center ">
-                                                ¿Productos pendientes?
-                                                <select id="ProductoPendiente" name="ProductoPendiente" class="form-control border-success">
-                                                    <option value="1" @(Model != null && Model.ProductoPendiente == 1 ? "selected" : "")>SI</option>
-                                                    <option value="0" @(Model != null && Model.ProductoPendiente == 0 ? "selected" : "")>NO</option>
-                                                </select>
-
-                                            </div>
+                                            if (Model.ProductoPendiente!= null && Model.ProductoPendiente == 1) {
                                             <div class="row justify-content-center mt-2">
-                                                <input class="btn btn-sm btn-cobefar " type="submit" name="UPDATEEMP" value="ENVIAR DATOS" />
+                                                <input class="btn btn-sm btn-success" type="submit" name="UPDATEPROD" value="Productos pendientes NO" /><!--ponerlo en 0-->
                                             </div>
+                                            }
                                             <div class="row justify-content-center mt-1 ">
-                                                @if (Model.LugarDestino == "Agencia Courier")
-                                                {
-                                                    <a href="/Ventas/PdfTRotuladoTicket?DocEntry=@Model.DocEntry" class="btn btn-sm btn-light border-danger"><i class="icon-file-pdf text-danger"> </i> Rotulado agencia</a>
-                                                }
-                                                else
-                                                {
-                                                    <a href="/Ventas/PdfTacoEmpaque?DocEntry=@Model.DocEntry" class="btn btn-sm btn-light border-danger"><i class="icon-file-pdf text-danger"> </i> Taco Empaque</a>
-                                                }
+                                               <a href="/Ventas/PdfTacoEmpaque?DocEntry=@Model.DocEntry" class="btn btn-sm btn-light border-danger"><i class="icon-file-pdf text-danger"> </i> Taco Empaque</a>
                                             </div>
 
                                         }

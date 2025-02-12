@@ -125,6 +125,10 @@ namespace Capa_Negocio.Seguridad_NEG
         {
             return ousrD.BuscarDocEntryUsuario(Usuario);
         }
+        public Usuario_E BuscarDocEntryPorNombreCompleto(string NombresCompletos)
+        {
+            return ousrD.BuscarDocEntryPorNombreCompleto(NombresCompletos);
+        }
         static string GenerarContrasena(string nombre, string apellido, string id)
         {
             // Obtener los primeros 3 caracteres del nombre y apellido

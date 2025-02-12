@@ -204,7 +204,6 @@ namespace Capa_Datos.Ventas_DAO.Tablas
                 Console.WriteLine($"Error al ejecutar la consulta: {ex.Message}");
             }
 
-            catch { }
             return lista;
         }
 

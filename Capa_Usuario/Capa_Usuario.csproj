@@ -43,7 +43,8 @@
     <OutputPath>bin\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <WarningLevel>3</WarningLevel>
+    <GenerateSerializationAssemblies>On</GenerateSerializationAssemblies>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Aspose.PDF, Version=23.10.0.0, Culture=neutral, PublicKeyToken=716fcc553a201e56, processorArchitecture=MSIL">
@@ -1111,7 +1112,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>50112</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:42360/</IISUrl>
+          <IISUrl>http://localhost:42315/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>
