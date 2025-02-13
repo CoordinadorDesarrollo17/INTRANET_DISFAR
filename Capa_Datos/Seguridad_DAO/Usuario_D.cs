@@ -461,6 +461,42 @@ namespace Capa_Datos
 
             return accesoUsuario;
         }
+        public Usuario_E BuscarDocEntryPorNombreCompleto(string NombreCompleto)
+        {
+            Usuario_E u = new Usuario_E();
+
+            using (SqlConnection cn = new SqlConnection(uti.cadSql))
+            {
+                string query = "SELECT DocEntry, Nombres, Apellidos FROM dbo.OUSR where UPPER(CONCAT(Apellidos,' ', Nombres)) = @NombreCompleto";
+                SqlCommand cmd = new SqlCommand(query, cn);         // prepara
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.AddWithValue("@NombreCompleto", NombreCompleto);
+                cn.Open();
+
+                try
+                {
+                    SqlDataReader dr = cmd.ExecuteReader();
+                    while (dr.Read())
+                    {
+                        if (!dr.IsDBNull(0)) { u.DocEntry = dr.GetInt32(0); }
+                        if (!dr.IsDBNull(1)) { u.Nombres = dr.GetString(1); }
+                        if (!dr.IsDBNull(2)) { u.Apellidos = dr.GetString(2); }
+                    }
+
+                    dr.Close();
+                }
+                catch (Exception e)
+                {
+                    throw new Exception(e.Message);
+                }
+                finally
+                {
+                    cn.Close();
+                }
+            }
+
+            return u;
+        }
         public Usuario_E BuscarDocEntryUsuario(string Usuario)
         {
             Usuario_E u = new Usuario_E();

@@ -783,7 +783,7 @@
     }
     function registrarImpresion(DocEntry) {
         $.ajax({
-            url: '/Ventas/RegistrarImpresion?DocEntry=' + DocEntry,
+            url: '/Ventas/RegistrarImpresion?docEntry=' + DocEntry+'&area=DespachoCentroArriola',
             type: 'POST',
             dataType: 'json'
         }).done(function (response) {

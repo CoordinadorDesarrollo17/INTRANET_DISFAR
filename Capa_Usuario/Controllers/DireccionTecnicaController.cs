@@ -72,7 +72,7 @@ namespace Capa_Usuario.Controllers
                     lista.Add("06", "185");                     // Julio Roman Silva ALM03
                     lista.Add("07", "185");                     // Julio Roman Silva ALM03
                     lista.Add("09", "182");                     // Yasmani Huarachi Mamani ALM05
-                    lista.Add("10", "185");                     // Julio Roman Silva ALM03 
+                    lista.Add("10", "");                     // ----- NO EXISTE 
                     lista.Add("ALM07", "161");                  // Carmen Condori Saravia ALM06
                     lista.Add("ALM08", "");                     // ---- ALMACEN TERCIARIZADO, SIN RESPONSABLE
                     lista.Add("CUAR07", "161");                 // Carmen Condori Saravia ALM06
@@ -101,12 +101,12 @@ namespace Capa_Usuario.Controllers
                     lista.Add("ALM08", "208");                  // Diana Quiquia Urribarre 
                     lista.Add("CUAR07", "339");                 // Roly Gonzales Romero ALM06
                     lista.Add("DEV07", "339");                  // Roly Gonzales Romero ALM06
-                    lista.Add("11", "");                        // ----- NO EXISTE
-                    lista.Add("12", "");                        // ----- NO EXISTE
-                    lista.Add("13", "");                        // ----- NO EXISTE
-                    lista.Add("14", "");                        // ----- NO EXISTE
-                    lista.Add("15", "");                        // ----- NO EXISTE
-                    lista.Add("16", "");                        // ----- NO EXISTE
+                    lista.Add("11", "");                                    // ----- NO EXISTE
+                    lista.Add("12", "");                                    // ----- NO EXISTE
+                    lista.Add("13", "");                                    // ----- NO EXISTE
+                    lista.Add("14", "");                                    // ----- NO EXISTE
+                    lista.Add("15", "");                                    // ----- NO EXISTE
+                    lista.Add("16", "");                                    // ----- NO EXISTE
 
                 }
 

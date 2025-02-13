@@ -105,7 +105,7 @@ namespace Capa_Usuario.Controllers
             {
                 OCHO_N ochoN = new OCHO_N();
                 ViewBag.DocNum = DocNum;
-                ViewBag.ListaTransportistas = ochoN.listaChoferes(0, null);
+                ViewBag.Conductores = new Capa_Negocio.Repartos_NEG.TablasHana.SYP_CONDUC_N().listar();
                 ViewBag.Mensaje = "";
                 ViewBag.Orru = o;
                 ViewBag.listaVeh = ovehN.listaVeh(0, null);
@@ -132,22 +132,8 @@ namespace Capa_Usuario.Controllers
 
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                var filtrosAlm = new string[] { 
-                    "01", //ALMACÉN Nº1
-                    "02", //ALMACÉN Nº2
-                    "03", //ALMACÉN Nº3
-                    "04", //ALMACÉN Nº4
-                    "09", //ALMACÉN Nº5 (Arriola)
-                    "10", //BAJAS
-                    "CUAR07", //ALMACEN DE CUARENTENA
-                    "ALM07", //ALMACÉN Nº6 (Ureta)
-                    "ALM08", //ALMACEN Nº7 (Chorrillos)
-                    "14", //RESERVA - APROBADOS
-                    "15", //PICKING
-                    "16" //FACTURACION
-                };
-
-                CapturarViewBag(TipoRep, filtrosAlm);
+               
+                CapturarViewBag(TipoRep);
                 return View(new ORRU_E());
             }
             else
@@ -189,7 +175,6 @@ namespace Capa_Usuario.Controllers
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 CapturarViewBag(TipoRep);
-                //ViewBag.ListaVehiculos = new Capa_Negocio.Repartos_NEG.TablasHana.SYP_VEHICU_N().listar().Where(x =>!string.IsNullOrWhiteSpace(x.U_SYP_CHOF)).ToList();
                 return View(new ORRU_E());
             }
             else
@@ -238,24 +223,9 @@ namespace Capa_Usuario.Controllers
                 if (datosOrdenRuta?.TipoRuta == "TA")
                 {
                     nombreVista = "EditarTransferenciaEntreAlmacenes";
-                    filtrosAlm = new string[] {
-                    "01", //ALMACÉN Nº1
-                    "02", //ALMACÉN Nº2
-                    "03", //ALMACÉN Nº3
-                    "04", //ALMACÉN Nº4
-                    "09", //ALMACÉN Nº5 (Arriola)
-                    "10", //BAJAS
-                    "CUAR07", //ALMACEN DE CUARENTENA
-                    "ALM07", //ALMACÉN Nº6 (Ureta)
-                    "ALM08", //ALMACEN Nº7 (Chorrillos)
-                    "14", //RESERVA - APROBADOS
-                    "15", //PICKING
-                    "16" //FACTURACION
-                };
-                    
                 }
                 
-                CapturarViewBag(TipoRep, filtrosAlm, mensaje: string.Empty);
+                CapturarViewBag(TipoRep, null, mensaje: string.Empty);
                 ViewBag.UsuarioSesion = $"{user.Nombres} {user.Apellidos}";
 
                 return View(nombreVista, datosOrdenRuta);
@@ -781,8 +751,8 @@ namespace Capa_Usuario.Controllers
                 {
                     Usuario_N usuN = new Usuario_N();
 
-                    var datosUsuario = usuN.BuscarDocEntryUsuario(resultTempHum[0].TransCod);
-                    var firmas = BuscarFirmas(new List<int> { datosUsuario.DocEntry, 414 });       // docEntry ejm
+                    var datosUsuario = usuN.BuscarDocEntryPorNombreCompleto(resultTempHum[0].Encargado);
+                    var firmas = BuscarFirmas(new List<int> { datosUsuario.DocEntry, 414 });     
 
                     if (firmas != null && firmas.Count >= 1)
                     {
