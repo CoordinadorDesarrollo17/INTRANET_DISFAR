@@ -199,10 +199,10 @@
                         condIniPicking = true;
                     }
                     @*El boton "FIN PICKING" solo se habilita si y solo si el ticket se encuentra en estado PICKEANDO, el ultimo estado no es fin picking, tiene que tener vigente un inicio picking pero no un fin picking*@
-                    if (Convert.ToDateTime(item.FechaSapTicket) > Convert.ToDateTime("10-09-2023") && item.Estado == "PICKEANDO" && item.ultimoCCEstado != "FIN PICKING" && item.hayIniPicking && item.hayFinPicking == false)
-                    {
-                        condFinPicking = true;
-                    }
+                if (Convert.ToDateTime(item.FechaSapTicket) > Convert.ToDateTime("10-09-2023") && (item.Estado == "PICKEANDO" || item.Estado == "VERIFICANDO") && item.ultimoCCEstado != "FIN PICKING" && item.hayIniPicking && item.hayFinPicking == false)
+                {
+                    condFinPicking = true;
+                }
                     @*El boton "INICIO VERIFICAR" solo se habilita si el atributo aptoIniVerificar esta como true, esto viene desde ORTV Datos*@
                     if (Convert.ToDateTime(item.FechaSapTicket) > Convert.ToDateTime("10-09-2023") && item.aptoIniVerificar)
                     {
