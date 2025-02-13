@@ -1684,7 +1684,10 @@ namespace Capa_Usuario.Controllers
                 }
                 catch (Exception e)
                 {
-                    ViewBag.Mensaje = e.Message; ViewBag.ListaUsuarios = u_N.ListaUsuarios(new Usuario_E { IdRol = 4 });
+                    ViewBag.Mensaje = e.Message;
+                    var listaUsuarios = u_N.ListaUsuarios(new Usuario_E { IdRol = 4 });
+                    var usuariosDistinct = listaUsuarios.Select(x => $"{x.Nombres} {x.Apellidos}").Distinct().ToList();
+                    ViewBag.ListaUsuarios = usuariosDistinct;
                     return View(ticketN.ObtenerDatosCompletosTicket(DocEntry));
                 }
             }
