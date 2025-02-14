@@ -7,6 +7,7 @@ using Capa_Entidad.Seguridad_ENT;
 using Capa_Entidad.Ventas_ENT.Reportes;
 using Capa_Entidad.Ventas_ENT.Tablas;
 using Capa_Entidad.Ventas_ENT.TablasSql;
+using Capa_Negocio.Ventas_NEG.Tablas;
 using Sap.Data.Hana;
 using System;
 using System.Collections.Generic;
@@ -337,6 +338,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 }
             }
         }
+
         private void ValidarVinculados(ORTV_E ticket)
         {
             if (ticket.Estado == "SEPARADO" && ticket.Observaciones2 == "SI")
@@ -350,6 +352,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 }
             }
         }
+
         public int Editar(int DocEntry, ORTV_E ticket)
         {
             ORTV_E t = tkD.ObtenerDatosCompletosTicket(DocEntry);
@@ -381,20 +384,28 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             }
             return tkD.Editar(DocEntry, ticket);
         }
+
         public int EditarVisibilidadTicket(int docEntry, string opImpresion, string proceso)
         {
             return tkD.EditarVisibilidadTicket(docEntry, opImpresion, proceso);
         }
+
         public int EditarPresupuestoTicket(int DocEntry)
         {
             return tkD.EditarPresupuestoTicket(DocEntry);
         }
+        public int EditarProductosPendientesTicket(int DocEntry)
+        {
+            return tkD.EditarProductosPendientesTicket(DocEntry);
+        }
+
         /**********************************************************************/
         //Método usa un procedure para buscar tickets vinculados, solo se usa en el REGISTRO Y EDICION de la hoja de repartos
         public List<string> BuscarVinculados(int DocEntry, int DocNum)
         {
             return tkD.BuscarVinculados(DocEntry, DocNum);
         }
+
         /***********************************************************************/
         /************** METODOS PRICIPALES QUE GENERAN TRANSACCION *************/
         public int EditarTicketDesdeSeguimiento(Dictionary<string, Object> datos, string Request)
@@ -440,6 +451,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
 
             return tkD.EditarTicketDesdeSeguimiento(datos);
         }
+
         public int editarSeguimientoTicket(string Estado, int DocEntry, ORTV_E t)
         {
             if (Estado.Equals("RECIBIDO"))
@@ -477,7 +489,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 if (t.Estado.Equals("CANCELADO")) { throw new Exception("El ticket esta CANCELADO"); }
                 List<CC_ORTV_E> listaEstados = ccTicket.ListarCC_ORTV(DocEntry, null, true);
                 if (listaEstados.Count > 0) { if (listaEstados.FirstOrDefault().Operacion == "FIN PICKING") { throw new Exception("El ticket ya FINALIZO PICKING"); } }
-                if (!t.Estado.Equals("PICKEANDO")) { throw new Exception("Solo puedes poner FIN PICKING a Ticket en PICKEANDO, debes revertir o continuar el proceso"); }
+                if (!t.Estado.Equals("PICKEANDO")  && !t.Estado.Equals("VERIFICANDO")) { throw new Exception("Solo puedes poner FIN PICKING a Ticket en PICKEANDO O VERIFICANDO, debes revertir o continuar el proceso"); }
             }
             else if (Estado.Equals("ANULAR FIN PICKING"))
             {
@@ -594,6 +606,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             else if (Estado.Equals("FIN EMPACAR"))
             {
                 if (t.Estado.Equals("CANCELADO")) { throw new Exception("El ticket esta CANCELADO"); }
+                if (t.ProductoPendiente==null) { throw new Exception("Selecione Productos pendientes"); }
                 if (t.Estado.Equals("EMPACADO")) { throw new Exception("El ticket ya se encuentra  EMPACADO"); }
                 List<CC_ORTV_E> listaEstados = ccTicket.ListarCC_ORTV(DocEntry, null, true);
                 if (listaEstados.Count > 0)
@@ -630,7 +643,6 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             }
             else if (Estado.Equals("PESADO"))
             {
-                if (t.LugarDestino != "Agencia Courier" && t.LugarDestino != "Agencia") { throw new Exception("El ticket no puede ser pesado por tipo de lugar destino"); }
                 if (t.Estado.Equals("PESADO")) { throw new Exception("El ticket ya se encuentra  PESADO"); }
                 if (!t.Estado.Equals("EMPACADO")) { throw new Exception("Solo puedes poner PESADO a Ticket en EMPACADO ,debes revertir o continuar el proceso"); }
                 if (t.Det6 == null) { throw new Exception("El ticket debe contar con pesos registrados"); }
@@ -662,10 +674,12 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             }
             return tkD.EditarSeguimientoTicket(Estado, DocEntry, t);
         }
-        public int RegistrarImpresionTicket(int DocEntry, string Operario)
+
+        public int RegistrarImpresionTicket(int docEntry, string operario, string area)
         {
-            return tkD.RegistrarImpresionTicket(DocEntry, Operario);
+            return tkD.RegistrarImpresionTicket(docEntry, operario, area);
         }
+
         public int Entregar(ORTV_E t)
         {
             if (t.Estado.Equals("ENTREGADO")) { throw new Exception("El ticket ya se encuentra ENTREGADO"); }
@@ -680,6 +694,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             }
             return tkD.Entregar(t);
         }
+
         public int Cancelar(int DocEntry, string Operario, int IdRol)
         {
             ORTV_E t = tkD.ObtenerDatosCompletosTicket(DocEntry);
@@ -714,13 +729,11 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         /**********************************************************************/
         /******************** METODOS PRINCIPALES EN MODULOS ******************/
 
-
-
-
         public List<ORTV_E> listarTicketsParaRepartos(ORTV_E filtro, string[] estados, out int cantidadTicketsNoEnviados)
         {
             return tkD.ListarTicketsParaRepartos(filtro, estados, out cantidadTicketsNoEnviados);
         }
+
         public List<ORTV_E> listarTicketsRepartosNoEnviados(ORTV_E filtro, string[] estados)
         {
             return tkD.ListarTicketsRepartosNoEnviados(filtro, estados);
@@ -733,10 +746,10 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         /*
          * Editar Ticket parámetros ilimitados
          */
-
         public int emitirGuia(int DocEntry, Usuario_E u)
         {
             ORTV_E t = ObtenerDatosCompletosTicket(DocEntry);
+            if(t.ProductoPendiente != null && t.ProductoPendiente == 1) { throw new Exception("No puede emitir guia si esta pendiente de productos."); }
             if (t.Estado.Equals("CANCELADO") || t.Estado.Equals("ANULADO")) { throw new Exception("No puede emitir guia en este ticket."); }
             if (!t.EstadoFacturacion.Equals("PENDIENTE")) { throw new Exception("El ticket no puede emitir guias."); }
             return tkD.EmitirGuia(DocEntry, u);
@@ -754,7 +767,6 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             ORTV_E t = ObtenerDatosCompletosTicket(DocEntry);
             //validamos que existan facturas o boletas
             List<int> OrdenesSap = compN.ObtenerDocEntryOV(t.Det2, true);
-
             List<OINV_E> ComprobantesVinculados = new List<OINV_E>();
             foreach (int DocEntryO in OrdenesSap)
             {
@@ -768,8 +780,22 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
 
             if (ComprobantesVinculados.Count == 0) { throw new Exception("Este ticket no tiene facturas o boletas relacionadas desde SAP"); }
 
-            //valida que el campo Max1099 de facturas o boletas encontradas sumen el monto total a pagar del ticket // El dato Max1099 cubre los anticipos 
-            if (Math.Abs(ComprobantesVinculados.Sum(x => x.Max1099) - t.MontoTotal) > 0.10m || (t.MontoTotal - Math.Abs(ComprobantesVinculados.Sum(x => x.Max1099)) > 0.10m))
+            decimal sumNotasCredito = 0;
+
+            foreach (var o in ComprobantesVinculados)
+            {
+                var nc = new Capa_Negocio.Ventas_NEG.Tablas.ORIN_N()
+                    .Listar(new ORIN_E { RefFactura = o.NumAtCard })
+                    .DefaultIfEmpty(new ORIN_E())
+                    .First();
+
+                if (nc != null && nc.DocTotal > 0) { sumNotasCredito += nc.DocTotal; }
+            }
+
+            //valida que el campo Max1099 de facturas o boletas encontradas sumen el monto total a pagar del ticket 
+            // El dato Max1099 cubre los anticipos 
+            if (Math.Abs(ComprobantesVinculados.Sum(x => x.Max1099) - t.MontoTotal ) > 0.10m ||
+                (t.MontoTotal - Math.Abs(ComprobantesVinculados.Sum(x => x.Max1099)) > 0.10m))
             {
                 throw new Exception("Los documentos emitidos no suman lo total a pagar por el cliente.");
             }
@@ -782,10 +808,10 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 int totalOrdenesVenta = OrdenesSap.Count;
                 int totalGuiasEmitidas = compN.ObtenerEncabezadoGuiasTransferencia(t).Count();
 
-                // Si existe un ítem en Det2 que tenga AlmacenSalida = "07" y LugarDeEntrega = "ALMACÉN FALTANTES",
+                // Si existe un ítem en Det2 que tenga AlmacenSalida = "14" ,
                 // se obvia la restricción de comparar las cantidades de guías y órdenes de venta.
                 bool tieneItemExcluido = t.Det2.Any(item =>
-                    item.AlmacenSalida == "07" && item.LugarDeEntrega == "ALMACÉN FALTANTES");
+                    item.AlmacenSalida == "14");
 
                 // Si no se encuentra un ítem que permita excluir, se valida la cantidad
                 if (!tieneItemExcluido && totalGuiasEmitidas != totalOrdenesVenta)
@@ -798,7 +824,10 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 //Valida monto de entrega igual a monto de factura
                 decimal sumEntregas = compN.ObtenerEncabezadoGuiasPorEntrega(OrdenesSap).Sum(x => x.DocTotal); // Trae Dato Max1099 de entrega lo inserta en variable DocTotal
                 decimal sumFacturas = ComprobantesVinculados.Sum(x => x.Max1099);
-                if (sumFacturas != sumEntregas) { throw new Exception("Montos no coinciden"); }
+                    
+                //if ((sumFacturas + sumNotasCredito) != sumEntregas ||
+                //    sumFacturas  != sumEntregas
+                //    ) { throw new Exception("Montos no coinciden"); }
             }
 
             if (t.Estado.Equals("CANCELADO") || t.Estado.Equals("ANULADO")) { throw new Exception("No puede facturar en este ticket."); }
@@ -915,7 +944,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 case "ANULADO":
                 case "CANCELADO":
                     throw new Exception("NO PUEDE EDITAR UN TICKET EN ESTADO ENTREGADO,ANULADO O CANCELADO");
-                    break;
+                    
             }
 
             if (idRol != 1 && idRol != 6) { throw new Exception("NO TIENE PERMISOS PARA LA EDICION EXTRAORDINARIA"); }
@@ -956,6 +985,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         { return tkD.DocEntryTicket(docNum); }
         public List<ORTV_E> ListarTicketsAreaVenta(Usuario_E user, ORTV_E t)
         { return tkD.ListarTicketsAreaVenta(user, t); }
+        public int CantidadTicketsProductosPendientes() { return tkD.CantidadTicketsProductosPendientes(); }
         public int CantidadTicketsFacturacion(string estadoFacturacion) //Trae la cantidad de tickets PENDIENTES o GRE EMITIDA para vista de facturaciòn
         { return tkD.CantidadTicketsFacturacion(estadoFacturacion); }
         public ORTV_E ObtenerDatosCompletosTicket(int DocEntry)

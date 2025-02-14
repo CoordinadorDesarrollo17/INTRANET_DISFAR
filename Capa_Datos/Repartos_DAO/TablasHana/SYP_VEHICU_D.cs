@@ -42,7 +42,7 @@ namespace Capa_Datos.Repartos_DAO.TablasHana
                     }
                 }
             }
-            catch (Exception ex){}
+            catch (Exception ex) { throw new Exception("Error: " + ex.Message); }
 
             return lista;
         }
@@ -69,7 +69,7 @@ namespace Capa_Datos.Repartos_DAO.TablasHana
                     }
                 }
             }
-            catch (Exception ex){}
+            catch (Exception ex) { throw new Exception("Error: " + ex.Message); }
 
             return (placa, conductor);
         }

@@ -125,7 +125,7 @@ namespace Capa_Datos.ComprobantesContables_ENT
             return lista;
         }
         //SEGUNDA CONSULTA DETALLE DE CADA DOCUMENTO PARA LAYOUT
-        public List<Guia_Remision_E> ObtenerCabeceraGuia(string NumAtCard,string Tabla)
+        public List<Guia_Remision_E> ObtenerCabeceraGuia(string NumAtCard, string Tabla)
         {
             List<Guia_Remision_E> lista = new List<Guia_Remision_E>();
             string query = string.Empty;
@@ -309,10 +309,11 @@ namespace Capa_Datos.ComprobantesContables_ENT
 
             return lista;
         }
+
         public List<ComprobanteDePago_E> ObtenerDetalleFactura(string NumAtCard) // devuelve una factura con su detalle desnormalizado segun el tipo consulta a una tabla 
         {
             List<ComprobanteDePago_E> lista = new List<ComprobanteDePago_E>();
-            string query = $"CALL {uti.schemaHana} COBE_LYT_FV('{NumAtCard}')";
+            string query = $"CALL {uti.schemaHana} COBE_LYT_FB_2025('{NumAtCard}')";
             try
             {
                 HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
@@ -329,14 +330,11 @@ namespace Capa_Datos.ComprobantesContables_ENT
                         if (!hdr.IsDBNull(4)) { c.SerieDoc = hdr.GetString(4); }
                         if (!hdr.IsDBNull(5)) { c.CorreDoc = hdr.GetString(5); }
                         if (!hdr.IsDBNull(6)) { c.NroOCCliente = hdr.GetString(6); }
-
-                        // Agregar campos de anticipo con índices consecutivos únicos
                         if (!hdr.IsDBNull(7)) { c.TotalBase = hdr.GetString(7); }
                         if (!hdr.IsDBNull(8)) { c.NroAnticipo = hdr.GetString(8); }
                         if (!hdr.IsDBNull(9)) { c.Anticipo = Math.Round(hdr.GetDecimal(9), 2); }
                         if (!hdr.IsDBNull(10)) { c.FechaAnticipo = hdr.GetDateTime(10).ToString("dd/MM/yyyy"); }
                         if (!hdr.IsDBNull(11)) { c.AnticipoBruto = Math.Round(hdr.GetDecimal(11), 2); }
-
                         if (!hdr.IsDBNull(12)) { c.NumGuias = hdr.GetString(12); }
                         if (!hdr.IsDBNull(13)) { c.NombreSocio = hdr.GetString(13); }
                         if (!hdr.IsDBNull(14)) { c.DirPagar = hdr.GetString(14); }
@@ -347,30 +345,29 @@ namespace Capa_Datos.ComprobantesContables_ENT
                         if (!hdr.IsDBNull(19)) { c.ItemCode = hdr.GetString(19); }
                         if (!hdr.IsDBNull(20)) { c.Descripcion = hdr.GetString(20); }
                         if (!hdr.IsDBNull(21)) { c.DocNumTicket = hdr.GetString(21); }
-                        if (!hdr.IsDBNull(22)) { c.Um = hdr.GetString(22); }
-                        if (!hdr.IsDBNull(23)) { c.Cantidad = Math.Round(hdr.GetDecimal(23), 0); }
+                        if (!hdr.IsDBNull(22)) { c.Um = hdr.GetString(22); } // es fraccion o no 
+                        if (!hdr.IsDBNull(23)) { c.Cantidad = Math.Round(hdr.GetDecimal(23), 0); } //cantidad total por sku
                         if (!hdr.IsDBNull(24)) { c.PreUnitSinIgv = hdr.GetDecimal(24); }
                         if (!hdr.IsDBNull(25)) { c.Descuento = hdr.GetDecimal(25); }
-                        if (!hdr.IsDBNull(26)) { c.PreVentaNeto = hdr.GetDecimal(26); }
-                        if (!hdr.IsDBNull(27)) { c.PrecioVenta = hdr.GetDecimal(27); }
-                        if (!hdr.IsDBNull(28)) { c.ItemPrecio = hdr.GetDecimal(28); }
-                        if (!hdr.IsDBNull(29)) { c.ItemTotal = hdr.GetDecimal(29); }
-                        if (!hdr.IsDBNull(30)) { c.FechaEntrega = hdr.GetDateTime(30).ToString("dd/MM/yyyy"); }
-                        if (!hdr.IsDBNull(31)) { c.Impuesto = hdr.GetDecimal(31); }
-                        if (!hdr.IsDBNull(32)) { c.DocTotal = hdr.GetDecimal(32); }
-                        if (!hdr.IsDBNull(33)) { c.PorcenImpto = hdr.GetDecimal(33); }
-                        if (!hdr.IsDBNull(34)) { c.LoteNum = hdr.GetString(34); }
-                        if (!hdr.IsDBNull(35)) { c.CantidadL = hdr.GetDecimal(35); }
-                        if (!hdr.IsDBNull(36)) { c.TieneAnticipo = hdr.GetInt32(36); }
-                        if (!hdr.IsDBNull(37)) { c.Laboratorio = hdr.GetString(37); }
-                        if (!hdr.IsDBNull(38)) { c.VctoLote = hdr.GetDateTime(38).ToString("dd/MM/yyyy"); }
-                        if (!hdr.IsDBNull(39)) { c.QUMVta = Math.Round(hdr.GetDecimal(39), 0); }
-                        if (!hdr.IsDBNull(40)) { c.CondPago = hdr.GetString(40); }
-                        if (!hdr.IsDBNull(41)) { c.NroOrdVenta = hdr.GetString(41); }
-                        if (!hdr.IsDBNull(42)) { c.CodImpuesto = hdr.GetString(42); }
-                        if (!hdr.IsDBNull(43)) { c.Almacen = hdr.GetString(43); }
-                        if (!hdr.IsDBNull(44)) { c.PtoPartida = hdr.GetString(44); }
-                        if (!hdr.IsDBNull(45)) { c.DirEnvio = hdr.GetString(45); }
+                        if (!hdr.IsDBNull(26)) { c.PreVentaNeto = hdr.GetDecimal(26); } // Precio unitario con IGV
+                        if (!hdr.IsDBNull(27)) { c.PrecioVenta = hdr.GetDecimal(27); } // Precio de venta por SKU 
+                        if (!hdr.IsDBNull(28)) { c.FechaEntrega = hdr.GetDateTime(28).ToString("dd/MM/yyyy"); }
+                        if (!hdr.IsDBNull(29)) { c.Impuesto = hdr.GetDecimal(29); }
+                        if (!hdr.IsDBNull(30)) { c.DocTotal = hdr.GetDecimal(30); }
+                        if (!hdr.IsDBNull(31)) { c.PorcenImpto = hdr.GetDecimal(31); }
+                        if (!hdr.IsDBNull(32)) { c.LoteNum = hdr.GetString(32); }
+                        if (!hdr.IsDBNull(33)) { c.CantidadL = hdr.GetDecimal(33); }
+                        if (!hdr.IsDBNull(34)) { c.TieneAnticipo = hdr.GetInt32(34); }
+                        if (!hdr.IsDBNull(35)) { c.Laboratorio = hdr.GetString(35); }
+                        if (!hdr.IsDBNull(36)) { c.VctoLote = hdr.GetDateTime(36).ToString("dd/MM/yyyy"); }
+                        if (!hdr.IsDBNull(37)) { c.QUMVta = Math.Round(hdr.GetDecimal(37), 0); }
+                        if (!hdr.IsDBNull(38)) { c.CondPago = hdr.GetString(38); }
+                        if (!hdr.IsDBNull(39)) { c.NroOrdVenta = hdr.GetString(39); }
+                        if (!hdr.IsDBNull(40)) { c.CodImpuesto = hdr.GetString(40); }
+                        if (!hdr.IsDBNull(41)) { c.Almacen = hdr.GetString(41); }
+                        if (!hdr.IsDBNull(42)) { c.PtoPartida = hdr.GetString(42); }
+                        if (!hdr.IsDBNull(43)) { c.DirEnvio = hdr.GetString(43); }
+
 
                         lista.Add(c);
                     }
@@ -468,6 +465,7 @@ namespace Capa_Datos.ComprobantesContables_ENT
             }
             catch (Exception ex)
             {
+                throw new Exception("Error: " + ex.Message);
             }
 
             return lista;
@@ -508,14 +506,16 @@ namespace Capa_Datos.ComprobantesContables_ENT
         public List<Comprobante_E> ObtenerEncabezadoFacturas(int DocEntryOrden, string LugarDestino)
         {
             string query = string.Empty;
-            if ((LugarDestino.Equals("Domicilio") || LugarDestino.Equals("Agencia")) && ObtenerDocTotal(DocEntryOrden) > 0) 
-            { 
+            if ((LugarDestino.Equals("Domicilio") || LugarDestino.Equals("Agencia")) && ObtenerDocTotal(DocEntryOrden) > 0)
+            {
                 //Consulta las entregas en tabla ODLN -- factura costo 0 no tienen entregas
                 query = $" SELECT DISTINCT 'OINV',T4.\"U_SYP_MDTD\",T4.\"U_SYP_MDSD\",T4.\"U_SYP_MDCD\",to_char(T4.\"DocDate\",'YYYY-MM-DD'),to_char(T4.\"U_BPP_FECINITRA\",'YYYY-MM-DD'),'F',T4.\"DocTotal\",T5.\"Gross\" FROM {uti.schemaHana}ODLN T0 INNER JOIN {uti.schemaHana}DLN1 T1 ON T1.\"DocEntry\" = T0.\"DocEntry\" INNER JOIN {uti.schemaHana}RDR1 T2 ON T2.\"DocEntry\" = T1.\"BaseEntry\" AND T2.\"ObjType\" = T1.\"BaseType\" AND T2.\"LineNum\" = T1.\"BaseLine\" AND T2.\"DocEntry\" = {DocEntryOrden} INNER JOIN {uti.schemaHana}INV1 T3 ON T3.\"BaseEntry\" = T1.\"DocEntry\" AND T3.\"BaseType\" = T1.\"ObjType\" AND T3.\"BaseLine\" = T1.\"LineNum\" INNER JOIN {uti.schemaHana}OINV T4 ON T4.\"DocEntry\" = T3.\"DocEntry\" AND T4.\"CANCELED\" = 'N' LEFT JOIN {uti.schemaHana}INV9 T5 ON  T4.\"DocEntry\" = T5.\"DocEntry\" WHERE T0.\"CANCELED\" = 'N'";
-            } else { 
-                 //Consulta las facturas en tabla OINV
+            }
+            else
+            {
+                //Consulta las facturas en tabla OINV
                 query = $" SELECT DISTINCT 'OINV',T0.\"U_SYP_MDTD\",T0.\"U_SYP_MDSD\",T0.\"U_SYP_MDCD\",to_char(T0.\"DocDate\",'YYYY-MM-DD'),to_char(T0.\"U_BPP_FECINITRA\",'YYYY-MM-DD'),'F',T0.\"DocTotal\",(select sum(\"Gross\") FROM {uti.schemaHana}INV9  WHERE \"DocEntry\"= T0.\"DocEntry\" ) FROM {uti.schemaHana}OINV T0  INNER JOIN {uti.schemaHana}INV1 T1 ON T1.\"DocEntry\" = T0.\"DocEntry\" INNER JOIN {uti.schemaHana}RDR1 T2 ON T2.\"DocEntry\" = T1.\"BaseEntry\" AND T2.\"ObjType\" = T1.\"BaseType\" AND T2.\"LineNum\" = T1.\"BaseLine\" AND T2.\"DocEntry\" ={DocEntryOrden} WHERE T0.\"CANCELED\" = 'N'";
-            
+
             }
 
             List<Comprobante_E> lista = EjecutarConsultaComprobante(query);

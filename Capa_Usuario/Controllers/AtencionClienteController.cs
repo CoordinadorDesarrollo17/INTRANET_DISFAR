@@ -153,6 +153,7 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+
         public ActionResult NuevaSolicitud(int idOperation = 2702)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
@@ -195,6 +196,7 @@ namespace Capa_Usuario.Controllers
             }
 
         }
+
         public ActionResult DetallesSolicitud(int id, int idOperation = 2703)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
@@ -248,6 +250,7 @@ namespace Capa_Usuario.Controllers
             }
 
         }
+
         public ActionResult EditarSolicitud(int id, int idOperation = 2704)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
@@ -264,6 +267,7 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+
         [HttpPost]
         public ActionResult EditarSolicitud(OSAT_E OSAT_Post, int idOperation = 2704)
         {
@@ -290,6 +294,7 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+
         public ActionResult AnularSolicitud(OSAT_E obj, int idOperation = 2705)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
@@ -365,6 +370,7 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+
         public ActionResult RevertirProcesarSolicitud(OSAT_E obj, int idOperation = 2706)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
@@ -389,6 +395,7 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+
         public ActionResult AtenderSolicitud(int id, int idOperation = 2707)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
@@ -425,6 +432,7 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+
         [HttpPost]
         public ActionResult AtenderSolicitud(OSAT_E obj, int idOperation = 2707)
         {
@@ -457,6 +465,7 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+
         public ActionResult RevertirAtenderSolicitud(OSAT_E obj, int idOperation = 2707)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
@@ -481,6 +490,7 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+
         public ActionResult CulminarSolicitud(int id, int idOperation = 2708)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
@@ -542,6 +552,7 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+
         public ActionResult RevertirCulminarSolicitud(OSAT_E obj, int idOperation = 2708)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
@@ -625,9 +636,9 @@ namespace Capa_Usuario.Controllers
             }
         }
 
-        public JsonResult listarArticulosTicket(int DocNumTicket)
+        public JsonResult ListarArticulosTicket(int DocNumTicket)
         {
-            return Json(osatN.buscarDatosTicket(DocNumTicket));
+            return Json(osatN.BuscarDatosTicket(DocNumTicket));
         }
 
         public ActionResult obtenerNroSolicitud(string Tipo)
@@ -645,6 +656,7 @@ namespace Capa_Usuario.Controllers
             }
             catch (Exception e) { return Content(e.Message); }
         }
+
         public ActionResult validarEditarSolicitud(OSAT_E obj)
         {
             string status = "true";
@@ -655,6 +667,7 @@ namespace Capa_Usuario.Controllers
             }
             catch (Exception e) { return Content(e.Message); }
         }
+
         public ActionResult validarProcesarSolicitud(OSAT_E obj)
         {
             string status = "true";
@@ -665,6 +678,7 @@ namespace Capa_Usuario.Controllers
             }
             catch (Exception e) { return Content(e.Message); }
         }
+
         public ActionResult validarAtenderSolicitud(OSAT_E obj)
         {
             string status = "true";
@@ -675,6 +689,7 @@ namespace Capa_Usuario.Controllers
             }
             catch (Exception e) { return Content(e.Message); }
         }
+
         public ActionResult validarCulminarSolicitud(OSAT_E obj)
         {
             string status = "true";

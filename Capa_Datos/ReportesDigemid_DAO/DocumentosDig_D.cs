@@ -94,8 +94,7 @@ namespace Capa_Datos.ReportesDigemid_DAO
                     if (!hdr.IsDBNull(23)) { a.T0_U_COB_TIPODOC = hdr.GetString(23); }
                     if (!hdr.IsDBNull(24)) { a.T0_U_COB_SERIE = hdr.GetString(24); }
                     if (!hdr.IsDBNull(25)) { a.T0_U_COB_CORDOC = hdr.GetString(25); }
-                    if (!hdr.IsDBNull(26)) { a.TaxOfficeAlmacen = hdr.GetString(26); }
-                    if (!hdr.IsDBNull(27)) { a.Almacen = hdr.GetString(27); }
+
                     lista.Add(a);
                 }
                 hdr.Close();

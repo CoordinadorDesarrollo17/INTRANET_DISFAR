@@ -57,6 +57,7 @@ namespace Capa_Entidad.ReportesDigemid_ENT.Reportes
         // metodos del layout
         public decimal cantVta()
         {
+            //define si es fraccion o lote
             if (LoteNum == null || LoteNum == "") { return Cantidad; }
             else
             {
@@ -133,6 +134,7 @@ namespace Capa_Entidad.ReportesDigemid_ENT.Reportes
         {
             return Math.Round(TotalFactura(s_Topgratuita) - F_Tinafecto(s_Tinafecto) - F_Topgratuita(s_Topgratuita) - Impuesto, 2);
         }
+
         // metodos de sumatorias
         public decimal Sum_Tinafecto(List<ComprobanteDePago_E> lista)
         {
@@ -146,6 +148,15 @@ namespace Capa_Entidad.ReportesDigemid_ENT.Reportes
             }
             return suma;
         }
+        public decimal CalcularOpExoneradas(List<ComprobanteDePago_E> lista)
+        {
+            decimal suma = 0.00M;
+            foreach (ComprobanteDePago_E c in lista.Where(x => x.CodImpuesto == "EXE_IGV"))
+            {
+                suma += c.PrecioVenta;
+            }
+            return Math.Round(suma, 2);
+        }
 
         public decimal OpGravadas(List<ComprobanteDePago_E> lista)
         {
@@ -157,18 +168,6 @@ namespace Capa_Entidad.ReportesDigemid_ENT.Reportes
             }
             return Math.Round(opGravadas, 2);
         }
-
-
-        public decimal CalcularOpExoneradas(List<ComprobanteDePago_E> lista)
-        {
-            decimal suma = 0.00M;
-            foreach (ComprobanteDePago_E c in lista.Where(x => x.CodImpuesto == "EXE_IGV"))
-            {
-                suma += c.PrecioVenta;
-            }
-            return Math.Round(suma, 2);
-        }
-
         public decimal Sum_Topgratuita(List<ComprobanteDePago_E> lista)
         {
             decimal suma = 0.00M;

@@ -150,8 +150,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                     " FROM " + uti.schemaHana + "" + Origen +
                     " T0  WHERE T0.CANCELED = 'N' AND T0.\"U_SYP_MDTD\" IS NOT NULL AND T0.\"U_SYP_MDSD\" IS NOT NULL " +
                     " AND T0.\"U_SYP_MDCD\" IS NOT NULL " +
-                    /*LINEA AGREGADA PARA SOLICITUDES DE GUIAS EXTRAORDINARIAS*/
-                    //" AND CONCAT(T0.\"U_SYP_MDTD\"||'-'||T0.\"U_SYP_MDSD\"||'-'||T0.\"U_SYP_MDCD\",'') IN ('09-T016-00000733')" +
+                    /*AGREGAR PARA SOLICITUDES DE GUIAS EXTRAORDINARIAS*/
                     " ORDER BY T0.\"DocEntry\" desc";
             try
             {
@@ -867,40 +866,144 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                 {
                     if (Serie == "SerieT1")
                     {
-                        query = $"SELECT '{Placa}' ,  (select SerieT1 from al.OVEH where U_SYP_VEPL = '{Placa}'),(select top 1 FechaOperacion from al.CC_ORRU where Operacion='TERMINAR' and DocEntry=T1.DocEntry order by FechaOperacion DESC, HoraOperacion DESC),T0.DocNum," +
-                        " cast(T1.DocNumTicket as varchar), (select top 1 (select convert(varchar,HoraOperacion ,108)) from al.CC_ORRU where Operacion='INICIAR' and DocEntry=T1.DocEntry order by FechaOperacion DESC, HoraOperacion DESC),T1.TempI1,T1.HumedI1,(select top 1 (select convert(varchar,HoraOperacion ,108)) from al.CC_ORRU " +
-                        " where Operacion='TERMINAR' and DocEntry=T1.DocEntry order by FechaOperacion,HoraOperacion desc), T1.TempF1, T1.HumedF1, T0.TransDesc, T0.TransCod FROM al.ORRU T0 INNER JOIN al.RRU0 T1 ON T0.DocEntry = T1.DocEntry " +
-                        " where (select top 1 FechaOperacion from al.CC_ORRU where Operacion='TERMINAR' and DocEntry=T1.DocEntry order by FechaOperacion DESC, HoraOperacion DESC) in ('" + FechaTerEn + "') and T1.Estado ='ENTREGADO'" +
-                        " and T0.DocEntry=" + obj.DocEntry;
+                        query = $@"SELECT '{Placa}', 
+                  (SELECT SerieT1 FROM al.OVEH WHERE U_SYP_VEPL = '{Placa}'), 
+                  (SELECT TOP 1 FechaOperacion 
+                   FROM al.CC_ORRU 
+                   WHERE Operacion = 'TERMINAR' 
+                         AND DocEntry = T1.DocEntry 
+                   ORDER BY FechaOperacion DESC, HoraOperacion DESC), 
+                  T0.DocNum, 
+                  CAST(T1.DocNumTicket AS VARCHAR), 
+                  (SELECT TOP 1 CONVERT(VARCHAR, HoraOperacion, 108) 
+                   FROM al.CC_ORRU 
+                   WHERE Operacion = 'INICIAR' 
+                         AND DocEntry = T1.DocEntry 
+                   ORDER BY FechaOperacion DESC, HoraOperacion DESC), 
+                  T1.TempI1, 
+                  T1.HumedI1, 
+                  CONVERT(VARCHAR(8), T1.HoraEntrega), 
+                  T1.TempF1, 
+                  T1.HumedF1, 
+                  T0.TransDesc 
+           FROM al.ORRU T0 
+           INNER JOIN al.RRU0 T1 ON T0.DocEntry = T1.DocEntry 
+           WHERE (SELECT TOP 1 FechaOperacion 
+                  FROM al.CC_ORRU 
+                  WHERE Operacion = 'TERMINAR' 
+                        AND DocEntry = T1.DocEntry 
+                  ORDER BY FechaOperacion DESC, HoraOperacion DESC) IN ('{FechaTerEn}') 
+                 AND T1.Estado = 'ENTREGADO' 
+                 AND T0.DocEntry = {obj.DocEntry}";
+
+
                     }
 
                     if (Serie == "SerieT2")
                     {
-                        query = $"SELECT '{Placa}' ,  (select SerieT2 from al.OVEH where U_SYP_VEPL = '{Placa}'),(select top 1 FechaOperacion from al.CC_ORRU where Operacion='TERMINAR' and DocEntry=T1.DocEntry order by FechaOperacion DESC, HoraOperacion DESC),T0.DocNum," +
-                        " cast(T1.DocNumTicket as varchar), (select top 1 (select convert(varchar,HoraOperacion ,108)) from al.CC_ORRU where Operacion='INICIAR' and DocEntry=T1.DocEntry order by FechaOperacion DESC, HoraOperacion DESC) ,T1.TempI2,T1.HumedI2,(select top 1 (select convert(varchar,HoraOperacion ,108)) from al.CC_ORRU " +
-                        " where Operacion='TERMINAR' and DocEntry=T1.DocEntry order by FechaOperacion,HoraOperacion desc), T1.TempF2, T1.HumedF2, T0.TransDesc, T0.TransCod FROM al.ORRU T0 INNER JOIN al.RRU0 T1 ON T0.DocEntry = T1.DocEntry " +
-                        " where (select top 1 FechaOperacion from al.CC_ORRU where Operacion='TERMINAR' and DocEntry=T1.DocEntry order by FechaOperacion DESC, HoraOperacion DESC) in ('" + FechaTerEn + "') and T1.Estado ='ENTREGADO'" +
-                        " and T0.DocEntry=" + obj.DocEntry;
+                        query = $@"SELECT '{Placa}', 
+                  (SELECT SerieT2 FROM al.OVEH WHERE U_SYP_VEPL = '{Placa}'), 
+                  (SELECT TOP 1 FechaOperacion 
+                   FROM al.CC_ORRU 
+                   WHERE Operacion = 'TERMINAR' 
+                         AND DocEntry = T1.DocEntry 
+                   ORDER BY FechaOperacion DESC, HoraOperacion DESC), 
+                  T0.DocNum, 
+                  CAST(T1.DocNumTicket AS VARCHAR), 
+                  (SELECT TOP 1 CONVERT(VARCHAR, HoraOperacion, 108) 
+                   FROM al.CC_ORRU 
+                   WHERE Operacion = 'INICIAR' 
+                         AND DocEntry = T1.DocEntry 
+                   ORDER BY FechaOperacion DESC, HoraOperacion DESC), 
+                  T1.TempI2, 
+                  T1.HumedI2, 
+                  CONVERT(VARCHAR(8), T1.HoraEntrega), 
+                  T1.TempF2, 
+                  T1.HumedF2, 
+                  T0.TransDesc 
+           FROM al.ORRU T0 
+           INNER JOIN al.RRU0 T1 ON T0.DocEntry = T1.DocEntry 
+           WHERE (SELECT TOP 1 FechaOperacion 
+                  FROM al.CC_ORRU 
+                  WHERE Operacion = 'TERMINAR' 
+                        AND DocEntry = T1.DocEntry 
+                  ORDER BY FechaOperacion DESC, HoraOperacion DESC) IN ('{FechaTerEn}') 
+                 AND T1.Estado = 'ENTREGADO' 
+                 AND T0.DocEntry = {obj.DocEntry}";
+
+
                     }
                 }
                 else
                 {
                     if (Serie == "SerieT1")
                     {
-                        query = $"SELECT '{Placa}' ,  (select SerieT1 from al.OVEH where U_SYP_VEPL = '{Placa}'),(select top 1 FechaOperacion from al.CC_ORRU where Operacion='TERMINAR' and DocEntry=T1.DocEntry order by FechaOperacion DESC, HoraOperacion DESC),T0.DocNum,T1.Guia, (select top 1 (select convert(varchar,HoraOperacion ,108)) from al.CC_ORRU " +
-                        " where Operacion='INICIAR' and DocEntry=T1.DocEntry order by FechaOperacion,HoraOperacion desc) ,T1.TempI1, T1.HumedI1,(select top 1 (select convert(varchar,HoraOperacion ,108)) from al.CC_ORRU " +
-                        " where Operacion='TERMINAR' and DocEntry=T1.DocEntry order by FechaOperacion,HoraOperacion desc) , T1.TempF1, T1.HumedF1, T0.TransDesc, T0.TransCod FROM al.ORRU T0 INNER JOIN al.RRU1 T1 ON T0.DocEntry = T1.DocEntry " +
-                        " where (select top 1 FechaOperacion from al.CC_ORRU  where Operacion='TERMINAR' and DocEntry=T1.DocEntry order by FechaOperacion,HoraOperacion desc) in ('" + FechaTerEn + "') and T1.Estado ='ENTREGADO'" +
-                        " and T0.DocEntry=" + obj.DocEntry;
+                        query = $@"SELECT '{Placa}', 
+                  (SELECT SerieT1 FROM al.OVEH WHERE U_SYP_VEPL = '{Placa}'), 
+                  (SELECT TOP 1 FechaOperacion 
+                   FROM al.CC_ORRU 
+                   WHERE Operacion = 'TERMINAR' 
+                         AND DocEntry = T1.DocEntry 
+                   ORDER BY FechaOperacion DESC, HoraOperacion DESC), 
+                  T0.DocNum, 
+                  T1.Guia, 
+                  (SELECT TOP 1 CONVERT(VARCHAR, HoraOperacion, 108) 
+                   FROM al.CC_ORRU 
+                   WHERE Operacion = 'INICIAR' 
+                         AND DocEntry = T1.DocEntry 
+                   ORDER BY FechaOperacion, HoraOperacion DESC), 
+                  T1.TempI1, 
+                  T1.HumedI1, 
+                  CONVERT(VARCHAR(8), T1.HoraEntrega), 
+                  T1.TempF1, 
+                  T1.HumedF1, 
+                  T0.TransDesc 
+           FROM al.ORRU T0 
+           INNER JOIN al.RRU1 T1 ON T0.DocEntry = T1.DocEntry 
+           WHERE (SELECT TOP 1 FechaOperacion 
+                  FROM al.CC_ORRU  
+                  WHERE Operacion = 'TERMINAR' 
+                        AND DocEntry = T1.DocEntry 
+                  ORDER BY FechaOperacion, HoraOperacion DESC) IN ('{FechaTerEn}') 
+                 AND T1.Estado = 'ENTREGADO' 
+                 AND T0.DocEntry = {obj.DocEntry}";
+
+
                     }
 
                     if (Serie == "SerieT2")
                     {
-                        query = $"SELECT '{Placa}' ,  (select SerieT2 from al.OVEH where U_SYP_VEPL = '{Placa}'),(select top 1 FechaOperacion from al.CC_ORRU where Operacion='TERMINAR' and DocEntry=T1.DocEntry order by FechaOperacion DESC, HoraOperacion DESC),T0.DocNum, T1.Guia, (select top 1 (select convert(varchar,HoraOperacion ,108)) from al.CC_ORRU " +
-                        " where Operacion='INICIAR' and DocEntry=T1.DocEntry order by FechaOperacion,HoraOperacion desc) ,T1.TempI2, T1.HumedI2, (select top 1 (select convert(varchar,HoraOperacion ,108)) from al.CC_ORRU " +
-                        " where Operacion='TERMINAR' and DocEntry=T1.DocEntry order by FechaOperacion,HoraOperacion desc) , T1.TempF2, T1.HumedF2, T0.TransDesc, T0.TransCod FROM al.ORRU T0 INNER JOIN al.RRU1 T1 ON T0.DocEntry = T1.DocEntry " +
-                        " where (select top 1 FechaOperacion from al.CC_ORRU where Operacion='TERMINAR' and DocEntry=T1.DocEntry order by FechaOperacion DESC, HoraOperacion DESC)  in ('" + FechaTerEn + "') and T1.Estado ='ENTREGADO'" +
-                        " and T0.DocEntry=" + obj.DocEntry;
+                        query = $@"SELECT '{Placa}', 
+                  (SELECT SerieT2 FROM al.OVEH WHERE U_SYP_VEPL = '{Placa}'), 
+                  (SELECT TOP 1 FechaOperacion 
+                   FROM al.CC_ORRU 
+                   WHERE Operacion = 'TERMINAR' 
+                         AND DocEntry = T1.DocEntry 
+                   ORDER BY FechaOperacion DESC, HoraOperacion DESC), 
+                  T0.DocNum, 
+                  T1.Guia, 
+                  (SELECT TOP 1 CONVERT(VARCHAR, HoraOperacion, 108) 
+                   FROM al.CC_ORRU 
+                   WHERE Operacion = 'INICIAR' 
+                         AND DocEntry = T1.DocEntry 
+                   ORDER BY FechaOperacion DESC, HoraOperacion DESC), 
+                  T1.TempI2, 
+                  T1.HumedI2, 
+                  CONVERT(VARCHAR(8), T1.HoraEntrega), 
+                  T1.TempF2, 
+                  T1.HumedF2, 
+                  T0.TransDesc 
+           FROM al.ORRU T0 
+           INNER JOIN al.RRU1 T1 ON T0.DocEntry = T1.DocEntry 
+           WHERE (SELECT TOP 1 FechaOperacion 
+                  FROM al.CC_ORRU 
+                  WHERE Operacion = 'TERMINAR' 
+                        AND DocEntry = T1.DocEntry 
+                  ORDER BY FechaOperacion DESC, HoraOperacion DESC) IN ('{FechaTerEn}') 
+                 AND T1.Estado = 'ENTREGADO' 
+                 AND T0.DocEntry = {obj.DocEntry}";
+
+
                     }
                 }
                 SqlCommand cmd = new SqlCommand(query, cn);
@@ -923,7 +1026,6 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                         if (!dr.IsDBNull(9)) { p.TempF = dr.GetDecimal(9); }
                         if (!dr.IsDBNull(10)) { p.HumedF = Convert.ToInt32(dr.GetDecimal(10)); }
                         if (!dr.IsDBNull(11)) { p.Encargado = dr.GetString(11); }
-                        if (!dr.IsDBNull(12)) { p.TransCod = dr.GetString(12); }
                         lista.Add(p);
                     }
 

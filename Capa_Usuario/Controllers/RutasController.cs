@@ -105,7 +105,7 @@ namespace Capa_Usuario.Controllers
             {
                 OCHO_N ochoN = new OCHO_N();
                 ViewBag.DocNum = DocNum;
-                ViewBag.ListaTransportistas = ochoN.listaChoferes(0, null);
+                ViewBag.Conductores = new Capa_Negocio.Repartos_NEG.TablasHana.SYP_CONDUC_N().listar();
                 ViewBag.Mensaje = "";
                 ViewBag.Orru = o;
                 ViewBag.listaVeh = ovehN.listaVeh(0, null);
@@ -132,22 +132,8 @@ namespace Capa_Usuario.Controllers
 
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                var filtrosAlm = new string[] { 
-                    "01", //ALMACÉN Nº1
-                    "02", //ALMACÉN Nº2
-                    "03", //ALMACÉN Nº3
-                    "04", //ALMACÉN Nº4
-                    "09", //ALMACÉN Nº5 (Arriola)
-                    "10", //BAJAS
-                    "CUAR07", //ALMACEN DE CUARENTENA
-                    "ALM07", //ALMACÉN Nº6 (Ureta)
-                    "ALM08", //ALMACEN Nº7 (Chorrillos)
-                    "14", //RESERVA - APROBADOS
-                    "15", //PICKING
-                    "16" //FACTURACION
-                };
-
-                CapturarViewBag(TipoRep, filtrosAlm);
+               
+                CapturarViewBag(TipoRep);
                 return View(new ORRU_E());
             }
             else
@@ -189,7 +175,6 @@ namespace Capa_Usuario.Controllers
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 CapturarViewBag(TipoRep);
-                //ViewBag.ListaVehiculos = new Capa_Negocio.Repartos_NEG.TablasHana.SYP_VEHICU_N().listar().Where(x =>!string.IsNullOrWhiteSpace(x.U_SYP_CHOF)).ToList();
                 return View(new ORRU_E());
             }
             else
@@ -238,24 +223,9 @@ namespace Capa_Usuario.Controllers
                 if (datosOrdenRuta?.TipoRuta == "TA")
                 {
                     nombreVista = "EditarTransferenciaEntreAlmacenes";
-                    filtrosAlm = new string[] {
-                    "01", //ALMACÉN Nº1
-                    "02", //ALMACÉN Nº2
-                    "03", //ALMACÉN Nº3
-                    "04", //ALMACÉN Nº4
-                    "09", //ALMACÉN Nº5 (Arriola)
-                    "10", //BAJAS
-                    "CUAR07", //ALMACEN DE CUARENTENA
-                    "ALM07", //ALMACÉN Nº6 (Ureta)
-                    "ALM08", //ALMACEN Nº7 (Chorrillos)
-                    "14", //RESERVA - APROBADOS
-                    "15", //PICKING
-                    "16" //FACTURACION
-                };
-                    
                 }
                 
-                CapturarViewBag(TipoRep, filtrosAlm, mensaje: string.Empty);
+                CapturarViewBag(TipoRep, null, mensaje: string.Empty);
                 ViewBag.UsuarioSesion = $"{user.Nombres} {user.Apellidos}";
 
                 return View(nombreVista, datosOrdenRuta);
@@ -781,8 +751,8 @@ namespace Capa_Usuario.Controllers
                 {
                     Usuario_N usuN = new Usuario_N();
 
-                    var datosUsuario = usuN.BuscarDocEntryUsuario(resultTempHum[0].TransCod);
-                    var firmas = BuscarFirmas(new List<int> { datosUsuario.DocEntry, 414 });       // docEntry ejm
+                    var datosUsuario = usuN.BuscarDocEntryPorNombreCompleto(resultTempHum[0].Encargado);
+                    var firmas = BuscarFirmas(new List<int> { datosUsuario.DocEntry, 414 });     
 
                     if (firmas != null && firmas.Count >= 1)
                     {
@@ -1226,38 +1196,27 @@ namespace Capa_Usuario.Controllers
         }
         public JsonResult infoTicketsReparto(string FechaSapTicket, string TipoRuta, string Zona, string AlmOrigenCod)
         {
-            string[] estados = { "", "" };
+            string[] estados = { "EMPACADO", "PESADO" };
             ORTV_N ortvN = new ORTV_N();
             ORTV_E ortvE = new ORTV_E { FechaSapTicket = FechaSapTicket, EstadoFacturacion = "FACTURADO", Zona = Zona };
             if (TipoRuta == "VD")
             {
                 ortvE.LugarDestino = "Domicilio";
-                estados[0] = "EMPACADO";
                 ortvE.LugEntrega = AlmOrigenCod;
             }
             else if (TipoRuta == "VG")
             {
                 ortvE.LugarDestino = "Agencia";
-                estados[0] = "EMPACADO";
-                estados[1] = "PESADO";
                 ortvE.LugEntrega = " ";
-            }
-            else if (TipoRuta == "AC")
-            {
-                ortvE.LugarDestino = "Agencia Courier";
-                estados[0] = "PESADO";
-                ortvE.LugEntrega = AlmOrigenCod;
             }
             else if (TipoRuta == "VC")
             {
                 ortvE.LugarDestino = "Centro";
-                estados[0] = "EMPACADO";
                 ortvE.LugEntrega = AlmOrigenCod;
             }
             else if (TipoRuta == "VA")
             {
                 ortvE.LugarDestino = "Arriola";
-                estados[0] = "EMPACADO";
                 ortvE.LugEntrega = AlmOrigenCod;
             }
             int cantidadTicketsNoEnviados;
@@ -1271,30 +1230,29 @@ namespace Capa_Usuario.Controllers
         }
         public JsonResult listarTicketsRepartosNoEnviados(string FechaSapTicket, string TipoRuta, string Zona, string AlmOrigenCod)
         {
-            string[] estados = { "", "" };
+            string[] estados = { "EMPACADO", "PESADO" };
             ORTV_N ortvN = new ORTV_N();
             ORTV_E ortvE = new ORTV_E { FechaSapTicket = FechaSapTicket, Zona = Zona };
-            if (TipoRuta == "VD") { ortvE.LugarDestino = "Domicilio"; estados[0] = "EMPACADO"; ortvE.LugEntrega = AlmOrigenCod; }
+            if (TipoRuta == "VD") { ortvE.LugarDestino = "Domicilio";  ortvE.LugEntrega = AlmOrigenCod; }
             else if (TipoRuta == "VG")
             {
-                ortvE.LugarDestino = "Agencia";
-                estados[0] = "EMPACADO";
-                estados[1] = "PESADO"; ortvE.LugEntrega = "";
+                 ortvE.LugarDestino = "Agencia";
+                 ortvE.LugEntrega = "";
             }
             else if (TipoRuta == "AC")
             {
                 ortvE.LugarDestino = "Agencia Courier";
-                estados[0] = "PESADO"; ortvE.LugEntrega = AlmOrigenCod;
+                ortvE.LugEntrega = AlmOrigenCod;
             }
             else if (TipoRuta == "VC")
             {
                 ortvE.LugarDestino = "Centro";
-                estados[0] = "EMPACADO"; ortvE.LugEntrega = AlmOrigenCod;
+                ortvE.LugEntrega = AlmOrigenCod;
             }
             else if (TipoRuta == "VA")
             {
                 ortvE.LugarDestino = "Arriola";
-                estados[0] = "EMPACADO"; ortvE.LugEntrega = AlmOrigenCod;
+                 ortvE.LugEntrega = AlmOrigenCod;
             }
             var resultado = ortvN.listarTicketsRepartosNoEnviados(ortvE, estados);
             return Json(resultado);

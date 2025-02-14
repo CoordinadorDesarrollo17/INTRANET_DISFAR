@@ -72,13 +72,17 @@ namespace Capa_Usuario.Controllers
                     lista.Add("06", "185");                     // Julio Roman Silva ALM03
                     lista.Add("07", "185");                     // Julio Roman Silva ALM03
                     lista.Add("09", "182");                     // Yasmani Huarachi Mamani ALM05
-                    lista.Add("10", "185");                     // Julio Roman Silva ALM03 
+                    lista.Add("10", "");                     // ----- NO EXISTE 
                     lista.Add("ALM07", "161");                  // Carmen Condori Saravia ALM06
                     lista.Add("ALM08", "");                     // ---- ALMACEN TERCIARIZADO, SIN RESPONSABLE
                     lista.Add("CUAR07", "161");                 // Carmen Condori Saravia ALM06
                     lista.Add("DEV07", "161");                  // Carmen Condori Saravia ALM06
-                    lista.Add("11", "");                  // 
-                    
+                    lista.Add("11", "");                        // ----- NO EXISTE
+                    lista.Add("12", "");                        // ----- NO EXISTE
+                    lista.Add("13", "");                        // ----- NO EXISTE
+                    lista.Add("14", "");                        // ----- NO EXISTE
+                    lista.Add("15", "");                        // ----- NO EXISTE
+                    lista.Add("16", "");                        // ----- NO EXISTE
                 }
                 else if (!string.IsNullOrWhiteSpace(tipoFirma) && tipoFirma.Equals("QuimicoFarmaceutico"))
                 {
@@ -97,7 +101,12 @@ namespace Capa_Usuario.Controllers
                     lista.Add("ALM08", "208");                  // Diana Quiquia Urribarre 
                     lista.Add("CUAR07", "339");                 // Roly Gonzales Romero ALM06
                     lista.Add("DEV07", "339");                  // Roly Gonzales Romero ALM06
-                    lista.Add("11", "");                  // 
+                    lista.Add("11", "");                                    // ----- NO EXISTE
+                    lista.Add("12", "");                                    // ----- NO EXISTE
+                    lista.Add("13", "");                                    // ----- NO EXISTE
+                    lista.Add("14", "");                                    // ----- NO EXISTE
+                    lista.Add("15", "");                                    // ----- NO EXISTE
+                    lista.Add("16", "");                                    // ----- NO EXISTE
 
                 }
 
@@ -191,7 +200,7 @@ namespace Capa_Usuario.Controllers
             {
                 var result = dgN.ConsultarActaDespachoVt(DocEntry);
 
-                if (result != null && result[0].T1_WhsCode != null)
+                if (result != null && result.Any() && result[0].T1_WhsCode != null)
                 {
                     var datosFirma = BuscarFirmas("ResponsableALMActas", result[0].T1_WhsCode);
 
@@ -396,7 +405,7 @@ namespace Capa_Usuario.Controllers
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 if (fil != null) { ViewBag.Owtr = fil; } else { ViewBag.Owtr = new OWTR_E(); }
-                ViewBag.Almacenes = new Capa_Negocio.General_NEG.Tablas.OWHS_N().ListarAlmacenes();
+                ViewBag.Almacenes = new Capa_Negocio.General_NEG.Tablas.OWHS_N().ListarAlmacenes().OrderBy(a => a.WhsName);
                 ViewBag.ListaOslp = new Capa_Negocio.General_NEG.Tablas.OSLP_N().listadoOslp("ALM");
                 return View(new Capa_Negocio.Almacen_NEG.Tablas.OWTR_N().listadoTransferenciasStock(fil));
             }
@@ -515,7 +524,7 @@ namespace Capa_Usuario.Controllers
 
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                ViewBag.Almacenes = new Capa_Negocio.General_NEG.Tablas.OWHS_N().ListarAlmacenes("todos");
+                ViewBag.Almacenes = new Capa_Negocio.General_NEG.Tablas.OWHS_N().ListarAlmacenes("todos").OrderBy(a => a.WhsName);
                 if (fil != null) { ViewBag.Opdn = fil; } else { ViewBag.Opdn = new Capa_Entidad.Compras_ENT.Tablas.OPDN_E(); }
                 return View(new Capa_Negocio.Compras_NEG.Tablas.OPDN_N().listadoEntradaMercancias(fil));
             }

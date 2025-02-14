@@ -43,11 +43,12 @@ namespace Capa_Datos
             this.schemaHanaOnPremise = "\"B1H_COBEFAR_2018\".";
 
             // SQL Server Configuration
-            this.serverSql = @"TI-05";
+            this.serverSql = @"WIN-2SURNE2G3QV";
             this.userSql = "sa";
-            this.passwordSql = "TICOBE@R789";
+            this.passwordSql = "Cobef@rs@c2025r$$";
 
-            this.BDsql = "BASE_240125";
+            this.BDsql = "INTRANET_V2";
+            //this.BDsql = "PRUEBA_ALISSON";
 
             this.cadSql = $@"Server={this.serverSql};" +
                           $"Database={this.BDsql};" +

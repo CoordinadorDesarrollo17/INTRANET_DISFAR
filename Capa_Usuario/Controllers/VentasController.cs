@@ -92,7 +92,7 @@ namespace Capa_Usuario.Controllers
                 ViewBag.FaltaRegularizar = ticketN.ListarTicketsPorRegularizarContraEntrega().Count();
                 ViewBag.DocNum = DocNum;
                 ViewBag.Ortv = t;
-                ViewBag.Vendedores = u_N.listaUsuariosPermisos(new Usuario_E{Activo=1}, 6);        // Usado como Filtro en el botón AnVentas (Reporte Analítico Ventas)
+                ViewBag.Vendedores = u_N.listaUsuariosPermisos(new Usuario_E { Activo = 1 }, 6);        // Usado como Filtro en el botón AnVentas (Reporte Analítico Ventas)
                 ViewBag.CodSapVendedor = user != null && user.IdRol != 6 ? user.CodigoSap : 0;
 
                 if (mensaje != null) { ViewBag.Mensaje = mensaje; }
@@ -188,7 +188,8 @@ namespace Capa_Usuario.Controllers
                 ViewBag.Agencias = couN.Listar();
                 ViewBag.Usuario = $"{user.Prefijo}{user.Id}";
                 if (DocEntry > 0) { return View(ticketN.ObtenerDatosCompletosTicket(DocEntry)); }
-                else {
+                else
+                {
                     //Si usuario entidad llega con data al GET se entiende que el ticket esta siendo separado por un vendedor de reemplazo.
                     if (u != null && u.CodigoSap > 0 && !string.IsNullOrWhiteSpace(u.Nombres) && !string.IsNullOrWhiteSpace(u.Apellidos) && user.IdRol == 12)
                     {
@@ -313,7 +314,7 @@ namespace Capa_Usuario.Controllers
         }
         public void VerificarOpSeguimiento(Dictionary<string, Object> datos, string Request)
         {
-            //verificacionAccesos(0);
+            
             int Op = 0;
             if (datos["accion"].Equals("RECIBIDO")) { Op = 508; }
             if (datos["accion"].Equals("ANULARRECIBIDO")) { Op = 509; }
@@ -325,12 +326,12 @@ namespace Capa_Usuario.Controllers
             if (datos["accion"].Equals("ANULARENTREGADO")) { Op = 517; }
             //cambiar datos de NroMesa y Cajas
             if (datos["accion"].Equals("UPDATEEMP")) { Op = 599; }
-
+       
             string acceso = AccesoHelper.VerificarAccesos(Op, (Usuario_E)Session["UsuarioId"], this.ControllerContext.RouteData.Values["action"].ToString(), "", "");
 
             if (acceso == "C_Access")
             {
-                //ticketN.editarSeguimientoTicket(estado, DocEntry, tc);
+            
                 ticketN.EditarTicketDesdeSeguimiento(datos, Request);
             }
             else
@@ -392,9 +393,7 @@ namespace Capa_Usuario.Controllers
                         }
                     }
                     ViewBag.IdRol = usu.IdRol;
-
-                    ViewBag.permisoCajas = new OUSR_OPE_N().VerificarAccesoOperacion(new OUSR_OPE_E {  UsrDocEntry = usu.DocEntry, OpeID = 2024 });     // 2024: Actualizar Caja y Mesa
-
+                    ViewBag.permisoCajas = new OUSR_OPE_N().VerificarAccesoOperacion(new OUSR_OPE_E { UsrDocEntry = usu.DocEntry, OpeID = 2024 }); 
                     return View(ticket);
                 }
                 catch
@@ -411,7 +410,7 @@ namespace Capa_Usuario.Controllers
         public ActionResult SeguimientoDeTicket(int DocEntry, ORTV_E t, int idOperation = 507)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
-            
+
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 ORRU_N orruN = new ORRU_N();
@@ -423,6 +422,7 @@ namespace Capa_Usuario.Controllers
                     ORTV_E tc = ticketN.ObtenerDatosCompletosTicket(DocEntry);
                     tc.orru = orruN.obtenerOrdenDeRutaTicket(DocEntry);
 
+                  
                     // Creamos la estructura de parámetros para el método
                     Dictionary<string, Object> datos = new Dictionary<string, Object>()
                     {
@@ -453,6 +453,10 @@ namespace Capa_Usuario.Controllers
                             ViewBag.Mensaje = "Ha anulado Recibido el ticket, se regreso al estado anterior";
                         }
                         catch (Exception e) { ViewBag.Mensaje = e.Message; }
+                    }
+                    else if (Request.Form["UPDATEPROD"] != null)
+                    {
+                        ticketN.EditarProductosPendientesTicket(DocEntry);
                     }
                     else if (Request.Form["UPDATEEMP"] != null)
                     {
@@ -863,7 +867,8 @@ namespace Capa_Usuario.Controllers
             {
                 Usuario_E user = (Usuario_E)Session["UsuarioId"];
                 ORTV_N tkN = new ORTV_N();
-                ViewBag.IdRol = user.IdRol; ViewBag.DocNum = DocNum;
+                ViewBag.IdRol = user.IdRol;
+                ViewBag.DocNum = DocNum;
 
                 //Si el filtro DocNum es diferente a 0 todos los datos necesarios del ticket se llenan en ViewBag.Ortv (para que muestre en el filtro)
                 if (DocNum > 0)
@@ -883,10 +888,9 @@ namespace Capa_Usuario.Controllers
                 ViewBag.Mensaje = Mensaje;
                 var lista = ticketN.ListarTicketsAreaFacturacion(user, ticket);
 
-                var cantPendiente = ticketN.CantidadTicketsFacturacion("PENDIENTE");
-                var cantGreEmitida = ticketN.CantidadTicketsFacturacion("GRE EMITIDA");
-                ViewBag.CP = cantPendiente;
-                ViewBag.CG = cantGreEmitida;
+                ViewBag.CP = ticketN.CantidadTicketsFacturacion("PENDIENTE");
+                ViewBag.CG = ticketN.CantidadTicketsFacturacion("GRE EMITIDA");
+
                 return View(lista);
             }
             else
@@ -918,16 +922,16 @@ namespace Capa_Usuario.Controllers
                     Mensaje = string.Empty
                 };
 
-                bool hayFinVerificar = false; int DocNum = 0;
+                bool hayFinEmpacar = false; int DocNum = 0;
                 try
                 {
                     Usuario_E u = (Usuario_E)Session["UsuarioId"];
-                    List<CC_ORTV_E> ticketFinVerificar = ccORTV_N.ListarCC_ORTV(DocEntry, "FIN VERIFICAR");
-                    List<CC_ORTV_E> ticketAnularFinVerificar = ccORTV_N.ListarCC_ORTV(DocEntry, "ANULAR FIN VERIFICAR");
-                    List<CC_ORTV_E> listaCC = new List<CC_ORTV_E>() { ticketFinVerificar[0], ticketAnularFinVerificar[0] }.OrderByDescending(x => x.Id).ToList();
-                    if (listaCC.FirstOrDefault().Operacion == "FIN VERIFICAR") { hayFinVerificar = true; }
-                    else if (listaCC.FirstOrDefault().Operacion == "ANULAR FIN VERIFICAR") { hayFinVerificar = false; }
-                    if (hayFinVerificar)
+                    List<CC_ORTV_E> ticketFinEmpacar = ccORTV_N.ListarCC_ORTV(DocEntry, "FIN EMPACAR");
+                    List<CC_ORTV_E> ticketAnularFinEmpacar = ccORTV_N.ListarCC_ORTV(DocEntry, "ANULAR FIN EMPACAR");
+                    List<CC_ORTV_E> listaCC = new List<CC_ORTV_E>() { ticketFinEmpacar[0], ticketAnularFinEmpacar[0] }.OrderByDescending(x => x.Id).ToList();
+                    if (listaCC.FirstOrDefault().Operacion == "FIN EMPACAR") { hayFinEmpacar = true; }
+                    else if (listaCC.FirstOrDefault().Operacion == "ANULAR FIN EMPACAR") { hayFinEmpacar = false; }
+                    if (hayFinEmpacar)
                     {
                         ORTV_N negtik = new ORTV_N();
                         ORTV_E ticket = negtik.ObtenerDatosCompletosTicket(DocEntry); string Guias = "";
@@ -938,7 +942,7 @@ namespace Capa_Usuario.Controllers
                             if (ticket.LugarDestino.Equals("Centro")) { WhsCode = "01"; }
                             else if (ticket.LugarDestino.Equals("Arriola")) { WhsCode = "09"; }
 
-                            Guias = owtrN.GuiasTicketTransferencia(ticket.DocNum, WhsCode,ticket.CardCode);
+                            Guias = owtrN.GuiasTicketTransferencia(ticket.DocNum, WhsCode, ticket.CardCode);
                         }
                         else
                         {
@@ -952,7 +956,7 @@ namespace Capa_Usuario.Controllers
                         }
                         else { throw new Exception("El ticket " + DocEntry + " no tiene guías en SAP."); }
                     }
-                    else { throw new Exception("El ticket " + DocEntry + " no ha sido verificado."); }
+                    else { throw new Exception("El ticket " + DocEntry + " no ha sido empacado."); }
                     return RedirectToAction("ListadoTicketsFacturacion", datos);
                 }
                 catch (Exception e)
@@ -1435,7 +1439,7 @@ namespace Capa_Usuario.Controllers
                 if (ticket.LugarDestino.Equals("Centro")) { WhsCode = "01"; }
                 else if (ticket.LugarDestino.Equals("Arriola")) { WhsCode = "09"; }
 
-                Guias = new Capa_Negocio.Almacen_NEG.Tablas.OWTR_N().GuiasTicketTransferencia(ticket.DocNum, WhsCode,ticket.CardCode);
+                Guias = new Capa_Negocio.Almacen_NEG.Tablas.OWTR_N().GuiasTicketTransferencia(ticket.DocNum, WhsCode, ticket.CardCode);
             }
             else
             {
@@ -1572,6 +1576,7 @@ namespace Capa_Usuario.Controllers
                 ViewBag.DocNum = DocNum;
                 ViewBag.Ortv = t;
                 ViewBag.Mensaje = Mensaje;
+                ViewBag.ProductosPendientes = ticketN.CantidadTicketsProductosPendientes();
 
                 return View(ticketN.ListarTicketsAreaAlmacén(user, t));
             }
@@ -1679,7 +1684,10 @@ namespace Capa_Usuario.Controllers
                 }
                 catch (Exception e)
                 {
-                    ViewBag.Mensaje = e.Message; ViewBag.ListaUsuarios = u_N.ListaUsuarios(new Usuario_E { IdRol = 4 });
+                    ViewBag.Mensaje = e.Message;
+                    var listaUsuarios = u_N.ListaUsuarios(new Usuario_E { IdRol = 4 });
+                    var usuariosDistinct = listaUsuarios.Select(x => $"{x.Nombres} {x.Apellidos}").Distinct().ToList();
+                    ViewBag.ListaUsuarios = usuariosDistinct;
                     return View(ticketN.ObtenerDatosCompletosTicket(DocEntry));
                 }
             }
@@ -1994,6 +2002,7 @@ namespace Capa_Usuario.Controllers
                     ticket.NroMesa = ticketPost.NroMesa;
                     ticket.Operario = usuario.WhsCode;      //envia el dato de WhsCode del usuario
                     ticket.Det13 = ticketPost.Det13;        // OpEmpacador 2 y OpEmpacador 3
+                    ticket.ProductoPendiente = ticketPost.ProductoPendiente;
 
                     int DocNum = ticketN.editarSeguimientoTicket("FIN EMPACAR", DocEntry, ticket);
                     var listaUsuarios = u_N.ListaUsuarios(new Usuario_E() { Prefijo = "ALM" });
@@ -2708,7 +2717,7 @@ namespace Capa_Usuario.Controllers
 
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                ViewBag.Regalos = filtro; 
+                ViewBag.Regalos = filtro;
                 ViewBag.Mensaje = mensaje;
                 return View(new Capa_Negocio.Ventas_NEG.TablasSql.OREG_N().listaRegalos(filtro));
             }
@@ -2749,7 +2758,7 @@ namespace Capa_Usuario.Controllers
                 }
                 catch (Exception e)
                 {
-                    ViewBag.Mensaje = e.Message; 
+                    ViewBag.Mensaje = e.Message;
                     return View(obj);
                 }
             }
@@ -2892,11 +2901,11 @@ namespace Capa_Usuario.Controllers
             }
             else { return null; }
         }
-        public JsonResult VerificarExistenciaDatos(string fechaTicketDesde,string fechaTicketHasta, string estadoTicket, string estadoRegalo)
+        public JsonResult VerificarExistenciaDatos(string fechaTicketDesde, string fechaTicketHasta, string estadoTicket, string estadoRegalo)
         {
             var result = new Capa_Negocio.Ventas_NEG.TablasSql.ORTV_N().listarTicketsRegalo(fechaTicketDesde, fechaTicketHasta, estadoTicket, estadoRegalo);
 
-            if (result!= null && result.Count() > 0)
+            if (result != null && result.Count() > 0)
             {
                 return Json(new { Mensaje = "" });
             }
@@ -2905,18 +2914,18 @@ namespace Capa_Usuario.Controllers
                 return Json(new { Mensaje = "Sin Datos" });
             }
         }
-        public ActionResult ExporteReporteGeneralTicketsRegalos(string fechaTicketDesde, string fechaTicketHasta, string estadoTicket,string estadoRegalo, int idOperation = 524)
+        public ActionResult ExporteReporteGeneralTicketsRegalos(string fechaTicketDesde, string fechaTicketHasta, string estadoTicket, string estadoRegalo, int idOperation = 524)
         {
-            string acceso = AccesoHelper.VerificarAccesos(idOperation, 
-                (Usuario_E)Session["UsuarioId"], 
-                this.ControllerContext.RouteData.Values["action"].ToString(), 
-                Request.UserHostAddress, 
+            string acceso = AccesoHelper.VerificarAccesos(idOperation,
+                (Usuario_E)Session["UsuarioId"],
+                this.ControllerContext.RouteData.Values["action"].ToString(),
+                Request.UserHostAddress,
                 Request.UserHostName);
 
             if (acceso == "C_Access")
             {
                 string excelContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-                var result = new Capa_Negocio.Ventas_NEG.TablasSql.ORTV_N().listarTicketsRegalo(fechaTicketDesde, fechaTicketHasta, estadoTicket,estadoRegalo);
+                var result = new Capa_Negocio.Ventas_NEG.TablasSql.ORTV_N().listarTicketsRegalo(fechaTicketDesde, fechaTicketHasta, estadoTicket, estadoRegalo);
                 using (var libro = new ExcelPackage())
                 {
                     var worksheet = libro.Workbook.Worksheets.Add("ReporteRegalosEntregados");
@@ -2991,7 +3000,7 @@ namespace Capa_Usuario.Controllers
         }
         [HttpPost]
         public ActionResult NuevoClienteRegalo(OCLR_E obj, int idOperation = 1316)
-        {                                                              
+        {
             var resultadoAcceso = VerificarPermiso(idOperation);
 
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
@@ -3606,7 +3615,7 @@ namespace Capa_Usuario.Controllers
 
                 ticketN.ValidarDatosTicket(t, 0);
 
-              
+
                 return Content(status);
             }
             catch (Exception e) { return Content(e.Message); }
@@ -3797,7 +3806,7 @@ namespace Capa_Usuario.Controllers
             {
                 var owtrN = new Capa_Negocio.Almacen_NEG.Tablas.OWTR_N();
                 string whsCode = ticket.LugarDestino.Equals("Centro") ? "01" : "09";
-                ViewBag.Guias = owtrN.GuiasTicketTransferencia(ticket.DocNum, whsCode,ticket.CardCode);
+                ViewBag.Guias = owtrN.GuiasTicketTransferencia(ticket.DocNum, whsCode, ticket.CardCode);
             }
             else
             {
@@ -3829,7 +3838,6 @@ namespace Capa_Usuario.Controllers
         }
         public ActionResult OrdenDeVenta(int DocNum)
         {
-            //verificacionAccesos(0);
             try
             {
                 ViewBag.Letra = 4;
@@ -3841,7 +3849,6 @@ namespace Capa_Usuario.Controllers
         /****************************** E R R O R E S   P I C K I N G ******************************/
         public JsonResult RegistrarErroresPicking(OEP_E datos, List<EP1_E> detalleErroresPicking)
         {
-            // verificacionAccesos(0);         // Verificar sesión logueada solo para solicitudes AJAX
 
             try
             {
@@ -4054,15 +4061,14 @@ namespace Capa_Usuario.Controllers
             var result = new Capa_Negocio.Ventas_NEG.TablasSql.ORTV_N().EditarVisibilidadTicket(docEntry, opImpresion, proceso);
             return Json(new { NroTicket = result });
         }
-            
+
         //Registra impresion de documentos de un ticket para despacho (centro y arriola)
-        public JsonResult RegistrarImpresion(int DocEntry)
+        public JsonResult RegistrarImpresion(int docEntry, string area)
         {
-            //verificacionAccesos(0);
             Usuario_E user = (Usuario_E)Session["UsuarioId"];
-            var Operario = $"{user.Nombres} {user.Apellidos}";
+            var operario = $"{user.Nombres} {user.Apellidos}";
             ORTV_N ortvN = new ORTV_N();
-            var result = ortvN.RegistrarImpresionTicket(DocEntry, Operario);
+            var result = ortvN.RegistrarImpresionTicket(docEntry, operario, area);
             return Json(new { Datos = result });
         }
         public void PreliminarLayoutOV_Ticket(int docEntry)
@@ -4096,16 +4102,16 @@ namespace Capa_Usuario.Controllers
                                     for (int i = 1; i <= totalPages; i++)
                                     {
                                         PdfContentByte content = stamper.GetUnderContent(i);
-                                        iTextSharp.text.Font font = FontFactory.GetFont("Arial", BaseFont.CP1250,BaseFont.NOT_EMBEDDED, 10 , iTextSharp.text.Font.BOLD);
+                                        iTextSharp.text.Font font = FontFactory.GetFont("Arial", BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 10, iTextSharp.text.Font.BOLD);
 
                                         Phrase phrase = new Phrase($"Página {i} de {totalPages}", font);
-                                        Phrase fecha = new Phrase($"{ DateTime.Now }", font);
+                                        Phrase fecha = new Phrase($"{DateTime.Now}", font);
                                         Phrase docNumPhrase = new Phrase($"Nro Ticket: {ticket.DocNum}", font);
-                                        
+
 
                                         ColumnText.ShowTextAligned(content, Element.ALIGN_LEFT, fecha, 30, 810, 0);
                                         ColumnText.ShowTextAligned(content, Element.ALIGN_CENTER, phrase, 300, 810, 0);
-                                        ColumnText.ShowTextAligned(content, Element.ALIGN_RIGHT, docNumPhrase, 570, 810, 0); 
+                                        ColumnText.ShowTextAligned(content, Element.ALIGN_RIGHT, docNumPhrase, 570, 810, 0);
 
                                     }
                                 }
@@ -4146,7 +4152,7 @@ namespace Capa_Usuario.Controllers
         public ActionResult PDF_OrdenesDeVentas(int docNum, string almProcedencia)
         {
             var lista = new ORTV_N().obtenerOrdenDeVenta(docNum);
-            
+
             foreach (var ordr in lista)
             {
                 almProcedencia = string.IsNullOrEmpty(almProcedencia) ? ordr.Almacen : almProcedencia;

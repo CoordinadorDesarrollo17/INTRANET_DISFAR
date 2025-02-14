@@ -200,9 +200,14 @@ namespace Capa_Datos.Ventas_DAO.Tablas
             }
             if (!string.IsNullOrWhiteSpace(U_COB_LUGAREN))
             {
-                filtros += " and \"U_COB_LUGAREN\"='" + U_COB_LUGAREN + "'";
+                if (U_COB_LUGAREN == "16") { filtros += " and \"U_COB_LUGAREN\" in ('15','16')"; }
+                else
+                {
+                    filtros += " and \"U_COB_LUGAREN\"='" + U_COB_LUGAREN + "'";
+                }
+               
             }
-            string query = "select count(*)  from " + uti.schemaHana + " ODLN where \"DocEntry\">0 " + filtros;
+            string query = "select count(*)  from " + uti.schemaHana + "ODLN where 1=1 " + filtros;
             try
             {
                 HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
@@ -253,7 +258,7 @@ namespace Capa_Datos.Ventas_DAO.Tablas
             }
             catch (Exception ex)
             {
-                // Manejar la excepción de manera adecuada
+                throw new Exception("Error: " + ex.Message);
             }
 
             return detalles;
