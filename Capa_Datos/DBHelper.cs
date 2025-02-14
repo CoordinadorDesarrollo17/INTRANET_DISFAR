@@ -234,7 +234,7 @@ namespace Capa_Datos
             try
             {
                 cn.Open();
-                status = "SQLSERVER 2014 : " + uti.BDsql;
+                status = "SQLSERVER 2019 : " + uti.BDsql;
                 cn.Close();
             }
             catch (Exception e) { status = "HUBO UN ERROR DE CONEXION A SQL" + e.Message; cn.Close(); }
