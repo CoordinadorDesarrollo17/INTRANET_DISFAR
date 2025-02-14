@@ -489,7 +489,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 if (t.Estado.Equals("CANCELADO")) { throw new Exception("El ticket esta CANCELADO"); }
                 List<CC_ORTV_E> listaEstados = ccTicket.ListarCC_ORTV(DocEntry, null, true);
                 if (listaEstados.Count > 0) { if (listaEstados.FirstOrDefault().Operacion == "FIN PICKING") { throw new Exception("El ticket ya FINALIZO PICKING"); } }
-                if (!t.Estado.Equals("PICKEANDO")) { throw new Exception("Solo puedes poner FIN PICKING a Ticket en PICKEANDO, debes revertir o continuar el proceso"); }
+                if (!t.Estado.Equals("PICKEANDO")  && !t.Estado.Equals("VERIFICANDO")) { throw new Exception("Solo puedes poner FIN PICKING a Ticket en PICKEANDO O VERIFICANDO, debes revertir o continuar el proceso"); }
             }
             else if (Estado.Equals("ANULAR FIN PICKING"))
             {

@@ -273,40 +273,6 @@ namespace Capa_Datos.Almacen_DAO.TablasSql
                     }
 
                     cmd.ExecuteNonQuery();
-                    //if (DetalleDevolucion != null && DetalleDevolucion.Count >= 1)
-                    //{
-                    //	try
-                    //	{
-                    //		foreach (var det in DetalleDevolucion)
-                    //		{
-                    //			SqlCommand cmd4 = new SqlCommand("al.MANT_RPD1", cn)
-                    //			{
-                    //				Transaction = tran,
-                    //				CommandType = CommandType.StoredProcedure
-                    //			};
-
-                    //			cmd4.Parameters.AddWithValue("@Accion", "INS");
-                    //			cmd4.Parameters.AddWithValue("@DocEntry", det.DocEntry);
-                    //			cmd4.Parameters.AddWithValue("@Linea", det.ItemCode);
-                    //			cmd4.Parameters.AddWithValue("@ItemCode", det.ItemCode);
-                    //			cmd4.Parameters.AddWithValue("@ItemName", det.ItemName);
-                    //			cmd4.Parameters.AddWithValue("@FirmCode", det.FirmCode);
-                    //			cmd4.Parameters.AddWithValue("@BatchNum", det.BatchNum);
-                    //			cmd4.Parameters.AddWithValue("@ExpDate", det.ExpDate);
-                    //			cmd4.Parameters.AddWithValue("@Quantity", det.Quantity);
-                    //			cmd4.Parameters.AddWithValue("@Motivo", det.Motivo);
-                    //			cmd4.Parameters.AddWithValue("@RefFactura", det.RefFactura);
-                    //			cmd4.Parameters.AddWithValue("@Observacion", det.Observacion);
-                    //			cmd4.ExecuteNonQuery();
-                    //		}
-                    //	}
-                    //	catch (Exception ex)
-                    //	{
-                    //		tran.Rollback();
-                    //		throw new Exception("Error al insertar detalle: " + ex.Message);
-                    //	}
-                    //}
-
                     tran.Commit();
                 }
                 catch (Exception ex2)
