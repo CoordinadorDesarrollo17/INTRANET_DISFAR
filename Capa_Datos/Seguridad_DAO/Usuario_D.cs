@@ -330,7 +330,7 @@ namespace Capa_Datos
                 catch (Exception ex)
                 {
                     RegistrarError(ex, "Usuario_D - CrearUsuario");
-                    mensaje = "Ocurrió un error al registrar usuario. Por favor, comunicarse con SISTEMAS.";
+                    mensaje = "Ocurrió un error al registrar usuario. Por favor, comuníquese con el área de Sistemas para más información.";
                 }
             }
 
@@ -361,7 +361,7 @@ namespace Capa_Datos
                 catch (Exception ex)
                 {
                     RegistrarError(ex, "Usuario_D - EditarUsuario");
-                    msj = "Ocurrió un error al registrar usuario. Por favor, comunicarse con SISTEMAS.";
+                    msj = "Ocurrió un error al registrar usuario. Por favor, comuníquese con el área de Sistemas para más información.";
                 }
             }
 

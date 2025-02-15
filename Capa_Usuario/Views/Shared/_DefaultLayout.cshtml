@@ -1,0 +1,776 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewBag.Title - COBEFAR S.A.C</title>
+    <link rel="icon" type="image/x-icon" href="~/Content/img/favicon-cobefar.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.dataTables.css" />
+    <link href="~/Content/estilos2025.css" rel="stylesheet">
+    <script src="https://unpkg.com/slim-select@latest/dist/slimselect.min.js"></script>
+    <link href="https://unpkg.com/slim-select@latest/dist/slimselect.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-image: url('/Content/img/bg-cobefar-v2.png');
+            background-position: center center;
+            background-attachment: fixed;
+            background-size: cover;
+            min-height: 100vh;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        table.dataTable td {
+            padding: 1px !important;
+            margin: 1px !important;
+        }
+
+        table.dataTable th {
+            padding-left: 2px !important;
+            padding-right: 2px !important;
+            margin-left: 0px !important;
+            margin-right: 0px !important;
+        }
+
+        #statusBD {
+            font-weight: 700;
+            text-align: right;
+            font-size: 11px;
+        }
+    </style>
+
+    @RenderSection("Styles", required: false)
+</head>
+<body>
+    <div id="contenedor" class="container" style="width:100%;">
+        <!-- Encabezado -->
+        <header class="w-100">
+            @Html.Partial("_Header")
+        </header>
+
+        <!-- Contenido principal -->
+        <div id="div_container2" class="container">
+            @RenderBody()
+        </div>
+    </div>
+    <!-- Pie de p�gina -->
+    <footer class="text-center mt-4">
+        @Html.Partial("_Footer")
+    </footer>
+
+    <!-- MODAL UBIGEOS -->
+    <div class="modal fade" id="modalUbigeos" tabindex="1" aria-labelledby="_ModalUbigeos" aria-hidden="true" data-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content">
+                <div class="modal-header text-white bg-headerModals">
+                    <h5 class="modal-title font-weight-bold" id="_ModalUbigeos">Ubigeos</h5>
+                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true" class="text-white">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body py-0">
+                    <div class="row justify-content-center overflow-auto bg-white pt-4">
+                        <div id="div_listaUbigeos" class="col-12 table-responsive"></div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i> Cerrar</button>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        (function () {
+            var link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = 'https://fonts.googleapis.com/css2?family=Roboto&display=swap';
+            document.head.appendChild(link);
+        })();
+
+        function deshabilitarRetroceso() {
+            window.location.hash = "no-back-button";
+            window.location.hash = "Again-No-back-button" //chrome
+            window.onhashchange = function () { window.location.hash = "no-back-button"; }
+        }
+
+        function statusBD() {
+            var parametros;
+            $.ajax('/Index/statusBD', {
+                data: parametros,
+                dataType: 'html',
+                cache: false,
+                type: 'post',
+            })
+                .done(function (response) {
+                    document.getElementById('statusBD').innerHTML = response;
+                });
+        }
+
+        document.addEventListener('show.bs.modal', function () {
+            const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+            document.body.style.paddingRight = `${scrollbarWidth}px`; // Ajustar padding dinámicamente
+        });
+
+        document.addEventListener('hidden.bs.modal', function () {
+            document.body.style.paddingRight = '0'; // Restablecer padding al cerrar
+        });
+
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdn.datatables.net/2.1.8/js/dataTables.js"></script>
+
+    <script async>
+	// Si existe el elemento en DOM
+	$(document).ready(function () {
+
+		statusBD();
+
+		if (document.getElementsByClassName("cls-dataTable").length > 0) {
+			$('.cls-dataTable').DataTable({
+				"ordering": false,
+				"scrollX": true
+			});
+		}
+
+		if (document.getElementsByClassName("cls-dataTable50").length > 0) {
+			$('.cls-dataTable50').DataTable({
+				"searching": true,
+				"ordering": false,
+				"scrollX": true,
+				pageLength: 50, /*---- PARA INICIALIZAR LA PAGINACI�N */
+				lengthMenu: [50, 100, 150], /* RANGO PAGINACI�N */
+			});
+		}
+
+		if (document.getElementsByClassName("cls-dataTable20").length > 0) {
+			$('.cls-dataTable20').DataTable({
+				"searching": false,
+				"ordering": false,
+				"scrollX": true,
+				pageLength: 20, /*---- PARA INICIALIZAR LA PAGINACI�N */
+				lengthMenu: [20, 40, 60, 80, 100, 120], /* RANGO PAGINACI�N */
+			});
+		}
+
+		if (document.getElementsByClassName("cls-dataTable30").length > 0) {
+			$('.cls-dataTable30').DataTable({
+				"ordering": false,
+				"scrollX": true,
+				pageLength: 30, /*---- PARA INICIALIZAR LA PAGINACI�N */
+				lengthMenu: [30, 60, 90, 120], /* RANGO PAGINACI�N */
+			});
+		}
+
+		if (document.getElementsByClassName("cls-dateTimeDespacho").length > 0) {
+			$.datetimepicker.setLocale('es');
+			jQuery('.cls-dateTimeDespacho').datetimepicker({ step: 1 });
+		}
+
+		if (document.getElementsByClassName("cls-dateTimeVentas").length > 0) {
+			$.datetimepicker.setLocale('es');
+
+			var fechaActual = new Date();
+			var fechaMaxima = new Date(fechaActual.getTime());
+			fechaMaxima.setDate(fechaMaxima.getDate() + 10);
+			var maxDateFormatted = fechaMaxima.toISOString().slice(0, 16);
+			var DateActualFormatted = fechaActual.toISOString().slice(0, 16);
+
+			jQuery('.cls-dateTimeVentas').datetimepicker({
+				maxDate: maxDateFormatted,
+				minDate: DateActualFormatted,
+
+			});
+		}
+
+
+		var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+		var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+			return new bootstrap.Tooltip(tooltipTriggerEl);
+		});
+
+
+	});
+
+	// Función genérica para inicializar Slim Select en todos los <select> con una clase espec�fica
+	const inicializarSlimSelectsPorClase = (clase) => {
+		const elementos = document.querySelectorAll(`.${clase}`);
+
+		if (!elementos.length) {
+			//console.log(`No se encontraron elementos con la clase: "${clase}"`);
+			return;
+		}
+
+		elementos.forEach(elemento => {
+			if (elemento.tagName.toLowerCase() !== 'select') {
+				//console.log(`El elemento con clase "${clase}" no es un <select>.`, elemento);
+				return;
+			}
+
+			// Verificar si SlimSelect ya fue inicializado en este elemento
+			if (elemento.slim) {
+				elemento.slim.destroy();  // Destruir la instancia previa antes de inicializar
+				elemento.slim = null; // Limpiar la referencia para evitar problemas
+			}
+
+            if (elemento.tagName.toLowerCase() === 'select' && !elemento.slim) {
+                new SlimSelect({
+                    select: elemento,
+                    placeholder: 'Selecciona una opción', // Texto de marcador de posición en español
+                    allowDeselect: true, // Permite deseleccionar
+                    searchText: 'No encontrado', // Texto que aparece cuando no hay coincidencias en la búsqueda
+                    searchPlaceholder: 'Buscar...', // Texto de marcador de posición para la búsqueda
+                    closeOnSelect: false, // No cerrar el desplegable al seleccionar (opcional)
+                    showSearch: true // Mostrar la barra de búsqueda
+                });
+            }
+        });
+	};
+
+    inicializarSlimSelectsPorClase('cls-select')
+
+
+	function validarTexto(input) {
+		// Expresi�n regular que permite caracteres alfanum�ricos, "-", ".", "�", letras con tildes y acento agudo
+		var regex = /^[a-zA-Z0-9�������������� \-\.�']+$/;
+
+		// Comprobar si la cadena coincide con la expresi�n regular
+		if (regex.test(input)) {
+			// La cadena es v�lida
+			return true;
+		} else {
+			// La cadena contiene caracteres no permitidos
+			return false;
+		}
+	}
+
+	 // Se tiene que enviar de esta forma: resetValoresVacios(["ItmsGrpCod", "Descripcion"]);
+	function resetValoresVacios(ids) {
+		ids.forEach(id => {
+			let element = document.getElementById(id);
+			if (element) {
+				element.value = '';
+			}
+		});
+	}
+
+	// Recibir� un array de objetos con pares clave-valor, donde la clave es el ID del elemento y el valor es lo que se asignar� a dicho elemento
+	function asignarValores(idValuePairs) {
+		idValuePairs.forEach(function (pair) {
+			for (var id in pair) {
+				if (pair.hasOwnProperty(id)) {
+					var element = document.getElementById(id);
+					if (element) {
+						element.value = pair[id];
+					} else {
+						console.warn(`Elemento con ID ${id} no encontrado.`);
+					}
+				}
+			}
+		});
+	}
+
+	function convertirFecha(fecha) {
+		if (!fecha) return ''; // Manejar fechas no v�lidas
+
+			// Asumimos que la fecha est� en formato "dd/MM/yyyy"
+		let partes = fecha.split('/');
+		if (partes.length === 3) {
+			let dia = partes[0];
+			let mes = partes[1];
+			let ano = partes[2];
+			return `${ano}-${mes}-${dia}`; // Retornar en formato "yyyy-MM-dd"
+		}
+
+		return ''; // Manejar formato no esperado
+	}
+
+	function dispararEventoChange(id) {
+		document.getElementById(`${id}`).checked = true;
+		document.getElementById(`${id}`).dispatchEvent(new Event('change'));
+	}
+
+	function habilitarCampo(id) {
+		let select = document.getElementById(`${id}`);
+		select.style.pointerEvents = ""; // Permitir la interacci�n nuevamente
+		select.style.backgroundColor = ""; // Restaurar el color de fondo predeterminado
+		select.style.cursor = ""; // Restaurar el cursor predeterminado
+	}
+
+	function deshabilitarCampo(id) {
+		let select = document.getElementById(`${id}`);
+		select.style.pointerEvents = "none"; // Deshabilita la interacci�n
+		select.style.backgroundColor = "#f0f0f0"; // Cambia el fondo para mostrar que est� "bloqueado"
+		select.style.cursor = "not-allowed"; // Cambia el cursor
+	}
+
+	function permitirSoloNumeros(id) {
+		let campo = document.getElementById(id);
+
+		campo.addEventListener('input', function () {
+			var valor = campo.value;
+			var regex = /^[0-9]*$/; // Expresi�n regular para permitir solo n�meros
+
+			if (!regex.test(valor)) {
+				campo.value = valor.replace(/\D/g, ''); // Elimina todos los caracteres que no son d�gitos
+			}
+		});
+	}
+
+	function limitarMaxCaracteres(id, max) {
+		let campo = document.getElementById(id);
+
+		campo.addEventListener('input', function () {
+			if (campo.value.length > max) {
+				campo.value = campo.value.slice(0, max);
+			}
+		});
+	}
+
+	// Para que funcione, el par�metro "texto" debe llegar en min�scula: toLowerCase()
+	function capitalizarTexto(texto) {
+		return texto.replace(/\b\w/g, function (l) {
+			return l.toUpperCase();
+		});
+	}
+
+	// botones sweet alert
+	const swalWithBootstrapButtons = Swal.mixin({
+		customClass: {
+			confirmButton: 'btn btn-success mx-3',
+			cancelButton: 'btn btn-danger mx-3'
+		},
+		buttonsStyling: false
+	})
+
+	const Toast = Swal.mixin({
+		toast: true,
+		position: "top-end",
+		showConfirmButton: false,
+		timer: 3000,
+		timerProgressBar: true
+	});
+
+	function cargando() {
+		Swal.fire({
+			html: '<img src="/imagenes/index/ReportesDigemid/cargando.gif" />',
+			allowOutsideClick: false,
+			showCancelButton: false,
+			showConfirmButton: false
+		});
+	}
+
+	function cargarContenido(idDiv, url) {
+		let elemento = document.getElementById(idDiv);
+		elemento.innerHTML = "";
+
+		Swal.fire({
+			title: 'Cargando...',
+			text: 'Por favor, espere.',
+			allowOutsideClick: false,
+			didOpen: () => Swal.showLoading(),
+		});
+
+		fetch(url)
+			.then(response => response.text())
+			.then(data => {
+
+				setTimeout(() => {
+					Swal.close();
+				}, 700); // 700 ms = 0.7 segundos
+
+				elemento.innerHTML = data;
+				$('[data-bs-toggle="tooltip"]').tooltip();
+
+				// Ejecutar los scripts embebidos
+				ejecutarScripts(elemento);
+
+				return true;  // Asegurarse de que se devuelve algo para que .then() pueda encadenarse
+			})
+			.catch(error => {
+				console.error('Error al cargar la vista parcial:', error);
+				return false;  // En caso de error, devuelve false
+			});
+	}
+
+	function procesarOperacion(config) {
+		//console.log(config);
+		$.ajax({
+			url: config.url,
+			type: 'POST',
+			data: config.data
+		}).done(function (response) {
+			Swal.fire({
+				title: response.Mensaje,
+				html: response.Comentario && response.Comentario.length > 0 ? response.Comentario.join('<br>') : "",
+				icon: response.Icono,
+				allowEscapeKey: false,
+				allowOutsideClick: false,
+				showConfirmButton: response.Icono !== 'success'
+			});
+
+			if (response.Icono === 'success') {
+				setTimeout(function () {
+					cargarContenido(config.divContenido, config.controllerContenido);
+				}, 1000); // 1000 milisegundos = 1 segundo
+			}
+		}).fail(function (jqXHR, textStatus, errorThrown) {
+			console.error(jqXHR.status, textStatus, errorThrown); // Imprimir cualquier error en la consola en caso de que la solicitud AJAX falle
+		});
+	}
+
+	function confirmarEliminacion(mensaje, config) {
+		swalWithBootstrapButtons.fire({
+			title: '&iquest;Est&aacute seguro(a) de ELIMINAR?',
+			html: `${mensaje}`,
+			icon: 'warning',
+			allowEscapeKey: false,
+			showCancelButton: true,
+			confirmButtonText: "<i class='bi bi-check-lg'></i> Si, eliminar",
+			cancelButtonText: "<i class='bi bi-x-lg'></i> Cancelar",
+			reverseButtons: true
+		}).then((result) => {
+			if (result.isConfirmed) {
+				procesarOperacion(config);
+			}
+		});
+	}
+
+	// Funci�n gen�rica para manejar los eventos de los botones con data-function
+		function manejarEventoClick(event) {
+		// Buscar el elemento m�s cercano que tenga el atributo 'data-function'
+		let element = event.target.closest("[data-function]");
+
+		if (element) {
+			let nombreFunction = element.getAttribute("data-function");
+
+			// Verificar si la funci�n existe y ejecutarla
+			if (typeof window[nombreFunction] === "function") {
+				window[nombreFunction]();
+			} else {
+				console.error(`La función ${nombreFunction} no existe.`);
+			}
+		} else {
+			console.error('No se encontró el atributo "data-function" en el elemento clicado o en sus padres.');
+		}
+	}
+
+
+	// Funci�n para gestionar el valor de un datalist hacia un input con cualquier dataAttribute
+	function gestionarValorDatalist(inputElementId, dataListId, outputElementId, dataAttribute) {
+		document.getElementById(inputElementId).addEventListener('input', function () {
+			document.getElementById(outputElementId).value = "";
+			const input = this.value;
+			const selectedOption = Array.from(document.querySelectorAll(`#${dataListId} option`))
+				.find(option => option.value === input);
+
+			if (selectedOption) {
+				document.getElementById(outputElementId).value = selectedOption.dataset[dataAttribute];
+			}
+		});
+	}
+
+	// Para procesos en el que se usa INNERHTML con scripts embebidos
+	function ejecutarScripts(element) {
+		// Buscar todas las etiquetas <script> dentro del contenido insertado
+		const scripts = element.querySelectorAll("script");
+		scripts.forEach((script) => {
+			// Crear un nuevo script para ejecutarlo
+			const newScript = document.createElement("script");
+			newScript.textContent = script.textContent; // Copiar el contenido del script original
+
+			// Si el script tiene un atributo src, lo cargamos desde la URL
+			if (script.src) {
+				newScript.src = script.src;
+			}
+
+			// Reinsertar el script para ejecutarlo
+			document.body.appendChild(newScript);
+
+			// Remover el script despu�s de ejecutarlo si es necesario (opcional)
+			document.body.removeChild(newScript);
+		});
+	}
+
+		function mostrarUbigeos(seleccionar, id = 0) {
+		console.log(seleccionar)
+		if (id > 0) {
+			$('#div_listaUbigeos').load(`@Url.Action("ListarUbigeos","Ubigeo")?Ubigeo=${id}&mostrarseleccionar=${seleccionar}`).fadeIn("fast");
+		} else {
+			$('#div_listaUbigeos').load(`@Url.Action("ListarUbigeos", "Ubigeo")?mostrarseleccionar=${seleccionar}`).fadeIn("fast");
+		}
+		$('#modalUbigeos').modal('show');
+	}
+
+	function cargarUbigeo(idUbigeo) {
+		document.getElementById("idUbigeo").value = idUbigeo;
+		$('#modalUbigeos').modal('hide');
+	}
+
+	function habilitarDeshabilitarCheckbox() {
+		// Obtener todos los elementos con clase .chk-item y agregar el evento change
+		document.querySelectorAll(".chk-item").forEach(function (btn) {
+			btn.addEventListener("change", function () {
+				// Obtener todos los checkboxes seleccionados
+				let itemsSeleccionados = Array.from(document.querySelectorAll('.chk-item:checked'));
+
+				if (itemsSeleccionados.length > 0) {
+					// Si hay un checkbox seleccionado, deshabilitar los dem�s que no est�n seleccionados
+					document.querySelectorAll(".chk-item").forEach(function (checkbox) {
+						if (!checkbox.checked) {
+							checkbox.setAttribute("disabled", true);
+						}
+					});
+				} else {
+					// Si no hay ning�n checkbox seleccionado, habilitar todos los checkboxes
+					document.querySelectorAll(".chk-item").forEach(function (checkbox) {
+						checkbox.removeAttribute("disabled");
+					});
+				}
+			});
+		});
+	}
+
+	function manejarEventoClickTabla(selectorTabla, claseBoton, callback) {
+		document.querySelector(selectorTabla).addEventListener('click', function (event) {
+			// Verificar si el elemento clicado tiene la clase indicada
+			if (event.target.matches(claseBoton)) {
+				// Ejecutar la funci�n de callback con los datos del bot�n
+				callback(event.target.dataset);
+			} else if (event.target.closest(claseBoton)) {
+				// En caso de que se haya clicado en un elemento hijo dentro del bot�n
+				let btn = event.target.closest(claseBoton);
+				callback(btn.dataset);
+			}
+		});
+	}
+
+	function generarDesplegable(idElement, lista) {
+
+		const select = document.getElementById(idElement);
+        if (!select) {
+            console.log(`Elemento con ID ${idElement} no encontrado.`);
+            return;
+        }
+		select.innerHTML = `<option value=''>SELECCIONE</option>`;
+
+        if (!Array.isArray(lista) || lista.length === 0) {
+            console.log('Lista de datos vacía o inválida.');
+            return;
+		}
+
+		lista.forEach(function (optionData) {
+			//console.log(optionData);
+			const option = document.createElement('option');
+			option.value = optionData.Id;
+			option.text = optionData.Nombre;
+
+			// A�adir la opci�n al select
+			select.appendChild(option);
+		});
+	}
+
+	function insertarFila(idTabla, config) {
+		let tabla = document.getElementById(idTabla).getElementsByTagName('tbody')[0];
+		let nuevaFila = tabla.insertRow();          // Inserta una nueva fila
+
+		Object.keys(config).forEach(function (td, index) {
+			let nuevaCelda = nuevaFila.insertCell(index);
+			nuevaCelda.innerHTML = config[td]; // Agrega el contenido de cada celda
+
+			let inputHidden = nuevaCelda.querySelector('input[type="hidden"][data-hide-cell="true"]');
+			//let modalContent = nuevaCelda.querySelector('.modal'); // Busca si contiene un modal
+
+			if (inputHidden) {
+				// Oculta la celda si contiene un input hidden
+				nuevaCelda.classList.add('d-none');
+			}
+
+			// Agrega las clases 'text-center' y 'align-middle' a la celda
+			nuevaCelda.classList.add('text-center', 'align-middle');
+		});
+
+		// Coloca el foco en el primer input de la nueva fila
+		let primerInput = nuevaFila.querySelector('input[type="text"], textarea, select');
+		if (primerInput) {
+			primerInput.focus(); // Coloca el foco en el primer input o textarea o select
+		}
+		}
+
+	function reordenarFilas(table) {
+			let filas = document.querySelectorAll(`#${table} tbody tr`);
+			filas.forEach((fila, index) => {
+				// Reasignar los IDs y los names de cada input dentro de la fila
+				fila.querySelectorAll('input, select, textarea, button, a').forEach(input => {
+					let name = input.name;
+					let id = input.id;
+
+					// Actualizar name si existe
+					if (name) {
+						input.name = name.replace(/\[\d+\]/, `[${index}]`);
+					}
+
+					// Actualizar id si existe
+					if (id) {
+						let newId = id.replace(/_\d+$/, `_${index}`);
+						input.id = newId;
+					}
+
+					// Actualizar oninput si existe
+					if (input.hasAttribute('oninput')) {
+						let oninputValue = input.getAttribute('oninput');
+						let updatedOninputValue = oninputValue.replace(/_(\d+)/g, `_${index}`);
+						input.setAttribute('oninput', updatedOninputValue);
+					}
+
+					// Actualizar onchange si existe
+					if (input.hasAttribute('onchange')) {
+						let onchangeValue = input.getAttribute('onchange');
+						let updatedOnchangeValue = onchangeValue.replace(/_(\d+)/g, `_${index}`);
+						input.setAttribute('onchange', updatedOnchangeValue);
+					}
+
+					// Actualizar onclick si existe
+					if (input.hasAttribute('onclick')) {
+						let onclickValue = input.getAttribute('onclick');
+						let updatedOnclickValue = onclickValue.replace(/dynamicModal_\d+/g, `dynamicModal_${index}`);
+						input.setAttribute('onclick', updatedOnclickValue);
+					}
+
+					// Actualizar data-target si existe
+					if (input.hasAttribute('data-target')) {
+						let target = input.getAttribute('data-target');
+						let updatedTarget = target.replace(/_\d+$/, `_${index}`);
+						input.setAttribute('data-target', updatedTarget);
+					}
+				});
+
+				// Actualizar IDs de los modales asociados a la fila
+				let modal = fila.querySelector('.modal'); // Si el modal está directamente en la fila
+				if (modal) {
+					let modalId = modal.id;
+					if (modalId) {
+						let newModalId = modalId.replace(/_\d+$/, `_${index}`);
+						modal.id = newModalId;
+					}
+				}
+			});
+
+			// Actualizamos el contadorFilas al número correcto
+			contadorFilas = filas.length - 1;
+		}
+
+		// Funci�n para eliminar el <td> seleccionado
+		function removerFila(element) {
+			const row = element.closest('tr');		// Encuentra la fila m�s cercana (<tr>) donde se hizo clic y elim�nala
+			if (row) {
+				row.remove(); // Elimina solo la fila espec�fica
+			}
+		}
+
+		function agregarPointerNone(ids) {
+			ids.forEach(function (id) {
+				let elemento = document.getElementById(id);
+				if (elemento) {
+					// Aplicamos pointer-events: none y cambiamos el estilo visual
+					elemento.style.pointerEvents = 'none';
+					elemento.style.backgroundColor = '#e9ecef'; // O cualquier color para indicar deshabilitado
+					elemento.style.cursor = 'not-allowed';
+				} else {
+					console.warn(`Elemento con ID '${id}' no encontrado.`);
+				}
+			});
+		}
+
+		function quitarPointerNone(ids) {
+			ids.forEach(function (id) {
+				let elemento = document.getElementById(id);
+				if (elemento) {
+					// Quitamos el pointer-events y restauramos los estilos previos
+					elemento.style.pointerEvents = 'auto'; // Vuelve a habilitar la interacci�n
+					elemento.style.backgroundColor = '';   // Restauramos el color original
+					elemento.style.cursor = '';            // Restauramos el cursor original
+				} else {
+					console.warn(`Elemento con ID '${id}' no encontrado.`);
+				}
+			});
+		}
+
+		function quitarReadonly(ids) {
+			ids.forEach(function (id) {
+				let elemento = document.getElementById(id);
+				if (elemento) {
+					elemento.readOnly = false;
+				} else {
+					console.warn(`Elemento con ID '${id}' no encontrado.`);
+				}
+			});
+		}
+
+		function permitirValoresNumericosPositivos() {
+			let campos = document.querySelectorAll('.cls-num'); // Selecciona todos los elementos con la clase 'cls-num'
+
+			campos.forEach(function (campo) {
+				campo.addEventListener('input', function () {
+					var valor = campo.value;
+					var regex = /^[0-9]*[.,]?[0-9]*$/; // Expresi�n regular para permitir n�meros y un solo punto decimal
+
+					if (!regex.test(valor)) {
+						// Permitir n�meros decimales y reemplazar cualquier car�cter no permitido
+						campo.value = valor.replace(/[^0-9.,]/g, '').replace(/(.*)[.,](.*)[.,]/g, '$1.$2'); // Permitir solo un punto decimal
+					}
+				});
+			});
+		}
+
+		function ocultarElementosPorId(idsArray) {
+		idsArray.forEach(function (id) {
+			const elemento = document.getElementById(id);
+			if (elemento) {
+				elemento.style.display = "none";
+			}
+		});
+	}
+
+		function inicializarDataTable(idTable, itemsPorPagina) {
+			const items = Number(itemsPorPagina)
+
+            if ($.fn.DataTable.isDataTable(`#${idTable}`)) {
+                $(`#${idTable}`).DataTable().clear().destroy();
+            }
+
+            let table = $(`#${idTable}`).DataTable({
+                "ordering": true,
+                "pageLength": items,
+                "lengthMenu": [items, items * 2, items * 3, items * 4, items * 5],
+                "language": {
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                    "infoEmpty": "No hay registros disponibles",
+                    "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                    "lengthMenu": "Mostrar _MENU_ registros por página",
+                    "search": "Buscar:",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "zeroRecords": "No se encontraron registros"
+                }
+            });
+
+			table.columns.adjust().draw();
+        }
+    </script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

@@ -295,6 +295,7 @@
     <Content Include="Content\css\select2.min.css" />
     <Content Include="Content\css\semantic.min.css" />
     <Content Include="Content\estilos.css" />
+    <Content Include="Content\estilos2025.css" />
     <Content Include="Content\Frameworks\alertify.min.css" />
     <Content Include="Content\icomoon\demo-files\demo.css" />
     <Content Include="Content\icomoon\demo-files\demo.js" />
@@ -633,6 +634,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\AbastecimientoInternoController.cs" />
     <Compile Include="Controllers\AlmacenController.cs" />
     <Compile Include="Controllers\AtencionClienteController.cs" />
     <Compile Include="Controllers\CajaController.cs" />
@@ -1007,6 +1009,11 @@
     <Content Include="Views\Rutas\NuevaTransferenciaEntreAlmacenes.cshtml" />
     <Content Include="Views\Rutas\EditarHojaDeReparto.cshtml" />
     <Content Include="Views\Ventas\PDF\PDF_OrdenesDeVentasSophos.cshtml" />
+    <Content Include="Views\AbastecimientoInterno\UbicacionesPicking.cshtml" />
+    <Content Include="Views\Shared\_DefaultLayout.cshtml" />
+    <Content Include="Views\Shared\_Header.cshtml" />
+    <Content Include="Views\Shared\_Footer.cshtml" />
+    <Content Include="Views\Shared\AbastecimientoInterno\_ListadoUbicacionesPicking.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

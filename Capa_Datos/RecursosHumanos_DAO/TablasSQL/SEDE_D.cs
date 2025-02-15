@@ -41,7 +41,7 @@ namespace Capa_Datos.General_DAO
                 catch (Exception ex)
                 {
                     File.AppendAllText(uti.directorioLogs + "SEDE_D - RegistrarSede.txt", $"{DateTime.Now}: {ex.Message}\n {ex.StackTrace}\n");        // Registro de error
-                    mensajeError = "Ocurrió un error al registrar la sede. Por favor, comunicarse con SISTEMAS.";
+                    mensajeError = "Ocurrió un error al registrar la sede. Por favor, comuníquese con el área de Sistemas para más información.";
                 }
             }
 
@@ -71,7 +71,7 @@ namespace Capa_Datos.General_DAO
                 catch (Exception ex)
                 {
                     File.AppendAllText(uti.directorioLogs + "SEDE_D - EditarSede.txt", $"{DateTime.Now}: {ex.Message}\n {ex.StackTrace}\n");        // Registro de error
-                    mensajeError = "Ocurrió un error al editar la sede. Por favor, comunicarse con SISTEMAS.";
+                    mensajeError = "Ocurrió un error al editar la sede. Por favor, comuníquese con el área de Sistemas para más información.";
                 }
             }
 
@@ -98,7 +98,7 @@ namespace Capa_Datos.General_DAO
                 catch (Exception ex)
                 {
                     File.AppendAllText(uti.directorioLogs + "SEDE_D - EliminarSede.txt", $"{DateTime.Now}: {ex.Message}\n {ex.StackTrace}\n");        // Registro de error
-                    mensajeError = "Ocurrió un error al eliminar la sede. Por favor, comunicarse con SISTEMAS.";
+                    mensajeError = "Ocurrió un error al eliminar la sede. Por favor, comuníquese con el área de Sistemas para más información.";
                 }
             }
 

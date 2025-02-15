@@ -57,6 +57,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AbastecimientoInterno_NEG\TablasSql\Productos_N.cs" />
+    <Compile Include="AbastecimientoInterno_NEG\TablasSql\UbicacionesPicking_N.cs" />
     <Compile Include="Almacen_NEG\ReportesSql\ContInv_N.cs" />
     <Compile Include="Almacen_NEG\TablasSql\CC_ORPD_N.cs" />
     <Compile Include="Almacen_NEG\TablasSql\MotivosDevoluciones_N.cs" />

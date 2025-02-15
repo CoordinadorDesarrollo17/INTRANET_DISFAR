@@ -1,4 +1,5 @@
-﻿using Capa_Entidad.Seguridad_ENT;
+﻿using Capa_Entidad;
+using Capa_Entidad.Seguridad_ENT;
 using Capa_Negocio.Seguridad_NEG;
 using System;
 using System.Collections.Generic;
@@ -61,6 +62,15 @@ namespace Capa_Negocio
 
             // Retorna true si encuentra al menos un carácter especial
             return regex.IsMatch(input);
+        }
+
+        public Helper_E CrearRespuestaError(string mensaje)
+        {
+            return new Helper_E
+            {
+                Mensaje = mensaje,
+                IconoSweetAlert = "error"
+            };
         }
     }
 }

@@ -142,7 +142,7 @@ namespace Capa_Datos.RecursosHumanos_DAO
         //        catch (Exception ex)
         //        {
         //            RegistrarError(ex, "EMPL1_D - RegistrarDatosLaborales");        // Registro de error
-        //            mensajeError = "Ocurrió un error al registrar los datos laborales. Por favor, comunicarse con SISTEMAS.";
+        //            mensajeError = "Ocurrió un error al registrar los datos laborales. Por favor, comuníquese con el área de Sistemas para más información.";
         //        }
         //    }
 
@@ -192,7 +192,7 @@ namespace Capa_Datos.RecursosHumanos_DAO
         //        catch (Exception ex)
         //        {
         //            RegistrarError(ex, "EMPL1_D - EditarDatosLaborales");        // Registro de error
-        //            mensajeError = "Ocurrió un error al editar datos laborales. Por favor, comunicarse con SISTEMAS.";
+        //            mensajeError = "Ocurrió un error al editar datos laborales. Por favor, comuníquese con el área de Sistemas para más información.";
         //        }
         //    }
 
@@ -219,7 +219,7 @@ namespace Capa_Datos.RecursosHumanos_DAO
         //        catch (Exception ex)
         //        {
         //            RegistrarError(ex, "EMPL1_D - EliminarDatosLaborales");        // Registro de error
-        //            mensajeError = "Ocurrió un error al eliminar datos laborales. Por favor, comunicarse con SISTEMAS.";
+        //            mensajeError = "Ocurrió un error al eliminar datos laborales. Por favor, comuníquese con el área de Sistemas para más información.";
         //        }
         //    }
 
