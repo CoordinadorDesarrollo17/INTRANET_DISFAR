@@ -45,7 +45,6 @@ namespace Capa_Usuario.Controllers
         }
         /********************************************************************/
 
-
         /** 
          * Método para buscar el responsable de almacén de las actas de recepción y despacho 
          * @param {String} tipoFirma - Para saber que tipo de firma estamos buscando 
@@ -62,51 +61,66 @@ namespace Capa_Usuario.Controllers
                 // ResponsableALMActas: ActaRecepcionEm, ActaRecepcionTs
                 if (!string.IsNullOrWhiteSpace(tipoFirma) && tipoFirma.Equals("ResponsableALMActas"))
                 {
-                    lista.Add("00", "");                        // ------  REVALORIZACION
-                    lista.Add("01", "186");                     // Mireya Roman Silva ALM01
-                    lista.Add("02", "834");                     // Hemerson Richard Laura Paucar ALM02
-                    lista.Add("03", "185");                     // Julio Roman Silva ALM03
-                    lista.Add("04", "");                        // ----- ALMACEN TERCIARIZADO, SIN RESPONSABLE
+                    
+
+                    lista.Add("01", "186");                     // ALMACEN NRO 1 - Mireya Roman Silva
+                    lista.Add("02", "186");                     // ALMACEN NRO 2 - Mireya Roman Silva
+
+                    lista.Add("03", "185");                     // ALMACEN NRO 3 - Julio Roman Silva 
+                    lista.Add("06", "185");                     // ALMACEN NRO 3 - Julio Roman Silva 
+                    lista.Add("07", "185");                     // ALMACEN NRO 3 - Julio Roman Silva 
+
+                    lista.Add("ALM07", "161");                  // ALMACEN NRO 6 - Carmen Condori Saravia
+                    lista.Add("CUAR07", "161");                 // ALMACEN NRO 6 - Carmen Condori Saravia
+                    lista.Add("DEV07", "161");                  // ALMACEN NRO 6 - Carmen Condori Saravia
+                    lista.Add("04", "");                        // SIN RESPONSABLE
+                    lista.Add("ALM08", "");                     // SIN RESPONSABLE
+
+                    lista.Add("09", "182");                     // ALMACEN NRO 5 - Yasmani Huarachi Mamani 
+
+                    lista.Add("10", "893");                     // ALMACEN NRO 8 - Anthony Auquipuma Quispe
+                    lista.Add("08", "893");                     // ALMACEN NRO 8 - Anthony Auquipuma Quispe
+                    lista.Add("11", "893");                     // ALMACEN NRO 8 - Anthony Auquipuma Quispe
+                    lista.Add("12", "893");                     // ALMACEN NRO 8 - Anthony Auquipuma Quispe
+                    lista.Add("13", "893");                     // ALMACEN NRO 8 - Anthony Auquipuma Quispe
+                    lista.Add("14", "893");                     // ALMACEN NRO 8 - Anthony Auquipuma Quispe
+                    lista.Add("15", "893");                     // ALMACEN NRO 8 - Anthony Auquipuma Quispe
+                    lista.Add("16", "893");                     // ALMACEN NRO 8 - Anthony Auquipuma Quispe
+
                     lista.Add("05", "");                        // ----- NO EXISTE
                     lista.Add("DEV05", "");                     // ----- NO EXISTE
-                    lista.Add("06", "185");                     // Julio Roman Silva ALM03
-                    lista.Add("07", "185");                     // Julio Roman Silva ALM03
-                    lista.Add("09", "182");                     // Yasmani Huarachi Mamani ALM05
-                    lista.Add("10", "");                     // ----- NO EXISTE 
-                    lista.Add("ALM07", "161");                  // Carmen Condori Saravia ALM06
-                    lista.Add("ALM08", "");                     // ---- ALMACEN TERCIARIZADO, SIN RESPONSABLE
-                    lista.Add("CUAR07", "161");                 // Carmen Condori Saravia ALM06
-                    lista.Add("DEV07", "161");                  // Carmen Condori Saravia ALM06
-                    lista.Add("11", "");                        // ----- NO EXISTE
-                    lista.Add("12", "");                        // ----- NO EXISTE
-                    lista.Add("13", "");                        // ----- NO EXISTE
-                    lista.Add("14", "");                        // ----- NO EXISTE
-                    lista.Add("15", "");                        // ----- NO EXISTE
-                    lista.Add("16", "");                        // ----- NO EXISTE
+                    lista.Add("00", "");                        // ----- NO EXISTE
                 }
                 else if (!string.IsNullOrWhiteSpace(tipoFirma) && tipoFirma.Equals("QuimicoFarmaceutico"))
                 {
-                    lista.Add("00", "");                        // ------ REVALORIZACION
-                    lista.Add("01", "416");                     // Maryori Córdova García ALM01
-                    lista.Add("02", "416");                     // Maryori Córdova García ALM01
-                    lista.Add("03", "206");                     // María Aguirre Reyes ALM03
-                    lista.Add("04", "208");                     // Diana Quiquia Urribarre
+                 
+                    lista.Add("01", "416");                     // ALMACEN NRO 1 - Maryori Córdova García 
+                    lista.Add("02", "416");                     // ALMACEN NRO 2 - Maryori Córdova García 
+
+                    lista.Add("03", "811");                     // ALMACEN NRO 3 - Maribel Ramos Jamjachi
+                    lista.Add("06", "811");                     // ALMACEN NRO 3 - Maribel Ramos Jamjachi    
+                    lista.Add("07", "811");                     // ALMACEN NRO 3 - Maribel Ramos Jamjachi  
+
+                    lista.Add("04", "339");                     // ALMACEN NRO 4 - Roly Gonzales Romero
+                    lista.Add("ALM07", "339");                  // ALMACEN NRO 6 - Roly Gonzales Romero
+                    lista.Add("CUAR07", "339");                 // ALMACEN NRO 6 - Roly Gonzales Romero
+                    lista.Add("DEV07", "339");                  // ALMACEN NRO 6 - Roly Gonzales Romero
+                    lista.Add("ALM08", "339");                  // ALMACEN NRO 6 - Roly Gonzales Romero
+
+                    lista.Add("09", "961");                     // ALMACEN NRO 5 - Karen Gonzales Tito
+
+                    lista.Add("10", "206");                     // ALMACEN NRO 8 - Maria Aguirre Reyes
+                    lista.Add("08", "206");                     // ALMACEN NRO 8 - Maria Aguirre Reyes
+                    lista.Add("11", "206");                     // ALMACEN NRO 8 - Maria Aguirre Reyes
+                    lista.Add("12", "206");                     // ALMACEN NRO 8 - Maria Aguirre Reyes
+                    lista.Add("13", "206");                     // ALMACEN NRO 8 - Maria Aguirre Reyes
+                    lista.Add("14", "206");                     // ALMACEN NRO 8 - Maria Aguirre Reyes
+                    lista.Add("15", "206");                     // ALMACEN NRO 8 - Maria Aguirre Reyes
+                    lista.Add("16", "206");                     // ALMACEN NRO 8 - Maria Aguirre Reyes
+
                     lista.Add("05", "");                        // ----- NO EXISTE
                     lista.Add("DEV05", "");                     // ----- NO EXISTE
-                    lista.Add("06", "206");                     // María Aguirre Reyes ALM03
-                    lista.Add("07", "206");                     // María Aguirre Reyes ALM03
-                    lista.Add("09", "208");                     // Diana Quiquia Urribarre 
-                    lista.Add("10", "206");                     // María Aguirre Reyes ALM03
-                    lista.Add("ALM07", "339");                  // Roly Gonzales Romero ALM06
-                    lista.Add("ALM08", "208");                  // Diana Quiquia Urribarre 
-                    lista.Add("CUAR07", "339");                 // Roly Gonzales Romero ALM06
-                    lista.Add("DEV07", "339");                  // Roly Gonzales Romero ALM06
-                    lista.Add("11", "");                                    // ----- NO EXISTE
-                    lista.Add("12", "");                                    // ----- NO EXISTE
-                    lista.Add("13", "");                                    // ----- NO EXISTE
-                    lista.Add("14", "");                                    // ----- NO EXISTE
-                    lista.Add("15", "");                                    // ----- NO EXISTE
-                    lista.Add("16", "");                                    // ----- NO EXISTE
+                    lista.Add("00", "");                        // ----- NO EXISTE
 
                 }
 
