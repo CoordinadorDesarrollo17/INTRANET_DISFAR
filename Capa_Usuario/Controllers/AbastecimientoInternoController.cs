@@ -1,10 +1,8 @@
-using Capa_Entidad;
 using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
-using Capa_Entidad.AtencionCliente_ENT.TablasSql;
 using Capa_Entidad.Seguridad_ENT;
+using Capa_Negocio.AbastecimientoInterno_NEG.TablasExternas;
 using Capa_Negocio.AbastecimientoInterno_NEG.TablasSql;
 using Capa_Usuario.Helpers;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
@@ -15,6 +13,7 @@ namespace Capa_Usuario.Controllers
     {
         private readonly UbicacionesPicking_N _ubicacionPickingN = new UbicacionesPicking_N();
         private readonly Productos_N _productosN = new Productos_N();
+        private readonly OWTQ_N _solicitudTrasladoHanaN = new OWTQ_N();
         private readonly StockMinProductos_N _stockMinProdN = new StockMinProductos_N();
 
         /************************* C O N F I G U R A C I Ó N *************************/
@@ -85,6 +84,7 @@ namespace Capa_Usuario.Controllers
             string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
 
             return Json(new { Mensaje = tituloSweetAlert, Comentario = result.Mensajes, Icono = result.IconoSweetAlert });
+
         }
 
         public JsonResult EliminarUbicacionPicking(int id)
@@ -98,6 +98,16 @@ namespace Capa_Usuario.Controllers
 
             return Json(new { Mensaje = tituloSweetAlert, Comentario = new List<string> { result.Mensaje }, Icono = result.IconoSweetAlert });
         }
+
+        //ALISSON ROMERO
+        public JsonResult BuscarSolicitudDeTraslado(int DocNum)
+        {
+            var traslados = _solicitudTrasladoHanaN.BuscarSolicitudDeTraslado(DocNum);
+            if (traslados == null) { return Json(new { Mensaje = "Error", Comentario = new List<string> { "No existe ningun resultado" }, Icono = "error" }); }
+            return Json(new { });
+        }
+        
+
 
         public JsonResult ActualizarStocksMinimos(StockMinProductos_E form)
         {
