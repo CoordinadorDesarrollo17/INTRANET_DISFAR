@@ -28,8 +28,10 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
                     var sb = new StringBuilder();
 
-                    sb.AppendLine("SELECT UP.[Id], UP.[Almacen], UP.[ItemCode], UP.[ItemName], UP.[CodigoUbicacion], UP.[BatchNum], UP.[QuantityUnidades]");
+                    sb.AppendLine("SELECT UP.[Id], UP.[Almacen], UP.[ItemCode], UP.[ItemName], UP.[CodigoUbicacion], UP.[BatchNum], UP.[QuantityUnidades],");
+                    sb.AppendLine("SM.[StockMinAbastecimiento], SM.[StockMinVenta]");
                     sb.AppendLine("FROM [dbo].[Ubicaciones] UP");
+                    sb.AppendLine("OUTER APPLY (SELECT TOP 1 SM.[StockMinAbastecimiento], SM.[StockMinVenta] FROM [dbo].[StockMinProductos] SM WHERE SM.[ItemCode] = UP.[ItemCode]) SM");
                     sb.AppendLine("WHERE UP.[Almacen] = 'PICKING'");
                     sb.AppendLine(condicion);
 
@@ -58,6 +60,8 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                                 if (!dr.IsDBNull(4)) obj.CodigoUbicacion = dr.GetString(4);
                                 if (!dr.IsDBNull(5)) obj.BatchNum = dr.GetString(5);
                                 if (!dr.IsDBNull(6)) obj.QuantityUnidades = dr.GetDecimal(6);
+                                if (!dr.IsDBNull(7)) obj.StockMinAbastecimiento = dr.GetInt32(7);
+                                if (!dr.IsDBNull(8)) obj.StockMinVenta = dr.GetInt32(8);
 
                                 lista.Add(obj);
                             }
@@ -104,13 +108,25 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                         cmd.Parameters.Add(outputId);
 
                         cmd.ExecuteNonQuery();
-
                         id = (int)outputId.Value;
-
-                        transaction.Commit();
-                        mensaje = "Los datos han sido registrados correctamente.";
-                        icono = "success";
                     }
+
+                    // Ejecutar sp_GestionarStockMinProductos (Registra los stocks mínimos)
+                    using (SqlCommand cmd = new SqlCommand("sp_GestionarStockMinProductos", cn, transaction))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
+                        cmd.Parameters.AddWithValue("@ItemCode", datos.ItemCode);
+                        cmd.Parameters.AddWithValue("@ItemName", datos.ItemName);
+                        cmd.Parameters.AddWithValue("@StockMinAbastecimiento", datos.StockMinAbastecimiento);
+                        cmd.Parameters.AddWithValue("@StockMinVenta", datos.StockMinVenta);
+
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    transaction.Commit();
+                    mensaje = "Los datos y stocks mínimos han sido registrados correctamente.";
+                    icono = "success";
                 }
                 catch (Exception ex)
                 {

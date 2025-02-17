@@ -63,6 +63,18 @@
 
                         <div class="row mb-4">
                             <div class="col-lg-3">
+                                <label class="form-label fw-bold">Stock mínimo abastecimiento:</label>
+                                <input type="text" id="StockMinAbastecimiento" name="StockMinAbastecimiento" class="form-control text-center cls-num" autocomplete="off" />
+                            </div>
+
+                            <div class="col-lg-3">
+                                <label class="form-label fw-bold">Stock mínimo abastecimiento:</label>
+                                <input type="text" id="StockMinVenta" name="StockMinVenta" class="form-control text-center cls-num" autocomplete="off" />
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-lg-3">
                                 <label class="form-label fw-bold">Código de ubicación:</label>
                                 <input type="text" id="CodigoUbicacion" name="CodigoUbicacion" class="form-control cls-readonly text-center" autocomplete="off" readonly />
                             </div>
@@ -126,6 +138,7 @@
 			limitarMaxCaracteres('CodigoUbicacion', 228)
             permitirSoloNumeros('nivel')
             inicializarSlimSelectsPorClase('cls-select')
+            permitirValoresNumericosPositivos()
 		});
 		
 		document.querySelector('#btn_nuevaUbicacionPicking').addEventListener('click', function () {
@@ -164,7 +177,7 @@
                 const data = await response.json();
 
                 if (data.Icono == 'success') {
-                    resetValoresVacios(["ItemCode", "ItemName", "CodigoUbicacion", "almacen", "rackBloque", "posicion", "nivel"])
+                    resetValoresVacios(["ItemCode", "ItemName", "StockMinAbastecimiento", "StockMinVenta","CodigoUbicacion", "almacen", "rackBloque", "posicion", "nivel"])
                     inicializarSlimSelectsPorClase('cls-select')
 
                     const radios = document.querySelectorAll(`input[name="UbiSistema"]`)
@@ -209,15 +222,15 @@
 		let codigoUbicacion = ["", "", "", ""]
 
 		function generarCodigoUbicacion(codigo, posicion) {
-			codigo = codigo.trim();
+			codigo = codigo.trim()
 
 			if (codigo === "" || (posicion === 3 && isNaN(codigo))) {
-				codigoUbicacion[posicion] = "";
+				codigoUbicacion[posicion] = ""
 			} else {
-				codigoUbicacion[posicion] = codigo.toUpperCase();
+				codigoUbicacion[posicion] = codigo.toUpperCase()
 			}
 
-			document.querySelector('#CodigoUbicacion').value = codigoUbicacion.join("-");
+			document.querySelector('#CodigoUbicacion').value = codigoUbicacion.join("-")
         }
 
         function llenarItemCode(elemento) {
