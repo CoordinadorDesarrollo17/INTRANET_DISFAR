@@ -1,13 +1,8 @@
-using Capa_Datos.AbastecimientoInterno_DAO.TablasExternas;
-using Capa_Entidad;
-using Capa_Entidad.AbastecimientoInterno_ENT.TablasExternas;
 using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
-using Capa_Entidad.AtencionCliente_ENT.TablasSql;
 using Capa_Entidad.Seguridad_ENT;
 using Capa_Negocio.AbastecimientoInterno_NEG.TablasExternas;
 using Capa_Negocio.AbastecimientoInterno_NEG.TablasSql;
 using Capa_Usuario.Helpers;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
@@ -19,6 +14,7 @@ namespace Capa_Usuario.Controllers
         private readonly UbicacionesPicking_N _ubicacionPickingN = new UbicacionesPicking_N();
         private readonly Productos_N _productosN = new Productos_N();
         private readonly OWTQ_N _solicitudTrasladoHanaN = new OWTQ_N();
+        private readonly StockMinProductos_N _stockMinProdN = new StockMinProductos_N();
 
         /************************* C O N F I G U R A C I Ó N *************************/
         private ActionResult VerificarPermiso(int idOperation)
@@ -61,13 +57,15 @@ namespace Capa_Usuario.Controllers
                 return Json(new { Mensaje = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" });
 
             var listaAgrupada = _ubicacionPickingN.ListarUbicacionesPicking(filtros)
-                .GroupBy(u => new { u.ItemCode, u.ItemName })
+                .GroupBy(u => new { u.ItemCode, u.ItemName, u.StockMinAbastecimiento, u.StockMinVenta })
                 .Select(grupo => new Ubicaciones_E
                 {
                     ItemCode = grupo.Key.ItemCode,
                     ItemName = grupo.Key.ItemName,
                     CantidadUbicaciones = grupo.Count(),
-                    Ubicaciones = grupo.ToList()
+                    Ubicaciones = grupo.ToList(),
+                    StockMinAbastecimiento = grupo.Key.StockMinAbastecimiento,
+                    StockMinVenta = grupo.Key.StockMinVenta,
                 })
                 .ToDictionary(x => x.ItemCode);
 
@@ -95,7 +93,6 @@ namespace Capa_Usuario.Controllers
             if (usuarioSesion == null)
                 return Json(new { Mensaje = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" });
 
-            //var cabecera = new SSAL_E { NombreOperarioINS = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}" };
             var result = _ubicacionPickingN.EliminarUbicacionPicking(id);
             string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
 
@@ -111,5 +108,25 @@ namespace Capa_Usuario.Controllers
         }
         
 
+
+        public JsonResult ActualizarStocksMinimos(StockMinProductos_E form)
+        {
+            var usuarioSesion = Session["UsuarioId"] as Usuario_E;
+            if (usuarioSesion == null)
+                return Json(new { Mensaje = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" });
+
+            form.NombreOperarioAccion = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
+            var result = _stockMinProdN.ActualizarStocksMinimos(form);
+            string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
+
+            return Json(new
+            {
+                Mensaje = tituloSweetAlert,
+                Comentario = result.Mensajes,
+                Icono = result.IconoSweetAlert
+            });
+        }
+
+        /************************* U B I C A C I O N E S   R E S E R V A *************************/
     }
 }

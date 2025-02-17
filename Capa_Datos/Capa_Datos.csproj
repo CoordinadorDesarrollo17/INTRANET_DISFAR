@@ -81,6 +81,7 @@
   <ItemGroup>
     <Compile Include="AbastecimientoInterno_DAO\TablasExternas\OWTQ_D.cs" />
     <Compile Include="AbastecimientoInterno_DAO\TablasSql\Productos_D.cs" />
+    <Compile Include="AbastecimientoInterno_DAO\TablasSql\StockMinProductos_D.cs" />
     <Compile Include="AbastecimientoInterno_DAO\TablasSql\UbicacionesPicking_D.cs" />
     <Compile Include="Almacen_DAO\RptInternos\ContInv_D.cs" />
     <Compile Include="Almacen_DAO\TablasSql\CC_ORPD_D.cs" />
