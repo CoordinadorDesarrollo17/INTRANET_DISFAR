@@ -11,13 +11,13 @@ using Capa_Entidad.AtencionCliente_ENT.TablasSql;
 
 namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 {
-    public class UbicacionesPicking_D
+    public class UbicacionesReserva_D
     {
         readonly Utilitarios uti = new Utilitarios();
 
-        public List<UbicacionesPicking_E> ListarUbicacionesPicking(string condicion, Dictionary<string, object> parametrosCondicion)
+        public List<UbicacionesReserva_E> ListarUbicacionesReserva(string condicion, Dictionary<string, object> parametrosCondicion)
         {
-            List<UbicacionesPicking_E> lista = new List<UbicacionesPicking_E>();
+            List<UbicacionesReserva_E> lista = new List<UbicacionesReserva_E>();
 
             try
             {
@@ -28,10 +28,11 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
                     var sb = new StringBuilder();
 
-                    sb.AppendLine("SELECT UP.[Id], UP.[Almacen], UP.[ItemCode], UP.[ItemName], UP.[CodigoUbicacion], SM.[StockMinAbastecimiento], SM.[StockMinVenta]");
-                    sb.AppendLine("FROM [dbo].[Ubicaciones] UP");
-                    sb.AppendLine("OUTER APPLY (SELECT TOP 1 SM.[StockMinAbastecimiento], SM.[StockMinVenta] FROM [dbo].[StockMinProductos] SM WHERE SM.[ItemCode] = UP.[ItemCode]) SM");
-                    sb.AppendLine("WHERE UP.[Almacen] = 'PICKING'");
+                    sb.AppendLine("SELECT UL.[Id], UL.[UbicacionId], UL.[Almacen], UL.[ItemCode], UL.[ItemName], UL.[CodigoUbicacion], UL.[BatchNum], UL.[Quantity],");
+                    sb.AppendLine("SM.[StockMinAbastecimiento], SM.[StockMinVenta]");
+                    sb.AppendLine("FROM [dbo].[UbicacionesLotes] UL");
+                    sb.AppendLine("OUTER APPLY (SELECT TOP 1 SM.[StockMinAbastecimiento], SM.[StockMinVenta] FROM [dbo].[StockMinProductos] SM WHERE SM.[ItemCode] = UL.[ItemCode]) SM");
+                    sb.AppendLine("WHERE UL.[Almacen] = 'RESERVA'");
                     sb.AppendLine(condicion);
 
                     // Agregamos los parámetros dinámicamente
@@ -45,20 +46,23 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     cn.Open();
 
                     using (SqlDataReader dr = cmd.ExecuteReader())
-                    {
+                    {   
                         if (dr.HasRows)
                         {
                             while (dr.Read())
                             {
-                                var obj = new UbicacionesPicking_E();
+                                var obj = new UbicacionesReserva_E();
 
                                 if (!dr.IsDBNull(0)) obj.Id = dr.GetInt32(0);
-                                if (!dr.IsDBNull(1)) obj.Almacen = dr.GetString(1);
-                                if (!dr.IsDBNull(2)) obj.ItemCode = dr.GetString(2);
-                                if (!dr.IsDBNull(3)) obj.ItemName = dr.GetString(3);
-                                if (!dr.IsDBNull(4)) obj.CodigoUbicacion = dr.GetString(4);
-                                if (!dr.IsDBNull(5)) obj.StockMinAbastecimiento = dr.GetInt32(5);
-                                if (!dr.IsDBNull(6)) obj.StockMinVenta = dr.GetInt32(6);
+                                if (!dr.IsDBNull(1)) obj.UbicacionId = dr.GetInt32(1);
+                                if (!dr.IsDBNull(2)) obj.Almacen = dr.GetString(2);
+                                if (!dr.IsDBNull(3)) obj.ItemCode = dr.GetString(3);
+                                if (!dr.IsDBNull(4)) obj.ItemName = dr.GetString(4);
+                                if (!dr.IsDBNull(5)) obj.CodigoUbicacion = dr.GetString(5);
+                                if (!dr.IsDBNull(6)) obj.BatchNum = dr.GetString(6);
+                                if (!dr.IsDBNull(7)) obj.Quantity= dr.GetDecimal(7);
+                                if (!dr.IsDBNull(8)) obj.StockMinAbastecimiento = dr.GetInt32(8);
+                                if (!dr.IsDBNull(9)) obj.StockMinVenta = dr.GetInt32(9);
 
                                 lista.Add(obj);
                             }
@@ -69,13 +73,13 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
             }
             catch (Exception ex)
             {
-                LogHelper.RegistrarError(ex, "UbicacionesPicking_D - ListarUbicacionesPicking");
+                LogHelper.RegistrarError(ex, "UbicacionesReserva_D - ListarUbicacionesReserva");
             }
 
             return lista;
         }
 
-        public Helper_E RegistrarUbicacionPicking(UbicacionesPicking_E datos)
+        public Helper_E RegistrarUbicacionReserva(UbicacionesReserva_E datos)
         {
             string mensaje, icono;
             int id = 0;
@@ -92,7 +96,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                         cmd.CommandType = CommandType.StoredProcedure;
 
                         cmd.Parameters.AddWithValue("@Operacion", "INSERT");
-                        cmd.Parameters.AddWithValue("@Almacen", "PICKING");
+                        cmd.Parameters.AddWithValue("@Almacen", "RESERVA");
                         cmd.Parameters.AddWithValue("@ItemCode", datos.ItemCode);
                         cmd.Parameters.AddWithValue("@ItemName", datos.ItemName);
                         cmd.Parameters.AddWithValue("@CodigoUbicacion", datos.CodigoUbicacion);
@@ -128,8 +132,8 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 catch (Exception ex)
                 {
                     transaction.Rollback();
-                    LogHelper.RegistrarError(ex, "UbicacionesPicking_D - RegistrarUbicacionPicking");
-                    mensaje = "Ocurrió un error al registrar la ubicación picking. Por favor, comuníquese con el área de Sistemas para más información.";
+                    LogHelper.RegistrarError(ex, "UbicacionesReserva_D - RegistrarUbicacionReserva");
+                    mensaje = "Ocurrió un error al registrar la ubicación reserva. Por favor, comuníquese con el área de Sistemas para más información.";
                     icono = "error";
                 }
             }
@@ -137,7 +141,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
             return new Helper_E { Id = id, Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
         }
 
-        public Helper_E EliminarUbicacionPicking(int id)
+        public Helper_E EliminarUbicacionReserva(int id)
         {
             string mensaje, icono;
 
@@ -164,7 +168,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 catch (Exception ex)
                 {
                     transaction.Rollback();
-                    LogHelper.RegistrarError(ex, "UbicacionesPicking_D - EliminarUbicacionPicking");
+                    LogHelper.RegistrarError(ex, "UbicacionesReserva_D - EliminarUbicacionReserva");
                     mensaje = "Ocurrió un error al eliminar la ubicación. Por favor, comuníquese con el área de Sistemas para más información.";
                     icono = "error";
                 }

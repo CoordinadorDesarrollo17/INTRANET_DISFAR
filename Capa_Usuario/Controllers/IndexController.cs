@@ -202,12 +202,17 @@ namespace Capa_Usuario.Controllers
         ///****************************************************************************************/
 
         ///******************************** M Ó D U L O  A B A S T E C I M I E N T O  I N T E R N O ********************************/
-        public ActionResult AI_UbicacionesPicking(int idOperation = 3000)
+        public ActionResult AI_UbicacionesPicking(int idOperation = 3100)
         {
             return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "UbicacionesPicking", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
         }
+
+        public ActionResult AI_UbicacionesReserva(int idOperation = 3200)
+        {
+            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "UbicacionesReserva", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
+        }
         ///****************************************************************************************/
-        
+
         public ActionResult CP_ResumenRebate(int idOperation = 1400)
         {
             return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "ResumenRebate", controllerDestino = "Compras", usuario = (Usuario_E)Session["UsuarioId"] });

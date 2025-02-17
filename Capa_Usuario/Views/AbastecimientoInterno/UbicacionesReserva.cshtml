@@ -1,5 +1,5 @@
-ï»¿@{
-    ViewBag.Title = "Ubicaciones Picking";
+@{
+    ViewBag.Title = "Ubicaciones Reserva";
     Layout = "~/Views/Shared/_DefaultLayout.cshtml";
 }
 
@@ -8,18 +8,18 @@
         <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
             <li><em>Abastecimiento Interno</em></li>
-            <li class="current"><em>Ubicaciones Picking</em></li>
+            <li class="current"><em>Ubicaciones Reserva</em></li>
         </ol>
     </nav>
 </div>
 
 <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
-    <div class="row px-3 pt-3"><h3 class="titulo-seccion">UBICACIONES PICKING</h3></div>
+    <div class="row px-3 pt-3"><h3 class="titulo-seccion">UBICACIONES RESERVA</h3></div>
 
     <div class="row px-3 py-3">
         <div class="col-12">
-            <button type="button" id="btn_nuevaUbicacionPicking" class="btn btn-warning border border-light" data-bs-toggle="tooltip" data-bs-placement="top" title="Nueva ubicaciÃ³n picking">
-                <i class="bi bi-plus-lg"></i> Nueva ubicaciÃ³n
+            <button type="button" id="btn_nuevaUbicacionReserva" class="btn btn-warning border border-light" data-bs-toggle="tooltip" data-bs-placement="top" title="Nueva ubicación reserva">
+                <i class="bi bi-plus-lg"></i> Nueva ubicación
             </button>
         </div>
     </div>
@@ -33,11 +33,11 @@
     </div><!-- row -->
 </div><!-- main -->
 
-<div class="modal fade" id="modalNuevaUbicacionPicking" tabindex="-1" aria-labelledby="modalNUPLabel" aria-hidden="true">
+<div class="modal fade" id="modalNuevaUbicacionReserva" tabindex="-1" aria-labelledby="modalNUPLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
             <div class="modal-header text-white bg-headerModals">
-                <h5 class="modal-title" id="modalNUPLabel">Registrar ubicaciÃ³n</h5>
+                <h5 class="modal-title" id="modalNUPLabel">Registrar ubicación</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" tabindex="-1"></button>
             </div>
 
@@ -46,11 +46,11 @@
                     <form id="frm_registroUbicacion">
                         <div class="row mb-4">
                             <div class="col-lg-2">
-                                <label class="form-label fw-bold">CÃ³digo de artÃ­culo:</label>
+                                <label class="form-label fw-bold">Código de artículo:</label>
                                 <input type="text" id="ItemCode" name="ItemCode" class="form-control cls-readonly" autocomplete="off" readonly />
                             </div>
                             <div class="col-lg-7">
-                                <label class="form-label fw-bold">DescripciÃ³n:</label>
+                                <label class="form-label fw-bold">Descripción:</label>
                                 <select id="ItemName" name="ItemName" class="cls-select" onchange="llenarItemCode(this)">
                                     <option value="" data-itemcode="">Seleccione</option>
                                     @foreach (var item in ViewBag.Productos)
@@ -63,27 +63,15 @@
 
                         <div class="row mb-4">
                             <div class="col-lg-3">
-                                <label class="form-label fw-bold">Stock mÃ­nimo abastecimiento:</label>
-                                <input type="text" id="StockMinAbastecimiento" name="StockMinAbastecimiento" class="form-control text-center cls-num" autocomplete="off" />
-                            </div>
-
-                            <div class="col-lg-3">
-                                <label class="form-label fw-bold">Stock mÃ­nimo abastecimiento:</label>
-                                <input type="text" id="StockMinVenta" name="StockMinVenta" class="form-control text-center cls-num" autocomplete="off" />
-                            </div>
-                        </div>
-
-                        <div class="row mb-4">
-                            <div class="col-lg-3">
-                                <label class="form-label fw-bold">CÃ³digo de ubicaciÃ³n:</label>
+                                <label class="form-label fw-bold">Código de ubicación:</label>
                                 <input type="text" id="CodigoUbicacion" name="CodigoUbicacion" class="form-control cls-readonly text-center" autocomplete="off" readonly />
                             </div>
                             <div class="col-lg-3">
-                                <label class="form-label fw-bold">Â¿La ubicaciÃ³n es SISTEMA?:</label>
+                                <label class="form-label fw-bold">¿La ubicación es SISTEMA?:</label>
                                 <div class="d-flex mx-auto align-items-center">
                                     <div class="form-check form-check-inline">
                                         <input id="ubiSistemaSi" class="form-check-input" type="radio" name="UbiSistema" value="si" onclick="mostrarCamposUbicacion('SI')">
-                                        <label class="form-check-label" for="ubiSistemaSi">SÃ­</label>
+                                        <label class="form-check-label" for="ubiSistemaSi">Sí</label>
                                     </div>
                                     <div class="form-check form-check-inline">
                                         <input id="ubiSistemaNo" class="form-check-input" type="radio" name="UbiSistema" value="no" onclick="mostrarCamposUbicacion('NO')" checked>
@@ -96,7 +84,7 @@
                         <div id="div_codigos">
                             <div class="row">
                                 <div class="col-lg-3">
-                                    <label class="form-label fw-bold">AlmacÃ©n:</label>
+                                    <label class="form-label fw-bold">Almacén:</label>
                                     <input id="almacen" class="form-control text-uppercase" type="text" autocomplete="off" oninput="generarCodigoUbicacion(this.value, 0)" />
                                 </div>
                                 <div class="col-lg-3">
@@ -104,7 +92,7 @@
                                     <input id="rackBloque" class="form-control text-uppercase" type="text" autocomplete="off" oninput="generarCodigoUbicacion(this.value, 1)" />
                                 </div>
                                 <div class="col-lg-3">
-                                    <label class="form-label fw-bold">PosiciÃ³n:</label>
+                                    <label class="form-label fw-bold">Posición:</label>
                                     <input id="posicion" class="form-control text-uppercase" type="text" autocomplete="off" oninput="generarCodigoUbicacion(this.value, 2)" />
                                 </div>
                                 <div class="col-lg-3">
@@ -134,7 +122,7 @@
     <script src="~/Scripts/AbastecimientoInterno/Ubicaciones.js?v=@DateTime.Now.Ticks" defer></script>
     <script>
 		document.addEventListener('DOMContentLoaded', function () {
-			$('#div_listado').load(`@Url.Action("ListarUbicacionesPicking")`).fadeIn("fast")
+			$('#div_listado').load(`@Url.Action("ListarUbicacionesReserva")`).fadeIn("fast")
 			limitarMaxCaracteres('ItemCode', 50)
 			limitarMaxCaracteres('CodigoUbicacion', 228)
             permitirSoloNumeros('nivel')
@@ -142,8 +130,8 @@
             permitirValoresNumericosPositivos()
 		});
 
-		document.querySelector('#btn_nuevaUbicacionPicking').addEventListener('click', function () {
-		    const modal = document.querySelector('#modalNuevaUbicacionPicking')
+		document.querySelector('#btn_nuevaUbicacionReserva').addEventListener('click', function () {
+		    const modal = document.querySelector('#modalNuevaUbicacionReserva')
             const bootstrapModal = new bootstrap.Modal(modal, {
                 focus: false
             })
@@ -154,7 +142,7 @@
             const form = document.querySelector('#frm_registroUbicacion');
 
             if (!form) {
-                console.log('Error: El formulario no se encontrÃ³.');
+                console.log('Error: El formulario no se encontró.');
                 return;
             }
 
@@ -163,7 +151,7 @@
             const jsonData = Object.fromEntries(formData.entries());
 
             try {
-                const response = await fetch("/AbastecimientoInterno/RegistrarUbicacionPicking", {
+                const response = await fetch("/AbastecimientoInterno/RegistrarUbicacionReserva", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -178,7 +166,7 @@
                 const data = await response.json();
 
                 if (data.Icono == 'success') {
-                    resetValoresVacios(["ItemCode", "ItemName", "StockMinAbastecimiento", "StockMinVenta","CodigoUbicacion", "almacen", "rackBloque", "posicion", "nivel"])
+                    resetValoresVacios(["ItemCode", "ItemName","CodigoUbicacion", "almacen", "rackBloque", "posicion", "nivel"])
                     inicializarSlimSelectsPorClase('cls-select')
 
                     const radios = document.querySelectorAll(`input[name="UbiSistema"]`)
@@ -200,7 +188,7 @@
                     showConfirmButton: true
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        $('#div_listado').load(`@Url.Action("ListarUbicacionesPicking")`).fadeIn("fast")
+                        $('#div_listado').load(`@Url.Action("ListarUbicacionesReserva")`).fadeIn("fast")
                     }
                 });
 

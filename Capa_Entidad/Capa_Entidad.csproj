@@ -49,7 +49,8 @@
   <ItemGroup>
     <Compile Include="AbastecimientoInterno_ENT\TablasSql\Productos_E.cs" />
     <Compile Include="AbastecimientoInterno_ENT\TablasSql\StockMinProductos_E.cs" />
-    <Compile Include="AbastecimientoInterno_ENT\TablasSql\Ubicaciones_E.cs" />
+    <Compile Include="AbastecimientoInterno_ENT\TablasSql\UbicacionesPicking_E.cs" />
+    <Compile Include="AbastecimientoInterno_ENT\TablasSql\UbicacionesReserva_E.cs" />
     <Compile Include="AccessoHelper_E.cs" />
     <Compile Include="Almacen_ENT\ReportesSql\ContInv_E.cs" />
     <Compile Include="Almacen_ENT\ReportesSql\RptCorreoDevolucion_E.cs" />

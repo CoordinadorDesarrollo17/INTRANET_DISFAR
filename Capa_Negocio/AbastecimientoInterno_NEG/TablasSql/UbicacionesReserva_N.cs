@@ -10,12 +10,12 @@ using Capa_Entidad.AtencionCliente_ENT.TablasSql;
 
 namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
 {
-    public class UbicacionesPicking_N
+    public class UbicacionesReserva_N
     {
-        UbicacionesPicking_D _datos = new UbicacionesPicking_D();
+        UbicacionesReserva_D _datos = new UbicacionesReserva_D();
         Helpers _helper = new Helpers();
 
-        public List<UbicacionesPicking_E> ListarUbicacionesPicking(UbicacionesPicking_E filtros, StringBuilder condicion = null, Dictionary<string, object> parametros = null)
+        public List<UbicacionesReserva_E> ListarUbicacionesReserva(UbicacionesReserva_E filtros, StringBuilder condicion = null, Dictionary<string, object> parametros = null)
         {
             condicion = new StringBuilder();
             parametros = new Dictionary<string, object>();
@@ -24,30 +24,30 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
             {
                 if (filtros.Id > 0)
                 {
-                    condicion.AppendLine("AND UP.Id = @Id");
+                    condicion.AppendLine("AND UL.Id = @Id");
                     parametros["@Id"] = filtros.Id;
                 }
 
                 if (!string.IsNullOrWhiteSpace(filtros.ItemCode))
                 {
-                    condicion.AppendLine("AND UP.ItemCode = @ItemCode");
+                    condicion.AppendLine("AND UL.ItemCode = @ItemCode");
                     parametros["@ItemCode"] = filtros.ItemCode;
                 }
             }
 
-            return _datos.ListarUbicacionesPicking(condicion.ToString(), parametros);
+            return _datos.ListarUbicacionesReserva(condicion.ToString(), parametros);
         }
 
-        public UbicacionesPicking_E ObtenerDatosUbicacionPicking(UbicacionesPicking_E filtros)
+        public UbicacionesReserva_E ObtenerDatosUbicacionReserva(UbicacionesReserva_E filtros)
         {
-            var result = ListarUbicacionesPicking(filtros)
-                .DefaultIfEmpty(new UbicacionesPicking_E())
+            var result = ListarUbicacionesReserva(filtros)
+                .DefaultIfEmpty(new UbicacionesReserva_E())
                 .First();
 
             return result;
         }
 
-        public Helper_E RegistrarUbicacionPicking(UbicacionesPicking_E datos)
+        public Helper_E RegistrarUbicacionReserva(UbicacionesReserva_E datos)
         {
             var errores = new List<string>();
 
@@ -63,30 +63,28 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
             if (string.IsNullOrWhiteSpace(datos.CodigoUbicacion))
                 errores.Add("Código de ubicación no válida.");
 
-            if (datos.StockMinAbastecimiento <= 0)
-                errores.Add("El Stock Mínimo de Abastecimiento debe ser mayor a 0.");
-
-            if (datos.StockMinVenta <= 0)
-                errores.Add("El Stock Mínimo de Venta debe ser mayor a 0.");
-
-            var ubicacionPicking = ObtenerDatosUbicacionPicking(new UbicacionesPicking_E { ItemCode = datos.ItemCode, ItemName = datos.ItemName, CodigoUbicacion = datos.CodigoUbicacion });
-            if (ubicacionPicking != null && ubicacionPicking.Id > 0)
+            var ubicacionReserva = ObtenerDatosUbicacionReserva(new UbicacionesReserva_E { ItemCode = datos.ItemCode, ItemName = datos.ItemName, CodigoUbicacion = datos.CodigoUbicacion });
+            if (ubicacionReserva != null && ubicacionReserva.Id > 0)
                 errores.Add("El código de ubicación del producto ya se encuentra registrado.");
 
             if (errores.Any())
                 return new Helper_E { Mensajes = errores, IconoSweetAlert = "error" };
 
-            return _datos.RegistrarUbicacionPicking(datos);
+            return _datos.RegistrarUbicacionReserva(datos);
         }
 
-        public Helper_E EliminarUbicacionPicking(int id)
+        public Helper_E EliminarUbicacionReserva(int id)
         {
-            var ubicacionPicking = ObtenerDatosUbicacionPicking(new UbicacionesPicking_E { Id = id });
+            var ubicacionReserva = ObtenerDatosUbicacionReserva(new UbicacionesReserva_E { Id = id });
 
-            if (id <= 0 || ubicacionPicking == null || ubicacionPicking.Id <= 0)
+            // Verificar si existe la ubicación
+            if (id <= 0 || ubicacionReserva == null || ubicacionReserva.Id <= 0)
                 return _helper.CrearRespuestaError("Ubicación no válida. Recargar página y volver a intentar.");
 
-            return _datos.EliminarUbicacionPicking(id);
+            // Verificar si hay stock en ControlStockUbicaciones
+
+
+            return _datos.EliminarUbicacionReserva(id);
         }
     }
 }

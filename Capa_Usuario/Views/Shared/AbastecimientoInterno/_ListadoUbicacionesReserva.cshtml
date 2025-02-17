@@ -1,4 +1,4 @@
-ï»¿<style>
+<style>
     td.details-control {
         cursor: pointer;
         text-align: center;
@@ -9,15 +9,15 @@
     }
 </style>
 
-<table id="tbl_listaUbicacionesPicking" class="dt-container dt-empty-footer table table-sm table-hover font-14" width="100%">
+<table id="tbl_listaUbicacionesReserva" class="dt-container dt-empty-footer table table-sm table-hover font-14" width="100%">
     <thead class="thead-cobefar">
         <tr>
             <th style="width: 5%;"></th>
-            <th scope="col" class="text-center">CÃ³digo de artÃ­culo</th>
-            <th scope="col" class="text-center">DescripciÃ³n</th>
+            <th scope="col" class="text-center">Código de artículo</th>
+            <th scope="col" class="text-center">Descripción</th>
             <th scope="col" class="text-center">Ubicaciones</th>
-            <th scope="col" class="text-center">Stock MÃ­nimo Abastecimiento</th>
-            <th scope="col" class="text-center">Stock MÃ­nimo Venta</th>
+            <th scope="col" class="text-center">Stock Mínimo Abastecimiento</th>
+            <th scope="col" class="text-center">Stock Mínimo Venta</th>
             <th scope="col" class="text-center"></th>
         </tr>
     </thead>
@@ -51,12 +51,12 @@
 <script>
     $(document).ready(function () {
         $('[data-bs-toggle="tooltip"]').tooltip();
-        inicializarDataTable('tbl_listaUbicacionesPicking', 25)
+        inicializarDataTable('tbl_listaUbicacionesReserva', 25)
         permitirValoresNumericosPositivos()
 
-        $('#tbl_listaUbicacionesPicking tbody').on('click', 'td.details-control', function () {
+        $('#tbl_listaUbicacionesReserva tbody').on('click', 'td.details-control', function () {
             var tr = $(this).closest('tr');
-            var row = $('#tbl_listaUbicacionesPicking').DataTable().row(tr);
+            var row = $('#tbl_listaUbicacionesReserva').DataTable().row(tr);
             var productoID = tr.data('producto');
             var button = $(this).find('button i');
 
@@ -82,9 +82,9 @@
                 <table class="table table-sm table-bordered table-hover subtable w-75">
                     <thead class="thead-light">
                         <tr>
-                            <th scope="col" class="text-center">CÃ³digo de artÃ­culo</th>
-                            <th scope="col" class="text-center">DescripciÃ³n</th>
-                            <th scope="col" class="text-center">UbicaciÃ³n</th>
+                            <th scope="col" class="text-center">Código de artículo</th>
+                            <th scope="col" class="text-center">Descripción</th>
+                            <th scope="col" class="text-center">Ubicación</th>
                             <th scope="col" class="text-center"></th>
                         </tr>
                     </thead>
@@ -96,7 +96,7 @@
                         <td  class="text-center align-middle">${item.ItemName}</td>
                         <td  class="text-center align-middle">${item.CodigoUbicacion}</td>
                         <td  class="text-center align-middle">
-                            <button class="btn btn-danger" onclick="eliminarUbicacion('${item.CodigoUbicacion}', '${item.Id}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar ubicaciÃ³n"><i class="bi bi-trash3-fill"></i></button>
+                            <button class="btn btn-danger" onclick="eliminarUbicacion('${item.CodigoUbicacion}', '${item.Id}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar ubicación"><i class="bi bi-trash3-fill"></i></button>
                         </td>
                     </tr>`;
                 });
@@ -109,13 +109,13 @@
 
     async function eliminarUbicacion(codigoUbicacion, id) {
         if (!id) {
-                console.log('Error: El ID no se encontrÃ³.');
+                console.log('Error: El ID no se encontró.');
                 return;
             }
 
         swalWithBootstrapButtons.fire({
-            title: 'Â¿EstÃ¡ seguro(a) de ELIMINAR?',
-            html: 'La ubicaciÃ³n ' + codigoUbicacion + ' serÃ¡ eliminada de forma permanente.',
+            title: '¿Está seguro(a) de ELIMINAR?',
+            html: 'La ubicación ' + codigoUbicacion + ' será eliminada de forma permanente.',
             icon: 'warning',
             allowEscapeKey: false,
             showCancelButton: true,
@@ -125,7 +125,7 @@
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    const response = await fetch("/AbastecimientoInterno/EliminarUbicacionPicking", {
+                    const response = await fetch("/AbastecimientoInterno/EliminarUbicacionReserva", {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -149,7 +149,7 @@
                             }
                         })
                     }
-                    
+                    console.log(data)
                     Swal.fire({
                         title: data.Mensaje,
                         html: data.Comentario,
