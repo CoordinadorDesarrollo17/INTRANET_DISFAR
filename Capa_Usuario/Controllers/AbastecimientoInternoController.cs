@@ -101,16 +101,6 @@ namespace Capa_Usuario.Controllers
             return Json(new { Mensaje = tituloSweetAlert, Comentario = new List<string> { result.Mensaje }, Icono = result.IconoSweetAlert });
         }
 
-        //ALISSON ROMERO
-        public JsonResult BuscarSolicitudDeTraslado(int DocNum)
-        {
-            var traslados = _solicitudTrasladoHanaN.BuscarSolicitudDeTraslado(DocNum);
-            if (traslados == null) { return Json(new { Mensaje = "Error", Comentario = new List<string> { "No existe ningun resultado" }, Icono = "error" }); }
-            return Json(new { });
-        }
-        
-
-
         public JsonResult ActualizarStocksMinimos(StockMinProductos_E form)
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
@@ -179,6 +169,14 @@ namespace Capa_Usuario.Controllers
             string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
 
             return Json(new { Mensaje = tituloSweetAlert, Comentario = new List<string> { result.Mensaje }, Icono = result.IconoSweetAlert });
+        }
+
+        /************************* S O L I C I T U D   D E   T R A S L A D O *************************/
+        public JsonResult BuscarSolicitudDeTraslado(int DocNum)
+        {
+            var traslados = _solicitudTrasladoHanaN.BuscarSolicitudDeTraslado(DocNum);
+            if (traslados == null) { return Json(new { Mensaje = "Error", Comentario = new List<string> { "No existe ningun resultado" }, Icono = "error" }); }
+            return Json(new { });
         }
     }
 }
