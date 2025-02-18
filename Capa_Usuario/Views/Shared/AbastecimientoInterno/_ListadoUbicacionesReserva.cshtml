@@ -16,8 +16,6 @@
             <th scope="col" class="text-center">Código de artículo</th>
             <th scope="col" class="text-center">Descripción</th>
             <th scope="col" class="text-center">Ubicaciones</th>
-            <th scope="col" class="text-center">Stock Mínimo Abastecimiento</th>
-            <th scope="col" class="text-center">Stock Mínimo Venta</th>
             <th scope="col" class="text-center"></th>
         </tr>
     </thead>
@@ -30,17 +28,6 @@
                 <td class="text-center align-middle">@grupo.Value.ItemName</td>
                 <td class="text-center align-middle">@grupo.Value.CantidadUbicaciones</td>
                 <td class="text-center align-middle">
-                    <div class="d-flex justify-content-center">
-                        <input type="text" id="sma_@grupo.Value.ItemCode" class="form-control w-50 cls-num text-center" value="@grupo.Value.StockMinAbastecimiento">
-                    </div>
-                </td>
-                <td class="text-center align-middle">
-                    <div class="d-flex justify-content-center">
-                        <input type="text" id="smv_@grupo.Value.ItemCode" class="form-control w-50 cls-num text-center" value="@grupo.Value.StockMinVenta">
-                    </div>
-                </td>
-                <td class="text-center align-middle">
-                    <button type="button" class="btn btn-success" title="Actualizar Stocks" onclick="actualizarStocksMinimos('@grupo.Value.ItemCode', '@grupo.Value.ItemName', 'sma_@grupo.Value.ItemCode', 'smv_@grupo.Value.ItemCode')"><i class="bi bi-arrow-clockwise"></i></button>
                 </td>
             </tr>
         }
@@ -89,14 +76,14 @@
                         </tr>
                     </thead>
                     <tbody>`;
-
+            console.log(lista.Ubicaciones)
             lista.Ubicaciones.forEach(item => {
                     tableHtml += `<tr>
                         <td  class="text-center align-middle">${item.ItemCode}</td>
                         <td  class="text-center align-middle">${item.ItemName}</td>
                         <td  class="text-center align-middle">${item.CodigoUbicacion}</td>
                         <td  class="text-center align-middle">
-                            <button class="btn btn-danger" onclick="eliminarUbicacion('${item.CodigoUbicacion}', '${item.Id}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar ubicación"><i class="bi bi-trash3-fill"></i></button>
+                            <button class="btn btn-danger" onclick="eliminarUbicacion('${item.CodigoUbicacion}', '${item.UbicacionId}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar ubicación"><i class="bi bi-trash3-fill"></i></button>
                         </td>
                     </tr>`;
                 });
@@ -168,44 +155,5 @@
                 }
             }
         });
-    }
-
-    async function actualizarStocksMinimos(itemCode, itemName, input_stockMinAbastecimiento, input_stockMinVenta) {
-        let stockMinAbastecimiento = document.querySelector(`#${input_stockMinAbastecimiento}`).value
-        let stockMinVenta = document.querySelector(`#${input_stockMinVenta}`).value
-
-        try {
-            const response = await fetch("/AbastecimientoInterno/ActualizarStocksMinimos", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ itemCode, itemName, stockMinAbastecimiento, stockMinVenta }) // Enviar los datos como JSON
-            });
-
-            if (!response.ok) {
-                throw new Error(`Error en la solicitud: ${response.statusText}`);
-            }
-
-            const data = await response.json();
-
-            Swal.fire({
-                title: data.Mensaje,
-                html: Array.isArray(data.Comentario) && data.Comentario.length > 0
-                    ? data.Comentario.join('<br>')
-                    : data.Comentario || "",
-                icon: data.Icono,
-                allowEscapeKey: false,
-                allowOutsideClick: false,
-                showConfirmButton: true
-            }).then((result) => {
-                if (result.isConfirmed && data.Icono == 'success') {
-                    window.location.reload()
-                }
-            })
-
-        } catch (error) {
-            console.error('Error:', error);
-        }
     }
 </script>

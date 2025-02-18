@@ -28,10 +28,8 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
                     var sb = new StringBuilder();
 
-                    sb.AppendLine("SELECT UL.[Id], UL.[UbicacionId], UL.[Almacen], UL.[ItemCode], UL.[ItemName], UL.[CodigoUbicacion], UL.[BatchNum], UL.[Quantity],");
-                    sb.AppendLine("SM.[StockMinAbastecimiento], SM.[StockMinVenta]");
+                    sb.AppendLine("SELECT UL.[Id], UL.[UbicacionId], UL.[Almacen], UL.[ItemCode], UL.[ItemName], UL.[CodigoUbicacion], UL.[BatchNum], UL.[Quantity]");
                     sb.AppendLine("FROM [dbo].[UbicacionesLotes] UL");
-                    sb.AppendLine("OUTER APPLY (SELECT TOP 1 SM.[StockMinAbastecimiento], SM.[StockMinVenta] FROM [dbo].[StockMinProductos] SM WHERE SM.[ItemCode] = UL.[ItemCode]) SM");
                     sb.AppendLine("WHERE UL.[Almacen] = 'RESERVA'");
                     sb.AppendLine(condicion);
 
@@ -46,7 +44,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     cn.Open();
 
                     using (SqlDataReader dr = cmd.ExecuteReader())
-                    {   
+                    {
                         if (dr.HasRows)
                         {
                             while (dr.Read())
@@ -60,9 +58,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                                 if (!dr.IsDBNull(4)) obj.ItemName = dr.GetString(4);
                                 if (!dr.IsDBNull(5)) obj.CodigoUbicacion = dr.GetString(5);
                                 if (!dr.IsDBNull(6)) obj.BatchNum = dr.GetString(6);
-                                if (!dr.IsDBNull(7)) obj.Quantity= dr.GetDecimal(7);
-                                if (!dr.IsDBNull(8)) obj.StockMinAbastecimiento = dr.GetInt32(8);
-                                if (!dr.IsDBNull(9)) obj.StockMinVenta = dr.GetInt32(9);
+                                if (!dr.IsDBNull(7)) obj.Quantity = dr.GetDecimal(7);
 
                                 lista.Add(obj);
                             }
@@ -112,21 +108,8 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                         id = (int)outputId.Value;
                     }
 
-                    // Ejecutar sp_GestionarStockMinProductos (Registra los stocks mínimos)
-                    using (SqlCommand cmd = new SqlCommand("sp_GestionarStockMinProductos", cn, transaction))
-                    {
-                        cmd.CommandType = CommandType.StoredProcedure;
-
-                        cmd.Parameters.AddWithValue("@ItemCode", datos.ItemCode);
-                        cmd.Parameters.AddWithValue("@ItemName", datos.ItemName);
-                        cmd.Parameters.AddWithValue("@StockMinAbastecimiento", datos.StockMinAbastecimiento);
-                        cmd.Parameters.AddWithValue("@StockMinVenta", datos.StockMinVenta);
-
-                        cmd.ExecuteNonQuery();
-                    }
-
                     transaction.Commit();
-                    mensaje = "Los datos y stocks mínimos han sido registrados correctamente.";
+                    mensaje = "Ubicación registrada correctamente.";
                     icono = "success";
                 }
                 catch (Exception ex)
@@ -141,40 +124,105 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
             return new Helper_E { Id = id, Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
         }
 
-        public Helper_E EliminarUbicacionReserva(int id)
+        public Helper_E EliminarUbicacionReserva(int ubicacionId)
         {
-            string mensaje, icono;
+            string mensajeUsuario, icono;
+            int filasAfectadas = 0;
 
-            using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+            try
             {
-                cn.Open();
-                SqlTransaction transaction = cn.BeginTransaction();
-
-                try
+                using (SqlConnection cn = new SqlConnection(uti.cadSql2))
                 {
-                    using (SqlCommand cmd = new SqlCommand("sp_AdministrarUbicaciones", cn, transaction))
+                    cn.Open();
+
+                    using (SqlCommand cmd = new SqlCommand("sp_AdministrarUbicaciones", cn))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
-
                         cmd.Parameters.AddWithValue("@Operacion", "DELETE");
-                        cmd.Parameters.AddWithValue("@Id", id);
-                        cmd.ExecuteNonQuery();
+                        cmd.Parameters.AddWithValue("@Id", ubicacionId);
 
-                        transaction.Commit();
-                        mensaje = "Ubicación eliminada correctamente.";
-                        icono = "success";
+                        filasAfectadas = cmd.ExecuteNonQuery();
                     }
                 }
-                catch (Exception ex)
+
+                if (filasAfectadas > 0)
                 {
-                    transaction.Rollback();
-                    LogHelper.RegistrarError(ex, "UbicacionesReserva_D - EliminarUbicacionReserva");
-                    mensaje = "Ocurrió un error al eliminar la ubicación. Por favor, comuníquese con el área de Sistemas para más información.";
-                    icono = "error";
+                    mensajeUsuario = "Ubicación eliminada correctamente.";
+                    icono = "success";
+                }
+                else
+                {
+                    mensajeUsuario = "No se encontró la ubicación a eliminar.";
+                    icono = "warning";
                 }
             }
+            catch (SqlException sqlEx)
+            {
+                mensajeUsuario = (sqlEx.Number == 50000) ? sqlEx.Message : "No se pudo eliminar la ubicación. Intente nuevamente.";
+                icono = "error";
 
-            return new Helper_E { Id = id, Mensaje = mensaje, IconoSweetAlert = icono };
+                LogHelper.RegistrarError(sqlEx, $"Error SQL en UbicacionesReserva_D - EliminarUbicacionReserva.");
+            }
+            catch (Exception ex)
+            {
+                mensajeUsuario = "Ocurrió un problema inesperado. Por favor, comunicarse con SISTEMAS.";
+                icono = "error";
+
+                LogHelper.RegistrarError(ex, $"Error inesperado en UbicacionesReserva_D - EliminarUbicacionReserva.");
+            }
+
+            return new Helper_E { Mensaje = mensajeUsuario, IconoSweetAlert = icono };
         }
+
+        public Helper_E EliminarUbicacionGeneral(string codigoUbicacion)
+        {
+            string mensajeUsuario, icono;
+            int filasAfectadas = 0;
+
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+                {
+                    cn.Open();
+
+                    using (SqlCommand cmd = new SqlCommand("sp_AdministrarUbicaciones", cn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@Operacion", "DELETE_GENERAL");
+                        cmd.Parameters.AddWithValue("@CodigoUbicacion", codigoUbicacion);
+
+                        filasAfectadas = cmd.ExecuteNonQuery();
+                    }
+                }
+
+                if (filasAfectadas > 0)
+                {
+                    mensajeUsuario = "Ubicación eliminada correctamente.";
+                    icono = "success";
+                }
+                else
+                {
+                    mensajeUsuario = "No se encontró ubicación a eliminar.";
+                    icono = "warning";
+                }
+            }
+            catch (SqlException sqlEx)
+            {
+                mensajeUsuario = (sqlEx.Number == 50000) ? sqlEx.Message : "No se pudo eliminar la ubicación. Intente nuevamente.";
+                icono = "error";
+
+                LogHelper.RegistrarError(sqlEx, $"Error SQL en UbicacionesReserva_D - EliminarUbicacionGeneral.");
+            }
+            catch (Exception ex)
+            {
+                mensajeUsuario = "Ocurrió un problema inesperado. Por favor, comunicarse con SISTEMAS.";
+                icono = "error";
+
+                LogHelper.RegistrarError(ex, $"Error inesperado en UbicacionesReserva_D - EliminarUbicacionGeneral.");
+            }
+
+            return new Helper_E { Mensaje = mensajeUsuario, IconoSweetAlert = icono };
+        }
+
     }
 }

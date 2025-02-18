@@ -18,7 +18,5 @@ namespace Capa_Entidad.AbastecimientoInterno_ENT.TablasSql
         public string UbiSistema { get; set; }
         public List<UbicacionesReserva_E> Ubicaciones { get; set; }
         public int CantidadUbicaciones { get; set; }
-        public int StockMinAbastecimiento { get; set; }
-        public int StockMinVenta { get; set; }
     }
 }

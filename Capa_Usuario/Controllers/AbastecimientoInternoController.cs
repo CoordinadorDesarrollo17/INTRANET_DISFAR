@@ -144,19 +144,30 @@ namespace Capa_Usuario.Controllers
                 return Json(new { Mensaje = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" });
 
             var listaAgrupada = _ubicacionReservaN.ListarUbicacionesReserva(filtros)
-                .GroupBy(u => new { u.ItemCode, u.ItemName, u.StockMinAbastecimiento, u.StockMinVenta })
+                .GroupBy(u => new { u.ItemCode, u.ItemName })
                 .Select(grupo => new UbicacionesReserva_E
                 {
                     ItemCode = grupo.Key.ItemCode,
                     ItemName = grupo.Key.ItemName,
                     CantidadUbicaciones = grupo.Count(),
-                    Ubicaciones = grupo.ToList(),
-                    StockMinAbastecimiento = grupo.Key.StockMinAbastecimiento,
-                    StockMinVenta = grupo.Key.StockMinVenta,
+                    Ubicaciones = grupo.ToList()
                 })
                 .ToDictionary(x => x.ItemCode);
 
             return PartialView("AbastecimientoInterno/_ListadoUbicacionesReserva", listaAgrupada);
+        }
+
+        public JsonResult RegistrarUbicacionReserva(UbicacionesReserva_E form)
+        {
+            var usuarioSesion = Session["UsuarioId"] as Usuario_E;
+            if (usuarioSesion == null)
+                return Json(new { Mensaje = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" });
+
+            form.NombreOperarioAccion = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
+            var result = _ubicacionReservaN.RegistrarUbicacionReserva(form);
+            string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
+
+            return Json(new { Mensaje = tituloSweetAlert, Comentario = result.Mensajes, Icono = result.IconoSweetAlert });
         }
 
         public JsonResult EliminarUbicacionReserva(int id)
@@ -166,6 +177,18 @@ namespace Capa_Usuario.Controllers
                 return Json(new { Mensaje = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" });
 
             var result = _ubicacionReservaN.EliminarUbicacionReserva(id);
+            string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
+
+            return Json(new { Mensaje = tituloSweetAlert, Comentario = new List<string> { result.Mensaje }, Icono = result.IconoSweetAlert });
+        }
+
+        public JsonResult EliminarUbicacionGeneral(string codigoUbicacion)
+        {
+            var usuarioSesion = Session["UsuarioId"] as Usuario_E;
+            if (usuarioSesion == null)
+                return Json(new { Mensaje = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" });
+
+            var result = _ubicacionReservaN.EliminarUbicacionGeneral(codigoUbicacion);
             string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
 
             return Json(new { Mensaje = tituloSweetAlert, Comentario = new List<string> { result.Mensaje }, Icono = result.IconoSweetAlert });

@@ -17,10 +17,14 @@
     <div class="row px-3 pt-3"><h3 class="titulo-seccion">UBICACIONES RESERVA</h3></div>
 
     <div class="row px-3 py-3">
-        <div class="col-12">
+        <div class="d-flex col-12">
             <button type="button" id="btn_nuevaUbicacionReserva" class="btn btn-warning border border-light" data-bs-toggle="tooltip" data-bs-placement="top" title="Nueva ubicación reserva">
                 <i class="bi bi-plus-lg"></i> Nueva ubicación
             </button>
+            <div class="d-flex mx-1 w-50">
+                <input type="text" id="codigoUbicacionGeneral" class="form-control" placeholder="Ingresar código ubicación" style="width: 300px" />
+                <button type="button" class="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar código ubicación" onclick="eliminarCodigoUbicacionGeneral()"><i class="bi bi-trash3-fill"></i></button>
+            </div>
         </div>
     </div>
 </div>
@@ -197,5 +201,54 @@
                 console.error('Error:', error);
             }
         });
+
+        async function eliminarCodigoUbicacionGeneral() {
+            codigoUbicacion = document.querySelector(`#codigoUbicacionGeneral`).value
+
+            swalWithBootstrapButtons.fire({
+                title: '¿Está seguro(a) de ELIMINAR?',
+                html: 'La ubicación ' + codigoUbicacion + ' será eliminada de forma permanente de todos los artículos existentes que no cuenten con stock.',
+                icon: 'warning',
+                allowEscapeKey: false,
+                showCancelButton: true,
+                confirmButtonText: "<i class='bi bi-check-lg'></i> Si, eliminar",
+                cancelButtonText: "<i class='bi bi-x-lg'></i> Cancelar",
+                reverseButtons: true
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const response = await fetch("/AbastecimientoInterno/EliminarUbicacionGeneral", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ codigoUbicacion }) // Enviar los datos como JSON
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`Error en la solicitud: ${response.statusText}`);
+                        }
+
+                        const data = await response.json();
+
+                        Swal.fire({
+                            title: data.Mensaje,
+                            html: data.Comentario,
+                            icon: data.Icono,
+                            allowEscapeKey: false,
+                            allowOutsideClick: false,
+                            showConfirmButton: true
+                        }).then((result) => {
+                            if (result.isConfirmed && data.Icono == 'success') {
+                                window.location.reload()
+                            }
+                        })
+
+                    } catch (error) {
+                        console.error('Error:', error);
+                    }
+                }
+            });
+        }
     </script>
 }
