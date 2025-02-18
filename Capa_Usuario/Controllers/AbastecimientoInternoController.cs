@@ -1,3 +1,5 @@
+using Capa_Entidad.AbastecimientoInterno_ENT.Interfaces;
+using Capa_Entidad.AbastecimientoInterno_ENT.TablasExternas;
 using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
 using Capa_Entidad.Seguridad_ENT;
 using Capa_Negocio.AbastecimientoInterno_NEG.TablasExternas;
@@ -16,6 +18,9 @@ namespace Capa_Usuario.Controllers
         private readonly OWTQ_N _solicitudTrasladoHanaN = new OWTQ_N();
         private readonly StockMinProductos_N _stockMinProdN = new StockMinProductos_N();
         private readonly UbicacionesReserva_N _ubicacionReservaN = new UbicacionesReserva_N();
+        private readonly TransferenciaStock_N _transferenciaStockN = new TransferenciaStock_N();
+        private readonly LotesRegistroSanitario_N _lotesRegistroSanitarioN = new LotesRegistroSanitario_N();
+        private readonly SolicitudTraslado_N _solicitudTrasladoN = new SolicitudTraslado_N();
 
         /************************* C O N F I G U R A C I Ó N *************************/
         private ActionResult VerificarPermiso(int idOperation)
@@ -197,9 +202,49 @@ namespace Capa_Usuario.Controllers
         /************************* S O L I C I T U D   D E   T R A S L A D O *************************/
         public JsonResult BuscarSolicitudDeTraslado(int DocNum)
         {
-            var traslados = _solicitudTrasladoHanaN.BuscarSolicitudDeTraslado(DocNum);
-            if (traslados == null) { return Json(new { Mensaje = "Error", Comentario = new List<string> { "No existe ningun resultado" }, Icono = "error" }); }
-            return Json(new { });
+            // Buscar en mis tablas internas
+            var trasladoInterno = _solicitudTrasladoN.ObtenerSolicitudDeTraslado(DocNum);
+
+            var trasladoHana = trasladoInterno == null ? _solicitudTrasladoHanaN.BuscarSolicitudDeTraslado(DocNum) : null;
+
+            // Si no hay resultado en ninguna fuente
+            if (trasladoInterno == null && trasladoHana == null)
+            {
+                return Json(new { Mensaje = "Error", Comentario = new List<string> { "No existe ningún resultado" }, Icono = "error" });
+            }
+            ITraslado traslado = trasladoInterno as ITraslado ?? trasladoHana as ITraslado;
+
+            if (traslado?.Id > 0)
+            {
+                // Código cuando traslado.Id > 0 quiere decir que vino la informacion de tabla interna, buscar lo insertado en comparacion con transferencia
+            }
+            return Json(traslado);
         }
+
+
+        public JsonResult RegistrarTransferenciaDeStock(SolicitudTraslado_E obj, TransferenciaStock_E transferencia)
+        {
+            //buscar si la solicitud de traslado ya estaba previamente importada
+            var traslado = _solicitudTrasladoN.ObtenerSolicitudDeTraslado(obj.DocNum);
+            if (traslado == null) { 
+                //Importa solo si no existe previamente el DocNum
+                traslado = _solicitudTrasladoN.ImportarSolicitudDeTraslado(obj);
+
+            }
+            //Si no hay traslado valido no registra la transferencia
+            if (traslado.Id == 0) {
+                return Json(new { Mensaje = "No se pudo completar la acción", Comentario = new List<string> { "No se encuentra Solicitud de traslado válida o relacionada" }, Icono = "error" }); 
+            }
+            //Revisar LotesRegistroSanitario, si hay uno nuevo se inserta
+            _lotesRegistroSanitarioN.ValidarLotesRegistroSanitario(transferencia.Detalle);
+
+            transferencia.SolicitudTrasladoId = traslado.Id;
+            var result = _transferenciaStockN.RegistrarTransferenciaDeStock(transferencia);
+
+            string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
+            return Json(new { Mensaje = tituloSweetAlert, Comentario = new List<string> { result.Mensaje }, Icono = result.IconoSweetAlert });
+        }
+
+        
     }
 }

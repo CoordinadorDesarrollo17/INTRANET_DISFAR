@@ -58,8 +58,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AbastecimientoInterno_NEG\TablasExternas\OWTQ_N.cs" />
+    <Compile Include="AbastecimientoInterno_NEG\TablasSql\LotesRegistroSanitario_N.cs" />
     <Compile Include="AbastecimientoInterno_NEG\TablasSql\Productos_N.cs" />
+    <Compile Include="AbastecimientoInterno_NEG\TablasSql\SolicitudTraslado_N.cs" />
     <Compile Include="AbastecimientoInterno_NEG\TablasSql\StockMinProductos_N.cs" />
+    <Compile Include="AbastecimientoInterno_NEG\TablasSql\TransferenciaStock_N.cs" />
     <Compile Include="AbastecimientoInterno_NEG\TablasSql\UbicacionesReserva_N.cs" />
     <Compile Include="AbastecimientoInterno_NEG\TablasSql\UbicacionesPicking_N.cs" />
     <Compile Include="Almacen_NEG\ReportesSql\ContInv_N.cs" />

@@ -47,11 +47,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AbastecimientoInterno_ENT\Interfaces\ITraslado.cs" />
     <Compile Include="AbastecimientoInterno_ENT\TablasExternas\OWTQ_E.cs" />
     <Compile Include="AbastecimientoInterno_ENT\TablasExternas\WTQ1_E.cs" />
     <Compile Include="AbastecimientoInterno_ENT\TablasExternas\WTQ1_Lotes_E.cs" />
+    <Compile Include="AbastecimientoInterno_ENT\TablasSql\DetSolicitudTraslado_E.cs" />
+    <Compile Include="AbastecimientoInterno_ENT\TablasSql\DetTransferenciaStock_E.cs" />
+    <Compile Include="AbastecimientoInterno_ENT\TablasSql\LotesRegistroSanitario_E.cs" />
     <Compile Include="AbastecimientoInterno_ENT\TablasSql\Productos_E.cs" />
+    <Compile Include="AbastecimientoInterno_ENT\TablasSql\SolicitudTraslado_E.cs" />
     <Compile Include="AbastecimientoInterno_ENT\TablasSql\StockMinProductos_E.cs" />
+    <Compile Include="AbastecimientoInterno_ENT\TablasSql\TransferenciaStock_E.cs" />
     <Compile Include="AbastecimientoInterno_ENT\TablasSql\UbicacionesPicking_E.cs" />
     <Compile Include="AbastecimientoInterno_ENT\TablasSql\UbicacionesReserva_E.cs" />
     <Compile Include="AccessoHelper_E.cs" />

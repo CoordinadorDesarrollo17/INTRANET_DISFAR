@@ -1,9 +1,13 @@
 ﻿using Capa_Entidad;
+using Capa_Entidad.AbastecimientoInterno_ENT.Interfaces;
 using Capa_Entidad.Seguridad_ENT;
 using Capa_Negocio;
+using Capa_Negocio.AbastecimientoInterno_NEG.TablasExternas;
+using Capa_Negocio.AbastecimientoInterno_NEG.TablasSql;
 using Capa_Negocio.Seguridad_NEG;
 using Capa_Usuario.Helpers;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
@@ -35,7 +39,6 @@ namespace Capa_Usuario.Controllers
         public ActionResult Sesion()
         {
             Usuario_E user = (Usuario_E)Session["UsuarioId"];
-
             if (user != null)
             {
                 ViewBag.AREAS = new Capa_Negocio.Seguridad_NEG.TablasSql.AREA_N().listarAreas();
@@ -52,6 +55,7 @@ namespace Capa_Usuario.Controllers
 
         public ActionResult Login()
         {
+           
             return View();
         }
 
@@ -60,17 +64,6 @@ namespace Capa_Usuario.Controllers
         {
             try
             {
-                //string direccionIP = ObtenerIPCliente();
-                //string[] segmentos = direccionIP != "::1" ? direccionIP.Split('.') : null;
-
-                //// Prohibido el acceso del segmento 3 y 9 por solicitud de María
-                //if (segmentos != null && new string[] { "3", "9" }.Contains(segmentos[2]))
-                //{
-                //    TempData["Mensaje"] = "Acceso restringido";
-                //    TempData.Keep("Mensaje");
-
-                //    return RedirectToAction("Index");
-                //}
 
                 Usuario_E usuario = new Usuario_N().buscarUsuarioSesion(user, pass);
 
