@@ -32,7 +32,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasExternas
                 HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
                 if (hdr.HasRows)
                 {
-                    solicitud = new OWTQ_E { Detalle = new Dictionary<string, List<WTQ1_E>>() };
+                    solicitud = new OWTQ_E { Detalle = new Dictionary<string, WTQ1_E>() };
 
                     while (hdr.Read())
                     {
@@ -53,22 +53,16 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasExternas
                         // Verificar si el itemCode ya existe en el diccionario, si no, inicializarlo
                         if (!solicitud.Detalle.ContainsKey(itemCode))
                         {
-                            solicitud.Detalle[itemCode] = new List<WTQ1_E>();
+                            solicitud.Detalle[itemCode] = new WTQ1_E
+                            {
+                                AlmacenOrigen = hdr.IsDBNull(8) ? "" : hdr.GetString(8),
+                                AlmacenDestino = hdr.IsDBNull(9) ? "" : hdr.GetString(9),
+                                ItemCode = itemCode,
+                                ItemName = hdr.IsDBNull(11) ? "" : hdr.GetString(11),
+                                CantidadTotalPorSKU = hdr.IsDBNull(12) ? 0 : Math.Round(hdr.GetDecimal(12), 0),
+                                DetalleLotes = new List<WTQ1_Lotes_E>()
+                            };
                         }
-
-                        // Crear el nuevo objeto WTQ1_E
-                        var detalle = new WTQ1_E
-                        {
-                            AlmacenOrigen = hdr.IsDBNull(8) ? "" : hdr.GetString(8),
-                            AlmacenDestino = hdr.IsDBNull(9) ? "" : hdr.GetString(9),
-                            ItemCode = itemCode,
-                            ItemName = hdr.IsDBNull(11) ? "" : hdr.GetString(11),
-                            CantidadTotalPorSKU = hdr.IsDBNull(12) ? 0 : Math.Round(hdr.GetDecimal(12), 0),
-                            DetalleLotes = new List<WTQ1_Lotes_E>()
-                        };
-
-                        // Agregar el detalle a la lista dentro del diccionario
-                        solicitud.Detalle[itemCode].Add(detalle);
 
                         var detalleLote = new WTQ1_Lotes_E
                         {
@@ -79,7 +73,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasExternas
                         };
 
                         // Agregar el lote al último elemento agregado
-                        solicitud.Detalle[itemCode].Last().DetalleLotes.Add(detalleLote);
+                        solicitud.Detalle[itemCode].DetalleLotes.Add(detalleLote);
                     }
                     hdr.Close();
                 }

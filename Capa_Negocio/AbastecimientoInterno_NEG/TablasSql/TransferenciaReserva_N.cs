@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
 {
-    public class TransferenciaStock_N
+    public class TransferenciaReserva_N
     {
         TransferenciaReserva_D datosTransferencia = new TransferenciaReserva_D();
         public Helper_E RegistrarTransferenciaDeStock(TransferenciaReserva_E transferencia)

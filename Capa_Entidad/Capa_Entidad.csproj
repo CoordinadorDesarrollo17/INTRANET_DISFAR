@@ -54,12 +54,12 @@
     <Compile Include="AbastecimientoInterno_ENT\TablasSql\DetalleSolicitudesTraslado_E.cs" />
     <Compile Include="AbastecimientoInterno_ENT\TablasSql\DetalleTransferenciaReserva_E.cs" />
     <Compile Include="AbastecimientoInterno_ENT\TablasSql\LotesRegistroSanitario_E.cs" />
+    <Compile Include="AbastecimientoInterno_ENT\TablasSql\Masters_E.cs" />
     <Compile Include="AbastecimientoInterno_ENT\TablasSql\Productos_E.cs" />
     <Compile Include="AbastecimientoInterno_ENT\TablasSql\SolicitudesTraslado_E.cs" />
     <Compile Include="AbastecimientoInterno_ENT\TablasSql\StockMinProductos_E.cs" />
     <Compile Include="AbastecimientoInterno_ENT\TablasSql\TransferenciaReserva_E.cs" />
-    <Compile Include="AbastecimientoInterno_ENT\TablasSql\UbicacionesPicking_E.cs" />
-    <Compile Include="AbastecimientoInterno_ENT\TablasSql\UbicacionesReserva_E.cs" />
+    <Compile Include="AbastecimientoInterno_ENT\TablasSql\Ubicaciones_E.cs" />
     <Compile Include="AccessoHelper_E.cs" />
     <Compile Include="Almacen_ENT\ReportesSql\ContInv_E.cs" />
     <Compile Include="Almacen_ENT\ReportesSql\RptCorreoDevolucion_E.cs" />
@@ -136,7 +136,6 @@
     <Compile Include="General_ENT\TablasSql\OUR2_E.cs" />
     <Compile Include="General_ENT\TablasSql\OVEH_E.cs" />
     <Compile Include="General_ENT\TablasSql\OWHS_E.cs" />
-    <Compile Include="General_ENT\TablasSql\UBICACIONES_E.cs" />
     <Compile Include="General_ENT\TablasSql\UBIG_E.cs" />
     <Compile Include="General_ENT\Tablas\COB_LUG_ENTREGA_E.cs" />
     <Compile Include="General_ENT\Tablas\COB_SALDO_E.cs" />

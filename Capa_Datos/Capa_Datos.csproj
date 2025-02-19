@@ -81,12 +81,14 @@
   <ItemGroup>
     <Compile Include="AbastecimientoInterno_DAO\TablasExternas\OWTQ_D.cs" />
     <Compile Include="AbastecimientoInterno_DAO\TablasSql\LotesRegistroSanitario_D.cs" />
+    <Compile Include="AbastecimientoInterno_DAO\TablasSql\Masters_D.cs" />
     <Compile Include="AbastecimientoInterno_DAO\TablasSql\Productos_D.cs" />
     <Compile Include="AbastecimientoInterno_DAO\TablasSql\SolicitudesTraslado_D.cs" />
     <Compile Include="AbastecimientoInterno_DAO\TablasSql\StockMinProductos_D.cs" />
     <Compile Include="AbastecimientoInterno_DAO\TablasSql\TransferenciaReserva_D.cs" />
     <Compile Include="AbastecimientoInterno_DAO\TablasSql\UbicacionesReserva_D.cs" />
     <Compile Include="AbastecimientoInterno_DAO\TablasSql\UbicacionesPicking_D.cs" />
+    <Compile Include="AbastecimientoInterno_DAO\TablasSql\Ubicaciones_D.cs" />
     <Compile Include="Almacen_DAO\RptInternos\ContInv_D.cs" />
     <Compile Include="Almacen_DAO\TablasSql\CC_ORPD_D.cs" />
     <Compile Include="Almacen_DAO\TablasSql\CC_ORRU_D.cs" />
@@ -141,7 +143,6 @@
     <Compile Include="General_DAO\TablasSql\OUR2_D.cs" />
     <Compile Include="General_DAO\TablasSql\OVEH_D.cs" />
     <Compile Include="General_DAO\TablasSql\OWHS_D.cs" />
-    <Compile Include="General_DAO\TablasSql\UBICACIONES_D.cs" />
     <Compile Include="General_DAO\TablasSql\UBIG_D.cs" />
     <Compile Include="General_DAO\Tablas\COB_LUG_ENTREGA_D.cs" />
     <Compile Include="General_DAO\Tablas\COB_SALDO_D.cs" />

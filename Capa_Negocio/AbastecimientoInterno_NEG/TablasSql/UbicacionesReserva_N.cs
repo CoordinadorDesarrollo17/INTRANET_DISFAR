@@ -82,14 +82,6 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
                 return _helper.CrearRespuestaError("Ubicación no válida. Recargar página y volver a intentar.");
 
             return _datos.EliminarUbicacionReserva(ubicacionId);
-        }
-
-        public Helper_E EliminarUbicacionGeneral(string codigoUbicacion)
-        {
-            codigoUbicacion = codigoUbicacion.Trim();
-            codigoUbicacion = codigoUbicacion.Replace("'", "''");
-
-            return _datos.EliminarUbicacionGeneral(codigoUbicacion);
-        }
+        }        
     }
 }

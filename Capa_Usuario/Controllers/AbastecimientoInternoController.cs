@@ -18,9 +18,11 @@ namespace Capa_Usuario.Controllers
         private readonly OWTQ_N _solicitudTrasladoHanaN = new OWTQ_N();
         private readonly StockMinProductos_N _stockMinProdN = new StockMinProductos_N();
         private readonly UbicacionesReserva_N _ubicacionReservaN = new UbicacionesReserva_N();
-        private readonly TransferenciaStock_N _transferenciaStockN = new TransferenciaStock_N();
+        private readonly Ubicaciones_N _ubicacionesN = new Ubicaciones_N();
+        private readonly TransferenciaReserva_N _transferenciaStockN = new TransferenciaReserva_N();
         private readonly LotesRegistroSanitario_N _lotesRegistroSanitarioN = new LotesRegistroSanitario_N();
         private readonly SolicitudesTraslado_N _solicitudTrasladoN = new SolicitudesTraslado_N();
+        private readonly Masters_N _masterN = new Masters_N();
 
         /************************* C O N F I G U R A C I Ó N *************************/
         private ActionResult VerificarPermiso(int idOperation)
@@ -70,7 +72,7 @@ namespace Capa_Usuario.Controllers
                     ItemCode = grupo.Key.ItemCode,
                     ItemName = grupo.Key.ItemName,
                     CantidadUbicaciones = grupo.Count(),
-                    Ubicaciones = grupo.ToList(),
+                    Ubicaciones = grupo.Select(u => (Ubicaciones_E)u).ToList(),
                     StockMinAbastecimiento = grupo.Key.StockMinAbastecimiento,
                     StockMinVenta = grupo.Key.StockMinVenta,
                 })
@@ -155,7 +157,7 @@ namespace Capa_Usuario.Controllers
                     ItemCode = grupo.Key.ItemCode,
                     ItemName = grupo.Key.ItemName,
                     CantidadUbicaciones = grupo.Count(),
-                    Ubicaciones = grupo.ToList()
+                    Ubicaciones = grupo.Select(u => (Ubicaciones_E)u).ToList()
                 })
                 .ToDictionary(x => x.ItemCode);
 
@@ -193,7 +195,7 @@ namespace Capa_Usuario.Controllers
             if (usuarioSesion == null)
                 return Json(new { Mensaje = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" });
 
-            var result = _ubicacionReservaN.EliminarUbicacionGeneral(codigoUbicacion);
+            var result = _ubicacionesN.EliminarUbicacionGeneral(codigoUbicacion);
             string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
 
             return Json(new { Mensaje = tituloSweetAlert, Comentario = new List<string> { result.Mensaje }, Icono = result.IconoSweetAlert });
@@ -224,13 +226,20 @@ namespace Capa_Usuario.Controllers
             return Json(traslado);
         }
 
+        public JsonResult BuscarUbicaciones(string almacen, string itemCode)
+        {
+            var result = _ubicacionesN.BuscarUbicaciones(almacen, itemCode);
+
+            return Json(result);
+        }
+
         public ActionResult SolicitudesTraslado(int idOperation = 3300)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
 
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                //ViewBag.Productos = _productosN.ListarProductos();
+                ViewBag.Masters = _masterN.ListarMasters();
 
                 return View();
             }

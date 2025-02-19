@@ -53,7 +53,7 @@
 
     <div class="row">
         <div class="col-lg-12">
-            <button type="button" class="btn btn-warning" onclick="obtenerDatosSap()" data-bs-toggle="tooltip" data-bs-placement="top" title="Obtener Datos SAP"><i class="bi bi-database-fill"></i> Obtener Datos SAP</button>
+            <button type="button" class="btn btn-warning" onclick="buscarSolicitud()" data-bs-toggle="tooltip" data-bs-placement="top" title="Buscar"><i class="bi bi-search"></i> Buscar</button>
         </div>
     </div>
 
@@ -95,33 +95,22 @@
     <script>
         $(document).ready(function () {
             //$('[data-bs-toggle="tooltip"]').tooltip();
-            //inicializarDataTable('tbl_listaUbicacionesReserva', 25)
+            //inicializarDataTable('tbl_detalle', 30)
             //permitirValoresNumericosPositivos()
-
-            $('#tbl_detalle tbody').on('click', 'td.details-control', function () {
-                var tr = $(this).closest('tr');
-                var row = $('#tbl_detalle').DataTable().row(tr);
-                var productoID = tr.data('producto');
-                var button = $(this).find('button i');
-
-                if (row.child.isShown()) {
-                    // Cerrar fila
-                    row.child.hide();
-                    button.removeClass('bi-chevron-up').addClass('bi-chevron-down');
-                } else {
-                    // Abrir y mostrar lotes
-                    row.child(formatLotes(productoID)).show();
-                    button.removeClass('bi-chevron-down').addClass('bi-chevron-up');
-                }
-            });
-
         });
 
         document.addEventListener('DOMContentLoaded', function () {
             permitirSoloNumeros('DocNum')
         });
 
-        async function obtenerDatosSap() {
+        const masters = @Html.Raw(Json.Encode(ViewBag.Masters));
+        let opcionesMasters = ''
+
+        masters.forEach(item => {
+            opcionesMasters += `<option value="${item.ValorUmAlm}">${item.UmAlm}</option>`
+        })
+
+        async function buscarSolicitud() {
             let docNum = document.querySelector('#DocNum').value
 
             try {
@@ -138,7 +127,7 @@
                 }
 
                 const data = await response.json();
-                console.log(data)
+                //console.log("data: "+ data)
 
                 document.querySelector('#NroGuia').value = data.NroGuia
                 document.querySelector('#CardCode').value = data.CardCode
@@ -147,36 +136,56 @@
                 document.querySelector('#MotivoTraslado').value = data.MotivoTraslado
                 document.querySelector('#DocDate').value = data.DocDate
 
-                let tbody = ''           
+                let tbody = ''
+                let key = ''
                 for (var itemCode in data.Detalle) {
-                    data.Detalle[itemCode].forEach(item => {
-                        tbody += `<tr data-producto="${item.ItemCode}">
-                                                     <td class="details-control"><button class="btn btn-sm btn-cobefar-2"><i class="bi bi-chevron-down"></i></button></td>
-                                                     <td scope="col" class="text-center">${item.ItemCode}</td>
-                                                     <td scope="col">${item.ItemName}</td>
-                                                     <td scope="col" class="text-center">${item.CantidadTotalPorSKU}</td>
-                                                     <td scope="col" class="text-center"><div class="mx-auto w-75"><input type="text" class="form-control text-center cls-readonly" value="RESERVA" readonly></div></td>
-                                                     <td scope="col" class="text-center">${Object.values(item.DetalleLotes).map(x => x.BatchNum).join(', ')}</td>
-                                                     <td scope="col" class="text-center">
-                                                        <select class="cls-select">
-                                                           <option>Seleccione</<option>
-                                                       </select>
-                                                    </td>
-                                                     <td scope="col" class="text-center"><div class="mx-auto w-75"><input type="text" class="form-control text-center cls-num"></div></td>
-                                                     <td scope="col" class="text-center"><div class="mx-auto w-75"><input type="text" class="form-control text-center cls-num"></div></td>
-                                                     <td scope="col" class="text-center">
-                                                        <select class="cls-select">
-                                                            <option>Seleccione</<option>
-                                                        </select>
-                                                     </td>
-                                                     <td scope="col" class="text-center"><button type="button" class="btn btn-cobefar-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Borrar"><i class="bi bi-eraser-fill"></i></button></td>
-                                                 </tr>`;
-                    })
-                }                
+                    //item.DetalleLotes.forEach(lote => { lote.push })
+                    key = data.Detalle[itemCode]
+                    tbody += `<tr data-producto="${key.ItemCode}">
+                                            <td class="details-control"><button class="btn btn-sm btn-cobefar-2"><i class="bi bi-chevron-down"></i></button></td>
+                                            <td scope="col" class="text-center">${key.ItemCode}</td>
+                                            <td scope="col">${key.ItemName}</td>
+                                            <td scope="col" class="text-center">${key.CantidadTotalPorSKU}</td>
+                                            <td scope="col" class="text-center" style="width: 140px;"><div class="mx-auto w-75"><input type="text" class="form-control text-center cls-readonly" value="RESERVA" readonly></div></td>
+                                            <td scope="col" class="text-center">${key.DetalleLotes.map(l => l.BatchNum).join(', ')}</td>
+                                            <td scope="col" class="text-center" style="width: 170px;">
+                                            <select class="form-select" onchange="calcularCantidadMasterSaldo('${key.CantidadTotalPorSKU}', this.value, 'cantidadMaster_${key.ItemCode}', 'cantidadSaldo_${key.ItemCode}')">
+                                                    <option value="">Seleccione</<option>
+                                                    ${opcionesMasters}
+                                                </select>
+                                        </td>
+                                            <td scope="col" class="text-center"><div class="mx-auto w-75"><input type="text" id="cantidadMaster_${key.ItemCode}" class="form-control text-center cls-num"></div></td>
+                                            <td scope="col" class="text-center"><div class="mx-auto w-75"><input type="text" id="cantidadSaldo_${key.ItemCode}" class="form-control text-center cls-num"></div></td>
+                                            <td scope="col" class="text-center" style="width: 170px;">
+                                            <select id="ubicacion_${key.ItemCode}" class="form-select" onfocus="cargarUbicaciones('RESERVA', '${key.ItemCode}', 'ubicacion_${key.ItemCode}')">
+                                                <option>Seleccione</<option>
+                                            </select>
+                                            </td>
+                                            <td scope="col" class="text-center"><button type="button" class="btn btn-cobefar-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Borrar"><i class="bi bi-eraser-fill"></i></button></td>
+                                        </tr>`;
+                }
 
                 document.querySelector('#tbl_detalle tbody').innerHTML = tbody
                 inicializarSlimSelectsPorClase('cls-select')
                 permitirValoresNumericosPositivos()
+
+                $('#tbl_detalle tbody').on('click', 'td.details-control', function () {
+                    var tr = $(this).closest('tr');
+                    var row = $('#tbl_detalle').DataTable().row(tr);
+                    var productoID = tr.data('producto');
+                    var button = $(this).find('button i');
+
+                    if (row.child.isShown()) {
+                        // Cerrar fila
+                        row.child.hide();
+                        button.removeClass('bi-chevron-up').addClass('bi-chevron-down');
+                    } else {
+                        // Abrir y mostrar lotes
+                        row.child(formatLotes(data.Detalle[productoID])).show();
+                        button.removeClass('bi-chevron-down').addClass('bi-chevron-up');
+                        inicializarSlimSelectsPorClase('cls-select')
+                    }
+                });
 
                 Swal.fire({
                     title: data.Icono ? data.Mensaje : 'Datos SAP importados correctamente.',
@@ -191,39 +200,90 @@
             }
         }
 
-        function formatLotes(productoID) {
-            console.log(productoID)
-            return;
-
-            let lista = listaAgrupada[productoID] || []; // Obtiene los lotes de ese producto
-            if (lista.length === 0) return '<i>No hay lotes disponibles.</i>';
-
+        function formatLotes(articulo) {
+            //console.log(articulo)
             let tableHtml = `
             <div class="d-flex table-responsive justify-content-center">
                 <table class="table table-sm table-bordered table-hover subtable w-75">
                     <thead class="thead-light">
                         <tr>
-                            <th scope="col" class="text-center">Código de artículo</th>
-                            <th scope="col" class="text-center">Descripción</th>
+                            <th scope="col" class="text-center">Lote</th>
+                            <th scope="col" class="text-center">Fecha de Vencimiento</th>
+                            <th scope="col" class="text-center">Stock UNIDADES</th>
+                            <th scope="col" class="text-center">Unidad MASTER</th>
+                            <th scope="col" class="text-center">Cantidad en MASTER</th>
+                            <th scope="col" class="text-center">Cantidad en SALDO</th>
                             <th scope="col" class="text-center">Ubicación</th>
                             <th scope="col" class="text-center"></th>
                         </tr>
                     </thead>
                     <tbody>`;
 
-            lista.Ubicaciones.forEach(item => {
-                tableHtml += `<tr>
-                        <td  class="text-center align-middle">${item.ItemCode}</td>
-                        <td  class="text-center align-middle">${item.ItemName}</td>
-                        <td  class="text-center align-middle">${item.CodigoUbicacion}</td>
+                articulo.DetalleLotes.forEach(item => {
+                    tableHtml += `<tr>
+                        <td  class="text-center align-middle">${item.BatchNum}</td>
+                        <td  class="text-center align-middle">${item.FechaVencimiento}</td>
+                        <td  class="text-center align-middle">${item.CantidadTotalPorSKUyLote}</td>
                         <td  class="text-center align-middle">
-                            <button class="btn btn-danger" onclick="eliminarUbicacion('${item.CodigoUbicacion}', '${item.UbicacionId}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar ubicación"><i class="bi bi-trash3-fill"></i></button>
+                            <select class="cls-select">
+                                <option>Seleccione</<option>
+                                ${opcionesMasters}
+                            </select>
+                        </td>
+                        <td  class="text-center align-middle"></td>
+                        <td  class="text-center align-middle"></td>
+                        <td  class="text-center align-middle">
+                            <select class="cls-select">
+                                <option>Seleccione</<option>
+                            </select>
+                        </td>
+                        <td  class="text-center align-middle">
+                            <button class="btn btn-cobefar" onclick="eliminarUbicacion()" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar ubicación"><i class="bi bi-plus-lg"></i></button>
                         </td>
                     </tr>`
-            })
+                })
 
             tableHtml += '</tbody></table></div>';
+
             return tableHtml;
+        }
+
+        async function cargarUbicaciones(almacen, itemCode, idUbicacion) {
+            itemCode = 'GSKCH0027'
+
+            try {
+                const response = await fetch("/AbastecimientoInterno/BuscarUbicaciones", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ almacen, itemCode }) // Enviar los datos como JSON
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error en la solicitud: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                let ubicaciones = '<option value="">Seleccione</<option>'
+                data.forEach((ubicacion, index) => {
+                    ubicaciones += `<option value="${ubicacion}">${ubicacion}</option>`
+                })
+
+                document.querySelector(`#${idUbicacion}`).innerHTML = ubicaciones
+                console.log("ubicaciones: "+ data)
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function calcularCantidadMasterSaldo(cantidadTotalPorSKU, cantidadEquivalenteMaster, idCantidadMaster, idCantidadSaldo) {
+            let cantidadMaster = Math.floor(cantidadTotalPorSKU / cantidadEquivalenteMaster)
+            let cantidadSaldo = cantidadTotalPorSKU % cantidadEquivalenteMaster
+
+            document.querySelector(`#${idCantidadMaster}`).value = cantidadMaster
+            document.querySelector(`#${idCantidadSaldo}`).value = cantidadSaldo
         }
     </script>
 }

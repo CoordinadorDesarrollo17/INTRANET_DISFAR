@@ -8,6 +8,7 @@ using Capa_Entidad.SocioNegocios_ENT.Tablas;
 using Capa_Entidad.Ventas_ENT.Reportes;
 using Capa_Entidad.Ventas_ENT.Tablas;
 using Capa_Entidad.Ventas_ENT.TablasSql;
+using Capa_Negocio.AbastecimientoInterno_NEG.TablasSql;
 using Capa_Negocio.Almacen_NEG.Tablas;
 using Capa_Negocio.AtencionCliente_NEG.TablasSql;
 using Capa_Negocio.ComprobantesContables_NEG;
@@ -45,7 +46,7 @@ namespace Capa_Usuario.Controllers
         ORTV_N ticketN = new ORTV_N();
         OLDS_N lN = new OLDS_N();
         CC_ORTV_N ccORTV_N = new CC_ORTV_N();
-        UBICACIONES_N ubicacionesN = new UBICACIONES_N();
+        private readonly Ubicaciones_N _ubicacionesN = new Ubicaciones_N();
 
         /************************* C O N F I G U R A C I Ó N *************************/
         private ActionResult VerificarPermiso(int idOperation)
@@ -314,7 +315,7 @@ namespace Capa_Usuario.Controllers
         }
         public void VerificarOpSeguimiento(Dictionary<string, Object> datos, string Request)
         {
-            
+
             int Op = 0;
             if (datos["accion"].Equals("RECIBIDO")) { Op = 508; }
             if (datos["accion"].Equals("ANULARRECIBIDO")) { Op = 509; }
@@ -326,12 +327,12 @@ namespace Capa_Usuario.Controllers
             if (datos["accion"].Equals("ANULARENTREGADO")) { Op = 517; }
             //cambiar datos de NroMesa y Cajas
             if (datos["accion"].Equals("UPDATEEMP")) { Op = 599; }
-       
+
             string acceso = AccesoHelper.VerificarAccesos(Op, (Usuario_E)Session["UsuarioId"], this.ControllerContext.RouteData.Values["action"].ToString(), "", "");
 
             if (acceso == "C_Access")
             {
-            
+
                 ticketN.EditarTicketDesdeSeguimiento(datos, Request);
             }
             else
@@ -393,7 +394,7 @@ namespace Capa_Usuario.Controllers
                         }
                     }
                     ViewBag.IdRol = usu.IdRol;
-                    ViewBag.permisoCajas = new OUSR_OPE_N().VerificarAccesoOperacion(new OUSR_OPE_E { UsrDocEntry = usu.DocEntry, OpeID = 2024 }); 
+                    ViewBag.permisoCajas = new OUSR_OPE_N().VerificarAccesoOperacion(new OUSR_OPE_E { UsrDocEntry = usu.DocEntry, OpeID = 2024 });
                     return View(ticket);
                 }
                 catch
@@ -422,7 +423,7 @@ namespace Capa_Usuario.Controllers
                     ORTV_E tc = ticketN.ObtenerDatosCompletosTicket(DocEntry);
                     tc.orru = orruN.obtenerOrdenDeRutaTicket(DocEntry);
 
-                  
+
                     // Creamos la estructura de parámetros para el método
                     Dictionary<string, Object> datos = new Dictionary<string, Object>()
                     {
@@ -4156,8 +4157,7 @@ namespace Capa_Usuario.Controllers
             foreach (var ordr in lista)
             {
                 almProcedencia = string.IsNullOrEmpty(almProcedencia) ? ordr.Almacen : almProcedencia;
-                ordr.Ubicaciones = ubicacionesN.BuscarUbicaciones(ordr.ItemCode, ordr.Lote, almProcedencia);
-
+                ordr.Ubicaciones = _ubicacionesN.BuscarUbicaciones(ordr.ItemCode, almProcedencia);
             }
             lista = lista
         .OrderBy(x => x.Ubicaciones != null && x.Ubicaciones.Length > 0 ? x.Ubicaciones[0] : string.Empty)
