@@ -11,7 +11,7 @@ namespace Capa_Entidad.AbastecimientoInterno_ENT.TablasSql
         public string ItemName { get; set; }
         public string CodigoUbicacion { get; set; }
         public string BatchNum { get; set; }
-        public decimal Quantity { get; set; }       // QuantityUnidades
+        public int Quantity { get; set; }       // QuantityUnidades
 
         // Campos que no son de la tabla
         public string NombreOperarioAccion { get; set; }

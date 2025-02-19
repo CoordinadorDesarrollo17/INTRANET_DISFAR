@@ -11,9 +11,9 @@
         public string FechaVencimiento { get; set; }
         public string CodigoUbicacion { get; set; }
         public string UmAlm { get; set; }
-        public string ValorUmAlm { get; set; }
-        public decimal QuantityMaster { get; set; }
-        public decimal QuantitySaldo { get; set; }
-        public decimal QuantityUnidades { get; set; }
+        public int ValorUmAlm { get; set; }
+        public int QuantityMaster { get; set; }
+        public int QuantitySaldo { get; set; }
+        public int QuantityUnidadesCajas { get; set; }
     }
 }

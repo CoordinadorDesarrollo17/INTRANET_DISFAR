@@ -228,6 +228,7 @@
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -1040,7 +1041,7 @@
       <Project>{6BBFB369-2F7E-4BB7-9A56-6E92656798DB}</Project>
       <Name>Capa_Datos</Name>
     </ProjectReference>
-        <ProjectReference Include="..\Capa_Entidad\Capa_Entidad.csproj">
+    <ProjectReference Include="..\Capa_Entidad\Capa_Entidad.csproj">
       <Project>{6325e074-d449-47f7-85da-ff0ca692012f}</Project>
       <Name>Capa_Entidad</Name>
     </ProjectReference>

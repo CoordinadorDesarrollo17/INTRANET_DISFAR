@@ -13,13 +13,13 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
     public class TransferenciaReserva_N
     {
         TransferenciaReserva_D datosTransferencia = new TransferenciaReserva_D();
-        public Helper_E RegistrarTransferenciaReserva(TransferenciaReserva_E transferencia)
+        public TransferenciaReserva_E RegistrarTransferenciaReserva(TransferenciaReserva_E transferencia)
         {
             return datosTransferencia.RegistrarTransferenciaReserva(transferencia);
         }
-        public TransferenciaReserva_E ObtenerTransferenciaReserva(int DocNum)
+        public TransferenciaReserva_E ObtenerTransferenciaReserva(int docNum)
         {
-            return datosTransferencia.ObtenerTransferenciaReserva(DocNum);
+            return datosTransferencia.ObtenerTransferenciaReserva(docNum);
         }
     }
  }

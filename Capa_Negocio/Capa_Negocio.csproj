@@ -58,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AbastecimientoInterno_NEG\TablasExternas\OWTQ_N.cs" />
+    <Compile Include="AbastecimientoInterno_NEG\TablasSql\KardexAbastecimiento_N.cs" />
     <Compile Include="AbastecimientoInterno_NEG\TablasSql\LotesRegistroSanitario_N.cs" />
     <Compile Include="AbastecimientoInterno_NEG\TablasSql\Productos_N.cs" />
     <Compile Include="AbastecimientoInterno_NEG\TablasSql\SolicitudesTraslado_N.cs" />
