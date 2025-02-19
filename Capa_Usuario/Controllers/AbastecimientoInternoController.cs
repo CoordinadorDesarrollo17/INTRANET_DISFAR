@@ -1,3 +1,5 @@
+using Capa_Entidad.AbastecimientoInterno_ENT.Interfaces;
+using Capa_Entidad.AbastecimientoInterno_ENT.TablasExternas;
 using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
 using Capa_Entidad.Seguridad_ENT;
 using Capa_Negocio.AbastecimientoInterno_NEG.TablasExternas;
@@ -16,6 +18,9 @@ namespace Capa_Usuario.Controllers
         private readonly OWTQ_N _solicitudTrasladoHanaN = new OWTQ_N();
         private readonly StockMinProductos_N _stockMinProdN = new StockMinProductos_N();
         private readonly UbicacionesReserva_N _ubicacionReservaN = new UbicacionesReserva_N();
+        private readonly TransferenciaStock_N _transferenciaStockN = new TransferenciaStock_N();
+        private readonly LotesRegistroSanitario_N _lotesRegistroSanitarioN = new LotesRegistroSanitario_N();
+        private readonly SolicitudesTraslado_N _solicitudTrasladoN = new SolicitudesTraslado_N();
 
         /************************* C O N F I G U R A C I Ó N *************************/
         private ActionResult VerificarPermiso(int idOperation)
@@ -225,5 +230,7 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+
+        
     }
 }
