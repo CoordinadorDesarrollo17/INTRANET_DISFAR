@@ -18,7 +18,7 @@ namespace Capa_Usuario.Controllers
         private readonly OWTQ_N _solicitudTrasladoHanaN = new OWTQ_N();
         private readonly StockMinProductos_N _stockMinProdN = new StockMinProductos_N();
         private readonly UbicacionesReserva_N _ubicacionReservaN = new UbicacionesReserva_N();
-        private readonly TransferenciaStock_N _transferenciaStockN = new TransferenciaStock_N();
+        private readonly TransferenciaReserva_N _transferenciaReservaN = new TransferenciaReserva_N();
         private readonly LotesRegistroSanitario_N _lotesRegistroSanitarioN = new LotesRegistroSanitario_N();
         private readonly SolicitudesTraslado_N _solicitudTrasladoN = new SolicitudesTraslado_N();
 
@@ -219,6 +219,9 @@ namespace Capa_Usuario.Controllers
             if (traslado?.Id > 0)
             {
                 // Código cuando traslado.Id > 0 quiere decir que vino la informacion de tabla interna, buscar lo insertado en comparacion con transferencia
+                var transferencia = _transferenciaReservaN.ObtenerTransferenciaReserva(DocNum);
+                //compara traslado  y transferencia para saber cuales estan pendientes de transferencia
+
             }
 
             return Json(traslado);
@@ -259,7 +262,7 @@ namespace Capa_Usuario.Controllers
             _lotesRegistroSanitarioN.ValidarLotesRegistroSanitario(transferencia.Detalle);
 
             transferencia.SolicitudTrasladoId = traslado.Id;
-            var result = _transferenciaStockN.RegistrarTransferenciaDeStock(transferencia);
+            var result = _transferenciaReservaN.RegistrarTransferenciaReserva(transferencia);
 
             string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
             return Json(new { Mensaje = tituloSweetAlert, Comentario = new List<string> { result.Mensaje }, Icono = result.IconoSweetAlert });

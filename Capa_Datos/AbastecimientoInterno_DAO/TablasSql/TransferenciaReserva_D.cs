@@ -10,9 +10,15 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 {
     public class TransferenciaReserva_D
     {
-        public Helper_E RegistrarTransferenciaDeStock(TransferenciaReserva_E transferencia)
+        public Helper_E RegistrarTransferenciaReserva(TransferenciaReserva_E transferencia)
         {
             return new Helper_E { };
         }
-     }
+
+        public TransferenciaReserva_E ObtenerTransferenciaReserva(int DocNum)
+        {
+
+            return null;
+        }
+        }
 }
