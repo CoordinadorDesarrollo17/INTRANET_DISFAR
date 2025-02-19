@@ -93,63 +93,29 @@
 
 @section Scripts{
     <script>
-         $(document).ready(function () {
-             //$('[data-bs-toggle="tooltip"]').tooltip();
-             //inicializarDataTable('tbl_listaUbicacionesReserva', 25)
-             //permitirValoresNumericosPositivos()
+        $(document).ready(function () {
+            //$('[data-bs-toggle="tooltip"]').tooltip();
+            //inicializarDataTable('tbl_listaUbicacionesReserva', 25)
+            //permitirValoresNumericosPositivos()
 
-             $('#tbl_detalle tbody').on('click', 'td.details-control', function () {
-                 var tr = $(this).closest('tr');
-                 var row = $('#tbl_detalle').DataTable().row(tr);
-                 var productoID = tr.data('producto');
-                 var button = $(this).find('button i');
+            $('#tbl_detalle tbody').on('click', 'td.details-control', function () {
+                var tr = $(this).closest('tr');
+                var row = $('#tbl_detalle').DataTable().row(tr);
+                var productoID = tr.data('producto');
+                var button = $(this).find('button i');
 
-                 if (row.child.isShown()) {
-                     // Cerrar fila
-                     row.child.hide();
-                     button.removeClass('bi-chevron-up').addClass('bi-chevron-down');
-                 } else {
-                     // Abrir y mostrar lotes
-                     row.child(formatLotes(productoID)).show();
-                     button.removeClass('bi-chevron-down').addClass('bi-chevron-up');
-                 }
-             });
+                if (row.child.isShown()) {
+                    // Cerrar fila
+                    row.child.hide();
+                    button.removeClass('bi-chevron-up').addClass('bi-chevron-down');
+                } else {
+                    // Abrir y mostrar lotes
+                    row.child(formatLotes(productoID)).show();
+                    button.removeClass('bi-chevron-down').addClass('bi-chevron-up');
+                }
+            });
 
-             let listaAgrupada = @Html.Raw(Json.Encode(Model));
-
-             function formatLotes(productoID) {
-                 let lista = listaAgrupada[productoID] || []; // Obtiene los lotes de ese producto
-                 if (lista.length === 0) return '<i>No hay lotes disponibles.</i>';
-
-                 let tableHtml = `
-                 <div class="d-flex table-responsive justify-content-center">
-                     <table class="table table-sm table-bordered table-hover subtable w-75">
-                         <thead class="thead-light">
-                             <tr>
-                                 <th scope="col" class="text-center">Código de artículo</th>
-                                 <th scope="col" class="text-center">Descripción</th>
-                                 <th scope="col" class="text-center">Ubicación</th>
-                                 <th scope="col" class="text-center"></th>
-                             </tr>
-                         </thead>
-                         <tbody>`;
-
-                 lista.Ubicaciones.forEach(item => {
-                         tableHtml += `<tr>
-                             <td  class="text-center align-middle">${item.ItemCode}</td>
-                             <td  class="text-center align-middle">${item.ItemName}</td>
-                             <td  class="text-center align-middle">${item.CodigoUbicacion}</td>
-                             <td  class="text-center align-middle">
-                                 <button class="btn btn-danger" onclick="eliminarUbicacion('${item.CodigoUbicacion}', '${item.UbicacionId}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar ubicación"><i class="bi bi-trash3-fill"></i></button>
-                             </td>
-                         </tr>`
-                     })
-
-                 tableHtml += '</tbody></table></div>';
-                 return tableHtml;
-             }
-
-         });
+        });
 
         document.addEventListener('DOMContentLoaded', function () {
             permitirSoloNumeros('DocNum')
@@ -181,30 +147,32 @@
                 document.querySelector('#MotivoTraslado').value = data.MotivoTraslado
                 document.querySelector('#DocDate').value = data.DocDate
 
-                let tbody = ''
-                data.Detalle.forEach(item => {
-                    tbody += `<tr>
-                                             <td class="details-control"><button class="btn btn-sm btn-cobefar-2"><i class="bi bi-chevron-down"></i></button></td>
-                                             <td scope="col" class="text-center">${item.ItemCode}</td>
-                                             <td scope="col">${item.ItemName}</td>
-                                             <td scope="col" class="text-center">${item.CantidadTotalPorSKU}</td>
-                                             <td scope="col" class="text-center"><div class="mx-auto w-75"><input type="text" class="form-control text-center cls-readonly" value="RESERVA" readonly></div></td>
-                                             <td scope="col" class="text-center">${Object.values(item.DetalleLotes).map(x => x.BatchNum).join(', ') }</td>
-                                             <td scope="col" class="text-center">
-                                                <select class="cls-select">
-                                                   <option>Seleccione</<option>
-                                               </select>
-                                            </td>
-                                             <td scope="col" class="text-center"><div class="mx-auto w-75"><input type="text" class="form-control text-center cls-num"></div></td>
-                                             <td scope="col" class="text-center"><div class="mx-auto w-75"><input type="text" class="form-control text-center cls-num"></div></td>
-                                             <td scope="col" class="text-center">
-                                                <select class="cls-select">
-                                                    <option>Seleccione</<option>
-                                                </select>
-                                             </td>
-                                             <td scope="col" class="text-center"><button type="button" class="btn btn-cobefar-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Borrar"><i class="bi bi-eraser-fill"></i></button></td>
-                                         </tr>`;
-                })
+                let tbody = ''           
+                for (var itemCode in data.Detalle) {
+                    data.Detalle[itemCode].forEach(item => {
+                        tbody += `<tr data-producto="${item.ItemCode}">
+                                                     <td class="details-control"><button class="btn btn-sm btn-cobefar-2"><i class="bi bi-chevron-down"></i></button></td>
+                                                     <td scope="col" class="text-center">${item.ItemCode}</td>
+                                                     <td scope="col">${item.ItemName}</td>
+                                                     <td scope="col" class="text-center">${item.CantidadTotalPorSKU}</td>
+                                                     <td scope="col" class="text-center"><div class="mx-auto w-75"><input type="text" class="form-control text-center cls-readonly" value="RESERVA" readonly></div></td>
+                                                     <td scope="col" class="text-center">${Object.values(item.DetalleLotes).map(x => x.BatchNum).join(', ')}</td>
+                                                     <td scope="col" class="text-center">
+                                                        <select class="cls-select">
+                                                           <option>Seleccione</<option>
+                                                       </select>
+                                                    </td>
+                                                     <td scope="col" class="text-center"><div class="mx-auto w-75"><input type="text" class="form-control text-center cls-num"></div></td>
+                                                     <td scope="col" class="text-center"><div class="mx-auto w-75"><input type="text" class="form-control text-center cls-num"></div></td>
+                                                     <td scope="col" class="text-center">
+                                                        <select class="cls-select">
+                                                            <option>Seleccione</<option>
+                                                        </select>
+                                                     </td>
+                                                     <td scope="col" class="text-center"><button type="button" class="btn btn-cobefar-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Borrar"><i class="bi bi-eraser-fill"></i></button></td>
+                                                 </tr>`;
+                    })
+                }                
 
                 document.querySelector('#tbl_detalle tbody').innerHTML = tbody
                 inicializarSlimSelectsPorClase('cls-select')
@@ -221,6 +189,41 @@
             } catch (error) {
                 console.error('Error:', error);
             }
+        }
+
+        function formatLotes(productoID) {
+            console.log(productoID)
+            return;
+
+            let lista = listaAgrupada[productoID] || []; // Obtiene los lotes de ese producto
+            if (lista.length === 0) return '<i>No hay lotes disponibles.</i>';
+
+            let tableHtml = `
+            <div class="d-flex table-responsive justify-content-center">
+                <table class="table table-sm table-bordered table-hover subtable w-75">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col" class="text-center">Código de artículo</th>
+                            <th scope="col" class="text-center">Descripción</th>
+                            <th scope="col" class="text-center">Ubicación</th>
+                            <th scope="col" class="text-center"></th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+            lista.Ubicaciones.forEach(item => {
+                tableHtml += `<tr>
+                        <td  class="text-center align-middle">${item.ItemCode}</td>
+                        <td  class="text-center align-middle">${item.ItemName}</td>
+                        <td  class="text-center align-middle">${item.CodigoUbicacion}</td>
+                        <td  class="text-center align-middle">
+                            <button class="btn btn-danger" onclick="eliminarUbicacion('${item.CodigoUbicacion}', '${item.UbicacionId}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar ubicación"><i class="bi bi-trash3-fill"></i></button>
+                        </td>
+                    </tr>`
+            })
+
+            tableHtml += '</tbody></table></div>';
+            return tableHtml;
         }
     </script>
 }
