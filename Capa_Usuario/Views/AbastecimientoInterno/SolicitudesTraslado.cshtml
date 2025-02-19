@@ -1,0 +1,226 @@
+@{
+    ViewBag.Title = "Solicitudes de Traslado";
+    Layout = "~/Views/Shared/_DefaultLayout.cshtml";
+}
+
+<div class="pt-3">
+    <nav>
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><em>Abastecimiento Interno</em></li>
+            <li class="current"><em>Solicitudes de Traslado</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
+    <div class="row px-3 pt-3"><h3 class="titulo-seccion">SOLICITUDES DE TRASLADO</h3></div>
+</div>
+
+<div class="bg-white px-3 py-3 align-items-center">
+    <div class="row mb-4">
+        <div class="col-lg-2">
+            <input type="hidden" id="DocEntry" name="DocEntry" readonly />
+            <label for="" class="form-label fw-bold">Tipo de documento:</label>
+            <select id="" class="form-select">
+                <option value="OWTQ">Solicitud de Traslado</option>
+            </select>
+        </div>
+
+        <div class="col-lg-2">
+            <label for="DocNum" class="form-label fw-bold">DocNum:</label>
+            <input type="text" id="DocNum" class="form-control" name="DocNum" autocomplete="off" />
+        </div>
+
+        <div class="col-lg-2">
+            <label for="NroGuia" class="form-label fw-bold">Nro. de guía:</label>
+            <input type="text" id="NroGuia" class="form-control cls-readonly text-center" name="NroGuia" autocomplete="off" readonly />
+        </div>
+
+        <div class="col-lg-3">
+            <label for="CardName" class="form-label fw-bold">Socio de Negocio:</label>
+            <input type="hidden" id="CardCode" name="CardCode" readonly />
+            <input type="text" id="CardName" class="form-control cls-readonly text-center" name="CardName" autocomplete="off" readonly />
+        </div>
+
+        <div class="col-lg-3">
+            <label for="OperarioResponsable" class="form-label fw-bold">Operario Responsable SAP:</label>
+            <input type="text" id="OperarioResponsable" class="form-control cls-readonly text-center" name="OperarioResponsable" autocomplete="off" readonly />
+            <input type="hidden" id="MotivoTraslado" name="MotivoTraslado" readonly />
+            <input type="hidden" id="DocDate" name="DocDate" readonly />
+        </div>
+    </div><!-- row -->
+
+    <div class="row">
+        <div class="col-lg-12">
+            <button type="button" class="btn btn-warning" onclick="obtenerDatosSap()" data-bs-toggle="tooltip" data-bs-placement="top" title="Obtener Datos SAP"><i class="bi bi-database-fill"></i> Obtener Datos SAP</button>
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <table id="tbl_detalle" class="dt-container dt-empty-footer table table-sm table-hover font-14" width="100%">
+                <thead class="thead-cobefar">
+                    <tr>
+                        <th style="width: 5%;"></th>
+                        <th scope="col" class="text-center">Código de artículo</th>
+                        <th scope="col" class="text-center">Descripción</th>
+                        <th scope="col" class="text-center">Cantidad</th>
+                        <th scope="col" class="text-center">Alm. Destino</th>
+                        <th scope="col" class="text-center">Lotes</th>
+                        <th scope="col" class="text-center">Unidad Alm.</th>
+                        <th scope="col" class="text-center">Cant . MASTER</th>
+                        <th scope="col" class="text-center">Cant . Saldo</th>
+                        <th scope="col" class="text-center">Ubicación</th>
+                        <th scope="col" class="text-center"></th>
+                    </tr>
+                </thead>
+                <tbody class="text-dark">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <button type="button" class="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Cancelar"><i class="bi bi-x-lg"></i> Cancelar</button>
+            <button type="button" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Transferir"><i class="bi bi-arrow-left-right"></i> Transferir</button>
+        </div>
+    </div>
+</div><!-- main -->
+
+@section Scripts{
+    <script>
+         $(document).ready(function () {
+             //$('[data-bs-toggle="tooltip"]').tooltip();
+             //inicializarDataTable('tbl_listaUbicacionesReserva', 25)
+             //permitirValoresNumericosPositivos()
+
+             $('#tbl_detalle tbody').on('click', 'td.details-control', function () {
+                 var tr = $(this).closest('tr');
+                 var row = $('#tbl_detalle').DataTable().row(tr);
+                 var productoID = tr.data('producto');
+                 var button = $(this).find('button i');
+
+                 if (row.child.isShown()) {
+                     // Cerrar fila
+                     row.child.hide();
+                     button.removeClass('bi-chevron-up').addClass('bi-chevron-down');
+                 } else {
+                     // Abrir y mostrar lotes
+                     row.child(formatLotes(productoID)).show();
+                     button.removeClass('bi-chevron-down').addClass('bi-chevron-up');
+                 }
+             });
+
+             let listaAgrupada = @Html.Raw(Json.Encode(Model));
+
+             function formatLotes(productoID) {
+                 let lista = listaAgrupada[productoID] || []; // Obtiene los lotes de ese producto
+                 if (lista.length === 0) return '<i>No hay lotes disponibles.</i>';
+
+                 let tableHtml = `
+                 <div class="d-flex table-responsive justify-content-center">
+                     <table class="table table-sm table-bordered table-hover subtable w-75">
+                         <thead class="thead-light">
+                             <tr>
+                                 <th scope="col" class="text-center">Código de artículo</th>
+                                 <th scope="col" class="text-center">Descripción</th>
+                                 <th scope="col" class="text-center">Ubicación</th>
+                                 <th scope="col" class="text-center"></th>
+                             </tr>
+                         </thead>
+                         <tbody>`;
+
+                 lista.Ubicaciones.forEach(item => {
+                         tableHtml += `<tr>
+                             <td  class="text-center align-middle">${item.ItemCode}</td>
+                             <td  class="text-center align-middle">${item.ItemName}</td>
+                             <td  class="text-center align-middle">${item.CodigoUbicacion}</td>
+                             <td  class="text-center align-middle">
+                                 <button class="btn btn-danger" onclick="eliminarUbicacion('${item.CodigoUbicacion}', '${item.UbicacionId}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar ubicación"><i class="bi bi-trash3-fill"></i></button>
+                             </td>
+                         </tr>`
+                     })
+
+                 tableHtml += '</tbody></table></div>';
+                 return tableHtml;
+             }
+
+         });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            permitirSoloNumeros('DocNum')
+        });
+
+        async function obtenerDatosSap() {
+            let docNum = document.querySelector('#DocNum').value
+
+            try {
+                const response = await fetch("/AbastecimientoInterno/BuscarSolicitudDeTraslado", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ docNum }) // Enviar los datos como JSON
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error en la solicitud: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                console.log(data)
+
+                document.querySelector('#NroGuia').value = data.NroGuia
+                document.querySelector('#CardCode').value = data.CardCode
+                document.querySelector('#CardName').value = data.CardName
+                document.querySelector('#OperarioResponsable').value = data.OperarioResponsable
+                document.querySelector('#MotivoTraslado').value = data.MotivoTraslado
+                document.querySelector('#DocDate').value = data.DocDate
+
+                let tbody = ''
+                data.Detalle.forEach(item => {
+                    tbody += `<tr>
+                                             <td class="details-control"><button class="btn btn-sm btn-cobefar-2"><i class="bi bi-chevron-down"></i></button></td>
+                                             <td scope="col" class="text-center">${item.ItemCode}</td>
+                                             <td scope="col">${item.ItemName}</td>
+                                             <td scope="col" class="text-center">${item.CantidadTotalPorSKU}</td>
+                                             <td scope="col" class="text-center"><div class="mx-auto w-75"><input type="text" class="form-control text-center cls-readonly" value="RESERVA" readonly></div></td>
+                                             <td scope="col" class="text-center">${Object.values(item.DetalleLotes).map(x => x.BatchNum).join(', ') }</td>
+                                             <td scope="col" class="text-center">
+                                                <select class="cls-select">
+                                                   <option>Seleccione</<option>
+                                               </select>
+                                            </td>
+                                             <td scope="col" class="text-center"><div class="mx-auto w-75"><input type="text" class="form-control text-center cls-num"></div></td>
+                                             <td scope="col" class="text-center"><div class="mx-auto w-75"><input type="text" class="form-control text-center cls-num"></div></td>
+                                             <td scope="col" class="text-center">
+                                                <select class="cls-select">
+                                                    <option>Seleccione</<option>
+                                                </select>
+                                             </td>
+                                             <td scope="col" class="text-center"><button type="button" class="btn btn-cobefar-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Borrar"><i class="bi bi-eraser-fill"></i></button></td>
+                                         </tr>`;
+                })
+
+                document.querySelector('#tbl_detalle tbody').innerHTML = tbody
+                inicializarSlimSelectsPorClase('cls-select')
+                permitirValoresNumericosPositivos()
+
+                Swal.fire({
+                    title: data.Icono ? data.Mensaje : 'Datos SAP importados correctamente.',
+                    html: data.Comentario,
+                    icon: data.Icono,
+                    allowEscapeKey: false,
+                    allowOutsideClick: false,
+                    showConfirmButton: true
+                })
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+    </script>
+}

@@ -198,8 +198,32 @@ namespace Capa_Usuario.Controllers
         public JsonResult BuscarSolicitudDeTraslado(int DocNum)
         {
             var traslados = _solicitudTrasladoHanaN.BuscarSolicitudDeTraslado(DocNum);
-            if (traslados == null) { return Json(new { Mensaje = "Error", Comentario = new List<string> { "No existe ningun resultado" }, Icono = "error" }); }
-            return Json(new { });
+            if (traslados == null)
+            {
+                var tituloSweetAlert = "No se pudo completar la acción";
+                var icono = "error";
+                var mensaje = "No existe ningun resultado";
+
+                return Json(new { Mensaje = tituloSweetAlert, Comentario = new List<string> { mensaje }, Icono = icono });
+            }
+
+            return Json(traslados);
+        }
+
+        public ActionResult SolicitudesTraslado(int idOperation = 3300)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                //ViewBag.Productos = _productosN.ListarProductos();
+
+                return View();
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
         }
     }
 }
