@@ -59,7 +59,7 @@
 
     <hr />
 
-    <div>
+    <div id="copiaSap" hidden>
         <form id="frm_tablaCopiaSap">
             <div class="row mb-4">
                 <div class="col-lg-12">
@@ -78,8 +78,6 @@
                     <input type="text" id="copiaDocDate" name="DocDate" readonly />
                 </div>
             </div><!-- row -->
-
-
         </form>
 
         <table id="tbl_copiaSap" class="table">
@@ -209,79 +207,95 @@
                 }
 
                 const data = await response.json();
-                console.log("data: " + data.traslado)
+                console.log(data)
 
-                document.querySelector('#NroGuia').value = data.traslado.NroGuia
-                document.querySelector('#CardCode').value = data.traslado.CardCode
-                document.querySelector('#CardName').value = data.traslado.CardName
-                document.querySelector('#OperarioResponsableSAP').value = data.traslado.OperarioResponsable
-                document.querySelector('#MotivoTraslado').value = data.traslado.MotivoTraslado
-                document.querySelector('#DocDate').value = data.traslado.DocDate
+                if (data.Icono == 'error' || (data.traslado == null && data.transferencia == null)) {
+                    Swal.fire({
+                        title: data.Mensaje,
+                        html: data.Comentario,
+                        icon: data.Icono,
+                        allowEscapeKey: false,
+                        allowOutsideClick: false,
+                        showConfirmButton: true
+                    })
 
-                let tbody = ''
-                let key = ''
-
-                construirFormCopiaSap(data.traslado)
-                for (var itemCode in data.traslado.Detalle) {
-                    //item.DetalleLotes.forEach(lote => { lote.push })
-                    key = data.traslado.Detalle[itemCode]
-                    tbody += `<tr data-producto="${key.ItemCode}">
-                                            <td class="details-control"><button class="btn btn-sm btn-cobefar-2"><i class="bi bi-chevron-down"></i></button></td>
-                                            <td scope="col" class="text-center">${key.ItemCode}</td>
-                                            <td scope="col">${key.ItemName}</td>
-                                            <td scope="col" class="text-center">${key.CantidadTotalPorSKU}</td>
-                                            <td scope="col" class="text-center" style="width: 140px;"><div class="mx-auto w-75"><input type="text" class="form-control text-center cls-readonly" value="RESERVA" readonly></div></td>
-                                            <td scope="col" class="text-center">${key.DetalleLotes.map(l => l.BatchNum).join(', ')}</td>
-                                            <td scope="col" class="text-center" style="width: 170px;">
-                                            <select class="form-select" onchange="calcularCantidadMasterSaldo('${key.CantidadTotalPorSKU}', this.value, 'cantidadMaster_${key.ItemCode}', 'cantidadSaldo_${key.ItemCode}')">
-                                                    <option value="">Seleccione</<option>
-                                                    ${opcionesMasters}
-                                                </select>
-                                        </td>
-                                            <td scope="col" class="text-center"><div class="mx-auto w-75"><input type="text" id="cantidadMaster_${key.ItemCode}" class="form-control text-center cls-num"></div></td>
-                                            <td scope="col" class="text-center"><div class="mx-auto w-75"><input type="text" id="cantidadSaldo_${key.ItemCode}" class="form-control text-center cls-num"></div></td>
-                                            <td scope="col" class="text-center" style="width: 170px;">
-                                            <select id="ubicacion_${key.ItemCode}" class="form-select" onfocus="cargarUbicaciones('RESERVA', '${key.ItemCode}', 'ubicacion_${key.ItemCode}')">
-                                                <option>Seleccione</<option>
-                                            </select>
-                                            </td>
-                                            <td scope="col" class="text-center"><button type="button" class="btn btn-cobefar-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Borrar"><i class="bi bi-eraser-fill"></i></button></td>
-                                        </tr>`;
+                    return;
                 }
 
-                document.querySelector('#tbl_detalle tbody').innerHTML = tbody
-                inicializarSlimSelectsPorClase('cls-select')
-                permitirValoresNumericosPositivos()
+                    document.querySelector('#NroGuia').value = data.traslado.NroGuia
+                    document.querySelector('#CardCode').value = data.traslado.CardCode
+                    document.querySelector('#CardName').value = data.traslado.CardName
+                    document.querySelector('#OperarioResponsableSAP').value = data.traslado.OperarioResponsable
+                    document.querySelector('#MotivoTraslado').value = data.traslado.MotivoTraslado
+                    document.querySelector('#DocDate').value = data.traslado.DocDate                    
 
-                $('#tbl_detalle tbody').on('click', 'td.details-control', function () {
-                    var tr = $(this).closest('tr');
-                    var row = $('#tbl_detalle').DataTable().row(tr);
-                    var productoID = tr.data('producto');
-                    var button = $(this).find('button i');
-
-                    if (row.child.isShown()) {
-                        // Cerrar fila
-                        row.child.hide();
-                        button.removeClass('bi-chevron-up').addClass('bi-chevron-down');
-                    } else {
-                        // Abrir y mostrar lotes
-                        row.child(formatLotes(data.traslado.Detalle[productoID])).show();
-                        button.removeClass('bi-chevron-down').addClass('bi-chevron-up');
-                        inicializarSlimSelectsPorClase('cls-select')
-                    }
-                });
-
-                Swal.fire({
-                    title: data.traslado.Icono ? data.traslado.Mensaje : 'Datos SAP importados correctamente.',
-                    html: data.traslado.Comentario,
-                    icon: data.traslado.Icono,
-                    allowEscapeKey: false,
-                    allowOutsideClick: false,
-                    showConfirmButton: true
-                })
+                    construirFormCopiaSap(data.traslado)
+                    construirDetalleSolicitudTraslado(data.traslado.Detalle)
             } catch (error) {
                 console.error('Error:', error);
             }
+        }
+
+        function construirDetalleSolicitudTraslado(detalle) {
+            let tbody = ''
+            let key = ''
+
+            for (var itemCode in detalle) {
+                key = detalle[itemCode]
+                tbody += `<tr data-producto="${key.ItemCode}">
+                                        <td class="details-control"><button class="btn btn-sm btn-cobefar-2"><i class="bi bi-chevron-down"></i></button></td>
+                                        <td scope="col" class="text-center">${key.ItemCode}</td>
+                                        <td scope="col">${key.ItemName}</td>
+                                        <td scope="col" class="text-center">${key.CantidadTotalPorSKU}</td>
+                                        <td scope="col" class="text-center" style="width: 140px;"><div class="mx-auto w-75"><input type="text" class="form-control text-center cls-readonly" value="RESERVA" readonly></div></td>
+                                        <td scope="col" class="text-center">${key.DetalleLotes.map(l => l.BatchNum).join(', ')}</td>
+                                        <td scope="col" class="text-center" style="width: 170px;">
+                                        <select class="form-select" onchange="calcularCantidadMasterSaldo('${key.CantidadTotalPorSKU}', this.value, 'cantidadMaster_${key.ItemCode}', 'cantidadSaldo_${key.ItemCode}')">
+                                                <option value="">Seleccione</<option>
+                                                ${opcionesMasters}
+                                            </select>
+                                    </td>
+                                        <td scope="col" class="text-center"><div class="mx-auto w-75"><input type="text" id="cantidadMaster_${key.ItemCode}" class="form-control text-center cls-num"></div></td>
+                                        <td scope="col" class="text-center"><div class="mx-auto w-75"><input type="text" id="cantidadSaldo_${key.ItemCode}" class="form-control text-center cls-num"></div></td>
+                                        <td scope="col" class="text-center" style="width: 170px;">
+                                        <select id="ubicacion_${key.ItemCode}" class="form-select" onfocus="cargarUbicaciones('RESERVA', '${key.ItemCode}', 'ubicacion_${key.ItemCode}')">
+                                            <option>Seleccione</<option>
+                                        </select>
+                                        </td>
+                                        <td scope="col" class="text-center"><button type="button" class="btn btn-cobefar-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Borrar"><i class="bi bi-eraser-fill"></i></button></td>
+                                    </tr>`;
+            }
+
+            document.querySelector('#tbl_detalle tbody').innerHTML = tbody
+            inicializarSlimSelectsPorClase('cls-select')
+            permitirValoresNumericosPositivos()
+
+            $('#tbl_detalle tbody').on('click', 'td.details-control', function () {
+                var tr = $(this).closest('tr');
+                var row = $('#tbl_detalle').DataTable().row(tr);
+                var productoID = tr.data('producto');
+                var button = $(this).find('button i');
+
+                if (row.child.isShown()) {
+                    // Cerrar fila
+                    row.child.hide();
+                    button.removeClass('bi-chevron-up').addClass('bi-chevron-down');
+                } else {
+                    // Abrir y mostrar lotes
+                    row.child(formatLotes(data.traslado.Detalle[productoID])).show();
+                    button.removeClass('bi-chevron-down').addClass('bi-chevron-up');
+                    inicializarSlimSelectsPorClase('cls-select')
+                }
+            });
+
+            Swal.fire({
+                title: data.traslado ? data.traslado.Mensaje : 'Datos SAP importados correctamente.',
+                html: data.Comentario,
+                icon: data.Icono,
+                allowEscapeKey: false,
+                allowOutsideClick: false,
+                showConfirmButton: true
+            })
         }
 
         function formatLotes(articulo) {
@@ -371,9 +385,6 @@
         }
 
         function construirFormCopiaSap(traslado) {
-            console.log(traslado)
-            //return;
-
             document.querySelector('#copiaDocEntry').value = traslado.DocEntry
             document.querySelector('#copiaDocNum').value = traslado.DocNum
             document.querySelector('#copiaNroGuia').value = traslado.NroGuia

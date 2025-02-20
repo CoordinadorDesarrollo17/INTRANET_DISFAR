@@ -330,13 +330,14 @@ namespace Capa_Usuario.Controllers
                         var resultKardex = _kardexAbastecimientoN.InsertarTransaccionIngresoKardex(transferenciaGet, cn);
                         if (resultKardex.IconoSweetAlert.Equals("error"))
                         {
-                            return Json(new { 
-                                Mensaje = "No se pudo completar la acción", 
-                                Comentario = new List<string> { resultKardex.Mensaje }, 
-                                Icono = resultKardex.IconoSweetAlert 
+                            return Json(new
+                            {
+                                Mensaje = "No se pudo completar la acción",
+                                Comentario = new List<string> { resultKardex.Mensaje },
+                                Icono = resultKardex.IconoSweetAlert
                             });
                         }
-                       
+
                         // 7.3 Sumar y/o Registrar Quantity en Cajas en la tabla UbicacionesLotes
                         var resultUbicacionesLotes = _ubicacionesLotesN.InsertarRegistroPorIngreso(transferenciaGet, cn);
 
