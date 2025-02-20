@@ -10,12 +10,13 @@ using System.Threading.Tasks;
 
 namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
 {
-    public class KardexAbastecimiento_N
+    public class UbicacionesLotesMaster_N
     {
-        KardexAbastecimiento_D kardexD = new KardexAbastecimiento_D();
-        public Helper_E InsertarTransaccionIngresoKardex(TransferenciaReserva_E ingreso,SqlConnection cn)
+        readonly UbicacionesLotesMaster_D datosUbicacionesLM = new UbicacionesLotesMaster_D();
+
+        public Helper_E InsertarRegistroPorIngreso (TransferenciaReserva_E ingreso, SqlConnection cn)
         {
-            return kardexD.InsertarTransaccionIngresoKardex(ingreso,cn);
+            return datosUbicacionesLM.InsertarRegistroPorIngreso(ingreso, cn);
         }
     }
 }

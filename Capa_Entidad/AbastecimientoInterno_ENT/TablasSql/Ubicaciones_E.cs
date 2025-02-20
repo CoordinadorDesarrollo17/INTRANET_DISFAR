@@ -31,6 +31,6 @@ namespace Capa_Entidad.AbastecimientoInterno_ENT.TablasSql
     {
         public int UbicacionId { get; set; } // Relación con UbicacionesPicking_E
         public string BatchNum { get; set; }
-        public decimal Quantity { get; set; }
+        public int QuantityUnidadesCajas { get; set; }
     }
 }
