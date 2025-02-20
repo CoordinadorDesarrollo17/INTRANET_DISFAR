@@ -3674,7 +3674,6 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     {
                         condWhere += $" AND t0.Visible in ('PI','SI') AND t0.Presupuesto in ('NO') ";
                     }
-                    //condWhere += t.AlmProcedencia != null ? $" AND (t0.LugarDestino IN ('Centro', 'Arriola') OR (t0.LugarDestino IN ('Domicilio', 'Agencia') and ((SELECT TOP 1 T2.AlmacenSalida FROM vt.RTV2 T2 WHERE T2.AlmacenSalida NOT IN ('07') AND T2.DocEntry = t0.DocEntry) IN('16','ALM07'))))" : "";
                     condWhere += t.AlmProcedencia != null ? $" AND ((t0.LugarDestino IN ('Centro', 'Arriola') AND t0.AlmProcedencia IN ('{t.AlmProcedencia}')) " +
                             $" OR (t0.LugarDestino IN ('Domicilio', 'Agencia') AND (SELECT TOP 1 T2.AlmacenSalida FROM vt.RTV2 T2 WHERE T2.AlmacenSalida NOT IN ('07') AND T2.DocEntry = t0.DocEntry) IN ('{t.AlmProcedencia}')))" : "";
                     condWhere += t.DocNum > 0 ? $" AND t0.DocNum like '%{t.DocNum}%'" : "";
@@ -3739,7 +3738,6 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             if (t != null)
             {
                 condWhere += $" AND t0.Estado not in ('SEPARADO')";
-                //ALISSON
                 condWhere += t.DocNum > 0 ? $" AND t0.DocNum like '%{t.DocNum}%'" : "";
                 condWhere += t.FechaSapTicket != null ? $" AND t0.FechaSapTicket='{t.FechaSapTicket}'" : "";
                 condWhere += t.LugarDestino != null ? $" AND t0.LugarDestino='{t.LugarDestino}'" : "";
