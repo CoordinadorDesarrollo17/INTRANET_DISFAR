@@ -294,10 +294,10 @@ namespace Capa_Usuario.Controllers
                     if (transferenciaGet.OperarioRegistra != null)
                     {
                         // Registrar la transferencia de reserva
-                        var transferenciaPost = _transferenciaReservaN.RegistrarTransferenciaReserva(transferenciaGet);
+                        //var transferenciaPost = _transferenciaReservaN.RegistrarTransferenciaReserva(transferenciaGet);
 
                         // Validar si la transferencia se registró correctamente
-                        if (transferenciaPost == null || transferenciaPost.Id == 0)
+                        if (false/*transferenciaPost == null || transferenciaPost.Id == 0*/)
                         {
                             return Json(new
                             {

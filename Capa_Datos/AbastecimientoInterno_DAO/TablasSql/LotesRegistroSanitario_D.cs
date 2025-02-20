@@ -27,7 +27,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                             string createTempTableQuery = @"
                                         CREATE TABLE #TempLotes (
                                             ItemCode VARCHAR(50),
-                                            BatchNum VARCHAR(50),
+                                            DistNumber VARCHAR(50),
                                             ExpDate DATE,
                                             InDate DATE
                                         );";
@@ -44,13 +44,13 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
                                 var dataTable = new DataTable();
                                 dataTable.Columns.Add("ItemCode", typeof(string));
-                                dataTable.Columns.Add("BatchNum", typeof(string));
+                                dataTable.Columns.Add("DistNumber", typeof(string));
                                 dataTable.Columns.Add("InDate", typeof(string));
                                 dataTable.Columns.Add("ExpDate", typeof(string));
 
                                 foreach (var item in detalleTraslado)
                                 {
-                                    dataTable.Rows.Add(item.ItemCode, item.BatchNum,item.InDate,item.ExpDate);
+                                    dataTable.Rows.Add(item.ItemCode, item.BatchNum, item.InDate,item.ExpDate);
                                 }
 
                                 bulkCopy.WriteToServer(dataTable);
@@ -60,10 +60,10 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                             string mergeQuery = @"
                                     MERGE INTO LotesRegistroSanitario AS target
                                     USING #TempLotes AS source
-                                    ON target.ItemCode = source.ItemCode AND target.BatchNum = source.BatchNum
+                                    ON target.ItemCode = source.ItemCode AND target.DistNumber = source.DistNumber
                                     WHEN NOT MATCHED THEN
-                                        INSERT (ItemCode, BatchNum,ExpDate,InDate)
-                                        VALUES (source.ItemCode, source.BatchNum,source.ExpDate,source.InDate);";
+                                        INSERT (ItemCode, DistNumber,ExpDate,InDate)
+                                        VALUES (source.ItemCode, source.DistNumber,source.ExpDate,source.InDate);";
 
                             using (var commandMerge = new SqlCommand(mergeQuery, connection, transaction))
                             {

@@ -44,8 +44,8 @@
         </div>
 
         <div class="col-lg-3">
-            <label for="OperarioResponsable" class="form-label fw-bold">Operario Responsable SAP:</label>
-            <input type="text" id="OperarioResponsable" class="form-control cls-readonly text-center" name="OperarioResponsable" autocomplete="off" readonly />
+            <label for="OperarioResponsableSAP" class="form-label fw-bold">Operario Responsable SAP:</label>
+            <input type="text" id="OperarioResponsableSAP" class="form-control cls-readonly text-center" name="OperarioResponsableSAP" autocomplete="off" readonly />
             <input type="hidden" id="MotivoTraslado" name="MotivoTraslado" readonly />
             <input type="hidden" id="DocDate" name="DocDate" readonly />
         </div>
@@ -58,6 +58,45 @@
     </div>
 
     <hr />
+
+    <div>
+        <form id="frm_tablaCopiaSap">
+            <div class="row mb-4">
+                <div class="col-lg-12">
+                    <input type="text" id="copiaDocEntry" name="DocEntry" readonly />
+                    <input type="text" id="copiaDocNum" name="DocNum" readonly />
+                    <input type="text" id="copiaNroGuia" name="NroGuia" readonly />
+                    <input type="text" id="copiaCardCode" name="CardCode" readonly />
+                </div>
+            </div><!-- row -->
+
+            <div class="row mb-4">
+                <div class="col-lg-12">
+                    <input type="text" id="copiaCardName" name="CardName" readonly />
+                    <input type="text" id="copiaOperarioResponsableSAP" name="OperarioResponsableSAP" readonly />
+                    <input type="text" id="copiaMotivoTraslado" name="MotivoTraslado" readonly />
+                    <input type="text" id="copiaDocDate" name="DocDate" readonly />
+                </div>
+            </div><!-- row -->
+
+
+        </form>
+
+        <table id="tbl_copiaSap" class="table">
+            <thead>
+                <tr>
+                    <th scope="col">ItemCode</th>
+                    <th scope="col">ItemName</th>
+                    <th scope="col">BatchNum</th>
+                    <th scope="col">QuantityCajas</th>
+                    <th scope="col">FromWhsCode</th>
+                    <th scope="col">ToWhsCode</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
 
     <div class="row mb-4">
         <div class="col-lg-12">
@@ -86,29 +125,70 @@
     <div class="row">
         <div class="col-lg-12">
             <button type="button" class="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Cancelar"><i class="bi bi-x-lg"></i> Cancelar</button>
-            <button type="button" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Transferir"><i class="bi bi-arrow-left-right"></i> Transferir</button>
+            <button type="button" id="btn_transferir" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Transferir"><i class="bi bi-arrow-left-right"></i> Transferir</button>
         </div>
     </div>
 </div><!-- main -->
 
 @section Scripts{
     <script>
-        $(document).ready(function () {
-            //$('[data-bs-toggle="tooltip"]').tooltip();
-            //inicializarDataTable('tbl_detalle', 30)
-            //permitirValoresNumericosPositivos()
-        });
-
-        document.addEventListener('DOMContentLoaded', function () {
-            permitirSoloNumeros('DocNum')
-        });
-
-        const masters = @Html.Raw(Json.Encode(ViewBag.Masters));
+        // Declaración de variables
         let opcionesMasters = ''
 
-        masters.forEach(item => {
-            opcionesMasters += `<option value="${item.ValorUmAlm}">${item.UmAlm}</option>`
-        })
+        // Funciones
+        function cargarOpcionesMasters() {
+            const masters = @Html.Raw(Json.Encode(ViewBag.Masters));
+                masters.forEach(item => {
+                opcionesMasters += `<option value="${item.ValorUmAlm}">${item.UmAlm}</option>`
+            })
+        }
+
+        async function realizarTransferencia() {
+            const form = document.querySelector('#frm_tablaCopiaSap')
+
+            if (!form) {
+                console.log("Formulario no válido.");
+                return;
+            }
+
+            const filas = document.querySelectorAll("#tbl_copiaSap tbody tr");
+            let detalles = [];
+
+            filas.forEach((fila) => {
+                let inputs = fila.querySelectorAll("input");
+                let detalle = {};
+
+                inputs.forEach(input => {
+                    let key = input.name.replace("Detalle[].", ""); // Extraer el nombre del campo
+                    detalle[key] = input.value;
+                });
+
+                detalles.push(detalle);
+            });
+
+            const formData = new FormData(form);
+            const jsonData = Object.fromEntries(formData.entries());
+            jsonData.Detalle = detalles
+
+            try {
+                const response = await fetch("/AbastecimientoInterno/RegistrarTransferenciaDeStock", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(jsonData)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error en la solicitud: ${response.status}`);
+                }
+
+                const data = await response.json();
+                //console.log(data)
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        }
 
         async function buscarSolicitud() {
             let docNum = document.querySelector('#DocNum').value
@@ -129,18 +209,20 @@
                 const data = await response.json();
                 //console.log("data: "+ data)
 
-                document.querySelector('#NroGuia').value = data.NroGuia
-                document.querySelector('#CardCode').value = data.CardCode
-                document.querySelector('#CardName').value = data.CardName
-                document.querySelector('#OperarioResponsable').value = data.OperarioResponsable
-                document.querySelector('#MotivoTraslado').value = data.MotivoTraslado
-                document.querySelector('#DocDate').value = data.DocDate
+                document.querySelector('#NroGuia').value = data.traslado.NroGuia
+                document.querySelector('#CardCode').value = data.traslado.CardCode
+                document.querySelector('#CardName').value = data.traslado.CardName
+                document.querySelector('#OperarioResponsableSAP').value = data.traslado.OperarioResponsableSAP
+                document.querySelector('#MotivoTraslado').value = data.traslado.MotivoTraslado
+                document.querySelector('#DocDate').value = data.traslado.DocDate
 
                 let tbody = ''
                 let key = ''
-                for (var itemCode in data.Detalle) {
+
+                construirFormCopiaSap(data.traslado)
+                for (var itemCode in data.traslado.Detalle) {
                     //item.DetalleLotes.forEach(lote => { lote.push })
-                    key = data.Detalle[itemCode]
+                    key = data.traslado.Detalle[itemCode]
                     tbody += `<tr data-producto="${key.ItemCode}">
                                             <td class="details-control"><button class="btn btn-sm btn-cobefar-2"><i class="bi bi-chevron-down"></i></button></td>
                                             <td scope="col" class="text-center">${key.ItemCode}</td>
@@ -181,16 +263,16 @@
                         button.removeClass('bi-chevron-up').addClass('bi-chevron-down');
                     } else {
                         // Abrir y mostrar lotes
-                        row.child(formatLotes(data.Detalle[productoID])).show();
+                        row.child(formatLotes(data.traslado.Detalle[productoID])).show();
                         button.removeClass('bi-chevron-down').addClass('bi-chevron-up');
                         inicializarSlimSelectsPorClase('cls-select')
                     }
                 });
 
                 Swal.fire({
-                    title: data.Icono ? data.Mensaje : 'Datos SAP importados correctamente.',
-                    html: data.Comentario,
-                    icon: data.Icono,
+                    title: data.traslado.Icono ? data.traslado.Mensaje : 'Datos SAP importados correctamente.',
+                    html: data.traslado.Comentario,
+                    icon: data.traslado.Icono,
                     allowEscapeKey: false,
                     allowOutsideClick: false,
                     showConfirmButton: true
@@ -272,7 +354,7 @@
                 })
 
                 document.querySelector(`#${idUbicacion}`).innerHTML = ubicaciones
-                console.log("ubicaciones: "+ data)
+                //console.log("ubicaciones: "+ data)
             } catch (error) {
                 console.error('Error:', error);
             }
@@ -285,5 +367,40 @@
             document.querySelector(`#${idCantidadMaster}`).value = cantidadMaster
             document.querySelector(`#${idCantidadSaldo}`).value = cantidadSaldo
         }
+
+        function construirFormCopiaSap(traslado) {
+            document.querySelector('#copiaDocEntry').value = traslado.DocEntry
+            document.querySelector('#copiaDocNum').value = traslado.DocNum
+            document.querySelector('#copiaNroGuia').value = traslado.NroGuia
+            document.querySelector('#copiaCardCode').value = traslado.CardCode
+            document.querySelector('#copiaCardName').value = traslado.CardName
+            document.querySelector('#copiaOperarioResponsableSAP').value = traslado.OperarioResponsableSAP
+            document.querySelector('#copiaMotivoTraslado').value = traslado.MotivoTraslado
+            document.querySelector('#copiaDocDate').value = traslado.DocDate
+
+            let tbody = ''
+            for (var itemCode in traslado.Detalle) {
+                key = traslado.Detalle[itemCode]
+
+                key.DetalleLotes.forEach(item => {
+                    tbody += ` <tr>
+                                             <td scope="col"><input type="text" name="Detalle[].ItemCode" value="${key.ItemCode}"></td>
+                                             <td scope="col"><input type="text" name="Detalle[].ItemName" value="${key.ItemName}"></td>
+                                             <td scope="col"><input type="text" name="Detalle[].BatchNum" value="${item.BatchNum}"></td>
+                                            <td scope="col"><input type="text" name="Detalle[].QuantityCajas" value="${item.CantidadTotalPorSKUyLote}"></td>
+                                            <td scope="col"><input type="text" name="Detalle[].FromWhsCode" value="${key.AlmacenOrigen}"></td>
+                                            <td scope="col"><input type="text" name="Detalle[].ToWhsCode" value="${key.AlmacenDestino}"></td>
+                                        </tr>`
+                })
+            }
+
+            document.querySelector('#tbl_copiaSap tbody').innerHTML = tbody
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            permitirSoloNumeros('DocNum')
+            cargarOpcionesMasters()
+            document.getElementById("btn_transferir").addEventListener("click", realizarTransferencia);
+        });
     </script>
 }

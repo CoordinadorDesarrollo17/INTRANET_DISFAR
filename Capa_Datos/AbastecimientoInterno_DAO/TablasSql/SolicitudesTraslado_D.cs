@@ -26,6 +26,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 SqlDataReader dr = cmd.ExecuteReader();
                 while (dr.Read())
                 {
+                    solicitud = new SolicitudesTraslado_E();
                     solicitud.Id = dr.GetInt32(0);
                 }
 
@@ -70,6 +71,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
                             // Crear y llenar el DataTable solo si hay detalles
                             var table = new DataTable();
+                            table.Columns.Add("SolicitudesTrasladoId", typeof(int));
                             table.Columns.Add("ItemCode", typeof(string));
                             table.Columns.Add("ItemName", typeof(string));
                             table.Columns.Add("BatchNum", typeof(string));
@@ -83,6 +85,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                                 foreach (var detalle in obj.Detalle)
                                 {
                                     table.Rows.Add(
+                                        0,
                                         detalle.ItemCode,
                                         detalle.ItemName,
                                         detalle.BatchNum,
