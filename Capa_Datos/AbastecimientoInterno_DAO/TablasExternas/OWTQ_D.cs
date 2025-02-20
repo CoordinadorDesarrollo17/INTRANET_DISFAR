@@ -44,7 +44,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasExternas
                             if (!hdr.IsDBNull(3)) solicitud.CardCode = hdr.GetString(3);
                             if (!hdr.IsDBNull(4)) solicitud.CardName = hdr.GetString(4);
                             if (!hdr.IsDBNull(5)) solicitud.NroGuia = hdr.GetString(5);
-                            if (!hdr.IsDBNull(6)) solicitud.OperarioResponsable = hdr.GetString(6);
+                            if (!hdr.IsDBNull(6)) solicitud.OperarioResponsableSAP = hdr.GetString(6);
                             if (!hdr.IsDBNull(7)) solicitud.MotivoTraslado = hdr.GetString(7);
                         }
 

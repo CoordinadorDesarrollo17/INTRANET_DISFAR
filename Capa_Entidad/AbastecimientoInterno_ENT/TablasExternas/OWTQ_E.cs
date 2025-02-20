@@ -12,7 +12,7 @@ namespace Capa_Entidad.AbastecimientoInterno_ENT.TablasExternas
         public string CardCode {  get; set; }
         public string CardName {  get; set; }
         public string NroGuia {  get; set; }
-        public string OperarioResponsable {  get; set; }
+        public string OperarioResponsableSAP {  get; set; }
         public string MotivoTraslado {  get; set; }
         public string Estado {  get; set; }
         public Dictionary<string , WTQ1_E>  Detalle {  get; set; }

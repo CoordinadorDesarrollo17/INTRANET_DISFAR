@@ -20,14 +20,57 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
             try
             {
                 cn.Open();
-                string query = $"SELECT Id FROM SolicitudesTraslado where DocNum ={DocNum}";
+                string query = $@"
+    SELECT Id, DocEntry, DocNum, DocDate, CardCode, CardName, NroGuia, OperarioResponsableSAP, MotivoTraslado, Estado 
+    FROM SolicitudesTraslado WHERE DocNum = {DocNum}; 
+
+    SELECT d.Id, d.SolicitudesTrasladoId, d.ItemCode, d.ItemName, d.BatchNum, d.QuantityCajas, 
+       d.FromWhsCode, d.ToWhsCode, d.Estado, l.InDate, l.ExpDate
+FROM DetalleSolicitudesTraslado d
+INNER JOIN LotesRegistroSanitario l ON d.BatchNum = l.DistNumber AND d.ItemCode = l.ItemCode
+WHERE d.SolicitudesTrasladoId = (SELECT Id FROM SolicitudesTraslado WHERE DocNum = {DocNum});";
+
                 SqlCommand cmd = new SqlCommand(query, cn);
                 cmd.CommandType = CommandType.Text;
                 SqlDataReader dr = cmd.ExecuteReader();
                 while (dr.Read())
                 {
                     solicitud = new SolicitudesTraslado_E();
-                    solicitud.Id = dr.GetInt32(0);
+                    if (!dr.IsDBNull(0)) { solicitud.Id = dr.GetInt32(0); }
+                    if (!dr.IsDBNull(1)) { solicitud.DocEntry = dr.GetInt32(1); }
+                    if (!dr.IsDBNull(2)) { solicitud.DocNum = dr.GetInt32(2); }
+                    if (!dr.IsDBNull(3)) { solicitud.DocDate = dr.GetDateTime(3).ToString(); }
+                    if (!dr.IsDBNull(4)) { solicitud.CardCode = dr.GetString(4); }
+                    if (!dr.IsDBNull(5)) { solicitud.CardName = dr.GetString(5); }
+                    if (!dr.IsDBNull(6)) { solicitud.NroGuia = dr.GetString(6); }
+                    if (!dr.IsDBNull(7)) { solicitud.OperarioResponsableSAP = dr.GetString(7); }
+                    if (!dr.IsDBNull(8)) { solicitud.MotivoTraslado = dr.GetString(8); }
+                    if (!dr.IsDBNull(9)) { solicitud.Estado = dr.GetString(9); }
+                  
+                }
+
+                // Pasar a la segunda consulta (DetalleSolicitudesTraslado)
+                if (dr.NextResult() && solicitud != null)
+                {
+                    solicitud.Detalle = new List<DetalleSolicitudesTraslado_E>();
+
+                    while (dr.Read())
+                    {
+                        var detalle = new DetalleSolicitudesTraslado_E();
+                        if (!dr.IsDBNull(0)) { detalle.Id = dr.GetInt32(0); }
+                        if (!dr.IsDBNull(1)) { detalle.SolicitudesTrasladoId = dr.GetInt32(1); }
+                        if (!dr.IsDBNull(2)) { detalle.ItemCode = dr.GetString(2); }
+                        if (!dr.IsDBNull(3)) { detalle.ItemName = dr.GetString(3); }
+                        if (!dr.IsDBNull(4)) { detalle.BatchNum = dr.GetString(4); }
+                        if (!dr.IsDBNull(5)) { detalle.QuantityCajas = dr.GetDecimal(5); }
+                        if (!dr.IsDBNull(6)) { detalle.FromWhsCode = dr.GetString(6); }
+                        if (!dr.IsDBNull(7)) { detalle.ToWhsCode = dr.GetString(7); }
+                        if (!dr.IsDBNull(8)) { detalle.Estado = dr.GetString(8); }
+                        if (!dr.IsDBNull(9)) { detalle.InDate = dr.GetDateTime(9).ToString("yyyy-MM-dd"); }
+                        if (!dr.IsDBNull(10)) { detalle.ExpDate = dr.GetDateTime(10).ToString("yyyy-MM-dd"); }
+
+                        solicitud.Detalle.Add(detalle);
+                    }
                 }
 
                 dr.Close();

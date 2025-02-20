@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using Capa_Entidad.AbastecimientoInterno_ENT.Interfaces;
+using System.Collections.Generic;
 
 namespace Capa_Entidad.AbastecimientoInterno_ENT.TablasSql
 {
-    public class SolicitudesTraslado_E
+    public class SolicitudesTraslado_E : ITraslado
     {
         public int Id { get; set; }
         public int DocEntry { get; set; }
