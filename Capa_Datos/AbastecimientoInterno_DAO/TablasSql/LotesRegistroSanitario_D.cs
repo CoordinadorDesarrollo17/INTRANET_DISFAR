@@ -50,7 +50,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
                                 foreach (var item in detalleTraslado)
                                 {
-                                    dataTable.Rows.Add(item.ItemCode, item.BatchNum, item.InDate,item.ExpDate);
+                                    dataTable.Rows.Add(item.ItemCode, item.BatchNum ,item.ExpDate,item.InDate);
                                 }
 
                                 bulkCopy.WriteToServer(dataTable);

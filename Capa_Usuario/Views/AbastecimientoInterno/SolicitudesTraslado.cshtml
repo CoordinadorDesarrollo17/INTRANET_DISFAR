@@ -88,6 +88,8 @@
                     <th scope="col">ItemCode</th>
                     <th scope="col">ItemName</th>
                     <th scope="col">BatchNum</th>
+                    <th scope="col">In Date</th>
+                    <th scope="col">Exp Date</th>
                     <th scope="col">QuantityCajas</th>
                     <th scope="col">FromWhsCode</th>
                     <th scope="col">ToWhsCode</th>
@@ -207,12 +209,12 @@
                 }
 
                 const data = await response.json();
-                //console.log("data: "+ data)
+                console.log("data: " + data.traslado)
 
                 document.querySelector('#NroGuia').value = data.traslado.NroGuia
                 document.querySelector('#CardCode').value = data.traslado.CardCode
                 document.querySelector('#CardName').value = data.traslado.CardName
-                document.querySelector('#OperarioResponsableSAP').value = data.traslado.OperarioResponsableSAP
+                document.querySelector('#OperarioResponsableSAP').value = data.traslado.OperarioResponsable
                 document.querySelector('#MotivoTraslado').value = data.traslado.MotivoTraslado
                 document.querySelector('#DocDate').value = data.traslado.DocDate
 
@@ -369,12 +371,15 @@
         }
 
         function construirFormCopiaSap(traslado) {
+            console.log(traslado)
+            //return;
+
             document.querySelector('#copiaDocEntry').value = traslado.DocEntry
             document.querySelector('#copiaDocNum').value = traslado.DocNum
             document.querySelector('#copiaNroGuia').value = traslado.NroGuia
             document.querySelector('#copiaCardCode').value = traslado.CardCode
             document.querySelector('#copiaCardName').value = traslado.CardName
-            document.querySelector('#copiaOperarioResponsableSAP').value = traslado.OperarioResponsableSAP
+            document.querySelector('#copiaOperarioResponsableSAP').value = traslado.OperarioResponsable
             document.querySelector('#copiaMotivoTraslado').value = traslado.MotivoTraslado
             document.querySelector('#copiaDocDate').value = traslado.DocDate
 
@@ -387,6 +392,8 @@
                                              <td scope="col"><input type="text" name="Detalle[].ItemCode" value="${key.ItemCode}"></td>
                                              <td scope="col"><input type="text" name="Detalle[].ItemName" value="${key.ItemName}"></td>
                                              <td scope="col"><input type="text" name="Detalle[].BatchNum" value="${item.BatchNum}"></td>
+                                             <td scope="col"><input type="text" name="Detalle[].InDate" value="${item.FechaAdmision}"></td>
+                                             <td scope="col"><input type="text" name="Detalle[].ExpDate" value="${item.FechaVencimiento}"></td>
                                             <td scope="col"><input type="text" name="Detalle[].QuantityCajas" value="${item.CantidadTotalPorSKUyLote}"></td>
                                             <td scope="col"><input type="text" name="Detalle[].FromWhsCode" value="${key.AlmacenOrigen}"></td>
                                             <td scope="col"><input type="text" name="Detalle[].ToWhsCode" value="${key.AlmacenDestino}"></td>

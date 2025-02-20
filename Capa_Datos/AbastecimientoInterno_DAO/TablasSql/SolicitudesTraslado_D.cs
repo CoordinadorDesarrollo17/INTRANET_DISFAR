@@ -20,7 +20,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
             try
             {
                 cn.Open();
-                string query = $"SELECT Id  FROM SolicitudesTraslado where DocNum ={DocNum}";
+                string query = $"SELECT Id FROM SolicitudesTraslado where DocNum ={DocNum}";
                 SqlCommand cmd = new SqlCommand(query, cn);
                 cmd.CommandType = CommandType.Text;
                 SqlDataReader dr = cmd.ExecuteReader();
