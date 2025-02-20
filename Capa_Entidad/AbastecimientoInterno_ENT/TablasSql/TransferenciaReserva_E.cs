@@ -11,7 +11,7 @@ namespace Capa_Entidad.AbastecimientoInterno_ENT.TablasSql
     {
         public int Id { get; set; }
         public int SolicitudTrasladoId { get; set; }
-        public int DocNum { get; set; } // De Sap
+        public int SolicitudTrasladoDocNum { get; set; } 
         public string DocDate { get; set; }
         public string CardCode { get; set; }
         public string CardName { get; set; }

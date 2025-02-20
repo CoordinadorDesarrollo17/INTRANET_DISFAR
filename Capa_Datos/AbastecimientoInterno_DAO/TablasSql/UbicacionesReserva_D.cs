@@ -58,7 +58,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                                 if (!dr.IsDBNull(4)) obj.ItemName = dr.GetString(4);
                                 if (!dr.IsDBNull(5)) obj.CodigoUbicacion = dr.GetString(5);
                                 if (!dr.IsDBNull(6)) obj.BatchNum = dr.GetString(6);
-                                if (!dr.IsDBNull(7)) obj.Quantity = dr.GetDecimal(7);
+                                if (!dr.IsDBNull(7)) obj.Quantity = dr.GetInt32(7);
 
                                 lista.Add(obj);
                             }

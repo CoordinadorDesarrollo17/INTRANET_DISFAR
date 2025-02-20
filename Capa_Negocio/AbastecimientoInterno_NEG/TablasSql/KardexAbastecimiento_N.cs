@@ -1,4 +1,5 @@
 ﻿using Capa_Datos.AbastecimientoInterno_DAO.TablasSql;
+using Capa_Entidad;
 using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
 using System;
 using System.Collections.Generic;
@@ -8,12 +9,12 @@ using System.Threading.Tasks;
 
 namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
 {
-    public class LotesRegistroSanitario_N
+    public class KardexAbastecimiento_N
     {
-        LotesRegistroSanitario_D lotesDatos = new LotesRegistroSanitario_D();
-        public void ValidarLotesRegistroSanitario(List<DetalleSolicitudesTraslado_E> detalleSolicitudTraslado)
+        KardexAbastecimiento_D kardexD = new KardexAbastecimiento_D();
+        public Helper_E InsertarTransaccionIngresoKardex(TransferenciaReserva_E ingreso)
         {
-            lotesDatos.ValidarLotesRegistroSanitario(detalleSolicitudTraslado);
+            return null;
         }
     }
 }

@@ -80,6 +80,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AbastecimientoInterno_DAO\TablasExternas\OWTQ_D.cs" />
+    <Compile Include="AbastecimientoInterno_DAO\TablasSql\KardexAbastecimiento_D.cs" />
     <Compile Include="AbastecimientoInterno_DAO\TablasSql\LotesRegistroSanitario_D.cs" />
     <Compile Include="AbastecimientoInterno_DAO\TablasSql\Masters_D.cs" />
     <Compile Include="AbastecimientoInterno_DAO\TablasSql\Productos_D.cs" />
