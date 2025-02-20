@@ -14,7 +14,7 @@ namespace Capa_Entidad.AbastecimientoInterno_ENT.TablasExternas
         public string NroGuia {  get; set; }
         public string OperarioResponsableSAP {  get; set; }
         public string MotivoTraslado {  get; set; }
-        public string Estado {  get; set; }
+        public string Estado { get; set; } = "PENDIENTE";
         public Dictionary<string , WTQ1_E>  Detalle {  get; set; }
     }
 }

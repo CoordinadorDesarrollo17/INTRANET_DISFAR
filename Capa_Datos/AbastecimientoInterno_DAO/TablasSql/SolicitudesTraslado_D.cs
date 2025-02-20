@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
 using System.Drawing;
 using System.Windows.Forms;
+using Capa_Entidad;
 
 namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 {
@@ -78,7 +79,6 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
             }
             return solicitud;
         }
-
         public SolicitudesTraslado_E ImportarSolicitudDeTraslado(SolicitudesTraslado_E obj)
         {
             SolicitudesTraslado_E solicitud = null;
@@ -174,7 +174,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             return solicitud;
         }
-        public void DeleteSolicitudDeTraslado(int Id, SqlConnection cn)
+        public Helper_E DeleteSolicitudDeTraslado(int Id, SqlConnection cn)
         {
             string mensaje, icono;
             try
@@ -189,22 +189,23 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
 
-                        cmd.Parameters.AddWithValue("@TipoMantenimiento", "DELETE");
-                        cmd.Parameters.AddWithValue("@Id", Id);
+                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "DELETE");
+                    cmd.Parameters.AddWithValue("@Id", Id);
 
-                        cmd.ExecuteNonQuery();
-                    }
+                    cmd.ExecuteNonQuery();
+                }
 
-                    mensaje = "Eliminado correctamente";
-                    icono = "success";
-             }
+                mensaje = "Solicitud de Traslado eliminada correctamente";
+                icono = "success";
+            }
             catch (Exception ex)
             {
-                LogHelper.RegistrarError(ex, "KardexAbastecimiento_D - InsertarTransaccionIngresoKardex");
-                mensaje = "Ocurrió un error al registrar el kardex de ingreso. Comuníquese con el área de Sistemas para más información.";
+                LogHelper.RegistrarError(ex, "SolicitudTraslado_D - DeleteSolicitudDeTraslado");
+                mensaje = "Ocurrió un error al eliminar la solicitud de traslado. Comuníquese con el área de Sistemas para más información.";
                 icono = "error";
-                throw new Exception("Error en InsertarTransaccionIngresoKardex.", ex);
+                throw new Exception("Error en DeleteSolicitudDeTraslado.", ex);
             }
+            return new Helper_E { Mensaje = mensaje, IconoSweetAlert = icono };
         }
-        }
+    }
 }

@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data.SqlClient;
 using System.Data;
+using Capa_Entidad.AbastecimientoInterno_ENT.Interfaces;
 
 namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 {
@@ -15,7 +16,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
         readonly Utilitarios uti = new Utilitarios();
         readonly DBHelper db = new DBHelper();
 
-        public TransferenciaReserva_E RegistrarTransferenciaReserva(TransferenciaReserva_E transferencia, SqlConnection cn)
+        public TransferenciaReserva_E RegistrarTransferenciaReserva( TransferenciaReserva_E transferencia, SqlConnection cn)
         {
             // Verificar si la conexión está abierta (en caso de que se pase una conexión cerrada)
             if (cn.State != ConnectionState.Open)
