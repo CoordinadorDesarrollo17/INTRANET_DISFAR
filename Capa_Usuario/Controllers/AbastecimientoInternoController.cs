@@ -1,3 +1,4 @@
+using Capa_Datos;
 using Capa_Entidad.AbastecimientoInterno_ENT.Interfaces;
 using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
 using Capa_Entidad.Seguridad_ENT;
@@ -7,8 +8,10 @@ using Capa_Usuario.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Transactions;
+using System.util;
 using System.Web.Mvc;
 
 namespace Capa_Usuario.Controllers
@@ -26,6 +29,8 @@ namespace Capa_Usuario.Controllers
         private readonly SolicitudesTraslado_N _solicitudTrasladoN = new SolicitudesTraslado_N();
         private readonly Masters_N _masterN = new Masters_N();
         private readonly KardexAbastecimiento_N _kardexAbastecimientoN = new KardexAbastecimiento_N();
+        private readonly UbicacionesLotesMaster_N _ubicacionesLotesMasterN = new UbicacionesLotesMaster_N();
+        private readonly UbicacionesLotes_N _ubicacionesLotesN = new UbicacionesLotes_N();
 
         /************************* C O N F I G U R A C I Ó N *************************/
         private ActionResult VerificarPermiso(int idOperation)
@@ -255,49 +260,63 @@ namespace Capa_Usuario.Controllers
 
         public JsonResult RegistrarTransferenciaDeStock(SolicitudesTraslado_E solicitudTraslado, TransferenciaReserva_E transferenciaGet)
         {
-            using (var scope = new TransactionScope(TransactionScopeOption.Required,
-                   new TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
+            try
             {
-                try
+                // 1. Obtener la solicitud de traslado fuera de la transacción
+                var traslado = _solicitudTrasladoN.ObtenerSolicitudDeTraslado(solicitudTraslado.DocNum);
+
+                // 2. Importa solo si no existe previamente el DocNum
+                if (traslado == null)
                 {
-                    // Buscar si la solicitud de traslado ya fue importada previamente
-                    var traslado = _solicitudTrasladoN.ObtenerSolicitudDeTraslado(solicitudTraslado.DocNum);
+                    traslado = _solicitudTrasladoN.ImportarSolicitudDeTraslado(solicitudTraslado);
+                }
 
-                    // Importa solo si no existe previamente el DocNum
-                    if (traslado == null)
+                // 3. Validar si la importación fue exitosa
+                if (traslado == null || traslado.Id == 0)
+                {
+                    return Json(new
                     {
-                        traslado = _solicitudTrasladoN.ImportarSolicitudDeTraslado(solicitudTraslado);
-                    }
+                        Mensaje = "No se pudo completar la acción",
+                        Comentario = new List<string> { "No se importó la Solicitud de Traslado" },
+                        Icono = "error"
+                    });
+                }
 
-                    // Validar si la importación de la solicitud de traslado fue exitosa
-                    if (traslado == null || traslado.Id == 0)
+                // 4. Validar los lotes de registro sanitario (fuera de la transacción)
+                _lotesRegistroSanitarioN.ValidarLotesRegistroSanitario(solicitudTraslado.Detalle);
+
+                // 5. Obtener usuario de sesión (fuera de la transacción)
+                Usuario_E user = (Usuario_E)Session["UsuarioId"];
+                if (user == null)
+                {
+                    return Json(new
                     {
-                        return Json(new
-                        {
-                            Mensaje = "No se pudo completar la acción",
-                            Comentario = new List<string> { "No se importó la Solicitud de Traslado" },
-                            Icono = "error"
-                        });
-                    }
+                        Mensaje = "Error en la operación",
+                        Comentario = new List<string> { "No existe usuario logueado, se terminó la sesión." },
+                        Icono = "error"
+                    });
+                }
 
-                    // Revisar y validar los lotes de registro sanitario
-                    _lotesRegistroSanitarioN.ValidarLotesRegistroSanitario(solicitudTraslado.Detalle);
+                // 6. Asignar datos de traslado a la transferencia
+                transferenciaGet.SolicitudTrasladoId = traslado.Id;
+                transferenciaGet.SolicitudTrasladoDocNum = traslado.DocNum;
+                transferenciaGet.NroGuia = traslado.NroGuia;
+                transferenciaGet.OperarioRegistra = $"{user.Nombres} {user.Apellidos}";
 
-                    Usuario_E user = (Usuario_E)Session["UsuarioId"];
-
-                    // Asignar el ID de la solicitud de traslado a la transferencia
-                    transferenciaGet.SolicitudTrasladoId = traslado.Id;
-                    transferenciaGet.SolicitudTrasladoDocNum = traslado.DocNum;
-                    transferenciaGet.NroGuia = traslado.NroGuia;
-                    transferenciaGet.OperarioRegistra = $"{user.Nombres} {user.Apellidos}";
-
-                    if (transferenciaGet.OperarioRegistra != null)
+                Utilitarios uti = new Utilitarios();
+                // 7. Iniciar la transacción global para las operaciones críticas
+                using (var scope = new TransactionScope(TransactionScopeOption.Required,
+                   new TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted },
+                   TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    using (SqlConnection cn = new SqlConnection(uti.cadSql2))
                     {
-                        // Registrar la transferencia de reserva
-                        //var transferenciaPost = _transferenciaReservaN.RegistrarTransferenciaReserva(transferenciaGet);
+                        cn.Open();
 
-                        // Validar si la transferencia se registró correctamente
-                        if (false/*transferenciaPost == null || transferenciaPost.Id == 0*/)
+                        // 7.1 Registrar la transferencia de reserva
+                        var transferenciaPost = _transferenciaReservaN.RegistrarTransferenciaReserva(transferenciaGet, cn);
+
+                        if (transferenciaPost == null || transferenciaPost.Id == 0)
                         {
                             return Json(new
                             {
@@ -306,49 +325,48 @@ namespace Capa_Usuario.Controllers
                                 Icono = "error"
                             });
                         }
-                        else
+
+                        // 7.2 Registrar la(s) operación(es) de ingreso en KardexAbastecimiento - Los datos a insertar son los del detalle en transferencia
+                        var resultKardex = _kardexAbastecimientoN.InsertarTransaccionIngresoKardex(transferenciaGet, cn);
+                        if (resultKardex.IconoSweetAlert.Equals("error"))
                         {
-                            //Registrar operacion de Ingreso (siempre positivo) en KardexAbastecimiento
-                            var kardexAbastecimientoIngreso = _kardexAbastecimientoN.InsertarTransaccionIngresoKardex(transferenciaGet);
-                            // Id,ItemCode,ItemName,Almacen,RucProveedor,NombreProveedor,Sentido,Tabla,Referencia,Cantidad,Imputado,Operario,TiempoRegistro
-
-                            //Sumar y/o Registrar en la tabla UbicacionesLotesMaster
-
-                            //Sumar y/o Registrar Quantity en Cajas en la tabla UbicacionesLotes
+                            return Json(new { 
+                                Mensaje = "No se pudo completar la acción", 
+                                Comentario = new List<string> { resultKardex.Mensaje }, 
+                                Icono = resultKardex.IconoSweetAlert 
+                            });
                         }
+                       
+                        // 7.3 Sumar y/o Registrar Quantity en Cajas en la tabla UbicacionesLotes
+                        var resultUbicacionesLotes = _ubicacionesLotesN.InsertarRegistroPorIngreso(transferenciaGet, cn);
 
-                        // Confirmar la transacción
+                        // 7.4 Sumar y/o Registrar en la tabla UbicacionesLotesMaster
+                        var resultUbicacionesLotesMaster = _ubicacionesLotesMasterN.InsertarRegistroPorIngreso(transferenciaGet, cn);
+
+                        // 8. Confirmar la transacción
                         scope.Complete();
+                    }
+                }
 
-                        // Devolver respuesta exitosa
-                        return Json(new
-                        {
-                            Mensaje = "Acción completada exitosamente",
-                            Comentario = new List<string> { "Se registró la Transferencia Reserva correctamente" },
-                            Icono = "success"
-                        });
-                    }
-                    else
-                    {
-                        return Json(new
-                        {
-                            Mensaje = "Error en la operación",
-                            Comentario = new List<string> { "No existe usuario logueado, se terminó la sesión." },
-                            Icono = "error"
-                        });
-                    }
-                }
-                catch (Exception ex)
+                // 9. Devolver respuesta exitosa
+                return Json(new
                 {
-                    return Json(new
-                    {
-                        Mensaje = "Error en la operación",
-                        Comentario = new List<string> { ex.Message },
-                        Icono = "error"
-                    });
-                }
+                    Mensaje = "Acción completada exitosamente",
+                    Comentario = new List<string> { "Se registró la Transferencia Reserva correctamente" },
+                    Icono = "success"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    Mensaje = "Error en la operación",
+                    Comentario = new List<string> { ex.Message },
+                    Icono = "error"
+                });
             }
         }
+
 
     }
 }

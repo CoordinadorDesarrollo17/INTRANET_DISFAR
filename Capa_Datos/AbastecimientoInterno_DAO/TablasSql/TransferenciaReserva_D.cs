@@ -15,61 +15,64 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
         readonly Utilitarios uti = new Utilitarios();
         readonly DBHelper db = new DBHelper();
 
-        public TransferenciaReserva_E RegistrarTransferenciaReserva(TransferenciaReserva_E transferencia)
+        public TransferenciaReserva_E RegistrarTransferenciaReserva(TransferenciaReserva_E transferencia, SqlConnection cn)
         {
-            using (var connection = new SqlConnection(uti.cadSql2))
+            // Verificar si la conexión está abierta (en caso de que se pase una conexión cerrada)
+            if (cn.State != ConnectionState.Open)
             {
-                connection.Open();
-                using (var transaction = connection.BeginTransaction())
+                cn.Open();
+            }
+
+            // Iniciar transacción solo si no hay una transacción activa
+            using (var transaction = cn.BeginTransaction())
+            {
+                try
                 {
-                    try
+                    using (var cmd = new SqlCommand("[dbo].[sp_MantenimientoTransferenciaReserva]", cn, transaction))
                     {
-                        using (var command = new SqlCommand("[dbo].[sp_MantenimientoTransferenciaReserva]", connection, transaction))
+                        cmd.CommandType = CommandType.StoredProcedure;
+
+                        // Parámetros de entrada
+                        cmd.Parameters.AddWithValue("@TipoMantenimiento", "INSERT");
+                        cmd.Parameters.AddWithValue("@SolicitudTrasladoId", transferencia.SolicitudTrasladoId);
+                        cmd.Parameters.AddWithValue("@SolicitudTrasladoDocNum", transferencia.SolicitudTrasladoDocNum);
+                        cmd.Parameters.AddWithValue("@CardCode", transferencia.CardCode);
+                        cmd.Parameters.AddWithValue("@CardName", transferencia.CardName);
+                        cmd.Parameters.AddWithValue("@NroGuia", transferencia.NroGuia);
+                        cmd.Parameters.AddWithValue("@OperarioRegistra", transferencia.OperarioRegistra);
+
+                        // Parámetro de salida
+                        SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
                         {
-                            command.CommandType = CommandType.StoredProcedure;
+                            Direction = ParameterDirection.Output
+                        };
+                        cmd.Parameters.Add(idGeneradoParam);
 
-                            // Parámetros de entrada
-                            command.Parameters.AddWithValue("@TipoMantenimiento", "INSERT");
-                            command.Parameters.AddWithValue("@SolicitudTrasladoId", transferencia.SolicitudTrasladoId);
-                            command.Parameters.AddWithValue("@SolicitudTrasladoDocNum", transferencia.SolicitudTrasladoDocNum);
-                            command.Parameters.AddWithValue("@CardCode", transferencia.CardCode);
-                            command.Parameters.AddWithValue("@CardName", transferencia.CardName);
-                            command.Parameters.AddWithValue("@NroGuia", transferencia.NroGuia);
-                            command.Parameters.AddWithValue("@OperarioRegistra", transferencia.OperarioRegistra);
+                        // Tabla de detalles
+                        DataTable dtDetalle = ConvertirADatatable(transferencia.Detalle);
+                        SqlParameter detallesParam = cmd.Parameters.AddWithValue("@Detalle", dtDetalle);
+                        detallesParam.SqlDbType = SqlDbType.Structured;
+                        detallesParam.TypeName = "dbo.DetalleTransferenciaReservaType";
 
-                            // Parámetro de salida
-                            SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
-                            {
-                                Direction = ParameterDirection.Output
-                            };
-                            command.Parameters.Add(idGeneradoParam);
+                        cmd.ExecuteNonQuery();
 
-                            // Tabla de detalles
-                            DataTable dtDetalle = ConvertirADatatable(transferencia.Detalle);
-                            SqlParameter detallesParam = command.Parameters.AddWithValue("@Detalle", dtDetalle);
-                            detallesParam.SqlDbType = SqlDbType.Structured;
-                            detallesParam.TypeName = "dbo.DetalleTransferenciaReservaType";
+                        // Obtener el ID generado
+                        int idGenerado = (int)idGeneradoParam.Value;
 
-                            // Ejecutar el procedimiento almacenado
-                            command.ExecuteNonQuery();
+                        transaction.Commit();
 
-                            // Obtener el ID generado
-                            int idGenerado = (int)idGeneradoParam.Value;
-                            transaction.Commit();
-
-                            // Retornar objeto con el ID generado
-                            transferencia.Id = idGenerado;
-                            return transferencia;
-                        }
+                        transferencia.Id = idGenerado;
+                        return transferencia;
                     }
-                    catch (Exception ex)
-                    {
-                        transaction.Rollback();
-                        throw new Exception("Error al registrar la transferencia de reserva.", ex);
-                    }
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    throw new Exception("Error al registrar la transferencia de reserva.", ex);
                 }
             }
         }
+
         private DataTable ConvertirADatatable(List<DetalleTransferenciaReserva_E> detalles)
         {
             DataTable table = new DataTable();

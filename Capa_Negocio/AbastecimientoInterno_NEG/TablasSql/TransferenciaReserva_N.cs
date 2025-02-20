@@ -4,6 +4,7 @@ using Capa_Entidad;
 using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,9 +14,9 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
     public class TransferenciaReserva_N
     {
         TransferenciaReserva_D datosTransferencia = new TransferenciaReserva_D();
-        public TransferenciaReserva_E RegistrarTransferenciaReserva(TransferenciaReserva_E transferencia)
+        public TransferenciaReserva_E RegistrarTransferenciaReserva(TransferenciaReserva_E transferencia,SqlConnection cn)
         {
-            return datosTransferencia.RegistrarTransferenciaReserva(transferencia);
+            return datosTransferencia.RegistrarTransferenciaReserva(transferencia,cn);
         }
         public TransferenciaReserva_E ObtenerTransferenciaReserva(int docNum)
         {

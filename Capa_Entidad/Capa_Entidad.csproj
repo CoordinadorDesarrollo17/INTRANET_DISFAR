@@ -60,6 +60,8 @@
     <Compile Include="AbastecimientoInterno_ENT\TablasSql\SolicitudesTraslado_E.cs" />
     <Compile Include="AbastecimientoInterno_ENT\TablasSql\StockMinProductos_E.cs" />
     <Compile Include="AbastecimientoInterno_ENT\TablasSql\TransferenciaReserva_E.cs" />
+    <Compile Include="AbastecimientoInterno_ENT\TablasSql\UbicacionesLotesMaster_E.cs" />
+    <Compile Include="AbastecimientoInterno_ENT\TablasSql\UbicacionesLotes_E.cs" />
     <Compile Include="AbastecimientoInterno_ENT\TablasSql\Ubicaciones_E.cs" />
     <Compile Include="AccessoHelper_E.cs" />
     <Compile Include="Almacen_ENT\ReportesSql\ContInv_E.cs" />
