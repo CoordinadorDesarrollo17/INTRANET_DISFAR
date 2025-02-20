@@ -229,8 +229,15 @@ namespace Capa_Usuario.Controllers
             {
                 // Código cuando traslado.Id > 0 quiere decir que vino la informacion de tabla interna, buscar lo insertado en comparacion con transferencia
                 transferencia = _transferenciaReservaN.ObtenerTransferenciaReserva(docNum);
+                //DESCOMENTAR
+                //if (transferencia == null)
+                //{
+                //      var tituloSweetAlert = "No se pudo completar la acción";
+                //      var icono = "error";
+                //      var mensaje = "No existe ningun resultado de transferencia relacionada a la solicitud de traslado que ya esta registrada.";
+                //      return Json(new { Mensaje = tituloSweetAlert, Comentario = new List<string> { mensaje }, Icono = icono });
+                //}
             }
-
             return Json(new { traslado, transferencia });
         }
 
@@ -261,7 +268,7 @@ namespace Capa_Usuario.Controllers
         {
             try
             {
-                // 1. Obtener la solicitud de traslado fuera de la transacción
+                // 1. Obtener la solicitud de traslado
                 var traslado = _solicitudTrasladoN.ObtenerSolicitudDeTraslado(solicitudTraslado.DocNum);
 
                 // 2. Importa solo si no existe previamente el DocNum
@@ -317,6 +324,8 @@ namespace Capa_Usuario.Controllers
 
                         if (transferenciaPost == null || transferenciaPost.Id == 0)
                         {
+                             // 7.1.1Eliminar la solicitud de traslado si en caso se importo a la tabla interna 
+                            _solicitudTrasladoN.DeleteSolicitudDeTraslado(traslado.Id, cn);
                             return Json(new
                             {
                                 Mensaje = "No se pudo completar la acción",

@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
+using System.Drawing;
+using System.Windows.Forms;
 
 namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 {
@@ -13,72 +15,70 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
     {
         readonly Utilitarios uti = new Utilitarios();
         readonly DBHelper db = new DBHelper();
-        public SolicitudesTraslado_E ObtenerSolicitudDeTraslado(int DocNum)
+        public SolicitudesTraslado_E ObtenerSolicitudDeTraslado(int docNum)
         {
             SolicitudesTraslado_E solicitud = null;
-            SqlConnection cn = new SqlConnection(uti.cadSql2);
-            try
+            using (SqlConnection cn = new SqlConnection(uti.cadSql2))
             {
-                cn.Open();
-                string query = $@"
-    SELECT Id, DocEntry, DocNum, DocDate, CardCode, CardName, NroGuia, OperarioResponsableSAP, MotivoTraslado, Estado 
-    FROM SolicitudesTraslado WHERE DocNum = {DocNum}; 
-
-    SELECT d.Id, d.SolicitudesTrasladoId, d.ItemCode, d.ItemName, d.BatchNum, d.QuantityCajas, 
-       d.FromWhsCode, d.ToWhsCode, d.Estado, l.InDate, l.ExpDate
-FROM DetalleSolicitudesTraslado d
-INNER JOIN LotesRegistroSanitario l ON d.BatchNum = l.DistNumber AND d.ItemCode = l.ItemCode
-WHERE d.SolicitudesTrasladoId = (SELECT Id FROM SolicitudesTraslado WHERE DocNum = {DocNum});";
-
-                SqlCommand cmd = new SqlCommand(query, cn);
-                cmd.CommandType = CommandType.Text;
-                SqlDataReader dr = cmd.ExecuteReader();
-                while (dr.Read())
+                try
                 {
-                    solicitud = new SolicitudesTraslado_E();
-                    if (!dr.IsDBNull(0)) { solicitud.Id = dr.GetInt32(0); }
-                    if (!dr.IsDBNull(1)) { solicitud.DocEntry = dr.GetInt32(1); }
-                    if (!dr.IsDBNull(2)) { solicitud.DocNum = dr.GetInt32(2); }
-                    if (!dr.IsDBNull(3)) { solicitud.DocDate = dr.GetDateTime(3).ToString(); }
-                    if (!dr.IsDBNull(4)) { solicitud.CardCode = dr.GetString(4); }
-                    if (!dr.IsDBNull(5)) { solicitud.CardName = dr.GetString(5); }
-                    if (!dr.IsDBNull(6)) { solicitud.NroGuia = dr.GetString(6); }
-                    if (!dr.IsDBNull(7)) { solicitud.OperarioResponsableSAP = dr.GetString(7); }
-                    if (!dr.IsDBNull(8)) { solicitud.MotivoTraslado = dr.GetString(8); }
-                    if (!dr.IsDBNull(9)) { solicitud.Estado = dr.GetString(9); }
-                  
-                }
+                    cn.Open();
+                    SqlCommand cmd = new SqlCommand("sp_MantenimientoSolicitudTraslado", cn);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "OBTENER");
+                    cmd.Parameters.AddWithValue("@DocNum", docNum);
 
-                // Pasar a la segunda consulta (DetalleSolicitudesTraslado)
-                if (dr.NextResult() && solicitud != null)
-                {
-                    solicitud.Detalle = new List<DetalleSolicitudesTraslado_E>();
+                    SqlDataReader dr = cmd.ExecuteReader();
 
-                    while (dr.Read())
+                    if (dr.Read())
                     {
-                        var detalle = new DetalleSolicitudesTraslado_E();
-                        if (!dr.IsDBNull(0)) { detalle.Id = dr.GetInt32(0); }
-                        if (!dr.IsDBNull(1)) { detalle.SolicitudesTrasladoId = dr.GetInt32(1); }
-                        if (!dr.IsDBNull(2)) { detalle.ItemCode = dr.GetString(2); }
-                        if (!dr.IsDBNull(3)) { detalle.ItemName = dr.GetString(3); }
-                        if (!dr.IsDBNull(4)) { detalle.BatchNum = dr.GetString(4); }
-                        if (!dr.IsDBNull(5)) { detalle.QuantityCajas = dr.GetDecimal(5); }
-                        if (!dr.IsDBNull(6)) { detalle.FromWhsCode = dr.GetString(6); }
-                        if (!dr.IsDBNull(7)) { detalle.ToWhsCode = dr.GetString(7); }
-                        if (!dr.IsDBNull(8)) { detalle.Estado = dr.GetString(8); }
-                        if (!dr.IsDBNull(9)) { detalle.InDate = dr.GetDateTime(9).ToString("yyyy-MM-dd"); }
-                        if (!dr.IsDBNull(10)) { detalle.ExpDate = dr.GetDateTime(10).ToString("yyyy-MM-dd"); }
-
-                        solicitud.Detalle.Add(detalle);
+                        solicitud = new SolicitudesTraslado_E
+                        {
+                            Id = dr.GetInt32(0),
+                            DocEntry = dr.GetInt32(1),
+                            DocNum = dr.GetInt32(2),
+                            DocDate = dr.GetDateTime(3).ToString("yyyy-MM-dd"),
+                            CardCode = dr.GetString(4),
+                            CardName = dr.GetString(5),
+                            NroGuia = dr.GetString(6),
+                            OperarioResponsableSAP = dr.GetString(7),
+                            MotivoTraslado = dr.GetString(8),
+                            Estado = dr.GetString(9),
+                            Detalle = new List<DetalleSolicitudesTraslado_E>()
+                        };
                     }
-                }
 
-                dr.Close();
-                cn.Close();
+                    if (dr.NextResult() && solicitud != null)
+                    {
+                        while (dr.Read())
+                        {
+                            solicitud.Detalle.Add(new DetalleSolicitudesTraslado_E
+                            {
+                                Id = dr.GetInt32(0),
+                                SolicitudesTrasladoId = dr.GetInt32(1),
+                                ItemCode = dr.GetString(2),
+                                ItemName = dr.GetString(3),
+                                BatchNum = dr.GetString(4),
+                                QuantityCajas = dr.GetDecimal(5),
+                                FromWhsCode = dr.GetString(6),
+                                ToWhsCode = dr.GetString(7),
+                                Estado = dr.GetString(8),
+                                InDate = dr.GetDateTime(9).ToString("yyyy-MM-dd"),
+                                ExpDate = dr.GetDateTime(10).ToString("yyyy-MM-dd")
+                            });
+                        }
+                    }
+
+                    dr.Close();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error: {ex.Message}");
+                }
             }
-            catch { cn.Close(); }
             return solicitud;
         }
+
         public SolicitudesTraslado_E ImportarSolicitudDeTraslado(SolicitudesTraslado_E obj)
         {
             SolicitudesTraslado_E solicitud = null;
@@ -95,6 +95,7 @@ WHERE d.SolicitudesTrasladoId = (SELECT Id FROM SolicitudesTraslado WHERE DocNum
                             cmd.CommandType = CommandType.StoredProcedure;
 
                             // Parámetros de la solicitud
+                            cmd.Parameters.AddWithValue("@TipoMantenimiento", "INSERT");
                             cmd.Parameters.AddWithValue("@DocEntry", obj.DocEntry);
                             cmd.Parameters.AddWithValue("@DocNum", obj.DocNum);
                             cmd.Parameters.AddWithValue("@DocDate", obj.DocDate);
@@ -173,5 +174,37 @@ WHERE d.SolicitudesTrasladoId = (SELECT Id FROM SolicitudesTraslado WHERE DocNum
 
             return solicitud;
         }
-    }
+        public void DeleteSolicitudDeTraslado(int Id, SqlConnection cn)
+        {
+            string mensaje, icono;
+            try
+            {
+                // Verificar si la conexión está abierta
+                if (cn.State != ConnectionState.Open)
+                {
+                    cn.Open();
+                }
+
+                using (SqlCommand cmd = new SqlCommand("sp_MantenimientoSolicitudTraslado ", cn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                        cmd.Parameters.AddWithValue("@TipoMantenimiento", "DELETE");
+                        cmd.Parameters.AddWithValue("@Id", Id);
+
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    mensaje = "Eliminado correctamente";
+                    icono = "success";
+             }
+            catch (Exception ex)
+            {
+                LogHelper.RegistrarError(ex, "KardexAbastecimiento_D - InsertarTransaccionIngresoKardex");
+                mensaje = "Ocurrió un error al registrar el kardex de ingreso. Comuníquese con el área de Sistemas para más información.";
+                icono = "error";
+                throw new Exception("Error en InsertarTransaccionIngresoKardex.", ex);
+            }
+        }
+        }
 }

@@ -3,6 +3,7 @@ using Capa_Datos.AbastecimientoInterno_DAO.TablasSql;
 using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,6 +20,9 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         public SolicitudesTraslado_E ImportarSolicitudDeTraslado(SolicitudesTraslado_E obj)
         {
             return datosTraslado.ImportarSolicitudDeTraslado(obj);
+        }
+        public void DeleteSolicitudDeTraslado (int Id, SqlConnection cn) {
+            datosTraslado.DeleteSolicitudDeTraslado( Id,  cn);
         }
     }
 }
