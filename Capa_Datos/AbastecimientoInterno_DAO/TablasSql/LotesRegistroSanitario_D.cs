@@ -59,11 +59,16 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                             // Con MERGE se insertara solo los registros que no existen a la tabla LotesRegistroSanitario
                             string mergeQuery = @"
                                     MERGE INTO LotesRegistroSanitario AS target
-                                    USING #TempLotes AS source
-                                    ON target.ItemCode = source.ItemCode AND target.DistNumber = source.DistNumber
-                                    WHEN NOT MATCHED THEN
-                                        INSERT (ItemCode, DistNumber,ExpDate,InDate)
-                                        VALUES (source.ItemCode, source.DistNumber,source.ExpDate,source.InDate);";
+                                        USING #TempLotes AS source
+                                        ON target.ItemCode = source.ItemCode 
+                                           AND target.DistNumber = source.DistNumber
+                                        WHEN MATCHED AND (target.ExpDate <> source.ExpDate OR target.InDate <> source.InDate) THEN
+                                            UPDATE SET 
+                                                target.ExpDate = source.ExpDate,
+                                                target.InDate = source.InDate
+                                        WHEN NOT MATCHED THEN
+                                            INSERT (ItemCode, DistNumber, ExpDate, InDate)
+                                            VALUES (source.ItemCode, source.DistNumber, source.ExpDate, source.InDate);";
 
                             using (var commandMerge = new SqlCommand(mergeQuery, connection, transaction))
                             {

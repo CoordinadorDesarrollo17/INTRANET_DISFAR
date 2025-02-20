@@ -212,10 +212,10 @@ namespace Capa_Usuario.Controllers
         /************************* S O L I C I T U D   D E   T R A S L A D O *************************/
         public JsonResult BuscarSolicitudDeTraslado(int docNum)
         {
-            var trasladoInterno = _solicitudTrasladoN.ObtenerSolicitudDeTraslado(docNum);
-            var trasladoHana = trasladoInterno == null ? _solicitudTrasladoHanaN.BuscarSolicitudDeTraslado(docNum) : null;
+            ITraslado traslado = _solicitudTrasladoN.ObtenerSolicitudDeTraslado(docNum) as ITraslado
+                        ?? _solicitudTrasladoHanaN.BuscarSolicitudDeTraslado(docNum) as ITraslado;
 
-            if (trasladoInterno == null && trasladoHana == null)
+            if (traslado == null)
             {
                 var tituloSweetAlert = "No se pudo completar la acción";
                 var icono = "error";
@@ -224,7 +224,6 @@ namespace Capa_Usuario.Controllers
                 return Json(new { Mensaje = tituloSweetAlert, Comentario = new List<string> { mensaje }, Icono = icono });
             }
 
-            ITraslado traslado = trasladoInterno as ITraslado ?? trasladoHana as ITraslado;
             TransferenciaReserva_E transferencia = null;
             if (traslado?.Id > 0)
             {
