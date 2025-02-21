@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Text.RegularExpressions;
-
 namespace Capa_Datos
 {
     public class Utilitarios
@@ -32,24 +31,19 @@ namespace Capa_Datos
             this.directorioGeneral = @"E:\";
             this.directorioFileServer = @"E:\COBEFARWEBFILES\";
             this.directorioLogs = @"E:\COBEFARWEBLOGS\";
-
             // HANA Database Configuration
             this.cadHana = "Server=172.16.55.36:30015;UserName=B1ADMIN;Password=Passw0rd;";
             //this.schemaHana = "\"BASE_04_11_2024\".";
             this.schemaHana = "\"B1H_COBEFAR_2018\".";
-
             //Hana On Premise 
             this.cadHanaOnPremise = "Server=192.168.1.37:30015;UserName=B1ADMIN;Password=Passw0rd;";
             this.schemaHanaOnPremise = "\"B1H_COBEFAR_2018\".";
-
             // SQL Server Configuration
             this.serverSql = @"WIN-2SURNE2G3QV";
             this.userSql = "sa";
             this.passwordSql = "Cobef@rs@c2025r$$";
-
             this.BDsql = "INTRANET_V2";
             //this.BDsql = "PRUEBA_ALISSON";
-
             this.cadSql = $@"Server={this.serverSql};" +
                           $"Database={this.BDsql};" +
                           $"User Id={this.userSql};" +
@@ -57,14 +51,11 @@ namespace Capa_Datos
                           "Min Pool Size=0;" +
                           "Max Pool Size=10024;" +
                           "Pooling=true;";
-
-
             // SOPHOS Database Configuration
             this.serverSophos = @"WIN-TERMINALSAP\COBEFAR";
             this.userSophos = "sa";
             this.BDSophossql = "SOPHOS_INT_PROD";
             this.passwordSophosSql = "C0B3F@r_2022";
-
             this.cadSophos = $@"Server={this.serverSophos};" +
                              $"Database={this.BDSophossql};" +
                              $"User Id={this.userSophos};" +
@@ -72,7 +63,6 @@ namespace Capa_Datos
                              "Min Pool Size=0;" +
                              "Max Pool Size=10024;" +
                              "Pooling=true;";
-
             // CORREO 
             this.Smtp = "smtp.gmail.com";
             this.CodigoSmtp = 25;
