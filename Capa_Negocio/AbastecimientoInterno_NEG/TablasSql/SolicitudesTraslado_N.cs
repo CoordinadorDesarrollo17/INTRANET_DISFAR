@@ -14,16 +14,16 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
     public class SolicitudesTraslado_N
     {
         SolicitudesTraslado_D datosTraslado = new SolicitudesTraslado_D();
-        public SolicitudesTraslado_E ObtenerSolicitudDeTraslado(int DocNum)
+        public SolicitudesTraslado_E ObtenerSolicitudDeTraslado(int docNum)
         {
-            return datosTraslado.ObtenerSolicitudDeTraslado(DocNum);
+            return datosTraslado.ObtenerSolicitudDeTraslado(docNum);
         }
         public SolicitudesTraslado_E ImportarSolicitudDeTraslado(SolicitudesTraslado_E obj)
         {
             return datosTraslado.ImportarSolicitudDeTraslado(obj);
         }
-        public Helper_E DeleteSolicitudDeTraslado (int Id, SqlConnection cn) {
-            return datosTraslado.DeleteSolicitudDeTraslado( Id,  cn);
+        public Helper_E DeleteSolicitudDeTraslado (int docNum, SqlConnection cn) {
+            return datosTraslado.DeleteSolicitudDeTraslado(docNum,  cn);
         }
     }
 }

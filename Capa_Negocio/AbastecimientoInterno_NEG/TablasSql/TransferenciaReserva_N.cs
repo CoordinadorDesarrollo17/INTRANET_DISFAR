@@ -17,24 +17,28 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         TransferenciaReserva_D datosTransferencia = new TransferenciaReserva_D();
         public TransferenciaReserva_E RegistrarTransferenciaReserva(TransferenciaReserva_E transferencia,SqlConnection cn)
         {
-            TransferenciaReserva_E transferenciaARegistrar = new TransferenciaReserva_E();
-            //Asignar datos de cabecera importantes
-            transferenciaARegistrar = transferencia;
-            //Limpiar el detalle
-            transferenciaARegistrar.Detalle = null;
+                    transferencia.Detalle = transferencia.Detalle
+               .Where(t => !string.IsNullOrWhiteSpace(t.UmAlm) &&
+                           t.ValorUmAlm > 0 &&
+                           t.QuantityUnidadesCajas > 0 &&
+                           !string.IsNullOrWhiteSpace(t.CodigoUbicacion) &&
+                           t.TransferenciaReservaId == 0 &&
+                           t.Id == 0)
+               .ToList();   
 
-            foreach (var t in transferencia.Detalle)
-            {
-                if(!string.IsNullOrWhiteSpace(t.UmAlm)  && t.ValorUmAlm>0 && t.QuantityUnidadesCajas >0 && !string.IsNullOrWhiteSpace(t.CodigoUbicacion) && t.TransferenciaReservaId==0 && t.Id==0) {
-                    //Solo se envian los datos nuevos a tranferir
-                    transferenciaARegistrar.Detalle.Add(t);
-                }
-            }
-            return datosTransferencia.RegistrarTransferenciaReserva(transferenciaARegistrar, cn);
+            return datosTransferencia.RegistrarTransferenciaReserva(transferencia, cn);
         }
         public TransferenciaReserva_E ObtenerTransferenciaReserva(int docNum)
         {
             return datosTransferencia.ObtenerTransferenciaReserva(docNum);
+        }
+        public Helper_E DeleteTransferenciaReserva(int docNum,SqlConnection cn)
+        {
+            return datosTransferencia.DeleteTransferenciaReserva(docNum, cn);
+        }
+        public Helper_E DeleteDetalleItemTransferenciaReserva(List<DetalleTransferenciaReserva_E> ids , SqlConnection cn)
+        {
+            return datosTransferencia.DeleteDetalleItemTransferenciaReserva(ids, cn);
         }
     }
  }

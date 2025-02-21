@@ -174,7 +174,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             return solicitud;
         }
-        public Helper_E DeleteSolicitudDeTraslado(int Id, SqlConnection cn)
+        public Helper_E DeleteSolicitudDeTraslado(int docNum, SqlConnection cn)
         {
             string mensaje, icono;
             try
@@ -190,7 +190,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     cmd.CommandType = CommandType.StoredProcedure;
 
                     cmd.Parameters.AddWithValue("@TipoMantenimiento", "DELETE");
-                    cmd.Parameters.AddWithValue("@Id", Id);
+                    cmd.Parameters.AddWithValue("@DocNum", docNum);
 
                     cmd.ExecuteNonQuery();
                 }
