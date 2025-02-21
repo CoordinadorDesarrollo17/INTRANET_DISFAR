@@ -10,7 +10,6 @@ using Capa_Entidad.Compras_ENT.Reportes;
 using Capa_Negocio.Seguridad_NEG;
 using Capa_Negocio.SocioNegocios_NEG.Tablas;
 using Capa_Negocio.Compras_NEG.TablasSql;
-
 namespace Capa_Usuario.Controllers
 {
     public class ComprasController : Controller
@@ -18,7 +17,6 @@ namespace Capa_Usuario.Controllers
         Rol1_N rol1 = new Rol1_N(); int modulo = 5;
         LineaProduccion_N lpN = new LineaProduccion_N();
         ContratoRebate_N crN = new ContratoRebate_N();
-        
         //******acciones*****
         //------acciones lineas de produccion
         public ActionResult ListadoLineasProduccion(LineaProduccion_E lf = null, int idOperation = 1101, string Mensaje = "")
@@ -105,7 +103,6 @@ namespace Capa_Usuario.Controllers
                     ViewBag.MensajeProd = "Ningun producto encontrado";
                     ViewBag.Mensaje = e.Message;
                     return View(l); }
-
             }
             else if ( VerificacionAccesos(idOperation) == "E_Login")
             { return RedirectToAction("Index", "Index"); }
@@ -193,7 +190,6 @@ namespace Capa_Usuario.Controllers
         {
             if (VerificacionAccesos(idOperation) == "C_Access")
             {
-
                 return View(crN.GenerarCuadreContrato(id));
             }
             else if (VerificacionAccesos(idOperation) == "E_Login")
@@ -238,7 +234,6 @@ namespace Capa_Usuario.Controllers
                 {
                     return RedirectToAction("ListadoContratosRebate", new { Mensaje = "No se pudo eliminar" + e.Message });
                 }
-
             }
             else if (VerificacionAccesos(idOperation) == "E_Login")
             { return RedirectToAction("Index", "Index"); }
@@ -343,7 +338,6 @@ namespace Capa_Usuario.Controllers
                     ViewBag.Filtro = filtro;
                 }
                 else { ViewBag.Filtro = new DetCuadreContrato_E(); }
-                
                 List<ResumenRebate_E> lista = crN.listarResumenCuadreContrato(filtro,año);
                 return View(lista);
             }
@@ -435,6 +429,5 @@ namespace Capa_Usuario.Controllers
             ViewBag.NumAtCard = NumAtCard;
             return View();
         }
-
     }
 }
