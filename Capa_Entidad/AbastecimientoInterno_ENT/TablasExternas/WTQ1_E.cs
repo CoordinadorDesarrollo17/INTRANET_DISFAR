@@ -17,5 +17,8 @@ namespace Capa_Entidad.AbastecimientoInterno_ENT.TablasExternas
         {
             throw new NotImplementedException();
         }
+
+        // Campos que no son de la tabla
+        public string UnidadAlmSugerido { get; set; }
     }
 }

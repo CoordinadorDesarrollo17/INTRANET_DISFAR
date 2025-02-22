@@ -505,7 +505,7 @@
 	}
 
 		function mostrarUbigeos(seleccionar, id = 0) {
-		console.log(seleccionar)
+		//console.log(seleccionar)
 		if (id > 0) {
 			$('#div_listaUbigeos').load(`@Url.Action("ListarUbigeos","Ubigeo")?Ubigeo=${id}&mostrarseleccionar=${seleccionar}`).fadeIn("fast");
 		} else {

@@ -38,24 +38,17 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                         }
                     }
                 }
-
-                if (ubicaciones.Count == 0)
-                {
-                    return new string[] { "No se encontraron ubicaciones para el producto." };
-                }
-
-                return ubicaciones.ToArray(); // Retornar el array de ubicaciones
             }
             catch (SqlException sqlEx)
             {
-                LogHelper.RegistrarError(sqlEx, "Error SQL en UbicacionesDAL - BuscarUbicaciones.");
-                return new string[] { "Error en la base de datos. Intente nuevamente." };
+                LogHelper.RegistrarError(sqlEx, "Error SQL en Ubicaciones_D - BuscarUbicaciones.");
             }
             catch (Exception ex)
             {
-                LogHelper.RegistrarError(ex, "Error inesperado en UbicacionesDAL - BuscarUbicaciones.");
-                return new string[] { "Ocurrió un problema inesperado. Contacte a soporte técnico." };
+                LogHelper.RegistrarError(ex, "Error inesperado en Ubicaciones_D - BuscarUbicaciones.");
             }
+
+            return ubicaciones.ToArray(); // Retornar el array de ubicaciones
         }
 
         public Helper_E EliminarUbicacionGeneral(string codigoUbicacion)

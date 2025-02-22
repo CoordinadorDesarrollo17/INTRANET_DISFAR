@@ -13,5 +13,8 @@
         public string FromWhsCode {  get; set; }        // AlmacenOrigen
         public string ToWhsCode {  get; set; }              // AlmacenDestino
         public string Estado {  get; set; }
+
+        // Campos que no son de la tabla
+        public string UnidadAlmSugerido { get; set; }
     }
 }

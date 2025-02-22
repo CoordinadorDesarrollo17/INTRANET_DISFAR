@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Data;
+using DocumentFormat.OpenXml.Presentation;
 
 namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 {
@@ -81,6 +82,54 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
             }
 
             return new Helper_E { Mensaje = mensaje, IconoSweetAlert = icono };
+        }
+
+        public string BuscarUnidadAlm(string condicion, Dictionary<string, object> parametrosCondicion)
+        {
+            var unidadAlm = string.Empty;
+
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+                {
+                    SqlCommand cmd = new SqlCommand();
+                    cmd.Connection = cn;
+
+                    var sb = new StringBuilder();
+
+                    sb.AppendLine("SELECT [UmAlm]");
+                    sb.AppendLine("FROM [dbo].[UbicacionesLotesMaster] WHERE 1=1");
+                    sb.AppendLine(condicion);
+
+                    // Agregamos los parámetros dinámicamente
+                    foreach (var param in parametrosCondicion)
+                    {
+                        cmd.Parameters.AddWithValue(param.Key, param.Value);
+                    }
+
+                    cmd.CommandText = sb.ToString();
+
+                    cn.Open();
+
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        if (dr.HasRows)
+                        {
+                            while (dr.Read())
+                            {
+                                if (!dr.IsDBNull(0)) unidadAlm = dr.GetString(0);
+                            }
+                        }
+                    }
+                    cn.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.RegistrarError(ex, "UbicacionesLotesMaster_D - BuscarUnidadAlm");
+            }
+
+            return unidadAlm;
         }
     }
 }

@@ -18,5 +18,34 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         {
             return datosUbicacionesLM.InsertarRegistroPorIngreso(ingreso, cn);
         }
+
+        public string BuscarUnidadAlm(UbicacionesLotesMaster_E filtros = null, StringBuilder condicion = null, Dictionary<string, object> parametros = null)
+        {
+            condicion = new StringBuilder();
+            parametros = new Dictionary<string, object>();
+
+            if (filtros != null)
+            {
+                if (!string.IsNullOrWhiteSpace(filtros.Almacen))
+                {
+                    condicion.AppendLine("AND Almacen = @Almacen");
+                    parametros["@Almacen"] = filtros.Almacen;
+                }
+
+                if (!string.IsNullOrWhiteSpace(filtros.ItemCode))
+                {
+                    condicion.AppendLine("AND ItemCode = @ItemCode");
+                    parametros["@ItemCode"] = filtros.ItemCode;
+                }
+
+                if (!string.IsNullOrWhiteSpace(filtros.BatchNum))
+                {
+                    condicion.AppendLine("AND BatchNum = @BatchNum");
+                    parametros["@BatchNum"] = filtros.BatchNum;
+                }
+            }
+
+            return datosUbicacionesLM.BuscarUnidadAlm(condicion.ToString(), parametros);
+        }
     }
 }
