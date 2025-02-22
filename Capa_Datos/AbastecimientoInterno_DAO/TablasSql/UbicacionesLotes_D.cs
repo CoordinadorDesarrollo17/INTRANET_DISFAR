@@ -15,7 +15,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
         readonly Utilitarios uti = new Utilitarios();
         readonly DBHelper db = new DBHelper();
         //Operacion desde transaccion ingreso en Kardex que suma la cantidad disponible  inserta un nuevo registro de ItemCode, Almacen, CodigoUbicacion y Lote.
-        public Helper_E InsertarRegistroPorIngreso(TransferenciaReserva_E ingreso, SqlConnection cn)
+        public Helper_E Ingreso(TransferenciaReserva_E ingreso, SqlConnection cn)
         {
             string mensaje, icono;
 
@@ -59,7 +59,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                         {
                             mensaje = "Ocurrió un error al registrar un ingreso en UbicacionesLotes. Comuníquese con el área de Sistemas para más información.";
                             icono = "error";
-                            throw new Exception("Error en InsertarRegistroPorIngreso.");
+                            throw new Exception("Error en Ingreso.");
 
                         }
                     }
@@ -70,10 +70,54 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
             }
             catch (Exception ex)
             {
-                LogHelper.RegistrarError(ex, "UbicacionesLotes_D - InsertarRegistroPorIngreso");
+                LogHelper.RegistrarError(ex, "UbicacionesLotes_D - Ingreso");
                 mensaje = "Ocurrió un error al registrar un ingreso en UbicacionesLotes. Comuníquese con el área de Sistemas para más información.";
                 icono = "error";
-                throw new Exception("Error en InsertarRegistroPorIngreso.", ex);
+                throw new Exception("Error en Ingreso.", ex);
+            }
+
+            return new Helper_E { Mensaje = mensaje, IconoSweetAlert = icono };
+        }
+        public Helper_E Egreso(TransferenciaReserva_E egreso, SqlConnection cn)
+        {
+            string mensaje, icono;
+
+            try
+            {
+                if (cn.State != ConnectionState.Open)
+                {
+                    cn.Open();
+                }
+
+                using (SqlCommand cmd = new SqlCommand("sp_MantenimientoUbicacionesLotes", cn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    foreach (var detalle in egreso.Detalle)
+                    {
+                        cmd.Parameters.Clear();
+
+                        cmd.Parameters.AddWithValue("@TipoMantenimiento", "EGRESO");
+                        cmd.Parameters.AddWithValue("@Almacen", "RESERVA");
+                        cmd.Parameters.AddWithValue("@ItemCode", detalle.ItemCode);
+                        cmd.Parameters.AddWithValue("@ItemName", detalle.ItemName);
+                        cmd.Parameters.AddWithValue("@CodigoUbicacion", detalle.CodigoUbicacion);
+                        cmd.Parameters.AddWithValue("@BatchNum", detalle.BatchNum);
+                        cmd.Parameters.AddWithValue("@QuantityUnidadesCajas", detalle.QuantityUnidadesCajas);
+
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    mensaje = "Operacion de egreso en UbicacionesLotes registrado correctamente";
+                    icono = "success";
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.RegistrarError(ex, "UbicacionesLotes_D - Egreso");
+                mensaje = "Ocurrió un error al registrar un egreso en UbicacionesLotes. Comuníquese con el área de Sistemas para más información.";
+                icono = "error";
+                throw new Exception("Error en Egreso.", ex);
             }
 
             return new Helper_E { Mensaje = mensaje, IconoSweetAlert = icono };

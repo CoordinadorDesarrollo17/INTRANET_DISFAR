@@ -19,9 +19,6 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
         public Helper_E InsertarTransaccionIngresoKardex(TransferenciaReserva_E ingreso, SqlConnection cn)
         {
             string mensaje, icono;
-            var cardCode = ingreso.CardCode;
-            var cardName = ingreso.CardName;
-            var operario = ingreso.OperarioRegistra;
 
             try
             {
@@ -42,8 +39,8 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                         
                         // Parámetros extraidos de la cabecera 
                         cmd.Parameters.AddWithValue("@TipoMantenimiento", "INGRESO");
-                        cmd.Parameters.AddWithValue("@RucProveedor", cardCode);
-                        cmd.Parameters.AddWithValue("@NombreProveedor", cardName);
+                        cmd.Parameters.AddWithValue("@RucProveedor", ingreso.CardCode);
+                        cmd.Parameters.AddWithValue("@NombreProveedor", ingreso.CardName);
                         cmd.Parameters.AddWithValue("@Sentido", "Ingreso");
                         cmd.Parameters.AddWithValue("@Tabla", "TransferenciaReserva");
                         cmd.Parameters.AddWithValue("@Referencia", ingreso.SolicitudTrasladoDocNum);
@@ -54,7 +51,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                         cmd.Parameters.AddWithValue("@Almacen", "RESERVA");
                         cmd.Parameters.AddWithValue("@Cantidad", detalle.QuantityUnidadesCajas);
                         cmd.Parameters.AddWithValue("@Imputado", 0);
-                        cmd.Parameters.AddWithValue("@Operario", operario);
+                        cmd.Parameters.AddWithValue("@Operario", ingreso.OperarioRegistra);
                         cmd.Parameters.AddWithValue("@TiempoRegistro", DateTime.Now);
 
                         // Parámetro de salida
@@ -92,7 +89,80 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             return new Helper_E { Mensaje = mensaje, IconoSweetAlert = icono };
         }
+        public Helper_E EliminarTotalTransaccionesIngresoKardex(int docNum,  SqlConnection cn)
+        {
+            string mensaje, icono;
 
+            try
+            {
+                // Verificar si la conexión está abierta
+                if (cn.State != ConnectionState.Open)
+                {
+                    cn.Open();
+                }
 
+                using (SqlCommand cmd = new SqlCommand("sp_MantenimientoKardexAbastecimiento ", cn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                        // Parámetros extraidos de la cabecera 
+                        cmd.Parameters.AddWithValue("@TipoMantenimiento", "DELETE");
+                        cmd.Parameters.AddWithValue("@Tabla", "TransferenciaReserva");
+                        cmd.Parameters.AddWithValue("@Referencia", docNum);
+
+                        cmd.ExecuteNonQuery();
+
+                    mensaje = "Kardex de ingreso eliminado correctamente";
+                    icono = "success";
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.RegistrarError(ex, "KardexAbastecimiento_D - EliminarTransaccionIngresoKardex");
+                mensaje = "Ocurrió un error al eliminar el kardex de ingreso. Comuníquese con el área de Sistemas para más información.";
+                icono = "error";
+                throw new Exception("Error en EliminarTransaccionIngresoKardex.", ex);
+            }
+
+            return new Helper_E { Mensaje = mensaje, IconoSweetAlert = icono };
+        }
+        public Helper_E EliminarPorItemCodeTransaccionIngresoKardex(int docNum, string itemCode, SqlConnection cn)
+        {
+            string mensaje, icono;
+
+            try
+            {
+                // Verificar si la conexión está abierta
+                if (cn.State != ConnectionState.Open)
+                {
+                    cn.Open();
+                }
+
+                using (SqlCommand cmd = new SqlCommand("sp_MantenimientoKardexAbastecimiento ", cn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    // Parámetros extraidos de la cabecera 
+                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "REVERT");
+                    cmd.Parameters.AddWithValue("@Tabla", "TransferenciaReserva");
+                    cmd.Parameters.AddWithValue("@Referencia", docNum);
+                    cmd.Parameters.AddWithValue("@ItemCode", itemCode);
+
+                    cmd.ExecuteNonQuery();
+
+                    mensaje = "Kardex de ingreso por sku eliminado correctamente";
+                    icono = "success";
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.RegistrarError(ex, "KardexAbastecimiento_D - EliminarPorItemCodeTransaccionIngresoKardex");
+                mensaje = "Ocurrió un error al eliminar el kardex de ingreso por sku. Comuníquese con el área de Sistemas para más información.";
+                icono = "error";
+                throw new Exception("Error en EliminarPorItemCodeTransaccionIngresoKardex.", ex);
+            }
+
+            return new Helper_E { Mensaje = mensaje, IconoSweetAlert = icono };
+        }
     }
 }

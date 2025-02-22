@@ -16,7 +16,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
         readonly Utilitarios uti = new Utilitarios();
         readonly DBHelper db = new DBHelper();
         //Operacion desde transaccion ingreso en Kardex que suma la cantidad disponible  inserta un nuevo registro de ItemCode, Almacen, CodigoUbicacion, Lote y UmAlm.
-        public Helper_E InsertarRegistroPorIngreso(TransferenciaReserva_E ingreso, SqlConnection cn)
+        public Helper_E Ingreso(TransferenciaReserva_E ingreso, SqlConnection cn)
         {
             string mensaje, icono;
 
@@ -46,7 +46,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                         cmd.Parameters.AddWithValue("@ValorUmAlm", detalle.ValorUmAlm);
                         cmd.Parameters.AddWithValue("@QuantityMaster", detalle.QuantityMaster);
                         cmd.Parameters.AddWithValue("@QuantitySaldo", detalle.QuantitySaldo);
-                        cmd.Parameters.AddWithValue("@QuantityUnidadesCajas", detalle.QuantityUnidadesCajas); // No es necesario enviarlas ya que se hace calculo en el procedure.
+                        //cmd.Parameters.AddWithValue("@QuantityUnidadesCajas", detalle.QuantityUnidadesCajas); // No es necesario enviarlas ya que se hace calculo en el procedure.
 
                         // Parámetro de salida
                         SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
@@ -64,7 +64,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                         {
                             mensaje = "Ocurrió un error al registrar un ingreso en UbicacionesLotesMaster. Comuníquese con el área de Sistemas para más información.";
                             icono = "error";
-                            throw new Exception("Error en InsertarRegistroPorIngreso.");
+                            throw new Exception("Error en Ingreso.");
 
                         }
                     }
@@ -75,10 +75,56 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
             }
             catch (Exception ex)
             {
-                LogHelper.RegistrarError(ex, "UbicacionesLotesMaster_D - InsertarRegistroPorIngreso");
+                LogHelper.RegistrarError(ex, "UbicacionesLotesMaster_D - Ingreso");
                 mensaje = "Ocurrió un error al registrar un ingreso en UbicacionesLotesMaster. Comuníquese con el área de Sistemas para más información.";
                 icono = "error";
-                throw new Exception("Error en InsertarRegistroPorIngreso.", ex);
+                throw new Exception("Error en Ingreso.", ex);
+            }
+
+            return new Helper_E { Mensaje = mensaje, IconoSweetAlert = icono };
+        }
+        public Helper_E Egreso(TransferenciaReserva_E egreso, SqlConnection cn)
+        {
+            string mensaje, icono;
+
+            try
+            {
+                if (cn.State != ConnectionState.Open)
+                {
+                    cn.Open();
+                }
+
+                using (SqlCommand cmd = new SqlCommand("sp_MantenimientoUbicacionesLotesMaster", cn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    foreach (var detalle in egreso.Detalle)
+                    {
+                        cmd.Parameters.Clear();
+
+                        cmd.Parameters.AddWithValue("@TipoMantenimiento", "EGRESO");
+                        cmd.Parameters.AddWithValue("@Almacen", "RESERVA");
+                        cmd.Parameters.AddWithValue("@ItemCode", detalle.ItemCode);
+                        cmd.Parameters.AddWithValue("@ItemName", detalle.ItemName);
+                        cmd.Parameters.AddWithValue("@CodigoUbicacion", detalle.CodigoUbicacion);
+                        cmd.Parameters.AddWithValue("@BatchNum", detalle.BatchNum);
+                        cmd.Parameters.AddWithValue("@UmAlm", detalle.UmAlm);
+                        cmd.Parameters.AddWithValue("@ValorUmAlm", detalle.ValorUmAlm);
+                        cmd.Parameters.AddWithValue("@QuantityMaster", detalle.QuantityMaster);
+                        cmd.Parameters.AddWithValue("@QuantitySaldo", detalle.QuantitySaldo);
+                        //cmd.Parameters.AddWithValue("@QuantityUnidadesCajas", detalle.QuantityUnidadesCajas); // No es necesario enviarlas ya que se hace calculo en el procedure.
+                        cmd.ExecuteNonQuery();
+                    }
+                    mensaje = "Operacion de egreso en UbicacionesLotesMaster realizado correctamente";
+                    icono = "success";
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.RegistrarError(ex, "UbicacionesLotesMaster_D - Egreso");
+                mensaje = "Ocurrió un error al registrar un egreso en UbicacionesLotesMaster. Comuníquese con el área de Sistemas para más información.";
+                icono = "error";
+                throw new Exception("Error en Egreso.", ex);
             }
 
             return new Helper_E { Mensaje = mensaje, IconoSweetAlert = icono };

@@ -14,9 +14,13 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
     {
         readonly UbicacionesLotesMaster_D datosUbicacionesLM = new UbicacionesLotesMaster_D();
 
-        public Helper_E InsertarRegistroPorIngreso (TransferenciaReserva_E ingreso, SqlConnection cn)
+        public Helper_E Ingreso (TransferenciaReserva_E ingreso, SqlConnection cn)
         {
-            return datosUbicacionesLM.InsertarRegistroPorIngreso(ingreso, cn);
+            return datosUbicacionesLM.Ingreso(ingreso, cn);
+        }
+        public Helper_E Egreso(TransferenciaReserva_E egreso, SqlConnection cn)
+        {
+            return datosUbicacionesLM.Egreso(egreso, cn);
         }
 
         public string BuscarUnidadAlm(UbicacionesLotesMaster_E filtros = null, StringBuilder condicion = null, Dictionary<string, object> parametros = null)

@@ -1,6 +1,7 @@
 ﻿using Capa_Datos.AbastecimientoInterno_DAO.TablasExternas;
 using Capa_Datos.Almacen_DAO.Tablas;
 using Capa_Entidad;
+using Capa_Entidad.AbastecimientoInterno_ENT.Interfaces;
 using Capa_Entidad.AbastecimientoInterno_ENT.TablasExternas;
 using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
 using Capa_Negocio.AbastecimientoInterno_NEG.TablasSql;

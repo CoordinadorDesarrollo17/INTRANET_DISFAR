@@ -17,5 +17,15 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         {
             return kardexD.InsertarTransaccionIngresoKardex(ingreso,cn);
         }
+        public Helper_E EliminarTotalTransaccionesIngresoKardex(int docNum, SqlConnection cn)
+        {
+            return kardexD.EliminarTotalTransaccionesIngresoKardex(docNum, cn);
+        }
+        public Helper_E EliminarPorItemCodeTransaccionIngresoKardex(int docNum, string itemCode, SqlConnection cn)
+        {
+            return kardexD.EliminarPorItemCodeTransaccionIngresoKardex(docNum, itemCode,cn);
+        }
+        
+
     }
 }

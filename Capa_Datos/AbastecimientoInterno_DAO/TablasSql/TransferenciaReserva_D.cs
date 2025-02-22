@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data.SqlClient;
 using System.Data;
+using Capa_Entidad.AbastecimientoInterno_ENT.Interfaces;
 
 namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 {
@@ -15,24 +16,21 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
         readonly Utilitarios uti = new Utilitarios();
         readonly DBHelper db = new DBHelper();
 
-        public TransferenciaReserva_E RegistrarTransferenciaReserva(TransferenciaReserva_E transferencia, SqlConnection cn)
+        public TransferenciaReserva_E RegistrarTransferenciaReserva( TransferenciaReserva_E transferencia, SqlConnection cn)
         {
-            // Verificar si la conexión está abierta (en caso de que se pase una conexión cerrada)
             if (cn.State != ConnectionState.Open)
             {
                 cn.Open();
             }
 
-            // Iniciar transacción solo si no hay una transacción activa
             using (var transaction = cn.BeginTransaction())
             {
                 try
                 {
-                    using (var cmd = new SqlCommand("[dbo].[sp_MantenimientoTransferenciaReserva]", cn, transaction))
+                    using (var cmd = new SqlCommand("sp_MantenimientoTransferenciaReserva", cn, transaction))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
 
-                        // Parámetros de entrada
                         cmd.Parameters.AddWithValue("@TipoMantenimiento", "INSERT");
                         cmd.Parameters.AddWithValue("@SolicitudTrasladoId", transferencia.SolicitudTrasladoId);
                         cmd.Parameters.AddWithValue("@SolicitudTrasladoDocNum", transferencia.SolicitudTrasladoDocNum);
@@ -41,7 +39,6 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                         cmd.Parameters.AddWithValue("@NroGuia", transferencia.NroGuia);
                         cmd.Parameters.AddWithValue("@OperarioRegistra", transferencia.OperarioRegistra);
 
-                        // Parámetro de salida
                         SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
                         {
                             Direction = ParameterDirection.Output
@@ -56,7 +53,6 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
                         cmd.ExecuteNonQuery();
 
-                        // Obtener el ID generado
                         int idGenerado = (int)idGeneradoParam.Value;
 
                         transaction.Commit();
@@ -72,7 +68,6 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 }
             }
         }
-
         private DataTable ConvertirADatatable(List<DetalleTransferenciaReserva_E> detalles)
         {
             DataTable table = new DataTable();
@@ -96,8 +91,6 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
             }
             return table;
         }
-
-
         public TransferenciaReserva_E ObtenerTransferenciaReserva(int docNum)
         {
             TransferenciaReserva_E transferencia = null;
@@ -105,11 +98,11 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
             try
             {
                 cn.Open();
-                using (SqlCommand cmd = new SqlCommand("sp.MantenimientoTransferenciaReserva", cn))
+                using (SqlCommand cmd = new SqlCommand("sp_MantenimientoTransferenciaReserva", cn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@TipoMantenimiento", "GET");
-                    cmd.Parameters.AddWithValue("@DocNum", docNum);
+                    cmd.Parameters.AddWithValue("@SolicitudTrasladoDocNum", docNum);
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
                         if (dr.Read())
@@ -156,6 +149,76 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
             catch { cn.Close(); }
             return transferencia;
         }
+        public Helper_E DeleteTransferenciaReserva(int docNum, SqlConnection cn)
+        {
+            string mensaje, icono;
 
+            try
+            {
+                if (cn.State != ConnectionState.Open)
+                {
+                    cn.Open();
+                }
+
+                using (SqlCommand cmd = new SqlCommand("sp_MantenimientoTransferenciaReserva", cn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    // Parámetros extraidos de la cabecera 
+                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "DELETE");
+                    cmd.Parameters.AddWithValue("@SolicitudTrasladoDocNum", docNum);
+
+                    cmd.ExecuteNonQuery();
+
+                    mensaje = "Transferencia de reserva eliminada correctamente";
+                    icono = "success";
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.RegistrarError(ex, "TransferenciaReserva_D - DeleteTransferenciaReserva");
+                mensaje = "Ocurrió un error al eliminar la transferencia reserva. Comuníquese con el área de Sistemas para más información.";
+                icono = "error";
+                throw new Exception("Error en DeleteTransferenciaReserva.", ex);
+            }
+
+            return new Helper_E { Mensaje = mensaje, IconoSweetAlert = icono };
+        }
+        public Helper_E DeleteDetalleItemTransferenciaReserva(List<DetalleTransferenciaReserva_E> ids, SqlConnection cn)
+        {
+            string mensaje, icono;
+            //generar una variable string grupoIds concatenando los valores de Id de ids separados por una coma
+            try
+            {
+                if (cn.State != ConnectionState.Open)
+                {
+                    cn.Open();
+                }
+
+                using (SqlCommand cmd = new SqlCommand("sp_MantenimientoTransferenciaReserva", cn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    // Parámetros extraidos de la cabecera 
+                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "REVERT");
+                    cmd.Parameters.AddWithValue("@GrupoIds", string.Join(",", ids.Select(x => x.Id)));
+
+                    cmd.ExecuteNonQuery();
+
+                    mensaje = "Ids en la Transferencia de reserva eliminada correctamente";
+                    icono = "success";
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.RegistrarError(ex, "TransferenciaReserva_D - DeleteDetalleItemTransferenciaReserva");
+                mensaje = "Ocurrió un error al eliminar ids en la transferencia reserva. Comuníquese con el área de Sistemas para más información.";
+                icono = "error";
+                throw new Exception("Error en DeleteDetalleItemTransferenciaReserva.", ex);
+            }
+
+            return new Helper_E { Mensaje = mensaje, IconoSweetAlert = icono };
+        }
+        
     }
 }
