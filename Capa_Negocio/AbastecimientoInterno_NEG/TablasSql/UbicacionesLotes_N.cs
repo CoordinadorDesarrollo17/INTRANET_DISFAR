@@ -17,9 +17,13 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         {
             return datosUbicacionesL.Ingreso(ingreso, cn);
         }
-        public Helper_E Egreso(TransferenciaReserva_E egreso, SqlConnection cn)
+        public Helper_E RevertirIngreso(TransferenciaReserva_E ingreso, SqlConnection cn)
         {
-            return datosUbicacionesL.Egreso(egreso, cn);
+            return datosUbicacionesL.RevertirIngreso(ingreso, cn);
+        }
+        public Helper_E Salida(List<DetalleRequerimientos_E> salida, SqlConnection cn)
+        {
+            return datosUbicacionesL.Salida(salida, cn);
         }
     }
 }

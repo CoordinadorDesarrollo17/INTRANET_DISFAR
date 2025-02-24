@@ -83,7 +83,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             return new Helper_E { Mensaje = mensaje, IconoSweetAlert = icono };
         }
-        public Helper_E Egreso(TransferenciaReserva_E egreso, SqlConnection cn)
+        public Helper_E RevertirIngreso(TransferenciaReserva_E ingreso, SqlConnection cn)
         {
             string mensaje, icono;
 
@@ -98,11 +98,11 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
 
-                    foreach (var detalle in egreso.Detalle)
+                    foreach (var detalle in ingreso.Detalle)
                     {
                         cmd.Parameters.Clear();
 
-                        cmd.Parameters.AddWithValue("@TipoMantenimiento", "EGRESO");
+                        cmd.Parameters.AddWithValue("@TipoMantenimiento", "REVERTIR_INGRESO");
                         cmd.Parameters.AddWithValue("@Almacen", "RESERVA");
                         cmd.Parameters.AddWithValue("@ItemCode", detalle.ItemCode);
                         cmd.Parameters.AddWithValue("@ItemName", detalle.ItemName);
@@ -115,21 +115,66 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                         //cmd.Parameters.AddWithValue("@QuantityUnidadesCajas", detalle.QuantityUnidadesCajas); // No es necesario enviarlas ya que se hace calculo en el procedure.
                         cmd.ExecuteNonQuery();
                     }
-                    mensaje = "Operacion de egreso en UbicacionesLotesMaster realizado correctamente";
+                    mensaje = "Operacion de revertir ingreso en UbicacionesLotesMaster realizado correctamente";
                     icono = "success";
                 }
             }
             catch (Exception ex)
             {
-                LogHelper.RegistrarError(ex, "UbicacionesLotesMaster_D - Egreso");
-                mensaje = "Ocurrió un error al registrar un egreso en UbicacionesLotesMaster. Comuníquese con el área de Sistemas para más información.";
+                LogHelper.RegistrarError(ex, "UbicacionesLotesMaster_D - RevertirIngreso");
+                mensaje = "Ocurrió un error al registrar un revertir ingreso en UbicacionesLotesMaster. Comuníquese con el área de Sistemas para más información.";
                 icono = "error";
-                throw new Exception("Error en Egreso.", ex);
+                throw new Exception("Error en Revertir ingreso.", ex);
             }
 
             return new Helper_E { Mensaje = mensaje, IconoSweetAlert = icono };
         }
+        public Helper_E Salida(List<DetalleRequerimientos_E> salida, SqlConnection cn)
+        {
+            string mensaje, icono;
 
+            try
+            {
+                if (cn.State != ConnectionState.Open)
+                {
+                    cn.Open();
+                }
+
+                using (SqlCommand cmd = new SqlCommand("sp_MantenimientoUbicacionesLotesMaster", cn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    foreach (var detalle in salida)
+                    {
+                        cmd.Parameters.Clear();
+
+                        cmd.Parameters.AddWithValue("@TipoMantenimiento", "SALIDA");
+                        cmd.Parameters.AddWithValue("@Almacen", "RESERVA");
+                        cmd.Parameters.AddWithValue("@ItemCode", detalle.ItemCode);
+                        cmd.Parameters.AddWithValue("@ItemName", detalle.ItemName);
+                        cmd.Parameters.AddWithValue("@CodigoUbicacion", detalle.CodigoUbicacionOrigen);
+                        cmd.Parameters.AddWithValue("@BatchNum", detalle.BatchNum);
+                        cmd.Parameters.AddWithValue("@UmAlm", detalle.UmAlm);
+                        cmd.Parameters.AddWithValue("@ValorUmAlm", detalle.ValorUmAlm);
+                        cmd.Parameters.AddWithValue("@QuantityMaster", detalle.QuantityMaster);
+                        cmd.Parameters.AddWithValue("@QuantitySaldo", detalle.QuantitySaldo);
+                        //cmd.Parameters.AddWithValue("@QuantityUnidadesCajas", detalle.QuantityUnidadesCajas); // No es necesario enviarlas ya que se hace calculo en el procedure.
+                        cmd.ExecuteNonQuery();
+                    }
+                    mensaje = "Operacion de salida en UbicacionesLotesMaster realizado correctamente";
+                    icono = "success";
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.RegistrarError(ex, "UbicacionesLotesMaster_D - Salida");
+                mensaje = "Ocurrió un error al registrar una salida en UbicacionesLotesMaster. Comuníquese con el área de Sistemas para más información.";
+                icono = "error";
+                throw new Exception("Error en Salida.", ex);
+            }
+
+            return new Helper_E { Mensaje = mensaje, IconoSweetAlert = icono };
+        }
         public string BuscarUnidadAlm(string condicion, Dictionary<string, object> parametrosCondicion)
         {
             var unidadAlm = string.Empty;
