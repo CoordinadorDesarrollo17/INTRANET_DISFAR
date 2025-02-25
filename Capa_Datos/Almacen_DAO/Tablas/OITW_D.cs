@@ -26,6 +26,22 @@ namespace Capa_Datos.Almacen_DAO.Tablas
             }
 
             List<OITW_E> lista = new List<OITW_E>();
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+            string query = $@"
+        SELECT 
+            T1.""WhsCode"" AS ""Almacen"",
+            T1.""ItemCode"" AS ""SKU"",
+            T1.""OnHand"" AS ""StockDisponible"",
+            T1.""OnOrder"" AS ""StockEnOrden"",
+            T1.""IsCommited"" AS ""StockComprometido"",
+            (T1.""OnHand"" - T1.""IsCommited"") AS ""StockLibre""
+        FROM {uti.schemaHana}OITW T1
+        WHERE T1.""ItemCode"" = '{obj.ItemCode}'
+        ORDER BY T1.""WhsCode""";
+=======
+>>>>>>> e222ee29b1e5646d6a76aff220160fb8419df91d
                     string query = $@"
             SELECT 
                 T1.""ItemCode"" AS ""SKU"",
@@ -38,6 +54,10 @@ namespace Capa_Datos.Almacen_DAO.Tablas
             WHERE T1.""ItemCode"" = '{obj.ItemCode}'  
             {condWhere}
             ORDER BY T1.""WhsCode""";
+<<<<<<< HEAD
+=======
+>>>>>>> 3076d5e (Cambios en OITW)
+>>>>>>> e222ee29b1e5646d6a76aff220160fb8419df91d
 
             try
             {
@@ -51,8 +71,17 @@ namespace Capa_Datos.Almacen_DAO.Tablas
                             WhsCode = hdr.IsDBNull(0) ? string.Empty : hdr.GetString(0),
                             OnHand = hdr.IsDBNull(2) ? 0 : Math.Round(hdr.GetDecimal(2), 0),
                             OnOrder = hdr.IsDBNull(3) ? 0 : Math.Round(hdr.GetDecimal(3), 0),
+<<<<<<< HEAD
                             IsCommited = hdr.IsDBNull(4) ? 0 : Math.Round(hdr.GetDecimal(4), 0),
                             StockLibre = hdr.IsDBNull(5) ? 0 : Math.Round(hdr.GetDecimal(5), 0)
+=======
+<<<<<<< HEAD
+                            IsCommited = hdr.IsDBNull(4) ? 0 : Math.Round(hdr.GetDecimal(4), 0)
+=======
+                            IsCommited = hdr.IsDBNull(4) ? 0 : Math.Round(hdr.GetDecimal(4), 0),
+                            StockLibre = hdr.IsDBNull(5) ? 0 : Math.Round(hdr.GetDecimal(5), 0)
+>>>>>>> 3076d5e (Cambios en OITW)
+>>>>>>> e222ee29b1e5646d6a76aff220160fb8419df91d
                         };
                         lista.Add(o);
                     }

@@ -303,6 +303,22 @@ namespace Capa_Usuario.Controllers
                                 resultUbicacionesLotes = _ubicacionesLotesN.Ingreso(item, cn);
                                 if (resultUbicacionesLotes.IconoSweetAlert.Equals("error"))
                                 {
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+                                    Mensaje = "No se pudo completar la acción",
+                                    Comentario = new List<string> { resultUbicacionesLotes.Mensaje },
+                                    Icono = resultUbicacionesLotes.IconoSweetAlert
+                                });
+                            }
+                            var ubicacionLoteId = resultUbicacionesLotes.Mensaje;
+                            // 7.4 Sumar y/o Registrar en la tabla UbicacionesLotesMaster
+                            var resultUbicacionesLotesMaster = _ubicacionesLotesMasterN.Ingreso(Convert.ToInt32(ubicacionLoteId),transferenciaGet, cn);
+                            if (resultUbicacionesLotesMaster.IconoSweetAlert.Equals("error"))
+                            {
+                                return Json(new
+=======
+>>>>>>> e222ee29b1e5646d6a76aff220160fb8419df91d
                                     return Json(new
                                     {
                                         Mensaje = "No se pudo completar la acción",
@@ -315,6 +331,10 @@ namespace Capa_Usuario.Controllers
                                 // 7.4 Sumar y/o Registrar en la tabla UbicacionesLotesMaster
                                 var resultUbicacionesLotesMaster = _ubicacionesLotesMasterN.Ingreso(Convert.ToInt32(ubicacionLoteId),item, cn);
                                 if (resultUbicacionesLotesMaster.IconoSweetAlert.Equals("error"))
+<<<<<<< HEAD
+=======
+>>>>>>> 3076d5e (Cambios en OITW)
+>>>>>>> e222ee29b1e5646d6a76aff220160fb8419df91d
                                 {
                                     return Json(new
                                     {
@@ -839,7 +859,15 @@ namespace Capa_Usuario.Controllers
             if (tipoAbastecimiento != null && tipoAbastecimiento.Equals("Picking") && itemCode!=null)
             {
                 //Calcular desde SAP (Stock Total - Comprometido)  en Almacen 16 por defecto
+<<<<<<< HEAD
                 
+=======
+<<<<<<< HEAD
+
+=======
+                
+>>>>>>> 3076d5e (Cambios en OITW)
+>>>>>>> e222ee29b1e5646d6a76aff220160fb8419df91d
             }
             else
             {
