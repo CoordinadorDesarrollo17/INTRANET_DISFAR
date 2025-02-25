@@ -5,6 +5,7 @@ using Capa_Entidad.AbastecimientoInterno_ENT.Interfaces;
 using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
 using Capa_Entidad.Almacen_ENT.Tablas;
 using Capa_Entidad.Seguridad_ENT;
+using Capa_Entidad.Ventas_ENT.TablasSql;
 using Capa_Negocio.AbastecimientoInterno_NEG.TablasExternas;
 using Capa_Negocio.AbastecimientoInterno_NEG.TablasSql;
 using Capa_Usuario.Helpers;
@@ -839,8 +840,12 @@ namespace Capa_Usuario.Controllers
             int cantidadSolicitada = 0;
             if (tipoAbastecimiento != null && tipoAbastecimiento.Equals("Picking") && itemCode!=null)
             {
+                itemCode = "PORT0078";
                 //Calcular desde SAP (Stock Total - Comprometido)  en Almacen 16 por defecto
-                var busqProducto = new Capa_Negocio.Almacen_NEG.Tablas.OITW_N().ListarDetArticulosInv(new OITW_E { ItemCode = itemCode ,WhsCode="16"});
+                int busqProducto = Convert.ToInt32(new Capa_Negocio.Almacen_NEG.Tablas.OITW_N().ListarDetArticulosInv(new OITW_E { ItemCode = itemCode ,WhsCode="16"}).DefaultIfEmpty(new OITW_E { }).First().StockLibre);
+                int stockMinimoAbastec = _stockMinProdN.Obtener(itemCode).StockMinAbastecimiento;
+                int stockInternoPorSku = _ubicacionesLotesN.Obtener(itemCode).Sum(u => u.QuantityUnidadesCajas);
+                cantidadSolicitada = busqProducto - stockInternoPorSku- stockMinimoAbastec;
             }
             else
             {

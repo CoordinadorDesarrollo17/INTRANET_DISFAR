@@ -7,12 +7,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Capa_Datos.AbastecimientoInterno_DAO.TablasSql;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
 {
     public class UbicacionesLotes_N
     {
         readonly UbicacionesLotes_D datosUbicacionesL = new UbicacionesLotes_D();
+        public List<UbicacionesLotes_E> Obtener(string itemCode)
+        {
+            return datosUbicacionesL.Obtener(itemCode);
+        }
         public Helper_E Ingreso(DetalleTransferenciaReserva_E ingreso, SqlConnection cn)
         {
             return datosUbicacionesL.Ingreso(ingreso, cn);
