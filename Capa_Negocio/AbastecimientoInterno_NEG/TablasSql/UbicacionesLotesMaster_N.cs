@@ -14,9 +14,9 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
     {
         readonly UbicacionesLotesMaster_D datosUbicacionesLM = new UbicacionesLotesMaster_D();
 
-        public Helper_E Ingreso (TransferenciaReserva_E ingreso, SqlConnection cn)
+        public Helper_E Ingreso (int ubicacionLoteId, TransferenciaReserva_E ingreso, SqlConnection cn)
         {
-            return datosUbicacionesLM.Ingreso(ingreso, cn);
+            return datosUbicacionesLM.Ingreso(ubicacionLoteId,ingreso, cn);
         }
         public Helper_E RevertirIngreso(TransferenciaReserva_E ingreso, SqlConnection cn)
         {

@@ -309,8 +309,9 @@ namespace Capa_Usuario.Controllers
                                     Icono = resultUbicacionesLotes.IconoSweetAlert
                                 });
                             }
+                            var ubicacionLoteId = resultUbicacionesLotes.Mensaje;
                             // 7.4 Sumar y/o Registrar en la tabla UbicacionesLotesMaster
-                            var resultUbicacionesLotesMaster = _ubicacionesLotesMasterN.Ingreso(transferenciaGet, cn);
+                            var resultUbicacionesLotesMaster = _ubicacionesLotesMasterN.Ingreso(Convert.ToInt32(ubicacionLoteId),transferenciaGet, cn);
                             if (resultUbicacionesLotesMaster.IconoSweetAlert.Equals("error"))
                             {
                                 return Json(new
@@ -825,6 +826,30 @@ namespace Capa_Usuario.Controllers
                     Icono = "error"
                 });
             }
+        }
+        public JsonResult CalcularCantidadSolicitada(string tipoAbastecimiento, string itemCode)
+        {
+            int cantidadSolicitada = 0;
+            if (tipoAbastecimiento != null && tipoAbastecimiento.Equals("Picking") && itemCode!=null)
+            {
+                //Calcular desde SAP (Stock Total - Comprometido)  en Almacen 16 por defecto
+
+            }
+            else
+            {
+                return Json(new
+                {
+                    Mensaje = "Error en la operación",
+                    Comentario = new List<string> { "Los datos enviados son inválidos." },
+                    Icono = "error"
+                });
+            }
+            return Json(new
+            {
+                Mensaje = "Acción completada exitosamente",
+                Comentario = new List<string> { Convert.ToString(cantidadSolicitada) },
+                Icono = "success"
+            });
         }
     }
 }

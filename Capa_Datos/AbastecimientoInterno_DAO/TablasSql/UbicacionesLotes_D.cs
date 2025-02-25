@@ -64,7 +64,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                         }
                     }
 
-                    mensaje = "Operacion de ingreso en UbicacionesLotes registrado correctamente";
+                    mensaje = idGenerado.ToString();
                     icono = "success";
                 }
             }

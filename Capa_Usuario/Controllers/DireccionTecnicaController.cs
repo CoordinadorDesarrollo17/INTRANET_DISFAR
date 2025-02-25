@@ -704,15 +704,15 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-        public ActionResult DetallesArticulo(string ItemCode, int idOperation = 2502)
+        public ActionResult DetallesArticulo(string itemCode, int idOperation = 2502)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
 
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 ViewBag.Owhs = new Capa_Negocio.General_NEG.Tablas.OWHS_N();
-                ViewBag.listaOitw = new Capa_Negocio.Almacen_NEG.Tablas.OITW_N().listarDetArticulosInv(ItemCode);
-                return View(new Capa_Negocio.Almacen_NEG.Tablas.OITM_N().buscarArticulo(ItemCode));
+                ViewBag.listaOitw = new Capa_Negocio.Almacen_NEG.Tablas.OITW_N().listarDetArticulosInv(new OITW_E { ItemCode=itemCode });
+                return View(new Capa_Negocio.Almacen_NEG.Tablas.OITM_N().buscarArticulo(itemCode));
             }
             else
             {
