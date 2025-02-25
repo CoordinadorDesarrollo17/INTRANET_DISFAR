@@ -100,7 +100,7 @@
 
     <div class="row mb-4">
         <div class="col-lg-12">
-            <table id="tbl_detalle" class="dt-container dt-empty-footer table table-sm table-hover font-14" width="100%">
+            <table id="tbl_detalle" class="dt-container dt-empty-footer table table-sm table-bordered table-striped table-hover font-14" width="100%">
                 <thead class="thead-cobefar">
                     <tr>
                         <th style="width: 5%;"></th>
@@ -109,10 +109,6 @@
                         <th scope="col" class="text-center">Cantidad</th>
                         <th scope="col" class="text-center">Alm. Destino</th>
                         <th scope="col" class="text-center">Lotes</th>
-                        <th scope="col" class="text-center">Unidad Alm.</th>
-                        <th scope="col" class="text-center">Cant . MASTER</th>
-                        <th scope="col" class="text-center">Cant . Saldo</th>
-                        <th scope="col" class="text-center">Ubicación</th>
                         <th scope="col" class="text-center"></th>
                     </tr>
                 </thead>
@@ -135,12 +131,26 @@
         // ✅ Declaración de variables
         const masters = JSON.parse(`@Html.Raw(Json.Encode(ViewBag.Masters))`)
         let opcionesMasters = ''
+        const configDataTable = {
+            paging: false,          // ❌ Deshabilitar paginación
+            searching: false,       // ❌ Ocultar la barra de búsqueda
+            info: false,            // ❌ Ocultar el número de registros ("Mostrando X de Y registros")
+            ordering: false,        // ❌ Deshabilitar la opción de ordenar columnas
+            lengthChange: false,    // ❌ Ocultar el selector de cantidad de elementos por página
+            bFilter: false,         // ❌ Desactivar filtrado de DataTables
+            bSort: false,           // ❌ Desactivar ordenamiento en columnas
+            bPaginate: false,       // ❌ Desactivar paginación manualmente
+            autoWidth: false,       // ✅ Evita que DataTables ajuste el ancho de las columnas automáticamente
+            responsive: true        // ✅ Mantiene la tabla responsiva si es necesario
+        }
+
+
 
         // ✅ Funciones
         function cargarOpcionesMasters(unidadAlmSugerido) {
             opcionesMasters = ""; // Reiniciar la variable para evitar acumulación de valores previos
             masters.forEach(item => {
-                opcionesMasters += `<option value="${item.ValorUmAlm}" ${item.UmAlm === unidadAlmSugerido ? 'selected' : ''}>${item.UmAlm}</option>`;
+                opcionesMasters += `<option value="${item.ValorUmAlm}" data-umalm="${item.UmAlm}" ${item.UmAlm === unidadAlmSugerido ? 'selected' : ''}>${item.UmAlm}</option>`;
             });
 
             return opcionesMasters;
@@ -154,24 +164,67 @@
                 return;
             }
 
-            const filas = document.querySelectorAll("#tbl_copiaSap tbody tr");
-            let detalles = [];
+            const filasSolicitudTraslado = document.querySelectorAll("#tbl_copiaSap tbody tr");
+            let detallesSolicitud = [];
 
-            filas.forEach((fila) => {
-                let inputs = fila.querySelectorAll("input");
-                let detalle = {};
+            filasSolicitudTraslado.forEach((fila) => {
+                let inputs = fila.querySelectorAll("input, select");
+                let detalleSolicitud = {};
 
                 inputs.forEach(input => {
-                    let key = input.name.replace("Detalle[].", ""); // Extraer el nombre del campo
-                    detalle[key] = input.value;
+                    let name = input.name.trim();
+
+                    if (name.startsWith("solicitudTraslado.Detalle[]")) {
+                        let key = name.replace("solicitudTraslado.Detalle[].", "").trim();
+                        detalleSolicitud[key] = input.value;
+                    }
                 });
 
-                detalles.push(detalle);
+                if (Object.keys(detalleSolicitud).length > 0) detallesSolicitud.push(detalleSolicitud);
+            });
+
+            const filasTransferencia = document.querySelectorAll(".tbl_detalleLotes tbody tr");
+            let detallesTransferencia = [];
+
+            filasTransferencia.forEach((fila) => {
+                let inputs = fila.querySelectorAll("input, select");
+                let detalleTransferencia = {};
+
+                inputs.forEach(input => {
+                    let name = input.name.trim();
+
+                    if (name.startsWith("transferenciaPost.Detalle[]")) {
+                        let key = name.replace("transferenciaPost.Detalle[].", "").trim();
+
+                        if (key === "ValorUmAlm") {
+                            let selectedOption = input.options[input.selectedIndex];
+                            detalleTransferencia[key] = input.value;
+                            detalleTransferencia["UmAlm"] = selectedOption.dataset.umalm || ""; // Evita valores undefined
+                        } else {
+                            detalleTransferencia[key] = input.value;
+                        }
+                    }
+                });
+
+                if (Object.keys(detalleTransferencia).length > 0) detallesTransferencia.push(detalleTransferencia);
             });
 
             const formData = new FormData(form);
             const jsonData = Object.fromEntries(formData.entries());
-            jsonData.Detalle = detalles
+
+            const payload = {
+                solicitudTraslado: {
+                    ...jsonData, // Otros datos generales del formulario
+                    Detalle: detallesSolicitud
+                },
+                transferenciaPost: {
+                    ...jsonData,
+                    Detalle: detallesTransferencia
+                }
+            };
+
+            console.log(payload)
+            return;
 
             try {
                 const response = await fetch("/AbastecimientoInterno/RegistrarTransferenciaDeStock", {
@@ -179,7 +232,7 @@
                     headers: {
                         "Content-Type": "application/json"
                     },
-                    body: JSON.stringify(jsonData)
+                    body: JSON.stringify(payload)
                 });
 
                 if (!response.ok) {
@@ -193,7 +246,6 @@
             }
         }
 
-        // ✅ Función principal para buscar la solicitud
         async function buscarSolicitud() {
             let docNum = document.querySelector('#DocNum').value.trim();
 
@@ -256,47 +308,26 @@
             }
         }
 
-        // ✅ Construcción de la tabla de detalle
+        // Construcción de la tabla de detalle
         function construirDetalleSolicitudTraslado(detalle) {
             let tbody = ''
 
-
             for (const itemCode in detalle) {
                 let key = detalle[itemCode]
-                let datosDetalle = {}
-                datosDetalle = {
-                    itemCode: key.ItemCode,
-                    cantidadTotal: key.CantidadTotalPorSKU,
-                    cantidadMasterId: `det_cantidadMaster_${key.ItemCode}`,
-                    cantidadSaldoId: `det_cantidadSaldo_${key.ItemCode}`
-                }
 
-                tbody += `<tr data-producto="${key.ItemCode}">
-                                        <td class="details-control"><button class="btn btn-sm btn-cobefar-2"><i class="bi bi-chevron-down"></i></button></td>
+                tbody += `<tr data-producto="${key.ItemCode}" class="fila-detalle">
+                                        <td class="details-control">
+                                            <button id="btn_chevron_${key.ItemCode}" class="btn btn-sm btn-cobefar-2"><i class="bi bi-chevron-down"></i></button>
+                                        </td>
                                         <td class="text-center">${key.ItemCode}</td>
                                         <td>${key.ItemName}</td>
                                         <td class="text-center">${key.CantidadTotalPorSKU}</td>
-                                        <td class="text-center"><input type="text" class="form-control text-center cls-readonly" value="RESERVA" readonly></td>
+                                        <td class="text-center"><div class="d-flex justify-content-center"><input type="text" class="form-control text-center cls-readonly" value="RESERVA" readonly style="width: 140px"></div></td>
                                         <td class="text-center">${key.DetalleLotes.map(l => l.BatchNum).join(', ')}</td>
                                         <td class="text-center">
-                                            <select id="det_undMaster_${key.ItemCode}" class="cls-limpiarItem_${key.ItemCode} form-select" data-detalle='${JSON.stringify(datosDetalle)}' onchange="calcularCantidadMasterSaldo(this.value, JSON.parse(this.getAttribute('data-detalle')))">
-                                                <option value="">Seleccione</option>
-                                                ${cargarOpcionesMasters(key.UnidadAlmSugerido)}
-                                            </select>
-                                        </td>
-                                        <td class="text-center">
-                                            <input type="text" id="det_cantidadMaster_${key.ItemCode}" class="form-control text-center cls-num cls-readonly cls-limpiarItem_${key.ItemCode}" readonly>
-                                            </td>
-                                        <td class="text-center">
-                                            <input type="text" id="det_cantidadSaldo_${key.ItemCode}" class="form-control text-center cls-num cls-readonly cls-limpiarItem_${key.ItemCode}" readonly>
-                                            </td>
-                                        <td class="text-center">
-                                            <select id="det_ubicacion_${key.ItemCode}" class="form-select cls-limpiarItem_${key.ItemCode}" onfocus="cargarUbicaciones('RESERVA', '${key.ItemCode}', 'det_ubicacion_${key.ItemCode}')">
-                                                <option>Seleccione</option>
-                                            </select>
-                                        </td>
-                                        <td class="text-center">
-                                            <button class="btn btn-danger" onclick="limpiarValoresItem('cls-limpiarItem_${key.ItemCode}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Borrar valores de este ítem"><i class="bi bi-eraser-fill"></i></button>
+                                            <button class="btn btn-danger" onclick="limpiarValoresItem('cls-limpiarItem_${key.ItemCode}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Borrar valores de este artículo">
+                                                <i class="bi bi-eraser-fill"></i>
+                                            </button>
                                         </td>
                                     </tr>`
             }
@@ -305,153 +336,226 @@
             inicializarSlimSelectsPorClase('cls-select')
             $('[data-bs-toggle="tooltip"]').tooltip()
 
-            // ✅ Expansión de Nivel 2: Lotes dentro del Producto
+            let table = $('#tbl_detalle').DataTable(configDataTable)
+
             $('#tbl_detalle tbody').on('click', 'td.details-control', function () {
-                let tr = $(this).closest('tr');
-                let row = $('#tbl_detalle').DataTable().row(tr);
-                let productoID = tr.data('producto');
-                let button = $(this).find('button i');
+                var tr = $(this).closest('tr');
+                var row = table.row(tr);
+                var productoID = tr.data('producto');
+                var button = $(this).find('button i');
 
                 if (row.child.isShown()) {
+                    // Cerrar fila
                     row.child.hide();
                     button.removeClass('bi-chevron-up').addClass('bi-chevron-down');
                 } else {
-                    let lotesTableHtml = formatLotes(detalle[productoID]);
-                    row.child(lotesTableHtml).show();
+                    // Abrir y mostrar lotes
+                    row.child(formatLotes(detalle[productoID])).show();
                     button.removeClass('bi-chevron-down').addClass('bi-chevron-up');
-                    inicializarSlimSelectsPorClase('cls-select');
-
-                    let configDataTable = {
-                        paging: false,          // ❌ Deshabilitar paginación
-                        searching: false,       // ❌ Ocultar la barra de búsqueda
-                        info: false,            // ❌ Ocultar el número de registros ("Mostrando X de Y registros")
-                        ordering: false,        // ❌ Deshabilitar la opción de ordenar columnas
-                        lengthChange: false,    // ❌ Ocultar el selector de cantidad de elementos por página
-                        bFilter: false,         // ❌ Desactivar filtrado de DataTables
-                        bSort: false,           // ❌ Desactivar ordenamiento en columnas
-                        bPaginate: false,       // ❌ Desactivar paginación manualmente
-                        autoWidth: false,       // ✅ Evita que DataTables ajuste el ancho de las columnas automáticamente
-                        responsive: true        // ✅ Mantiene la tabla responsiva si es necesario
-                    }
-
-                    $('#tbl_detalleLotes tbody').on('click', 'td.lotes-control', function (event) {
-                        let tr2 = $(this).closest('tr'); // Obtener la fila actual
-                        let row2 = $('#tbl_detalleLotes').DataTable(configDataTable).row(tr2); // Obtener la fila de DataTable
-                        let lote = tr2.data('lote'); // Obtener el identificador del lote
-                        let button2 = $(this).find('button i');
-
-                        if (row2.child.isShown()) {
-                            row2.child.hide();
-                            button2.removeClass('bi-chevron-up').addClass('bi-chevron-down');
-                        } else {
-                            button2.removeClass('bi-chevron-down').addClass('bi-chevron-up');
-                            inicializarSlimSelectsPorClase('cls-select');
-                        }
-                    });
-
-                    // Evento para clonar filas dentro de `#tbl_detalleLotes`
-                    $('#tbl_detalleLotes tbody').on('click', '.btn-cobefar', function () {
-                        let filaOriginal = $(this).closest('tr'); // Obtener la fila original
-                        let filaClonada = filaOriginal.clone(); // Clonar la fila completa
-
-                        // Modificar IDs para evitar duplicados
-                        actualizarIDs(filaClonada);
-
-                        // Insertar la fila clonada después de la fila original
-                        filaOriginal.after(filaClonada);
-
-                        if ($.fn.DataTable.isDataTable("#tbl_detalleLotes")) {
-                            $("#tbl_detalleLotes").DataTable().destroy();
-                        }
-
-                        ('#tbl_detalleLotes').DataTable(configDataTable)
-                    });
-
-                    // ✅ Función para actualizar IDs y evitar duplicados
-                    function actualizarIDs(fila) {
-                        // Generar un solo uniqueID por fila para mantener consistencia
-                        let uniqueID = Math.floor(Math.random() * 1000);
-
-                        fila.find("[id]").each(function () {
-                            let baseID = $(this).attr("id");
-                            let nuevoID = baseID + "_clone_" + uniqueID; // Reutiliza el mismo uniqueID en toda la fila
-                            $(this).attr("id", nuevoID);
-                        });
-
-                        // Si el elemento tiene la clase cls-detMaster, actualizar sus data-attributes relacionados
-                        fila.find(".cls-detMaster").each(function () {
-                            let baseIdCantMaster = $(this).attr("data-idcantmaster")
-                            let baseIdCantSaldo = $(this).attr("data-idcantsaldo")
-
-                            let nuevoIdCantMaster = baseIdCantMaster + "_clone_" + uniqueID
-                            let nuevoIdCantSaldo = baseIdCantSaldo + "_clone_" + uniqueID
-
-                            $(this).attr("data-idcantmaster", nuevoIdCantMaster)
-                            $(this).attr("data-idcantsaldo", nuevoIdCantSaldo)
-                        });
-
-                        // Actualizar `data-detalle` manteniendo el mismo uniqueID
-                        fila.find("[data-detalle]").each(function () {
-                            let datosDetalle = JSON.parse($(this).attr("data-detalle"))
-                            datosDetalle.itemCode = datosDetalle.itemCode + "_clone_" + uniqueID
-                            $(this).attr("data-detalle", JSON.stringify(datosDetalle))
-                        });
-
-                        // Eliminar el botón .btn-cobefar de la fila clonada
-                        fila.find(".btn-cobefar").remove()
-                    }
-
-
                 }
             });
+
+            $('.fila-detalle').each(function (index) {
+                let productoID = $(this).data('producto');
+
+                if (detalle[productoID] && detalle[productoID].DetalleLotes.length === 1) {
+                    document.querySelector(`#btn_chevron_${productoID}`).click();
+                }
+            });
+
+
+            // ✅ Expansión de Nivel 2: Lotes dentro del Producto
+            //$('#tbl_detalle tbody').on('click', 'td.details-control', function () {
+            //    if ($.fn.DataTable.isDataTable("#tbl_detalle")) {
+            //        $("#tbl_detalle").DataTable().destroy();
+            //    }
+
+            //    var tr = $(this).closest('tr');
+            //    var row = $('#tbl_detalle').DataTable(configDataTable).row(tr);
+            //    var productoID = tr.data('producto');
+            //    var button = $(this).find('button i');
+
+            //    if (row.child.isShown()) {
+            //        // Cerrar fila
+            //        row.child.hide();
+            //        button.removeClass('bi-chevron-up').addClass('bi-chevron-down');
+            //    } else {
+            //        // Abrir y mostrar lotes
+            //        row.child(formatLotes(productoID)).show();
+            //        button.removeClass('bi-chevron-down').addClass('bi-chevron-up');
+            //    }
+            //});
+
+
+
+
+            //$('#tbl_detalle tbody').on('click', 'td.details-control', function () {
+
+            //    if ($.fn.DataTable.isDataTable("#tbl_detalle")) {
+            //        $("#tbl_detalle").DataTable().destroy();
+            //    }
+
+            //    let tr = $(this).closest('tr');
+            //    let row = $('#tbl_detalle').DataTable(configDataTable).row(tr);
+            //    let productoID = tr.data('producto');
+            //    let button = $(this).find('button i');
+
+            //    if (row.child.isShown()) {
+            //        row.child.hide();
+            //        button.removeClass('bi-chevron-up').addClass('bi-chevron-down');
+            //    } else {
+            //        let lotesTableHtml = formatLotes(detalle[productoID]);
+            //        row.child(lotesTableHtml).show();
+            //        button.removeClass('bi-chevron-down').addClass('bi-chevron-up');
+            //        inicializarSlimSelectsPorClase('cls-select');
+
+            //        $('.tbl_detalleLotes tbody').on('click', 'td.lotes-control', function (event) {
+            //            let tr2 = $(this).closest('tr'); // Obtener la fila actual
+            //            let row2 = $('.tbl_detalleLotes').DataTable(configDataTable).row(tr2); // Obtener la fila de DataTable
+            //            let button2 = $(this).find('button i');
+
+            //            if (row2.child.isShown()) {
+            //                row2.child.hide();
+            //                button2.removeClass('bi-chevron-up').addClass('bi-chevron-down');
+            //            } else {
+            //                button2.removeClass('bi-chevron-down').addClass('bi-chevron-up');
+            //                inicializarSlimSelectsPorClase('cls-select');
+            //            }
+            //        });
+
+            //        // Evento para clonar filas dentro de `#tbl_detalleLotes`
+            //        $('.tbl_detalleLotes tbody').on('click', '.btn-cobefar', function () {
+            //            let filaOriginal = $(this).closest('tr'); // Obtener la fila original
+            //            let filaClonada = filaOriginal.clone(); // Clonar la fila completa
+
+            //            // Modificar IDs para evitar duplicados
+            //            actualizarIDs(filaClonada);
+
+            //            // Insertar la fila clonada después de la fila original
+            //            filaOriginal.after(filaClonada);
+
+            //            if ($.fn.DataTable.isDataTable(".tbl_detalleLotes")) {
+            //                $(".tbl_detalleLotes").DataTable().clear().destroy(); // Limpia datos antes de destruir
+            //            }
+
+            //            $('.tbl_detalleLotes').DataTable(configDataTable)
+            //        });
+
+            //        // ✅ Función para actualizar IDs y evitar duplicados
+            //        function actualizarIDs(fila) {
+            //            // Generar un solo uniqueID por fila para mantener consistencia
+            //            let uniqueID = Math.floor(Math.random() * 1000);
+
+            //            fila.find("[id]").each(function () {
+            //                let baseID = $(this).attr("id");
+            //                let nuevoID = baseID + "_clone_" + uniqueID; // Reutiliza el mismo uniqueID en toda la fila
+            //                $(this).attr("id", nuevoID);
+            //            });
+
+            //            // Si el elemento tiene la clase cls-detMaster, actualizar sus data-attributes relacionados
+            //            fila.find(".cls-detMaster").each(function () {
+            //                let baseIdCantMaster = $(this).attr("data-idcantmaster")
+            //                let baseIdCantSaldo = $(this).attr("data-idcantsaldo")
+
+            //                let nuevoIdCantMaster = baseIdCantMaster + "_clone_" + uniqueID
+            //                let nuevoIdCantSaldo = baseIdCantSaldo + "_clone_" + uniqueID
+
+            //                $(this).attr("data-idcantmaster", nuevoIdCantMaster)
+            //                $(this).attr("data-idcantsaldo", nuevoIdCantSaldo)
+            //            });
+
+            //            // Actualizar `data-detalle` manteniendo el mismo uniqueID
+            //            fila.find("[data-detalle]").each(function () {
+            //                let datosDetalle = JSON.parse($(this).attr("data-detalle"))
+            //                datosDetalle.itemCode = datosDetalle.itemCode + "_clone_" + uniqueID
+            //                $(this).attr("data-detalle", JSON.stringify(datosDetalle))
+            //            });
+
+            //            // Eliminar el botón .btn-cobefar de la fila clonada
+            //            fila.find(".btn-cobefar").remove()
+
+            //            fila.find("select[data-idloteubicacion]").each(function () {
+            //                let baseDataId = $(this).attr("data-idloteubicacion");
+            //                let newDataId = baseDataId + "_clone_" + uniqueID;
+            //                $(this).attr("data-idloteubicacion", newDataId);
+            //            });
+
+            //            // **ACTUALIZAR `onfocus` PARA MANTENER EL NUEVO `dataset`**
+            //            fila.find("[onfocus]").each(function () {
+            //                let onfocusAttr = $(this).attr("onfocus");
+
+            //                // Verificar si el onfocus contiene "this.dataset"
+            //                if (onfocusAttr.includes("this.dataset")) {
+            //                    let updatedOnfocus = onfocusAttr; // No necesitamos modificarlo, ya que apunta al dataset del propio elemento
+            //                    $(this).attr("onfocus", updatedOnfocus);
+            //                }
+            //            });
+            //        }
+
+            //    }
+            //});
+
+            // Abrir automáticamente tabla de lotes donde el producto tenga solo un único lote
+
         }
 
         // 2do Nivel
         function formatLotes(articulo) {
-            let tableHtml = `<div class="d-flex justify-content-center"><table id="tbl_detalleLotes" class="table table-sm table-bordered table-hover subtable w-75">
-                                            <thead class="table-secondary">
-                                                <tr>
-                                                    <th scope="col" class="text-center">Lote</th>
-                                                    <th scope="col" class="text-center">Fecha de Vencimiento</th>
-                                                    <th scope="col" class="text-center">Stock UNIDADES</th>
-                                                    <th scope="col" class="text-center">Unidad MASTER</th>
-                                                    <th scope="col" class="text-center">Cantidad en MASTER</th>
-                                                    <th scope="col" class="text-center">Cantidad en SALDO</th>
-                                                    <th scope="col" class="text-center">Ubicación</th>
-                                                    <th scope="col" style="width: 5%;"></th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>`
+            let tableHtml = `<div class="d-flex justify-content-center"><table id="tbl_detalleLotes_${articulo.ItemCode}" class="table table-sm table-bordered table-hover subtable w-75 tbl_detalleLotes">
+                            <thead class="table-success">
+                                <tr>
+                                    <th scope="col" class="text-center" style="width: 100">Lote</th>
+                                    <th scope="col" class="text-center" style="width: 200">Fecha de Vencimiento</th>
+                                    <th scope="col" class="text-center" style="width: 200">Stock UNIDADES</th>
+                                    <th scope="col" class="text-center" style="width: 200">Unidad MASTER</th>
+                                    <th scope="col" class="text-center style="width: 200"">Cantidad en MASTER</th>
+                                    <th scope="col" class="text-center" style="width: 200">Cantidad en SALDO</th>
+                                    <th scope="col" class="text-center" style="width: 200">Ubicación</th>
+                                    <th scope="col" style="width: 5%;"></th>
+                                </tr>
+                            </thead>
+                            <tbody>`
 
             articulo.DetalleLotes.forEach(item => {
-                let datosDetalle = {}
-                datosDetalle = {
-                    itemCode: articulo.ItemCode,
-                    cantidadTotal: item.CantidadTotalPorSKUyLote,
-                    cantidadMasterId: `lote_cantidadMaster_${item.BatchNum}`,
-                    cantidadSaldoId: `lote_cantidadSaldo_${item.BatchNum}`
-                }
-
                 tableHtml += `<tr data-lote="${item.BatchNum}">
-                                                <td class="text-center">${item.BatchNum}</td>
-                                                <td class="text-center">${item.FechaVencimiento}</td>
-                                                <td class="text-center"><input type="text" class="form-control" value="${item.CantidadTotalPorSKUyLote}"></td>
-                                                 <td scope="col" class="text-center align-middle">
-                                                     <select id="lote_undMaster_${item.BatchNum}" data-idcantmaster="lote_cantidadMaster_${item.BatchNum}" data-idcantsaldo="lote_cantidadSaldo_${item.BatchNum}" data-cantidadtotal="${item.CantidadTotalPorSKUyLote}"
-                                                        class="form-select cls-detMaster cls-limpiarItem_${articulo.ItemCode}" onchange="calcularCantidadMasterSaldo(this.value, this.dataset)">
-                                                         <option>Seleccione</<option>
-                                                         ${opcionesMasters}
-                                                     </select>
-                                                 </td>
-                                                <td scope="col" class="text-center"><div class="mx-auto w-75"><input type="text" id="lote_cantidadMaster_${item.BatchNum}" class="form-control text-center cls-num cls-readonly cls-limpiarItem_${articulo.ItemCode}" readonly></div></td>
-                                                 <td scope="col" class="text-center"><div class="mx-auto w-75"><input type="text" id="lote_cantidadSaldo_${item.BatchNum}" class="form-control text-center cls-num cls-readonly cls-limpiarItem_${articulo.ItemCode}" readonly></div></td>
-                                                <td class="text-center">
-                                                    <select id="ubicacion_${item.BatchNum}" class="form-select cls-limpiarItem_${articulo.ItemCode}">
-                                                        <option>Seleccione</option>
-                                                    </select>
-                                                </td>
-                                                <td class="lotes-control text-center"><button class="btn btn-sm btn-cobefar"><i class="bi bi-plus-lg"></i></button></td>
-                                            </tr>`
+                                <td class="text-center">
+                                    <input type="hidden" name="transferenciaPost.Detalle[].ItemCode" value="${articulo.ItemCode}" />
+                                    <input type="hidden" name="transferenciaPost.Detalle[].ItemName" value="${articulo.ItemName}" />
+                                    <input type="hidden" name="transferenciaPost.Detalle[].BatchNum" value="${item.BatchNum}" />${item.BatchNum}
+                                </td>
+                                <td class="text-center">
+                                    <input type="hidden" name="transferenciaPost.Detalle[].FechaAdmision" value="${item.FechaAdmision}" />
+                                    <input type="hidden" name="transferenciaPost.Detalle[].FechaVencimiento" value="${item.FechaVencimiento}" />${item.FechaVencimiento}
+                                </td>
+                                <td class="text-center">
+                                    <input type="text" id="lote_quantityUnidades_${item.BatchNum}" name="transferenciaPost.Detalle[].QuantityUnidadesCajas" class="form-control text-center cls-num cls-limpiarItem_${articulo.ItemCode}" value="${item.CantidadTotalPorSKUyLote}"
+                                    data-idcantmaster="lote_cantidadMaster_${item.BatchNum}" data-idcantsaldo="lote_cantidadSaldo_${item.BatchNum}" data-cantidadtotal="${item.CantidadTotalPorSKUyLote}" 
+                                    data-idundmaster="lote_undMaster_${item.BatchNum}" oninput="calcularStockUnidades(this.value, this.dataset)">
+                                </td>
+                                 <td scope="col" class="text-center align-middle">
+                                     <select id="lote_undMaster_${item.BatchNum}" data-idcantmaster="lote_cantidadMaster_${item.BatchNum}" data-idcantsaldo="lote_cantidadSaldo_${item.BatchNum}" data-cantidadtotal="${item.CantidadTotalPorSKUyLote}"
+                                        data-idquantityunidades ="lote_quantityUnidades_${item.BatchNum}"
+                                        name="transferenciaPost.Detalle[].ValorUmAlm" class="form-select cls-detMaster cls-limpiarItem_${articulo.ItemCode}" onchange="calcularCantidadMasterSaldo(this.value, this.dataset)">
+                                         <option value="">Seleccione</<option>
+                                        ${cargarOpcionesMasters(articulo.UnidadAlmSugerido)}
+                                     </select>
+                                 </td>
+                                <td scope="col" class="text-center">
+                                    <div class="mx-auto w-75">
+                                        <input type="text" id="lote_cantidadMaster_${item.BatchNum}" name="transferenciaPost.Detalle[].QuantityMaster" class="form-control text-center cls-num cls-readonly cls-limpiarItem_${articulo.ItemCode}" readonly>
+                                    </div>
+                                </td>
+                                 <td scope="col" class="text-center">
+                                    <div class="mx-auto w-75"><input type="text" id="lote_cantidadSaldo_${item.BatchNum}" name="transferenciaPost.Detalle[].QuantitySaldo" class="form-control text-center cls-num cls-readonly cls-limpiarItem_${articulo.ItemCode}" readonly></div>
+                                </td>
+                                <td class="text-center">
+                                    <select id="lote_ubicacion_${item.BatchNum}" name="transferenciaPost.Detalle[].CodigoUbicacion" data-idloteubicacion="lote_ubicacion_${item.BatchNum}" data-itemcode="${articulo.ItemCode}"
+                                    class="form-select cls-limpiarItem_${articulo.ItemCode}" onfocus="cargarUbicaciones('RESERVA', this.dataset)" style="width: 200px">
+                                        <option value="">Seleccione</option>
+                                    </select>
+                                </td>
+                                <td class="lotes-control text-center"><button class="btn btn-sm btn-cobefar"><i class="bi bi-plus-lg"></i></button></td>
+                            </tr>`
             });
 
             tableHtml += '</tbody></table></div>'
@@ -474,14 +578,14 @@
 
                 key.DetalleLotes.forEach(item => {
                     tbody += ` <tr>
-                                             <td scope="col"><input type="text" name="Detalle[].ItemCode" value="${key.ItemCode}"></td>
-                                             <td scope="col"><input type="text" name="Detalle[].ItemName" value="${key.ItemName}"></td>
-                                             <td scope="col"><input type="text" name="Detalle[].BatchNum" value="${item.BatchNum}"></td>
-                                             <td scope="col"><input type="text" name="Detalle[].InDate" value="${item.FechaAdmision}"></td>
-                                             <td scope="col"><input type="text" name="Detalle[].ExpDate" value="${item.FechaVencimiento}"></td>
-                                            <td scope="col"><input type="text" name="Detalle[].QuantityCajas" value="${item.CantidadTotalPorSKUyLote}"></td>
-                                            <td scope="col"><input type="text" name="Detalle[].FromWhsCode" value="${key.AlmacenOrigen}"></td>
-                                            <td scope="col"><input type="text" name="Detalle[].ToWhsCode" value="${key.AlmacenDestino}"></td>
+                                             <td scope="col"><input type="text" name="solicitudTraslado.Detalle[].ItemCode" value="${key.ItemCode}"></td>
+                                             <td scope="col"><input type="text" name="solicitudTraslado.Detalle[].ItemName" value="${key.ItemName}"></td>
+                                             <td scope="col"><input type="text" name="solicitudTraslado.Detalle[].BatchNum" value="${item.BatchNum}"></td>
+                                             <td scope="col"><input type="text" name="solicitudTraslado.Detalle[].InDate" value="${item.FechaAdmision}"></td>
+                                             <td scope="col"><input type="text" name="solicitudTraslado.Detalle[].ExpDate" value="${item.FechaVencimiento}"></td>
+                                            <td scope="col"><input type="text" name="solicitudTraslado.Detalle[].QuantityCajas" value="${item.CantidadTotalPorSKUyLote}"></td>
+                                            <td scope="col"><input type="text" name="solicitudTraslado.Detalle[].FromWhsCode" value="${key.AlmacenOrigen}"></td>
+                                            <td scope="col"><input type="text" name="solicitudTraslado.Detalle[].ToWhsCode" value="${key.AlmacenDestino}"></td>
                                         </tr>`
                 })
             }
@@ -489,7 +593,10 @@
             document.querySelector('#tbl_copiaSap tbody').innerHTML = tbody
         }
 
-        async function cargarUbicaciones(almacen, itemCode, idUbicacion) {
+        async function cargarUbicaciones(almacen, data) {
+            let itemCode = data.itemcode
+            let idUbicacion = data.idloteubicacion
+
             try {
                 const response = await fetch("/AbastecimientoInterno/BuscarUbicaciones", {
                     method: 'POST',
@@ -517,44 +624,46 @@
             }
         }
 
-        function calcularCantidadMasterSaldo(valorSelectMaster, data) {
-            let cantidadMaster = Math.floor(data.cantidadtotal / valorSelectMaster)
-            let cantidadSaldo = data.cantidadtotal % valorSelectMaster
-            //let camposALimpiar = document.querySelectorAll(`.${obj.claseCampos}`)
+        function calcularStock(quantityUnidades, valorDivisor, data) {
+            let unidadesMaster = parseFloat(document.querySelector(`#${data.idundmaster}`)?.value) || 1;
+            let cantidadTotal = data.cantidadtotal || 0;
 
-            document.querySelector(`#${data.idcantmaster}`).value = cantidadMaster
-            document.querySelector(`#${data.idcantsaldo}`).value = cantidadSaldo
+            // Si el divisor no es válido, asignar 0
+            let divisor = isNaN(valorDivisor) || valorDivisor <= 0 ? unidadesMaster : valorDivisor;
+
+            // Validar que la cantidad ingresada no supere el stock
+            if (Number(quantityUnidades) > Number(cantidadTotal)) {
+                Swal.fire('La cantidad ingresada no debe superar el stock de unidades.');
+                return;
+            }
+
+            // Calcular cantidad master y saldo
+            let cantidadMaster = Math.floor(quantityUnidades / divisor);
+            let cantidadSaldo = quantityUnidades % divisor;
+
+            // Asignar valores a los inputs
+            document.querySelector(`#${data.idcantmaster}`).value = cantidadMaster;
+            document.querySelector(`#${data.idcantsaldo}`).value = cantidadSaldo;
+        }
+
+        function calcularStockUnidades(quantityUnidades, data) {
+            calcularStock(quantityUnidades, null, data);
+        }
+
+        function calcularCantidadMasterSaldo(valorSelectMaster, data) {
+            let quantityUnidades = parseFloat(document.querySelector(`#${data.idquantityunidades}`)?.value) || 0;
+            calcularStock(quantityUnidades, valorSelectMaster, data);
         }
 
         document.addEventListener('DOMContentLoaded', function () {
             permitirSoloNumeros('DocNum')
             document.getElementById("btn_transferir").addEventListener("click", realizarTransferencia)
-
-
-
-            function actualizarIDs(fila) {
-                let nuevosIDs = {}; // Objeto para almacenar nuevos IDs
-
-                fila.querySelectorAll("[id]").forEach(elemento => {
-                    let nuevoID = elemento.id + "_clone_" + Math.floor(Math.random() * 1000); // Genera un ID único
-                    nuevosIDs[elemento.id] = nuevoID; // Guarda el nuevo ID
-                    elemento.id = nuevoID; // Asigna el nuevo ID al elemento
-                });
-
-                // ✅ Actualizar atributos `for` de labels, `data-*` u otros atributos si es necesario
-                fila.querySelectorAll("[data-detalle]").forEach(elemento => {
-                    let datosDetalle = JSON.parse(elemento.getAttribute("data-detalle"));
-                    datosDetalle.itemCode += "_clone"; // Cambia el itemCode o algún otro identificador
-                    elemento.setAttribute("data-detalle", JSON.stringify(datosDetalle)); // Reasigna el JSON actualizado
-                });
-            }
         });
 
         function limpiarValoresItem(claseItemCode) {
             let elementos = document.querySelectorAll(`.${claseItemCode}`)
 
             elementos.forEach(element => {
-                console.log(element);
                 if (element) {
                     element.value = '';
                 }
