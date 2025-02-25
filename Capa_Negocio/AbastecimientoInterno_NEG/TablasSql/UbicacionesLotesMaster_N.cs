@@ -18,11 +18,14 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         {
             return datosUbicacionesLM.Ingreso(ingreso, cn);
         }
-        public Helper_E Egreso(TransferenciaReserva_E egreso, SqlConnection cn)
+        public Helper_E RevertirIngreso(TransferenciaReserva_E ingreso, SqlConnection cn)
         {
-            return datosUbicacionesLM.Egreso(egreso, cn);
+            return datosUbicacionesLM.RevertirIngreso(ingreso, cn);
         }
-
+        public Helper_E Salida(List<DetalleRequerimientos_E> salida, SqlConnection cn)
+        {
+            return datosUbicacionesLM.Salida(salida, cn);
+        }
         public string BuscarUnidadAlm(UbicacionesLotesMaster_E filtros = null, StringBuilder condicion = null, Dictionary<string, object> parametros = null)
         {
             condicion = new StringBuilder();

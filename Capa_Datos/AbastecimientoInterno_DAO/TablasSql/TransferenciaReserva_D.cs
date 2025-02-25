@@ -54,8 +54,10 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                         cmd.ExecuteNonQuery();
 
                         int idGenerado = (int)idGeneradoParam.Value;
-
-                        transaction.Commit();
+                        if (idGenerado > 0)
+                        {
+                            transaction.Commit();
+                        }
 
                         transferencia.Id = idGenerado;
                         return transferencia;
