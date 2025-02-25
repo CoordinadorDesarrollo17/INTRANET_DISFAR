@@ -15,7 +15,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
         readonly Utilitarios uti = new Utilitarios();
         readonly DBHelper db = new DBHelper();
         //Operacion desde transaccion ingreso en Kardex que suma la cantidad disponible  inserta un nuevo registro de ItemCode, Almacen, CodigoUbicacion y Lote.
-        public Helper_E Ingreso(TransferenciaReserva_E ingreso, SqlConnection cn)
+        public Helper_E Ingreso(DetalleTransferenciaReserva_E detalle, SqlConnection cn)
         {
             string mensaje, icono;
 
@@ -31,8 +31,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     cmd.CommandType = CommandType.StoredProcedure;
 
                     int idGenerado = 0;
-                    foreach (var detalle in ingreso.Detalle)
-                    {
+                    
                         cmd.Parameters.Clear();
 
                         cmd.Parameters.AddWithValue("@TipoMantenimiento", "INGRESO");
@@ -62,8 +61,12 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                             throw new Exception("Error en Ingreso.");
 
                         }
+<<<<<<< HEAD
                     }
 
+=======
+                    
+>>>>>>> 3076d5e (Cambios en OITW)
                     mensaje = idGenerado.ToString();
                     icono = "success";
                 }
