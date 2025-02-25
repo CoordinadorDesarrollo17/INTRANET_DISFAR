@@ -2,20 +2,15 @@
 @{
     ViewBag.Title = "Formato de devolución Simple";
     Layout = null;
-
     string DireccionAlm = string.Empty;
     List<OWHS_E> Almacenes = (List<OWHS_E>)ViewBag.Almacenes;
-
     if (Almacenes != null && Almacenes.Count >= 1)
     {
         DireccionAlm = $"{Almacenes[0].Street} {Almacenes[0].StreetNo} ({Almacenes[0].Block} - {Almacenes[0].City} - {Almacenes[0].County})";
     }
-
     int num = 1;
-
     string levConformidad = Request["LevConformidad"];
 }
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -23,34 +18,25 @@
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/x-icon" href="~/Content/img/favicon-cobefar.png">
     <link href="~/Content/css/bootstrap.css" rel="stylesheet" type="text/css" />
-
     <style>
         thead {
             display: table-header-group
         }
-
         tfoot {
             display: table-row-group
         }
-
         tr {
             page-break-inside: avoid
         }
-
-
-
         .cabecera1 {
             background-color: #C6E0B4;
         }
-
         .cabecera2 {
             background-color: #F8CBAD;
         }
-
         .f12 {
             font-size: 12px;
         }
-
         @@media print {
             body {
                 height: 595px;
@@ -59,8 +45,6 @@
                 page-break-after: auto;
                 transform: scale(0.90);
             }
-
-
             .landscape {
                 page: rotated;
                 transform-origin: top left;
@@ -81,13 +65,9 @@
                     </tr>
                     <tr>
                         <td class=""></td>
-
                     </tr>
-
                 </table>
-
             </div>
-
             <div class="col-6 d-flex justify-content-end">
                 <table>
                     <tr>
@@ -107,30 +87,23 @@
                 </table>
             </div>
         </div>
-
         <div class="row mt-1">
             <div class="col-12 d-flex justify-content-center">
                 <h1>FORMATO DE DEVOLUCIÓN</h1>
             </div>
         </div>
-
-
         <div class="mt-2">
             <span class="font-weight-bold">RUC: </span>@Model.CardCode
         </div>
-
         <div class="mt-2">
             <span class="font-weight-bold">RAZÓN SOCIAL: </span>@Model.CardName
         </div>
-
         <div class="mt-2">
             <span class="font-weight-bold">DIRECCIÓN ALMACÉN: </span>@DireccionAlm
         </div>
-
         <div class="mt-2">
             <span class="font-weight-bold">FECHA DE DEVOLUCIÓN: </span>@Model.FechaDevolucion
         </div>
-
         <div id="div_tblDetalle" class="mt-4 ">
             <table class="table-bordered cls-table" width="100%">
                 <thead>
@@ -157,7 +130,6 @@
                         {
                             string obs = string.Empty;
                             obs = (m.Motivo.Equals(7) || m.Motivo.Equals(15)) ? m.Observacion : m.DescSubmotivo;            // Solo para los motivos "Producto no solicitado" y "Lote infiltrado" se mostrará el campo "Observación"
-
                             <tr>
                                 <th class="text-center border-dark font-weight-normal f12">@m.ItemCode</th>
                                 <th class="text-center border-dark font-weight-normal f12">@m.ItemName</th>
@@ -167,7 +139,6 @@
                                     // Convertimos Quantity a decimal para comprobar si tiene decimales
                                     decimal quantity = Convert.ToDecimal(m.Quantity);
                                     string displayQuantity;
-
                                     // Verificamos si la cantidad tiene decimales
                                     if (quantity % 1 != 0) // Tiene decimales
                                     {
@@ -188,13 +159,10 @@
                 </tbody>
             </table>
         </div>
-
-
         <div class="row mt-4" style="@if (num >= 16) { Write("page-break-before: always"); }">
             <div class="col-3">
                 <span class="font-weight-bold">LEVANTAMIENTO DE CONFORMIDAD:</span>
             </div>
-
             <div class="col-7 d-flex justify-content-start">
                 <table>
                     <tr>
@@ -209,14 +177,11 @@
                 </table>
             </div>
         </div>
-
         <div class="row mt-4">
             <div class="col-12">
                 <span class="font-weight-bold">AUXILIAR DE ALMACÉN:</span> @if (ViewBag.ResponsableAlmacen != null) { Write(ViewBag.ResponsableAlmacen); }
             </div>
         </div>
-
     </div>
-
 </body>
 </html>
