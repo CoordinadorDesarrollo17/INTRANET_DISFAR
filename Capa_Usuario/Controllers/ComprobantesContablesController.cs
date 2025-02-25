@@ -1,18 +1,18 @@
 ﻿using Capa_Datos;
 using Capa_Entidad.ComprobantesContables_ENT;
+using Capa_Entidad.ReportesDigemid_ENT.Reportes;
+using Capa_Entidad.Ventas_ENT.Tablas;
 using Capa_Entidad.Ventas_ENT.TablasSql;
+using Capa_Negocio.ComprobantesContables_NEG;
 using Capa_Negocio.Ventas_NEG.Tablas;
 using Capa_Negocio.Ventas_NEG.TablasSql;
-using iTextSharp.text.pdf;
 using iTextSharp.text;
+using iTextSharp.text.pdf;
 using Rotativa;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Web.Mvc;
-using Capa_Entidad.Ventas_ENT.Tablas;
-using Capa_Negocio.ComprobantesContables_NEG;
-using Capa_Entidad.ReportesDigemid_ENT.Reportes;
 namespace Capa_Usuario.Controllers
 {
     public class ComprobantesContablesController : Controller
@@ -48,18 +48,18 @@ namespace Capa_Usuario.Controllers
                     List<Comprobante_E> Facturas = new List<Comprobante_E>();
                     foreach (var docEntryOrden in listDocEntrySap)
                     {
-                        Facturas = compN.ObtenerEncabezadoFacturas(docEntryOrden, obj.LugarDestino);
+                        Facturas.Add(compN.ObtenerEncabezadoFacturas(docEntryOrden, obj.LugarDestino).FirstOrDefault());
                     }
-                    string FacturasConcatenadas = string.Join(", ", Facturas.Select(x => $"{x.U_SYP_MDTD}-{x.U_SYP_MDSD}-{x.U_SYP_MDCD}"));
+                    string FacturasConcatenadas = string.Join(", ", Facturas.Select(x => $"'{x.U_SYP_MDTD}-{x.U_SYP_MDSD}-{x.U_SYP_MDCD}'"));
                     documentos.AddRange(compN.ObtenerEncabezadoNotaCredito(obj.Det4, FacturasConcatenadas));
                     break;
                 case "ND":
                     List<Comprobante_E> FacturasParaNotaDébito = new List<Comprobante_E>();
                     foreach (var docEntryOrden in listDocEntrySap)
                     {
-                        FacturasParaNotaDébito = compN.ObtenerEncabezadoFacturas(docEntryOrden,obj.LugarDestino);
+                        FacturasParaNotaDébito.Add(compN.ObtenerEncabezadoFacturas(docEntryOrden,obj.LugarDestino).FirstOrDefault());
                     }
-                    string FacturasConcatenadasParaNotaDébito = string.Join(", ", FacturasParaNotaDébito.Select(x => $"{x.U_SYP_MDTD}-{x.U_SYP_MDSD}-{x.U_SYP_MDCD}"));
+                    string FacturasConcatenadasParaNotaDébito = string.Join(", ", FacturasParaNotaDébito.Select(x => $"'{x.U_SYP_MDTD}-{x.U_SYP_MDSD}-{x.U_SYP_MDCD}'"));
                     documentos.AddRange(compN.ObtenerEncabezadoNotaDebito(FacturasConcatenadasParaNotaDébito));
                     break;
             }
