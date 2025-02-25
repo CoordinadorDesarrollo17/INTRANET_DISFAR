@@ -13,7 +13,7 @@ namespace Capa_Negocio.Almacen_NEG.Tablas
         OITW_D oD = new OITW_D();
         public List<OITW_E> listarDetArticulosInv(OITW_E obj)
         {
-            return oD.listarDetArticulosInv(obj);
+            return oD.ListarDetArticulosInv(obj);
         }
     }
 }
