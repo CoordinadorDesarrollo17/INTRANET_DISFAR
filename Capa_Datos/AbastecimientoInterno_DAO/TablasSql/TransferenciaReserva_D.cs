@@ -73,6 +73,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
         private DataTable ConvertirADatatable(List<DetalleTransferenciaReserva_E> detalles)
         {
             DataTable table = new DataTable();
+            table.Columns.Add("TransferenciaReservaId", typeof(int));
             table.Columns.Add("ItemCode", typeof(string));
             table.Columns.Add("ItemName", typeof(string));
             table.Columns.Add("BatchNum", typeof(string));
@@ -87,7 +88,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             foreach (var detalle in detalles)
             {
-                table.Rows.Add(detalle.ItemCode, detalle.ItemName, detalle.BatchNum, detalle.FechaVencimiento, detalle.FechaAdmision,
+                table.Rows.Add(0, detalle.ItemCode, detalle.ItemName, detalle.BatchNum, detalle.FechaVencimiento, detalle.FechaAdmision,
                                detalle.CodigoUbicacion, detalle.UmAlm, detalle.ValorUmAlm,
                                detalle.QuantityMaster, detalle.QuantitySaldo, detalle.QuantityUnidadesCajas);
             }

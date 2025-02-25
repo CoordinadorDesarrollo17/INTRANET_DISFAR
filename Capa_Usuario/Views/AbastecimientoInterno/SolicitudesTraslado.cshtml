@@ -223,8 +223,8 @@
                 }
             };
 
-            console.log(payload)
-            return;
+            //console.log(payload)
+            //return;
 
             try {
                 const response = await fetch("/AbastecimientoInterno/RegistrarTransferenciaDeStock", {
@@ -529,7 +529,7 @@
                                 </td>
                                 <td class="text-center">
                                     <input type="text" id="lote_quantityUnidades_${item.BatchNum}" name="transferenciaPost.Detalle[].QuantityUnidadesCajas" class="form-control text-center cls-num cls-limpiarItem_${articulo.ItemCode}" value="${item.CantidadTotalPorSKUyLote}"
-                                    data-idcantmaster="lote_cantidadMaster_${item.BatchNum}" data-idcantsaldo="lote_cantidadSaldo_${item.BatchNum}" data-cantidadtotal="${item.CantidadTotalPorSKUyLote}" 
+                                    data-idcantmaster="lote_cantidadMaster_${item.BatchNum}" data-idcantsaldo="lote_cantidadSaldo_${item.BatchNum}" data-cantidadtotal="${item.CantidadTotalPorSKUyLote}"
                                     data-idundmaster="lote_undMaster_${item.BatchNum}" oninput="calcularStockUnidades(this.value, this.dataset)">
                                 </td>
                                  <td scope="col" class="text-center align-middle">

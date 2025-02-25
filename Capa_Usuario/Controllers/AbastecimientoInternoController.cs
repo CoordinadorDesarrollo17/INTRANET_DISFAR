@@ -258,6 +258,9 @@ namespace Capa_Usuario.Controllers
                     }
                     // 6. Asignar datos de traslado a la transferencia
                     transferenciaPost.OperarioRegistra = $"{user.Nombres} {user.Apellidos}";
+                    transferenciaPost.SolicitudTrasladoId = traslado.Id;
+                    transferenciaPost.SolicitudTrasladoDocNum = traslado.DocNum;
+
                     Utilitarios uti = new Utilitarios();
                     // 7. Iniciar la transacción global para las operaciones críticas
                     using (var scope = new TransactionScope(TransactionScopeOption.Required,
