@@ -61,16 +61,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                             throw new Exception("Error en Ingreso.");
 
                         }
-<<<<<<< HEAD
-                    
-=======
-<<<<<<< HEAD
-                    }
 
-=======
-                    
->>>>>>> 3076d5e (Cambios en OITW)
->>>>>>> e222ee29b1e5646d6a76aff220160fb8419df91d
                     mensaje = idGenerado.ToString();
                     icono = "success";
                 }

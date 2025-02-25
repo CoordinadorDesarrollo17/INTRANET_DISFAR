@@ -16,15 +16,8 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
         readonly Utilitarios uti = new Utilitarios();
         readonly DBHelper db = new DBHelper();
         //Operacion desde transaccion ingreso en Kardex que suma la cantidad disponible  inserta un nuevo registro de ItemCode, Almacen, CodigoUbicacion, Lote y UmAlm.
-<<<<<<< HEAD
+
         public Helper_E Ingreso(int ubicacionLoteId, DetalleTransferenciaReserva_E detalle, SqlConnection cn)
-=======
-<<<<<<< HEAD
-        public Helper_E Ingreso(int ubicacionLoteId, TransferenciaReserva_E ingreso, SqlConnection cn)
-=======
-        public Helper_E Ingreso(int ubicacionLoteId, DetalleTransferenciaReserva_E detalle, SqlConnection cn)
->>>>>>> 3076d5e (Cambios en OITW)
->>>>>>> e222ee29b1e5646d6a76aff220160fb8419df91d
         {
             string mensaje, icono;
 
