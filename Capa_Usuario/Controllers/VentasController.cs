@@ -1051,18 +1051,18 @@ namespace Capa_Usuario.Controllers
                     List<Comprobante_E> Facturas = new List<Comprobante_E>();
                     foreach (var docEntryOrden in listDocEntrySap)
                     {
-                        Facturas = compN.ObtenerEncabezadoFacturas(docEntryOrden, obj.LugarDestino);
+                        Facturas.Add(compN.ObtenerEncabezadoFacturas(docEntryOrden, obj.LugarDestino).FirstOrDefault());
                     }
-                    string FacturasConcatenadas = string.Join(", ", Facturas.Select(x => $"{x.U_SYP_MDTD}-{x.U_SYP_MDSD}-{x.U_SYP_MDCD}"));
+                    string FacturasConcatenadas = string.Join(", ", Facturas.Select(x => $"'{x.U_SYP_MDTD}-{x.U_SYP_MDSD}-{x.U_SYP_MDCD}'"));
                     documentos.AddRange(compN.ObtenerEncabezadoNotaCredito(obj.Det4, FacturasConcatenadas));
                     break;
                 case "ND":
                     List<Comprobante_E> FacturasParaNotaDébito = new List<Comprobante_E>();
                     foreach (var docEntryOrden in listDocEntrySap)
                     {
-                        FacturasParaNotaDébito = compN.ObtenerEncabezadoFacturas(docEntryOrden, obj.LugarDestino);
+                        FacturasParaNotaDébito.Add(compN.ObtenerEncabezadoFacturas(docEntryOrden, obj.LugarDestino).FirstOrDefault());
                     }
-                    string FacturasConcatenadasParaNotaDébito = string.Join(", ", FacturasParaNotaDébito.Select(x => $"{x.U_SYP_MDTD}-{x.U_SYP_MDSD}-{x.U_SYP_MDCD}"));
+                    string FacturasConcatenadasParaNotaDébito = string.Join(", ", FacturasParaNotaDébito.Select(x => $"'{x.U_SYP_MDTD}-{x.U_SYP_MDSD}-{x.U_SYP_MDCD}'"));
                     documentos.AddRange(compN.ObtenerEncabezadoNotaDebito(FacturasConcatenadasParaNotaDébito));
                     break;
             }
