@@ -1,5 +1,6 @@
 using Aspose.Pdf.Operators;
 using Capa_Datos;
+using Capa_Entidad;
 using Capa_Entidad.AbastecimientoInterno_ENT.Interfaces;
 using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
 using Capa_Entidad.Seguridad_ENT;
@@ -296,27 +297,36 @@ namespace Capa_Usuario.Controllers
                                 });
                             }
                             // 7.3 Sumar y/o Registrar Quantity en Cajas en la tabla UbicacionesLotes
-                            var resultUbicacionesLotes = _ubicacionesLotesN.Ingreso(transferenciaGet, cn);
-                            if (resultUbicacionesLotes.IconoSweetAlert.Equals("error"))
-                            {
-                                return Json(new
+                            var resultUbicacionesLotes = new Helper_E();
+
+                            foreach (var item in transferenciaGet.Detalle) {
+                                resultUbicacionesLotes = _ubicacionesLotesN.Ingreso(item, cn);
+                                if (resultUbicacionesLotes.IconoSweetAlert.Equals("error"))
                                 {
-                                    Mensaje = "No se pudo completar la acción",
-                                    Comentario = new List<string> { resultUbicacionesLotes.Mensaje },
-                                    Icono = resultUbicacionesLotes.IconoSweetAlert
-                                });
-                            }
-                            // 7.4 Sumar y/o Registrar en la tabla UbicacionesLotesMaster
-                            var resultUbicacionesLotesMaster = _ubicacionesLotesMasterN.Ingreso(transferenciaGet, cn);
-                            if (resultUbicacionesLotesMaster.IconoSweetAlert.Equals("error"))
-                            {
-                                return Json(new
+                                    return Json(new
+                                    {
+                                        Mensaje = "No se pudo completar la acción",
+                                        Comentario = new List<string> { resultUbicacionesLotes.Mensaje },
+                                        Icono = resultUbicacionesLotes.IconoSweetAlert
+                                    });
+                                }
+
+                                var ubicacionLoteId = resultUbicacionesLotes.Mensaje;
+                                // 7.4 Sumar y/o Registrar en la tabla UbicacionesLotesMaster
+                                var resultUbicacionesLotesMaster = _ubicacionesLotesMasterN.Ingreso(Convert.ToInt32(ubicacionLoteId),item, cn);
+                                if (resultUbicacionesLotesMaster.IconoSweetAlert.Equals("error"))
                                 {
-                                    Mensaje = "No se pudo completar la acción",
-                                    Comentario = new List<string> { resultUbicacionesLotesMaster.Mensaje },
-                                    Icono = resultUbicacionesLotesMaster.IconoSweetAlert
-                                });
+                                    return Json(new
+                                    {
+                                        Mensaje = "No se pudo completar la acción",
+                                        Comentario = new List<string> { resultUbicacionesLotesMaster.Mensaje },
+                                        Icono = resultUbicacionesLotesMaster.IconoSweetAlert
+                                    });
+                                }
+
                             }
+                            
+                            
                             // 8. Confirmar la transacción
                             scope.Complete();
                         }
@@ -822,6 +832,30 @@ namespace Capa_Usuario.Controllers
                     Icono = "error"
                 });
             }
+        }
+        public JsonResult CalcularCantidadSolicitada(string tipoAbastecimiento, string itemCode)
+        {
+            int cantidadSolicitada = 0;
+            if (tipoAbastecimiento != null && tipoAbastecimiento.Equals("Picking") && itemCode!=null)
+            {
+                //Calcular desde SAP (Stock Total - Comprometido)  en Almacen 16 por defecto
+                
+            }
+            else
+            {
+                return Json(new
+                {
+                    Mensaje = "Error en la operación",
+                    Comentario = new List<string> { "Los datos enviados son inválidos." },
+                    Icono = "error"
+                });
+            }
+            return Json(new
+            {
+                Mensaje = "Acción completada exitosamente",
+                Comentario = new List<string> { Convert.ToString(cantidadSolicitada) },
+                Icono = "success"
+            });
         }
     }
 }

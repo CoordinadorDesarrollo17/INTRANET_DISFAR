@@ -6,34 +6,65 @@ using System.Text;
 using System.Threading.Tasks;
 using Sap.Data.Hana;
 using Capa_Entidad.Almacen_ENT.TablasSql;
+using DocumentFormat.OpenXml.Vml;
+using System.Windows.Forms;
 
 namespace Capa_Datos.Almacen_DAO.Tablas
 {
     public class OITW_D
     {
         Utilitarios uti = new Utilitarios(); DBHelper db = new DBHelper();
-        public List<OITW_E> listarDetArticulosInv(string ItemCode)
+        public List<OITW_E> ListarDetArticulosInv(OITW_E obj)
         {
+            string condWhere = string.Empty;
+            if (obj != null)
+            {
+                if (!string.IsNullOrEmpty(obj.WhsCode))
+                {
+                    condWhere = $@"AND T1.""WhsCode"" = '{obj.WhsCode}'";
+                }
+            }
+
             List<OITW_E> lista = new List<OITW_E>();
-            string query = "select \"ItemCode\",\"WhsCode\",\"OnHand\",\"IsCommited\",\"OnOrder\" " +
-                "from " + uti.schemaHana+"oitw where \"ItemCode\"='"+ItemCode+ "' order by \"WhsCode\"";
+                    string query = $@"
+            SELECT 
+                T1.""ItemCode"" AS ""SKU"",
+                T1.""WhsCode"" AS ""Almacen"",
+                T1.""OnHand"" AS ""StockDisponible"",
+                T1.""OnOrder"" AS ""StockEnOrden"",
+                T1.""IsCommited"" AS ""StockComprometido"",
+                (T1.""OnHand"" - T1.""IsCommited"") AS ""StockLibre""
+            FROM {uti.schemaHana}OITW T1
+            WHERE T1.""ItemCode"" = '{obj.ItemCode}'  
+            {condWhere}
+            ORDER BY T1.""WhsCode""";
+
             try
             {
-                HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
-                while(hdr.Read())
+                using (HanaDataReader hdr = db.HanaExecuteReaderNoSp(query))
                 {
-                    OITW_E o = new OITW_E();
-                    if (!hdr.IsDBNull(0)) { o.ItemCode = hdr.GetString(0); }
-                    if (!hdr.IsDBNull(1)) { o.WhsCode = hdr.GetString(1); }
-                    if (!hdr.IsDBNull(2)) { o.OnHand = Math.Round(hdr.GetDecimal(2),0); }
-                    if (!hdr.IsDBNull(3)) { o.IsCommited = Math.Round(hdr.GetDecimal(3)); }
-                    if (!hdr.IsDBNull(4)) { o.OnOrder = Math.Round(hdr.GetDecimal(4)); }
-                    lista.Add(o);
+                    while (hdr.Read())
+                    {
+                        OITW_E o = new OITW_E
+                        {
+                            ItemCode = hdr.IsDBNull(1) ? string.Empty : hdr.GetString(1),
+                            WhsCode = hdr.IsDBNull(0) ? string.Empty : hdr.GetString(0),
+                            OnHand = hdr.IsDBNull(2) ? 0 : Math.Round(hdr.GetDecimal(2), 0),
+                            OnOrder = hdr.IsDBNull(3) ? 0 : Math.Round(hdr.GetDecimal(3), 0),
+                            IsCommited = hdr.IsDBNull(4) ? 0 : Math.Round(hdr.GetDecimal(4), 0),
+                            StockLibre = hdr.IsDBNull(5) ? 0 : Math.Round(hdr.GetDecimal(5), 0)
+                        };
+                        lista.Add(o);
+                    }
                 }
-                hdr.Close();
             }
-            catch { }
+            catch (Exception ex)
+            {
+                LogHelper.RegistrarError(ex, "Error en ListarDetArticulosInv");
+            }
+
             return lista;
         }
+
     }
 }

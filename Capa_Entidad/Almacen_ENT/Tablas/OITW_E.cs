@@ -19,6 +19,7 @@ namespace Capa_Entidad.Almacen_ENT.Tablas
         public decimal IsCommited { get; set; }
         [DisplayName("Pedido")]
         public decimal OnOrder { get; set; }
+        public decimal StockLibre { get; set; }
         //metodos
         public decimal Disponible()
         {

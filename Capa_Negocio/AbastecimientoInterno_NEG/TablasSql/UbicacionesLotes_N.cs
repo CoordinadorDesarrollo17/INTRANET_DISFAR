@@ -13,7 +13,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
     public class UbicacionesLotes_N
     {
         readonly UbicacionesLotes_D datosUbicacionesL = new UbicacionesLotes_D();
-        public Helper_E Ingreso(TransferenciaReserva_E ingreso, SqlConnection cn)
+        public Helper_E Ingreso(DetalleTransferenciaReserva_E ingreso, SqlConnection cn)
         {
             return datosUbicacionesL.Ingreso(ingreso, cn);
         }
