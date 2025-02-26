@@ -7,107 +7,63 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Capa_Entidad;
 
 namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
 {
     public class Requerimientos_N
     {
-        Requerimientos_D requerimientoD = new Requerimientos_D();
+        Requerimientos_D _requerimientoD = new Requerimientos_D();
 
         public Requerimientos_E ObtenerRequerimiento(int id)
         {
-            return requerimientoD.ObtenerRequerimiento(id);
+            return _requerimientoD.ObtenerRequerimiento(id);
         }
+        public Helper_E AtenderReserva(int detalleId)
+        {
+            return _requerimientoD.AtenderReserva(detalleId);
+        }
+        public Helper_E AtenderPicking(int detalleId)
+        {
+            return _requerimientoD.AtenderPicking(detalleId);
+        }
+        public List<DetalleRequerimientos_E> ListarDetalles(string itemCode="", string proceso = "")
+        {
+             List<DetalleRequerimientos_E> result = null;
+            switch (proceso)
+            {
+                case "CantidadSolicitada" : 
+                    result = _requerimientoD.ListarDetalles().Where(x => x.AtendidoPicking == 0 && x.ItemCode == itemCode).ToList();
+                    break;
+                case "ListarApiladores":
+                    result = _requerimientoD.ListarDetalles().Where(x => x.AtendidoReserva == 0 && x.AtendidoPicking == 0 && x.QuantityMaster>0).ToList();
+                    break;
+                case "ListarPicking":
+                    result = _requerimientoD.ListarDetalles().Where(x => x.AtendidoReserva == 1 && x.AtendidoPicking == 0 ).ToList();
+                    break;
+                default:
+                    result = _requerimientoD.ListarDetalles();
+                    break;
 
+            }
+           
+            return result;
+        }
         public Requerimientos_E RegistrarRequerimiento(Requerimientos_E requerimiento, SqlConnection cn)
         {
-            if (cn.State != ConnectionState.Open)
-            {
-                cn.Open();
-            }
+            //Validar que las Cantidades que se desean imputar se encuentren disponibles
 
-            using (var transaction = cn.BeginTransaction())
-            {
-                try
-                {
-                    using (SqlCommand cmd = new SqlCommand("sp_MantenimientoRequerimiento", cn, transaction))
-                    {
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@TipoMantenimiento", "INSERT");
-                        cmd.Parameters.AddWithValue("@Origen", requerimiento.Origen);
-                        cmd.Parameters.AddWithValue("@Destino", requerimiento.Destino);
-                        cmd.Parameters.AddWithValue("@TipoAbastecimiento", requerimiento.TipoAbastecimiento);
-                        cmd.Parameters.AddWithValue("@OperarioRegistra", requerimiento.OperarioRegistra);
+            return _requerimientoD.RegistrarRequerimiento(requerimiento, cn);
 
-                        // Crear tabla de parámetros para el tipo DetalleRequerimientosType
-                        DataTable detalleTable = new DataTable();
-                        detalleTable.Columns.Add("ItemCode", typeof(string));
-                        detalleTable.Columns.Add("ItemName", typeof(string));
-                        detalleTable.Columns.Add("BatchNum", typeof(string));
-                        detalleTable.Columns.Add("CodigoUbicacionOrigen", typeof(string));
-                        detalleTable.Columns.Add("CodigoUbicacionDestino", typeof(string));
-                        detalleTable.Columns.Add("UmAlm", typeof(string));
-                        detalleTable.Columns.Add("ValorUmAlm", typeof(int));
-                        detalleTable.Columns.Add("QuantityMaster", typeof(int));
-                        detalleTable.Columns.Add("QuantitySaldo", typeof(int));
-                        detalleTable.Columns.Add("QuantityUnidadesCajas", typeof(int));
-                        detalleTable.Columns.Add("AtendidoReserva", typeof(int));
-                        detalleTable.Columns.Add("AtendidoPicking", typeof(int));
+        }
+        public bool ValidarSkuParaKardexSalida(DetalleRequerimientos_E detalle)
+        {
+            Requerimientos_E requerimientoCompleto = ObtenerRequerimiento(detalle.RequerimientoId);
 
-                        foreach (var detalle in requerimiento.Detalle)
-                        {
-                            detalleTable.Rows.Add(
-                                detalle.ItemCode,
-                                detalle.ItemName,
-                                detalle.BatchNum,
-                                detalle.CodigoUbicacionOrigen,
-                                detalle.CodigoUbicacionDestino,
-                                detalle.UmAlm,
-                                detalle.ValorUmAlm,
-                                (object)detalle.QuantityMaster ?? DBNull.Value,
-                                (object)detalle.QuantitySaldo ?? DBNull.Value,
-                                (object)detalle.QuantityUnidadesCajas ?? DBNull.Value,
-                                0,
-                                0
-                            );
-                        }
+            // Validar si ya no existe algún elemento con el mismo ItemCode y AtendidoPicking en 0, por lo tanto todo esta Atendido y listo para sacarlo por Kardex
+            bool valido = !requerimientoCompleto.Detalle.Any(d => d.ItemCode == detalle.ItemCode && d.AtendidoPicking == 0);
 
-                        SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
-                        {
-                            Direction = ParameterDirection.Output
-                        };
-                        cmd.Parameters.Add(idGeneradoParam);
-
-                        SqlParameter detalleParam = new SqlParameter("@Detalle", SqlDbType.Structured)
-                        {
-                            TypeName = "dbo.DetalleRequerimientosType",
-                            Value = detalleTable
-                        };
-                        cmd.Parameters.Add(detalleParam);
-
-                        cmd.ExecuteNonQuery();
-                        int idGenerado = (int)idGeneradoParam.Value;
-
-                        if (idGenerado > 0)
-                        {
-                            transaction.Commit();
-                        }
-                        else
-                        {
-                            transaction.Rollback();
-                            throw new Exception("No se pudo registrar el requerimiento.");
-                        }
-
-                        requerimiento.Id = idGenerado;
-                        return requerimiento;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    transaction.Rollback();
-                    throw new Exception("Error al registrar el requerimiento.", ex);
-                }
-            }
+            return valido;
         }
     }
 }

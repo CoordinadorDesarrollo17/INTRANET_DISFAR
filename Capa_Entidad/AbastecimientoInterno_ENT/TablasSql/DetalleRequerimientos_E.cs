@@ -16,5 +16,10 @@
         public int? QuantityUnidadesCajas { get; set; }
         public int AtendidoReserva { get; set; }
         public int AtendidoPicking { get; set; }
+
+        //campos que no son de la tabla, sirven para filtrar listado
+        public  string RackBloque{ get; set; }
+        public  string Posicion{ get; set; }
+        public  string Nivel{ get; set; }
     }
 }

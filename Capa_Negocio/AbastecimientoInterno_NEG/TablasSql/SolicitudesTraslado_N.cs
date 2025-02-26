@@ -39,5 +39,9 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         public Helper_E DeleteSolicitudDeTraslado (int docNum, SqlConnection cn) {
             return datosTraslado.DeleteSolicitudDeTraslado(docNum,  cn);
         }
+        public Helper_E ActualizarEstado(int solicitudTrasladoId, List<DetalleTransferenciaReserva_E> detalleTransferencia, SqlConnection cn)
+        {
+            return datosTraslado.ActualizarEstado( solicitudTrasladoId, detalleTransferencia, cn);
+        }
     }
 }

@@ -28,7 +28,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@TipoMantenimiento", "GET");
                     cmd.Parameters.AddWithValue("@DocNum", docNum);
-                     var outputId = new SqlParameter("@IdGenerado", SqlDbType.Int)
+                    var outputId = new SqlParameter("@IdGenerado", SqlDbType.Int)
                         {
                             Direction = ParameterDirection.Output
                         };
@@ -185,7 +185,6 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
             string mensaje, icono;
             try
             {
-                // Verificar si la conexión está abierta
                 if (cn.State != ConnectionState.Open)
                 {
                     cn.Open();
@@ -213,5 +212,46 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
             }
             return new Helper_E { Mensaje = mensaje, IconoSweetAlert = icono };
         }
+        public Helper_E ActualizarEstado(int solicitudTrasladoId, List<DetalleTransferenciaReserva_E> detalleTransferencia, SqlConnection cn)
+        {
+            string mensaje, icono;
+
+            try
+            {
+                if (cn.State != ConnectionState.Open)
+                {
+                    cn.Open();
+                }
+
+                // Obtener los valores distintos de ItemCode
+                var itemCodes = detalleTransferencia.Select(d => d.ItemCode).Distinct().ToList();
+
+                foreach (var itemCode in itemCodes)
+                {
+                    using (SqlCommand cmd = new SqlCommand("sp_MantenimientoSolicitudTraslado", cn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
+                        cmd.Parameters.AddWithValue("@TipoMantenimiento", "UPDATE");
+                        cmd.Parameters.AddWithValue("@ItemCode", itemCode);
+
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                mensaje = "Estado de solicitud de traslado actualizado correctamente";
+                icono = "success";
+            }
+            catch (Exception ex)
+            {
+                LogHelper.RegistrarError(ex, "SolicitudTraslado_D - ActualizarEstado");
+                mensaje = "Ocurrió un error al actualizar el estado de la solicitud de traslado. Comuníquese con el área de Sistemas para más información.";
+                icono = "error";
+                throw new Exception("Error en ActualizarEstado.", ex);
+            }
+
+            return new Helper_E { Mensaje = mensaje, IconoSweetAlert = icono };
+        }
+
     }
 }
