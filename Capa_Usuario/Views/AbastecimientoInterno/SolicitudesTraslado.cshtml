@@ -118,7 +118,7 @@
         </div>
     </div>
 
-    <div id="div_botones" class="row" @*style="display: none"*@>
+    <div id="div_botones" class="row" style="display: none">
         <div class="col-lg-12">
             <button type="button" class="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Cancelar"><i class="bi bi-x-lg"></i> Cancelar</button>
             <button type="button" id="btn_transferir" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Transferir"><i class="bi bi-arrow-left-right"></i> Transferir</button>
@@ -295,11 +295,17 @@
 
 				if (!data || !data.traslado) {
 					Swal.fire({
-						title: "Error",
-						text: data.Mensaje || "No se encontraron datos para la solicitud.",
-						icon: "error",
-						showConfirmButton: true
+                        title: data.Mensaje,
+                        html: Array.isArray(data.Comentario) && data.Comentario.length > 0
+                            ? data.Comentario.join('<br>')
+                            : data.Comentario || "",
+                        icon: data.Icono,
+                        allowEscapeKey: false,
+                        allowOutsideClick: false,
+                        showConfirmButton: true
 					});
+
+					document.querySelector('#div_botones').style.display = 'none'
 					return;
 				}
 
@@ -321,6 +327,8 @@
                     construirDetalleTransferenciaReserva(traslado.Detalle);
                     //console.log(traslado.Detalle)
 				}
+
+				document.querySelector('#div_botones').style.display = 'block'
 				
 			} catch (error) {
 				console.error("Error:", error);
