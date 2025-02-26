@@ -20,7 +20,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         {
             var solicitudTraslado = datosTraslado.ObtenerSolicitudDeTraslado(DocNum);
 
-            if (solicitudTraslado != null)
+            if (solicitudTraslado != null && solicitudTraslado.Detalle!=null)
             {
                 foreach (var item in solicitudTraslado.Detalle)
                 {
