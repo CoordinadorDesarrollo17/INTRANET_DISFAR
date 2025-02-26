@@ -27,6 +27,15 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@TipoMantenimiento", "GET");
                     cmd.Parameters.AddWithValue("@DocNum", docNum);
+                    cmd.Parameters.AddWithValue("@DocEntry", DBNull.Value);
+                    cmd.Parameters.AddWithValue("@DocDate", DBNull.Value);
+                    cmd.Parameters.AddWithValue("@NroGuia", DBNull.Value);
+                    cmd.Parameters.AddWithValue("@CardCode", DBNull.Value);
+                    cmd.Parameters.AddWithValue("@CardName", DBNull.Value);
+                    cmd.Parameters.AddWithValue("@OperarioResponsableSAP", DBNull.Value);
+                    cmd.Parameters.AddWithValue("@MotivoTraslado", DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Estado", DBNull.Value);
+                    cmd.Parameters.AddWithValue("@IdGenerado", DBNull.Value);
 
                     SqlDataReader dr = cmd.ExecuteReader();
                     solicitud = new SolicitudesTraslado_E();
@@ -69,7 +78,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error: {ex.Message}");
+                    LogHelper.RegistrarError(ex, "SolicitudesTraslado_D - ObtenerSolicitudDeTraslado");
                 }
             }
             return solicitud;
