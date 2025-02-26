@@ -16,7 +16,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
         readonly Utilitarios uti = new Utilitarios();
         readonly DBHelper db = new DBHelper();
 
-        public TransferenciaReserva_E RegistrarTransferenciaReserva( TransferenciaReserva_E transferencia, SqlConnection cn)
+        public TransferenciaReserva_E RegistrarTransferenciaReserva(TransferenciaReserva_E transferencia, SqlConnection cn)
         {
             if (cn.State != ConnectionState.Open)
             {
@@ -106,19 +106,25 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@TipoMantenimiento", "GET");
                     cmd.Parameters.AddWithValue("@SolicitudTrasladoDocNum", docNum);
+                    var outputId = new SqlParameter("@IdGenerado", SqlDbType.Int)
+                    {
+                        Direction = ParameterDirection.Output
+                    };
+                    cmd.Parameters.Add(outputId);
+
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
                         if (dr.Read())
                         {
                             transferencia = new TransferenciaReserva_E();
-                            if (!dr.IsDBNull(0)) { transferencia.Id = dr.GetInt32(0); }
-                            if (!dr.IsDBNull(1)) { transferencia.SolicitudTrasladoId = dr.GetInt32(1); }
-                            if (!dr.IsDBNull(2)) { transferencia.SolicitudTrasladoId = dr.GetInt32(2); }
-                            if (!dr.IsDBNull(3)) { transferencia.DocDate = dr.GetString(3); }
-                            if (!dr.IsDBNull(4)) { transferencia.CardCode = dr.GetString(4); }
-                            if (!dr.IsDBNull(5)) { transferencia.CardName = dr.GetString(5); }
-                            if (!dr.IsDBNull(6)) { transferencia.NroGuia = dr.GetString(6); }
-                            if (!dr.IsDBNull(7)) { transferencia.OperarioRegistra = dr.GetString(7); }
+                            if (!dr.IsDBNull(0)) transferencia.Id = dr.GetInt32(0);
+                            if (!dr.IsDBNull(1)) transferencia.SolicitudTrasladoId = dr.GetInt32(1);
+                            if (!dr.IsDBNull(2)) transferencia.SolicitudTrasladoDocNum = dr.GetInt32(2);
+                            if (!dr.IsDBNull(3)) transferencia.DocDate = dr.GetDateTime(3).ToString("yyyy-MM-dd");
+                            if (!dr.IsDBNull(4)) transferencia.CardCode = dr.GetString(4);
+                            if (!dr.IsDBNull(5)) transferencia.CardName = dr.GetString(5);
+                            if (!dr.IsDBNull(6)) transferencia.NroGuia = dr.GetString(6);
+                            if (!dr.IsDBNull(7)) transferencia.OperarioRegistra = dr.GetString(7);
                             transferencia.Detalle = new List<DetalleTransferenciaReserva_E>();
                         }
 
@@ -134,8 +140,8 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                                 if (!dr.IsDBNull(2)) detalle.ItemCode = dr.GetString(2);
                                 if (!dr.IsDBNull(3)) detalle.ItemName = dr.GetString(3);
                                 if (!dr.IsDBNull(4)) detalle.BatchNum = dr.GetString(4);
-                                if (!dr.IsDBNull(5)) detalle.FechaAdmision = dr.GetString(5);
-                                if (!dr.IsDBNull(6)) detalle.FechaVencimiento = dr.GetString(6);
+                                if (!dr.IsDBNull(5)) detalle.FechaAdmision = dr.GetDateTime(5).ToString("yyyy-MM-dd");
+                                if (!dr.IsDBNull(6)) detalle.FechaVencimiento = dr.GetDateTime(6).ToString("yyyy-MM-dd");
                                 if (!dr.IsDBNull(7)) detalle.CodigoUbicacion = dr.GetString(7);
                                 if (!dr.IsDBNull(8)) detalle.UmAlm = dr.GetString(8);
                                 if (!dr.IsDBNull(9)) detalle.ValorUmAlm = dr.GetInt32(9);
@@ -149,7 +155,12 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     }
                 }
             }
-            catch { cn.Close(); }
+            catch (Exception ex)
+            {
+                LogHelper.RegistrarError(ex, "TransferenciaReserva_D - ObtenerTransferenciaReserva");
+                cn.Close();
+            }
+
             return transferencia;
         }
         public Helper_E DeleteTransferenciaReserva(int docNum, SqlConnection cn)
@@ -222,6 +233,6 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             return new Helper_E { Mensaje = mensaje, IconoSweetAlert = icono };
         }
-        
+
     }
 }

@@ -118,7 +118,7 @@
         </div>
     </div>
 
-    <div class="row">
+    <div id="div_botones" class="row" @*style="display: none"*@>
         <div class="col-lg-12">
             <button type="button" class="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Cancelar"><i class="bi bi-x-lg"></i> Cancelar</button>
             <button type="button" id="btn_transferir" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Transferir"><i class="bi bi-arrow-left-right"></i> Transferir</button>
@@ -291,6 +291,7 @@
 
 				const data = await response.json();
 				console.log("Datos recibidos:", data);
+				//return;
 
 				if (!data || !data.traslado) {
 					Swal.fire({
@@ -302,7 +303,7 @@
 					return;
 				}
 
-				// ✅ Rellenar los campos con los datos recibidos
+				// Rellenar los campos con los datos recibidos
 				document.querySelector('#NroGuia').value = data.traslado.NroGuia || "";
 				document.querySelector('#CardCode').value = data.traslado.CardCode || "";
 				document.querySelector('#CardName').value = data.traslado.CardName || "";
@@ -310,10 +311,17 @@
 				document.querySelector('#MotivoTraslado').value = data.traslado.MotivoTraslado || "";
 				document.querySelector('#DocDate').value = data.traslado.DocDate || "";
 
-				// ✅ Construir formulario y tabla de detalle
-				construirFormCopiaSap(data.traslado);
-				construirDetalleSolicitudTraslado(data.traslado.Detalle);
-
+				// Construir formulario y tabla de detalle
+				if (data.transferencia == null) {
+					construirFormCopiaSap(data.traslado);
+					construirDetalleSolicitudTraslado(data.traslado.Detalle);
+				} else {
+                    //let datos = marcarAtendidos(data.traslado, data.transferencia)
+                    let traslado = organizarSolicitudDeTraslado(data.traslado.Detalle)
+                    construirDetalleTransferenciaReserva(traslado.Detalle);
+                    //console.log(traslado.Detalle)
+				}
+				
 			} catch (error) {
 				console.error("Error:", error);
 				Swal.fire({
@@ -325,16 +333,34 @@
 			}
 		}
 
+        function marcarAtendidos(traslado, transferencia) {
+            // Convertir transferencia en un Map para búsqueda rápida
+            let transferenciaMap = new Map();
+
+            transferencia.Detalle.forEach(item => {
+                let key = `${item.ItemCode}-${item.ItemName}-${item.BatchNum}-${item.FechaAdmision}-${item.FechaVencimiento}-${item.CodigoUbicacion}-${item.UmAlm}-${item.ValorUmAlm}-${item.QuantityMaster}-${item.QuantitySaldo}-${item.QuantityUnidadesCajas}`;
+                transferenciaMap.set(key, true);
+            });
+
+            // Modificar traslado agregando la propiedad "atendido"
+            traslado.Detalle = traslado.Detalle.map(item => {
+                let key = `${item.ItemCode}-${item.ItemName}-${item.BatchNum}-${item.InDate}-${item.ExpDate}-UBI-SISTEMA-${item.UnidadAlmSugerido || ""}-7-71-3-${item.QuantityCajas}`;
+                return { ...item, atendido: transferenciaMap.has(key) ? 1 : 0 };
+            });
+
+            return traslado;
+		}
+
 		// Construcción de la tabla de detalle
 		function construirDetalleSolicitudTraslado(detalle) {
 			let tbody = ''
 
-			for (const itemCode in detalle) {
+            for (const itemCode in detalle) {
 				let key = detalle[itemCode]
 
 				tbody += `<tr data-producto="${key.ItemCode}" class="fila-detalle">
 										<td class="details-control">
-											<button id="btn_chevron_${key.ItemCode}" class="btn btn-sm btn-cobefar-2"><i class="bi bi-chevron-down"></i></button>
+											<div class="d-flex justify-content-center"><button id="btn_chevron_${key.ItemCode}" class="btn btn-sm btn-cobefar-2"><i class="bi bi-chevron-down"></i></button></div>											
 										</td>
 										<td class="text-center">${key.ItemCode}</td>
 										<td>${key.ItemName}</td>
@@ -381,6 +407,59 @@
 			});
 		}
 
+        function construirDetalleTransferenciaReserva(detalle) {
+            let tbody = ''
+
+            for (const itemCode in detalle) {
+                let key = detalle[itemCode]
+
+                tbody += `<tr data-producto="${key.ItemCode}" class="fila-detalle">
+								<td class="details-control text-center">
+									<button id="btn_chevron_${key.ItemCode}" class="btn btn-sm btn-cobefar-2"><i class="bi bi-chevron-down"></i></button>
+								</td>
+								<td class="text-center">${key.ItemCode}</td>
+								<td><span class="ps-2">${key.ItemName}<span></td>
+								<td class="text-center">${key.CantidadTotalPorSKU}</td>
+								<td class="text-center">RESERVA</td>
+								<td class="text-center">${key.DetalleLotes.map(l => l.BatchNum).join(', ')}</td>
+								<td class="text-center">
+									Transferido
+								</td>
+							</tr>`
+            }
+
+            document.querySelector('#tbl_detalle tbody').innerHTML = tbody
+            inicializarSlimSelectsPorClase('cls-select')
+            $('[data-bs-toggle="tooltip"]').tooltip()
+
+            let table = $('#tbl_detalle').DataTable(configDataTable)
+
+            $('#tbl_detalle tbody').on('click', 'td.details-control', function () {
+                var tr = $(this).closest('tr');
+                var row = table.row(tr);
+                var productoID = tr.data('producto');
+                var button = $(this).find('button i');
+
+                if (row.child.isShown()) {
+                    // Cerrar fila
+                    row.child.hide();
+                    button.removeClass('bi-chevron-up').addClass('bi-chevron-down');
+                } else {
+                    // Abrir y mostrar lotes
+                    row.child(formatLotesTransferenciaReserva(detalle[productoID])).show();
+                    button.removeClass('bi-chevron-down').addClass('bi-chevron-up');
+                }
+            });
+
+            $('.fila-detalle').each(function (index) {
+                let productoID = $(this).data('producto');
+
+                if (detalle[productoID] && detalle[productoID].DetalleLotes.length === 1) {
+                    document.querySelector(`#btn_chevron_${productoID}`).click();
+                }
+            });
+		}
+
 		// 2do Nivel
 		function formatLotes(articulo) {
 			let tableHtml = `<div class="d-flex justify-content-center w-100"><table id="tbl_detalleLotes_${articulo.ItemCode}" class="table table-sm table-bordered table-hover subtable w-75 tbl_detalleLotes">
@@ -406,13 +485,13 @@
 									<input type="hidden" name="transferenciaPost.Detalle[].BatchNum" value="${item.BatchNum}" />${item.BatchNum}
 								</td>
 								<td class="text-center">
-									<input type="hidden" name="transferenciaPost.Detalle[].FechaAdmision" value="${item.FechaAdmision}" />
-									<input type="hidden" name="transferenciaPost.Detalle[].FechaVencimiento" value="${item.FechaVencimiento}" />${item.FechaVencimiento}
+									<input type="hidden" name="transferenciaPost.Detalle[].InDate" value="${item.InDate}" />
+									<input type="hidden" name="transferenciaPost.Detalle[].ExpDate" value="${item.ExpDate}" />${item.ExpDate}
 								</td>
 								<td class="text-center">
-									<input type="text" id="lote_quantityUnidades_${item.BatchNum}" name="transferenciaPost.Detalle[].QuantityUnidadesCajas" class="form-control text-center cls-num cls-limpiarItem_${articulo.ItemCode}" value="${item.CantidadTotalPorSKUyLote}"
+									<input type="text" id="lote_quantityUnidades_${item.BatchNum}" name="transferenciaPost.Detalle[].QuantityUnidadesCajas" class="form-control text-center cls-num cls-limpiarItem_${articulo.ItemCode}"
 									data-idcantmaster="lote_cantidadMaster_${item.BatchNum}" data-idcantsaldo="lote_cantidadSaldo_${item.BatchNum}" data-cantidadtotal="${item.CantidadTotalPorSKUyLote}"
-									data-idundmaster="lote_undMaster_${item.BatchNum}" oninput="calcularStockUnidades(this.value, this.dataset)">
+									data-idundmaster="lote_undMaster_${item.BatchNum}" oninput="calcularStockUnidades(this.value, this.dataset)" value="">
 								</td>
 								 <td scope="col" class="text-center align-middle">
 									 <select id="lote_undMaster_${item.BatchNum}" data-idundmaster="lote_undMaster_${item.BatchNum}" data-idcantmaster="lote_cantidadMaster_${item.BatchNum}" data-idcantsaldo="lote_cantidadSaldo_${item.BatchNum}" data-cantidadtotal="${item.CantidadTotalPorSKUyLote}"
@@ -445,6 +524,70 @@
 			tableHtml += '</tbody></table></div>'
 			return tableHtml
 		}
+
+        function formatLotesTransferenciaReserva(articulo) {
+            let tableHtml = `<div class="d-flex justify-content-center w-100"><table id="tbl_detalleLotes_${articulo.ItemCode}" class="table table-sm table-bordered table-hover subtable w-75 tbl_detalleLotes">
+					<thead class="table-success">
+						<tr>
+							<th scope="col" class="text-center" style="width: 100">Lote</th>
+							<th scope="col" class="text-center" style="width: 200">Fecha de Vencimiento</th>
+							<th scope="col" class="text-center" style="width: 200">Stock UNIDADES</th>
+							<th scope="col" class="text-center" style="width: 200">Unidad MASTER</th>
+							<th scope="col" class="text-center" style="width: 200"">Cantidad en MASTER</th>
+							<th scope="col" class="text-center" style="width: 200">Cantidad en SALDO</th>
+							<th scope="col" class="text-center" style="width: 200">Ubicación</th>
+							<th scope="col" style="width: 5%;"></th>
+						</tr>
+					</thead>
+					<tbody>`
+
+            articulo.DetalleLotes.forEach(item => {
+                tableHtml += `<tr data-lote="${item.BatchNum}">
+						<td class="text-center">
+							<input type="hidden" name="transferenciaPost.Detalle[].ItemCode" value="${articulo.ItemCode}" />
+							<input type="hidden" name="transferenciaPost.Detalle[].ItemName" value="${articulo.ItemName}" />
+							<input type="hidden" name="transferenciaPost.Detalle[].BatchNum" value="${item.BatchNum}" />${item.BatchNum}
+						</td>
+						<td class="text-center">
+							<input type="hidden" name="transferenciaPost.Detalle[].InDate" value="${item.InDate}" />
+							<input type="hidden" name="transferenciaPost.Detalle[].ExpDate" value="${item.ExpDate}" />${item.ExpDate}
+						</td>
+						<td class="text-center">
+							<input type="text" id="lote_quantityUnidades_${item.BatchNum}" name="transferenciaPost.Detalle[].QuantityUnidadesCajas" class="form-control text-center cls-num cls-limpiarItem_${articulo.ItemCode}" value="${item.CantidadTotalPorSKUyLote}"
+							data-idcantmaster="lote_cantidadMaster_${item.BatchNum}" data-idcantsaldo="lote_cantidadSaldo_${item.BatchNum}" data-cantidadtotal="${item.CantidadTotalPorSKUyLote}"
+							data-idundmaster="lote_undMaster_${item.BatchNum}" oninput="calcularStockUnidades(this.value, this.dataset)">
+						</td>
+						 <td scope="col" class="text-center align-middle">
+							 <select id="lote_undMaster_${item.BatchNum}" data-idundmaster="lote_undMaster_${item.BatchNum}" data-idcantmaster="lote_cantidadMaster_${item.BatchNum}" data-idcantsaldo="lote_cantidadSaldo_${item.BatchNum}" data-cantidadtotal="${item.CantidadTotalPorSKUyLote}"
+								data-idquantityunidades ="lote_quantityUnidades_${item.BatchNum}"
+								name="transferenciaPost.Detalle[].ValorUmAlm" class="form-select cls-limpiarItem_${articulo.ItemCode}" onchange="calcularCantidadMasterSaldo(this.value, this.dataset)">
+								 <option value="">Seleccione</<option>
+								${cargarOpcionesMasters(articulo.UnidadAlmSugerido)}
+							 </select>
+						 </td>
+						<td scope="col" class="text-center">
+							<div class="mx-auto w-75">
+								<input type="text" id="lote_cantidadMaster_${item.BatchNum}" name="transferenciaPost.Detalle[].QuantityMaster" class="form-control text-center cls-num cls-readonly cls-limpiarItem_${articulo.ItemCode}" readonly>
+							</div>
+						</td>
+						 <td scope="col" class="text-center">
+							<div class="mx-auto w-75"><input type="text" id="lote_cantidadSaldo_${item.BatchNum}" name="transferenciaPost.Detalle[].QuantitySaldo" class="form-control text-center cls-num cls-readonly cls-limpiarItem_${articulo.ItemCode}" readonly></div>
+						</td>
+						<td class="text-center">
+							<select id="lote_ubicacion_${item.BatchNum}" name="transferenciaPost.Detalle[].CodigoUbicacion" data-idloteubicacion="lote_ubicacion_${item.BatchNum}" data-itemcode="${articulo.ItemCode}"
+							class="form-select cls-limpiarItem_${articulo.ItemCode}" onfocus="cargarUbicaciones('RESERVA', this.dataset)" style="width: 200px">
+								<option value="">Seleccione</option>
+							</select>
+						</td>
+						<td class="lotes-control text-center">
+							<button type="button" class="btn btn-sm btn-cobefar" onclick="clonarFila('tbl_detalleLotes_${articulo.ItemCode}')"><i class="bi bi-plus-lg"></i></button>
+						</td>
+					</tr>`
+            });
+
+            tableHtml += '</tbody></table></div>'
+            return tableHtml
+        }
 
         function clonarFila(idTableLotes) {
             let tabla = $(`#${idTableLotes}`).DataTable(configDataTable); // Obtener instancia de DataTable
@@ -481,8 +624,8 @@
 											 <td scope="col"><input type="text" name="solicitudTraslado.Detalle[].ItemCode" value="${key.ItemCode}"></td>
 											 <td scope="col"><input type="text" name="solicitudTraslado.Detalle[].ItemName" value="${key.ItemName}"></td>
 											 <td scope="col"><input type="text" name="solicitudTraslado.Detalle[].BatchNum" value="${item.BatchNum}"></td>
-											 <td scope="col"><input type="text" name="solicitudTraslado.Detalle[].InDate" value="${item.FechaAdmision}"></td>
-											 <td scope="col"><input type="text" name="solicitudTraslado.Detalle[].ExpDate" value="${item.FechaVencimiento}"></td>
+											 <td scope="col"><input type="text" name="solicitudTraslado.Detalle[].InDate" value="${item.InDate}"></td>
+											 <td scope="col"><input type="text" name="solicitudTraslado.Detalle[].ExpDate" value="${item.ExpDate}"></td>
 											<td scope="col"><input type="text" name="solicitudTraslado.Detalle[].QuantityCajas" value="${item.CantidadTotalPorSKUyLote}"></td>
 											<td scope="col"><input type="text" name="solicitudTraslado.Detalle[].FromWhsCode" value="${key.AlmacenOrigen}"></td>
 											<td scope="col"><input type="text" name="solicitudTraslado.Detalle[].ToWhsCode" value="${key.AlmacenDestino}"></td>
@@ -492,6 +635,41 @@
 
 			document.querySelector('#tbl_copiaSap tbody').innerHTML = tbody
 		}
+
+        function organizarSolicitudDeTraslado(datos) {
+            let solicitud = {
+                Detalle: {} // Objeto donde agruparemos por ItemCode
+			};
+
+            datos.forEach(row => {
+                let itemCode = row.ItemCode || "";
+
+                // Si el ItemCode no existe en el diccionario, se inicializa
+                if (!solicitud.Detalle[itemCode]) {
+                    solicitud.Detalle[itemCode] = {
+                        AlmacenOrigen: row.FromWhsCode || "",
+                        AlmacenDestino: row.ToWhsCode || "",
+                        ItemCode: itemCode,
+                        ItemName: row.ItemName || "",
+                        CantidadTotalPorSKU: 0,
+                        DetalleLotes: []
+                    };
+                }
+
+                // Acumular la cantidad total de cajas para el ItemCode
+				solicitud.Detalle[itemCode].CantidadTotalPorSKU += row.QuantityCajas || 0;
+
+                // Agregar el detalle del lote al ItemCode correspondiente
+                solicitud.Detalle[itemCode].DetalleLotes.push({
+                    BatchNum: row.BatchNum || "",
+                    CantidadTotalPorSKUyLote: row.QuantityCajas || 0,
+                    InDate: row.InDate || "",
+                    ExpDate: row.ExpDate || ""
+                });
+            });
+
+            return solicitud;
+        }
 
 		async function cargarUbicaciones(almacen, data) {
 			let itemCode = data.itemcode

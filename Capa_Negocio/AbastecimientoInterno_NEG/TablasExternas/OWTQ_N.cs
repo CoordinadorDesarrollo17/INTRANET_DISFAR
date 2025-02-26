@@ -23,7 +23,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasExternas
         {
             var solicitudTraslado = datosTraslado.BuscarSolicitudDeTraslado(DocNum);
 
-            if (solicitudTraslado != null)
+            if (solicitudTraslado != null && solicitudTraslado.Detalle != null)
             {
                 foreach (var item in solicitudTraslado.Detalle)
                 {

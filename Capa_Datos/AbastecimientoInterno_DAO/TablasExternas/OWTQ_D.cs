@@ -68,8 +68,8 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasExternas
                         {
                             BatchNum = hdr.IsDBNull(13) ? "" : hdr.GetString(13),
                             CantidadTotalPorSKUyLote = hdr.IsDBNull(14) ? 0 : Math.Round(hdr.GetDecimal(14), 0),
-                            FechaAdmision = hdr.IsDBNull(15) ? "" : hdr.GetString(15),
-                            FechaVencimiento = hdr.IsDBNull(16) ? "" : hdr.GetString(16)
+                            InDate = hdr.IsDBNull(15) ? "" : hdr.GetString(15),
+                            ExpDate = hdr.IsDBNull(16) ? "" : hdr.GetString(16)
                         };
 
                         // Agregar el lote al último elemento agregado
