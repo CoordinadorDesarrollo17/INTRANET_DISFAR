@@ -419,7 +419,7 @@
             let tbody = ''
 
             for (const itemCode in detalle) {
-                let key = detalle[itemCode]
+				let key = detalle[itemCode]
 
                 tbody += `<tr data-producto="${key.ItemCode}" class="fila-detalle">
 								<td class="details-control text-center">
@@ -431,7 +431,11 @@
 								<td class="text-center">RESERVA</td>
 								<td class="text-center">${key.DetalleLotes.map(l => l.BatchNum).join(', ')}</td>
 								<td class="text-center">
-									Transferido
+									${key.Estado == "TRANSFERIDO" ? '<span class="fw-bold">TRANSFERIDO</span>' : `
+										<button class="btn btn-danger" onclick="limpiarValoresItem('cls-limpiarItem_${key.ItemCode}')" 
+											data-bs-toggle="tooltip" data-bs-placement="top" title="Borrar valores de este artículo">
+											<i class="bi bi-eraser-fill"></i>
+										</button>`}
 								</td>
 							</tr>`
             }
@@ -659,7 +663,8 @@
                         AlmacenDestino: row.ToWhsCode || "",
                         ItemCode: itemCode,
                         ItemName: row.ItemName || "",
-                        CantidadTotalPorSKU: 0,
+						CantidadTotalPorSKU: 0,
+						Estado: row.Estado,
                         DetalleLotes: []
                     };
                 }
