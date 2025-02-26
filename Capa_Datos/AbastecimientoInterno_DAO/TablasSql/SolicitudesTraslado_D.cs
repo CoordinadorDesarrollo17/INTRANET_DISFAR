@@ -23,7 +23,8 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 try
                 {
                     cn.Open();
-                    SqlCommand cmd = new SqlCommand("sp_MantenimientoSolicitudTraslado", cn);
+                    using (SqlCommand cmd = new SqlCommand("sp_MantenimientoSolicitudTraslado", cn))
+                    {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@TipoMantenimiento", "GET");
                     cmd.Parameters.AddWithValue("@DocNum", docNum);
@@ -35,46 +36,55 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     cmd.Parameters.AddWithValue("@OperarioResponsableSAP", DBNull.Value);
                     cmd.Parameters.AddWithValue("@MotivoTraslado", DBNull.Value);
                     cmd.Parameters.AddWithValue("@Estado", DBNull.Value);
-                    cmd.Parameters.AddWithValue("@IdGenerado", 0);
-
-                    SqlDataReader dr = cmd.ExecuteReader();
-                    solicitud = new SolicitudesTraslado_E();
-                    if (!dr.IsDBNull(0)) { solicitud.Id = dr.GetInt32(0); }
-                    if (!dr.IsDBNull(1)) { solicitud.DocEntry = dr.GetInt32(1); }
-                    if (!dr.IsDBNull(2)) { solicitud.DocNum = dr.GetInt32(2); }
-                    if (!dr.IsDBNull(3)) { solicitud.DocDate = dr.GetDateTime(3).ToString("yyyy-MM-dd")  ; }
-                    if (!dr.IsDBNull(4)) { solicitud.CardCode = dr.GetString(4); }
-                    if (!dr.IsDBNull(5)) { solicitud.CardName = dr.GetString(5); }
-                    if (!dr.IsDBNull(6)) { solicitud.NroGuia = dr.GetString(6); }
-                    if (!dr.IsDBNull(7)) { solicitud.OperarioResponsableSAP = dr.GetString(7); }
-                    if (!dr.IsDBNull(8)) { solicitud.MotivoTraslado = dr.GetString(8); }
-                    if (!dr.IsDBNull(9)) { solicitud.Estado = dr.GetString(9); }
-                    solicitud.Detalle = new List<DetalleSolicitudesTraslado_E>();
-                    
-
-                    if (dr.NextResult() && solicitud != null)
-                    {
-                        while (dr.Read())
+                     var outputId = new SqlParameter("@IdGenerado", SqlDbType.Int)
                         {
-                            var detalle = new DetalleSolicitudesTraslado_E();
+                            Direction = ParameterDirection.Output
+                        };
+                     cmd.Parameters.Add(outputId);
 
-                            if (!dr.IsDBNull(0)) { detalle.Id = dr.GetInt32(0); }
-                            if (!dr.IsDBNull(1)) { detalle.SolicitudesTrasladoId = dr.GetInt32(1); }
-                            if (!dr.IsDBNull(2)) { detalle.ItemCode = dr.GetString(2); }
-                            if (!dr.IsDBNull(3)) { detalle.ItemName = dr.GetString(3); }
-                            if (!dr.IsDBNull(4)) { detalle.BatchNum = dr.GetString(4); }
-                            if (!dr.IsDBNull(5)) { detalle.QuantityCajas = dr.GetDecimal(5); }
-                            if (!dr.IsDBNull(6)) { detalle.FromWhsCode = dr.GetString(6); }
-                            if (!dr.IsDBNull(7)) { detalle.ToWhsCode = dr.GetString(7); }
-                            if (!dr.IsDBNull(8)) { detalle.Estado = dr.GetString(8); }
-                            if (!dr.IsDBNull(9)) { detalle.InDate = dr.GetDateTime(9).ToString("yyyy-MM-dd"); }
-                            if (!dr.IsDBNull(10)) { detalle.ExpDate = dr.GetDateTime(10).ToString("yyyy-MM-dd"); }
 
-                            solicitud.Detalle.Add(detalle);
+                        using (SqlDataReader dr = cmd.ExecuteReader())
+                        {
+                            if (dr.Read()) 
+                            {
+                                solicitud = new SolicitudesTraslado_E();
+                                if (!dr.IsDBNull(0)) { solicitud.Id = dr.GetInt32(0); }
+                                if (!dr.IsDBNull(1)) { solicitud.DocEntry = dr.GetInt32(1); }
+                                if (!dr.IsDBNull(2)) { solicitud.DocNum = dr.GetInt32(2); }
+                                if (!dr.IsDBNull(3)) { solicitud.DocDate = dr.GetDateTime(3).ToString("yyyy-MM-dd"); }
+                                if (!dr.IsDBNull(4)) { solicitud.CardCode = dr.GetString(4); }
+                                if (!dr.IsDBNull(5)) { solicitud.CardName = dr.GetString(5); }
+                                if (!dr.IsDBNull(6)) { solicitud.NroGuia = dr.GetString(6); }
+                                if (!dr.IsDBNull(7)) { solicitud.OperarioResponsableSAP = dr.GetString(7); }
+                                if (!dr.IsDBNull(8)) { solicitud.MotivoTraslado = dr.GetString(8); }
+                                if (!dr.IsDBNull(9)) { solicitud.Estado = dr.GetString(9); }
+                                solicitud.Detalle = new List<DetalleSolicitudesTraslado_E>();
+                            }
+
+                            if (dr.NextResult() && solicitud != null)
+                            {
+                                while (dr.Read())
+                                {
+                                    var detalle = new DetalleSolicitudesTraslado_E();
+
+                                    if (!dr.IsDBNull(0)) { detalle.Id = dr.GetInt32(0); }
+                                    if (!dr.IsDBNull(1)) { detalle.SolicitudesTrasladoId = dr.GetInt32(1); }
+                                    if (!dr.IsDBNull(2)) { detalle.ItemCode = dr.GetString(2); }
+                                    if (!dr.IsDBNull(3)) { detalle.ItemName = dr.GetString(3); }
+                                    if (!dr.IsDBNull(4)) { detalle.BatchNum = dr.GetString(4); }
+                                    if (!dr.IsDBNull(5)) { detalle.QuantityCajas = dr.GetDecimal(5); }
+                                    if (!dr.IsDBNull(6)) { detalle.FromWhsCode = dr.GetString(6); }
+                                    if (!dr.IsDBNull(7)) { detalle.ToWhsCode = dr.GetString(7); }
+                                    if (!dr.IsDBNull(8)) { detalle.Estado = dr.GetString(8); }
+                                    if (!dr.IsDBNull(9)) { detalle.InDate = dr.GetDateTime(9).ToString("yyyy-MM-dd"); }
+                                    if (!dr.IsDBNull(10)) { detalle.ExpDate = dr.GetDateTime(10).ToString("yyyy-MM-dd"); }
+
+                                    solicitud.Detalle.Add(detalle);
+                                }
+                            }
                         }
-                    }
 
-                    dr.Close();
+                    }
                 }
                 catch (Exception ex)
                 {
