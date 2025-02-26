@@ -711,7 +711,7 @@ namespace Capa_Usuario.Controllers
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 ViewBag.Owhs = new Capa_Negocio.General_NEG.Tablas.OWHS_N();
-                ViewBag.listaOitw = new Capa_Negocio.Almacen_NEG.Tablas.OITW_N().listarDetArticulosInv(new OITW_E { ItemCode=itemCode });
+                ViewBag.listaOitw = new Capa_Negocio.Almacen_NEG.Tablas.OITW_N().ListarDetArticulosInv(new OITW_E { ItemCode=itemCode });
                 return View(new Capa_Negocio.Almacen_NEG.Tablas.OITM_N().buscarArticulo(itemCode));
             }
             else

@@ -16,18 +16,29 @@ namespace Capa_Datos.Almacen_DAO.Tablas
         Utilitarios uti = new Utilitarios(); DBHelper db = new DBHelper();
         public List<OITW_E> ListarDetArticulosInv(OITW_E obj)
         {
+            string condWhere = string.Empty;
+            if (obj != null)
+            {
+                if (!string.IsNullOrEmpty(obj.WhsCode))
+                {
+                    condWhere = $@"AND T1.""WhsCode"" = '{obj.WhsCode}'";
+                }
+            }
+
             List<OITW_E> lista = new List<OITW_E>();
-            string query = $@"
-        SELECT 
-            T1.""WhsCode"" AS ""Almacen"",
-            T1.""ItemCode"" AS ""SKU"",
-            T1.""OnHand"" AS ""StockDisponible"",
-            T1.""OnOrder"" AS ""StockEnOrden"",
-            T1.""IsCommited"" AS ""StockComprometido"",
-            (T1.""OnHand"" - T1.""IsCommited"") AS ""StockLibre""
-        FROM {uti.schemaHana}OITW T1
-        WHERE T1.""ItemCode"" = '{obj.ItemCode}'
-        ORDER BY T1.""WhsCode""";
+           
+                    string query = $@"
+            SELECT 
+                T1.""ItemCode"" AS ""SKU"",
+                T1.""WhsCode"" AS ""Almacen"",
+                T1.""OnHand"" AS ""StockDisponible"",
+                T1.""OnOrder"" AS ""StockEnOrden"",
+                T1.""IsCommited"" AS ""StockComprometido"",
+                (T1.""OnHand"" - T1.""IsCommited"") AS ""StockLibre""
+            FROM {uti.schemaHana}OITW T1
+            WHERE T1.""ItemCode"" = '{obj.ItemCode}'  
+            {condWhere}
+            ORDER BY T1.""WhsCode""";
 
             try
             {
@@ -41,7 +52,10 @@ namespace Capa_Datos.Almacen_DAO.Tablas
                             WhsCode = hdr.IsDBNull(0) ? string.Empty : hdr.GetString(0),
                             OnHand = hdr.IsDBNull(2) ? 0 : Math.Round(hdr.GetDecimal(2), 0),
                             OnOrder = hdr.IsDBNull(3) ? 0 : Math.Round(hdr.GetDecimal(3), 0),
-                            IsCommited = hdr.IsDBNull(4) ? 0 : Math.Round(hdr.GetDecimal(4), 0)
+                            IsCommited = hdr.IsDBNull(4) ? 0 : Math.Round(hdr.GetDecimal(4), 0),
+                            StockLibre = hdr.IsDBNull(5) ? 0 : Math.Round(hdr.GetDecimal(5), 0)
+
+
                         };
                         lista.Add(o);
                     }

@@ -13,6 +13,10 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
     {
         StockMinProductos_D _datos = new StockMinProductos_D();
 
+        public StockMinProductos_E Obtener(string itemCode)
+        {
+            return _datos.Obtener(itemCode);
+         }
         public Helper_E ActualizarStocksMinimos(StockMinProductos_E form)
         {
             var errores = new List<string>();
