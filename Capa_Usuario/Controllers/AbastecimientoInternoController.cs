@@ -1,5 +1,6 @@
 using Aspose.Pdf.Operators;
 using Capa_Datos;
+using Capa_Datos.AbastecimientoInterno_DAO.TablasSql;
 using Capa_Entidad;
 using Capa_Entidad.AbastecimientoInterno_ENT.Interfaces;
 using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
@@ -229,14 +230,18 @@ namespace Capa_Usuario.Controllers
             {
                 if (transferenciaPost != null)
                 {
-                    // 1. Obtener la solicitud de traslado
+                    // Validar o inserta los lotes de registro sanitario (fuera de la transacción)
+                    _lotesRegistroSanitarioN.ValidarLotesRegistroSanitario(solicitudTraslado.Detalle);
+
+                    // Obtener la solicitud de traslado
                     var traslado = _solicitudTrasladoN.ObtenerSolicitudDeTraslado(solicitudTraslado.DocNum);
-                    // 2. Importa solo si no existe previamente el DocNum
+
+                    // Importa a las tablas internas solo si no existe previamente el DocNum
                     if (traslado == null)
                     {
                         traslado = _solicitudTrasladoN.ImportarSolicitudDeTraslado(solicitudTraslado);
                     }
-                    // 3. Validar si la importación fue exitosa
+                    // Validar si la importación fue exitosa
                     if (traslado == null || traslado.Id == 0)
                     {
                         return Json(new
@@ -246,9 +251,8 @@ namespace Capa_Usuario.Controllers
                             Icono = "error"
                         });
                     }
-                    // 4. Validar los lotes de registro sanitario (fuera de la transacción)
-                    _lotesRegistroSanitarioN.ValidarLotesRegistroSanitario(solicitudTraslado.Detalle);
-                    // 5. Obtener usuario de sesión (fuera de la transacción)
+
+                    // Obtener usuario de sesión (fuera de la transacción)
                     Usuario_E user = (Usuario_E)Session["UsuarioId"];
                     if (user == null)
                     {
@@ -259,13 +263,14 @@ namespace Capa_Usuario.Controllers
                             Icono = "error"
                         });
                     }
-                    // 6. Asignar datos de traslado a la transferencia
+
+                    // Asignar datos de traslado a la transferencia, preparando para registrar  agregar lineas a la transferencia
                     transferenciaPost.OperarioRegistra = $"{user.Nombres} {user.Apellidos}";
                     transferenciaPost.SolicitudTrasladoId = traslado.Id;
                     transferenciaPost.SolicitudTrasladoDocNum = traslado.DocNum;
 
                     Utilitarios uti = new Utilitarios();
-                    // 7. Iniciar la transacción global para las operaciones críticas
+                    // Iniciar la transacción global para las operaciones críticas
                     using (var scope = new TransactionScope(TransactionScopeOption.Required,
                        new TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted },
                        TransactionScopeAsyncFlowOption.Enabled))
@@ -273,11 +278,11 @@ namespace Capa_Usuario.Controllers
                         using (SqlConnection cn = new SqlConnection(uti.cadSql2))
                         {
                             cn.Open();
-                            // 7.1 Registrar la transferencia de reserva
+                            // Registrar  o agrega mas lineas al detalle de la transferencia de reserva
                             var transferenciaGet = _transferenciaReservaN.RegistrarTransferenciaReserva(transferenciaPost, cn);
                             if (transferenciaGet == null || transferenciaGet.Id == 0)
                             {
-                                // 7.1.1 Eliminar la solicitud de traslado si en caso se importo a la tabla interna pero no se ha encontrado una transferencia
+                                // Validar y eliminar la solicitud de traslado si en caso se importo a la tabla interna pero no se ha encontrado una transferencia
                                 var resultEliminacionTraslado = _solicitudTrasladoN.DeleteSolicitudDeTraslado(traslado.DocNum, cn);
                                 if (resultEliminacionTraslado.IconoSweetAlert.Equals("error"))
                                 {
@@ -289,7 +294,20 @@ namespace Capa_Usuario.Controllers
                                     });
                                 }
                             }
-                            // 7.2 Registrar la(s) operación(es) de ingreso(s) en KardexAbastecimiento - Los datos a insertar son los del detalle en transferencia
+
+                            //Actualiza a TRANSFERIDO en el DetalleDeSolicitudTraslado los ItemCode(s) que se hayan enviado para TransferenciaReserva
+                            var resultActualizarEstado=_solicitudTrasladoN.ActualizarEstado(transferenciaGet.SolicitudTrasladoId, transferenciaGet.Detalle, cn);
+                            if (resultActualizarEstado.IconoSweetAlert.Equals("error"))
+                            {
+                                return Json(new
+                                {
+                                    Mensaje = "No se pudo completar la acción",
+                                    Comentario = new List<string> { resultActualizarEstado.Mensaje },
+                                    Icono = resultActualizarEstado.IconoSweetAlert
+                                });
+                            }
+
+                            // Registrar la(s) operación(es) de ingreso(s) en KardexAbastecimiento - Los datos a insertar son los del detalle en transferencia
                             // TransferenciaGet ya tiene los datos limpios por enviar hacia el kardex y la suma de stocks
                             var resultKardex = _kardexAbastecimientoN.InsertarTransaccionIngresoKardex(transferenciaGet, cn);
                             if (resultKardex.IconoSweetAlert.Equals("error"))
@@ -301,7 +319,8 @@ namespace Capa_Usuario.Controllers
                                     Icono = resultKardex.IconoSweetAlert
                                 });
                             }
-                            // 7.3 Sumar y/o Registrar Quantity en Cajas en la tabla UbicacionesLotes
+
+                            // Sumar y/o Registrar QuantityUnidadesCajas en la tabla UbicacionesLotes
                             var resultUbicacionesLotes = new Helper_E();
 
                             foreach (var item in transferenciaGet.Detalle) {
@@ -317,7 +336,8 @@ namespace Capa_Usuario.Controllers
                                 }
 
                                 var ubicacionLoteId = resultUbicacionesLotes.Mensaje;
-                                // 7.4 Sumar y/o Registrar en la tabla UbicacionesLotesMaster
+                                // Sumar y/o Registrar en la tabla UbicacionesLotesMaster
+                                //Se envia el parametro de UbicacionesLoteId si en caso es una nueva UbicacionLote creada
                                 var resultUbicacionesLotesMaster = _ubicacionesLotesMasterN.Ingreso(Convert.ToInt32(ubicacionLoteId),item, cn);
                                 if (resultUbicacionesLotesMaster.IconoSweetAlert.Equals("error"))
                                 {
@@ -328,15 +348,13 @@ namespace Capa_Usuario.Controllers
                                         Icono = resultUbicacionesLotesMaster.IconoSweetAlert
                                     });
                                 }
-
                             }
-                            
-                            
-                            // 8. Confirmar la transacción
+
+                            // Confirmar la transacción
                             scope.Complete();
                         }
                     }
-                    // 9. Devolver respuesta exitosa
+                    // Devolver respuesta exitosa
                     return Json(new
                     {
                         Mensaje = "Acción completada exitosamente",
@@ -364,7 +382,7 @@ namespace Capa_Usuario.Controllers
                 });
             }
         }
-        public JsonResult CancelarTrasladoConTransferenciaReserva(int docNum) //recibe el docnum de la solicitud de traslado
+        public JsonResult CancelarTransferenciaYTraslado(int docNum) //recibe el docnum de la solicitud de traslado
         {
             try
             {
@@ -380,7 +398,8 @@ namespace Capa_Usuario.Controllers
                             Icono = "error"
                         });
                     }
-                    // El elemento de transferencia trae los datos a revertir, por ultimo se eliminara tambien el DetalleSolicitud Traslado asi como la SolicitudTraslado
+                    // El elemento de transferencia trae los datos a revertir en las transacciones.
+                    //Se eliminara tambien el DetalleSolicitudTraslado asi como la SolicitudTraslado
                     using (var scope = new TransactionScope(TransactionScopeOption.Required,
                              new TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted },
                              TransactionScopeAsyncFlowOption.Enabled))
@@ -445,7 +464,7 @@ namespace Capa_Usuario.Controllers
                                     Icono = resultSolicitudTraslado.IconoSweetAlert
                                 });
                             }
-                            // Confirmar la transacción
+                            
                             scope.Complete();
                         }
                     }
@@ -501,12 +520,12 @@ namespace Capa_Usuario.Controllers
                         transferenciaGet.Detalle = transferenciaGet.Detalle.Where(x => ids.Contains(x.Id)).ToList();
                     }
 
-                    //Validar que los ids en cuanto a la suma de QuantityUnidadesCajas es igual a Quantity de traslado respecto a ese ItemCode
+                    //Validar que los ids en cuanto a la suma de QuantityUnidadesCajas es igual a Quantity de DetSolicitudDeTraslado respecto a ese ItemCode
                     if(traslado.Detalle != null && transferenciaGet.Detalle != null)
                     {
                         traslado.Detalle = traslado.Detalle.Where(x => x.ItemCode.Equals(transferenciaGet.Detalle[0].ItemCode)).ToList();
 
-                        //Si las cantidades no coinciden quiere decir que no se ha pasado el grupo completo de los ids correspondientes a un ItemCode en la solicitud de traslado
+                        //Si las cantidades no coinciden quiere decir que no se ha pasado el grupo completo de los ids correspondientes a un ItemCode en la solicitud de traslado, muestra error
                         if (traslado.Detalle[0].QuantityCajas != transferenciaGet.Detalle.Sum(x => x.QuantityUnidadesCajas)){
                             return Json(new
                             {
@@ -605,8 +624,6 @@ namespace Capa_Usuario.Controllers
                                 });
                             }
                         }
-                       
-
                     }
 
                     return Json(new
@@ -677,20 +694,7 @@ namespace Capa_Usuario.Controllers
                                     Icono = "error"
                                 });
                             }
-                            //Validar que exista cantidad disponible de lo solicitado desde requerimiento en TB UbicacionesLotesMaster considerando la columna QuantityUnidadesDisponible
-
-                            //Validar que exista cantidad disponible de los solicitado en requerimiento, segun TB UbicacionesLotesMaster
-                            //var resultKardexValidar = _kardexAbastecimientoN.ValidarTransaccionImputadoKardex(requerimientoGet, cn);
-                            //if (resultKardexValidar.IconoSweetAlert.Equals("error"))
-                            //{
-                            //    return Json(new
-                            //    {
-                            //        Mensaje = "No se pudo completar la acción",
-                            //        Comentario = new List<string> { resultKardexValidar.Mensaje },
-                            //        Icono = resultKardexValidar.IconoSweetAlert
-                            //    });
-                            //}
-
+                         
                             // Registrar la(s) operación(es) de imputado(s) en KardexAbastecimiento - Los datos a insertar son los del detalle en requerimiento, RequerimientoGet ya tiene los datos limpios por enviar hacia el kardex como imputado, previamente validados
                             var resultKardexImputar = _kardexAbastecimientoN.InsertarTransaccionImputadoKardex(requerimientoGet, cn);
                             if (resultKardexImputar.IconoSweetAlert.Equals("error"))
@@ -702,18 +706,7 @@ namespace Capa_Usuario.Controllers
                                     Icono = resultKardexImputar.IconoSweetAlert
                                 });
                             }
-                            // columna QuantityUnidadesComprometido
-                            // comprometer el producto respecto a cantidades. Sumar a lo comprometido, restar  a QuantityUnidadesCajas
-                            //var resultKardexImputar = _kardexAbastecimientoN.InsertarTransaccionImputadoKardex(requerimientoGet, cn);
-                            //if (resultKardexImputar.IconoSweetAlert.Equals("error"))
-                            //{
-                            //    return Json(new
-                            //    {
-                            //        Mensaje = "No se pudo completar la acción",
-                            //        Comentario = new List<string> { resultKardexImputar.Mensaje },
-                            //        Icono = resultKardexImputar.IconoSweetAlert
-                            //    });
-                            //}
+                         
                             // Confirmar la transacción
                             scope.Complete();
                         }
@@ -746,90 +739,45 @@ namespace Capa_Usuario.Controllers
                 });
             }
         }
-        //Atendido de apiladores (Solo cambia el Atendido Reserva a 1)
-        public JsonResult AtenderReservaRequerimiento(string itemCode, string itemName, int cantidadGlobal, int requerimientoId)
+        //Listado de pendientes para apiladores con 4 posibles filtros
+        public JsonResult ListarRequerimientosApiladores(string nivel = "", string posicion = "", string rackBloque = "", string itemCode = "")
+        {
+            var lista = _requerimientosN.ListarDetalles("", "ListarApiladores")
+                .Where(x =>
+                    (string.IsNullOrEmpty(nivel) || x.Nivel == nivel) &&
+                    (string.IsNullOrEmpty(posicion) || x.Posicion == posicion) &&
+                    (string.IsNullOrEmpty(rackBloque) || x.RackBloque == rackBloque) &&
+                    (string.IsNullOrEmpty(itemCode) || x.ItemCode == itemCode)
+                ).ToList();
+
+            return Json(lista);
+        }
+        //Listado de pendientes para picking con 1 posible filtros
+        public JsonResult ListarRequerimientosPicking(string itemCode = "")
+        {
+            var lista = _requerimientosN.ListarDetalles("", "ListarPicking")
+                .Where(x =>
+                    (string.IsNullOrEmpty(itemCode) || x.ItemCode == itemCode)
+                ).ToList();
+
+            return Json(lista);
+        }
+        //Atendido de apiladores (Solo cambia el AtendidoReserva a 1)
+        public JsonResult AtenderReservaRequerimiento(DetalleRequerimientos_E detalle)
         {
             try
             {
-                if (requerimientoId > 0 && itemCode != null && itemName != null && cantidadGlobal > 0)
+                if (detalle!=null)
                 {
-                    Usuario_E user = (Usuario_E)Session["UsuarioId"];
-                    if (user == null)
-                    {
-                        return Json(new
-                        {
-                            Mensaje = "Error en la operación",
-                            Comentario = new List<string> { "No existe usuario logueado, se terminó la sesión." },
-                            Icono = "error"
-                        });
-                    }
-                    // Asignar datos de operario en el requerimiento
-                    var operarioRegistra = $"{user.Nombres} {user.Apellidos}";
-
-                    Utilitarios uti = new Utilitarios();
-
-                    // Iniciar la transacción global para las operaciones críticas
-                    using (var scope = new TransactionScope(TransactionScopeOption.Required,
-                       new TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted },
-                       TransactionScopeAsyncFlowOption.Enabled))
-                    {
-                        using (SqlConnection cn = new SqlConnection(uti.cadSql2))
-                        {
-                            cn.Open();
-
-                            // Registrar la(s) operación(es) de salida(s) en KardexAbastecimiento - Los datos a insertar son los del detalle en requerimiento, RequerimientoGet ya tiene los datos limpios por enviar hacia el kardex y la resta de stocks
-                            //cantidad global es la suma de todas las cantidades del itemcode
-                            var resultKardex = _kardexAbastecimientoN.InsertarTransaccionSalidaKardex(itemCode, itemName, cantidadGlobal, operarioRegistra, requerimientoId, cn);
-                            if (resultKardex.IconoSweetAlert.Equals("error"))
-                            {
-                                return Json(new
-                                {
-                                    Mensaje = "No se pudo completar la acción",
-                                    Comentario = new List<string> { resultKardex.Mensaje },
-                                    Icono = resultKardex.IconoSweetAlert
-                                });
-                            }
-
-                            var lista = _requerimientosN
-                               .ObtenerRequerimiento(requerimientoId)
-                               .Detalle
-                               .Where(x => x.ItemCode == itemCode)
-                               .ToList();
-
-                            // Restar y/o registrar Quantity en Cajas en la tabla UbicacionesLotes
-                            var resultUbicacionesLotes = _ubicacionesLotesN.Salida(lista, cn);
-                            if (resultUbicacionesLotes.IconoSweetAlert.Equals("error"))
-                            {
-                                return Json(new
-                                {
-                                    Mensaje = "No se pudo completar la acción",
-                                    Comentario = new List<string> { resultUbicacionesLotes.Mensaje },
-                                    Icono = resultUbicacionesLotes.IconoSweetAlert
-                                });
-                            }
-
-                            //Restar y/o Registrar en la tabla UbicacionesLotesMaster
-                            var resultUbicacionesLotesMaster = _ubicacionesLotesMasterN.Salida(lista, cn);
-                            if (resultUbicacionesLotesMaster.IconoSweetAlert.Equals("error"))
-                            {
-                                return Json(new
-                                {
-                                    Mensaje = "No se pudo completar la acción",
-                                    Comentario = new List<string> { resultUbicacionesLotesMaster.Mensaje },
-                                    Icono = resultUbicacionesLotesMaster.IconoSweetAlert
-                                });
-                            }
-                            // Confirmar la transacción
-                            scope.Complete();
-                        }
-                    }
-
-                    // Devolver respuesta exitosa
+                    //Actualizar a AtendidoReserva 1 solo la linea de detalle enviada
+                    var resultAtender = _requerimientosN.AtenderReserva(detalle.Id);
+                   
+                    // Devolver respuesta
                     return Json(new
                     {
-                        Mensaje = "Acción completada exitosamente",
-                        Comentario = new List<string> { "Se atendió el SKU correctamente." },
-                        Icono = "success"
+                        Mensaje = resultAtender.Mensaje,
+                        Comentario = new List<string> { resultAtender.Mensajes[0] },
+                        Icono = resultAtender.IconoSweetAlert
                     });
                 }
                 else
@@ -852,90 +800,117 @@ namespace Capa_Usuario.Controllers
                 });
             }
         }
-        //Atendido de Picking
-        public JsonResult AtenderPickingRequerimiento(string itemCode, string itemName, int cantidadGlobal, int requerimientoId)
+        //Atendido de Picking (Cambia el AtendidoPicking a 1 y valida si todo se completo respecto al sku del requerimiento para generar una salida en el Kardex
+        public JsonResult AtenderPickingRequerimiento(DetalleRequerimientos_E detalle)
         {
             try
             {
-                if (requerimientoId>0 && itemCode != null && itemName != null && cantidadGlobal > 0)
+                if (detalle != null)
                 {
-                    Usuario_E user = (Usuario_E)Session["UsuarioId"];
-                    if (user == null)
+                    //Actualizar a AtendidoPicking 1 solo la linea de detalle enviada
+                    var resultAtender = _requerimientosN.AtenderPicking(detalle.Id);
+
+                    if (resultAtender != null && resultAtender.IconoSweetAlert.Equals("success"))
                     {
+                        //Valida que todos los items del requerimiento con el mismo Sku esten en AtendidoPicking 1, de ser asi se genera kardex de salida
+                        bool listoKardexSalida = false;
+                        listoKardexSalida = _requerimientosN.ValidarSkuParaKardexSalida(detalle);
+
+                        if (listoKardexSalida)
+                        {
+                            Usuario_E user = (Usuario_E)Session["UsuarioId"];
+                            if (user == null)
+                            {
+                                return Json(new
+                                {
+                                    Mensaje = "Error en la operación",
+                                    Comentario = new List<string> { "No existe usuario logueado, se terminó la sesión." },
+                                    Icono = "error"
+                                });
+                            }
+                            // Asignar datos de operario para el kardex de salida 
+                            var operarioRegistra = $"{user.Nombres} {user.Apellidos}";
+
+                            Utilitarios uti = new Utilitarios();
+
+                            // Iniciar la transacción global para las operaciones críticas
+                            using (var scope = new TransactionScope(TransactionScopeOption.Required,
+                               new TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted },
+                               TransactionScopeAsyncFlowOption.Enabled))
+                            {
+                                using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+                                {
+                                    cn.Open();
+
+                                    // Registrar la operacion de salida en KardexAbastecimiento 
+                                    // Busca el requerimiento y calcula cantidad global es la suma de todas las cantidades del itemCode
+                                    var requerimientoGet = _requerimientosN.ObtenerRequerimiento(detalle.RequerimientoId);
+                                    var requerimientoPorSku = requerimientoGet.Detalle.Where(x => x.ItemCode == detalle.ItemCode).ToList();
+                                    int cantidadGlobal = Convert.ToInt32(requerimientoPorSku.Sum(x=>x.QuantityUnidadesCajas));
+
+                                    var resultKardex = _kardexAbastecimientoN.InsertarTransaccionSalidaKardex(detalle.ItemCode, detalle.ItemName, cantidadGlobal, operarioRegistra, detalle.RequerimientoId, cn);
+
+                                    if (resultKardex.IconoSweetAlert.Equals("error"))
+                                    {
+                                        return Json(new
+                                        {
+                                            Mensaje = "No se pudo completar la acción",
+                                            Comentario = new List<string> { resultKardex.Mensaje },
+                                            Icono = resultKardex.IconoSweetAlert
+                                        });
+                                    }
+                                   
+                                    // Restar y/o registrar Quantity en Cajas en la tabla UbicacionesLotes
+                                    var resultUbicacionesLotes = _ubicacionesLotesN.Salida(requerimientoPorSku, cn);
+                                    if (resultUbicacionesLotes.IconoSweetAlert.Equals("error"))
+                                    {
+                                        return Json(new
+                                        {
+                                            Mensaje = "No se pudo completar la acción",
+                                            Comentario = new List<string> { resultUbicacionesLotes.Mensaje },
+                                            Icono = resultUbicacionesLotes.IconoSweetAlert
+                                        });
+                                    }
+
+                                    //Restar y/o Registrar en la tabla UbicacionesLotesMaster
+                                    var resultUbicacionesLotesMaster = _ubicacionesLotesMasterN.Salida(requerimientoPorSku, cn);
+                                    if (resultUbicacionesLotesMaster.IconoSweetAlert.Equals("error"))
+                                    {
+                                        return Json(new
+                                        {
+                                            Mensaje = "No se pudo completar la acción",
+                                            Comentario = new List<string> { resultUbicacionesLotesMaster.Mensaje },
+                                            Icono = resultUbicacionesLotesMaster.IconoSweetAlert
+                                        });
+                                    }
+                                  
+                                    scope.Complete();
+                                }
+                            }
+
+                            // Devolver respuesta exitosa
+                            return Json(new
+                            {
+                                Mensaje = "Acción completada exitosamente",
+                                Comentario = new List<string> { "Se atendió el SKU correctamente." },
+                                Icono = "success"
+                            });
+                        }
+
+                        // Devolver respuesta exitosa
                         return Json(new
                         {
-                            Mensaje = "Error en la operación",
-                            Comentario = new List<string> { "No existe usuario logueado, se terminó la sesión." },
-                            Icono = "error"
+                            Mensaje = "Acción completada exitosamente",
+                            Comentario = new List<string> { "Se atendió el SKU correctamente." },
+                            Icono = "success"
                         });
                     }
-                    // Asignar datos de operario en el requerimiento
-                    var operarioRegistra = $"{user.Nombres} {user.Apellidos}";
 
-                    Utilitarios uti = new Utilitarios();
-
-                    // Iniciar la transacción global para las operaciones críticas
-                    using (var scope = new TransactionScope(TransactionScopeOption.Required,
-                       new TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted },
-                       TransactionScopeAsyncFlowOption.Enabled))
-                    {
-                        using (SqlConnection cn = new SqlConnection(uti.cadSql2))
-                        {
-                            cn.Open();
-
-                            // Registrar la(s) operación(es) de salida(s) en KardexAbastecimiento - Los datos a insertar son los del detalle en requerimiento, RequerimientoGet ya tiene los datos limpios por enviar hacia el kardex y la resta de stocks
-                            //cantidad global es la suma de todas las cantidades del itemcode
-                            var resultKardex = _kardexAbastecimientoN.InsertarTransaccionSalidaKardex(itemCode,itemName, cantidadGlobal, operarioRegistra, requerimientoId, cn);
-                            if (resultKardex.IconoSweetAlert.Equals("error"))
-                            {
-                                return Json(new
-                                {
-                                    Mensaje = "No se pudo completar la acción",
-                                    Comentario = new List<string> { resultKardex.Mensaje },
-                                    Icono = resultKardex.IconoSweetAlert
-                                });
-                            }
-
-                            var lista = _requerimientosN
-                               .ObtenerRequerimiento(requerimientoId)
-                               .Detalle
-                               .Where(x => x.ItemCode == itemCode)
-                               .ToList();
-
-                            // Restar y/o registrar Quantity en Cajas en la tabla UbicacionesLotes
-                            var resultUbicacionesLotes = _ubicacionesLotesN.Salida(lista, cn);
-                            if (resultUbicacionesLotes.IconoSweetAlert.Equals("error"))
-                            {
-                                return Json(new
-                                {
-                                    Mensaje = "No se pudo completar la acción",
-                                    Comentario = new List<string> { resultUbicacionesLotes.Mensaje },
-                                    Icono = resultUbicacionesLotes.IconoSweetAlert
-                                });
-                            }
-
-                            //Restar y/o Registrar en la tabla UbicacionesLotesMaster
-                            var resultUbicacionesLotesMaster = _ubicacionesLotesMasterN.Salida(lista, cn);
-                            if (resultUbicacionesLotesMaster.IconoSweetAlert.Equals("error"))
-                            {
-                                return Json(new
-                                {
-                                    Mensaje = "No se pudo completar la acción",
-                                    Comentario = new List<string> { resultUbicacionesLotesMaster.Mensaje },
-                                    Icono = resultUbicacionesLotesMaster.IconoSweetAlert
-                                });
-                            }
-                            // Confirmar la transacción
-                            scope.Complete();
-                        }
-                    }
-                    
-                    // Devolver respuesta exitosa
                     return Json(new
                     {
-                        Mensaje = "Acción completada exitosamente",
-                        Comentario = new List<string> { "Se atendió el SKU correctamente." },
-                        Icono = "success"
+                        Mensaje = resultAtender.Mensaje,
+                        Comentario = new List<string> { resultAtender.Mensajes[0] },
+                        Icono = resultAtender.IconoSweetAlert
                     });
                 }
                 else
@@ -965,10 +940,17 @@ namespace Capa_Usuario.Controllers
             {
                 itemCode = "PORT0078";
                 //Calcular desde SAP (Stock Total - Comprometido)  en Almacen 16 por defecto
-                int busqProducto = Convert.ToInt32(new Capa_Negocio.Almacen_NEG.Tablas.OITW_N().ListarDetArticulosInv(new OITW_E { ItemCode = itemCode ,WhsCode="16"}).DefaultIfEmpty(new OITW_E { }).First().StockLibre);
-                int stockMinimoAbastec = _stockMinProdN.Obtener(itemCode).StockMinAbastecimiento;
-                int stockInternoPorSku = _ubicacionesLotesN.Obtener(itemCode).Sum(u => u.QuantityUnidadesCajas);
-                cantidadSolicitada = busqProducto - stockInternoPorSku- stockMinimoAbastec;
+                int stockLibreEnAlmacen16 = Convert.ToInt32(new Capa_Negocio.Almacen_NEG.Tablas.OITW_N().ListarDetArticulosInv(new OITW_E { ItemCode = itemCode ,WhsCode="16"}).DefaultIfEmpty(new OITW_E { }).First().StockLibre);
+
+                int stockDeAlmReserva =/* _ubicacionesLotesN.Obtener(itemCode).Sum(u => u.QuantityUnidadesCajas)*/0 - 
+                    Convert.ToInt32(_requerimientosN.ListarDetalles(itemCode, "CantidadSolicitada").Sum(r => r.QuantityUnidadesCajas)); //resta de lo que esta por entrar a Picking Atendido=0
+
+                int stockEnPicking = stockLibreEnAlmacen16 - stockDeAlmReserva;
+
+                int stockMinimoParaLaVenta = _stockMinProdN.Obtener(itemCode).StockMinVenta;
+             
+                cantidadSolicitada = stockMinimoParaLaVenta - stockEnPicking ;
+                if(cantidadSolicitada < 0) { cantidadSolicitada=0; }
             }
             else
             {
