@@ -234,6 +234,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
                         cmd.Parameters.AddWithValue("@TipoMantenimiento", "UPDATE");
                         cmd.Parameters.AddWithValue("@ItemCode", itemCode);
+                        cmd.Parameters.AddWithValue("@Id", solicitudTrasladoId); // usa el parametro de la cabecera
 
                         cmd.ExecuteNonQuery();
                     }
