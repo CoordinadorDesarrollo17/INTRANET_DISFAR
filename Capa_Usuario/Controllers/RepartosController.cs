@@ -1,15 +1,8 @@
 ﻿using Capa_Entidad.General_ENT.TablasSql;
 using Capa_Entidad.Seguridad_ENT;
-using Capa_Entidad.Ventas_ENT.TablasSql;
-using Capa_Negocio.General_NEG.TablasSql;
 using Capa_Usuario.Helpers;
-using iTextSharp.text.pdf;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.Web.Mvc;
-
 namespace Capa_Usuario.Controllers
 {
     public class RepartosController : Controller
@@ -26,7 +19,6 @@ namespace Capa_Usuario.Controllers
                 userHostAddress = Request.UserHostAddress,
                 userHostName = Request.UserHostName
             };
-
             return AccesoHelper.GestionarAccesoController(this, accesoHelper);
         }
         /********************************************************************/
@@ -38,14 +30,11 @@ namespace Capa_Usuario.Controllers
                 Placa = placa,
                 Conductor = conductor
             };
-
             return Json(response, JsonRequestBehavior.AllowGet);
-
         }
         public ActionResult GestionarAgencias(OAGE_E o, string TipoRep, string msj, int idOperation = 5000)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
-
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 ViewBag.Mensaje = msj;
@@ -60,19 +49,16 @@ namespace Capa_Usuario.Controllers
         public JsonResult RegistrarAgencia(Capa_Entidad.General_ENT.TablasSql.OAGE_E o, int idOperation = 5000)
         {
             string acceso = AccesoHelper.VerificarAccesos(idOperation, (Usuario_E)Session["UsuarioId"], this.ControllerContext.RouteData.Values["action"].ToString(), Request.UserHostAddress, Request.UserHostName);
-
             if (acceso == "C_Access")
             {
                 return Json(new Capa_Negocio.General_NEG.TablasSql.OAGE_N().Registrar(o));
             }
             else
             { return null; }
-
         }
         public ActionResult EliminarAgencia(int Id, int idOperation = 5000)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
-
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 try
@@ -80,7 +66,6 @@ namespace Capa_Usuario.Controllers
                     new Capa_Negocio.General_NEG.TablasSql.OAGE_N().Eliminar(Id);
                     return RedirectToAction("GestionarAgencias");
                 }
-
                 catch (Exception e)
                 {
                     ViewBag.Mensaje = e.Message;

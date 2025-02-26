@@ -230,7 +230,6 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                 if (!dr.IsDBNull(32)) { o.SerieT2 = dr.GetString(32); }
                 dr.Close();
 
-                // RRU0
                 StringBuilder sb = new StringBuilder();
 
                 sb.Append("SELECT R0.DocEntry, R0.Linea, R0.DocEntryTicket, R0.DocNumTicket, R0.Guias, R0.Verificado, R0.Cajas, R0.Observaciones, R0.MontoFinal, R0.Envio, R0.Direcciones,");
@@ -894,7 +893,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                         AND DocEntry = T1.DocEntry 
                   ORDER BY FechaOperacion DESC, HoraOperacion DESC) IN ('{FechaTerEn}') 
                  AND T1.Estado = 'ENTREGADO' 
-                 AND T0.DocEntry = {obj.DocEntry}";
+                 AND T0.DocEntry = {obj.DocEntry} ";
 
 
                     }
@@ -1035,7 +1034,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                 catch { }
             }
 
-            return lista;
+            return lista.OrderBy(x=>x.HoraLlegada).ToList();
         }
         public List<RptPesaje_E> ListarRptPesaje(FiltroRptPesaje datosFiltro)
         {
