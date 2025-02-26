@@ -280,7 +280,7 @@ namespace Capa_Usuario.Controllers
                             cn.Open();
                             // Registrar  o agrega mas lineas al detalle de la transferencia de reserva
                             var transferenciaGet = _transferenciaReservaN.RegistrarTransferenciaReserva(transferenciaPost, cn);
-                            if (transferenciaGet == null || transferenciaGet.Id == 0)
+                            if (transferenciaGet.Id == 0)
                             {
                                 // Validar y eliminar la solicitud de traslado si en caso se importo a la tabla interna pero no se ha encontrado una transferencia
                                 var resultEliminacionTraslado = _solicitudTrasladoN.DeleteSolicitudDeTraslado(traslado.DocNum, cn);
