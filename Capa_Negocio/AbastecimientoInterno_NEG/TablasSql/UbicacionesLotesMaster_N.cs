@@ -54,5 +54,22 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
 
             return datosUbicacionesLM.BuscarUnidadAlm(condicion.ToString(), parametros);
         }
+        
+        public List<UbicacionesLotesMaster_E> BuscarArticulos(UbicacionesLotesMaster_E filtros = null, StringBuilder condicion = null, Dictionary<string, object> parametros = null)
+        {
+            condicion = new StringBuilder();
+            parametros = new Dictionary<string, object>();
+
+            if (filtros != null)
+            {
+                if (!string.IsNullOrWhiteSpace(filtros.ItemCode))
+                {
+                    condicion.AppendLine("AND ULM.[ItemCode] = @ItemCode");
+                    parametros["@ItemCode"] = filtros.ItemCode;
+                }
+            }
+
+            return datosUbicacionesLM.BuscarArticulos(condicion.ToString(), parametros);
+        }
     }
 }

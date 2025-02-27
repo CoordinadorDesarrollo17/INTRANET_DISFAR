@@ -296,7 +296,7 @@ namespace Capa_Usuario.Controllers
                             }
 
                             //Actualiza a TRANSFERIDO en el DetalleDeSolicitudTraslado los ItemCode(s) que se hayan enviado para TransferenciaReserva
-                            var resultActualizarEstado=_solicitudTrasladoN.ActualizarEstado(transferenciaGet.SolicitudTrasladoId, transferenciaGet.Detalle, cn);
+                            var resultActualizarEstado = _solicitudTrasladoN.ActualizarEstado(transferenciaGet.SolicitudTrasladoId, transferenciaGet.Detalle, cn);
                             if (resultActualizarEstado.IconoSweetAlert.Equals("error"))
                             {
                                 return Json(new
@@ -323,7 +323,8 @@ namespace Capa_Usuario.Controllers
                             // Sumar y/o Registrar QuantityUnidadesCajas en la tabla UbicacionesLotes
                             var resultUbicacionesLotes = new Helper_E();
 
-                            foreach (var item in transferenciaGet.Detalle) {
+                            foreach (var item in transferenciaGet.Detalle)
+                            {
                                 resultUbicacionesLotes = _ubicacionesLotesN.Ingreso(item, cn);
                                 if (resultUbicacionesLotes.IconoSweetAlert.Equals("error"))
                                 {
@@ -338,7 +339,7 @@ namespace Capa_Usuario.Controllers
                                 var ubicacionLoteId = resultUbicacionesLotes.Mensaje;
                                 // Sumar y/o Registrar en la tabla UbicacionesLotesMaster
                                 //Se envia el parametro de UbicacionesLoteId si en caso es una nueva UbicacionLote creada
-                                var resultUbicacionesLotesMaster = _ubicacionesLotesMasterN.Ingreso(Convert.ToInt32(ubicacionLoteId),item, cn);
+                                var resultUbicacionesLotesMaster = _ubicacionesLotesMasterN.Ingreso(Convert.ToInt32(ubicacionLoteId), item, cn);
                                 if (resultUbicacionesLotesMaster.IconoSweetAlert.Equals("error"))
                                 {
                                     return Json(new
@@ -464,7 +465,7 @@ namespace Capa_Usuario.Controllers
                                     Icono = resultSolicitudTraslado.IconoSweetAlert
                                 });
                             }
-                            
+
                             scope.Complete();
                         }
                     }
@@ -496,7 +497,7 @@ namespace Capa_Usuario.Controllers
             }
 
         }
-        public JsonResult RevertirTransferenciaReservaPorItem(int docNum,int [] ids) //recibe el docnum de la solicitud de traslado y el array de Ids del detalle transferencia reserva que son de un solo ItemCode
+        public JsonResult RevertirTransferenciaReservaPorItem(int docNum, int[] ids) //recibe el docnum de la solicitud de traslado y el array de Ids del detalle transferencia reserva que son de un solo ItemCode
         {
             try
             {
@@ -513,7 +514,7 @@ namespace Capa_Usuario.Controllers
                             Icono = "error"
                         });
                     }
-                    
+
                     //Identificar solo los id's segun el array, reduciendo mi Detalle
                     if (transferenciaGet.Detalle != null)
                     {
@@ -521,16 +522,17 @@ namespace Capa_Usuario.Controllers
                     }
 
                     //Validar que los ids en cuanto a la suma de QuantityUnidadesCajas es igual a Quantity de DetSolicitudDeTraslado respecto a ese ItemCode
-                    if(traslado.Detalle != null && transferenciaGet.Detalle != null)
+                    if (traslado.Detalle != null && transferenciaGet.Detalle != null)
                     {
                         traslado.Detalle = traslado.Detalle.Where(x => x.ItemCode.Equals(transferenciaGet.Detalle[0].ItemCode)).ToList();
 
                         //Si las cantidades no coinciden quiere decir que no se ha pasado el grupo completo de los ids correspondientes a un ItemCode en la solicitud de traslado, muestra error
-                        if (traslado.Detalle[0].QuantityCajas != transferenciaGet.Detalle.Sum(x => x.QuantityUnidadesCajas)){
+                        if (traslado.Detalle[0].QuantityCajas != transferenciaGet.Detalle.Sum(x => x.QuantityUnidadesCajas))
+                        {
                             return Json(new
                             {
                                 Mensaje = "No se pudo completar la acción",
-                                Comentario = new List<string> { $"La suma de cantidades a revertir no coincide con el total en la solicitud de traslado para el SKU:{ transferenciaGet.Detalle[0].ItemCode } "},
+                                Comentario = new List<string> { $"La suma de cantidades a revertir no coincide con el total en la solicitud de traslado para el SKU:{transferenciaGet.Detalle[0].ItemCode} " },
                                 Icono = "error"
                             });
                         }
@@ -590,7 +592,7 @@ namespace Capa_Usuario.Controllers
                                         Icono = resultTransferencia.IconoSweetAlert
                                     });
                                 }
-                                
+
                                 // Confirmar la transacción
                                 scope.Complete();
                             }
@@ -598,10 +600,10 @@ namespace Capa_Usuario.Controllers
 
                         //Verificar si la TransferenciaReserva se quedo sin elementos 
                         var transferenciaPostReversion = _transferenciaReservaN.ObtenerTransferenciaReserva(docNum);
-                        if (transferenciaPostReversion != null && transferenciaPostReversion.Detalle.Count() == 0) 
-                        { 
+                        if (transferenciaPostReversion != null && transferenciaPostReversion.Detalle.Count() == 0)
+                        {
                             //Eliminar la transferencia 
-                            var resultEliminarTransferencia= _transferenciaReservaN.DeleteTransferenciaReserva(docNum,null);
+                            var resultEliminarTransferencia = _transferenciaReservaN.DeleteTransferenciaReserva(docNum, null);
                             if (resultEliminarTransferencia.IconoSweetAlert.Equals("error"))
                             {
                                 return Json(new
@@ -655,6 +657,41 @@ namespace Capa_Usuario.Controllers
 
         }
         /****************************** R E Q U E R I M I E N T O S ****************************/
+        public ActionResult Requerimientos(int idOperation = 3300)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                return View();
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
+
+        [HttpGet]
+        public ActionResult ListarArticulos(string tipoAbastecimiento, string itemCode, int cantidadSolicitada)
+        {
+            var usuarioSesion = Session["UsuarioId"] as Usuario_E;
+            if (usuarioSesion == null)
+                return Json(new { Mensaje = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" });
+
+            var lista = _ubicacionesLotesMasterN.BuscarArticulos(new UbicacionesLotesMaster_E { ItemCode = itemCode });
+
+            switch (tipoAbastecimiento)
+            {
+                case "Picking":
+                    return PartialView("AbastecimientoInterno/_ListadoArticulosPicking", lista);
+
+                case "Venta":
+                    return PartialView("AbastecimientoInterno/_ListadoArticulosVenta", lista);
+
+                default:
+                    return HttpNotFound("No se encontró la vista para el tipo de abastecimiento especificado.");
+            }
+        }
+
         public JsonResult RegistrarRequerimiento(Requerimientos_E requerimiento)
         {
             try
@@ -694,7 +731,7 @@ namespace Capa_Usuario.Controllers
                                     Icono = "error"
                                 });
                             }
-                         
+
                             // Registrar la(s) operación(es) de imputado(s) en KardexAbastecimiento - Los datos a insertar son los del detalle en requerimiento, RequerimientoGet ya tiene los datos limpios por enviar hacia el kardex como imputado, previamente validados
                             var resultKardexImputar = _kardexAbastecimientoN.InsertarTransaccionImputadoKardex(requerimientoGet, cn);
                             if (resultKardexImputar.IconoSweetAlert.Equals("error"))
@@ -706,7 +743,7 @@ namespace Capa_Usuario.Controllers
                                     Icono = resultKardexImputar.IconoSweetAlert
                                 });
                             }
-                         
+
                             // Confirmar la transacción
                             scope.Complete();
                         }
@@ -767,11 +804,11 @@ namespace Capa_Usuario.Controllers
         {
             try
             {
-                if (detalle!=null)
+                if (detalle != null)
                 {
                     //Actualizar a AtendidoReserva 1 solo la linea de detalle enviada
                     var resultAtender = _requerimientosN.AtenderReserva(detalle.Id);
-                   
+
                     // Devolver respuesta
                     return Json(new
                     {
@@ -846,7 +883,7 @@ namespace Capa_Usuario.Controllers
                                     // Busca el requerimiento y calcula cantidad global es la suma de todas las cantidades del itemCode
                                     var requerimientoGet = _requerimientosN.ObtenerRequerimiento(detalle.RequerimientoId);
                                     var requerimientoPorSku = requerimientoGet.Detalle.Where(x => x.ItemCode == detalle.ItemCode).ToList();
-                                    int cantidadGlobal = Convert.ToInt32(requerimientoPorSku.Sum(x=>x.QuantityUnidadesCajas));
+                                    int cantidadGlobal = Convert.ToInt32(requerimientoPorSku.Sum(x => x.QuantityUnidadesCajas));
 
                                     var resultKardex = _kardexAbastecimientoN.InsertarTransaccionSalidaKardex(detalle.ItemCode, detalle.ItemName, cantidadGlobal, operarioRegistra, detalle.RequerimientoId, cn);
 
@@ -859,7 +896,7 @@ namespace Capa_Usuario.Controllers
                                             Icono = resultKardex.IconoSweetAlert
                                         });
                                     }
-                                   
+
                                     // Restar y/o registrar Quantity en Cajas en la tabla UbicacionesLotes
                                     var resultUbicacionesLotes = _ubicacionesLotesN.Salida(requerimientoPorSku, cn);
                                     if (resultUbicacionesLotes.IconoSweetAlert.Equals("error"))
@@ -883,7 +920,7 @@ namespace Capa_Usuario.Controllers
                                             Icono = resultUbicacionesLotesMaster.IconoSweetAlert
                                         });
                                     }
-                                  
+
                                     scope.Complete();
                                 }
                             }
@@ -936,21 +973,20 @@ namespace Capa_Usuario.Controllers
         public JsonResult CalcularCantidadSolicitada(string tipoAbastecimiento, string itemCode)
         {
             int cantidadSolicitada = 0;
-            if (tipoAbastecimiento != null && tipoAbastecimiento.Equals("Picking") && itemCode!=null)
+            if (tipoAbastecimiento != null && tipoAbastecimiento.Equals("Picking") && itemCode != null)
             {
-                itemCode = "PORT0078";
                 //Calcular desde SAP (Stock Total - Comprometido)  en Almacen 16 por defecto
-                int stockLibreEnAlmacen16 = Convert.ToInt32(new Capa_Negocio.Almacen_NEG.Tablas.OITW_N().ListarDetArticulosInv(new OITW_E { ItemCode = itemCode ,WhsCode="16"}).DefaultIfEmpty(new OITW_E { }).First().StockLibre);
+                int stockLibreEnAlmacen16 = Convert.ToInt32(new Capa_Negocio.Almacen_NEG.Tablas.OITW_N().ListarDetArticulosInv(new OITW_E { ItemCode = itemCode, WhsCode = "16" }).DefaultIfEmpty(new OITW_E { }).First().StockLibre);
 
-                int stockDeAlmReserva =/* _ubicacionesLotesN.Obtener(itemCode).Sum(u => u.QuantityUnidadesCajas)*/0 - 
+                int stockDeAlmReserva =/* _ubicacionesLotesN.Obtener(itemCode).Sum(u => u.QuantityUnidadesCajas)*/0 -
                     Convert.ToInt32(_requerimientosN.ListarDetalles(itemCode, "CantidadSolicitada").Sum(r => r.QuantityUnidadesCajas)); //resta de lo que esta por entrar a Picking Atendido=0
 
                 int stockEnPicking = stockLibreEnAlmacen16 - stockDeAlmReserva;
 
                 int stockMinimoParaLaVenta = _stockMinProdN.Obtener(itemCode).StockMinVenta;
-             
-                cantidadSolicitada = stockMinimoParaLaVenta - stockEnPicking ;
-                if(cantidadSolicitada < 0) { cantidadSolicitada=0; }
+
+                cantidadSolicitada = stockMinimoParaLaVenta - stockEnPicking;
+                if (cantidadSolicitada < 0) { cantidadSolicitada = 0; }
             }
             else
             {

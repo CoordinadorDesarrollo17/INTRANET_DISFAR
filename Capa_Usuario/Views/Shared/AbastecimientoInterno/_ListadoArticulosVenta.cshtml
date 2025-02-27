@@ -1,0 +1,53 @@
+@{ int num = 1; }
+<table id="tbl_listaArticulosAbastPicking" class="dt-container dt-empty-footer table table-sm table-hover table-bordered table-striped font-14" width="100%">
+    <thead class="thead-cobefar">
+        <tr>
+            <th scope="col" class="text-center" style="width: 5%;">#</th>
+            <th scope="col" class="text-center">Descripción</th>
+            <th scope="col" class="text-center">Lote</th>
+            <th scope="col" class="text-center">Fechas</th>
+            <th scope="col" class="text-center">Ubicación RESERVA</th>
+            <th scope="col" class="text-center">Unidad MASTER</th>
+            <th scope="col" class="text-center">Stock MASTER</th>
+            <th scope="col" class="text-center">Stock SALDO</th>
+            <th scope="col" class="text-center">Stock UNIDS</th>
+            <th scope="col" class="text-center">Stock Saliendo</th>
+        </tr>
+    </thead>
+    <tbody class="text-dark">
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td scope="col" class="text-center" style="width: 5%;">@num</td>
+                <td scope="col">
+                    <span class="fw-bold ps-2 font-16 text-cobefar">@item.ItemCode</span>
+                    <br />
+                    <span class="ps-2">@item.ItemName</span>
+                </td>
+                <td scope="col" class="text-center">@item.BatchNum</td>
+                <td scope="col" class="text-center">
+                    <span class="fw-bold text-cobefar">Venc.: </span>@item.InDate
+                    <br />
+                    <span class="fw-bold text-cobefar">Adm.:</span> @item.ExpDate
+                </td>
+                <td scope="col" class="text-center">@item.CodigoUbicacion</td>
+                <td scope="col" class="text-center">@item.UmAlm</td>
+                <td scope="col" class="text-center">@item.QuantityMaster</td>
+                <td scope="col" class="text-center">@item.QuantitySaldo</td>
+                <td scope="col" class="text-center">@item.QuantityUnidadesCajas</td>
+                <td scope="col" class="text-center">
+                    <div class="d-flex justify-content-center">
+                        <input type="text" name="" class="form-control cls-num" value="" style="width: 130px" />
+                    </div>
+                </td>
+            </tr>
+            num++;
+        }
+    </tbody>
+
+</table>
+
+<script>
+    permitirValoresNumericosPositivos()
+    inicializarDataTable('tbl_listaArticulosAbastPicking', '25')
+</script>
