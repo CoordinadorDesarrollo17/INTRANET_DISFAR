@@ -690,7 +690,8 @@ namespace Capa_Usuario.Controllers
             if (usuarioSesion == null)
                 return Json(new { Mensaje = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" });
 
-            var lista = _ubicacionesLotesMasterN.BuscarArticulos(new UbicacionesLotesMaster_E { ItemCode = itemCode });
+            var lista = _ubicacionesLotesMasterN.BuscarArticulos(new UbicacionesLotesMaster_E { ItemCode = itemCode })
+                .DefaultIfEmpty(new UbicacionesLotesMaster_E());
 
             switch (tipoAbastecimiento)
             {
@@ -988,7 +989,6 @@ namespace Capa_Usuario.Controllers
             int cantidadSolicitada = 0;
             if (tipoAbastecimiento != null && tipoAbastecimiento.Equals("Picking") && itemCode != null)
             {
-                itemCode = "PORT0078";
                 //Calcular desde SAP (Stock Total - Stock Comprometido)  en Almacen 16 por defecto
                 int stockLibreEnAlmacen16 = Convert.ToInt32(new Capa_Negocio.Almacen_NEG.Tablas.OITW_N().ListarDetArticulosInv(new OITW_E { ItemCode = itemCode ,WhsCode="16"}).DefaultIfEmpty(new OITW_E { }).First().StockLibre);
 

@@ -62,10 +62,10 @@
 
         <div class="row">
             <div class="col-lg-12">
-                <label for="" class="form-label fw-bold">Código del producto:</label>
+                <label for="" class="form-label fw-bold">Código de artículo:</label>
                 <div class="d-flex align-items-center">
-                    <input type="text" id="" class="form-control" name="" autocomplete="off" style="width: 250px">
-                    <button type="button" class="btn btn-danger"><i class="bi bi-trash3-fill"></i> Retirar del detalle</button>
+                    <input type="text" id="borrar_codigo_articulo" class="form-control" name="" autocomplete="off" style="width: 250px">
+                    <button type="button" class="btn btn-danger" onclick="borrarItemDetalle(event)"><i class="bi bi-trash3-fill"></i> Borrar del detalle</button>
                 </div>
             </div>
         </div><!-- // row-->
@@ -83,6 +83,20 @@
                         </tr>
                     </thead>
                     <tbody class="text-dark">
+                        <tr id="fila_ABCDEF_1">
+                            <td scope="col" class="text-center" style="width: 5%;">1</td>
+                            <td scope="col" class="text-center">ABCDEF <input type="hidden" name="" data-fila="fila_ABCDEF_1" class="cls-itemCodes" value="ABCDEF" /> </td>
+                            <td scope="col" class="text-center">Descripción</td>
+                            <td scope="col" class="text-center">50</td>
+                            <td scope="col" class="text-center">------</td>
+                        </tr>
+                        <tr id="fila_YYYDEF_1">
+                            <td scope="col" class="text-center" style="width: 5%;">1</td>
+                            <td scope="col" class="text-center">YYYDEF <input type="hidden" name="" data-fila="fila_YYYDEF_1" class="cls-itemCodes" value="YYYDEF" /> </td>
+                            <td scope="col" class="text-center">Descripción</td>
+                            <td scope="col" class="text-center">50</td>
+                            <td scope="col" class="text-center">------</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -284,5 +298,38 @@
             window.open('@Url.Action("UbicacionesPicking", "AbastecimientoInterno")', '_blank');
         }
 
+        function borrarItemDetalle(e) {
+            e.preventDefault()
+            const borrarItemCode = document.querySelector('#borrar_codigo_articulo').value.trim() || ''
+            let items = document.querySelectorAll('.cls-itemCodes')
+            let itemEncontrado = false
+
+            if (items.length > 0) {
+                items.forEach(item => {
+                    if(item.value.trim() === borrarItemCode) { // Compara sin espacios extras
+                        let fila = document.getElementById(item.dataset.fila); // Más eficiente que `querySelector`
+
+                        if (fila) {
+                            fila.remove(); // Eliminar la fila
+                            console.log(`Fila ${item.dataset.fila} eliminada.`);
+                            itemEncontrado = true; // Se encontró y eliminó
+                        } else {
+                            console.warn(`No se encontró la fila con ID: ${item.dataset.fila}`);
+                        }
+                    }
+                })
+
+                if (!itemEncontrado) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Código no encontrado',
+                        text: 'El código de artículo ingresado no se encuentra en el detalle.',
+                        allowEscapeKey: false,
+                        allowOutsideClick: false,
+                    });
+                }
+            }
+
+        }
     </script>
 }
