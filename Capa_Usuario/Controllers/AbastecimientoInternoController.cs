@@ -10,14 +10,17 @@ using Capa_Entidad.Ventas_ENT.TablasSql;
 using Capa_Negocio.AbastecimientoInterno_NEG.TablasExternas;
 using Capa_Negocio.AbastecimientoInterno_NEG.TablasSql;
 using Capa_Usuario.Helpers;
+using DocumentFormat.OpenXml.Spreadsheet;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Drawing;
 using System.Linq;
 using System.Transactions;
 using System.util;
 using System.Web.Mvc;
+using System.Web.Services.Description;
 namespace Capa_Usuario.Controllers
 {
     public class AbastecimientoInternoController : Controller
@@ -70,7 +73,7 @@ namespace Capa_Usuario.Controllers
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
-                return Json(new { Mensaje = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" });
+                return Json(new { Titulo = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" });
             var listaAgrupada = _ubicacionPickingN.ListarUbicacionesPicking(filtros)
                 .GroupBy(u => new { u.ItemCode, u.ItemName, u.StockMinAbastecimiento, u.StockMinVenta })
                 .Select(grupo => new UbicacionesPicking_E
@@ -89,33 +92,33 @@ namespace Capa_Usuario.Controllers
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
-                return Json(new { Mensaje = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" });
+                return Json(new { Titulo = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" });
             form.NombreOperarioAccion = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
             var result = _ubicacionPickingN.RegistrarUbicacionPicking(form);
             string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
-            return Json(new { Mensaje = tituloSweetAlert, Comentario = result.Mensajes, Icono = result.IconoSweetAlert });
+            return Json(new { Titulo = tituloSweetAlert, Comentario = result.Mensajes, Icono = result.IconoSweetAlert });
         }
         public JsonResult EliminarUbicacionPicking(int id)
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
-                return Json(new { Mensaje = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" });
+                return Json(new { Titulo = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" });
             var result = _ubicacionPickingN.EliminarUbicacionPicking(id);
             string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
-            return Json(new { Mensaje = tituloSweetAlert, Comentario = new List<string> { result.Mensaje }, Icono = result.IconoSweetAlert });
+            return Json(new { Titulo = tituloSweetAlert, Mensajes =  result.Mensajes , Icono = result.IconoSweetAlert });
         }
         public JsonResult ActualizarStocksMinimos(StockMinProductos_E form)
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
-                return Json(new { Mensaje = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" });
+                return Json(new { Titulo = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" });
             form.NombreOperarioAccion = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
             var result = _stockMinProdN.ActualizarStocksMinimos(form);
             string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
             return Json(new
             {
-                Mensaje = tituloSweetAlert,
-                Comentario = result.Mensajes,
+                Titulo = tituloSweetAlert,
+                result.Mensajes,
                 Icono = result.IconoSweetAlert
             });
         }
@@ -138,7 +141,7 @@ namespace Capa_Usuario.Controllers
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
-                return Json(new { Mensaje = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" });
+                return Json(new { Titulo = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" });
             var listaAgrupada = _ubicacionReservaN.ListarUbicacionesReserva(filtros)
                 .GroupBy(u => new { u.ItemCode, u.ItemName })
                 .Select(grupo => new UbicacionesReserva_E
@@ -155,29 +158,39 @@ namespace Capa_Usuario.Controllers
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
-                return Json(new { Mensaje = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" });
+                return Json(new { Titulo = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" });
             form.NombreOperarioAccion = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
             var result = _ubicacionReservaN.RegistrarUbicacionReserva(form);
             string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
-            return Json(new { Mensaje = tituloSweetAlert, Comentario = result.Mensajes, Icono = result.IconoSweetAlert });
+            return Json(new { Titulo = tituloSweetAlert, Comentario = result.Mensajes, Icono = result.IconoSweetAlert });
         }
         public JsonResult EliminarUbicacionReserva(int id)
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
-                return Json(new { Mensaje = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" });
+                return Json(new { Titulo = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" });
             var result = _ubicacionReservaN.EliminarUbicacionReserva(id);
             string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
-            return Json(new { Mensaje = tituloSweetAlert, Comentario = new List<string> { result.Mensaje }, Icono = result.IconoSweetAlert });
+            return Json(new
+            {
+                Titulo = tituloSweetAlert,
+                result.Mensajes,
+                Icono = result.IconoSweetAlert
+            });
         }
         public JsonResult EliminarUbicacionGeneral(string codigoUbicacion)
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
-                return Json(new { Mensaje = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" });
+                return Json(new { Titulo = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" });
             var result = _ubicacionesN.EliminarUbicacionGeneral(codigoUbicacion);
             string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
-            return Json(new { Mensaje = tituloSweetAlert, Comentario = new List<string> { result.Mensaje }, Icono = result.IconoSweetAlert });
+            return Json(new
+            {
+                Titulo = tituloSweetAlert,
+                result.Mensajes,
+                Icono = result.IconoSweetAlert
+            });
         }
         /************************* S O L I C I T U D   D E   T R A S L A D O *************************/
         public JsonResult BuscarSolicitudDeTraslado(int docNum)
@@ -189,7 +202,7 @@ namespace Capa_Usuario.Controllers
                 var tituloSweetAlert = "No se pudo completar la acción";
                 var icono = "error";
                 var mensaje = "No existe ningun resultado";
-                return Json(new { Mensaje = tituloSweetAlert, Comentario = new List<string> { mensaje }, Icono = icono });
+                return Json(new { Titulo = tituloSweetAlert, Comentario = new List<string> { mensaje }, Icono = icono });
             }
             TransferenciaReserva_E transferencia = null;
             if (traslado?.Id > 0)
@@ -201,7 +214,7 @@ namespace Capa_Usuario.Controllers
                     var tituloSweetAlert = "No se pudo completar la acción";
                     var icono = "error";
                     var mensaje = "No existe ningun resultado de transferencia relacionada a la solicitud de traslado que ya esta registrada.";
-                    return Json(new { Mensaje = tituloSweetAlert, Comentario = new List<string> { mensaje }, Icono = icono });
+                    return Json(new { Titulo = tituloSweetAlert, Comentario = new List<string> { mensaje }, Icono = icono });
                 }
             }
             return Json(new { traslado, transferencia });
@@ -288,8 +301,8 @@ namespace Capa_Usuario.Controllers
                                 {
                                     return Json(new
                                     {
-                                        Mensaje = "No se pudo completar la acción",
-                                        Comentario = new List<string> { resultEliminacionTraslado.Mensaje },
+                                        Titulo = "No se pudo completar la acción",
+                                        resultEliminacionTraslado.Mensajes,
                                         Icono = resultEliminacionTraslado.IconoSweetAlert
                                     });
                                 }
@@ -301,8 +314,8 @@ namespace Capa_Usuario.Controllers
                             {
                                 return Json(new
                                 {
-                                    Mensaje = "No se pudo completar la acción",
-                                    Comentario = new List<string> { resultActualizarEstado.Mensaje },
+                                    Titulo = "No se pudo completar la acción",
+                                    resultActualizarEstado.Mensajes ,
                                     Icono = resultActualizarEstado.IconoSweetAlert
                                 });
                             }
@@ -314,8 +327,8 @@ namespace Capa_Usuario.Controllers
                             {
                                 return Json(new
                                 {
-                                    Mensaje = "No se pudo completar la acción",
-                                    Comentario = new List<string> { resultKardex.Mensaje },
+                                    Titulo = "No se pudo completar la acción",
+                                    resultKardex.Mensajes,
                                     Icono = resultKardex.IconoSweetAlert
                                 });
                             }
@@ -329,13 +342,13 @@ namespace Capa_Usuario.Controllers
                                 {
                                     return Json(new
                                     {
-                                        Mensaje = "No se pudo completar la acción",
-                                        Comentario = new List<string> { resultUbicacionesLotes.Mensaje },
+                                        Titulo = "No se pudo completar la acción",
+                                        resultUbicacionesLotes.Mensajes,
                                         Icono = resultUbicacionesLotes.IconoSweetAlert
                                     });
                                 }
 
-                                var ubicacionLoteId = resultUbicacionesLotes.Mensaje;
+                                var ubicacionLoteId = resultUbicacionesLotes.Id;
                                 // Sumar y/o Registrar en la tabla UbicacionesLotesMaster
                                 //Se envia el parametro de UbicacionesLoteId si en caso es una nueva UbicacionLote creada
                                 var resultUbicacionesLotesMaster = _ubicacionesLotesMasterN.Ingreso(Convert.ToInt32(ubicacionLoteId),item, cn);
@@ -343,8 +356,8 @@ namespace Capa_Usuario.Controllers
                                 {
                                     return Json(new
                                     {
-                                        Mensaje = "No se pudo completar la acción",
-                                        Comentario = new List<string> { resultUbicacionesLotesMaster.Mensaje },
+                                        Titulo = "No se pudo completar la acción",
+                                        resultUbicacionesLotesMaster.Mensajes,
                                         Icono = resultUbicacionesLotesMaster.IconoSweetAlert
                                     });
                                 }
@@ -357,8 +370,8 @@ namespace Capa_Usuario.Controllers
                     // Devolver respuesta exitosa
                     return Json(new
                     {
-                        Mensaje = "Acción completada exitosamente",
-                        Comentario = new List<string> { "Se registró la Transferencia Reserva correctamente." },
+                        Titulo = "Acción completada exitosamente",
+                        Mensajes = new List<string> { "Se registró la Transferencia Reserva correctamente." },
                         Icono = "success"
                     });
                 }
@@ -366,8 +379,8 @@ namespace Capa_Usuario.Controllers
                 {
                     return Json(new
                     {
-                        Mensaje = "Error en la operación",
-                        Comentario = new List<string> { "El documento que trata de registrar no tiene una transferencia realizandose." },
+                        Titulo = "Error en la operación",
+                        Mensajes = new List<string> { "El documento que trata de registrar no tiene una transferencia realizandose." },
                         Icono = "error"
                     });
                 }
@@ -376,8 +389,8 @@ namespace Capa_Usuario.Controllers
             {
                 return Json(new
                 {
-                    Mensaje = "Error en la operación",
-                    Comentario = new List<string> { ex.Message },
+                    Titulo = "Error en la operación",
+                    Mensajes = new List<string> { ex.Message },
                     Icono = "error"
                 });
             }
@@ -393,8 +406,8 @@ namespace Capa_Usuario.Controllers
                     {
                         return Json(new
                         {
-                            Mensaje = "No se pudo completar la acción",
-                            Comentario = new List<string> { "No se encontró transferencia de reserva relacionada." },
+                            Titulo = "No se pudo completar la acción",
+                            Mensajes = new List<string> { "No se encontró transferencia de reserva relacionada." },
                             Icono = "error"
                         });
                     }
@@ -415,8 +428,8 @@ namespace Capa_Usuario.Controllers
                             {
                                 return Json(new
                                 {
-                                    Mensaje = "No se pudo completar la acción",
-                                    Comentario = new List<string> { resultUbicacionesLotesMaster.Mensaje },
+                                    Titulo = "No se pudo completar la acción",
+                                    resultUbicacionesLotesMaster.Mensajes,
                                     Icono = resultUbicacionesLotesMaster.IconoSweetAlert
                                 });
                             }
@@ -426,8 +439,8 @@ namespace Capa_Usuario.Controllers
                             {
                                 return Json(new
                                 {
-                                    Mensaje = "No se pudo completar la acción",
-                                    Comentario = new List<string> { resultUbicacionesLotes.Mensaje },
+                                    Titulo = "No se pudo completar la acción",
+                                    resultUbicacionesLotes.Mensajes ,
                                     Icono = resultUbicacionesLotes.IconoSweetAlert
                                 });
                             }
@@ -437,8 +450,8 @@ namespace Capa_Usuario.Controllers
                             {
                                 return Json(new
                                 {
-                                    Mensaje = "No se pudo completar la acción",
-                                    Comentario = new List<string> { resultKardex.Mensaje },
+                                    Titulo = "No se pudo completar la acción",
+                                    resultKardex.Mensajes,
                                     Icono = resultKardex.IconoSweetAlert
                                 });
                             }
@@ -448,8 +461,8 @@ namespace Capa_Usuario.Controllers
                             {
                                 return Json(new
                                 {
-                                    Mensaje = "No se pudo completar la acción",
-                                    Comentario = new List<string> { resultTransferencia.Mensaje },
+                                    Titulo = "No se pudo completar la acción",
+                                    resultTransferencia.Mensajes ,
                                     Icono = resultTransferencia.IconoSweetAlert
                                 });
                             }
@@ -459,8 +472,8 @@ namespace Capa_Usuario.Controllers
                             {
                                 return Json(new
                                 {
-                                    Mensaje = "No se pudo completar la acción",
-                                    Comentario = new List<string> { resultTransferencia.Mensaje },
+                                    Titulo = "No se pudo completar la acción",
+                                    resultTransferencia.Mensajes ,
                                     Icono = resultSolicitudTraslado.IconoSweetAlert
                                 });
                             }
@@ -470,8 +483,8 @@ namespace Capa_Usuario.Controllers
                     }
                     return Json(new
                     {
-                        Mensaje = "Acción completada exitosamente",
-                        Comentario = new List<string> { "Se canceló la Transferencia Reserva y Solicitud de Traslado correctamente." },
+                        Titulo = "Acción completada exitosamente",
+                        Mensajes = new List<string> { "Se canceló la Transferencia Reserva y Solicitud de Traslado correctamente." },
                         Icono = "success"
                     });
                 }
@@ -479,8 +492,8 @@ namespace Capa_Usuario.Controllers
                 {
                     return Json(new
                     {
-                        Mensaje = "Error en la operación",
-                        Comentario = new List<string> { "El docNum es invalido." },
+                        Titulo = "Error en la operación",
+                        Mensajes = new List<string> { "El docNum es invalido." },
                         Icono = "error"
                     });
                 }
@@ -489,8 +502,8 @@ namespace Capa_Usuario.Controllers
             {
                 return Json(new
                 {
-                    Mensaje = "Error en la operación",
-                    Comentario = new List<string> { ex.Message },
+                    Titulo = "Error en la operación",
+                    Mensajes = new List<string> { ex.Message },
                     Icono = "error"
                 });
             }
@@ -551,8 +564,8 @@ namespace Capa_Usuario.Controllers
                                 {
                                     return Json(new
                                     {
-                                        Mensaje = "No se pudo completar la acción",
-                                        Comentario = new List<string> { resultUbicacionesLotesMaster.Mensaje },
+                                        Titulo = "No se pudo completar la acción",
+                                        resultUbicacionesLotesMaster.Mensajes ,
                                         Icono = resultUbicacionesLotesMaster.IconoSweetAlert
                                     });
                                 }
@@ -562,8 +575,8 @@ namespace Capa_Usuario.Controllers
                                 {
                                     return Json(new
                                     {
-                                        Mensaje = "No se pudo completar la acción",
-                                        Comentario = new List<string> { resultUbicacionesLotes.Mensaje },
+                                        Titulo = "No se pudo completar la acción",
+                                        resultUbicacionesLotes.Mensajes,
                                         Icono = resultUbicacionesLotes.IconoSweetAlert
                                     });
                                 }
@@ -573,8 +586,8 @@ namespace Capa_Usuario.Controllers
                                 {
                                     return Json(new
                                     {
-                                        Mensaje = "No se pudo completar la acción",
-                                        Comentario = new List<string> { resultKardex.Mensaje },
+                                        Titulo = "No se pudo completar la acción",
+                                        resultKardex.Mensajes ,
                                         Icono = resultKardex.IconoSweetAlert
                                     });
                                 }
@@ -585,8 +598,8 @@ namespace Capa_Usuario.Controllers
                                 {
                                     return Json(new
                                     {
-                                        Mensaje = "No se pudo completar la acción",
-                                        Comentario = new List<string> { resultTransferencia.Mensaje },
+                                        Titulo = "No se pudo completar la acción",
+                                        resultTransferencia.Mensajes,
                                         Icono = resultTransferencia.IconoSweetAlert
                                     });
                                 }
@@ -606,8 +619,8 @@ namespace Capa_Usuario.Controllers
                             {
                                 return Json(new
                                 {
-                                    Mensaje = "No se pudo completar la acción",
-                                    Comentario = new List<string> { resultEliminarTransferencia.Mensaje },
+                                    Titulo = "No se pudo completar la acción",
+                                    resultEliminarTransferencia.Mensajes,
                                     Icono = resultEliminarTransferencia.IconoSweetAlert
                                 });
                             }
@@ -618,8 +631,8 @@ namespace Capa_Usuario.Controllers
                             {
                                 return Json(new
                                 {
-                                    Mensaje = "No se pudo completar la acción",
-                                    Comentario = new List<string> { resultSolicitudTraslado.Mensaje },
+                                    Titulo = "No se pudo completar la acción",
+                                    resultSolicitudTraslado.Mensajes ,
                                     Icono = resultSolicitudTraslado.IconoSweetAlert
                                 });
                             }
@@ -701,8 +714,8 @@ namespace Capa_Usuario.Controllers
                             {
                                 return Json(new
                                 {
-                                    Mensaje = "No se pudo completar la acción",
-                                    Comentario = new List<string> { resultKardexImputar.Mensaje },
+                                    Titulo = "No se pudo completar la acción",
+                                    resultKardexImputar.Mensajes ,
                                     Icono = resultKardexImputar.IconoSweetAlert
                                 });
                             }
@@ -771,12 +784,12 @@ namespace Capa_Usuario.Controllers
                 {
                     //Actualizar a AtendidoReserva 1 solo la linea de detalle enviada
                     var resultAtender = _requerimientosN.AtenderReserva(detalle.Id);
-                   
+
                     // Devolver respuesta
                     return Json(new
                     {
-                        Mensaje = resultAtender.Mensaje,
-                        Comentario = new List<string> { resultAtender.Mensajes[0] },
+                        Titulo = "Acción completada exitosamente",
+                        resultAtender.Mensajes ,
                         Icono = resultAtender.IconoSweetAlert
                     });
                 }
@@ -784,8 +797,8 @@ namespace Capa_Usuario.Controllers
                 {
                     return Json(new
                     {
-                        Mensaje = "Error en la operación",
-                        Comentario = new List<string> { "Los datos enviados son inválidos." },
+                        Titulo = "Error en la operación",
+                        Mensajes = new List<string> { "Los datos enviados son inválidos." },
                         Icono = "error"
                     });
                 }
@@ -854,8 +867,8 @@ namespace Capa_Usuario.Controllers
                                     {
                                         return Json(new
                                         {
-                                            Mensaje = "No se pudo completar la acción",
-                                            Comentario = new List<string> { resultKardex.Mensaje },
+                                            Titulo = "No se pudo completar la acción",
+                                            resultKardex.Mensajes ,
                                             Icono = resultKardex.IconoSweetAlert
                                         });
                                     }
@@ -866,8 +879,8 @@ namespace Capa_Usuario.Controllers
                                     {
                                         return Json(new
                                         {
-                                            Mensaje = "No se pudo completar la acción",
-                                            Comentario = new List<string> { resultUbicacionesLotes.Mensaje },
+                                            Titulo = "No se pudo completar la acción",
+                                            resultUbicacionesLotes.Mensajes,
                                             Icono = resultUbicacionesLotes.IconoSweetAlert
                                         });
                                     }
@@ -878,8 +891,8 @@ namespace Capa_Usuario.Controllers
                                     {
                                         return Json(new
                                         {
-                                            Mensaje = "No se pudo completar la acción",
-                                            Comentario = new List<string> { resultUbicacionesLotesMaster.Mensaje },
+                                            Titulo = "No se pudo completar la acción",
+                                            resultUbicacionesLotesMaster.Mensajes,
                                             Icono = resultUbicacionesLotesMaster.IconoSweetAlert
                                         });
                                     }
@@ -908,8 +921,8 @@ namespace Capa_Usuario.Controllers
 
                     return Json(new
                     {
-                        Mensaje = resultAtender.Mensaje,
-                        Comentario = new List<string> { resultAtender.Mensajes[0] },
+                        Titulo = "Error en la operación",
+                        resultAtender.Mensajes ,
                         Icono = resultAtender.IconoSweetAlert
                     });
                 }
@@ -917,8 +930,8 @@ namespace Capa_Usuario.Controllers
                 {
                     return Json(new
                     {
-                        Mensaje = "Error en la operación",
-                        Comentario = new List<string> { "Los datos enviados son inválidos." },
+                        Titulo = "Error en la operación",
+                        Mensajes = new List<string> { "Los datos enviados son inválidos." },
                         Icono = "error"
                     });
                 }
@@ -939,10 +952,10 @@ namespace Capa_Usuario.Controllers
             if (tipoAbastecimiento != null && tipoAbastecimiento.Equals("Picking") && itemCode!=null)
             {
                 itemCode = "PORT0078";
-                //Calcular desde SAP (Stock Total - Comprometido)  en Almacen 16 por defecto
+                //Calcular desde SAP (Stock Total - Stock Comprometido)  en Almacen 16 por defecto
                 int stockLibreEnAlmacen16 = Convert.ToInt32(new Capa_Negocio.Almacen_NEG.Tablas.OITW_N().ListarDetArticulosInv(new OITW_E { ItemCode = itemCode ,WhsCode="16"}).DefaultIfEmpty(new OITW_E { }).First().StockLibre);
 
-                int stockDeAlmReserva =/* _ubicacionesLotesN.Obtener(itemCode).Sum(u => u.QuantityUnidadesCajas)*/0 - 
+                int stockDeAlmReserva =_ubicacionesLotesN.Obtener(itemCode).Sum(u => u.QuantityUnidadesCajas) - 
                     Convert.ToInt32(_requerimientosN.ListarDetalles(itemCode, "CantidadSolicitada").Sum(r => r.QuantityUnidadesCajas)); //resta de lo que esta por entrar a Picking Atendido=0
 
                 int stockEnPicking = stockLibreEnAlmacen16 - stockDeAlmReserva;
@@ -950,7 +963,8 @@ namespace Capa_Usuario.Controllers
                 int stockMinimoParaLaVenta = _stockMinProdN.Obtener(itemCode).StockMinVenta;
              
                 cantidadSolicitada = stockMinimoParaLaVenta - stockEnPicking ;
-                if(cantidadSolicitada < 0) { cantidadSolicitada=0; }
+
+                if(cantidadSolicitada < 0) { cantidadSolicitada = 0; }
             }
             else
             {

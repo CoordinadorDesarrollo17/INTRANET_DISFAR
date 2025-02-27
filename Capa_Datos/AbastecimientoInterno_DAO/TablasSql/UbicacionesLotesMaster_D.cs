@@ -82,7 +82,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 throw new Exception("Error en Ingreso.", ex);
             }
 
-            return new Helper_E { Mensaje = mensaje, IconoSweetAlert = icono };
+            return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
         }
         public Helper_E RevertirIngreso(TransferenciaReserva_E ingreso, SqlConnection cn)
         {
@@ -128,7 +128,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 throw new Exception("Error en Revertir ingreso.", ex);
             }
 
-            return new Helper_E { Mensaje = mensaje, IconoSweetAlert = icono };
+            return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
         }
         public Helper_E Salida(List<DetalleRequerimientos_E> salida, SqlConnection cn)
         {
@@ -174,7 +174,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 throw new Exception("Error en Salida.", ex);
             }
 
-            return new Helper_E { Mensaje = mensaje, IconoSweetAlert = icono };
+            return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
         }
         public string BuscarUnidadAlm(string condicion, Dictionary<string, object> parametrosCondicion)
         {

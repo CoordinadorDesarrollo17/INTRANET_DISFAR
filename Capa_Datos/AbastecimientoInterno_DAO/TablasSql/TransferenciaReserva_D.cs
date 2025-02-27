@@ -196,7 +196,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 throw new Exception("Error en DeleteTransferenciaReserva.", ex);
             }
 
-            return new Helper_E { Mensaje = mensaje, IconoSweetAlert = icono };
+            return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
         }
         public Helper_E DeleteDetalleItemTransferenciaReserva(List<DetalleTransferenciaReserva_E> ids, SqlConnection cn)
         {
@@ -231,7 +231,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 throw new Exception("Error en DeleteDetalleItemTransferenciaReserva.", ex);
             }
 
-            return new Helper_E { Mensaje = mensaje, IconoSweetAlert = icono };
+            return new Helper_E { Mensajes = new List<string> { mensaje }   , IconoSweetAlert = icono };
         }
 
     }

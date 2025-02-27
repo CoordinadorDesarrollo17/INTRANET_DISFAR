@@ -814,11 +814,11 @@ namespace Capa_Usuario.Controllers
 
             if (result)
             {
-                return Json(new { Mensaje = "" });
+                return Json(new { Titulo = "" });
             }
             else
             {
-                return Json(new { Mensaje = "Sin Datos" });
+                return Json(new { Titulo = "Sin Datos" });
             }
         }
 

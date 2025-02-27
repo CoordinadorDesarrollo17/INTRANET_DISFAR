@@ -62,19 +62,27 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
                 try
                 {
-                    using (SqlCommand cmd = new SqlCommand("sp_GestionarStockMinProductos", cn, transaction))
+                    if (datos.StockMinAbastecimiento > 0 && datos.StockMinVenta > 0)
                     {
-                        cmd.CommandType = CommandType.StoredProcedure;
+                        using (SqlCommand cmd = new SqlCommand("sp_GestionarStockMinProductos", cn, transaction))
+                        {
+                            cmd.CommandType = CommandType.StoredProcedure;
 
-                        cmd.Parameters.AddWithValue("@ItemCode", datos.ItemCode);
-                        cmd.Parameters.AddWithValue("@ItemName", datos.ItemName);
-                        cmd.Parameters.AddWithValue("@StockMinAbastecimiento", datos.StockMinAbastecimiento);
-                        cmd.Parameters.AddWithValue("@StockMinVenta", datos.StockMinVenta);
-                        cmd.ExecuteNonQuery();
+                            cmd.Parameters.AddWithValue("@ItemCode", datos.ItemCode);
+                            cmd.Parameters.AddWithValue("@ItemName", datos.ItemName);
+                            cmd.Parameters.AddWithValue("@StockMinAbastecimiento", datos.StockMinAbastecimiento);
+                            cmd.Parameters.AddWithValue("@StockMinVenta", datos.StockMinVenta);
+                            cmd.ExecuteNonQuery();
 
-                        transaction.Commit();
-                        mensaje = "Stocks mínimos establecidos correctamente.";
-                        icono = "success";
+                            transaction.Commit();
+                            mensaje = "Stocks mínimos establecidos correctamente.";
+                            icono = "success";
+                        }
+                    }
+                    else
+                    {
+                        mensaje = "Los datos no son válidos.";
+                        icono = "error";
                     }
                 }
                 catch (Exception ex)
@@ -86,7 +94,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 }
             }
 
-            return new Helper_E { Mensaje = mensaje, IconoSweetAlert = icono };
+            return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
         }
     }
 }

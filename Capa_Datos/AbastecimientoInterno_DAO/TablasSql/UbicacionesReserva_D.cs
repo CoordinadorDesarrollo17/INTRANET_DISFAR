@@ -171,7 +171,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 LogHelper.RegistrarError(ex, $"Error inesperado en UbicacionesReserva_D - EliminarUbicacionReserva.");
             }
 
-            return new Helper_E { Mensaje = mensajeUsuario, IconoSweetAlert = icono };
+            return new Helper_E { Mensajes = new List<string> { mensajeUsuario }, IconoSweetAlert = icono };
         }
 
         

@@ -68,7 +68,7 @@ namespace Capa_Negocio
         {
             return new Helper_E
             {
-                Mensaje = mensaje,
+                Mensajes = new List<string> { mensaje },
                 IconoSweetAlert = "error"
             };
         }

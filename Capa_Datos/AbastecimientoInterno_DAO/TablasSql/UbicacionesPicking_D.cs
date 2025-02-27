@@ -107,22 +107,9 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                         cmd.ExecuteNonQuery();
                         id = (int)outputId.Value;
                     }
-
-                    // Ejecutar sp_GestionarStockMinProductos (Registra los stocks mínimos)
-                    using (SqlCommand cmd = new SqlCommand("sp_GestionarStockMinProductos", cn, transaction))
-                    {
-                        cmd.CommandType = CommandType.StoredProcedure;
-
-                        cmd.Parameters.AddWithValue("@ItemCode", datos.ItemCode);
-                        cmd.Parameters.AddWithValue("@ItemName", datos.ItemName);
-                        cmd.Parameters.AddWithValue("@StockMinAbastecimiento", datos.StockMinAbastecimiento);
-                        cmd.Parameters.AddWithValue("@StockMinVenta", datos.StockMinVenta);
-
-                        cmd.ExecuteNonQuery();
-                    }
-
+                   
                     transaction.Commit();
-                    mensaje = "Los datos y stocks mínimos han sido registrados correctamente.";
+                    mensaje = "Los datos de nueva ubicación han sido registrados correctamente.";
                     icono = "success";
                 }
                 catch (Exception ex)
@@ -170,7 +157,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 }
             }
 
-            return new Helper_E { Id = id, Mensaje = mensaje, IconoSweetAlert = icono };
+            return new Helper_E { Id = id,  Mensajes = new List<string> { mensaje } , IconoSweetAlert = icono };
         }
     }
 }

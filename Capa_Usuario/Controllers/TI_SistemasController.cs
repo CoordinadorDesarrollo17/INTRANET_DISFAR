@@ -86,7 +86,7 @@ namespace Capa_Usuario.Controllers
                 {
                     var result = ousrN.crearUsuario(datosPost, $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}");
 
-                    return RedirectToAction("GestionPermisos", new { result.Mensaje });
+                    return RedirectToAction("GestionPermisos", new { result.Mensajes });
                 }
                 catch (Exception e)
                 {
@@ -229,19 +229,19 @@ namespace Capa_Usuario.Controllers
 
             if (string.IsNullOrWhiteSpace(acceso) || !acceso.Equals("C_Access"))
             {
-                return Json(new { Mensaje = "Error crítico", Comentario = new List<string>() { "No cuentas con permisos para realizar esta acción." }, Icono = "error" });
+                return Json(new { Titulo = "Error crítico", Comentario = new List<string>() { "No cuentas con permisos para realizar esta acción." }, Icono = "error" });
             }
 
             if (operaciones == null || rolID <= 0)
             {
-                return Json(new { Mensaje = "Error crítico", Comentario = new List<string>() { "Recargar página e intentar de nuevo." }, Icono = "error" });
+                return Json(new { Titulo = "Error crítico", Comentario = new List<string>() { "Recargar página e intentar de nuevo." }, Icono = "error" });
             }
 
             var mensajeError = new ROL_OPE_N().AsignarPermisosPorRol(operaciones, rolID);
             string mensaje = string.IsNullOrWhiteSpace(mensajeError) ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
             string iconoMensaje = string.IsNullOrWhiteSpace(mensajeError) ? "success" : "warning";
 
-            return Json(new { Mensaje = mensaje, Comentario = new List<string>() { mensajeError }, Icono = iconoMensaje });
+            return Json(new { Titulo = mensaje, Comentario = new List<string>() { mensajeError }, Icono = iconoMensaje });
         }
 
         public JsonResult AsignarPermisosPorUsuario(List<int> operaciones, int usrDocEntry, int idOperation = 4001)
@@ -250,19 +250,19 @@ namespace Capa_Usuario.Controllers
 
             if (string.IsNullOrWhiteSpace(acceso) || !acceso.Equals("C_Access"))
             {
-                return Json(new { Mensaje = "Error crítico", Comentario = new List<string>() { "No cuentas con permisos para realizar esta acción." }, Icono = "error" });
+                return Json(new { Titulo = "Error crítico", Comentario = new List<string>() { "No cuentas con permisos para realizar esta acción." }, Icono = "error" });
             }
 
             if (operaciones == null || usrDocEntry <= 0)
             {
-                return Json(new { Mensaje = "Error crítico", Comentario = new List<string>() { "Recargar página e intentar de nuevo." }, Icono = "error" });
+                return Json(new { Titulo = "Error crítico", Comentario = new List<string>() { "Recargar página e intentar de nuevo." }, Icono = "error" });
             }
 
             var mensajeError = new OUSR_OPE_N().AsignarPermisosPorUsuario(operaciones, usrDocEntry);
             string mensaje = string.IsNullOrWhiteSpace(mensajeError) ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
             string iconoMensaje = string.IsNullOrWhiteSpace(mensajeError) ? "success" : "warning";
 
-            return Json(new { Mensaje = mensaje, Comentario = new List<string>() { mensajeError }, Icono = iconoMensaje });
+            return Json(new { Titulo = mensaje, Comentario = new List<string>() { mensajeError }, Icono = iconoMensaje });
         }
 
         // infos

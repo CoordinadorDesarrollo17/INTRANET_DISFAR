@@ -334,7 +334,7 @@ namespace Capa_Datos
                 }
             }
 
-            return new Helper_E { DocEntry = docEntry, Mensaje= mensaje };
+            return new Helper_E { DocEntry = docEntry, Mensajes = new List<string> { mensaje } };
         }
         public string EditarUsuario(Usuario_E datos)
         {
