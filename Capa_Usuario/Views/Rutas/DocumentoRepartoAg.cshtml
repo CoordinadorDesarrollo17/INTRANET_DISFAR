@@ -60,7 +60,7 @@
     <table border="1" style="border-collapse: collapse; width: 100%;">
         <tr>
             <th colspan="2">
-                <img src="~/imagenes/logoventa2.jpg" style="width:150px;height:60px;" />
+                <img src="~/Content/img/logo-drogueria-cobefar.jpg" style="width:150px;height:60px;" />
             </th>
             <th colspan="2">FORMATO DE AGENCIA </th>
             <th colspan="4">Chofer: @Model.TransDesc <br /> Nro: @Model.DocNum <br />Placa: @Model.Placa</th>
@@ -160,7 +160,7 @@
         {
             <tr>
                 <th colspan="12" style="text-align:right">
-                    Total Cajas Almacen Nro 8: @Model.DetRRU0.Where(x => x.Estado != "LIBERADO" && x.Estado != "ANULADO" &&
+                    Total Cajas Almacen: @Model.DetRRU0.Where(x => x.Estado != "LIBERADO" && x.Estado != "ANULADO" &&
 x.Ticket.Det2.FirstOrDefault(s => s.Monto > 0 && s.AlmacenSalida != "07").AlmacenSalida.Equals("16")).Sum(x => x.Cajas)
                 </th>
             </tr>

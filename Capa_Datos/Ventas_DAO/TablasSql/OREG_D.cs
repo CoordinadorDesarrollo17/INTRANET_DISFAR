@@ -182,10 +182,9 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             catch (Exception e2) { cn.Close(); throw new Exception("Error en creacion y conexion: " + e2.Message); }
             return status;
         }
-        //revisado
         public void RegistrarGestionStock(OREG_E reg, OTRC_E obj, SqlTransaction tran = null)
         {
-            bool status = false;
+            bool status =false;
             OTRC_D otrcD = new OTRC_D();
 
             // Verificamos si se ha proporcionado una transacción

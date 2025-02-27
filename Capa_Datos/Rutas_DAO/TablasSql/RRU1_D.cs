@@ -17,7 +17,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
             {
                 // Primero traemos el cálculo del total de las cajas de la guía seleccionada para actualizar el RRU1 luego de haberse calculado la cantidad
                 // Y la cantidad debe ser mayor a cero
-                string query = "SELECT SUM(cajas) FROM al.RRU11 WHERE BaseEntry = @BaseEntry AND BaseLinea = @BaseLinea";
+                string query = "SELECT SUM(cajas) FROM al.RRU11 WHERE BaseEntry = @BaseEntry AND BaseLinea = @BaseLinea; ";
 
                 SqlCommand cmd = new SqlCommand(query, cn);         // prepara
                 cmd.Parameters.AddWithValue("@BaseEntry", DocEntry);

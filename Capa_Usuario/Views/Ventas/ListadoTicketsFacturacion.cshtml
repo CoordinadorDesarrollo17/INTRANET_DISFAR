@@ -513,6 +513,19 @@
         });
         }
 
+    function registrarImpresion(DocEntry) {
+        $.ajax({
+            url: '/Ventas/RegistrarImpresion?docEntry=' + DocEntry + '&area=Facturacion',
+            type: 'POST',
+            dataType: 'json'
+        }).done(function (response) {
+            location.reload();
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            console.log(jqXHR.status + textStatus + errorThrown);
+        });
+
+        }
+
     </script>
 
 
@@ -698,17 +711,27 @@
                     <th></th><!--17-->
                     <th></th><!--18-->
                     <th></th><!--19-->
+                    <th></th><!--20-->
                 </tr>
             </thead>
             <tbody class="text-dark">
                 @foreach (var item in Model)
                 {
                     string style = "";
+                    string styleImpreso = "";
+
+                    if (item.Impreso > 0)
+                    {
+                        styleImpreso = "bg-skyblue";
+
+                    }
+
                     if (item.Estado.Equals("ANULADO") || item.Estado.Equals("CANCELADO"))
                     {
                         style = "bg-danger text-white";
                     }
-                    <tr id="fila" class="@style">
+
+                    <tr id="fila" class="@style @styleImpreso">
                         <td>
                             @Html.DisplayFor(modelItem => item.FechaSapTicket)
                         </td>
@@ -741,11 +764,11 @@
                                     }
                                     @if (item.LugarDestino.Equals("Centro") || item.LugarDestino.Equals("Arriola"))
                                     {
-                                    <p class="pl-2">Origen: @item.AlmProcedencia</p>
+                                        <p class="pl-2">Origen: @item.AlmProcedencia</p>
                                     }
                                     else
                                     {
-                                    <p class="pl-2">Origen: @item.Det2.FirstOrDefault(y => y.Monto > 0 && y.AlmacenSalida != "06").AlmacenSalida</p>
+                                        <p class="pl-2">Origen: @item.Det2.FirstOrDefault(y => y.Monto > 0 && y.AlmacenSalida != "06").AlmacenSalida</p>
                                     }
                                 </div>
                             }
@@ -778,7 +801,7 @@
                         </td>
 
                         @if (item.TiempoEntrega != null)
-                        {                   
+                        {
                             string styleTiempoEntrega = string.Empty;
                             if (Convert.ToDateTime(item.TiempoEntrega).ToString("dd/MM/yyyy") == DateTime.Now.ToString("dd/MM/yyyy"))
                             {
@@ -809,12 +832,10 @@
                             }
                         </td><!--11-->
                         <td>
-                            @if ((item.Estado.Equals("PICKEANDO") || item.Estado.Equals("VERIFICANDO") || item.Estado.Equals("EMPACANDO") || item.Estado.Equals("EMPACADO") || item.Estado.Equals("PESADO") || item.Estado.Equals("PREENVIO") ||
-                             item.Estado.Equals("ENVIADO")) && item.hayFinEmpacar)
+                            @if ((item.Estado.Equals("EMPACADO") || item.Estado.Equals("PESADO") || item.Estado.Equals("PREENVIO") ||
+                             item.Estado.Equals("ENVIADO")) && (item.ProductoPendiente == null || item.ProductoPendiente == 0) && item.EstadoFacturacion == "PENDIENTE")
                             {
-                                if (item.EstadoFacturacion == "PENDIENTE")
-                                {
-                                    <a class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Emitir guías" href="@Url.Action("EmitirGuiasTicketVenta", "Ventas", new
+                                <a class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Emitir guías" href="@Url.Action("EmitirGuiasTicketVenta", "Ventas", new
                                         {
                                             DocEntry = item.DocEntry,
                                             EstadoPago = ViewBag.Ortv.EstadoPago,
@@ -831,16 +852,16 @@
                                             Zona = ViewBag.Ortv.Zona,
                                             zonaDistinta = ViewBag.Ortv.zonaDistinta
                                 })">
-                                        <i class="icon icon-file-text2 text-success"></i>
-                                    </a>
-                                }
+                                    <i class="icon icon-file-text2 text-success"></i>
+                                </a>
                             }
                         </td>
                         <td>
-                            @if (item.EstadoFacturacion == "GRE EMITIDA")
+                            @if ((item.Estado.Equals("EMPACADO") || item.Estado.Equals("PESADO") || item.Estado.Equals("PREENVIO") ||
+                                 item.Estado.Equals("ENVIADO")) && (item.ProductoPendiente == null || item.ProductoPendiente == 0) && item.EstadoFacturacion == "GRE EMITIDA")
                             {
                                 <a href="@Url.Action("RevertirEmitirGuiasTicketVenta", "Ventas", new { DocEntry = item.DocEntry,
-                                EstadoPago = ViewBag.Ortv.EstadoPago,
+                                    EstadoPago = ViewBag.Ortv.EstadoPago,
                                 TipoVenta = ViewBag.Ortv.TipoVenta,
                                 TiempoEntrega = ViewBag.Ortv.TiempoEntrega,
                                 Estado = ViewBag.Ortv.Estado,
@@ -853,13 +874,14 @@
                                 LugarDestino = ViewBag.Ortv.LugarDestino,
                                 Zona=ViewBag.Ortv.Zona ,
                                 zonaDistinta = ViewBag.Ortv.zonaDistinta
-                                    })" type="button" target="_self" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Revertir emisión de guías">
+                                        })" type="button" target="_self" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Revertir emisión de guías">
                                     <i class="icon icon-blocked text-danger"></i>
                                 </a>
                             }
                         </td>
                         <td>
-                            @if (item.EstadoFacturacion == "GRE EMITIDA")
+                            @if ((item.Estado.Equals("EMPACADO") || item.Estado.Equals("PESADO") || item.Estado.Equals("PREENVIO") ||
+                                item.Estado.Equals("ENVIADO")) && (item.ProductoPendiente == null || item.ProductoPendiente == 0) && item.EstadoFacturacion == "GRE EMITIDA")
                             {
                                 <a class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Facturar" href="@Url.Action( "FacturarTicketVenta", "Ventas", new { DocEntry = item.DocEntry,
                                     EstadoPago = ViewBag.Ortv.EstadoPago,
@@ -881,7 +903,8 @@
                             }
                         </td>
                         <td>
-                            @if (item.EstadoFacturacion == "FACTURADO")
+                            @if ((item.Estado.Equals("EMPACADO") || item.Estado.Equals("PESADO") || item.Estado.Equals("PREENVIO") ||
+                            item.Estado.Equals("ENVIADO")) && (item.ProductoPendiente == null || item.ProductoPendiente == 0) && item.EstadoFacturacion == "FACTURADO")
                             {
                                 <a href="@Url.Action( "AnularFacturarTicketVenta", "Ventas", new { DocEntry = item.DocEntry,
                                 EstadoPago = ViewBag.Ortv.EstadoPago,
@@ -912,7 +935,7 @@
                             @if (item.EstadoFacturacion == "GRE EMITIDA" || item.EstadoFacturacion == "FACTURADO")
                             {
                                 <button type="button" class="btn btn-sm btn-light" onclick="abrirModalGuias(@item.DocEntry)" data-toggle="tooltip" data-placement="top" title="Ver Guías">
-                                    <i class="icon-search text-orange"> </i><span class="text-orange">Guías</span>
+                                    <span class="text-orange">Guia</span>
                                 </button>
                             }
                         </td>
@@ -920,7 +943,7 @@
                             @if (item.EstadoFacturacion == "FACTURADO")
                             {
                                 <button type="button" class="btn btn-sm btn-light" onclick="abrirModalFB(@item.DocEntry)" data-toggle="tooltip" data-placement="top" title="Ver Facturas">
-                                    <i class="icon-search text-darkblue"> </i> <span class="text-darkblue">Facturas</span>
+                                    <span class="text-darkblue">Factura</span>
                                 </button>
                             }
                         </td>
@@ -939,6 +962,11 @@
                                     </button>
                                 }
                             }
+                        </td>
+                        <td>
+                            <a href="#" class="btn  btn-light" data-toggle="tooltip" data-placement="top" title="Imprimir" onclick="registrarImpresion(@item.DocEntry);">
+                                <i class="icon-printer text-cobefar"></i>
+                            </a>
                         </td>
 
                     </tr>

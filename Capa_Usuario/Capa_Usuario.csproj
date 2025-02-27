@@ -43,7 +43,8 @@
     <OutputPath>bin\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <WarningLevel>3</WarningLevel>
+    <GenerateSerializationAssemblies>On</GenerateSerializationAssemblies>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Aspose.PDF, Version=23.10.0.0, Culture=neutral, PublicKeyToken=716fcc553a201e56, processorArchitecture=MSIL">
@@ -490,17 +491,6 @@
     <Content Include="Reportes\RptVentas\DS_AnalisisVentas.xsc">
       <DependentUpon>DS_AnalisisVentas.xsd</DependentUpon>
     </Content>
-    <Content Include="Reportes\RptRutas\DS_TempHumed.xsc">
-      <DependentUpon>DS_TempHumed.xsd</DependentUpon>
-    </Content>
-    <None Include="Reportes\RptRutas\DS_TempHumed.xsd">
-      <SubType>Designer</SubType>
-      <Generator>MSDataSetGenerator</Generator>
-      <LastGenOutput>DS_TempHumed.Designer.cs</LastGenOutput>
-    </None>
-    <Content Include="Reportes\RptRutas\DS_TempHumed.xss">
-      <DependentUpon>DS_TempHumed.xsd</DependentUpon>
-    </Content>
     <Content Include="Reportes\RptRutas\RptPesaje.rpt" />
     <None Include="Reportes\RptVentas\DS_AnalisisVentas.xsd">
       <SubType>Designer</SubType>
@@ -717,11 +707,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>DS_RptContInv.xsd</DependentUpon>
     </Compile>
-    <Compile Include="Reportes\RptRutas\DS_TempHumed.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>DS_TempHumed.xsd</DependentUpon>
-    </Compile>
     <Compile Include="Reportes\RptRutas\RptHojasCargo.cs">
       <DependentUpon>RptHojasCargo.rpt</DependentUpon>
       <AutoGen>True</AutoGen>
@@ -733,12 +718,6 @@
       <AutoGen>True</AutoGen>
       <SubType>Component</SubType>
       <DesignTime>True</DesignTime>
-    </Compile>
-    <Compile Include="Reportes\RptRutas\RptHojasRutaFormatoA.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>RptHojasRutaFormatoA.rpt</DependentUpon>
-      <SubType>Component</SubType>
     </Compile>
     <Compile Include="Reportes\RptRutas\RptPesaje.cs">
       <SubType>Component</SubType>
@@ -1070,13 +1049,8 @@
     <Service Include="{C0C07587-41A7-46C8-8FBD-3F9C8EBE2DDC}" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Reportes\RptRutas\RptHojasRutaFormatoA.rpt">
-      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
-      <LastGenOutput>RptHojasRutaFormatoA.cs</LastGenOutput>
-    </Content>
     <Content Include="Reportes\RptVentas\RptAnCtVentas.rdlc" />
     <Content Include="Reportes\RptVentas\RptAnCtVentas2.rdlc" />
-    <Content Include="Reportes\RptRutas\RptTempHumed.rdlc" />
     <Content Include="Reportes\RptDireccionTecnica\RptVentasArtLote.rdlc" />
     <Content Include="Reportes\RptDireccionTecnica\RptBalControlados.rdlc" />
     <Content Include="Reportes\RptVentas\RptVentCliDias.rdlc" />
@@ -1111,7 +1085,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>50112</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:42360/</IISUrl>
+          <IISUrl>http://localhost:42315/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

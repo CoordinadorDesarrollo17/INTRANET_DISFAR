@@ -88,6 +88,7 @@ namespace Capa_Datos.Almacen_DAO.RptInternos
                 }
                 catch (Exception ex)
                 {
+                    throw new Exception("Error: " + ex.Message);
                 }
             }
 

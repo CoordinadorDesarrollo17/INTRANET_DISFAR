@@ -12,14 +12,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
-
 namespace Capa_Usuario.Controllers
 {
     public class AtencionClienteController : Controller
     {
         OSAT_N osatN = new OSAT_N();
         SAT1_N sat1N = new SAT1_N();
-
         /************************* C O N F I G U R A C I Ó N *************************/
         private ActionResult VerificarPermiso(int idOperation)
         {
@@ -32,18 +30,15 @@ namespace Capa_Usuario.Controllers
                 userHostAddress = Request.UserHostAddress,
                 userHostName = Request.UserHostName
             };
-
             return AccesoHelper.GestionarAccesoController(this, accesoHelper);
         }
         /********************************************************************/
-
         /************************** R E C L A M O S **************************/
         protected Dictionary<string, string> DatosSolicitud(string tipoVenta, string canalVenta, string errorAlm)
         {
             if (string.IsNullOrWhiteSpace(tipoVenta)) { tipoVenta = ""; }
             if (string.IsNullOrWhiteSpace(canalVenta)) { canalVenta = ""; }
             if (string.IsNullOrWhiteSpace(errorAlm)) { errorAlm = ""; }
-
             Dictionary<string, string> opcionesTipoVenta = new Dictionary<string, string>
                 {
                     { "", ""},
@@ -51,7 +46,6 @@ namespace Capa_Usuario.Controllers
                     { "VHORIZ", "Ventas Horizontal"},
                     { "VESTRAT", "Ventas Estratégicas"}
                 };
-
             Dictionary<string, string> opcionesCanalVenta = new Dictionary<string, string>
                 {
                     { "", ""},
@@ -64,7 +58,6 @@ namespace Capa_Usuario.Controllers
                     { "TELEV", "Televentas"},
                     { "CENTRO", "Centro"}
                 };
-
             Dictionary<string, string> opcionesErrorAlmacen = new Dictionary<string, string>
                 {
                     { "", ""},
@@ -78,31 +71,25 @@ namespace Capa_Usuario.Controllers
                     { "AFACT", "Área de Facturación"},
                     { "AING", "Área de Ingreso"}
                 };
-
             Dictionary<string, string> result = new Dictionary<string, string>
                 {
                     {"TipoVenta", opcionesTipoVenta[tipoVenta]},
                     {"CanalVenta", opcionesCanalVenta[canalVenta]},
                     {"ErrorAlmacen", opcionesErrorAlmacen[errorAlm]}
                 };
-
             return result;
         }
-
         public JsonResult ObtenerDetalleSolicitud(int DocEntry)
         {
             return Json(sat1N.BuscarDetallesSolicitud(DocEntry));
         }
-
         public ActionResult GestionSolicitud(OSAT_E filtro, string Mensaje = "", int idOperation = 2701)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
-
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 ViewBag.Mensaje = Mensaje;
                 ViewBag.Osat = filtro;
-
                 Usuario_E user = (Usuario_E)Session["UsuarioId"];
                 if (user.IdRol == 54)
                 {
@@ -117,12 +104,10 @@ namespace Capa_Usuario.Controllers
             {
                 return resultadoAcceso;
             }
-
         }
         public ActionResult ExportarExcel(OSAT_E filtro, int idOperation = 2701)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
-
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 OSAT_N osatN = new OSAT_N();
@@ -132,19 +117,16 @@ namespace Capa_Usuario.Controllers
                 {
                     var worksheet = libro.Workbook.Worksheets.Add("Solicitudes");
                     worksheet.Cells["A1"].LoadFromCollection(solicitudes, PrintHeaders: true);
-
                     if (solicitudes != null && solicitudes.Count >= 1)
                     {
                         for (var col = 1; col <= 26; col++)
                         {
                             worksheet.Column(col).AutoFit();
                         }
-
                         var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: solicitudes.Count + 1, toColumn: 26), "Solicitudes");
                         tabla.ShowHeader = true;
                         tabla.TableStyle = TableStyles.Medium2;
                     }
-
                     return File(libro.GetAsByteArray(), excelContentType, "Solicitudes.xlsx");
                 }
             }
@@ -156,7 +138,6 @@ namespace Capa_Usuario.Controllers
         public ActionResult NuevaSolicitud(int idOperation = 2702)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
-
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 ORTV_N ortvN = new ORTV_N();
@@ -168,12 +149,10 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-
         [HttpPost]
         public ActionResult NuevaSolicitud(OSAT_E obj, int idOperation = 2702)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
-
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 try
@@ -193,12 +172,10 @@ namespace Capa_Usuario.Controllers
             {
                 return resultadoAcceso;
             }
-
         }
         public ActionResult DetallesSolicitud(int id, int idOperation = 2703)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
-
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 try
@@ -209,23 +186,18 @@ namespace Capa_Usuario.Controllers
                     var datosAtencion = ccOSAT_N.ListarCC_OSAT(id, "ATENDER");
                     var datosCulminacion = ccOSAT_N.ListarCC_OSAT(id, "CULMINAR");
                     var adjuntos = osatN.BuscarAdjuntosOSAT(id, 0);
-
                     string errorAlm = string.Empty;
                     var result = osatN.buscarSolicitud(id);
-
                     // Solo cuando el Tipo de Error sea "ErrorAlmacen" mostrará el campo Error de almacén
                     if (result.Det != null && result.Det.Count >= 1)
                     {
                         errorAlm = result.Det[0].ErrorAlmacen;
                     }
-
                     var datos = DatosSolicitud(result.TipoVenta, result.CanalVenta, errorAlm);
-
                     ViewBag.ErrorAlmacen = errorAlm;
                     ViewBag.TipoVenta = datos["TipoVenta"];
                     ViewBag.CanalVenta = datos["CanalVenta"];
                     ViewBag.ErrorAlmacen = datos["ErrorAlmacen"];
-
                     ViewBag.Adjuntos = adjuntos;
                     ViewBag.CantidadAdjuntos = adjuntos.Count();
                     ViewBag.FechaProceso = (datosProceso != null && datosProceso[0].FechaOperacion != null) ? $"{datosProceso[0].FechaOperacion} {datosProceso[0].HoraOperacion}" : "";
@@ -234,7 +206,6 @@ namespace Capa_Usuario.Controllers
                     ViewBag.OpProceso = (datosProceso != null && datosProceso[0].Operario != null) ? datosProceso[0].Operario : "";
                     ViewBag.OpAtencion = (datosAtencion != null && datosAtencion[0].Operario != null) ? datosAtencion[0].Operario : "";
                     ViewBag.OpCulminacion = (datosCulminacion != null && datosCulminacion[0].Operario != null) ? datosCulminacion[0].Operario : "";
-
                     return View(result);
                 }
                 catch (Exception e)
@@ -246,17 +217,14 @@ namespace Capa_Usuario.Controllers
             {
                 return resultadoAcceso;
             }
-
         }
         public ActionResult EditarSolicitud(int id, int idOperation = 2704)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
-
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 var result = osatN.buscarSolicitud(id);
                 ViewBag.Adjuntos = osatN.BuscarAdjuntosOSAT(id, 0);
-
                 return View(result);
             }
             else
@@ -268,7 +236,6 @@ namespace Capa_Usuario.Controllers
         public ActionResult EditarSolicitud(OSAT_E OSAT_Post, int idOperation = 2704)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
-
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 try
@@ -293,7 +260,6 @@ namespace Capa_Usuario.Controllers
         public ActionResult AnularSolicitud(OSAT_E obj, int idOperation = 2705)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
-
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 try
@@ -302,7 +268,6 @@ namespace Capa_Usuario.Controllers
                     obj.OpRegistro = $"{user.Nombres} {user.Apellidos}";
                     OSAT_E detalles = osatN.buscarSolicitud(obj.DocEntry);
                     osatN.anularSolicitud(detalles);
-
                     return RedirectToAction("GestionSolicitud", new { DocNum = obj.DocNum });
                 }
                 catch (Exception e)
@@ -315,23 +280,18 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-
         public ActionResult ProcesarSolicitud(int id, int idOperation = 2706)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
-
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 Usuario_N ousrN = new Usuario_N();
-
                 var result = osatN.buscarSolicitud(id);
                 var datos = DatosSolicitud(result.TipoVenta, result.CanalVenta, "");
-
                 ViewBag.TipoVenta = datos["TipoVenta"];
                 ViewBag.CanalVenta = datos["CanalVenta"];
                 ViewBag.Usuarios = ousrN.ListaUsuarios(null);
                 ViewBag.Adjuntos = osatN.BuscarAdjuntosOSAT(id, 0);
-
                 return View(result);
             }
             else
@@ -339,12 +299,10 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-
         [HttpPost]
         public ActionResult ProcesarSolicitud(OSAT_E obj, int idOperation = 2706)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
-
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 try
@@ -368,7 +326,6 @@ namespace Capa_Usuario.Controllers
         public ActionResult RevertirProcesarSolicitud(OSAT_E obj, int idOperation = 2706)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
-
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 try
@@ -392,24 +349,19 @@ namespace Capa_Usuario.Controllers
         public ActionResult AtenderSolicitud(int id, int idOperation = 2707)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
-
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 OWHS_N owhsN = new OWHS_N();
                 OREG_N oregN = new OREG_N();
                 CC_OSAT_N ccOSAT_N = new CC_OSAT_N();
-
                 string errorAlm = string.Empty;
                 var result = osatN.buscarSolicitud(id);
-
                 // Solo cuando el Tipo de Error sea "ErrorAlmacen" mostrará el campo Error de almacén
                 if (result.Det != null && result.Det.Count >= 1)
                 {
                     errorAlm = result.Det[0].ErrorAlmacen;
                 }
-
                 var datos = DatosSolicitud(result.TipoVenta, result.CanalVenta, errorAlm);
-
                 ViewBag.ErrorAlmacen = errorAlm;
                 ViewBag.TipoVenta = datos["TipoVenta"];
                 ViewBag.CanalVenta = datos["CanalVenta"];
@@ -417,7 +369,6 @@ namespace Capa_Usuario.Controllers
                 ViewBag.Almacenes = owhsN.ListarAlmacenes("todos");
                 ViewBag.Regalos = oregN.listaRegalos(null);
                 ViewBag.DatosAtencion = ccOSAT_N.ListarCC_OSAT(id, "ATENDER");
-
                 return View(result);
             }
             else
@@ -429,7 +380,6 @@ namespace Capa_Usuario.Controllers
         public ActionResult AtenderSolicitud(OSAT_E obj, int idOperation = 2707)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
-
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 OWHS_N owhsN = new OWHS_N();
@@ -438,10 +388,8 @@ namespace Capa_Usuario.Controllers
                 {
                     Usuario_E user = (Usuario_E)Session["UsuarioId"];
                     obj.OpRegistro = $"{user.Nombres} {user.Apellidos}";
-
                     string DocNum = osatN.atenderSolicitud(obj);
                     return RedirectToAction("GestionSolicitud", new { DocNum = DocNum });
-
                 }
                 catch (Exception e)
                 {
@@ -460,7 +408,6 @@ namespace Capa_Usuario.Controllers
         public ActionResult RevertirAtenderSolicitud(OSAT_E obj, int idOperation = 2707)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
-
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 try
@@ -484,29 +431,23 @@ namespace Capa_Usuario.Controllers
         public ActionResult CulminarSolicitud(int id, int idOperation = 2708)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
-
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 CC_OSAT_N ccOSAT_N = new CC_OSAT_N();
                 ViewBag.DatosAtencion = ccOSAT_N.ListarCC_OSAT(id, "ATENDER");
                 ViewBag.DatosCulminacion = ccOSAT_N.ListarCC_OSAT(id, "CULMINAR");
-
                 string errorAlm = string.Empty;
                 var result = osatN.buscarSolicitud(id);
-
                 // Solo cuando el Tipo de Error sea "ErrorAlmacen" mostrará el campo Error de almacén
                 if (result.Det != null && result.Det.Count >= 1)
                 {
                     errorAlm = result.Det[0].ErrorAlmacen;
                 }
-
                 var datos = DatosSolicitud(result.TipoVenta, result.CanalVenta, errorAlm);
-
                 ViewBag.ErrorAlmacen = errorAlm;
                 ViewBag.TipoVenta = datos["TipoVenta"];
                 ViewBag.CanalVenta = datos["CanalVenta"];
                 ViewBag.ErrorAlmacen = datos["ErrorAlmacen"];
-
                 return View(result);
             }
             else
@@ -514,12 +455,10 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-
         [HttpPost]
         public ActionResult CulminarSolicitud(OSAT_E obj, int idOperation = 2708)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
-
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 try
@@ -527,7 +466,6 @@ namespace Capa_Usuario.Controllers
                     Usuario_E user = (Usuario_E)Session["UsuarioId"];
                     obj.OpRegistro = $"{user.Nombres} {user.Apellidos}";
                     string DocNum = osatN.culminarSolicitud(obj);
-
                     // Solicitud por Facturación, ya que siempre inician sus actividades con el filtro "Atendido"
                     return RedirectToAction("GestionSolicitud", new { Estado = "Atendido" });
                 }
@@ -545,14 +483,12 @@ namespace Capa_Usuario.Controllers
         public ActionResult RevertirCulminarSolicitud(OSAT_E obj, int idOperation = 2708)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
-
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 try
                 {
                     Usuario_E user = (Usuario_E)Session["UsuarioId"];
                     obj.OpRegistro = $"{user.Nombres} {user.Apellidos}";
-
                     string DocNum = osatN.revertirCulminarSolicitud(obj);
                     return RedirectToAction("GestionSolicitud", new { DocNum = obj.DocNum });
                 }
@@ -567,16 +503,13 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-
         public FileResult ArchivoSolicitud(int id, int linea, int idOperation = 2710)
         {
             string acceso = AccesoHelper.VerificarAccesos(idOperation, (Usuario_E)Session["UsuarioId"], this.ControllerContext.RouteData.Values["action"].ToString(), Request.UserHostAddress, Request.UserHostName);
-
             if (acceso == "C_Access")
             {
                 OSAT_N osatN = new OSAT_N();
                 Utilitarios_N utilitarios = new Utilitarios_N();
-
                 Dictionary<int, string> adjuntos = osatN.BuscarAdjuntosOSAT(id, linea);
                 string contentType = "";
                 foreach (KeyValuePair<int, string> adj in adjuntos)
@@ -614,9 +547,7 @@ namespace Capa_Usuario.Controllers
                         contentType = "application/octet-stream";
                     }
                 }
-                
                 string rutaarchivo = utilitarios.directorioFileServer+ "AtencionAlCliente_2023/" + id + "/" + adjuntos[linea];
-
                 return File(rutaarchivo, contentType, adjuntos[linea]);
             }
             else
@@ -624,17 +555,14 @@ namespace Capa_Usuario.Controllers
                 return null;
             }
         }
-
-        public JsonResult listarArticulosTicket(int DocNumTicket)
+        public JsonResult ListarArticulosTicket(int DocNumTicket)
         {
-            return Json(osatN.buscarDatosTicket(DocNumTicket));
+            return Json(osatN.BuscarDatosTicket(DocNumTicket));
         }
-
         public ActionResult obtenerNroSolicitud(string Tipo)
         {
             return Content(osatN.obtenerNroSolicitud(Tipo));
         }
-
         public ActionResult validarNuevaSolicitud(OSAT_E obj)
         {
             string status = "true";

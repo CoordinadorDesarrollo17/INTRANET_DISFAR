@@ -7,7 +7,6 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
-
 namespace Capa_Usuario.Controllers
 {
     public class IndexController : Controller
@@ -15,7 +14,6 @@ namespace Capa_Usuario.Controllers
         Rol1_N rol1 = new Rol1_N();
         BaseDeDatos_N bd_N = new BaseDeDatos_N();
         Utilitarios_N utiN = new Utilitarios_N();
-
         private string ObtenerIPCliente()
         {
             string clientIp = Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
@@ -24,18 +22,14 @@ namespace Capa_Usuario.Controllers
                 clientIp = Request.ServerVariables["REMOTE_ADDR"];
             }
             return clientIp;
-
         }
-
         public ActionResult Index()
         {
             return View();
         }
-
         public ActionResult Sesion()
         {
             Usuario_E user = (Usuario_E)Session["UsuarioId"];
-
             if (user != null)
             {
                 ViewBag.AREAS = new Capa_Negocio.Seguridad_NEG.TablasSql.AREA_N().listarAreas();
@@ -49,12 +43,10 @@ namespace Capa_Usuario.Controllers
                 return RedirectToAction("Sesion");
             }
         }
-
         public ActionResult Login()
         {
             return View();
         }
-
         [HttpPost]
         public ActionResult Login(string user, string pass)
         {
@@ -62,32 +54,26 @@ namespace Capa_Usuario.Controllers
             {
                 //string direccionIP = ObtenerIPCliente();
                 //string[] segmentos = direccionIP != "::1" ? direccionIP.Split('.') : null;
-
                 //// Prohibido el acceso del segmento 3 y 9 por solicitud de María
                 //if (segmentos != null && new string[] { "3", "9" }.Contains(segmentos[2]))
                 //{
                 //    TempData["Mensaje"] = "Acceso restringido";
                 //    TempData.Keep("Mensaje");
-
                 //    return RedirectToAction("Index");
                 //}
-
                 Usuario_E usuario = new Usuario_N().buscarUsuarioSesion(user, pass);
-
                 if (usuario != null)
                 {
                     string equipo = Dns.GetHostEntry(Dns.GetHostName()).HostName;
                     string ip = Request.UserHostAddress == "::1" ? "127.0.0.1" : Request.UserHostAddress;
                     Session["UsuarioId"] = usuario;
                     utiN.RegistrarLog(user, "Inicio de Sesión", 0, ip, equipo);
-
                     return RedirectToAction("Sesion");
                 }
                 else
                 {
                     TempData["Mensaje"] = "Usuario o contraseña inválidos.";
                     TempData.Keep("Mensaje");
-
                     return RedirectToAction("Index");
                 }
             }
@@ -96,7 +82,6 @@ namespace Capa_Usuario.Controllers
                 rol1 = null;
                 TempData["Mensaje"] = ex.Message;
                 TempData.Keep("Mensaje");
-
                 return RedirectToAction("Index");
             }
         }
@@ -122,7 +107,6 @@ namespace Capa_Usuario.Controllers
             }
             else { return null; }
         }
-
         ///******************************** M Ó D U L O   A L M A C É N ********************************/
         public ActionResult ALM_Devoluciones(int idOperation = 100)
         {
@@ -131,7 +115,6 @@ namespace Capa_Usuario.Controllers
         public ActionResult ALM_Repartos(int idOperation = 200)
         {
             return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "ListadoRepartos", controllerDestino = "Rutas", usuario = (Usuario_E)Session["UsuarioId"] });
-
         }
         public ActionResult ALM_Rutas(int idOperation = 200)
         {
@@ -193,14 +176,12 @@ namespace Capa_Usuario.Controllers
         {
             return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "PedidosOnline", controllerDestino = "Ventas", usuario = (Usuario_E)Session["UsuarioId"] });
         }
-
         ///******************************** M Ó D U L O   C A J A ********************************/
         public ActionResult CJ_ListadoTickets(int idOperation = 3000)
         {
             return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "Index", controllerDestino = "Caja", usuario = (Usuario_E)Session["UsuarioId"] });
         }
         ///****************************************************************************************/
-
         public ActionResult CP_ResumenRebate(int idOperation = 1400)
         {
             return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "ResumenRebate", controllerDestino = "Compras", usuario = (Usuario_E)Session["UsuarioId"] });
@@ -261,12 +242,10 @@ namespace Capa_Usuario.Controllers
         {
             return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "Reportes", controllerDestino = "DireccionTecnica", usuario = (Usuario_E)Session["UsuarioId"] });
         }
-
         public ActionResult DT_RegistrosSanitarios(int idOperation = 2900)
         {
             return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "RegistrosSanitarios", controllerDestino = "DireccionTecnica", usuario = (Usuario_E)Session["UsuarioId"] });
         }
-
         public ActionResult ATC_Solicitud(int idOperation = 2700)
         {
             return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "GestionSolicitud", controllerDestino = "AtencionCliente", usuario = (Usuario_E)Session["UsuarioId"] });
@@ -275,6 +254,5 @@ namespace Capa_Usuario.Controllers
         {
             return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "ListadoTicketsGuiasRemision", controllerDestino = "Ventas", usuario = (Usuario_E)Session["UsuarioId"] });
         }
-
     }
 }

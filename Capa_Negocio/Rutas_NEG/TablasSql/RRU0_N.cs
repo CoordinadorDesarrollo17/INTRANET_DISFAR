@@ -145,10 +145,10 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
             }
             if (orruE.TipoRuta != "VG" && orruE.TipoRuta != "AC")
             {
-                if (!(o.TempF1 >= 15 && o.TempF1 <= 25)) { throw new Exception("Temp1 final no cumple con el rango válido"); }
-                if (!(o.HumedF1 >= 50 && o.HumedF1 <= 80)) { throw new Exception("Humed1 final no cumple con el rango válido"); }
-                if (!(o.TempF2 >= 15 && o.TempF2 <= 25)) { throw new Exception("Temp2 final no cumple con el rango válido"); }
-                if (!(o.HumedF2 >= 50 && o.HumedF2 <= 80)) { throw new Exception("Humed2 final no cumple con el rango válido"); }
+                if (!(o.TempF1 >= 15 && o.TempF1 <= 25)) { throw new Exception("Temp1 final no cumple con el rango valido (mayor o igual a 15 y menor o igual a 25)"); }
+                if (!(o.HumedF1 >= 55 && o.HumedF1 < 65)) { throw new Exception("Humed1 final no cumple con el rango  valido (mayor o igual a 55 y menor a 65)"); }
+                if (!(o.TempF2 >= 15 && o.TempF2 <= 25)) { throw new Exception("Temp2 final no cumple con el rango valido (mayor o igual a 15 y menor o igual a 25)"); }
+                if (!(o.HumedF2 >= 55 && o.HumedF2 < 65)) { throw new Exception("Humed2 final no cumple con el rango valido (mayor o igual a 55 y menor a 65)"); }
             }
             if (orruE.TipoRuta == "VG")
             {
@@ -178,10 +178,10 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
 
         public void EntregaMasivaDetRep(RRU0_E o)
         {
-            if (!(o.TempF1 >= 15 && o.TempF1 <= 25)) { throw new Exception("Temp1 final no cumple con el rango valido"); }
-            if (!(o.HumedF1 >= 50 && o.HumedF1 <= 80)) { throw new Exception("Humed1 final no cumple con el rango valido"); }
-            if (!(o.TempF2 >= 15 && o.TempF2 <= 25)) { throw new Exception("Temp2 final no cumple con el rango valido"); }
-            if (!(o.HumedF2 >= 50 && o.HumedF2 <= 80)) { throw new Exception("Humed2 final no cumple con el rango valido"); }
+            if (!(o.TempF1 >= 15 && o.TempF1 <= 25)) { throw new Exception("Temp1 final no cumple con el rango valido (mayor o igual a 15 y menor o igual a 25)"); }
+            if (!(o.HumedF1 >= 55 && o.HumedF1 < 65)) { throw new Exception("Humed1 final no cumple con el rango  valido (mayor o igual a 55 y menor a 65)"); }
+            if (!(o.TempF2 >= 15 && o.TempF2 <= 25)) { throw new Exception("Temp2 final no cumple con el rango valido (mayor o igual a 15 y menor o igual a 25)"); }
+            if (!(o.HumedF2 >= 55 && o.HumedF2 < 65)) { throw new Exception("Humed2 final no cumple con el rango valido (mayor o igual a 55 y menor a 65)"); }
 
             ORRU_E orruE = orruN.obtenerOrdenDeRuta(o.DocEntry);
             if (orruE.Estado != "ENVIADO") { throw new Exception("El reparto debe estar enviado"); }

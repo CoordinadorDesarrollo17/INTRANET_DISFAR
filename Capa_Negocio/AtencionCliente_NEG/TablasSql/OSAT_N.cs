@@ -74,16 +74,14 @@ namespace Capa_Negocio.AtencionCliente_NEG.TablasSql
         {
             return osatD.obtenerNroSolicitud(Tipo);
         }
-        public OSAT_E buscarDatosTicket(int DocNumTicket)
+        public OSAT_E BuscarDatosTicket(int DocNumTicket)
         {
-            return osatD.buscarDatosTicket(DocNumTicket);
+            return osatD.BuscarDatosTicket(DocNumTicket);
         }
-
         public Dictionary<int, string> BuscarAdjuntosOSAT(int DocEntry, int Linea)
         {
             return osatD.BuscarAdjuntosOSAT(DocEntry, Linea);
         }
-
 
         //validaciones
         public void validarNuevaSolicitud(OSAT_E obj)
