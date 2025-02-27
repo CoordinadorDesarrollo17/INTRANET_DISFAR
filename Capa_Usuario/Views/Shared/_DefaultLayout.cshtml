@@ -413,8 +413,8 @@
 			data: config.data
 		}).done(function (response) {
 			Swal.fire({
-				title: response.Mensaje,
-				html: response.Comentario && response.Comentario.length > 0 ? response.Comentario.join('<br>') : "",
+				title: response.Titulo,
+                html: response.Mensajes && response.Mensajes.length > 0 ? response.Mensajes.join('<br>') : "",
 				icon: response.Icono,
 				allowEscapeKey: false,
 				allowOutsideClick: false,

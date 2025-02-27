@@ -20,14 +20,6 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         {
             var solicitudTraslado = datosTraslado.ObtenerSolicitudDeTraslado(DocNum);
 
-            if (solicitudTraslado != null && solicitudTraslado.Detalle!=null)
-            {
-                foreach (var item in solicitudTraslado.Detalle)
-                {
-                    item.UnidadAlmSugerido = _ubicacionesLotesMasterN.BuscarUnidadAlm(new UbicacionesLotesMaster_E { ItemCode = item.ItemCode, ItemName = item.ItemName });
-                }
-            }
-            
             return solicitudTraslado;
         }
         public SolicitudesTraslado_E ImportarSolicitudDeTraslado(SolicitudesTraslado_E obj)

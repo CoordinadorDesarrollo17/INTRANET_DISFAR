@@ -12,7 +12,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
     public class LotesRegistroSanitario_D
     {
         readonly Utilitarios uti = new Utilitarios();
-        public void ValidarLotesRegistroSanitario(List<DetalleSolicitudesTraslado_E> detalleTraslado)
+        public void ValidarLotesRegistroSanitario(Dictionary<string, DetalleSolicitudesTraslado_E> detalleTraslado)
         {
             //validar que en la tabla LotesRegistroSanitario existan todos los ItemCode-BatchNum, se inserta si no existe alguno de detalleTransferencia los nombres de columnas tienen los mismos valores
             
@@ -50,7 +50,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
                                 foreach (var item in detalleTraslado)
                                 {
-                                    dataTable.Rows.Add(item.ItemCode, item.BatchNum ,item.ExpDate,item.InDate);
+                                    dataTable.Rows.Add(item.Value.ItemCode, item.Value.BatchNum ,item.Value.ExpDate,item.Value.InDate);
                                 }
 
                                 bulkCopy.WriteToServer(dataTable);

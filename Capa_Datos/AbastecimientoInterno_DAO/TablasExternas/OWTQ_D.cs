@@ -1,5 +1,5 @@
 ﻿using Capa_Entidad;
-using Capa_Entidad.AbastecimientoInterno_ENT.TablasExternas;
+using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
 using Capa_Entidad.ComprobantesContables_ENT;
 using Capa_Entidad.Ventas_ENT.TablasSql;
 using DocumentFormat.OpenXml.Office2013.Excel;
@@ -22,9 +22,9 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasExternas
         readonly Utilitarios uti = new Utilitarios();
         readonly DBHelper db = new DBHelper();
 
-        public OWTQ_E BuscarSolicitudDeTraslado(int DocNum)
+        public SolicitudesTraslado_E BuscarSolicitudDeTraslado(int DocNum)
         {
-            OWTQ_E solicitud = null;
+            SolicitudesTraslado_E solicitud = null;
             string query = $"CALL {uti.schemaHana}\"COB_BUSCAR_DOC_SOL_TRASLADO\"({DocNum}) ";
 
             try
@@ -32,7 +32,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasExternas
                 HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
                 if (hdr.HasRows)
                 {
-                    solicitud = new OWTQ_E { Detalle = new Dictionary<string, WTQ1_E>() };
+                    solicitud = new SolicitudesTraslado_E { Detalle = new Dictionary<string, DetalleSolicitudesTraslado_E>() };
 
                     while (hdr.Read())
                     {
@@ -53,27 +53,23 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasExternas
                         // Verificar si el itemCode ya existe en el diccionario, si no, inicializarlo
                         if (!solicitud.Detalle.ContainsKey(itemCode))
                         {
-                            solicitud.Detalle[itemCode] = new WTQ1_E
+                            solicitud.Detalle[itemCode] = new DetalleSolicitudesTraslado_E
                             {
-                                AlmacenOrigen = hdr.IsDBNull(8) ? "" : hdr.GetString(8),
-                                AlmacenDestino = hdr.IsDBNull(9) ? "" : hdr.GetString(9),
+                                FromWhsCode = hdr.IsDBNull(8) ? "" : hdr.GetString(8),
+                                ToWhsCode = hdr.IsDBNull(9) ? "" : hdr.GetString(9),
                                 ItemCode = itemCode,
                                 ItemName = hdr.IsDBNull(11) ? "" : hdr.GetString(11),
-                                CantidadTotalPorSKU = hdr.IsDBNull(12) ? 0 : Math.Round(hdr.GetDecimal(12), 0),
-                                DetalleLotes = new List<WTQ1_Lotes_E>()
+                                QuantityCajas = hdr.IsDBNull(12) ? 0 : Math.Round(hdr.GetDecimal(12), 0),
+                                BatchNum = hdr.IsDBNull(13) ? "" : hdr.GetString(13),
+                                CantidadTotalPorSKUyLote = hdr.IsDBNull(14) ? 0 : Math.Round(hdr.GetDecimal(14), 0),
+                                InDate = hdr.IsDBNull(15) ? "" : hdr.GetString(15),
+                                ExpDate = hdr.IsDBNull(16) ? "" : hdr.GetString(16)
                             };
                         }
 
-                        var detalleLote = new WTQ1_Lotes_E
-                        {
-                            BatchNum = hdr.IsDBNull(13) ? "" : hdr.GetString(13),
-                            CantidadTotalPorSKUyLote = hdr.IsDBNull(14) ? 0 : Math.Round(hdr.GetDecimal(14), 0),
-                            InDate = hdr.IsDBNull(15) ? "" : hdr.GetString(15),
-                            ExpDate = hdr.IsDBNull(16) ? "" : hdr.GetString(16)
-                        };
 
-                        // Agregar el lote al último elemento agregado
-                        solicitud.Detalle[itemCode].DetalleLotes.Add(detalleLote);
+                        //// Agregar el lote al último elemento agregado
+                        //solicitud.Detalle[itemCode].Add(detalleLote);
                     }
                     hdr.Close();
                 }

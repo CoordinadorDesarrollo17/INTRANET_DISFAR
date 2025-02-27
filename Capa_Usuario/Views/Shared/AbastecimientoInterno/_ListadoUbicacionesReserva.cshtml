@@ -76,14 +76,13 @@
                         </tr>
                     </thead>
                     <tbody>`;
-            console.log(lista.Ubicaciones)
             lista.Ubicaciones.forEach(item => {
                     tableHtml += `<tr>
                         <td  class="text-center align-middle">${item.ItemCode}</td>
                         <td  class="text-center align-middle">${item.ItemName}</td>
                         <td  class="text-center align-middle">${item.CodigoUbicacion}</td>
                         <td  class="text-center align-middle">
-                            <button class="btn btn-danger" onclick="eliminarUbicacion('${item.CodigoUbicacion}', '${item.UbicacionId}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar ubicación"><i class="bi bi-trash3-fill"></i></button>
+                            <button class="btn btn-danger" onclick="eliminarUbicacion('${item.CodigoUbicacion}', '${item.Id}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar ubicación"><i class="bi bi-trash3-fill"></i></button>
                         </td>
                     </tr>`;
                 });
@@ -127,7 +126,7 @@
                     const data = await response.json();
 
                     if (data.Icono !== 'success') {
-                        resetValoresVacios(["ItemCode", "ItemName", "CodigoUbicacion", "almacen", "rackBloque", "posicion", "nivel"])
+                        resetValoresVacios(["ItemCode", "ItemName", "CodigoUbicacion", "rackBloque", "posicion", "nivel"])
 
                         const radios = document.querySelectorAll(`input[name="UbiSistema"]`)
                         radios.forEach(radio => {
@@ -136,10 +135,11 @@
                             }
                         })
                     }
-                    console.log(data)
                     Swal.fire({
                         title: data.Titulo,
-                        html: data.Comentario,
+                        html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                            ? data.Mensajes.join('<br>')
+                            : data.Mensajes || "",
                         icon: data.Icono,
                         allowEscapeKey: false,
                         allowOutsideClick: false,

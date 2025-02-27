@@ -1,14 +1,9 @@
 ﻿using Capa_Entidad;
-using Capa_Entidad.AbastecimientoInterno_ENT.Interfaces;
 using Capa_Entidad.Seguridad_ENT;
 using Capa_Negocio;
-using Capa_Negocio.AbastecimientoInterno_NEG.TablasExternas;
-using Capa_Negocio.AbastecimientoInterno_NEG.TablasSql;
 using Capa_Negocio.Seguridad_NEG;
 using Capa_Usuario.Helpers;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Web.Mvc;
 

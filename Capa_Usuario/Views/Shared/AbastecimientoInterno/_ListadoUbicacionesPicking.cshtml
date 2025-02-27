@@ -140,7 +140,7 @@
                     const data = await response.json();
 
                     if (data.Icono !== 'success') {
-                        resetValoresVacios(["ItemCode", "ItemName", "CodigoUbicacion", "almacen", "rackBloque", "posicion", "nivel"])
+                        resetValoresVacios(["ItemCode", "ItemName", "CodigoUbicacion", "rackBloque", "posicion", "nivel"])
 
                         const radios = document.querySelectorAll(`input[name="UbiSistema"]`)
                         radios.forEach(radio => {
@@ -190,7 +190,6 @@
             }
 
             const data = await response.json();
-
             Swal.fire({
                 title: data.Titulo,
                 html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0

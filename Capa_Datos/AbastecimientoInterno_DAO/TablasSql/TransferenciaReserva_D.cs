@@ -7,7 +7,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data.SqlClient;
 using System.Data;
-using Capa_Entidad.AbastecimientoInterno_ENT.Interfaces;
 
 namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 {

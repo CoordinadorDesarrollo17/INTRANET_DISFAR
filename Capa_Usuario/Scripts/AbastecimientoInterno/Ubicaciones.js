@@ -2,7 +2,7 @@ function mostrarCamposUbicacion(accion) {
     if (accion == 'SI') {
         document.querySelector('#div_codigos').style.display = 'none'
         document.querySelector('#CodigoUbicacion').value = 'UBI-SISTEMA'
-        resetValoresVacios(["almacen", "rackBloque", "posicion", "nivel"])
+        resetValoresVacios([ "rackBloque", "posicion", "nivel"])
     } else {
         document.querySelector('#div_codigos').style.display = 'block'
         resetValoresVacios(["CodigoUbicacion"])

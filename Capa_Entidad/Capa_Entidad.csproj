@@ -47,10 +47,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AbastecimientoInterno_ENT\Interfaces\ITraslado.cs" />
-    <Compile Include="AbastecimientoInterno_ENT\TablasExternas\OWTQ_E.cs" />
-    <Compile Include="AbastecimientoInterno_ENT\TablasExternas\WTQ1_E.cs" />
-    <Compile Include="AbastecimientoInterno_ENT\TablasExternas\WTQ1_Lotes_E.cs" />
     <Compile Include="AbastecimientoInterno_ENT\TablasSql\DetalleSolicitudesTraslado_E.cs" />
     <Compile Include="AbastecimientoInterno_ENT\TablasSql\DetalleTransferenciaReserva_E.cs" />
     <Compile Include="AbastecimientoInterno_ENT\TablasSql\KardexAbastecimiento_E.cs" />
