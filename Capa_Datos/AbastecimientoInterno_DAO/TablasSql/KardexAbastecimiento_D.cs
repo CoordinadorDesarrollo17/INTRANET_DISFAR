@@ -88,7 +88,10 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 throw new Exception("Error en InsertarTransaccionIngresoKardex.", ex);
             }
 
-            return new Helper_E { Mensaje = mensaje, IconoSweetAlert = icono };
+            return new Helper_E
+            {
+                Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono 
+            };
         }
         public Helper_E ValidarTransaccionImputadoKardex(Requerimientos_E imputado, SqlConnection cn)
         {
@@ -135,7 +138,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 throw new Exception("Error en ValidarTransaccionImputadoKardex.", ex);
             }
 
-            return new Helper_E { Mensaje = mensaje, IconoSweetAlert = icono };
+            return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
         }
         public Helper_E InsertarTransaccionImputadoKardex(Requerimientos_E imputado, SqlConnection cn)
         {
@@ -217,8 +220,8 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 throw new Exception("Error en InsertarTransaccionImputadoKardex.", ex);
             }
 
-            return new Helper_E { Mensaje = mensaje, IconoSweetAlert = icono };
-        }
+            return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
+        }   
         public Helper_E InsertarTransaccionSalidaKardex(string itemCode, string itemName, int cantidad, string operarioRegistra, int requerimientoId, SqlConnection cn)
         {
             string mensaje, icono;
@@ -287,7 +290,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 throw new Exception("Error en InsertarTransaccionSalidaKardex.", ex);
             }
 
-            return new Helper_E { Mensaje = mensaje, IconoSweetAlert = icono };
+            return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
         }
         public Helper_E EliminarTotalTransaccionesIngresoKardex(int docNum,  SqlConnection cn)
         {
@@ -324,7 +327,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 throw new Exception("Error en EliminarTransaccionIngresoKardex.", ex);
             }
 
-            return new Helper_E { Mensaje = mensaje, IconoSweetAlert = icono };
+            return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
         }
         public Helper_E EliminarPorItemCodeTransaccionIngresoKardex(int docNum, string itemCode, SqlConnection cn)
         {
@@ -362,7 +365,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 throw new Exception("Error en EliminarPorItemCodeTransaccionIngresoKardex.", ex);
             }
 
-            return new Helper_E { Mensaje = mensaje, IconoSweetAlert = icono };
+            return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
         }
     }
 }

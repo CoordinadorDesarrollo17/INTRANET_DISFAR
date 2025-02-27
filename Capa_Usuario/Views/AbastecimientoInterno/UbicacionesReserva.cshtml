@@ -182,7 +182,7 @@
                 }
 
                 Swal.fire({
-                    title: data.Mensaje,
+                    title: data.Titulo,
                     html: Array.isArray(data.Comentario) && data.Comentario.length > 0
                         ? data.Comentario.join('<br>')
                         : data.Comentario || "",
@@ -232,7 +232,7 @@
                         const data = await response.json();
 
                         Swal.fire({
-                            title: data.Mensaje,
+                            title: data.Titulo,
                             html: data.Comentario,
                             icon: data.Icono,
                             allowEscapeKey: false,

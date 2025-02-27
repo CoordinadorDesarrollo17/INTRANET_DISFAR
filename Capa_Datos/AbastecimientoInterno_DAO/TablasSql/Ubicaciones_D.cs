@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Capa_Entidad;
+using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
 
 namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 {
@@ -50,7 +51,6 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             return ubicaciones.ToArray(); // Retornar el array de ubicaciones
         }
-
         public Helper_E EliminarUbicacionGeneral(string codigoUbicacion)
         {
             string mensajeUsuario, icono;
@@ -98,7 +98,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 LogHelper.RegistrarError(ex, $"Error inesperado en UbicacionesReserva_D - EliminarUbicacionGeneral.");
             }
 
-            return new Helper_E { Mensaje = mensajeUsuario, IconoSweetAlert = icono };
+            return new Helper_E { Mensajes = new List<string> { mensajeUsuario }, IconoSweetAlert = icono };
         }
     }
 }

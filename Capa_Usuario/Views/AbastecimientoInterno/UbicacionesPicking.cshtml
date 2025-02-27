@@ -63,18 +63,6 @@
 
                         <div class="row mb-4">
                             <div class="col-lg-3">
-                                <label class="form-label fw-bold">Stock mínimo abastecimiento:</label>
-                                <input type="text" id="StockMinAbastecimiento" name="StockMinAbastecimiento" class="form-control text-center cls-num" autocomplete="off" />
-                            </div>
-
-                            <div class="col-lg-3">
-                                <label class="form-label fw-bold">Stock mínimo abastecimiento:</label>
-                                <input type="text" id="StockMinVenta" name="StockMinVenta" class="form-control text-center cls-num" autocomplete="off" />
-                            </div>
-                        </div>
-
-                        <div class="row mb-4">
-                            <div class="col-lg-3">
                                 <label class="form-label fw-bold">Código de ubicación:</label>
                                 <input type="text" id="CodigoUbicacion" name="CodigoUbicacion" class="form-control cls-readonly text-center" autocomplete="off" readonly />
                             </div>
@@ -97,11 +85,11 @@
                             <div class="row">
                                 <div class="col-lg-3">
                                     <label class="form-label fw-bold">Almacén:</label>
-                                    <input id="almacen" class="form-control text-uppercase" type="text" autocomplete="off" oninput="generarCodigoUbicacion(this.value, 0)" />
+                                    <input id="almacen" class="form-control text-uppercase" type="text" autocomplete="off" value="PICKING" readonly />
                                 </div>
                                 <div class="col-lg-3">
                                     <label class="form-label fw-bold">Rack - Bloque:</label>
-                                    <input id="rackBloque" class="form-control text-uppercase" type="text" autocomplete="off" oninput="generarCodigoUbicacion(this.value, 1)" />
+                                    <input id="rackBloque" class="form-control text-uppercase" type="text" autocomplete="off" oninput="generarCodigoUbicacion($('#almacen').val(), 0); generarCodigoUbicacion(this.value, 1)" />
                                 </div>
                                 <div class="col-lg-3">
                                     <label class="form-label fw-bold">Posición:</label>
@@ -190,7 +178,7 @@
                 }
 
                 Swal.fire({
-                    title: data.Mensaje,
+                    title: data.Titulo,
                     html: Array.isArray(data.Comentario) && data.Comentario.length > 0
                         ? data.Comentario.join('<br>')
                         : data.Comentario || "",

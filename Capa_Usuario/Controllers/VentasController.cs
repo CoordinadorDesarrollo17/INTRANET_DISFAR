@@ -133,7 +133,7 @@ namespace Capa_Usuario.Controllers
 
             var result = new OTC_N().RegularizarAutorizacion(docNum, idOTC, operario);
 
-            return Json(new { Mensaje = result });
+            return Json(new { Titulo = result });
         }
 
         public JsonResult ObtenerDatosTicket(int docEntry)
@@ -147,7 +147,7 @@ namespace Capa_Usuario.Controllers
             }
             catch (Exception e)
             {
-                return Json(new { Mensaje = e.Message });
+                return Json(new { Titulo = e.Message });
             }
         }
         public JsonResult buscarTicketAVincular(int DocNum = 0)
@@ -2908,11 +2908,11 @@ namespace Capa_Usuario.Controllers
 
             if (result != null && result.Count() > 0)
             {
-                return Json(new { Mensaje = "" });
+                return Json(new { Titulo = "" });
             }
             else
             {
-                return Json(new { Mensaje = "Sin Datos" });
+                return Json(new { Titulo = "Sin Datos" });
             }
         }
         public ActionResult ExporteReporteGeneralTicketsRegalos(string fechaTicketDesde, string fechaTicketHasta, string estadoTicket, string estadoRegalo, int idOperation = 524)
@@ -3865,7 +3865,7 @@ namespace Capa_Usuario.Controllers
             catch (Exception e)
             {
                 // En caso de error, devolver un JsonResult con un mensaje de error
-                return Json(new { Mensaje = e.Message });
+                return Json(new { Titulo = e.Message });
             }
         }
         public ActionResult ExportarReporteErroresPicking(RptFiltrosErroresPicking_E filtros, int idOperation = 810)

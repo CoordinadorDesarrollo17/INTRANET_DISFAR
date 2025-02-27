@@ -278,7 +278,7 @@ namespace Capa_Usuario.Controllers
 
             string proceso = result.Equals("Se solicitó la VALIDACIÓN") ? "OK" : string.Empty;
 
-            return Json(new { Mensaje = result, DocEntry = tc.DocEntryORRU, TipoRep = tipoRepORRU, Linea = lineaORRU, TipoVenta = ticket.TipoVenta, Proceso = proceso });
+            return Json(new { Titulo = result, DocEntry = tc.DocEntryORRU, TipoRep = tipoRepORRU, Linea = lineaORRU, TipoVenta = ticket.TipoVenta, Proceso = proceso });
         }
 
         public JsonResult ConsultarNuevasSolicitudesTC()
@@ -287,7 +287,7 @@ namespace Capa_Usuario.Controllers
 
             var result = otcN.ConsultarNuevasSolicitudesTC();
 
-            return Json(new { Mensaje = result });
+            return Json(new { Titulo = result });
         }
 
         public JsonResult ObtenerSolicitudesAutorizar()
@@ -318,7 +318,7 @@ namespace Capa_Usuario.Controllers
             }
             else { mensaje = "El ticket no se puede validar"; }
 
-            return Json(new { Mensaje = mensaje });
+            return Json(new { Titulo = mensaje });
 
         }
 
@@ -341,7 +341,7 @@ namespace Capa_Usuario.Controllers
             }
             else { mensaje = "El ticket no se puede autorizar"; }
 
-            return Json(new { Mensaje = mensaje });
+            return Json(new { Titulo = mensaje });
         }
 
         public JsonResult RechazarTC(OTC_E tc, string area)
@@ -363,7 +363,7 @@ namespace Capa_Usuario.Controllers
             }
             else { mensaje = "Este ticket no se puede validar"; }
 
-            return Json(new { Mensaje = mensaje });
+            return Json(new { Titulo = mensaje });
         }
 
         public JsonResult AgregarPagosParciales(List<decimal> pagos, List<string> tiposPagosParciales, int docEntryTicket, int idOTC)
@@ -374,7 +374,7 @@ namespace Capa_Usuario.Controllers
             // Se valida si la lista de pagos es nula o vacía al principio del método para evitar iterar sobre ella si no hay pagos que procesar
             if (pagos == null || pagos.Count == 0)
             {
-                return Json(new { Mensaje = "No ha registrado pagos parciales." });
+                return Json(new { Titulo = "No ha registrado pagos parciales." });
             }
 
             var tc = otcN.ObtenerDatosTicketACuadrar(docEntryTicket, idOTC);
@@ -404,7 +404,7 @@ namespace Capa_Usuario.Controllers
 
             var result = otcN.AgregarPagosParciales(pagosParciales, docEntryTicket);
 
-            return Json(new { Mensaje = result });
+            return Json(new { Titulo = result });
         }
         /*
          public JsonResult AgregarPagosParciales(List<decimal> pagos, int docEntryTicket)
@@ -431,7 +431,7 @@ namespace Capa_Usuario.Controllers
 
             var result = otcN.AgregarPagosParciales(pagosParciales, docEntryTicket);
 
-            return Json(new { Mensaje = result });
+            return Json(new { Titulo = result });
         }
          */
         public JsonResult EliminarPagoParcial(int id)
@@ -444,7 +444,7 @@ namespace Capa_Usuario.Controllers
             var result = new OPP_N().EliminarPagoParcial(datos);
             var mensaje = result.Equals(1) ? "Pago parcial eliminado satisfactoriamente" : "Error al eliminar el pago parcial";
 
-            return Json(new { Mensaje = mensaje });
+            return Json(new { Titulo = mensaje });
         }
 
         public JsonResult VerRespuestaSolicitud(int docEntryTicket, int idOTC)
@@ -465,7 +465,7 @@ namespace Capa_Usuario.Controllers
                 }
             }
 
-            return Json(new { Mensaje = msj, Respuesta = tieneRespuesta });
+            return Json(new { Titulo = msj, Respuesta = tieneRespuesta });
         }
     }
 }

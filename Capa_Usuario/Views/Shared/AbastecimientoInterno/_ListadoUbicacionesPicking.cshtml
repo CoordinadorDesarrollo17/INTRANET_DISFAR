@@ -151,8 +151,10 @@
                     }
                     
                     Swal.fire({
-                        title: data.Mensaje,
-                        html: data.Comentario,
+                        title: data.Titulo,
+                        html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                            ? data.Mensajes.join('<br>')
+                            : data.Mensajes || "",
                         icon: data.Icono,
                         allowEscapeKey: false,
                         allowOutsideClick: false,
@@ -190,10 +192,10 @@
             const data = await response.json();
 
             Swal.fire({
-                title: data.Mensaje,
-                html: Array.isArray(data.Comentario) && data.Comentario.length > 0
-                    ? data.Comentario.join('<br>')
-                    : data.Comentario || "",
+                title: data.Titulo,
+                html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                    ? data.Mensajes.join('<br>')
+                    : data.Mensajes || "",
                 icon: data.Icono,
                 allowEscapeKey: false,
                 allowOutsideClick: false,

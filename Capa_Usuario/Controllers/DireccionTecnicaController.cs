@@ -427,7 +427,7 @@ namespace Capa_Usuario.Controllers
                 var result2 = owrtN.CambiarEstadoOWTR(datos, (result1 != null && result1.DocNumSAP >= 1) ? "ACT" : "INS");
                 var msj = (result2.Equals(1) ? "Estado Actualizado" : "Error al actualizar estado");
 
-                return Json(new { Mensaje = msj });
+                return Json(new { Titulo = msj });
             }
             else
             {
@@ -925,7 +925,7 @@ namespace Capa_Usuario.Controllers
             OORS_N orsN = new OORS_N();
             var result = orsN.RegistrarObservacion(rs);
 
-            return Json(new { Mensaje = result });
+            return Json(new { Titulo = result });
         }
 
         public JsonResult ConsultarRegistrosSanitariosExpirados()

@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Capa_Datos.AbastecimientoInterno_DAO.TablasSql;
+using Capa_Entidad;
+using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
+using Capa_Entidad.AtencionCliente_ENT.TablasSql;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Capa_Datos.AbastecimientoInterno_DAO.TablasSql;
-using Capa_Entidad;
-using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
-using Capa_Entidad.AtencionCliente_ENT.TablasSql;
 
 namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
 {
@@ -32,6 +32,11 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
                 {
                     condicion.AppendLine("AND UP.ItemCode = @ItemCode");
                     parametros["@ItemCode"] = filtros.ItemCode;
+                }
+                if (!string.IsNullOrWhiteSpace(filtros.CodigoUbicacion))
+                {
+                    condicion.AppendLine("AND UP.CodigoUbicacion = @CodigoUbicacion");
+                    parametros["@CodigoUbicacion"] = filtros.CodigoUbicacion;
                 }
             }
 
@@ -62,12 +67,6 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
 
             if (string.IsNullOrWhiteSpace(datos.CodigoUbicacion))
                 errores.Add("Código de ubicación no válida.");
-
-            if (datos.StockMinAbastecimiento <= 0)
-                errores.Add("El Stock Mínimo de Abastecimiento debe ser mayor a 0.");
-
-            if (datos.StockMinVenta <= 0)
-                errores.Add("El Stock Mínimo de Venta debe ser mayor a 0.");
 
             var ubicacionPicking = ObtenerDatosUbicacionPicking(new UbicacionesPicking_E { ItemCode = datos.ItemCode, ItemName = datos.ItemName, CodigoUbicacion = datos.CodigoUbicacion });
             if (ubicacionPicking != null && ubicacionPicking.Id > 0)

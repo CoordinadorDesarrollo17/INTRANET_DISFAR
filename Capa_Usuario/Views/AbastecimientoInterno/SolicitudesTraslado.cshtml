@@ -244,7 +244,7 @@
 				//console.log(data)
 
 				Swal.fire({
-					title: data.Mensaje,
+					title: data.Titulo,
 					html: Array.isArray(data.Comentario) && data.Comentario.length > 0
 						? data.Comentario.join('<br>')
 						: data.Comentario || "",
@@ -295,7 +295,7 @@
 
 				if (!data || !data.traslado) {
 					Swal.fire({
-                        title: data.Mensaje,
+						title: data.Titulo,
                         html: Array.isArray(data.Comentario) && data.Comentario.length > 0
                             ? data.Comentario.join('<br>')
                             : data.Comentario || "",
