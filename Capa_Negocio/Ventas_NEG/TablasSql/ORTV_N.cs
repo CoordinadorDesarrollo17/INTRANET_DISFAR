@@ -500,6 +500,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 {
                     throw new Exception("Debe llenar el verificador");
                 }
+                if (t.ProductoPendiente == null) { throw new Exception("Selecione productos pendientes"); }
             }
             else if (Estado.Equals("ANULAR FIN VERIFICAR"))
             {
@@ -556,7 +557,6 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             else if (Estado.Equals("FIN EMPACAR"))
             {
                 if (t.Estado.Equals("CANCELADO")) { throw new Exception("El ticket esta CANCELADO"); }
-                if (t.ProductoPendiente==null) { throw new Exception("Selecione Productos pendientes"); }
                 if (t.Estado.Equals("EMPACADO")) { throw new Exception("El ticket ya se encuentra  EMPACADO"); }
                 List<CC_ORTV_E> listaEstados = ccTicket.ListarCC_ORTV(DocEntry, null, true);
                 if (listaEstados.Count > 0)
