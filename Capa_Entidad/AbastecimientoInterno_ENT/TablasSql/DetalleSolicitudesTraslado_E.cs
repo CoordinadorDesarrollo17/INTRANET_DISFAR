@@ -1,4 +1,7 @@
-﻿namespace Capa_Entidad.AbastecimientoInterno_ENT.TablasSql
+﻿using System.Collections.Generic;
+using System;
+
+namespace Capa_Entidad.AbastecimientoInterno_ENT.TablasSql
 {
     public class DetalleSolicitudesTraslado_E
     {
@@ -7,14 +10,17 @@
         public string ItemCode {  get; set; }
         public string ItemName {  get; set; }
         public string BatchNum {  get; set; }
-        public decimal QuantityCajas {  get; set; }     // CantidadTotalPorSKUyLote
+        public decimal QuantityCajas {  get; set; }    
+        public decimal CantidadTotalPorSKUyLote {  get; set; }    
         public string InDate { get; set; }
         public string ExpDate { get; set; }
         public string FromWhsCode {  get; set; }        // AlmacenOrigen
         public string ToWhsCode {  get; set; }              // AlmacenDestino
         public string Estado {  get; set; }
 
-        // Campos que no son de la tabla
-        public string UnidadAlmSugerido { get; set; }
+        public static implicit operator List<object>(DetalleSolicitudesTraslado_E v)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -26,7 +26,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         {
             return datosUbicacionesLM.Salida(salida, cn);
         }
-        public string BuscarUnidadAlm(UbicacionesLotesMaster_E filtros = null, StringBuilder condicion = null, Dictionary<string, object> parametros = null)
+        public List<string> BuscarUnidadAlm(UbicacionesLotesMaster_E filtros = null, StringBuilder condicion = null, Dictionary<string, object> parametros = null)
         {
             condicion = new StringBuilder();
             parametros = new Dictionary<string, object>();

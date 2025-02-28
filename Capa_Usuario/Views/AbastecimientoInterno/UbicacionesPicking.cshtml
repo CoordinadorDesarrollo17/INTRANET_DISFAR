@@ -166,7 +166,7 @@
                 const data = await response.json();
 
                 if (data.Icono == 'success') {
-                    resetValoresVacios(["ItemCode", "ItemName", "StockMinAbastecimiento", "StockMinVenta","CodigoUbicacion", "almacen", "rackBloque", "posicion", "nivel"])
+                    resetValoresVacios(["ItemCode", "ItemName", "StockMinAbastecimiento", "StockMinVenta","CodigoUbicacion", "rackBloque", "posicion", "nivel"])
                     inicializarSlimSelectsPorClase('cls-select')
 
                     const radios = document.querySelectorAll(`input[name="UbiSistema"]`)
@@ -179,9 +179,9 @@
 
                 Swal.fire({
                     title: data.Titulo,
-                    html: Array.isArray(data.Comentario) && data.Comentario.length > 0
-                        ? data.Comentario.join('<br>')
-                        : data.Comentario || "",
+                    html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                        ? data.Mensajes.join('<br>')
+                        : data.Mensajes || "",
                     icon: data.Icono,
                     allowEscapeKey: false,
                     allowOutsideClick: false,

@@ -177,10 +177,10 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
         }
-        public string BuscarUnidadAlm(string condicion, Dictionary<string, object> parametrosCondicion)
+        public List<string> BuscarUnidadAlm(string condicion, Dictionary<string, object> parametrosCondicion)
         {
-            var unidadAlm = string.Empty;
-
+            
+            List<string> lista = new List<string>();
             try
             {
                 using (SqlConnection cn = new SqlConnection(uti.cadSql2))
@@ -210,7 +210,9 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                         {
                             while (dr.Read())
                             {
+                                var unidadAlm = string.Empty;
                                 if (!dr.IsDBNull(0)) unidadAlm = dr.GetString(0);
+                                if (!string.IsNullOrEmpty(unidadAlm)) { lista.Add(unidadAlm); }
                             }
                         }
                     }
@@ -222,7 +224,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 LogHelper.RegistrarError(ex, "UbicacionesLotesMaster_D - BuscarUnidadAlm");
             }
 
-            return unidadAlm;
+            return lista;
         }
 
         public List<UbicacionesLotesMaster_E> BuscarArticulos(string condicion, Dictionary<string, object> parametrosCondicion)

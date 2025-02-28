@@ -90,8 +90,6 @@
     <Compile Include="AbastecimientoInterno_DAO\TablasSql\TransferenciaReserva_D.cs" />
     <Compile Include="AbastecimientoInterno_DAO\TablasSql\UbicacionesLotesMaster_D.cs" />
     <Compile Include="AbastecimientoInterno_DAO\TablasSql\UbicacionesLotes_D.cs" />
-    <Compile Include="AbastecimientoInterno_DAO\TablasSql\UbicacionesReserva_D.cs" />
-    <Compile Include="AbastecimientoInterno_DAO\TablasSql\UbicacionesPicking_D.cs" />
     <Compile Include="AbastecimientoInterno_DAO\TablasSql\Ubicaciones_D.cs" />
     <Compile Include="Almacen_DAO\RptInternos\ContInv_D.cs" />
     <Compile Include="Almacen_DAO\TablasSql\CC_ORPD_D.cs" />

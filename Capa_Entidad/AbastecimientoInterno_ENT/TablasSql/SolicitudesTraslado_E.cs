@@ -1,9 +1,8 @@
-﻿using Capa_Entidad.AbastecimientoInterno_ENT.Interfaces;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Capa_Entidad.AbastecimientoInterno_ENT.TablasSql
 {
-    public class SolicitudesTraslado_E : ITraslado
+    public class SolicitudesTraslado_E 
     {
         public int Id { get; set; }
         public int DocEntry { get; set; }
@@ -15,6 +14,7 @@ namespace Capa_Entidad.AbastecimientoInterno_ENT.TablasSql
         public string OperarioResponsableSAP { get; set; }
         public string MotivoTraslado { get; set; }
         public string Estado { get; set; }
-        public List<DetalleSolicitudesTraslado_E> Detalle { get; set; }
+        public Dictionary<string,  DetalleSolicitudesTraslado_E> Detalle { get; set; }
+
     }
 }

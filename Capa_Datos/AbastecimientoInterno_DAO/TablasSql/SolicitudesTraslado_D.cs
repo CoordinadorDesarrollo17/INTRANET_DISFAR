@@ -50,7 +50,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                                 if (!dr.IsDBNull(7)) { solicitud.OperarioResponsableSAP = dr.GetString(7); }
                                 if (!dr.IsDBNull(8)) { solicitud.MotivoTraslado = dr.GetString(8); }
                                 if (!dr.IsDBNull(9)) { solicitud.Estado = dr.GetString(9); }
-                                solicitud.Detalle = new List<DetalleSolicitudesTraslado_E>();
+                                solicitud.Detalle = new Dictionary<string, DetalleSolicitudesTraslado_E>();
                             }
 
                             if (dr.NextResult() && solicitud != null)
@@ -71,7 +71,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                                     if (!dr.IsDBNull(9)) { detalle.InDate = dr.GetDateTime(9).ToString("yyyy-MM-dd"); }
                                     if (!dr.IsDBNull(10)) { detalle.ExpDate = dr.GetDateTime(10).ToString("yyyy-MM-dd"); }
 
-                                    solicitud.Detalle.Add(detalle);
+                                    solicitud.Detalle.Add(detalle.ItemCode,detalle);
                                 }
                             }
                         }
@@ -136,12 +136,12 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                                 {
                                     table.Rows.Add(
                                         0,
-                                        detalle.ItemCode,
-                                        detalle.ItemName,
-                                        detalle.BatchNum,
-                                        detalle.QuantityCajas,
-                                        detalle.FromWhsCode,
-                                        detalle.ToWhsCode,
+                                        detalle.Value.ItemCode,
+                                        detalle.Value.ItemName,
+                                        detalle.Value.BatchNum,
+                                        detalle.Value.QuantityCajas,
+                                        detalle.Value.FromWhsCode,
+                                        detalle.Value.ToWhsCode,
                                         "PENDIENTE"
                                     );
                                 }

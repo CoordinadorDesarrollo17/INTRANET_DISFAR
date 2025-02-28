@@ -11,7 +11,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
     public class LotesRegistroSanitario_N
     {
         LotesRegistroSanitario_D lotesDatos = new LotesRegistroSanitario_D();
-        public void ValidarLotesRegistroSanitario(List<DetalleSolicitudesTraslado_E> detalleSolicitudTraslado)
+        public void ValidarLotesRegistroSanitario(Dictionary<string, DetalleSolicitudesTraslado_E> detalleSolicitudTraslado)
         {
             lotesDatos.ValidarLotesRegistroSanitario(detalleSolicitudTraslado);
         }

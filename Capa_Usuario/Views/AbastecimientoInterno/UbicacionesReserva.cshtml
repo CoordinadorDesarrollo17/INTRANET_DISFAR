@@ -89,11 +89,11 @@
                             <div class="row">
                                 <div class="col-lg-3">
                                     <label class="form-label fw-bold">Almacén:</label>
-                                    <input id="almacen" class="form-control text-uppercase" type="text" autocomplete="off" oninput="generarCodigoUbicacion(this.value, 0)" />
+                                    <input id="almacen" class="form-control text-uppercase" type="text" autocomplete="off" value="RESERVA" readonly />
                                 </div>
                                 <div class="col-lg-3">
                                     <label class="form-label fw-bold">Rack - Bloque:</label>
-                                    <input id="rackBloque" class="form-control text-uppercase" type="text" autocomplete="off" oninput="generarCodigoUbicacion(this.value, 1)" />
+                                    <input id="rackBloque" class="form-control text-uppercase" type="text" autocomplete="off" oninput="generarCodigoUbicacion($('#almacen').val(), 0); generarCodigoUbicacion(this.value, 1)" />
                                 </div>
                                 <div class="col-lg-3">
                                     <label class="form-label fw-bold">Posición:</label>
@@ -170,7 +170,7 @@
                 const data = await response.json();
 
                 if (data.Icono == 'success') {
-                    resetValoresVacios(["ItemCode", "ItemName","CodigoUbicacion", "almacen", "rackBloque", "posicion", "nivel"])
+                    resetValoresVacios(["ItemCode", "ItemName","CodigoUbicacion", "rackBloque", "posicion", "nivel"])
                     inicializarSlimSelectsPorClase('cls-select')
 
                     const radios = document.querySelectorAll(`input[name="UbiSistema"]`)
@@ -183,9 +183,9 @@
 
                 Swal.fire({
                     title: data.Titulo,
-                    html: Array.isArray(data.Comentario) && data.Comentario.length > 0
-                        ? data.Comentario.join('<br>')
-                        : data.Comentario || "",
+                    html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                        ? data.Mensajes.join('<br>')
+                        : data.Mensajes || "",
                     icon: data.Icono,
                     allowEscapeKey: false,
                     allowOutsideClick: false,
@@ -233,7 +233,9 @@
 
                         Swal.fire({
                             title: data.Titulo,
-                            html: data.Comentario,
+                            html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                                ? data.Mensajes.join('<br>')
+                                : data.Mensajes || "",
                             icon: data.Icono,
                             allowEscapeKey: false,
                             allowOutsideClick: false,
