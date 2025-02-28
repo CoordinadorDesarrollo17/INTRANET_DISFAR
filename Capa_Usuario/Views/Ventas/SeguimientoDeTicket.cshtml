@@ -88,9 +88,10 @@
 
                     <div class="row mt-2">
                         <div class="col-lg-6">
-                            @if (ViewBag.MostrarBotonCambiarEstado)
+                            @if (Model.hayFinVerificar && flujoEstados["FIN VERIFICAR"].Operario != null && flujoEstados["FIN VERIFICAR"].FechaOperacion != null && Model.ProductoPendiente != null && Model.ProductoPendiente == 1)
                             {
-                                <input class="btn btn-sm btn-success" type="submit" name="@ViewBag.NameBotonEstado" value="@ViewBag.ValueBotonEstado" />
+                               <input class="btn btn-sm btn-success" type="submit" name="UPDATEPROD" value="Productos pendientes NO" /><!--ponerlo en 0-->
+
                             }
                         </div>
                     </div>
@@ -255,7 +256,6 @@
                                         <div class="status-info text-center font-12">
                                             <p>Pedido<br />VERIFICADO</p>
                                         </div>
-
                                         <div class="row" style="padding-bottom: 178px">
                                         </div>
                                     </li>
@@ -303,13 +303,8 @@
                                             </div><div class="row justify-content-center mt-2">
                                                 <input class="btn btn-sm btn-cobefar" type="submit" name="UPDATEEMP" value="ENVIAR DATOS" />
                                             </div>
-                                            if (Model.ProductoPendiente!= null && Model.ProductoPendiente == 1) {
-                                            <div class="row justify-content-center mt-2">
-                                                <input class="btn btn-sm btn-success" type="submit" name="UPDATEPROD" value="Productos pendientes NO" /><!--ponerlo en 0-->
-                                            </div>
-                                            }
                                             <div class="row justify-content-center mt-1 ">
-                                               <a href="/Ventas/PdfTacoEmpaque?DocEntry=@Model.DocEntry" class="btn btn-sm btn-light border-danger"><i class="icon-file-pdf text-danger"> </i> Taco Empaque</a>
+                                                <a href="/Ventas/PdfTacoEmpaque?DocEntry=@Model.DocEntry" class="btn btn-sm btn-light border-danger"><i class="icon-file-pdf text-danger"> </i> Taco Empaque</a>
                                             </div>
 
                                         }
@@ -389,24 +384,6 @@
                                             <p>Pedido fue<br />ENVIADO en el<br />transporte (opcional)</p>
                                         </div>
                                         <div class="row " style="padding-bottom: 160px"></div>
-                                        <!--<div class="position-absolute font-12 ml-4">-->
-                                        @*INDICA QUE HAY UNA RUTA RELACIONADA*@
-                                        @*@{ if (Model.orru.DocNum != 0 )
-                    {
-                        <p>
-                            <span class="font-weight-bold">Propietario: </span><br />@if (Model.orru.Propietario != null && Model.orru.Propietario.Length > 12)
-                            {@Model.orru.Propietario.Substring(0, 12);
-                        }
-                        </p>
-                        <p><span class="font-weight-bold">Conductor:</span><br /> @if (Model.orru.TransDesc != null && Model.orru.TransDesc.Length > 12) { Write(Model.orru.TransDesc.Substring(0, 12)); }</p>
-                        <p><span class="font-weight-bold">Copiloto1: </span><br />@if (Model.orru.CopilDesc != null && Model.orru.CopilDesc.Length > 12) { Write(Model.orru.CopilDesc.Substring(0, 12)); }</p>
-                        <p><span class="font-weight-bold">Copiloto2:</span><br />@if (Model.orru.Copil2Desc != null && Model.orru.Copil2Desc.Length > 12) { Write(Model.orru.Copil2Desc.Substring(0, 12)); }</p>
-                        <p><span class="font-weight-bold">N° Ruta:</span><br />@Model.orru.DocNum</p>
-                    }
-                }*@
-                                        <!--</div>
-
-            </div>-->
                                     </li>
                                 }
 
@@ -453,7 +430,7 @@
                         </div>
                     </div>
 
-                    @if (@*@Request["view"] == "despacho"&& *@  Model.Estado.Equals("PREENVIO") || Model.Estado.Equals("ENVIADO") || Model.Estado.Equals("ENTREGADO"))
+                    @if (Model.Estado.Equals("PREENVIO") || Model.Estado.Equals("ENVIADO") || Model.Estado.Equals("ENTREGADO"))
 {
 if (Model.orru != null && Model.orru.DocNum != 0)
 {
