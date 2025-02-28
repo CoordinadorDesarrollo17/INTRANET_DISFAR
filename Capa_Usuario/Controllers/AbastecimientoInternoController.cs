@@ -690,8 +690,7 @@ namespace Capa_Usuario.Controllers
             if (usuarioSesion == null)
                 return Json(new { Mensaje = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" });
 
-            var lista = _ubicacionesLotesMasterN.BuscarArticulos(new UbicacionesLotesMaster_E { ItemCode = itemCode })
-                .DefaultIfEmpty(new UbicacionesLotesMaster_E());
+            List<UbicacionesLotesMaster_E> lista = _ubicacionesLotesMasterN.BuscarArticulos(new UbicacionesLotesMaster_E { ItemCode = itemCode });
 
             switch (tipoAbastecimiento)
             {

@@ -1,12 +1,13 @@
-@{ int num = 1; }
+﻿@{ int num = 1;
+}
 <table id="tbl_listaArticulosAbastPicking" class="dt-container dt-empty-footer table table-sm table-hover table-bordered table-striped font-14" width="100%">
     <thead class="thead-cobefar">
         <tr>
             <th scope="col" class="text-center" style="width: 5%;">#</th>
-            <th scope="col" class="text-center">Descripci�n</th>
+            <th scope="col" class="text-center">Descripción</th>
             <th scope="col" class="text-center">Lote</th>
             <th scope="col" class="text-center">Fechas</th>
-            <th scope="col" class="text-center">Ubicaci�n RESERVA</th>
+            <th scope="col" class="text-center">Ubicación RESERVA</th>
             <th scope="col" class="text-center">Unidad MASTER</th>
             <th scope="col" class="text-center">Stock MASTER</th>
             <th scope="col" class="text-center">Stock SALDO</th>
@@ -15,34 +16,186 @@
         </tr>
     </thead>
     <tbody class="text-dark">
-        @foreach (var item in Model)
+        @if (Model != null)
         {
-            <tr>
-                <td scope="col" class="text-center" style="width: 5%;">@num</td>
-                <td scope="col">
-                    <span class="fw-bold ps-2 font-16 text-cobefar">@item.ItemCode</span>
-                    <br />
-                    <span class="ps-2">@item.ItemName</span>
-                </td>
-                <td scope="col" class="text-center">@item.BatchNum</td>
-                <td scope="col" class="text-center">
-                    <span class="fw-bold text-cobefar">Venc.: </span>@item.InDate
-                    <br />
-                    <span class="fw-bold text-cobefar">Adm.:</span> @item.ExpDate
-                </td>
-                <td scope="col" class="text-center">@item.CodigoUbicacion</td>
-                <td scope="col" class="text-center">@item.UmAlm</td>
-                <td scope="col" class="text-center">@item.QuantityMaster</td>
-                <td scope="col" class="text-center">@item.QuantitySaldo</td>
-                <td scope="col" class="text-center">@item.QuantityUnidadesCajas</td>
-                <td scope="col" class="text-center"></td>
-            </tr>
-            num++;
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td scope="col" class="text-center" style="width: 5%;">@num</td>
+                    <td scope="col">
+                        <span class="fw-bold ps-2 font-16 text-cobefar">@item.ItemCode</span>
+                        <br />
+                        <span class="ps-2">@item.ItemName</span>
+                    </td>
+                    <td scope="col" class="text-center">@item.BatchNum</td>
+                    <td scope="col" class="text-center">
+                        <span class="fw-bold text-cobefar">Venc.: </span>@item.InDate
+                        <br />
+                        <span class="fw-bold text-cobefar">Adm.:</span> @item.ExpDate
+                    </td>
+                    <td scope="col" class="text-center">@item.CodigoUbicacion</td>
+                    <td scope="col" class="text-center">@item.UmAlm</td>
+                    <td scope="col" class="text-center">@item.QuantityMaster</td>
+                    <td scope="col" class="text-center">@item.QuantitySaldo</td>
+                    <td scope="col" class="text-center">@item.QuantityUnidadesCajas</td>
+                    <td scope="col" class="text-center"></td>
+                </tr>
+                num++;
+            }
         }
+
+        <tr>
+            <td scope="col" class="text-center" style="width: 5%;">1</td>
+            <td scope="col">
+                <span class="fw-bold ps-2 font-16 text-cobefar">PRD001</span><br />
+                <span class="ps-2">Paracetamol 500mg</span>
+            </td>
+            <td scope="col" class="text-center">BCH12345</td>
+            <td scope="col" class="text-center">
+                <span class="fw-bold text-cobefar">Venc.: </span>2025-05-15<br />
+                <span class="fw-bold text-cobefar">Adm.:</span> 2024-05-15
+            </td>
+            <td scope="col" class="text-center">A1-01-01</td>
+            <td scope="col" class="text-center"><input type="hidden" class="valorUmAlm" value="10" />MASTERX10</td>
+            <td scope="col" class="text-center"><input type="hidden" class="stockMaster" value="50" />50</td>
+            <td scope="col" class="text-center"><input type="hidden" class="stockSaldo" value="30" />30</td>
+            <td scope="col" class="text-center"><input type="hidden" class="stockTotalUnidades" value="530" />530</td>
+            <td scope="col" class="text-center"></td>
+        </tr>
+        <tr>
+            <td scope="col" class="text-center" style="width: 5%;">2</td>
+            <td scope="col">
+                <span class="fw-bold ps-2 font-16 text-cobefar">PRD002</span><br />
+                <span class="ps-2">Ibuprofeno 400mg</span>
+            </td>
+            <td scope="col" class="text-center">BCH67890</td>
+            <td scope="col" class="text-center">
+                <span class="fw-bold text-cobefar">Venc.: </span>2025-06-20<br />
+                <span class="fw-bold text-cobefar">Adm.:</span> 2024-06-20
+            </td>
+            <td scope="col" class="text-center">A1-02-02</td>
+            <td scope="col" class="text-center"><input type="hidden" class="valorUmAlm" value="10" />MASTERX10</td>
+            <td scope="col" class="text-center"><input type="hidden" class="stockMaster" value="40" />40</td>
+            <td scope="col" class="text-center"><input type="hidden" class="stockSaldo" value="20" />20</td>
+            <td scope="col" class="text-center"><input type="hidden" class="stockTotalUnidades" value="420" />420</td>
+            <td scope="col" class="text-center"></td>
+        </tr>
+        <tr>
+            <td scope="col" class="text-center" style="width: 5%;">3</td>
+            <td scope="col">
+                <span class="fw-bold ps-2 font-16 text-cobefar">PRD003</span><br />
+                <span class="ps-2">Omeprazol 20mg</span>
+            </td>
+            <td scope="col" class="text-center">BCH54321</td>
+            <td scope="col" class="text-center">
+                <span class="fw-bold text-cobefar">Venc.: </span>2025-07-10<br />
+                <span class="fw-bold text-cobefar">Adm.:</span> 2024-07-10
+            </td>
+            <td scope="col" class="text-center">A2-03-03</td>
+            <td scope="col" class="text-center"><input type="hidden" class="valorUmAlm" value="13" />MASTERX13</td>
+            <td scope="col" class="text-center"><input type="hidden" class="stockMaster" value="11" />11</td>
+            <td scope="col" class="text-center"><input type="hidden" class="stockSaldo" value="50" />50</td>
+            <td scope="col" class="text-center"><input type="hidden" class="stockTotalUnidades" value="193" />193</td>
+            <td scope="col" class="text-center"></td>
+        </tr>
+        <tr>
+            <td scope="col" class="text-center" style="width: 5%;">4</td>
+            <td scope="col">
+                <span class="fw-bold ps-2 font-16 text-cobefar">PRD004</span><br />
+                <span class="ps-2">Amoxicilina 500mg</span>
+            </td>
+            <td scope="col" class="text-center">BCH11223</td>
+            <td scope="col" class="text-center">
+                <span class="fw-bold text-cobefar">Venc.: </span>2025-08-05<br />
+                <span class="fw-bold text-cobefar">Adm.:</span> 2024-08-05
+            </td>
+            <td scope="col" class="text-center">A3-04-04</td>
+            <td scope="col" class="text-center"><input type="hidden" class="valorUmAlm" value="77" />MASTERX77</td>
+            <td scope="col" class="text-center"><input type="hidden" class="stockMaster" value="3" />3</td>
+            <td scope="col" class="text-center"><input type="hidden" class="stockSaldo" value="66" />66</td>
+            <td scope="col" class="text-center"><input type="hidden" class="stockTotalUnidades" value="297" />297</td>
+            <td scope="col" class="text-center"></td>
+        </tr>
     </tbody>
 
 </table>
 
 <script>
     inicializarDataTable('tbl_listaArticulosAbastPicking', '25')
+
+    function calcularStockSaliendo(cantidadSolicitada, valorUmAlm, stockSaldo, stockMaster, stockTotalUnidades) {
+        let stockSaliendoFaltante = 0
+        let stockMasterRequerido = 0
+        let stockSaliendo = 0
+
+        if (Number(stockSaldo) > 0) {
+            stockSaliendoFaltante = Number(cantidadSolicitada) - Number(stockSaldo)
+        } else {
+            stockSaliendoFaltante = Number(cantidadSolicitada)
+        }
+
+        if (stockSaliendoFaltante > 0) {
+            let residuo = Number(stockSaliendoFaltante) % Number(valorUmAlm)
+
+            if (residuo == 0) {
+                // Dividimos para saber cuantos masters cubren el "stockSaliendoFaltante"
+                stockMasterRequerido = Number(stockSaliendoFaltante) / Number(valorUmAlm)                
+            } else {
+                let numero = Number(stockSaliendoFaltante)
+
+                while (numero % 13 === 0) {
+                    numero++
+                }
+
+                stockMasterRequerido = numero / Number(valorUmAlm)
+            }
+
+            if (stockMasterRequerido > stockMaster) {
+                //Swal.fire('El stock MASTER requerido es mayor al stock MASTER disponible.')
+                return 0;
+            }
+        }
+
+        console.log("stockMasterRequerido: " + stockMasterRequerido)
+        stockSaliendo = (stockMasterRequerido * Number(valorUmAlm)) + Number(stockSaldo)
+        console.log("stockSaliendo: " + stockSaliendo)
+
+        return stockSaliendo;
+    }
+
+    let filas = Array.from(document.querySelectorAll('#tbl_listaArticulosAbastPicking tbody tr'));
+
+    filas.forEach((fila, index) => {
+        console.log(`Fila ${index + 1}:`);
+
+        // Obtener valores de los inputs dentro de la fila
+        let stockSaldo = parseInt(fila.querySelector('.stockSaldo')?.value || 0);
+        let stockMaster = parseInt(fila.querySelector('.stockMaster')?.value || 0);
+        let valorUmAlm = parseInt(fila.querySelector('.valorUmAlm')?.value || 0);
+        let stockTotalUnidades = parseInt(fila.querySelector('.stockTotalUnidades')?.value || 0);
+        let cantidadSolicitada = 200; // Cantidad fija
+
+        // Calcular el stock saliendo
+        let stockSaliendo = calcularStockSaliendo(cantidadSolicitada, valorUmAlm, stockSaldo, stockMaster, stockTotalUnidades);
+
+        // Mostrar el resultado en el input de "Stock Saliendo"
+        let inputStockSaliendo = fila.querySelector('.stock-saliendo');
+        if (inputStockSaliendo) {
+            inputStockSaliendo.value = stockSaliendo;
+        }
+
+        console.log(`   - Stock Saldo: ${stockSaldo}, Stock Master: ${stockMaster}, Stock Saliendo: ${stockSaliendo}`);
+    });
 </script>
+
+
+@*
+
+    var articulosOrdenados = Model
+        .OrderBy(a => DateTime.Parse(a.InDate)) // Ordena por fecha de vencimiento (asc)
+        .ThenBy(a => DateTime.Parse(a.ExpDate)) // Luego por fecha de admisión (asc)
+        .ThenByDescending(a => a.QuantityUnidadesCajas) // Luego por cantidad en unidades (desc)
+        .ToList();
+
+
+*@
