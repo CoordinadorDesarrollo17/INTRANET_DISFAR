@@ -833,19 +833,21 @@ namespace Capa_Usuario.Controllers
                     zonaDistinta = ticketPost.zonaDistinta,
                     Mensaje = string.Empty
                 };
-                bool hayFinEmpacar = false; int DocNum = 0;
+                bool hayFinVerificar = false; 
+                int DocNum = 0;
                 try
                 {
                     Usuario_E u = (Usuario_E)Session["UsuarioId"];
-                    List<CC_ORTV_E> ticketFinEmpacar = ccORTV_N.ListarCC_ORTV(DocEntry, "FIN EMPACAR");
-                    List<CC_ORTV_E> ticketAnularFinEmpacar = ccORTV_N.ListarCC_ORTV(DocEntry, "ANULAR FIN EMPACAR");
-                    List<CC_ORTV_E> listaCC = new List<CC_ORTV_E>() { ticketFinEmpacar[0], ticketAnularFinEmpacar[0] }.OrderByDescending(x => x.Id).ToList();
-                    if (listaCC.FirstOrDefault().Operacion == "FIN EMPACAR") { hayFinEmpacar = true; }
-                    else if (listaCC.FirstOrDefault().Operacion == "ANULAR FIN EMPACAR") { hayFinEmpacar = false; }
-                    if (hayFinEmpacar)
+                    List<CC_ORTV_E> ticketFinVerificar = ccORTV_N.ListarCC_ORTV(DocEntry, "FIN VERIFICAR");
+                    List<CC_ORTV_E> ticketAnularFinVerificar= ccORTV_N.ListarCC_ORTV(DocEntry, "ANULAR FIN VERIFICAR");
+                    List<CC_ORTV_E> listaCC = new List<CC_ORTV_E>() { ticketFinVerificar[0], ticketAnularFinVerificar[0] }.OrderByDescending(x => x.Id).ToList();
+                    if (listaCC.FirstOrDefault().Operacion == "FIN VERIFICAR") { hayFinVerificar = true; }
+
+                    if (hayFinVerificar)
                     {
                         ORTV_N negtik = new ORTV_N();
-                        ORTV_E ticket = negtik.ObtenerDatosCompletosTicket(DocEntry); string Guias = "";
+                        ORTV_E ticket = negtik.ObtenerDatosCompletosTicket(DocEntry); 
+                        string Guias = "";
                         if (ticket.LugarDestino.Equals("Arriola") || ticket.LugarDestino.Equals("Centro"))
                         {
                             string WhsCode = string.Empty;
@@ -866,7 +868,7 @@ namespace Capa_Usuario.Controllers
                         }
                         else { throw new Exception("El ticket " + DocEntry + " no tiene guías en SAP."); }
                     }
-                    else { throw new Exception("El ticket " + DocEntry + " no ha sido empacado."); }
+                    else { throw new Exception("El ticket " + DocEntry + " no ha sido verificado."); }
                     return RedirectToAction("ListadoTicketsFacturacion", datos);
                 }
                 catch (Exception e)
@@ -1690,14 +1692,15 @@ namespace Capa_Usuario.Controllers
                 try
                 {
                     Usuario_E u = (Usuario_E)Session["UsuarioId"];
-                    ORTV_E tc = _ticketN.ObtenerDatosCompletosTicket(DocEntry);
-                    tc.OpRegistro = $"{u.Nombres} {u.Apellidos}";
-                    tc.Det12 = ticketPost.Det12;        // OpVerificador 2 y OpVerificador 3
-                    int DocNum = _ticketN.editarSeguimientoTicket("FIN VERIFICAR", DocEntry, tc);
+                    ORTV_E ticket = _ticketN.ObtenerDatosCompletosTicket(DocEntry);
+                    ticket.OpRegistro = $"{u.Nombres} {u.Apellidos}";
+                    ticket.Det12 = ticketPost.Det12;        // OpVerificador 2 y OpVerificador 3
+                    ticket.ProductoPendiente = ticketPost.ProductoPendiente;
+                    int DocNum = _ticketN.editarSeguimientoTicket("FIN VERIFICAR", DocEntry, ticket);
                     var listaUsuarios = _usuarioN.ListaUsuarios(new Usuario_E() { Prefijo = "ALM" });
                     var usuariosDistinct = listaUsuarios.Select(x => $"{x.Nombres} {x.Apellidos}").Distinct().ToList();
                     ViewBag.ListaUsuarios = usuariosDistinct;
-                    return Json(new { DocNum = DocNum, Mensaje = $"Ticket {DocNum} verificado correctamente" });
+                    return Json(new { DocNum, Mensaje = $"Ticket {DocNum} verificado correctamente" });
                 }
                 catch (Exception e)
                 {
@@ -1842,7 +1845,7 @@ namespace Capa_Usuario.Controllers
                     ticket.NroMesa = ticketPost.NroMesa;
                     ticket.Operario = usuario.WhsCode;      //envia el dato de WhsCode del usuario
                     ticket.Det13 = ticketPost.Det13;        // OpEmpacador 2 y OpEmpacador 3
-                    ticket.ProductoPendiente = ticketPost.ProductoPendiente;
+                   
                     int DocNum = _ticketN.editarSeguimientoTicket("FIN EMPACAR", DocEntry, ticket);
                     var listaUsuarios = _usuarioN.ListaUsuarios(new Usuario_E() { Prefijo = "ALM" });
                     var usuariosDistinct = listaUsuarios.Select(x => $"{x.Nombres} {x.Apellidos}").Distinct().ToList();
