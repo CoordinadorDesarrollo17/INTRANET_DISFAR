@@ -14,7 +14,5 @@ namespace Capa_Entidad.AbastecimientoInterno_ENT.Interfaces
         string OperarioResponsableSAP { get; }
         string MotivoTraslado { get; }
         string Estado { get; }
-        //Datos que no son de la tabla
-
     }
 }
