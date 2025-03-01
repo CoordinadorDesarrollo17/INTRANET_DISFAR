@@ -49,10 +49,13 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasExternas
                         }
 
                         string itemCode = hdr.IsDBNull(10) ? "" : hdr.GetString(10);
+                        string batchNum = hdr.IsDBNull(13) ? "" : hdr.GetString(13); // Lote
+                        string uniqueKey = $"{itemCode}_{batchNum}"; // Clave única combinada
 
-                        // Verificar si el itemCode ya existe en el diccionario, si no, inicializarlo
-                        if (!solicitud.Detalle.ContainsKey(itemCode))
+                        // Crear nueva instancia de detalle
+                        var detalle = new DetalleSolicitudesTraslado_E
                         {
+<<<<<<< HEAD
                             solicitud.Detalle[itemCode] = new DetalleSolicitudesTraslado_E
                             {
                                 FromWhsCode = hdr.IsDBNull(8) ? "" : hdr.GetString(8),
@@ -64,12 +67,25 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasExternas
                                 InDate = hdr.IsDBNull(15) ? "" : hdr.GetString(15),
                                 ExpDate = hdr.IsDBNull(16) ? "" : hdr.GetString(16)
                             };
+=======
+                            FromWhsCode = hdr.IsDBNull(8) ? "" : hdr.GetString(8),
+                            ToWhsCode = hdr.IsDBNull(9) ? "" : hdr.GetString(9),
+                            ItemCode = itemCode,
+                            ItemName = hdr.IsDBNull(11) ? "" : hdr.GetString(11),
+                            BatchNum = batchNum,
+                            QuantityCajas = hdr.IsDBNull(14) ? 0 : Math.Round(hdr.GetDecimal(14), 0),
+                            InDate = hdr.IsDBNull(15) ? "" : hdr.GetString(15),
+                            ExpDate = hdr.IsDBNull(16) ? "" : hdr.GetString(16)
+                        };
+
+                        // Si la clave única no existe en el diccionario, agregar el detalle
+                        if (!solicitud.Detalle.ContainsKey(uniqueKey))
+                        {
+                            solicitud.Detalle[uniqueKey] = detalle;
+>>>>>>> Correciones_OWTQ
                         }
-
-
-                        //// Agregar el lote al último elemento agregado
-                        //solicitud.Detalle[itemCode].Add(detalleLote);
                     }
+
                     hdr.Close();
                 }
             }

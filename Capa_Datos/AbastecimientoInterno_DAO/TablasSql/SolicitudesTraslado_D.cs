@@ -25,19 +25,19 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     cn.Open();
                     using (SqlCommand cmd = new SqlCommand("sp_MantenimientoSolicitudTraslado", cn))
                     {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "GET");
-                    cmd.Parameters.AddWithValue("@DocNum", docNum);
-                    var outputId = new SqlParameter("@IdGenerado", SqlDbType.Int)
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@TipoMantenimiento", "GET");
+                        cmd.Parameters.AddWithValue("@DocNum", docNum);
+                        var outputId = new SqlParameter("@IdGenerado", SqlDbType.Int)
                         {
                             Direction = ParameterDirection.Output
                         };
-                     cmd.Parameters.Add(outputId);
+                        cmd.Parameters.Add(outputId);
 
 
                         using (SqlDataReader dr = cmd.ExecuteReader())
                         {
-                            if (dr.Read()) 
+                            if (dr.Read())
                             {
                                 solicitud = new SolicitudesTraslado_E();
                                 if (!dr.IsDBNull(0)) { solicitud.Id = dr.GetInt32(0); }
@@ -52,6 +52,10 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                                 if (!dr.IsDBNull(9)) { solicitud.Estado = dr.GetString(9); }
                                 solicitud.Detalle = new Dictionary<string, DetalleSolicitudesTraslado_E>();
                             }
+
+                            string itemCode = dr.IsDBNull(10) ? "" : dr.GetString(10);
+                            string batchNum = dr.IsDBNull(13) ? "" : dr.GetString(13); // Lote
+                            string uniqueKey = $"{itemCode}_{batchNum}"; // Clave única combinada
 
                             if (dr.NextResult() && solicitud != null)
                             {
@@ -71,7 +75,14 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                                     if (!dr.IsDBNull(9)) { detalle.InDate = dr.GetDateTime(9).ToString("yyyy-MM-dd"); }
                                     if (!dr.IsDBNull(10)) { detalle.ExpDate = dr.GetDateTime(10).ToString("yyyy-MM-dd"); }
 
-                                    solicitud.Detalle.Add(detalle.ItemCode,detalle);
+                                    //solicitud.Detalle.Add(detalle.ItemCode,detalle);
+
+                                    // Si la clave única no existe en el diccionario, agregar el detalle
+                                    if (!solicitud.Detalle.ContainsKey(uniqueKey))
+                                    {
+                                        solicitud.Detalle[uniqueKey] = detalle;
+                                    }
+
                                 }
                             }
                         }
@@ -235,6 +246,11 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                         cmd.Parameters.AddWithValue("@TipoMantenimiento", "UPDATE");
                         cmd.Parameters.AddWithValue("@ItemCode", itemCode);
                         cmd.Parameters.AddWithValue("@Id", solicitudTrasladoId); // usa el parametro de la cabecera
+                        SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
+                        {
+                            Direction = ParameterDirection.Output
+                        };
+                        cmd.Parameters.Add(idGeneradoParam);
 
                         cmd.ExecuteNonQuery();
                     }

@@ -118,7 +118,7 @@
         </div>
     </div>
 
-    <div id="div_botones" class="row" @*style="display: none"*@>
+    <div id="div_botones" class="row" style="display: none">
         <div class="col-lg-12">
             <button type="button" class="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Cancelar"><i class="bi bi-x-lg"></i> Cancelar</button>
             <button type="button" id="btn_transferir" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Transferir"><i class="bi bi-arrow-left-right"></i> Transferir</button>
@@ -186,29 +186,38 @@
 			const filasTransferencia = document.querySelectorAll(".tbl_detalleLotes tbody tr");
 			let detallesTransferencia = [];
 
-			filasTransferencia.forEach((fila) => {
-				let inputs = fila.querySelectorAll("input, select");
-				let detalleTransferencia = {};
+            filasTransferencia.forEach((fila) => {
+                let inputs = fila.querySelectorAll("input, select");
+                let detalleTransferencia = {};
+                let camposValidos = true; // Bandera para validar los campos requeridos
 
-				inputs.forEach(input => {
-					let name = input.name.trim();
+                inputs.forEach(input => {
+                    let name = input.name.trim();
 
-					if (name.startsWith("transferenciaPost.Detalle[]")) {
-						let key = name.replace("transferenciaPost.Detalle[].", "").trim();
+                    if (name.startsWith("transferenciaPost.Detalle[]")) {
+                        let key = name.replace("transferenciaPost.Detalle[].", "").trim();
+                        let value = input.value.trim(); // Aseguramos que no tenga espacios en blanco al inicio o fin
 
-							if (key === "ValorUmAlm") {
-								let selectedOption = input.options[input.selectedIndex];
-								detalleTransferencia[key] = input.value;
-								detalleTransferencia["UmAlm"] = selectedOption.dataset.umalm || ""; // Evita valores undefined
-							} else {
-								detalleTransferencia[key] = input.value;
-							}
+                        if (key === "ValorUmAlm") {
+                            let selectedOption = input.options[input.selectedIndex];
+                            detalleTransferencia[key] = value;
+                            detalleTransferencia["UmAlm"] = selectedOption.dataset.umalm || ""; // Evita valores undefined
+                        } else {
+                            detalleTransferencia[key] = value;
+                        }
 
-					}
-				});
+                        // Verificar si los campos obligatorios están vacíos
+                        if ((key === "QuantitySaldo" || key === "UmAlm") && value === "") {
+                            camposValidos = false; // Marcar como inválido si algún campo está vacío
+                        }
+                    }
+                });
 
-				if (Object.keys(detalleTransferencia).length > 0) detallesTransferencia.push(detalleTransferencia);
-			});
+                // Solo agregar si los campos requeridos tienen valores
+                if (camposValidos && Object.keys(detalleTransferencia).length > 0) {
+                    detallesTransferencia.push(detalleTransferencia);
+                }
+            });
 
 			const formData = new FormData(form);
 			const jsonData = Object.fromEntries(formData.entries());
@@ -245,9 +254,9 @@
 
 				Swal.fire({
 					title: data.Titulo,
-					html: Array.isArray(data.Comentario) && data.Comentario.length > 0
-						? data.Comentario.join('<br>')
-						: data.Comentario || "",
+                    html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                        ? data.Mensajes.join('<br>')
+                        : data.Mensajes || "",
 					icon: data.Icono,
 					allowEscapeKey: false,
 					allowOutsideClick: false,
@@ -295,11 +304,17 @@
 
 				if (!data || !data.traslado) {
 					Swal.fire({
-						title: "Error",
-						text: data.Titulo || "No se encontraron datos para la solicitud.",
-						icon: "error",
-						showConfirmButton: true
+						title: data.Titulo,
+                        html: Array.isArray(data.Comentario) && data.Comentario.length > 0
+                            ? data.Comentario.join('<br>')
+                            : data.Comentario || "",
+                        icon: data.Icono,
+                        allowEscapeKey: false,
+                        allowOutsideClick: false,
+                        showConfirmButton: true
 					});
+
+					document.querySelector('#div_botones').style.display = 'none'
 					return;
 				}
 
@@ -314,14 +329,16 @@
 				// Construir formulario y tabla de detalle
 				if (data.transferencia == null) {
 					construirFormCopiaSap(data.traslado);
-					construirDetalleSolicitudTraslado(data.traslado.Detalle);
+					let traslado = organizarSolicitudDeTraslado(data.traslado.Detalle)
+					construirDetalleSolicitudTraslado(traslado.Detalle);
 				} else {
                     //let datos = marcarAtendidos(data.traslado, data.transferencia)
                     let traslado = organizarSolicitudDeTraslado(data.traslado.Detalle)
                     construirDetalleTransferenciaReserva(traslado.Detalle);
-                    //console.log(traslado.Detalle)
 				}
-				
+
+				document.querySelector('#div_botones').style.display = 'block'
+
 			} catch (error) {
 				console.error("Error:", error);
 				Swal.fire({
@@ -360,11 +377,11 @@
 
 				tbody += `<tr data-producto="${key.ItemCode}" class="fila-detalle">
 										<td class="details-control">
-											<div class="d-flex justify-content-center"><button id="btn_chevron_${key.ItemCode}" class="btn btn-sm btn-cobefar-2"><i class="bi bi-chevron-down"></i></button></div>											
+											<div class="d-flex justify-content-center"><button id="btn_chevron_${key.ItemCode}" class="btn btn-sm btn-cobefar-2"><i class="bi bi-chevron-down"></i></button></div>
 										</td>
 										<td class="text-center">${key.ItemCode}</td>
-										<td>${key.ItemName}</td>
-										<td class="text-center">${key.CantidadTotalPorSKU}</td>
+										<td><span class="ps-2">${key.ItemName}</span></td>
+										<td class="text-center">${key.QuantityCajas}</td>
 										<td class="text-center"><div class="d-flex justify-content-center"><input type="text" class="form-control text-center cls-readonly" value="RESERVA" readonly style="width: 140px"></div></td>
 										<td class="text-center">${key.DetalleLotes.map(l => l.BatchNum).join(', ')}</td>
 										<td class="text-center">
@@ -411,7 +428,7 @@
             let tbody = ''
 
             for (const itemCode in detalle) {
-                let key = detalle[itemCode]
+				let key = detalle[itemCode]
 
                 tbody += `<tr data-producto="${key.ItemCode}" class="fila-detalle">
 								<td class="details-control text-center">
@@ -423,7 +440,11 @@
 								<td class="text-center">RESERVA</td>
 								<td class="text-center">${key.DetalleLotes.map(l => l.BatchNum).join(', ')}</td>
 								<td class="text-center">
-									Transferido
+									${key.Estado == "TRANSFERIDO" ? '<span class="fw-bold">TRANSFERIDO</span>' : `
+										<button class="btn btn-danger" onclick="limpiarValoresItem('cls-limpiarItem_${key.ItemCode}')"
+											data-bs-toggle="tooltip" data-bs-placement="top" title="Borrar valores de este artículo">
+											<i class="bi bi-eraser-fill"></i>
+										</button>`}
 								</td>
 							</tr>`
             }
@@ -485,8 +506,8 @@
 									<input type="hidden" name="transferenciaPost.Detalle[].BatchNum" value="${item.BatchNum}" />${item.BatchNum}
 								</td>
 								<td class="text-center">
-									<input type="hidden" name="transferenciaPost.Detalle[].InDate" value="${item.InDate}" />
-									<input type="hidden" name="transferenciaPost.Detalle[].ExpDate" value="${item.ExpDate}" />${item.ExpDate}
+									<input type="hidden" name="transferenciaPost.Detalle[].FechaAdmision" value="${item.InDate}" />
+									<input type="hidden" name="transferenciaPost.Detalle[].FechaVencimiento" value="${item.ExpDate}" />${item.ExpDate}
 								</td>
 								<td class="text-center">
 									<input type="text" id="lote_quantityUnidades_${item.BatchNum}" name="transferenciaPost.Detalle[].QuantityUnidadesCajas" class="form-control text-center cls-num cls-limpiarItem_${articulo.ItemCode}"
@@ -616,21 +637,20 @@
 			document.querySelector('#copiaDocDate').value = traslado.DocDate
 
 			let tbody = ''
+
 			for (var itemCode in traslado.Detalle) {
 				key = traslado.Detalle[itemCode]
 
-				key.DetalleLotes.forEach(item => {
-					tbody += ` <tr>
-											 <td scope="col"><input type="text" name="solicitudTraslado.Detalle[].ItemCode" value="${key.ItemCode}"></td>
-											 <td scope="col"><input type="text" name="solicitudTraslado.Detalle[].ItemName" value="${key.ItemName}"></td>
-											 <td scope="col"><input type="text" name="solicitudTraslado.Detalle[].BatchNum" value="${item.BatchNum}"></td>
-											 <td scope="col"><input type="text" name="solicitudTraslado.Detalle[].InDate" value="${item.InDate}"></td>
-											 <td scope="col"><input type="text" name="solicitudTraslado.Detalle[].ExpDate" value="${item.ExpDate}"></td>
-											<td scope="col"><input type="text" name="solicitudTraslado.Detalle[].QuantityCajas" value="${item.CantidadTotalPorSKUyLote}"></td>
-											<td scope="col"><input type="text" name="solicitudTraslado.Detalle[].FromWhsCode" value="${key.AlmacenOrigen}"></td>
-											<td scope="col"><input type="text" name="solicitudTraslado.Detalle[].ToWhsCode" value="${key.AlmacenDestino}"></td>
-										</tr>`
-				})
+				tbody += ` <tr>
+											<td scope="col"><input type="text" name="solicitudTraslado.Detalle[].ItemCode" value="${key.ItemCode}"></td>
+											<td scope="col"><input type="text" name="solicitudTraslado.Detalle[].ItemName" value="${key.ItemName}"></td>
+											<td scope="col"><input type="text" name="solicitudTraslado.Detalle[].BatchNum" value="${key.BatchNum}"></td>
+											<td scope="col"><input type="text" name="solicitudTraslado.Detalle[].InDate" value="${key.InDate}"></td>
+											<td scope="col"><input type="text" name="solicitudTraslado.Detalle[].ExpDate" value="${key.ExpDate}"></td>
+										<td scope="col"><input type="text" name="solicitudTraslado.Detalle[].QuantityCajas" value="${key.QuantityCajas}"></td>
+										<td scope="col"><input type="text" name="solicitudTraslado.Detalle[].FromWhsCode" value="${key.FromWhsCode}"></td>
+										<td scope="col"><input type="text" name="solicitudTraslado.Detalle[].ToWhsCode" value="${key.ToWhsCode}"></td>
+									</tr>`
 			}
 
 			document.querySelector('#tbl_copiaSap tbody').innerHTML = tbody
@@ -641,32 +661,62 @@
                 Detalle: {} // Objeto donde agruparemos por ItemCode
 			};
 
-            datos.forEach(row => {
-                let itemCode = row.ItemCode || "";
+			for (let idx in datos) {
+                let item = datos[idx]
+				let itemCode = item.ItemCode || "";
 
                 // Si el ItemCode no existe en el diccionario, se inicializa
                 if (!solicitud.Detalle[itemCode]) {
                     solicitud.Detalle[itemCode] = {
-                        AlmacenOrigen: row.FromWhsCode || "",
-                        AlmacenDestino: row.ToWhsCode || "",
+                        FromWhsCode: item.FromWhsCode || "",
+                        ToWhsCode: item.ToWhsCode || "",
                         ItemCode: itemCode,
-                        ItemName: row.ItemName || "",
-                        CantidadTotalPorSKU: 0,
+                        ItemName: item.ItemName || "",
+                        QuantityCajas: 0,
+                        Estado: item.Estado,
                         DetalleLotes: []
                     };
-                }
+				}
 
                 // Acumular la cantidad total de cajas para el ItemCode
-				solicitud.Detalle[itemCode].CantidadTotalPorSKU += row.QuantityCajas || 0;
+                solicitud.Detalle[itemCode].QuantityCajas += item.QuantityCajas || 0;
 
                 // Agregar el detalle del lote al ItemCode correspondiente
                 solicitud.Detalle[itemCode].DetalleLotes.push({
-                    BatchNum: row.BatchNum || "",
-                    CantidadTotalPorSKUyLote: row.QuantityCajas || 0,
-                    InDate: row.InDate || "",
-                    ExpDate: row.ExpDate || ""
-                });
-            });
+                    BatchNum: item.BatchNum || "",
+                    QuantityCajas: item.QuantityCajas || 0,
+                    InDate: item.InDate || "",
+                    ExpDate: item.ExpDate || ""
+				});
+			}
+
+    //        datos.forEach(row => {
+    //            let itemCode = row.ItemCode || "";
+
+    //            // Si el ItemCode no existe en el diccionario, se inicializa
+    //            if (!solicitud.Detalle[itemCode]) {
+    //                solicitud.Detalle[itemCode] = {
+    //                    AlmacenOrigen: row.FromWhsCode || "",
+    //                    AlmacenDestino: row.ToWhsCode || "",
+    //                    ItemCode: itemCode,
+    //                    ItemName: row.ItemName || "",
+				//		CantidadTotalPorSKU: 0,
+				//		Estado: row.Estado,
+    //                    DetalleLotes: []
+    //                };
+    //            }
+
+    //            // Acumular la cantidad total de cajas para el ItemCode
+				//solicitud.Detalle[itemCode].CantidadTotalPorSKU += row.QuantityCajas || 0;
+
+    //            // Agregar el detalle del lote al ItemCode correspondiente
+    //            solicitud.Detalle[itemCode].DetalleLotes.push({
+    //                BatchNum: row.BatchNum || "",
+    //                CantidadTotalPorSKUyLote: row.QuantityCajas || 0,
+    //                InDate: row.InDate || "",
+    //                ExpDate: row.ExpDate || ""
+    //            });
+    //        });
 
             return solicitud;
         }
@@ -703,7 +753,12 @@
 		}
 
 		function calcularStockUnidades(quantityUnidades, data) {
-			let unidMaster = document.querySelector(`#${data.idundmaster}`).value
+			let unidMaster = document.querySelector(`#${data.idundmaster}`).value || 0
+
+            if (unidMaster <= 0) {
+				console.warn('Und Master no válido')
+				return;
+			}
 
 			if (Number(quantityUnidades) > Number(data.cantidadtotal)) {
 				Swal.fire('La cantidad ingresada no debe superar el stock de unidades.')
@@ -713,8 +768,8 @@
 			let cantidadMaster = Math.floor(Number(quantityUnidades) / Number(unidMaster))
 			let cantidadSaldo = Number(quantityUnidades) % Number(unidMaster)
 
-			document.querySelector(`#${data.idcantmaster}`).value = cantidadMaster
-			document.querySelector(`#${data.idcantsaldo}`).value = cantidadSaldo
+            document.querySelector(`#${data.idcantmaster}`).value = cantidadMaster
+            document.querySelector(`#${data.idcantsaldo}`).value = cantidadSaldo
 		}
 
 		function calcularCantidadMasterSaldo(valorSelectMaster, data) {

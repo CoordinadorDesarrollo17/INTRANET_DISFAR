@@ -997,8 +997,19 @@
     <Content Include="Views\AbastecimientoInterno\UbicacionesReserva.cshtml" />
     <Content Include="Views\Shared\AbastecimientoInterno\_ListadoUbicacionesReserva.cshtml" />
     <Content Include="Views\AbastecimientoInterno\SolicitudesTraslado.cshtml" />
+<<<<<<< HEAD
     <Content Include="Views\AbastecimientoInterno\ListarRequerimientosReserva.cshtml" />
     <Content Include="Views\AbastecimientoInterno\ListarRequerimientosPicking.cshtml" />
+=======
+<<<<<<< HEAD
+    <Content Include="Views\AbastecimientoInterno\Requerimientos.cshtml" />
+    <Content Include="Views\Shared\AbastecimientoInterno\_ListadoArticulosPicking.cshtml" />
+    <Content Include="Views\Shared\AbastecimientoInterno\_ListadoArticulosVenta.cshtml" />
+=======
+    <Content Include="Views\AbastecimientoInterno\ListarRequerimientosReserva.cshtml" />
+    <Content Include="Views\AbastecimientoInterno\ListarRequerimientosPicking.cshtml" />
+>>>>>>> a3cfa7b (avance de listados picking y reserva)
+>>>>>>> Correciones_OWTQ
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

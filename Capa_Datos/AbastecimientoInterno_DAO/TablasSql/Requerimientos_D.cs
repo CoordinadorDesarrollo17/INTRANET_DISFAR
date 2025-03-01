@@ -157,6 +157,11 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     SqlCommand cmd = new SqlCommand("sp_MantenimientoRequerimiento", cn);
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@TipoMantenimiento", "LIST");
+                    SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
+                    {
+                        Direction = ParameterDirection.Output
+                    };
+                    cmd.Parameters.Add(idGeneradoParam);
 
                     SqlDataReader dr = cmd.ExecuteReader();
 

@@ -267,17 +267,17 @@ namespace Capa_Usuario.Controllers
             return Json(result);
         }
         public ActionResult SolicitudesTraslado(int idOperation = 3300)
-        {
-            var resultadoAcceso = VerificarPermiso(idOperation);
-            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                ViewBag.Masters = _masterN.ListarMasters();
-                return View();
-            }
-            else
-            {
-                return resultadoAcceso;
-            }
+                var resultadoAcceso = VerificarPermiso(idOperation);
+                if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+                {
+                    ViewBag.Masters = _masterN.ListarMasters();
+                    return View();
+                }
+                else
+                {
+                    return resultadoAcceso;
+                }
         }
         public JsonResult RegistrarTransferenciaDeStock(SolicitudesTraslado_E solicitudTraslado, TransferenciaReserva_E transferenciaPost)
         {
@@ -719,6 +719,41 @@ namespace Capa_Usuario.Controllers
 
         }
         /****************************** R E Q U E R I M I E N T O S ****************************/
+        public ActionResult Requerimientos(int idOperation = 3300)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                return View();
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
+
+        [HttpGet]
+        public ActionResult ListarArticulos(string tipoAbastecimiento, string itemCode, int cantidadSolicitada)
+        {
+            var usuarioSesion = Session["UsuarioId"] as Usuario_E;
+            if (usuarioSesion == null)
+                return Json(new { Mensaje = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" });
+
+            List<UbicacionesLotesMaster_E> lista = _ubicacionesLotesMasterN.BuscarArticulos(new UbicacionesLotesMaster_E { ItemCode = itemCode });
+
+            switch (tipoAbastecimiento)
+            {
+                case "Picking":
+                    return PartialView("AbastecimientoInterno/_ListadoArticulosPicking", lista);
+
+                case "Venta":
+                    return PartialView("AbastecimientoInterno/_ListadoArticulosVenta", lista);
+
+                default:
+                    return HttpNotFound("No se encontró la vista para el tipo de abastecimiento especificado.");
+            }
+        }
+
         public JsonResult RegistrarRequerimiento(Requerimientos_E requerimiento)
         {
             try
@@ -1003,7 +1038,6 @@ namespace Capa_Usuario.Controllers
             int cantidadSolicitada = 0;
             if (tipoAbastecimiento != null && tipoAbastecimiento.Equals("Picking") && itemCode != null)
             {
-                itemCode = "PORT0078";
                 //Calcular desde SAP (Stock Total - Stock Comprometido)  en Almacen 16 por defecto
                 int stockLibreEnAlmacen16 = Convert.ToInt32(new Capa_Negocio.Almacen_NEG.Tablas.OITW_N().ListarDetArticulosInv(new OITW_E { ItemCode = itemCode, WhsCode = "16" }).DefaultIfEmpty(new OITW_E { }).First().StockLibre);
 
