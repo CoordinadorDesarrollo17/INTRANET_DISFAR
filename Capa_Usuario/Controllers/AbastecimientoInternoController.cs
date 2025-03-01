@@ -765,8 +765,8 @@ namespace Capa_Usuario.Controllers
                     {
                         return Json(new
                         {
-                            Mensaje = "Error en la operación",
-                            Comentario = new List<string> { "No existe usuario logueado, se terminó la sesión." },
+                            Titulo = "Error en la operación",
+                            Mensajes = new List<string> { "No existe usuario logueado, se terminó la sesión." },
                             Icono = "error"
                         });
                     }
@@ -788,8 +788,8 @@ namespace Capa_Usuario.Controllers
                             {
                                 return Json(new
                                 {
-                                    Mensaje = "No se pudo completar la acción",
-                                    Comentario = new List<string> { "No se completo el registro del requerimiento" },
+                                    Titulo = "No se pudo completar la acción",
+                                    Mensajes = new List<string> { "No se completo el registro del requerimiento" },
                                     Icono = "error"
                                 });
                             }
@@ -813,8 +813,8 @@ namespace Capa_Usuario.Controllers
                     // Devolver respuesta exitosa
                     return Json(new
                     {
-                        Mensaje = "Acción completada exitosamente",
-                        Comentario = new List<string> { "Se registró el requerimiento correctamente." },
+                        Titulo = "Acción completada exitosamente",
+                        Mensajes = new List<string> { "Se registró el requerimiento correctamente." },
                         Icono = "success"
                     });
                 }
@@ -822,8 +822,8 @@ namespace Capa_Usuario.Controllers
                 {
                     return Json(new
                     {
-                        Mensaje = "Error en la operación",
-                        Comentario = new List<string> { "Envie un documento de requerimiento válido" },
+                        Titulo = "Error en la operación",
+                        Mensajes = new List<string> { "Envie un documento de requerimiento válido" },
                         Icono = "error"
                     });
                 }
@@ -832,8 +832,8 @@ namespace Capa_Usuario.Controllers
             {
                 return Json(new
                 {
-                    Mensaje = "Error en la operación",
-                    Comentario = new List<string> { ex.Message },
+                    Titulo = "Error en la operación",
+                    Mensajes = new List<string> { ex.Message },
                     Icono = "error"
                 });
             }

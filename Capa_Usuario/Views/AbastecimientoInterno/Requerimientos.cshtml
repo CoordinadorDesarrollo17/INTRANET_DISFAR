@@ -85,17 +85,43 @@
                     <tbody class="text-dark">
                         <tr id="fila_ABCDEF_1">
                             <td scope="col" class="text-center" style="width: 5%;">1</td>
-                            <td scope="col" class="text-center">ABCDEF <input type="hidden" name="" data-fila="fila_ABCDEF_1" class="cls-itemCodes" value="ABCDEF" /> </td>
-                            <td scope="col" class="text-center">Descripción</td>
-                            <td scope="col" class="text-center">50</td>
-                            <td scope="col" class="text-center">------</td>
+                            <td scope="col" class="text-center">ABCDEF <input type="hidden" name="requerimiento.Detalle[].ItemCode" data-fila="fila_ABCDEF_1" class="cls-itemCodes" value="ABCDEF" /> </td>
+                            <td scope="col" class="text-center"><input type="hidden" name="requerimiento.Detalle[].ItemName" value="Descripcion ABCDEF" /></td>
+                            <td scope="col" class="text-center">
+                                <input type="hidden" name="requerimiento.Detalle[].UmAlm" value="MASTERX10" />
+                                <input type="hidden" name="requerimiento.Detalle[].ValorUmAlm" value="10" />
+                                <input type="hidden" name="requerimiento.Detalle[].QuantityMaster" value="50" />
+                                <input type="hidden" name="requerimiento.Detalle[].QuantitySaldo" value="50" />
+                                <input type="hidden" name="requerimiento.Detalle[].QuantityUnidadesCajas" value="550" />
+                                550
+                            </td>
+                            <td scope="col" class="text-center">
+                                <input type="hidden" name="requerimiento.Detalle[].CodigoUbicacionOrigen" value="A-B-C-1" />
+                                <input type="hidden" name="requerimiento.Detalle[].CodigoUbicacionDestino" value="X-Y-Z-3" />
+                                CodigoUbicacionDestino
+                            </td>
                         </tr>
                         <tr id="fila_YYYDEF_1">
                             <td scope="col" class="text-center" style="width: 5%;">1</td>
-                            <td scope="col" class="text-center">YYYDEF <input type="hidden" name="" data-fila="fila_YYYDEF_1" class="cls-itemCodes" value="YYYDEF" /> </td>
-                            <td scope="col" class="text-center">Descripción</td>
-                            <td scope="col" class="text-center">50</td>
-                            <td scope="col" class="text-center">------</td>
+                            <td scope="col" class="text-center">
+                                <input type="hidden" name="requerimiento.Detalle[].ItemCode" data-fila="fila_YYYDEF_1" class="cls-itemCodes" value="YYYDEF" />YYYDEF
+                            </td>
+                            <td scope="col" class="text-center">
+                                <input type="hidden" name="requerimiento.Detalle[].ItemName" value="Descripcion YYYDEF" />Descripción YYYDEF
+                            </td>
+                            <td scope="col" class="text-center">
+                                <input type="hidden" name="requerimiento.Detalle[].UmAlm" value="MASTERX20" />
+                                <input type="hidden" name="requerimiento.Detalle[].ValorUmAlm" value="20" />
+                                <input type="hidden" name="requerimiento.Detalle[].QuantityMaster" value="3" />
+                                <input type="hidden" name="requerimiento.Detalle[].QuantitySaldo" value="33" />
+                                <input type="hidden" name="requerimiento.Detalle[].QuantityUnidadesCajas" value="93" />
+                                93
+                            </td>
+                            <td scope="col" class="text-center">
+                                <input type="hidden" name="requerimiento.Detalle[].CodigoUbicacionOrigen" value="D-E-F-2" />
+                                <input type="hidden" name="requerimiento.Detalle[].CodigoUbicacionDestino" value="O-P-Q-4" />
+                                CodigoUbicacionDestino
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -249,8 +275,39 @@
 
         async function registrarRequerimiento() {
             const form = document.querySelector('#frm_requerimiento')
+            const filasRequerimientos = document.querySelectorAll("#tbl_detalleRequerimiento tbody tr");
+            let detallesRequerimientos = [];
+
+            filasRequerimientos.forEach((fila) => {
+                let inputs = fila.querySelectorAll("input, select");
+                let detalleRequerimiento = {};
+                let camposValidos = true; // Bandera para validar los campos requeridos
+
+                inputs.forEach(input => {
+                    let name = input.name.trim();
+
+                    if (name.startsWith("requerimiento.Detalle[]")) {
+                        let key = name.replace("requerimiento.Detalle[].", "").trim();
+                        let value = input.value.trim(); // Aseguramos que no tenga espacios en blanco al inicio o fin
+                        detalleRequerimiento[key] = value;
+                    }
+                });
+
+                // Solo agregar si los campos requeridos tienen valores
+              //  if (camposValidos && Object.keys(detalleTransferencia).length > 0) {
+                detallesRequerimientos.push(detalleRequerimiento);
+              //  }
+            });
+
             const formData = new FormData(form);
             const jsonData = Object.fromEntries(formData.entries());
+
+            const payload = {
+                requerimiento: {
+                    ...jsonData, // Otros datos generales del formulario
+                    Detalle: detallesRequerimientos
+                }
+            }
 
             try {
                 const response = await fetch("/AbastecimientoInterno/RegistrarRequerimiento", {
@@ -258,7 +315,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(jsonData) // Enviar los datos como JSON
+                    body: JSON.stringify(payload) // Enviar los datos como JSON
                 });
 
                 if (!response.ok) {
@@ -268,7 +325,20 @@
                 const data = await response.json()
                 console.log(data)
 
-                // Escribir código aquí
+                Swal.fire({
+                    title: data.Titulo,
+                    html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                        ? data.Mensajes.join('<br>')
+                        : data.Mensajes || "",
+                    icon: data.Icono,
+                    allowEscapeKey: false,
+                    allowOutsideClick: false,
+                    showConfirmButton: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        //location.reload()
+                    }
+                });
             } catch (error) {
                 console.error('Error:', error);
             }
