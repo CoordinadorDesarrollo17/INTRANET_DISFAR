@@ -1,0 +1,106 @@
+﻿@{
+    ViewBag.Title = "AtenderReservaRequerimientos";
+    Layout = "~/Views/Shared/_DefaultLayout.cshtml";
+}
+
+<style>
+    td.details-control {
+        cursor: pointer;
+        text-align: center;
+    }
+
+    .subtable {
+        margin-left: 50px;
+    }
+</style>
+
+<table id="tbl_listaDetRequerimientoApiladores" class="dt-container dt-empty-footer table table-sm table-hover font-14" width="100%">
+    <thead class="thead-cobefar">
+        <tr>
+            <th style="width: 5%;"></th>
+            <th scope="col" class="text-center">Código de artículo</th>
+            <th scope="col" class="text-center">Descripción</th>
+            <th scope="col" class="text-center">Ubicacion</th>
+            <th scope="col" class="text-center">Cajas Master</th>
+            <th scope="col" class="text-center"></th>
+        </tr>
+    </thead>
+    <tbody class="text-dark">
+        @foreach (var item in Model)
+        {
+            <tr data-producto="@item.Id">
+                <td class="details-control"><button class="btn btn-sm btn-cobefar-2"><i class="bi bi-chevron-down"></i></button></td>
+                <td class="text-center align-middle">@item.ItemCode</td>
+                <td class="text-center align-middle">@item.ItemName</td>
+                <td class="text-center align-middle">@item.CodigoUbicacionOrigen</td>
+                <td class="text-center align-middle">@item.QuantityUnidadesCajas</td>
+                <td class="text-center align-middle">
+                    <button type="button" class="btn btn-success" title="Actualizar Stocks" onclick="atenderReserva(@item.Id)"><i class="bi bi-arrow-clockwise"></i></button>
+                </td>
+            </tr>
+        }
+    </tbody>
+
+</table>
+<script>
+    $(document).ready(function () {
+        $('[data-bs-toggle="tooltip"]').tooltip();
+        inicializarDataTable('tbl_listaDetRequerimientoApiladores', 25)
+
+    });
+
+    async function atenderReserva(id) {
+        if (!id) {
+                console.log('Error: El ID no se encontró.');
+                return;
+        }
+
+        swalWithBootstrapButtons.fire({
+            title: '¿Está seguro(a) de ATENDER?',
+            icon: 'warning',
+            allowEscapeKey: false,
+            showCancelButton: true,
+            confirmButtonText: "<i class='bi bi-check-lg'></i> Si, atender",
+            cancelButtonText: "<i class='bi bi-x-lg'></i> Cancelar",
+            reverseButtons: true
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch("/AbastecimientoInterno/AtenderReservaRequerimiento", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ id })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Error en la solicitud: ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+
+                    Swal.fire({
+                        title: data.Titulo,
+                        html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                            ? data.Mensajes.join('<br>')
+                            : data.Mensajes || "",
+                        icon: data.Icono,
+                        allowEscapeKey: false,
+                        allowOutsideClick: false,
+                        showConfirmButton: true
+                    }).then((result) => {
+                        if (result.isConfirmed && data.Icono == 'success') {
+                            window.location.reload()
+                        }
+                    })
+
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            }
+        });
+    }
+
+</script>
+

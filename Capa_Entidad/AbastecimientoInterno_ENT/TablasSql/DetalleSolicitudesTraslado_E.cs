@@ -11,7 +11,6 @@ namespace Capa_Entidad.AbastecimientoInterno_ENT.TablasSql
         public string ItemName {  get; set; }
         public string BatchNum {  get; set; }
         public decimal QuantityCajas {  get; set; }    
-        public decimal CantidadTotalPorSKUyLote {  get; set; }    
         public string InDate { get; set; }
         public string ExpDate { get; set; }
         public string FromWhsCode {  get; set; }        // AlmacenOrigen
