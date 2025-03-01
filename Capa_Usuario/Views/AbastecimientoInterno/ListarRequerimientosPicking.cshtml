@@ -1,6 +1,6 @@
 ﻿@using System.Text
 @{
-    ViewBag.Title = "AtenderPickingRequerimientos";
+    ViewBag.Title = "Atender Picking Requerimientos";
     Layout = "~/Views/Shared/_DefaultLayout.cshtml";
 }
 
@@ -15,39 +15,58 @@
     }
 </style>
 
-<table id="tbl_listaDetRequerimientoPicking" class="dt-container dt-empty-footer table table-sm table-hover font-14" width="100%">
-    <thead class="thead-cobefar">
-        <tr>
-            <th style="width: 5%;"></th>
-            <th scope="col" class="text-center">Código de artículo</th>
-            <th scope="col" class="text-center">Descripción</th>
-            <th scope="col" class="text-center">Ubicacion</th>
-            <th scope="col" class="text-center">Stock Mínimo Abastecimiento</th>
-            <th scope="col" class="text-center">Stock Mínimo Venta</th>
-            <th scope="col" class="text-center"></th>
-        </tr>
-    </thead>
-    <tbody class="text-dark">
-        @foreach (var item in Model)
-        {
-            <tr data-producto="@item.Id">
-                <td class="details-control"><button class="btn btn-sm btn-cobefar-2"><i class="bi bi-chevron-down"></i></button></td>
-                <td class="text-center align-middle">@item.ItemCode</td>
-                <td class="text-center align-middle">@item.ItemName</td>
-                <td class="text-center align-middle">@item.CantidadUbicaciones</td>
-                <td class="text-center align-middle">
-                    <button type="button" class="btn btn-success" title="Actualizar Stocks" onclick='atenderPicking({ Id: "@item.Id", ItemCode: "@item.ItemCode", Cantidad: "@item.CantidadUbicaciones" })'><i class="bi bi-arrow-clockwise"></i></button>
-                </td>
-            </tr>
-        }
-    </tbody>
+<div class="pt-3">
+    <nav>
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><em>Abastecimiento Interno</em></li>
+            <li class="current"><em>Picking</em></li>
+        </ol>
+    </nav>
+</div>
 
-</table>
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
+    <div class="row px-3 pt-3"><h3 class="titulo-seccion">PICKING</h3></div>
+</div>
+
+<div class="bg-white px-3 py-3 align-items-center">
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <table id="tbl_listaDetRequerimientoPicking" class="dt-container dt-empty-footer table table-sm table-hover font-14" width="100%">
+                <thead class="thead-cobefar">
+                    <tr>
+                        <th style="width: 5%;"></th>
+                        <th scope="col" class="text-center">Código de artículo</th>
+                        <th scope="col" class="text-center">Descripción</th>
+                        <th scope="col" class="text-center">Ubicacion</th>
+                        <th scope="col" class="text-center">Stock Mínimo Abastecimiento</th>
+                        <th scope="col" class="text-center">Stock Mínimo Venta</th>
+                        <th scope="col" class="text-center"></th>
+                    </tr>
+                </thead>
+                <tbody class="text-dark">
+                    @foreach (var item in Model)
+                    {
+                        <tr data-producto="@item.Id">
+                            <td class="details-control"><button class="btn btn-sm btn-cobefar-2"><i class="bi bi-chevron-down"></i></button></td>
+                            <td class="text-center align-middle">@item.ItemCode</td>
+                            <td class="text-center align-middle">@item.ItemName</td>
+                            <td class="text-center align-middle">@item.CantidadUbicaciones</td>
+                            <td class="text-center align-middle">
+                                <button type="button" class="btn btn-success" title="Actualizar Stocks" onclick='atenderPicking({ Id: "@item.Id", ItemCode: "@item.ItemCode", Cantidad: "@item.CantidadUbicaciones" })'><i class="bi bi-arrow-clockwise"></i></button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+</div>
+
 <script>
-    $(document).ready(function () {
-        $('[data-bs-toggle="tooltip"]').tooltip();
+    document.addEventListener('DOMContentLoaded', function () {
         inicializarDataTable('tbl_listaDetRequerimientoPicking', 25)
-
     });
 
     async function atenderPicking(obj) {

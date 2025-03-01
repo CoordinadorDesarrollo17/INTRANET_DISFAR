@@ -209,6 +209,16 @@ namespace Capa_Usuario.Controllers
         {
             return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "Requerimientos", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
         }
+
+        public ActionResult AI_Apiladores(int idOperation = 3500)
+        {
+            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "ListarRequerimientosReserva", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
+        }
+
+        public ActionResult AI_Picking(int idOperation = 3600)
+        {
+            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "ListarRequerimientosPicking", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
+        }
         ///****************************************************************************************/
 
         public ActionResult CP_ResumenRebate(int idOperation = 1400)

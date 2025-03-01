@@ -178,11 +178,12 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                         cmd.Parameters.AddWithValue("@NombreProveedor", "COBEFAR S.A.C");
                         cmd.Parameters.AddWithValue("@Sentido", "Asignación");
                         cmd.Parameters.AddWithValue("@Tabla", "Requerimientos");
+                        cmd.Parameters.AddWithValue("@Referencia", imputado.Id);
 
                         // Parámetros del detalle agrupado
                         cmd.Parameters.AddWithValue("@ItemCode", detalle.ItemCode);
                         cmd.Parameters.AddWithValue("@ItemName", detalle.ItemName);
-                        cmd.Parameters.AddWithValue("@Almacen", "PICKING");
+                        cmd.Parameters.AddWithValue("@Almacen", "RESERVA");
                         cmd.Parameters.AddWithValue("@Cantidad", 0);
                         cmd.Parameters.AddWithValue("@Imputado", detalle.TotalQuantityUnidadesCajas * -1); // Aplicar negativo
                         cmd.Parameters.AddWithValue("@Operario", imputado.OperarioRegistra);
@@ -251,7 +252,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     // Parámetros extraidos del detalle
                     cmd.Parameters.AddWithValue("@ItemCode", itemCode);
                     cmd.Parameters.AddWithValue("@ItemName", itemName);
-                    cmd.Parameters.AddWithValue("@Almacen", "PICKING");
+                    cmd.Parameters.AddWithValue("@Almacen", "RESERVA");
                     cmd.Parameters.AddWithValue("@Cantidad", cantidad);
                     cmd.Parameters.AddWithValue("@Imputado", 0);
                     cmd.Parameters.AddWithValue("@Operario", operarioRegistra);

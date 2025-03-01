@@ -86,7 +86,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             try
             {
-              using (SqlConnection  cn = new SqlConnection()) { 
+              using (SqlConnection  cn = new SqlConnection(uti.cadSql2)) { 
                     cn.Open();
                     using (SqlCommand cmd = new SqlCommand("sp_MantenimientoRequerimiento", cn))
                     {
@@ -94,6 +94,11 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
                         cmd.Parameters.AddWithValue("@TipoMantenimiento", "ATD_RESERVA");
                         cmd.Parameters.AddWithValue("@DetalleId", detalleId);
+                        SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
+                        {
+                            Direction = ParameterDirection.Output
+                        };
+                        cmd.Parameters.Add(idGeneradoParam);
 
                         cmd.ExecuteNonQuery();
 
@@ -223,6 +228,8 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
                         // Crear tabla de parámetros para el tipo DetalleRequerimientosType
                         DataTable detalleTable = new DataTable();
+                        detalleTable.Columns.Add("Id", typeof(int));
+                        detalleTable.Columns.Add("RequerimientoId", typeof(int));
                         detalleTable.Columns.Add("ItemCode", typeof(string));
                         detalleTable.Columns.Add("ItemName", typeof(string));
                         detalleTable.Columns.Add("BatchNum", typeof(string));
@@ -239,6 +246,8 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                         foreach (var detalle in requerimiento.Detalle)
                         {
                             detalleTable.Rows.Add(
+                                0,
+                                0,
                                 detalle.ItemCode,
                                 detalle.ItemName,
                                 detalle.BatchNum,

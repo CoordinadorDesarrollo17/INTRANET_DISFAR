@@ -86,7 +86,10 @@
                         <tr id="fila_ABCDEF_1">
                             <td scope="col" class="text-center" style="width: 5%;">1</td>
                             <td scope="col" class="text-center">ABCDEF <input type="hidden" name="requerimiento.Detalle[].ItemCode" data-fila="fila_ABCDEF_1" class="cls-itemCodes" value="ABCDEF" /> </td>
-                            <td scope="col" class="text-center"><input type="hidden" name="requerimiento.Detalle[].ItemName" value="Descripcion ABCDEF" /></td>
+                            <td scope="col" class="text-center">
+                                <input type="hidden" name="requerimiento.Detalle[].ItemName" value="Descripcion ABCDEF" />
+                                <input type="hidden" name="requerimiento.Detalle[].BatchNum" value="LoteK2107" />
+                            </td>
                             <td scope="col" class="text-center">
                                 <input type="hidden" name="requerimiento.Detalle[].UmAlm" value="MASTERX10" />
                                 <input type="hidden" name="requerimiento.Detalle[].ValorUmAlm" value="10" />
@@ -108,6 +111,7 @@
                             </td>
                             <td scope="col" class="text-center">
                                 <input type="hidden" name="requerimiento.Detalle[].ItemName" value="Descripcion YYYDEF" />Descripción YYYDEF
+                                <input type="hidden" name="requerimiento.Detalle[].BatchNum" value="LoteM1424" />
                             </td>
                             <td scope="col" class="text-center">
                                 <input type="hidden" name="requerimiento.Detalle[].UmAlm" value="MASTERX20" />
@@ -275,8 +279,14 @@
 
         async function registrarRequerimiento() {
             const form = document.querySelector('#frm_requerimiento')
+            const tipoAbastecimiento = document.querySelector('#TipoAbastecimiento').value
             const filasRequerimientos = document.querySelectorAll("#tbl_detalleRequerimiento tbody tr");
             let detallesRequerimientos = [];
+
+            if (!tipoAbastecimiento) {
+                Swal.fire('Seleccione un tipo de abastecimiento.')
+                return;
+            }
 
             filasRequerimientos.forEach((fila) => {
                 let inputs = fila.querySelectorAll("input, select");
