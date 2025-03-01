@@ -804,62 +804,63 @@ namespace Capa_Usuario.Controllers
             }
         }
         //Listado de pendientes para apiladores con 4 posibles filtros
-        public JsonResult ListarRequerimientosApiladores(string nivel = "", string posicion = "", string rackBloque = "", string itemCode = "")
+        public ActionResult ListarRequerimientosReserva(string nivel = "", string posicion = "", string rackBloque = "", string itemCode = "", int idOperation=3300)
         {
-            var lista = _requerimientosN.ListarDetalles("", "ListarApiladores")
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                var lista = _requerimientosN.ListarDetalles("", "ListarApiladores")
                 .Where(x =>
                     (string.IsNullOrEmpty(nivel) || x.Nivel == nivel) &&
                     (string.IsNullOrEmpty(posicion) || x.Posicion == posicion) &&
                     (string.IsNullOrEmpty(rackBloque) || x.RackBloque == rackBloque) &&
                     (string.IsNullOrEmpty(itemCode) || x.ItemCode == itemCode)
                 ).ToList();
-
-            return Json(lista);
+                return View(lista);
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
         }
         //Listado de pendientes para picking con 1 posible filtros
-        public JsonResult ListarRequerimientosPicking(string itemCode = "")
+        public ActionResult ListarRequerimientosPicking(string itemCode = "", int idOperation = 3300)
         {
-            var lista = _requerimientosN.ListarDetalles("", "ListarPicking")
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                var lista = _requerimientosN.ListarDetalles("", "ListarPicking")
                 .Where(x =>
                     (string.IsNullOrEmpty(itemCode) || x.ItemCode == itemCode)
                 ).ToList();
-
-            return Json(lista);
+                return View(lista);
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
         }
         //Atendido de apiladores (Solo cambia el AtendidoReserva a 1)
-        public JsonResult AtenderReservaRequerimiento(DetalleRequerimientos_E detalle)
+        public JsonResult AtenderReservaRequerimiento(int id)
         {
             try
             {
-                if (detalle != null)
-                {
-                    //Actualizar a AtendidoReserva 1 solo la linea de detalle enviada
-                    var resultAtender = _requerimientosN.AtenderReserva(detalle.Id);
+                //Actualizar a AtendidoReserva 1 solo la linea de detalle enviada
+                var resultAtender = _requerimientosN.AtenderReserva(id);
 
-                    // Devolver respuesta
-                    return Json(new
-                    {
-                        Titulo = "Acción completada exitosamente",
-                        resultAtender.Mensajes,
-                        Icono = resultAtender.IconoSweetAlert
-                    });
-                }
-                else
+                return Json(new
                 {
-                    return Json(new
-                    {
-                        Titulo = "Error en la operación",
-                        Mensajes = new List<string> { "Los datos enviados son inválidos." },
-                        Icono = "error"
-                    });
-                }
+                    Titulo = "Acción completada exitosamente",
+                    resultAtender.Mensajes,
+                    Icono = resultAtender.IconoSweetAlert
+                });
             }
             catch (Exception ex)
             {
                 return Json(new
                 {
-                    Mensaje = "Error en la operación",
-                    Comentario = new List<string> { ex.Message },
+                    Titulo = "Error en la operación",
+                    Mensajes = new List<string> { ex.Message },
                     Icono = "error"
                 });
             }
@@ -887,8 +888,8 @@ namespace Capa_Usuario.Controllers
                             {
                                 return Json(new
                                 {
-                                    Mensaje = "Error en la operación",
-                                    Comentario = new List<string> { "No existe usuario logueado, se terminó la sesión." },
+                                    Titulo = "Error en la operación",
+                                    Mensajes = new List<string> { "No existe usuario logueado, se terminó la sesión." },
                                     Icono = "error"
                                 });
                             }
@@ -955,8 +956,8 @@ namespace Capa_Usuario.Controllers
                             // Devolver respuesta exitosa
                             return Json(new
                             {
-                                Mensaje = "Acción completada exitosamente",
-                                Comentario = new List<string> { "Se atendió el SKU correctamente." },
+                                Titulo = "Acción completada exitosamente",
+                                Mensajes = new List<string> { "Se atendió el SKU correctamente." },
                                 Icono = "success"
                             });
                         }
@@ -964,8 +965,8 @@ namespace Capa_Usuario.Controllers
                         // Devolver respuesta exitosa
                         return Json(new
                         {
-                            Mensaje = "Acción completada exitosamente",
-                            Comentario = new List<string> { "Se atendió el SKU correctamente." },
+                            Titulo = "Acción completada exitosamente",
+                            Mensajes = new List<string> { "Se atendió el SKU correctamente." },
                             Icono = "success"
                         });
                     }

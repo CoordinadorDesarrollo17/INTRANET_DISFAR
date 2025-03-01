@@ -997,6 +997,8 @@
     <Content Include="Views\AbastecimientoInterno\UbicacionesReserva.cshtml" />
     <Content Include="Views\Shared\AbastecimientoInterno\_ListadoUbicacionesReserva.cshtml" />
     <Content Include="Views\AbastecimientoInterno\SolicitudesTraslado.cshtml" />
+    <Content Include="Views\AbastecimientoInterno\ListarRequerimientosReserva.cshtml" />
+    <Content Include="Views\AbastecimientoInterno\ListarRequerimientosPicking.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -1009,7 +1011,6 @@
     <Folder Include="ComprobantesRepartos\" />
     <Folder Include="EXCEL\" />
     <Folder Include="PDF\" />
-    <Folder Include="Views\AccesoDefault\" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />

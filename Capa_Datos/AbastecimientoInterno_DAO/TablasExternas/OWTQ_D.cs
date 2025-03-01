@@ -59,9 +59,8 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasExternas
                                 ToWhsCode = hdr.IsDBNull(9) ? "" : hdr.GetString(9),
                                 ItemCode = itemCode,
                                 ItemName = hdr.IsDBNull(11) ? "" : hdr.GetString(11),
-                                QuantityCajas = hdr.IsDBNull(12) ? 0 : Math.Round(hdr.GetDecimal(12), 0),
                                 BatchNum = hdr.IsDBNull(13) ? "" : hdr.GetString(13),
-                                CantidadTotalPorSKUyLote = hdr.IsDBNull(14) ? 0 : Math.Round(hdr.GetDecimal(14), 0),
+                                QuantityCajas = hdr.IsDBNull(14) ? 0 : Math.Round(hdr.GetDecimal(14), 0),
                                 InDate = hdr.IsDBNull(15) ? "" : hdr.GetString(15),
                                 ExpDate = hdr.IsDBNull(16) ? "" : hdr.GetString(16)
                             };
