@@ -59,17 +59,27 @@ namespace Capa_Usuario.Controllers
                     {
                         FacturasParaNotaDébito.Add(compN.ObtenerEncabezadoFacturas(docEntryOrden,obj.LugarDestino).FirstOrDefault());
                     }
-                    string FacturasConcatenadasParaNotaDébito = string.Join(", ", FacturasParaNotaDébito.Select(x => $"'{x.U_SYP_MDTD}-{x.U_SYP_MDSD}-{x.U_SYP_MDCD}'"));
-                    documentos.AddRange(compN.ObtenerEncabezadoNotaDebito(FacturasConcatenadasParaNotaDébito));
+                    if (FacturasParaNotaDébito.Any())
+                    {
+                        string FacturasConcatenadasParaNotaDébito = string.Join(", ",
+                            FacturasParaNotaDébito.Select(x => $"'{x.U_SYP_MDTD}-{x.U_SYP_MDSD}-{x.U_SYP_MDCD}'"));
+
+                        documentos.AddRange(compN.ObtenerEncabezadoNotaDebito(FacturasConcatenadasParaNotaDébito));
+                    }
                     break;
             }
-            // Filtrar documentos con U_SYP_MDCD no vacío y eliminar duplicados
-            var documentosFiltrados = documentos
+
+            List<Comprobante_E> documentosFiltrados = new List<Comprobante_E>();
+            if (documentos.Any())
+            {
+                // Filtrar documentos con U_SYP_MDCD no vacío y eliminar duplicados
+                documentosFiltrados = documentos
                 .Where(d => !string.IsNullOrWhiteSpace(d.U_SYP_MDCD))
                 .GroupBy(d => d.U_SYP_MDCD)
                 .Select(g => g.First())
                 .ToList();
-            return documentosFiltrados;
+           }
+           return documentosFiltrados;
         }
         public JsonResult CrearYObtenerDocumento(int DocEntry, string Tipo) // Metodo principal, ajax desde ListadoTicketsAlmacen (picking packing)
         {
@@ -125,34 +135,6 @@ namespace Capa_Usuario.Controllers
             }
             else { return Json(new { success = false, message = "No hay documentos encontrados." }, JsonRequestBehavior.AllowGet); }
         }
-        //private void GeneracionDocumentoPDF(List<Comprobante_E> documentosDistinct, int DocNum, string Tipo, string fileName)
-        //{
-        //    Utilitarios uti = new Utilitarios();
-        //    // Agrupa todos los documentos del mismo tipo en un solo PDF
-        //    string filePath = Path.Combine(uti.directorioFileServer, "Comprobantes", fileName);
-        //    using (MemoryStream combinedPdfStream = new MemoryStream())
-        //    {
-        //        using (Document document = new Document())
-        //        {
-        //            PdfCopy copy = null;
-        //            try
-        //            {
-        //                document.Open();
-        //                copy = new PdfCopy(document, combinedPdfStream);
-        //                foreach (var f in documentosDistinct)
-        //                {
-        //                    AgruparPdfSegunTipo(f, DocNum, copy, Tipo);
-        //                }
-        //            }
-        //            finally
-        //            {
-        //                document.Close();
-        //                copy?.Close();
-        //            }
-        //        }
-        //        System.IO.File.WriteAllBytes(filePath, combinedPdfStream.ToArray());
-        //    }
-        //}
         private void GeneracionDocumentoPDF(List<Comprobante_E> documentosDistinct, int DocNum, string Tipo, string fileName)
         {
             Utilitarios uti = new Utilitarios();
@@ -189,7 +171,7 @@ namespace Capa_Usuario.Controllers
                 case "F":
                     var parametrosFactura = new
                     {
-                        NumAtCard = NumAtCard,
+                        NumAtCard,
                         Tipo = documento.U_SYP_MDTD.Equals("01") ? "F" : "B",
                         DocNumTicket = docNum
                     };
@@ -207,7 +189,7 @@ namespace Capa_Usuario.Controllers
                 case "NC":
                     var parametrosNotaCredito = new
                     {
-                        NumAtCard = NumAtCard,
+                        NumAtCard,
                         DocNumTicket = docNum
                     };
                     string _headerUrlNotaCredito = Url.Action("LayoutNotaCreditoDebito_header", "ComprobantesContables", parametrosNotaCredito, "http");
@@ -223,7 +205,7 @@ namespace Capa_Usuario.Controllers
                 case "G":
                     var parametrosGuia = new
                     {
-                        NumAtCard = NumAtCard,
+                        NumAtCard,
                         DocNumTicket = docNum,
                         Tabla = documento.TablaSAP
                     };
