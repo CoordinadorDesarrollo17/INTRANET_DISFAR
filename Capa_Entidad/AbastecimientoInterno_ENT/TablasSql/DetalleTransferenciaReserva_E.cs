@@ -7,8 +7,8 @@
         public string ItemCode { get; set; }
         public string ItemName { get; set; }
         public string BatchNum { get; set; }
-        public string FechaAdmision { get; set; }
-        public string FechaVencimiento { get; set; }
+        public string InDate { get; set; }
+        public string ExpDate { get; set; }
         public string CodigoUbicacion { get; set; }
         public string UmAlm { get; set; }
         public int ValorUmAlm { get; set; }

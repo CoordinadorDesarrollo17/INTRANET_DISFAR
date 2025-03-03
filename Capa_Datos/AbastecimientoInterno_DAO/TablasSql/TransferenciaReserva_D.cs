@@ -15,8 +15,9 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
         readonly Utilitarios uti = new Utilitarios();
         readonly DBHelper db = new DBHelper();
 
-        public TransferenciaReserva_E RegistrarTransferenciaReserva(TransferenciaReserva_E transferencia, SqlConnection cn)
+        public Helper_E RegistrarTransferenciaReserva(TransferenciaReserva_E transferencia, SqlConnection cn)
         {
+            string mensaje, icono;
             if (cn.State != ConnectionState.Open)
             {
                 cn.Open();
@@ -59,15 +60,20 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                         }
 
                         transferencia.Id = idGenerado;
-                        return transferencia;
+                        mensaje = "Transferencia de reserva registrada correctamente";
+                        icono = "success";
                     }
                 }
                 catch (Exception ex)
                 {
+                    LogHelper.RegistrarError(ex, "TransferenciaReserva_D - RegistrarTransferenciaReserva");
+                    mensaje = "Ocurrió un error al registrar la transferencia reserva. Comuníquese con el área de Sistemas para más información.";
+                    icono = "error";
                     transaction.Rollback();
-                    throw new Exception("Error al registrar la transferencia de reserva.", ex);
+                    throw new Exception("Error en RegistrarTransferenciaReserva.", ex);
                 }
             }
+            return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
         }
         private DataTable ConvertirADatatable(List<DetalleTransferenciaReserva_E> detalles)
         {
@@ -87,7 +93,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             foreach (var detalle in detalles)
             {
-                table.Rows.Add(0, detalle.ItemCode, detalle.ItemName, detalle.BatchNum, detalle.FechaVencimiento, detalle.FechaAdmision,
+                table.Rows.Add(0, detalle.ItemCode, detalle.ItemName, detalle.BatchNum, detalle.ExpDate, detalle.InDate,
                                detalle.CodigoUbicacion, detalle.UmAlm, detalle.ValorUmAlm,
                                detalle.QuantityMaster, detalle.QuantitySaldo, detalle.QuantityUnidadesCajas);
             }
@@ -139,8 +145,8 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                                 if (!dr.IsDBNull(2)) detalle.ItemCode = dr.GetString(2);
                                 if (!dr.IsDBNull(3)) detalle.ItemName = dr.GetString(3);
                                 if (!dr.IsDBNull(4)) detalle.BatchNum = dr.GetString(4);
-                                if (!dr.IsDBNull(5)) detalle.FechaAdmision = dr.GetDateTime(5).ToString("yyyy-MM-dd");
-                                if (!dr.IsDBNull(6)) detalle.FechaVencimiento = dr.GetDateTime(6).ToString("yyyy-MM-dd");
+                                if (!dr.IsDBNull(5)) detalle.InDate = dr.GetDateTime(5).ToString("yyyy-MM-dd");
+                                if (!dr.IsDBNull(6)) detalle.ExpDate = dr.GetDateTime(6).ToString("yyyy-MM-dd");
                                 if (!dr.IsDBNull(7)) detalle.CodigoUbicacion = dr.GetString(7);
                                 if (!dr.IsDBNull(8)) detalle.UmAlm = dr.GetString(8);
                                 if (!dr.IsDBNull(9)) detalle.ValorUmAlm = dr.GetInt32(9);

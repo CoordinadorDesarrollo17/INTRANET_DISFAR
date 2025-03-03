@@ -321,8 +321,8 @@ namespace Capa_Usuario.Controllers
                     {
                         return Json(new
                         {
-                            Mensaje = "No se pudo completar la acción",
-                            Comentario = new List<string> { "No se importó la Solicitud de Traslado" },
+                            Titulo = "No se pudo completar la acción",
+                            Mensajes = new List<string> { "No se importó la Solicitud de Traslado" },
                             Icono = "error"
                         });
                     }
@@ -333,8 +333,8 @@ namespace Capa_Usuario.Controllers
                     {
                         return Json(new
                         {
-                            Mensaje = "Error en la operación",
-                            Comentario = new List<string> { "No existe usuario logueado, se terminó la sesión." },
+                            Titulo = "Error en la operación",
+                            Mensajes = new List<string> { "No existe usuario logueado, se terminó la sesión." },
                             Icono = "error"
                         });
                     }
@@ -354,24 +354,25 @@ namespace Capa_Usuario.Controllers
                         {
                             cn.Open();
                             // Registrar  o agrega mas lineas al detalle de la transferencia de reserva
-                            var transferenciaGet = _transferenciaReservaN.RegistrarTransferenciaReserva(transferenciaPost, cn);
-                            if (transferenciaGet.Id == 0)
+                            var resultTransferenciaGet = _transferenciaReservaN.RegistrarTransferenciaReserva(transferenciaPost, cn);
+                            if (resultTransferenciaGet == null || resultTransferenciaGet.Id==0)
                             {
-                                // Validar y eliminar la solicitud de traslado si en caso se importo a la tabla interna pero no se ha encontrado una transferencia
-                                var resultEliminacionTraslado = _solicitudTrasladoN.DeleteSolicitudDeTraslado(traslado.DocNum, cn);
-                                if (resultEliminacionTraslado.IconoSweetAlert.Equals("error"))
+                                if (resultTransferenciaGet.IconoSweetAlert.Equals("error"))
                                 {
-                                    return Json(new
-                                    {
-                                        Titulo = "No se pudo completar la acción",
-                                        resultEliminacionTraslado.Mensajes,
-                                        Icono = resultEliminacionTraslado.IconoSweetAlert
-                                    });
+                                    // Validar y eliminar la solicitud de traslado si en caso se importo a la tabla interna pero no se ha encontrado una transferencia
+                                    _solicitudTrasladoN.DeleteSolicitudDeTraslado(traslado.DocNum, cn);
+                                return Json(new
+                                {
+                                    Titulo = "No se pudo completar la acción",
+                                    resultTransferenciaGet.Mensajes,
+                                    Icono = resultTransferenciaGet.IconoSweetAlert
+                                });
+                                
                                 }
                             }
-
+                            TransferenciaReserva_E transferencia = _transferenciaReservaN.ObtenerTransferenciaReserva(transferenciaPost.SolicitudTrasladoDocNum);
                             //Actualiza a TRANSFERIDO en el DetalleDeSolicitudTraslado los ItemCode(s) que se hayan enviado para TransferenciaReserva
-                            var resultActualizarEstado = _solicitudTrasladoN.ActualizarEstado(transferenciaGet.SolicitudTrasladoId, transferenciaGet.Detalle, cn);
+                            var resultActualizarEstado = _solicitudTrasladoN.ActualizarEstado(transferencia.SolicitudTrasladoId, transferencia.Detalle, cn);
                             if (resultActualizarEstado.IconoSweetAlert.Equals("error"))
                             {
                                 return Json(new
@@ -384,7 +385,7 @@ namespace Capa_Usuario.Controllers
 
                             // Registrar la(s) operación(es) de ingreso(s) en KardexAbastecimiento - Los datos a insertar son los del detalle en transferencia
                             // TransferenciaGet ya tiene los datos limpios por enviar hacia el kardex y la suma de stocks
-                            var resultKardex = _kardexAbastecimientoN.InsertarTransaccionIngresoKardex(transferenciaGet, cn);
+                            var resultKardex = _kardexAbastecimientoN.InsertarTransaccionIngresoKardex(transferencia, cn);
                             if (resultKardex.IconoSweetAlert.Equals("error"))
                             {
                                 return Json(new
@@ -398,7 +399,7 @@ namespace Capa_Usuario.Controllers
                             // Sumar y/o Registrar QuantityUnidadesCajas en la tabla UbicacionesLotes
                             var resultUbicacionesLotes = new Helper_E();
 
-                            foreach (var item in transferenciaGet.Detalle)
+                            foreach (var item in transferencia.Detalle)
                             {
                                 resultUbicacionesLotes = _ubicacionesLotesN.Ingreso(item, cn);
                                 if (resultUbicacionesLotes.IconoSweetAlert.Equals("error"))
@@ -426,7 +427,6 @@ namespace Capa_Usuario.Controllers
                                 }
                             }
 
-                            // Confirmar la transacción
                             scope.Complete();
                         }
                     }
@@ -751,7 +751,6 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-
         [HttpGet]
         public ActionResult ListarArticulos(string tipoAbastecimiento, string itemCode, int cantidadSolicitada)
         {
@@ -777,7 +776,6 @@ namespace Capa_Usuario.Controllers
                     return HttpNotFound("No se encontró la vista para el tipo de abastecimiento especificado.");
             }
         }
-
         public JsonResult RegistrarRequerimiento(Requerimientos_E requerimiento)
         {
             try
