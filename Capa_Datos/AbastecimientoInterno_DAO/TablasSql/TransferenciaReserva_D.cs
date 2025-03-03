@@ -93,7 +93,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             foreach (var detalle in detalles)
             {
-                table.Rows.Add(0, detalle.ItemCode, detalle.ItemName, detalle.BatchNum, detalle.FechaVencimiento, detalle.FechaAdmision,
+                table.Rows.Add(0, detalle.ItemCode, detalle.ItemName, detalle.BatchNum, detalle.ExpDate, detalle.InDate,
                                detalle.CodigoUbicacion, detalle.UmAlm, detalle.ValorUmAlm,
                                detalle.QuantityMaster, detalle.QuantitySaldo, detalle.QuantityUnidadesCajas);
             }
@@ -145,8 +145,8 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                                 if (!dr.IsDBNull(2)) detalle.ItemCode = dr.GetString(2);
                                 if (!dr.IsDBNull(3)) detalle.ItemName = dr.GetString(3);
                                 if (!dr.IsDBNull(4)) detalle.BatchNum = dr.GetString(4);
-                                if (!dr.IsDBNull(5)) detalle.FechaAdmision = dr.GetDateTime(5).ToString("yyyy-MM-dd");
-                                if (!dr.IsDBNull(6)) detalle.FechaVencimiento = dr.GetDateTime(6).ToString("yyyy-MM-dd");
+                                if (!dr.IsDBNull(5)) detalle.InDate = dr.GetDateTime(5).ToString("yyyy-MM-dd");
+                                if (!dr.IsDBNull(6)) detalle.ExpDate = dr.GetDateTime(6).ToString("yyyy-MM-dd");
                                 if (!dr.IsDBNull(7)) detalle.CodigoUbicacion = dr.GetString(7);
                                 if (!dr.IsDBNull(8)) detalle.UmAlm = dr.GetString(8);
                                 if (!dr.IsDBNull(9)) detalle.ValorUmAlm = dr.GetInt32(9);
