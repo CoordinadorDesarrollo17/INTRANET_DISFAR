@@ -264,7 +264,7 @@ namespace Capa_Usuario.Controllers
                     var tituloSweetAlert = "No se pudo completar la acción";
                     var icono = "error";
                     var mensaje = "No existe ningun resultado de transferencia relacionada a la solicitud de traslado que ya esta registrada.";
-                    return Json(new { Titulo = tituloSweetAlert, Comentario = new List<string> { mensaje }, Icono = icono });
+                    return Json(new { Titulo = tituloSweetAlert, Mensajes = new List<string> { mensaje }, Icono = icono });
                 }
 
                 //Asignar la ubicacion ideal segun UbicacionesLotesMaster
@@ -884,6 +884,23 @@ namespace Capa_Usuario.Controllers
         }
         //Listado de pendientes para picking con 1 posible filtros
         public ActionResult ListarRequerimientosPicking(string itemCode = "", int idOperation = 3300)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                var lista = _requerimientosN.ListarDetalles("", "ListarPicking")
+                .Where(x =>
+                    (string.IsNullOrEmpty(itemCode) || x.ItemCode == itemCode)
+                ).ToList();
+                return View(lista);
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
+        //Atendido de apiladores (Solo cambia el AtendidoReserva a 1)
+        public ActionResult ListarProductosConUrgencia(string itemCode = "", int idOperation = 3300)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
