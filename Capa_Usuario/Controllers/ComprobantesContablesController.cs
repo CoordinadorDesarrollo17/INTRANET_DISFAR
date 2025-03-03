@@ -30,7 +30,6 @@ namespace Capa_Usuario.Controllers
             switch (Tipo)
             {
                 case "F":
-<<<<<<< HEAD
                 case "NC":
                 case "ND":
                     //Coge los correlativos de las facturas, que sirven para los tres tipos de busqueda
@@ -38,32 +37,19 @@ namespace Capa_Usuario.Controllers
 
                     if (!Tipo.Equals("F"))
                     {
-=======
-                    case "NC":
-                        case "ND":
-                        //Coge los correlativos de las facturas, que sirven para los tres tipos de busqueda
-                    documentos.AddRange(listDocEntrySap.SelectMany(docEntryOrden => compN.ObtenerEncabezadoFacturas(docEntryOrden, obj.LugarDestino)));
-
-                    if(!Tipo.Equals("F")) { 
->>>>>>> 7df6664 (Correcion sobre descarga de documentos en pdf)
                         string correlativosFacturasConcat = string.Join(", ", documentos.Select(x => $"'{x.U_SYP_MDTD}-{x.U_SYP_MDSD}-{x.U_SYP_MDCD}'"));
                         if (Tipo.Equals("NC"))
                         {
                             documentos = compN.ObtenerEncabezadoNotaCredito(obj.Det4, correlativosFacturasConcat);
                         }
-<<<<<<< HEAD
                         else
                         {
-=======
-                        else {
->>>>>>> 7df6664 (Correcion sobre descarga de documentos en pdf)
                             documentos = compN.ObtenerEncabezadoNotaDebito(correlativosFacturasConcat);
                         }
                     }
                     break;
                 case "G":
                     documentos.AddRange(
-<<<<<<< HEAD
                         (obj.LugarDestino.Equals("Domicilio") || obj.LugarDestino.Equals("Agencia"))
                         ? compN.ObtenerEncabezadoGuiasPorEntrega(listDocEntrySap)
                         : compN.ObtenerEncabezadoGuiasTransferencia(obj)
@@ -81,26 +67,6 @@ namespace Capa_Usuario.Controllers
             }
 
             return documentos;
-=======
-                          (obj.LugarDestino.Equals("Domicilio") || obj.LugarDestino.Equals("Agencia"))
-                          ? compN.ObtenerEncabezadoGuiasPorEntrega(listDocEntrySap)
-                          : compN.ObtenerEncabezadoGuiasTransferencia(obj)
-                      );
-                    break;
-            }
-
-            
-            if (documentos.Any())
-            {
-                // Filtrar documentos con U_SYP_MDCD no vacío y eliminar duplicados
-                documentos = documentos
-                .Where(d => !string.IsNullOrWhiteSpace(d.U_SYP_MDCD))
-                .GroupBy(d => d.U_SYP_MDCD)
-                .Select(g => g.First())
-                .ToList();
-           }
-           return documentos;
->>>>>>> 7df6664 (Correcion sobre descarga de documentos en pdf)
         }
         public JsonResult CrearYObtenerDocumento(int DocEntry, string Tipo) // Metodo principal, ajax desde ListadoTicketsAlmacen (picking packing)
         {
