@@ -498,6 +498,7 @@
 			articulo.DetalleLotes.forEach(item => {
 				tableHtml += `<tr data-lote="${item.BatchNum}">
 								<td class="text-center">
+									<input type="hidden" name="transferenciaPost.SolicitudesTrasladoId" value="${articulo.SolicitudesTrasladoId}" />
 									<input type="hidden" name="transferenciaPost.Detalle[].ItemCode" value="${articulo.ItemCode}" />
 									<input type="hidden" name="transferenciaPost.Detalle[].ItemName" value="${articulo.ItemName}" />
 									<input type="hidden" name="transferenciaPost.Detalle[].BatchNum" value="${item.BatchNum}" />${item.BatchNum}
@@ -548,7 +549,7 @@
 				item.ItemCode === articulo.ItemCode && item.BatchNum === item.BatchNum
 			)
 
-			console.log(itemsTransferidos)
+          //  console.log(articulo)
 			let tableHtml = `<div class="d-flex justify-content-center w-100"><table id="tbl_detalleLotes_${articulo.ItemCode}" class="table table-sm table-bordered table-hover subtable w-75 tbl_detalleLotes">
 					<thead class="table-success">
 						<tr>
@@ -580,8 +581,7 @@
 			} else {
 				articulo.DetalleLotes.forEach(item => {
 					tableHtml += `<tr data-lote="${item.BatchNum}">
-													<td class="text-center">
-														<input type="hidden" name="transferenciaPost.Detalle[].ItemCode" value="${articulo.ItemCode}" />
+													<td class="text-center">														
 														<input type="hidden" name="transferenciaPost.Detalle[].ItemName" value="${articulo.ItemName}" />
 														<input type="hidden" name="transferenciaPost.Detalle[].BatchNum" value="${item.BatchNum}" />${item.BatchNum}
 													</td>
@@ -692,6 +692,7 @@
 						QuantityCajas: 0,
 						Estado: item.Estado,
 						UnidadAlmSugerido: item.UnidadAlmSugerido,
+                        SolicitudesTrasladoId: item.SolicitudesTrasladoId,
 						DetalleLotes: []
 					};
 				}
