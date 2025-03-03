@@ -15,8 +15,9 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
         readonly Utilitarios uti = new Utilitarios();
         readonly DBHelper db = new DBHelper();
 
-        public TransferenciaReserva_E RegistrarTransferenciaReserva(TransferenciaReserva_E transferencia, SqlConnection cn)
+        public Helper_E RegistrarTransferenciaReserva(TransferenciaReserva_E transferencia, SqlConnection cn)
         {
+            string mensaje, icono;
             if (cn.State != ConnectionState.Open)
             {
                 cn.Open();
@@ -59,15 +60,20 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                         }
 
                         transferencia.Id = idGenerado;
-                        return transferencia;
+                        mensaje = "Transferencia de reserva registrada correctamente";
+                        icono = "success";
                     }
                 }
                 catch (Exception ex)
                 {
+                    LogHelper.RegistrarError(ex, "TransferenciaReserva_D - RegistrarTransferenciaReserva");
+                    mensaje = "Ocurrió un error al registrar la transferencia reserva. Comuníquese con el área de Sistemas para más información.";
+                    icono = "error";
                     transaction.Rollback();
-                    throw new Exception("Error al registrar la transferencia de reserva.", ex);
+                    throw new Exception("Error en RegistrarTransferenciaReserva.", ex);
                 }
             }
+            return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
         }
         private DataTable ConvertirADatatable(List<DetalleTransferenciaReserva_E> detalles)
         {
