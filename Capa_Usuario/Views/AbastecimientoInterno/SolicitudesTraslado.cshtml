@@ -1,133 +1,134 @@
 ﻿@{
-	ViewBag.Title = "Solicitudes de Traslado";
-	Layout = "~/Views/Shared/_DefaultLayout.cshtml";
+    ViewBag.Title = "Solicitudes de Traslado";
+    Layout = "~/Views/Shared/_DefaultLayout.cshtml";
 }
 
 <div class="pt-3">
-	<nav>
-		<ol class="cd-breadcrumb bg-cobefar-degradado-1">
-			<li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
-			<li><em>Abastecimiento Interno</em></li>
-			<li class="current"><em>Solicitudes de Traslado</em></li>
-		</ol>
-	</nav>
+    <nav>
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><em>Abastecimiento Interno</em></li>
+            <li class="current"><em>Solicitudes de Traslado</em></li>
+        </ol>
+    </nav>
 </div>
 
 <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
-	<div class="row px-3 pt-3"><h3 class="titulo-seccion">SOLICITUDES DE TRASLADO</h3></div>
+    <div class="row px-3 pt-3"><h3 class="titulo-seccion">SOLICITUDES DE TRASLADO</h3></div>
 </div>
 
 <div class="bg-white px-3 py-3 align-items-center">
-	<div class="row mb-4">
-		<div class="col-lg-2">
-			<input type="hidden" id="DocEntry" name="DocEntry" readonly />
-			<label for="" class="form-label fw-bold">Tipo de documento:</label>
-			<select id="" class="form-select">
-				<option value="OWTQ">Solicitud de Traslado</option>
-			</select>
-		</div>
+    <div class="row mb-4">
+        <div class="col-lg-2">
+            <input type="hidden" id="DocEntry" name="DocEntry" readonly />
+            <label for="" class="form-label fw-bold">Tipo de documento:</label>
+            <select id="" class="form-select">
+                <option value="OWTQ">Solicitud de Traslado</option>
+            </select>
+        </div>
 
-		<div class="col-lg-2">
-			<label for="DocNum" class="form-label fw-bold">DocNum:</label>
-			<input type="text" id="DocNum" class="form-control" name="DocNum" autocomplete="off" />
-		</div>
+        <div class="col-lg-2">
+            <label for="DocNum" class="form-label fw-bold">DocNum:</label>
+            <input type="text" id="DocNum" class="form-control" name="DocNum" autocomplete="off" />
+        </div>
 
-		<div class="col-lg-2">
-			<label for="NroGuia" class="form-label fw-bold">Nro. de guía:</label>
-			<input type="text" id="NroGuia" class="form-control cls-readonly text-center" name="NroGuia" autocomplete="off" readonly />
-		</div>
+        <div class="col-lg-2">
+            <label for="NroGuia" class="form-label fw-bold">Nro. de guía:</label>
+            <input type="text" id="NroGuia" class="form-control cls-readonly text-center" name="NroGuia" autocomplete="off" readonly />
+        </div>
 
-		<div class="col-lg-3">
-			<label for="CardName" class="form-label fw-bold">Socio de Negocio:</label>
-			<input type="hidden" id="CardCode" name="CardCode" readonly />
-			<input type="text" id="CardName" class="form-control cls-readonly text-center" name="CardName" autocomplete="off" readonly />
-		</div>
+        <div class="col-lg-3">
+            <label for="CardName" class="form-label fw-bold">Socio de Negocio:</label>
+            <input type="hidden" id="CardCode" name="CardCode" readonly />
+            <input type="text" id="CardName" class="form-control cls-readonly text-center" name="CardName" autocomplete="off" readonly />
+        </div>
 
-		<div class="col-lg-3">
-			<label for="OperarioResponsableSAP" class="form-label fw-bold">Operario Responsable SAP:</label>
-			<input type="text" id="OperarioResponsableSAP" class="form-control cls-readonly text-center" name="OperarioResponsableSAP" autocomplete="off" readonly />
-			<input type="hidden" id="MotivoTraslado" name="MotivoTraslado" readonly />
-			<input type="hidden" id="DocDate" name="DocDate" readonly />
-		</div>
-	</div><!-- row -->
+        <div class="col-lg-3">
+            <label for="OperarioResponsableSAP" class="form-label fw-bold">Operario Responsable SAP:</label>
+            <input type="text" id="OperarioResponsableSAP" class="form-control cls-readonly text-center" name="OperarioResponsableSAP" autocomplete="off" readonly />
+            <input type="hidden" id="MotivoTraslado" name="MotivoTraslado" readonly />
+            <input type="hidden" id="DocDate" name="DocDate" readonly />
+        </div>
+    </div><!-- row -->
 
-	<div class="row">
-		<div class="col-lg-12">
-			<button type="button" class="btn btn-warning" onclick="buscarSolicitud()" data-bs-toggle="tooltip" data-bs-placement="top" title="Buscar"><i class="bi bi-search"></i> Buscar</button>
-		</div>
-	</div>
+    <div class="row">
+        <div class="col-lg-12">
+            <button type="button" class="btn btn-warning" onclick="buscarSolicitud()" data-bs-toggle="tooltip" data-bs-placement="top" title="Buscar"><i class="bi bi-search"></i> Buscar</button>
+        </div>
+    </div>
 
-	<hr />
+    <hr />
 
-	<div id="copiaSap" hidden>
-		<form id="frm_tablaCopiaSap">
-			<div class="row mb-4">
-				<div class="col-lg-12">
-					<input type="text" id="copiaDocEntry" name="DocEntry" readonly />
-					<input type="text" id="copiaDocNum" name="DocNum" readonly />
-					<input type="text" id="copiaNroGuia" name="NroGuia" readonly />
-					<input type="text" id="copiaCardCode" name="CardCode" readonly />
-				</div>
-			</div><!-- row -->
+    <div id="copiaSap" hidden>
+        <form id="frm_tablaCopiaSap">
+            <div class="row mb-4">
+                <div class="col-lg-12">
+                    <input type="text" id="copiaDocEntry" name="DocEntry" readonly />
+                    <input type="text" id="copiaDocNum" name="DocNum" readonly />
+                    <input type="text" id="copiaNroGuia" name="NroGuia" readonly />
+                    <input type="text" id="copiaCardCode" name="CardCode" readonly />
+                </div>
+            </div><!-- row -->
 
-			<div class="row mb-4">
-				<div class="col-lg-12">
-					<input type="text" id="copiaCardName" name="CardName" readonly />
-					<input type="text" id="copiaOperarioResponsableSAP" name="OperarioResponsableSAP" readonly />
-					<input type="text" id="copiaMotivoTraslado" name="MotivoTraslado" readonly />
-					<input type="text" id="copiaDocDate" name="DocDate" readonly />
-				</div>
-			</div><!-- row -->
-		</form>
+            <div class="row mb-4">
+                <div class="col-lg-12">
+                    <input type="text" id="copiaCardName" name="CardName" readonly />
+                    <input type="text" id="copiaOperarioResponsableSAP" name="OperarioResponsableSAP" readonly />
+                    <input type="text" id="copiaMotivoTraslado" name="MotivoTraslado" readonly />
+                    <input type="text" id="copiaDocDate" name="DocDate" readonly />
+                </div>
+            </div><!-- row -->
+        </form>
 
-		<table id="tbl_copiaSap" class="table">
-			<thead>
-				<tr>
-					<th scope="col">ItemCode</th>
-					<th scope="col">ItemName</th>
-					<th scope="col">BatchNum</th>
-					<th scope="col">In Date</th>
-					<th scope="col">Exp Date</th>
-					<th scope="col">QuantityCajas</th>
-					<th scope="col">FromWhsCode</th>
-					<th scope="col">ToWhsCode</th>
-				</tr>
-			</thead>
-			<tbody>
-			</tbody>
-		</table>
-	</div>
+        <table id="tbl_copiaSap" class="table">
+            <thead>
+                <tr>
+                    <th scope="col">ItemCode</th>
+                    <th scope="col">ItemName</th>
+                    <th scope="col">BatchNum</th>
+                    <th scope="col">In Date</th>
+                    <th scope="col">Exp Date</th>
+                    <th scope="col">QuantityCajas</th>
+                    <th scope="col">FromWhsCode</th>
+                    <th scope="col">ToWhsCode</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
 
-	<div class="row mb-4">
-		<div class="col-lg-12">
-			<table id="tbl_detalle" class="dt-container dt-empty-footer table table-sm table-bordered font-14" width="100%">
-				<thead class="thead-cobefar">
-					<tr>
-						<th style="width: 5%;"></th>
-						<th scope="col" class="text-center">Código de artículo</th>
-						<th scope="col" class="text-center">Descripción</th>
-						<th scope="col" class="text-center">Cantidad</th>
-						<th scope="col" class="text-center">Alm. Destino</th>
-						<th scope="col" class="text-center">Lotes</th>
-						<th scope="col" class="text-center"></th>
-					</tr>
-				</thead>
-				<tbody class="text-dark">
-				</tbody>
-			</table>
-		</div>
-	</div>
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <table id="tbl_detalle" class="dt-container dt-empty-footer table table-sm table-bordered font-14" width="100%">
+                <thead class="thead-cobefar">
+                    <tr>
+                        <th style="width: 5%;"></th>
+                        <th scope="col" class="text-center">Código de artículo</th>
+                        <th scope="col" class="text-center">Descripción</th>
+                        <th scope="col" class="text-center">Cantidad</th>
+                        <th scope="col" class="text-center">Alm. Destino</th>
+                        <th scope="col" class="text-center">Lotes</th>
+                        <th scope="col" class="text-center">Estado</th>
+                        <th scope="col" class="text-center"></th>
+                    </tr>
+                </thead>
+                <tbody class="text-dark">
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-	<div id="div_botones" class="row" style="display: none">
-		<div class="col-lg-12">
-			<button type="button" class="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Cancelar" onclick="cancelarTransferenciaTraslado()"><i class="bi bi-x-lg"></i> Cancelar</button>
-			<button type="button" id="btn_transferir" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Transferir"><i class="bi bi-arrow-left-right"></i> Transferir</button>
-		</div>
-	</div>
+    <div id="div_botones" class="row" style="display: none">
+        <div class="col-lg-12">
+            <button type="button" class="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Cancelar" onclick="cancelarTransferenciaTraslado()"><i class="bi bi-x-lg"></i> Cancelar</button>
+            <button type="button" id="btn_transferir" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Transferir"><i class="bi bi-arrow-left-right"></i> Transferir</button>
+        </div>
+    </div>
 </div><!-- main -->
 
 @section Scripts{
-	<script>
+    <script>
 		// Declaración de variables
 		const masters = JSON.parse(`@Html.Raw(Json.Encode(ViewBag.Masters))`)
 		let opcionesMasters = ''
@@ -227,64 +228,68 @@
 				},
 				transferenciaPost: {
 					...jsonData,
+					SolicitudTrasladoDocNum: document.querySelector('#DocNum').value,
 					Detalle: detallesTransferencia
 				}
 			};
 
 			//console.log(payload)
 			//return;
+            registrarTransferenciaStock(payload)
+		}
 
-			try {
-				const response = await fetch("/AbastecimientoInterno/RegistrarTransferenciaDeStock", {
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json"
-					},
-					body: JSON.stringify(payload)
-				});
+        async function registrarTransferenciaStock(payload) {
+            try {
+                const response = await fetch("/AbastecimientoInterno/RegistrarTransferenciaDeStock", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(payload)
+                });
 
-				if (!response.ok) {
-					throw new Error(`Error en la solicitud: ${response.status}`);
-				}
+                if (!response.ok) {
+                    throw new Error(`Error en la solicitud: ${response.status}`);
+                }
 
-				const data = await response.json();
-				//console.log(data)
+                const data = await response.json();
+                //console.log(data)
 
-				Swal.fire({
-					title: data.Titulo,
-					html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
-						? data.Mensajes.join('<br>')
-						: data.Mensajes || "",
-					icon: data.Icono,
-					allowEscapeKey: false,
-					allowOutsideClick: false,
-					showConfirmButton: true
-				}).then((result) => {
-					if (result.isConfirmed) {
+                Swal.fire({
+                    title: data.Titulo,
+                    html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                        ? data.Mensajes.join('<br>')
+                        : data.Mensajes || "",
+                    icon: data.Icono,
+                    allowEscapeKey: false,
+                    allowOutsideClick: false,
+                    showConfirmButton: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
 
-						Swal.fire({
-							title: '¿Deseas continuar con la transferencia?',
-							text: "Solo para completar ítems que no han sido transferidos.",
-							type: 'info',
-							showCancelButton: true,
-							confirmButtonColor: '#3085d6',
-							cancelButtonColor: '#d33',
-							confirmButtonText: 'Si, continuar',
-							cancelButtonText: 'Cancelar'
-						}).then(result => {
-							if (result.isConfirmed) {
-								buscarSolicitud()
-							} else {
-								location.reload()
-							}
-						});
+                        Swal.fire({
+                            title: '¿Deseas continuar con la transferencia?',
+                            text: "Solo para completar ítems que no han sido transferidos.",
+                            type: 'info',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Si, continuar',
+                            cancelButtonText: 'Cancelar'
+                        }).then(result => {
+                            if (result.isConfirmed) {
+                                buscarSolicitud()
+                            } else {
+                                location.reload()
+                            }
+                        });
 
-					}
-				});
+                    }
+                });
 
-			} catch (error) {
-				console.error("Error:", error);
-			}
+            } catch (error) {
+                console.error("Error:", error);
+            }
 		}
 
 		async function buscarSolicitud() {
@@ -319,7 +324,7 @@
 				}
 
 				const data = await response.json();
-				//console.log("Datos recibidos:", data);
+				console.log("Datos recibidos:", data);
 
 				if (!data || !data.traslado) {
 					Swal.fire({
@@ -349,10 +354,10 @@
 
 				// Construir formulario y tabla de detalle
 				if (data.transferencia != null) {
-					generarHTMLDetalle(renderizarTransferenciaReserva, formatLotesTransferenciaReserva, traslado.Detalle, data.transferencia.Detalle)
+					generarHTMLDetalle(formatLotesTransferenciaReserva, traslado.Detalle, data.transferencia.Detalle)
 				} else {
 					construirFormCopiaSap(data.traslado);
-					generarHTMLDetalle(renderizarSolicitudTraslado, formatLotes, traslado.Detalle)
+					generarHTMLDetalle(formatLotes, traslado.Detalle)
 				}
 
 				document.querySelector('#div_botones').style.display = 'block'
@@ -368,64 +373,49 @@
 		}
 
 		// Construcción de la tabla de detalle
-		function renderizarSolicitudTraslado(detalle) {
+        function renderizarDetalle(detalle) {
 			let tbody = ''
 
-			for (const itemCode in detalle) {
-				let key = detalle[itemCode]
+   //         console.log("renderizarDetalle:");
+			//console.log(detalle);
 
-				tbody += `<tr data-producto="${key.ItemCode}" class="fila-detalle">
-										<td class="details-control">
-											<div class="d-flex justify-content-center"><button id="btn_chevron_${key.ItemCode}" class="btn btn-sm btn-cobefar-2"><i class="bi bi-chevron-down"></i></button></div>
-										</td>
-										<td class="text-center">${key.ItemCode}</td>
-										<td><span class="ps-2">${key.ItemName}</span></td>
-										<td class="text-center">${key.QuantityCajas}</td>
-										<td class="text-center"><div class="d-flex justify-content-center"><input type="text" class="form-control text-center cls-readonly" value="RESERVA" readonly style="width: 140px"></div></td>
-										<td class="text-center">${key.DetalleLotes.map(l => l.BatchNum).join(', ')}</td>
-										<td class="text-center">
-											<button class="btn btn-danger" onclick="limpiarValoresItem('cls-limpiarItem_${key.ItemCode}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Borrar valores de este artículo">
-												<i class="bi bi-eraser-fill"></i>
-											</button>
-										</td>
-									</tr>`
-			}
+            const itemsTransferidos = transferencia.filter(item =>
+                item.ItemCode === articulo.ItemCode && item.BatchNum === item.BatchNum
+			)
+			 console.log(itemsTransferidos)
 
-			return tbody
-		}
+            for (const itemCode in detalle) {
+                let key = detalle[itemCode]
+                let claseTransferido = (key.Estado === "TRANSFERIDO") ? 'bg-secondary text-white' : ''
 
-		function renderizarTransferenciaReserva(detalle) {
-			let tbody = ''
+                tbody += `<tr data-producto="${key.ItemCode}" class="fila-detalle">
+								<td class="details-control text-center ${claseTransferido}">
+									<button id="btn_chevron_${key.ItemCode}" class="btn btn-sm btn-cobefar-2"><i class="bi bi-chevron-down"></i></button>
+								</td>
+								<td class="text-center ${claseTransferido}">${key.ItemCode}</td>
+								<td class="${claseTransferido}"><span class="ps-2">${key.ItemName}<span></td>
+								<td class="text-center ${claseTransferido}">${key.QuantityCajas}</td>
+								<td class="text-center ${claseTransferido}">
+									${key.Estado == "TRANSFERIDO"
+										? `RESERVA`
+										: `<div class="d-flex justify-content-center"><input type="text" class="form-control text-center cls-readonly" value="RESERVA" readonly style="width: 140px"></div>` }
+								</td>
+								<td class="text-center ${claseTransferido}">${key.DetalleLotes.map(l => l.BatchNum).join(', ')}</td>
+								<td class="text-center ${claseTransferido}">${key.Estado}</td>
+								<td class="text-center ${claseTransferido}"">
+									${key.Estado != "TRANSFERIDO"
+										? `<button class="btn btn-danger" onclick="limpiarValoresItem('cls-limpiarItem_${key.ItemCode}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Borrar valores de este artículo"><i class="bi bi-eraser-fill"></i></button>`
+										: `<button class="btn btn-danger" onclick="revertirTransferenciaReserva('${key.ItemCode}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Revertir transferencia reserva"><i class="bi bi-arrow-repeat"></i></button>` }
+								</td>
+							</tr>`
+            }
 
-			for (const itemCode in detalle) {
-				let key = detalle[itemCode]
-				let claseTransferido = (key.Estado === "TRANSFERIDO") ? 'bg-secondary text-white' : ''
+            return tbody
+        }
 
-				tbody += `<tr data-producto="${key.ItemCode}" class="fila-detalle">
-										<td class="details-control text-center ${claseTransferido}">
-											<button id="btn_chevron_${key.ItemCode}" class="btn btn-sm btn-cobefar-2"><i class="bi bi-chevron-down"></i></button>
-										</td>
-										<td class="text-center ${claseTransferido}">${key.ItemCode}</td>
-										<td class="${claseTransferido}"><span class="ps-2">${key.ItemName}<span></td>
-										<td class="text-center ${claseTransferido}">${key.QuantityCajas}</td>
-										<td class="text-center ${claseTransferido}">RESERVA</td>
-										<td class="text-center ${claseTransferido}">${key.DetalleLotes.map(l => l.BatchNum).join(', ')}</td>
-										<td class="text-center ${claseTransferido}">
-											${key.Estado == "TRANSFERIDO" ? '<span class="fw-bold">TRANSFERIDO</span>' : `
-												<button class="btn btn-danger" onclick="limpiarValoresItem('cls-limpiarItem_${key.ItemCode}')"
-													data-bs-toggle="tooltip" data-bs-placement="top" title="Borrar valores de este artículo">
-													<i class="bi bi-eraser-fill"></i>
-												</button>`}
-										</td>
-									</tr>`
-			}
-
-			return tbody
-		}
-
-		function generarHTMLDetalle(func, func2, detalle, detalleTransferencia = {}) {
-			if (typeof func === 'function' && typeof func2 === 'function') {
-				document.querySelector('#tbl_detalle tbody').innerHTML = func(detalle);
+		function generarHTMLDetalle(func, detalle, detalleTransferencia = {}) {
+			if (typeof func === 'function') {
+                document.querySelector('#tbl_detalle tbody').innerHTML = renderizarDetalle(detalle);
 				inicializarSlimSelectsPorClase('cls-select')
 				$('[data-bs-toggle="tooltip"]').tooltip()
 
@@ -453,7 +443,7 @@
 						// Validar que el objeto detalle y los lotes existan antes de abrir
 						if (detalle[productoID] && Array.isArray(detalle[productoID].DetalleLotes)) {
 							try {
-								row.child(func2(detalle[productoID], detalleTransferencia)).show();
+								row.child(func(detalle[productoID], detalleTransferencia)).show();
 								button.removeClass('bi-chevron-down').addClass('bi-chevron-up');
 							} catch (error) {
 								console.error('Error al mostrar los lotes de transferencia:', error);
@@ -510,7 +500,7 @@
 								<td class="text-center">
 									<input type="text" id="lote_quantityUnidades_${item.BatchNum}" name="transferenciaPost.Detalle[].QuantityUnidadesCajas" class="form-control text-center cls-num cls-limpiarItem_${articulo.ItemCode}"
 									data-idcantmaster="lote_cantidadMaster_${item.BatchNum}" data-idcantsaldo="lote_cantidadSaldo_${item.BatchNum}" data-cantidadtotal="${item.QuantityCajas}"
-									data-idundmaster="lote_undMaster_${item.BatchNum}" oninput="calcularStockUnidades(this.value, this.dataset)" value="">
+									data-idundmaster="lote_undMaster_${item.BatchNum}" oninput="calcularStockUnidades(this.value, this.dataset)" value="${item.QuantityCajas}">
 								</td>
 								 <td scope="col" class="text-center align-middle">
 									 <select id="lote_undMaster_${item.BatchNum}" data-idundmaster="lote_undMaster_${item.BatchNum}" data-idcantmaster="lote_cantidadMaster_${item.BatchNum}" data-idcantsaldo="lote_cantidadSaldo_${item.BatchNum}" data-cantidadtotal="${item.QuantityCajas}"
@@ -545,9 +535,9 @@
 		}
 
 		function formatLotesTransferenciaReserva(articulo, transferencia) {
-			const itemsTransferidos = transferencia.filter(item =>
-				item.ItemCode === articulo.ItemCode && item.BatchNum === item.BatchNum
-			)
+			//const itemsTransferidos = transferencia.filter(item =>
+			//	item.ItemCode === articulo.ItemCode && item.BatchNum === item.BatchNum
+			//)
 
           //  console.log(articulo)
 			let tableHtml = `<div class="d-flex justify-content-center w-100"><table id="tbl_detalleLotes_${articulo.ItemCode}" class="table table-sm table-bordered table-hover subtable w-75 tbl_detalleLotes">
@@ -581,7 +571,9 @@
 			} else {
 				articulo.DetalleLotes.forEach(item => {
 					tableHtml += `<tr data-lote="${item.BatchNum}">
-													<td class="text-center">														
+													<td class="text-center">
+														<input type="hidden" name="transferenciaPost.SolicitudesTrasladoId" value="${articulo.SolicitudesTrasladoId}" />
+														<input type="hidden" name="transferenciaPost.Detalle[].ItemCode" value="${articulo.ItemCode}" />
 														<input type="hidden" name="transferenciaPost.Detalle[].ItemName" value="${articulo.ItemName}" />
 														<input type="hidden" name="transferenciaPost.Detalle[].BatchNum" value="${item.BatchNum}" />${item.BatchNum}
 													</td>
@@ -908,5 +900,58 @@
 				}
 			});
 		}
-	</script>
+
+        async function revertirTransferenciaReserva() {
+            const docNum = document.querySelector('#DocNum').value || ''
+
+            Swal.fire({
+                title: '¿Estás seguro(a) de revertir?',
+                text: "Se revertirá este ítem de la transferencia de reserva.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '<i class="bi bi-check-lg"></i> Si, continuar',
+                cancelButtonText: '<i class="bi bi-x-lg"></i> Cancelar'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+
+                    try {
+                        const response = await fetch("/AbastecimientoInterno/RevertirTransferenciaReservaPorItem", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({ docNum })
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`Error en la solicitud: ${response.status}`);
+                        }
+
+                        const data = await response.json();
+
+                        Swal.fire({
+                            title: data.Titulo,
+                            html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                                ? data.Mensajes.join('<br>')
+                                : data.Mensajes || "",
+                            icon: data.Icono,
+                            allowEscapeKey: false,
+                            allowOutsideClick: false,
+                            showConfirmButton: true
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                //location.reload()
+                            }
+                        });
+
+                    } catch (error) {
+                        console.error("Error:", error);
+                    }
+
+                }
+            });
+        }
+    </script>
 }

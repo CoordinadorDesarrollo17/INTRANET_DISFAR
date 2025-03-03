@@ -305,17 +305,15 @@ namespace Capa_Usuario.Controllers
             {
                 if (transferenciaPost != null)
                 {
+                    if (solicitudTraslado == null || solicitudTraslado.DocNum == 0)
+                        solicitudTraslado = _solicitudTrasladoN.ObtenerSolicitudDeTraslado(transferenciaPost.SolicitudTrasladoDocNum);
+
                     // Validar o inserta los lotes de registro sanitario (fuera de la transacción)
                     _lotesRegistroSanitarioN.ValidarLotesRegistroSanitario(solicitudTraslado.Detalle);
 
-                    // Obtener la solicitud de traslado
-                    var traslado = _solicitudTrasladoN.ObtenerSolicitudDeTraslado(solicitudTraslado.DocNum);
-
                     // Importa a las tablas internas solo si no existe previamente el DocNum
-                    if (traslado == null)
-                    {
-                        traslado = _solicitudTrasladoN.ImportarSolicitudDeTraslado(solicitudTraslado);
-                    }
+                    var traslado = (solicitudTraslado == null) ? _solicitudTrasladoN.ImportarSolicitudDeTraslado(solicitudTraslado) : solicitudTraslado;
+
                     // Validar si la importación fue exitosa
                     if (traslado == null || traslado.Id == 0)
                     {
@@ -355,19 +353,19 @@ namespace Capa_Usuario.Controllers
                             cn.Open();
                             // Registrar  o agrega mas lineas al detalle de la transferencia de reserva
                             var resultTransferenciaGet = _transferenciaReservaN.RegistrarTransferenciaReserva(transferenciaPost, cn);
-                            if (resultTransferenciaGet == null || resultTransferenciaGet.Id==0)
+                            if (resultTransferenciaGet == null || resultTransferenciaGet.Id == 0)
                             {
                                 if (resultTransferenciaGet.IconoSweetAlert.Equals("error"))
                                 {
                                     // Validar y eliminar la solicitud de traslado si en caso se importo a la tabla interna pero no se ha encontrado una transferencia
                                     _solicitudTrasladoN.DeleteSolicitudDeTraslado(traslado.DocNum, cn);
-                                return Json(new
-                                {
-                                    Titulo = "No se pudo completar la acción",
-                                    resultTransferenciaGet.Mensajes,
-                                    Icono = resultTransferenciaGet.IconoSweetAlert
-                                });
-                                
+                                    return Json(new
+                                    {
+                                        Titulo = "No se pudo completar la acción",
+                                        resultTransferenciaGet.Mensajes,
+                                        Icono = resultTransferenciaGet.IconoSweetAlert
+                                    });
+
                                 }
                             }
                             TransferenciaReserva_E transferencia = _transferenciaReservaN.ObtenerTransferenciaReserva(transferenciaPost.SolicitudTrasladoDocNum);

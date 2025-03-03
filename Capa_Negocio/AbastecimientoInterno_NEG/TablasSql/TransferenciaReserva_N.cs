@@ -19,13 +19,13 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         {
             //Limpiamos con los datos que unicamente vienen con intencion de trasladarse:
             transferencia.Detalle = transferencia.Detalle
-       .Where(t => !string.IsNullOrWhiteSpace(t.UmAlm) &&
-                   t.ValorUmAlm > 0 &&
-                   t.QuantityUnidadesCajas > 0 &&
-                   !string.IsNullOrWhiteSpace(t.CodigoUbicacion) &&
-                   t.TransferenciaReservaId == 0 &&
-                   t.Id == 0)
-       .ToList();
+                .Where(t => !string.IsNullOrWhiteSpace(t.UmAlm) &&
+                            t.ValorUmAlm > 0 &&
+                            t.QuantityUnidadesCajas > 0 &&
+                            !string.IsNullOrWhiteSpace(t.CodigoUbicacion) &&
+                            t.TransferenciaReservaId == 0 &&
+                            t.Id == 0)
+                .ToList();
 
             //Validar si el SKU ha sido transferido en su totalidad segun la cantidad que figure en la solicitud de traslado:
 
@@ -34,12 +34,15 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
 
             //2. Compara las cantidades agrupadas por ItemCode
             var cantidadTransferencia = transferencia.Detalle
+                .Where(item => !string.IsNullOrEmpty(item.ItemCode)) // Filtra nulos o vacíos
                 .GroupBy(item => item.ItemCode)
                 .ToDictionary(g => g.Key, g => g.Sum(i => i.QuantityUnidadesCajas));
 
             var cantidadTraslado = trasladoObtenido.Detalle
+                .Where(item => item.Value != null && !string.IsNullOrEmpty(item.Value.ItemCode))
                 .GroupBy(item => item.Value.ItemCode)
                 .ToDictionary(g => g.Key, g => g.Sum(i => i.Value.QuantityCajas));
+
 
             foreach (var item in cantidadTransferencia)
             {
