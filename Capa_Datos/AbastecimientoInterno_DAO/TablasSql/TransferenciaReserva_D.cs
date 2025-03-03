@@ -180,7 +180,11 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     // Parámetros extraidos de la cabecera 
                     cmd.Parameters.AddWithValue("@TipoMantenimiento", "DELETE");
                     cmd.Parameters.AddWithValue("@SolicitudTrasladoDocNum", docNum);
-
+                    SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
+                    {
+                        Direction = ParameterDirection.Output
+                    };
+                    cmd.Parameters.Add(idGeneradoParam);
                     cmd.ExecuteNonQuery();
 
                     mensaje = "Transferencia de reserva eliminada correctamente";

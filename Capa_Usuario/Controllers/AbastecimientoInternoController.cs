@@ -6,6 +6,7 @@ using Capa_Entidad.Seguridad_ENT;
 using Capa_Negocio.AbastecimientoInterno_NEG.TablasExternas;
 using Capa_Negocio.AbastecimientoInterno_NEG.TablasSql;
 using Capa_Usuario.Helpers;
+using DocumentFormat.OpenXml.EMMA;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -66,10 +67,13 @@ namespace Capa_Usuario.Controllers
 
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
-                return Json(new { 
-                    Titulo = "No se pudo completar la acción", 
+                return Json(new
+                {
+                    Titulo = "No se pudo completar la acción",
                     Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }
-                , Icono = "error" });
+                ,
+                    Icono = "error"
+                }, JsonRequestBehavior.AllowGet);
 
             var listaAgrupada = _ubicacionesN.ListarUbicaciones(filtros)
                 .GroupBy(u => new { u.ItemCode, u.ItemName, u.StockMinAbastecimiento, u.StockMinVenta })
@@ -91,39 +95,48 @@ namespace Capa_Usuario.Controllers
             form.Almacen = "PICKING";
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
-                return Json(new { Titulo = "No se pudo completar la acción", 
+                return Json(new
+                {
+                    Titulo = "No se pudo completar la acción",
                     Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" },
-                    Icono = "error" });
+                    Icono = "error"
+                }, JsonRequestBehavior.AllowGet);
 
             form.NombreOperarioAccion = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
             var result = _ubicacionesN.RegistrarUbicacion(form);
             string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
-            return Json(new { 
-                Titulo = tituloSweetAlert, 
-                result.Mensajes, 
-                Icono = result.IconoSweetAlert });
+            return Json(new
+            {
+                Titulo = tituloSweetAlert,
+                result.Mensajes,
+                Icono = result.IconoSweetAlert
+            });
         }
         public JsonResult EliminarUbicacionPicking(int id)
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
-                return Json(new { 
-                    Titulo = "No se pudo completar la acción", 
-                    Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, 
-                    Icono = "error" });
+                return Json(new
+                {
+                    Titulo = "No se pudo completar la acción",
+                    Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" },
+                    Icono = "error"
+                }, JsonRequestBehavior.AllowGet);
 
             var result = _ubicacionesN.EliminarUbicacion(id);
             string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
-            return Json(new { 
-                Titulo = tituloSweetAlert, 
-                result.Mensajes, 
-                Icono = result.IconoSweetAlert });
+            return Json(new
+            {
+                Titulo = tituloSweetAlert,
+                result.Mensajes,
+                Icono = result.IconoSweetAlert
+            });
         }
         public JsonResult ActualizarStocksMinimos(StockMinProductos_E form)
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
-                return Json(new { Titulo = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" });
+                return Json(new { Titulo = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" }, JsonRequestBehavior.AllowGet);
             form.NombreOperarioAccion = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
             var result = _stockMinProdN.ActualizarStocksMinimos(form);
             string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
@@ -154,10 +167,12 @@ namespace Capa_Usuario.Controllers
             filtros.Almacen = "RESERVA";
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
-                return Json(new { 
-                    Titulo = "No se pudo completar la acción", 
-                    Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, 
-                    Icono = "error" });
+                return Json(new
+                {
+                    Titulo = "No se pudo completar la acción",
+                    Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" },
+                    Icono = "error"
+                }, JsonRequestBehavior.AllowGet);
             var listaAgrupada = _ubicacionesN.ListarUbicaciones(filtros).GroupBy(u => new { u.ItemCode, u.ItemName })
                 .Select(grupo => new Ubicaciones_E
                 {
@@ -176,25 +191,32 @@ namespace Capa_Usuario.Controllers
             form.Almacen = "RESERVA";
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
-                return Json(new { 
-                    Titulo = "No se pudo completar la acción", 
+                return Json(new
+                {
+                    Titulo = "No se pudo completar la acción",
                     Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" },
-                    Icono = "error" });
+                    Icono = "error"
+                }, JsonRequestBehavior.AllowGet);
             form.NombreOperarioAccion = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
             var result = _ubicacionesN.RegistrarUbicacion(form);
             string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
-            return Json(new { 
+            return Json(new
+            {
                 Titulo = tituloSweetAlert,
                 result.Mensajes,
-                Icono = result.IconoSweetAlert });
+                Icono = result.IconoSweetAlert
+            });
         }
         public JsonResult EliminarUbicacionReserva(int id)
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
-                return Json(new { Titulo = "No se pudo completar la acción", 
-                    Mensajes  = "Inicia sesión nuevamente para continuar", 
-                    Icono = "error" });
+                return Json(new
+                {
+                    Titulo = "No se pudo completar la acción",
+                    Mensajes = "Inicia sesión nuevamente para continuar",
+                    Icono = "error"
+                }, JsonRequestBehavior.AllowGet);
             var result = _ubicacionesN.EliminarUbicacion(id);
             string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
             return Json(new
@@ -208,7 +230,7 @@ namespace Capa_Usuario.Controllers
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
-                return Json(new { Titulo = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" });
+                return Json(new { Titulo = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" }, JsonRequestBehavior.AllowGet);
             var result = _ubicacionesN.EliminarUbicacionGeneral(codigoUbicacion);
             string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
             return Json(new
@@ -222,7 +244,7 @@ namespace Capa_Usuario.Controllers
         public JsonResult BuscarSolicitudDeTraslado(int docNum)
         {
             SolicitudesTraslado_E traslado = _solicitudTrasladoN.ObtenerSolicitudDeTraslado(docNum)
-                        ?? _solicitudTrasladoHanaN.BuscarSolicitudDeTraslado(docNum) ;
+                        ?? _solicitudTrasladoHanaN.BuscarSolicitudDeTraslado(docNum);
 
             if (traslado == null)
             {
@@ -246,38 +268,36 @@ namespace Capa_Usuario.Controllers
                 }
 
                 //Asignar la ubicacion ideal segun UbicacionesLotesMaster
-
-                //foreach (var item in solicitudTraslado.Detalle)
-                //{
-                //    item.Value.UnidadAlmSugerido = _ubicacionesLotesMasterN.BuscarUnidadAlm(new UbicacionesLotesMaster_E { ItemCode = item.Value.ItemCode, ItemName = item.Value.ItemName });
-                //}
-               
-                //foreach (var item in traslado.Detalle)
-                //    {
-                //        var resultados = _ubicacionesLotesMasterN.BuscarUnidadAlm(new UbicacionesLotesMaster_E { Almacen = "RESERVA", ItemCode = item.ItemCode, BatchNum = item.BatchNum });
-                //        if (resultados != null && resultados.Count == 1) { item.UnidadAlmSugerido = resultados; }
-                //    }
-                //}
+                foreach (var item in traslado.Detalle)
+                {
+                    var resultados = _ubicacionesLotesMasterN.BuscarUnidadAlm(new UbicacionesLotesMaster_E { Almacen = "RESERVA", ItemCode = item.Value.ItemCode, BatchNum = item.Value.BatchNum });
+                    if (resultados != null && resultados.Count == 1) { item.Value.UnidadAlmSugerido = resultados.First(); }
+                }
             }
             return Json(new { traslado, transferencia });
         }
         public JsonResult BuscarUbicaciones(string almacen, string itemCode)
         {
-            var result = _ubicacionesN.BuscarUbicaciones(almacen, itemCode);
-            return Json(result);
+            var resultUbicaciones = _ubicacionesN.BuscarUbicaciones(almacen, itemCode);
+            var listaUbicacionesLote = _ubicacionesLotesN.Obtener(itemCode);
+            string resultUbicacionesLote = null;
+
+            if (listaUbicacionesLote != null && listaUbicacionesLote.Count == 1) { resultUbicacionesLote = listaUbicacionesLote.First().CodigoUbicacion; }
+
+            return Json(new { resultUbicaciones, resultUbicacionesLote });
         }
         public ActionResult SolicitudesTraslado(int idOperation = 3300)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                var resultadoAcceso = VerificarPermiso(idOperation);
-                if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
-                {
-                    ViewBag.Masters = _masterN.ListarMasters();
-                    return View();
-                }
-                else
-                {
-                    return resultadoAcceso;
-                }
+                ViewBag.Masters = _masterN.ListarMasters();
+                return View();
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
         }
         public JsonResult RegistrarTransferenciaDeStock(SolicitudesTraslado_E solicitudTraslado, TransferenciaReserva_E transferenciaPost)
         {
@@ -737,9 +757,13 @@ namespace Capa_Usuario.Controllers
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
-                return Json(new { Mensaje = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" });
+                return Json(new { Mensaje = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" }, JsonRequestBehavior.AllowGet);
 
-            List<UbicacionesLotesMaster_E> lista = _ubicacionesLotesMasterN.BuscarArticulos(new UbicacionesLotesMaster_E { ItemCode = itemCode });
+            List<UbicacionesLotesMaster_E> lista = _ubicacionesLotesMasterN.BuscarArticulos(new UbicacionesLotesMaster_E { ItemCode = itemCode })
+                .OrderBy(a => DateTime.Parse(a.InDate)) // Ordena por fecha de vencimiento (asc)
+                .ThenBy(a => DateTime.Parse(a.ExpDate)) // Luego por fecha de admisión (asc)
+                .ThenByDescending(a => a.QuantityUnidadesCajas) // Luego por cantidad en unidades (desc)
+                .ToList();
 
             switch (tipoAbastecimiento)
             {
@@ -839,7 +863,7 @@ namespace Capa_Usuario.Controllers
             }
         }
         //Listado de pendientes para apiladores con 4 posibles filtros
-        public ActionResult ListarRequerimientosReserva(string nivel = "", string posicion = "", string rackBloque = "", string itemCode = "", int idOperation=3300)
+        public ActionResult ListarRequerimientosReserva(string nivel = "", string posicion = "", string rackBloque = "", string itemCode = "", int idOperation = 3300)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)

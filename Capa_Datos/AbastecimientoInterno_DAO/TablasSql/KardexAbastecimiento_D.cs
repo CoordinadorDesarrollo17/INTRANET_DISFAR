@@ -313,8 +313,12 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                         cmd.Parameters.AddWithValue("@TipoMantenimiento", "DELETE");
                         cmd.Parameters.AddWithValue("@Tabla", "TransferenciaReserva");
                         cmd.Parameters.AddWithValue("@Referencia", docNum);
-
-                        cmd.ExecuteNonQuery();
+                        SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
+                        {
+                            Direction = ParameterDirection.Output
+                        };
+                        cmd.Parameters.Add(idGeneradoParam);
+                    cmd.ExecuteNonQuery();
 
                     mensaje = "Kardex de ingreso eliminado correctamente";
                     icono = "success";

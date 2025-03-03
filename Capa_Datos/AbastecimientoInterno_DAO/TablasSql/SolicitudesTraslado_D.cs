@@ -52,16 +52,16 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                                 if (!dr.IsDBNull(9)) { solicitud.Estado = dr.GetString(9); }
                                 solicitud.Detalle = new Dictionary<string, DetalleSolicitudesTraslado_E>();
                             }
-
-                            string itemCode = dr.IsDBNull(10) ? "" : dr.GetString(10);
-                            string batchNum = dr.IsDBNull(13) ? "" : dr.GetString(13); // Lote
-                            string uniqueKey = $"{itemCode}_{batchNum}"; // Clave única combinada
-
+                           
                             if (dr.NextResult() && solicitud != null)
                             {
                                 while (dr.Read())
                                 {
                                     var detalle = new DetalleSolicitudesTraslado_E();
+
+                                    string itemCode = dr.IsDBNull(2) ? "" : dr.GetString(2);
+                                    string batchNum = dr.IsDBNull(4) ? "" : dr.GetString(4); // Lote
+                                    string uniqueKey = $"{itemCode}_{batchNum}"; // Clave única combinada
 
                                     if (!dr.IsDBNull(0)) { detalle.Id = dr.GetInt32(0); }
                                     if (!dr.IsDBNull(1)) { detalle.SolicitudesTrasladoId = dr.GetInt32(1); }
@@ -207,7 +207,11 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
                     cmd.Parameters.AddWithValue("@TipoMantenimiento", "DELETE");
                     cmd.Parameters.AddWithValue("@DocNum", docNum);
-
+                    SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
+                    {
+                        Direction = ParameterDirection.Output
+                    };
+                    cmd.Parameters.Add(idGeneradoParam);
                     cmd.ExecuteNonQuery();
                 }
 

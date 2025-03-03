@@ -15,13 +15,18 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
         readonly Utilitarios uti = new Utilitarios();
         readonly DBHelper db = new DBHelper();
         //Operacion desde transaccion ingreso en Kardex que suma la cantidad disponible  inserta un nuevo registro de ItemCode, Almacen, CodigoUbicacion y Lote.
-        public List<UbicacionesLotes_E> Obtener(string itemCode)
+        public List<UbicacionesLotes_E> Obtener(string itemCode, string batchNum)
         {
             try
             {
                 string query = @"SELECT Id, UbicacionId, Almacen, ItemCode, ItemName, CodigoUbicacion, BatchNum, QuantityUnidadesCajas 
                          FROM UbicacionesLotes 
                          WHERE ItemCode = @ItemCode";
+
+                if (!string.IsNullOrEmpty(batchNum))
+                {
+                    query += " AND BatchNum = @BatchNum";
+                }
 
                 List<UbicacionesLotes_E> resultado = null;
 
@@ -30,10 +35,18 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     using (SqlCommand cmd = new SqlCommand(query, cn))
                     {
                         cmd.Parameters.AddWithValue("@ItemCode", itemCode);
+
+                        if (!string.IsNullOrEmpty(batchNum))
+                        {
+                            cmd.Parameters.AddWithValue("@BatchNum", batchNum);
+                        }
+                        
                         cn.Open();
 
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
+                            resultado = new List<UbicacionesLotes_E>();
+
                             while (reader.Read())
                             {
                                 var ubicacionLote = new UbicacionesLotes_E();
@@ -47,7 +60,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                                 if (!reader.IsDBNull(6)) ubicacionLote.BatchNum = reader.GetString(6);
                                 if (!reader.IsDBNull(7)) ubicacionLote.QuantityUnidadesCajas = reader.GetInt32(7);
 
-                                resultado.Add(ubicacionLote); 
+                                resultado.Add(ubicacionLote);
                             }
                         }
                     }
@@ -63,7 +76,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
         }
         public Helper_E Ingreso(DetalleTransferenciaReserva_E detalle, SqlConnection cn)
         {
-            string mensaje="", icono;
+            string mensaje = "", icono;
             int id;
 
             try
@@ -77,37 +90,37 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
 
-                        int idGenerado = 0;
-                    
-                        cmd.Parameters.Clear();
+                    int idGenerado = 0;
 
-                        cmd.Parameters.AddWithValue("@TipoMantenimiento", "INGRESO");
-                        cmd.Parameters.AddWithValue("@Almacen", "RESERVA");
-                        cmd.Parameters.AddWithValue("@ItemCode", detalle.ItemCode);
-                        cmd.Parameters.AddWithValue("@ItemName", detalle.ItemName);
-                        cmd.Parameters.AddWithValue("@CodigoUbicacion", detalle.CodigoUbicacion);
-                        cmd.Parameters.AddWithValue("@BatchNum", detalle.BatchNum);
-                        cmd.Parameters.AddWithValue("@QuantityUnidadesCajas", detalle.QuantityUnidadesCajas);
+                    cmd.Parameters.Clear();
 
-                        // Parámetro de salida
-                        SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
-                        {
-                            Direction = ParameterDirection.Output
-                        };
-                        cmd.Parameters.Add(idGeneradoParam);
+                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "INGRESO");
+                    cmd.Parameters.AddWithValue("@Almacen", "RESERVA");
+                    cmd.Parameters.AddWithValue("@ItemCode", detalle.ItemCode);
+                    cmd.Parameters.AddWithValue("@ItemName", detalle.ItemName);
+                    cmd.Parameters.AddWithValue("@CodigoUbicacion", detalle.CodigoUbicacion);
+                    cmd.Parameters.AddWithValue("@BatchNum", detalle.BatchNum);
+                    cmd.Parameters.AddWithValue("@QuantityUnidadesCajas", detalle.QuantityUnidadesCajas);
 
-                        cmd.ExecuteNonQuery();
+                    // Parámetro de salida
+                    SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
+                    {
+                        Direction = ParameterDirection.Output
+                    };
+                    cmd.Parameters.Add(idGeneradoParam);
 
-                        // Obtener el ID generado y verificar si es válido.
-                        idGenerado = idGeneradoParam.Value != DBNull.Value ? (int)idGeneradoParam.Value : 0;
+                    cmd.ExecuteNonQuery();
 
-                        if (idGenerado <= 0)
-                        {
-                            mensaje = "Ocurrió un error al registrar un ingreso en UbicacionesLotes. Comuníquese con el área de Sistemas para más información.";
-                            icono = "error";
-                            throw new Exception("Error en Ingreso.");
+                    // Obtener el ID generado y verificar si es válido.
+                    idGenerado = idGeneradoParam.Value != DBNull.Value ? (int)idGeneradoParam.Value : 0;
 
-                        }
+                    if (idGenerado <= 0)
+                    {
+                        mensaje = "Ocurrió un error al registrar un ingreso en UbicacionesLotes. Comuníquese con el área de Sistemas para más información.";
+                        icono = "error";
+                        throw new Exception("Error en Ingreso.");
+
+                    }
 
                     id = idGenerado;
                     icono = "success";
@@ -121,7 +134,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 throw new Exception("Error en Ingreso.", ex);
             }
 
-            return new Helper_E { Mensajes = new List<string> { mensaje}, IconoSweetAlert = icono, Id=id};
+            return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono, Id = id };
         }
         public Helper_E RevertirIngreso(TransferenciaReserva_E ingreso, SqlConnection cn)
         {
@@ -149,7 +162,11 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                         cmd.Parameters.AddWithValue("@CodigoUbicacion", detalle.CodigoUbicacion);
                         cmd.Parameters.AddWithValue("@BatchNum", detalle.BatchNum);
                         cmd.Parameters.AddWithValue("@QuantityUnidadesCajas", detalle.QuantityUnidadesCajas);
-
+                        SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
+                        {
+                            Direction = ParameterDirection.Output
+                        };
+                        cmd.Parameters.Add(idGeneradoParam);
                         cmd.ExecuteNonQuery();
                     }
 

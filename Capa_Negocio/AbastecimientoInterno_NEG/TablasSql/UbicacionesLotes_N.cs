@@ -14,9 +14,9 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
     public class UbicacionesLotes_N
     {
         readonly UbicacionesLotes_D datosUbicacionesL = new UbicacionesLotes_D();
-        public List<UbicacionesLotes_E> Obtener(string itemCode)
+        public List<UbicacionesLotes_E> Obtener(string itemCode, string batchNum = null)
         {
-            return datosUbicacionesL.Obtener(itemCode);
+            return datosUbicacionesL.Obtener(itemCode, batchNum);
         }
         public Helper_E Ingreso(DetalleTransferenciaReserva_E ingreso, SqlConnection cn)
         {

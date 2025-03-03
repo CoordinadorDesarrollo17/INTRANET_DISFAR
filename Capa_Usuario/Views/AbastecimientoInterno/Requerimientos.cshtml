@@ -365,7 +365,9 @@
                 focus: false
             })
 
+            document.querySelector('#cod_articulo').value = ''
             document.querySelector('#div_listadoArticulos').innerHTML = ''
+
             if (!tipoAbastecimiento) {
                 Swal.fire('Seleccione un tipo de abastecimiento.')
                 return;

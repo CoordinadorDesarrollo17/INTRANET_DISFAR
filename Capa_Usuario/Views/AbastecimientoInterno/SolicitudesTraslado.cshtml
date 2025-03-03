@@ -100,7 +100,7 @@
 
     <div class="row mb-4">
         <div class="col-lg-12">
-            <table id="tbl_detalle" class="dt-container dt-empty-footer table table-sm table-bordered table-striped table-hover font-14" width="100%">
+            <table id="tbl_detalle" class="dt-container dt-empty-footer table table-sm table-bordered font-14" width="100%">
                 <thead class="thead-cobefar">
                     <tr>
                         <th style="width: 5%;"></th>
@@ -120,7 +120,7 @@
 
     <div id="div_botones" class="row" style="display: none">
         <div class="col-lg-12">
-            <button type="button" class="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Cancelar"><i class="bi bi-x-lg"></i> Cancelar</button>
+            <button type="button" class="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Cancelar" onclick="cancelarTransferenciaTraslado()"><i class="bi bi-x-lg"></i> Cancelar</button>
             <button type="button" id="btn_transferir" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Transferir"><i class="bi bi-arrow-left-right"></i> Transferir</button>
         </div>
     </div>
@@ -275,6 +275,11 @@
 		async function buscarSolicitud() {
 			let docNum = document.querySelector('#DocNum').value.trim();
 
+			if (document.querySelectorAll('#tbl_detalle tbody') && document.querySelectorAll('#tbl_detalle tr').length > 0) {
+                $(`#tbl_detalle`).DataTable().clear().destroy();
+                document.querySelector('#tbl_detalle tbody').innerhtml = ''
+			}
+			
 			if (!docNum) {
 				Swal.fire({
 					title: "Error",
@@ -326,19 +331,18 @@
 				document.querySelector('#MotivoTraslado').value = data.traslado.MotivoTraslado || "";
 				document.querySelector('#DocDate').value = data.traslado.DocDate || "";
 
+                let traslado = organizarSolicitudDeTraslado(data.traslado.Detalle)
+
 				// Construir formulario y tabla de detalle
 				if (data.transferencia == null) {
 					construirFormCopiaSap(data.traslado);
-					let traslado = organizarSolicitudDeTraslado(data.traslado.Detalle)
 					construirDetalleSolicitudTraslado(traslado.Detalle);
 				} else {
-                    //let datos = marcarAtendidos(data.traslado, data.transferencia)
-                    let traslado = organizarSolicitudDeTraslado(data.traslado.Detalle)
                     construirDetalleTransferenciaReserva(traslado.Detalle);
 				}
 
 				document.querySelector('#div_botones').style.display = 'block'
-
+                $('#tbl_detalle').DataTable(configDataTable)
 			} catch (error) {
 				console.error("Error:", error);
 				Swal.fire({
@@ -430,13 +434,13 @@
             for (const itemCode in detalle) {
 				let key = detalle[itemCode]
 
-                tbody += `<tr data-producto="${key.ItemCode}" class="fila-detalle">
+                tbody += `<tr data-producto="${key.ItemCode}" class="fila-detalle ${key.Estado == "TRANSFERIDO" ? 'bg-secondary text-white' : ''}">
 								<td class="details-control text-center">
 									<button id="btn_chevron_${key.ItemCode}" class="btn btn-sm btn-cobefar-2"><i class="bi bi-chevron-down"></i></button>
 								</td>
 								<td class="text-center">${key.ItemCode}</td>
 								<td><span class="ps-2">${key.ItemName}<span></td>
-								<td class="text-center">${key.CantidadTotalPorSKU}</td>
+								<td class="text-center">${key.QuantityCajas}</td>
 								<td class="text-center">RESERVA</td>
 								<td class="text-center">${key.DetalleLotes.map(l => l.BatchNum).join(', ')}</td>
 								<td class="text-center">
@@ -511,15 +515,15 @@
 								</td>
 								<td class="text-center">
 									<input type="text" id="lote_quantityUnidades_${item.BatchNum}" name="transferenciaPost.Detalle[].QuantityUnidadesCajas" class="form-control text-center cls-num cls-limpiarItem_${articulo.ItemCode}"
-									data-idcantmaster="lote_cantidadMaster_${item.BatchNum}" data-idcantsaldo="lote_cantidadSaldo_${item.BatchNum}" data-cantidadtotal="${item.CantidadTotalPorSKUyLote}"
+									data-idcantmaster="lote_cantidadMaster_${item.BatchNum}" data-idcantsaldo="lote_cantidadSaldo_${item.BatchNum}" data-cantidadtotal="${item.QuantityCajas}"
 									data-idundmaster="lote_undMaster_${item.BatchNum}" oninput="calcularStockUnidades(this.value, this.dataset)" value="">
 								</td>
 								 <td scope="col" class="text-center align-middle">
-									 <select id="lote_undMaster_${item.BatchNum}" data-idundmaster="lote_undMaster_${item.BatchNum}" data-idcantmaster="lote_cantidadMaster_${item.BatchNum}" data-idcantsaldo="lote_cantidadSaldo_${item.BatchNum}" data-cantidadtotal="${item.CantidadTotalPorSKUyLote}"
+									 <select id="lote_undMaster_${item.BatchNum}" data-idundmaster="lote_undMaster_${item.BatchNum}" data-idcantmaster="lote_cantidadMaster_${item.BatchNum}" data-idcantsaldo="lote_cantidadSaldo_${item.BatchNum}" data-cantidadtotal="${item.QuantityCajas}"
 										data-idquantityunidades ="lote_quantityUnidades_${item.BatchNum}"
 										name="transferenciaPost.Detalle[].ValorUmAlm" class="form-select cls-limpiarItem_${articulo.ItemCode}" onchange="calcularCantidadMasterSaldo(this.value, this.dataset)">
 										 <option value="">Seleccione</<option>
-										${cargarOpcionesMasters(articulo.UnidadAlmSugerido)}
+										${cargarOpcionesMasters(item.UnidadAlmSugerido)}
 									 </select>
 								 </td>
 								<td scope="col" class="text-center">
@@ -574,12 +578,12 @@
 							<input type="hidden" name="transferenciaPost.Detalle[].ExpDate" value="${item.ExpDate}" />${item.ExpDate}
 						</td>
 						<td class="text-center">
-							<input type="text" id="lote_quantityUnidades_${item.BatchNum}" name="transferenciaPost.Detalle[].QuantityUnidadesCajas" class="form-control text-center cls-num cls-limpiarItem_${articulo.ItemCode}" value="${item.CantidadTotalPorSKUyLote}"
-							data-idcantmaster="lote_cantidadMaster_${item.BatchNum}" data-idcantsaldo="lote_cantidadSaldo_${item.BatchNum}" data-cantidadtotal="${item.CantidadTotalPorSKUyLote}"
+							<input type="text" id="lote_quantityUnidades_${item.BatchNum}" name="transferenciaPost.Detalle[].QuantityUnidadesCajas" class="form-control text-center cls-num cls-limpiarItem_${articulo.ItemCode}" value="${item.QuantityCajas}"
+							data-idcantmaster="lote_cantidadMaster_${item.BatchNum}" data-idcantsaldo="lote_cantidadSaldo_${item.BatchNum}" data-cantidadtotal="${item.QuantityCajas}"
 							data-idundmaster="lote_undMaster_${item.BatchNum}" oninput="calcularStockUnidades(this.value, this.dataset)">
 						</td>
 						 <td scope="col" class="text-center align-middle">
-							 <select id="lote_undMaster_${item.BatchNum}" data-idundmaster="lote_undMaster_${item.BatchNum}" data-idcantmaster="lote_cantidadMaster_${item.BatchNum}" data-idcantsaldo="lote_cantidadSaldo_${item.BatchNum}" data-cantidadtotal="${item.CantidadTotalPorSKUyLote}"
+							 <select id="lote_undMaster_${item.BatchNum}" data-idundmaster="lote_undMaster_${item.BatchNum}" data-idcantmaster="lote_cantidadMaster_${item.BatchNum}" data-idcantsaldo="lote_cantidadSaldo_${item.BatchNum}" data-cantidadtotal="${item.QuantityCajas}"
 								data-idquantityunidades ="lote_quantityUnidades_${item.BatchNum}"
 								name="transferenciaPost.Detalle[].ValorUmAlm" class="form-select cls-limpiarItem_${articulo.ItemCode}" onchange="calcularCantidadMasterSaldo(this.value, this.dataset)">
 								 <option value="">Seleccione</<option>
@@ -673,7 +677,8 @@
                         ItemCode: itemCode,
                         ItemName: item.ItemName || "",
                         QuantityCajas: 0,
-                        Estado: item.Estado,
+						Estado: item.Estado,
+                        UnidadAlmSugerido: item.UnidadAlmSugerido,
                         DetalleLotes: []
                     };
 				}
@@ -689,34 +694,6 @@
                     ExpDate: item.ExpDate || ""
 				});
 			}
-
-    //        datos.forEach(row => {
-    //            let itemCode = row.ItemCode || "";
-
-    //            // Si el ItemCode no existe en el diccionario, se inicializa
-    //            if (!solicitud.Detalle[itemCode]) {
-    //                solicitud.Detalle[itemCode] = {
-    //                    AlmacenOrigen: row.FromWhsCode || "",
-    //                    AlmacenDestino: row.ToWhsCode || "",
-    //                    ItemCode: itemCode,
-    //                    ItemName: row.ItemName || "",
-				//		CantidadTotalPorSKU: 0,
-				//		Estado: row.Estado,
-    //                    DetalleLotes: []
-    //                };
-    //            }
-
-    //            // Acumular la cantidad total de cajas para el ItemCode
-				//solicitud.Detalle[itemCode].CantidadTotalPorSKU += row.QuantityCajas || 0;
-
-    //            // Agregar el detalle del lote al ItemCode correspondiente
-    //            solicitud.Detalle[itemCode].DetalleLotes.push({
-    //                BatchNum: row.BatchNum || "",
-    //                CantidadTotalPorSKUyLote: row.QuantityCajas || 0,
-    //                InDate: row.InDate || "",
-    //                ExpDate: row.ExpDate || ""
-    //            });
-    //        });
 
             return solicitud;
         }
@@ -741,12 +718,11 @@
 				const data = await response.json();
 
 				let ubicaciones = '<option value="">Seleccione</<option>'
-				data.forEach((ubicacion, index) => {
-					ubicaciones += `<option value="${ubicacion}">${ubicacion}</option>`
+                data.resultUbicaciones.forEach((ubicacion, index) => {
+                    ubicaciones += `<option value="${ubicacion}" ${ubicacion === data.resultUbicacionesLote ? 'selected' : ''}>${ubicacion}</option>`
 				})
 
 				document.querySelector(`#${idUbicacion}`).innerHTML = ubicaciones
-				//console.log("ubicaciones: "+ data)
 			} catch (error) {
 				console.error('Error:', error);
 			}
@@ -864,6 +840,48 @@
                     $(this).attr("onfocus", updatedOnfocus);
                 }
             });
+		}
+
+        async function cancelarTransferenciaTraslado() {
+            const docNum = document.querySelector('#DocNum').value || ''
+
+            //console.log(payload)
+            //return;
+
+            try {
+                const response = await fetch("/AbastecimientoInterno/CancelarTransferenciaYTraslado", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+					body: JSON.stringify({ docNum })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error en la solicitud: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                Swal.fire({
+                    title: data.Titulo,
+                    html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                        ? data.Mensajes.join('<br>')
+                        : data.Mensajes || "",
+                    icon: data.Icono,
+                    allowEscapeKey: false,
+                    allowOutsideClick: false,
+                    showConfirmButton: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        location.reload()
+                    }
+                });
+
+            } catch (error) {
+                console.error("Error:", error);
+            }
         }
+
     </script>
 }

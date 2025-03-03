@@ -17,6 +17,8 @@ namespace Capa_Entidad.AbastecimientoInterno_ENT.TablasSql
         public string ToWhsCode {  get; set; }              // AlmacenDestino
         public string Estado {  get; set; }
 
+        public string UnidadAlmSugerido { get; set; }
+
         public static implicit operator List<object>(DetalleSolicitudesTraslado_E v)
         {
             throw new NotImplementedException();
