@@ -204,6 +204,27 @@
 
 	});
 
+        function destruirSlimSelect(clase, eliminar = false) {
+            const elementos = document.querySelectorAll(`.${clase}`);
+
+            if (!elementos.length) {
+                //console.log(`No se encontraron elementos con la clase: "${clase}"`);
+                return;
+			}
+
+			elementos.forEach(elemento => {
+                // Destruir la instancia de Slim Select
+                if (elemento && elemento.slim) {
+                    elemento.slim.destroy(); // Destruye la instancia de Slim Select
+                }
+
+                // Eliminar el elemento del DOM
+                if (elemento && eliminar) {
+                    elemento.remove(); // O puedes usar selectElement.parentNode.removeChild(selectElement);
+                }
+			})
+    }
+
 	// Función genérica para inicializar Slim Select en todos los <select> con una clase espec�fica
 	const inicializarSlimSelectsPorClase = (clase) => {
 		const elementos = document.querySelectorAll(`.${clase}`);

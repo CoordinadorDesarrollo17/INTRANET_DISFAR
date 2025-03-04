@@ -715,7 +715,7 @@
 					throw new Error(`Error en la solicitud: ${response.statusText}`);
 				}
 
-				const data = await response.json();
+				const data = await response.json();				
 
 				let ubicaciones = '<option value="">Seleccione</<option>'
 				data.resultUbicaciones.forEach((ubicacion, index) => {

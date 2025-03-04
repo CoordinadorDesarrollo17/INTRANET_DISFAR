@@ -69,70 +69,26 @@
                 </div>
             </div>
         </div><!-- // row-->
-
-        <div class="row mb-4">
-            <div class="col-lg-12">
-                <table id="tbl_detalleRequerimiento" class="dt-container dt-empty-footer table table-sm table-bordered table-striped table-hover font-14" width="100%">
-                    <thead class="thead-cobefar">
-                        <tr>
-                            <th scope="col" class="text-center" style="width: 5%;">#</th>
-                            <th scope="col" class="text-center">Código de artículo</th>
-                            <th scope="col" class="text-center">Descripción</th>
-                            <th scope="col" class="text-center">Cantidad</th>
-                            <th scope="col" class="text-center">Ubicación PICKING</th>
-                        </tr>
-                    </thead>
-                    <tbody class="text-dark">
-                        <tr id="fila_ABCDEF_1">
-                            <td scope="col" class="text-center" style="width: 5%;">1</td>
-                            <td scope="col" class="text-center">ABCDEF <input type="hidden" name="requerimiento.Detalle[].ItemCode" data-fila="fila_ABCDEF_1" class="cls-itemCodes" value="ABCDEF" /> </td>
-                            <td scope="col" class="text-center">
-                                <input type="hidden" name="requerimiento.Detalle[].ItemName" value="Descripcion ABCDEF" />
-                                <input type="hidden" name="requerimiento.Detalle[].BatchNum" value="LoteK2107" />
-                            </td>
-                            <td scope="col" class="text-center">
-                                <input type="hidden" name="requerimiento.Detalle[].UmAlm" value="MASTERX10" />
-                                <input type="hidden" name="requerimiento.Detalle[].ValorUmAlm" value="10" />
-                                <input type="hidden" name="requerimiento.Detalle[].QuantityMaster" value="50" />
-                                <input type="hidden" name="requerimiento.Detalle[].QuantitySaldo" value="50" />
-                                <input type="hidden" name="requerimiento.Detalle[].QuantityUnidadesCajas" value="550" />
-                                550
-                            </td>
-                            <td scope="col" class="text-center">
-                                <input type="hidden" name="requerimiento.Detalle[].CodigoUbicacionOrigen" value="A-B-C-1" />
-                                <input type="hidden" name="requerimiento.Detalle[].CodigoUbicacionDestino" value="X-Y-Z-3" />
-                                CodigoUbicacionDestino
-                            </td>
-                        </tr>
-                        <tr id="fila_YYYDEF_1">
-                            <td scope="col" class="text-center" style="width: 5%;">1</td>
-                            <td scope="col" class="text-center">
-                                <input type="hidden" name="requerimiento.Detalle[].ItemCode" data-fila="fila_YYYDEF_1" class="cls-itemCodes" value="YYYDEF" />YYYDEF
-                            </td>
-                            <td scope="col" class="text-center">
-                                <input type="hidden" name="requerimiento.Detalle[].ItemName" value="Descripcion YYYDEF" />Descripción YYYDEF
-                                <input type="hidden" name="requerimiento.Detalle[].BatchNum" value="LoteM1424" />
-                            </td>
-                            <td scope="col" class="text-center">
-                                <input type="hidden" name="requerimiento.Detalle[].UmAlm" value="MASTERX20" />
-                                <input type="hidden" name="requerimiento.Detalle[].ValorUmAlm" value="20" />
-                                <input type="hidden" name="requerimiento.Detalle[].QuantityMaster" value="3" />
-                                <input type="hidden" name="requerimiento.Detalle[].QuantitySaldo" value="33" />
-                                <input type="hidden" name="requerimiento.Detalle[].QuantityUnidadesCajas" value="93" />
-                                93
-                            </td>
-                            <td scope="col" class="text-center">
-                                <input type="hidden" name="requerimiento.Detalle[].CodigoUbicacionOrigen" value="D-E-F-2" />
-                                <input type="hidden" name="requerimiento.Detalle[].CodigoUbicacionDestino" value="O-P-Q-4" />
-                                CodigoUbicacionDestino
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div><!-- // row-->
-
     </form>
+
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <table id="tbl_detalleRequerimiento" class="dt-container dt-empty-footer table table-sm table-bordered table-striped table-hover font-14" width="100%">
+                <thead class="thead-cobefar">
+                    <tr>
+                        <th scope="col" class="text-center">Código de artículo</th>
+                        <th scope="col" class="text-center">Descripción</th>
+                        <th scope="col" class="text-center">Lote</th>
+                        <th scope="col" class="text-center">Cantidad</th>
+                        <th scope="col" class="text-center">Ubicación PICKING</th>
+                    </tr>
+                </thead>
+                <tbody class="text-dark">
+                </tbody>
+            </table>
+        </div>
+    </div><!-- // row-->
+
     <div class="row">
         <div class="col-lg-12">
             <button type="button" class="btn btn-success" title="Registrar requerimiento" data-bs-toggle="tooltip" data-bs-placement="top" onclick="registrarRequerimiento()">
@@ -236,6 +192,22 @@
                      dataType: "html",
                      success: function(response) {
                          if ($.trim(response)) {
+
+                             if (response.Icono == "error") {
+                                 Swal.fire({
+                                     title: response.Titulo,
+                                     html: Array.isArray(response.Mensajes) && response.Mensajes.length > 0
+                                         ? response.Mensajes.join('<br>')
+                                         : response.Mensajes || "",
+                                     icon: response.Icono,
+                                     allowEscapeKey: false,
+                                     allowOutsideClick: false,
+                                     showConfirmButton: true
+                                 });
+
+                                 return;
+                             }
+
                              $('#div_listadoArticulos').html(response); // Cargar el contenido en el div
                               // Solo abrir si la respuesta no está vacía
                          } else {
@@ -291,15 +263,19 @@
             filasRequerimientos.forEach((fila) => {
                 let inputs = fila.querySelectorAll("input, select");
                 let detalleRequerimiento = {};
-                let camposValidos = true; // Bandera para validar los campos requeridos
 
                 inputs.forEach(input => {
                     let name = input.name.trim();
 
                     if (name.startsWith("requerimiento.Detalle[]")) {
-                        let key = name.replace("requerimiento.Detalle[].", "").trim();
-                        let value = input.value.trim(); // Aseguramos que no tenga espacios en blanco al inicio o fin
-                        detalleRequerimiento[key] = value;
+                        let key = name.replace("requerimiento.Detalle[].", "").trim()
+                        let value = input.value.trim()   // Aseguramos que no tenga espacios en blanco al inicio o fin
+
+                        if (key == 'CodigoUbicacionDestino') {
+                            detalleRequerimiento[key] = Array.from(input.selectedOptions).map(option => option.value).join(', ')
+                        } else {
+                            detalleRequerimiento[key] = value
+                        }
                     }
                 });
 
@@ -318,6 +294,9 @@
                     Detalle: detallesRequerimientos
                 }
             }
+
+            //console.log(payload)
+            //return;
 
             try {
                 const response = await fetch("/AbastecimientoInterno/RegistrarRequerimiento", {
@@ -354,7 +333,98 @@
             }
         }
 
+        async function cargarUbicaciones(almacen, data, id) {
+            let itemCode = data.itemcode
+            console.log("id: ", id)
+
+            try {
+                const response = await fetch("/AbastecimientoInterno/BuscarUbicaciones", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ almacen, itemCode }) // Enviar los datos como JSON
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error en la solicitud: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                let ubicaciones = ''
+                data.resultUbicaciones.forEach((ubicacion, index) => {
+                    ubicaciones += `<option value="${ubicacion}" ${ubicacion === data.resultUbicacionesLote ? 'selected' : ''}>${ubicacion}</option>`
+                })
+
+                document.querySelector(`#${id}`).innerHTML = ubicaciones
+                document.querySelector(`#${id}`).classList.remove('form-select');
+                document.querySelector(`#${id}`).setAttribute('multiple', 'multiple')
+                new SlimSelect({
+                    select: `#${id}`,
+                    searchingText: 'Buscar... ',
+                    onFocus: function () {
+                        console.log('El select ha recibido foco'); // Acción a realizar al recibir foco
+                        // Aquí puedes agregar más lógica si es necesario
+                    }
+                });
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
         function guardarArticulos() {
+            const tablaOrigen = document.querySelector('#tbl_listaArticulosAbastPicking tbody');
+            const tablaDestino = document.querySelector('#tbl_detalleRequerimiento tbody');
+
+            const filas = tablaOrigen.querySelectorAll('tr');
+            const arrayDeFilas = Array.from(filas).map(fila => {
+                // Selecciona todos los inputs dentro de la fila actual
+                const inputs = fila.querySelectorAll('input[data-campo]');
+
+                // Crea un objeto con el data-campo como clave y el valor del input como valor
+                const valores = Array.from(inputs).reduce((obj, input) => {
+                    const key = input.dataset.campo; // Obtiene el valor de data-campo
+                    if (key) { // Verifica que el data-campo exista
+                        obj[key] = input.value;
+                    }
+                    return obj;
+                }, {});
+
+                return valores;
+            });
+
+            let tbody = ''
+            let num = 1
+            arrayDeFilas.forEach(item => {
+                tbody += `<tr id="fila_${item.ItemCode}_${num}">
+                                        <td scope="col" class="text-center"><input type="hidden" name="requerimiento.Detalle[].ItemCode" data-fila="fila_${item.ItemCode}_${num}" class="cls-itemCodes" value="${item.ItemCode}" /> ${item.ItemCode} </td>
+                                        <td scope="col" class="text-center">
+                                            <input type="hidden" name="requerimiento.Detalle[].ItemName" value="${item.ItemName}" />${item.ItemName}
+                                        </td>
+                                        <td scope="col" class="text-center">
+                                            <input type="hidden" name="requerimiento.Detalle[].BatchNum" value="${item.BatchNum}" />${item.BatchNum}
+                                        </td>
+                                        <td scope="col" class="text-center">
+                                            <input type="hidden" name="requerimiento.Detalle[].UmAlm" value="${item.UmAlm}" />
+                                            <input type="hidden" name="requerimiento.Detalle[].ValorUmAlm" value="${item.ValorUmAlm}" />
+                                            <input type="hidden" name="requerimiento.Detalle[].QuantityMaster" value="${item.StockMaster}" />
+                                            <input type="hidden" name="requerimiento.Detalle[].QuantitySaldo" value="${item.StockSaldo}" />
+                                            <input type="hidden" name="requerimiento.Detalle[].QuantityUnidadesCajas" value="${item.StockSaliendo}" />${item.StockSaliendo}
+                                        </td>
+                                        <td scope="col" class="text-center">
+                                            <input type="hidden" name="requerimiento.Detalle[].CodigoUbicacionOrigen" value="${item.CodigoUbicacionOrigen}" />
+                                            <select id="CodigoUbicacionDestino_${item.ItemCode}_${item.BatchNum}_${num}" name="requerimiento.Detalle[].CodigoUbicacionDestino"  class="form-select cls-select"
+                                                data-batchnum="${item.BatchNum}" data-itemcode="${item.ItemCode}" onfocus="cargarUbicaciones('RESERVA', this.dataset, this.id)"  />
+                                            </select>
+                                        </td>
+                                    </tr>`
+
+                ++num
+            })
+
+            tablaDestino.innerHTML = tbody
+            console.log('Filas movidas con éxito');
 
         }
 
@@ -382,36 +452,51 @@
 
         function borrarItemDetalle(e) {
             e.preventDefault()
-            const borrarItemCode = document.querySelector('#borrar_codigo_articulo').value.trim() || ''
-            let items = document.querySelectorAll('.cls-itemCodes')
-            let itemEncontrado = false
 
-            if (items.length > 0) {
-                items.forEach(item => {
-                    if(item.value.trim() === borrarItemCode) { // Compara sin espacios extras
-                        let fila = document.getElementById(item.dataset.fila); // Más eficiente que `querySelector`
+            Swal.fire({
+                title: '¿Estás seguro(a) de borrar?',
+                text: "Se borrarán del detalle todos los ítems con el mismo código de artículo ingresado.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '<i class="bi bi-check-lg"></i> Si, continuar',
+                cancelButtonText: '<i class="bi bi-x-lg"></i> Cancelar'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
 
-                        if (fila) {
-                            fila.remove(); // Eliminar la fila
-                            console.log(`Fila ${item.dataset.fila} eliminada.`);
-                            itemEncontrado = true; // Se encontró y eliminó
-                        } else {
-                            console.warn(`No se encontró la fila con ID: ${item.dataset.fila}`);
+                    const borrarItemCode = document.querySelector('#borrar_codigo_articulo').value.trim() || ''
+                    let items = document.querySelectorAll('.cls-itemCodes')
+                    let itemEncontrado = false
+
+                    if (items.length > 0) {
+                        items.forEach(item => {
+                            if (item.value.trim() === borrarItemCode) { // Compara sin espacios extras
+                                let fila = document.getElementById(item.dataset.fila); // Más eficiente que `querySelector`
+
+                                if (fila) {
+                                    fila.remove(); // Eliminar la fila
+                                    console.log(`Fila ${item.dataset.fila} eliminada.`);
+                                    itemEncontrado = true; // Se encontró y eliminó
+                                } else {
+                                    console.warn(`No se encontró la fila con ID: ${item.dataset.fila}`);
+                                }
+                            }
+                        })
+
+                        if (!itemEncontrado) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Código no encontrado',
+                                text: 'El código de artículo ingresado no se encuentra en el detalle.',
+                                allowEscapeKey: false,
+                                allowOutsideClick: false,
+                            });
                         }
                     }
-                })
 
-                if (!itemEncontrado) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Código no encontrado',
-                        text: 'El código de artículo ingresado no se encuentra en el detalle.',
-                        allowEscapeKey: false,
-                        allowOutsideClick: false,
-                    });
                 }
-            }
-
+            });
         }
     </script>
 }
