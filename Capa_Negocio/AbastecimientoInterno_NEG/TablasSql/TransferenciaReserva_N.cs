@@ -44,7 +44,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
 
             foreach (var item in cantidadTransferencia)
             {
-                // Si las cantidades no coinciden, retorna null
+                // 3. Si las cantidades no coinciden, retorna null
                 if (!cantidadTraslado.ContainsKey(item.Key) || cantidadTraslado[item.Key] != item.Value)
                 {
                     return new Helper_E

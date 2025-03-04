@@ -170,7 +170,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
                     SqlDataReader dr = cmd.ExecuteReader();
 
-                    if (dr.Read())
+                    if (dr.HasRows)
                     {
                         lista = new List<DetalleRequerimientos_E>();
                         while (dr.Read())
@@ -196,8 +196,6 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                             lista.Add(detalle);
                         }
                     }
-
-                    dr.Close();
                 }
                 catch (Exception ex)
                 {
@@ -207,6 +205,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             return lista;
         }
+
         public Requerimientos_E RegistrarRequerimiento(Requerimientos_E requerimiento, SqlConnection cn)
         {
             if (cn.State != ConnectionState.Open)
