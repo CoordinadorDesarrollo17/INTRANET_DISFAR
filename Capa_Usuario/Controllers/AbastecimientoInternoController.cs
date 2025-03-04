@@ -13,6 +13,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Transactions;
+using System.util;
 using System.Web.Mvc;
 namespace Capa_Usuario.Controllers
 {
@@ -136,7 +137,7 @@ namespace Capa_Usuario.Controllers
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
-                return Json(new { Titulo = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" }, JsonRequestBehavior.AllowGet);
+                return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
             form.NombreOperarioAccion = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
             var result = _stockMinProdN.ActualizarStocksMinimos(form);
             string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
@@ -312,7 +313,7 @@ namespace Capa_Usuario.Controllers
                     _lotesRegistroSanitarioN.ValidarLotesRegistroSanitario(solicitudTraslado.Detalle);
 
                     // Importa a las tablas internas solo si no existe previamente el DocNum
-                    var traslado = (solicitudTraslado == null) ? _solicitudTrasladoN.ImportarSolicitudDeTraslado(solicitudTraslado) : solicitudTraslado;
+                    var traslado = (solicitudTraslado == null || solicitudTraslado.Id == 0) ? _solicitudTrasladoN.ImportarSolicitudDeTraslado(solicitudTraslado) : solicitudTraslado;
 
                     // Validar si la importación fue exitosa
                     if (traslado == null || traslado.Id == 0)
@@ -570,7 +571,7 @@ namespace Capa_Usuario.Controllers
             }
 
         }
-        public JsonResult RevertirTransferenciaReservaPorItem(int docNum, int[] ids) //recibe el docnum de la solicitud de traslado y el array de Ids del detalle transferencia reserva que son de un solo ItemCode
+        public JsonResult RevertirTransferenciaReservaPorItem(int docNum, string itemCode) //recibe el docnum de la solicitud de traslado y el ItemCode a revertir
         {
             try
             {
@@ -582,23 +583,21 @@ namespace Capa_Usuario.Controllers
                     {
                         return Json(new
                         {
-                            Mensaje = "No se pudo completar la acción",
-                            Comentario = new List<string> { "No se encontró transferencia de reserva relacionada." },
+                            Titulo = "No se pudo completar la acción",
+                            Mensajes = new List<string> { "No se encontró transferencia de reserva relacionada." },
                             Icono = "error"
                         });
                     }
 
-                    //Identificar solo los id's segun el array, reduciendo mi Detalle
+                    // Identificar solo el itemcode, reduciendo mi Detalle
                     if (transferenciaGet.Detalle != null)
                     {
-                        transferenciaGet.Detalle = transferenciaGet.Detalle.Where(x => ids.Contains(x.Id)).ToList();
+                        transferenciaGet.Detalle = transferenciaGet.Detalle.Where(x => x.ItemCode == itemCode).ToList();
                     }
 
-                    //Validar que los ids en cuanto a la suma de QuantityUnidadesCajas es igual a Quantity de DetSolicitudDeTraslado respecto a ese ItemCode
+                    // Validar que los ids en cuanto a la suma de QuantityUnidadesCajas es igual a Quantity de DetSolicitudDeTraslado respecto a ese ItemCode
                     if (traslado.Detalle != null && transferenciaGet.Detalle != null)
                     {
-                        var itemCode = transferenciaGet.Detalle[0].ItemCode;
-
                         traslado.Detalle = traslado.Detalle
                         .Where(kv => kv.Value.ItemCode == itemCode)
                         .ToDictionary(kv => kv.Key, kv => kv.Value);
@@ -607,7 +606,7 @@ namespace Capa_Usuario.Controllers
                         var primerDetalle = traslado.Detalle.First().Value;
 
                         //Si las cantidades no coinciden quiere decir que no se ha pasado el grupo completo de los ids correspondientes a un ItemCode en la solicitud de traslado, muestra error
-                        if (primerDetalle.QuantityCajas != transferenciaGet.Detalle.Sum(x => x.QuantityUnidadesCajas))
+                        if (primerDetalle.QuantityCajas != transferenciaGet.Detalle.Where(x => x.ItemCode == itemCode).Sum(x => x.QuantityUnidadesCajas))
                         {
                             return Json(new
                             {
@@ -638,6 +637,7 @@ namespace Capa_Usuario.Controllers
                                         Icono = resultUbicacionesLotesMaster.IconoSweetAlert
                                     });
                                 }
+
                                 // Restar y/o eliminar Quantity en Cajas en la tabla UbicacionesLotes
                                 var resultUbicacionesLotes = _ubicacionesLotesN.RevertirIngreso(transferenciaGet, cn);
                                 if (resultUbicacionesLotes.IconoSweetAlert.Equals("error"))
@@ -649,6 +649,7 @@ namespace Capa_Usuario.Controllers
                                         Icono = resultUbicacionesLotes.IconoSweetAlert
                                     });
                                 }
+
                                 // Eliminar la operación de ingreso en KardexAbastecimiento que pertenece a dicho ItemCode - Los datos a eliminar son los del detalle en transferencia
                                 var resultKardex = _kardexAbastecimientoN.EliminarPorItemCodeTransaccionIngresoKardex(docNum, transferenciaGet.Detalle[0].ItemCode, cn);
                                 if (resultKardex.IconoSweetAlert.Equals("error"))
@@ -662,7 +663,7 @@ namespace Capa_Usuario.Controllers
                                 }
 
                                 //Eliminar los items de Detalle de Transferencia de Reserva 'REVERT' que sean del ItemCode
-                                var resultTransferencia = _transferenciaReservaN.DeleteDetalleItemTransferenciaReserva(transferenciaGet.Detalle, cn);
+                                var resultTransferencia = _transferenciaReservaN.DeleteDetalleItemTransferenciaReserva(transferenciaGet.Detalle, primerDetalle, cn);
                                 if (resultTransferencia.IconoSweetAlert.Equals("error"))
                                 {
                                     return Json(new
@@ -682,36 +683,50 @@ namespace Capa_Usuario.Controllers
                         var transferenciaPostReversion = _transferenciaReservaN.ObtenerTransferenciaReserva(docNum);
                         if (transferenciaPostReversion != null && transferenciaPostReversion.Detalle.Count() == 0)
                         {
-                            //Eliminar la transferencia 
-                            var resultEliminarTransferencia = _transferenciaReservaN.DeleteTransferenciaReserva(docNum, null);
-                            if (resultEliminarTransferencia.IconoSweetAlert.Equals("error"))
+                            using (var scope = new TransactionScope(TransactionScopeOption.Required,
+                                 new TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted },
+                                 TransactionScopeAsyncFlowOption.Enabled))
                             {
-                                return Json(new
+                                Utilitarios uti = new Utilitarios();
+                                using (SqlConnection cn = new SqlConnection(uti.cadSql2))
                                 {
-                                    Titulo = "No se pudo completar la acción",
-                                    resultEliminarTransferencia.Mensajes,
-                                    Icono = resultEliminarTransferencia.IconoSweetAlert
-                                });
-                            }
+                                    cn.Open();
 
-                            //Luego Eliminar Detalle y Cabecera de Solicitud de Traslado solo si la transferencia se quedo sin elementos en su detalle, genera una nueva connection
-                            var resultSolicitudTraslado = _solicitudTrasladoN.DeleteSolicitudDeTraslado(docNum, null);
-                            if (resultSolicitudTraslado.IconoSweetAlert.Equals("error"))
-                            {
-                                return Json(new
-                                {
-                                    Titulo = "No se pudo completar la acción",
-                                    resultSolicitudTraslado.Mensajes,
-                                    Icono = resultSolicitudTraslado.IconoSweetAlert
-                                });
+                                    //Eliminar la transferencia 
+                                    var resultEliminarTransferencia = _transferenciaReservaN.DeleteTransferenciaReserva(docNum, cn);
+                                    if (resultEliminarTransferencia.IconoSweetAlert.Equals("error"))
+                                    {
+                                        return Json(new
+                                        {
+                                            Titulo = "No se pudo completar la acción",
+                                            resultEliminarTransferencia.Mensajes,
+                                            Icono = resultEliminarTransferencia.IconoSweetAlert
+                                        });
+                                    }
+
+                                    //Luego Eliminar Detalle y Cabecera de Solicitud de Traslado solo si la transferencia se quedo sin elementos en su detalle, genera una nueva connection
+                                    var resultSolicitudTraslado = _solicitudTrasladoN.DeleteSolicitudDeTraslado(docNum, cn);
+                                    if (resultSolicitudTraslado.IconoSweetAlert.Equals("error"))
+                                    {
+                                        return Json(new
+                                        {
+                                            Titulo = "No se pudo completar la acción",
+                                            resultSolicitudTraslado.Mensajes,
+                                            Icono = resultSolicitudTraslado.IconoSweetAlert
+                                        });
+                                    }
+
+                                    scope.Complete();
+                                }
                             }
-                        }
+                        }   
+
                     }
 
                     return Json(new
                     {
-                        Mensaje = "Acción completada exitosamente",
-                        Comentario = new List<string> { "Se canceló la Transferencia Reserva y Solicitud de Traslado correctamente." },
+                        Titulo = "Acción completada exitosamente",
+                        Mensajes = new List<string> { "Se canceló la Transferencia Reserva y Solicitud de Traslado correctamente." },
                         Icono = "success"
                     });
                 }
@@ -719,8 +734,8 @@ namespace Capa_Usuario.Controllers
                 {
                     return Json(new
                     {
-                        Mensaje = "Error en la operación",
-                        Comentario = new List<string> { "El docNum es invalido." },
+                        Titulo = "Error en la operación",
+                        Mensajes = new List<string> { "El docNum es invalido." },
                         Icono = "error"
                     });
                 }
@@ -729,8 +744,8 @@ namespace Capa_Usuario.Controllers
             {
                 return Json(new
                 {
-                    Mensaje = "Error en la operación",
-                    Comentario = new List<string> { ex.Message },
+                    Titulo = "Error en la operación",
+                    Mensajes = new List<string> { ex.Message },
                     Icono = "error"
                 });
             }
@@ -1064,8 +1079,8 @@ namespace Capa_Usuario.Controllers
             {
                 return Json(new
                 {
-                    Mensaje = "Error en la operación",
-                    Comentario = new List<string> { ex.Message },
+                    Titulo = "Error en la operación",
+                    Mensajes = new List<string> { ex.Message },
                     Icono = "error"
                 });
             }
@@ -1093,15 +1108,15 @@ namespace Capa_Usuario.Controllers
             {
                 return Json(new
                 {
-                    Mensaje = "Error en la operación",
-                    Comentario = new List<string> { "Los datos enviados son inválidos." },
+                    Titulo = "Error en la operación",
+                    Mensajes = new List<string> { "Los datos enviados son inválidos." },
                     Icono = "error"
                 });
             }
             return Json(new
             {
-                Mensaje = "Acción completada exitosamente",
-                Comentario = new List<string> { Convert.ToString(cantidadSolicitada) },
+                Titulo = "Acción completada exitosamente",
+                Mensajes = new List<string> { Convert.ToString(cantidadSolicitada) },
                 Icono = "success"
             });
         }

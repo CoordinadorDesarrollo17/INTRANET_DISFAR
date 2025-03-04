@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data.SqlClient;
 using System.Data;
+using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 {
@@ -207,7 +208,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
         }
-        public Helper_E DeleteDetalleItemTransferenciaReserva(List<DetalleTransferenciaReserva_E> ids, SqlConnection cn)
+        public Helper_E DeleteDetalleItemTransferenciaReserva(List<DetalleTransferenciaReserva_E> detTransferenciaReserva, DetalleSolicitudesTraslado_E detSolicitudTraslado, SqlConnection cn)
         {
             string mensaje, icono;
             //generar una variable string grupoIds concatenando los valores de Id de ids separados por una coma
@@ -218,13 +219,25 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     cn.Open();
                 }
 
+                List<string> ids = new List<string>();
+
+                foreach (var item in detTransferenciaReserva)
+                {
+                        ids.Add(item.Id.ToString());
+                }
+
                 using (SqlCommand cmd = new SqlCommand("sp_MantenimientoTransferenciaReserva", cn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
 
-                    // Parámetros extraidos de la cabecera 
                     cmd.Parameters.AddWithValue("@TipoMantenimiento", "REVERT");
-                    cmd.Parameters.AddWithValue("@GrupoIds", string.Join(",", ids.Select(x => x.Id)));
+                    cmd.Parameters.AddWithValue("@GrupoIds", string.Join(",", ids));
+                    cmd.Parameters.AddWithValue("@DetalleSolicitudesTrasladoId", detSolicitudTraslado.Id);
+                    SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
+                    {
+                        Direction = ParameterDirection.Output
+                    };
+                    cmd.Parameters.Add(idGeneradoParam);
 
                     cmd.ExecuteNonQuery();
 

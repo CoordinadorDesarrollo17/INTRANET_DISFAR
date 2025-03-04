@@ -28,7 +28,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 {
                     cn.Open();
                 }
-               
+
                 using (SqlCommand cmd = new SqlCommand("sp_MantenimientoKardexAbastecimiento ", cn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
@@ -36,8 +36,8 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     int idGenerado = 0;
                     foreach (var detalle in ingreso.Detalle)
                     {
-                        cmd.Parameters.Clear(); 
-                        
+                        cmd.Parameters.Clear();
+
                         // Parámetros extraidos de la cabecera 
                         cmd.Parameters.AddWithValue("@TipoMantenimiento", "INSERT");
                         cmd.Parameters.AddWithValue("@RucProveedor", ingreso.CardCode);
@@ -90,7 +90,8 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             return new Helper_E
             {
-                Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono 
+                Mensajes = new List<string> { mensaje },
+                IconoSweetAlert = icono
             };
         }
         public Helper_E ValidarTransaccionImputadoKardex(Requerimientos_E imputado, SqlConnection cn)
@@ -222,7 +223,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
             }
 
             return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
-        }   
+        }
         public Helper_E InsertarTransaccionSalidaKardex(string itemCode, string itemName, int cantidad, string operarioRegistra, int requerimientoId, SqlConnection cn)
         {
             string mensaje, icono;
@@ -293,7 +294,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
         }
-        public Helper_E EliminarTotalTransaccionesIngresoKardex(int docNum,  SqlConnection cn)
+        public Helper_E EliminarTotalTransaccionesIngresoKardex(int docNum, SqlConnection cn)
         {
             string mensaje, icono;
 
@@ -309,15 +310,15 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
 
-                        // Parámetros extraidos de la cabecera 
-                        cmd.Parameters.AddWithValue("@TipoMantenimiento", "DELETE");
-                        cmd.Parameters.AddWithValue("@Tabla", "TransferenciaReserva");
-                        cmd.Parameters.AddWithValue("@Referencia", docNum);
-                        SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
-                        {
-                            Direction = ParameterDirection.Output
-                        };
-                        cmd.Parameters.Add(idGeneradoParam);
+                    // Parámetros extraidos de la cabecera 
+                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "DELETE");
+                    cmd.Parameters.AddWithValue("@Tabla", "TransferenciaReserva");
+                    cmd.Parameters.AddWithValue("@Referencia", docNum);
+                    SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
+                    {
+                        Direction = ParameterDirection.Output
+                    };
+                    cmd.Parameters.Add(idGeneradoParam);
                     cmd.ExecuteNonQuery();
 
                     mensaje = "Kardex de ingreso eliminado correctamente";
@@ -355,6 +356,11 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     cmd.Parameters.AddWithValue("@Tabla", "TransferenciaReserva");
                     cmd.Parameters.AddWithValue("@Referencia", docNum);
                     cmd.Parameters.AddWithValue("@ItemCode", itemCode);
+                    SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
+                    {
+                        Direction = ParameterDirection.Output
+                    };
+                    cmd.Parameters.Add(idGeneradoParam);
 
                     cmd.ExecuteNonQuery();
 

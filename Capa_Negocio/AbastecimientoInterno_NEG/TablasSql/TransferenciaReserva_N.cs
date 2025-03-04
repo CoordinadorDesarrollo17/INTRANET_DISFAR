@@ -27,8 +27,6 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
                             t.Id == 0)
                 .ToList();
 
-            //Validar si el SKU ha sido transferido en su totalidad segun la cantidad que figure en la solicitud de traslado:
-
             //1. Obtiene la solicitud de traslado completa
             var trasladoObtenido=_datosTraslado.ObtenerSolicitudDeTraslado(transferencia.SolicitudTrasladoDocNum);
 
@@ -66,9 +64,9 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         {
             return _datosTransferencia.DeleteTransferenciaReserva(docNum, cn);
         }
-        public Helper_E DeleteDetalleItemTransferenciaReserva(List<DetalleTransferenciaReserva_E> ids , SqlConnection cn)
+        public Helper_E DeleteDetalleItemTransferenciaReserva(List<DetalleTransferenciaReserva_E> ids , DetalleSolicitudesTraslado_E detalleTraslado, SqlConnection cn)
         {
-            return _datosTransferencia.DeleteDetalleItemTransferenciaReserva(ids, cn);
+            return _datosTransferencia.DeleteDetalleItemTransferenciaReserva(ids, detalleTraslado, cn);
         }
     }
  }
