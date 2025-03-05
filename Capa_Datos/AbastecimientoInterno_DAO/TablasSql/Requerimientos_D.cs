@@ -28,7 +28,11 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@TipoMantenimiento", "GET");
                     cmd.Parameters.AddWithValue("@Id", id);
-
+                    var outputId = new SqlParameter("@IdGenerado", SqlDbType.Int)
+                    {
+                        Direction = ParameterDirection.Output
+                    };
+                    cmd.Parameters.Add(outputId);
                     SqlDataReader dr = cmd.ExecuteReader();
 
                     if (dr.Read())
@@ -123,7 +127,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             try
             {
-                using (SqlConnection cn = new SqlConnection())
+                using (SqlConnection cn = new SqlConnection(uti.cadSql2))
                 {
                     cn.Open();
                     using (SqlCommand cmd = new SqlCommand("sp_MantenimientoRequerimiento", cn))
@@ -132,7 +136,11 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
                         cmd.Parameters.AddWithValue("@TipoMantenimiento", "ATD_PICKING");
                         cmd.Parameters.AddWithValue("@DetalleId", detalleId);
-
+                        SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
+                        {
+                            Direction = ParameterDirection.Output
+                        };
+                        cmd.Parameters.Add(idGeneradoParam);
                         cmd.ExecuteNonQuery();
 
                         mensaje = "Detalle requerimiento AtendidoPicking actualizado";

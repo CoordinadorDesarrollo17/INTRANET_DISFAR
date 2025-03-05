@@ -13,7 +13,54 @@
     .subtable {
         margin-left: 50px;
     }
+
+    @@media screen and (max-width: 768px) {
+        header {
+            display: none;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            display: block;
+        }
+
+        table {
+            width: 100%;
+        }
+
+        th, td {
+            white-space: nowrap;
+        }
+
+        .modal-body form .form-select {
+            width: 100%;
+        }
+    }
+
+    @@media screen and (max-width: 576px) {
+        .btn {
+            font-size: 14px;
+            padding: 8px;
+        }
+
+            .btn i {
+                font-size: 16px;
+            }
+
+        .cd-breadcrumb {
+            font-size: 12px;
+        }
+
+        .titulo-seccion {
+            font-size: 18px;
+        }
+
+        .modal-dialog {
+            max-width: 90%;
+        }
+    }
 </style>
+
 
 <div class="pt-3">
     <nav>
@@ -31,16 +78,22 @@
 
 <div class="bg-white px-3 py-3 align-items-center">
     <div class="row mb-4">
+        <div class="d-flex justify-content-end">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#filterModal">
+                <i class="bi bi-filter-circle"></i> Filtrar
+            </button>
+        </div>
         <div class="col-lg-12">
-            <table id="tbl_listaDetRequerimientoPicking" class="dt-container dt-empty-footer table table-sm table-hover font-14" width="100%">
+            <table id="tbl_listaDetRequerimientoPicking" class="dt-container dt-empty-footer table table-sm table-hover font-14 table-responsive" width="100%">
                 <thead class="thead-cobefar">
                     <tr>
-                        <th style="width: 5%;"></th>
                         <th scope="col" class="text-center">Código de artículo</th>
                         <th scope="col" class="text-center">Descripción</th>
+                        <th scope="col" class="text-center">Lote</th>
                         <th scope="col" class="text-center">Ubicacion</th>
-                        <th scope="col" class="text-center">Stock Mínimo Abastecimiento</th>
-                        <th scope="col" class="text-center">Stock Mínimo Venta</th>
+                        <th scope="col" class="text-center">Cajas Master</th>
+                        <th scope="col" class="text-center">Saldos</th>
+                        <th scope="col" class="text-center">Cantidad Total</th>
                         <th scope="col" class="text-center"></th>
                     </tr>
                 </thead>
@@ -48,12 +101,17 @@
                     @foreach (var item in Model)
                     {
                         <tr data-producto="@item.Id">
-                            <td class="details-control"><button class="btn btn-sm btn-cobefar-2"><i class="bi bi-chevron-down"></i></button></td>
                             <td class="text-center align-middle">@item.ItemCode</td>
                             <td class="text-center align-middle">@item.ItemName</td>
-                            <td class="text-center align-middle">@item.CantidadUbicaciones</td>
+                            <td class="text-center align-middle">@item.BatchNum</td>
                             <td class="text-center align-middle">
-                                <button type="button" class="btn btn-success" title="Actualizar Stocks" onclick='atenderPicking({ Id: "@item.Id", ItemCode: "@item.ItemCode", Cantidad: "@item.CantidadUbicaciones" })'><i class="bi bi-arrow-clockwise"></i></button>
+                                @Html.Raw(item.CodigoUbicacionDestino.Replace(",", ",<br>"))
+                            </td>
+                            <td class="text-center align-middle">@item.QuantityMaster</td>
+                            <td class="text-center align-middle">@item.QuantitySaldo</td>
+                            <td class="text-center align-middle">@item.QuantityUnidadesCajas</td>
+                            <td class="text-center align-middle">
+                                <button type="button" class="btn btn-success" title="Posicionar SKU" data-bs-toggle="tooltip" data-bs-placement="top" onclick="atenderPicking(@item.Id,@item.RequerimientoId,'@item.ItemCode','@item.ItemName')"><i class="bi bi-cart-check"></i></button>
                             </td>
                         </tr>
                     }
@@ -63,14 +121,54 @@
         </div>
     </div>
 </div>
+<!-- Modal de Filtros -->
+<div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-headerModals">
+                <h5 class="modal-title text-light" id="filterModalLabel">Filtrar Requerimientos</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="filterForm">
+                    <div class="mb-3">
+                        <div class="mb-3">
+                            <label for="itemCode" class="form-label">Codigo de Articulo</label>
+                            <input class="form-control border-success" id="itemCode" value="" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="itemName" class="form-label">Descripción</label>
+                            <input class="form-control border-success" id="itemName" value="" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="batchNum" class="form-label">Lote</label>
+                            <input class="form-control border-success" id="batchNum" value="" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="codigoUbicacionDestino" class="form-label">Codigo de Ubicacion</label>
+                            <input class="form-control border-success" id="codigoUbicacionDestino" value="" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" onclick="aplicarFiltro()">Aplicar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        inicializarDataTable('tbl_listaDetRequerimientoPicking', 25)
+        if (!$.fn.DataTable.isDataTable('tbl_listaDetRequerimientoPicking')) {
+            inicializarDataTable('tbl_listaDetRequerimientoPicking', 100);
+            aplicarFiltro();
+        }
     });
 
-    async function atenderPicking(obj) {
-        if (!obj || !obj.Id) {
+    async function atenderPicking(id, requerimientoId, itemCode, itemName) {
+        if (!id) {
             console.log('Error: El ID no se encontró.');
             return;
         }
@@ -88,15 +186,16 @@
                 try {
                     const response = await fetch("/AbastecimientoInterno/AtenderPickingRequerimiento", {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ obj })
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            id,
+                            requerimientoId,
+                            itemCode,
+                            itemName
+                        })
                     });
 
-                    if (!response.ok) {
-                        throw new Error(`Error en la solicitud: ${response.statusText}`);
-                    }
+                    if (!response.ok) throw new Error(`Error en la solicitud: ${response.statusText}`);
 
                     const data = await response.json();
 
@@ -110,10 +209,10 @@
                         allowOutsideClick: false,
                         showConfirmButton: true
                     }).then((result) => {
-                        if (result.isConfirmed && data.Icono == 'success') {
-                            window.location.reload()
+                        if (result.isConfirmed && data.Icono === 'success') {
+                            window.location.reload();
                         }
-                    })
+                    });
 
                 } catch (error) {
                     console.error('Error:', error);
@@ -122,4 +221,42 @@
         });
     }
 
+    function aplicarFiltro() {
+        const form = document.getElementById('filterForm');
+        const itemName = form.itemName.value.trim().toLowerCase();
+        const itemCode = form.itemCode.value.trim().toLowerCase();
+        const batchNum = form.batchNum.value.trim().toLowerCase();
+        const codUbicacionDestino = form.codigoUbicacionDestino.value.trim().toLowerCase();
+
+        const table = $('#tbl_listaDetRequerimientoPicking').DataTable();
+
+        $.fn.dataTable.ext.search.length = 0;
+
+        $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+            const itCode = data[0]?.trim().toLowerCase();
+            const itName = data[1]?.trim().toLowerCase();
+            const batchN = data[2]?.trim().toLowerCase();
+            const codUbicacionDes = data[3]?.trim().toLowerCase();
+
+
+            
+            const coincideItemCode = itemCode === "" || itCode.includes(itemCode);
+            const coincideItemName = itemName === "" || itName.includes(itemName);
+            const coincideBatchNum = batchNum === "" || batchN.includes(batchNum);
+            const coincideUbicacionDes = codUbicacionDestino === "" || codUbicacionDes.includes(codUbicacionDestino);
+
+            return coincideUbicacionDes && coincideItemCode && coincideItemName && coincideBatchNum;
+        });
+
+        table.draw();
+
+        const modalElement = document.getElementById('filterModal');
+        if (modalElement) {
+            const modalInstance = bootstrap.Modal.getInstance(modalElement);
+            if (modalInstance) {
+                modalInstance.hide();
+            }
+        }
+    }
 </script>
+

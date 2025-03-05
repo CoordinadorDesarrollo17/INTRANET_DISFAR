@@ -138,9 +138,9 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
                     var sb = new StringBuilder();
 
-                    sb.AppendLine("SELECT UP.Id, UP.Almacen, UP.ItemCode, UP.ItemName, UP.CodigoUbicacion, SM.StockMinAbastecimiento, SM.StockMinVenta");
+                    sb.AppendLine("SELECT UP.Id, UP.Almacen, UP.ItemCode, UP.ItemName, UP.CodigoUbicacion, SM.StockMinAbastecimiento, SM.StockMinVenta, SM.Clasificacion");
                     sb.AppendLine("FROM Ubicaciones UP");
-                    sb.AppendLine("OUTER APPLY (SELECT TOP 1 SM.StockMinAbastecimiento, SM.StockMinVenta FROM StockMinProductos SM WHERE SM.ItemCode = UP.ItemCode) SM");
+                    sb.AppendLine("OUTER APPLY (SELECT TOP 1 SM.StockMinAbastecimiento, SM.StockMinVenta,SM.Clasificacion FROM StockMinProductos SM WHERE SM.ItemCode = UP.ItemCode) SM");
                     sb.AppendLine("WHERE 1=1");
                     sb.AppendLine(condicion.ToString());
 
@@ -169,6 +169,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                                 if (!dr.IsDBNull(4)) obj.CodigoUbicacion = dr.GetString(4);
                                 if (!dr.IsDBNull(5)) obj.StockMinAbastecimiento = dr.GetInt32(5);
                                 if (!dr.IsDBNull(6)) obj.StockMinVenta = dr.GetInt32(6);
+                                if (!dr.IsDBNull(7)) obj.Clasificacion = dr.GetString(7);
 
                                 lista.Add(obj);
                             }

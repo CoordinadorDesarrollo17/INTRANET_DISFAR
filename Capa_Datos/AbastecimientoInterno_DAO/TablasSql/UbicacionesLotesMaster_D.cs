@@ -165,7 +165,11 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                         cmd.Parameters.AddWithValue("@ValorUmAlm", detalle.ValorUmAlm);
                         cmd.Parameters.AddWithValue("@QuantityMaster", detalle.QuantityMaster);
                         cmd.Parameters.AddWithValue("@QuantitySaldo", detalle.QuantitySaldo);
-                        //cmd.Parameters.AddWithValue("@QuantityUnidadesCajas", detalle.QuantityUnidadesCajas); // No es necesario enviarlas ya que se hace calculo en el procedure.
+                        SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
+                        {
+                            Direction = ParameterDirection.Output
+                        };
+                        cmd.Parameters.Add(idGeneradoParam);
                         cmd.ExecuteNonQuery();
                     }
                     mensaje = "Operacion de salida en UbicacionesLotesMaster realizado correctamente";

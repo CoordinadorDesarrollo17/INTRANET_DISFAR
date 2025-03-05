@@ -190,7 +190,6 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                         cmd.Parameters.AddWithValue("@Operario", imputado.OperarioRegistra);
                         cmd.Parameters.AddWithValue("@TiempoRegistro", DateTime.Now);
 
-                        // Parámetro de salida
                         SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
                         {
                             Direction = ParameterDirection.Output
@@ -254,12 +253,11 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     cmd.Parameters.AddWithValue("@ItemCode", itemCode);
                     cmd.Parameters.AddWithValue("@ItemName", itemName);
                     cmd.Parameters.AddWithValue("@Almacen", "RESERVA");
-                    cmd.Parameters.AddWithValue("@Cantidad", cantidad);
-                    cmd.Parameters.AddWithValue("@Imputado", 0);
+                    cmd.Parameters.AddWithValue("@Cantidad",0 );
+                    cmd.Parameters.AddWithValue("@Imputado", cantidad);
                     cmd.Parameters.AddWithValue("@Operario", operarioRegistra);
                     cmd.Parameters.AddWithValue("@TiempoRegistro", DateTime.Now);
 
-                    // Parámetro de salida
                     SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
                     {
                         Direction = ParameterDirection.Output

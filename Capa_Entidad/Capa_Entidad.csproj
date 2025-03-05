@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AbastecimientoInterno_ENT\Reportes\ReporteStockPicking_E.cs" />
     <Compile Include="AbastecimientoInterno_ENT\TablasSql\DetalleSolicitudesTraslado_E.cs" />
     <Compile Include="AbastecimientoInterno_ENT\TablasSql\DetalleTransferenciaReserva_E.cs" />
     <Compile Include="AbastecimientoInterno_ENT\TablasSql\KardexAbastecimiento_E.cs" />
