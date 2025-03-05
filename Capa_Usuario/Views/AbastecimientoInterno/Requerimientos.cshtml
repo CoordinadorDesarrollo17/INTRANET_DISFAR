@@ -1,64 +1,64 @@
 ﻿@{
-    ViewBag.Title = "Requerimientos";
-    Layout = "~/Views/Shared/_DefaultLayout.cshtml";
+	ViewBag.Title = "Requerimientos";
+	Layout = "~/Views/Shared/_DefaultLayout.cshtml";
 }
 
 <div class="pt-3">
-    <nav>
-        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
-            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
-            <li><em>Abastecimiento Interno</em></li>
-            <li class="current"><em>Requerimientos</em></li>
-        </ol>
-    </nav>
+	<nav>
+		<ol class="cd-breadcrumb bg-cobefar-degradado-1">
+			<li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+			<li><em>Abastecimiento Interno</em></li>
+			<li class="current"><em>Requerimientos</em></li>
+		</ol>
+	</nav>
 </div>
 
 <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
-    <div class="row px-3 pt-3"><h3 class="titulo-seccion">REQUERIMIENTOS</h3></div>
+	<div class="row px-3 pt-3"><h3 class="titulo-seccion">REQUERIMIENTOS</h3></div>
 </div>
 
 <div class="bg-white px-3 py-3 align-items-center">
-    <form id="frm_requerimiento">
-        <div class="row mb-4">
-            <div class="col-lg-2">
-                <label for="Origen" class="form-label fw-bold">Origen:</label>
-                <input type="text" id="Origen" class="form-control cls-readonly" name="Origen" value="Reserva" readonly autocomplete="off" />
-            </div>
+	<form id="frm_requerimiento">
+		<div class="row mb-4">
+			<div class="col-lg-2">
+				<label for="Origen" class="form-label fw-bold">Origen:</label>
+				<input type="text" id="Origen" class="form-control cls-readonly" name="Origen" value="Reserva" readonly autocomplete="off" />
+			</div>
 
-            <div class="col-lg-2">
-                <label for="Destino" class="form-label fw-bold">Destino:</label>
-                <input type="text" id="Destino" class="form-control cls-readonly" name="Destino" value="Picking" readonly autocomplete="off" />
-            </div>
+			<div class="col-lg-2">
+				<label for="Destino" class="form-label fw-bold">Destino:</label>
+				<input type="text" id="Destino" class="form-control cls-readonly" name="Destino" value="Picking" readonly autocomplete="off" />
+			</div>
 
-            <div class="col-lg-2">
-                <label for="TipoAbastecimiento" class="form-label fw-bold">Tipo de abastecimiento:</label>
-                <select id="TipoAbastecimiento" name="TipoAbastecimiento" class="form-select">
-                    <option value="">Seleccione</option>
-                    <option value="Picking">Picking</option>
-                    <option value="Venta">Venta</option>
-                </select>
-            </div>
-        </div><!-- // row-->
+			<div class="col-lg-2">
+				<label for="TipoAbastecimiento" class="form-label fw-bold">Tipo de abastecimiento:</label>
+				<select id="TipoAbastecimiento" name="TipoAbastecimiento" class="form-select">
+					<option value="">Seleccione</option>
+					<option value="Picking">Picking</option>
+					<option value="Venta">Venta</option>
+				</select>
+			</div>
+		</div><!-- // row-->
 
-        <div class="row">
-            <div class="col-lg-3">
-                <button type="button" class="btn btn-primary" title="Agregar artículos" data-bs-toggle="tooltip" data-bs-placement="top" onclick="cargarListaArticulos()">
-                    <i class="bi bi-plus-lg"></i> Agregar artículos
-                </button>
-            </div>
+		<div class="row">
+			<div class="col-lg-3">
+				<button type="button" class="btn btn-primary" title="Agregar artículos" data-bs-toggle="tooltip" data-bs-placement="top" onclick="cargarListaArticulos()">
+					<i class="bi bi-plus-lg"></i> Agregar artículos
+				</button>
+			</div>
 
-            <div class="col-lg-9 d-flex justify-content-end align-content-end">
-                <button type="button" class="btn btn-cobefar-2" title="Ir a ubicaciones" data-bs-toggle="tooltip" data-bs-placement="top" onclick="redireccionarUbicaciones()">
-                    <i class="bi bi-box-arrow-up-right"></i> Ir a ubicaciones
-                </button>
-            </div>
-        </div><!-- // row-->
+			<div class="col-lg-9 d-flex justify-content-end align-content-end">
+				<button type="button" class="btn btn-cobefar-2" title="Ir a ubicaciones" data-bs-toggle="tooltip" data-bs-placement="top" onclick="redireccionarUbicaciones()">
+					<i class="bi bi-box-arrow-up-right"></i> Ir a ubicaciones
+				</button>
+			</div>
+		</div><!-- // row-->
 
-        <hr />
+		<hr />
 
-        <div class="row mb-3">
-            <h4 class="text-cobefar fw-bold">Detalle del Requerimiento</h4>
-        </div><!-- // row-->
+		<div class="row mb-3">
+			<h4 class="text-cobefar fw-bold">Detalle del Requerimiento</h4>
+		</div><!-- // row-->
 
         <div class="row">
             <div class="col-lg-12">
@@ -99,91 +99,91 @@
 </div>
 
 <div class="modal fade" id="modalBusquedaArticulos" tabindex="-1" aria-labelledby="modalBusquedaArticulosLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-full-width">
-        <div class="modal-content">
-            <div class="modal-header text-white bg-headerModals">
-                <h5 class="modal-title" id="modalBusquedaArticulosLabel">Búsqueda de artículos</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" tabindex="-1"></button>
-            </div>
+	<div class="modal-dialog modal-dialog-centered modal-full-width">
+		<div class="modal-content">
+			<div class="modal-header text-white bg-headerModals">
+				<h5 class="modal-title" id="modalBusquedaArticulosLabel">Búsqueda de artículos</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" tabindex="-1"></button>
+			</div>
 
-            <div class="modal-body bg-white">
-                <div id="div_modalBody" class="container pb-0">
-                    <form id="frm_busquedaArticulos">
-                        <div class="row mb-4">
-                            <div class="col-lg-2">
-                                <label for="cod_articulo" class="form-label fw-bold">Código de artículo:</label>
-                                <input type="text" id="cod_articulo" class="form-control" autocomplete="off" />
-                            </div>
-                            <div class="col-lg-3">
-                                <label for="cantidad_solicitada" class="form-label fw-bold">Cantidad solicitada (día):</label>
-                                <input type="text" id="cantidad_solicitada" class="form-control cls-num" style="width: 250px" value=" 200" />
-                            </div>
-                            <div class="col-lg-7 d-flex justify-content-end align-items-end">
-                                <button type="button" class="btn btn-success" onclick="guardarArticulos()" title="Guardar" data-bs-toggle="tooltip" data-bs-placement="top"><i class="bi bi-check-lg"></i> Guardar</button>
-                            </div>
-                        </div><!-- // row-->
+			<div class="modal-body bg-white">
+				<div id="div_modalBody" class="container pb-0">
+					<form id="frm_busquedaArticulos">
+						<div class="row mb-4">
+							<div class="col-lg-2">
+								<label for="cod_articulo" class="form-label fw-bold">Código de artículo:</label>
+								<input type="text" id="cod_articulo" class="form-control" autocomplete="off" />
+							</div>
+							<div class="col-lg-3">
+								<label for="cantidad_solicitada" class="form-label fw-bold">Cantidad solicitada (día):</label>
+								<input type="text" id="cantidad_solicitada" class="form-control cls-num" style="width: 250px" value=" 200" />
+							</div>
+							<div class="col-lg-7 d-flex justify-content-end align-items-end">
+								<button type="button" class="btn btn-success" onclick="guardarArticulos()" title="Guardar" data-bs-toggle="tooltip" data-bs-placement="top"><i class="bi bi-check-lg"></i> Guardar</button>
+							</div>
+						</div><!-- // row-->
 
-                        <div class="row mb-4">
-                            <div class="col-lg-12">
-                                <button type="button" class="btn btn-cobefar-2" onclick="buscarArticulos()" title="Buscar" data-bs-toggle="tooltip" data-bs-placement="top"><i class="bi bi-search"></i> Buscar</button>
-                            </div>
-                        </div><!-- // row-->
+						<div class="row mb-4">
+							<div class="col-lg-12">
+								<button type="button" class="btn btn-cobefar-2" onclick="buscarArticulos()" title="Buscar" data-bs-toggle="tooltip" data-bs-placement="top"><i class="bi bi-search"></i> Buscar</button>
+							</div>
+						</div><!-- // row-->
 
-                        <div class="row mb-4">
-                            <div class="col-lg-12">
-                                <div id="div_listadoArticulos"></div>
-                            </div>
-                        </div><!-- // row-->
-                    </form>
+						<div class="row mb-4">
+							<div class="col-lg-12">
+								<div id="div_listadoArticulos"></div>
+							</div>
+						</div><!-- // row-->
+					</form>
 
-                </div>
-            </div>
+				</div>
+			</div>
 
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-bs-toggle="tooltip" data-placement="top" title="Cerrar">
-                    <i class="bi bi-x-lg"></i> Cerrar
-                </button>
-            </div>
-        </div>
-    </div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-bs-toggle="tooltip" data-placement="top" title="Cerrar">
+					<i class="bi bi-x-lg"></i> Cerrar
+				</button>
+			</div>
+		</div>
+	</div>
 </div><!-- // modal -->
 
 @section Scripts{
-    <script>
-        const configDataTable = {
-            paging: false,                  // Deshabilitar paginación
-            searching: false,           // Ocultar la barra de búsqueda
-            info: false,                        // Ocultar el número de registros ("Mostrando X de Y registros")
-            ordering: false,                // Deshabilitar la opción de ordenar columnas
-            lengthChange: false,    // Ocultar el selector de cantidad de elementos por página
-            bFilter: false,                 // Desactivar filtrado de DataTables
-            bSort: false,                   // Desactivar ordenamiento en columnas
-            bPaginate: false,           // Desactivar paginación manualmente
-            autoWidth: false,       // Evita que DataTables ajuste el ancho de las columnas automáticamente
-            responsive: true            // Mantiene la tabla responsiva si es necesario
-        }
+	<script>
+		const configDataTable = {
+			paging: false,                  // Deshabilitar paginación
+			searching: false,           // Ocultar la barra de búsqueda
+			info: false,                        // Ocultar el número de registros ("Mostrando X de Y registros")
+			ordering: false,                // Deshabilitar la opción de ordenar columnas
+			lengthChange: false,    // Ocultar el selector de cantidad de elementos por página
+			bFilter: false,                 // Desactivar filtrado de DataTables
+			bSort: false,                   // Desactivar ordenamiento en columnas
+			bPaginate: false,           // Desactivar paginación manualmente
+			autoWidth: false,       // Evita que DataTables ajuste el ancho de las columnas automáticamente
+			responsive: true            // Mantiene la tabla responsiva si es necesario
+		}
 
-        document.addEventListener('DOMContentLoaded', function () {
-            $(`#tbl_detalleRequerimiento`).DataTable(configDataTable)
-            permitirValoresNumericosPositivos()
-        });
+		document.addEventListener('DOMContentLoaded', function () {
+			$(`#tbl_detalleRequerimiento`).DataTable(configDataTable)
+			permitirValoresNumericosPositivos()
+		});
 
-        async function buscarArticulos() {
-            const itemCode = document.querySelector('#cod_articulo').value || ''
-            const cantidadSolicitada = document.querySelector('#cantidad_solicitada').value || 0
-            const tipoAbastecimiento = document.querySelector('#TipoAbastecimiento').value || ''
+		async function buscarArticulos() {
+			const itemCode = document.querySelector('#cod_articulo').value || ''
+			const cantidadSolicitada = document.querySelector('#cantidad_solicitada').value || 0
+			const tipoAbastecimiento = document.querySelector('#TipoAbastecimiento').value || ''
 
-            document.querySelector('#div_listadoArticulos').innerHTML = ''
+			document.querySelector('#div_listadoArticulos').innerHTML = ''
 
-            //calcularCantidadSolicitada()
-            //return;
-            if (tipoAbastecimiento === "Picking") {
-                document.querySelector('#cantidad_solicitada').classList.add('cls-readonly')
-                document.querySelector('#cantidad_solicitada').readOnly = true
-            } else {
-                document.querySelector('#cantidad_solicitada').classList.remove('cls-readonly')
-                document.querySelector('#cantidad_solicitada').readOnly = false
-            }
+			//calcularCantidadSolicitada()
+			//return;
+			if (tipoAbastecimiento === "Picking") {
+				document.querySelector('#cantidad_solicitada').classList.add('cls-readonly')
+				document.querySelector('#cantidad_solicitada').readOnly = true
+			} else {
+				document.querySelector('#cantidad_solicitada').classList.remove('cls-readonly')
+				document.querySelector('#cantidad_solicitada').readOnly = false
+			}
 
              try {
                  $.ajax({
@@ -223,49 +223,49 @@
             }
         }
 
-        async function calcularCantidadSolicitada() {
-            const itemCode = document.querySelector('#cod_articulo').value || ''
-            const tipoAbastecimiento = document.querySelector('#TipoAbastecimiento').value || ''
+		async function calcularCantidadSolicitada() {
+			const itemCode = document.querySelector('#cod_articulo').value || ''
+			const tipoAbastecimiento = document.querySelector('#TipoAbastecimiento').value || ''
 
-            try {
-                const response = await fetch("/AbastecimientoInterno/CalcularCantidadSolicitada", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ tipoAbastecimiento, itemCode }) // Enviar los datos como JSON
-                });
+			try {
+				const response = await fetch("/AbastecimientoInterno/CalcularCantidadSolicitada", {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({ tipoAbastecimiento, itemCode }) // Enviar los datos como JSON
+				});
 
-                if (!response.ok) {
-                    throw new Error(`Error en la solicitud: ${response.statusText}`);
-                }
+				if (!response.ok) {
+					throw new Error(`Error en la solicitud: ${response.statusText}`);
+				}
 
-                const data = await response.json();
+				const data = await response.json();
 
-                console.log(data)
+				console.log(data)
 
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
+			} catch (error) {
+				console.error('Error:', error);
+			}
+		}
 
-        async function registrarRequerimiento() {
-            const form = document.querySelector('#frm_requerimiento')
-            const tipoAbastecimiento = document.querySelector('#TipoAbastecimiento').value
-            const filasRequerimientos = document.querySelectorAll("#tbl_detalleRequerimiento tbody tr");
-            let detallesRequerimientos = [];
+		async function registrarRequerimiento() {
+			const form = document.querySelector('#frm_requerimiento')
+			const tipoAbastecimiento = document.querySelector('#TipoAbastecimiento').value
+			const filasRequerimientos = document.querySelectorAll("#tbl_detalleRequerimiento tbody tr");
+			let detallesRequerimientos = [];
 
-            if (!tipoAbastecimiento) {
-                Swal.fire('Seleccione un tipo de abastecimiento.')
-                return;
-            }
+			if (!tipoAbastecimiento) {
+				Swal.fire('Seleccione un tipo de abastecimiento.')
+				return;
+			}
 
             filasRequerimientos.forEach((fila) => {
                 let inputs = fila.querySelectorAll("input, select");
                 let detalleRequerimiento = {};
 
-                inputs.forEach(input => {
-                    let name = input.name.trim();
+				inputs.forEach(input => {
+					let name = input.name.trim();
 
                     if (name.startsWith("requerimiento.Detalle[]")) {
                         let key = name.replace("requerimiento.Detalle[].", "").trim()
@@ -279,21 +279,21 @@
                     }
                 });
 
-                // Solo agregar si los campos requeridos tienen valores
-              //  if (camposValidos && Object.keys(detalleTransferencia).length > 0) {
-                detallesRequerimientos.push(detalleRequerimiento);
-              //  }
-            });
+				// Solo agregar si los campos requeridos tienen valores
+			  //  if (camposValidos && Object.keys(detalleTransferencia).length > 0) {
+				detallesRequerimientos.push(detalleRequerimiento);
+			  //  }
+			});
 
-            const formData = new FormData(form);
-            const jsonData = Object.fromEntries(formData.entries());
+			const formData = new FormData(form);
+			const jsonData = Object.fromEntries(formData.entries());
 
-            const payload = {
-                requerimiento: {
-                    ...jsonData, // Otros datos generales del formulario
-                    Detalle: detallesRequerimientos
-                }
-            }
+			const payload = {
+				requerimiento: {
+					...jsonData, // Otros datos generales del formulario
+					Detalle: detallesRequerimientos
+				}
+			}
 
             //console.log(payload)
             //return;
@@ -307,31 +307,31 @@
                     body: JSON.stringify(payload) // Enviar los datos como JSON
                 });
 
-                if (!response.ok) {
-                    throw new Error(`Error en la solicitud: ${response.statusText}`)
-                }
+				if (!response.ok) {
+					throw new Error(`Error en la solicitud: ${response.statusText}`)
+				}
 
-                const data = await response.json()
-                console.log(data)
+				const data = await response.json()
+				console.log(data)
 
-                Swal.fire({
-                    title: data.Titulo,
-                    html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
-                        ? data.Mensajes.join('<br>')
-                        : data.Mensajes || "",
-                    icon: data.Icono,
-                    allowEscapeKey: false,
-                    allowOutsideClick: false,
-                    showConfirmButton: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        //location.reload()
-                    }
-                });
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
+				Swal.fire({
+					title: data.Titulo,
+					html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+						? data.Mensajes.join('<br>')
+						: data.Mensajes || "",
+					icon: data.Icono,
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					showConfirmButton: true
+				}).then((result) => {
+					if (result.isConfirmed) {
+						//location.reload()
+					}
+				});
+			} catch (error) {
+				console.error('Error:', error);
+			}
+		}
 
         async function cargarUbicaciones(almacen, data, id) {
             let itemCode = data.itemcode
@@ -435,20 +435,20 @@
                 focus: false
             })
 
-            document.querySelector('#cod_articulo').value = ''
-            document.querySelector('#div_listadoArticulos').innerHTML = ''
+			document.querySelector('#cod_articulo').value = ''
+			document.querySelector('#div_listadoArticulos').innerHTML = ''
 
-            if (!tipoAbastecimiento) {
-                Swal.fire('Seleccione un tipo de abastecimiento.')
-                return;
-            }
+			if (!tipoAbastecimiento) {
+				Swal.fire('Seleccione un tipo de abastecimiento.')
+				return;
+			}
 
-            bootstrapModal.show();
-        }
+			bootstrapModal.show();
+		}
 
-        function redireccionarUbicaciones() {
-            window.open('@Url.Action("UbicacionesPicking", "AbastecimientoInterno")', '_blank');
-        }
+		function redireccionarUbicaciones() {
+			window.open('@Url.Action("UbicacionesPicking", "AbastecimientoInterno")', '_blank');
+		}
 
         function borrarItemDetalle(e) {
             e.preventDefault()

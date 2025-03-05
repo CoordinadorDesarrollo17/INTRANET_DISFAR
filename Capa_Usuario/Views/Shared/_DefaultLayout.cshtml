@@ -772,8 +772,9 @@
                 $(`#${idTable}`).DataTable().clear().destroy();
             }
 
-            let table = $(`#${idTable}`).DataTable({
-                "ordering": true,
+			let table = $(`#${idTable}`).DataTable({
+                "order": [],  // Desactiva ordenamiento automatico.
+                "ordering": true, // Iconos para ordenar todas las columnas de la tabla.
                 "pageLength": items,
                 "lengthMenu": [items, items * 2, items * 3, items * 4, items * 5],
                 "language": {

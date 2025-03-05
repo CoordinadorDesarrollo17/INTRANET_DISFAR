@@ -76,16 +76,16 @@
 
 <div class="bg-white px-3 py-3 align-items-center">
     <div class="row mb-4">
-        <!-- Botón de Filtro -->
         <div class="d-flex justify-content-end">
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#filterModal">
                 <i class="bi bi-filter-circle"></i> Filtrar
             </button>
         </div>
         <div class="col-lg-12">
-            <table id="tbl_listaDetRequerimientoApiladores" class="table-responsive dt-container dt-empty-footer table table-sm table-hover font-14 display" width="100%">
+            <table id="tbl_listaDetRequerimientoApiladores" class="dt-container dt-empty-footer table table-sm table-hover font-14 display table-responsive " width="100%">
                 <thead class="thead-cobefar">
                     <tr>
+                        <th scope="col" class="text-center">Nro Requerimiento</th>
                         <th scope="col" class="text-center">Código de artículo</th>
                         <th scope="col" class="text-center">Descripción</th>
                         <th scope="col" class="text-center">Lote</th>
@@ -100,6 +100,7 @@
                     @foreach (var item in Model)
                     {
                         <tr data-producto="@item.Id">
+                            <td class="text-center align-middle">@item.RequerimientoId</td>
                             <td class="text-center align-middle">@item.ItemCode</td>
                             <td class="text-center align-middle">@item.ItemName</td>
                             <td class="text-center align-middle">@item.BatchNum</td>
@@ -132,26 +133,32 @@
                 <form id="filterForm">
                     <div class="mb-3">
                         <div class="mb-3">
-                            <label for="nivel" class="form-label">Codigo</label>
+                            <label for="itemCode" class="form-label">Codigo de Articulo</label>
                             <input class="form-control border-success" id="itemCode" value="" />
                         </div>
                         <div class="mb-3">
-                            <label for="nivel" class="form-label">Descripcion</label>
+                            <label for="itemName" class="form-label">Descripción</label>
                             <input class="form-control border-success" id="itemName" value="" />
                         </div>
-                        <label for="rackBloque" class="form-label">Rack/Bloque</label>
-                        <input class="form-control border-success" id="rackBloque" value="" />
-                    </div>
-                    <div class="mb-3">
-                        <label for="posicion" class="form-label">Posición</label>
-                        <input class="form-control border-success" id="posicion" value="" />
-                    </div>
+                        <div class="mb-3">
+                            <label for="batchNum" class="form-label">Lote</label>
+                            <input class="form-control border-success" id="batchNum" value="" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="rackBloque" class="form-label">Rack/Bloque</label>
+                            <input class="form-control border-success" id="rackBloque" value="" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="posicion" class="form-label">Posición</label>
+                            <input class="form-control border-success" id="posicion" value="" />
+                        </div>
 
-                    <div class="mb-3">
-                        <label for="nivel" class="form-label">Nivel</label>
-                        <input class="form-control border-success" id="nivel" value="" />
-                    </div>
-                </form>
+                        <div class="mb-3">
+                            <label for="nivel" class="form-label">Nivel</label>
+                            <input class="form-control border-success" id="nivel" value="" />
+                        </div>
+                        </div>
+            </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -163,8 +170,10 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        inicializarDataTable('tbl_listaDetRequerimientoApiladores', 25);
-        aplicarFiltro(); // Aplica filtro al cargar
+        if (!$.fn.DataTable.isDataTable('tbl_listaDetRequerimientoApiladores')) {
+            inicializarDataTable('tbl_listaDetRequerimientoApiladores', 100);
+            aplicarFiltro(); 
+        }
     });
 
     async function atenderReserva(id) {
@@ -223,133 +232,40 @@
         const nivel = form.nivel.value.trim().toLowerCase();
         const itemName = form.itemName.value.trim().toLowerCase();
         const itemCode = form.itemCode.value.trim().toLowerCase();
+        const batchNum = form.batchNum.value.trim().toLowerCase();
 
         const table = $('#tbl_listaDetRequerimientoApiladores').DataTable();
 
-        // Limpiar filtros anteriores
         $.fn.dataTable.ext.search.length = 0;
 
-        // Agregar nuevo filtro
         $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
-            const itCode = data[0]?.trim().toLowerCase();  // ItemCode
-            const itName = data[1]?.trim().toLowerCase();  // ItemName
-            const rack = data[3]?.trim().toLowerCase();    // Rack/Bloque
-            const niv = data[4]?.trim().toLowerCase();     // Nivel
-            const pos = data[5]?.trim().toLowerCase();     // Posición
+            const itCode = data[1]?.trim().toLowerCase();
+            const itName = data[2]?.trim().toLowerCase();  
+            const batchN = data[3]?.trim().toLowerCase();    
+            const rack = data[4]?.trim().toLowerCase();    
+            const niv = data[5]?.trim().toLowerCase();     
+            const pos = data[6]?.trim().toLowerCase();    
+           
 
             const coincideRack = rackBloque === "" || rack.includes(rackBloque);
             const coincidePos = posicion === "" || pos.includes(posicion);
             const coincideNivel = nivel === "" || niv.includes(nivel);
             const coincideItemCode = itemCode === "" || itCode.includes(itemCode);
             const coincideItemName = itemName === "" || itName.includes(itemName);
+            const coincideBatchNum = batchNum === "" || batchN.includes(batchNum);
 
-            return coincideRack && coincidePos && coincideNivel && coincideItemCode && coincideItemName;
+            return coincideRack && coincidePos && coincideNivel && coincideItemCode && coincideItemName && coincideBatchNum;
         });
 
-        table.draw(); // Aplica el filtro
+        table.draw(); 
 
-        // Cierra el modal si existe
         const modalElement = document.getElementById('filterModal');
         if (modalElement) {
-            const modal = bootstrap.Modal.getInstance(modalElement);
-            modal.hide();
+            const modalInstance = bootstrap.Modal.getInstance(modalElement);
+            if (modalInstance) {
+                modalInstance.hide();
+            }
         }
     }
 </script>
 
-
-@*<script>
-        document.addEventListener('DOMContentLoaded', function () {
-            inicializarDataTable('tbl_listaDetRequerimientoApiladores', 25)
-            aplicarFiltro();
-        });
-
-        async function atenderReserva(id) {
-            if (!id) {
-                console.log('Error: El ID no se encontró.');
-                return;
-            }
-
-            swalWithBootstrapButtons.fire({
-                title: '¿Está seguro(a) de ATENDER?',
-                icon: 'warning',
-                allowEscapeKey: false,
-                showCancelButton: true,
-                confirmButtonText: "<i class='bi bi-check-lg'></i> Si, atender",
-                cancelButtonText: "<i class='bi bi-x-lg'></i> Cancelar",
-                reverseButtons: true
-            }).then(async (result) => {
-                if (result.isConfirmed) {
-                    try {
-                        const response = await fetch("/AbastecimientoInterno/AtenderReservaRequerimiento", {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({ id })
-                        });
-
-                        if (!response.ok) {
-                            throw new Error(`Error en la solicitud: ${response.statusText}`);
-                        }
-
-                        const data = await response.json();
-
-                        Swal.fire({
-                            title: data.Titulo,
-                            html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
-                                ? data.Mensajes.join('<br>')
-                                : data.Mensajes || "",
-                            icon: data.Icono,
-                            allowEscapeKey: false,
-                            allowOutsideClick: false,
-                            showConfirmButton: true
-                        }).then((result) => {
-                            if (result.isConfirmed && data.Icono == 'success') {
-                                window.location.reload()
-                            }
-                        })
-
-                    } catch (error) {
-                        console.error('Error:', error);
-                    }
-                }
-            });
-        }
-
-
-        function aplicarFiltro() {
-            const form = document.getElementById('filterForm');
-            const rackBloque = form.rackBloque.value.trim().toLowerCase();
-            const posicion = form.posicion.value.trim().toLowerCase();
-            const nivel = form.nivel.value.trim().toLowerCase();
-            const itemName = form.itemName.value.trim().toLowerCase();
-            const itemCode = form.itemCode.value.trim().toLowerCase();
-
-            const filas = document.querySelectorAll('#tbl_listaDetRequerimientoApiladores tbody tr');
-
-            filas.forEach(fila => {
-                const itCode = fila.cells[0]?.textContent.trim().toLowerCase();
-                const itName = fila.cells[1]?.textContent.trim().toLowerCase();
-                const rack = fila.cells[3]?.textContent.trim().toLowerCase();
-                const pos = fila.cells[5]?.textContent.trim().toLowerCase();
-                const niv = fila.cells[4]?.textContent.trim().toLowerCase();
-
-
-                const coincideRack = rackBloque === "" || rack.includes(rackBloque);
-                const coincidePos = posicion === "" || pos.includes(posicion);
-                const coincideNivel = nivel === "" || niv.includes(nivel);
-                const coincideItemCode = itemCode === "" || itCode.includes(itemCode);
-                const coincideItemName = itemName === "" || itName.includes(itemName);
-
-                fila.style.display = (coincideRack && coincidePos && coincideNivel && coincideItemCode && coincideItemName) ? "" : "none";
-            });
-
-            // Cierra el modal si existe
-            const modalElement = document.getElementById('filterModal');
-            if (modalElement) {
-                const modal = bootstrap.Modal.getInstance(modalElement);
-                modal.hide();
-            }
-        }
-    </script>*@

@@ -79,6 +79,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AbastecimientoInterno_DAO\Reportes\ReporteStockPicking_D.cs" />
     <Compile Include="AbastecimientoInterno_DAO\TablasExternas\OWTQ_D.cs" />
     <Compile Include="AbastecimientoInterno_DAO\TablasSql\KardexAbastecimiento_D.cs" />
     <Compile Include="AbastecimientoInterno_DAO\TablasSql\LotesRegistroSanitario_D.cs" />

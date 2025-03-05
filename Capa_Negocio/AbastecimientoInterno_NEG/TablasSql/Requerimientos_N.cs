@@ -56,13 +56,10 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
             return _requerimientoD.RegistrarRequerimiento(requerimiento, cn);
 
         }
-        public bool ValidarSkuParaKardexSalida(DetalleRequerimientos_E detalle)
+        public bool ValidarSkuParaKardexSalida(int requerimientoId,string itemCode, Requerimientos_E requerimiento)
         {
-            Requerimientos_E requerimientoCompleto = ObtenerRequerimiento(detalle.RequerimientoId);
-
             // Validar si ya no existe algún elemento con el mismo ItemCode y AtendidoPicking en 0, por lo tanto todo esta Atendido y listo para sacarlo por Kardex
-            bool valido = !requerimientoCompleto.Detalle.Any(d => d.ItemCode == detalle.ItemCode && d.AtendidoPicking == 0);
-
+            bool valido = !requerimiento.Detalle.Any(d => d.ItemCode == itemCode && d.AtendidoPicking == 0);
             return valido;
         }
     }

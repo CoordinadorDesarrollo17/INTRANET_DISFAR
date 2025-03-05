@@ -18,6 +18,7 @@
             <th scope="col" class="text-center">Ubicaciones</th>
             <th scope="col" class="text-center">Stock Mínimo Abastecimiento</th>
             <th scope="col" class="text-center">Stock Mínimo Venta</th>
+            <th scope="col" class="text-center">Clasificación</th>
             <th scope="col" class="text-center"></th>
         </tr>
     </thead>
@@ -40,7 +41,12 @@
                     </div>
                 </td>
                 <td class="text-center align-middle">
-                    <button type="button" class="btn btn-success" title="Actualizar Stocks" onclick="actualizarStocksMinimos('@grupo.Value.ItemCode', '@grupo.Value.ItemName', 'sma_@grupo.Value.ItemCode', 'smv_@grupo.Value.ItemCode')"><i class="bi bi-arrow-clockwise"></i></button>
+                    <div class="d-flex justify-content-center">
+                        <input type="text" id="clasificacion_@grupo.Value.ItemCode" class="form-control w-50 text-center" value="@grupo.Value.Clasificacion">
+                    </div>
+                </td>
+                <td class="text-center align-middle">
+                    <button type="button" class="btn btn-success" title="Actualizar Stocks" onclick="actualizarStocksMinimos('@grupo.Value.ItemCode', '@grupo.Value.ItemName', 'sma_@grupo.Value.ItemCode', 'smv_@grupo.Value.ItemCode', 'clasificacion_@grupo.Value.ItemCode')"><i class="bi bi-arrow-clockwise"></i></button>
                 </td>
             </tr>
         }
@@ -172,9 +178,10 @@
         });
     }
 
-    async function actualizarStocksMinimos(itemCode, itemName, input_stockMinAbastecimiento, input_stockMinVenta) {
+    async function actualizarStocksMinimos(itemCode, itemName, input_stockMinAbastecimiento, input_stockMinVenta,input_clasificacion) {
         let stockMinAbastecimiento = document.querySelector(`#${input_stockMinAbastecimiento}`).value
         let stockMinVenta = document.querySelector(`#${input_stockMinVenta}`).value
+        let clasificacion = document.querySelector(`#${input_clasificacion}`).value
 
         try {
             const response = await fetch("/AbastecimientoInterno/ActualizarStocksMinimos", {
@@ -182,7 +189,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ itemCode, itemName, stockMinAbastecimiento, stockMinVenta }) // Enviar los datos como JSON
+                body: JSON.stringify({ itemCode, itemName, stockMinAbastecimiento, stockMinVenta, clasificacion }) // Enviar los datos como JSON
             });
 
             if (!response.ok) {

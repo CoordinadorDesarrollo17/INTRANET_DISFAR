@@ -72,10 +72,11 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                             cmd.Parameters.AddWithValue("@ItemName", datos.ItemName);
                             cmd.Parameters.AddWithValue("@StockMinAbastecimiento", datos.StockMinAbastecimiento);
                             cmd.Parameters.AddWithValue("@StockMinVenta", datos.StockMinVenta);
+                            cmd.Parameters.AddWithValue("@Clasificacion", datos.Clasificacion);
                             cmd.ExecuteNonQuery();
 
                             transaction.Commit();
-                            mensaje = "Stocks mínimos establecidos correctamente.";
+                            mensaje = "Stocks mínimos  y/o clasificación establecidos correctamente.";
                             icono = "success";
                         }
                     }

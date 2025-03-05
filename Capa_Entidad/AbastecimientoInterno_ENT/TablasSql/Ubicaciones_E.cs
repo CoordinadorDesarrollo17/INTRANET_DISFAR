@@ -18,6 +18,7 @@ namespace Capa_Entidad.AbastecimientoInterno_ENT.TablasSql
         // Picking
         public int StockMinAbastecimiento { get; set; }
         public int StockMinVenta { get; set; }
+        public string Clasificacion { get; set; }
 
         // Relación de múltiples ubicaciones si es necesario
         public List<Ubicaciones_E> Ubicaciones { get; set; }
