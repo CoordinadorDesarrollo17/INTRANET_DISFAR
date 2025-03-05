@@ -20,7 +20,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
         {
              StockMinProductos_E obj = new StockMinProductos_E();
 
-            string query = $@"SELECT Id, ItemCode, ItemName, StockMinAbastecimiento, StockMinVenta FROM StockMinProductos where ItemCode= {itemCode}";
+            string query = $@"SELECT Id, ItemCode, ItemName, StockMinAbastecimiento, StockMinVenta FROM StockMinProductos where ItemCode= @ItemCode";
             try
             {
                 using (SqlConnection cn =  new SqlConnection(uti.cadSql2))
@@ -28,6 +28,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     SqlCommand cmd = new SqlCommand();
                     cmd.Connection = cn;
                     cmd.CommandText = query;
+                    cmd.Parameters.AddWithValue("@ItemCode", itemCode);
 
                     cn.Open();
 
@@ -38,7 +39,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                             while (dr.Read())
                             {
                                 if (!dr.IsDBNull(0)) obj.Id = dr.GetInt32(0);
-                                if (!dr.IsDBNull(4)) obj.StockMinAbastecimiento = dr.GetInt32(4);
+                                if (!dr.IsDBNull(4)) obj.StockMinVenta = dr.GetInt32(4);
                             }
                         }
                     }
@@ -47,7 +48,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             catch (Exception ex)
             {
-                LogHelper.RegistrarError(ex, "Error en Obtener");
+                LogHelper.RegistrarError(ex, "StockMinProductos_D - Obtener");
             }
             return obj;
         }

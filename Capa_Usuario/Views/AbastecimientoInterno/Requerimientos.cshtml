@@ -1,64 +1,64 @@
 ﻿@{
-	ViewBag.Title = "Requerimientos";
-	Layout = "~/Views/Shared/_DefaultLayout.cshtml";
+    ViewBag.Title = "Requerimientos";
+    Layout = "~/Views/Shared/_DefaultLayout.cshtml";
 }
 
 <div class="pt-3">
-	<nav>
-		<ol class="cd-breadcrumb bg-cobefar-degradado-1">
-			<li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
-			<li><em>Abastecimiento Interno</em></li>
-			<li class="current"><em>Requerimientos</em></li>
-		</ol>
-	</nav>
+    <nav>
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><em>Abastecimiento Interno</em></li>
+            <li class="current"><em>Requerimientos</em></li>
+        </ol>
+    </nav>
 </div>
 
 <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
-	<div class="row px-3 pt-3"><h3 class="titulo-seccion">REQUERIMIENTOS</h3></div>
+    <div class="row px-3 pt-3"><h3 class="titulo-seccion">REQUERIMIENTOS</h3></div>
 </div>
 
 <div class="bg-white px-3 py-3 align-items-center">
-	<form id="frm_requerimiento">
-		<div class="row mb-4">
-			<div class="col-lg-2">
-				<label for="Origen" class="form-label fw-bold">Origen:</label>
-				<input type="text" id="Origen" class="form-control cls-readonly" name="Origen" value="Reserva" readonly autocomplete="off" />
-			</div>
+    <form id="frm_requerimiento">
+        <div class="row mb-4">
+            <div class="col-lg-2">
+                <label for="Origen" class="form-label fw-bold">Origen:</label>
+                <input type="text" id="Origen" class="form-control cls-readonly" name="Origen" value="Reserva" readonly autocomplete="off" />
+            </div>
 
-			<div class="col-lg-2">
-				<label for="Destino" class="form-label fw-bold">Destino:</label>
-				<input type="text" id="Destino" class="form-control cls-readonly" name="Destino" value="Picking" readonly autocomplete="off" />
-			</div>
+            <div class="col-lg-2">
+                <label for="Destino" class="form-label fw-bold">Destino:</label>
+                <input type="text" id="Destino" class="form-control cls-readonly" name="Destino" value="Picking" readonly autocomplete="off" />
+            </div>
 
-			<div class="col-lg-2">
-				<label for="TipoAbastecimiento" class="form-label fw-bold">Tipo de abastecimiento:</label>
-				<select id="TipoAbastecimiento" name="TipoAbastecimiento" class="form-select">
-					<option value="">Seleccione</option>
-					<option value="Picking">Picking</option>
-					<option value="Venta">Venta</option>
-				</select>
-			</div>
-		</div><!-- // row-->
+            <div class="col-lg-2">
+                <label for="TipoAbastecimiento" class="form-label fw-bold">Tipo de abastecimiento:</label>
+                <select id="TipoAbastecimiento" name="TipoAbastecimiento" class="form-select">
+                    <option value="">Seleccione</option>
+                    <option value="Picking">Picking</option>
+                    <option value="Venta">Venta</option>
+                </select>
+            </div>
+        </div><!-- // row-->
 
-		<div class="row">
-			<div class="col-lg-3">
-				<button type="button" class="btn btn-primary" title="Agregar artículos" data-bs-toggle="tooltip" data-bs-placement="top" onclick="cargarListaArticulos()">
-					<i class="bi bi-plus-lg"></i> Agregar artículos
-				</button>
-			</div>
+        <div class="row">
+            <div class="col-lg-3">
+                <button type="button" class="btn btn-primary" title="Agregar artículos" data-bs-toggle="tooltip" data-bs-placement="top" onclick="cargarListaArticulos()">
+                    <i class="bi bi-plus-lg"></i> Agregar artículos
+                </button>
+            </div>
 
-			<div class="col-lg-9 d-flex justify-content-end align-content-end">
-				<button type="button" class="btn btn-cobefar-2" title="Ir a ubicaciones" data-bs-toggle="tooltip" data-bs-placement="top" onclick="redireccionarUbicaciones()">
-					<i class="bi bi-box-arrow-up-right"></i> Ir a ubicaciones
-				</button>
-			</div>
-		</div><!-- // row-->
+            <div class="col-lg-9 d-flex justify-content-end align-content-end">
+                <button type="button" class="btn btn-cobefar-2" title="Ir a ubicaciones" data-bs-toggle="tooltip" data-bs-placement="top" onclick="redireccionarUbicaciones()">
+                    <i class="bi bi-box-arrow-up-right"></i> Ir a ubicaciones
+                </button>
+            </div>
+        </div><!-- // row-->
 
-		<hr />
+        <hr />
 
-		<div class="row mb-3">
-			<h4 class="text-cobefar fw-bold">Detalle del Requerimiento</h4>
-		</div><!-- // row-->
+        <div class="row mb-3">
+            <h4 class="text-cobefar fw-bold">Detalle del Requerimiento</h4>
+        </div><!-- // row-->
 
         <div class="row">
             <div class="col-lg-12">
@@ -99,57 +99,61 @@
 </div>
 
 <div class="modal fade" id="modalBusquedaArticulos" tabindex="-1" aria-labelledby="modalBusquedaArticulosLabel" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-centered modal-full-width">
-		<div class="modal-content">
-			<div class="modal-header text-white bg-headerModals">
-				<h5 class="modal-title" id="modalBusquedaArticulosLabel">Búsqueda de artículos</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" tabindex="-1"></button>
-			</div>
+    <div class="modal-dialog modal-dialog-centered modal-full-width">
+        <div class="modal-content">
+            <div class="modal-header text-white bg-headerModals">
+                <h5 class="modal-title" id="modalBusquedaArticulosLabel">Búsqueda de artículos</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" tabindex="-1"></button>
+            </div>
 
-			<div class="modal-body bg-white">
-				<div id="div_modalBody" class="container pb-0">
-					<form id="frm_busquedaArticulos">
-						<div class="row mb-4">
-							<div class="col-lg-2">
-								<label for="cod_articulo" class="form-label fw-bold">Código de artículo:</label>
-								<input type="text" id="cod_articulo" class="form-control" autocomplete="off" />
-							</div>
-							<div class="col-lg-3">
-								<label for="cantidad_solicitada" class="form-label fw-bold">Cantidad solicitada (día):</label>
-								<input type="text" id="cantidad_solicitada" class="form-control cls-num" style="width: 250px" value=" 200" />
-							</div>
-							<div class="col-lg-7 d-flex justify-content-end align-items-end">
-								<button type="button" class="btn btn-success" onclick="guardarArticulos()" title="Guardar" data-bs-toggle="tooltip" data-bs-placement="top"><i class="bi bi-check-lg"></i> Guardar</button>
-							</div>
-						</div><!-- // row-->
+            <div class="modal-body bg-white">
+                <div id="div_modalBody" class="container pb-0">
+                    <form id="frm_busquedaArticulos">
+                        <div class="row mb-4">
+                            <div class="col-lg-2">
+                                <label for="cod_articulo" class="form-label fw-bold">Código de artículo:</label>
+                                <input type="text" id="cod_articulo" class="form-control" autocomplete="off" />
+                            </div>
 
-						<div class="row mb-4">
-							<div class="col-lg-12">
-								<button type="button" class="btn btn-cobefar-2" onclick="buscarArticulos()" title="Buscar" data-bs-toggle="tooltip" data-bs-placement="top"><i class="bi bi-search"></i> Buscar</button>
-							</div>
-						</div><!-- // row-->
+                            <div class="col-lg-3">
+                                <div id="div_cantidadSolicitada" hidden>
+                                    <label for="cantidad_solicitada" class="form-label fw-bold">Cantidad solicitada (día):</label>
+                                    <input type="text" id="cantidad_solicitada" class="form-control cls-num cls-readonly" style="width: 250px" value="" readonly />
+                                </div>
+                            </div>
 
-						<div class="row mb-4">
-							<div class="col-lg-12">
-								<div id="div_listadoArticulos"></div>
-							</div>
-						</div><!-- // row-->
-					</form>
+                            <div class="col-lg-7 d-flex justify-content-end align-items-end">
+                                <button type="button" id="btn_guardarArticulos" class="btn btn-success" title="Guardar" data-bs-toggle="tooltip" data-bs-placement="top"><i class="bi bi-check-lg"></i> Guardar</button>
+                            </div>
+                        </div><!-- // row-->
 
-				</div>
-			</div>
+                        <div class="row mb-4">
+                            <div class="col-lg-12">
+                                <button type="button" class="btn btn-cobefar-2" onclick="buscarArticulos()" title="Buscar" data-bs-toggle="tooltip" data-bs-placement="top"><i class="bi bi-search"></i> Buscar</button>
+                            </div>
+                        </div><!-- // row-->
 
-			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-bs-toggle="tooltip" data-placement="top" title="Cerrar">
-					<i class="bi bi-x-lg"></i> Cerrar
-				</button>
-			</div>
-		</div>
-	</div>
+                        <div class="row mb-4">
+                            <div class="col-lg-12">
+                                <div id="div_listadoArticulos"></div>
+                            </div>
+                        </div><!-- // row-->
+                    </form>
+
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-bs-toggle="tooltip" data-placement="top" title="Cerrar">
+                    <i class="bi bi-x-lg"></i> Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
 </div><!-- // modal -->
 
 @section Scripts{
-	<script>
+    <script>
 		const configDataTable = {
 			paging: false,                  // Deshabilitar paginación
 			searching: false,           // Ocultar la barra de búsqueda
@@ -169,20 +173,22 @@
 		});
 
 		async function buscarArticulos() {
-			const itemCode = document.querySelector('#cod_articulo').value || ''
+			const itemCode = document.querySelector('#cod_articulo').value.trim()
 			const cantidadSolicitada = document.querySelector('#cantidad_solicitada').value || 0
 			const tipoAbastecimiento = document.querySelector('#TipoAbastecimiento').value || ''
 
-			document.querySelector('#div_listadoArticulos').innerHTML = ''
+            document.querySelector('#div_listadoArticulos').innerHTML = ''
 
-			//calcularCantidadSolicitada()
-			//return;
+            if (!itemCode) {
+                Swal.fire('El código de artículo ingresado no es válido.')
+                return;
+            }
+
 			if (tipoAbastecimiento === "Picking") {
-				document.querySelector('#cantidad_solicitada').classList.add('cls-readonly')
-				document.querySelector('#cantidad_solicitada').readOnly = true
+                document.querySelector('#div_cantidadSolicitada').hidden = false
+			    calcularCantidadSolicitada()
 			} else {
-				document.querySelector('#cantidad_solicitada').classList.remove('cls-readonly')
-				document.querySelector('#cantidad_solicitada').readOnly = false
+                document.querySelector('#div_cantidadSolicitada').hidden = true
 			}
 
              try {
@@ -226,6 +232,7 @@
 		async function calcularCantidadSolicitada() {
 			const itemCode = document.querySelector('#cod_articulo').value || ''
 			const tipoAbastecimiento = document.querySelector('#TipoAbastecimiento').value || ''
+            let cantidadSolicitada = 0
 
 			try {
 				const response = await fetch("/AbastecimientoInterno/CalcularCantidadSolicitada", {
@@ -242,8 +249,26 @@
 
 				const data = await response.json();
 
-				console.log(data)
-
+                if (typeof data.cantidadSolicitada === 'undefined') {
+                    Swal.fire({
+                        title: data.Titulo,
+                        html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                            ? data.Mensajes.join('<br>')
+                            : data.Mensajes || "",
+                        icon: data.Icono,
+                        allowEscapeKey: false,
+                        allowOutsideClick: false,
+                        showConfirmButton: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            //location.reload()
+                        }
+                    });
+                } else {
+                    cantidadSolicitada = data.cantidadSolicitada
+                }
+                document.querySelector('#cantidad_solicitada').value = cantidadSolicitada
+                document.querySelector('#btn_guardarArticulos').style.display = (cantidadSolicitada > 0) ? 'block' : 'none'
 			} catch (error) {
 				console.error('Error:', error);
 			}
@@ -335,7 +360,6 @@
 
         async function cargarUbicaciones(almacen, data, id) {
             let itemCode = data.itemcode
-            console.log("id: ", id)
 
             try {
                 const response = await fetch("/AbastecimientoInterno/BuscarUbicaciones", {
@@ -351,7 +375,7 @@
                 }
 
                 const data = await response.json();
-
+                let unicaUbicacion = data.resultUbicacionesLote
                 let ubicaciones = ''
                 data.resultUbicaciones.forEach((ubicacion, index) => {
                     ubicaciones += `<option value="${ubicacion}" ${ubicacion === data.resultUbicacionesLote ? 'selected' : ''}>${ubicacion}</option>`
@@ -360,22 +384,29 @@
                 document.querySelector(`#${id}`).innerHTML = ubicaciones
                 document.querySelector(`#${id}`).classList.remove('form-select');
                 document.querySelector(`#${id}`).setAttribute('multiple', 'multiple')
-                new SlimSelect({
+                const select = new SlimSelect({
                     select: `#${id}`,
-                    searchingText: 'Buscar... ',
-                    onFocus: function () {
-                        console.log('El select ha recibido foco'); // Acción a realizar al recibir foco
-                        // Aquí puedes agregar más lógica si es necesario
-                    }
+                    searchingText: 'Buscar... '
                 });
+
+                // Solo mantener select abierto cuando tenga más de 1 ubicación
+                // "data.resultUbicacionesLote" devuelve el la única ubicación del SKU + Lote
+                if (unicaUbicacion == null) {
+                    select.open();
+                }
             } catch (error) {
                 console.error('Error:', error);
             }
         }
 
-        function guardarArticulos() {
+        function guardarArticulosPicking() {
             const tablaOrigen = document.querySelector('#tbl_listaArticulosAbastPicking tbody');
             const tablaDestino = document.querySelector('#tbl_detalleRequerimiento tbody');
+
+            if (!tablaOrigen) {
+                Swal.fire('Para guardar cambios, debes buscar un código de artículo existente. ')
+                return;
+            }
 
             const filas = tablaOrigen.querySelectorAll('tr');
             const arrayDeFilas = Array.from(filas).map(fila => {
@@ -392,6 +423,9 @@
                 }, {});
 
                 return valores;
+            }).filter(valores => {
+                // Filtra las filas donde el campo "StockSaliendo" sea mayor a cero
+                return Number(valores['StockSaliendo']) > 0;
             });
 
             let tbody = ''
@@ -416,6 +450,7 @@
                                             <input type="hidden" name="requerimiento.Detalle[].CodigoUbicacionOrigen" value="${item.CodigoUbicacionOrigen}" />
                                             <select id="CodigoUbicacionDestino_${item.ItemCode}_${item.BatchNum}_${num}" name="requerimiento.Detalle[].CodigoUbicacionDestino"  class="form-select cls-select"
                                                 data-batchnum="${item.BatchNum}" data-itemcode="${item.ItemCode}" onfocus="cargarUbicaciones('RESERVA', this.dataset, this.id)"  />
+                                                <option>Seleccionar para cargar ubicaciones...</option>
                                             </select>
                                         </td>
                                     </tr>`
@@ -424,9 +459,19 @@
             })
 
             tablaDestino.innerHTML = tbody
-            console.log('Filas movidas con éxito');
+            console.log('Filas movidas con éxito')
 
+            const modalElement = document.getElementById('modalBusquedaArticulos')
+            const modalBootstrap = bootstrap.Modal.getInstance(modalElement)
+
+            if (!modalBootstrap) {
+                const modalBootstrap = new bootstrap.Modal(modalElement)
+            }
+
+            modalBootstrap.hide()
         }
+
+        
 
         function cargarListaArticulos() {
             const tipoAbastecimiento = document.querySelector('#TipoAbastecimiento').value
@@ -435,13 +480,23 @@
                 focus: false
             })
 
-			document.querySelector('#cod_articulo').value = ''
-			document.querySelector('#div_listadoArticulos').innerHTML = ''
-
 			if (!tipoAbastecimiento) {
 				Swal.fire('Seleccione un tipo de abastecimiento.')
 				return;
-			}
+            }
+            resetValoresVacios(["cod_articulo", "cantidad_solicitada"])
+
+            document.querySelector('#div_listadoArticulos').innerHTML = ''
+            document.querySelector('#div_cantidadSolicitada').hidden = tipoAbastecimiento !== 'Picking' ? true:false
+
+            const btn = document.querySelector('#btn_guardarArticulos')
+            if (btn) {
+                if (tipoAbastecimiento === 'Picking') {
+                    btn.setAttribute('onclick', 'guardarArticulosPicking()');
+                } else {
+                    btn.setAttribute('onclick', 'guardarArticulosVenta()');
+                }
+            }
 
 			bootstrapModal.show();
 		}
