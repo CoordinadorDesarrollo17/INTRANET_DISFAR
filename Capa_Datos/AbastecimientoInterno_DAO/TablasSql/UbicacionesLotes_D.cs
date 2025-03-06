@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Data;
+using Capa_Entidad.RecursosHumanos_ENT.TablasSQL;
 
 namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 {
@@ -77,7 +78,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
         public Helper_E Ingreso(DetalleTransferenciaReserva_E detalle, SqlConnection cn)
         {
             string mensaje = "", icono;
-            int id;
+            int id = 0;
 
             try
             {
@@ -118,24 +119,41 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     {
                         mensaje = "Ocurrió un error al registrar un ingreso en UbicacionesLotes. Comuníquese con el área de Sistemas para más información.";
                         icono = "error";
-                        throw new Exception("Error en Ingreso.");
-
+                        return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono, Id = id };
                     }
 
                     id = idGenerado;
                     icono = "success";
                 }
             }
+            catch (SqlException sqlEx)
+            {
+                LogHelper.RegistrarError(sqlEx, "UbicacionesLotes_D - Ingreso");
+
+                if (sqlEx.Message.Contains("Ubicación para el producto"))
+                {
+                    mensaje = $"{sqlEx.Message} Debe crear la ubicación antes de registrar el stock.";
+                    icono = "error";
+                }
+                else
+                {
+                    mensaje = $"Error en base de datos: {sqlEx.Message}";
+                    icono = "error";
+                }
+                return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono, Id = id };
+            }
             catch (Exception ex)
             {
                 LogHelper.RegistrarError(ex, "UbicacionesLotes_D - Ingreso");
                 mensaje = "Ocurrió un error al registrar un ingreso en UbicacionesLotes. Comuníquese con el área de Sistemas para más información.";
                 icono = "error";
-                throw new Exception("Error en Ingreso.", ex);
+
+                return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono, Id = id };
             }
 
             return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono, Id = id };
         }
+
         public Helper_E RevertirIngreso(TransferenciaReserva_E ingreso, SqlConnection cn)
         {
             string mensaje, icono;

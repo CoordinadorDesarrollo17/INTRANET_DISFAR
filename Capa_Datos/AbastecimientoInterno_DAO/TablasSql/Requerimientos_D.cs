@@ -213,7 +213,6 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             return lista;
         }
-
         public Requerimientos_E RegistrarRequerimiento(Requerimientos_E requerimiento, SqlConnection cn)
         {
             if (cn.State != ConnectionState.Open)

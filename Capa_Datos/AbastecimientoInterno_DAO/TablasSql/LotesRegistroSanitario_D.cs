@@ -1,4 +1,5 @@
-﻿using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
+﻿using Capa_Entidad;
+using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -12,85 +13,101 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
     public class LotesRegistroSanitario_D
     {
         readonly Utilitarios uti = new Utilitarios();
-        public void ValidarLotesRegistroSanitario(Dictionary<string, DetalleSolicitudesTraslado_E> detalleTraslado)
+        public Helper_E ValidarLotesRegistroSanitario(Dictionary<string, DetalleSolicitudesTraslado_E> detalleTraslado,SqlConnection cn)
         {
-            //validar que en la tabla LotesRegistroSanitario existan todos los ItemCode-BatchNum, se inserta si no existe alguno de detalleTransferencia los nombres de columnas tienen los mismos valores
-            
-                using (var connection = new SqlConnection(uti.cadSql2))
-                {
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
+            var respuesta = new Helper_E();
+
+                    try
                     {
-                        try
+                        if (cn.State != ConnectionState.Open)
                         {
-                            // En una tabla temporal se almacenaran todas las combinaciones de ItemCode y BatchNum (Producto y Lote)
-                            string createTempTableQuery = @"
-                                        CREATE TABLE #TempLotes (
-                                            ItemCode VARCHAR(50),
-                                            DistNumber VARCHAR(50),
-                                            ExpDate DATE,
-                                            InDate DATE
-                                        );";
-
-                            using (var commandCreateTemp = new SqlCommand(createTempTableQuery, connection, transaction))
-                            {
-                                commandCreateTemp.ExecuteNonQuery();
-                            }
-
-                            // Agrega esos datos
-                            using (var bulkCopy = new SqlBulkCopy(connection, SqlBulkCopyOptions.Default, transaction))
-                            {
-                                bulkCopy.DestinationTableName = "#TempLotes";
-
-                                var dataTable = new DataTable();
-                                dataTable.Columns.Add("ItemCode", typeof(string));
-                                dataTable.Columns.Add("DistNumber", typeof(string));
-                                dataTable.Columns.Add("InDate", typeof(string));
-                                dataTable.Columns.Add("ExpDate", typeof(string));
-
-                                foreach (var item in detalleTraslado)
-                                {
-                                    dataTable.Rows.Add(item.Value.ItemCode, item.Value.BatchNum ,item.Value.ExpDate,item.Value.InDate);
-                                }
-
-                                bulkCopy.WriteToServer(dataTable);
-                            }
-
-                            // Con MERGE se insertara solo los registros que no existen a la tabla LotesRegistroSanitario
-                            string mergeQuery = @"
-                                    MERGE INTO LotesRegistroSanitario AS target
-                                        USING #TempLotes AS source
-                                        ON target.ItemCode = source.ItemCode 
-                                           AND target.DistNumber = source.DistNumber
-                                        WHEN MATCHED AND (target.ExpDate <> source.ExpDate OR target.InDate <> source.InDate) THEN
-                                            UPDATE SET 
-                                                target.ExpDate = source.ExpDate,
-                                                target.InDate = source.InDate
-                                        WHEN NOT MATCHED THEN
-                                            INSERT (ItemCode, DistNumber, ExpDate, InDate)
-                                            VALUES (source.ItemCode, source.DistNumber, source.ExpDate, source.InDate);";
-
-                            using (var commandMerge = new SqlCommand(mergeQuery, connection, transaction))
-                            {
-                                commandMerge.ExecuteNonQuery();
-                            }
-
-                            // Eliminar la tabla temporal
-                            string dropTempTableQuery = "DROP TABLE #TempLotes;";
-                            using (var commandDropTemp = new SqlCommand(dropTempTableQuery, connection, transaction))
-                            {
-                                commandDropTemp.ExecuteNonQuery();
-                            }
-
-                            transaction.Commit();
+                            cn.Open();
                         }
-                        catch (Exception ex)
+                        // Crear tabla temporal
+                        string createTempTableQuery = @"
+                    CREATE TABLE #TempLotes (
+                        ItemCode VARCHAR(50),
+                        DistNumber VARCHAR(50),
+                        ExpDate DATE,
+                        InDate DATE
+                    );";
+
+                        using (var commandCreateTemp = new SqlCommand(createTempTableQuery, cn))
                         {
-                            transaction.Rollback();
-                            throw new Exception("Error al validar los lotes en LotesRegistroSanitario: " + ex.Message);
+                            commandCreateTemp.ExecuteNonQuery();
+                        }
+
+                        // Agregar datos a la tabla temporal
+                        using (var bulkCopy = new SqlBulkCopy(cn, SqlBulkCopyOptions.Default,null))
+                        {
+                            bulkCopy.DestinationTableName = "#TempLotes";
+
+                            var dataTable = new DataTable();
+                            dataTable.Columns.Add("ItemCode", typeof(string));
+                            dataTable.Columns.Add("DistNumber", typeof(string));
+                            dataTable.Columns.Add("ExpDate", typeof(DateTime));
+                            dataTable.Columns.Add("InDate", typeof(DateTime));
+
+                            foreach (var item in detalleTraslado)
+                            {
+                                dataTable.Rows.Add(item.Value.ItemCode, item.Value.BatchNum, item.Value.ExpDate, item.Value.InDate);
+                            }
+
+                            bulkCopy.WriteToServer(dataTable);
+                        }
+
+                        // MERGE para insertar o actualizar registros en LotesRegistroSanitario
+                        string mergeQuery = @"
+                    MERGE INTO LotesRegistroSanitario AS target
+                    USING #TempLotes AS source
+                    ON target.ItemCode = source.ItemCode 
+                       AND target.DistNumber = source.DistNumber
+                    WHEN MATCHED AND (target.ExpDate <> source.ExpDate OR target.InDate <> source.InDate) THEN
+                        UPDATE SET 
+                            target.ExpDate = source.ExpDate,
+                            target.InDate = source.InDate
+                    WHEN NOT MATCHED THEN
+                        INSERT (ItemCode, DistNumber, ExpDate, InDate)
+                        VALUES (source.ItemCode, source.DistNumber, source.ExpDate, source.InDate);";
+
+                        using (var commandMerge = new SqlCommand(mergeQuery, cn))
+                        {
+                            commandMerge.ExecuteNonQuery();
+                        }
+
+                        // Eliminar la tabla temporal
+                        string dropTempTableQuery = "DROP TABLE #TempLotes;";
+                        using (var commandDropTemp = new SqlCommand(dropTempTableQuery, cn))
+                        {
+                            commandDropTemp.ExecuteNonQuery();
+                        }
+
+                    
+                        respuesta.IconoSweetAlert = "success";
+                        respuesta.Mensajes = new List<string> { "Validación de lotes completada con éxito." };
+                    }
+                    catch (SqlException ex)
+                    {
+                
+                        if (ex.Number == 2627 || ex.Number == 2601) // Error de clave duplicada
+                        {
+                            respuesta.IconoSweetAlert = "error";
+                            respuesta.Mensajes = new List<string> { "Error: Se intentó insertar un lote duplicado en LotesRegistroSanitario. Verifique los valores de ItemCode y DistNumber." };
+                        }
+                        else
+                        {
+                            respuesta.IconoSweetAlert = "error";
+                            respuesta.Mensajes = new List<string> {  "Error en la validación de lotes: " + ex.Message};
                         }
                     }
-                }
-         }
+                    catch (Exception ex)
+                    {
+                        respuesta.IconoSweetAlert = "error";
+                        respuesta.Mensajes = new List<string> { "Error inesperado en la validación de lotes: " + ex.Message };
+                    }
+
+            return respuesta;
+        }
+
     }
 }
