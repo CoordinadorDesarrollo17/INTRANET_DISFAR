@@ -832,8 +832,7 @@
                             }
                         </td><!--11-->
                         <td>
-                            @if ((item.Estado.Equals("EMPACADO") || item.Estado.Equals("PESADO") || item.Estado.Equals("PREENVIO") ||
-                             item.Estado.Equals("ENVIADO")) && (item.ProductoPendiente == null || item.ProductoPendiente == 0) && item.EstadoFacturacion == "PENDIENTE")
+                            @if (item.hayFinVerificar && item.ProductoPendiente == 0 && item.EstadoFacturacion == "PENDIENTE")
                             {
                                 <a class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Emitir guías" href="@Url.Action("EmitirGuiasTicketVenta", "Ventas", new
                                         {
@@ -857,8 +856,7 @@
                             }
                         </td>
                         <td>
-                            @if ((item.Estado.Equals("EMPACADO") || item.Estado.Equals("PESADO") || item.Estado.Equals("PREENVIO") ||
-                                 item.Estado.Equals("ENVIADO")) && (item.ProductoPendiente == null || item.ProductoPendiente == 0) && item.EstadoFacturacion == "GRE EMITIDA")
+                            @if (item.ProductoPendiente == 0 && item.EstadoFacturacion == "GRE EMITIDA")
                             {
                                 <a href="@Url.Action("RevertirEmitirGuiasTicketVenta", "Ventas", new { DocEntry = item.DocEntry,
                                     EstadoPago = ViewBag.Ortv.EstadoPago,
@@ -880,8 +878,7 @@
                             }
                         </td>
                         <td>
-                            @if ((item.Estado.Equals("EMPACADO") || item.Estado.Equals("PESADO") || item.Estado.Equals("PREENVIO") ||
-                                item.Estado.Equals("ENVIADO")) && (item.ProductoPendiente == null || item.ProductoPendiente == 0) && item.EstadoFacturacion == "GRE EMITIDA")
+                            @if ( item.ProductoPendiente == 0 && item.EstadoFacturacion == "GRE EMITIDA")
                             {
                                 <a class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Facturar" href="@Url.Action( "FacturarTicketVenta", "Ventas", new { DocEntry = item.DocEntry,
                                     EstadoPago = ViewBag.Ortv.EstadoPago,
@@ -903,8 +900,7 @@
                             }
                         </td>
                         <td>
-                            @if ((item.Estado.Equals("EMPACADO") || item.Estado.Equals("PESADO") || item.Estado.Equals("PREENVIO") ||
-                            item.Estado.Equals("ENVIADO")) && (item.ProductoPendiente == null || item.ProductoPendiente == 0) && item.EstadoFacturacion == "FACTURADO")
+                            @if ( item.ProductoPendiente == 0 && item.EstadoFacturacion == "FACTURADO")
                             {
                                 <a href="@Url.Action( "AnularFacturarTicketVenta", "Ventas", new { DocEntry = item.DocEntry,
                                 EstadoPago = ViewBag.Ortv.EstadoPago,
