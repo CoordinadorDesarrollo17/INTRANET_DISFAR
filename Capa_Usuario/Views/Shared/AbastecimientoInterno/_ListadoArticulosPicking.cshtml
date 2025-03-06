@@ -132,4 +132,76 @@
         // Calcular el stock saliendo
         fila.querySelector('[data-campo="StockSaliendo"]').value = calcularStockSaliendo(cantidadSolicitada.value, valorUmAlm, stockSaldo, stockMaster, stockTotalUnidades, idStockMaster, `Fila ${index + 1}`);
     });
+
+    function guardarArticulosPicking() {
+        const tablaOrigen = document.querySelector('#tbl_listaArticulosAbastPicking tbody');
+        const tablaDestino = document.querySelector('#tbl_detalleRequerimiento tbody');
+
+        if (!tablaOrigen) {
+            Swal.fire('Para guardar cambios, debes buscar un código de artículo existente. ')
+            return;
+        }
+
+        const filas = tablaOrigen.querySelectorAll('tr');
+        const arrayDeFilas = Array.from(filas).map(fila => {
+            // Selecciona todos los inputs dentro de la fila actual
+            const inputs = fila.querySelectorAll('input[data-campo]');
+
+            // Crea un objeto con el data-campo como clave y el valor del input como valor
+            const valores = Array.from(inputs).reduce((obj, input) => {
+                const key = input.dataset.campo; // Obtiene el valor de data-campo
+                if (key) { // Verifica que el data-campo exista
+                    obj[key] = input.value;
+                }
+                return obj;
+            }, {});
+
+            return valores;
+        }).filter(valores => {
+            // Filtra las filas donde el campo "StockSaliendo" sea mayor a cero
+            return Number(valores['StockSaliendo']) > 0;
+        });
+
+        let tbody = ''
+        let num = 1
+        arrayDeFilas.forEach(item => {
+            tbody += `<tr id="fila_${item.ItemCode}_${num}">
+                                <td scope="col" class="text-center"><input type="hidden" name="requerimiento.Detalle[].ItemCode" data-fila="fila_${item.ItemCode}_${num}" class="cls-itemCodes" value="${item.ItemCode}" /> ${item.ItemCode} </td>
+                                <td scope="col" class="text-center">
+                                    <input type="hidden" name="requerimiento.Detalle[].ItemName" value="${item.ItemName}" />${item.ItemName}
+                                </td>
+                                <td scope="col" class="text-center">
+                                    <input type="hidden" name="requerimiento.Detalle[].BatchNum" value="${item.BatchNum}" />${item.BatchNum}
+                                </td>
+                                <td scope="col" class="text-center">
+                                    <input type="hidden" name="requerimiento.Detalle[].UmAlm" value="${item.UmAlm}" />
+                                    <input type="hidden" name="requerimiento.Detalle[].ValorUmAlm" value="${item.ValorUmAlm}" />
+                                    <input type="hidden" name="requerimiento.Detalle[].QuantityMaster" value="${item.StockMaster}" />
+                                    <input type="hidden" name="requerimiento.Detalle[].QuantitySaldo" value="${item.StockSaldo}" />
+                                    <input type="hidden" name="requerimiento.Detalle[].QuantityUnidadesCajas" value="${item.StockSaliendo}" />${item.StockSaliendo}
+                                </td>
+                                <td scope="col" class="text-center">
+                                    <input type="hidden" name="requerimiento.Detalle[].CodigoUbicacionOrigen" value="${item.CodigoUbicacionOrigen}" />
+                                    <select id="CodigoUbicacionDestino_${item.ItemCode}_${item.BatchNum}_${num}" name="requerimiento.Detalle[].CodigoUbicacionDestino"  class="form-select cls-select"
+                                        data-batchnum="${item.BatchNum}" data-itemcode="${item.ItemCode}" onfocus="cargarUbicaciones('RESERVA', this.dataset, this.id)"  />
+                                        <option>Seleccionar para cargar ubicaciones...</option>
+                                    </select>
+                                </td>
+                            </tr>`
+
+            ++num
+        })
+
+        tablaDestino.innerHTML = tbody
+        console.log('Filas movidas con éxito')
+
+        const modalElement = document.getElementById('modalBusquedaArticulos')
+        const modalBootstrap = bootstrap.Modal.getInstance(modalElement)
+
+        if (!modalBootstrap) {
+            const modalBootstrap = new bootstrap.Modal(modalElement)
+        }
+
+        modalBootstrap.hide()
+    }
 </script>

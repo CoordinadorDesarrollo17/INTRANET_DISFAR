@@ -99,11 +99,8 @@
 
 
             let stockSolicitadoMaster = parseInt(fila.querySelector('[data-campo="StockSolicitadoMaster"]')?.value || 0)
-            console.log(stockSolicitadoMaster)
             let stockSolicitadoSaldo = parseInt(fila.querySelector('[data-campo="StockSolicitadoSaldo"]')?.value || 0)
-            console.log(stockSolicitadoSaldo)
             let stockSolicitadoTotalUnidades = (Number(stockSolicitadoMaster) * Number(valorUmAlm)) + Number(stockSolicitadoSaldo)
-            console.log(stockSolicitadoTotalUnidades)
             fila.querySelector('[data-campo="StockSolicitadoTotalUnidades"]').value = Number(stockSolicitadoMaster) * Number(stockSolicitadoSaldo)
 
             if (stockSolicitadoTotalUnidades > stockTotalUnidades) {
@@ -153,11 +150,11 @@
             return valores;
         }).filter(valores => {
             // Filtra las filas donde el campo "StockSaliendo" sea mayor a cero
-            return Number(valores['StockSolicitadoMaster']) > 0 && Number(valores['StockSolicitadoSaldo']) > 0;
+            return Number(valores['StockSolicitadoMaster']) > 0 && Number(valores['StockSolicitadoSaldo']) > 0 && Number(valores["StockSolicitadoTotalUnidades"] > 0);
         });
 
-        console.log(arrayDeFilas)
-        return;
+        //console.log(arrayDeFilas)
+        //return;
         let tbody = ''
         let num = 1
         arrayDeFilas.forEach(item => {
@@ -172,9 +169,9 @@
                         <td scope="col" class="text-center">
                             <input type="hidden" name="requerimiento.Detalle[].UmAlm" value="${item.UmAlm}" />
                             <input type="hidden" name="requerimiento.Detalle[].ValorUmAlm" value="${item.ValorUmAlm}" />
-                            <input type="hidden" name="requerimiento.Detalle[].QuantityMaster" value="${item.StockMaster}" />
-                            <input type="hidden" name="requerimiento.Detalle[].QuantitySaldo" value="${item.StockSaldo}" />
-                            <input type="hidden" name="requerimiento.Detalle[].QuantityUnidadesCajas" value="${item.StockSaliendo}" />${item.StockSaliendo}
+                            <input type="hidden" name="requerimiento.Detalle[].QuantityMaster" value="${item.StockSolicitadoMaster}" />
+                            <input type="hidden" name="requerimiento.Detalle[].QuantitySaldo" value="${item.StockSolicitadoSaldo}" />
+                            <input type="hidden" name="requerimiento.Detalle[].QuantityUnidadesCajas" value="${item.StockSolicitadoTotalUnidades}" />${item.StockSolicitadoTotalUnidades}
                         </td>
                         <td scope="col" class="text-center">
                             <input type="hidden" name="requerimiento.Detalle[].CodigoUbicacionOrigen" value="${item.CodigoUbicacionOrigen}" />

@@ -796,10 +796,11 @@ namespace Capa_Usuario.Controllers
             if (usuarioSesion == null)
                 return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
 
+            // Orden: próxima fecha de vencimiento, primera fecha de admisión registrada, la menor cantidad en unidades
             List<UbicacionesLotesMaster_E> lista = _ubicacionesLotesMasterN.BuscarArticulos(new UbicacionesLotesMaster_E { ItemCode = itemCode })
-                .OrderBy(a => DateTime.Parse(a.InDate)) // Ordena por fecha de vencimiento (asc)
-                .ThenBy(a => DateTime.Parse(a.ExpDate)) // Luego por fecha de admisión (asc)
-                .ThenByDescending(a => a.QuantityUnidadesCajas) // Luego por cantidad en unidades (desc)
+                .OrderBy(a => DateTime.Parse(a.ExpDate))
+                .ThenBy(a => DateTime.Parse(a.InDate))
+                .ThenBy(a => a.QuantityUnidadesCajas)
                 .ToList();
 
             switch (tipoAbastecimiento)
