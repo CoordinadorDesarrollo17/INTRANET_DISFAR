@@ -285,6 +285,8 @@ namespace Capa_Usuario.Controllers
             Utilitarios uti = new Utilitarios();
             SolicitudesTraslado_E traslado = null;
             TransferenciaReserva_E transferencia = null;
+            traslado = _solicitudTrasladoN.ObtenerSolicitudDeTraslado(docNum, null)
+                       ?? _solicitudTrasladoHanaN.BuscarSolicitudDeTraslado(docNum);
             // Iniciar la transacción global para las operaciones críticas
             using (var scope = new TransactionScope(TransactionScopeOption.Required,
                new TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted },
@@ -293,8 +295,7 @@ namespace Capa_Usuario.Controllers
                 using (SqlConnection cn = new SqlConnection(uti.cadSql2))
                 {
                     cn.Open();
-                    traslado = _solicitudTrasladoN.ObtenerSolicitudDeTraslado(docNum, cn)
-                       ?? _solicitudTrasladoHanaN.BuscarSolicitudDeTraslado(docNum);
+                    
 
                     if (traslado == null)
                     {
@@ -334,7 +335,7 @@ namespace Capa_Usuario.Controllers
                         //Asignar la ubicacion ideal segun UbicacionesLotesMaster
                         foreach (var item in traslado.Detalle)
                         {
-                            var resultados = _ubicacionesLotesMasterN.BuscarUnidadAlm(new UbicacionesLotesMaster_E { Almacen = "RESERVA", ItemCode = item.Value.ItemCode, BatchNum = item.Value.BatchNum });
+                            var resultados = _ubicacionesLotesMasterN.BuscarUnidadAlm(cn, new UbicacionesLotesMaster_E { Almacen = "RESERVA", ItemCode = item.Value.ItemCode, BatchNum = item.Value.BatchNum });
                             if (resultados != null && resultados.Count == 1) { item.Value.UnidadAlmSugerido = resultados.First(); }
                         }
                     }
@@ -1096,15 +1097,16 @@ namespace Capa_Usuario.Controllers
                             // Validar que los ids en cuanto a la suma de QuantityUnidadesCajas es igual a Quantity de DetSolicitudDeTraslado respecto a ese ItemCode
                             if (traslado.Detalle != null && transferenciaGet.Detalle != null)
                             {
+
                                 traslado.Detalle = traslado.Detalle
                                 .Where(kv => kv.Value.ItemCode == itemCode)
                                 .ToDictionary(kv => kv.Key, kv => kv.Value);
 
-                                // Toma el primer elemento del diccionario
-                                var primerDetalle = traslado.Detalle.First().Value;
+
+                                int quantityCajasItemCode = Convert.ToInt32(traslado.Detalle.Sum(x=>x.Value.QuantityCajas));
 
                                 //Si las cantidades no coinciden quiere decir que no se ha pasado el grupo completo de los ids correspondientes a un ItemCode en la solicitud de traslado, muestra error
-                                if (primerDetalle.QuantityCajas != transferenciaGet.Detalle.Where(x => x.ItemCode == itemCode).Sum(x => x.QuantityUnidadesCajas))
+                                if (quantityCajasItemCode != transferenciaGet.Detalle.Where(x => x.ItemCode == itemCode).Sum(x => x.QuantityUnidadesCajas))
                                 {
                                     return Json(new
                                     {
@@ -1153,7 +1155,7 @@ namespace Capa_Usuario.Controllers
                                 }
 
                                 //Eliminar los items de Detalle de Transferencia de Reserva 'REVERT' que sean del ItemCode
-                                var resultTransferencia = _transferenciaReservaN.DeleteDetalleItemTransferenciaReserva(transferenciaGet.Detalle, primerDetalle, cn);
+                                var resultTransferencia = _transferenciaReservaN.DeleteDetalleItemTransferenciaReserva(transferenciaGet.Detalle, traslado.Detalle, cn);
                                 if (resultTransferencia.IconoSweetAlert.Equals("error"))
                                 {
                                     return Json(new
@@ -1164,15 +1166,11 @@ namespace Capa_Usuario.Controllers
                                     });
                                 }
 
-
-
                                 //Verificar si la TransferenciaReserva se quedo sin elementos 
                                 var transferenciaPostReversion = _transferenciaReservaN.ObtenerTransferenciaReserva(docNum, cn);
 
                                 if (transferenciaPostReversion != null && transferenciaPostReversion.Detalle.Count() == 0)
                                 {
-
-
                                     //Eliminar la transferencia 
                                     var resultEliminarTransferencia = _transferenciaReservaN.DeleteTransferenciaReserva(docNum, cn);
                                     if (resultEliminarTransferencia.IconoSweetAlert.Equals("error"))
@@ -1185,7 +1183,7 @@ namespace Capa_Usuario.Controllers
                                         });
                                     }
 
-                                    //Luego Eliminar Detalle y Cabecera de Solicitud de Traslado solo si la transferencia se quedo sin elementos en su detalle, genera una nueva connection
+                                    //Luego Eliminar Detalle y Cabecera de Solicitud de Traslado solo si la transferencia ya se elimino
                                     var resultSolicitudTraslado = _solicitudTrasladoN.DeleteSolicitudDeTraslado(docNum, cn);
                                     if (resultSolicitudTraslado.IconoSweetAlert.Equals("error"))
                                     {
@@ -1197,13 +1195,12 @@ namespace Capa_Usuario.Controllers
                                         });
                                     }
 
-                                    scope.Complete();
                                 }
+
+                                scope.Complete();
                             }
                         }
-
                     }
-
                     return Json(new
                     {
                         Titulo = "Acción completada exitosamente",
@@ -1379,8 +1376,15 @@ namespace Capa_Usuario.Controllers
                     //Calcular desde SAP (Stock Total - Stock Comprometido)  en Almacen 16 por defecto
                     int stockLibreEnAlmacen16 = Convert.ToInt32(new Capa_Negocio.Almacen_NEG.Tablas.OITW_N().ListarDetArticulosInv(new OITW_E { ItemCode = itemCode, WhsCode = "16" }).DefaultIfEmpty(new OITW_E { }).First().StockLibre);
 
-                    int stockDeAlmReserva = _ubicacionesLotesN.Obtener(itemCode).Sum(u => u.QuantityUnidadesCajas) -
-                        Convert.ToInt32(_requerimientosN.ListarDetalles(itemCode, "CantidadSolicitada").Sum(r => r.QuantityUnidadesCajas)); //resta de lo que esta por entrar a Picking Atendido=0
+                    List<DetalleRequerimientos_E> resultDetReq = _requerimientosN.ListarDetalles(itemCode, "CantidadSolicitada");
+                    int quantityReq = 0;
+                    if (resultDetReq!= null) { quantityReq=Convert.ToInt32(resultDetReq.Sum(r => r.QuantityUnidadesCajas)); }
+
+                    List<UbicacionesLotes_E> resultUbicacionesLotes = _ubicacionesLotesN.Obtener(itemCode);
+                    int quantityUbicacionesLote = 0; 
+                    if (resultUbicacionesLotes != null) { quantityUbicacionesLote=resultUbicacionesLotes.Sum(r => r.QuantityUnidadesCajas); }
+
+                    int stockDeAlmReserva = quantityUbicacionesLote - quantityReq; //resta de lo que esta por entrar a Picking Atendido=0
 
                     int stockEnPicking = stockLibreEnAlmacen16 - stockDeAlmReserva;
 

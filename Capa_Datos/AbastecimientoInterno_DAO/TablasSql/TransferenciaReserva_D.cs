@@ -24,53 +24,53 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
             {
                 cn.Open();
             }
-                try
+            try
+            {
+                using (var cmd = new SqlCommand("sp_MantenimientoTransferenciaReserva", cn))
                 {
-                    using (var cmd = new SqlCommand("sp_MantenimientoTransferenciaReserva", cn))
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "INSERT");
+                    cmd.Parameters.AddWithValue("@SolicitudTrasladoId", transferencia.SolicitudTrasladoId);
+                    cmd.Parameters.AddWithValue("@SolicitudTrasladoDocNum", transferencia.SolicitudTrasladoDocNum);
+                    cmd.Parameters.AddWithValue("@CardCode", transferencia.CardCode);
+                    cmd.Parameters.AddWithValue("@CardName", transferencia.CardName);
+                    cmd.Parameters.AddWithValue("@NroGuia", transferencia.NroGuia);
+                    cmd.Parameters.AddWithValue("@OperarioRegistra", transferencia.OperarioRegistra);
+
+                    SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
                     {
-                        cmd.CommandType = CommandType.StoredProcedure;
+                        Direction = ParameterDirection.Output
+                    };
+                    cmd.Parameters.Add(idGeneradoParam);
 
-                        cmd.Parameters.AddWithValue("@TipoMantenimiento", "INSERT");
-                        cmd.Parameters.AddWithValue("@SolicitudTrasladoId", transferencia.SolicitudTrasladoId);
-                        cmd.Parameters.AddWithValue("@SolicitudTrasladoDocNum", transferencia.SolicitudTrasladoDocNum);
-                        cmd.Parameters.AddWithValue("@CardCode", transferencia.CardCode);
-                        cmd.Parameters.AddWithValue("@CardName", transferencia.CardName);
-                        cmd.Parameters.AddWithValue("@NroGuia", transferencia.NroGuia);
-                        cmd.Parameters.AddWithValue("@OperarioRegistra", transferencia.OperarioRegistra);
+                    // Tabla de detalles
+                    DataTable dtDetalle = ConvertirADatatable(transferencia.Detalle);
+                    SqlParameter detallesParam = cmd.Parameters.AddWithValue("@Detalle", dtDetalle);
+                    detallesParam.SqlDbType = SqlDbType.Structured;
+                    detallesParam.TypeName = "dbo.DetalleTransferenciaReservaType";
 
-                        SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
-                        {
-                            Direction = ParameterDirection.Output
-                        };
-                        cmd.Parameters.Add(idGeneradoParam);
+                    cmd.ExecuteNonQuery();
 
-                        // Tabla de detalles
-                        DataTable dtDetalle = ConvertirADatatable(transferencia.Detalle);
-                        SqlParameter detallesParam = cmd.Parameters.AddWithValue("@Detalle", dtDetalle);
-                        detallesParam.SqlDbType = SqlDbType.Structured;
-                        detallesParam.TypeName = "dbo.DetalleTransferenciaReservaType";
-
-                        cmd.ExecuteNonQuery();
-
-                        int idGenerado = (int)idGeneradoParam.Value;
-                        if (idGenerado > 0)
-                        {
-                            return new Helper_E { Mensajes = new List<string> { "Transferencia de reserva generada correctamente" }, IconoSweetAlert = "success", Id = idGenerado };
-                        }
-                        else
-                        {
-                            return new Helper_E { Mensajes = new List<string> { "No se registro transaferencia en la base de datos correctamente" }, IconoSweetAlert = "error" };
-                        }
+                    int idGenerado = (int)idGeneradoParam.Value;
+                    if (idGenerado > 0)
+                    {
+                        return new Helper_E { Mensajes = new List<string> { "Transferencia de reserva generada correctamente" }, IconoSweetAlert = "success", Id = idGenerado };
+                    }
+                    else
+                    {
+                        return new Helper_E { Mensajes = new List<string> { "No se registro transaferencia en la base de datos correctamente" }, IconoSweetAlert = "error" };
                     }
                 }
-                catch (Exception ex)
-                {
-                    LogHelper.RegistrarError(ex, "TransferenciaReserva_D - RegistrarTransferenciaReserva");
-                    mensaje = "Ocurrió un error al registrar la transferencia reserva. Comuníquese con el área de Sistemas para más información.";
-                    icono = "error";
-                    throw new Exception("Error en RegistrarTransferenciaReserva.", ex);
-                }
-           
+            }
+            catch (Exception ex)
+            {
+                LogHelper.RegistrarError(ex, "TransferenciaReserva_D - RegistrarTransferenciaReserva");
+                mensaje = "Ocurrió un error al registrar la transferencia reserva. Comuníquese con el área de Sistemas para más información.";
+                icono = "error";
+                throw new Exception("Error en RegistrarTransferenciaReserva.", ex);
+            }
+
         }
         private DataTable ConvertirADatatable(List<DetalleTransferenciaReserva_E> detalles)
         {
@@ -96,7 +96,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
             }
             return table;
         }
-        public TransferenciaReserva_E ObtenerTransferenciaReserva(int docNum,SqlConnection cn)
+        public TransferenciaReserva_E ObtenerTransferenciaReserva(int docNum, SqlConnection cn)
         {
             TransferenciaReserva_E transferencia = null;
             try
@@ -206,7 +206,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
         }
-        public Helper_E DeleteDetalleItemTransferenciaReserva(List<DetalleTransferenciaReserva_E> detTransferenciaReserva, DetalleSolicitudesTraslado_E detSolicitudTraslado, SqlConnection cn)
+        public Helper_E DeleteDetalleItemTransferenciaReserva(List<DetalleTransferenciaReserva_E> detTransferenciaReserva, Dictionary<string, DetalleSolicitudesTraslado_E> detalleTraslado, SqlConnection cn)
         {
             string mensaje, icono;
             //generar una variable string grupoIds concatenando los valores de Id de ids separados por una coma
@@ -218,10 +218,15 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 }
 
                 List<string> ids = new List<string>();
-
                 foreach (var item in detTransferenciaReserva)
                 {
-                        ids.Add(item.Id.ToString());
+                    ids.Add(item.Id.ToString());
+                }
+
+                List<string> idsCabecera = new List<string>();
+                foreach (var item in detalleTraslado)
+                {
+                    idsCabecera.Add(item.Value.Id.ToString());
                 }
 
                 using (SqlCommand cmd = new SqlCommand("sp_MantenimientoTransferenciaReserva", cn))
@@ -230,7 +235,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
                     cmd.Parameters.AddWithValue("@TipoMantenimiento", "REVERT");
                     cmd.Parameters.AddWithValue("@GrupoIds", string.Join(",", ids));
-                    cmd.Parameters.AddWithValue("@DetalleSolicitudesTrasladoId", detSolicitudTraslado.Id);
+                    cmd.Parameters.AddWithValue("@GrupoIdsCabecera", string.Join(",", idsCabecera));
                     SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
                     {
                         Direction = ParameterDirection.Output
@@ -251,7 +256,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 throw new Exception("Error en DeleteDetalleItemTransferenciaReserva.", ex);
             }
 
-            return new Helper_E { Mensajes = new List<string> { mensaje }   , IconoSweetAlert = icono };
+            return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
         }
 
     }

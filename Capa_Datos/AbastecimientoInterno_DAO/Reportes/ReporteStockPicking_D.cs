@@ -39,7 +39,8 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.Reportes
                                 if (!dr.IsDBNull(2)) reporte.Clasificacion = dr.GetString(2);
                                 if (!dr.IsDBNull(3)) reporte.StockActual = dr.GetInt32(3);
                                 if (!dr.IsDBNull(4)) reporte.Almacen = dr.GetString(4);
-                                if (!dr.IsDBNull(5)) reporte.StockMinAbastecimiento = dr.GetInt32(5);
+                                if (!dr.IsDBNull(5)) reporte.StockMinVenta = dr.GetInt32(5);
+                                if (!dr.IsDBNull(6)) reporte.StockMinAbastecimiento = dr.GetInt32(6);
 
                                 lista.Add(reporte);
                             }

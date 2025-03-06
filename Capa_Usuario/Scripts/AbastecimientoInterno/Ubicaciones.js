@@ -9,9 +9,10 @@ function mostrarCamposUbicacion(accion) {
     }
 }
 
-let codigoUbicacion = ["", "", "", ""]
 
+let codigoUbicacion = ["", "", "", ""]
 function generarCodigoUbicacion(codigo, posicion) {
+
     codigo = codigo.trim()
 
     if (codigo === "" || (posicion === 3 && isNaN(codigo))) {

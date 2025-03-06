@@ -30,8 +30,8 @@
                     </td>
                     <td scope="col" class="text-center"><input type="hidden" id="picking_batchNum_@num" data-campo="BatchNum" value="@item.BatchNum" />@item.BatchNum</td>
                     <td scope="col" class="text-center">
-                        <span class="fw-bold text-cobefar">Venc.: </span>@item.InDate<br />
-                        <span class="fw-bold text-cobefar">Adm.:</span> @item.ExpDate
+                        <span class="fw-bold text-cobefar">Venc.: </span>@item.ExpDate<br />
+                        <span class="fw-bold text-cobefar">Adm.:</span> @item.InDate
                     </td>
                     <td scope="col" class="text-center">@item.CodigoUbicacion</td>
                     <td scope="col" class="text-center">
@@ -183,7 +183,7 @@
                                 <td scope="col" class="text-center">
                                     <input type="hidden" name="requerimiento.Detalle[].CodigoUbicacionOrigen" value="${item.CodigoUbicacionOrigen}" />
                                     <select id="CodigoUbicacionDestino_${item.ItemCode}_${item.BatchNum}_${num}" name="requerimiento.Detalle[].CodigoUbicacionDestino"  class="form-select cls-select"
-                                        data-batchnum="${item.BatchNum}" data-itemcode="${item.ItemCode}" onfocus="cargarUbicaciones('RESERVA', this.dataset, this.id)"  />
+                                        data-batchnum="${item.BatchNum}" data-itemcode="${item.ItemCode}" onfocus="cargarUbicaciones('PICKING', this.dataset, this.id)"  />
                                         <option>Seleccionar para cargar ubicaciones...</option>
                                     </select>
                                 </td>

@@ -34,42 +34,42 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     cmd.CommandType = CommandType.StoredProcedure;
 
                     int idGenerado = 0;
-                    
-                        cmd.Parameters.Clear();
 
-                        cmd.Parameters.AddWithValue("@TipoMantenimiento", "INGRESO");
-                        cmd.Parameters.AddWithValue("@Almacen", "RESERVA");
-                        cmd.Parameters.AddWithValue("@ItemCode", detalle.ItemCode);
-                        cmd.Parameters.AddWithValue("@ItemName", detalle.ItemName);
-                        cmd.Parameters.AddWithValue("@CodigoUbicacion", detalle.CodigoUbicacion);
-                        cmd.Parameters.AddWithValue("@BatchNum", detalle.BatchNum);
-                        cmd.Parameters.AddWithValue("@UmAlm", detalle.UmAlm);
-                        cmd.Parameters.AddWithValue("@ValorUmAlm", detalle.ValorUmAlm);
-                        cmd.Parameters.AddWithValue("@QuantityMaster", detalle.QuantityMaster);
-                        cmd.Parameters.AddWithValue("@QuantitySaldo", detalle.QuantitySaldo);
-                        cmd.Parameters.AddWithValue("@UbicacionLoteId", ubicacionLoteId);
-                        //cmd.Parameters.AddWithValue("@QuantityUnidadesCajas", detalle.QuantityUnidadesCajas); // No es necesario enviarlas ya que se hace calculo en el procedure.
+                    cmd.Parameters.Clear();
 
-                        // Parámetro de salida
-                        SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
-                        {
-                            Direction = ParameterDirection.Output
-                        };
-                        cmd.Parameters.Add(idGeneradoParam);
+                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "INGRESO");
+                    cmd.Parameters.AddWithValue("@Almacen", "RESERVA");
+                    cmd.Parameters.AddWithValue("@ItemCode", detalle.ItemCode);
+                    cmd.Parameters.AddWithValue("@ItemName", detalle.ItemName);
+                    cmd.Parameters.AddWithValue("@CodigoUbicacion", detalle.CodigoUbicacion);
+                    cmd.Parameters.AddWithValue("@BatchNum", detalle.BatchNum);
+                    cmd.Parameters.AddWithValue("@UmAlm", detalle.UmAlm);
+                    cmd.Parameters.AddWithValue("@ValorUmAlm", detalle.ValorUmAlm);
+                    cmd.Parameters.AddWithValue("@QuantityMaster", detalle.QuantityMaster);
+                    cmd.Parameters.AddWithValue("@QuantitySaldo", detalle.QuantitySaldo);
+                    cmd.Parameters.AddWithValue("@UbicacionLoteId", ubicacionLoteId);
+                    //cmd.Parameters.AddWithValue("@QuantityUnidadesCajas", detalle.QuantityUnidadesCajas); // No es necesario enviarlas ya que se hace calculo en el procedure.
 
-                        cmd.ExecuteNonQuery();
+                    // Parámetro de salida
+                    SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
+                    {
+                        Direction = ParameterDirection.Output
+                    };
+                    cmd.Parameters.Add(idGeneradoParam);
 
-                        // Obtener el ID generado y verificar si es válido.
-                        idGenerado = idGeneradoParam.Value != DBNull.Value ? (int)idGeneradoParam.Value : 0;
+                    cmd.ExecuteNonQuery();
 
-                        if (idGenerado <= 0)
-                        {
-                            mensaje = "Ocurrió un error al registrar un ingreso en UbicacionesLotesMaster. Comuníquese con el área de Sistemas para más información.";
-                            icono = "error";
-                            throw new Exception("Error en Ingreso.");
+                    // Obtener el ID generado y verificar si es válido.
+                    idGenerado = idGeneradoParam.Value != DBNull.Value ? (int)idGeneradoParam.Value : 0;
 
-                        }
-                    
+                    if (idGenerado <= 0)
+                    {
+                        mensaje = "Ocurrió un error al registrar un ingreso en UbicacionesLotesMaster. Comuníquese con el área de Sistemas para más información.";
+                        icono = "error";
+                        throw new Exception("Error en Ingreso.");
+
+                    }
+
 
                     mensaje = "Operacion de ingreso en UbicacionesLotesMaster registrado correctamente";
                     icono = "success";
@@ -186,47 +186,49 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
         }
-        public List<string> BuscarUnidadAlm(string condicion, Dictionary<string, object> parametrosCondicion)
+        public List<string> BuscarUnidadAlm(SqlConnection cn, string condicion, Dictionary<string, object> parametrosCondicion)
         {
-            
+
             List<string> lista = new List<string>();
             try
             {
-                using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+                if (cn.State != ConnectionState.Open)
                 {
-                    SqlCommand cmd = new SqlCommand();
-                    cmd.Connection = cn;
-
-                    var sb = new StringBuilder();
-
-                    sb.AppendLine("SELECT [UmAlm]");
-                    sb.AppendLine("FROM [dbo].[UbicacionesLotesMaster] WHERE 1=1");
-                    sb.AppendLine(condicion);
-
-                    // Agregamos los parámetros dinámicamente
-                    foreach (var param in parametrosCondicion)
-                    {
-                        cmd.Parameters.AddWithValue(param.Key, param.Value);
-                    }
-
-                    cmd.CommandText = sb.ToString();
-
                     cn.Open();
+                }
 
-                    using (SqlDataReader dr = cmd.ExecuteReader())
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = cn;
+
+                var sb = new StringBuilder();
+
+                sb.AppendLine("SELECT [UmAlm]");
+                sb.AppendLine("FROM [dbo].[UbicacionesLotesMaster] WHERE 1=1");
+                sb.AppendLine(condicion);
+
+                // Agregamos los parámetros dinámicamente
+                foreach (var param in parametrosCondicion)
+                {
+                    cmd.Parameters.AddWithValue(param.Key, param.Value);
+                }
+
+                cmd.CommandText = sb.ToString();
+
+                cn.Open();
+
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    if (dr.HasRows)
                     {
-                        if (dr.HasRows)
+                        while (dr.Read())
                         {
-                            while (dr.Read())
-                            {
-                                var unidadAlm = string.Empty;
-                                if (!dr.IsDBNull(0)) unidadAlm = dr.GetString(0);
-                                if (!string.IsNullOrEmpty(unidadAlm)) { lista.Add(unidadAlm); }
-                            }
+                            var unidadAlm = string.Empty;
+                            if (!dr.IsDBNull(0)) unidadAlm = dr.GetString(0);
+                            if (!string.IsNullOrEmpty(unidadAlm)) { lista.Add(unidadAlm); }
                         }
                     }
-                    cn.Close();
                 }
+
             }
             catch (Exception ex)
             {

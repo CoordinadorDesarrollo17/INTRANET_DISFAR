@@ -72,9 +72,9 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         {
             return _datosTransferencia.DeleteTransferenciaReserva(docNum, cn);
         }
-        public Helper_E DeleteDetalleItemTransferenciaReserva(List<DetalleTransferenciaReserva_E> ids , DetalleSolicitudesTraslado_E detalleTraslado, SqlConnection cn)
+        public Helper_E DeleteDetalleItemTransferenciaReserva(List<DetalleTransferenciaReserva_E> ids , Dictionary<string, DetalleSolicitudesTraslado_E> idsCabecera, SqlConnection cn)
         {
-            return _datosTransferencia.DeleteDetalleItemTransferenciaReserva(ids, detalleTraslado, cn);
+            return _datosTransferencia.DeleteDetalleItemTransferenciaReserva(ids, idsCabecera, cn);
         }
     }
  }

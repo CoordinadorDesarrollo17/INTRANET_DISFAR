@@ -17,10 +17,10 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         {
             return kardexD.InsertarTransaccionIngresoKardex(ingreso,cn);
         }
-        public Helper_E ValidarTransaccionImputadoKardex(Requerimientos_E imputado, SqlConnection cn)
-        {
-            return kardexD.ValidarTransaccionImputadoKardex(imputado, cn);
-        }
+        //public Helper_E ValidarTransaccionImputadoKardex(Requerimientos_E imputado, SqlConnection cn)
+        //{
+        //    return kardexD.ValidarTransaccionImputadoKardex(imputado, cn);
+        //}
         public Helper_E InsertarTransaccionImputadoKardex(Requerimientos_E imputado, SqlConnection cn)
         {
             return kardexD.InsertarTransaccionImputadoKardex(imputado, cn);

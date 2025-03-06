@@ -534,8 +534,8 @@
 				$('.fila-detalle').each(function (index) {
 					let productoID = $(this).data('producto');
 
-                    if (detalleTraslado[productoID] && detalleTraslado[productoID].DetalleLotes.length === 1) {
-						document.querySelector(`#btn_chevron_${productoID}`).click();
+                    if (detalleTraslado[productoID] && detalleTraslado[productoID].DetalleLotes.length === 1 && detalleTraslado[productoID].Estado === "PENDIENTE") {
+                            document.querySelector(`#btn_chevron_${productoID}`).click();
 					}
 				});
 
@@ -551,6 +551,7 @@
 							<thead class="table-success">
 								<tr>
 									<th scope="col" class="text-center" style="width: 100">Lote</th>
+									<th scope="col" class="text-center" style="width: 200">Fecha de Admisión</th>
 									<th scope="col" class="text-center" style="width: 200">Fecha de Vencimiento</th>
 									<th scope="col" class="text-center" style="width: 200">Stock UNIDADES</th>
 									<th scope="col" class="text-center" style="width: 200">Unidad MASTER</th>
@@ -563,7 +564,8 @@
 							<tbody>`
 
 			articulo.DetalleLotes.forEach(item => {
-				tableHtml += `<tr data-lote="${item.BatchNum}">
+                let lote = item.BatchNum.split(" ").join("")
+                tableHtml += `<tr data-lote="${lote}">
 								<td class="text-center">
 									<input type="hidden" name="transferenciaPost.SolicitudesTrasladoId" value="${articulo.SolicitudesTrasladoId}" />
 									<input type="hidden" name="transferenciaPost.Detalle[].ItemCode" value="${articulo.ItemCode}" />
@@ -571,17 +573,19 @@
 									<input type="hidden" name="transferenciaPost.Detalle[].BatchNum" value="${item.BatchNum}" />${item.BatchNum}
 								</td>
 								<td class="text-center">
-									<input type="hidden" name="transferenciaPost.Detalle[].InDate" value="${item.InDate}" />
+									<input type="hidden" name="transferenciaPost.Detalle[].InDate" value="${item.InDate}" />${item.InDate}
+								</td>
+								<td class="text-center">
 									<input type="hidden" name="transferenciaPost.Detalle[].ExpDate" value="${item.ExpDate}" />${item.ExpDate}
 								</td>
 								<td class="text-center">
-									<input type="text" id="lote_quantityUnidades_${item.BatchNum}" name="transferenciaPost.Detalle[].QuantityUnidadesCajas" class="form-control text-center cls-num cls-limpiarItem_${articulo.ItemCode}"
-									data-idcantmaster="lote_cantidadMaster_${item.BatchNum}" data-idcantsaldo="lote_cantidadSaldo_${item.BatchNum}" data-cantidadtotal="${item.QuantityCajas}"
-									data-idundmaster="lote_undMaster_${item.BatchNum}" oninput="calcularStockUnidades(this.value, this.dataset)" value="${item.QuantityCajas}">
+									<input type="text" id="lote_quantityUnidades_${lote}" name="transferenciaPost.Detalle[].QuantityUnidadesCajas" class="form-control text-center cls-num cls-limpiarItem_${articulo.ItemCode}"
+									data-idcantmaster="lote_cantidadMaster_${lote}" data-idcantsaldo="lote_cantidadSaldo_${lote}" data-cantidadtotal="${item.QuantityCajas}"
+									data-idundmaster="lote_undMaster_${lote}" oninput="calcularStockUnidades(this.value, this.dataset)" value="${item.QuantityCajas}">
 								</td>
 								 <td scope="col" class="text-center align-middle">
-									 <select id="lote_undMaster_${item.BatchNum}" data-idundmaster="lote_undMaster_${item.BatchNum}" data-idcantmaster="lote_cantidadMaster_${item.BatchNum}" data-idcantsaldo="lote_cantidadSaldo_${item.BatchNum}" data-cantidadtotal="${item.QuantityCajas}"
-										data-idquantityunidades ="lote_quantityUnidades_${item.BatchNum}"
+									 <select id="lote_undMaster_${lote}" data-idundmaster="lote_undMaster_${lote}" data-idcantmaster="lote_cantidadMaster_${lote}" data-idcantsaldo="lote_cantidadSaldo_${lote}" data-cantidadtotal="${item.QuantityCajas}"
+										data-idquantityunidades ="lote_quantityUnidades_${lote}"
 										name="transferenciaPost.Detalle[].ValorUmAlm" class="form-select cls-limpiarItem_${articulo.ItemCode}" onchange="calcularCantidadMasterSaldo(this.value, this.dataset)">
 										 <option value="">Seleccione</<option>
 										${cargarOpcionesMasters(item.UnidadAlmSugerido)}
@@ -589,14 +593,14 @@
 								 </td>
 								<td scope="col" class="text-center">
 									<div class="mx-auto w-75">
-										<input type="text" id="lote_cantidadMaster_${item.BatchNum}" name="transferenciaPost.Detalle[].QuantityMaster" class="form-control text-center cls-num cls-readonly cls-limpiarItem_${articulo.ItemCode}" readonly>
+										<input type="text" id="lote_cantidadMaster_${lote}" name="transferenciaPost.Detalle[].QuantityMaster" class="form-control text-center cls-num cls-readonly cls-limpiarItem_${articulo.ItemCode}" readonly>
 									</div>
 								</td>
 								 <td scope="col" class="text-center">
-									<div class="mx-auto w-75"><input type="text" id="lote_cantidadSaldo_${item.BatchNum}" name="transferenciaPost.Detalle[].QuantitySaldo" class="form-control text-center cls-num cls-readonly cls-limpiarItem_${articulo.ItemCode}" readonly></div>
+									<div class="mx-auto w-75"><input type="text" id="lote_cantidadSaldo_${lote}" name="transferenciaPost.Detalle[].QuantitySaldo" class="form-control text-center cls-num cls-readonly cls-limpiarItem_${articulo.ItemCode}" readonly></div>
 								</td>
 								<td class="text-center">
-									<select id="lote_ubicacion_${item.BatchNum}" name="transferenciaPost.Detalle[].CodigoUbicacion" data-idloteubicacion="lote_ubicacion_${item.BatchNum}" data-itemcode="${articulo.ItemCode}"
+									<select id="lote_ubicacion_${lote}" name="transferenciaPost.Detalle[].CodigoUbicacion" data-idloteubicacion="lote_ubicacion_${lote}" data-itemcode="${articulo.ItemCode}"
 									class="form-select cls-limpiarItem_${articulo.ItemCode}" onfocus="cargarUbicaciones('RESERVA', this.dataset)" style="width: 200px">
 										<option value="">Seleccione</option>
 									</select>
@@ -616,12 +620,11 @@
 				item.ItemCode === articulo.ItemCode && item.BatchNum === item.BatchNum
 			)
 
-
-
 			let tableHtml = `<div class="d-flex justify-content-center w-100"><table id="tbl_detalleLotes_${articulo.ItemCode}" class="table table-sm table-bordered table-hover subtable w-75 tbl_detalleLotes">
 					<thead class="table-success">
 						<tr>
 							<th scope="col" class="text-center" style="width: 100">Lote</th>
+							<th scope="col" class="text-center" style="width: 200">Fecha de Admisión</th>
 							<th scope="col" class="text-center" style="width: 200">Fecha de Vencimiento</th>
 							<th scope="col" class="text-center" style="width: 200">Stock UNIDADES</th>
 							<th scope="col" class="text-center" style="width: 200">Unidad MASTER</th>
@@ -635,8 +638,9 @@
 
 			if (itemsTransferidos.length >= 1) {
                 itemsTransferidos.forEach(item => {
-                    tableHtml += `<tr data-lote="${item.BatchNum}">
-													<td class="text-center">${item.UmAlm}</td>
+					tableHtml += `<tr data-lote="${item.BatchNum}">
+													<td class="text-center">${item.BatchNum}</td>
+													<td class="text-center">${item.InDate}</td>
 													<td class="text-center">${item.ExpDate}</td>
 													<td class="text-center">${item.QuantityUnidadesCajas}</td>
 													 <td scope="col" class="text-center align-middle">${item.UmAlm}</td>
@@ -648,7 +652,8 @@
                 });
 			} else {
 				articulo.DetalleLotes.forEach(item => {
-					tableHtml += `<tr data-lote="${item.BatchNum}">
+                    let lote = item.BatchNum.split(" ").join("")
+                    tableHtml += `<tr data-lote="${lote}">
 													<td class="text-center">
 														<input type="hidden" name="transferenciaPost.SolicitudesTrasladoId" value="${articulo.SolicitudesTrasladoId}" />
 														<input type="hidden" name="transferenciaPost.Detalle[].ItemCode" value="${articulo.ItemCode}" />
@@ -656,17 +661,19 @@
 														<input type="hidden" name="transferenciaPost.Detalle[].BatchNum" value="${item.BatchNum}" />${item.BatchNum}
 													</td>
 													<td class="text-center">
-														<input type="hidden" name="transferenciaPost.Detalle[].InDate" value="${item.InDate}" />
+														<input type="hidden" name="transferenciaPost.Detalle[].InDate" value="${item.InDate}" />${item.InDate}
+													</td>
+													<td class="text-center">
 														<input type="hidden" name="transferenciaPost.Detalle[].ExpDate" value="${item.ExpDate}" />${item.ExpDate}
 													</td>
 													<td class="text-center">
-														<input type="text" id="lote_quantityUnidades_${item.BatchNum}" name="transferenciaPost.Detalle[].QuantityUnidadesCajas" class="form-control text-center cls-num cls-limpiarItem_${articulo.ItemCode}" value="${item.QuantityCajas}"
-														data-idcantmaster="lote_cantidadMaster_${item.BatchNum}" data-idcantsaldo="lote_cantidadSaldo_${item.BatchNum}" data-cantidadtotal="${item.QuantityCajas}"
-														data-idundmaster="lote_undMaster_${item.BatchNum}" oninput="calcularStockUnidades(this.value, this.dataset)">
+														<input type="text" id="lote_quantityUnidades_${lote}" name="transferenciaPost.Detalle[].QuantityUnidadesCajas" class="form-control text-center cls-num cls-limpiarItem_${articulo.ItemCode}" value="${item.QuantityCajas}"
+														data-idcantmaster="lote_cantidadMaster_${lote}" data-idcantsaldo="lote_cantidadSaldo_${lote}" data-cantidadtotal="${item.QuantityCajas}"
+														data-idundmaster="lote_undMaster_${lote}" oninput="calcularStockUnidades(this.value, this.dataset)">
 													</td>
 													 <td scope="col" class="text-center align-middle">
-														 <select id="lote_undMaster_${item.BatchNum}" data-idundmaster="lote_undMaster_${item.BatchNum}" data-idcantmaster="lote_cantidadMaster_${item.BatchNum}" data-idcantsaldo="lote_cantidadSaldo_${item.BatchNum}" data-cantidadtotal="${item.QuantityCajas}"
-															data-idquantityunidades ="lote_quantityUnidades_${item.BatchNum}"
+														 <select id="lote_undMaster_${lote}" data-idundmaster="lote_undMaster_${lote}" data-idcantmaster="lote_cantidadMaster_${lote}" data-idcantsaldo="lote_cantidadSaldo_${lote}" data-cantidadtotal="${item.QuantityCajas}"
+															data-idquantityunidades ="lote_quantityUnidades_${lote}"
 															name="transferenciaPost.Detalle[].ValorUmAlm" class="form-select cls-limpiarItem_${articulo.ItemCode}" onchange="calcularCantidadMasterSaldo(this.value, this.dataset)">
 															 <option value="">Seleccione</<option>
 															${cargarOpcionesMasters(articulo.UnidadAlmSugerido)}
@@ -674,14 +681,14 @@
 													 </td>
 													<td scope="col" class="text-center">
 														<div class="mx-auto w-75">
-															<input type="text" id="lote_cantidadMaster_${item.BatchNum}" name="transferenciaPost.Detalle[].QuantityMaster" class="form-control text-center cls-num cls-readonly cls-limpiarItem_${articulo.ItemCode}" readonly>
+															<input type="text" id="lote_cantidadMaster_${lote}" name="transferenciaPost.Detalle[].QuantityMaster" class="form-control text-center cls-num cls-readonly cls-limpiarItem_${articulo.ItemCode}" readonly>
 														</div>
 													</td>
 													 <td scope="col" class="text-center">
-														<div class="mx-auto w-75"><input type="text" id="lote_cantidadSaldo_${item.BatchNum}" name="transferenciaPost.Detalle[].QuantitySaldo" class="form-control text-center cls-num cls-readonly cls-limpiarItem_${articulo.ItemCode}" readonly></div>
+														<div class="mx-auto w-75"><input type="text" id="lote_cantidadSaldo_${lote}" name="transferenciaPost.Detalle[].QuantitySaldo" class="form-control text-center cls-num cls-readonly cls-limpiarItem_${articulo.ItemCode}" readonly></div>
 													</td>
 													<td class="text-center">
-														<select id="lote_ubicacion_${item.BatchNum}" name="transferenciaPost.Detalle[].CodigoUbicacion" data-idloteubicacion="lote_ubicacion_${item.BatchNum}" data-itemcode="${articulo.ItemCode}"
+														<select id="lote_ubicacion_${lote}" name="transferenciaPost.Detalle[].CodigoUbicacion" data-idloteubicacion="lote_ubicacion_${lote}" data-itemcode="${articulo.ItemCode}"
 														class="form-select cls-limpiarItem_${articulo.ItemCode}" onfocus="cargarUbicaciones('RESERVA', this.dataset)" style="width: 200px">
 															<option value="">Seleccione</option>
 														</select>
@@ -800,10 +807,11 @@
 				}
 
 				const data = await response.json();
+                let ubicacionLote = data.resultUbicacionesLote != null ? data.resultUbicacionesLote : ''
 
 				let ubicaciones = '<option value="">Seleccione</<option>'
 				data.resultUbicaciones.forEach((ubicacion, index) => {
-					ubicaciones += `<option value="${ubicacion}" ${ubicacion === data.resultUbicacionesLote ? 'selected' : ''}>${ubicacion}</option>`
+                    ubicaciones += `<option value="${ubicacion}" ${ubicacion === ubicacionLote ? 'selected' : ''}>${ubicacion}</option>`
 				})
 
 				document.querySelector(`#${idUbicacion}`).innerHTML = ubicaciones
@@ -879,9 +887,11 @@
 				let baseIdUndMaster = $(this).attr("data-idundmaster") || ""
 				let baseIdCantMaster = $(this).attr("data-idcantmaster") || ""
 				let baseIdCantSaldo = $(this).attr("data-idcantsaldo") || ""
+                let baseIdquantityunidades = $(this).attr("data-idquantityunidades") || ""
 
 				let nuevoID = baseID + "_clone_" + uniqueID; // Reutiliza el mismo uniqueID en toda la fila
 				$(this).attr("id", nuevoID);
+				$(this).val('')
 
 				if (baseIdUndMaster) {
 					let nuevoIdUndMaster = baseIdUndMaster + "_clone_" + uniqueID
@@ -897,6 +907,11 @@
 					let nuevoIdCantSaldo = baseIdCantSaldo + "_clone_" + uniqueID
 					$(this).attr("data-idcantsaldo", nuevoIdCantSaldo)
 				}
+
+                if (baseIdquantityunidades) {
+                    let nuevoIdquantityunidades = baseIdquantityunidades + "_clone_" + uniqueID
+                    $(this).attr("data-idquantityunidades", nuevoIdquantityunidades)
+                }
 			});
 
 			// Actualizar `data-detalle` manteniendo el mismo uniqueID

@@ -29,32 +29,39 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         }
         public List<DetalleRequerimientos_E> ListarDetalles(string itemCode="", string proceso = "")
         {
-             List<DetalleRequerimientos_E> result = null;
+            var detalles = _requerimientoD.ListarDetalles() ?? new List<DetalleRequerimientos_E>();
+            var result = new List<DetalleRequerimientos_E>();
+
             switch (proceso)
             {
-                case "CantidadSolicitada" : 
-                    result = _requerimientoD.ListarDetalles().Where(x => x.AtendidoPicking == 0 && x.ItemCode == itemCode).ToList();
-                    break;
-                case "ListarApiladores":
-                    result = _requerimientoD.ListarDetalles().Where(x => x.AtendidoReserva == 0 && x.AtendidoPicking == 0 && x.QuantityMaster>0).ToList();
-                    break;
-                case "ListarPicking":
-                    result = _requerimientoD.ListarDetalles().Where(x => x.AtendidoReserva == 1 && x.AtendidoPicking == 0 ).ToList();
-                    break;
-                default:
-                    result = _requerimientoD.ListarDetalles();
+                case "CantidadSolicitada":
+                    result = detalles
+                        .Where(x => x.AtendidoPicking == 0 && x.ItemCode == itemCode)
+                        .ToList();
                     break;
 
+                case "ListarApiladores":
+                    result = detalles
+                        .Where(x => x.AtendidoReserva == 0 && x.AtendidoPicking == 0 && x.QuantityMaster > 0)
+                        .ToList();
+                    break;
+
+                case "ListarPicking":
+                    result = detalles
+                        .Where(x => x.AtendidoReserva == 1 && x.AtendidoPicking == 0)
+                        .ToList();
+                    break;
+
+                default:
+                    result = new List<DetalleRequerimientos_E>();
+                    break;
             }
-           
             return result;
         }
         public Requerimientos_E RegistrarRequerimiento(Requerimientos_E requerimiento, SqlConnection cn)
         {
             //Validar que las Cantidades que se desean imputar se encuentren disponibles
-
             return _requerimientoD.RegistrarRequerimiento(requerimiento, cn);
-
         }
         public bool ValidarSkuParaKardexSalida(int requerimientoId,string itemCode, Requerimientos_E requerimiento)
         {

@@ -32,9 +32,19 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 using (SqlCommand cmd = new SqlCommand("sp_MantenimientoKardexAbastecimiento ", cn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
+                    // Agrupar los detalles por ItemCode sumando QuantityUnidadesCajas
+                    var detallesAgrupados = ingreso.Detalle
+                        .GroupBy(d => new { d.ItemCode, d.ItemName })
+                        .Select(g => new
+                        {
+                            ItemCode = g.Key.ItemCode,
+                            ItemName = g.Key.ItemName,
+                            TotalQuantityUnidadesCajas = g.Sum(d => d.QuantityUnidadesCajas) // Sumar valores nulos como 0
+                        })
+                        .ToList();
 
                     int idGenerado = 0;
-                    foreach (var detalle in ingreso.Detalle)
+                    foreach (var detalle in detallesAgrupados)
                     {
                         cmd.Parameters.Clear();
 
@@ -50,7 +60,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                         cmd.Parameters.AddWithValue("@ItemCode", detalle.ItemCode);
                         cmd.Parameters.AddWithValue("@ItemName", detalle.ItemName);
                         cmd.Parameters.AddWithValue("@Almacen", "RESERVA");
-                        cmd.Parameters.AddWithValue("@Cantidad", detalle.QuantityUnidadesCajas);
+                        cmd.Parameters.AddWithValue("@Cantidad", detalle.TotalQuantityUnidadesCajas);
                         cmd.Parameters.AddWithValue("@Imputado", 0);
                         cmd.Parameters.AddWithValue("@Operario", ingreso.OperarioRegistra);
                         cmd.Parameters.AddWithValue("@TiempoRegistro", DateTime.Now);
@@ -94,53 +104,53 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 IconoSweetAlert = icono
             };
         }
-        public Helper_E ValidarTransaccionImputadoKardex(Requerimientos_E imputado, SqlConnection cn)
-        {
-            string mensaje, icono;
+        //public Helper_E ValidarTransaccionImputadoKardex(Requerimientos_E imputado, SqlConnection cn)
+        //{
+        //    string mensaje, icono;
 
-            try
-            {
-                // Verificar si la conexión está abierta
-                if (cn.State != ConnectionState.Open)
-                {
-                    cn.Open();
-                }
+        //    try
+        //    {
+        //        // Verificar si la conexión está abierta
+        //        if (cn.State != ConnectionState.Open)
+        //        {
+        //            cn.Open();
+        //        }
 
-                using (SqlCommand cmd = new SqlCommand("sp_MantenimientoUbicacionesLotesMaster", cn))
-                {
-                    cmd.CommandType = CommandType.StoredProcedure;
+        //        using (SqlCommand cmd = new SqlCommand("sp_MantenimientoUbicacionesLotesMaster", cn))
+        //        {
+        //            cmd.CommandType = CommandType.StoredProcedure;
 
-                    foreach (var detalle in imputado.Detalle)
-                    {
-                        cmd.Parameters.Clear();
+        //            foreach (var detalle in imputado.Detalle)
+        //            {
+        //                cmd.Parameters.Clear();
 
-                        cmd.Parameters.AddWithValue("@TipoMantenimiento", "VALIDAR");
-                        cmd.Parameters.AddWithValue("@ItemCode", detalle.ItemCode);
-                        cmd.Parameters.AddWithValue("@ItemName", detalle.ItemName);
-                        cmd.Parameters.AddWithValue("@Almacen", "RESERVA");
-                        cmd.Parameters.AddWithValue("@CodigoUbicacion", detalle.CodigoUbicacionOrigen);
-                        cmd.Parameters.AddWithValue("@QuantityMaster", detalle.QuantityMaster);
-                        cmd.Parameters.AddWithValue("@QuantitySaldo", detalle.QuantitySaldo);
-                        cmd.Parameters.AddWithValue("@UmAlm", detalle.UmAlm);
-                        cmd.Parameters.AddWithValue("@ValorUmAlm", detalle.ValorUmAlm);
+        //                cmd.Parameters.AddWithValue("@TipoMantenimiento", "VALIDAR");
+        //                cmd.Parameters.AddWithValue("@ItemCode", detalle.ItemCode);
+        //                cmd.Parameters.AddWithValue("@ItemName", detalle.ItemName);
+        //                cmd.Parameters.AddWithValue("@Almacen", "RESERVA");
+        //                cmd.Parameters.AddWithValue("@CodigoUbicacion", detalle.CodigoUbicacionOrigen);
+        //                cmd.Parameters.AddWithValue("@QuantityMaster", detalle.QuantityMaster);
+        //                cmd.Parameters.AddWithValue("@QuantitySaldo", detalle.QuantitySaldo);
+        //                cmd.Parameters.AddWithValue("@UmAlm", detalle.UmAlm);
+        //                cmd.Parameters.AddWithValue("@ValorUmAlm", detalle.ValorUmAlm);
 
-                        cmd.ExecuteNonQuery();
-                    }
+        //                cmd.ExecuteNonQuery();
+        //            }
 
-                    mensaje = "Kardex de imputado validado correctamente";
-                    icono = "success";
-                }
-            }
-            catch (Exception ex)
-            {
-                LogHelper.RegistrarError(ex, "KardexAbastecimiento_D - ValidarTransaccionImputadoKardex");
-                mensaje = "Ocurrió un error al validar cantidades de imputado para el kardex. Comuníquese con el área de Sistemas para más información.";
-                icono = "error";
-                throw new Exception("Error en ValidarTransaccionImputadoKardex.", ex);
-            }
+        //            mensaje = "Kardex de imputado validado correctamente";
+        //            icono = "success";
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        LogHelper.RegistrarError(ex, "KardexAbastecimiento_D - ValidarTransaccionImputadoKardex");
+        //        mensaje = "Ocurrió un error al validar cantidades de imputado para el kardex. Comuníquese con el área de Sistemas para más información.";
+        //        icono = "error";
+        //        throw new Exception("Error en ValidarTransaccionImputadoKardex.", ex);
+        //    }
 
-            return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
-        }
+        //    return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
+        //}
         public Helper_E InsertarTransaccionImputadoKardex(Requerimientos_E imputado, SqlConnection cn)
         {
             string mensaje, icono;

@@ -171,6 +171,7 @@
 
                 if (data.Icono == 'success') {
                     resetValoresVacios(["ItemCode", "ItemName","CodigoUbicacion", "rackBloque", "posicion", "nivel"])
+                    if (typeof codigoUbicacion !== 'undefined' && codigoUbicacion.length > 0) { codigoUbicacion = ["", "", "", ""] }        // Limpiar variable local
                     inicializarSlimSelectsPorClase('cls-select')
 
                     const radios = document.querySelectorAll(`input[name="UbiSistema"]`)
@@ -203,7 +204,7 @@
         });
 
         async function eliminarCodigoUbicacionGeneral() {
-            codigoUbicacion = document.querySelector(`#codigoUbicacionGeneral`).value
+            let codigoUbicacion = document.querySelector(`#codigoUbicacionGeneral`).value
 
             swalWithBootstrapButtons.fire({
                 title: '¿Está seguro(a) de ELIMINAR?',
