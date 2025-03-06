@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Data.SqlClient;
 using System.Data;
 using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Drawing.Diagrams;
 
 namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 {
@@ -23,12 +24,9 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
             {
                 cn.Open();
             }
-
-            using (var transaction = cn.BeginTransaction())
-            {
                 try
                 {
-                    using (var cmd = new SqlCommand("sp_MantenimientoTransferenciaReserva", cn, transaction))
+                    using (var cmd = new SqlCommand("sp_MantenimientoTransferenciaReserva", cn))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
 
@@ -57,12 +55,12 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                         int idGenerado = (int)idGeneradoParam.Value;
                         if (idGenerado > 0)
                         {
-                            transaction.Commit();
+                            return new Helper_E { Mensajes = new List<string> { "Transferencia de reserva generada correctamente" }, IconoSweetAlert = "success", Id = idGenerado };
                         }
-
-                        transferencia.Id = idGenerado;
-                        mensaje = "Transferencia de reserva registrada correctamente";
-                        icono = "success";
+                        else
+                        {
+                            return new Helper_E { Mensajes = new List<string> { "No se registro transaferencia en la base de datos correctamente" }, IconoSweetAlert = "error" };
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -70,11 +68,9 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     LogHelper.RegistrarError(ex, "TransferenciaReserva_D - RegistrarTransferenciaReserva");
                     mensaje = "Ocurrió un error al registrar la transferencia reserva. Comuníquese con el área de Sistemas para más información.";
                     icono = "error";
-                    transaction.Rollback();
                     throw new Exception("Error en RegistrarTransferenciaReserva.", ex);
                 }
-            }
-            return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
+           
         }
         private DataTable ConvertirADatatable(List<DetalleTransferenciaReserva_E> detalles)
         {
@@ -100,13 +96,16 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
             }
             return table;
         }
-        public TransferenciaReserva_E ObtenerTransferenciaReserva(int docNum)
+        public TransferenciaReserva_E ObtenerTransferenciaReserva(int docNum,SqlConnection cn)
         {
             TransferenciaReserva_E transferencia = null;
-            SqlConnection cn = new SqlConnection(uti.cadSql2);
             try
             {
-                cn.Open();
+                if (cn.State != ConnectionState.Open)
+                {
+                    cn.Open();
+                }
+
                 using (SqlCommand cmd = new SqlCommand("sp_MantenimientoTransferenciaReserva", cn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
@@ -164,7 +163,6 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
             catch (Exception ex)
             {
                 LogHelper.RegistrarError(ex, "TransferenciaReserva_D - ObtenerTransferenciaReserva");
-                cn.Close();
             }
 
             return transferencia;

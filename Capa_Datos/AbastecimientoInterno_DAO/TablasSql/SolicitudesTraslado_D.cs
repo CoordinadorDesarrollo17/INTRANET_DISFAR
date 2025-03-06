@@ -15,15 +15,17 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
     public class SolicitudesTraslado_D
     {
         readonly Utilitarios uti = new Utilitarios();
-        public SolicitudesTraslado_E ObtenerSolicitudDeTraslado(int docNum)
+        public SolicitudesTraslado_E ObtenerSolicitudDeTraslado(int docNum, SqlConnection cn)
         {
             SolicitudesTraslado_E solicitud = null;
-            using (SqlConnection cn = new SqlConnection(uti.cadSql2))
-            {
                 try
                 {
+
+                if (cn.State != ConnectionState.Open)
+                {
                     cn.Open();
-                    using (SqlCommand cmd = new SqlCommand("sp_MantenimientoSolicitudTraslado", cn))
+                }
+                using (SqlCommand cmd = new SqlCommand("sp_MantenimientoSolicitudTraslado", cn))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.AddWithValue("@TipoMantenimiento", "GET");
@@ -33,7 +35,6 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                             Direction = ParameterDirection.Output
                         };
                         cmd.Parameters.Add(outputId);
-
 
                         using (SqlDataReader dr = cmd.ExecuteReader())
                         {
@@ -52,7 +53,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                                 if (!dr.IsDBNull(9)) { solicitud.Estado = dr.GetString(9); }
                                 solicitud.Detalle = new Dictionary<string, DetalleSolicitudesTraslado_E>();
                             }
-                           
+
                             if (dr.NextResult() && solicitud != null)
                             {
                                 while (dr.Read())
@@ -75,8 +76,6 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                                     if (!dr.IsDBNull(9)) { detalle.InDate = dr.GetDateTime(9).ToString("yyyy-MM-dd"); }
                                     if (!dr.IsDBNull(10)) { detalle.ExpDate = dr.GetDateTime(10).ToString("yyyy-MM-dd"); }
 
-                                    //solicitud.Detalle.Add(detalle.ItemCode,detalle);
-
                                     // Si la clave única no existe en el diccionario, agregar el detalle
                                     if (!solicitud.Detalle.ContainsKey(uniqueKey))
                                     {
@@ -93,103 +92,118 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 {
                     LogHelper.RegistrarError(ex, "SolicitudesTraslado_D - ObtenerSolicitudDeTraslado");
                 }
-            }
             return solicitud;
         }
-        public SolicitudesTraslado_E ImportarSolicitudDeTraslado(SolicitudesTraslado_E obj)
+        public Helper_E ImportarSolicitudDeTraslado(SolicitudesTraslado_E obj, SqlConnection cn)
         {
+            string mensaje, icono;
             SolicitudesTraslado_E solicitud = null;
 
-            using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+            try
             {
-                cn.Open();
-                using (SqlTransaction transaction = cn.BeginTransaction())
+                if (cn.State != ConnectionState.Open)
                 {
-                    try
+                    cn.Open();
+                }
+                using (SqlCommand cmd = new SqlCommand("sp_MantenimientoSolicitudTraslado", cn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    // Parámetros de la solicitud
+                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "INSERT");
+                    cmd.Parameters.AddWithValue("@DocEntry", obj.DocEntry);
+                    cmd.Parameters.AddWithValue("@DocNum", obj.DocNum);
+                    cmd.Parameters.AddWithValue("@DocDate", obj.DocDate);
+                    cmd.Parameters.AddWithValue("@NroGuia", obj.NroGuia);
+                    cmd.Parameters.AddWithValue("@CardCode", obj.CardCode);
+                    cmd.Parameters.AddWithValue("@CardName", obj.CardName);
+                    cmd.Parameters.AddWithValue("@OperarioResponsableSAP", obj.OperarioResponsableSAP);
+                    cmd.Parameters.AddWithValue("@MotivoTraslado", obj.MotivoTraslado);
+                    cmd.Parameters.AddWithValue("@Estado", obj.Estado ?? "PENDIENTE");
+
+                    // Parámetro de salida para capturar el ID generado
+                    var outputId = new SqlParameter("@IdGenerado", SqlDbType.Int)
                     {
-                        using (SqlCommand cmd = new SqlCommand("sp_MantenimientoSolicitudTraslado", cn, transaction))
+                        Direction = ParameterDirection.Output
+                    };
+                    cmd.Parameters.Add(outputId);
+
+                    // Crear y llenar el DataTable solo si hay detalles
+                    var table = new DataTable();
+                    table.Columns.Add("SolicitudesTrasladoId", typeof(int));
+                    table.Columns.Add("ItemCode", typeof(string));
+                    table.Columns.Add("ItemName", typeof(string));
+                    table.Columns.Add("BatchNum", typeof(string));
+                    table.Columns.Add("QuantityCajas", typeof(decimal));
+                    table.Columns.Add("FromWhsCode", typeof(string));
+                    table.Columns.Add("ToWhsCode", typeof(string));
+                    table.Columns.Add("Estado", typeof(string));
+
+                    if (obj.Detalle != null)
+                    {
+                        foreach (var detalle in obj.Detalle)
                         {
-                            cmd.CommandType = CommandType.StoredProcedure;
-
-                            // Parámetros de la solicitud
-                            cmd.Parameters.AddWithValue("@TipoMantenimiento", "INSERT");
-                            cmd.Parameters.AddWithValue("@DocEntry", obj.DocEntry);
-                            cmd.Parameters.AddWithValue("@DocNum", obj.DocNum);
-                            cmd.Parameters.AddWithValue("@DocDate", obj.DocDate);
-                            cmd.Parameters.AddWithValue("@NroGuia", obj.NroGuia);
-                            cmd.Parameters.AddWithValue("@CardCode", obj.CardCode);
-                            cmd.Parameters.AddWithValue("@CardName", obj.CardName);
-                            cmd.Parameters.AddWithValue("@OperarioResponsableSAP", obj.OperarioResponsableSAP);
-                            cmd.Parameters.AddWithValue("@MotivoTraslado", obj.MotivoTraslado);
-                            cmd.Parameters.AddWithValue("@Estado", obj.Estado ?? "PENDIENTE");
-
-                            // Parámetro de salida para capturar el ID generado
-                            var outputId = new SqlParameter("@IdGenerado", SqlDbType.Int)
-                            {
-                                Direction = ParameterDirection.Output
-                            };
-                            cmd.Parameters.Add(outputId);
-
-                            // Crear y llenar el DataTable solo si hay detalles
-                            var table = new DataTable();
-                            table.Columns.Add("SolicitudesTrasladoId", typeof(int));
-                            table.Columns.Add("ItemCode", typeof(string));
-                            table.Columns.Add("ItemName", typeof(string));
-                            table.Columns.Add("BatchNum", typeof(string));
-                            table.Columns.Add("QuantityCajas", typeof(decimal));
-                            table.Columns.Add("FromWhsCode", typeof(string));
-                            table.Columns.Add("ToWhsCode", typeof(string));
-                            table.Columns.Add("Estado", typeof(string));
-
-                            if (obj.Detalle != null)
-                            {
-                                foreach (var detalle in obj.Detalle)
-                                {
-                                    table.Rows.Add(
-                                        0,
-                                        detalle.Value.ItemCode,
-                                        detalle.Value.ItemName,
-                                        detalle.Value.BatchNum,
-                                        detalle.Value.QuantityCajas,
-                                        detalle.Value.FromWhsCode,
-                                        detalle.Value.ToWhsCode,
-                                        "PENDIENTE"
-                                    );
-                                }
-                            }
-
-                            // Agregar el parámetro de tipo tabla solo si hay datos
-                            if (table.Rows.Count > 0)
-                            {
-                                var param = cmd.Parameters.AddWithValue("@Detalles", table);
-                                param.SqlDbType = SqlDbType.Structured;
-                                param.TypeName = "DetalleSolicitudesTrasladoType";
-                            }
-                            else
-                            {
-                                throw new Exception("La solicitud no contiene detalles de traslado.");
-                            }
-
-                            // Ejecutar el procedimiento almacenado
-                            cmd.ExecuteNonQuery();
-
-                            // Obtener el Id generado
-                            obj.Id = (int)outputId.Value;
-
-                            transaction.Commit();
-                            solicitud = obj;
+                            table.Rows.Add(
+                                0,
+                                detalle.Value.ItemCode,
+                                detalle.Value.ItemName,
+                                detalle.Value.BatchNum,
+                                detalle.Value.QuantityCajas,
+                                detalle.Value.FromWhsCode,
+                                detalle.Value.ToWhsCode,
+                                "PENDIENTE"
+                            );
                         }
                     }
-                    catch (Exception ex)
+
+                    // Agregar el parámetro de tipo tabla solo si hay datos
+                    if (table.Rows.Count > 0)
                     {
-                        transaction.Rollback();
-                        LogHelper.RegistrarError(ex, "SolicitudTraslado_D - ImportarSolicitudDeTraslado");
-                        throw new Exception($"Error al importar la solicitud de traslado: {ex.Message}");
+                        var param = cmd.Parameters.AddWithValue("@Detalles", table);
+                        param.SqlDbType = SqlDbType.Structured;
+                        param.TypeName = "DetalleSolicitudesTrasladoType";
                     }
+                    else
+                    {
+                        throw new Exception("La solicitud no contiene detalles de traslado.");
+                    }
+
+                    // Ejecutar el procedimiento almacenado
+                    cmd.ExecuteNonQuery();
+
+                    // Obtener el Id generado
+                    obj.Id = (int)outputId.Value;
+
+                    solicitud = obj;
+                    mensaje = "Solicitud de traslado importada correctamente";
+                    icono = "success";
                 }
             }
+            catch (SqlException sqlEx)
+            {
 
-            return solicitud;
+                if (sqlEx.Message.Contains("Documento ya existente"))
+                {
+                    mensaje = "Documento ya existente, verifique en su BD.";
+                    icono = "error";
+                }
+                else
+                {
+                    mensaje = $"Error SQL al importar la solicitud: {sqlEx.Message} ";
+                    icono = "error";
+                }
+
+                LogHelper.RegistrarError(sqlEx, "SolicitudTraslado_D - ImportarSolicitudDeTraslado");
+            }
+            catch (Exception ex)
+            {
+                LogHelper.RegistrarError(ex, "SolicitudTraslado_D - ImportarSolicitudDeTraslado");
+                mensaje = $"Ocurrió un error al importar la solicitud de traslado. {ex.Message}";
+                icono = "error";
+                throw new Exception($"Error al importar la solicitud de traslado: {ex.Message}");
+            }
+
+            return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono, Id = obj.Id };
         }
         public Helper_E DeleteSolicitudDeTraslado(int docNum, SqlConnection cn)
         {
@@ -230,7 +244,6 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
         public Helper_E ActualizarEstado(int solicitudTrasladoId, List<DetalleTransferenciaReserva_E> detalleTransferencia, SqlConnection cn)
         {
             string mensaje, icono;
-
             try
             {
                 if (cn.State != ConnectionState.Open)

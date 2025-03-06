@@ -53,7 +53,8 @@
 
     <div class="row">
         <div class="col-lg-12">
-            <button type="button" class="btn btn-cobefar-2" onclick="buscarSolicitud()" data-bs-toggle="tooltip" data-bs-placement="top" title="Buscar"><i class="bi bi-search"></i> Buscar</button>
+            <button type="button" class="btn btn-cobefar-2" onclick="buscarSolicitud()" data-bs-toggle="tooltip" data-bs-placement="top" title="Buscar una solicitud de traslado"><i class="bi bi-search"></i> Buscar</button>
+            <button type="button" class="btn btn-success" onclick="abrirModalImportacion()" data-bs-toggle="tooltip" data-bs-placement="top" title="Importar datos directamente a la base"><i class="bi bi-upload"></i> Importar</button>
         </div>
     </div>
 
@@ -126,6 +127,31 @@
         </div>
     </div>
 </div><!-- main -->
+
+
+<div class="modal fade" id="ModalImportar" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-cobefar text-white">
+                <h5 class="modal-title" id="modalLabel">IMPORTAR DATOS EXCEL</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body bg-light">
+
+                <div class="mb-3">
+                    <label for="i_file" class="form-label text-dark">Seleccione archivo:</label>
+                    <input id="i_file" name="file" type="file" class="form-control" accept=".xlsx" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" onclick="importarSolicitud()">
+                    <i class="bi bi-database"></i> Guardar datos
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts{
     <script>
@@ -372,6 +398,64 @@
 			}
 		}
 
+        function abrirModalImportacion() {
+            let modal = new bootstrap.Modal(document.getElementById('ModalImportar'));
+            modal.show();
+        }
+
+        async function importarSolicitud() {
+            let fileInput = document.querySelector("#i_file");
+
+            if (!fileInput.files.length) {
+                Swal.fire({
+					title: "Error",
+					html: "Debe seleccionar un archivo para importar.",
+                    icon: "error",
+                    showConfirmButton: true
+                });
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+            formData.append("idOperation", 3301);
+
+            try {
+                let response = await fetch("/AbastecimientoInterno/ImportarTransferenciaDeStock", {
+                    method: "POST",
+                    body: formData
+                });
+
+                let data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.Mensajes?.join("\n") || "Error al procesar la importación.");
+                }
+
+                Swal.fire({
+                    title: data.Titulo || "Éxito",
+                    html: Array.isArray(data.Mensajes) ? data.Mensajes.join("\n") : data.Mensajes,
+                    icon: data.Icono || "success",
+                    showConfirmButton: true
+                });
+
+                // Opcional: Recargar la tabla o cerrar el modal si la importación fue exitosa
+                if (data.Icono === "success") {
+                    document.querySelector("#ModalImportar").querySelector(".btn-close").click();
+                }
+
+            } catch (error) {
+                console.error("Error:", error);
+                Swal.fire({
+                    title: "Error",
+                    text: "Hubo un problema al procesar la solicitud.",
+                    icon: "error",
+                    showConfirmButton: true
+                });
+            }
+        }
+
+
 		// Construcción de la tabla de detalle
         function renderizarDetalle(detalle) {
 			let tbody = ''
@@ -532,7 +616,7 @@
 				item.ItemCode === articulo.ItemCode && item.BatchNum === item.BatchNum
 			)
 
-			
+
 
 			let tableHtml = `<div class="d-flex justify-content-center w-100"><table id="tbl_detalleLotes_${articulo.ItemCode}" class="table table-sm table-bordered table-hover subtable w-75 tbl_detalleLotes">
 					<thead class="table-success">
@@ -715,7 +799,7 @@
 					throw new Error(`Error en la solicitud: ${response.statusText}`);
 				}
 
-				const data = await response.json();				
+				const data = await response.json();
 
 				let ubicaciones = '<option value="">Seleccione</<option>'
 				data.resultUbicaciones.forEach((ubicacion, index) => {

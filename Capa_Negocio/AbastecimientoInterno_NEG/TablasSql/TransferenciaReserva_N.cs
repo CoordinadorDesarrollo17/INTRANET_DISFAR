@@ -27,8 +27,16 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
                             t.Id == 0)
                 .ToList();
 
+            if (transferencia.Detalle==null || transferencia.Detalle.Count==0)
+            {
+                return new Helper_E
+                {
+                    Mensajes = new List<string> { "No puede transferir con detalle de transferencia vacio" },
+                    IconoSweetAlert = "error"
+                };
+            }
             //1. Obtiene la solicitud de traslado completa
-            var trasladoObtenido=_datosTraslado.ObtenerSolicitudDeTraslado(transferencia.SolicitudTrasladoDocNum);
+            var trasladoObtenido=_datosTraslado.ObtenerSolicitudDeTraslado(transferencia.SolicitudTrasladoDocNum,cn);
 
             //2. Compara las cantidades agrupadas por ItemCode
             var cantidadTransferencia = transferencia.Detalle
@@ -56,9 +64,9 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
             }
             return _datosTransferencia.RegistrarTransferenciaReserva(transferencia, cn);
         }
-        public TransferenciaReserva_E ObtenerTransferenciaReserva(int docNum)
+        public TransferenciaReserva_E ObtenerTransferenciaReserva(int docNum,SqlConnection cn)
         {
-            return _datosTransferencia.ObtenerTransferenciaReserva(docNum);
+            return _datosTransferencia.ObtenerTransferenciaReserva(docNum,cn);
         }
         public Helper_E DeleteTransferenciaReserva(int docNum,SqlConnection cn)
         {

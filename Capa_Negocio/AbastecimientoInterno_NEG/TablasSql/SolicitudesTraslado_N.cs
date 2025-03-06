@@ -16,19 +16,16 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         SolicitudesTraslado_D datosTraslado = new SolicitudesTraslado_D();
         private readonly UbicacionesLotesMaster_N _ubicacionesLotesMasterN = new UbicacionesLotesMaster_N();
 
-        public SolicitudesTraslado_E ObtenerSolicitudDeTraslado(int DocNum)
+        public SolicitudesTraslado_E ObtenerSolicitudDeTraslado(int DocNum,SqlConnection cn)
         {
-            var solicitudTraslado = datosTraslado.ObtenerSolicitudDeTraslado(DocNum);
-
-            return solicitudTraslado;
+            return datosTraslado.ObtenerSolicitudDeTraslado(DocNum, cn);
         }
-        public SolicitudesTraslado_E ImportarSolicitudDeTraslado(SolicitudesTraslado_E obj)
+        public Helper_E ImportarSolicitudDeTraslado(SolicitudesTraslado_E obj, SqlConnection cn)
         {
-            var solicitud = datosTraslado.ImportarSolicitudDeTraslado(obj);
-
-            return solicitud;
+            return datosTraslado.ImportarSolicitudDeTraslado(obj,cn);
         }
-        public Helper_E DeleteSolicitudDeTraslado (int docNum, SqlConnection cn) {
+        public Helper_E DeleteSolicitudDeTraslado (int docNum, SqlConnection cn) 
+        {
             return datosTraslado.DeleteSolicitudDeTraslado(docNum,  cn);
         }
         public Helper_E ActualizarEstado(int solicitudTrasladoId, List<DetalleTransferenciaReserva_E> detalleTransferencia, SqlConnection cn)
