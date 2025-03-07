@@ -1,29 +1,21 @@
-using Aspose.Pdf.Operators;
 using Capa_Datos;
-using Capa_Entidad;
-using Capa_Entidad.AbastecimientoInterno_ENT.Reportes;
 using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
 using Capa_Entidad.Almacen_ENT.Tablas;
-using Capa_Entidad.General_ENT.TablasSql;
 using Capa_Entidad.Seguridad_ENT;
 using Capa_Negocio.AbastecimientoInterno_NEG.Reportes;
 using Capa_Negocio.AbastecimientoInterno_NEG.TablasExternas;
 using Capa_Negocio.AbastecimientoInterno_NEG.TablasSql;
-using Capa_Negocio.General_NEG.TablasSql;
 using Capa_Usuario.Helpers;
-using DocumentFormat.OpenXml.EMMA;
 using SpreadsheetLight;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Drawing;
 using System.Linq;
 using System.Transactions;
-using System.util;
 using System.Web;
 using System.Web.Mvc;
-using System.Web.Services.Description;
+
 namespace Capa_Usuario.Controllers
 {
     public class AbastecimientoInternoController : Controller
@@ -218,7 +210,7 @@ namespace Capa_Usuario.Controllers
                     ItemCode = grupo.Key.ItemCode,
                     ItemName = grupo.Key.ItemName,
                     CantidadUbicaciones = grupo.Count(),
-                    Ubicaciones = grupo.Select(u => (Ubicaciones_E)u).ToList()
+                    Ubicaciones = grupo.Select(u => u).ToList()
                 })
                 .ToDictionary(x => x.ItemCode);
 
@@ -272,12 +264,7 @@ namespace Capa_Usuario.Controllers
                 return Json(new { Titulo = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" }, JsonRequestBehavior.AllowGet);
             var result = _ubicacionesN.EliminarUbicacionGeneral(codigoUbicacion);
             string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
-            return Json(new
-            {
-                Titulo = tituloSweetAlert,
-                result.Mensajes,
-                Icono = result.IconoSweetAlert
-            });
+            return Json(new { Titulo = tituloSweetAlert, result.Mensajes, Icono = result.IconoSweetAlert });
         }
         /************************* S O L I C I T U D   D E   T R A S L A D O *************************/
         public JsonResult BuscarSolicitudDeTraslado(int docNum)
@@ -295,7 +282,7 @@ namespace Capa_Usuario.Controllers
                 using (SqlConnection cn = new SqlConnection(uti.cadSql2))
                 {
                     cn.Open();
-                    
+
 
                     if (traslado == null)
                     {
@@ -888,7 +875,7 @@ namespace Capa_Usuario.Controllers
                             }
 
                             // Sumar y/o Registrar QuantityUnidadesCajas en la tabla UbicacionesLotes
-                           
+
                             int ubicacionLoteId = 0;
                             foreach (var item in transferencia.Detalle)
                             {
@@ -1103,7 +1090,7 @@ namespace Capa_Usuario.Controllers
                                 .ToDictionary(kv => kv.Key, kv => kv.Value);
 
 
-                                int quantityCajasItemCode = Convert.ToInt32(traslado.Detalle.Sum(x=>x.Value.QuantityCajas));
+                                int quantityCajasItemCode = Convert.ToInt32(traslado.Detalle.Sum(x => x.Value.QuantityCajas));
 
                                 //Si las cantidades no coinciden quiere decir que no se ha pasado el grupo completo de los ids correspondientes a un ItemCode en la solicitud de traslado, muestra error
                                 if (quantityCajasItemCode != transferenciaGet.Detalle.Where(x => x.ItemCode == itemCode).Sum(x => x.QuantityUnidadesCajas))
@@ -1378,11 +1365,11 @@ namespace Capa_Usuario.Controllers
 
                     List<DetalleRequerimientos_E> resultDetReq = _requerimientosN.ListarDetalles(itemCode, "CantidadSolicitada");
                     int quantityReq = 0;
-                    if (resultDetReq!= null) { quantityReq=Convert.ToInt32(resultDetReq.Sum(r => r.QuantityUnidadesCajas)); }
+                    if (resultDetReq != null) { quantityReq = Convert.ToInt32(resultDetReq.Sum(r => r.QuantityUnidadesCajas)); }
 
                     List<UbicacionesLotes_E> resultUbicacionesLotes = _ubicacionesLotesN.Obtener(itemCode);
-                    int quantityUbicacionesLote = 0; 
-                    if (resultUbicacionesLotes != null) { quantityUbicacionesLote=resultUbicacionesLotes.Sum(r => r.QuantityUnidadesCajas); }
+                    int quantityUbicacionesLote = 0;
+                    if (resultUbicacionesLotes != null) { quantityUbicacionesLote = resultUbicacionesLotes.Sum(r => r.QuantityUnidadesCajas); }
 
                     int stockDeAlmReserva = quantityUbicacionesLote - quantityReq; //resta de lo que esta por entrar a Picking Atendido=0
 
