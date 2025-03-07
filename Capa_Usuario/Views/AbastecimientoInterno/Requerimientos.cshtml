@@ -3,6 +3,30 @@
     Layout = "~/Views/Shared/_DefaultLayout.cshtml";
 }
 
+@section Styles {
+    @Html.Raw("<link href='https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css' rel='stylesheet' />")
+    <style>
+        /* Ajustar el menú desplegable de Tagify para evitar el scroll */
+        .no-scroll-dropdown {
+            max-height: none !important; /* Sin límite de altura */
+            overflow-y: visible !important; /* Desactivar el scroll vertical */
+            border: 1px solid #ddd; /* Opcional: borde para depuración */
+        }
+
+        /* Ajustar el contenedor del dropdown */
+        .tagify__dropdown__wrapper {
+            max-height: none !important;
+            overflow-y: visible !important;
+            padding-right: 0 !important; /* Evitar espacio innecesario */
+        }
+
+        /* Eliminar cualquier rastro del scroll en navegadores WebKit */
+        .no-scroll-dropdown::-webkit-scrollbar {
+            display: none; /* Esconder el scrollbar en Chrome, Safari, Edge */
+        }
+    </style>
+}
+
 <div class="pt-3">
     <nav>
         <ol class="cd-breadcrumb bg-cobefar-degradado-1">
@@ -153,6 +177,7 @@
 </div><!-- // modal -->
 
 @section Scripts{
+    @Html.Raw("<script src=\"https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.min.js\" defer></script>")    
     <script>
 		const configDataTable = {
 			paging: false,                  // Deshabilitar paginación
@@ -357,47 +382,6 @@
 			}
 		}
 
-        async function cargarUbicaciones(almacen, data, id) {
-            let itemCode = data.itemcode
-
-            try {
-                const response = await fetch("/AbastecimientoInterno/BuscarUbicaciones", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ almacen, itemCode }) // Enviar los datos como JSON
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Error en la solicitud: ${response.statusText}`);
-                }
-
-                const data = await response.json();
-                let unicaUbicacion = data.resultUbicacionesLote
-                let ubicaciones = ''
-                data.resultUbicaciones.forEach((ubicacion, index) => {
-                    ubicaciones += `<option value="${ubicacion}" ${ubicacion === data.resultUbicacionesLote ? 'selected' : ''}>${ubicacion}</option>`
-                })
-
-                document.querySelector(`#${id}`).innerHTML = ubicaciones
-                document.querySelector(`#${id}`).classList.remove('form-select');
-                document.querySelector(`#${id}`).setAttribute('multiple', 'multiple')
-                const select = new SlimSelect({
-                    select: `#${id}`,
-                    searchingText: 'Buscar... '
-                });
-
-                // Solo mantener select abierto cuando tenga más de 1 ubicación
-                // "data.resultUbicacionesLote" devuelve el la única ubicación del SKU + Lote
-                if (unicaUbicacion == null) {
-                    select.open();
-                }
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-
         function cargarListaArticulos() {
             const tipoAbastecimiento = document.querySelector('#TipoAbastecimiento').value
             const modal = document.querySelector('#modalBusquedaArticulos')
@@ -480,5 +464,63 @@
                 }
             });
         }
+
+        async function obtenerNuevasUbicaciones(inputId) {
+            const inputTagify = document.getElementById(inputId);
+            const button = document.querySelector(`.reload-button[data-inputid="${inputId}"]`);
+
+            if (!inputTagify || !button) {
+                console.error('Input o botón no encontrados');
+                return;
+            }
+
+            // Deshabilitar el botón mientras se cargan los datos
+            button.disabled = true;
+            button.innerHTML = 'Cargando...';
+
+            try {
+                // Cargar nuevas ubicaciones usando el itemcode del input
+                const nuevasOpciones = await cargarUbicaciones('PICKING', inputTagify.dataset.itemcode);
+                console.log('Nuevas opciones cargadas:', nuevasOpciones);
+
+                // Obtener o inicializar Tagify para el input específico
+                let tagifyInstance = inputTagify.tagify;
+                if (!tagifyInstance) {
+                    // Crear una nueva instancia de Tagify si no existe
+                    tagifyInstance = new Tagify(inputTagify, {
+                        whitelist: [],
+                        dropdown: {
+                            maxItems: 10,
+                            classname: "custom-tagify-dropdown",
+                            enabled: 0,
+                            closeOnSelect: false,
+                            highlightFirst: true,
+                            position: "all"
+                        }
+                    });
+
+                    // Asociar la instancia al input para reutilización
+                    inputTagify.tagify = tagifyInstance;
+
+                    // Evento al seleccionar una opción
+                    tagifyInstance.on('add', (e) => {
+                        console.log('Etiqueta agregada:', e.detail.data.value);
+                    });
+                }
+
+                // Actualizar Tagify con las nuevas opciones
+                tagifyInstance.settings.whitelist = nuevasOpciones.resultUbicaciones;
+                console.log(tagifyInstance.settings.whitelist)
+                tagifyInstance.dropdown.show(inputTagify); // Mostrar el dropdown con las nuevas opciones
+
+            } catch (error) {
+                console.error('Error al recargar ubicaciones:', error);
+            } finally {
+                // Habilitar el botón nuevamente
+                button.disabled = false;
+                button.innerHTML = `<i class="bi bi-arrow-clockwise"></i>`
+            }
+        }
+
     </script>
 }

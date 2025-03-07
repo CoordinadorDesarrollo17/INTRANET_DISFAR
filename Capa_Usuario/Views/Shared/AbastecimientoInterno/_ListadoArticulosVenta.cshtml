@@ -101,7 +101,12 @@
             let stockSolicitadoMaster = parseInt(fila.querySelector('[data-campo="StockSolicitadoMaster"]')?.value || 0)
             let stockSolicitadoSaldo = parseInt(fila.querySelector('[data-campo="StockSolicitadoSaldo"]')?.value || 0)
             let stockSolicitadoTotalUnidades = (Number(stockSolicitadoMaster) * Number(valorUmAlm)) + Number(stockSolicitadoSaldo)
-            fila.querySelector('[data-campo="StockSolicitadoTotalUnidades"]').value = Number(stockSolicitadoMaster) * Number(stockSolicitadoSaldo)
+
+            if (Number(stockSolicitadoSaldo) > 0) {
+                fila.querySelector('[data-campo="StockSolicitadoTotalUnidades"]').value = Number(stockSolicitadoMaster) * Number(stockSolicitadoSaldo)
+            } else {
+                fila.querySelector('[data-campo="StockSolicitadoTotalUnidades"]').value = Number(stockSolicitadoMaster)
+            }
 
             if (stockSolicitadoTotalUnidades > stockTotalUnidades) {
                 Swal.fire({
@@ -150,7 +155,7 @@
             return valores;
         }).filter(valores => {
             // Filtra las filas donde el campo "StockSaliendo" sea mayor a cero
-            return Number(valores['StockSolicitadoMaster']) > 0 && Number(valores['StockSolicitadoSaldo']) > 0 && Number(valores["StockSolicitadoTotalUnidades"] > 0);
+            return Number(valores['StockSolicitadoMaster']) >= 0 && Number(valores['StockSolicitadoSaldo']) >= 0 && Number(valores["StockSolicitadoTotalUnidades"] > 0);
         });
 
         //console.log(arrayDeFilas)
@@ -174,15 +179,17 @@
                             <input type="hidden" name="requerimiento.Detalle[].QuantityUnidadesCajas" value="${item.StockSolicitadoTotalUnidades}" />${item.StockSolicitadoTotalUnidades}
                         </td>
                         <td scope="col" class="text-center">
-                            <input type="hidden" name="requerimiento.Detalle[].CodigoUbicacionOrigen" value="${item.CodigoUbicacionOrigen}" />
-                            <select id="CodigoUbicacionDestino_${item.ItemCode}_${item.BatchNum}_${num}" name="requerimiento.Detalle[].CodigoUbicacionDestino"  class="form-select cls-select"
-                                data-batchnum="${item.BatchNum}" data-itemcode="${item.ItemCode}" onfocus="cargarUbicaciones('PICKING', this.dataset, this.id)"  />
-                                <option>Seleccionar para cargar ubicaciones...</option>
-                            </select>
+                            <div class="d-flex justify-content-center align-items-center">
+                                <input type="hidden" name="requerimiento.Detalle[].CodigoUbicacionOrigen" value="${item.CodigoUbicacionOrigen}" />
+                                <input id="CodigoUbicacionDestino_${item.ItemCode}_${item.BatchNum}_${num}" name="requerimiento.Detalle[].CodigoUbicacionDestino"  class="form-control cls-input-tag" data-batchnum="${item.BatchNum}" data-itemcode="${item.ItemCode}"  />
+                                    <button class="btn btn-warning reload-button" type="button" data-inputid="CodigoUbicacionDestino_${item.ItemCode}_${item.BatchNum}_${num}" onclick="obtenerNuevasUbicaciones(this.dataset.inputid)">
+                                        <i class="bi bi-arrow-clockwise"></i>
+                                    </button>
+                            </div>
                         </td>
                     </tr>`
-
             ++num
+
         })
 
         tablaDestino.innerHTML = tbody
@@ -194,8 +201,60 @@
         if (!modalBootstrap) {
             const modalBootstrap = new bootstrap.Modal(modalElement)
         }
-
+        construirTags()
         modalBootstrap.hide()
     }
 
+    async function cargarUbicaciones(almacen, itemCode) {
+        try {
+            const response = await fetch("/AbastecimientoInterno/BuscarUbicaciones", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ almacen, itemCode })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Error en la solicitud: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            return data; // Retorna las ubicaciones como una promesa resuelta
+        } catch (error) {
+            console.error("Error al cargar ubicaciones:", error);
+            return []; // Devuelve un array vacío en caso de error
+        }
+    }
+
+    function construirTags() {
+        document.querySelectorAll('.cls-input-tag').forEach(async (item) => {
+            try {
+                const opciones = await cargarUbicaciones('PICKING', item.dataset.itemcode);         // Esperar a que se carguen las ubicaciones antes de continuar
+                //console.log('Opciones cargadas:', opciones);
+
+                // Inicializar Tagify con las opciones obtenidas
+                const tagify = new Tagify(item, {
+                    whitelist: opciones.resultUbicaciones,
+                    dropdown: {
+                        maxItems: 10,           // Número máximo de opciones en el desplegable
+                        classname: "custom-tagify-dropdown",
+                        enabled: 0,             // Siempre mostrar el desplegable
+                        closeOnSelect: false,
+                        highlightFirst: true,
+                        position: "all"
+                    }
+                });
+
+                // Evento al seleccionar una opción
+                tagify.on('add', (e) => {
+                    console.log('Etiqueta agregada:', e.detail.data.value);
+                });
+
+            } catch (error) {
+                console.error('Error al inicializar Tagify:', error);
+            }
+        });
+
+    }
 </script>

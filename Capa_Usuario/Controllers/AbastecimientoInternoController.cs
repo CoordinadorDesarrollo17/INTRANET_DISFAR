@@ -295,7 +295,7 @@ namespace Capa_Usuario.Controllers
                 using (SqlConnection cn = new SqlConnection(uti.cadSql2))
                 {
                     cn.Open();
-                    
+
 
                     if (traslado == null)
                     {
@@ -307,14 +307,20 @@ namespace Capa_Usuario.Controllers
 
                     if (traslado?.Id > 0)
                     {
-                        if (traslado.Detalle != null && traslado.Detalle.All(item => item.Value.Estado == "TRANSFERIDO"))
+                        if (traslado.Detalle != null)
                         {
-                            return Json(new
+                            // Ordenamos los detalles para que los ítems en estado "TRANSFERIDO" se muestren al final de la lista
+                            traslado.Detalle = traslado.Detalle.OrderBy(d => d.Value.Estado != "PENDIENTE").ToDictionary(d => d.Key, d => d.Value);
+
+                            if (traslado.Detalle.All(item => item.Value.Estado == "TRANSFERIDO"))
                             {
-                                Titulo = "Error en la operación",
-                                Mensajes = new List<string> { "La solicitud de traslado ya ha sido TRANSFERIDA en su totalidad al sistema." },
-                                Icono = "warning"
-                            });
+                                return Json(new
+                                {
+                                    Titulo = "Error en la operación",
+                                    Mensajes = new List<string> { "La solicitud de traslado ya ha sido TRANSFERIDA en su totalidad al sistema." },
+                                    Icono = "warning"
+                                });
+                            }
                         }
 
                         // Código cuando traslado.Id > 0 quiere decir que vino la informacion de tabla interna, buscar lo insertado en comparacion con transferencia
@@ -888,7 +894,7 @@ namespace Capa_Usuario.Controllers
                             }
 
                             // Sumar y/o Registrar QuantityUnidadesCajas en la tabla UbicacionesLotes
-                           
+
                             int ubicacionLoteId = 0;
                             foreach (var item in transferencia.Detalle)
                             {
@@ -1103,7 +1109,7 @@ namespace Capa_Usuario.Controllers
                                 .ToDictionary(kv => kv.Key, kv => kv.Value);
 
 
-                                int quantityCajasItemCode = Convert.ToInt32(traslado.Detalle.Sum(x=>x.Value.QuantityCajas));
+                                int quantityCajasItemCode = Convert.ToInt32(traslado.Detalle.Sum(x => x.Value.QuantityCajas));
 
                                 //Si las cantidades no coinciden quiere decir que no se ha pasado el grupo completo de los ids correspondientes a un ItemCode en la solicitud de traslado, muestra error
                                 if (quantityCajasItemCode != transferenciaGet.Detalle.Where(x => x.ItemCode == itemCode).Sum(x => x.QuantityUnidadesCajas))
@@ -1250,11 +1256,21 @@ namespace Capa_Usuario.Controllers
                 return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
 
             // Orden: próxima fecha de vencimiento, primera fecha de admisión registrada, la menor cantidad en unidades
-            List<UbicacionesLotesMaster_E> lista = _ubicacionesLotesMasterN.BuscarArticulos(new UbicacionesLotesMaster_E { ItemCode = itemCode })
-                .OrderBy(a => DateTime.Parse(a.ExpDate))
-                .ThenBy(a => DateTime.Parse(a.InDate))
-                .ThenBy(a => a.QuantityUnidadesCajas)
-                .ToList();
+            List<UbicacionesLotesMaster_E> lista = _ubicacionesLotesMasterN.BuscarArticulos(new UbicacionesLotesMaster_E { ItemCode = itemCode }) ?? new List<UbicacionesLotesMaster_E>();
+
+            if (lista.Any())
+            {
+                // Verificar si todas las fechas ExpDate e InDate son iguales
+                bool fechasIguales = lista.All(a => a.ExpDate == lista.First().ExpDate) && lista.All(a => a.InDate == lista.First().InDate);
+
+                // Aplicar el ordenamiento según la condición
+                lista = fechasIguales
+                    ? lista.OrderBy(a => a.CodigoUbicacion).ToList() // Ordenar por CodigoUbicacion si las fechas son iguales
+                    : lista.OrderBy(a => DateTime.Parse(a.ExpDate))
+                           .ThenBy(a => DateTime.Parse(a.InDate))
+                           .ThenBy(a => a.QuantityUnidadesCajas)
+                           .ToList();
+            }
 
             switch (tipoAbastecimiento)
             {
@@ -1378,11 +1394,11 @@ namespace Capa_Usuario.Controllers
 
                     List<DetalleRequerimientos_E> resultDetReq = _requerimientosN.ListarDetalles(itemCode, "CantidadSolicitada");
                     int quantityReq = 0;
-                    if (resultDetReq!= null) { quantityReq=Convert.ToInt32(resultDetReq.Sum(r => r.QuantityUnidadesCajas)); }
+                    if (resultDetReq != null) { quantityReq = Convert.ToInt32(resultDetReq.Sum(r => r.QuantityUnidadesCajas)); }
 
                     List<UbicacionesLotes_E> resultUbicacionesLotes = _ubicacionesLotesN.Obtener(itemCode);
-                    int quantityUbicacionesLote = 0; 
-                    if (resultUbicacionesLotes != null) { quantityUbicacionesLote=resultUbicacionesLotes.Sum(r => r.QuantityUnidadesCajas); }
+                    int quantityUbicacionesLote = 0;
+                    if (resultUbicacionesLotes != null) { quantityUbicacionesLote = resultUbicacionesLotes.Sum(r => r.QuantityUnidadesCajas); }
 
                     int stockDeAlmReserva = quantityUbicacionesLote - quantityReq; //resta de lo que esta por entrar a Picking Atendido=0
 
