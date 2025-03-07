@@ -8,6 +8,7 @@ namespace Capa_Entidad.AbastecimientoInterno_ENT.TablasSql
 {
     public class TransferenciaReserva_E
     {
+        public int IdentificadorExcel { get; set; }
         public int Id { get; set; }
         public int SolicitudTrasladoId { get; set; }
         public int SolicitudTrasladoDocNum { get; set; } 

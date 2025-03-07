@@ -41,13 +41,14 @@
         </div><!-- // row-->
 
         <div class="row">
-            <div class="col-lg-3">
+            <div class="col-lg-6">
                 <button type="button" class="btn btn-primary" title="Agregar artículos" data-bs-toggle="tooltip" data-bs-placement="top" onclick="cargarListaArticulos()">
                     <i class="bi bi-plus-lg"></i> Agregar artículos
                 </button>
+                <button type="button" class="btn btn-success" onclick="abrirModalImportacion()" data-bs-toggle="tooltip" data-bs-placement="top" title="Importar datos directamente a la base"><i class="bi bi-upload"></i> Importar</button>
             </div>
 
-            <div class="col-lg-9 d-flex justify-content-end align-content-end">
+            <div class="col-lg-6 d-flex justify-content-end align-content-end">
                 <button type="button" class="btn btn-cobefar-2" title="Ir a ubicaciones" data-bs-toggle="tooltip" data-bs-placement="top" onclick="redireccionarUbicaciones()">
                     <i class="bi bi-box-arrow-up-right"></i> Ir a ubicaciones
                 </button>
@@ -152,6 +153,28 @@
     </div>
 </div><!-- // modal -->
 
+<div class="modal fade" id="ModalImportar" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-headerModals text-white">
+                <h5 class="modal-title" id="modalLabel">IMPORTAR DATOS EXCEL</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body bg-light">
+                <div class="mb-3">
+                    <label for="i_file" class="form-label text-dark">Seleccione archivo:</label>
+                    <input id="i_file" name="file" type="file" class="form-control" accept=".xlsx" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" onclick="importarSolicitud()">
+                    <i class="bi bi-database"></i> Guardar datos
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
 @section Scripts{
     <script>
 		const configDataTable = {
@@ -479,6 +502,62 @@
 
                 }
             });
+        }
+
+        function abrirModalImportacion() {
+            let modal = new bootstrap.Modal(document.getElementById('ModalImportar'));
+            modal.show();
+        }
+
+        async function importarSolicitud() {
+            let fileInput = document.querySelector("#i_file");
+
+            if (!fileInput.files.length) {
+                Swal.fire({
+                    title: "Error",
+                    html: "Debe seleccionar un archivo para importar.",
+                    icon: "error",
+                    showConfirmButton: true
+                });
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+
+            try {
+                let response = await fetch("/AbastecimientoInterno/ImportarRequerimiento", {
+                    method: "POST",
+                    body: formData
+                });
+
+                let data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.Mensajes?.join("\n") || "Error al procesar la importación.");
+                }
+
+                Swal.fire({
+                    title: data.Titulo || "Éxito",
+                    html: Array.isArray(data.Mensajes) ? data.Mensajes.join("\n") : data.Mensajes,
+                    icon: data.Icono || "success",
+                    showConfirmButton: true
+                });
+
+                // Opcional: Recargar la tabla o cerrar el modal si la importación fue exitosa
+                if (data.Icono === "success") {
+                    document.querySelector("#ModalImportar").querySelector(".btn-close").click();
+                }
+
+            } catch (error) {
+                console.error("Error:", error);
+                Swal.fire({
+                    title: "Error",
+                    text: "Hubo un problema al procesar la solicitud.",
+                    icon: "error",
+                    showConfirmButton: true
+                });
+            }
         }
     </script>
 }

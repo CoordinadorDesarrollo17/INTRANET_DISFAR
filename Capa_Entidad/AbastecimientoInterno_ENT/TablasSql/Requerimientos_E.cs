@@ -5,6 +5,7 @@ namespace Capa_Entidad.AbastecimientoInterno_ENT.TablasSql
 {
     public class Requerimientos_E
     {
+        public int IdentificadorExcel { get; set; }
         public int Id { get; set; }
         public string Origen { get; set; }
         public string Destino { get; set; }
