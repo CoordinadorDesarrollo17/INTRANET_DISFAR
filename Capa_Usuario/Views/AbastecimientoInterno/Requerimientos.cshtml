@@ -24,6 +24,27 @@
         .no-scroll-dropdown::-webkit-scrollbar {
             display: none; /* Esconder el scrollbar en Chrome, Safari, Edge */
         }
+
+        .tagify {
+            display: inline-flex; /* Permitir que el contenedor se ajuste al contenido */
+            flex-wrap: wrap;
+            max-width: 100%; /* Evitar que desborde su contenedor padre */
+        }
+
+        /* Ajustar el input para que ocupe solo el ancho necesario */
+        .tagify__input {
+            min-width: 30px; /* Ancho mínimo para mantener el cursor visible */
+            width: auto; /* Ajuste automático al contenido */
+            flex: 0; /* Evitar que se expanda innecesariamente */
+            transition: width 0.2s ease;
+        }
+
+            /* Eliminar el borde amarillo de enfoque (opcional) */
+            .tagify__input:focus {
+                outline: none;
+                border-color: transparent;
+            }
+
     </style>
 }
 
@@ -65,13 +86,14 @@
         </div><!-- // row-->
 
         <div class="row">
-            <div class="col-lg-3">
+            <div class="col-lg-6">
                 <button type="button" class="btn btn-primary" title="Agregar artículos" data-bs-toggle="tooltip" data-bs-placement="top" onclick="cargarListaArticulos()">
                     <i class="bi bi-plus-lg"></i> Agregar artículos
                 </button>
+                <button type="button" class="btn btn-success" onclick="abrirModalImportacion()" data-bs-toggle="tooltip" data-bs-placement="top" title="Importar datos directamente a la base"><i class="bi bi-upload"></i> Importar</button>
             </div>
 
-            <div class="col-lg-9 d-flex justify-content-end align-content-end">
+            <div class="col-lg-6 d-flex justify-content-end align-content-end">
                 <button type="button" class="btn btn-cobefar-2" title="Ir a ubicaciones" data-bs-toggle="tooltip" data-bs-placement="top" onclick="redireccionarUbicaciones()">
                     <i class="bi bi-box-arrow-up-right"></i> Ir a ubicaciones
                 </button>
@@ -176,8 +198,30 @@
     </div>
 </div><!-- // modal -->
 
+<div class="modal fade" id="ModalImportar" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-headerModals text-white">
+                <h5 class="modal-title" id="modalLabel">IMPORTAR DATOS EXCEL</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body bg-light">
+                <div class="mb-3">
+                    <label for="i_file" class="form-label text-dark">Seleccione archivo:</label>
+                    <input id="i_file" name="file" type="file" class="form-control" accept=".xlsx" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" onclick="importarSolicitud()">
+                    <i class="bi bi-database"></i> Guardar datos
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
 @section Scripts{
-    @Html.Raw("<script src=\"https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.min.js\" defer></script>")    
+    @Html.Raw("<script src=\"https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.min.js\" defer></script>")
     <script>
 		const configDataTable = {
 			paging: false,                  // Deshabilitar paginación
@@ -193,7 +237,6 @@
 		}
 
 		document.addEventListener('DOMContentLoaded', function () {
-			$(`#tbl_detalleRequerimiento`).DataTable(configDataTable)
 			permitirValoresNumericosPositivos()
 		});
 
@@ -322,7 +365,9 @@
                         let value = input.value.trim()   // Aseguramos que no tenga espacios en blanco al inicio o fin
 
                         if (key == 'CodigoUbicacionDestino') {
-                            detalleRequerimiento[key] = Array.from(input.selectedOptions).map(option => option.value).join(', ')
+                            const tagify = new Tagify(input);
+                            const tagsArray = tagify.value;
+                            detalleRequerimiento[key] = tagsArray.map(tag => tag.value).join(', ')
                         } else {
                             detalleRequerimiento[key] = value
                         }
@@ -345,8 +390,8 @@
 				}
 			}
 
-            //console.log(payload)
-            //return;
+            console.log(payload)
+            return;
 
             try {
                 const response = await fetch("/AbastecimientoInterno/RegistrarRequerimiento", {
@@ -483,36 +528,33 @@
                 const nuevasOpciones = await cargarUbicaciones('PICKING', inputTagify.dataset.itemcode);
                 console.log('Nuevas opciones cargadas:', nuevasOpciones);
 
-                // Obtener o inicializar Tagify para el input específico
-                let tagifyInstance = inputTagify.tagify;
-                if (!tagifyInstance) {
-                    // Crear una nueva instancia de Tagify si no existe
-                    tagifyInstance = new Tagify(inputTagify, {
-                        whitelist: [],
+                if (inputTagify.tagify) {
+                    inputTagify.tagify.destroy();
+                }
+
+                // Crear una nueva instancia de Tagify con las nuevas opciones
+                 const tagifyInstance = new Tagify(inputTagify, {
+                        whitelist: nuevasOpciones.resultUbicaciones,
+                        enforceWhitelist: true, // Restringe solo a las opciones de la lista
                         dropdown: {
-                            maxItems: 10,
+                            maxItems: 10,           // Número máximo de opciones en el desplegable
                             classname: "custom-tagify-dropdown",
-                            enabled: 0,
+                            enabled: 0,             // Siempre mostrar el desplegable
                             closeOnSelect: false,
                             highlightFirst: true,
                             position: "all"
                         }
-                    });
+                 });
 
-                    // Asociar la instancia al input para reutilización
-                    inputTagify.tagify = tagifyInstance;
+                // Asociar la instancia al input para reutilización
+                inputTagify.tagify = tagifyInstance;
 
-                    // Evento al seleccionar una opción
-                    tagifyInstance.on('add', (e) => {
-                        console.log('Etiqueta agregada:', e.detail.data.value);
-                    });
-                }
+                tagifyInstance.on('add', (e) => {
+                    console.log('Etiqueta agregada:', e.detail.data.value);
+                });
 
-                // Actualizar Tagify con las nuevas opciones
-                tagifyInstance.settings.whitelist = nuevasOpciones.resultUbicaciones;
-                console.log(tagifyInstance.settings.whitelist)
-                tagifyInstance.dropdown.show(inputTagify); // Mostrar el dropdown con las nuevas opciones
-
+                // Mostrar el dropdown con las nuevas opciones
+                tagifyInstance.dropdown.show(inputTagify);
             } catch (error) {
                 console.error('Error al recargar ubicaciones:', error);
             } finally {
@@ -520,6 +562,135 @@
                 button.disabled = false;
                 button.innerHTML = `<i class="bi bi-arrow-clockwise"></i>`
             }
+        }
+
+        function abrirModalImportacion() {
+            let modal = new bootstrap.Modal(document.getElementById('ModalImportar'));
+            modal.show();
+        }
+
+        async function importarSolicitud() {
+            let fileInput = document.querySelector("#i_file");
+
+            if (!fileInput.files.length) {
+                Swal.fire({
+                    title: "Error",
+                    html: "Debe seleccionar un archivo para importar.",
+                    icon: "error",
+                    showConfirmButton: true
+                });
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+
+            try {
+                let response = await fetch("/AbastecimientoInterno/ImportarRequerimiento", {
+                    method: "POST",
+                    body: formData
+                });
+
+                let data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.Mensajes?.join("\n") || "Error al procesar la importación.");
+                }
+
+                Swal.fire({
+                    title: data.Titulo || "Éxito",
+                    html: Array.isArray(data.Mensajes) ? data.Mensajes.join("\n") : data.Mensajes,
+                    icon: data.Icono || "success",
+                    showConfirmButton: true
+                });
+
+                // Opcional: Recargar la tabla o cerrar el modal si la importación fue exitosa
+                if (data.Icono === "success") {
+                    document.querySelector("#ModalImportar").querySelector(".btn-close").click();
+                }
+
+            } catch (error) {
+                console.error("Error:", error);
+                Swal.fire({
+                    title: "Error",
+                    text: "Hubo un problema al procesar la solicitud.",
+                    icon: "error",
+                    showConfirmButton: true
+                });
+            }
+        }
+
+        async function cargarUbicaciones(almacen, itemCode) {
+            try {
+                if (!itemCode) {                    
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Código de artículo no válido',
+                        text: 'El código de artículo ingresado no es válido.',
+                        allowEscapeKey: false,
+                        allowOutsideClick: false,
+                    });
+
+                    return;
+                }
+
+                itemCode = itemCode.trim()
+                const response = await fetch("/AbastecimientoInterno/BuscarUbicaciones", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ almacen, itemCode })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error en la solicitud: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                return data; // Retorna las ubicaciones como una promesa resuelta
+            } catch (error) {
+                console.error("Error al cargar ubicaciones:", error);
+                return []; // Devuelve un array vacío en caso de error
+            }
+        }
+
+        function construirTags() {
+            document.querySelectorAll('.cls-input-tag').forEach(async (item) => {
+                try {
+                    const opciones = await cargarUbicaciones('PICKING', item.dataset.itemcode);
+
+                    // Validar si opciones.resultUbicaciones es un array válido
+                    const whitelistOpciones = Array.isArray(opciones.resultUbicaciones)
+                        ? opciones.resultUbicaciones
+                        : [];
+
+                    if (whitelistOpciones.length === 0) {
+                        console.warn('La lista de ubicaciones está vacía o es inválida para:', item.dataset.itemcode);
+                    }
+
+                    // Inicializar Tagify con la lista validada
+                    const tagify = new Tagify(item, {
+                        whitelist: whitelistOpciones,
+                        dropdown: {
+                            maxItems: 10,           // Número máximo de opciones en el desplegable
+                            classname: "custom-tagify-dropdown",
+                            enabled: 0,             // Siempre mostrar el desplegable
+                            closeOnSelect: false,
+                            highlightFirst: true,
+                            position: "all"
+                        }
+                    });
+
+                    // Evento al seleccionar una opción
+                    tagify.on('add', (e) => {
+                        console.log('Etiqueta agregada:', e.detail.data.value);
+                    });
+
+                } catch (error) {
+                    console.error('Error al inicializar Tagify:', error);
+                }
+            });
         }
 
     </script>

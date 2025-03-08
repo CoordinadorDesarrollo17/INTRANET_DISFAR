@@ -42,6 +42,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
+                        //REVISION
                         if (dr.HasRows)
                         {
                             while (dr.Read())

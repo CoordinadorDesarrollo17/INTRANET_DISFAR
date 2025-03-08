@@ -92,22 +92,31 @@
     function validarDatos() {
         Array.from(document.querySelectorAll('#tbl_listaArticulosAbastVenta tbody tr')).forEach((fila, index) => {
             // Obtener valores de los inputs dentro de la fila
-            let itemCode = String(fila.querySelector('[data-campo="ItemCode"]')?.value || '')
-            let batchNum = String(fila.querySelector('[data-campo="BatchNum"]')?.value || '')
-            let valorUmAlm = parseInt(fila.querySelector('[data-campo="ValorUmAlm"]')?.value || 0)
-            let stockTotalUnidades = parseInt(fila.querySelector('[data-campo="StockTotalUnidades"]')?.value || 0)
+            const itemCode = String(fila.querySelector('[data-campo="ItemCode"]')?.value || '');
+            const batchNum = String(fila.querySelector('[data-campo="BatchNum"]')?.value || '');
+            const valorUmAlm = parseInt(fila.querySelector('[data-campo="ValorUmAlm"]')?.value || 0, 10);
+            const stockTotalUnidades = parseInt(fila.querySelector('[data-campo="StockTotalUnidades"]')?.value || 0, 10);
 
+            let stockSolicitadoTotalUnidades = 0;
 
-            let stockSolicitadoMaster = parseInt(fila.querySelector('[data-campo="StockSolicitadoMaster"]')?.value || 0)
-            let stockSolicitadoSaldo = parseInt(fila.querySelector('[data-campo="StockSolicitadoSaldo"]')?.value || 0)
-            let stockSolicitadoTotalUnidades = (Number(stockSolicitadoMaster) * Number(valorUmAlm)) + Number(stockSolicitadoSaldo)
+            const stockSolicitadoMaster = parseInt(fila.querySelector('[data-campo="StockSolicitadoMaster"]')?.value || 0, 10);
+            const stockSolicitadoSaldo = parseInt(fila.querySelector('[data-campo="StockSolicitadoSaldo"]')?.value || 0, 10);
 
-            if (Number(stockSolicitadoSaldo) > 0) {
-                fila.querySelector('[data-campo="StockSolicitadoTotalUnidades"]').value = Number(stockSolicitadoMaster) * Number(stockSolicitadoSaldo)
+            // Validar que las cantidades sean mayores a cero antes del cálculo
+            if (stockSolicitadoMaster > 0 && valorUmAlm > 0 && stockSolicitadoSaldo > 0) {
+                stockSolicitadoTotalUnidades = (stockSolicitadoMaster * valorUmAlm) + stockSolicitadoSaldo;
+            } else if (stockSolicitadoMaster > 0 && valorUmAlm > 0) {
+                stockSolicitadoTotalUnidades = stockSolicitadoMaster * valorUmAlm;
+            } else if (stockSolicitadoSaldo > 0) {
+                stockSolicitadoTotalUnidades = stockSolicitadoSaldo;
             } else {
-                fila.querySelector('[data-campo="StockSolicitadoTotalUnidades"]').value = Number(stockSolicitadoMaster)
+                stockSolicitadoTotalUnidades = 0;
             }
 
+            // Asignar el valor calculado al campo correspondiente
+            fila.querySelector('[data-campo="StockSolicitadoTotalUnidades"]').value = stockSolicitadoTotalUnidades;
+
+            // Validar si la cantidad solicitada excede el stock disponible
             if (stockSolicitadoTotalUnidades > stockTotalUnidades) {
                 Swal.fire({
                     icon: 'error',
@@ -121,6 +130,7 @@
             }
         });
     }
+
 
     function guardarArticulosVenta() {
         validarDatos()
@@ -192,7 +202,7 @@
 
         })
 
-        tablaDestino.innerHTML = tbody
+        tablaDestino.innerHTML += tbody
         console.log('Filas movidas con éxito')
 
         const modalElement = document.getElementById('modalBusquedaArticulos')
@@ -203,58 +213,5 @@
         }
         construirTags()
         modalBootstrap.hide()
-    }
-
-    async function cargarUbicaciones(almacen, itemCode) {
-        try {
-            const response = await fetch("/AbastecimientoInterno/BuscarUbicaciones", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ almacen, itemCode })
-            });
-
-            if (!response.ok) {
-                throw new Error(`Error en la solicitud: ${response.statusText}`);
-            }
-
-            const data = await response.json();
-            return data; // Retorna las ubicaciones como una promesa resuelta
-        } catch (error) {
-            console.error("Error al cargar ubicaciones:", error);
-            return []; // Devuelve un array vacío en caso de error
-        }
-    }
-
-    function construirTags() {
-        document.querySelectorAll('.cls-input-tag').forEach(async (item) => {
-            try {
-                const opciones = await cargarUbicaciones('PICKING', item.dataset.itemcode);         // Esperar a que se carguen las ubicaciones antes de continuar
-                //console.log('Opciones cargadas:', opciones);
-
-                // Inicializar Tagify con las opciones obtenidas
-                const tagify = new Tagify(item, {
-                    whitelist: opciones.resultUbicaciones,
-                    dropdown: {
-                        maxItems: 10,           // Número máximo de opciones en el desplegable
-                        classname: "custom-tagify-dropdown",
-                        enabled: 0,             // Siempre mostrar el desplegable
-                        closeOnSelect: false,
-                        highlightFirst: true,
-                        position: "all"
-                    }
-                });
-
-                // Evento al seleccionar una opción
-                tagify.on('add', (e) => {
-                    console.log('Etiqueta agregada:', e.detail.data.value);
-                });
-
-            } catch (error) {
-                console.error('Error al inicializar Tagify:', error);
-            }
-        });
-
     }
 </script>

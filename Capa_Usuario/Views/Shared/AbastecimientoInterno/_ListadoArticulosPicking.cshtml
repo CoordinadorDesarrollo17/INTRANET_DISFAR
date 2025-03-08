@@ -181,18 +181,20 @@
                                     <input type="hidden" name="requerimiento.Detalle[].QuantityUnidadesCajas" value="${item.StockSaliendo}" />${item.StockSaliendo}
                                 </td>
                                 <td scope="col" class="text-center">
-                                    <input type="hidden" name="requerimiento.Detalle[].CodigoUbicacionOrigen" value="${item.CodigoUbicacionOrigen}" />
-                                    <select id="CodigoUbicacionDestino_${item.ItemCode}_${item.BatchNum}_${num}" name="requerimiento.Detalle[].CodigoUbicacionDestino"  class="form-select cls-select"
-                                        data-batchnum="${item.BatchNum}" data-itemcode="${item.ItemCode}" onfocus="cargarUbicaciones('PICKING', this.dataset, this.id)"  />
-                                        <option>Seleccionar para cargar ubicaciones...</option>
-                                    </select>
+                                    <div class="d-flex justify-content-center align-items-center">
+                                        <input type="hidden" name="requerimiento.Detalle[].CodigoUbicacionOrigen" value="${item.CodigoUbicacionOrigen}" />
+                                        <input id="CodigoUbicacionDestino_${item.ItemCode}_${item.BatchNum}_${num}" name="requerimiento.Detalle[].CodigoUbicacionDestino"  class="form-control cls-input-tag" data-batchnum="${item.BatchNum}" data-itemcode="${item.ItemCode}"  />
+                                            <button class="btn btn-warning reload-button" type="button" data-inputid="CodigoUbicacionDestino_${item.ItemCode}_${item.BatchNum}_${num}" onclick="obtenerNuevasUbicaciones(this.dataset.inputid)">
+                                                <i class="bi bi-arrow-clockwise"></i>
+                                            </button>
+                                    </div>
                                 </td>
                             </tr>`
 
             ++num
         })
 
-        tablaDestino.innerHTML = tbody
+        tablaDestino.innerHTML += tbody
         console.log('Filas movidas con éxito')
 
         const modalElement = document.getElementById('modalBusquedaArticulos')
@@ -202,6 +204,7 @@
             const modalBootstrap = new bootstrap.Modal(modalElement)
         }
 
+        construirTags()
         modalBootstrap.hide()
     }
 </script>

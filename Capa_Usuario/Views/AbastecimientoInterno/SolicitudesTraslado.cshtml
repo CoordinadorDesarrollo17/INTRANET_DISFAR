@@ -132,12 +132,11 @@
 <div class="modal fade" id="ModalImportar" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header bg-cobefar text-white">
+            <div class="modal-header bg-headerModals text-white">
                 <h5 class="modal-title" id="modalLabel">IMPORTAR DATOS EXCEL</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body bg-light">
-
                 <div class="mb-3">
                     <label for="i_file" class="form-label text-dark">Seleccione archivo:</label>
                     <input id="i_file" name="file" type="file" class="form-control" accept=".xlsx" />
@@ -418,7 +417,6 @@
 
             let formData = new FormData();
             formData.append("file", fileInput.files[0]);
-            formData.append("idOperation", 3301);
 
             try {
                 let response = await fetch("/AbastecimientoInterno/ImportarTransferenciaDeStock", {
@@ -454,7 +452,6 @@
                 });
             }
         }
-
 
 		// Construcción de la tabla de detalle
         function renderizarDetalle(detalle) {
