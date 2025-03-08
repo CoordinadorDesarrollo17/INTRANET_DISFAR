@@ -1,29 +1,23 @@
-using Aspose.Pdf.Operators;
 using Capa_Datos;
-using Capa_Entidad;
-using Capa_Entidad.AbastecimientoInterno_ENT.Reportes;
+using Capa_Datos.AbastecimientoInterno_DAO.TablasSql;
 using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
 using Capa_Entidad.Almacen_ENT.Tablas;
-using Capa_Entidad.General_ENT.TablasSql;
 using Capa_Entidad.Seguridad_ENT;
 using Capa_Negocio.AbastecimientoInterno_NEG.Reportes;
 using Capa_Negocio.AbastecimientoInterno_NEG.TablasExternas;
 using Capa_Negocio.AbastecimientoInterno_NEG.TablasSql;
-using Capa_Negocio.General_NEG.TablasSql;
 using Capa_Usuario.Helpers;
-using DocumentFormat.OpenXml.EMMA;
+using Org.BouncyCastle.Ocsp;
 using SpreadsheetLight;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Drawing;
 using System.Linq;
 using System.Transactions;
-using System.util;
 using System.Web;
 using System.Web.Mvc;
-using System.Web.Services.Description;
+
 namespace Capa_Usuario.Controllers
 {
     public class AbastecimientoInternoController : Controller
@@ -96,7 +90,7 @@ namespace Capa_Usuario.Controllers
                         ItemCode = grupo.Key.ItemCode,
                         ItemName = grupo.Key.ItemName,
                         CantidadUbicaciones = grupo.Count(),
-                        Ubicaciones = grupo.Select(u => (Ubicaciones_E)u).ToList(),
+                        Ubicaciones = grupo.Select(u => u).ToList(),
                         StockMinAbastecimiento = grupo.Key.StockMinAbastecimiento,
                         StockMinVenta = grupo.Key.StockMinVenta,
                         Clasificacion = grupo.Key.Clasificacion
@@ -218,7 +212,7 @@ namespace Capa_Usuario.Controllers
                     ItemCode = grupo.Key.ItemCode,
                     ItemName = grupo.Key.ItemName,
                     CantidadUbicaciones = grupo.Count(),
-                    Ubicaciones = grupo.Select(u => (Ubicaciones_E)u).ToList()
+                    Ubicaciones = grupo.Select(u => u).ToList()
                 })
                 .ToDictionary(x => x.ItemCode);
 
@@ -272,12 +266,7 @@ namespace Capa_Usuario.Controllers
                 return Json(new { Titulo = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" }, JsonRequestBehavior.AllowGet);
             var result = _ubicacionesN.EliminarUbicacionGeneral(codigoUbicacion);
             string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
-            return Json(new
-            {
-                Titulo = tituloSweetAlert,
-                result.Mensajes,
-                Icono = result.IconoSweetAlert
-            });
+            return Json(new { Titulo = tituloSweetAlert, result.Mensajes, Icono = result.IconoSweetAlert });
         }
         /************************* S O L I C I T U D   D E   T R A S L A D O *************************/
         public JsonResult BuscarSolicitudDeTraslado(int docNum)
@@ -414,40 +403,40 @@ namespace Capa_Usuario.Controllers
                         });
                     }
                     sld.SelectWorksheet("CABECERA");
-
+                    // Leer todos los identificadores de CABECERA
                     int iRow = 10;
-                    if (string.IsNullOrWhiteSpace(sld.GetCellValueAsString(iRow, 1)))
+                    List<SolicitudesTraslado_E> solicitudesTraslado = new List<SolicitudesTraslado_E>();
+                    List<TransferenciaReserva_E> transferencias = new List<TransferenciaReserva_E>();
+
+                    while (!string.IsNullOrWhiteSpace(sld.GetCellValueAsString(iRow, 2)))
                     {
-                        return Json(new
+                        solicitudesTraslado.Add(new SolicitudesTraslado_E
                         {
-                            Titulo = "No se pudo completar la acción",
-                            Mensajes = new List<string> { "No hay datos en el archivo." },
-                            Icono = "error"
+                            DocEntry = sld.GetCellValueAsInt32(iRow, 1),
+                            DocNum = sld.GetCellValueAsInt32(iRow, 2),
+                            DocDate = sld.GetCellValueAsDateTime(iRow, 3).ToString("yyyy-MM-dd"),
+                            CardCode = sld.GetCellValueAsString(iRow, 4),
+                            CardName = sld.GetCellValueAsString(iRow, 5),
+                            NroGuia = string.IsNullOrWhiteSpace(sld.GetCellValueAsString(iRow, 6)) ? null : sld.GetCellValueAsString(iRow, 6),
+                            OperarioResponsableSAP = sld.GetCellValueAsString(iRow, 7),
+                            MotivoTraslado = sld.GetCellValueAsString(iRow, 8),
+                            Estado = "TRANSFERIDO",
+                            Detalle = new Dictionary<string, DetalleSolicitudesTraslado_E>()
                         });
+
+                        transferencias.Add(new TransferenciaReserva_E
+                        {
+                            IdentificadorExcel = sld.GetCellValueAsInt32(iRow, 2),
+                            CardCode = sld.GetCellValueAsString(iRow, 4),
+                            CardName = sld.GetCellValueAsString(iRow, 5),
+                            NroGuia = string.IsNullOrWhiteSpace(sld.GetCellValueAsString(iRow, 6)) ? null : sld.GetCellValueAsString(iRow, 6),
+                            Detalle = new List<DetalleTransferenciaReserva_E>()
+                        });
+
+                        iRow++;
                     }
 
-                    SolicitudesTraslado_E solicitudTraslado = new SolicitudesTraslado_E
-                    {
-                        DocEntry = sld.GetCellValueAsInt32(iRow, 1),
-                        DocNum = sld.GetCellValueAsInt32(iRow, 2),
-                        DocDate = sld.GetCellValueAsDateTime(iRow, 3).ToString("yyyy-MM-dd"),
-                        CardCode = sld.GetCellValueAsString(iRow, 4),
-                        CardName = sld.GetCellValueAsString(iRow, 5),
-                        NroGuia = string.IsNullOrWhiteSpace(sld.GetCellValueAsString(iRow, 6)) ? null : sld.GetCellValueAsString(iRow, 6),
-                        OperarioResponsableSAP = sld.GetCellValueAsString(iRow, 7),
-                        MotivoTraslado = sld.GetCellValueAsString(iRow, 8),
-                        Estado = "TRANSFERIDO",
-                        Detalle = new Dictionary<string, DetalleSolicitudesTraslado_E>()
-                    };
-
-                    TransferenciaReserva_E transferencia = new TransferenciaReserva_E
-                    {
-                        CardCode = sld.GetCellValueAsString(iRow, 4),
-                        CardName = sld.GetCellValueAsString(iRow, 5),
-                        NroGuia = string.IsNullOrWhiteSpace(sld.GetCellValueAsString(iRow, 6)) ? null : sld.GetCellValueAsString(iRow, 6),
-                        Detalle = new List<DetalleTransferenciaReserva_E>()
-                    };
-
+                    
                     if (!sld.GetSheetNames().Contains("CUERPO"))
                     {
                         return Json(new
@@ -462,60 +451,93 @@ namespace Capa_Usuario.Controllers
                     iRow = 10;
                     while (!string.IsNullOrWhiteSpace(sld.GetCellValueAsString(iRow, 1)))
                     {
-                        var detalleSolicitudTraslado = new DetalleSolicitudesTraslado_E
+                        int idDetalle = sld.GetCellValueAsInt32(iRow, 1);
+                        if (idDetalle == 0)
                         {
-                            ItemCode = sld.GetCellValueAsString(iRow, 2),
-                            ItemName = sld.GetCellValueAsString(iRow, 3),
-                            BatchNum = sld.GetCellValueAsString(iRow, 4),
-                            FromWhsCode = sld.GetCellValueAsString(iRow, 5),
-                            ToWhsCode = sld.GetCellValueAsString(iRow, 6),
-                            ExpDate = sld.GetCellValueAsDateTime(iRow, 8).ToString("yyyy-MM-dd"),
-                            InDate = sld.GetCellValueAsDateTime(iRow, 9).ToString("yyyy-MM-dd"),
-                            QuantityCajas = Convert.ToDecimal((sld.GetCellValueAsInt32(iRow, 11) * sld.GetCellValueAsInt32(iRow, 12)) + sld.GetCellValueAsInt32(iRow, 13))
-                        };
-
-                        var detalleTransferencia = new DetalleTransferenciaReserva_E
-                        {
-                            ItemCode = sld.GetCellValueAsString(iRow, 2),
-                            ItemName = sld.GetCellValueAsString(iRow, 3),
-                            BatchNum = sld.GetCellValueAsString(iRow, 4),
-                            CodigoUbicacion = sld.GetCellValueAsString(iRow, 7),
-                            ExpDate = sld.GetCellValueAsDateTime(iRow, 8).ToString("yyyy-MM-dd"),
-                            InDate = sld.GetCellValueAsDateTime(iRow, 9).ToString("yyyy-MM-dd"),
-                            UmAlm = sld.GetCellValueAsString(iRow, 10),
-                            ValorUmAlm = sld.GetCellValueAsInt32(iRow, 11),
-                            QuantityMaster = sld.GetCellValueAsInt32(iRow, 12),
-                            QuantitySaldo = sld.GetCellValueAsInt32(iRow, 13),
-                            QuantityUnidadesCajas = (sld.GetCellValueAsInt32(iRow, 11) * sld.GetCellValueAsInt32(iRow, 12)) + sld.GetCellValueAsInt32(iRow, 13)
-                        };
-
-                        string uniqueKey = detalleSolicitudTraslado.ItemCode;
-                        if (!solicitudTraslado.Detalle.ContainsKey(uniqueKey))
-                        {
-                            solicitudTraslado.Detalle[uniqueKey] = detalleSolicitudTraslado;
+                            iRow++;
+                            continue; // Saltar filas inválidas
                         }
+                        var solicitudTraslado = solicitudesTraslado.FirstOrDefault(r => r.DocNum == idDetalle);
+                        var transferencia = transferencias.FirstOrDefault(r => r.IdentificadorExcel == idDetalle);
 
-                        solicitudTraslado.Detalle[detalleSolicitudTraslado.ItemCode] = detalleSolicitudTraslado;
-                        transferencia.Detalle.Add(detalleTransferencia);
+                        if (solicitudTraslado != null)
+                        {
+                            var detalleSolicitudTraslado = new DetalleSolicitudesTraslado_E
+                            {
+                                ItemCode = sld.GetCellValueAsString(iRow, 2),
+                                ItemName = sld.GetCellValueAsString(iRow, 3),
+                                BatchNum = sld.GetCellValueAsString(iRow, 4),
+                                FromWhsCode = sld.GetCellValueAsString(iRow, 5),
+                                ToWhsCode = sld.GetCellValueAsString(iRow, 6),
+                                ExpDate = sld.GetCellValueAsDateTime(iRow, 8).ToString("yyyy-MM-dd"),
+                                InDate = sld.GetCellValueAsDateTime(iRow, 9).ToString("yyyy-MM-dd"),
+                                QuantityCajas = Convert.ToDecimal((sld.GetCellValueAsInt32(iRow, 11) * sld.GetCellValueAsInt32(iRow, 12)) + sld.GetCellValueAsInt32(iRow, 13))
+                            };
+                            string uniqueKey = detalleSolicitudTraslado.ItemCode;
+                            if (!solicitudTraslado.Detalle.ContainsKey(uniqueKey))
+                            {
+                                solicitudTraslado.Detalle[uniqueKey] = detalleSolicitudTraslado;
+                            }
+
+                            solicitudTraslado.Detalle[detalleSolicitudTraslado.ItemCode] = detalleSolicitudTraslado;
+                        }
+                        if (transferencia!=null) { 
+                            var detalleTransferencia = new DetalleTransferenciaReserva_E
+                            {
+                                ItemCode = sld.GetCellValueAsString(iRow, 2),
+                                ItemName = sld.GetCellValueAsString(iRow, 3),
+                                BatchNum = sld.GetCellValueAsString(iRow, 4),
+                                CodigoUbicacion = sld.GetCellValueAsString(iRow, 7),
+                                ExpDate = sld.GetCellValueAsDateTime(iRow, 8).ToString("yyyy-MM-dd"),
+                                InDate = sld.GetCellValueAsDateTime(iRow, 9).ToString("yyyy-MM-dd"),
+                                UmAlm = sld.GetCellValueAsString(iRow, 10),
+                                ValorUmAlm = sld.GetCellValueAsInt32(iRow, 11),
+                                QuantityMaster = sld.GetCellValueAsInt32(iRow, 12),
+                                QuantitySaldo = sld.GetCellValueAsInt32(iRow, 13),
+                                QuantityUnidadesCajas = (sld.GetCellValueAsInt32(iRow, 11) * sld.GetCellValueAsInt32(iRow, 12)) + sld.GetCellValueAsInt32(iRow, 13)
+                            };
+                            transferencia.Detalle.Add(detalleTransferencia);
+                        }
                         iRow++;
                     }
-
-                    var resultado = RegistrarTransferenciaDeStock(solicitudTraslado, transferencia);
-
-                    // Verificar si el resultado es un JsonResult válido
-                    if (resultado is JsonResult jsonResultado)
+                    // Registrar cada transferencia de forma independiente
+                    List<string> errores = new List<string>();
+                    for (int i = 0; i < solicitudesTraslado.Count; i++)
                     {
-                        return jsonResultado;
-                    }
-                    else
-                    {
-                        return Json(new
+                        var solicitudTraslado = solicitudesTraslado[i];
+                        var transferencia = transferencias[i];
+
+                        var resultado = RegistrarTransferenciaDeStock(solicitudTraslado, transferencia);
+
+                        if (resultado is JsonResult jsonResultado)
                         {
-                            Titulo = "Error en la transferencia",
-                            Mensajes = new List<string> { "Respuesta inesperada al registrar la transferencia de stock." },
-                            Icono = "error"
-                        });
+                            var data = jsonResultado.Data as dynamic;
+                            if (data != null && data.Icono == "error")
+                            {
+                                errores.Add($"Error  al registrar Documento {solicitudTraslado.DocNum}: {data.Mensajes[0]}");
+                            }
+                        }
+                        else
+                        {
+                            errores.Add($"Error inesperado al registrar Documento {solicitudTraslado.DocNum}.");
+                        }
                     }
+                    // Responder según el resultado
+                    return errores.Count > 0
+                        ? Json(new
+                        {
+                            Titulo = "Errores en la importación",
+                            Mensajes = errores,
+                            Icono = "warning"
+                        })
+                        : Json(new
+                        {
+                            Titulo = "Importación exitosa",
+                            Mensajes = new List<string> { "Todos los documentos fueron importados correctamente." },
+                            Icono = "success"
+                        });
+
+
                 }
             }
             catch (Exception ex)
@@ -528,258 +550,6 @@ namespace Capa_Usuario.Controllers
                 });
             }
         }
-        //   public JsonResult RegistrarTransferenciaDeStock(SolicitudesTraslado_E solicitudTraslado, TransferenciaReserva_E transferenciaPost, int idOperation = 3302)
-        //   {
-        //       var resultadoAcceso = VerificarPermiso(idOperation);
-        //       if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
-        //       {
-        //           return Json(new
-        //           {
-        //               Titulo = "No se pudo completar la acción",
-        //               Mensajes = new List<string> { "Error de accesos." },
-        //               Icono = "error"
-        //           });
-        //       }
-        //       try
-        //       {
-        //           if (transferenciaPost == null)
-        //           {
-        //               return Json(new
-        //               {
-        //                   Titulo = "Error en la operación",
-        //                   Mensajes = new List<string> { "El documento que trata de registrar no tiene una transferencia realizándose." },
-        //                   Icono = "error"
-        //               });
-        //           }
-
-        //           if (solicitudTraslado == null || solicitudTraslado.DocNum == 0)
-        //               solicitudTraslado = _solicitudTrasladoN.ObtenerSolicitudDeTraslado(transferenciaPost.SolicitudTrasladoDocNum);
-
-        //           var resultLotes = _lotesRegistroSanitarioN.ValidarLotesRegistroSanitario(solicitudTraslado.Detalle);
-        //           if (resultLotes.IconoSweetAlert.Equals("error"))
-        //           {
-        //               return Json(new { Titulo = "No se pudo completar la acción", resultLotes.Mensajes, Icono = resultLotes.IconoSweetAlert });
-        //           }
-
-        //           if (solicitudTraslado == null || solicitudTraslado.Id == 0)
-        //           {
-        //               var resultSolicitud = _solicitudTrasladoN.ImportarSolicitudDeTraslado(solicitudTraslado);
-        //               if (resultSolicitud.IconoSweetAlert.Equals("error") || resultSolicitud.Id == 0)
-        //               {
-        //                   return Json(new { Titulo = "No se pudo completar la acción", resultSolicitud.Mensajes, Icono = "error" });
-        //               }
-        //               solicitudTraslado.Id = resultSolicitud.Id;
-        //           }
-
-        //           Usuario_E user = (Usuario_E)Session["UsuarioId"];
-        //           if (user == null)
-        //           {
-        //               return Json(new
-        //               {
-        //                   Titulo = "Error en la operación",
-        //                   Mensajes = new List<string> { "No existe usuario logueado, se terminó la sesión." },
-        //                   Icono = "error"
-        //               });
-        //           }
-
-        //           transferenciaPost.OperarioRegistra = $"{user.Nombres} {user.Apellidos}";
-        //           transferenciaPost.SolicitudTrasladoId = solicitudTraslado.Id;
-        //           transferenciaPost.SolicitudTrasladoDocNum = solicitudTraslado.DocNum;
-
-        //           Utilitarios uti = new Utilitarios();
-
-        //           using (var scope = new TransactionScope(TransactionScopeOption.Required,
-        //              new TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted },
-        //              TransactionScopeAsyncFlowOption.Enabled))
-        //           {
-        //               using (SqlConnection cn = new SqlConnection(uti.cadSql2))
-        //               {
-        //                   cn.Open();
-
-        //                   var resultRegistroTransferencia = _transferenciaReservaN.RegistrarTransferenciaReserva(transferenciaPost, cn);
-        //                   if (resultRegistroTransferencia.IconoSweetAlert.Equals("error"))
-        //                   {
-        //                       throw new Exception(string.Join(", ", resultRegistroTransferencia.Mensajes));
-        //                   }
-
-        //                   TransferenciaReserva_E transferenciaActualizada = _transferenciaReservaN.ObtenerTransferenciaReserva(transferenciaPost.SolicitudTrasladoDocNum);
-        //                   var resultActualizarEstado = _solicitudTrasladoN.ActualizarEstado(transferenciaActualizada.SolicitudTrasladoId, transferenciaActualizada.Detalle, cn);
-        //                   if (resultActualizarEstado.IconoSweetAlert.Equals("error"))
-        //                   {
-        //                       throw new Exception(string.Join(", ", resultActualizarEstado.Mensajes));
-        //                   }
-
-        //                   foreach (var item in transferenciaActualizada.Detalle)
-        //                   {
-        //                       var resultUbicacionesLotes = _ubicacionesLotesN.Ingreso(item, cn);
-        //                       if (resultUbicacionesLotes.IconoSweetAlert.Equals("error"))
-        //                       {
-        //                           throw new Exception(string.Join(", ", resultUbicacionesLotes.Mensajes));
-        //                       }
-
-        //                       int ubicacionLoteId = resultUbicacionesLotes.Id;
-        //                       var resultUbicacionesLotesMaster = _ubicacionesLotesMasterN.Ingreso(ubicacionLoteId, item, cn);
-        //                       if (resultUbicacionesLotesMaster.IconoSweetAlert.Equals("error"))
-        //                       {
-        //                           throw new Exception(string.Join(", ", resultUbicacionesLotesMaster.Mensajes));
-        //                       }
-        //                   }
-
-        //                   var resultKardex = _kardexAbastecimientoN.InsertarTransaccionIngresoKardex(transferenciaActualizada, cn);
-        //                   if (resultKardex.IconoSweetAlert.Equals("error"))
-        //                   {
-        //                       throw new Exception(string.Join(", ", resultKardex.Mensajes));
-        //                   }
-
-        //                   scope.Complete();
-        //               }
-
-        //           }
-        //           return Json(new { Titulo = "Acción completada exitosamente", Mensajes = new List<string> { "Se registró la Transferencia Reserva correctamente." }, Icono = "success" });
-        //       }
-        //       catch (Exception ex)
-        //       {
-        //           using (var scope = new TransactionScope(TransactionScopeOption.Required,
-        //new TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted },
-        //TransactionScopeAsyncFlowOption.Enabled))
-        //           {
-        //               Utilitarios uti = new Utilitarios();
-        //               using (SqlConnection cn = new SqlConnection(uti.cadSql2))
-        //               {
-        //                   cn.Open();
-        //                   TransferenciaReserva_E transferenciaExistente = _transferenciaReservaN.ObtenerTransferenciaReserva(transferenciaPost.SolicitudTrasladoDocNum);
-        //                   if (transferenciaExistente == null || transferenciaExistente.Detalle.Count == 0)
-        //                   {
-        //                       var resultDeleteSolicitudTraslado = _solicitudTrasladoN.DeleteSolicitudDeTraslado(solicitudTraslado.DocNum, cn);
-        //                       if (resultDeleteSolicitudTraslado.IconoSweetAlert.Equals("error"))
-        //                       {
-        //                           throw new Exception(string.Join(", ", resultDeleteSolicitudTraslado.Mensajes));
-        //                       }
-        //                   }
-        //                   scope.Complete();
-        //               }
-        //           }
-
-        //           return Json(new
-        //           {
-        //               Titulo = "Error en la operación",
-        //               Mensajes = new List<string> { ex.Message }, // Excepción ya tiene los mensajes concatenados
-        //               Icono = "error"
-        //           });
-        //       }
-
-        //   }
-
-        //public JsonResult RegistrarTransferenciaDeStock(SolicitudesTraslado_E solicitudTraslado, TransferenciaReserva_E transferenciaPost, int idOperation = 3302)
-        //{
-        //    try
-        //    {
-        //        if (transferenciaPost == null)
-        //        {
-        //            return Json(new
-        //            {
-        //                Titulo = "Error en la operación",
-        //                Mensajes = new List<string> { "El documento que trata de registrar no tiene una transferencia realizándose." },
-        //                Icono = "error"
-        //            });
-        //        }
-
-        //        if (solicitudTraslado == null || solicitudTraslado.DocNum == 0)
-        //            solicitudTraslado = _solicitudTrasladoN.ObtenerSolicitudDeTraslado(transferenciaPost.SolicitudTrasladoDocNum);
-
-        //        var resultLotes = _lotesRegistroSanitarioN.ValidarLotesRegistroSanitario(solicitudTraslado.Detalle);
-        //        if (resultLotes.IconoSweetAlert.Equals("error"))
-        //        {
-        //            return Json(new { Titulo = "No se pudo completar la acción", resultLotes.Mensajes, Icono = resultLotes.IconoSweetAlert });
-        //        }
-
-        //        if (solicitudTraslado == null || solicitudTraslado.Id == 0)
-        //        {
-        //            var resultSolicitud = _solicitudTrasladoN.ImportarSolicitudDeTraslado(solicitudTraslado);
-        //            if (resultSolicitud.IconoSweetAlert.Equals("error") || resultSolicitud.Id == 0)
-        //            {
-        //                return Json(new { Titulo = "No se pudo completar la acción", resultSolicitud.Mensajes, Icono = "error" });
-        //            }
-        //            solicitudTraslado.Id = resultSolicitud.Id;
-        //        }
-
-        //        Usuario_E user = (Usuario_E)Session["UsuarioId"];
-        //        if (user == null)
-        //        {
-        //            return Json(new
-        //            {
-        //                Titulo = "Error en la operación",
-        //                Mensajes = new List<string> { "No existe usuario logueado, se terminó la sesión." },
-        //                Icono = "error"
-        //            });
-        //        }
-
-        //        transferenciaPost.OperarioRegistra = $"{user.Nombres} {user.Apellidos}";
-        //        transferenciaPost.SolicitudTrasladoId = solicitudTraslado.Id;
-        //        transferenciaPost.SolicitudTrasladoDocNum = solicitudTraslado.DocNum;
-
-        //        Utilitarios uti = new Utilitarios();
-
-        //        using (var scope = new TransactionScope(TransactionScopeOption.Required,
-        //           new TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted },
-        //           TransactionScopeAsyncFlowOption.Enabled))
-        //        {
-        //            try
-        //            {
-        //                using (SqlConnection cn = new SqlConnection(uti.cadSql2))
-        //                {
-        //                    cn.Open();
-        //                    var resultRegistroTransferencia = _transferenciaReservaN.RegistrarTransferenciaReserva(transferenciaPost, cn);
-        //                     if (resultRegistroTransferencia.IconoSweetAlert.Equals("error")) {
-        //                        //Validar si no existe algunos items de transferencia sobre esta solicitudTraslado
-        //                       TransferenciaReserva_E transferenciaExistente = _transferenciaReservaN.ObtenerTransferenciaReserva(transferenciaPost.SolicitudTrasladoDocNum);
-        //                        if (transferenciaExistente == null || transferenciaExistente.Detalle.Count == 0)
-        //                        {
-        //                            // Eliminar la solicitud de traslado si en caso se importo a la tabla interna pero no se ha registrado un item por lo menos de transferencia
-        //                            _solicitudTrasladoN.DeleteSolicitudDeTraslado(solicitudTraslado.DocNum, cn);
-        //                        }
-        //                        throw new Exception("No se pudo registrar la transferencia de reserva.");
-        //                    }
-        //                    else { 
-        //                        TransferenciaReserva_E transferenciaActualizada = _transferenciaReservaN.ObtenerTransferenciaReserva(transferenciaPost.SolicitudTrasladoDocNum);
-        //                        var resultActualizarEstado = _solicitudTrasladoN.ActualizarEstado(transferenciaActualizada.SolicitudTrasladoId, transferenciaActualizada.Detalle, cn);
-        //                        if (resultActualizarEstado.IconoSweetAlert.Equals("error"))
-        //                            throw new Exception("No se pudo actualizar el estado de los items en solicitud de traslado.");
-
-        //                        foreach (var item in transferenciaActualizada.Detalle)
-        //                        {
-        //                            var resultUbicacionesLotes = _ubicacionesLotesN.Ingreso(item, cn);
-        //                            if (resultUbicacionesLotes.IconoSweetAlert.Equals("error"))
-        //                                throw new Exception("No se pudo registrar en Ubicaciones Lotes.");
-
-        //                            int ubicacionLoteId = resultUbicacionesLotes.Id;
-        //                            var resultUbicacionesLotesMaster = _ubicacionesLotesMasterN.Ingreso(ubicacionLoteId, item, cn);
-        //                            if (resultUbicacionesLotesMaster.IconoSweetAlert.Equals("error"))
-        //                                throw new Exception("No se pudo registrar en Ubicaciones Lotes Master.");
-        //                        }
-
-        //                        var resultKardex = _kardexAbastecimientoN.InsertarTransaccionIngresoKardex(transferenciaActualizada, cn);
-        //                        if (resultKardex.IconoSweetAlert.Equals("error"))
-        //                            throw new Exception("No se pudo registrar la transacción en Kardex.");
-        //                    }
-        //                }
-
-        //                scope.Complete();
-        //                return Json(new { Titulo = "Acción completada exitosamente", Mensajes = new List<string> { "Se registró la Transferencia Reserva correctamente." }, Icono = "success" });
-        //            }
-        //            catch (Exception)
-        //            {
-        //                scope.Dispose(); 
-        //                throw; // Relanza la excepción para ser capturada en el catch externo, aqui se transforma en Json
-        //            }
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { $"Ocurrió un error al registrar la transferencia: {ex.Message}" }, Icono = "error" });
-        //    }
-        //}
-
         public JsonResult RegistrarTransferenciaDeStock(SolicitudesTraslado_E solicitudTraslado, TransferenciaReserva_E transferenciaPost, int idOperation = 3302)
         {
             try
@@ -1284,6 +1054,43 @@ namespace Capa_Usuario.Controllers
                     return HttpNotFound("No se encontró la vista para el tipo de abastecimiento especificado.");
             }
         }
+        public JsonResult CalcularCantidadSolicitada(string tipoAbastecimiento, string itemCode, int idOperation = 3402)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                int cantidadSolicitada = 0;
+                if (tipoAbastecimiento != null && tipoAbastecimiento.Equals("Picking") && itemCode != null)
+                {
+                    //Calcular desde SAP (Stock Total - Stock Comprometido)  en Almacen 16 por defecto
+                    int stockLibreEnAlmacen16 = Convert.ToInt32(new Capa_Negocio.Almacen_NEG.Tablas.OITW_N().ListarDetArticulosInv(new OITW_E { ItemCode = itemCode, WhsCode = "16" }).DefaultIfEmpty(new OITW_E { }).First().StockLibre);
+
+                    List<DetalleRequerimientos_E> resultDetReq = _requerimientosN.ListarDetalles(itemCode, "CantidadSolicitada");
+                    int quantityReq = 0;
+                    if (resultDetReq != null) { quantityReq = Convert.ToInt32(resultDetReq.Sum(r => r.QuantityUnidadesCajas)); }
+
+                    List<UbicacionesLotes_E> resultUbicacionesLotes = _ubicacionesLotesN.Obtener(itemCode);
+                    int quantityUbicacionesLote = 0;
+                    if (resultUbicacionesLotes != null) { quantityUbicacionesLote = resultUbicacionesLotes.Sum(r => r.QuantityUnidadesCajas); }
+
+                    int stockDeAlmReserva = quantityUbicacionesLote - quantityReq; //resta de lo que esta por entrar a Picking Atendido=0
+
+                    int stockEnPicking = stockLibreEnAlmacen16 - stockDeAlmReserva;
+
+                    int stockMinimoParaLaVenta = _stockMinProdN.Obtener(itemCode).StockMinVenta;
+
+                    cantidadSolicitada = stockMinimoParaLaVenta - stockEnPicking;
+
+                    if (cantidadSolicitada < 0) { cantidadSolicitada = 0; }
+                }
+
+                return Json(new { cantidadSolicitada = Convert.ToString(cantidadSolicitada) });
+            }
+            else
+            {
+                return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "Sin accesos." }, Icono = "error" });
+            }
+        }
         public JsonResult RegistrarRequerimiento(Requerimientos_E requerimiento, int idOperation = 3401)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
@@ -1381,41 +1188,162 @@ namespace Capa_Usuario.Controllers
                 });
             }
         }
-        public JsonResult CalcularCantidadSolicitada(string tipoAbastecimiento, string itemCode, int idOperation = 3402)
+        public JsonResult ImportarRequerimiento(HttpPostedFileBase file, int idOperation = 3403)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
-            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
             {
-                int cantidadSolicitada = 0;
-                if (tipoAbastecimiento != null && tipoAbastecimiento.Equals("Picking") && itemCode != null)
+                return Json(new
                 {
-                    //Calcular desde SAP (Stock Total - Stock Comprometido)  en Almacen 16 por defecto
-                    int stockLibreEnAlmacen16 = Convert.ToInt32(new Capa_Negocio.Almacen_NEG.Tablas.OITW_N().ListarDetArticulosInv(new OITW_E { ItemCode = itemCode, WhsCode = "16" }).DefaultIfEmpty(new OITW_E { }).First().StockLibre);
-
-                    List<DetalleRequerimientos_E> resultDetReq = _requerimientosN.ListarDetalles(itemCode, "CantidadSolicitada");
-                    int quantityReq = 0;
-                    if (resultDetReq != null) { quantityReq = Convert.ToInt32(resultDetReq.Sum(r => r.QuantityUnidadesCajas)); }
-
-                    List<UbicacionesLotes_E> resultUbicacionesLotes = _ubicacionesLotesN.Obtener(itemCode);
-                    int quantityUbicacionesLote = 0;
-                    if (resultUbicacionesLotes != null) { quantityUbicacionesLote = resultUbicacionesLotes.Sum(r => r.QuantityUnidadesCajas); }
-
-                    int stockDeAlmReserva = quantityUbicacionesLote - quantityReq; //resta de lo que esta por entrar a Picking Atendido=0
-
-                    int stockEnPicking = stockLibreEnAlmacen16 - stockDeAlmReserva;
-
-                    int stockMinimoParaLaVenta = _stockMinProdN.Obtener(itemCode).StockMinVenta;
-
-                    cantidadSolicitada = stockMinimoParaLaVenta - stockEnPicking;
-
-                    if (cantidadSolicitada < 0) { cantidadSolicitada = 0; }
-                }
-
-                return Json(new { cantidadSolicitada = Convert.ToString(cantidadSolicitada) });
+                    Titulo = "No se pudo completar la acción",
+                    Mensajes = new List<string> { "Error de accesos." },
+                    Icono = "error"
+                });
             }
-            else
+
+            if (file == null || file.ContentLength == 0)
             {
-                return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "Sin accesos." }, Icono = "error" });
+                return Json(new
+                {
+                    Titulo = "No se pudo completar la acción",
+                    Mensajes = new List<string> { "No se ha seleccionado un archivo válido." },
+                    Icono = "error"
+                });
+            }
+
+            try
+            {
+                using (var stream = file.InputStream)
+                {
+                    SLDocument sld = new SLDocument(stream);
+
+                    // Validar existencia de la hoja CABECERA
+                    if (!sld.GetSheetNames().Contains("CABECERA"))
+                    {
+                        return Json(new
+                        {
+                            Titulo = "No se pudo completar la acción",
+                            Mensajes = new List<string> { "La hoja 'CABECERA' no existe en el archivo." },
+                            Icono = "error"
+                        });
+                    }
+                    sld.SelectWorksheet("CABECERA");
+
+                    // Leer todos los identificadores de CABECERA
+                    int iRow = 10;
+                    List<Requerimientos_E> requerimientos = new List<Requerimientos_E>();
+
+                    while (!string.IsNullOrWhiteSpace(sld.GetCellValueAsString(iRow, 1)))
+                    {
+                        requerimientos.Add(new Requerimientos_E
+                        {
+                            IdentificadorExcel = sld.GetCellValueAsInt32(iRow, 1),
+                            Origen = sld.GetCellValueAsString(iRow, 2),
+                            Destino = sld.GetCellValueAsString(iRow, 3),
+                            TipoAbastecimiento = sld.GetCellValueAsString(iRow, 4),
+                            Detalle = new List<DetalleRequerimientos_E>()
+                        });
+
+                        iRow++;
+                    }
+
+                    // Validar existencia de la hoja CUERPO
+                    if (!sld.GetSheetNames().Contains("CUERPO"))
+                    {
+                        return Json(new
+                        {
+                            Titulo = "No se pudo completar la acción",
+                            Mensajes = new List<string> { "La hoja 'CUERPO' no existe en el archivo." },
+                            Icono = "error"
+                        });
+                    }
+                    sld.SelectWorksheet("CUERPO");
+
+                    // Leer y asignar detalles a los requerimientos según el identificador
+                    iRow = 10;
+                    while (!string.IsNullOrWhiteSpace(sld.GetCellValueAsString(iRow, 1)))
+                    {
+                        int idDetalle = sld.GetCellValueAsInt32(iRow, 1);
+                        if (idDetalle == 0)
+                        {
+                            iRow++;
+                            continue; // Saltar filas inválidas
+                        }
+
+                        var requerimiento = requerimientos.FirstOrDefault(r => r.IdentificadorExcel == idDetalle);
+
+                        if (requerimiento != null)
+                        {
+                            var valorUmAlm = sld.GetCellValueAsInt32(iRow, 8);
+                            var quantityMaster = sld.GetCellValueAsInt32(iRow, 9);
+                            var quantitySaldo = sld.GetCellValueAsInt32(iRow, 10);
+
+                            var detalleRequerimiento = new DetalleRequerimientos_E
+                            {
+                                IdentificadorExcel = idDetalle,
+                                ItemCode = sld.GetCellValueAsString(iRow, 2),
+                                ItemName = sld.GetCellValueAsString(iRow, 3),
+                                BatchNum = sld.GetCellValueAsString(iRow, 4),
+                                CodigoUbicacionOrigen = sld.GetCellValueAsString(iRow, 5),
+                                CodigoUbicacionDestino = sld.GetCellValueAsString(iRow, 6),
+                                UmAlm = sld.GetCellValueAsString(iRow, 7),
+                                ValorUmAlm = valorUmAlm,
+                                QuantityMaster = quantityMaster,
+                                QuantitySaldo = quantitySaldo,
+                                QuantityUnidadesCajas = (valorUmAlm * quantityMaster) + quantitySaldo
+                            };
+
+                            requerimiento.Detalle.Add(detalleRequerimiento);
+                        }
+
+                        iRow++;
+                    }
+
+
+                    // Registrar cada requerimiento de forma independiente
+                    List<string> errores = new List<string>();
+                    foreach (var req in requerimientos)
+                    {
+                        var resultado = RegistrarRequerimiento(req);
+
+                        if (resultado is JsonResult jsonResultado)
+                        {
+                            var data = jsonResultado.Data as dynamic;
+                            if (data != null && data.Icono == "error")
+                            {
+                                errores.Add($"Error en Requerimiento {req.IdentificadorExcel}: {data.Mensajes[0]}");
+                            }
+                        }
+                        else
+                        {
+                            errores.Add($"Error inesperado al registrar Requerimiento {req.IdentificadorExcel}.");
+                        }
+                    }
+
+                    // Responder según el resultado
+                    return errores.Count > 0
+                        ? Json(new
+                        {
+                            Titulo = "Errores en la importación",
+                            Mensajes = errores,
+                            Icono = "warning"
+                        })
+                        : Json(new
+                        {
+                            Titulo = "Importación exitosa",
+                            Mensajes = new List<string> { "Todos los requerimientos fueron importados correctamente." },
+                            Icono = "success"
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    Titulo = "Error en la importación",
+                    Mensajes = new List<string> { "Ocurrió un error al procesar el requerimiento.", ex.Message },
+                    Icono = "error"
+                });
             }
         }
         //Listado de pendientes para apiladores con 4 posibles filtros

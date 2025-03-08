@@ -2,6 +2,7 @@
 {
     public class DetalleRequerimientos_E
     {
+        public int IdentificadorExcel { get; set; }
         public int Id { get; set; }
         public int RequerimientoId { get; set; }
         public string ItemCode { get; set; }
