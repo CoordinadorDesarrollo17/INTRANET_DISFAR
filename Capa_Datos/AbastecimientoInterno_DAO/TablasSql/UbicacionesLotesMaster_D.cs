@@ -48,9 +48,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     cmd.Parameters.AddWithValue("@QuantityMaster", detalle.QuantityMaster);
                     cmd.Parameters.AddWithValue("@QuantitySaldo", detalle.QuantitySaldo);
                     cmd.Parameters.AddWithValue("@UbicacionLoteId", ubicacionLoteId);
-                    //cmd.Parameters.AddWithValue("@QuantityUnidadesCajas", detalle.QuantityUnidadesCajas); // No es necesario enviarlas ya que se hace calculo en el procedure.
-
-                    // Parámetro de salida
+                  
                     SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
                     {
                         Direction = ParameterDirection.Output
@@ -70,7 +68,6 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
                     }
 
-
                     mensaje = "Operacion de ingreso en UbicacionesLotesMaster registrado correctamente";
                     icono = "success";
                 }
@@ -80,9 +77,8 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 LogHelper.RegistrarError(ex, "UbicacionesLotesMaster_D - Ingreso");
                 mensaje = "Ocurrió un error al registrar un ingreso en UbicacionesLotesMaster. Comuníquese con el área de Sistemas para más información.";
                 icono = "error";
-                throw new Exception("Error en Ingreso.", ex);
+                return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
             }
-
             return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
         }
         public Helper_E RevertirIngreso(TransferenciaReserva_E ingreso, SqlConnection cn)
@@ -237,7 +233,6 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             return lista;
         }
-
         public List<UbicacionesLotesMaster_E> BuscarArticulos(string condicion, Dictionary<string, object> parametrosCondicion)
         {
             List<UbicacionesLotesMaster_E> lista = null;

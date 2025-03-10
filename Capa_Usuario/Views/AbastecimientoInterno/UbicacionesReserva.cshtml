@@ -17,7 +17,7 @@
     <div class="row px-3 pt-3"><h3 class="titulo-seccion">UBICACIONES RESERVA</h3></div>
 
     <div class="row px-3 py-3">
-        <div class="d-flex col-12">
+        <div class="d-flex col-10">
             <button type="button" id="btn_nuevaUbicacionReserva" class="btn btn-warning border border-light" data-bs-toggle="tooltip" data-bs-placement="top" title="Nueva ubicación reserva">
                 <i class="bi bi-plus-lg"></i> Nueva ubicación
             </button>
@@ -25,6 +25,11 @@
                 <input type="text" id="codigoUbicacionGeneral" class="form-control" placeholder="Ingresar código ubicación" style="width: 300px" />
                 <button type="button" class="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar código ubicación" onclick="eliminarCodigoUbicacionGeneral()"><i class="bi bi-trash3-fill"></i></button>
             </div>
+        </div>
+        <div class="col-2">
+            <button type="button" id="btn_traspasoPorUbicaciones" class="btn btn-cobefar-2 border border-light" data-bs-toggle="tooltip" data-bs-placement="top" title="Traspaso por ubicaciones">
+                <i class="bi bi-box-arrow-up-right"></i> Traspaso por ubicaciones
+            </button>
         </div>
     </div>
 </div>
@@ -253,5 +258,9 @@
                 }
             });
         }
+
+        document.querySelector('#btn_traspasoPorUbicaciones').addEventListener('click', async function () {
+            window.open('@Url.Action("StockReserva", "AbastecimientoInterno")', '_blank');
+        });
     </script>
 }

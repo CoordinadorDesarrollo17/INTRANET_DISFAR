@@ -1003,6 +1003,8 @@
     <Content Include="Views\Shared\AbastecimientoInterno\_ListadoArticulosPicking.cshtml" />
     <Content Include="Views\Shared\AbastecimientoInterno\_ListadoArticulosVenta.cshtml" />
     <Content Include="Views\AbastecimientoInterno\ListarControlStockInterno.cshtml" />
+    <Content Include="Views\Shared\AbastecimientoInterno\_ListadoStockReserva.cshtml" />
+    <Content Include="Views\AbastecimientoInterno\StockReserva.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

@@ -4157,7 +4157,7 @@ namespace Capa_Usuario.Controllers
             foreach (var ordr in lista)
             {
                 almProcedencia = string.IsNullOrEmpty(almProcedencia) ? ordr.Almacen : almProcedencia;
-                ordr.Ubicaciones = _ubicacionesN.BuscarUbicaciones(ordr.ItemCode, almProcedencia);
+                ordr.Ubicaciones = _ubicacionesN.ListarTotalUbicacionesEnArray(ordr.ItemCode, almProcedencia);
             }
             lista = lista
         .OrderBy(x => x.Ubicaciones != null && x.Ubicaciones.Length > 0 ? x.Ubicaciones[0] : string.Empty)

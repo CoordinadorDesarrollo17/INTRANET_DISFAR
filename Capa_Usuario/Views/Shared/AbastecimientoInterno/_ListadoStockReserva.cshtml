@@ -1,0 +1,35 @@
+﻿
+<table id="tbl_listaStockReserva" class="dt-container dt-empty-footer table table-sm table-hover table-responsive font-14" width="100%">
+    <thead class="thead-cobefar">
+        <tr>
+            <th scope="col" class="text-center">Código de artículo</th>
+            <th scope="col" class="text-center">Descripción</th>
+            <th scope="col" class="text-center">Lote</th>
+            <th scope="col" class="text-center">Ubicación RESERVA</th>
+            <th scope="col" class="text-center">Unidad MASTER</th>
+            <th scope="col" class="text-center">Stock MASTER</th>
+            <th scope="col" class="text-center">Stock SALDO</th>
+            <th scope="col" class="text-center">Stock UNIDS</th>
+        </tr>
+    </thead>
+    <tbody class="text-dark">
+        @if (Model != null)
+        {
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td scope="col" class="text-center align-middle">@item.ItemCode </td>
+                    <td scope="col" class="text-center align-middle">@item.ItemName</td>
+                    <td scope="col" class="text-center align-middle">@item.BatchNum</td>
+                    <td scope="col" class="text-center align-middle">@item.CodigoUbicacion</td>
+                    <td scope="col" class="text-center align-middle">@item.UmAlm</td>
+                    <td scope="col" class="text-center align-middle">@item.QuantityMaster </td>
+                    <td scope="col" class="text-center align-middle">@item.QuantitySaldo</td>
+                    <td scope="col" class="text-center align-middle">@item.QuantityUnidadesCajas </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+

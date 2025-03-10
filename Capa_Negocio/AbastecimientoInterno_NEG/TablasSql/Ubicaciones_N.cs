@@ -15,10 +15,13 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
     {
         Ubicaciones_D _datos = new Ubicaciones_D();
         Helpers _helper = new Helpers();
-
-        public string[] BuscarUbicaciones(string almacen, string itemCode)
+        public bool BuscarUbicacion(string almacen, (string elemento1,string elemento2) ubicacion)
         {
-            return _datos.BuscarUbicaciones(almacen, itemCode);
+            return _datos.BuscarUbicacion( almacen, ubicacion);
+        }
+        public string[] ListarTotalUbicacionesEnArray(string almacen, string itemCode)
+        {
+            return _datos.ListarTotalUbicacionesEnArray(almacen, itemCode);
         }
         public List<Ubicaciones_E> ListarUbicaciones(Ubicaciones_E filtros)
         {
