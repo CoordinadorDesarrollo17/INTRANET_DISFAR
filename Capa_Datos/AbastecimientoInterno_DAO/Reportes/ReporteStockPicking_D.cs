@@ -23,7 +23,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.Reportes
                 using (SqlConnection cn = new SqlConnection(uti.cadSql2))
                 {
                     cn.Open();
-                    using (SqlCommand cmd = new SqlCommand("sp_ControlStockPicking", cn))
+                    using (SqlCommand cmd = new SqlCommand("sp_ControlHistoricoDeIngresosAPicking", cn))
                     {
                             cmd.CommandType = CommandType.StoredProcedure;
                             cmd.Parameters.AddWithValue("@TipoMantenimiento", "RPT");

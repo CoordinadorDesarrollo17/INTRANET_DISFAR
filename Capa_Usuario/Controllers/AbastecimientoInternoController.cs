@@ -1065,6 +1065,7 @@ namespace Capa_Usuario.Controllers
                     //Calcular desde SAP (Stock Total - Stock Comprometido)  en Almacen 16 por defecto
                     int stockLibreEnAlmacen16 = Convert.ToInt32(new Capa_Negocio.Almacen_NEG.Tablas.OITW_N().ListarDetArticulosInv(new OITW_E { ItemCode = itemCode, WhsCode = "16" }).DefaultIfEmpty(new OITW_E { }).First().StockLibre);
 
+                    // Para ver los imputados
                     List<DetalleRequerimientos_E> resultDetReq = _requerimientosN.ListarDetalles(itemCode, "CantidadSolicitada");
                     int quantityReq = 0;
                     if (resultDetReq != null) { quantityReq = Convert.ToInt32(resultDetReq.Sum(r => r.QuantityUnidadesCajas)); }
@@ -1388,6 +1389,7 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+
         //Atendido de apiladores (Solo cambia el AtendidoReserva a 1)
         public JsonResult AtenderReservaRequerimiento(int id, int idOperation = 3501)
         {
