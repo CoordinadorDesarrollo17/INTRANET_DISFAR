@@ -44,7 +44,6 @@
                 outline: none;
                 border-color: transparent;
             }
-
     </style>
 }
 
@@ -77,7 +76,7 @@
 
             <div class="col-lg-2">
                 <label for="TipoAbastecimiento" class="form-label fw-bold">Tipo de abastecimiento:</label>
-                <select id="TipoAbastecimiento" name="TipoAbastecimiento" class="form-select">
+                <select id="TipoAbastecimiento" name="TipoAbastecimiento" class="form-select" onchange="limpiarTabla()">
                     <option value="">Seleccione</option>
                     <option value="Picking">Picking</option>
                     <option value="Venta">Venta</option>
@@ -106,7 +105,7 @@
             <h4 class="text-cobefar fw-bold">Detalle del Requerimiento</h4>
         </div><!-- // row-->
 
-        <div class="row">
+        <div class="row mb-4">
             <div class="col-lg-12">
                 <label for="" class="form-label fw-bold">Código de artículo:</label>
                 <div class="d-flex align-items-center">
@@ -390,8 +389,8 @@
 				}
 			}
 
-            console.log(payload)
-            return;
+            //console.log(payload)
+            //return;
 
             try {
                 const response = await fetch("/AbastecimientoInterno/RegistrarRequerimiento", {
@@ -622,7 +621,7 @@
 
         async function cargarUbicaciones(almacen, itemCode) {
             try {
-                if (!itemCode) {                    
+                if (!itemCode) {
                     Swal.fire({
                         icon: 'error',
                         title: 'Código de artículo no válido',
@@ -655,27 +654,42 @@
             }
         }
 
-        function construirTags() {
-            document.querySelectorAll('.cls-input-tag').forEach(async (item) => {
+        async function construirTags() {
+            // Seleccionar solo los inputs con la clase cls-input-tag que NO tengan Tagify ya inicializado
+            document.querySelectorAll('input.cls-input-tag').forEach(async (item) => {
                 try {
-                    const opciones = await cargarUbicaciones('PICKING', item.dataset.itemcode);
+                    const itemCode = item.dataset.itemcode;
 
-                    // Validar si opciones.resultUbicaciones es un array válido
-                    const whitelistOpciones = Array.isArray(opciones.resultUbicaciones)
+                    if (!itemCode) {
+                        console.warn('El elemento no tiene un data-itemcode válido:', item);
+                        return;
+                    }
+
+                    // Verificar si el input ya está tagificado
+                    if (item._tagify) {
+                        console.log(`El elemento ${item.id} ya tiene Tagify inicializado.`);
+                        return; // Salir si ya está tagificado
+                    }
+
+                    // Cargar las opciones desde la función asíncrona
+                    const opciones = await cargarUbicaciones('PICKING', itemCode);
+
+                    // Validar si opciones es un objeto y tiene la propiedad resultUbicaciones
+                    const whitelistOpciones = Array.isArray(opciones?.resultUbicaciones)
                         ? opciones.resultUbicaciones
                         : [];
 
                     if (whitelistOpciones.length === 0) {
-                        console.warn('La lista de ubicaciones está vacía o es inválida para:', item.dataset.itemcode);
+                        console.warn('La lista de ubicaciones está vacía o es inválida para:', itemCode);
                     }
 
-                    // Inicializar Tagify con la lista validada
+                    // Inicializar Tagify solo si no ha sido inicializado previamente
                     const tagify = new Tagify(item, {
                         whitelist: whitelistOpciones,
                         dropdown: {
-                            maxItems: 10,           // Número máximo de opciones en el desplegable
+                            maxItems: 10,
                             classname: "custom-tagify-dropdown",
-                            enabled: 0,             // Siempre mostrar el desplegable
+                            enabled: 0,
                             closeOnSelect: false,
                             highlightFirst: true,
                             position: "all"
@@ -693,5 +707,8 @@
             });
         }
 
+        function limpiarTabla() {
+            document.querySelector('#tbl_detalleRequerimiento tbody').innerHTML = '';
+        }
     </script>
 }

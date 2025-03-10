@@ -135,8 +135,8 @@
     function guardarArticulosVenta() {
         validarDatos()
 
-        const tablaOrigen = document.querySelector('#tbl_listaArticulosAbastVenta tbody');
-        const tablaDestino = document.querySelector('#tbl_detalleRequerimiento tbody');
+        const tablaOrigen = document.querySelector('#tbl_listaArticulosAbastVenta tbody')
+        const tablaDestino = document.querySelector('#tbl_detalleRequerimiento tbody')
 
         if (!tablaOrigen) {
             console.warn('tablaOrigen no existe. ')
@@ -148,6 +148,7 @@
             return;
         }
 
+        const numericKeys = ["StockMaster", "StockSaldo", "StockSolicitadoSaldo", "StockSolicitadoMaster", "StockSolicitadoTotalUnidades", "StockTotalUnidades", "ValorUmAlm"]
         const filas = tablaOrigen.querySelectorAll('tr');
         const arrayDeFilas = Array.from(filas).map(fila => {
             // Selecciona todos los inputs dentro de la fila actual
@@ -157,15 +158,23 @@
             const valores = Array.from(inputs).reduce((obj, input) => {
                 const key = input.dataset.campo; // Obtiene el valor de data-campo
                 if (key) { // Verifica que el data-campo exista
-                    obj[key] = input.value;
+                    obj[key] = numericKeys.includes(key) ? Number(input.value) || 0 : input.value;
                 }
                 return obj;
             }, {});
 
             return valores;
         }).filter(valores => {
-            // Filtra las filas donde el campo "StockSaliendo" sea mayor a cero
-            return Number(valores['StockSolicitadoMaster']) >= 0 && Number(valores['StockSolicitadoSaldo']) >= 0 && Number(valores["StockSolicitadoTotalUnidades"] > 0);
+            const stockSolicitadoMaster = Number(valores['StockSolicitadoMaster']) || 0;
+            const stockSolicitadoSaldo = Number(valores['StockSolicitadoSaldo']) || 0;
+            const stockSolicitadoTotalUnidades = Number(valores['StockSolicitadoTotalUnidades']) || 0;
+
+            // Filtra las filas con las condiciones esperadas
+            return (
+                stockSolicitadoMaster >= 0 &&
+                stockSolicitadoSaldo >= 0 &&
+                stockSolicitadoTotalUnidades > 0
+            );
         });
 
         //console.log(arrayDeFilas)
@@ -173,6 +182,7 @@
         let tbody = ''
         let num = 1
         arrayDeFilas.forEach(item => {
+            console.log(item.StockSolicitadoSaldo)
             tbody += `<tr id="fila_${item.ItemCode}_${num}">
                         <td scope="col" class="text-center"><input type="hidden" name="requerimiento.Detalle[].ItemCode" data-fila="fila_${item.ItemCode}_${num}" class="cls-itemCodes" value="${item.ItemCode}" /> ${item.ItemCode} </td>
                         <td scope="col" class="text-center">
@@ -184,8 +194,8 @@
                         <td scope="col" class="text-center">
                             <input type="hidden" name="requerimiento.Detalle[].UmAlm" value="${item.UmAlm}" />
                             <input type="hidden" name="requerimiento.Detalle[].ValorUmAlm" value="${item.ValorUmAlm}" />
-                            <input type="hidden" name="requerimiento.Detalle[].QuantityMaster" value="${item.StockSolicitadoMaster}" />
-                            <input type="hidden" name="requerimiento.Detalle[].QuantitySaldo" value="${item.StockSolicitadoSaldo}" />
+                            <input type="hidden" name="requerimiento.Detalle[].QuantityMaster" value="${item.StockSolicitadoMaster ?? 0}" />
+                            <input type="hidden" name="requerimiento.Detalle[].QuantitySaldo" value="${item.StockSolicitadoSaldo ?? 0}" />
                             <input type="hidden" name="requerimiento.Detalle[].QuantityUnidadesCajas" value="${item.StockSolicitadoTotalUnidades}" />${item.StockSolicitadoTotalUnidades}
                         </td>
                         <td scope="col" class="text-center">
@@ -202,14 +212,19 @@
 
         })
 
-        tablaDestino.innerHTML += tbody
+        //tablaDestino.innerHTML += tbody
+        tablaDestino.insertAdjacentHTML('beforeend', tbody);
         console.log('Filas movidas con éxito')
 
         const modalElement = document.getElementById('modalBusquedaArticulos')
         const modalBootstrap = bootstrap.Modal.getInstance(modalElement)
 
         if (!modalBootstrap) {
-            const modalBootstrap = new bootstrap.Modal(modalElement)
+            const modalBootstrap = new bootstrap.Modal(modal, {
+                focus: false,
+                backdrop: 'static',
+                keyboard: false
+            })
         }
         construirTags()
         modalBootstrap.hide()

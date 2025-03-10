@@ -142,6 +142,7 @@
             return;
         }
 
+        const numericKeys = ["StockMaster", "StockSaldo", "StockSaliendo", "StockTotalUnidades", "ValorUmAlm"]
         const filas = tablaOrigen.querySelectorAll('tr');
         const arrayDeFilas = Array.from(filas).map(fila => {
             // Selecciona todos los inputs dentro de la fila actual
@@ -151,7 +152,7 @@
             const valores = Array.from(inputs).reduce((obj, input) => {
                 const key = input.dataset.campo; // Obtiene el valor de data-campo
                 if (key) { // Verifica que el data-campo exista
-                    obj[key] = input.value;
+                    obj[key] = numericKeys.includes(key) ? Number(input.value) || 0 : input.value;
                 }
                 return obj;
             }, {});
@@ -161,6 +162,9 @@
             // Filtra las filas donde el campo "StockSaliendo" sea mayor a cero
             return Number(valores['StockSaliendo']) > 0;
         });
+
+        //console.log(arrayDeFilas)
+        //return;
 
         let tbody = ''
         let num = 1
@@ -194,14 +198,18 @@
             ++num
         })
 
-        tablaDestino.innerHTML += tbody
+        tablaDestino.insertAdjacentHTML('beforeend', tbody);
         console.log('Filas movidas con éxito')
 
         const modalElement = document.getElementById('modalBusquedaArticulos')
         const modalBootstrap = bootstrap.Modal.getInstance(modalElement)
 
         if (!modalBootstrap) {
-            const modalBootstrap = new bootstrap.Modal(modalElement)
+            const modalBootstrap = new bootstrap.Modal(modal, {
+                focus: false,
+                backdrop: 'static',
+                keyboard: false
+            })
         }
 
         construirTags()
