@@ -11,6 +11,7 @@ namespace Capa_Entidad.Almacen_ENT.Tablas
     {
         //detalles de maestro de articulos almacenes e inventarios
         public string ItemCode { get; set; }
+        public string ItemName { get; set; }
         [DisplayName("Codigo de Almacén")]
         public string WhsCode { get; set; }
         [DisplayName("En Stock")]
