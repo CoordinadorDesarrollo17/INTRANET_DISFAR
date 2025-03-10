@@ -509,126 +509,10 @@
             });
         }
 
+
         async function obtenerNuevasUbicaciones(inputId) {
             const inputTagify = document.getElementById(inputId);
             const button = document.querySelector(`.reload-button[data-inputid="${inputId}"]`);
-
-            if (!inputTagify || !button) {
-                console.error('Input o botón no encontrados');
-                return;
-            }
-
-            // Deshabilitar el botón mientras se cargan los datos
-            button.disabled = true;
-            button.innerHTML = 'Cargando...';
-
-            try {
-                // Cargar nuevas ubicaciones usando el itemcode del input
-                const nuevasOpciones = await cargarUbicaciones('PICKING', inputTagify.dataset.itemcode);
-                console.log('Nuevas opciones cargadas:', nuevasOpciones);
-
-                if (inputTagify.tagify) {
-                    inputTagify.tagify.destroy();
-                }
-
-                // Crear una nueva instancia de Tagify con las nuevas opciones
-                 const tagifyInstance = new Tagify(inputTagify, {
-                        whitelist: nuevasOpciones.resultUbicaciones,
-                        enforceWhitelist: true, // Restringe solo a las opciones de la lista
-                        dropdown: {
-                            maxItems: 10,           // Número máximo de opciones en el desplegable
-                            classname: "custom-tagify-dropdown",
-                            enabled: 0,             // Siempre mostrar el desplegable
-                            closeOnSelect: false,
-                            highlightFirst: true,
-                            position: "all"
-                        }
-                 });
-
-                // Asociar la instancia al input para reutilización
-                inputTagify.tagify = tagifyInstance;
-
-                tagifyInstance.on('add', (e) => {
-                    console.log('Etiqueta agregada:', e.detail.data.value);
-                });
-
-                // Mostrar el dropdown con las nuevas opciones
-                tagifyInstance.dropdown.show(inputTagify);
-            } catch (error) {
-                console.error('Error al recargar ubicaciones:', error);
-            } finally {
-                // Habilitar el botón nuevamente
-                button.disabled = false;
-                button.innerHTML = `<i class="bi bi-arrow-clockwise"></i>`
-            }
-        }
-
-        function abrirModalImportacion() {
-            let modal = new bootstrap.Modal(document.getElementById('ModalImportar'));
-            modal.show();
-        }
-
-        async function importarSolicitud() {
-            let fileInput = document.querySelector("#i_file");
-
-            if (!fileInput.files.length) {
-                Swal.fire({
-                    title: "Error",
-                    html: "Debe seleccionar un archivo para importar.",
-                    icon: "error",
-                    showConfirmButton: true
-                });
-                return;
-            }
-
-            let formData = new FormData();
-            formData.append("file", fileInput.files[0]);
-
-            try {
-                let response = await fetch("/AbastecimientoInterno/ImportarRequerimiento", {
-                    method: "POST",
-                    body: formData
-                });
-
-                let data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.Mensajes?.join("\n") || "Error al procesar la importación.");
-                }
-
-                Swal.fire({
-                    title: data.Titulo || "Éxito",
-                    html: Array.isArray(data.Mensajes) ? data.Mensajes.join("\n") : data.Mensajes,
-                    icon: data.Icono || "success",
-                    showConfirmButton: true
-                });
-
-                // Opcional: Recargar la tabla o cerrar el modal si la importación fue exitosa
-                if (data.Icono === "success") {
-                    document.querySelector("#ModalImportar").querySelector(".btn-close").click();
-                }
-
-            } catch (error) {
-                console.error("Error:", error);
-                Swal.fire({
-                    title: "Error",
-                    text: "Hubo un problema al procesar la solicitud.",
-                    icon: "error",
-                    showConfirmButton: true
-                });
-            }
-        }
-
-        async function cargarUbicaciones(almacen, itemCode) {
-            try {
-                if (!itemCode) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Código de artículo no válido',
-                        text: 'El código de artículo ingresado no es válido.',
-                        allowEscapeKey: false,
-                        allowOutsideClick: false,
-                    });
 
                     return;
                 }
@@ -705,6 +589,62 @@
                     console.error('Error al inicializar Tagify:', error);
                 }
             });
+        }
+
+        function abrirModalImportacion() {
+            let modal = new bootstrap.Modal(document.getElementById('ModalImportar'));
+            modal.show();
+        }
+
+        async function importarSolicitud() {
+            let fileInput = document.querySelector("#i_file");
+
+            if (!fileInput.files.length) {
+                Swal.fire({
+                    title: "Error",
+                    html: "Debe seleccionar un archivo para importar.",
+                    icon: "error",
+                    showConfirmButton: true
+                });
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+
+            try {
+                let response = await fetch("/AbastecimientoInterno/ImportarRequerimiento", {
+                    method: "POST",
+                    body: formData
+                });
+
+                let data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.Mensajes?.join("\n") || "Error al procesar la importación.");
+                }
+
+                Swal.fire({
+                    title: data.Titulo || "Éxito",
+                    html: Array.isArray(data.Mensajes) ? data.Mensajes.join("\n") : data.Mensajes,
+                    icon: data.Icono || "success",
+                    showConfirmButton: true
+                });
+
+                // Opcional: Recargar la tabla o cerrar el modal si la importación fue exitosa
+                if (data.Icono === "success") {
+                    document.querySelector("#ModalImportar").querySelector(".btn-close").click();
+                }
+
+            } catch (error) {
+                console.error("Error:", error);
+                Swal.fire({
+                    title: "Error",
+                    text: "Hubo un problema al procesar la solicitud.",
+                    icon: "error",
+                    showConfirmButton: true
+                });
+            }
         }
 
         function limpiarTabla() {
