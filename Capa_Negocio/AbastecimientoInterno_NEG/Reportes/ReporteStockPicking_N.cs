@@ -24,7 +24,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.Reportes
         {
             var controlStockInternoPicking = _datosReporte.ControlStockInternoPicking();
             List<OITW_E> articulos = new Capa_Negocio.Almacen_NEG.Tablas.OITW_N()
-                .ListarDetArticulosInv(new OITW_E { WhsCode = "16" })
+                .ListarDetArticulosInv(new OITW_E { WhsCode = "16" ,ItemCode= "PORT0332" })
                 .Where(x => x.OnHand > 0)
                 .ToList();
 
@@ -66,7 +66,5 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.Reportes
 
             return controlStockInternoPicking.Concat(nuevaLista).OrderBy(x=> x.ItemCode).ToList();
         }
-
-
     }
 }

@@ -509,34 +509,86 @@
             });
         }
 
-
         async function obtenerNuevasUbicaciones(inputId) {
             const inputTagify = document.getElementById(inputId);
             const button = document.querySelector(`.reload-button[data-inputid="${inputId}"]`);
 
-                    return;
+            if (!inputTagify || !button) {
+                console.error('Input o botón no encontrados');
+                return;
+            }
+
+            // Deshabilitar el botón mientras se cargan los datos
+            button.disabled = true;
+            button.innerHTML = 'Cargando...';
+
+            try {
+                // Cargar nuevas ubicaciones usando el itemcode del input
+                const nuevasOpciones = await cargarUbicaciones('PICKING', inputTagify.dataset.itemcode);
+                console.log('Nuevas opciones cargadas:', nuevasOpciones);
+
+                if (inputTagify.tagify) {
+                    inputTagify.tagify.destroy();
                 }
 
-                itemCode = itemCode.trim()
-                const response = await fetch("/AbastecimientoInterno/BuscarUbicaciones", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ almacen, itemCode })
+                // Crear una nueva instancia de Tagify con las nuevas opciones
+                const tagifyInstance = new Tagify(inputTagify, {
+                    whitelist: nuevasOpciones.resultUbicaciones,
+                    enforceWhitelist: true, // Restringe solo a las opciones de la lista
+                    dropdown: {
+                        maxItems: 10,           // Número máximo de opciones en el desplegable
+                        classname: "custom-tagify-dropdown",
+                        enabled: 0,             // Siempre mostrar el desplegable
+                        closeOnSelect: false,
+                        highlightFirst: true,
+                        position: "all"
+                    }
                 });
 
-                if (!response.ok) {
-                    throw new Error(`Error en la solicitud: ${response.statusText}`);
-                }
+                // Asociar la instancia al input para reutilización
+                inputTagify.tagify = tagifyInstance;
 
-                const data = await response.json();
-                return data; // Retorna las ubicaciones como una promesa resuelta
+                tagifyInstance.on('add', (e) => {
+                    console.log('Etiqueta agregada:', e.detail.data.value);
+                });
+
+                // Mostrar el dropdown con las nuevas opciones
+                tagifyInstance.dropdown.show(inputTagify);
             } catch (error) {
-                console.error("Error al cargar ubicaciones:", error);
-                return []; // Devuelve un array vacío en caso de error
+                console.error('Error al recargar ubicaciones:', error);
+            } finally {
+                // Habilitar el botón nuevamente
+                button.disabled = false;
+                button.innerHTML = `<i class="bi bi-arrow-clockwise"></i>`
             }
         }
+        //async function obtenerNuevasUbicaciones(inputId) {
+        //    const inputTagify = document.getElementById(inputId);
+        //    const button = document.querySelector(`.reload-button[data-inputid="${inputId}"]`);
+
+        //            return;
+        //        }
+
+        //        itemCode = itemCode.trim()
+        //        const response = await fetch("/AbastecimientoInterno/BuscarUbicaciones", {
+        //            method: 'POST',
+        //            headers: {
+        //                'Content-Type': 'application/json',
+        //            },
+        //            body: JSON.stringify({ almacen, itemCode })
+        //        });
+
+        //        if (!response.ok) {
+        //            throw new Error(`Error en la solicitud: ${response.statusText}`);
+        //        }
+
+        //        const data = await response.json();
+        //        return data; // Retorna las ubicaciones como una promesa resuelta
+        //    } catch (error) {
+        //        console.error("Error al cargar ubicaciones:", error);
+        //        return []; // Devuelve un array vacío en caso de error
+        //    }
+        //}
 
         async function construirTags() {
             // Seleccionar solo los inputs con la clase cls-input-tag que NO tengan Tagify ya inicializado
