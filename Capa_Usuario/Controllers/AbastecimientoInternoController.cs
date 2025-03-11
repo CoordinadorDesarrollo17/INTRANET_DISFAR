@@ -321,7 +321,7 @@ namespace Capa_Usuario.Controllers
                 });
             }
         }
-        public ActionResult StockReserva( int idOperation = 3204)
+        public ActionResult StockReserva(int idOperation = 3204)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
@@ -357,7 +357,7 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-        public JsonResult CambioUbicacionReserva(string nuevoCodigoUbicacion, int idUbicacionLoteMaster,  int idOperation = 3205)
+        public JsonResult CambioUbicacionReserva(string nuevoCodigoUbicacion, int idUbicacionLoteMaster, int idOperation = 3205)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
@@ -382,7 +382,7 @@ namespace Capa_Usuario.Controllers
                         }
 
                         //Construir un objeto para enviar a la salida del Sku en la antigua ubicacion y a su vez al ingreso en la nueva ubicacion
-                        List<DetalleRequerimientos_E> listaEnvioDatos = new List<DetalleRequerimientos_E> { new DetalleRequerimientos_E { 
+                        List<DetalleRequerimientos_E> listaEnvioDatos = new List<DetalleRequerimientos_E> { new DetalleRequerimientos_E {
                             ItemCode=obj.ItemCode,
                             ItemName=obj.ItemName,
                             BatchNum=obj.BatchNum,
@@ -452,9 +452,9 @@ namespace Capa_Usuario.Controllers
                                     BatchNum = obj.BatchNum,
                                     CodigoUbicacion = nuevoCodigoUbicacion,
                                     QuantityMaster = obj.QuantityMaster,
-                                    QuantitySaldo= obj.QuantitySaldo,
-                                    UmAlm =obj.UmAlm,
-                                    ValorUmAlm=obj.ValorUmAlm
+                                    QuantitySaldo = obj.QuantitySaldo,
+                                    UmAlm = obj.UmAlm,
+                                    ValorUmAlm = obj.ValorUmAlm
                                 }, cn);
                                 if (resultIngresoUbicacionesLotesMaster.IconoSweetAlert.Equals("error"))
                                 {
@@ -508,88 +508,6 @@ namespace Capa_Usuario.Controllers
             }
         }
         /************************* S O L I C I T U D   D E   T R A S L A D O *************************/
-        public JsonResult BuscarSolicitudDeTraslado(int docNum)
-        {
-            Utilitarios uti = new Utilitarios();
-            SolicitudesTraslado_E traslado = null;
-            TransferenciaReserva_E transferencia = null;
-            traslado = _solicitudTrasladoN.ObtenerSolicitudDeTraslado(docNum, null)
-                       ?? _solicitudTrasladoHanaN.BuscarSolicitudDeTraslado(docNum);
-            // Iniciar la transacción global para las operaciones críticas
-            using (var scope = new TransactionScope(TransactionScopeOption.Required,
-               new TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted },
-               TransactionScopeAsyncFlowOption.Enabled))
-            {
-                using (SqlConnection cn = new SqlConnection(uti.cadSql2))
-                {
-                    cn.Open();
-
-
-                    if (traslado == null)
-                    {
-                        var tituloSweetAlert = "No se pudo completar la acción";
-                        var icono = "error";
-                        var mensaje = "No existe ningun resultado";
-                        return Json(new { Titulo = tituloSweetAlert, Mensajes = new List<string> { mensaje }, Icono = icono });
-                    }
-
-                    if (traslado?.Id > 0)
-                    {
-                        if (traslado.Detalle != null)
-                        {
-                            // Ordenamos los detalles para que los ítems en estado "TRANSFERIDO" se muestren al final de la lista
-                            traslado.Detalle = traslado.Detalle.OrderBy(d => d.Value.Estado != "PENDIENTE").ToDictionary(d => d.Key, d => d.Value);
-
-                            if (traslado.Detalle.All(item => item.Value.Estado == "TRANSFERIDO"))
-                            {
-                                return Json(new
-                                {
-                                    Titulo = "Error en la operación",
-                                    Mensajes = new List<string> { "La solicitud de traslado ya ha sido TRANSFERIDA en su totalidad al sistema." },
-                                    Icono = "warning"
-                                });
-                            }
-                        }
-
-                        // Código cuando traslado.Id > 0 quiere decir que vino la informacion de tabla interna, buscar lo insertado en comparacion con transferencia
-                        transferencia = _transferenciaReservaN.ObtenerTransferenciaReserva(docNum, cn);
-                        if (transferencia == null)
-                        {
-                            var tituloSweetAlert = "No se pudo completar la acción";
-                            var icono = "error";
-                            var mensaje = "No existe ningun resultado de transferencia relacionada a la solicitud de traslado que ya esta registrada.";
-                            return Json(new
-                            {
-                                Titulo = tituloSweetAlert,
-                                Mensajes = new List<string> { mensaje },
-                                Icono = icono
-                            });
-                        }
-
-                        //Asignar la ubicacion ideal segun UbicacionesLotesMaster
-                        foreach (var item in traslado.Detalle)
-                        {
-                            var resultados = _ubicacionesLotesMasterN.BuscarUnidadAlm(cn, new UbicacionesLotesMaster_E { Almacen = "RESERVA", ItemCode = item.Value.ItemCode, BatchNum = item.Value.BatchNum });
-                            if (resultados != null && resultados.Count == 1) { item.Value.UnidadAlmSugerido = resultados.First(); }
-                        }
-                    }
-                    scope.Complete();
-                }
-            }
-
-
-            return Json(new { traslado, transferencia });
-        }
-        public JsonResult BuscarUbicaciones(string almacen, string itemCode)
-        {
-            var resultUbicaciones = _ubicacionesN.ListarTotalUbicacionesEnArray(almacen, itemCode);
-            var listaUbicacionesLote = _ubicacionesLotesN.Obtener(itemCode);
-            string resultUbicacionesLote = null;
-
-            if (listaUbicacionesLote != null && listaUbicacionesLote.Count == 1) { resultUbicacionesLote = listaUbicacionesLote.First().CodigoUbicacion; }
-
-            return Json(new { resultUbicaciones, resultUbicacionesLote });
-        }
         public ActionResult SolicitudesTraslado(int idOperation = 3300)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
@@ -603,7 +521,115 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-        public JsonResult ImportarTransferenciaDeStock(HttpPostedFileBase file, int idOperation = 3301)
+        public JsonResult BuscarSolicitudDeTraslado(int docNum, int idOperation = 3301)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
+            {
+                Utilitarios uti = new Utilitarios();
+                SolicitudesTraslado_E traslado = null;
+                TransferenciaReserva_E transferencia = null;
+                traslado = _solicitudTrasladoN.ObtenerSolicitudDeTraslado(docNum, null)
+                           ?? _solicitudTrasladoHanaN.BuscarSolicitudDeTraslado(docNum);
+                // Iniciar la transacción global para las operaciones críticas
+                using (var scope = new TransactionScope(TransactionScopeOption.Required,
+                   new TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted },
+                   TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+                    {
+                        cn.Open();
+
+
+                        if (traslado == null)
+                        {
+                            var tituloSweetAlert = "No se pudo completar la acción";
+                            var icono = "error";
+                            var mensaje = "No existe ningun resultado";
+                            return Json(new { Titulo = tituloSweetAlert, Mensajes = new List<string> { mensaje }, Icono = icono });
+                        }
+
+                        if (traslado?.Id > 0)
+                        {
+                            if (traslado.Detalle != null)
+                            {
+                                // Ordenamos los detalles para que los ítems en estado "TRANSFERIDO" se muestren al final de la lista
+                                traslado.Detalle = traslado.Detalle.OrderBy(d => d.Value.Estado != "PENDIENTE").ToDictionary(d => d.Key, d => d.Value);
+
+                                if (traslado.Detalle.All(item => item.Value.Estado == "TRANSFERIDO"))
+                                {
+                                    return Json(new
+                                    {
+                                        Titulo = "Error en la operación",
+                                        Mensajes = new List<string> { "La solicitud de traslado ya ha sido TRANSFERIDA en su totalidad al sistema." },
+                                        Icono = "warning"
+                                    });
+                                }
+                            }
+
+                            // Código cuando traslado.Id > 0 quiere decir que vino la informacion de tabla interna, buscar lo insertado en comparacion con transferencia
+                            transferencia = _transferenciaReservaN.ObtenerTransferenciaReserva(docNum, cn);
+                            if (transferencia == null)
+                            {
+                                var tituloSweetAlert = "No se pudo completar la acción";
+                                var icono = "error";
+                                var mensaje = "No existe ningun resultado de transferencia relacionada a la solicitud de traslado que ya esta registrada.";
+                                return Json(new
+                                {
+                                    Titulo = tituloSweetAlert,
+                                    Mensajes = new List<string> { mensaje },
+                                    Icono = icono
+                                });
+                            }
+
+                            //Asignar la ubicacion ideal segun UbicacionesLotesMaster
+                            foreach (var item in traslado.Detalle)
+                            {
+                                var resultados = _ubicacionesLotesMasterN.BuscarUnidadAlm(cn, new UbicacionesLotesMaster_E { Almacen = "RESERVA", ItemCode = item.Value.ItemCode, BatchNum = item.Value.BatchNum });
+                                if (resultados != null && resultados.Count == 1) { item.Value.UnidadAlmSugerido = resultados.First(); }
+                            }
+                        }
+                        scope.Complete();
+                    }
+                }
+
+
+                return Json(new { traslado, transferencia });
+            }
+            else
+            {
+                return Json(new
+                {
+                    Titulo = "Error en la operación",
+                    Mensajes = new List<string> { "Sin accesos." },
+                    Icono = "error"
+                });
+            }
+        }
+        public JsonResult BuscarUbicaciones(string almacen, string itemCode, int idOperation = 3302)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
+            {
+                var resultUbicaciones = _ubicacionesN.ListarTotalUbicacionesEnArray(almacen, itemCode);
+                var listaUbicacionesLote = _ubicacionesLotesN.Obtener(itemCode);
+                string resultUbicacionesLote = null;
+
+                if (listaUbicacionesLote != null && listaUbicacionesLote.Count == 1) { resultUbicacionesLote = listaUbicacionesLote.First().CodigoUbicacion; }
+
+                return Json(new { resultUbicaciones, resultUbicacionesLote });
+            }
+            else
+            {
+                return Json(new
+                {
+                    Titulo = "Error en la operación",
+                    Mensajes = new List<string> { "Sin accesos." },
+                    Icono = "error"
+                });
+            }
+        }
+        public JsonResult ImportarTransferenciaDeStock(HttpPostedFileBase file, int idOperation = 3303)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
@@ -809,8 +835,18 @@ namespace Capa_Usuario.Controllers
                 });
             }
         }
-        public JsonResult RegistrarTransferenciaDeStock(SolicitudesTraslado_E solicitudTraslado, TransferenciaReserva_E transferenciaPost, int idOperation = 3302)
+        public JsonResult RegistrarTransferenciaDeStock(SolicitudesTraslado_E solicitudTraslado, TransferenciaReserva_E transferenciaPost, int idOperation = 3304)
         {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
+            {
+                return Json(new
+                {
+                    Titulo = "No se pudo completar la acción",
+                    Mensajes = new List<string> { "Error de accesos." },
+                    Icono = "error"
+                });
+            }
             try
             {
                 // Obtener usuario de sesión
@@ -983,8 +1019,18 @@ namespace Capa_Usuario.Controllers
                 });
             }
         }
-        public JsonResult CancelarTransferenciaYTraslado(int docNum, int idOperation = 3303) //recibe el docnum de la solicitud de traslado
+        public JsonResult CancelarTransferenciaYTraslado(int docNum, int idOperation = 3305) //recibe el docnum de la solicitud de traslado
         {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
+            {
+                return Json(new
+                {
+                    Titulo = "No se pudo completar la acción",
+                    Mensajes = new List<string> { "Error de accesos." },
+                    Icono = "error"
+                });
+            }
             try
             {
                 if (docNum > 0)
@@ -1096,8 +1142,18 @@ namespace Capa_Usuario.Controllers
             }
 
         }
-        public JsonResult RevertirTransferenciaReservaPorItem(int docNum, string itemCode, int idOperation = 3304) //recibe el docnum de la solicitud de traslado y el ItemCode a revertir
+        public JsonResult RevertirTransferenciaReservaPorItem(int docNum, string itemCode, int idOperation = 3306) //recibe el docnum de la solicitud de traslado y el ItemCode a revertir
         {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
+            {
+                return Json(new
+                {
+                    Titulo = "No se pudo completar la acción",
+                    Mensajes = new List<string> { "Error de accesos." },
+                    Icono = "error"
+                });
+            }
             try
             {
                 if (docNum > 0)
@@ -1278,39 +1334,47 @@ namespace Capa_Usuario.Controllers
             }
         }
         [HttpGet]
-        public ActionResult ListarArticulos(string tipoAbastecimiento, string itemCode, int cantidadSolicitada)
+        public ActionResult ListarArticulos(string tipoAbastecimiento, string itemCode, int cantidadSolicitada, int idOperation = 3401)
         {
-            var usuarioSesion = Session["UsuarioId"] as Usuario_E;
-            if (usuarioSesion == null)
-                return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
-
-            // Orden: próxima fecha de vencimiento, primera fecha de admisión registrada, la menor cantidad en unidades
-            List<UbicacionesLotesMaster_E> lista = _ubicacionesLotesMasterN.BuscarArticulos(new UbicacionesLotesMaster_E { ItemCode = itemCode }) ?? new List<UbicacionesLotesMaster_E>();
-
-            if (lista.Any())
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                // Verificar si todas las fechas ExpDate e InDate son iguales
-                bool fechasIguales = lista.All(a => a.ExpDate == lista.First().ExpDate) && lista.All(a => a.InDate == lista.First().InDate);
+                var usuarioSesion = Session["UsuarioId"] as Usuario_E;
+                if (usuarioSesion == null)
+                    return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
 
-                // Aplicar el ordenamiento según la condición
-                lista = fechasIguales
-                    ? lista.OrderBy(a => a.CodigoUbicacion).ToList() // Ordenar por CodigoUbicacion si las fechas son iguales
-                    : lista.OrderBy(a => DateTime.Parse(a.ExpDate))
-                           .ThenBy(a => DateTime.Parse(a.InDate))
-                           .ThenBy(a => a.QuantityUnidadesCajas)
-                           .ToList();
+                // Orden: próxima fecha de vencimiento, primera fecha de admisión registrada, la menor cantidad en unidades
+                List<UbicacionesLotesMaster_E> lista = _ubicacionesLotesMasterN.BuscarArticulos(new UbicacionesLotesMaster_E { ItemCode = itemCode }) ?? new List<UbicacionesLotesMaster_E>();
+
+                if (lista.Any())
+                {
+                    // Verificar si todas las fechas ExpDate e InDate son iguales
+                    bool fechasIguales = lista.All(a => a.ExpDate == lista.First().ExpDate) && lista.All(a => a.InDate == lista.First().InDate);
+
+                    // Aplicar el ordenamiento según la condición
+                    lista = fechasIguales
+                        ? lista.OrderBy(a => a.CodigoUbicacion).ToList() // Ordenar por CodigoUbicacion si las fechas son iguales
+                        : lista.OrderBy(a => DateTime.Parse(a.ExpDate))
+                               .ThenBy(a => DateTime.Parse(a.InDate))
+                               .ThenBy(a => a.QuantityUnidadesCajas)
+                               .ToList();
+                }
+
+                switch (tipoAbastecimiento)
+                {
+                    case "Picking":
+                        return PartialView("AbastecimientoInterno/_ListadoArticulosPicking", lista);
+
+                    case "Venta":
+                        return PartialView("AbastecimientoInterno/_ListadoArticulosVenta", lista);
+
+                    default:
+                        return HttpNotFound("No se encontró la vista para el tipo de abastecimiento especificado.");
+                }
             }
-
-            switch (tipoAbastecimiento)
+            else
             {
-                case "Picking":
-                    return PartialView("AbastecimientoInterno/_ListadoArticulosPicking", lista);
-
-                case "Venta":
-                    return PartialView("AbastecimientoInterno/_ListadoArticulosVenta", lista);
-
-                default:
-                    return HttpNotFound("No se encontró la vista para el tipo de abastecimiento especificado.");
+                return resultadoAcceso;
             }
         }
         public JsonResult CalcularCantidadSolicitada(string tipoAbastecimiento, string itemCode, int idOperation = 3402)
@@ -1351,7 +1415,7 @@ namespace Capa_Usuario.Controllers
                 return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "Sin accesos." }, Icono = "error" });
             }
         }
-        public JsonResult RegistrarRequerimiento(Requerimientos_E requerimiento, int idOperation = 3401)
+        public JsonResult RegistrarRequerimiento(Requerimientos_E requerimiento, int idOperation = 3403)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
@@ -1495,7 +1559,7 @@ namespace Capa_Usuario.Controllers
                 });
             }
         }
-        public JsonResult ImportarRequerimiento(HttpPostedFileBase file, int idOperation = 3403)
+        public JsonResult ImportarRequerimiento(HttpPostedFileBase file, int idOperation = 3404)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
@@ -1684,35 +1748,6 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-        //Listado de pendientes para picking con 1 posible filtros
-        public ActionResult ListarRequerimientosPicking(int idOperation = 3600)
-        {
-            var resultadoAcceso = VerificarPermiso(idOperation);
-            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
-            {
-                var lista = _requerimientosN.ListarDetalles("", "ListarPicking");
-                return View(lista);
-            }
-            else
-            {
-                return resultadoAcceso;
-            }
-        }
-        //Atendido de apiladores (Solo cambia el AtendidoReserva a 1)
-        public ActionResult ListarControlStockInterno(int idOperation = 3700)
-        {
-            var resultadoAcceso = VerificarPermiso(idOperation);
-            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
-            {
-                var lista = _reporteStockPicking.ControlStockInternoPicking();//.Where(x=>x.StockActual <= x.StockMinAbastecimiento);
-                return View(lista);
-            }
-            else
-            {
-                return resultadoAcceso;
-            }
-        }
-
         //Atendido de apiladores (Solo cambia el AtendidoReserva a 1)
         public JsonResult AtenderReservaRequerimiento(int id, int idOperation = 3501)
         {
@@ -1749,6 +1784,20 @@ namespace Capa_Usuario.Controllers
                     Mensajes = new List<string> { "Sin accesos." },
                     Icono = "error"
                 });
+            }
+        }
+        //Listado de pendientes para picking con 1 posible filtros
+        public ActionResult ListarRequerimientosPicking(int idOperation = 3600)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                var lista = _requerimientosN.ListarDetalles("", "ListarPicking");
+                return View(lista);
+            }
+            else
+            {
+                return resultadoAcceso;
             }
         }
         //Atendido de Picking (Cambia el AtendidoPicking a 1 y valida si todo se completo respecto al sku del requerimiento para generar una salida en el Kardex
@@ -1900,6 +1949,21 @@ namespace Capa_Usuario.Controllers
                 });
             }
         }
+        //Atendido de apiladores (Solo cambia el AtendidoReserva a 1)
+        public ActionResult ListarControlStockInterno(int idOperation = 3700)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                var lista = _reporteStockPicking.ControlStockInternoPicking();//.Where(x=>x.StockActual <= x.StockMinAbastecimiento);
+                return View(lista);
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
+
 
     }
 }
