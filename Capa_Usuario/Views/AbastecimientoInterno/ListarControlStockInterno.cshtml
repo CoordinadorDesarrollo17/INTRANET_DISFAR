@@ -73,7 +73,7 @@
 </div>
 
 <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
-    <div class="row px-3 pt-3"><h3 class="titulo-seccion">CONTROL STOCK</h3></div>
+    <div class="row px-3 pt-3"><h3 class="titulo-seccion">CONTROL STOCK PICKING</h3></div>
 </div>
 
 <div class="bg-white px-3 py-3 align-items-center">
@@ -102,7 +102,7 @@
                         // Calcular el porcentaje de stock basado en StockMinAbastecimiento
                         var porcentajeStock = item.StockMinAbastecimiento > 0
                             ? (item.StockActual * 100) / item.StockMinAbastecimiento
-                            : 100;
+                            : 0;
 
                         // Definir color basado en la relación con el Stock Mínimo
                         string colorClase;
@@ -149,8 +149,8 @@
                                                      aria-valuemax="100">
                                                     SIN STOCK
                                                 </div>
-                                            </div>}
-
+                                            </div>
+                                         }
                                     </div>
                                 </div>
                             </td>
