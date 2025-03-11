@@ -489,7 +489,8 @@
 
 		function generarHTMLDetalle(func, detalleTraslado, detalleTransferencia = {}) {
 			if (typeof func === 'function') {
-                document.querySelector('#tbl_detalle tbody').innerHTML = renderizarDetalle(detalleTraslado);
+				document.querySelector('#tbl_detalle tbody').insertAdjacentHTML('beforeend', renderizarDetalle(detalleTraslado));
+
 				inicializarSlimSelectsPorClase('cls-select')
 				$('[data-bs-toggle="tooltip"]').tooltip()
 
@@ -701,21 +702,29 @@
 			return tableHtml
 		}
 
-		function clonarFila(idTableLotes) {
-			let tabla = $(`#${idTableLotes}`).DataTable(configDataTable); // Obtener instancia de DataTable
+        function clonarFila(idTableLotes) {
+            // Verificar si la tabla ya está inicializada con DataTable
+            if ($.fn.DataTable.isDataTable(`#${idTableLotes}`)) {
+                $(`#${idTableLotes}`).DataTable().destroy();
+            }
 
-			$(`#${idTableLotes} tbody`).on('click', '.btn-cobefar', function () {
-				let filaOriginal = $(this).closest('tr'); // Obtener la fila original
-				let filaClonada = filaOriginal.clone(); // Clonar la fila
+            let tabla = $(`#${idTableLotes}`).DataTable(configDataTable); // Obtener instancia de DataTable
 
-				actualizarIDs(filaClonada); // Actualizar los IDs y evitar duplicados
+            // Eliminar cualquier event listener de click previamente
+            $(`#${idTableLotes} tbody`).off('click', '.btn-cobefar');
 
-				// Agregar la nueva fila al DataTable sin reiniciar
-				tabla.row.add(filaClonada[0]).draw(false);
-			});
+            $(`#${idTableLotes} tbody`).on('click', '.btn-cobefar', function () {
+                let filaOriginal = $(this).closest('tr'); // Obtener la fila original
+                let filaClonada = filaOriginal.clone(); // Clonar la fila
 
-			$(`#${idTableLotes}_wrapper`).addClass('w-100');
-		}
+                actualizarIDs(filaClonada); // Actualizar los IDs y evitar duplicados
+
+                // Agregar la nueva fila al DataTable sin reiniciar
+                tabla.row.add(filaClonada[0]).draw(false);
+            });
+
+            $(`#${idTableLotes}_wrapper`).addClass('w-100');
+        }
 
 		function construirFormCopiaSap(traslado) {
 			document.querySelector('#copiaDocEntry').value = traslado.DocEntry
