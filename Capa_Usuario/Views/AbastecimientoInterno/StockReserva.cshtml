@@ -73,7 +73,7 @@
 </div>
 
 <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
-    <div class="row px-3 pt-3"><h3 class="titulo-seccion">CONTROL STOCK RESERVA - UBICACIONES</h3></div>
+    <div class="row px-3 pt-3"><h3 class="titulo-seccion">CAMBIO DE UBICACIONES</h3></div>
 </div>
 
 <div class="bg-white px-3 py-3 align-items-center">
@@ -127,10 +127,9 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         $('#div_listado').load(`@Url.Action("ListarStockReserva")`, function () {
-
-            if (!$.fn.DataTable.isDataTable('#tbl_listaStockReserva')) { 
-                inicializarDataTable('tbl_listaStockReserva', 25);
-                aplicarFiltro(); 
+            if (!$.fn.DataTable.isDataTable('#tbl_listaStockReserva')) {
+                inicializarDataTable('tbl_listaStockReserva', 100);
+                aplicarFiltro();
             }
         }).fadeIn("fast");
     });
@@ -167,7 +166,93 @@
             }
         }
     }
+    async function cargarUbicaciones(almacen, data) {
+
+        let itemCode = data.itemcode;
+        let idUbicacion = data.idloteubicacion;
+        let idUbicacionLoteMaster = data.idubicacionlotemaster;
+        let unidadMaster = data.unidadmaster;
+        let ubicacionActual = data.ubicacionactual;
+
+        try {
+            const response = await fetch("/AbastecimientoInterno/BuscarUbicaciones", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ almacen, itemCode }) // Enviar los datos como JSON
+            });
+
+            if (!response.ok) {
+                throw new Error(`Error en la solicitud: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            let ubicacionLote = data.resultUbicacionesLote != null ? data.resultUbicacionesLote : '';
+
+            let ubicaciones = '<option value="">Seleccione</option>';
+
+            // Recorre las ubicaciones y agrega solo las que sean diferentes a ubicacionActual
+            data.resultUbicaciones.forEach((ubicacion) => {
+                if (ubicacion !== ubicacionActual) { // Excluir la ubicación actual
+                    ubicaciones += `<option value="${ubicacion}">${ubicacion}</option>`;
+                }
+            });
+
+            // Asignar al combo correcto usando id único
+            const select = document.querySelector(`#idunico_${idUbicacionLoteMaster}`);
+            if (select) {
+                select.innerHTML = ubicaciones;
+            } else {
+                console.error(`No se encontró el elemento con id idunico_${idUbicacionLoteMaster}`);
+            }
+
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+
+    async function cambiarUbicacion(idNuevoCodigoUbicacion, idUbicacionLoteMaster) {
+
+        //let idUbicacionLoteMaster = idUbicacionLoteMaster
+        let nuevoCodigoUbicacion = $("#"+idNuevoCodigoUbicacion).val();
+      
+        try {
+            const response = await fetch("/AbastecimientoInterno/CambioUbicacionReserva", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ nuevoCodigoUbicacion, idUbicacionLoteMaster }) 
+            });
+
+            if (!response.ok) {
+                throw new Error(`Error en la solicitud: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            Swal.fire({
+                title: data.Titulo,
+                html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                    ? data.Mensajes.join('<br>')
+                    : data.Mensajes || "",
+                icon: data.Icono,
+                allowEscapeKey: false,
+                allowOutsideClick: false,
+                showConfirmButton: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    location.reload()
+                }
+            });
+
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
 </script>
+
 
 
 

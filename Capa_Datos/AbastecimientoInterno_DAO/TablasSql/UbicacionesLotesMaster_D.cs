@@ -301,5 +301,60 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             return lista;
         }
+        public UbicacionesLotesMaster_E Obtener(int id)
+        {
+            UbicacionesLotesMaster_E obj = null;
+
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+                {
+                    SqlCommand cmd = new SqlCommand();
+                    cmd.Connection = cn;
+
+                    var sb = new StringBuilder();
+
+                    sb.AppendLine("SELECT ULM.[Id], ULM.[ItemCode], ULM.[ItemName], ULM.[CodigoUbicacion], ULM.[BatchNum], ULM.[UmAlm], ULM.[ValorUmAlm], ULM.[QuantityMaster], ULM.[QuantitySaldo], ULM.[QuantityUnidadesCajas],");
+                    sb.AppendLine("CONVERT(varchar, LRS.[InDate], 103), CONVERT(varchar, LRS.[ExpDate], 103)");
+                    sb.AppendLine("FROM [dbo].[UbicacionesLotesMaster] ULM");
+                    sb.AppendLine("INNER JOIN [dbo].[LotesRegistroSanitario] LRS ON ULM.ItemCode = LRS.ItemCode AND ULM.BatchNum = LRS.DistNumber");
+                    sb.AppendLine("WHERE ULM.[Almacen] = @Almacen AND ULM.[Id]=@Id");
+
+                    cmd.Parameters.AddWithValue("@Almacen", "RESERVA");
+                    cmd.Parameters.AddWithValue("@Id", id);
+               
+                    cmd.CommandText = sb.ToString();
+
+                    cn.Open();
+
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        if (dr.HasRows && dr.Read())
+                        {
+                                obj = new UbicacionesLotesMaster_E();
+                                if (!dr.IsDBNull(0)) obj.Id = dr.GetInt32(0);
+                                if (!dr.IsDBNull(1)) obj.ItemCode = dr.GetString(1);
+                                if (!dr.IsDBNull(2)) obj.ItemName = dr.GetString(2);
+                                if (!dr.IsDBNull(3)) obj.CodigoUbicacion = dr.GetString(3);
+                                if (!dr.IsDBNull(4)) obj.BatchNum = dr.GetString(4);
+                                if (!dr.IsDBNull(5)) obj.UmAlm = dr.GetString(5);
+                                if (!dr.IsDBNull(6)) obj.ValorUmAlm = dr.GetInt32(6);
+                                if (!dr.IsDBNull(7)) obj.QuantityMaster = dr.GetInt32(7);
+                                if (!dr.IsDBNull(8)) obj.QuantitySaldo = dr.GetInt32(8);
+                                if (!dr.IsDBNull(9)) obj.QuantityUnidadesCajas = dr.GetInt32(9);
+                                if (!dr.IsDBNull(10)) obj.InDate = dr.GetString(10);
+                                if (!dr.IsDBNull(11)) obj.ExpDate = dr.GetString(11);
+                        }
+                    }
+                    cn.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.RegistrarError(ex, "UbicacionesLotesMaster_D - Obtener");
+            }
+
+            return obj;
+        }
     }
 }

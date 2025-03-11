@@ -357,17 +357,20 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-        public JsonResult CambioUbicacionReserva(int nuevaUbicacionId, string nuevoCodigoUbicacionOrigen, DetalleRequerimientos_E obj, int idOperation = 3205)
+        public JsonResult CambioUbicacionReserva(string nuevoCodigoUbicacion, int idUbicacionLoteMaster,  int idOperation = 3205)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 try
                 {
-                    if (nuevaUbicacionId > 0 && !string.IsNullOrEmpty(nuevoCodigoUbicacionOrigen))
+                    if (idUbicacionLoteMaster > 0 && !string.IsNullOrEmpty(nuevoCodigoUbicacion))
                     {
+                        //Obtener todo el registro de ubicacionLoteMaster que esta mudando
+                        var obj = _ubicacionesLotesMasterN.Obtener(idUbicacionLoteMaster);
+
                         //Validar que desde requerimientos el producto ubicacion y lote no tiene Imputados
-                        bool resultValidarSku = _requerimientosN.ValidarSkuParaCambioUbicacion(obj.ItemCode, obj.BatchNum, obj.CodigoUbicacionOrigen);
+                        bool resultValidarSku = _requerimientosN.ValidarSkuParaCambioUbicacion(obj.ItemCode, obj.BatchNum, obj.CodigoUbicacion);
                         if (!resultValidarSku)
                         {
                             return Json(new
@@ -379,7 +382,18 @@ namespace Capa_Usuario.Controllers
                         }
 
                         //Construir un objeto para enviar a la salida del Sku en la antigua ubicacion y a su vez al ingreso en la nueva ubicacion
-                        List<DetalleRequerimientos_E> listaEnvioDatos = new List<DetalleRequerimientos_E> { obj };
+                        List<DetalleRequerimientos_E> listaEnvioDatos = new List<DetalleRequerimientos_E> { new DetalleRequerimientos_E { 
+                            ItemCode=obj.ItemCode,
+                            ItemName=obj.ItemName,
+                            BatchNum=obj.BatchNum,
+                            UmAlm=obj.UmAlm,
+                            ValorUmAlm=obj.ValorUmAlm,
+                            QuantityMaster=obj.QuantityMaster,
+                            QuantitySaldo = obj.QuantitySaldo,
+                            QuantityUnidadesCajas= obj.QuantityUnidadesCajas,
+                            CodigoUbicacionOrigen=obj.CodigoUbicacion
+                        } };
+
                         Utilitarios uti = new Utilitarios();
 
                         // Iniciar la transacción global para las operaciones críticas
@@ -391,7 +405,7 @@ namespace Capa_Usuario.Controllers
                             using (SqlConnection cn = new SqlConnection(uti.cadSql2))
                             {
                                 cn.Open();
-                                var resultSalidaUbicacionesLotesMaster = _ubicacionesLotesMasterN.Salida(new List<DetalleRequerimientos_E> { obj }, cn);
+                                var resultSalidaUbicacionesLotesMaster = _ubicacionesLotesMasterN.Salida(listaEnvioDatos, cn);
                                 if (resultSalidaUbicacionesLotesMaster.IconoSweetAlert.Equals("error"))
                                 {
                                     return Json(new
@@ -402,7 +416,7 @@ namespace Capa_Usuario.Controllers
                                     });
                                 }
 
-                                var resultSalidaUbicacionesLotes = _ubicacionesLotesN.Salida(new List<DetalleRequerimientos_E> { obj }, cn);
+                                var resultSalidaUbicacionesLotes = _ubicacionesLotesN.Salida(listaEnvioDatos, cn);
                                 if (resultSalidaUbicacionesLotes.IconoSweetAlert.Equals("error"))
                                 {
                                     return Json(new
@@ -418,7 +432,7 @@ namespace Capa_Usuario.Controllers
                                     ItemCode = obj.ItemCode,
                                     ItemName = obj.ItemName,
                                     BatchNum = obj.BatchNum,
-                                    CodigoUbicacion = obj.CodigoUbicacionOrigen,
+                                    CodigoUbicacion = nuevoCodigoUbicacion,
                                     QuantityUnidadesCajas = Convert.ToInt32(obj.QuantityUnidadesCajas)
                                 }, cn);
                                 if (resultSalidaUbicacionesLotes.IconoSweetAlert.Equals("error"))
@@ -436,8 +450,11 @@ namespace Capa_Usuario.Controllers
                                     ItemCode = obj.ItemCode,
                                     ItemName = obj.ItemName,
                                     BatchNum = obj.BatchNum,
-                                    CodigoUbicacion = obj.CodigoUbicacionOrigen,
-                                    QuantityUnidadesCajas = Convert.ToInt32(obj.QuantityUnidadesCajas)
+                                    CodigoUbicacion = nuevoCodigoUbicacion,
+                                    QuantityMaster = obj.QuantityMaster,
+                                    QuantitySaldo= obj.QuantitySaldo,
+                                    UmAlm =obj.UmAlm,
+                                    ValorUmAlm=obj.ValorUmAlm
                                 }, cn);
                                 if (resultIngresoUbicacionesLotesMaster.IconoSweetAlert.Equals("error"))
                                 {
