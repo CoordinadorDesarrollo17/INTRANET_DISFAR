@@ -69,5 +69,14 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
             bool valido = !requerimiento.Detalle.Any(d => d.ItemCode == itemCode && d.AtendidoPicking == 0);
             return valido;
         }
+       public bool ValidarSkuParaCambioUbicacion(string itemCode, string batchNum,string codigoUbicacionReserva)
+        {
+            var lista = ListarDetalles(itemCode);
+            bool valido = !lista.Any(d => 
+            d.CodigoUbicacionOrigen==codigoUbicacionReserva && 
+            d.BatchNum==batchNum &&
+            d.AtendidoPicking == 0);
+            return valido;
+        }
     }
 }

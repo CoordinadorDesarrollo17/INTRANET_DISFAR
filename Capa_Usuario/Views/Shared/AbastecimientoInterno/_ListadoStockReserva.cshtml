@@ -1,0 +1,54 @@
+﻿
+<table id="tbl_listaStockReserva" class="dt-container dt-empty-footer table table-sm table-hover table-responsive font-14" width="100%">
+    <thead class="thead-cobefar">
+        <tr>
+            <th scope="col" class="text-center">Código de artículo</th>
+            <th scope="col" class="text-center">Descripción</th>
+            <th scope="col" class="text-center">Lote</th>
+            <th scope="col" class="text-center ">Ubicación RESERVA</th>
+            <th scope="col" class="text-center ">Cambio de Ubicación</th>
+            <th scope="col" class="text-center">Unidad MASTER</th>
+            <th scope="col" class="text-center">Stock MASTER</th>
+            <th scope="col" class="text-center">Stock SALDO</th>
+            <th scope="col" class="text-center">Stock UNIDS</th>
+            <th scope="col" class="text-center"></th>
+        </tr>
+    </thead>
+    <tbody class="text-dark">
+        @if (Model != null)
+        {
+            foreach (var item in Model)
+            {
+                var loteMaster = item.BatchNum.Replace(" ", "") + item.UmAlm;
+
+
+                <tr>
+                    <td scope="col" class="text-center align-middle">@item.ItemCode </td>
+                    <td scope="col" class="text-center align-middle">@item.ItemName</td>
+                    <td scope="col" class="text-center align-middle">@item.BatchNum</td>
+                    <td scope="col" class="text-center align-middle">@item.CodigoUbicacion</td>
+                    <td scope="col" class="text-center align-middle">
+                        <div class="d-flex justify-content-center align-content-center">
+                            <select id="idunico_@item.UbicacionLoteMasterId"
+                                    data-idubicacionlotemaster="@item.UbicacionLoteMasterId"
+                                    data-idloteubicacion="lote_ubicacion_@loteMaster"
+                                    data-itemcode="@item.ItemCode"
+                                    data-unidadmaster="@item.UmAlm"
+                                    data-ubicacionactual="@item.CodigoUbicacion"
+                                    class="form-select border border-success"
+                                    onfocus="cargarUbicaciones('RESERVA', this.dataset)"
+                                    style="width: 180px">
+                                <option value="">Seleccione</option>
+                            </select>
+                        </div>
+                    </td>
+                    <td scope="col" class="text-center align-middle">@item.UmAlm </td>
+                    <td scope="col" class="text-center align-middle">@item.QuantityMaster </td>
+                    <td scope="col" class="text-center align-middle">@item.QuantitySaldo</td>
+                    <td scope="col" class="text-center align-middle">@item.QuantityUnidadesCajas </td>
+                    <td scope="col" class="text-center align-middle"><button class="btn btn-sm btn-cobefar-2" onclick="cambiarUbicacion('idunico_@item.UbicacionLoteMasterId',@item.UbicacionLoteMasterId)"><i class="bi bi-arrow-clockwise"></i></button> </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>

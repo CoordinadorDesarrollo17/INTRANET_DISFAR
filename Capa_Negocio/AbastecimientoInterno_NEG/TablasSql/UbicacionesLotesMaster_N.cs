@@ -71,5 +71,9 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
 
             return datosUbicacionesLM.BuscarArticulos(condicion.ToString(), parametros);
         }
-    }
+        public UbicacionesLotesMaster_E Obtener(int id)
+        {
+            return datosUbicacionesLM.Obtener(id);
+        }
+        }
 }

@@ -7,14 +7,19 @@ using Capa_Negocio.AbastecimientoInterno_NEG.Reportes;
 using Capa_Negocio.AbastecimientoInterno_NEG.TablasExternas;
 using Capa_Negocio.AbastecimientoInterno_NEG.TablasSql;
 using Capa_Usuario.Helpers;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Logical;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using Org.BouncyCastle.Ocsp;
 using SpreadsheetLight;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Transactions;
+using System.util;
 using System.Web;
 using System.Web.Mvc;
 
@@ -35,6 +40,7 @@ namespace Capa_Usuario.Controllers
         private readonly UbicacionesLotes_N _ubicacionesLotesN = new UbicacionesLotes_N();
         private readonly Requerimientos_N _requerimientosN = new Requerimientos_N();
         private readonly ReporteStockPicking_N _reporteStockPicking = new ReporteStockPicking_N();
+        private readonly ReporteStockReserva_N _reporteStockReserva = new ReporteStockReserva_N();
         /************************* C O N F I G U R A C I Ó N *************************/
         private ActionResult VerificarPermiso(int idOperation)
         {
@@ -195,78 +201,311 @@ namespace Capa_Usuario.Controllers
             }
         }
         [HttpGet]
-        public ActionResult ListarUbicacionesReserva(Ubicaciones_E filtros)
+        public ActionResult ListarUbicacionesReserva(Ubicaciones_E filtros, int idOperation = 3201)
         {
-            filtros.Almacen = "RESERVA";
-            var usuarioSesion = Session["UsuarioId"] as Usuario_E;
-            if (usuarioSesion == null)
-                return Json(new
-                {
-                    Titulo = "No se pudo completar la acción",
-                    Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" },
-                    Icono = "error"
-                }, JsonRequestBehavior.AllowGet);
-            var listaAgrupada = _ubicacionesN.ListarUbicaciones(filtros).GroupBy(u => new { u.ItemCode, u.ItemName })
-                .Select(grupo => new Ubicaciones_E
-                {
-                    ItemCode = grupo.Key.ItemCode,
-                    ItemName = grupo.Key.ItemName,
-                    CantidadUbicaciones = grupo.Count(),
-                    Ubicaciones = grupo.Select(u => u).ToList()
-                })
-                .ToDictionary(x => x.ItemCode);
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                filtros.Almacen = "RESERVA";
+                var usuarioSesion = Session["UsuarioId"] as Usuario_E;
+                if (usuarioSesion == null)
+                    return Json(new
+                    {
+                        Titulo = "No se pudo completar la acción",
+                        Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" },
+                        Icono = "error"
+                    }, JsonRequestBehavior.AllowGet);
+                var listaAgrupada = _ubicacionesN.ListarUbicaciones(filtros).GroupBy(u => new { u.ItemCode, u.ItemName })
+                    .Select(grupo => new Ubicaciones_E
+                    {
+                        ItemCode = grupo.Key.ItemCode,
+                        ItemName = grupo.Key.ItemName,
+                        CantidadUbicaciones = grupo.Count(),
+                        Ubicaciones = grupo.Select(u => u).ToList()
+                    })
+                    .ToDictionary(x => x.ItemCode);
 
-            return PartialView("AbastecimientoInterno/_ListadoUbicacionesReserva", listaAgrupada);
+                return PartialView("AbastecimientoInterno/_ListadoUbicacionesReserva", listaAgrupada);
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
         }
-        public JsonResult RegistrarUbicacionReserva(Ubicaciones_E form)
+        public JsonResult RegistrarUbicacionReserva(Ubicaciones_E form, int idOperation = 3202)
         {
-            //Por defecto Reserva
-            form.Almacen = "RESERVA";
-            var usuarioSesion = Session["UsuarioId"] as Usuario_E;
-            if (usuarioSesion == null)
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                //Por defecto Reserva
+                form.Almacen = "RESERVA";
+                var usuarioSesion = Session["UsuarioId"] as Usuario_E;
+                if (usuarioSesion == null)
+                    return Json(new
+                    {
+                        Titulo = "No se pudo completar la acción",
+                        Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" },
+                        Icono = "error"
+                    }, JsonRequestBehavior.AllowGet);
+                form.NombreOperarioAccion = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
+                var result = _ubicacionesN.RegistrarUbicacion(form);
+                string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
                 return Json(new
                 {
-                    Titulo = "No se pudo completar la acción",
-                    Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" },
-                    Icono = "error"
-                }, JsonRequestBehavior.AllowGet);
-            form.NombreOperarioAccion = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
-            var result = _ubicacionesN.RegistrarUbicacion(form);
-            string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
-            return Json(new
+                    Titulo = tituloSweetAlert,
+                    result.Mensajes,
+                    Icono = result.IconoSweetAlert
+                });
+            }
+            else
             {
-                Titulo = tituloSweetAlert,
-                result.Mensajes,
-                Icono = result.IconoSweetAlert
-            });
-        }
-        public JsonResult EliminarUbicacionReserva(int id)
-        {
-            var usuarioSesion = Session["UsuarioId"] as Usuario_E;
-            if (usuarioSesion == null)
                 return Json(new
                 {
-                    Titulo = "No se pudo completar la acción",
-                    Mensajes = "Inicia sesión nuevamente para continuar",
+                    Titulo = "Error en la operación",
+                    Mensajes = new List<string> { "Sin accesos." },
                     Icono = "error"
-                }, JsonRequestBehavior.AllowGet);
-            var result = _ubicacionesN.EliminarUbicacion(id);
-            string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
-            return Json(new
-            {
-                Titulo = tituloSweetAlert,
-                result.Mensajes,
-                Icono = result.IconoSweetAlert
-            });
+                });
+            }
         }
-        public JsonResult EliminarUbicacionGeneral(string codigoUbicacion)
+        public JsonResult EliminarUbicacionReserva(int id, int idOperation = 3203)
         {
-            var usuarioSesion = Session["UsuarioId"] as Usuario_E;
-            if (usuarioSesion == null)
-                return Json(new { Titulo = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" }, JsonRequestBehavior.AllowGet);
-            var result = _ubicacionesN.EliminarUbicacionGeneral(codigoUbicacion);
-            string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
-            return Json(new { Titulo = tituloSweetAlert, result.Mensajes, Icono = result.IconoSweetAlert });
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                var usuarioSesion = Session["UsuarioId"] as Usuario_E;
+                if (usuarioSesion == null)
+                    return Json(new
+                    {
+                        Titulo = "No se pudo completar la acción",
+                        Mensajes = "Inicia sesión nuevamente para continuar",
+                        Icono = "error"
+                    }, JsonRequestBehavior.AllowGet);
+                var result = _ubicacionesN.EliminarUbicacion(id);
+                string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
+                return Json(new
+                {
+                    Titulo = tituloSweetAlert,
+                    result.Mensajes,
+                    Icono = result.IconoSweetAlert
+                });
+            }
+            else
+            {
+                return Json(new
+                {
+                    Titulo = "Error en la operación",
+                    Mensajes = new List<string> { "Sin accesos." },
+                    Icono = "error"
+                });
+            }
+        }
+        public JsonResult EliminarUbicacionGeneral(string codigoUbicacion, int idOperation = 3203)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                var usuarioSesion = Session["UsuarioId"] as Usuario_E;
+                if (usuarioSesion == null)
+                    return Json(new { Titulo = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" }, JsonRequestBehavior.AllowGet);
+                var result = _ubicacionesN.EliminarUbicacionGeneral(codigoUbicacion);
+                string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
+                return Json(new { Titulo = tituloSweetAlert, result.Mensajes, Icono = result.IconoSweetAlert });
+            }
+            else
+            {
+                return Json(new
+                {
+                    Titulo = "Error en la operación",
+                    Mensajes = new List<string> { "Sin accesos." },
+                    Icono = "error"
+                });
+            }
+        }
+        public ActionResult StockReserva( int idOperation = 3204)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                return View();
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
+        [HttpGet]
+        public ActionResult ListarStockReserva(Ubicaciones_E filtros, int idOperation = 3204)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                var usuarioSesion = Session["UsuarioId"] as Usuario_E;
+                if (usuarioSesion == null)
+                    return Json(new
+                    {
+                        Titulo = "No se pudo completar la acción",
+                        Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" },
+                        Icono = "error"
+                    }, JsonRequestBehavior.AllowGet);
+
+                var lista = _reporteStockReserva.Listar();
+
+                return PartialView("AbastecimientoInterno/_ListadoStockReserva", lista);
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
+        public JsonResult CambioUbicacionReserva(string nuevoCodigoUbicacion, int idUbicacionLoteMaster,  int idOperation = 3205)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                try
+                {
+                    if (idUbicacionLoteMaster > 0 && !string.IsNullOrEmpty(nuevoCodigoUbicacion))
+                    {
+                        //Obtener todo el registro de ubicacionLoteMaster que esta mudando
+                        var obj = _ubicacionesLotesMasterN.Obtener(idUbicacionLoteMaster);
+
+                        //Validar que desde requerimientos el producto ubicacion y lote no tiene Imputados
+                        bool resultValidarSku = _requerimientosN.ValidarSkuParaCambioUbicacion(obj.ItemCode, obj.BatchNum, obj.CodigoUbicacion);
+                        if (!resultValidarSku)
+                        {
+                            return Json(new
+                            {
+                                Titulo = "Error en la operación",
+                                Mensajes = new List<string> { "Existe comprometidos en proceso para Sku, Lote y Ubicación. Puede revisarlo en Módulo Picking" },
+                                Icono = "error"
+                            });
+                        }
+
+                        //Construir un objeto para enviar a la salida del Sku en la antigua ubicacion y a su vez al ingreso en la nueva ubicacion
+                        List<DetalleRequerimientos_E> listaEnvioDatos = new List<DetalleRequerimientos_E> { new DetalleRequerimientos_E { 
+                            ItemCode=obj.ItemCode,
+                            ItemName=obj.ItemName,
+                            BatchNum=obj.BatchNum,
+                            UmAlm=obj.UmAlm,
+                            ValorUmAlm=obj.ValorUmAlm,
+                            QuantityMaster=obj.QuantityMaster,
+                            QuantitySaldo = obj.QuantitySaldo,
+                            QuantityUnidadesCajas= obj.QuantityUnidadesCajas,
+                            CodigoUbicacionOrigen=obj.CodigoUbicacion
+                        } };
+
+                        Utilitarios uti = new Utilitarios();
+
+                        // Iniciar la transacción global para las operaciones críticas
+                        using (var scope = new TransactionScope(TransactionScopeOption.Required,
+                           new TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted },
+                           TransactionScopeAsyncFlowOption.Enabled))
+                        {
+                            // Registrar la operacion de salida en KardexAbastecimiento 
+                            using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+                            {
+                                cn.Open();
+                                var resultSalidaUbicacionesLotesMaster = _ubicacionesLotesMasterN.Salida(listaEnvioDatos, cn);
+                                if (resultSalidaUbicacionesLotesMaster.IconoSweetAlert.Equals("error"))
+                                {
+                                    return Json(new
+                                    {
+                                        Titulo = "Error en la operación",
+                                        resultSalidaUbicacionesLotesMaster.Mensajes,
+                                        Icono = resultSalidaUbicacionesLotesMaster.IconoSweetAlert
+                                    });
+                                }
+
+                                var resultSalidaUbicacionesLotes = _ubicacionesLotesN.Salida(listaEnvioDatos, cn);
+                                if (resultSalidaUbicacionesLotes.IconoSweetAlert.Equals("error"))
+                                {
+                                    return Json(new
+                                    {
+                                        Titulo = "Error en la operación",
+                                        resultSalidaUbicacionesLotes.Mensajes,
+                                        Icono = resultSalidaUbicacionesLotes.IconoSweetAlert
+                                    });
+                                }
+
+                                var resultIngresoUbicacionesLotes = _ubicacionesLotesN.Ingreso(new DetalleTransferenciaReserva_E
+                                {
+                                    ItemCode = obj.ItemCode,
+                                    ItemName = obj.ItemName,
+                                    BatchNum = obj.BatchNum,
+                                    CodigoUbicacion = nuevoCodigoUbicacion,
+                                    QuantityUnidadesCajas = Convert.ToInt32(obj.QuantityUnidadesCajas)
+                                }, cn);
+                                if (resultSalidaUbicacionesLotes.IconoSweetAlert.Equals("error"))
+                                {
+                                    return Json(new
+                                    {
+                                        Titulo = "Error en la operación",
+                                        resultIngresoUbicacionesLotes.Mensajes,
+                                        Icono = resultIngresoUbicacionesLotes.IconoSweetAlert
+                                    });
+                                }
+
+                                var resultIngresoUbicacionesLotesMaster = _ubicacionesLotesMasterN.Ingreso(resultIngresoUbicacionesLotes.Id, new DetalleTransferenciaReserva_E
+                                {
+                                    ItemCode = obj.ItemCode,
+                                    ItemName = obj.ItemName,
+                                    BatchNum = obj.BatchNum,
+                                    CodigoUbicacion = nuevoCodigoUbicacion,
+                                    QuantityMaster = obj.QuantityMaster,
+                                    QuantitySaldo= obj.QuantitySaldo,
+                                    UmAlm =obj.UmAlm,
+                                    ValorUmAlm=obj.ValorUmAlm
+                                }, cn);
+                                if (resultIngresoUbicacionesLotesMaster.IconoSweetAlert.Equals("error"))
+                                {
+                                    return Json(new
+                                    {
+                                        Titulo = "Error en la operación",
+                                        resultIngresoUbicacionesLotesMaster.Mensajes,
+                                        Icono = resultIngresoUbicacionesLotesMaster.IconoSweetAlert
+                                    });
+                                }
+
+                                scope.Complete();
+                            }
+                        }
+                        return Json(new
+                        {
+                            Titulo = "Acción completada exitosamente",
+                            Mensajes = new List<string> { "Se canceló la Transferencia Reserva y Solicitud de Traslado correctamente." },
+                            Icono = "success"
+                        });
+
+                    }
+                    else
+                    {
+                        return Json(new
+                        {
+                            Titulo = "Error en la operación",
+                            Mensajes = new List<string> { "La nueva ubicacion es invalida." },
+                            Icono = "error"
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return Json(new
+                    {
+                        Titulo = "Error en la operación",
+                        Mensajes = new List<string> { ex.Message },
+                        Icono = "error"
+                    });
+                }
+            }
+            else
+            {
+                return Json(new
+                {
+                    Titulo = "Error en la operación",
+                    Mensajes = new List<string> { "Sin accesos." },
+                    Icono = "error"
+                });
+            }
         }
         /************************* S O L I C I T U D   D E   T R A S L A D O *************************/
         public JsonResult BuscarSolicitudDeTraslado(int docNum)
@@ -343,7 +582,7 @@ namespace Capa_Usuario.Controllers
         }
         public JsonResult BuscarUbicaciones(string almacen, string itemCode)
         {
-            var resultUbicaciones = _ubicacionesN.BuscarUbicaciones(almacen, itemCode);
+            var resultUbicaciones = _ubicacionesN.ListarTotalUbicacionesEnArray(almacen, itemCode);
             var listaUbicacionesLote = _ubicacionesLotesN.Obtener(itemCode);
             string resultUbicacionesLote = null;
 
@@ -389,6 +628,21 @@ namespace Capa_Usuario.Controllers
 
             try
             {
+                Utilitarios uti = new Utilitarios();
+                string rutaRespaldo = Path.Combine(uti.directorioFileServer, "ImportacionTransferencias");
+
+                //Respaldar transferencias
+                if (!Directory.Exists(rutaRespaldo))
+                {
+                    Directory.CreateDirectory(rutaRespaldo);
+                }
+
+                // Nombre único para evitar sobreescritura, por ejemplo con fecha y hora
+                string nombreArchivo = $"TransferenciaStock_{DateTime.Now.ToString("yyyyMMdd_HHmmss")}_{Path.GetFileName(file.FileName)}";
+
+                // Ruta completa donde se guardará el archivo
+                string rutaCompletaArchivo = Path.Combine(rutaRespaldo, nombreArchivo);
+
                 using (var stream = file.InputStream)
                 {
                     SLDocument sld = new SLDocument(stream);
@@ -436,7 +690,6 @@ namespace Capa_Usuario.Controllers
                         iRow++;
                     }
 
-                    
                     if (!sld.GetSheetNames().Contains("CUERPO"))
                     {
                         return Json(new
@@ -473,15 +726,20 @@ namespace Capa_Usuario.Controllers
                                 InDate = sld.GetCellValueAsDateTime(iRow, 9).ToString("yyyy-MM-dd"),
                                 QuantityCajas = Convert.ToDecimal((sld.GetCellValueAsInt32(iRow, 11) * sld.GetCellValueAsInt32(iRow, 12)) + sld.GetCellValueAsInt32(iRow, 13))
                             };
-                            string uniqueKey = detalleSolicitudTraslado.ItemCode;
+
+                            string uniqueKey = $"{detalleSolicitudTraslado.ItemCode}_{detalleSolicitudTraslado.BatchNum}";
                             if (!solicitudTraslado.Detalle.ContainsKey(uniqueKey))
                             {
                                 solicitudTraslado.Detalle[uniqueKey] = detalleSolicitudTraslado;
                             }
+                            else
+                            {
 
-                            solicitudTraslado.Detalle[detalleSolicitudTraslado.ItemCode] = detalleSolicitudTraslado;
+                                solicitudTraslado.Detalle[uniqueKey].QuantityCajas += detalleSolicitudTraslado.QuantityCajas;
+                            }
                         }
-                        if (transferencia!=null) { 
+                        if (transferencia != null)
+                        {
                             var detalleTransferencia = new DetalleTransferenciaReserva_E
                             {
                                 ItemCode = sld.GetCellValueAsString(iRow, 2),
@@ -522,6 +780,9 @@ namespace Capa_Usuario.Controllers
                             errores.Add($"Error inesperado al registrar Documento {solicitudTraslado.DocNum}.");
                         }
                     }
+                    if (errores.Count == 0)
+                        file.SaveAs(rutaCompletaArchivo);
+
                     // Responder según el resultado
                     return errores.Count > 0
                         ? Json(new
@@ -533,11 +794,9 @@ namespace Capa_Usuario.Controllers
                         : Json(new
                         {
                             Titulo = "Importación exitosa",
-                            Mensajes = new List<string> { "Todos los documentos fueron importados correctamente." },
+                            Mensajes = new List<string> { "Todos los traslados fueron importados correctamente." },
                             Icono = "success"
                         });
-
-
                 }
             }
             catch (Exception ex)
@@ -1111,6 +1370,53 @@ namespace Capa_Usuario.Controllers
                                 Icono = "error"
                             });
                         }
+
+                        //Validar que las ubicacion origen insertadas, existan
+                        var ubicacionesReserva = requerimiento.Detalle
+                       .SelectMany(d => new[]
+                       {
+                                    (d.CodigoUbicacionOrigen,d.ItemCode)
+                       })
+                       .Distinct()
+                       .ToList();
+
+                        foreach (var u in ubicacionesReserva)
+                        {
+                            bool resultValidarUbicaciones = _ubicacionesN.BuscarUbicacion("RESERVA", (u.CodigoUbicacionOrigen, u.ItemCode));
+                            if (!resultValidarUbicaciones)
+                            {
+                                return Json(new
+                                {
+                                    Titulo = "Error en la operación",
+                                    Mensajes = new List<string> { $"Revise que exista previamente la ubicación en Reserva para: {u.CodigoUbicacionOrigen} & {u.ItemCode}" },
+                                    Icono = "error"
+                                });
+                            }
+                        }
+
+                        //Validar que las ubicacion destino insertadas, existan
+                        var ubicacionesPicking = requerimiento.Detalle
+                        .SelectMany(d => new[]
+                        {
+                                    (d.CodigoUbicacionDestino,d.ItemCode)
+                        })
+                        .Distinct()
+                        .ToList();
+
+                        foreach (var u in ubicacionesPicking)
+                        {
+                            bool resultValidarUbicaciones = _ubicacionesN.BuscarUbicacion("PICKING", (u.CodigoUbicacionDestino, u.ItemCode));
+                            if (!resultValidarUbicaciones)
+                            {
+                                return Json(new
+                                {
+                                    Titulo = "Error en la operación",
+                                    Mensajes = new List<string> { $"Revise que exista previamente la ubicación en Picking para: {u.CodigoUbicacionDestino} & {u.ItemCode}" },
+                                    Icono = "error"
+                                });
+                            }
+                        }
+
                         // Asignar datos de operario en el requerimiento
                         requerimiento.OperarioRegistra = $"{user.Nombres} {user.Apellidos}";
                         Utilitarios uti = new Utilitarios();
@@ -1214,6 +1520,20 @@ namespace Capa_Usuario.Controllers
 
             try
             {
+                Utilitarios uti = new Utilitarios();
+                string rutaRespaldo = Path.Combine(uti.directorioFileServer, "ImportacionRequerimientos");
+
+                //Respaldar transferencias
+                if (!Directory.Exists(rutaRespaldo))
+                {
+                    Directory.CreateDirectory(rutaRespaldo);
+                }
+
+                // Nombre único para evitar sobreescritura, por ejemplo con fecha y hora
+                string nombreArchivo = $"Requerimiento_{DateTime.Now.ToString("yyyyMMdd_HHmmss")}_{Path.GetFileName(file.FileName)}";
+
+                // Ruta completa donde se guardará el archivo
+                string rutaCompletaArchivo = Path.Combine(rutaRespaldo, nombreArchivo);
                 using (var stream = file.InputStream)
                 {
                     SLDocument sld = new SLDocument(stream);
@@ -1320,6 +1640,9 @@ namespace Capa_Usuario.Controllers
                             errores.Add($"Error inesperado al registrar Requerimiento {req.IdentificadorExcel}.");
                         }
                     }
+
+                    if (errores.Count == 0)
+                        file.SaveAs(rutaCompletaArchivo);
 
                     // Responder según el resultado
                     return errores.Count > 0

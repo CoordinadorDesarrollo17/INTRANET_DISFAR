@@ -77,7 +77,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
         }
         public Helper_E Ingreso(DetalleTransferenciaReserva_E detalle, SqlConnection cn)
         {
-            string mensaje = "", icono;
+            string mensaje , icono;
             int id = 0;
 
             try
@@ -103,7 +103,6 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     cmd.Parameters.AddWithValue("@BatchNum", detalle.BatchNum);
                     cmd.Parameters.AddWithValue("@QuantityUnidadesCajas", detalle.QuantityUnidadesCajas);
 
-                    // Parámetro de salida
                     SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
                     {
                         Direction = ParameterDirection.Output
@@ -119,10 +118,11 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     {
                         mensaje = "Ocurrió un error al registrar un ingreso en UbicacionesLotes. Comuníquese con el área de Sistemas para más información.";
                         icono = "error";
-                        return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono, Id = id };
+                        throw new Exception("Error en Ingreso.");
                     }
 
                     id = idGenerado;
+                    mensaje = "Operacion de ingreso en UbicacionesLotes registrado correctamente";
                     icono = "success";
                 }
             }
@@ -147,13 +147,10 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 LogHelper.RegistrarError(ex, "UbicacionesLotes_D - Ingreso");
                 mensaje = "Ocurrió un error al registrar un ingreso en UbicacionesLotes. Comuníquese con el área de Sistemas para más información.";
                 icono = "error";
-
                 return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono, Id = id };
             }
-
             return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono, Id = id };
         }
-
         public Helper_E RevertirIngreso(TransferenciaReserva_E ingreso, SqlConnection cn)
         {
             string mensaje, icono;
