@@ -702,5 +702,40 @@
         function limpiarTabla() {
             document.querySelector('#tbl_detalleRequerimiento tbody').innerHTML = '';
         }
+
+        async function cargarUbicaciones(almacen, itemCode) {
+            try {
+                if (!itemCode) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Código de artículo no válido',
+                        text: 'El código de artículo ingresado no es válido.',
+                        allowEscapeKey: false,
+                        allowOutsideClick: false,
+                    });
+
+                    return;
+                }
+
+                itemCode = itemCode.trim()
+                const response = await fetch("/AbastecimientoInterno/BuscarUbicaciones", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ almacen, itemCode })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error en la solicitud: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                return data; // Retorna las ubicaciones como una promesa resuelta
+            } catch (error) {
+                console.error("Error al cargar ubicaciones:", error);
+                return []; // Devuelve un array vacío en caso de error
+            }
+        }
     </script>
 }
