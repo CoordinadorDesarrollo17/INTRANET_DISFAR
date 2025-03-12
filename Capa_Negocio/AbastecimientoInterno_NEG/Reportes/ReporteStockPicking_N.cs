@@ -24,7 +24,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.Reportes
         {
             var controlStockInternoPicking = _datosReporte.ControlStockInternoPicking();
             List<OITW_E> articulos = new Capa_Negocio.Almacen_NEG.Tablas.OITW_N()
-                .ListarDetArticulosInv(new OITW_E { WhsCode = "16" ,ItemCode= "PORT0332" })
+                .ListarDetArticulosInv(new OITW_E { WhsCode = "16" })
                 .Where(x => x.OnHand > 0)
                 .ToList();
 
@@ -43,15 +43,11 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.Reportes
                     int stockEnPicking = Convert.ToInt32(item.StockLibre) - stockDeAlmReserva;
 
                     var controlPorItemCode = controlStockInternoPicking.FirstOrDefault(i => i.ItemCode == item.ItemCode);
-                    if (controlPorItemCode != null)
-                    {
-                        controlPorItemCode.StockActual = stockEnPicking;
-                        articulos.Remove(item);
-                    }
-                    else
-                    {
-                        item.StockLibre = stockEnPicking;
-                    }
+
+                    item.StockLibre = stockEnPicking;
+                    item.Clasificacion = (controlPorItemCode != null) ? controlPorItemCode.Clasificacion : string.Empty;
+                    item.StockMinVenta = (controlPorItemCode != null) ? controlPorItemCode.StockMinVenta : 0;
+                    item.StockMinAbastecimiento = (controlPorItemCode != null) ? controlPorItemCode.StockMinAbastecimiento : 0;
                 }
             }
 
@@ -61,10 +57,13 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.Reportes
                 ItemCode = a.ItemCode,
                 ItemName = a.ItemName,
                 StockActual = Convert.ToInt32(a.StockLibre),
-                Almacen = a.WhsCode
+                Almacen = a.WhsCode,
+                Clasificacion = a.Clasificacion,
+                StockMinVenta = a.StockMinVenta,
+                StockMinAbastecimiento = a.StockMinAbastecimiento
             }).ToList();
 
-            return controlStockInternoPicking.Concat(nuevaLista).OrderBy(x=> x.ItemCode).ToList();
+            return nuevaLista.OrderBy(x=> x.ItemCode).ToList();
         }
     }
 }
