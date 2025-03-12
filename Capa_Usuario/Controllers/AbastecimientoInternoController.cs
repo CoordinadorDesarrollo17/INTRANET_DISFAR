@@ -472,7 +472,7 @@ namespace Capa_Usuario.Controllers
                         return Json(new
                         {
                             Titulo = "Acción completada exitosamente",
-                            Mensajes = new List<string> { "Se canceló la Transferencia Reserva y Solicitud de Traslado correctamente." },
+                            Mensajes = new List<string> { "Se realizó correctamente el cambio de ubicación" },
                             Icono = "success"
                         });
 
@@ -524,7 +524,7 @@ namespace Capa_Usuario.Controllers
         public JsonResult BuscarSolicitudDeTraslado(int docNum, int idOperation = 3301)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
-            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 Utilitarios uti = new Utilitarios();
                 SolicitudesTraslado_E traslado = null;
@@ -609,7 +609,7 @@ namespace Capa_Usuario.Controllers
         public JsonResult BuscarUbicaciones(string almacen, string itemCode, int idOperation = 3302)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
-            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 var resultUbicaciones = _ubicacionesN.ListarTotalUbicacionesEnArray(almacen, itemCode);
                 var listaUbicacionesLote = _ubicacionesLotesN.Obtener(itemCode);
@@ -1963,7 +1963,5 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-
-
     }
 }
