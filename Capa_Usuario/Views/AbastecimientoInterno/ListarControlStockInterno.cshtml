@@ -91,8 +91,8 @@
                         <th scope="col" class="text-center">Descripción</th>
                         <th scope="col" class="text-center">Clasificacion</th>
                         <th scope="col" class="text-center">Stock Actual</th>
-                        <th scope="col" class="text-center">Stock Min Venta</th>
                         <th scope="col" class="text-center">Stock Min Abastecimiento</th>
+                        <th scope="col" class="text-center"></th>
                         <th scope="col" class="text-center"></th>
                     </tr>
                 </thead>
@@ -102,7 +102,7 @@
                         // Calcular el porcentaje de stock basado en StockMinAbastecimiento
                         var porcentajeStock = item.StockMinAbastecimiento > 0
                             ? (item.StockActual * 100) / item.StockMinAbastecimiento
-                            : 0;
+                            : -1;
 
                         // Definir color basado en la relación con el Stock Mínimo
                         string colorClase;
@@ -124,7 +124,6 @@
                             <td class="text-center align-middle">@item.ItemName</td>
                             <td class="text-center align-middle">@item.Clasificacion</td>
                             <td class="text-center align-middle">@item.StockActual</td>
-                            <td class="text-center align-middle">@item.StockMinVenta</td>
                             <td class="text-center align-middle">@item.StockMinAbastecimiento</td>
                             <td class="text-center align-middle">
                                 <div class="d-flex justify-content-center align-items-center">
@@ -139,7 +138,7 @@
                                                 @porcentajeStock%
                                             </div>
                                         }
-                                        else
+                                        else if (item.StockActual == 0)
                                         {
                                             <div class="progress" style="height: 25px; width: 120px;">
                                                 <div class="progress-bar bg-danger text-white fw-bold" role="progressbar"
@@ -150,15 +149,32 @@
                                                     SIN STOCK
                                                 </div>
                                             </div>
-                                         }
+                                        }
+                                        else
+                                        {
+                                            <div class="progress" style="height: 25px; width: 120px;">
+                                                <div class="progress-bar bg-secondary text-white fw-bold" role="progressbar"
+                                                     style="width: 100%"
+                                                     aria-valuenow="0"
+                                                     aria-valuemin="0"
+                                                     aria-valuemax="100">
+                                                    SIN PARAMETRO
+                                                </div>
+                                            </div>
+                                        }
                                     </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex justify-content-center align-items-center ">
+                                    <button type="button" class="btn btn-cobefar-2 btn-sm" data-bs-toggle="modal" data-bs-target="#verUbicaciones">
+                                        <i class="bi bi-eye"></i> Ubicaciones
+                                    </button>
                                 </div>
                             </td>
                         </tr>
                     }
                 </tbody>
-
-
             </table>
         </div>
     </div>
@@ -183,7 +199,7 @@
                             <input class="form-control border-success" id="itemName" value="" />
                         </div>
                         <div class="mb-3">
-                            <label for="batchNum" class="form-label">Clasificacion</label>
+                            <label for="batchNum" class="form-label">Clasificación</label>
                             <input class="form-control border-success" id="clasificacion" value="" />
                         </div>
                     </div>
@@ -224,7 +240,7 @@
             const coincideItemName = itemName === "" || consItemName.includes(itemName);
             const coincideClasificacion = clasificacion === "" || constClasificacion.includes(clasificacion);
 
-            return coincideClasificacion && coincideItemCode && coincideItemName ;
+            return coincideClasificacion && coincideItemCode && coincideItemName;
         });
 
         table.draw();

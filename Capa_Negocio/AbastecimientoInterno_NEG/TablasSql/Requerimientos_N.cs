@@ -23,9 +23,9 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         {
             return _requerimientoD.AtenderReserva(detalleId);
         }
-        public Helper_E AtenderPicking(int detalleId)
+        public Helper_E AtenderPicking(int detalleId, SqlConnection cn)
         {
-            return _requerimientoD.AtenderPicking(detalleId);
+            return _requerimientoD.AtenderPicking(detalleId,cn);
         }
         public List<DetalleRequerimientos_E> ListarDetalles(string itemCode="", string proceso = "")
         {
@@ -42,7 +42,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
 
                 case "ListarApiladores":
                     result = detalles
-                        .Where(x => x.AtendidoReserva == 0 && x.AtendidoPicking == 0 && x.QuantityMaster > 0)
+                        .Where(x => x.AtendidoReserva == 0 && x.AtendidoPicking == 0)
                         .ToList();
                     break;
 

@@ -15,5 +15,11 @@
         public int QuantityMaster { get; set; }
         public int QuantitySaldo { get; set; }
         public int QuantityUnidadesCajas { get; set; }
+        public int AtendidoReserva { get; set; }
+        //Campo que no es de la tabla
+        public int DocNumSolicitudTraslado { get; set; }
+        public string RackBloque { get; set; }
+        public string Posicion { get; set; }
+        public string Nivel { get; set; }
     }
 }

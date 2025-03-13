@@ -62,10 +62,10 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             return new Helper_E { Id = id, Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
         }
-        public bool BuscarUbicacion(string almacen, (string elemento1, string elemento2) ubicacion)
+        public bool BuscarUbicacion(string almacen, string ubicacion)
         {
-            string[] ubicaciones = ListarTotalUbicacionesEnArray(almacen, ubicacion.elemento2);
-            return ubicaciones.Contains(ubicacion.elemento1);
+            string[] ubicaciones = ListarTotalUbicacionesEnArray(almacen, ubicacion);
+            return ubicaciones.Contains(ubicacion);
         }
         public string[] ListarTotalUbicacionesEnArray(string almacen, string itemCode)
         {

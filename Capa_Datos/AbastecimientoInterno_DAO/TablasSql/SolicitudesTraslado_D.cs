@@ -291,6 +291,6 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
         }
-
+      
     }
 }
