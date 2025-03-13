@@ -58,17 +58,16 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
                         // MERGE para insertar o actualizar registros en LotesRegistroSanitario
                         string mergeQuery = @"
-                    MERGE INTO LotesRegistroSanitario AS target
+                    MERGE INTO LotesRegistroSanitario AS LRS
                     USING #TempLotes AS source
-                    ON target.ItemCode = source.ItemCode 
-                       AND target.DistNumber = source.DistNumber
-                    WHEN MATCHED AND (target.ExpDate <> source.ExpDate OR target.InDate <> source.InDate) THEN
-                        UPDATE SET 
-                            target.ExpDate = source.ExpDate,
-                            target.InDate = source.InDate
+                    ON LRS.ItemCode = source.ItemCode 
+                       AND LRS.DistNumber = source.DistNumber
+                    WHEN MATCHED THEN
+                    UPDATE SET 
+                        LRS.InDate = source.InDate
                     WHEN NOT MATCHED THEN
-                        INSERT (ItemCode, DistNumber, ExpDate, InDate)
-                        VALUES (source.ItemCode, source.DistNumber, source.ExpDate, source.InDate);";
+                    INSERT (ItemCode, DistNumber, ExpDate, InDate)
+                    VALUES (source.ItemCode, source.DistNumber, source.ExpDate, source.InDate);";
 
                         using (var commandMerge = new SqlCommand(mergeQuery, cn))
                         {

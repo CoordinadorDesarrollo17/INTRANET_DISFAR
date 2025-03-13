@@ -13,14 +13,10 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
     public class KardexAbastecimiento_N
     {
         KardexAbastecimiento_D kardexD = new KardexAbastecimiento_D();
-        public Helper_E InsertarTransaccionIngresoKardex(TransferenciaReserva_E ingreso,SqlConnection cn)
+        public Helper_E InsertarTransaccionIngresoKardex(string itemCode,string itemName, int cantidadGlobal, string operarioRegistra, int docNumSolicitudTraslado, string cardCode, string cardName, SqlConnection cn)
         {
-            return kardexD.InsertarTransaccionIngresoKardex(ingreso,cn);
+            return kardexD.InsertarTransaccionIngresoKardex(itemCode,  itemName,  cantidadGlobal,  operarioRegistra,  docNumSolicitudTraslado,  cardCode,  cardName, cn);
         }
-        //public Helper_E ValidarTransaccionImputadoKardex(Requerimientos_E imputado, SqlConnection cn)
-        //{
-        //    return kardexD.ValidarTransaccionImputadoKardex(imputado, cn);
-        //}
         public Helper_E InsertarTransaccionImputadoKardex(Requerimientos_E imputado, SqlConnection cn)
         {
             return kardexD.InsertarTransaccionImputadoKardex(imputado, cn);

@@ -90,7 +90,8 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             try
             {
-              using (SqlConnection  cn = new SqlConnection(uti.cadSql2)) { 
+                using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+                {
                     cn.Open();
                     using (SqlCommand cmd = new SqlCommand("sp_MantenimientoRequerimiento", cn))
                     {
@@ -121,32 +122,34 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
         }
-        public Helper_E AtenderPicking(int detalleId)
+        public Helper_E AtenderPicking(int detalleId, SqlConnection cn)
         {
             string mensaje, icono;
+            if (cn.State != ConnectionState.Open)
+            {
+                cn.Open();
+            }
 
             try
             {
-                using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+                using (SqlCommand cmd = new SqlCommand("sp_MantenimientoRequerimiento", cn))
                 {
-                    cn.Open();
-                    using (SqlCommand cmd = new SqlCommand("sp_MantenimientoRequerimiento", cn))
+
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "ATD_PICKING");
+                    cmd.Parameters.AddWithValue("@DetalleId", detalleId);
+                    SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
                     {
-                        cmd.CommandType = CommandType.StoredProcedure;
+                        Direction = ParameterDirection.Output
+                    };
+                    cmd.Parameters.Add(idGeneradoParam);
+                    cmd.ExecuteNonQuery();
 
-                        cmd.Parameters.AddWithValue("@TipoMantenimiento", "ATD_PICKING");
-                        cmd.Parameters.AddWithValue("@DetalleId", detalleId);
-                        SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
-                        {
-                            Direction = ParameterDirection.Output
-                        };
-                        cmd.Parameters.Add(idGeneradoParam);
-                        cmd.ExecuteNonQuery();
-
-                        mensaje = "Detalle requerimiento AtendidoPicking actualizado";
-                        icono = "success";
-                    }
+                    mensaje = "Detalle requerimiento AtendidoPicking actualizado";
+                    icono = "success";
                 }
+
             }
             catch (Exception ex)
             {
@@ -219,94 +222,79 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
             {
                 cn.Open();
             }
-            using (var transaction = cn.BeginTransaction())
+            try
             {
-                try
+                using (SqlCommand cmd = new SqlCommand("sp_MantenimientoRequerimiento", cn))
                 {
-                    using (SqlCommand cmd = new SqlCommand("sp_MantenimientoRequerimiento", cn, transaction))
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "INSERT");
+                    cmd.Parameters.AddWithValue("@Origen", requerimiento.Origen);
+                    cmd.Parameters.AddWithValue("@Destino", requerimiento.Destino);
+                    cmd.Parameters.AddWithValue("@TipoAbastecimiento", requerimiento.TipoAbastecimiento);
+                    cmd.Parameters.AddWithValue("@OperarioRegistra", requerimiento.OperarioRegistra);
+
+                    // Crear tabla de parámetros para el tipo DetalleRequerimientosType
+                    DataTable detalleTable = new DataTable();
+                    detalleTable.Columns.Add("Id", typeof(int));
+                    detalleTable.Columns.Add("RequerimientoId", typeof(int));
+                    detalleTable.Columns.Add("ItemCode", typeof(string));
+                    detalleTable.Columns.Add("ItemName", typeof(string));
+                    detalleTable.Columns.Add("BatchNum", typeof(string));
+                    detalleTable.Columns.Add("CodigoUbicacionOrigen", typeof(string));
+                    detalleTable.Columns.Add("CodigoUbicacionDestino", typeof(string));
+                    detalleTable.Columns.Add("UmAlm", typeof(string));
+                    detalleTable.Columns.Add("ValorUmAlm", typeof(int));
+                    detalleTable.Columns.Add("QuantityMaster", typeof(int));
+                    detalleTable.Columns.Add("QuantitySaldo", typeof(int));
+                    detalleTable.Columns.Add("QuantityUnidadesCajas", typeof(int));
+                    detalleTable.Columns.Add("AtendidoReserva", typeof(int));
+                    detalleTable.Columns.Add("AtendidoPicking", typeof(int));
+
+                    foreach (var detalle in requerimiento.Detalle)
                     {
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@TipoMantenimiento", "INSERT");
-                        cmd.Parameters.AddWithValue("@Origen", requerimiento.Origen);
-                        cmd.Parameters.AddWithValue("@Destino", requerimiento.Destino);
-                        cmd.Parameters.AddWithValue("@TipoAbastecimiento", requerimiento.TipoAbastecimiento);
-                        cmd.Parameters.AddWithValue("@OperarioRegistra", requerimiento.OperarioRegistra);
-
-                        // Crear tabla de parámetros para el tipo DetalleRequerimientosType
-                        DataTable detalleTable = new DataTable();
-                        detalleTable.Columns.Add("Id", typeof(int));
-                        detalleTable.Columns.Add("RequerimientoId", typeof(int));
-                        detalleTable.Columns.Add("ItemCode", typeof(string));
-                        detalleTable.Columns.Add("ItemName", typeof(string));
-                        detalleTable.Columns.Add("BatchNum", typeof(string));
-                        detalleTable.Columns.Add("CodigoUbicacionOrigen", typeof(string));
-                        detalleTable.Columns.Add("CodigoUbicacionDestino", typeof(string));
-                        detalleTable.Columns.Add("UmAlm", typeof(string));
-                        detalleTable.Columns.Add("ValorUmAlm", typeof(int));
-                        detalleTable.Columns.Add("QuantityMaster", typeof(int));
-                        detalleTable.Columns.Add("QuantitySaldo", typeof(int));
-                        detalleTable.Columns.Add("QuantityUnidadesCajas", typeof(int));
-                        detalleTable.Columns.Add("AtendidoReserva", typeof(int));
-                        detalleTable.Columns.Add("AtendidoPicking", typeof(int));
-
-                        foreach (var detalle in requerimiento.Detalle)
-                        {
-                            detalleTable.Rows.Add(
-                                0,
-                                0,
-                                detalle.ItemCode,
-                                detalle.ItemName,
-                                detalle.BatchNum,
-                                detalle.CodigoUbicacionOrigen,
-                                detalle.CodigoUbicacionDestino,
-                                detalle.UmAlm,
-                                detalle.ValorUmAlm,
-                                (object)detalle.QuantityMaster ?? DBNull.Value,
-                                (object)detalle.QuantitySaldo ?? DBNull.Value,
-                                (object)detalle.QuantityUnidadesCajas ?? DBNull.Value,
-                                0,
-                                0
-                            );
-                        }
-
-                        SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
-                        {
-                            Direction = ParameterDirection.Output
-                        };
-                        cmd.Parameters.Add(idGeneradoParam);
-
-                        SqlParameter detalleParam = new SqlParameter("@Detalle", SqlDbType.Structured)
-                        {
-                            TypeName = "dbo.DetalleRequerimientosType",
-                            Value = detalleTable
-                        };
-                        cmd.Parameters.Add(detalleParam);
-
-                        cmd.ExecuteNonQuery();
-                        int idGenerado = (int)idGeneradoParam.Value;
-
-                        if (idGenerado > 0)
-                        {
-                            transaction.Commit();
-                        }
-                        else
-                        {
-                            transaction.Rollback();
-                            throw new Exception("No se pudo registrar el requerimiento.");
-                        }
-
-                        requerimiento.Id = idGenerado;
-                        return requerimiento;
+                        detalleTable.Rows.Add(
+                            0,
+                            0,
+                            detalle.ItemCode,
+                            detalle.ItemName,
+                            detalle.BatchNum,
+                            detalle.CodigoUbicacionOrigen,
+                            detalle.CodigoUbicacionDestino,
+                            detalle.UmAlm,
+                            detalle.ValorUmAlm,
+                            (object)detalle.QuantityMaster ?? DBNull.Value,
+                            (object)detalle.QuantitySaldo ?? DBNull.Value,
+                            (object)detalle.QuantityUnidadesCajas ?? DBNull.Value,
+                            0,
+                            0
+                        );
                     }
-                }
-                catch (Exception ex)
-                {
-                    transaction.Rollback();
-                    throw new Exception("Error al registrar el requerimiento.", ex);
+
+                    SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
+                    {
+                        Direction = ParameterDirection.Output
+                    };
+                    cmd.Parameters.Add(idGeneradoParam);
+
+                    SqlParameter detalleParam = new SqlParameter("@Detalle", SqlDbType.Structured)
+                    {
+                        TypeName = "dbo.DetalleRequerimientosType",
+                        Value = detalleTable
+                    };
+                    cmd.Parameters.Add(detalleParam);
+
+                    cmd.ExecuteNonQuery();
+                    int idGenerado = (int)idGeneradoParam.Value;
+
+                    requerimiento.Id = idGenerado;
+                    return requerimiento;
                 }
             }
+            catch (Exception ex)
+            {
+
+                throw new Exception("Error al registrar el requerimiento.", ex);
+            }
         }
-
-
     }
 }

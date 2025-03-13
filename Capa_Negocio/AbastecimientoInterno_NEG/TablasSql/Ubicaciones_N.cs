@@ -15,7 +15,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
     {
         Ubicaciones_D _datos = new Ubicaciones_D();
         Helpers _helper = new Helpers();
-        public bool BuscarUbicacion(string almacen, (string elemento1,string elemento2) ubicacion)
+        public bool BuscarUbicacion(string almacen, string  ubicacion)
         {
             return _datos.BuscarUbicacion( almacen, ubicacion);
         }

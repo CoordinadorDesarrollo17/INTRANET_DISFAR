@@ -76,5 +76,19 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         {
             return _datosTransferencia.DeleteDetalleItemTransferenciaReserva(ids, idsCabecera, cn);
         }
+        public Helper_E AtenderReserva(int detalleId, SqlConnection cn)
+        {
+            return _datosTransferencia.AtenderReserva(detalleId,cn);
+        }
+        public List<DetalleTransferenciaReserva_E> ListarDetalles()
+        {
+            return (List<DetalleTransferenciaReserva_E>)_datosTransferencia.ListarDetalles().Where(x=>x.AtendidoReserva==0);
+        }
+        public bool ValidarSkuParaKardexIngreso(int transferenciaId, string itemCode, TransferenciaReserva_E transferencia)
+        {
+            // Validar si ya no existe algún elemento con el mismo ItemCode y AtendidoPicking en 0, por lo tanto todo esta Atendido y listo para sacarlo por Kardex
+            bool valido = !transferencia.Detalle.Any(d => d.ItemCode == itemCode && d.AtendidoReserva == 0);
+            return valido;
+        }
     }
  }

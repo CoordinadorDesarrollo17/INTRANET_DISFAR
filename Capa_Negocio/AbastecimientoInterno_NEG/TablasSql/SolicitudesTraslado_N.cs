@@ -32,5 +32,5 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         {
             return datosTraslado.ActualizarEstado( solicitudTrasladoId, detalleTransferencia, cn);
         }
-    }
+     }
 }

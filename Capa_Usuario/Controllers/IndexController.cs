@@ -209,9 +209,13 @@ namespace Capa_Usuario.Controllers
         {
             return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "Requerimientos", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
         }
-        public ActionResult AI_Apiladores(int idOperation = 3500)
+        public ActionResult AI_ApilarRequerimientos(int idOperation = 3500)
         {
             return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "ListarRequerimientosReserva", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
+        }
+        public ActionResult AI_ApilarTransferencias(int idOperation = 3502)
+        {
+            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "ListarTransferenciasReserva", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
         }
         public ActionResult AI_Picking(int idOperation = 3600)
         {

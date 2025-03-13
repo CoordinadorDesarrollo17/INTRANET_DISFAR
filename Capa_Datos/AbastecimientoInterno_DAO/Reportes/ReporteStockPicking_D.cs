@@ -17,7 +17,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.Reportes
         DBHelper dbHelper = new DBHelper();
         public List<ReporteStockPicking_E> ControlStockInternoPicking()
         {
-              List<ReporteStockPicking_E> lista  =null;
+            List<ReporteStockPicking_E> lista = null;
             try
             {
                 using (SqlConnection cn = new SqlConnection(uti.cadSql2))
@@ -25,9 +25,8 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.Reportes
                     cn.Open();
                     using (SqlCommand cmd = new SqlCommand("sp_ControlHistoricoDeIngresosAPicking", cn))
                     {
-                            cmd.CommandType = CommandType.StoredProcedure;
-                            cmd.Parameters.AddWithValue("@TipoMantenimiento", "RPT");
-                        using (SqlDataReader dr = cmd.ExecuteReader()) 
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        using (SqlDataReader dr = cmd.ExecuteReader())
                         {
                             lista = new List<ReporteStockPicking_E>();
                             while (dr.Read())
@@ -39,8 +38,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.Reportes
                                 if (!dr.IsDBNull(2)) reporte.Clasificacion = dr.GetString(2);
                                 if (!dr.IsDBNull(3)) reporte.StockActual = dr.GetInt32(3);
                                 if (!dr.IsDBNull(4)) reporte.Almacen = dr.GetString(4);
-                                if (!dr.IsDBNull(5)) reporte.StockMinVenta = dr.GetInt32(5);
-                                if (!dr.IsDBNull(6)) reporte.StockMinAbastecimiento = dr.GetInt32(6);
+                                if (!dr.IsDBNull(5)) reporte.StockMinAbastecimiento = dr.GetInt32(5);
 
                                 lista.Add(reporte);
                             }
