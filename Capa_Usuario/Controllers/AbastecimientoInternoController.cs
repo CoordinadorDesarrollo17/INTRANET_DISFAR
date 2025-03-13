@@ -62,7 +62,6 @@ namespace Capa_Usuario.Controllers
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                ViewBag.Productos = _productosN.ListarProductos();
                 return View();
             }
             else
@@ -89,19 +88,8 @@ namespace Capa_Usuario.Controllers
                         Icono = "error"
                     }, JsonRequestBehavior.AllowGet);
 
-                var listaAgrupada = _ubicacionesN.ListarUbicaciones(filtros)
-                    .GroupBy(u => new { u.ItemCode, u.ItemName, u.StockMinAbastecimiento, u.StockMinVenta, u.Clasificacion })
-                    .Select(grupo => new Ubicaciones_E
-                    {
-                        ItemCode = grupo.Key.ItemCode,
-                        ItemName = grupo.Key.ItemName,
-                        CantidadUbicaciones = grupo.Count(),
-                        Ubicaciones = grupo.Select(u => u).ToList(),
-                        StockMinAbastecimiento = grupo.Key.StockMinAbastecimiento,
-                        StockMinVenta = grupo.Key.StockMinVenta,
-                        Clasificacion = grupo.Key.Clasificacion
-                    })
-                    .ToDictionary(x => x.ItemCode);
+                var listaAgrupada = _ubicacionesN.ListarUbicaciones(filtros);
+
                 return PartialView("AbastecimientoInterno/_ListadoUbicacionesPicking", listaAgrupada);
             }
             else
@@ -152,7 +140,8 @@ namespace Capa_Usuario.Controllers
                 Icono = result.IconoSweetAlert
             });
         }
-        public JsonResult ActualizarStocksMinimos(StockMinProductos_E form, int idOperation = 3103)
+
+        public JsonResult ActualizarStockMinimoPicking(StockMinProductos_E form, int idOperation = 3103)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
@@ -167,7 +156,7 @@ namespace Capa_Usuario.Controllers
                     }, JsonRequestBehavior.AllowGet);
 
                 form.NombreOperarioAccion = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
-                var result = _stockMinProdN.ActualizarStocksMinimos(form);
+                var result = _stockMinProdN.ActualizarStockMinimo(form);
                 string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
                 return Json(new
                 {
@@ -186,6 +175,51 @@ namespace Capa_Usuario.Controllers
                 });
             }
         }
+
+        public ActionResult StockMinimoPicking(int idOperation = 3104)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                var lista = _stockMinProdN.ListarStockMinProductos();
+                var productos = _productosN.ListarProductos();
+
+                // Excluir los ItemCode que están en "lista"
+                var itemCodesAExcluir = lista.Select(s => s.ItemCode).ToHashSet(); // Usar HashSet para mejor rendimiento
+                var productosFiltrados = productos.Where(p => !itemCodesAExcluir.Contains(p.ItemCode)).ToList();
+
+                ViewBag.Productos = productosFiltrados;
+
+                return View(lista);
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
+
+        public JsonResult RegistrarStockMinimoPicking(StockMinProductos_E form, int idOperation = 3101)
+        {
+            var usuarioSesion = Session["UsuarioId"] as Usuario_E;
+            if (usuarioSesion == null)
+                return Json(new
+                {
+                    Titulo = "No se pudo completar la acción",
+                    Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" },
+                    Icono = "error"
+                }, JsonRequestBehavior.AllowGet);
+
+            form.NombreOperarioAccion = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
+            var result = _stockMinProdN.RegistrarStockMinimo(form);
+            string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
+            return Json(new
+            {
+                Titulo = tituloSweetAlert,
+                result.Mensajes,
+                Icono = result.IconoSweetAlert
+            });
+        }
+
         /************************* U B I C A C I O N E S   R E S E R V A *************************/
         public ActionResult UbicacionesReserva(int idOperation = 3200)
         {
