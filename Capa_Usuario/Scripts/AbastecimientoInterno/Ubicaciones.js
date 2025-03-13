@@ -23,9 +23,3 @@ function generarCodigoUbicacion(codigo, posicion) {
 
     document.querySelector('#CodigoUbicacion').value = codigoUbicacion.join("-")
 }
-
-function llenarItemCode(elemento) {
-    const selectedOption = elemento.options[elemento.selectedIndex]
-    const dataAttributes = selectedOption.dataset
-    document.querySelector('#ItemCode').value = dataAttributes.itemcode
-}

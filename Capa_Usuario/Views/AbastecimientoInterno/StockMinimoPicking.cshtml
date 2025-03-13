@@ -1,0 +1,250 @@
+@{
+    ViewBag.Title = "Stock Mínimo Picking";
+    Layout = "~/Views/Shared/_DefaultLayout.cshtml";
+    int num = 1;
+}
+
+<style>
+    td.details-control {
+        cursor: pointer;
+        text-align: center;
+    }
+
+    .subtable {
+        margin-left: 50px;
+    }
+</style>
+
+<div class="pt-3">
+    <nav>
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("Sesion", "Index")"><em>Abastecimiento Interno</em></a></li>
+            <li><a href="@Url.Action("UbicacionesPicking", "AbastecimientoInterno")"><em>Ubicaciones Picking</em></a></li>
+            <li class="current"><em>Stock Mínimo Picking</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
+    <div class="row px-3 pt-3"><h3 class="titulo-seccion">STOCK MÍNIMO PICKING</h3></div>
+    <div class="row px-3 py-3">
+        <div class="col-12">
+            <button type="button" id="btn_nuevoSM" class="btn btn-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="Nuevo stock mínimo picking">
+                <i class="bi bi-plus-lg"></i> Stock Mín.
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="bg-white px-3 py-3 align-items-center">
+    <div class="row">
+        <div class="col-12">
+            <table id="tbl_listado" class="dt-container dt-empty-footer table table-sm table-hover font-14" width="100%">
+                <thead class="thead-cobefar">
+                    <tr>
+                        <th style="width: 5%;"></th>
+                        <th scope="col" class="text-center">Código de artículo</th>
+                        <th scope="col" class="text-center">Descripción</th>
+                        <th scope="col" class="text-center">Stock Mínimo Abastecimiento</th>
+                        <th scope="col" class="text-center">Clasificación</th>
+                        <th scope="col" class="text-center"></th>
+                    </tr>
+                </thead>
+                <tbody class="text-dark">
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="text-center align-middle">@num</td>
+                            <td class="text-center align-middle">@item.ItemCode</td>
+                            <td class="text-center align-middle">@item.ItemName</td>
+                            <td class="text-center align-middle">
+                                <div class="d-flex justify-content-center">
+                                    <input type="text" id="stockmin_@item.ItemCode" class="form-control w-50 cls-num text-center" value="@item.StockMinAbastecimiento">
+                                </div>
+                            </td>
+                            <td class="text-center align-middle">
+                                <div class="d-flex justify-content-center">
+                                    <input type="text" id="clasificacion_@item.ItemCode" class="form-control w-50 text-center text-uppercase" value="@item.Clasificacion">
+                                </div>
+                            </td>
+                            <td class="text-center align-middle">
+                                <button type="button" class="btn btn-success" data-id="@item.Id" data-itemcode="@item.ItemCode" data-itemname="@item.ItemName" data-stockmin="stockmin_@item.ItemCode" data-clasificacion="clasificacion_@item.ItemCode"
+                                        title="Actualizar Datos" onclick="actualizarDatos(this.dataset)">
+                                    <i class="bi bi-arrow-clockwise"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        ++num;
+                    }
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalNuevoSM" tabindex="-1" aria-labelledby="modalLabelSM" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-full-width">
+        <div class="modal-content">
+            <div class="modal-header text-white bg-headerModals">
+                <h5 class="modal-title" id="modalLabelSM">Registro de stock mínimo picking</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" tabindex="-1"></button>
+            </div>
+
+            <div class="modal-body bg-blancoHumo">
+                <div id="div_modalBody" class="container pb-0">
+                    <form id="frm_registro">
+                        <div class="row mb-4">
+                            <div class="col-lg-6">
+                                <label class="form-label fw-bold">Descripción:</label>
+                                <input type="hidden" id="ItemCode" name="ItemCode" readonly />
+                                <select id="ItemName" name="ItemName" class="cls-select" onchange="llenarItemCode(this)">
+                                    <option value="" data-itemcode="">Seleccione</option>
+                                    @foreach (var item in ViewBag.Productos)
+                                    {
+                                        <option value="@item.ItemName" data-itemcode="@item.ItemCode">@item.ItemCode - @item.ItemName</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="col-lg-3">
+                                <label for="StockMinAbastecimiento" class="form-label fw-bold">Stock Mínimo Abastecimiento:</label>
+                                <input type="text" id="StockMinAbastecimiento" name="StockMinAbastecimiento" class="form-control cls-num text-center" autocomplete="off" />
+                            </div>
+
+                            <div class="col-lg-3">
+                                <label for="Clasificacion" class="form-label fw-bold">Clasificación:</label>
+                                <input type="text" id="Clasificacion" name="Clasificacion" class="form-control text-center" autocomplete="off" />
+                            </div>
+                        </div><!-- // row -->
+                    </form>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-bs-toggle="tooltip" data-placement="top" title="Cerrar">
+                    <i class="bi bi-x-lg"></i> Cerrar
+                </button>
+                <button type="button" class="btn btn-success" data-function="" data-bs-toggle="tooltip" data-bs-placement="top" title="Registrar" onclick="registrarDatos()">
+                    <i class="bi bi-check-lg"></i> Registrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            inicializarDataTable('tbl_listado', 25)
+            permitirValoresNumericosPositivos()
+
+            document.querySelector('#btn_nuevoSM').addEventListener('click', function () {
+                const modal = document.querySelector('#modalNuevoSM')
+                const bootstrapModal = new bootstrap.Modal(modal, {
+                    focus: false,
+                    keyboard: false,
+                    backdrop: 'static'
+                })
+                bootstrapModal.show()
+            })
+        })
+
+        function llenarItemCode(elemento) {
+            const selectedOption = elemento.options[elemento.selectedIndex]
+            const dataAttributes = selectedOption.dataset
+            document.querySelector('#ItemCode').value = dataAttributes.itemcode
+        }
+
+        async function registrarDatos() {
+            const form = document.querySelector('#frm_registro')
+
+            if (!form) {
+                console.log('Error: El formulario no se encontró.')
+                return;
+            }
+
+            // Crear FormData y convertirlo a un objeto JSON
+            const formData = new FormData(form)
+            const jsonData = Object.fromEntries(formData.entries())
+
+            jsonData.StockMinAbastecimiento = Number(jsonData.StockMinAbastecimiento)
+
+            try {
+                const response = await fetch("/AbastecimientoInterno/RegistrarStockMinimoPicking", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(jsonData) // Enviar los datos como JSON
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error en la solicitud: ${response.statusText}`);
+                } 
+
+                const data = await response.json();
+
+                Swal.fire({
+                    title: data.Titulo,
+                    html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                        ? data.Mensajes.join('<br>')
+                        : data.Mensajes || "",
+                    icon: data.Icono,
+                    allowEscapeKey: false,
+                    allowOutsideClick: false,
+                    showConfirmButton: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.reload()
+                    }
+                });
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function actualizarDatos(data) {
+            const id = data.id
+            const itemCode = data.itemcode
+            const itemName = data.itemname
+            const stockMinAbastecimiento = Number(document.querySelector(`#${data.stockmin}`).value)
+            const clasificacion = document.querySelector(`#${data.clasificacion}`).value
+
+            try {
+                const response = await fetch("/AbastecimientoInterno/ActualizarStockMinimoPicking", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ id, itemCode, itemName, stockMinAbastecimiento, clasificacion }) // Enviar los datos como JSON
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error en la solicitud: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                Swal.fire({
+                    title: data.Titulo,
+                    html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                        ? data.Mensajes.join('<br>')
+                        : data.Mensajes || "",
+                    icon: data.Icono,
+                    allowEscapeKey: false,
+                    allowOutsideClick: false,
+                    showConfirmButton: true
+                }).then((result) => {
+                    if (result.isConfirmed && data.Icono == 'success') {
+                        window.location.reload()
+                    }
+                })
+
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+    </script>
+}

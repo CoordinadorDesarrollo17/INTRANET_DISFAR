@@ -3,6 +3,7 @@
         cursor: pointer;
         text-align: center;
     }
+
     .subtable {
         margin-left: 50px;
     }
@@ -13,12 +14,11 @@
         <tr>
             <th style="width: 5%;"></th>
             <th scope="col" class="text-center">Código de artículo</th>
-            <th scope="col" class="text-center">Descripción</th>
-            <th scope="col" class="text-center">Ubicaciones</th>
-            <th scope="col" class="text-center">Stock Mínimo Abastecimiento</th>
+            <th scope="col" class="text-center">Ubicación</th>
+            <th scope="col" class="text-center">Productos</th>
+            @*<th scope="col" class="text-center">Stock Mínimo Abastecimiento</th>
             <th scope="col" class="text-center">Stock Mínimo Venta</th>
-            <th scope="col" class="text-center">Clasificación</th>
-            <th scope="col" class="text-center"></th>
+            <th scope="col" class="text-center">Clasificación</th>*@
         </tr>
     </thead>
     <tbody class="text-dark">
@@ -29,24 +29,21 @@
                 <td class="text-center align-middle">@grupo.Value.ItemCode</td>
                 <td class="text-center align-middle">@grupo.Value.ItemName</td>
                 <td class="text-center align-middle">@grupo.Value.CantidadUbicaciones</td>
-                <td class="text-center align-middle">
+                @*<td class="text-center align-middle">
                     <div class="d-flex justify-content-center">
                         <input type="text" id="sma_@grupo.Value.ItemCode" class="form-control w-50 cls-num text-center" value="@grupo.Value.StockMinAbastecimiento">
                     </div>
                 </td>
                 <td class="text-center align-middle">
-                    <div class="d-flex justify-content-center">
-                        <input type="text" id="smv_@grupo.Value.ItemCode" class="form-control w-50 cls-num text-center" value="@grupo.Value.StockMinVenta">
-                    </div>
-                </td>
+                        <div class="d-flex justify-content-center">
+                            <input type="text" id="smv_@grupo.Value.ItemCode" class="form-control w-50 cls-num text-center" value="@grupo.Value.StockMinVenta">
+                        </div>
+                    </td>
                 <td class="text-center align-middle">
                     <div class="d-flex justify-content-center">
                         <input type="text" id="clasificacion_@grupo.Value.ItemCode" class="form-control w-50 text-center" value="@grupo.Value.Clasificacion">
                     </div>
-                </td>
-                <td class="text-center align-middle">
-                    <button type="button" class="btn btn-success" title="Actualizar Stocks" onclick="actualizarStocksMinimos('@grupo.Value.ItemCode', '@grupo.Value.ItemName', 'sma_@grupo.Value.ItemCode', 'smv_@grupo.Value.ItemCode', 'clasificacion_@grupo.Value.ItemCode')"><i class="bi bi-arrow-clockwise"></i></button>
-                </td>
+                </td>*@
             </tr>
         }
     </tbody>
@@ -154,7 +151,7 @@
                             }
                         })
                     }
-                    
+
                     Swal.fire({
                         title: data.Titulo,
                         html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
@@ -175,44 +172,5 @@
                 }
             }
         });
-    }
-
-    async function actualizarStocksMinimos(itemCode, itemName, input_stockMinAbastecimiento, input_stockMinVenta,input_clasificacion) {
-        let stockMinAbastecimiento = document.querySelector(`#${input_stockMinAbastecimiento}`).value
-        let stockMinVenta = document.querySelector(`#${input_stockMinVenta}`).value
-        let clasificacion = document.querySelector(`#${input_clasificacion}`).value
-
-        try {
-            const response = await fetch("/AbastecimientoInterno/ActualizarStocksMinimos", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ itemCode, itemName, stockMinAbastecimiento, stockMinVenta, clasificacion }) // Enviar los datos como JSON
-            });
-
-            if (!response.ok) {
-                throw new Error(`Error en la solicitud: ${response.statusText}`);
-            }
-
-            const data = await response.json();
-            Swal.fire({
-                title: data.Titulo,
-                html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
-                    ? data.Mensajes.join('<br>')
-                    : data.Mensajes || "",
-                icon: data.Icono,
-                allowEscapeKey: false,
-                allowOutsideClick: false,
-                showConfirmButton: true
-            }).then((result) => {
-                if (result.isConfirmed && data.Icono == 'success') {
-                    window.location.reload()
-                }
-            })
-
-        } catch (error) {
-            console.error('Error:', error);
-        }
     }
 </script>

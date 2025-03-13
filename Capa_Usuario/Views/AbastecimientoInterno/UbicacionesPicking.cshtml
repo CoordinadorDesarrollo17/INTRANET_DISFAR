@@ -18,8 +18,16 @@
 
     <div class="row px-3 py-3">
         <div class="col-12">
-            <button type="button" id="btn_nuevaUbicacionPicking" class="btn btn-warning border border-light" data-bs-toggle="tooltip" data-bs-placement="top" title="Nueva ubicación picking">
-                <i class="bi bi-plus-lg"></i> Nueva ubicación
+            <button type="button" id="btn_nuevaUbicacionPicking" class="btn btn-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="Nueva ubicación picking">
+                <i class="bi bi-plus-lg"></i> Ubicación
+            </button>
+
+            <button type="button" id="btn_stockMins" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Ir a Stocks Min.">
+                <i class="bi bi-box-arrow-right"></i> Stocks Min.
+            </button>
+
+            <button type="button" id="btn_reporte" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Exportar Excel de Ubicaciones Picking">
+                <i class="bi bi-file-earmark-excel-fill"></i> Reporte
             </button>
         </div>
     </div>
@@ -44,65 +52,27 @@
             <div class="modal-body bg-blancoHumo">
                 <div id="div_modalBody" class="container pb-0">
                     <form id="frm_registroUbicacion">
-                        <div class="row mb-4">
-                            <div class="col-lg-2">
-                                <label class="form-label fw-bold">Código de artículo:</label>
-                                <input type="text" id="ItemCode" name="ItemCode" class="form-control cls-readonly" autocomplete="off" readonly />
-                            </div>
-                            <div class="col-lg-7">
-                                <label class="form-label fw-bold">Descripción:</label>
-                                <select id="ItemName" name="ItemName" class="cls-select" onchange="llenarItemCode(this)">
-                                    <option value="" data-itemcode="">Seleccione</option>
-                                    @foreach (var item in ViewBag.Productos)
-                                    {
-                                        <option value="@item.ItemName" data-itemcode="@item.ItemCode">@item.ItemName</option>
-                                    }
-                                </select>
-                            </div>
-                        </div>
+                        <input type="hidden" id="CodigoUbicacion" name="CodigoUbicacion" class="form-control cls-readonly text-center" autocomplete="off" readonly />
 
-                        <div class="row mb-4">
+                        <div class="row">
                             <div class="col-lg-3">
-                                <label class="form-label fw-bold">Código de ubicación:</label>
-                                <input type="text" id="CodigoUbicacion" name="CodigoUbicacion" class="form-control cls-readonly text-center" autocomplete="off" readonly />
+                                <label class="form-label fw-bold">Almacén:</label>
+                                <input id="almacen" class="form-control text-uppercase cls-readonly" type="text" autocomplete="off" value="PICKING" readonly />
                             </div>
                             <div class="col-lg-3">
-                                <label class="form-label fw-bold">¿La ubicación es SISTEMA?:</label>
-                                <div class="d-flex mx-auto align-items-center">
-                                    <div class="form-check form-check-inline">
-                                        <input id="ubiSistemaSi" class="form-check-input" type="radio" name="UbiSistema" value="si" onclick="mostrarCamposUbicacion('SI')">
-                                        <label class="form-check-label" for="ubiSistemaSi">Sí</label>
-                                    </div>
-                                    <div class="form-check form-check-inline">
-                                        <input id="ubiSistemaNo" class="form-check-input" type="radio" name="UbiSistema" value="no" onclick="mostrarCamposUbicacion('NO')" checked>
-                                        <label class="form-check-label" for="ubiSistemaNo">No</label>
-                                    </div>
-                                </div>
+                                <label class="form-label fw-bold">Rack - Bloque:</label>
+                                <input id="rackBloque" class="form-control text-uppercase" type="text" autocomplete="off" oninput="generarCodigoUbicacion($('#almacen').val(), 0); generarCodigoUbicacion(this.value, 1)" />
                             </div>
-                        </div>
-
-                        <div id="div_codigos">
-                            <div class="row">
-                                <div class="col-lg-3">
-                                    <label class="form-label fw-bold">Almacén:</label>
-                                    <input id="almacen" class="form-control text-uppercase" type="text" autocomplete="off" value="PICKING" readonly />
-                                </div>
-                                <div class="col-lg-3">
-                                    <label class="form-label fw-bold">Rack - Bloque:</label>
-                                    <input id="rackBloque" class="form-control text-uppercase" type="text" autocomplete="off" oninput="generarCodigoUbicacion($('#almacen').val(), 0); generarCodigoUbicacion(this.value, 1)" />
-                                </div>
-                                <div class="col-lg-3">
-                                    <label class="form-label fw-bold">Posición:</label>
-                                    <input id="posicion" class="form-control text-uppercase" type="text" autocomplete="off" oninput="generarCodigoUbicacion(this.value, 2)" />
-                                </div>
-                                <div class="col-lg-3">
-                                    <label class="form-label fw-bold">Nivel:</label>
-                                    <input id="nivel" class="form-control text-uppercase" type="text" autocomplete="off" oninput="generarCodigoUbicacion(this.value, 3)" />
-                                </div>
+                            <div class="col-lg-3">
+                                <label class="form-label fw-bold">Posición:</label>
+                                <input id="posicion" class="form-control text-uppercase" type="text" autocomplete="off" oninput="generarCodigoUbicacion(this.value, 2)" />
                             </div>
-                        </div>
+                            <div class="col-lg-3">
+                                <label class="form-label fw-bold">Nivel:</label>
+                                <input id="nivel" class="form-control text-uppercase cls-num" type="text" autocomplete="off" oninput="generarCodigoUbicacion(this.value, 3)" />
+                            </div>
+                        </div><!-- // ROW -->
                     </form>
-
                 </div>
             </div>
 
@@ -110,8 +80,8 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-bs-toggle="tooltip" data-placement="top" title="Cerrar">
                     <i class="bi bi-x-lg"></i> Cerrar
                 </button>
-                <button type="button" id="btn_guardarCambios" class="btn btn-success" data-function="" data-bs-toggle="tooltip" data-bs-placement="top" title="Guardar cambios">
-                    <i class="bi bi-check-lg"></i> Guardar cambios
+                <button type="button" class="btn btn-success" data-function="" data-bs-toggle="tooltip" data-bs-placement="top" title="Registrar ubicación" onclick="registrarDatos()">
+                    <i class="bi bi-check-lg"></i> Registrar
                 </button>
             </div>
         </div>
@@ -122,23 +92,25 @@
     <script src="~/Scripts/AbastecimientoInterno/Ubicaciones.js?v=@DateTime.Now.Ticks" defer></script>
     <script>
 		document.addEventListener('DOMContentLoaded', function () {
-			$('#div_listado').load(`@Url.Action("ListarUbicacionesPicking")`).fadeIn("fast")
-			limitarMaxCaracteres('ItemCode', 50)
-			limitarMaxCaracteres('CodigoUbicacion', 228)
-            permitirSoloNumeros('nivel')
-            inicializarSlimSelectsPorClase('cls-select')
+			@*$('#div_listado').load(`@Url.Action("ListarUbicacionesPicking")`).fadeIn("fast")*@
             permitirValoresNumericosPositivos()
 		});
 
 		document.querySelector('#btn_nuevaUbicacionPicking').addEventListener('click', function () {
 		    const modal = document.querySelector('#modalNuevaUbicacionPicking')
             const bootstrapModal = new bootstrap.Modal(modal, {
-                focus: false
+                focus: false,
+                keyboard: false,
+                backdrop: 'static'
             })
 			bootstrapModal.show()
-		})
+        })
 
-        document.querySelector('#btn_guardarCambios').addEventListener('click', async function () {
+        document.querySelector('#btn_stockMins').addEventListener('click', function () {
+            location.href = '/AbastecimientoInterno/StockMinimoPicking'
+        })
+
+        async function registrarDatos() {
             const form = document.querySelector('#frm_registroUbicacion');
 
             if (!form) {
@@ -166,9 +138,8 @@
                 const data = await response.json();
 
                 if (data.Icono == 'success') {
-                    resetValoresVacios(["ItemCode", "ItemName", "StockMinAbastecimiento", "StockMinVenta", "CodigoUbicacion", "rackBloque", "posicion", "nivel"])
+                    resetValoresVacios(["CodigoUbicacion", "rackBloque", "posicion", "nivel"])
                     if (typeof codigoUbicacion !== 'undefined' && codigoUbicacion.length > 0) { codigoUbicacion = ["", "", "", ""] }        // Limpiar variable local
-                    inicializarSlimSelectsPorClase('cls-select')
 
                     const radios = document.querySelectorAll(`input[name="UbiSistema"]`)
                     radios.forEach(radio => {
@@ -197,6 +168,6 @@
             } catch (error) {
                 console.error('Error:', error);
             }
-        });
+        }
     </script>
 }

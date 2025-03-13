@@ -105,34 +105,9 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             return ubicaciones.ToArray(); // Retornar el array de ubicaciones
         }
-        public List<Ubicaciones_E> ListarUbicaciones(Ubicaciones_E filtros)
+        public List<Ubicaciones_E> ListarUbicaciones(string condicion, Dictionary<string, object> parametros)
         {
             List<Ubicaciones_E> lista = new List<Ubicaciones_E>();
-            StringBuilder condicion = new StringBuilder();
-            Dictionary<string, object> parametros = new Dictionary<string, object>();
-            if (filtros != null)
-            {
-                if (filtros.Id > 0)
-                {
-                    condicion.AppendLine("AND UP.Id = @Id");
-                    parametros["@Id"] = filtros.Id;
-                }
-                if (!string.IsNullOrWhiteSpace(filtros.ItemCode))
-                {
-                    condicion.AppendLine("AND UP.ItemCode = @ItemCode");
-                    parametros["@ItemCode"] = filtros.ItemCode;
-                }
-                if (!string.IsNullOrWhiteSpace(filtros.CodigoUbicacion))
-                {
-                    condicion.AppendLine("AND UP.CodigoUbicacion = @CodigoUbicacion");
-                    parametros["@CodigoUbicacion"] = filtros.CodigoUbicacion;
-                }
-                if (!string.IsNullOrWhiteSpace(filtros.Almacen))
-                {
-                    condicion.AppendLine("AND UP.Almacen = @Almacen");
-                    parametros["@Almacen"] = filtros.Almacen;
-                }
-            }
 
             try
             {
@@ -143,11 +118,10 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
                     var sb = new StringBuilder();
 
-                    sb.AppendLine("SELECT UP.Id, UP.Almacen, UP.ItemCode, UP.ItemName, UP.CodigoUbicacion, SM.StockMinAbastecimiento, SM.StockMinVenta, SM.Clasificacion");
+                    sb.AppendLine("SELECT UP.Id, UP.Almacen, UP.ItemCode, UP.ItemName, UP.CodigoUbicacion, SM.StockMinAbastecimiento, SM.Clasificacion");
                     sb.AppendLine("FROM Ubicaciones UP");
-                    sb.AppendLine("OUTER APPLY (SELECT TOP 1 SM.StockMinAbastecimiento, SM.StockMinVenta,SM.Clasificacion FROM StockMinProductos SM WHERE SM.ItemCode = UP.ItemCode) SM");
                     sb.AppendLine("WHERE 1=1");
-                    sb.AppendLine(condicion.ToString());
+                    sb.AppendLine(condicion);
 
                     // Agregamos los parámetros dinámicamente
                     foreach (var param in parametros)

@@ -23,17 +23,39 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         {
             return _datos.ListarTotalUbicacionesEnArray(almacen, itemCode);
         }
-        public List<Ubicaciones_E> ListarUbicaciones(Ubicaciones_E filtros)
+        public List<Ubicaciones_E> ListarUbicaciones(Ubicaciones_E filtros, Dictionary<string, object> parametros = null)
         {
-            return _datos.ListarUbicaciones(filtros);
+            StringBuilder condicion = new StringBuilder();
+
+            if (parametros == null)
+                parametros = new Dictionary<string, object>();
+
+            if (filtros != null)
+            {
+                if (filtros.Id > 0)
+                {
+                    condicion.AppendLine("AND UP.Id = @Id");
+                    parametros["@Id"] = filtros.Id;
+                }
+
+                if (!string.IsNullOrWhiteSpace(filtros.CodigoUbicacion))
+                {
+                    condicion.AppendLine("AND UP.CodigoUbicacion = @CodigoUbicacion");
+                    parametros["@CodigoUbicacion"] = filtros.CodigoUbicacion;
+                }
+
+                if (!string.IsNullOrWhiteSpace(filtros.Almacen))
+                {
+                    condicion.AppendLine("AND UP.Almacen = @Almacen");
+                    parametros["@Almacen"] = filtros.Almacen;
+                }
+            }
+
+            return _datos.ListarUbicaciones(filtros.ToString(), parametros);
         }
         public Ubicaciones_E ObtenerDatosUbicacion(Ubicaciones_E filtros)
         {
-            var result = _datos.ListarUbicaciones(filtros)
-                .DefaultIfEmpty(new Ubicaciones_E())
-                .First();
-
-            return result;
+            return ListarUbicaciones(filtros).DefaultIfEmpty(new Ubicaciones_E()).First();
         }
         public Helper_E RegistrarUbicacion(Ubicaciones_E datos)
         {
@@ -42,19 +64,13 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
             if (datos == null)
                 errores.Add("Verificar datos enviados.");
 
-            if (string.IsNullOrWhiteSpace(datos.ItemCode))
-                errores.Add("Código de artículo no válido.");
-
-            if (string.IsNullOrWhiteSpace(datos.ItemName))
-                errores.Add("Descripción no válida.");
-
             if (string.IsNullOrWhiteSpace(datos.CodigoUbicacion))
                 errores.Add("Código de ubicación no válida.");
 
-            var ubicacionExistente = ObtenerDatosUbicacion(new Ubicaciones_E { Almacen = datos.Almacen, ItemCode = datos.ItemCode, ItemName = datos.ItemName, CodigoUbicacion = datos.CodigoUbicacion });
+            var ubicacionExistente = ObtenerDatosUbicacion(new Ubicaciones_E { Almacen = datos.Almacen, CodigoUbicacion = datos.CodigoUbicacion });
 
             if (ubicacionExistente != null && ubicacionExistente.Id > 0)
-                errores.Add("El código de ubicación del producto ya se encuentra registrado.");
+                errores.Add("La ubicación ya se encuentra registrada.");
 
             if (errores.Any())
                 return new Helper_E { Mensajes = errores, IconoSweetAlert = "error" };
