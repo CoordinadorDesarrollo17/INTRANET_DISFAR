@@ -51,7 +51,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
                 }
             }
 
-            return _datos.ListarUbicaciones(filtros.ToString(), parametros);
+            return _datos.ListarUbicaciones(condicion.ToString(), parametros);
         }
         public Ubicaciones_E ObtenerDatosUbicacion(Ubicaciones_E filtros)
         {

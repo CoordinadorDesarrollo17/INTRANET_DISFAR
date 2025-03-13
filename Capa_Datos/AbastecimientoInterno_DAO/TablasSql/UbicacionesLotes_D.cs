@@ -15,6 +15,67 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
     {
         readonly Utilitarios uti = new Utilitarios();
         readonly DBHelper db = new DBHelper();
+
+        public List<UbicacionesLotes_E> ListarUbicaciones(string condicion, Dictionary<string, object> parametros)
+        {
+            List<UbicacionesLotes_E> lista = new List<UbicacionesLotes_E>();
+
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+                {
+                    SqlCommand cmd = new SqlCommand();
+                    cmd.Connection = cn;
+
+                    var sb = new StringBuilder();
+
+                    sb.AppendLine("SELECT ULM.[Id], ULM.[UbicacionId], ULM.[Almacen], ULM.[ItemCode], ULM.[ItemName], ULM.[CodigoUbicacion], ULM.[BatchNum], ULM.[QuantityUnidadesCajas]");
+                    sb.AppendLine("FROM UbicacionesLotes ULM");
+                    sb.AppendLine("WHERE 1=1");
+                    sb.AppendLine(condicion);
+
+                    // Agregamos los parámetros dinámicamente
+                    foreach (var param in parametros)
+                    {
+                        cmd.Parameters.AddWithValue(param.Key, param.Value);
+                    }
+
+                    cmd.CommandText = sb.ToString();
+
+                    cn.Open();
+
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        if (dr.HasRows)
+                        {
+                            while (dr.Read())
+                            {
+                                var obj = new UbicacionesLotes_E();
+
+                                if (!dr.IsDBNull(0)) obj.Id = dr.GetInt32(0);
+                                if (!dr.IsDBNull(1)) obj.UbicacionId = dr.GetInt32(1);
+                                if (!dr.IsDBNull(2)) obj.Almacen = dr.GetString(2);
+                                if (!dr.IsDBNull(3)) obj.ItemCode = dr.GetString(3);
+                                if (!dr.IsDBNull(4)) obj.ItemName = dr.GetString(4);
+                                if (!dr.IsDBNull(5)) obj.CodigoUbicacion = dr.GetString(5);
+                                if (!dr.IsDBNull(6)) obj.BatchNum = dr.GetString(6);
+                                if (!dr.IsDBNull(7)) obj.QuantityUnidadesCajas = dr.GetInt32(7);
+
+                                lista.Add(obj);
+                            }
+                        }
+                    }
+                    cn.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.RegistrarError(ex, "UbicacionesLotesMaster_D - ListarUbicaciones");
+            }
+
+            return lista;
+        }
+
         //Operacion desde transaccion ingreso en Kardex que suma la cantidad disponible  inserta un nuevo registro de ItemCode, Almacen, CodigoUbicacion y Lote.
         public List<UbicacionesLotes_E> Obtener(string itemCode, string batchNum)
         {

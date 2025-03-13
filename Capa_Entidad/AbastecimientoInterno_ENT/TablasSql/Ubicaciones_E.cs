@@ -14,14 +14,11 @@ namespace Capa_Entidad.AbastecimientoInterno_ENT.TablasSql
         public string NombreOperarioAccion { get; set; }
         public string UbiSistema { get; set; }
         public int CantidadUbicaciones { get; set; }
-
-        // Picking
-        public int StockMinAbastecimiento { get; set; }
-        public int StockMinVenta { get; set; }
-        public string Clasificacion { get; set; }
+        public int CantidadProductos{ get; set; }
 
         // Relación de múltiples ubicaciones si es necesario
         public List<Ubicaciones_E> Ubicaciones { get; set; }
+        public List<UbicacionesLotes_E> UbicacionesLotes { get; set; }
 
     }
 }

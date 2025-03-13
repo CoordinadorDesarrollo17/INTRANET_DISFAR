@@ -14,6 +14,38 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
     public class UbicacionesLotes_N
     {
         readonly UbicacionesLotes_D datosUbicacionesL = new UbicacionesLotes_D();
+
+        public List<UbicacionesLotes_E> ListarUbicaciones(UbicacionesLotes_E filtros, Dictionary<string, object> parametros = null)
+        {
+            StringBuilder condicion = new StringBuilder();
+
+            if (parametros == null)
+                parametros = new Dictionary<string, object>();
+
+            if (filtros != null)
+            {
+                if (filtros.Id > 0)
+                {
+                    condicion.AppendLine("AND ULM.Id = @Id");
+                    parametros["@Id"] = filtros.Id;
+                }
+
+                if (!string.IsNullOrWhiteSpace(filtros.CodigoUbicacion))
+                {
+                    condicion.AppendLine("AND ULM.CodigoUbicacion = @CodigoUbicacion");
+                    parametros["@CodigoUbicacion"] = filtros.CodigoUbicacion;
+                }
+
+                if (!string.IsNullOrWhiteSpace(filtros.Almacen))
+                {
+                    condicion.AppendLine("AND ULM.Almacen = @Almacen");
+                    parametros["@Almacen"] = filtros.Almacen;
+                }
+            }
+
+            return datosUbicacionesL.ListarUbicaciones(condicion.ToString(), parametros);
+        }
+
         public List<UbicacionesLotes_E> Obtener(string itemCode, string batchNum = null)
         {
             return datosUbicacionesL.Obtener(itemCode, batchNum);

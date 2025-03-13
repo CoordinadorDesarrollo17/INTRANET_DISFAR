@@ -10,6 +10,7 @@ using SpreadsheetLight;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Entity.Core.Metadata.Edm;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
@@ -74,17 +75,31 @@ namespace Capa_Usuario.Controllers
 
                 var usuarioSesion = Session["UsuarioId"] as Usuario_E;
                 if (usuarioSesion == null)
-                    return Json(new
+                    return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
+
+                var listaU = _ubicacionesN.ListarUbicaciones(filtros);
+                var listaULM = _ubicacionesLotesN.ListarUbicaciones(new UbicacionesLotes_E { Almacen = "PICKING" });
+
+                // Agrupar listaULM por CodigoUbicacion
+                var cantidadPorUbicacion = listaULM
+                    .GroupBy(u => u.CodigoUbicacion)
+                    .ToDictionary(g => g.Key, g => g.Count());
+
+                foreach (var ubicacion in listaU)
+                {
+                    if (cantidadPorUbicacion.TryGetValue(ubicacion.CodigoUbicacion, out int cantidad))
                     {
-                        Titulo = "No se pudo completar la acción",
-                        Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }
-                    ,
-                        Icono = "error"
-                    }, JsonRequestBehavior.AllowGet);
+                        ubicacion.CantidadProductos = cantidad;
+                    }
+                    else
+                    {
+                        ubicacion.CantidadProductos = 0;
+                    }
+                }
 
-                var listaAgrupada = _ubicacionesN.ListarUbicaciones(filtros);
+                ViewBag.UbicacionesLotes = listaULM;
 
-                return PartialView("AbastecimientoInterno/_ListadoUbicacionesPicking", listaAgrupada);
+                return PartialView("AbastecimientoInterno/_ListadoUbicacionesPicking", listaU);
             }
             else
             {

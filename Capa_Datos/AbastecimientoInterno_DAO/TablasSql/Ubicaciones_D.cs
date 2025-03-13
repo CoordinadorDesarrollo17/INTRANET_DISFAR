@@ -115,7 +115,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
                     var sb = new StringBuilder();
 
-                    sb.AppendLine("SELECT UP.Id, UP.Almacen, UP.ItemCode, UP.ItemName, UP.CodigoUbicacion, SM.StockMinAbastecimiento, SM.Clasificacion");
+                    sb.AppendLine("SELECT UP.Id, UP.Almacen, UP.CodigoUbicacion");
                     sb.AppendLine("FROM Ubicaciones UP");
                     sb.AppendLine("WHERE 1=1");
                     sb.AppendLine(condicion);
@@ -140,12 +140,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
                                 if (!dr.IsDBNull(0)) obj.Id = dr.GetInt32(0);
                                 if (!dr.IsDBNull(1)) obj.Almacen = dr.GetString(1);
-                                if (!dr.IsDBNull(2)) obj.ItemCode = dr.GetString(2);
-                                if (!dr.IsDBNull(3)) obj.ItemName = dr.GetString(3);
-                                if (!dr.IsDBNull(4)) obj.CodigoUbicacion = dr.GetString(4);
-                                if (!dr.IsDBNull(5)) obj.StockMinAbastecimiento = dr.GetInt32(5);
-                                if (!dr.IsDBNull(6)) obj.StockMinVenta = dr.GetInt32(6);
-                                if (!dr.IsDBNull(7)) obj.Clasificacion = dr.GetString(7);
+                                if (!dr.IsDBNull(2)) obj.CodigoUbicacion = dr.GetString(2);
 
                                 lista.Add(obj);
                             }
@@ -156,7 +151,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
             }
             catch (Exception ex)
             {
-                LogHelper.RegistrarError(ex, "UbicacionesPicking_D - ListarUbicacionesPicking");
+                LogHelper.RegistrarError(ex, "Ubicaciones_D - ListarUbicaciones");
             }
 
             return lista;

@@ -45,7 +45,7 @@
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
             <div class="modal-header text-white bg-headerModals">
-                <h5 class="modal-title" id="modalNUPLabel">Registrar ubicación</h5>
+                <h5 class="modal-title" id="modalNUPLabel">Registro de ubicación picking</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" tabindex="-1"></button>
             </div>
 
@@ -92,7 +92,7 @@
     <script src="~/Scripts/AbastecimientoInterno/Ubicaciones.js?v=@DateTime.Now.Ticks" defer></script>
     <script>
 		document.addEventListener('DOMContentLoaded', function () {
-			@*$('#div_listado').load(`@Url.Action("ListarUbicacionesPicking")`).fadeIn("fast")*@
+			$('#div_listado').load(`@Url.Action("ListarUbicacionesPicking")`).fadeIn("fast")
             permitirValoresNumericosPositivos()
 		});
 
