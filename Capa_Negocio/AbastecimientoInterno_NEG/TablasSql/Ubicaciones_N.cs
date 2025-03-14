@@ -77,23 +77,20 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
 
             return _datos.RegistrarUbicacion(datos);
         }
-        public Helper_E EliminarUbicacion(int ubicacionId)
+
+        public Helper_E EliminarUbicacion(string codigoUbicacion)
         {
             // En el procedure tiene una validación para saber si cuenta con stock asociado en UbicacionesLotes o UbicacionesLotesMaster
-            var ubicacionExistente = ObtenerDatosUbicacion(new Ubicaciones_E { Id = ubicacionId });
+            var ubicacionExistente = ObtenerDatosUbicacion(new Ubicaciones_E { CodigoUbicacion = codigoUbicacion });
 
             // Verificar si existe la ubicación
-            if (ubicacionId <= 0 || ubicacionExistente == null || ubicacionExistente.Id <= 0)
+            if (string.IsNullOrWhiteSpace(codigoUbicacion) || ubicacionExistente == null || ubicacionExistente.Id <= 0)
                 return _helper.CrearRespuestaError("Ubicación no válida. Recargar página y volver a intentar.");
 
-            return _datos.EliminarUbicacion(ubicacionId);
-        }
-        public Helper_E EliminarUbicacionGeneral(string codigoUbicacion)
-        {
             codigoUbicacion = codigoUbicacion.Trim();
             codigoUbicacion = codigoUbicacion.Replace("'", "''");
 
-            return _datos.EliminarUbicacionGeneral(codigoUbicacion);
+            return _datos.EliminarUbicacion(codigoUbicacion);
         }
     }
 }

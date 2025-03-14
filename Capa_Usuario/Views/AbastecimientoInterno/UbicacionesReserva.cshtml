@@ -17,17 +17,18 @@
     <div class="row px-3 pt-3"><h3 class="titulo-seccion">UBICACIONES RESERVA</h3></div>
 
     <div class="row px-3 py-3">
-        <div class="d-flex col-8">
-            <button type="button" id="btn_nuevaUbicacionReserva" class="btn btn-warning border border-light" data-bs-toggle="tooltip" data-bs-placement="top" title="Nueva ubicación reserva">
-                <i class="bi bi-plus-lg"></i> Nueva ubicación
+        <div class="col-sm-12 col-lg-8">
+            <button type="button" id="btn_nuevaUbicacionReserva" class="btn btn-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="Nueva ubicación reserva">
+                <i class="bi bi-plus-lg"></i> Ubicación
             </button>
-            <div class="d-flex mx-1 w-50">
-                <input type="text" id="codigoUbicacionGeneral" class="form-control" placeholder="Ingresar código ubicación" style="width: 300px" />
-                <button type="button" class="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar código ubicación" onclick="eliminarCodigoUbicacionGeneral()"><i class="bi bi-trash3-fill"></i></button>
-            </div>
+
+            <button type="button" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Exportar Excel de Ubicaciones Reserva" onclick="exportarExcel()">
+                <i class="bi bi-file-earmark-excel-fill"></i> Reporte
+            </button>
         </div>
-        <div class="col-4 d-flex justify-content-end">
-            <button type="button" id="btn_traspasoPorUbicaciones" class="btn btn-cobefar-2 border border-light" data-bs-toggle="tooltip" data-bs-placement="top" title="Traspaso por ubicaciones">
+
+        <div class="col-sm-12 col-lg-4 d-flex justify-content-end">
+            <button type="button" id="btn_traspasoPorUbicaciones" class="btn btn-cobefar-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Traspaso por ubicaciones">
                 <i class="bi bi-box-arrow-up-right"></i> Traspaso por ubicaciones
             </button>
         </div>
@@ -46,55 +47,20 @@
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
             <div class="modal-header text-white bg-headerModals">
-                <h5 class="modal-title" id="modalNUPLabel">Registrar ubicación</h5>
+                <h5 class="modal-title" id="modalNUPLabel">Registro de ubicación reserva</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" tabindex="-1"></button>
             </div>
 
             <div class="modal-body bg-blancoHumo">
                 <div id="div_modalBody" class="container pb-0">
                     <form id="frm_registroUbicacion">
-                        <div class="row mb-4">
-                            <div class="col-lg-2">
-                                <label class="form-label fw-bold">Código de artículo:</label>
-                                <input type="text" id="ItemCode" name="ItemCode" class="form-control cls-readonly" autocomplete="off" readonly />
-                            </div>
-                            <div class="col-lg-7">
-                                <label class="form-label fw-bold">Descripción:</label>
-                                <select id="ItemName" name="ItemName" class="cls-select" onchange="llenarItemCode(this)">
-                                    <option value="" data-itemcode="">Seleccione</option>
-                                    @foreach (var item in ViewBag.Productos)
-                                    {
-                                        <option value="@item.ItemName" data-itemcode="@item.ItemCode">@item.ItemName</option>
-                                    }
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="row mb-4">
-                            <div class="col-lg-3">
-                                <label class="form-label fw-bold">Código de ubicación:</label>
-                                <input type="text" id="CodigoUbicacion" name="CodigoUbicacion" class="form-control cls-readonly text-center" autocomplete="off" readonly />
-                            </div>
-                            <div class="col-lg-3">
-                                <label class="form-label fw-bold">¿La ubicación es SISTEMA?:</label>
-                                <div class="d-flex mx-auto align-items-center">
-                                    <div class="form-check form-check-inline">
-                                        <input id="ubiSistemaSi" class="form-check-input" type="radio" name="UbiSistema" value="si" onclick="mostrarCamposUbicacion('SI')">
-                                        <label class="form-check-label" for="ubiSistemaSi">Sí</label>
-                                    </div>
-                                    <div class="form-check form-check-inline">
-                                        <input id="ubiSistemaNo" class="form-check-input" type="radio" name="UbiSistema" value="no" onclick="mostrarCamposUbicacion('NO')" checked>
-                                        <label class="form-check-label" for="ubiSistemaNo">No</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <input type="hidden" id="CodigoUbicacion" name="CodigoUbicacion" class="form-control cls-readonly text-center" autocomplete="off" readonly />
 
                         <div id="div_codigos">
                             <div class="row">
                                 <div class="col-lg-3">
                                     <label class="form-label fw-bold">Almacén:</label>
-                                    <input id="almacen" class="form-control text-uppercase" type="text" autocomplete="off" value="RESERVA" readonly />
+                                    <input id="almacen" class="form-control text-uppercase cls-readonly" type="text" autocomplete="off" value="RESERVA" readonly />
                                 </div>
                                 <div class="col-lg-3">
                                     <label class="form-label fw-bold">Rack - Bloque:</label>
@@ -106,7 +72,7 @@
                                 </div>
                                 <div class="col-lg-3">
                                     <label class="form-label fw-bold">Nivel:</label>
-                                    <input id="nivel" class="form-control text-uppercase" type="text" autocomplete="off" oninput="generarCodigoUbicacion(this.value, 3)" />
+                                    <input id="nivel" class="form-control text-uppercase cls-num" type="text" autocomplete="off" oninput="generarCodigoUbicacion(this.value, 3)" />
                                 </div>
                             </div>
                         </div>
@@ -119,8 +85,8 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-bs-toggle="tooltip" data-placement="top" title="Cerrar">
                     <i class="bi bi-x-lg"></i> Cerrar
                 </button>
-                <button type="button" id="btn_guardarCambios" class="btn btn-success" data-function="" data-bs-toggle="tooltip" data-bs-placement="top" title="Guardar cambios">
-                    <i class="bi bi-check-lg"></i> Guardar cambios
+                <button type="button" class="btn btn-success" data-function="" data-bs-toggle="tooltip" data-bs-placement="top" title="Registrar ubicación" onclick="registrarDatos('RegistrarUbicacionReserva', 'ListarUbicacionesReserva')">
+                    <i class="bi bi-check-lg"></i> Registrar
                 </button>
             </div>
         </div>
@@ -132,135 +98,26 @@
     <script>
 		document.addEventListener('DOMContentLoaded', function () {
 			$('#div_listado').load(`@Url.Action("ListarUbicacionesReserva")`).fadeIn("fast")
-			limitarMaxCaracteres('ItemCode', 50)
 			limitarMaxCaracteres('CodigoUbicacion', 228)
-            permitirSoloNumeros('nivel')
-            inicializarSlimSelectsPorClase('cls-select')
             permitirValoresNumericosPositivos()
 		});
 
 		document.querySelector('#btn_nuevaUbicacionReserva').addEventListener('click', function () {
 		    const modal = document.querySelector('#modalNuevaUbicacionReserva')
             const bootstrapModal = new bootstrap.Modal(modal, {
-                focus: false
+                focus: false,
+                keyboard: false,
+                backdrop: 'static'
             })
 			bootstrapModal.show()
 		})
 
-        document.querySelector('#btn_guardarCambios').addEventListener('click', async function () {
-            const form = document.querySelector('#frm_registroUbicacion');
-
-            if (!form) {
-                console.log('Error: El formulario no se encontró.');
-                return;
-            }
-
-            // Crear FormData y convertirlo a un objeto JSON
-            const formData = new FormData(form);
-            const jsonData = Object.fromEntries(formData.entries());
-
-            try {
-                const response = await fetch("/AbastecimientoInterno/RegistrarUbicacionReserva", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(jsonData) // Enviar los datos como JSON
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Error en la solicitud: ${response.statusText}`);
-                }
-
-                const data = await response.json();
-
-                if (data.Icono == 'success') {
-                    resetValoresVacios(["ItemCode", "ItemName","CodigoUbicacion", "rackBloque", "posicion", "nivel"])
-                    if (typeof codigoUbicacion !== 'undefined' && codigoUbicacion.length > 0) { codigoUbicacion = ["", "", "", ""] }        // Limpiar variable local
-                    inicializarSlimSelectsPorClase('cls-select')
-
-                    const radios = document.querySelectorAll(`input[name="UbiSistema"]`)
-                    radios.forEach(radio => {
-                        if (radio.value === "no") {
-                            radio.checked = true
-                        }
-                    })
-                }
-
-                Swal.fire({
-                    title: data.Titulo,
-                    html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
-                        ? data.Mensajes.join('<br>')
-                        : data.Mensajes || "",
-                    icon: data.Icono,
-                    allowEscapeKey: false,
-                    allowOutsideClick: false,
-                    showConfirmButton: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $('#div_listado').load(`@Url.Action("ListarUbicacionesReserva")`).fadeIn("fast")
-                    }
-                });
-
-
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        });
-
-        async function eliminarCodigoUbicacionGeneral() {
-            let codigoUbicacion = document.querySelector(`#codigoUbicacionGeneral`).value
-
-            swalWithBootstrapButtons.fire({
-                title: '¿Está seguro(a) de ELIMINAR?',
-                html: 'La ubicación ' + codigoUbicacion + ' será eliminada de forma permanente de todos los artículos existentes que no cuenten con stock.',
-                icon: 'warning',
-                allowEscapeKey: false,
-                showCancelButton: true,
-                confirmButtonText: "<i class='bi bi-check-lg'></i> Si, eliminar",
-                cancelButtonText: "<i class='bi bi-x-lg'></i> Cancelar",
-                reverseButtons: true
-            }).then(async (result) => {
-                if (result.isConfirmed) {
-                    try {
-                        const response = await fetch("/AbastecimientoInterno/EliminarUbicacionGeneral", {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({ codigoUbicacion }) // Enviar los datos como JSON
-                        });
-
-                        if (!response.ok) {
-                            throw new Error(`Error en la solicitud: ${response.statusText}`);
-                        }
-
-                        const data = await response.json();
-
-                        Swal.fire({
-                            title: data.Titulo,
-                            html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
-                                ? data.Mensajes.join('<br>')
-                                : data.Mensajes || "",
-                            icon: data.Icono,
-                            allowEscapeKey: false,
-                            allowOutsideClick: false,
-                            showConfirmButton: true
-                        }).then((result) => {
-                            if (result.isConfirmed && data.Icono == 'success') {
-                                window.location.reload()
-                            }
-                        })
-
-                    } catch (error) {
-                        console.error('Error:', error);
-                    }
-                }
-            });
-        }
-
         document.querySelector('#btn_traspasoPorUbicaciones').addEventListener('click', async function () {
             window.open('@Url.Action("StockReserva", "AbastecimientoInterno")', '_blank');
         });
+
+        function exportarExcel() {
+            $(location).attr('href', `/AbastecimientoInterno/ExportarExcelUbicacionesReserva`);
+        }
     </script>
 }

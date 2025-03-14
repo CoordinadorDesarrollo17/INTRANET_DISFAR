@@ -156,7 +156,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             return lista;
         }
-        public Helper_E EliminarUbicacion(int ubicacionId)
+        public Helper_E EliminarUbicacion(string codigoUbicacion)
         {
             string mensajeUsuario, icono;
 
@@ -170,45 +170,6 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.AddWithValue("@Operacion", "DELETE");
-                        cmd.Parameters.AddWithValue("@Id", ubicacionId);
-                        cmd.ExecuteNonQuery();
-                    }
-                }
-                    mensajeUsuario = "Ubicación eliminada correctamente.";
-                    icono = "success";
-                
-            }
-            catch (SqlException sqlEx)
-            {
-                mensajeUsuario = (sqlEx.Number == 50000) ? sqlEx.Message : "No se pudo eliminar la ubicación. Intente nuevamente.";
-                icono = "error";
-
-                LogHelper.RegistrarError(sqlEx, $"Error SQL en UbicacionesReserva_D - EliminarUbicacionReserva.");
-            }
-            catch (Exception ex)
-            {
-                mensajeUsuario = "Ocurrió un problema inesperado. Por favor, comunicarse con SISTEMAS.";
-                icono = "error";
-
-                LogHelper.RegistrarError(ex, $"Error inesperado en UbicacionesReserva_D - EliminarUbicacionReserva.");
-            }
-
-            return new Helper_E { Mensajes = new List<string> { mensajeUsuario }, IconoSweetAlert = icono };
-        }
-        public Helper_E EliminarUbicacionGeneral(string codigoUbicacion)
-        {
-            string mensajeUsuario, icono;
-
-            try
-            {
-                using (SqlConnection cn = new SqlConnection(uti.cadSql2))
-                {
-                    cn.Open();
-
-                    using (SqlCommand cmd = new SqlCommand("sp_AdministrarUbicaciones", cn))
-                    {
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@Operacion", "DELETE_GENERAL");
                         cmd.Parameters.AddWithValue("@CodigoUbicacion", codigoUbicacion);
                         cmd.ExecuteNonQuery();
 

@@ -88,7 +88,10 @@ namespace Capa_Usuario.Controllers
                 // Agrupar listaULM por CodigoUbicacion
                 var cantidadPorUbicacion = listaULM
                     .GroupBy(u => u.CodigoUbicacion)
-                    .ToDictionary(g => g.Key, g => g.Count());
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.Select(u => u.ItemCode).Distinct().Count() // Contar solo ItemCode distintos
+                    );
 
                 foreach (var ubicacion in listaU)
                 {
@@ -127,7 +130,7 @@ namespace Capa_Usuario.Controllers
                 Icono = result.IconoSweetAlert
             });
         }
-        public JsonResult EliminarUbicacionPicking(int id, int idOperation = 3102)
+        public JsonResult EliminarUbicacionPicking(string codigoUbicacion, int idOperation = 3102)
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
@@ -138,7 +141,7 @@ namespace Capa_Usuario.Controllers
                     Icono = "error"
                 }, JsonRequestBehavior.AllowGet);
 
-            var result = _ubicacionesN.EliminarUbicacion(id);
+            var result = _ubicacionesN.EliminarUbicacion(codigoUbicacion);
             string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
             return Json(new
             {
@@ -238,7 +241,7 @@ namespace Capa_Usuario.Controllers
             return Json(new { Titulo = tituloSweetAlert, result.Mensajes, Icono = result.IconoSweetAlert });
         }
 
-        public ActionResult ExportarExcelUbicacionesPicking(int idOperation = 3000)
+        public ActionResult ExportarExcelUbicacionesPicking(int idOperation = 3100)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
 
@@ -343,7 +346,10 @@ namespace Capa_Usuario.Controllers
                 // Agrupar listaULM por CodigoUbicacion
                 var cantidadPorUbicacion = listaULM
                     .GroupBy(u => u.CodigoUbicacion)
-                    .ToDictionary(g => g.Key, g => g.Count());
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.Select(u => u.ItemCode).Distinct().Count() // Contar solo ItemCode distintos
+                    );
 
                 foreach (var ubicacion in listaU)
                 {
@@ -394,39 +400,7 @@ namespace Capa_Usuario.Controllers
                 });
             }
         }
-        public JsonResult EliminarUbicacionReserva(int id, int idOperation = 3203)
-        {
-            var resultadoAcceso = VerificarPermiso(idOperation);
-            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
-            {
-                var usuarioSesion = Session["UsuarioId"] as Usuario_E;
-                if (usuarioSesion == null)
-                    return Json(new
-                    {
-                        Titulo = "No se pudo completar la acción",
-                        Mensajes = "Inicia sesión nuevamente para continuar",
-                        Icono = "error"
-                    }, JsonRequestBehavior.AllowGet);
-                var result = _ubicacionesN.EliminarUbicacion(id);
-                string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
-                return Json(new
-                {
-                    Titulo = tituloSweetAlert,
-                    result.Mensajes,
-                    Icono = result.IconoSweetAlert
-                });
-            }
-            else
-            {
-                return Json(new
-                {
-                    Titulo = "Error en la operación",
-                    Mensajes = new List<string> { "Sin accesos." },
-                    Icono = "error"
-                });
-            }
-        }
-        public JsonResult EliminarUbicacionGeneral(string codigoUbicacion, int idOperation = 3203)
+        public JsonResult EliminarUbicacionReserva(string codigoUbicacion, int idOperation = 3203)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
@@ -434,7 +408,8 @@ namespace Capa_Usuario.Controllers
                 var usuarioSesion = Session["UsuarioId"] as Usuario_E;
                 if (usuarioSesion == null)
                     return Json(new { Titulo = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" }, JsonRequestBehavior.AllowGet);
-                var result = _ubicacionesN.EliminarUbicacionGeneral(codigoUbicacion);
+
+                var result = _ubicacionesN.EliminarUbicacion(codigoUbicacion);
                 string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
                 return Json(new { Titulo = tituloSweetAlert, result.Mensajes, Icono = result.IconoSweetAlert });
             }
@@ -468,14 +443,10 @@ namespace Capa_Usuario.Controllers
             {
                 var usuarioSesion = Session["UsuarioId"] as Usuario_E;
                 if (usuarioSesion == null)
-                    return Json(new
-                    {
-                        Titulo = "No se pudo completar la acción",
-                        Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" },
-                        Icono = "error"
-                    }, JsonRequestBehavior.AllowGet);
+                    return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
 
                 var lista = _reporteStockReserva.Listar();
+                ViewBag.Ubicaciones = _ubicacionesN.ListarUbicaciones(new Ubicaciones_E { Almacen = "RESERVA" });
 
                 return PartialView("AbastecimientoInterno/_ListadoStockReserva", lista);
             }
@@ -632,6 +603,77 @@ namespace Capa_Usuario.Controllers
                     Mensajes = new List<string> { "Sin accesos." },
                     Icono = "error"
                 });
+            }
+        }
+
+        public ActionResult ExportarExcelUbicacionesReserva(int idOperation = 3200)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                int columnas = 5;
+                var listado = _ubicacionesN.ListarUbicaciones(new Ubicaciones_E { Almacen = "RESERVA" });
+                var listaULM = _ubicacionesLotesN.ListarUbicaciones(new UbicacionesLotes_E { Almacen = "RESERVA" });
+
+                var codigoU = listaULM
+                    .GroupBy(u => u.CodigoUbicacion)
+                    .ToDictionary(g => g.Key, g => g.ToList());
+
+                foreach (var item in listado)
+                {
+                    item.UbicacionesLotes = codigoU.ContainsKey(item.CodigoUbicacion)
+                        ? codigoU[item.CodigoUbicacion] // Si hay lotes, asignarlos
+                        : new List<UbicacionesLotes_E>(); // Si no hay lotes, asignar lista vacía
+                }
+
+                var nuevaLista = listado.GroupJoin(
+                                                    listaULM,
+                                                    ub => ub.CodigoUbicacion,  // Clave en listado
+                                                    ulm => ulm.CodigoUbicacion, // Clave en listaULM
+                                                    (ub, ulmGroup) => new
+                                                    {
+                                                        CodigoUbicacion = ub.CodigoUbicacion,
+                                                        Lotes = ulmGroup.Any() ? ulmGroup : new List<UbicacionesLotes_E> { new UbicacionesLotes_E() } // Si no tiene lotes, agrega una fila vacía
+                                                    }
+                                                )
+                                                .SelectMany(grupo => grupo.Lotes.Select(ulm => new
+                                                {
+                                                    CodigoUbicacion = grupo.CodigoUbicacion,
+                                                    CodigoArticulo = ulm.ItemCode ?? "",
+                                                    Descripcion = ulm.ItemName ?? "",
+                                                    Lote = ulm.BatchNum ?? "",
+                                                    CantidadUnidadesCajas = ulm.QuantityUnidadesCajas
+                                                }))
+                                                .OrderByDescending(x => !string.IsNullOrEmpty(x.Lote))  // Primero los que tienen Lote
+                                                .ThenBy(x => x.CodigoUbicacion)   // Luego ordena alfabéticamente por CódigoUbicacion
+                                                .ToList();
+
+                if (nuevaLista != null && nuevaLista.Any())
+                {
+                    using (var libro = new ExcelPackage())
+                    {
+                        var worksheet = libro.Workbook.Worksheets.Add("ReporteUbicaciones_RESERVA");
+
+                        worksheet.Cells["A1"].LoadFromCollection(nuevaLista, PrintHeaders: true);
+                        for (var col = 1; col <= columnas; col++)
+                        {
+                            worksheet.Column(col).AutoFit();
+                        }
+
+                        var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: nuevaLista.Count() + 1, toColumn: columnas), "ReporteUbicaciones_RESERVA");
+                        tabla.ShowHeader = true;
+                        tabla.TableStyle = OfficeOpenXml.Table.TableStyles.Medium2;
+
+                        string excelContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                        return File(libro.GetAsByteArray(), excelContentType, "ReporteUbicaciones_RESERVA.xlsx");
+                    }
+                }
+                else { return Content("No hay datos para exportar"); }
+            }
+            else
+            {
+                return resultadoAcceso;
             }
         }
         /************************* S O L I C I T U D   D E   T R A S L A D O *************************/
