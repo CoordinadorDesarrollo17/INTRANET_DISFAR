@@ -66,7 +66,7 @@
     <nav>
         <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
-            <li><em>Abastecimiento Interno</em></li>
+            <li><a href="@Url.Action("Sesion", "Index")"><em>Abastecimiento Interno</em></a></li>
             <li class="current"><em>Listado Stock Reserva</em></li>
         </ol>
     </nav>
@@ -102,23 +102,23 @@
                 <form id="filterForm">
                     <div class="mb-3">
                         <div class="mb-3">
-                            <label for="itemCode" class="form-label">Codigo de Articulo</label>
+                            <label for="itemCode" class="form-label fw-bold">Código de Artículo</label>
                             <input class="form-control border-success" id="itemCode" value="" />
                         </div>
                         <div class="mb-3">
-                            <label for="itemName" class="form-label">Descripción</label>
+                            <label for="itemName" class="form-label fw-bold">Descripción</label>
                             <input class="form-control border-success" id="itemName" value="" />
                         </div>
                         <div class="mb-3">
-                            <label for="itemName" class="form-label">Lote</label>
+                            <label for="itemName" class="form-label fw-bold">Lote</label>
                             <input class="form-control border-success" id="batchNum" value="" />
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary" onclick="aplicarFiltro()">Aplicar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i> Cerrar</button>
+                <button type="button" class="btn btn-success" onclick="aplicarFiltro()"><i class="bi bi-check-lg"></i> Aplicar</button>
             </div>
         </div>
     </div>
@@ -164,51 +164,7 @@
             if (modalInstance) {
                 modalInstance.hide();
             }
-        }
-    }
-    async function cargarUbicaciones(almacen, data) {
 
-        let itemCode = data.itemcode;
-        let idUbicacion = data.idloteubicacion;
-        let idUbicacionLoteMaster = data.idubicacionlotemaster;
-        let unidadMaster = data.unidadmaster;
-        let ubicacionActual = data.ubicacionactual;
-
-        try {
-            const response = await fetch("/AbastecimientoInterno/BuscarUbicaciones", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ almacen, itemCode }) // Enviar los datos como JSON
-            });
-
-            if (!response.ok) {
-                throw new Error(`Error en la solicitud: ${response.statusText}`);
-            }
-
-            const data = await response.json();
-            let ubicacionLote = data.resultUbicacionesLote != null ? data.resultUbicacionesLote : '';
-
-            let ubicaciones = '<option value="">Seleccione</option>';
-
-            // Recorre las ubicaciones y agrega solo las que sean diferentes a ubicacionActual
-            data.resultUbicaciones.forEach((ubicacion) => {
-                if (ubicacion !== ubicacionActual) { // Excluir la ubicación actual
-                    ubicaciones += `<option value="${ubicacion}">${ubicacion}</option>`;
-                }
-            });
-
-            // Asignar al combo correcto usando id único
-            const select = document.querySelector(`#idunico_${idUbicacionLoteMaster}`);
-            if (select) {
-                select.innerHTML = ubicaciones;
-            } else {
-                console.error(`No se encontró el elemento con id idunico_${idUbicacionLoteMaster}`);
-            }
-
-        } catch (error) {
-            console.error('Error:', error);
         }
     }
 

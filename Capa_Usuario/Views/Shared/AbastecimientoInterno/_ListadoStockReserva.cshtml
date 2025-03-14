@@ -24,7 +24,7 @@
 
                 <tr>
                     <td scope="col" class="text-center align-middle">@item.ItemCode </td>
-                    <td scope="col" class="text-center align-middle">@item.ItemName</td>
+                    <td scope="col" class="align-middle"><span class="ps-2">@item.ItemName</span></td>
                     <td scope="col" class="text-center align-middle">@item.BatchNum</td>
                     <td scope="col" class="text-center align-middle">@item.CodigoUbicacion</td>
                     <td scope="col" class="text-center align-middle">
@@ -35,10 +35,19 @@
                                     data-itemcode="@item.ItemCode"
                                     data-unidadmaster="@item.UmAlm"
                                     data-ubicacionactual="@item.CodigoUbicacion"
-                                    class="form-select border border-success"
-                                    onfocus="cargarUbicaciones('RESERVA', this.dataset)"
+                                    class="cls-select"
                                     style="width: 180px">
                                 <option value="">Seleccione</option>
+                                @if (ViewBag.Ubicaciones != null)
+                                {
+                                    foreach (var ubi in ViewBag.Ubicaciones)
+                                    {
+                                        if (ubi.CodigoUbicacion != item.CodigoUbicacion)
+                                        {
+                                            <option value="@ubi.CodigoUbicacion">@ubi.CodigoUbicacion</option>
+                                        }
+                                    }
+                                }
                             </select>
                         </div>
                     </td>
@@ -46,9 +55,18 @@
                     <td scope="col" class="text-center align-middle">@item.QuantityMaster </td>
                     <td scope="col" class="text-center align-middle">@item.QuantitySaldo</td>
                     <td scope="col" class="text-center align-middle">@item.QuantityUnidadesCajas </td>
-                    <td scope="col" class="text-center align-middle"><button class="btn btn-sm btn-cobefar-2" onclick="cambiarUbicacion('idunico_@item.UbicacionLoteMasterId',@item.UbicacionLoteMasterId)"><i class="bi bi-arrow-clockwise"></i></button> </td>
+                    <td scope="col" class="text-center align-middle">
+                        <button class="btn btn-cobefar-2" onclick="cambiarUbicacion('idunico_@item.UbicacionLoteMasterId',@item.UbicacionLoteMasterId)" data-bs-toggle="tooltip" data-bs-placement="top" title="Cambiar ubicación">
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </button>
+                    </td>
                 </tr>
             }
         }
     </tbody>
 </table>
+
+<script>
+    $('[data-bs-toggle="tooltip"]').tooltip();
+    inicializarSlimSelectsPorClase('cls-select')
+</script>
