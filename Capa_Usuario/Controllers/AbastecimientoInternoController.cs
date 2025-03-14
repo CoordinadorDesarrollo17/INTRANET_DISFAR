@@ -2,10 +2,15 @@ using Capa_Datos;
 using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
 using Capa_Entidad.Almacen_ENT.Tablas;
 using Capa_Entidad.Seguridad_ENT;
+using Capa_Entidad.Ventas_ENT.TablasSql;
 using Capa_Negocio.AbastecimientoInterno_NEG.Reportes;
 using Capa_Negocio.AbastecimientoInterno_NEG.TablasExternas;
 using Capa_Negocio.AbastecimientoInterno_NEG.TablasSql;
+using Capa_Negocio.Ventas_NEG.TablasSql;
 using Capa_Usuario.Helpers;
+using DocumentFormat.OpenXml.Spreadsheet;
+using OfficeOpenXml;
+using OfficeOpenXml.Table;
 using SpreadsheetLight;
 using System;
 using System.Collections.Generic;
@@ -87,14 +92,7 @@ namespace Capa_Usuario.Controllers
 
                 foreach (var ubicacion in listaU)
                 {
-                    if (cantidadPorUbicacion.TryGetValue(ubicacion.CodigoUbicacion, out int cantidad))
-                    {
-                        ubicacion.CantidadProductos = cantidad;
-                    }
-                    else
-                    {
-                        ubicacion.CantidadProductos = 0;
-                    }
+                    ubicacion.CantidadProductos = cantidadPorUbicacion.TryGetValue(ubicacion.CodigoUbicacion, out int cantidad) ? cantidad : 0;
                 }
 
                 ViewBag.UbicacionesLotes = listaULM;
@@ -207,7 +205,7 @@ namespace Capa_Usuario.Controllers
             }
         }
 
-        public JsonResult RegistrarStockMinimoPicking(StockMinProductos_E form, int idOperation = 3101)
+        public JsonResult RegistrarStockMinimoPicking(StockMinProductos_E form, int idOperation = 0)
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
@@ -229,13 +227,93 @@ namespace Capa_Usuario.Controllers
             });
         }
 
+        public JsonResult EliminarArticuloPicking(string itemCode, string codigoUbicacion, int idOperation = 0)
+        {
+            var usuarioSesion = Session["UsuarioId"] as Usuario_E;
+            if (usuarioSesion == null)
+                return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
+
+            var result = _ubicacionesLotesN.EliminarArticulo(itemCode, codigoUbicacion);
+            string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
+            return Json(new { Titulo = tituloSweetAlert, result.Mensajes, Icono = result.IconoSweetAlert });
+        }
+
+        public ActionResult ExportarExcelUbicacionesPicking(int idOperation = 3000)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                int columnas = 4;
+                var listado = _ubicacionesN.ListarUbicaciones(new Ubicaciones_E { Almacen = "PICKING" });
+                var listaULM = _ubicacionesLotesN.ListarUbicaciones(new UbicacionesLotes_E { Almacen = "PICKING" });
+
+                var codigoU = listaULM
+                    .GroupBy(u => u.CodigoUbicacion)
+                    .ToDictionary(g => g.Key, g => g.ToList());
+
+                foreach (var item in listado)
+                {
+                    item.UbicacionesLotes = codigoU.ContainsKey(item.CodigoUbicacion)
+                        ? codigoU[item.CodigoUbicacion] // Si hay lotes, asignarlos
+                        : new List<UbicacionesLotes_E>(); // Si no hay lotes, asignar lista vacía
+                }
+
+                var nuevaLista = listado.GroupJoin(
+                                                    listaULM,
+                                                    ub => ub.CodigoUbicacion,  // Clave en listado
+                                                    ulm => ulm.CodigoUbicacion, // Clave en listaULM
+                                                    (ub, ulmGroup) => new
+                                                    {
+                                                        CodigoUbicacion = ub.CodigoUbicacion,
+                                                        Lotes = ulmGroup.Any() ? ulmGroup : new List<UbicacionesLotes_E> { new UbicacionesLotes_E() } // Si no tiene lotes, agrega una fila vacía
+                                                    }
+                                                )
+                                                .SelectMany(grupo => grupo.Lotes.Select(ulm => new
+                                                {
+                                                    CodigoUbicacion = grupo.CodigoUbicacion,
+                                                    CodigoArticulo = ulm.ItemCode ?? "",
+                                                    Descripcion = ulm.ItemName ?? "",
+                                                    Lote = ulm.BatchNum ?? ""
+                                                }))
+                                                .OrderByDescending(x => !string.IsNullOrEmpty(x.Lote))  // Primero los que tienen Lote
+                                                .ThenBy(x => x.CodigoUbicacion)   // Luego ordena alfabéticamente por CódigoUbicacion
+                                                .ToList();
+
+                if (nuevaLista != null && nuevaLista.Any())
+                {
+                    using (var libro = new ExcelPackage())
+                    {
+                        var worksheet = libro.Workbook.Worksheets.Add("ReporteUbicaciones_PICKING");
+
+                        worksheet.Cells["A1"].LoadFromCollection(nuevaLista, PrintHeaders: true);
+                        for (var col = 1; col <= columnas; col++)
+                        {
+                            worksheet.Column(col).AutoFit();
+                        }
+
+                        var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: nuevaLista.Count() + 1, toColumn: columnas), "ReporteUbicaciones_PICKING");
+                        tabla.ShowHeader = true;
+                        tabla.TableStyle = OfficeOpenXml.Table.TableStyles.Medium2;
+
+                        string excelContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                        return File(libro.GetAsByteArray(), excelContentType, "ReporteUbicaciones_PICKING.xlsx");
+                    }
+                }
+                else { return Content("No hay datos para exportar"); }
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
+
         /************************* U B I C A C I O N E S   R E S E R V A *************************/
         public ActionResult UbicacionesReserva(int idOperation = 3200)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                ViewBag.Productos = _productosN.ListarProductos();
                 return View();
             }
             else
@@ -258,17 +336,23 @@ namespace Capa_Usuario.Controllers
                         Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" },
                         Icono = "error"
                     }, JsonRequestBehavior.AllowGet);
-                var listaAgrupada = _ubicacionesN.ListarUbicaciones(filtros).GroupBy(u => new { u.ItemCode, u.ItemName })
-                    .Select(grupo => new Ubicaciones_E
-                    {
-                        ItemCode = grupo.Key.ItemCode,
-                        ItemName = grupo.Key.ItemName,
-                        CantidadUbicaciones = grupo.Count(),
-                        Ubicaciones = grupo.Select(u => u).ToList()
-                    })
-                    .ToDictionary(x => x.ItemCode);
 
-                return PartialView("AbastecimientoInterno/_ListadoUbicacionesReserva", listaAgrupada);
+                var listaU = _ubicacionesN.ListarUbicaciones(filtros);
+                var listaULM = _ubicacionesLotesN.ListarUbicaciones(new UbicacionesLotes_E { Almacen = "RESERVA" });
+
+                // Agrupar listaULM por CodigoUbicacion
+                var cantidadPorUbicacion = listaULM
+                    .GroupBy(u => u.CodigoUbicacion)
+                    .ToDictionary(g => g.Key, g => g.Count());
+
+                foreach (var ubicacion in listaU)
+                {
+                    ubicacion.CantidadProductos = cantidadPorUbicacion.TryGetValue(ubicacion.CodigoUbicacion, out int cantidad) ? cantidad : 0;
+                }
+
+                ViewBag.UbicacionesLotes = listaULM;
+
+                return PartialView("AbastecimientoInterno/_ListadoUbicacionesReserva", listaU);
             }
             else
             {

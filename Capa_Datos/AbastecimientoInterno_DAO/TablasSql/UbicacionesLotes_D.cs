@@ -308,5 +308,52 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
         }
+
+        public Helper_E EliminarArticulo(string itemCode, string codigoUbicacion)
+        {
+            string mensajeUsuario, icono;
+
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+                {
+                    cn.Open();
+
+                    using (SqlCommand cmd = new SqlCommand("sp_MantenimientoUbicacionesLotes", cn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@TipoMantenimiento", "DELETE_ARTICULO");
+                        cmd.Parameters.AddWithValue("@ItemCode", itemCode);
+                        cmd.Parameters.AddWithValue("@CodigoUbicacion", codigoUbicacion);
+                        SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
+                        {
+                            Direction = ParameterDirection.Output
+                        };
+                        cmd.Parameters.Add(idGeneradoParam);
+
+                        cmd.ExecuteNonQuery();
+
+                    }
+                }
+                mensajeUsuario = "Ubicación eliminada correctamente.";
+                icono = "success";
+            }
+            catch (SqlException sqlEx)
+            {
+                mensajeUsuario = (sqlEx.Number == 50000) ? sqlEx.Message : "No se pudo eliminar el artículo. Intente nuevamente.";
+                icono = "error";
+
+                LogHelper.RegistrarError(sqlEx, $"Error SQL en UbicacionesLotes_D - EliminarArticulo.");
+            }
+            catch (Exception ex)
+            {
+                mensajeUsuario = "Ocurrió un problema inesperado. Por favor, comunicarse con SISTEMAS.";
+                icono = "error";
+
+                LogHelper.RegistrarError(ex, $"Error inesperado en UbicacionesLotes_D - EliminarArticulo.");
+            }
+
+            return new Helper_E { Mensajes = new List<string> { mensajeUsuario }, IconoSweetAlert = icono };
+        }
     }
 }

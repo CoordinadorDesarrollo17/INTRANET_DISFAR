@@ -15,15 +15,15 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
     {
         Ubicaciones_D _datos = new Ubicaciones_D();
         Helpers _helper = new Helpers();
-        public bool BuscarUbicacion(string almacen, string  ubicacion)
+        public bool BuscarUbicacion(string almacen, string ubicacion)
         {
-            return _datos.BuscarUbicacion( almacen, ubicacion);
+            return _datos.BuscarUbicacion(almacen, ubicacion);
         }
         public string[] ListarTotalUbicacionesEnArray(string almacen, string itemCode)
         {
             return _datos.ListarTotalUbicacionesEnArray(almacen, itemCode);
         }
-        public List<Ubicaciones_E> ListarUbicaciones(Ubicaciones_E filtros, Dictionary<string, object> parametros = null)
+        public List<Ubicaciones_E> ListarUbicaciones(Ubicaciones_E filtros = null, Dictionary<string, object> parametros = null)
         {
             StringBuilder condicion = new StringBuilder();
 
@@ -79,10 +79,11 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         }
         public Helper_E EliminarUbicacion(int ubicacionId)
         {
-            var ubicacion = ObtenerDatosUbicacion(new Ubicaciones_E { Id = ubicacionId });
+            // En el procedure tiene una validación para saber si cuenta con stock asociado en UbicacionesLotes o UbicacionesLotesMaster
+            var ubicacionExistente = ObtenerDatosUbicacion(new Ubicaciones_E { Id = ubicacionId });
 
             // Verificar si existe la ubicación
-            if (ubicacionId <= 0 || ubicacion == null || ubicacion.Id <= 0)
+            if (ubicacionId <= 0 || ubicacionExistente == null || ubicacionExistente.Id <= 0)
                 return _helper.CrearRespuestaError("Ubicación no válida. Recargar página y volver a intentar.");
 
             return _datos.EliminarUbicacion(ubicacionId);

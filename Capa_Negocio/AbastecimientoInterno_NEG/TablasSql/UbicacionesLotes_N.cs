@@ -14,6 +14,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
     public class UbicacionesLotes_N
     {
         readonly UbicacionesLotes_D datosUbicacionesL = new UbicacionesLotes_D();
+        private readonly Helpers _helper = new Helpers();
 
         public List<UbicacionesLotes_E> ListarUbicaciones(UbicacionesLotes_E filtros, Dictionary<string, object> parametros = null)
         {
@@ -61,6 +62,17 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         public Helper_E Salida(List<DetalleRequerimientos_E> salida, SqlConnection cn)
         {
             return datosUbicacionesL.Salida(salida, cn);
+        }
+
+        public Helper_E EliminarArticulo(string itemCode, string codigoUbicacion)
+        {
+            if (string.IsNullOrWhiteSpace(itemCode))
+                return _helper.CrearRespuestaError("El código de artículo no es válido.");
+
+            if (string.IsNullOrWhiteSpace(codigoUbicacion))
+                return _helper.CrearRespuestaError("El código de ubicación no es válido.");
+
+            return datosUbicacionesL.EliminarArticulo(itemCode, codigoUbicacion);
         }
     }
 }

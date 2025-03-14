@@ -60,8 +60,6 @@
     </tbody>
 </table>
 
-
-
 <script>
     $(document).ready(function () {
         $('[data-bs-toggle="tooltip"]').tooltip();
@@ -116,7 +114,15 @@
             return;
         }
 
-        let tableHtml = `<div class="d-flex justify-content-center w-100"><table id="tbl_productos_${datos[0].CodigoUbicacion}" class="table table-sm table-bordered table-hover subtable w-75 tbl_productos">
+        // Se verifica si el ItemCode ya existe en el array acumulador (acc), si no existe, se agrega el objeto a la nueva lista.
+        const nuevaLista = datos.reduce((acc, item) => {
+            if (!acc.some(obj => obj.ItemCode === item.ItemCode)) {
+                acc.push(item);
+            }
+            return acc;
+        }, []);
+
+        let tableHtml = `<div class="d-flex justify-content-center w-100"><table id="tbl_productos_${nuevaLista[0].CodigoUbicacion}" class="table table-sm table-bordered table-hover subtable w-75 tbl_productos">
 					<thead class="table-success">
 						<tr>
 							<th scope="col" class="text-center" style="width: 20%">Código de artículo</th>
@@ -126,12 +132,12 @@
 					</thead>
 					<tbody>`
 
-        datos.forEach(item => {
+        nuevaLista.forEach(item => {
             tableHtml += `<tr>
 						                    <td class="text-center">${item.ItemCode}</td>
 						                    <td class="text-center">${item.ItemName}</td>
 						                    <td class="lotes-control text-center">
-							                    <button type="button" class="btn btn-danger" onclick="eliminarProducto('${item.Id}')"  title="Eliminar ítem" data-bs-toggle="tooltip" data-bs-placement="top">
+							                    <button type="button" class="btn btn-danger" onclick="eliminarArticulo('${item.ItemCode}', '${item.CodigoUbicacion}')"  title="Eliminar artículo" data-bs-toggle="tooltip" data-bs-placement="top">
                                                 <i class="bi bi-trash3-fill"></i></button>
 						                    </td>
 					                    </tr>`
@@ -174,17 +180,6 @@
 
                     const data = await response.json();
 
-                    if (data.Icono !== 'success') {
-                        resetValoresVacios(["ItemCode", "ItemName", "CodigoUbicacion", "rackBloque", "posicion", "nivel"])
-
-                        const radios = document.querySelectorAll(`input[name="UbiSistema"]`)
-                        radios.forEach(radio => {
-                            if (radio.value === "no") {
-                                radio.checked = true
-                            }
-                        })
-                    }
-
                     Swal.fire({
                         title: data.Titulo,
                         html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
@@ -207,7 +202,57 @@
         });
     }
 
-    function eliminarProducto(id) {
-        console.log("*** eliminarProducto ***")
+    async function eliminarArticulo(itemCode, codigoUbicacion) {
+        if (!itemCode || !codigoUbicacion) {
+            console.warn('Error: Verificar parámetros en eliminarArticulo().');
+            return;
+        }
+
+        swalWithBootstrapButtons.fire({
+            title: '¿Está seguro(a) de ELIMINAR?',
+            html: 'Todos los lotes del código de artículo: ' + itemCode + ' serán eliminados de forma permanente.',
+            icon: 'warning',
+            allowEscapeKey: false,
+            showCancelButton: true,
+            confirmButtonText: "<i class='bi bi-check-lg'></i> Si, eliminar",
+            cancelButtonText: "<i class='bi bi-x-lg'></i> Cancelar",
+            reverseButtons: true
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch("/AbastecimientoInterno/EliminarArticuloPicking", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ itemCode, codigoUbicacion }) // Enviar los datos como JSON
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Error en la solicitud: ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+
+                    Swal.fire({
+                        title: data.Titulo,
+                        html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                            ? data.Mensajes.join('<br>')
+                            : data.Mensajes || "",
+                        icon: data.Icono,
+                        allowEscapeKey: false,
+                        allowOutsideClick: false,
+                        showConfirmButton: true
+                    }).then((result) => {
+                        if (result.isConfirmed && data.Icono == 'success') {
+                            window.location.reload()
+                        }
+                    })
+
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            }
+        });
     }
 </script>
