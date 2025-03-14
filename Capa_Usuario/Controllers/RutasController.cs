@@ -107,10 +107,9 @@ namespace Capa_Usuario.Controllers
         {
             ViewBag.Mensaje = mensaje;
             ViewBag.TipoRep = tipoRep;
-
             if (tipoRuta == "TA")
             {
-                var listaUsuariosCopilotos = ousrN.ListaUsuarios(new Usuario_E { IdRol = 55 });
+                var listaUsuariosCopilotos = ousrN.ListaUsuarios(new Usuario_E { IdRol = 4 });
                 var copilotos = new List<string>();
                 copilotos = listaUsuariosCopilotos.Select(x => $"{x.Nombres} {x.Apellidos}").ToList();
                 ViewBag.ListaCopilotos = copilotos;
@@ -119,13 +118,11 @@ namespace Capa_Usuario.Controllers
             {
                 ViewBag.ListaCopilotos = ousrN.listaCopilotos();
             }
-
             ViewBag.Conductores = new Capa_Negocio.Repartos_NEG.TablasHana.SYP_CONDUC_N().listar();
             ViewBag.ListaOrigenesDestinos = owhsN.listarAlmacenes(filtrosAlm ?? Array.Empty<string>());
             ViewBag.ListaVehiculos = new Capa_Negocio.Repartos_NEG.TablasHana.SYP_VEHICU_N().listar();
             ViewBag.Filas = filas;
         }
-
         public ActionResult NuevaTransferenciaEntreAlmacenes(string TipoRep, int idOperation = 205)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
