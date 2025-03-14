@@ -5,93 +5,140 @@
     }
 
     .subtable {
-        margin-left: 50px;
+        width: 100% !important;
+        table-layout: fixed; /* Asegura que las columnas se distribuyan bien */
+    }
+
+    .detalle-fila {
+        display: none; /* Se oculta correctamente para evitar parpadeos */
     }
 </style>
 
-<table id="tbl_listaUbicacionesReserva" class="dt-container dt-empty-footer table table-sm table-hover font-14" width="100%">
+<table id="tbl_listaUbicacionesReserva" class="dt-container dt-empty-footer table table-sm table-hover font-14 w-100">
     <thead class="thead-cobefar">
         <tr>
-            <th style="width: 5%;"></th>
-            <th scope="col" class="text-center">Código de artículo</th>
-            <th scope="col" class="text-center">Descripción</th>
-            <th scope="col" class="text-center">Ubicaciones</th>
-            <th scope="col" class="text-center"></th>
+            <th style="width: 5%;"></th> <!-- Botón expandir -->
+            <th scope="col" class="text-center">Ubicación</th>
+            <th scope="col" class="text-center">Productos</th>
+            <th scope="col" class="text-center"></th> <!-- Columna vacía para alineación -->
         </tr>
     </thead>
     <tbody class="text-dark">
-        @foreach (var grupo in Model)
+        @foreach (var item in Model)
         {
-            <tr data-producto="@grupo.Key">
-                <td class="details-control"><button class="btn btn-sm btn-cobefar-2"><i class="bi bi-chevron-down"></i></button></td>
-                <td class="text-center align-middle">@grupo.Value.ItemCode</td>
-                <td class="text-center align-middle">@grupo.Value.ItemName</td>
-                <td class="text-center align-middle">@grupo.Value.CantidadUbicaciones</td>
+            var uniqueTableId = "tbl_productos_" + item.CodigoUbicacion; // Generar ID único
+
+            var tieneProductos = false;
+            if (item.CantidadProductos > 0)
+            {
+                tieneProductos = true;
+            }
+
+            <tr data-codigoubicacion="@item.CodigoUbicacion">
+                <td class="@if (tieneProductos) { Write("details-control"); }">
+                    @if (tieneProductos)
+                    {
+                        <button class="btn btn-sm btn-cobefar-2">
+                            <i class="bi bi-chevron-down"></i>
+                        </button>
+                    }
+                </td>
+                <td class="align-middle">
+                    <span class="ps-2">@item.CodigoUbicacion</span>
+                </td>
+                <td class="text-center align-middle">@item.CantidadProductos</td>
                 <td class="text-center align-middle">
+                    @if (!tieneProductos)
+                    {
+                        <button type="button" class="btn btn-danger" title="Eliminar ubicación" data-bs-toggle="tooltip" data-bs-placement="top" onclick="eliminarUbicacion('@item.CodigoUbicacion', '@item.Id')">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
+                    }
                 </td>
             </tr>
         }
     </tbody>
-
 </table>
 
 <script>
     $(document).ready(function () {
         $('[data-bs-toggle="tooltip"]').tooltip();
-        inicializarDataTable('tbl_listaUbicacionesReserva', 25)
         permitirValoresNumericosPositivos()
 
+       const configDataTable = {
+    "order": [],  // Desactiva ordenamiento automatico.
+    "ordering": true, // Iconos para ordenar todas las columnas de la tabla.
+    "pageLength": 25,
+    "lengthMenu": [25, 50, 75, 100],
+    "language": {
+        "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+        "infoEmpty": "No hay registros disponibles",
+        "infoFiltered": "(filtrado de _MAX_ registros totales)",
+        "lengthMenu": "Mostrar _MENU_ registros por página",
+        "search": "Buscar:",
+        "loadingRecords": "Cargando...",
+        "processing": "Procesando...",
+        "zeroRecords": "No se encontraron registros"
+    }
+    }
+
+        let table = $('#tbl_listaUbicacionesReserva').DataTable(configDataTable)
+        let ubicacionesLotes = JSON.parse(`@Html.Raw(Json.Encode(ViewBag.UbicacionesLotes))`)
+
+        $('#tbl_listaUbicacionesReserva tbody').off('click', 'td.details-control');
         $('#tbl_listaUbicacionesReserva tbody').on('click', 'td.details-control', function () {
-            var tr = $(this).closest('tr');
-            var row = $('#tbl_listaUbicacionesReserva').DataTable().row(tr);
-            var productoID = tr.data('producto');
-            var button = $(this).find('button i');
+        var tr = $(this).closest('tr');
+        var row = table.row(tr);
+        var codigoUbicacion = tr.data('codigoubicacion');
+        var button = $(this).find('button i');
 
-            if (row.child.isShown()) {
-                // Cerrar fila
-                row.child.hide();
-                button.removeClass('bi-chevron-up').addClass('bi-chevron-down');
-            } else {
-                // Abrir y mostrar lotes
-                row.child(formatLotes(productoID)).show();
-                button.removeClass('bi-chevron-down').addClass('bi-chevron-up');
-            }
-        });
+        if (row.child.isShown()) {
+            row.child.hide();			// Cerrar fila
+            button.removeClass('bi-chevron-up').addClass('bi-chevron-down');
+        } else {
+            let filtro =  ubicacionesLotes.filter(ul => {
+                //console.log(ul.CodigoUbicacion); // Asegura que el campo sea correcto
+                return ul.CodigoUbicacion === codigoUbicacion; // Filtra correctamente
+            });
 
-        let listaAgrupada = @Html.Raw(Json.Encode(Model));
-
-        function formatLotes(productoID) {
-            let lista = listaAgrupada[productoID] || []; // Obtiene los lotes de ese producto
-            if (lista.length === 0) return '<i>No hay lotes disponibles.</i>';
-
-            let tableHtml = `
-            <div class="d-flex table-responsive justify-content-center">
-                <table class="table table-sm table-bordered table-hover subtable w-75">
-                    <thead class="thead-light">
-                        <tr>
-                            <th scope="col" class="text-center">Código de artículo</th>
-                            <th scope="col" class="text-center">Descripción</th>
-                            <th scope="col" class="text-center">Ubicación</th>
-                            <th scope="col" class="text-center"></th>
-                        </tr>
-                    </thead>
-                    <tbody>`;
-            lista.Ubicaciones.forEach(item => {
-                    tableHtml += `<tr>
-                        <td  class="text-center align-middle">${item.ItemCode}</td>
-                        <td  class="text-center align-middle">${item.ItemName}</td>
-                        <td  class="text-center align-middle">${item.CodigoUbicacion}</td>
-                        <td  class="text-center align-middle">
-                            <button class="btn btn-danger" onclick="eliminarUbicacion('${item.CodigoUbicacion}', '${item.Id}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar ubicación"><i class="bi bi-trash3-fill"></i></button>
-                        </td>
-                    </tr>`;
-                });
-
-            tableHtml += '</tbody></table></div>';
-            return tableHtml;
+            row.child(cargarProductos(filtro)).show();
+            button.removeClass('bi-chevron-down').addClass('bi-chevron-up');
+            $('[data-bs-toggle="tooltip"]').tooltip();
         }
+    });
 
     });
+
+    function cargarProductos(datos) {
+        if (datos.length <= 0) {
+            return;
+        }
+
+        let tableHtml = `<div class="d-flex justify-content-center w-100"><table id="tbl_productos_${datos[0].CodigoUbicacion}" class="table table-sm table-bordered table-hover subtable w-75 tbl_productos">
+				<thead class="table-success">
+					<tr>
+						<th scope="col" class="text-center" style="width: 20%">Código de artículo</th>
+						<th scope="col" class="text-center" style="width: 70%">Descripción</th>
+						<th scope="col" style="width: 10%;"></th>
+					</tr>
+				</thead>
+				<tbody>`
+
+        datos.forEach(item => {
+            tableHtml += `<tr>
+					                    <td class="text-center">${item.ItemCode}</td>
+					                    <td class="text-center">${item.ItemName}</td>
+					                    <td class="lotes-control text-center">
+						                    <button type="button" class="btn btn-danger" onclick="eliminarArticulo('${item.ItemCode}', '${item.CodigoUbicacion}')"  title="Eliminar artículo" data-bs-toggle="tooltip" data-bs-placement="top">
+                                            <i class="bi bi-trash3-fill"></i></button>
+					                    </td>
+				                    </tr>`
+        });
+
+        tableHtml += '</tbody></table></div>'
+
+        return tableHtml
+    }
 
     async function eliminarUbicacion(codigoUbicacion, id) {
         if (!id) {
