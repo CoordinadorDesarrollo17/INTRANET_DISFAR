@@ -22,7 +22,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.Reportes
 
         public List<ReporteStockPicking_E> ControlStockInternoPicking()
         {
-            var controlStockInternoPicking = _datosReporte.ControlStockInternoPicking();
+            var controlStockInternoPicking = _datosReporte.ControlHistoricoDeIngresosAPicking();
             List<OITW_E> articulos = new Capa_Negocio.Almacen_NEG.Tablas.OITW_N()
                 .ListarDetArticulosInv(new OITW_E { WhsCode = "16" })
                 .Where(x => x.OnHand > 0)
@@ -36,7 +36,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.Reportes
                     List<DetalleRequerimientos_E> resultDetReq = _requerimientosN.ListarDetalles(item.ItemCode, "CantidadSolicitada");
                     int quantityReq = resultDetReq?.Sum(r => r.QuantityUnidadesCajas) ?? 0;
 
-                    List<UbicacionesLotes_E> resultUbicacionesLotes = _ubicacionesLotesN.Obtener(item.ItemCode);
+                    List<UbicacionesLotes_E> resultUbicacionesLotes = _ubicacionesLotesN.Obtener(item.ItemCode).Where(x => x.Almacen.Equals("RESERVA")).ToList(); 
                     int quantityUbicacionesLote = resultUbicacionesLotes?.Sum(r => r.QuantityUnidadesCajas) ?? 0;
 
                     int stockDeAlmReserva = quantityUbicacionesLote - quantityReq;
@@ -46,7 +46,6 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.Reportes
 
                     item.StockLibre = stockEnPicking;
                     item.Clasificacion = (controlPorItemCode != null) ? controlPorItemCode.Clasificacion : string.Empty;
-                    item.StockMinVenta = (controlPorItemCode != null) ? controlPorItemCode.StockMinVenta : 0;
                     item.StockMinAbastecimiento = (controlPorItemCode != null) ? controlPorItemCode.StockMinAbastecimiento : 0;
                 }
             }
@@ -59,11 +58,11 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.Reportes
                 StockActual = Convert.ToInt32(a.StockLibre),
                 Almacen = a.WhsCode,
                 Clasificacion = a.Clasificacion,
-                StockMinVenta = a.StockMinVenta,
                 StockMinAbastecimiento = a.StockMinAbastecimiento
             }).ToList();
 
             return nuevaLista.OrderBy(x=> x.ItemCode).ToList();
         }
+
     }
 }

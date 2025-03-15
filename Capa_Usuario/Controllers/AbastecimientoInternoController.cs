@@ -775,21 +775,27 @@ namespace Capa_Usuario.Controllers
                 });
             }
         }
-        public JsonResult BuscarUbicaciones(string almacen, string itemCode, int idOperation = 3302)
+        public JsonResult BuscarUbicaciones(string almacen, int idOperation = 3302)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
+
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                var resultUbicaciones = _ubicacionesN.ListarTotalUbicacionesEnArray(almacen, itemCode);
-                var listaUbicacionesLote = _ubicacionesLotesN.Obtener(itemCode);
-                string resultUbicacionesLote = null;
+                var listadoString = new List<string>();
 
-                if (listaUbicacionesLote != null && listaUbicacionesLote.Count == 1) { resultUbicacionesLote = listaUbicacionesLote.First().CodigoUbicacion; }
+                var listadoUbicaciones = _ubicacionesN.ListarUbicaciones(new Ubicaciones_E { Almacen = almacen });
 
-                return Json(new { resultUbicaciones, resultUbicacionesLote });
+                foreach (var i in listadoUbicaciones)
+                {
+                    listadoString.Add(i.CodigoUbicacion);
+                }
+
+                // Retornamos en un formato adecuado para el JS
+                return Json(new { resultUbicaciones = listadoString });
             }
             else
             {
+                // Retornamos error de acceso
                 return Json(new
                 {
                     Titulo = "Error en la operación",
@@ -798,6 +804,7 @@ namespace Capa_Usuario.Controllers
                 });
             }
         }
+
         public JsonResult ImportarTransferenciaDeStock(HttpPostedFileBase file, int idOperation = 3303)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
@@ -1518,7 +1525,7 @@ namespace Capa_Usuario.Controllers
                     int quantityReq = 0;
                     if (resultDetReq != null) { quantityReq = Convert.ToInt32(resultDetReq.Sum(r => r.QuantityUnidadesCajas)); }
 
-                    List<UbicacionesLotes_E> resultUbicacionesLotes = _ubicacionesLotesN.Obtener(itemCode);
+                    List<UbicacionesLotes_E> resultUbicacionesLotes = _ubicacionesLotesN.Obtener(itemCode).Where(x=>x.Almacen.Equals("RESERVA")).ToList();
                     int quantityUbicacionesLote = 0;
                     if (resultUbicacionesLotes != null) { quantityUbicacionesLote = resultUbicacionesLotes.Sum(r => r.QuantityUnidadesCajas); }
 
@@ -1923,7 +1930,7 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-        //Atendido de apiladores (Solo cambia el AtendidoReserva a 1) en detalle de Solicitud Traslado
+        //Atendido de apiladores (Solo cambia el AtendidoReserva a 1) en detalle de Transferencia
         public JsonResult AtenderReservaTransferencia(int id, int docNumSolicitudTraslado, string itemCode, string itemName, int idOperation = 3503)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
@@ -2008,18 +2015,26 @@ namespace Capa_Usuario.Controllers
                                 if (!resultUbicacionesLotesMaster.IconoSweetAlert.Equals("success"))
                                     return Json(new { Titulo = "No se pudo completar la acción", resultUbicacionesLotesMaster.Mensajes, Icono = resultUbicacionesLotesMaster.IconoSweetAlert });
                             }
-                        }
+                            // ✅ Confirmar transacción con todo y Kardex
+                            scope.Complete();
 
-                        // Confirmar transacción
+                            return Json(new
+                            {
+                                Titulo = "Acción completada exitosamente",
+                                Mensajes = new List<string> { "Se atendió el SKU correctamente y se generó kardex por ingreso." },
+                                Icono = "success"
+                            });
+                        }
+                        // ✅ Confirmar transacción sin Kardex
                         scope.Complete();
+
                     }
                 }
 
-                // Respuesta exitosa
                 return Json(new
                 {
                     Titulo = "Acción completada exitosamente",
-                    Mensajes = new List<string> { "Se atendió el SKU correctamente y se generó kardex por ingreso." },
+                    Mensajes = new List<string> { "Se atendió el SKU correctamente." },
                     Icono = "success"
                 });
             }
@@ -2201,6 +2216,19 @@ namespace Capa_Usuario.Controllers
             else
             {
                 return resultadoAcceso;
+            }
+        }
+        public JsonResult ConsultarUbicacionesSkuPicking( string itemCode, int idOperation = 3701)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                List<UbicacionesLotes_E> resultUbicacionesLotes = _ubicacionesLotesN.Obtener(itemCode).Where(x => x.Almacen.Equals("RESERVA")).ToList();
+                return Json( new { resultUbicacionesLotes });
+            }
+            else
+            {
+                return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "Sin accesos." }, Icono = "error" });
             }
         }
     }

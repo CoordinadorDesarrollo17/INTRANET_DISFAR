@@ -15,7 +15,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.Reportes
     {
         Utilitarios uti = new Utilitarios();
         DBHelper dbHelper = new DBHelper();
-        public List<ReporteStockPicking_E> ControlStockInternoPicking()
+        public List<ReporteStockPicking_E> ControlHistoricoDeIngresosAPicking()
         {
             List<ReporteStockPicking_E> lista = null;
             try

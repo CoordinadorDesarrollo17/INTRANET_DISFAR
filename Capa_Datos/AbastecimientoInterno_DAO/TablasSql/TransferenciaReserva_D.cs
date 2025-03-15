@@ -153,6 +153,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                                 if (!dr.IsDBNull(10)) detalle.QuantityMaster = dr.GetInt32(10);
                                 if (!dr.IsDBNull(11)) detalle.QuantitySaldo = dr.GetInt32(11);
                                 if (!dr.IsDBNull(12)) detalle.QuantityUnidadesCajas = dr.GetInt32(12);
+                                if (!dr.IsDBNull(13)) detalle.AtendidoReserva = dr.GetInt32(13);
 
                                 transferencia.Detalle.Add(detalle);
                             }
