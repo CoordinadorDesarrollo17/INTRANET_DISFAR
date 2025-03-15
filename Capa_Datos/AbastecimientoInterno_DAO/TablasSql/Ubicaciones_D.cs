@@ -115,8 +115,8 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
                     var sb = new StringBuilder();
 
-                    sb.AppendLine("SELECT UP.Id, UP.Almacen, UP.CodigoUbicacion");
-                    sb.AppendLine("FROM Ubicaciones UP");
+                    sb.AppendLine("SELECT Id, Almacen, CodigoUbicacion");
+                    sb.AppendLine("FROM Ubicaciones");
                     sb.AppendLine("WHERE 1=1");
                     sb.AppendLine(condicion);
 

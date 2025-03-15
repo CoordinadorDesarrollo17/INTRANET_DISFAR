@@ -15,7 +15,8 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
     {
         Ubicaciones_D _datos = new Ubicaciones_D();
         Helpers _helper = new Helpers();
-        public bool BuscarUbicacion(string almacen, string ubicacion)
+        
+        public bool BuscarUbicacion(string almacen, string  ubicacion)
         {
             return _datos.BuscarUbicacion(almacen, ubicacion);
         }
@@ -34,19 +35,19 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
             {
                 if (filtros.Id > 0)
                 {
-                    condicion.AppendLine("AND UP.Id = @Id");
+                    condicion.AppendLine("AND Id = @Id");
                     parametros["@Id"] = filtros.Id;
                 }
 
                 if (!string.IsNullOrWhiteSpace(filtros.CodigoUbicacion))
                 {
-                    condicion.AppendLine("AND UP.CodigoUbicacion = @CodigoUbicacion");
+                    condicion.AppendLine("AND CodigoUbicacion = @CodigoUbicacion");
                     parametros["@CodigoUbicacion"] = filtros.CodigoUbicacion;
                 }
 
                 if (!string.IsNullOrWhiteSpace(filtros.Almacen))
                 {
-                    condicion.AppendLine("AND UP.Almacen = @Almacen");
+                    condicion.AppendLine("AND Almacen = @Almacen");
                     parametros["@Almacen"] = filtros.Almacen;
                 }
             }

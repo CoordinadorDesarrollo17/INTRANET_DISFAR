@@ -167,8 +167,8 @@
                             </td>
                             <td>
                                 <div class="d-flex justify-content-center align-items-center ">
-                                    <button type="button" class="btn btn-cobefar-2 btn-sm" data-bs-toggle="modal" data-bs-target="#verUbicaciones">
-                                        <i class="bi bi-eye"></i> Ubicaciones
+                                    <button type="button" class="btn btn-cobefar-2 btn-sm" onclick="gestionarBusquedaUbicaciones('@item.ItemCode')">
+                                        <i class="bi bi-arrow-up-right"></i> Ubicaciones
                                     </button>
                                 </div>
                             </td>
@@ -212,6 +212,23 @@
         </div>
     </div>
 </div>
+<!-- Modal de Ubicaciones -->
+<div class="modal fade" id="modalBuscador" tabindex="-1" aria-labelledby="modalBuscadorLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-headerModals text-white">
+                <h5 class="modal-title" id="modalBuscadorLabel">VER UBICACIONES</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <div class="modal-body">
+                <input type="text" id="inputBusqueda" class="form-control mb-3" placeholder="Escriba para buscar...">
+                <div id="resultadosBusqueda" class="list-group" style="max-height: 250px; overflow-y: auto;"></div>
+            </div>
+
+        </div>
+    </div>
+</div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -220,7 +237,76 @@
             aplicarFiltro();
         }
     });
+    let modalInstance = null;
+    let itemCodeActual = null;
+   async function gestionarBusquedaUbicaciones(itemCode) {
+        if (itemCodeActual !== itemCode) {
+            itemCodeActual = itemCode; 
+            await cargarUbicaciones(itemCode); 
+        }
+    }
+    async function cargarUbicaciones(itemCode) {
+        try {
+            const response = await fetch("/AbastecimientoInterno/ConsultarUbicacionesSkuPicking", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ itemCode })
+            });
 
+            if (!response.ok) throw new Error(`Error en la solicitud: ${response.statusText}`);
+            const dataResult = await response.json();
+            const ubicacionesLotes = dataResult.resultUbicacionesLotes;
+
+            // Verificar que haya ubicaciones
+            if (!ubicacionesLotes || ubicacionesLotes.length === 0) {
+                Swal.fire('','No se encontraron ubicaciones para este código.','warning');
+                return;
+            }
+
+            // Limpiar contenido anterior
+            const contenedor = document.getElementById('resultadosBusqueda');
+            contenedor.innerHTML = '';
+
+            // Llenar la lista de ubicaciones (solo el código de ubicación)
+            ubicacionesLotes.forEach((ubicacion) => {
+                const item = document.createElement('button');
+                item.type = 'button';
+                item.className = 'list-group-item list-group-item-action';
+                item.textContent = ubicacion.CodigoUbicacion; 
+                item.dataset.value = ubicacion.CodigoUbicacion; // Valor real
+                item.onclick = () => seleccionarOpcion(ubicacion.CodigoUbicacion);
+                contenedor.appendChild(item);
+            });
+
+            
+            abrirModalBusquedaRapida();
+
+        } catch (error) {
+            console.error('Error al cargar ubicaciones:', error);
+        }
+    }
+    function abrirModalBusquedaRapida() {
+        if (!modalInstance) {
+            const modalElement = document.getElementById('modalBuscador');
+            modalInstance = new bootstrap.Modal(modalElement);
+        }
+
+        modalInstance.show();
+
+        const inputBusqueda = document.getElementById('inputBusqueda');
+        const contenedor = document.getElementById('resultadosBusqueda');
+
+        inputBusqueda.value = '';
+        inputBusqueda.focus();
+
+      
+        inputBusqueda.oninput = function () {
+            const filtro = this.value.toLowerCase();
+            Array.from(contenedor.children).forEach(item => {
+                item.style.display = item.textContent.toLowerCase().includes(filtro) ? 'block' : 'none';
+            });
+        };
+    }
     function aplicarFiltro() {
         const form = document.getElementById('filterForm');
         const clasificacion = form.clasificacion.value.trim().toLowerCase();

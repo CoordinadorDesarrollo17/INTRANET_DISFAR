@@ -191,7 +191,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
             {
                 LogHelper.RegistrarError(sqlEx, "UbicacionesLotes_D - Ingreso");
 
-                if (sqlEx.Message.Contains("Ubicación para el producto"))
+                if (sqlEx.Message.Contains("no existe en almacén Reserva."))
                 {
                     mensaje = $"{sqlEx.Message} Debe crear la ubicación antes de registrar el stock.";
                     icono = "error";
