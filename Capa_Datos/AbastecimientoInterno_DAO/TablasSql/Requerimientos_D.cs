@@ -43,8 +43,9 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                         if (!dr.IsDBNull(1)) { requerimiento.Origen = dr.GetString(1); }
                         if (!dr.IsDBNull(2)) { requerimiento.Destino = dr.GetString(2); }
                         if (!dr.IsDBNull(3)) { requerimiento.TipoAbastecimiento = dr.GetString(3); }
-                        if (!dr.IsDBNull(4)) { requerimiento.TiempoRegistro = dr.GetDateTime(4); }
-                        if (!dr.IsDBNull(5)) { requerimiento.OperarioRegistra = dr.GetString(5); }
+                        if (!dr.IsDBNull(4)) { requerimiento.Comentario = dr.GetString(4); }
+                        if (!dr.IsDBNull(5)) { requerimiento.TiempoRegistro = dr.GetDateTime(5); }
+                        if (!dr.IsDBNull(6)) { requerimiento.OperarioRegistra = dr.GetString(6); }
 
                         requerimiento.Detalle = new List<DetalleRequerimientos_E>();
                     }
@@ -231,6 +232,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     cmd.Parameters.AddWithValue("@Origen", requerimiento.Origen);
                     cmd.Parameters.AddWithValue("@Destino", requerimiento.Destino);
                     cmd.Parameters.AddWithValue("@TipoAbastecimiento", requerimiento.TipoAbastecimiento);
+                    cmd.Parameters.AddWithValue("@Comentario", requerimiento.Comentario);
                     cmd.Parameters.AddWithValue("@OperarioRegistra", requerimiento.OperarioRegistra);
 
                     // Crear tabla de parámetros para el tipo DetalleRequerimientosType
@@ -292,7 +294,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
             }
             catch (Exception ex)
             {
-
+                LogHelper.RegistrarError(ex, "Requerimientos_D - RegistrarRequerimiento");
                 throw new Exception("Error al registrar el requerimiento.", ex);
             }
         }

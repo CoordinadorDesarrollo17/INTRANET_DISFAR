@@ -1007,6 +1007,7 @@
     <Content Include="Views\AbastecimientoInterno\StockReserva.cshtml" />
     <Content Include="Views\AbastecimientoInterno\StockMinimoPicking.cshtml" />
     <Content Include="Views\AbastecimientoInterno\ListarTransferenciasReserva.cshtml" />
+    <Content Include="Views\Shared\AbastecimientoInterno\_ListadoArticulosSalidaporAlmacen.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

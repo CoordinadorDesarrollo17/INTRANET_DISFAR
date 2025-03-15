@@ -33,9 +33,9 @@
 
         /* Ajustar el input para que ocupe solo el ancho necesario */
         .tagify__input {
-            min-width: 30px; /* Ancho mínimo para mantener el cursor visible */
-            width: auto; /* Ajuste automático al contenido */
-            flex: 0; /* Evitar que se expanda innecesariamente */
+            min-width: 50px; /* Ancho mínimo para mantener el cursor visible */
+            width: 100%; /* Ajuste automático al contenido */
+            flex: 1;
             transition: width 0.2s ease;
         }
 
@@ -76,11 +76,17 @@
 
             <div class="col-lg-2">
                 <label for="TipoAbastecimiento" class="form-label fw-bold">Tipo de abastecimiento:</label>
-                <select id="TipoAbastecimiento" name="TipoAbastecimiento" class="form-select" onchange="limpiarTabla()">
+                <select id="TipoAbastecimiento" name="TipoAbastecimiento" class="form-select" onchange="validarTipoAbastecimiento(this)">
                     <option value="">Seleccione</option>
-                    <option value="Picking">Picking</option>
-                    <option value="Venta">Venta</option>
+                    <option data-tipo="P" value="Picking">Picking</option>
+                    <option data-tipo="VM" value="Venta Master">Venta Master</option>
+                    <option data-tipo="SA" value="Salida por Almacen">Salida por Almacén</option>
                 </select>
+            </div>
+
+            <div id="div_comentario" class="col-lg-2" hidden>
+                <label for="Comentario" class="form-label fw-bold">Nro. Ticket:</label>
+                <input type="text" id="Comentario" class="form-control cls-num" name="Comentario" autocomplete="off" />
             </div>
         </div><!-- // row-->
 
@@ -125,7 +131,7 @@
                         <th scope="col" class="text-center">Descripción</th>
                         <th scope="col" class="text-center">Lote</th>
                         <th scope="col" class="text-center">Cantidad</th>
-                        <th scope="col" class="text-center">Ubicación PICKING</th>
+                        <th scope="col" class="text-center ubicacion-picking">Ubicación PICKING</th>
                     </tr>
                 </thead>
                 <tbody class="text-dark">
@@ -236,7 +242,7 @@
 		}
 
 		document.addEventListener('DOMContentLoaded', function () {
-			permitirValoresNumericosPositivos()
+            permitirValoresNumericosPositivos()
 		});
 
 		async function buscarArticulos() {
@@ -427,7 +433,7 @@
 		}
 
         function cargarListaArticulos() {
-            const tipoAbastecimiento = document.querySelector('#TipoAbastecimiento').value
+            const inputTipoAbastecimiento = document.querySelector('#TipoAbastecimiento')
             const modal = document.querySelector('#modalBusquedaArticulos')
             const bootstrapModal = new bootstrap.Modal(modal, {
                 focus: false,
@@ -435,22 +441,28 @@
                 keyboard: false
             })
 
-			if (!tipoAbastecimiento) {
+            if (!inputTipoAbastecimiento.value) {
 				Swal.fire('Seleccione un tipo de abastecimiento.')
 				return;
             }
             resetValoresVacios(["cod_articulo", "cantidad_solicitada"])
 
             document.querySelector('#div_listadoArticulos').innerHTML = ''
-            document.querySelector('#div_cantidadSolicitada').hidden = tipoAbastecimiento !== 'Picking' ? true:false
+            document.querySelector('#div_cantidadSolicitada').hidden = inputTipoAbastecimiento.value !== 'Picking' ? true : false
 
             const btn = document.querySelector('#btn_guardarArticulos')
             if (btn) {
-                if (tipoAbastecimiento === 'Picking') {
-                    btn.setAttribute('onclick', 'guardarArticulosPicking()');
-                } else {
-                    btn.setAttribute('onclick', 'guardarArticulosVenta()');
-                }
+                const opcion = inputTipoAbastecimiento.options[inputTipoAbastecimiento.selectedIndex];
+                const tipoAbastSeleccionado = opcion.getAttribute("data-tipo");
+                console.log(tipoAbastSeleccionado)
+                const acciones = {
+                    'P': 'guardarArticulosPicking()',
+                    'VM': 'guardarArticulosVentaMaster()',
+                    'SA': 'guardarArticulosSalidaporAlmacen()'
+                };
+
+                // Asignar la función correspondiente o limpiar el evento si no coincide
+                btn.setAttribute('onclick', acciones[tipoAbastSeleccionado] || '');
             }
 
 			bootstrapModal.show();
@@ -548,6 +560,11 @@
                 // Asociar la instancia al input para reutilización
                 inputTagify.tagify = tagifyInstance;
 
+                inputTagify.addEventListener("click", function (event) {
+                    tagifyInstance.dropdown.show();
+                    event.stopPropagation();
+                });
+
                 tagifyInstance.on('add', (e) => {
                     console.log('Etiqueta agregada:', e.detail.data.value);
                 });
@@ -562,33 +579,6 @@
                 button.innerHTML = `<i class="bi bi-arrow-clockwise"></i>`
             }
         }
-        //async function obtenerNuevasUbicaciones(inputId) {
-        //    const inputTagify = document.getElementById(inputId);
-        //    const button = document.querySelector(`.reload-button[data-inputid="${inputId}"]`);
-
-        //            return;
-        //        }
-
-        //        itemCode = itemCode.trim()
-        //        const response = await fetch("/AbastecimientoInterno/BuscarUbicaciones", {
-        //            method: 'POST',
-        //            headers: {
-        //                'Content-Type': 'application/json',
-        //            },
-        //            body: JSON.stringify({ almacen, itemCode })
-        //        });
-
-        //        if (!response.ok) {
-        //            throw new Error(`Error en la solicitud: ${response.statusText}`);
-        //        }
-
-        //        const data = await response.json();
-        //        return data; // Retorna las ubicaciones como una promesa resuelta
-        //    } catch (error) {
-        //        console.error("Error al cargar ubicaciones:", error);
-        //        return []; // Devuelve un array vacío en caso de error
-        //    }
-        //}
 
         async function construirTags() {
             // Seleccionar solo los inputs con la clase cls-input-tag que NO tengan Tagify ya inicializado
@@ -699,8 +689,33 @@
             }
         }
 
-        function limpiarTabla() {
+        function reconstruirTabla(tipoAbastecimiento) {
+            let thUbicacionPicking = document.querySelector(".ubicacion-picking"); // Cabecera de la tabla
+            // Obtener todas las filas (td) de la columna "Ubicación PICKING"
+            let tdUbicacionPicking = document.querySelectorAll("td:nth-child(5)");
+            if (tipoAbastecimiento === "VM") {
+                if (thUbicacionPicking) thUbicacionPicking.style.display = "none";
+                tdUbicacionPicking.forEach(td => td.style.display = "none");
+            } else {
+                if (thUbicacionPicking) thUbicacionPicking.style.display = "";
+                tdUbicacionPicking.forEach(td => td.style.display = "");
+            }
+        }
+
+        function validarTipoAbastecimiento(elemento) {
+            const divComentario = document.getElementById("div_comentario");
+            const opcion = elemento.options[elemento.selectedIndex];
+            const tipoAbastecimiento = opcion.getAttribute("data-tipo");
+
             document.querySelector('#tbl_detalleRequerimiento tbody').innerHTML = '';
+
+            if (tipoAbastecimiento === "VM") {
+                reconstruirTabla(tipoAbastecimiento)
+                divComentario.removeAttribute("hidden")
+            } else {
+                divComentario.setAttribute("hidden", true)
+                resetValoresVacios(["Comentario"])
+            }
         }
 
         async function cargarUbicaciones(almacen, itemCode) {

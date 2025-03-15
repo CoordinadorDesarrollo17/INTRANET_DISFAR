@@ -10,6 +10,7 @@ namespace Capa_Entidad.AbastecimientoInterno_ENT.TablasSql
         public string Origen { get; set; }
         public string Destino { get; set; }
         public string TipoAbastecimiento { get; set; }
+        public string Comentario { get; set; }
         public DateTime TiempoRegistro { get; set; }
         public string OperarioRegistra { get; set; }
         public List<DetalleRequerimientos_E> Detalle { get; set; }

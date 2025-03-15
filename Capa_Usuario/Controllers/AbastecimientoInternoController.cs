@@ -1492,13 +1492,19 @@ namespace Capa_Usuario.Controllers
                                .ToList();
                 }
 
+                // Limpiamos el espacio para mejor validación
+                tipoAbastecimiento = tipoAbastecimiento.Replace(" ", "");
+
                 switch (tipoAbastecimiento)
                 {
                     case "Picking":
                         return PartialView("AbastecimientoInterno/_ListadoArticulosPicking", lista);
 
-                    case "Venta":
+                    case "VentaMaster":
                         return PartialView("AbastecimientoInterno/_ListadoArticulosVenta", lista);
+
+                    case "SalidaporAlmacen":
+                        return PartialView("AbastecimientoInterno/_ListadoArticulosSalidaporAlmacen", lista);
 
                     default:
                         return HttpNotFound("No se encontró la vista para el tipo de abastecimiento especificado.");
@@ -1525,7 +1531,7 @@ namespace Capa_Usuario.Controllers
                     int quantityReq = 0;
                     if (resultDetReq != null) { quantityReq = Convert.ToInt32(resultDetReq.Sum(r => r.QuantityUnidadesCajas)); }
 
-                    List<UbicacionesLotes_E> resultUbicacionesLotes = _ubicacionesLotesN.Obtener(itemCode).Where(x=>x.Almacen.Equals("RESERVA")).ToList();
+                    List<UbicacionesLotes_E> resultUbicacionesLotes = _ubicacionesLotesN.Obtener(itemCode).Where(x => x.Almacen.Equals("RESERVA")).ToList();
                     int quantityUbicacionesLote = 0;
                     if (resultUbicacionesLotes != null) { quantityUbicacionesLote = resultUbicacionesLotes.Sum(r => r.QuantityUnidadesCajas); }
 
@@ -1590,26 +1596,25 @@ namespace Capa_Usuario.Controllers
                             }
                         }
 
-                        //Validar que las ubicacion destino insertadas, existan
-                        var ubicacionesPicking = requerimiento.Detalle
-                        .SelectMany(d => new[]
+                        // Solo se requiere validar la ubicación PICKING para requerimientos de tipo abastecimiento: Picking y Salida por Almacen
+                        if (requerimiento.TipoAbastecimiento != "Venta Master")
                         {
-                            d.CodigoUbicacionDestino
-                        })
-                        .Distinct()
-                        .ToList();
-
-                        foreach (var u in ubicacionesPicking)
-                        {
-                            bool resultValidarUbicaciones = _ubicacionesN.BuscarUbicacion("PICKING", u);
-                            if (!resultValidarUbicaciones)
+                            //Validar que las ubicacion destino insertadas, existan
+                            var ubicacionesPicking = requerimiento.Detalle
+                            .SelectMany(d => new[]
                             {
-                                return Json(new
+                            d.CodigoUbicacionDestino
+                            })
+                            .Distinct()
+                            .ToList();
+
+                            foreach (var u in ubicacionesPicking)
+                            {
+                                bool resultValidarUbicaciones = _ubicacionesN.BuscarUbicacion("PICKING", u);
+                                if (!resultValidarUbicaciones)
                                 {
-                                    Titulo = "Error en la operación",
-                                    Mensajes = new List<string> { $"Revise que exista previamente la ubicación en Picking para: {u}" },
-                                    Icono = "error"
-                                });
+                                    return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { $"Revise que exista previamente la ubicación en Picking para: {u}" }, Icono = "error" });
+                                }
                             }
                         }
 
@@ -2218,13 +2223,13 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-        public JsonResult ConsultarUbicacionesSkuPicking( string itemCode, int idOperation = 3701)
+        public JsonResult ConsultarUbicacionesSkuPicking(string itemCode, int idOperation = 3701)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 List<UbicacionesLotes_E> resultUbicacionesLotes = _ubicacionesLotesN.Obtener(itemCode).Where(x => x.Almacen.Equals("RESERVA")).ToList();
-                return Json( new { resultUbicacionesLotes });
+                return Json(new { resultUbicacionesLotes });
             }
             else
             {

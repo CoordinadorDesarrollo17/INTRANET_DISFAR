@@ -56,8 +56,8 @@
 
                     <td scope="col" class="text-center">
                         <div class="d-flex justify-content-center">
-                            <input type="text" id="venta_stockSolicitadoSaldo_@num" data-campo="StockSolicitadoSaldo" class="form-control text-center cls-num @if (item.QuantitySaldo == 0) { Write("cls-readonly"); }" 
-                                   style="width: 100px" oninput="validarStock(this.value, @item.QuantitySaldo)" autocomplete="off" @if (item.QuantitySaldo == 0) { Write("readonly"); } />
+                            <input type="text" id="venta_stockSolicitadoSaldo_@num" data-campo="StockSolicitadoSaldo" class="form-control text-center cls-num" style="width: 100px" @if (item.QuantitySaldo == 0) { Write("cls-readonly"); }
+                                   oninput="validarStock(this.value, @item.QuantitySaldo)" autocomplete="off" @if (item.QuantitySaldo == 0) { Write("readonly"); } />
                             <input type="hidden" id="venta_stockSolicitadoTotalUnidades_@num" data-campo="StockSolicitadoTotalUnidades" class="form-control text-center" style="width: 100px" />
                         </div>
                     </td>
@@ -134,7 +134,7 @@
     }
 
 
-    function guardarArticulosVentaMaster() {
+    function guardarArticulosSalidaporAlmacen() {
         validarDatos()
 
         const tablaOrigen = document.querySelector('#tbl_listaArticulosAbastVenta tbody')
@@ -199,8 +199,15 @@
                             <input type="hidden" name="requerimiento.Detalle[].QuantityMaster" value="${item.StockSolicitadoMaster ?? 0}" />
                             <input type="hidden" name="requerimiento.Detalle[].QuantitySaldo" value="${item.StockSolicitadoSaldo ?? 0}" />
                             <input type="hidden" name="requerimiento.Detalle[].QuantityUnidadesCajas" value="${item.StockSolicitadoTotalUnidades}" />${item.StockSolicitadoTotalUnidades}
-                             <input type="hidden" name="requerimiento.Detalle[].CodigoUbicacionOrigen" value="${item.CodigoUbicacionOrigen}" />
-                             <input type="hidden" name="requerimiento.Detalle[].CodigoUbicacionDestino" value="" />
+                        </td>
+                        <td scope="col" class="text-center">
+                            <div class="d-flex justify-content-center align-items-center">
+                                <input type="hidden" name="requerimiento.Detalle[].CodigoUbicacionOrigen" value="${item.CodigoUbicacionOrigen}" />
+                                <input id="CodigoUbicacionDestino_${item.ItemCode}_${item.BatchNum}_${num}" name="requerimiento.Detalle[].CodigoUbicacionDestino"  class="form-control cls-input-tag" data-batchnum="${item.BatchNum}" data-itemcode="${item.ItemCode}"  />
+                                    <button class="btn btn-warning reload-button" type="button" data-inputid="CodigoUbicacionDestino_${item.ItemCode}_${item.BatchNum}_${num}" onclick="obtenerNuevasUbicaciones(this.dataset.inputid)">
+                                        <i class="bi bi-arrow-clockwise"></i>
+                                    </button>
+                            </div>
                         </td>
                     </tr>`
             ++num

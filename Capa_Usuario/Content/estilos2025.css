@@ -1137,3 +1137,7 @@ video {
 .cls-readonly {
     background-color: #e9ecef;
 }
+
+    .cls-readonly:focus {
+        background-color: #e9ecef;
+    }
