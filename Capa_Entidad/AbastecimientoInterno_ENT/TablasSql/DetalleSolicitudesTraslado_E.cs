@@ -18,6 +18,7 @@ namespace Capa_Entidad.AbastecimientoInterno_ENT.TablasSql
         public string Estado {  get; set; }
         //Campo que no es de la tabla
         public string UnidadAlmSugerido { get; set; }
+        public int AtendidoReserva { get; set; }
 
     }
 }

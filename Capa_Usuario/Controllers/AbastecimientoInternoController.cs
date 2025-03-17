@@ -750,13 +750,6 @@ namespace Capa_Usuario.Controllers
                                     });
                                 }
                             }
-
-                            //Asignar la ubicacion ideal segun UbicacionesLotesMaster
-                            foreach (var item in traslado.Detalle)
-                            {
-                                var resultados = _ubicacionesLotesMasterN.BuscarUnidadAlm(cn, new UbicacionesLotesMaster_E { Almacen = "RESERVA", ItemCode = item.Value.ItemCode, BatchNum = item.Value.BatchNum });
-                                if (resultados != null && resultados.Count == 1) { item.Value.UnidadAlmSugerido = resultados.First(); }
-                            }
                         }
                         scope.Complete();
                     }
@@ -1290,7 +1283,7 @@ namespace Capa_Usuario.Controllers
             {
                 if (docNum > 0)
                 {
-                    //Una vez validado los ids enviarlo a la transaccion unica para la reversion de todo el grupo segun ItemCode
+
                     using (var scope = new TransactionScope(TransactionScopeOption.Required,
                              new TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted },
                              TransactionScopeAsyncFlowOption.Enabled))
@@ -1338,8 +1331,6 @@ namespace Capa_Usuario.Controllers
                                         Icono = "error"
                                     });
                                 }
-
-
 
                                 //  Restar y/o eliminar en la tabla UbicacionesLotesMaster
                                 var resultUbicacionesLotesMaster = _ubicacionesLotesMasterN.RevertirIngreso(transferenciaGet, cn);
@@ -1452,6 +1443,129 @@ namespace Capa_Usuario.Controllers
             }
 
         }
+        public JsonResult DeleteItemTransferencia(int docNum, string itemCode, int idOperation = 3306) //recibe el docnum de la solicitud de traslado y el ItemCode a eliminar
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
+            {
+                return Json(new
+                {
+                    Titulo = "No se pudo completar la acción",
+                    Mensajes = new List<string> { "Error de accesos." },
+                    Icono = "error"
+                });
+            }
+            try
+            {
+                if (docNum > 0)
+                {
+                    using (var scope = new TransactionScope(TransactionScopeOption.Required,
+                             new TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted },
+                             TransactionScopeAsyncFlowOption.Enabled))
+                    {
+                        Utilitarios uti = new Utilitarios();
+                        using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+                        {
+                            cn.Open();
+                            // Identificar solo el Itemcode involucrado
+
+                            Dictionary<string, DetalleSolicitudesTraslado_E> traslado = _solicitudTrasladoN.ObtenerSolicitudDeTraslado(docNum, cn).Detalle
+                            .Where(kv => kv.Value.ItemCode == itemCode)
+                            .ToDictionary(kv => kv.Key, kv => kv.Value);
+                            if (traslado == null)
+                            {
+                                return Json(new
+                                {
+                                    Titulo = "No se pudo completar la acción",
+                                    Mensajes = new List<string> { "No se encontró la solicitud de traslado original." },
+                                    Icono = "error"
+                                });
+                            }
+
+                            var transferencia = _transferenciaReservaN.ObtenerTransferenciaReserva(docNum, cn).Detalle.Where(x => x.ItemCode == itemCode).ToList();
+                            if (transferencia == null)
+                            {
+                                return Json(new
+                                {
+                                    Titulo = "No se pudo completar la acción",
+                                    Mensajes = new List<string> { "No se encontró transferencia de reserva relacionada." },
+                                    Icono = "error"
+                                });
+                            }
+
+                            //Eliminar los items de Detalle de Transferencia de Reserva  que sean del ItemCode
+                            var resultTransferencia = _transferenciaReservaN.DeleteDetalleItemTransferenciaReserva(transferencia, traslado, cn);
+                            if (resultTransferencia.IconoSweetAlert.Equals("error"))
+                            {
+                                return Json(new
+                                {
+                                    Titulo = "No se pudo completar la acción",
+                                    resultTransferencia.Mensajes,
+                                    Icono = resultTransferencia.IconoSweetAlert
+                                });
+                            }
+
+                            //Verificar si la TransferenciaReserva se quedo sin elementos 
+                            var transferenciaPostReversion = _transferenciaReservaN.ObtenerTransferenciaReserva(docNum, cn);
+
+                            if (transferenciaPostReversion != null && transferenciaPostReversion.Detalle.Count() == 0)
+                            {
+                                //Eliminar la transferencia 
+                                var resultEliminarTransferencia = _transferenciaReservaN.DeleteTransferenciaReserva(docNum, cn);
+                                if (resultEliminarTransferencia.IconoSweetAlert.Equals("error"))
+                                {
+                                    return Json(new
+                                    {
+                                        Titulo = "No se pudo completar la acción",
+                                        resultEliminarTransferencia.Mensajes,
+                                        Icono = resultEliminarTransferencia.IconoSweetAlert
+                                    });
+                                }
+
+                                //Luego Eliminar Detalle y Cabecera de Solicitud de Traslado solo si la transferencia ya se elimino
+                                var resultSolicitudTraslado = _solicitudTrasladoN.DeleteSolicitudDeTraslado(docNum, cn);
+                                if (resultSolicitudTraslado.IconoSweetAlert.Equals("error"))
+                                {
+                                    return Json(new
+                                    {
+                                        Titulo = "No se pudo completar la acción",
+                                        resultSolicitudTraslado.Mensajes,
+                                        Icono = resultSolicitudTraslado.IconoSweetAlert
+                                    });
+                                }
+
+                            }
+                        }
+                        scope.Complete();
+                    }
+                    return Json(new
+                    {
+                        Titulo = "Acción completada exitosamente",
+                        Mensajes = new List<string> { "Se reestablecieron los datos en la Transferencia Reserva" },
+                        Icono = "success"
+                    });
+                }
+                else
+                {
+                    return Json(new
+                    {
+                        Titulo = "Error en la operación",
+                        Mensajes = new List<string> { "El docNum es invalido." },
+                        Icono = "error"
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    Titulo = "Error en la operación",
+                    Mensajes = new List<string> { ex.Message},
+                    Icono = "error"
+                });
+            }
+        }
+
         /****************************** R E Q U E R I M I E N T O S ****************************/
         public ActionResult Requerimientos(int idOperation = 3400)
         {
@@ -1525,7 +1639,7 @@ namespace Capa_Usuario.Controllers
                     int quantityReq = 0;
                     if (resultDetReq != null) { quantityReq = Convert.ToInt32(resultDetReq.Sum(r => r.QuantityUnidadesCajas)); }
 
-                    List<UbicacionesLotes_E> resultUbicacionesLotes = _ubicacionesLotesN.Obtener(itemCode).Where(x=>x.Almacen.Equals("RESERVA")).ToList();
+                    List<UbicacionesLotes_E> resultUbicacionesLotes = _ubicacionesLotesN.Obtener(itemCode).Where(x => x.Almacen.Equals("RESERVA")).ToList();
                     int quantityUbicacionesLote = 0;
                     if (resultUbicacionesLotes != null) { quantityUbicacionesLote = resultUbicacionesLotes.Sum(r => r.QuantityUnidadesCajas); }
 
@@ -2218,13 +2332,13 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-        public JsonResult ConsultarUbicacionesSkuPicking( string itemCode, int idOperation = 3701)
+        public JsonResult ConsultarUbicacionesSkuPicking(string itemCode, int idOperation = 3701)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 List<UbicacionesLotes_E> resultUbicacionesLotes = _ubicacionesLotesN.Obtener(itemCode).Where(x => x.Almacen.Equals("RESERVA")).ToList();
-                return Json( new { resultUbicacionesLotes });
+                return Json(new { resultUbicacionesLotes });
             }
             else
             {
