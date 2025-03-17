@@ -113,7 +113,7 @@
                             <td class="text-center align-middle">@item.QuantityMaster</td>
                             <td class="text-center align-middle">@item.QuantitySaldo</td>
                             <td class="text-center align-middle">
-                                <button type="button" class="btn btn-success" title="Atender" data-bs-toggle="tooltip" data-bs-placement="top" onclick="atenderReserva(@item.Id)"><i class="bi bi-cart-check"></i></button>
+                                <button type="button" class="btn btn-success" title="Atender" data-bs-toggle="tooltip" data-bs-placement="top" onclick="atenderReserva(@item.Id, @item.RequerimientoId)"><i class="bi bi-cart-check"></i></button>
                             </td>
                         </tr>
                     }
@@ -179,9 +179,9 @@
         }
     });
 
-    async function atenderReserva(id) {
-        if (!id) {
-            console.log('Error: El ID no se encontró.');
+    async function atenderReserva(id, requerimientoId) {
+        if (!id || !requerimientoId) {
+            console.warn('Error: Verificar los parámetros de atenderReserva()');
             return;
         }
 
@@ -199,7 +199,7 @@
                     const response = await fetch("/AbastecimientoInterno/AtenderReservaRequerimiento", {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ id })
+                        body: JSON.stringify({ id, requerimientoId })
                     });
 
                     if (!response.ok) throw new Error(`Error en la solicitud: ${response.statusText}`);

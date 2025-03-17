@@ -98,7 +98,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                             while (dr.Read())
                             {
                                 if (!dr.IsDBNull(0)) obj.Id = dr.GetInt32(0);
-                                if (!dr.IsDBNull(4)) obj.StockMinVenta = dr.GetInt32(4);
+                                if (!dr.IsDBNull(4)) obj.StockMinAbastecimiento = dr.GetInt32(4);
                             }
                         }
                     }

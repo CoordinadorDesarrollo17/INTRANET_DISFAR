@@ -15,72 +15,74 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
     {
         readonly Utilitarios uti = new Utilitarios();
 
-        public Requerimientos_E ObtenerRequerimiento(int id)
+        public Requerimientos_E ObtenerRequerimiento(int id, SqlConnection cn)
         {
             Requerimientos_E requerimiento = null;
 
-            using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+            string mensaje, icono;
+            if (cn.State != ConnectionState.Open)
             {
-                try
+                cn.Open();
+            }
+
+            try
+            {
+                SqlCommand cmd = new SqlCommand("sp_MantenimientoRequerimiento", cn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@TipoMantenimiento", "GET");
+                cmd.Parameters.AddWithValue("@Id", id);
+                var outputId = new SqlParameter("@IdGenerado", SqlDbType.Int)
                 {
-                    cn.Open();
-                    SqlCommand cmd = new SqlCommand("sp_MantenimientoRequerimiento", cn);
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "GET");
-                    cmd.Parameters.AddWithValue("@Id", id);
-                    var outputId = new SqlParameter("@IdGenerado", SqlDbType.Int)
-                    {
-                        Direction = ParameterDirection.Output
-                    };
-                    cmd.Parameters.Add(outputId);
-                    SqlDataReader dr = cmd.ExecuteReader();
+                    Direction = ParameterDirection.Output
+                };
+                cmd.Parameters.Add(outputId);
+                SqlDataReader dr = cmd.ExecuteReader();
 
-                    if (dr.Read())
-                    {
-                        requerimiento = new Requerimientos_E();
-
-                        if (!dr.IsDBNull(0)) { requerimiento.Id = dr.GetInt32(0); }
-                        if (!dr.IsDBNull(1)) { requerimiento.Origen = dr.GetString(1); }
-                        if (!dr.IsDBNull(2)) { requerimiento.Destino = dr.GetString(2); }
-                        if (!dr.IsDBNull(3)) { requerimiento.TipoAbastecimiento = dr.GetString(3); }
-                        if (!dr.IsDBNull(4)) { requerimiento.Comentario = dr.GetString(4); }
-                        if (!dr.IsDBNull(5)) { requerimiento.TiempoRegistro = dr.GetDateTime(5); }
-                        if (!dr.IsDBNull(6)) { requerimiento.OperarioRegistra = dr.GetString(6); }
-
-                        requerimiento.Detalle = new List<DetalleRequerimientos_E>();
-                    }
-
-                    if (dr.NextResult() && requerimiento != null)
-                    {
-                        while (dr.Read())
-                        {
-                            var detalle = new DetalleRequerimientos_E();
-
-                            if (!dr.IsDBNull(0)) { detalle.Id = dr.GetInt32(0); }
-                            if (!dr.IsDBNull(1)) { detalle.RequerimientoId = dr.GetInt32(1); }
-                            if (!dr.IsDBNull(2)) { detalle.ItemCode = dr.GetString(2); }
-                            if (!dr.IsDBNull(3)) { detalle.ItemName = dr.GetString(3); }
-                            if (!dr.IsDBNull(4)) { detalle.BatchNum = dr.GetString(4); }
-                            if (!dr.IsDBNull(5)) { detalle.CodigoUbicacionOrigen = dr.GetString(5); }
-                            if (!dr.IsDBNull(6)) { detalle.CodigoUbicacionDestino = dr.GetString(6); }
-                            if (!dr.IsDBNull(7)) { detalle.UmAlm = dr.GetString(7); }
-                            if (!dr.IsDBNull(8)) { detalle.ValorUmAlm = dr.GetInt32(8); }
-                            if (!dr.IsDBNull(9)) { detalle.QuantityMaster = dr.GetInt32(9); }
-                            if (!dr.IsDBNull(10)) { detalle.QuantitySaldo = dr.GetInt32(10); }
-                            if (!dr.IsDBNull(11)) { detalle.QuantityUnidadesCajas = dr.GetInt32(11); }
-                            if (!dr.IsDBNull(12)) { detalle.AtendidoReserva = dr.GetInt32(12); }
-                            if (!dr.IsDBNull(13)) { detalle.AtendidoPicking = dr.GetInt32(13); }
-
-                            requerimiento.Detalle.Add(detalle);
-                        }
-                    }
-
-                    dr.Close();
-                }
-                catch (Exception ex)
+                if (dr.Read())
                 {
-                    throw new Exception("Error al obtener el requerimiento.", ex);
+                    requerimiento = new Requerimientos_E();
+
+                    if (!dr.IsDBNull(0)) { requerimiento.Id = dr.GetInt32(0); }
+                    if (!dr.IsDBNull(1)) { requerimiento.Origen = dr.GetString(1); }
+                    if (!dr.IsDBNull(2)) { requerimiento.Destino = dr.GetString(2); }
+                    if (!dr.IsDBNull(3)) { requerimiento.TipoAbastecimiento = dr.GetString(3); }
+                    if (!dr.IsDBNull(4)) { requerimiento.Comentario = dr.GetString(4); }
+                    if (!dr.IsDBNull(5)) { requerimiento.TiempoRegistro = dr.GetDateTime(5); }
+                    if (!dr.IsDBNull(6)) { requerimiento.OperarioRegistra = dr.GetString(6); }
+
+                    requerimiento.Detalle = new List<DetalleRequerimientos_E>();
                 }
+
+                if (dr.NextResult() && requerimiento != null)
+                {
+                    while (dr.Read())
+                    {
+                        var detalle = new DetalleRequerimientos_E();
+
+                        if (!dr.IsDBNull(0)) { detalle.Id = dr.GetInt32(0); }
+                        if (!dr.IsDBNull(1)) { detalle.RequerimientoId = dr.GetInt32(1); }
+                        if (!dr.IsDBNull(2)) { detalle.ItemCode = dr.GetString(2); }
+                        if (!dr.IsDBNull(3)) { detalle.ItemName = dr.GetString(3); }
+                        if (!dr.IsDBNull(4)) { detalle.BatchNum = dr.GetString(4); }
+                        if (!dr.IsDBNull(5)) { detalle.CodigoUbicacionOrigen = dr.GetString(5); }
+                        if (!dr.IsDBNull(6)) { detalle.CodigoUbicacionDestino = dr.GetString(6); }
+                        if (!dr.IsDBNull(7)) { detalle.UmAlm = dr.GetString(7); }
+                        if (!dr.IsDBNull(8)) { detalle.ValorUmAlm = dr.GetInt32(8); }
+                        if (!dr.IsDBNull(9)) { detalle.QuantityMaster = dr.GetInt32(9); }
+                        if (!dr.IsDBNull(10)) { detalle.QuantitySaldo = dr.GetInt32(10); }
+                        if (!dr.IsDBNull(11)) { detalle.QuantityUnidadesCajas = dr.GetInt32(11); }
+                        if (!dr.IsDBNull(12)) { detalle.AtendidoReserva = dr.GetInt32(12); }
+                        if (!dr.IsDBNull(13)) { detalle.AtendidoPicking = dr.GetInt32(13); }
+
+                        requerimiento.Detalle.Add(detalle);
+                    }
+                }
+
+                dr.Close();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error al obtener el requerimiento.", ex);
             }
 
             return requerimiento;

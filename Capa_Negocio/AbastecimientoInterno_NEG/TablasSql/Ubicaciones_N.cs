@@ -24,7 +24,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         {
             return _datos.ListarTotalUbicacionesEnArray(almacen, itemCode);
         }
-        public List<Ubicaciones_E> ListarUbicaciones(Ubicaciones_E filtros = null, Dictionary<string, object> parametros = null)
+        public List<Ubicaciones_E> ListarUbicaciones(Ubicaciones_E filtros = null, SqlConnection cn = null, Dictionary<string, object> parametros = null )
         {
             StringBuilder condicion = new StringBuilder();
 
@@ -52,7 +52,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
                 }
             }
 
-            return _datos.ListarUbicaciones(condicion.ToString(), parametros);
+            return _datos.ListarUbicaciones(condicion.ToString(), parametros, cn);
         }
         public Ubicaciones_E ObtenerDatosUbicacion(Ubicaciones_E filtros)
         {

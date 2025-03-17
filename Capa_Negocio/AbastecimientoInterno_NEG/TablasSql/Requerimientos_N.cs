@@ -15,9 +15,9 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
     {
         Requerimientos_D _requerimientoD = new Requerimientos_D();
 
-        public Requerimientos_E ObtenerRequerimiento(int id)
+        public Requerimientos_E ObtenerRequerimiento(int id, SqlConnection cn)
         {
-            return _requerimientoD.ObtenerRequerimiento(id);
+            return _requerimientoD.ObtenerRequerimiento(id, cn);
         }
         public Helper_E AtenderReserva(int detalleId)
         {

@@ -102,52 +102,57 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             return ubicaciones.ToArray(); // Retornar el array de ubicaciones
         }
-        public List<Ubicaciones_E> ListarUbicaciones(string condicion, Dictionary<string, object> parametros)
+        public List<Ubicaciones_E> ListarUbicaciones(string condicion, Dictionary<string, object> parametros, SqlConnection cn)
         {
             List<Ubicaciones_E> lista = new List<Ubicaciones_E>();
 
+            if (cn == null)
+            {
+                cn = new SqlConnection(uti.cadSql2);
+            }
+
+            if (cn.State != ConnectionState.Open)
+            {
+                cn.Open();
+            }
+
             try
             {
-                using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = cn;
+
+                var sb = new StringBuilder();
+
+                sb.AppendLine("SELECT Id, Almacen, CodigoUbicacion");
+                sb.AppendLine("FROM Ubicaciones");
+                sb.AppendLine("WHERE 1=1");
+                sb.AppendLine(condicion);
+
+                // Agregamos los parámetros dinámicamente
+                foreach (var param in parametros)
                 {
-                    SqlCommand cmd = new SqlCommand();
-                    cmd.Connection = cn;
+                    cmd.Parameters.AddWithValue(param.Key, param.Value);
+                }
 
-                    var sb = new StringBuilder();
+                cmd.CommandText = sb.ToString();
 
-                    sb.AppendLine("SELECT Id, Almacen, CodigoUbicacion");
-                    sb.AppendLine("FROM Ubicaciones");
-                    sb.AppendLine("WHERE 1=1");
-                    sb.AppendLine(condicion);
-
-                    // Agregamos los parámetros dinámicamente
-                    foreach (var param in parametros)
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    if (dr.HasRows)
                     {
-                        cmd.Parameters.AddWithValue(param.Key, param.Value);
-                    }
-
-                    cmd.CommandText = sb.ToString();
-
-                    cn.Open();
-
-                    using (SqlDataReader dr = cmd.ExecuteReader())
-                    {
-                        if (dr.HasRows)
+                        while (dr.Read())
                         {
-                            while (dr.Read())
-                            {
-                                var obj = new Ubicaciones_E();
+                            var obj = new Ubicaciones_E();
 
-                                if (!dr.IsDBNull(0)) obj.Id = dr.GetInt32(0);
-                                if (!dr.IsDBNull(1)) obj.Almacen = dr.GetString(1);
-                                if (!dr.IsDBNull(2)) obj.CodigoUbicacion = dr.GetString(2);
+                            if (!dr.IsDBNull(0)) obj.Id = dr.GetInt32(0);
+                            if (!dr.IsDBNull(1)) obj.Almacen = dr.GetString(1);
+                            if (!dr.IsDBNull(2)) obj.CodigoUbicacion = dr.GetString(2);
 
-                                lista.Add(obj);
-                            }
+                            lista.Add(obj);
                         }
                     }
-                    cn.Close();
                 }
+                cn.Close();
             }
             catch (Exception ex)
             {

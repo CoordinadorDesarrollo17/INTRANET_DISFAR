@@ -56,7 +56,7 @@
 
                     <td scope="col" class="text-center">
                         <div class="d-flex justify-content-center">
-                            <input type="text" id="venta_stockSolicitadoSaldo_@num" data-campo="StockSolicitadoSaldo" class="form-control text-center cls-num" style="width: 100px" @if (item.QuantitySaldo == 0) { Write("cls-readonly"); }
+                            <input type="text" id="venta_stockSolicitadoSaldo_@num" data-campo="StockSolicitadoSaldo" class="form-control text-center cls-num @if (item.QuantitySaldo == 0) { Write("cls-readonly"); }" style="width: 100px" 
                                    oninput="validarStock(this.value, @item.QuantitySaldo)" autocomplete="off" @if (item.QuantitySaldo == 0) { Write("readonly"); } />
                             <input type="hidden" id="venta_stockSolicitadoTotalUnidades_@num" data-campo="StockSolicitadoTotalUnidades" class="form-control text-center" style="width: 100px" />
                         </div>

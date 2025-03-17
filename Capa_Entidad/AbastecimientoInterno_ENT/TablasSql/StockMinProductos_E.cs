@@ -6,7 +6,6 @@
         public string ItemCode { get; set; }
         public string ItemName { get; set; }
         public int StockMinAbastecimiento { get; set; }
-        public int StockMinVenta { get; set; }
         public string Clasificacion { get; set; }
 
         // Campos que no son de la tabla

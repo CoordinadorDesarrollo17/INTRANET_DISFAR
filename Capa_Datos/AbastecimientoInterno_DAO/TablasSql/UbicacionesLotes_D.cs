@@ -16,57 +16,54 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
         readonly Utilitarios uti = new Utilitarios();
         readonly DBHelper db = new DBHelper();
 
-        public List<UbicacionesLotes_E> ListarUbicaciones(string condicion, Dictionary<string, object> parametros)
+        public List<UbicacionesLotes_E> ListarUbicaciones(string condicion, Dictionary<string, object> parametros, SqlConnection cn)
         {
             List<UbicacionesLotes_E> lista = new List<UbicacionesLotes_E>();
 
             try
             {
-                using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = cn;
+
+                var sb = new StringBuilder();
+
+                sb.AppendLine("SELECT ULM.[Id], ULM.[UbicacionId], ULM.[Almacen], ULM.[ItemCode], ULM.[ItemName], ULM.[CodigoUbicacion], ULM.[BatchNum], ULM.[QuantityUnidadesCajas]");
+                sb.AppendLine("FROM UbicacionesLotes ULM");
+                sb.AppendLine("WHERE 1=1");
+                sb.AppendLine(condicion);
+
+                // Agregamos los parámetros dinámicamente
+                foreach (var param in parametros)
                 {
-                    SqlCommand cmd = new SqlCommand();
-                    cmd.Connection = cn;
+                    cmd.Parameters.AddWithValue(param.Key, param.Value);
+                }
 
-                    var sb = new StringBuilder();
+                cmd.CommandText = sb.ToString();
 
-                    sb.AppendLine("SELECT ULM.[Id], ULM.[UbicacionId], ULM.[Almacen], ULM.[ItemCode], ULM.[ItemName], ULM.[CodigoUbicacion], ULM.[BatchNum], ULM.[QuantityUnidadesCajas]");
-                    sb.AppendLine("FROM UbicacionesLotes ULM");
-                    sb.AppendLine("WHERE 1=1");
-                    sb.AppendLine(condicion);
-
-                    // Agregamos los parámetros dinámicamente
-                    foreach (var param in parametros)
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    if (dr.HasRows)
                     {
-                        cmd.Parameters.AddWithValue(param.Key, param.Value);
-                    }
-
-                    cmd.CommandText = sb.ToString();
-
-                    cn.Open();
-
-                    using (SqlDataReader dr = cmd.ExecuteReader())
-                    {
-                        if (dr.HasRows)
+                        while (dr.Read())
                         {
-                            while (dr.Read())
-                            {
-                                var obj = new UbicacionesLotes_E();
+                            var obj = new UbicacionesLotes_E();
 
-                                if (!dr.IsDBNull(0)) obj.Id = dr.GetInt32(0);
-                                if (!dr.IsDBNull(1)) obj.UbicacionId = dr.GetInt32(1);
-                                if (!dr.IsDBNull(2)) obj.Almacen = dr.GetString(2);
-                                if (!dr.IsDBNull(3)) obj.ItemCode = dr.GetString(3);
-                                if (!dr.IsDBNull(4)) obj.ItemName = dr.GetString(4);
-                                if (!dr.IsDBNull(5)) obj.CodigoUbicacion = dr.GetString(5);
-                                if (!dr.IsDBNull(6)) obj.BatchNum = dr.GetString(6);
-                                if (!dr.IsDBNull(7)) obj.QuantityUnidadesCajas = dr.GetInt32(7);
+                            if (!dr.IsDBNull(0)) obj.Id = dr.GetInt32(0);
+                            if (!dr.IsDBNull(1)) obj.UbicacionId = dr.GetInt32(1);
+                            if (!dr.IsDBNull(2)) obj.Almacen = dr.GetString(2);
+                            if (!dr.IsDBNull(3)) obj.ItemCode = dr.GetString(3);
+                            if (!dr.IsDBNull(4)) obj.ItemName = dr.GetString(4);
+                            if (!dr.IsDBNull(5)) obj.CodigoUbicacion = dr.GetString(5);
+                            if (!dr.IsDBNull(6)) obj.BatchNum = dr.GetString(6);
+                            if (!dr.IsDBNull(7)) obj.QuantityUnidadesCajas = dr.GetInt32(7);
 
-                                lista.Add(obj);
-                            }
+                            lista.Add(obj);
                         }
                     }
-                    cn.Close();
                 }
+                cn.Close();
+
             }
             catch (Exception ex)
             {
@@ -81,19 +78,19 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
         {
             try
             {
-                string query = @"SELECT Id, UbicacionId, Almacen, ItemCode, ItemName, CodigoUbicacion, BatchNum, QuantityUnidadesCajas 
+                using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+                {
+                    string query = @"SELECT Id, UbicacionId, Almacen, ItemCode, ItemName, CodigoUbicacion, BatchNum, QuantityUnidadesCajas 
                          FROM UbicacionesLotes 
                          WHERE ItemCode = @ItemCode";
 
-                if (!string.IsNullOrEmpty(batchNum))
-                {
-                    query += " AND BatchNum = @BatchNum";
-                }
+                    if (!string.IsNullOrEmpty(batchNum))
+                    {
+                        query += " AND BatchNum = @BatchNum";
+                    }
 
-                List<UbicacionesLotes_E> resultado = null;
+                    List<UbicacionesLotes_E> resultado = null;
 
-                using (SqlConnection cn = new SqlConnection(uti.cadSql2))
-                {
                     using (SqlCommand cmd = new SqlCommand(query, cn))
                     {
                         cmd.Parameters.AddWithValue("@ItemCode", itemCode);
@@ -102,8 +99,6 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                         {
                             cmd.Parameters.AddWithValue("@BatchNum", batchNum);
                         }
-                        
-                        cn.Open();
 
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
@@ -126,9 +121,8 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                             }
                         }
                     }
+                    return resultado ?? new List<UbicacionesLotes_E>();
                 }
-
-                return resultado ?? new List<UbicacionesLotes_E>();
             }
             catch (Exception ex)
             {
@@ -138,16 +132,21 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
         }
         public Helper_E Ingreso(DetalleTransferenciaReserva_E detalle, SqlConnection cn)
         {
-            string mensaje , icono;
+            string mensaje, icono;
             int id = 0;
+
+            if (cn == null)
+            {
+                cn = new SqlConnection(uti.cadSql2);
+            }
+
+            if (cn.State != ConnectionState.Open)
+            {
+                cn.Open();
+            }
 
             try
             {
-                if (cn.State != ConnectionState.Open)
-                {
-                    cn.Open();
-                }
-
                 using (SqlCommand cmd = new SqlCommand("sp_MantenimientoUbicacionesLotes", cn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
@@ -351,6 +350,90 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 icono = "error";
 
                 LogHelper.RegistrarError(ex, $"Error inesperado en UbicacionesLotes_D - EliminarArticulo.");
+            }
+
+            return new Helper_E { Mensajes = new List<string> { mensajeUsuario }, IconoSweetAlert = icono };
+        }
+
+        public Helper_E RegistrarCodigoUbicacionPicking(List<DetalleRequerimientos_E> detalle, SqlConnection cn)
+        {
+            string mensajeUsuario, icono;
+
+            try
+            {
+                if (cn.State != ConnectionState.Open)
+                {
+                    cn.Open();
+                }
+
+                using (SqlCommand cmd = new SqlCommand("sp_MantenimientoUbicacionesLotes", cn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "INS_CODUBI_PICKING");
+
+                    if (detalle.Any())
+                    {
+                        // Crear tabla de parámetros para el tipo DetalleRequerimientosType
+                        DataTable detalleTable = new DataTable();
+                        detalleTable.Columns.Add("Id", typeof(int));
+                        detalleTable.Columns.Add("UbicacionId", typeof(int));
+                        detalleTable.Columns.Add("Almacen", typeof(string));
+                        detalleTable.Columns.Add("ItemCode", typeof(string));
+                        detalleTable.Columns.Add("ItemName", typeof(string));
+                        detalleTable.Columns.Add("CodigoUbicacion", typeof(string));
+                        detalleTable.Columns.Add("BatchNum", typeof(string));
+                        detalleTable.Columns.Add("QuantityUnidadesCajas", typeof(int));
+
+                        foreach (var item in detalle)
+                        {
+                            detalleTable.Rows.Add(
+                                0,
+                                item.UbicacionId,
+                                "PICKING",
+                                item.ItemCode,
+                                item.ItemName,
+                                item.CodigoUbicacionDestino,
+                                item.BatchNum,
+                                (object)item.QuantityUnidadesCajas ?? DBNull.Value
+                            );
+                        }
+
+                        SqlParameter detalleParam = new SqlParameter("@ListaCUP", SqlDbType.Structured)
+                        {
+                            TypeName = "dbo.CodigoUbicacionPickingType",
+                            Value = detalleTable
+                        };
+                        cmd.Parameters.Add(detalleParam);
+                    }
+
+
+                    SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
+                    {
+                        Direction = ParameterDirection.Output
+                    };
+                    cmd.Parameters.Add(idGeneradoParam);
+
+                    cmd.ExecuteNonQuery();
+
+                }
+
+
+                mensajeUsuario = "Ubicación registrada correctamente.";
+                icono = "success";
+            }
+            catch (SqlException sqlEx)
+            {
+                mensajeUsuario = (sqlEx.Number == 50000) ? sqlEx.Message : "No se pudo registrar el código de ubicación. Intente nuevamente.";
+                icono = "error";
+                throw new Exception(mensajeUsuario, sqlEx);
+                LogHelper.RegistrarError(sqlEx, $"Error SQL en UbicacionesLotes_D - RegistrarCodigoUbicacionPicking.");
+            }
+            catch (Exception ex)
+            {
+                mensajeUsuario = "Ocurrió un problema inesperado. Por favor, comunicarse con SISTEMAS.";
+                icono = "error";
+                throw new Exception(mensajeUsuario, ex);
+                LogHelper.RegistrarError(ex, $"Error inesperado en UbicacionesLotes_D - RegistrarCodigoUbicacionPicking.");
             }
 
             return new Helper_E { Mensajes = new List<string> { mensajeUsuario }, IconoSweetAlert = icono };
