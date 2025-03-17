@@ -57,7 +57,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
                 {
                     return new Helper_E
                     {
-                        Mensajes= new List<string>{ "Cantidad a transferir no cubre total de Sku: "+item.Key},
+                        Mensajes= new List<string>{ "Cantidad que se transfiere NO coincide con el total de Sku: "+item.Key + " según documento. Valide cantidades."},
                         IconoSweetAlert = "error"
                     };
                 }
@@ -82,12 +82,16 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         }
         public List<DetalleTransferenciaReserva_E> ListarDetalles()
         {
-            return (List<DetalleTransferenciaReserva_E>)_datosTransferencia.ListarDetalles().Where(x=>x.AtendidoReserva==0).ToList();
+            return (List<DetalleTransferenciaReserva_E>)_datosTransferencia.ListarDetalles().Where(x=>x.AtendidoReserva==0 && x.Validado == 1).ToList();
         }
         public bool ValidarSkuParaKardexIngreso(int transferenciaId, string itemCode, TransferenciaReserva_E transferencia)
         {
             bool valido = !transferencia.Detalle.Any(d => d.ItemCode == itemCode && d.AtendidoReserva == 0);
             return valido;
+        }
+        public Helper_E ValidarSkuParaApilar(int transferenciaId, string itemCode ,SqlConnection cn)
+        {
+            return _datosTransferencia.ValidarSkuParaApilar(transferenciaId, itemCode, cn);
         }
     }
  }

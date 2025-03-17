@@ -154,6 +154,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                                 if (!dr.IsDBNull(11)) detalle.QuantitySaldo = dr.GetInt32(11);
                                 if (!dr.IsDBNull(12)) detalle.QuantityUnidadesCajas = dr.GetInt32(12);
                                 if (!dr.IsDBNull(13)) detalle.AtendidoReserva = dr.GetInt32(13);
+                                if (!dr.IsDBNull(14)) detalle.Validado = dr.GetInt32(14);
 
                                 transferencia.Detalle.Add(detalle);
                             }
@@ -341,6 +342,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                             if (!dr.IsDBNull(13)) { detalle.Posicion = dr.GetString(13); }
                             if (!dr.IsDBNull(14)) { detalle.RackBloque = dr.GetString(14); }
                             if (!dr.IsDBNull(15)) { detalle.DocNumSolicitudTraslado = dr.GetInt32(15); }
+                            if (!dr.IsDBNull(16)) { detalle.Validado = dr.GetInt32(16); }
                             lista.Add(detalle);
                         }
                     }
@@ -352,6 +354,47 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
             }
 
             return lista;
+        }
+        public Helper_E ValidarSkuParaApilar(int transferenciaId, string itemCode, SqlConnection cn)
+        {
+            string mensaje, icono;
+
+            try
+            {
+                if (cn.State != ConnectionState.Open)
+                {
+                    cn.Open();
+                }
+
+                using (SqlCommand cmd = new SqlCommand("sp_MantenimientoTransferenciaReserva", cn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "VALIDAR_APILAR");
+                    cmd.Parameters.AddWithValue("@Id", transferenciaId);
+                    cmd.Parameters.AddWithValue("@ItemCode", itemCode);
+                    SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
+                    {
+                        Direction = ParameterDirection.Output
+                    };
+                    cmd.Parameters.Add(idGeneradoParam);
+
+                    cmd.ExecuteNonQuery();
+
+                    mensaje = "Detalle de transferencia validado";
+                    icono = "success";
+                }
+
+            }
+            catch (Exception ex)
+            {
+                LogHelper.RegistrarError(ex, "SolicitudTraslado_D - AtenderReserva");
+                mensaje = "Ocurrió un error al validar en  transferencia detalle. Comuníquese con el área de Sistemas para más información.";
+                icono = "error";
+                throw new Exception("Error en ValidarSkuParaApilar.", ex);
+            }
+
+            return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
         }
     }
 }

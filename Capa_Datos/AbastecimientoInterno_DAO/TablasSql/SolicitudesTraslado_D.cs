@@ -80,8 +80,9 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                                 if (!dr.IsDBNull(8)) { detalle.Estado = dr.GetString(8); }
                                 if (!dr.IsDBNull(9)) { detalle.InDate = dr.GetDateTime(9).ToString("yyyy-MM-dd"); }
                                 if (!dr.IsDBNull(10)) { detalle.ExpDate = dr.GetDateTime(10).ToString("yyyy-MM-dd"); }
-                                //Averigua si el SKU ya ha sido atendido en alguno de sus lotes o ubicaciones
+                                //Averigua si el SKU ya ha sido atendido o validado en alguno de sus lotes o ubicaciones (Datos que vienen desde Transferencia)
                                 if (!dr.IsDBNull(11)) { detalle.AtendidoReserva = dr.GetInt32(11); }
+                                if (!dr.IsDBNull(12)) { detalle.Validado = dr.GetInt32(12); }
                                 // Si la clave única no existe en el diccionario, agregar el detalle
                                 if (!solicitud.Detalle.ContainsKey(uniqueKey))
                                 {
