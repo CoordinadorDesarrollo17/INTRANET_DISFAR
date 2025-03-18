@@ -125,9 +125,9 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
             catch (Exception ex)
             {
                 LogHelper.RegistrarError(ex, "UbicacionesLotesMaster_D - RevertirIngreso");
-                mensaje = "Ocurrió un error al registrar un revertir ingreso en UbicacionesLotesMaster. Comuníquese con el área de Sistemas para más información.";
+                mensaje = $"Ocurrió un error al registrar un revertir ingreso en UbicacionesLotesMaster. {ex.Message}";
                 icono = "error";
-                throw new Exception("Error en Revertir ingreso.", ex);
+                return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
             }
 
             return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };

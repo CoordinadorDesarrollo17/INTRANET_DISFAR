@@ -741,23 +741,6 @@ namespace Capa_Usuario.Controllers
 
                                 // Ordenamos los detalles para que los ítems en estado "TRANSFERIDO" se muestren al final de la lista
                                 traslado.Detalle = traslado.Detalle.OrderBy(d => d.Value.Estado != "PENDIENTE").ToDictionary(d => d.Key, d => d.Value);
-
-                                if (traslado.Detalle.All(item => item.Value.Estado == "TRANSFERIDO") && transferencia.Detalle.All(item => item.AtendidoReserva == 1))
-                                {
-                                    return Json(new
-                                    {
-                                        Titulo = "Error en la operación",
-                                        Mensajes = new List<string> { "La solicitud de traslado ya ha sido TRANSFERIDA y ubicada en su totalidad al sistema." },
-                                        Icono = "warning"
-                                    });
-                                }
-                            }
-
-                            //Asignar la ubicacion ideal segun UbicacionesLotesMaster
-                            foreach (var item in traslado.Detalle)
-                            {
-                                var resultados = _ubicacionesLotesMasterN.BuscarUnidadAlm(cn, new UbicacionesLotesMaster_E { Almacen = "RESERVA", ItemCode = item.Value.ItemCode, BatchNum = item.Value.BatchNum });
-                                if (resultados != null && resultados.Count == 1) { item.Value.UnidadAlmSugerido = resultados.First(); }
                             }
                         }
                         scope.Complete();
@@ -1189,8 +1172,25 @@ namespace Capa_Usuario.Controllers
                                     Icono = "error"
                                 });
                             }
+
+                            //Filtrar  las que si tienen Kardex comprometido y las que no 
+                            var transferenciaSinKardex = (TransferenciaReserva_E)transferenciaGet.Detalle.Where(x => x.AtendidoReserva == 0);
+                            var transferenciaConKardex = (TransferenciaReserva_E)transferenciaGet.Detalle.Where(x => x.AtendidoReserva == 1 && x.Validado == 1);
+
+                            //Eliminar los items de Detalle de Transferencia de Reserva  que sean del ItemCode
+                            var resultEliminarItems = _transferenciaReservaN.DeleteDetalleItemTransferenciaReserva(transferenciaSinKardex.Detalle, cn);
+                            if (resultEliminarItems.IconoSweetAlert.Equals("error"))
+                            {
+                                return Json(new
+                                {
+                                    Titulo = "No se pudo completar la acción",
+                                    resultEliminarItems.Mensajes,
+                                    Icono = resultEliminarItems.IconoSweetAlert
+                                });
+                            }
+
                             //  Restar y/o eliminar en la tabla UbicacionesLotesMaster
-                            var resultUbicacionesLotesMaster = _ubicacionesLotesMasterN.RevertirIngreso(transferenciaGet, cn);
+                            var resultUbicacionesLotesMaster = _ubicacionesLotesMasterN.RevertirIngreso(transferenciaConKardex, cn);
                             if (resultUbicacionesLotesMaster.IconoSweetAlert.Equals("error"))
                             {
                                 return Json(new
@@ -1201,7 +1201,7 @@ namespace Capa_Usuario.Controllers
                                 });
                             }
                             // Restar y/o eliminar Quantity en Cajas en la tabla UbicacionesLotes
-                            var resultUbicacionesLotes = _ubicacionesLotesN.RevertirIngreso(transferenciaGet, cn);
+                            var resultUbicacionesLotes = _ubicacionesLotesN.RevertirIngreso(transferenciaConKardex, cn);
                             if (resultUbicacionesLotes.IconoSweetAlert.Equals("error"))
                             {
                                 return Json(new
@@ -1292,7 +1292,7 @@ namespace Capa_Usuario.Controllers
             {
                 if (docNum > 0)
                 {
-                    //Una vez validado los ids enviarlo a la transaccion unica para la reversion de todo el grupo segun ItemCode
+
                     using (var scope = new TransactionScope(TransactionScopeOption.Required,
                              new TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted },
                              TransactionScopeAsyncFlowOption.Enabled))
@@ -1341,8 +1341,6 @@ namespace Capa_Usuario.Controllers
                                     });
                                 }
 
-
-
                                 //  Restar y/o eliminar en la tabla UbicacionesLotesMaster
                                 var resultUbicacionesLotesMaster = _ubicacionesLotesMasterN.RevertirIngreso(transferenciaGet, cn);
                                 if (resultUbicacionesLotesMaster.IconoSweetAlert.Equals("error"))
@@ -1380,7 +1378,7 @@ namespace Capa_Usuario.Controllers
                                 }
 
                                 //Eliminar los items de Detalle de Transferencia de Reserva 'REVERT' que sean del ItemCode
-                                var resultTransferencia = _transferenciaReservaN.DeleteDetalleItemTransferenciaReserva(transferenciaGet.Detalle, traslado.Detalle, cn);
+                                var resultTransferencia = _transferenciaReservaN.DeleteDetalleItemTransferenciaReserva(transferenciaGet.Detalle, cn);
                                 if (resultTransferencia.IconoSweetAlert.Equals("error"))
                                 {
                                     return Json(new
@@ -1430,6 +1428,204 @@ namespace Capa_Usuario.Controllers
                     {
                         Titulo = "Acción completada exitosamente",
                         Mensajes = new List<string> { "Se canceló la Transferencia Reserva y Solicitud de Traslado correctamente." },
+                        Icono = "success"
+                    });
+                }
+                else
+                {
+                    return Json(new
+                    {
+                        Titulo = "Error en la operación",
+                        Mensajes = new List<string> { "El docNum es invalido." },
+                        Icono = "error"
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    Titulo = "Error en la operación",
+                    Mensajes = new List<string> { ex.Message },
+                    Icono = "error"
+                });
+            }
+
+        }
+        public JsonResult DeleteItemTransferencia(int docNum, string itemCode, int idOperation = 3306) //recibe el docnum de la solicitud de traslado y el ItemCode a eliminar
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
+            {
+                return Json(new
+                {
+                    Titulo = "No se pudo completar la acción",
+                    Mensajes = new List<string> { "Error de accesos." },
+                    Icono = "error"
+                });
+            }
+            try
+            {
+                if (docNum > 0)
+                {
+                    using (var scope = new TransactionScope(TransactionScopeOption.Required,
+                             new TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted },
+                             TransactionScopeAsyncFlowOption.Enabled))
+                    {
+                        Utilitarios uti = new Utilitarios();
+                        using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+                        {
+                            cn.Open();
+                            // Identificar solo el Itemcode involucrado
+
+                            Dictionary<string, DetalleSolicitudesTraslado_E> traslado = _solicitudTrasladoN.ObtenerSolicitudDeTraslado(docNum, cn).Detalle
+                            .Where(kv => kv.Value.ItemCode == itemCode)
+                            .ToDictionary(kv => kv.Key, kv => kv.Value);
+                            if (traslado == null)
+                            {
+                                return Json(new
+                                {
+                                    Titulo = "No se pudo completar la acción",
+                                    Mensajes = new List<string> { "No se encontró la solicitud de traslado original." },
+                                    Icono = "error"
+                                });
+                            }
+
+                            var transferencia = _transferenciaReservaN.ObtenerTransferenciaReserva(docNum, cn).Detalle.Where(x => x.ItemCode == itemCode).ToList();
+                            if (transferencia == null)
+                            {
+                                return Json(new
+                                {
+                                    Titulo = "No se pudo completar la acción",
+                                    Mensajes = new List<string> { "No se encontró transferencia de reserva relacionada." },
+                                    Icono = "error"
+                                });
+                            }
+
+                            //Eliminar los items de Detalle de Transferencia de Reserva  que sean del ItemCode
+                            var resultTransferencia = _transferenciaReservaN.DeleteDetalleItemTransferenciaReserva(transferencia, cn);
+                            if (resultTransferencia.IconoSweetAlert.Equals("error"))
+                            {
+                                return Json(new
+                                {
+                                    Titulo = "No se pudo completar la acción",
+                                    resultTransferencia.Mensajes,
+                                    Icono = resultTransferencia.IconoSweetAlert
+                                });
+                            }
+
+                            //Verificar si la TransferenciaReserva se quedo sin elementos 
+                            var transferenciaPostReversion = _transferenciaReservaN.ObtenerTransferenciaReserva(docNum, cn);
+
+                            if (transferenciaPostReversion != null && transferenciaPostReversion.Detalle.Count() == 0)
+                            {
+                                //Eliminar la transferencia 
+                                var resultEliminarTransferencia = _transferenciaReservaN.DeleteTransferenciaReserva(docNum, cn);
+                                if (resultEliminarTransferencia.IconoSweetAlert.Equals("error"))
+                                {
+                                    return Json(new
+                                    {
+                                        Titulo = "No se pudo completar la acción",
+                                        resultEliminarTransferencia.Mensajes,
+                                        Icono = resultEliminarTransferencia.IconoSweetAlert
+                                    });
+                                }
+
+                                //Luego Eliminar Detalle y Cabecera de Solicitud de Traslado solo si la transferencia ya se elimino
+                                var resultSolicitudTraslado = _solicitudTrasladoN.DeleteSolicitudDeTraslado(docNum, cn);
+                                if (resultSolicitudTraslado.IconoSweetAlert.Equals("error"))
+                                {
+                                    return Json(new
+                                    {
+                                        Titulo = "No se pudo completar la acción",
+                                        resultSolicitudTraslado.Mensajes,
+                                        Icono = resultSolicitudTraslado.IconoSweetAlert
+                                    });
+                                }
+
+                            }
+                        }
+                        scope.Complete();
+                    }
+                    return Json(new
+                    {
+                        Titulo = "Acción completada exitosamente",
+                        Mensajes = new List<string> { "Se reestablecieron los datos en la Transferencia Reserva" },
+                        Icono = "success"
+                    });
+                }
+                else
+                {
+                    return Json(new
+                    {
+                        Titulo = "Error en la operación",
+                        Mensajes = new List<string> { "El docNum es invalido." },
+                        Icono = "error"
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    Titulo = "Error en la operación",
+                    Mensajes = new List<string> { ex.Message },
+                    Icono = "error"
+                });
+            }
+        }
+        public JsonResult ValidarItemParaApilar(int docNum, string itemCode, int idOperation = 3306) //recibe el docnum de la solicitud de traslado y el ItemCode a validar
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
+            {
+                return Json(new
+                {
+                    Titulo = "No se pudo completar la acción",
+                    Mensajes = new List<string> { "Error de accesos." },
+                    Icono = "error"
+                });
+            }
+            try
+            {
+                if (docNum > 0)
+                {
+
+                    using (var scope = new TransactionScope(TransactionScopeOption.Required,
+                             new TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted },
+                             TransactionScopeAsyncFlowOption.Enabled))
+                    {
+                        Utilitarios uti = new Utilitarios();
+                        using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+                        {
+                            cn.Open();
+                            var transferenciaGet = _transferenciaReservaN.ObtenerTransferenciaReserva(docNum, cn);
+                            if (transferenciaGet == null || transferenciaGet.Id == 0)
+                            {
+                                return Json(new
+                                {
+                                    Titulo = "No se pudo completar la acción",
+                                    Mensajes = new List<string> { "No se encontró transferencia de reserva relacionada." },
+                                    Icono = "error"
+                                });
+                            }
+                            var resultValidacion = _transferenciaReservaN.ValidarSkuParaApilar(transferenciaGet.Id, itemCode, cn);
+                            if (resultValidacion.IconoSweetAlert.Equals("error"))
+                            {
+                                return Json(new
+                                {
+                                    Titulo = "No se pudo completar la acción",
+                                    resultValidacion.Mensajes,
+                                    Icono = resultValidacion.IconoSweetAlert
+                                });
+                            }
+                        }
+                        scope.Complete();
+                    }
+                    return Json(new
+                    {
+                        Titulo = "Acción completada exitosamente",
+                        Mensajes = new List<string> { "Se validó correctamente detalle de transferencia para apilar." },
                         Icono = "success"
                     });
                 }
