@@ -208,7 +208,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
         }
-        public Helper_E DeleteDetalleItemTransferenciaReserva(List<DetalleTransferenciaReserva_E> detTransferenciaReserva, Dictionary<string, DetalleSolicitudesTraslado_E> detalleTraslado, SqlConnection cn)
+        public Helper_E DeleteDetalleItemTransferenciaReserva(List<DetalleTransferenciaReserva_E> detTransferenciaReserva,  SqlConnection cn)
         {
             string mensaje, icono;
             //generar una variable string grupoIds concatenando los valores de Id de ids separados por una coma
@@ -225,19 +225,12 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     ids.Add(item.Id.ToString());
                 }
 
-                List<string> idsCabecera = new List<string>();
-                foreach (var item in detalleTraslado)
-                {
-                    idsCabecera.Add(item.Value.Id.ToString());
-                }
-
                 using (SqlCommand cmd = new SqlCommand("sp_MantenimientoTransferenciaReserva", cn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
 
                     cmd.Parameters.AddWithValue("@TipoMantenimiento", "REVERT");
                     cmd.Parameters.AddWithValue("@GrupoIds", string.Join(",", ids));
-                    cmd.Parameters.AddWithValue("@GrupoIdsCabecera", string.Join(",", idsCabecera));
                     SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
                     {
                         Direction = ParameterDirection.Output

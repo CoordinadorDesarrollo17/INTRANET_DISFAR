@@ -1170,8 +1170,25 @@ namespace Capa_Usuario.Controllers
                                     Icono = "error"
                                 });
                             }
+
+                            //Filtrar  las que si tienen Kardex comprometido y las que no 
+                            var transferenciaSinKardex = (TransferenciaReserva_E)transferenciaGet.Detalle.Where(x => x.AtendidoReserva == 0);
+                            var transferenciaConKardex = (TransferenciaReserva_E)transferenciaGet.Detalle.Where(x => x.AtendidoReserva == 1 && x.Validado == 1);
+
+                            //Eliminar los items de Detalle de Transferencia de Reserva  que sean del ItemCode
+                            var resultEliminarItems = _transferenciaReservaN.DeleteDetalleItemTransferenciaReserva(transferenciaSinKardex.Detalle, cn);
+                            if (resultEliminarItems.IconoSweetAlert.Equals("error"))
+                            {
+                                return Json(new
+                                {
+                                    Titulo = "No se pudo completar la acción",
+                                    resultEliminarItems.Mensajes,
+                                    Icono = resultEliminarItems.IconoSweetAlert
+                                });
+                            }
+
                             //  Restar y/o eliminar en la tabla UbicacionesLotesMaster
-                            var resultUbicacionesLotesMaster = _ubicacionesLotesMasterN.RevertirIngreso(transferenciaGet, cn);
+                            var resultUbicacionesLotesMaster = _ubicacionesLotesMasterN.RevertirIngreso(transferenciaConKardex, cn);
                             if (resultUbicacionesLotesMaster.IconoSweetAlert.Equals("error"))
                             {
                                 return Json(new
@@ -1182,7 +1199,7 @@ namespace Capa_Usuario.Controllers
                                 });
                             }
                             // Restar y/o eliminar Quantity en Cajas en la tabla UbicacionesLotes
-                            var resultUbicacionesLotes = _ubicacionesLotesN.RevertirIngreso(transferenciaGet, cn);
+                            var resultUbicacionesLotes = _ubicacionesLotesN.RevertirIngreso(transferenciaConKardex, cn);
                             if (resultUbicacionesLotes.IconoSweetAlert.Equals("error"))
                             {
                                 return Json(new
@@ -1359,7 +1376,7 @@ namespace Capa_Usuario.Controllers
                                 }
 
                                 //Eliminar los items de Detalle de Transferencia de Reserva 'REVERT' que sean del ItemCode
-                                var resultTransferencia = _transferenciaReservaN.DeleteDetalleItemTransferenciaReserva(transferenciaGet.Detalle, traslado.Detalle, cn);
+                                var resultTransferencia = _transferenciaReservaN.DeleteDetalleItemTransferenciaReserva(transferenciaGet.Detalle, cn);
                                 if (resultTransferencia.IconoSweetAlert.Equals("error"))
                                 {
                                     return Json(new
@@ -1484,7 +1501,7 @@ namespace Capa_Usuario.Controllers
                             }
 
                             //Eliminar los items de Detalle de Transferencia de Reserva  que sean del ItemCode
-                            var resultTransferencia = _transferenciaReservaN.DeleteDetalleItemTransferenciaReserva(transferencia, traslado, cn);
+                            var resultTransferencia = _transferenciaReservaN.DeleteDetalleItemTransferenciaReserva(transferencia, cn);
                             if (resultTransferencia.IconoSweetAlert.Equals("error"))
                             {
                                 return Json(new

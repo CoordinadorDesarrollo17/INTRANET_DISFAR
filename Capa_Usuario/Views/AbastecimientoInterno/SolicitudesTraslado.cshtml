@@ -90,7 +90,11 @@
                         <th scope="col" class="text-center">Alm. Destino</th>
                         <th scope="col" class="text-center">Lotes</th>
                         <th scope="col" class="text-center">Estado</th>
-                        <th scope="col" class="text-center"></th>
+                        <th scope="col" class="text-center">
+                        <button type="button" id="btn_validarTodo" class="btn btn-cobefar-3 text-dark btn-sm" onclick="validarTodo()" data-bs-toggle="tooltip" data-bs-placement="top" title="Validar todos los items">
+                            <i class="bi bi-check-circle"></i> Validar todo
+                        </button>
+                        </th>
                     </tr>
                 </thead>
                 <tbody class="text-dark">
@@ -323,11 +327,28 @@
             }
 		}
         async function buscarSolicitud() {
+            const copiaSapDiv = document.querySelector('#copiaSap');
+            if (!copiaSapDiv) {
+                console.log("No se encontró el div copiaSap.");
+                return;
+            }
+
+            copiaSapDiv.hidden = true;
+
+            copiaSapDiv.querySelectorAll('input').forEach(input => {
+                input.value = '';
+            });
+
+            const tbody = copiaSapDiv.querySelector('#tbl_copiaSap tbody');
+            if (tbody) {
+                tbody.innerHTML = ''; 
+            }
+
             document.querySelectorAll('button').forEach(btn => {
                     btn.disabled = false;
             });
 
-			let docNum = document.querySelector('#DocNum').value.trim();
+            let docNum = document.querySelector('#DocNum').value.trim();
 			if (document.querySelectorAll('#tbl_detalle tbody') && document.querySelectorAll('#tbl_detalle tr').length > 0) {
 				$(`#tbl_detalle`).DataTable().clear().destroy();
 				document.querySelector('#tbl_detalle tbody').innerhtml = ''
@@ -375,12 +396,14 @@
 				document.querySelector('#MotivoTraslado').value = data.traslado.MotivoTraslado || "";
 				document.querySelector('#DocDate').value = data.traslado.DocDate || "";
 				let traslado = agruparSolicitudPorItemCode(data.traslado.Detalle)
-
+                
 				// Construir formulario y tabla de detalle
 				if (data.transferencia != null) {
                     generarHTMLDetalle(formatLotesTransferenciaReserva, traslado.Detalle, data.transferencia.Detalle);
                     const todosAtendidos = data.transferencia.Detalle.every(item => item.AtendidoReserva === 1);
-                    if (todosAtendidos) {
+                    const todosTransferidos = Object.values(traslado).every(item => item.Estado === "TRANSFERIDO");
+
+                    if (todosAtendidos && todosTransferidos) {
                         Swal.fire({
                             title: "Advertencia en la operación",
                             html: "La solicitud de traslado ya ha sido TRANSFERIDA y ubicada en su totalidad al sistema.",
@@ -391,21 +414,23 @@
                         }).then(() => {
                             // Inhabilitar todos los botones del DOM menos:
                             document.querySelectorAll('button').forEach(btn => {
-                                if (btn.id !== "cancelarCritico" && btn.id !== "buscarDocNum" ) {
+                                if (btn.id !== "cancelarCritico" && btn.id !== "buscarDocNum") {
                                     btn.disabled = true;
                                 }
                             });
                         });
-                    } else {
-                        // Solo bloquear el botón con id="cancelarCritico"
-                        const btnCancelarCritico = document.querySelector('#cancelarCritico');
-                        if (btnCancelarCritico) {
-                            btnCancelarCritico.disabled = true;
-                        }
-                    }
-				} else {
+                        //} else {
+                        //    // Solo bloquear el botón con id="cancelarCritico"
+                        //    const btnCancelarCritico = document.querySelector('#cancelarCritico');
+                        //    if (btnCancelarCritico) {
+                        //        btnCancelarCritico.disabled = true;
+                        //    }
+                    } 
+                } else {
 					construirFormCopiaSap(data.traslado);
-					generarHTMLDetalle(formatLotes, traslado.Detalle)
+                    generarHTMLDetalle(formatLotes, traslado.Detalle);
+                    document.querySelector('#btn_validarTodo').disabled = true
+                    
 				}
                 permitirValoresNumericosPositivos()
                 document.querySelector('#div_botones').style.display = 'block'
@@ -567,7 +592,7 @@
 									<th scope="col" class="text-center" style="width: 200">Fecha de Vencimiento</th>
 									<th scope="col" class="text-center" style="width: 200">Stock UNIDADES</th>
 									<th scope="col" class="text-center" style="width: 200">Unidad MASTER</th>
-									<th scope="col" class="text-center" style="width: 200"">Cantidad en MASTER</th>
+									<th scope="col" class="text-center" style="width: 200">Cantidad en MASTER</th>
 									<th scope="col" class="text-center" style="width: 200">Cantidad en SALDO</th>
 									<th scope="col" class="text-center" style="width: 200">Ubicación</th>
 									<th scope="col" style="width: 5%;"></th>
@@ -1087,7 +1112,45 @@
                     }
                 }
             });
-		}
+        }
+        async function validarTodo() {
+            const tabla = document.querySelector("#tbl_detalle");
+
+            if (!tabla) {
+                console.warn("No se encontró la tabla con id 'tbl_detalle'.");
+                return;
+            }
+
+            const tbody = tabla.querySelector("tbody");
+
+            if (!tbody || tbody.children.length === 0) {
+                console.warn("La tabla no tiene datos.");
+                return;
+            }
+
+            // Seleccionar solo las filas que tienen al menos un <td> con la clase específica
+            const filas = Array.from(tbody.querySelectorAll("tr")).filter(fila =>
+                fila.querySelector("td.text-center.bg-secondary.text-white")
+            );
+
+            for (const fila of filas) {
+                const columnas = fila.querySelectorAll("td");
+
+                if (columnas.length < 2) {
+                    console.warn("Fila con estructura inesperada:", fila);
+                    continue; // Salta esta fila si tiene menos de 2 columnas
+                }
+
+                const itemCode = columnas[1]?.textContent?.trim(); // Asegurar que existe
+
+                if (itemCode) {
+                    await validarItemParaApilar(itemCode);
+                } else {
+                    console.warn("No se encontró itemCode en esta fila:", fila);
+                }
+            }
+        }
+
         async function validarItemParaApilar(itemCode) {
             const docNum = document.querySelector('#DocNum').value.trim();
 
@@ -1107,21 +1170,21 @@
                     throw new Error(`Error en la solicitud: ${response.status}`);
                 }
                 const data = await response.json();
-                Swal.fire({
-                    title: data.Titulo,
-                    html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
-                        ? data.Mensajes.join('<br>')
-                        : data.Mensajes || "",
-                    icon: data.Icono,
-                    allowEscapeKey: false,
-                    allowOutsideClick: false,
-                    showConfirmButton: true
-                }).then(result => {
-                    if (result.isConfirmed) {
-                        buscarSolicitud();
-                    }
-                });
-
+                buscarSolicitud();
+                //Swal.fire({
+                //    title: data.Titulo,
+                //    html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                //        ? data.Mensajes.join('<br>')
+                //        : data.Mensajes || "",
+                //    icon: data.Icono,
+                //    allowEscapeKey: false,
+                //    allowOutsideClick: false,
+                //    showConfirmButton: true
+                //}).then(result => {
+                //    if (result.isConfirmed) {
+                //        buscarSolicitud();
+                //    }
+                //});
 
             } catch (error) {
                 console.error("Error:", error);
