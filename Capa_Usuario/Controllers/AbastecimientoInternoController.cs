@@ -1,23 +1,16 @@
 using Capa_Datos;
-using Capa_Datos.AbastecimientoInterno_DAO.TablasSql;
 using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
 using Capa_Entidad.Almacen_ENT.Tablas;
 using Capa_Entidad.Seguridad_ENT;
-using Capa_Entidad.Ventas_ENT.TablasSql;
 using Capa_Negocio.AbastecimientoInterno_NEG.Reportes;
 using Capa_Negocio.AbastecimientoInterno_NEG.TablasExternas;
 using Capa_Negocio.AbastecimientoInterno_NEG.TablasSql;
-using Capa_Negocio.Ventas_NEG.TablasSql;
 using Capa_Usuario.Helpers;
-using DocumentFormat.OpenXml.Spreadsheet;
-using Microsoft.ReportingServices.ReportProcessing.ReportObjectModel;
 using OfficeOpenXml;
-using OfficeOpenXml.Table;
 using SpreadsheetLight;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Entity.Core.Metadata.Edm;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
@@ -1023,6 +1016,28 @@ namespace Capa_Usuario.Controllers
 
                 if (transferenciaPost != null)
                 {
+                    var ubicacionesReserva = transferenciaPost.Detalle
+                             .SelectMany(d => new[]
+                             {
+                                   d.CodigoUbicacion
+                             })
+                             .Distinct()
+                             .ToList();
+
+                    foreach (var u in ubicacionesReserva)
+                    {
+                        bool resultValidarUbicaciones = _ubicacionesN.BuscarUbicacion("RESERVA", u);
+                        if (!resultValidarUbicaciones)
+                        {
+                            return Json(new
+                            {
+                                Titulo = "Error en la operación",
+                                Mensajes = new List<string> { $"Revise que exista previamente la ubicación en Reserva para: {u}" },
+                                Icono = "error"
+                            });
+                        }
+                    }
+
                     Utilitarios uti = new Utilitarios();
                     // Iniciar la transacción global para las operaciones críticas
                     using (var scope = new TransactionScope(TransactionScopeOption.Required,
@@ -1174,11 +1189,11 @@ namespace Capa_Usuario.Controllers
                             }
 
                             //Filtrar  las que si tienen Kardex comprometido y las que no 
-                            var transferenciaSinKardex = (TransferenciaReserva_E)transferenciaGet.Detalle.Where(x => x.AtendidoReserva == 0);
-                            var transferenciaConKardex = (TransferenciaReserva_E)transferenciaGet.Detalle.Where(x => x.AtendidoReserva == 1 && x.Validado == 1);
+                            var transferenciaSinKardex = transferenciaGet.Detalle.Where(x => x.AtendidoReserva == 0).ToList();
+                            TransferenciaReserva_E transferenciaConKardex = new TransferenciaReserva_E { Detalle = transferenciaGet.Detalle.Where(x => x.AtendidoReserva == 1 && x.Validado == 1).ToList() };
 
                             //Eliminar los items de Detalle de Transferencia de Reserva  que sean del ItemCode
-                            var resultEliminarItems = _transferenciaReservaN.DeleteDetalleItemTransferenciaReserva(transferenciaSinKardex.Detalle, cn);
+                            var resultEliminarItems = _transferenciaReservaN.DeleteDetalleItemTransferenciaReserva(transferenciaSinKardex, cn);
                             if (resultEliminarItems.IconoSweetAlert.Equals("error"))
                             {
                                 return Json(new
@@ -2198,7 +2213,7 @@ namespace Capa_Usuario.Controllers
             }
         }
         //Atendido de apiladores (Solo cambia el AtendidoReserva a 1) en detalle de Transferencia
-        public JsonResult AtenderReservaTransferencia(int id, int docNumSolicitudTraslado, string itemCode, string itemName, int idOperation = 3503)
+        public JsonResult AtenderReservaTransferencia(int detalleId, int docNumSolicitudTraslado, string itemCode, string itemName,string codigoUbicacion, int idOperation = 3503)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
 
@@ -2212,8 +2227,7 @@ namespace Capa_Usuario.Controllers
                 });
             }
 
-            // Validación básica de parámetros
-            if (id <= 0 || docNumSolicitudTraslado <= 0 || string.IsNullOrEmpty(itemCode) || string.IsNullOrEmpty(itemName))
+            if (detalleId <= 0 || docNumSolicitudTraslado <= 0 || string.IsNullOrEmpty(itemCode) || string.IsNullOrEmpty(itemName) || string.IsNullOrEmpty(codigoUbicacion))
             {
                 return Json(new
                 {
@@ -2235,9 +2249,18 @@ namespace Capa_Usuario.Controllers
                         Icono = "error"
                     });
                 }
+                var listaUbicaciones = _ubicacionesN.ListarUbicaciones(new Ubicaciones_E { Almacen = "RESERVA" });
+                if (!listaUbicaciones.Any(u => u.CodigoUbicacion == codigoUbicacion))
+                {
+                    return Json(new
+                    {
+                        Titulo = "Error en la operación",
+                        Mensajes = new List<string> { "Revise que la ubicación exista en el sistema." },
+                        Icono = "error"
+                    });
+                }
 
                 Utilitarios uti = new Utilitarios();
-
                 using (var scope = new TransactionScope(TransactionScopeOption.Required,
                     new TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted },
                     TransactionScopeAsyncFlowOption.Enabled))
@@ -2247,7 +2270,7 @@ namespace Capa_Usuario.Controllers
                         cn.Open();
 
                         // Actualizar AtendidoReserva=1
-                        var resultAtender = _transferenciaReservaN.AtenderReserva(id, cn);
+                        var resultAtender = _transferenciaReservaN.AtenderReserva(detalleId, cn);
                         if (resultAtender == null || !resultAtender.IconoSweetAlert.Equals("success"))
                             return Json(new { Titulo = "Error al atender reserva", resultAtender?.Mensajes, Icono = resultAtender?.IconoSweetAlert ?? "error" });
 
@@ -2478,7 +2501,7 @@ namespace Capa_Usuario.Controllers
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                var lista = _reporteStockPicking.ControlStockInternoPicking().OrderByDescending(x => x.StockMinAbastecimiento);
+                var lista = _reporteStockPicking.ControlStockInternoPicking();
                 return View(lista);
             }
             else

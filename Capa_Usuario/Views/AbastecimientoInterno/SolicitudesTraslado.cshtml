@@ -513,12 +513,12 @@
 								<td class="text-center ${claseTransferido}">${key.DetalleLotes.map(l => l.BatchNum).join(', ')}</td>
 								<td class="text-center ${claseTransferido}">${key.Estado}</td>
 								<td class="text-center ${claseTransferido}">${key.Estado != "TRANSFERIDO"
-                    ? `<button class="btn btn-cobefar-2" onclick="limpiarValoresItem('cls-limpiarItem_${key.ItemCode}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Borrar valores asignados">
-                <i class="bi bi-eraser-fill"></i>
+                    ? `<button class="btn btn-danger" onclick="limpiarValoresItem('cls-limpiarItem_${key.ItemCode}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Borrar valores asignados">
+                <i class="bi bi-arrow-repeat"></i>
            </button>`
                         : (key.AtendidoReserva == 0
-                        ? `<button class="btn btn-cobefar-2" onclick="deleteItemTransferencia('${key.ItemCode}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Reestablecer valores asignados">
-                     <i class="bi bi-eraser-fill"></i>
+                        ? `<button class="btn btn-danger" onclick="deleteItemTransferencia('${key.ItemCode}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Reestablecer valores asignados">
+                     <i class="bi bi-arrow-repeat"></i>
                </button>
                ${key.Validado == 0
                                 ? `<button class="btn btn-cobefar-3 ms-2" onclick="validarItemParaApilar('${key.ItemCode}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Validar para apilar">

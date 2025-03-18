@@ -113,7 +113,7 @@
                             <td class="text-center align-middle">@item.QuantityMaster</td>
                             <td class="text-center align-middle">@item.QuantitySaldo</td>
                             <td class="text-center align-middle">
-                                <button type="button" class="btn btn-success" title="Atender" data-bs-toggle="tooltip" data-bs-placement="top" onclick="atenderReserva(@item.Id,@item.DocNumSolicitudTraslado,'@item.ItemCode','@item.ItemName')"><i class="bi bi-cart-check"></i></button>
+                                <button type="button" class="btn btn-success" title="Atender" data-bs-toggle="tooltip" data-bs-placement="top" onclick="atenderReserva(@item.Id,@item.DocNumSolicitudTraslado,'@item.ItemCode','@item.ItemName','@item.CodigoUbicacion')"><i class="bi bi-cart-check"></i></button>
                             </td>
                         </tr>
                     }
@@ -179,8 +179,8 @@
         }
     });
 
-    async function atenderReserva(id, docNumSolicitudTraslado,itemCode,itemName) {
-        if (!id)
+    async function atenderReserva(detalleId, docNumSolicitudTraslado,itemCode,itemName,codigoUbicacion) {
+        if (!detalleId)
         {
             console.log('Error: El ID no se encontró.');
             return;
@@ -201,7 +201,7 @@
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            id, docNumSolicitudTraslado, itemCode,itemName
+                            detalleId, docNumSolicitudTraslado, itemCode, itemName, codigoUbicacion
                             })
                     });
 
