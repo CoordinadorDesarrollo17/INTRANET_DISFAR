@@ -1034,7 +1034,7 @@ namespace Capa_Usuario.Controllers
                             return Json(new
                             {
                                 Titulo = "Error en la operación",
-                                Mensajes = new List<string> { $"Revise que exista previamente la ubicación en Reserva para: {u}" },
+                                Mensajes = new List<string> { $"Revise que exista previamente la ubicación en Reserva {u}" },
                                 Icono = "error"
                             });
                         }
@@ -1797,11 +1797,12 @@ namespace Capa_Usuario.Controllers
                         foreach(var u in requerimiento.Detalle)
                         {
                             var productoDisp= listaProductosDisponibles.Where(x => x.ValorUmAlm == u.ValorUmAlm &&
-                            x.ItemCode == u.ItemCode && x.CodigoUbicacionOrigen == u.CodigoUbicacionOrigen && x.BatchNum == u.BatchNum).First();
-
-                            if(u.QuantityMaster> productoDisp.DisponibleMaster || u.QuantitySaldo> productoDisp.DisponibleSaldo) {
-                                listMensajes.Add($"{u.ItemCode} {u.BatchNum} {u.ValorUmAlm}  en {u.CodigoUbicacionOrigen}");
-                                listMensajes.Add($"Disponible: Master({productoDisp.DisponibleMaster}) y Saldo({productoDisp.DisponibleSaldo})");
+                            x.ItemCode == u.ItemCode && x.CodigoUbicacionOrigen == u.CodigoUbicacionOrigen && x.BatchNum == u.BatchNum);
+                            if (productoDisp.Any()) { 
+                                if(u.QuantityMaster> productoDisp.First().DisponibleMaster || u.QuantitySaldo> productoDisp.First().DisponibleSaldo) {
+                                    listMensajes.Add($"{u.ItemCode} {u.BatchNum} {u.ValorUmAlm}  en {u.CodigoUbicacionOrigen}");
+                                    listMensajes.Add($"Disponible: Master({productoDisp.First().DisponibleMaster}) y Saldo({productoDisp.First().DisponibleSaldo})");
+                                }
                             }
                         }
 
@@ -1832,7 +1833,7 @@ namespace Capa_Usuario.Controllers
                                 return Json(new
                                 {
                                     Titulo = "Error en la operación",
-                                    Mensajes = new List<string> { $"Revise que exista previamente la ubicación en Reserva para: {u}" },
+                                    Mensajes = new List<string> { $"Revise que exista previamente la ubicación en Reserva {u}" },
                                     Icono = "error"
                                 });
                             }
@@ -1860,7 +1861,7 @@ namespace Capa_Usuario.Controllers
                                 bool resultValidarUbicaciones = _ubicacionesN.BuscarUbicacion("PICKING", u);
                                 if (!resultValidarUbicaciones)
                                 {
-                                    return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { $"Revise que exista previamente la ubicación en Picking para: {u}" }, Icono = "error" });
+                                    return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { $"Revise que exista previamente la ubicación en Picking {u}" }, Icono = "error" });
                                 }
                             }
                         }

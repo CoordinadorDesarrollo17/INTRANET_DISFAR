@@ -383,7 +383,6 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
                     if (detalle.Any())
                     {
-                        // Crear tabla de parámetros para el tipo DetalleRequerimientosType
                         DataTable detalleTable = new DataTable();
                         detalleTable.Columns.Add("Id", typeof(int));
                         detalleTable.Columns.Add("UbicacionId", typeof(int));

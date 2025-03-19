@@ -91,9 +91,8 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         public Helper_E RegistrarCodigoUbicacionPicking(List<DetalleRequerimientos_E> detalle, SqlConnection cn)
         {
             Helper_E resultRegistro = new Helper_E();
-            int nulos = detalle.Where(d => d?.CodigoUbicacionDestino == null).ToList().Count;
-            
-            if (nulos > 0)
+
+            if (!detalle.Where(d => d?.CodigoUbicacionDestino == null).Any())
             {
                 return _helper.CrearRespuestaError("Las ubicaciones Picking deben estar definidas.");
             }
@@ -124,8 +123,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
                     {
                         item.UbicacionId = ubicacion.First().Id;
                         item.CodigoUbicacionDestino = ubicacionCodigo;
-                        item.QuantityUnidadesCajas =  0;        // Para PICKING no necesitamos guardar el QuantityUnidadesCajas
-                        datosUbicacionesL.RegistrarCodigoUbicacionPicking(detalle, cn);
+                        item.QuantityUnidadesCajas = 0;        // Para PICKING no necesitamos guardar el QuantityUnidadesCajas
                     }
                     else
                     {
@@ -133,6 +131,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
                     }
                 }
             }
+            resultRegistro = datosUbicacionesL.RegistrarCodigoUbicacionPicking(detalle, cn);
 
             return resultRegistro;
         }
