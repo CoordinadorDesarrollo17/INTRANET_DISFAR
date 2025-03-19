@@ -130,6 +130,8 @@
                         <th scope="col" class="text-center">Código de artículo</th>
                         <th scope="col" class="text-center">Descripción</th>
                         <th scope="col" class="text-center">Lote</th>
+                        <th scope="col" class="text-center">Unidad medida</th>
+                        <th scope="col" class="text-center">Ubicación RESERVA</th>
                         <th scope="col" class="text-center">Cantidad</th>
                         <th scope="col" class="text-center ubicacion-picking">Ubicación PICKING</th>
                     </tr>
@@ -242,7 +244,7 @@
 		}
 
 		document.addEventListener('DOMContentLoaded', function () {
-            permitirValoresNumericosPositivos()
+            permitirSoloNumeros('Comentario')
 		});
 
 		async function buscarArticulos() {
@@ -454,7 +456,7 @@
             if (btn) {
                 const opcion = inputTipoAbastecimiento.options[inputTipoAbastecimiento.selectedIndex];
                 const tipoAbastSeleccionado = opcion.getAttribute("data-tipo");
-                console.log(tipoAbastSeleccionado)
+
                 const acciones = {
                     'P': 'guardarArticulosPicking()',
                     'VM': 'guardarArticulosVentaMaster()',
@@ -693,7 +695,7 @@
             let thUbicacionPicking = document.querySelector(".ubicacion-picking"); // Cabecera de la tabla
             // Obtener todas las filas (td) de la columna "Ubicación PICKING"
             let tdUbicacionPicking = document.querySelectorAll("td:nth-child(5)");
-            if (tipoAbastecimiento === "VM") {
+            if (tipoAbastecimiento === "VM" || tipoAbastecimiento === "SA") {
                 if (thUbicacionPicking) thUbicacionPicking.style.display = "none";
                 tdUbicacionPicking.forEach(td => td.style.display = "none");
             } else {
@@ -708,12 +710,12 @@
             const tipoAbastecimiento = opcion.getAttribute("data-tipo");
 
             document.querySelector('#tbl_detalleRequerimiento tbody').innerHTML = '';
+            divComentario.setAttribute("hidden", true)
 
-            if (tipoAbastecimiento === "VM") {
+            if (tipoAbastecimiento === "VM") { divComentario.removeAttribute("hidden") }
+
+            if (tipoAbastecimiento === "VM" || tipoAbastecimiento === "SA") {
                 reconstruirTabla(tipoAbastecimiento)
-                divComentario.removeAttribute("hidden")
-            } else {
-                divComentario.setAttribute("hidden", true)
                 resetValoresVacios(["Comentario"])
             }
         }

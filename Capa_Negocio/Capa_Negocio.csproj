@@ -63,6 +63,7 @@
     <Compile Include="AbastecimientoInterno_NEG\TablasSql\KardexAbastecimiento_N.cs" />
     <Compile Include="AbastecimientoInterno_NEG\TablasSql\LotesRegistroSanitario_N.cs" />
     <Compile Include="AbastecimientoInterno_NEG\TablasSql\Masters_N.cs" />
+    <Compile Include="AbastecimientoInterno_NEG\TablasSql\ProductosDisponiblesReserva_N.cs" />
     <Compile Include="AbastecimientoInterno_NEG\TablasSql\Productos_N.cs" />
     <Compile Include="AbastecimientoInterno_NEG\TablasSql\Requerimientos_N.cs" />
     <Compile Include="AbastecimientoInterno_NEG\TablasSql\SolicitudesTraslado_N.cs" />

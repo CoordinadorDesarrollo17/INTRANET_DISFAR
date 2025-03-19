@@ -193,13 +193,17 @@
                         <td scope="col" class="text-center">
                             <input type="hidden" name="requerimiento.Detalle[].BatchNum" value="${item.BatchNum}" />${item.BatchNum}
                         </td>
+                         <td scope="col" class="text-center">
+                             <input type="hidden" name="requerimiento.Detalle[].UmAlm" value="${item.UmAlm}" />${item.UmAlm}
+                         </td>
+                         <td scope="col" class="text-center">
+                             <input type="hidden" name="requerimiento.Detalle[].CodigoUbicacionOrigen" value="${item.CodigoUbicacionOrigen}" />${item.CodigoUbicacionOrigen}
+                         </td>
                         <td scope="col" class="text-center">
-                            <input type="hidden" name="requerimiento.Detalle[].UmAlm" value="${item.UmAlm}" />
                             <input type="hidden" name="requerimiento.Detalle[].ValorUmAlm" value="${item.ValorUmAlm}" />
                             <input type="hidden" name="requerimiento.Detalle[].QuantityMaster" value="${item.StockSolicitadoMaster ?? 0}" />
                             <input type="hidden" name="requerimiento.Detalle[].QuantitySaldo" value="${item.StockSolicitadoSaldo ?? 0}" />
                             <input type="hidden" name="requerimiento.Detalle[].QuantityUnidadesCajas" value="${item.StockSolicitadoTotalUnidades}" />${item.StockSolicitadoTotalUnidades}
-                             <input type="hidden" name="requerimiento.Detalle[].CodigoUbicacionOrigen" value="${item.CodigoUbicacionOrigen}" />
                              <input type="hidden" name="requerimiento.Detalle[].CodigoUbicacionDestino" value="" />
                         </td>
                     </tr>`

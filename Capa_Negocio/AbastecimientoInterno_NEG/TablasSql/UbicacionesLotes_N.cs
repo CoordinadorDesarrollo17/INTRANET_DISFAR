@@ -91,6 +91,12 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         public Helper_E RegistrarCodigoUbicacionPicking(List<DetalleRequerimientos_E> detalle, SqlConnection cn)
         {
             Helper_E resultRegistro = new Helper_E();
+            int nulos = detalle.Where(d => d?.CodigoUbicacionDestino == null).ToList().Count;
+            
+            if (nulos > 0)
+            {
+                return _helper.CrearRespuestaError("Las ubicaciones Picking deben estar definidas.");
+            }
 
             foreach (var item in detalle)
             {
@@ -127,7 +133,6 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
                     }
                 }
             }
-
 
             return resultRegistro;
         }

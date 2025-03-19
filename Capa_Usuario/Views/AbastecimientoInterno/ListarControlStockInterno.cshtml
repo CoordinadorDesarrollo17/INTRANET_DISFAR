@@ -138,7 +138,7 @@
                                                 @porcentajeStock%
                                             </div>
                                         }
-                                        else if (item.StockActual == 0)
+                                        else if (item.StockActual <= 0)
                                         {
                                                 <div class="progress-bar bg-danger text-white fw-bold" role="progressbar" data-stockmin="@item.StockMinAbastecimiento"
                                                      style="width: 100%"
@@ -218,7 +218,7 @@
             </div>
 
             <div class="modal-body">
-                <input type="text" id="inputBusqueda" class="form-control mb-3" placeholder="Escriba para buscar...">
+                @*<input type="text" id="inputBusqueda" class="form-control mb-3" placeholder="Escriba para buscar...">*@
                 <div id="resultadosBusqueda" class="list-group" style="max-height: 250px; overflow-y: auto;"></div>
             </div>
 
@@ -266,16 +266,12 @@
 
             // Llenar la lista de ubicaciones (solo el código de ubicación)
             ubicacionesLotes.forEach((ubicacion) => {
-                const item = document.createElement('button');
-                item.type = 'button';
-                item.className = 'list-group-item list-group-item-action';
+                const item = document.createElement('p');
+                item.className = 'list-group-item';
                 item.textContent = ubicacion.CodigoUbicacion; 
-                item.dataset.value = ubicacion.CodigoUbicacion; // Valor real
-                item.onclick = () => seleccionarOpcion(ubicacion.CodigoUbicacion);
                 contenedor.appendChild(item);
             });
 
-            
             abrirModalBusquedaRapida();
 
         } catch (error) {
@@ -290,19 +286,7 @@
 
         modalInstance.show();
 
-        const inputBusqueda = document.getElementById('inputBusqueda');
         const contenedor = document.getElementById('resultadosBusqueda');
-
-        inputBusqueda.value = '';
-        inputBusqueda.focus();
-
-      
-        inputBusqueda.oninput = function () {
-            const filtro = this.value.toLowerCase();
-            Array.from(contenedor.children).forEach(item => {
-                item.style.display = item.textContent.toLowerCase().includes(filtro) ? 'block' : 'none';
-            });
-        };
     }
     function aplicarFiltro() {
         const form = document.getElementById('filterForm');
@@ -335,7 +319,6 @@
                 modalInstance.hide();
             }
         }
-        ordenarTablaStockPicking();
 
     }
     function ordenarTablaStockPicking() {

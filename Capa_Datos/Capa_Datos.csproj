@@ -85,6 +85,7 @@
     <Compile Include="AbastecimientoInterno_DAO\TablasSql\KardexAbastecimiento_D.cs" />
     <Compile Include="AbastecimientoInterno_DAO\TablasSql\LotesRegistroSanitario_D.cs" />
     <Compile Include="AbastecimientoInterno_DAO\TablasSql\Masters_D.cs" />
+    <Compile Include="AbastecimientoInterno_DAO\TablasSql\ProductosDisponiblesReserva_D.cs" />
     <Compile Include="AbastecimientoInterno_DAO\TablasSql\Productos_D.cs" />
     <Compile Include="AbastecimientoInterno_DAO\TablasSql\Requerimientos_D.cs" />
     <Compile Include="AbastecimientoInterno_DAO\TablasSql\SolicitudesTraslado_D.cs" />

@@ -2,6 +2,7 @@ using Capa_Datos;
 using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
 using Capa_Entidad.Almacen_ENT.Tablas;
 using Capa_Entidad.Seguridad_ENT;
+using Capa_Negocio;
 using Capa_Negocio.AbastecimientoInterno_NEG.Reportes;
 using Capa_Negocio.AbastecimientoInterno_NEG.TablasExternas;
 using Capa_Negocio.AbastecimientoInterno_NEG.TablasSql;
@@ -36,6 +37,7 @@ namespace Capa_Usuario.Controllers
         private readonly Requerimientos_N _requerimientosN = new Requerimientos_N();
         private readonly ReporteStockPicking_N _reporteStockPicking = new ReporteStockPicking_N();
         private readonly ReporteStockReserva_N _reporteStockReserva = new ReporteStockReserva_N();
+        private readonly ProductosDisponiblesReserva_N _productosDisponiblesReserva = new ProductosDisponiblesReserva_N();
         /************************* C O N F I G U R A C I Ó N *************************/
         private ActionResult VerificarPermiso(int idOperation)
         {
@@ -1790,7 +1792,30 @@ namespace Capa_Usuario.Controllers
                             });
                         }
 
-                        //Validar que las ubicacion origen sean insertadas, si no  existen
+                        var listaProductosDisponibles = _productosDisponiblesReserva.ObtenerProductosDisponiblesReserva();
+                        List<string> listMensajes = new List<string>();
+                        foreach(var u in requerimiento.Detalle)
+                        {
+                            var productoDisp= listaProductosDisponibles.Where(x => x.ValorUmAlm == u.ValorUmAlm &&
+                            x.ItemCode == u.ItemCode && x.CodigoUbicacionOrigen == u.CodigoUbicacionOrigen && x.BatchNum == u.BatchNum).First();
+
+                            if(u.QuantityMaster> productoDisp.DisponibleMaster || u.QuantitySaldo> productoDisp.DisponibleSaldo) {
+                                listMensajes.Add($"{u.ItemCode} {u.BatchNum} {u.ValorUmAlm}  en {u.CodigoUbicacionOrigen}");
+                                listMensajes.Add($"Disponible: Master({productoDisp.DisponibleMaster}) y Saldo({productoDisp.DisponibleSaldo})");
+                            }
+                        }
+
+                        if (listMensajes.Any())
+                        {
+                            return Json(new
+                            {
+                                Titulo = "No se pudo completar la acción",
+                                Mensajes = listMensajes,
+                                Icono = "error"
+                            });
+                        }
+
+                        //Validar que las ubicacion origen existan
                         var ubicacionesReserva = requerimiento.Detalle
                        .SelectMany(d => new[]
                        {
@@ -1814,15 +1839,21 @@ namespace Capa_Usuario.Controllers
                         }
 
                         // Solo se requiere validar la ubicación PICKING para requerimientos de tipo abastecimiento: Picking y Salida por Almacen
-                        if (requerimiento.TipoAbastecimiento != "Venta Master")
+                        if (requerimiento.TipoAbastecimiento == "Picking")
                         {
+                            int nulos = requerimiento.Detalle.Where(d => d?.CodigoUbicacionDestino == null).ToList().Count;
+
+                            if (nulos > 0)
+                            {
+                                return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "Las ubicaciones Picking deben estar definidas." }, Icono = "error" });
+                            }
+
                             //Validar que las ubicacion destino insertadas, existan
                             var ubicacionesPicking = requerimiento.Detalle
                                 .SelectMany(d => d.CodigoUbicacionDestino.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                                 .Select(ubicacion => ubicacion.Trim()) // Para eliminar espacios en blanco
                                 .Distinct()
                                 .ToList();
-
 
                             foreach (var u in ubicacionesPicking)
                             {
@@ -1846,7 +1877,6 @@ namespace Capa_Usuario.Controllers
                             using (SqlConnection cn = new SqlConnection(uti.cadSql2))
                             {
                                 cn.Open();
-                                // Registrar el requerimiento de picking hacia reserva
                                 var requerimientoGet = _requerimientosN.RegistrarRequerimiento(requerimiento, cn);
                                 if (requerimientoGet == null || requerimientoGet.Id == 0)
                                 {
@@ -1858,7 +1888,19 @@ namespace Capa_Usuario.Controllers
                                     });
                                 }
 
-                                var resultCodUbiPicking = _ubicacionesLotesN.RegistrarCodigoUbicacionPicking(requerimientoGet.Detalle, cn);
+                                if (requerimiento.TipoAbastecimiento == "Picking")
+                                {
+                                    var resultCodUbiPicking = _ubicacionesLotesN.RegistrarCodigoUbicacionPicking(requerimientoGet.Detalle, cn);
+                                    if (resultCodUbiPicking.IconoSweetAlert.Equals("error"))
+                                    {
+                                        return Json(new
+                                        {
+                                            Titulo = "No se pudo completar la acción",
+                                            resultCodUbiPicking.Mensajes,
+                                            Icono = resultCodUbiPicking.IconoSweetAlert
+                                        });
+                                    }
+                                }
 
                                 // Registrar la(s) operación(es) de imputado(s) en KardexAbastecimiento - Los datos a insertar son los del detalle en requerimiento, RequerimientoGet ya tiene los datos limpios por enviar hacia el kardex como imputado, previamente validados
                                 var resultKardexImputar = _kardexAbastecimientoN.InsertarTransaccionImputadoKardex(requerimientoGet, cn);
@@ -2121,7 +2163,7 @@ namespace Capa_Usuario.Controllers
 
                 //Actualizar a AtendidoReserva 1 solo la linea de detalle enviada
                 var resultAtender = _requerimientosN.AtenderReserva(detalleRequerimiento.Id);
-                //SI ES QUE NO ERROR EN EL PROCESO ANTERIOR Y ES DE TIPO VENTA O SALIDA POR ALMACEN
+                //SI ES QUE NO HAY ERROR EN EL PROCESO ANTERIOR Y ES DE TIPO VENTA MASTER O SALIDA POR ALMACEN
                 try
                 {
                     Utilitarios uti = new Utilitarios();
@@ -2213,7 +2255,7 @@ namespace Capa_Usuario.Controllers
             }
         }
         //Atendido de apiladores (Solo cambia el AtendidoReserva a 1) en detalle de Transferencia
-        public JsonResult AtenderReservaTransferencia(int detalleId, int docNumSolicitudTraslado, string itemCode, string itemName,string codigoUbicacion, int idOperation = 3503)
+        public JsonResult AtenderReservaTransferencia(int detalleId, int docNumSolicitudTraslado, string itemCode, string itemName, string codigoUbicacion, int idOperation = 3503)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
 

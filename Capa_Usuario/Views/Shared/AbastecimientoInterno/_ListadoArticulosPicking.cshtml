@@ -114,25 +114,37 @@
 
         return stockSaliendo;
     }
+    
+    if (Array.from(document.querySelectorAll('#tbl_listaArticulosAbastPicking tbody tr')).length === 0) {
+        console.warn("No hay filas en la tabla.");
+    } else {
+        Array.from(document.querySelectorAll('#tbl_listaArticulosAbastPicking tbody tr')).forEach((fila, index) => {
+            // Obtener valores de los inputs dentro de la fila
+            let idStockMaster = fila.querySelector('[data-campo="StockMaster"]')?.id || "";
+            let stockSaldo = parseInt(fila.querySelector('[data-campo="StockSaldo"]')?.value || 0);
+            let stockMaster = parseInt(fila.querySelector('[data-campo="StockMaster"]')?.value || 0);
+            let valorUmAlm = parseInt(fila.querySelector('[data-campo="ValorUmAlm"]')?.value || 0);
+            let stockTotalUnidades = parseInt(fila.querySelector('[data-campo="StockTotalUnidades"]')?.value || 0);
+            let cantidadSolicitada = document.querySelector('#cantidad_solicitada'); // Cantidad fija
 
-    Array.from(document.querySelectorAll('#tbl_listaArticulosAbastPicking tbody tr')).forEach((fila, index) => {
-        // Obtener valores de los inputs dentro de la fila
-        let idStockMaster = fila.querySelector('[data-campo="StockMaster"]').id
-        let stockSaldo = parseInt(fila.querySelector('[data-campo="StockSaldo"]')?.value || 0);
-        let stockMaster = parseInt(fila.querySelector('[data-campo="StockMaster"]')?.value || 0);
-        let valorUmAlm = parseInt(fila.querySelector('[data-campo="ValorUmAlm"]')?.value || 0);
-        let stockTotalUnidades = parseInt(fila.querySelector('[data-campo="StockTotalUnidades"]')?.value || 0);
-        let cantidadSolicitada = document.querySelector('#cantidad_solicitada'); // Cantidad fija
+            if (!cantidadSolicitada) {
+                console.warn('No existe elemento: cantidad_solicitada');
+                return;
+            }
 
-        if (!cantidadSolicitada) {
-            console.warn('No existe elemento: cantidad_solicitada')
-            return;
-        }
+            if (!idStockMaster) {
+                console.warn('No existe elemento: idStockMaster');
+                return;
+            }
 
-        // Calcular el stock saliendo
-        fila.querySelector('[data-campo="StockSaliendo"]').value = calcularStockSaliendo(cantidadSolicitada.value, valorUmAlm, stockSaldo, stockMaster, stockTotalUnidades, idStockMaster, `Fila ${index + 1}`);
-    });
+            // Calcular el stock saliendo
+            fila.querySelector('[data-campo="StockSaliendo"]').value = calcularStockSaliendo(
+                cantidadSolicitada.value, valorUmAlm, stockSaldo, stockMaster, stockTotalUnidades, idStockMaster, `Fila ${index + 1}`
+            );
+        });
+    }
 
+    
     function guardarArticulosPicking() {
         const tablaOrigen = document.querySelector('#tbl_listaArticulosAbastPicking tbody');
         const tablaDestino = document.querySelector('#tbl_detalleRequerimiento tbody');
@@ -178,7 +190,12 @@
                                     <input type="hidden" name="requerimiento.Detalle[].BatchNum" value="${item.BatchNum}" />${item.BatchNum}
                                 </td>
                                 <td scope="col" class="text-center">
-                                    <input type="hidden" name="requerimiento.Detalle[].UmAlm" value="${item.UmAlm}" />
+                                    <input type="hidden" name="requerimiento.Detalle[].UmAlm" value="${item.UmAlm}" />${item.UmAlm}
+                                </td>
+                                <td scope="col" class="text-center">
+                                    <input type="hidden" name="requerimiento.Detalle[].CodigoUbicacionOrigen" value="${item.CodigoUbicacionOrigen}" />${item.CodigoUbicacionOrigen}
+                                </td>
+                                <td scope="col" class="text-center">
                                     <input type="hidden" name="requerimiento.Detalle[].ValorUmAlm" value="${item.ValorUmAlm}" />
                                     <input type="hidden" name="requerimiento.Detalle[].QuantityMaster" value="${item.StockMaster}" />
                                     <input type="hidden" name="requerimiento.Detalle[].QuantitySaldo" value="${item.StockSaldo}" />
@@ -186,7 +203,6 @@
                                 </td>
                                 <td scope="col" class="text-center">
                                     <div class="d-flex justify-content-center align-items-center">
-                                        <input type="hidden" name="requerimiento.Detalle[].CodigoUbicacionOrigen" value="${item.CodigoUbicacionOrigen}" />
                                         <input id="CodigoUbicacionDestino_${item.ItemCode}_${item.BatchNum}_${num}" name="requerimiento.Detalle[].CodigoUbicacionDestino"  class="form-control cls-input-tag" data-batchnum="${item.BatchNum}" data-itemcode="${item.ItemCode}"  />
                                             <button class="btn btn-warning reload-button" type="button" data-inputid="CodigoUbicacionDestino_${item.ItemCode}_${item.BatchNum}_${num}" onclick="obtenerNuevasUbicaciones(this.dataset.inputid)">
                                                 <i class="bi bi-arrow-clockwise"></i>
