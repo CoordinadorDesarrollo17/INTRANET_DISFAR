@@ -22,6 +22,16 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             try
             {
+                if (cn == null)
+                {
+                    cn = new SqlConnection(uti.cadSql2);
+                }
+
+                if (cn.State != ConnectionState.Open)
+                {
+                    cn.Open();
+                }
+
 
                 SqlCommand cmd = new SqlCommand();
                 cmd.Connection = cn;
@@ -90,7 +100,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     }
 
                     List<UbicacionesLotes_E> resultado = null;
-
+                    cn.Open();
                     using (SqlCommand cmd = new SqlCommand(query, cn))
                     {
                         cmd.Parameters.AddWithValue("@ItemCode", itemCode);
@@ -373,7 +383,6 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
                     if (detalle.Any())
                     {
-                        // Crear tabla de parámetros para el tipo DetalleRequerimientosType
                         DataTable detalleTable = new DataTable();
                         detalleTable.Columns.Add("Id", typeof(int));
                         detalleTable.Columns.Add("UbicacionId", typeof(int));

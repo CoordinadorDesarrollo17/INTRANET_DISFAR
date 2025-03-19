@@ -132,35 +132,31 @@
                                         {
                                             <div class="progress-bar @colorClase" role="progressbar"
                                                  style="width: @(porcentajeStock > 100 ? 100 : porcentajeStock)%"
-                                                 aria-valuenow="@porcentajeStock"
+                                                 aria-valuenow="@porcentajeStock" data-stockmin="@item.StockMinAbastecimiento"
                                                  aria-valuemin="0"
                                                  aria-valuemax="100">
                                                 @porcentajeStock%
                                             </div>
                                         }
-                                        else if (item.StockActual == 0)
+                                        else if (item.StockActual <= 0)
                                         {
-                                            <div class="progress" style="height: 25px; width: 120px;">
-                                                <div class="progress-bar bg-danger text-white fw-bold" role="progressbar"
+                                                <div class="progress-bar bg-danger text-white fw-bold" role="progressbar" data-stockmin="@item.StockMinAbastecimiento"
                                                      style="width: 100%"
                                                      aria-valuenow="0"
                                                      aria-valuemin="0"
                                                      aria-valuemax="100">
                                                     SIN STOCK
                                                 </div>
-                                            </div>
                                         }
                                         else
                                         {
-                                            <div class="progress" style="height: 25px; width: 120px;">
-                                                <div class="progress-bar bg-secondary text-white fw-bold" role="progressbar"
+                                                <div class="progress-bar bg-secondary text-white fw-bold" role="progressbar" data-stockmin="@item.StockMinAbastecimiento"
                                                      style="width: 100%"
                                                      aria-valuenow="0"
                                                      aria-valuemin="0"
                                                      aria-valuemax="100">
                                                     SIN PARAMETRO
                                                 </div>
-                                            </div>
                                         }
                                     </div>
                                 </div>
@@ -222,7 +218,7 @@
             </div>
 
             <div class="modal-body">
-                <input type="text" id="inputBusqueda" class="form-control mb-3" placeholder="Escriba para buscar...">
+                @*<input type="text" id="inputBusqueda" class="form-control mb-3" placeholder="Escriba para buscar...">*@
                 <div id="resultadosBusqueda" class="list-group" style="max-height: 250px; overflow-y: auto;"></div>
             </div>
 
@@ -236,6 +232,7 @@
             inicializarDataTable('tbl_listaControlStockPicking', 100);
             aplicarFiltro();
         }
+        ordenarTablaStockPicking();
     });
     let modalInstance = null;
     let itemCodeActual = null;
@@ -269,16 +266,12 @@
 
             // Llenar la lista de ubicaciones (solo el código de ubicación)
             ubicacionesLotes.forEach((ubicacion) => {
-                const item = document.createElement('button');
-                item.type = 'button';
-                item.className = 'list-group-item list-group-item-action';
+                const item = document.createElement('p');
+                item.className = 'list-group-item';
                 item.textContent = ubicacion.CodigoUbicacion; 
-                item.dataset.value = ubicacion.CodigoUbicacion; // Valor real
-                item.onclick = () => seleccionarOpcion(ubicacion.CodigoUbicacion);
                 contenedor.appendChild(item);
             });
 
-            
             abrirModalBusquedaRapida();
 
         } catch (error) {
@@ -293,19 +286,7 @@
 
         modalInstance.show();
 
-        const inputBusqueda = document.getElementById('inputBusqueda');
         const contenedor = document.getElementById('resultadosBusqueda');
-
-        inputBusqueda.value = '';
-        inputBusqueda.focus();
-
-      
-        inputBusqueda.oninput = function () {
-            const filtro = this.value.toLowerCase();
-            Array.from(contenedor.children).forEach(item => {
-                item.style.display = item.textContent.toLowerCase().includes(filtro) ? 'block' : 'none';
-            });
-        };
     }
     function aplicarFiltro() {
         const form = document.getElementById('filterForm');
@@ -338,6 +319,34 @@
                 modalInstance.hide();
             }
         }
+
+    }
+    function ordenarTablaStockPicking() {
+        let table = $('#tbl_listaControlStockPicking').DataTable();
+
+        if (!table) return; // Evita errores si la tabla no está inicializada
+
+        let elementos = table
+            .rows({ search: 'applied' }) // Incluye todas las filas visibles en la búsqueda
+            .nodes() // Obtiene los nodos de todas las filas
+            .toArray(); // Convierte en array
+
+        let listaOrdenada = elementos.map(row => {
+            let progressBar = row.querySelector('.progress-bar');
+            let valor = progressBar ? parseFloat(progressBar.getAttribute('aria-valuenow')) || 0 : 0;
+            let stockMin = progressBar ? parseFloat(progressBar.getAttribute('data-stockmin')) || 0 : 0;
+            return { row, valor, stockMin };
+        });
+
+        listaOrdenada.sort((a, b) => {
+            if (a.stockMin === 0 && b.stockMin > 0) return 1; // Mueve stockMin = 0 al final
+            if (a.stockMin > 0 && b.stockMin === 0) return -1; // Prioriza stockMin > 0
+            return a.valor - b.valor; // Dentro del grupo stockMin > 0, ordena por aria-valuenow
+        });
+
+        table.clear();
+        table.rows.add(listaOrdenada.map(item => item.row));
+        table.draw(false);
     }
 </script>
 

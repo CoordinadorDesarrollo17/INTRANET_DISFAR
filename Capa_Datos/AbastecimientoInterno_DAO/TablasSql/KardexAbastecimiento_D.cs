@@ -9,6 +9,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Data.SqlClient;
 using System.Data;
 using Capa_Datos;
+using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 {
@@ -17,7 +18,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
         Utilitarios uti = new Utilitarios();
         DBHelper dbHelper = new DBHelper();
 
-        public Helper_E InsertarTransaccionIngresoKardex(string itemCode, string itemName, int cantidadGlobal, string operarioRegistra, int docNumSolicitudTraslado,string cardCode, string cardName, SqlConnection cn)
+        public Helper_E InsertarTransaccionIngresoKardex(string itemCode, string itemName, int cantidadGlobal, string operarioRegistra, int docNumSolicitudTraslado, string cardCode, string cardName, SqlConnection cn)
         {
             string mensaje, icono;
 
@@ -35,7 +36,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
                     // Parámetros extraidos de la cabecera 
                     cmd.Parameters.AddWithValue("@TipoMantenimiento", "INSERT");
-                    cmd.Parameters.AddWithValue("@RucProveedor",cardCode);
+                    cmd.Parameters.AddWithValue("@RucProveedor", cardCode);
                     cmd.Parameters.AddWithValue("@NombreProveedor", cardName);
                     cmd.Parameters.AddWithValue("@Sentido", "Ingreso");
                     cmd.Parameters.AddWithValue("@Tabla", "TransferenciaReserva");
@@ -87,7 +88,6 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 IconoSweetAlert = icono
             };
         }
-
         public Helper_E InsertarTransaccionImputadoKardex(Requerimientos_E imputado, SqlConnection cn)
         {
             string mensaje, icono;
@@ -323,5 +323,6 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
         }
+        
     }
 }
