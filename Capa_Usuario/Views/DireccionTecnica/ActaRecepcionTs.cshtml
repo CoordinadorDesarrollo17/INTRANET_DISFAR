@@ -128,7 +128,10 @@
             {<img src="@ViewBag.FirmaResponsable" width="150" />}
         </td>
         <td></td>
-        <td colspan="7" align="center" style="border-bottom: solid 1px"></td>
+        <td colspan="7" align="center" style="border-bottom: solid 1px">
+            @if (ViewBag.PersonaEntrega != null)
+            {<img src="@ViewBag.PersonaEntrega" width="150" />}
+        </td>
         <td colspan="9"></td>
     </tr>
     <tr>
