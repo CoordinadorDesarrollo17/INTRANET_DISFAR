@@ -692,30 +692,28 @@
         }
 
         function reconstruirTabla(tipoAbastecimiento) {
-            let thUbicacionPicking = document.querySelector(".ubicacion-picking"); // Cabecera de la tabla
-            // Obtener todas las filas (td) de la columna "Ubicación PICKING"
-            let tdUbicacionPicking = document.querySelectorAll("td:nth-child(5)");
+            let thUbicacionPicking = document.querySelector(".ubicacion-picking")
+            let tdUbicacionPicking = document.querySelectorAll("#tbl_detalleRequerimiento th")[6]
+
             if (tipoAbastecimiento === "VM" || tipoAbastecimiento === "SA") {
-                if (thUbicacionPicking) thUbicacionPicking.style.display = "none";
-                tdUbicacionPicking.forEach(td => td.style.display = "none");
+                if (thUbicacionPicking) thUbicacionPicking.style.display = "none"
+                if (tdUbicacionPicking) tdUbicacionPicking.style.display = "none"
             } else {
-                if (thUbicacionPicking) thUbicacionPicking.style.display = "";
-                tdUbicacionPicking.forEach(td => td.style.display = "");
+                if (thUbicacionPicking) thUbicacionPicking.style.display = "table-cell"
+                if (tdUbicacionPicking) tdUbicacionPicking.style.display = "table-cell"
             }
         }
 
         function validarTipoAbastecimiento(elemento) {
-            const divComentario = document.getElementById("div_comentario");
-            const opcion = elemento.options[elemento.selectedIndex];
-            const tipoAbastecimiento = opcion.getAttribute("data-tipo");
+            const divComentario = document.getElementById("div_comentario")
+            const opcion = elemento.options[elemento.selectedIndex]
+            const tipoAbastecimiento = opcion.getAttribute("data-tipo")
 
-            document.querySelector('#tbl_detalleRequerimiento tbody').innerHTML = '';
-            divComentario.setAttribute("hidden", true)
+            document.querySelector('#tbl_detalleRequerimiento tbody').innerHTML = ''
+            divComentario.classList.toggle("hidden", tipoAbastecimiento !== "VM")
+            reconstruirTabla(tipoAbastecimiento)
 
-            if (tipoAbastecimiento === "VM") { divComentario.removeAttribute("hidden") }
-
-            if (tipoAbastecimiento === "VM" || tipoAbastecimiento === "SA") {
-                reconstruirTabla(tipoAbastecimiento)
+            if (["VM", "SA"].includes(tipoAbastecimiento)) {
                 resetValoresVacios(["Comentario"])
             }
         }
