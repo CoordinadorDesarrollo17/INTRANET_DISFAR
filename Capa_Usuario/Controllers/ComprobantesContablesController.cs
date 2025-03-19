@@ -17,59 +17,56 @@ namespace Capa_Usuario.Controllers
 {
     public class ComprobantesContablesController : Controller
     {
-        Utilitarios uti = new Utilitarios(); 
-        ORTV_N ortvN = new ORTV_N(); 
+        Utilitarios uti = new Utilitarios();
+        ORTV_N ortvN = new ORTV_N();
         OINV_N oinvN = new OINV_N();
-        Comprobante_N compN= new Comprobante_N();
+        Comprobante_N compN = new Comprobante_N();
         private List<Comprobante_E> ObtenerEncabezados(List<int> listDocEntrySap, ORTV_E obj, string Tipo)
         {
             Comprobante_N compN = new Comprobante_N();
             List<Comprobante_E> documentos = new List<Comprobante_E>();
+
             // Obtener los documentos basados en el tipo proporcionado
             switch (Tipo)
             {
                 case "F":
-                    foreach (var docEntryOrden in listDocEntrySap)
+                case "NC":
+                case "ND":
+                    //Coge los correlativos de las facturas, que sirven para los tres tipos de busqueda
+                    documentos.AddRange(listDocEntrySap.SelectMany(docEntryOrden => compN.ObtenerEncabezadoFacturas(docEntryOrden, obj.LugarDestino)));
+
+                    if (!Tipo.Equals("F"))
                     {
-                        documentos.AddRange(compN.ObtenerEncabezadoFacturas(docEntryOrden, obj.LugarDestino));
+                        string correlativosFacturasConcat = string.Join(", ", documentos.Select(x => $"'{x.U_SYP_MDTD}-{x.U_SYP_MDSD}-{x.U_SYP_MDCD}'"));
+                        if (Tipo.Equals("NC"))
+                        {
+                            documentos = compN.ObtenerEncabezadoNotaCredito(obj.Det4, correlativosFacturasConcat);
+                        }
+                        else
+                        {
+                            documentos = compN.ObtenerEncabezadoNotaDebito(correlativosFacturasConcat);
+                        }
                     }
                     break;
                 case "G":
-                    if (obj.LugarDestino.Equals("Domicilio") || obj.LugarDestino.Equals("Agencia"))
-                    {
-                        documentos.AddRange(compN.ObtenerEncabezadoGuiasPorEntrega(listDocEntrySap));
-                    }
-                    else
-                    {
-                        documentos.AddRange(compN.ObtenerEncabezadoGuiasTransferencia(obj));
-                    }
-                    break;
-                case "NC":
-                    List<Comprobante_E> Facturas = new List<Comprobante_E>();
-                    foreach (var docEntryOrden in listDocEntrySap)
-                    {
-                        Facturas.Add(compN.ObtenerEncabezadoFacturas(docEntryOrden, obj.LugarDestino).FirstOrDefault());
-                    }
-                    string FacturasConcatenadas = string.Join(", ", Facturas.Select(x => $"'{x.U_SYP_MDTD}-{x.U_SYP_MDSD}-{x.U_SYP_MDCD}'"));
-                    documentos.AddRange(compN.ObtenerEncabezadoNotaCredito(obj.Det4, FacturasConcatenadas));
-                    break;
-                case "ND":
-                    List<Comprobante_E> FacturasParaNotaDébito = new List<Comprobante_E>();
-                    foreach (var docEntryOrden in listDocEntrySap)
-                    {
-                        FacturasParaNotaDébito.Add(compN.ObtenerEncabezadoFacturas(docEntryOrden,obj.LugarDestino).FirstOrDefault());
-                    }
-                    string FacturasConcatenadasParaNotaDébito = string.Join(", ", FacturasParaNotaDébito.Select(x => $"'{x.U_SYP_MDTD}-{x.U_SYP_MDSD}-{x.U_SYP_MDCD}'"));
-                    documentos.AddRange(compN.ObtenerEncabezadoNotaDebito(FacturasConcatenadasParaNotaDébito));
+                    documentos.AddRange(
+                        (obj.LugarDestino.Equals("Domicilio") || obj.LugarDestino.Equals("Agencia"))
+                        ? compN.ObtenerEncabezadoGuiasPorEntrega(listDocEntrySap)
+                        : compN.ObtenerEncabezadoGuiasTransferencia(obj)
+                    );
                     break;
             }
-            // Filtrar documentos con U_SYP_MDCD no vacío y eliminar duplicados
-            var documentosFiltrados = documentos
-                .Where(d => !string.IsNullOrWhiteSpace(d.U_SYP_MDCD))
+
+            if (documentos.Any())
+            {
+                // Filtrar documentos con U_SYP_MDCD no vacío y eliminar duplicados
+                documentos = documentos.Where(d => !string.IsNullOrWhiteSpace(d.U_SYP_MDCD))
                 .GroupBy(d => d.U_SYP_MDCD)
                 .Select(g => g.First())
                 .ToList();
-            return documentosFiltrados;
+            }
+
+            return documentos;
         }
         public JsonResult CrearYObtenerDocumento(int DocEntry, string Tipo) // Metodo principal, ajax desde ListadoTicketsAlmacen (picking packing)
         {
@@ -79,7 +76,7 @@ namespace Capa_Usuario.Controllers
             string fileUrl = string.Empty;
             string fileName = string.Empty;
             ORTV_E ortvE = ortvN.ObtenerDatosTicketParaDocumentos(DocEntry);
-            List<int> listDocEntryOrdenesVenta = compN.ObtenerDocEntryOV(ortvE.Det2,false);
+            List<int> listDocEntryOrdenesVenta = compN.ObtenerDocEntryOV(ortvE.Det2, false);
             List<Comprobante_E> documentos = new List<Comprobante_E>();
             //Primeras validaciones
             if (ortvE.Estado.Equals("ANULADO") || ortvE.Estado.Equals("CANCELADO"))
@@ -97,62 +94,34 @@ namespace Capa_Usuario.Controllers
             {
                 switch (Tipo)
                 {
-                case "F":
-                    fileName = $"Facturas_{ortvE.DocNum}.pdf";
+                    case "F":
+                        fileName = $"Facturas_{ortvE.DocNum}.pdf";
                         decimal MontoFinalFacturas = documentos.Sum(f => f.DocTotal) + documentos.Sum(f => f.AnticipoBruto);
                         if (ortvE.MontoTotal != MontoFinalFacturas)
                         { return Json(new { success = false, message = "Los montos de facturas no coinciden con lo emitido." }, JsonRequestBehavior.AllowGet); }
                         break;
-                case "ND":
-                    fileName = $"NotasDebito_{ortvE.DocNum}.pdf";
-                    break;
-                case "NC":
-                    fileName = $"NotasCredito_{ortvE.DocNum}.pdf";
+                    case "ND":
+                        fileName = $"NotasDebito_{ortvE.DocNum}.pdf";
+                        break;
+                    case "NC":
+                        fileName = $"NotasCredito_{ortvE.DocNum}.pdf";
                         decimal MontoFinalNotasCredito = documentos.Sum(f => f.DocTotal);
                         if (ortvE.DescuentoNC > MontoFinalNotasCredito)
                         { return Json(new { success = false, message = "Los montos de notas crédito no superan lo emitido." }, JsonRequestBehavior.AllowGet); }
-                     break;
-                case "G":
-                    fileName = $"Guias_{ortvE.DocNum}.pdf";
-                    break;
-                default:
-                    return Json(new { success = false, message = "Tipo del documento no reconocido." }, JsonRequestBehavior.AllowGet);
+                        break;
+                    case "G":
+                        fileName = $"Guias_{ortvE.DocNum}.pdf";
+                        break;
+                    default:
+                        return Json(new { success = false, message = "Tipo del documento no reconocido." }, JsonRequestBehavior.AllowGet);
                 }
-                GeneracionDocumentoPDF(documentos, ortvE.DocNum, Tipo, fileName); 
+                GeneracionDocumentoPDF(documentos, ortvE.DocNum, Tipo, fileName);
                 string filePath = Path.Combine(uti.directorioFileServer, "Comprobantes", fileName);
                 fileUrl = Url.Action("DocumentoElectronico", "ComprobantesContables", new { fileName = fileName }, Request.Url.Scheme);
                 return Json(new { success = true, fileUrl = fileUrl }, JsonRequestBehavior.AllowGet);
             }
             else { return Json(new { success = false, message = "No hay documentos encontrados." }, JsonRequestBehavior.AllowGet); }
         }
-        //private void GeneracionDocumentoPDF(List<Comprobante_E> documentosDistinct, int DocNum, string Tipo, string fileName)
-        //{
-        //    Utilitarios uti = new Utilitarios();
-        //    // Agrupa todos los documentos del mismo tipo en un solo PDF
-        //    string filePath = Path.Combine(uti.directorioFileServer, "Comprobantes", fileName);
-        //    using (MemoryStream combinedPdfStream = new MemoryStream())
-        //    {
-        //        using (Document document = new Document())
-        //        {
-        //            PdfCopy copy = null;
-        //            try
-        //            {
-        //                document.Open();
-        //                copy = new PdfCopy(document, combinedPdfStream);
-        //                foreach (var f in documentosDistinct)
-        //                {
-        //                    AgruparPdfSegunTipo(f, DocNum, copy, Tipo);
-        //                }
-        //            }
-        //            finally
-        //            {
-        //                document.Close();
-        //                copy?.Close();
-        //            }
-        //        }
-        //        System.IO.File.WriteAllBytes(filePath, combinedPdfStream.ToArray());
-        //    }
-        //}
         private void GeneracionDocumentoPDF(List<Comprobante_E> documentosDistinct, int DocNum, string Tipo, string fileName)
         {
             Utilitarios uti = new Utilitarios();
@@ -173,7 +142,7 @@ namespace Capa_Usuario.Controllers
                 System.IO.File.WriteAllBytes(filePath, combinedPdfStream.ToArray());
             }
         }
-        private void AgruparPdfSegunTipo(Comprobante_E documento, int docNum, PdfCopy copy,string Tipo)
+        private void AgruparPdfSegunTipo(Comprobante_E documento, int docNum, PdfCopy copy, string Tipo)
         {
             var pdfResult = new ActionAsPdf(null);
             string NumAtCard = $"{documento.U_SYP_MDTD}-{documento.U_SYP_MDSD}-{documento.U_SYP_MDCD}";
@@ -189,7 +158,7 @@ namespace Capa_Usuario.Controllers
                 case "F":
                     var parametrosFactura = new
                     {
-                        NumAtCard = NumAtCard,
+                        NumAtCard,
                         Tipo = documento.U_SYP_MDTD.Equals("01") ? "F" : "B",
                         DocNumTicket = docNum
                     };
@@ -207,11 +176,11 @@ namespace Capa_Usuario.Controllers
                 case "NC":
                     var parametrosNotaCredito = new
                     {
-                        NumAtCard = NumAtCard,
+                        NumAtCard,
                         DocNumTicket = docNum
                     };
                     string _headerUrlNotaCredito = Url.Action("LayoutNotaCreditoDebito_header", "ComprobantesContables", parametrosNotaCredito, "http");
-                    pdfResult = new ActionAsPdf("LayoutNotaCreditoDebito", new { NumAtCard = NumAtCard})
+                    pdfResult = new ActionAsPdf("LayoutNotaCreditoDebito", new { NumAtCard = NumAtCard })
                     {
                         FileName = fileName,
                         PageOrientation = Rotativa.Options.Orientation.Portrait,
@@ -223,7 +192,7 @@ namespace Capa_Usuario.Controllers
                 case "G":
                     var parametrosGuia = new
                     {
-                        NumAtCard = NumAtCard,
+                        NumAtCard,
                         DocNumTicket = docNum,
                         Tabla = documento.TablaSAP
                     };
@@ -363,25 +332,25 @@ namespace Capa_Usuario.Controllers
         public ActionResult LayoutFactura_header(string NumAtCard, string Tipo, int DocNumTicket)
         {
             var factura = ObtenerFactura(NumAtCard, "Cabecera");
-            ViewBag.Tipo = Tipo; 
+            ViewBag.Tipo = Tipo;
             ViewBag.DocNumTicket = DocNumTicket;
             return View(factura);
         }
         public ActionResult LayoutFactura(string NumAtCard)
         {
-            var factura = ObtenerFactura(NumAtCard,"Cuerpo");
+            var factura = ObtenerFactura(NumAtCard, "Cuerpo");
             return View(factura);
         }
         public ActionResult LayoutNotaCreditoDebito_header(string numAtCard, string DocNumTicket)
         {
-            var (nota, tipo, subTipo) = ObtenerNotaCreditoDebito(numAtCard,"Cabecera");
+            var (nota, tipo, subTipo) = ObtenerNotaCreditoDebito(numAtCard, "Cabecera");
             ViewBag.DocNumTicket = DocNumTicket;
             ViewBag.Tipo = tipo;
             return View(nota);
         }
         public ActionResult LayoutNotaCreditoDebito(string numAtCard)
         {
-            var (nota, tipo, subTipo) = ObtenerNotaCreditoDebito(numAtCard,"Cuerpo");
+            var (nota, tipo, subTipo) = ObtenerNotaCreditoDebito(numAtCard, "Cuerpo");
             ViewBag.Tipo = tipo;
             ViewBag.SubTipo = subTipo;
             return View(nota);
@@ -391,7 +360,7 @@ namespace Capa_Usuario.Controllers
             Comprobante_N compN = new Comprobante_N();
             string existeNC = string.Empty,
                 existeND = string.Empty,
-                existeF= string.Empty,
+                existeF = string.Empty,
                 existeG = string.Empty;
             var ortvE = new Capa_Negocio.Ventas_NEG.TablasSql.ORTV_N().ObtenerDatosTicketParaDocumentos(DocEntry);
             List<int> listDocEntryOrdenesVenta = compN.ObtenerDocEntryOV(ortvE.Det2, false);
@@ -413,14 +382,13 @@ namespace Capa_Usuario.Controllers
             if (notaDebito.Any()) { existeND = "Y"; }
             if (factura.Any()) { existeF = "Y"; }
             if (guia.Any()) { existeG = "Y"; }
-            return Json(new 
-            { 
-                existeNC = existeNC,
-                existeND = existeND,
-                existeF = existeF,
-                existeG = existeG,
-            }, 
-                JsonRequestBehavior.AllowGet);
-            }
+            return Json(new
+            {
+                existeNC,
+                existeND,
+                existeF,
+                existeG,
+            }, JsonRequestBehavior.AllowGet);
         }
+    }
 }

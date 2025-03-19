@@ -536,7 +536,7 @@ namespace Capa_Datos.ComprobantesContables_ENT
             if (DocNumNotasConcatenadas.Trim().Length > 0)
             { AndWhere = $" OR \"DocNum\" in ({DocNumNotasConcatenadas}) "; }
 
-            string query = $"SELECT 'ORIN',\"U_SYP_MDTD\",\"U_SYP_MDSD\",\"U_SYP_MDCD\", TO_CHAR(\"DocDate\",'YYYY-MM-DD'),to_char(\"U_BPP_FECINITRA\", 'YYYY-MM-DD'),'NC',\"DocTotal\",null from {uti.schemaHana}ORIN where (\"U_SYP_MDTO\" || '-' || \"U_SYP_MDSO\" || '-' || \"U_SYP_MDCO\") IN ('{FacturasConcatenadas}') {AndWhere}";
+            string query = $"SELECT 'ORIN',\"U_SYP_MDTD\",\"U_SYP_MDSD\",\"U_SYP_MDCD\", TO_CHAR(\"DocDate\",'YYYY-MM-DD'),to_char(\"U_BPP_FECINITRA\", 'YYYY-MM-DD'),'NC',\"DocTotal\",null from {uti.schemaHana}ORIN where (\"U_SYP_MDTO\" || '-' || \"U_SYP_MDSO\" || '-' || \"U_SYP_MDCO\") IN ({FacturasConcatenadas}) {AndWhere}";
             List<Comprobante_E> lista = EjecutarConsultaComprobante(query);
             return lista;
         }
