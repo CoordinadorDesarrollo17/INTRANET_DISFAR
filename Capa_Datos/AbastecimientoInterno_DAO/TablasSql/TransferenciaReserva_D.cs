@@ -31,8 +31,8 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     cmd.CommandType = CommandType.StoredProcedure;
 
                     cmd.Parameters.AddWithValue("@TipoMantenimiento", "INSERT");
-                    cmd.Parameters.AddWithValue("@SolicitudTrasladoId", transferencia.SolicitudTrasladoId);
-                    cmd.Parameters.AddWithValue("@SolicitudTrasladoDocNum", transferencia.SolicitudTrasladoDocNum);
+                    cmd.Parameters.AddWithValue("@SolicitudTrasladoId", transferencia.SolicitudTrasladoId);//25000010
+                    cmd.Parameters.AddWithValue("@SolicitudTrasladoDocNum", transferencia.SolicitudTrasladoDocNum);//250000003
                     cmd.Parameters.AddWithValue("@CardCode", transferencia.CardCode);
                     cmd.Parameters.AddWithValue("@CardName", transferencia.CardName);
                     cmd.Parameters.AddWithValue("@NroGuia", transferencia.NroGuia);
@@ -87,12 +87,13 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
             table.Columns.Add("QuantityMaster", typeof(int));
             table.Columns.Add("QuantitySaldo", typeof(int));
             table.Columns.Add("QuantityUnidadesCajas", typeof(int));
+            table.Columns.Add("Validado", typeof(int));
 
             foreach (var detalle in detalles)
             {
                 table.Rows.Add(0, detalle.ItemCode, detalle.ItemName, detalle.BatchNum, detalle.ExpDate, detalle.InDate,
                                detalle.CodigoUbicacion, detalle.UmAlm, detalle.ValorUmAlm,
-                               detalle.QuantityMaster, detalle.QuantitySaldo, detalle.QuantityUnidadesCajas);
+                               detalle.QuantityMaster, detalle.QuantitySaldo, detalle.QuantityUnidadesCajas,detalle.Validado);
             }
             return table;
         }
