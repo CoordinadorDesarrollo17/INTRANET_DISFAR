@@ -152,7 +152,7 @@
                             <td colspan="2"><img width="200" src="~/imagenes/logoventa2.jpg" /></td>
                             <td></td>
                             <td></td>
-                            <td colspan="2" align="right"><span class="font-weight-bold" style="font-size: 20px">F/BT-005 <br /> VERSION 1@*REG-027-03*@</span></td>
+                            <td colspan="2" align="right"><span class="font-weight-bold" style="font-size: 20px">F/DBT-005<br /> VERSION 1@*REG-027-03*@</span></td>
                         </tr>
                         <tr>
                             <td width="540" class="text-center font-weight-bold" colspan="6" style="font-size: 20px">REGISTRO DE TEMPERATURA Y HUMEDAD  DE TRANSPORTE</td>
@@ -198,10 +198,8 @@
                                     <td class="font-weight-bold text-center">N° DE TICKET<br />O GUÍA</td>
                                     <td class="font-weight-bold text-center">HORA DE SALIDA <br /> DEL ALMACÉN</td>
                                     <td class="font-weight-bold text-center">T° <br />(15-25°C)</td>
-                                    <td class="font-weight-bold text-center">HUMEDAD<br />(<65%)</td>
                                     <td class="font-weight-bold text-center">HORA DE LLEGADA<br />AL DESTINO</td>
                                     <td class="font-weight-bold text-center">T°<br />(15-25°C)</td>
-                                    <td class="font-weight-bold text-center">HUMEDAD<br />(<65%)</td>
                                     <td class="font-weight-bold text-center">ENTREGADO POR:</td>
                                     <td class="font-weight-bold text-center">V°B</td>
                                 </tr>
@@ -217,10 +215,8 @@
                                             <td class="text-center" style="vertical-align: top;">@datos2.Codigo</td>
                                             <td class="text-center" style="vertical-align: top;">@datos2.HoraSalida</td>
                                             <td class="text-center" style="vertical-align: top;">@datos2.TempI.ToString("N1") °C</td>
-                                            <td class="text-center" style="vertical-align: top;">@*@datos2.HumedI*@  64%</td>
                                             <td class="text-center" style="vertical-align: top;">@datos2.HoraLlegada</td>
                                             <td class="text-center" style="vertical-align: top;">@datos2.TempF.ToString("N1") °C</td>
-                                            <td class="text-center" style="vertical-align: top;">@*@datos2.HumedF*@  64%</td>
                                             <td class="text-center" style="vertical-align: top;">@datos2.Encargado</td>
                                             <td class="text-center">
                                                 @*@if (datos2.TempI >= 15 && datos2.TempI <= 25 && datos2.HumedI >= 55 && datos2.HumedI <65 && datos2.TempF >= 15 && datos2.TempF <= 25 && datos2.HumedF >= 55 && datos2.HumedF < 65)

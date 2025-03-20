@@ -630,9 +630,9 @@ namespace Capa_Usuario.Controllers
                 {
                     Usuario_E user = (Usuario_E)Session["UsuarioId"];
                     foreach (RRU1_E dt in obj.DetRRU1)
-                    { dt.TempI1 = o.TempI1; dt.TempI2 = o.TempI2; dt.HumedI1 = o.HumedI1; dt.HumedI2 = o.HumedI2; }
+                    { dt.TempI1 = o.TempI1; dt.TempI2 = o.TempI2; }
                     foreach (RRU0_E dt in obj.DetRRU0)
-                    { dt.TempI1 = o.TempI1; dt.TempI2 = o.TempI2; dt.HumedI1 = o.HumedI1; dt.HumedI2 = o.HumedI2; }
+                    { dt.TempI1 = o.TempI1; dt.TempI2 = o.TempI2; }
                     obj.Operario = $"{user.Nombres} {user.Apellidos}";
                     orruN.IniciarReparto(obj);
                     return RedirectToAction("ListadoRepartos", new { DocNum = obj.DocNum, msj = "Ruta iniciada exitosamente" });

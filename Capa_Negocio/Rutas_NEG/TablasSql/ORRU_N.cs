@@ -203,9 +203,7 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
                     if (o.TipoRuta != "VG" && o.TipoRuta != "AC")
                     {
                         if (!(a.TempI1 >= 15 && a.TempI1 <= 25)) { throw new Exception("Temp1 Inicial no cumple con el rango valido (mayor o igual a 15 y menor o igual a 25)"); }
-                        if (!(a.HumedI1 >= 55 && a.HumedI1 < 65)) { throw new Exception("Humed1 Inicial no cumple con el rango valido (mayor o igual a 55 y menor a 65)"); }
                         if (!(a.TempI2 >= 15 && a.TempI2 <= 25)) { throw new Exception("Temp2 Inicial no cumple con el rango valido (mayor o igual a 15 y menor o igual a 25)"); }
-                        if (!(a.HumedI2 >= 55 && a.HumedI2 < 65)) { throw new Exception("Humed2 Inicial no cumple con el rango valido (mayor o igual a 55 y menor a 65)"); }
                     }
                 }
             }
@@ -215,9 +213,7 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
                 {
                     if (a.Estado != "PREENVIO") { throw new Exception("Todos los tickets no estan como PREENVIO"); }
                     if (!(a.TempI1 >= 15 && a.TempI1 <= 25)) { throw new Exception("Temp1 Inicial no cumple con el rango valido (mayor o igual a 15 y menor o igual a 25)"); }
-                    if (!(a.HumedI1 >= 55 && a.HumedI1 < 65)) { throw new Exception("Humed1 Inicial no cumple con el rango valido (mayor o igual a 55 y menor a 65)"); }
                     if (!(a.TempI2 >= 15 && a.TempI2 <= 25)) { throw new Exception("Temp2 Inicial no cumple con el rango valido (mayor o igual a 15 y menor o igual a 25)"); }
-                    if (!(a.HumedI2 >= 55 && a.HumedI2 < 65)) { throw new Exception("Humed2 Inicial no cumple con el rango valido (mayor o igual a 55 y menor a 65)"); }
                 }
             }
             orruD.IniciarReparto(o);
