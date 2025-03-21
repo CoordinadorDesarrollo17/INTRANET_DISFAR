@@ -169,10 +169,7 @@
     }
 
     async function cambiarUbicacion(idNuevoCodigoUbicacion, idUbicacionLoteMaster) {
-
-        //let idUbicacionLoteMaster = idUbicacionLoteMaster
-        let nuevoCodigoUbicacion = $("#"+idNuevoCodigoUbicacion).val();
-      
+        let nuevoCodigoUbicacion = document.getElementById(idNuevoCodigoUbicacion).value;
         try {
             const response = await fetch("/AbastecimientoInterno/CambioUbicacionReserva", {
                 method: 'POST',

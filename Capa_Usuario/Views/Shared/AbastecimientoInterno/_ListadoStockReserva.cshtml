@@ -1,5 +1,5 @@
 ﻿
-<table id="tbl_listaStockReserva" class="dt-container dt-empty-footer table table-sm table-hover table-responsive font-14" width="100%">
+<table id="tbl_listaStockReserva" class="dt-container dt-empty-footer table table-sm table-hover table-responsive font-12" width="100%">
     <thead class="thead-cobefar">
         <tr>
             <th scope="col" class="text-center">Código de artículo</th>
@@ -30,24 +30,11 @@
                     <td scope="col" class="text-center align-middle">
                         <div class="d-flex justify-content-center align-content-center">
                             <select id="idunico_@item.UbicacionLoteMasterId"
-                                    data-idubicacionlotemaster="@item.UbicacionLoteMasterId"
-                                    data-idloteubicacion="lote_ubicacion_@loteMaster"
-                                    data-itemcode="@item.ItemCode"
-                                    data-unidadmaster="@item.UmAlm"
                                     data-ubicacionactual="@item.CodigoUbicacion"
-                                    class="cls-select"
-                                    style="width: 180px">
+                                    class="form-select"
+                                    style="width: 180px;font-size:12px"
+                                     onclick="cargarUbicaciones(this)">
                                 <option value="">Seleccione</option>
-                                @if (ViewBag.Ubicaciones != null)
-                                {
-                                    foreach (var ubi in ViewBag.Ubicaciones)
-                                    {
-                                        if (ubi.CodigoUbicacion != item.CodigoUbicacion)
-                                        {
-                                            <option value="@ubi.CodigoUbicacion">@ubi.CodigoUbicacion</option>
-                                        }
-                                    }
-                                }
                             </select>
                         </div>
                     </td>
@@ -68,5 +55,49 @@
 
 <script>
     $('[data-bs-toggle="tooltip"]').tooltip();
-    inicializarSlimSelectsPorClase('cls-select')
+</script>
+
+<script>
+    async function cargarUbicaciones(selectElement) {
+        new SlimSelect({ select: selectElement });
+        let ubicacionActual = selectElement.dataset.ubicacionactual;
+        console.log("Ubicación actual:", ubicacionActual);
+
+        try {
+            let response = await fetch('/AbastecimientoInterno/JsonListUbicacionesReserva');
+
+            if (!response.ok) {
+                let errorText = await response.text(); 
+                throw new Error(`Error ${response.status}: ${errorText}`);
+            }
+
+            let data = await response.json();
+            console.log("Ubicaciones recibidas:", data);
+            if (selectElement.slim) {
+                selectElement.slim.destroy();
+            }
+           
+            selectElement.innerHTML = '<option value="">Seleccione</option>';
+            data.forEach(ubi => {
+                if (ubi.CodigoUbicacion !== ubicacionActual) {
+                    let option = document.createElement("option");
+                    option.value = ubi.CodigoUbicacion;
+                    option.textContent = ubi.CodigoUbicacion;
+                    selectElement.appendChild(option);
+                }
+            });
+            selectElement.classList.remove("form-select");
+
+            selectElement.slim = new SlimSelect({
+                select: selectElement,
+                settings: {
+                    placeholderText: 'Seleccione una ubicación'
+                }
+            });
+
+        } catch (error) {
+            console.error("Error al obtener ubicaciones:", error.message);
+        }
+    }
+
 </script>
