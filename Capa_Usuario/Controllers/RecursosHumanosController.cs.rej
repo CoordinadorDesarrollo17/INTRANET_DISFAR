@@ -1,0 +1,12 @@
+diff a/Capa_Usuario/Controllers/RecursosHumanosController.cs b/Capa_Usuario/Controllers/RecursosHumanosController.cs	(rejected hunks)
+@@ -411,7 +411,9 @@
+             ViewBag.IdRol = usu?.IdRol ?? 0;
+             var datosEmpleados = emplN.ListarEmpleados(filtros);
+             ViewBag.Mensaje = datosEmpleados == null ? "No se encontraron usuarios registrados." : "";
+-            ViewBag.CantidadEmpleados = datosEmpleados != null ? datosEmpleados.Count : 0;
++
++            filtros.PaginacionResultados = 0;
++            ViewBag.CantidadEmpleados = emplN.ListarEmpleados(filtros).Count;
+ 
+             return PartialView("RecursosHumanos/ListadoEmpleados", datosEmpleados);
+         }

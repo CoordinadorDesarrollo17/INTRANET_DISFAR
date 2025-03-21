@@ -128,7 +128,7 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
                     objOSAT.DetORTV = detORTV;
                     List<CC_OSAT_E> DatosAtencion = ccOSAT_D.ListarCC_OSAT(dr.GetInt32(0), "ATENDER");
 
-                    if (DatosAtencion[0].Operacion == "ATENDER" && !String.IsNullOrWhiteSpace(objOSAT.Resultado))
+                    if (DatosAtencion[0].Operacion == "ATENDER" && !String.IsNullOrEmpty(objOSAT.Resultado))
                     {
                         objOSAT.FechaAtencion = DatosAtencion[0].FechaOperacion;
                     }
@@ -745,7 +745,7 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
             }
             return nro;
         }
-        public OSAT_E BuscarDatosTicket(int DocNumTicket)
+        public OSAT_E buscarDatosTicket(int DocNumTicket)
         {
             OSAT_E objOSAT = new OSAT_E();
 
@@ -786,7 +786,7 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
                             if (!dr.IsDBNull(4)) { DetORTV.Add("Vendedor", dr.GetString(4)); }
                             if (!dr.IsDBNull(5)) { objOSAT.FechaFacturacion = dr.GetDateTime(5).ToString("yyyy-MM-dd"); }
                             if (!dr.IsDBNull(6)) { objOSAT.DireccionRecojo = dr.GetString(6); }
-                            objOSAT.Det = sat1D.ListarArticulosTicket(DocNumTicket);
+                            objOSAT.Det = sat1D.listarArticulosTicket(DocNumTicket);
                             objOSAT.DetORTV = DetORTV;
                         }
                     }

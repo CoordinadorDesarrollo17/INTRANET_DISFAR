@@ -19,8 +19,12 @@
         public string LicenciaConducir { get; set; }
         public string NombreContactoEmergencia { get; set; }
         public string CelularContactoEmergencia { get; set; }
+        public int RegistradoPor { get; set; }
+        public string UsuarioOperacion { get; set; }
         public string PrefijoId { get; set; }
         public string Estado { get; set; }
+        public string FechaRegistro { get; set; }
+        public string HoraRegistro { get; set; }
 
         // Campos que no son de la tabla
         public string DescripcionEstado { get; set; }
@@ -28,5 +32,6 @@
         public EMPL1_E DatosLaborales { get; set; }
         public int PaginacionResultados { get; set; }
         public string MostrarNotificacionCambio { get; set; }
+        public string VistaExterna { get; set; }
     }
 }

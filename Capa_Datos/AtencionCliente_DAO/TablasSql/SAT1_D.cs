@@ -80,15 +80,14 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
         }
 
         // Método de HANA - Mucho consumo de recursos cuando hay varios items
-        public List<SAT1_E> ListarArticulosTicket(int DocNumTicket)
+        public List<SAT1_E> listarArticulosTicket(int DocNumTicket)
         {
             int i = 0;
             List<SAT1_E> lista = new List<SAT1_E>();
 
             // Obtenemos el NroSAP con el método "BuscarNroSAP", este método está preparado para recibir @DocNum o @DocEntry
-            List<RTV2_E> listaRTV2 = rtv2D.BuscarNroSAPDeTicket("DocNum", DocNumTicket);
+            List<RTV2_E> listaRTV2 = rtv2D.BuscarNroSAP("DocNum", DocNumTicket);
 
-            //Para que la busqueda funcione de forma correcta se debe considerar siempre que las ordenes de venta en el detalle del ticket sean vigentes.
             foreach (RTV2_E d in listaRTV2)
             {
                 string query = "SELECT " +
@@ -141,7 +140,7 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
             List<SAT1_E> lista = new List<SAT1_E>();
 
             // Obtenemos el NroSAP con el método "BuscarNroSAP", este método está preparado para recibir @DocNum o @DocEntry
-            List<RTV2_E> listaRTV2 = rtv2D.BuscarNroSAPDeTicket("DocNum", DocNumTicket);
+            List<RTV2_E> listaRTV2 = rtv2D.BuscarNroSAP("DocNum", DocNumTicket);
 
             if (listaRTV2 != null && listaRTV2.Count >= 1)
             {
