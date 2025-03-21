@@ -21,7 +21,7 @@ namespace Capa_Datos.General_DAO.TablasSql
                 StringBuilder sb = new StringBuilder();
 
                 sb.AppendLine("SELECT FIR.[DocEntry], FIR.[DocEntryUsuario], FIR.[Nombres], FIR.[Apellidos], FIR.[RutaFirma], FIR.[TipoFirma], FIR.[CodigoAlmacen], FIR.[Almacen], USU.[IdRol]");
-                sb.AppendLine("FROM Firmas_190325 FIR");
+                sb.AppendLine("FROM Firmas FIR");
                 sb.AppendLine("INNER JOIN OUSR USU ON USU.[DocEntry] = FIR.[DocEntryUsuario]");
                 sb.AppendLine("WHERE FIR.[Nombres] != ''");
                 sb.AppendLine(condicion);
