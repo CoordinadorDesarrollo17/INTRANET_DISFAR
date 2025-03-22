@@ -20,24 +20,24 @@ namespace Capa_Negocio.RecursosHumanos_NEG.TablasSQL
         public List<string> ValidarDatosLaborales(EMPL1_E datosLaborales)
         {
             List<string> errores = new List<string>();
-            var datosEmpleado = new OEMPL_D().ObtenerDatosEmpleado(datosLaborales.Id);
+            var datosEmpleado = new OEMPL_D().ObtenerDatosEmpleado(datosLaborales.IdOEMPL);
 
             if (string.IsNullOrWhiteSpace(datosLaborales.CondicionLaboral))
             {
                 errores.Add("Debe seleccionar una condición laboral.");
             }
 
-            if (datosLaborales.SedeID <= 0)
+            if (datosLaborales.IdSede <= 0)
             {
                 errores.Add("Debe seleccionar una sede.");
             }
 
-            if (datosLaborales.DepartamentoID <= 0)
+            if (datosLaborales.IdDepartamento <= 0)
             {
                 errores.Add("Debe seleccionar un departamento.");
             }
 
-            if (datosLaborales.AreaID <= 0)
+            if (datosLaborales.IdArea <= 0)
             {
                 errores.Add("Debe seleccionar un área.");
             }
@@ -60,8 +60,8 @@ namespace Capa_Negocio.RecursosHumanos_NEG.TablasSQL
                     errores.Add("Solo puedes asignar un número corporativo a empleados activos.");
                 }
 
-                var numBuscado = new ONUM_N().ListarNumeros(new ONUM_E { IdNumero = datosLaborales.NumeroCorporativoID, Estado = "1", Asignado = "0" });
-                if (numBuscado == null && datosLaborales.NumeroCorporativoID <= 0)
+                var numBuscado = new ONUM_N().ListarNumeros(new ONUM_E { IdNumero = datosLaborales.IdNumeroCorporativo, Estado = "1", Asignado = "0" });
+                if (numBuscado == null && datosLaborales.IdNumeroCorporativo <= 0)
                 {
                     errores.Add("El número escogido no es válido.");
                 }

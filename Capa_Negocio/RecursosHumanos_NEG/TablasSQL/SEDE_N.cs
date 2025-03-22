@@ -95,7 +95,7 @@ namespace Capa_Negocio.General_NEG.TablasSql
         public string EditarSede(SEDE_E datosPOST)
         {
             var datosSede = sedeD.ObtenerDatosSede(datosPOST.Id);
-            var datosEmpleado = new OEMPL_D().ListarEmpleados(new OEMPL_E { Estado = "1", DatosLaborales = new EMPL1_E { SedeID = datosPOST.Id } },null);
+            var datosEmpleado = new OEMPL_D().ListarEmpleados(new OEMPL_E { Estado = "1", DatosLaborales = new EMPL1_E { IdSede = datosPOST.Id } },null);
 
             if (datosSede == null)
             {

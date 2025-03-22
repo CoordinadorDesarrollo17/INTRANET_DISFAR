@@ -60,7 +60,7 @@ namespace Capa_Negocio.General_NEG.TablasSql
         public string EditarCargo(CARGO_E datosPOST)
         {
             var datosCargo = cargoD.ObtenerDatosCargo(datosPOST.Id);
-            var datosEmpleado = new OEMPL_D().ListarEmpleados(new OEMPL_E { Estado = "1", DatosLaborales = new EMPL1_E { CargoID = datosPOST.Id } },0);
+            var datosEmpleado = new OEMPL_D().ListarEmpleados(new OEMPL_E { Estado = "1", DatosLaborales = new EMPL1_E { IdCargo = datosPOST.Id } },0);
 
             if (datosCargo == null)
             {
@@ -83,7 +83,7 @@ namespace Capa_Negocio.General_NEG.TablasSql
         public string EliminarCargo(int idCargo)
         {
             var datosCargo = cargoD.ObtenerDatosCargo(idCargo);
-            var datosEmpleado = new OEMPL_D().ListarEmpleados(new OEMPL_E { DatosLaborales = new EMPL1_E { Id = idCargo } }, 0);
+            var datosEmpleado = new OEMPL_D().ListarEmpleados(new OEMPL_E { DatosLaborales = new EMPL1_E { IdEMPL1 = idCargo } }, 0);
 
             if (datosCargo != null)
             {

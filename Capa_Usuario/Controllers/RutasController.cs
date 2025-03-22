@@ -785,7 +785,7 @@ namespace Capa_Usuario.Controllers
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 OUR1_N oofiN = new OUR1_N(); UBIG_N ubigN = new UBIG_N(); COUR_N courN = new COUR_N();
-                ViewBag.Ubigeos = ubigN.Listar();
+                ViewBag.Ubigeos = ubigN.Listar(null);
                 ViewBag.Couriers = courN.Listar();
                 ViewBag.Mensaje = msj;
                 return View(oofiN.Listar());
@@ -871,7 +871,7 @@ namespace Capa_Usuario.Controllers
             {
                 UBIG_N ubigN = new UBIG_N(); COUR_N courN = new COUR_N();
                 OUR2_N our2N = new OUR2_N();
-                ViewBag.Ubigeos = ubigN.Listar();
+                ViewBag.Ubigeos = ubigN.Listar(null);
                 ViewBag.Agencias = courN.Listar();
                 ViewBag.Mensaje = msj;
                 return View(our2N.Listar(""));

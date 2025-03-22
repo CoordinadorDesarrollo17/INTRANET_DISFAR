@@ -133,7 +133,7 @@ namespace Capa_Negocio.RecursosHumanos_NEG.TablasSQL
                 return "El número corporativo ya se encuentra liberado. Actualizar el listado.";
             }
 
-            return numD.LiberarNumero(idNumero, datosEmpleado[0].Id);
+            return numD.LiberarNumero(idNumero, datosEmpleado[0].IdOEMPL);
         }
 
         public List<RptNumerosCorporativos_E> ExportarListaNumeros(RptNumerosCorporativos_E filtros)

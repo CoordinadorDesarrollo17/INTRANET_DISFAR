@@ -101,11 +101,13 @@
     <Compile Include="General_NEG\TablasSql\COUR_N.cs" />
     <Compile Include="General_NEG\TablasSql\DNLAB_N.cs" />
     <Compile Include="General_NEG\TablasSql\Firmas_N.cs" />
+    <Compile Include="General_NEG\TablasSql\OAGE_N.cs" />
     <Compile Include="General_NEG\TablasSql\OCHO_N.cs" />
     <Compile Include="General_NEG\TablasSql\OUR1_N.cs" />
     <Compile Include="General_NEG\TablasSql\OUR2_N.cs" />
     <Compile Include="General_NEG\TablasSql\OVEH_N.cs" />
     <Compile Include="General_NEG\TablasSql\OWHS_N.cs" />
+    <Compile Include="General_NEG\TablasSql\UBICACIONES_N.cs" />
     <Compile Include="General_NEG\TablasSql\UBIG_N.cs" />
     <Compile Include="General_NEG\Tablas\COB_LUG_ENTREGA_N.cs" />
     <Compile Include="General_NEG\Tablas\COB_SALDO_N.cs" />
@@ -124,6 +126,8 @@
     <Compile Include="RecursosHumanos_NEG\TablasSQL\ONUM_N.cs" />
     <Compile Include="RecursosHumanos_NEG\TablasSQL\OSEDE_N.cs" />
     <Compile Include="RecursosHumanos_NEG\TablasSQL\SEDE_N.cs" />
+    <Compile Include="Repartos_NEG\TablasHana\SYP_CONDUC_N.cs" />
+    <Compile Include="Repartos_NEG\TablasHana\SYP_VEHICU_N.cs" />
     <Compile Include="ReportesDigemid_NEG\DocumentosDig_N.cs" />
     <Compile Include="Rutas_NEG\TablasSql\ORRU_N.cs" />
     <Compile Include="Rutas_NEG\TablasSql\RRU01_N.cs" />

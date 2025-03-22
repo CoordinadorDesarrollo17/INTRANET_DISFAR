@@ -252,10 +252,10 @@ function obtenerDatosEmpleado(idEmpleado) {
     xhr.onload = function () {          // Manejar la respuesta de la solicitud
         if (xhr.status >= 200 && xhr.status < 300) {
             var response = JSON.parse(xhr.responseText);
-
             let datos = {
                 estadoEmpleado: response?.Empleado?.Estado || '',
                 idEmpleado: response?.Empleado?.IdOEMPL || '',
+                //id: response?.Empleado?.IdEMPL1 || '',
                 nroDocEmpleado: response?.Empleado?.NroDocumento || '',
                 celularEmpleado: response?.Empleado?.Celular || '',
                 nombresEmpleado: response?.Empleado?.Nombres || '',

@@ -58,6 +58,7 @@ function abrirModalEmpleado(propiedadesModal) {
 
     document.getElementById("div_botonesAccion").innerHTML = propiedadesModal.botonAccion;
     document.getElementById("_ModalRegistrarEmpleado").textContent = propiedadesModal.tituloModal;
+    console.log(propiedadesModal)
     propiedadesModal.camposPermitidos.forEach(function (id) {
         document.getElementById(id).readOnly = false;
     });
@@ -156,7 +157,7 @@ function cargarSedes() {
             let selectSede = `<option value="">SELECCIONAR</option>`;
 
             for (let indice in response.Lista) {
-                selectSede += `<option value="${response.Lista[indice].IdSede}">${response.Lista[indice].Nombre}</option>`;
+                selectSede += `<option value="${response.Lista[indice].Id}">${response.Lista[indice].Nombre}</option>`;
             }
 
             document.getElementById("sedeLaboral").innerHTML = selectSede;

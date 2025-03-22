@@ -289,7 +289,7 @@ namespace Capa_Usuario.Controllers
         }
         public JsonResult BuscarLotesProducto(Capa_Entidad.Almacen_ENT.Tablas.OIBT_E filtros)
         {
-            //verificacionAccesos(0);         // Validar sesion logueada, solo para ajax
+            
             if (!string.IsNullOrWhiteSpace(filtros.ItemCode))
             {
                 Capa_Negocio.Almacen_NEG.Tablas.OIBT_N oibtN = new Capa_Negocio.Almacen_NEG.Tablas.OIBT_N();

@@ -163,7 +163,7 @@ namespace Capa_Usuario.Controllers
                 Usuario_E user = (Usuario_E)Session["UsuarioId"];
                 ViewBag.Mensaje = "";
                 ViewBag.ProveedoresConContactos = oN.listarSociosConContactos();
-                ViewBag.Ubigeos = ubigN.Listar();
+                ViewBag.Ubigeos = ubigN.Listar(null);
                 ViewBag.Oficinas = ofiN.Listar();
                 ViewBag.Agencias = couN.Listar();
                 ViewBag.Usuario = $"{user.Prefijo}{user.Id}";
@@ -208,7 +208,7 @@ namespace Capa_Usuario.Controllers
                     ViewBag.Mensaje = e.Message;
                     ViewBag.ProveedoresConContactos = oN.listarSociosConContactos();
                     ViewBag.Agencias = couN.Listar();
-                    ViewBag.Ubigeos = ubigN.Listar();
+                    ViewBag.Ubigeos = ubigN.Listar(null);
                     ViewBag.Oficinas = ofiN.Listar();
                     ViewBag.Usuario = $"{user.Prefijo}{user.Id}";
                     return View(ticket);
@@ -238,7 +238,7 @@ namespace Capa_Usuario.Controllers
                     }
                 }
                 ViewBag.ClienteRegalo = oclrN.buscarClienteRegalo(t.CardCode);
-                ViewBag.Ubigeos = ubigN.Listar();
+                ViewBag.Ubigeos = ubigN.Listar(null);
                 ViewBag.Oficinas = ofiN.Listar();
                 ViewBag.Agencias = couN.Listar();
                 ViewBag.IdRol = user.IdRol;
@@ -272,7 +272,7 @@ namespace Capa_Usuario.Controllers
                     OUR1_N ofiN = new OUR1_N(); COUR_N couN = new COUR_N();
                     ViewBag.ProveedoresConContactos = oN.listarSociosConContactos();
                     ViewBag.Mensaje = e.Message;
-                    ViewBag.Ubigeos = ubigN.Listar();
+                    ViewBag.Ubigeos = ubigN.Listar(null);
                     ViewBag.Oficinas = ofiN.Listar(); ViewBag.Agencias = couN.Listar();
                     ViewBag.ClienteRegalo = oclrN.buscarClienteRegalo(t.CardCode);
                     ViewBag.Usuario = $"{user.Prefijo}{user.Id}";
@@ -478,7 +478,7 @@ namespace Capa_Usuario.Controllers
                     Usuario_E usu = (Usuario_E)Session["UsuarioId"];
                     string Operario = $"{usu.Nombres} {usu.Apellidos}";
                     int DocNum = ortvN.Cancelar(DocEntry, Operario, usu.IdRol);
-                    return RedirectToAction(vista, new { DocNum = DocNum });
+                    return RedirectToAction(vista, new { DocNum});
                 }
                 catch (Exception e)
                 {
@@ -3683,7 +3683,7 @@ namespace Capa_Usuario.Controllers
                 UBIG_N ubigN = new UBIG_N(); OUR1_N ofiN = new OUR1_N(); COUR_N couN = new COUR_N();
                 ViewBag.Mensaje = "";
                 ORTV_E t = _ticketN.ObtenerDatosCompletosTicket(DocEntry);
-                ViewBag.Ubigeos = ubigN.Listar();
+                ViewBag.Ubigeos = ubigN.Listar(null);
                 ViewBag.Oficinas = ofiN.Listar();
                 ViewBag.Agencias = couN.Listar();
                 if (t.Estado.Equals("SEPARADO")) { return RedirectToAction("CreaTicketVenta", new { DocEntry = t.DocEntry }); }
@@ -3712,7 +3712,7 @@ namespace Capa_Usuario.Controllers
                 {
                     UBIG_N ubigN = new UBIG_N(); OUR1_N ofiN = new OUR1_N(); COUR_N couN = new COUR_N();
                     ViewBag.Mensaje = e.Message;
-                    ViewBag.Ubigeos = ubigN.Listar();
+                    ViewBag.Ubigeos = ubigN.Listar(null);
                     ViewBag.Oficinas = ofiN.Listar();
                     ViewBag.Agencias = couN.Listar();
                     return View(t);

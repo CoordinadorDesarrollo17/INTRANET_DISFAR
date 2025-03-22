@@ -29,40 +29,40 @@ namespace Capa_Datos.RecursosHumanos_DAO
 
                     var sb = new StringBuilder();
 
-                    sb.Append("SELECT DL.Id, DL.EmpleadoID, DL.TipoContrato, ISNULL(CONVERT(varchar, DL.FechaContratacion, 103), ''), DL.Salario, ISNULL(CONVERT(varchar, DL.FechaCese, 103), ''), DL.SedeID, DL.DepartamentoID, DL.AreaID, DL.CargoID, DL.TurnoTrabajo, DL.Discapacidad, DL.CondicionLaboral")
+                    sb.Append("SELECT DL.Id, DL.EmpleadoID, DL.TipoContrato, ISNULL(CONVERT(varchar, DL.FechaContratacion, 103), ''), DL.Salario, ISNULL(CONVERT(varchar, DL.FechaCese, 103), ''), DL.IdSede, DL.IdDepartamento, DL.IdArea, DL.IdCargo, DL.TurnoTrabajo, DL.Discapacidad, DL.CondicionLaboral")
                     .Append(" FROM rrhh.EMPL1 DL")
                     .Append(" WHERE 1 = 1");
 
                     if (filtros != null)
                     {
-                        if (filtros.EmpleadoID > 0)
+                        if (filtros.IdOEMPL > 0)
                         {
-                            sb.Append(" AND DL.EmpleadoID = @EmpleadoID");
-                            cmd.Parameters.AddWithValue("@EmpleadoID", filtros.EmpleadoID);
+                            sb.Append(" AND DL.IdOEMPL = @EmpleadoID");
+                            cmd.Parameters.AddWithValue("@EmpleadoID", filtros.IdOEMPL);
                         }
 
-                        if (filtros.SedeID > 0)
+                        if (filtros.IdSede > 0)
                         {
-                            sb.Append(" AND DL.SedeID = @SedeID");
-                            cmd.Parameters.AddWithValue("@SedeID", filtros.SedeID);
+                            sb.Append(" AND DL.IdSede = @SedeID");
+                            cmd.Parameters.AddWithValue("@SedeID", filtros.IdSede);
                         }
 
-                        if (filtros.DepartamentoID > 0)
+                        if (filtros.IdDepartamento > 0)
                         {
-                            sb.Append(" AND DL.DepartamentoID = @DepartamentoID");
-                            cmd.Parameters.AddWithValue("@DepartamentoID", filtros.DepartamentoID);
+                            sb.Append(" AND DL.IdDepartamento = @DepartamentoID");
+                            cmd.Parameters.AddWithValue("@DepartamentoID", filtros.IdDepartamento);
                         }
 
-                        if (filtros.AreaID > 0)
+                        if (filtros.IdArea > 0)
                         {
-                            sb.Append(" AND DL.AreaID = @AreaID");
-                            cmd.Parameters.AddWithValue("@AreaID", filtros.AreaID);
+                            sb.Append(" AND DL.IdArea = @AreaID");
+                            cmd.Parameters.AddWithValue("@AreaID", filtros.IdArea);
                         }
 
-                        if (filtros.CargoID > 0)
+                        if (filtros.IdCargo > 0)
                         {
-                            sb.Append(" AND DL.CargoID = @CargoID");
-                            cmd.Parameters.AddWithValue("@CargoID", filtros.CargoID);
+                            sb.Append(" AND DL.IdCargo = @CargoID");
+                            cmd.Parameters.AddWithValue("@CargoID", filtros.IdCargo);
                         }
                     }
 
@@ -77,19 +77,19 @@ namespace Capa_Datos.RecursosHumanos_DAO
                             {
                                 var obj = new EMPL1_E
                                 {
-                                    Id = dr.IsDBNull(0) ? 0 : dr.GetInt32(0),
-                                    EmpleadoID = dr.IsDBNull(1) ? 0 : dr.GetInt32(1),
+                                    IdEMPL1 = dr.IsDBNull(0) ? 0 : dr.GetInt32(0),
+                                    IdOEMPL = dr.IsDBNull(1) ? 0 : dr.GetInt32(1),
                                     TipoContrato = dr.IsDBNull(2) ? string.Empty : dr.GetString(2),
                                     FechaContratacion = dr.IsDBNull(3) ? string.Empty : dr.GetString(3),
                                     Salario = dr.IsDBNull(4) ? 0 : dr.GetDecimal(4),
                                     FechaCese = dr.IsDBNull(5) ? string.Empty : dr.GetString(5),
-                                    SedeID = dr.IsDBNull(6) ? 0 : dr.GetInt32(6),
-                                    DepartamentoID = dr.IsDBNull(7) ? 0 : dr.GetInt32(7),
-                                    AreaID = dr.IsDBNull(8) ? 0 : dr.GetInt32(8),
-                                    CargoID = dr.IsDBNull(9) ? 0 : dr.GetInt32(9),
+                                    IdSede = dr.IsDBNull(6) ? 0 : dr.GetInt32(6),
+                                    IdDepartamento = dr.IsDBNull(7) ? 0 : dr.GetInt32(7),
+                                    IdArea = dr.IsDBNull(8) ? 0 : dr.GetInt32(8),
+                                    IdCargo = dr.IsDBNull(9) ? 0 : dr.GetInt32(9),
                                     TurnoTrabajo = dr.IsDBNull(10) ? string.Empty : dr.GetString(10),
                                     Discapacidad = dr.IsDBNull(11) ? string.Empty : dr.GetString(11),
-                                    CondicionLaboral = dr.IsDBNull(12) ? string.Empty : dr.GetString(12),
+                                    CondicionLaboral = dr.IsDBNull(12) ? string.Empty : dr.GetString(12)
                                 };
 
                                 lista.Add(obj);
@@ -351,16 +351,16 @@ namespace Capa_Datos.RecursosHumanos_DAO
                     cmd.CommandType = CommandType.StoredProcedure;
 
                     cmd.Parameters.AddWithValue("@Accion", "UPD");
-                    cmd.Parameters.AddWithValue("@IdOEMPL", datos.Id);
+                    cmd.Parameters.AddWithValue("@IdOEMPL", datos.IdOEMPL);
                     cmd.Parameters.AddWithValue("@TipoContrato", datos.TipoContrato);
                     cmd.Parameters.AddWithValue("@FechaContratacion", datos.FechaContratacion);
                     cmd.Parameters.AddWithValue("@Salario", datos.Salario);
                     cmd.Parameters.AddWithValue("@FechaCese", datos.FechaCese);
-                    cmd.Parameters.AddWithValue("@IdSede", datos.SedeID);
-                    cmd.Parameters.AddWithValue("@IdDepartamento", datos.DepartamentoID);
-                    cmd.Parameters.AddWithValue("@IdArea", datos.AreaID);
-                    cmd.Parameters.AddWithValue("@IdCargo", datos.CargoID);
-                    cmd.Parameters.AddWithValue("@IdNumeroCorporativo", datos.NumeroCorporativoID);
+                    cmd.Parameters.AddWithValue("@IdSede", datos.IdSede);
+                    cmd.Parameters.AddWithValue("@IdDepartamento", datos.IdDepartamento);
+                    cmd.Parameters.AddWithValue("@IdArea", datos.IdArea);
+                    cmd.Parameters.AddWithValue("@IdCargo", datos.IdCargo);
+                    cmd.Parameters.AddWithValue("@IdNumeroCorporativo", datos.IdNumeroCorporativo);
                     cmd.Parameters.AddWithValue("@AnexoCorporativo", datos.AnexoCorporativo);
                     cmd.Parameters.AddWithValue("@CorreoCorporativo", datos.CorreoCorporativo);
                     cmd.Parameters.AddWithValue("@TurnoTrabajo", datos.TurnoTrabajo);
@@ -372,11 +372,11 @@ namespace Capa_Datos.RecursosHumanos_DAO
                     cmd.ExecuteNonQuery();
 
                     var numD = new ONUM_D();
-                    if (datos.NumeroCorporativoID > 0)
+                    if (datos.IdNumeroCorporativo > 0)
                     {
                         if (empleado.Estado == "1")
                         {
-                            numD.AsignarNumero(datos.NumeroCorporativoID, datos.NroDocumento);
+                            numD.AsignarNumero(datos.IdNumeroCorporativo, datos.NroDocumento);
                         }
                         else
                         {
@@ -388,7 +388,7 @@ namespace Capa_Datos.RecursosHumanos_DAO
                         numD.LiberarNumerosEmpleado(datos.NroDocumento);
                     }
 
-                    if (datos.EmpleadoID > 0)
+                    if (datos.IdOEMPL > 0)
                     {
                         new HIST_OEMPL_D().RegistrarHistoricoDatosLaborales(datos);
                     }
@@ -482,7 +482,7 @@ namespace Capa_Datos.RecursosHumanos_DAO
                     sb.Append(" DL.IdArea, DL.IdCargo, DL.IdNumeroCorporativo, DL.AnexoCorporativo, DL.CorreoCorporativo, DL.TurnoTrabajo, DL.Discapacidad, ISNULL(DL.CondicionLaboral, ''), DEP.Nombre, ISNULL(CAR.Nombre, ''), ISNULL(NU.NumeroCorporativo, '')");
                     sb.Append(" FROM rrhh.EMPL1 DL");
                     sb.Append(" INNER JOIN dbo.ODPTO DEP ON DEP.IdDepartamento = DL.IdDepartamento");
-                    sb.Append(" LEFT JOIN dbo.OCARGO CAR ON CAR.IdCargo = DL.IdCargo");
+                    sb.Append(" LEFT JOIN dbo.CARGO CAR ON CAR.Id= DL.IdCargo");
                     sb.Append(" LEFT JOIN dbo.ONUM NU ON NU.IdNumero = DL.IdNumeroCorporativo");
                     sb.Append(" WHERE DL.IdOEMPL = @IdOEMPL");
 
@@ -498,17 +498,17 @@ namespace Capa_Datos.RecursosHumanos_DAO
 
                             while (dr.Read())
                             {
-                                if (!dr.IsDBNull(0)) { obj.Id = dr.GetInt32(0); }
-                                if (!dr.IsDBNull(1)) { obj.EmpleadoID = dr.GetInt32(1); }
+                                if (!dr.IsDBNull(0)) { obj.IdEMPL1 = dr.GetInt32(0); }
+                                if (!dr.IsDBNull(1)) { obj.IdOEMPL = dr.GetInt32(1); }
                                 if (!dr.IsDBNull(2)) { obj.TipoContrato = dr.GetString(2); }
                                 if (!dr.IsDBNull(3)) { obj.FechaContratacion = dr.GetString(3); }
                                 if (!dr.IsDBNull(4)) { obj.Salario = dr.GetDecimal(4); }
                                 if (!dr.IsDBNull(5)) { obj.FechaCese = dr.GetString(5); }
-                                if (!dr.IsDBNull(6)) { obj.SedeID = dr.GetInt32(6); }
-                                if (!dr.IsDBNull(7)) { obj.DepartamentoID = dr.GetInt32(7); }
-                                if (!dr.IsDBNull(8)) { obj.AreaID = dr.GetInt32(8); }
-                                if (!dr.IsDBNull(9)) { obj.CargoID = dr.GetInt32(9); }
-                                if (!dr.IsDBNull(10)) { obj.NumeroCorporativoID = dr.GetInt32(10); }
+                                if (!dr.IsDBNull(6)) { obj.IdSede = dr.GetInt32(6); }
+                                if (!dr.IsDBNull(7)) { obj.IdDepartamento = dr.GetInt32(7); }
+                                if (!dr.IsDBNull(8)) { obj.IdArea = dr.GetInt32(8); }
+                                if (!dr.IsDBNull(9)) { obj.IdCargo = dr.GetInt32(9); }
+                                if (!dr.IsDBNull(10)) { obj.IdNumeroCorporativo = dr.GetInt32(10); }
                                 if (!dr.IsDBNull(11)) { obj.AnexoCorporativo = dr.GetString(11); }
                                 if (!dr.IsDBNull(12)) { obj.CorreoCorporativo = dr.GetString(12); }
                                 if (!dr.IsDBNull(13)) { obj.TurnoTrabajo = dr.GetString(13); }

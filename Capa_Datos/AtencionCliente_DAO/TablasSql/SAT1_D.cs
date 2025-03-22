@@ -80,13 +80,13 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
         }
 
         // Método de HANA - Mucho consumo de recursos cuando hay varios items
-        public List<SAT1_E> listarArticulosTicket(int DocNumTicket)
+        public List<SAT1_E> ListarArticulosTicket(int DocNumTicket)
         {
             int i = 0;
             List<SAT1_E> lista = new List<SAT1_E>();
 
             // Obtenemos el NroSAP con el método "BuscarNroSAP", este método está preparado para recibir @DocNum o @DocEntry
-            List<RTV2_E> listaRTV2 = rtv2D.BuscarNroSAP("DocNum", DocNumTicket);
+            List<RTV2_E> listaRTV2 = rtv2D.BuscarNroSAPDeTicket("DocNum", DocNumTicket);
 
             foreach (RTV2_E d in listaRTV2)
             {
@@ -140,7 +140,7 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
             List<SAT1_E> lista = new List<SAT1_E>();
 
             // Obtenemos el NroSAP con el método "BuscarNroSAP", este método está preparado para recibir @DocNum o @DocEntry
-            List<RTV2_E> listaRTV2 = rtv2D.BuscarNroSAP("DocNum", DocNumTicket);
+            List<RTV2_E> listaRTV2 = rtv2D.BuscarNroSAPDeTicket("DocNum", DocNumTicket);
 
             if (listaRTV2 != null && listaRTV2.Count >= 1)
             {
@@ -178,7 +178,6 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
 
             return lista;
         }
-
         public List<SAT1_ComprobanteFin> buscarComprobanteFin(string DocFact = "")
         {
             List<SAT1_ComprobanteFin> result = new List<SAT1_ComprobanteFin>();

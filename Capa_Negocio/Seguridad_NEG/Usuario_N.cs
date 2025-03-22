@@ -43,7 +43,7 @@ namespace Capa_Negocio.Seguridad_NEG
         {
             if (datosPost.EmpleadoID > 0)
             {
-                var empleado = new OEMPL_N().ListarEmpleados(new OEMPL_E { Id = datosPost.EmpleadoID }, null);
+                var empleado = new OEMPL_N().ListarEmpleados(new OEMPL_E { IdOEMPL = datosPost.EmpleadoID }, null);
 
                 if (empleado != null && empleado.Count >= 1)
                 {

@@ -2,7 +2,7 @@
 {
     public class OEMPL_E
     {
-        public int Id { get; set; }
+        public int IdOEMPL { get; set; }
         public string Nombres { get; set; }
         public string Apellidos { get; set; }
         public string TipoDocumento { get; set; }
@@ -11,7 +11,7 @@
         public string EstadoCivil { get; set; }
         public string Genero { get; set; }
         public string Direccion { get; set; }
-        public int UbigeoID { get; set; }
+        public int Ubigeo { get; set; }
         public string ReferenciaDomicilio { get; set; }
         public string Nacionalidad { get; set; }
         public string CorreoElectronico { get; set; }

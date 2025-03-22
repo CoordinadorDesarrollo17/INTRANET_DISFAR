@@ -33,7 +33,7 @@ namespace Capa_Negocio.RecursosHumanos_NEG.TablasSQL
             var empleadosConDatosLaborales = empleados.Select(empleado =>
             {
                 // Encontrar los datos laborales correspondientes al empleado
-                var datosLaboralesEmpleado = datosLaborales.FirstOrDefault(d => d.EmpleadoID == empleado.Id);
+                var datosLaboralesEmpleado = datosLaborales.FirstOrDefault(d => d.IdOEMPL == empleado.IdOEMPL);
 
                 // Asignar los datos laborales al empleado
                 empleado.DatosLaborales = datosLaboralesEmpleado;
@@ -125,8 +125,8 @@ namespace Capa_Negocio.RecursosHumanos_NEG.TablasSQL
         {
             List<string> errores = new List<string>();
 
-            var datosEmpleado = emplD.ObtenerDatosEmpleado(empleadoPOST.Id);
-            var datosLaborales = empl1D.ObtenerDatosLaborales(empleadoPOST.Id);
+            var datosEmpleado = emplD.ObtenerDatosEmpleado(empleadoPOST.IdOEMPL);
+            var datosLaborales = empl1D.ObtenerDatosLaborales(empleadoPOST.IdOEMPL);
 
             if (datosEmpleado == null || datosLaborales == null)
             {
@@ -151,9 +151,9 @@ namespace Capa_Negocio.RecursosHumanos_NEG.TablasSQL
             errores.AddRange(new EMPL1_N().ValidarDatosLaborales(empl1POST));
 
             // Verificar si el cargo enviado desde POST está activo
-            if (empl1POST.CargoID > 0)
+            if (empl1POST.IdCargo > 0)
             {
-                var cargoBuscado = new CARGO_N().ListarCargos(new CARGO_E { Id = empl1POST.CargoID, Estado = "1" });
+                var cargoBuscado = new CARGO_N().ListarCargos(new CARGO_E { Id = empl1POST.IdCargo, Estado = "1" });
 
                 if (cargoBuscado == null)
                 {
@@ -164,7 +164,7 @@ namespace Capa_Negocio.RecursosHumanos_NEG.TablasSQL
 
             // Verificar si se envía el campo cargo vacío pero ya se había registrado con un cargo
             // Esto es obligatorio si el empleado ya tenía un cargo asignado previamente
-            if (empl1POST.CargoID <= 0 && datosLaborales.CargoID > 0)
+            if (empl1POST.IdCargo <= 0 && datosLaborales.IdCargo > 0)
             {
                 errores.Add("Debe seleccionar un cargo.");
                 return errores;

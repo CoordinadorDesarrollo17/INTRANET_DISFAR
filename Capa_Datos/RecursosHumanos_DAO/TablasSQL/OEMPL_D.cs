@@ -40,7 +40,7 @@ namespace Capa_Datos.RecursosHumanos_DAO
                             cmd.Parameters.AddWithValue("@EstadoCivil", datosEmpleado.EstadoCivil);
                             cmd.Parameters.AddWithValue("@Genero", datosEmpleado.Genero);
                             cmd.Parameters.AddWithValue("@Direccion", datosEmpleado.Direccion);
-                            cmd.Parameters.AddWithValue("@Ubigeo", datosEmpleado.UbigeoID);
+                            cmd.Parameters.AddWithValue("@Ubigeo", datosEmpleado.Ubigeo);
                             cmd.Parameters.AddWithValue("@ReferenciaDomicilio", datosEmpleado.ReferenciaDomicilio);
                             cmd.Parameters.AddWithValue("@Nacionalidad", datosEmpleado.Nacionalidad);
                             cmd.Parameters.AddWithValue("@CorreoElectronico", datosEmpleado.CorreoElectronico);
@@ -60,7 +60,7 @@ namespace Capa_Datos.RecursosHumanos_DAO
                         }
 
                         // Actualizar datosLaborales con el idEmpleado obtenido
-                        datosLaborales.EmpleadoID = idEmpleado;
+                        datosLaborales.IdOEMPL = idEmpleado;
 
                         // Ejecutar segundo comando para rrhh.MANT_EMPL1
                         using (SqlCommand cmd = new SqlCommand("rrhh.MANT_EMPL1", cn1, transaction1))
@@ -68,16 +68,16 @@ namespace Capa_Datos.RecursosHumanos_DAO
                             cmd.CommandType = CommandType.StoredProcedure;
 
                             cmd.Parameters.AddWithValue("@Accion", "INS");
-                            cmd.Parameters.AddWithValue("@IdOEMPL", datosLaborales.Id);
+                            cmd.Parameters.AddWithValue("@IdOEMPL", datosLaborales.IdOEMPL);
                             cmd.Parameters.AddWithValue("@TipoContrato", datosLaborales.TipoContrato);
                             cmd.Parameters.AddWithValue("@FechaContratacion", datosLaborales.FechaContratacion);
                             cmd.Parameters.AddWithValue("@Salario", datosLaborales.Salario);
                             cmd.Parameters.AddWithValue("@FechaCese", datosLaborales.FechaCese);
-                            cmd.Parameters.AddWithValue("@SedeID", datosLaborales.SedeID);
-                            cmd.Parameters.AddWithValue("@DepartamentoID", datosLaborales.DepartamentoID);
-                            cmd.Parameters.AddWithValue("@AreaID", datosLaborales.AreaID);
-                            cmd.Parameters.AddWithValue("@CargoID", datosLaborales.CargoID);
-                            cmd.Parameters.AddWithValue("@IdNumeroCorporativo", datosLaborales.NumeroCorporativoID);
+                            cmd.Parameters.AddWithValue("@SedeID", datosLaborales.IdSede);
+                            cmd.Parameters.AddWithValue("@DepartamentoID", datosLaborales.IdDepartamento);
+                            cmd.Parameters.AddWithValue("@AreaID", datosLaborales.IdArea);
+                            cmd.Parameters.AddWithValue("@CargoID", datosLaborales.IdCargo);
+                            cmd.Parameters.AddWithValue("@IdNumeroCorporativo", datosLaborales.IdNumeroCorporativo);
                             cmd.Parameters.AddWithValue("@AnexoCorporativo", datosLaborales.AnexoCorporativo);
                             cmd.Parameters.AddWithValue("@CorreoCorporativo", datosLaborales.CorreoCorporativo);
                             cmd.Parameters.AddWithValue("@TurnoTrabajo", datosLaborales.TurnoTrabajo);
@@ -198,7 +198,7 @@ namespace Capa_Datos.RecursosHumanos_DAO
                         {
                             cmd.CommandType = CommandType.StoredProcedure;
                             cmd.Parameters.AddWithValue("@Accion", "UPD");
-                            cmd.Parameters.AddWithValue("@IdOEMPL", empleado.Id);
+                            cmd.Parameters.AddWithValue("@IdOEMPL", empleado.IdOEMPL);
                             cmd.Parameters.AddWithValue("@Nombres", empleado.Nombres);
                             cmd.Parameters.AddWithValue("@Apellidos", empleado.Apellidos);
                             cmd.Parameters.AddWithValue("@TipoDocumento", "DNI");
@@ -207,7 +207,7 @@ namespace Capa_Datos.RecursosHumanos_DAO
                             cmd.Parameters.AddWithValue("@EstadoCivil", empleado.EstadoCivil);
                             cmd.Parameters.AddWithValue("@Genero", empleado.Genero);
                             cmd.Parameters.AddWithValue("@Direccion", empleado.Direccion);
-                            cmd.Parameters.AddWithValue("@Ubigeo", empleado.UbigeoID);
+                            cmd.Parameters.AddWithValue("@Ubigeo", empleado.Ubigeo);
                             cmd.Parameters.AddWithValue("@ReferenciaDomicilio", empleado.ReferenciaDomicilio);
                             cmd.Parameters.AddWithValue("@Nacionalidad", empleado.Nacionalidad);
                             cmd.Parameters.AddWithValue("@CorreoElectronico", empleado.CorreoElectronico);
@@ -226,16 +226,16 @@ namespace Capa_Datos.RecursosHumanos_DAO
                         {
                             cmd.CommandType = CommandType.StoredProcedure;
                             cmd.Parameters.AddWithValue("@Accion", "UPD");
-                            cmd.Parameters.AddWithValue("@IdOEMPL", datosLaborales.Id);
+                            cmd.Parameters.AddWithValue("@IdOEMPL", datosLaborales.IdOEMPL);
                             cmd.Parameters.AddWithValue("@TipoContrato", datosLaborales.TipoContrato);
                             cmd.Parameters.AddWithValue("@FechaContratacion", datosLaborales.FechaContratacion);
                             cmd.Parameters.AddWithValue("@Salario", datosLaborales.Salario);
                             cmd.Parameters.AddWithValue("@FechaCese", datosLaborales.FechaCese);
-                            cmd.Parameters.AddWithValue("@SedeID", datosLaborales.SedeID);
-                            cmd.Parameters.AddWithValue("@DepartamentoID", datosLaborales.DepartamentoID);
-                            cmd.Parameters.AddWithValue("@AreaID", datosLaborales.AreaID);
-                            cmd.Parameters.AddWithValue("@CargoID", datosLaborales.CargoID);
-                            cmd.Parameters.AddWithValue("@IdNumeroCorporativo", datosLaborales.NumeroCorporativoID);
+                            cmd.Parameters.AddWithValue("@SedeID", datosLaborales.IdSede);
+                            cmd.Parameters.AddWithValue("@DepartamentoID", datosLaborales.IdDepartamento);
+                            cmd.Parameters.AddWithValue("@AreaID", datosLaborales.IdArea);
+                            cmd.Parameters.AddWithValue("@CargoID", datosLaborales.IdCargo);
+                            cmd.Parameters.AddWithValue("@IdNumeroCorporativo", datosLaborales.IdNumeroCorporativo);
                             cmd.Parameters.AddWithValue("@AnexoCorporativo", datosLaborales.AnexoCorporativo);
                             cmd.Parameters.AddWithValue("@CorreoCorporativo", datosLaborales.CorreoCorporativo);
                             cmd.Parameters.AddWithValue("@TurnoTrabajo", datosLaborales.TurnoTrabajo);
@@ -392,7 +392,7 @@ namespace Capa_Datos.RecursosHumanos_DAO
                     sb.Append(" EMP.Direccion, EMP.Ubigeo, EMP.ReferenciaDomicilio, EMP.Nacionalidad, EMP.CorreoElectronico, EMP.Celular, EMP.LicenciaConducir, EMP.NombreContactoEmergencia,");
                     sb.Append(" EMP.CelularContactoEmergencia, EMP.RegistradoPor, EMP.PrefijoId, EMP.Estado,");
                     sb.Append(" CASE WHEN EMP.Estado = '1' THEN 'ACTIVO' ELSE 'CESADO' END AS DescripcionEstado, CONCAT(EMP.Nombres, ' ' , EMP.Apellidos) AS NombresApellidos,");
-                    sb.Append(" DL.DepartamentoID, DL.AreaID, DL.CargoID, DL.SedeID, DEP.Nombre, ISNULL(CAR.Nombre, ''), DL.CorreoCorporativo, DL.IdNumeroCorporativo, ISNULL(NU.NumeroCorporativo, ''), ISNULL(AR.Nombre, ''),");
+                    sb.Append(" DL.IdDepartamento, DL.IdArea, DL.IdCargo, DL.IdSede, DEP.Nombre, ISNULL(CAR.Nombre, ''), DL.CorreoCorporativo, DL.IdNumeroCorporativo, ISNULL(NU.NumeroCorporativo, ''), ISNULL(AR.Nombre, ''),");
                     sb.Append(" ISNULL(DL.AnexoCorporativo, ''), ISNULL(DL.CondicionLaboral, ''), (SELECT TOP 1 H.FechaRegistro FROM rrhh.HIST_OEMPL H WHERE H.IdOEMPL = EMP.IdOEMPL ORDER BY H.IdHIST_OEMPL DESC )");
                     sb.Append(" ,CASE ");
                     sb.Append(" WHEN CAR.Nombre LIKE 'Gerente General' THEN  1");
@@ -454,9 +454,9 @@ namespace Capa_Datos.RecursosHumanos_DAO
                     sb.Append(" END AS Posicion ");
                     sb.Append(" FROM rrhh.OEMPL EMP ");
                     sb.Append(" INNER JOIN rrhh.EMPL1 DL ON DL.IdOEMPL = EMP.IdOEMPL");
-                    sb.Append(" LEFT JOIN dbo.ODPTO DEP ON DEP.DepartamentoID = DL.DepartamentoID");
-                    sb.Append(" LEFT JOIN dbo.OAREA AR ON AR.AreaID = DL.AreaID AND AR.DepartamentoID = DEP.DepartamentoID");
-                    sb.Append(" LEFT JOIN dbo.OCARGO CAR ON CAR.CargoID = DL.CargoID");
+                    sb.Append(" LEFT JOIN dbo.ODPTO DEP ON DEP.IdDepartamento = DL.IdDepartamento");
+                    sb.Append(" LEFT JOIN dbo.OAREA AR ON AR.IdArea = DL.IdArea AND AR.IdDepartamento = DEP.IdDepartamento");
+                    sb.Append(" LEFT JOIN dbo.CARGO CAR ON CAR.Id = DL.IdCargo");
                     sb.Append(" LEFT JOIN dbo.ONUM NU ON NU.IdNumero = DL.IdNumeroCorporativo");
                     sb.Append(" WHERE 1 = 1");
 
@@ -518,28 +518,28 @@ namespace Capa_Datos.RecursosHumanos_DAO
 
                         if (filtros.DatosLaborales != null)
                         {
-                            if (filtros.DatosLaborales.DepartamentoID > 0)
+                            if (filtros.DatosLaborales.IdDepartamento > 0)
                             {
-                                sb.Append(" AND DL.DepartamentoID = @DepartamentoID");
-                                cmd.Parameters.AddWithValue("@DepartamentoID", filtros.DatosLaborales.DepartamentoID);
+                                sb.Append(" AND DL.IdDepartamento = @DepartamentoID");
+                                cmd.Parameters.AddWithValue("@DepartamentoID", filtros.DatosLaborales.IdDepartamento);
                             }
 
-                            if (filtros.DatosLaborales.AreaID > 0)
+                            if (filtros.DatosLaborales.IdArea > 0)
                             {
-                                sb.Append(" AND DL.AreaID = @AreaID");
-                                cmd.Parameters.AddWithValue("@AreaID", filtros.DatosLaborales.AreaID);
+                                sb.Append(" AND DL.IdArea = @AreaID");
+                                cmd.Parameters.AddWithValue("@AreaID", filtros.DatosLaborales.IdArea);
                             }
 
-                            if (filtros.DatosLaborales.CargoID > 0)
+                            if (filtros.DatosLaborales.IdCargo > 0)
                             {
-                                sb.Append(" AND DL.CargoID = @CargoID");
-                                cmd.Parameters.AddWithValue("@CargoID", filtros.DatosLaborales.CargoID);
+                                sb.Append(" AND DL.IdCargo = @CargoID");
+                                cmd.Parameters.AddWithValue("@CargoID", filtros.DatosLaborales.IdCargo);
                             }
 
-                            if (filtros.DatosLaborales.SedeID > 0)
+                            if (filtros.DatosLaborales.IdSede > 0)
                             {
-                                sb.Append(" AND DL.SedeID = @SedeID");
-                                cmd.Parameters.AddWithValue("@SedeID", filtros.DatosLaborales.SedeID);
+                                sb.Append(" AND DL.IdSede = @SedeID");
+                                cmd.Parameters.AddWithValue("@SedeID", filtros.DatosLaborales.IdSede);
                             }
                         }
 
@@ -571,7 +571,7 @@ namespace Capa_Datos.RecursosHumanos_DAO
                             {
                                 OEMPL_E obj = new OEMPL_E();
 
-                                if (!dr.IsDBNull(0)) { obj.Id = dr.GetInt32(0); }
+                                if (!dr.IsDBNull(0)) { obj.IdOEMPL = dr.GetInt32(0); }
                                 if (!dr.IsDBNull(1)) { obj.Nombres = dr.GetString(1); }
                                 if (!dr.IsDBNull(2)) { obj.Apellidos = dr.GetString(2); }
                                 if (!dr.IsDBNull(3)) { obj.TipoDocumento = dr.GetString(3); }
@@ -580,7 +580,7 @@ namespace Capa_Datos.RecursosHumanos_DAO
                                 if (!dr.IsDBNull(6)) { obj.EstadoCivil = dr.GetString(6); }
                                 if (!dr.IsDBNull(7)) { obj.Genero = dr.GetString(7); }
                                 if (!dr.IsDBNull(8)) { obj.Direccion = dr.GetString(8); }
-                                if (!dr.IsDBNull(9)) { obj.UbigeoID = dr.GetInt32(9); }
+                                if (!dr.IsDBNull(9)) { obj.Ubigeo = dr.GetInt32(9); }
                                 if (!dr.IsDBNull(10)) { obj.ReferenciaDomicilio = dr.GetString(10); }
                                 if (!dr.IsDBNull(11)) { obj.Nacionalidad = dr.GetString(11); }
                                 if (!dr.IsDBNull(12)) { obj.CorreoElectronico = dr.GetString(12); }
@@ -596,14 +596,14 @@ namespace Capa_Datos.RecursosHumanos_DAO
 
                                 obj.DatosLaborales = new EMPL1_E
                                 {
-                                    DepartamentoID = dr.GetInt32(22),
-                                    AreaID = dr.GetInt32(23),
-                                    CargoID = dr.GetInt32(24),
-                                    SedeID = dr.GetInt32(25),
+                                    IdDepartamento = dr.GetInt32(22),
+                                    IdArea = dr.GetInt32(23),
+                                    IdCargo = dr.GetInt32(24),
+                                    IdSede = dr.GetInt32(25),
                                     NombreDepartamento = dr.GetString(26),
                                     NombreCargo = dr.GetString(27),
                                     CorreoCorporativo = dr.GetString(28),
-                                    NumeroCorporativoID = dr.GetInt32(29),
+                                    IdNumeroCorporativo = dr.GetInt32(29),
                                     NumeroCorporativo = dr.GetString(30),
                                     NombreArea = dr.GetString(31),
                                     AnexoCorporativo = dr.GetString(32),
@@ -612,7 +612,7 @@ namespace Capa_Datos.RecursosHumanos_DAO
 
                                 if (!dr.IsDBNull(34))
                                 {
-                                    DateTime fechaLimite = dr.GetDateTime(34).AddDays(7);       // Notificacion debe durante 7 días
+                                    DateTime fechaLimite = dr.GetDateTime(34).AddDays(7);       // Notificacion debe mostrarse durante 7 días
                                     obj.MostrarNotificacionCambio = fechaActual <= fechaLimite ? "SI" : "NO";
                                 }
                                 else
@@ -809,7 +809,7 @@ namespace Capa_Datos.RecursosHumanos_DAO
                             {
                                 if (!dr.IsDBNull(0))
                                 {
-                                    obj.Id = dr.GetInt32(0);
+                                    obj.IdOEMPL = dr.GetInt32(0);
                                     obj.DatosLaborales = new EMPL1_D().ObtenerDatosLaborales(dr.GetInt32(0));
                                 }
                                 if (!dr.IsDBNull(1)) { obj.Nombres = dr.GetString(1); }
@@ -820,7 +820,7 @@ namespace Capa_Datos.RecursosHumanos_DAO
                                 if (!dr.IsDBNull(6)) { obj.EstadoCivil = dr.GetString(6); }
                                 if (!dr.IsDBNull(7)) { obj.Genero = dr.GetString(7); }
                                 if (!dr.IsDBNull(8)) { obj.Direccion = dr.GetString(8); }
-                                if (!dr.IsDBNull(9)) { obj.UbigeoID = dr.GetInt32(9); }
+                                if (!dr.IsDBNull(9)) { obj.Ubigeo = dr.GetInt32(9); }
                                 if (!dr.IsDBNull(10)) { obj.ReferenciaDomicilio = dr.GetString(10); }
                                 if (!dr.IsDBNull(11)) { obj.Nacionalidad = dr.GetString(11); }
                                 if (!dr.IsDBNull(12)) { obj.CorreoElectronico = dr.GetString(12); }
@@ -862,37 +862,37 @@ namespace Capa_Datos.RecursosHumanos_DAO
                     sb.Append("SELECT DISTINCT TOP 100  CONCAT(EMP.Apellidos, ' ', EMP.Nombres), SD.Nombre, DEP.Nombre, AR.Nombre, ISNULL(CAR.Nombre, ''), ISNULL(NU.NumeroCorporativo, ''), DL.AnexoCorporativo, DL.CorreoCorporativo");
                     sb.Append(" FROM rrhh.OEMPL EMP");
                     sb.Append(" INNER JOIN rrhh.EMPL1 DL ON DL.IdOEMPL = EMP.IdOEMPL");
-                    sb.Append(" LEFT JOIN dbo.OSEDE SD ON SD.SedeID = DL.SedeID");
-                    sb.Append(" LEFT JOIN dbo.ODPTO DEP ON DEP.DepartamentoID = DL.DepartamentoID");
-                    sb.Append(" LEFT JOIN dbo.OAREA AR ON AR.DepartamentoID = DL.DepartamentoID AND AR.AreaID = DL.AreaID");
-                    sb.Append(" LEFT JOIN dbo.OCARGO CAR ON CAR.CargoID = DL.CargoID");
+                    sb.Append(" LEFT JOIN dbo.SEDE SD ON SD.Id = DL.IdSede");
+                    sb.Append(" LEFT JOIN dbo.ODPTO DEP ON DEP.IdDepartamento = DL.IdDepartamento");
+                    sb.Append(" LEFT JOIN dbo.OAREA AR ON AR.IdDepartamento = DL.IdDepartamento AND AR.IdArea = DL.IdArea");
+                    sb.Append(" LEFT JOIN dbo.CARGO CAR ON CAR.Id = DL.IdCargo");
                     sb.Append(" LEFT JOIN dbo.ONUM NU ON NU.IdNumero = DL.IdNumeroCorporativo");
                     sb.Append(" WHERE 1 = 1");
 
                     if (filtros.DatosLaborales != null)
                     {
-                        if (filtros.DatosLaborales.DepartamentoID > 0)
+                        if (filtros.DatosLaborales.IdDepartamento > 0)
                         {
-                            sb.Append(" AND DL.DepartamentoID = @DepartamentoID");
-                            cmd.Parameters.AddWithValue("@DepartamentoID", filtros.DatosLaborales.DepartamentoID);
+                            sb.Append(" AND DL.IdDepartamento = @DepartamentoID");
+                            cmd.Parameters.AddWithValue("@DepartamentoID", filtros.DatosLaborales.IdDepartamento);
                         }
 
-                        if (filtros.DatosLaborales.AreaID > 0)
+                        if (filtros.DatosLaborales.IdArea > 0)
                         {
-                            sb.Append(" AND DL.AreaID = @AreaID");
-                            cmd.Parameters.AddWithValue("@AreaID", filtros.DatosLaborales.AreaID);
+                            sb.Append(" AND DL.IdArea = @AreaID");
+                            cmd.Parameters.AddWithValue("@AreaID", filtros.DatosLaborales.IdArea);
                         }
 
-                        if (filtros.DatosLaborales.CargoID > 0)
+                        if (filtros.DatosLaborales.IdCargo > 0)
                         {
-                            sb.Append(" AND DL.CargoID = @CargoID");
-                            cmd.Parameters.AddWithValue("@CargoID", filtros.DatosLaborales.CargoID);
+                            sb.Append(" AND DL.IdCargo = @CargoID");
+                            cmd.Parameters.AddWithValue("@CargoID", filtros.DatosLaborales.IdCargo);
                         }
 
-                        if (filtros.DatosLaborales.SedeID > 0)
+                        if (filtros.DatosLaborales.IdSede > 0)
                         {
-                            sb.Append(" AND DL.SedeID = @SedeID");
-                            cmd.Parameters.AddWithValue("@SedeID", filtros.DatosLaborales.SedeID);
+                            sb.Append(" AND DL.IdSede = @SedeID");
+                            cmd.Parameters.AddWithValue("@SedeID", filtros.DatosLaborales.IdSede);
                         }
                     }
 

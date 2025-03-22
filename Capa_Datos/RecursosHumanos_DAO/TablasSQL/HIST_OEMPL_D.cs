@@ -27,10 +27,10 @@ namespace Capa_Datos.RecursosHumanos_DAO.TablasSQL
                     cmd.CommandType = CommandType.StoredProcedure;
 
                     cmd.Parameters.AddWithValue("@Accion", "INS");
-                    cmd.Parameters.AddWithValue("@IdOEMPL", datos.Id);
+                    cmd.Parameters.AddWithValue("@IdOEMPL", datos.IdOEMPL);
                     cmd.Parameters.AddWithValue("@EstadoCivil", datos.EstadoCivil);
                     cmd.Parameters.AddWithValue("@Direccion", datos.Direccion);
-                    cmd.Parameters.AddWithValue("@Ubigeo", datos.UbigeoID);
+                    cmd.Parameters.AddWithValue("@Ubigeo", datos.Ubigeo);
                     cmd.Parameters.AddWithValue("@ReferenciaDomicilio", datos.ReferenciaDomicilio);
                     cmd.Parameters.AddWithValue("@CorreoElectronico", datos.CorreoElectronico);
                     cmd.Parameters.AddWithValue("@Celular", datos.Celular);
@@ -59,16 +59,16 @@ namespace Capa_Datos.RecursosHumanos_DAO.TablasSQL
                     cmd2.CommandType = CommandType.StoredProcedure;
 
                     cmd2.Parameters.AddWithValue("@Accion", "UPD");
-                    cmd2.Parameters.AddWithValue("@IdOEMPL", datos.Id);
+                    cmd2.Parameters.AddWithValue("@IdOEMPL", datos.IdOEMPL);
                     cmd2.Parameters.AddWithValue("@TipoContrato", datos.TipoContrato ?? string.Empty);
                     cmd2.Parameters.AddWithValue("@FechaContratacion", datos.FechaContratacion);
                     cmd2.Parameters.AddWithValue("@Salario", datos.Salario);
                     cmd2.Parameters.AddWithValue("@FechaCese", datos.FechaCese);
-                    cmd2.Parameters.AddWithValue("@IdSede", datos.SedeID);
-                    cmd2.Parameters.AddWithValue("@IdDepartamento", datos.DepartamentoID);
-                    cmd2.Parameters.AddWithValue("@IdArea", datos.AreaID);
-                    cmd2.Parameters.AddWithValue("@IdCargo", datos.CargoID);
-                    cmd2.Parameters.AddWithValue("@IdNumeroCorporativo", datos.NumeroCorporativoID);
+                    cmd2.Parameters.AddWithValue("@IdSede", datos.IdSede);
+                    cmd2.Parameters.AddWithValue("@IdDepartamento", datos.IdDepartamento);
+                    cmd2.Parameters.AddWithValue("@IdArea", datos.IdArea);
+                    cmd2.Parameters.AddWithValue("@IdCargo", datos.IdCargo);
+                    cmd2.Parameters.AddWithValue("@IdNumeroCorporativo", datos.IdNumeroCorporativo);
                     cmd2.Parameters.AddWithValue("@AnexoCorporativo", datos.AnexoCorporativo ?? string.Empty);
                     cmd2.Parameters.AddWithValue("@CorreoCorporativo", datos.CorreoCorporativo ?? string.Empty);
                     cmd2.Parameters.AddWithValue("@TurnoTrabajo", datos.TurnoTrabajo ?? string.Empty);
