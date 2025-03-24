@@ -58,7 +58,6 @@ function abrirModalEmpleado(propiedadesModal) {
 
     document.getElementById("div_botonesAccion").innerHTML = propiedadesModal.botonAccion;
     document.getElementById("_ModalRegistrarEmpleado").textContent = propiedadesModal.tituloModal;
-    console.log(propiedadesModal)
     propiedadesModal.camposPermitidos.forEach(function (id) {
         document.getElementById(id).readOnly = false;
     });
@@ -136,8 +135,8 @@ function cargarCargos() {
             let select = `<option value="">SELECCIONAR</option>`;
 
             for (let indice in response.Lista) {
-                dataList += `<option data-idCargo="${response.Lista[indice].IdCargo}" value="${response.Lista[indice].Nombre}"></option>`;
-                select += `<option value="${response.Lista[indice].IdCargo}">${response.Lista[indice].Nombre}</option>`;
+                dataList += `<option data-idCargo="${response.Lista[indice].Id}" value="${response.Lista[indice].Nombre}"></option>`;
+                select += `<option value="${response.Lista[indice].Id}">${response.Lista[indice].Nombre}</option>`;
             }
 
             document.getElementById("list_puestos").innerHTML = dataList;

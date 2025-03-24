@@ -220,7 +220,6 @@ function procesarEmpleado(url, data) {
         type: 'POST',
         data: data
     }).done(function (response) {
-        // Mostrar un mensaje utilizando SweetAlert2 con la respuesta del servidor
         Swal.fire({
             title: response.Mensaje,
             html: response.Comentario.join('<br>'),
@@ -230,12 +229,13 @@ function procesarEmpleado(url, data) {
             showConfirmButton: true
         });
 
-        // Limpiar los campos y actualizar la lista de empleados si la respuesta es exitosa
+        // Limpiar los campos del empleado dentro del modal y actualizar la lista de empleados si la respuesta es exitosa
         if (response.Icono === 'success') {
             $('#modalRegistrarEmpleado').modal('hide');
-            limpiarCampos(camposEmpleado);
+            limpiarCampos(camposEmpleado)
             $('#div_listaEmpleados').load(urlListaEmpleados).fadeIn("fast");
-            cargarNumCorporativos();
+            renderizarEstiloFiltros()
+            cargarNumCorporativos()
         }
     }).fail(function (jqXHR, textStatus, errorThrown) {
         console.error(jqXHR.status, textStatus, errorThrown); // Imprimir cualquier error en la consola en caso de que la solicitud AJAX falle
@@ -309,8 +309,8 @@ function buscarDNI() {
     cargando();
 
     let dni = document.getElementById("nroDocEmpleado").value;
-    const apiToken = '26dae51b5dbcd0dcfdd4117008edc0c6d56ac787f07ccf510cf7fa32d6fa45e8';
-    const apiUrl = `https://apiperu.dev/api/dni/${dni}?api_token=${apiToken}`;
+    const apiToken = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImRlc2Fycm9sbG9jb2JlZmFyQGdtYWlsLmNvbSJ9.F3qkAcgXWIAw2G2jm5RHVirDMqCx5mhdi7jXfrIe_4s';
+    const apiUrl = `https://dniruc.apisperu.com/api/v1/dni/${dni}?token=${apiToken}`;
 
     fetch(apiUrl)
         .then(response => {
@@ -323,9 +323,8 @@ function buscarDNI() {
             return response.json();
         })
         .then(data => {
-            let datos = data.data;
-            document.getElementById("nombresEmpleado").value = capitalizarTexto(datos.nombres.toLowerCase());
-            document.getElementById("apellidosEmpleado").value = capitalizarTexto(`${datos.apellido_paterno.toLowerCase()} ${datos.apellido_materno.toLowerCase()}`);
+            document.getElementById("nombresEmpleado").value = capitalizarTexto(data.nombres.toLowerCase());
+            document.getElementById("apellidosEmpleado").value = capitalizarTexto(`${data.apellidoPaterno.toLowerCase()} ${data.apellidoMaterno.toLowerCase()}`);
             swal.close();
         })
         .catch(error => {

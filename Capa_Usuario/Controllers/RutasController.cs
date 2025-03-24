@@ -11,7 +11,7 @@ using Capa_Negocio.Almacen_NEG.Tablas;
 using Capa_Negocio.General_NEG.TablasSql;
 using Capa_Negocio.Rutas_NEG.TablasSql;
 using Capa_Negocio.Seguridad_NEG;
-using Capa_Negocio.SocioNegocios_NEG.Tablas;
+using Capa_Negocio.SocioNegocios_NEG.TablasExternas;
 using Capa_Negocio.Ventas_NEG.Tablas;
 using Capa_Negocio.Ventas_NEG.TablasSql;
 using Capa_Usuario.Helpers;
@@ -1095,7 +1095,11 @@ namespace Capa_Usuario.Controllers
             string[] estados = { "EMPACADO", "PESADO" };
             ORTV_N ortvN = new ORTV_N();
             ORTV_E ortvE = new ORTV_E { FechaSapTicket = FechaSapTicket, Zona = Zona };
-            if (TipoRuta == "VD") { ortvE.LugarDestino = "Domicilio";  ortvE.LugEntrega = AlmOrigenCod; }
+            if (TipoRuta == "VD") 
+            { 
+                ortvE.LugarDestino = "Domicilio"; 
+                ortvE.LugEntrega = AlmOrigenCod; 
+            }
             else if (TipoRuta == "VG")
             {
                  ortvE.LugarDestino = "Agencia";

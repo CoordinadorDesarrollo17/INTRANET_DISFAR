@@ -101,6 +101,8 @@ namespace Capa_Usuario.Controllers
                 {
                     return Json(new { Mensaje = "Error crítico", Comentario = new List<string>() { "El objeto recibido es nulo." }, Icono = "error" });
                 }
+                Usuario_E usu = (Usuario_E)Session["UsuarioId"];
+                form.UsuarioOperacion = $"{usu.Nombres} {usu.Apellidos}";
                 var listaMensajes = sedeN.ValidarRegistroSede(form);
                 bool errores = (listaMensajes != null && listaMensajes.Count >= 1);
                 string mensaje = errores ? "No se pudo completar la acción" : "¡Acción realizada con éxito!";
@@ -131,6 +133,7 @@ namespace Capa_Usuario.Controllers
                 return Json(new { Mensaje = "Error crítico", Comentario = new List<string>() { "No cuentas con permisos para realizar esta acción." }, Icono = "error" });
             }
         }
+        //Se espera que no haya eliminacion de sedes en el directorio.
         //public JsonResult EliminarSede(int idSede, int idOperation = 4002)
         //{
         //    string acceso = VerificarAccesos(idOperation);
@@ -179,6 +182,8 @@ namespace Capa_Usuario.Controllers
                 {
                     return Json(new { Mensaje = "Error crítico", Comentario = new List<string>() { "Verificar los datos ingresados o contactarse con SISTEMAS." }, Icono = "error" });
                 }
+                Usuario_E usu = (Usuario_E)Session["UsuarioId"];
+                form.UsuarioOperacion = $"{usu.Nombres} {usu.Apellidos}";
                 var listaMensajes = cargoN.ValidarRegistroCargo(form);
                 bool errores = (listaMensajes != null && listaMensajes.Count >= 1);
                 string mensaje = errores ? "No se pudo completar la acción" : "¡Acción realizada con éxito!";
@@ -190,15 +195,17 @@ namespace Capa_Usuario.Controllers
                 return Json(new { Mensaje = "Error crítico", Comentario = new List<string>() { "No cuentas con permisos para realizar esta acción." }, Icono = "error" });
             }
         }
-        public JsonResult EditarCargo(OCARGO_E form, int idOperation = 4003)
+        public JsonResult EditarCargo(CARGO_E form, int idOperation = 4003)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                if (form == null || form.IdCargo <= 0)
+                if (form == null || form.Id <= 0)
                 {
                     return Json(new { Mensaje = "Error crítico", Comentario = new List<string>() { form == null ? "Verificar los datos ingresados o contactarse con SISTEMAS." : "Cargo no válido." }, Icono = "error" });
                 }
+                Usuario_E usu = (Usuario_E)Session["UsuarioId"];
+                form.UsuarioOperacion = $"{usu.Nombres} {usu.Apellidos}";
                 var mensajeError = cargoN.EditarCargo(form);
                 string mensaje = string.IsNullOrWhiteSpace(mensajeError) ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
                 string iconoMensaje = string.IsNullOrWhiteSpace(mensajeError) ? "success" : "warning";
@@ -258,55 +265,6 @@ namespace Capa_Usuario.Controllers
                 return Json(new { Mensaje = "Error crítico", Comentario = new List<string>() { "No cuentas con permisos para realizar esta acción." }, Icono = "error" });
             }
         }
-        //public JsonResult AgregarArea(OAREA_E form, int idOperation = 0)
-        //{
-        //    VerificarAccesos(idOperation);
-        //    if (form != null)
-        //    {
-        //        var listaMensajes = areaN.ValidarRegistroArea(form);
-        //        bool errores = (listaMensajes != null && listaMensajes.Count >= 1);
-        //        string mensaje = errores ? "No se pudo completar la acción" : "¡Acción realizada con éxito!";
-        //        string iconoMensaje = errores ? "warning" : "success";
-        //        return Json(new { Mensaje = mensaje, Comentario = listaMensajes, Icono = iconoMensaje });
-        //    }
-        //    else
-        //    {
-        //        // Devolver un mensaje de error si el objeto recibido es nulo
-        //        return Json(new { Mensaje = "Error crítico", Comentario = new List<string>() { "El objeto recibido es nulo." }, Icono = "error" });
-        //    }
-        //}
-        //public JsonResult EditarArea(OAREA_E form, int idOperation = 0)
-        //{
-        //    VerificarAccesos(idOperation);
-        //    if (form != null && form.IdArea > 0)
-        //    {
-        //        var mensajeError = areaN.EditarArea(form);
-        //        string mensaje = string.IsNullOrWhiteSpace(mensajeError) ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
-        //        string iconoMensaje = string.IsNullOrWhiteSpace(mensajeError) ? "success" : "warning";
-        //        return Json(new { Mensaje = mensaje, Comentario = mensajeError, Icono = iconoMensaje });
-        //    }
-        //    else
-        //    {
-        //        // Devolver un mensaje de error si el objeto recibido es nulo o si el IdArea es inválido
-        //        return Json(new { Mensaje = "Error crítico", Comentario = new List<string>() { "Área no válida." }, Icono = "error" });
-        //    }
-        //}
-        //public JsonResult EliminarArea(int idArea, int idOperation = 0)
-        //{
-        //    VerificarAccesos(idOperation);
-        //    if (idArea > 0)
-        //    {
-        //        var mensajeError = areaN.EliminarArea(idArea);
-        //        string mensaje = string.IsNullOrWhiteSpace(mensajeError) ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
-        //        string iconoMensaje = string.IsNullOrWhiteSpace(mensajeError) ? "success" : "warning";
-        //        return Json(new { Mensaje = mensaje, Comentario = mensajeError, Icono = iconoMensaje });
-        //    }
-        //    else
-        //    {
-        //        // Devolver un mensaje de error si el IdArea recibido es inválido
-        //        return Json(new { Mensaje = "Error crítico", Comentario = new List<string>() { "Área no válida." }, Icono = "error" });
-        //    }
-        //}
         /****************************************************/
         /********************* D E P A R T A M E N T O S *********************/
         [HttpGet]
@@ -315,55 +273,6 @@ namespace Capa_Usuario.Controllers
             var datosDepartamentos = new Capa_Negocio.RecursosHumanos_NEG.TablasSQL.ODPTO_N().ListarDepartamentos(filtros);
             return PartialView("RecursosHumanos/ListadoDepartamentos", datosDepartamentos);
         }
-        //public JsonResult AgregarDepartamento(ODPTO_E form, int idOperation = 0)
-        //{
-        //    VerificarAccesos(idOperation);
-        //    if (form != null)
-        //    {
-        //        var listaMensajes = dptoN.ValidarRegistroDepartamento(form);
-        //        bool errores = (listaMensajes != null && listaMensajes.Count >= 1);
-        //        string mensaje = errores ? "No se pudo completar la acción" : "¡Acción realizada con éxito!";
-        //        string iconoMensaje = errores ? "warning" : "success";
-        //        return Json(new { Mensaje = mensaje, Comentario = listaMensajes, Icono = iconoMensaje });
-        //    }
-        //    else
-        //    {
-        //        // Devolver un mensaje de error si el objeto recibido es nulo
-        //        return Json(new { Mensaje = "Error crítico", Comentario = new List<string>() { "El objeto recibido es nulo." }, Icono = "error" });
-        //    }
-        //}
-        //public JsonResult EditarDepartamento(ODPTO_E form, int idOperation = 0)
-        //{
-        //    VerificarAccesos(idOperation);
-        //    if (form != null && form.IdDepartamento > 0)
-        //    {
-        //        var mensajeError = dptoN.EditarDepartamento(form);
-        //        string mensaje = string.IsNullOrWhiteSpace(mensajeError) ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
-        //        string iconoMensaje = string.IsNullOrWhiteSpace(mensajeError) ? "success" : "warning";
-        //        return Json(new { Mensaje = mensaje, Comentario = mensajeError, Icono = iconoMensaje });
-        //    }
-        //    else
-        //    {
-        //        // Devolver un mensaje de error si el objeto recibido es nulo o si el IdArea es inválido
-        //        return Json(new { Mensaje = "Error crítico", Comentario = new List<string>() { "Departamento no válida." }, Icono = "error" });
-        //    }
-        //}
-        //public JsonResult EliminarDepartamento(int idDepartamento, int idOperation = 0)
-        //{
-        //    VerificarAccesos(idOperation);
-        //    if (idDepartamento > 0)
-        //    {
-        //        var mensajeError = dptoN.EliminarDepartamento(idDepartamento);
-        //        string mensaje = string.IsNullOrWhiteSpace(mensajeError) ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
-        //        string iconoMensaje = string.IsNullOrWhiteSpace(mensajeError) ? "success" : "warning";
-        //        return Json(new { Mensaje = mensaje, Comentario = mensajeError, Icono = iconoMensaje });
-        //    }
-        //    else
-        //    {
-        //        // Devolver un mensaje de error si el IdArea recibido es inválido
-        //        return Json(new { Mensaje = "Error crítico", Comentario = new List<string>() { "Departamento no válido." }, Icono = "error" });
-        //    }
-        //}
         /****************************************************/
         /********************* E M P L E A D O S *********************/
         [HttpGet]

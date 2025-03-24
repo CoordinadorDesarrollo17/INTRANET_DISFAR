@@ -17,9 +17,9 @@
                 <tr>
                     <td class="text-center">@num</td>
                     <td class="text-center">@m.Nombre</td>
-                    <td class="text-center">@m.IdUbig <i class="btn btn-sm btn-cobefar icon-search" onclick="mostrarUbigeos('no', '@m.IdUbig')"></i></td>
+                    <td class="text-center">@m.UbigeoID <i class="btn btn-sm btn-cobefar icon-search" onclick="mostrarUbigeos('no', '@m.UbigeoID')"></i></td>
                     <td class="text-center">
-                        <select class="form-control border-success estadoSede" data-idsede="@m.IdSede">
+                        <select class="form-control border-success estadoSede" data-idsede="@m.Id">
                             <option value="1" @if (m.Estado == "1") { Write("selected"); }>ACTIVO</option>
                             <option value="0" @if (m.Estado == "0") { Write("selected"); }>INACTIVO</option>
                         </select>

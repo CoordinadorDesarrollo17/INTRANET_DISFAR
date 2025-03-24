@@ -58,47 +58,47 @@ namespace Capa_Negocio.General_NEG.TablasSql
             return cargoD.ListarCargos(filtros);
         }
 
-        public string EditarCargo(OCARGO_E datosPOST)
+        public string EditarCargo(CARGO_E datosPOST)
         {
-            //var datosCargo = cargoD.ObtenerDatosCargo(datosPOST.IdCargo);
-            //var datosEmpleado = new OEMPL_D().ListarEmpleados(new OEMPL_E { Estado = "1", DatosLaborales = new EMPL1_E { IdCargo = datosPOST.IdCargo } });
-            //if (datosCargo == null)
-            //{
-            //    return "No se encontró cargo a editar.";
-            //}
+            var datosCargo = cargoD.ObtenerDatosCargo(datosPOST.Id);
+            var datosEmpleado = new OEMPL_D().ListarEmpleados(new OEMPL_E { Estado = "1", DatosLaborales = new EMPL1_E { IdCargo = datosPOST.Id} },null);
+            if (datosCargo == null)
+            {
+                return "No se encontró cargo a editar.";
+            }
 
-            //if (datosEmpleado != null && datosEmpleado.Count >= 1 && datosPOST.Estado == "0")
-            //{
-            //    return "Para inactivar el cargo, no debe tener ningún empleado relacionado.";
-            //}
+            if (datosEmpleado != null && datosEmpleado.Count >= 1 && datosPOST.Estado == "0")
+            {
+                return "Para inactivar el cargo, no debe tener ningún empleado relacionado.";
+            }
 
-            //if (string.IsNullOrWhiteSpace(datosPOST.Estado))
-            //{
-            //    datosPOST.Estado = datosCargo.Estado;
-            //}
+            if (string.IsNullOrWhiteSpace(datosPOST.Estado))
+            {
+                datosPOST.Estado = datosCargo.Estado;
+            }
 
-            //return cargoD.EditarCargo(datosPOST);
+            return cargoD.EditarCargo(datosPOST);
             return null;
         }
 
         public string EliminarCargo(int idCargo)
         {
-            //var datosCargo = cargoD.ObtenerDatosCargo(idCargo);
-            //var datosEmpleado = new OEMPL_D().ListarEmpleados(new OEMPL_E { DatosLaborales = new EMPL1_E { IdCargo = idCargo } });
+            var datosCargo = cargoD.ObtenerDatosCargo(idCargo);
+            var datosEmpleado = new OEMPL_D().ListarEmpleados(new OEMPL_E { DatosLaborales = new EMPL1_E { IdCargo = idCargo } },null);
 
-            //if (datosCargo != null)
-            //{
-            //    if (datosEmpleado != null)
-            //    {
-            //        return "Para eliminar el cargo, ningún empleado debe encontrarse relacionado.";
-            //    }
+            if (datosCargo != null)
+            {
+                if (datosEmpleado != null)
+                {
+                    return "Para eliminar el cargo, ningún empleado debe encontrarse relacionado.";
+                }
 
-            //    return cargoD.EliminarCargo(idCargo);
-            //}
-            //else
-            //{
-            //    return "No se encontró cargo a eliminar.";
-            //}
+                return cargoD.EliminarCargo(idCargo);
+            }
+            else
+            {
+                return "No se encontró cargo a eliminar.";
+            }
             return null;
         }
     }

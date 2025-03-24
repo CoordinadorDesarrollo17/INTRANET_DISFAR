@@ -8,100 +8,11 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 namespace Capa_Datos.RecursosHumanos_DAO.TablasSQL
 {
     public class ODPTO_D
     {
         readonly Utilitarios uti = new Utilitarios();
-
-        //public string RegistrarDepartamento(ODPTO_E datos)
-        //{
-        //    string mensajeError;
-
-        //    using (SqlConnection cn = new SqlConnection(uti.cadSql))
-        //    {
-        //        cn.Open();
-
-        //        try
-        //        {
-        //            SqlCommand cmd = new SqlCommand("dbo.MANT_ODPTO", cn);
-        //            cmd.CommandType = CommandType.StoredProcedure;
-
-        //            cmd.Parameters.AddWithValue("@Accion", "INS");
-        //            cmd.Parameters.AddWithValue("@CodDepartamento", datos.CodDepartamento);
-        //            cmd.Parameters.AddWithValue("@Nombre", datos.Nombre);
-
-        //            cmd.ExecuteNonQuery();
-        //            mensajeError = string.Empty;
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            File.AppendAllText(uti.directorioLogs + "ODPTO_D - RegistrarDepartamento.txt", $"{DateTime.Now}: {ex.Message}\n {ex.StackTrace}\n");        // Registro de error
-        //            mensajeError = "Ocurrió un error al registrar el departamento. Por favor, comunicarse con SISTEMAS.";
-        //        }
-        //    }
-
-        //    return mensajeError;
-        //}
-
-        //public string EditarDepartamento(ODPTO_E datos)
-        //{
-        //    string mensajeError;
-
-        //    using (SqlConnection cn = new SqlConnection(uti.cadSql))
-        //    {
-        //        cn.Open();
-
-        //        try
-        //        {
-        //            SqlCommand cmd = new SqlCommand("dbo.MANT_ODPTO", cn);
-        //            cmd.CommandType = CommandType.StoredProcedure;
-
-        //            cmd.Parameters.AddWithValue("@Accion", "UPD");
-        //            cmd.Parameters.AddWithValue("@IdDepartamento", datos.IdDepartamento);
-        //            cmd.Parameters.AddWithValue("@Estado", datos.Estado);
-
-        //            cmd.ExecuteNonQuery();
-        //            mensajeError = string.Empty;
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            File.AppendAllText(uti.directorioLogs + "ODPTO_D - EditarDepartamento.txt", $"{DateTime.Now}: {ex.Message}\n {ex.StackTrace}\n");        // Registro de error
-        //            mensajeError = "Ocurrió un error al editar el departamento. Por favor, comunicarse con SISTEMAS.";
-        //        }
-        //    }
-
-        //    return mensajeError;
-        //}
-
-        //public string EliminarDepartamento(int idDepartamento)
-        //{
-        //    string mensajeError;
-
-        //    using (SqlConnection cn = new SqlConnection(uti.cadSql))
-        //    {
-        //        cn.Open();
-
-        //        try
-        //        {
-        //            SqlCommand cmd = new SqlCommand("dbo.MANT_ODPTO", cn);
-        //            cmd.CommandType = CommandType.StoredProcedure;
-        //            cmd.Parameters.AddWithValue("@Accion", "DEL");
-        //            cmd.Parameters.AddWithValue("@IdDepartamento", idDepartamento);
-        //            cmd.ExecuteNonQuery();
-        //            mensajeError = string.Empty;
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            File.AppendAllText(uti.directorioLogs + "ODPTO_D - EliminarDepartamento.txt", $"{DateTime.Now}: {ex.Message}\n {ex.StackTrace}\n");        // Registro de error
-        //            mensajeError = "Ocurrió un error al eliminar el departamento. Por favor, comunicarse con SISTEMAS.";
-        //        }
-        //    }
-
-        //    return mensajeError;
-        //}
-
         public void RegistrarDepartamentos(List<ODPTO_E> listaDatos)
         {
             using (SqlConnection cn = new SqlConnection(uti.cadSql))
@@ -109,25 +20,20 @@ namespace Capa_Datos.RecursosHumanos_DAO.TablasSQL
                 using (SqlCommand cmd = new SqlCommand("dbo.MANT_ODPTO", cn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
-
                     try
                     {
                         cn.Open();
-
                         // Procesar cada elemento en la lista
                         foreach (var dpto in listaDatos)
                         {
                             // Limpiar los parámetros antes de agregar nuevos
                             cmd.Parameters.Clear();
-
                             cmd.Parameters.AddWithValue("@Accion", "INS");
                             cmd.Parameters.AddWithValue("@IdDepartamento", dpto.IdDepartamento);
                             cmd.Parameters.AddWithValue("@Nombre", dpto.Nombre);
                             cmd.Parameters.AddWithValue("@Estado", dpto.Estado);
-
                             cmd.ExecuteNonQuery();
                         }
-
                         Console.WriteLine("Inserción completada con éxito.");
                     }
                     catch (Exception ex)
@@ -138,25 +44,20 @@ namespace Capa_Datos.RecursosHumanos_DAO.TablasSQL
                 }
             }
         }
-
         public List<ODPTO_E> ListarDepartamentos(ODPTO_E filtros)
         {
             List<ODPTO_E> lista = null;
-
             try
             {
                 using (SqlConnection cn = new SqlConnection(uti.cadSql))
                 {
                     SqlCommand cmd = new SqlCommand();
                     cmd.Connection = cn;
-
                     StringBuilder sb = new StringBuilder();
-
                     sb.Append("SELECT DEP.IdDepartamento, DEP.Nombre, DEP.Estado, CONVERT(varchar, DEP.FechaRegistro, 103),");
                     sb.Append(" CASE WHEN DEP.Estado = 'Y' THEN 'ACTIVO' ELSE 'INACTIVO' END AS DescripcionEstado");
                     sb.Append(" FROM dbo.ODPTO DEP");
                     sb.Append(" WHERE 1 = 1");
-
                     if (filtros != null)
                     {
                         if (filtros.IdDepartamento > 0)
@@ -164,20 +65,17 @@ namespace Capa_Datos.RecursosHumanos_DAO.TablasSQL
                             sb.Append(" AND DEP.IdDepartamento = @IdDepartamento");
                             cmd.Parameters.AddWithValue("@IdDepartamento", filtros.IdDepartamento);
                         }
-
                         if (!string.IsNullOrWhiteSpace(filtros.Nombre))
                         {
                             sb.Append(" AND DEP.Nombre LIKE @Nombre");
                             cmd.Parameters.AddWithValue("@Nombre", string.Format("%{0}%", filtros.Nombre));
                         }
-
                         if (!string.IsNullOrWhiteSpace(filtros.Estado))
                         {
                             sb.Append(" AND DEP.Estado = @Estado");
                             cmd.Parameters.AddWithValue("@Estado", filtros.Estado);
                         }
                     }
-
                     cmd.CommandText = sb.ToString();
                     cn.Open();
                     using (SqlDataReader dr = cmd.ExecuteReader())
@@ -185,7 +83,6 @@ namespace Capa_Datos.RecursosHumanos_DAO.TablasSQL
                         if (dr.HasRows)
                         {
                             lista = new List<ODPTO_E>();
-
                             while (dr.Read())
                             {
                                 ODPTO_E obj = new ODPTO_E();
@@ -194,7 +91,6 @@ namespace Capa_Datos.RecursosHumanos_DAO.TablasSQL
                                 if (!dr.IsDBNull(2)) { obj.Estado = dr.GetString(2); }
                                 if (!dr.IsDBNull(3)) { obj.FechaRegistro = dr.GetString(3); }
                                 if (!dr.IsDBNull(4)) { obj.DescripcionEstado = dr.GetString(4); }
-
                                 lista.Add(obj);
                             }
                         }
@@ -206,38 +102,30 @@ namespace Capa_Datos.RecursosHumanos_DAO.TablasSQL
             {
                 File.AppendAllText(uti.directorioLogs + "ODPTO_D - ListarDepartamentos.txt", $"{DateTime.Now}: {ex.Message}\n {ex.StackTrace}\n");        // Registro de error
             }
-
             return lista;
         }
-
         public ODPTO_E ObtenerDatosDepartamento(int idDepartamento)
         {
             ODPTO_E obj = null;
-
             try
             {
                 using (SqlConnection cn = new SqlConnection(uti.cadSql))
                 {
                     SqlCommand cmd = new SqlCommand();
                     cmd.Connection = cn;
-
                     StringBuilder sb = new StringBuilder();
-
                     sb.Append("SELECT DEP.IdDepartamento, DEP.Nombre, DEP.Estado, CONVERT(varchar, DEP.FechaRegistro, 103),");
                     sb.Append(" CASE WHEN DEP.Estado = '1' THEN 'ACTIVO' ELSE 'INACTIVO' END AS DescripcionEstado");
                     sb.Append(" FROM dbo.ODPTO DEP");
                     sb.Append(" WHERE DEP.IdDepartamento = @IdDepartamento");
-
                     cmd.CommandText = sb.ToString();
                     cmd.Parameters.AddWithValue("@IdDepartamento", idDepartamento);
-
                     cn.Open();
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
                         if (dr.HasRows)
                         {
                             obj = new ODPTO_E();
-
                             while (dr.Read())
                             {
                                 if (!dr.IsDBNull(0)) { obj.IdDepartamento = dr.GetInt32(0); }
@@ -255,7 +143,6 @@ namespace Capa_Datos.RecursosHumanos_DAO.TablasSQL
             {
                 File.AppendAllText(uti.directorioLogs + "ODPTO_D - ObtenerDatosDepartamento.txt", $"{DateTime.Now}: {ex.Message}\n {ex.StackTrace}\n");        // Registro de error
             }
-
             return obj;
         }
     }

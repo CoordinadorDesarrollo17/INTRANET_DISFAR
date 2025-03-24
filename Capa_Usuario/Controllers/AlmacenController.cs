@@ -5,7 +5,7 @@ using Capa_Entidad.SocioNegocios_ENT.Tablas;
 using Capa_Negocio.Almacen_NEG.TablasSql;
 using Capa_Negocio.General_NEG.TablasSql;
 using Capa_Negocio.Seguridad_NEG;
-using Capa_Negocio.SocioNegocios_NEG.Tablas;
+using Capa_Negocio.SocioNegocios_NEG.TablasExternas;
 using Capa_Usuario.Helpers;
 using Microsoft.Reporting.WebForms;
 using OfficeOpenXml;

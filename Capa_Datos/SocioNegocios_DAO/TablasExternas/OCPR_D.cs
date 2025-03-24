@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Capa_Entidad.SocioNegocios_ENT.Tablas;
 using Sap.Data.Hana;
 
-namespace Capa_Datos.SocioNegocios_DAO.Tablas
+namespace Capa_Datos.SocioNegocios_DAO.TablasExternas
 {
     public class OCPR_D
     {

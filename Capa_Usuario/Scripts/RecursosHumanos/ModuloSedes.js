@@ -21,7 +21,7 @@ function agregarSede() {
         return;
     }
 
-    let form = { IdUbig: ubigeoSede, Nombre: nombreSede };
+    let form = { UbigeoID: ubigeoSede, Nombre: nombreSede };
     procesarSede('/RecursosHumanos/AgregarSede', form);
 }
 
@@ -46,27 +46,6 @@ function eliminarSede(nombreSede, idSede) {
         }
     });
 }
-
-//function cargarSedes() {
-//    $.ajax({
-//        url: '/RecursosHumanos/CargarSedes',
-//        type: 'POST'
-//    }).done(function (response) {
-//        if (response.Mensaje == "OK" && response.Lista.length > 0) {
-//            let selectSede = `<option value="">SELECCIONAR</option>`;
-
-//            for (let indice in response.Lista) {
-//                selectSede += `<option value="${response.Lista[indice].IdSede}">${response.Lista[indice].Nombre}</option>`;
-//            }
-
-//            document.getElementById("sedeLaboral").innerHTML = selectSede;
-//            document.getElementById("filtro_sede").innerHTML = selectSede;
-//        }
-//    }).fail(function (jqXHR, textStatus, errorThrown) {
-//        console.error(jqXHR.status, textStatus, errorThrown);
-//    });
-//}
-
 function procesarSede(url, data) {
     $.ajax({
         url: url,

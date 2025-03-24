@@ -18,13 +18,13 @@
                     <td class="align-middle" style="width: 70%;"><span class="ml-2">@m.Nombre</span></td>
                     <td class="text-center align-middle" style="width: 150px;">
                         <div class="d-flex justify-content-center align-items-center">
-                            <select class="form-control border-success estadoCargo" data-idcargo="@m.IdCargo" style="width: 150px;">
+                            <select class="form-control border-success estadoCargo" data-idcargo="@m.Id" style="width: 150px;">
                                 <option value="1" @if (m.Estado == "1") { Write("selected"); }>ACTIVO</option>
                                 <option value="0" @if (m.Estado == "0") { Write("selected"); }>INACTIVO</option>
                             </select>
                         </div>                        
                     </td>
-                    <td class="text-center align-middle"><button type="button" class="btn btn-sm btn-danger btn-eliminarCargo" data-idcargo="@m.IdCargo" data-nombre="@m.Nombre"><i class="icon-bin2"></i></button></td>
+                    <td class="text-center align-middle"><button type="button" class="btn btn-sm btn-danger btn-eliminarCargo" data-idcargo="@m.Id" data-nombre="@m.Nombre"><i class="icon-bin2"></i></button></td>
                 </tr>
                 ++num;
             }
@@ -59,7 +59,7 @@
 
     document.querySelector('#tbl_listaCargo tbody').addEventListener('change', function (event) {
         if (event.target.matches('.estadoCargo')) {
-            let form = { IdCargo: event.target.dataset.idcargo, Estado: event.target.value };
+            let form = { Id: event.target.dataset.idcargo, Estado: event.target.value };
             procesarCargo('/RecursosHumanos/EditarCargo', form);
         }
     });

@@ -139,11 +139,9 @@
     <Compile Include="RecursosHumanos_ENT\TablasSQL\EMPL1_E.cs" />
     <Compile Include="RecursosHumanos_ENT\TablasSQL\HIST_OEMPL_E.cs" />
     <Compile Include="RecursosHumanos_ENT\TablasSQL\OAREA_E.cs" />
-    <Compile Include="RecursosHumanos_ENT\TablasSQL\OCARGO_E.cs" />
     <Compile Include="RecursosHumanos_ENT\TablasSQL\ODPTO_E.cs" />
     <Compile Include="RecursosHumanos_ENT\TablasSQL\OEMPL_E.cs" />
     <Compile Include="RecursosHumanos_ENT\TablasSQL\ONUM_E.cs" />
-    <Compile Include="RecursosHumanos_ENT\TablasSQL\OSEDE_E.cs" />
     <Compile Include="RecursosHumanos_ENT\TablasSQL\SEDE_E.cs" />
     <Compile Include="Repartos_ENT\TablasHana\SYP_CONDUC_E.cs" />
     <Compile Include="Repartos_ENT\TablasHana\SYP_VEHICU_E.cs" />
