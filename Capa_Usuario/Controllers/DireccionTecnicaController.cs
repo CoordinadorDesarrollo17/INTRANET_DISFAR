@@ -49,79 +49,22 @@ namespace Capa_Usuario.Controllers
          */
         protected Dictionary<string, string> BuscarFirmas(string tipoFirma, string almacen)
         {
-            Dictionary<string, string> lista = new Dictionary<string, string>();
             Dictionary<string, string> result = new Dictionary<string, string>();
-            if (!string.IsNullOrWhiteSpace(almacen))
+            if (!string.IsNullOrWhiteSpace(tipoFirma) && !string.IsNullOrWhiteSpace(almacen))
             {
-                // ResponsableALMActas: ActaRecepcionEm, ActaRecepcionTs
-                if (!string.IsNullOrWhiteSpace(tipoFirma) && tipoFirma.Equals("ResponsableALMActas"))
-                {
-                    lista.Add("01", "186");                     // ALMACEN NRO 1 - Mireya Roman Silva
-                    lista.Add("02", "186");                     // ALMACEN NRO 2 - Mireya Roman Silva
-                    lista.Add("03", "185");                     // ALMACEN NRO 3 - Julio Roman Silva 
-                    lista.Add("06", "185");                     // ALMACEN NRO 3 - Julio Roman Silva 
-                    lista.Add("07", "185");                     // ALMACEN NRO 3 - Julio Roman Silva 
-                    lista.Add("ALM07", "161");                  // ALMACEN NRO 6 - Carmen Condori Saravia
-                    lista.Add("CUAR07", "161");                 // ALMACEN NRO 6 - Carmen Condori Saravia
-                    lista.Add("DEV07", "161");                  // ALMACEN NRO 6 - Carmen Condori Saravia
-                    lista.Add("04", "");                        // SIN RESPONSABLE
-                    lista.Add("ALM08", "");                     // SIN RESPONSABLE
-                    lista.Add("09", "182");                     // ALMACEN NRO 5 - Yasmani Huarachi Mamani 
-                    lista.Add("10", "893");                     // ALMACEN NRO 8 - Anthony Auquipuma Quispe
-                    lista.Add("08", "893");                     // ALMACEN NRO 8 - Anthony Auquipuma Quispe
-                    lista.Add("11", "893");                     // ALMACEN NRO 8 - Anthony Auquipuma Quispe
-                    lista.Add("12", "893");                     // ALMACEN NRO 8 - Anthony Auquipuma Quispe
-                    lista.Add("13", "893");                     // ALMACEN NRO 8 - Anthony Auquipuma Quispe
-                    lista.Add("14", "893");                     // ALMACEN NRO 8 - Anthony Auquipuma Quispe
-                    lista.Add("15", "893");                     // ALMACEN NRO 8 - Anthony Auquipuma Quispe
-                    lista.Add("16", "893");                     // ALMACEN NRO 8 - Anthony Auquipuma Quispe
-                    lista.Add("05", "");                        // ----- NO EXISTE
-                    lista.Add("DEV05", "");                     // ----- NO EXISTE
-                    lista.Add("00", "");                        // ----- NO EXISTE
-                }
-                else if (!string.IsNullOrWhiteSpace(tipoFirma) && tipoFirma.Equals("QuimicoFarmaceutico"))
-                {
-                    lista.Add("01", "416");                     // ALMACEN NRO 1 - Maryori Córdova García 
-                    lista.Add("02", "416");                     // ALMACEN NRO 2 - Maryori Córdova García 
-                    lista.Add("03", "811");                     // ALMACEN NRO 3 - Maribel Ramos Jamjachi
-                    lista.Add("06", "811");                     // ALMACEN NRO 3 - Maribel Ramos Jamjachi    
-                    lista.Add("07", "811");                     // ALMACEN NRO 3 - Maribel Ramos Jamjachi  
-                    lista.Add("04", "339");                     // ALMACEN NRO 4 - Roly Gonzales Romero
-                    lista.Add("ALM07", "339");                  // ALMACEN NRO 6 - Roly Gonzales Romero
-                    lista.Add("CUAR07", "339");                 // ALMACEN NRO 6 - Roly Gonzales Romero
-                    lista.Add("DEV07", "339");                  // ALMACEN NRO 6 - Roly Gonzales Romero
-                    lista.Add("ALM08", "339");                  // ALMACEN NRO 6 - Roly Gonzales Romero
-                    lista.Add("09", "961");                     // ALMACEN NRO 5 - Karen Gonzales Tito
-                    lista.Add("10", "206");                     // ALMACEN NRO 8 - Maria Aguirre Reyes
-                    lista.Add("08", "206");                     // ALMACEN NRO 8 - Maria Aguirre Reyes
-                    lista.Add("11", "206");                     // ALMACEN NRO 8 - Maria Aguirre Reyes
-                    lista.Add("12", "206");                     // ALMACEN NRO 8 - Maria Aguirre Reyes
-                    lista.Add("13", "206");                     // ALMACEN NRO 8 - Maria Aguirre Reyes
-                    lista.Add("14", "206");                     // ALMACEN NRO 8 - Maria Aguirre Reyes
-                    lista.Add("15", "206");                     // ALMACEN NRO 8 - Maria Aguirre Reyes
-                    lista.Add("16", "206");                     // ALMACEN NRO 8 - Maria Aguirre Reyes
-                    lista.Add("05", "");                        // ----- NO EXISTE
-                    lista.Add("DEV05", "");                     // ----- NO EXISTE
-                    lista.Add("00", "");                        // ----- NO EXISTE
-                }
-                string docEntryUsuario = lista[almacen];
-                if (!string.IsNullOrWhiteSpace(docEntryUsuario))
+                // tipoFirma = 'ResponsableALMActas' abarca -> ActaRecepcionEm, ActaRecepcionTs
+                var firmas = new Firmas_N().ListarFirmas(new Firmas_E() { TipoFirma = tipoFirma, CodigoAlmacen = almacen });
+
+                if (firmas != null && firmas.Any())
                 {
                     string FilePath;
-                    Firmas_N firN = new Firmas_N();
-                    Firmas_E firE = new Firmas_E()
-                    {
-                        DocEntryUsuario = Convert.ToInt32(docEntryUsuario)
-                    };
-                    var firma = firN.ListarFirmas(firE);
-                    if (firma != null && firma.Count >= 1)
-                    {
-                        FilePath = firN.ListarFirmas(firE)[0].RutaFirma;
-                        result.Add("NombApe", (firma != null && firma.Count >= 1) ? $"{firma[0].Nombres} {firma[0].Apellidos}" : "");
-                        byte[] archivo = System.IO.File.ReadAllBytes(FilePath);
-                        var base64 = Convert.ToBase64String(archivo);                                               //La propiedad de tu modelo que es byte[]
-                        result.Add("Firma", String.Format("data:image/gif;base64,{0}", base64));       // Damos formato para indicar que se trata de una cadena base64
-                    }
+                    var firma = firmas.First();
+
+                    FilePath = firma.RutaFirma;
+                    result.Add("NombApe", $"{firma.Nombres} {firma.Apellidos}");
+                    byte[] archivo = System.IO.File.ReadAllBytes(FilePath);
+                    var base64 = Convert.ToBase64String(archivo);                                   //La propiedad de tu modelo que es byte[]
+                    result.Add("Firma", String.Format("data:image/gif;base64,{0}", base64));       // Damos formato para indicar que se trata de una cadena base64
                 }
             }
             return result;
@@ -183,7 +126,7 @@ namespace Capa_Usuario.Controllers
                 if (result != null && result.Any() && result[0].T1_WhsCode != null)
                 {
                     var datosFirma = BuscarFirmas("ResponsableALMActas", result[0].T1_WhsCode);
-                    if (datosFirma != null && datosFirma.Count >= 1)
+                    if (datosFirma != null && datosFirma.Any())
                     {
                         ViewBag.DatosResponsable = datosFirma["NombApe"];
                         ViewBag.FirmaResponsable = datosFirma["Firma"];
@@ -199,23 +142,23 @@ namespace Capa_Usuario.Controllers
         public ActionResult OrganolepticoVt(int DocEntry, int idOperation = 1804)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
+
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                Utilitarios_N utilitarios = new Utilitarios_N();
                 var orgVT = dgN.ConsultarOrganolepticoVt(DocEntry);
-                if (orgVT != null && orgVT.Count() >= 1)
+                if (orgVT != null && orgVT.Any())
                 {
                     var result = BuscarFirmas("QuimicoFarmaceutico", orgVT[0].CodAlmacen);
-                    if (result != null && result.Count >= 1)
+                    if (result != null && result.Any())
                     {
                         ViewBag.QuimicoFarmaceuticoAsistente = result["NombApe"];
                         ViewBag.Firma = result["Firma"];
                     }
                 }
-                string FilePathDT = utilitarios.directorioFileServer + "Firmas\\FirmaPamelaCollahuaSenosain.png";
-                byte[] archivoDT = System.IO.File.ReadAllBytes(FilePathDT);
-                var base64DT = Convert.ToBase64String(archivoDT); //La propiedad de tu modelo que es byte[]
-                ViewBag.FirmaDT = String.Format("data:image/gif;base64,{0}", base64DT); // Damos formato para indicar que se trata de una cadena base64
+
+                var firmaResponsableDT = BuscarFirmas("ResponsableDT", "08");
+                ViewBag.FirmaDT = firmaResponsableDT != null && firmaResponsableDT.Any() ? firmaResponsableDT["Firma"] : "";
+
                 return View(orgVT);
             }
             else
@@ -258,7 +201,7 @@ namespace Capa_Usuario.Controllers
         }
         public JsonResult DetalleCalculadoraPdf(int opcion, string Fecha, string U_SYP_STATUS, string U_COB_LUGAREN, string TipoComprobante)
         {
-            List<(string,int)> resultado = new List<(string, int)>() ; 
+            List<(string, int)> resultado = new List<(string, int)>();
             OINV_N oinv = new OINV_N(); OWTR_N owtr = new OWTR_N(); ODLN_N odln = new ODLN_N();
             switch (opcion)
             {
@@ -406,7 +349,11 @@ namespace Capa_Usuario.Controllers
                         ViewBag.DatosResponsable = datosFirma["NombApe"];
                         ViewBag.FirmaResponsable = datosFirma["Firma"];
                     }
+
+                    var firmaPersonaEntrega = BuscarFirmas("PersonaEntrega", result[0].CodAlmacenEnvio);
+                    ViewBag.PersonaEntrega = firmaPersonaEntrega != null && firmaPersonaEntrega.Any() ? firmaPersonaEntrega["Firma"] : "";
                 }
+
                 return View(result);
             }
             else
@@ -452,10 +399,10 @@ namespace Capa_Usuario.Controllers
                         ViewBag.Firma = result["Firma"];
                     }
                 }
-                string FilePathDT = utilitarios.directorioFileServer + "Firmas\\FirmaPamelaCollahuaSenosain.png";
-                byte[] archivoDT = System.IO.File.ReadAllBytes(FilePathDT);
-                var base64DT = Convert.ToBase64String(archivoDT); //La propiedad de tu modelo que es byte[]
-                ViewBag.FirmaDT = String.Format("data:image/gif;base64,{0}", base64DT); // Damos formato para indicar que se trata de una cadena base64
+
+                var firmaResponsableDT = BuscarFirmas("ResponsableDT", "08");
+                ViewBag.FirmaDT = firmaResponsableDT != null && firmaResponsableDT.Any() ? firmaResponsableDT["Firma"] : "";
+
                 return View(orgTS);
             }
             else
@@ -515,10 +462,10 @@ namespace Capa_Usuario.Controllers
                         ViewBag.Firma = result["Firma"];
                     }
                 }
-                string FilePathDT =  utilitarios.directorioFileServer+"Firmas\\FirmaPamelaCollahuaSenosain.png";
-                byte[] archivoDT = System.IO.File.ReadAllBytes(FilePathDT);
-                var base64DT = Convert.ToBase64String(archivoDT); //La propiedad de tu modelo que es byte[]
-                ViewBag.FirmaDT = String.Format("data:image/gif;base64,{0}", base64DT); // Damos formato para indicar que se trata de una cadena base64
+
+                var firmaResponsableDT = BuscarFirmas("ResponsableDT", "08");
+                ViewBag.FirmaDT = firmaResponsableDT != null && firmaResponsableDT.Any() ? firmaResponsableDT["Firma"] : "";
+
                 return View(orgEM);
             }
             else
@@ -766,7 +713,7 @@ namespace Capa_Usuario.Controllers
         [ActionName("EliminarSaldoAnterior")]
         [HttpPost]
         public ActionResult EliminarSaldoAnteriorPost(string Code, int idOperation = 2605)
-        {            
+        {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
@@ -864,7 +811,7 @@ namespace Capa_Usuario.Controllers
             ViewBag.IdRol = idRol;
             ViewBag.Ordr = filtros ?? new Capa_Entidad.Ventas_ENT.Tablas.ORDR_E();
             ViewBag.ListaOslp = new OSLP_N().listadoOslp("VENTA");
-            var lugaresEntregas = new Capa_Negocio.General_NEG.TablasSql.OWHS_N().listarAlmacenes(new[] { "01", "03", "09", "ALM07","07","16","15"});
+            var lugaresEntregas = new Capa_Negocio.General_NEG.TablasSql.OWHS_N().listarAlmacenes(new[] { "01", "03", "09", "ALM07", "07", "16", "15" });
             ViewBag.ListaLugarEntregas = lugaresEntregas;
             ViewBag.Almacenes = lugaresEntregas?.ToDictionary(item => item.WhsCode, item => item.WhsName) ?? new Dictionary<string, string>();
             // NO mostrar cuando sea VENTAS o SVENTAS
@@ -881,6 +828,6 @@ namespace Capa_Usuario.Controllers
         {
             var lista = new ORTV_N().obtenerOrdenDeVenta(filtros.DocNum);
             return View("~/Views/Ventas/PDF/PDF_OrdenesDeVentas.cshtml", lista);
-        }        
+        }
     }
 }
