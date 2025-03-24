@@ -155,7 +155,7 @@
                             <td colspan="2" align="right"><span class="font-weight-bold" style="font-size: 20px">F/DBT-005<br /> VERSION 1@*REG-027-03*@</span></td>
                         </tr>
                         <tr>
-                            <td width="540" class="text-center font-weight-bold" colspan="6" style="font-size: 20px">REGISTRO DE TEMPERATURA Y HUMEDAD  DE TRANSPORTE</td>
+                            <td width="540" class="text-center font-weight-bold" colspan="6" style="font-size: 20px">REGISTRO DE TEMPERATURA DE TRANSPORTE</td>
                         </tr>
                     </table>
                     <div>
@@ -174,10 +174,10 @@
                         <div class="col-12 d-flex justify-content-between" style="font-size: 14px; margin-top: 10px;">
                             <div class="d-flex">
                                 <span class="font-weight-bold">AÑO:</span>
-                                <span style="border-bottom: dotted 2px; padding-left: 10px;">@ViewBag.Año</span>
+                                <span style="border-bottom: dotted 2px; padding-left: 10px;">@ViewBag.Anio</span>
                             </div>
                             <div class="d-flex">
-                                <span class="font-weight-bold">CÓDIGO TH:</span>
+                                <span class="font-weight-bold">CÓDIGO DL-T:</span>
                                 <span style="border-bottom: dotted 2px; padding-left: 10px;">
                                     @if (Model != null && Model.Count >= 1)
                                     {
@@ -260,8 +260,8 @@
                                     </td>
                                     <td class="" width="300"></td>
                                     <td class="border text-center" width="300" height="100">
-                                        @if (ViewBag.FirmaDT != null)
-                                        {<img src="@ViewBag.FirmaDT" width="150" />}
+                                        @if (ViewBag.FirmaQF != null)
+                                        {<img src="@ViewBag.FirmaQF" width="150" />}
                                     </td>
                                 </tr>
                                 <tr>

@@ -53,38 +53,36 @@ namespace Capa_Usuario.Controllers
             return AccesoHelper.GestionarAccesoController(this, accesoHelper);
         }
         /********************************************************************/
-        protected List<Firmas_E> BuscarFirmas(List<int> listaUsuarios)
+        protected Dictionary<string, string> BuscarFirmas(string tipoFirma, int docEntryUsuario = 0)
         {
-            List<Firmas_E> result = new List<Firmas_E>();
-            if (listaUsuarios != null && listaUsuarios.Count >= 1)
+            Dictionary<string, string> result = new Dictionary<string, string>();
+            if (!string.IsNullOrWhiteSpace(tipoFirma))
             {
-                string FilePath;
-                Firmas_N firN = new Firmas_N();
-                Firmas_E firE = new Firmas_E();
-                firE.ListaDocEntryUsuario = listaUsuarios;
-                var firma = firN.ListarFirmas(firE);
-                if (firma != null && firma.Count >= 1)
+                // tipoFirma = 'ResponsableALMActas' abarca -> ActaRecepcionEm, ActaRecepcionTs
+                var filtros = new Firmas_E() { TipoFirma = tipoFirma };
+
+                if (docEntryUsuario > 0)
+                    filtros.DocEntryUsuario = docEntryUsuario;
+
+                var firmas = new Firmas_N().ListarFirmas(filtros);
+
+                if (firmas != null && firmas.Any())
                 {
-                    foreach (var f in firma)
-                    {
-                        Firmas_E datos = new Firmas_E();
-                        FilePath = f.RutaFirma;
-                        datos.Nombres = f.Nombres;
-                        datos.Apellidos = f.Apellidos;
-                        datos.IdRolUsuario = f.IdRolUsuario;
-                        datos.DocEntryUsuario = f.DocEntryUsuario;
-                        if (!string.IsNullOrWhiteSpace(FilePath))
-                        {
-                            byte[] archivo = System.IO.File.ReadAllBytes(FilePath);
-                            var base64 = Convert.ToBase64String(archivo);                                               //La propiedad de tu modelo que es byte[]
-                            datos.RutaFirma = String.Format("data:image/gif;base64,{0}", base64);       // Damos formato para indicar que se trata de una cadena base64
-                        }
-                        result.Add(datos);
-                    }
+                    string FilePath;
+                    var firma = firmas.First();
+
+                    FilePath = firma.RutaFirma;
+                    result.Add("NombApe", $"{firma.Nombres} {firma.Apellidos}");
+                    result.Add("IdRolUsuario", firma.IdRolUsuario.ToString());
+                    byte[] archivo = System.IO.File.ReadAllBytes(FilePath);
+                    var base64 = Convert.ToBase64String(archivo);                                   //La propiedad de tu modelo que es byte[]
+                    result.Add("Firma", String.Format("data:image/gif;base64,{0}", base64));       // Damos formato para indicar que se trata de una cadena base64
                 }
             }
+
             return result;
         }
+
         public ActionResult ListadoRutas(int DocNum = 0, ORRU_E o = null, int idOperation = 201)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
@@ -675,31 +673,27 @@ namespace Capa_Usuario.Controllers
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
+                int docEntryUsuarioTransportista = 0;
+
                 ViewBag.Placa = datos.Placa;
                 ViewBag.Serie = datos.Serie;
-                ViewBag.Año = Convert.ToDateTime(FechaTerEn).ToString("yyyy");
+                ViewBag.Anio = Convert.ToDateTime(FechaTerEn).ToString("yyyy");
                 ViewBag.Mes = Convert.ToDateTime(FechaTerEn).ToString("MMMM");
+
                 var resultTempHum = orruN.RptTempHumed(datos.Placa, FechaTerEn, datos.Serie);
-                if (resultTempHum != null && resultTempHum.Count >= 1)
+
+                if (resultTempHum != null && resultTempHum.Any())
                 {
-                    Usuario_N usuN = new Usuario_N();
-                    var datosUsuario = usuN.BuscarDocEntryPorNombreCompleto(resultTempHum[0].Encargado);
-                    var firmas = BuscarFirmas(new List<int> { datosUsuario.DocEntry, 961 });
-                    if (firmas != null && firmas.Count >= 1)
-                    {
-                        foreach (var f in firmas)
-                        {
-                            if (f.IdRolUsuario.Equals(55))
-                            {
-                                ViewBag.FirmaTransportista = f.RutaFirma;
-                            }
-                            else
-                            {
-                                ViewBag.FirmaDT = f.RutaFirma;
-                            }
-                        }
-                    }
+                    var datosUsuario = new Usuario_N().BuscarDocEntryPorNombreCompleto(resultTempHum[0].Encargado);
+                    docEntryUsuarioTransportista = datosUsuario.DocEntry;
                 }
+
+                var firmaTransportista = BuscarFirmas("Transportista", docEntryUsuarioTransportista);
+                ViewBag.FirmaTransportista = firmaTransportista != null && firmaTransportista.Any() && firmaTransportista["IdRolUsuario"] == "55" ? firmaTransportista["Firma"] : "";
+
+                var firmaResponsableQF = BuscarFirmas("ResponsableQF");
+                ViewBag.FirmaQF = firmaResponsableQF != null && firmaResponsableQF.Any() ? firmaResponsableQF["Firma"] : "";
+
                 return View("Reportes/RptControlTemperaturaHumedad", resultTempHum);
             }
             else
