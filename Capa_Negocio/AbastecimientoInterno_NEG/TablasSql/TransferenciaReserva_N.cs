@@ -82,7 +82,11 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         }
         public List<DetalleTransferenciaReserva_E> ListarDetalles()
         {
-            return (List<DetalleTransferenciaReserva_E>)_datosTransferencia.ListarDetalles().Where(x=>x.AtendidoReserva==0 && x.Validado == 1).ToList();
+            var detalles = _datosTransferencia.ListarDetalles() ?? new List<DetalleTransferenciaReserva_E>();
+
+            return detalles
+                .Where(x => x.AtendidoReserva == 0 && x.Validado == 1)
+                .ToList();
         }
         public bool ValidarSkuParaKardexIngreso(int transferenciaId, string itemCode, TransferenciaReserva_E transferencia)
         {
