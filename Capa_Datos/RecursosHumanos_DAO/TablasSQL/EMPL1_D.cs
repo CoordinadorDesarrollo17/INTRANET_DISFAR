@@ -24,7 +24,7 @@ namespace Capa_Datos.RecursosHumanos_DAO
                     SqlCommand cmd = new SqlCommand();
                     cmd.Connection = cn;
                     var sb = new StringBuilder();
-                    sb.Append("SELECT DL.Id, DL.EmpleadoID, DL.TipoContrato, ISNULL(CONVERT(varchar, DL.FechaContratacion, 103), ''), DL.Salario, ISNULL(CONVERT(varchar, DL.FechaCese, 103), ''), DL.IdSede, DL.IdDepartamento, DL.IdArea, DL.IdCargo, DL.TurnoTrabajo, DL.Discapacidad, DL.CondicionLaboral")
+                    sb.Append("SELECT DL.IdEMPL1, DL.IdOEMPL, DL.TipoContrato, ISNULL(CONVERT(varchar, DL.FechaContratacion, 103), ''), DL.Salario, ISNULL(CONVERT(varchar, DL.FechaCese, 103), ''), DL.IdSede, DL.IdDepartamento, DL.IdArea, DL.IdCargo, DL.TurnoTrabajo, DL.Discapacidad, DL.CondicionLaboral")
                     .Append(" FROM rrhh.EMPL1 DL")
                     .Append(" WHERE 1 = 1");
                     if (filtros != null)
