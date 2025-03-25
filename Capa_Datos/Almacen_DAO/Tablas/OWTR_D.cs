@@ -324,8 +324,7 @@ namespace Capa_Datos.Almacen_DAO.Tablas
                 }
             }
 
-            string query = $"SELECT TO_CHAR(\"DocDate\", 'YYYY-MM-DD') AS \"FECHADOC\", COUNT(*) AS \"CANTIDAD\" FROM {uti.schemaHana}OWTR WHERE \"DocEntry\" > 0 AND \"ToWhsCode\" IN ('09','01') {filtros} AND \"DocDate\" in (SELECT distinct \"DocDate\" FROM {uti.schemaHana}OWTR WHERE \"DocEntry\" > 0 AND  \"ToWhsCode\" IN ('09','01','ALM07') {filtros} ) GROUP BY \"DocDate\" ORDER BY \"DocDate\" ASC";
-
+            string query = $"SELECT TO_CHAR(\"DocDate\", 'YYYY-MM-DD') AS \"FECHADOC\", COUNT(*) AS \"CANTIDAD\" FROM {uti.schemaHana}OWTR WHERE \"DocEntry\" > 0 AND \"ToWhsCode\" IN ('09','01') {filtros} AND \"DocDate\" in (SELECT distinct \"DocDate\" FROM {uti.schemaHana}OWTR WHERE \"DocEntry\" > 0 AND  \"ToWhsCode\" IN ('09','01') {filtros} ) GROUP BY \"DocDate\" ORDER BY \"DocDate\" ASC";
             try
             {
                 HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);

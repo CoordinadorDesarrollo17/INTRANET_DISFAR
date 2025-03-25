@@ -5,7 +5,7 @@ using Sap.Data.Hana;
 using System.Data.SqlClient;
 using System.Data;
 
-namespace Capa_Datos.SocioNegocios_DAO.Tablas
+namespace Capa_Datos.SocioNegocios_DAO.TablasExternas
 {
     public class OCRD_D
     {
@@ -137,7 +137,6 @@ namespace Capa_Datos.SocioNegocios_DAO.Tablas
 			}
 			return status;
 		}
-		
 
 	}
 }
