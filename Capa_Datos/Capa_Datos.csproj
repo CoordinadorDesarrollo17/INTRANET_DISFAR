@@ -140,6 +140,7 @@
     <Compile Include="General_DAO\Tablas\COB_SALDO_D.cs" />
     <Compile Include="General_DAO\Tablas\OSLP_D.cs" />
     <Compile Include="General_DAO\Tablas\OWHS_D.cs" />
+    <Compile Include="LogHelper.cs" />
     <Compile Include="Operaciones_DAO\TablasSql\OTEP_D.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RecursosHumanos_DAO\Auditorias\AUD_ONUM_D.cs" />

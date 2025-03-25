@@ -16,6 +16,7 @@ namespace Capa_Datos
         public string passwordSql;
         public string BDsql;
         public string cadSql;
+        public string cadSql2;
         public int CodigoSmtp;
         public string Smtp;
         public string directorioFileServer;
@@ -41,6 +42,7 @@ namespace Capa_Datos
             this.schemaHanaOnPremise = "\"B1H_COBEFAR_2018\".";
             this.BDsql = Environment.GetEnvironmentVariable("BD_PROYECTO_INTRANET", EnvironmentVariableTarget.Machine);
             this.cadSql = Environment.GetEnvironmentVariable("PROYECTO_INTRANET", EnvironmentVariableTarget.Machine);
+            this.cadSql2 = Environment.GetEnvironmentVariable("PROYECTO_RESERVA_PICKING", EnvironmentVariableTarget.Machine);
             this.serverSophos = Environment.GetEnvironmentVariable("SOPHOS", EnvironmentVariableTarget.Machine);
 
             // CORREO 
