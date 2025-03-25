@@ -5,8 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
-namespace Capa_Datos.SocioNegocios_DAO.Tablas
+namespace Capa_Datos.SocioNegocios_DAO.TablasExternas
 {
     public class CRD1_D
     {
@@ -19,7 +18,6 @@ namespace Capa_Datos.SocioNegocios_DAO.Tablas
             {
                 using (var hcn = new HanaConnection(uti.cadHana))
                 {
-                    
                     hcn.Open();
                     using (var command = new HanaCommand(query, hcn))
                     {
@@ -36,6 +34,5 @@ namespace Capa_Datos.SocioNegocios_DAO.Tablas
             catch { }
             return zona;
         }
-        
     }
 }

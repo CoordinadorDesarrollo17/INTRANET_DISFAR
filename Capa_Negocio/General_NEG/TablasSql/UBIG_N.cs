@@ -11,9 +11,9 @@ namespace Capa_Negocio.General_NEG.TablasSql
     public class UBIG_N
     {
         UBIG_D ubigD = new UBIG_D();
-        public List<UBIG_E> Listar()
+        public List<UBIG_E> Listar(UBIG_E filtros)
         {
-            return ubigD.Listar();
+            return ubigD.Listar(filtros);
         }
         }
 }

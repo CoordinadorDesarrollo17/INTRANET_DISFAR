@@ -3370,7 +3370,7 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
                             {
                                 //Verificar si la zona es diferente a la de orden de venta.
                                 var ordrD = new Capa_Datos.Ventas_DAO.Tablas.ORDR_D();
-                                var crd1D = new Capa_Datos.SocioNegocios_DAO.Tablas.CRD1_D();
+                                var crd1D = new Capa_Datos.SocioNegocios_DAO.TablasExternas.CRD1_D();
                                 var nroSap = ticket.Det2[0].NroSap;
                                 var ordenDeVenta = ordrD.obtenerOrdenDeVenta(nroSap);
                                 var zonaPedido = crd1D.BuscarZonaPedido(ordenDeVenta.ShipToCode, ticket.CardCode);
