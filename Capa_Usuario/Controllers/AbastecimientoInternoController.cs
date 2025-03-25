@@ -416,7 +416,7 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-        public JsonResult JsonListUbicacionesReserva( int idOperation = 3205)
+        public JsonResult JsonListUbicacionesReserva(int idOperation = 3205)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
@@ -964,6 +964,11 @@ namespace Capa_Usuario.Controllers
                 }
                 if (transferenciaPost != null)
                 {
+                    if (transferenciaPost.Detalle == null)
+                    {
+                        return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "Verificar el detalle del documento." }, Icono = "error" });
+                    }
+
                     var ubicacionesReserva = transferenciaPost.Detalle
                              .SelectMany(d => new[]
                              {
@@ -1636,7 +1641,7 @@ namespace Capa_Usuario.Controllers
                 {
                     //Calcular desde SAP (Stock Total - Stock Comprometido)  en Almacen 16 por defecto
                     int stockLibreEnAlmacen16 = Convert.ToInt32(new Capa_Negocio.Almacen_NEG.Tablas.OITW_N().ListarDetArticulosInv(new OITW_E { ItemCode = itemCode, WhsCode = "16" }).DefaultIfEmpty(new OITW_E { }).First().StockLibre);
-                    if (true/*stockLibreEnAlmacen16 > 0*/)
+                    if (stockLibreEnAlmacen16 > 0)
                     {
                         // Para ver los imputados
                         List<DetalleRequerimientos_E> resultDetReq = _requerimientosN.ListarDetalles(itemCode, "CantidadSolicitada");
@@ -1680,12 +1685,14 @@ namespace Capa_Usuario.Controllers
                         }
                         var listaProductosDisponibles = _productosDisponiblesReserva.ObtenerProductosDisponiblesReserva();
                         List<string> listMensajes = new List<string>();
-                        foreach(var u in requerimiento.Detalle)
+                        foreach (var u in requerimiento.Detalle)
                         {
-                            var productoDisp= listaProductosDisponibles.Where(x => x.ValorUmAlm == u.ValorUmAlm &&
+                            var productoDisp = listaProductosDisponibles.Where(x => x.ValorUmAlm == u.ValorUmAlm &&
                             x.ItemCode == u.ItemCode && x.CodigoUbicacionOrigen == u.CodigoUbicacionOrigen && x.BatchNum == u.BatchNum);
-                            if (productoDisp.Any()) { 
-                                if(u.QuantityMaster> productoDisp.First().DisponibleMaster || u.QuantitySaldo> productoDisp.First().DisponibleSaldo) {
+                            if (productoDisp.Any())
+                            {
+                                if (u.QuantityMaster > productoDisp.First().DisponibleMaster || u.QuantitySaldo > productoDisp.First().DisponibleSaldo)
+                                {
                                     listMensajes.Add($"{u.ItemCode} {u.BatchNum} {u.ValorUmAlm}  en {u.CodigoUbicacionOrigen}");
                                     listMensajes.Add($"Disponible: Master({productoDisp.First().DisponibleMaster}) y Saldo({productoDisp.First().DisponibleSaldo})");
                                 }
