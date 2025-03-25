@@ -13,7 +13,7 @@ using Capa_Entidad.Almacen_ENT.Tablas;
 using Capa_Entidad.Compras_ENT.Tablas;
 using Capa_Entidad.SocioNegocios_ENT.Tablas;
 using Capa_Datos.Almacen_DAO.Tablas;
-using Capa_Datos.SocioNegocios_DAO.Tablas;
+using Capa_Datos.SocioNegocios_DAO.TablasExternas;
 using Capa_Datos.Compras_DAO.TablasSql;
 using Capa_Datos.Compras_DAO.Tablas;
 

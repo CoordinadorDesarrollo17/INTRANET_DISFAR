@@ -5,7 +5,7 @@ using Capa_Entidad.SocioNegocios_ENT.Tablas;
 using Capa_Negocio.Almacen_NEG.TablasSql;
 using Capa_Negocio.General_NEG.TablasSql;
 using Capa_Negocio.Seguridad_NEG;
-using Capa_Negocio.SocioNegocios_NEG.Tablas;
+using Capa_Negocio.SocioNegocios_NEG.TablasExternas;
 using Capa_Usuario.Helpers;
 using Microsoft.Reporting.WebForms;
 using OfficeOpenXml;
@@ -289,7 +289,7 @@ namespace Capa_Usuario.Controllers
         }
         public JsonResult BuscarLotesProducto(Capa_Entidad.Almacen_ENT.Tablas.OIBT_E filtros)
         {
-            //verificacionAccesos(0);         // Validar sesion logueada, solo para ajax
+            
             if (!string.IsNullOrWhiteSpace(filtros.ItemCode))
             {
                 Capa_Negocio.Almacen_NEG.Tablas.OIBT_N oibtN = new Capa_Negocio.Almacen_NEG.Tablas.OIBT_N();
