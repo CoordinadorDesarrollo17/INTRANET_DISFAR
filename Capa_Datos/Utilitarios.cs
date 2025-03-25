@@ -36,7 +36,7 @@ namespace Capa_Datos
 
             // Configuration
             this.cadHana = Environment.GetEnvironmentVariable("CNX_HANA", EnvironmentVariableTarget.Machine);
-            this.schemaHana = "\"B1H_COBEFAR_2018\".";
+            this.schemaHana = "\"BASE_01_02_2025\".";
             //this.schemaHana = "\"BASE_04_11_2024\".";
             this.cadHanaOnPremise = Environment.GetEnvironmentVariable("CNX_HANA_ON_PREMISE", EnvironmentVariableTarget.Machine);
             this.schemaHanaOnPremise = "\"B1H_COBEFAR_2018\".";
