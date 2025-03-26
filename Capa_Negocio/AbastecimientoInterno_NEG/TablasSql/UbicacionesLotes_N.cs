@@ -92,7 +92,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         {
             Helper_E resultRegistro = new Helper_E();
 
-            if (!detalle.Where(d => d?.CodigoUbicacionDestino == null).Any())
+            if (detalle.Where(d => d?.CodigoUbicacionDestino == null).Any())
             {
                 return _helper.CrearRespuestaError("Las ubicaciones Picking deben estar definidas.");
             }

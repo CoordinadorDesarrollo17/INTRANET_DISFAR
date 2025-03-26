@@ -191,7 +191,7 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-        public JsonResult RegistrarStockMinimoPicking(StockMinProductos_E form, int idOperation = 0)
+        public JsonResult RegistrarStockMinimoPicking(StockMinProductos_E form, int idOperation = 3103)
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
@@ -211,7 +211,7 @@ namespace Capa_Usuario.Controllers
                 Icono = result.IconoSweetAlert
             });
         }
-        public JsonResult EliminarArticuloPicking(string itemCode, string codigoUbicacion, int idOperation = 0)
+        public JsonResult EliminarArticuloPicking(string itemCode, string codigoUbicacion, int idOperation = 3105)
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
@@ -220,7 +220,7 @@ namespace Capa_Usuario.Controllers
             string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
             return Json(new { Titulo = tituloSweetAlert, result.Mensajes, Icono = result.IconoSweetAlert });
         }
-        public ActionResult ExportarExcelUbicacionesPicking(int idOperation = 3100)
+        public ActionResult ExportarExcelUbicacionesPicking(int idOperation = 3106)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
@@ -587,7 +587,7 @@ namespace Capa_Usuario.Controllers
                 });
             }
         }
-        public ActionResult ExportarExcelUbicacionesReserva(int idOperation = 3200)
+        public ActionResult ExportarExcelUbicacionesReserva(int idOperation = 3206)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
@@ -1386,7 +1386,7 @@ namespace Capa_Usuario.Controllers
                 });
             }
         }
-        public JsonResult DeleteItemTransferencia(int docNum, string itemCode, int idOperation = 3306) //recibe el docnum de la solicitud de traslado y el ItemCode a eliminar
+        public JsonResult DeleteItemTransferencia(int docNum, string itemCode, int idOperation = 3307) //recibe el docnum de la solicitud de traslado y el ItemCode a eliminar
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
@@ -1501,7 +1501,7 @@ namespace Capa_Usuario.Controllers
                 });
             }
         }
-        public JsonResult ValidarItemParaApilar(int docNum, string itemCode, int idOperation = 3306) //recibe el docnum de la solicitud de traslado y el ItemCode a validar
+        public JsonResult ValidarItemParaApilar(int docNum, string itemCode, int idOperation = 3308) //recibe el docnum de la solicitud de traslado y el ItemCode a validar
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
@@ -1687,8 +1687,14 @@ namespace Capa_Usuario.Controllers
                         List<string> listMensajes = new List<string>();
                         foreach (var u in requerimiento.Detalle)
                         {
-                            var productoDisp = listaProductosDisponibles.Where(x => x.ValorUmAlm == u.ValorUmAlm &&
-                            x.ItemCode == u.ItemCode && x.CodigoUbicacionOrigen == u.CodigoUbicacionOrigen && x.BatchNum == u.BatchNum);
+
+                            var productoDisp = listaProductosDisponibles.Where(x =>
+                                x.ValorUmAlm > 0 && u.ValorUmAlm > 0 && x.ValorUmAlm == u.ValorUmAlm &&
+                                x.ItemCode != null && u.ItemCode != null && x.ItemCode == u.ItemCode &&
+                                x.CodigoUbicacionOrigen != null && u.CodigoUbicacionOrigen != null && x.CodigoUbicacionOrigen == u.CodigoUbicacionOrigen &&
+                                x.BatchNum != null && u.BatchNum != null && x.BatchNum == u.BatchNum
+                            );
+
                             if (productoDisp.Any())
                             {
                                 if (u.QuantityMaster > productoDisp.First().DisponibleMaster || u.QuantitySaldo > productoDisp.First().DisponibleSaldo)

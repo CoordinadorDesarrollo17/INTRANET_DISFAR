@@ -16,7 +16,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
         public List<ProductosDisponiblesReserva_E> ObtenerProductosDisponiblesReserva()
         {
-            List<ProductosDisponiblesReserva_E> listaKdx = null;
+            List<ProductosDisponiblesReserva_E> listaKdx = new List<ProductosDisponiblesReserva_E>();
             try
             {
                 using (SqlConnection cn = new SqlConnection(uti.cadSql2))
@@ -30,7 +30,6 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
                         if (dr.HasRows)
                         {
-                            listaKdx = new List<ProductosDisponiblesReserva_E>();
 
                             while (dr.Read())
                             {
