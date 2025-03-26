@@ -54,8 +54,6 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 
             return lista;
         }
-
-
         /*
          *  Descripción: Método para obtener el NroSap ya sea por DocNum o DocEntry indicando explícitamente el tipo de campo con el que vamos a filtrar 
          *  Parámetros: @campo (string), @num (int)

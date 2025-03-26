@@ -1,0 +1,66 @@
+﻿<table id="tbl_listaSedes" class="table table-light table-hover" width="100%">
+    <thead class="thead-dark">
+        <tr>
+            <th class="text-center">#</th>
+            <th class="text-center">SEDE</th>
+            <th class="text-center" style="width: 120px">UBIGEO</th>
+            <th class="text-center" style="width: 120px">ESTADO</th>
+            @*<th class="text-center" style="width: 50px">ELIMINAR</th>*@
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null)
+        {
+            int num = 1;
+            foreach (var m in Model)
+            {
+                <tr>
+                    <td class="text-center">@num</td>
+                    <td class="text-center">@m.Nombre</td>
+                    <td class="text-center">@m.UbigeoID <i class="btn btn-sm btn-cobefar icon-search" onclick="mostrarUbigeos('no', '@m.UbigeoID')"></i></td>
+                    <td class="text-center">
+                        <select class="form-control border-success estadoSede" data-idsede="@m.Id">
+                            <option value="1" @if (m.Estado == "1") { Write("selected"); }>ACTIVO</option>
+                            <option value="0" @if (m.Estado == "0") { Write("selected"); }>INACTIVO</option>
+                        </select>
+                    </td>
+                    @*<td class="text-center"><button type="button" class="btn btn-sm btn-danger btn-eliminarSede" data-idsede="@m.IdSede" data-nombre="@m.Nombre"><i class="icon-bin2"></i></button></td>*@
+                </tr>
+                ++num;
+            }
+        }
+    </tbody>
+</table>
+
+<script>
+    if ($.fn.DataTable.isDataTable('#tbl_listaSedes')) {
+        $('#tbl_listaSedes').DataTable().clear().destroy();
+    }
+    var tableSedes = $('#tbl_listaSedes').DataTable({
+        "ordering": false,
+        "pageLength": 10,
+        "lengthMenu": [10, 20, 30]
+    });
+
+    // Ajustar columnas después de que el DOM esté completamente cargado
+    document.addEventListener('DOMContentLoaded', function () {
+        tableSedes.columns.adjust().draw();
+    });
+
+    //document.querySelector('#tbl_listaSedes tbody').addEventListener('click', function (event) {
+    //    if (event.target.matches('.btn-eliminarSede')) {
+    //        eliminarSede(event.target.dataset.nombre, event.target.dataset.idsede);
+    //    } else if (event.target.closest('.btn-eliminarSede')) {
+    //        // Cubre casos donde el icono es clicado dentro del botón
+    //        let btn = event.target.closest('.btn-eliminarSede');
+    //        eliminarSede(btn.dataset.nombre, btn.dataset.idsede);
+    //    }
+    //});
+
+    document.querySelector('#tbl_listaSedes tbody').addEventListener('change', function (event) {
+        if (event.target.matches('.estadoSede')) {
+            let form = { idsede: event.target.dataset.idsede, Estado: event.target.value };
+            procesarSede('/RecursosHumanos/EditarSede', form);
+        }
+    });
+</script>

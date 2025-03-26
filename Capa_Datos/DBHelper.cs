@@ -234,7 +234,7 @@ namespace Capa_Datos
             try
             {
                 cn.Open();
-                status = "SQLSERVER 2014 : " + uti.BDsql;
+                status = "SQLSERVER 2019: " + uti.BDsql;
                 cn.Close();
             }
             catch (Exception e) { status = "HUBO UN ERROR DE CONEXION A SQL" + e.Message; cn.Close(); }
@@ -246,6 +246,19 @@ namespace Capa_Datos
             }
             catch (Exception e2) { status += "HUBO UN ERROR DE CONEXION A HANA" + e2.Message; hcn.Close(); }
             return status;
+        }
+
+        public int ContarRegistros(string query, SqlParameter[] parametros)
+        {
+            using (SqlConnection cn = new SqlConnection(uti.cadSql))
+            {
+                using (SqlCommand cmd = new SqlCommand(query, cn))
+                {
+                    cmd.Parameters.AddRange(parametros);
+                    cn.Open();
+                    return (int)cmd.ExecuteScalar();
+                }
+            }
         }
     }
 }
