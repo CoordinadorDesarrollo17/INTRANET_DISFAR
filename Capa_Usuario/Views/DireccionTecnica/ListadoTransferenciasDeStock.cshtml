@@ -27,10 +27,9 @@
 </div>
 
 
-<div class="pt-3 bg-form-pestanas-cobefar">
-    <div class="bg-white">
+<div class="bg-form-pestanas-cobefar pt-3">
         <form name="frm" id="frm">
-            <table class="table table-light table-sm table-hover cls-dataTable" cellspacing="0" width="100%">
+            <table id="tbl_listadoTransferenciaStock" class="table table-light table-sm table-hover" cellspacing="0" width="100%">
                 <thead class="bg-cobefar-6">
                     <tr>
                         <th class="text-center">
@@ -69,15 +68,7 @@
                                 <option value="">Seleccione</option>
                                 @foreach (OWHS_E os in ViewBag.Almacenes)
                                 {
-                                    if (ViewBag.Owtr.ToWhsCode == os.WhsCode)
-                                    {
-                                        <option value="@os.WhsCode" selected>@os.WhsName</option>
-
-                                    }
-                                    else
-                                    {
-                                        <option value="@os.WhsCode">@os.WhsName</option>
-                                    }
+                                    <option value="@os.WhsCode" @if (ViewBag.Owtr.ToWhsCode == os.WhsCode) { Write("selected"); }>@os.WhsName</option>
                                 }
                             </select>
                         </th>
@@ -95,15 +86,7 @@
                                 <option value="0">Seleccione</option>
                                 @foreach (OSLP_E os in ViewBag.ListaOslp)
                                 {
-                                    if (ViewBag.Owtr.SlpCode == os.SlpCode)
-                                    {
-                                        <option value="@os.SlpCode" selected>@os.SlpName</option>
-
-                                    }
-                                    else
-                                    {
-                                        <option value="@os.SlpCode">@os.SlpName</option>
-                                    }
+                                    <option value="@os.SlpCode" @if (ViewBag.Owtr.SlpCode == os.SlpCode) { Write("selected"); }>@os.SlpName</option>
                                 }
                             </select>
                         </th>
@@ -134,10 +117,16 @@
                                 @Html.DisplayFor(modelItem => item.U_BPP_FECINITRA)
                             </td>
                             <td class="text-center">
-                                @Html.DisplayFor(modelItem => item.Filler)
+                                <input type="hidden" id="Filler_@item.DocNum" value="@item.Filler" />
+                                @(((ViewBag.DictionaryAlmacenes as Dictionary<string, string>)?.ContainsKey(item.Filler) ?? false)
+                                        ? (ViewBag.DictionaryAlmacenes as Dictionary<string, string>)[item.Filler]
+                                        : item.Filler)
                             </td>
                             <td class="text-center">
-                                @Html.DisplayFor(modelItem => item.ToWhsCode)
+                                <input type="hidden" id="ToWhsCode_@item.DocNum" value="@item.ToWhsCode" />
+                                @(((ViewBag.DictionaryAlmacenes as Dictionary<string, string>)?.ContainsKey(item.ToWhsCode) ?? false)
+                                    ? (ViewBag.DictionaryAlmacenes as Dictionary<string, string>)[item.ToWhsCode]
+                                    : item.ToWhsCode)
                             </td>
                             <td class="text-center">
                                 @Html.DisplayFor(modelItem => item.U_SYP_MDTD)-@Html.DisplayFor(modelItem => item.U_SYP_MDSD)-@Html.DisplayFor(modelItem => item.U_SYP_MDCD)
@@ -171,22 +160,26 @@
 
             </table>
         </form>
-    </div>
+
 </div>
 
-<script>
-    function cambiarEstadoOWTR(docNum, valor) {
-        $.ajax({
-            url: '/DireccionTecnica/CambiarEstadoOWTR',
-            type: 'POST',
-            dataType: 'json',
-            data: {
-                'DocNumSAP': docNum, 'Estado': valor
-            }
-        }).done(function (response) {
-            Swal.fire(response.Mensaje);
-        }).fail(function (jqXHR, textStatus, errorThrown) {
-            console.log(jqXHR.status + textStatus + errorThrown);
-        });
-    }
-</script>
+@section Scripts{
+    <script>
+        inicializarDataTable('tbl_listadoTransferenciaStock', 25)
+
+        function cambiarEstadoOWTR(docNum, valor) {
+            $.ajax({
+                url: '/DireccionTecnica/CambiarEstadoOWTR',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    'DocNumSAP': docNum, 'Estado': valor
+                }
+            }).done(function (response) {
+                Swal.fire(response.Mensaje);
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR.status + textStatus + errorThrown);
+            });
+        }
+    </script>
+}
