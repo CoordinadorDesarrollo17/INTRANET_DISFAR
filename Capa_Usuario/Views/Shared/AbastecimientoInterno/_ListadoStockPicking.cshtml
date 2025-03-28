@@ -46,6 +46,23 @@
 </script>
 
 <script>
+    const configDataTable = {
+        "order": [],  // Desactiva ordenamiento automatico.
+        "ordering": true, // Iconos para ordenar todas las columnas de la tabla.z
+        "pageLength": 25,
+        "lengthMenu": [25, 50, 75, 100],
+        "language": {
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+            "infoEmpty": "No hay registros disponibles",
+            "infoFiltered": "(filtrado de _MAX_ registros totales)",
+            "lengthMenu": "Mostrar _MENU_ registros por página",
+            "search": "Buscar:",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "zeroRecords": "No se encontraron registros"
+        }
+    }
+
     iniciar()
 
     async function iniciar() {
@@ -111,45 +128,14 @@
         })
     }
 
-    async function cambiarUbicacion(element) {
-        const nuevocodigoubicacion = document.querySelector(`#${element.nuevocodigoubicacion}`).value || ''
-        const ubicacionloteid = element.ubicacionloteid || 0
+    $('#tbl_listaStockPicking').DataTable({
+        ...configDataTable,
+        drawCallback: async function () {
+            const ubicaciones = await cargarUbicaciones();
 
-        if (nuevocodigoubicacion === '' || ubicacionloteid <= 0) 
-            generarAlerta('Error en cambiar ubicación', 'Actualizar la página y volver a intentar.', 'error')
-
-        try {
-            const response = await fetch("/AbastecimientoInterno/CambiarUbicacionPicking", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ nuevocodigoubicacion, ubicacionloteid })
+            document.querySelectorAll('.cls-slimselect').forEach(select => {
+                llenarSelectConOpciones(select, ubicaciones);
             });
-
-            if (!response.ok) {
-                throw new Error(`Error en la solicitud: ${response.status}`);
-            }
-
-            const data = await response.json();
-
-            Swal.fire({
-                title: data.Titulo,
-                html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
-                    ? data.Mensajes.join('<br>')
-                    : data.Mensajes || "",
-                icon: data.Icono,
-                allowEscapeKey: false,
-                allowOutsideClick: false,
-                showConfirmButton: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    //location.reload()
-                }
-            });
-
-        } catch (error) {
-            console.error('Error:', error);
         }
-    }
+    });
 </script>

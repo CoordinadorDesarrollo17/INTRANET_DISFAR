@@ -127,13 +127,17 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        renderizarListado()
+    });
+
+    function renderizarListado() {
         $('#div_listado').load(`@Url.Action("ListarStockReserva")`, function () {
             if (!$.fn.DataTable.isDataTable('#tbl_listaStockReserva')) {
                 inicializarDataTable('tbl_listaStockReserva', 100);
                 aplicarFiltro();
             }
         }).fadeIn("fast");
-    });
+    }
 
     function aplicarFiltro() {
         const form = document.getElementById('filterForm');
@@ -152,7 +156,7 @@
 
             const coincideItemCode = itemCode === "" || constItemCode.includes(itemCode);
             const coincideItemName = itemName === "" || consItemName.includes(itemName);
-            const coincideBatchNum = batchNum === "" || constbatchNum.includes(batchNum);
+            const coincideBatchNum = batchNum === "" || constBatchNum.includes(batchNum);
 
             return coincideItemCode && coincideItemName && coincideBatchNum;
         });
@@ -177,7 +181,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ nuevoCodigoUbicacion, idUbicacionLoteMaster }) 
+                body: JSON.stringify({ nuevoCodigoUbicacion, idUbicacionLoteMaster })
             });
 
             if (!response.ok) {
@@ -206,7 +210,3 @@
         }
     }
 </script>
-
-
-
-

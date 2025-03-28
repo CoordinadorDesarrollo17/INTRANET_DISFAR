@@ -127,13 +127,17 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        $('#div_listado').load(`@Url.Action("ListarStockPicking")`, function () {
-            if (!$.fn.DataTable.isDataTable('#tbl_listaStockPicking')) {
-                inicializarDataTable('tbl_listaStockPicking', 100);
-                aplicarFiltro();
-            }
-        }).fadeIn("fast");
+        renderizarListado()
     });
+
+    function renderizarListado() {
+         $('#div_listado').load(`@Url.Action("ListarStockPicking")`, function () {
+             if (!$.fn.DataTable.isDataTable('#tbl_listaStockPicking')) {
+                 inicializarDataTable('tbl_listaStockPicking', 100);
+                 aplicarFiltro();
+             }
+         }).fadeIn("fast");
+    }
 
     function aplicarFiltro() {
         const form = document.getElementById('filterForm');
@@ -167,5 +171,47 @@
             }
 
         }
-    }    
+    }
+
+    async function cambiarUbicacion(element) {
+        const nuevocodigoubicacion = document.querySelector(`#${element.nuevocodigoubicacion}`).value || ''
+        const ubicacionloteid = element.ubicacionloteid || 0
+
+        if (nuevocodigoubicacion === '' || ubicacionloteid <= 0)
+            generarAlerta('Error en cambiar ubicación', 'Actualizar la página y volver a intentar.', 'error')
+
+        try {
+            const response = await fetch("/AbastecimientoInterno/CambiarUbicacionPicking", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ nuevocodigoubicacion, ubicacionloteid })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Error en la solicitud: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            Swal.fire({
+                title: data.Titulo,
+                html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                    ? data.Mensajes.join('<br>')
+                    : data.Mensajes || "",
+                icon: data.Icono,
+                allowEscapeKey: false,
+                allowOutsideClick: false,
+                showConfirmButton: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    renderizarListado()
+                }
+            });
+
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
 </script>

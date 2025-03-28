@@ -419,7 +419,7 @@ namespace Capa_Usuario.Controllers
             }
         }
 
-        public ActionResult StockPicking(int idOperation = 3206)
+        public ActionResult StockPicking(int idOperation = 3209)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
@@ -433,7 +433,7 @@ namespace Capa_Usuario.Controllers
         }
 
         [HttpGet]
-        public ActionResult ListarStockPicking(Ubicaciones_E filtros, int idOperation = 3206)
+        public ActionResult ListarStockPicking(Ubicaciones_E filtros, int idOperation = 3209)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
 
@@ -453,7 +453,7 @@ namespace Capa_Usuario.Controllers
             }
         }
 
-        public JsonResult CambiarUbicacionPicking(string nuevoCodigoUbicacion, int ubicacionLoteId, int idOperation = 3207)
+        public JsonResult CambiarUbicacionPicking(string nuevoCodigoUbicacion, int ubicacionLoteId, int idOperation = 3210)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
@@ -469,36 +469,6 @@ namespace Capa_Usuario.Controllers
             }
         }
 
-        public JsonResult JsonListUbicacionesReserva(int idOperation = 3205)
-        {
-            var resultadoAcceso = VerificarPermiso(idOperation);
-            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
-            {
-                try
-                {
-                    var lista = _ubicacionesN.ListarUbicaciones(new Ubicaciones_E { Almacen = "RESERVA" });
-                    return Json(lista, JsonRequestBehavior.AllowGet);
-                }
-                catch (Exception ex)
-                {
-                    return Json(new
-                    {
-                        Titulo = "Error en la operación",
-                        Mensajes = new List<string> { ex.Message },
-                        Icono = "error"
-                    });
-                }
-            }
-            else
-            {
-                return Json(new
-                {
-                    Titulo = "Error en la operación",
-                    Mensajes = new List<string> { "Sin accesos." },
-                    Icono = "error"
-                });
-            }
-        }
         public JsonResult CambioUbicacionReserva(string nuevoCodigoUbicacion, int idUbicacionLoteMaster, int idOperation = 3205)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);

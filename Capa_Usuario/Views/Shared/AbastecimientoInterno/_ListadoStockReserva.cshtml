@@ -31,9 +31,8 @@
                         <div class="d-flex justify-content-center align-content-center">
                             <select id="idunico_@item.UbicacionLoteMasterId"
                                     data-ubicacionactual="@item.CodigoUbicacion"
-                                    class="form-select"
-                                    style="width: 180px;font-size:12px"
-                                     onclick="cargarUbicaciones(this)">
+                                    class="ss-main cls-slimselect"
+                                    style="width: 180px;font-size:12px">
                                 <option value="">Seleccione</option>
                             </select>
                         </div>
@@ -58,46 +57,97 @@
 </script>
 
 <script>
-    async function cargarUbicaciones(selectElement) {
-        new SlimSelect({ select: selectElement });
-        let ubicacionActual = selectElement.dataset.ubicacionactual;
-        console.log("Ubicación actual:", ubicacionActual);
+    const configDataTable = {
+        "order": [],  // Desactiva ordenamiento automatico.
+        "ordering": true, // Iconos para ordenar todas las columnas de la tabla.z
+        "pageLength": 25,
+        "lengthMenu": [25, 50, 75, 100],
+        "language": {
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+            "infoEmpty": "No hay registros disponibles",
+            "infoFiltered": "(filtrado de _MAX_ registros totales)",
+            "lengthMenu": "Mostrar _MENU_ registros por página",
+            "search": "Buscar:",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "zeroRecords": "No se encontraron registros"
+        }
+    }
+
+    iniciar()
+
+    async function iniciar() {
+        const ubicaciones = await cargarUbicaciones()
+
+        document.querySelectorAll('.cls-slimselect').forEach(select => {
+            llenarSelectConOpciones(select, ubicaciones)
+        });
+    }
+
+    async function cargarUbicaciones() {
+        const almacen = "RESERVA"
 
         try {
-            let response = await fetch('/AbastecimientoInterno/JsonListUbicacionesReserva');
+            const response = await fetch("/AbastecimientoInterno/BuscarUbicaciones", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ almacen })
+            });
 
             if (!response.ok) {
-                let errorText = await response.text(); 
+                let errorText = await response.text();
                 throw new Error(`Error ${response.status}: ${errorText}`);
             }
 
             let data = await response.json();
-            console.log("Ubicaciones recibidas:", data);
-            if (selectElement.slim) {
-                selectElement.slim.destroy();
-            }
-           
-            selectElement.innerHTML = '<option value="">Seleccione</option>';
-            data.forEach(ubi => {
-                if (ubi.CodigoUbicacion !== ubicacionActual) {
-                    let option = document.createElement("option");
-                    option.value = ubi.CodigoUbicacion;
-                    option.textContent = ubi.CodigoUbicacion;
-                    selectElement.appendChild(option);
-                }
-            });
-            selectElement.classList.remove("form-select");
 
-            selectElement.slim = new SlimSelect({
-                select: selectElement,
-                settings: {
-                    placeholderText: 'Seleccione una ubicación'
-                }
-            });
-
+            return data.resultUbicaciones;
         } catch (error) {
             console.error("Error al obtener ubicaciones:", error.message);
         }
     }
+
+    function llenarSelectConOpciones(selectElement, opciones) {
+        selectElement.innerHTML = '<option value="">Seleccione</option>'
+
+        // Iteramos las opciones discrimando la ubicación actual del artículo
+        opciones.forEach(item => {
+            if (item !== selectElement.dataset.ubicacionactual) {
+                const option = document.createElement('option')
+                option.value = item
+                option.textContent = item
+                selectElement.appendChild(option)
+            }
+        });
+
+        if (selectElement.slim instanceof SlimSelect) {
+            selectElement.slim.destroy()
+        }
+
+        selectElement.classList.remove('ss-main')
+
+        selectElement.slim = new SlimSelect({
+            select: selectElement,
+            placeholder: 'Selecciona una opción', // Texto de marcador de posición en español
+            allowDeselect: true, // Permite deseleccionar
+            searchText: 'No encontrado', // Texto que aparece cuando no hay coincidencias en la búsqueda
+            searchPlaceholder: 'Buscar...', // Texto de marcador de posición para la búsqueda
+            closeOnSelect: false, // No cerrar el desplegable al seleccionar (opcional)
+            showSearch: true // Mostrar la barra de búsqueda
+        })
+    }    
+
+    $('#tbl_listaStockReserva').DataTable({
+        ...configDataTable,
+        drawCallback: async function () {
+            const ubicaciones = await cargarUbicaciones();
+
+            document.querySelectorAll('.cls-slimselect').forEach(select => {
+                llenarSelectConOpciones(select, ubicaciones);
+            });
+        }
+    });
 
 </script>
