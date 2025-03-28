@@ -45,24 +45,7 @@
     $('[data-bs-toggle="tooltip"]').tooltip();
 </script>
 
-<script>
-    const configDataTable = {
-        "order": [],  // Desactiva ordenamiento automatico.
-        "ordering": true, // Iconos para ordenar todas las columnas de la tabla.z
-        "pageLength": 25,
-        "lengthMenu": [25, 50, 75, 100],
-        "language": {
-            "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
-            "infoEmpty": "No hay registros disponibles",
-            "infoFiltered": "(filtrado de _MAX_ registros totales)",
-            "lengthMenu": "Mostrar _MENU_ registros por página",
-            "search": "Buscar:",
-            "loadingRecords": "Cargando...",
-            "processing": "Procesando...",
-            "zeroRecords": "No se encontraron registros"
-        }
-    }
-
+<script>   
     iniciar()
 
     async function iniciar() {
@@ -131,7 +114,7 @@
     $('#tbl_listaStockPicking').DataTable({
         ...configDataTable,
         drawCallback: async function () {
-            const ubicaciones = await cargarUbicaciones();
+            const ubicaciones = await cargarTodasLasUbicaciones();
 
             document.querySelectorAll('.cls-slimselect').forEach(select => {
                 llenarSelectConOpciones(select, ubicaciones);

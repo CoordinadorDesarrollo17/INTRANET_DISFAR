@@ -130,6 +130,23 @@
         renderizarListado()
     });
 
+    const configDataTable = {
+        "order": [],  // Desactiva ordenamiento automatico.
+        "ordering": true, // Iconos para ordenar todas las columnas de la tabla.z
+        "pageLength": 25,
+        "lengthMenu": [25, 50, 75, 100],
+        "language": {
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+            "infoEmpty": "No hay registros disponibles",
+            "infoFiltered": "(filtrado de _MAX_ registros totales)",
+            "lengthMenu": "Mostrar _MENU_ registros por página",
+            "search": "Buscar:",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "zeroRecords": "No se encontraron registros"
+        }
+    }
+
     function renderizarListado() {
          $('#div_listado').load(`@Url.Action("ListarStockPicking")`, function () {
              if (!$.fn.DataTable.isDataTable('#tbl_listaStockPicking')) {
