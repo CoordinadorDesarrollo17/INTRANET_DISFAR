@@ -1,27 +1,19 @@
-ï»¿
-<table id="tbl_listaStockReserva" class="dt-container dt-empty-footer table table-sm table-hover table-responsive font-12" width="100%">
+<table id="tbl_listaStockPicking" class="dt-container dt-empty-footer table table-sm table-hover table-responsive font-12" width="100%">
     <thead class="thead-cobefar">
         <tr>
-            <th scope="col" class="text-center">CÃ³digo de artÃ­culo</th>
-            <th scope="col" class="text-center">DescripciÃ³n</th>
+            <th scope="col" class="text-center">Código de artículo</th>
+            <th scope="col" class="text-center">Descripción</th>
             <th scope="col" class="text-center">Lote</th>
-            <th scope="col" class="text-center ">UbicaciÃ³n RESERVA</th>
-            <th scope="col" class="text-center ">Cambio de UbicaciÃ³n</th>
-            <th scope="col" class="text-center">Unidad MASTER</th>
-            <th scope="col" class="text-center">Stock MASTER</th>
-            <th scope="col" class="text-center">Stock SALDO</th>
-            <th scope="col" class="text-center">Stock UNIDS</th>
+            <th scope="col" class="text-center ">Ubicación PICKING</th>
+            <th scope="col" class="text-center ">Cambio de Ubicación</th>
             <th scope="col" class="text-center"></th>
         </tr>
     </thead>
     <tbody class="text-dark">
-        @if (Model != null)
+        @if (Model.Item2 != null)
         {
-            foreach (var item in Model)
+            foreach (var item in Model.Item2)
             {
-                var loteMaster = item.BatchNum.Replace(" ", "") + item.UmAlm;
-
-
                 <tr>
                     <td scope="col" class="text-center align-middle">@item.ItemCode </td>
                     <td scope="col" class="align-middle"><span class="ps-2">@item.ItemName</span></td>
@@ -29,7 +21,7 @@
                     <td scope="col" class="text-center align-middle">@item.CodigoUbicacion</td>
                     <td scope="col" class="text-center align-middle">
                         <div class="d-flex justify-content-center align-content-center">
-                            <select id="idunico_@item.UbicacionLoteMasterId"
+                            <select id="ubicacion_@item.UbicacionLoteId"
                                     data-ubicacionactual="@item.CodigoUbicacion"
                                     class="ss-main cls-slimselect"
                                     style="width: 180px;font-size:12px">
@@ -37,12 +29,9 @@
                             </select>
                         </div>
                     </td>
-                    <td scope="col" class="text-center align-middle">@item.UmAlm </td>
-                    <td scope="col" class="text-center align-middle">@item.QuantityMaster </td>
-                    <td scope="col" class="text-center align-middle">@item.QuantitySaldo</td>
-                    <td scope="col" class="text-center align-middle">@item.QuantityUnidadesCajas </td>
                     <td scope="col" class="text-center align-middle">
-                        <button class="btn btn-cobefar-2" onclick="cambiarUbicacion('idunico_@item.UbicacionLoteMasterId',@item.UbicacionLoteMasterId)" data-bs-toggle="tooltip" data-bs-placement="top" title="Cambiar ubicaciÃ³n">
+                        <button class="btn btn-cobefar-2" onclick="cambiarUbicacion(this.dataset)" data-ubicacionloteid="@item.UbicacionLoteId" data-nuevocodigoubicacion="ubicacion_@item.UbicacionLoteId"
+                                data-bs-toggle="tooltip" data-bs-placement="top" title="Cambiar ubicación">
                             <i class="bi bi-arrow-clockwise"></i>
                         </button>
                     </td>
@@ -56,19 +45,19 @@
     $('[data-bs-toggle="tooltip"]').tooltip();
 </script>
 
-<script>
+<script>   
     iniciar()
 
     async function iniciar() {
-        const ubicaciones = await cargarUbicaciones()
+        const ubicaciones = await cargarTodasLasUbicaciones()
 
         document.querySelectorAll('.cls-slimselect').forEach(select => {
             llenarSelectConOpciones(select, ubicaciones)
         });
     }
 
-    async function cargarUbicaciones() {
-        const almacen = "RESERVA"
+    async function cargarTodasLasUbicaciones() {
+        const almacen = "PICKING"
 
         try {
             const response = await fetch("/AbastecimientoInterno/BuscarUbicaciones", {
@@ -95,7 +84,7 @@
     function llenarSelectConOpciones(selectElement, opciones) {
         selectElement.innerHTML = '<option value="">Seleccione</option>'
 
-        // Iteramos las opciones discrimando la ubicaciÃ³n actual del artÃ­culo
+        // Iteramos las opciones discrimando la ubicación actual del artículo
         opciones.forEach(item => {
             if (item !== selectElement.dataset.ubicacionactual) {
                 const option = document.createElement('option')
@@ -113,24 +102,23 @@
 
         selectElement.slim = new SlimSelect({
             select: selectElement,
-            placeholder: 'Selecciona una opciÃ³n', // Texto de marcador de posiciÃ³n en espaÃ±ol
+            placeholder: 'Selecciona una opción', // Texto de marcador de posición en español
             allowDeselect: true, // Permite deseleccionar
-            searchText: 'No encontrado', // Texto que aparece cuando no hay coincidencias en la bÃºsqueda
-            searchPlaceholder: 'Buscar...', // Texto de marcador de posiciÃ³n para la bÃºsqueda
+            searchText: 'No encontrado', // Texto que aparece cuando no hay coincidencias en la búsqueda
+            searchPlaceholder: 'Buscar...', // Texto de marcador de posición para la búsqueda
             closeOnSelect: false, // No cerrar el desplegable al seleccionar (opcional)
-            showSearch: true // Mostrar la barra de bÃºsqueda
+            showSearch: true // Mostrar la barra de búsqueda
         })
-    }    
+    }
 
-    $('#tbl_listaStockReserva').DataTable({
+    $('#tbl_listaStockPicking').DataTable({
         ...configDataTable,
         drawCallback: async function () {
-            const ubicaciones = await cargarUbicaciones();
+            const ubicaciones = await cargarTodasLasUbicaciones();
 
             document.querySelectorAll('.cls-slimselect').forEach(select => {
                 llenarSelectConOpciones(select, ubicaciones);
             });
         }
     });
-
 </script>

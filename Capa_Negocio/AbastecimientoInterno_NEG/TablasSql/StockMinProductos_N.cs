@@ -75,12 +75,12 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
             var (mensajes, datos) = ValidarDatos(form);
 
             if (mensajes != null && mensajes.Any())
-                return new Helper_E { Mensajes = mensajes, IconoSweetAlert = "error" };
+                return new Helper_E { Mensajes = mensajes, Icono = "error" };
 
             var datoExistente = ListarStockMinProductos(form);
             if (datoExistente != null && datoExistente.Any()  && datoExistente.First().Id > 0)
             {
-                return new Helper_E { Mensajes = new List<string> { "El artículo ya se encuentra registrado." }, IconoSweetAlert = "error" };
+                return new Helper_E { Mensajes = new List<string> { "El artículo ya se encuentra registrado." }, Icono = "error" };
             }
 
             return _datos.RegistrarStockMinimo(datos);
@@ -91,12 +91,12 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
             var (mensajes, datos) = ValidarDatos(form);
 
             if (mensajes != null && mensajes.Any())
-                return new Helper_E { Mensajes = mensajes, IconoSweetAlert = "error" };
+                return new Helper_E { Mensajes = mensajes, Icono = "error" };
 
             var datoExistente = ListarStockMinProductos(form);
             if (datoExistente != null && datoExistente.Any() && datoExistente.First().Id <= 0)
             {
-                return new Helper_E { Mensajes = new List<string> { "Id no válido. Verificar los datos enviados." }, IconoSweetAlert = "error" };
+                return new Helper_E { Mensajes = new List<string> { "Id no válido. Verificar los datos enviados." }, Icono = "error" };
             }
 
             return _datos.ActualizarStockMinimo(datos);

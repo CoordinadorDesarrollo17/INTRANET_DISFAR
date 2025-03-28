@@ -58,7 +58,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 }
             }
 
-            return new Helper_E { Id = id, Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
+            return new Helper_E { Id = id, Mensajes = new List<string> { mensaje }, Icono = icono };
         }
         public bool BuscarUbicacion(string almacen, string ubicacion)
         {
@@ -198,7 +198,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 LogHelper.RegistrarError(ex, $"Error inesperado en UbicacionesReserva_D - EliminarUbicacionGeneral.");
             }
 
-            return new Helper_E { Mensajes = new List<string> { mensajeUsuario }, IconoSweetAlert = icono };
+            return new Helper_E { Mensajes = new List<string> { mensajeUsuario }, Icono = icono };
         }
     }
 }

@@ -16,6 +16,7 @@ using System.Data.SqlClient;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Transactions;
 using System.Web;
 using System.Web.Mvc;
@@ -39,6 +40,7 @@ namespace Capa_Usuario.Controllers
         private readonly ReporteStockPicking_N _reporteStockPicking = new ReporteStockPicking_N();
         private readonly ReporteStockReserva_N _reporteStockReserva = new ReporteStockReserva_N();
         private readonly ProductosDisponiblesReserva_N _productosDisponiblesReserva = new ProductosDisponiblesReserva_N();
+        private readonly Capa_Negocio.Helpers _helper = new Capa_Negocio.Helpers();
         /************************* C O N F I G U R A C I Ó N *************************/
         private ActionResult VerificarPermiso(int idOperation)
         {
@@ -113,12 +115,12 @@ namespace Capa_Usuario.Controllers
                 }, JsonRequestBehavior.AllowGet);
             form.NombreOperarioAccion = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
             var result = _ubicacionesN.RegistrarUbicacion(form);
-            string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
+            string tituloSweetAlert = result.Icono.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
             return Json(new
             {
                 Titulo = tituloSweetAlert,
                 result.Mensajes,
-                Icono = result.IconoSweetAlert
+                Icono = result.Icono
             });
         }
         public JsonResult EliminarUbicacionPicking(string codigoUbicacion, int idOperation = 3102)
@@ -132,12 +134,12 @@ namespace Capa_Usuario.Controllers
                     Icono = "error"
                 }, JsonRequestBehavior.AllowGet);
             var result = _ubicacionesN.EliminarUbicacion(codigoUbicacion);
-            string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
+            string tituloSweetAlert = result.Icono.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
             return Json(new
             {
                 Titulo = tituloSweetAlert,
                 result.Mensajes,
-                Icono = result.IconoSweetAlert
+                Icono = result.Icono
             });
         }
         public JsonResult ActualizarStockMinimoPicking(StockMinProductos_E form, int idOperation = 3103)
@@ -155,12 +157,12 @@ namespace Capa_Usuario.Controllers
                     }, JsonRequestBehavior.AllowGet);
                 form.NombreOperarioAccion = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
                 var result = _stockMinProdN.ActualizarStockMinimo(form);
-                string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
+                string tituloSweetAlert = result.Icono.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
                 return Json(new
                 {
                     Titulo = tituloSweetAlert,
                     result.Mensajes,
-                    Icono = result.IconoSweetAlert
+                    Icono = result.Icono
                 });
             }
             else
@@ -203,12 +205,12 @@ namespace Capa_Usuario.Controllers
                 }, JsonRequestBehavior.AllowGet);
             form.NombreOperarioAccion = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
             var result = _stockMinProdN.RegistrarStockMinimo(form);
-            string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
+            string tituloSweetAlert = result.Icono.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
             return Json(new
             {
                 Titulo = tituloSweetAlert,
                 result.Mensajes,
-                Icono = result.IconoSweetAlert
+                Icono = result.Icono
             });
         }
         public JsonResult EliminarArticuloPicking(string itemCode, string codigoUbicacion, int idOperation = 3105)
@@ -217,8 +219,8 @@ namespace Capa_Usuario.Controllers
             if (usuarioSesion == null)
                 return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
             var result = _ubicacionesLotesN.EliminarArticulo(itemCode, codigoUbicacion);
-            string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
-            return Json(new { Titulo = tituloSweetAlert, result.Mensajes, Icono = result.IconoSweetAlert });
+            string tituloSweetAlert = result.Icono.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
+            return Json(new { Titulo = tituloSweetAlert, result.Mensajes, Icono = result.Icono });
         }
         public ActionResult ExportarExcelUbicacionesPicking(int idOperation = 3106)
         {
@@ -347,12 +349,12 @@ namespace Capa_Usuario.Controllers
                     }, JsonRequestBehavior.AllowGet);
                 form.NombreOperarioAccion = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
                 var result = _ubicacionesN.RegistrarUbicacion(form);
-                string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
+                string tituloSweetAlert = result.Icono.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
                 return Json(new
                 {
                     Titulo = tituloSweetAlert,
                     result.Mensajes,
-                    Icono = result.IconoSweetAlert
+                    Icono = result.Icono
                 });
             }
             else
@@ -374,8 +376,8 @@ namespace Capa_Usuario.Controllers
                 if (usuarioSesion == null)
                     return Json(new { Titulo = "No se pudo completar la acción", Comentario = "Inicia sesión nuevamente para continuar", Icono = "error" }, JsonRequestBehavior.AllowGet);
                 var result = _ubicacionesN.EliminarUbicacion(codigoUbicacion);
-                string tituloSweetAlert = result.IconoSweetAlert.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
-                return Json(new { Titulo = tituloSweetAlert, result.Mensajes, Icono = result.IconoSweetAlert });
+                string tituloSweetAlert = result.Icono.Equals("success") ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
+                return Json(new { Titulo = tituloSweetAlert, result.Mensajes, Icono = result.Icono });
             }
             else
             {
@@ -416,36 +418,57 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-        public JsonResult JsonListUbicacionesReserva(int idOperation = 3205)
+
+        public ActionResult StockPicking(int idOperation = 3209)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                try
-                {
-                    var lista = _ubicacionesN.ListarUbicaciones(new Ubicaciones_E { Almacen = "RESERVA" });
-                    return Json(lista, JsonRequestBehavior.AllowGet);
-                }
-                catch (Exception ex)
-                {
-                    return Json(new
-                    {
-                        Titulo = "Error en la operación",
-                        Mensajes = new List<string> { ex.Message },
-                        Icono = "error"
-                    });
-                }
+                return View();
             }
             else
             {
-                return Json(new
-                {
-                    Titulo = "Error en la operación",
-                    Mensajes = new List<string> { "Sin accesos." },
-                    Icono = "error"
-                });
+                return resultadoAcceso;
             }
         }
+
+        [HttpGet]
+        public ActionResult ListarStockPicking(Ubicaciones_E filtros, int idOperation = 3209)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                var usuarioSesion = Session["UsuarioId"] as Usuario_E;
+                if (usuarioSesion == null)
+                    return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
+
+                var lista = _reporteStockPicking.ListarStockPicking();
+
+                return PartialView("AbastecimientoInterno/_ListadoStockPicking", lista);
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
+
+        public JsonResult CambiarUbicacionPicking(string nuevoCodigoUbicacion, int ubicacionLoteId, int idOperation = 3210)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                if (string.IsNullOrWhiteSpace(nuevoCodigoUbicacion) || ubicacionLoteId <= 0)
+                    return Json(_helper.CrearAlertaUI(new List<string> { "Verificar datos enviados." }, "warning"));               
+
+                return Json(_ubicacionesLotesN.CambiarUbicacionPicking(nuevoCodigoUbicacion, ubicacionLoteId));                
+            }
+            else
+            {
+                return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "Sin accesos." }, Icono = "error" });
+            }
+        }
+
         public JsonResult CambioUbicacionReserva(string nuevoCodigoUbicacion, int idUbicacionLoteMaster, int idOperation = 3205)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
@@ -491,23 +514,23 @@ namespace Capa_Usuario.Controllers
                             {
                                 cn.Open();
                                 var resultSalidaUbicacionesLotesMaster = _ubicacionesLotesMasterN.Salida(listaEnvioDatos, cn);
-                                if (resultSalidaUbicacionesLotesMaster.IconoSweetAlert.Equals("error"))
+                                if (resultSalidaUbicacionesLotesMaster.Icono.Equals("error"))
                                 {
                                     return Json(new
                                     {
                                         Titulo = "Error en la operación",
                                         resultSalidaUbicacionesLotesMaster.Mensajes,
-                                        Icono = resultSalidaUbicacionesLotesMaster.IconoSweetAlert
+                                        Icono = resultSalidaUbicacionesLotesMaster.Icono
                                     });
                                 }
                                 var resultSalidaUbicacionesLotes = _ubicacionesLotesN.Salida(listaEnvioDatos, cn);
-                                if (resultSalidaUbicacionesLotes.IconoSweetAlert.Equals("error"))
+                                if (resultSalidaUbicacionesLotes.Icono.Equals("error"))
                                 {
                                     return Json(new
                                     {
                                         Titulo = "Error en la operación",
                                         resultSalidaUbicacionesLotes.Mensajes,
-                                        Icono = resultSalidaUbicacionesLotes.IconoSweetAlert
+                                        Icono = resultSalidaUbicacionesLotes.Icono
                                     });
                                 }
                                 var resultIngresoUbicacionesLotes = _ubicacionesLotesN.Ingreso(new DetalleTransferenciaReserva_E
@@ -518,13 +541,13 @@ namespace Capa_Usuario.Controllers
                                     CodigoUbicacion = nuevoCodigoUbicacion,
                                     QuantityUnidadesCajas = Convert.ToInt32(obj.QuantityUnidadesCajas)
                                 }, cn);
-                                if (resultSalidaUbicacionesLotes.IconoSweetAlert.Equals("error"))
+                                if (resultSalidaUbicacionesLotes.Icono.Equals("error"))
                                 {
                                     return Json(new
                                     {
                                         Titulo = "Error en la operación",
                                         resultIngresoUbicacionesLotes.Mensajes,
-                                        Icono = resultIngresoUbicacionesLotes.IconoSweetAlert
+                                        Icono = resultIngresoUbicacionesLotes.Icono
                                     });
                                 }
                                 var resultIngresoUbicacionesLotesMaster = _ubicacionesLotesMasterN.Ingreso(resultIngresoUbicacionesLotes.Id, new DetalleTransferenciaReserva_E
@@ -538,13 +561,13 @@ namespace Capa_Usuario.Controllers
                                     UmAlm = obj.UmAlm,
                                     ValorUmAlm = obj.ValorUmAlm
                                 }, cn);
-                                if (resultIngresoUbicacionesLotesMaster.IconoSweetAlert.Equals("error"))
+                                if (resultIngresoUbicacionesLotesMaster.Icono.Equals("error"))
                                 {
                                     return Json(new
                                     {
                                         Titulo = "Error en la operación",
                                         resultIngresoUbicacionesLotesMaster.Mensajes,
-                                        Icono = resultIngresoUbicacionesLotesMaster.IconoSweetAlert
+                                        Icono = resultIngresoUbicacionesLotesMaster.Icono
                                     });
                                 }
                                 scope.Complete();
@@ -1006,7 +1029,7 @@ namespace Capa_Usuario.Controllers
                                 // Importa a las tablas internas solo si no existe previamente el DocNum
                                 var resultImportarSolicitud = _solicitudTrasladoN.ImportarSolicitudDeTraslado(solicitudTraslado, cn);
                                 // Validar si la importación fue exitosa
-                                if (resultImportarSolicitud.IconoSweetAlert.Equals("error") || resultImportarSolicitud.Id == 0)
+                                if (resultImportarSolicitud.Icono.Equals("error") || resultImportarSolicitud.Id == 0)
                                 {
                                     return Json(new
                                     {
@@ -1020,13 +1043,13 @@ namespace Capa_Usuario.Controllers
                             }
                             // Validar o inserta los lotes de registro sanitario (fuera de la transacción)
                             var resultLotes = _lotesRegistroSanitarioN.ValidarLotesRegistroSanitario(solicitudTraslado.Detalle, cn);
-                            if (resultLotes.IconoSweetAlert.Equals("error"))
+                            if (resultLotes.Icono.Equals("error"))
                             {
                                 return Json(new
                                 {
                                     Titulo = "No se pudo completar la acción",
                                     resultLotes.Mensajes,
-                                    Icono = resultLotes.IconoSweetAlert
+                                    Icono = resultLotes.Icono
                                 });
                             }
                             // Asignar datos de traslado a la transferencia, preparando para registrar  agregar lineas a la transferencia
@@ -1037,7 +1060,7 @@ namespace Capa_Usuario.Controllers
                             var resultTransferenciaGet = _transferenciaReservaN.RegistrarTransferenciaReserva(transferenciaPost, cn);
                             if (resultTransferenciaGet == null || resultTransferenciaGet.Id == 0)
                             {
-                                if (resultTransferenciaGet.IconoSweetAlert.Equals("error"))
+                                if (resultTransferenciaGet.Icono.Equals("error"))
                                 {
                                     // Validar y eliminar la solicitud de traslado si en caso se importo a la tabla interna pero no se ha encontrado una transferencia
                                     _solicitudTrasladoN.DeleteSolicitudDeTraslado(solicitudTraslado.DocNum, cn);
@@ -1045,20 +1068,20 @@ namespace Capa_Usuario.Controllers
                                     {
                                         Titulo = "No se pudo completar la acción",
                                         resultTransferenciaGet.Mensajes,
-                                        Icono = resultTransferenciaGet.IconoSweetAlert
+                                        Icono = resultTransferenciaGet.Icono
                                     });
                                 }
                             }
                             TransferenciaReserva_E transferencia = _transferenciaReservaN.ObtenerTransferenciaReserva(transferenciaPost.SolicitudTrasladoDocNum, cn);
                             //Actualiza a TRANSFERIDO en el DetalleDeSolicitudTraslado los ItemCode(s) que se hayan enviado para TransferenciaReserva
                             var resultActualizarEstado = _solicitudTrasladoN.ActualizarEstado(transferencia.SolicitudTrasladoId, transferencia.Detalle, cn);
-                            if (resultActualizarEstado.IconoSweetAlert.Equals("error"))
+                            if (resultActualizarEstado.Icono.Equals("error"))
                             {
                                 return Json(new
                                 {
                                     Titulo = "No se pudo completar la acción",
                                     resultActualizarEstado.Mensajes,
-                                    Icono = resultActualizarEstado.IconoSweetAlert
+                                    Icono = resultActualizarEstado.Icono
                                 });
                             }
                             scope.Complete();
@@ -1133,68 +1156,68 @@ namespace Capa_Usuario.Controllers
                             TransferenciaReserva_E transferenciaConKardex = new TransferenciaReserva_E { Detalle = transferenciaGet.Detalle.Where(x => x.AtendidoReserva == 1 && x.Validado == 1).ToList() };
                             //Eliminar los items de Detalle de Transferencia de Reserva  que sean del ItemCode
                             var resultEliminarItems = _transferenciaReservaN.DeleteDetalleItemTransferenciaReserva(transferenciaSinKardex, cn);
-                            if (resultEliminarItems.IconoSweetAlert.Equals("error"))
+                            if (resultEliminarItems.Icono.Equals("error"))
                             {
                                 return Json(new
                                 {
                                     Titulo = "No se pudo completar la acción",
                                     resultEliminarItems.Mensajes,
-                                    Icono = resultEliminarItems.IconoSweetAlert
+                                    Icono = resultEliminarItems.Icono
                                 });
                             }
                             //  Restar y/o eliminar en la tabla UbicacionesLotesMaster
                             var resultUbicacionesLotesMaster = _ubicacionesLotesMasterN.RevertirIngreso(transferenciaConKardex, cn);
-                            if (resultUbicacionesLotesMaster.IconoSweetAlert.Equals("error"))
+                            if (resultUbicacionesLotesMaster.Icono.Equals("error"))
                             {
                                 return Json(new
                                 {
                                     Titulo = "No se pudo completar la acción",
                                     resultUbicacionesLotesMaster.Mensajes,
-                                    Icono = resultUbicacionesLotesMaster.IconoSweetAlert
+                                    Icono = resultUbicacionesLotesMaster.Icono
                                 });
                             }
                             // Restar y/o eliminar Quantity en Cajas en la tabla UbicacionesLotes
                             var resultUbicacionesLotes = _ubicacionesLotesN.RevertirIngreso(transferenciaConKardex, cn);
-                            if (resultUbicacionesLotes.IconoSweetAlert.Equals("error"))
+                            if (resultUbicacionesLotes.Icono.Equals("error"))
                             {
                                 return Json(new
                                 {
                                     Titulo = "No se pudo completar la acción",
                                     resultUbicacionesLotes.Mensajes,
-                                    Icono = resultUbicacionesLotes.IconoSweetAlert
+                                    Icono = resultUbicacionesLotes.Icono
                                 });
                             }
                             // Eliminar la(s) operación(es) de ingreso(s) en KardexAbastecimiento - Los datos a eliminar son los del detalle en transferencia
                             var resultKardex = _kardexAbastecimientoN.EliminarTotalTransaccionesIngresoKardex(docNum, cn);
-                            if (resultKardex.IconoSweetAlert.Equals("error"))
+                            if (resultKardex.Icono.Equals("error"))
                             {
                                 return Json(new
                                 {
                                     Titulo = "No se pudo completar la acción",
                                     resultKardex.Mensajes,
-                                    Icono = resultKardex.IconoSweetAlert
+                                    Icono = resultKardex.Icono
                                 });
                             }
                             // Eliminar Detalle y Cabecera de Transferencia de Reserva
                             var resultTransferencia = _transferenciaReservaN.DeleteTransferenciaReserva(docNum, cn);
-                            if (resultTransferencia.IconoSweetAlert.Equals("error"))
+                            if (resultTransferencia.Icono.Equals("error"))
                             {
                                 return Json(new
                                 {
                                     Titulo = "No se pudo completar la acción",
                                     resultTransferencia.Mensajes,
-                                    Icono = resultTransferencia.IconoSweetAlert
+                                    Icono = resultTransferencia.Icono
                                 });
                             }
                             //Eliminar Detalle y Cabecera de Solicitud de Traslado
                             var resultSolicitudTraslado = _solicitudTrasladoN.DeleteSolicitudDeTraslado(docNum, cn);
-                            if (resultSolicitudTraslado.IconoSweetAlert.Equals("error"))
+                            if (resultSolicitudTraslado.Icono.Equals("error"))
                             {
                                 return Json(new
                                 {
                                     Titulo = "No se pudo completar la acción",
                                     resultTransferencia.Mensajes,
-                                    Icono = resultSolicitudTraslado.IconoSweetAlert
+                                    Icono = resultSolicitudTraslado.Icono
                                 });
                             }
                             scope.Complete();
@@ -1286,46 +1309,46 @@ namespace Capa_Usuario.Controllers
                                 }
                                 //  Restar y/o eliminar en la tabla UbicacionesLotesMaster
                                 var resultUbicacionesLotesMaster = _ubicacionesLotesMasterN.RevertirIngreso(transferenciaGet, cn);
-                                if (resultUbicacionesLotesMaster.IconoSweetAlert.Equals("error"))
+                                if (resultUbicacionesLotesMaster.Icono.Equals("error"))
                                 {
                                     return Json(new
                                     {
                                         Titulo = "No se pudo completar la acción",
                                         resultUbicacionesLotesMaster.Mensajes,
-                                        Icono = resultUbicacionesLotesMaster.IconoSweetAlert
+                                        Icono = resultUbicacionesLotesMaster.Icono
                                     });
                                 }
                                 // Restar y/o eliminar Quantity en Cajas en la tabla UbicacionesLotes
                                 var resultUbicacionesLotes = _ubicacionesLotesN.RevertirIngreso(transferenciaGet, cn);
-                                if (resultUbicacionesLotes.IconoSweetAlert.Equals("error"))
+                                if (resultUbicacionesLotes.Icono.Equals("error"))
                                 {
                                     return Json(new
                                     {
                                         Titulo = "No se pudo completar la acción",
                                         resultUbicacionesLotes.Mensajes,
-                                        Icono = resultUbicacionesLotes.IconoSweetAlert
+                                        Icono = resultUbicacionesLotes.Icono
                                     });
                                 }
                                 // Eliminar la operación de ingreso en KardexAbastecimiento que pertenece a dicho ItemCode - Los datos a eliminar son los del detalle en transferencia
                                 var resultKardex = _kardexAbastecimientoN.EliminarPorItemCodeTransaccionIngresoKardex(docNum, transferenciaGet.Detalle[0].ItemCode, cn);
-                                if (resultKardex.IconoSweetAlert.Equals("error"))
+                                if (resultKardex.Icono.Equals("error"))
                                 {
                                     return Json(new
                                     {
                                         Titulo = "No se pudo completar la acción",
                                         resultKardex.Mensajes,
-                                        Icono = resultKardex.IconoSweetAlert
+                                        Icono = resultKardex.Icono
                                     });
                                 }
                                 //Eliminar los items de Detalle de Transferencia de Reserva 'REVERT' que sean del ItemCode
                                 var resultTransferencia = _transferenciaReservaN.DeleteDetalleItemTransferenciaReserva(transferenciaGet.Detalle, cn);
-                                if (resultTransferencia.IconoSweetAlert.Equals("error"))
+                                if (resultTransferencia.Icono.Equals("error"))
                                 {
                                     return Json(new
                                     {
                                         Titulo = "No se pudo completar la acción",
                                         resultTransferencia.Mensajes,
-                                        Icono = resultTransferencia.IconoSweetAlert
+                                        Icono = resultTransferencia.Icono
                                     });
                                 }
                                 //Verificar si la TransferenciaReserva se quedo sin elementos 
@@ -1334,24 +1357,24 @@ namespace Capa_Usuario.Controllers
                                 {
                                     //Eliminar la transferencia 
                                     var resultEliminarTransferencia = _transferenciaReservaN.DeleteTransferenciaReserva(docNum, cn);
-                                    if (resultEliminarTransferencia.IconoSweetAlert.Equals("error"))
+                                    if (resultEliminarTransferencia.Icono.Equals("error"))
                                     {
                                         return Json(new
                                         {
                                             Titulo = "No se pudo completar la acción",
                                             resultEliminarTransferencia.Mensajes,
-                                            Icono = resultEliminarTransferencia.IconoSweetAlert
+                                            Icono = resultEliminarTransferencia.Icono
                                         });
                                     }
                                     //Luego Eliminar Detalle y Cabecera de Solicitud de Traslado solo si la transferencia ya se elimino
                                     var resultSolicitudTraslado = _solicitudTrasladoN.DeleteSolicitudDeTraslado(docNum, cn);
-                                    if (resultSolicitudTraslado.IconoSweetAlert.Equals("error"))
+                                    if (resultSolicitudTraslado.Icono.Equals("error"))
                                     {
                                         return Json(new
                                         {
                                             Titulo = "No se pudo completar la acción",
                                             resultSolicitudTraslado.Mensajes,
-                                            Icono = resultSolicitudTraslado.IconoSweetAlert
+                                            Icono = resultSolicitudTraslado.Icono
                                         });
                                     }
                                 }
@@ -1435,13 +1458,13 @@ namespace Capa_Usuario.Controllers
                             }
                             //Eliminar los items de Detalle de Transferencia de Reserva  que sean del ItemCode
                             var resultTransferencia = _transferenciaReservaN.DeleteDetalleItemTransferenciaReserva(transferencia, cn);
-                            if (resultTransferencia.IconoSweetAlert.Equals("error"))
+                            if (resultTransferencia.Icono.Equals("error"))
                             {
                                 return Json(new
                                 {
                                     Titulo = "No se pudo completar la acción",
                                     resultTransferencia.Mensajes,
-                                    Icono = resultTransferencia.IconoSweetAlert
+                                    Icono = resultTransferencia.Icono
                                 });
                             }
                             //Verificar si la TransferenciaReserva se quedo sin elementos 
@@ -1450,24 +1473,24 @@ namespace Capa_Usuario.Controllers
                             {
                                 //Eliminar la transferencia 
                                 var resultEliminarTransferencia = _transferenciaReservaN.DeleteTransferenciaReserva(docNum, cn);
-                                if (resultEliminarTransferencia.IconoSweetAlert.Equals("error"))
+                                if (resultEliminarTransferencia.Icono.Equals("error"))
                                 {
                                     return Json(new
                                     {
                                         Titulo = "No se pudo completar la acción",
                                         resultEliminarTransferencia.Mensajes,
-                                        Icono = resultEliminarTransferencia.IconoSweetAlert
+                                        Icono = resultEliminarTransferencia.Icono
                                     });
                                 }
                                 //Luego Eliminar Detalle y Cabecera de Solicitud de Traslado solo si la transferencia ya se elimino
                                 var resultSolicitudTraslado = _solicitudTrasladoN.DeleteSolicitudDeTraslado(docNum, cn);
-                                if (resultSolicitudTraslado.IconoSweetAlert.Equals("error"))
+                                if (resultSolicitudTraslado.Icono.Equals("error"))
                                 {
                                     return Json(new
                                     {
                                         Titulo = "No se pudo completar la acción",
                                         resultSolicitudTraslado.Mensajes,
-                                        Icono = resultSolicitudTraslado.IconoSweetAlert
+                                        Icono = resultSolicitudTraslado.Icono
                                     });
                                 }
                             }
@@ -1536,13 +1559,13 @@ namespace Capa_Usuario.Controllers
                                 });
                             }
                             var resultValidacion = _transferenciaReservaN.ValidarSkuParaApilar(transferenciaGet.Id, itemCode, cn);
-                            if (resultValidacion.IconoSweetAlert.Equals("error"))
+                            if (resultValidacion.Icono.Equals("error"))
                             {
                                 return Json(new
                                 {
                                     Titulo = "No se pudo completar la acción",
                                     resultValidacion.Mensajes,
-                                    Icono = resultValidacion.IconoSweetAlert
+                                    Icono = resultValidacion.Icono
                                 });
                             }
                         }
@@ -1781,25 +1804,25 @@ namespace Capa_Usuario.Controllers
                                 if (requerimiento.TipoAbastecimiento == "Picking")
                                 {
                                     var resultCodUbiPicking = _ubicacionesLotesN.RegistrarCodigoUbicacionPicking(requerimientoGet.Detalle, cn);
-                                    if (resultCodUbiPicking.IconoSweetAlert.Equals("error"))
+                                    if (resultCodUbiPicking.Icono.Equals("error"))
                                     {
                                         return Json(new
                                         {
                                             Titulo = "No se pudo completar la acción",
                                             resultCodUbiPicking.Mensajes,
-                                            Icono = resultCodUbiPicking.IconoSweetAlert
+                                            Icono = resultCodUbiPicking.Icono
                                         });
                                     }
                                 }
                                 // Registrar la(s) operación(es) de imputado(s) en KardexAbastecimiento - Los datos a insertar son los del detalle en requerimiento, RequerimientoGet ya tiene los datos limpios por enviar hacia el kardex como imputado, previamente validados
                                 var resultKardexImputar = _kardexAbastecimientoN.InsertarTransaccionImputadoKardex(requerimientoGet, cn);
-                                if (resultKardexImputar.IconoSweetAlert.Equals("error"))
+                                if (resultKardexImputar.Icono.Equals("error"))
                                 {
                                     return Json(new
                                     {
                                         Titulo = "No se pudo completar la acción",
                                         resultKardexImputar.Mensajes,
-                                        Icono = resultKardexImputar.IconoSweetAlert
+                                        Icono = resultKardexImputar.Icono
                                     });
                                 }
                                 // Confirmar la transacción
@@ -2037,9 +2060,9 @@ namespace Capa_Usuario.Controllers
                         using (SqlConnection cn = new SqlConnection(uti.cadSql2))
                         {
                             cn.Open();
-                            if (resultAtender.IconoSweetAlert.Equals("error"))
+                            if (resultAtender.Icono.Equals("error"))
                             {
-                                return Json(new { Titulo = "No se pudo completar la acción", resultAtender.Mensajes, Icono = resultAtender.IconoSweetAlert });
+                                return Json(new { Titulo = "No se pudo completar la acción", resultAtender.Mensajes, Icono = resultAtender.Icono });
                             }
                             // 3. Obtener requerimiento
                             var requerimiento = _requerimientosN.ObtenerRequerimiento(detalleRequerimiento.RequerimientoId, cn);
@@ -2054,21 +2077,21 @@ namespace Capa_Usuario.Controllers
                                     int cantidadGlobal = Convert.ToInt32(requerimientoPorSku.Sum(x => x.QuantityUnidadesCajas));
                                     // 5. Registrar Kardex Salida
                                     var resultKardex = _kardexAbastecimientoN.InsertarTransaccionSalidaKardex(detalleRequerimiento.ItemCode, detalleRequerimiento.ItemName, cantidadGlobal, operarioRegistra, detalleRequerimiento.RequerimientoId, cn);
-                                    if (resultKardex.IconoSweetAlert.Equals("error"))
+                                    if (resultKardex.Icono.Equals("error"))
                                     {
-                                        return Json(new { Titulo = "No se pudo completar la acción", resultKardex.Mensajes, Icono = resultKardex.IconoSweetAlert });
+                                        return Json(new { Titulo = "No se pudo completar la acción", resultKardex.Mensajes, Icono = resultKardex.Icono });
                                     }
                                     // 6. Actualizar Ubicaciones Lotes Master
                                     var resultUbicacionesLotesMaster = _ubicacionesLotesMasterN.Salida(requerimientoPorSku, cn);
-                                    if (resultUbicacionesLotesMaster.IconoSweetAlert.Equals("error"))
+                                    if (resultUbicacionesLotesMaster.Icono.Equals("error"))
                                     {
-                                        return Json(new { Titulo = "No se pudo completar la acción", resultUbicacionesLotesMaster.Mensajes, Icono = resultUbicacionesLotesMaster.IconoSweetAlert });
+                                        return Json(new { Titulo = "No se pudo completar la acción", resultUbicacionesLotesMaster.Mensajes, Icono = resultUbicacionesLotesMaster.Icono });
                                     }
                                     // 7. Actualizar Ubicaciones Lotes
                                     var resultUbicacionesLotes = _ubicacionesLotesN.Salida(requerimientoPorSku, cn);
-                                    if (resultUbicacionesLotes.IconoSweetAlert.Equals("error"))
+                                    if (resultUbicacionesLotes.Icono.Equals("error"))
                                     {
-                                        return Json(new { Titulo = "No se pudo completar la acción", resultUbicacionesLotes.Mensajes, Icono = resultUbicacionesLotes.IconoSweetAlert });
+                                        return Json(new { Titulo = "No se pudo completar la acción", resultUbicacionesLotes.Mensajes, Icono = resultUbicacionesLotes.Icono });
                                     }
                                     // ✅ Confirmar transacción
                                     scope.Complete();
@@ -2160,8 +2183,8 @@ namespace Capa_Usuario.Controllers
                         cn.Open();
                         // Actualizar AtendidoReserva=1
                         var resultAtender = _transferenciaReservaN.AtenderReserva(detalleId, cn);
-                        if (resultAtender == null || !resultAtender.IconoSweetAlert.Equals("success"))
-                            return Json(new { Titulo = "Error al atender reserva", resultAtender?.Mensajes, Icono = resultAtender?.IconoSweetAlert ?? "error" });
+                        if (resultAtender == null || !resultAtender.Icono.Equals("success"))
+                            return Json(new { Titulo = "Error al atender reserva", resultAtender?.Mensajes, Icono = resultAtender?.Icono ?? "error" });
                         // Obtener la transferencia
                         var transferencia = _transferenciaReservaN.ObtenerTransferenciaReserva(docNumSolicitudTraslado, cn);
                         // Validar si todos los items del SKU están atendidos
@@ -2175,17 +2198,17 @@ namespace Capa_Usuario.Controllers
                             var resultKardex = _kardexAbastecimientoN.InsertarTransaccionIngresoKardex(
                                 itemCode, itemName, cantidadGlobal, operarioRegistra, docNumSolicitudTraslado,
                                 transferencia.CardCode, transferencia.CardName, cn);
-                            if (!resultKardex.IconoSweetAlert.Equals("success"))
-                                return Json(new { Titulo = "No se pudo completar la acción", resultKardex.Mensajes, Icono = resultKardex.IconoSweetAlert });
+                            if (!resultKardex.Icono.Equals("success"))
+                                return Json(new { Titulo = "No se pudo completar la acción", resultKardex.Mensajes, Icono = resultKardex.Icono });
                             // Registrar en UbicacionesLotes y UbicacionesLotesMaster
                             foreach (var item in transferenciaPorSku)
                             {
                                 var resultUbicacionesLotes = _ubicacionesLotesN.Ingreso(item, cn);
-                                if (!resultUbicacionesLotes.IconoSweetAlert.Equals("success"))
-                                    return Json(new { Titulo = "No se pudo completar la acción", resultUbicacionesLotes.Mensajes, Icono = resultUbicacionesLotes.IconoSweetAlert });
+                                if (!resultUbicacionesLotes.Icono.Equals("success"))
+                                    return Json(new { Titulo = "No se pudo completar la acción", resultUbicacionesLotes.Mensajes, Icono = resultUbicacionesLotes.Icono });
                                 var resultUbicacionesLotesMaster = _ubicacionesLotesMasterN.Ingreso(resultUbicacionesLotes.Id, item, cn);
-                                if (!resultUbicacionesLotesMaster.IconoSweetAlert.Equals("success"))
-                                    return Json(new { Titulo = "No se pudo completar la acción", resultUbicacionesLotesMaster.Mensajes, Icono = resultUbicacionesLotesMaster.IconoSweetAlert });
+                                if (!resultUbicacionesLotesMaster.Icono.Equals("success"))
+                                    return Json(new { Titulo = "No se pudo completar la acción", resultUbicacionesLotesMaster.Mensajes, Icono = resultUbicacionesLotesMaster.Icono });
                             }
                             // ✅ Confirmar transacción con todo y Kardex
                             scope.Complete();
@@ -2266,13 +2289,13 @@ namespace Capa_Usuario.Controllers
                         cn.Open();
                         // 1. Atender Picking
                         var resultAtender = _requerimientosN.AtenderPicking(id, cn);
-                        if (resultAtender == null || !resultAtender.IconoSweetAlert.Equals("success"))
+                        if (resultAtender == null || !resultAtender.Icono.Equals("success"))
                         {
                             return Json(new
                             {
                                 Titulo = "Error en la operación",
                                 resultAtender?.Mensajes,
-                                Icono = resultAtender?.IconoSweetAlert ?? "error"
+                                Icono = resultAtender?.Icono ?? "error"
                             });
                         }
                         // 2. Validar usuario logueado
@@ -2297,35 +2320,35 @@ namespace Capa_Usuario.Controllers
                             int cantidadGlobal = Convert.ToInt32(requerimientoPorSku.Sum(x => x.QuantityUnidadesCajas));
                             // 5. Registrar Kardex Salida
                             var resultKardex = _kardexAbastecimientoN.InsertarTransaccionSalidaKardex(itemCode, itemName, cantidadGlobal, operarioRegistra, requerimientoId, cn);
-                            if (resultKardex.IconoSweetAlert.Equals("error"))
+                            if (resultKardex.Icono.Equals("error"))
                             {
                                 return Json(new
                                 {
                                     Titulo = "No se pudo completar la acción",
                                     resultKardex.Mensajes,
-                                    Icono = resultKardex.IconoSweetAlert
+                                    Icono = resultKardex.Icono
                                 });
                             }
                             // 6. Actualizar Ubicaciones Lotes Master
                             var resultUbicacionesLotesMaster = _ubicacionesLotesMasterN.Salida(requerimientoPorSku, cn);
-                            if (resultUbicacionesLotesMaster.IconoSweetAlert.Equals("error"))
+                            if (resultUbicacionesLotesMaster.Icono.Equals("error"))
                             {
                                 return Json(new
                                 {
                                     Titulo = "No se pudo completar la acción",
                                     resultUbicacionesLotesMaster.Mensajes,
-                                    Icono = resultUbicacionesLotesMaster.IconoSweetAlert
+                                    Icono = resultUbicacionesLotesMaster.Icono
                                 });
                             }
                             // 7. Actualizar Ubicaciones Lotes
                             var resultUbicacionesLotes = _ubicacionesLotesN.Salida(requerimientoPorSku, cn);
-                            if (resultUbicacionesLotes.IconoSweetAlert.Equals("error"))
+                            if (resultUbicacionesLotes.Icono.Equals("error"))
                             {
                                 return Json(new
                                 {
                                     Titulo = "No se pudo completar la acción",
                                     resultUbicacionesLotes.Mensajes,
-                                    Icono = resultUbicacionesLotes.IconoSweetAlert
+                                    Icono = resultUbicacionesLotes.Icono
                                 });
                             }
                             // ✅ Confirmar transacción

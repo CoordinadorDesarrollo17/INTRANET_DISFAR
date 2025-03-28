@@ -82,7 +82,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                         }
 
                     
-                        respuesta.IconoSweetAlert = "success";
+                        respuesta.Icono = "success";
                         respuesta.Mensajes = new List<string> { "Validación de lotes completada con éxito." };
                     }
                     catch (SqlException ex)
@@ -90,18 +90,18 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 
                         if (ex.Number == 2627 || ex.Number == 2601) // Error de clave duplicada
                         {
-                            respuesta.IconoSweetAlert = "error";
+                            respuesta.Icono = "error";
                             respuesta.Mensajes = new List<string> { "Error: Se intentó insertar un lote duplicado en LotesRegistroSanitario. Verifique los valores de ItemCode y DistNumber." };
                         }
                         else
                         {
-                            respuesta.IconoSweetAlert = "error";
+                            respuesta.Icono = "error";
                             respuesta.Mensajes = new List<string> {  "Error en la validación de lotes: " + ex.Message};
                         }
                     }
                     catch (Exception ex)
                     {
-                        respuesta.IconoSweetAlert = "error";
+                        respuesta.Icono = "error";
                         respuesta.Mensajes = new List<string> { "Error inesperado en la validación de lotes: " + ex.Message };
                     }
 

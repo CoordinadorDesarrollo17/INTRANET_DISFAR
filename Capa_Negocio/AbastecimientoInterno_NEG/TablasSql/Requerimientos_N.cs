@@ -53,7 +53,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
                     break;
 
                 default:
-                    result = new List<DetalleRequerimientos_E>();
+                    result = detalles;
                     break;
             }
             return result;
