@@ -140,6 +140,52 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 throw new Exception("Error al obtener la ubicación del lote.", ex);
             }
         }
+
+        public UbicacionesLotes_E ObtenerPorId(int id)
+        {
+            UbicacionesLotes_E resultado = null;
+
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+                {
+                    string query = @"SELECT Id, UbicacionId, Almacen, ItemCode, ItemName, CodigoUbicacion, BatchNum, QuantityUnidadesCajas FROM UbicacionesLotes WHERE Id = @Id";
+
+                    cn.Open();
+
+                    using (SqlCommand cmd = new SqlCommand(query, cn))
+                    {
+                        cmd.Parameters.AddWithValue("@Id", id);
+
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            resultado = new UbicacionesLotes_E();
+
+                            while (reader.Read())
+                            {
+                                if (!reader.IsDBNull(0)) resultado.Id = reader.GetInt32(0);
+                                if (!reader.IsDBNull(1)) resultado.UbicacionId = reader.GetInt32(1);
+                                if (!reader.IsDBNull(2)) resultado.Almacen = reader.GetString(2);
+                                if (!reader.IsDBNull(3)) resultado.ItemCode = reader.GetString(3);
+                                if (!reader.IsDBNull(4)) resultado.ItemName = reader.GetString(4);
+                                if (!reader.IsDBNull(5)) resultado.CodigoUbicacion = reader.GetString(5);
+                                if (!reader.IsDBNull(6)) resultado.BatchNum = reader.GetString(6);
+                                if (!reader.IsDBNull(7)) resultado.QuantityUnidadesCajas = reader.GetInt32(7);
+                            }
+                        }
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.RegistrarError(ex, "UbicacionesLotes_D - Obtener");
+                throw new Exception("Error al obtener la ubicación del lote.", ex);
+            }
+
+            return resultado ?? new UbicacionesLotes_E();
+        }
+
         public Helper_E Ingreso(DetalleTransferenciaReserva_E detalle, SqlConnection cn)
         {
             string mensaje, icono;
@@ -210,16 +256,16 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     mensaje = $"Error en base de datos: {sqlEx.Message}";
                     icono = "error";
                 }
-                return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono, Id = id };
+                return new Helper_E { Mensajes = new List<string> { mensaje }, Icono = icono, Id = id };
             }
             catch (Exception ex)
             {
                 LogHelper.RegistrarError(ex, "UbicacionesLotes_D - Ingreso");
                 mensaje = "Ocurrió un error al registrar un ingreso en UbicacionesLotes. Comuníquese con el área de Sistemas para más información.";
                 icono = "error";
-                return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono, Id = id };
+                return new Helper_E { Mensajes = new List<string> { mensaje }, Icono = icono, Id = id };
             }
-            return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono, Id = id };
+            return new Helper_E { Mensajes = new List<string> { mensaje }, Icono = icono, Id = id };
         }
         public Helper_E RevertirIngreso(TransferenciaReserva_E ingreso, SqlConnection cn)
         {
@@ -267,7 +313,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 throw new Exception("Error en RevertirIngreso.", ex);
             }
 
-            return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
+            return new Helper_E { Mensajes = new List<string> { mensaje }, Icono = icono };
         }
         public Helper_E Salida(List<DetalleRequerimientos_E> salida, SqlConnection cn)
         {
@@ -314,7 +360,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 icono = "error";
             }
 
-            return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
+            return new Helper_E { Mensajes = new List<string> { mensaje }, Icono = icono };
         }
 
         public Helper_E EliminarArticulo(string itemCode, string codigoUbicacion)
@@ -361,7 +407,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 LogHelper.RegistrarError(ex, $"Error inesperado en UbicacionesLotes_D - EliminarArticulo.");
             }
 
-            return new Helper_E { Mensajes = new List<string> { mensajeUsuario }, IconoSweetAlert = icono };
+            return new Helper_E { Mensajes = new List<string> { mensajeUsuario }, Icono = icono };
         }
 
         public Helper_E RegistrarCodigoUbicacionPicking(List<DetalleRequerimientos_E> detalle, SqlConnection cn)
@@ -444,7 +490,65 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 LogHelper.RegistrarError(ex, $"Error inesperado en UbicacionesLotes_D - RegistrarCodigoUbicacionPicking.");
             }
 
-            return new Helper_E { Mensajes = new List<string> { mensajeUsuario }, IconoSweetAlert = icono };
+            return new Helper_E { Mensajes = new List<string> { mensajeUsuario }, Icono = icono };
+        }
+
+        public Helper_E CambiarUbicacionPicking(string nuevoCodigoUbicacion, UbicacionesLotes_E obj)
+        {
+            var result = new Helper_E { Titulo = "", Mensajes = new List<string>(), Icono = "" };
+            // 2. nuevoCodigoUbicacion: si en caso no exista, se inserta (itemcode, itemname, nuevocodigoubicacion, batchnum)
+            // 3. ubicacionLoteId: eliminar ubicación old
+            using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+            {
+                cn.Open();
+                using (SqlTransaction transaction = cn.BeginTransaction())
+                {
+                    try
+                    {
+                        using (SqlCommand cmd = new SqlCommand("sp_MantenimientoUbicacionesLotes", cn, transaction))
+                        {
+                            cmd.CommandType = CommandType.StoredProcedure;
+
+                            cmd.Parameters.AddWithValue("@TipoMantenimiento", "CAMBIAR_UBI_PICKING");
+                            cmd.Parameters.AddWithValue("@Id", obj.Id);
+                            cmd.Parameters.AddWithValue("@UbicacionId", obj.UbicacionId);
+                            cmd.Parameters.AddWithValue("@Almacen", "PICKING");
+                            cmd.Parameters.AddWithValue("@ItemCode", obj.ItemCode);
+                            cmd.Parameters.AddWithValue("@ItemName", obj.ItemName);
+                            cmd.Parameters.AddWithValue("@CodigoUbicacion", obj.CodigoUbicacion);
+                            cmd.Parameters.AddWithValue("@NuevoCodigoUbicacion", nuevoCodigoUbicacion);
+                            cmd.Parameters.AddWithValue("@BatchNum", obj.BatchNum);
+
+                            // Agregar parámetro de salida para Id
+                            SqlParameter IdGenerado = new SqlParameter("@IdGenerado", SqlDbType.Int)
+                            {
+                                Direction = ParameterDirection.Output
+                            };
+                            cmd.Parameters.Add(IdGenerado);
+
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        transaction.Commit();
+
+                        result.Titulo = "Acción completada";
+                        result.Mensajes.Add("Código de ubicación cambiado correctamente.");
+                        result.Icono = "success";
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        LogHelper.RegistrarError(ex, "UbicacionesLotes_D - CambiarUbicacionPicking");
+
+                        result.Titulo = "Error";
+                        result.Mensajes.Add("Ocurrió un error al cambiar código de ubicación picking.");
+                        result.Mensajes.Add("Por favor, comuníquese con el área de Sistemas para más información.");
+                        result.Icono = "error";
+                    }
+                }
+            }
+
+            return result;
         }
     }
 }

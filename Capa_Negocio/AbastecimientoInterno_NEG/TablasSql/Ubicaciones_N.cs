@@ -74,7 +74,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
                 errores.Add("La ubicación ya se encuentra registrada.");
 
             if (errores.Any())
-                return new Helper_E { Mensajes = errores, IconoSweetAlert = "error" };
+                return new Helper_E { Mensajes = errores, Icono = "error" };
 
             return _datos.RegistrarUbicacion(datos);
         }

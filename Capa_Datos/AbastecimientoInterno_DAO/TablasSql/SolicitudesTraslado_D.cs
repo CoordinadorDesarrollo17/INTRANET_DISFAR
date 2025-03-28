@@ -210,7 +210,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 throw new Exception($"Error al importar la solicitud de traslado: {ex.Message}");
             }
 
-            return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono, Id = obj.Id };
+            return new Helper_E { Mensajes = new List<string> { mensaje }, Icono = icono, Id = obj.Id };
         }
         public Helper_E DeleteSolicitudDeTraslado(int docNum, SqlConnection cn)
         {
@@ -246,7 +246,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 icono = "error";
                 throw new Exception("Error en DeleteSolicitudDeTraslado.", ex);
             }
-            return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
+            return new Helper_E { Mensajes = new List<string> { mensaje }, Icono = icono };
         }
         public Helper_E ActualizarEstado(int solicitudTrasladoId, List<DetalleTransferenciaReserva_E> detalleTransferencia, SqlConnection cn)
         {
@@ -291,7 +291,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 throw new Exception("Error en ActualizarEstado.", ex);
             }
 
-            return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
+            return new Helper_E { Mensajes = new List<string> { mensaje }, Icono = icono };
         }
       
     }

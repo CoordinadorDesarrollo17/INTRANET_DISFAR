@@ -29,6 +29,10 @@
             <button type="button" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Exportar Excel de Ubicaciones Picking" onclick="exportarExcel()">
                 <i class="bi bi-file-earmark-excel-fill"></i> Reporte
             </button>
+
+            <button type="button" class="btn btn-cobefar-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Traspaso por ubicaciones" onclick="irATraspasoUbicaciones()">
+                <i class="bi bi-box-arrow-up-right"></i> Traspaso por ubicaciones
+            </button>
         </div>
     </div>
 </div>
@@ -112,7 +116,11 @@
         })
 
         function exportarExcel() {
-            $(location).attr('href', `/AbastecimientoInterno/ExportarExcelUbicacionesPicking`);
+            $(location).attr('href', `/AbastecimientoInterno/ExportarExcelUbicacionesPicking`)
+        }
+
+        function irATraspasoUbicaciones() {
+            window.open('/AbastecimientoInterno/StockPicking', '_blank')
         }
     </script>
 }

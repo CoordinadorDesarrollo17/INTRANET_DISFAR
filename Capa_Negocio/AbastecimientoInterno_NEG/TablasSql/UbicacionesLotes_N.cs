@@ -64,6 +64,12 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         {
             return datosUbicacionesL.Obtener(itemCode, batchNum);
         }
+
+        public UbicacionesLotes_E ObtenerPorId(int id)
+        {
+            return datosUbicacionesL.ObtenerPorId(id);
+        }
+
         public Helper_E Ingreso(DetalleTransferenciaReserva_E ingreso, SqlConnection cn)
         {
             return datosUbicacionesL.Ingreso(ingreso, cn);
@@ -134,6 +140,15 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
             resultRegistro = datosUbicacionesL.RegistrarCodigoUbicacionPicking(detalle, cn);
 
             return resultRegistro;
+        }
+
+        public Helper_E CambiarUbicacionPicking(string nuevoCodigoUbicacion, int ubicacionLoteId)
+        {
+            var obj = ObtenerPorId(ubicacionLoteId);
+            if (obj == null || obj.Id <= 0)
+                return _helper.CrearAlertaUI(new List<string> { "El código de ubicación actual ya no es válido.", "Actualiza la página y vuelve a intentar." }, "error");
+
+            return datosUbicacionesL.CambiarUbicacionPicking(nuevoCodigoUbicacion, obj);
         }
     }
 }

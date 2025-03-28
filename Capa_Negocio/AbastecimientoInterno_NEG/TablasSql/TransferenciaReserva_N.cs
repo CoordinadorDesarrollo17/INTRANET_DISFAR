@@ -32,7 +32,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
                 return new Helper_E
                 {
                     Mensajes = new List<string> { "No puede transferir con detalle de transferencia vacio" },
-                    IconoSweetAlert = "error"
+                    Icono = "error"
                 };
             }
             //1. Obtiene la solicitud de traslado completa
@@ -58,7 +58,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
                     return new Helper_E
                     {
                         Mensajes= new List<string>{ "Cantidad que se transfiere NO coincide con el total de Sku: "+item.Key + " según documento. Valide cantidades."},
-                        IconoSweetAlert = "error"
+                        Icono = "error"
                     };
                 }
             }

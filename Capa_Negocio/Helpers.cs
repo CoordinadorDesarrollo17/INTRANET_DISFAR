@@ -69,7 +69,35 @@ namespace Capa_Negocio
             return new Helper_E
             {
                 Mensajes = new List<string> { mensaje },
-                IconoSweetAlert = "error"
+                Icono = "error"
+            };
+        }
+
+        public Helper_E CrearAlertaUI(List<string> mensajes, string icono)
+        {
+            Dictionary<string, string> opcionesTitulo = new Dictionary<string, string>
+            {
+                { "success", "Acción completada"},
+                { "warning", "Advertencia"},
+                { "info", "Información"},
+                { "error", "Error"},
+            };
+
+            if (!opcionesTitulo.ContainsKey(icono))
+            {
+                return new Helper_E
+                {
+                    Titulo = "Error",
+                    Mensajes = new List<string> { "El titulo no existe en el diccionario." },
+                    Icono = "error"
+                };
+            }
+
+            return new Helper_E
+            {
+                Titulo = opcionesTitulo[icono],
+                Mensajes = mensajes ?? new List<string>(),
+                Icono = icono
             };
         }
     }

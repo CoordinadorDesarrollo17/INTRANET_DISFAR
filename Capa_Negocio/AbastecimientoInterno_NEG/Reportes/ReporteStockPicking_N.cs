@@ -36,7 +36,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.Reportes
                     List<DetalleRequerimientos_E> resultDetReq = _requerimientosN.ListarDetalles(item.ItemCode, "CantidadSolicitada");
                     int quantityReq = resultDetReq?.Sum(r => r.QuantityUnidadesCajas) ?? 0;
 
-                    List<UbicacionesLotes_E> resultUbicacionesLotes = _ubicacionesLotesN.Obtener(item.ItemCode).Where(x => x.Almacen.Equals("RESERVA")).ToList(); 
+                    List<UbicacionesLotes_E> resultUbicacionesLotes = _ubicacionesLotesN.Obtener(item.ItemCode).Where(x => x.Almacen.Equals("RESERVA")).ToList();
                     int quantityUbicacionesLote = resultUbicacionesLotes?.Sum(r => r.QuantityUnidadesCajas) ?? 0;
 
                     int stockDeAlmReserva = quantityUbicacionesLote - quantityReq;
@@ -61,7 +61,12 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.Reportes
                 StockMinAbastecimiento = a.StockMinAbastecimiento
             }).ToList();
 
-            return nuevaLista.OrderBy(x=> x.ItemCode).ToList();
+            return nuevaLista.OrderBy(x => x.ItemCode).ToList();
+        }
+
+        public (Helper_E, List<ReporteStockPicking_E>) ListarStockPicking()
+        {
+            return _datosReporte.ListarStockPicking();
         }
 
     }

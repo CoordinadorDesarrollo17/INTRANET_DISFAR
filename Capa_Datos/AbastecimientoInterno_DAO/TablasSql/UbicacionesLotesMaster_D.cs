@@ -77,9 +77,9 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 LogHelper.RegistrarError(ex, "UbicacionesLotesMaster_D - Ingreso");
                 mensaje = "Ocurrió un error al registrar un ingreso en UbicacionesLotesMaster. Comuníquese con el área de Sistemas para más información.";
                 icono = "error";
-                return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
+                return new Helper_E { Mensajes = new List<string> { mensaje }, Icono = icono };
             }
-            return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
+            return new Helper_E { Mensajes = new List<string> { mensaje }, Icono = icono };
         }
         public Helper_E RevertirIngreso(TransferenciaReserva_E ingreso, SqlConnection cn)
         {
@@ -127,10 +127,10 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 LogHelper.RegistrarError(ex, "UbicacionesLotesMaster_D - RevertirIngreso");
                 mensaje = $"Ocurrió un error al registrar un revertir ingreso en UbicacionesLotesMaster. {ex.Message}";
                 icono = "error";
-                return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
+                return new Helper_E { Mensajes = new List<string> { mensaje }, Icono = icono };
             }
 
-            return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
+            return new Helper_E { Mensajes = new List<string> { mensaje }, Icono = icono };
         }
         public Helper_E Salida(List<DetalleRequerimientos_E> salida, SqlConnection cn)
         {
@@ -180,7 +180,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 throw new Exception("Error en Salida.", ex);
             }
 
-            return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
+            return new Helper_E { Mensajes = new List<string> { mensaje }, Icono = icono };
         }
         public List<string> BuscarUnidadAlm(SqlConnection cn, string condicion, Dictionary<string, object> parametrosCondicion)
         {

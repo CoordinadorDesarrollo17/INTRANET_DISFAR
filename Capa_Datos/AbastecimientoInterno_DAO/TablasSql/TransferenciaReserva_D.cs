@@ -55,11 +55,11 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     int idGenerado = (int)idGeneradoParam.Value;
                     if (idGenerado > 0)
                     {
-                        return new Helper_E { Mensajes = new List<string> { "Transferencia de reserva generada correctamente" }, IconoSweetAlert = "success", Id = idGenerado };
+                        return new Helper_E { Mensajes = new List<string> { "Transferencia de reserva generada correctamente" }, Icono = "success", Id = idGenerado };
                     }
                     else
                     {
-                        return new Helper_E { Mensajes = new List<string> { "No se registro transaferencia en la base de datos correctamente" }, IconoSweetAlert = "error" };
+                        return new Helper_E { Mensajes = new List<string> { "No se registro transaferencia en la base de datos correctamente" }, Icono = "error" };
                     }
                 }
             }
@@ -207,7 +207,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 throw new Exception("Error en DeleteTransferenciaReserva.", ex);
             }
 
-            return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
+            return new Helper_E { Mensajes = new List<string> { mensaje }, Icono = icono };
         }
         public Helper_E DeleteDetalleItemTransferenciaReserva(List<DetalleTransferenciaReserva_E> detTransferenciaReserva,  SqlConnection cn)
         {
@@ -252,7 +252,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 throw new Exception("Error en DeleteDetalleItemTransferenciaReserva.", ex);
             }
 
-            return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
+            return new Helper_E { Mensajes = new List<string> { mensaje }, Icono = icono };
         }
         public Helper_E AtenderReserva(int detalleId, SqlConnection cn)
         {
@@ -292,7 +292,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 throw new Exception("Error en AtenderReserva.", ex);
             }
 
-            return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
+            return new Helper_E { Mensajes = new List<string> { mensaje }, Icono = icono };
         }
         public List<DetalleTransferenciaReserva_E> ListarDetalles()
         {
@@ -388,7 +388,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 throw new Exception("Error en ValidarSkuParaApilar.", ex);
             }
 
-            return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
+            return new Helper_E { Mensajes = new List<string> { mensaje }, Icono = icono };
         }
     }
 }

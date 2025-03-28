@@ -147,7 +147,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 }
             }
 
-            return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
+            return new Helper_E { Mensajes = new List<string> { mensaje }, Icono = icono };
         }
 
         public Helper_E ActualizarStockMinimo(StockMinProductos_E datos)
@@ -187,7 +187,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 }
             }
 
-            return new Helper_E { Mensajes = new List<string> { mensaje }, IconoSweetAlert = icono };
+            return new Helper_E { Mensajes = new List<string> { mensaje }, Icono = icono };
         }
     }
 }
