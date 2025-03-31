@@ -9,31 +9,30 @@
         border: 1px solid;
     }
 </style>
-<table border=0 style="font-size:12px">
+<table border="0" style="font-size:12px">
     <tr>
-        <td colspan=2><img width="120" height="50" src="~/imagenes/logoventa2.jpg" /></td>
+        <td><img width="120" height="50" src="~/imagenes/logoventa2.jpg" /></td>
+        <td width="450"></td>
         <td></td>
-        <td></td>
-        <td colspan="2" style="text-align:right;"><strong>REG-013-02</strong></td>
+        <td colspan="2">
+            <table width="100%">
+                <tr class="conBorde">
+                    <td width="100" style="text-align: center;"><strong>F/ALM-001</strong></td>
+                    <td style="text-align:center;" width="30"><strong>V1</strong></td>
+                </tr>
+            </table>
+        </td>
     </tr>
     <tr>
-        <td></td>
-        <td></td>
-        <td width=750px align='center'><strong>ACTA DE DESPACHO DE PRODUCTOS - COBEFAR S.A.C.</strong></td>
-        <td></td>
-        <td></td>
-        <td></td>
+        <td colspan="4" align="center"><strong>ACTA DE DESPACHO</strong></td>
     </tr>
     <tr>
-        <td width="180px"><strong>FECHA : @m.T0_DocDate</strong></td>
+        <td width="180px"><strong>FECHA : </strong>@m.T0_DocDate</td>
         <td></td>
-        <td colspan="4" style="text-align:right" width="100px"><strong>FACTURA/BOLETA N° : </strong>@m.T0_NumAtCard</td>
+        <td colspan="2" style="text-align:right" width="100px"><strong>FACTURA/BOLETA N° : </strong>@m.T0_NumAtCard</td>
     </tr>
     <tr>
-        <td colspan="3"><strong>CLIENTE : </strong>@m.T0_CardName </td>
-        <td></td>
-        <td></td>
-        <td></td>
+        <td colspan="4"><strong>CLIENTE : </strong>@m.T0_CardName </td>
     </tr>
 </table>
 
@@ -129,5 +128,14 @@
         <td colspan="5" align="center">(sello y firma)</td>
         <td colspan="5" align="center"></td>
         <td colspan="7"></td>
+    </tr>
+    <tr>
+        <td colspan="20">
+            <table width="50%" style="margin: auto; padding-top: 20px">
+                <tr>
+                    <td style="color: gray; border: solid 1px; border-color: gray; font-size: 11px;text-align: center">Prohibido reproducir sin autorización de DROGUERÍA COBEFAR</td>
+                </tr>
+            </table>
+        </td>
     </tr>
 </table>

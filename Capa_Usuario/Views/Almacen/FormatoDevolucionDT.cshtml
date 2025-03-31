@@ -103,11 +103,12 @@
                     </tr>
                     <tr>
                         <td class="text-center font-weight-bold"></td>
-                        <td class="text-center font-weight-bold"><h4>REG-026-02</h4></td>
+                        <td class="text-center border border-dark font-weight-bold" style="width: 220px; height: 40px"><h4>F/ASC-018</h4></td>
+                        <td class="text-center border border-dark font-weight-bold" style="width: 60px; height: 40px"><h4>V1</h4></td>
                     </tr>
                     <tr>
-                        <td class="text-right font-weight-bold pr-4"><h4>N°</h4></td>
-                        <td class="text-center border border-dark" style="width: 250px; height: 50px">@Model.Correlativo</td>
+                        <td class="text-right font-weight-bold pr-4"></td>
+                        <td colspan="2" class="text-center border border-dark" style="height: 40px"><h4>N°: @Model.Correlativo</h4></td>
                     </tr>
                 </table>
             </div>
@@ -115,7 +116,7 @@
 
         <div class="row mt-1">
             <div class="col-12 d-flex justify-content-center">
-                <h1>FORMATO DE DEVOLUCIÓN - PROVEEDOR</h1>
+                <h1>DEVOLUCIÓN AL PROVEEDOR</h1>
             </div>
         </div>
 
@@ -195,7 +196,7 @@
         </div>
 
 
-        <div class="row mt-4" style="@if (num >= 16) { Write("page-break-before: always"); }">
+        <div class="row mt-2" style="@if (num >= 16) { Write("page-break-before: always"); }">
             <div class="col-3">
                 <span class="font-weight-bold">LEVANTAMIENTO DE CONFORMIDAD:</span>
             </div>
@@ -215,14 +216,14 @@
             </div>
         </div>
 
-        <div class="row mt-4">
+        <div class="row mt-2">
             <div class="col-12">
                 <span class="font-weight-bold">AUXILIAR DE ALMACÉN:</span> @if (ViewBag.ResponsableAlmacen != null) { Write(ViewBag.ResponsableAlmacen); }
             </div>
         </div>
 
         <div class="footerFormatoDev w-100">
-            <div class="row mt-4">
+            <div class="row mt-2">
                 <div class="col-6 justify-content-center">
                     <table class="font-weight-bold">
                         <tr>
@@ -284,6 +285,16 @@
                             <td class="text-left" style="width: 240px">DNI:</td>
                             <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
                             <td class="text-left" style="width: 240px"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-12 justify-content-center">
+                    <table width="50%" style="margin: auto; padding-top: 20px">
+                        <tr>
+                            <td style="color: gray; border: solid 1px; border-color: gray; font-size: 11px;text-align: center">Prohibido reproducir sin autorización de DROGUERÍA COBEFAR</td>
                         </tr>
                     </table>
                 </div>

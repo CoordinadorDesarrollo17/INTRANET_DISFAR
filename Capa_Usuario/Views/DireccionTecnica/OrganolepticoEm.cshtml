@@ -7,41 +7,41 @@
 @foreach (var item in Model)
 {
     <div style='page-break-after:always;'>
-        <table border=0 style="font-size:12px;">
+        <table border="0" style="font-size:12px;">
             <tr>
-                <td colspan="2"><img width="120" height="50" src="~/imagenes/logoventa2.jpg" /></td>
+                <td width="180"><img width="120" height="50" src="~/imagenes/logoventa2.jpg" /></td>
                 <td></td>
-                <td></td>
-                <td colspan="2" align=right><strong>REG-010-02</strong></td>
+                <td width="280"></td>
+                <td colspan="2" width="180" align=right>
+                    <table width="100%" style="font-size:12px;">
+                        <tr>
+                            <td width="100" style="text-align: center; border: 1px solid"><strong>F/DT-002</strong></td>
+                            <td style="text-align: center; border: 1px solid" width="30"><strong>V1</strong></td>
+                        </tr>
+                    </table>
+                </td>
             </tr>
             <tr>
-                <td></td>
-                <td width="540" align='center' colspan="4"><strong>FORMATO DE VERIFICACIÓN DE RECEPCIÓN Y EVALUACIÓN ORGANOLÉPTICA</strong></td>
-                <td></td>
+                <td colspan="5" width="540" align='center'><strong>VERIFICACIÓN DE RECEPCIÓN Y EVALUACIÓN ORGANOLÉPTICA</strong></td>
             </tr>
             <tr>
-                <td colspan="6" height="30"></td>
+                <td colspan="5" height="30"></td>
             </tr>
             <tr>
                 <td colspan="2"><strong>FACTURA/GUIA N° : </strong>@item.NroFactura</td>
                 <td></td>
                 <td></td>
                 <td align=right><strong>FECHA : </strong>@item.T0_DocDate</td>
-                <td></td>
             </tr>
             <tr>
-                <td colspan="6"><strong>NOMBRE DEL PRODUCTO : </strong>@item.T7_FrgnName &nbsp;@item.Concentracion &nbsp;@item.FormaFarmaceutica&nbsp;@item.FormaPresentacion</td>
+                <td colspan="5"><strong>NOMBRE DEL PRODUCTO : </strong>@item.T7_FrgnName &nbsp;@item.Concentracion &nbsp;@item.FormaFarmaceutica&nbsp;@item.FormaPresentacion</td>
             </tr>
             <tr>
                 <td><strong>PROCEDENCIA : </strong></td>
-                <td>@item.T0_CardName</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
+                <td colspan="4">@item.T0_CardName</td>
             </tr>
             <tr>
-                <td colspan="6" height="30"></td>
+                <td colspan="5" height="30"></td>
             </tr>
         </table>
 
@@ -54,25 +54,25 @@
             </tr>
             <tr>
                 <td style='border:1px solid black;'>Embalaje y estado de conservacion</td>
-                <td style='border:1px solid black'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
+                <td style='border: 1px solid black; text-align: center'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
                 <td style='border:1px solid black'></td>
                 <td style='border:1px solid black'>CONFORME</td>
             </tr>
             <tr>
                 <td style='border:1px solid black'>Envase Mediato e Inmediato</td>
-                <td style='border:1px solid black'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
+                <td style='border: 1px solid black; text-align: center'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
                 <td style='border:1px solid black'></td>
                 <td style='border:1px solid black'>CONFORME</td>
             </tr>
             <tr>
                 <td style='border:1px solid black'>Ausencia de material extraño</td>
-                <td style='border:1px solid black'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
+                <td style='border: 1px solid black; text-align: center'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
                 <td style='border:1px solid black'></td>
                 <td style='border:1px solid black'>CONFORME</td>
             </tr>
             <tr>
                 <td style='border:1px solid black'>Cantidad</td>
-                <td style='border:1px solid black'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
+                <td style='border: 1px solid black; text-align: center'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
                 <td style='border:1px solid black'></td>
                 <td style='border:1px solid black'>@Math.Round((item.Canti_pza_lot / (item.T1_NumPerMsr - item.XDevolucion)), 0) </td>
             </tr>
@@ -87,37 +87,37 @@
             </tr>
             <tr>
                 <td style='border:1px solid black'>Nombre del Producto</td>
-                <td style='border:1px solid black'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
+                <td style='border: 1px solid black; text-align: center'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
                 <td style='border:1px solid black'></td>
                 <td style='border:1px solid black'>@item.T7_FrgnName &nbsp;@item.Concentracion &nbsp;@item.FormaFarmaceutica</td>
             </tr>
             <tr>
                 <td style='border:1px solid black'>Registro Sanitario</td>
-                <td style='border:1px solid black'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
+                <td style='border: 1px solid black; text-align: center'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
                 <td style='border:1px solid black'></td>
                 <td style='border:1px solid black'>@item.Registro</td>
             </tr>
             <tr>
                 <td style='border:1px solid black'>Nombre del Fabricante</td>
-                <td style='border:1px solid black'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
+                <td style='border: 1px solid black; text-align: center'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
                 <td style='border:1px solid black'></td>
                 <td style='border:1px solid black'>@item.Fabricante</td>
             </tr>
             <tr>
                 <td style='border:1px solid black'>Condicion de Almacenamiento</td>
-                <td style='border:1px solid black'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
+                <td style='border: 1px solid black; text-align: center'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
                 <td style='border:1px solid black'></td>
                 <td style='border:1px solid black'>@item.T6_Location</td>
             </tr>
             <tr>
                 <td style='border:1px solid black'>N° de Lote</td>
-                <td style='border:1px solid black'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
+                <td style='border: 1px solid black; text-align: center'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
                 <td style='border:1px solid black'></td>
                 <td style='border:1px solid black'>@item.Lote</td>
             </tr>
             <tr>
                 <td style='border:1px solid black'>Fecha de Vencimiento</td>
-                <td style='border:1px solid black'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
+                <td style='border: 1px solid black; text-align: center'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
                 <td style='border:1px solid black'></td>
                 <td style='border:1px solid black'>@item.T3_ExpDate</td>
             </tr>
@@ -129,37 +129,37 @@
             </tr>
             <tr>
                 <td style='border:1px solid black'>Nombre del Producto</td>
-                <td style='border:1px solid black'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
+                <td style='border: 1px solid black; text-align: center'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
                 <td style='border:1px solid black'></td>
                 <td style='border:1px solid black'>@item.T7_FrgnName &nbsp;@item.Concentracion &nbsp;@item.FormaFarmaceutica</td>
             </tr>
             <tr>
                 <td style='border:1px solid black'>Registro Sanitario</td>
-                <td style='border:1px solid black'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
+                <td style='border: 1px solid black; text-align: center'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
                 <td style='border:1px solid black'></td>
                 <td style='border:1px solid black'>@item.Registro</td>
             </tr>
             <tr>
                 <td style='border:1px solid black'>Nombre del Fabricante</td>
-                <td style='border:1px solid black'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
+                <td style='border: 1px solid black; text-align: center'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
                 <td style='border:1px solid black'></td>
                 <td style='border:1px solid black'>@item.Fabricante</td>
             </tr>
             <tr>
                 <td style='border:1px solid black'>Condicion de Almacenamiento</td>
-                <td style='border:1px solid black'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
+                <td style='border: 1px solid black; text-align: center'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
                 <td style='border:1px solid black'></td>
                 <td style='border:1px solid black'>@item.T6_Location</td>
             </tr>
             <tr>
                 <td style='border:1px solid black'>N° de Lote</td>
-                <td style='border:1px solid black'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
+                <td style='border: 1px solid black; text-align: center'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
                 <td style='border:1px solid black'></td>
                 <td style='border:1px solid black'>@item.Lote</td>
             </tr>
             <tr>
                 <td style='border:1px solid black'>Fecha de Vencimiento</td>
-                <td style='border:1px solid black'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
+                <td style='border: 1px solid black; text-align: center'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
                 <td style='border:1px solid black'></td>
                 <td style='border:1px solid black'>@item.T3_ExpDate</td>
             </tr>
@@ -171,37 +171,37 @@
             </tr>
             <tr>
                 <td style='border:1px solid black'>Presentacion</td>
-                <td style='border:1px solid black'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
+                <td style='border: 1px solid black; text-align: center'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
                 <td style='border:1px solid black'></td>
                 <td style='border:1px solid black'>@item.FormaPresentacion</td>
             </tr>
             <tr>
                 <td style='border:1px solid black'>Hermeticidad de Envases</td>
-                <td style='border:1px solid black'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
+                <td style='border: 1px solid black; text-align: center'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
                 <td style='border:1px solid black'></td>
                 <td style='border:1px solid black'>CONFORME</td>
             </tr>
             <tr>
                 <td style='border:1px solid black'>Ausencia de materias extrañas</td>
-                <td style='border:1px solid black'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
+                <td style='border: 1px solid black; text-align: center'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
                 <td style='border:1px solid black'></td>
                 <td style='border:1px solid black'>CONFORME</td>
             </tr>
             <tr>
                 <td style='border:1px solid black'>Color del producto</td>
-                <td style='border:1px solid black'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
+                <td style='border: 1px solid black; text-align: center'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
                 <td style='border:1px solid black'></td>
                 <td style='border:1px solid black'>CARACTERISTICO</td>
             </tr>
             <tr>
                 <td style='border:1px solid black'>Aspecto fisico</td>
-                <td style='border:1px solid black'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
+                <td style='border: 1px solid black; text-align: center'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
                 <td style='border:1px solid black'></td>
                 <td style='border:1px solid black'>CARACTERISTICO</td>
             </tr>
             <tr>
                 <td style='border:1px solid black'>Temperatura de almacenamiento</td>
-                <td style='border:1px solid black'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
+                <td style='border: 1px solid black; text-align: center'><img width="8" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
                 <td style='border:1px solid black'></td>
                 <td style='border:1px solid black'>De 15°C a 25°C</td>
             </tr>
@@ -236,7 +236,15 @@
                 <td></td>
                 <td align=center></td>
             </tr>
-
+            <tr>
+                <td colspan="4">
+                    <table width="50%" style="margin: auto; padding-top: 20px">
+                        <tr>
+                            <td style="color: gray; border: solid 1px; border-color: gray; font-size: 11px;text-align: center">Prohibido reproducir sin autorización de DROGUERÍA COBEFAR</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
         </table>
     </div>
 }
