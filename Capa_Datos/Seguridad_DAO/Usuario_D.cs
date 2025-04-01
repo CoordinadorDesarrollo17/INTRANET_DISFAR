@@ -115,13 +115,15 @@ namespace Capa_Datos
                             }
                         }
                     }
-
-                    // Actualizar FechaUltimoIngreso
-                    using (SqlCommand updateCmd = new SqlCommand(updateQuery, cn, transaction))
+                    if (u != null)
                     {
-                        updateCmd.Parameters.AddWithValue("@user", user);
-                        updateCmd.Parameters.AddWithValue("@pass", pass);
-                        updateCmd.ExecuteNonQuery();
+                        // Actualizar FechaUltimoIngreso
+                         using (SqlCommand updateCmd = new SqlCommand(updateQuery, cn, transaction))
+                        {
+                            updateCmd.Parameters.AddWithValue("@user", user);
+                            updateCmd.Parameters.AddWithValue("@pass", pass);
+                            updateCmd.ExecuteNonQuery();
+                        }
                     }
 
                     transaction.Commit();

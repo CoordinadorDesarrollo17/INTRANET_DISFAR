@@ -1,0 +1,169 @@
+<table id="tbl_listaNumCorporativos" class="table table-light table-hover" width="100%">
+    <thead class="thead-dark">
+        <tr>
+            <th class="text-center" style="width: 30px">#</th>
+            <th class="text-center" style="width: 120px">NÚMEROS</th>
+            <th class="text-center" style="width: 120px">OPERADOR</th>
+            <th class="text-center" style="width: 120px">ASIGNADO A</th>
+            <th class="text-center" style="width: 120px">ESTADO</th>
+            <th class="text-center" style="width: 50px"></th>
+            <th class="text-center" style="width: 30px"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null)
+        {
+            int num = 1;
+            var estados = new Dictionary<string, string> { { "1", "ACTIVO" }, { "0", "INACTIVO" } };
+
+            foreach (var m in Model)
+            {
+                <tr>
+                    <td class="text-center">@num</td>
+                    <td class="text-center">@m.NumeroCorporativo</td>
+                    <td class="text-center">
+                        <select class="form-control operadorNumCorporativo border-success" data-idnumero="@m.IdNumero" data-nrodocumento="@m.NroDocumento">
+                            @foreach (var operador in new[] { "Bitel", "Claro", "Entel", "Movistar" })
+                            {
+                                <option value="@operador" @(m.Operador == operador ? "selected" : "")>@operador</option>
+                            }
+                        </select>
+                    </td>
+                    <td class="text-center">
+                        @m.NroDocumento @if (!string.IsNullOrWhiteSpace(m.NroDocumento))
+                        {<i class="btn btn-sm btn-warning icon-search btn-buscarDNI" data-nrodocumento="@m.NroDocumento"></i>}
+                    </td>
+                    <td class="text-center">
+                        <select class="form-control estadoNumCorporativo border-success " data-idnumero="@m.IdNumero" data-nrodocumento="@m.NroDocumento">
+                            @foreach (var estado in estados)
+                            {
+                                <option value="@estado.Key" @(m.Estado == estado.Key ? "selected" : "")>@estado.Value</option>
+                            }
+                        </select>
+                    </td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-sm bg-cobefar-4 text-white btn-auditarNumCorporativo" data-idnumero="@m.IdNumero" title="Auditar"><i class="icon-folder-open"></i></button>
+                    </td>
+                    <td class="text-center">
+                        @if (m.Asignado == "1")
+                        {
+                            <button type="button" class="btn btn-sm btn-cobefar btn-liberarNumCorporativo mx-1" data-idnumero="@m.IdNumero" data-numcorporativo="@m.NumeroCorporativo" data-nrodocumento="@m.NroDocumento" title="Liberar"><i class="icon-unlocked"></i></button>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-sm btn-danger btn-EliminarNumCorporativo mx-1" data-idnumero="@m.IdNumero" data-numcorporativo="@m.NumeroCorporativo" title="Eliminar"><i class="icon-bin2"></i></button>
+
+                        }
+                    </td>
+                </tr>
+                ++num;
+            }
+        }
+    </tbody>
+</table>
+
+<div class="modal fade" id="modalAudNumeros" tabindex="1" aria-labelledby="_ModalAudNumero" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header text-white bg-headerModals">
+                <h5 class="modal-title font-weight-bold" id="_ModalAudNumero">AUDITORÍA</h5>
+            </div>
+
+            <div class="modal-body py-0">
+                <div class="row justify-content-center overflow-auto bg-dark pt-4">
+                    <div class="col-12 table-responsive">
+                        <table id="tbl_audNumeros" class="table table-light table-bordered table-hover" width="100%">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th class="text-center">#</th>
+                                    <th class="text-center">MODIFICACIÓN</th>
+                                    <th class="text-center">ANTES</th>
+                                    <th class="text-center">AHORA</th>
+                                    <th class="text-center">REGISTRADO POR</th>
+                                    <th class="text-center">FECHA / HORA</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" id="btn_cerrarAudNum" class="btn bg-cobefar-3 text-white"><i class="icon-cross"></i> Cerrar</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        document.getElementById("btn_cerrarAudNum").addEventListener("click", function () {
+            $("#modalAudNumeros").modal("hide");
+        });
+
+        var table_numCorporativo = $('#tbl_listaNumCorporativos').DataTable({
+            pageLength: 10,                 /* PARA INICIALIZAR LA PAGINACIÓN */
+            lengthMenu: [10, 20, 30],   /* RANGO PAGINACIÓN */
+        });
+
+        table_numCorporativo.columns.adjust().draw();
+
+        //--- NUMEROS ASIGNADOS Y NO ASIGNADOS
+        let numAsignados = '@ViewBag.NumerosAsignados';
+        let numNoAsignados = '@ViewBag.NumerosNoAsignados';
+
+        document.getElementById("div_numAsignados").innerHTML = numAsignados || 0;
+        document.getElementById("div_numNoAsignados").innerHTML = numNoAsignados || 0;
+
+        //--- ESTADO
+        let estados = document.querySelectorAll(".estadoNumCorporativo");
+        estados.forEach(function (btn) {
+            btn.addEventListener("change", function () {
+                let obj = { idnumero: this.dataset.idnumero, estado: this.value, nrodocumento: this.dataset.nrodocumento };
+                procesarNumCorporativo('/RecursosHumanos/EditarNumero', obj);
+            });
+        });
+
+        //--- OPERADOR
+        let operadores = document.querySelectorAll(".operadorNumCorporativo");
+        operadores.forEach(function (btn) {
+            btn.addEventListener("change", function () {
+                let obj = { idnumero: this.dataset.idnumero, operador: this.value, nrodocumento: this.dataset.nrodocumento };
+                procesarNumCorporativo('/RecursosHumanos/EditarNumero', obj);
+            });
+        });
+
+        //--- AUDITORÍA DE CAMBIOS
+        let aud = document.querySelectorAll(".btn-auditarNumCorporativo");
+        aud.forEach(function (btn) {
+            btn.addEventListener("click", function () {
+                auditarNumCorporativo(this.dataset.idnumero);
+            });
+        });
+
+        //--- ELIMINAR
+        let numeros = document.querySelectorAll(".btn-EliminarNumCorporativo");
+        numeros.forEach(function (btn) {
+            btn.addEventListener("click", function () {
+                eliminarNumCorporativo(this.dataset.numcorporativo, this.dataset.idnumero);
+            });
+        });
+
+        //--- BUSCAR DNI
+        document.querySelectorAll(".btn-buscarDNI").forEach(function (btn) {
+            btn.addEventListener("click", function () {
+                consultarDatosEmpleado(this.dataset.nrodocumento);
+            });
+        });
+
+        //--- BUSCAR DNI
+        document.querySelectorAll(".btn-liberarNumCorporativo").forEach(function (btn) {
+            btn.addEventListener("click", function () {
+                liberarNumCorporativo(this.dataset.numcorporativo, this.dataset.idnumero, this.dataset.nrodocumento);
+            });
+        });
+
+    })();
+</script>

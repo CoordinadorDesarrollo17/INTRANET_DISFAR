@@ -8,7 +8,7 @@ using Capa_Entidad.Seguridad_ENT;
 using Capa_Entidad.Compras_ENT;
 using Capa_Entidad.Compras_ENT.Reportes;
 using Capa_Negocio.Seguridad_NEG;
-using Capa_Negocio.SocioNegocios_NEG.Tablas;
+using Capa_Negocio.SocioNegocios_NEG.TablasExternas;
 using Capa_Negocio.Compras_NEG.TablasSql;
 namespace Capa_Usuario.Controllers
 {

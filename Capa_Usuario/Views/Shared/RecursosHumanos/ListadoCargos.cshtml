@@ -1,0 +1,66 @@
+﻿<table id="tbl_listaCargo" class="table table-light table-hover" width="100%">
+    <thead class="thead-dark">
+        <tr>
+            <th class="text-center">#</th>
+            <th class="text-center">CARGO</th>
+            <th class="text-center" style="width: 150px;">ESTADO</th>
+            <th class="text-center" style="width: 50px">ELIMINAR</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null)
+        {
+            int num = 1;
+            foreach (var m in Model)
+            {
+                <tr>
+                    <td class="text-center align-middle">@num</td>
+                    <td class="align-middle" style="width: 70%;"><span class="ml-2">@m.Nombre</span></td>
+                    <td class="text-center align-middle" style="width: 150px;">
+                        <div class="d-flex justify-content-center align-items-center">
+                            <select class="form-control border-success estadoCargo" data-idcargo="@m.Id" style="width: 150px;">
+                                <option value="1" @if (m.Estado == "1") { Write("selected"); }>ACTIVO</option>
+                                <option value="0" @if (m.Estado == "0") { Write("selected"); }>INACTIVO</option>
+                            </select>
+                        </div>                        
+                    </td>
+                    <td class="text-center align-middle"><button type="button" class="btn btn-sm btn-danger btn-eliminarCargo" data-idcargo="@m.Id" data-nombre="@m.Nombre"><i class="icon-bin2"></i></button></td>
+                </tr>
+                ++num;
+            }
+        }
+    </tbody>
+</table>
+
+<script>
+    if ($.fn.DataTable.isDataTable('#tbl_listaCargo')) {
+        $('#tbl_listaCargo').DataTable().clear().destroy();
+    }
+    var table_cargo = $('#tbl_listaCargo').DataTable({
+        "ordering": false,
+        "pageLength": 10,
+        "lengthMenu": [10, 20, 30]
+    });
+
+    // Ajustar columnas después de que el DOM esté completamente cargado
+    document.addEventListener('DOMContentLoaded', function () {
+        table_cargo.columns.adjust().draw();
+    });
+
+    document.querySelector('#tbl_listaCargo tbody').addEventListener('click', function (event) {
+        if (event.target.matches('.btn-eliminarCargo')) {
+            eliminarCargo(event.target.dataset.nombre, event.target.dataset.idcargo);
+        } else if (event.target.closest('.btn-eliminarCargo')) {
+                // Cubre casos donde el icono es clicado dentro del botón
+            let btn = event.target.closest('.btn-eliminarCargo');
+            eliminarCargo(btn.dataset.nombre, btn.dataset.idcargo);
+        }
+    });
+
+    document.querySelector('#tbl_listaCargo tbody').addEventListener('change', function (event) {
+        if (event.target.matches('.estadoCargo')) {
+            let form = { Id: event.target.dataset.idcargo, Estado: event.target.value };
+            procesarCargo('/RecursosHumanos/EditarCargo', form);
+        }
+    });
+</script>

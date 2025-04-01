@@ -1,0 +1,680 @@
+﻿@{
+    ViewBag.Title = "Administración de RRHH";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    bool vistaExterna = (ViewBag.Vista != null && ViewBag.Vista == "EXTERNA");
+    bool modoAdm = ViewBag.IdRol == 57;
+}
+<style>
+    .sidebar {
+        width: 100%;
+    }
+
+    .btn-atajoFiltro {
+        white-space: normal;
+        word-wrap: break-word;
+        height: auto;
+    }
+
+        .btn-atajoFiltro .text-center {
+            padding: 8px;
+            font-size: 12px;
+        }
+
+    .container {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .row {
+        flex: 1;
+    }
+
+    #div_pagination {
+        margin-top: auto;
+    }
+</style>
+<script>
+    document.getElementById("div_container2").removeAttribute("style");
+    var totalEmpleados = '@ViewBag.CantidadEmpleados';
+    var cantidadEmpleados = '@ViewBag.CantidadEmpleados';
+    var modoRRHH= '@ViewBag.IdRol' == 56;
+    var modoAdm = '@ViewBag.IdRol' == 57;
+    var vistaExterna = '@ViewBag.Vista' == 'EXTERNA';
+</script>
+
+@if (vistaExterna == false)
+{
+    <div class="pt-4">
+        <nav>
+            <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+                <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+                <li class="current"><em>Directorio Telefónico</em></li>
+            </ol>
+        </nav>
+    </div>
+}
+
+<div class="row d-flex">
+    <div class="col-12">
+        <div class="row mt-2">
+            <div class="col text-right">
+                <button id="btn_mostrarTodos" type="button" class="btn bg-cobefar text-white font-weight-bold" title="Mostrar Todos"><i class="icon-database"></i> Mostrar TODOS</button>
+                <button id="btn_mostrarBusquedaFiltros" type="button" class="btn btn-primary font-weight-bold ml-2" title="Filtrar"><i class="icon-filter"></i></button>
+                @if (vistaExterna == false)
+                {
+                    <button id="btn_agregar" type="button" class="btn btn-warning font-weight-bold ml-2" title="Agregar"><i class="icon-plus"></i></button>
+                    <button id="btn_descargarListadoEmpleado" type="button" class="btn btn-success font-weight-bold ml-2" title="Descargar Excel"><i class="icon-file-excel"></i> Excel</button>
+                }
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12 col-md-12 col-lg-2 d-none d-lg-block sidebar">
+                @if (ViewBag.Departamentos != null)
+                {
+                    int fila = 1;
+                    foreach (var item in ViewBag.Departamentos)
+                    {
+                        string marginClass = fila == 1 ? "mt-2" : "mb-2";
+
+                        <div class="btn btn-dark btn-block mx-1 py-3 btn-atajoFiltro @marginClass" data-id="@item.IdDepartamento">
+                            <div class="text-center font-weight-bold">@item.Nombre</div>
+                        </div>
+                        ++fila;
+                    }
+                }
+            </div>
+
+
+            <div class="col-sm-12 col-md-12 col-lg-10 col-xl-10">
+                <div id="div_listaEmpleados" data-url="@Url.Action("ListarEmpleados")"></div>
+
+                <div class="row justify-content-center">
+                    <div class="col-10 d-flex justify-content-center" style="white-space: revert; ">
+                        <div id="div_pagination" class="pagination d-flex justify-content-center flex-nowrap" style="width: max-content; ">
+                            <button type="button" class="btn btn-sm btn-dark prev" title="Anterior"><i class="icon-arrow-left"></i></button>
+                            <span class="numbers"></span>
+                            <button type="button" class="btn btn-sm btn-dark next" title="Siguiente"><i class="icon-arrow-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="modal fade" id="modalAdministracion" tabindex="1" aria-labelledby="_ModalAdministracion" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header text-white bg-headerModals">
+                <h5 class="modal-title" id="_ModalAdministracion"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" class="text-white">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="row my-3 justify-content-center overflow-auto">
+                    <div id="div_RegistrarEmpleado" class="col d-flex ml-3 px-3 py-3 bg-blancoHumo rounded rounded-5 border border-grisAzulado div-hover">
+                        <div class="d-flex align-items-center justify-content-center px-3 py-2 bg-grisClaro rounded font-18"><i class="icon-users"></i></div>
+                        <div class="d-flex align-items-center justify-content-center w-100 font-weight-bold">Registrar<br />empleado</div>
+                    </div>
+
+                    <div id="div_admSedes" class="col d-flex mx-3 px-3 py-3 bg-blancoHumo rounded rounded-5 border border-grisAzulado div-hover">
+                        <div class="d-flex align-items-center justify-content-center px-3 py-2 bg-grisClaro rounded font-18"><i class="icon-book"></i></div>
+                        <div class="d-flex align-items-center justify-content-center w-100 font-weight-bold">Administrar<br />sedes</div>
+                    </div>
+
+                    <div id="div_admDepartamentos" class="col d-flex mr-3 px-3 py-3 bg-blancoHumo rounded rounded-5 border border-grisAzulado div-hover">
+                        <div class="d-flex align-items-center justify-content-center px-3 py-2 bg-grisClaro rounded font-18"><i class="icon-book"></i></div>
+                        <div class="d-flex align-items-center justify-content-center w-100 font-weight-bold">Administrar<br />departamentos</div>
+                    </div>
+                </div>
+
+                <div class="row my-3 justify-content-center overflow-auto">
+                    <div id="div_admNumCorporativos" class="col d-flex ml-3 px-3 py-3 bg-cobefar-4 rounded rounded-5 border border-grisAzulado div-hover">
+                        <div class="d-flex align-items-center justify-content-center px-3 py-2 bg-light rounded font-18"><i class="icon-phone"></i></div>
+                        <div class="d-flex align-items-center justify-content-center w-100 font-weight-bold text-white">Números<br />corporativos</div>
+                    </div>
+
+                    <div id="div_admAreas" class="col d-flex mx-3 px-3 py-3 bg-blancoHumo rounded rounded-5 border border-grisAzulado div-hover">
+                        <div class="d-flex align-items-center justify-content-center px-3 py-2 bg-grisClaro rounded font-18"><i class="icon-book"></i></div>
+                        <div class="d-flex align-items-center justify-content-center w-100 font-weight-bold">Administrar<br />áreas</div>
+                    </div>
+
+                    <div id="div_admCargos" class="col d-flex mr-3 px-3 py-3 bg-blancoHumo rounded rounded-5 border border-grisAzulado div-hover">
+                        <div class="d-flex align-items-center justify-content-center px-3 py-2 bg-grisClaro rounded font-18"><i class="icon-book"></i></div>
+                        <div class="d-flex align-items-center justify-content-center w-100 font-weight-bold">Administrar<br />cargos</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- MODAL EMPLEADO -->
+<div class="modal fade" id="modalRegistrarEmpleado" tabindex="1" aria-labelledby="_ModalRegistrarEmpleado" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header text-white bg-headerModals">
+                <h5 class="modal-title" id="_ModalRegistrarEmpleado"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" class="text-white">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="row overflow-auto">
+                    <div class="col-6">
+                        <h5 class="text-cobefar font-weight-bold"><u>DATOS GENERALES</u></h5>
+                    </div>
+                </div>
+
+                <div class="row overflow-auto">
+                    <div class="col-3 py-3">
+                        <input type="hidden" id="idEmpleado" />
+                        <label for="nroDocEmpleado" class="text-dark font-weight-bold">DNI:</label>
+                        <div class="d-flex">
+                            <input id="nroDocEmpleado" type="text" class="form-control input-cobefar" autocomplete="off" />
+                            <button type="button" id="btn_buscarDNI" class="btn btn-cobefar"><i class="icon-search"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="col-3 py-3">
+                        <label for="celularEmpleado" class="text-dark font-weight-bold">Celular:</label>
+                        <input id="celularEmpleado" type="text" class="form-control input-cobefar" autocomplete="off" />
+                    </div>
+
+                    <div id="div_estadoEmpleado" class="col-3 py-3">
+                        <label for="estadoEmpleado" class="text-dark font-weight-bold">Estado:</label>
+                        <select id="estadoEmpleado" class="form-control">
+                            <option value="1">ACTIVO</option>
+                            <option value="0">CESADO</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row justify-content-center overflow-auto">
+                    <div class="col py-3">
+                        <label for="nombresEmpleado" class="text-dark font-weight-bold">Nombres:</label>
+                        <input id="nombresEmpleado" type="text" class="form-control input-cobefar" autocomplete="off" />
+                    </div>
+
+                    <div class="col py-3">
+                        <label for="apellidosEmpleado" class="text-dark font-weight-bold">Apellidos:</label>
+                        <input id="apellidosEmpleado" type="text" class="form-control input-cobefar" autocomplete="off" />
+                    </div>
+                </div>
+
+                <div class="row mt-3 overflow-auto">
+                    <div class="col-6">
+                        <h5 class="text-cobefar font-weight-bold"><u>DATOS LABORALES</u></h5>
+                    </div>
+                </div>
+
+                <div class="row overflow-auto">
+                    <div class="col-3 py-3">
+                        <label for="condicionLaboral" class="text-dark font-weight-bold">Condición laboral:</label>
+                        <select id="condicionLaboral" class="form-control">
+                            <option value="">SELECCIONAR</option>
+                            <option value="Planilla">Planilla</option>
+                            <option value="RHE">RHE</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row justify-content-center overflow-auto">
+                    <div class="col-3 py-3">
+                        <label for="dptoLaboral" class="text-dark font-weight-bold">Departamento:</label>
+                        <select id="dptoLaboral" class="form-control">
+                            <option value="">SELECCIONAR</option>
+                            @if (ViewBag.Departamentos != null)
+                            {
+                                foreach (var dpto in ViewBag.Departamentos)
+                                {
+                                    <option value="@dpto.IdDepartamento">@dpto.Nombre</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-3 py-3">
+                        <input type="hidden" id="idAreaLaboral" />
+                        <label for="areaLaboral" class="text-dark font-weight-bold">Área:</label>
+                        <select id="areaLaboral" class="form-control">
+                            <option value="">SELECCIONAR</option>
+                        </select>
+                    </div>
+
+                    <div class="col-3 py-3">
+                        <label for="sedeLaboral" class="text-dark font-weight-bold">Sede:</label>
+                        <select id="sedeLaboral" class="form-control">
+                            <option value="">SELECCIONAR</option>
+                        </select>
+                    </div>
+
+                    <div class="col-3 py-3">
+                        <input type="hidden" id="idPuesto" />
+                        <label for="cargoLaboral" class="text-dark font-weight-bold">Puesto:</label>
+                        <input type="text" id="cargoLaboral" list="list_puestos" class="form-control input-cobefar" autocomplete="off" />
+                        <datalist id="list_puestos"></datalist>
+                    </div>
+                </div>
+
+                <div class="row justify-content-center overflow-auto">
+                    <div class="col-3 py-3">
+                        <input type="hidden" id="idNumeroCorporativo" />
+                        <label for="nroCorporativoLaboral" class="text-dark font-weight-bold">N° Corporativo:</label>
+                        <input type="text" id="nroCorporativoLaboral" list="list_numCorporativos" class="form-control input-cobefar" autocomplete="off" />
+                        <datalist id="list_numCorporativos">
+                            @if (ViewBag.NumCorporativos != null)
+                            {
+                                foreach (var item in ViewBag.NumCorporativos)
+                                {
+                                    <option data-idNumero="@item.IdNumero" value="@item.NumeroCorporativo"></option>
+                                }
+                            }
+                        </datalist>
+                    </div>
+
+                    <div class="col-3 py-3">
+                        <label for="anexoCorporativoLaboral" class="text-dark font-weight-bold">Anexo Corporativo:</label>
+                        <input id="anexoCorporativoLaboral" type="text" class="form-control input-cobefar" autocomplete="off" />
+                    </div>
+
+                    <div class="col-6 py-3">
+                        <label for="correoLaboral" class="text-dark font-weight-bold">Correo electrónico:</label>
+                        <input id="correoLaboral" type="text" class="form-control input-cobefar" autocomplete="off" />
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <div class="row">
+                    <div id="div_botonesAccion" class="col text-right"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL SEDES -->
+<div class="modal fade" id="modalAdmSedes" tabindex="1" aria-labelledby="_ModalAdmSedes" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header text-white bg-headerModals">
+                <h5 class="modal-title" id="_ModalAdmSedes">Administrar SEDES</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" class="text-white">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="row justify-content-center overflow-auto">
+                    <div class="col py-3">
+                        <label for="nombreSede" class="text-dark font-weight-bold">Nombre de la SEDE:</label>
+                        <input id="nombreSede" type="text" class="form-control input-cobefar" autocomplete="off" />
+                    </div>
+
+                    <div class="col py-3">
+                        <span class="text-dark font-weight-bold">Ubigeo:</span>
+                        <div class="d-flex align-items-center">
+                            <input type="text" id="idUbigeo" class="form-control input-cobefar w-50" readonly />
+                            <button class="btn btn-warning" onclick="mostrarUbigeos('si')"><i class="icon-search"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col">
+                        <button type="button" id="btn_agregarSede" class="btn btn-success"><i class="icon-plus"></i> Agregar</button>
+                    </div>
+                </div>
+
+                <div class="row justify-content-center overflow-auto bg-dark pt-4">
+                    <div id="div_listaSedes" class="col-12 table-responsive" data-url="@Url.Action("ListarSedes")"></div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- MODAL CARGOS -->
+<div class="modal fade" id="modalAdmCargos" tabindex="1" aria-labelledby="_ModalAdmCargos" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header text-white bg-headerModals">
+                <h5 class="modal-title" id="_ModalAdmCargos">Administrar CARGOS</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" class="text-white">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="row overflow-auto mb-4">
+                    <div class="col-8 py-3">
+                        <label for="nombreCargo" class="text-dark font-weight-bold">Nombre del CARGO:</label>
+                        <div class="d-flex">
+                            <input id="nombreCargo" type="text" class="form-control input-cobefar mr-3" autocomplete="off" />
+                            <button type="button" id="btn_agregarCargo" class="btn btn-success"><i class="icon-plus"></i> Agregar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row justify-content-center overflow-auto bg-dark pt-4">
+                    <div id="div_listaCargos" class="col-12 table-responsive" data-url="@Url.Action("ListarCargos")"></div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- MODAL ÁREAS -->
+<div class="modal fade" id="modalAdmAreas" tabindex="1" aria-labelledby="_ModalAdmAreas" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header text-white bg-headerModals">
+                <h5 class="modal-title" id="_ModalAdmAreas">Administrar ÁREAS</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" class="text-white">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body py-0">
+                <div class="row overflow-auto">
+                    <div class="col-12 py-3 bg-dark">
+                        <span class="text-center text-white font-weight-bold font-18">Origen de datos: SAP</span>
+                    </div>
+                </div>
+
+                @if (false)
+                {
+                    <div class="row mb-4">
+                        <div class="col">
+                            <button type="button" id="btn_agregarArea" class="btn btn-success"><i class="icon-plus"></i> Agregar</button>
+                        </div>
+                    </div>
+                }
+
+                <div class="row justify-content-center overflow-auto bg-dark pt-4">
+                    <div id="div_listaAreas" class="col-12 table-responsive" data-url="@Url.Action("ListarAreas")"></div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DEPARTAMENTOS -->
+<div class="modal fade" id="modalAdmDepartamentos" tabindex="1" aria-labelledby="_ModalAdmDptos" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header text-white bg-headerModals">
+                <h5 class="modal-title" id="_ModalAdmDptos">Administrar DEPARTAMENTOS</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" class="text-white">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body py-0">
+                <div class="row overflow-auto">
+                    <div class="col-12 py-3 bg-dark">
+                        <span class="text-center text-white font-weight-bold font-18">Origen de datos: SAP</span>
+                    </div>
+                </div>
+
+                @if (false)
+                {
+                    <div class="row mb-4">
+                        <div class="col">
+                            <button type="button" id="btn_agregarDpto" class="btn btn-success"><i class="icon-plus"></i> Agregar</button>
+                        </div>
+                    </div>
+                }
+
+                <div class="row justify-content-center overflow-auto bg-dark pt-4">
+                    <div id="div_listaDepartamentos" class="col-12 table-responsive" data-url="@Url.Action("ListarDepartamentos")"></div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- MODAL NUMEROS CORPORATIVOS -->
+<div class="modal fade" id="modalAdmNumCorporativos" tabindex="1" aria-labelledby="_ModalAdmNumCorporativos" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header text-white bg-headerModals">
+                <h5 class="modal-title" id="_ModalAdmNumCorporativos">Administrar NÚMEROS CORPORATIVOS</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" class="text-white">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="row overflow-auto">
+                    <div class="col-12 py-3">
+                        <button type="button" id="btn_exportarExcel" class="btn btn-success" data-tipo="num-corporativos"><i class="icon-file-excel"></i> Exportar Lista</button>
+                    </div>
+                </div>
+
+                <div class="row overflow-auto">
+                    <div class="col-lg-3 col-xl-3 py-3 d-flex align-items-center justify-content-end">
+                        <label for="numeroCorporativo" class="text-dark font-weight-bold col-form-label p-0 m-0 flex-grow-1">Número corporativo:</label>
+                    </div>
+
+                    <div class="col-lg-4 col-xl-4 py-3 d-flex align-items-center">
+                        <input id="numeroCorporativo" type="text" class="form-control input-cobefar text-center mr-3" autocomplete="off" />
+                    </div>
+
+                    <div class="col-lg-5 col-xl-5 py-3 d-flex justify-content-end align-items-end">
+                        <div id="div_numAsignados" class="rounded rounded-5 bg-success text-white px-2 font-weight-bold font-18  p-1 px-3 mx-1">0</div>
+                        <div id="div_numNoAsignados" class="rounded rounded-5 bg-danger text-white px-2 font-weight-bold font-18  p-1 px-3 mx-1">0</div>
+                    </div>
+                </div>
+
+                <div class="row overflow-auto">
+                    <div class="col-lg-3 col-xl-3 py-3 d-flex align-items-center justify-content-end">
+                        <label for="operadorNumero" class="text-dark font-weight-bold col-form-label p-0 m-0 flex-grow-1">Operador:</label>
+                    </div>
+
+                    <div class="col-lg-3 col-xl-3 py-3 d-flex align-items-center">
+                        <select id="operadorNumero" class="form-control">
+                            <option value="">SELECCIONAR</option>
+                            <option value="Bitel">Bitel</option>
+                            <option value="Claro">Claro</option>
+                            <option value="Entel">Entel</option>
+                            <option value="Movistar">Movistar</option>
+                        </select>
+                    </div>
+
+                    <div class="col-lg-3 col-xl-3 py-3 d-flex align-items-center">
+                        <button type="button" id="btn_agregarNumero" class="btn btn-warning"><i class="icon-plus"></i> Agregar</button>
+                    </div>
+                </div>
+
+
+                <div class="row justify-content-center overflow-auto bg-dark pt-4">
+                    <div id="div_listaNumCorporativos" class="col-12 table-responsive" data-url="@Url.Action("ListarNumerosCorporativos")"></div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- MODAL UBIGEOS -->
+<div class="modal fade" id="modalUbigeos" tabindex="1" aria-labelledby="_ModalUbigeos" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header text-white bg-headerModals">
+                <h5 class="modal-title font-weight-bold" id="_ModalUbigeos">Ubigeos</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" class="text-white">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body py-0">
+                <div class="row justify-content-center overflow-auto bg-dark pt-4">
+                    <div id="div_listaUbigeos" class="col-12 table-responsive"></div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn bg-cobefar-3 text-white" data-dismiss="modal"><i class="icon-cross"></i> Cerrar</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- FILTROS -->
+<div class="modal fade" id="modalBusquedaFiltros" tabindex="1" aria-labelledby="_ModalBusquedaFiltros" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header text-white bg-headerModals">
+                <h5 class="modal-title" id="_ModalBusquedaFiltros">Búsqueda con filtros</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" class="text-white">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="row overflow-auto mb-2">
+                    <div class="col py-3">
+                        <label for="filtro_nombresApellidos" class="text-dark font-weight-bold">Nombres y Apellidos:</label>
+                        <input id="filtro_nombresApellidos" type="text" class="form-control input-cobefar mr-3" autocomplete="off" />
+                    </div>
+
+                    <div class="col py-3 @if (vistaExterna) { Write("d-none"); }">
+                        <label for="filtro_nroDocumento" class="text-dark font-weight-bold">DNI:</label>
+                        <input id="filtro_nroDocumento" type="text" class="form-control input-cobefar mr-3" autocomplete="off" />
+                    </div>
+                </div>
+
+                <div class="row overflow-auto mb-2">
+                    <div class="col py-3">
+                        <label for="filtro_dpto" class="text-dark font-weight-bold">Departamento:</label>
+                        <select id="filtro_dpto" class="cls-select">
+                            <option value="">SELECCIONAR</option>
+                            @if (ViewBag.Departamentos != null)
+                            {
+                                foreach (var dpto in ViewBag.Departamentos)
+                                {
+                                    <option value="@dpto.IdDepartamento">@dpto.Nombre</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col py-3">
+                        <label for="filtro_area" class="text-dark font-weight-bold">Área:</label>
+                        <select id="filtro_area" class="cls-select">
+                            <option value="">SELECCIONAR</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row overflow-auto mb-2">
+                    <div class="col-6 py-3 @if (vistaExterna) { Write("d-none"); }">
+                        <label for="filtro_cargo" class="text-dark font-weight-bold">Puesto:</label>
+                        <select id="filtro_cargo" class="cls-select">
+                            <option value="">SELECCIONAR</option>
+                        </select>
+                    </div>
+
+                    <div class="col-6 py-3">
+                        <label for="filtro_sede" class="text-dark font-weight-bold">Sede:</label>
+                        <select id="filtro_sede" class="cls-select">
+                            <option value="">SELECCIONAR</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" id="btn_limpiarFiltrosBusqueda" class="btn btn-outline-primary"><i class="icon-magic-wand"></i> Limpiar Filtros</button>
+                    <button type="button" id="btn_filtrarEmpleado" class="btn btn-primary"><i class="icon-filter"></i> Filtrar</button>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@if (vistaExterna == false)
+{
+    @section Scripts{
+        <script src="~/Scripts/RecursosHumanos/Index.js"></script>
+        <script>
+        function mostrarUbigeos(seleccionar, id = 0) {
+            if (id > 0) {
+                $('#div_listaUbigeos').load(`@Url.Action("ListarUbigeos")?Ubigeo=${id}&mostrarseleccionar=${seleccionar}`).fadeIn("fast");
+            } else {
+                $('#div_listaUbigeos').load(`@Url.Action("ListarUbigeos")?mostrarseleccionar=${seleccionar}`).fadeIn("fast");
+            }
+            $('#modalUbigeos').modal('show');
+        }
+
+        function cargarUbigeo(idUbigeo) {
+            document.getElementById("idUbigeo").value = idUbigeo;
+            $('#modalUbigeos').modal('hide');
+        }
+
+        document.getElementById("btn_agregar").addEventListener("click", function () {
+            $('#modalAdministracion').modal('show');
+        });
+
+            var mostarMasInfo = true;
+            let divsBloqueados = [];
+
+            document.addEventListener("DOMContentLoaded", function () {
+                if (modoAdm) {
+                    divsBloqueados = ["div_RegistrarEmpleado", "div_admSedes", "div_admDepartamentos", "div_admAreas", "div_admCargos"];
+                } else {
+                    divsBloqueados = ["div_admNumCorporativos"];
+                }
+
+                divsBloqueados.forEach(function (id) {
+                    document.getElementById(id).style.pointerEvents = 'none';
+                    document.getElementById(id).style.backgroundColor = '#e9ecef';
+                });
+            })
+        </script>
+        <script src="~/Scripts/RecursosHumanos/ModuloEmpleado.js"></script>
+        <script src="~/Scripts/RecursosHumanos/ModuloSedes.js"></script>
+        <script src="~/Scripts/RecursosHumanos/ModuloDepartamentos.js"></script>
+        <script src="~/Scripts/RecursosHumanos/ModuloNumerosCorporativos.js"></script>
+        <script src="~/Scripts/RecursosHumanos/ModuloAreas.js"></script>
+        <script src="~/Scripts/RecursosHumanos/ModuloCargos.js"></script>
+    }
+}
+else
+{
+    @section Scripts{
+        <script>
+            var currentTimestamp = new Date().getTime();
+        </script>
+        <script src="~/Scripts/RecursosHumanos/Index.js?rand=" + currentTimestamp defer></script>
+        <script>
+            var mostarMasInfo = false;
+        </script>
+        <script src="~/Scripts/RecursosHumanos/ModuloEmpleado.js?rand=" + currentTimestamp defer></script>
+
+
+    }
+}

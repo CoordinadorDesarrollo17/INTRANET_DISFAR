@@ -88,7 +88,6 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
             // Obtenemos el NroSAP con el método "BuscarNroSAP", este método está preparado para recibir @DocNum o @DocEntry
             List<RTV2_E> listaRTV2 = rtv2D.BuscarNroSAPDeTicket("DocNum", DocNumTicket);
 
-            //Para que la busqueda funcione de forma correcta se debe considerar siempre que las ordenes de venta en el detalle del ticket sean vigentes.
             foreach (RTV2_E d in listaRTV2)
             {
                 string query = "SELECT " +
@@ -179,7 +178,6 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
 
             return lista;
         }
-
         public List<SAT1_ComprobanteFin> buscarComprobanteFin(string DocFact = "")
         {
             List<SAT1_ComprobanteFin> result = new List<SAT1_ComprobanteFin>();
