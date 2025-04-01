@@ -91,11 +91,11 @@
         <div class="container-footer bg-dark pt-4">
             <div class="copyright mb-2">
                 <span class="text-cobefar-2">CONTACTO:</span>
-                coordinador.ti@cobefar.com.pe 
+                coordinador.ti@cobefar.com.pe
                 <span class="text-cobefar-2">|</span>
-                soporte.ti@cobefar.com.pe 
+                soporte.ti@cobefar.com.pe
                 <span class="text-cobefar-2">|</span>
-                coordinador.desarrollo@cobefar.com.pe 
+                coordinador.desarrollo@cobefar.com.pe
                 <span class="text-cobefar-2">|</span>
                 soporte.desarrollo@cobefar.com.pe
             </div>            © Todos los derechos reservados - <span class="text-cobefar-2">COBEFAR S.A.C </span>
@@ -120,18 +120,18 @@
             document.head.appendChild(link);
         })();
 
-         function buscarUsuarioLogueado() {
-             var parametros;
-             $.ajax('/Index/BuscarUsuarioLogueado', {
-                 data: parametros,
-                 dataType: 'html',
-                 cache: false,
-                 type: 'post',
-             })
-                 .done(function (response) {
-                     document.getElementById('usuarioLogueado').innerHTML = response;
-                 });
-         }
+        function buscarUsuarioLogueado() {
+            var parametros;
+            $.ajax('/Index/BuscarUsuarioLogueado', {
+                data: parametros,
+                dataType: 'html',
+                cache: false,
+                type: 'post',
+            })
+                .done(function (response) {
+                    document.getElementById('usuarioLogueado').innerHTML = response;
+                });
+        }
         function deshabilitarRetroceso() {
             window.location.hash = "no-back-button";
             window.location.hash = "Again-No-back-button" //chrome
@@ -162,7 +162,7 @@
     <script async>
         // Si existe el elemento en DOM
         $(document).ready(function () {
-            $('[data-toggle="tooltip"]').tooltip();   
+            $('[data-toggle="tooltip"]').tooltip();
 
             if (document.getElementsByClassName("cls-dataTable").length > 0) {
                 $('.cls-dataTable').DataTable({
@@ -339,6 +339,34 @@
                     document.getElementById(outputElementId).value = selectedOption.dataset[dataAttribute];
                 }
             });
+        }
+
+        function inicializarDataTable(idTable, itemsPorPagina) {
+            const items = Number(itemsPorPagina)
+
+            if ($.fn.DataTable.isDataTable(`#${idTable}`)) {
+                $(`#${idTable}`).DataTable().clear().destroy();
+            }
+
+            let table = $(`#${idTable}`).DataTable({
+                order: [],  // Desactiva ordenamiento automatico.
+                ordering: false, // Iconos para ordenar todas las columnas de la tabla.
+                responsive: true,        // Mantiene la tabla responsiva si es necesario
+                "pageLength": items,
+                "lengthMenu": [items, items * 2, items * 3, items * 4, items * 5],
+                "language": {
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                    "infoEmpty": "No hay registros disponibles",
+                    "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                    "lengthMenu": "Mostrar _MENU_ registros por página",
+                    "search": "Buscar:",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "zeroRecords": "No se encontraron registros"
+                }
+            });
+
+            table.columns.adjust().draw();
         }
     </script>
 

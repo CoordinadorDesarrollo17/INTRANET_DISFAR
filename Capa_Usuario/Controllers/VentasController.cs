@@ -15,7 +15,7 @@ using Capa_Negocio.Operaciones_NEG.TablasSql;
 using Capa_Negocio.Rutas_NEG.TablasSql;
 using Capa_Negocio.Seguridad_NEG;
 using Capa_Negocio.Seguridad_NEG.TablasSql;
-using Capa_Negocio.SocioNegocios_NEG.Tablas;
+using Capa_Negocio.SocioNegocios_NEG.TablasExternas;
 using Capa_Negocio.Ventas_NEG.Tablas;
 using Capa_Negocio.Ventas_NEG.TablasSql;
 using Capa_Usuario.Helpers;
@@ -42,6 +42,8 @@ namespace Capa_Usuario.Controllers
         OLDS_N _libroDeSaldoN = new OLDS_N();
         CC_ORTV_N ccORTV_N = new CC_ORTV_N();
         UBICACIONES_N ubicacionesN = new UBICACIONES_N();
+        private readonly OUSR_OPE_N _usuarioOperacionN = new OUSR_OPE_N();
+
         /************************* C O N F I G U R A C I Ó N *************************/
         private ActionResult VerificarPermiso(int idOperation)
         {
@@ -163,7 +165,7 @@ namespace Capa_Usuario.Controllers
                 Usuario_E user = (Usuario_E)Session["UsuarioId"];
                 ViewBag.Mensaje = "";
                 ViewBag.ProveedoresConContactos = oN.listarSociosConContactos();
-                ViewBag.Ubigeos = ubigN.Listar();
+                ViewBag.Ubigeos = ubigN.Listar(null);
                 ViewBag.Oficinas = ofiN.Listar();
                 ViewBag.Agencias = couN.Listar();
                 ViewBag.Usuario = $"{user.Prefijo}{user.Id}";
@@ -208,7 +210,7 @@ namespace Capa_Usuario.Controllers
                     ViewBag.Mensaje = e.Message;
                     ViewBag.ProveedoresConContactos = oN.listarSociosConContactos();
                     ViewBag.Agencias = couN.Listar();
-                    ViewBag.Ubigeos = ubigN.Listar();
+                    ViewBag.Ubigeos = ubigN.Listar(null);
                     ViewBag.Oficinas = ofiN.Listar();
                     ViewBag.Usuario = $"{user.Prefijo}{user.Id}";
                     return View(ticket);
@@ -238,7 +240,7 @@ namespace Capa_Usuario.Controllers
                     }
                 }
                 ViewBag.ClienteRegalo = oclrN.buscarClienteRegalo(t.CardCode);
-                ViewBag.Ubigeos = ubigN.Listar();
+                ViewBag.Ubigeos = ubigN.Listar(null);
                 ViewBag.Oficinas = ofiN.Listar();
                 ViewBag.Agencias = couN.Listar();
                 ViewBag.IdRol = user.IdRol;
@@ -272,7 +274,7 @@ namespace Capa_Usuario.Controllers
                     OUR1_N ofiN = new OUR1_N(); COUR_N couN = new COUR_N();
                     ViewBag.ProveedoresConContactos = oN.listarSociosConContactos();
                     ViewBag.Mensaje = e.Message;
-                    ViewBag.Ubigeos = ubigN.Listar();
+                    ViewBag.Ubigeos = ubigN.Listar(null);
                     ViewBag.Oficinas = ofiN.Listar(); ViewBag.Agencias = couN.Listar();
                     ViewBag.ClienteRegalo = oclrN.buscarClienteRegalo(t.CardCode);
                     ViewBag.Usuario = $"{user.Prefijo}{user.Id}";
@@ -478,7 +480,7 @@ namespace Capa_Usuario.Controllers
                     Usuario_E usu = (Usuario_E)Session["UsuarioId"];
                     string Operario = $"{usu.Nombres} {usu.Apellidos}";
                     int DocNum = ortvN.Cancelar(DocEntry, Operario, usu.IdRol);
-                    return RedirectToAction(vista, new { DocNum = DocNum });
+                    return RedirectToAction(vista, new { DocNum});
                 }
                 catch (Exception e)
                 {
@@ -1437,6 +1439,7 @@ namespace Capa_Usuario.Controllers
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 Usuario_E user = (Usuario_E)Session["UsuarioId"];
+                ViewBag.PermisoCancelarTicket = (_usuarioOperacionN.VerificarAccesoOperacion(new OUSR_OPE_E { UsrDocEntry = user.DocEntry, OpeID = 518 })) > 0;     // Cancelar Ticket
                 ViewBag.RolSupervisor = user.IdRol;
                 ViewBag.AlmUsuario = user.WhsCode;
                 ViewBag.DocNum = DocNum;
@@ -2417,7 +2420,7 @@ namespace Capa_Usuario.Controllers
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 ViewBag.Almacenes = new Capa_Negocio.General_NEG.TablasSql.OWHS_N().listarAlmacenes();
-                ViewBag.Clientes = new Capa_Negocio.SocioNegocios_NEG.Tablas.OCRD_N().listarSociosDeNegocios(new OCRD_E { CardType = "C" });
+                ViewBag.Clientes = new Capa_Negocio.SocioNegocios_NEG.TablasExternas.OCRD_N().listarSociosDeNegocios(new OCRD_E { CardType = "C" });
                 ViewBag.Operarios = new Capa_Negocio.Seguridad_NEG.Usuario_N().ListaUsuarios(null);
                 return View();
             }
@@ -2465,7 +2468,7 @@ namespace Capa_Usuario.Controllers
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 ViewBag.Almacenes = new Capa_Negocio.General_NEG.TablasSql.OWHS_N().listarAlmacenes();
-                ViewBag.Clientes = new Capa_Negocio.SocioNegocios_NEG.Tablas.OCRD_N().listarSociosDeNegocios(new OCRD_E { CardType = "C" });
+                ViewBag.Clientes = new Capa_Negocio.SocioNegocios_NEG.TablasExternas.OCRD_N().listarSociosDeNegocios(new OCRD_E { CardType = "C" });
                 ViewBag.Operarios = new Capa_Negocio.Seguridad_NEG.Usuario_N().ListaUsuarios(null);
                 return View();
             }
@@ -3006,7 +3009,7 @@ namespace Capa_Usuario.Controllers
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                Capa_Negocio.SocioNegocios_NEG.Tablas.OCRD_N ocrdN = new Capa_Negocio.SocioNegocios_NEG.Tablas.OCRD_N();
+                Capa_Negocio.SocioNegocios_NEG.TablasExternas.OCRD_N ocrdN = new Capa_Negocio.SocioNegocios_NEG.TablasExternas.OCRD_N();
                 ViewBag.Clientes = ocrdN.listarSociosDeNegocios(new OCRD_E { CardType = "C" });
                 return View();
             }
@@ -3134,7 +3137,7 @@ namespace Capa_Usuario.Controllers
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 Capa_Negocio.Almacen_NEG.Tablas.OITM_N oitmN = new Capa_Negocio.Almacen_NEG.Tablas.OITM_N();
-                Capa_Negocio.SocioNegocios_NEG.Tablas.OCRD_N ocrdN = new Capa_Negocio.SocioNegocios_NEG.Tablas.OCRD_N();
+                Capa_Negocio.SocioNegocios_NEG.TablasExternas.OCRD_N ocrdN = new Capa_Negocio.SocioNegocios_NEG.TablasExternas.OCRD_N();
                 ViewBag.Clientes = ocrdN.listarSociosDeNegocios(new OCRD_E { CardType = "C" });
                 ViewBag.ListaProductos = oitmN.Listar(null);
                 return View();
@@ -3222,13 +3225,12 @@ namespace Capa_Usuario.Controllers
         }
         public ActionResult GenerarPDF(int DocEntry)
         {
-            //verificacionAccesos(0);
             return RedirectToAction("PdfTicketVenta", new { DocEntry = DocEntry });
         }
         /***************** Formulario de ticket de venta *****************/
         public JsonResult infoContactosVentasSocio(string CardCode)
         {
-            Capa_Negocio.SocioNegocios_NEG.Tablas.OCPR_N oN = new Capa_Negocio.SocioNegocios_NEG.Tablas.OCPR_N();
+            Capa_Negocio.SocioNegocios_NEG.TablasExternas.OCPR_N oN = new Capa_Negocio.SocioNegocios_NEG.TablasExternas.OCPR_N();
             return Json(oN.listarContactosVentasSocio(CardCode));
         }
         public ActionResult infoListaClientes(string Fecha)
@@ -3683,7 +3685,7 @@ namespace Capa_Usuario.Controllers
                 UBIG_N ubigN = new UBIG_N(); OUR1_N ofiN = new OUR1_N(); COUR_N couN = new COUR_N();
                 ViewBag.Mensaje = "";
                 ORTV_E t = _ticketN.ObtenerDatosCompletosTicket(DocEntry);
-                ViewBag.Ubigeos = ubigN.Listar();
+                ViewBag.Ubigeos = ubigN.Listar(null);
                 ViewBag.Oficinas = ofiN.Listar();
                 ViewBag.Agencias = couN.Listar();
                 if (t.Estado.Equals("SEPARADO")) { return RedirectToAction("CreaTicketVenta", new { DocEntry = t.DocEntry }); }
@@ -3712,7 +3714,7 @@ namespace Capa_Usuario.Controllers
                 {
                     UBIG_N ubigN = new UBIG_N(); OUR1_N ofiN = new OUR1_N(); COUR_N couN = new COUR_N();
                     ViewBag.Mensaje = e.Message;
-                    ViewBag.Ubigeos = ubigN.Listar();
+                    ViewBag.Ubigeos = ubigN.Listar(null);
                     ViewBag.Oficinas = ofiN.Listar();
                     ViewBag.Agencias = couN.Listar();
                     return View(t);

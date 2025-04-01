@@ -72,7 +72,7 @@ namespace Capa_Negocio.AtencionCliente_NEG.TablasSql
         }
         public string obtenerNroSolicitud(string Tipo)
         {
-            return osatD.obtenerNroSolicitud(Tipo);
+            return osatD.ObtenerNroSolicitud(Tipo);
         }
         public OSAT_E BuscarDatosTicket(int DocNumTicket)
         {

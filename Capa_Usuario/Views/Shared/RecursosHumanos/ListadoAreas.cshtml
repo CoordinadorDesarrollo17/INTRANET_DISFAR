@@ -1,0 +1,45 @@
+﻿<table id="tbl_listaArea" class="table table-light table-hover" width="100%">
+    <thead class="thead-dark">
+        <tr>
+            <th class="text-center">#</th>
+            <th class="text-center">ÁREA</th>
+            <th class="text-center" style="width: 120px">ESTADO</th>
+            @if (false)
+            {
+                <th class="text-center" style="width: 50px">ELIMINAR</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null)
+        {
+            int num = 1;
+            foreach (var m in Model)
+            {
+                <tr>
+                    <td class="text-center">@num</td>
+                    <td>@m.Nombre</td>
+                    <td class="text-center">@m.DescripcionEstado</td>
+                    @if (false)
+                    {
+                        <td class="text-center">
+                            <select class="form-control border-success" onchange="cambiarEstadoArea('@m.IdArea', this.value)">
+                                <option value="1" @if (m.Estado == "1") { Write("selected"); }>ACTIVO</option>
+                                <option value="0" @if (m.Estado == "0") { Write("selected"); }>INACTIVO</option>
+                            </select>
+                        </td>
+                        <td class="text-center"><button type="button" class="btn btn-sm btn-danger" data-idarea="@m.IdArea" data-nombre="@m.Nombre" onclick="eliminarArea(this)"><i class="icon-bin2"></i></button></td>
+                    }
+                </tr>
+                ++num;
+            }
+        }
+    </tbody>
+</table>
+
+<script>
+    var table_area = $('#tbl_listaArea').DataTable({
+        pageLength: 10,                 /* PARA INICIALIZAR LA PAGINACIÓN */
+        lengthMenu: [10, 20, 30],   /* RANGO PAGINACIÓN */
+    });
+</script>

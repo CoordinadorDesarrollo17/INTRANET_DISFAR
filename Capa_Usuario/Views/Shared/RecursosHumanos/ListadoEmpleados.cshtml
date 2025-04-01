@@ -1,0 +1,149 @@
+﻿<style>
+    .font-size-14 {
+        font-size: 14px;
+    }
+
+    .font-size-12 {
+        font-size: 12px;
+    }
+
+    .font-size-10 {
+        font-size: 10px;
+    }
+</style>
+@if (Model != null)
+{
+    int contador = 0;
+    bool rrhh = ViewBag.IdRol == 56;
+
+    // Comenzar la primera fila
+    <div class="row justify-content-center mb-4">
+        @foreach (var item in Model)
+        {
+            // Determinar el estado del fondo
+            string bgEstado = item.Estado == "1" ? "text-cobefar" : "text-danger";
+
+            // Crear una nueva fila si el contador es múltiplo de 4 y no es 0 (esto asegura que empiece una nueva fila después de la primera)
+            if (contador % 4 == 0 && contador > 0)
+            {
+                @Html.Raw("</div><div class=\"row justify-content-center mb-4\">"); // Cerrar la fila anterior y comenzar una nueva fila
+            }
+
+            // Determinar el número de empleado a mostrar
+            string numeroEmpleado = (item.DatosLaborales.IdNumeroCorporativo > 0) ? item.DatosLaborales.NumeroCorporativo : item.Celular ?? string.Empty;
+
+            // Renderizar la columna
+            <div class="col-sm-12 col-md-6 col-lg-3 col-xl-3 px-3cols my-2">
+                <div class="border-radius-20 bg-cardCobefar p-4">
+                    <div class="row d-flex align-items-center">
+                        @*<div class="col-3 justify-content-center">
+                                <div class="text-center"><img src="~/Content/img/icono-user.png" class="img-responsive" alt="Usuario" style="max-width: 70px;" loading="lazy" /></div>
+                                <div class="font-weight-bold @bgEstado text-center mt-2">@item.DescripcionEstado</div>
+                            </div>*@
+                        <div class="col-12 position-relative">
+                            <div class="position-absolute-cobefar">
+                                @if (!string.IsNullOrWhiteSpace(item.MostrarNotificacionCambio) && item.MostrarNotificacionCambio == "SI")
+                                {<i class="icon-loop font-16 text-danger"></i>}
+                            </div>
+                            <div class="font-weight-bold font-size-20 text-cobefar text-desbordes mb-3">@item.NombresApellidos</div>
+                            <div class="div-nombreDpto font-size-14">@item.DatosLaborales.NombreDepartamento</div>
+                            <div class="div-nombreArea font-size-10" style="display: none">@item.DatosLaborales.NombreArea</div>
+                            <div class="font-size-12">@if (!string.IsNullOrWhiteSpace(item.DatosLaborales.NombreCargo)) { Write(item.DatosLaborales.NombreCargo); } else if (rrhh) { Write(Html.Raw("<span class=\"text-danger\">Por definir</span>")); } else { Write(Html.Raw("<span>&nbsp;</span>")); }</div>
+                            <div class="text-desbordes font-size-12 text-primary"><i class="icon-mail2"></i> @if (!string.IsNullOrWhiteSpace(item.DatosLaborales.CorreoCorporativo)) { Write(item.DatosLaborales.CorreoCorporativo); } else { Write(Html.Raw("-")); }</div>
+                            <div class="font-size-12"><i class="icon-phone"></i> @if (!string.IsNullOrWhiteSpace(numeroEmpleado)) { Write(numeroEmpleado); } else { Write(Html.Raw("-")); }</div>
+                            <div class="font-size-12"><span class="font-weight-bold">Anexo: </span>@if (!string.IsNullOrWhiteSpace(item.DatosLaborales.AnexoCorporativo)) { Write(item.DatosLaborales.AnexoCorporativo); } else { Write(Html.Raw("-")); }</div>
+
+                            <div class="row d-flex">
+                                <div class="col-6 font-weight-bold font-size-14 @bgEstado">@item.DescripcionEstado</div>
+                                <div class="col-6 font-weight-bold text-right div_masInfo">
+                                    <button type="button" id="btn-masInfo_@item.IdOEMPL" class="btn btn-sm btn-outline-primary btn-masInfo" data-idempleado="@item.IdOEMPL"><i class="icon-arrow-right2"></i> Más info</button>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            // Incrementar el contador
+            contador++;
+        }
+
+        @Html.Raw("</div>")
+    </div>
+}
+
+
+<script>
+    (function () {
+        // Recalcular la páginación, para esto necesitamos obtener la cantidad de empleados correspondientes al filtro escogido
+        if (urlExportarExcel.includes('?')) {
+            let query = urlExportarExcel.split('?')[1];
+            let parametrosQuery = query.split('&');     // Dividir la cadena de consulta en pares clave-valor
+            //let idDepartamento = null;
+
+            // Iterar sobre los pares clave-valor para encontrar el valor de DatosLaborales.IdDepartamento
+            parametrosQuery.forEach(param => {
+                const [key, value] = param.split('=');
+                if (key === 'DatosLaborales.IdDepartamento') {
+                    idDepartamento = value;
+                }
+            });
+
+            // Si se activó el filtro left-sidebar departamentos
+           // if (idDepartamento > 0) {
+                cantidadEmpleados = '@ViewBag.CantidadEmpleados';
+                totalPaginas = Math.ceil(cantidadEmpleados / porPagina);
+
+            generarBotonesPaginacion();
+
+                document.querySelectorAll(".div-nombreDpto").forEach(function (elemento) {
+                    elemento.style.display = "none";
+                });
+
+                document.querySelectorAll(".div-nombreArea").forEach(function (element) {
+                    element.style.display = "block";
+                });
+           // }
+        }
+
+        document.querySelectorAll(".div_masInfo").forEach(function (element) {
+            element.style.display = mostarMasInfo ? "block" : "none";
+        });
+
+        let mensaje = `@ViewBag.Mensaje`;
+        if (mensaje != "") {
+            Swal.fire(mensaje);
+            document.getElementById("div_pagination").classList.add("d-none");
+        } else {
+            document.getElementById("div_pagination").classList.remove("d-none");
+        }
+
+        let masInfo = document.querySelectorAll(".btn-masInfo");
+        const modoAdm = '@ViewBag.IdRol' == "57";       // Administración
+        const camposAdm = ["nroDocEmpleado", "celularEmpleado", "estadoEmpleado", "nombresEmpleado", "apellidosEmpleado", "anexoCorporativoLaboral", "correoLaboral", "cargoLaboral"];
+        const selectsAdm = ["estadoEmpleado", "condicionLaboral","dptoLaboral", "areaLaboral", "sedeLaboral"];
+
+        let camposBloqueados = modoAdm ? camposAdm : ["nroCorporativoLaboral"];
+        let selectsBloqueados = modoAdm ? selectsAdm : [];
+        let camposPermitidos = modoAdm ? ["nroCorporativoLaboral"] : [];
+
+        masInfo.forEach(function (btn) {
+            btn.addEventListener("click", function () {
+                let configEditEmpleado = {
+                    botonAccion: `<button id="btn_editarEmpleado" type="button" class="btn btn-success"><i class="icon-clipboard"></i> Guardar</button>`,
+                    tituloModal: 'Editar EMPLEADO',
+                    camposPermitidos,
+                    camposBloqueados,
+                    selectsBloqueados,
+                    btnBuscarDNI: "none",
+                    divEstadoEmpleado: "block"
+                };
+
+                abrirModalEmpleado(configEditEmpleado);
+                obtenerDatosEmpleado(this.dataset.idempleado);
+            });
+        });
+    })();
+</script>

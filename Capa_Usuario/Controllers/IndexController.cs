@@ -43,6 +43,15 @@ namespace Capa_Usuario.Controllers
                 return RedirectToAction("Sesion");
             }
         }
+        public ActionResult BuscarUsuarioLogueado()
+        {
+            Usuario_E user = (Usuario_E)Session["UsuarioId"];
+            if (user != null)
+            {
+                return Content($"{user.Nombres} {user.Apellidos}");
+            }
+            else { return null; }
+        }
         public ActionResult Login()
         {
             return View();
@@ -97,15 +106,6 @@ namespace Capa_Usuario.Controllers
         public ActionResult statusBD()
         {
             return Content(bd_N.statusBD()); ;
-        }
-        public ActionResult BuscarUsuarioLogueado()
-        {
-            Usuario_E user = (Usuario_E)Session["UsuarioId"];
-            if (user != null)
-            {
-                return Content($"{user.Nombres} {user.Apellidos}");
-            }
-            else { return null; }
         }
         ///******************************** M Ó D U L O   A L M A C É N ********************************/
         public ActionResult ALM_Devoluciones(int idOperation = 100)
@@ -182,6 +182,12 @@ namespace Capa_Usuario.Controllers
             return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "Index", controllerDestino = "Caja", usuario = (Usuario_E)Session["UsuarioId"] });
         }
         ///****************************************************************************************/
+        /*********************************** M Ó D U L O   R E C U R S O S   H U M A N O S ***********************************/
+        public ActionResult RRHH_AdministracionRRHH(int idOperation = 4000)
+        {
+            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "Index", controllerDestino = "RecursosHumanos", usuario = (Usuario_E)Session["UsuarioId"] });
+        }
+        /********************************************************************************************************/
         public ActionResult CP_ResumenRebate(int idOperation = 1400)
         {
             return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "ResumenRebate", controllerDestino = "Compras", usuario = (Usuario_E)Session["UsuarioId"] });
