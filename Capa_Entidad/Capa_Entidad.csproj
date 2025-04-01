@@ -133,6 +133,7 @@
     <Compile Include="General_ENT\TablasSql\COUR_E.cs" />
     <Compile Include="General_ENT\TablasSql\DNLAB_E.cs" />
     <Compile Include="General_ENT\TablasSql\Firmas_E.cs" />
+    <Compile Include="General_ENT\TablasSql\MenuSistema_E.cs" />
     <Compile Include="General_ENT\TablasSql\OAGE_E.cs" />
     <Compile Include="General_ENT\TablasSql\OCHO_E.cs" />
     <Compile Include="General_ENT\TablasSql\OUR1_E.cs" />

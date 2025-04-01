@@ -345,9 +345,55 @@ a {
 /******************************/
 /* Botones */
 .btn-cobefar {
-    background-color: #26653D;
-    color: white;
+    color: #fff; /* Texto blanco */
+    background-color: #26653D; /* Color de fondo */
+    border-color: #26653D; /* Color del borde */
 }
+
+    .btn-cobefar:hover {
+        color: #fff; /* Texto blanco */
+        background-color: #1f5432; /* Color de fondo más oscuro al pasar el cursor */
+        border-color: #1f5432; /* Color del borde más oscuro al pasar el cursor */
+    }
+
+    .btn-cobefar:focus,
+    .btn-cobefar.focus {
+        color: #fff;
+        background-color: #1f5432;
+        border-color: #1f5432;
+        box-shadow: 0 0 0 0.25rem rgba(38, 101, 61, 0.5); /* Sombra para enfoque */
+    }
+
+    .btn-cobefar:disabled,
+    .btn-cobefar.disabled {
+        color: #fff;
+        background-color: #26653D;
+        border-color: #26653D;
+        opacity: 0.65; /* Reducir opacidad para indicar desactivado */
+    }
+
+
+.btn-cobefar-2 {
+    color: #fff; /* Color del texto */
+    background-color: #156993; /* Color de fondo personalizado */
+    border-color: #156993; /* Color del borde */
+}
+
+    .btn-cobefar-2:hover {
+        color: #fff;
+        background-color: #13587a; /* Un tono más oscuro para el efecto hover */
+        border-color: #13587a;
+    }
+
+    .btn-cobefar-2:focus, .btn-cobefar-2.focus {
+        box-shadow: 0 0 0 0.25rem rgba(21, 105, 147, 0.5); /* Sombra al enfocar */
+    }
+
+    .btn-cobefar-2:disabled, .btn-cobefar-2.disabled {
+        background-color: #156993;
+        border-color: #156993;
+        opacity: 0.65; /* Opacidad para desactivar */
+    }
 
 .text-naranja, .text-naranja:hover {
     color: orangered;

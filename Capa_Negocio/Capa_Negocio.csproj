@@ -116,6 +116,7 @@
     <Compile Include="General_NEG\TablasSql\COUR_N.cs" />
     <Compile Include="General_NEG\TablasSql\DNLAB_N.cs" />
     <Compile Include="General_NEG\TablasSql\Firmas_N.cs" />
+    <Compile Include="General_NEG\TablasSql\MenuSistema_N.cs" />
     <Compile Include="General_NEG\TablasSql\OAGE_N.cs" />
     <Compile Include="General_NEG\TablasSql\OCHO_N.cs" />
     <Compile Include="General_NEG\TablasSql\OUR1_N.cs" />

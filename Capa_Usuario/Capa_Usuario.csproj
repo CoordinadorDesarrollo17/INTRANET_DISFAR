@@ -1010,6 +1010,8 @@
     <Content Include="Views\Shared\AbastecimientoInterno\_ListadoArticulosSalidaporAlmacen.cshtml" />
     <Content Include="Views\AbastecimientoInterno\StockPicking.cshtml" />
     <Content Include="Views\Shared\AbastecimientoInterno\_ListadoStockPicking.cshtml" />
+    <Content Include="Views\Shared\_MenuSistemaItem.cshtml" />
+    <Content Include="Views\Shared\_MenuSistemaItemMobile.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
