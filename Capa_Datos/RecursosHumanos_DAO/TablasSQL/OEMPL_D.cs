@@ -289,6 +289,12 @@ namespace Capa_Datos.RecursosHumanos_DAO
                     sb.Append(" WHERE 1 = 1");
                     if (filtros != null)
                     {
+                        
+                        if (filtros.IdOEMPL>0)
+                        {
+                            sb.Append(" AND EMP.IdOEMPL = @IdOEMPL");
+                            cmd.Parameters.AddWithValue("@IdOEMPL", filtros.IdOEMPL);
+                        }
                         if (!string.IsNullOrWhiteSpace(filtros.NombresApellidos))
                         {
                             sb.Append(" AND CONCAT(EMP.Nombres, ' ', EMP.Apellidos) LIKE @NombresApellidos");
