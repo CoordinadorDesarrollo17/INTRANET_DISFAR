@@ -160,7 +160,7 @@
         {
             <tr>
                 <th colspan="12" style="text-align:right">
-                    Total Cajas Almacen Nro 8: @Model.DetRRU0.Where(x => x.Estado != "LIBERADO" && x.Estado != "ANULADO" &&
+                    Total Cajas Almacen: @Model.DetRRU0.Where(x => x.Estado != "LIBERADO" && x.Estado != "ANULADO" &&
 x.Ticket.Det2.FirstOrDefault(s => s.Monto > 0 && s.AlmacenSalida != "07").AlmacenSalida.Equals("16")).Sum(x => x.Cajas)
                 </th>
             </tr>

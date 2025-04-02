@@ -3,7 +3,6 @@
     Layout = null;
     int num = 1;
     Dictionary<string, List<Rpt_TempHumed_E>> listaGeneral = new Dictionary<string, List<Rpt_TempHumed_E>>();
-
     List<Rpt_TempHumed_E> lista1 = new List<Rpt_TempHumed_E>();
     List<Rpt_TempHumed_E> lista2 = new List<Rpt_TempHumed_E>();
     List<Rpt_TempHumed_E> lista3 = new List<Rpt_TempHumed_E>();
@@ -20,7 +19,6 @@
     List<Rpt_TempHumed_E> lista14 = new List<Rpt_TempHumed_E>();
     List<Rpt_TempHumed_E> lista15 = new List<Rpt_TempHumed_E>();
     List<Rpt_TempHumed_E> lista16 = new List<Rpt_TempHumed_E>();
-
     if (Model != null && Model.Count >= 1)
     {
         foreach (var m in Model)
@@ -89,10 +87,8 @@
             {
                 lista16.Add(m);
             }
-
             ++num;
         }
-
         listaGeneral.Add("lista1", lista1);
         listaGeneral.Add("lista2", lista2);
         listaGeneral.Add("lista3", lista3);
@@ -111,43 +107,38 @@
         listaGeneral.Add("lista16", lista16);
     }
 }
-
 <link href="~/Content/css/bootstrap.css" rel="stylesheet" type="text/css" />
 <style>
     .table-bordered {
         border: 2px solid black !important;
     }
-
         .table-bordered th, .table-bordered td {
             border: 2px solid black !important;
         }
-
     .border {
         border: 2px solid black !important;
     }
-
     .container {
         font-family: Arial;
     }
-
     .cls-contenido {
-        margin-top: 50px;
+        margin-top: 10px;
     }
-
     @@media print {
         .container {
             max-width: 100%;
         }
-
         .cls-footer {
             position: fixed;
             bottom: 0px;
             padding-left: 0px;
             padding-right: 0px;
         }
+        #cabecera {
+            background-color: #C6E0B4;
+        }
     }
 </style>
-
 <div class="container">
     @if (listaGeneral != null && listaGeneral.Count >= 1)
     {
@@ -161,57 +152,56 @@
                             <td colspan="2"><img width="200" src="~/imagenes/logoventa2.jpg" /></td>
                             <td></td>
                             <td></td>
-                            <td colspan="2" align="right"><span class="font-weight-bold" style="font-size: 20px">REG-027-03</span></td>
+                            <td colspan="2" align="right"><span class="font-weight-bold" style="font-size: 20px">F/DBT-005<br /> VERSION 1@*REG-027-03*@</span></td>
                         </tr>
                         <tr>
-                            <td width="540" class="text-center font-weight-bold" colspan="6" style="font-size: 20px">CONTROL DE TEMPERATURA Y HUMEDAD (TRANSPORTE)</td>
+                            <td width="540" class="text-center font-weight-bold" colspan="6" style="font-size: 20px">REGISTRO DE TEMPERATURA DE TRANSPORTE</td>
                         </tr>
                     </table>
-
-                    <div class="row" style="margin-top: 50px">
-                        <div class="col-5">
-                            <table border="0" style="font-size: 16px">
-                                <tr>
-                                    <td class="font-weight-bold">PLACA:</td>
-                                    <td style="border-bottom: dotted 2px; padding-left: 20px; padding-right: 20px ">@ViewBag.Placa</td>
-                                    <td></td>
-                                </tr>
-                            </table>
+                    <div>
+                        <!-- Primer div -->
+                        <div class="col-12 d-flex justify-content-between" style="font-size: 14px;">
+                            <div class="d-flex">
+                                <span class="font-weight-bold">MES:</span>
+                                <span style="border-bottom: dotted 2px; padding-left: 10px;">@ViewBag.Mes</span>
+                            </div>
+                            <div class="d-flex">
+                                <span class="font-weight-bold">PLACA:</span>
+                                <span style="border-bottom: dotted 2px; padding-left: 10px;">@ViewBag.Placa</span>
+                            </div>
                         </div>
-                        <div class="col-5">
-                            <table border="0" style="font-size: 16px">
-                                <tr>
-                                    <td class="font-weight-bold">SERIE:</td>
-                                    <td style="border-bottom: dotted 2px; padding-left: 20px; padding-right: 20px ">
-                                        @if (Model != null && Model.Count >= 1)
-                                        {
-                                            Write(Model[0].Serie);
-                                        }
-                                    </td>
-                                    <td></td>
-                                </tr>
-                            </table>
+                        <!-- Segundo div -->
+                        <div class="col-12 d-flex justify-content-between" style="font-size: 14px; margin-top: 10px;">
+                            <div class="d-flex">
+                                <span class="font-weight-bold">AÑO:</span>
+                                <span style="border-bottom: dotted 2px; padding-left: 10px;">@ViewBag.Anio</span>
+                            </div>
+                            <div class="d-flex">
+                                <span class="font-weight-bold">CÓDIGO DL-T:</span>
+                                <span style="border-bottom: dotted 2px; padding-left: 10px;">
+                                    @if (Model != null && Model.Count >= 1)
+                                    {
+                                        Write(Model[0].Serie);
+                                    }
+                                </span>
+                            </div>
                         </div>
-                        <div class="col-2"></div>
                     </div>
                 </div>
-
                 <div class="row cls-contenido">
                     <div class="col-12">
                         <table class="table-bordered" width="100%" style="font-size: 14px">
-                            <thead>
+                            <thead id="cabecera">
                                 <tr>
-                                    <td class="font-weight-bold text-center">Fecha</td>
+                                    <td class="font-weight-bold text-center">FECHA</td>
                                     <td class="font-weight-bold text-center">N° DE<br />DOCUMENTO</td>
                                     <td class="font-weight-bold text-center">N° DE TICKET<br />O GUÍA</td>
-                                    <td class="font-weight-bold text-center">Hora Salida</td>
+                                    <td class="font-weight-bold text-center">HORA DE SALIDA <br /> DEL ALMACÉN</td>
+                                    <td class="font-weight-bold text-center">T° <br />(15-25°C)</td>
+                                    <td class="font-weight-bold text-center">HORA DE LLEGADA<br />AL DESTINO</td>
                                     <td class="font-weight-bold text-center">T°<br />(15-25°C)</td>
-                                    <td class="font-weight-bold text-center">Humedad<br />(50-80%)</td>
-                                    <td class="font-weight-bold text-center">Hora<br />Llegada</td>
-                                    <td class="font-weight-bold text-center">T°<br />(15-25°C)</td>
-                                    <td class="font-weight-bold text-center">Humedad<br />(50-80%)</td>
-                                    <td class="font-weight-bold text-center">Encargado</td>
-                                    <td class="font-weight-bold text-center">V° B</td>
+                                    <td class="font-weight-bold text-center">ENTREGADO POR:</td>
+                                    <td class="font-weight-bold text-center">V°B</td>
                                 </tr>
                             </thead>
                             <tbody>
@@ -225,27 +215,22 @@
                                             <td class="text-center" style="vertical-align: top;">@datos2.Codigo</td>
                                             <td class="text-center" style="vertical-align: top;">@datos2.HoraSalida</td>
                                             <td class="text-center" style="vertical-align: top;">@datos2.TempI.ToString("N1") °C</td>
-                                            <td class="text-center" style="vertical-align: top;">@datos2.HumedI  %</td>
                                             <td class="text-center" style="vertical-align: top;">@datos2.HoraLlegada</td>
                                             <td class="text-center" style="vertical-align: top;">@datos2.TempF.ToString("N1") °C</td>
-                                            <td class="text-center" style="vertical-align: top;">@datos2.HumedF  %</td>
                                             <td class="text-center" style="vertical-align: top;">@datos2.Encargado</td>
                                             <td class="text-center">
-                                                @if (datos2.TempI >= 15 && datos2.TempI <= 25 && datos2.HumedI >= 50 && datos2.HumedI <= 80 && datos2.TempF >= 15 && datos2.TempF <= 25 && datos2.HumedF >= 50 && datos2.HumedF <= 80)
-                                                {
+                                                @*@if (datos2.TempI >= 15 && datos2.TempI <= 25 && datos2.HumedI >= 55 && datos2.HumedI <65 && datos2.TempF >= 15 && datos2.TempF <= 25 && datos2.HumedF >= 55 && datos2.HumedF < 65)
+                                                {*@
                                                     <img src="~/Content/img/checkAzul.png" width="40" />
-                                                }
+                                                @*}*@
                                             </td>
                                         </tr>
                                     }
                                 }
-
                             </tbody>
-
                         </table>
                     </div>
                 </div>
-
                 <div class="cls-footer w-100">
                     <div class="row mt-4 justify-content-center ">
                         <div class="col-12">
@@ -255,7 +240,6 @@
                                     <td width="90%" style="border-bottom: dotted 2px;"></td>
                                 </tr>
                             </table>
-
                             <table width="100%">
                                 <tr>
                                     <td height="30" style="border-bottom: dotted 2px;"></td>
@@ -266,7 +250,6 @@
                             </table>
                         </div>
                     </div>
-
                     <div class="row justify-content-center " style="margin-top: 50px">
                         <div class="col-10">
                             <table>
@@ -277,14 +260,14 @@
                                     </td>
                                     <td class="" width="300"></td>
                                     <td class="border text-center" width="300" height="100">
-                                        @if (ViewBag.FirmaDT != null)
-                                        {<img src="@ViewBag.FirmaDT" width="150" />}
+                                        @if (ViewBag.FirmaQF != null)
+                                        {<img src="@ViewBag.FirmaQF" width="150" />}
                                     </td>
                                 </tr>
                                 <tr>
                                     <td class="border text-center font-weight-bold">TRANSPORTISTA</td>
                                     <td>&nbsp;</td>
-                                    <td class="border text-center font-weight-bold">DIRECTOR TÉCNICO</td>
+                                    <td class="border text-center font-weight-bold">QUÍMICO FARMACÉUTICO RESPONSABLE</td>
                                 </tr>
                             </table>
                         </div>

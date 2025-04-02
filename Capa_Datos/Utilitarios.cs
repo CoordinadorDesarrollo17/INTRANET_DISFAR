@@ -34,11 +34,15 @@ namespace Capa_Datos
             this.directorioFileServer = Environment.GetEnvironmentVariable("DIRECTORIO_FILESERVER", EnvironmentVariableTarget.Machine) ?? @"E:\COBEFARWEBFILES\";
             this.directorioLogs = Environment.GetEnvironmentVariable("DIRECTORIO_LOGS", EnvironmentVariableTarget.Machine) ?? @"E:\COBEFARWEBLOGS\";
 
-            // Configuration
-            this.cadHana = Environment.GetEnvironmentVariable("CNX_HANA", EnvironmentVariableTarget.Machine);
-            this.schemaHana = "\"BASE_01_02_2025\".";
+            // HANA Database Configuration
+            this.cadHana = "Server=172.16.55.36:30015;UserName=B1ADMIN;Password=Passw0rd;";
             //this.schemaHana = "\"BASE_04_11_2024\".";
-            this.cadHanaOnPremise = Environment.GetEnvironmentVariable("CNX_HANA_ON_PREMISE", EnvironmentVariableTarget.Machine);
+            this.schemaHana = "\"B1H_COBEFAR_2018\".";
+
+            //Hana On Premise 
+            this.cadHanaOnPremise = "Server=192.168.1.37:30015;UserName=B1ADMIN;Password=Passw0rd;";
+            //Hana On Premise 
+            this.cadHanaOnPremise = "Server=192.168.1.37:30015;UserName=B1ADMIN;Password=Passw0rd;";
             this.schemaHanaOnPremise = "\"B1H_COBEFAR_2018\".";
             this.BDsql = Environment.GetEnvironmentVariable("BD_PROYECTO_INTRANET", EnvironmentVariableTarget.Machine);
             this.cadSql = Environment.GetEnvironmentVariable("PROYECTO_INTRANET", EnvironmentVariableTarget.Machine);

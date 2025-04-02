@@ -57,7 +57,7 @@
                     <datalist id="listaEmpleados">
                         @foreach (var empl in ViewBag.Empleados)
                         {
-                            <option value="@empl.NombresApellidos" data-idempleado="@empl.Id" data-idsede="@((empl.DatosLaborales != null) ? empl.DatosLaborales.SedeID.ToString() : "")"></option>
+                            <option value="@empl.NombresApellidos" data-idempleado="@empl.IdOEMPL" data-idsede="@((empl.DatosLaborales != null) ? empl.DatosLaborales.IdSede.ToString() : "")"></option>
                         }
                     </datalist>
                 </div>

@@ -144,10 +144,6 @@ function agregarItem(docEntry, docNum, cardName, guias, cajas, obs, direcciones,
         // Incrementar el contador de detalle
         contDet++;
 
-        // Verificar si es edición y recargar la página
-        //if (esEdicion) {
-        //    window.location.reload();
-        //}
         return true;
     }
 }
@@ -195,7 +191,6 @@ function borrarLineaTabla(dom) {
             });
             calcularTotalCajas();
 
-            //Swal.fire('Eliminado', 'El item ha sido eliminado correctamente.', 'success');
         }
     });
 }

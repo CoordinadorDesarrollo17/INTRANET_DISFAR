@@ -110,8 +110,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
         {
             RRU1_E rru1E = buscarRRU1(o.DocEntry, o.Linea);
             if (rru1E.Estado != "PREENVIO") { throw new Exception("La linea " + o.Linea + " no esta en preenvio"); }
-            string query = "update al.rru1 set Estado='ENVIADO',TempI1=@TempI1,TempI2=@TempI2,HumedI1=@HumedI1,HumedI2=@HumedI2" +
-                " where DocEntry=@DocEntry and Linea=@Linea";
+            string query = "update al.rru1 set Estado='ENVIADO', TempI1=@TempI1, TempI2=@TempI2 WHERE DocEntry=@DocEntry AND Linea=@Linea";
             try
             {
                 SqlCommand cmd = new SqlCommand(query, cn, tran);
@@ -120,16 +119,14 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                 cmd.Parameters.AddWithValue("@Linea", o.Linea);
                 cmd.Parameters.AddWithValue("@TempI1", o.TempI1);
                 cmd.Parameters.AddWithValue("@TempI2", o.TempI2);
-                cmd.Parameters.AddWithValue("@HumedI1", o.HumedI1);
-                cmd.Parameters.AddWithValue("@HumedI2", o.HumedI2);
                 cmd.ExecuteNonQuery();
             }
             catch (Exception e) { tran.Rollback(); cn.Close(); throw new Exception(e.Message); }
         }
         public void entregarRRU1(RRU1_E o)
         {
-            string query = "update al.rru1 set Estado='ENTREGADO',TempF1=@TempF1,HumedF1=@HumedF1,TempF2=@TempF2" +
-                ",HumedF2=@HumedF2,OpEntrega=@OpEntrega,FechaEntrega=(select convert(char(10),getdate(),126))," +
+            string query = "update al.rru1 set Estado='ENTREGADO',TempF1=@TempF1,TempF2=@TempF2" +
+                ",OpEntrega=@OpEntrega,FechaEntrega=(select convert(char(10),getdate(),126))," +
                 "HoraEntrega=(select convert(char(5),getdate(),108))" +
                 " where DocEntry=@DocEntry and Linea=@Linea";
             SqlConnection cn = new SqlConnection(uti.cadSql);
@@ -144,9 +141,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                     cmd.Parameters.AddWithValue("@DocEntry", o.DocEntry);
                     cmd.Parameters.AddWithValue("@Linea", o.Linea);
                     cmd.Parameters.AddWithValue("@TempF1", o.TempF1);
-                    cmd.Parameters.AddWithValue("@HumedF1", o.HumedF1);
                     cmd.Parameters.AddWithValue("@TempF2", o.TempF2);
-                    cmd.Parameters.AddWithValue("@HumedF2", o.HumedF2);
                     cmd.Parameters.AddWithValue("@OpEntrega", o.OpEntrega);
                     cmd.ExecuteNonQuery();
                     if (o.Archivo != null)

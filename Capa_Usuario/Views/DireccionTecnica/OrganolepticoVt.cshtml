@@ -3,49 +3,52 @@
 @{
     Layout = null;
 }
+
+<style>
+    .conBorde td {
+        border: 1px solid;
+    }
+</style>
+
 @foreach (var item in Model)
 {
     <div style='page-break-after:always;'>
         <table border=0 style="font-size:12px;">
             <tr>
-                <td colspan=2><img width="120" height="50" src="~/imagenes/logoventa2.jpg" /></td>
+                <td><img width="120" height="50" src="~/imagenes/logoventa2.jpg" /></td>
                 <td></td>
-                <td></td>
-                <td colspan=2 align=right><strong>REG-010-02</strong></td>
+                <td width="200">
+                    <table width="100%">
+                        <tr class="conBorde">
+                            <td width="100" style="text-align: center;"><strong>F/DT-002</strong></td>
+                            <td style="text-align:center;" width="30"><strong>V1</strong></td>
+                        </tr>
+                    </table>
+                </td>
             </tr>
             <tr>
-                <td></td>
-                <td width=540px align='center' colspan="4"><strong>FORMATO DE VERIFICACION DE RECEPCION Y EVALUACION ORGANOLEPTICA</strong></td>
-                <td></td>
+                <td colspan="3" width="540" align='center'><strong>VERIFICACIÓN DE RECEPCIÓN Y EVALUACIÓN ORGANOLÉPTICA</strong></td>
             </tr>
             <tr>
-                <td colspan="6" height="30"></td>
+                <td colspan="3" height="30"></td>
             </tr>
             <tr>
-                <td colspan="2"><strong>GUIA N° :</strong>@item.NroGuia</td>
+                <td><strong>GUIA N° :</strong>@item.NroGuia</td>
                 <td></td>
-                <td></td>
-                <td align=right><strong>FECHA :</strong>@item.FechaContab</td>
-                <td></td>
+                <td align=right><strong>FECHA :</strong> @item.FechaContab</td>
             </tr>
             <tr>
-                <td colspan=6><strong>NOMBRE DEL PRODUCTO : </strong>@item.Nombre &nbsp;@item.Concentracion &nbsp;@item.FormaFarmaceutica&nbsp;@item.FormaPresentacion</td>
+                <td colspan="3"><strong>NOMBRE DEL PRODUCTO : </strong>@item.Nombre &nbsp;@item.Concentracion &nbsp;@item.FormaFarmaceutica&nbsp;@item.FormaPresentacion</td>
             </tr>
             <tr>
-                <td><strong>PROCEDENCIA : </strong></td>
-                <td>ALMACEN @item.TaxOfficeAlmacen</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
+                <td colspan="3"><strong>PROCEDENCIA : </strong> ALMACEN @item.TaxOfficeAlmacen</td>
             </tr>
             <tr>
-                <td colspan=6 height=30px></td>
+                <td colspan="3" height="30"></td>
             </tr>
         </table>
 
         <table border=0 style="font-size:12px;">
-
             <tr>
                 <td align=center width=300px height=20px style='border:1px solid black; background:#BFB6B4;'>DESCRICION GENERAL</td>
                 <td width=20px style='border:1px solid black; background:#BFB6B4;'>SI</td>
@@ -210,7 +213,7 @@
                 <td colspan="2">NINGUNA</td>
             </tr>
             <tr>
-                <td colspan="4" height="50"></td>
+                <td colspan="4" height="25"></td>
             </tr>
             <tr>
                 <td align="center" style="border-bottom: solid 1px">
@@ -232,6 +235,15 @@
                 <td></td>
                 <td></td>
                 <td></td>
+            </tr>
+            <tr>
+                <td colspan="4">
+                    <table width="50%" style="margin: auto; padding-top: 20px">
+                        <tr>
+                            <td style="color: black; border: solid 1px; border-color: gray; font-size: 11px;text-align: center">Prohibido reproducir sin autorización de DROGUERÍA COBEFAR</td>
+                        </tr>
+                    </table>
+                </td>
             </tr>
         </table>
     </div>

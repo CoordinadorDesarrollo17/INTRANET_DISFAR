@@ -10,7 +10,7 @@ using System.Data;
 using Capa_Entidad.Almacen_ENT.Tablas;
 using Capa_Entidad.SocioNegocios_ENT.Tablas;
 using Capa_Datos.Almacen_DAO.Tablas;
-using Capa_Datos.SocioNegocios_DAO.Tablas;
+using Capa_Datos.SocioNegocios_DAO.TablasExternas;
 
 namespace Capa_Datos.Compras_DAO
 {

@@ -148,9 +148,16 @@
     <Compile Include="Helper_E.cs" />
     <Compile Include="Operaciones_ENT\TablasSql\OTEP_E.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RecursosHumanos_ENT\Auditorias\AUD_ONUM_E.cs" />
+    <Compile Include="RecursosHumanos_ENT\Reportes\RptEmpleados_E.cs" />
+    <Compile Include="RecursosHumanos_ENT\Reportes\RptNumerosCorporativos_E.cs" />
     <Compile Include="RecursosHumanos_ENT\TablasSQL\CARGO_E.cs" />
     <Compile Include="RecursosHumanos_ENT\TablasSQL\EMPL1_E.cs" />
+    <Compile Include="RecursosHumanos_ENT\TablasSQL\HIST_OEMPL_E.cs" />
+    <Compile Include="RecursosHumanos_ENT\TablasSQL\OAREA_E.cs" />
+    <Compile Include="RecursosHumanos_ENT\TablasSQL\ODPTO_E.cs" />
     <Compile Include="RecursosHumanos_ENT\TablasSQL\OEMPL_E.cs" />
+    <Compile Include="RecursosHumanos_ENT\TablasSQL\ONUM_E.cs" />
     <Compile Include="RecursosHumanos_ENT\TablasSQL\SEDE_E.cs" />
     <Compile Include="Repartos_ENT\TablasHana\SYP_CONDUC_E.cs" />
     <Compile Include="Repartos_ENT\TablasHana\SYP_VEHICU_E.cs" />

@@ -68,6 +68,7 @@
     <Reference Include="System.IO.Packaging, Version=4.0.5.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.IO.Packaging.4.7.0\lib\net46\System.IO.Packaging.dll</HintPath>
     </Reference>
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
@@ -157,9 +158,16 @@
     <Compile Include="LogHelper.cs" />
     <Compile Include="Operaciones_DAO\TablasSql\OTEP_D.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RecursosHumanos_DAO\Auditorias\AUD_ONUM_D.cs" />
+    <Compile Include="RecursosHumanos_DAO\TablasExternas\OAREA_D.cs" />
+    <Compile Include="RecursosHumanos_DAO\TablasExternas\ODPTO_D.cs" />
     <Compile Include="RecursosHumanos_DAO\TablasSQL\CARGO_D.cs" />
     <Compile Include="RecursosHumanos_DAO\TablasSQL\EMPL1_D.cs" />
+    <Compile Include="RecursosHumanos_DAO\TablasSQL\HIST_OEMPL_D.cs" />
+    <Compile Include="RecursosHumanos_DAO\TablasSQL\OAREA_D.cs" />
+    <Compile Include="RecursosHumanos_DAO\TablasSQL\ODPTO_D.cs" />
     <Compile Include="RecursosHumanos_DAO\TablasSQL\OEMPL_D.cs" />
+    <Compile Include="RecursosHumanos_DAO\TablasSQL\ONUM_D.cs" />
     <Compile Include="RecursosHumanos_DAO\TablasSQL\SEDE_D.cs" />
     <Compile Include="Repartos_DAO\TablasHana\SYP_CONDUC_D.cs" />
     <Compile Include="Repartos_DAO\TablasHana\SYP_VEHICU_D.cs" />
@@ -177,9 +185,9 @@
     <Compile Include="Seguridad_DAO\TablasSql\ROL_OPE_D.cs" />
     <Compile Include="Seguridad_DAO\TablasSql\USR2_D.cs" />
     <Compile Include="SocioNegocios_DAO\TablasSql\OCRD_D.cs" />
-    <Compile Include="SocioNegocios_DAO\Tablas\CRD1_D.cs" />
-    <Compile Include="SocioNegocios_DAO\Tablas\OCPR_D.cs" />
-    <Compile Include="SocioNegocios_DAO\Tablas\OCRD_D.cs" />
+    <Compile Include="SocioNegocios_DAO\TablasExternas\CRD1_D.cs" />
+    <Compile Include="SocioNegocios_DAO\TablasExternas\OCPR_D.cs" />
+    <Compile Include="SocioNegocios_DAO\TablasExternas\OCRD_D.cs" />
     <Compile Include="Seguridad_DAO\Usuario_D.cs" />
     <Compile Include="TI_Sistemas_DAO\OTSO_D.cs" />
     <Compile Include="Utilitarios.cs" />

@@ -230,11 +230,10 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                 if (!dr.IsDBNull(32)) { o.SerieT2 = dr.GetString(32); }
                 dr.Close();
 
-                // RRU0
                 StringBuilder sb = new StringBuilder();
 
                 sb.Append("SELECT R0.DocEntry, R0.Linea, R0.DocEntryTicket, R0.DocNumTicket, R0.Guias, R0.Verificado, R0.Cajas, R0.Observaciones, R0.MontoFinal, R0.Envio, R0.Direcciones,");
-                sb.Append(" R0.Estado, R0.TempI1, R0.HumedI1, R0.TempI2, R0.HumedI2, R0.TempF1, R0.HumedF1, R0.TempF2, R0.HumedF2, R0.OpEntrega, R0.FechaEntrega, R0.HoraEntrega,");
+                sb.Append(" R0.Estado, R0.TempI1, R0.TempI2, R0.TempF1, R0.TempF2, R0.OpEntrega, R0.FechaEntrega, R0.HoraEntrega,");
                 sb.Append(" R0.Socio, VT.TipoVenta, VT.EstadoPago, TC.TipoPago, TC.estado, TC.MontoRecibidoEfectivo, TC.Id, TC.MontoRecibidoDeposito");
                 sb.Append(" FROM al.RRU0 R0");
                 sb.Append(" LEFT JOIN vt.ORTV VT ON VT.DocEntry = R0.DocEntryTicket");
@@ -252,37 +251,33 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                 while (dr2.Read())
                 {
                     RRU0_E d = new RRU0_E();
-                    if (!dr2.IsDBNull(0)) { d.DocEntry = dr2.GetInt32(0); }
-                    if (!dr2.IsDBNull(1)) { d.Linea = dr2.GetInt32(1); }
-                    if (!dr2.IsDBNull(2)) { d.DocEntryTicket = dr2.GetInt32(2); }
-                    if (!dr2.IsDBNull(3)) { d.DocNumTicket = dr2.GetInt32(3); }
-                    if (!dr2.IsDBNull(4)) { d.Guias = dr2.GetString(4); }
-                    if (!dr2.IsDBNull(5)) { d.Verificado = dr2.GetString(5); }
-                    if (!dr2.IsDBNull(6)) { d.Cajas = dr2.GetInt32(6); }
-                    if (!dr2.IsDBNull(7)) { d.Observaciones = dr2.GetString(7); }
-                    if (!dr2.IsDBNull(8)) { d.MontoFinal = dr2.GetDecimal(8); }
-                    if (!dr2.IsDBNull(9)) { d.Envio = dr2.GetDecimal(9); }
-                    if (!dr2.IsDBNull(10)) { d.Direcciones = dr2.GetString(10); }
-                    if (!dr2.IsDBNull(11)) { d.Estado = dr2.GetString(11); }
-                    if (!dr2.IsDBNull(12)) { d.TempI1 = dr2.GetDecimal(12); }
-                    if (!dr2.IsDBNull(13)) { d.HumedI1 = dr2.GetDecimal(13); }
-                    if (!dr2.IsDBNull(14)) { d.TempI2 = dr2.GetDecimal(14); }
-                    if (!dr2.IsDBNull(15)) { d.HumedI2 = dr2.GetDecimal(15); }
-                    if (!dr2.IsDBNull(16)) { d.TempF1 = dr2.GetDecimal(16); }
-                    if (!dr2.IsDBNull(17)) { d.HumedF1 = dr2.GetDecimal(17); }
-                    if (!dr2.IsDBNull(18)) { d.TempF2 = dr2.GetDecimal(18); }
-                    if (!dr2.IsDBNull(19)) { d.HumedF2 = dr2.GetDecimal(19); }
-                    if (!dr2.IsDBNull(20)) { d.OpEntrega = dr2.GetString(20); }
-                    if (!dr2.IsDBNull(21)) { d.FechaEntrega = dr2.GetDateTime(21).ToString("yyyy-MM-dd"); }
-                    if (!dr2.IsDBNull(22)) { d.HoraEntrega = dr2.GetTimeSpan(22).ToString(); }
-                    if (!dr2.IsDBNull(23)) { d.Socio = dr2.GetString(23); }
-                    if (!dr2.IsDBNull(24)) { d.TipoVenta = dr2.GetString(24); }
-                    if (!dr2.IsDBNull(25)) { d.EstadoPago = dr2.GetString(25); }
-                    if (!dr2.IsDBNull(26)) { d.TipoPagoTC = dr2.GetString(26); }
-                    if (!dr2.IsDBNull(27)) { d.EstadoTC = dr2.GetString(27); }
-                    if (!dr2.IsDBNull(28)) { d.MontoRecibidoEfectivo = dr2.GetDecimal(28); }
-                    if (!dr2.IsDBNull(29)) { d.IdOTC = dr2.GetInt32(29); }
-                    if (!dr2.IsDBNull(30)) { d.MontoRecibidoDeposito = dr2.GetDecimal(30); }
+                    if (!dr2.IsDBNull(0)) d.DocEntry = dr2.GetInt32(0);
+                    if (!dr2.IsDBNull(1)) d.Linea = dr2.GetInt32(1);
+                    if (!dr2.IsDBNull(2)) d.DocEntryTicket = dr2.GetInt32(2);
+                    if (!dr2.IsDBNull(3)) d.DocNumTicket = dr2.GetInt32(3);
+                    if (!dr2.IsDBNull(4)) d.Guias = dr2.GetString(4);
+                    if (!dr2.IsDBNull(5)) d.Verificado = dr2.GetString(5);
+                    if (!dr2.IsDBNull(6)) d.Cajas = dr2.GetInt32(6);
+                    if (!dr2.IsDBNull(7)) d.Observaciones = dr2.GetString(7);
+                    if (!dr2.IsDBNull(8)) d.MontoFinal = dr2.GetDecimal(8);
+                    if (!dr2.IsDBNull(9)) d.Envio = dr2.GetDecimal(9);
+                    if (!dr2.IsDBNull(10)) d.Direcciones = dr2.GetString(10);
+                    if (!dr2.IsDBNull(11)) d.Estado = dr2.GetString(11);
+                    if (!dr2.IsDBNull(12)) d.TempI1 = dr2.GetDecimal(12);
+                    if (!dr2.IsDBNull(13)) d.TempI2 = dr2.GetDecimal(13);
+                    if (!dr2.IsDBNull(14)) d.TempF1 = dr2.GetDecimal(14);
+                    if (!dr2.IsDBNull(15)) d.TempF2 = dr2.GetDecimal(15);
+                    if (!dr2.IsDBNull(16)) d.OpEntrega = dr2.GetString(16);
+                    if (!dr2.IsDBNull(17)) d.FechaEntrega = dr2.GetDateTime(17).ToString("yyyy-MM-dd");
+                    if (!dr2.IsDBNull(18)) d.HoraEntrega = dr2.GetTimeSpan(18).ToString();
+                    if (!dr2.IsDBNull(19)) d.Socio = dr2.GetString(19);
+                    if (!dr2.IsDBNull(20)) d.TipoVenta = dr2.GetString(20);
+                    if (!dr2.IsDBNull(21)) d.EstadoPago = dr2.GetString(21);
+                    if (!dr2.IsDBNull(22)) d.TipoPagoTC = dr2.GetString(22);
+                    if (!dr2.IsDBNull(23)) d.EstadoTC = dr2.GetString(23);
+                    if (!dr2.IsDBNull(24)) d.MontoRecibidoEfectivo = dr2.GetDecimal(24);
+                    if (!dr2.IsDBNull(25)) d.IdOTC = dr2.GetInt32(25);
+                    if (!dr2.IsDBNull(26)) d.MontoRecibidoDeposito = dr2.GetDecimal(26);
 
                     ORTV_D ortv = new ORTV_D();
                     d.Ticket = ortv.ObtenerDatosCompletosTicket(d.DocEntryTicket);
@@ -320,31 +315,27 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                 dr20.Close();
 
                 SqlCommand cmd3 = new SqlCommand("select DocEntry,Linea,Guia,NroSap,OpEnvio,Cajas,OpRecepcion,Verificado,Estado,TempI1," +
-                    "HumedI1,TempI2, HumedI2,TempF1,HumedF1,TempF2, HumedF2,OpEntrega,FechaEntrega,HoraEntrega from al.RRU1 where DocEntry=" + DocEntry, cn);
+                    "TempI2,TempF1,TempF2,OpEntrega,FechaEntrega,HoraEntrega from al.RRU1 where DocEntry=" + DocEntry, cn);
                 SqlDataReader dr3 = cmd3.ExecuteReader();
                 while (dr3.Read())
                 {
                     RRU1_E r1 = new RRU1_E(); r1.ListaRRU11 = new List<RRU11_E>();
                     r1.DocEntry = DocEntry;
-                    if (!dr3.IsDBNull(1)) { r1.Linea = dr3.GetInt32(1); }
-                    if (!dr3.IsDBNull(2)) { r1.Guia = dr3.GetString(2); }
-                    if (!dr3.IsDBNull(3)) { r1.NroSap = dr3.GetInt32(3); }
-                    if (!dr3.IsDBNull(4)) { r1.OpEnvio = dr3.GetString(4); }
-                    if (!dr3.IsDBNull(5)) { r1.Cajas = dr3.GetInt32(5); }
-                    if (!dr3.IsDBNull(6)) { r1.OpRecepcion = dr3.GetString(6); }
-                    if (!dr3.IsDBNull(7)) { r1.Verificado = dr3.GetString(7); }
-                    if (!dr3.IsDBNull(8)) { r1.Estado = dr3.GetString(8); }
-                    if (!dr3.IsDBNull(9)) { r1.TempI1 = dr3.GetDecimal(9); }
-                    if (!dr3.IsDBNull(10)) { r1.HumedI1 = dr3.GetDecimal(10); }
-                    if (!dr3.IsDBNull(11)) { r1.TempI2 = dr3.GetDecimal(11); }
-                    if (!dr3.IsDBNull(12)) { r1.HumedI2 = dr3.GetDecimal(12); }
-                    if (!dr3.IsDBNull(13)) { r1.TempF1 = dr3.GetDecimal(13); }
-                    if (!dr3.IsDBNull(14)) { r1.HumedF1 = dr3.GetDecimal(14); }
-                    if (!dr3.IsDBNull(15)) { r1.TempF2 = dr3.GetDecimal(15); }
-                    if (!dr3.IsDBNull(16)) { r1.HumedF2 = dr3.GetDecimal(16); }
-                    if (!dr3.IsDBNull(17)) { r1.OpEntrega = dr3.GetString(17); }
-                    if (!dr3.IsDBNull(18)) { r1.FechaEntrega = dr3.GetDateTime(18).ToString("yyyy-MM-dd"); }
-                    if (!dr3.IsDBNull(19)) { r1.HoraEntrega = dr3.GetTimeSpan(19).ToString(); }
+                    if (!dr3.IsDBNull(1)) r1.Linea = dr3.GetInt32(1);
+                    if (!dr3.IsDBNull(2)) r1.Guia = dr3.GetString(2);
+                    if (!dr3.IsDBNull(3)) r1.NroSap = dr3.GetInt32(3);
+                    if (!dr3.IsDBNull(4)) r1.OpEnvio = dr3.GetString(4);
+                    if (!dr3.IsDBNull(5)) r1.Cajas = dr3.GetInt32(5);
+                    if (!dr3.IsDBNull(6)) r1.OpRecepcion = dr3.GetString(6);
+                    if (!dr3.IsDBNull(7)) r1.Verificado = dr3.GetString(7);
+                    if (!dr3.IsDBNull(8)) r1.Estado = dr3.GetString(8);
+                    if (!dr3.IsDBNull(9)) r1.TempI1 = dr3.GetDecimal(9);
+                    if (!dr3.IsDBNull(10)) r1.TempI2 = dr3.GetDecimal(10);
+                    if (!dr3.IsDBNull(11)) r1.TempF1 = dr3.GetDecimal(11);
+                    if (!dr3.IsDBNull(12)) r1.TempF2 = dr3.GetDecimal(12);
+                    if (!dr3.IsDBNull(13)) r1.OpEntrega = dr3.GetString(13);
+                    if (!dr3.IsDBNull(14)) r1.FechaEntrega = dr3.GetDateTime(14).ToString("yyyy-MM-dd");
+                    if (!dr3.IsDBNull(15)) r1.HoraEntrega = dr3.GetTimeSpan(15).ToString();
 
                     r1.ListaRRU11 = obtProdRutaLinea(r1.DocEntry, r1.Linea);
                     o.DetRRU1.Add(r1);
@@ -894,7 +885,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                         AND DocEntry = T1.DocEntry 
                   ORDER BY FechaOperacion DESC, HoraOperacion DESC) IN ('{FechaTerEn}') 
                  AND T1.Estado = 'ENTREGADO' 
-                 AND T0.DocEntry = {obj.DocEntry}";
+                 AND T0.DocEntry = {obj.DocEntry} ";
 
 
                     }
@@ -1035,7 +1026,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                 catch { }
             }
 
-            return lista;
+            return lista.OrderBy(x=>x.HoraLlegada).ToList();
         }
         public List<RptPesaje_E> ListarRptPesaje(FiltroRptPesaje datosFiltro)
         {

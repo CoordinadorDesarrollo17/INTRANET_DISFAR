@@ -36,10 +36,8 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
             if (orruE.Estado != "ENVIADO") { throw new Exception("El reparto no esta enviado"); }
             if (rru1E.Estado != "ENVIADO") { throw new Exception("Ya no puedes entregar este item"); }
 
-            if (!(o.TempF1 >= 15 && o.TempF1 <= 25)) { throw new Exception("Temp1 Final no cumple con el rango valido"); }
-            if (!(o.HumedF1 >= 50 && o.HumedF1 <= 80)) { throw new Exception("Humed1 Final no cumple con el rango valido"); }
-            if (!(o.TempF2 >= 15 && o.TempF2 <= 25)) { throw new Exception("Temp2 Final no cumple con el rango valido"); }
-            if (!(o.HumedF2 >= 50 && o.HumedF2 <= 80)) { throw new Exception("Humed2 Final no cumple con el rango valido"); }
+            if (!(o.TempF1 >= 15 && o.TempF1 <= 25)) { throw new Exception("Temp1 final no cumple con el rango valido (mayor o igual a 15 y menor o igual a 25)"); }
+            if (!(o.TempF2 >= 15 && o.TempF2 <= 25)) { throw new Exception("Temp2 final no cumple con el rango valido (mayor o igual a 15 y menor o igual a 25)"); }
 
             if (orruE.TipoRuta == "VG")
             {
