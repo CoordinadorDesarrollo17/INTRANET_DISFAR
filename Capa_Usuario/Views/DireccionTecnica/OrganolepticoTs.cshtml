@@ -7,41 +7,41 @@
 @foreach (var item in Model)
 {
     <div style='page-break-after:always;'>
-        <table border=0 style="font-size:12px;">
+        <table border="0" style="font-size:12px;">
             <tr>
-                <td colspan=2><img width="120" heightt="50" src="~/imagenes/logoventa2.jpg" /></td>
+                <td><img width="120" heightt="50" src="~/imagenes/logoventa2.jpg" /></td>
+                <td width="400"></td>
                 <td></td>
-                <td></td>
-                <td colspan=2 align=right><strong>REG-010-02</strong></td>
+                <td colspan="2">
+                    <table width="100%">
+                        <tr>
+                            <td width="100" style="text-align: center; border: 1px solid"><strong>F/DT-002</strong></td>
+                            <td style="text-align: center; border: 1px solid" width="30"><strong>V1</strong></td>
+                        </tr>
+                    </table>
+                </td>
             </tr>
             <tr>
-                <td></td>
-                <td width=540px align='center' colspan=4><strong>FORMATO DE VERIFICACION DE RECEPCION Y EVALUACION ORGANOLEPTICA</strong></td>
-                <td></td>
+                <td colspan="5" align="center"><strong>VERIFICACIÓN DE RECEPCIÓN Y EVALUACIÓN ORGANOLÉPTICA</strong></td>
             </tr>
             <tr>
-                <td colspan=6 heightt=30px></td>
+                <td colspan="5" height="5"></td>
             </tr>
             <tr>
-                <td colspan=2><strong>GUIA N° : </strong>@item.NroDeGuia</td>
+                <td colspan="2"><strong>GUIA N° : </strong>@item.NroDeGuia</td>
                 <td></td>
                 <td></td>
                 <td align=right><strong>FECHA : </strong>@item.T1_DocDate</td>
-                <td></td>
             </tr>
             <tr>
                 <td colspan=6><strong>NOMBRE DEL PRODUCTO : </strong>@item.T8_FrgnName &nbsp;@item.Concentracion &nbsp;@item.FormaFarmaceutica&nbsp;@item.FormaPresentacion</td>
             </tr>
             <tr>
                 <td><strong>PROCEDENCIA : </strong></td>
-                <td>@item.TaxOfficeAlmacenEnvio</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
+                <td colspan="5">@item.TaxOfficeAlmacenEnvio</td>
             </tr>
             <tr>
-                <td colspan=6 heightt=30px></td>
+                <td colspan=5  height="5"></td>
             </tr>
         </table>
 
@@ -210,7 +210,7 @@
                 <td colspan=2>NINGUNA</td>
             </tr>
             <tr>
-                <td colspan="4" height="50"></td>
+                <td colspan="4" height="15"></td>
             </tr>
             <tr>
                 <td colspan="4" align="center">
@@ -236,8 +236,15 @@
                             <td></td>
                             <td></td>
                         </tr>
-
-
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4">
+                    <table width="50%" style="margin: auto; padding-top: 20px">
+                        <tr>
+                            <td style="color: black; border: solid 1px; border-color: gray; font-size: 11px;text-align: center">Prohibido reproducir sin autorización de DROGUERÍA COBEFAR</td>
+                        </tr>
                     </table>
                 </td>
             </tr>

@@ -14,32 +14,29 @@
 
 <table border=0 style="font-size:12px">
     <tr>
-        <td colspan=2><img width="120" height="50" src="~/imagenes/logoventa2.jpg" /></td>
-        <td></td>
-        <td></td>
-        <td colspan="2" style="text-align:right;"><strong>REG-013-02</strong></td>
+        <td><img width="120" height="50" src="~/imagenes/logoventa2.jpg" /></td>
+        <td colspan="2" width="560"></td>
+        <td colspan="2">
+            <table width="100%">
+                <tr class="conBorde">
+                    <td width="100" style="text-align: center;"><strong>F/ALM-001</strong></td>
+                    <td style="text-align:center;" width="30"><strong>V1</strong></td>
+                </tr>
+            </table>
+        </td>
     </tr>
     <tr>
-        <td></td>
-        <td></td>
-        <td width=750px align='center'><strong>ACTA DE DESPACHO DE PRODUCTOS - COBEFAR S.A.C.</strong></td>
-        <td></td>
-        <td></td>
-        <td></td>
+        <td colspan="5" align="center"><strong>ACTA DE DESPACHO</strong></td>
     </tr>
     <tr>
-        <td width="180px"><strong>FECHA : @m.FechaActa</strong></td>
-        <td></td>
+        <td width="180px"><strong>FECHA : </strong>@m.FechaActa</td>
         <td colspan="4" style="text-align:right" width="100px"><strong>GUIA N° : </strong>@m.NroGuia</td>
     </tr>
     <tr>
-        <td colspan="3">
+        <td colspan="5">
             <strong>ALMACÉN ORIGEN : </strong>@m.TaxOfficeOrigen
             &nbsp;<strong>ALMACÉN DESTINO : </strong>@m.TaxOfficeDestino
         </td>
-        <td></td>
-        <td></td>
-        <td></td>
     </tr>
 </table>
 
@@ -113,27 +110,37 @@
         <td colspan=20></td>
     </tr>
     <tr>
-        <td colspan="22" height="80"></td>
+        <td colspan="22" height="40"></td>
     </tr>
+
+</table>
+
+<table border="0" style="font-size:9px;text-align:center" width="900">
     <tr>
-        <td colspan="4"></td>
-        <td colspan="5" align="center" style="border-bottom: solid 1px">
+        <td width="350"></td>
+        <td align="center" style="border-bottom: solid 1px">
             @if (ViewBag.FirmaResponsable != null)
             {<img src="@ViewBag.FirmaResponsable" width="150" />}
         </td>
-        <td colspan="5" align="center"></td>
-        <td colspan="7"></td>
+        <td width="350"></td>
     </tr>
     <tr>
-        <td colspan="4"></td>
-        <td colspan="5" align="center">RESPONSABLE DE ALMACEN</td>
-        <td colspan="5" align="center"></td>
-        <td colspan="7"></td>
+        <td width="350"></td>
+        <td align="center">RESPONSABLE DE ALMACÉN</td>
+        <td width="350"></td>
     </tr>
     <tr>
-        <td colspan="4"></td>
-        <td colspan="5" align="center">(sello y firma)</td>
-        <td colspan="5" align="center"></td>
-        <td colspan="7"></td>
+        <td width="350"></td>
+        <td align="center">(sello y firma)</td>
+        <td width="350"></td>
+    </tr>
+    <tr>
+        <td colspan="4">
+            <table width="50%" style="margin: auto; padding-top: 20px">
+                <tr>
+                    <td style="color: black; border: solid 1px; border-color: gray; font-size: 11px;text-align: center">Prohibido reproducir sin autorización de DROGUERÍA COBEFAR</td>
+                </tr>
+            </table>
+        </td>
     </tr>
 </table>
