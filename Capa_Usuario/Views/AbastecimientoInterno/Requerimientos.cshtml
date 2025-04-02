@@ -51,7 +51,7 @@
     <nav>
         <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
-            <li><a href="@Url.Action("Sesion", "Index")">Abastecimiento Interno</li>
+            <li><a href="@Url.Action("Sesion", "Index")">Abastecimiento Interno</a></li>
             <li class="current"><em>Requerimientos</em></li>
         </ol>
     </nav>
@@ -371,7 +371,7 @@
                         let key = name.replace("requerimiento.Detalle[].", "").trim()
                         let value = input.value.trim()   // Aseguramos que no tenga espacios en blanco al inicio o fin
 
-                        if (key == 'CodigoUbicacionDestino') {
+                        if (key == 'CodigoUbicacionDestino' && tipoAbastecimiento == 'P') {
                             const tagify = new Tagify(input);
                             const tagsArray = tagify.value;
                             detalleRequerimiento[key] = tagsArray.map(tag => tag.value).join(', ')
@@ -691,19 +691,6 @@
             }
         }
 
-        function reconstruirTabla(tipoAbastecimiento) {
-            let thUbicacionPicking = document.querySelector(".ubicacion-picking")
-            let tdUbicacionPicking = document.querySelectorAll("#tbl_detalleRequerimiento th")[6]
-
-            if (tipoAbastecimiento === "VM" || tipoAbastecimiento === "SA") {
-                if (thUbicacionPicking) thUbicacionPicking.style.display = "none"
-                if (tdUbicacionPicking) tdUbicacionPicking.style.display = "none"
-            } else {
-                if (thUbicacionPicking) thUbicacionPicking.style.display = "table-cell"
-                if (tdUbicacionPicking) tdUbicacionPicking.style.display = "table-cell"
-            }
-        }
-
         function validarTipoAbastecimiento(elemento) {
             const divComentario = document.getElementById("div_comentario")
             const opcion = elemento.options[elemento.selectedIndex]
@@ -711,7 +698,6 @@
 
             document.querySelector('#tbl_detalleRequerimiento tbody').innerHTML = ''
             divComentario.classList.toggle("hidden", tipoAbastecimiento !== "VM")
-            reconstruirTabla(tipoAbastecimiento)
 
             if (["VM", "SA"].includes(tipoAbastecimiento)) {
                 resetValoresVacios(["Comentario"])

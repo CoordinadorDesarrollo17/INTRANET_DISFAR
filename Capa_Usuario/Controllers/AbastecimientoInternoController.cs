@@ -2,7 +2,6 @@ using Capa_Datos;
 using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
 using Capa_Entidad.Almacen_ENT.Tablas;
 using Capa_Entidad.Seguridad_ENT;
-using Capa_Negocio;
 using Capa_Negocio.AbastecimientoInterno_NEG.Reportes;
 using Capa_Negocio.AbastecimientoInterno_NEG.TablasExternas;
 using Capa_Negocio.AbastecimientoInterno_NEG.TablasSql;
@@ -13,14 +12,12 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Transactions;
 using System.Web;
 using System.Web.Mvc;
-using System.Web.Services.Description;
+
 namespace Capa_Usuario.Controllers
 {
     public class AbastecimientoInternoController : Controller
@@ -672,8 +669,8 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-        /************************* S O L I C I T U D   D E   T R A S L A D O *************************/
-        public ActionResult SolicitudesTraslado(int idOperation = 3300)
+        /************************* T R A N S F E R E N C I A S *************************/
+        public ActionResult Transferencias(int idOperation = 3300)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
@@ -2021,7 +2018,7 @@ namespace Capa_Usuario.Controllers
                 });
             }
         }
-        public ActionResult ListarRequerimientosReserva(int idOperation = 3500)
+        public ActionResult ApilarRequerimientos(int idOperation = 3500)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
@@ -2116,7 +2113,7 @@ namespace Capa_Usuario.Controllers
                 return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "Sin accesos." }, Icono = "error" });
             }
         }
-        public ActionResult ListarTransferenciasReserva(int idOperation = 3502)
+        public ActionResult ApilarIngreso(int idOperation = 3502)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
@@ -2240,9 +2237,9 @@ namespace Capa_Usuario.Controllers
                 });
             }
         }
-        /****************************** PICKING ****************************/
+        /**************** R E A B A S T E C I M I E N T O ****************/
         //Listado de detalle solicitudes de traslado Transferido y atendidoReserva=0 
-        public ActionResult ListarRequerimientosPicking(int idOperation = 3600)
+        public ActionResult Reabastecimiento(int idOperation = 3600)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
@@ -2384,7 +2381,7 @@ namespace Capa_Usuario.Controllers
             }
         }
         //Atendido de apiladores (Solo cambia el AtendidoReserva a 1)
-        public ActionResult ListarControlStockInterno(int idOperation = 3700)
+        public ActionResult ControlStockPicking(int idOperation = 3700)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)

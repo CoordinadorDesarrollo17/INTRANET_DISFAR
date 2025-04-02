@@ -1,6 +1,6 @@
 ﻿@using System.Text
 @{
-    ViewBag.Title = "Control Stock Interno - URGENCIA";
+    ViewBag.Title = "Control Stock Picking";
     Layout = "~/Views/Shared/_DefaultLayout.cshtml";
 }
 
@@ -66,14 +66,14 @@
     <nav>
         <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
-            <li><a href="@Url.Action("Sesion", "Index")">Abastecimiento Interno</li>
-            <li class="current"><em>Control Stock Interno</em></li>
+            <li><a href="@Url.Action("Sesion", "Index")">Abastecimiento Interno</a></li>
+            <li class="current"><em>@ViewBag.Title</em></li>
         </ol>
     </nav>
 </div>
 
 <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
-    <div class="row px-3 pt-3"><h3 class="titulo-seccion">CONTROL STOCK PICKING</h3></div>
+    <div class="row px-3 pt-3"><h3 class="titulo-seccion">@ViewBag.Title.ToUpper()</h3></div>
 </div>
 
 <div class="bg-white px-3 py-3 align-items-center">

@@ -1,9 +1,11 @@
 ﻿using Capa_Entidad;
 using Capa_Entidad.Seguridad_ENT;
 using Capa_Negocio;
+using Capa_Negocio.General_NEG.TablasSql;
 using Capa_Negocio.Seguridad_NEG;
 using Capa_Usuario.Helpers;
 using System;
+using System.Linq;
 using System.Net;
 using System.Web.Mvc;
 
@@ -14,6 +16,7 @@ namespace Capa_Usuario.Controllers
         Rol1_N rol1 = new Rol1_N();
         BaseDeDatos_N bd_N = new BaseDeDatos_N();
         Utilitarios_N utiN = new Utilitarios_N();
+        private readonly MenuSistema_N _menuSistema = new MenuSistema_N();
 
         private string ObtenerIPCliente()
         {
@@ -36,11 +39,47 @@ namespace Capa_Usuario.Controllers
             Usuario_E user = (Usuario_E)Session["UsuarioId"];
             if (user != null)
             {
-                ViewBag.AREAS = new Capa_Negocio.Seguridad_NEG.TablasSql.AREA_N().listarAreas();
-                ViewBag.AREASFC = new Capa_Negocio.Seguridad_NEG.TablasSql.REA1_N().listarAreasFc();
-                ViewBag.NOMBRE = $"{user.Nombres} {user.Apellidos}";
-                ViewBag.IDROL = user.IdRol;
-                return View();
+                var result  = _menuSistema.ListarMenuSistema();
+                var menu = result.Item2.Where(m => m.Nivel == 1 && m.SuperiorId == null)
+                    .OrderBy(m => m.Orden)
+                    .ToList();
+
+                foreach (var sm2 in menu)
+                {
+                    var menuN2 = result.Item2
+                        .Where(m => m.Nivel == 2 && m.SuperiorId == sm2.Id)
+                        .OrderBy(m => m.Orden)
+                        .ToList();
+
+                    sm2.SubMenus.AddRange(menuN2);
+
+                    foreach (var sm3 in menuN2)
+                    {
+                        var menuN3 = result.Item2
+                            .Where(m => m.Nivel == 3 && m.SuperiorId == sm3.Id)
+                            .OrderBy(m => m.Orden)
+                            .ToList();
+
+                        sm3.SubMenus.AddRange(menuN3);
+
+                        foreach (var sm4 in menuN3)
+                        {
+                            var menuN4 = result.Item2
+                                .Where(m => m.Nivel == 4 && m.SuperiorId == sm4.Id)
+                                .OrderBy(m => m.Orden)
+                                .ToList();
+
+                            sm4.SubMenus.AddRange(menuN4);
+                        }
+
+                    }
+                }
+
+                ViewBag.Mensaje = result.Item1;
+                ViewBag.NombreUsuario = $"{user.Nombres} {user.Apellidos}";
+                ViewBag.IdRol = user.IdRol;
+
+                return View(menu);
             }
             else
             {
@@ -200,9 +239,9 @@ namespace Capa_Usuario.Controllers
             return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "UbicacionesReserva", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
         }
         
-        public ActionResult AI_SolicitudesTraslado(int idOperation = 3300)
+        public ActionResult AI_Transferencias(int idOperation = 3300)
         {
-            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "SolicitudesTraslado", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
+            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "Transferencias", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
         }
 
         public ActionResult AI_Requerimientos(int idOperation = 3400)
@@ -211,19 +250,19 @@ namespace Capa_Usuario.Controllers
         }
         public ActionResult AI_ApilarRequerimientos(int idOperation = 3500)
         {
-            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "ListarRequerimientosReserva", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
+            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "ApilarRequerimientos", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
         }
-        public ActionResult AI_ApilarTransferencias(int idOperation = 3502)
+        public ActionResult AI_ApilarIngreso(int idOperation = 3502)
         {
-            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "ListarTransferenciasReserva", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
+            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "ApilarIngreso", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
         }
-        public ActionResult AI_Picking(int idOperation = 3600)
+        public ActionResult AI_Reabastecimiento(int idOperation = 3600)
         {
-            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "ListarRequerimientosPicking", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
+            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "Reabastecimiento", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
         }
-        public ActionResult AI_ControlStockInterno(int idOperation = 3700)
+        public ActionResult AI_ControlStockPicking(int idOperation = 3700)
         {
-            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "ListarControlStockInterno", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
+            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "ControlStockPicking", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
         }
       
         ///****************************************************************************************/

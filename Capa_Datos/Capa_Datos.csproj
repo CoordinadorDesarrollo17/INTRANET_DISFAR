@@ -142,6 +142,7 @@
     <Compile Include="General_DAO\TablasSql\COUR_D.cs" />
     <Compile Include="General_DAO\TablasSql\DNLAB_D.cs" />
     <Compile Include="General_DAO\TablasSql\Firmas_D.cs" />
+    <Compile Include="General_DAO\TablasSql\MenuSistema_D.cs" />
     <Compile Include="General_DAO\TablasSql\OAGE_D.cs" />
     <Compile Include="General_DAO\TablasSql\OCHO_D.cs" />
     <Compile Include="General_DAO\TablasSql\OUR1_D.cs" />

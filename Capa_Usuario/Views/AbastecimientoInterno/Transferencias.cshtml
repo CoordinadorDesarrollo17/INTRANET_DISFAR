@@ -1,5 +1,5 @@
 ﻿@{
-    ViewBag.Title = "Solicitudes de Traslado";
+    ViewBag.Title = "Transferencias";
     Layout = "~/Views/Shared/_DefaultLayout.cshtml";
 }
 <style>
@@ -19,14 +19,14 @@
     <nav>
         <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
-            <li><a href="@Url.Action("Sesion", "Index")">Abastecimiento Interno</li>
-            <li class="current"><em>Solicitudes de Traslado</em></li>
+            <li><a href="@Url.Action("Sesion", "Index")">Abastecimiento Interno</a></li>
+            <li class="current"><em>@ViewBag.Title</em></li>
         </ol>
     </nav>
 </div>
 
 <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
-    <div class="row px-3 pt-3"><h3 class="titulo-seccion">SOLICITUDES DE TRASLADO</h3></div>
+    <div class="row px-3 pt-3"><h3 class="titulo-seccion">@ViewBag.Title.ToUpper()</h3></div>
 </div>
 
 <div class="bg-white px-3 py-3 align-items-center">
@@ -91,9 +91,9 @@
                         <th scope="col" class="text-center">Lotes</th>
                         <th scope="col" class="text-center">Estado</th>
                         <th scope="col" class="text-center">
-                        <button type="button" id="btn_validarTodo" class="btn btn-cobefar-3 text-dark btn-sm" onclick="validarTodo()" data-bs-toggle="tooltip" data-bs-placement="top" title="Validar todos los items">
-                            <i class="bi bi-check-circle"></i> Validar todo
-                        </button>
+                            <button type="button" id="btn_validarTodo" class="btn btn-cobefar-3 text-dark btn-sm" onclick="validarTodo()" data-bs-toggle="tooltip" data-bs-placement="top" title="Validar todos los items">
+                                <i class="bi bi-check-circle"></i> Validar todo
+                            </button>
                         </th>
                     </tr>
                 </thead>
@@ -341,7 +341,7 @@
 
             const tbody = copiaSapDiv.querySelector('#tbl_copiaSap tbody');
             if (tbody) {
-                tbody.innerHTML = ''; 
+                tbody.innerHTML = '';
             }
 
             document.querySelectorAll('button').forEach(btn => {
@@ -396,7 +396,7 @@
 				document.querySelector('#MotivoTraslado').value = data.traslado.MotivoTraslado || "";
 				document.querySelector('#DocDate').value = data.traslado.DocDate || "";
 				let traslado = agruparSolicitudPorItemCode(data.traslado.Detalle)
-                
+
 				// Construir formulario y tabla de detalle
 				if (data.transferencia != null) {
                     generarHTMLDetalle(formatLotesTransferenciaReserva, traslado.Detalle, data.transferencia.Detalle);
@@ -425,12 +425,12 @@
                         //    if (btnCancelarCritico) {
                         //        btnCancelarCritico.disabled = true;
                         //    }
-                    } 
+                    }
                 } else {
 					construirFormCopiaSap(data.traslado);
                     generarHTMLDetalle(formatLotes, traslado.Detalle);
                     document.querySelector('#btn_validarTodo').disabled = true
-                    
+
 				}
                 permitirValoresNumericosPositivos()
                 document.querySelector('#div_botones').style.display = 'block'
@@ -546,22 +546,28 @@
 				$('#tbl_detalle tbody').off('click', 'td.details-control')
 				// Asociar un event listener de click al elemento
 				$('#tbl_detalle tbody').on('click', 'td.details-control', function () {
-					var tr = $(this).closest('tr');
-					var row = table.row(tr);
-					var productoID = tr.data('producto');
-					var button = $(this).find('button i');
+					var tr = $(this).closest('tr')
+					//var row = table.row(tr)
+					var productoID = tr.data('producto')
+                    var button = $(this).find('button i')
+
 					if (!productoID) {
-						console.warn('Producto ID no definido en el <tr>.');
+						console.warn('Producto ID no definido en el <tr>.')
 						return;
-					}
-					if (row.child.isShown()) {
-						row.child.hide();			// Cerrar fila
-						button.removeClass('bi-chevron-up').addClass('bi-chevron-down');
+                    }
+
+                    const detalleRow = tr.next('.detalle-fila')
+
+                    if (detalleRow.length) {
+                        detalleRow.toggle()
+                        button.toggleClass('bi-chevron-down bi-chevron-up')
 					} else {
 						// Validar que el objeto detalle y los lotes existan antes de abrir
                         if (detalleTraslado[productoID] && Array.isArray(detalleTraslado[productoID].DetalleLotes)) {
-							try {
-                                row.child(func(detalleTraslado[productoID], detalleTransferencia)).show();
+                            try {
+                                const html = func(detalleTraslado[productoID], detalleTransferencia);
+                                const detalleTr = $('<tr class="detalle-fila"><td colspan="100%">' + html + '</td></tr>');
+                                tr.after(detalleTr); // insertar justo después
 								button.removeClass('bi-chevron-down').addClass('bi-chevron-up');
 							} catch (error) {
 								console.error('Error al mostrar los lotes de transferencia:', error);
@@ -574,7 +580,10 @@
 				$('.fila-detalle').each(function (index) {
 					let productoID = $(this).data('producto');
                     if (detalleTraslado[productoID] && detalleTraslado[productoID].DetalleLotes.length === 1 && detalleTraslado[productoID].Estado === "PENDIENTE") {
-                            document.querySelector(`#btn_chevron_${productoID}`).click();
+                        const btnChevron = document.querySelector(`#btn_chevron_${productoID}`)
+                        if (btnChevron) {
+                            btnChevron.click();
+                        } 
 					}
 				});
 			} else {

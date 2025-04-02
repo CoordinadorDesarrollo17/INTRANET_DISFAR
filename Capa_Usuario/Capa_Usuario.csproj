@@ -996,20 +996,22 @@
     <Content Include="Views\Shared\AbastecimientoInterno\_ListadoUbicacionesReserva.cshtml" />
     <Content Include="Views\AbastecimientoInterno\UbicacionesReserva.cshtml" />
     <Content Include="Views\AbastecimientoInterno\UbicacionesPicking.cshtml" />
-    <Content Include="Views\AbastecimientoInterno\SolicitudesTraslado.cshtml" />
-    <Content Include="Views\AbastecimientoInterno\ListarRequerimientosReserva.cshtml" />
-    <Content Include="Views\AbastecimientoInterno\ListarRequerimientosPicking.cshtml" />
+    <Content Include="Views\AbastecimientoInterno\Transferencias.cshtml" />
+    <Content Include="Views\AbastecimientoInterno\ApilarRequerimientos.cshtml" />
+    <Content Include="Views\AbastecimientoInterno\Reabastecimiento.cshtml" />
     <Content Include="Views\AbastecimientoInterno\Requerimientos.cshtml" />
     <Content Include="Views\Shared\AbastecimientoInterno\_ListadoArticulosPicking.cshtml" />
     <Content Include="Views\Shared\AbastecimientoInterno\_ListadoArticulosVenta.cshtml" />
-    <Content Include="Views\AbastecimientoInterno\ListarControlStockInterno.cshtml" />
+    <Content Include="Views\AbastecimientoInterno\ControlStockPicking.cshtml" />
     <Content Include="Views\Shared\AbastecimientoInterno\_ListadoStockReserva.cshtml" />
     <Content Include="Views\AbastecimientoInterno\StockReserva.cshtml" />
     <Content Include="Views\AbastecimientoInterno\StockMinimoPicking.cshtml" />
-    <Content Include="Views\AbastecimientoInterno\ListarTransferenciasReserva.cshtml" />
+    <Content Include="Views\AbastecimientoInterno\ApilarIngreso.cshtml" />
     <Content Include="Views\Shared\AbastecimientoInterno\_ListadoArticulosSalidaporAlmacen.cshtml" />
     <Content Include="Views\AbastecimientoInterno\StockPicking.cshtml" />
     <Content Include="Views\Shared\AbastecimientoInterno\_ListadoStockPicking.cshtml" />
+    <Content Include="Views\Shared\_MenuSistemaItem.cshtml" />
+    <Content Include="Views\Shared\_MenuSistemaItemMobile.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
