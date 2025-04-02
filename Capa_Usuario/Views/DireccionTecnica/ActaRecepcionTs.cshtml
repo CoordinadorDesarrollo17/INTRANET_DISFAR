@@ -2,63 +2,69 @@
 
 @{
     ViewBag.Title = "ActaRecepcionTs";
-    Layout = null;  
+    Layout = null;
     var m = Model.ToList()[0];
 }
-    <style>
-        .conBorde td {
-            border: 1px solid;
-        }
-    </style>
-<table border=0>
+<style>
+    .conBorde td {
+        border: 1px solid;
+    }
+
+    .fuente {
+        font-size: 9px;
+    }
+</style>
+<table border="0" width="1050" style="text-align:center;">
     <tr>
-        <td colspan="2"><img width="120" height="50" src="~/imagenes/logoventa2.jpg" /></td>
-        <td></td>
-        <td></td>
-        <td colspan="2" style="text-align:right;"><strong>REG-008-02</strong></td>
+        <td colspan="2" style="text-align:left"><img width="120" height="50" src="~/imagenes/logoventa2.jpg" /></td>
+        <td colspan="2" width="550"></td>
+        <td colspan="2">
+            <table width="100%">
+                <tr class="conBorde">
+                    <td width="100" style="text-align: center;"><strong>F/ALM-002</strong></td>
+                    <td style="text-align:center;" width="30"><strong>V1</strong></td>
+                </tr>
+            </table>
+        </td>
     </tr>
     <tr>
-        <td></td>
-        <td></td>
-        <td width=650px align='center'><strong>ACTA DE RECEPCION DE PRODUCTOS - COBEFAR S.A.C.</strong></td>
-        <td></td>
-        <td></td>
-        <td width="180px"></td>
+        <td colspan="6" align="center"><strong>ACTA DE RECEPCIÓN DE PRODUCTOS</strong></td>
     </tr>
+
     <tr>
-        <td width="180px"><strong>FECHA : @m.T1_DocDate</strong></td>
+        <td style="text-align:left" width="180px"><strong>FECHA :</strong> @m.T1_DocDate</td>
         <td></td>
         <td></td>
-        <td width="100px"><strong>GUIA N° : </strong></td>
+        <td style="text-align: right" width="100"><strong>GUIA N° : </strong></td>
         <td colspan="2" style="text-align:left"> @m.NroDeGuia</td>
     </tr>
     <tr>
-        <td width="180px"><strong>PROCEDENCIA : </strong></td>
-        <td width="110px"> @m.TaxOfficeAlmacenEnvio</td>
-        <td></td>
+        <td style="text-align:left" width="180"><strong>PROCEDENCIA : </strong></td>
+        <td style="text-align:left" width="110"> @m.TaxOfficeAlmacenEnvio</td>
+        <td width="200"></td>
         <td></td>
         <td></td>
         <td></td>
     </tr>
 </table>
 
-<table border=0 style="font-size:9px;text-align:center;">
+<table border="0" style="text-align:center;">
     <tr class="conBorde">
-        <td width=25px>Cantidad Programada</td>
-        <td width=25px>Cantidad Recibida</td>
-        <td width=200px>DESCRIPCION DEL PRODUCTO</td>
-        <td width=95px>FABRICANTE</td>
-        <td width=50px>LOTE SERIE</td>
-        <td width=35px>FECHA VCTO</td>
-        <td width=55px>NRO R.S.</td>
-        <td width=40px colspan=2>PROTOCOLO DE ANALISIS</td>
-        <td width=40px colspan=2>CAJAS LIMPIAS</td>
-        <td width=40px colspan=2>EMBALAJE CERRADO</td>
-        <td width=40px colspan=2>CONSGINA CONDICION DE EMBALAJE</td>
-        <td width=60px>CONDICION ALMACENAMIENTO</td>
-        <td width=40px colspan=2>MANCHADO DERRAME ARRUGADO QUEBRADO HUMEDO</td>
-        <td width=40px colspan=2>PRODUCTO CORRESPONDE AL DOCUMENTO</td>
-        <td width=40px colspan=2>VEHICULO LIMPIO Y EQUIPADO CONDICION ADECUADA</td>
+        <td width="25" class="fuente">Cantidad Programada</td>
+        <td width="25" class="fuente">Cantidad Recibida</td>
+        <td width="200" class="fuente">DESCRIPCION DEL PRODUCTO</td>
+        <td width="95" class="fuente">FABRICANTE</td>
+        <td width="50" class="fuente">LOTE SERIE</td>
+        <td width="35" class="fuente">FECHA VCTO</td>
+        <td width="55" class="fuente">NRO R.S.</td>
+        <td width="40" class="fuente" colspan="2">PROTOCOLO DE ANALISIS</td>
+        <td width="40" class="fuente" colspan="2">CAJAS LIMPIAS</td>
+        <td width="40" class="fuente" colspan="2">EMBALAJE CERRADO</td>
+        <td width="40" class="fuente" colspan="2">CONSGINA CONDICION DE EMBALAJE</td>
+        <td width="60" class="fuente">CONDICION ALMACENAMIENTO</td>
+        <td width="40" class="fuente" colspan="2">MANCHADO DERRAME ARRUGADO QUEBRADO HUMEDO</td>
+        <td width="40" class="fuente" colspan="2">PRODUCTO CORRESPONDE AL DOCUMENTO</td>
+        <td width="40" class="fuente" colspan="2">VEHICULO LIMPIO Y EQUIPADO CONDICION ADECUADA</td>
     </tr>
     <tr class="conBorde">
         <td></td>
@@ -68,33 +74,33 @@
         <td></td>
         <td></td>
         <td></td>
-        <td>SI</td>
-        <td>NO</td>
-        <td>SI</td>
-        <td>NO</td>
-        <td>SI</td>
-        <td>NO</td>
-        <td>SI</td>
-        <td>NO</td>
-        <td></td>
-        <td>SI</td>
-        <td>NO</td>
-        <td>SI</td>
-        <td>NO</td>
-        <td>SI</td>
-        <td>NO</td>
+        <td class="fuente">SI</td>
+        <td class="fuente">NO</td>
+        <td class="fuente">SI</td>
+        <td class="fuente">NO</td>
+        <td class="fuente">SI</td>
+        <td class="fuente">NO</td>
+        <td class="fuente">SI</td>
+        <td class="fuente">NO</td>
+        <td class="fuente"></td>
+        <td class="fuente">SI</td>
+        <td class="fuente">NO</td>
+        <td class="fuente">SI</td>
+        <td class="fuente">NO</td>
+        <td class="fuente">SI</td>
+        <td class="fuente">NO</td>
 
     </tr>
     @foreach (var item in Model)
     {
         <tr class="conBorde">
-            <td>@Math.Round(item.T3_Quantity, 0)</td>
-            <td>@Math.Round(item.T3_Quantity, 0)</td>
-            <td style="text-align:left">@item.T8_FrgnName &nbsp;@item.Concentracion &nbsp;@item.FormaPresentacion &nbsp;@item.FormaFarmaceutica</td>
-            <td>@item.Fabricante</td>
-            <td>@item.Lote</td>
-            <td>@item.FechaVenc</td>
-            <td>@item.RegistroSan</td>
+            <td class="fuente">@Math.Round(item.T3_Quantity, 0)</td>
+            <td class="fuente">@Math.Round(item.T3_Quantity, 0)</td>
+            <td class="fuente" style="text-align:left">@item.T8_FrgnName &nbsp;@item.Concentracion &nbsp;@item.FormaPresentacion &nbsp;@item.FormaFarmaceutica</td>
+            <td class="fuente">@item.Fabricante</td>
+            <td class="fuente">@item.Lote</td>
+            <td class="fuente">@item.FechaVenc</td>
+            <td class="fuente">@item.RegistroSan</td>
             <td><img width="7" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
             <td></td>
             <td><img width="7" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
@@ -103,7 +109,7 @@
             <td></td>
             <td><img width="7" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
             <td></td>
-            <td>@item.CondAlmac</td>
+            <td class="fuente">@item.CondAlmac</td>
             <td></td>
             <td><img width="7" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
             <td><img width="7" height="7" src="~/imagenes/index/ReportesDigemid/check.png" /></td>
@@ -114,38 +120,47 @@
     }
 
     <tr>
-        <td colspan="2">OBSERVACIONES: </td>
-        <td colspan="20">NINGUNA</td>
+        <td colspan="2" class="fuente">OBSERVACIONES: </td>
+        <td colspan="20" class="fuente">NINGUNA</td>
     </tr>
     <tr>
-        <td colspan="22" height="80"></td>
+        <td colspan="22" class="fuente" height="40"></td>
     </tr>
 
     <tr>
         <td colspan="3"></td>
         <td colspan="3" align="center" style="border-bottom: solid 1px">
-            @if (ViewBag.FirmaResponsable != null)
+            @if (!string.IsNullOrEmpty(ViewBag.FirmaResponsable))
             {<img src="@ViewBag.FirmaResponsable" width="150" />}
         </td>
         <td></td>
         <td colspan="7" align="center" style="border-bottom: solid 1px">
-            @if (ViewBag.PersonaEntrega != null)
+            @if (!string.IsNullOrEmpty(ViewBag.PersonaEntrega))
             {<img src="@ViewBag.PersonaEntrega" width="150" />}
         </td>
         <td colspan="9"></td>
     </tr>
     <tr>
         <td colspan="3"></td>
-        <td colspan="3" align="center">RESPONSABLE DE ALMACEN</td>
+        <td colspan="3" class="fuente" align="center">RESPONSABLE DE ALMACEN</td>
         <td></td>
-        <td colspan="7" align="center">PERSONA QUE ENTREGA</td>
+        <td colspan="7" class="fuente" align="center">PERSONA QUE ENTREGA</td>
         <td colspan="9"></td>
     </tr>
     <tr>
         <td colspan="3"></td>
-        <td colspan="3" align="center">(sello y firma)</td>
+        <td colspan="3" class="fuente" align="center">(sello y firma)</td>
         <td></td>
-        <td colspan="7" align="center">(sello y firma)</td>
+        <td colspan="7" class="fuente" align="center">(sello y firma)</td>
         <td colspan="9"></td>
+    </tr>
+    <tr>
+        <td colspan="26">
+            <table width="50%" style="margin: auto; padding-top: 20px">
+                <tr>
+                    <td style="color: black; border: solid 1px; border-color: gray; font-size: 11px;text-align: center">Prohibido reproducir sin autorización de DROGUERÍA COBEFAR</td>
+                </tr>
+            </table>
+        </td>
     </tr>
 </table>

@@ -42,6 +42,8 @@ namespace Capa_Usuario.Controllers
         OLDS_N _libroDeSaldoN = new OLDS_N();
         CC_ORTV_N ccORTV_N = new CC_ORTV_N();
         UBICACIONES_N ubicacionesN = new UBICACIONES_N();
+        private readonly OUSR_OPE_N _usuarioOperacionN = new OUSR_OPE_N();
+
         /************************* C O N F I G U R A C I Ó N *************************/
         private ActionResult VerificarPermiso(int idOperation)
         {
@@ -1437,6 +1439,7 @@ namespace Capa_Usuario.Controllers
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 Usuario_E user = (Usuario_E)Session["UsuarioId"];
+                ViewBag.PermisoCancelarTicket = (_usuarioOperacionN.VerificarAccesoOperacion(new OUSR_OPE_E { UsrDocEntry = user.DocEntry, OpeID = 518 })) > 0;     // Cancelar Ticket
                 ViewBag.RolSupervisor = user.IdRol;
                 ViewBag.AlmUsuario = user.WhsCode;
                 ViewBag.DocNum = DocNum;

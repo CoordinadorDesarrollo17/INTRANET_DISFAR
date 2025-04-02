@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>@ViewBag.Title - COBEFAR</title>
     <link rel="icon" type="image/x-icon" href="~/Content/img/favicon-cobefar.png">
-    <link rel="preload" href="~/Content/css/bootstrap.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+
+    <link rel="preload" href="~/Content/css/bootstrap.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="~/Content/css/bootstrap.min.css"></noscript>
+
     <link href="~/Content/icomoon/style.css" rel="stylesheet">
     <link href="~/Content/estilos.css" rel="stylesheet">
     <link href="~/Content/css/jquery-ui-1.12.css" rel="stylesheet">
@@ -52,39 +55,33 @@
     <link rel="stylesheet" type="text/css" href="~/Content/Libs/datatables/css/responsive.bootstrap4.min.css">
 
     <script src="~/Content/js/jquery-3.6.3.js"></script>
-    <!--<script src="~/Content/js/popper.min.js"></script>-->
     <script src="~/Content/js/bootstrap.bundle.js" defer></script>
     <script src="~/Content/js/select2.min.js" defer></script>
-    <!--
-    <script src="~/Scripts/Frameworks/alertify.min.js"></script>
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>-->
     <script src="~/Content/js/jquery-ui-1.12.js" defer></script>
     <script src="~/Scripts/Frameworks/sweetalert2@11.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slim-select@1.26.1/dist/slimselect.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/slim-select@1.26.1/dist/slimselect.min.js"></script>
-
 </head>
 
 <body>
     <div id="contenedor" class="container" style="width:100%;">
 
-        <header>
-            <div class="row py-2" style="display:none">
-                <div class="col-lg-8 col-md-8 col-sm-8" >
-                    <p style="margin-bottom:0 !important">
-                        <a style="font-size: 14px; background-color: darkgreen" href="@Url.Action("LogOut", "Index")" class="btn btn-sm btn-cobefar">
-                            <i class="icon-switch">  </i>
-                        </a> <span id="statusBD" class="text-dark"></span>
-                    </p>
-                </div>
-                <div class="col-lg-4 col-md-4 justify-content-end d-none d-sm-flex align-items-center pl-1 w-100">
-                    <img src="~/Content/img/logo-cobefar.png" width="140" height="45" style="margin-right:5%">
-                </div>
+        <header class="bg-cobefar-degradado-1" style="width: 100%;  box-shadow: 0px 4px 8px rgba(0,0,0,0.2);">
+            <div class="px-2 py-2">
+                <div class="row align-items-center" style="height: 30px;">
+                    <div class="col-lg-6 col-md-6 col-sm-6 d-flex align-items-center">
+                        <a href="@Url.Action("LogOut", "Index")" class="btn btn-sm" style="background-color: #08fe56; color: black; border-radius: 15%;">
+                            <i class="icon-switch" style="font-size: 14px;"></i>
+                        </a>
+                        <span id="statusBD" class="text-light ml-3">Estado: Conectado</span>
+                    </div>
 
+                    <div class="col-lg-6 col-md-6 col-sm-6 d-flex justify-content-end align-items-center">
+                        <span class="text-light font-weight-bold mr-2" style="font-size: 14px;">Bienvenido(a): <span id="usuarioLogueado" style="color:lime">Está desconectado</span></span>
+                    </div>
+                </div>
             </div>
         </header>
-        <div id="div_container2" class="container" style="width: 100%; background-color: #F0F0F0; box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;">
+
+        <div id="div_container2" class="container" style="width: 100%; background-color: #F0F0F0; box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 8px 8px;">
             @RenderBody()
         </div>
 
@@ -94,11 +91,11 @@
         <div class="container-footer bg-dark pt-4">
             <div class="copyright mb-2">
                 <span class="text-cobefar-2">CONTACTO:</span>
-                coordinador.ti@cobefar.com.pe 
+                coordinador.ti@cobefar.com.pe
                 <span class="text-cobefar-2">|</span>
-                soporte.ti@cobefar.com.pe 
+                soporte.ti@cobefar.com.pe
                 <span class="text-cobefar-2">|</span>
-                coordinador.desarrollo@cobefar.com.pe 
+                coordinador.desarrollo@cobefar.com.pe
                 <span class="text-cobefar-2">|</span>
                 soporte.desarrollo@cobefar.com.pe
             </div>            © Todos los derechos reservados - <span class="text-cobefar-2">COBEFAR S.A.C </span>
@@ -113,6 +110,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             statusBD();
+            buscarUsuarioLogueado();
         });
 
         (function () {
@@ -122,6 +120,18 @@
             document.head.appendChild(link);
         })();
 
+        function buscarUsuarioLogueado() {
+            var parametros;
+            $.ajax('/Index/BuscarUsuarioLogueado', {
+                data: parametros,
+                dataType: 'html',
+                cache: false,
+                type: 'post',
+            })
+                .done(function (response) {
+                    document.getElementById('usuarioLogueado').innerHTML = response;
+                });
+        }
         function deshabilitarRetroceso() {
             window.location.hash = "no-back-button";
             window.location.hash = "Again-No-back-button" //chrome
@@ -152,10 +162,7 @@
     <script async>
         // Si existe el elemento en DOM
         $(document).ready(function () {
-                inicializarSlimSelectsPorClase('cls-select');
-            
-
-            $('[data-toggle="tooltip"]').tooltip();   
+            $('[data-toggle="tooltip"]').tooltip();
 
             if (document.getElementsByClassName("cls-dataTable").length > 0) {
                 $('.cls-dataTable').DataTable({
@@ -216,20 +223,6 @@
 
 
         });
-        const inicializarSlimSelectsPorClase = (clase) => {
-            const selectElements = document.querySelectorAll(`.${clase}`);
-            selectElements.forEach(selectElement => {
-                new SlimSelect({
-                    select: selectElement,
-                    placeholder: 'Selecciona una opción',
-                    allowDeselect: true,
-                    searchText: 'No encontrado',
-                    searchPlaceholder: 'Buscar...',
-                });
-            });
-        };
-
-
 
         function validarTexto(input) {
             // Expresión regular que permite caracteres alfanuméricos, "-", ".", "°", letras con tildes y acento agudo
@@ -346,6 +339,34 @@
                     document.getElementById(outputElementId).value = selectedOption.dataset[dataAttribute];
                 }
             });
+        }
+
+        function inicializarDataTable(idTable, itemsPorPagina) {
+            const items = Number(itemsPorPagina)
+
+            if ($.fn.DataTable.isDataTable(`#${idTable}`)) {
+                $(`#${idTable}`).DataTable().clear().destroy();
+            }
+
+            let table = $(`#${idTable}`).DataTable({
+                order: [],  // Desactiva ordenamiento automatico.
+                ordering: false, // Iconos para ordenar todas las columnas de la tabla.
+                responsive: true,        // Mantiene la tabla responsiva si es necesario
+                "pageLength": items,
+                "lengthMenu": [items, items * 2, items * 3, items * 4, items * 5],
+                "language": {
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                    "infoEmpty": "No hay registros disponibles",
+                    "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                    "lengthMenu": "Mostrar _MENU_ registros por página",
+                    "search": "Buscar:",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "zeroRecords": "No se encontraron registros"
+                }
+            });
+
+            table.columns.adjust().draw();
         }
     </script>
 
