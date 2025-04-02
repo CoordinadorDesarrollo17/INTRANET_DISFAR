@@ -308,8 +308,22 @@ namespace Capa_Usuario.Controllers
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 if (fil != null) { ViewBag.Owtr = fil; } else { ViewBag.Owtr = new OWTR_E(); }
-                ViewBag.Almacenes = new Capa_Negocio.General_NEG.Tablas.OWHS_N().ListarAlmacenes().OrderBy(a => a.WhsName);
-                ViewBag.ListaOslp = new Capa_Negocio.General_NEG.Tablas.OSLP_N().listadoOslp("ALM");
+                var almacenes = new Capa_Negocio.General_NEG.Tablas.OWHS_N().ListarAlmacenes();
+
+                ViewBag.Almacenes = almacenes != null && almacenes.Any()
+                    ? almacenes.OrderBy(a => a.WhsName).ToList()
+                    : new List<Capa_Entidad.General_ENT.Tablas.OWHS_E>();
+
+                ViewBag.DictionaryAlmacenes = almacenes != null && almacenes.Any()
+                    ? almacenes
+                        .GroupBy(a => a.WhsCode)
+                        .Select(g => g.First())
+                        .ToDictionary(a => a.WhsCode, a => a.WhsName)
+                    : new Dictionary<string, string>();
+
+                var oslps = new Capa_Negocio.General_NEG.Tablas.OSLP_N().listadoOslp("ALM");
+                ViewBag.ListaOslp = oslps ?? new List<OSLP_E>();
+
                 return View(new Capa_Negocio.Almacen_NEG.Tablas.OWTR_N().listadoTransferenciasStock(fil));
             }
             else
