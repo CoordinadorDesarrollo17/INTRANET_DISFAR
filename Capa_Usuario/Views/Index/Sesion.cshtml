@@ -37,23 +37,21 @@
     <div class="container-fluid" style="box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;">
         <div class="d-none d-md-block row bg-cobefar">
             <div class="col-12">
-                <div class="row pt-3">
-                    <div class="col-12 d-flex justify-content-start">
+                <div class="row py-2">
+                    <div class="col-6 d-flex justify-content-start">
                         <img src="~/Content/img/logo-cobefar.png" height="50">
                     </div>
-                </div>
 
-                <div class="row pb-3">
-                    <div class="col-lg-12 d-flex align-content-center  justify-content-end ">
-                        <div class="font-14 text-white mx-3 mt-2">Bienvenido(a): <span class="font-weight-bold font-14">@ViewBag.NombreUsuario</span></div>
-                        <a class="text-white font-weight-bold" href="@Url.Action("LogOut", "Index")" title="Cerrar Sesión">
+                    <div class="col-6 d-flex align-content-center  justify-content-end">
+                        <div class="font-14 text-white mx-3 mt-3">Bienvenido(a): <span class="font-weight-bold font-14">@ViewBag.NombreUsuario</span></div>
+                        <a class="text-white font-weight-bold mt-2" href="@Url.Action("LogOut", "Index")" title="Cerrar Sesión">
                             <i class="bi bi-box-arrow-right font-24"></i>
                         </a>
-                    </div>
 
-                    @*<button class="navbar-toggler d-none d-lg-block" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                            <span class="navbar-toggler-icon text-white d-block d-sm-block d-md-block d-lg-none d-xl-none"><i class="bi bi-list"></i></span>
-                        </button>*@
+                        @*<button class="navbar-toggler d-none d-lg-block" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon text-white d-block d-sm-block d-md-block d-lg-none d-xl-none"><i class="bi bi-list"></i></span>
+            </button>*@
+                    </div>
                 </div>
             </div>
         </div>
@@ -91,18 +89,18 @@
                     <ul class="navbar-nav mr-auto">
                         @foreach (var item in Model)
                         {
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i class="@item.Icono"></i> @item.Nombre
-                                </a>
-                                <div class="dropdown-menu">
-                                    @foreach (var sm in item.SubMenus)
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="@item.Icono"></i> @item.Nombre
+                            </a>
+                            <div class="dropdown-menu">
+                                @foreach (var sm in item.SubMenus)
                                     {
-                                        @Html.Partial("_MenuSistemaItem", (Capa_Entidad.General_ENT.TablasSql.MenuSistema_E)sm);
+                                @Html.Partial("_MenuSistemaItem", (Capa_Entidad.General_ENT.TablasSql.MenuSistema_E)sm);
                                     }
-                                </div>
-                            </li>
+                            </div>
+                        </li>
                         }
                     </ul>
                 </div>
@@ -113,28 +111,28 @@
                 <ul class="list-unstyled">
                     @foreach (var item in Model)
                     {
-                        <li class="mb-2">
-                            <button class="btn w-100 text-start d-flex justify-content-between align-items-center mobile-toggle" data-bs-target="#submenu-@item.Id">
-                                <span><i class="@item.Icono me-2"></i> @item.Nombre</span>
-                                <i class="bi bi-chevron-down"></i>
-                            </button>
+                    <li class="mb-2">
+                        <button class="btn w-100 text-start d-flex justify-content-between align-items-center mobile-toggle" data-bs-target="#submenu-@item.Id">
+                            <span><i class="@item.Icono me-2"></i> @item.Nombre</span>
+                            <i class="bi bi-chevron-down"></i>
+                        </button>
 
-                            @if (item.SubMenus != null && item.SubMenus.Count > 0)
+                        @if (item.SubMenus != null && item.SubMenus.Count > 0)
                             {
-                                <ul class="list-unstyled ps-2 collapse" id="submenu-@item.Id">
-                                    @foreach (var sm in item.SubMenus)
+                        <ul class="list-unstyled ps-2 collapse" id="submenu-@item.Id">
+                            @foreach (var sm in item.SubMenus)
                                     {
                                         var uniqueId = "submenu-" + Guid.NewGuid().ToString("N");
-                                        @Html.Partial("_MenuSistemaItemMobile", (Capa_Entidad.General_ENT.TablasSql.MenuSistema_E)sm, new ViewDataDictionary(ViewData)
-                                        {
-                                            { "Level", 1 },
-                                            { "UniqueId", uniqueId }
-                                        });
+                            @Html.Partial("_MenuSistemaItemMobile", (Capa_Entidad.General_ENT.TablasSql.MenuSistema_E)sm, new ViewDataDictionary(ViewData)
+                            {
+                                { "Level", 1 },
+                                { "UniqueId", uniqueId }
+                            });
                                     }
 
-                                </ul>
+                        </ul>
                             }
-                        </li>
+                    </li>
                     }
                 </ul>
             </nav>
