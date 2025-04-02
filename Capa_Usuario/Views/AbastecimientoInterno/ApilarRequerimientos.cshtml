@@ -1,6 +1,5 @@
-﻿@using System.Text
-@{
-    ViewBag.Title = "Atender Requerimientos Picking";
+﻿@{
+    ViewBag.Title = "Apilar Requerimientos";
     Layout = "~/Views/Shared/_DefaultLayout.cshtml";
 }
 
@@ -61,19 +60,18 @@
     }
 </style>
 
-
 <div class="pt-3">
     <nav>
         <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
             <li><a href="@Url.Action("Sesion", "Index")">Abastecimiento Interno</a></li>
-            <li class="current"><em>Picking</em></li>
+            <li class="current"><em>@ViewBag.Title</em></li>
         </ol>
     </nav>
 </div>
 
 <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
-    <div class="row px-3 pt-3"><h3 class="titulo-seccion">PICKING</h3></div>
+    <div class="row px-3 pt-3"><h3 class="titulo-seccion">@ViewBag.Title.ToUpper()</h3></div>
 </div>
 
 <div class="bg-white px-3 py-3 align-items-center">
@@ -84,16 +82,19 @@
             </button>
         </div>
         <div class="col-lg-12">
-            <table id="tbl_listaDetRequerimientoPicking" class="dt-container dt-empty-footer table table-sm table-hover font-14 table-responsive" width="100%">
+            <table id="tbl_listaDetRequerimientoApiladores" class="dt-container dt-empty-footer table table-sm table-hover font-14 display table-responsive " width="100%">
                 <thead class="thead-cobefar">
                     <tr>
+                        <th scope="col" class="text-center">Nro Requerimiento</th>
                         <th scope="col" class="text-center">Código de artículo</th>
                         <th scope="col" class="text-center">Descripción</th>
                         <th scope="col" class="text-center">Lote</th>
-                        <th scope="col" class="text-center">Ubicacion</th>
-                        <th scope="col" class="text-center">Cajas Master</th>
-                        <th scope="col" class="text-center">Saldos</th>
-                        <th scope="col" class="text-center">Cantidad Total</th>
+                        <th scope="col" class="text-center">Rack/Bloque</th>
+                        <th scope="col" class="text-center">Posicion</th>
+                        <th scope="col" class="text-center">Nivel</th>
+                        <th scope="col" class="text-center">Master</th>
+                        <th scope="col" class="text-center">Unidades Master</th>
+                        <th scope="col" class="text-center">Unidades Saldo</th>
                         <th scope="col" class="text-center"></th>
                     </tr>
                 </thead>
@@ -101,17 +102,18 @@
                     @foreach (var item in Model)
                     {
                         <tr data-producto="@item.Id">
+                            <td class="text-center align-middle">@item.RequerimientoId</td>
                             <td class="text-center align-middle">@item.ItemCode</td>
                             <td class="text-center align-middle">@item.ItemName</td>
                             <td class="text-center align-middle">@item.BatchNum</td>
-                            <td class="text-center align-middle">
-                                @Html.Raw((item.CodigoUbicacionDestino ?? "").Replace(",", ",<br />"))
-                            </td>
+                            <td class="text-center align-middle">@item.RackBloque</td>
+                            <td class="text-center align-middle">@item.Posicion</td>
+                            <td class="text-center align-middle">@item.Nivel</td>
+                            <td class="text-center align-middle">@item.UmAlm</td>
                             <td class="text-center align-middle">@item.QuantityMaster</td>
                             <td class="text-center align-middle">@item.QuantitySaldo</td>
-                            <td class="text-center align-middle">@item.QuantityUnidadesCajas</td>
                             <td class="text-center align-middle">
-                                <button type="button" class="btn btn-success" title="Posicionar SKU" data-bs-toggle="tooltip" data-bs-placement="top" onclick="atenderPicking(@item.Id,@item.RequerimientoId,'@item.ItemCode','@item.ItemName')"><i class="bi bi-cart-check"></i></button>
+                                <button type="button" class="btn btn-success" title="Atender" data-bs-toggle="tooltip" data-bs-placement="top" onclick="atenderReserva(@item.Id, @item.RequerimientoId)"><i class="bi bi-cart-check"></i></button>
                             </td>
                         </tr>
                     }
@@ -121,12 +123,13 @@
         </div>
     </div>
 </div>
+
 <!-- Modal de Filtros -->
 <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-headerModals">
-                <h5 class="modal-title text-light" id="filterModalLabel">Filtrar Requerimientos</h5>
+                <h5 class="modal-title text-light" id="filterModalLabel">Filtrar Registros</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -145,11 +148,20 @@
                             <input class="form-control border-success" id="batchNum" value="" />
                         </div>
                         <div class="mb-3">
-                            <label for="codigoUbicacionDestino" class="form-label">Codigo de Ubicacion</label>
-                            <input class="form-control border-success" id="codigoUbicacionDestino" value="" />
+                            <label for="rackBloque" class="form-label">Rack/Bloque</label>
+                            <input class="form-control border-success" id="rackBloque" value="" />
                         </div>
-                    </div>
-                </form>
+                        <div class="mb-3">
+                            <label for="posicion" class="form-label">Posición</label>
+                            <input class="form-control border-success" id="posicion" value="" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="nivel" class="form-label">Nivel</label>
+                            <input class="form-control border-success" id="nivel" value="" />
+                        </div>
+                        </div>
+            </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -161,15 +173,15 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        if (!$.fn.DataTable.isDataTable('tbl_listaDetRequerimientoPicking')) {
-            inicializarDataTable('tbl_listaDetRequerimientoPicking', 100);
-            aplicarFiltro();
+        if (!$.fn.DataTable.isDataTable('tbl_listaDetRequerimientoApiladores')) {
+            inicializarDataTable('tbl_listaDetRequerimientoApiladores', 100);
+            aplicarFiltro(); 
         }
     });
 
-    async function atenderPicking(id, requerimientoId, itemCode, itemName) {
-        if (!id) {
-            console.log('Error: El ID no se encontró.');
+    async function atenderReserva(id, requerimientoId) {
+        if (!id || !requerimientoId) {
+            console.warn('Error: Verificar los parámetros de atenderReserva()');
             return;
         }
 
@@ -184,15 +196,10 @@
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    const response = await fetch("/AbastecimientoInterno/AtenderPickingRequerimiento", {
+                    const response = await fetch("/AbastecimientoInterno/AtenderReservaRequerimiento", {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            id,
-                            requerimientoId,
-                            itemCode,
-                            itemName
-                        })
+                        body: JSON.stringify({ id, requerimientoId })
                     });
 
                     if (!response.ok) throw new Error(`Error en la solicitud: ${response.statusText}`);
@@ -223,32 +230,36 @@
 
     function aplicarFiltro() {
         const form = document.getElementById('filterForm');
+        const rackBloque = form.rackBloque.value.trim().toLowerCase();
+        const posicion = form.posicion.value.trim().toLowerCase();
+        const nivel = form.nivel.value.trim().toLowerCase();
         const itemName = form.itemName.value.trim().toLowerCase();
         const itemCode = form.itemCode.value.trim().toLowerCase();
         const batchNum = form.batchNum.value.trim().toLowerCase();
-        const codUbicacionDestino = form.codigoUbicacionDestino.value.trim().toLowerCase();
 
-        const table = $('#tbl_listaDetRequerimientoPicking').DataTable();
+        const table = $('#tbl_listaDetRequerimientoApiladores').DataTable();
 
         $.fn.dataTable.ext.search.length = 0;
 
         $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
-            const itCode = data[0]?.trim().toLowerCase();
-            const itName = data[1]?.trim().toLowerCase();
-            const batchN = data[2]?.trim().toLowerCase();
-            const codUbicacionDes = data[3]?.trim().toLowerCase();
+            const itCode = data[1]?.trim().toLowerCase();
+            const itName = data[2]?.trim().toLowerCase();  
+            const batchN = data[3]?.trim().toLowerCase();     
+            const rack = data[4]?.trim().toLowerCase();
+            const pos = data[5]?.trim().toLowerCase();
+            const niv = data[6]?.trim().toLowerCase();    
 
-
-            
+            const coincideRack = rackBloque === "" || rack.includes(rackBloque);
+            const coincidePos = posicion === "" || pos.includes(posicion);
+            const coincideNivel = nivel === "" || niv.includes(nivel);
             const coincideItemCode = itemCode === "" || itCode.includes(itemCode);
             const coincideItemName = itemName === "" || itName.includes(itemName);
             const coincideBatchNum = batchNum === "" || batchN.includes(batchNum);
-            const coincideUbicacionDes = codUbicacionDestino === "" || codUbicacionDes.includes(codUbicacionDestino);
 
-            return coincideUbicacionDes && coincideItemCode && coincideItemName && coincideBatchNum;
+            return coincideRack && coincidePos && coincideNivel && coincideItemCode && coincideItemName && coincideBatchNum;
         });
 
-        table.draw();
+        table.draw(); 
 
         const modalElement = document.getElementById('filterModal');
         if (modalElement) {

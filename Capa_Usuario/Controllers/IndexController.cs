@@ -239,9 +239,9 @@ namespace Capa_Usuario.Controllers
             return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "UbicacionesReserva", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
         }
         
-        public ActionResult AI_SolicitudesTraslado(int idOperation = 3300)
+        public ActionResult AI_Transferencias(int idOperation = 3300)
         {
-            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "SolicitudesTraslado", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
+            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "Transferencias", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
         }
 
         public ActionResult AI_Requerimientos(int idOperation = 3400)
@@ -250,19 +250,19 @@ namespace Capa_Usuario.Controllers
         }
         public ActionResult AI_ApilarRequerimientos(int idOperation = 3500)
         {
-            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "ListarRequerimientosReserva", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
+            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "ApilarRequerimientos", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
         }
-        public ActionResult AI_ApilarTransferencias(int idOperation = 3502)
+        public ActionResult AI_ApilarIngreso(int idOperation = 3502)
         {
-            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "ListarTransferenciasReserva", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
+            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "ApilarIngreso", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
         }
-        public ActionResult AI_Picking(int idOperation = 3600)
+        public ActionResult AI_Reabastecimiento(int idOperation = 3600)
         {
-            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "ListarRequerimientosPicking", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
+            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "Reabastecimiento", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
         }
-        public ActionResult AI_ControlStockInterno(int idOperation = 3700)
+        public ActionResult AI_ControlStockPicking(int idOperation = 3700)
         {
-            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "ListarControlStockInterno", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
+            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "ControlStockPicking", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
         }
       
         ///****************************************************************************************/
