@@ -5,6 +5,7 @@ using Capa_Negocio.General_NEG.TablasSql;
 using Capa_Negocio.Seguridad_NEG;
 using Capa_Usuario.Helpers;
 using System;
+using System.Linq;
 using System.Net;
 using System.Web.Mvc;
 
