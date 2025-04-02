@@ -1,6 +1,6 @@
 ﻿@using System.Text
 @{
-    ViewBag.Title = "Atender Picking Requerimientos";
+    ViewBag.Title = "Atender Requerimientos Picking";
     Layout = "~/Views/Shared/_DefaultLayout.cshtml";
 }
 
@@ -105,7 +105,7 @@
                             <td class="text-center align-middle">@item.ItemName</td>
                             <td class="text-center align-middle">@item.BatchNum</td>
                             <td class="text-center align-middle">
-                                @Html.Raw(item.CodigoUbicacionDestino.Replace(",", ",<br>"))
+                                @Html.Raw((item.CodigoUbicacionDestino ?? "").Replace(",", ",<br />"))
                             </td>
                             <td class="text-center align-middle">@item.QuantityMaster</td>
                             <td class="text-center align-middle">@item.QuantitySaldo</td>

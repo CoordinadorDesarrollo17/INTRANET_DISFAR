@@ -207,10 +207,8 @@
                         </td>
                         <td scope="col" class="text-center">
                             <div class="d-flex justify-content-center align-items-center">
-                                <input id="CodigoUbicacionDestino_${item.ItemCode}_${item.BatchNum}_${num}" name="requerimiento.Detalle[].CodigoUbicacionDestino"  class="form-control cls-input-tag" data-batchnum="${item.BatchNum}" data-itemcode="${item.ItemCode}"  />
-                                    <button class="btn btn-warning reload-button" type="button" data-inputid="CodigoUbicacionDestino_${item.ItemCode}_${item.BatchNum}_${num}" onclick="obtenerNuevasUbicaciones(this.dataset.inputid)">
-                                        <i class="bi bi-arrow-clockwise"></i>
-                                    </button>
+                                <input type="hidden" id="CodigoUbicacionDestino_${item.ItemCode}_${item.BatchNum}_${num}" name="requerimiento.Detalle[].CodigoUbicacionDestino"  data-batchnum="${item.BatchNum}" data-itemcode="${item.ItemCode}" value="PICKING-UBI-SISTEMA" readonly  />
+                                PICKING-UBI-SISTEMA
                             </div>
                         </td>
                     </tr>`

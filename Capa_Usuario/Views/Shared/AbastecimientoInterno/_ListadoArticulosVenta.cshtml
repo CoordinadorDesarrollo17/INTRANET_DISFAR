@@ -56,7 +56,7 @@
 
                     <td scope="col" class="text-center">
                         <div class="d-flex justify-content-center">
-                            <input type="text" id="venta_stockSolicitadoSaldo_@num" data-campo="StockSolicitadoSaldo" class="form-control text-center cls-num @if (item.QuantitySaldo == 0) { Write("cls-readonly"); }" 
+                            <input type="text" id="venta_stockSolicitadoSaldo_@num" data-campo="StockSolicitadoSaldo" class="form-control text-center cls-num @if (item.QuantitySaldo == 0) { Write("cls-readonly"); }"
                                    style="width: 100px" oninput="validarStock(this.value, @item.QuantitySaldo)" autocomplete="off" @if (item.QuantitySaldo == 0) { Write("readonly"); } />
                             <input type="hidden" id="venta_stockSolicitadoTotalUnidades_@num" data-campo="StockSolicitadoTotalUnidades" class="form-control text-center" style="width: 100px" />
                         </div>
@@ -203,8 +203,11 @@
                             <input type="hidden" name="requerimiento.Detalle[].ValorUmAlm" value="${item.ValorUmAlm}" />
                             <input type="hidden" name="requerimiento.Detalle[].QuantityMaster" value="${item.StockSolicitadoMaster ?? 0}" />
                             <input type="hidden" name="requerimiento.Detalle[].QuantitySaldo" value="${item.StockSolicitadoSaldo ?? 0}" />
-                            <input type="hidden" name="requerimiento.Detalle[].QuantityUnidadesCajas" value="${item.StockSolicitadoTotalUnidades}" />${item.StockSolicitadoTotalUnidades}
-                             <input type="hidden" name="requerimiento.Detalle[].CodigoUbicacionDestino" value="" />
+                            <input type="hidden" name="requerimiento.Detalle[].QuantityUnidadesCajas" value="${item.StockSolicitadoTotalUnidades}" />${item.StockSolicitadoTotalUnidades}                            
+                        </td>
+                        <td scope="col" class="text-center">
+                                <input type="hidden" id="CodigoUbicacionDestino_${item.ItemCode}_${item.BatchNum}_${num}" name="requerimiento.Detalle[].CodigoUbicacionDestino"  data-batchnum="${item.BatchNum}" 
+                                data-itemcode="${item.ItemCode}" value="PICKING-UBI-SISTEMA" readonly  /> PICKING-UBI-SISTEMA
                         </td>
                     </tr>`
             ++num
