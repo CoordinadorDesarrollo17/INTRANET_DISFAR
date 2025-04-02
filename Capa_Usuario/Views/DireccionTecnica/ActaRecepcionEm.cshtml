@@ -23,33 +23,32 @@
         border: 1px solid;
     }
 </style>
-<table border=0 style="font-size:11px">
+<table border="0">
     <tr>
-        <td colspan=2><img width="120" height="50" src="~/imagenes/logoventa2.jpg" /></td>
+        <td width="180"><img width="120" height="50" src="~/imagenes/logoventa2.jpg" /></td>
+        <td width="455"></td>
         <td></td>
-        <td></td>
-        <td colspan="2" style="text-align:right;"><strong>REG-008-02</strong></td>
+        <td>
+            <table width="100%">
+                <tr class="conBorde">
+                    <td width="100" style="text-align: center;"><strong>F/ALM-002</strong></td>
+                    <td style="text-align:center;" width="30"><strong>V1</strong></td>
+                </tr>
+            </table>
+        </td>
     </tr>
     <tr>
-        <td></td>
-        <td></td>
-        <td width="650" align='center'><strong>ACTA DE RECEPCIÓN DE PRODUCTOS - COBEFAR S.A.C.</strong></td>
-        <td></td>
-        <td></td>
-        <td width="180px"></td>
+        <td colspan="4" width="650" align="center"><strong>ACTA DE RECEPCIÓN DE PRODUCTOS</strong></td>
     </tr>
     <tr>
-        <td width="180px"><strong>FECHA : @m.T0_DocDate</strong></td>
+        <td width="180"><strong>FECHA :</strong> @m.T0_DocDate</td>
         <td></td>
-        <td></td>
-        <td width="180px"><strong>FACTURA O GUIA DE REMISIÓN : </strong></td>
+        <td width="280"><strong>FACTURA O GUIA DE REMISIÓN : </strong></td>
         <td colspan="2" style="text-align:left"> @m.NroFactura</td>
     </tr>
     <tr>
-        <td width="180px"><strong>PROCEDENCIA : </strong></td>
-        <td colspan="3" width="210px">@m.T0_CardName</td>
-        <td></td>
-        <td></td>
+        <td width="180"><strong>PROCEDENCIA : </strong></td>
+        <td colspan="3" style="text-align: left">@m.T0_CardName</td>
     </tr>
 </table>
 
@@ -143,7 +142,7 @@
         </td>
     </tr>
     <tr>
-        <td colspan="22" height="80"></td>
+        <td colspan="22" height="40"></td>
     </tr>
 
     <tr>
@@ -169,5 +168,14 @@
         <td></td>
         <td colspan="7" align="center">(sello y firma)</td>
         <td colspan="9"></td>
-    </tr>    
+    </tr>
+    <tr>
+        <td colspan="22">
+            <table width="50%" style="margin: auto; padding-top: 20px">
+                <tr>
+                    <td style="color: black; border: solid 1px; border-color: gray; font-size: 11px;text-align: center">Prohibido reproducir sin autorización de DROGUERÍA COBEFAR</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
 </table>
