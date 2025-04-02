@@ -536,13 +536,13 @@ namespace Capa_Datos.ComprobantesContables_ENT
             if (DocNumNotasConcatenadas.Trim().Length > 0)
             { AndWhere = $" OR \"DocNum\" in ({DocNumNotasConcatenadas}) "; }
 
-            string query = $"SELECT 'ORIN',\"U_SYP_MDTD\",\"U_SYP_MDSD\",\"U_SYP_MDCD\", TO_CHAR(\"DocDate\",'YYYY-MM-DD'),to_char(\"U_BPP_FECINITRA\", 'YYYY-MM-DD'),'NC',\"DocTotal\",null from {uti.schemaHana}ORIN where (\"U_SYP_MDTO\" || '-' || \"U_SYP_MDSO\" || '-' || \"U_SYP_MDCO\") IN ('{FacturasConcatenadas}') {AndWhere}";
+            string query = $"SELECT 'ORIN',\"U_SYP_MDTD\",\"U_SYP_MDSD\",\"U_SYP_MDCD\", TO_CHAR(\"DocDate\",'YYYY-MM-DD'),to_char(\"U_BPP_FECINITRA\", 'YYYY-MM-DD'),'NC',\"DocTotal\",null from {uti.schemaHana}ORIN where (\"U_SYP_MDTO\" || '-' || \"U_SYP_MDSO\" || '-' || \"U_SYP_MDCO\") IN ({FacturasConcatenadas}) {AndWhere}";
             List<Comprobante_E> lista = EjecutarConsultaComprobante(query);
             return lista;
         }
         public List<Comprobante_E> ObtenerEncabezadoNotaDebito(string FacturasConcatenadas)
         {
-            string query = $"SELECT 'OINV', \"U_SYP_MDTD\", \"U_SYP_MDSD\", \"U_SYP_MDCD\", to_char(\"DocDate\", 'YYYY-MM-DD'), to_char(\"U_BPP_FECINITRA\", 'YYYY-MM-DD'), 'ND', \"DocTotal\",null FROM {uti.schemaHana}OINV WHERE \"U_SYP_MDTD\" = '08' AND (\"U_SYP_MDTO\" || '-' || \"U_SYP_MDSO\" || '-' || \"U_SYP_MDCO\") IN ('{FacturasConcatenadas}')";
+            string query = $"SELECT 'OINV', \"U_SYP_MDTD\", \"U_SYP_MDSD\", \"U_SYP_MDCD\", to_char(\"DocDate\", 'YYYY-MM-DD'), to_char(\"U_BPP_FECINITRA\", 'YYYY-MM-DD'), 'ND', \"DocTotal\",null FROM {uti.schemaHana}OINV WHERE \"U_SYP_MDTD\" = '08' AND (\"U_SYP_MDTO\" || '-' || \"U_SYP_MDSO\" || '-' || \"U_SYP_MDCO\") IN ({FacturasConcatenadas})";
             List<Comprobante_E> lista = EjecutarConsultaComprobante(query);
             return lista;
         }

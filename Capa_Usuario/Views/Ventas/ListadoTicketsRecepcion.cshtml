@@ -63,8 +63,9 @@
         <div class="mx-2">
             <select name="AlmProcedencia" id="AlmProcedencia" class="form-control @bgAlmProcedencia" onchange="filtrar();">
                 <option value="">Almacen de procedencia</option>
-                <option value="16" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.AlmProcedencia == "16") { Write("selected"); } }>Almacen Nro 8</option>
-                <option value="ALM07" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.AlmProcedencia == "ALM07") { Write("selected"); } }>Almacen Nro 6</option>
+                <option value="16" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.AlmProcedencia == "16") { Write("selected"); } }>ALMACÉN Nº8</option>
+                <option value="ALM07" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.AlmProcedencia == "ALM07") { Write("selected"); } }>ALMACÉN Nº6</option>
+                <option value="03" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.AlmProcedencia == "03") { Write("selected"); } }>ALMACÉN Nº3</option>
             </select>
         </div>
     </div>

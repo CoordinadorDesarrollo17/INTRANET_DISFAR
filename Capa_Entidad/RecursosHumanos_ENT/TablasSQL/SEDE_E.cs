@@ -1,4 +1,6 @@
-﻿namespace Capa_Entidad.RecursosHumanos_ENT.TablasSQL
+﻿using Capa_Entidad.Seguridad_ENT;
+
+namespace Capa_Entidad.RecursosHumanos_ENT.TablasSQL
 {
     public class SEDE_E
     {
@@ -6,6 +8,7 @@
         public string Nombre { get; set; }
         public int UbigeoID { get; set; }
         public string Estado { get; set; }
+        public string UsuarioOperacion { get; set; }
 
         // Campos que no son de la tabla
         public string DescripcionEstado { get; set; }

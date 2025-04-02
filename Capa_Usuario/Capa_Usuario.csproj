@@ -39,7 +39,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
     <OutputPath>bin\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
@@ -602,6 +602,13 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
+    <Content Include="Scripts\RecursosHumanos\Index.js" />
+    <Content Include="Scripts\RecursosHumanos\ModuloAreas.js" />
+    <Content Include="Scripts\RecursosHumanos\ModuloCargos.js" />
+    <Content Include="Scripts\RecursosHumanos\ModuloDepartamentos.js" />
+    <Content Include="Scripts\RecursosHumanos\ModuloEmpleado.js" />
+    <Content Include="Scripts\RecursosHumanos\ModuloNumerosCorporativos.js" />
+    <Content Include="Scripts\RecursosHumanos\ModuloSedes.js" />
     <Content Include="Scripts\Rutas\HojaDeReparto.js" />
     <Content Include="Scripts\Rutas\TransferenciaEntreAlmacenes.js" />
     <Content Include="Scripts\shared\jquery.doubleScroll.js" />
@@ -633,6 +640,7 @@
     <Compile Include="Controllers\ComprobantesContablesController.cs" />
     <Compile Include="Controllers\DireccionTecnicaController.cs" />
     <Compile Include="Controllers\IndexController.cs" />
+    <Compile Include="Controllers\RecursosHumanosController.cs" />
     <Compile Include="Controllers\RepartosController.cs" />
     <Compile Include="Controllers\ReportesDigemidController.cs" />
     <Compile Include="Controllers\RutasController.cs" />
@@ -1012,6 +1020,13 @@
     <Content Include="Views\Shared\AbastecimientoInterno\_ListadoStockPicking.cshtml" />
     <Content Include="Views\Shared\_MenuSistemaItem.cshtml" />
     <Content Include="Views\Shared\_MenuSistemaItemMobile.cshtml" />
+    <Content Include="Views\RecursosHumanos\Index.cshtml" />
+    <Content Include="Views\Shared\RecursosHumanos\ListadoAreas.cshtml" />
+    <Content Include="Views\Shared\RecursosHumanos\ListadoCargos.cshtml" />
+    <Content Include="Views\Shared\RecursosHumanos\ListadoDepartamentos.cshtml" />
+    <Content Include="Views\Shared\RecursosHumanos\ListadoEmpleados.cshtml" />
+    <Content Include="Views\Shared\RecursosHumanos\ListadoNumerosCorporativos.cshtml" />
+    <Content Include="Views\Shared\RecursosHumanos\ListadoSedes.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

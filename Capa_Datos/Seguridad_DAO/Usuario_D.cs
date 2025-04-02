@@ -115,13 +115,15 @@ namespace Capa_Datos
                             }
                         }
                     }
-
-                    // Actualizar FechaUltimoIngreso
-                    using (SqlCommand updateCmd = new SqlCommand(updateQuery, cn, transaction))
+                    if (u != null)
                     {
-                        updateCmd.Parameters.AddWithValue("@user", user);
-                        updateCmd.Parameters.AddWithValue("@pass", pass);
-                        updateCmd.ExecuteNonQuery();
+                        // Actualizar FechaUltimoIngreso
+                         using (SqlCommand updateCmd = new SqlCommand(updateQuery, cn, transaction))
+                        {
+                            updateCmd.Parameters.AddWithValue("@user", user);
+                            updateCmd.Parameters.AddWithValue("@pass", pass);
+                            updateCmd.ExecuteNonQuery();
+                        }
                     }
 
                     transaction.Commit();
@@ -558,7 +560,7 @@ namespace Capa_Datos
             string query = "SELECT concat(T.Nombres,' ',T.Apellidos) " +
                            "FROM ousr T " +
                            "INNER JOIN rrhh.OEMPL T0 " +
-                           "    ON T.EmpleadoID = T0.ID " +
+                           "    ON T.EmpleadoID = T0.IdOEMPL " +
                            "WHERE T.idrol = 55 " +
                            "    AND T.activo = 1 " +
                            "    AND T0.NroDocumento NOT IN (SELECT Name FROM [al].[OCHO]);";

@@ -1,5 +1,4 @@
 ﻿using Capa_Entidad.Almacen_ENT.Tablas;
-using DocumentFormat.OpenXml.Drawing.Diagrams;
 using Sap.Data.Hana;
 using System;
 using System.Collections.Generic;
@@ -11,24 +10,12 @@ namespace Capa_Datos.Almacen_DAO.Tablas
 {
     public class OIBT_D
     {
-        readonly Utilitarios uti = new Utilitarios(); 
-        DBHelper db = new DBHelper();
-        public bool TieneValores<T>(T entidad) where T : class
-        {
-            if(entidad == null) return false;
-            return typeof(T).GetProperties().Any(x => x.GetValue(entidad) != null
-            && !string.IsNullOrWhiteSpace(x.GetValue(entidad)?.ToString()));
-        }
+        readonly Utilitarios uti = new Utilitarios(); DBHelper db = new DBHelper();
         public List<OIBT_E> ListarArticulosLotes(OIBT_E filtro = null, bool joinOITM = false, string limite = "500")
         {
-            var lista = new List<OIBT_E>();
-
-            string fil = string.Empty;
-            string query = string.Empty;
-            string select = string.Empty;
-            string innerJoin = string.Empty;
-
-            if (!TieneValores(filtro))
+            List<OIBT_E> lista = new List<OIBT_E>();
+            string fil = string.Empty, query = string.Empty, select, innerJoin = string.Empty;
+            if (filtro == null)
             {
                 query = "select top 50 \"ItemCode\",\"BatchNum\",\"WhsCode\",\"ItemName\",TO_CHAR(\"ExpDate\", 'YYYY-MM-DD'), \"Quantity\" " +
                 " from " + uti.schemaHana + "OIBT where \"ItemCode\" is not null order by \"ItemCode\"";
