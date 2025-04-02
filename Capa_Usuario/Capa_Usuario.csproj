@@ -955,7 +955,6 @@
     <Content Include="Views\Almacen\EditarDevolucion.cshtml" />
     <Content Include="Views\Almacen\EditarDevolucionAlmDEV07.cshtml" />
     <Content Include="Views\Almacen\FormatoDevolucionSimple.cshtml" />
-    <Content Include="Views\Almacen\FormatoDevolucionDT.cshtml" />
     <Content Include="Views\Almacen\NuevaDevolucion.cshtml" />
     <Content Include="Views\Almacen\SeguimientoDevolucion.cshtml" />
     <Content Include="Views\Almacen\NuevaDevolucionAlmDEV07.cshtml" />
@@ -1027,6 +1026,7 @@
     <Content Include="Views\Shared\RecursosHumanos\ListadoEmpleados.cshtml" />
     <Content Include="Views\Shared\RecursosHumanos\ListadoNumerosCorporativos.cshtml" />
     <Content Include="Views\Shared\RecursosHumanos\ListadoSedes.cshtml" />
+    <Content Include="Views\Almacen\FormatoDevolucionDT.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

@@ -72,7 +72,7 @@ namespace Capa_Usuario.Controllers
                 try
                 {
                     var result = ousrN.crearUsuario(datosPost, $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}");
-                    return RedirectToAction("GestionPermisos", new { result.Mensaje });
+                    return RedirectToAction("GestionPermisos", new { result.Mensajes });
                 }
                 catch (Exception e)
                 {

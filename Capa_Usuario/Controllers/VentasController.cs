@@ -42,7 +42,7 @@ namespace Capa_Usuario.Controllers
         ORTV_N _ticketN = new ORTV_N();
         OLDS_N _libroDeSaldoN = new OLDS_N();
         CC_ORTV_N ccORTV_N = new CC_ORTV_N();
-        UBICACIONES_N ubicacionesN = new UBICACIONES_N();
+        UbicacionesLotes_N _ubicacionesLotesN = new UbicacionesLotes_N();
         private readonly OUSR_OPE_N _usuarioOperacionN = new OUSR_OPE_N();
 
         /************************* C O N F I G U R A C I Ó N *************************/
@@ -384,7 +384,7 @@ namespace Capa_Usuario.Controllers
                     ORTV_E tc = _ticketN.ObtenerDatosCompletosTicket(DocEntry);
                     tc.orru = orruN.obtenerOrdenDeRutaTicket(DocEntry);
 
-                  
+
                     // Creamos la estructura de parámetros para el método
                     Dictionary<string, Object> datos = new Dictionary<string, Object>()
                     {
@@ -484,7 +484,7 @@ namespace Capa_Usuario.Controllers
                     Usuario_E usu = (Usuario_E)Session["UsuarioId"];
                     string Operario = $"{usu.Nombres} {usu.Apellidos}";
                     int DocNum = ortvN.Cancelar(DocEntry, Operario, usu.IdRol);
-                    return RedirectToAction(vista, new { DocNum});
+                    return RedirectToAction(vista, new { DocNum });
                 }
                 catch (Exception e)
                 {
@@ -839,20 +839,20 @@ namespace Capa_Usuario.Controllers
                     zonaDistinta = ticketPost.zonaDistinta,
                     Mensaje = string.Empty
                 };
-                bool hayFinVerificar = false; 
+                bool hayFinVerificar = false;
                 int DocNum = 0;
                 try
                 {
                     Usuario_E u = (Usuario_E)Session["UsuarioId"];
                     List<CC_ORTV_E> ticketFinVerificar = ccORTV_N.ListarCC_ORTV(DocEntry, "FIN VERIFICAR");
-                    List<CC_ORTV_E> ticketAnularFinVerificar= ccORTV_N.ListarCC_ORTV(DocEntry, "ANULAR FIN VERIFICAR");
+                    List<CC_ORTV_E> ticketAnularFinVerificar = ccORTV_N.ListarCC_ORTV(DocEntry, "ANULAR FIN VERIFICAR");
                     List<CC_ORTV_E> listaCC = new List<CC_ORTV_E>() { ticketFinVerificar[0], ticketAnularFinVerificar[0] }.OrderByDescending(x => x.Id).ToList();
                     if (listaCC.FirstOrDefault().Operacion == "FIN VERIFICAR") { hayFinVerificar = true; }
 
                     if (hayFinVerificar)
                     {
                         ORTV_N negtik = new ORTV_N();
-                        ORTV_E ticket = negtik.ObtenerDatosCompletosTicket(DocEntry); 
+                        ORTV_E ticket = negtik.ObtenerDatosCompletosTicket(DocEntry);
                         string Guias = "";
                         if (ticket.LugarDestino.Equals("Arriola") || ticket.LugarDestino.Equals("Centro"))
                         {
@@ -1852,7 +1852,7 @@ namespace Capa_Usuario.Controllers
                     ticket.NroMesa = ticketPost.NroMesa;
                     ticket.Operario = usuario.WhsCode;      //envia el dato de WhsCode del usuario
                     ticket.Det13 = ticketPost.Det13;        // OpEmpacador 2 y OpEmpacador 3
-                   
+
                     int DocNum = _ticketN.editarSeguimientoTicket("FIN EMPACAR", DocEntry, ticket);
                     var listaUsuarios = _usuarioN.ListaUsuarios(new Usuario_E() { Prefijo = "ALM" });
                     var usuariosDistinct = listaUsuarios.Select(x => $"{x.Nombres} {x.Apellidos}").Distinct().ToList();
@@ -3838,7 +3838,12 @@ namespace Capa_Usuario.Controllers
             foreach (var ordr in lista)
             {
                 almProcedencia = string.IsNullOrEmpty(almProcedencia) ? ordr.Almacen : almProcedencia;
-                ordr.Ubicaciones = ubicacionesN.BuscarUbicaciones(ordr.ItemCode, ordr.Lote, almProcedencia);
+                string[] ubicaciones = _ubicacionesLotesN.ListarUbicaciones(new Capa_Entidad.AbastecimientoInterno_ENT.TablasSql.UbicacionesLotes_E { ItemCode = ordr.ItemCode, BatchNum = ordr.Lote, Almacen = almProcedencia })
+                    .Select(u => u.CodigoUbicacion)
+                    .Where(c => !string.IsNullOrWhiteSpace(c)) // limpia nulos y vacíos
+                    .ToArray();
+
+                ordr.Ubicaciones = ubicaciones;
             }
             lista = lista
         .OrderBy(x => x.Ubicaciones != null && x.Ubicaciones.Length > 0 ? x.Ubicaciones[0] : string.Empty)
