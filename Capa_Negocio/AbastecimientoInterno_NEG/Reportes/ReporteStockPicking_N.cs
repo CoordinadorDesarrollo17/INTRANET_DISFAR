@@ -46,7 +46,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.Reportes
 
                     item.StockLibre = stockEnPicking;
                     item.Clasificacion = (controlPorItemCode != null) ? controlPorItemCode.Clasificacion : string.Empty;
-                    item.StockMinAbastecimiento = (controlPorItemCode != null) ? controlPorItemCode.StockMinAbastecimiento : 0;
+                    item.StockMinAbastecimiento = (controlPorItemCode != null && item.StockLibre > 0) ? controlPorItemCode.StockMinAbastecimiento : 0;        // Debe existir stock en RESERVA 
                 }
             }
 
