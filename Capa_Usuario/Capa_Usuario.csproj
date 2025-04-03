@@ -1013,7 +1013,6 @@
     <Content Include="Views\Shared\AbastecimientoInterno\_ListadoStockReserva.cshtml" />
     <Content Include="Views\AbastecimientoInterno\StockReserva.cshtml" />
     <Content Include="Views\AbastecimientoInterno\StockMinimoPicking.cshtml" />
-    <Content Include="Views\AbastecimientoInterno\ApilarIngreso.cshtml" />
     <Content Include="Views\Shared\AbastecimientoInterno\_ListadoArticulosSalidaporAlmacen.cshtml" />
     <Content Include="Views\AbastecimientoInterno\StockPicking.cshtml" />
     <Content Include="Views\Shared\AbastecimientoInterno\_ListadoStockPicking.cshtml" />
@@ -1027,6 +1026,7 @@
     <Content Include="Views\Shared\RecursosHumanos\ListadoNumerosCorporativos.cshtml" />
     <Content Include="Views\Shared\RecursosHumanos\ListadoSedes.cshtml" />
     <Content Include="Views\Almacen\FormatoDevolucionDT.cshtml" />
+    <Content Include="Views\AbastecimientoInterno\ApilarIngreso.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

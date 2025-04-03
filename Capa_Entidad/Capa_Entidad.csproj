@@ -49,14 +49,15 @@
   <ItemGroup>
     <Compile Include="AbastecimientoInterno_ENT\Reportes\ReporteStockPicking_E.cs" />
     <Compile Include="AbastecimientoInterno_ENT\Reportes\ReporteStockReserva_E.cs" />
+    <Compile Include="AbastecimientoInterno_ENT\TablasSql\DetalleReservaTransferenciaMasiva_E.cs" />
     <Compile Include="AbastecimientoInterno_ENT\TablasSql\DetalleSolicitudesTraslado_E.cs" />
     <Compile Include="AbastecimientoInterno_ENT\TablasSql\DetalleTransferenciaReserva_E.cs" />
     <Compile Include="AbastecimientoInterno_ENT\TablasSql\ProductosDisponiblesReserva_E.cs" />
-    <Compile Include="AbastecimientoInterno_ENT\TablasSql\LotesRegistroSanitario_E.cs" />
     <Compile Include="AbastecimientoInterno_ENT\TablasSql\Masters_E.cs" />
     <Compile Include="AbastecimientoInterno_ENT\TablasSql\Productos_E.cs" />
     <Compile Include="AbastecimientoInterno_ENT\TablasSql\DetalleRequerimientos_E.cs" />
     <Compile Include="AbastecimientoInterno_ENT\TablasSql\Requerimientos_E.cs" />
+    <Compile Include="AbastecimientoInterno_ENT\TablasSql\ReservaTransferenciaMasiva_E.cs" />
     <Compile Include="AbastecimientoInterno_ENT\TablasSql\SolicitudesTraslado_E.cs" />
     <Compile Include="AbastecimientoInterno_ENT\TablasSql\StockMinProductos_E.cs" />
     <Compile Include="AbastecimientoInterno_ENT\TablasSql\TransferenciaReserva_E.cs" />
