@@ -403,6 +403,32 @@ a {
     }
 
 
+.btn-outline-cobefar-2 {
+    color: #156993;
+    background-color: transparent;
+    border: 1px solid #156993;
+}
+
+    .btn-outline-cobefar-2:hover {
+        color: #fff;
+        background-color: #156993;
+        border-color: #156993;
+    }
+
+    .btn-outline-cobefar-2:focus,
+    .btn-outline-cobefar-2.focus {
+        box-shadow: 0 0 0 0.25rem rgba(21, 105, 147, 0.5);
+    }
+
+    .btn-outline-cobefar-2:disabled,
+    .btn-outline-cobefar-2.disabled {
+        color: #156993;
+        background-color: transparent;
+        border-color: #156993;
+        opacity: 0.65;
+    }
+
+
 .btn-cobefar-3 {
     color: #000000;
     background-color: #96c03d; /* Color de fondo */

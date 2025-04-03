@@ -1,6 +1,7 @@
 ﻿@{
     ViewBag.Title = "Requerimientos";
     Layout = "~/Views/Shared/_DefaultLayout.cshtml";
+    var isPopup = Request.QueryString["popup"] != null && Request.QueryString["popup"].ToLower() == "true";
 }
 
 @section Styles {
@@ -47,18 +48,21 @@
     </style>
 }
 
-<div class="pt-3">
-    <nav>
-        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
-            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
-            <li><a href="@Url.Action("Sesion", "Index")">Abastecimiento Interno</a></li>
-            <li class="current"><em>Requerimientos</em></li>
-        </ol>
-    </nav>
-</div>
+@if (!isPopup)
+{
+    <div class="pt-3">
+        <nav>
+            <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+                <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+                <li><a href="@Url.Action("Sesion", "Index")">Abastecimiento Interno</a></li>
+                <li class="current"><em>@ViewBag.Title</em></li>
+            </ol>
+        </nav>
+    </div>
+}
 
 <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
-    <div class="row px-3 pt-3"><h3 class="titulo-seccion">REQUERIMIENTOS</h3></div>
+    <div class="row px-3 pt-3"><h3 class="titulo-seccion">@ViewBag.Title.ToUpper()</h3></div>
 </div>
 
 <div class="bg-white px-3 py-3 align-items-center">
