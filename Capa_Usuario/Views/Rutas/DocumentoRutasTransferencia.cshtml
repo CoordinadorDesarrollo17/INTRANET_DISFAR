@@ -44,7 +44,13 @@
             </tr>
             <tr>
                 <td colspan=14 align=center><font size="@(ViewBag.Letra+1)"><strong>REGISTRO DE RUTAS TRANSFERENCIAS</strong></font></td>
-                <td align=right><font size="@(ViewBag.Letra+1)">F/DBT-002</font></td>
+                <td align=right>
+                    <table width="100%">
+                        <tr>
+                            <td width="100" style="text-align: center; border: 1px solid;"><strong> <font size="@(ViewBag.Letra+1)">F/DBT-002</font></strong></td>
+                            <td style="text-align: center; border: 1px solid;" width="30"><strong>V1</strong></td>
+                        </tr>
+                    </table>
             </tr>
             <tr>
                 <td><font size="@ViewBag.Letra" px><strong>TRANSPORTISTA: </strong></font></td>
@@ -178,6 +184,18 @@
                 <td><font size="@ViewBag.Letra">4._____________</font></td>
             </tr>
         </table>
+
+        <table width="100%">
+            <tr>
+                <td colspan="26">
+                    <table width="50%" style="margin: auto; padding-top: 20px">
+                        <tr>
+                            <td style="color: black; border: solid 1px; border-color: gray; font-size: 11px;text-align: center">Prohibido reproducir sin autorización de DROGUERÍA COBEFAR</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
     </div>
     @if (lstReg.Count > 0)
     {
@@ -290,26 +308,38 @@
             <div style="clear:both;"></div>
 
             <br /><br />
-            <div>
-                <table>
-                    <tr>
-                        <td width=100px><font size="@ViewBag.Letra"></font></td>
-                        <td><font size="@ViewBag.Letra">__________________</font></td>
-                        <td><font size="@ViewBag.Letra"></font></td>
-                        <td width=600px><font size="@ViewBag.Letra"></font></td>
-                        <td><font size="@ViewBag.Letra">__________________</font></td>
-                        <td><font size="@ViewBag.Letra"></font></td>
-                    </tr>
-                    <tr>
-                        <td><font size="@ViewBag.Letra"></font></td>
-                        <td><font size="@ViewBag.Letra">TRANSPORTISTA </font></td>
-                        <td><font size="@ViewBag.Letra"></font></td>
-                        <td><font size="@ViewBag.Letra"></font></td>
-                        <td><font size="@ViewBag.Letra">VIGILANCIA</font></td>
-                        <td><font size="@ViewBag.Letra"></font></td>
-                    </tr>
-                </table>
-            </div>
+                  <div>
+                      <table>
+                          <tr>
+                              <td width=100px><font size="@ViewBag.Letra"></font></td>
+                              <td><font size="@ViewBag.Letra">__________________</font></td>
+                              <td><font size="@ViewBag.Letra"></font></td>
+                              <td width=600px><font size="@ViewBag.Letra"></font></td>
+                              <td><font size="@ViewBag.Letra">__________________</font></td>
+                              <td><font size="@ViewBag.Letra"></font></td>
+                          </tr>
+                          <tr>
+                              <td><font size="@ViewBag.Letra"></font></td>
+                              <td><font size="@ViewBag.Letra">TRANSPORTISTA </font></td>
+                              <td><font size="@ViewBag.Letra"></font></td>
+                              <td><font size="@ViewBag.Letra"></font></td>
+                              <td><font size="@ViewBag.Letra">VIGILANCIA</font></td>
+                              <td><font size="@ViewBag.Letra"></font></td>
+                          </tr>
+                      </table>
+
+                      <table width="100%">
+                          <tr>
+                              <td colspan="26">
+                                  <table width="50%" style="margin: auto; padding-top: 20px">
+                                      <tr>
+                                          <td style="color: black; border: solid 1px; border-color: gray; font-size: 11px;text-align: center">Prohibido reproducir sin autorización de DROGUERÍA COBEFAR</td>
+                                      </tr>
+                                  </table>
+                              </td>
+                          </tr>
+                      </table>
+                  </div>
         </div>
     }
 </body>
