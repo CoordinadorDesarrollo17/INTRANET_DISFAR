@@ -182,57 +182,6 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             return new Helper_E { Mensajes = new List<string> { mensaje }, Icono = icono };
         }
-        public List<string> BuscarUnidadAlm(SqlConnection cn, string condicion, Dictionary<string, object> parametrosCondicion)
-        {
-
-            List<string> lista = new List<string>();
-            try
-            {
-                if (cn.State != ConnectionState.Open)
-                {
-                    cn.Open();
-                }
-
-                SqlCommand cmd = new SqlCommand();
-                cmd.Connection = cn;
-
-                var sb = new StringBuilder();
-
-                sb.AppendLine("SELECT [UmAlm]");
-                sb.AppendLine("FROM [dbo].[UbicacionesLotesMaster] WHERE 1=1");
-                sb.AppendLine(condicion);
-
-                // Agregamos los parámetros dinámicamente
-                foreach (var param in parametrosCondicion)
-                {
-                    cmd.Parameters.AddWithValue(param.Key, param.Value);
-                }
-
-                cmd.CommandText = sb.ToString();
-
-                cn.Open();
-
-                using (SqlDataReader dr = cmd.ExecuteReader())
-                {
-                    if (dr.HasRows)
-                    {
-                        while (dr.Read())
-                        {
-                            var unidadAlm = string.Empty;
-                            if (!dr.IsDBNull(0)) unidadAlm = dr.GetString(0);
-                            if (!string.IsNullOrEmpty(unidadAlm)) { lista.Add(unidadAlm); }
-                        }
-                    }
-                }
-
-            }
-            catch (Exception ex)
-            {
-                LogHelper.RegistrarError(ex, "UbicacionesLotesMaster_D - BuscarUnidadAlm");
-            }
-
-            return lista;
-        }
         public List<UbicacionesLotesMaster_E> BuscarArticulos(string condicion, Dictionary<string, object> parametrosCondicion)
         {
             List<UbicacionesLotesMaster_E> lista = null;

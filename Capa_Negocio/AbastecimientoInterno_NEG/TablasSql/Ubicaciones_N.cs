@@ -20,10 +20,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         {
             return _datos.BuscarUbicacion(almacen, ubicacion);
         }
-        public string[] ListarTotalUbicacionesEnArray(string almacen, string itemCode)
-        {
-            return _datos.ListarTotalUbicacionesEnArray(almacen, itemCode);
-        }
+
         public List<Ubicaciones_E> ListarUbicaciones(Ubicaciones_E filtros = null, SqlConnection cn = null, Dictionary<string, object> parametros = null )
         {
             StringBuilder condicion = new StringBuilder();

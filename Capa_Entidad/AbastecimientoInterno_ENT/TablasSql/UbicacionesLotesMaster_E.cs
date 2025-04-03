@@ -3,7 +3,6 @@
     public class UbicacionesLotesMaster_E
     {
         public int Id { get; set; }
-        public int UbicacionLoteId { get; set; }
         public string Almacen { get; set; }
         public string ItemCode { get; set; }
         public string ItemName { get; set; }

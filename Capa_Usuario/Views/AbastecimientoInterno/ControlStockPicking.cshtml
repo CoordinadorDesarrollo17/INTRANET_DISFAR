@@ -78,20 +78,24 @@
 
 <div class="bg-white px-3 py-3 align-items-center">
     <div class="row mb-4">
-        <div class="d-flex justify-content-end">
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#filterModal">
-                <i class="bi bi-filter-circle"></i> Filtrar
+        <div class="col-12">
+            <button type="button" class="btn btn-warning" onclick="irARequerimientos()" title="Ir a Requerimientos" data-bs-toggle="tooltip" data-bs-placement="top">
+                <i class="bi bi-box-arrow-right"></i> Ir a Requerimientos
             </button>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#filterModal"><i class="bi bi-filter-circle"></i> Filtrar</button>
         </div>
+    </div>
+
+    <div class="row">
         <div class="col-lg-12">
             <table id="tbl_listaControlStockPicking" class="dt-container dt-empty-footer table table-sm table-hover font-14 w-100 table-responsive">
                 <thead class="thead-cobefar">
                     <tr>
-                        <th scope="col" class="text-center">Código de artículo</th>
+                        <th scope="col" class="text-center" width="10%">Código de artículo</th>
                         <th scope="col" class="text-center">Descripción</th>
-                        <th scope="col" class="text-center">Clasificacion</th>
-                        <th scope="col" class="text-center">Stock Actual</th>
-                        <th scope="col" class="text-center">Stock Min Abastecimiento</th>
+                        <th scope="col" class="text-center">Clasificación</th>
+                        <th scope="col" class="text-center" width="10%">Stock Actual</th>
+                        <th scope="col" class="text-center">Stock Min. Abastecimiento</th>
                         <th scope="col" class="text-center" width="10%"></th>
                         <th scope="col" class="text-center" width="10%"></th>
                     </tr>
@@ -121,7 +125,7 @@
 
                         <tr>
                             <td class="text-center align-middle">@item.ItemCode</td>
-                            <td class="text-center align-middle">@item.ItemName</td>
+                            <td class="align-middle"><span class="ps-2">@item.ItemName</span></td>
                             <td class="text-center align-middle">@item.Clasificacion</td>
                             <td class="text-center align-middle">@item.StockActual</td>
                             <td class="text-center align-middle">@item.StockMinAbastecimiento</td>
@@ -140,30 +144,30 @@
                                         }
                                         else if (item.StockActual <= 0)
                                         {
-                                                <div class="progress-bar bg-danger text-white fw-bold" role="progressbar" data-stockmin="@item.StockMinAbastecimiento"
-                                                     style="width: 100%"
-                                                     aria-valuenow="0"
-                                                     aria-valuemin="0"
-                                                     aria-valuemax="100">
-                                                    SIN STOCK
-                                                </div>
+                                            <div class="progress-bar bg-danger text-white fw-bold" role="progressbar" data-stockmin="@item.StockMinAbastecimiento"
+                                                 style="width: 100%"
+                                                 aria-valuenow="0"
+                                                 aria-valuemin="0"
+                                                 aria-valuemax="100">
+                                                SIN STOCK
+                                            </div>
                                         }
                                         else
                                         {
-                                                <div class="progress-bar bg-secondary text-white fw-bold" role="progressbar" data-stockmin="@item.StockMinAbastecimiento"
-                                                     style="width: 100%"
-                                                     aria-valuenow="0"
-                                                     aria-valuemin="0"
-                                                     aria-valuemax="100">
-                                                    SIN PARAMETRO
-                                                </div>
+                                            <div class="progress-bar bg-secondary text-white fw-bold" role="progressbar" data-stockmin="@item.StockMinAbastecimiento"
+                                                 style="width: 100%"
+                                                 aria-valuenow="0"
+                                                 aria-valuemin="0"
+                                                 aria-valuemax="100">
+                                                SIN PARAMETRO
+                                            </div>
                                         }
                                     </div>
                                 </div>
                             </td>
                             <td>
                                 <div class="d-flex justify-content-center align-items-center ">
-                                    <button type="button" class="btn btn-cobefar-2 btn-sm" onclick="gestionarBusquedaUbicaciones('@item.ItemCode')">
+                                    <button type="button" class="btn btn-sm btn-outline-cobefar-2" onclick="gestionarBusquedaUbicaciones('@item.ItemCode')" title="Ubicaciones" data-bs-toggle="tooltip" data-bs-placement="top">
                                         <i class="bi bi-arrow-up-right"></i> Ubicaciones
                                     </button>
                                 </div>
@@ -229,17 +233,17 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         if (!$.fn.DataTable.isDataTable('tbl_listaControlStockPicking')) {
-            inicializarDataTable('tbl_listaControlStockPicking', 100);
+            inicializarDataTable('tbl_listaControlStockPicking', 50);
             aplicarFiltro();
         }
         ordenarTablaStockPicking();
     });
     let modalInstance = null;
     let itemCodeActual = null;
-   async function gestionarBusquedaUbicaciones(itemCode) {
+    async function gestionarBusquedaUbicaciones(itemCode) {
         if (itemCodeActual !== itemCode) {
-            itemCodeActual = itemCode; 
-            await cargarUbicaciones(itemCode); 
+            itemCodeActual = itemCode;
+            await cargarUbicaciones(itemCode);
         }
     }
     async function cargarUbicaciones(itemCode) {
@@ -256,7 +260,7 @@
 
             // Verificar que haya ubicaciones
             if (!ubicacionesLotes || ubicacionesLotes.length === 0) {
-                Swal.fire('','No se encontraron ubicaciones para este código.','warning');
+                Swal.fire('', 'No se encontraron ubicaciones para este código.', 'warning');
                 return;
             }
 
@@ -268,7 +272,7 @@
             ubicacionesLotes.forEach((ubicacion) => {
                 const item = document.createElement('p');
                 item.className = 'list-group-item';
-                item.textContent = ubicacion.CodigoUbicacion; 
+                item.textContent = ubicacion.CodigoUbicacion;
                 contenedor.appendChild(item);
             });
 
@@ -347,6 +351,14 @@
         table.clear();
         table.rows.add(listaOrdenada.map(item => item.row));
         table.draw(false);
+    }
+
+    function irARequerimientos() {
+        window.open(
+            '/AbastecimientoInterno/Requerimientos?popup=true',
+            '_blank',
+            'width=1200,height=700,scrollbars=yes,resizable=yes'
+        )
     }
 </script>
 

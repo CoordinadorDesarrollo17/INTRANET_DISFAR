@@ -17,6 +17,7 @@ using System.Linq;
 using System.Transactions;
 using System.Web;
 using System.Web.Mvc;
+using IsolationLevel = System.Transactions.IsolationLevel;
 
 namespace Capa_Usuario.Controllers
 {
@@ -2237,6 +2238,155 @@ namespace Capa_Usuario.Controllers
                 });
             }
         }
+
+        [HttpPost]
+        public JsonResult AtenderReservaMasiva(List<ReservaTransferenciaMasiva_E> solicitudes, int idOperation = 3503)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
+            {
+                return Json(new
+                {
+                    Titulo = "Acceso denegado",
+                    Mensajes = new List<string> { "No tienes permisos para realizar esta operación." },
+                    Icono = "error"
+                });
+            }
+
+            if (solicitudes == null || !solicitudes.Any())
+            {
+                return Json(new
+                {
+                    Titulo = "Datos inválidos",
+                    Mensajes = new List<string> { "No se encontraron solicitudes a procesar." },
+                    Icono = "error"
+                });
+            }
+
+            try
+            {
+                var usuario = (Usuario_E)Session["UsuarioId"];
+                if (usuario == null)
+                {
+                    return Json(new
+                    {
+                        Titulo = "Sesión finalizada",
+                        Mensajes = new List<string> { "Debes iniciar sesión nuevamente." },
+                        Icono = "error"
+                    });
+                }
+
+                var listaUbicaciones = _ubicacionesN.ListarUbicaciones(new Ubicaciones_E { Almacen = "RESERVA" });
+                Utilitarios uti = new Utilitarios();
+
+                using (var scope = new TransactionScope(TransactionScopeOption.Required,
+                    new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted },
+                    TransactionScopeAsyncFlowOption.Enabled))
+                using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+                {
+                    cn.Open();
+
+                    foreach (var solicitud in solicitudes)
+                    {
+                        if (solicitud?.Detalles == null || !solicitud.Detalles.Any())
+                        {
+                            return Json(new
+                            {
+                                Titulo = "Datos inválidos",
+                                Mensajes = new List<string> { "Una de las solicitudes no tiene detalles válidos." },
+                                Icono = "error"
+                            });
+                        }
+
+                        foreach (var detalle in solicitud.Detalles)
+                        {
+                            if (detalle.DetalleId <= 0 || string.IsNullOrEmpty(detalle.ItemCode) ||
+                                string.IsNullOrEmpty(detalle.ItemName) || string.IsNullOrEmpty(detalle.CodigoUbicacion))
+                            {
+                                return Json(new
+                                {
+                                    Titulo = "Error en datos",
+                                    Mensajes = new List<string> { "Uno de los ítems contiene información inválida." },
+                                    Icono = "error"
+                                });
+                            }
+
+                            if (!listaUbicaciones.Any(u => u.CodigoUbicacion == detalle.CodigoUbicacion))
+                            {
+                                return Json(new
+                                {
+                                    Titulo = "Ubicación inválida",
+                                    Mensajes = new List<string> { $"La ubicación {detalle.CodigoUbicacion} no existe." },
+                                    Icono = "error"
+                                });
+                            }
+
+                            var resultAtender = _transferenciaReservaN.AtenderReserva(detalle.DetalleId, cn);
+                            if (resultAtender == null || resultAtender.Icono != "success")
+                            {
+                                return Json(new
+                                {
+                                    Titulo = "Error al atender reserva",
+                                    resultAtender?.Mensajes,
+                                    Icono = resultAtender?.Icono ?? "error"
+                                });
+                            }
+                        }
+
+                        var transferencia = _transferenciaReservaN.ObtenerTransferenciaReserva(solicitud.DocNumSolicitudTraslado, cn);
+                        var itemCodes = solicitud.Detalles.Select(d => d.ItemCode).Distinct();
+
+                        foreach (var itemCode in itemCodes)
+                        {
+                            if (_transferenciaReservaN.ValidarSkuParaKardexIngreso(solicitud.DocNumSolicitudTraslado, itemCode, transferencia))
+                            {
+                                var operario = $"{usuario.Nombres} {usuario.Apellidos}";
+                                var transferenciaPorSku = transferencia.Detalle.Where(d => d.ItemCode == itemCode).ToList();
+                                int cantidadTotal = Convert.ToInt32(transferenciaPorSku.Sum(d => d.QuantityUnidadesCajas));
+
+                                var resultKardex = _kardexAbastecimientoN.InsertarTransaccionIngresoKardex(
+                                    itemCode, transferenciaPorSku.First().ItemName, cantidadTotal, operario,
+                                    solicitud.DocNumSolicitudTraslado, transferencia.CardCode, transferencia.CardName, cn);
+
+                                if (resultKardex.Icono != "success")
+                                    return Json(new { Titulo = "Error al registrar Kardex", resultKardex.Mensajes, Icono = resultKardex.Icono });
+
+                                foreach (var item in transferenciaPorSku)
+                                {
+                                    var resultUbicacionesLotes = _ubicacionesLotesN.Ingreso(item, cn);
+                                    if (resultUbicacionesLotes.Icono != "success")
+                                        return Json(new { Titulo = "Error en ingreso de lotes", resultUbicacionesLotes.Mensajes, Icono = resultUbicacionesLotes.Icono });
+
+                                    var resultMaster = _ubicacionesLotesMasterN.Ingreso(resultUbicacionesLotes.Id, item, cn);
+                                    if (resultMaster.Icono != "success")
+                                        return Json(new { Titulo = "Error en ingreso a lotes master", resultMaster.Mensajes, Icono = resultMaster.Icono });
+                                }
+                            }
+                        }
+                    }
+
+                    scope.Complete();
+                }
+
+                return Json(new
+                {
+                    Titulo = "Reservas atendidas",
+                    Mensajes = new List<string> { "Todas las solicitudes fueron procesadas correctamente." },
+                    Icono = "success"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    Titulo = "Error inesperado",
+                    Mensajes = new List<string> { ex.Message },
+                    Icono = "error"
+                });
+            }
+        }
+
+
         /**************** R E A B A S T E C I M I E N T O ****************/
         //Listado de detalle solicitudes de traslado Transferido y atendidoReserva=0 
         public ActionResult Reabastecimiento(int idOperation = 3600)

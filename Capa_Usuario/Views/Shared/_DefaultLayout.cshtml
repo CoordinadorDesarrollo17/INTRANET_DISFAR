@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@{
+    var isPopup = Request.QueryString["popup"] != null && Request.QueryString["popup"].ToLower() == "true";
+}
+
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8">
@@ -59,11 +63,14 @@
             @RenderBody()
         </div>
     </div>
-    <!-- Pie de p�gina -->
-    <footer class="text-center mt-4">
-        @Html.Partial("_Footer")
-    </footer>
 
+    <!-- Pie de página -->
+    @if (!isPopup)
+    {
+        <footer class="text-center mt-4">
+            @Html.Partial("_Footer")
+        </footer>
+    }
     <!-- MODAL UBIGEOS -->
     <div class="modal fade" id="modalUbigeos" tabindex="1" aria-labelledby="_ModalUbigeos" aria-hidden="true" data-backdrop="static">
         <div class="modal-dialog modal-dialog-centered modal-xl">
