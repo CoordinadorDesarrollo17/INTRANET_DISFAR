@@ -27,7 +27,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
                             t.Id == 0)
                 .ToList();
 
-            if (transferencia.Detalle==null || transferencia.Detalle.Count==0)
+            if (transferencia.Detalle == null || transferencia.Detalle.Count == 0)
             {
                 return new Helper_E
                 {
@@ -36,7 +36,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
                 };
             }
             //1. Obtiene la solicitud de traslado completa
-            var trasladoObtenido=_datosTraslado.ObtenerSolicitudDeTraslado(transferencia.SolicitudTrasladoDocNum,cn);
+            var trasladoObtenido = _datosTraslado.ObtenerSolicitudDeTraslado(transferencia.SolicitudTrasladoDocNum, cn);
 
             //2. Compara las cantidades agrupadas por ItemCode
             var cantidadTransferencia = transferencia.Detalle
@@ -57,35 +57,35 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
                 {
                     return new Helper_E
                     {
-                        Mensajes= new List<string>{ "Cantidad que se transfiere NO coincide con el total de Sku: "+item.Key + " según documento. Valide cantidades."},
+                        Mensajes = new List<string> { "Cantidad que se transfiere NO coincide con el total de Sku: " + item.Key + " según documento. Valide cantidades." },
                         Icono = "error"
                     };
                 }
             }
             return _datosTransferencia.RegistrarTransferenciaReserva(transferencia, cn);
         }
-        public TransferenciaReserva_E ObtenerTransferenciaReserva(int docNum,SqlConnection cn)
+        public TransferenciaReserva_E ObtenerTransferenciaReserva(int docNum, SqlConnection cn)
         {
-            return _datosTransferencia.ObtenerTransferenciaReserva(docNum,cn);
+            return _datosTransferencia.ObtenerTransferenciaReserva(docNum, cn);
         }
-        public Helper_E DeleteTransferenciaReserva(int docNum,SqlConnection cn)
+        public Helper_E DeleteTransferenciaReserva(int docNum, SqlConnection cn)
         {
             return _datosTransferencia.DeleteTransferenciaReserva(docNum, cn);
         }
-        public Helper_E DeleteDetalleItemTransferenciaReserva(List<DetalleTransferenciaReserva_E> ids ,  SqlConnection cn)
+        public Helper_E DeleteDetalleItemTransferenciaReserva(List<DetalleTransferenciaReserva_E> ids, SqlConnection cn)
         {
-            return _datosTransferencia.DeleteDetalleItemTransferenciaReserva(ids,  cn);
+            return _datosTransferencia.DeleteDetalleItemTransferenciaReserva(ids, cn);
         }
         public Helper_E AtenderReserva(int detalleId, SqlConnection cn)
         {
-            return _datosTransferencia.AtenderReserva(detalleId,cn);
+            return _datosTransferencia.AtenderReserva(detalleId, cn);
         }
         public List<DetalleTransferenciaReserva_E> ListarDetalles()
         {
             var detalles = _datosTransferencia.ListarDetalles() ?? new List<DetalleTransferenciaReserva_E>();
 
             return detalles
-                .Where(x => x.AtendidoReserva == 0 && x.Validado == 1)
+                .Where(x => x.AtendidoReserva == 0 && x.Validado == 1 && x.CodigoUbicacion != "RESERVA-UBI-SISTEMA")
                 .ToList();
         }
         public bool ValidarSkuParaKardexIngreso(int transferenciaId, string itemCode, TransferenciaReserva_E transferencia)
@@ -93,9 +93,14 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
             bool valido = !transferencia.Detalle.Any(d => d.ItemCode == itemCode && d.AtendidoReserva == 0);
             return valido;
         }
-        public Helper_E ValidarSkuParaApilar(int transferenciaId, string itemCode ,SqlConnection cn)
+        public Helper_E ValidarSkuParaApilar(int transferenciaId, string itemCode, SqlConnection cn)
         {
             return _datosTransferencia.ValidarSkuParaApilar(transferenciaId, itemCode, cn);
         }
+
+        public Helper_E RevertirValidarSkuParaApilar(int transferenciaId, string itemCode)
+        {
+            return _datosTransferencia.RevertirValidarSkuParaApilar(transferenciaId, itemCode);
+        }
     }
- }
+}

@@ -93,7 +93,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
             {
                 table.Rows.Add(0, detalle.ItemCode, detalle.ItemName, detalle.BatchNum, detalle.ExpDate, detalle.InDate,
                                detalle.CodigoUbicacion, detalle.UmAlm, detalle.ValorUmAlm,
-                               detalle.QuantityMaster, detalle.QuantitySaldo, detalle.QuantityUnidadesCajas,detalle.Validado);
+                               detalle.QuantityMaster, detalle.QuantitySaldo, detalle.QuantityUnidadesCajas, detalle.Validado);
             }
             return table;
         }
@@ -156,6 +156,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                                 if (!dr.IsDBNull(12)) detalle.QuantityUnidadesCajas = dr.GetInt32(12);
                                 if (!dr.IsDBNull(13)) detalle.AtendidoReserva = dr.GetInt32(13);
                                 if (!dr.IsDBNull(14)) detalle.Validado = dr.GetInt32(14);
+                                if (!dr.IsDBNull(15)) detalle.DocNumSolicitudTraslado = dr.GetInt32(15);
 
                                 transferencia.Detalle.Add(detalle);
                             }
@@ -209,7 +210,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             return new Helper_E { Mensajes = new List<string> { mensaje }, Icono = icono };
         }
-        public Helper_E DeleteDetalleItemTransferenciaReserva(List<DetalleTransferenciaReserva_E> detTransferenciaReserva,  SqlConnection cn)
+        public Helper_E DeleteDetalleItemTransferenciaReserva(List<DetalleTransferenciaReserva_E> detTransferenciaReserva, SqlConnection cn)
         {
             string mensaje, icono;
             //generar una variable string grupoIds concatenando los valores de Id de ids separados por una coma
@@ -266,23 +267,23 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 }
 
                 using (SqlCommand cmd = new SqlCommand("sp_MantenimientoTransferenciaReserva", cn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "ATD_RESERVA");
+                    cmd.Parameters.AddWithValue("@DetalleId", detalleId);
+                    SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
                     {
-                        cmd.CommandType = CommandType.StoredProcedure;
+                        Direction = ParameterDirection.Output
+                    };
+                    cmd.Parameters.Add(idGeneradoParam);
 
-                        cmd.Parameters.AddWithValue("@TipoMantenimiento", "ATD_RESERVA");
-                        cmd.Parameters.AddWithValue("@DetalleId", detalleId);
-                        SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
-                        {
-                            Direction = ParameterDirection.Output
-                        };
-                        cmd.Parameters.Add(idGeneradoParam);
+                    cmd.ExecuteNonQuery();
 
-                        cmd.ExecuteNonQuery();
+                    mensaje = "Detalle transferencia AtendidoReserva actualizado";
+                    icono = "success";
+                }
 
-                        mensaje = "Detalle transferencia AtendidoReserva actualizado";
-                        icono = "success";
-                    }
-                
             }
             catch (Exception ex)
             {
@@ -382,13 +383,56 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
             }
             catch (Exception ex)
             {
-                LogHelper.RegistrarError(ex, "SolicitudTraslado_D - AtenderReserva");
+                LogHelper.RegistrarError(ex, "TransferenciaReserva_D - ValidarSkuParaApilar");
                 mensaje = "Ocurrió un error al validar en  transferencia detalle. Comuníquese con el área de Sistemas para más información.";
                 icono = "error";
                 throw new Exception("Error en ValidarSkuParaApilar.", ex);
             }
 
             return new Helper_E { Mensajes = new List<string> { mensaje }, Icono = icono };
+        }
+
+        public Helper_E RevertirValidarSkuParaApilar(int transferenciaId, string itemCode)
+        {
+            var resultado = new Helper_E();
+
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+                {
+                    cn.Open();
+
+                    using (SqlCommand cmd = new SqlCommand("sp_MantenimientoTransferenciaReserva", cn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
+                        cmd.Parameters.AddWithValue("@TipoMantenimiento", "REVERT_VALIDAR_APILAR");
+                        cmd.Parameters.AddWithValue("@Id", transferenciaId);
+                        cmd.Parameters.AddWithValue("@ItemCode", itemCode);
+                        SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
+                        {
+                            Direction = ParameterDirection.Output
+                        };
+                        cmd.Parameters.Add(idGeneradoParam);
+
+                        cmd.ExecuteNonQuery();
+
+                        resultado.Titulo = "Acción completada";
+                        resultado.Mensajes.Add("Detalle de transferencia revertido.");
+                        resultado.Icono = "success";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.RegistrarError(ex, "TransferenciaReserva_D - RevertirValidarSkuParaApilar");
+                resultado.Titulo = "Error";
+                resultado.Mensajes.Add("Ocurrió un error al validar en  transferencia detalle.");
+                resultado.Mensajes.Add("Comuníquese con el área de Sistemas para más información.");
+                resultado.Icono = "error";
+            }
+
+            return resultado;
         }
     }
 }
