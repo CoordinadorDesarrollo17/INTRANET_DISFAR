@@ -618,7 +618,7 @@
 
 @if (vistaExterna == false)
 {
-    @section Scripts{
+    @*@section Scripts{*@
         <script src="~/Scripts/RecursosHumanos/Index.js"></script>
         <script>
         function mostrarUbigeos(seleccionar, id = 0) {
@@ -661,20 +661,17 @@
         <script src="~/Scripts/RecursosHumanos/ModuloNumerosCorporativos.js"></script>
         <script src="~/Scripts/RecursosHumanos/ModuloAreas.js"></script>
         <script src="~/Scripts/RecursosHumanos/ModuloCargos.js"></script>
-    }
+    //}
 }
 else
 {
-    @section Scripts{
-        <script>
-            var currentTimestamp = new Date().getTime();
-        </script>
-        <script src="~/Scripts/RecursosHumanos/Index.js?rand=" + currentTimestamp defer></script>
+    @*@section Scripts{*@
+        <script src="~/Scripts/RecursosHumanos/Index.js?v=@DateTime.Now.Ticks" defer></script>
+        @*<script src="~/Scripts/RecursosHumanos/Index.js" defer></script>*@
         <script>
             var mostarMasInfo = false;
         </script>
-        <script src="~/Scripts/RecursosHumanos/ModuloEmpleado.js?rand=" + currentTimestamp defer></script>
-
-
-    }
+        <script src="~/Scripts/RecursosHumanos/ModuloEmpleado.js?v=@DateTime.Now.Ticks" defer></script>
+        @*<script src="~/Scripts/RecursosHumanos/ModuloEmpleado.js" defer></script>*@
+    @*}*@
 }
