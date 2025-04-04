@@ -179,7 +179,7 @@ function cargarAreas(idDpto, idSelectDestino) {
     $.ajax({
         url: '/RecursosHumanos/CargarAreas',
         type: 'POST',
-        data: { iddepartamento: idDpto }
+        data: { idDepartamento: idDpto }
     }).done(function (response) {
         if (response.Mensaje == "OK" && response.Lista.length > 0) {
             for (let indice in response.Lista) {

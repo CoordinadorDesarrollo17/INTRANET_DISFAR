@@ -84,9 +84,8 @@ namespace Capa_Usuario.Controllers
             var datosSedes = sedeN.ListarSedes(filtros);
             return PartialView("RecursosHumanos/ListadoSedes", datosSedes);
         }
-        public JsonResult CargarSedes(int idOperation = 0)
+        public JsonResult CargarSedes()
         {
-            var resultadoAcceso = VerificarPermiso(idOperation);
             var sedes = sedeN.ListarSedes(new SEDE_E { Estado = "1" });
             bool listaValida = (sedes != null && sedes.Count >= 1);
             string mensaje = listaValida ? "OK" : "ERROR";
@@ -158,7 +157,7 @@ namespace Capa_Usuario.Controllers
             var datosCargos = cargoN.ListarCargos(filtros);
             return PartialView("RecursosHumanos/ListadoCargos", datosCargos);
         }
-        public JsonResult CargarCargos(int idOperation = 0)
+        public JsonResult CargarCargos(int idOperation = 4003)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
@@ -243,27 +242,20 @@ namespace Capa_Usuario.Controllers
             var datosAreas = new Capa_Negocio.RecursosHumanos_NEG.TablasSQL.OAREA_N().ListarAreas(filtros);
             return PartialView("RecursosHumanos/ListadoAreas", datosAreas);
         }
-        public JsonResult CargarAreas(int idDepartamento = 0, int idOperation = 0)
+        public JsonResult CargarAreas(int idDepartamento = 0)
         {
-            var resultadoAcceso = VerificarPermiso(idOperation);
-            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            if (idDepartamento > 0)
             {
-                if (idDepartamento > 0)
-                {
-                    var areas = new Capa_Negocio.RecursosHumanos_NEG.TablasSQL.OAREA_N().ListarAreas(new OAREA_E { IdDepartamento = idDepartamento, Estado = "Y" });
-                    bool listaValida = (areas != null && areas.Count >= 1);
-                    string mensaje = listaValida ? "OK" : "ERROR";
-                    return Json(new { Lista = areas, Mensaje = mensaje });
-                }
-                else
-                {
-                    return Json(new { Lista = new OAREA_E(), Mensaje = "El objeto recibido es nulo." });
-                }
+                var areas = new Capa_Negocio.RecursosHumanos_NEG.TablasSQL.OAREA_N().ListarAreas(new OAREA_E { IdDepartamento = idDepartamento, Estado = "Y" });
+                bool listaValida = (areas != null && areas.Count >= 1);
+                string mensaje = listaValida ? "OK" : "ERROR";
+                return Json(new { Lista = areas, Mensaje = mensaje });
             }
             else
             {
-                return Json(new { Mensaje = "Error crítico", Comentario = new List<string>() { "No cuentas con permisos para realizar esta acción." }, Icono = "error" });
+                return Json(new { Lista = new OAREA_E(), Mensaje = "El objeto recibido es nulo." });
             }
+            
         }
         /****************************************************/
         /********************* D E P A R T A M E N T O S *********************/
@@ -433,7 +425,7 @@ namespace Capa_Usuario.Controllers
                 return Json(new { Mensaje = "Error crítico", Comentario = new List<string>() { "No cuentas con permisos para realizar esta acción." }, Icono = "error" });
             }
         }
-        public JsonResult CargarNumCorporativos(int idOperation = 0)
+        public JsonResult CargarNumCorporativos(int idOperation = 40001)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
@@ -518,7 +510,7 @@ namespace Capa_Usuario.Controllers
                 return Json(new { Mensaje = "Error crítico", Comentario = new List<string>() { "No cuentas con permisos para realizar esta acción." }, Icono = "error" });
             }
         }
-        public JsonResult AuditarNumero(int id, int idOperation = 0)
+        public JsonResult AuditarNumero(int id, int idOperation = 4001)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
@@ -542,7 +534,7 @@ namespace Capa_Usuario.Controllers
                 return Json(new { Mensaje = "Error crítico", Comentario = new List<string>() { "Sin accesos" }, Icono = "error" });
             }
         }
-        public ActionResult ExportarListadoNumerosCorporativos(RptNumerosCorporativos_E filtro, int idOperation = 4000)
+        public ActionResult ExportarListadoNumerosCorporativos(RptNumerosCorporativos_E filtro, int idOperation = 4001)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
