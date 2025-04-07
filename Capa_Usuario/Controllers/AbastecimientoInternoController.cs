@@ -746,7 +746,7 @@ namespace Capa_Usuario.Controllers
                 });
             }
         }
-        public JsonResult BuscarUbicaciones(string almacen, int idOperation = 3302)
+        public JsonResult BuscarUbicaciones(string almacen, string itemCode = "", int idOperation = 3302)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
@@ -757,8 +757,12 @@ namespace Capa_Usuario.Controllers
                 {
                     listadoString.Add(i.CodigoUbicacion);
                 }
-                // Retornamos en un formato adecuado para el JS
-                return Json(new { resultUbicaciones = listadoString });
+
+                var ubicacionesDefault = _ubicacionesLotesN.Obtener(itemCode)
+                    ?.Where(u => u.Almacen == "PICKING")
+                    .ToList() ?? new List<UbicacionesLotes_E>();
+
+                return Json(new { resultUbicaciones = listadoString, ubicacionesDefault });
             }
             else
             {
@@ -1586,7 +1590,7 @@ namespace Capa_Usuario.Controllers
                                     }
                                 }
                             }
-                           
+
                         }
                     }
 

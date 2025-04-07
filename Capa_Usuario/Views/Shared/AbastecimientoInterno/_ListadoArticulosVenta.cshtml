@@ -2,17 +2,17 @@
 <table id="tbl_listaArticulosAbastVenta" class="dt-container dt-empty-footer table table-sm table-hover table-bordered table-striped font-14" width="100%">
     <thead class="thead-cobefar">
         <tr>
-            <th scope="col" class="text-center" style="width: 5%;">#</th>
-            <th scope="col" class="text-center">Descripción</th>
-            <th scope="col" class="text-center">Lote</th>
-            <th scope="col" class="text-center">Fechas</th>
-            <th scope="col" class="text-center">Ubicación RESERVA</th>
-            <th scope="col" class="text-center">Unidad MASTER</th>
-            <th scope="col" class="text-center">Stock MASTER</th>
-            <th scope="col" class="text-center">Stock SALDO</th>
-            <th scope="col" class="text-center">Stock UNIDS</th>
-            <th scope="col" class="text-center">Stock solicitado MASTER</th>
-            <th scope="col" class="text-center">Stock solicitado SALDO</th>
+            <th scope="col" class="text-center" style="width: 3%;">#</th>
+            <th scope="col" class="text-center" title="Código y descripción completa del artículo">Artículo</th>
+            <th scope="col" class="text-center" title="Número de lote del producto">Lote</th>
+            <th scope="col" class="text-center" title="Fecha de vencimiento y fecha de admisión">Venc. / Adm.</th>
+            <th scope="col" class="text-center" title="Ubicación física de la reserva">Ubicación</th>
+            <th scope="col" class="text-center" title="Unidad de medida en formato Master">U. Master</th>
+            <th scope="col" class="text-center" title="Cantidad total en unidad Master">Stock M.</th>
+            <th scope="col" class="text-center" title="Saldo restante en unidad Master">SALDO</th>
+            <th scope="col" class="text-center" title="Cantidad total en unidades: (U. Master x Masters) + Saldos">Unidades</th>
+            <th scope="col" class="text-center" title="Stock solicitado en unidad Master">S. Master</th>
+            <th scope="col" class="text-center" title="Stock solicitado en unidad Saldo">S. Saldo</th>
         </tr>
     </thead>
     <tbody class="text-dark">
@@ -21,7 +21,7 @@
             foreach (var item in Model)
             {
                 <tr>
-                    <td scope="col" class="text-center" style="width: 5%;">@num</td>
+                    <td scope="col" class="text-center" style="width: 3%;">@num</td>
                     <td scope="col">
                         <input type="hidden" id="venta_itemCode_@num" data-campo="ItemCode" value="@item.ItemCode" />
                         <input type="hidden" id="venta_itemName_@num" data-campo="ItemName" value="@item.ItemName" />
@@ -31,8 +31,8 @@
                     </td>
                     <td scope="col" class="text-center"><input type="hidden" id="venta_batchNum_@num" data-campo="BatchNum" value="@item.BatchNum" />@item.BatchNum</td>
                     <td scope="col" class="text-center">
-                        <span class="fw-bold text-cobefar">Venc.: </span>@item.ExpDate<br />
-                        <span class="fw-bold text-cobefar">Adm.:</span> @item.InDate
+                        <span class="fw-bold text-cobefar">V: </span>@item.ExpDate<br />
+                        <span class="fw-bold text-cobefar">A:</span> @item.InDate
                     </td>
                     <td scope="col" class="text-center">@item.CodigoUbicacion</td>
                     <td scope="col" class="text-center">
@@ -50,14 +50,15 @@
                     </td>
                     <td scope="col" class="text-center">
                         <div class="d-flex justify-content-center">
-                            <input type="text" id="venta_stockSolicitadoMaster_@num" data-campo="StockSolicitadoMaster" class="form-control text-center cls-num @if (item.QuantityMaster == 0) { Write("cls-readonly"); }" style="width: 100px" oninput="validarStock(this.value, @item.QuantityMaster)" @if (item.QuantityMaster == 0) { Write("readonly"); } autocomplete="off" />
+                            <input type="text" id="venta_stockSolicitadoMaster_@num" data-campo="StockSolicitadoMaster" class="form-control text-center cls-num cls-stockSolicitado" style="width: 100px" 
+                                   data-stock-max="@item.QuantityMaster" oninput="validarTodosLosStocks()" @if (item.QuantityMaster == 0) { Write("hidden"); } autocomplete="off" />
                         </div>
                     </td>
 
                     <td scope="col" class="text-center">
                         <div class="d-flex justify-content-center">
-                            <input type="text" id="venta_stockSolicitadoSaldo_@num" data-campo="StockSolicitadoSaldo" class="form-control text-center cls-num @if (item.QuantitySaldo == 0) { Write("cls-readonly"); }"
-                                   style="width: 100px" oninput="validarStock(this.value, @item.QuantitySaldo)" autocomplete="off" @if (item.QuantitySaldo == 0) { Write("readonly"); } />
+                            <input type="text" id="venta_stockSolicitadoSaldo_@num" data-campo="StockSolicitadoSaldo" class="form-control text-center cls-num cls-stockSolicitado"
+                                   style="width: 100px" data-stock-max="@item.QuantitySaldo" oninput="validarTodosLosStocks()" autocomplete="off" @if (item.QuantitySaldo == 0) { Write("hidden"); } />
                             <input type="hidden" id="venta_stockSolicitadoTotalUnidades_@num" data-campo="StockSolicitadoTotalUnidades" class="form-control text-center" style="width: 100px" />
                         </div>
                     </td>
@@ -69,27 +70,10 @@
     </tbody>
 </table>
 
+<script src="~/Scripts/AbastecimientoInterno/ListadoArticulos.js?v=@DateTime.Now.Ticks" defer></script>
 <script>
     permitirValoresNumericosPositivos()
     inicializarDataTable('tbl_listaArticulosAbastVenta', '25')
-
-    function validarStock(valorIngresado, stockMax) {
-        const btn = document.querySelector('#btn_guardarArticulos');
-
-        if (!btn) return; // Salir si el botón no existe
-        const esValido = valorIngresado <= stockMax;
-
-        btn.style.display = esValido ? 'block' : 'none';
-
-        if (!esValido) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Cantidad inválida',
-                text: 'La cantidad solicitada no puede ser mayor al stock.',
-                confirmButtonText: '<i class="bi bi-check-lg"></i> Entendido'
-            });
-        }
-    }
 
     function validarDatos() {
         Array.from(document.querySelectorAll('#tbl_listaArticulosAbastVenta tbody tr')).forEach((fila, index) => {

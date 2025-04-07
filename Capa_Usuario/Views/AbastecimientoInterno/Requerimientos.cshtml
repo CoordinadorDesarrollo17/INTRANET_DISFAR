@@ -99,7 +99,7 @@
                 <button type="button" class="btn btn-primary" title="Agregar artículos" data-bs-toggle="tooltip" data-bs-placement="top" onclick="cargarListaArticulos()">
                     <i class="bi bi-plus-lg"></i> Agregar artículos
                 </button>
-                <button type="button" class="btn btn-success" onclick="abrirModalImportacion()" data-bs-toggle="tooltip" data-bs-placement="top" title="Importar datos directamente a la base"><i class="bi bi-upload"></i> Importar</button>
+                <button type="button" class="btn btn-outline-success" onclick="abrirModalImportacion()" data-bs-toggle="tooltip" data-bs-placement="top" title="Importar datos directamente a la base"><i class="bi bi-upload"></i> Importar</button>
             </div>
 
             <div class="col-lg-6 d-flex justify-content-end align-content-end">
@@ -120,7 +120,7 @@
                 <label for="" class="form-label fw-bold">Código de artículo:</label>
                 <div class="d-flex align-items-center">
                     <input type="text" id="borrar_codigo_articulo" class="form-control" name="" autocomplete="off" style="width: 250px">
-                    <button type="button" class="btn btn-danger" onclick="borrarItemDetalle(event)"><i class="bi bi-trash3-fill"></i> Borrar del detalle</button>
+                    <button type="button" class="btn btn-outline-danger" onclick="borrarItemDetalle(event)"><i class="bi bi-trash3-fill"></i> Borrar del detalle</button>
                 </div>
             </div>
         </div><!-- // row-->
@@ -172,21 +172,22 @@
                                 <input type="text" id="cod_articulo" class="form-control" autocomplete="off" />
                             </div>
 
-                            <div class="col-lg-3">
+                            <div class="col-lg-8">
                                 <div id="div_cantidadSolicitada" hidden>
                                     <label for="cantidad_solicitada" class="form-label fw-bold">Cantidad solicitada (día):</label>
-                                    <input type="text" id="cantidad_solicitada" class="form-control cls-num cls-readonly" style="width: 250px" value="" readonly />
+                                    <div class="d-flex gap-2">
+                                        <input type="text" id="cantidad_solicitada" class="form-control cls-num cls-readonly" style="width: 250px" value="" readonly />
+                                        <button type="button" id="btn_cantidadManual" class="btn btn-sm btn-outline-cobefar-2" title="Solicitar Cantidad Manual" data-bs-toggle="tooltip" data-bs-placement="top" onclick="solicitarCantidadManual(this)" hidden>
+                                            <i class="bi bi-lock-fill"></i> Cantidad Manual
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-
-                            <div class="col-lg-7 d-flex justify-content-end align-items-end">
-                                <button type="button" id="btn_guardarArticulos" class="btn btn-success" title="Guardar" data-bs-toggle="tooltip" data-bs-placement="top"><i class="bi bi-check-lg"></i> Guardar</button>
                             </div>
                         </div><!-- // row-->
 
-                        <div class="row mb-4">
+                        <div class="row mb-4 align-items-center">
                             <div class="col-lg-12">
-                                <button type="button" class="btn btn-cobefar-2" onclick="buscarArticulos()" title="Buscar" data-bs-toggle="tooltip" data-bs-placement="top"><i class="bi bi-search"></i> Buscar</button>
+                                <button type="button" class="btn btn-primary" onclick="buscarArticulos()" title="Buscar" data-bs-toggle="tooltip" data-bs-placement="top"><i class="bi bi-search"></i> Buscar</button>
                             </div>
                         </div><!-- // row-->
 
@@ -201,7 +202,8 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-bs-toggle="tooltip" data-placement="top" title="Cerrar">
+                <button type="button" id="btn_guardarArticulos" class="btn btn-success" title="Guardar" data-bs-toggle="tooltip" data-bs-placement="top"><i class="bi bi-check-lg"></i> Guardar</button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" data-bs-toggle="tooltip" data-placement="top" title="Cerrar">
                     <i class="bi bi-x-lg"></i> Cerrar
                 </button>
             </div>
@@ -252,11 +254,11 @@
 		});
 
 		async function buscarArticulos() {
-			const itemCode = document.querySelector('#cod_articulo').value.trim()
-			const cantidadSolicitada = document.querySelector('#cantidad_solicitada').value || 0
-			const tipoAbastecimiento = document.querySelector('#TipoAbastecimiento').value || ''
+            const itemCode = document.querySelector('#cod_articulo').value.trim();
+            const cantidadSolicitada = document.querySelector('#cantidad_solicitada').value || 0;
+            const tipoAbastecimiento = document.querySelector('#TipoAbastecimiento').value || '';
 
-            document.querySelector('#div_listadoArticulos').innerHTML = ''
+            document.querySelector('#div_listadoArticulos').innerHTML = '';
 
             if (!itemCode) {
                 Swal.fire('El código de artículo ingresado no es válido.')
@@ -264,10 +266,11 @@
             }
 
 			if (tipoAbastecimiento === "Picking") {
-                document.querySelector('#div_cantidadSolicitada').hidden = false
-			    calcularCantidadSolicitada()
+                document.querySelector('#div_cantidadSolicitada').hidden = false;
+                calcularCantidadSolicitada()
 			} else {
-                document.querySelector('#div_cantidadSolicitada').hidden = true
+                document.querySelector('#div_cantidadSolicitada').hidden = true;
+                document.querySelector('#btn_cantidadManual').hidden = true;
 			}
 
              try {
@@ -346,8 +349,10 @@
                 } else {
                     cantidadSolicitada = data.cantidadSolicitada
                 }
-                document.querySelector('#cantidad_solicitada').value = cantidadSolicitada
-                document.querySelector('#btn_guardarArticulos').style.display = (cantidadSolicitada > 0) ? 'block' : 'none'
+
+                document.querySelector('#btn_cantidadManual').hidden = (cantidadSolicitada > 0) ? false : true;
+                document.querySelector('#cantidad_solicitada').value = cantidadSolicitada;
+                document.querySelector('#btn_guardarArticulos').style.display = (cantidadSolicitada > 0) ? 'block' : 'none';
 			} catch (error) {
 				console.error('Error:', error);
 			}
@@ -455,6 +460,7 @@
 
             document.querySelector('#div_listadoArticulos').innerHTML = ''
             document.querySelector('#div_cantidadSolicitada').hidden = inputTipoAbastecimiento.value !== 'Picking' ? true : false
+            document.querySelector('#modalBusquedaArticulosLabel').textContent = `Búsqueda de artículos - ${inputTipoAbastecimiento.value}`
 
             const btn = document.querySelector('#btn_guardarArticulos')
             if (btn) {
@@ -543,7 +549,6 @@
             try {
                 // Cargar nuevas ubicaciones usando el itemcode del input
                 const nuevasOpciones = await cargarUbicaciones('PICKING', inputTagify.dataset.itemcode);
-                console.log('Nuevas opciones cargadas:', nuevasOpciones);
 
                 if (inputTagify.tagify) {
                     inputTagify.tagify.destroy();
@@ -562,6 +567,14 @@
                         position: "all"
                     }
                 });
+
+                const batch = String(inputTagify.dataset.batchnum);
+                const existe = nuevasOpciones.ubicacionesDefault.some(item => item.BatchNum === batch);
+
+                // Establecer valor por defecto: ¿BatchNum está incluido?
+                if (existe) {
+                    tagifyInstance.addTags([nuevasOpciones.codigoUbicacionDefault[0].CodigoUbicacion]);
+                }
 
                 // Asociar la instancia al input para reutilización
                 inputTagify.tagify = tagifyInstance;
@@ -627,6 +640,9 @@
                             position: "all"
                         }
                     });
+
+                    // Establecer valor por defecto
+                    tagify.addTags([opciones.codigoUbicacionDefault]);
 
                     // Evento al seleccionar una opción
                     tagify.on('add', (e) => {
@@ -741,6 +757,59 @@
                 console.error("Error al cargar ubicaciones:", error);
                 return []; // Devuelve un array vacío en caso de error
             }
+        }
+
+        function solicitarCantidadManual(element) {
+            const icon = element.querySelector("i");
+
+            // Toggle clase del botón
+            element.classList.toggle("btn-outline-cobefar-2");
+            element.classList.toggle("btn-cobefar-2");
+
+            // Limpiamos todas las cantidas de Total Salida de cada fila
+            document.querySelectorAll('.cls-stockSaliendo').forEach(input => {
+                input.value = ''
+            });
+
+            const inputs = Array.from(document.querySelectorAll('.cls-cantidadManual'));
+
+            // Toggle ícono
+            if (icon.classList.contains("bi-lock-fill")) {
+                icon.classList.remove("bi-lock-fill");
+                icon.classList.add("bi-unlock-fill");
+
+                // Buscar el último input con valor
+                let maxPosConValor = 0;
+                inputs.forEach(input => {
+                    const val = input.value.trim();
+                    const pos = parseInt(input.dataset.posicion, 10);
+                    if (val !== '' && pos > maxPosConValor) {
+                        maxPosConValor = pos;
+                    }
+                });
+
+                // Solo dejar libre el siguiente
+                inputs.forEach(input => {
+                    const pos = parseInt(input.dataset.posicion, 10);
+                    if (input.value.trim() === '' && pos !== maxPosConValor + 1) {
+                        input.readOnly = true;
+                        input.classList.add('cls-readonly');
+                    } else {
+                        input.readOnly = false;
+                        input.classList.remove('cls-readonly');
+                    }
+                });
+
+            } else {
+                icon.classList.remove("bi-unlock-fill");
+                icon.classList.add("bi-lock-fill");
+
+                inputs.forEach(elem => {
+                    elem.readOnly = true;
+                    elem.classList.add('cls-readonly');
+                });
+            }
+
         }
     </script>
 }
