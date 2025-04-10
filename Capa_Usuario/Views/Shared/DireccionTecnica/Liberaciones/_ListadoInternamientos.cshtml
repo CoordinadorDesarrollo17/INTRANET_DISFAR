@@ -1,0 +1,45 @@
+@{
+    var tiposDocumento = new Dictionary<string, string>
+{
+        { "OPDN", "Entrada de Mercancía" },
+        { "OWTR", "Transferencia" }
+    };
+}
+
+<table id="tbl_listadoInternamientos" class="table table-bordered table-hover">
+    <thead class="thead-cobefar">
+        <tr>
+            <th scope="col" class="text-center small">DocNum</th>
+            <th scope="col" class="text-center small">Tipo de Documento</th>
+            <th scope="col" class="text-center small">Código Socio de Negocio</th>
+            <th scope="col" class="text-center small">Socio de Negocio</th>
+            <th scope="col" class="text-center small">Guía</th>
+            <th scope="col" class="text-center small">Comprobante Vinculado</th>
+            <th scope="col" class="text-center small">Fecha Contabilización</th>
+            <th scope="col" class="text-center small">Fecha I. Traslado</th>
+            <th scope="col" class="text-center small">Estado</th>
+        </tr>
+    </thead>
+    <tbody class="table-white">
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td scope="col" class="text-center small">@item.DocNum</td>
+                <td scope="col" class="text-center small">@tiposDocumento[item.TipoDocumento]</td>
+                <td scope="col" class="text-center small">@item.CardCode</td>
+                <td scope="col" class="text-start small"><span class="ps-2">@item.CardName</span></td>
+                <td scope="col" class="text-center small">@item.Guia</td>
+                <td scope="col" class="text-center small">@item.ComprobanteVinculado</td>
+                <td scope="col" class="text-center small">@item.FechaContabilizacion</td>
+                <td scope="col" class="text-center small">@item.FechaInicioTraslado</td>
+                <td scope="col" class="text-center small">@item.Estado</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    inicializarDataTable('tbl_listadoInternamientos', '25');
+
+
+</script>

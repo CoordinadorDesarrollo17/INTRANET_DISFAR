@@ -1,4 +1,4 @@
-﻿namespace Capa_Entidad.DireccionTecnica_ENT.TablasHANA
+﻿namespace Capa_Entidad.DireccionTecnica_ENT.TablasExternas
 {
     public class COB_ESTA_RS_E
     {

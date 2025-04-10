@@ -1,4 +1,4 @@
-﻿using Capa_Entidad.DireccionTecnica_ENT.TablasHANA;
+﻿using Capa_Entidad.DireccionTecnica_ENT.TablasExternas;
 using Capa_Entidad.DireccionTecnica_ENT.TablasSql;
 using Sap.Data.Hana;
 using System;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Capa_Datos.DireccionTecnica_DAO.TablasHANA
+namespace Capa_Datos.DireccionTecnica_DAO.TablasExternas
 {
     public class COB_ESTA_RS_D
     {

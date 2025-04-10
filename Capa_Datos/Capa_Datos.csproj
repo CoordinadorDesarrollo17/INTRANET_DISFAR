@@ -123,7 +123,6 @@
     <Compile Include="Almacen_DAO\Tablas\OITW_D.cs" />
     <Compile Include="Almacen_DAO\Tablas\OMRC_D.cs" />
     <Compile Include="Almacen_DAO\Tablas\OWTR_D.cs" />
-    <Compile Include="Area_D.cs" />
     <Compile Include="AtencionCliente_DAO\TablasSql\OSAT_D.cs" />
     <Compile Include="AtencionCliente_DAO\TablasSql\SAT1_D.cs" />
     <Compile Include="Caja_DAO\OPP_D.cs" />
@@ -137,7 +136,9 @@
     <Compile Include="ComprobantesContables_ENT\Comprobante_D.cs" />
     <Compile Include="DBHelper.cs" />
     <Compile Include="DireccionTecnica_DAO\Reportes\ReportesDigemid_D.cs" />
-    <Compile Include="DireccionTecnica_DAO\TablasHANA\COB_ESTA_RS_D.cs" />
+    <Compile Include="DireccionTecnica_DAO\TablasExternas\COB_ESTA_RS_D.cs" />
+    <Compile Include="DireccionTecnica_DAO\TablasExternas\ODOCS_SAP_D.cs" />
+    <Compile Include="DireccionTecnica_DAO\TablasSql\ODOCS_D.cs" />
     <Compile Include="DireccionTecnica_DAO\TablasSql\OORS_D.cs" />
     <Compile Include="DireccionTecnica_DAO\TablasSql\SQL_OWTR_D.cs" />
     <Compile Include="General_DAO\TablasSql\COUR_D.cs" />

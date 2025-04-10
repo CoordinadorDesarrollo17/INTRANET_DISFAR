@@ -18,14 +18,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
-using Capa_Negocio.DireccionTecnica_NEG.TablasHANA;
 using Capa_Usuario.Helpers;
 using Capa_Negocio;
+using Capa_Negocio.DireccionTecnica_NEG.TablasExternas;
+using DocumentFormat.OpenXml.Spreadsheet;
 namespace Capa_Usuario.Controllers
 {
     public class DireccionTecnicaController : Controller
     {
         DocumentosDig_N dgN = new DocumentosDig_N();
+        private readonly ODOCS_N _docsN = new ODOCS_N();
+
         /************************* C O N F I G U R A C I Ó N *************************/
         private ActionResult VerificarPermiso(int idOperation)
         {
@@ -842,6 +845,21 @@ namespace Capa_Usuario.Controllers
         {
             var lista = new ORTV_N().obtenerOrdenDeVenta(filtros.DocNum);
             return View("~/Views/Ventas/PDF/PDF_OrdenesDeVentas.cshtml", lista);
+        }
+
+        public ActionResult Internamiento(int idOperation = 0)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                var lista = _docsN.ListarInternamientos();
+
+                return View("Liberaciones/ListadoInternamientos", lista);
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
         }
     }
 }

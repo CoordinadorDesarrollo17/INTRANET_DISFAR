@@ -110,7 +110,9 @@
     <Compile Include="Compras_NEG\Tablas\SQL_OPDN_N.cs" />
     <Compile Include="ComprobantesContables_NEG\Comprobante_N.cs" />
     <Compile Include="DireccionTecnica_NEG\Reportes\ReportesDigemid_N.cs" />
-    <Compile Include="DireccionTecnica_NEG\TablasHANA\COB_ESTA_RS_N.cs" />
+    <Compile Include="DireccionTecnica_NEG\TablasExternas\ODOCS_SAP_N.cs" />
+    <Compile Include="DireccionTecnica_NEG\TablasExternas\COB_ESTA_RS_N.cs" />
+    <Compile Include="DireccionTecnica_NEG\TablasSql\ODOCS_N.cs" />
     <Compile Include="DireccionTecnica_NEG\TablasSql\OORS_N.cs" />
     <Compile Include="DireccionTecnica_NEG\TablasSql\SQL_OWTR_N.cs" />
     <Compile Include="General_NEG\TablasSql\COUR_N.cs" />
@@ -153,9 +155,7 @@
     <Compile Include="Seguridad_NEG\OOPE_N.cs" />
     <Compile Include="Seguridad_NEG\Orol_N.cs" />
     <Compile Include="Seguridad_NEG\Rol1_N.cs" />
-    <Compile Include="Seguridad_NEG\TablasSql\AREA_N.cs" />
     <Compile Include="Seguridad_NEG\TablasSql\OUSR_OPE_N.cs" />
-    <Compile Include="Seguridad_NEG\TablasSql\REA1_N.cs" />
     <Compile Include="Seguridad_NEG\TablasSql\ROL_OPE_N.cs" />
     <Compile Include="Seguridad_NEG\TablasSql\USR2_N.cs" />
     <Compile Include="Seguridad_NEG\Usuario_N.cs" />

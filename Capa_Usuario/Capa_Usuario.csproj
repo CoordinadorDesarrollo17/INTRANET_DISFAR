@@ -641,6 +641,7 @@
     <Compile Include="Controllers\ComprobantesContablesController.cs" />
     <Compile Include="Controllers\DireccionTecnicaController.cs" />
     <Compile Include="Controllers\IndexController.cs" />
+    <Compile Include="Controllers\InternamientoController.cs" />
     <Compile Include="Controllers\RecursosHumanosController.cs" />
     <Compile Include="Controllers\RepartosController.cs" />
     <Compile Include="Controllers\ReportesDigemidController.cs" />
@@ -1028,6 +1029,9 @@
     <Content Include="Views\Shared\RecursosHumanos\ListadoSedes.cshtml" />
     <Content Include="Views\Almacen\FormatoDevolucionDT.cshtml" />
     <Content Include="Views\AbastecimientoInterno\ApilarIngreso.cshtml" />
+    <Content Include="Views\DireccionTecnica\Liberaciones\Internamiento.cshtml" />
+    <Content Include="Views\DireccionTecnica\Liberaciones\ListadoInternamientos.cshtml" />
+    <Content Include="Views\Shared\DireccionTecnica\Liberaciones\_ListadoInternamientos.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

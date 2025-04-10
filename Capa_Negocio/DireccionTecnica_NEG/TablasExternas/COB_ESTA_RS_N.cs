@@ -1,8 +1,9 @@
-using Capa_Datos.DireccionTecnica_DAO.TablasHANA;
-using Capa_Entidad.DireccionTecnica_ENT.TablasHANA;
+using Capa_Datos.DireccionTecnica_DAO.TablasExternas;
+using Capa_Datos.DireccionTecnica_DAO.TablasSql;
+using Capa_Entidad.DireccionTecnica_ENT.TablasExternas;
 using System.Collections.Generic;
 
-namespace Capa_Negocio.DireccionTecnica_NEG.TablasHANA
+namespace Capa_Negocio.DireccionTecnica_NEG.TablasExternas
 {
     public class COB_ESTA_RS_N
     {

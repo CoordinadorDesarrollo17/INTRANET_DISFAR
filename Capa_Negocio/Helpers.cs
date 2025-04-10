@@ -68,6 +68,7 @@ namespace Capa_Negocio
         {
             return new Helper_E
             {
+                Titulo = "Error",
                 Mensajes = new List<string> { mensaje },
                 Icono = "error"
             };
