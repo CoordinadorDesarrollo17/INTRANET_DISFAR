@@ -1032,6 +1032,7 @@
     <Content Include="Views\DireccionTecnica\Liberaciones\Internamiento.cshtml" />
     <Content Include="Views\DireccionTecnica\Liberaciones\ListadoInternamientos.cshtml" />
     <Content Include="Views\Shared\DireccionTecnica\Liberaciones\_ListadoInternamientos.cshtml" />
+    <Content Include="Views\DireccionTecnica\Liberaciones\DetalleInternamiento.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

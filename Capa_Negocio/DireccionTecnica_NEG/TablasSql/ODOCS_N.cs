@@ -24,45 +24,51 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
 
             if (filtros != null)
             {
+                if (filtros.Id > 0)
+                {
+                    condicion.AppendLine("AND DOC.Id = @Id");
+                    parametros["@Id"] = filtros.Id;
+                }
+
                 if (filtros.DocNum > 0)
                 {
-                    condicion.AppendLine("AND DocNum = @DocNum");
+                    condicion.AppendLine("AND DOC.DocNum = @DocNum");
                     parametros["@DocNum"] = filtros.DocNum;
                 }
 
                 if (!string.IsNullOrWhiteSpace(filtros.TipoDocumento))
                 {
-                    condicion.AppendLine("AND TipoDocumento = @TipoDocumento");
+                    condicion.AppendLine("AND DOC.TipoDocumento = @TipoDocumento");
                     parametros["@TipoDocumento"] = filtros.TipoDocumento;
                 }
 
                 if (!string.IsNullOrWhiteSpace(filtros.CardCode))
                 {
-                    condicion.AppendLine("AND CardCode = @CardCode");
+                    condicion.AppendLine("AND DOC.CardCode = @CardCode");
                     parametros["@CardCode"] = filtros.CardCode;
                 }
 
                 if (!string.IsNullOrWhiteSpace(filtros.CardName))
                 {
-                    condicion.AppendLine("AND CardName = @CardName");
+                    condicion.AppendLine("AND DOC.CardName = @CardName");
                     parametros["@CardName"] = filtros.CardName;
                 }
 
                 if (!string.IsNullOrWhiteSpace(filtros.Guia))
                 {
-                    condicion.AppendLine("AND Guia = @Guia");
+                    condicion.AppendLine("AND DOC.Guia = @Guia");
                     parametros["@Guia"] = filtros.Guia;
                 }
 
                 if (!string.IsNullOrWhiteSpace(filtros.ComprobanteVinculado))
                 {
-                    condicion.AppendLine("AND ComprobanteVinculado = @ComprobanteVinculado");
+                    condicion.AppendLine("AND DOC.ComprobanteVinculado = @ComprobanteVinculado");
                     parametros["@ComprobanteVinculado"] = filtros.ComprobanteVinculado;
                 }
 
                 if (!string.IsNullOrWhiteSpace(filtros.Estado))
                 {
-                    condicion.AppendLine("AND Estado = @Estado");
+                    condicion.AppendLine("AND DOC.Estado = @Estado");
                     parametros["@Estado"] = filtros.Estado;
                 }
             }

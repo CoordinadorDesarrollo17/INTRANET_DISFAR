@@ -49,6 +49,7 @@
                         <th scope="col" class="text-center small">Fecha Cont.</th>
                         <th scope="col" class="text-center small">Fecha I. Traslado</th>
                         <th scope="col" class="text-center small">Estado</th>
+                        <th scope="col" class="text-center small"></th>
                     </tr>
                 </thead>
                 <tbody class="table-white">
@@ -64,6 +65,7 @@
                             <td scope="col" class="text-center small">@item.FechaContabilizacion</td>
                             <td scope="col" class="text-center small">@item.FechaInicioTraslado</td>
                             <td scope="col" class="text-center small">@item.Estado</td>
+                            <td scope="col" class="text-center small"><button type="button" class="btn btn-sm btn-outline-dark btn_verDetalle" onclick="redireccionar(this)" data-ruta="/Internamiento/VerDetalle?Id=@item.Id"><i class="bi bi-search"></i></button></td>
                         </tr>
                     }
                 </tbody>
@@ -167,6 +169,12 @@
                 animation: 'fade',
                 placement: 'bottom-end'
             });
+
+            tippy('.btn_verDetalle', {
+                content: 'Ver detalle',
+                animation: 'fade',
+                placement: 'bottom-end'
+            });
         });
 
         function abrirModalFiltros() {
@@ -219,6 +227,8 @@
                 const html = await response.text();
 
                 document.querySelector('#div_listado').innerHTML = html;
+                inicializarDataTable('tbl_listadoInternamientos', '25');
+
                 const modalElement = document.querySelector('#modalFiltros');
 
                 document.activeElement.blur();

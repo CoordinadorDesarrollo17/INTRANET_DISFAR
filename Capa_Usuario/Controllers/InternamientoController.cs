@@ -3,6 +3,7 @@ using System.Web.Mvc;
 using Capa_Entidad.Seguridad_ENT;
 using Capa_Entidad.TablasSql;
 using Capa_Usuario.Helpers;
+using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace Capa_Usuario.Controllers
 {
@@ -45,7 +46,7 @@ namespace Capa_Usuario.Controllers
             }
         }
 
-        public JsonResult BuscarDocumento(int docNum, string tipoDocumento)
+        public JsonResult BuscarDocumento(long docNum, string tipoDocumento)
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
@@ -74,6 +75,24 @@ namespace Capa_Usuario.Controllers
             return PartialView("~/Views/Shared/DireccionTecnica/Liberaciones/_ListadoInternamientos.cshtml", lista);
         }
 
+        public ActionResult VerDetalle(long id, int idOperation = 0)
+        {
+            var usuarioSesion = Session["UsuarioId"] as Usuario_E;
+            if (usuarioSesion == null)
+                return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
+
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                var lista = _docsN.ListarInternamientos(new ODOCS_E { Id = id });
+
+                return View("~/Views/DireccionTecnica/Liberaciones/DetalleInternamiento.cshtml", lista);
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
 
         public JsonResult RegistrarDocumento(ODOCS_E docPost)
         {

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Capa_Entidad;
 using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
 using Capa_Entidad.TablasSql;
+using Microsoft.ReportingServices.ReportProcessing.OnDemandReportObjectModel;
 
 namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
 {
@@ -18,6 +19,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
         public List<ODOCS_E> ListarInternamientos(string condicion, Dictionary<string, object> parametros)
         {
             List<ODOCS_E> lista = new List<ODOCS_E>();
+            var lookup = new Dictionary<int, ODOCS_E>();
 
             try
             {
@@ -28,8 +30,11 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
 
                     var sb = new StringBuilder();
 
-                    sb.AppendLine("SELECT DOC.Id, DOC.TipoDocumento, DOC.DocEntry, DOC.DocNum, DOC.CardCode, DOC.CardName, DOC.Guia, DOC.ComprobanteVinculado, CONVERT(varchar, DOC.FechaContabilizacion, 103), CONVERT(varchar, DOC.FechaInicioTraslado, 103), DOC.Estado");
+                    sb.AppendLine("SELECT DOC.Id, DOC.TipoDocumento, DOC.DocEntry, DOC.DocNum, DOC.CardCode, DOC.CardName, DOC.Guia, DOC.ComprobanteVinculado, CONVERT(varchar, DOC.FechaContabilizacion, 103), CONVERT(varchar, DOC.FechaInicioTraslado, 103), DOC.Estado,");
+                    sb.AppendLine("DET.ItemCode, DET.ItemName, DET.Lote, CONVERT(varchar, DET.FechaVencimiento, 103), DET.RegistroSanitario, DET.Fabricante, DET.CondicionAlmTrans,");
+                    sb.AppendLine("DET.Almacen, DET.CertificadoAnalisis, DET.ComentarioOrganoleptico, DET.CantidadAprobados, DET.CantidadBaja, DET.CantidadDevolucion, DET.CantidadTotal, DET.Liberado, DET.Transferido");
                     sb.AppendLine("FROM ODOCS DOC");
+                    sb.AppendLine("INNER JOIN DOCS1 DET ON DOC.Id = DET.ODOCSId");
                     sb.AppendLine("WHERE 1=1");
                     sb.AppendLine(condicion?.ToString().Trim());
 
@@ -49,21 +54,50 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                         {
                             while (dr.Read())
                             {
-                                var obj = new ODOCS_E();
+                                int id = dr.GetInt32(0);
 
-                                if (!dr.IsDBNull(0)) obj.Id = dr.GetInt32(0);
-                                if (!dr.IsDBNull(1)) obj.TipoDocumento = dr.GetString(1);
-                                if (!dr.IsDBNull(2)) obj.DocEntry = dr.GetInt32(2);
-                                if (!dr.IsDBNull(3)) obj.DocNum = dr.GetInt32(3);
-                                if (!dr.IsDBNull(4)) obj.CardCode = dr.GetString(4);
-                                if (!dr.IsDBNull(5)) obj.CardName = dr.GetString(5);
-                                if (!dr.IsDBNull(6)) obj.Guia = dr.GetString(6);
-                                if (!dr.IsDBNull(7)) obj.ComprobanteVinculado = dr.GetString(7);
-                                if (!dr.IsDBNull(8)) obj.FechaContabilizacion = dr.GetString(8);
-                                if (!dr.IsDBNull(9)) obj.FechaInicioTraslado = dr.GetString(9);
-                                if (!dr.IsDBNull(10)) obj.Estado = dr.GetString(10);
+                                if (!lookup.TryGetValue(id, out var obj))
+                                {
+                                    obj = new ODOCS_E
+                                    {
+                                        Id = id,
+                                        TipoDocumento = dr.IsDBNull(1) ? null : dr.GetString(1),
+                                        DocEntry = dr.IsDBNull(2) ? 0 : dr.GetInt64(2),
+                                        DocNum = dr.IsDBNull(3) ? 0 : dr.GetInt64(3),
+                                        CardCode = dr.IsDBNull(4) ? null : dr.GetString(4),
+                                        CardName = dr.IsDBNull(5) ? null : dr.GetString(5),
+                                        Guia = dr.IsDBNull(6) ? null : dr.GetString(6),
+                                        ComprobanteVinculado = dr.IsDBNull(7) ? null : dr.GetString(7),
+                                        FechaContabilizacion = dr.IsDBNull(8) ? null : dr.GetString(8),
+                                        FechaInicioTraslado = dr.IsDBNull(9) ? null : dr.GetString(9),
+                                        Estado = dr.IsDBNull(10) ? null : dr.GetString(10),
+                                        Detalle = new List<DOCS1_E>()
+                                    };
 
-                                lista.Add(obj);
+                                    lookup[id] = obj;
+                                    lista.Add(obj);
+                                }
+
+                                // Agregar detalle
+                                var detalle = new DOCS1_E();
+                                detalle.ItemCode = dr.IsDBNull(11) ? null : dr.GetString(11);
+                                detalle.ItemName = dr.IsDBNull(12) ? null : dr.GetString(12);
+                                detalle.Lote = dr.IsDBNull(13) ? null : dr.GetString(13);
+                                detalle.FechaVencimiento = dr.IsDBNull(14) ? null : dr.GetString(14);
+                                detalle.RegistroSanitario = dr.IsDBNull(15) ? null : dr.GetString(15);
+                                detalle.Fabricante = dr.IsDBNull(16) ? null : dr.GetString(16);
+                                detalle.CondicionAlmTrans = dr.IsDBNull(17) ? null : dr.GetString(17);
+                                detalle.Almacen = dr.IsDBNull(18) ? null : dr.GetString(18);
+                                detalle.CertificadoAnalisis = dr.IsDBNull(19) ? null : dr.GetString(19);
+                                detalle.ComentarioOrganoleptico = dr.IsDBNull(20) ? null : dr.GetString(20);
+                                detalle.CantidadAprobados = dr.IsDBNull(21) ? 0 : dr.GetInt32(21);
+                                detalle.CantidadBaja = dr.IsDBNull(22) ? 0 : dr.GetInt32(22);
+                                detalle.CantidadDevolucion = dr.IsDBNull(23) ? 0 : dr.GetInt32(23);
+                                detalle.CantidadTotal = dr.IsDBNull(24) ? 0 : dr.GetInt32(24);
+                                detalle.Liberado = dr.IsDBNull(25) ? 0 : dr.GetInt32(25);
+                                detalle.Transferido = dr.IsDBNull(26) ? 0 : dr.GetInt32(26);
+
+                                obj.Detalle.Add(detalle);
                             }
                         }
                     }

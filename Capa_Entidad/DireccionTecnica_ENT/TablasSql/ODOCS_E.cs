@@ -4,7 +4,7 @@ namespace Capa_Entidad.TablasSql
 {
     public class ODOCS_E
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         public string TipoDocumento { get; set; }
         public long DocEntry { get; set; }
         public long DocNum { get; set; }

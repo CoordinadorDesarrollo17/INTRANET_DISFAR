@@ -277,7 +277,7 @@
                                                                                  </div>
                                                                                     <div class="col-lg-3">
                                                                                         <label for="form-label fw-bold">Cargar archivo:</label>
-                                                                                        <input class="form-control" type="file" id="formFile">
+                                                                                        <input class="form-control" type="file" id="formFile" accept=".pdf">
                                                                                     </div>
                                                                                     <div class="col-lg-5">
                                                                                           <label for="form-label fw-bold">Comentario Organoléptico:</label>
@@ -288,19 +288,19 @@
                                                                                             <tr>
                                                                                                 <td>Aprobados:</td>
                                                                                                 <td>
-                                                                                                    <input type="text" name="Detalle[${key}].CantidadAprobados" class="form-control w-75 cls-num" data-identificador="${correlativo}" data-cantidad="6112" oninput="validarCantidad(this)">
+                                                                                                    <input type="text" name="Detalle[${key}].CantidadAprobados" class="form-control w-75 cls-num" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" oninput="validarCantidad(this)">
                                                                                                 </td>
                                                                                             </tr>
                                                                                             <tr>
                                                                                                 <td>Baja:</td>
                                                                                                 <td>
-                                                                                                    <input type="text" name="Detalle[${key}].CantidadBaja" class="form-control w-75 cls-num" data-identificador="${correlativo}" data-cantidad="6112" oninput="validarCantidad(this)">
+                                                                                                    <input type="text" name="Detalle[${key}].CantidadBaja" class="form-control w-75 cls-num" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" oninput="validarCantidad(this)">
                                                                                                 </td>
                                                                                             </tr>
                                                                                             <tr>
                                                                                                 <td>Devolución:</td>
                                                                                                 <td>
-                                                                                                    <input type="text" name="Detalle[${key}].CantidadDevolucion" class="form-control w-75 cls-num" data-identificador="${correlativo}" data-cantidad="6112" oninput="validarCantidad(this)">
+                                                                                                    <input type="text" name="Detalle[${key}].CantidadDevolucion" class="form-control w-75 cls-num" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" oninput="validarCantidad(this)">
                                                                                                 </td>
                                                                                             </tr>
                                                                                           </table>
@@ -368,7 +368,7 @@
                     confirmButtonColor: '#28a745'
                 }).then((result) => {
                     if (result.isConfirmed && data.Icono == "success") {
-                        //location.reload()
+                        location.reload()
                     }
                 });
             } catch (error) {

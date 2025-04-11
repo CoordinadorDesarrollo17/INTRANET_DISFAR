@@ -15,7 +15,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasExternas
         readonly Utilitarios uti = new Utilitarios();
         readonly DBHelper db = new DBHelper();
 
-        public (Helper_E, ODOCS_E) BuscarDocEntradaMercaderia(int DocNum)
+        public (Helper_E, ODOCS_E) BuscarDocEntradaMercaderia(long DocNum)
         {
             ODOCS_E documento = null;
             Helper_E helper = new Helper_E();
@@ -32,8 +32,8 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasExternas
                     {
                         if (documento.DocEntry == 0)
                         {
-                            if (!hdr.IsDBNull(0)) documento.DocEntry = hdr.GetInt32(0);
-                            if (!hdr.IsDBNull(1)) documento.DocNum = hdr.GetInt32(1);
+                            if (!hdr.IsDBNull(0)) documento.DocEntry = hdr.GetInt64(0);
+                            if (!hdr.IsDBNull(1)) documento.DocNum = hdr.GetInt64(1);
                             if (!hdr.IsDBNull(2)) documento.CardCode = hdr.GetString(2);
                             if (!hdr.IsDBNull(3)) documento.CardName = hdr.GetString(3);
                             if (!hdr.IsDBNull(4)) documento.Guia = hdr.GetString(4);
@@ -73,7 +73,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasExternas
 
         }
 
-        public (Helper_E, ODOCS_E) BuscarDocTransferencia(int DocNum)
+        public (Helper_E, ODOCS_E) BuscarDocTransferencia(long DocNum)
         {
             ODOCS_E documento = null;
             Helper_E helper = new Helper_E();
@@ -90,8 +90,8 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasExternas
                     {
                         if (documento.DocEntry == 0)
                         {
-                            if (!hdr.IsDBNull(0)) documento.DocEntry = hdr.GetInt32(0);
-                            if (!hdr.IsDBNull(1)) documento.DocNum = hdr.GetInt32(1);
+                            if (!hdr.IsDBNull(0)) documento.DocEntry = hdr.GetInt64(0);
+                            if (!hdr.IsDBNull(1)) documento.DocNum = hdr.GetInt64(1);
                             if (!hdr.IsDBNull(2)) documento.CardCode = hdr.GetString(2);
                             if (!hdr.IsDBNull(3)) documento.CardName = hdr.GetString(3);
                             if (!hdr.IsDBNull(4)) documento.Guia = hdr.GetString(4);
