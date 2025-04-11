@@ -66,7 +66,7 @@
     <hr />
 
     <div id="div_detalle" class="table-responsive shadow-sm rounded" hidden>
-        <form id="frm_datosTabla">
+        <form id="frm_datosTabla" enctype="multipart/form-data">
             <table id="tbl_documento" class="table table-bordered table-hover">
                 <thead class="thead-cobefar">
                     <tr>
@@ -264,7 +264,7 @@
                                                                             <td colspan="10" class="bg-light p-3">
                                                                                 <div class="row">
                                                                                  <div class="col-lg-2">
-                                                                                     <label for="form-label fw-bold">Certificado de Análisis:</label>
+                                                                                     <label class="small form-label fw-bold">Certificado de Análisis:</label>
                                                                                      <div class="form-check">
                                                                                         <input class="form-check-input" type="radio" name="Detalle[${key}].CertificadoAnalisis" id="opcion1_${correlativo}" value="Aplica" checked>
                                                                                         <label class="form-check-label" for="opcion1_${correlativo}">Aplica</label>
@@ -276,11 +276,14 @@
                                                                                       </div>
                                                                                  </div>
                                                                                     <div class="col-lg-3">
-                                                                                        <label for="form-label fw-bold">Cargar archivo:</label>
-                                                                                        <input class="form-control" type="file" id="formFile" accept=".pdf">
+                                                                                        <label for="formFileProtocolo_${correlativo}" class="small form-label fw-bold">Cargar Protocolo:</label>
+                                                                                        <input class="form-control" type="file" id="formFileProtocolo_${correlativo}" name="Detalle[${key}].ArchivoProtocolo" accept=".pdf">
+
+                                                                                        <label for="formFileET_${correlativo}" class="small form-label fw-bold mt-4">Cargar E.T.:</label>
+                                                                                        <input class="form-control" type="file" id="formFileET_${correlativo}" name="Detalle[${key}].ArchivoET" accept=".pdf">
                                                                                     </div>
                                                                                     <div class="col-lg-5">
-                                                                                          <label for="form-label fw-bold">Comentario Organoléptico:</label>
+                                                                                          <label class="small form-label fw-bold">Comentario Organoléptico:</label>
                                                                                           <textarea name="Detalle[${key}].ComentarioOrganoleptico" class="form-control" rows="2">${item.ComentarioOrganoleptico ?? ''}</textarea>
                                                                                     </div>
                                                                                     <div class="col-lg-2">
@@ -288,19 +291,19 @@
                                                                                             <tr>
                                                                                                 <td>Aprobados:</td>
                                                                                                 <td>
-                                                                                                    <input type="text" name="Detalle[${key}].CantidadAprobados" class="form-control w-75 cls-num" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" oninput="validarCantidad(this)">
+                                                                                                    <input type="text" name="Detalle[${key}].CantidadAprobados" class="form-control w-75 cls-num" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" oninput="validarCantidad(this)" autocomplete="off">
                                                                                                 </td>
                                                                                             </tr>
                                                                                             <tr>
                                                                                                 <td>Baja:</td>
                                                                                                 <td>
-                                                                                                    <input type="text" name="Detalle[${key}].CantidadBaja" class="form-control w-75 cls-num" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" oninput="validarCantidad(this)">
+                                                                                                    <input type="text" name="Detalle[${key}].CantidadBaja" class="form-control w-75 cls-num" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" oninput="validarCantidad(this)" autocomplete="off">
                                                                                                 </td>
                                                                                             </tr>
                                                                                             <tr>
                                                                                                 <td>Devolución:</td>
                                                                                                 <td>
-                                                                                                    <input type="text" name="Detalle[${key}].CantidadDevolucion" class="form-control w-75 cls-num" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" oninput="validarCantidad(this)">
+                                                                                                    <input type="text" name="Detalle[${key}].CantidadDevolucion" class="form-control w-75 cls-num" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" oninput="validarCantidad(this)" autocomplete="off">
                                                                                                 </td>
                                                                                             </tr>
                                                                                           </table>
@@ -319,62 +322,68 @@
         }
 
         async function registrarDocumento() {
-            const form = document.querySelector('#frm_datosTabla');
-            const formData = new FormData(form);
+            const formData = new FormData();
 
-            const detalle = [];
+            // Reorganizar inputs Detalle[] desde frm_datosTabla
+            const formTabla = document.querySelector('#frm_datosTabla');
+            const formTablaData = new FormData(formTabla);
+            const detalle = {};
 
-            // Reorganizar los inputs por índice
-            for (let [name, value] of formData.entries()) {
+            for (let [name, value] of formTablaData.entries()) {
                 const match = name.match(/^Detalle\[(\d+)\]\.(.+)$/);
                 if (match) {
-                    const index = parseInt(match[1]);
+                    const index = match[1];
                     const key = match[2];
 
                     if (!detalle[index]) detalle[index] = {};
                     detalle[index][key] = value;
+
+                    // Agregar cada valor al FormData como campo independiente
+                    formData.append(`Detalle[${index}].${key}`, value);
                 }
             }
 
-            const form2 = document.querySelector('#frm_documento');
-            const formData2 = new FormData(form2);
-            const payload = Object.fromEntries(formData2.entries());
-            payload.Detalle = detalle;
+            // Campos del formulario principal
+            const formDoc = document.querySelector('#frm_documento');
+            const formDocData = new FormData(formDoc);
+            for (let [key, value] of formDocData.entries()) {
+                formData.append(key, value);
+            }
+
+            // Adjuntar archivos manualmente (por fila)
+            document.querySelectorAll('#frm_datosTabla input[type="file"]').forEach(input => {
+                const name = input.name;
+                const file = input.files[0];
+                if (file) {
+                    formData.append(name, file); // Detalle[0].Archivo1, etc.
+                }
+            });
 
             try {
                 const response = await fetch("/Internamiento/RegistrarDocumento", {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(payload) // Enviar los datos como JSON
+                    body: formData // ✔️ se encarga de multipart/form-data automáticamente
                 });
 
-                if (!response.ok) {
-                    throw new Error(`Error en la solicitud: ${response.statusText}`)
-                }
+                if (!response.ok) throw new Error(`Error: ${response.statusText}`);
 
-                const data = await response.json()
+                const data = await response.json();
 
                 Swal.fire({
                     title: data.Titulo,
-                    html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
-                        ? data.Mensajes.join('<br>')
-                        : data.Mensajes || "",
+                    html: Array.isArray(data.Mensajes) ? data.Mensajes.join('<br>') : data.Mensajes || "",
                     icon: data.Icono,
-                    allowEscapeKey: false,
-                    allowOutsideClick: false,
-                    showConfirmButton: true,
                     confirmButtonColor: '#28a745'
-                }).then((result) => {
-                    if (result.isConfirmed && data.Icono == "success") {
-                        location.reload()
+                }).then(result => {
+                    if (result.isConfirmed && data.Icono === "success") {
+                        location.reload();
                     }
                 });
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Error al registrar:', error);
             }
         }
+
 
         function validarCantidad(input) {
             const total = 0;

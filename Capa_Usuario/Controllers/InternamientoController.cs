@@ -1,15 +1,16 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Web.Mvc;
 using Capa_Entidad.Seguridad_ENT;
 using Capa_Entidad.TablasSql;
 using Capa_Usuario.Helpers;
-using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace Capa_Usuario.Controllers
 {
     public class InternamientoController : Controller
     {
         private readonly Capa_Negocio.DireccionTecnica_NEG.TablasSql.ODOCS_N _docsN = new Capa_Negocio.DireccionTecnica_NEG.TablasSql.ODOCS_N();
+        private readonly Capa_Negocio.Helpers _helper = new Capa_Negocio.Helpers();
 
         /************************* C O N F I G U R A C I Ó N *************************/
         private ActionResult VerificarPermiso(int idOperation)
@@ -58,6 +59,9 @@ namespace Capa_Usuario.Controllers
             if (docNum <= 0)
                 return Json(new { Titulo = "Error al buscar documento", Mensajes = new List<string> { "DocNum inválido." }, Icono = "error" }, JsonRequestBehavior.AllowGet);
 
+            if (_docsN.ListarInternamientos(new ODOCS_E { DocNum = docNum }).Any())
+                return Json(_helper.CrearAlertaUI(new List<string> { "El documento ingresado ya se encuentra registrado." }, "error"), JsonRequestBehavior.AllowGet);
+
             Capa_Negocio.DireccionTecnica_NEG.TablasExternas.ODOCS_SAP_N _internamientoSap = new Capa_Negocio.DireccionTecnica_NEG.TablasExternas.ODOCS_SAP_N();
             var result = tipoDocumento == "OPDN" ? _internamientoSap.BuscarDocEntradaMercaderia(docNum) : _internamientoSap.BuscarDocTransferencias(docNum);
 
@@ -101,6 +105,7 @@ namespace Capa_Usuario.Controllers
                 return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
 
             docPost.UsuarioRegistro = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
+
             var result = _docsN.RegistrarDocumento(docPost);
 
             return Json(result);

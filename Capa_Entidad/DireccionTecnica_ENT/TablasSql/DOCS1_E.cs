@@ -1,4 +1,6 @@
-﻿namespace Capa_Entidad.TablasSql
+﻿using System.Web;
+
+namespace Capa_Entidad.TablasSql
 {
     public class DOCS1_E
     {
@@ -20,5 +22,9 @@
         public int CantidadTotal { get; set; }
         public int Liberado { get; set; }
         public int Transferido { get; set; }
+        public HttpPostedFileBase ArchivoProtocolo { get; set; }
+        public string DescargarArchivoProtocolo { get; set; }
+        public HttpPostedFileBase ArchivoET { get; set; }
+        public string DescargarArchivoET { get; set; }
     }
 }

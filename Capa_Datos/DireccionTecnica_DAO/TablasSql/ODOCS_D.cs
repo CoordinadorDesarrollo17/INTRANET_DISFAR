@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -97,6 +98,25 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                                 detalle.Liberado = dr.IsDBNull(25) ? 0 : dr.GetInt32(25);
                                 detalle.Transferido = dr.IsDBNull(26) ? 0 : dr.GetInt32(26);
 
+                                // Aisgnación de archivos adjuntos
+                                string baseRuta = uti.directorioFileServer;
+                                string rutaDirectorio = Path.Combine(baseRuta, "DireccionTecnica", "Internamiento");
+                                string carpeta = detalle.ItemCode ?? "undefined";
+                                string rutaET = Path.Combine(rutaDirectorio, carpeta, "ET.pdf").Replace("\\", "/");
+                                if (System.IO.File.Exists(rutaET))
+                                {
+                                    byte[] contenido = System.IO.File.ReadAllBytes(rutaET);
+                                    detalle.DescargarArchivoET = Convert.ToBase64String(contenido);
+                                }
+
+
+                                string rutaProtocolo = Path.Combine(rutaDirectorio, carpeta, $"{detalle.Lote}.pdf").Replace("\\", "/");
+                                if (System.IO.File.Exists(rutaProtocolo))
+                                {
+                                    byte[] contenido2 = System.IO.File.ReadAllBytes(rutaProtocolo);
+                                    detalle.DescargarArchivoProtocolo = Convert.ToBase64String(contenido2);
+                                }
+
                                 obj.Detalle.Add(detalle);
                             }
                         }
@@ -161,6 +181,41 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
 
                             if (outputId.Value != DBNull.Value)
                                 id = (int)outputId.Value;
+
+                            // Proceso para cargar archivo
+                            string baseRuta = uti.directorioFileServer;
+
+                            foreach (var item in datos.Detalle)
+                            {
+                                if (item.ArchivoET == null && item.ArchivoProtocolo == null)
+                                    continue;
+
+                                string rutaDirectorio = Path.Combine(baseRuta, "DireccionTecnica", "Internamiento", item.ItemCode);
+
+                                if (!Directory.Exists(rutaDirectorio))
+                                    Directory.CreateDirectory(rutaDirectorio);
+
+                                if (item.ArchivoET != null)
+                                {
+                                    string extension = Path.GetExtension(item.ArchivoET.FileName)?.ToLower();
+                                    if (extension != ".pdf")
+                                        continue;
+
+                                    string rutaCompleta = Path.Combine(rutaDirectorio, "ET" + extension);
+                                    item.ArchivoET.SaveAs(rutaCompleta);
+                                }
+
+                                if (item.ArchivoProtocolo != null)
+                                {
+                                    string extension = Path.GetExtension(item.ArchivoProtocolo.FileName)?.ToLower();
+                                    if (extension != ".pdf")
+                                        continue;
+
+                                    string rutaCompleta = Path.Combine(rutaDirectorio, item.Lote + extension);
+                                    item.ArchivoProtocolo.SaveAs(rutaCompleta);
+                                }
+                            }
+
                         }
                         transaction.Commit();
 

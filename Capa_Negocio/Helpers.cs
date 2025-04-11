@@ -1,8 +1,10 @@
-﻿using Capa_Entidad;
+﻿using Capa_Datos;
+using Capa_Entidad;
 using Capa_Entidad.Seguridad_ENT;
 using Capa_Negocio.Seguridad_NEG;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -101,5 +103,30 @@ namespace Capa_Negocio
                 Icono = icono
             };
         }
+
+        public Helper_E CargarArchivo(string rutaDestino, string renombreArchivo, HttpPostedFileBase archivo)
+        {
+            try
+            {
+                if (archivo == null || string.IsNullOrWhiteSpace(renombreArchivo) || string.IsNullOrWhiteSpace(rutaDestino))
+                    return CrearAlertaUI(new List<string> { "Falta información del archivo o ruta de destino." }, "error");
+
+                if (!Directory.Exists(rutaDestino))
+                    Directory.CreateDirectory(rutaDestino);                
+
+                string extension = Path.GetExtension(archivo.FileName);
+                string rutaCompleta = Path.Combine(rutaDestino, renombreArchivo);
+
+                archivo.SaveAs(rutaCompleta);
+
+                return CrearAlertaUI(new List<string> { "Archivo guardado correctamente." }, "success");
+            }
+            catch (Exception ex)
+            {
+                LogHelper.RegistrarError(ex, "Error en Helpers - CargarArchivo()");
+                return CrearAlertaUI(new List<string> { "Error al guardar el archivo." }, "error");
+            }
+        }
+
     }
 }

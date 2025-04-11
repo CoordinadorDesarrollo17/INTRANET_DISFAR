@@ -81,7 +81,7 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
             if (datos == null)
                 return _helpers.CrearRespuestaError("Verificar los datos enviados.");
 
-            if(ListarInternamientos(datos).Any())
+            if (ListarInternamientos(datos).Any())
                 return _helpers.CrearRespuestaError("El documento ingresado ya se encuentra registrado.");
 
             if (string.IsNullOrWhiteSpace(datos.TipoDocumento))
@@ -105,10 +105,7 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
             if (string.IsNullOrWhiteSpace(datos.FechaContabilizacion))
                 return _helpers.CrearRespuestaError("Fecha de contabilizacion no válida.");
 
-            if (string.IsNullOrWhiteSpace(datos.FechaInicioTraslado))
-                return _helpers.CrearRespuestaError("Fecha de inicio de traslado no válido.");
-
-            return ValidarDetalleDocumento(datos.Detalle) ??_datos.RegistrarDocumento(datos);
+            return ValidarDetalleDocumento(datos.Detalle) ?? _datos.RegistrarDocumento(datos);
         }
 
         private Helper_E ValidarDetalleDocumento(List<DOCS1_E> detalle)
@@ -144,11 +141,12 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
                 if (string.IsNullOrWhiteSpace(item.Almacen))
                     return _helpers.CrearRespuestaError($"Almacen no válido en ítem #{index}");
 
-                if (string.IsNullOrWhiteSpace(item.CertificadoAnalisis))
-                    return _helpers.CrearRespuestaError($"Certificado de ánalisis no válido en ítem #{index}");
+                //if (string.IsNullOrWhiteSpace(item.CertificadoAnalisis))
+                //    return _helpers.CrearRespuestaError($"Certificado de ánalisis no válido en ítem #{index}");
 
-                if(!EsCantidadValida(item.CantidadAprobados, item.CantidadBaja, item.CantidadDevolucion, item.CantidadTotal))
-                    return _helpers.CrearRespuestaError($"Las cantidades ingresadas no suman la cantidad total en ítem #{index}");
+                if (item.CantidadAprobados > 0 || item.CantidadBaja > 0 || item.CantidadDevolucion > 0)
+                    if (!EsCantidadValida(item.CantidadAprobados, item.CantidadBaja, item.CantidadDevolucion, item.CantidadTotal))
+                        return _helpers.CrearRespuestaError($"Las cantidades ingresadas no suman la cantidad total en ítem #{index}");
 
                 index++;
             }

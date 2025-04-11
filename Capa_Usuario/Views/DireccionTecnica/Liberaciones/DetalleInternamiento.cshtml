@@ -22,12 +22,6 @@
 <div class="bg-white px-3 py-3 align-items-center">
     <form id="frm_documento">
         <div class="row g-3 mb-4">
-            <!-- Tipo de documento -->
-            <div class="col-lg-2">
-                <label for="TipoDocumento" class="form-label fw-semibold small">Tipo de documento:</label>
-                <input type="text" id="TipoDocumento" name="TipoDocumento" autocomplete="off" class="form-control text-center bg-light text-small" readonly>
-            </div>
-
             <!-- DocNum con botón -->
             <div class="col-lg-2">
                 <label for="DocNum" class="form-label fw-semibold small">DocNum:</label>
@@ -35,35 +29,40 @@
                 <input type="text" id="DocNum" name="DocNum" autocomplete="off" class="form-control text-center bg-light text-small" readonly>
             </div>
 
-            <!-- Nro. de guía -->
+            <!-- Tipo de documento -->
             <div class="col-lg-2">
-                <label for="Guia" class="form-label fw-semibold small">Nro. de guía:</label>
-                <input type="hidden" id="ComprobanteVinculado" name="ComprobanteVinculado" readonly />
-                <input type="text" id="Guia" name="Guia" autocomplete="off" readonly class="form-control text-center bg-light text-small">
+                <label for="TipoDocumento" class="form-label fw-semibold small">Tipo de documento:</label>
+                <input type="text" id="TipoDocumento" name="TipoDocumento" autocomplete="off" class="form-control text-center bg-light text-small" readonly>
             </div>
 
-            <!-- Socio de negocio -->
-            <div class="col-lg-6">
-                <label for="CardName" class="form-label fw-semibold small">Socio de Negocio:</label>
-                <input type="hidden" id="CardCode" name="CardCode" readonly>
-                <input type="text" id="CardName" name="CardName" autocomplete="off" readonly class="form-control text-center bg-light text-small">
-            </div>
-        </div>
-
-        <div class="row g-3 mb-4">
             <div class="col-lg-2">
                 <label for="FechaContabilizacion" class="form-label fw-semibold small">Fecha Contabilización:</label>
                 <input type="text" id="FechaContabilizacion" name="FechaContabilizacion" autocomplete="off" readonly class="form-control text-center bg-light text-small">
             </div>
 
+            <!-- Nro. de guía -->
             <div class="col-lg-2">
-                <label for="FechaInicioTraslado" class="form-label fw-semibold small">Fecha Inicio Traslado:</label>
-                <input type="text" id="FechaInicioTraslado" name="FechaInicioTraslado" autocomplete="off" readonly class="form-control text-center bg-light text-small">
+                <label for="Guia" class="form-label fw-semibold small">Nro. de guía:</label>
+                <input type="text" id="Guia" name="Guia" autocomplete="off" readonly class="form-control text-center bg-light text-small">
+            </div>
+
+            <div class="col-lg-2">
+                <label for="ComprobanteVinculado" class="form-label fw-semibold small">Comprobante Vinculado:</label>
+                <input type="text" id="ComprobanteVinculado" name="ComprobanteVinculado" autocomplete="off" readonly class="form-control text-center bg-light text-small">
             </div>
 
             <div class="col-lg-2">
                 <label for="Estado" class="form-label fw-semibold small">Estado:</label>
                 <input type="text" id="Estado" name="Estado" autocomplete="off" readonly class="form-control text-center bg-light text-small">
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <!-- Socio de negocio -->
+            <div class="col-lg-6">
+                <label for="CardName" class="form-label fw-semibold small">Proveedor:</label>
+                <input type="hidden" id="CardCode" name="CardCode" readonly>
+                <input type="text" id="CardName" name="CardName" autocomplete="off" readonly class="form-control bg-light text-small">
             </div>
         </div>
     </form>
@@ -107,7 +106,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             agregarFilaATabla();
-            soloNumerosPorClase('cls-num')
+            soloNumerosPorClase('cls-num');
+            inicializarDescargas();
 
             tippy('#btn_corregir', {
                 content: 'Guardar internamiento',
@@ -122,16 +122,15 @@
         };
             const tbody = document.querySelector(`#tbl_documento tbody`);
             const modeloJS = @Html.Raw(Json.Encode(Model));
-
+        console.log(modeloJS)
         document.querySelector('#TipoDocumento').value = tiposDocumento[modeloJS[0].TipoDocumento];
             document.querySelector('#DocEntry').value = modeloJS[0].DocEntry;
             document.querySelector('#DocNum').value = modeloJS[0].DocNum;
             document.querySelector('#CardCode').value = modeloJS[0].CardCode;
-            document.querySelector('#CardName').value = modeloJS[0].CardName;
+            document.querySelector('#CardName').value = `${modeloJS[0].CardCode} - ${modeloJS[0].CardName}`;
             document.querySelector('#Guia').value = modeloJS[0].Guia;
             document.querySelector('#ComprobanteVinculado').value = modeloJS[0].ComprobanteVinculado;
             document.querySelector('#FechaContabilizacion').value = modeloJS[0].FechaContabilizacion;
-            document.querySelector('#FechaInicioTraslado').value = modeloJS[0].FechaInicioTraslado;
             document.querySelector('#Estado').value = modeloJS[0].Estado;
 
             for (let key in modeloJS[0].Detalle) {
@@ -144,39 +143,39 @@
                     tr.classList.add('main-row');
 
                     tr.innerHTML = `
-                                                                                    <td class="text-center">
-                                                                                        <button type="button" class="btn btn-sm btn-cobefar-2 toggle-subtable">
-                                                                                            <i class="bi bi-chevron-down"></i>
-                                                                                        </button>
-                                                                                    </td>
-                                                                                    <td class="text-center text-uppercase small">
-                                                                                        <input type="hidden" name="Detalle[${key}].ItemCode" value="${item.ItemCode}">${item.ItemCode}
-                                                                                    </td>
-                                                                                    <td class="text-start text-uppercase small">
-                                                                                        <input type="hidden" name="Detalle[${key}].ItemName" value="${item.ItemName}">${item.ItemName}
-                                                                                    </td>
-                                                                                    <td class="text-center text-uppercase small">
-                                                                                        <input type="hidden" name="Detalle[${key}].Lote" value="${item.Lote}">${item.Lote}
-                                                                                    </td>
-                                                                                    <td class="text-center text-uppercase small">
-                                                                                        <input type="hidden" name="Detalle[${key}].FechaVencimiento" value="${item.FechaVencimiento}">${item.FechaVencimiento}
-                                                                                    </td>
-                                                                                    <td class="text-center text-uppercase small">
-                                                                                        <input type="hidden" name="Detalle[${key}].RegistroSanitario" value="${item.RegistroSanitario}">${item.RegistroSanitario}
-                                                                                    </td>
-                                                                                    <td class="text-start text-uppercase small">
-                                                                                        <input type="hidden" name="Detalle[${key}].Fabricante" value="${item.Fabricante}">${item.Fabricante}
-                                                                                    </td>
-                                                                                    <td class="text-center text-uppercase small">
-                                                                                        <input type="hidden" name="Detalle[${key}].CondicionAlmTrans" value="15ºC - 25ºC">15ºC - 25ºC
-                                                                                    </td>
-                                                                                    <td class="text-center text-uppercase small">
-                                                                                        <input type="hidden" name="Detalle[${key}].Almacen" value="${item.Almacen}">${item.Almacen}
-                                                                                    </td>
-                                                                                    <td class="text-center text-uppercase small">
-                                                                                        <input type="hidden" name="Detalle[${key}].CantidadTotal" value="${item.CantidadTotal}">${item.CantidadTotal}
-                                                                                    </td>
-                                                                                `;
+                                                    <td class="text-center">
+                                                        <button type="button" class="btn btn-sm btn-cobefar-2 toggle-subtable">
+                                                            <i class="bi bi-chevron-down"></i>
+                                                        </button>
+                                                    </td>
+                                                    <td class="text-center text-uppercase small">
+                                                        <input type="hidden" name="Detalle[${key}].ItemCode" value="${item.ItemCode}">${item.ItemCode}
+                                                    </td>
+                                                    <td class="text-start text-uppercase small">
+                                                        <input type="hidden" name="Detalle[${key}].ItemName" value="${item.ItemName}">${item.ItemName}
+                                                    </td>
+                                                    <td class="text-center text-uppercase small">
+                                                        <input type="hidden" name="Detalle[${key}].Lote" value="${item.Lote}">${item.Lote}
+                                                    </td>
+                                                    <td class="text-center text-uppercase small">
+                                                        <input type="hidden" name="Detalle[${key}].FechaVencimiento" value="${item.FechaVencimiento}">${item.FechaVencimiento}
+                                                    </td>
+                                                    <td class="text-center text-uppercase small">
+                                                        <input type="hidden" name="Detalle[${key}].RegistroSanitario" value="${item.RegistroSanitario}">${item.RegistroSanitario}
+                                                    </td>
+                                                    <td class="text-start text-uppercase small">
+                                                        <input type="hidden" name="Detalle[${key}].Fabricante" value="${item.Fabricante}">${item.Fabricante}
+                                                    </td>
+                                                    <td class="text-center text-uppercase small">
+                                                        <input type="hidden" name="Detalle[${key}].CondicionAlmTrans" value="15ºC - 25ºC">15ºC - 25ºC
+                                                    </td>
+                                                    <td class="text-center text-uppercase small">
+                                                        <input type="hidden" name="Detalle[${key}].Almacen" value="${item.Almacen}">${item.Almacen}
+                                                    </td>
+                                                    <td class="text-center text-uppercase small">
+                                                        <input type="hidden" name="Detalle[${key}].CantidadTotal" value="${item.CantidadTotal}">${item.CantidadTotal}
+                                                    </td>
+                                                `;
 
                     // Agregar fila al tbody
                     tbody.appendChild(tr);
@@ -202,43 +201,48 @@
                                                                 <td colspan="10" class="bg-light p-3">
                                                                     <div class="row">
                                                                         <div class="col-lg-2">
-                                                                            <label for="form-label fw-bold">Certificado de Análisis:</label>
+                                                                            <label class="small form-label fw-bold">Certificado de Análisis:</label>
                                                                             <div class="form-check">
-                                                                                <input class="form-check-input" type="radio" name="Detalle[${key}].CertificadoAnalisis" id="opcion1_${correlativo}" value="Aplica" checked disabled>
+                                                                                <input class="form-check-input" type="radio" name="Detalle[${key}].CertificadoAnalisis" id="opcion1_${correlativo}" value="Aplica" checked>
                                                                                 <label class="form-check-label" for="opcion1_${correlativo}">Aplica</label>
                                                                             </div>
 
                                                                             <div class="form-check">
-                                                                                <input class="form-check-input" type="radio" name="Detalle[${key}].CertificadoAnalisis" id="opcion2_${correlativo}" value="No Aplica" disabled>
+                                                                                <input class="form-check-input" type="radio" name="Detalle[${key}].CertificadoAnalisis" id="opcion2_${correlativo}" value="No Aplica">
                                                                                 <label class="form-check-label" for="opcion2_${correlativo}">No Aplica</label>
                                                                             </div>
                                                                         </div>
                                                                         <div class="col-lg-3">
-                                                                            <label for="form-label fw-bold">Cargar archivo:</label>
-                                                                            <input class="form-control" type="file" id="formFile">
+                                                                             <label for="formFileProtocolo_${correlativo}" class="small form-label fw-bold">Cargar Protocolo:</label>
+                                                                              <input class="form-control" type="file" id="formFileProtocolo_${correlativo}" name="Detalle[${key}].ArchivoProtocolo" accept=".pdf">
+                                                                             <button type="button" class="btn-descargar-archivo" data-base64="${item.DescargarArchivoProtocolo}" data-nombre="${item.Lote}.pdf">Descargar Protocolo</button>
+
+                                                                              <label for="formFileET_${correlativo}" class="small form-label fw-bold mt-4">Cargar E.T.:</label>
+                                                                              <input class="form-control" type="file" id="formFileET_${correlativo}" name="Detalle[${key}].ArchivoET" accept=".pdf">
+                                                                             <button type="button" class="btn-descargar-archivo" data-base64="${item.DescargarArchivoET}" data-nombre="${item.ItemCode}.pdf">Descargar ET</button>
                                                                         </div>
                                                                         <div class="col-lg-5">
-                                                                                <label for="form-label fw-bold">Comentario Organoléptico:</label>
-                                                                                <textarea name="Detalle[${key}].ComentarioOrganoleptico" class="form-control bg-light" rows="2" readonly>${item.ComentarioOrganoleptico ?? ''}</textarea>
+                                                                                <label class="small form-label fw-bold">Comentario Organoléptico:</label>
+                                                                                <textarea name="Detalle[${key}].ComentarioOrganoleptico" class="form-control bg-light" rows="2">${item.ComentarioOrganoleptico ?? ''}</textarea>
                                                                         </div>
                                                                         <div class="col-lg-2">
                                                                                 <table>
                                                                                 <tr>
                                                                                     <td>Aprobados:</td>
                                                                                     <td>
-                                                                                        <input type="text" name="Detalle[${key}].CantidadAprobados" class="form-control w-75 cls-num bg-light" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" value="${item.CantidadAprobados}" oninput="validarCantidad(this)" readonly>
+                                                                                        <input type="text" name="Detalle[${key}].CantidadAprobados" class="form-control w-75 cls-num bg-cobefar text-white" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" value="${item.CantidadAprobados}" oninput="validarCantidad(this)">
                                                                                     </td>
                                                                                 </tr>
                                                                                 <tr>
                                                                                     <td>Baja:</td>
                                                                                     <td>
-                                                                                        <input type="text" name="Detalle[${key}].CantidadBaja" class="form-control w-75 cls-num bg-light" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" value="${item.CantidadBaja}" oninput="validarCantidad(this)" readonly>
+                                                                                        <input type="text" name="Detalle[${key}].CantidadBaja" class="form-control w-75 cls-num bg-cobefar text-white" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" value="${item.CantidadBaja}" oninput="validarCantidad(this)">
                                                                                     </td>
                                                                                 </tr>
                                                                                 <tr>
                                                                                     <td>Devolución:</td>
                                                                                     <td>
-                                                                                        <input type="text" name="Detalle[${key}].CantidadDevolucion" class="form-control w-75 cls-num bg-light" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" value="${item.CantidadDevolucion}" oninput="validarCantidad(this)" readonly>
+                                                                                        <input type="text" name="Detalle[${key}].CantidadDevolucion" class="form-control w-75 cls-num bg-cobefar text-white" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" value="${item.CantidadDevolucion}" oninput="validarCantidad(this)">
                                                                                     </td>
                                                                                 </tr>
                                                                                 </table>
@@ -322,6 +326,33 @@
             //if (total !== input.dataset.cantidad) {
             //    generarAlerta('Error en cantidades', 'Las cantidades ingresadas en Aprobado / Baja / Devolución deben cubrir la cantidad del artículo.', 'error');
             //}
+    }
+
+        function inicializarDescargas() {
+            document.querySelectorAll('.btn-descargar-archivo').forEach(boton => {
+                boton.addEventListener('click', function () {
+                    const base64 = this.dataset.base64;
+                    const nombre = this.dataset.nombre || "archivo.pdf";
+
+                    if (!base64) {
+                        Swal.fire("Archivo no disponible", "", "info");
+                        return;
+                    }
+
+                    console.log(base64)
+
+                    const dataUrl = `data:application/pdf;base64,${base64}`;
+
+                    const link = document.createElement("a");
+                    link.href = dataUrl;
+                    link.download = nombre;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                });
+            });
         }
+
+
     </script>
 }
