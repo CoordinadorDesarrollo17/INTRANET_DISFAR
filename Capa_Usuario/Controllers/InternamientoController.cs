@@ -1,15 +1,20 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Web.Mvc;
+using Capa_Entidad;
 using Capa_Entidad.Seguridad_ENT;
 using Capa_Entidad.TablasSql;
+using Capa_Negocio.DireccionTecnica_NEG.TablasSql;
 using Capa_Usuario.Helpers;
+using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace Capa_Usuario.Controllers
 {
     public class InternamientoController : Controller
     {
         private readonly Capa_Negocio.DireccionTecnica_NEG.TablasSql.ODOCS_N _docsN = new Capa_Negocio.DireccionTecnica_NEG.TablasSql.ODOCS_N();
+        private readonly DOCS1_N _detalleDocN = new DOCS1_N();
         private readonly Capa_Negocio.Helpers _helper = new Capa_Negocio.Helpers();
 
         /************************* C O N F I G U R A C I Ó N *************************/
@@ -108,6 +113,28 @@ namespace Capa_Usuario.Controllers
 
             var result = _docsN.RegistrarDocumento(docPost);
 
+            return Json(result);
+        }
+
+        public JsonResult EditarItemDetalleDoc(DOCS1_E detallePost)
+        {
+            var usuarioSesion = Session["UsuarioId"] as Usuario_E;
+            if (usuarioSesion == null)
+                return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
+
+            var usuarioRegistro = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
+
+            var result = _detalleDocN.EditarItemDetalleDoc(detallePost, usuarioRegistro);
+            return Json(result);
+        }
+
+        public JsonResult LiberarArticulos(List<int> ids)
+        {
+            var usuarioSesion = Session["UsuarioId"] as Usuario_E;
+            if (usuarioSesion == null)
+                return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
+
+            var result = new Helper_E();
             return Json(result);
         }
     }
