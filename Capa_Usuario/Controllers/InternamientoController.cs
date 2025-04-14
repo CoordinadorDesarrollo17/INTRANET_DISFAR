@@ -123,7 +123,6 @@ namespace Capa_Usuario.Controllers
                 return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
 
             var usuarioRegistro = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
-
             var result = _detalleDocN.EditarItemDetalleDoc(detallePost, usuarioRegistro);
             return Json(result);
         }
@@ -134,7 +133,8 @@ namespace Capa_Usuario.Controllers
             if (usuarioSesion == null)
                 return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
 
-            var result = new Helper_E();
+            var usuarioRegistro = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
+            var result = _detalleDocN.LiberarArticulos(ids, usuarioRegistro);
             return Json(result);
         }
     }

@@ -5,7 +5,7 @@ namespace Capa_Entidad.TablasSql
     public class DOCS1_E
     {
         public int Id { get; set; }
-        public int ODCOSId { get; set; }
+        public int ODOCSId { get; set; }
         public string ItemCode { get; set; }
         public string ItemName { get; set; }
         public string Lote { get; set; }

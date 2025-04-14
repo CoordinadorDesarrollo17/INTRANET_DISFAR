@@ -84,7 +84,7 @@
                         <th scope="col" class="text-center text-uppercase small">Almacén</th>
                         <th scope="col" class="text-center text-uppercase small">Cantidad</th>
                         <th scope="col" class="text-center text-uppercase small">
-                            <button type="button" id="btn_liberarTodos" class="btn btn-sm btn-outline-light"><i class="bi bi-check-all"></i> Liberar TODOS</button>
+                            <button type="button" id="btn_liberarTodos" class="btn btn-sm btn-outline-light" onclick="liberarTodos()" @if(Model != null && Model[0].Estado != "Pendiente") { Write("disabled"); }><i class="bi bi-check-all"></i> Liberar TODOS</button>
                         </th>
                     </tr>
                 </thead>
@@ -144,7 +144,7 @@
                                                     </td>
                                                     <td class="text-center text-uppercase small">
                                                         <input type="hidden" name="Detalle[${key}].ItemCode" data-identificador="${correlativo}" value="${item.ItemCode}">${item.ItemCode}
-                                                        <input type="hidden" name="Detalle[${key}].Id" data-identificador="${correlativo}" value="${item.Id}">
+                                                        <input type="hidden" name="Detalle[${key}].Id" class="cls-ids" data-identificador="${correlativo}" value="${item.Id}">
                                                     </td>
                                                     <td class="text-start text-uppercase small">
                                                         <input type="hidden" name="Detalle[${key}].ItemName" value="${item.ItemName}">${item.ItemName}
@@ -171,7 +171,7 @@
                                                         <input type="hidden" name="Detalle[${key}].CantidadTotal" data-identificador="${correlativo}" value="${item.CantidadTotal}">${item.CantidadTotal}
                                                     </td>
                                                     <td class="text-center text-uppercase small">
-                                                        <button type="button" id="btn_corregir_${key}" class="btn btn-outline-primary fw-semibold shadow btn-editar" data-id="${item.Id}" data-correlativo="${correlativo}" onclick="editarItemDetalleDoc(this)" hidden><i class="bi bi-pencil-square"></i></button>
+                                                        <button type="button" id="btn_editar_${key}" class="btn btn-outline-primary fw-semibold shadow btn-editar" data-id="${item.Id}" data-correlativo="${correlativo}" onclick="editarItemDetalleDoc(this)" hidden><i class="bi bi-pencil-square"></i></button>
                                                         <button type="button" id="btn_liberar_${key}" class="btn btn-outline-success fw-semibold shadow btn-liberar" data-id="${item.Id}" data-identificador="${correlativo}" data-itemcode="${item.ItemCode}" onclick="liberarItemDetalleDoc(this)" hidden><i class="bi bi-check-lg"></i></button>
                                                     </td>
                                                 `;
@@ -190,7 +190,7 @@
                             nextRow.remove();
                             icon.classList.remove('bi-chevron-up');
                             icon.classList.add('bi-chevron-down');
-                            document.querySelector(`#btn_corregir_${key}`).hidden = true;
+                            document.querySelector(`#btn_editar_${key}`).hidden = true;
                             document.querySelector(`#btn_liberar_${key}`).hidden = true;
                             return;
                         }
@@ -252,11 +252,15 @@
                                                                 </td>`;
 
                         currentRow.parentNode.insertBefore(subRow, currentRow.nextSibling);
+
                         soloNumerosPorClase('cls-num')
                         icon.classList.remove('bi-chevron-down');
                         icon.classList.add('bi-chevron-up');
-                        document.querySelector(`#btn_corregir_${key}`).hidden = false;
-                        //document.querySelector(`#btn_liberar_${key}`).hidden = false;
+
+                        let validacionCantidades = Number(item.CantidadAprobados) + Number(item.CantidadBaja) + Number(item.CantidadDevolucion) == Number(item.CantidadTotal);        // true
+
+                        document.querySelector(`#btn_editar_${key}`).hidden = item.Liberado == 1;                                                           // Solo se quita el hidden cuando aún no se encuentra liberado
+                        document.querySelector(`#btn_liberar_${key}`).hidden = validacionCantidades && item.Liberado == 1;      // Solo se quita el hidden cuando el resultado "validacionCantidades" es true y aún no se encuentra liberado
 
                         inicializarDescargas();
 
@@ -491,7 +495,7 @@
 
             swalWithBootstrapButtons.fire({
                 title: '¿Está seguro(a) de LIBERAR?',
-                html: 'El  ' + input.dataset.itemcode + ' será liberado.',
+                html: 'El artículo  ' + input.dataset.itemcode + ' será liberado.',
                 icon: 'warning',
                  showCancelButton: true,
                 confirmButtonText: "<i class='bi bi-check-lg'></i> Si, liberar",
@@ -507,12 +511,80 @@
             }).then(async (result) => {
                 if (result.isConfirmed) {
                     try {
-                        const response = await fetch("/AbastecimientoInterno/EliminarUbicacionPicking", {
+                        const response = await fetch("/Internamiento/LiberarArticulos", {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
                             },
-                            body: JSON.stringify({ codigoUbicacion }) // Enviar los datos como JSON
+                            body: JSON.stringify([id]) // Enviar los datos como JSON
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`Error en la solicitud: ${response.statusText}`);
+                        }
+
+                        const data = await response.json();
+
+                        Swal.fire({
+                            title: data.Titulo,
+                            html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                                ? data.Mensajes.join('<br>')
+                                : data.Mensajes || "",
+                            icon: data.Icono,
+                            allowEscapeKey: false,
+                            allowOutsideClick: false,
+                            showConfirmButton: true
+                        }).then((result) => {
+                            if (result.isConfirmed && data.Icono == 'success') {
+                                window.location.reload()
+                            }
+                        })
+
+                    } catch (error) {
+                        console.error('Error:', error);
+                    }
+                }
+            });
+        }
+
+        async function liberarTodos() {
+            const inputs = document.querySelectorAll('.cls-ids');
+
+            if (inputs.length === 0) {
+                console.warn("No se encontraron elementos con clase .cls-ids");
+                generarAlerta('Error', 'Ocurrió un error inesperado, comuníquese con el área de Sistemas, gracias.', 'error');
+                return;
+            }
+
+            let grupoIds = [];
+            inputs.forEach(input => {
+                grupoIds.push(input.value);
+            });
+
+            swalWithBootstrapButtons.fire({
+                title: '¿Estás seguro(a) de LIBERAR todos los artículos?',
+                html: 'Todos los artículos que cumplan las validaciones serán liberados.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: "<i class='bi bi-check-lg'></i> Si, liberar",
+                cancelButtonText: "<i class='bi bi-x-lg mx-1'></i> Cancelar",
+                reverseButtons: true,
+                allowEscapeKey: false,
+                allowOutsideClick: false,
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-outline-danger mx-1'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const response = await fetch("/Internamiento/LiberarArticulos", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(grupoIds) // Enviar los datos como JSON
                         });
 
                         if (!response.ok) {

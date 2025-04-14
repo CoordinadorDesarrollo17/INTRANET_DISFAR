@@ -15,6 +15,131 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
     {
         readonly Utilitarios uti = new Utilitarios();
 
+        public Helper_E LiberarArticulo(int id, string usuarioRegistro)
+        {
+            Helper_E result = new Helper_E();
+
+            using (SqlConnection cn = new SqlConnection(uti.CadSql3))
+            {
+                cn.Open();
+                using (SqlTransaction transaction = cn.BeginTransaction())
+                {
+                    try
+                    {
+                        using (SqlCommand cmd = new SqlCommand("sp_GestionarDocumentos", cn, transaction))
+                        {
+                            cmd.CommandType = CommandType.StoredProcedure;
+
+                            cmd.Parameters.AddWithValue("@Operacion", "LIBERAR");
+                            cmd.Parameters.AddWithValue("@Id", id);
+
+                            // Para [CC_ODOCS]
+                            cmd.Parameters.AddWithValue("@UsuarioRegistro", usuarioRegistro);
+                            cmd.Parameters.AddWithValue("@TipoOperacion", "LIBERAR");
+
+                            cmd.ExecuteNonQuery();
+                        }
+                        transaction.Commit();
+
+                        result.Titulo = "Acción completada";
+                        result.Mensajes.Add("Artículo liberado correctamente.");
+                        result.Icono = "success";
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        LogHelper.RegistrarError(ex, "Error inesperado en DOCS1_D - LiberarItemDetalleDoc()");
+
+                        result.Titulo = "Error";
+                        result.Mensajes.Add("Ocurrió un error al liberar artículo.");
+                        result.Mensajes.Add("Por favor, comuníquese con el área de Sistemas para más información.");
+                        result.Icono = "error";
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public List<DOCS1_E> ListarDetalleDocumento(string condicion, Dictionary<string, object> parametros, bool traerTodos)
+        {
+            List<DOCS1_E> lista = new List<DOCS1_E>();
+
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(uti.CadSql3))
+                {
+                    SqlCommand cmd = new SqlCommand();
+                    cmd.Connection = cn;
+
+                    var sb = new StringBuilder();
+
+                    sb.AppendLine("SELECT Id, ODOCSId, ItemCode, ItemName, Lote, CONVERT(varchar, FechaVencimiento, 103), RegistroSanitario, Fabricante, CondicionAlmTrans, Almacen, CertificadoAnalisis, ComentarioOrganoleptico,");
+                    sb.AppendLine("CantidadAprobados, CantidadBaja, CantidadDevolucion, CantidadTotal, Liberado, Transferido");
+                    sb.AppendLine("FROM DOCS1");
+
+                    if (traerTodos)
+                    {
+                        sb.AppendLine("WHERE ODOCId = (SELECT ODOCId FROM DOCS1 WHERE Id = @Id)");
+                    }
+                    else
+                    {
+                        sb.AppendLine("WHERE Id = @Id");
+                    }
+
+                    sb.AppendLine(condicion?.ToString().Trim());
+
+                    // Agregamos los parámetros dinámicamente
+                    foreach (var prm in parametros)
+                    {
+                        cmd.Parameters.AddWithValue(prm.Key, prm.Value);
+                    }
+
+                    cmd.CommandText = sb.ToString();
+
+                    cn.Open();
+
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        if (dr.HasRows)
+                        {
+                            while (dr.Read())
+                            {
+                                var detalle = new DOCS1_E();
+                                detalle.Id = dr.IsDBNull(0) ? 0 : dr.GetInt32(0);
+                                detalle.ODOCSId = dr.IsDBNull(1) ? 0 : dr.GetInt32(1);
+                                detalle.ItemCode = dr.IsDBNull(2) ? null : dr.GetString(2);
+                                detalle.ItemName = dr.IsDBNull(3) ? null : dr.GetString(3);
+                                detalle.Lote = dr.IsDBNull(4) ? null : dr.GetString(4);
+                                detalle.FechaVencimiento = dr.IsDBNull(5) ? null : dr.GetString(5);
+                                detalle.RegistroSanitario = dr.IsDBNull(6) ? null : dr.GetString(6);
+                                detalle.Fabricante = dr.IsDBNull(7) ? null : dr.GetString(7);
+                                detalle.CondicionAlmTrans = dr.IsDBNull(8) ? null : dr.GetString(8);
+                                detalle.Almacen = dr.IsDBNull(9) ? null : dr.GetString(9);
+                                detalle.CertificadoAnalisis = dr.IsDBNull(10) ? null : dr.GetString(10);
+                                detalle.ComentarioOrganoleptico = dr.IsDBNull(11) ? null : dr.GetString(11);
+                                detalle.CantidadAprobados = dr.IsDBNull(12) ? 0 : dr.GetInt32(12);
+                                detalle.CantidadBaja = dr.IsDBNull(13) ? 0 : dr.GetInt32(13);
+                                detalle.CantidadDevolucion = dr.IsDBNull(14) ? 0 : dr.GetInt32(14);
+                                detalle.CantidadTotal = dr.IsDBNull(15) ? 0 : dr.GetInt32(15);
+                                detalle.Liberado = dr.IsDBNull(16) ? 0 : dr.GetInt32(16);
+                                detalle.Transferido = dr.IsDBNull(17) ? 0 : dr.GetInt32(17);
+
+                                lista.Add(detalle);
+                            }
+                        }
+                    }
+                    cn.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.RegistrarError(ex, "Error inesperado en DOCS1_D - ListarDetalleDocumento");
+            }
+
+            return lista;
+        }
+
         public Helper_E EditarItemDetalleDoc(DOCS1_E datos, string usuarioRegistro)
         {
             Helper_E result = new Helper_E();

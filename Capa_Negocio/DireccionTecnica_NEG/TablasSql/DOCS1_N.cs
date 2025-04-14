@@ -15,6 +15,60 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
         private readonly DOCS1_D _datos = new DOCS1_D();
         private readonly Helpers _helpers = new Helpers();
 
+        public Helper_E LiberarArticulos(List<int> grupoIds, string usuarioRegistro)
+        {
+            List<Helper_E> lista = new List<Helper_E>();
+            Helper_E resultado = new Helper_E { Titulo = "Acción completada", Mensajes = new List<string> { "Artículo liberado correctamente." }, Icono = "success" };
+
+            foreach (var id in grupoIds)
+            {
+                var detalle = ListarDetalleDocumento(new DOCS1_E { Id = id });
+
+                // Solo vamos a liberar a los artículos que se encuentran pendientes a liberar
+                if (detalle != null && detalle.Any() && detalle.First().Liberado == 0 && detalle.First().Transferido == 0)
+                    lista.Add(_datos.LiberarArticulo(id, usuarioRegistro));
+            }
+
+            if (!lista.Any())
+            {
+                resultado.Titulo = "Error";
+                resultado.Mensajes.Clear();
+                resultado.Mensajes.Add("Todos los artículos del detalle ya se encuentran liberados.");
+                resultado.Icono = "error";
+            }
+
+            // Al menos un error en la lista
+            if (lista.Any(l => l.Icono == "error"))
+            {
+                resultado.Titulo = "Error";
+                resultado.Mensajes.Clear();
+                resultado.Mensajes.Add("Ocurrió un error al liberar artículo.");
+                resultado.Mensajes.Add("Por favor, comuníquese con el área de Sistemas para más información.");
+                resultado.Icono = "error";
+            }
+
+            return resultado;
+        }
+
+        public List<DOCS1_E> ListarDetalleDocumento(DOCS1_E filtros = null, Dictionary<string, object> parametros = null, bool traerTodos = false)
+        {
+            StringBuilder condicion = new StringBuilder();
+
+            if (parametros == null)
+                parametros = new Dictionary<string, object>();
+
+            if (filtros != null)
+            {
+                if (filtros.Id > 0)
+                {
+                    condicion.AppendLine("AND Id = @Id");
+                    parametros["@Id"] = filtros.Id;
+                }
+            }
+
+            return _datos.ListarDetalleDocumento(condicion?.ToString(), parametros, traerTodos);
+        }
+
         public Helper_E EditarItemDetalleDoc(DOCS1_E detalle, string usuarioRegistro)
         {
             if (string.IsNullOrWhiteSpace(detalle.CertificadoAnalisis))
