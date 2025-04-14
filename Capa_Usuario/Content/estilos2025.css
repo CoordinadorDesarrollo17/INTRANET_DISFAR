@@ -286,9 +286,9 @@ a {
 }
 
     .bg-cobefar-3:hover {
-        background-color: #93152a !important;
-        outline: none;
+        background-color: #117367 !important; /* una versión más oscura para el hover */
     }
+
 
 .bg-cobefar-4 {
     background-color: #156993 !important;

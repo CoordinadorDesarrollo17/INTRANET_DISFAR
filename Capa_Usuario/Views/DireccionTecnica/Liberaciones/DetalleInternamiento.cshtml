@@ -224,26 +224,26 @@
                                                                         </div>
                                                                         <div class="col-lg-5">
                                                                                 <label class="small form-label fw-bold">Comentario Organoléptico:</label>
-                                                                                <textarea name="Detalle[${key}].ComentarioOrganoleptico" class="form-control bg-light" rows="2" data-identificador="${correlativo}">${item.ComentarioOrganoleptico ?? ''}</textarea>
+                                                                                <textarea id="ComentarioOrganoleptico_${correlativo}" name="Detalle[${key}].ComentarioOrganoleptico" class="form-control bg-light" rows="2" data-identificador="${correlativo}">${item.ComentarioOrganoleptico ?? ''}</textarea>
                                                                         </div>
                                                                         <div class="col-lg-2">
                                                                                 <table>
                                                                                 <tr>
                                                                                     <td>Aprobados:</td>
                                                                                     <td>
-                                                                                        <input type="text" name="Detalle[${key}].CantidadAprobados" class="form-control w-75 cls-num bg-cobefar text-end text-white" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" value="${item.CantidadAprobados > 0 ? item.CantidadAprobados : ''}" oninput="validarCantidad(this)" autocomplete="off">
+                                                                                        <input type="text" id="CantidadAprobados_${correlativo}" name="Detalle[${key}].CantidadAprobados" class="form-control w-75 cls-num bg-cobefar-3 text-end text-white" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" value="${item.CantidadAprobados > 0 ? item.CantidadAprobados : ''}" oninput="validarCantidad(this)" autocomplete="off">
                                                                                     </td>
                                                                                 </tr>
                                                                                 <tr>
                                                                                     <td>Baja:</td>
                                                                                     <td>
-                                                                                        <input type="text" name="Detalle[${key}].CantidadBaja" class="form-control w-75 cls-num bg-cobefar text-end text-white" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" value="${item.CantidadBaja > 0 ? item.CantidadBaja : ''}" oninput="validarCantidad(this)" autocomplete="off">
+                                                                                        <input type="text" id="CantidadBaja_${correlativo}" name="Detalle[${key}].CantidadBaja" class="form-control w-75 cls-num bg-cobefar-3 text-end text-white" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" value="${item.CantidadBaja > 0 ? item.CantidadBaja : ''}" oninput="validarCantidad(this)" autocomplete="off">
                                                                                     </td>
                                                                                 </tr>
                                                                                 <tr>
                                                                                     <td>Devolución:</td>
                                                                                     <td>
-                                                                                        <input type="text" name="Detalle[${key}].CantidadDevolucion" class="form-control w-75 cls-num bg-cobefar text-end text-white" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" value="${item.CantidadDevolucion > 0 ? item.CantidadDevolucion : ''}" oninput="validarCantidad(this)" autocomplete="off">
+                                                                                        <input type="text" id="CantidadDevolucion_${correlativo}" name="Detalle[${key}].CantidadDevolucion" class="form-control w-75 cls-num bg-cobefar-3 text-end text-white" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" value="${item.CantidadDevolucion > 0 ? item.CantidadDevolucion : ''}" oninput="validarCantidad(this)" autocomplete="off">
                                                                                     </td>
                                                                                 </tr>
                                                                                 </table>
@@ -258,9 +258,32 @@
                         icon.classList.add('bi-chevron-up');
 
                         let validacionCantidades = Number(item.CantidadAprobados) + Number(item.CantidadBaja) + Number(item.CantidadDevolucion) == Number(item.CantidadTotal);        // true
-
-                        document.querySelector(`#btn_editar_${key}`).hidden = item.Liberado == 1;                                                           // Solo se quita el hidden cuando aún no se encuentra liberado
                         document.querySelector(`#btn_liberar_${key}`).hidden = validacionCantidades && item.Liberado == 1;      // Solo se quita el hidden cuando el resultado "validacionCantidades" es true y aún no se encuentra liberado
+
+                        const esLiberado = item.Liberado === 1;
+
+                        // Elementos que deben ser deshabilitados
+                        [
+                            `#opcion1_${correlativo}`,
+                            `#opcion2_${correlativo}`,
+                            `#ComentarioOrganoleptico_${correlativo}`,
+                            `#CantidadAprobados_${correlativo}`,
+                            `#CantidadBaja_${correlativo}`,
+                            `#CantidadDevolucion_${correlativo}`
+                        ].forEach(selector => {
+                            const el = document.querySelector(selector);
+                            if (el) el.disabled = esLiberado;
+                        });
+
+                        // Elementos que deben ser ocultados (hidden)
+                        [
+                            `#btn_editar_${key}`,
+                            `#formFileET_${correlativo}`,
+                            `#formFileProtocolo_${correlativo}`
+                        ].forEach(selector => {
+                            const el = document.querySelector(selector);
+                            if (el) el.hidden = esLiberado;
+                        });
 
                         inicializarDescargas();
 
