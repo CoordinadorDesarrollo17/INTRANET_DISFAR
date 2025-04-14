@@ -129,8 +129,9 @@
             for (let key in modeloJS[0].Detalle) {
                 if (modeloJS[0].Detalle.hasOwnProperty(key)) {
                     const item = modeloJS[0].Detalle[key];
-                    const correlativo = `${item.ItemCode}_${item.Lote}`;
-                    const index = key;
+                    const itemCodeSinEspacios = item.ItemCode.replace(/\s+/g, '');
+                    const correlativo = `${itemCodeSinEspacios}_${item.Lote}`;
+
                     // Crear fila principal
                     const tr = document.createElement('tr');
                     tr.classList.add('main-row');
@@ -142,7 +143,8 @@
                                                         </button>
                                                     </td>
                                                     <td class="text-center text-uppercase small">
-                                                        <input type="hidden" name="Detalle[${key}].ItemCode" value="${item.ItemCode}">${item.ItemCode}
+                                                        <input type="hidden" name="Detalle[${key}].ItemCode" data-identificador="${correlativo}" value="${item.ItemCode}">${item.ItemCode}
+                                                        <input type="hidden" name="Detalle[${key}].Id" data-identificador="${correlativo}" value="${item.Id}">
                                                     </td>
                                                     <td class="text-start text-uppercase small">
                                                         <input type="hidden" name="Detalle[${key}].ItemName" value="${item.ItemName}">${item.ItemName}
@@ -166,11 +168,11 @@
                                                         <input type="hidden" name="Detalle[${key}].Almacen" value="${item.Almacen}">${item.Almacen}
                                                     </td>
                                                     <td class="text-center text-uppercase small">
-                                                        <input type="hidden" name="Detalle[${key}].CantidadTotal" value="${item.CantidadTotal}">${item.CantidadTotal}
+                                                        <input type="hidden" name="Detalle[${key}].CantidadTotal" data-identificador="${correlativo}" value="${item.CantidadTotal}">${item.CantidadTotal}
                                                     </td>
                                                     <td class="text-center text-uppercase small">
                                                         <button type="button" id="btn_corregir_${key}" class="btn btn-outline-primary fw-semibold shadow btn-editar" data-id="${item.Id}" data-correlativo="${correlativo}" onclick="editarItemDetalleDoc(this)" hidden><i class="bi bi-pencil-square"></i></button>
-                                                        <button type="button" id="btn_liberar_${key}" class="btn btn-outline-success fw-semibold shadow btn-liberar" data-id="${item.Id}" data-itemcode="${item.ItemCode}" onclick="liberarItemDetalleDoc(this)" hidden><i class="bi bi-check-lg"></i></button>
+                                                        <button type="button" id="btn_liberar_${key}" class="btn btn-outline-success fw-semibold shadow btn-liberar" data-id="${item.Id}" data-identificador="${correlativo}" data-itemcode="${item.ItemCode}" onclick="liberarItemDetalleDoc(this)" hidden><i class="bi bi-check-lg"></i></button>
                                                     </td>
                                                 `;
 
@@ -214,11 +216,11 @@
                                                                         <div class="col-lg-3">
                                                                              <label for="formFileProtocolo_${correlativo}" class="small form-label fw-bold">Cargar Protocolo:</label>
                                                                              <button type="button" class="btn btn-sm btn-outline-dark btn-descargar-archivo" data-base64="${item.DescargarArchivoProtocolo}" data-nombre="${item.Lote}.pdf" ${item.DescargarArchivoProtocolo == null ? "hidden" : ""}><i class="bi bi-download"></i></button>
-                                                                              <input class="form-control" type="file" id="formFileProtocolo_${correlativo}" name="Detalle[${key}].ArchivoProtocolo" accept=".pdf" data-identificador="${correlativo}">
+                                                                              <input class="form-control cls-archivos" type="file" id="formFileProtocolo_${correlativo}" name="Detalle[${key}].ArchivoProtocolo" accept=".pdf" data-identificador="${correlativo}">
 
                                                                               <label for="formFileET_${correlativo}" class="small form-label fw-bold mt-4">Cargar E.T.:</label>
                                                                              <button type="button" class="btn btn-sm btn-outline-dark btn-descargar-archivo" data-base64="${item.DescargarArchivoET}" data-nombre="${item.ItemCode}.pdf" ${item.DescargarArchivoET == null ? "hidden" : ""}><i class="bi bi-download"></i></button>
-                                                                              <input class="form-control" type="file" id="formFileET_${correlativo}" name="Detalle[${key}].ArchivoET" accept=".pdf" data-identificador="${correlativo}">
+                                                                              <input class="form-control cls-archivos" type="file" id="formFileET_${correlativo}" name="Detalle[${key}].ArchivoET" accept=".pdf" data-identificador="${correlativo}">
                                                                         </div>
                                                                         <div class="col-lg-5">
                                                                                 <label class="small form-label fw-bold">Comentario Organoléptico:</label>
@@ -254,7 +256,7 @@
                         icon.classList.remove('bi-chevron-down');
                         icon.classList.add('bi-chevron-up');
                         document.querySelector(`#btn_corregir_${key}`).hidden = false;
-                        document.querySelector(`#btn_liberar_${key}`).hidden = false;
+                        //document.querySelector(`#btn_liberar_${key}`).hidden = false;
 
                         inicializarDescargas();
 
@@ -376,29 +378,82 @@
             });
         }
 
-        async function editarItemDetalleDoc(input) {
-            const correlativo = input.dataset.correlativo;
+        function validarCamposDetalle(correlativo) {
             const inputs = document.querySelectorAll(`[data-identificador="${correlativo}"]`);
-
             const filaSeleccionada = {};
+            let btnLiberar = null;
+
             inputs.forEach(input => {
+                // Obtener una sola vez el botón asociado
+                console.log(input)
+                if (!btnLiberar)
+                    btnLiberar = input.closest('tr')?.querySelector('.btn-liberar');
+
                 const match = input.name.match(/^Detalle\[(\d+)\]\.(.+)$/);
                 if (match) {
                     const key = match[2];
-                    filaSeleccionada[key] = input.value;
+                    filaSeleccionada[key] = input.value?.trim() || '';
                 }
             });
 
-            console.log(filaSeleccionada);
+            if (btnLiberar)
+                btnLiberar.hidden = true;
+
+            // Validar CertificadoAnalisis
+            if (!filaSeleccionada["CertificadoAnalisis"]) {
+                generarAlerta('Advertencia', "Debe seleccionar una opción para 'Certificado de Análisis'.", 'warning');
+                return false;
+            }
+
+            // Validar suma de cantidades
+            const devolucion = filaSeleccionada["CantidadDevolucion"] || 0;
+            const baja = filaSeleccionada["CantidadBaja"] || 0;
+            const aprobados = filaSeleccionada["CantidadAprobados"] || 0;
+
+            const suma = Number(devolucion) + Number(baja) + Number(aprobados);
+            if (suma !== Number(filaSeleccionada["CantidadTotal"])){
+                generarAlerta('Advertencia', `La suma de las cantidades ingresadas para Aprobados, Baja y Devolución; debe ser igual a ${filaSeleccionada["CantidadTotal"]}.`, 'warning');
+                return false;
+            }
+
+            // Validar archivos: al menos uno debe estar presente
+            if (!filaSeleccionada["ArchivoProtocolo"] && !filaSeleccionada["ArchivoET"]) {
+                generarAlerta('Advertencia', "Debe adjuntar al menos el archivo Protocolo o ET.", 'warning');
+                return false;
+            }
+
+            if (btnLiberar)
+                btnLiberar.hidden = false;
+
+            return filaSeleccionada; // solo si todo está validado
+        }
+
+        async function editarItemDetalleDoc(input) {
+            const correlativo = input.dataset.correlativo;
+            const campos = validarCamposDetalle(correlativo);
+
+            if (campos == false) return;
+
+            const formData = new FormData();
+
+            // Agregar campos del objeto campos
+            for (const key in campos) {
+                formData.append(key, campos[key]);
+            }
+
+            // Buscar archivos directamente con correlativo
+            const file1 = document.querySelector(`input[type="file"][data-identificador="${correlativo}"][name$=".ArchivoProtocolo"]`)?.files?.[0];
+            const file2 = document.querySelector(`input[type="file"][data-identificador="${correlativo}"][name$=".ArchivoET"]`)?.files?.[0];
+
+            if (file1) formData.append('ArchivoProtocolo', file1);
+            if (file2) formData.append('ArchivoET', file2);
 
             try {
-                const response = await fetch("/Internamiento/RegistrarDocumento", {
+                const response = await fetch("/Internamiento/EditarItemDetalleDoc", {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(payload) // Enviar los datos como JSON
+                    body: formData
                 });
+
 
                 if (!response.ok) {
                     throw new Error(`Error en la solicitud: ${response.statusText}`)

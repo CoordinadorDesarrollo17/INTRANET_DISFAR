@@ -32,7 +32,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                     var sb = new StringBuilder();
 
                     sb.AppendLine("SELECT DOC.Id, DOC.TipoDocumento, DOC.DocEntry, DOC.DocNum, DOC.CardCode, DOC.CardName, DOC.Guia, DOC.ComprobanteVinculado, CONVERT(varchar, DOC.FechaContabilizacion, 103), CONVERT(varchar, DOC.FechaInicioTraslado, 103), DOC.Estado,");
-                    sb.AppendLine("DET.ItemCode, DET.ItemName, DET.Lote, CONVERT(varchar, DET.FechaVencimiento, 103), DET.RegistroSanitario, DET.Fabricante, DET.CondicionAlmTrans,");
+                    sb.AppendLine("DET.Id, DET.ItemCode, DET.ItemName, DET.Lote, CONVERT(varchar, DET.FechaVencimiento, 103), DET.RegistroSanitario, DET.Fabricante, DET.CondicionAlmTrans,");
                     sb.AppendLine("DET.Almacen, DET.CertificadoAnalisis, DET.ComentarioOrganoleptico, DET.CantidadAprobados, DET.CantidadBaja, DET.CantidadDevolucion, DET.CantidadTotal, DET.Liberado, DET.Transferido");
                     sb.AppendLine("FROM ODOCS DOC");
                     sb.AppendLine("INNER JOIN DOCS1 DET ON DOC.Id = DET.ODOCSId");
@@ -81,22 +81,23 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
 
                                 // Agregar detalle
                                 var detalle = new DOCS1_E();
-                                detalle.ItemCode = dr.IsDBNull(11) ? null : dr.GetString(11);
-                                detalle.ItemName = dr.IsDBNull(12) ? null : dr.GetString(12);
-                                detalle.Lote = dr.IsDBNull(13) ? null : dr.GetString(13);
-                                detalle.FechaVencimiento = dr.IsDBNull(14) ? null : dr.GetString(14);
-                                detalle.RegistroSanitario = dr.IsDBNull(15) ? null : dr.GetString(15);
-                                detalle.Fabricante = dr.IsDBNull(16) ? null : dr.GetString(16);
-                                detalle.CondicionAlmTrans = dr.IsDBNull(17) ? null : dr.GetString(17);
-                                detalle.Almacen = dr.IsDBNull(18) ? null : dr.GetString(18);
-                                detalle.CertificadoAnalisis = dr.IsDBNull(19) ? null : dr.GetString(19);
-                                detalle.ComentarioOrganoleptico = dr.IsDBNull(20) ? null : dr.GetString(20);
-                                detalle.CantidadAprobados = dr.IsDBNull(21) ? 0 : dr.GetInt32(21);
-                                detalle.CantidadBaja = dr.IsDBNull(22) ? 0 : dr.GetInt32(22);
-                                detalle.CantidadDevolucion = dr.IsDBNull(23) ? 0 : dr.GetInt32(23);
-                                detalle.CantidadTotal = dr.IsDBNull(24) ? 0 : dr.GetInt32(24);
-                                detalle.Liberado = dr.IsDBNull(25) ? 0 : dr.GetInt32(25);
-                                detalle.Transferido = dr.IsDBNull(26) ? 0 : dr.GetInt32(26);
+                                detalle.Id = dr.IsDBNull(11) ? 0 : dr.GetInt32(11);
+                                detalle.ItemCode = dr.IsDBNull(12) ? null : dr.GetString(12);
+                                detalle.ItemName = dr.IsDBNull(13) ? null : dr.GetString(13);
+                                detalle.Lote = dr.IsDBNull(14) ? null : dr.GetString(14);
+                                detalle.FechaVencimiento = dr.IsDBNull(15) ? null : dr.GetString(15);
+                                detalle.RegistroSanitario = dr.IsDBNull(16) ? null : dr.GetString(16);
+                                detalle.Fabricante = dr.IsDBNull(17) ? null : dr.GetString(17);
+                                detalle.CondicionAlmTrans = dr.IsDBNull(18) ? null : dr.GetString(18);
+                                detalle.Almacen = dr.IsDBNull(19) ? null : dr.GetString(19);
+                                detalle.CertificadoAnalisis = dr.IsDBNull(20) ? null : dr.GetString(20);
+                                detalle.ComentarioOrganoleptico = dr.IsDBNull(21) ? null : dr.GetString(21);
+                                detalle.CantidadAprobados = dr.IsDBNull(22) ? 0 : dr.GetInt32(22);
+                                detalle.CantidadBaja = dr.IsDBNull(23) ? 0 : dr.GetInt32(23);
+                                detalle.CantidadDevolucion = dr.IsDBNull(24) ? 0 : dr.GetInt32(24);
+                                detalle.CantidadTotal = dr.IsDBNull(25) ? 0 : dr.GetInt32(25);
+                                detalle.Liberado = dr.IsDBNull(26) ? 0 : dr.GetInt32(26);
+                                detalle.Transferido = dr.IsDBNull(27) ? 0 : dr.GetInt32(27);
 
                                 // Aisgnación de archivos adjuntos
                                 string baseRuta = uti.directorioFileServer;

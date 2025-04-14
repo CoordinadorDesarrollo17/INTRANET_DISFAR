@@ -42,13 +42,6 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                             cmd.Parameters.AddWithValue("@UsuarioRegistro", usuarioRegistro);
                             cmd.Parameters.AddWithValue("@TipoOperacion", "EDITAR");
 
-                            // Agregar parámetro de salida para Id
-                            SqlParameter outputId = new SqlParameter("@Id", SqlDbType.Int)
-                            {
-                                Direction = ParameterDirection.Output
-                            };
-                            cmd.Parameters.Add(outputId);
-
                             cmd.ExecuteNonQuery();
 
                             // Proceso para cargar archivo
