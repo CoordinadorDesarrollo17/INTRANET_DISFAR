@@ -133,6 +133,122 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
             return lista;
         }
 
+        public List<ODOCS_E> ListarTraslados(string condicion, Dictionary<string, object> parametros)
+        {
+            List<ODOCS_E> lista = new List<ODOCS_E>();
+            var lookup = new Dictionary<int, ODOCS_E>();
+
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(uti.CadSql3))
+                {
+                    SqlCommand cmd = new SqlCommand();
+                    cmd.Connection = cn;
+
+                    var sb = new StringBuilder();
+
+                    sb.AppendLine("SELECT DOC.Id, DOC.TipoDocumento, DOC.DocEntry, DOC.DocNum, DOC.CardCode, DOC.CardName, DOC.Guia, DOC.ComprobanteVinculado, CONVERT(varchar, DOC.FechaContabilizacion, 103), CONVERT(varchar, DOC.FechaInicioTraslado, 103), DOC.Estado,");
+                    sb.AppendLine("DET.Id, DET.ItemCode, DET.ItemName, DET.Lote, CONVERT(varchar, DET.FechaVencimiento, 103), DET.RegistroSanitario, DET.Fabricante, DET.CondicionAlmTrans,");
+                    sb.AppendLine("DET.Almacen, DET.CertificadoAnalisis, DET.ComentarioOrganoleptico, DET.CantidadAprobados, DET.CantidadBaja, DET.CantidadDevolucion, DET.CantidadTotal, DET.Liberado, DET.Transferido");
+                    sb.AppendLine("FROM ODOCS DOC");
+                    sb.AppendLine("INNER JOIN DOCS1 DET ON DOC.Id = DET.ODOCSId");
+                    sb.AppendLine("WHERE DOC.Estado = 'Liberado'");
+                    sb.AppendLine(condicion?.ToString().Trim());
+
+                    // Agregamos los parámetros dinámicamente
+                    foreach (var prm in parametros)
+                    {
+                        cmd.Parameters.AddWithValue(prm.Key, prm.Value);
+                    }
+
+                    cmd.CommandText = sb.ToString();
+
+                    cn.Open();
+
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        if (dr.HasRows)
+                        {
+                            while (dr.Read())
+                            {
+                                int id = dr.GetInt32(0);
+
+                                if (!lookup.TryGetValue(id, out var obj))
+                                {
+                                    obj = new ODOCS_E
+                                    {
+                                        Id = id,
+                                        TipoDocumento = dr.IsDBNull(1) ? null : dr.GetString(1),
+                                        DocEntry = dr.IsDBNull(2) ? 0 : dr.GetInt64(2),
+                                        DocNum = dr.IsDBNull(3) ? 0 : dr.GetInt64(3),
+                                        CardCode = dr.IsDBNull(4) ? null : dr.GetString(4),
+                                        CardName = dr.IsDBNull(5) ? null : dr.GetString(5),
+                                        Guia = dr.IsDBNull(6) ? null : dr.GetString(6),
+                                        ComprobanteVinculado = dr.IsDBNull(7) ? null : dr.GetString(7),
+                                        FechaContabilizacion = dr.IsDBNull(8) ? null : dr.GetString(8),
+                                        FechaInicioTraslado = dr.IsDBNull(9) ? null : dr.GetString(9),
+                                        Estado = dr.IsDBNull(10) ? null : dr.GetString(10),
+                                        Detalle = new List<DOCS1_E>()
+                                    };
+
+                                    lookup[id] = obj;
+                                    lista.Add(obj);
+                                }
+
+                                // Agregar detalle
+                                var detalle = new DOCS1_E();
+                                detalle.Id = dr.IsDBNull(11) ? 0 : dr.GetInt32(11);
+                                detalle.ItemCode = dr.IsDBNull(12) ? null : dr.GetString(12);
+                                detalle.ItemName = dr.IsDBNull(13) ? null : dr.GetString(13);
+                                detalle.Lote = dr.IsDBNull(14) ? null : dr.GetString(14);
+                                detalle.FechaVencimiento = dr.IsDBNull(15) ? null : dr.GetString(15);
+                                detalle.RegistroSanitario = dr.IsDBNull(16) ? null : dr.GetString(16);
+                                detalle.Fabricante = dr.IsDBNull(17) ? null : dr.GetString(17);
+                                detalle.CondicionAlmTrans = dr.IsDBNull(18) ? null : dr.GetString(18);
+                                detalle.Almacen = dr.IsDBNull(19) ? null : dr.GetString(19);
+                                detalle.CertificadoAnalisis = dr.IsDBNull(20) ? null : dr.GetString(20);
+                                detalle.ComentarioOrganoleptico = dr.IsDBNull(21) ? null : dr.GetString(21);
+                                detalle.CantidadAprobados = dr.IsDBNull(22) ? 0 : dr.GetInt32(22);
+                                detalle.CantidadBaja = dr.IsDBNull(23) ? 0 : dr.GetInt32(23);
+                                detalle.CantidadDevolucion = dr.IsDBNull(24) ? 0 : dr.GetInt32(24);
+                                detalle.CantidadTotal = dr.IsDBNull(25) ? 0 : dr.GetInt32(25);
+                                detalle.Liberado = dr.IsDBNull(26) ? 0 : dr.GetInt32(26);
+                                detalle.Transferido = dr.IsDBNull(27) ? 0 : dr.GetInt32(27);
+
+                                // Aisgnación de archivos adjuntos
+                                string baseRuta = uti.directorioFileServer;
+                                string rutaDirectorio = Path.Combine(baseRuta, "DireccionTecnica", "Internamiento");
+                                string carpeta = detalle.ItemCode ?? "undefined";
+                                string rutaET = Path.Combine(rutaDirectorio, carpeta, "ET.pdf").Replace("\\", "/");
+                                if (System.IO.File.Exists(rutaET))
+                                {
+                                    byte[] contenido = System.IO.File.ReadAllBytes(rutaET);
+                                    detalle.DescargarArchivoET = Convert.ToBase64String(contenido);
+                                }
+
+
+                                string rutaProtocolo = Path.Combine(rutaDirectorio, carpeta, $"{detalle.Lote}.pdf").Replace("\\", "/");
+                                if (System.IO.File.Exists(rutaProtocolo))
+                                {
+                                    byte[] contenido2 = System.IO.File.ReadAllBytes(rutaProtocolo);
+                                    detalle.DescargarArchivoProtocolo = Convert.ToBase64String(contenido2);
+                                }
+
+                                obj.Detalle.Add(detalle);
+                            }
+                        }
+                    }
+                    cn.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.RegistrarError(ex, "Error inesperado en ODOCS_D - ListarInternamientos");
+            }
+
+            return lista;
+        }
+
         public Helper_E RegistrarDocumento(ODOCS_E datos)
         {
             Helper_E result = new Helper_E();

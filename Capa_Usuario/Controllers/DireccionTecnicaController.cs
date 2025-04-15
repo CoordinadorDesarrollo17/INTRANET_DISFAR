@@ -861,5 +861,20 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+
+        public ActionResult ListarTraslados(int idOperation = 0)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                var lista = _docsN.ListarInternamientos();
+
+                return View("Liberaciones/ListadoTraslados", lista);
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
     }
 }

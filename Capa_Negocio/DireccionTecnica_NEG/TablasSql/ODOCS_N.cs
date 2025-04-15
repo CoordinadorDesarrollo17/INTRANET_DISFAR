@@ -76,6 +76,67 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
             return _datos.ListarInternamientos(condicion.ToString(), parametros);
         }
 
+        public List<ODOCS_E> ListarTraslados(ODOCS_E filtros = null, Dictionary<string, object> parametros = null)
+        {
+            StringBuilder condicion = new StringBuilder();
+
+            if (parametros == null)
+                parametros = new Dictionary<string, object>();
+
+            if (filtros != null)
+            {
+                if (filtros.Id > 0)
+                {
+                    condicion.AppendLine("AND DOC.Id = @Id");
+                    parametros["@Id"] = filtros.Id;
+                }
+
+                if (filtros.DocNum > 0)
+                {
+                    condicion.AppendLine("AND DOC.DocNum = @DocNum");
+                    parametros["@DocNum"] = filtros.DocNum;
+                }
+
+                if (!string.IsNullOrWhiteSpace(filtros.TipoDocumento))
+                {
+                    condicion.AppendLine("AND DOC.TipoDocumento = @TipoDocumento");
+                    parametros["@TipoDocumento"] = filtros.TipoDocumento;
+                }
+
+                if (!string.IsNullOrWhiteSpace(filtros.CardCode))
+                {
+                    condicion.AppendLine("AND DOC.CardCode = @CardCode");
+                    parametros["@CardCode"] = filtros.CardCode;
+                }
+
+                if (!string.IsNullOrWhiteSpace(filtros.CardName))
+                {
+                    condicion.AppendLine("AND DOC.CardName = @CardName");
+                    parametros["@CardName"] = filtros.CardName;
+                }
+
+                if (!string.IsNullOrWhiteSpace(filtros.Guia))
+                {
+                    condicion.AppendLine("AND DOC.Guia = @Guia");
+                    parametros["@Guia"] = filtros.Guia;
+                }
+
+                if (!string.IsNullOrWhiteSpace(filtros.ComprobanteVinculado))
+                {
+                    condicion.AppendLine("AND DOC.ComprobanteVinculado = @ComprobanteVinculado");
+                    parametros["@ComprobanteVinculado"] = filtros.ComprobanteVinculado;
+                }
+
+                if (!string.IsNullOrWhiteSpace(filtros.Estado))
+                {
+                    condicion.AppendLine("AND DOC.Estado = @Estado");
+                    parametros["@Estado"] = filtros.Estado;
+                }
+            }
+
+            return _datos.ListarTraslados(condicion.ToString(), parametros);
+        }
+
         public Helper_E RegistrarDocumento(ODOCS_E datos)
         {
             if (datos == null)
@@ -107,5 +168,6 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
 
             return new DOCS1_N().ValidarDetalleDocumento(datos.Detalle) ?? _datos.RegistrarDocumento(datos);
         }
+
     }
 }

@@ -1,0 +1,186 @@
+@{
+    ViewBag.Title = "Listado de Traslados";
+    Layout = "~/Views/Shared/_DefaultLayout.cshtml";
+
+    var tiposDocumento = new Dictionary<string, string>
+{
+        { "OPDN", "Entrada de Mercancía" },
+        { "OWTR", "Transferencia" }
+    };
+}
+
+<div class="pt-3">
+    <nav>
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("Sesion", "Index")">Dirección Técnica</a></li>
+            <li><a href="@Url.Action("Sesion", "Index")">Traslados</a></li>
+            <li class="current"><em>@ViewBag.Title</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
+    <div class="row px-3 pt-3"><h3 class="titulo-seccion">@ViewBag.Title.ToUpper()</h3></div>
+    <div class="row px-3 py-2">
+        <div class="col-12">
+            <button type="button" id="btn_filtrar" class="btn btn-sm btn-outline-light" onclick="abrirModalFiltros()">
+                <i class="bi bi-filter"></i> Filtrar
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="bg-white px-3 py-3 align-items-center">
+    <form id="frm_listadoInternamientos">
+        <div id="div_listado" class="table-responsive shadow-sm rounded">
+            <table id="tbl_listadoInternamientos" class="table table-bordered table-hover">
+                <thead class="thead-cobefar">
+                    <tr>
+                        <th scope="col" class="text-center small">DocNum</th>
+                        <th scope="col" class="text-center small">Tipo de Documento</th>
+                        <th scope="col" class="text-center small">Fecha Cont.</th>
+                        <th scope="col" class="text-center small">RUC Proveedor</th>
+                        <th scope="col" class="text-center small">Proveedor</th>
+                        <th scope="col" class="text-center small">Guía</th>
+                        <th scope="col" class="text-center small">Comprobante Vinc.</th>
+                        <th scope="col" class="text-center small">Estado</th>
+                        <th scope="col" class="text-center small"></th>
+                    </tr>
+                </thead>
+                <tbody class="table-white">
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td scope="col" class="text-center small">@item.DocNum</td>
+                            <td scope="col" class="text-center small">@tiposDocumento[item.TipoDocumento]</td>
+                            <td scope="col" class="text-center small">@item.FechaContabilizacion</td>
+                            <td scope="col" class="text-center small">@item.CardCode</td>
+                            <td scope="col" class="text-start small"><span class="ps-2">@item.CardName</span></td>
+                            <td scope="col" class="text-center small">@item.Guia</td>
+                            <td scope="col" class="text-center small">@item.ComprobanteVinculado</td>
+                            <td scope="col" class="text-center small">@item.Estado</td>
+                            <td scope="col" class="text-center small">
+                                <button type="button" class="btn btn-sm btn-outline-dark btn_verDetalle" onclick="redireccionar(this)" data-ruta="/DT_Traslados/VerDetalle?Id=@item.Id"><i class="bi bi-search"></i></button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </form>
+</div>
+
+<div class="modal fade" id="modalFiltros" tabindex="-1" aria-labelledby="modalLabel1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header text-white bg-headerModals">
+                <h5 class="modal-title" id="modalLabel1">Filtros</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" tabindex="-1"></button>
+            </div>
+
+            <div class="modal-body bg-blancoHumo">
+                <div id="div_modalBody" class="container pb-0">
+                    <form id="frm_filtros">
+                        <div class="row mb-3">
+                            <div class="col-lg-3">
+                                <label for="DocNum" class="form-label fw-bold">DocNum:</label>
+                                <input id="DocNum" name="DocNum" class="form-control cls-num" type="text" autocomplete="off" />
+                            </div>
+                            <div class="col-lg-3">
+                                <label for="TipoDocumento" class="form-label fw-bold">Tipo de Documento:</label>
+                                <input id="TipoDocumento" name="TipoDocumento" class="form-control " type="text" autocomplete="off" />
+                            </div>
+                            <div class="col-lg-3">
+                                <label for="CardCode" class="form-label fw-bold">Código Socio de Negocio:</label>
+                                <input id="CardCode" name="CardCode" class="form-control cls-num" type="text" autocomplete="off" />
+                            </div>
+                            <div class="col-lg-3">
+                                <label for="CardName" class="form-label fw-bold">Socio de Negocio:</label>
+                                <input id="CardName" name="CardName" class="form-control " type="text" autocomplete="off" />
+                            </div>
+                        </div><!-- // ROW -->
+
+                        <div class="row">
+                            <div class="col-lg-3">
+                                <label for="Guia" class="form-label fw-bold">Guía:</label>
+                                <input id="Guia" name="Guia" class="form-control " type="text" autocomplete="off" />
+                            </div>
+                            <div class="col-lg-3">
+                                <label for="ComprobanteVinculado" class="form-label fw-bold">Comprobante Vinculado:</label>
+                                <input id="ComprobanteVinculado" name="ComprobanteVinculado" class="form-control" type="text" autocomplete="off" />
+                            </div>
+                            <div class="col-lg-3">
+                                <label for="Estado" class="form-label fw-bold">Estado:</label>
+                                <select id="Estado" name="Estado" class="form-select">
+                                    <option value="">Seleccione</option>
+                                    <option value="Pendiente">Pendiente</option>
+                                    <option value="Liberado">Liberado</option>
+                                    <option value="Transferido">Transferido</option>
+                                    <option value="Cancelado">Cancelado</option>
+                                </select>
+                            </div>
+                        </div><!-- // ROW -->
+                    </form>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" id="btn_cerrarModal" class="btn btn-outline-secondary" data-bs-dismiss="modal" data-bs-toggle="tooltip">
+                    <i class="bi bi-x-lg"></i> Cerrar
+                </button>
+                <button type="button" id="btn_aplicarFiltros" class="btn btn-cobefar-2" onclick="aplicarFiltros()">
+                    <i class="bi bi-check-lg"></i> Aplicar filtros
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            soloNumerosPorClase('cls-num');
+            //inicializarDataTable('tbl_listadoInternamientos', 25);
+
+            tippy('#btn_filtrar', {
+                content: 'Filtrar listado',
+                animation: 'fade',
+                placement: 'right'
+            });
+
+            tippy('#btn_cerrarModal', {
+                content: 'Cerrar filtros',
+                animation: 'fade',
+                placement: 'bottom-start'
+            });
+
+            tippy('#btn_aplicarFiltros', {
+                content: 'Aplicar filtros',
+                animation: 'fade',
+                placement: 'bottom-end'
+            });
+
+            tippy('.btn_verDetalle', {
+                content: 'Ver detalle',
+                animation: 'fade',
+                placement: 'bottom-end'
+            });
+        });
+
+
+        function abrirModalFiltros() {
+            const modal = document.querySelector('#modalFiltros')
+            const bootstrapModal = new bootstrap.Modal(modal, {
+                focus: false,
+                keyboard: false,
+                backdrop: 'static'
+            })
+            bootstrapModal.show();
+        }
+
+        function redireccionar(input) {
+            window.location.replace(input.dataset.ruta);
+        }
+    </script>
+}
