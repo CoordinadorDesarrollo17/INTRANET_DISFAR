@@ -48,7 +48,7 @@
                         <th scope="col" class="text-center small">Guía</th>
                         <th scope="col" class="text-center small">Comprobante Vinc.</th>
                         <th scope="col" class="text-center small">Estado</th>
-                        <th scope="col" class="text-center small"></th>
+                        <th scope="col" class="text-center small" style="width: 7%"></th>
                     </tr>
                 </thead>
                 <tbody class="table-white">
@@ -65,7 +65,7 @@
                             <td scope="col" class="text-center small">@item.Estado</td>
                             <td scope="col" class="text-center small">
                                 <button type="button" class="btn btn-sm btn-outline-dark btn_verDetalle" onclick="redireccionar(this)" data-ruta="/Internamiento/VerDetalle?Id=@item.Id"><i class="bi bi-search"></i></button>
-                                <button type="button" class="btn btn-sm btn-outline-danger btn_cancelarDocumento" onclick="redireccionar(this)" data-ruta="/Internamiento/VerDetalle?Id=@item.Id"><i class="bi bi-trash2-fill"></i></button>
+                                <button type="button" class="btn btn-sm btn-outline-danger cls-cancelarDocumento" onclick="cancelarDocumento(@item.Id)" @if (item.Estado == "Transferido" || item.Estado == "Cancelado") { Write("hidden"); }><i class="bi bi-trash2-fill"></i></button>
                             </td>
                         </tr>
                     }
@@ -93,14 +93,18 @@
                             </div>
                             <div class="col-lg-3">
                                 <label for="TipoDocumento" class="form-label fw-bold">Tipo de Documento:</label>
-                                <input id="TipoDocumento" name="TipoDocumento" class="form-control " type="text" autocomplete="off" />
+                                <select id="TipoDocumento" name="TipoDocumento" class="form-select">
+                                    <option value="">Seleccione</option>
+                                    <option value="OPDN">Entrada de Mercancías</option>
+                                    <option value="OWTR">Transferencias</option>
+                                </select>
                             </div>
                             <div class="col-lg-3">
-                                <label for="CardCode" class="form-label fw-bold">Código Socio de Negocio:</label>
+                                <label for="CardCode" class="form-label fw-bold">RUC Proveedor:</label>
                                 <input id="CardCode" name="CardCode" class="form-control cls-num" type="text" autocomplete="off" />
                             </div>
                             <div class="col-lg-3">
-                                <label for="CardName" class="form-label fw-bold">Socio de Negocio:</label>
+                                <label for="CardName" class="form-label fw-bold">Proveedor:</label>
                                 <input id="CardName" name="CardName" class="form-control " type="text" autocomplete="off" />
                             </div>
                         </div><!-- // ROW -->
@@ -177,7 +181,7 @@
                 placement: 'bottom-end'
             });
 
-            tippy('.btn_cancelarDocumento', {
+            tippy('.cls-cancelarDocumento', {
                 content: 'Cancelar documento',
                 animation: 'fade',
                 placement: 'bottom-end'
@@ -251,6 +255,35 @@
                     title: 'Error al aplicar filtros',
                     text: error.message || 'Ocurrió un error inesperado.',
                 });
+            }
+        }
+
+        async function cancelarDocumento(id) {
+            try {
+                const response = await fetch("/Internamiento/CancelarDocumento", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ id })
+                });
+
+                if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+
+                const data = await response.json();
+
+                Swal.fire({
+                    title: data.Titulo,
+                    html: Array.isArray(data.Mensajes) ? data.Mensajes.join('<br>') : data.Mensajes || "",
+                    icon: data.Icono,
+                    confirmButtonColor: '#28a745'
+                }).then(result => {
+                    if (result.isConfirmed && data.Icono === "success") {
+                        location.reload();
+                    }
+                });
+            } catch (error) {
+                console.error('Error al registrar:', error);
             }
         }
     </script>

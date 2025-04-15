@@ -356,6 +356,52 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
             return result;
         }
 
+        public Helper_E CancelarDocumento(int id, string usuarioRegistro)
+        {
+            Helper_E result = new Helper_E();
+
+            using (SqlConnection cn = new SqlConnection(uti.CadSql3))
+            {
+                cn.Open();
+                using (SqlTransaction transaction = cn.BeginTransaction())
+                {
+                    try
+                    {
+                        using (SqlCommand cmd = new SqlCommand("sp_GestionarDocumentos", cn, transaction))
+                        {
+                            cmd.CommandType = CommandType.StoredProcedure;
+
+                            cmd.Parameters.AddWithValue("@Operacion", "CANCELAR");
+                            cmd.Parameters.AddWithValue("@Id", id);
+
+                            // Para [CC_ODOCS]
+                            cmd.Parameters.AddWithValue("@UsuarioRegistro", usuarioRegistro);
+                            cmd.Parameters.AddWithValue("@TipoOperacion", "CANCELAR");
+
+                            cmd.ExecuteNonQuery();
+                        }
+                        transaction.Commit();
+
+                        result.Titulo = "Acción completada";
+                        result.Mensajes.Add("Documento cancelado correctamente.");
+                        result.Icono = "success";
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        LogHelper.RegistrarError(ex, "Error inesperado en ODOCS_D - CancelarDocumento()");
+
+                        result.Titulo = "Error";
+                        result.Mensajes.Add("Ocurrió un error al cancelar el documento.");
+                        result.Mensajes.Add("Por favor, comuníquese con el área de Sistemas para más información.");
+                        result.Icono = "error";
+                    }
+                }
+            }
+
+            return result;
+        }
+
         private DataTable ConvertirADatatable(List<DOCS1_E> detalles)
         {
             DataTable table = new DataTable();

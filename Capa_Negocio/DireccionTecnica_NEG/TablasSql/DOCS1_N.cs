@@ -74,6 +74,9 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
             if (string.IsNullOrWhiteSpace(detalle.CertificadoAnalisis))
                 return _helpers.CrearRespuestaError($"El certificado de análisis es obligatorio");
 
+            if (detalle.ArchivoET == null && detalle.ArchivoProtocolo == null)
+                return _helpers.CrearRespuestaError($"Debe cargar un Protocolo y/o ET.");
+
             if (detalle.CantidadAprobados <= 0 && detalle.CantidadBaja <= 0 && detalle.CantidadDevolucion <= 0)
                 return _helpers.CrearRespuestaError("Debe ingresar las cantidades para Aprobados, Bajas y/o Devolución.");
 
@@ -120,9 +123,6 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
 
                 if (string.IsNullOrWhiteSpace(item.Almacen))
                     return _helpers.CrearRespuestaError($"Almacen no válido en ítem{indicadorFila}");
-
-                if (item.ArchivoET == null && item.ArchivoProtocolo == null)
-                    return _helpers.CrearRespuestaError($"Debe cargar un Protocolo y/o ET en el ítem{indicadorFila}");
 
                 if (item.CantidadAprobados > 0 || item.CantidadBaja > 0 || item.CantidadDevolucion > 0)
                     if (!EsCantidadValida(item.CantidadAprobados, item.CantidadBaja, item.CantidadDevolucion, item.CantidadTotal))

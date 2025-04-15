@@ -594,6 +594,11 @@ th {
     vertical-align: middle; /* Centra el texto verticalmente */
 }
 
+td {
+    height: 40px; /* Ajusta esta altura según tus necesidades */
+    vertical-align: middle; /* Centra el texto verticalmente */
+}
+
 /* footer: Paginaciòn */
 div.dataTables_wrapper div.dataTables_paginate ul.pagination {
     margin: 10px 10px !important;

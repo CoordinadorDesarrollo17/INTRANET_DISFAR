@@ -58,10 +58,15 @@
         </div>
 
         <div class="row g-3 mb-4">
+            <!-- RUC proveedor -->
+            <div class="col-lg-2">
+                <label for="CardName" class="form-label fw-semibold small">RUC Proveedor:</label>
+                <input type="text" id="CardCode" name="CardCode" autocomplete="off" readonly class="form-control bg-light text-small text-center">
+            </div>
+
             <!-- Socio de negocio -->
             <div class="col-lg-6">
                 <label for="CardName" class="form-label fw-semibold small">Proveedor:</label>
-                <input type="hidden" id="CardCode" name="CardCode" readonly>
                 <input type="text" id="CardName" name="CardName" autocomplete="off" readonly class="form-control bg-light text-small">
             </div>
         </div>
@@ -84,7 +89,7 @@
                         <th scope="col" class="text-center text-uppercase small">Almacén</th>
                         <th scope="col" class="text-center text-uppercase small">Cantidad</th>
                         <th scope="col" class="text-center text-uppercase small">
-                            <button type="button" id="btn_liberarTodos" class="btn btn-sm btn-outline-light" onclick="liberarTodos()" @if(Model != null && Model[0].Estado != "Pendiente") { Write("disabled"); }><i class="bi bi-check-all"></i> Liberar TODOS</button>
+                            <button type="button" id="btn_liberarTodos" class="btn btn-sm btn-outline-light" onclick="liberarTodos()" @if (Model != null && Model[0].Estado != "Pendiente") { Write("disabled"); }><i class="bi bi-check-all"></i> Liberar TODOS</button>
                         </th>
                     </tr>
                 </thead>
@@ -120,7 +125,7 @@
             document.querySelector('#DocEntry').value = modeloJS[0].DocEntry;
             document.querySelector('#DocNum').value = modeloJS[0].DocNum;
             document.querySelector('#CardCode').value = modeloJS[0].CardCode;
-            document.querySelector('#CardName').value = `${modeloJS[0].CardCode} - ${modeloJS[0].CardName}`;
+            document.querySelector('#CardName').value = modeloJS[0].CardName;
             document.querySelector('#Guia').value = modeloJS[0].Guia;
             document.querySelector('#ComprobanteVinculado').value = modeloJS[0].ComprobanteVinculado;
             document.querySelector('#FechaContabilizacion').value = modeloJS[0].FechaContabilizacion;
@@ -150,7 +155,7 @@
                                                         <input type="hidden" name="Detalle[${key}].ItemName" value="${item.ItemName}">${item.ItemName}
                                                     </td>
                                                     <td class="text-center text-uppercase small">
-                                                        <input type="hidden" name="Detalle[${key}].Lote" value="${item.Lote}">${item.Lote}
+                                                        <input type="hidden" name="Detalle[${key}].Lote" data-identificador="${correlativo}" value="${item.Lote}">${item.Lote}
                                                     </td>
                                                     <td class="text-center text-uppercase small">
                                                         <input type="hidden" name="Detalle[${key}].FechaVencimiento" value="${item.FechaVencimiento}">${item.FechaVencimiento}
@@ -223,7 +228,7 @@
                                                                               <input class="form-control cls-archivos" type="file" id="formFileET_${correlativo}" name="Detalle[${key}].ArchivoET" accept=".pdf" data-identificador="${correlativo}">
                                                                         </div>
                                                                         <div class="col-lg-5">
-                                                                                <label class="small form-label fw-bold">Comentario Organoléptico:</label>
+                                                                                <label class="small form-label fw-bold">Observaciones:</label>
                                                                                 <textarea id="ComentarioOrganoleptico_${correlativo}" name="Detalle[${key}].ComentarioOrganoleptico" class="form-control bg-light" rows="2" data-identificador="${correlativo}">${item.ComentarioOrganoleptico ?? ''}</textarea>
                                                                         </div>
                                                                         <div class="col-lg-2">
@@ -258,9 +263,10 @@
                         icon.classList.add('bi-chevron-up');
 
                         let validacionCantidades = Number(item.CantidadAprobados) + Number(item.CantidadBaja) + Number(item.CantidadDevolucion) == Number(item.CantidadTotal);        // true
-                        document.querySelector(`#btn_liberar_${key}`).hidden = validacionCantidades && item.Liberado == 1;      // Solo se quita el hidden cuando el resultado "validacionCantidades" es true y aún no se encuentra liberado
 
-                        const esLiberado = item.Liberado === 1;
+                        // Es válido si: el documento está cancelado o el artículo aún no ha sido liberado
+                        const esValido = modeloJS[0].Estado == "Cancelado" || item.Liberado === 0;
+                        document.querySelector(`#btn_liberar_${key}`).hidden = validacionCantidades == false || !esValido;
 
                         // Elementos que deben ser deshabilitados
                         [
@@ -272,7 +278,7 @@
                             `#CantidadDevolucion_${correlativo}`
                         ].forEach(selector => {
                             const el = document.querySelector(selector);
-                            if (el) el.disabled = esLiberado;
+                            if (el) el.disabled = !esValido;
                         });
 
                         // Elementos que deben ser ocultados (hidden)
@@ -282,7 +288,7 @@
                             `#formFileProtocolo_${correlativo}`
                         ].forEach(selector => {
                             const el = document.querySelector(selector);
-                            if (el) el.hidden = esLiberado;
+                            if (el) el.hidden = !esValido;
                         });
 
                         inicializarDescargas();
@@ -432,6 +438,12 @@
                 return false;
             }
 
+            // Validar archivos: al menos uno debe estar presente
+            if (!filaSeleccionada["ArchivoProtocolo"] && !filaSeleccionada["ArchivoET"]) {
+                generarAlerta('Advertencia', "Debe adjuntar al menos el archivo Protocolo o ET.", 'warning');
+                return false;
+            }
+
             // Validar suma de cantidades
             const devolucion = filaSeleccionada["CantidadDevolucion"] || 0;
             const baja = filaSeleccionada["CantidadBaja"] || 0;
@@ -440,12 +452,6 @@
             const suma = Number(devolucion) + Number(baja) + Number(aprobados);
             if (suma !== Number(filaSeleccionada["CantidadTotal"])){
                 generarAlerta('Advertencia', `La suma de las cantidades ingresadas para Aprobados, Baja y Devolución; debe ser igual a ${filaSeleccionada["CantidadTotal"]}.`, 'warning');
-                return false;
-            }
-
-            // Validar archivos: al menos uno debe estar presente
-            if (!filaSeleccionada["ArchivoProtocolo"] && !filaSeleccionada["ArchivoET"]) {
-                generarAlerta('Advertencia', "Debe adjuntar al menos el archivo Protocolo o ET.", 'warning');
                 return false;
             }
 

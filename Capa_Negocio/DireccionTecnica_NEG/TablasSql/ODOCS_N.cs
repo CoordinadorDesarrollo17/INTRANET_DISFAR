@@ -169,5 +169,25 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
             return new DOCS1_N().ValidarDetalleDocumento(datos.Detalle) ?? _datos.RegistrarDocumento(datos);
         }
 
+        public Helper_E CancelarDocumento(int id, string usuarioRegistro)
+        {
+            var internamiento = ListarInternamientos(new ODOCS_E { Id = id });
+
+            if (!internamiento.Any())
+                return _helpers.CrearRespuestaError("No se encontró documento a cancelar.");
+
+            if (internamiento.First().Estado == "Transferido")
+            {
+                return _helpers.CrearRespuestaError("El documento se encuentra en estado: TRANSFERIDO. Revierta la transferencia antes de intentar cancelarlo.");
+            }
+
+            if (internamiento.First().Estado == "Cancelado")
+            {
+                return _helpers.CrearRespuestaError("El documento ya se encuentra CANCELADO.");
+            }
+
+            return _datos.CancelarDocumento(id, usuarioRegistro);
+        }
+
     }
 }
