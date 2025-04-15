@@ -3,6 +3,7 @@ using Capa_Entidad.General_ENT.TablasSql;
 using Capa_Entidad.Seguridad_ENT;
 using Capa_Entidad.SocioNegocios_ENT.Tablas;
 using Capa_Negocio.Almacen_NEG.TablasSql;
+using Capa_Negocio.DireccionTecnica_NEG.TablasSql;
 using Capa_Negocio.General_NEG.TablasSql;
 using Capa_Negocio.Seguridad_NEG;
 using Capa_Negocio.SocioNegocios_NEG.TablasExternas;

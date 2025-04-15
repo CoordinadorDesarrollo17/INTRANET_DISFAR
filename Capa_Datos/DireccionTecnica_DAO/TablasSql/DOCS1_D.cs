@@ -15,6 +15,98 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
     {
         readonly Utilitarios uti = new Utilitarios();
 
+        public Helper_E TransferirArticulo(int id, string usuarioRegistro)
+        {
+            Helper_E result = new Helper_E();
+
+            using (SqlConnection cn = new SqlConnection(uti.CadSql3))
+            {
+                cn.Open();
+                using (SqlTransaction transaction = cn.BeginTransaction())
+                {
+                    try
+                    {
+                        using (SqlCommand cmd = new SqlCommand("sp_GestionarDocumentos", cn, transaction))
+                        {
+                            cmd.CommandType = CommandType.StoredProcedure;
+
+                            cmd.Parameters.AddWithValue("@Operacion", "TRANSFERIR");
+                            cmd.Parameters.AddWithValue("@Id", id);
+
+                            // Para [CC_ODOCS]
+                            cmd.Parameters.AddWithValue("@UsuarioRegistro", usuarioRegistro);
+                            cmd.Parameters.AddWithValue("@TipoOperacion", "TRANSFERIR");
+
+                            cmd.ExecuteNonQuery();
+                        }
+                        transaction.Commit();
+
+                        result.Titulo = "Acción completada";
+                        result.Mensajes.Add("Artículo transferido correctamente.");
+                        result.Icono = "success";
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        LogHelper.RegistrarError(ex, "Error inesperado en DOCS1_D - TransferirArticulo()");
+
+                        result.Titulo = "Error";
+                        result.Mensajes.Add("Ocurrió un error al transferir artículo.");
+                        result.Mensajes.Add("Por favor, comuníquese con el área de Sistemas para más información.");
+                        result.Icono = "error";
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public Helper_E RevertirTransferenciaArticulo(int id, string usuarioRegistro)
+        {
+            Helper_E result = new Helper_E();
+
+            using (SqlConnection cn = new SqlConnection(uti.CadSql3))
+            {
+                cn.Open();
+                using (SqlTransaction transaction = cn.BeginTransaction())
+                {
+                    try
+                    {
+                        using (SqlCommand cmd = new SqlCommand("sp_GestionarDocumentos", cn, transaction))
+                        {
+                            cmd.CommandType = CommandType.StoredProcedure;
+
+                            cmd.Parameters.AddWithValue("@Operacion", "REVERTIR_TRANSFERENCIA");
+                            cmd.Parameters.AddWithValue("@Id", id);
+
+                            // Para [CC_ODOCS]
+                            cmd.Parameters.AddWithValue("@UsuarioRegistro", usuarioRegistro);
+                            cmd.Parameters.AddWithValue("@TipoOperacion", "REVERTIR_TRANSFERENCIA");
+
+                            cmd.ExecuteNonQuery();
+                        }
+                        transaction.Commit();
+
+                        result.Titulo = "Acción completada";
+                        result.Mensajes.Add("Artículo revertido correctamente.");
+                        result.Icono = "success";
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        LogHelper.RegistrarError(ex, "Error inesperado en DOCS1_D - RevertirTransferenciaArticulo()");
+
+                        result.Titulo = "Error";
+                        result.Mensajes.Add("Ocurrió un error al revertir artículo.");
+                        result.Mensajes.Add("Por favor, comuníquese con el área de Sistemas para más información.");
+                        result.Icono = "error";
+                    }
+                }
+            }
+
+            return result;
+        }
+
         public Helper_E LiberarArticulo(int id, string usuarioRegistro)
         {
             Helper_E result = new Helper_E();

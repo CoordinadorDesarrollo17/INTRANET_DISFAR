@@ -133,7 +133,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
             return lista;
         }
 
-        public List<ODOCS_E> ListarTraslados(string condicion, Dictionary<string, object> parametros)
+        public List<ODOCS_E> ListarTransferencias(string condicion, Dictionary<string, object> parametros)
         {
             List<ODOCS_E> lista = new List<ODOCS_E>();
             var lookup = new Dictionary<int, ODOCS_E>();
@@ -152,7 +152,8 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                     sb.AppendLine("DET.Almacen, DET.CertificadoAnalisis, DET.ComentarioOrganoleptico, DET.CantidadAprobados, DET.CantidadBaja, DET.CantidadDevolucion, DET.CantidadTotal, DET.Liberado, DET.Transferido");
                     sb.AppendLine("FROM ODOCS DOC");
                     sb.AppendLine("INNER JOIN DOCS1 DET ON DOC.Id = DET.ODOCSId");
-                    sb.AppendLine("WHERE DOC.Estado = 'Liberado'");
+                    //sb.AppendLine("WHERE DOC.Estado = 'Liberado'");
+                    sb.AppendLine("WHERE DET.Liberado = 1");
                     sb.AppendLine(condicion?.ToString().Trim());
 
                     // Agregamos los parámetros dinámicamente

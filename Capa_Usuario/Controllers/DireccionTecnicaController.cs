@@ -845,36 +845,6 @@ namespace Capa_Usuario.Controllers
         {
             var lista = new ORTV_N().obtenerOrdenDeVenta(filtros.DocNum);
             return View("~/Views/Ventas/PDF/PDF_OrdenesDeVentas.cshtml", lista);
-        }
-
-        public ActionResult Internamiento(int idOperation = 0)
-        {
-            var resultadoAcceso = VerificarPermiso(idOperation);
-            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
-            {
-                var lista = _docsN.ListarInternamientos();
-
-                return View("Liberaciones/ListadoInternamientos", lista);
-            }
-            else
-            {
-                return resultadoAcceso;
-            }
-        }
-
-        public ActionResult ListarTraslados(int idOperation = 0)
-        {
-            var resultadoAcceso = VerificarPermiso(idOperation);
-            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
-            {
-                var lista = _docsN.ListarInternamientos();
-
-                return View("Liberaciones/ListadoTraslados", lista);
-            }
-            else
-            {
-                return resultadoAcceso;
-            }
-        }
+        }        
     }
 }

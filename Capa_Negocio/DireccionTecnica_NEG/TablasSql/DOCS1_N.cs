@@ -7,6 +7,7 @@ using Capa_Entidad.TablasSql;
 using Capa_Entidad;
 using Capa_Datos.DireccionTecnica_DAO.TablasSql;
 using System.Reflection;
+using System.Collections;
 
 namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
 {
@@ -14,6 +15,64 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
     {
         private readonly DOCS1_D _datos = new DOCS1_D();
         private readonly Helpers _helpers = new Helpers();
+
+        public Helper_E TransferirArticulo(int cantidad, string area, int id, string usuarioRegistro)
+        {
+            var detalle = new DOCS1_E();
+            var lista = ListarDetalleDocumento(new DOCS1_E { Id = id });
+
+            if (lista != null && lista.Any())
+                detalle = lista.First();
+
+            if (detalle.Liberado == 0)
+                return _helpers.CrearRespuestaError("Para transferir este artículo, primero debe estar en estado LIBERADO.");
+
+            if (detalle.Liberado == 1 && detalle.Transferido == 1)
+                return _helpers.CrearRespuestaError("El artículo ya se encuentra TRANSFERIDO.");
+
+            // Esta validación nos ayuda para los casos que el Operario de Almacén ya está trabajando con el detalle cargado en la vista pero el área de DT revirtió un ítem y cambio las cantidades
+            // entonces el Operario de Almacén al recargar la página, obtendrá las nuevas cantidades.
+            bool esValido = false;
+            switch (area.ToLower())
+            {
+                case "aprobados":
+                    esValido = detalle.CantidadAprobados == cantidad;
+                    break;
+
+                case "baja":
+                    esValido = detalle.CantidadBaja == cantidad;
+                    break;
+
+                case "devolucion":
+                    esValido = detalle.CantidadDevolucion == cantidad;
+                    break;
+
+                default:
+                    return _helpers.CrearRespuestaError("Verificar los datos enviados.");
+            }
+
+            if(!esValido)
+                return _helpers.CrearRespuestaError("Las cantidades del detalle no coinciden, por favor recargar la página.");
+
+            return _datos.TransferirArticulo(id, usuarioRegistro);
+        }
+
+        public Helper_E RevertirTransferenciaArticulo(int id, string usuarioRegistro)
+        {
+            var detalle = new DOCS1_E();
+            var lista = ListarDetalleDocumento(new DOCS1_E { Id = id });
+
+            if (lista != null && lista.Any())
+                detalle = lista.First();
+
+            if (detalle.Liberado == 0)
+                return _helpers.CrearRespuestaError("Para revertir la transferencia de este artículo, primero debe estar en estado LIBERADO.");
+
+            if (detalle.Liberado == 1 && detalle.Transferido == 0)
+                return _helpers.CrearRespuestaError("El artículo ya se encuentra LIBERADO.");
+
+            return _datos.RevertirTransferenciaArticulo(id, usuarioRegistro);
+        }
 
         public Helper_E LiberarArticulos(List<int> grupoIds, string usuarioRegistro)
         {

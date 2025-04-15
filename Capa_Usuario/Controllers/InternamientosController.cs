@@ -11,7 +11,7 @@ using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace Capa_Usuario.Controllers
 {
-    public class InternamientoController : Controller
+    public class InternamientosController : Controller
     {
         private readonly Capa_Negocio.DireccionTecnica_NEG.TablasSql.ODOCS_N _docsN = new Capa_Negocio.DireccionTecnica_NEG.TablasSql.ODOCS_N();
         private readonly DOCS1_N _detalleDocN = new DOCS1_N();
@@ -33,24 +33,43 @@ namespace Capa_Usuario.Controllers
         }
         /*******************************************************************/
 
-        [HttpGet]
-        public ActionResult Index(int idOperation = 0)
+        public ActionResult Index(int idOperacion = 0)
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
                 return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
 
-            var resultadoAcceso = VerificarPermiso(idOperation);
+            var resultadoAcceso = VerificarPermiso(idOperacion);
 
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                return View("~/Views/DireccionTecnica/Liberaciones/Internamiento.cshtml");
+                var lista = _docsN.ListarInternamientos();
+                return View(lista);
             }
             else
             {
                 return resultadoAcceso;
             }
         }
+
+        public ActionResult Internamiento(int idOperacion = 0)
+        {
+            var usuarioSesion = Session["UsuarioId"] as Usuario_E;
+            if (usuarioSesion == null)
+                return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
+
+            var resultadoAcceso = VerificarPermiso(idOperacion);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                return View();
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
+
 
         public JsonResult BuscarDocumento(long docNum, string tipoDocumento)
         {
@@ -81,7 +100,7 @@ namespace Capa_Usuario.Controllers
 
             var lista = _docsN.ListarInternamientos(filtros);
 
-            return PartialView("~/Views/Shared/DireccionTecnica/Liberaciones/_ListadoInternamientos.cshtml", lista);
+            return PartialView("_ListadoInternamientos.cshtml", lista);
         }
 
         public ActionResult VerDetalle(long id, int idOperation = 0)
@@ -95,7 +114,7 @@ namespace Capa_Usuario.Controllers
             {
                 var lista = _docsN.ListarInternamientos(new ODOCS_E { Id = id });
 
-                return View("~/Views/DireccionTecnica/Liberaciones/DetalleInternamiento.cshtml", lista);
+                return View("DetalleInternamiento", lista);
             }
             else
             {

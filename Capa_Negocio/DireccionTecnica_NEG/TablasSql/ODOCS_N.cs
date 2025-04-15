@@ -76,7 +76,7 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
             return _datos.ListarInternamientos(condicion.ToString(), parametros);
         }
 
-        public List<ODOCS_E> ListarTraslados(ODOCS_E filtros = null, Dictionary<string, object> parametros = null)
+        public List<ODOCS_E> ListarTransferencias(ODOCS_E filtros = null, Dictionary<string, object> parametros = null)
         {
             StringBuilder condicion = new StringBuilder();
 
@@ -134,7 +134,7 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
                 }
             }
 
-            return _datos.ListarTraslados(condicion.ToString(), parametros);
+            return _datos.ListarTransferencias(condicion.ToString(), parametros);
         }
 
         public Helper_E RegistrarDocumento(ODOCS_E datos)

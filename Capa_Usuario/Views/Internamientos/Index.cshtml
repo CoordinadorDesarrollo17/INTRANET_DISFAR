@@ -24,7 +24,7 @@
     <div class="row px-3 pt-3"><h3 class="titulo-seccion">@ViewBag.Title.ToUpper()</h3></div>
     <div class="row px-3 py-2">
         <div class="col-12">
-            <button type="button" id="btn_internamiento" class="btn btn-sm btn-outline-warning" onclick="redireccionar(this)" data-ruta="/Internamiento/Index">
+            <button type="button" id="btn_internamiento" class="btn btn-sm btn-outline-warning" onclick="redireccionar(this)" data-ruta="/Internamientos/Internamiento">
                 <i class="bi bi-plus-lg"></i> Internamiento
             </button>
             <button type="button" id="btn_filtrar" class="btn btn-sm btn-outline-light" onclick="abrirModalFiltros()">
@@ -64,7 +64,7 @@
                             <td scope="col" class="text-center small">@item.ComprobanteVinculado</td>
                             <td scope="col" class="text-center small">@item.Estado</td>
                             <td scope="col" class="text-center small">
-                                <button type="button" class="btn btn-sm btn-outline-dark btn_verDetalle" onclick="redireccionar(this)" data-ruta="/Internamiento/VerDetalle?Id=@item.Id"><i class="bi bi-search"></i></button>
+                                <button type="button" class="btn btn-sm btn-outline-dark btn_verDetalle" onclick="redireccionar(this)" data-ruta="/Internamientos/VerDetalle?Id=@item.Id"><i class="bi bi-search"></i></button>
                                 <button type="button" class="btn btn-sm btn-outline-danger cls-cancelarDocumento" onclick="cancelarDocumento(@item.Id)" @if (item.Estado == "Transferido" || item.Estado == "Cancelado") { Write("hidden"); }><i class="bi bi-trash2-fill"></i></button>
                             </td>
                         </tr>

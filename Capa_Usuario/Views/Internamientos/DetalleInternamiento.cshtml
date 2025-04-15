@@ -9,7 +9,7 @@
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
             <li><a href="@Url.Action("Sesion", "Index")">Dirección Técnica</a></li>
             <li><a href="@Url.Action("Sesion", "Index")">Liberaciones</a></li>
-            <li><a href="@Url.Action("Internamiento", "DireccionTecnica")">Listado de Internamientos</a></li>
+            <li><a href="@Url.Action("Index", "Internamientos")">Listado de Internamientos</a></li>
             <li class="current"><em>@ViewBag.Title</em></li>
         </ol>
     </nav>
@@ -262,12 +262,7 @@
                         icon.classList.remove('bi-chevron-down');
                         icon.classList.add('bi-chevron-up');
 
-                        let validacionCantidades = Number(item.CantidadAprobados) + Number(item.CantidadBaja) + Number(item.CantidadDevolucion) == Number(item.CantidadTotal);        // true
-
-                        // Es válido si: el documento está cancelado o el artículo aún no ha sido liberado
-                        const esValido = modeloJS[0].Estado == "Cancelado" || item.Liberado === 0;
-                        document.querySelector(`#btn_liberar_${key}`).hidden = validacionCantidades == false || !esValido;
-
+                        const documentoCancelado = modeloJS[0].Estado == "Cancelado";
                         // Elementos que deben ser deshabilitados
                         [
                             `#opcion1_${correlativo}`,
@@ -278,17 +273,18 @@
                             `#CantidadDevolucion_${correlativo}`
                         ].forEach(selector => {
                             const el = document.querySelector(selector);
-                            if (el) el.disabled = !esValido;
+                            if (el) el.disabled = documentoCancelado || item.Liberado == 1 || item.Transferido == 1;
                         });
 
                         // Elementos que deben ser ocultados (hidden)
                         [
+                            `#btn_liberar_${key}`,
                             `#btn_editar_${key}`,
                             `#formFileET_${correlativo}`,
                             `#formFileProtocolo_${correlativo}`
                         ].forEach(selector => {
                             const el = document.querySelector(selector);
-                            if (el) el.hidden = !esValido;
+                            if (el) el.hidden = documentoCancelado || item.Liberado == 1 || item.Transferido == 1;
                         });
 
                         inicializarDescargas();
@@ -341,7 +337,7 @@
             payload.Detalle = detalle;
 
             try {
-                const response = await fetch("/Internamiento/RegistrarDocumento", {
+                const response = await fetch("/Internamientos/RegistrarDocumento", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -482,7 +478,7 @@
             if (file2) formData.append('ArchivoET', file2);
 
             try {
-                const response = await fetch("/Internamiento/EditarItemDetalleDoc", {
+                const response = await fetch("/Internamientos/EditarItemDetalleDoc", {
                     method: 'POST',
                     body: formData
                 });
@@ -540,7 +536,7 @@
             }).then(async (result) => {
                 if (result.isConfirmed) {
                     try {
-                        const response = await fetch("/Internamiento/LiberarArticulos", {
+                        const response = await fetch("/Internamientos/LiberarArticulos", {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -608,7 +604,7 @@
             }).then(async (result) => {
                 if (result.isConfirmed) {
                     try {
-                        const response = await fetch("/Internamiento/LiberarArticulos", {
+                        const response = await fetch("/Internamientos/LiberarArticulos", {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',

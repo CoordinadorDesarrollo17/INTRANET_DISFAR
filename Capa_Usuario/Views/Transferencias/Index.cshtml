@@ -1,5 +1,5 @@
 @{
-    ViewBag.Title = "Listado de Traslados";
+    ViewBag.Title = "Listado de Transferencias";
     Layout = "~/Views/Shared/_DefaultLayout.cshtml";
 
     var tiposDocumento = new Dictionary<string, string>
@@ -13,8 +13,8 @@
     <nav>
         <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
-            <li><a href="@Url.Action("Sesion", "Index")">Dirección Técnica</a></li>
-            <li><a href="@Url.Action("Sesion", "Index")">Traslados</a></li>
+            <li><a href="@Url.Action("Sesion", "Index")">Almacén</a></li>
+            <li><a href="@Url.Action("Sesion", "Index")">Liberaciones</a></li>
             <li class="current"><em>@ViewBag.Title</em></li>
         </ol>
     </nav>
@@ -61,7 +61,7 @@
                             <td scope="col" class="text-center small">@item.ComprobanteVinculado</td>
                             <td scope="col" class="text-center small">@item.Estado</td>
                             <td scope="col" class="text-center small">
-                                <button type="button" class="btn btn-sm btn-outline-dark btn_verDetalle" onclick="redireccionar(this)" data-ruta="/DT_Traslados/VerDetalle?Id=@item.Id"><i class="bi bi-search"></i></button>
+                                <button type="button" class="btn btn-sm btn-outline-dark btn_verDetalle" onclick="redireccionar(this)" data-ruta="/Transferencias/VerDetalle?Id=@item.Id"><i class="bi bi-search"></i></button>
                             </td>
                         </tr>
                     }

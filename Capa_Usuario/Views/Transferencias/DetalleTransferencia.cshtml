@@ -1,0 +1,368 @@
+@{
+    ViewBag.Title = "Detalle de Transferencia";
+    Layout = "~/Views/Shared/_DefaultLayout.cshtml";
+
+    var tiposDocumento = new Dictionary<string, string>
+{
+        { "OPDN", "Entrada de Mercancía" },
+        { "OWTR", "Transferencia" }
+    };
+}
+
+<div class="pt-3">
+    <nav>
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("Sesion", "Index")">Almacén</a></li>
+            <li><a href="@Url.Action("Sesion", "Index")">Liberaciones</a></li>
+            <li><a href="@Url.Action("Index", "Transferencias")">Listado de Transferencias</a></li>
+            <li class="current"><em>@ViewBag.Title</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
+    <div class="row px-3 pt-3"><h3 class="titulo-seccion">@ViewBag.Title.ToUpper()</h3></div>
+</div>
+
+<div class="bg-white px-3 py-3 align-items-center">
+    <div class="row g-3 mb-4">
+        <!-- DocNum con botón -->
+        <div class="col-lg-2">
+            <label for="DocNum" class="form-label fw-semibold small">DocNum:</label>
+            <input type="hidden" id="DocEntry" name="DocEntry" value="@Model.DocEntry" readonly />
+            <input type="text" id="DocNum" name="DocNum" autocomplete="off" class="form-control text-center bg-light text-small" value="@Model.DocNum" readonly>
+        </div>
+
+        <!-- Tipo de documento -->
+        <div class="col-lg-2">
+            <label for="TipoDocumento" class="form-label fw-semibold small">Tipo de documento:</label>
+            <input type="text" id="TipoDocumento" name="TipoDocumento" autocomplete="off" class="form-control text-center bg-light text-small" value="@tiposDocumento[Model.TipoDocumento]" readonly>
+        </div>
+
+        <div class="col-lg-2">
+            <label for="FechaContabilizacion" class="form-label fw-semibold small">Fecha Contabilización:</label>
+            <input type="text" id="FechaContabilizacion" name="FechaContabilizacion" autocomplete="off" readonly class="form-control text-center bg-light text-small" value="@Model.FechaContabilizacion">
+        </div>
+
+        <!-- Nro. de guía -->
+        <div class="col-lg-2">
+            <label for="Guia" class="form-label fw-semibold small">Nro. de guía:</label>
+            <input type="text" id="Guia" name="Guia" autocomplete="off" readonly class="form-control text-center bg-light text-small" value="@Model.Guia">
+        </div>
+
+        <div class="col-lg-2">
+            <label for="ComprobanteVinculado" class="form-label fw-semibold small">Comprobante Vinculado:</label>
+            <input type="text" id="ComprobanteVinculado" name="ComprobanteVinculado" autocomplete="off" readonly class="form-control text-center bg-light text-small" value="@Model.ComprobanteVinculado">
+        </div>
+
+        <div class="col-lg-2">
+            <label for="Estado" class="form-label fw-semibold small">Estado:</label>
+            <input type="text" id="Estado" name="Estado" autocomplete="off" readonly class="form-control text-center bg-light text-small" value="@Model.Estado">
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <!-- RUC proveedor -->
+        <div class="col-lg-2">
+            <label for="CardCode" class="form-label fw-semibold small">RUC Proveedor:</label>
+            <input type="text" id="CardCode" name="CardCode" autocomplete="off" readonly class="form-control bg-light text-small text-center" value="@Model.CardCode">
+        </div>
+
+        <!-- Socio de negocio -->
+        <div class="col-lg-6">
+            <label for="CardName" class="form-label fw-semibold small">Proveedor:</label>
+            <input type="text" id="CardName" name="CardName" autocomplete="off" readonly class="form-control bg-light text-small" value="@Model.CardName">
+        </div>
+    </div>
+    <hr />
+
+    <div id="div_detalle" class="table-responsive shadow-sm rounded">
+        <!-- Nav Tabs -->
+        <ul class="nav nav-tabs" id="tabMenu" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="tab1-tab" data-bs-toggle="tab" data-bs-target="#tab1" type="button" role="tab">Aprobados</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab2-tab" data-bs-toggle="tab" data-bs-target="#tab2" type="button" role="tab">Baja</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab3-tab" data-bs-toggle="tab" data-bs-target="#tab3" type="button" role="tab">Devolución</button>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content mt-3" id="tabContent">
+            <div class="tab-pane fade show active" id="tab1" role="tabpanel">
+                <table id="tbl_documento" class="table table-bordered table-hover">
+                    <thead class="thead-cobefar">
+                        <tr>
+                            <th scope="col" class="text-center text-uppercase small" style="width: 7%;">Código de artículo</th>
+                            <th scope="col" class="text-center text-uppercase small">Descripción</th>
+                            <th scope="col" class="text-center text-uppercase small">Lote</th>
+                            <th scope="col" class="text-center text-uppercase small" style="width: 7%;">F.V.</th>
+                            <th scope="col" class="text-center text-uppercase small" style="width: 7%;">R.S.</th>
+                            <th scope="col" class="text-center text-uppercase small">Fabricante</th>
+                            <th scope="col" class="text-center text-uppercase small" style="width: 7%;">Cond. alm. y trans.</th>
+                            <th scope="col" class="text-center text-uppercase small">Almacén</th>
+                            <th scope="col" class="text-center text-uppercase small">Cantidad</th>
+                            <th scope="col" class="text-center text-uppercase small">
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-white">
+                        @foreach (var item in ViewBag.ListaAprobados)
+                        {
+                            <tr>
+                                <td class="text-center text-uppercase small">
+                                    <input type="hidden" value="@item.ItemCode">@item.ItemCode
+                                    <input type="hidden" class="cls-ids" value="@item.Id">
+                                </td>
+                                <td class="text-start text-uppercase small">@item.ItemName</td>
+                                <td class="text-center text-uppercase small">@item.Lote</td>
+                                <td class="text-center text-uppercase small">@item.FechaVencimiento</td>
+                                <td class="text-center text-uppercase small">@item.RegistroSanitario</td>
+                                <td class="text-start text-uppercase small">@item.Fabricante</td>
+                                <td class="text-center text-uppercase small">@item.CondicionAlmTrans</td>
+                                <td class="text-center text-uppercase small">@item.Almacen</td>
+                                <td class="text-center text-uppercase small">@item.CantidadAprobados</td>
+                                <td class="text-center text-uppercase small">
+                                    @if (item.Transferido == 0)
+                                    {
+                                        <button type="button" class="btn btn-sm btn-cobefar-2 cls-transferir" data-cantidad="@item.CantidadAprobados" data-area="aprobados" data-id="@item.Id"
+                                                onclick="transferirArticulo(this)">
+                                            <i class="bi bi-check-lg"></i>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="btn btn-sm btn-outline-danger cls-revertir" data-id="@item.Id" onclick="revertirTransferenciaArticulo(this)">
+                                            <i class="bi bi-arrow-counterclockwise"></i>
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="tab-pane fade" id="tab2" role="tabpanel">
+                <table id="tbl_documento2" class="table table-bordered table-hover">
+                    <thead class="thead-cobefar">
+                        <tr>
+                            <th scope="col" class="text-center text-uppercase small" style="width: 7%;">Código de artículo</th>
+                            <th scope="col" class="text-center text-uppercase small">Descripción</th>
+                            <th scope="col" class="text-center text-uppercase small">Lote</th>
+                            <th scope="col" class="text-center text-uppercase small" style="width: 7%;">F.V.</th>
+                            <th scope="col" class="text-center text-uppercase small" style="width: 7%;">R.S.</th>
+                            <th scope="col" class="text-center text-uppercase small">Fabricante</th>
+                            <th scope="col" class="text-center text-uppercase small" style="width: 7%;">Cond. alm. y trans.</th>
+                            <th scope="col" class="text-center text-uppercase small">Almacén</th>
+                            <th scope="col" class="text-center text-uppercase small">Cantidad</th>
+                            <th scope="col" class="text-center text-uppercase small">
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-white">
+                        @foreach (var item in ViewBag.ListaBaja)
+                        {
+                            <tr>
+                                <td class="text-center text-uppercase small">
+                                    <input type="hidden" value="@item.ItemCode">@item.ItemCode
+                                    <input type="hidden" class="cls-ids" value="@item.Id">
+                                </td>
+                                <td class="text-start text-uppercase small">@item.ItemName</td>
+                                <td class="text-center text-uppercase small">@item.Lote</td>
+                                <td class="text-center text-uppercase small">@item.FechaVencimiento</td>
+                                <td class="text-center text-uppercase small">@item.RegistroSanitario</td>
+                                <td class="text-start text-uppercase small">@item.Fabricante</td>
+                                <td class="text-center text-uppercase small">@item.CondicionAlmTrans</td>
+                                <td class="text-center text-uppercase small">@item.Almacen</td>
+                                <td class="text-center text-uppercase small">@item.CantidadBaja</td>
+                                <td class="text-center text-uppercase small">
+                                    @if (item.Transferido == 0)
+                                    {
+                                        <button type="button" class="btn btn-sm btn-cobefar-2 cls-transferir" data-cantidad="@item.CantidadBaja" data-area="baja" data-id="@item.Id"
+                                                onclick="transferirArticulo(this)">
+                                            <i class="bi bi-check-lg"></i>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="btn btn-sm btn-outline-danger cls-revertir" data-id="@item.Id" onclick="revertirTransferenciaArticulo(this)">
+                                            <i class="bi bi-arrow-counterclockwise"></i>
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="tab-pane fade" id="tab3" role="tabpanel">
+                <table id="tbl_documento3" class="table table-bordered table-hover">
+                    <thead class="thead-cobefar">
+                        <tr>
+                            <th scope="col" class="text-center text-uppercase small" style="width: 7%;">Código de artículo</th>
+                            <th scope="col" class="text-center text-uppercase small">Descripción</th>
+                            <th scope="col" class="text-center text-uppercase small">Lote</th>
+                            <th scope="col" class="text-center text-uppercase small" style="width: 7%;">F.V.</th>
+                            <th scope="col" class="text-center text-uppercase small" style="width: 7%;">R.S.</th>
+                            <th scope="col" class="text-center text-uppercase small">Fabricante</th>
+                            <th scope="col" class="text-center text-uppercase small" style="width: 7%;">Cond. alm. y trans.</th>
+                            <th scope="col" class="text-center text-uppercase small">Almacén</th>
+                            <th scope="col" class="text-center text-uppercase small">Cantidad</th>
+                            <th scope="col" class="text-center text-uppercase small">
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-white">
+                        @foreach (var item in ViewBag.ListaDevolucion)
+                        {
+                            <tr>
+                                <td class="text-center text-uppercase small">
+                                    <input type="hidden" value="@item.ItemCode">@item.ItemCode
+                                    <input type="hidden" class="cls-ids" value="@item.Id">
+                                </td>
+                                <td class="text-start text-uppercase small">@item.ItemName</td>
+                                <td class="text-center text-uppercase small">@item.Lote</td>
+                                <td class="text-center text-uppercase small">@item.FechaVencimiento</td>
+                                <td class="text-center text-uppercase small">@item.RegistroSanitario</td>
+                                <td class="text-start text-uppercase small">@item.Fabricante</td>
+                                <td class="text-center text-uppercase small">@item.CondicionAlmTrans</td>
+                                <td class="text-center text-uppercase small">@item.Almacen</td>
+                                <td class="text-center text-uppercase small">@item.CantidadDevolucion</td>
+                                <td class="text-center text-uppercase small">
+                                    @if (item.Transferido == 0)
+                                    {
+                                        <button type="button" class="btn btn-sm btn-cobefar-2 cls-transferir" data-cantidad="@item.CantidadDevolucion" data-area="devolucion" data-id="@item.Id"
+                                                onclick="transferirArticulo(this)">
+                                            <i class="bi bi-check-lg"></i>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="btn btn-sm btn-outline-danger cls-revertir" data-id="@item.Id" onclick="revertirTransferenciaArticulo(this)">
+                                            <i class="bi bi-arrow-counterclockwise"></i>
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            tippy('.cls-transferir', {
+                content: 'Clic para transferir artículo',
+                animation: 'fade',
+                placement: 'bottom-start'
+            });
+
+            tippy('.cls-revertir', {
+                content: 'Clic para revertir transferencia',
+                animation: 'fade',
+                placement: 'bottom-start'
+            });
+        })
+
+        async function transferirArticulo(elem) {
+            const id = Number(elem.dataset.id) || 0;
+            const area = elem.dataset.area || '';
+            const cantidad = Number(elem.dataset.cantidad) || 0;
+
+            if (!id) {
+                console.error('Error: El ID no se encontró.');
+                generarAlerta('Error', 'Ocurrió un error inesperado. Por favor, comunicarse con el área de Sistemas.', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch("/Transferencias/TransferirArticulo", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ id, cantidad, area }) // Enviar los datos como JSON
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error en la solicitud: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                Swal.fire({
+                    title: data.Titulo,
+                    html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                        ? data.Mensajes.join('<br>')
+                        : data.Mensajes || "",
+                    icon: data.Icono,
+                    allowEscapeKey: false,
+                    allowOutsideClick: false,
+                    showConfirmButton: true
+                }).then((result) => {
+                    if (result.isConfirmed && data.Icono == 'success') {
+                        window.location.reload()
+                    }
+                })
+
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function revertirTransferenciaArticulo(elem) {
+            const id = Number(elem.dataset.id) || 0;
+
+            if (!id) {
+                console.error('Error: El ID no se encontró.');
+                generarAlerta('Error', 'Ocurrió un error inesperado. Por favor, comunicarse con el área de Sistemas.', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch("/Transferencias/RevertirTransferenciaArticulo", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ id }) // Enviar los datos como JSON
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error en la solicitud: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                Swal.fire({
+                    title: data.Titulo,
+                    html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                        ? data.Mensajes.join('<br>')
+                        : data.Mensajes || "",
+                    icon: data.Icono,
+                    allowEscapeKey: false,
+                    allowOutsideClick: false,
+                    showConfirmButton: true
+                }).then((result) => {
+                    if (result.isConfirmed && data.Icono == 'success') {
+                        window.location.reload()
+                    }
+                })
+
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+    </script>
+}
