@@ -266,7 +266,7 @@
                                                                                   </div>
                                                                                   <div class="col-auto">
                                                                                     <button type="button"
-                                                                                            class="btn btn-sm btn-outline-primary btn-descargar-organoleptico" data-url="/DireccionTecnica/OrganolepticoEmPdf?DocEntry=${modeloJS[0].DocEntry}&Almacen=${item.Almacen}" data-tipo="organoleptico" data-nombre="${item.ItemCode}.pdf"><i class="bi bi-download"></i>
+                                                                                            class="btn btn-sm btn-outline-primary btn-descargar-organoleptico" data-url="/DireccionTecnica/OrganolepticoEmPdf?DocEntry=${modeloJS[0].DocEntry}&Almacen=${item.Almacen}&ItemCode=${item.ItemCode}&Lote=${item.Lote}&DetalleId=${item.Id}" data-tipo="organoleptico" data-nombre="${item.ItemCode}.pdf"><i class="bi bi-download"></i>
                                                                                     </button>
                                                                                   </div>
                                                                                 </div>
@@ -274,7 +274,7 @@
                                                                         </div>
                                                                         <div class="col-lg-5">
                                                                                 <label class="small form-label fw-bold">Observaciones:</label>
-                                                                                <textarea id="ComentarioOrganoleptico_${correlativo}" name="Detalle[${key}].ComentarioOrganoleptico" class="form-control bg-light" rows="2" data-identificador="${correlativo}">${item.ComentarioOrganoleptico ?? ''}</textarea>
+                                                                                <textarea id="ComentarioOrganoleptico_${correlativo}" name="Detalle[${key}].ComentarioOrganoleptico" class="form-control bg-light" rows="2" data-identificador="${correlativo}">${item.Liberado == 0 ? item.ComentarioOrganoleptico : ''}</textarea>
                                                                         </div>
                                                                         <div class="col-lg-2">
                                                                                 <table>
@@ -337,6 +337,11 @@
                         inicializarDescargas();
 
                         tippy('.btn-descargar-archivo', {
+                            content: 'Descargar archivo',
+                            animation: 'fade'
+                        });
+
+                        tippy('.btn-descargar-organoleptico', {
                             content: 'Descargar archivo',
                             animation: 'fade'
                         });
@@ -440,8 +445,6 @@
                         return;
                     }
 
-                    console.log(base64)
-
                     const dataUrl = `data:application/pdf;base64,${base64}`;
 
                     const link = document.createElement("a");
@@ -457,12 +460,11 @@
                 boton.addEventListener('click', function () {
                     const url = this.dataset.url;
                     const nombre = this.dataset.nombre || "archivo.pdf";
-                    console.log(url)
+
                     if (!url) {
                         Swal.fire("Archivo no disponible", "", "info");
                         return;
                     }
-                    
 
                     const link = document.createElement("a");
                     link.href = url;

@@ -24,6 +24,7 @@ using Capa_Negocio.DireccionTecnica_NEG.TablasExternas;
 using DocumentFormat.OpenXml.Spreadsheet;
 using System.IO;
 using System.util;
+using Capa_Entidad.TablasSql;
 namespace Capa_Usuario.Controllers
 {
     public class DireccionTecnicaController : Controller
@@ -493,17 +494,17 @@ namespace Capa_Usuario.Controllers
             }
         }
 
-        public ActionResult OrganolepticoEmPdf(int DocEntry, string Almacen, int idOperation = 2303)
+        public ActionResult OrganolepticoEmPdf(int docEntry, string itemCode, string lote, string almacen, int detalleId, int idOperation = 2303)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
                 return resultadoAcceso;
 
-            var orgEM = dgN.ConsultarOrganolepticoEm(DocEntry);
+            var orgEM = dgN.ConsultarOrganolepticoEm(docEntry).Where(o => o.Lote == lote).ToList();
 
-            if (orgEM != null && orgEM.Any())
+            if (orgEM != null)
             {
-                var result = BuscarFirmas("QuimicoFarmaceutico", Almacen);
+                var result = BuscarFirmas("QuimicoFarmaceutico", almacen);
                 if (result != null && result.Count >= 1)
                 {
                     ViewBag.QuimicoFarmaceuticoAsistente = result["NombApe"];
@@ -514,24 +515,32 @@ namespace Capa_Usuario.Controllers
             var firmaResponsableDT = BuscarFirmas("ResponsableDT", "08");
             ViewBag.FirmaDT = firmaResponsableDT != null && firmaResponsableDT.Any() ? firmaResponsableDT["Firma"] : "";
 
-            var pdfResult = new ViewAsPdf("OrganolepticoEm", orgEM)
+            var detalle = new DOCS1_N().ListarDetalleDocumento(new DOCS1_E { Id = detalleId });
+
+            if (detalle != null)
+                orgEM.First().ComentarioOrganoleptico = detalle.First().ComentarioOrganoleptico;
+
+            var pdfResult = new ViewAsPdf("OrganolepticoEM_PDF", orgEM)
             {
                 PageSize = Rotativa.Options.Size.A4,
-                FileName = $"Organoleptico_{DocEntry}.pdf"
+                FileName = $"Organoleptico_{lote}.pdf"
             };
 
-            // Generar el PDF y guardarlo en el directorio especificado
             byte[] pdfBytes = pdfResult.BuildFile(ControllerContext);
-            string nombreArchivo = $"Organoleptico_{DocEntry}.pdf";
-            string rutaDirectorio = Path.Combine(new Utilitarios_N().directorioFileServer, "DireccionTecnica", "Internamiento", DocEntry.ToString());
-            string filePath = Path.Combine(rutaDirectorio, nombreArchivo);
 
+            string nombreArchivo = $"Organoleptico_{lote}.pdf";
+            string rutaDirectorio = Path.Combine(new Utilitarios_N().directorioFileServer, "DireccionTecnica", "Internamiento", itemCode);
+
+            // Asegurar que el directorio existe
+            if (!Directory.Exists(rutaDirectorio))
+                Directory.CreateDirectory(rutaDirectorio);
+
+            string filePath = Path.Combine(rutaDirectorio, nombreArchivo);
             System.IO.File.WriteAllBytes(filePath, pdfBytes);
 
-            // Opcional: Devolver el archivo PDF como respuesta
-            return File(pdfBytes, "application/pdf", pdfResult.FileName);
+            // Descargar
+            return File(pdfBytes, "application/pdf", nombreArchivo);
         }
-
 
         public ActionResult RealizarEntradaDeMercancias(int DocEntry, int idOperation = 2304)
         {
@@ -643,7 +652,7 @@ namespace Capa_Usuario.Controllers
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 ViewBag.Owhs = new Capa_Negocio.General_NEG.Tablas.OWHS_N();
-                ViewBag.listaOitw = new Capa_Negocio.Almacen_NEG.Tablas.OITW_N().ListarDetArticulosInv(new OITW_E { ItemCode=itemCode });
+                ViewBag.listaOitw = new Capa_Negocio.Almacen_NEG.Tablas.OITW_N().ListarDetArticulosInv(new OITW_E { ItemCode = itemCode });
                 return View(new Capa_Negocio.Almacen_NEG.Tablas.OITM_N().buscarArticulo(itemCode));
             }
             else
@@ -888,6 +897,6 @@ namespace Capa_Usuario.Controllers
         {
             var lista = new ORTV_N().obtenerOrdenDeVenta(filtros.DocNum);
             return View("~/Views/Ventas/PDF/PDF_OrdenesDeVentas.cshtml", lista);
-        }        
+        }
     }
 }
