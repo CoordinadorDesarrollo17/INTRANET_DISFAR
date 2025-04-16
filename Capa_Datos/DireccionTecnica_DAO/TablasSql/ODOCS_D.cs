@@ -104,6 +104,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                                 string baseRuta = uti.directorioFileServer;
                                 string rutaDirectorio = Path.Combine(baseRuta, "DireccionTecnica", "Internamiento");
                                 string carpeta = detalle.ItemCode ?? "undefined";
+
                                 string rutaET = Path.Combine(rutaDirectorio, carpeta, "ET.pdf").Replace("\\", "/");
                                 if (System.IO.File.Exists(rutaET))
                                 {
@@ -111,12 +112,18 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                                     detalle.DescargarArchivoET = Convert.ToBase64String(contenido);
                                 }
 
-
                                 string rutaProtocolo = Path.Combine(rutaDirectorio, carpeta, $"{detalle.Lote}.pdf").Replace("\\", "/");
                                 if (System.IO.File.Exists(rutaProtocolo))
                                 {
                                     byte[] contenido2 = System.IO.File.ReadAllBytes(rutaProtocolo);
                                     detalle.DescargarArchivoProtocolo = Convert.ToBase64String(contenido2);
+                                }
+
+                                string rutaOrganoleptico = Path.Combine(rutaDirectorio, carpeta, $"{detalle.Lote}.pdf").Replace("\\", "/");
+                                if (System.IO.File.Exists(rutaOrganoleptico))
+                                {
+                                    byte[] contenido3 = System.IO.File.ReadAllBytes(rutaOrganoleptico);
+                                    detalle.DescargarArchivoOrganoleptico = Convert.ToBase64String(contenido3);
                                 }
 
                                 obj.Detalle.Add(detalle);

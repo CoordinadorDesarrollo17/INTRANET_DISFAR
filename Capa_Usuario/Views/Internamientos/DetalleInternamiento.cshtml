@@ -102,7 +102,7 @@
 
 @section Scripts{
     @*<script src="~/Scripts/Adquisiciones/GestionRequerimientos.js?v=@DateTime.Now.Ticks" defer></script>*@
-    <script>
+<script>
         document.addEventListener('DOMContentLoaded', function () {
             agregarFilaATabla();
             soloNumerosPorClase('cls-num');
@@ -226,6 +226,7 @@
                                                                             </div>
                                                                         </div>
                                                                         <div class="col-lg-3">
+                                                                        <!-- Protocolo -->
                                                                              <div class="row mb-3">
                                                                                   <div class="col-auto">
                                                                                     <label class="small form-label fw-bold">Protocolo:</label>
@@ -241,6 +242,7 @@
                                                                                   </div>
                                                                                 </div>
 
+                                                                                <!-- ET -->
                                                                                 <div class="row mb-3">
                                                                                   <div class="col-auto">
                                                                                     <label class="small form-label fw-bold">E.T.:</label>
@@ -254,6 +256,18 @@
                                                                                   <div class="col-auto">
                                                                                     <input class="form-control cls-archivos"
                                                                                            type="file" id="formFileET_${correlativo}" name="Detalle[${key}].ArchivoET" accept=".pdf" data-identificador="${correlativo}">
+                                                                                  </div>
+                                                                                </div>
+
+                                                                                <!-- Organoléptico -->
+                                                                                <div class="row mb-3">
+                                                                                  <div class="col-auto">
+                                                                                    <label class="small form-label fw-bold">Organoléptico:</label>
+                                                                                  </div>
+                                                                                  <div class="col-auto">
+                                                                                    <button type="button"
+                                                                                            class="btn btn-sm btn-outline-primary btn-descargar-organoleptico" data-url="/DireccionTecnica/OrganolepticoEmPdf?DocEntry=${modeloJS[0].DocEntry}&Almacen=${item.Almacen}" data-tipo="organoleptico" data-nombre="${item.ItemCode}.pdf"><i class="bi bi-download"></i>
+                                                                                    </button>
                                                                                   </div>
                                                                                 </div>
 
@@ -438,6 +452,28 @@
                     document.body.removeChild(link);
                 });
             });
+
+            document.querySelectorAll('.btn-descargar-organoleptico').forEach(boton => {
+                boton.addEventListener('click', function () {
+                    const url = this.dataset.url;
+                    const nombre = this.dataset.nombre || "archivo.pdf";
+                    console.log(url)
+                    if (!url) {
+                        Swal.fire("Archivo no disponible", "", "info");
+                        return;
+                    }
+                    
+
+                    const link = document.createElement("a");
+                    link.href = url;
+                    link.download = nombre; // A veces ignorado por el navegador si `url` apunta a otra web o no tiene header correcto
+                    link.target = "_blank";
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                });
+            });
+
         }
 
         function validarCamposDetalle(correlativo) {
@@ -751,7 +787,7 @@
                         console.error('Error:', error);
                     }
                 }
-            });            
+            });
         }
-    </script>
+</script>
 }

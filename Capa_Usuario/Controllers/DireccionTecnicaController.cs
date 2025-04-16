@@ -22,6 +22,8 @@ using Capa_Usuario.Helpers;
 using Capa_Negocio;
 using Capa_Negocio.DireccionTecnica_NEG.TablasExternas;
 using DocumentFormat.OpenXml.Spreadsheet;
+using System.IO;
+using System.util;
 namespace Capa_Usuario.Controllers
 {
     public class DireccionTecnicaController : Controller
@@ -490,6 +492,47 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+
+        public ActionResult OrganolepticoEmPdf(int DocEntry, string Almacen, int idOperation = 2303)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
+                return resultadoAcceso;
+
+            var orgEM = dgN.ConsultarOrganolepticoEm(DocEntry);
+
+            if (orgEM != null && orgEM.Any())
+            {
+                var result = BuscarFirmas("QuimicoFarmaceutico", Almacen);
+                if (result != null && result.Count >= 1)
+                {
+                    ViewBag.QuimicoFarmaceuticoAsistente = result["NombApe"];
+                    ViewBag.Firma = result["Firma"];
+                }
+            }
+
+            var firmaResponsableDT = BuscarFirmas("ResponsableDT", "08");
+            ViewBag.FirmaDT = firmaResponsableDT != null && firmaResponsableDT.Any() ? firmaResponsableDT["Firma"] : "";
+
+            var pdfResult = new ViewAsPdf("OrganolepticoEm", orgEM)
+            {
+                PageSize = Rotativa.Options.Size.A4,
+                FileName = $"Organoleptico_{DocEntry}.pdf"
+            };
+
+            // Generar el PDF y guardarlo en el directorio especificado
+            byte[] pdfBytes = pdfResult.BuildFile(ControllerContext);
+            string nombreArchivo = $"Organoleptico_{DocEntry}.pdf";
+            string rutaDirectorio = Path.Combine(new Utilitarios_N().directorioFileServer, "DireccionTecnica", "Internamiento", DocEntry.ToString());
+            string filePath = Path.Combine(rutaDirectorio, nombreArchivo);
+
+            System.IO.File.WriteAllBytes(filePath, pdfBytes);
+
+            // Opcional: Devolver el archivo PDF como respuesta
+            return File(pdfBytes, "application/pdf", pdfResult.FileName);
+        }
+
+
         public ActionResult RealizarEntradaDeMercancias(int DocEntry, int idOperation = 2304)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);

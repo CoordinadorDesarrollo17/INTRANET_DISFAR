@@ -26,5 +26,6 @@ namespace Capa_Entidad.TablasSql
         public string DescargarArchivoProtocolo { get; set; }
         public HttpPostedFileBase ArchivoET { get; set; }
         public string DescargarArchivoET { get; set; }
+        public string DescargarArchivoOrganoleptico { get; set; }
     }
 }
