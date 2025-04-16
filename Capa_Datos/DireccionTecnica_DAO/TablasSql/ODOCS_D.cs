@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Capa_Entidad;
 using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
+using Capa_Entidad.DireccionTecnica_ENT.TablasSql;
 using Capa_Entidad.TablasSql;
 using Microsoft.ReportingServices.ReportProcessing.OnDemandReportObjectModel;
 
@@ -155,14 +156,57 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
 
                     var sb = new StringBuilder();
 
-                    sb.AppendLine("SELECT DOC.Id, DOC.TipoDocumento, DOC.DocEntry, DOC.DocNum, CASE WHEN LEFT(DOC.CardCode, 1) = 'P' THEN SUBSTRING(DOC.CardCode, 2, LEN(DOC.CardCode)) ELSE DOC.CardCode END AS CardCodeFormat,");
-                    sb.AppendLine("DOC.CardName, DOC.Guia, DOC.ComprobanteVinculado, CONVERT(varchar, DOC.FechaContabilizacion, 103), CONVERT(varchar, DOC.FechaInicioTraslado, 103), DOC.Estado,");
-                    sb.AppendLine("DET.Id, DET.ItemCode, DET.ItemName, DET.Lote, CONVERT(varchar, DET.FechaVencimiento, 103), DET.RegistroSanitario, DET.Fabricante, DET.CondicionAlmTrans,");
-                    sb.AppendLine("DET.Almacen, DET.CertificadoAnalisis, DET.ComentarioOrganoleptico, DET.CantidadAprobados, DET.CantidadBaja, DET.CantidadDevolucion, DET.CantidadTotal, DET.Liberado, DET.Transferido");
+                    sb.AppendLine("SELECT");
+                    sb.AppendLine("DOC.Id, DOC.TipoDocumento, DOC.DocEntry, DOC.DocNum,");
+                    sb.AppendLine("CASE WHEN LEFT(DOC.CardCode, 1) = 'P' THEN SUBSTRING(DOC.CardCode, 2, LEN(DOC.CardCode)) ELSE DOC.CardCode END AS CardCodeFormat,");
+                    sb.AppendLine("DOC.CardName, DOC.Guia, DOC.ComprobanteVinculado,");
+                    sb.AppendLine("CONVERT(varchar, DOC.FechaContabilizacion, 103) AS FechaContabilizacion,");
+                    sb.AppendLine("CONVERT(varchar, DOC.FechaInicioTraslado, 103) AS FechaInicioTraslado,");
+                    sb.AppendLine("DOC.Estado,");
+
+                    sb.AppendLine("DET.Id, DET.ItemCode, DET.ItemName, DET.Lote,");
+                    sb.AppendLine("CONVERT(varchar, DET.FechaVencimiento, 103) AS FechaVencimiento,");
+                    sb.AppendLine("DET.RegistroSanitario, DET.Fabricante, DET.CondicionAlmTrans,");
+                    sb.AppendLine("DET.Almacen, DET.CertificadoAnalisis, DET.ComentarioOrganoleptico,");
+                    sb.AppendLine("DET.CantidadAprobados, DET.CantidadBaja, DET.CantidadDevolucion, DET.CantidadTotal,");
+                    sb.AppendLine("DET.Liberado, DET.Transferido,");
+
+                    // Aprobados
+                    sb.AppendLine("AT_AP.Area, AT_AP.Atendido AS AtendidoAprobados, AT_AP.AtendidoPor AS AtendidoPor,");
+                    sb.AppendLine("CONVERT(varchar, AT_AP.Fecha, 103) AS FechaAprobados, CONVERT(varchar, AT_AP.Hora , 8) AS HoraAprobados,");
+
+                    // Baja
+                    sb.AppendLine("AT_BA.Area, AT_BA.Atendido AS AtendidoBaja, AT_BA.AtendidoPor AS AtendidoPor,");
+                    sb.AppendLine("CONVERT(varchar, AT_BA.Fecha, 103) AS FechaBaja, CONVERT(varchar, AT_BA.Hora , 8) AS HoraBaja,");
+
+                    // Devolución
+                    sb.AppendLine("AT_DE.Area, AT_DE.Atendido AS AtendidoDevolucion, AT_DE.AtendidoPor AS AtendidoPor,");
+                    sb.AppendLine("CONVERT(varchar, AT_DE.Fecha, 103) AS FechaDevolucion, CONVERT(varchar, AT_DE.Hora , 8) AS HoraDevolucion");
+
                     sb.AppendLine("FROM ODOCS DOC");
                     sb.AppendLine("INNER JOIN DOCS1 DET ON DOC.Id = DET.ODOCSId");
+
+                    sb.AppendLine("OUTER APPLY (");
+                    sb.AppendLine("    SELECT TOP 1 Area, Atendido, AtendidoPor, CONVERT(varchar, Fecha, 103) AS Fecha, CONVERT(varchar, Hora , 8) AS Hora FROM AT_DOCS1");
+                    sb.AppendLine("    WHERE DOCS1Id = DET.Id AND Area = 'Aprobados'");
+                    sb.AppendLine("    ORDER BY Fecha DESC, Hora DESC");
+                    sb.AppendLine(") AT_AP");
+
+                    sb.AppendLine("OUTER APPLY (");
+                    sb.AppendLine("    SELECT TOP 1 Area, Atendido, AtendidoPor, CONVERT(varchar, Fecha, 103) AS Fecha, CONVERT(varchar, Hora , 8) AS Hora FROM AT_DOCS1");
+                    sb.AppendLine("    WHERE DOCS1Id = DET.Id AND Area = 'Baja'");
+                    sb.AppendLine("    ORDER BY Fecha DESC, Hora DESC");
+                    sb.AppendLine(") AT_BA");
+
+                    sb.AppendLine("OUTER APPLY (");
+                    sb.AppendLine("    SELECT TOP 1 Area, Atendido, AtendidoPor, CONVERT(varchar, Fecha, 103) AS Fecha, CONVERT(varchar, Hora , 8) AS Hora FROM AT_DOCS1");
+                    sb.AppendLine("    WHERE DOCS1Id = DET.Id AND Area = 'Devolucion'");
+                    sb.AppendLine("    ORDER BY Fecha DESC, Hora DESC");
+                    sb.AppendLine(") AT_DE");
+
                     sb.AppendLine("WHERE DET.Liberado = 1");
                     sb.AppendLine(condicion?.ToString().Trim());
+
 
                     // Agregamos los parámetros dinámicamente
                     foreach (var prm in parametros)
@@ -224,7 +268,34 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                                 detalle.Liberado = dr.IsDBNull(26) ? 0 : dr.GetInt32(26);
                                 detalle.Transferido = dr.IsDBNull(27) ? 0 : dr.GetInt32(27);
 
-                                // Aisgnación de archivos adjuntos
+                                detalle.AtencionAprobados = new AT_DOCS1_E
+                                {
+                                    Area = dr.IsDBNull(28) ? null : dr.GetString(28),
+                                    Atendido = dr.IsDBNull(29) ? 0 : dr.GetInt32(29),
+                                    AtendidoPor = dr.IsDBNull(30) ? null : dr.GetString(30),
+                                    Fecha = dr.IsDBNull(31) ? null : dr.GetString(31),
+                                    Hora = dr.IsDBNull(32) ? null : dr.GetString(32)
+                                };
+
+                                detalle.AtencionBaja = new AT_DOCS1_E
+                                {
+                                    Area = dr.IsDBNull(33) ? null : dr.GetString(33),
+                                    Atendido = dr.IsDBNull(34) ? 0 : dr.GetInt32(34),
+                                    AtendidoPor = dr.IsDBNull(35) ? null : dr.GetString(35),
+                                    Fecha = dr.IsDBNull(36) ? null : dr.GetString(36),
+                                    Hora = dr.IsDBNull(37) ? null : dr.GetString(37)
+                                };
+
+                                detalle.AtencionDevolucion = new AT_DOCS1_E
+                                {
+                                    Area = dr.IsDBNull(38) ? null : dr.GetString(38),
+                                    Atendido = dr.IsDBNull(39) ? 0 : dr.GetInt32(39),
+                                    AtendidoPor = dr.IsDBNull(40) ? null : dr.GetString(40),
+                                    Fecha = dr.IsDBNull(41) ? null : dr.GetString(41),
+                                    Hora = dr.IsDBNull(42) ? null : dr.GetString(42)
+                                };
+
+                                // Asignación de archivos adjuntos
                                 string baseRuta = uti.directorioFileServer;
                                 string rutaDirectorio = Path.Combine(baseRuta, "DireccionTecnica", "Internamiento");
                                 string carpeta = detalle.ItemCode ?? "undefined";

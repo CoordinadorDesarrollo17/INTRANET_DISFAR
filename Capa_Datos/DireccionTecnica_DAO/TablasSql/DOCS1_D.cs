@@ -15,7 +15,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
     {
         readonly Utilitarios uti = new Utilitarios();
 
-        public Helper_E TransferirArticulo(int id, string usuarioRegistro)
+        public Helper_E TransferirArticulo(string area, int id, string usuarioRegistro)
         {
             Helper_E result = new Helper_E();
 
@@ -32,6 +32,9 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
 
                             cmd.Parameters.AddWithValue("@Operacion", "TRANSFERIR");
                             cmd.Parameters.AddWithValue("@Id", id);
+
+                            // Para [AT_DOCS1]
+                            cmd.Parameters.AddWithValue("@Area", System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(area.ToLower()));
 
                             // Para [CC_ODOCS]
                             cmd.Parameters.AddWithValue("@UsuarioRegistro", usuarioRegistro);
@@ -61,7 +64,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
             return result;
         }
 
-        public Helper_E RevertirTransferenciaArticulo(int id, string usuarioRegistro)
+        public Helper_E RevertirTransferenciaArticulo(int id, string area, string usuarioRegistro)
         {
             Helper_E result = new Helper_E();
 
@@ -78,6 +81,9 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
 
                             cmd.Parameters.AddWithValue("@Operacion", "REVERTIR_TRANSFERENCIA");
                             cmd.Parameters.AddWithValue("@Id", id);
+
+                            // Para [AT_DOCS1]
+                            cmd.Parameters.AddWithValue("@Area", System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(area.ToLower()));
 
                             // Para [CC_ODOCS]
                             cmd.Parameters.AddWithValue("@UsuarioRegistro", usuarioRegistro);

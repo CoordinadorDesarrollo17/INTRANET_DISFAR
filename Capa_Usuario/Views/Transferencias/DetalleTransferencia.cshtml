@@ -127,7 +127,7 @@
                                 <td class="text-center text-uppercase small">@item.Almacen</td>
                                 <td class="text-center text-uppercase small">@item.CantidadAprobados</td>
                                 <td class="text-center text-uppercase small">
-                                    @if (item.Transferido == 0)
+                                    @if (item.AtencionAprobados != null && item.AtencionAprobados.Atendido == 0)
                                     {
                                         <button type="button" class="btn btn-sm btn-cobefar-2 cls-transferir" data-cantidad="@item.CantidadAprobados" data-area="aprobados" data-id="@item.Id"
                                                 onclick="transferirArticulo(this)">
@@ -136,7 +136,7 @@
                                     }
                                     else
                                     {
-                                        <button type="button" class="btn btn-sm btn-outline-danger cls-revertir" data-id="@item.Id" onclick="revertirTransferenciaArticulo(this)">
+                                        <button type="button" class="btn btn-sm btn-outline-danger cls-revertir" data-id="@item.Id" data-area="aprobados" onclick="revertirTransferenciaArticulo(this)">
                                             <i class="bi bi-arrow-counterclockwise"></i>
                                         </button>
                                     }
@@ -181,7 +181,7 @@
                                 <td class="text-center text-uppercase small">@item.Almacen</td>
                                 <td class="text-center text-uppercase small">@item.CantidadBaja</td>
                                 <td class="text-center text-uppercase small">
-                                    @if (item.Transferido == 0)
+                                    @if (item.AtencionBaja!= null && item.AtencionBaja.Atendido == 0)
                                     {
                                         <button type="button" class="btn btn-sm btn-cobefar-2 cls-transferir" data-cantidad="@item.CantidadBaja" data-area="baja" data-id="@item.Id"
                                                 onclick="transferirArticulo(this)">
@@ -190,7 +190,7 @@
                                     }
                                     else
                                     {
-                                        <button type="button" class="btn btn-sm btn-outline-danger cls-revertir" data-id="@item.Id" onclick="revertirTransferenciaArticulo(this)">
+                                        <button type="button" class="btn btn-sm btn-outline-danger cls-revertir" data-id="@item.Id" data-area="baja" onclick="revertirTransferenciaArticulo(this)">
                                             <i class="bi bi-arrow-counterclockwise"></i>
                                         </button>
                                     }
@@ -235,7 +235,7 @@
                                 <td class="text-center text-uppercase small">@item.Almacen</td>
                                 <td class="text-center text-uppercase small">@item.CantidadDevolucion</td>
                                 <td class="text-center text-uppercase small">
-                                    @if (item.Transferido == 0)
+                                    @if (item.AtencionDevolucion != null && item.AtencionDevolucion.Atendido == 0)
                                     {
                                         <button type="button" class="btn btn-sm btn-cobefar-2 cls-transferir" data-cantidad="@item.CantidadDevolucion" data-area="devolucion" data-id="@item.Id"
                                                 onclick="transferirArticulo(this)">
@@ -244,7 +244,7 @@
                                     }
                                     else
                                     {
-                                        <button type="button" class="btn btn-sm btn-outline-danger cls-revertir" data-id="@item.Id" onclick="revertirTransferenciaArticulo(this)">
+                                        <button type="button" class="btn btn-sm btn-outline-danger cls-revertir" data-id="@item.Id" data-area="devolucion" onclick="revertirTransferenciaArticulo(this)">
                                             <i class="bi bi-arrow-counterclockwise"></i>
                                         </button>
                                     }
@@ -323,6 +323,7 @@
 
         async function revertirTransferenciaArticulo(elem) {
             const id = Number(elem.dataset.id) || 0;
+            const area = elem.dataset.area || '';
 
             if (!id) {
                 console.error('Error: El ID no se encontró.');
@@ -336,7 +337,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ id }) // Enviar los datos como JSON
+                    body: JSON.stringify({ id, area }) // Enviar los datos como JSON
                 });
 
                 if (!response.ok) {

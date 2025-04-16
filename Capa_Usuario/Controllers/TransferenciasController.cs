@@ -83,14 +83,14 @@ namespace Capa_Usuario.Controllers
             return Json(result);
         }
 
-        public JsonResult RevertirTransferenciaArticulo(int id, int idOperacion = 0)
+        public JsonResult RevertirTransferenciaArticulo(int id, string area, int idOperacion = 0)
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
                 return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
 
             var usuarioRegistro = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
-            var result = _detalleDocN.RevertirTransferenciaArticulo(id, usuarioRegistro);
+            var result = _detalleDocN.RevertirTransferenciaArticulo(id, area, usuarioRegistro);
             return Json(result);
         }
 

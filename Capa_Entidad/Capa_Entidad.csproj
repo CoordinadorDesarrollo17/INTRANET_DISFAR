@@ -129,6 +129,7 @@
     <Compile Include="DireccionTecnica_ENT\Reportes\BalanceControlados\RptBalanceControladosLibroControlados_E.cs" />
     <Compile Include="DireccionTecnica_ENT\Reportes\RptKardexAlmacenes_E.cs" />
     <Compile Include="DireccionTecnica_ENT\TablasExternas\COB_ESTA_RS_E.cs" />
+    <Compile Include="DireccionTecnica_ENT\TablasSql\AT_DOCS1_E.cs" />
     <Compile Include="DireccionTecnica_ENT\TablasSql\CC_ODOCS_E.cs" />
     <Compile Include="DireccionTecnica_ENT\TablasSql\DOCS1_E.cs" />
     <Compile Include="DireccionTecnica_ENT\TablasSql\ODOCS_E.cs" />

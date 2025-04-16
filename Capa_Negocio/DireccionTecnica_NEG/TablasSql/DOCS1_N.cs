@@ -54,15 +54,18 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
             if (!esValido)
                 return _helpers.CrearRespuestaError("Las cantidades del detalle no coinciden, por favor recargar la página.");
 
-            return _datos.TransferirArticulo(id, usuarioRegistro);
+            return _datos.TransferirArticulo(area, id, usuarioRegistro);
         }
 
-        public Helper_E RevertirTransferenciaArticulo(int id, string usuarioRegistro)
+        public Helper_E RevertirTransferenciaArticulo(int id, string area, string usuarioRegistro)
         {
             var lista = ListarDetalleDocumento(new DOCS1_E { Id = id });
 
             if (lista == null || lista.Count == 0)
                 return _helpers.CrearRespuestaError("No se encontró información del artículo a revertir transferencia.");
+
+            if(string.IsNullOrWhiteSpace(area))
+                return _helpers.CrearRespuestaError("Error en el envío de área.");
 
             var detalle = lista.First();
 
@@ -72,7 +75,7 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
             if (detalle.Liberado == 1 && detalle.Transferido == 0)
                 return _helpers.CrearRespuestaError("El artículo ya se encuentra LIBERADO y no ha sido transferido.");
 
-            return _datos.RevertirTransferenciaArticulo(id, usuarioRegistro);
+            return _datos.RevertirTransferenciaArticulo(id, area, usuarioRegistro);
         }
 
         public Helper_E LiberarArticulos(List<int> grupoIds, string usuarioRegistro)

@@ -274,7 +274,7 @@
                                                                         </div>
                                                                         <div class="col-lg-5">
                                                                                 <label class="small form-label fw-bold">Observaciones:</label>
-                                                                                <textarea id="ComentarioOrganoleptico_${correlativo}" name="Detalle[${key}].ComentarioOrganoleptico" class="form-control bg-light" rows="2" data-identificador="${correlativo}">${item.Liberado == 0 ? item.ComentarioOrganoleptico : ''}</textarea>
+                                                                                <textarea id="ComentarioOrganoleptico_${correlativo}" name="Detalle[${key}].ComentarioOrganoleptico" class="form-control bg-light" rows="2" data-identificador="${correlativo}">${item.Liberado == 0 && item.ComentarioOrganoleptico != null ? item.ComentarioOrganoleptico : ''}</textarea>
                                                                         </div>
                                                                         <div class="col-lg-2">
                                                                                 <table>
