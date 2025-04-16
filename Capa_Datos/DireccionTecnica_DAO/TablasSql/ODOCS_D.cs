@@ -31,7 +31,8 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
 
                     var sb = new StringBuilder();
 
-                    sb.AppendLine("SELECT DOC.Id, DOC.TipoDocumento, DOC.DocEntry, DOC.DocNum, DOC.CardCode, DOC.CardName, DOC.Guia, DOC.ComprobanteVinculado, CONVERT(varchar, DOC.FechaContabilizacion, 103), CONVERT(varchar, DOC.FechaInicioTraslado, 103), DOC.Estado,");
+                    sb.AppendLine("SELECT DOC.Id, DOC.TipoDocumento, DOC.DocEntry, DOC.DocNum, CASE WHEN LEFT(DOC.CardCode, 1) = 'P' THEN SUBSTRING(DOC.CardCode, 2, LEN(DOC.CardCode)) ELSE DOC.CardCode END AS CardCodeFormat,");
+                    sb.AppendLine("DOC.CardName, DOC.Guia, DOC.ComprobanteVinculado, CONVERT(varchar, DOC.FechaContabilizacion, 103), CONVERT(varchar, DOC.FechaInicioTraslado, 103), DOC.Estado,");
                     sb.AppendLine("DET.Id, DET.ItemCode, DET.ItemName, DET.Lote, CONVERT(varchar, DET.FechaVencimiento, 103), DET.RegistroSanitario, DET.Fabricante, DET.CondicionAlmTrans,");
                     sb.AppendLine("DET.Almacen, DET.CertificadoAnalisis, DET.ComentarioOrganoleptico, DET.CantidadAprobados, DET.CantidadBaja, DET.CantidadDevolucion, DET.CantidadTotal, DET.Liberado, DET.Transferido");
                     sb.AppendLine("FROM ODOCS DOC");
@@ -152,7 +153,6 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                     sb.AppendLine("DET.Almacen, DET.CertificadoAnalisis, DET.ComentarioOrganoleptico, DET.CantidadAprobados, DET.CantidadBaja, DET.CantidadDevolucion, DET.CantidadTotal, DET.Liberado, DET.Transferido");
                     sb.AppendLine("FROM ODOCS DOC");
                     sb.AppendLine("INNER JOIN DOCS1 DET ON DOC.Id = DET.ODOCSId");
-                    //sb.AppendLine("WHERE DOC.Estado = 'Liberado'");
                     sb.AppendLine("WHERE DET.Liberado = 1");
                     sb.AppendLine(condicion?.ToString().Trim());
 
@@ -394,6 +394,52 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
 
                         result.Titulo = "Error";
                         result.Mensajes.Add("Ocurrió un error al cancelar el documento.");
+                        result.Mensajes.Add("Por favor, comuníquese con el área de Sistemas para más información.");
+                        result.Icono = "error";
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public Helper_E CancelarTransferencia(int id, string usuarioRegistro)
+        {
+            Helper_E result = new Helper_E();
+
+            using (SqlConnection cn = new SqlConnection(uti.CadSql3))
+            {
+                cn.Open();
+                using (SqlTransaction transaction = cn.BeginTransaction())
+                {
+                    try
+                    {
+                        using (SqlCommand cmd = new SqlCommand("sp_GestionarDocumentos", cn, transaction))
+                        {
+                            cmd.CommandType = CommandType.StoredProcedure;
+
+                            cmd.Parameters.AddWithValue("@Operacion", "CANCELAR_TRANSFERENCIA");
+                            cmd.Parameters.AddWithValue("@Id", id);
+
+                            // Para [CC_ODOCS]
+                            cmd.Parameters.AddWithValue("@UsuarioRegistro", usuarioRegistro);
+                            cmd.Parameters.AddWithValue("@TipoOperacion", "CANCELAR_TRANSFERENCIA");
+
+                            cmd.ExecuteNonQuery();
+                        }
+                        transaction.Commit();
+
+                        result.Titulo = "Acción completada";
+                        result.Mensajes.Add("Transferencia cancelada correctamente.");
+                        result.Icono = "success";
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        LogHelper.RegistrarError(ex, "Error inesperado en ODOCS_D - CancelarTransferencia()");
+
+                        result.Titulo = "Error";
+                        result.Mensajes.Add("Ocurrió un error al cancelar la transferencia del documento.");
                         result.Mensajes.Add("Por favor, comuníquese con el área de Sistemas para más información.");
                         result.Icono = "error";
                     }

@@ -93,5 +93,18 @@ namespace Capa_Usuario.Controllers
             var result = _detalleDocN.RevertirTransferenciaArticulo(id, usuarioRegistro);
             return Json(result);
         }
+
+        public JsonResult CancelarTransferencia(int id)
+        {
+            var usuarioSesion = Session["UsuarioId"] as Usuario_E;
+            if (usuarioSesion == null)
+                return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
+
+            var usuarioRegistro = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
+
+            var result = _docsN.CancelarTransferencia(id, usuarioRegistro);
+
+            return Json(result);
+        }
     }
 }

@@ -44,7 +44,7 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
 
                 if (!string.IsNullOrWhiteSpace(filtros.CardCode))
                 {
-                    condicion.AppendLine("AND DOC.CardCode = @CardCode");
+                    condicion.AppendLine("AND DOC.CardCode LIKE '_' + @CardCode");
                     parametros["@CardCode"] = filtros.CardCode;
                 }
 
@@ -142,7 +142,7 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
             if (datos == null)
                 return _helpers.CrearRespuestaError("Verificar los datos enviados.");
 
-            if (ListarInternamientos(datos).Any())
+            if (ListarInternamientos(datos).Where(x => x.Estado != "Cancelado").Any())
                 return _helpers.CrearRespuestaError("El documento ingresado ya se encuentra registrado.");
 
             if (string.IsNullOrWhiteSpace(datos.TipoDocumento))
@@ -188,6 +188,23 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
 
             return _datos.CancelarDocumento(id, usuarioRegistro);
         }
+
+        public Helper_E CancelarTransferencia(int id, string usuarioRegistro)
+        {
+            var transferencia = ListarTransferencias(new ODOCS_E { Id = id });
+
+            if (!transferencia.Any())
+                return _helpers.CrearRespuestaError("No se encontró documento a cancelar.");
+
+            if (transferencia.First().Estado == "Cancelado")
+                return _helpers.CrearRespuestaError("No puede cancelar la transferencia de un documento en estado: CANCELADO.");
+
+            if (!transferencia.First().Detalle.Any(x => x.Transferido == 1))
+                return _helpers.CrearRespuestaError("No cuenta con algún artículo transferido, por favor revisar el detalle del documento.");
+
+            return _datos.CancelarTransferencia(id, usuarioRegistro);
+        }
+
 
     }
 }

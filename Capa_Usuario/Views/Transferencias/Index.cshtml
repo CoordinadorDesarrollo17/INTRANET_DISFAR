@@ -62,6 +62,10 @@
                             <td scope="col" class="text-center small">@item.Estado</td>
                             <td scope="col" class="text-center small">
                                 <button type="button" class="btn btn-sm btn-outline-dark btn_verDetalle" onclick="redireccionar(this)" data-ruta="/Transferencias/VerDetalle?Id=@item.Id"><i class="bi bi-search"></i></button>
+                                @if (item.Estado != "Liberado" || item.Estado != "Cancelado")
+                                {
+                                    <button type="button" class="btn btn-sm btn-outline-danger cls-cancelarTransferencia" onclick="cancelarTransferencia(@item.Id)"><i class="bi bi-trash2-fill"></i></button>
+                                }
                             </td>
                         </tr>
                     }
@@ -166,6 +170,12 @@
                 animation: 'fade',
                 placement: 'bottom-end'
             });
+
+            tippy('.cls-cancelarTransferencia', {
+                content: 'Cancelar transferencia',
+                animation: 'fade',
+                placement: 'bottom-end'
+            });
         });
 
 
@@ -181,6 +191,54 @@
 
         function redireccionar(input) {
             window.location.replace(input.dataset.ruta);
+        }
+
+        async function cancelarTransferencia(id) {
+            swalWithBootstrapButtons.fire({
+                title: '¿Está seguro(a) de CANCELAR TRANSFERENCIA?',
+                html: 'Todos los artículos del documentos regresarán a estado: LIBERADO',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: "<i class='bi bi-check-lg'></i> Si",
+                cancelButtonText: "<i class='bi bi-x-lg mx-1'></i> Cancelar",
+                reverseButtons: true,
+                allowEscapeKey: false,
+                allowOutsideClick: false,
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-outline-danger mx-1'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const response = await fetch("/Transferencias/CancelarTransferencia", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ id })
+                        });
+
+                        if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+
+                        const data = await response.json();
+
+                        Swal.fire({
+                            title: data.Titulo,
+                            html: Array.isArray(data.Mensajes) ? data.Mensajes.join('<br>') : data.Mensajes || "",
+                            icon: data.Icono,
+                            confirmButtonColor: '#28a745'
+                        }).then(result => {
+                            if (result.isConfirmed && data.Icono === "success") {
+                                location.reload();
+                            }
+                        });
+                    } catch (error) {
+                        console.error('Error al registrar:', error);
+                    }
+                }
+            });
         }
     </script>
 }

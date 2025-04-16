@@ -146,7 +146,7 @@
             const payload = { tipoDocumento: String(tipoDocumento.value), docNum: Number(docNum.value) }
 
             try {
-                const response = await fetch("/Internamiento/BuscarDocumento", {
+                const response = await fetch("/Internamientos/BuscarDocumento", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -360,9 +360,9 @@
             });
 
             try {
-                const response = await fetch("/Internamiento/RegistrarDocumento", {
+                const response = await fetch("/Internamientos/RegistrarDocumento", {
                     method: 'POST',
-                    body: formData // ✔️ se encarga de multipart/form-data automáticamente
+                    body: formData // se encarga de multipart/form-data automáticamente
                 });
 
                 if (!response.ok) throw new Error(`Error: ${response.statusText}`);

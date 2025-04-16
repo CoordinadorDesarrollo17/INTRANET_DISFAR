@@ -83,7 +83,7 @@ namespace Capa_Usuario.Controllers
             if (docNum <= 0)
                 return Json(new { Titulo = "Error al buscar documento", Mensajes = new List<string> { "DocNum inválido." }, Icono = "error" }, JsonRequestBehavior.AllowGet);
 
-            if (_docsN.ListarInternamientos(new ODOCS_E { DocNum = docNum }).Any())
+            if (_docsN.ListarInternamientos(new ODOCS_E { DocNum = docNum }).Where(x => x.Estado != "Cancelado").Any())
                 return Json(_helper.CrearAlertaUI(new List<string> { "El documento ingresado ya se encuentra registrado." }, "error"), JsonRequestBehavior.AllowGet);
 
             Capa_Negocio.DireccionTecnica_NEG.TablasExternas.ODOCS_SAP_N _internamientoSap = new Capa_Negocio.DireccionTecnica_NEG.TablasExternas.ODOCS_SAP_N();
@@ -100,7 +100,7 @@ namespace Capa_Usuario.Controllers
 
             var lista = _docsN.ListarInternamientos(filtros);
 
-            return PartialView("_ListadoInternamientos.cshtml", lista);
+            return PartialView("Internamientos/_ListadoInternamientos", lista);
         }
 
         public ActionResult VerDetalle(long id, int idOperation = 0)

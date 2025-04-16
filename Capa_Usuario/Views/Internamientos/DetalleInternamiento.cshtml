@@ -219,13 +219,37 @@
                                                                             </div>
                                                                         </div>
                                                                         <div class="col-lg-3">
-                                                                             <label for="formFileProtocolo_${correlativo}" class="small form-label fw-bold">Cargar Protocolo:</label>
-                                                                             <button type="button" class="btn btn-sm btn-outline-dark btn-descargar-archivo" data-base64="${item.DescargarArchivoProtocolo}" data-nombre="${item.Lote}.pdf" ${item.DescargarArchivoProtocolo == null ? "hidden" : ""}><i class="bi bi-download"></i></button>
-                                                                              <input class="form-control cls-archivos" type="file" id="formFileProtocolo_${correlativo}" name="Detalle[${key}].ArchivoProtocolo" accept=".pdf" data-identificador="${correlativo}">
+                                                                             <div class="row mb-3">
+                                                                                  <div class="col-auto">
+                                                                                    <label class="small form-label fw-bold">Protocolo:</label>
+                                                                                  </div>
+                                                                                  <div class="col-auto">
+                                                                                    <button type="button" class="btn btn-sm btn-outline-primary btn-descargar-archivo" data-base64="${item.DescargarArchivoProtocolo}"
+                                                                                            data-nombre="${item.Lote}.pdf" ${item.DescargarArchivoProtocolo == null ? "hidden" : ""}><i class="bi bi-download"></i>
+                                                                                    </button>
+                                                                                  </div>
+                                                                                  <div class="col">
+                                                                                    <input class="form-control cls-archivos"
+                                                                                           type="file" id="formFileProtocolo_${correlativo}" name="Detalle[${key}].ArchivoProtocolo" accept=".pdf" data-identificador="${correlativo}">
+                                                                                  </div>
+                                                                                </div>
 
-                                                                              <label for="formFileET_${correlativo}" class="small form-label fw-bold mt-4">Cargar E.T.:</label>
-                                                                             <button type="button" class="btn btn-sm btn-outline-dark btn-descargar-archivo" data-base64="${item.DescargarArchivoET}" data-nombre="${item.ItemCode}.pdf" ${item.DescargarArchivoET == null ? "hidden" : ""}><i class="bi bi-download"></i></button>
-                                                                              <input class="form-control cls-archivos" type="file" id="formFileET_${correlativo}" name="Detalle[${key}].ArchivoET" accept=".pdf" data-identificador="${correlativo}">
+                                                                                <div class="row mb-3">
+                                                                                  <div class="col-auto">
+                                                                                    <label class="small form-label fw-bold">E.T.:</label>
+                                                                                  </div>
+                                                                                  <div class="col-auto">
+                                                                                    <button type="button"
+                                                                                            class="btn btn-sm btn-outline-primary btn-descargar-archivo" data-base64="${item.DescargarArchivoET}" data-nombre="${item.ItemCode}.pdf"
+                                                                                            ${item.DescargarArchivoET == null ? "hidden" : ""}><i class="bi bi-download"></i>
+                                                                                    </button>
+                                                                                  </div>
+                                                                                  <div class="col">
+                                                                                    <input class="form-control cls-archivos"
+                                                                                           type="file" id="formFileET_${correlativo}" name="Detalle[${key}].ArchivoET" accept=".pdf" data-identificador="${correlativo}">
+                                                                                  </div>
+                                                                                </div>
+
                                                                         </div>
                                                                         <div class="col-lg-5">
                                                                                 <label class="small form-label fw-bold">Observaciones:</label>
