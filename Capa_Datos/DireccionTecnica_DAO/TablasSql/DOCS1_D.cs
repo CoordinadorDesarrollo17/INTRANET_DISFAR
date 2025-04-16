@@ -88,7 +88,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                         transaction.Commit();
 
                         result.Titulo = "Acción completada";
-                        result.Mensajes.Add("Artículo revertido correctamente.");
+                        result.Mensajes.Add("Se revirtió la transferencia del artículo correctamente.");
                         result.Icono = "success";
                     }
                     catch (Exception ex)
@@ -97,7 +97,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                         LogHelper.RegistrarError(ex, "Error inesperado en DOCS1_D - RevertirTransferenciaArticulo()");
 
                         result.Titulo = "Error";
-                        result.Mensajes.Add("Ocurrió un error al revertir artículo.");
+                        result.Mensajes.Add("Ocurrió un error al revertir trasnsferencia del artículo.");
                         result.Mensajes.Add("Por favor, comuníquese con el área de Sistemas para más información.");
                         result.Icono = "error";
                     }
@@ -144,6 +144,52 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
 
                         result.Titulo = "Error";
                         result.Mensajes.Add("Ocurrió un error al liberar artículo.");
+                        result.Mensajes.Add("Por favor, comuníquese con el área de Sistemas para más información.");
+                        result.Icono = "error";
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public Helper_E RevertirLiberacionArticulo(int id, string usuarioRegistro)
+        {
+            Helper_E result = new Helper_E();
+
+            using (SqlConnection cn = new SqlConnection(uti.CadSql3))
+            {
+                cn.Open();
+                using (SqlTransaction transaction = cn.BeginTransaction())
+                {
+                    try
+                    {
+                        using (SqlCommand cmd = new SqlCommand("sp_GestionarDocumentos", cn, transaction))
+                        {
+                            cmd.CommandType = CommandType.StoredProcedure;
+
+                            cmd.Parameters.AddWithValue("@Operacion", "REVERTIR_LIBERACION");
+                            cmd.Parameters.AddWithValue("@Id", id);
+
+                            // Para [CC_ODOCS]
+                            cmd.Parameters.AddWithValue("@UsuarioRegistro", usuarioRegistro);
+                            cmd.Parameters.AddWithValue("@TipoOperacion", "REVERTIR_LIBERACION");
+
+                            cmd.ExecuteNonQuery();
+                        }
+                        transaction.Commit();
+
+                        result.Titulo = "Acción completada";
+                        result.Mensajes.Add("Se revirtió la liberación de este artículo correctamente.");
+                        result.Icono = "success";
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        LogHelper.RegistrarError(ex, "Error inesperado en DOCS1_D - RevertirLiberacionArticulo()");
+
+                        result.Titulo = "Error";
+                        result.Mensajes.Add("Ocurrió un error al revertir la liberación del artículo.");
                         result.Mensajes.Add("Por favor, comuníquese con el área de Sistemas para más información.");
                         result.Icono = "error";
                     }
@@ -216,6 +262,25 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                                 detalle.CantidadTotal = dr.IsDBNull(15) ? 0 : dr.GetInt32(15);
                                 detalle.Liberado = dr.IsDBNull(16) ? 0 : dr.GetInt32(16);
                                 detalle.Transferido = dr.IsDBNull(17) ? 0 : dr.GetInt32(17);
+
+                                // Asignación de archivos adjuntos
+                                string baseRuta = uti.directorioFileServer;
+                                string rutaDirectorio = Path.Combine(baseRuta, "DireccionTecnica", "Internamiento");
+                                string carpeta = detalle.ItemCode ?? "undefined";
+                                string rutaET = Path.Combine(rutaDirectorio, carpeta, "ET.pdf").Replace("\\", "/");
+                                if (System.IO.File.Exists(rutaET))
+                                {
+                                    byte[] contenido = System.IO.File.ReadAllBytes(rutaET);
+                                    detalle.DescargarArchivoET = Convert.ToBase64String(contenido);
+                                }
+
+
+                                string rutaProtocolo = Path.Combine(rutaDirectorio, carpeta, $"{detalle.Lote}.pdf").Replace("\\", "/");
+                                if (System.IO.File.Exists(rutaProtocolo))
+                                {
+                                    byte[] contenido2 = System.IO.File.ReadAllBytes(rutaProtocolo);
+                                    detalle.DescargarArchivoProtocolo = Convert.ToBase64String(contenido2);
+                                }
 
                                 lista.Add(detalle);
                             }

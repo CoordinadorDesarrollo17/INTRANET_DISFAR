@@ -100,7 +100,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                                 detalle.Liberado = dr.IsDBNull(26) ? 0 : dr.GetInt32(26);
                                 detalle.Transferido = dr.IsDBNull(27) ? 0 : dr.GetInt32(27);
 
-                                // Aisgnación de archivos adjuntos
+                                // Asignación de archivos adjuntos
                                 string baseRuta = uti.directorioFileServer;
                                 string rutaDirectorio = Path.Combine(baseRuta, "DireccionTecnica", "Internamiento");
                                 string carpeta = detalle.ItemCode ?? "undefined";
@@ -148,7 +148,8 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
 
                     var sb = new StringBuilder();
 
-                    sb.AppendLine("SELECT DOC.Id, DOC.TipoDocumento, DOC.DocEntry, DOC.DocNum, DOC.CardCode, DOC.CardName, DOC.Guia, DOC.ComprobanteVinculado, CONVERT(varchar, DOC.FechaContabilizacion, 103), CONVERT(varchar, DOC.FechaInicioTraslado, 103), DOC.Estado,");
+                    sb.AppendLine("SELECT DOC.Id, DOC.TipoDocumento, DOC.DocEntry, DOC.DocNum, CASE WHEN LEFT(DOC.CardCode, 1) = 'P' THEN SUBSTRING(DOC.CardCode, 2, LEN(DOC.CardCode)) ELSE DOC.CardCode END AS CardCodeFormat,");
+                    sb.AppendLine("DOC.CardName, DOC.Guia, DOC.ComprobanteVinculado, CONVERT(varchar, DOC.FechaContabilizacion, 103), CONVERT(varchar, DOC.FechaInicioTraslado, 103), DOC.Estado,");
                     sb.AppendLine("DET.Id, DET.ItemCode, DET.ItemName, DET.Lote, CONVERT(varchar, DET.FechaVencimiento, 103), DET.RegistroSanitario, DET.Fabricante, DET.CondicionAlmTrans,");
                     sb.AppendLine("DET.Almacen, DET.CertificadoAnalisis, DET.ComentarioOrganoleptico, DET.CantidadAprobados, DET.CantidadBaja, DET.CantidadDevolucion, DET.CantidadTotal, DET.Liberado, DET.Transferido");
                     sb.AppendLine("FROM ODOCS DOC");

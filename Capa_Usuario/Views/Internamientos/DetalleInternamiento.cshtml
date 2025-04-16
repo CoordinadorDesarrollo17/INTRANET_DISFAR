@@ -111,9 +111,14 @@
                 content: 'Guardar internamiento',
                 animation: 'fade'
             });
+
+            tippy('.cls-revertirLiberacion', {
+                content: 'Revertir liberación',
+                animation: 'fade'
+            });
         })
 
-    function agregarFilaATabla() {
+        function agregarFilaATabla() {
         let tiposDocumento = {
             OPDN: 'Entrada de Mercancía',
             OWTR: 'Transferencia'
@@ -177,7 +182,8 @@
                                                     </td>
                                                     <td class="text-center text-uppercase small">
                                                         <button type="button" id="btn_editar_${key}" class="btn btn-outline-primary fw-semibold shadow btn-editar" data-id="${item.Id}" data-correlativo="${correlativo}" onclick="editarItemDetalleDoc(this)" hidden><i class="bi bi-pencil-square"></i></button>
-                                                        <button type="button" id="btn_liberar_${key}" class="btn btn-outline-success fw-semibold shadow btn-liberar" data-id="${item.Id}" data-identificador="${correlativo}" data-itemcode="${item.ItemCode}" onclick="liberarItemDetalleDoc(this)" hidden><i class="bi bi-check-lg"></i></button>
+                                                        <button type="button" id="btn_liberar_${key}" class="btn btn-outline-success fw-semibold shadow btn-liberar" data-id="${item.Id}" data-identificador="${correlativo}" data-itemcode="${item.ItemCode}" onclick="liberarArticulo(this)" hidden><i class="bi bi-check-lg"></i></button>
+                                                        <button type="button" id="btn_revertirLiberacion_${key}" class="btn btn-outline-danger fw-semibold shadow cls-revertirLiberacion" data-id="${item.Id}" data-identificador="${correlativo}" data-itemcode="${item.ItemCode}" onclick="revertirLiberacionArticulo(this)" hidden><i class="bi bi-arrow-counterclockwise"></i></button>
                                                     </td>
                                                 `;
 
@@ -197,6 +203,7 @@
                             icon.classList.add('bi-chevron-down');
                             document.querySelector(`#btn_editar_${key}`).hidden = true;
                             document.querySelector(`#btn_liberar_${key}`).hidden = true;
+                            document.querySelector(`#btn_revertirLiberacion_${key}`).hidden = true;
                             return;
                         }
 
@@ -224,11 +231,11 @@
                                                                                     <label class="small form-label fw-bold">Protocolo:</label>
                                                                                   </div>
                                                                                   <div class="col-auto">
-                                                                                    <button type="button" class="btn btn-sm btn-outline-primary btn-descargar-archivo" data-base64="${item.DescargarArchivoProtocolo}"
+                                                                                    <button type="button" class="btn btn-sm btn-outline-primary btn-descargar-archivo" data-base64="${item.DescargarArchivoProtocolo}" data-tipo="protocolo"
                                                                                             data-nombre="${item.Lote}.pdf" ${item.DescargarArchivoProtocolo == null ? "hidden" : ""}><i class="bi bi-download"></i>
                                                                                     </button>
                                                                                   </div>
-                                                                                  <div class="col">
+                                                                                  <div class="col-auto">
                                                                                     <input class="form-control cls-archivos"
                                                                                            type="file" id="formFileProtocolo_${correlativo}" name="Detalle[${key}].ArchivoProtocolo" accept=".pdf" data-identificador="${correlativo}">
                                                                                   </div>
@@ -240,11 +247,11 @@
                                                                                   </div>
                                                                                   <div class="col-auto">
                                                                                     <button type="button"
-                                                                                            class="btn btn-sm btn-outline-primary btn-descargar-archivo" data-base64="${item.DescargarArchivoET}" data-nombre="${item.ItemCode}.pdf"
+                                                                                            class="btn btn-sm btn-outline-primary btn-descargar-archivo" data-base64="${item.DescargarArchivoET}" data-tipo="et" data-nombre="${item.ItemCode}.pdf"
                                                                                             ${item.DescargarArchivoET == null ? "hidden" : ""}><i class="bi bi-download"></i>
                                                                                     </button>
                                                                                   </div>
-                                                                                  <div class="col">
+                                                                                  <div class="col-auto">
                                                                                     <input class="form-control cls-archivos"
                                                                                            type="file" id="formFileET_${correlativo}" name="Detalle[${key}].ArchivoET" accept=".pdf" data-identificador="${correlativo}">
                                                                                   </div>
@@ -287,6 +294,8 @@
                         icon.classList.add('bi-chevron-up');
 
                         const documentoCancelado = modeloJS[0].Estado == "Cancelado";
+                        // Ocultar botón revertir liberación cuando el documento se encuentre cancelado ó el artículo aún no se encuentre liberardo ó el artículo se encuentre transferido
+                        document.querySelector(`#btn_revertirLiberacion_${key}`).hidden = documentoCancelado || item.Liberado == 0 || item.Transferido == 1;
                         // Elementos que deben ser deshabilitados
                         [
                             `#opcion1_${correlativo}`,
@@ -458,8 +467,26 @@
                 return false;
             }
 
+            // Validar si ambos botones de descarga NO tienen base64
+            const btnsDescarga = document.querySelectorAll('.btn-descargar-archivo');
+
+            // Extraer los valores del dataset
+            let base64Protocolo = "";
+            let base64ET = "";
+
+            btnsDescarga.forEach(btn => {
+                const tipo = btn.getAttribute('data-tipo') || "";
+                const base64 = btn.dataset.base64 || "";
+
+                if (tipo.includes('protocolo')) {
+                    base64Protocolo = base64;
+                } else if (tipo.includes('et')) {
+                    base64ET = base64;
+                }
+            });
+
             // Validar archivos: al menos uno debe estar presente
-            if (!filaSeleccionada["ArchivoProtocolo"] && !filaSeleccionada["ArchivoET"]) {
+            if (!filaSeleccionada["ArchivoProtocolo"] && !filaSeleccionada["ArchivoET"] && !base64Protocolo && !base64ET) {
                 generarAlerta('Advertencia', "Debe adjuntar al menos el archivo Protocolo o ET.", 'warning');
                 return false;
             }
@@ -534,7 +561,7 @@
             }
         }
 
-        async function liberarItemDetalleDoc(input) {
+        async function liberarArticulo(input) {
             const id = input.dataset.id;
 
             if (!id) {
@@ -662,6 +689,69 @@
                     }
                 }
             });
+        }
+
+        async function revertirLiberacionArticulo(elem) {
+            const id = Number(elem.dataset.id) || 0;
+
+            if (!id) {
+                console.error('Error: El ID no se encontró.');
+                generarAlerta('Error', 'Ocurrió un error inesperado. Por favor, comunicarse con el área de Sistemas.', 'error');
+                return;
+            }
+
+            swalWithBootstrapButtons.fire({
+                title: '¿Estás seguro(a) de REVERTIR LIBERACIÓN?',
+                html: 'Se revertirá liberación del artículo seleccionado.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: "<i class='bi bi-check-lg'></i> Si, revertir",
+                cancelButtonText: "<i class='bi bi-x-lg mx-1'></i> Cancelar",
+                reverseButtons: true,
+                allowEscapeKey: false,
+                allowOutsideClick: false,
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-outline-danger mx-1'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const response = await fetch("/Internamientos/RevertirLiberacionArticulo", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ id }) // Enviar los datos como JSON
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`Error en la solicitud: ${response.statusText}`);
+                        }
+
+                        const data = await response.json();
+
+                        Swal.fire({
+                            title: data.Titulo,
+                            html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                                ? data.Mensajes.join('<br>')
+                                : data.Mensajes || "",
+                            icon: data.Icono,
+                            allowEscapeKey: false,
+                            allowOutsideClick: false,
+                            showConfirmButton: true
+                        }).then((result) => {
+                            if (result.isConfirmed && data.Icono == 'success') {
+                                window.location.reload()
+                            }
+                        })
+
+                    } catch (error) {
+                        console.error('Error:', error);
+                    }
+                }
+            });            
         }
     </script>
 }

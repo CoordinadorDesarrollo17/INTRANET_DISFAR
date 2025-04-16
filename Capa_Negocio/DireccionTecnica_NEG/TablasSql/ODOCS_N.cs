@@ -105,7 +105,7 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
 
                 if (!string.IsNullOrWhiteSpace(filtros.CardCode))
                 {
-                    condicion.AppendLine("AND DOC.CardCode = @CardCode");
+                    condicion.AppendLine("AND DOC.CardCode LIKE '_' + @CardCode");
                     parametros["@CardCode"] = filtros.CardCode;
                 }
 
@@ -166,7 +166,7 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
             if (string.IsNullOrWhiteSpace(datos.FechaContabilizacion))
                 return _helpers.CrearRespuestaError("Fecha de contabilizacion no válida.");
 
-            return new DOCS1_N().ValidarDetalleDocumento(datos.Detalle) ?? _datos.RegistrarDocumento(datos);
+            return new DOCS1_N().ValidarParaRegistro(datos.Detalle) ?? _datos.RegistrarDocumento(datos);
         }
 
         public Helper_E CancelarDocumento(int id, string usuarioRegistro)

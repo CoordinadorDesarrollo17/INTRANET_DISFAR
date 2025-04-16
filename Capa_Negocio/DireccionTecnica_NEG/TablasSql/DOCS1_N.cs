@@ -51,7 +51,7 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
                     return _helpers.CrearRespuestaError("Verificar los datos enviados.");
             }
 
-            if(!esValido)
+            if (!esValido)
                 return _helpers.CrearRespuestaError("Las cantidades del detalle no coinciden, por favor recargar la página.");
 
             return _datos.TransferirArticulo(id, usuarioRegistro);
@@ -59,36 +59,54 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
 
         public Helper_E RevertirTransferenciaArticulo(int id, string usuarioRegistro)
         {
-            var detalle = new DOCS1_E();
             var lista = ListarDetalleDocumento(new DOCS1_E { Id = id });
 
-            if (lista != null && lista.Any())
-                detalle = lista.First();
+            if (lista == null || lista.Count == 0)
+                return _helpers.CrearRespuestaError("No se encontró información del artículo a revertir transferencia.");
+
+            var detalle = lista.First();
 
             if (detalle.Liberado == 0)
                 return _helpers.CrearRespuestaError("Para revertir la transferencia de este artículo, primero debe estar en estado LIBERADO.");
 
             if (detalle.Liberado == 1 && detalle.Transferido == 0)
-                return _helpers.CrearRespuestaError("El artículo ya se encuentra LIBERADO.");
+                return _helpers.CrearRespuestaError("El artículo ya se encuentra LIBERADO y no ha sido transferido.");
 
             return _datos.RevertirTransferenciaArticulo(id, usuarioRegistro);
         }
 
         public Helper_E LiberarArticulos(List<int> grupoIds, string usuarioRegistro)
         {
-            List<Helper_E> lista = new List<Helper_E>();
+            List<Helper_E> helper = new List<Helper_E>();
             Helper_E resultado = new Helper_E { Titulo = "Acción completada", Mensajes = new List<string> { "Artículo liberado correctamente." }, Icono = "success" };
 
             foreach (var id in grupoIds)
             {
-                var detalle = ListarDetalleDocumento(new DOCS1_E { Id = id });
+                var lista = ListarDetalleDocumento(new DOCS1_E { Id = id });
 
-                // Solo vamos a liberar a los artículos que se encuentran pendientes a liberar
-                if (detalle != null && detalle.Any() && detalle.First().Liberado == 0 && detalle.First().Transferido == 0)
-                    lista.Add(_datos.LiberarArticulo(id, usuarioRegistro));
+                if (lista == null || !lista.Any())
+                    continue;
+
+                // Filtrar artículos pendientes por liberar
+                var detallesPendientes = lista.Where(x => x.Liberado == 0 && x.Transferido == 0).ToList();
+
+                if (!detallesPendientes.Any())
+                    continue;
+
+                var primerDetalle = detallesPendientes.First();
+
+                var validacion = ValidarParaLiberacion(primerDetalle);
+                if (validacion == null)
+                {
+                    helper.Add(_datos.LiberarArticulo(id, usuarioRegistro));
+                }
+                else
+                {
+                    helper.Add(validacion);
+                }
             }
 
-            if (!lista.Any())
+            if (!helper.Any())
             {
                 resultado.Titulo = "Error";
                 resultado.Mensajes.Clear();
@@ -97,16 +115,33 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
             }
 
             // Al menos un error en la lista
-            if (lista.Any(l => l.Icono == "error"))
+            if (helper.Any(l => l.Icono == "error"))
             {
                 resultado.Titulo = "Error";
                 resultado.Mensajes.Clear();
-                resultado.Mensajes.Add("Ocurrió un error al liberar artículo.");
-                resultado.Mensajes.Add("Por favor, comuníquese con el área de Sistemas para más información.");
+                resultado.Mensajes = helper.Where(l => l.Icono == "error" && l.Mensajes != null).SelectMany(l => l.Mensajes).Distinct().ToList();
                 resultado.Icono = "error";
             }
 
             return resultado;
+        }
+
+        public Helper_E RevertirLiberacionArticulo(int id, string usuarioRegistro)
+        {
+            var lista = ListarDetalleDocumento(new DOCS1_E { Id = id });
+
+            if (lista == null || lista.Count == 0)
+                return _helpers.CrearRespuestaError("No se encontró información del artículo a revertir liberación.");
+
+            var detalle = lista.First();
+
+            if (detalle.Transferido == 1)
+                return _helpers.CrearRespuestaError("Para revertir la liberación de este artículo, primero debe revertir la transferencia.");
+
+            if (detalle.Liberado == 0)
+                return _helpers.CrearRespuestaError("Para revertir la liberación de este artículo, primero debe estar en estado LIBERADO.");
+
+            return _datos.RevertirLiberacionArticulo(id, usuarioRegistro);
         }
 
         public List<DOCS1_E> ListarDetalleDocumento(DOCS1_E filtros = null, Dictionary<string, object> parametros = null, bool traerTodos = false)
@@ -130,23 +165,18 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
 
         public Helper_E EditarItemDetalleDoc(DOCS1_E detalle, string usuarioRegistro)
         {
-            if (string.IsNullOrWhiteSpace(detalle.CertificadoAnalisis))
-                return _helpers.CrearRespuestaError($"El certificado de análisis es obligatorio");
+            var lista = ListarDetalleDocumento(new DOCS1_E { Id = detalle.Id });
 
-            if (detalle.ArchivoET == null && detalle.ArchivoProtocolo == null)
-                return _helpers.CrearRespuestaError($"Debe cargar un Protocolo y/o ET.");
+            if (lista != null && lista.Any())
+            {
+                detalle.DescargarArchivoProtocolo = lista.First().DescargarArchivoProtocolo;
+                detalle.DescargarArchivoET= lista.First().DescargarArchivoET;
+            }
 
-            if (detalle.CantidadAprobados <= 0 && detalle.CantidadBaja <= 0 && detalle.CantidadDevolucion <= 0)
-                return _helpers.CrearRespuestaError("Debe ingresar las cantidades para Aprobados, Bajas y/o Devolución.");
-
-            if (detalle.CantidadAprobados > 0 || detalle.CantidadBaja > 0 || detalle.CantidadDevolucion > 0)
-                if (!EsCantidadValida(detalle.CantidadAprobados, detalle.CantidadBaja, detalle.CantidadDevolucion, detalle.CantidadTotal))
-                    return _helpers.CrearRespuestaError($"Las cantidades ingresadas no suman la cantidad total.");
-
-            return _datos.EditarItemDetalleDoc(detalle, usuarioRegistro);
+            return ValidarParaEdicion(detalle) ?? _datos.EditarItemDetalleDoc(detalle, usuarioRegistro);
         }
 
-        public Helper_E ValidarDetalleDocumento(List<DOCS1_E> detalle)
+        public Helper_E ValidarParaRegistro(List<DOCS1_E> detalle)
         {
             if (detalle == null || !detalle.Any())
                 return _helpers.CrearRespuestaError("El detalle del documento está vacío o no existe.");
@@ -189,6 +219,39 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
 
                 index++;
             }
+
+            return null;
+        }
+
+        public Helper_E ValidarParaEdicion(DOCS1_E detalle)
+        {
+            if (string.IsNullOrWhiteSpace(detalle.CertificadoAnalisis))
+                return _helpers.CrearRespuestaError($"El certificado de análisis es obligatorio");
+
+            if (detalle.ArchivoET == null && detalle.ArchivoProtocolo == null && detalle.DescargarArchivoET == null && detalle.DescargarArchivoProtocolo == null)
+                return _helpers.CrearRespuestaError($"Debe cargar un Protocolo y/o ET.");
+
+            if (detalle.CantidadAprobados <= 0 && detalle.CantidadBaja <= 0 && detalle.CantidadDevolucion <= 0)
+                return _helpers.CrearRespuestaError("Debe ingresar las cantidades para Aprobados, Bajas y/o Devolución.");
+
+            if (detalle.CantidadAprobados > 0 || detalle.CantidadBaja > 0 || detalle.CantidadDevolucion > 0)
+                if (!EsCantidadValida(detalle.CantidadAprobados, detalle.CantidadBaja, detalle.CantidadDevolucion, detalle.CantidadTotal))
+                    return _helpers.CrearRespuestaError($"Las cantidades ingresadas no suman la cantidad total.");
+
+            return null;
+        }
+
+        public Helper_E ValidarParaLiberacion(DOCS1_E detalle)
+        {
+            bool certificadoInvalido = string.IsNullOrWhiteSpace(detalle.CertificadoAnalisis);
+            bool archivosFaltantes = detalle.DescargarArchivoET == null && detalle.DescargarArchivoProtocolo == null;
+            bool cantidadesCero = detalle.CantidadAprobados <= 0 && detalle.CantidadBaja <= 0 && detalle.CantidadDevolucion <= 0;
+            bool cantidadesInvalidas =
+                (detalle.CantidadAprobados > 0 || detalle.CantidadBaja > 0 || detalle.CantidadDevolucion > 0) &&
+                !EsCantidadValida(detalle.CantidadAprobados, detalle.CantidadBaja, detalle.CantidadDevolucion, detalle.CantidadTotal);
+
+            if (certificadoInvalido || archivosFaltantes || cantidadesCero || cantidadesInvalidas)
+                return _helpers.CrearRespuestaError("Para liberar el artículo, es necesario completar todos los campos requeridos.");
 
             return null;
         }
