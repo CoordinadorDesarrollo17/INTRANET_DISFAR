@@ -55,7 +55,7 @@
                             <td scope="col" class="text-start small"><span class="ps-2">@item.SolicitadoPor</span></td>
                             <td scope="col" class="text-center small">@item.Estado</td>
                             <td scope="col" class="text-center small">
-                                <button type="button" class="btn btn-sm btn-outline-dark btn_verDetalle" onclick="redireccionar(this)" data-ruta="/Internamientos/VerDetalle?Id=@item.ODOCSId"><i class="bi bi-search"></i></button>
+                                <button type="button" class="btn btn-sm btn-outline-dark btn-verDetalle" onclick="abrirPopup(this)" data-ruta="/Internamientos/VerDetalle?Id=@item.ODOCSId"><i class="bi bi-search"></i></button>
                                 @if (item.Estado == "Pendiente")
                                 {
                                     <button type="button" id="btn_aprobarReversionLiberacion_@item.Id" class="btn btn-sm btn-outline-success fw-semibold shadow cls-aprobarSolicitudReversion" data-id="@item.DOCS1Id" data-estado="A" onclick="revertirLiberacionArticulo(this)"><i class="bi bi-check-lg"></i></button>
@@ -94,7 +94,7 @@
                 placement: 'bottom-end'
             });
 
-            tippy('.btn_verDetalle', {
+            tippy('.btn-verDetalle', {
                 content: 'Ver detalle',
                 animation: 'fade',
                 placement: 'bottom-end'
@@ -113,7 +113,7 @@
             });
         });
 
-        function redireccionar(input) {
+        function abrirPopup(input) {
             const url = `${input.dataset.ruta}&popup=true`;
             const nombreVentana = 'PopupVentana';
             const opciones = 'width=1320,height=720,resizable=yes,scrollbars=yes';

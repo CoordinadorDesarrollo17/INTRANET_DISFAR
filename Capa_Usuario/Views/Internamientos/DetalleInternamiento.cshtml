@@ -106,7 +106,7 @@
 
 @section Scripts{
     @*<script src="~/Scripts/Adquisiciones/GestionRequerimientos.js?v=@DateTime.Now.Ticks" defer></script>*@
-<script>
+    <script>
         document.addEventListener('DOMContentLoaded', function () {
             agregarFilaATabla();
             soloNumerosPorClase('cls-num');
@@ -130,7 +130,7 @@
             const tbody = document.querySelector(`#tbl_documento tbody`);
             const modeloJS = @Html.Raw(Json.Encode(Model));
 
-        document.querySelector('#TipoDocumento').value = tiposDocumento[modeloJS[0].TipoDocumento];
+            document.querySelector('#TipoDocumento').value = tiposDocumento[modeloJS[0].TipoDocumento];
             document.querySelector('#DocEntry').value = modeloJS[0].DocEntry;
             document.querySelector('#DocNum').value = modeloJS[0].DocNum;
             document.querySelector('#CardCode').value = modeloJS[0].CardCode;
@@ -139,6 +139,11 @@
             document.querySelector('#ComprobanteVinculado').value = modeloJS[0].ComprobanteVinculado;
             document.querySelector('#FechaContabilizacion').value = modeloJS[0].FechaContabilizacion;
             document.querySelector('#Estado').value = modeloJS[0].Estado;
+
+            const opcionesChevron = {
+                Pendiente: 'btn-danger',
+                Pendiente: 'btn-danger',
+            }
 
             for (let key in modeloJS[0].Detalle) {
                 if (modeloJS[0].Detalle.hasOwnProperty(key)) {
@@ -152,7 +157,7 @@
 
                     tr.innerHTML = `
                                         <td class="text-center">
-                                            <button type="button" class="btn btn-sm ${item.TieneSolicitudReversion ? 'btn-danger' : 'btn-cobefar-2'} toggle-subtable">
+                                            <button type="button" class="btn btn-sm ${item.EstadoSolicitudReversion === 'Pendiente' ? 'btn-danger' : item.Transferido == 1 ? 'btn-success' : 'btn-cobefar-2'} toggle-subtable">
                                                 <i class="bi bi-chevron-down"></i>
                                             </button>
                                         </td>
@@ -214,95 +219,95 @@
                         const subRow = document.createElement('tr');
                         subRow.classList.add('subtable-row');
                         subRow.innerHTML = `
-                                                                <td colspan="11" class="bg-light p-3">
-                                                                    <div class="row">
-                                                                        <div class="col-lg-2">
-                                                                            <label class="small form-label fw-bold">Certificado de Análisis:</label>
-                                                                            <div class="form-check">
-                                                                                <input class="form-check-input" type="radio" name="Detalle[${key}].CertificadoAnalisis" data-identificador="${correlativo}" id="opcion1_${correlativo}" value="Aplica" checked>
-                                                                                <label class="form-check-label" for="opcion1_${correlativo}">Aplica</label>
-                                                                            </div>
+                                                    <td colspan="11" class="bg-light p-3">
+                                                        <div class="row">
+                                                            <div class="col-lg-2">
+                                                                <label class="small form-label fw-bold">Certificado de Análisis:</label>
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input" type="radio" name="Detalle[${key}].CertificadoAnalisis" data-identificador="${correlativo}" id="opcion1_${correlativo}" value="Aplica" checked>
+                                                                    <label class="form-check-label" for="opcion1_${correlativo}">Aplica</label>
+                                                                </div>
 
-                                                                            <div class="form-check">
-                                                                                <input class="form-check-input" type="radio" name="Detalle[${key}].CertificadoAnalisis" data-identificador="${correlativo}" id="opcion2_${correlativo}" value="No Aplica">
-                                                                                <label class="form-check-label" for="opcion2_${correlativo}">No Aplica</label>
-                                                                            </div>
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input" type="radio" name="Detalle[${key}].CertificadoAnalisis" data-identificador="${correlativo}" id="opcion2_${correlativo}" value="No Aplica">
+                                                                    <label class="form-check-label" for="opcion2_${correlativo}">No Aplica</label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-lg-3">
+                                                            <!-- Protocolo -->
+                                                                    <div class="row mb-3">
+                                                                        <div class="col-auto">
+                                                                        <label class="small form-label fw-bold">Protocolo:</label>
                                                                         </div>
-                                                                        <div class="col-lg-3">
-                                                                        <!-- Protocolo -->
-                                                                             <div class="row mb-3">
-                                                                                  <div class="col-auto">
-                                                                                    <label class="small form-label fw-bold">Protocolo:</label>
-                                                                                  </div>
-                                                                                  <div class="col-auto">
-                                                                                    <button type="button" class="btn btn-sm btn-outline-primary btn-descargar-archivo" data-base64="${item.DescargarArchivoProtocolo}" data-tipo="protocolo"
-                                                                                            data-nombre="${item.Lote}.pdf" ${item.DescargarArchivoProtocolo == null ? "hidden" : ""}><i class="bi bi-download"></i>
-                                                                                    </button>
-                                                                                  </div>
-                                                                                  <div class="col-auto">
-                                                                                    <input class="form-control cls-archivos"
-                                                                                           type="file" id="formFileProtocolo_${correlativo}" name="Detalle[${key}].ArchivoProtocolo" accept=".pdf" data-identificador="${correlativo}">
-                                                                                  </div>
-                                                                                </div>
-
-                                                                                <!-- ET -->
-                                                                                <div class="row mb-3">
-                                                                                  <div class="col-auto">
-                                                                                    <label class="small form-label fw-bold">E.T.:</label>
-                                                                                  </div>
-                                                                                  <div class="col-auto">
-                                                                                    <button type="button"
-                                                                                            class="btn btn-sm btn-outline-primary btn-descargar-archivo" data-base64="${item.DescargarArchivoET}" data-tipo="et" data-nombre="${item.ItemCode}.pdf"
-                                                                                            ${item.DescargarArchivoET == null ? "hidden" : ""}><i class="bi bi-download"></i>
-                                                                                    </button>
-                                                                                  </div>
-                                                                                  <div class="col-auto">
-                                                                                    <input class="form-control cls-archivos"
-                                                                                           type="file" id="formFileET_${correlativo}" name="Detalle[${key}].ArchivoET" accept=".pdf" data-identificador="${correlativo}">
-                                                                                  </div>
-                                                                                </div>
-
-                                                                                <!-- Organoléptico -->
-                                                                                <div class="row mb-3">
-                                                                                  <div class="col-auto">
-                                                                                    <label class="small form-label fw-bold">Organoléptico:</label>
-                                                                                  </div>
-                                                                                  <div class="col-auto">
-                                                                                    <button type="button"
-                                                                                            class="btn btn-sm btn-outline-primary btn-descargar-organoleptico" data-url="/DireccionTecnica/OrganolepticoEmPdf?DocEntry=${modeloJS[0].DocEntry}&Almacen=${item.Almacen}&ItemCode=${item.ItemCode}&Lote=${item.Lote}&DetalleId=${item.Id}" data-tipo="organoleptico" data-nombre="${item.ItemCode}.pdf"><i class="bi bi-download"></i>
-                                                                                    </button>
-                                                                                  </div>
-                                                                                </div>
-
+                                                                        <div class="col-auto">
+                                                                        <button type="button" class="btn btn-sm btn-outline-primary btn-descargar-archivo" data-base64="${item.DescargarArchivoProtocolo}" data-tipo="protocolo"
+                                                                                data-nombre="${item.Lote}.pdf" ${item.DescargarArchivoProtocolo == null ? "hidden" : ""}><i class="bi bi-download"></i>
+                                                                        </button>
                                                                         </div>
-                                                                        <div class="col-lg-5">
-                                                                                <label class="small form-label fw-bold">Observaciones:</label>
-                                                                                <textarea id="ComentarioOrganoleptico_${correlativo}" name="Detalle[${key}].ComentarioOrganoleptico" class="form-control bg-light" rows="2" data-identificador="${correlativo}">${item.Liberado == 0 && item.ComentarioOrganoleptico != null ? item.ComentarioOrganoleptico : ''}</textarea>
-                                                                        </div>
-                                                                        <div class="col-lg-2">
-                                                                                <table>
-                                                                                <tr>
-                                                                                    <td>Aprobados:</td>
-                                                                                    <td>
-                                                                                        <input type="text" id="CantidadAprobados_${correlativo}" name="Detalle[${key}].CantidadAprobados" class="form-control w-75 cls-num bg-cobefar-3 text-end text-white" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" value="${item.CantidadAprobados > 0 ? item.CantidadAprobados : ''}" oninput="validarCantidad(this)" autocomplete="off">
-                                                                                    </td>
-                                                                                </tr>
-                                                                                <tr>
-                                                                                    <td>Baja:</td>
-                                                                                    <td>
-                                                                                        <input type="text" id="CantidadBaja_${correlativo}" name="Detalle[${key}].CantidadBaja" class="form-control w-75 cls-num bg-cobefar-3 text-end text-white" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" value="${item.CantidadBaja > 0 ? item.CantidadBaja : ''}" oninput="validarCantidad(this)" autocomplete="off">
-                                                                                    </td>
-                                                                                </tr>
-                                                                                <tr>
-                                                                                    <td>Devolución:</td>
-                                                                                    <td>
-                                                                                        <input type="text" id="CantidadDevolucion_${correlativo}" name="Detalle[${key}].CantidadDevolucion" class="form-control w-75 cls-num bg-cobefar-3 text-end text-white" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" value="${item.CantidadDevolucion > 0 ? item.CantidadDevolucion : ''}" oninput="validarCantidad(this)" autocomplete="off">
-                                                                                    </td>
-                                                                                </tr>
-                                                                                </table>
+                                                                        <div class="col-auto">
+                                                                        <input class="form-control cls-archivos"
+                                                                                type="file" id="formFileProtocolo_${correlativo}" name="Detalle[${key}].ArchivoProtocolo" accept=".pdf" data-identificador="${correlativo}">
                                                                         </div>
                                                                     </div>
-                                                                </td>`;
+
+                                                                    <!-- ET -->
+                                                                    <div class="row mb-3">
+                                                                        <div class="col-auto">
+                                                                        <label class="small form-label fw-bold">E.T.:</label>
+                                                                        </div>
+                                                                        <div class="col-auto">
+                                                                        <button type="button"
+                                                                                class="btn btn-sm btn-outline-primary btn-descargar-archivo" data-base64="${item.DescargarArchivoET}" data-tipo="et" data-nombre="${item.ItemCode}.pdf"
+                                                                                ${item.DescargarArchivoET == null ? "hidden" : ""}><i class="bi bi-download"></i>
+                                                                        </button>
+                                                                        </div>
+                                                                        <div class="col-auto">
+                                                                        <input class="form-control cls-archivos"
+                                                                                type="file" id="formFileET_${correlativo}" name="Detalle[${key}].ArchivoET" accept=".pdf" data-identificador="${correlativo}">
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <!-- Organoléptico -->
+                                                                    <div class="row mb-3">
+                                                                        <div class="col-auto">
+                                                                        <label class="small form-label fw-bold">Organoléptico:</label>
+                                                                        </div>
+                                                                        <div class="col-auto">
+                                                                        <button type="button"
+                                                                                class="btn btn-sm btn-outline-primary btn-descargar-organoleptico" data-url="/DireccionTecnica/OrganolepticoEmPdf?DocEntry=${modeloJS[0].DocEntry}&Almacen=${item.Almacen}&ItemCode=${item.ItemCode}&Lote=${item.Lote}&DetalleId=${item.Id}" data-tipo="organoleptico" data-nombre="${item.ItemCode}.pdf"><i class="bi bi-download"></i>
+                                                                        </button>
+                                                                        </div>
+                                                                    </div>
+
+                                                            </div>
+                                                            <div class="col-lg-5">
+                                                                    <label class="small form-label fw-bold">Observaciones:</label>
+                                                                    <textarea id="ComentarioOrganoleptico_${correlativo}" name="Detalle[${key}].ComentarioOrganoleptico" class="form-control bg-light" rows="2" data-identificador="${correlativo}">${item.Liberado == 0 && item.ComentarioOrganoleptico != null ? item.ComentarioOrganoleptico : ''}</textarea>
+                                                            </div>
+                                                            <div class="col-lg-2">
+                                                                    <table>
+                                                                    <tr>
+                                                                        <td>Aprobados:</td>
+                                                                        <td>
+                                                                            <input type="text" id="CantidadAprobados_${correlativo}" name="Detalle[${key}].CantidadAprobados" class="form-control w-75 cls-num bg-cobefar-3 text-end text-white" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" value="${item.CantidadAprobados > 0 ? item.CantidadAprobados : ''}" oninput="validarCantidad(this)" autocomplete="off">
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>Baja:</td>
+                                                                        <td>
+                                                                            <input type="text" id="CantidadBaja_${correlativo}" name="Detalle[${key}].CantidadBaja" class="form-control w-75 cls-num bg-cobefar-3 text-end text-white" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" value="${item.CantidadBaja > 0 ? item.CantidadBaja : ''}" oninput="validarCantidad(this)" autocomplete="off">
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>Devolución:</td>
+                                                                        <td>
+                                                                            <input type="text" id="CantidadDevolucion_${correlativo}" name="Detalle[${key}].CantidadDevolucion" class="form-control w-75 cls-num bg-cobefar-3 text-end text-white" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" value="${item.CantidadDevolucion > 0 ? item.CantidadDevolucion : ''}" oninput="validarCantidad(this)" autocomplete="off">
+                                                                        </td>
+                                                                    </tr>
+                                                                    </table>
+                                                            </div>
+                                                        </div>
+                                                    </td>`;
 
                         currentRow.parentNode.insertBefore(subRow, currentRow.nextSibling);
 
@@ -313,7 +318,7 @@
                         const documentoCancelado = modeloJS[0].Estado == "Cancelado";
                         // Ocultar botón revertir liberación cuando el documento se encuentre cancelado ó el artículo aún no se encuentre liberardo ó el artículo se encuentre transferido
                         const isPopup = ('@isPopup' || '').toLowerCase() === 'true';
-                        document.querySelector(`#btn_solicitarReversionLiberacion_${key}`).hidden = documentoCancelado || item.Liberado == 0 || item.Transferido == 1 || item.TieneSolicitudReversion || isPopup;
+                        document.querySelector(`#btn_solicitarReversionLiberacion_${key}`).hidden = documentoCancelado || item.Liberado == 0 || item.Transferido == 1 || item.EstadoSolicitudReversion != 'Rechazado' || isPopup;
 
                         // Elementos que deben ser deshabilitados
                         [
@@ -776,6 +781,6 @@
             } catch (error) {
                 console.error('Error:', error);
             }
-        }
-</script>
+    }
+    </script>
 }

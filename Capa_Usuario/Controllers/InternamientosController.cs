@@ -5,9 +5,11 @@ using System.Web.Mvc;
 using Capa_Entidad;
 using Capa_Entidad.Seguridad_ENT;
 using Capa_Entidad.TablasSql;
+using Capa_Negocio.AbastecimientoInterno_NEG.TablasSql;
 using Capa_Negocio.DireccionTecnica_NEG.TablasSql;
 using Capa_Usuario.Helpers;
 using DocumentFormat.OpenXml.Wordprocessing;
+using OfficeOpenXml;
 
 namespace Capa_Usuario.Controllers
 {
@@ -69,7 +71,6 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-
 
         public JsonResult BuscarDocumento(long docNum, string tipoDocumento)
         {
@@ -166,7 +167,7 @@ namespace Capa_Usuario.Controllers
             var usuarioRegistro = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
             var result = _detalleDocN.RevertirLiberacionArticulo(id, estado, usuarioRegistro);
             return Json(result);
-        }        
+        }
 
         public JsonResult CancelarDocumento(int id)
         {

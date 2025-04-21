@@ -9,6 +9,8 @@
     };
 }
 
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+
 <div class="pt-3">
     <nav>
         <ol class="cd-breadcrumb bg-cobefar-degradado-1">
@@ -94,6 +96,11 @@
         <!-- Tab Content -->
         <div class="tab-content mt-3" id="tabContent">
             <div class="tab-pane fade show active" id="tab1" role="tabpanel">
+                <div class="d-flex justify-content-end my-2">
+                    <button type="button" class="btn btn-outline-success btn-exportar" data-nombrearchivo="ListaAprobados_@Model.DocNum" data-idtabla="tbl_documento" onclick="exportarTablaExcel(this)">
+                        <i class="bi bi-file-excel"></i> Exportar
+                    </button>
+                </div>
                 <table id="tbl_documento" class="table table-bordered table-hover">
                     <thead class="thead-cobefar">
                         <tr>
@@ -129,14 +136,14 @@
                                 <td class="text-center text-uppercase small">
                                     @if (item.AtencionAprobados != null && item.AtencionAprobados.Atendido == 0)
                                     {
-                                        <button type="button" class="btn btn-sm btn-cobefar-2 cls-transferir" data-cantidad="@item.CantidadAprobados" data-area="aprobados" data-id="@item.Id"
+                                        <button type="button" class="btn btn-sm btn-cobefar-2 btn-transferir" data-cantidad="@item.CantidadAprobados" data-area="aprobados" data-id="@item.Id"
                                                 onclick="transferirArticulo(this)">
                                             <i class="bi bi-check-lg"></i>
                                         </button>
                                     }
                                     else
                                     {
-                                        <button type="button" class="btn btn-sm btn-outline-danger cls-revertir" data-id="@item.Id" data-area="aprobados" onclick="revertirTransferenciaArticulo(this)">
+                                        <button type="button" class="btn btn-sm btn-outline-danger btn-revertir" data-id="@item.Id" data-area="aprobados" onclick="revertirTransferenciaArticulo(this)">
                                             <i class="bi bi-arrow-counterclockwise"></i>
                                         </button>
                                     }
@@ -148,6 +155,11 @@
             </div>
 
             <div class="tab-pane fade" id="tab2" role="tabpanel">
+                <div class="d-flex justify-content-end my-2">
+                    <button type="button" class="btn btn-outline-success btn-exportar" data-nombrearchivo="ListaBaja_@Model.DocNum" data-idtabla="tbl_documento2" onclick="exportarTablaExcel(this)">
+                        <i class="bi bi-file-excel"></i> Exportar
+                    </button>
+                </div>
                 <table id="tbl_documento2" class="table table-bordered table-hover">
                     <thead class="thead-cobefar">
                         <tr>
@@ -181,16 +193,16 @@
                                 <td class="text-center text-uppercase small">@item.Almacen</td>
                                 <td class="text-center text-uppercase small">@item.CantidadBaja</td>
                                 <td class="text-center text-uppercase small">
-                                    @if (item.AtencionBaja!= null && item.AtencionBaja.Atendido == 0)
+                                    @if (item.AtencionBaja != null && item.AtencionBaja.Atendido == 0)
                                     {
-                                        <button type="button" class="btn btn-sm btn-cobefar-2 cls-transferir" data-cantidad="@item.CantidadBaja" data-area="baja" data-id="@item.Id"
+                                        <button type="button" class="btn btn-sm btn-cobefar-2 btn-transferir" data-cantidad="@item.CantidadBaja" data-area="baja" data-id="@item.Id"
                                                 onclick="transferirArticulo(this)">
                                             <i class="bi bi-check-lg"></i>
                                         </button>
                                     }
                                     else
                                     {
-                                        <button type="button" class="btn btn-sm btn-outline-danger cls-revertir" data-id="@item.Id" data-area="baja" onclick="revertirTransferenciaArticulo(this)">
+                                        <button type="button" class="btn btn-sm btn-outline-danger btn-revertir" data-id="@item.Id" data-area="baja" onclick="revertirTransferenciaArticulo(this)">
                                             <i class="bi bi-arrow-counterclockwise"></i>
                                         </button>
                                     }
@@ -202,6 +214,11 @@
             </div>
 
             <div class="tab-pane fade" id="tab3" role="tabpanel">
+                <div class="d-flex justify-content-end my-2">
+                    <button type="button" class="btn btn-outline-success btn-exportar" data-nombrearchivo="ListaDevolucion_@Model.DocNum" data-idtabla="tbl_documento3" onclick="exportarTablaExcel(this)">
+                        <i class="bi bi-file-excel"></i> Exportar
+                    </button>
+                </div>
                 <table id="tbl_documento3" class="table table-bordered table-hover">
                     <thead class="thead-cobefar">
                         <tr>
@@ -235,16 +252,17 @@
                                 <td class="text-center text-uppercase small">@item.Almacen</td>
                                 <td class="text-center text-uppercase small">@item.CantidadDevolucion</td>
                                 <td class="text-center text-uppercase small">
+                                    <button type="button" class="btn btn-sm btn-outline-cobefar-2 btn-nuevaDevolucion" onclick="irADevoluciones(this)"><i class="bi bi-box-arrow-up-right"></i></button>
                                     @if (item.AtencionDevolucion != null && item.AtencionDevolucion.Atendido == 0)
                                     {
-                                        <button type="button" class="btn btn-sm btn-cobefar-2 cls-transferir" data-cantidad="@item.CantidadDevolucion" data-area="devolucion" data-id="@item.Id"
+                                        <button type="button" class="btn btn-sm btn-success btn-transferir" data-cantidad="@item.CantidadDevolucion" data-area="devolucion" data-id="@item.Id"
                                                 onclick="transferirArticulo(this)">
                                             <i class="bi bi-check-lg"></i>
                                         </button>
                                     }
                                     else
                                     {
-                                        <button type="button" class="btn btn-sm btn-outline-danger cls-revertir" data-id="@item.Id" data-area="devolucion" onclick="revertirTransferenciaArticulo(this)">
+                                        <button type="button" class="btn btn-sm btn-outline-danger btn-revertir" data-id="@item.Id" data-area="devolucion" onclick="revertirTransferenciaArticulo(this)">
                                             <i class="bi bi-arrow-counterclockwise"></i>
                                         </button>
                                     }
@@ -262,14 +280,26 @@
 @section Scripts{
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            tippy('.cls-transferir', {
+            tippy('.btn-transferir', {
                 content: 'Clic para transferir artículo',
                 animation: 'fade',
                 placement: 'bottom-start'
             });
 
-            tippy('.cls-revertir', {
+            tippy('.btn-revertir', {
                 content: 'Clic para revertir transferencia',
+                animation: 'fade',
+                placement: 'bottom-start'
+            });
+
+            tippy('.btn-exportar', {
+                content: 'Descargar Excel',
+                animation: 'fade',
+                placement: 'bottom-start'
+            });
+
+            tippy('.btn-nuevaDevolucion', {
+                content: 'Ir a Devoluciones',
                 animation: 'fade',
                 placement: 'bottom-start'
             });
@@ -364,6 +394,58 @@
             } catch (error) {
                 console.error('Error:', error);
             }
+        }
+
+        function exportarTablaExcel(btn) {
+            const idTabla = btn.dataset.idtabla || '';
+            const nombreArchivo = btn.dataset.nombrearchivo || '';
+
+            const tabla = document.getElementById(idTabla);
+            if (!tabla) return console.error("Tabla no encontrada");
+
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.table_to_sheet(tabla);
+
+            XLSX.utils.book_append_sheet(wb, ws, 'Hoja1');
+            XLSX.writeFile(wb, `${nombreArchivo}.xlsx`);
+        }
+
+        function irADevoluciones(btn) {
+            Swal.fire({
+                title: '¿Qué tipo de devolución desea registrar?',
+                icon: 'question',
+                showCancelButton: false,
+                showDenyButton: true,
+                confirmButtonText: "<i class='bi bi-journal-text'></i> DEV07",
+                denyButtonText: "<i class='bi bi-journal-text'></i> Nueva Devolución",
+                reverseButtons: true,
+                allowEscapeKey: false,
+                allowOutsideClick: true,
+                customClass: {
+                    confirmButton: 'btn btn-primary',
+                    denyButton: 'btn btn-warning mx-1'
+                },
+                buttonsStyling: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const url = `/Almacen/NuevaDevolucion?Almacen=DEV07&popup=true`;
+                    abrirPopup(url);
+                } else if (result.isDenied) {
+                    const url = `/Almacen/NuevaDevolucion?popup=true`;
+                    abrirPopup(url);
+                } else {
+                    // Cancelado
+                    console.log("Operación cancelada");
+                }
+            });            
+        }
+
+        function abrirPopup(ruta) {
+            const url = `${ruta}`;
+            const nombreVentana = 'PopupVentana';
+            const opciones = 'width=1320,height=720,resizable=yes,scrollbars=yes';
+
+            window.open(url, nombreVentana, opciones);
         }
     </script>
 }

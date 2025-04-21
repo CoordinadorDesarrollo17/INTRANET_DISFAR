@@ -48,16 +48,16 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
 
         public Helper_E SolicitarReversionLiberacionArticulo(int id, string usuarioRegistro)
         {
-            var lista = ListarSolicitudesReversion(new SolicitudesReversion_DOCS1_E { DOCS1Id = id });
+            var lista = ListarSolicitudesReversion(new SolicitudesReversion_DOCS1_E { DOCS1Id = id }).OrderByDescending(sr => sr.Id).ToList();
 
             if (lista != null && lista.Any())
-                return _helpers.CrearRespuestaError("El artículo ya cuenta con una solicitud de reversión. Por favor, esperar la confirmación del Director Técnico.");
+            {
+                if (lista.First().Estado == "Pendiente")
+                    return _helpers.CrearRespuestaError("La solicitud de reversión ya se encuentra PENDIENTE. Por favor, esperar la confirmación del Director Técnico.");
 
-            if (lista != null && lista.Any() && lista.First().Estado == "Aprobada")
-                return _helpers.CrearRespuestaError("La solicitud de reversión ya se encuentra APROBADA.");
-
-            if (lista != null && lista.Any() && lista.First().Estado == "Rechazada")
-                return _helpers.CrearRespuestaError("La solicitud de reversión ya se encuentra RECHAZADA.");
+                if (lista.First().Estado == "Aprobada")
+                    return _helpers.CrearRespuestaError("Ya existe una solicitud de reversión APROBADA.");
+            }
 
             return _datos.SolicitarReversionLiberacionArticulo(id, usuarioRegistro);
         }

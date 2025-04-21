@@ -45,17 +45,15 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                     sb.AppendLine("DET.CantidadAprobados, DET.CantidadBaja, DET.CantidadDevolucion,");
                     sb.AppendLine("DET.CantidadTotal, DET.Liberado, DET.Transferido,");
 
-                    // Indicador booleano que señala si el DET.Id está asociado a una solicitud de reversión con estado 'Pendiente' o 'Aprobada'. 
-                    // Se utiliza para determinar si ya existe una solicitud registrada, incluso si fue aprobada, permitiendo controlar la visibilidad
-                    // o habilitación del botón para reenviar la solicitud, según acuerdos con el director técnico.
-                    sb.AppendLine("CASE");
-                    sb.AppendLine("    WHEN EXISTS (");
-                    sb.AppendLine("        SELECT 1");
-                    sb.AppendLine("        FROM SolicitudesReversion_DOCS1 SR");
-                    sb.AppendLine("        WHERE SR.DOCS1Id = DET.Id AND SR.Estado IN ('Pendiente', 'Aprobada')");
-                    sb.AppendLine("    ) THEN 1");
-                    sb.AppendLine("    ELSE 0");
-                    sb.AppendLine("END AS TieneSolicitudReversion");
+                    // Devuelve el estado actual de la solicitud de reversión asociada al DET.Id, si existe.
+                    // Esto permite mostrar en la interfaz el estado textual actual ('Pendiente', 'Aprobada', 'Rechazada', etc.),
+                    // y controlar dinámicamente la lógica del botón de envío o la visualización del estado actual de la solicitud.
+                    sb.AppendLine("(");
+                    sb.AppendLine("    SELECT TOP 1 SR.Estado");
+                    sb.AppendLine("    FROM SolicitudesReversion_DOCS1 SR");
+                    sb.AppendLine("    WHERE SR.DOCS1Id = DET.Id");
+                    sb.AppendLine("    ORDER BY SR.Id DESC"); 
+                    sb.AppendLine(") AS EstadoSolicitudReversion");
 
                     sb.AppendLine("FROM ODOCS DOC");
                     sb.AppendLine("INNER JOIN DOCS1 DET ON DOC.Id = DET.ODOCSId");
@@ -122,7 +120,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                                 detalle.CantidadTotal = dr.IsDBNull(25) ? 0 : dr.GetInt32(25);
                                 detalle.Liberado = dr.IsDBNull(26) ? 0 : dr.GetInt32(26);
                                 detalle.Transferido = dr.IsDBNull(27) ? 0 : dr.GetInt32(27);
-                                detalle.TieneSolicitudReversion = dr.IsDBNull(28) ? false : dr.GetInt32(28) == 1;
+                                detalle.EstadoSolicitudReversion = dr.IsDBNull(28) ? null : dr.GetString(28);
 
                                 // Asignación de archivos adjuntos
                                 string baseRuta = uti.directorioFileServer;
