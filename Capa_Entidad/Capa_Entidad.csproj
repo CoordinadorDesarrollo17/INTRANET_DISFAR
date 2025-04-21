@@ -134,6 +134,7 @@
     <Compile Include="DireccionTecnica_ENT\TablasSql\DOCS1_E.cs" />
     <Compile Include="DireccionTecnica_ENT\TablasSql\ODOCS_E.cs" />
     <Compile Include="DireccionTecnica_ENT\TablasSql\OORS_E.cs" />
+    <Compile Include="DireccionTecnica_ENT\TablasSql\SolicitudesReversion_DOCS1_E.cs" />
     <Compile Include="DireccionTecnica_ENT\TablasSql\SQL_OWTR_E.cs" />
     <Compile Include="General_ENT\TablasSql\COUR_E.cs" />
     <Compile Include="General_ENT\TablasSql\DNLAB_E.cs" />

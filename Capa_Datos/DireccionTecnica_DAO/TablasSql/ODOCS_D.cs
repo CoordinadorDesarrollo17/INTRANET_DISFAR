@@ -32,13 +32,35 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
 
                     var sb = new StringBuilder();
 
-                    sb.AppendLine("SELECT DOC.Id, DOC.TipoDocumento, DOC.DocEntry, DOC.DocNum, CASE WHEN LEFT(DOC.CardCode, 1) = 'P' THEN SUBSTRING(DOC.CardCode, 2, LEN(DOC.CardCode)) ELSE DOC.CardCode END AS CardCodeFormat,");
-                    sb.AppendLine("DOC.CardName, DOC.Guia, DOC.ComprobanteVinculado, CONVERT(varchar, DOC.FechaContabilizacion, 103), CONVERT(varchar, DOC.FechaInicioTraslado, 103), DOC.Estado,");
-                    sb.AppendLine("DET.Id, DET.ItemCode, DET.ItemName, DET.Lote, CONVERT(varchar, DET.FechaVencimiento, 103), DET.RegistroSanitario, DET.Fabricante, DET.CondicionAlmTrans,");
-                    sb.AppendLine("DET.Almacen, DET.CertificadoAnalisis, DET.ComentarioOrganoleptico, DET.CantidadAprobados, DET.CantidadBaja, DET.CantidadDevolucion, DET.CantidadTotal, DET.Liberado, DET.Transferido");
+                    sb.AppendLine("SELECT DOC.Id, DOC.TipoDocumento, DOC.DocEntry, DOC.DocNum,");
+                    sb.AppendLine("CASE WHEN LEFT(DOC.CardCode, 1) = 'P' THEN SUBSTRING(DOC.CardCode, 2, LEN(DOC.CardCode)) ELSE DOC.CardCode END AS CardCodeFormat,");
+                    sb.AppendLine("DOC.CardName, DOC.Guia, DOC.ComprobanteVinculado,");
+                    sb.AppendLine("CONVERT(varchar, DOC.FechaContabilizacion, 103) AS FechaContabilizacion,");
+                    sb.AppendLine("CONVERT(varchar, DOC.FechaInicioTraslado, 103) AS FechaInicioTraslado,");
+                    sb.AppendLine("DOC.Estado,");
+                    sb.AppendLine("DET.Id, DET.ItemCode, DET.ItemName, DET.Lote,");
+                    sb.AppendLine("CONVERT(varchar, DET.FechaVencimiento, 103) AS FechaVencimiento,");
+                    sb.AppendLine("DET.RegistroSanitario, DET.Fabricante, DET.CondicionAlmTrans,");
+                    sb.AppendLine("DET.Almacen, DET.CertificadoAnalisis, DET.ComentarioOrganoleptico,");
+                    sb.AppendLine("DET.CantidadAprobados, DET.CantidadBaja, DET.CantidadDevolucion,");
+                    sb.AppendLine("DET.CantidadTotal, DET.Liberado, DET.Transferido,");
+
+                    // Indicador booleano que señala si el DET.Id está asociado a una solicitud de reversión con estado 'Pendiente' o 'Aprobada'. 
+                    // Se utiliza para determinar si ya existe una solicitud registrada, incluso si fue aprobada, permitiendo controlar la visibilidad
+                    // o habilitación del botón para reenviar la solicitud, según acuerdos con el director técnico.
+                    sb.AppendLine("CASE");
+                    sb.AppendLine("    WHEN EXISTS (");
+                    sb.AppendLine("        SELECT 1");
+                    sb.AppendLine("        FROM SolicitudesReversion_DOCS1 SR");
+                    sb.AppendLine("        WHERE SR.DOCS1Id = DET.Id AND SR.Estado IN ('Pendiente', 'Aprobada')");
+                    sb.AppendLine("    ) THEN 1");
+                    sb.AppendLine("    ELSE 0");
+                    sb.AppendLine("END AS TieneSolicitudReversion");
+
                     sb.AppendLine("FROM ODOCS DOC");
                     sb.AppendLine("INNER JOIN DOCS1 DET ON DOC.Id = DET.ODOCSId");
                     sb.AppendLine("WHERE 1=1");
+
                     sb.AppendLine(condicion?.ToString().Trim());
 
                     // Agregamos los parámetros dinámicamente
@@ -100,6 +122,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                                 detalle.CantidadTotal = dr.IsDBNull(25) ? 0 : dr.GetInt32(25);
                                 detalle.Liberado = dr.IsDBNull(26) ? 0 : dr.GetInt32(26);
                                 detalle.Transferido = dr.IsDBNull(27) ? 0 : dr.GetInt32(27);
+                                detalle.TieneSolicitudReversion = dr.IsDBNull(28) ? false : dr.GetInt32(28) == 1;
 
                                 // Asignación de archivos adjuntos
                                 string baseRuta = uti.directorioFileServer;

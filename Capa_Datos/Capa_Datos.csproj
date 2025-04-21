@@ -141,6 +141,7 @@
     <Compile Include="DireccionTecnica_DAO\TablasSql\DOCS1_D.cs" />
     <Compile Include="DireccionTecnica_DAO\TablasSql\ODOCS_D.cs" />
     <Compile Include="DireccionTecnica_DAO\TablasSql\OORS_D.cs" />
+    <Compile Include="DireccionTecnica_DAO\TablasSql\SolicitudesReversion_DOCS1_D.cs" />
     <Compile Include="DireccionTecnica_DAO\TablasSql\SQL_OWTR_D.cs" />
     <Compile Include="General_DAO\TablasSql\COUR_D.cs" />
     <Compile Include="General_DAO\TablasSql\DNLAB_D.cs" />

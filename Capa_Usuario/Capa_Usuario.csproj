@@ -639,6 +639,7 @@
     <Compile Include="Controllers\CajaController.cs" />
     <Compile Include="Controllers\ComprasController.cs" />
     <Compile Include="Controllers\ComprobantesContablesController.cs" />
+    <Compile Include="Controllers\SolicitudesReversion_DOCS1Controller.cs" />
     <Compile Include="Controllers\DireccionTecnicaController.cs" />
     <Compile Include="Controllers\TransferenciasController.cs" />
     <Compile Include="Controllers\IndexController.cs" />
@@ -784,6 +785,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="SqlServerTypes\Loader.cs" />
+    <Content Include="Views\SolicitudesReversion_DOCS1\Index.cshtml" />
     <None Include="Views\DireccionTecnica\OrganolepticoEM_PDF.cshtml" />
   </ItemGroup>
   <ItemGroup>

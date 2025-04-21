@@ -135,7 +135,7 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
             }
 
             return _datos.ListarTransferencias(condicion.ToString(), parametros);
-        }
+        }        
 
         public Helper_E RegistrarDocumento(ODOCS_E datos)
         {
@@ -160,7 +160,8 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
             if (string.IsNullOrWhiteSpace(datos.Guia))
                 return _helpers.CrearRespuestaError("Guía no válida.");
 
-            if (string.IsNullOrWhiteSpace(datos.ComprobanteVinculado))
+            // Comprobante vinculado obligatorio para las entradas de mercancías
+            if (datos.TipoDocumento == "OPDN" && string.IsNullOrWhiteSpace(datos.ComprobanteVinculado))
                 return _helpers.CrearRespuestaError("Comprobante vinculado no válido.");
 
             if (string.IsNullOrWhiteSpace(datos.FechaContabilizacion))

@@ -8,6 +8,7 @@ using Capa_Entidad;
 using Capa_Datos.DireccionTecnica_DAO.TablasSql;
 using System.Reflection;
 using System.Collections;
+using Capa_Entidad.DireccionTecnica_ENT.TablasSql;
 
 namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
 {
@@ -64,7 +65,7 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
             if (lista == null || lista.Count == 0)
                 return _helpers.CrearRespuestaError("No se encontró información del artículo a revertir transferencia.");
 
-            if(string.IsNullOrWhiteSpace(area))
+            if (string.IsNullOrWhiteSpace(area))
                 return _helpers.CrearRespuestaError("Error en el envío de área.");
 
             var detalle = lista.First();
@@ -129,10 +130,12 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
             return resultado;
         }
 
-        public Helper_E RevertirLiberacionArticulo(int id, string usuarioRegistro)
+        public Helper_E RevertirLiberacionArticulo(int id, string estado, string usuarioRegistro)
         {
-            var lista = ListarDetalleDocumento(new DOCS1_E { Id = id });
+            if (string.IsNullOrWhiteSpace(estado))
+                return _helpers.CrearRespuestaError("Acción no identificada, recargar la página.");
 
+            var lista = ListarDetalleDocumento(new DOCS1_E { Id = id });
             if (lista == null || lista.Count == 0)
                 return _helpers.CrearRespuestaError("No se encontró información del artículo a revertir liberación.");
 
@@ -144,7 +147,18 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
             if (detalle.Liberado == 0)
                 return _helpers.CrearRespuestaError("Para revertir la liberación de este artículo, primero debe estar en estado LIBERADO.");
 
-            return _datos.RevertirLiberacionArticulo(id, usuarioRegistro);
+            var solicitudes = new SolicitudesReversion_DOCS1_N().ListarSolicitudesReversion(new SolicitudesReversion_DOCS1_E { ODOCSId = id });
+            if (solicitudes != null && solicitudes.Any() && solicitudes.First().Estado == "Aprobada")
+                return _helpers.CrearRespuestaError("La solicitud ya fue APROBADA.");
+
+            if (solicitudes != null && solicitudes.Any() && solicitudes.First().Estado == "Rechazada")
+                return _helpers.CrearRespuestaError("La solicitud ya fue RECHAZADA.");
+
+            // Diccionario que mapea los códigos de estado internos a sus descripciones legibles.
+            // "A" representa una solicitud Aprobada, y "R" representa una solicitud Rechazada.
+            Dictionary<string, string> estadosDisponibles = new Dictionary<string, string> { { "A", "Aprobada" }, { "R", "Rechazada" } };
+
+            return _datos.RevertirLiberacionArticulo(id, estadosDisponibles[estado], usuarioRegistro);
         }
 
         public List<DOCS1_E> ListarDetalleDocumento(DOCS1_E filtros = null, Dictionary<string, object> parametros = null, bool traerTodos = false)
@@ -173,7 +187,7 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
             if (lista != null && lista.Any())
             {
                 detalle.DescargarArchivoProtocolo = lista.First().DescargarArchivoProtocolo;
-                detalle.DescargarArchivoET= lista.First().DescargarArchivoET;
+                detalle.DescargarArchivoET = lista.First().DescargarArchivoET;
             }
 
             return ValidarParaEdicion(detalle) ?? _datos.EditarItemDetalleDoc(detalle, usuarioRegistro);
@@ -185,10 +199,7 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
                 return _helpers.CrearRespuestaError("El detalle del documento está vacío o no existe.");
 
             int index = 1;
-            var indicadorFila = string.Empty;
-
-            if (detalle.Count == 1)
-                indicadorFila = $" #{index}";
+            var indicadorFila = $" #{index}";
 
             foreach (var item in detalle)
             {

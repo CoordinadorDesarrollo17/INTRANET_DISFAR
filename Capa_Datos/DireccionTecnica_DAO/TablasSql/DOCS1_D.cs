@@ -157,9 +157,9 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
             }
 
             return result;
-        }
+        }        
 
-        public Helper_E RevertirLiberacionArticulo(int id, string usuarioRegistro)
+        public Helper_E RevertirLiberacionArticulo(int id, string estado, string usuarioRegistro)
         {
             Helper_E result = new Helper_E();
 
@@ -177,7 +177,10 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                             cmd.Parameters.AddWithValue("@Operacion", "REVERTIR_LIBERACION");
                             cmd.Parameters.AddWithValue("@Id", id);
 
-                            // Para [CC_ODOCS]
+                            // Para: [SolicitudesReversion_DOCS1]
+                            cmd.Parameters.AddWithValue("@Estado", estado);
+
+                            // Para: [CC_ODOCS]
                             cmd.Parameters.AddWithValue("@UsuarioRegistro", usuarioRegistro);
                             cmd.Parameters.AddWithValue("@TipoOperacion", "REVERTIR_LIBERACION");
 

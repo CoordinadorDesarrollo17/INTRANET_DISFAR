@@ -23,6 +23,7 @@ namespace Capa_Entidad.TablasSql
         public int CantidadTotal { get; set; }
         public int Liberado { get; set; }
         public int Transferido { get; set; }
+        public bool TieneSolicitudReversion { get; set; }
         public HttpPostedFileBase ArchivoProtocolo { get; set; }
         public string DescargarArchivoProtocolo { get; set; }
         public HttpPostedFileBase ArchivoET { get; set; }

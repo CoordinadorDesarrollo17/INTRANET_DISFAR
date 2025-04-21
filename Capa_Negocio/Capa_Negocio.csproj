@@ -115,6 +115,7 @@
     <Compile Include="DireccionTecnica_NEG\TablasSql\DOCS1_N.cs" />
     <Compile Include="DireccionTecnica_NEG\TablasSql\ODOCS_N.cs" />
     <Compile Include="DireccionTecnica_NEG\TablasSql\OORS_N.cs" />
+    <Compile Include="DireccionTecnica_NEG\TablasSql\SolicitudesReversion_DOCS1_N.cs" />
     <Compile Include="DireccionTecnica_NEG\TablasSql\SQL_OWTR_N.cs" />
     <Compile Include="General_NEG\TablasSql\COUR_N.cs" />
     <Compile Include="General_NEG\TablasSql\DNLAB_N.cs" />

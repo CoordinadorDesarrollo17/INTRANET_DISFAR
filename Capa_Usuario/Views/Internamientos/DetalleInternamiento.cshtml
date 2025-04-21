@@ -1,19 +1,23 @@
 @{
     ViewBag.Title = "Detalle de Internamiento";
     Layout = "~/Views/Shared/_DefaultLayout.cshtml";
+    var isPopup = Request.QueryString["popup"] != null && Request.QueryString["popup"].ToLower() == "true";
 }
 
-<div class="pt-3">
-    <nav>
-        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
-            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
-            <li><a href="@Url.Action("Sesion", "Index")">Dirección Técnica</a></li>
-            <li><a href="@Url.Action("Sesion", "Index")">Liberaciones</a></li>
-            <li><a href="@Url.Action("Index", "Internamientos")">Listado de Internamientos</a></li>
-            <li class="current"><em>@ViewBag.Title</em></li>
-        </ol>
-    </nav>
-</div>
+@if (!isPopup)
+{
+    <div class="pt-3">
+        <nav>
+            <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+                <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+                <li><a href="@Url.Action("Sesion", "Index")">Dirección Técnica</a></li>
+                <li><a href="@Url.Action("Sesion", "Index")">Liberaciones</a></li>
+                <li><a href="@Url.Action("Index", "Internamientos")">Listado de Internamientos</a></li>
+                <li class="current"><em>@ViewBag.Title</em></li>
+            </ol>
+        </nav>
+    </div>
+}
 
 <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
     <div class="row px-3 pt-3"><h3 class="titulo-seccion">@ViewBag.Title.ToUpper()</h3></div>
@@ -112,8 +116,8 @@
                 animation: 'fade'
             });
 
-            tippy('.cls-revertirLiberacion', {
-                content: 'Revertir liberación',
+            tippy('.cls-solicitarReversionLiberacion', {
+                content: 'Solicitar reversión de liberación',
                 animation: 'fade'
             });
         })
@@ -147,45 +151,44 @@
                     tr.classList.add('main-row');
 
                     tr.innerHTML = `
-                                                    <td class="text-center">
-                                                        <button type="button" class="btn btn-sm btn-cobefar-2 toggle-subtable">
-                                                            <i class="bi bi-chevron-down"></i>
-                                                        </button>
-                                                    </td>
-                                                    <td class="text-center text-uppercase small">
-                                                        <input type="hidden" name="Detalle[${key}].ItemCode" data-identificador="${correlativo}" value="${item.ItemCode}">${item.ItemCode}
-                                                        <input type="hidden" name="Detalle[${key}].Id" class="cls-ids" data-identificador="${correlativo}" value="${item.Id}">
-                                                    </td>
-                                                    <td class="text-start text-uppercase small">
-                                                        <input type="hidden" name="Detalle[${key}].ItemName" value="${item.ItemName}">${item.ItemName}
-                                                    </td>
-                                                    <td class="text-center text-uppercase small">
-                                                        <input type="hidden" name="Detalle[${key}].Lote" data-identificador="${correlativo}" value="${item.Lote}">${item.Lote}
-                                                    </td>
-                                                    <td class="text-center text-uppercase small">
-                                                        <input type="hidden" name="Detalle[${key}].FechaVencimiento" value="${item.FechaVencimiento}">${item.FechaVencimiento}
-                                                    </td>
-                                                    <td class="text-center text-uppercase small">
-                                                        <input type="hidden" name="Detalle[${key}].RegistroSanitario" value="${item.RegistroSanitario}">${item.RegistroSanitario}
-                                                    </td>
-                                                    <td class="text-start text-uppercase small">
-                                                        <input type="hidden" name="Detalle[${key}].Fabricante" value="${item.Fabricante}">${item.Fabricante}
-                                                    </td>
-                                                    <td class="text-center text-uppercase small">
-                                                        <input type="hidden" name="Detalle[${key}].CondicionAlmTrans" value="15ºC - 25ºC">15ºC - 25ºC
-                                                    </td>
-                                                    <td class="text-center text-uppercase small">
-                                                        <input type="hidden" name="Detalle[${key}].Almacen" value="${item.Almacen}">${item.Almacen}
-                                                    </td>
-                                                    <td class="text-center text-uppercase small">
-                                                        <input type="hidden" name="Detalle[${key}].CantidadTotal" data-identificador="${correlativo}" value="${item.CantidadTotal}">${item.CantidadTotal}
-                                                    </td>
-                                                    <td class="text-center text-uppercase small">
-                                                        <button type="button" id="btn_editar_${key}" class="btn btn-outline-primary fw-semibold shadow btn-editar" data-id="${item.Id}" data-correlativo="${correlativo}" onclick="editarItemDetalleDoc(this)" hidden><i class="bi bi-pencil-square"></i></button>
-                                                        <button type="button" id="btn_liberar_${key}" class="btn btn-outline-success fw-semibold shadow btn-liberar" data-id="${item.Id}" data-identificador="${correlativo}" data-itemcode="${item.ItemCode}" onclick="liberarArticulo(this)" hidden><i class="bi bi-check-lg"></i></button>
-                                                        <button type="button" id="btn_revertirLiberacion_${key}" class="btn btn-outline-danger fw-semibold shadow cls-revertirLiberacion" data-id="${item.Id}" data-identificador="${correlativo}" data-itemcode="${item.ItemCode}" onclick="revertirLiberacionArticulo(this)" hidden><i class="bi bi-arrow-counterclockwise"></i></button>
-                                                    </td>
-                                                `;
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-sm ${item.TieneSolicitudReversion ? 'btn-danger' : 'btn-cobefar-2'} toggle-subtable">
+                                                <i class="bi bi-chevron-down"></i>
+                                            </button>
+                                        </td>
+                                        <td class="text-center text-uppercase small">
+                                            <input type="hidden" name="Detalle[${key}].ItemCode" data-identificador="${correlativo}" value="${item.ItemCode}">${item.ItemCode}
+                                            <input type="hidden" name="Detalle[${key}].Id" class="cls-ids" data-identificador="${correlativo}" value="${item.Id}">
+                                        </td>
+                                        <td class="text-start text-uppercase small">
+                                            <input type="hidden" name="Detalle[${key}].ItemName" value="${item.ItemName}">${item.ItemName}
+                                        </td>
+                                        <td class="text-center text-uppercase small">
+                                            <input type="hidden" name="Detalle[${key}].Lote" data-identificador="${correlativo}" value="${item.Lote}">${item.Lote}
+                                        </td>
+                                        <td class="text-center text-uppercase small">
+                                            <input type="hidden" name="Detalle[${key}].FechaVencimiento" value="${item.FechaVencimiento}">${item.FechaVencimiento}
+                                        </td>
+                                        <td class="text-center text-uppercase small">
+                                            <input type="hidden" name="Detalle[${key}].RegistroSanitario" value="${item.RegistroSanitario}">${item.RegistroSanitario}
+                                        </td>
+                                        <td class="text-start text-uppercase small">
+                                            <input type="hidden" name="Detalle[${key}].Fabricante" value="${item.Fabricante}">${item.Fabricante}
+                                        </td>
+                                        <td class="text-center text-uppercase small">
+                                            <input type="hidden" name="Detalle[${key}].CondicionAlmTrans" value="15ºC - 25ºC">15ºC - 25ºC
+                                        </td>
+                                        <td class="text-center text-uppercase small">
+                                            <input type="hidden" name="Detalle[${key}].Almacen" value="${item.Almacen}">${item.Almacen}
+                                        </td>
+                                        <td class="text-center text-uppercase small">
+                                            <input type="hidden" name="Detalle[${key}].CantidadTotal" data-identificador="${correlativo}" value="${item.CantidadTotal}">${item.CantidadTotal}
+                                        </td>
+                                        <td class="text-center text-uppercase small">
+                                            <button type="button" id="btn_editar_${key}" class="btn btn-outline-primary fw-semibold shadow btn-editar" data-id="${item.Id}" data-correlativo="${correlativo}" onclick="editarItemDetalleDoc(this)" hidden><i class="bi bi-pencil-square"></i></button>
+                                            <button type="button" id="btn_liberar_${key}" class="btn btn-outline-success fw-semibold shadow btn-liberar" data-id="${item.Id}" data-identificador="${correlativo}" data-itemcode="${item.ItemCode}" onclick="liberarArticulo(this)" hidden><i class="bi bi-check-lg"></i></button>
+                                            <button type="button" id="btn_solicitarReversionLiberacion_${key}" class="btn btn-outline-danger fw-semibold shadow cls-solicitarReversionLiberacion" data-id="${item.Id}" data-identificador="${correlativo}" data-itemcode="${item.ItemCode}" onclick="solicitarReversionLiberacion(this)" hidden><i class="bi bi-file-text"></i></button>
+                                        </td>`;
 
                     // Agregar fila al tbody
                     tbody.appendChild(tr);
@@ -203,7 +206,7 @@
                             icon.classList.add('bi-chevron-down');
                             document.querySelector(`#btn_editar_${key}`).hidden = true;
                             document.querySelector(`#btn_liberar_${key}`).hidden = true;
-                            document.querySelector(`#btn_revertirLiberacion_${key}`).hidden = true;
+                            document.querySelector(`#btn_solicitarReversionLiberacion_${key}`).hidden = true;
                             return;
                         }
 
@@ -309,7 +312,9 @@
 
                         const documentoCancelado = modeloJS[0].Estado == "Cancelado";
                         // Ocultar botón revertir liberación cuando el documento se encuentre cancelado ó el artículo aún no se encuentre liberardo ó el artículo se encuentre transferido
-                        document.querySelector(`#btn_revertirLiberacion_${key}`).hidden = documentoCancelado || item.Liberado == 0 || item.Transferido == 1;
+                        const isPopup = ('@isPopup' || '').toLowerCase() === 'true';
+                        document.querySelector(`#btn_solicitarReversionLiberacion_${key}`).hidden = documentoCancelado || item.Liberado == 0 || item.Transferido == 1 || item.TieneSolicitudReversion || isPopup;
+
                         // Elementos que deben ser deshabilitados
                         [
                             `#opcion1_${correlativo}`,
@@ -320,7 +325,7 @@
                             `#CantidadDevolucion_${correlativo}`
                         ].forEach(selector => {
                             const el = document.querySelector(selector);
-                            if (el) el.disabled = documentoCancelado || item.Liberado == 1 || item.Transferido == 1;
+                            if (el) el.disabled = documentoCancelado || item.Liberado == 1 || item.Transferido == 1 || isPopup
                         });
 
                         // Elementos que deben ser ocultados (hidden)
@@ -331,7 +336,7 @@
                             `#formFileProtocolo_${correlativo}`
                         ].forEach(selector => {
                             const el = document.querySelector(selector);
-                            if (el) el.hidden = documentoCancelado || item.Liberado == 1 || item.Transferido == 1;
+                            if (el) el.hidden = documentoCancelado || item.Liberado == 1 || item.Transferido == 1 || isPopup
                         });
 
                         inicializarDescargas();
@@ -729,7 +734,7 @@
             });
         }
 
-        async function revertirLiberacionArticulo(elem) {
+        async function solicitarReversionLiberacion(elem) {
             const id = Number(elem.dataset.id) || 0;
 
             if (!id) {
@@ -738,58 +743,39 @@
                 return;
             }
 
-            swalWithBootstrapButtons.fire({
-                title: '¿Estás seguro(a) de REVERTIR LIBERACIÓN?',
-                html: 'Se revertirá liberación del artículo seleccionado.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: "<i class='bi bi-check-lg'></i> Si, revertir",
-                cancelButtonText: "<i class='bi bi-x-lg mx-1'></i> Cancelar",
-                reverseButtons: true,
-                allowEscapeKey: false,
-                allowOutsideClick: false,
-                customClass: {
-                    confirmButton: 'btn btn-success',
-                    cancelButton: 'btn btn-outline-danger mx-1'
-                },
-                buttonsStyling: false
-            }).then(async (result) => {
-                if (result.isConfirmed) {
-                    try {
-                        const response = await fetch("/Internamientos/RevertirLiberacionArticulo", {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({ id }) // Enviar los datos como JSON
-                        });
+            try {
+                const response = await fetch("/SolicitudesReversion_DOCS1/SolicitarReversionLiberacionArticulo", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ id }) // Enviar los datos como JSON
+                });
 
-                        if (!response.ok) {
-                            throw new Error(`Error en la solicitud: ${response.statusText}`);
-                        }
-
-                        const data = await response.json();
-
-                        Swal.fire({
-                            title: data.Titulo,
-                            html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
-                                ? data.Mensajes.join('<br>')
-                                : data.Mensajes || "",
-                            icon: data.Icono,
-                            allowEscapeKey: false,
-                            allowOutsideClick: false,
-                            showConfirmButton: true
-                        }).then((result) => {
-                            if (result.isConfirmed && data.Icono == 'success') {
-                                window.location.reload()
-                            }
-                        })
-
-                    } catch (error) {
-                        console.error('Error:', error);
-                    }
+                if (!response.ok) {
+                    throw new Error(`Error en la solicitud: ${response.statusText}`);
                 }
-            });
+
+                const data = await response.json();
+
+                Swal.fire({
+                    title: data.Titulo,
+                    html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                        ? data.Mensajes.join('<br>')
+                        : data.Mensajes || "",
+                    icon: data.Icono,
+                    allowEscapeKey: false,
+                    allowOutsideClick: false,
+                    showConfirmButton: true
+                }).then((result) => {
+                    if (result.isConfirmed && data.Icono == 'success') {
+                        window.location.reload()
+                    }
+                })
+
+            } catch (error) {
+                console.error('Error:', error);
+            }
         }
 </script>
 }
