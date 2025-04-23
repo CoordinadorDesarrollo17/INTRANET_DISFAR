@@ -267,7 +267,7 @@
 
 			if (tipoAbastecimiento === "Picking") {
                 document.querySelector('#div_cantidadSolicitada').hidden = false;
-                calcularCantidadSolicitada()
+                await calcularCantidadSolicitada();
 			} else {
                 document.querySelector('#div_cantidadSolicitada').hidden = true;
                 document.querySelector('#btn_cantidadManual').hidden = true;
@@ -380,7 +380,7 @@
                         let key = name.replace("requerimiento.Detalle[].", "").trim()
                         let value = input.value.trim()   // Aseguramos que no tenga espacios en blanco al inicio o fin
 
-                        if (key == 'CodigoUbicacionDestino' && tipoAbastecimiento == 'P') {
+                        if (key == 'CodigoUbicacionDestino' && tipoAbastecimiento == 'Picking') {
                             const tagify = new Tagify(input);
                             const tagsArray = tagify.value;
                             detalleRequerimiento[key] = tagsArray.map(tag => tag.value).join(', ')
@@ -573,7 +573,7 @@
 
                 // Establecer valor por defecto: ¿BatchNum está incluido?
                 if (existe) {
-                    tagifyInstance.addTags([nuevasOpciones.codigoUbicacionDefault[0].CodigoUbicacion]);
+                    tagifyInstance.addTags([nuevasOpciones.ubicacionesDefault[0].CodigoUbicacion]);
                 }
 
                 // Asociar la instancia al input para reutilización
@@ -618,7 +618,7 @@
 
                     // Cargar las opciones desde la función asíncrona
                     const opciones = await cargarUbicaciones('PICKING', itemCode);
-
+                    console.log(opciones)
                     // Validar si opciones es un objeto y tiene la propiedad resultUbicaciones
                     const whitelistOpciones = Array.isArray(opciones?.resultUbicaciones)
                         ? opciones.resultUbicaciones
@@ -642,7 +642,7 @@
                     });
 
                     // Establecer valor por defecto
-                    tagify.addTags([opciones.codigoUbicacionDefault]);
+                    tagify.addTags([opciones.ubicacionesDefault[0].CodigoUbicacion]);
 
                     // Evento al seleccionar una opción
                     tagify.on('add', (e) => {

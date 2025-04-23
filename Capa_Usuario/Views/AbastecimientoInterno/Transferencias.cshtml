@@ -583,7 +583,7 @@
                         const btnChevron = document.querySelector(`#btn_chevron_${productoID}`)
                         if (btnChevron) {
                             btnChevron.click();
-                        } 
+                        }
 					}
 				});
 			} else {
@@ -1175,9 +1175,16 @@
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ docNum, itemCode })
                 });
+
                 if (!response.ok) {
                     throw new Error(`Error en la solicitud: ${response.status}`);
                 }
+
+                const contentType = response.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    throw new Error("Sesión expirada. Por favor, vuelve a iniciar sesión.");
+                }
+
                 const data = await response.json();
                 buscarSolicitud();
                 //Swal.fire({
@@ -1197,9 +1204,23 @@
 
             } catch (error) {
                 console.error("Error:", error);
-                Swal.fire('Ocurrió un error al procesar la solicitud. Intente nuevamente o comuníquese con SISTEMAS.');
+                if (error.message.includes("Sesión expirada")) {
+                    Swal.fire({
+                        title: 'Sesión expirada',
+                        text: 'Por seguridad, se actualizará la página.',
+                        icon: 'warning',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showConfirmButton: true
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire('Ocurrió un error al procesar la solicitud. Intente nuevamente o comuníquese con SISTEMAS.');
+                }
             }
         }
+
 		//Buscador rápido para master y ubicaciones
         let selectActual = null;
         let modalInstance = null;

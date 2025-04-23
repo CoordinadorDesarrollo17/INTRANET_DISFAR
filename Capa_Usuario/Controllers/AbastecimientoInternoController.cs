@@ -1571,7 +1571,7 @@ namespace Capa_Usuario.Controllers
                         var buscarDetalle = transferenciaGet.Detalle.Where(t => t.ItemCode.Equals(itemCode)).ToList();
                         if (buscarDetalle != null && buscarDetalle.Any())
                         {
-                            var detalleFiltrado = buscarDetalle.Where(b => b.CodigoUbicacion.Equals("RESERVA-UBI-SISTEMA"));
+                            var detalleFiltrado = buscarDetalle.Where(b => b.CodigoUbicacion.Equals("RESERVA-UBI-SISTEMA")).ToList();
 
                             foreach (var det in detalleFiltrado)
                             {

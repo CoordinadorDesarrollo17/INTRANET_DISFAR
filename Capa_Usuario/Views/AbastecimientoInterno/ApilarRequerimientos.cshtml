@@ -113,7 +113,11 @@
                             <td class="text-center align-middle">@item.QuantityMaster</td>
                             <td class="text-center align-middle">@item.QuantitySaldo</td>
                             <td class="text-center align-middle">
-                                <button type="button" class="btn btn-success" title="Atender" data-bs-toggle="tooltip" data-bs-placement="top" onclick="atenderReserva(@item.Id, @item.RequerimientoId)"><i class="bi bi-cart-check"></i></button>
+                                <button type="button" class="btn btn-success" title="Atender" data-bs-toggle="tooltip" data-bs-placement="top"
+                                        data-itemcode="@item.ItemCode" data-itemname="@item.ItemName" data-id="@item.Id" data-requerimientoid="@item.RequerimientoId"
+                                        onclick="atenderReserva(this)">
+                                    <i class="bi bi-cart-check"></i>
+                                </button>
                             </td>
                         </tr>
                     }
@@ -160,8 +164,8 @@
                             <label for="nivel" class="form-label">Nivel</label>
                             <input class="form-control border-success" id="nivel" value="" />
                         </div>
-                        </div>
-            </form>
+                    </div>
+                </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -175,13 +179,19 @@
     document.addEventListener('DOMContentLoaded', function () {
         if (!$.fn.DataTable.isDataTable('tbl_listaDetRequerimientoApiladores')) {
             inicializarDataTable('tbl_listaDetRequerimientoApiladores', 100);
-            aplicarFiltro(); 
+            aplicarFiltro();
         }
     });
 
-    async function atenderReserva(id, requerimientoId) {
-        if (!id || !requerimientoId) {
+    async function atenderReserva(btn) {
+        const id = Number(btn.dataset.id) || 0;
+        const requerimientoId = Number(btn.dataset.requerimientoid) || 0;
+        const itemCode = btn.dataset.itemcode || '';
+        const itemName = btn.dataset.itemname || '';
+
+        if (!id || !requerimientoId || !itemCode || !itemName) {
             console.warn('Error: Verificar los parámetros de atenderReserva()');
+            Swal.fire('Verificar datos enviados o contactarse con el área de Sistemas.')
             return;
         }
 
@@ -199,10 +209,13 @@
                     const response = await fetch("/AbastecimientoInterno/AtenderReservaRequerimiento", {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ id, requerimientoId })
+                        body: JSON.stringify({ id, requerimientoId, itemCode, itemName })
                     });
 
                     if (!response.ok) throw new Error(`Error en la solicitud: ${response.statusText}`);
+
+                    const contentType = response.headers.get("content-type");
+                    if (!contentType || !contentType.includes("application/json")) throw new Error("Sesión expirada. Por favor, vuelve a iniciar sesión.");
 
                     const data = await response.json();
 
@@ -223,6 +236,20 @@
 
                 } catch (error) {
                     console.error('Error:', error);
+                    if (error.message.includes("Sesión expirada")) {
+                        Swal.fire({
+                            title: 'Sesión expirada',
+                            text: 'Por seguridad, se actualizará la página.',
+                            icon: 'warning',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            showConfirmButton: true
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire('Ocurrió un error al procesar la solicitud. Intente nuevamente o comuníquese con SISTEMAS.');
+                    }
                 }
             }
         });
@@ -243,11 +270,11 @@
 
         $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
             const itCode = data[1]?.trim().toLowerCase();
-            const itName = data[2]?.trim().toLowerCase();  
-            const batchN = data[3]?.trim().toLowerCase();     
+            const itName = data[2]?.trim().toLowerCase();
+            const batchN = data[3]?.trim().toLowerCase();
             const rack = data[4]?.trim().toLowerCase();
             const pos = data[5]?.trim().toLowerCase();
-            const niv = data[6]?.trim().toLowerCase();    
+            const niv = data[6]?.trim().toLowerCase();
 
             const coincideRack = rackBloque === "" || rack.includes(rackBloque);
             const coincidePos = posicion === "" || pos.includes(posicion);
@@ -259,7 +286,7 @@
             return coincideRack && coincidePos && coincideNivel && coincideItemCode && coincideItemName && coincideBatchNum;
         });
 
-        table.draw(); 
+        table.draw();
 
         const modalElement = document.getElementById('filterModal');
         if (modalElement) {
