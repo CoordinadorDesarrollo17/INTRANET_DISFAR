@@ -5,7 +5,6 @@ using Capa_Entidad.Seguridad_ENT;
 using Capa_Entidad.TablasSql;
 using Capa_Negocio.DireccionTecnica_NEG.TablasSql;
 using Capa_Usuario.Helpers;
-using CrystalDecisions.CrystalReports.Engine;
 
 namespace Capa_Usuario.Controllers
 {

@@ -17,6 +17,7 @@ namespace Capa_Negocio
         private string schemaSql { get; set; }
         private string cadSql { get; set; }
         public string directorioFileServer { get; set; }
+        public string directorioDocumentosRegulatorios { get; set; }
 
         Utilitarios Utilitarios_D = new Utilitarios();
 
@@ -38,7 +39,9 @@ namespace Capa_Negocio
         public Utilitarios_N()
         {
             serverSql = Utilitarios_D.serverSql; userSql = Utilitarios_D.userSql; passwordSql = Utilitarios_D.passwordSql;
-            schemaSql = Utilitarios_D.BDsql; cadSql = Utilitarios_D.cadSql; directorioFileServer = Utilitarios_D.directorioFileServer;
+            schemaSql = Utilitarios_D.BDsql; cadSql = Utilitarios_D.cadSql; 
+            directorioFileServer = Utilitarios_D.directorioFileServer; 
+            directorioDocumentosRegulatorios = Utilitarios_D.directorioDocumentosRegulatorios;
         }
     }
 }

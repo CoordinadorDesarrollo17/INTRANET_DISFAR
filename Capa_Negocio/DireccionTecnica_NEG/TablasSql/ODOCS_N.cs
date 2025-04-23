@@ -200,8 +200,8 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
             if (transferencia.First().Estado == "Cancelado")
                 return _helpers.CrearRespuestaError("No puede cancelar la transferencia de un documento en estado: CANCELADO.");
 
-            if (!transferencia.First().Detalle.Any(x => x.Transferido == 1))
-                return _helpers.CrearRespuestaError("No cuenta con algún artículo transferido, por favor revisar el detalle del documento.");
+            //if (!transferencia.First().Detalle.Any(x => x.Transferido == 1))
+            //    return _helpers.CrearRespuestaError("No cuenta con algún artículo transferido, por favor revisar el detalle del documento.");
 
             return _datos.CancelarTransferencia(id, usuarioRegistro);
         }

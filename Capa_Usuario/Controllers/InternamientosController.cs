@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Web.Mvc;
+using System.Web.Script.Serialization;
 using Capa_Entidad;
 using Capa_Entidad.Seguridad_ENT;
 using Capa_Entidad.TablasSql;
@@ -114,6 +116,9 @@ namespace Capa_Usuario.Controllers
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 var lista = _docsN.ListarInternamientos(new ODOCS_E { Id = id });
+                var serializer = new JavaScriptSerializer();
+                serializer.MaxJsonLength = Int32.MaxValue;
+                ViewBag.JsonModel = serializer.Serialize(lista);
 
                 return View("DetalleInternamiento", lista);
             }
