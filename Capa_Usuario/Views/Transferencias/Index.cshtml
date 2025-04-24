@@ -27,6 +27,9 @@
             <button type="button" id="btn_filtrar" class="btn btn-sm btn-outline-light" onclick="abrirModalFiltros()">
                 <i class="bi bi-filter"></i> Filtrar
             </button>
+            <button type="button" id="btn_exportarReporte" class="btn btn-sm btn-success" data-nombrearchivo="ReporteTransferencias" onclick="abrirModalReporte(this)">
+                <i class="bi bi-file-excel"></i> Exportar
+            </button>
         </div>
     </div>
 </div>
@@ -151,16 +154,55 @@
     </div>
 </div>
 
+<div class="modal fade" id="modalReporte" tabindex="-1" aria-labelledby="modalLabel2" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal">
+        <div class="modal-content">
+            <div class="modal-header text-white bg-headerModals">
+                <h5 class="modal-title" id="modalLabel2">Exportar Reporte</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" tabindex="-1"></button>
+            </div>
+
+            <div class="modal-body bg-blancoHumo">
+                <div id="div_modalBody" class="container pb-0">
+                    <form id="frm_exportarReporte">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <label for="FechaContabilizacion2" class="form-label fw-bold">Fecha Cont.:</label>
+                                <input id="FechaContabilizacion2" name="FechaContabilizacion" class="form-control " type="date" autocomplete="off" />
+                            </div>
+                        </div><!-- // ROW -->
+                    </form>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" id="btn_cerrarModal" class="btn btn-outline-secondary" data-bs-dismiss="modal" data-bs-toggle="tooltip">
+                    <i class="bi bi-x-lg"></i> Cerrar
+                </button>
+                <button type="button" id="btn_descargarReporte" class="btn btn-cobefar-2" onclick="descargarReporte('frm_exportarReporte')">
+                    <i class="bi bi-download"></i> Descargar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts{
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             soloNumerosPorClase('cls-num');
-            //inicializarDataTable('tbl_listado', 25);
+            inicializarDataTable('tbl_listado', 25);
 
             tippy('#btn_filtrar', {
                 content: 'Filtrar listado',
                 animation: 'fade',
-                placement: 'right'
+                placement: 'bottom-start'
+            });
+
+            tippy('#btn_exportarReporte', {
+                content: 'Exportar reporte',
+                animation: 'fade',
+                placement: 'bottom-end'
             });
 
             tippy('#btn_cerrarModal', {
@@ -304,6 +346,31 @@
                     text: error.message || 'Ocurrió un error inesperado.',
                 });
             }
+        }
+
+        function abrirModalReporte() {
+            const modal = document.querySelector('#modalReporte')
+            const bootstrapModal = new bootstrap.Modal(modal, {
+                focus: false,
+                keyboard: false,
+                backdrop: 'static'
+            })
+            bootstrapModal.show();
+        }
+
+        function descargarReporte(idForm) {
+            const form = document.querySelector(`#${idForm}`);
+            const formData = new FormData(form);
+            const payload = Object.fromEntries(formData.entries());
+
+            // Validar que FechaContabilizacion no esté vacío
+            if (!payload.FechaContabilizacion || payload.FechaContabilizacion.trim() === '') {
+                Swal.fire('Debes ingresar una Fecha de Contabilización.');
+                return;
+            }
+
+            const queryString = new URLSearchParams(payload).toString();
+            window.location.href = `/Transferencias/DescargarExcelTransferencias?${queryString}`;
         }
     </script>
 }
