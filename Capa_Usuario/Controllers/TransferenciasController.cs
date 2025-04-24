@@ -34,7 +34,7 @@ namespace Capa_Usuario.Controllers
         }
         /*******************************************************************/
 
-        public ActionResult Index(int idOperacion = 0)
+        public ActionResult Index(int idOperacion = 6200)
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
@@ -66,7 +66,7 @@ namespace Capa_Usuario.Controllers
             return PartialView("Transferencias/_ListadoTransferencias", lista);
         }
 
-        public ActionResult VerDetalle(long id, int idOperacion = 0)
+        public ActionResult VerDetalle(long id, int idOperacion = 6200)
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
@@ -89,33 +89,45 @@ namespace Capa_Usuario.Controllers
             }
         }
 
-        public JsonResult TransferirArticulo(int cantidad, string area, int id, int idOperacion = 0)
+        public JsonResult TransferirArticulo(int cantidad, string area, int id, int idOperacion = 6201)
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
                 return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
+
+            var resultadoAcceso = VerificarPermiso(idOperacion);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
+                return Json(new { Titulo = "Acceso Denegado", Mensajes = new List<string> { "No tienes permisos para transferir artículo" }, Icono = "warning" }, JsonRequestBehavior.AllowGet);
 
             var usuarioRegistro = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
             var result = _detalleDocN.TransferirArticulo(cantidad, area, id, usuarioRegistro);
             return Json(result);
         }
 
-        public JsonResult RevertirTransferenciaArticulo(int id, string area, int idOperacion = 0)
+        public JsonResult RevertirTransferenciaArticulo(int id, string area, int idOperacion = 6202)
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
                 return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
+
+            var resultadoAcceso = VerificarPermiso(idOperacion);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
+                return Json(new { Titulo = "Acceso Denegado", Mensajes = new List<string> { "No tienes permisos para revertir la transferencia del artículo" }, Icono = "warning" }, JsonRequestBehavior.AllowGet);
 
             var usuarioRegistro = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
             var result = _detalleDocN.RevertirTransferenciaArticulo(id, area, usuarioRegistro);
             return Json(result);
         }
 
-        public JsonResult CancelarTransferencia(int id)
+        public JsonResult CancelarTransferencia(int id, int idOperacion = 6204)
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
                 return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
+
+            var resultadoAcceso = VerificarPermiso(idOperacion);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
+                return Json(new { Titulo = "Acceso Denegado", Mensajes = new List<string> { "No tienes permisos para cancelar la transferencia" }, Icono = "warning" }, JsonRequestBehavior.AllowGet);
 
             var usuarioRegistro = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
 
@@ -124,9 +136,9 @@ namespace Capa_Usuario.Controllers
             return Json(result);
         }
 
-        public ActionResult DescargarExcelTransferencias(ODOCS_E filtros, int idOperation = 3000)
+        public ActionResult DescargarExcelTransferencias(ODOCS_E filtros, int idOperacion = 6205)
         {
-            var resultadoAcceso = VerificarPermiso(idOperation);
+            var resultadoAcceso = VerificarPermiso(idOperacion);
 
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {

@@ -39,7 +39,7 @@ namespace Capa_Usuario.Controllers
         }
         /*******************************************************************/
 
-        public ActionResult Index(int idOperacion = 0)
+        public ActionResult Index(int idOperacion = 6000)
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
@@ -60,7 +60,7 @@ namespace Capa_Usuario.Controllers
             }
         }
 
-        public ActionResult Internamiento(int idOperacion = 0)
+        public ActionResult Internamiento(int idOperacion = 6000)
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
@@ -110,7 +110,7 @@ namespace Capa_Usuario.Controllers
             return PartialView("Internamientos/_ListadoInternamientos", lista);
         }
 
-        public ActionResult VerDetalle(long id, int idOperation = 0)
+        public ActionResult VerDetalle(long id, int idOperation = 6000)
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
@@ -132,11 +132,15 @@ namespace Capa_Usuario.Controllers
             }
         }
 
-        public JsonResult RegistrarDocumento(ODOCS_E docPost)
+        public JsonResult RegistrarDocumento(ODOCS_E docPost, int idOperacion = 6001)
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
                 return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
+
+            var resultadoAcceso = VerificarPermiso(idOperacion);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
+                return Json(new { Titulo = "Acceso Denegado", Mensajes = new List<string> { "No tienes permisos para registrar documento" }, Icono = "warning" }, JsonRequestBehavior.AllowGet);
 
             docPost.UsuarioRegistro = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
 
@@ -145,44 +149,60 @@ namespace Capa_Usuario.Controllers
             return Json(result);
         }
 
-        public JsonResult EditarItemDetalleDoc(DOCS1_E detallePost)
+        public JsonResult EditarItemDetalleDoc(DOCS1_E detallePost, int idOperacion = 6002)
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
                 return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
+
+            var resultadoAcceso = VerificarPermiso(idOperacion);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
+                return Json(new { Titulo = "Acceso Denegado", Mensajes = new List<string> { "No tienes permisos para editar el detalle del documento" }, Icono = "warning" }, JsonRequestBehavior.AllowGet);
 
             var usuarioRegistro = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
             var result = _detalleDocN.EditarItemDetalleDoc(detallePost, usuarioRegistro);
             return Json(result);
         }
 
-        public JsonResult LiberarArticulos(List<int> ids)
+        public JsonResult LiberarArticulos(List<int> ids, int idOperacion = 6003)
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
                 return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
+
+            var resultadoAcceso = VerificarPermiso(idOperacion);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
+                return Json(new { Titulo = "Acceso Denegado", Mensajes = new List<string> { "No tienes permisos para editar el detalle del documento" }, Icono = "warning" }, JsonRequestBehavior.AllowGet);
 
             var usuarioRegistro = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
             var result = _detalleDocN.LiberarArticulos(ids, usuarioRegistro);
             return Json(result);
         }
 
-        public JsonResult RevertirLiberacionArticulo(int id, string estado, int idOperacion = 0)
+        public JsonResult RevertirLiberacionArticulo(int id, string estado, int idOperacion = 6004)
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
                 return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
+
+            var resultadoAcceso = VerificarPermiso(idOperacion);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
+                return Json(new { Titulo = "Acceso Denegado", Mensajes = new List<string> { "No tienes permisos para revertir la liberación del artículo" }, Icono = "warning" }, JsonRequestBehavior.AllowGet);
 
             var usuarioRegistro = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
             var result = _detalleDocN.RevertirLiberacionArticulo(id, estado, usuarioRegistro);
             return Json(result);
         }
 
-        public JsonResult CancelarDocumento(int id)
+        public JsonResult CancelarDocumento(int id, int idOperacion = 6005)
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
                 return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
+
+            var resultadoAcceso = VerificarPermiso(idOperacion);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
+                return Json(new { Titulo = "Acceso Denegado", Mensajes = new List<string> { "No tienes permisos para cancelar el documento" }, Icono = "warning" }, JsonRequestBehavior.AllowGet);
 
             var usuarioRegistro = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
 

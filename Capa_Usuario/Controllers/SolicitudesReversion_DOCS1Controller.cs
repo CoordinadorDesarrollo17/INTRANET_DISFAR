@@ -25,7 +25,7 @@ namespace Capa_Usuario.Controllers
         }
         /*******************************************************************/
 
-        public ActionResult Index(int idOperacion = 0)
+        public ActionResult Index(int idOperacion = 6100)
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
@@ -44,11 +44,15 @@ namespace Capa_Usuario.Controllers
             }
         }
 
-        public JsonResult SolicitarReversionLiberacionArticulo(int id, int idOperacion = 0)
+        public JsonResult SolicitarReversionLiberacionArticulo(int id, int idOperacion = 6101)
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
                 return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
+
+            var resultadoAcceso = VerificarPermiso(idOperacion);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
+                return Json(new { Titulo = "Acceso Denegado", Mensajes = new List<string> { "No tienes permisos para solicitar la reversión de liberación del artículo" }, Icono = "warning" }, JsonRequestBehavior.AllowGet);
 
             var usuarioRegistro = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
             var result = _solicitadesReversion.SolicitarReversionLiberacionArticulo(id, usuarioRegistro);
