@@ -71,6 +71,12 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
                     condicion.AppendLine("AND DOC.Estado = @Estado");
                     parametros["@Estado"] = filtros.Estado;
                 }
+
+                if (!string.IsNullOrWhiteSpace(filtros.FechaContabilizacion))
+                {
+                    condicion.AppendLine("AND DOC.FechaContabilizacion = @FechaContabilizacion");
+                    parametros["@FechaContabilizacion"] = filtros.FechaContabilizacion;
+                }
             }
 
             return _datos.ListarInternamientos(condicion.ToString(), parametros);
@@ -131,6 +137,12 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
                 {
                     condicion.AppendLine("AND DOC.Estado = @Estado");
                     parametros["@Estado"] = filtros.Estado;
+                }
+
+                if (!string.IsNullOrWhiteSpace(filtros.FechaContabilizacion))
+                {
+                    condicion.AppendLine("AND DOC.FechaContabilizacion = @FechaContabilizacion");
+                    parametros["@FechaContabilizacion"] = filtros.FechaContabilizacion;
                 }
             }
 
