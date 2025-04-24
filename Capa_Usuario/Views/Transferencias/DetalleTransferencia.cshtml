@@ -109,6 +109,7 @@
                             <th scope="col" class="text-center text-uppercase small">Almacén</th>
                             <th scope="col" class="text-center text-uppercase small">Cantidad</th>
                             <th scope="col" class="text-center text-uppercase small">
+                                <button type="button" class="btn btn-sm btn-outline-light btn-confirmarTodos" onclick="confirmarTodos('aprobados')"><i class="bi bi-check-all"></i> Confirmar TODOS</button>
                             </th>
                         </tr>
                     </thead>
@@ -163,6 +164,7 @@
                             <th scope="col" class="text-center text-uppercase small">Almacén</th>
                             <th scope="col" class="text-center text-uppercase small">Cantidad</th>
                             <th scope="col" class="text-center text-uppercase small">
+                                <button type="button" class="btn btn-sm btn-outline-light btn-confirmarTodos" onclick="confirmarTodos('baja')"><i class="bi bi-check-all"></i> Confirmar TODOS</button>
                             </th>
                         </tr>
                     </thead>
@@ -217,6 +219,7 @@
                             <th scope="col" class="text-center text-uppercase small">Almacén</th>
                             <th scope="col" class="text-center text-uppercase small">Cantidad</th>
                             <th scope="col" class="text-center text-uppercase small">
+                                <button type="button" class="btn btn-sm btn-outline-light btn-confirmarTodos" onclick="confirmarTodos('devolucion')"><i class="bi bi-check-all"></i> Confirmar TODOS</button>
                             </th>
                         </tr>
                     </thead>
@@ -287,6 +290,11 @@
                 content: 'Ir a Devoluciones',
                 animation: 'fade',
                 placement: 'bottom-start'
+            });
+
+            tippy('.btn-confirmarTodos', {
+                content: 'Confirmar todos los ítems del detalle',
+                animation: 'fade'
             });
         })
 
@@ -408,7 +416,7 @@
                     // Cancelado
                     console.log("Operación cancelada");
                 }
-            });            
+            });
         }
 
         function abrirPopup(ruta) {
@@ -418,5 +426,13 @@
 
             window.open(url, nombreVentana, opciones);
         }
+
+        function confirmarTodos(dataArea) {
+            const botones = document.querySelectorAll(`.btn-transferir[data-area="${dataArea}"]`);
+            botones.forEach(boton => {
+                transferirArticulo(boton);
+            });
+        }
+
     </script>
 }
