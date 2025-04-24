@@ -176,7 +176,7 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" id="btn_cerrarModal" class="btn btn-outline-secondary" data-bs-dismiss="modal" data-bs-toggle="tooltip">
+                <button type="button" id="btn_cerrarModalReporte" class="btn btn-outline-secondary">
                     <i class="bi bi-x-lg"></i> Cerrar
                 </button>
                 <button type="button" id="btn_descargarReporte" class="btn btn-cobefar-2" onclick="descargarReporte('frm_exportarReporte')">
@@ -228,6 +228,15 @@
                 animation: 'fade',
                 placement: 'bottom-end'
             });
+
+
+            document.querySelector("#btn_cerrarModalReporte").addEventListener("click", function () {
+                const modal = bootstrap.Modal.getInstance(document.querySelector('#modalReporte'));
+                if (modal) {
+                    modal.hide();
+                }
+            });
+
         });
 
         function abrirModalFiltros() {
