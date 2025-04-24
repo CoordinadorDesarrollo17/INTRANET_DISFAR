@@ -105,7 +105,13 @@
                             </div>
                             <div class="col-lg-3">
                                 <label for="CardName" class="form-label fw-bold">Proveedor:</label>
-                                <input id="CardName" name="CardName" class="form-control " type="text" autocomplete="off" />
+                                <select id="CardName" name="CardName" class="cls-select">
+                                    <option value="">Seleccione</option>
+                                    @foreach (var item in ViewBag.ListaProveedores)
+                                    {
+                                        <option value="@item.CardName">@item.CardName</option>
+                                    }
+                                </select>
                             </div>
                         </div><!-- // ROW -->
 

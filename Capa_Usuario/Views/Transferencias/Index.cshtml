@@ -34,7 +34,7 @@
 <div class="bg-white px-3 py-3 align-items-center">
     <form id="frm_listadoInternamientos">
         <div id="div_listado" class="table-responsive shadow-sm rounded">
-            <table id="tbl_listadoInternamientos" class="table table-bordered table-hover">
+            <table id="tbl_listado" class="table table-bordered table-hover">
                 <thead class="thead-cobefar">
                     <tr>
                         <th scope="col" class="text-center small">DocNum</th>
@@ -96,12 +96,18 @@
                                 <input id="TipoDocumento" name="TipoDocumento" class="form-control " type="text" autocomplete="off" />
                             </div>
                             <div class="col-lg-3">
-                                <label for="CardCode" class="form-label fw-bold">Código Socio de Negocio:</label>
+                                <label for="CardCode" class="form-label fw-bold">RUC Proveedor:</label>
                                 <input id="CardCode" name="CardCode" class="form-control cls-num" type="text" autocomplete="off" />
                             </div>
                             <div class="col-lg-3">
-                                <label for="CardName" class="form-label fw-bold">Socio de Negocio:</label>
-                                <input id="CardName" name="CardName" class="form-control " type="text" autocomplete="off" />
+                                <label for="CardName" class="form-label fw-bold">Proveedor:</label>
+                                <select id="CardName" name="CardName" class="cls-select">
+                                    <option value="">Seleccione</option>
+                                    @foreach (var item in ViewBag.ListaProveedores)
+                                    {
+                                        <option value="@item.CardName">@item.CardName</option>
+                                    }
+                                </select>
                             </div>
                         </div><!-- // ROW -->
 
@@ -145,7 +151,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             soloNumerosPorClase('cls-num');
-            //inicializarDataTable('tbl_listadoInternamientos', 25);
+            //inicializarDataTable('tbl_listado', 25);
 
             tippy('#btn_filtrar', {
                 content: 'Filtrar listado',
@@ -177,7 +183,6 @@
                 placement: 'bottom-end'
             });
         });
-
 
         function abrirModalFiltros() {
             const modal = document.querySelector('#modalFiltros')
@@ -239,6 +244,62 @@
                     }
                 }
             });
+        }
+
+        async function aplicarFiltros() {
+            const form = document.querySelector('#frm_filtros');
+            const formData = new FormData(form);
+            const rawPayload = Object.fromEntries(formData.entries());
+
+            const payload = {};
+
+            // Lista de campos que deben ser convertidos a número
+            const camposNumericos = ['DocNum'];
+
+            for (const key in rawPayload) {
+                if (camposNumericos.includes(key)) {
+                    const val = rawPayload[key].trim();
+                    payload[key] = val === '' ? null : Number(val);
+                } else {
+                    payload[key] = rawPayload[key];
+                }
+            }
+
+            try {
+                const response = await fetch("/Transferencias/FiltrarListado", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error en la solicitud: ${response.statusText}`);
+                }
+
+                // Recibimos el HTML directamente
+                const html = await response.text();
+
+                document.querySelector('#div_listado').innerHTML = html;
+                inicializarDataTable('tbl_listado', '25');
+
+                const modalElement = document.querySelector('#modalFiltros');
+
+                document.activeElement.blur();
+                const instance = bootstrap.Modal.getInstance(modalElement)
+                    ?? new bootstrap.Modal(modalElement);
+                instance.hide();
+
+            } catch (error) {
+                console.error('Error al filtrar:', error);
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error al aplicar filtros',
+                    text: error.message || 'Ocurrió un error inesperado.',
+                });
+            }
         }
     </script>
 }

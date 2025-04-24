@@ -6,9 +6,11 @@ using System.Web.Mvc;
 using System.Web.Script.Serialization;
 using Capa_Entidad;
 using Capa_Entidad.Seguridad_ENT;
+using Capa_Entidad.SocioNegocios_ENT.Tablas;
 using Capa_Entidad.TablasSql;
 using Capa_Negocio.AbastecimientoInterno_NEG.TablasSql;
 using Capa_Negocio.DireccionTecnica_NEG.TablasSql;
+using Capa_Negocio.SocioNegocios_NEG.TablasExternas;
 using Capa_Usuario.Helpers;
 using DocumentFormat.OpenXml.Wordprocessing;
 using OfficeOpenXml;
@@ -48,6 +50,8 @@ namespace Capa_Usuario.Controllers
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 var lista = _docsN.ListarInternamientos();
+                ViewBag.ListaProveedores = new OCRD_N().listarSociosDeNegocios(new OCRD_E { CardType = "S" });     // Solo socios Proveedores
+
                 return View(lista);
             }
             else

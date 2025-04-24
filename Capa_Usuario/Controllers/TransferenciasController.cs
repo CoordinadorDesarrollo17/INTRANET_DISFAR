@@ -2,8 +2,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using Capa_Entidad.Seguridad_ENT;
+using Capa_Entidad.SocioNegocios_ENT.Tablas;
 using Capa_Entidad.TablasSql;
 using Capa_Negocio.DireccionTecnica_NEG.TablasSql;
+using Capa_Negocio.SocioNegocios_NEG.TablasExternas;
 using Capa_Usuario.Helpers;
 
 namespace Capa_Usuario.Controllers
@@ -40,12 +42,25 @@ namespace Capa_Usuario.Controllers
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 var lista = _docsN.ListarTransferencias();
+                ViewBag.ListaProveedores = new OCRD_N().listarSociosDeNegocios(new OCRD_E { CardType = "S" });     // Solo socios Proveedores
+
                 return View(lista);
             }
             else
             {
                 return resultadoAcceso;
             }
+        }
+
+        public ActionResult FiltrarListado(ODOCS_E filtros)
+        {
+            var usuarioSesion = Session["UsuarioId"] as Usuario_E;
+            if (usuarioSesion == null)
+                return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
+
+            var lista = _docsN.ListarTransferencias(filtros);
+
+            return PartialView("Transferencias/_ListadoTransferencias", lista);
         }
 
         public ActionResult VerDetalle(long id, int idOperacion = 0)
