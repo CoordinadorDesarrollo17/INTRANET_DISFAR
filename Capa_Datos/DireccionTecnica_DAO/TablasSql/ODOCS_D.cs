@@ -123,8 +123,8 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                                 detalle.EstadoSolicitudReversion = dr.IsDBNull(28) ? null : dr.GetString(28);
 
                                 // Asignación de archivos adjuntos
-                                string baseRuta = uti.directorioFileServer;
-                                string rutaDirectorio = Path.Combine(baseRuta, "DireccionTecnica", "Internamiento");
+                                string baseRuta = uti.directorioDocumentosRegulatorios;
+                                string rutaDirectorio = Path.Combine(baseRuta, "Documentos");
                                 string carpeta = detalle.ItemCode ?? "undefined";
 
                                 string rutaET = Path.Combine(rutaDirectorio, carpeta, "ET.pdf").Replace("\\", "/");
@@ -317,8 +317,8 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                                 };
 
                                 // Asignación de archivos adjuntos
-                                string baseRuta = uti.directorioFileServer;
-                                string rutaDirectorio = Path.Combine(baseRuta, "DireccionTecnica", "Internamiento");
+                                string baseRuta = uti.directorioDocumentosRegulatorios;
+                                string rutaDirectorio = Path.Combine(baseRuta, "Documentos");
                                 string carpeta = detalle.ItemCode ?? "undefined";
                                 string rutaET = Path.Combine(rutaDirectorio, carpeta, "ET.pdf").Replace("\\", "/");
                                 if (System.IO.File.Exists(rutaET))
@@ -401,14 +401,14 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                                 id = (int)outputId.Value;
 
                             // Proceso para cargar archivo
-                            string baseRuta = uti.directorioFileServer;
+                            string baseRuta = uti.directorioDocumentosRegulatorios;
 
                             foreach (var item in datos.Detalle)
                             {
                                 if (item.ArchivoET == null && item.ArchivoProtocolo == null)
                                     continue;
 
-                                string rutaDirectorio = Path.Combine(baseRuta, "DireccionTecnica", "Internamiento", item.ItemCode);
+                                string rutaDirectorio = Path.Combine(baseRuta, "Documentos", item.ItemCode);
 
                                 if (!Directory.Exists(rutaDirectorio))
                                     Directory.CreateDirectory(rutaDirectorio);

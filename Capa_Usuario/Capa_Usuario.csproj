@@ -1039,6 +1039,7 @@
     <Content Include="Views\Internamientos\DetalleInternamiento.cshtml" />
     <Content Include="Views\Transferencias\Index.cshtml" />
     <Content Include="Views\Transferencias\DetalleTransferencia.cshtml" />
+    <Content Include="Views\Shared\Transferencias\_ListadoTransferencias.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

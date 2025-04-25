@@ -128,7 +128,7 @@
             OWTR: 'Transferencia'
         };
             const tbody = document.querySelector(`#tbl_documento tbody`);
-            const modeloJS = @Html.Raw(Json.Encode(Model));
+            const modeloJS = @Html.Raw(ViewBag.JsonModel);
 
             document.querySelector('#TipoDocumento').value = tiposDocumento[modeloJS[0].TipoDocumento];
             document.querySelector('#DocEntry').value = modeloJS[0].DocEntry;
@@ -319,6 +319,8 @@
                         // Ocultar botón revertir liberación cuando el documento se encuentre cancelado ó el artículo aún no se encuentre liberardo ó el artículo se encuentre transferido
                         const isPopup = ('@isPopup' || '').toLowerCase() === 'true';
                         document.querySelector(`#btn_solicitarReversionLiberacion_${key}`).hidden = documentoCancelado || item.Liberado == 0 || item.Transferido == 1 || item.EstadoSolicitudReversion != 'Rechazado' || isPopup;
+                        document.querySelector(`#btn_editar_${key}`).hidden = documentoCancelado || item.Liberado == 1 || item.Transferido == 1 || isPopup || item.EstadoSolicitudReversion == 'Pendiente';
+                        document.querySelector(`#btn_liberar_${key}`).hidden = documentoCancelado || item.Liberado == 1 || item.Transferido == 1 || isPopup || item.EstadoSolicitudReversion == 'Pendiente';
 
                         // Elementos que deben ser deshabilitados
                         [
@@ -335,8 +337,6 @@
 
                         // Elementos que deben ser ocultados (hidden)
                         [
-                            `#btn_liberar_${key}`,
-                            `#btn_editar_${key}`,
                             `#formFileET_${correlativo}`,
                             `#formFileProtocolo_${correlativo}`
                         ].forEach(selector => {

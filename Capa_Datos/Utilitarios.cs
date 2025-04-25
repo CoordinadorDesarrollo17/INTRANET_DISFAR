@@ -21,6 +21,7 @@ namespace Capa_Datos
         public int CodigoSmtp;
         public string Smtp;
         public string directorioFileServer;
+        public string directorioDocumentosRegulatorios;
         public string directorioGeneral;
         public string directorioLogs;
         public string cadSophos;
@@ -33,6 +34,7 @@ namespace Capa_Datos
             // File Directories
             this.directorioGeneral = Environment.GetEnvironmentVariable("DIRECTORIO_GENERAL", EnvironmentVariableTarget.Machine) ?? @"E:\";
             this.directorioFileServer = Environment.GetEnvironmentVariable("DIRECTORIO_FILESERVER", EnvironmentVariableTarget.Machine) ?? @"E:\COBEFARWEBFILES\";
+            this.directorioDocumentosRegulatorios = Environment.GetEnvironmentVariable("DIRECTORIO_DOCUMENTOSREGULATORIOS", EnvironmentVariableTarget.Machine);
             this.directorioLogs = Environment.GetEnvironmentVariable("DIRECTORIO_LOGS", EnvironmentVariableTarget.Machine) ?? @"E:\COBEFARWEBLOGS\";
 
             // HANA Database Configuration

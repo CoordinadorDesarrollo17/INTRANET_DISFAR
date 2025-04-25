@@ -27,6 +27,9 @@
             <button type="button" id="btn_filtrar" class="btn btn-sm btn-outline-light" onclick="abrirModalFiltros()">
                 <i class="bi bi-filter"></i> Filtrar
             </button>
+            <button type="button" id="btn_exportarReporte" class="btn btn-sm btn-success" data-nombrearchivo="ReporteTransferencias" onclick="abrirModalReporte(this)">
+                <i class="bi bi-file-excel"></i> Exportar
+            </button>
         </div>
     </div>
 </div>
@@ -34,7 +37,7 @@
 <div class="bg-white px-3 py-3 align-items-center">
     <form id="frm_listadoInternamientos">
         <div id="div_listado" class="table-responsive shadow-sm rounded">
-            <table id="tbl_listadoInternamientos" class="table table-bordered table-hover">
+            <table id="tbl_listado" class="table table-bordered table-hover">
                 <thead class="thead-cobefar">
                     <tr>
                         <th scope="col" class="text-center small">DocNum</th>
@@ -96,12 +99,18 @@
                                 <input id="TipoDocumento" name="TipoDocumento" class="form-control " type="text" autocomplete="off" />
                             </div>
                             <div class="col-lg-3">
-                                <label for="CardCode" class="form-label fw-bold">Código Socio de Negocio:</label>
+                                <label for="CardCode" class="form-label fw-bold">RUC Proveedor:</label>
                                 <input id="CardCode" name="CardCode" class="form-control cls-num" type="text" autocomplete="off" />
                             </div>
                             <div class="col-lg-3">
-                                <label for="CardName" class="form-label fw-bold">Socio de Negocio:</label>
-                                <input id="CardName" name="CardName" class="form-control " type="text" autocomplete="off" />
+                                <label for="CardName" class="form-label fw-bold">Proveedor:</label>
+                                <select id="CardName" name="CardName" class="cls-select">
+                                    <option value="">Seleccione</option>
+                                    @foreach (var item in ViewBag.ListaProveedores)
+                                    {
+                                        <option value="@item.CardName">@item.CardName</option>
+                                    }
+                                </select>
                             </div>
                         </div><!-- // ROW -->
 
@@ -124,6 +133,10 @@
                                     <option value="Cancelado">Cancelado</option>
                                 </select>
                             </div>
+                            <div class="col-lg-3">
+                                <label for="FechaContabilizacion" class="form-label fw-bold">Fecha Cont.:</label>
+                                <input id="FechaContabilizacion" name="FechaContabilizacion" class="form-control " type="date" autocomplete="off" />
+                            </div>
                         </div><!-- // ROW -->
                     </form>
                 </div>
@@ -141,16 +154,55 @@
     </div>
 </div>
 
+<div class="modal fade" id="modalReporte" tabindex="-1" aria-labelledby="modalLabel2" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal">
+        <div class="modal-content">
+            <div class="modal-header text-white bg-headerModals">
+                <h5 class="modal-title" id="modalLabel2">Exportar Reporte</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" tabindex="-1"></button>
+            </div>
+
+            <div class="modal-body bg-blancoHumo">
+                <div id="div_modalBody" class="container pb-0">
+                    <form id="frm_exportarReporte">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <label for="FechaContabilizacion2" class="form-label fw-bold">Fecha Cont.:</label>
+                                <input id="FechaContabilizacion2" name="FechaContabilizacion" class="form-control " type="date" autocomplete="off" />
+                            </div>
+                        </div><!-- // ROW -->
+                    </form>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" id="btn_cerrarModalReporte" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-lg"></i> Cerrar
+                </button>
+                <button type="button" id="btn_descargarReporte" class="btn btn-cobefar-2" onclick="descargarReporte('frm_exportarReporte')">
+                    <i class="bi bi-download"></i> Descargar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts{
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             soloNumerosPorClase('cls-num');
-            //inicializarDataTable('tbl_listadoInternamientos', 25);
+            inicializarDataTable('tbl_listado', 25);
 
             tippy('#btn_filtrar', {
                 content: 'Filtrar listado',
                 animation: 'fade',
-                placement: 'right'
+                placement: 'bottom-start'
+            });
+
+            tippy('#btn_exportarReporte', {
+                content: 'Exportar reporte',
+                animation: 'fade',
+                placement: 'bottom-end'
             });
 
             tippy('#btn_cerrarModal', {
@@ -176,8 +228,16 @@
                 animation: 'fade',
                 placement: 'bottom-end'
             });
-        });
 
+
+            document.querySelector("#btn_cerrarModalReporte").addEventListener("click", function () {
+                const modal = bootstrap.Modal.getInstance(document.querySelector('#modalReporte'));
+                if (modal) {
+                    modal.hide();
+                }
+            });
+
+        });
 
         function abrirModalFiltros() {
             const modal = document.querySelector('#modalFiltros')
@@ -239,6 +299,87 @@
                     }
                 }
             });
+        }
+
+        async function aplicarFiltros() {
+            const form = document.querySelector('#frm_filtros');
+            const formData = new FormData(form);
+            const rawPayload = Object.fromEntries(formData.entries());
+
+            const payload = {};
+
+            // Lista de campos que deben ser convertidos a número
+            const camposNumericos = ['DocNum'];
+
+            for (const key in rawPayload) {
+                if (camposNumericos.includes(key)) {
+                    const val = rawPayload[key].trim();
+                    payload[key] = val === '' ? null : Number(val);
+                } else {
+                    payload[key] = rawPayload[key];
+                }
+            }
+
+            try {
+                const response = await fetch("/Transferencias/FiltrarListado", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error en la solicitud: ${response.statusText}`);
+                }
+
+                // Recibimos el HTML directamente
+                const html = await response.text();
+
+                document.querySelector('#div_listado').innerHTML = html;
+                inicializarDataTable('tbl_listado', '25');
+
+                const modalElement = document.querySelector('#modalFiltros');
+
+                document.activeElement.blur();
+                const instance = bootstrap.Modal.getInstance(modalElement)
+                    ?? new bootstrap.Modal(modalElement);
+                instance.hide();
+
+            } catch (error) {
+                console.error('Error al filtrar:', error);
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error al aplicar filtros',
+                    text: error.message || 'Ocurrió un error inesperado.',
+                });
+            }
+        }
+
+        function abrirModalReporte() {
+            const modal = document.querySelector('#modalReporte')
+            const bootstrapModal = new bootstrap.Modal(modal, {
+                focus: false,
+                keyboard: false,
+                backdrop: 'static'
+            })
+            bootstrapModal.show();
+        }
+
+        function descargarReporte(idForm) {
+            const form = document.querySelector(`#${idForm}`);
+            const formData = new FormData(form);
+            const payload = Object.fromEntries(formData.entries());
+
+            // Validar que FechaContabilizacion no esté vacío
+            if (!payload.FechaContabilizacion || payload.FechaContabilizacion.trim() === '') {
+                Swal.fire('Debes ingresar una Fecha de Contabilización.');
+                return;
+            }
+
+            const queryString = new URLSearchParams(payload).toString();
+            window.location.href = `/Transferencias/DescargarExcelTransferencias?${queryString}`;
         }
     </script>
 }

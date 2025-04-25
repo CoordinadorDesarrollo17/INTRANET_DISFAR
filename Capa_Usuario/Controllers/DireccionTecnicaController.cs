@@ -502,14 +502,15 @@ namespace Capa_Usuario.Controllers
 
             var orgEM = dgN.ConsultarOrganolepticoEm(docEntry).Where(o => o.Lote == lote).ToList();
 
-            if (orgEM != null)
+            // Si no hay datos, salimos sin generar nada
+            if (orgEM == null || !orgEM.Any())
+                return new EmptyResult(); // También podrías usar: return HttpNotFound(); o redirigir con ViewBag message
+
+            var result = BuscarFirmas("QuimicoFarmaceutico", almacen);
+            if (result != null && result.Count >= 1)
             {
-                var result = BuscarFirmas("QuimicoFarmaceutico", almacen);
-                if (result != null && result.Count >= 1)
-                {
-                    ViewBag.QuimicoFarmaceuticoAsistente = result["NombApe"];
-                    ViewBag.Firma = result["Firma"];
-                }
+                ViewBag.QuimicoFarmaceuticoAsistente = result["NombApe"];
+                ViewBag.Firma = result["Firma"];
             }
 
             var firmaResponsableDT = BuscarFirmas("ResponsableDT", "08");
@@ -517,7 +518,7 @@ namespace Capa_Usuario.Controllers
 
             var detalle = new DOCS1_N().ListarDetalleDocumento(new DOCS1_E { Id = detalleId });
 
-            if (detalle != null)
+            if (detalle != null && detalle.Any())
                 orgEM.First().ComentarioOrganoleptico = detalle.First().ComentarioOrganoleptico;
 
             var pdfResult = new ViewAsPdf("OrganolepticoEM_PDF", orgEM)
@@ -529,16 +530,14 @@ namespace Capa_Usuario.Controllers
             byte[] pdfBytes = pdfResult.BuildFile(ControllerContext);
 
             string nombreArchivo = $"Organoleptico_{lote}.pdf";
-            string rutaDirectorio = Path.Combine(new Utilitarios_N().directorioFileServer, "DireccionTecnica", "Internamiento", itemCode);
+            string rutaDirectorio = Path.Combine(new Utilitarios_N().directorioDocumentosRegulatorios, "Documentos", itemCode);
 
-            // Asegurar que el directorio existe
             if (!Directory.Exists(rutaDirectorio))
                 Directory.CreateDirectory(rutaDirectorio);
 
             string filePath = Path.Combine(rutaDirectorio, nombreArchivo);
             System.IO.File.WriteAllBytes(filePath, pdfBytes);
 
-            // Descargar
             return File(pdfBytes, "application/pdf", nombreArchivo);
         }
 

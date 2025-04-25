@@ -71,6 +71,12 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
                     condicion.AppendLine("AND DOC.Estado = @Estado");
                     parametros["@Estado"] = filtros.Estado;
                 }
+
+                if (!string.IsNullOrWhiteSpace(filtros.FechaContabilizacion))
+                {
+                    condicion.AppendLine("AND DOC.FechaContabilizacion = @FechaContabilizacion");
+                    parametros["@FechaContabilizacion"] = filtros.FechaContabilizacion;
+                }
             }
 
             return _datos.ListarInternamientos(condicion.ToString(), parametros);
@@ -131,6 +137,12 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
                 {
                     condicion.AppendLine("AND DOC.Estado = @Estado");
                     parametros["@Estado"] = filtros.Estado;
+                }
+
+                if (!string.IsNullOrWhiteSpace(filtros.FechaContabilizacion))
+                {
+                    condicion.AppendLine("AND DOC.FechaContabilizacion = @FechaContabilizacion");
+                    parametros["@FechaContabilizacion"] = filtros.FechaContabilizacion;
                 }
             }
 
@@ -200,8 +212,8 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
             if (transferencia.First().Estado == "Cancelado")
                 return _helpers.CrearRespuestaError("No puede cancelar la transferencia de un documento en estado: CANCELADO.");
 
-            if (!transferencia.First().Detalle.Any(x => x.Transferido == 1))
-                return _helpers.CrearRespuestaError("No cuenta con algún artículo transferido, por favor revisar el detalle del documento.");
+            //if (!transferencia.First().Detalle.Any(x => x.Transferido == 1))
+            //    return _helpers.CrearRespuestaError("No cuenta con algún artículo transferido, por favor revisar el detalle del documento.");
 
             return _datos.CancelarTransferencia(id, usuarioRegistro);
         }

@@ -324,16 +324,16 @@ namespace Capa_Usuario.Controllers
             return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "RegistrosSanitarios", controllerDestino = "DireccionTecnica", usuario = (Usuario_E)Session["UsuarioId"] });
         }
 
-        public ActionResult DT_Internamientos(int idOperation = 0)
+        public ActionResult DT_Internamientos(int idOperation = 6000)
         {
             return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "Index", controllerDestino = "Internamientos", usuario = (Usuario_E)Session["UsuarioId"] });
         }
 
-        public ActionResult DT_SolicitudesReversion_DOCS1(int idOperation = 0)
+        public ActionResult DT_SolicitudesReversion_DOCS1(int idOperation = 6100)
         {
             return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "Index", controllerDestino = "SolicitudesReversion_DOCS1", usuario = (Usuario_E)Session["UsuarioId"] });
         }
-        public ActionResult ALM_Transferencias(int idOperation = 0)
+        public ActionResult ALM_Transferencias(int idOperation = 6200)
         {
             return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "Index", controllerDestino = "Transferencias", usuario = (Usuario_E)Session["UsuarioId"] });
         }
