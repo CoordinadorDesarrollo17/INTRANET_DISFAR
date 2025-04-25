@@ -1413,203 +1413,114 @@ namespace Capa_Usuario.Controllers
         }
         public JsonResult DeleteItemTransferencia(int docNum, string itemCode, int idOperation = 3307) //recibe el docnum de la solicitud de traslado y el ItemCode a eliminar
         {
-            var resultadoAcceso = VerificarPermiso(idOperation);
-            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
-            {
-                return Json(new
-                {
-                    Titulo = "No se pudo completar la acción",
-                    Mensajes = new List<string> { "Error de accesos." },
-                    Icono = "error"
-                });
-            }
             try
             {
-                if (docNum > 0)
+                var resultadoAcceso = VerificarPermiso(idOperation);
+                if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
                 {
-                    using (var scope = new TransactionScope(TransactionScopeOption.Required,
-                             new TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted },
-                             TransactionScopeAsyncFlowOption.Enabled))
-                    {
-                        Utilitarios uti = new Utilitarios();
-                        using (SqlConnection cn = new SqlConnection(uti.cadSql2))
-                        {
-                            cn.Open();
-                            // Identificar solo el Itemcode involucrado
-                            Dictionary<string, DetalleSolicitudesTraslado_E> traslado = _solicitudTrasladoN.ObtenerSolicitudDeTraslado(docNum, cn).Detalle
-                            .Where(kv => kv.Value.ItemCode == itemCode)
-                            .ToDictionary(kv => kv.Key, kv => kv.Value);
-                            if (traslado == null)
-                            {
-                                return Json(new
-                                {
-                                    Titulo = "No se pudo completar la acción",
-                                    Mensajes = new List<string> { "No se encontró la solicitud de traslado original." },
-                                    Icono = "error"
-                                });
-                            }
-                            var transferencia = _transferenciaReservaN.ObtenerTransferenciaReserva(docNum, cn).Detalle.Where(x => x.ItemCode == itemCode).ToList();
-                            if (transferencia == null)
-                            {
-                                return Json(new
-                                {
-                                    Titulo = "No se pudo completar la acción",
-                                    Mensajes = new List<string> { "No se encontró transferencia de reserva relacionada." },
-                                    Icono = "error"
-                                });
-                            }
-                            //Eliminar los items de Detalle de Transferencia de Reserva  que sean del ItemCode
-                            var resultTransferencia = _transferenciaReservaN.DeleteDetalleItemTransferenciaReserva(transferencia, cn);
-                            if (resultTransferencia.Icono.Equals("error"))
-                            {
-                                return Json(new
-                                {
-                                    Titulo = "No se pudo completar la acción",
-                                    resultTransferencia.Mensajes,
-                                    Icono = resultTransferencia.Icono
-                                });
-                            }
-                            //Verificar si la TransferenciaReserva se quedo sin elementos 
-                            var transferenciaPostReversion = _transferenciaReservaN.ObtenerTransferenciaReserva(docNum, cn);
-                            if (transferenciaPostReversion != null && transferenciaPostReversion.Detalle.Count() == 0)
-                            {
-                                //Eliminar la transferencia 
-                                var resultEliminarTransferencia = _transferenciaReservaN.DeleteTransferenciaReserva(docNum, cn);
-                                if (resultEliminarTransferencia.Icono.Equals("error"))
-                                {
-                                    return Json(new
-                                    {
-                                        Titulo = "No se pudo completar la acción",
-                                        resultEliminarTransferencia.Mensajes,
-                                        Icono = resultEliminarTransferencia.Icono
-                                    });
-                                }
-                                //Luego Eliminar Detalle y Cabecera de Solicitud de Traslado solo si la transferencia ya se elimino
-                                var resultSolicitudTraslado = _solicitudTrasladoN.DeleteSolicitudDeTraslado(docNum, cn);
-                                if (resultSolicitudTraslado.Icono.Equals("error"))
-                                {
-                                    return Json(new
-                                    {
-                                        Titulo = "No se pudo completar la acción",
-                                        resultSolicitudTraslado.Mensajes,
-                                        Icono = resultSolicitudTraslado.Icono
-                                    });
-                                }
-                            }
-                        }
-                        scope.Complete();
-                    }
                     return Json(new
                     {
-                        Titulo = "Acción completada exitosamente",
-                        Mensajes = new List<string> { "Se reestablecieron los datos en la Transferencia Reserva" },
-                        Icono = "success"
-                    });
+                        Titulo = "Sesión expirada o acceso denegado",
+                        Mensajes = new List<string> { "Debe iniciar sesión nuevamente o no tiene permisos suficientes." },
+                        Icono = "error"
+                    }, JsonRequestBehavior.AllowGet);
                 }
-                else
+
+                if (docNum <= 0)
                 {
                     return Json(new
                     {
                         Titulo = "Error en la operación",
-                        Mensajes = new List<string> { "El docNum es invalido." },
+                        Mensajes = new List<string> { "El docNum es inválido." },
                         Icono = "error"
-                    });
+                    }, JsonRequestBehavior.AllowGet);
                 }
-            }
-            catch (Exception ex)
-            {
-                return Json(new
+
+                using (var scope = new TransactionScope(TransactionScopeOption.Required,
+                         new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted },
+                         TransactionScopeAsyncFlowOption.Enabled))
                 {
-                    Titulo = "Error en la operación",
-                    Mensajes = new List<string> { ex.Message },
-                    Icono = "error"
-                });
-            }
-        }
-        public JsonResult ValidarItemParaApilar(int docNum, string itemCode, int idOperation = 3308) //recibe el docnum de la solicitud de traslado y el ItemCode a validar
-        {
-            var resultadoAcceso = VerificarPermiso(idOperation);
-            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
-            {
-                return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Error de accesos." }, Icono = "error" });
-            }
-            try
-            {
-                if (docNum > 0)
-                {
-                    var transferenciaGet = new TransferenciaReserva_E();
                     Utilitarios uti = new Utilitarios();
                     using (SqlConnection cn = new SqlConnection(uti.cadSql2))
                     {
                         cn.Open();
-                        transferenciaGet = _transferenciaReservaN.ObtenerTransferenciaReserva(docNum, cn);
-                        if (transferenciaGet == null || transferenciaGet.Id == 0)
+
+                        var traslado = _solicitudTrasladoN.ObtenerSolicitudDeTraslado(docNum, cn).Detalle
+                            .Where(kv => kv.Value.ItemCode == itemCode)
+                            .ToDictionary(kv => kv.Key, kv => kv.Value);
+
+                        if (traslado == null || traslado.Count == 0)
+                        {
+                            return Json(new
+                            {
+                                Titulo = "No se pudo completar la acción",
+                                Mensajes = new List<string> { "No se encontró la solicitud de traslado original." },
+                                Icono = "error"
+                            }, JsonRequestBehavior.AllowGet);
+                        }
+
+                        var transferencia = _transferenciaReservaN.ObtenerTransferenciaReserva(docNum, cn).Detalle
+                            .Where(x => x.ItemCode == itemCode).ToList();
+
+                        if (transferencia == null || transferencia.Count == 0)
                         {
                             return Json(new
                             {
                                 Titulo = "No se pudo completar la acción",
                                 Mensajes = new List<string> { "No se encontró transferencia de reserva relacionada." },
                                 Icono = "error"
-                            });
+                            }, JsonRequestBehavior.AllowGet);
                         }
-                        var resultValidacion = _transferenciaReservaN.ValidarSkuParaApilar(transferenciaGet.Id, itemCode, cn);
-                        if (resultValidacion.Icono.Equals("error"))
+
+                        var resultTransferencia = _transferenciaReservaN.DeleteDetalleItemTransferenciaReserva(transferencia, cn);
+                        if (resultTransferencia.Icono.Equals("error"))
                         {
                             return Json(new
                             {
                                 Titulo = "No se pudo completar la acción",
-                                resultValidacion.Mensajes,
-                                Icono = resultValidacion.Icono
-                            });
+                                resultTransferencia.Mensajes,
+                                Icono = resultTransferencia.Icono
+                            }, JsonRequestBehavior.AllowGet);
                         }
+
+                        var transferenciaPostReversion = _transferenciaReservaN.ObtenerTransferenciaReserva(docNum, cn);
+                        if (transferenciaPostReversion != null && transferenciaPostReversion.Detalle.Count == 0)
+                        {
+                            var resultEliminarTransferencia = _transferenciaReservaN.DeleteTransferenciaReserva(docNum, cn);
+                            if (resultEliminarTransferencia.Icono.Equals("error"))
+                            {
+                                return Json(new
+                                {
+                                    Titulo = "No se pudo completar la acción",
+                                    resultEliminarTransferencia.Mensajes,
+                                    Icono = resultEliminarTransferencia.Icono
+                                }, JsonRequestBehavior.AllowGet);
+                            }
+
+                            var resultSolicitudTraslado = _solicitudTrasladoN.DeleteSolicitudDeTraslado(docNum, cn);
+                            if (resultSolicitudTraslado.Icono.Equals("error"))
+                            {
+                                return Json(new
+                                {
+                                    Titulo = "No se pudo completar la acción",
+                                    resultSolicitudTraslado.Mensajes,
+                                    Icono = resultSolicitudTraslado.Icono
+                                }, JsonRequestBehavior.AllowGet);
+                            }
+                        }
+
                         cn.Close();
                     }
 
-                    // Cuando su CodigoUbicacion = 'RESERVA-UBI-SISTEMA', automáticamente pasa como atendidoReserva = 1
-                    if (transferenciaGet != null || transferenciaGet.Id > 0)
-                    {
-                        var buscarDetalle = transferenciaGet.Detalle.Where(t => t.ItemCode.Equals(itemCode)).ToList();
-                        if (buscarDetalle != null && buscarDetalle.Any())
-                        {
-                            var detalleFiltrado = buscarDetalle.Where(b => b.CodigoUbicacion.Equals("RESERVA-UBI-SISTEMA")).ToList();
-
-                            foreach (var det in detalleFiltrado)
-                            {
-                                var resultadoAtender = AtenderReservaTransferencia(det.Id, det.DocNumSolicitudTraslado, det.ItemCode, det.ItemName, det.CodigoUbicacion);
-                                if (resultadoAtender is JsonResult jsonResultado)
-                                {
-                                    var data = jsonResultado.Data as dynamic;
-                                    if (data != null && data.Icono == "error")
-                                    {
-                                        //Si hubiera algun error pasa a 0 el 1 que le puso en validar
-                                        var resultRevertir = _transferenciaReservaN.RevertirValidarSkuParaApilar(transferenciaGet.Id, itemCode);
-                                        if (resultRevertir != null && resultRevertir.Icono.Equals("error"))
-                                            return Json(resultRevertir);
-
-                                        return Json(new { Titulo = "Error", Mensajes = new List<string> { $"{data.Mensajes[0]}" }, Icono = "error" });
-                                    }
-                                }
-                            }
-
-                        }
-                    }
-
-                    return Json(new
-                    {
-                        Titulo = "Acción completada exitosamente",
-                        Mensajes = new List<string> { "Se validó correctamente detalle de transferencia para apilar." },
-                        Icono = "success"
-                    });
+                    scope.Complete();
                 }
-                else
+
+                return Json(new
                 {
-                    return Json(new
-                    {
-                        Titulo = "Error en la operación",
-                        Mensajes = new List<string> { "El docNum es invalido." },
-                        Icono = "error"
-                    });
-                }
+                    Titulo = "Acción completada exitosamente",
+                    Mensajes = new List<string> { "Se restablecieron los datos en la Transferencia Reserva." },
+                    Icono = "success"
+                }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -1618,7 +1529,105 @@ namespace Capa_Usuario.Controllers
                     Titulo = "Error en la operación",
                     Mensajes = new List<string> { ex.Message },
                     Icono = "error"
-                });
+                }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        public JsonResult ValidarItemParaApilar(int docNum, string itemCode, int idOperation = 3308) //recibe el docnum de la solicitud de traslado y el ItemCode a validar
+        {
+            try
+            {
+                var resultadoAcceso = VerificarPermiso(idOperation);
+                if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
+                {
+                    return Json(new
+                    {
+                        Titulo = "Sesión expirada o acceso denegado",
+                        Mensajes = new List<string> { "Debe iniciar sesión nuevamente o no tiene permisos suficientes." },
+                        Icono = "error"
+                    }, JsonRequestBehavior.AllowGet);
+                }
+
+                if (docNum <= 0)
+                {
+                    return Json(new
+                    {
+                        Titulo = "Error en la operación",
+                        Mensajes = new List<string> { "El docNum es inválido." },
+                        Icono = "error"
+                    }, JsonRequestBehavior.AllowGet);
+                }
+
+                var transferenciaGet = new TransferenciaReserva_E();
+                Utilitarios uti = new Utilitarios();
+                using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+                {
+                    cn.Open();
+                    transferenciaGet = _transferenciaReservaN.ObtenerTransferenciaReserva(docNum, cn);
+                    if (transferenciaGet == null || transferenciaGet.Id == 0)
+                    {
+                        return Json(new
+                        {
+                            Titulo = "No se pudo completar la acción",
+                            Mensajes = new List<string> { "No se encontró transferencia de reserva relacionada." },
+                            Icono = "error"
+                        }, JsonRequestBehavior.AllowGet);
+                    }
+
+                    var resultValidacion = _transferenciaReservaN.ValidarSkuParaApilar(transferenciaGet.Id, itemCode, cn);
+                    if (resultValidacion.Icono.Equals("error"))
+                    {
+                        return Json(new
+                        {
+                            Titulo = "No se pudo completar la acción",
+                            resultValidacion.Mensajes,
+                            Icono = resultValidacion.Icono
+                        }, JsonRequestBehavior.AllowGet);
+                    }
+                    cn.Close();
+                }
+
+                if (transferenciaGet.Detalle?.Any(t => t.ItemCode == itemCode) == true)
+                {
+                    var detalleFiltrado = transferenciaGet.Detalle.Where(b => b.CodigoUbicacion == "RESERVA-UBI-SISTEMA").ToList();
+
+                    foreach (var det in detalleFiltrado)
+                    {
+                        var resultadoAtender = AtenderReservaTransferencia(det.Id, det.DocNumSolicitudTraslado, det.ItemCode, det.ItemName, det.CodigoUbicacion);
+                        if (resultadoAtender is JsonResult jsonResultado)
+                        {
+                            var data = jsonResultado.Data as dynamic;
+                            if (data != null && data.Icono == "error")
+                            {
+                                var resultRevertir = _transferenciaReservaN.RevertirValidarSkuParaApilar(transferenciaGet.Id, itemCode);
+                                if (resultRevertir != null && resultRevertir.Icono.Equals("error"))
+                                    return Json(resultRevertir, JsonRequestBehavior.AllowGet);
+
+                                return Json(new
+                                {
+                                    Titulo = "Error",
+                                    Mensajes = new List<string> { $"{data.Mensajes[0]}" },
+                                    Icono = "error"
+                                }, JsonRequestBehavior.AllowGet);
+                            }
+                        }
+                    }
+                }
+
+                return Json(new
+                {
+                    Titulo = "Acción completada exitosamente",
+                    Mensajes = new List<string> { "Se validó correctamente detalle de transferencia para apilar." },
+                    Icono = "success"
+                }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    Titulo = "Error en la operación",
+                    Mensajes = new List<string> { ex.Message },
+                    Icono = "error"
+                }, JsonRequestBehavior.AllowGet);
             }
         }
         /****************************** R E Q U E R I M I E N T O S ****************************/

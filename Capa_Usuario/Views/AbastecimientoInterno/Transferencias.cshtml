@@ -1057,13 +1057,15 @@
                 }
             });
 		}
+
         async function deleteItemTransferencia(itemCode) {
-            const docNum = document.querySelector('#DocNum').value || ''
+            const docNum = document.querySelector('#DocNum').value.trim();
             if (!docNum) {
-                console.warn("DocNum no válido")
-                Swal.fire('Ocurrió un problema inesperado. Por favor, comunicarse con SISTEMAS.')
+                console.warn("DocNum no válido");
+                Swal.fire('Ocurrió un problema inesperado. Por favor, comunicarse con SISTEMAS.');
                 return;
             }
+
             Swal.fire({
                 title: '¿Estás seguro(a) de restablecer los datos de la transferencia?',
                 text: "Se revertirá este ítem de la transferencia de reserva.",
@@ -1083,10 +1085,25 @@
                             },
                             body: JSON.stringify({ docNum, itemCode })
                         });
-                        if (!response.ok) {
-                            throw new Error(`Error en la solicitud: ${response.status}`);
+
+                        const contentType = response.headers.get("content-type") || "";
+
+                        if (!response.ok || !contentType.includes("application/json")) {
+                            const errorText = await response.text();
+                            console.error('Respuesta inesperada del servidor:', errorText);
+
+                            Swal.fire({
+                                title: 'Sesión expirada',
+                                text: 'Tu sesión ha expirado o hubo un problema de conexión. Se actualizará la página.',
+                                icon: 'warning'
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                            return;
                         }
+
                         const data = await response.json();
+
                         Swal.fire({
                             title: data.Titulo,
                             html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
@@ -1109,19 +1126,30 @@
                                     cancelButtonText: '<i class="bi bi-x-lg"></i> Cancelar'
                                 }).then(result => {
                                     if (result.isConfirmed) {
-                                        buscarSolicitud()
+                                        buscarSolicitud();
                                     } else {
-                                        location.reload()
+                                        location.reload();
                                     }
                                 });
                             }
                         });
+
                     } catch (error) {
-                        console.error("Error:", error);
+                        console.error("Error capturado:", error);
+
+                        Swal.fire({
+                            title: 'Error inesperado',
+                            text: 'Se produjo un error. Intente nuevamente o contacte a SISTEMAS.',
+                            icon: 'error',
+                            allowEscapeKey: false,
+                            allowOutsideClick: false,
+                            showConfirmButton: true
+                        });
                     }
                 }
             });
         }
+
         async function validarTodo() {
             const tabla = document.querySelector("#tbl_detalle");
 
@@ -1176,13 +1204,20 @@
                     body: JSON.stringify({ docNum, itemCode })
                 });
 
-                if (!response.ok) {
-                    throw new Error(`Error en la solicitud: ${response.status}`);
-                }
+                const contentType = response.headers.get("content-type") || "";
 
-                const contentType = response.headers.get("content-type");
-                if (!contentType || !contentType.includes("application/json")) {
-                    throw new Error("Sesión expirada. Por favor, vuelve a iniciar sesión.");
+                if (!response.ok || !contentType.includes("application/json")) {
+                    const errorText = await response.text();
+                    console.error('Respuesta inesperada del servidor:', errorText);
+
+                    Swal.fire({
+                        title: 'Sesión expirada',
+                        text: 'Tu sesión ha expirado o hubo un problema de conexión. Se actualizará la página.',
+                        icon: 'warning'
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                    return;
                 }
 
                 const data = await response.json();
@@ -1203,21 +1238,16 @@
                 //});
 
             } catch (error) {
-                console.error("Error:", error);
-                if (error.message.includes("Sesión expirada")) {
-                    Swal.fire({
-                        title: 'Sesión expirada',
-                        text: 'Por seguridad, se actualizará la página.',
-                        icon: 'warning',
-                        allowOutsideClick: false,
-                        allowEscapeKey: false,
-                        showConfirmButton: true
-                    }).then(() => {
-                        window.location.reload();
-                    });
-                } else {
-                    Swal.fire('Ocurrió un error al procesar la solicitud. Intente nuevamente o comuníquese con SISTEMAS.');
-                }
+                console.error("Error capturado:", error);
+
+                Swal.fire({
+                    title: 'Error inesperado',
+                    text: 'Se produjo un error. Intente nuevamente o contactese con el área de Sistemas.',
+                    icon: 'error',
+                    allowEscapeKey: false,
+                    allowOutsideClick: false,
+                    showConfirmButton: true
+                });
             }
         }
 
