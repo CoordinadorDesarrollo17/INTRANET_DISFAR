@@ -1215,35 +1215,35 @@
                             body: JSON.stringify({ docNum, itemCode })
                         });
 
-                        const contentType = response.headers.get("content-type") || "";
+                        //const contentType = response.headers.get("content-type") || "";
 
-                        if (!response.ok || !contentType.includes("application/json")) {
-                            const errorText = await response.text();
-                            console.error('Respuesta inesperada del servidor:', errorText);
+                        //if (!response.ok || !contentType.includes("application/json")) {
+                        //    const errorText = await response.text();
+                        //    console.error('Respuesta inesperada del servidor:', errorText);
 
-                            Swal.fire({
-                                title: 'Sesión expirada',
-                                text: 'Tu sesión ha expirado o hubo un problema de conexión. Se actualizará la página.',
-                                icon: 'warning'
-                            }).then(() => {
-                                window.location.reload();
-                            });
-                            return;
-                        }
+                        //    Swal.fire({
+                        //        title: 'Sesión expirada',
+                        //        text: 'Tu sesión ha expirado o hubo un problema de conexión. Se actualizará la página.',
+                        //        icon: 'warning'
+                        //    }).then(() => {
+                        //        window.location.reload();
+                        //    });
+                        //    return;
+                        //}
 
-                        const data = await response.json();
+                        //const data = await response.json();
 
-                        Swal.fire({
-                            title: data.Titulo,
-                            html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
-                                ? data.Mensajes.join('<br>')
-                                : data.Mensajes || "",
-                            icon: data.Icono,
-                            allowEscapeKey: false,
-                            allowOutsideClick: false,
-                            showConfirmButton: true
-                        }).then((result) => {
-                            if (result.isConfirmed && data.Icono == "success") {
+                        //Swal.fire({
+                        //    title: data.Titulo,
+                        //    html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                        //        ? data.Mensajes.join('<br>')
+                        //        : data.Mensajes || "",
+                        //    icon: data.Icono,
+                        //    allowEscapeKey: false,
+                        //    allowOutsideClick: false,
+                        //    showConfirmButton: true
+                        //}).then((result) => {
+                            //if (result.isConfirmed && data.Icono == "success") {
                                 Swal.fire({
                                     title: '¿Deseas continuar con la transferencia?',
                                     text: "Solo para completar ítems que no han sido transferidos.",
@@ -1260,8 +1260,8 @@
                                         location.reload();
                                     }
                                 });
-                            }
-                        });
+                        //    }
+                        //});
 
                     } catch (error) {
                         console.error("Error capturado:", error);
@@ -1333,23 +1333,23 @@
                     body: JSON.stringify({ docNum, itemCode })
                 });
 
-                const contentType = response.headers.get("content-type") || "";
+                //const contentType = response.headers.get("content-type") || "";
 
-                if (!response.ok || !contentType.includes("application/json")) {
-                    const errorText = await response.text();
-                    console.error('Respuesta inesperada del servidor:', errorText);
+                //if (!response.ok || !contentType.includes("application/json")) {
+                //    const errorText = await response.text();
+                //    console.error('Respuesta inesperada del servidor:', errorText);
 
-                    Swal.fire({
-                        title: 'Sesión expirada',
-                        text: 'Tu sesión ha expirado o hubo un problema de conexión. Se actualizará la página.',
-                        icon: 'warning'
-                    }).then(() => {
-                        window.location.reload();
-                    });
-                    return;
-                }
+                //    Swal.fire({
+                //        title: 'Sesión expirada',
+                //        text: 'Tu sesión ha expirado o hubo un problema de conexión. Se actualizará la página.',
+                //        icon: 'warning'
+                //    }).then(() => {
+                //        window.location.reload();
+                //    });
+                //    return;
+                //}
 
-                const data = await response.json();
+                //const data = await response.json();
                 buscarSolicitud();
                 //Swal.fire({
                 //    title: data.Titulo,
