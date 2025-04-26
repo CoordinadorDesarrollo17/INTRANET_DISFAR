@@ -760,7 +760,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
 
             try
             {
-                SqlCommand cmd = new SqlCommand("al.RptHojasRuta", cn)
+                SqlCommand cmd = new SqlCommand("al.RptHojasRuta_2", cn)
                 {
                     CommandType = CommandType.StoredProcedure
                 };
@@ -768,8 +768,8 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                 cmd.Parameters.AddWithValue("@AlmIni", o.AlmIni);
                 cmd.Parameters.AddWithValue("@AlmFin", o.AlmFin);
                 cmd.Parameters.AddWithValue("@Estado", o.Estado);
-                cmd.Parameters.AddWithValue("@FecConIni", o.FecConIni);
-                cmd.Parameters.AddWithValue("@FecConFin", o.FecConFin);
+                cmd.Parameters.AddWithValue("@FechaRegistroDesde", o.FechaRegistroDesde);
+                cmd.Parameters.AddWithValue("@FechaRegistroHasta", o.FechaRegistroHasta);
                 cmd.Parameters.AddWithValue("@CardCode", o.CardCode);
                 cmd.Parameters.AddWithValue("@TipoRuta", o.TipoRuta);
                 cmd.Parameters.AddWithValue("@TransDesc", o.TransDesc);
@@ -788,14 +788,14 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                     if (!dr.IsDBNull(2)) { or.CopilDesc = dr.GetString(2); }
                     if (!dr.IsDBNull(3)) { or.Copil2Desc = dr.GetString(3); }
                     if (!dr.IsDBNull(4)) { or.Copil3Desc = dr.GetString(4); }
-                    if (!dr.IsDBNull(5)) { or.Copil4Desc = dr.GetString(5); }
+                    //if (!dr.IsDBNull(5)) { or.Copil4Desc = dr.GetString(5); }
                     if (!dr.IsDBNull(6)) { or.Placa = dr.GetString(6); }
                     if (!dr.IsDBNull(7)) { or.AlmOrigenDesc = dr.GetString(7); }
                     if (!dr.IsDBNull(8)) { or.AlmDestinoDesc = dr.GetString(8); }
                     if (!dr.IsDBNull(9)) { or.Propietario = dr.GetString(9); }
-                    if (!dr.IsDBNull(10)) { or.Observaciones = dr.GetString(10); }
+                    //if (!dr.IsDBNull(10)) { or.Observaciones = dr.GetString(10); }
                     if (!dr.IsDBNull(11)) { or.DocNum = dr.GetInt32(11); }
-                    if (!dr.IsDBNull(12)) { or.FechaCont = dr.GetDateTime(12).ToString("yyyy-MM-dd"); }
+                    //if (!dr.IsDBNull(12)) { or.FechaCont = dr.GetDateTime(12).ToString("yyyy-MM-dd"); }
                     if (!dr.IsDBNull(13)) { or.FechaDoc = dr.GetDateTime(13).ToString("yyyy-MM-dd"); }
                     if (!dr.IsDBNull(14)) { or.Hora = dr.GetString(14); }
                     if (!dr.IsDBNull(15)) { or.Estado = dr.GetString(15); }
@@ -805,20 +805,26 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                     if (!dr.IsDBNull(19)) { or.DocNumTicket = dr.GetInt32(19); }
                     if (!dr.IsDBNull(20)) { or.Guias = dr.GetString(20); }
                     if (!dr.IsDBNull(21)) { or.Cajas = dr.GetInt32(21); }
-                    if (!dr.IsDBNull(22)) { or.Observaciones2 = dr.GetString(22); }
+                    //if (!dr.IsDBNull(22)) { or.Observaciones2 = dr.GetString(22); }
                     if (!dr.IsDBNull(23)) { or.DirDestino = dr.GetString(23); }
                     if (!dr.IsDBNull(24)) { or.Distrito1 = dr.GetString(24); }
                     if (!dr.IsDBNull(25)) { or.Provincia1 = dr.GetString(25); }
                     if (!dr.IsDBNull(26)) { or.Departamento1 = dr.GetString(26); }
-                    if (!dr.IsDBNull(27)) { or.DirDestino2 = dr.GetString(27); }
-                    if (!dr.IsDBNull(28)) { or.Distrito2 = dr.GetString(28); }
-                    if (!dr.IsDBNull(29)) { or.Provincia2 = dr.GetString(29); }
-                    if (!dr.IsDBNull(30)) { or.Departamento2 = dr.GetString(30); }
+                    //if (!dr.IsDBNull(27)) { or.DirDestino2 = dr.GetString(27); }
+                    //if (!dr.IsDBNull(28)) { or.Distrito2 = dr.GetString(28); }
+                    //if (!dr.IsDBNull(29)) { or.Provincia2 = dr.GetString(29); }
+                    //if (!dr.IsDBNull(30)) { or.Departamento2 = dr.GetString(30); }
                     if (!dr.IsDBNull(31)) { or.MontoTotal = dr.GetDecimal(31); }
                     if (!dr.IsDBNull(32)) { or.MontoFinal = dr.GetDecimal(32); }
                     if (!dr.IsDBNull(33)) { or.Flete = dr.GetDecimal(33); }
                     if (!dr.IsDBNull(34)) { or.GastoEnvio = dr.GetDecimal(34); }
                     if (!dr.IsDBNull(35)) { or.TipoVenta = dr.GetString(35); }
+                    if (!dr.IsDBNull(36)) { or.ZonaVenta = dr.GetString(36); }
+                    if (!dr.IsDBNull(37)) { or.FechaEntregaVenta = dr.GetString(37); }
+                    if (!dr.IsDBNull(38)) { or.HoraEntregaVenta = dr.GetString(38); }
+                    if (!dr.IsDBNull(39)) { or.FechaInicioReparto = dr.GetString(39); }
+                    if (!dr.IsDBNull(40)) { or.FechaFinReparto = dr.GetString(40); }
+                    if (!dr.IsDBNull(41)) { or.PesoTotalVenta = dr.GetString(41); }
                     lista.Add(or);
                 }
                 dr.Close();
