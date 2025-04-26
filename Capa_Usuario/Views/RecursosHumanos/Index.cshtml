@@ -569,7 +569,7 @@
                 <div class="row overflow-auto mb-2">
                     <div class="col py-3">
                         <label for="filtro_dpto" class="text-dark font-weight-bold">Departamento:</label>
-                        <select id="filtro_dpto" class="cls-select">
+                        <select id="filtro_dpto" class="form-control cls-select">
                             <option value="">SELECCIONAR</option>
                             @if (ViewBag.Departamentos != null)
                             {
@@ -583,7 +583,7 @@
 
                     <div class="col py-3">
                         <label for="filtro_area" class="text-dark font-weight-bold">Área:</label>
-                        <select id="filtro_area" class="cls-select">
+                        <select id="filtro_area" class="form-control cls-select">
                             <option value="">SELECCIONAR</option>
                         </select>
                     </div>
@@ -592,14 +592,14 @@
                 <div class="row overflow-auto mb-2">
                     <div class="col-6 py-3 @if (vistaExterna) { Write("d-none"); }">
                         <label for="filtro_cargo" class="text-dark font-weight-bold">Puesto:</label>
-                        <select id="filtro_cargo" class="cls-select">
+                        <select id="filtro_cargo" class="form-control cls-select">
                             <option value="">SELECCIONAR</option>
                         </select>
                     </div>
 
                     <div class="col-6 py-3">
                         <label for="filtro_sede" class="text-dark font-weight-bold">Sede:</label>
-                        <select id="filtro_sede" class="cls-select">
+                        <select id="filtro_sede" class="form-control cls-select">
                             <option value="">SELECCIONAR</option>
                         </select>
                     </div>
@@ -666,15 +666,10 @@
 else
 {
     @section Scripts{
-        <script>
-            var currentTimestamp = new Date().getTime();
-        </script>
-        <script src="~/Scripts/RecursosHumanos/Index.js?rand=" + currentTimestamp defer></script>
+        <script src="~/Scripts/RecursosHumanos/Index.js?v=@DateTime.Now.Ticks" defer></script>
         <script>
             var mostarMasInfo = false;
         </script>
-        <script src="~/Scripts/RecursosHumanos/ModuloEmpleado.js?rand=" + currentTimestamp defer></script>
-
-
+        <script src="~/Scripts/RecursosHumanos/ModuloEmpleado.js?v=@DateTime.Now.Ticks" defer></script>
     }
 }

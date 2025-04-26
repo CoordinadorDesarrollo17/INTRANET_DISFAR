@@ -3,7 +3,6 @@ const porPagina = 12;
 var totalPaginas = Math.ceil(cantidadEmpleados / porPagina);                    // cantidadEmpleados es tipo 'var' y se encuentra en el index.cshtml
 var pagActual = 1;
 document.addEventListener('DOMContentLoaded', function () {
-
     generarBotonesPaginacion();
 
     document.querySelectorAll(".prev").forEach(prevBtn => {
@@ -179,7 +178,7 @@ function cargarAreas(idDpto, idSelectDestino) {
     $.ajax({
         url: '/RecursosHumanos/CargarAreas',
         type: 'POST',
-        data: { iddepartamento: idDpto }
+        data: { idDepartamento: idDpto }
     }).done(function (response) {
         if (response.Mensaje == "OK" && response.Lista.length > 0) {
             for (let indice in response.Lista) {

@@ -20,7 +20,12 @@ namespace Capa_Datos.Seguridad_DAO.TablasSql
 
             using (SqlConnection cn = new SqlConnection(uti.cadSql))
             {
-                string query = "SELECT COUNT(*) FROM OUSR_OPE WHERE UsrDocEntry = @UsrDocEntry AND OpeID = @OpeID";
+                string query = $@"SELECT 
+                                CASE 
+                                    WHEN EXISTS (SELECT 1 FROM OUSR_OPE WHERE UsrDocEntry = @UsrDocEntry AND OpeID = @OpeID) 
+                                    THEN 1 
+                                    ELSE 0 
+                                END AS ExisteRegistro";
 
                 using (SqlCommand cmd = new SqlCommand(query, cn))
                 {
