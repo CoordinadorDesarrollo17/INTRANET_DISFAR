@@ -42,9 +42,7 @@ namespace Capa_Datos
             this.cadHana = "Server=172.16.55.36:30015;UserName=B1ADMIN;Password=Passw0rd;";
             //this.schemaHana = "\"BASE_01_02_2025\".";
             this.schemaHana = "\"B1H_COBEFAR_2018\".";
-
-            //Hana On Premise 
-            this.cadHanaOnPremise = "Server=192.168.1.37:30015;UserName=B1ADMIN;Password=Passw0rd;";
+            this.cadHanaOnPremise = Environment.GetEnvironmentVariable("CNX_HANA_ON_PREMISE", EnvironmentVariableTarget.Machine);
             this.schemaHanaOnPremise = "\"B1H_COBEFAR_2018\".";
             this.BDsql = Environment.GetEnvironmentVariable("BD_PROYECTO_INTRANET", EnvironmentVariableTarget.Machine);
             this.cadSql = Environment.GetEnvironmentVariable("PROYECTO_INTRANET", EnvironmentVariableTarget.Machine);
