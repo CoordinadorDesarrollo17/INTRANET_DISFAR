@@ -18,7 +18,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             try
             {
-                using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+                using (SqlConnection cn = new SqlConnection(uti.CadSql4))
                 {
                     SqlCommand cmd = new SqlCommand();
                     cmd.Connection = cn;
@@ -26,7 +26,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     var sb = new StringBuilder();
 
                     sb.AppendLine("SELECT P.[ItemCode], P.[ItemName], P.[FirmCode], P.[Estado_SKU]");
-                    sb.AppendLine("FROM BD_39.DOCUMENTOS_REGULATORIOS.dbo.Productos P");
+                    sb.AppendLine("FROM DOCUMENTOS_REGULATORIOS.dbo.Productos P");
                     sb.AppendLine("WHERE 1= 1");
                     sb.AppendLine(condicion);
 

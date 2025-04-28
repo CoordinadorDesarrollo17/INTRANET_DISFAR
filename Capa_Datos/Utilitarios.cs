@@ -18,6 +18,7 @@ namespace Capa_Datos
         public string cadSql;
         public string cadSql2;
         public string CadSql3 { get; private set; }
+        public string CadSql4 { get; private set; }
         public int CodigoSmtp;
         public string Smtp;
         public string directorioFileServer;
@@ -39,8 +40,8 @@ namespace Capa_Datos
 
             // HANA Database Configuration
             this.cadHana = "Server=172.16.55.36:30015;UserName=B1ADMIN;Password=Passw0rd;";
-            this.schemaHana = "\"BASE_01_02_2025\".";
-            //this.schemaHana = "\"B1H_COBEFAR_2018\".";
+            //this.schemaHana = "\"BASE_01_02_2025\".";
+            this.schemaHana = "\"B1H_COBEFAR_2018\".";
 
             //Hana On Premise 
             this.cadHanaOnPremise = "Server=192.168.1.37:30015;UserName=B1ADMIN;Password=Passw0rd;";
@@ -49,6 +50,7 @@ namespace Capa_Datos
             this.cadSql = Environment.GetEnvironmentVariable("PROYECTO_INTRANET", EnvironmentVariableTarget.Machine);
             this.cadSql2 = Environment.GetEnvironmentVariable("PROYECTO_RESERVA_PICKING", EnvironmentVariableTarget.Machine);
             CadSql3 = Environment.GetEnvironmentVariable("BD_DT", EnvironmentVariableTarget.Machine);
+            CadSql4 = Environment.GetEnvironmentVariable("BD_DOCUMENTOS_REGULATORIOS", EnvironmentVariableTarget.Machine);
             this.serverSophos = Environment.GetEnvironmentVariable("SOPHOS", EnvironmentVariableTarget.Machine);
 
             // CORREO 

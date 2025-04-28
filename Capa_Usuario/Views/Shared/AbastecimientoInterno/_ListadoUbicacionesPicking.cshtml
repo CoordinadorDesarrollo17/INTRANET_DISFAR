@@ -1,4 +1,9 @@
-﻿<style>
+﻿@{
+    var jss = new System.Web.Script.Serialization.JavaScriptSerializer();
+    var perInfoJson = jss.Serialize(ViewBag.UbicacionesLotes);
+}
+
+<style>
     td.details-control {
         cursor: pointer;
         text-align: center;
@@ -83,7 +88,7 @@
             }
 
         let table = $('#tbl_listaUbicacionesPicking').DataTable(configDataTable)
-        let ubicacionesLotes = JSON.parse(`@Html.Raw(Json.Encode(ViewBag.UbicacionesLotes))`)
+        let ubicacionesLotes = JSON.parse("@Html.Raw(perInfoJson.Replace("\\", "\\\\").Replace("\"", "\\\""))");
 
         $('#tbl_listaUbicacionesPicking tbody').off('click', 'td.details-control');
         $('#tbl_listaUbicacionesPicking tbody').on('click', 'td.details-control', function () {
