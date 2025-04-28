@@ -1,0 +1,18 @@
+@model Capa_Entidad.General_ENT.TablasSql.MenuSistema_E
+
+@if (Model.SubMenus != null && Model.SubMenus.Any())
+{
+    <div class="dropdown-submenu">
+        <a class="dropdown-item dropdown-toggle" href="#"><i class="@Model.Icono"></i> @Model.Nombre</a>
+        <ul class="dropdown-menu">
+            @foreach (var hijo in Model.SubMenus)
+            {
+                @Html.Partial("_MenuSistemaItem", hijo)
+            }
+        </ul>
+    </div>
+}
+else
+{
+    <a class="dropdown-item" href="@Model.Ruta"><i class="@Model.Icono"></i> @Model.Nombre</a>
+}

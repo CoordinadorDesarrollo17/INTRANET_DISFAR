@@ -1,0 +1,123 @@
+@{
+    ViewBag.Title = "Ubicaciones Reserva";
+    Layout = "~/Views/Shared/_DefaultLayout.cshtml";
+}
+
+<div class="pt-3">
+    <nav>
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("Sesion", "Index")">Abastecimiento Interno</a></li>
+            <li class="current"><em>Ubicaciones Reserva</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
+    <div class="row px-3 pt-3"><h3 class="titulo-seccion">UBICACIONES RESERVA</h3></div>
+
+    <div class="row px-3 py-3">
+        <div class="col-sm-12 col-lg-8">
+            <button type="button" id="btn_nuevaUbicacionReserva" class="btn btn-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="Nueva ubicación reserva">
+                <i class="bi bi-plus-lg"></i> Ubicación
+            </button>
+
+            <button type="button" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Exportar Excel de Ubicaciones Reserva" onclick="exportarExcel()">
+                <i class="bi bi-file-earmark-excel-fill"></i> Reporte
+            </button>
+        </div>
+
+        <div class="col-sm-12 col-lg-4 d-flex justify-content-end">
+            <button type="button" id="btn_traspasoPorUbicaciones" class="btn btn-cobefar-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Traspaso por ubicaciones">
+                <i class="bi bi-box-arrow-up-right"></i> Traspaso por ubicaciones
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="bg-white px-3 py-3 align-items-center">
+    <div class="row">
+        <div class="col-12">
+            <div id="div_listado" class="bg-white"></div>
+        </div>
+    </div><!-- row -->
+</div><!-- main -->
+
+<div class="modal fade" id="modalNuevaUbicacionReserva" tabindex="-1" aria-labelledby="modalNUPLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header text-white bg-headerModals">
+                <h5 class="modal-title" id="modalNUPLabel">Registro de ubicación reserva</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" tabindex="-1"></button>
+            </div>
+
+            <div class="modal-body bg-blancoHumo">
+                <div id="div_modalBody" class="container pb-0">
+                    <form id="frm_registroUbicacion">
+                        <input type="hidden" id="CodigoUbicacion" name="CodigoUbicacion" class="form-control cls-readonly text-center" autocomplete="off" readonly />
+
+                        <div id="div_codigos">
+                            <div class="row">
+                                <div class="col-lg-3">
+                                    <label class="form-label fw-bold">Almacén:</label>
+                                    <input id="almacen" class="form-control text-uppercase cls-readonly" type="text" autocomplete="off" value="RESERVA" readonly />
+                                </div>
+                                <div class="col-lg-3">
+                                    <label class="form-label fw-bold">Rack - Bloque:</label>
+                                    <input id="rackBloque" class="form-control text-uppercase" type="text" autocomplete="off" oninput="generarCodigoUbicacion($('#almacen').val(), 0); generarCodigoUbicacion(this.value, 1)" />
+                                </div>
+                                <div class="col-lg-3">
+                                    <label class="form-label fw-bold">Posición:</label>
+                                    <input id="posicion" class="form-control text-uppercase" type="text" autocomplete="off" oninput="generarCodigoUbicacion(this.value, 2)" />
+                                </div>
+                                <div class="col-lg-3">
+                                    <label class="form-label fw-bold">Nivel:</label>
+                                    <input id="nivel" class="form-control text-uppercase cls-num" type="text" autocomplete="off" oninput="generarCodigoUbicacion(this.value, 3)" />
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-bs-toggle="tooltip" data-placement="top" title="Cerrar">
+                    <i class="bi bi-x-lg"></i> Cerrar
+                </button>
+                <button type="button" class="btn btn-success" data-function="" data-bs-toggle="tooltip" data-bs-placement="top" title="Registrar ubicación" onclick="registrarDatos('RegistrarUbicacionReserva', 'ListarUbicacionesReserva')">
+                    <i class="bi bi-check-lg"></i> Registrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script src="~/Scripts/AbastecimientoInterno/Ubicaciones.js?v=@DateTime.Now.Ticks" defer></script>
+    <script>
+		document.addEventListener('DOMContentLoaded', function () {
+			$('#div_listado').load(`@Url.Action("ListarUbicacionesReserva")`).fadeIn("fast")
+			limitarMaxCaracteres('CodigoUbicacion', 228)
+            permitirValoresNumericosPositivos()
+		});
+
+		document.querySelector('#btn_nuevaUbicacionReserva').addEventListener('click', function () {
+		    const modal = document.querySelector('#modalNuevaUbicacionReserva')
+            const bootstrapModal = new bootstrap.Modal(modal, {
+                focus: false,
+                keyboard: false,
+                backdrop: 'static'
+            })
+			bootstrapModal.show()
+		})
+
+        document.querySelector('#btn_traspasoPorUbicaciones').addEventListener('click', async function () {
+            window.open('@Url.Action("StockReserva", "AbastecimientoInterno")', '_blank');
+        });
+
+        function exportarExcel() {
+            $(location).attr('href', `/AbastecimientoInterno/ExportarExcelUbicacionesReserva`);
+        }
+    </script>
+}

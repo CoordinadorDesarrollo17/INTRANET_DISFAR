@@ -71,7 +71,7 @@
                                 @Html.DisplayFor(modelItem => item.BuyUnitMsr)
                             </td>
                             <td class="text-center">
-                                <a href="@Url.Action("DetallesArticulo", "DireccionTecnica", new { ItemCode = item.ItemCode })" target="_blank" class="btn btn-sm btn-light mx-2" data-toggle="tooltip" data-placement="top" title="Ver Detalles"><i class="icon-search text-cobefar"></i></a>
+                                <a href="@Url.Action("DetallesArticulo", "DireccionTecnica", new { itemCode = item.ItemCode })" target="_blank" class="btn btn-sm btn-light mx-2" data-toggle="tooltip" data-placement="top" title="Ver Detalles"><i class="icon-search text-cobefar"></i></a>
                             </td>
                         </tr>
                     }

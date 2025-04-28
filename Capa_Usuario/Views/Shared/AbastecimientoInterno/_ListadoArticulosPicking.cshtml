@@ -1,0 +1,252 @@
+﻿@{ int num = 1;}
+<table id="tbl_listaArticulosAbastPicking" class="dt-container dt-empty-footer table table-sm table-hover table-bordered table-striped font-14" width="100%">
+    <thead class="thead-cobefar">
+        <tr>
+            <th scope="col" class="text-center" style="width: 3%;">#</th>
+            <th scope="col" class="text-center" title="Código y descripción completa del artículo">Artículo</th>
+            <th scope="col" class="text-center" title="Número de lote del producto">Lote</th>
+            <th scope="col" class="text-center" title="Fecha de vencimiento y fecha de admisión">Venc. / Adm.</th>
+            <th scope="col" class="text-center" title="Ubicación física de la reserva">Ubicación</th>
+            <th scope="col" class="text-center" title="Unidad de medida en formato Master">U. Master</th>
+            <th scope="col" class="text-center" title="Cantidad total en unidad Master">Stock M.</th>
+            <th scope="col" class="text-center" title="Saldo restante en unidad Master">SALDO</th>
+            <th scope="col" class="text-center" title="Cantidad total en unidades: (U. Master x Masters) + Saldos">Unidades</th>
+            <th scope="col" class="text-center" title="Stock solicitado en unidad Master">S. Master</th>
+            <th scope="col" class="text-center" title="Stock solicitado en unidad Saldo">S. Saldo</th>
+            <th scope="col" class="text-center" title="Cantidad total que está saliendo">Total salida</th>
+        </tr>
+    </thead>
+    <tbody class="text-dark">
+        @if (Model != null)
+        {
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td scope="col" class="text-center" style="width: 3%;">@num</td>
+                    <td scope="col">
+                        <input type="hidden" id="picking_itemCode_@num" data-campo="ItemCode" value="@item.ItemCode" />
+                        <input type="hidden" id="picking_itemName_@num" data-campo="ItemName" value="@item.ItemName" />
+                        <input type="hidden" id="picking_itemName_@num" data-campo="CodigoUbicacionOrigen" value="@item.CodigoUbicacion" />
+                        <span class="fw-bold ps-2 font-16 text-cobefar">@item.ItemCode</span><br />
+                        <span class="ps-2">@item.ItemName</span>
+                    </td>
+                    <td scope="col" class="text-center"><input type="hidden" id="picking_batchNum_@num" data-campo="BatchNum" value="@item.BatchNum" />@item.BatchNum</td>
+                    <td scope="col" class="text-center">
+                        <span class="fw-bold text-cobefar">V: </span>@item.ExpDate<br />
+                        <span class="fw-bold text-cobefar">A:</span> @item.InDate
+                    </td>
+                    <td scope="col" class="text-center">@item.CodigoUbicacion</td>
+                    <td scope="col" class="text-center">
+                        <input type="hidden" id="picking_umAlm_@num" data-campo="UmAlm" value="@item.UmAlm" />
+                        <input type="hidden" id="picking_valorUmAlm_@num" data-campo="ValorUmAlm" value="@item.ValorUmAlm" />@item.UmAlm
+                    </td>
+                    <td scope="col" class="text-center">
+                        <input type="hidden" id="picking_stockMaster_@num" data-campo="StockMaster" value="@item.QuantityMaster" />@item.QuantityMaster
+                    </td>
+                    <td scope="col" class="text-center">
+                        <input type="hidden" id="picking_stockSaldo_@num" data-campo="StockSaldo" value="@item.QuantitySaldo" />@item.QuantitySaldo
+                    </td>
+                    <td scope="col" class="text-center">
+                        <input type="hidden" id="picking_stockTotalUnidades_@num" data-campo="StockTotalUnidades" value="@item.QuantityUnidadesCajas" />@item.QuantityUnidadesCajas
+                    </td>
+                    <td scope="col" class="text-center">
+                        <div class="d-flex justify-content-center">
+                            <input type="text" id="picking_stockSolicitadoMaster_@num" data-campo="StockSolicitadoMaster" class="form-control text-center cls-cantidadManual cls-num cls-stockSolicitado cls-readonly" style="width: 100px"
+                                   data-stock-max="@item.QuantityMaster" data-idtotalsalida="picking_stockSaliendo_@num" data-sumarcon="picking_stockSolicitadoSaldo_@num" data-multiplicarpor="@item.ValorUmAlm"
+                                   oninput="validarTodosLosStocks()" @if (item.QuantityMaster == 0) { Write("hidden"); } autocomplete="off" data-posicion="@num" readonly />
+                        </div>
+                    </td>
+                    <td scope="col" class="text-center">
+                        <div class="d-flex justify-content-center">
+                            <input type="text" id="picking_stockSolicitadoSaldo_@num" data-campo="StockSolicitadoSaldo" class="form-control text-center cls-cantidadManual cls-num cls-stockSolicitado cls-readonly"
+                                   style="width: 100px" data-stock-max="@item.QuantitySaldo" data-idtotalsalida="picking_stockSaliendo_@num" data-sumarcon="picking_stockSolicitadoMaster_@num"
+                                   oninput="validarTodosLosStocks()" autocomplete="off" @if (item.QuantitySaldo == 0) { Write("hidden"); } data-posicion="@num" readonly />
+                            <input type="hidden" id="picking_stockSolicitadoTotalUnidades_@num" data-campo="StockSolicitadoTotalUnidades" class="form-control text-center" style="width: 100px" />
+                        </div>
+                    </td>
+                    <td scope="col" class="text-center">
+                        <div class="d-flex justify-content-center">
+                            <input type="text" id="picking_stockSaliendo_@num" data-campo="StockSaliendo" class="form-control cls-readonly text-center cls-stockSaliendo" style="width: 100px" readonly />
+                        </div>
+                    </td>
+                </tr>
+
+                num++;
+            }
+        }
+    </tbody>
+</table>
+
+<input type="hidden" id="cantidad_solicitada_acumulada" />
+
+<script src="~/Scripts/AbastecimientoInterno/ListadoArticulos.js?v=@DateTime.Now.Ticks" defer> </script>
+<script>
+    inicializarDataTable('tbl_listaArticulosAbastPicking', '25')
+
+    function calcularStockSaliendo(cantidadSolicitada, valorUmAlm, stockSaldo, stockMaster, stockTotalUnidades, idStockMaster, fila) {
+        // Variables
+        let input_cantSolicitadaAcumulada = document.querySelector('#cantidad_solicitada_acumulada')
+        let cantidadAcumulada = Number(input_cantSolicitadaAcumulada.value) || 0
+        let stockSaliendo = 0
+
+        // Si el "Stock UNDS" cubre la cantidad solicitada
+        if (Number(stockTotalUnidades) <= (Number(cantidadSolicitada) - Number(cantidadAcumulada))) {
+            cantidadAcumulada = cantidadAcumulada == 0 ? Number(stockTotalUnidades) : Number(cantidadAcumulada) + Number(stockTotalUnidades)
+            input_cantSolicitadaAcumulada.value = Number(cantidadAcumulada)      // Asignación
+            stockSaliendo = Number(stockTotalUnidades)
+        } else {
+            let stockMasterRequerido = 0
+            let stockSaliendoFaltante = Number(cantidadSolicitada) - Number(cantidadAcumulada)
+
+            if (stockSaliendoFaltante > 0) {
+                stockSaliendoFaltante = stockSaliendoFaltante - Number(stockSaldo)
+                let residuo = Number(stockSaliendoFaltante) % Number(valorUmAlm)
+
+                if (residuo == 0) {
+                    stockMasterRequerido = Number(stockSaliendoFaltante) / Number(valorUmAlm)                   // Dividimos para saber cuantos masters cubren el "stockSaliendoFaltante"
+                } else {
+                    let numero = Number(stockSaliendoFaltante)
+                    while (numero % Number(valorUmAlm) !== 0) {                                 // Buscamos la cantidad correcta a cubrir 1 master completo
+                        numero++
+                    }
+
+                    stockMasterRequerido = numero / Number(valorUmAlm)              // Una vez encontrado el valor, lo dividimos con el valor del master para el stock saliendo
+                }
+
+                if (stockMasterRequerido > stockMaster) {
+                    console.warn(`${fila}: El stock MASTER requerido es mayor al stock MASTER disponible.`)
+                    return 0;
+                }
+
+                document.querySelector(`#${idStockMaster}`).value = stockMasterRequerido
+                stockSaliendo = (stockMasterRequerido * Number(valorUmAlm)) + Number(stockSaldo)
+                cantidadAcumulada = Number(cantidadAcumulada) + Number(stockSaliendo);      // Reasignar explícitamente la cantidadAcumulada
+                input_cantSolicitadaAcumulada.value = Number(cantidadAcumulada) + Number(stockSaliendo)
+
+                // Se reinicia el valor de "stockSaliendoFaltante" a cero porque ya se cubrió la cantidad solicitada
+                if (cantidadAcumulada >= cantidadSolicitada) { stockSaliendoFFaltante = 0 }
+            } else {
+                stockSaliendo = 0
+            }
+        }
+
+        return stockSaliendo;
+    }
+
+    if (Array.from(document.querySelectorAll('#tbl_listaArticulosAbastPicking tbody tr')).length === 0) {
+        console.warn("No hay filas en la tabla.");
+    } else {
+        Array.from(document.querySelectorAll('#tbl_listaArticulosAbastPicking tbody tr')).forEach((fila, index) => {
+            // Obtener valores de los inputs dentro de la fila
+            let idStockMaster = fila.querySelector('[data-campo="StockMaster"]')?.id || "";
+            let stockSaldo = parseInt(fila.querySelector('[data-campo="StockSaldo"]')?.value || 0);
+            let stockMaster = parseInt(fila.querySelector('[data-campo="StockMaster"]')?.value || 0);
+            let valorUmAlm = parseInt(fila.querySelector('[data-campo="ValorUmAlm"]')?.value || 0);
+            let stockTotalUnidades = parseInt(fila.querySelector('[data-campo="StockTotalUnidades"]')?.value || 0);
+            let cantidadSolicitada = document.querySelector('#cantidad_solicitada'); // Cantidad fija
+
+            if (!cantidadSolicitada) {
+                console.warn('No existe elemento: cantidad_solicitada');
+                return;
+            }
+
+            if (!idStockMaster) {
+                console.warn('No existe elemento: idStockMaster');
+                return;
+            }
+
+            // Calcular el stock saliendo
+            fila.querySelector('[data-campo="StockSaliendo"]').value = calcularStockSaliendo(
+                cantidadSolicitada.value, valorUmAlm, stockSaldo, stockMaster, stockTotalUnidades, idStockMaster, `Fila ${index + 1}`
+            );
+        });
+    }
+
+
+    function guardarArticulosPicking() {
+        const tablaOrigen = document.querySelector('#tbl_listaArticulosAbastPicking tbody');
+        const tablaDestino = document.querySelector('#tbl_detalleRequerimiento tbody');
+
+        if (!tablaOrigen) {
+            Swal.fire('Para guardar cambios, debes buscar un código de artículo existente. ')
+            return;
+        }
+
+        const numericKeys = ["StockMaster", "StockSaldo", "StockSaliendo", "StockTotalUnidades", "ValorUmAlm"]
+        const filas = tablaOrigen.querySelectorAll('tr');
+        const arrayDeFilas = Array.from(filas).map(fila => {
+            // Selecciona todos los inputs dentro de la fila actual
+            const inputs = fila.querySelectorAll('input[data-campo]');
+
+            // Crea un objeto con el data-campo como clave y el valor del input como valor
+            const valores = Array.from(inputs).reduce((obj, input) => {
+                const key = input.dataset.campo; // Obtiene el valor de data-campo
+                if (key) { // Verifica que el data-campo exista
+                    obj[key] = numericKeys.includes(key) ? Number(input.value) || 0 : input.value;
+                }
+                return obj;
+            }, {});
+
+            return valores;
+        }).filter(valores => {
+            // Filtra las filas donde el campo "StockSaliendo" sea mayor a cero
+            return Number(valores['StockSaliendo']) > 0;
+        });
+
+        //console.log(arrayDeFilas)
+        //return;
+
+        let tbody = ''
+        let num = 1
+        arrayDeFilas.forEach(item => {
+            tbody += `<tr id="fila_${item.ItemCode}_${num}">
+                                <td scope="col" class="text-center"><input type="hidden" name="requerimiento.Detalle[].ItemCode" data-fila="fila_${item.ItemCode}_${num}" class="cls-itemCodes" value="${item.ItemCode}" /> ${item.ItemCode} </td>
+                                <td scope="col" class="text-center">
+                                    <input type="hidden" name="requerimiento.Detalle[].ItemName" value="${item.ItemName}" />${item.ItemName}
+                                </td>
+                                <td scope="col" class="text-center">
+                                    <input type="hidden" name="requerimiento.Detalle[].BatchNum" value="${item.BatchNum}" />${item.BatchNum}
+                                </td>
+                                <td scope="col" class="text-center">
+                                    <input type="hidden" name="requerimiento.Detalle[].UmAlm" value="${item.UmAlm}" />${item.UmAlm}
+                                </td>
+                                <td scope="col" class="text-center">
+                                    <input type="hidden" name="requerimiento.Detalle[].CodigoUbicacionOrigen" value="${item.CodigoUbicacionOrigen}" />${item.CodigoUbicacionOrigen}
+                                </td>
+                                <td scope="col" class="text-center">
+                                    <input type="hidden" name="requerimiento.Detalle[].ValorUmAlm" value="${item.ValorUmAlm}" />
+                                    <input type="hidden" name="requerimiento.Detalle[].QuantityMaster" value="${item.StockMaster}" />
+                                    <input type="hidden" name="requerimiento.Detalle[].QuantitySaldo" value="${item.StockSaldo}" />
+                                    <input type="hidden" name="requerimiento.Detalle[].QuantityUnidadesCajas" value="${item.StockSaliendo}" />${item.StockSaliendo}
+                                </td>
+                                <td scope="col" class="text-center">
+                                    <div class="d-flex justify-content-center align-items-center">
+                                        <input id="CodigoUbicacionDestino_${item.ItemCode}_${item.BatchNum}_${num}" name="requerimiento.Detalle[].CodigoUbicacionDestino"  class="form-control cls-input-tag" data-batchnum="${item.BatchNum}" data-itemcode="${item.ItemCode}"  />
+                                            <button class="btn btn-warning reload-button" type="button" data-inputid="CodigoUbicacionDestino_${item.ItemCode}_${item.BatchNum}_${num}" onclick="obtenerNuevasUbicaciones(this.dataset.inputid)">
+                                                <i class="bi bi-arrow-clockwise"></i>
+                                            </button>
+                                    </div>
+                                </td>
+                            </tr>`
+
+            ++num
+        })
+
+        tablaDestino.insertAdjacentHTML('beforeend', tbody);
+        console.log('Filas movidas con éxito')
+
+        const modalElement = document.getElementById('modalBusquedaArticulos')
+        const modalBootstrap = bootstrap.Modal.getInstance(modalElement)
+
+        if (!modalBootstrap) {
+            const modalBootstrap = new bootstrap.Modal(modal, {
+                focus: false,
+                backdrop: 'static',
+                keyboard: false
+            })
+        }
+
+        construirTags()
+        modalBootstrap.hide()
+    }
+</script>

@@ -24,5 +24,8 @@ namespace Capa_Entidad.ReportesDigemid_ENT
         public string NroFactura { get; set; }
         public decimal XDevolucion { get; set; }
 
+        // Campos extras
+        public string ComentarioOrganoleptico { get; set; }
+
     }
 }

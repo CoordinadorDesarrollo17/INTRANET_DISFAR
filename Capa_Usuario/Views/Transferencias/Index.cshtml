@@ -1,0 +1,385 @@
+@{
+    ViewBag.Title = "Listado de Transferencias";
+    Layout = "~/Views/Shared/_DefaultLayout.cshtml";
+
+    var tiposDocumento = new Dictionary<string, string>
+{
+        { "OPDN", "Entrada de Mercancía" },
+        { "OWTR", "Transferencia" }
+    };
+}
+
+<div class="pt-3">
+    <nav>
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("Sesion", "Index")">Almacén</a></li>
+            <li><a href="@Url.Action("Sesion", "Index")">Liberaciones</a></li>
+            <li class="current"><em>@ViewBag.Title</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
+    <div class="row px-3 pt-3"><h3 class="titulo-seccion">@ViewBag.Title.ToUpper()</h3></div>
+    <div class="row px-3 py-2">
+        <div class="col-12">
+            <button type="button" id="btn_filtrar" class="btn btn-sm btn-outline-light" onclick="abrirModalFiltros()">
+                <i class="bi bi-filter"></i> Filtrar
+            </button>
+            <button type="button" id="btn_exportarReporte" class="btn btn-sm btn-success" data-nombrearchivo="ReporteTransferencias" onclick="abrirModalReporte(this)">
+                <i class="bi bi-file-excel"></i> Exportar
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="bg-white px-3 py-3 align-items-center">
+    <form id="frm_listadoInternamientos">
+        <div id="div_listado" class="table-responsive shadow-sm rounded">
+            <table id="tbl_listado" class="table table-bordered table-hover">
+                <thead class="thead-cobefar">
+                    <tr>
+                        <th scope="col" class="text-center small">DocNum</th>
+                        <th scope="col" class="text-center small">Tipo de Documento</th>
+                        <th scope="col" class="text-center small">Fecha Cont.</th>
+                        <th scope="col" class="text-center small">RUC Proveedor</th>
+                        <th scope="col" class="text-center small">Proveedor</th>
+                        <th scope="col" class="text-center small">Guía</th>
+                        <th scope="col" class="text-center small">Comprobante Vinc.</th>
+                        <th scope="col" class="text-center small">Estado</th>
+                        <th scope="col" class="text-center small"></th>
+                    </tr>
+                </thead>
+                <tbody class="table-white">
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td scope="col" class="text-center small">@item.DocNum</td>
+                            <td scope="col" class="text-center small">@tiposDocumento[item.TipoDocumento]</td>
+                            <td scope="col" class="text-center small">@item.FechaContabilizacion</td>
+                            <td scope="col" class="text-center small">@item.CardCode</td>
+                            <td scope="col" class="text-start small"><span class="ps-2">@item.CardName</span></td>
+                            <td scope="col" class="text-center small">@item.Guia</td>
+                            <td scope="col" class="text-center small">@item.ComprobanteVinculado</td>
+                            <td scope="col" class="text-center small">@item.Estado</td>
+                            <td scope="col" class="text-center small">
+                                <button type="button" class="btn btn-sm btn-outline-dark btn_verDetalle" onclick="redireccionar(this)" data-ruta="/Transferencias/VerDetalle?Id=@item.Id"><i class="bi bi-search"></i></button>
+                                @if (item.Estado != "Liberado" || item.Estado != "Cancelado")
+                                {
+                                    <button type="button" class="btn btn-sm btn-outline-danger cls-cancelarTransferencia" onclick="cancelarTransferencia(@item.Id)"><i class="bi bi-trash2-fill"></i></button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </form>
+</div>
+
+<div class="modal fade" id="modalFiltros" tabindex="-1" aria-labelledby="modalLabel1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header text-white bg-headerModals">
+                <h5 class="modal-title" id="modalLabel1">Filtros</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" tabindex="-1"></button>
+            </div>
+
+            <div class="modal-body bg-blancoHumo">
+                <div id="div_modalBody" class="container pb-0">
+                    <form id="frm_filtros">
+                        <div class="row mb-3">
+                            <div class="col-lg-3">
+                                <label for="DocNum" class="form-label fw-bold">DocNum:</label>
+                                <input id="DocNum" name="DocNum" class="form-control cls-num" type="text" autocomplete="off" />
+                            </div>
+                            <div class="col-lg-3">
+                                <label for="TipoDocumento" class="form-label fw-bold">Tipo de Documento:</label>
+                                <input id="TipoDocumento" name="TipoDocumento" class="form-control " type="text" autocomplete="off" />
+                            </div>
+                            <div class="col-lg-3">
+                                <label for="CardCode" class="form-label fw-bold">RUC Proveedor:</label>
+                                <input id="CardCode" name="CardCode" class="form-control cls-num" type="text" autocomplete="off" />
+                            </div>
+                            <div class="col-lg-3">
+                                <label for="CardName" class="form-label fw-bold">Proveedor:</label>
+                                <select id="CardName" name="CardName" class="cls-select">
+                                    <option value="">Seleccione</option>
+                                    @foreach (var item in ViewBag.ListaProveedores)
+                                    {
+                                        <option value="@item.CardName">@item.CardName</option>
+                                    }
+                                </select>
+                            </div>
+                        </div><!-- // ROW -->
+
+                        <div class="row">
+                            <div class="col-lg-3">
+                                <label for="Guia" class="form-label fw-bold">Guía:</label>
+                                <input id="Guia" name="Guia" class="form-control " type="text" autocomplete="off" />
+                            </div>
+                            <div class="col-lg-3">
+                                <label for="ComprobanteVinculado" class="form-label fw-bold">Comprobante Vinculado:</label>
+                                <input id="ComprobanteVinculado" name="ComprobanteVinculado" class="form-control" type="text" autocomplete="off" />
+                            </div>
+                            <div class="col-lg-3">
+                                <label for="Estado" class="form-label fw-bold">Estado:</label>
+                                <select id="Estado" name="Estado" class="form-select">
+                                    <option value="">Seleccione</option>
+                                    <option value="Pendiente">Pendiente</option>
+                                    <option value="Liberado">Liberado</option>
+                                    <option value="Transferido">Transferido</option>
+                                    <option value="Cancelado">Cancelado</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-3">
+                                <label for="FechaContabilizacion" class="form-label fw-bold">Fecha Cont.:</label>
+                                <input id="FechaContabilizacion" name="FechaContabilizacion" class="form-control " type="date" autocomplete="off" />
+                            </div>
+                        </div><!-- // ROW -->
+                    </form>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" id="btn_cerrarModal" class="btn btn-outline-secondary" data-bs-dismiss="modal" data-bs-toggle="tooltip">
+                    <i class="bi bi-x-lg"></i> Cerrar
+                </button>
+                <button type="button" id="btn_aplicarFiltros" class="btn btn-cobefar-2" onclick="aplicarFiltros()">
+                    <i class="bi bi-check-lg"></i> Aplicar filtros
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalReporte" tabindex="-1" aria-labelledby="modalLabel2" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal">
+        <div class="modal-content">
+            <div class="modal-header text-white bg-headerModals">
+                <h5 class="modal-title" id="modalLabel2">Exportar Reporte</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" tabindex="-1"></button>
+            </div>
+
+            <div class="modal-body bg-blancoHumo">
+                <div id="div_modalBody" class="container pb-0">
+                    <form id="frm_exportarReporte">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <label for="FechaContabilizacion2" class="form-label fw-bold">Fecha Cont.:</label>
+                                <input id="FechaContabilizacion2" name="FechaContabilizacion" class="form-control " type="date" autocomplete="off" />
+                            </div>
+                        </div><!-- // ROW -->
+                    </form>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" id="btn_cerrarModalReporte" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-lg"></i> Cerrar
+                </button>
+                <button type="button" id="btn_descargarReporte" class="btn btn-cobefar-2" onclick="descargarReporte('frm_exportarReporte')">
+                    <i class="bi bi-download"></i> Descargar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            soloNumerosPorClase('cls-num');
+            inicializarDataTable('tbl_listado', 25);
+
+            tippy('#btn_filtrar', {
+                content: 'Filtrar listado',
+                animation: 'fade',
+                placement: 'bottom-start'
+            });
+
+            tippy('#btn_exportarReporte', {
+                content: 'Exportar reporte',
+                animation: 'fade',
+                placement: 'bottom-end'
+            });
+
+            tippy('#btn_cerrarModal', {
+                content: 'Cerrar filtros',
+                animation: 'fade',
+                placement: 'bottom-start'
+            });
+
+            tippy('#btn_aplicarFiltros', {
+                content: 'Aplicar filtros',
+                animation: 'fade',
+                placement: 'bottom-end'
+            });
+
+            tippy('.btn_verDetalle', {
+                content: 'Ver detalle',
+                animation: 'fade',
+                placement: 'bottom-end'
+            });
+
+            tippy('.cls-cancelarTransferencia', {
+                content: 'Cancelar transferencia',
+                animation: 'fade',
+                placement: 'bottom-end'
+            });
+
+
+            document.querySelector("#btn_cerrarModalReporte").addEventListener("click", function () {
+                const modal = bootstrap.Modal.getInstance(document.querySelector('#modalReporte'));
+                if (modal) {
+                    modal.hide();
+                }
+            });
+
+        });
+
+        function abrirModalFiltros() {
+            const modal = document.querySelector('#modalFiltros')
+            const bootstrapModal = new bootstrap.Modal(modal, {
+                focus: false,
+                keyboard: false,
+                backdrop: 'static'
+            })
+            bootstrapModal.show();
+        }
+
+        function redireccionar(input) {
+            window.location.replace(input.dataset.ruta);
+        }
+
+        async function cancelarTransferencia(id) {
+            swalWithBootstrapButtons.fire({
+                title: '¿Está seguro(a) de CANCELAR TRANSFERENCIA?',
+                html: 'Todos los artículos del documentos regresarán a estado: LIBERADO',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: "<i class='bi bi-check-lg'></i> Si",
+                cancelButtonText: "<i class='bi bi-x-lg mx-1'></i> Cancelar",
+                reverseButtons: true,
+                allowEscapeKey: false,
+                allowOutsideClick: false,
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-outline-danger mx-1'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const response = await fetch("/Transferencias/CancelarTransferencia", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ id })
+                        });
+
+                        if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+
+                        const data = await response.json();
+
+                        Swal.fire({
+                            title: data.Titulo,
+                            html: Array.isArray(data.Mensajes) ? data.Mensajes.join('<br>') : data.Mensajes || "",
+                            icon: data.Icono,
+                            confirmButtonColor: '#28a745'
+                        }).then(result => {
+                            if (result.isConfirmed && data.Icono === "success") {
+                                location.reload();
+                            }
+                        });
+                    } catch (error) {
+                        console.error('Error al registrar:', error);
+                    }
+                }
+            });
+        }
+
+        async function aplicarFiltros() {
+            const form = document.querySelector('#frm_filtros');
+            const formData = new FormData(form);
+            const rawPayload = Object.fromEntries(formData.entries());
+
+            const payload = {};
+
+            // Lista de campos que deben ser convertidos a número
+            const camposNumericos = ['DocNum'];
+
+            for (const key in rawPayload) {
+                if (camposNumericos.includes(key)) {
+                    const val = rawPayload[key].trim();
+                    payload[key] = val === '' ? null : Number(val);
+                } else {
+                    payload[key] = rawPayload[key];
+                }
+            }
+
+            try {
+                const response = await fetch("/Transferencias/FiltrarListado", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error en la solicitud: ${response.statusText}`);
+                }
+
+                // Recibimos el HTML directamente
+                const html = await response.text();
+
+                document.querySelector('#div_listado').innerHTML = html;
+                inicializarDataTable('tbl_listado', '25');
+
+                const modalElement = document.querySelector('#modalFiltros');
+
+                document.activeElement.blur();
+                const instance = bootstrap.Modal.getInstance(modalElement)
+                    ?? new bootstrap.Modal(modalElement);
+                instance.hide();
+
+            } catch (error) {
+                console.error('Error al filtrar:', error);
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error al aplicar filtros',
+                    text: error.message || 'Ocurrió un error inesperado.',
+                });
+            }
+        }
+
+        function abrirModalReporte() {
+            const modal = document.querySelector('#modalReporte')
+            const bootstrapModal = new bootstrap.Modal(modal, {
+                focus: false,
+                keyboard: false,
+                backdrop: 'static'
+            })
+            bootstrapModal.show();
+        }
+
+        function descargarReporte(idForm) {
+            const form = document.querySelector(`#${idForm}`);
+            const formData = new FormData(form);
+            const payload = Object.fromEntries(formData.entries());
+
+            // Validar que FechaContabilizacion no esté vacío
+            if (!payload.FechaContabilizacion || payload.FechaContabilizacion.trim() === '') {
+                Swal.fire('Debes ingresar una Fecha de Contabilización.');
+                return;
+            }
+
+            const queryString = new URLSearchParams(payload).toString();
+            window.location.href = `/Transferencias/DescargarExcelTransferencias?${queryString}`;
+        }
+    </script>
+}

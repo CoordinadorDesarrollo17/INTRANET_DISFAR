@@ -18,14 +18,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
-using Capa_Negocio.DireccionTecnica_NEG.TablasHANA;
 using Capa_Usuario.Helpers;
 using Capa_Negocio;
+using Capa_Negocio.DireccionTecnica_NEG.TablasExternas;
+using DocumentFormat.OpenXml.Spreadsheet;
+using System.IO;
+using System.util;
+using Capa_Entidad.TablasSql;
 namespace Capa_Usuario.Controllers
 {
     public class DireccionTecnicaController : Controller
     {
         DocumentosDig_N dgN = new DocumentosDig_N();
+        private readonly ODOCS_N _docsN = new ODOCS_N();
+
         /************************* C O N F I G U R A C I Ó N *************************/
         private ActionResult VerificarPermiso(int idOperation)
         {
@@ -487,6 +493,54 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+
+        public ActionResult OrganolepticoEmPdf(int docEntry, string itemCode, string lote, string almacen, int detalleId, int idOperation = 2303)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
+                return resultadoAcceso;
+
+            var orgEM = dgN.ConsultarOrganolepticoEm(docEntry).Where(o => o.Lote == lote).ToList();
+
+            // Si no hay datos, salimos sin generar nada
+            if (orgEM == null || !orgEM.Any())
+                return new EmptyResult(); // También podrías usar: return HttpNotFound(); o redirigir con ViewBag message
+
+            var result = BuscarFirmas("QuimicoFarmaceutico", almacen);
+            if (result != null && result.Count >= 1)
+            {
+                ViewBag.QuimicoFarmaceuticoAsistente = result["NombApe"];
+                ViewBag.Firma = result["Firma"];
+            }
+
+            var firmaResponsableDT = BuscarFirmas("ResponsableDT", "08");
+            ViewBag.FirmaDT = firmaResponsableDT != null && firmaResponsableDT.Any() ? firmaResponsableDT["Firma"] : "";
+
+            var detalle = new DOCS1_N().ListarDetalleDocumento(new DOCS1_E { Id = detalleId });
+
+            if (detalle != null && detalle.Any())
+                orgEM.First().ComentarioOrganoleptico = detalle.First().ComentarioOrganoleptico;
+
+            var pdfResult = new ViewAsPdf("OrganolepticoEM_PDF", orgEM)
+            {
+                PageSize = Rotativa.Options.Size.A4,
+                FileName = $"Organoleptico_{lote}.pdf"
+            };
+
+            byte[] pdfBytes = pdfResult.BuildFile(ControllerContext);
+
+            string nombreArchivo = $"Organoleptico_{lote}.pdf";
+            string rutaDirectorio = Path.Combine(new Utilitarios_N().directorioDocumentosRegulatorios, "Documentos", itemCode);
+
+            if (!Directory.Exists(rutaDirectorio))
+                Directory.CreateDirectory(rutaDirectorio);
+
+            string filePath = Path.Combine(rutaDirectorio, nombreArchivo);
+            System.IO.File.WriteAllBytes(filePath, pdfBytes);
+
+            return File(pdfBytes, "application/pdf", nombreArchivo);
+        }
+
         public ActionResult RealizarEntradaDeMercancias(int DocEntry, int idOperation = 2304)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
@@ -591,14 +645,14 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-        public ActionResult DetallesArticulo(string ItemCode, int idOperation = 2502)
+        public ActionResult DetallesArticulo(string itemCode, int idOperation = 2502)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 ViewBag.Owhs = new Capa_Negocio.General_NEG.Tablas.OWHS_N();
-                ViewBag.listaOitw = new Capa_Negocio.Almacen_NEG.Tablas.OITW_N().listarDetArticulosInv(ItemCode);
-                return View(new Capa_Negocio.Almacen_NEG.Tablas.OITM_N().buscarArticulo(ItemCode));
+                ViewBag.listaOitw = new Capa_Negocio.Almacen_NEG.Tablas.OITW_N().ListarDetArticulosInv(new OITW_E { ItemCode = itemCode });
+                return View(new Capa_Negocio.Almacen_NEG.Tablas.OITM_N().buscarArticulo(itemCode));
             }
             else
             {

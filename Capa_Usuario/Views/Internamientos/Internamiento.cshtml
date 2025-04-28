@@ -1,0 +1,399 @@
+﻿@{
+    ViewBag.Title = "Internamiento";
+    Layout = "~/Views/Shared/_DefaultLayout.cshtml";
+}
+
+<div class="pt-3">
+    <nav>
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("Sesion", "Index")">Dirección Técnica</a></li>
+            <li><a href="@Url.Action("Sesion", "Index")">Liberaciones</a></li>
+            <li><a href="@Url.Action("Index", "Internamientos")">Listado de Internamientos</a></li>
+            <li class="current"><em>@ViewBag.Title</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
+    <div class="row px-3 pt-3"><h3 class="titulo-seccion">@ViewBag.Title.ToUpper()</h3></div>
+</div>
+
+<div class="bg-white px-3 py-3 align-items-center">
+    <form id="frm_documento">
+        <div class="row g-3 mb-4">
+            <!-- Tipo de documento -->
+            <div class="col-lg-3">
+                <label for="TipoDocumento" class="form-label fw-semibold small">Tipo de documento:</label>
+                <select id="TipoDocumento" name="TipoDocumento" class="form-select">
+                    <option value="">Seleccione</option>
+                    <option value="OPDN">Entrada de Mercancías</option>
+                    <option value="OWTR">Transferencias</option>
+                </select>
+            </div>
+
+            <!-- DocNum con botón -->
+            <div class="col-lg-2">
+                <label for="DocNum" class="form-label fw-semibold small">DocNum:</label>
+                <div class="input-group shadow-sm">
+                    <input type="hidden" id="DocEntry" name="DocEntry" readonly />
+                    <input type="text" id="DocNum" name="DocNum" autocomplete="off" class="form-control cls-num">
+                    <button id="btn_buscarDocNum" type="button" onclick="buscarDocumento()" class="btn btn-success">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Nro. de guía -->
+            <div class="col-lg-2">
+                <label for="Guia" class="form-label fw-semibold small">Nro. de guía:</label>
+                <input type="hidden" id="ComprobanteVinculado" name="ComprobanteVinculado" readonly />
+                <input type="hidden" id="FechaContabilizacion" name="FechaContabilizacion" readonly />
+                <input type="hidden" id="FechaInicioTraslado" name="FechaInicioTraslado" readonly />
+                <input type="text" id="Guia" name="Guia" autocomplete="off" readonly
+                       class="form-control text-center bg-light">
+            </div>
+
+            <!-- Socio de negocio -->
+            <div class="col-lg-5">
+                <label for="CardName" class="form-label fw-semibold small">Socio de Negocio:</label>
+                <input type="hidden" id="CardCode" name="CardCode" readonly>
+                <input type="text" id="CardName" name="CardName" autocomplete="off" readonly
+                       class="form-control text-start bg-light">
+            </div>
+        </div>
+    </form>
+    <hr />
+
+    <div id="div_detalle" class="table-responsive shadow-sm rounded" hidden>
+        <form id="frm_datosTabla" enctype="multipart/form-data">
+            <table id="tbl_documento" class="table table-bordered table-hover">
+                <thead class="thead-cobefar">
+                    <tr>
+                        <th scope="col" class="text-center text-uppercase small" style="width: 4%;"></th>
+                        <th scope="col" class="text-center text-uppercase small" style="width: 7%;">Código de artículo</th>
+                        <th scope="col" class="text-center text-uppercase small">Descripción</th>
+                        <th scope="col" class="text-center text-uppercase small">Lote</th>
+                        <th scope="col" class="text-center text-uppercase small" style="width: 7%;">F.V.</th>
+                        <th scope="col" class="text-center text-uppercase small" style="width: 7%;">R.S.</th>
+                        <th scope="col" class="text-center text-uppercase small">Fabricante</th>
+                        <th scope="col" class="text-center text-uppercase small" style="width: 7%;">Cond. alm. y trans.</th>
+                        <th scope="col" class="text-center text-uppercase small">Almacén</th>
+                        <th scope="col" class="text-center text-uppercase small">Cantidad</th>
+                    </tr>
+                </thead>
+                <tbody class="table-white">
+                </tbody>
+            </table>
+        </form>
+    </div>
+
+
+    <div class="row mt-3">
+        <div class="col-lg-2">
+            <button type="button" id="btn_guardar" class="btn btn-success fw-semibold shadow" onclick="registrarDocumento()">
+                <i class="bi bi-check-lg"></i> Guardar
+            </button>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    @*<script src="~/Scripts/Adquisiciones/GestionRequerimientos.js?v=@DateTime.Now.Ticks" defer></script>*@
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            soloNumerosPorClase('cls-num')
+
+            tippy('#btn_buscarDocNum', {
+                content: 'Buscar documento',
+                animation: 'fade'
+            });
+
+            tippy('#btn_guardar', {
+                content: 'Guardar internamiento',
+                animation: 'fade'
+            });
+        })
+
+        async function buscarDocumento() {
+            const tipoDocumento = document.querySelector('#TipoDocumento')
+            const docNum = document.querySelector('#DocNum')
+            document.querySelector('#DocEntry').value = '';
+            document.querySelector('#CardCode').value = '';
+            document.querySelector('#CardName').value = '';
+            document.querySelector('#Guia').value = '';
+            document.querySelector('#ComprobanteVinculado').value = '';
+            document.querySelector('#FechaContabilizacion').value = '';
+            document.querySelector('#FechaInicioTraslado').value = '';
+            document.querySelector('#tbl_documento tbody').innerHTML = '';
+            document.querySelector('#div_detalle').hidden = false;
+
+            if (!tipoDocumento || !docNum) {
+                console.warn('El elemento no existe.');
+                return;
+            }
+
+            if (tipoDocumento.value == '') {
+                generarAlerta('Error al buscar documento', 'Debes seleccionar el tipo de documento.', 'error');
+                return;
+            }
+
+            if (docNum.value == '') {
+                generarAlerta('Error al buscar documento', 'Debes ingresar un DocNum válido.', 'error');
+                return;
+            }
+
+            const payload = { tipoDocumento: String(tipoDocumento.value), docNum: Number(docNum.value) }
+
+            try {
+                const response = await fetch("/Internamientos/BuscarDocumento", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload) // Enviar los datos como JSON
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error en la solicitud: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                Swal.fire({
+                    title: data.Titulo,
+                    html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                        ? data.Mensajes.join('<br>')
+                        : data.Mensajes || "",
+                    icon: data.Icono,
+                    allowEscapeKey: false,
+                    allowOutsideClick: false,
+                    showConfirmButton: true,
+                    confirmButtonColor: '#28a745'
+                });
+
+                if (data.Icono == "success") {
+                    document.querySelector('#DocEntry').value = data.Documento.DocEntry;
+                    document.querySelector('#CardCode').value = data.Documento.CardCode;
+                    document.querySelector('#CardName').value = data.Documento.CardName;
+                    document.querySelector('#Guia').value = data.Documento.Guia;
+                    document.querySelector('#ComprobanteVinculado').value = data.Documento.ComprobanteVinculado;
+                    document.querySelector('#FechaContabilizacion').value = data.Documento.FechaContabilizacion;
+                    document.querySelector('#FechaInicioTraslado').value = data.Documento.FechaInicioTraslado;
+
+                    agregarFilaATabla('tbl_documento', data.Documento)
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function agregarFilaATabla(idTbody, datosFila) {
+            const tbody = document.querySelector(`#${idTbody} tbody`);
+
+            if (!tbody) {
+                console.error(`No se encontró tbody con id: ${idTbody}`);
+                return;
+            }
+
+            for (let key in datosFila.Detalle) {
+                if (datosFila.Detalle.hasOwnProperty(key)) {
+                    const item = datosFila.Detalle[key];
+                    const correlativo = `${item.ItemCode}_${item.Lote}`;
+                    const index = key;
+                    // Crear fila principal
+                    const tr = document.createElement('tr');
+                    tr.classList.add('main-row');
+
+                    tr.innerHTML = `
+                                                                        <td class="text-center">
+                                                                            <button type="button" class="btn btn-sm btn-cobefar-2 toggle-subtable">
+                                                                                <i class="bi bi-chevron-down"></i>
+                                                                            </button>
+                                                                        </td>
+                                                                        <td class="text-center text-uppercase small">
+                                                                            <input type="hidden" name="Detalle[${key}].ItemCode" value="${item.ItemCode}">${item.ItemCode}
+                                                                        </td>
+                                                                        <td class="text-start text-uppercase small">
+                                                                            <input type="hidden" name="Detalle[${key}].ItemName" value="${item.ItemName}">${item.ItemName}
+                                                                        </td>
+                                                                        <td class="text-center text-uppercase small">
+                                                                            <input type="hidden" name="Detalle[${key}].Lote" value="${item.Lote}">${item.Lote}
+                                                                        </td>
+                                                                        <td class="text-center text-uppercase small">
+                                                                            <input type="hidden" name="Detalle[${key}].FechaVencimiento" value="${item.FechaVencimiento}">${item.FechaVencimiento}
+                                                                        </td>
+                                                                        <td class="text-center text-uppercase small">
+                                                                            <input type="hidden" name="Detalle[${key}].RegistroSanitario" value="${item.RegistroSanitario}">${item.RegistroSanitario}
+                                                                        </td>
+                                                                        <td class="text-start text-uppercase small">
+                                                                            <input type="hidden" name="Detalle[${key}].Fabricante" value="${item.Fabricante}">${item.Fabricante}
+                                                                        </td>
+                                                                        <td class="text-center text-uppercase small">
+                                                                            <input type="hidden" name="Detalle[${key}].CondicionAlmTrans" value="15ºC - 25ºC">15ºC - 25ºC
+                                                                        </td>
+                                                                        <td class="text-center text-uppercase small">
+                                                                            <input type="hidden" name="Detalle[${key}].Almacen" value="${item.Almacen}">${item.Almacen}
+                                                                        </td>
+                                                                        <td class="text-center text-uppercase small">
+                                                                            <input type="hidden" name="Detalle[${key}].CantidadTotal" value="${item.CantidadTotal}">${item.CantidadTotal}
+                                                                        </td>
+                                                                    `;
+
+                    // Agregar fila al tbody
+                    tbody.appendChild(tr);
+
+                    // Agregar evento al botón para desplegar subtabla
+                    tr.querySelector('.toggle-subtable').addEventListener('click', function () {
+                        const icon = this.querySelector('i');
+                        const currentRow = this.closest('tr');
+                        const nextRow = currentRow.nextElementSibling;
+
+                        // Si subtabla ya existe, la eliminamos
+                        if (nextRow && nextRow.classList.contains('subtable-row')) {
+                            nextRow.remove();
+                            icon.classList.remove('bi-chevron-up');
+                            icon.classList.add('bi-chevron-down');
+                            return;
+                        }
+
+                        // Insertar subtabla (puedes personalizar esta estructura)
+                        const subRow = document.createElement('tr');
+                        subRow.classList.add('subtable-row');
+                        subRow.innerHTML = `
+                                                                            <td colspan="10" class="bg-light p-3">
+                                                                                <div class="row">
+                                                                                 <div class="col-lg-2">
+                                                                                     <label class="small form-label fw-bold">Certificado de Análisis:</label>
+                                                                                     <div class="form-check">
+                                                                                        <input class="form-check-input" type="radio" name="Detalle[${key}].CertificadoAnalisis" id="opcion1_${correlativo}" value="Aplica" checked>
+                                                                                        <label class="form-check-label" for="opcion1_${correlativo}">Aplica</label>
+                                                                                      </div>
+
+                                                                                      <div class="form-check">
+                                                                                        <input class="form-check-input" type="radio" name="Detalle[${key}].CertificadoAnalisis" id="opcion2_${correlativo}" value="No Aplica">
+                                                                                        <label class="form-check-label" for="opcion2_${correlativo}">No Aplica</label>
+                                                                                      </div>
+                                                                                 </div>
+                                                                                    <div class="col-lg-3">
+                                                                                        <label for="formFileProtocolo_${correlativo}" class="small form-label fw-bold">Cargar Protocolo:</label>
+                                                                                        <input class="form-control" type="file" id="formFileProtocolo_${correlativo}" name="Detalle[${key}].ArchivoProtocolo" accept=".pdf">
+
+                                                                                        <label for="formFileET_${correlativo}" class="small form-label fw-bold mt-4">Cargar E.T.:</label>
+                                                                                        <input class="form-control" type="file" id="formFileET_${correlativo}" name="Detalle[${key}].ArchivoET" accept=".pdf">
+                                                                                    </div>
+                                                                                    <div class="col-lg-5">
+                                                                                          <label class="small form-label fw-bold">Comentario Organoléptico:</label>
+                                                                                          <textarea name="Detalle[${key}].ComentarioOrganoleptico" class="form-control" rows="2">${item.ComentarioOrganoleptico ?? ''}</textarea>
+                                                                                    </div>
+                                                                                    <div class="col-lg-2">
+                                                                                          <table>
+                                                                                            <tr>
+                                                                                                <td>Aprobados:</td>
+                                                                                                <td>
+                                                                                                    <input type="text" name="Detalle[${key}].CantidadAprobados" class="form-control w-75 cls-num" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" oninput="validarCantidad(this)" autocomplete="off">
+                                                                                                </td>
+                                                                                            </tr>
+                                                                                            <tr>
+                                                                                                <td>Baja:</td>
+                                                                                                <td>
+                                                                                                    <input type="text" name="Detalle[${key}].CantidadBaja" class="form-control w-75 cls-num" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" oninput="validarCantidad(this)" autocomplete="off">
+                                                                                                </td>
+                                                                                            </tr>
+                                                                                            <tr>
+                                                                                                <td>Devolución:</td>
+                                                                                                <td>
+                                                                                                    <input type="text" name="Detalle[${key}].CantidadDevolucion" class="form-control w-75 cls-num" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" oninput="validarCantidad(this)" autocomplete="off">
+                                                                                                </td>
+                                                                                            </tr>
+                                                                                          </table>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </td>
+                                                                        `;
+
+                        currentRow.parentNode.insertBefore(subRow, currentRow.nextSibling);
+                        soloNumerosPorClase('cls-num')
+                        icon.classList.remove('bi-chevron-down');
+                        icon.classList.add('bi-chevron-up');
+                    });
+                }
+            }
+        }
+
+        async function registrarDocumento() {
+            const formData = new FormData();
+
+            // Reorganizar inputs Detalle[] desde frm_datosTabla
+            const formTabla = document.querySelector('#frm_datosTabla');
+            const formTablaData = new FormData(formTabla);
+            const detalle = {};
+
+            for (let [name, value] of formTablaData.entries()) {
+                const match = name.match(/^Detalle\[(\d+)\]\.(.+)$/);
+                if (match) {
+                    const index = match[1];
+                    const key = match[2];
+
+                    if (!detalle[index]) detalle[index] = {};
+                    detalle[index][key] = value;
+
+                    // Agregar cada valor al FormData como campo independiente
+                    formData.append(`Detalle[${index}].${key}`, value);
+                }
+            }
+
+            // Campos del formulario principal
+            const formDoc = document.querySelector('#frm_documento');
+            const formDocData = new FormData(formDoc);
+            for (let [key, value] of formDocData.entries()) {
+                formData.append(key, value);
+            }
+
+            // Adjuntar archivos manualmente (por fila)
+            document.querySelectorAll('#frm_datosTabla input[type="file"]').forEach(input => {
+                const name = input.name;
+                const file = input.files[0];
+                if (file) {
+                    formData.append(name, file); // Detalle[0].Archivo1, etc.
+                }
+            });
+
+            try {
+                const response = await fetch("/Internamientos/RegistrarDocumento", {
+                    method: 'POST',
+                    body: formData // se encarga de multipart/form-data automáticamente
+                });
+
+                if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+
+                const data = await response.json();
+
+                Swal.fire({
+                    title: data.Titulo,
+                    html: Array.isArray(data.Mensajes) ? data.Mensajes.join('<br>') : data.Mensajes || "",
+                    icon: data.Icono,
+                    confirmButtonColor: '#28a745'
+                }).then(result => {
+                    if (result.isConfirmed && data.Icono === "success") {
+                        location.reload();
+                    }
+                });
+            } catch (error) {
+                console.error('Error al registrar:', error);
+            }
+        }
+
+
+        function validarCantidad(input) {
+            const total = 0;
+            document.querySelectorAll(`.${input.dataset.identificador}`).forEach(input => {
+                total += Number(input.value);
+            })
+
+            //if (total !== input.dataset.cantidad) {
+            //    generarAlerta('Error en cantidades', 'Las cantidades ingresadas en Aprobado / Baja / Devolución deben cubrir la cantidad del artículo.', 'error');
+            //}
+        }
+    </script>
+}

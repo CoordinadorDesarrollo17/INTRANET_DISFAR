@@ -1,0 +1,51 @@
+﻿using Capa_Datos.AbastecimientoInterno_DAO.TablasSql;
+using Capa_Entidad;
+using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
+using System;
+using System.Collections.Generic;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
+{
+    public class UbicacionesLotesMaster_N
+    {
+        readonly UbicacionesLotesMaster_D datosUbicacionesLM = new UbicacionesLotesMaster_D();
+
+        public Helper_E Ingreso (int ubicacionLoteId, DetalleTransferenciaReserva_E ingreso, SqlConnection cn)
+        {
+            return datosUbicacionesLM.Ingreso(ubicacionLoteId,ingreso, cn);
+        }
+        public Helper_E RevertirIngreso(TransferenciaReserva_E ingreso, SqlConnection cn)
+        {
+            return datosUbicacionesLM.RevertirIngreso(ingreso, cn);
+        }
+        public Helper_E Salida(List<DetalleRequerimientos_E> salida, SqlConnection cn)
+        {
+            return datosUbicacionesLM.Salida(salida, cn);
+        }
+        
+        public List<UbicacionesLotesMaster_E> BuscarArticulos(UbicacionesLotesMaster_E filtros = null, StringBuilder condicion = null, Dictionary<string, object> parametros = null)
+        {
+            condicion = new StringBuilder();
+            parametros = new Dictionary<string, object>();
+
+            if (filtros != null)
+            {
+                if (!string.IsNullOrWhiteSpace(filtros.ItemCode))
+                {
+                    condicion.AppendLine("AND ULM.[ItemCode] = @ItemCode");
+                    parametros["@ItemCode"] = filtros.ItemCode;
+                }
+            }
+
+            return datosUbicacionesLM.BuscarArticulos(condicion.ToString(), parametros);
+        }
+        public UbicacionesLotesMaster_E Obtener(int id)
+        {
+            return datosUbicacionesLM.Obtener(id);
+        }
+        }
+}
