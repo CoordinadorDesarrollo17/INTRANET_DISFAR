@@ -825,6 +825,8 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                     if (!dr.IsDBNull(39)) { or.FechaInicioReparto = dr.GetString(39); }
                     if (!dr.IsDBNull(40)) { or.FechaFinReparto = dr.GetString(40); }
                     if (!dr.IsDBNull(41)) { or.PesoTotalVenta = dr.GetString(41); }
+                    if (!dr.IsDBNull(42)) { or.FormaPagoVenta = dr.GetString(42); }
+                    if (!dr.IsDBNull(43)) { or.TipoPagoRepartoContraEntrega = dr.GetString(43); }
                     lista.Add(or);
                 }
                 dr.Close();
