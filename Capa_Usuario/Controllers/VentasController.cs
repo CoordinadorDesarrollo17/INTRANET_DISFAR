@@ -3838,8 +3838,7 @@ namespace Capa_Usuario.Controllers
             foreach (var ordr in lista)
             {
                 almProcedencia = string.IsNullOrEmpty(almProcedencia) ? ordr.Almacen : almProcedencia;
-                // Solo descomentar BatchNum cuando la data este correcta al 100%
-                string[] ubicaciones = _ubicacionesLotesN.ListarUbicaciones(new Capa_Entidad.AbastecimientoInterno_ENT.TablasSql.UbicacionesLotes_E { ItemCode = ordr.ItemCode, /*BatchNum = ordr.Lote,*/ Almacen = almProcedencia })
+                string[] ubicaciones = _ubicacionesLotesN.ListarUbicaciones(new Capa_Entidad.AbastecimientoInterno_ENT.TablasSql.UbicacionesLotes_E { ItemCode = ordr.ItemCode, BatchNum = ordr.Lote, Almacen = almProcedencia })
                     .Select(u => u.CodigoUbicacion)
                     .Where(c => !string.IsNullOrWhiteSpace(c)) // limpia nulos y vacíos
                     .ToArray();
