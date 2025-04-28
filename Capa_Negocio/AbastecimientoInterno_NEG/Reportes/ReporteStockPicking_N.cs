@@ -40,13 +40,13 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.Reportes
                     int quantityUbicacionesLote = resultUbicacionesLotes?.Sum(r => r.QuantityUnidadesCajas) ?? 0;
 
                     int stockDeAlmReserva = quantityUbicacionesLote - quantityReq;
-                    int stockEnPicking = Convert.ToInt32(item.StockLibre) - stockDeAlmReserva;
+                    decimal stockEnPicking = item.StockLibreUnidades - stockDeAlmReserva;
 
                     var controlPorItemCode = controlStockInternoPicking.FirstOrDefault(i => i.ItemCode == item.ItemCode);
 
-                    item.StockLibre = stockEnPicking;
+                    item.StockLibreUnidades = stockEnPicking;
                     item.Clasificacion = (controlPorItemCode != null) ? controlPorItemCode.Clasificacion : string.Empty;
-                    item.StockMinAbastecimiento = (controlPorItemCode != null && item.StockLibre > 0) ? controlPorItemCode.StockMinAbastecimiento : 0;        // Debe existir stock en RESERVA 
+                    item.StockMinAbastecimiento = (controlPorItemCode != null && item.StockLibreUnidades > 0) ? controlPorItemCode.StockMinAbastecimiento : 0;        // Debe existir stock en RESERVA 
                 }
             }
 
@@ -55,7 +55,8 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.Reportes
             {
                 ItemCode = a.ItemCode,
                 ItemName = a.ItemName,
-                StockActual = Convert.ToInt32(a.StockLibre),
+                StockActualPiezas = Convert.ToInt32(a.StockLibre),
+                StockActualUnidades = a.StockLibreUnidades,
                 Almacen = a.WhsCode,
                 Clasificacion = a.Clasificacion,
                 StockMinAbastecimiento = a.StockMinAbastecimiento

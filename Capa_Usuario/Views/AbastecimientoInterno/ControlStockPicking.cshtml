@@ -94,7 +94,8 @@
                         <th scope="col" class="text-center" width="10%">Código de artículo</th>
                         <th scope="col" class="text-center">Descripción</th>
                         <th scope="col" class="text-center">Clasificación</th>
-                        <th scope="col" class="text-center" width="10%">Stock Actual</th>
+                        <th scope="col" class="text-center" width="10%">Stock Actual Piezas</th>
+                        <th scope="col" class="text-center" width="10%">Stock Actual Unidades</th>
                         <th scope="col" class="text-center">Stock Min. Abastecimiento</th>
                         <th scope="col" class="text-center" width="10%"></th>
                         <th scope="col" class="text-center" width="10%"></th>
@@ -105,18 +106,18 @@
                     {
                         // Calcular el porcentaje de stock basado en StockMinAbastecimiento
                         var porcentajeStock = item.StockMinAbastecimiento > 0
-                            ? (item.StockActual * 100) / item.StockMinAbastecimiento
+                            ? (item.StockActualUnidades * 100) / item.StockMinAbastecimiento
                             : -1;
 
                         // Definir color basado en la relación con el Stock Mínimo
                         string colorClase;
-                        if (item.StockActual < item.StockMinAbastecimiento * 0.5)
+                        if (item.StockActualUnidades < item.StockMinAbastecimiento * 0.5m)
                         {
                             colorClase = "bg-danger"; //Rojo: Stock crítico
                         }
-                        else if (item.StockActual < item.StockMinAbastecimiento)
+                        else if (item.StockActualUnidades < item.StockMinAbastecimiento)
                         {
-                            colorClase = "bg-warning"; // Amarillo: Cerca del mínimo
+                            colorClase = "bg-warning text-dark"; // Amarillo: Cerca del mínimo
                         }
                         else
                         {
@@ -127,7 +128,8 @@
                             <td class="text-center align-middle">@item.ItemCode</td>
                             <td class="align-middle"><span class="ps-2">@item.ItemName</span></td>
                             <td class="text-center align-middle">@item.Clasificacion</td>
-                            <td class="text-center align-middle">@item.StockActual</td>
+                            <td class="text-center align-middle">@item.StockActualPiezas</td>
+                            <td class="text-center align-middle">@item.StockActualUnidades</td>
                             <td class="text-center align-middle">@item.StockMinAbastecimiento</td>
                             <td class="text-center align-middle">
                                 <div class="d-flex justify-content-center align-items-center">
@@ -139,10 +141,10 @@
                                                  aria-valuenow="@porcentajeStock" data-stockmin="@item.StockMinAbastecimiento"
                                                  aria-valuemin="0"
                                                  aria-valuemax="100">
-                                                @porcentajeStock%
+                                                @porcentajeStock.ToString("0.00")%
                                             </div>
                                         }
-                                        else if (item.StockActual <= 0)
+                                        else if (item.StockActualUnidades <= 0)
                                         {
                                             <div class="progress-bar bg-danger text-white fw-bold" role="progressbar" data-stockmin="@item.StockMinAbastecimiento"
                                                  style="width: 100%"

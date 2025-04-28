@@ -40,7 +40,8 @@ namespace Capa_Datos.Almacen_DAO.Tablas
                 T1.""OnHand"" AS ""StockDisponible"",
                 T1.""OnOrder"" AS ""StockEnOrden"",
                 T1.""IsCommited"" AS ""StockComprometido"",
-                (T1.""OnHand"" - T1.""IsCommited"") AS ""StockLibre""
+                (T1.""OnHand"" - T1.""IsCommited"") AS ""StockLibrePiezas"",
+                (T1.""OnHand"" - T1.""IsCommited"")/T2.""NumInBuy"" AS ""StockLibreUnidades""
             FROM {uti.schemaHana}OITW T1
             INNER JOIN {uti.schemaHana}OITM T2 ON T2.""ItemCode"" = T1.""ItemCode""
             WHERE 1 = 1
@@ -61,7 +62,8 @@ namespace Capa_Datos.Almacen_DAO.Tablas
                             OnHand = hdr.IsDBNull(3) ? 0 : Math.Round(hdr.GetDecimal(3), 0),
                             OnOrder = hdr.IsDBNull(4) ? 0 : Math.Round(hdr.GetDecimal(4), 0),
                             IsCommited = hdr.IsDBNull(5) ? 0 : Math.Round(hdr.GetDecimal(5), 0),
-                            StockLibre = hdr.IsDBNull(6) ? 0 : Math.Round(hdr.GetDecimal(6), 0)
+                            StockLibre = hdr.IsDBNull(6) ? 0 : Math.Round(hdr.GetDecimal(6), 0),
+                            StockLibreUnidades = hdr.IsDBNull(7) ? 0 : Math.Round(hdr.GetDecimal(7), 0)
                         };
                         lista.Add(o);
                     }
