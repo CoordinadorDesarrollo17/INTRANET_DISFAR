@@ -3835,15 +3835,22 @@ namespace Capa_Usuario.Controllers
         public ActionResult PDF_OrdenesDeVentas(int docNum, string almProcedencia)
         {
             var lista = new ORTV_N().obtenerOrdenDeVenta(docNum);
-            foreach (var ordr in lista)
-            {
-                string[] ubicaciones = _ubicacionesLotesN.ListarUbicaciones(new Capa_Entidad.AbastecimientoInterno_ENT.TablasSql.UbicacionesLotes_E { ItemCode = ordr.ItemCode, BatchNum = ordr.Lote, Almacen = "PICKING" })
-                    .Select(u => u.CodigoUbicacion)
-                    .Where(c => !string.IsNullOrWhiteSpace(c)) // limpia nulos y vacíos
-                    .ToArray();
 
-                ordr.Ubicaciones = ubicaciones;
+            // Solo se mostrarán las ubicaciones cuando el almacénde procedencia sea 16,
+            // Depende de LugarDestino del ticket
+            if (string.IsNullOrEmpty(almProcedencia) || almProcedencia == "16")
+            {
+                foreach (var ordr in lista)
+                {
+                    string[] ubicaciones = _ubicacionesLotesN.ListarUbicaciones(new Capa_Entidad.AbastecimientoInterno_ENT.TablasSql.UbicacionesLotes_E { ItemCode = ordr.ItemCode, Almacen = "PICKING" })
+                        .Select(u => u.CodigoUbicacion)
+                        .Where(c => !string.IsNullOrWhiteSpace(c)) // limpia nulos y vacíos
+                        .ToArray();
+
+                    ordr.Ubicaciones = ubicaciones;
+                }
             }
+
             lista = lista
         .OrderBy(x => x.Ubicaciones != null && x.Ubicaciones.Length > 0 ? x.Ubicaciones[0] : string.Empty)
         .ToList();
