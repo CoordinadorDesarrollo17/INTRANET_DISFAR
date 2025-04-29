@@ -99,7 +99,7 @@
                                     {
                                         foreach (var ubicacion in a.Ubicaciones)
                                         {
-                                            <div>@ubicacion</div>
+                                            <div>@ubicacion.Replace("PICKING-", "")</div>
                                         }
                                     }
                                 }
