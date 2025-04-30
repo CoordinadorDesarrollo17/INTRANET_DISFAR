@@ -2552,7 +2552,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             try
             {
                 cn.Open();
-                SqlCommand cmd = new SqlCommand("al.ListarTicketsReparto", cn);
+                SqlCommand cmd = new SqlCommand("al.ListarTicketsReparto_2", cn);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@CantidadTicketsNoEnviados", 0).Direction = ParameterDirection.Output;
                 for (var i = 0; i < cantidadElementos; i++)
@@ -2585,7 +2585,8 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     if (!dr.IsDBNull(14)) { o.TipoVenta = dr.GetString(14); }
                     if (!dr.IsDBNull(15)) { o.FechaPago = dr.GetDateTime(15).ToString("yyyy-MM-dd"); }
                     if (!dr.IsDBNull(16)) { o.HoraPago = dr.GetTimeSpan(16).ToString(); }
-                    if (!dr.IsDBNull(17)) { o.Vinculados = dr.GetString(17); }
+                    if (!dr.IsDBNull(17))  o.TiempoEntrega = dr.GetDateTime(17); 
+                    if (!dr.IsDBNull(18)) { o.Vinculados = dr.GetString(18); }
                     if (o.LugarDestino == "Domicilio" || o.LugarDestino == "Agencia")
                     { o.Guias = GuiasTicket(o.DocEntry); }
                     else
