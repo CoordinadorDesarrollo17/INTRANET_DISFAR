@@ -94,10 +94,10 @@
                         <th scope="col" class="text-center" width="10%">Código de artículo</th>
                         <th scope="col" class="text-center">Descripción</th>
                         <th scope="col" class="text-center">Clasificación</th>
-                        <th scope="col" class="text-center" width="10%">Stock Actual Piezas</th>
-                        <th scope="col" class="text-center" width="10%">Stock Actual Unidades</th>
-                        <th scope="col" class="text-center">Stock Min. Abastecimiento</th>
-                        <th scope="col" class="text-center" width="10%"></th>
+                        <th scope="col" class="text-center" width="10%">Stock SAP</th>
+                        <th scope="col" class="text-center" width="10%">Stock Picking</th>
+                        <th scope="col" class="text-center">Stock Por Abastecer</th>
+                        <th scope="col" class="text-center" width="10%">100%</th>
                         <th scope="col" class="text-center" width="10%"></th>
                     </tr>
                 </thead>
@@ -124,12 +124,14 @@
                             colorClase = "bg-success"; // Verde: Stock suficiente
                         }
 
+                        decimal formatStockActualUnds = Math.Truncate(item.StockActualUnidades * 100) / 100;
+                        decimal formatStockPicking = Math.Truncate(item.StockPicking * 100) / 100;
                         <tr>
                             <td class="text-center align-middle">@item.ItemCode</td>
                             <td class="align-middle"><span class="ps-2">@item.ItemName</span></td>
                             <td class="text-center align-middle">@item.Clasificacion</td>
-                            <td class="text-center align-middle">@item.StockActualPiezas</td>
-                            <td class="text-center align-middle">@item.StockActualUnidades</td>
+                            <td class="text-center align-middle">@formatStockActualUnds.ToString("F2")</td>
+                            <td class="text-center align-middle">@formatStockPicking.ToString("F2")</td>
                             <td class="text-center align-middle">@item.StockMinAbastecimiento</td>
                             <td class="text-center align-middle">
                                 <div class="d-flex justify-content-center align-items-center">

@@ -25,7 +25,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.Reportes
             var controlStockInternoPicking = _datosReporte.ControlHistoricoDeIngresosAPicking();
             List<OITW_E> articulos = new Capa_Negocio.Almacen_NEG.Tablas.OITW_N()
                 .ListarDetArticulosInv(new OITW_E { WhsCode = "16" })
-                .Where(x => x.OnHand > 0)
+                .Where(x => x.OnHand > 0/* && x.ItemCode == "GSK0025"*/)
                 .ToList();
 
             if (articulos != null && articulos.Any())
@@ -33,6 +33,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.Reportes
                 // Iterar sobre una copia de la lista para evitar el error de modificación
                 foreach (var item in articulos.ToList())
                 {
+                    // CAN
                     List<DetalleRequerimientos_E> resultDetReq = _requerimientosN.ListarDetalles(item.ItemCode, "CantidadSolicitada");
                     int quantityReq = resultDetReq?.Sum(r => r.QuantityUnidadesCajas) ?? 0;
 
@@ -44,7 +45,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.Reportes
 
                     var controlPorItemCode = controlStockInternoPicking.FirstOrDefault(i => i.ItemCode == item.ItemCode);
 
-                    item.StockLibreUnidades = stockEnPicking;
+                    item.StockPicking = stockEnPicking;
                     item.Clasificacion = (controlPorItemCode != null) ? controlPorItemCode.Clasificacion : string.Empty;
                     item.StockMinAbastecimiento = (controlPorItemCode != null && item.StockLibreUnidades > 0) ? controlPorItemCode.StockMinAbastecimiento : 0;        // Debe existir stock en RESERVA 
                 }
@@ -55,8 +56,9 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.Reportes
             {
                 ItemCode = a.ItemCode,
                 ItemName = a.ItemName,
-                StockActualPiezas = Convert.ToInt32(a.StockLibre),
+                StockActualPiezas = Convert.ToInt32(a.StockLibrePiezas),
                 StockActualUnidades = a.StockLibreUnidades,
+                StockPicking = a.StockPicking,
                 Almacen = a.WhsCode,
                 Clasificacion = a.Clasificacion,
                 StockMinAbastecimiento = a.StockMinAbastecimiento

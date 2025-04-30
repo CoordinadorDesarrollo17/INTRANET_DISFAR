@@ -3836,9 +3836,8 @@ namespace Capa_Usuario.Controllers
         {
             var lista = new ORTV_N().obtenerOrdenDeVenta(docNum);
 
-            // Solo se mostrarán las ubicaciones cuando el almacénde procedencia sea 16,
             // Depende de LugarDestino del ticket
-            if (string.IsNullOrEmpty(almProcedencia) || almProcedencia == "16")
+            if (lista != null && lista[0].Almacen != "ALM07" && (string.IsNullOrEmpty(almProcedencia) || almProcedencia == "16"))
             {
                 foreach (var ordr in lista)
                 {

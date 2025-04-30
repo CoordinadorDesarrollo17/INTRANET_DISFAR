@@ -31,8 +31,8 @@ namespace Capa_Datos.Almacen_DAO.Tablas
             }
 
             List<OITW_E> lista = new List<OITW_E>();
-           
-                    string query = $@"
+
+            string query = $@"
             SELECT 
                 T1.""ItemCode"" AS ""SKU"",
                 T2.""ItemName"" AS ""SKUDescripcion"",
@@ -54,17 +54,15 @@ namespace Capa_Datos.Almacen_DAO.Tablas
                 {
                     while (hdr.Read())
                     {
-                        OITW_E o = new OITW_E
-                        {
-                            ItemCode = hdr.IsDBNull(0) ? string.Empty : hdr.GetString(0),
-                            ItemName = hdr.IsDBNull(1) ? string.Empty : hdr.GetString(1),
-                            WhsCode = hdr.IsDBNull(2) ? string.Empty : hdr.GetString(2),
-                            OnHand = hdr.IsDBNull(3) ? 0 : Math.Round(hdr.GetDecimal(3), 0),
-                            OnOrder = hdr.IsDBNull(4) ? 0 : Math.Round(hdr.GetDecimal(4), 0),
-                            IsCommited = hdr.IsDBNull(5) ? 0 : Math.Round(hdr.GetDecimal(5), 0),
-                            StockLibre = hdr.IsDBNull(6) ? 0 : Math.Round(hdr.GetDecimal(6), 0),
-                            StockLibreUnidades = hdr.IsDBNull(7) ? 0 : Math.Round(hdr.GetDecimal(7), 0)
-                        };
+                        OITW_E o = new OITW_E();
+                        o.ItemCode = hdr.IsDBNull(0) ? string.Empty : hdr.GetString(0);
+                        o.ItemName = hdr.IsDBNull(1) ? string.Empty : hdr.GetString(1);
+                        o.WhsCode = hdr.IsDBNull(2) ? string.Empty : hdr.GetString(2);
+                        o.OnHand = hdr.IsDBNull(3) ? 0 : Math.Round(hdr.GetDecimal(3), 0);
+                        o.OnOrder = hdr.IsDBNull(4) ? 0 : Math.Round(hdr.GetDecimal(4), 0);
+                        o.IsCommited = hdr.IsDBNull(5) ? 0 : Math.Round(hdr.GetDecimal(5), 0);
+                        o.StockLibrePiezas = hdr.IsDBNull(6) ? 0 : Math.Round(hdr.GetDecimal(6), 0);
+                        o.StockLibreUnidades = hdr.IsDBNull(7) ? 0 : hdr.GetDecimal(7);
                         lista.Add(o);
                     }
                 }
