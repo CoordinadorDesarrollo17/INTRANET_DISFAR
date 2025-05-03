@@ -106,16 +106,20 @@
                     {
                         // Calcular el porcentaje de stock basado en StockMinAbastecimiento
                         var porcentajeStock = item.StockMinAbastecimiento > 0
-                            ? (item.StockActualUnidades * 100) / item.StockMinAbastecimiento
+                            ? (item.StockPicking * 100) / item.StockMinAbastecimiento
                             : -1;
 
                         // Definir color basado en la relación con el Stock Mínimo
-                        string colorClase;
-                        if (item.StockActualUnidades < item.StockMinAbastecimiento * 0.5m)
+                        string colorClase = "";
+                        if (item.StockActualUnidades > item.StockMinAbastecimiento && item.StockPicking < item.StockMinAbastecimiento * 0.5m)
                         {
                             colorClase = "bg-danger"; //Rojo: Stock crítico
                         }
                         else if (item.StockActualUnidades < item.StockMinAbastecimiento)
+                        {
+                            colorClase = "bg-info";     // Cuando el stock sap no cubre el stock mín.
+                        }
+                        else if (item.StockPicking < item.StockMinAbastecimiento)
                         {
                             colorClase = "bg-warning text-dark"; // Amarillo: Cerca del mínimo
                         }
@@ -140,7 +144,7 @@
                                         {
                                             <div class="progress-bar @colorClase" role="progressbar"
                                                  style="width: @(porcentajeStock > 100 ? 100 : porcentajeStock)%"
-                                                 aria-valuenow="@porcentajeStock" data-stockmin="@item.StockMinAbastecimiento"
+                                                 aria-valuenow="@porcentajeStock" data-stockmin="@item.StockMinAbastecimiento" data-stockpicking="@item.StockPicking"
                                                  aria-valuemin="0"
                                                  aria-valuemax="100">
                                                 @porcentajeStock.ToString("0.00")%
@@ -148,7 +152,7 @@
                                         }
                                         else if (item.StockActualUnidades <= 0)
                                         {
-                                            <div class="progress-bar bg-danger text-white fw-bold" role="progressbar" data-stockmin="@item.StockMinAbastecimiento"
+                                            <div class="progress-bar bg-danger text-white fw-bold" role="progressbar" data-stockmin="@item.StockMinAbastecimiento" data-stockpicking="@item.StockPicking"
                                                  style="width: 100%"
                                                  aria-valuenow="0"
                                                  aria-valuemin="0"
@@ -158,7 +162,7 @@
                                         }
                                         else
                                         {
-                                            <div class="progress-bar bg-secondary text-white fw-bold" role="progressbar" data-stockmin="@item.StockMinAbastecimiento"
+                                            <div class="progress-bar bg-secondary text-white fw-bold" role="progressbar" data-stockmin="@item.StockMinAbastecimiento" data-stockpicking="@item.StockPicking"
                                                  style="width: 100%"
                                                  aria-valuenow="0"
                                                  aria-valuemin="0"
@@ -343,10 +347,12 @@
             let progressBar = row.querySelector('.progress-bar');
             let valor = progressBar ? parseFloat(progressBar.getAttribute('aria-valuenow')) || 0 : 0;
             let stockMin = progressBar ? parseFloat(progressBar.getAttribute('data-stockmin')) || 0 : 0;
-            return { row, valor, stockMin };
+            let stockPicking = progressBar ? parseFloat(progressBar.getAttribute('data-picking')) || 0 : 0;
+            return { row, valor, stockMin, stockPicking };
         });
 
         listaOrdenada.sort((a, b) => {
+            if (a.stockPicking <= 0) return -1; // Prioriza stockMin > 0
             if (a.stockMin === 0 && b.stockMin > 0) return 1; // Mueve stockMin = 0 al final
             if (a.stockMin > 0 && b.stockMin === 0) return -1; // Prioriza stockMin > 0
             return a.valor - b.valor; // Dentro del grupo stockMin > 0, ordena por aria-valuenow

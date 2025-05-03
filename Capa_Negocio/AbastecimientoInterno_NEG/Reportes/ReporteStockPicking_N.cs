@@ -25,7 +25,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.Reportes
             var controlStockInternoPicking = _datosReporte.ControlHistoricoDeIngresosAPicking();
             List<OITW_E> articulos = new Capa_Negocio.Almacen_NEG.Tablas.OITW_N()
                 .ListarDetArticulosInv(new OITW_E { WhsCode = "16" })
-                .Where(x => x.OnHand > 0/* && x.ItemCode == "GSK0025"*/)
+                .Where(x => x.OnHand > 0/* && x.ItemCode == "RBHEA0007"*/)
                 .ToList();
 
             if (articulos != null && articulos.Any())

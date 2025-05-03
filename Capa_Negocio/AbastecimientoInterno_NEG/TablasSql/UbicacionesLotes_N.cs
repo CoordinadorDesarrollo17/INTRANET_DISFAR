@@ -131,6 +131,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
                         item.UbicacionId = ubicacion.First().Id;
                         item.CodigoUbicacionDestino = ubicacionCodigo;
                         item.QuantityUnidadesCajas = 0;        // Para PICKING no necesitamos guardar el QuantityUnidadesCajas
+                        resultRegistro = datosUbicacionesL.RegistrarCodigoUbicacionPicking(new List<DetalleRequerimientos_E> { item }, cn);
                     }
                     else
                     {
@@ -139,9 +140,6 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
                     }
                 }
             }
-
-            if (!codigoUbicacionRegistrado)
-                resultRegistro = datosUbicacionesL.RegistrarCodigoUbicacionPicking(detalle, cn);
 
             return resultRegistro;
         }
