@@ -6,6 +6,17 @@
     font-family: "DM Sans", sans-serif;
 }
 
+body::after {
+    content: "PRUEBAS";
+    position: fixed;
+    font-size: 150px;
+    opacity: 0.05;
+    transform: rotate(-45deg);
+    top: 60%;
+    right: 10%;
+    z-index: 0;
+}
+
 .container {
     padding-bottom: 15px;
 }

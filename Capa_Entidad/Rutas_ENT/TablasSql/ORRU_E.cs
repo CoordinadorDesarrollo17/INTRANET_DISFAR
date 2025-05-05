@@ -115,11 +115,12 @@ namespace Capa_Entidad.Rutas_ENT.TablasSql
             public string ZonaVenta { get; set; }
             public string FechaEntregaVenta { get; set; }
             public string HoraEntregaVenta { get; set; }
-            public string PesoTotalVenta { get; set; }
+            public decimal PesoTotalVenta { get; set; }
             public string FormaPagoVenta { get; set; }
             public string TipoPagoRepartoContraEntrega { get; set; }
             public string FechaInicioReparto { get; set; }
             public string FechaFinReparto { get; set; }
+            public string ComentarioLiberado { get; set; }
         }
 
         public class RptRutasDet

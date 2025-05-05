@@ -165,7 +165,8 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                 }
                 hdr.Close();
             }
-            catch { };
+            catch { }
+            ;
             return lista;
         }
         public ORRU_E obtenerOrdenDeRuta(int DocEntry)
@@ -824,15 +825,21 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                     if (!dr.IsDBNull(38)) { or.HoraEntregaVenta = dr.GetString(38); }
                     if (!dr.IsDBNull(39)) { or.FechaInicioReparto = dr.GetString(39); }
                     if (!dr.IsDBNull(40)) { or.FechaFinReparto = dr.GetString(40); }
-                    if (!dr.IsDBNull(41)) { or.PesoTotalVenta = dr.GetString(41); }
+                    if (!dr.IsDBNull(41)) { or.PesoTotalVenta = dr.GetDecimal(41); }
                     if (!dr.IsDBNull(42)) { or.FormaPagoVenta = dr.GetString(42); }
                     if (!dr.IsDBNull(43)) { or.TipoPagoRepartoContraEntrega = dr.GetString(43); }
+                    if (!dr.IsDBNull(44)) { or.ComentarioLiberado = dr.GetString(44); }
                     lista.Add(or);
                 }
                 dr.Close();
                 cn.Close();
             }
-            catch (Exception e) { cn.Close(); throw new Exception(e.Message); }
+            catch (Exception e)
+            {
+                cn.Close();
+                LogHelper.RegistrarError(e, "ORRU_D - ReporteHojasRuta()");
+                //throw new Exception(e.Message);
+            }
 
             return lista;
         }
@@ -1034,7 +1041,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                 catch { }
             }
 
-            return lista.OrderBy(x=>x.HoraLlegada).ToList();
+            return lista.OrderBy(x => x.HoraLlegada).ToList();
         }
         public List<RptPesaje_E> ListarRptPesaje(FiltroRptPesaje datosFiltro)
         {

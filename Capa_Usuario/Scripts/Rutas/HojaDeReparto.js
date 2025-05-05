@@ -197,17 +197,24 @@ function borrarLineaTabla(dom) {
 
 //funciones que solo se usan para Editar Hoja de reparto
 function liberarLineaTabla(DocEntry, Linea, DocEntryTicket, idreg) {
+    const comentarioLiberado = 'INTERNO';
+
     Swal.fire({
-        title: '¿Está seguro(a) de liberar?',
+        title: '¿Está seguro(a) de liberar el ticket?',
         text: "Este proceso es irreversible!",
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Si'
+        confirmButtonText: 'Si, estoy seguro(a)',
+        cancelButtonText: 'Cancelar',
+        customClass: {
+            confirmButton: 'btn btn-success mx-2',
+            cancelButton: 'btn btn-outline-danger'
+        },
+        showCancelButton: true,
+        buttonsStyling: false 
     }).then((result) => {
         if (result.isConfirmed) {
-            var parametros = { "DocEntry": DocEntry, "Linea": Linea, "DocEntryTicket": DocEntryTicket };
+            var parametros = { DocEntry, Linea, DocEntryTicket, comentarioLiberado };
             $.ajax('/Rutas/liberarRRU0',
                 {
                     data: parametros,

@@ -350,11 +350,11 @@ namespace Capa_Usuario.Controllers
                     {
                         if (reporte.Count >= 1)
                         {
-                            for (var col = 1; col <= 36; col++)
+                            for (var col = 1; col <= 37; col++)
                             {
                                 worksheet.Column(col).AutoFit();
                             }
-                            var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: reporte.Count + 1, toColumn: 36), "ReporteHojasRuta");
+                            var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: reporte.Count + 1, toColumn: 37), "ReporteHojasRuta");
                             tabla.ShowHeader = true;
                             tabla.TableStyle = TableStyles.Medium2;
                         }
