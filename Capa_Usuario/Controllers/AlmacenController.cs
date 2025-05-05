@@ -3,6 +3,7 @@ using Capa_Entidad.General_ENT.TablasSql;
 using Capa_Entidad.Seguridad_ENT;
 using Capa_Entidad.SocioNegocios_ENT.Tablas;
 using Capa_Negocio.Almacen_NEG.TablasSql;
+using Capa_Negocio.DireccionTecnica_NEG.TablasSql;
 using Capa_Negocio.General_NEG.TablasSql;
 using Capa_Negocio.Seguridad_NEG;
 using Capa_Negocio.SocioNegocios_NEG.TablasExternas;
@@ -732,11 +733,11 @@ namespace Capa_Usuario.Controllers
             var result = new Capa_Negocio.Almacen_NEG.TablasSql.ORPD_N().VerificarExistenciaDevolucion(devolucion);
             if (result)
             {
-                return Json(new { Mensaje = "" });
+                return Json(new { Titulo = "" });
             }
             else
             {
-                return Json(new { Mensaje = "Sin Datos" });
+                return Json(new { Titulo = "Sin Datos" });
             }
         }
         public ActionResult ExportarReporteHistoricoDevoluciones(Capa_Entidad.Almacen_ENT.ReportesSql.RptFiltrosHistoricoDevoluciones_E devolucion, int idOperation = 105)

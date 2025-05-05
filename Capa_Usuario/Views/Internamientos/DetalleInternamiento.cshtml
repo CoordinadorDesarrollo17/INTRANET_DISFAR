@@ -1,0 +1,786 @@
+@{
+    ViewBag.Title = "Detalle de Internamiento";
+    Layout = "~/Views/Shared/_DefaultLayout.cshtml";
+    var isPopup = Request.QueryString["popup"] != null && Request.QueryString["popup"].ToLower() == "true";
+}
+
+@if (!isPopup)
+{
+    <div class="pt-3">
+        <nav>
+            <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+                <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+                <li><a href="@Url.Action("Sesion", "Index")">Dirección Técnica</a></li>
+                <li><a href="@Url.Action("Sesion", "Index")">Liberaciones</a></li>
+                <li><a href="@Url.Action("Index", "Internamientos")">Listado de Internamientos</a></li>
+                <li class="current"><em>@ViewBag.Title</em></li>
+            </ol>
+        </nav>
+    </div>
+}
+
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
+    <div class="row px-3 pt-3"><h3 class="titulo-seccion">@ViewBag.Title.ToUpper()</h3></div>
+</div>
+
+<div class="bg-white px-3 py-3 align-items-center">
+    <form id="frm_documento">
+        <div class="row g-3 mb-4">
+            <!-- DocNum con botón -->
+            <div class="col-lg-2">
+                <label for="DocNum" class="form-label fw-semibold small">DocNum:</label>
+                <input type="hidden" id="DocEntry" name="DocEntry" readonly />
+                <input type="text" id="DocNum" name="DocNum" autocomplete="off" class="form-control text-center bg-light text-small" readonly>
+            </div>
+
+            <!-- Tipo de documento -->
+            <div class="col-lg-2">
+                <label for="TipoDocumento" class="form-label fw-semibold small">Tipo de documento:</label>
+                <input type="text" id="TipoDocumento" name="TipoDocumento" autocomplete="off" class="form-control text-center bg-light text-small" readonly>
+            </div>
+
+            <div class="col-lg-2">
+                <label for="FechaContabilizacion" class="form-label fw-semibold small">Fecha Contabilización:</label>
+                <input type="text" id="FechaContabilizacion" name="FechaContabilizacion" autocomplete="off" readonly class="form-control text-center bg-light text-small">
+            </div>
+
+            <!-- Nro. de guía -->
+            <div class="col-lg-2">
+                <label for="Guia" class="form-label fw-semibold small">Nro. de guía:</label>
+                <input type="text" id="Guia" name="Guia" autocomplete="off" readonly class="form-control text-center bg-light text-small">
+            </div>
+
+            <div class="col-lg-2">
+                <label for="ComprobanteVinculado" class="form-label fw-semibold small">Comprobante Vinculado:</label>
+                <input type="text" id="ComprobanteVinculado" name="ComprobanteVinculado" autocomplete="off" readonly class="form-control text-center bg-light text-small">
+            </div>
+
+            <div class="col-lg-2">
+                <label for="Estado" class="form-label fw-semibold small">Estado:</label>
+                <input type="text" id="Estado" name="Estado" autocomplete="off" readonly class="form-control text-center bg-light text-small">
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <!-- RUC proveedor -->
+            <div class="col-lg-2">
+                <label for="CardName" class="form-label fw-semibold small">RUC Proveedor:</label>
+                <input type="text" id="CardCode" name="CardCode" autocomplete="off" readonly class="form-control bg-light text-small text-center">
+            </div>
+
+            <!-- Socio de negocio -->
+            <div class="col-lg-6">
+                <label for="CardName" class="form-label fw-semibold small">Proveedor:</label>
+                <input type="text" id="CardName" name="CardName" autocomplete="off" readonly class="form-control bg-light text-small">
+            </div>
+        </div>
+    </form>
+    <hr />
+
+    <div id="div_detalle" class="table-responsive shadow-sm rounded">
+        <form id="frm_datosTabla">
+            <table id="tbl_documento" class="table table-bordered table-hover">
+                <thead class="thead-cobefar">
+                    <tr>
+                        <th scope="col" class="text-center text-uppercase small" style="width: 4%;"></th>
+                        <th scope="col" class="text-center text-uppercase small" style="width: 7%;">Código de artículo</th>
+                        <th scope="col" class="text-center text-uppercase small">Descripción</th>
+                        <th scope="col" class="text-center text-uppercase small">Lote</th>
+                        <th scope="col" class="text-center text-uppercase small" style="width: 7%;">F.V.</th>
+                        <th scope="col" class="text-center text-uppercase small" style="width: 7%;">R.S.</th>
+                        <th scope="col" class="text-center text-uppercase small">Fabricante</th>
+                        <th scope="col" class="text-center text-uppercase small" style="width: 7%;">Cond. alm. y trans.</th>
+                        <th scope="col" class="text-center text-uppercase small">Almacén</th>
+                        <th scope="col" class="text-center text-uppercase small">Cantidad</th>
+                        <th scope="col" class="text-center text-uppercase small">
+                            <button type="button" id="btn_liberarTodos" class="btn btn-sm btn-outline-light" onclick="liberarTodos()" @if (Model != null && Model[0].Estado != "Pendiente") { Write("disabled"); }><i class="bi bi-check-all"></i> Liberar TODOS</button>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="table-white">
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+
+@section Scripts{
+    @*<script src="~/Scripts/Adquisiciones/GestionRequerimientos.js?v=@DateTime.Now.Ticks" defer></script>*@
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            agregarFilaATabla();
+            soloNumerosPorClase('cls-num');
+
+            tippy('#btn_corregir', {
+                content: 'Guardar internamiento',
+                animation: 'fade'
+            });
+
+            tippy('.cls-solicitarReversionLiberacion', {
+                content: 'Solicitar reversión de liberación',
+                animation: 'fade'
+            });
+        })
+
+        function agregarFilaATabla() {
+        let tiposDocumento = {
+            OPDN: 'Entrada de Mercancía',
+            OWTR: 'Transferencia'
+        };
+            const tbody = document.querySelector(`#tbl_documento tbody`);
+            const modeloJS = @Html.Raw(ViewBag.JsonModel);
+
+            document.querySelector('#TipoDocumento').value = tiposDocumento[modeloJS[0].TipoDocumento];
+            document.querySelector('#DocEntry').value = modeloJS[0].DocEntry;
+            document.querySelector('#DocNum').value = modeloJS[0].DocNum;
+            document.querySelector('#CardCode').value = modeloJS[0].CardCode;
+            document.querySelector('#CardName').value = modeloJS[0].CardName;
+            document.querySelector('#Guia').value = modeloJS[0].Guia;
+            document.querySelector('#ComprobanteVinculado').value = modeloJS[0].ComprobanteVinculado;
+            document.querySelector('#FechaContabilizacion').value = modeloJS[0].FechaContabilizacion;
+            document.querySelector('#Estado').value = modeloJS[0].Estado;
+
+            const opcionesChevron = {
+                Pendiente: 'btn-danger',
+                Pendiente: 'btn-danger',
+            }
+
+            for (let key in modeloJS[0].Detalle) {
+                if (modeloJS[0].Detalle.hasOwnProperty(key)) {
+                    const item = modeloJS[0].Detalle[key];
+                    const itemCodeSinEspacios = item.ItemCode.replace(/\s+/g, '');
+                    const correlativo = `${itemCodeSinEspacios}_${item.Lote}`;
+
+                    // Crear fila principal
+                    const tr = document.createElement('tr');
+                    tr.classList.add('main-row');
+
+                    tr.innerHTML = `
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-sm ${item.EstadoSolicitudReversion === 'Pendiente' ? 'btn-danger' : item.Transferido == 1 ? 'btn-success' : 'btn-cobefar-2'} toggle-subtable">
+                                                <i class="bi bi-chevron-down"></i>
+                                            </button>
+                                        </td>
+                                        <td class="text-center text-uppercase small">
+                                            <input type="hidden" name="Detalle[${key}].ItemCode" data-identificador="${correlativo}" value="${item.ItemCode}">${item.ItemCode}
+                                            <input type="hidden" name="Detalle[${key}].Id" class="cls-ids" data-identificador="${correlativo}" value="${item.Id}">
+                                        </td>
+                                        <td class="text-start text-uppercase small">
+                                            <input type="hidden" name="Detalle[${key}].ItemName" value="${item.ItemName}">${item.ItemName}
+                                        </td>
+                                        <td class="text-center text-uppercase small">
+                                            <input type="hidden" name="Detalle[${key}].Lote" data-identificador="${correlativo}" value="${item.Lote}">${item.Lote}
+                                        </td>
+                                        <td class="text-center text-uppercase small">
+                                            <input type="hidden" name="Detalle[${key}].FechaVencimiento" value="${item.FechaVencimiento}">${item.FechaVencimiento}
+                                        </td>
+                                        <td class="text-center text-uppercase small">
+                                            <input type="hidden" name="Detalle[${key}].RegistroSanitario" value="${item.RegistroSanitario}">${item.RegistroSanitario}
+                                        </td>
+                                        <td class="text-start text-uppercase small">
+                                            <input type="hidden" name="Detalle[${key}].Fabricante" value="${item.Fabricante}">${item.Fabricante}
+                                        </td>
+                                        <td class="text-center text-uppercase small">
+                                            <input type="hidden" name="Detalle[${key}].CondicionAlmTrans" value="15ºC - 25ºC">15ºC - 25ºC
+                                        </td>
+                                        <td class="text-center text-uppercase small">
+                                            <input type="hidden" name="Detalle[${key}].Almacen" value="${item.Almacen}">${item.Almacen}
+                                        </td>
+                                        <td class="text-center text-uppercase small">
+                                            <input type="hidden" name="Detalle[${key}].CantidadTotal" data-identificador="${correlativo}" value="${item.CantidadTotal}">${item.CantidadTotal}
+                                        </td>
+                                        <td class="text-center text-uppercase small">
+                                            <button type="button" id="btn_editar_${key}" class="btn btn-outline-primary fw-semibold shadow btn-editar" data-id="${item.Id}" data-correlativo="${correlativo}" onclick="editarItemDetalleDoc(this)" hidden><i class="bi bi-pencil-square"></i></button>
+                                            <button type="button" id="btn_liberar_${key}" class="btn btn-outline-success fw-semibold shadow btn-liberar" data-id="${item.Id}" data-identificador="${correlativo}" data-itemcode="${item.ItemCode}" onclick="liberarArticulo(this)" hidden><i class="bi bi-check-lg"></i></button>
+                                            <button type="button" id="btn_solicitarReversionLiberacion_${key}" class="btn btn-outline-danger fw-semibold shadow cls-solicitarReversionLiberacion" data-id="${item.Id}" data-identificador="${correlativo}" data-itemcode="${item.ItemCode}" onclick="solicitarReversionLiberacion(this)" hidden><i class="bi bi-file-text"></i></button>
+                                        </td>`;
+
+                    // Agregar fila al tbody
+                    tbody.appendChild(tr);
+
+                    // Agregar evento al botón para desplegar subtabla
+                    tr.querySelector('.toggle-subtable').addEventListener('click', function () {
+                        const icon = this.querySelector('i');
+                        const currentRow = this.closest('tr');
+                        const nextRow = currentRow.nextElementSibling;
+
+                        // Si subtabla ya existe, la eliminamos
+                        if (nextRow && nextRow.classList.contains('subtable-row')) {
+                            nextRow.remove();
+                            icon.classList.remove('bi-chevron-up');
+                            icon.classList.add('bi-chevron-down');
+                            document.querySelector(`#btn_editar_${key}`).hidden = true;
+                            document.querySelector(`#btn_liberar_${key}`).hidden = true;
+                            document.querySelector(`#btn_solicitarReversionLiberacion_${key}`).hidden = true;
+                            return;
+                        }
+
+                        // Insertar subtabla (puedes personalizar esta estructura)
+                        const subRow = document.createElement('tr');
+                        subRow.classList.add('subtable-row');
+                        subRow.innerHTML = `
+                                                    <td colspan="11" class="bg-light p-3">
+                                                        <div class="row">
+                                                            <div class="col-lg-2">
+                                                                <label class="small form-label fw-bold">Certificado de Análisis:</label>
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input" type="radio" name="Detalle[${key}].CertificadoAnalisis" data-identificador="${correlativo}" id="opcion1_${correlativo}" value="Aplica" checked>
+                                                                    <label class="form-check-label" for="opcion1_${correlativo}">Aplica</label>
+                                                                </div>
+
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input" type="radio" name="Detalle[${key}].CertificadoAnalisis" data-identificador="${correlativo}" id="opcion2_${correlativo}" value="No Aplica">
+                                                                    <label class="form-check-label" for="opcion2_${correlativo}">No Aplica</label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-lg-3">
+                                                            <!-- Protocolo -->
+                                                                    <div class="row mb-3">
+                                                                        <div class="col-auto">
+                                                                        <label class="small form-label fw-bold">Protocolo:</label>
+                                                                        </div>
+                                                                        <div class="col-auto">
+                                                                        <button type="button" class="btn btn-sm btn-outline-primary btn-descargar-archivo" data-base64="${item.DescargarArchivoProtocolo}" data-tipo="protocolo"
+                                                                                data-nombre="${item.Lote}.pdf" ${item.DescargarArchivoProtocolo == null ? "hidden" : ""}><i class="bi bi-download"></i>
+                                                                        </button>
+                                                                        </div>
+                                                                        <div class="col-auto">
+                                                                        <input class="form-control cls-archivos"
+                                                                                type="file" id="formFileProtocolo_${correlativo}" name="Detalle[${key}].ArchivoProtocolo" accept=".pdf" data-identificador="${correlativo}">
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <!-- ET -->
+                                                                    <div class="row mb-3">
+                                                                        <div class="col-auto">
+                                                                        <label class="small form-label fw-bold">E.T.:</label>
+                                                                        </div>
+                                                                        <div class="col-auto">
+                                                                        <button type="button"
+                                                                                class="btn btn-sm btn-outline-primary btn-descargar-archivo" data-base64="${item.DescargarArchivoET}" data-tipo="et" data-nombre="${item.ItemCode}.pdf"
+                                                                                ${item.DescargarArchivoET == null ? "hidden" : ""}><i class="bi bi-download"></i>
+                                                                        </button>
+                                                                        </div>
+                                                                        <div class="col-auto">
+                                                                        <input class="form-control cls-archivos"
+                                                                                type="file" id="formFileET_${correlativo}" name="Detalle[${key}].ArchivoET" accept=".pdf" data-identificador="${correlativo}">
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <!-- Organoléptico -->
+                                                                    <div class="row mb-3">
+                                                                        <div class="col-auto">
+                                                                        <label class="small form-label fw-bold">Organoléptico:</label>
+                                                                        </div>
+                                                                        <div class="col-auto">
+                                                                        <button type="button"
+                                                                                class="btn btn-sm btn-outline-primary btn-descargar-organoleptico" data-url="/DireccionTecnica/OrganolepticoEmPdf?DocEntry=${modeloJS[0].DocEntry}&Almacen=${item.Almacen}&ItemCode=${item.ItemCode}&Lote=${item.Lote}&DetalleId=${item.Id}" data-tipo="organoleptico" data-nombre="${item.ItemCode}.pdf"><i class="bi bi-download"></i>
+                                                                        </button>
+                                                                        </div>
+                                                                    </div>
+
+                                                            </div>
+                                                            <div class="col-lg-5">
+                                                                    <label class="small form-label fw-bold">Observaciones:</label>
+                                                                    <textarea id="ComentarioOrganoleptico_${correlativo}" name="Detalle[${key}].ComentarioOrganoleptico" class="form-control bg-light" rows="2" data-identificador="${correlativo}">${item.Liberado == 0 && item.ComentarioOrganoleptico != null ? item.ComentarioOrganoleptico : ''}</textarea>
+                                                            </div>
+                                                            <div class="col-lg-2">
+                                                                    <table>
+                                                                    <tr>
+                                                                        <td>Aprobados:</td>
+                                                                        <td>
+                                                                            <input type="text" id="CantidadAprobados_${correlativo}" name="Detalle[${key}].CantidadAprobados" class="form-control w-75 cls-num bg-cobefar-3 text-end text-white" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" value="${item.CantidadAprobados > 0 ? item.CantidadAprobados : ''}" oninput="validarCantidad(this)" autocomplete="off">
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>Baja:</td>
+                                                                        <td>
+                                                                            <input type="text" id="CantidadBaja_${correlativo}" name="Detalle[${key}].CantidadBaja" class="form-control w-75 cls-num bg-cobefar-3 text-end text-white" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" value="${item.CantidadBaja > 0 ? item.CantidadBaja : ''}" oninput="validarCantidad(this)" autocomplete="off">
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>Devolución:</td>
+                                                                        <td>
+                                                                            <input type="text" id="CantidadDevolucion_${correlativo}" name="Detalle[${key}].CantidadDevolucion" class="form-control w-75 cls-num bg-cobefar-3 text-end text-white" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" value="${item.CantidadDevolucion > 0 ? item.CantidadDevolucion : ''}" oninput="validarCantidad(this)" autocomplete="off">
+                                                                        </td>
+                                                                    </tr>
+                                                                    </table>
+                                                            </div>
+                                                        </div>
+                                                    </td>`;
+
+                        currentRow.parentNode.insertBefore(subRow, currentRow.nextSibling);
+
+                        soloNumerosPorClase('cls-num')
+                        icon.classList.remove('bi-chevron-down');
+                        icon.classList.add('bi-chevron-up');
+
+                        const documentoCancelado = modeloJS[0].Estado == "Cancelado";
+                        // Ocultar botón revertir liberación cuando el documento se encuentre cancelado ó el artículo aún no se encuentre liberardo ó el artículo se encuentre transferido
+                        const isPopup = ('@isPopup' || '').toLowerCase() === 'true';
+                        document.querySelector(`#btn_solicitarReversionLiberacion_${key}`).hidden = documentoCancelado || item.Liberado == 0 || item.Transferido == 1 || item.EstadoSolicitudReversion != 'Rechazado' || isPopup;
+                        document.querySelector(`#btn_editar_${key}`).hidden = documentoCancelado || item.Liberado == 1 || item.Transferido == 1 || isPopup || item.EstadoSolicitudReversion == 'Pendiente';
+                        document.querySelector(`#btn_liberar_${key}`).hidden = documentoCancelado || item.Liberado == 1 || item.Transferido == 1 || isPopup || item.EstadoSolicitudReversion == 'Pendiente';
+
+                        // Elementos que deben ser deshabilitados
+                        [
+                            `#opcion1_${correlativo}`,
+                            `#opcion2_${correlativo}`,
+                            `#ComentarioOrganoleptico_${correlativo}`,
+                            `#CantidadAprobados_${correlativo}`,
+                            `#CantidadBaja_${correlativo}`,
+                            `#CantidadDevolucion_${correlativo}`
+                        ].forEach(selector => {
+                            const el = document.querySelector(selector);
+                            if (el) el.disabled = documentoCancelado || item.Liberado == 1 || item.Transferido == 1 || isPopup
+                        });
+
+                        // Elementos que deben ser ocultados (hidden)
+                        [
+                            `#formFileET_${correlativo}`,
+                            `#formFileProtocolo_${correlativo}`
+                        ].forEach(selector => {
+                            const el = document.querySelector(selector);
+                            if (el) el.hidden = documentoCancelado || item.Liberado == 1 || item.Transferido == 1 || isPopup
+                        });
+
+                        inicializarDescargas();
+
+                        tippy('.btn-descargar-archivo', {
+                            content: 'Descargar archivo',
+                            animation: 'fade'
+                        });
+
+                        tippy('.btn-descargar-organoleptico', {
+                            content: 'Descargar archivo',
+                            animation: 'fade'
+                        });
+
+                        tippy('.btn-editar', {
+                            content: 'Editar',
+                            animation: 'fade'
+                        });
+
+                        tippy('.btn-liberar', {
+                            content: 'Liberar',
+                            animation: 'fade'
+                        });
+
+                        tippy('#btn_liberarTodos', {
+                            content: 'Liberar todos los artículos del detalle',
+                            animation: 'fade'
+                        });
+                    });
+                }
+            }
+        }
+
+        async function registrarDocumento() {
+            const form = document.querySelector('#frm_datosTabla');
+            const formData = new FormData(form);
+
+            const detalle = [];
+
+            // Reorganizar los inputs por índice
+            for (let [name, value] of formData.entries()) {
+                const match = name.match(/^Detalle\[(\d+)\]\.(.+)$/);
+                if (match) {
+                    const index = parseInt(match[1]);
+                    const key = match[2];
+
+                    if (!detalle[index]) detalle[index] = {};
+                    detalle[index][key] = value;
+                }
+            }
+
+            const form2 = document.querySelector('#frm_documento');
+            const formData2 = new FormData(form2);
+            const payload = Object.fromEntries(formData2.entries());
+            payload.Detalle = detalle;
+
+            try {
+                const response = await fetch("/Internamientos/RegistrarDocumento", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload) // Enviar los datos como JSON
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error en la solicitud: ${response.statusText}`)
+                }
+
+                const data = await response.json()
+
+                Swal.fire({
+                    title: data.Titulo,
+                    html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                        ? data.Mensajes.join('<br>')
+                        : data.Mensajes || "",
+                    icon: data.Icono,
+                    allowEscapeKey: false,
+                    allowOutsideClick: false,
+                    showConfirmButton: true,
+                    confirmButtonColor: '#28a745'
+                }).then((result) => {
+                    if (result.isConfirmed && data.Icono == "success") {
+                        location.reload()
+                    }
+                });
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function validarCantidad(input) {
+            const total = 0;
+            document.querySelectorAll(`.${input.dataset.identificador}`).forEach(input => {
+                total += Number(input.value);
+            })
+
+            //if (total !== input.dataset.cantidad) {
+            //    generarAlerta('Error en cantidades', 'Las cantidades ingresadas en Aprobado / Baja / Devolución deben cubrir la cantidad del artículo.', 'error');
+            //}
+    }
+
+        function inicializarDescargas() {
+            document.querySelectorAll('.btn-descargar-archivo').forEach(boton => {
+                boton.addEventListener('click', function () {
+                    const base64 = this.dataset.base64;
+                    const nombre = this.dataset.nombre || "archivo.pdf";
+
+                    if (!base64) {
+                        Swal.fire("Archivo no disponible", "", "info");
+                        return;
+                    }
+
+                    const dataUrl = `data:application/pdf;base64,${base64}`;
+
+                    const link = document.createElement("a");
+                    link.href = dataUrl;
+                    link.download = nombre;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                });
+            });
+
+            document.querySelectorAll('.btn-descargar-organoleptico').forEach(boton => {
+                boton.addEventListener('click', function () {
+                    const url = this.dataset.url;
+                    const nombre = this.dataset.nombre || "archivo.pdf";
+
+                    if (!url) {
+                        Swal.fire("Archivo no disponible", "", "info");
+                        return;
+                    }
+
+                    const link = document.createElement("a");
+                    link.href = url;
+                    link.download = nombre; // A veces ignorado por el navegador si `url` apunta a otra web o no tiene header correcto
+                    link.target = "_blank";
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                });
+            });
+
+        }
+
+        function validarCamposDetalle(correlativo) {
+            const inputs = document.querySelectorAll(`[data-identificador="${correlativo}"]`);
+            const filaSeleccionada = {};
+            let btnLiberar = null;
+
+            inputs.forEach(input => {
+                // Obtener una sola vez el botón asociado
+                console.log(input)
+                if (!btnLiberar)
+                    btnLiberar = input.closest('tr')?.querySelector('.btn-liberar');
+
+                const match = input.name.match(/^Detalle\[(\d+)\]\.(.+)$/);
+                if (match) {
+                    const key = match[2];
+                    filaSeleccionada[key] = input.value?.trim() || '';
+                }
+            });
+
+            if (btnLiberar)
+                btnLiberar.hidden = true;
+
+            // Validar CertificadoAnalisis
+            if (!filaSeleccionada["CertificadoAnalisis"]) {
+                generarAlerta('Advertencia', "Debe seleccionar una opción para 'Certificado de Análisis'.", 'warning');
+                return false;
+            }
+
+            // Validar si ambos botones de descarga NO tienen base64
+            const btnsDescarga = document.querySelectorAll('.btn-descargar-archivo');
+
+            // Extraer los valores del dataset
+            let base64Protocolo = "";
+            let base64ET = "";
+
+            btnsDescarga.forEach(btn => {
+                const tipo = btn.getAttribute('data-tipo') || "";
+                const base64 = btn.dataset.base64 || "";
+
+                if (tipo.includes('protocolo')) {
+                    base64Protocolo = base64;
+                } else if (tipo.includes('et')) {
+                    base64ET = base64;
+                }
+            });
+
+            // Validar archivos: al menos uno debe estar presente
+            if (!filaSeleccionada["ArchivoProtocolo"] && !filaSeleccionada["ArchivoET"] && !base64Protocolo && !base64ET) {
+                generarAlerta('Advertencia', "Debe adjuntar al menos el archivo Protocolo o ET.", 'warning');
+                return false;
+            }
+
+            // Validar suma de cantidades
+            const devolucion = filaSeleccionada["CantidadDevolucion"] || 0;
+            const baja = filaSeleccionada["CantidadBaja"] || 0;
+            const aprobados = filaSeleccionada["CantidadAprobados"] || 0;
+
+            const suma = Number(devolucion) + Number(baja) + Number(aprobados);
+            if (suma !== Number(filaSeleccionada["CantidadTotal"])){
+                generarAlerta('Advertencia', `La suma de las cantidades ingresadas para Aprobados, Baja y Devolución; debe ser igual a ${filaSeleccionada["CantidadTotal"]}.`, 'warning');
+                return false;
+            }
+
+            if (btnLiberar)
+                btnLiberar.hidden = false;
+
+            return filaSeleccionada; // solo si todo está validado
+        }
+
+        async function editarItemDetalleDoc(input) {
+            const correlativo = input.dataset.correlativo;
+            const campos = validarCamposDetalle(correlativo);
+
+            if (campos == false) return;
+
+            const formData = new FormData();
+
+            // Agregar campos del objeto campos
+            for (const key in campos) {
+                formData.append(key, campos[key]);
+            }
+
+            // Buscar archivos directamente con correlativo
+            const file1 = document.querySelector(`input[type="file"][data-identificador="${correlativo}"][name$=".ArchivoProtocolo"]`)?.files?.[0];
+            const file2 = document.querySelector(`input[type="file"][data-identificador="${correlativo}"][name$=".ArchivoET"]`)?.files?.[0];
+
+            if (file1) formData.append('ArchivoProtocolo', file1);
+            if (file2) formData.append('ArchivoET', file2);
+
+            try {
+                const response = await fetch("/Internamientos/EditarItemDetalleDoc", {
+                    method: 'POST',
+                    body: formData
+                });
+
+
+                if (!response.ok) {
+                    throw new Error(`Error en la solicitud: ${response.statusText}`)
+                }
+
+                const data = await response.json()
+
+                Swal.fire({
+                    title: data.Titulo,
+                    html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                        ? data.Mensajes.join('<br>')
+                        : data.Mensajes || "",
+                    icon: data.Icono,
+                    allowEscapeKey: false,
+                    allowOutsideClick: false,
+                    showConfirmButton: true,
+                    confirmButtonColor: '#28a745'
+                }).then((result) => {
+                    if (result.isConfirmed && data.Icono == "success") {
+                        location.reload()
+                    }
+                });
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function liberarArticulo(input) {
+            const id = input.dataset.id;
+
+            if (!id) {
+                console.error('Error: El ID no se encontró.');
+                return;
+            }
+
+            swalWithBootstrapButtons.fire({
+                title: '¿Está seguro(a) de LIBERAR?',
+                html: 'El artículo  ' + input.dataset.itemcode + ' será liberado.',
+                icon: 'warning',
+                 showCancelButton: true,
+                confirmButtonText: "<i class='bi bi-check-lg'></i> Si, liberar",
+                cancelButtonText: "<i class='bi bi-x-lg mx-1'></i> Cancelar",
+                reverseButtons: true,
+                allowEscapeKey: false,
+                allowOutsideClick: false,
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-outline-danger mx-1'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const response = await fetch("/Internamientos/LiberarArticulos", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify([id]) // Enviar los datos como JSON
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`Error en la solicitud: ${response.statusText}`);
+                        }
+
+                        const data = await response.json();
+
+                        Swal.fire({
+                            title: data.Titulo,
+                            html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                                ? data.Mensajes.join('<br>')
+                                : data.Mensajes || "",
+                            icon: data.Icono,
+                            allowEscapeKey: false,
+                            allowOutsideClick: false,
+                            showConfirmButton: true
+                        }).then((result) => {
+                            if (result.isConfirmed && data.Icono == 'success') {
+                                window.location.reload()
+                            }
+                        })
+
+                    } catch (error) {
+                        console.error('Error:', error);
+                    }
+                }
+            });
+        }
+
+        async function liberarTodos() {
+            const inputs = document.querySelectorAll('.cls-ids');
+
+            if (inputs.length === 0) {
+                console.warn("No se encontraron elementos con clase .cls-ids");
+                generarAlerta('Error', 'Ocurrió un error inesperado, comuníquese con el área de Sistemas, gracias.', 'error');
+                return;
+            }
+
+            let grupoIds = [];
+            inputs.forEach(input => {
+                grupoIds.push(input.value);
+            });
+
+            swalWithBootstrapButtons.fire({
+                title: '¿Estás seguro(a) de LIBERAR todos los artículos?',
+                html: 'Todos los artículos que cumplan las validaciones serán liberados.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: "<i class='bi bi-check-lg'></i> Si, liberar",
+                cancelButtonText: "<i class='bi bi-x-lg mx-1'></i> Cancelar",
+                reverseButtons: true,
+                allowEscapeKey: false,
+                allowOutsideClick: false,
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-outline-danger mx-1'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const response = await fetch("/Internamientos/LiberarArticulos", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(grupoIds) // Enviar los datos como JSON
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`Error en la solicitud: ${response.statusText}`);
+                        }
+
+                        const data = await response.json();
+
+                        Swal.fire({
+                            title: data.Titulo,
+                            html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                                ? data.Mensajes.join('<br>')
+                                : data.Mensajes || "",
+                            icon: data.Icono,
+                            allowEscapeKey: false,
+                            allowOutsideClick: false,
+                            showConfirmButton: true
+                        }).then((result) => {
+                            if (result.isConfirmed && data.Icono == 'success') {
+                                window.location.reload()
+                            }
+                        })
+
+                    } catch (error) {
+                        console.error('Error:', error);
+                    }
+                }
+            });
+        }
+
+        async function solicitarReversionLiberacion(elem) {
+            const id = Number(elem.dataset.id) || 0;
+
+            if (!id) {
+                console.error('Error: El ID no se encontró.');
+                generarAlerta('Error', 'Ocurrió un error inesperado. Por favor, comunicarse con el área de Sistemas.', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch("/SolicitudesReversion_DOCS1/SolicitarReversionLiberacionArticulo", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ id }) // Enviar los datos como JSON
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error en la solicitud: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                Swal.fire({
+                    title: data.Titulo,
+                    html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                        ? data.Mensajes.join('<br>')
+                        : data.Mensajes || "",
+                    icon: data.Icono,
+                    allowEscapeKey: false,
+                    allowOutsideClick: false,
+                    showConfirmButton: true
+                }).then((result) => {
+                    if (result.isConfirmed && data.Icono == 'success') {
+                        window.location.reload()
+                    }
+                })
+
+            } catch (error) {
+                console.error('Error:', error);
+            }
+    }
+    </script>
+}

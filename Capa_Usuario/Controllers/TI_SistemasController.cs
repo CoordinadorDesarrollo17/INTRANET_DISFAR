@@ -72,7 +72,7 @@ namespace Capa_Usuario.Controllers
                 try
                 {
                     var result = ousrN.crearUsuario(datosPost, $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}");
-                    return RedirectToAction("GestionPermisos", new { result.Mensaje });
+                    return RedirectToAction("GestionPermisos", new { result.Mensajes });
                 }
                 catch (Exception e)
                 {
@@ -212,11 +212,11 @@ namespace Capa_Usuario.Controllers
             string acceso = AccesoHelper.VerificarAccesos(idOperation, (Usuario_E)Session["UsuarioId"], this.ControllerContext.RouteData.Values["controller"].ToString(), Request.UserHostAddress, Request.UserHostName);
             if (string.IsNullOrWhiteSpace(acceso) || !acceso.Equals("C_Access"))
             {
-                return Json(new { Mensaje = "Error crítico", Comentario = new List<string>() { "No cuentas con permisos para realizar esta acción." }, Icono = "error" });
+                return Json(new { Titulo = "Error crítico", Comentario = new List<string>() { "No cuentas con permisos para realizar esta acción." }, Icono = "error" });
             }
             if (operaciones == null || usrDocEntry <= 0)
             {
-                return Json(new { Mensaje = "Error crítico", Comentario = new List<string>() { "Recargar página e intentar de nuevo." }, Icono = "error" });
+                return Json(new { Titulo = "Error crítico", Comentario = new List<string>() { "Recargar página e intentar de nuevo." }, Icono = "error" });
             }
             var mensajeError = new OUSR_OPE_N().AsignarPermisosPorUsuario(operaciones, usrDocEntry);
             string mensaje = string.IsNullOrWhiteSpace(mensajeError) ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";

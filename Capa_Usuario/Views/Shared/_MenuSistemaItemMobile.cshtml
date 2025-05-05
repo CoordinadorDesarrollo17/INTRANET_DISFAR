@@ -1,0 +1,39 @@
+@model Capa_Entidad.General_ENT.TablasSql.MenuSistema_E
+
+@{
+    var level = ViewData["Level"] != null ? (int)ViewData["Level"] : 1;
+    var uniqueId = ViewData["UniqueId"]?.ToString() ?? ("submenu-" + Guid.NewGuid().ToString("N"));
+    var paddingClass = "ps-" + (1 + level); // incrementa padding por nivel
+}
+
+@if (Model.SubMenus != null && Model.SubMenus.Any())
+{
+    <li class="mb-1 @paddingClass">
+        <button class="w-100 text-start d-flex justify-content-between align-items-center mobile-toggle"
+                data-bs-target="#@uniqueId">
+            <span><i class="@Model.Icono me-2"></i> @Model.Nombre</span>
+            <i class="bi bi-chevron-down"></i>
+        </button>
+        <ul class="list-unstyled collapse ps-0" id="@uniqueId">
+            @foreach (var hijo in Model.SubMenus)
+            {
+                var childUniqueId = "submenu-" + Guid.NewGuid().ToString("N");
+
+                var childViewData = new ViewDataDictionary(ViewData)
+                {
+                    ["Level"] = level + 1,
+                    ["UniqueId"] = childUniqueId
+                };
+
+                @Html.Partial("_MenuSistemaItemMobile", hijo, childViewData)
+            }
+
+        </ul>
+    </li>
+}
+else
+{
+    <li class="@paddingClass">
+        <a class="w-100 text-start d-block" href="@Model.Ruta"><i class="@Model.Icono me-2"></i> @Model.Nombre</a>
+    </li>
+}

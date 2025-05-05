@@ -7,6 +7,7 @@ using Capa_Entidad.SocioNegocios_ENT.Tablas;
 using Capa_Entidad.Ventas_ENT.Reportes;
 using Capa_Entidad.Ventas_ENT.Tablas;
 using Capa_Entidad.Ventas_ENT.TablasSql;
+using Capa_Negocio.AbastecimientoInterno_NEG.TablasSql;
 using Capa_Negocio.Almacen_NEG.Tablas;
 using Capa_Negocio.AtencionCliente_NEG.TablasSql;
 using Capa_Negocio.ComprobantesContables_NEG;
@@ -41,7 +42,7 @@ namespace Capa_Usuario.Controllers
         ORTV_N _ticketN = new ORTV_N();
         OLDS_N _libroDeSaldoN = new OLDS_N();
         CC_ORTV_N ccORTV_N = new CC_ORTV_N();
-        UBICACIONES_N ubicacionesN = new UBICACIONES_N();
+        UbicacionesLotes_N _ubicacionesLotesN = new UbicacionesLotes_N();
         private readonly OUSR_OPE_N _usuarioOperacionN = new OUSR_OPE_N();
         private readonly Capa_Negocio.General_NEG.Tablas.OWHS_N _owhsSapN = new Capa_Negocio.General_NEG.Tablas.OWHS_N();
         /************************* C O N F I G U R A C I Ó N *************************/
@@ -130,7 +131,7 @@ namespace Capa_Usuario.Controllers
             }
             catch (Exception e)
             {
-                return Json(new { Mensaje = e.Message });
+                return Json(new { Titulo = e.Message });
             }
         }
         public JsonResult buscarTicketAVincular(int DocNum = 0)
@@ -299,6 +300,7 @@ namespace Capa_Usuario.Controllers
             if (datos["accion"].Equals("ANULARENTREGADO")) { Op = 517; }
             //cambiar datos de NroMesa y Cajas
             if (datos["accion"].Equals("UPDATEEMP")) { Op = 599; }
+
             string acceso = AccesoHelper.VerificarAccesos(Op, (Usuario_E)Session["UsuarioId"], this.ControllerContext.RouteData.Values["action"].ToString(), "", "");
             if (acceso == "C_Access")
             {
@@ -354,7 +356,7 @@ namespace Capa_Usuario.Controllers
                         }
                     }
                     ViewBag.IdRol = usu.IdRol;
-                    ViewBag.permisoCajas = new OUSR_OPE_N().VerificarAccesoOperacion(new OUSR_OPE_E { UsrDocEntry = usu.DocEntry, OpeID = 2024 }); 
+                    ViewBag.permisoCajas = new OUSR_OPE_N().VerificarAccesoOperacion(new OUSR_OPE_E { UsrDocEntry = usu.DocEntry, OpeID = 2024 });
                     return View(ticket);
                 }
                 catch
@@ -381,6 +383,8 @@ namespace Capa_Usuario.Controllers
                     Usuario_E usu = (Usuario_E)Session["UsuarioId"];
                     ORTV_E tc = _ticketN.ObtenerDatosCompletosTicket(DocEntry);
                     tc.orru = orruN.obtenerOrdenDeRutaTicket(DocEntry);
+
+
                     // Creamos la estructura de parámetros para el método
                     Dictionary<string, Object> datos = new Dictionary<string, Object>()
                     {
@@ -480,7 +484,7 @@ namespace Capa_Usuario.Controllers
                     Usuario_E usu = (Usuario_E)Session["UsuarioId"];
                     string Operario = $"{usu.Nombres} {usu.Apellidos}";
                     int DocNum = ortvN.Cancelar(DocEntry, Operario, usu.IdRol);
-                    return RedirectToAction(vista, new { DocNum});
+                    return RedirectToAction(vista, new { DocNum });
                 }
                 catch (Exception e)
                 {
@@ -835,20 +839,20 @@ namespace Capa_Usuario.Controllers
                     zonaDistinta = ticketPost.zonaDistinta,
                     Mensaje = string.Empty
                 };
-                bool hayFinVerificar = false; 
+                bool hayFinVerificar = false;
                 int DocNum = 0;
                 try
                 {
                     Usuario_E u = (Usuario_E)Session["UsuarioId"];
                     List<CC_ORTV_E> ticketFinVerificar = ccORTV_N.ListarCC_ORTV(DocEntry, "FIN VERIFICAR");
-                    List<CC_ORTV_E> ticketAnularFinVerificar= ccORTV_N.ListarCC_ORTV(DocEntry, "ANULAR FIN VERIFICAR");
+                    List<CC_ORTV_E> ticketAnularFinVerificar = ccORTV_N.ListarCC_ORTV(DocEntry, "ANULAR FIN VERIFICAR");
                     List<CC_ORTV_E> listaCC = new List<CC_ORTV_E>() { ticketFinVerificar[0], ticketAnularFinVerificar[0] }.OrderByDescending(x => x.Id).ToList();
                     if (listaCC.FirstOrDefault().Operacion == "FIN VERIFICAR") { hayFinVerificar = true; }
 
                     if (hayFinVerificar)
                     {
                         ORTV_N negtik = new ORTV_N();
-                        ORTV_E ticket = negtik.ObtenerDatosCompletosTicket(DocEntry); 
+                        ORTV_E ticket = negtik.ObtenerDatosCompletosTicket(DocEntry);
                         string Guias = "";
                         if (ticket.LugarDestino.Equals("Arriola") || ticket.LugarDestino.Equals("Centro"))
                         {
@@ -1848,7 +1852,7 @@ namespace Capa_Usuario.Controllers
                     ticket.NroMesa = ticketPost.NroMesa;
                     ticket.Operario = usuario.WhsCode;      //envia el dato de WhsCode del usuario
                     ticket.Det13 = ticketPost.Det13;        // OpEmpacador 2 y OpEmpacador 3
-                   
+
                     int DocNum = _ticketN.editarSeguimientoTicket("FIN EMPACAR", DocEntry, ticket);
                     var listaUsuarios = _usuarioN.ListaUsuarios(new Usuario_E() { Prefijo = "ALM" });
                     var usuariosDistinct = listaUsuarios.Select(x => $"{x.Nombres} {x.Apellidos}").Distinct().ToList();
@@ -2685,11 +2689,11 @@ namespace Capa_Usuario.Controllers
             var result = new Capa_Negocio.Ventas_NEG.TablasSql.ORTV_N().listarTicketsRegalo(fechaTicketDesde, fechaTicketHasta, estadoTicket, estadoRegalo);
             if (result != null && result.Count() > 0)
             {
-                return Json(new { Mensaje = "" });
+                return Json(new { Titulo = "" });
             }
             else
             {
-                return Json(new { Mensaje = "Sin Datos" });
+                return Json(new { Titulo = "Sin Datos" });
             }
         }
         public ActionResult ExporteReporteGeneralTicketsRegalos(string fechaTicketDesde, string fechaTicketHasta, string estadoTicket, string estadoRegalo, int idOperation = 524)
@@ -3577,7 +3581,7 @@ namespace Capa_Usuario.Controllers
             catch (Exception e)
             {
                 // En caso de error, devolver un JsonResult con un mensaje de error
-                return Json(new { Mensaje = e.Message });
+                return Json(new { Titulo = e.Message });
             }
         }
         public ActionResult ExportarReporteErroresPicking(RptFiltrosErroresPicking_E filtros, int idOperation = 810)
@@ -3831,11 +3835,21 @@ namespace Capa_Usuario.Controllers
         public ActionResult PDF_OrdenesDeVentas(int docNum, string almProcedencia)
         {
             var lista = new ORTV_N().obtenerOrdenDeVenta(docNum);
-            foreach (var ordr in lista)
+
+            // Depende de LugarDestino del ticket
+            if (lista != null && lista[0].Almacen != "ALM07" && (string.IsNullOrEmpty(almProcedencia) || almProcedencia == "16"))
             {
-                almProcedencia = string.IsNullOrEmpty(almProcedencia) ? ordr.Almacen : almProcedencia;
-                ordr.Ubicaciones = ubicacionesN.BuscarUbicaciones(ordr.ItemCode, ordr.Lote, almProcedencia);
+                foreach (var ordr in lista)
+                {
+                    string[] ubicaciones = _ubicacionesLotesN.ListarUbicaciones(new Capa_Entidad.AbastecimientoInterno_ENT.TablasSql.UbicacionesLotes_E { ItemCode = ordr.ItemCode, Almacen = "PICKING" })
+                        .Select(u => u.CodigoUbicacion)
+                        .Where(c => !string.IsNullOrWhiteSpace(c)) // limpia nulos y vacíos
+                        .ToArray();
+
+                    ordr.Ubicaciones = ubicaciones;
+                }
             }
+
             lista = lista
         .OrderBy(x => x.Ubicaciones != null && x.Ubicaciones.Length > 0 ? x.Ubicaciones[0] : string.Empty)
         .ToList();

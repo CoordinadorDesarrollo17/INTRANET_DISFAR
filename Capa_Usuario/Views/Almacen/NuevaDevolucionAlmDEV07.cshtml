@@ -10,17 +10,22 @@
     List<SubmotivosDevoluciones_E> Submotivos = (List<SubmotivosDevoluciones_E>)ViewBag.SubmotivosDevoluciones;
     List<OMRC_E> Laboratorios = (List<OMRC_E>)ViewBag.Laboratorios;
     List<OCRD_E> Proveedores = (List<Capa_Entidad.SocioNegocios_ENT.Tablas.OCRD_E>)ViewBag.ListaProveedores;
+
+    var isPopup = Request.QueryString["popup"] != null && Request.QueryString["popup"].ToLower() == "true";
 }
 
-<div class="pt-4">
-    <nav>
-        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
-            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
-            <li><a href="@Url.Action("DevolucionMercancias", "Almacen")">Listado de devoluciones</a></li>
-            <li class="current"><em>Nueva Devolución desde DEV07</em></li>
-        </ol>
-    </nav>
-</div>
+@if (!isPopup)
+{
+    <div class="pt-4">
+        <nav>
+            <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+                <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+                <li><a href="@Url.Action("DevolucionMercancias", "Almacen")">Listado de devoluciones</a></li>
+                <li class="current"><em>Nueva Devolución desde DEV07</em></li>
+            </ol>
+        </nav>
+    </div>
+}
 
 <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
     <div class="px-3 pt-3"><h3 class="titulo-seccion">NUEVA DEVOLUCIÓN DESDE DEV07</h3></div>

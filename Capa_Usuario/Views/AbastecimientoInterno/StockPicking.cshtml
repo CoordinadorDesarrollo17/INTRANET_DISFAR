@@ -1,0 +1,234 @@
+@using System.Text
+@{
+    ViewBag.Title = "Cambio de Ubicaciones Picking";
+    Layout = "~/Views/Shared/_DefaultLayout.cshtml";
+}
+
+<style>
+    td.details-control {
+        cursor: pointer;
+        text-align: center;
+    }
+
+    .subtable {
+        margin-left: 50px;
+    }
+
+    @@media screen and (max-width: 768px) {
+        header {
+            display: none;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            display: block;
+        }
+
+        table {
+            width: 100%;
+        }
+
+        th, td {
+            white-space: nowrap;
+        }
+
+        .modal-body form .form-select {
+            width: 100%;
+        }
+    }
+
+    @@media screen and (max-width: 576px) {
+        .btn {
+            font-size: 14px;
+            padding: 8px;
+        }
+
+            .btn i {
+                font-size: 16px;
+            }
+
+        .cd-breadcrumb {
+            font-size: 12px;
+        }
+
+        .titulo-seccion {
+            font-size: 18px;
+        }
+
+        .modal-dialog {
+            max-width: 90%;
+        }
+    }
+</style>
+
+
+<div class="pt-3">
+    <nav>
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("Sesion", "Index")">Abastecimiento Interno</a></li>
+            <li><a href="@Url.Action("UbicacionesPicking", "AbastecimientoInterno")"><em>Ubicaciones Picking</em></a></li>
+            <li class="current"><em>@ViewBag.Title</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
+    <div class="row px-3 pt-3"><h3 class="titulo-seccion">@ViewBag.Title.ToUpper()</h3></div>
+</div>
+
+<div class="bg-white px-3 py-3 align-items-center">
+    <div class="row mb-4">
+        <div class="d-flex justify-content-end">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#filterModal">
+                <i class="bi bi-filter-circle"></i> Filtrar
+            </button>
+        </div>
+        <div class="col-12">
+            <div id="div_listado" class="bg-white"></div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal de Filtros -->
+<div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-headerModals">
+                <h5 class="modal-title text-light" id="filterModalLabel">Filtrar Productos</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="filterForm">
+                    <div class="mb-3">
+                        <div class="mb-3">
+                            <label for="itemCode" class="form-label fw-bold">Código de Artículo</label>
+                            <input class="form-control border-success" id="itemCode" value="" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="itemName" class="form-label fw-bold">Descripción</label>
+                            <input class="form-control border-success" id="itemName" value="" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="itemName" class="form-label fw-bold">Lote</label>
+                            <input class="form-control border-success" id="batchNum" value="" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i> Cerrar</button>
+                <button type="button" class="btn btn-success" onclick="aplicarFiltro()"><i class="bi bi-check-lg"></i> Aplicar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        renderizarListado()
+    });
+
+    const configDataTable = {
+        "order": [],  // Desactiva ordenamiento automatico.
+        "ordering": true, // Iconos para ordenar todas las columnas de la tabla.z
+        "pageLength": 25,
+        "lengthMenu": [25, 50, 75, 100],
+        "language": {
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+            "infoEmpty": "No hay registros disponibles",
+            "infoFiltered": "(filtrado de _MAX_ registros totales)",
+            "lengthMenu": "Mostrar _MENU_ registros por página",
+            "search": "Buscar:",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "zeroRecords": "No se encontraron registros"
+        }
+    }
+
+    function renderizarListado() {
+         $('#div_listado').load(`@Url.Action("ListarStockPicking")`, function () {
+             if (!$.fn.DataTable.isDataTable('#tbl_listaStockPicking')) {
+                 inicializarDataTable('tbl_listaStockPicking', 100);
+                 aplicarFiltro();
+             }
+         }).fadeIn("fast");
+    }
+
+    function aplicarFiltro() {
+        const form = document.getElementById('filterForm');
+        const batchNum = form.batchNum.value.trim().toLowerCase();
+        const itemCode = form.itemCode.value.trim().toLowerCase();
+        const itemName = form.itemName.value.trim().toLowerCase();
+
+        const table = $('#tbl_listaStockPicking').DataTable();
+
+        $.fn.dataTable.ext.search.length = 0;
+
+        $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+            const constItemCode = data[0]?.trim().toLowerCase();
+            const consItemName = data[1]?.trim().toLowerCase();
+            const constBatchNum = data[2]?.trim().toLowerCase();
+
+            const coincideItemCode = itemCode === "" || constItemCode.includes(itemCode);
+            const coincideItemName = itemName === "" || consItemName.includes(itemName);
+            const coincideBatchNum = batchNum === "" || constBatchNum.includes(batchNum);
+
+            return coincideItemCode && coincideItemName && coincideBatchNum;
+        });
+
+        table.draw();
+
+        const modalElement = document.getElementById('filterModal');
+        if (modalElement) {
+            const modalInstance = bootstrap.Modal.getInstance(modalElement);
+            if (modalInstance) {
+                modalInstance.hide();
+            }
+
+        }
+    }
+
+    async function cambiarUbicacion(element) {
+        const nuevocodigoubicacion = document.querySelector(`#${element.nuevocodigoubicacion}`).value || ''
+        const ubicacionloteid = element.ubicacionloteid || 0
+
+        if (nuevocodigoubicacion === '' || ubicacionloteid <= 0)
+            generarAlerta('Error en cambiar ubicación', 'Actualizar la página y volver a intentar.', 'error')
+
+        try {
+            const response = await fetch("/AbastecimientoInterno/CambiarUbicacionPicking", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ nuevocodigoubicacion, ubicacionloteid })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Error en la solicitud: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            Swal.fire({
+                title: data.Titulo,
+                html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                    ? data.Mensajes.join('<br>')
+                    : data.Mensajes || "",
+                icon: data.Icono,
+                allowEscapeKey: false,
+                allowOutsideClick: false,
+                showConfirmButton: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    renderizarListado()
+                }
+            });
+
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+</script>
