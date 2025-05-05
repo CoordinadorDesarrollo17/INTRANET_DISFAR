@@ -1549,7 +1549,7 @@ namespace Capa_Usuario.Controllers
 
                 if (transferenciaGet.Detalle?.Any(t => t.ItemCode == itemCode) == true)
                 {
-                    var detalleFiltrado = transferenciaGet.Detalle.Where(b => b.CodigoUbicacion == "RESERVA-UBI-SISTEMA").ToList();
+                    var detalleFiltrado = transferenciaGet.Detalle.Where(b => b.CodigoUbicacion == "RESERVA-UBI-SISTEMA" && b.Validado == 0).ToList();
 
                     foreach (var det in detalleFiltrado)
                     {
@@ -1622,7 +1622,7 @@ namespace Capa_Usuario.Controllers
                     bool fechasIguales = lista.All(a => a.ExpDate == lista.First().ExpDate) && lista.All(a => a.InDate == lista.First().InDate);
                     // Aplicar el ordenamiento según la condición
                     lista = fechasIguales
-                        ? lista.OrderBy(a => a.CodigoUbicacion).ToList() // Ordenar por CodigoUbicacion si las fechas son iguales
+                        ? lista.OrderBy(a => a.QuantityUnidadesCajas).ThenBy(a => a.CodigoUbicacion).ToList() // Ordenar por CodigoUbicacion si las fechas son iguales
                         : lista.OrderBy(a => DateTime.Parse(a.ExpDate))
                                .ThenBy(a => DateTime.Parse(a.InDate))
                                .ThenBy(a => a.QuantityUnidadesCajas)

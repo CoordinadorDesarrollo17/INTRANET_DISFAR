@@ -130,14 +130,14 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
                         item.UbicacionId = ubicacion.First().Id;
                         item.CodigoUbicacionDestino = ubicacionCodigo;
                         item.QuantityUnidadesCajas = 0;        // Para PICKING no necesitamos guardar el QuantityUnidadesCajas
+                        resultRegistro = datosUbicacionesL.RegistrarCodigoUbicacionPicking(new List<DetalleRequerimientos_E> { item }, cn);
                     }
                     else
                     {
-                        return _helper.CrearRespuestaError($"Código de ubicación PICKING '{ubicacionCodigo}' ya se encuentra registrado.");
+                        resultRegistro = _helper.CrearAlertaUI(new List<string> { $"Código de ubicación PICKING '{ubicacionCodigo}' ya se encuentra registrado." }, "info");
                     }
                 }
             }
-            resultRegistro = datosUbicacionesL.RegistrarCodigoUbicacionPicking(detalle, cn);
 
             return resultRegistro;
         }
