@@ -97,7 +97,6 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         public Helper_E RegistrarCodigoUbicacionPicking(List<DetalleRequerimientos_E> detalle, SqlConnection cn)
         {
             Helper_E resultRegistro = new Helper_E();
-            bool codigoUbicacionRegistrado = false;
 
             if (detalle.Where(d => d?.CodigoUbicacionDestino == null).Any())
             {
@@ -135,7 +134,6 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
                     }
                     else
                     {
-                        codigoUbicacionRegistrado = true;
                         resultRegistro = _helper.CrearAlertaUI(new List<string> { $"Código de ubicación PICKING '{ubicacionCodigo}' ya se encuentra registrado." }, "info");
                     }
                 }

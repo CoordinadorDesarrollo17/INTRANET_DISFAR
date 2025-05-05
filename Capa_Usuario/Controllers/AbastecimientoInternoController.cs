@@ -1549,7 +1549,7 @@ namespace Capa_Usuario.Controllers
 
                 if (transferenciaGet.Detalle?.Any(t => t.ItemCode == itemCode) == true)
                 {
-                    var detalleFiltrado = transferenciaGet.Detalle.Where(b => b.CodigoUbicacion == "RESERVA-UBI-SISTEMA").ToList();
+                    var detalleFiltrado = transferenciaGet.Detalle.Where(b => b.CodigoUbicacion == "RESERVA-UBI-SISTEMA" && b.Validado == 0).ToList();
 
                     foreach (var det in detalleFiltrado)
                     {
