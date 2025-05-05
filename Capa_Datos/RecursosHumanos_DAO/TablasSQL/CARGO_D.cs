@@ -33,7 +33,7 @@ namespace Capa_Datos.RecursosHumanos_DAO
                 catch (Exception ex)
                 {
                     File.AppendAllText(uti.directorioLogs + "CARGO_D - RegistrarCargo.txt", $"{DateTime.Now}: {ex.Message}\n {ex.StackTrace}\n");        // Registro de error
-                    mensajeError = "Ocurrió un error al registrar el cargo. Por favor, comunicarse con SISTEMAS.";
+                    mensajeError = "Ocurrió un error al registrar el cargo. Por favor, comuníquese con el área de Sistemas para más información.";
                 }
             }
             return mensajeError;
@@ -58,7 +58,7 @@ namespace Capa_Datos.RecursosHumanos_DAO
                 catch (Exception ex)
                 {
                     File.AppendAllText(uti.directorioLogs + "CARGO_D - EditarCargo.txt", $"{DateTime.Now}: {ex.Message}\n {ex.StackTrace}\n");        // Registro de error
-                    mensajeError = "Ocurrió un error al editar el cargo. Por favor, comunicarse con SISTEMAS.";
+                    mensajeError = "Ocurrió un error al editar el cargo. Por favor, comuníquese con el área de Sistemas para más información.";
                 }
             }
             return mensajeError;
@@ -81,7 +81,7 @@ namespace Capa_Datos.RecursosHumanos_DAO
                 catch (Exception ex)
                 {
                     File.AppendAllText(uti.directorioLogs + "CARGO_D - EliminarCargo.txt", $"{DateTime.Now}: {ex.Message}\n {ex.StackTrace}\n");        // Registro de error
-                    mensajeError = "Ocurrió un error al eliminar el cargo. Por favor, comunicarse con SISTEMAS.";
+                    mensajeError = "Ocurrió un error al eliminar el cargo. Por favor, comuníquese con el área de Sistemas para más información.";
                 }
             }
             return mensajeError;

@@ -1,0 +1,1438 @@
+﻿@{
+    ViewBag.Title = "Transferencias";
+    Layout = "~/Views/Shared/_DefaultLayout.cshtml";
+}
+<style>
+    #tbl_detalle {
+        font-size: 12px !important;
+    }
+
+        #tbl_detalle input,
+        #tbl_detalle select,
+        #tbl_detalle textarea,
+        #tbl_detalle button,
+        #tbl_detalle label {
+            font-size: 12px !important;
+        }
+</style>
+<div class="pt-3">
+    <nav>
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("Sesion", "Index")">Abastecimiento Interno</a></li>
+            <li class="current"><em>@ViewBag.Title</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
+    <div class="row px-3 pt-3"><h3 class="titulo-seccion">@ViewBag.Title.ToUpper()</h3></div>
+</div>
+
+<div class="bg-white px-3 py-3 align-items-center">
+    <div class="row mb-4">
+
+        <div class="col-lg-2">
+            <input type="hidden" id="DocEntry" name="DocEntry" readonly />
+            <label for="" class="form-label fw-bold">Tipo de documento:</label>
+            <select id="" class="form-select">
+                <option value="OWTQ">Solicitud de Traslado</option>
+            </select>
+        </div>
+
+        <div class="col-lg-2">
+            <label for="DocNum" class="form-label fw-bold">DocNum:</label>
+            <div class="input-group">
+                <input type="text" id="DocNum" class="form-control border border-success" name="DocNum" autocomplete="off" />
+                <button id="buscarDocNum" type="button" class="btn btn-cobefar-2" onclick="buscarSolicitud()" data-bs-toggle="tooltip" data-bs-placement="top" title="Buscar solicitud de traslado">
+                    <i class="bi bi-search"></i>
+                </button>
+                @*<button type="button" class="btn btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Descargar PDF">
+                        <i class="bi bi-file-earmark-pdf"></i>
+                    </button>*@
+            </div>
+        </div>
+
+        <div class="col-lg-2">
+            <label for="NroGuia" class="form-label fw-bold">Nro. de guía:</label>
+            <input type="text" id="NroGuia" class="form-control cls-readonly text-center" name="NroGuia" autocomplete="off" readonly />
+        </div>
+
+        <div class="col-lg-3">
+            <label for="CardName" class="form-label fw-bold">Socio de Negocio:</label>
+            <input type="hidden" id="CardCode" name="CardCode" readonly />
+            <input type="text" id="CardName" class="form-control cls-readonly text-center" name="CardName" autocomplete="off" readonly />
+        </div>
+
+        <div class="col-lg-2">
+            <label for="OperarioResponsableSAP" class="form-label fw-bold">Operario Responsable SAP:</label>
+            <input type="text" id="OperarioResponsableSAP" class="form-control cls-readonly text-center" name="OperarioResponsableSAP" autocomplete="off" readonly />
+            <input type="hidden" id="MotivoTraslado" name="MotivoTraslado" readonly />
+            <input type="hidden" id="DocDate" name="DocDate" readonly />
+        </div>
+
+        <div class="col-lg-1 d-flex align-items-end">
+            <button type="button" class="btn btn-success w-100" onclick="abrirModalImportacion()" data-bs-toggle="tooltip" data-bs-placement="top" title="Importar datos directamente a la base">
+                <i class="bi bi-upload"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="col-12 align-items-center" style="max-height: 45vh; overflow-y: auto; margin: 0; padding: 0;">
+        <div class="col-lg-12">
+            <table id="tbl_detalle" class="dt-container dt-empty-footer table table-sm table-bordered" width="100%">
+                <thead class="thead-cobefar">
+                    <tr>
+                        <th style="width: 5%;"></th>
+                        <th scope="col" class="text-center">Código de artículo</th>
+                        <th scope="col" class="text-center">Descripción</th>
+                        <th scope="col" class="text-center">Cantidad</th>
+                        <th scope="col" class="text-center">Alm. Destino</th>
+                        <th scope="col" class="text-center">Lotes</th>
+                        <th scope="col" class="text-center">Estado</th>
+                        <th scope="col" class="text-center">
+                            <button type="button" id="btn_validarTodo" class="btn btn-cobefar-3 text-dark btn-sm" onclick="validarTodo()" data-bs-toggle="tooltip" data-bs-placement="top" title="Validar todos los items">
+                                <i class="bi bi-check-circle"></i> Validar todo
+                            </button>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="text-dark">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="copiaSap" hidden>
+        <form id="frm_tablaCopiaSap">
+            <div class="row mb-4">
+                <div class="col-lg-12">
+                    <input type="text" id="copiaDocEntry" name="DocEntry" readonly />
+                    <input type="text" id="copiaDocNum" name="DocNum" readonly />
+                    <input type="text" id="copiaNroGuia" name="NroGuia" readonly />
+                    <input type="text" id="copiaCardCode" name="CardCode" readonly />
+                </div>
+            </div><!-- row -->
+
+            <div class="row mb-4">
+                <div class="col-lg-12">
+                    <input type="text" id="copiaCardName" name="CardName" readonly />
+                    <input type="text" id="copiaOperarioResponsableSAP" name="OperarioResponsableSAP" readonly />
+                    <input type="text" id="copiaMotivoTraslado" name="MotivoTraslado" readonly />
+                    <input type="text" id="copiaDocDate" name="DocDate" readonly />
+                </div>
+            </div><!-- row -->
+        </form>
+        <table id="tbl_copiaSap" class="table">
+            <thead>
+                <tr>
+                    <th scope="col">ItemCode</th>
+                    <th scope="col">ItemName</th>
+                    <th scope="col">BatchNum</th>
+                    <th scope="col">In Date</th>
+                    <th scope="col">Exp Date</th>
+                    <th scope="col">QuantityCajas</th>
+                    <th scope="col">FromWhsCode</th>
+                    <th scope="col">ToWhsCode</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+    <hr />
+    <div id="div_botones" class="row" style="display: none">
+        <div class="col-lg-12">
+            <button id="cancelarCritico" type="button" class="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Cancelar" onclick="cancelarTransferenciaTraslado()"><i class="bi bi-x-lg"></i> Cancelar</button>
+            <button type="button" id="btn_transferir" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Transferir"><i class="bi bi-arrow-left-right"></i> Transferir</button>
+        </div>
+    </div>
+</div><!-- main -->
+
+
+<div class="modal fade" id="ModalImportar" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-headerModals text-white">
+                <h5 class="modal-title" id="modalLabel">IMPORTAR DATOS EXCEL</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body bg-light">
+                <div class="mb-3">
+                    <label for="i_file" class="form-label text-dark">Seleccione archivo:</label>
+                    <input id="i_file" name="file" type="file" class="form-control" accept=".xlsx" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" onclick="importarSolicitud()">
+                    <i class="bi bi-database"></i> Guardar datos
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Busqueda Rapida -->
+<div class="modal fade" id="modalBuscador" tabindex="-1" aria-labelledby="modalBuscadorLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-headerModals text-white">
+                <h5 class="modal-title" id="modalBuscadorLabel">BÚSQUEDA RÁPIDA</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <div class="modal-body">
+                <input type="text" id="inputBusqueda" class="form-control mb-3" placeholder="Escriba para buscar...">
+                <div id="resultadosBusqueda" class="list-group" style="max-height: 250px; overflow-y: auto;"></div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+		// Declaración de variables
+		const masters = JSON.parse(`@Html.Raw(Json.Encode(ViewBag.Masters))`)
+		let opcionesMasters = ''
+		const configDataTable = {
+			paging: false,          // ❌ Deshabilitar paginación
+			searching: false,       // ❌ Ocultar la barra de búsqueda
+			info: false,            // ❌ Ocultar el número de registros ("Mostrando X de Y registros")
+			ordering: false,        // ❌ Deshabilitar la opción de ordenar columnas
+			lengthChange: false,    // ❌ Ocultar el selector de cantidad de elementos por página
+			bFilter: false,         // ❌ Desactivar filtrado de DataTables
+			bSort: false,           // ❌ Desactivar ordenamiento en columnas
+			bPaginate: false,       // ❌ Desactivar paginación manualmente
+			autoWidth: false,       // ✅ Evita que DataTables ajuste el ancho de las columnas automáticamente
+			responsive: true        // ✅ Mantiene la tabla responsiva si es necesario
+		}
+		// Funciones
+		function cargarOpcionesMasters(unidadAlmSugerido) {
+			opcionesMasters = ""; // Reiniciar la variable para evitar acumulación de valores previos
+			masters.forEach(item => {
+				opcionesMasters += `<option value="${item.ValorUmAlm}" data-umalm="${item.UmAlm}" ${item.UmAlm === unidadAlmSugerido ? 'selected' : ''}>${item.UmAlm}</option>`;
+			});
+			return opcionesMasters;
+		}
+		async function realizarTransferencia() {
+			const form = document.querySelector('#frm_tablaCopiaSap')
+			if (!form) {
+				console.log("Formulario no válido.");
+				return;
+			}
+			const filasSolicitudTraslado = document.querySelectorAll("#tbl_copiaSap tbody tr");
+			let detallesSolicitud = [];
+			filasSolicitudTraslado.forEach((fila) => {
+				let inputs = fila.querySelectorAll("input, select");
+				let detalleSolicitud = {};
+				inputs.forEach(input => {
+					let name = input.name.trim();
+					if (name.startsWith("solicitudTraslado.Detalle[]")) {
+						let key = name.replace("solicitudTraslado.Detalle[].", "").trim();
+						detalleSolicitud[key] = input.value;
+					}
+				});
+				if (Object.keys(detalleSolicitud).length > 0) detallesSolicitud.push(detalleSolicitud);
+			});
+			const filasTransferencia = document.querySelectorAll(".tbl_detalleLotes tbody tr");
+			let detallesTransferencia = [];
+			filasTransferencia.forEach((fila) => {
+				let inputs = fila.querySelectorAll("input, select");
+				let detalleTransferencia = {};
+				let camposValidos = true; // Bandera para validar los campos requeridos
+				inputs.forEach(input => {
+					let name = input.name.trim();
+					if (name.startsWith("transferenciaPost.Detalle[]")) {
+						let key = name.replace("transferenciaPost.Detalle[].", "").trim();
+						let value = input.value.trim(); // Aseguramos que no tenga espacios en blanco al inicio o fin
+						if (key === "ValorUmAlm") {
+							let selectedOption = input.options[input.selectedIndex];
+							detalleTransferencia[key] = value;
+							detalleTransferencia["UmAlm"] = selectedOption.dataset.umalm || ""; // Evita valores undefined
+						} else {
+							detalleTransferencia[key] = value;
+						}
+						// Verificar si los campos obligatorios están vacíos
+						if ((key === "QuantitySaldo" || key === "UmAlm") && value === "") {
+							camposValidos = false; // Marcar como inválido si algún campo está vacío
+						}
+					}
+				});
+				// Solo agregar si los campos requeridos tienen valores
+				if (camposValidos && Object.keys(detalleTransferencia).length > 0) {
+					detallesTransferencia.push(detalleTransferencia);
+				}
+			});
+			const formData = new FormData(form);
+			const jsonData = Object.fromEntries(formData.entries());
+			const payload = {
+				solicitudTraslado: {
+					...jsonData, // Otros datos generales del formulario
+					Detalle: detallesSolicitud
+				},
+				transferenciaPost: {
+					...jsonData,
+					SolicitudTrasladoDocNum: document.querySelector('#DocNum').value,
+					Detalle: detallesTransferencia
+				}
+			};
+            registrarTransferenciaStock(payload)
+		}
+        async function registrarTransferenciaStock(payload) {
+            try {
+                const response = await fetch("/AbastecimientoInterno/RegistrarTransferenciaDeStock", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) {
+                    throw new Error(`Error en la solicitud: ${response.status}`);
+                }
+                const data = await response.json();
+                Swal.fire({
+                    title: data.Titulo,
+                    html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                        ? data.Mensajes.join('<br>')
+                        : data.Mensajes || "",
+                    icon: data.Icono,
+                    allowEscapeKey: false,
+                    allowOutsideClick: false,
+                    showConfirmButton: true
+                }).then((result) => {
+                    if (result.isConfirmed && data.Icono == "success") {
+                        Swal.fire({
+                            title: '¿Deseas continuar con la transferencia?',
+                            text: "Solo para completar ítems que no han sido transferidos.",
+                            icon: 'info',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: '<i class="bi bi-check-lg"></i> Si, continuar',
+                            cancelButtonText: '<i class="bi bi-x-lg"></i> Cancelar'
+                        }).then(result => {
+                            if (result.isConfirmed) {
+                                buscarSolicitud()
+                            } else {
+                                location.reload()
+                            }
+                        });
+                    }
+                });
+            } catch (error) {
+                console.error("Error:", error);
+            }
+		}
+
+        async function buscarSolicitud() {
+            const copiaSapDiv = document.querySelector('#copiaSap');
+            if (!copiaSapDiv) {
+                console.log("No se encontró el div copiaSap.");
+                return;
+            }
+
+            copiaSapDiv.hidden = true;
+            copiaSapDiv.querySelectorAll('input').forEach(input => input.value = '');
+            const tbody = copiaSapDiv.querySelector('#tbl_copiaSap tbody');
+            if (tbody) tbody.innerHTML = '';
+
+            document.querySelectorAll('button').forEach(btn => {
+                btn.disabled = false;
+            });
+
+            let docNum = document.querySelector('#DocNum').value.trim();
+            if (!docNum) {
+                Swal.fire({
+                    title: "Error",
+                    text: "Ingrese un número de documento válido.",
+                    icon: "error",
+                    showConfirmButton: true
+                });
+                return;
+            }
+
+            if (document.querySelectorAll('#tbl_detalle tbody') && document.querySelectorAll('#tbl_detalle tr').length > 0) {
+                $('#tbl_detalle').DataTable().clear().destroy();
+                document.querySelector('#tbl_detalle tbody').innerHTML = '';
+            }
+
+            try {
+                const response = await fetch("/AbastecimientoInterno/BuscarSolicitudDeTraslado", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ docNum })
+                });
+
+                const contentType = response.headers.get("content-type") || "";
+
+                if (!response.ok || !contentType.includes("application/json")) {
+                    const errorText = await response.text();
+                    console.error('Respuesta inesperada:', errorText);
+
+                    Swal.fire({
+                        title: 'Sesión expirada',
+                        text: 'Se perdió la sesión o hubo un problema de conexión. Se actualizará la página.',
+                        icon: 'warning'
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (!data || data.Icono === "error") {
+                    Swal.fire({
+                        title: data.Titulo || "Error",
+                        html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                            ? data.Mensajes.join('<br>')
+                            : data.Mensajes || "",
+                        icon: data.Icono || "error",
+                        allowEscapeKey: false,
+                        allowOutsideClick: false,
+                        showConfirmButton: true
+                    });
+                    document.querySelector('#div_botones').style.display = 'none';
+                    return;
+                }
+
+                document.querySelector('#NroGuia').value = data.traslado.NroGuia || "";
+                document.querySelector('#CardCode').value = data.traslado.CardCode || "";
+                document.querySelector('#CardName').value = data.traslado.CardName || "";
+                document.querySelector('#OperarioResponsableSAP').value = data.traslado.OperarioResponsableSAP || "";
+                document.querySelector('#MotivoTraslado').value = data.traslado.MotivoTraslado || "";
+                document.querySelector('#DocDate').value = data.traslado.DocDate || "";
+
+                let traslado = agruparSolicitudPorItemCode(data.traslado.Detalle);
+
+                if (data.transferencia != null) {
+                    generarHTMLDetalle(formatLotesTransferenciaReserva, traslado.Detalle, data.transferencia.Detalle);
+                    const todosAtendidos = data.transferencia.Detalle.every(item => item.AtendidoReserva === 1);
+                    const todosTransferidos = Object.values(traslado).every(item => item.Estado === "TRANSFERIDO");
+
+                    if (todosAtendidos && todosTransferidos) {
+                        Swal.fire({
+                            title: "Advertencia",
+                            html: "La solicitud ya fue completamente TRANSFERIDA y ubicada.",
+                            icon: "warning",
+                            allowEscapeKey: false,
+                            allowOutsideClick: false,
+                            confirmButtonText: "Aceptar"
+                        }).then(() => {
+                            document.querySelectorAll('button').forEach(btn => {
+                                if (btn.id !== "cancelarCritico" && btn.id !== "buscarDocNum") {
+                                    btn.disabled = true;
+                                }
+                            });
+                        });
+                    }
+                } else {
+                    construirFormCopiaSap(data.traslado);
+                    generarHTMLDetalle(formatLotes, traslado.Detalle);
+                    document.querySelector('#btn_validarTodo').disabled = true;
+                }
+
+                permitirValoresNumericosPositivos();
+                document.querySelector('#div_botones').style.display = 'block';
+
+            } catch (error) {
+                console.error("Error:", error);
+                Swal.fire({
+                    title: "Error inesperado",
+                    text: "Hubo un problema al procesar la solicitud.",
+                    icon: "error",
+                    showConfirmButton: true
+                });
+            }
+        }
+
+
+        function abrirModalImportacion() {
+            let modal = new bootstrap.Modal(document.getElementById('ModalImportar'));
+            modal.show();
+        }
+
+        async function importarSolicitud() {
+            let fileInput = document.querySelector("#i_file");
+            if (!fileInput.files.length) {
+                Swal.fire({
+                    title: "Error",
+                    html: "Debe seleccionar un archivo para importar.",
+                    icon: "error",
+                    showConfirmButton: true
+                });
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+
+            try {
+                let response = await fetch("/AbastecimientoInterno/ImportarTransferenciaDeStock", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const contentType = response.headers.get("content-type") || "";
+
+                if (!response.ok || !contentType.includes("application/json")) {
+                    const errorText = await response.text();
+                    console.error('Respuesta inesperada:', errorText);
+
+                    Swal.fire({
+                        title: 'Sesión expirada',
+                        text: 'La sesión expiró o hubo un error inesperado. Se actualizará la página.',
+                        icon: 'warning'
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                    return;
+                }
+
+                let data = await response.json();
+
+                Swal.fire({
+                    title: data.Titulo || "Éxito",
+                    html: Array.isArray(data.Mensajes) ? data.Mensajes.join("<br>") : data.Mensajes,
+                    icon: data.Icono || "success",
+                    showConfirmButton: true
+                });
+
+                if (data.Icono === "success") {
+                    document.querySelector("#ModalImportar").querySelector(".btn-close").click();
+                }
+
+            } catch (error) {
+                console.error("Error capturado:", error);
+                Swal.fire({
+                    title: "Error",
+                    text: "Hubo un problema al procesar la solicitud.",
+                    icon: "error",
+                    showConfirmButton: true
+                });
+            }
+        }
+
+		// Construcción de la tabla de detalle
+        function renderizarDetalle(detalle) {
+            let tbody = ''
+            for (const itemCode in detalle) {
+                let key = detalle[itemCode]
+                let claseTransferido = (key.Estado === "TRANSFERIDO") ? 'bg-secondary text-white' : ''
+                let claseBotonArrow = (key.Estado === "TRANSFERIDO") ? 'btn-light' : 'btn-dark'
+                tbody += `<tr data-producto="${key.ItemCode}" class="fila-detalle">
+								<td class="details-control text-center ${claseTransferido}">
+									<button id="btn_chevron_${key.ItemCode}" class="btn btn-sm ${claseBotonArrow}"><i class="bi bi-chevron-down"></i></button>
+								</td>
+								<td class="text-center ${claseTransferido}">${key.ItemCode}</td>
+								<td class="${claseTransferido}"><span class="ps-2">${key.ItemName}<span></td>
+								<td class="text-center ${claseTransferido}">${key.QuantityCajas}</td>
+								<td class="text-center ${claseTransferido}">
+									${key.Estado == "TRANSFERIDO"
+                        ? `RESERVA`
+                        : `<div class="d-flex justify-content-center"><input type="text" class="form-control text-center cls-readonly" value="RESERVA" readonly style="width: 140px"></div>`}
+								</td>
+								<td class="text-center ${claseTransferido}">${key.DetalleLotes.map(l => l.BatchNum).join(', ')}</td>
+								<td class="text-center ${claseTransferido}">${key.Estado}</td>
+								<td class="text-center ${claseTransferido}">${key.Estado != "TRANSFERIDO"
+                    ? `<button class="btn btn-danger" onclick="limpiarValoresItem('cls-limpiarItem_${key.ItemCode}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Borrar valores asignados">
+                <i class="bi bi-arrow-repeat"></i>
+           </button>`
+                        : (key.AtendidoReserva == 0
+                        ? `<button class="btn btn-danger" onclick="deleteItemTransferencia('${key.ItemCode}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Reestablecer valores asignados">
+                     <i class="bi bi-arrow-repeat"></i>
+               </button>
+               ${key.Validado == 0
+                                ? `<button class="btn btn-cobefar-3 ms-2" onclick="validarItemParaApilar('${key.ItemCode}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Validar para apilar">
+                        <i class="bi bi-check-circle"></i>
+                      </button>`
+                                : ''}`
+                            : `<button class="btn btn-danger" onclick="revertirTransferenciaReserva('${key.ItemCode}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Revertir transferencia reserva">
+                    <i class="bi bi-arrow-repeat"></i>
+               </button>`
+                        )
+                    }
+                    </td>
+                </tr>`
+            }
+            return tbody
+        }
+		function generarHTMLDetalle(func, detalleTraslado, detalleTransferencia = {}) {
+
+			if (typeof func === 'function') {
+				document.querySelector('#tbl_detalle tbody').insertAdjacentHTML('beforeend', renderizarDetalle(detalleTraslado));
+				inicializarSlimSelectsPorClase('cls-select')
+				$('[data-bs-toggle="tooltip"]').tooltip()
+				let table = $('#tbl_detalle').DataTable(configDataTable)
+				// Eliminar cualquier event listener de click previamente
+				$('#tbl_detalle tbody').off('click', 'td.details-control')
+				// Asociar un event listener de click al elemento
+				$('#tbl_detalle tbody').on('click', 'td.details-control', function () {
+					var tr = $(this).closest('tr')
+					//var row = table.row(tr)
+					var productoID = tr.data('producto')
+                    var button = $(this).find('button i')
+
+					if (!productoID) {
+						console.warn('Producto ID no definido en el <tr>.')
+						return;
+                    }
+
+                    const detalleRow = tr.next('.detalle-fila')
+
+                    if (detalleRow.length) {
+                        detalleRow.toggle()
+                        button.toggleClass('bi-chevron-down bi-chevron-up')
+					} else {
+						// Validar que el objeto detalle y los lotes existan antes de abrir
+                        if (detalleTraslado[productoID] && Array.isArray(detalleTraslado[productoID].DetalleLotes)) {
+                            try {
+                                const html = func(detalleTraslado[productoID], detalleTransferencia);
+                                const detalleTr = $('<tr class="detalle-fila"><td colspan="100%">' + html + '</td></tr>');
+                                tr.after(detalleTr); // insertar justo después
+								button.removeClass('bi-chevron-down').addClass('bi-chevron-up');
+							} catch (error) {
+								console.error('Error al mostrar los lotes de transferencia:', error);
+							}
+						} else {
+                            console.warn(`Detalle o DetalleLotes no válido para producto ID: ${productoID}`, detalleTraslado[productoID]);
+						}
+					}
+				});
+				$('.fila-detalle').each(function (index) {
+					let productoID = $(this).data('producto');
+                    if (detalleTraslado[productoID] && detalleTraslado[productoID].DetalleLotes.length === 1 && detalleTraslado[productoID].Estado === "PENDIENTE") {
+                        const btnChevron = document.querySelector(`#btn_chevron_${productoID}`)
+                        if (btnChevron) {
+                            btnChevron.click();
+                        }
+					}
+				});
+			} else {
+				console.warn('El parámetro func no es una función válida:', func);
+				return;
+			}
+		}
+		// 2do Nivel
+		function formatLotes(articulo, transferencia = null) {
+			let tableHtml = `<div class="d-flex justify-content-center w-100"><table id="tbl_detalleLotes_${articulo.ItemCode}" class="table table-sm table-bordered table-hover subtable w-75 tbl_detalleLotes">
+							<thead class="table-success">
+								<tr>
+									<th scope="col" class="text-center" style="width: 100">Lote</th>
+									<th scope="col" class="text-center" style="width: 200">Fecha de Admisión</th>
+									<th scope="col" class="text-center" style="width: 200">Fecha de Vencimiento</th>
+									<th scope="col" class="text-center" style="width: 200">Stock UNIDADES</th>
+									<th scope="col" class="text-center" style="width: 200">Unidad MASTER</th>
+									<th scope="col" class="text-center" style="width: 200">Cantidad en MASTER</th>
+									<th scope="col" class="text-center" style="width: 200">Cantidad en SALDO</th>
+									<th scope="col" class="text-center" style="width: 200">Ubicación</th>
+									<th scope="col" style="width: 5%;"></th>
+								</tr>
+							</thead>
+							<tbody>`
+			articulo.DetalleLotes.forEach(item => {
+                let lote = item.BatchNum.split(" ").join("")
+                tableHtml += `<tr data-lote="${lote}">
+								<td class="text-center">
+									<input type="hidden" name="transferenciaPost.SolicitudesTrasladoId" value="${articulo.SolicitudesTrasladoId}" />
+									<input type="hidden" name="transferenciaPost.Detalle[].ItemCode" value="${articulo.ItemCode}" />
+									<input type="hidden" name="transferenciaPost.Detalle[].ItemName" value="${articulo.ItemName}" />
+									<input type="hidden" name="transferenciaPost.Detalle[].BatchNum" value="${item.BatchNum}" />${item.BatchNum}
+								</td>
+								<td class="text-center">
+									<input type="hidden" name="transferenciaPost.Detalle[].InDate" value="${item.InDate}" />${item.InDate}
+								</td>
+								<td class="text-center">
+									<input type="hidden" name="transferenciaPost.Detalle[].ExpDate" value="${item.ExpDate}" />${item.ExpDate}
+								</td>
+								<td class="text-center">
+									<input type="text" id="lote_quantityUnidades_${lote}" name="transferenciaPost.Detalle[].QuantityUnidadesCajas" class="form-control text-center cls-num cls-limpiarItem_${articulo.ItemCode}"
+									data-idcantmaster="lote_cantidadMaster_${lote}" data-idcantsaldo="lote_cantidadSaldo_${lote}" data-cantidadtotal="${item.QuantityCajas}"
+									data-idundmaster="lote_undMaster_${lote}" oninput="calcularStockUnidades(this.value, this.dataset)" value="${item.QuantityCajas}">
+								</td>
+								 <td scope="col" class="text-center align-middle">
+									 <select id="lote_undMaster_${lote}" data-idundmaster="lote_undMaster_${lote}" data-idcantmaster="lote_cantidadMaster_${lote}" data-idcantsaldo="lote_cantidadSaldo_${lote}" data-cantidadtotal="${item.QuantityCajas}"
+										data-idquantityunidades ="lote_quantityUnidades_${lote}"
+										name="transferenciaPost.Detalle[].ValorUmAlm" class="form-select cls-limpiarItem_${articulo.ItemCode}" onchange="calcularCantidadMasterSaldo(this.value, this.dataset)"  onclick="abrirModalBusquedaRapida(this)">
+										 <option value="">Seleccione</option>
+										${cargarOpcionesMasters(item.UnidadAlmSugerido)}
+									 </select>
+								 </td>
+								<td scope="col" class="text-center">
+									<div class="mx-auto w-75">
+										<input type="text" id="lote_cantidadMaster_${lote}" name="transferenciaPost.Detalle[].QuantityMaster" class="form-control text-center cls-num cls-readonly cls-limpiarItem_${articulo.ItemCode}" readonly>
+									</div>
+								</td>
+								 <td scope="col" class="text-center">
+									<div class="mx-auto w-75"><input type="text" id="lote_cantidadSaldo_${lote}" name="transferenciaPost.Detalle[].QuantitySaldo" class="form-control text-center cls-num cls-readonly cls-limpiarItem_${articulo.ItemCode}" readonly></div>
+								</td>
+								<td class="text-center">
+									<select id="lote_ubicacion_${lote}" name="transferenciaPost.Detalle[].CodigoUbicacion" data-idloteubicacion="lote_ubicacion_${lote}" data-itemcode="${articulo.ItemCode}"
+									class="form-select cls-limpiarItem_${articulo.ItemCode}" onclick="gestionarBusquedaUbicaciones(this)"   style="width: 200px">
+										<option value="">Seleccione</option>
+									</select>
+								</td>
+								<td class="lotes-control text-center">
+									<button type="button" class="btn btn-sm btn-cobefar" onclick="clonarFila('tbl_detalleLotes_${articulo.ItemCode}')"><i class="bi bi-plus-lg"></i></button>
+								</td>
+							</tr>`
+			});
+			tableHtml += '</tbody></table></div>'
+			return tableHtml
+		}
+		function formatLotesTransferenciaReserva(articulo, transferencia) {
+			const itemsTransferidos = transferencia.filter(item =>
+				item.ItemCode === articulo.ItemCode && item.BatchNum === item.BatchNum
+			)
+			let tableHtml = `<div class="d-flex justify-content-center w-100"><table id="tbl_detalleLotes_${articulo.ItemCode}" class="table table-sm table-bordered table-hover subtable w-75 tbl_detalleLotes">
+					<thead class="table-success">
+						<tr>
+							<th scope="col" class="text-center" style="width: 100">Lote</th>
+							<th scope="col" class="text-center" style="width: 200">Fecha de Admisión</th>
+							<th scope="col" class="text-center" style="width: 200">Fecha de Vencimiento</th>
+							<th scope="col" class="text-center" style="width: 200">Stock UNIDADES</th>
+							<th scope="col" class="text-center" style="width: 200">Unidad MASTER</th>
+							<th scope="col" class="text-center" style="width: 200"">Cantidad en MASTER</th>
+							<th scope="col" class="text-center" style="width: 200">Cantidad en SALDO</th>
+							<th scope="col" class="text-center" style="width: 200">Ubicación</th>
+							<th scope="col" style="width: 5%;"></th>
+						</tr>
+					</thead>
+					<tbody>`
+			if (itemsTransferidos.length >= 1) {
+                itemsTransferidos.forEach(item => {
+					tableHtml += `<tr data-lote="${item.BatchNum}">
+													<td class="text-center">${item.BatchNum}</td>
+													<td class="text-center">${item.InDate}</td>
+													<td class="text-center">${item.ExpDate}</td>
+													<td class="text-center">${item.QuantityUnidadesCajas}</td>
+													 <td scope="col" class="text-center align-middle">${item.UmAlm}</td>
+													<td scope="col" class="text-center">${item.QuantityMaster}</td>
+													 <td scope="col" class="text-center">${item.QuantitySaldo}</td>
+													<td class="text-center">${item.CodigoUbicacion}</td>
+													<td class="text-center"></td>
+												</tr>`
+                });
+			} else {
+				articulo.DetalleLotes.forEach(item => {
+                    let lote = item.BatchNum.split(" ").join("")
+                    tableHtml += `<tr data-lote="${lote}">
+													<td class="text-center">
+														<input type="hidden" name="transferenciaPost.SolicitudesTrasladoId" value="${articulo.SolicitudesTrasladoId}" />
+														<input type="hidden" name="transferenciaPost.Detalle[].ItemCode" value="${articulo.ItemCode}" />
+														<input type="hidden" name="transferenciaPost.Detalle[].ItemName" value="${articulo.ItemName}" />
+														<input type="hidden" name="transferenciaPost.Detalle[].BatchNum" value="${item.BatchNum}" />${item.BatchNum}
+													</td>
+													<td class="text-center">
+														<input type="hidden" name="transferenciaPost.Detalle[].InDate" value="${item.InDate}" />${item.InDate}
+													</td>
+													<td class="text-center">
+														<input type="hidden" name="transferenciaPost.Detalle[].ExpDate" value="${item.ExpDate}" />${item.ExpDate}
+													</td>
+													<td class="text-center">
+														<input type="text" id="lote_quantityUnidades_${lote}" name="transferenciaPost.Detalle[].QuantityUnidadesCajas" class="form-control text-center cls-num cls-limpiarItem_${articulo.ItemCode}" value="${item.QuantityCajas}"
+														data-idcantmaster="lote_cantidadMaster_${lote}" data-idcantsaldo="lote_cantidadSaldo_${lote}" data-cantidadtotal="${item.QuantityCajas}"
+														data-idundmaster="lote_undMaster_${lote}" oninput="calcularStockUnidades(this.value, this.dataset)">
+													</td>
+													 <td scope="col" class="text-center align-middle">
+														 <select id="lote_undMaster_${lote}" data-idundmaster="lote_undMaster_${lote}" data-idcantmaster="lote_cantidadMaster_${lote}" data-idcantsaldo="lote_cantidadSaldo_${lote}" data-cantidadtotal="${item.QuantityCajas}"
+															data-idquantityunidades ="lote_quantityUnidades_${lote}"
+															name="transferenciaPost.Detalle[].ValorUmAlm" class="form-select cls-limpiarItem_${articulo.ItemCode}" onchange="calcularCantidadMasterSaldo(this.value, this.dataset)" onclick="abrirModalBusquedaRapida(this)">
+															 <option value="">Seleccione</option>
+															${cargarOpcionesMasters(articulo.UnidadAlmSugerido)}
+														 </select>
+													 </td>
+													<td scope="col" class="text-center">
+														<div class="mx-auto w-75">
+															<input type="text" id="lote_cantidadMaster_${lote}" name="transferenciaPost.Detalle[].QuantityMaster" class="form-control text-center cls-num cls-readonly cls-limpiarItem_${articulo.ItemCode}" readonly>
+														</div>
+													</td>
+													 <td scope="col" class="text-center">
+														<div class="mx-auto w-75"><input type="text" id="lote_cantidadSaldo_${lote}" name="transferenciaPost.Detalle[].QuantitySaldo" class="form-control text-center cls-num cls-readonly cls-limpiarItem_${articulo.ItemCode}" readonly></div>
+													</td>
+													<td class="text-center">
+														<select id="lote_ubicacion_${lote}" name="transferenciaPost.Detalle[].CodigoUbicacion" data-idloteubicacion="lote_ubicacion_${lote}" data-itemcode="${articulo.ItemCode}"
+														class="form-select cls-limpiarItem_${articulo.ItemCode}" onclick="gestionarBusquedaUbicaciones(this)"  style="width: 200px" >
+															<option value="">Seleccione</option>
+														</select>
+													</td>
+													<td class="lotes-control text-center">
+														<button type="button" class="btn btn-sm btn-cobefar" onclick="clonarFila('tbl_detalleLotes_${articulo.ItemCode}')"><i class="bi bi-plus-lg"></i></button>
+													</td>
+												</tr>`
+				});
+			}
+			tableHtml += '</tbody></table></div>'
+			return tableHtml
+		}
+        function clonarFila(idTableLotes) {
+            // Verificar si la tabla ya está inicializada con DataTable
+            if ($.fn.DataTable.isDataTable(`#${idTableLotes}`)) {
+                $(`#${idTableLotes}`).DataTable().destroy();
+            }
+            let tabla = $(`#${idTableLotes}`).DataTable(configDataTable); // Obtener instancia de DataTable
+            // Eliminar cualquier event listener de click previamente
+            $(`#${idTableLotes} tbody`).off('click', '.btn-cobefar');
+            $(`#${idTableLotes} tbody`).on('click', '.btn-cobefar', function () {
+                let filaOriginal = $(this).closest('tr'); // Obtener la fila original
+                let filaClonada = filaOriginal.clone(); // Clonar la fila
+                actualizarIDs(filaClonada); // Actualizar los IDs y evitar duplicados
+                // Agregar la nueva fila al DataTable sin reiniciar
+                tabla.row.add(filaClonada[0]).draw(false);
+            });
+            $(`#${idTableLotes}_wrapper`).addClass('w-100');
+        }
+		function construirFormCopiaSap(traslado) {
+			document.querySelector('#copiaDocEntry').value = traslado.DocEntry
+			document.querySelector('#copiaDocNum').value = traslado.DocNum
+			document.querySelector('#copiaNroGuia').value = traslado.NroGuia
+			document.querySelector('#copiaCardCode').value = traslado.CardCode
+			document.querySelector('#copiaCardName').value = traslado.CardName
+			document.querySelector('#copiaOperarioResponsableSAP').value = traslado.OperarioResponsableSAP
+			document.querySelector('#copiaMotivoTraslado').value = traslado.MotivoTraslado
+			document.querySelector('#copiaDocDate').value = traslado.DocDate
+			let tbody = ''
+			for (var itemCode in traslado.Detalle) {
+				key = traslado.Detalle[itemCode]
+				tbody += ` <tr>
+											<td scope="col"><input type="text" name="solicitudTraslado.Detalle[].ItemCode" value="${key.ItemCode}"></td>
+											<td scope="col"><input type="text" name="solicitudTraslado.Detalle[].ItemName" value="${key.ItemName}"></td>
+											<td scope="col"><input type="text" name="solicitudTraslado.Detalle[].BatchNum" value="${key.BatchNum}"></td>
+											<td scope="col"><input type="text" name="solicitudTraslado.Detalle[].InDate" value="${key.InDate}"></td>
+											<td scope="col"><input type="text" name="solicitudTraslado.Detalle[].ExpDate" value="${key.ExpDate}"></td>
+										<td scope="col"><input type="text" name="solicitudTraslado.Detalle[].QuantityCajas" value="${key.QuantityCajas}"></td>
+										<td scope="col"><input type="text" name="solicitudTraslado.Detalle[].FromWhsCode" value="${key.FromWhsCode}"></td>
+										<td scope="col"><input type="text" name="solicitudTraslado.Detalle[].ToWhsCode" value="${key.ToWhsCode}"></td>
+									</tr>`
+			}
+			document.querySelector('#tbl_copiaSap tbody').innerHTML = tbody
+		}
+		function agruparSolicitudPorItemCode(datos) {
+			let solicitud = {
+				Detalle: {} // Objeto donde agruparemos por ItemCode
+			};
+			for (let idx in datos) {
+				let item = datos[idx]
+				let itemCode = item.ItemCode || "";
+				// Si el ItemCode no existe en el diccionario, se inicializa
+				if (!solicitud.Detalle[itemCode]) {
+					solicitud.Detalle[itemCode] = {
+						FromWhsCode: item.FromWhsCode || "",
+						ToWhsCode: item.ToWhsCode || "",
+						ItemCode: itemCode,
+						ItemName: item.ItemName || "",
+						QuantityCajas: 0,
+						Estado: item.Estado || "PENDIENTE",
+						UnidadAlmSugerido: item.UnidadAlmSugerido,
+                        AtendidoReserva: item.AtendidoReserva,
+                        Validado:item.Validado,
+                        SolicitudesTrasladoId: item.SolicitudesTrasladoId,
+						DetalleLotes: []
+					};
+				}
+				// Acumular la cantidad total de cajas para el ItemCode
+				solicitud.Detalle[itemCode].QuantityCajas += item.QuantityCajas || 0;
+				// Agregar el detalle del lote al ItemCode correspondiente
+				solicitud.Detalle[itemCode].DetalleLotes.push({
+					BatchNum: item.BatchNum || "",
+					QuantityCajas: item.QuantityCajas || 0,
+					InDate: item.InDate || "",
+					ExpDate: item.ExpDate || ""
+				});
+			}
+			return solicitud;
+		}
+        async function gestionarBusquedaUbicaciones(selectElement) {
+            if (selectElement.options.length <= 1 && selectElement.id.startsWith('lote_ubicacion')) {
+                let idLote = selectElement.dataset.idloteubicacion;
+                await cargarUbicaciones('RESERVA', { idloteubicacion: idLote });
+            }
+            abrirModalBusquedaRapida(selectElement);
+        }
+
+        async function cargarUbicaciones(almacen, data) {
+            let idUbicacion = data.idloteubicacion;
+            let selectElement = document.getElementById(idUbicacion);
+
+            if (selectElement.options.length > 1) return; // Ya cargado
+
+            try {
+                const response = await fetch("/AbastecimientoInterno/BuscarUbicaciones", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ almacen })
+                });
+
+                const contentType = response.headers.get("content-type") || "";
+
+                if (!response.ok || !contentType.includes("application/json")) {
+                    const errorText = await response.text();
+                    console.error('Respuesta inesperada:', errorText);
+
+                    Swal.fire({
+                        title: 'Sesión expirada',
+                        text: 'Se perdió la sesión o hubo un error de acceso. Se actualizará la página.',
+                        icon: 'warning'
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                    return;
+                }
+
+                const dataResult = await response.json();
+
+                if (dataResult.Icono === "error") {
+                    Swal.fire({
+                        title: dataResult.Titulo,
+                        html: Array.isArray(dataResult.Mensajes) && dataResult.Mensajes.length > 0
+                            ? dataResult.Mensajes.join('<br>')
+                            : dataResult.Mensajes || "",
+                        icon: dataResult.Icono,
+                        allowEscapeKey: false,
+                        allowOutsideClick: false,
+                        showConfirmButton: true
+                    });
+                    return;
+                }
+
+                let ubicaciones = '<option value="">Seleccione</option>';
+                dataResult.resultUbicaciones.forEach((ubicacion) => {
+                    ubicaciones += `<option value="${ubicacion}">${ubicacion}</option>`;
+                });
+                selectElement.innerHTML = ubicaciones;
+
+            } catch (error) {
+                console.error('Error capturado:', error);
+
+                Swal.fire({
+                    title: 'Error inesperado',
+                    text: 'Se produjo un error. Intente nuevamente o contacte a SISTEMAS.',
+                    icon: 'error',
+                    allowEscapeKey: false,
+                    allowOutsideClick: false,
+                    showConfirmButton: true
+                });
+            }
+        }
+
+
+		function calcularStockUnidades(quantityUnidades, data) {
+			let unidMaster = document.querySelector(`#${data.idundmaster}`).value || 0
+			if (unidMaster <= 0) {
+				console.warn('Und Master no válido')
+				return;
+			}
+			if (Number(quantityUnidades) > Number(data.cantidadtotal)) {
+				Swal.fire('La cantidad ingresada no debe superar el stock de unidades.')
+				return;
+			}
+			let cantidadMaster = Math.floor(Number(quantityUnidades) / Number(unidMaster))
+			let cantidadSaldo = Number(quantityUnidades) % Number(unidMaster)
+			document.querySelector(`#${data.idcantmaster}`).value = cantidadMaster
+			document.querySelector(`#${data.idcantsaldo}`).value = cantidadSaldo
+		}
+		function calcularCantidadMasterSaldo(valorSelectMaster, data) {
+			if (isNaN(Number(valorSelectMaster)) || Number(valorSelectMaster) === 0) {
+				document.querySelector(`#${data.idcantmaster}`).value = 0
+				document.querySelector(`#${data.idcantsaldo}`).value = 0
+				Swal.fire("La unidad MASTER seleccionada no es válida.")
+				return;
+			}
+			let quantityUnidades = document.querySelector(`#${data.idquantityunidades}`).value
+			if (Number(quantityUnidades) > Number(data.cantidadtotal)) {
+				Swal.fire('La cantidad ingresada no debe superar el stock de unidades.')
+				return;
+			}
+			let cantidadMaster = Math.floor(Number(quantityUnidades) / Number(valorSelectMaster))
+			let cantidadSaldo = Number(quantityUnidades) % Number(valorSelectMaster)
+			document.querySelector(`#${data.idcantmaster}`).value = cantidadMaster
+			document.querySelector(`#${data.idcantsaldo}`).value = cantidadSaldo
+		}
+		document.addEventListener('DOMContentLoaded', function () {
+			permitirSoloNumeros('DocNum')
+            permitirValoresNumericosPositivos()
+			document.getElementById("btn_transferir").addEventListener("click", realizarTransferencia)
+        });
+
+		function limpiarValoresItem(claseItemCode) {
+			let elementos = document.querySelectorAll(`.${claseItemCode}`)
+			elementos.forEach(element => {
+				if (element) {
+					element.value = '';
+				}
+			});
+		}
+		function actualizarIDs(fila) {
+			// Generar un solo uniqueID por fila para mantener consistencia
+			let uniqueID = Math.floor(Math.random() * 1000);
+			fila.find("[id]").each(function () {
+				let baseID = $(this).attr("id");
+				let baseIdUndMaster = $(this).attr("data-idundmaster") || ""
+				let baseIdCantMaster = $(this).attr("data-idcantmaster") || ""
+				let baseIdCantSaldo = $(this).attr("data-idcantsaldo") || ""
+                let baseIdquantityunidades = $(this).attr("data-idquantityunidades") || ""
+				let nuevoID = baseID + "_clone_" + uniqueID; // Reutiliza el mismo uniqueID en toda la fila
+				$(this).attr("id", nuevoID);
+				$(this).val('')
+				if (baseIdUndMaster) {
+					let nuevoIdUndMaster = baseIdUndMaster + "_clone_" + uniqueID
+					$(this).attr("data-idundmaster", nuevoIdUndMaster)
+				}
+				if (baseIdCantMaster) {
+					let nuevoIdCantMaster = baseIdCantMaster + "_clone_" + uniqueID
+					$(this).attr("data-idcantmaster", nuevoIdCantMaster)
+				}
+				if (baseIdCantSaldo) {
+					let nuevoIdCantSaldo = baseIdCantSaldo + "_clone_" + uniqueID
+					$(this).attr("data-idcantsaldo", nuevoIdCantSaldo)
+				}
+                if (baseIdquantityunidades) {
+                    let nuevoIdquantityunidades = baseIdquantityunidades + "_clone_" + uniqueID
+                    $(this).attr("data-idquantityunidades", nuevoIdquantityunidades)
+                }
+			});
+			// Actualizar `data-detalle` manteniendo el mismo uniqueID
+			fila.find("[data-detalle]").each(function () {
+				let datosDetalle = JSON.parse($(this).attr("data-detalle"))
+				datosDetalle.itemCode = datosDetalle.itemCode + "_clone_" + uniqueID
+				$(this).attr("data-detalle", JSON.stringify(datosDetalle))
+			});
+			// Eliminar el botón .btn-cobefar de la fila clonada
+			fila.find(".btn-cobefar").remove()
+			fila.find("select[data-idloteubicacion]").each(function () {
+				let baseDataId = $(this).attr("data-idloteubicacion");
+				let newDataId = baseDataId + "_clone_" + uniqueID;
+				$(this).attr("data-idloteubicacion", newDataId);
+			});
+			// **ACTUALIZAR `onfocus` PARA MANTENER EL NUEVO `dataset`**
+			fila.find("[onfocus]").each(function () {
+				let onfocusAttr = $(this).attr("onfocus");
+				// Verificar si el onfocus contiene "this.dataset"
+				if (onfocusAttr.includes("this.dataset")) {
+					let updatedOnfocus = onfocusAttr; // No necesitamos modificarlo, ya que apunta al dataset del propio elemento
+					$(this).attr("onfocus", updatedOnfocus);
+				}
+			});
+		}
+
+        async function cancelarTransferenciaTraslado() {
+            const docNum = document.querySelector('#DocNum').value.trim();
+            if (!docNum) {
+                console.warn("DocNum no válido");
+                Swal.fire('Ocurrió un problema inesperado. Por favor, comunicarse con SISTEMAS.');
+                return;
+            }
+
+            Swal.fire({
+                title: '¿Estás seguro(a) de cancelar?',
+                text: "Se cancelará la transferencia y el traslado de este DocNum.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '<i class="bi bi-check-lg"></i> Si, continuar',
+                cancelButtonText: '<i class="bi bi-x-lg"></i> Cancelar'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const response = await fetch("/AbastecimientoInterno/CancelarTransferenciaYTraslado", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({ docNum })
+                        });
+
+                        const contentType = response.headers.get("content-type") || "";
+
+                        if (!response.ok || !contentType.includes("application/json")) {
+                            const errorText = await response.text();
+                            console.error('Respuesta inesperada del servidor:', errorText);
+
+                            Swal.fire({
+                                title: 'Sesión expirada',
+                                text: 'Tu sesión ha expirado o hubo un problema de conexión. Se actualizará la página.',
+                                icon: 'warning'
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                            return;
+                        }
+
+                        const data = await response.json();
+
+                        Swal.fire({
+                            title: data.Titulo,
+                            html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                                ? data.Mensajes.join('<br>')
+                                : data.Mensajes || "",
+                            icon: data.Icono,
+                            allowEscapeKey: false,
+                            allowOutsideClick: false,
+                            showConfirmButton: true
+                        }).then((result) => {
+                            if (result.isConfirmed && data.Icono === "success") {
+                                location.reload();
+                            }
+                        });
+
+                    } catch (error) {
+                        console.error("Error capturado:", error);
+
+                        Swal.fire({
+                            title: 'Error inesperado',
+                            text: 'Se produjo un error. Intente nuevamente o contacte a SISTEMAS.',
+                            icon: 'error',
+                            allowEscapeKey: false,
+                            allowOutsideClick: false,
+                            showConfirmButton: true
+                        });
+                    }
+                }
+            });
+        }
+
+        async function revertirTransferenciaReserva(itemCode) {
+            const docNum = document.querySelector('#DocNum').value.trim();
+            if (!docNum) {
+                console.warn("DocNum no válido");
+                Swal.fire('Ocurrió un problema inesperado. Por favor, comunicarse con SISTEMAS.');
+                return;
+            }
+
+            Swal.fire({
+                title: '¿Estás seguro(a) de revertir?',
+                text: "Se revertirá este ítem de la transferencia de reserva y del kardex para stocks.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '<i class="bi bi-check-lg"></i> Si, continuar',
+                cancelButtonText: '<i class="bi bi-x-lg"></i> Cancelar'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const response = await fetch("/AbastecimientoInterno/RevertirTransferenciaReservaPorItem", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({ docNum, itemCode })
+                        });
+
+                        const contentType = response.headers.get("content-type") || "";
+
+                        if (!response.ok || !contentType.includes("application/json")) {
+                            const errorText = await response.text();
+                            console.error('Respuesta inesperada del servidor:', errorText);
+
+                            Swal.fire({
+                                title: 'Sesión expirada',
+                                text: 'Tu sesión ha expirado o hubo un problema de conexión. Se actualizará la página.',
+                                icon: 'warning'
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                            return;
+                        }
+
+                        const data = await response.json();
+
+                        Swal.fire({
+                            title: data.Titulo,
+                            html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                                ? data.Mensajes.join('<br>')
+                                : data.Mensajes || "",
+                            icon: data.Icono,
+                            allowEscapeKey: false,
+                            allowOutsideClick: false,
+                            showConfirmButton: true
+                        }).then((result) => {
+                            if (result.isConfirmed && data.Icono == "success") {
+                                Swal.fire({
+                                    title: '¿Deseas continuar con la transferencia?',
+                                    text: "Solo para completar ítems que no han sido transferidos.",
+                                    icon: 'info',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: '<i class="bi bi-check-lg"></i> Si, continuar',
+                                    cancelButtonText: '<i class="bi bi-x-lg"></i> Cancelar'
+                                }).then(result => {
+                                    if (result.isConfirmed) {
+                                        buscarSolicitud();
+                                    } else {
+                                        location.reload();
+                                    }
+                                });
+                            }
+                        });
+
+                    } catch (error) {
+                        console.error("Error capturado:", error);
+
+                        Swal.fire({
+                            title: 'Error inesperado',
+                            text: 'Se produjo un error. Intente nuevamente o contacte a SISTEMAS.',
+                            icon: 'error',
+                            allowEscapeKey: false,
+                            allowOutsideClick: false,
+                            showConfirmButton: true
+                        });
+                    }
+                }
+            });
+        }
+
+        async function deleteItemTransferencia(itemCode) {
+            const docNum = document.querySelector('#DocNum').value.trim();
+            if (!docNum) {
+                console.warn("DocNum no válido");
+                Swal.fire('Ocurrió un problema inesperado. Por favor, comunicarse con SISTEMAS.');
+                return;
+            }
+
+            Swal.fire({
+                title: '¿Estás seguro(a) de restablecer los datos de la transferencia?',
+                text: "Se revertirá este ítem de la transferencia de reserva.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '<i class="bi bi-check-lg"></i> Si, continuar',
+                cancelButtonText: '<i class="bi bi-x-lg"></i> Cancelar'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const response = await fetch("/AbastecimientoInterno/DeleteItemTransferencia", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({ docNum, itemCode })
+                        });
+
+                        //const contentType = response.headers.get("content-type") || "";
+
+                        //if (!response.ok || !contentType.includes("application/json")) {
+                        //    const errorText = await response.text();
+                        //    console.error('Respuesta inesperada del servidor:', errorText);
+
+                        //    Swal.fire({
+                        //        title: 'Sesión expirada',
+                        //        text: 'Tu sesión ha expirado o hubo un problema de conexión. Se actualizará la página.',
+                        //        icon: 'warning'
+                        //    }).then(() => {
+                        //        window.location.reload();
+                        //    });
+                        //    return;
+                        //}
+
+                        //const data = await response.json();
+
+                        //Swal.fire({
+                        //    title: data.Titulo,
+                        //    html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                        //        ? data.Mensajes.join('<br>')
+                        //        : data.Mensajes || "",
+                        //    icon: data.Icono,
+                        //    allowEscapeKey: false,
+                        //    allowOutsideClick: false,
+                        //    showConfirmButton: true
+                        //}).then((result) => {
+                            //if (result.isConfirmed && data.Icono == "success") {
+                                Swal.fire({
+                                    title: '¿Deseas continuar con la transferencia?',
+                                    text: "Solo para completar ítems que no han sido transferidos.",
+                                    icon: 'info',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: '<i class="bi bi-check-lg"></i> Si, continuar',
+                                    cancelButtonText: '<i class="bi bi-x-lg"></i> Cancelar'
+                                }).then(result => {
+                                    if (result.isConfirmed) {
+                                        buscarSolicitud();
+                                    } else {
+                                        location.reload();
+                                    }
+                                });
+                        //    }
+                        //});
+
+                    } catch (error) {
+                        console.error("Error capturado:", error);
+
+                        Swal.fire({
+                            title: 'Error inesperado',
+                            text: 'Se produjo un error. Intente nuevamente o contacte a SISTEMAS.',
+                            icon: 'error',
+                            allowEscapeKey: false,
+                            allowOutsideClick: false,
+                            showConfirmButton: true
+                        });
+                    }
+                }
+            });
+        }
+
+        async function validarTodo() {
+            const tabla = document.querySelector("#tbl_detalle");
+
+            if (!tabla) {
+                console.warn("No se encontró la tabla con id 'tbl_detalle'.");
+                return;
+            }
+
+            const tbody = tabla.querySelector("tbody");
+
+            if (!tbody || tbody.children.length === 0) {
+                console.warn("La tabla no tiene datos.");
+                return;
+            }
+
+            // Seleccionar solo las filas que tienen al menos un <td> con la clase específica
+            const filas = Array.from(tbody.querySelectorAll("tr")).filter(fila =>
+                fila.querySelector("td.text-center.bg-secondary.text-white")
+            );
+
+            for (const fila of filas) {
+                const columnas = fila.querySelectorAll("td");
+
+                if (columnas.length < 2) {
+                    console.warn("Fila con estructura inesperada:", fila);
+                    continue; // Salta esta fila si tiene menos de 2 columnas
+                }
+
+                const itemCode = columnas[1]?.textContent?.trim(); // Asegurar que existe
+
+                if (itemCode) {
+                    await validarItemParaApilar(itemCode);
+                } else {
+                    console.warn("No se encontró itemCode en esta fila:", fila);
+                }
+            }
+        }
+
+        async function validarItemParaApilar(itemCode) {
+            const docNum = document.querySelector('#DocNum').value.trim();
+
+            if (!docNum) {
+                console.warn("DocNum no válido");
+                Swal.fire('Ocurrió un problema inesperado. Por favor, comunicarse con SISTEMAS.');
+                return;
+            }
+
+            try {
+                const response = await fetch("/AbastecimientoInterno/ValidarItemParaApilar", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ docNum, itemCode })
+                });
+
+                //const contentType = response.headers.get("content-type") || "";
+
+                //if (!response.ok || !contentType.includes("application/json")) {
+                //    const errorText = await response.text();
+                //    console.error('Respuesta inesperada del servidor:', errorText);
+
+                //    Swal.fire({
+                //        title: 'Sesión expirada',
+                //        text: 'Tu sesión ha expirado o hubo un problema de conexión. Se actualizará la página.',
+                //        icon: 'warning'
+                //    }).then(() => {
+                //        window.location.reload();
+                //    });
+                //    return;
+                //}
+
+                //const data = await response.json();
+                buscarSolicitud();
+                //Swal.fire({
+                //    title: data.Titulo,
+                //    html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                //        ? data.Mensajes.join('<br>')
+                //        : data.Mensajes || "",
+                //    icon: data.Icono,
+                //    allowEscapeKey: false,
+                //    allowOutsideClick: false,
+                //    showConfirmButton: true
+                //}).then(result => {
+                //    if (result.isConfirmed) {
+                //        buscarSolicitud();
+                //    }
+                //});
+
+            } catch (error) {
+                console.error("Error capturado:", error);
+
+                Swal.fire({
+                    title: 'Error inesperado',
+                    text: 'Se produjo un error. Intente nuevamente o contactese con el área de Sistemas.',
+                    icon: 'error',
+                    allowEscapeKey: false,
+                    allowOutsideClick: false,
+                    showConfirmButton: true
+                });
+            }
+        }
+
+		//Buscador rápido para master y ubicaciones
+        let selectActual = null;
+        let modalInstance = null;
+        function abrirModalBusquedaRapida(selectElement) {
+            selectActual = selectElement;
+            // Validar si aún no hay opciones (y cargar solo en caso sea de Ubicaciones)
+            if (selectActual.options.length <= 1 && selectActual.id.startsWith('lote_ubicacion') ) {
+                let idLote = selectElement.dataset.idloteubicacion;
+                cargarUbicaciones('RESERVA', { idloteubicacion: idLote });
+            }
+            if (!modalInstance) {
+                const modalElement = document.getElementById('modalBuscador');
+                modalElement.setAttribute('aria-hidden', 'false');
+                modalInstance = new bootstrap.Modal(modalElement);
+            }
+            const opciones = Array.from(selectElement.options).filter(opt => opt.value);
+            const contenedor = document.getElementById('resultadosBusqueda');
+            contenedor.innerHTML = '';
+            opciones.forEach(opt => {
+                const item = document.createElement('button');
+                item.type = 'button';
+                item.className = 'list-group-item list-group-item-action';
+                item.textContent = opt.text;
+                item.dataset.value = opt.value;
+                item.onclick = () => seleccionarOpcion(opt.value);
+                contenedor.appendChild(item);
+            });
+            modalInstance.show();
+            const inputBusqueda = document.getElementById('inputBusqueda');
+            inputBusqueda.value = '';
+            inputBusqueda.focus();
+            inputBusqueda.oninput = function () {
+                const filtro = this.value.toLowerCase();
+                Array.from(contenedor.children).forEach(item => {
+                    item.style.display = item.textContent.toLowerCase().includes(filtro) ? 'block' : 'none';
+                });
+            };
+        }
+        function seleccionarOpcion(valor) {
+            if (selectActual) {
+                selectActual.value = valor;
+                selectActual.dispatchEvent(new Event('change'));
+            }
+            modalInstance.hide();
+            const modalElement = document.getElementById('modalBuscador');
+            if (modalElement.contains(document.activeElement)) {
+                document.activeElement.blur();
+            }
+            modalElement.setAttribute('aria-hidden', 'true');
+            if (selectActual) {
+                selectActual.focus();
+            }
+            selectActual = null;
+        }
+    </script>
+}

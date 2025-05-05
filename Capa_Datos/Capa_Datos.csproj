@@ -80,6 +80,21 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AbastecimientoInterno_DAO\Reportes\ReporteStockPicking_D.cs" />
+    <Compile Include="AbastecimientoInterno_DAO\Reportes\ReporteStockReserva_D.cs" />
+    <Compile Include="AbastecimientoInterno_DAO\TablasExternas\OWTQ_D.cs" />
+    <Compile Include="AbastecimientoInterno_DAO\TablasSql\KardexAbastecimiento_D.cs" />
+    <Compile Include="AbastecimientoInterno_DAO\TablasSql\LotesRegistroSanitario_D.cs" />
+    <Compile Include="AbastecimientoInterno_DAO\TablasSql\Masters_D.cs" />
+    <Compile Include="AbastecimientoInterno_DAO\TablasSql\ProductosDisponiblesReserva_D.cs" />
+    <Compile Include="AbastecimientoInterno_DAO\TablasSql\Productos_D.cs" />
+    <Compile Include="AbastecimientoInterno_DAO\TablasSql\Requerimientos_D.cs" />
+    <Compile Include="AbastecimientoInterno_DAO\TablasSql\SolicitudesTraslado_D.cs" />
+    <Compile Include="AbastecimientoInterno_DAO\TablasSql\StockMinProductos_D.cs" />
+    <Compile Include="AbastecimientoInterno_DAO\TablasSql\TransferenciaReserva_D.cs" />
+    <Compile Include="AbastecimientoInterno_DAO\TablasSql\UbicacionesLotesMaster_D.cs" />
+    <Compile Include="AbastecimientoInterno_DAO\TablasSql\UbicacionesLotes_D.cs" />
+    <Compile Include="AbastecimientoInterno_DAO\TablasSql\Ubicaciones_D.cs" />
     <Compile Include="Almacen_DAO\RptInternos\ContInv_D.cs" />
     <Compile Include="Almacen_DAO\TablasSql\CC_ORPD_D.cs" />
     <Compile Include="Almacen_DAO\TablasSql\CC_ORRU_D.cs" />
@@ -108,7 +123,6 @@
     <Compile Include="Almacen_DAO\Tablas\OITW_D.cs" />
     <Compile Include="Almacen_DAO\Tablas\OMRC_D.cs" />
     <Compile Include="Almacen_DAO\Tablas\OWTR_D.cs" />
-    <Compile Include="Area_D.cs" />
     <Compile Include="AtencionCliente_DAO\TablasSql\OSAT_D.cs" />
     <Compile Include="AtencionCliente_DAO\TablasSql\SAT1_D.cs" />
     <Compile Include="Caja_DAO\OPP_D.cs" />
@@ -122,19 +136,23 @@
     <Compile Include="ComprobantesContables_ENT\Comprobante_D.cs" />
     <Compile Include="DBHelper.cs" />
     <Compile Include="DireccionTecnica_DAO\Reportes\ReportesDigemid_D.cs" />
-    <Compile Include="DireccionTecnica_DAO\TablasHANA\COB_ESTA_RS_D.cs" />
+    <Compile Include="DireccionTecnica_DAO\TablasExternas\COB_ESTA_RS_D.cs" />
+    <Compile Include="DireccionTecnica_DAO\TablasExternas\ODOCS_SAP_D.cs" />
+    <Compile Include="DireccionTecnica_DAO\TablasSql\DOCS1_D.cs" />
+    <Compile Include="DireccionTecnica_DAO\TablasSql\ODOCS_D.cs" />
     <Compile Include="DireccionTecnica_DAO\TablasSql\OORS_D.cs" />
+    <Compile Include="DireccionTecnica_DAO\TablasSql\SolicitudesReversion_DOCS1_D.cs" />
     <Compile Include="DireccionTecnica_DAO\TablasSql\SQL_OWTR_D.cs" />
     <Compile Include="General_DAO\TablasSql\COUR_D.cs" />
     <Compile Include="General_DAO\TablasSql\DNLAB_D.cs" />
     <Compile Include="General_DAO\TablasSql\Firmas_D.cs" />
+    <Compile Include="General_DAO\TablasSql\MenuSistema_D.cs" />
     <Compile Include="General_DAO\TablasSql\OAGE_D.cs" />
     <Compile Include="General_DAO\TablasSql\OCHO_D.cs" />
     <Compile Include="General_DAO\TablasSql\OUR1_D.cs" />
     <Compile Include="General_DAO\TablasSql\OUR2_D.cs" />
     <Compile Include="General_DAO\TablasSql\OVEH_D.cs" />
     <Compile Include="General_DAO\TablasSql\OWHS_D.cs" />
-    <Compile Include="General_DAO\TablasSql\UBICACIONES_D.cs" />
     <Compile Include="General_DAO\TablasSql\UBIG_D.cs" />
     <Compile Include="General_DAO\Tablas\COB_LUG_ENTREGA_D.cs" />
     <Compile Include="General_DAO\Tablas\COB_SALDO_D.cs" />

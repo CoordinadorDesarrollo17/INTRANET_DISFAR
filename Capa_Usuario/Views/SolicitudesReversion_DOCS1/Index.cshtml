@@ -1,0 +1,192 @@
+@{
+    ViewBag.Title = "Solicitudes de Reversión";
+    Layout = "~/Views/Shared/_DefaultLayout.cshtml";
+
+    var tiposDocumento = new Dictionary<string, string>
+{
+        { "OPDN", "Entrada de Mercancía" },
+        { "OWTR", "Transferencia" }
+    };
+}
+
+<div class="pt-3">
+    <nav>
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("Sesion", "Index")">Dirección Técnica</a></li>
+            <li><a href="@Url.Action("Sesion", "Index")">Liberaciones</a></li>
+            <li class="current"><em>@ViewBag.Title</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
+    <div class="row px-3 pt-3"><h3 class="titulo-seccion">@ViewBag.Title.ToUpper()</h3></div>
+    @*<div class="row px-3 py-2">
+        <div class="col-12">
+            <button type="button" id="btn_filtrar" class="btn btn-sm btn-outline-light" onclick="abrirModalFiltros()">
+                <i class="bi bi-filter"></i> Filtrar
+            </button>
+        </div>
+    </div>*@
+</div>
+
+<div class="bg-white px-3 py-3 align-items-center">
+    <form id="frm_listadoInternamientos">
+        <div id="div_listado" class="table-responsive shadow-sm rounded">
+            <table id="tbl_listado" class="table table-bordered table-hover">
+                <thead class="thead-cobefar">
+                    <tr>
+                        <th scope="col" class="text-center small" style="width: 12%">N° Internamiento</th>
+                        <th scope="col" class="text-center small" style="width: 12%">Fecha Solicitud</th>
+                        <th scope="col" class="text-center small" style="width: 12%">Hora Solicitud</th>
+                        <th scope="col" class="text-center small">Solicitado Por</th>
+                        <th scope="col" class="text-center small">Estado</th>
+                        <th scope="col" class="text-center small" style="width: 12%"></th>
+                    </tr>
+                </thead>
+                <tbody class="table-white">
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td scope="col" class="text-center small">@item.ODOCSId</td>
+                            <td scope="col" class="text-center small">@item.FechaSolicitud</td>
+                            <td scope="col" class="text-center small">@item.HoraSolicitud</td>
+                            <td scope="col" class="text-start small"><span class="ps-2">@item.SolicitadoPor</span></td>
+                            <td scope="col" class="text-center small">@item.Estado</td>
+                            <td scope="col" class="text-center small">
+                                <button type="button" class="btn btn-sm btn-outline-dark btn-verDetalle" onclick="abrirPopup(this)" data-ruta="/Internamientos/VerDetalle?Id=@item.ODOCSId"><i class="bi bi-search"></i></button>
+                                @if (item.Estado == "Pendiente")
+                                {
+                                    <button type="button" id="btn_aprobarReversionLiberacion_@item.Id" class="btn btn-sm btn-outline-success fw-semibold shadow cls-aprobarSolicitudReversion" data-id="@item.DOCS1Id" data-estado="A" onclick="revertirLiberacionArticulo(this)"><i class="bi bi-check-lg"></i></button>
+                                    <button type="button" id="btn_rechazarReversionLiberacion_@item.Id" class="btn btn-sm btn-outline-danger fw-semibold shadow cls-rechazarSolicitudReversion" data-id="@item.DOCS1Id" data-estado="R" onclick="revertirLiberacionArticulo(this)"><i class="bi bi-x-lg"></i></button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </form>
+</div>
+
+@section Scripts{
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            soloNumerosPorClase('cls-num');
+            inicializarDataTable('tbl_listado', 25);
+
+            tippy('#btn_filtrar', {
+                content: 'Filtrar listado',
+                animation: 'fade',
+                placement: 'right'
+            });
+
+            tippy('#btn_cerrarModal', {
+                content: 'Cerrar filtros',
+                animation: 'fade',
+                placement: 'bottom-start'
+            });
+
+            tippy('#btn_aplicarFiltros', {
+                content: 'Aplicar filtros',
+                animation: 'fade',
+                placement: 'bottom-end'
+            });
+
+            tippy('.btn-verDetalle', {
+                content: 'Ver detalle',
+                animation: 'fade',
+                placement: 'bottom-end'
+            });
+
+            tippy('.cls-aprobarSolicitudReversion', {
+                content: 'Aprobar solicitud de reversión',
+                animation: 'fade',
+                placement: 'bottom-end'
+            });
+
+            tippy('.cls-rechazarSolicitudReversion', {
+                content: 'Rechazar solicitud de reversión',
+                animation: 'fade',
+                placement: 'bottom-end'
+            });
+        });
+
+        function abrirPopup(input) {
+            const url = `${input.dataset.ruta}&popup=true`;
+            const nombreVentana = 'PopupVentana';
+            const opciones = 'width=1320,height=720,resizable=yes,scrollbars=yes';
+
+            window.open(url, nombreVentana, opciones);
+        }
+
+        async function revertirLiberacionArticulo(elem) {
+            const id = Number(elem.dataset.id) || 0;
+            const estado = elem.dataset.estado || '';
+            const mensajes = {
+                A: "¿Estás seguro(a) de APROBAR REVERSIÓN?",
+                R: "¿Estás seguro(a) de RECHAZAR REVERSIÓN?"
+            }
+
+            if (!id) {
+                console.error('Error: El ID no se encontró.');
+                generarAlerta('Error', 'Ocurrió un error inesperado. Por favor, comunicarse con el área de Sistemas.', 'error');
+                return;
+            }
+
+            swalWithBootstrapButtons.fire({
+                title: `${mensajes[estado]}`,
+                html: '',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: "<i class='bi bi-check-lg'></i> Si",
+                cancelButtonText: "<i class='bi bi-x-lg mx-1'></i> Cancelar",
+                reverseButtons: true,
+                allowEscapeKey: false,
+                allowOutsideClick: false,
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-outline-danger mx-1'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const response = await fetch("/Internamientos/RevertirLiberacionArticulo", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ id, estado }) // Enviar los datos como JSON
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`Error en la solicitud: ${response.statusText}`);
+                        }
+
+                        const data = await response.json();
+
+                        Swal.fire({
+                            title: data.Titulo,
+                            html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                                ? data.Mensajes.join('<br>')
+                                : data.Mensajes || "",
+                            icon: data.Icono,
+                            allowEscapeKey: false,
+                            allowOutsideClick: false,
+                            showConfirmButton: true
+                        }).then((result) => {
+                            if (result.isConfirmed && data.Icono == 'success') {
+                                window.location.reload()
+                            }
+                        })
+
+                    } catch (error) {
+                        console.error('Error:', error);
+                    }
+                }
+            });
+        }
+    </script>
+}

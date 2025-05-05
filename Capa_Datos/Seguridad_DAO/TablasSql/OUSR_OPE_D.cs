@@ -126,7 +126,7 @@ namespace Capa_Datos.Seguridad_DAO.TablasSql
                 catch (Exception ex)
                 {
                     RegistrarError(ex, "OUSR_OPE_D - AsignarPermisosPorUsuario");        // Registro de error
-                    mensajeError = "Ocurrió un error al asignar permisos. Por favor, comunicarse con SISTEMAS.";
+                    mensajeError = "Ocurrió un error al asignar permisos. Por favor, comuníquese con el área de Sistemas para más información.";
                 }
             }
 

@@ -228,6 +228,7 @@
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -295,6 +296,7 @@
     <Content Include="Content\css\select2.min.css" />
     <Content Include="Content\css\semantic.min.css" />
     <Content Include="Content\estilos.css" />
+    <Content Include="Content\estilos2025.css" />
     <Content Include="Content\Frameworks\alertify.min.css" />
     <Content Include="Content\icomoon\demo-files\demo.css" />
     <Content Include="Content\icomoon\demo-files\demo.js" />
@@ -580,6 +582,8 @@
     <Content Include="Rotativa\help-wkhtmltopdf.txt" />
     <Content Include="Rotativa\wkhtmltoimage.exe" />
     <Content Include="Rotativa\wkhtmltopdf.exe" />
+    <Content Include="Scripts\AbastecimientoInterno\ListadoArticulos.js" />
+    <Content Include="Scripts\AbastecimientoInterno\Ubicaciones.js" />
     <Content Include="Scripts\almacen\reportesDigemid\Kardex2.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap3.min.js" />
@@ -629,13 +633,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\AbastecimientoInternoController.cs" />
     <Compile Include="Controllers\AlmacenController.cs" />
     <Compile Include="Controllers\AtencionClienteController.cs" />
     <Compile Include="Controllers\CajaController.cs" />
     <Compile Include="Controllers\ComprasController.cs" />
     <Compile Include="Controllers\ComprobantesContablesController.cs" />
+    <Compile Include="Controllers\SolicitudesReversion_DOCS1Controller.cs" />
     <Compile Include="Controllers\DireccionTecnicaController.cs" />
+    <Compile Include="Controllers\TransferenciasController.cs" />
     <Compile Include="Controllers\IndexController.cs" />
+    <Compile Include="Controllers\InternamientosController.cs" />
     <Compile Include="Controllers\RecursosHumanosController.cs" />
     <Compile Include="Controllers\RepartosController.cs" />
     <Compile Include="Controllers\ReportesDigemidController.cs" />
@@ -777,6 +785,8 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="SqlServerTypes\Loader.cs" />
+    <Content Include="Views\SolicitudesReversion_DOCS1\Index.cshtml" />
+    <None Include="Views\DireccionTecnica\OrganolepticoEM_PDF.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\web.config" />
@@ -951,7 +961,6 @@
     <Content Include="Views\Almacen\EditarDevolucion.cshtml" />
     <Content Include="Views\Almacen\EditarDevolucionAlmDEV07.cshtml" />
     <Content Include="Views\Almacen\FormatoDevolucionSimple.cshtml" />
-    <Content Include="Views\Almacen\FormatoDevolucionDT.cshtml" />
     <Content Include="Views\Almacen\NuevaDevolucion.cshtml" />
     <Content Include="Views\Almacen\SeguimientoDevolucion.cshtml" />
     <Content Include="Views\Almacen\NuevaDevolucionAlmDEV07.cshtml" />
@@ -993,6 +1002,28 @@
     <Content Include="Views\Rutas\NuevaTransferenciaEntreAlmacenes.cshtml" />
     <Content Include="Views\Rutas\EditarHojaDeReparto.cshtml" />
     <Content Include="Views\Ventas\PDF\PDF_OrdenesDeVentasSophos.cshtml" />
+    <Content Include="Views\Shared\_DefaultLayout.cshtml" />
+    <Content Include="Views\Shared\_Header.cshtml" />
+    <Content Include="Views\Shared\_Footer.cshtml" />
+    <Content Include="Views\Shared\AbastecimientoInterno\_ListadoUbicacionesPicking.cshtml" />
+    <Content Include="Views\Shared\AbastecimientoInterno\_ListadoUbicacionesReserva.cshtml" />
+    <Content Include="Views\AbastecimientoInterno\UbicacionesReserva.cshtml" />
+    <Content Include="Views\AbastecimientoInterno\UbicacionesPicking.cshtml" />
+    <Content Include="Views\AbastecimientoInterno\Transferencias.cshtml" />
+    <Content Include="Views\AbastecimientoInterno\ApilarRequerimientos.cshtml" />
+    <Content Include="Views\AbastecimientoInterno\Reabastecimiento.cshtml" />
+    <Content Include="Views\AbastecimientoInterno\Requerimientos.cshtml" />
+    <Content Include="Views\Shared\AbastecimientoInterno\_ListadoArticulosPicking.cshtml" />
+    <Content Include="Views\Shared\AbastecimientoInterno\_ListadoArticulosVenta.cshtml" />
+    <Content Include="Views\AbastecimientoInterno\ControlStockPicking.cshtml" />
+    <Content Include="Views\Shared\AbastecimientoInterno\_ListadoStockReserva.cshtml" />
+    <Content Include="Views\AbastecimientoInterno\StockReserva.cshtml" />
+    <Content Include="Views\AbastecimientoInterno\StockMinimoPicking.cshtml" />
+    <Content Include="Views\Shared\AbastecimientoInterno\_ListadoArticulosSalidaporAlmacen.cshtml" />
+    <Content Include="Views\AbastecimientoInterno\StockPicking.cshtml" />
+    <Content Include="Views\Shared\AbastecimientoInterno\_ListadoStockPicking.cshtml" />
+    <Content Include="Views\Shared\_MenuSistemaItem.cshtml" />
+    <Content Include="Views\Shared\_MenuSistemaItemMobile.cshtml" />
     <Content Include="Views\RecursosHumanos\Index.cshtml" />
     <Content Include="Views\Shared\RecursosHumanos\ListadoAreas.cshtml" />
     <Content Include="Views\Shared\RecursosHumanos\ListadoCargos.cshtml" />
@@ -1000,6 +1031,15 @@
     <Content Include="Views\Shared\RecursosHumanos\ListadoEmpleados.cshtml" />
     <Content Include="Views\Shared\RecursosHumanos\ListadoNumerosCorporativos.cshtml" />
     <Content Include="Views\Shared\RecursosHumanos\ListadoSedes.cshtml" />
+    <Content Include="Views\Almacen\FormatoDevolucionDT.cshtml" />
+    <Content Include="Views\AbastecimientoInterno\ApilarIngreso.cshtml" />
+    <Content Include="Views\Internamientos\Internamiento.cshtml" />
+    <Content Include="Views\Internamientos\Index.cshtml" />
+    <Content Include="Views\Shared\Internamientos\_ListadoInternamientos.cshtml" />
+    <Content Include="Views\Internamientos\DetalleInternamiento.cshtml" />
+    <Content Include="Views\Transferencias\Index.cshtml" />
+    <Content Include="Views\Transferencias\DetalleTransferencia.cshtml" />
+    <Content Include="Views\Shared\Transferencias\_ListadoTransferencias.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -1012,7 +1052,6 @@
     <Folder Include="ComprobantesRepartos\" />
     <Folder Include="EXCEL\" />
     <Folder Include="PDF\" />
-    <Folder Include="Views\AccesoDefault\" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
