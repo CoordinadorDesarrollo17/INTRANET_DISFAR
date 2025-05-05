@@ -3835,17 +3835,21 @@ namespace Capa_Usuario.Controllers
         public ActionResult PDF_OrdenesDeVentas(int docNum, string almProcedencia)
         {
             var lista = new ORTV_N().obtenerOrdenDeVenta(docNum);
-            foreach (var ordr in lista)
-            {
-                almProcedencia = string.IsNullOrEmpty(almProcedencia) ? ordr.Almacen : almProcedencia;
-                // Solo descomentar BatchNum cuando la data este correcta al 100%
-                string[] ubicaciones = _ubicacionesLotesN.ListarUbicaciones(new Capa_Entidad.AbastecimientoInterno_ENT.TablasSql.UbicacionesLotes_E { ItemCode = ordr.ItemCode, /*BatchNum = ordr.Lote,*/ Almacen = almProcedencia })
-                    .Select(u => u.CodigoUbicacion)
-                    .Where(c => !string.IsNullOrWhiteSpace(c)) // limpia nulos y vacíos
-                    .ToArray();
 
-                ordr.Ubicaciones = ubicaciones;
+            // Depende de LugarDestino del ticket
+            if (lista != null && lista[0].Almacen != "ALM07" && (string.IsNullOrEmpty(almProcedencia) || almProcedencia == "16"))
+            {
+                foreach (var ordr in lista)
+                {
+                    string[] ubicaciones = _ubicacionesLotesN.ListarUbicaciones(new Capa_Entidad.AbastecimientoInterno_ENT.TablasSql.UbicacionesLotes_E { ItemCode = ordr.ItemCode, Almacen = "PICKING" })
+                        .Select(u => u.CodigoUbicacion)
+                        .Where(c => !string.IsNullOrWhiteSpace(c)) // limpia nulos y vacíos
+                        .ToArray();
+
+                    ordr.Ubicaciones = ubicaciones;
+                }
             }
+
             lista = lista
         .OrderBy(x => x.Ubicaciones != null && x.Ubicaciones.Length > 0 ? x.Ubicaciones[0] : string.Empty)
         .ToList();

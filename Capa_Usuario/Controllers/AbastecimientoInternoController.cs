@@ -1549,7 +1549,7 @@ namespace Capa_Usuario.Controllers
 
                 if (transferenciaGet.Detalle?.Any(t => t.ItemCode == itemCode) == true)
                 {
-                    var detalleFiltrado = transferenciaGet.Detalle.Where(b => b.CodigoUbicacion == "RESERVA-UBI-SISTEMA").ToList();
+                    var detalleFiltrado = transferenciaGet.Detalle.Where(b => b.CodigoUbicacion == "RESERVA-UBI-SISTEMA" && b.Validado == 0).ToList();
 
                     foreach (var det in detalleFiltrado)
                     {
@@ -1622,7 +1622,7 @@ namespace Capa_Usuario.Controllers
                     bool fechasIguales = lista.All(a => a.ExpDate == lista.First().ExpDate) && lista.All(a => a.InDate == lista.First().InDate);
                     // Aplicar el ordenamiento según la condición
                     lista = fechasIguales
-                        ? lista.OrderBy(a => a.CodigoUbicacion).ToList() // Ordenar por CodigoUbicacion si las fechas son iguales
+                        ? lista.OrderBy(a => a.QuantityUnidadesCajas).ThenBy(a => a.CodigoUbicacion).ToList() // Ordenar por CodigoUbicacion si las fechas son iguales
                         : lista.OrderBy(a => DateTime.Parse(a.ExpDate))
                                .ThenBy(a => DateTime.Parse(a.InDate))
                                .ThenBy(a => a.QuantityUnidadesCajas)
@@ -1656,7 +1656,7 @@ namespace Capa_Usuario.Controllers
                 if (tipoAbastecimiento != null && tipoAbastecimiento.Equals("Picking") && itemCode != null)
                 {
                     //Calcular desde SAP (Stock Total - Stock Comprometido)  en Almacen 16 por defecto
-                    int stockLibreEnAlmacen16 = Convert.ToInt32(new Capa_Negocio.Almacen_NEG.Tablas.OITW_N().ListarDetArticulosInv(new OITW_E { ItemCode = itemCode, WhsCode = "16" }).DefaultIfEmpty(new OITW_E { }).First().StockLibre);
+                    int stockLibreEnAlmacen16 = Convert.ToInt32(new Capa_Negocio.Almacen_NEG.Tablas.OITW_N().ListarDetArticulosInv(new OITW_E { ItemCode = itemCode, WhsCode = "16" }).DefaultIfEmpty(new OITW_E { }).First().StockLibreUnidades);
                     if (stockLibreEnAlmacen16 > 0)
                     {
                         // Para ver los imputados

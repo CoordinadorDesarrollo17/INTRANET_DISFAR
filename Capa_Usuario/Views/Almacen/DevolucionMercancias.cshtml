@@ -763,8 +763,8 @@
                     'FechaDesde': $('#FechaDesde').val(), 'FechaHasta': $('#FechaHasta').val(), 'Estado': $('#EstadoReporte').val(), 'RefFactura': $('#RefFacturaReporte').val(), 'WhsCode': $('#WhsCodeReporte').val(), 'DocNum': $('#DocNumReporte').val(), 'CardName': $('#CardNameReporte').val(), 'ItemName': $('#ItemNameReporte').val()
                 }
             }).done(function (response) {
-                if (response.Mensaje != "") {
-                    Swal.fire(response.Mensaje);
+                if (response.Titulo != "") {
+                    Swal.fire(response.Titulo);
                 } else {
                     let params = `FechaDesde=${$('#FechaDesde').val()}&FechaHasta=${$('#FechaHasta').val()}&Estado=${$('#EstadoReporte').val()}&RefFactura=${$('#RefFacturaReporte').val()}&WhsCode=${$('#WhsCodeReporte').val()}&DocNum=${$('#DocNumReporte').val()}&CardName=${$('#CardNameReporte').val()}&ItemName=${$('#ItemNameReporte').val()}`;
                     window.open(`/Almacen/ExportarReporteHistoricoDevoluciones?${params}`, '_blank', 'noopener, noreferrer');

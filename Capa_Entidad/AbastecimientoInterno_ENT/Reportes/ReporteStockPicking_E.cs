@@ -7,6 +7,7 @@
         public string Clasificacion { get; set; }
         public int StockActualPiezas { get; set; }
         public decimal StockActualUnidades { get; set; }
+        public decimal StockPicking { get; set; }
         public int StockMinAbastecimiento { get; set; }
         public string Almacen { get; set; }
 

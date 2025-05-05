@@ -20,8 +20,9 @@ namespace Capa_Entidad.Almacen_ENT.Tablas
         public decimal IsCommited { get; set; }
         [DisplayName("Pedido")]
         public decimal OnOrder { get; set; }
-        public decimal StockLibre { get; set; }
+        public decimal StockLibrePiezas { get; set; }
         public decimal StockLibreUnidades { get; set; }
+        public decimal StockPicking { get; set; }
 
         public string Clasificacion { get; set; }
         public int StockMinAbastecimiento { get; set; }

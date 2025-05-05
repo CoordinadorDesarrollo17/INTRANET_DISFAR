@@ -172,7 +172,7 @@
             return;
         }
 
-        const numericKeys = ["StockMaster", "StockSaldo", "StockSaliendo", "StockTotalUnidades", "ValorUmAlm"]
+        const numericKeys = ["StockMaster", "StockSaldo", "StockSolicitadoMaster", "StockSolicitadoSaldo", "StockSaliendo", "StockTotalUnidades", "ValorUmAlm"]
         const filas = tablaOrigen.querySelectorAll('tr');
         const arrayDeFilas = Array.from(filas).map(fila => {
             // Selecciona todos los inputs dentro de la fila actual
@@ -215,8 +215,8 @@
                                 </td>
                                 <td scope="col" class="text-center">
                                     <input type="hidden" name="requerimiento.Detalle[].ValorUmAlm" value="${item.ValorUmAlm}" />
-                                    <input type="hidden" name="requerimiento.Detalle[].QuantityMaster" value="${item.StockMaster}" />
-                                    <input type="hidden" name="requerimiento.Detalle[].QuantitySaldo" value="${item.StockSaldo}" />
+                                    <input type="hidden" name="requerimiento.Detalle[].QuantityMaster" value="${item.StockSolicitadoMaster}" />
+                                    <input type="hidden" name="requerimiento.Detalle[].QuantitySaldo" value="${item.StockSolicitadoSaldo}" />
                                     <input type="hidden" name="requerimiento.Detalle[].QuantityUnidadesCajas" value="${item.StockSaliendo}" />${item.StockSaliendo}
                                 </td>
                                 <td scope="col" class="text-center">

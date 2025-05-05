@@ -94,10 +94,10 @@
                         <th scope="col" class="text-center" width="10%">Código de artículo</th>
                         <th scope="col" class="text-center">Descripción</th>
                         <th scope="col" class="text-center">Clasificación</th>
-                        <th scope="col" class="text-center" width="10%">Stock Actual Piezas</th>
-                        <th scope="col" class="text-center" width="10%">Stock Actual Unidades</th>
-                        <th scope="col" class="text-center">Stock Min. Abastecimiento</th>
-                        <th scope="col" class="text-center" width="10%"></th>
+                        <th scope="col" class="text-center" width="10%">Stock SAP</th>
+                        <th scope="col" class="text-center" width="10%">Stock Picking</th>
+                        <th scope="col" class="text-center">Stock Por Abastecer</th>
+                        <th scope="col" class="text-center" width="10%">100%</th>
                         <th scope="col" class="text-center" width="10%"></th>
                     </tr>
                 </thead>
@@ -106,16 +106,20 @@
                     {
                         // Calcular el porcentaje de stock basado en StockMinAbastecimiento
                         var porcentajeStock = item.StockMinAbastecimiento > 0
-                            ? (item.StockActualUnidades * 100) / item.StockMinAbastecimiento
+                            ? (item.StockPicking * 100) / item.StockMinAbastecimiento
                             : -1;
 
                         // Definir color basado en la relación con el Stock Mínimo
-                        string colorClase;
-                        if (item.StockActualUnidades < item.StockMinAbastecimiento * 0.5m)
+                        string colorClase = "";
+                        if (item.StockActualUnidades > item.StockMinAbastecimiento && item.StockPicking < item.StockMinAbastecimiento * 0.5m)
                         {
                             colorClase = "bg-danger"; //Rojo: Stock crítico
                         }
                         else if (item.StockActualUnidades < item.StockMinAbastecimiento)
+                        {
+                            colorClase = "bg-info";     // Cuando el stock sap no cubre el stock mín.
+                        }
+                        else if (item.StockPicking < item.StockMinAbastecimiento)
                         {
                             colorClase = "bg-warning text-dark"; // Amarillo: Cerca del mínimo
                         }
@@ -124,12 +128,14 @@
                             colorClase = "bg-success"; // Verde: Stock suficiente
                         }
 
+                        decimal formatStockActualUnds = Math.Truncate(item.StockActualUnidades * 100) / 100;
+                        decimal formatStockPicking = Math.Truncate(item.StockPicking * 100) / 100;
                         <tr>
                             <td class="text-center align-middle">@item.ItemCode</td>
                             <td class="align-middle"><span class="ps-2">@item.ItemName</span></td>
                             <td class="text-center align-middle">@item.Clasificacion</td>
-                            <td class="text-center align-middle">@item.StockActualPiezas</td>
-                            <td class="text-center align-middle">@item.StockActualUnidades</td>
+                            <td class="text-center align-middle">@formatStockActualUnds.ToString("F2")</td>
+                            <td class="text-center align-middle">@formatStockPicking.ToString("F2")</td>
                             <td class="text-center align-middle">@item.StockMinAbastecimiento</td>
                             <td class="text-center align-middle">
                                 <div class="d-flex justify-content-center align-items-center">
@@ -138,7 +144,7 @@
                                         {
                                             <div class="progress-bar @colorClase" role="progressbar"
                                                  style="width: @(porcentajeStock > 100 ? 100 : porcentajeStock)%"
-                                                 aria-valuenow="@porcentajeStock" data-stockmin="@item.StockMinAbastecimiento"
+                                                 aria-valuenow="@porcentajeStock" data-stockmin="@item.StockMinAbastecimiento" data-stockpicking="@item.StockPicking"
                                                  aria-valuemin="0"
                                                  aria-valuemax="100">
                                                 @porcentajeStock.ToString("0.00")%
@@ -146,7 +152,7 @@
                                         }
                                         else if (item.StockActualUnidades <= 0)
                                         {
-                                            <div class="progress-bar bg-danger text-white fw-bold" role="progressbar" data-stockmin="@item.StockMinAbastecimiento"
+                                            <div class="progress-bar bg-danger text-white fw-bold" role="progressbar" data-stockmin="@item.StockMinAbastecimiento" data-stockpicking="@item.StockPicking"
                                                  style="width: 100%"
                                                  aria-valuenow="0"
                                                  aria-valuemin="0"
@@ -156,7 +162,7 @@
                                         }
                                         else
                                         {
-                                            <div class="progress-bar bg-secondary text-white fw-bold" role="progressbar" data-stockmin="@item.StockMinAbastecimiento"
+                                            <div class="progress-bar bg-secondary text-white fw-bold" role="progressbar" data-stockmin="@item.StockMinAbastecimiento" data-stockpicking="@item.StockPicking"
                                                  style="width: 100%"
                                                  aria-valuenow="0"
                                                  aria-valuemin="0"
@@ -341,10 +347,12 @@
             let progressBar = row.querySelector('.progress-bar');
             let valor = progressBar ? parseFloat(progressBar.getAttribute('aria-valuenow')) || 0 : 0;
             let stockMin = progressBar ? parseFloat(progressBar.getAttribute('data-stockmin')) || 0 : 0;
-            return { row, valor, stockMin };
+            let stockPicking = progressBar ? parseFloat(progressBar.getAttribute('data-picking')) || 0 : 0;
+            return { row, valor, stockMin, stockPicking };
         });
 
         listaOrdenada.sort((a, b) => {
+            if (a.stockPicking <= 0) return -1; // Prioriza stockMin > 0
             if (a.stockMin === 0 && b.stockMin > 0) return 1; // Mueve stockMin = 0 al final
             if (a.stockMin > 0 && b.stockMin === 0) return -1; // Prioriza stockMin > 0
             return a.valor - b.valor; // Dentro del grupo stockMin > 0, ordena por aria-valuenow
