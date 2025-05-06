@@ -45,7 +45,8 @@ namespace Capa_Datos
             this.cadHanaOnPremise = Environment.GetEnvironmentVariable("CNX_HANA_ON_PREMISE", EnvironmentVariableTarget.Machine);
             this.schemaHanaOnPremise = "\"B1H_COBEFAR_2018\".";
             this.BDsql = Environment.GetEnvironmentVariable("BD_PROYECTO_INTRANET", EnvironmentVariableTarget.Machine);
-            this.cadSql = Environment.GetEnvironmentVariable("PROYECTO_INTRANET", EnvironmentVariableTarget.Machine);
+            this.cadSql = Environment.GetEnvironmentVariable("BD_PRUEBAS", EnvironmentVariableTarget.Machine);
+            //this.cadSql = Environment.GetEnvironmentVariable("PROYECTO_INTRANET", EnvironmentVariableTarget.Machine);
             this.cadSql2 = Environment.GetEnvironmentVariable("PROYECTO_RESERVA_PICKING", EnvironmentVariableTarget.Machine);
             //this.cadSql2 = Environment.GetEnvironmentVariable("BD_PRUEBAS", EnvironmentVariableTarget.Machine);
             CadSql3 = Environment.GetEnvironmentVariable("BD_DT", EnvironmentVariableTarget.Machine);

@@ -197,17 +197,24 @@ function borrarLineaTabla(dom) {
 
 //funciones que solo se usan para Editar Hoja de reparto
 function liberarLineaTabla(DocEntry, Linea, DocEntryTicket, idreg) {
+    const comentarioLiberado = 'INTERNO';
+
     Swal.fire({
-        title: '¿Está seguro(a) de liberar?',
+        title: '¿Está seguro(a) de liberar el ticket?',
         text: "Este proceso es irreversible!",
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Si'
+        confirmButtonText: 'Si, estoy seguro(a)',
+        cancelButtonText: 'Cancelar',
+        customClass: {
+            confirmButton: 'btn btn-success mx-2',
+            cancelButton: 'btn btn-outline-danger'
+        },
+        showCancelButton: true,
+        buttonsStyling: false 
     }).then((result) => {
         if (result.isConfirmed) {
-            var parametros = { "DocEntry": DocEntry, "Linea": Linea, "DocEntryTicket": DocEntryTicket };
+            var parametros = { DocEntry, Linea, DocEntryTicket, comentarioLiberado };
             $.ajax('/Rutas/liberarRRU0',
                 {
                     data: parametros,
@@ -405,6 +412,7 @@ function listarTickets(estado) {
                         fila.append('<td class="text-center"><input id="MontoFinal' + index + '" type="text" value="' + item.MontoFinal.toFixed(2) + '" readonly hidden/>' + item.MontoFinal.toFixed(2) + '</td>');
                         fila.append('<td hidden><input id="Envio' + index + '" type="text" value="' + item.GastoEnvio.toFixed(2) + '" readonly hidden/>' + item.GastoEnvio.toFixed(2) + '</td>');
                         fila.append('<td class="text-center"><input id="TipoVenta' + index + '" type="text" value="' + item.TipoVenta + '" readonly hidden/>' + item.TipoVenta + '</td>');
+                        fila.append('<td class="text-center">' + formatearFechaHora(item.TiempoEntrega) + '</td>');
                         fila.append('<td class="text-center">' + (item.FechaPago != null ? item.FechaPago + '<br>' + item.HoraPago : 'PENDIENTE') + '</td>');
                         fila.append('<td hidden><input id="Vinculados' + index + '" type="text" value="' + (item.Vinculados != null ? item.Vinculados : '') + '" readonly hidden/>' + (item.Vinculados != null ? item.Vinculados : '') + '</td>');
 
@@ -484,6 +492,7 @@ function listarTickets(estado) {
                         fila.append('<td class="text-center"><input id="MontoFinal' + index + '" type="text" value="' + item.MontoFinal.toFixed(2) + '" readonly hidden/>' + item.MontoFinal.toFixed(2) + '</td>');
                         fila.append('<td hidden><input id="Envio' + index + '" type="text" value="' + item.GastoEnvio.toFixed(2) + '" readonly hidden/>' + item.GastoEnvio.toFixed(2) + '</td>');
                         fila.append('<td class="text-center"><input id="TipoVenta' + index + '" type="text" value="' + item.TipoVenta + '" readonly hidden/>' + item.TipoVenta + '</td>');
+                        fila.append('<td class="text-center">' + formatearFechaHora(item.TiempoEntrega) + '</td>');
                         fila.append('<td class="text-center">' + (item.FechaPago != null ? item.FechaPago + '<br>' + item.HoraPago : 'PENDIENTE') + '</td>');
                         fila.append('<td hidden><input id="Vinculados' + index + '" type="text" value="' + (item.Vinculados != null ? item.Vinculados : '') + '" readonly hidden/>' + (item.Vinculados != null ? item.Vinculados : '') + '</td>');
 
@@ -605,3 +614,20 @@ function validarEnviarFormulario(estado) {
 }
 
 
+function formatearFechaHora(jsonDate) {
+    const timestamp = parseInt(jsonDate.match(/\d+/)[0]); // extrae los milisegundos
+    const fecha = new Date(timestamp);
+
+    // Opcional: ajusta a tu zona horaria si lo necesitas
+    const opciones = {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+    };
+
+    return fecha.toLocaleString('es-PE', opciones); // ejemplo para Perú
+}

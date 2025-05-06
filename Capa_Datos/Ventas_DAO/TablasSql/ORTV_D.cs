@@ -31,110 +31,110 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
         OLDS_D _oldsD = new OLDS_D();
         //Lista de tickets con autorizacion fuera de horario que requeirn regularizar
         public List<dynamic> ListarTicketsPorRegularizarContraEntrega()
+        {
+            List<dynamic> lista = new List<dynamic>();
+            using (SqlConnection cn = new SqlConnection(uti.cadSql))
             {
-                List<dynamic> lista = new List<dynamic>();
-                using (SqlConnection cn = new SqlConnection(uti.cadSql))
+                string query = "EXEC [vt].[AutorizacionPorRegularizar]";
+                SqlCommand cmd = new SqlCommand(query, cn);
+                cn.Open();
+                using (SqlDataReader dr = cmd.ExecuteReader())
                 {
-                    string query = "EXEC [vt].[AutorizacionPorRegularizar]";
-                    SqlCommand cmd = new SqlCommand(query, cn);
-                    cn.Open();
-                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    if (dr.HasRows)
                     {
-                        if (dr.HasRows)
+                        while (dr.Read())
                         {
-                            while (dr.Read())
-                            {
-                                dynamic ticket = new ExpandoObject();
-                                ticket.IdOTC = dr.IsDBNull(dr.GetOrdinal("IdOTC")) ? 0 : dr.GetInt32(dr.GetOrdinal("IdOTC"));
-                                ticket.DocNumTicket = dr.IsDBNull(dr.GetOrdinal("DocNumTicket")) ? 0 : dr.GetInt32(dr.GetOrdinal("DocNumTicket"));
-                                ticket.TipoPago = dr.IsDBNull(dr.GetOrdinal("TipoPago")) ? string.Empty : dr.GetString(dr.GetOrdinal("TipoPago"));
-                                ticket.Estado = dr.IsDBNull(dr.GetOrdinal("Estado")) ? string.Empty : dr.GetString(dr.GetOrdinal("Estado"));
-                                ticket.MontoRecibidoEfectivo = dr.IsDBNull(dr.GetOrdinal("MontoRecibidoEfectivo")) ? 0 : dr.GetDecimal(dr.GetOrdinal("MontoRecibidoEfectivo"));
-                                ticket.MontoRecibidoDeposito = dr.IsDBNull(dr.GetOrdinal("MontoRecibidoDeposito")) ? 0 : dr.GetDecimal(dr.GetOrdinal("MontoRecibidoDeposito"));
-                                ticket.Suma = dr.IsDBNull(dr.GetOrdinal("Suma")) ? 0 : dr.GetDecimal(dr.GetOrdinal("Suma"));
-                                ticket.MontoFinal = dr.IsDBNull(dr.GetOrdinal("MontoFinal")) ? 0 : dr.GetDecimal(dr.GetOrdinal("MontoFinal"));
-                                ticket.TienePagoParcial = dr.IsDBNull(dr.GetOrdinal("TienePagoParcial")) ? string.Empty : dr.GetString(dr.GetOrdinal("TienePagoParcial"));
-                                ticket.Registro = dr.IsDBNull(dr.GetOrdinal("Registro")) ? string.Empty : dr.GetString(dr.GetOrdinal("Registro"));
-                                ticket.Cuadre = dr.IsDBNull(dr.GetOrdinal("Cuadre")) ? string.Empty : dr.GetString(dr.GetOrdinal("Cuadre"));
-                                ticket.CardName = dr.IsDBNull(dr.GetOrdinal("CardName")) ? string.Empty : dr.GetString(dr.GetOrdinal("CardName"));
-                                ticket.Vendedor = dr.IsDBNull(dr.GetOrdinal("Vendedor")) ? string.Empty : dr.GetString(dr.GetOrdinal("Vendedor"));
-                                lista.Add(ticket);
-                            }
+                            dynamic ticket = new ExpandoObject();
+                            ticket.IdOTC = dr.IsDBNull(dr.GetOrdinal("IdOTC")) ? 0 : dr.GetInt32(dr.GetOrdinal("IdOTC"));
+                            ticket.DocNumTicket = dr.IsDBNull(dr.GetOrdinal("DocNumTicket")) ? 0 : dr.GetInt32(dr.GetOrdinal("DocNumTicket"));
+                            ticket.TipoPago = dr.IsDBNull(dr.GetOrdinal("TipoPago")) ? string.Empty : dr.GetString(dr.GetOrdinal("TipoPago"));
+                            ticket.Estado = dr.IsDBNull(dr.GetOrdinal("Estado")) ? string.Empty : dr.GetString(dr.GetOrdinal("Estado"));
+                            ticket.MontoRecibidoEfectivo = dr.IsDBNull(dr.GetOrdinal("MontoRecibidoEfectivo")) ? 0 : dr.GetDecimal(dr.GetOrdinal("MontoRecibidoEfectivo"));
+                            ticket.MontoRecibidoDeposito = dr.IsDBNull(dr.GetOrdinal("MontoRecibidoDeposito")) ? 0 : dr.GetDecimal(dr.GetOrdinal("MontoRecibidoDeposito"));
+                            ticket.Suma = dr.IsDBNull(dr.GetOrdinal("Suma")) ? 0 : dr.GetDecimal(dr.GetOrdinal("Suma"));
+                            ticket.MontoFinal = dr.IsDBNull(dr.GetOrdinal("MontoFinal")) ? 0 : dr.GetDecimal(dr.GetOrdinal("MontoFinal"));
+                            ticket.TienePagoParcial = dr.IsDBNull(dr.GetOrdinal("TienePagoParcial")) ? string.Empty : dr.GetString(dr.GetOrdinal("TienePagoParcial"));
+                            ticket.Registro = dr.IsDBNull(dr.GetOrdinal("Registro")) ? string.Empty : dr.GetString(dr.GetOrdinal("Registro"));
+                            ticket.Cuadre = dr.IsDBNull(dr.GetOrdinal("Cuadre")) ? string.Empty : dr.GetString(dr.GetOrdinal("Cuadre"));
+                            ticket.CardName = dr.IsDBNull(dr.GetOrdinal("CardName")) ? string.Empty : dr.GetString(dr.GetOrdinal("CardName"));
+                            ticket.Vendedor = dr.IsDBNull(dr.GetOrdinal("Vendedor")) ? string.Empty : dr.GetString(dr.GetOrdinal("Vendedor"));
+                            lista.Add(ticket);
                         }
                     }
                 }
-                return lista;
             }
+            return lista;
+        }
         //Reporte para entrega de regalos en tickets
         public List<ReporteRegalos> ListarTicketsRegalo(string fechaTicketDesde, string fechaTicketHasta, string estadoTicket, string estadoRegalo)
+        {
+            List<ReporteRegalos> lista = new List<ReporteRegalos>();
+            using (SqlConnection cn = new SqlConnection(uti.cadSql))
             {
-                List<ReporteRegalos> lista = new List<ReporteRegalos>();
-                using (SqlConnection cn = new SqlConnection(uti.cadSql))
+                string query = "EXEC vt.ReporteRegalosCliente @FechaTicketDesde, @FechaTicketHasta, @EstadoTicket, @EstadoRegalo";
+                SqlCommand cmd = new SqlCommand(query, cn);
+                // Parámetro @FechaTicketDesde
+                if (fechaTicketDesde == null || fechaTicketDesde.Trim() == "")
                 {
-                    string query = "EXEC vt.ReporteRegalosCliente @FechaTicketDesde, @FechaTicketHasta, @EstadoTicket, @EstadoRegalo";
-                    SqlCommand cmd = new SqlCommand(query, cn);
-                    // Parámetro @FechaTicketDesde
-                    if (fechaTicketDesde == null || fechaTicketDesde.Trim() == "")
+                    cmd.Parameters.AddWithValue("@FechaTicketDesde", DBNull.Value);
+                }
+                else
+                {
+                    cmd.Parameters.AddWithValue("@FechaTicketDesde", fechaTicketDesde);
+                }
+                // Parámetro @FechaTicketHasta
+                if (fechaTicketHasta == null || fechaTicketHasta.Trim() == "")
+                {
+                    cmd.Parameters.AddWithValue("@FechaTicketHasta", DBNull.Value);
+                }
+                else
+                {
+                    cmd.Parameters.AddWithValue("@FechaTicketHasta", fechaTicketHasta);
+                }
+                // Parámetro @EstadoTicket
+                if (estadoTicket == null || estadoTicket.Trim() == "")
+                {
+                    cmd.Parameters.AddWithValue("@EstadoTicket", DBNull.Value);
+                }
+                else
+                {
+                    cmd.Parameters.AddWithValue("@EstadoTicket", estadoTicket);
+                }
+                // Parámetro @EstadoRegalo
+                if (estadoRegalo == null || estadoRegalo.Trim() == "")
+                {
+                    cmd.Parameters.AddWithValue("@EstadoRegalo", DBNull.Value);
+                }
+                else
+                {
+                    cmd.Parameters.AddWithValue("@EstadoRegalo", estadoRegalo);
+                }
+                cn.Open();
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    if (dr.HasRows)
                     {
-                        cmd.Parameters.AddWithValue("@FechaTicketDesde", DBNull.Value);
-                    }
-                    else
-                    {
-                        cmd.Parameters.AddWithValue("@FechaTicketDesde", fechaTicketDesde);
-                    }
-                    // Parámetro @FechaTicketHasta
-                    if (fechaTicketHasta == null || fechaTicketHasta.Trim() == "")
-                    {
-                        cmd.Parameters.AddWithValue("@FechaTicketHasta", DBNull.Value);
-                    }
-                    else
-                    {
-                        cmd.Parameters.AddWithValue("@FechaTicketHasta", fechaTicketHasta);
-                    }
-                    // Parámetro @EstadoTicket
-                    if (estadoTicket == null || estadoTicket.Trim() == "")
-                    {
-                        cmd.Parameters.AddWithValue("@EstadoTicket", DBNull.Value);
-                    }
-                    else
-                    {
-                        cmd.Parameters.AddWithValue("@EstadoTicket", estadoTicket);
-                    }
-                    // Parámetro @EstadoRegalo
-                    if (estadoRegalo == null || estadoRegalo.Trim() == "")
-                    {
-                        cmd.Parameters.AddWithValue("@EstadoRegalo", DBNull.Value);
-                    }
-                    else
-                    {
-                        cmd.Parameters.AddWithValue("@EstadoRegalo", estadoRegalo);
-                    }
-                    cn.Open();
-                    using (SqlDataReader dr = cmd.ExecuteReader())
-                    {
-                        if (dr.HasRows)
+                        while (dr.Read())
                         {
-                            while (dr.Read())
-                            {
-                                ReporteRegalos ticket = new ReporteRegalos();
-                                ticket.DocNum = dr.IsDBNull(dr.GetOrdinal("DocNum")) ? 0 : dr.GetInt32(dr.GetOrdinal("DocNum"));
-                                ticket.FechaSapTicket = dr.IsDBNull(dr.GetOrdinal("FechaSapTicket")) ? null : dr.GetDateTime(dr.GetOrdinal("FechaSapTicket")).ToString("yyyy-MM-dd");
-                                ticket.CardCode = dr.IsDBNull(dr.GetOrdinal("Ruc")) ? string.Empty : dr.GetString(dr.GetOrdinal("Ruc"));
-                                ticket.CardName = dr.IsDBNull(dr.GetOrdinal("Razon Social")) ? string.Empty : dr.GetString(dr.GetOrdinal("Razon Social"));
-                                ticket.Linea = dr.IsDBNull(dr.GetOrdinal("Linea")) ? 0 : dr.GetInt32(dr.GetOrdinal("Linea"));
-                                ticket.NombreRegalo = dr.IsDBNull(dr.GetOrdinal("Nombre regalo")) ? string.Empty : dr.GetString(dr.GetOrdinal("Nombre regalo"));
-                                ticket.Cantidad = dr.IsDBNull(dr.GetOrdinal("Cantidad")) ? 0 : dr.GetInt32(dr.GetOrdinal("Cantidad"));
-                                ticket.EstadoRegalo = dr.IsDBNull(dr.GetOrdinal("Estado entrega de regalo")) ? string.Empty : dr.GetString(dr.GetOrdinal("Estado entrega de regalo"));
-                                ticket.Estado = dr.IsDBNull(dr.GetOrdinal("Estado")) ? string.Empty : dr.GetString(dr.GetOrdinal("Estado"));
-                                ticket.LugarDestino = dr.IsDBNull(dr.GetOrdinal("Lugar Destino")) ? string.Empty : dr.GetString(dr.GetOrdinal("Lugar Destino"));
-                                ticket.Vendedor = dr.IsDBNull(dr.GetOrdinal("Vendedor")) ? string.Empty : dr.GetString(dr.GetOrdinal("Vendedor"));
-                                lista.Add(ticket);
-                            }
+                            ReporteRegalos ticket = new ReporteRegalos();
+                            ticket.DocNum = dr.IsDBNull(dr.GetOrdinal("DocNum")) ? 0 : dr.GetInt32(dr.GetOrdinal("DocNum"));
+                            ticket.FechaSapTicket = dr.IsDBNull(dr.GetOrdinal("FechaSapTicket")) ? null : dr.GetDateTime(dr.GetOrdinal("FechaSapTicket")).ToString("yyyy-MM-dd");
+                            ticket.CardCode = dr.IsDBNull(dr.GetOrdinal("Ruc")) ? string.Empty : dr.GetString(dr.GetOrdinal("Ruc"));
+                            ticket.CardName = dr.IsDBNull(dr.GetOrdinal("Razon Social")) ? string.Empty : dr.GetString(dr.GetOrdinal("Razon Social"));
+                            ticket.Linea = dr.IsDBNull(dr.GetOrdinal("Linea")) ? 0 : dr.GetInt32(dr.GetOrdinal("Linea"));
+                            ticket.NombreRegalo = dr.IsDBNull(dr.GetOrdinal("Nombre regalo")) ? string.Empty : dr.GetString(dr.GetOrdinal("Nombre regalo"));
+                            ticket.Cantidad = dr.IsDBNull(dr.GetOrdinal("Cantidad")) ? 0 : dr.GetInt32(dr.GetOrdinal("Cantidad"));
+                            ticket.EstadoRegalo = dr.IsDBNull(dr.GetOrdinal("Estado entrega de regalo")) ? string.Empty : dr.GetString(dr.GetOrdinal("Estado entrega de regalo"));
+                            ticket.Estado = dr.IsDBNull(dr.GetOrdinal("Estado")) ? string.Empty : dr.GetString(dr.GetOrdinal("Estado"));
+                            ticket.LugarDestino = dr.IsDBNull(dr.GetOrdinal("Lugar Destino")) ? string.Empty : dr.GetString(dr.GetOrdinal("Lugar Destino"));
+                            ticket.Vendedor = dr.IsDBNull(dr.GetOrdinal("Vendedor")) ? string.Empty : dr.GetString(dr.GetOrdinal("Vendedor"));
+                            lista.Add(ticket);
                         }
                     }
                 }
-                return lista;
             }
+            return lista;
+        }
         public List<ORTV_E> listarTicketsSeparados(int Id)
         {
             List<ORTV_E> lista = new List<ORTV_E>();
@@ -417,7 +417,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     {
                         try
                         {
-                            if (ticket.Det5 != null && ticket.Det5.Any() && ticket.Det5[0].RegCant>0)
+                            if (ticket.Det5 != null && ticket.Det5.Any() && ticket.Det5[0].RegCant > 0)
                             {
                                 ProcesarCompromisosStock(ticket, tran); // en este proceso de creacion solo lo manda como positivo para la asignacion inicial del regalo si hubiera
                             }
@@ -548,7 +548,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     {
                         try
                         {
-                            if (ticket.Det5!=null && ticket.Det5.Any() && ticket.Det5[0].RegCant > 0)
+                            if (ticket.Det5 != null && ticket.Det5.Any() && ticket.Det5[0].RegCant > 0)
                             {
                                 ProcesarCompromisosStock(ticket, tran, auxTK);
                             }
@@ -712,7 +712,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             }
         }
         //Automatico desde click a Boton Ver Layout
-        public int EditarVisibilidadTicket(int docEntry,string opImpresion,string proceso)
+        public int EditarVisibilidadTicket(int docEntry, string opImpresion, string proceso)
         {
             SqlConnection cn = new SqlConnection(uti.cadSql);
             try
@@ -971,7 +971,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             }
             return docNum;
         }
-        public int EditarSeguimientoTicket(string Estado, int DocEntry, ORTV_E ticket )
+        public int EditarSeguimientoTicket(string Estado, int DocEntry, ORTV_E ticket)
         {
             int status = -1;
             string TipoMantenimiento = string.Empty;
@@ -2046,10 +2046,10 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 using (SqlCommand cmd = new SqlCommand("vt.MANT_ORTV", tran.Connection, tran))  // Usamos la transacción proporcionada
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "UETR");  
+                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "UETR");
                     cmd.Parameters.AddWithValue("@Operario", o.Operario);
                     cmd.Parameters.AddWithValue("@DocEntry", o.DocEntry);
-                    cmd.Parameters.AddWithValue("@Estado", ortvE.Estado); 
+                    cmd.Parameters.AddWithValue("@Estado", ortvE.Estado);
                     cmd.Parameters.AddWithValue("@PagoEnv", ((object)o.PagoEnv) ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@ClaveEnv", ((object)o.ClaveEnv) ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@DocNum", 0).Direction = ParameterDirection.Output;
@@ -2069,13 +2069,13 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                             gestionarStock = true;
                         }
                     }
-                    cmd.ExecuteNonQuery(); 
+                    cmd.ExecuteNonQuery();
                     if (gestionarStock)
                     {
                         OREG_D oregD = new OREG_D();
                         if (ortvE.Det5 != null && ortvE.Det5.Count > 0)
                         {
-                            ortvE.Det5[0].RegCant = -1 * ortvE.Det5[0].RegCant; 
+                            ortvE.Det5[0].RegCant = -1 * ortvE.Det5[0].RegCant;
                             ortvE.OpRegistro = o.Operario;
                             oregD.CompromisosStock(new List<ORTV_E> { ortvE }, tran);
                             oregD.RegistrarGestionStock(
@@ -2091,7 +2091,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                                     Cantidad = ortvE.Det5[0].RegCant,
                                     Operario = ortvE.OpRegistro
                                 },
-                                tran);  
+                                tran);
                         }
                     }
                 }
@@ -2447,8 +2447,15 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                                         "(Select top 1 CONVERT(varchar(8),HoraOperacion) from vt.CC_ORTV where DocEntry=T0.DocEntry and Operacion='CANCELAR' order by FechaOperacion,HoraOperacion desc ) as 'HORA CANCELADO', " +
                                         "(Select top 1 Operario from vt.CC_ORTV where DocEntry=T0.DocEntry and Operacion='CANCELAR' order by FechaOperacion,HoraOperacion desc ) AS 'OP CANCELADO', " +
                                         "CONVERT(varchar, T0.TiempoEntrega , 103) AS 'FECHA ESTIMADA ENTREGA', CONVERT(varchar, T0.TiempoEntrega , 8) AS 'HORA ESTIMADA ENTREGA', T1.LugarDeEntrega AS 'LUGAR ENTREGA', T0.NroMesa AS 'NRO MESA', " +
-                                        "(SELECT STUFF((SELECT ', ' + cast(t1.AlmacenSalida as varchar(max)) FROM vt.RTV2 t1 INNER JOIN  vt.ORTV x ON x.DocEntry = t1.DocEntry WHERE t1.DocEntry = t0.DocEntry FOR XML PATH('')), 1,2, '')) AS 'ALMACEN SALIDA',T0.Comentario " +
-                                        "FROM VT.ORTV T0 INNER JOIN VT.RTV2 T1 ON T0.DocEntry=T1.DocEntry WHERE T1.Linea=1";
+                                        "(SELECT STUFF((SELECT ', ' + cast(t1.AlmacenSalida as varchar(max)) FROM vt.RTV2 t1 INNER JOIN  vt.ORTV x ON x.DocEntry = t1.DocEntry WHERE t1.DocEntry = t0.DocEntry FOR XML PATH('')), 1,2, '')) AS 'ALMACEN SALIDA',T0.Comentario," +
+                                        "T0.Zona, T0.DirDestino, PesadoPedido.PesoTotal " +
+                                        "FROM VT.ORTV T0 INNER JOIN VT.RTV2 T1 ON T0.DocEntry=T1.DocEntry "+
+                                        "OUTER APPLY ( " +
+                                            "SELECT TOP 1 SUM(peso) AS 'PesoTotal' FROM VT.RTV6  " +
+                                            "WHERE DocEntry = T0.DocEntry " +
+                                        ") PesadoPedido " +
+                                        "WHERE T1.Linea=1";
+
                 query += condWhere;
                 SqlCommand cmd = new SqlCommand(query, cn);         // prepara
                 cn.Open();
@@ -2520,6 +2527,9 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                             if (!dr.IsDBNull(57)) { rpt.NroMesa = dr.GetInt32(57); }
                             if (!dr.IsDBNull(58)) { rpt.AlmacenSalida = dr.GetString(58); }
                             if (!dr.IsDBNull(59)) { rpt.Comentario = dr.GetString(59); }
+                            if (!dr.IsDBNull(60)) { rpt.ZonaVenta = dr.GetString(60); }
+                            if (!dr.IsDBNull(61)) { rpt.DirDestinoVenta = dr.GetString(61); }
+                            if (!dr.IsDBNull(62)) { rpt.PesoTotalPedido = dr.GetDecimal(62); }
                             lista.Add(rpt);
                         }
                     }
@@ -2542,7 +2552,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             try
             {
                 cn.Open();
-                SqlCommand cmd = new SqlCommand("al.ListarTicketsReparto", cn);
+                SqlCommand cmd = new SqlCommand("al.ListarTicketsReparto_2", cn);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@CantidadTicketsNoEnviados", 0).Direction = ParameterDirection.Output;
                 for (var i = 0; i < cantidadElementos; i++)
@@ -2575,7 +2585,8 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     if (!dr.IsDBNull(14)) { o.TipoVenta = dr.GetString(14); }
                     if (!dr.IsDBNull(15)) { o.FechaPago = dr.GetDateTime(15).ToString("yyyy-MM-dd"); }
                     if (!dr.IsDBNull(16)) { o.HoraPago = dr.GetTimeSpan(16).ToString(); }
-                    if (!dr.IsDBNull(17)) { o.Vinculados = dr.GetString(17); }
+                    if (!dr.IsDBNull(17))  o.TiempoEntrega = dr.GetDateTime(17); 
+                    if (!dr.IsDBNull(18)) { o.Vinculados = dr.GetString(18); }
                     if (o.LugarDestino == "Domicilio" || o.LugarDestino == "Agencia")
                     { o.Guias = GuiasTicket(o.DocEntry); }
                     else
@@ -2978,9 +2989,10 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
                 if (!dr.IsDBNull(47)) { t.Notificado = dr.GetInt32(47); }
                 if (!dr.IsDBNull(48)) { t.Visible = dr.GetString(48); }
                 if (!dr.IsDBNull(49)) { t.Presupuesto = dr.GetString(49); }
-                if (!dr.IsDBNull(50)) {
+                if (!dr.IsDBNull(50))
+                {
                     var ProductoPendiente = dr.GetString(50);
-                    if(ProductoPendiente == "PENDIENTE")
+                    if (ProductoPendiente == "PENDIENTE")
                     {
                         t.ProductoPendiente = 1;
                     }
@@ -3092,7 +3104,7 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
             listaCombinada.AddRange(listaAnulada);
             var listaOrdenada = listaCombinada.OrderByDescending(x => x.Id).ToList();
             // Verificar la operación principal y anulada
-            if (listaOrdenada!=null && listaOrdenada.Any() && listaOrdenada.FirstOrDefault().Operacion == operacionPrincipal)
+            if (listaOrdenada != null && listaOrdenada.Any() && listaOrdenada.FirstOrDefault().Operacion == operacionPrincipal)
             {
                 return true;
             }
@@ -3167,7 +3179,7 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
                 condWhere += t.EstadoPago != null ? $" AND t0.EstadoPago='{t.EstadoPago}'" : "";
                 condWhere += t.EstadoGasto != null ? $" AND t0.EstadoGasto='{t.EstadoGasto}'" : "";
                 condWhere += t.PagoEnv == 0.01M ? " AND t0.PagoEnv>0" : "";
-                condWhere += t.Visible !=null ? $" AND t0.Visible='{t.Visible}' AND T0.Estado not in ('CANCELADO','ANULADO')" : "";
+                condWhere += t.Visible != null ? $" AND t0.Visible='{t.Visible}' AND T0.Estado not in ('CANCELADO','ANULADO')" : "";
                 condWhere += t.Presupuesto != null ? $" AND t0.Presupuesto='{t.Presupuesto}'" : "";
             }
             string query = $"SELECT TOP 200 t0.DocEntry, t0.DocNum, t0.CardCode, t0.CardName, t0.Estado,t0.FechaSapTicket, (Select top 1 HoraOperacion from vt.CC_ORTV where DocEntry=t0.DocEntry " +
@@ -3250,8 +3262,8 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
                 else if (t.DocNum == 0 && t.FechaSapTicket == null && t.CardName == null && t.Vendedor == null && t.Zona == null && t.MontoFinal == 0 && t.LugarDestino == null && t.Estado == null
                     && t.EstadoPago == null && t.TipoVenta == null && t.EstadoGasto == null && t.Flete != 0.01M && t.DescuentoNC != 0.01M && t.TiempoEntrega == null)
                 {
-                        condEstado = " AND T0.Estado IN ('PICKEANDO','VERIFICANDO','EMPACANDO','EMPACADO', 'PESADO', 'PREENVIO', 'ENVIADO') ";
-                        condWhere = $@" AND EXISTS (
+                    condEstado = " AND T0.Estado IN ('PICKEANDO','VERIFICANDO','EMPACANDO','EMPACADO', 'PESADO', 'PREENVIO', 'ENVIADO') ";
+                    condWhere = $@" AND EXISTS (
                                                 SELECT 1 
                                                 FROM VT.CC_ORTV 
                                                 WHERE DocEntry = T0.DocEntry AND Operacion = 'FIN VERIFICAR'
@@ -3267,26 +3279,26 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
                                                     (SELECT TOP 1 Id FROM VT.CC_ORTV WHERE DocEntry = T0.DocEntry AND Operacion = 'ANULAR FIN VERIFICAR' ORDER BY Id DESC)
                                                 ) 
                                             )
-                                                AND YEAR(T0.FechaSapTicket) = 2025 "; 
-                        orderby = "CASE WHEN t0.EstadoFacturacion = 'PENDIENTE' THEN 0 WHEN t0.EstadoFacturacion = 'GRE EMITIDA' THEN 1 WHEN t0.EstadoFacturacion = 'FACTURADO' THEN 2 ELSE 3 END, t0.TiempoEntrega";
+                                                AND YEAR(T0.FechaSapTicket) = 2025 ";
+                    orderby = "CASE WHEN t0.EstadoFacturacion = 'PENDIENTE' THEN 0 WHEN t0.EstadoFacturacion = 'GRE EMITIDA' THEN 1 WHEN t0.EstadoFacturacion = 'FACTURADO' THEN 2 ELSE 3 END, t0.TiempoEntrega";
                 }
-                    condWhere += t.DocNum > 0 ? $" AND t0.DocNum like '%{t.DocNum}%'" : "";
-                    condWhere += t.FechaSapTicket != null ? $" AND t0.FechaSapTicket='{t.FechaSapTicket}'" : "";
-                    condWhere += t.AlmProcedencia != null ? $" AND t0.AlmProcedencia='{t.AlmProcedencia}'" : "";
-                    condWhere += t.CardName != null ? $" AND t0.CardName like '%{t.CardName}%'" : "";
-                    condWhere += t.Vendedor != null ? $" AND t0.Vendedor like '%{t.Vendedor}%'" : "";
-                    condWhere += t.Zona != null ? $" AND t0.Zona ='{t.Zona}'" : "";
-                    condWhere += t.LugarDestino != null ? $" AND t0.LugarDestino='{t.LugarDestino}'" : "";
-                    condWhere += t.Estado != null ? $" AND t0.Estado='{t.Estado}'" : "";
-                    condWhere += t.EstadoFacturacion != null ? $" AND t0.EstadoFacturacion='{t.EstadoFacturacion}'" : "";
-                    condWhere += t.EstadoPago != null ? $" AND t0.EstadoPago='{t.EstadoPago}'" : "";
-                    condWhere += t.TipoVenta != null ? $" AND t0.TipoVenta='{t.TipoVenta}'" : "";
-                    condWhere += t.EstadoGasto != null ? $" AND t0.EstadoGasto='{t.EstadoGasto}'" : "";
-                    condWhere += t.Flete == 0.01M ? " AND t0.Flete>0" : "";
-                    condWhere += t.DescuentoNC == 0.01M ? " AND t0.DescuentoNC>0" : "";
-                    condWhere += t.TiempoEntrega != null ? $" AND CONVERT(char(10), t0.TiempoEntrega,126) = '{Convert.ToDateTime(t.TiempoEntrega).ToString("yyyy-MM-dd")}'" : "";
+                condWhere += t.DocNum > 0 ? $" AND t0.DocNum like '%{t.DocNum}%'" : "";
+                condWhere += t.FechaSapTicket != null ? $" AND t0.FechaSapTicket='{t.FechaSapTicket}'" : "";
+                condWhere += t.AlmProcedencia != null ? $" AND t0.AlmProcedencia='{t.AlmProcedencia}'" : "";
+                condWhere += t.CardName != null ? $" AND t0.CardName like '%{t.CardName}%'" : "";
+                condWhere += t.Vendedor != null ? $" AND t0.Vendedor like '%{t.Vendedor}%'" : "";
+                condWhere += t.Zona != null ? $" AND t0.Zona ='{t.Zona}'" : "";
+                condWhere += t.LugarDestino != null ? $" AND t0.LugarDestino='{t.LugarDestino}'" : "";
+                condWhere += t.Estado != null ? $" AND t0.Estado='{t.Estado}'" : "";
+                condWhere += t.EstadoFacturacion != null ? $" AND t0.EstadoFacturacion='{t.EstadoFacturacion}'" : "";
+                condWhere += t.EstadoPago != null ? $" AND t0.EstadoPago='{t.EstadoPago}'" : "";
+                condWhere += t.TipoVenta != null ? $" AND t0.TipoVenta='{t.TipoVenta}'" : "";
+                condWhere += t.EstadoGasto != null ? $" AND t0.EstadoGasto='{t.EstadoGasto}'" : "";
+                condWhere += t.Flete == 0.01M ? " AND t0.Flete>0" : "";
+                condWhere += t.DescuentoNC == 0.01M ? " AND t0.DescuentoNC>0" : "";
+                condWhere += t.TiempoEntrega != null ? $" AND CONVERT(char(10), t0.TiempoEntrega,126) = '{Convert.ToDateTime(t.TiempoEntrega).ToString("yyyy-MM-dd")}'" : "";
             }
-                    string query = $@"
+            string query = $@"
             SELECT TOP 200 
                 t0.DocEntry, 
                 t0.DocNum, 
@@ -3356,10 +3368,11 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
                             if (!dr.IsDBNull(16)) { ticket.Zona = dr.GetString(16); }
                             if (!dr.IsDBNull(17)) { ticket.TiempoEntrega = dr.GetDateTime(17); }
                             if (!dr.IsDBNull(18)) { ticket.AlmProcedencia = dr.GetString(18); }
-                            if (!dr.IsDBNull(19)) { 
+                            if (!dr.IsDBNull(19))
+                            {
                                 var EstadoProductoPendiente = dr.GetString(19);
                                 if (EstadoProductoPendiente == "PENDIENTE") { ticket.ProductoPendiente = 1; }
-                                else { ticket.ProductoPendiente = 0;  }
+                                else { ticket.ProductoPendiente = 0; }
                             }
                             if (!dr.IsDBNull(20)) { ticket.Impreso = dr.GetInt32(20); }
                             ticket.FechaSapTicket = (ticket.FechaSapTicket != null) ? Convert.ToDateTime(ticket.FechaSapTicket).ToString("dd/MM/yyyy") : null;
@@ -3516,11 +3529,12 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
                 condWhere += t.Flete == 0.01M ? " AND t0.Flete>0" : "";
                 condWhere += t.DescuentoNC == 0.01M ? " AND t0.DescuentoNC>0" : "";
                 condWhere += t.TiempoEntrega != null ? $" AND CONVERT(char(10), t0.TiempoEntrega,126) = '{Convert.ToDateTime(t.TiempoEntrega).ToString("yyyy-MM-dd")}'" : "";
-                if (t.ProductoPendiente != null) { 
-                int valorProductoPendiente = (int)t.ProductoPendiente;
-                //Si es 0 esta en CONCLUIDO y si es 1 es PENDIENTE
-                var ProductoPendienteTexto = (valorProductoPendiente == 0) ? "CONCLUIDO" : "PENDIENTE";
-                condWhere += ProductoPendienteTexto != null ? $" AND (Select Estado from vt.BusquedaProducto where DocEntry=t0.DocEntry) ='{ProductoPendienteTexto}'" : "";
+                if (t.ProductoPendiente != null)
+                {
+                    int valorProductoPendiente = (int)t.ProductoPendiente;
+                    //Si es 0 esta en CONCLUIDO y si es 1 es PENDIENTE
+                    var ProductoPendienteTexto = (valorProductoPendiente == 0) ? "CONCLUIDO" : "PENDIENTE";
+                    condWhere += ProductoPendienteTexto != null ? $" AND (Select Estado from vt.BusquedaProducto where DocEntry=t0.DocEntry) ='{ProductoPendienteTexto}'" : "";
                 }
             }
             string query = $"SELECT TOP 100 t0.DocEntry, t0.DocNum, t0.CardCode, t0.CardName, t0.Estado,t0.FechaSapTicket, (Select top 1 HoraOperacion from vt.CC_ORTV where DocEntry=t0.DocEntry " +
@@ -3674,7 +3688,7 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
             string query = $"SELECT TOP 100 t0.DocEntry, t0.DocNum, t0.CardCode, t0.CardName, t0.Estado,t0.FechaSapTicket, (Select top 1 HoraOperacion from vt.CC_ORTV where DocEntry=t0.DocEntry " +
                 $" and Operacion='REGISTRAR' order by FechaOperacion,HoraOperacion desc ) as 'HoraAbierto',t0.LugarDestino,t0.Flete,t0.Vendedor,t0.EstadoPago,t0.EstadoGasto," +
                 $" T0.PagoEnv,t0.TipoVenta ,t0.EstadoFacturacion,t0.DescuentoNC,t0.TiempoEntrega ,CASE WHEN EXISTS (SELECT * FROM vt.CC_ORTV_print WHERE DocEntryTicket = t0.DocEntry and Id_Usuario = 'DespachoCentroArriola') THEN 1 ELSE 0 END,T0.MontoFinal, " +
-                $" T0.Cajas , T0.Zona FROM vt.ORTV t0  WHERE 1=1 {condWhere} ORDER BY t0.DocNum desc";
+                $" T0.Cajas , T0.Zona, T0.AlmProcedencia FROM vt.ORTV t0  WHERE 1=1 {condWhere} ORDER BY t0.DocNum desc";
             using (SqlConnection cn = new SqlConnection(uti.cadSql))
             {
                 SqlCommand cmd = new SqlCommand(query, cn);
@@ -3708,6 +3722,8 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
                             if (!dr.IsDBNull(18)) { ticket.MontoFinal = dr.GetDecimal(18); }
                             if (!dr.IsDBNull(19)) { ticket.Cajas = dr.GetInt32(19); }
                             if (!dr.IsDBNull(20)) { ticket.Zona = dr.GetString(20); }
+                            if (!dr.IsDBNull(21)) ticket.AlmProcedencia = dr.GetString(21);
+
                             ticket.FechaSapTicket = (ticket.FechaSapTicket != null) ? Convert.ToDateTime(ticket.FechaSapTicket).ToString("dd/MM/yyyy") : null;
                             lista.Add(ticket);
                         }

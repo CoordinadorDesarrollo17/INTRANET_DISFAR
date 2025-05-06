@@ -3,6 +3,11 @@
     ViewBag.Title = "ReportesRutas";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+
+@section Styles{
+    <link href="https://unpkg.com/slim-select@latest/dist/slimselect.css" rel="stylesheet" />
+}
+
 <style>
     li {
         list-style-type: none;
@@ -25,10 +30,9 @@
     }
 </style>
 <script>
-    $(document).ready(function () {
-
-    });
     function cargarFormulario(info) {
+        $('#Formulario').html('');
+
         $.ajax('/Rutas/' + info,
             {
                 dataType: 'html',
@@ -76,3 +80,8 @@
     </table>
 
 </div>
+
+
+@section Scripts{
+    <script src="https://unpkg.com/slim-select@latest/dist/slimselect.min.js" defer></script>
+}

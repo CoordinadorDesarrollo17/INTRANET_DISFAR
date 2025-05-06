@@ -69,6 +69,8 @@ namespace Capa_Entidad.Rutas_ENT.TablasSql
         public string AlmFin { get; set; }
         public string FecConIni { get; set; }
         public string FecConFin { get; set; }
+        public string FechaRegistroDesde { get; set; }
+        public string FechaRegistroHasta{ get; set; }
         public decimal MontoTotalIni { get; set; }
         public decimal MontoTotalFin { get; set; }
         public string CardCode { get; set; }
@@ -79,14 +81,14 @@ namespace Capa_Entidad.Rutas_ENT.TablasSql
             public string CopilDesc { get; set; }
             public string Copil2Desc { get; set; }
             public string Copil3Desc { get; set; }
-            public string Copil4Desc { get; set; }
+            //public string Copil4Desc { get; set; }
             public string Placa { get; set; }
             public string AlmOrigenDesc { get; set; }
             public string AlmDestinoDesc { get; set; }
             public string Propietario { get; set; }
-            public string Observaciones { get; set; }
+            //public string Observaciones { get; set; }
             public int DocNum { get; set; }
-            public string FechaCont { get; set; }
+            //public string FechaCont { get; set; }
             public string FechaDoc { get; set; }
             public string Hora { get; set; }
             public string Estado { get; set; }
@@ -96,21 +98,31 @@ namespace Capa_Entidad.Rutas_ENT.TablasSql
             public int DocNumTicket { get; set; }
             public string Guias { get; set; }
             public int Cajas { get; set; }
-            public string Observaciones2 { get; set; }
+            //public string Observaciones2 { get; set; }
             public string DirDestino { get; set; }
             public string Distrito1 { get; set; }
             public string Provincia1 { get; set; }
             public string Departamento1 { get; set; }
-            public string DirDestino2 { get; set; }
-            public string Distrito2 { get; set; }
-            public string Provincia2 { get; set; }
-            public string Departamento2 { get; set; }
+            //public string DirDestino2 { get; set; }
+            //public string Distrito2 { get; set; }
+            //public string Provincia2 { get; set; }
+            //public string Departamento2 { get; set; }
             public decimal MontoTotal { get; set; }
             public decimal MontoFinal { get; set; }
             public decimal Flete { get; set; }
             public decimal GastoEnvio { get; set; }
             public string TipoVenta { get; set; }
+            public string ZonaVenta { get; set; }
+            public string FechaEntregaVenta { get; set; }
+            public string HoraEntregaVenta { get; set; }
+            public decimal PesoTotalVenta { get; set; }
+            public string FormaPagoVenta { get; set; }
+            public string TipoPagoRepartoContraEntrega { get; set; }
+            public string FechaInicioReparto { get; set; }
+            public string FechaFinReparto { get; set; }
+            public string ComentarioLiberado { get; set; }
         }
+
         public class RptRutasDet
         {
             public string TransDesc { get; set; }
