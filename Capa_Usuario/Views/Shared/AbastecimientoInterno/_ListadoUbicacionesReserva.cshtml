@@ -1,7 +1,7 @@
- @{
- var jss = new System.Web.Script.Serialization.JavaScriptSerializer();
- var perInfoJson = jss.Serialize(ViewBag.UbicacionesLotes);
-  }
+@{
+    var jss = new System.Web.Script.Serialization.JavaScriptSerializer();
+    var perInfoJson = jss.Serialize(ViewBag.ListaFiltradaUbicacionesLotes);
+}
 <style>
     td.details-control {
         cursor: pointer;
@@ -72,8 +72,9 @@
        const configDataTable = {
         "order": [],  // Desactiva ordenamiento automatico.
         "ordering": true, // Iconos para ordenar todas las columnas de la tabla.z
-        "pageLength": 25,
-        "lengthMenu": [25, 50, 75, 100],
+           searching: false,
+           "pageLength": 15,
+           "lengthMenu": [15, 30, 45, 60],
         "language": {
             "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
             "infoEmpty": "No hay registros disponibles",

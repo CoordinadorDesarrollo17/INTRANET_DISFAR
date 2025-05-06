@@ -15,13 +15,13 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
     {
         Ubicaciones_D _datos = new Ubicaciones_D();
         Helpers _helper = new Helpers();
-        
-        public bool BuscarUbicacion(string almacen, string  ubicacion)
+
+        public bool BuscarUbicacion(string almacen, string ubicacion)
         {
             return _datos.BuscarUbicacion(almacen, ubicacion);
         }
 
-        public List<Ubicaciones_E> ListarUbicaciones(Ubicaciones_E filtros = null, SqlConnection cn = null, Dictionary<string, object> parametros = null )
+        public List<Ubicaciones_E> ListarUbicaciones(Ubicaciones_E filtros = null, SqlConnection cn = null, Dictionary<string, object> parametros = null)
         {
             StringBuilder condicion = new StringBuilder();
 
@@ -46,7 +46,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
                 {
                     condicion.AppendLine("AND Almacen = @Almacen");
                     parametros["@Almacen"] = filtros.Almacen;
-                }
+                }                
             }
 
             return _datos.ListarUbicaciones(condicion.ToString(), parametros, cn);
