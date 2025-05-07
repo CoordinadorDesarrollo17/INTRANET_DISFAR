@@ -15,12 +15,12 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasExternas
         readonly Utilitarios uti = new Utilitarios();
         readonly DBHelper db = new DBHelper();
 
-        public (Helper_E, ODOCS_E) BuscarDocEntradaMercaderia(long DocNum)
+        public (Helper_E, ODOCS_E) BuscarDocEntradaMercaderia(decimal p_DocNum, string p_NumAtCard)
         {
             ODOCS_E documento = null;
             Helper_E helper = new Helper_E();
 
-            string query = $"CALL {uti.schemaHana}\"COBE_BUSCAR_DOC_ENTRADA_MERCANCIA\"({DocNum}) ";
+            string query = $"CALL {uti.schemaHana}\"COBE_BUSCAR_DOC_ENTRADA_MERCANCIA\"({p_DocNum}, '{p_NumAtCard}') ";
 
             try
             {
@@ -73,12 +73,12 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasExternas
 
         }
 
-        public (Helper_E, ODOCS_E) BuscarDocTransferencia(long DocNum)
+        public (Helper_E, ODOCS_E) BuscarDocTransferencia(string valorBusqueda)
         {
             ODOCS_E documento = null;
             Helper_E helper = new Helper_E();
 
-            string query = $"CALL {uti.schemaHana}\"COBE_BUSCAR_DOC_TRANSFERENCIA\"({DocNum}) ";
+            string query = $"CALL {uti.schemaHana}\"COBE_BUSCAR_DOC_TRANSFERENCIA\"({valorBusqueda}) ";
 
             try
             {
