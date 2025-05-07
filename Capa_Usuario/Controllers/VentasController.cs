@@ -337,6 +337,7 @@ namespace Capa_Usuario.Controllers
                     ViewBag.ValueBotonEstado = "";
                     ViewBag.MostrarBotonCambiarEstado = false;
                     ViewBag.BtnAnularRecibido = "";
+
                     if (ticket.Estado != null)
                     {
                         bool permisoAlm = false;
@@ -1443,7 +1444,16 @@ namespace Capa_Usuario.Controllers
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 Usuario_E user = (Usuario_E)Session["UsuarioId"];
-                ViewBag.PermisoCancelarTicket = (_usuarioOperacionN.VerificarAccesoOperacion(new OUSR_OPE_E { UsrDocEntry = user.DocEntry, OpeID = 518 })) > 0;     // Cancelar Ticket
+
+                ViewBag.PermisosUsuario = new Dictionary<string, bool>
+                {
+                    {"CancelarTicket",  (_usuarioOperacionN.VerificarAccesoOperacion(new OUSR_OPE_E { UsrDocEntry = user.DocEntry, OpeID = 518 })) > 0 },
+                    {"AnularPickingTicket",  (_usuarioOperacionN.VerificarAccesoOperacion(new OUSR_OPE_E { UsrDocEntry = user.DocEntry, OpeID = 803 })) > 0 },
+                    {"AnularPackingTicket",  (_usuarioOperacionN.VerificarAccesoOperacion(new OUSR_OPE_E { UsrDocEntry = user.DocEntry, OpeID = 805 })) > 0 },
+                    {"AnularPesadoTicket",  (_usuarioOperacionN.VerificarAccesoOperacion(new OUSR_OPE_E { UsrDocEntry = user.DocEntry, OpeID = 807 })) > 0 },
+                    {"AnularVerificacionTicket",  (_usuarioOperacionN.VerificarAccesoOperacion(new OUSR_OPE_E { UsrDocEntry = user.DocEntry, OpeID = 809 })) > 0 }
+                };
+
                 ViewBag.RolSupervisor = user.IdRol;
                 ViewBag.AlmUsuario = user.WhsCode;
                 ViewBag.DocNum = DocNum;
