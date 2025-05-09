@@ -87,6 +87,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             return requerimiento;
         }
+
         public Helper_E AtenderReserva(int detalleId)
         {
             string mensaje, icono;

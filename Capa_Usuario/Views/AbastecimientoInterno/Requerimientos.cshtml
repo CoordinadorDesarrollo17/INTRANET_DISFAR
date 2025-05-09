@@ -418,9 +418,10 @@
                     body: JSON.stringify(payload) // Enviar los datos como JSON
                 });
 
-				if (!response.ok) {
-					throw new Error(`Error en la solicitud: ${response.statusText}`)
-				}
+                if (!response.ok) throw new Error(`Error en la solicitud: ${response.statusText}`);
+
+                const contentType = response.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) throw new Error("Sesión expirada. Por favor, vuelve a iniciar sesión.");
 
 				const data = await response.json()
 
@@ -439,7 +440,21 @@
 					}
 				});
 			} catch (error) {
-				console.error('Error:', error);
+                console.error('Error:', error);
+                if (error.message.includes("Sesión expirada")) {
+                    Swal.fire({
+                        title: 'Sesión expirada',
+                        text: 'Por seguridad, se actualizará la página.',
+                        icon: 'warning',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showConfirmButton: true
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire('Ocurrió un error al procesar la solicitud. Intente nuevamente o comuníquese con SISTEMAS.');
+                }
 			}
 		}
 
