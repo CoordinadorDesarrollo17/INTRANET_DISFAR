@@ -1,4 +1,5 @@
 using Capa_Datos;
+using Capa_Datos.AbastecimientoInterno_DAO.TablasSql;
 using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
 using Capa_Entidad.Almacen_ENT.Tablas;
 using Capa_Entidad.Seguridad_ENT;
@@ -75,7 +76,7 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-        
+
         [HttpGet]
         public ActionResult ListarUbicacionesPicking(Ubicaciones_E filtros, int idOperation = 3100)
         {
@@ -1781,19 +1782,12 @@ namespace Capa_Usuario.Controllers
                     {
                         Usuario_E user = (Usuario_E)Session["UsuarioId"];
                         if (user == null)
-                        {
-                            return Json(new
-                            {
-                                Titulo = "Error en la operación",
-                                Mensajes = new List<string> { "No existe usuario logueado, se terminó la sesión." },
-                                Icono = "error"
-                            });
-                        }
+                            return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "No existe usuario logueado, se terminó la sesión." }, Icono = "error" });
+
                         var listaProductosDisponibles = _productosDisponiblesReserva.ObtenerProductosDisponiblesReserva();
                         List<string> listMensajes = new List<string>();
                         foreach (var u in requerimiento.Detalle)
                         {
-
                             var productoDisp = listaProductosDisponibles.Where(x =>
                                 x.ValorUmAlm > 0 && u.ValorUmAlm > 0 && x.ValorUmAlm == u.ValorUmAlm &&
                                 x.ItemCode != null && u.ItemCode != null && x.ItemCode == u.ItemCode &&
@@ -1811,143 +1805,114 @@ namespace Capa_Usuario.Controllers
                             }
                         }
                         if (listMensajes.Any())
-                        {
-                            return Json(new
-                            {
-                                Titulo = "No se pudo completar la acción",
-                                Mensajes = listMensajes,
-                                Icono = "error"
-                            });
-                        }
+                            return Json(new { Titulo = "No se pudo completar la acción", Mensajes = listMensajes, Icono = "error" });
+
                         //Validar que las ubicacion origen existan
                         var ubicacionesReserva = requerimiento.Detalle
-                       .SelectMany(d => new[]
-                       {
-                           d.CodigoUbicacionOrigen
-                       })
-                       .Distinct()
-                       .ToList();
+                           .SelectMany(d => new[] { d.CodigoUbicacionOrigen })
+                           .Distinct()
+                           .ToList();
+
                         foreach (var u in ubicacionesReserva)
                         {
                             bool resultValidarUbicaciones = _ubicacionesN.BuscarUbicacion("RESERVA", u);
                             if (!resultValidarUbicaciones)
-                            {
-                                return Json(new
-                                {
-                                    Titulo = "Error en la operación",
-                                    Mensajes = new List<string> { $"Revise que exista previamente la ubicación en Reserva {u}" },
-                                    Icono = "error"
-                                });
-                            }
+                                return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { $"Revise que exista previamente la ubicación en Reserva {u}" }, Icono = "error" });
+
                         }
                         // Solo se requiere validar la ubicación PICKING para requerimientos de tipo abastecimiento: Picking y Salida por Almacen
                         if (requerimiento.TipoAbastecimiento == "Picking")
                         {
                             int nulos = requerimiento.Detalle.Where(d => d?.CodigoUbicacionDestino == null).ToList().Count;
                             if (nulos > 0)
-                            {
                                 return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "Las ubicaciones Picking deben estar definidas." }, Icono = "error" });
-                            }
+
+
                             //Validar que las ubicacion destino insertadas, existan
                             var ubicacionesPicking = requerimiento.Detalle
                                 .SelectMany(d => d.CodigoUbicacionDestino.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                                 .Select(ubicacion => ubicacion.Trim()) // Para eliminar espacios en blanco
                                 .Distinct()
                                 .ToList();
+
                             foreach (var u in ubicacionesPicking)
                             {
                                 bool resultValidarUbicaciones = _ubicacionesN.BuscarUbicacion("PICKING", u);
                                 if (!resultValidarUbicaciones)
-                                {
                                     return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { $"Revise que exista previamente la ubicación en Picking {u}" }, Icono = "error" });
-                                }
                             }
                         }
                         // Asignar datos de operario en el requerimiento
                         requerimiento.OperarioRegistra = $"{user.Nombres} {user.Apellidos}";
                         Utilitarios uti = new Utilitarios();
+
                         // Iniciar la transacción global para las operaciones críticas
-                        using (var scope = new TransactionScope(TransactionScopeOption.Required,
-                           new TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted },
-                           TransactionScopeAsyncFlowOption.Enabled))
+                        using (var scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }, TransactionScopeAsyncFlowOption.Enabled))
                         {
                             using (SqlConnection cn = new SqlConnection(uti.cadSql2))
                             {
                                 cn.Open();
                                 var requerimientoGet = _requerimientosN.RegistrarRequerimiento(requerimiento, cn);
                                 if (requerimientoGet == null || requerimientoGet.Id == 0)
-                                {
-                                    return Json(new
-                                    {
-                                        Titulo = "No se pudo completar la acción",
-                                        Mensajes = new List<string> { "No se completo el registro del requerimiento" },
-                                        Icono = "error"
-                                    });
-                                }
+                                    return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "No se completo el registro del requerimiento" }, Icono = "error" });
+
                                 if (requerimiento.TipoAbastecimiento == "Picking")
                                 {
                                     var resultCodUbiPicking = _ubicacionesLotesN.RegistrarCodigoUbicacionPicking(requerimientoGet.Detalle, cn);
                                     if (resultCodUbiPicking.Icono.Equals("error"))
-                                    {
-                                        return Json(new
-                                        {
-                                            Titulo = "No se pudo completar la acción",
-                                            resultCodUbiPicking.Mensajes,
-                                            Icono = resultCodUbiPicking.Icono
-                                        });
-                                    }
+                                        return Json(new { Titulo = "No se pudo completar la acción", resultCodUbiPicking.Mensajes, Icono = resultCodUbiPicking.Icono });
                                 }
+
                                 // Registrar la(s) operación(es) de imputado(s) en KardexAbastecimiento - Los datos a insertar son los del detalle en requerimiento, RequerimientoGet ya tiene los datos limpios por enviar hacia el kardex como imputado, previamente validados
                                 var resultKardexImputar = _kardexAbastecimientoN.InsertarTransaccionImputadoKardex(requerimientoGet, cn);
                                 if (resultKardexImputar.Icono.Equals("error"))
+                                    return Json(new { Titulo = "No se pudo completar la acción", resultKardexImputar.Mensajes, Icono = resultKardexImputar.Icono });
+
+                                // Apilamos automáticamente a SKUs que tiene como CodigoUbicacionDestino = "PICKING-UBI-SISTEMA"
+                                if (requerimientoGet.Detalle.Any())
                                 {
-                                    return Json(new
+                                    var detalleFiltrado = requerimientoGet.Detalle.Where(b => b.CodigoUbicacionDestino == "PICKING-UBI-SISTEMA" && b.AtendidoPicking == 0).ToList();
+
+                                    foreach (var det in detalleFiltrado)
                                     {
-                                        Titulo = "No se pudo completar la acción",
-                                        resultKardexImputar.Mensajes,
-                                        Icono = resultKardexImputar.Icono
-                                    });
-                                }
+                                        var resultadoAtender = AtenderReservaRequerimiento(det);
+                                        if (resultadoAtender is JsonResult jsonResultado)
+                                        {
+                                            var data = jsonResultado.Data as dynamic;
+                                            if (data != null && data.Icono == "error")
+                                                return Json(new { Titulo = "Error", Mensajes = new List<string> { $"{data.Mensajes[0]}" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
+                                        }
+
+                                        var resultadoReabastecer = AtenderPickingRequerimiento(det.Id, requerimientoGet.Id, det.ItemCode, det.ItemName);
+                                        if (resultadoReabastecer is JsonResult jsonResultado2)
+                                        {
+                                            var data2 = jsonResultado2.Data as dynamic;
+                                            if (data2 != null && data2.Icono == "error")
+                                                return Json(new { Titulo = "Error", Mensajes = new List<string> { $"{data2.Mensajes[0]}" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
+                                        }
+                                    }
+                                }                               
+
                                 // Confirmar la transacción
                                 scope.Complete();
                             }
                         }
                         // Devolver respuesta exitosa
-                        return Json(new
-                        {
-                            Titulo = "Acción completada exitosamente",
-                            Mensajes = new List<string> { "Se registró el requerimiento correctamente." },
-                            Icono = "success"
-                        });
+                        return Json(new { Titulo = "Acción completada exitosamente", Mensajes = new List<string> { "Se registró el requerimiento correctamente." }, Icono = "success" });
                     }
                     else
                     {
-                        return Json(new
-                        {
-                            Titulo = "Error en la operación",
-                            Mensajes = new List<string> { "Envie un documento de requerimiento válido" },
-                            Icono = "error"
-                        });
+                        return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "Envie un documento de requerimiento válido" }, Icono = "error" });
                     }
                 }
                 catch (Exception ex)
                 {
-                    return Json(new
-                    {
-                        Titulo = "Error en la operación",
-                        Mensajes = new List<string> { ex.Message },
-                        Icono = "error"
-                    });
+                    return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { ex.Message }, Icono = "error" });
                 }
             }
             else
             {
-                return Json(new
-                {
-                    Titulo = "Error en la operación",
-                    Mensajes = new List<string> { "Sin accesos." },
-                    Icono = "error"
-                });
+                return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "Sin accesos." }, Icono = "error" });
             }
         }
         public JsonResult ImportarRequerimiento(HttpPostedFileBase file, int idOperation = 3404)

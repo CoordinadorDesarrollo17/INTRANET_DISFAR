@@ -156,9 +156,15 @@
             }
 
             // Calcular el stock saliendo
-            fila.querySelector('[data-campo="StockSaliendo"]').value = calcularStockSaliendo(
-                cantidadSolicitada.value, valorUmAlm, stockSaldo, stockMaster, stockTotalUnidades, idStockMaster, `Fila ${index + 1}`
-            );
+            var calculo = calcularStockSaliendo(cantidadSolicitada.value, valorUmAlm, stockSaldo, stockMaster, stockTotalUnidades, idStockMaster, `Fila ${index + 1}`);
+            console.log(calculo);
+            fila.querySelector('[data-campo="StockSaliendo"]').value = calculo;
+
+            let stockSolicitadoMaster = Math.floor(Number(calculo) / Number(valorUmAlm));
+            let stockSolicitadoSaldo = Number(calculo) % Number(valorUmAlm);
+
+            fila.querySelector('[data-campo="StockSolicitadoMaster"]').value = stockSolicitadoMaster;
+            fila.querySelector('[data-campo="StockSolicitadoSaldo"]').value = stockSolicitadoSaldo;
         });
     }
 
@@ -202,7 +208,7 @@
             tbody += `<tr id="fila_${item.ItemCode}_${num}">
                                 <td scope="col" class="text-center"><input type="hidden" name="requerimiento.Detalle[].ItemCode" data-fila="fila_${item.ItemCode}_${num}" class="cls-itemCodes" value="${item.ItemCode}" /> ${item.ItemCode} </td>
                                 <td scope="col" class="text-center">
-                                    <input type="hidden" name="requerimiento.Detalle[].ItemName" value="${item.ItemName}" />${item.ItemName}
+                                    <input type="hidden" name="requerimiento.Detalle[].ItemName" value="${item.ItemName.replace(/"/g, '&quot;') }" />${item.ItemName}
                                 </td>
                                 <td scope="col" class="text-center">
                                     <input type="hidden" name="requerimiento.Detalle[].BatchNum" value="${item.BatchNum}" />${item.BatchNum}
