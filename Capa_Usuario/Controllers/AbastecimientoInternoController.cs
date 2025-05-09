@@ -1648,7 +1648,9 @@ namespace Capa_Usuario.Controllers
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                int cantidadSolicitada = 0;
+                long cantidadSolicitada = 0;
+                bool stockMin = _stockMinProdN.Obtener(itemCode)?.Id > 0;
+
                 if (tipoAbastecimiento != null && tipoAbastecimiento.Equals("Picking") && itemCode != null)
                 {
                     //Calcular desde SAP (Stock Total - Stock Comprometido)  en Almacen 16 por defecto
@@ -1663,13 +1665,14 @@ namespace Capa_Usuario.Controllers
                         int quantityUbicacionesLote = 0;
                         if (resultUbicacionesLotes != null) { quantityUbicacionesLote = resultUbicacionesLotes.Sum(r => r.QuantityUnidadesCajas); }
                         int stockDeAlmReserva = quantityUbicacionesLote - quantityReq; //resta de lo que esta por entrar a Picking Atendido=0
-                        int stockEnPicking = stockLibreEnAlmacen16 - stockDeAlmReserva;
-                        int stockMinimoParaLaVenta = _stockMinProdN.Obtener(itemCode).StockMinAbastecimiento;
+                        long stockEnPicking = stockLibreEnAlmacen16 - stockDeAlmReserva;
+                        long stockMinimoParaLaVenta = _stockMinProdN.Obtener(itemCode).StockMinAbastecimiento;
                         cantidadSolicitada = stockMinimoParaLaVenta - stockEnPicking;
+
+                        if (cantidadSolicitada < 0 || (stockEnPicking <= 0 && stockMinimoParaLaVenta <= 0)) cantidadSolicitada = 0;
                     }
-                    if (cantidadSolicitada < 0) { cantidadSolicitada = 0; }
                 }
-                return Json(new { cantidadSolicitada = Convert.ToString(cantidadSolicitada) });
+                return Json(new { cantidadSolicitada = Convert.ToString(cantidadSolicitada), tieneStockMin = stockMin == true ? "Y" : "N" });
             }
             else
             {

@@ -172,7 +172,7 @@
                                 <input type="text" id="cod_articulo" class="form-control" autocomplete="off" />
                             </div>
 
-                            <div class="col-lg-8">
+                            <div class="col-lg-8 d-flex">
                                 <div id="div_cantidadSolicitada" hidden>
                                     <label for="cantidad_solicitada" class="form-label fw-bold">Cantidad solicitada (día):</label>
                                     <div class="d-flex gap-2">
@@ -182,6 +182,7 @@
                                         </button>
                                     </div>
                                 </div>
+                                <div id="span_stockMinimo" class="p-4" hidden></div>
                             </div>
                         </div><!-- // row-->
 
@@ -314,7 +315,8 @@
 		async function calcularCantidadSolicitada() {
 			const itemCode = document.querySelector('#cod_articulo').value || ''
 			const tipoAbastecimiento = document.querySelector('#TipoAbastecimiento').value || ''
-            let cantidadSolicitada = 0
+            let cantidadSolicitada = 0;
+            let tieneStockMin = 'N';
 
 			try {
 				const response = await fetch("/AbastecimientoInterno/CalcularCantidadSolicitada", {
@@ -347,10 +349,13 @@
                         }
                     });
                 } else {
-                    cantidadSolicitada = data.cantidadSolicitada
+                    cantidadSolicitada = Number(data.cantidadSolicitada);
+                    tieneStockMin = data.tieneStockMin;
                 }
 
                 document.querySelector('#btn_cantidadManual').hidden = (cantidadSolicitada > 0) ? false : true;
+                document.querySelector('#span_stockMinimo').hidden = (tieneStockMin == 'N') ? false : true;
+                document.querySelector('#span_stockMinimo').innerHTML = (tieneStockMin == 'N') ? `<span class="bg-danger text-white rounded my-auto py-2 px-4" ><i class="bi bi-exclamation-circle-fill "></i> El SKU no cuenta con stock mínimo de abastecimiento.</span>` : '';
                 document.querySelector('#cantidad_solicitada').value = cantidadSolicitada;
                 document.querySelector('#btn_guardarArticulos').style.display = (cantidadSolicitada > 0) ? 'block' : 'none';
 			} catch (error) {
@@ -633,7 +638,7 @@
 
                     // Cargar las opciones desde la función asíncrona
                     const opciones = await cargarUbicaciones('PICKING', itemCode);
-                    console.log(opciones)
+
                     // Validar si opciones es un objeto y tiene la propiedad resultUbicaciones
                     const whitelistOpciones = Array.isArray(opciones?.resultUbicaciones)
                         ? opciones.resultUbicaciones
