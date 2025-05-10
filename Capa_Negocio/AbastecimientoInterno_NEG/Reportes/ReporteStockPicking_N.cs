@@ -64,7 +64,15 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.Reportes
                 StockMinAbastecimiento = a.StockMinAbastecimiento
             }).ToList();
 
-            return nuevaLista.OrderBy(x => x.ItemCode).ToList();
+            return nuevaLista
+                .OrderBy(n => n.StockActualPiezas <= 0)                                                     // Sin stock SAP (NEGRO)
+                .ThenBy(n => n.StockPicking < 0)                                                                   // Stock picking NEGATIVO (no debería pasar frecuentemente) 
+                .ThenBy(n => n.StockActualUnidades < n.StockMinAbastecimiento)     // Stock SAP al máximo y que no puede cubrir el stock mín. abast., se considera 100% de todo lo que existe en SAP (NEGRO) - NO NECESITA ABASTECIMIENTO
+                .ThenBy(n => n.StockMinAbastecimiento <= 0)                                          // Sin parámetros de stock mín. abast. (GRIS)
+                .ThenBy(n => n.StockPicking > 0 && n.StockPicking >= n.StockMinAbastecimiento)                  // Stock picking cumpliendo el 100% o más del stock mín. abast. (VERDE)
+                .ThenBy(n => n.StockPicking > 0 && n.StockPicking >= n.StockMinAbastecimiento * 0.5M)    // Stock picking por abastecer (>=50% AMARILLO)
+                .ThenBy(n => n.StockPicking > 0 && n.StockPicking < n.StockMinAbastecimiento * 0.5M)      // Stock picking crítico por abastecer (<50% ROJO)
+                .ToList();
         }
 
         public (Helper_E, List<ReporteStockPicking_E>) ListarStockPicking()
