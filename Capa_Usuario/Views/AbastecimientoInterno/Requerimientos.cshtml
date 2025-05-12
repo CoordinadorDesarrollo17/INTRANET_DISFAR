@@ -1,0 +1,835 @@
+﻿@{
+    ViewBag.Title = "Requerimientos";
+    Layout = "~/Views/Shared/_DefaultLayout.cshtml";
+    var isPopup = Request.QueryString["popup"] != null && Request.QueryString["popup"].ToLower() == "true";
+}
+
+@section Styles {
+    @Html.Raw("<link href='https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css' rel='stylesheet' />")
+    <style>
+        /* Ajustar el menú desplegable de Tagify para evitar el scroll */
+        .no-scroll-dropdown {
+            max-height: none !important; /* Sin límite de altura */
+            overflow-y: visible !important; /* Desactivar el scroll vertical */
+            border: 1px solid #ddd; /* Opcional: borde para depuración */
+        }
+
+        /* Ajustar el contenedor del dropdown */
+        .tagify__dropdown__wrapper {
+            max-height: none !important;
+            overflow-y: visible !important;
+            padding-right: 0 !important; /* Evitar espacio innecesario */
+        }
+
+        /* Eliminar cualquier rastro del scroll en navegadores WebKit */
+        .no-scroll-dropdown::-webkit-scrollbar {
+            display: none; /* Esconder el scrollbar en Chrome, Safari, Edge */
+        }
+
+        .tagify {
+            display: inline-flex; /* Permitir que el contenedor se ajuste al contenido */
+            flex-wrap: wrap;
+            max-width: 100%; /* Evitar que desborde su contenedor padre */
+        }
+
+        /* Ajustar el input para que ocupe solo el ancho necesario */
+        .tagify__input {
+            min-width: 50px; /* Ancho mínimo para mantener el cursor visible */
+            width: 100%; /* Ajuste automático al contenido */
+            flex: 1;
+            transition: width 0.2s ease;
+        }
+
+            /* Eliminar el borde amarillo de enfoque (opcional) */
+            .tagify__input:focus {
+                outline: none;
+                border-color: transparent;
+            }
+    </style>
+}
+
+@if (!isPopup)
+{
+    <div class="pt-3">
+        <nav>
+            <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+                <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+                <li><a href="@Url.Action("Sesion", "Index")">Abastecimiento Interno</a></li>
+                <li class="current"><em>@ViewBag.Title</em></li>
+            </ol>
+        </nav>
+    </div>
+}
+
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
+    <div class="row px-3 pt-3"><h3 class="titulo-seccion">@ViewBag.Title.ToUpper()</h3></div>
+</div>
+
+<div class="bg-white px-3 py-3 align-items-center">
+    <form id="frm_requerimiento">
+        <div class="row mb-4">
+            <div class="col-lg-2">
+                <label for="Origen" class="form-label fw-bold">Origen:</label>
+                <input type="text" id="Origen" class="form-control cls-readonly" name="Origen" value="Reserva" readonly autocomplete="off" />
+            </div>
+
+            <div class="col-lg-2">
+                <label for="Destino" class="form-label fw-bold">Destino:</label>
+                <input type="text" id="Destino" class="form-control cls-readonly" name="Destino" value="Picking" readonly autocomplete="off" />
+            </div>
+
+            <div class="col-lg-2">
+                <label for="TipoAbastecimiento" class="form-label fw-bold">Tipo de abastecimiento:</label>
+                <select id="TipoAbastecimiento" name="TipoAbastecimiento" class="form-select" onchange="validarTipoAbastecimiento(this)">
+                    <option value="">Seleccione</option>
+                    <option data-tipo="P" value="Picking">Picking</option>
+                    <option data-tipo="VM" value="Venta Master">Venta Master</option>
+                    <option data-tipo="SA" value="Salida por Almacen">Salida por Almacén</option>
+                </select>
+            </div>
+
+            <div id="div_comentario" class="col-lg-2" hidden>
+                <label for="Comentario" class="form-label fw-bold">Nro. Ticket:</label>
+                <input type="text" id="Comentario" class="form-control cls-num" name="Comentario" autocomplete="off" />
+            </div>
+        </div><!-- // row-->
+
+        <div class="row">
+            <div class="col-lg-6">
+                <button type="button" class="btn btn-primary" title="Agregar artículos" data-bs-toggle="tooltip" data-bs-placement="top" onclick="cargarListaArticulos()">
+                    <i class="bi bi-plus-lg"></i> Agregar artículos
+                </button>
+                <button type="button" class="btn btn-outline-success" onclick="abrirModalImportacion()" data-bs-toggle="tooltip" data-bs-placement="top" title="Importar datos directamente a la base"><i class="bi bi-upload"></i> Importar</button>
+            </div>
+
+            <div class="col-lg-6 d-flex justify-content-end align-content-end">
+                <button type="button" class="btn btn-cobefar-2" title="Ir a ubicaciones" data-bs-toggle="tooltip" data-bs-placement="top" onclick="redireccionarUbicaciones()">
+                    <i class="bi bi-box-arrow-up-right"></i> Ir a ubicaciones
+                </button>
+            </div>
+        </div><!-- // row-->
+
+        <hr />
+
+        <div class="row mb-3">
+            <h4 class="text-cobefar fw-bold">Detalle del Requerimiento</h4>
+        </div><!-- // row-->
+
+        <div class="row mb-4">
+            <div class="col-lg-12">
+                <label for="" class="form-label fw-bold">Código de artículo:</label>
+                <div class="d-flex align-items-center">
+                    <input type="text" id="borrar_codigo_articulo" class="form-control" name="" autocomplete="off" style="width: 250px">
+                    <button type="button" class="btn btn-outline-danger" onclick="borrarItemDetalle(event)"><i class="bi bi-trash3-fill"></i> Borrar del detalle</button>
+                </div>
+            </div>
+        </div><!-- // row-->
+    </form>
+
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <table id="tbl_detalleRequerimiento" class="dt-container dt-empty-footer table table-sm table-bordered table-striped table-hover font-14" width="100%">
+                <thead class="thead-cobefar">
+                    <tr>
+                        <th scope="col" class="text-center">Código de artículo</th>
+                        <th scope="col" class="text-center">Descripción</th>
+                        <th scope="col" class="text-center">Lote</th>
+                        <th scope="col" class="text-center">Unidad medida</th>
+                        <th scope="col" class="text-center">Ubicación RESERVA</th>
+                        <th scope="col" class="text-center">Cantidad</th>
+                        <th scope="col" class="text-center ubicacion-picking">Ubicación PICKING</th>
+                    </tr>
+                </thead>
+                <tbody class="text-dark">
+                </tbody>
+            </table>
+        </div>
+    </div><!-- // row-->
+
+    <div class="row">
+        <div class="col-lg-12">
+            <button type="button" class="btn btn-success" title="Registrar requerimiento" data-bs-toggle="tooltip" data-bs-placement="top" onclick="registrarRequerimiento()">
+                <i class="bi bi-plus-circle"></i> Registrar
+            </button>
+        </div>
+    </div><!-- // row-->
+</div>
+
+<div class="modal fade" id="modalBusquedaArticulos" tabindex="-1" aria-labelledby="modalBusquedaArticulosLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-full-width">
+        <div class="modal-content">
+            <div class="modal-header text-white bg-headerModals">
+                <h5 class="modal-title" id="modalBusquedaArticulosLabel">Búsqueda de artículos</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" tabindex="-1"></button>
+            </div>
+
+            <div class="modal-body bg-white">
+                <div id="div_modalBody" class="container pb-0">
+                    <form id="frm_busquedaArticulos">
+                        <div class="row mb-4">
+                            <div class="col-lg-2">
+                                <label for="cod_articulo" class="form-label fw-bold">Código de artículo:</label>
+                                <input type="text" id="cod_articulo" class="form-control" autocomplete="off" />
+                            </div>
+
+                            <div class="col-lg-8 d-flex">
+                                <div id="div_cantidadSolicitada" hidden>
+                                    <label for="cantidad_solicitada" class="form-label fw-bold">Cantidad solicitada (día):</label>
+                                    <div class="d-flex gap-2">
+                                        <input type="text" id="cantidad_solicitada" class="form-control cls-num cls-readonly" style="width: 250px" value="" readonly />
+                                        <button type="button" id="btn_cantidadManual" class="btn btn-sm btn-outline-cobefar-2" title="Solicitar Cantidad Manual" data-bs-toggle="tooltip" data-bs-placement="top" onclick="solicitarCantidadManual(this)" hidden>
+                                            <i class="bi bi-lock-fill"></i> Cantidad Manual
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="span_stockMinimo" class="p-4" hidden></div>
+                            </div>
+                        </div><!-- // row-->
+
+                        <div class="row mb-4 align-items-center">
+                            <div class="col-lg-12">
+                                <button type="button" class="btn btn-primary" onclick="buscarArticulos()" title="Buscar" data-bs-toggle="tooltip" data-bs-placement="top"><i class="bi bi-search"></i> Buscar</button>
+                            </div>
+                        </div><!-- // row-->
+
+                        <div class="row mb-4">
+                            <div class="col-lg-12">
+                                <div id="div_listadoArticulos"></div>
+                            </div>
+                        </div><!-- // row-->
+                    </form>
+
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" id="btn_guardarArticulos" class="btn btn-success" title="Guardar" data-bs-toggle="tooltip" data-bs-placement="top"><i class="bi bi-check-lg"></i> Guardar</button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" data-bs-toggle="tooltip" data-placement="top" title="Cerrar">
+                    <i class="bi bi-x-lg"></i> Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div><!-- // modal -->
+
+<div class="modal fade" id="ModalImportar" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-headerModals text-white">
+                <h5 class="modal-title" id="modalLabel">IMPORTAR DATOS EXCEL</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body bg-light">
+                <div class="mb-3">
+                    <label for="i_file" class="form-label text-dark">Seleccione archivo:</label>
+                    <input id="i_file" name="file" type="file" class="form-control" accept=".xlsx" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" onclick="importarSolicitud()">
+                    <i class="bi bi-database"></i> Guardar datos
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    @Html.Raw("<script src=\"https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.min.js\" defer></script>")
+    <script>
+		const configDataTable = {
+			paging: false,                  // Deshabilitar paginación
+			searching: false,           // Ocultar la barra de búsqueda
+			info: false,                        // Ocultar el número de registros ("Mostrando X de Y registros")
+			ordering: false,                // Deshabilitar la opción de ordenar columnas
+			lengthChange: false,    // Ocultar el selector de cantidad de elementos por página
+			bFilter: false,                 // Desactivar filtrado de DataTables
+			bSort: false,                   // Desactivar ordenamiento en columnas
+			bPaginate: false,           // Desactivar paginación manualmente
+			autoWidth: false,       // Evita que DataTables ajuste el ancho de las columnas automáticamente
+			responsive: true            // Mantiene la tabla responsiva si es necesario
+		}
+
+		document.addEventListener('DOMContentLoaded', function () {
+            permitirSoloNumeros('Comentario')
+		});
+
+		async function buscarArticulos() {
+            const itemCode = document.querySelector('#cod_articulo').value.trim();
+            const cantidadSolicitada = document.querySelector('#cantidad_solicitada').value || 0;
+            const tipoAbastecimiento = document.querySelector('#TipoAbastecimiento').value || '';
+
+            document.querySelector('#div_listadoArticulos').innerHTML = '';
+
+            if (!itemCode) {
+                Swal.fire('El código de artículo ingresado no es válido.')
+                return;
+            }
+
+			if (tipoAbastecimiento === "Picking") {
+                document.querySelector('#div_cantidadSolicitada').hidden = false;
+                await calcularCantidadSolicitada();
+			} else {
+                document.querySelector('#div_cantidadSolicitada').hidden = true;
+                document.querySelector('#btn_cantidadManual').hidden = true;
+			}
+
+             try {
+                 $.ajax({
+                     url: `@Url.Action("ListarArticulos", "AbastecimientoInterno")?tipoAbastecimiento=${tipoAbastecimiento}&itemCode=${itemCode}&cantidadSolicitada=${cantidadSolicitada}`,
+                     type: "GET",
+                     dataType: "html",
+                     success: function(response) {
+                         if ($.trim(response)) {
+
+                             if (response.Icono == "error") {
+                                 Swal.fire({
+                                     title: response.Titulo,
+                                     html: Array.isArray(response.Mensajes) && response.Mensajes.length > 0
+                                         ? response.Mensajes.join('<br>')
+                                         : response.Mensajes || "",
+                                     icon: response.Icono,
+                                     allowEscapeKey: false,
+                                     allowOutsideClick: false,
+                                     showConfirmButton: true
+                                 });
+
+                                 return;
+                             }
+
+                             $('#div_listadoArticulos').html(response); // Cargar el contenido en el div
+                              // Solo abrir si la respuesta no está vacía
+                         } else {
+                             console.warn("Error.");
+                         }
+                     },
+                     error: function(jqXHR, textStatus, errorThrown) {
+                         console.error("Error al cargar la lista de artículos:", textStatus, errorThrown);
+                     }
+                 });
+             } catch (error) {
+                 console.error("Excepción capturada:", error);
+            }
+        }
+
+		async function calcularCantidadSolicitada() {
+			const itemCode = document.querySelector('#cod_articulo').value || ''
+			const tipoAbastecimiento = document.querySelector('#TipoAbastecimiento').value || ''
+            let cantidadSolicitada = 0;
+            let tieneStockMin = 'N';
+
+			try {
+				const response = await fetch("/AbastecimientoInterno/CalcularCantidadSolicitada", {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({ tipoAbastecimiento, itemCode }) // Enviar los datos como JSON
+				});
+
+				if (!response.ok) {
+					throw new Error(`Error en la solicitud: ${response.statusText}`);
+				}
+
+				const data = await response.json();
+
+                if (typeof data.cantidadSolicitada === 'undefined') {
+                    Swal.fire({
+                        title: data.Titulo,
+                        html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                            ? data.Mensajes.join('<br>')
+                            : data.Mensajes || "",
+                        icon: data.Icono,
+                        allowEscapeKey: false,
+                        allowOutsideClick: false,
+                        showConfirmButton: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            //location.reload()
+                        }
+                    });
+                } else {
+                    cantidadSolicitada = Number(data.cantidadSolicitada);
+                    tieneStockMin = data.tieneStockMin;
+                }
+
+                document.querySelector('#btn_cantidadManual').hidden = (cantidadSolicitada > 0) ? false : true;
+                document.querySelector('#span_stockMinimo').hidden = (tieneStockMin == 'N') ? false : true;
+                document.querySelector('#span_stockMinimo').innerHTML = (tieneStockMin == 'N') ? `<span class="bg-danger text-white rounded my-auto py-2 px-4" ><i class="bi bi-exclamation-circle-fill "></i> El SKU no cuenta con stock mínimo de abastecimiento.</span>` : '';
+                document.querySelector('#cantidad_solicitada').value = cantidadSolicitada;
+                document.querySelector('#btn_guardarArticulos').style.display = (cantidadSolicitada > 0) ? 'block' : 'none';
+			} catch (error) {
+				console.error('Error:', error);
+			}
+		}
+
+		async function registrarRequerimiento() {
+			const form = document.querySelector('#frm_requerimiento')
+			const tipoAbastecimiento = document.querySelector('#TipoAbastecimiento').value
+			const filasRequerimientos = document.querySelectorAll("#tbl_detalleRequerimiento tbody tr")
+			let detallesRequerimientos = []
+
+			if (!tipoAbastecimiento) {
+				Swal.fire('Seleccione un tipo de abastecimiento.')
+				return;
+			}
+
+            filasRequerimientos.forEach((fila) => {
+                let inputs = fila.querySelectorAll("input, select");
+                let detalleRequerimiento = {};
+
+				inputs.forEach(input => {
+					let name = input.name.trim();
+
+                    if (name.startsWith("requerimiento.Detalle[]")) {
+                        let key = name.replace("requerimiento.Detalle[].", "").trim()
+                        let value = input.value.trim()   // Aseguramos que no tenga espacios en blanco al inicio o fin
+
+                        if (key == 'CodigoUbicacionDestino' && tipoAbastecimiento == 'Picking') {
+                            const tagify = new Tagify(input);
+                            const tagsArray = tagify.value;
+                            detalleRequerimiento[key] = tagsArray.map(tag => tag.value).join(', ')
+                        } else {
+                            detalleRequerimiento[key] = value
+                        }
+                    }
+                });
+
+				// Solo agregar si los campos requeridos tienen valores
+			  //  if (camposValidos && Object.keys(detalleTransferencia).length > 0) {
+				detallesRequerimientos.push(detalleRequerimiento);
+			  //  }
+			});
+
+			const formData = new FormData(form);
+			const jsonData = Object.fromEntries(formData.entries());
+
+			const payload = {
+				requerimiento: {
+					...jsonData, // Otros datos generales del formulario
+					Detalle: detallesRequerimientos
+				}
+			}
+
+            //console.log(payload)
+            //return;
+
+            try {
+                const response = await fetch("/AbastecimientoInterno/RegistrarRequerimiento", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload) // Enviar los datos como JSON
+                });
+
+                if (!response.ok) throw new Error(`Error en la solicitud: ${response.statusText}`);
+
+                const contentType = response.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) throw new Error("Sesión expirada. Por favor, vuelve a iniciar sesión.");
+
+				const data = await response.json()
+
+				Swal.fire({
+					title: data.Titulo,
+					html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+						? data.Mensajes.join('<br>')
+						: data.Mensajes || "",
+					icon: data.Icono,
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					showConfirmButton: true
+				}).then((result) => {
+					if (result.isConfirmed && data.Icono =="success") {
+						location.reload()
+					}
+				});
+			} catch (error) {
+                console.error('Error:', error);
+                if (error.message.includes("Sesión expirada")) {
+                    Swal.fire({
+                        title: 'Sesión expirada',
+                        text: 'Por seguridad, se actualizará la página.',
+                        icon: 'warning',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showConfirmButton: true
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire('Ocurrió un error al procesar la solicitud. Intente nuevamente o comuníquese con SISTEMAS.');
+                }
+			}
+		}
+
+        function cargarListaArticulos() {
+            const inputTipoAbastecimiento = document.querySelector('#TipoAbastecimiento')
+            const modal = document.querySelector('#modalBusquedaArticulos')
+            const bootstrapModal = new bootstrap.Modal(modal, {
+                focus: false,
+                backdrop: 'static',
+                keyboard: false
+            })
+
+            if (!inputTipoAbastecimiento.value) {
+				Swal.fire('Seleccione un tipo de abastecimiento.')
+				return;
+            }
+            resetValoresVacios(["cod_articulo", "cantidad_solicitada"])
+
+            document.querySelector('#div_listadoArticulos').innerHTML = ''
+            document.querySelector('#div_cantidadSolicitada').hidden = inputTipoAbastecimiento.value !== 'Picking' ? true : false
+            document.querySelector('#modalBusquedaArticulosLabel').textContent = `Búsqueda de artículos - ${inputTipoAbastecimiento.value}`
+
+            const btn = document.querySelector('#btn_guardarArticulos')
+            if (btn) {
+                const opcion = inputTipoAbastecimiento.options[inputTipoAbastecimiento.selectedIndex];
+                const tipoAbastSeleccionado = opcion.getAttribute("data-tipo");
+
+                const acciones = {
+                    'P': 'guardarArticulosPicking()',
+                    'VM': 'guardarArticulosVentaMaster()',
+                    'SA': 'guardarArticulosSalidaporAlmacen()'
+                };
+
+                // Asignar la función correspondiente o limpiar el evento si no coincide
+                btn.setAttribute('onclick', acciones[tipoAbastSeleccionado] || '');
+            }
+
+			bootstrapModal.show();
+		}
+
+		function redireccionarUbicaciones() {
+			window.open('@Url.Action("UbicacionesPicking", "AbastecimientoInterno")', '_blank');
+		}
+
+        function borrarItemDetalle(e) {
+            e.preventDefault()
+
+            Swal.fire({
+                title: '¿Estás seguro(a) de borrar?',
+                text: "Se borrarán del detalle todos los ítems con el mismo código de artículo ingresado.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '<i class="bi bi-check-lg"></i> Si, continuar',
+                cancelButtonText: '<i class="bi bi-x-lg"></i> Cancelar'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+
+                    const borrarItemCode = document.querySelector('#borrar_codigo_articulo').value.trim() || ''
+                    let items = document.querySelectorAll('.cls-itemCodes')
+                    let itemEncontrado = false
+
+                    if (items.length > 0) {
+                        items.forEach(item => {
+                            if (item.value.trim() === borrarItemCode) { // Compara sin espacios extras
+                                let fila = document.getElementById(item.dataset.fila); // Más eficiente que `querySelector`
+
+                                if (fila) {
+                                    fila.remove(); // Eliminar la fila
+                                    console.log(`Fila ${item.dataset.fila} eliminada.`);
+                                    itemEncontrado = true; // Se encontró y eliminó
+                                } else {
+                                    console.warn(`No se encontró la fila con ID: ${item.dataset.fila}`);
+                                }
+                            }
+                        })
+
+                        if (!itemEncontrado) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Código no encontrado',
+                                text: 'El código de artículo ingresado no se encuentra en el detalle.',
+                                allowEscapeKey: false,
+                                allowOutsideClick: false,
+                            });
+                        }
+                    }
+
+                }
+            });
+        }
+
+        async function obtenerNuevasUbicaciones(inputId) {
+            const inputTagify = document.getElementById(inputId);
+            const button = document.querySelector(`.reload-button[data-inputid="${inputId}"]`);
+
+            if (!inputTagify || !button) {
+                console.error('Input o botón no encontrados');
+                return;
+            }
+
+            // Deshabilitar el botón mientras se cargan los datos
+            button.disabled = true;
+            button.innerHTML = 'Cargando...';
+
+            try {
+                // Cargar nuevas ubicaciones usando el itemcode del input
+                const nuevasOpciones = await cargarUbicaciones('PICKING', inputTagify.dataset.itemcode);
+
+                if (inputTagify.tagify) {
+                    inputTagify.tagify.destroy();
+                }
+
+                // Crear una nueva instancia de Tagify con las nuevas opciones
+                const tagifyInstance = new Tagify(inputTagify, {
+                    whitelist: nuevasOpciones.resultUbicaciones,
+                    enforceWhitelist: true, // Restringe solo a las opciones de la lista
+                    dropdown: {
+                        maxItems: 10,           // Número máximo de opciones en el desplegable
+                        classname: "custom-tagify-dropdown",
+                        enabled: 0,             // Siempre mostrar el desplegable
+                        closeOnSelect: false,
+                        highlightFirst: true,
+                        position: "all"
+                    }
+                });
+
+                const batch = String(inputTagify.dataset.batchnum);
+                const existe = nuevasOpciones.ubicacionesDefault.some(item => item.BatchNum === batch);
+
+                // Establecer valor por defecto: ¿BatchNum está incluido?
+                if (existe) {
+                    tagifyInstance.addTags([nuevasOpciones.ubicacionesDefault[0].CodigoUbicacion]);
+                }
+
+                // Asociar la instancia al input para reutilización
+                inputTagify.tagify = tagifyInstance;
+
+                inputTagify.addEventListener("click", function (event) {
+                    tagifyInstance.dropdown.show();
+                    event.stopPropagation();
+                });
+
+                tagifyInstance.on('add', (e) => {
+                    console.log('Etiqueta agregada:', e.detail.data.value);
+                });
+
+                // Mostrar el dropdown con las nuevas opciones
+                tagifyInstance.dropdown.show(inputTagify);
+            } catch (error) {
+                console.error('Error al recargar ubicaciones:', error);
+            } finally {
+                // Habilitar el botón nuevamente
+                button.disabled = false;
+                button.innerHTML = `<i class="bi bi-arrow-clockwise"></i>`
+            }
+        }
+
+        async function construirTags() {
+            // Seleccionar solo los inputs con la clase cls-input-tag que NO tengan Tagify ya inicializado
+            document.querySelectorAll('input.cls-input-tag').forEach(async (item) => {
+                try {
+                    const itemCode = item.dataset.itemcode;
+
+                    if (!itemCode) {
+                        console.warn('El elemento no tiene un data-itemcode válido:', item);
+                        return;
+                    }
+
+                    // Verificar si el input ya está tagificado
+                    if (item._tagify) {
+                        console.log(`El elemento ${item.id} ya tiene Tagify inicializado.`);
+                        return; // Salir si ya está tagificado
+                    }
+
+                    // Cargar las opciones desde la función asíncrona
+                    const opciones = await cargarUbicaciones('PICKING', itemCode);
+
+                    // Validar si opciones es un objeto y tiene la propiedad resultUbicaciones
+                    const whitelistOpciones = Array.isArray(opciones?.resultUbicaciones)
+                        ? opciones.resultUbicaciones
+                        : [];
+
+                    if (whitelistOpciones.length === 0) {
+                        console.warn('La lista de ubicaciones está vacía o es inválida para:', itemCode);
+                    }
+
+                    // Inicializar Tagify solo si no ha sido inicializado previamente
+                    const tagify = new Tagify(item, {
+                        whitelist: whitelistOpciones,
+                        dropdown: {
+                            maxItems: 10,
+                            classname: "custom-tagify-dropdown",
+                            enabled: 0,
+                            closeOnSelect: false,
+                            highlightFirst: true,
+                            position: "all"
+                        }
+                    });
+
+                    // Establecer valor por defecto
+                    tagify.addTags([opciones.ubicacionesDefault[0].CodigoUbicacion]);
+
+                    // Evento al seleccionar una opción
+                    tagify.on('add', (e) => {
+                        console.log('Etiqueta agregada:', e.detail.data.value);
+                    });
+
+                } catch (error) {
+                    console.error('Error al inicializar Tagify:', error);
+                }
+            });
+        }
+
+        function abrirModalImportacion() {
+            let modal = new bootstrap.Modal(document.getElementById('ModalImportar'));
+            modal.show();
+        }
+
+        async function importarSolicitud() {
+            let fileInput = document.querySelector("#i_file");
+
+            if (!fileInput.files.length) {
+                Swal.fire({
+                    title: "Error",
+                    html: "Debe seleccionar un archivo para importar.",
+                    icon: "error",
+                    showConfirmButton: true
+                });
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+
+            try {
+                let response = await fetch("/AbastecimientoInterno/ImportarRequerimiento", {
+                    method: "POST",
+                    body: formData
+                });
+
+                let data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.Mensajes?.join("\n") || "Error al procesar la importación.");
+                }
+
+                Swal.fire({
+                    title: data.Titulo || "Éxito",
+                    html: Array.isArray(data.Mensajes) ? data.Mensajes.join("\n") : data.Mensajes,
+                    icon: data.Icono || "success",
+                    showConfirmButton: true
+                });
+
+                // Opcional: Recargar la tabla o cerrar el modal si la importación fue exitosa
+                if (data.Icono === "success") {
+                    document.querySelector("#ModalImportar").querySelector(".btn-close").click();
+                }
+
+            } catch (error) {
+                console.error("Error:", error);
+                Swal.fire({
+                    title: "Error",
+                    text: "Hubo un problema al procesar la solicitud.",
+                    icon: "error",
+                    showConfirmButton: true
+                });
+            }
+        }
+
+        function validarTipoAbastecimiento(elemento) {
+            const divComentario = document.getElementById("div_comentario")
+            const opcion = elemento.options[elemento.selectedIndex]
+            const tipoAbastecimiento = opcion.getAttribute("data-tipo")
+
+            document.querySelector('#tbl_detalleRequerimiento tbody').innerHTML = ''
+            divComentario.classList.toggle("hidden", tipoAbastecimiento !== "VM")
+
+            if (["VM", "SA"].includes(tipoAbastecimiento)) {
+                resetValoresVacios(["Comentario"])
+            }
+        }
+
+        async function cargarUbicaciones(almacen, itemCode) {
+            try {
+                if (!itemCode) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Código de artículo no válido',
+                        text: 'El código de artículo ingresado no es válido.',
+                        allowEscapeKey: false,
+                        allowOutsideClick: false,
+                    });
+
+                    return;
+                }
+
+                itemCode = itemCode.trim()
+                const response = await fetch("/AbastecimientoInterno/BuscarUbicaciones", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ almacen, itemCode })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error en la solicitud: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                return data; // Retorna las ubicaciones como una promesa resuelta
+            } catch (error) {
+                console.error("Error al cargar ubicaciones:", error);
+                return []; // Devuelve un array vacío en caso de error
+            }
+        }
+
+        function solicitarCantidadManual(element) {
+            const icon = element.querySelector("i");
+
+            // Toggle clase del botón
+            element.classList.toggle("btn-outline-cobefar-2");
+            element.classList.toggle("btn-cobefar-2");
+
+            // Limpiamos todas las cantidas de Total Salida de cada fila
+            document.querySelectorAll('.cls-stockSaliendo').forEach(input => {
+                input.value = ''
+            });
+
+            const inputs = Array.from(document.querySelectorAll('.cls-cantidadManual'));
+
+            // Toggle ícono
+            if (icon.classList.contains("bi-lock-fill")) {
+                icon.classList.remove("bi-lock-fill");
+                icon.classList.add("bi-unlock-fill");
+
+                // Buscar el último input con valor
+                let maxPosConValor = 0;
+                inputs.forEach(input => {
+                    const val = input.value.trim();
+                    const pos = parseInt(input.dataset.posicion, 10);
+                    if (val !== '' && pos > maxPosConValor) {
+                        maxPosConValor = pos;
+                    }
+                });
+
+                // Solo dejar libre el siguiente
+                inputs.forEach(input => {
+                    const pos = parseInt(input.dataset.posicion, 10);
+                    if (input.value.trim() === '' && pos !== maxPosConValor + 1) {
+                        input.readOnly = true;
+                        input.classList.add('cls-readonly');
+                    } else {
+                        input.readOnly = false;
+                        input.classList.remove('cls-readonly');
+                    }
+                });
+
+            } else {
+                icon.classList.remove("bi-unlock-fill");
+                icon.classList.add("bi-lock-fill");
+
+                inputs.forEach(elem => {
+                    elem.readOnly = true;
+                    elem.classList.add('cls-readonly');
+                });
+            }
+
+        }
+    </script>
+}

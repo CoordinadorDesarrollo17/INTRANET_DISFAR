@@ -1,0 +1,617 @@
+diff --git a/Capa_Datos/Utilitarios.cs b/Capa_Datos/Utilitarios.cs
+index be8546b..89a9f86 100644
+--- a/Capa_Datos/Utilitarios.cs
++++ b/Capa_Datos/Utilitarios.cs
+@@ -48,7 +48,6 @@ namespace Capa_Datos
+             this.cadSql = Environment.GetEnvironmentVariable("BD_PRUEBAS", EnvironmentVariableTarget.Machine);
+             //this.cadSql = Environment.GetEnvironmentVariable("PROYECTO_INTRANET", EnvironmentVariableTarget.Machine);
+             this.cadSql2 = Environment.GetEnvironmentVariable("PROYECTO_RESERVA_PICKING", EnvironmentVariableTarget.Machine);
+-            //this.cadSql2 = Environment.GetEnvironmentVariable("BD_PRUEBAS", EnvironmentVariableTarget.Machine);
+             CadSql3 = Environment.GetEnvironmentVariable("BD_DT", EnvironmentVariableTarget.Machine);
+             CadSql4 = Environment.GetEnvironmentVariable("BD_DOCUMENTOS_REGULATORIOS", EnvironmentVariableTarget.Machine);
+             this.serverSophos = Environment.GetEnvironmentVariable("SOPHOS", EnvironmentVariableTarget.Machine);
+diff --git a/Capa_Negocio/AbastecimientoInterno_NEG/TablasSql/Ubicaciones_N.cs b/Capa_Negocio/AbastecimientoInterno_NEG/TablasSql/Ubicaciones_N.cs
+index 2dd4291..5aca53b 100644
+--- a/Capa_Negocio/AbastecimientoInterno_NEG/TablasSql/Ubicaciones_N.cs
++++ b/Capa_Negocio/AbastecimientoInterno_NEG/TablasSql/Ubicaciones_N.cs
+@@ -15,13 +15,13 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
+     {
+         Ubicaciones_D _datos = new Ubicaciones_D();
+         Helpers _helper = new Helpers();
+-        
+-        public bool BuscarUbicacion(string almacen, string  ubicacion)
++
++        public bool BuscarUbicacion(string almacen, string ubicacion)
+         {
+             return _datos.BuscarUbicacion(almacen, ubicacion);
+         }
+ 
+-        public List<Ubicaciones_E> ListarUbicaciones(Ubicaciones_E filtros = null, SqlConnection cn = null, Dictionary<string, object> parametros = null )
++        public List<Ubicaciones_E> ListarUbicaciones(Ubicaciones_E filtros = null, SqlConnection cn = null, Dictionary<string, object> parametros = null)
+         {
+             StringBuilder condicion = new StringBuilder();
+ 
+@@ -46,7 +46,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
+                 {
+                     condicion.AppendLine("AND Almacen = @Almacen");
+                     parametros["@Almacen"] = filtros.Almacen;
+-                }
++                }                
+             }
+ 
+             return _datos.ListarUbicaciones(condicion.ToString(), parametros, cn);
+diff --git a/Capa_Usuario/Content/estilos.css b/Capa_Usuario/Content/estilos.css
+index 6f3ad7d..a2797bb 100644
+--- a/Capa_Usuario/Content/estilos.css
++++ b/Capa_Usuario/Content/estilos.css
+@@ -6,8 +6,8 @@ body::after {
+     font-size: 150px;
+     opacity: 0.05;
+     transform: rotate(-45deg);
+-    top: 30%;
+-    right: 20%;
++    top: 60%;
++    right: 5%;
+     z-index: 0;
+ }
+ 
+diff --git a/Capa_Usuario/Content/estilos2025.css b/Capa_Usuario/Content/estilos2025.css
+index 4479e74..7cc4a36 100644
+--- a/Capa_Usuario/Content/estilos2025.css
++++ b/Capa_Usuario/Content/estilos2025.css
+@@ -6,8 +6,8 @@ body::after {
+     font-size: 150px;
+     opacity: 0.05;
+     transform: rotate(-45deg);
+-    top: 30%;
+-    right: 20%;
++    top: 60%;
++    right: 10%;
+     z-index: 0;
+ }
+ 
+diff --git a/Capa_Usuario/Controllers/AbastecimientoInternoController.cs b/Capa_Usuario/Controllers/AbastecimientoInternoController.cs
+index 2372d03..ae4e617 100644
+--- a/Capa_Usuario/Controllers/AbastecimientoInternoController.cs
++++ b/Capa_Usuario/Controllers/AbastecimientoInternoController.cs
+@@ -2,9 +2,11 @@ using Capa_Datos;
+ using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
+ using Capa_Entidad.Almacen_ENT.Tablas;
+ using Capa_Entidad.Seguridad_ENT;
++using Capa_Entidad.TablasSql;
+ using Capa_Negocio.AbastecimientoInterno_NEG.Reportes;
+ using Capa_Negocio.AbastecimientoInterno_NEG.TablasExternas;
+ using Capa_Negocio.AbastecimientoInterno_NEG.TablasSql;
++using Capa_Negocio.DireccionTecnica_NEG.TablasSql;
+ using Capa_Usuario.Helpers;
+ using OfficeOpenXml;
+ using SpreadsheetLight;
+@@ -60,6 +62,12 @@ namespace Capa_Usuario.Controllers
+             var resultadoAcceso = VerificarPermiso(idOperation);
+             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+             {
++                var listaULM = _ubicacionesLotesN.ListarUbicaciones(new UbicacionesLotes_E { Almacen = "PICKING" });
++
++                ViewBag.UbicacionesLotes = listaULM.Select(u => u.CodigoUbicacion).Distinct().ToList();
++                ViewBag.ItemsCodes = listaULM.Select(u => u.ItemCode).Distinct().ToList();
++                ViewBag.ItemsNames = listaULM.Select(u => u.ItemName).Distinct().ToList();
++
+                 return View();
+             }
+             else
+@@ -67,6 +75,7 @@ namespace Capa_Usuario.Controllers
+                 return resultadoAcceso;
+             }
+         }
++        
+         [HttpGet]
+         public ActionResult ListarUbicacionesPicking(Ubicaciones_E filtros, int idOperation = 3100)
+         {
+@@ -78,20 +87,59 @@ namespace Capa_Usuario.Controllers
+                 var usuarioSesion = Session["UsuarioId"] as Usuario_E;
+                 if (usuarioSesion == null)
+                     return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
+-                var listaU = _ubicacionesN.ListarUbicaciones(filtros);
+-                var listaULM = _ubicacionesLotesN.ListarUbicaciones(new UbicacionesLotes_E { Almacen = "PICKING" });
++
++                // Inicializar con valores vacíos
++                string itemCode = string.Empty;
++                string itemName = string.Empty;
++
++                // Verificar si se envió alguna búsqueda por UbicacionesLotes
++                if (filtros.UbicacionesLotes != null && filtros.UbicacionesLotes.Any())
++                {
++                    var primerLote = filtros.UbicacionesLotes[0];
++
++                    if (!string.IsNullOrEmpty(primerLote.ItemCode))
++                        itemCode = primerLote.ItemCode;
++
++                    if (!string.IsNullOrEmpty(primerLote.ItemName))
++                        itemName = primerLote.ItemName;
++                }
++
++                var listaULM = _ubicacionesLotesN.ListarUbicaciones(new UbicacionesLotes_E
++                {
++                    Almacen = "PICKING",
++                    ItemCode = itemCode,
++                    ItemName = itemName
++                });
++
+                 // Agrupar listaULM por CodigoUbicacion
+                 var cantidadPorUbicacion = listaULM
+                     .GroupBy(u => u.CodigoUbicacion)
+                     .ToDictionary(
+                         g => g.Key,
+-                        g => g.Select(u => u.ItemCode).Distinct().Count() // Contar solo ItemCode distintos
++                        g => g.Select(u => u.ItemCode).Distinct().Count()
+                     );
++
++                // Obtener solo las ubicaciones donde se encontraron lotes (listaULM)
++                var codigosUbicacionesConProducto = listaULM
++                    .Select(x => x.CodigoUbicacion)
++                    .Distinct()
++                    .ToList();
++
++                // Filtrar ubicaciones completas solo por las que tienen productos encontrados
++                var listaU = _ubicacionesN.ListarUbicaciones(filtros)
++                    .Where(u => codigosUbicacionesConProducto.Contains(u.CodigoUbicacion))
++                    .ToList();
++
++                // Asignar cantidad de productos a cada ubicación
+                 foreach (var ubicacion in listaU)
+                 {
+-                    ubicacion.CantidadProductos = cantidadPorUbicacion.TryGetValue(ubicacion.CodigoUbicacion, out int cantidad) ? cantidad : 0;
++                    ubicacion.CantidadProductos = cantidadPorUbicacion.TryGetValue(ubicacion.CodigoUbicacion, out int cantidad)
++                        ? cantidad
++                        : 0;
+                 }
+-                ViewBag.UbicacionesLotes = listaULM;
++
++                ViewBag.ListaFiltradaUbicacionesLotes = listaULM;
++
+                 return PartialView("AbastecimientoInterno/_ListadoUbicacionesPicking", listaU);
+             }
+             else
+@@ -99,6 +147,7 @@ namespace Capa_Usuario.Controllers
+                 return resultadoAcceso;
+             }
+         }
++
+         public JsonResult RegistrarUbicacionPicking(Ubicaciones_E form, int idOperation = 3101)
+         {
+             //Por defecto Picking
+@@ -287,6 +336,12 @@ namespace Capa_Usuario.Controllers
+             var resultadoAcceso = VerificarPermiso(idOperation);
+             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+             {
++                var listaULM = _ubicacionesLotesN.ListarUbicaciones(new UbicacionesLotes_E { Almacen = "RESERVA" });
++
++                ViewBag.UbicacionesLotes = listaULM.Select(u => u.CodigoUbicacion).Distinct().ToList();
++                ViewBag.ItemsCodes = listaULM.Select(u => u.ItemCode).Distinct().ToList();
++                ViewBag.ItemsNames = listaULM.Select(u => u.ItemName).Distinct().ToList();
++
+                 return View();
+             }
+             else
+@@ -301,28 +356,63 @@ namespace Capa_Usuario.Controllers
+             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+             {
+                 filtros.Almacen = "RESERVA";
++
+                 var usuarioSesion = Session["UsuarioId"] as Usuario_E;
+                 if (usuarioSesion == null)
+-                    return Json(new
+-                    {
+-                        Titulo = "No se pudo completar la acción",
+-                        Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" },
+-                        Icono = "error"
+-                    }, JsonRequestBehavior.AllowGet);
+-                var listaU = _ubicacionesN.ListarUbicaciones(filtros);
+-                var listaULM = _ubicacionesLotesN.ListarUbicaciones(new UbicacionesLotes_E { Almacen = "RESERVA" });
++                    return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
++
++                // Inicializar con valores vacíos
++                string itemCode = string.Empty;
++                string itemName = string.Empty;
++
++                // Verificar si se envió alguna búsqueda por UbicacionesLotes
++                if (filtros.UbicacionesLotes != null && filtros.UbicacionesLotes.Any())
++                {
++                    var primerLote = filtros.UbicacionesLotes[0];
++
++                    if (!string.IsNullOrEmpty(primerLote.ItemCode))
++                        itemCode = primerLote.ItemCode;
++
++                    if (!string.IsNullOrEmpty(primerLote.ItemName))
++                        itemName = primerLote.ItemName;
++                }
++
++                var listaULM = _ubicacionesLotesN.ListarUbicaciones(new UbicacionesLotes_E
++                {
++                    Almacen = "RESERVA",
++                    ItemCode = itemCode,
++                    ItemName = itemName
++                });
++
+                 // Agrupar listaULM por CodigoUbicacion
+                 var cantidadPorUbicacion = listaULM
+                     .GroupBy(u => u.CodigoUbicacion)
+                     .ToDictionary(
+                         g => g.Key,
+-                        g => g.Select(u => u.ItemCode).Distinct().Count() // Contar solo ItemCode distintos
++                        g => g.Select(u => u.ItemCode).Distinct().Count()
+                     );
++
++                // Obtener solo las ubicaciones donde se encontraron lotes (listaULM)
++                var codigosUbicacionesConProducto = listaULM
++                    .Select(x => x.CodigoUbicacion)
++                    .Distinct()
++                    .ToList();
++
++                // Filtrar ubicaciones completas solo por las que tienen productos encontrados
++                var listaU = _ubicacionesN.ListarUbicaciones(filtros)
++                    .Where(u => codigosUbicacionesConProducto.Contains(u.CodigoUbicacion))
++                    .ToList();
++
++                // Asignar cantidad de productos a cada ubicación
+                 foreach (var ubicacion in listaU)
+                 {
+-                    ubicacion.CantidadProductos = cantidadPorUbicacion.TryGetValue(ubicacion.CodigoUbicacion, out int cantidad) ? cantidad : 0;
++                    ubicacion.CantidadProductos = cantidadPorUbicacion.TryGetValue(ubicacion.CodigoUbicacion, out int cantidad)
++                        ? cantidad
++                        : 0;
+                 }
+-                ViewBag.UbicacionesLotes = listaULM;
++
++                ViewBag.ListaFiltradaUbicacionesLotes = listaULM;
++
+                 return PartialView("AbastecimientoInterno/_ListadoUbicacionesReserva", listaU);
+             }
+             else
+diff --git a/Capa_Usuario/Views/AbastecimientoInterno/UbicacionesPicking.cshtml b/Capa_Usuario/Views/AbastecimientoInterno/UbicacionesPicking.cshtml
+index f91c9b5..6d8d23d 100644
+--- a/Capa_Usuario/Views/AbastecimientoInterno/UbicacionesPicking.cshtml
++++ b/Capa_Usuario/Views/AbastecimientoInterno/UbicacionesPicking.cshtml
+@@ -8,13 +8,13 @@
+         <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+             <li><a href="@Url.Action("Sesion", "Index")">Abastecimiento Interno</a></li>
+-            <li class="current"><em>Ubicaciones Picking</em></li>
++            <li class="current"><em>@ViewBag.Title</em></li>
+         </ol>
+     </nav>
+ </div>
+ 
+ <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
+-    <div class="row px-3 pt-3"><h3 class="titulo-seccion">UBICACIONES PICKING</h3></div>
++    <div class="row px-3 pt-3"><h3 class="titulo-seccion">@ViewBag.Title.ToUpper()</h3></div>
+ 
+     <div class="row px-3 py-3">
+         <div class="col-12">
+@@ -22,15 +22,15 @@
+                 <i class="bi bi-plus-lg"></i> Ubicación
+             </button>
+ 
+-            <button type="button" id="btn_stockMins" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Ir a Stocks Min.">
+-                <i class="bi bi-box-arrow-right"></i> Stocks Min.
+-            </button>
+-
+             <button type="button" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Exportar Excel de Ubicaciones Picking" onclick="exportarExcel()">
+                 <i class="bi bi-file-earmark-excel-fill"></i> Reporte
+             </button>
+ 
+-            <button type="button" class="btn btn-cobefar-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Cambio de ubicaciones" onclick="irACambioUbicaciones()">
++            <button type="button" id="btn_stockMins" class="btn btn-outline-info" data-bs-toggle="tooltip" data-bs-placement="top" title="Ir a Stocks Min.">
++                <i class="bi bi-box-arrow-right"></i> Stocks Min.
++            </button>
++
++            <button type="button" class="btn btn-outline-light" data-bs-toggle="tooltip" data-bs-placement="top" title="Cambio de ubicaciones" onclick="irACambioUbicaciones()">
+                 <i class="bi bi-box-arrow-up-right"></i> Cambio de ubicaciones
+             </button>
+         </div>
+@@ -38,6 +38,62 @@
+ </div>
+ 
+ <div class="bg-white px-3 py-3 align-items-center">
++    <div class="row justify-content-center">
++        <div class="col-lg-8 bg-light border border-success">
++            <form id="frm_filtros">
++                <div class="row bg-cobefar-3 p-2 text-white"><h5>Filtros</h5></div>
++                <div class="row mb-3 p-3">
++                    <div class="col-lg-2">
++                        <label for="FiltroItemCode" class="form-label fw-bold">Código artículo:</label>
++                        <select id="FiltroItemCode" name="UbicacionesLotes[0].ItemCode" class="cls-select">
++                            @if (ViewBag.ItemsCodes != null)
++                            {
++                                <option value="">Seleccione</option>
++                                foreach (var item in ViewBag.ItemsCodes)
++                                {
++                                    <option value="@item">@item</option>
++                                }
++                            }
++                        </select>
++                    </div>
++                    <div class="col-lg-5">
++                        <label for="FiltroItemName" class="form-label fw-bold">Descripción:</label>
++                        <select id="FiltroItemName" name="UbicacionesLotes[0].ItemName" class="cls-select">
++                            @if (ViewBag.ItemsNames != null)
++                            {
++                                <option value="">Seleccione</option>
++                                foreach (var item in ViewBag.ItemsNames)
++                                {
++                                    <option value="@item">@item</option>
++                                }
++                            }
++                        </select>
++
++                    </div>
++                    <div class="col-lg-3">
++                        <label for="FiltroCodigoUbicacion" class="form-label fw-bold">Código Ubicación:</label>
++                        <select id="FiltroCodigoUbicacion" name="CodigoUbicacion" class="cls-select">
++                            @if (ViewBag.UbicacionesLotes != null)
++                            {
++                                <option value="">Seleccione</option>
++                                foreach (var item in ViewBag.UbicacionesLotes)
++                                {
++                                    <option value="@item">@item</option>
++                                }
++                            }
++                        </select>
++                    </div>
++
++                    <div class="col-lg-2 d-flex align-items-end justify-content-center my-1">
++                        <button type="button" id="btn_aplicarFiltros" class="btn btn-sm btn-outline-cobefar-2" onclick="aplicarFiltros()">
++                            <i class="bi bi-check-lg"></i> Aplicar filtros
++                        </button>
++                    </div>
++                </div><!-- // ROW -->
++            </form>
++        </div>
++    </div>
++
+     <div class="row">
+         <div class="col-12">
+             <div id="div_listado" class="bg-white"></div>
+@@ -96,9 +152,15 @@
+     <script src="~/Scripts/AbastecimientoInterno/Ubicaciones.js?v=@DateTime.Now.Ticks" defer></script>
+     <script>
+ 		document.addEventListener('DOMContentLoaded', function () {
+-            $('#div_listado').load(`@Url.Action("ListarUbicacionesPicking")`).fadeIn("fast")
+-            limitarMaxCaracteres('CodigoUbicacion', 228)
+-            permitirValoresNumericosPositivos()
++            $('#div_listado').load(`@Url.Action("ListarUbicacionesPicking")`).fadeIn("fast");
++            limitarMaxCaracteres('CodigoUbicacion', 228);
++            permitirValoresNumericosPositivos();
++
++            tippy('#btn_aplicarFiltros', {
++                content: 'Aplicar filtros',
++                animation: 'fade',
++                placement: 'bottom-end'
++            });
+ 		});
+ 
+ 		document.querySelector('#btn_nuevaUbicacionPicking').addEventListener('click', function () {
+@@ -122,5 +184,29 @@
+         function irACambioUbicaciones() {
+             window.open('/AbastecimientoInterno/StockPicking', '_blank')
+         }
++
++        async function aplicarFiltros() {
++            const form = document.querySelector('#frm_filtros');
++            const formData = new FormData(form);
++            const queryParams = new URLSearchParams(formData).toString();
++
++            //console.log(queryParams)
++            //return;
++
++            try {
++                $('#div_listado')
++                    .load(`@Url.Action("ListarUbicacionesPicking")?${queryParams}`)
++                    .fadeIn("fast");
++            } catch (error) {
++                console.error('Error al aplicar filtros:', error);
++
++                Swal.fire({
++                    icon: 'error',
++                    title: 'Error al aplicar filtros',
++                    text: error.message || 'Ocurrió un error inesperado.',
++                });
++            }
++        }
++
+     </script>
+ }
+\ No newline at end of file
+diff --git a/Capa_Usuario/Views/AbastecimientoInterno/UbicacionesReserva.cshtml b/Capa_Usuario/Views/AbastecimientoInterno/UbicacionesReserva.cshtml
+index 80a89c3..fd477ae 100644
+--- a/Capa_Usuario/Views/AbastecimientoInterno/UbicacionesReserva.cshtml
++++ b/Capa_Usuario/Views/AbastecimientoInterno/UbicacionesReserva.cshtml
+@@ -25,17 +25,71 @@
+             <button type="button" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Exportar Excel de Ubicaciones Reserva" onclick="exportarExcel()">
+                 <i class="bi bi-file-earmark-excel-fill"></i> Reporte
+             </button>
+-        </div>
+ 
+-        <div class="col-sm-12 col-lg-4 d-flex justify-content-end">
+-            <button type="button" id="btn_traspasoPorUbicaciones" class="btn btn-cobefar-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Traspaso por ubicaciones">
+-                <i class="bi bi-box-arrow-up-right"></i> Traspaso por ubicaciones
++            <button type="button" id="btn_cambioUbicaciones" class="btn btn-outline-light">
++                <i class="bi bi-box-arrow-up-right"></i> Cambio de ubicaciones
+             </button>
+         </div>
+     </div>
+ </div>
+ 
+ <div class="bg-white px-3 py-3 align-items-center">
++    <div class="row justify-content-center">
++        <div class="col-lg-8 bg-light border border-success">
++            <form id="frm_filtros">
++                <div class="row bg-cobefar-3 p-2 text-white"><h5>Filtros</h5></div>
++                <div class="row mb-3 p-3">
++                    <div class="col-lg-2">
++                        <label for="FiltroItemCode" class="form-label fw-bold">C�digo art�culo:</label>
++                        <select id="FiltroItemCode" name="UbicacionesLotes[0].ItemCode" class="cls-select">
++                            @if (ViewBag.ItemsCodes != null)
++                            {
++                                <option value="">Seleccione</option>
++                                foreach (var item in ViewBag.ItemsCodes)
++                                {
++                                    <option value="@item">@item</option>
++                                }
++                            }
++                        </select>
++                    </div>
++                    <div class="col-lg-5">
++                        <label for="FiltroItemName" class="form-label fw-bold">Descripci�n:</label>
++                        <select id="FiltroItemName" name="UbicacionesLotes[0].ItemName" class="cls-select">
++                            @if (ViewBag.ItemsNames != null)
++                            {
++                                <option value="">Seleccione</option>
++                                foreach (var item in ViewBag.ItemsNames)
++                                {
++                                    <option value="@item">@item</option>
++                                }
++                            }
++                        </select>
++
++                    </div>
++                    <div class="col-lg-3">
++                        <label for="FiltroCodigoUbicacion" class="form-label fw-bold">C�digo Ubicaci�n:</label>
++                        <select id="FiltroCodigoUbicacion" name="CodigoUbicacion" class="cls-select">
++                            @if (ViewBag.UbicacionesLotes != null)
++                            {
++                                <option value="">Seleccione</option>
++                                foreach (var item in ViewBag.UbicacionesLotes)
++                                {
++                                    <option value="@item">@item</option>
++                                }
++                            }
++                        </select>
++                    </div>
++
++                    <div class="col-lg-2 d-flex align-items-end justify-content-center my-1">
++                        <button type="button" id="btn_aplicarFiltros" class="btn btn-sm btn-outline-cobefar-2" onclick="aplicarFiltros()">
++                            <i class="bi bi-check-lg"></i> Aplicar filtros
++                        </button>
++                    </div>
++                </div><!-- // ROW -->
++            </form>
++        </div>
++    </div>
++
+     <div class="row">
+         <div class="col-12">
+             <div id="div_listado" class="bg-white"></div>
+@@ -98,8 +152,20 @@
+     <script>
+ 		document.addEventListener('DOMContentLoaded', function () {
+ 			$('#div_listado').load(`@Url.Action("ListarUbicacionesReserva")`).fadeIn("fast")
+-			limitarMaxCaracteres('CodigoUbicacion', 228)
+-            permitirValoresNumericosPositivos()
++            limitarMaxCaracteres('CodigoUbicacion', 228);
++            permitirValoresNumericosPositivos();
++
++            tippy('#btn_aplicarFiltros', {
++                content: 'Aplicar filtros',
++                animation: 'fade',
++                placement: 'bottom-end'
++            });
++
++            tippy('#btn_cambioUbicaciones', {
++                content: 'Cambio de ubicaciones',
++                animation: 'fade',
++                placement: 'top'
++            });
+ 		});
+ 
+ 		document.querySelector('#btn_nuevaUbicacionReserva').addEventListener('click', function () {
+@@ -112,12 +178,35 @@
+ 			bootstrapModal.show()
+ 		})
+ 
+-        document.querySelector('#btn_traspasoPorUbicaciones').addEventListener('click', async function () {
++        document.querySelector('#btn_cambioUbicaciones').addEventListener('click', async function () {
+             window.open('@Url.Action("StockReserva", "AbastecimientoInterno")', '_blank');
+         });
+ 
+         function exportarExcel() {
+             $(location).attr('href', `/AbastecimientoInterno/ExportarExcelUbicacionesReserva`);
+         }
++
++        async function aplicarFiltros() {
++            const form = document.querySelector('#frm_filtros');
++            const formData = new FormData(form);
++            const queryParams = new URLSearchParams(formData).toString();
++
++            //console.log(queryParams)
++            //return;
++
++            try {
++                $('#div_listado')
++                    .load(`@Url.Action("ListarUbicacionesReserva")?${queryParams}`)
++                    .fadeIn("fast");
++            } catch (error) {
++                console.error('Error al aplicar filtros:', error);
++
++                Swal.fire({
++                    icon: 'error',
++                    title: 'Error al aplicar filtros',
++                    text: error.message || 'Ocurri� un error inesperado.',
++                });
++            }
++        }
+     </script>
+ }
+\ No newline at end of file
+diff --git a/Capa_Usuario/Views/Shared/AbastecimientoInterno/_ListadoUbicacionesPicking.cshtml b/Capa_Usuario/Views/Shared/AbastecimientoInterno/_ListadoUbicacionesPicking.cshtml
+index dece862..287b65d 100644
+--- a/Capa_Usuario/Views/Shared/AbastecimientoInterno/_ListadoUbicacionesPicking.cshtml
++++ b/Capa_Usuario/Views/Shared/AbastecimientoInterno/_ListadoUbicacionesPicking.cshtml
+@@ -1,6 +1,6 @@
+ ﻿@{
+     var jss = new System.Web.Script.Serialization.JavaScriptSerializer();
+-    var perInfoJson = jss.Serialize(ViewBag.UbicacionesLotes);
++    var perInfoJson = jss.Serialize(ViewBag.ListaFiltradaUbicacionesLotes);
+ }
+ 
+ <style>
+@@ -73,8 +73,9 @@
+         const configDataTable = {
+             "order": [],  // Desactiva ordenamiento automatico.
+             "ordering": true, // Iconos para ordenar todas las columnas de la tabla.
+-            "pageLength": 25,
+-            "lengthMenu": [25, 50, 75, 100],
++            searching: false, 
++            "pageLength": 15,
++            "lengthMenu": [15, 30, 45, 60],
+             "language": {
+                 "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                 "infoEmpty": "No hay registros disponibles",
+diff --git a/Capa_Usuario/Views/Shared/AbastecimientoInterno/_ListadoUbicacionesReserva.cshtml b/Capa_Usuario/Views/Shared/AbastecimientoInterno/_ListadoUbicacionesReserva.cshtml
+index ebc1194..bd6967e 100644
+--- a/Capa_Usuario/Views/Shared/AbastecimientoInterno/_ListadoUbicacionesReserva.cshtml
++++ b/Capa_Usuario/Views/Shared/AbastecimientoInterno/_ListadoUbicacionesReserva.cshtml
+@@ -1,7 +1,7 @@
+- @{
+- var jss = new System.Web.Script.Serialization.JavaScriptSerializer();
+- var perInfoJson = jss.Serialize(ViewBag.UbicacionesLotes);
+-  }
++@{
++    var jss = new System.Web.Script.Serialization.JavaScriptSerializer();
++    var perInfoJson = jss.Serialize(ViewBag.ListaFiltradaUbicacionesLotes);
++}
+ <style>
+     td.details-control {
+         cursor: pointer;
+@@ -72,8 +72,9 @@
+        const configDataTable = {
+         "order": [],  // Desactiva ordenamiento automatico.
+         "ordering": true, // Iconos para ordenar todas las columnas de la tabla.z
+-        "pageLength": 25,
+-        "lengthMenu": [25, 50, 75, 100],
++           searching: false,
++           "pageLength": 15,
++           "lengthMenu": [15, 30, 45, 60],
+         "language": {
+             "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+             "infoEmpty": "No hay registros disponibles",

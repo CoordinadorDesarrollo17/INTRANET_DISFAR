@@ -1,0 +1,206 @@
+@{
+    var jss = new System.Web.Script.Serialization.JavaScriptSerializer();
+    var perInfoJson = jss.Serialize(ViewBag.ListaFiltradaUbicacionesLotes);
+}
+<style>
+    td.details-control {
+        cursor: pointer;
+        text-align: center;
+    }
+
+    .subtable {
+        width: 100% !important;
+        table-layout: fixed; /* Asegura que las columnas se distribuyan bien */
+    }
+
+    .detalle-fila {
+        display: none; /* Se oculta correctamente para evitar parpadeos */
+    }
+</style>
+
+<table id="tbl_listaUbicacionesReserva" class="dt-container dt-empty-footer table table-sm table-hover font-14 w-100">
+    <thead class="thead-cobefar">
+        <tr>
+            <th style="width: 5%;"></th> <!-- Botón expandir -->
+            <th scope="col" class="text-center">Ubicación</th>
+            <th scope="col" class="text-center">Productos</th>
+            <th scope="col" class="text-center"></th> <!-- Columna vacía para alineación -->
+        </tr>
+    </thead>
+    <tbody class="text-dark">
+        @foreach (var item in Model)
+        {
+            var uniqueTableId = "tbl_productos_" + item.CodigoUbicacion; // Generar ID único
+
+            var tieneProductos = false;
+            if (item.CantidadProductos > 0)
+            {
+                tieneProductos = true;
+            }
+
+            <tr data-codigoubicacion="@item.CodigoUbicacion">
+                <td class="@if (tieneProductos) { Write("details-control"); }">
+                    @if (tieneProductos)
+                    {
+                        <button class="btn btn-sm btn-cobefar-2">
+                            <i class="bi bi-chevron-down"></i>
+                        </button>
+                    }
+                </td>
+                <td class="align-middle">
+                    <span class="ps-2">@item.CodigoUbicacion</span>
+                </td>
+                <td class="text-center align-middle">@item.CantidadProductos</td>
+                <td class="text-center align-middle">
+                    @if (!tieneProductos)
+                    {
+                        <button type="button" class="btn btn-danger" title="Eliminar ubicación" data-bs-toggle="tooltip" data-bs-placement="top" onclick="eliminarUbicacion('@item.CodigoUbicacion')">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    $(document).ready(function () {
+        $('[data-bs-toggle="tooltip"]').tooltip();
+        permitirValoresNumericosPositivos()
+
+       const configDataTable = {
+        "order": [],  // Desactiva ordenamiento automatico.
+        "ordering": true, // Iconos para ordenar todas las columnas de la tabla.z
+           searching: false,
+           "pageLength": 15,
+           "lengthMenu": [15, 30, 45, 60],
+        "language": {
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+            "infoEmpty": "No hay registros disponibles",
+            "infoFiltered": "(filtrado de _MAX_ registros totales)",
+            "lengthMenu": "Mostrar _MENU_ registros por página",
+            "search": "Buscar:",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "zeroRecords": "No se encontraron registros"
+        }
+        }
+
+        let table = $('#tbl_listaUbicacionesReserva').DataTable(configDataTable)
+        let ubicacionesLotes = JSON.parse("@Html.Raw(perInfoJson.Replace("\\", "\\\\").Replace("\"", "\\\""))");
+
+        $('#tbl_listaUbicacionesReserva tbody').off('click', 'td.details-control');
+        $('#tbl_listaUbicacionesReserva tbody').on('click', 'td.details-control', function () {
+        var tr = $(this).closest('tr');
+        var row = table.row(tr);
+        var codigoUbicacion = tr.data('codigoubicacion');
+        var button = $(this).find('button i');
+
+        if (row.child.isShown()) {
+            row.child.hide();			// Cerrar fila
+            button.removeClass('bi-chevron-up').addClass('bi-chevron-down');
+        } else {
+            let filtro =  ubicacionesLotes.filter(ul => {
+                //console.log(ul.CodigoUbicacion); // Asegura que el campo sea correcto
+                return ul.CodigoUbicacion === codigoUbicacion; // Filtra correctamente
+            });
+
+            row.child(cargarProductos(filtro)).show();
+            button.removeClass('bi-chevron-down').addClass('bi-chevron-up');
+            $('[data-bs-toggle="tooltip"]').tooltip();
+        }
+    });
+
+    });
+
+    function cargarProductos(datos) {
+        if (datos.length <= 0) {
+            return;
+        }
+
+        // Se verifica si el ItemCode ya existe en el array acumulador (acc), si no existe, se agrega el objeto a la nueva lista.
+        const nuevaLista = datos.reduce((acc, item) => {
+            if (!acc.some(obj => obj.ItemCode === item.ItemCode)) {
+                acc.push(item);
+            }
+            return acc;
+        }, []);
+
+        let tableHtml = `<div class="d-flex justify-content-center w-100"><table id="tbl_productos_${nuevaLista[0].CodigoUbicacion}" class="table table-sm table-bordered table-hover subtable w-75 tbl_productos">
+				<thead class="table-success">
+					<tr>
+						<th scope="col" class="text-center" style="width: 20%">Código de artículo</th>
+						<th scope="col" class="text-center" style="width: 60%">Descripción</th>
+						<th scope="col" class="text-center" style="width: 20%">Cantidad</th>
+					</tr>
+				</thead>
+				<tbody>`
+
+        nuevaLista.forEach(item => {
+            tableHtml += `<tr>
+					                    <td class="text-center">${item.ItemCode}</td>
+					                    <td class="text-center">${item.ItemName}</td>
+					                    <td class="text-center">${item.QuantityUnidadesCajas}</td>
+				                    </tr>`
+        });
+
+        tableHtml += '</tbody></table></div>'
+
+        return tableHtml
+    }
+
+    async function eliminarUbicacion(codigoUbicacion) {
+        if (!codigoUbicacion) {
+            console.warn('Error: codigoUbicacion no válido.');
+                return;
+            }
+
+        swalWithBootstrapButtons.fire({
+            title: '¿Está seguro(a) de ELIMINAR?',
+            html: 'La ubicación ' + codigoUbicacion + ' será eliminada de forma permanente.',
+            icon: 'warning',
+            allowEscapeKey: false,
+            showCancelButton: true,
+            confirmButtonText: "<i class='bi bi-check-lg'></i> Si, eliminar",
+            cancelButtonText: "<i class='bi bi-x-lg'></i> Cancelar",
+            reverseButtons: true
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch("/AbastecimientoInterno/EliminarUbicacionReserva", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ codigoUbicacion }) // Enviar los datos como JSON
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Error en la solicitud: ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+
+                    Swal.fire({
+                        title: data.Titulo,
+                        html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                            ? data.Mensajes.join('<br>')
+                            : data.Mensajes || "",
+                        icon: data.Icono,
+                        allowEscapeKey: false,
+                        allowOutsideClick: false,
+                        showConfirmButton: true
+                    }).then((result) => {
+                        if (result.isConfirmed && data.Icono == 'success') {
+                            window.location.reload()
+                        }
+                    })
+
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            }
+        });
+    }
+</script>

@@ -1,0 +1,45 @@
+@{
+    var tiposDocumento = new Dictionary<string, string>
+{
+        { "OPDN", "Entrada de Mercancía" },
+        { "OWTR", "Transferencia" }
+    };
+}
+
+<table id="tbl_listado" class="table table-bordered table-hover">
+    <thead class="thead-cobefar">
+        <tr>
+            <th scope="col" class="text-center small">DocNum</th>
+            <th scope="col" class="text-center small">Tipo de Documento</th>
+            <th scope="col" class="text-center small">Fecha Cont.</th>
+            <th scope="col" class="text-center small">RUC Proveedor</th>
+            <th scope="col" class="text-center small">Proveedor</th>
+            <th scope="col" class="text-center small">Guía</th>
+            <th scope="col" class="text-center small">Comprobante Vinc.</th>
+            <th scope="col" class="text-center small">Estado</th>
+            <th scope="col" class="text-center small"></th>
+        </tr>
+    </thead>
+    <tbody class="table-white">
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td scope="col" class="text-center small">@item.DocNum</td>
+                <td scope="col" class="text-center small">@tiposDocumento[item.TipoDocumento]</td>
+                <td scope="col" class="text-center small">@item.FechaContabilizacion</td>
+                <td scope="col" class="text-center small">@item.CardCode</td>
+                <td scope="col" class="text-start small"><span class="ps-2">@item.CardName</span></td>
+                <td scope="col" class="text-center small">@item.Guia</td>
+                <td scope="col" class="text-center small">@item.ComprobanteVinculado</td>
+                <td scope="col" class="text-center small">@item.Estado</td>
+                <td scope="col" class="text-center small">
+                    <button type="button" class="btn btn-sm btn-outline-dark btn_verDetalle" onclick="redireccionar(this)" data-ruta="/Transferencias/VerDetalle?Id=@item.Id"><i class="bi bi-search"></i></button>
+                    @if (item.Estado != "Liberado" || item.Estado != "Cancelado")
+                    {
+                        <button type="button" class="btn btn-sm btn-outline-danger cls-cancelarTransferencia" onclick="cancelarTransferencia(@item.Id)"><i class="bi bi-trash2-fill"></i></button>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

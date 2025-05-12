@@ -304,7 +304,7 @@ namespace Capa_Usuario.Controllers
             // Se valida si la lista de pagos es nula o vacía al principio del método para evitar iterar sobre ella si no hay pagos que procesar
             if (pagos == null || pagos.Count == 0)
             {
-                return Json(new { Mensaje = "No ha registrado pagos parciales." });
+                return Json(new { Titulo = "No ha registrado pagos parciales." });
             }
             var tc = otcN.ObtenerDatosTicketACuadrar(docEntryTicket, idOTC);
             //var pagosParciales = pagos.Select(p => new OPP_E

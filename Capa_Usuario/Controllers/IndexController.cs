@@ -1,6 +1,7 @@
 ﻿using Capa_Entidad;
 using Capa_Entidad.Seguridad_ENT;
 using Capa_Negocio;
+using Capa_Negocio.General_NEG.TablasSql;
 using Capa_Negocio.Seguridad_NEG;
 using Capa_Usuario.Helpers;
 using System;
@@ -14,6 +15,8 @@ namespace Capa_Usuario.Controllers
         Rol1_N rol1 = new Rol1_N();
         BaseDeDatos_N bd_N = new BaseDeDatos_N();
         Utilitarios_N utiN = new Utilitarios_N();
+        private readonly MenuSistema_N _menuSistema = new MenuSistema_N();
+
         private string ObtenerIPCliente()
         {
             string clientIp = Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
@@ -32,11 +35,47 @@ namespace Capa_Usuario.Controllers
             Usuario_E user = (Usuario_E)Session["UsuarioId"];
             if (user != null)
             {
-                ViewBag.AREAS = new Capa_Negocio.Seguridad_NEG.TablasSql.AREA_N().listarAreas();
-                ViewBag.AREASFC = new Capa_Negocio.Seguridad_NEG.TablasSql.REA1_N().listarAreasFc();
-                ViewBag.NOMBRE = $"{user.Nombres} {user.Apellidos}";
-                ViewBag.IDROL = user.IdRol;
-                return View();
+                var result  = _menuSistema.ListarMenuSistema();
+                var menu = result.Item2.Where(m => m.Nivel == 1 && m.SuperiorId == null)
+                    .OrderBy(m => m.Orden)
+                    .ToList();
+
+                foreach (var sm2 in menu)
+                {
+                    var menuN2 = result.Item2
+                        .Where(m => m.Nivel == 2 && m.SuperiorId == sm2.Id)
+                        .OrderBy(m => m.Orden)
+                        .ToList();
+
+                    sm2.SubMenus.AddRange(menuN2);
+
+                    foreach (var sm3 in menuN2)
+                    {
+                        var menuN3 = result.Item2
+                            .Where(m => m.Nivel == 3 && m.SuperiorId == sm3.Id)
+                            .OrderBy(m => m.Orden)
+                            .ToList();
+
+                        sm3.SubMenus.AddRange(menuN3);
+
+                        foreach (var sm4 in menuN3)
+                        {
+                            var menuN4 = result.Item2
+                                .Where(m => m.Nivel == 4 && m.SuperiorId == sm4.Id)
+                                .OrderBy(m => m.Orden)
+                                .ToList();
+
+                            sm4.SubMenus.AddRange(menuN4);
+                        }
+
+                    }
+                }
+
+                ViewBag.Mensaje = result.Item1;
+                ViewBag.NombreUsuario = $"{user.Nombres} {user.Apellidos}";
+                ViewBag.IdRol = user.IdRol;
+
+                return View(menu);
             }
             else
             {
@@ -54,6 +93,7 @@ namespace Capa_Usuario.Controllers
         }
         public ActionResult Login()
         {
+           
             return View();
         }
         [HttpPost]
@@ -61,15 +101,7 @@ namespace Capa_Usuario.Controllers
         {
             try
             {
-                //string direccionIP = ObtenerIPCliente();
-                //string[] segmentos = direccionIP != "::1" ? direccionIP.Split('.') : null;
-                //// Prohibido el acceso del segmento 3 y 9 por solicitud de María
-                //if (segmentos != null && new string[] { "3", "9" }.Contains(segmentos[2]))
-                //{
-                //    TempData["Mensaje"] = "Acceso restringido";
-                //    TempData.Keep("Mensaje");
-                //    return RedirectToAction("Index");
-                //}
+
                 Usuario_E usuario = new Usuario_N().buscarUsuarioSesion(user, pass);
                 if (usuario != null)
                 {
@@ -182,6 +214,45 @@ namespace Capa_Usuario.Controllers
             return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "Index", controllerDestino = "Caja", usuario = (Usuario_E)Session["UsuarioId"] });
         }
         ///****************************************************************************************/
+
+        ///******************************** M Ó D U L O  A B A S T E C I M I E N T O  I N T E R N O ********************************/
+        public ActionResult AI_UbicacionesPicking(int idOperation = 3100)
+        {
+            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "UbicacionesPicking", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
+        }
+
+        public ActionResult AI_UbicacionesReserva(int idOperation = 3200)
+        {
+            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "UbicacionesReserva", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
+        }
+        
+        public ActionResult AI_Transferencias(int idOperation = 3300)
+        {
+            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "Transferencias", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
+        }
+
+        public ActionResult AI_Requerimientos(int idOperation = 3400)
+        {
+            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "Requerimientos", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
+        }
+        public ActionResult AI_ApilarRequerimientos(int idOperation = 3500)
+        {
+            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "ApilarRequerimientos", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
+        }
+        public ActionResult AI_ApilarIngreso(int idOperation = 3502)
+        {
+            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "ApilarIngreso", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
+        }
+        public ActionResult AI_Reabastecimiento(int idOperation = 3600)
+        {
+            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "Reabastecimiento", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
+        }
+        public ActionResult AI_ControlStockPicking(int idOperation = 3700)
+        {
+            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "ControlStockPicking", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
+        }
+      
+        ///****************************************************************************************/
         /*********************************** M Ó D U L O   R E C U R S O S   H U M A N O S ***********************************/
         public ActionResult RRHH_AdministracionRRHH(int idOperation = 4000)
         {
@@ -252,6 +323,21 @@ namespace Capa_Usuario.Controllers
         {
             return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "RegistrosSanitarios", controllerDestino = "DireccionTecnica", usuario = (Usuario_E)Session["UsuarioId"] });
         }
+
+        public ActionResult DT_Internamientos(int idOperation = 6000)
+        {
+            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "Index", controllerDestino = "Internamientos", usuario = (Usuario_E)Session["UsuarioId"] });
+        }
+
+        public ActionResult DT_SolicitudesReversion_DOCS1(int idOperation = 6100)
+        {
+            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "Index", controllerDestino = "SolicitudesReversion_DOCS1", usuario = (Usuario_E)Session["UsuarioId"] });
+        }
+        public ActionResult ALM_Transferencias(int idOperation = 6200)
+        {
+            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "Index", controllerDestino = "Transferencias", usuario = (Usuario_E)Session["UsuarioId"] });
+        }
+
         public ActionResult ATC_Solicitud(int idOperation = 2700)
         {
             return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "GestionSolicitud", controllerDestino = "AtencionCliente", usuario = (Usuario_E)Session["UsuarioId"] });

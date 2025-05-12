@@ -1,0 +1,355 @@
+﻿@using System.Text
+@{
+    ViewBag.Title = "Control Stock Picking";
+    Layout = "~/Views/Shared/_DefaultLayout.cshtml";
+}
+
+<style>
+    td.details-control {
+        cursor: pointer;
+        text-align: center;
+    }
+
+    .subtable {
+        margin-left: 50px;
+    }
+
+    @@media screen and (max-width: 768px) {
+        header {
+            display: none;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            display: block;
+        }
+
+        table {
+            width: 100%;
+        }
+
+        th, td {
+            white-space: nowrap;
+        }
+
+        .modal-body form .form-select {
+            width: 100%;
+        }
+    }
+
+    @@media screen and (max-width: 576px) {
+        .btn {
+            font-size: 14px;
+            padding: 8px;
+        }
+
+            .btn i {
+                font-size: 16px;
+            }
+
+        .cd-breadcrumb {
+            font-size: 12px;
+        }
+
+        .titulo-seccion {
+            font-size: 18px;
+        }
+
+        .modal-dialog {
+            max-width: 90%;
+        }
+    }
+</style>
+
+
+<div class="pt-3">
+    <nav>
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li><a href="@Url.Action("Sesion", "Index")">Abastecimiento Interno</a></li>
+            <li class="current"><em>@ViewBag.Title</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
+    <div class="row px-3 pt-3"><h3 class="titulo-seccion">@ViewBag.Title.ToUpper()</h3></div>
+</div>
+
+<div class="bg-white px-3 py-3 align-items-center">
+    <div class="row mb-4">
+        <div class="col-12">
+            <button type="button" class="btn btn-warning" onclick="irARequerimientos()" title="Ir a Requerimientos" data-bs-toggle="tooltip" data-bs-placement="top">
+                <i class="bi bi-box-arrow-right"></i> Ir a Requerimientos
+            </button>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#filterModal"><i class="bi bi-filter-circle"></i> Filtrar</button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <table id="tbl_listaControlStockPicking" class="dt-container dt-empty-footer table table-sm table-hover font-14 w-100 table-responsive">
+                <thead class="thead-cobefar">
+                    <tr>
+                        <th scope="col" class="text-center" width="10%">Código de artículo</th>
+                        <th scope="col" class="text-center">Descripción</th>
+                        <th scope="col" class="text-center">Clasificación</th>
+                        <th scope="col" class="text-center" width="10%">Stock SAP</th>
+                        <th scope="col" class="text-center" width="10%">Stock Picking</th>
+                        <th scope="col" class="text-center">Stock Por Abastecer</th>
+                        <th scope="col" class="text-center" width="10%">100%</th>
+                        <th scope="col" class="text-center" width="10%"></th>
+                    </tr>
+                </thead>
+                <tbody class="text-dark">
+                    @foreach (var item in Model)
+                    {
+                        // Calcular el porcentaje de stock basado en StockMinAbastecimiento
+                        var porcentajeStock = item.StockMinAbastecimiento > 0
+                            ? (item.StockPicking * 100) / item.StockMinAbastecimiento
+                            : -1;
+
+                        // Definir color basado en la relación con el Stock Mínimo
+                        string colorClase = "";
+
+                        if (item.StockActualUnidades > item.StockMinAbastecimiento && item.StockPicking < item.StockMinAbastecimiento * 0.5m)
+                        {
+                            colorClase = "bg-danger"; //Rojo: Stock crítico
+                        }
+                        else if (item.StockActualUnidades < item.StockMinAbastecimiento)
+                        {
+                            colorClase = "bg-dark text-white";     // Cuando el stock sap no cubre el stock mín.
+                        }
+                        else if (item.StockPicking < item.StockMinAbastecimiento)
+                        {
+                            colorClase = "bg-warning text-dark"; // Amarillo: Cerca del mínimo
+                        }
+                        else
+                        {
+                            colorClase = "bg-success"; // Verde: Stock suficiente
+                        }
+
+                        decimal formatStockActualUnds = Math.Truncate(item.StockActualUnidades * 100) / 100;
+                        decimal formatStockPicking = Math.Truncate(item.StockPicking * 100) / 100;
+                        <tr>
+                            <td class="text-center align-middle">@item.ItemCode</td>
+                            <td class="align-middle"><span class="ps-2">@item.ItemName</span></td>
+                            <td class="text-center align-middle">@item.Clasificacion</td>
+                            <td class="text-center align-middle">@formatStockActualUnds.ToString("F2")</td>
+                            <td class="text-center align-middle">@formatStockPicking.ToString("F2")</td>
+                            <td class="text-center align-middle">@item.StockMinAbastecimiento</td>
+                            <td class="text-center align-middle">
+                                <div class="d-flex justify-content-center align-items-center">
+                                    <div class="progress" style="height: 25px; width: 120px;">
+                                        @{
+                                            string estiloBase = "progress-bar";
+                                            string texto = "";
+                                            string width = "100%";
+                                            int ariaValueNow = 0;
+
+                                            if (porcentajeStock > 0)
+                                            {
+                                                estiloBase += $" {colorClase}";
+                                                texto = $"{porcentajeStock.ToString("0.00")}%";
+                                                width = $"{(porcentajeStock > 100 ? 100 : porcentajeStock)}%";
+                                                ariaValueNow = (int)porcentajeStock;
+                                            }
+                                            else if (item.StockActualUnidades <= 0)
+                                            {
+                                                estiloBase += " bg-secondary text-white fw-bold";
+                                                texto = "SIN STOCK";
+                                            }
+                                            else if (item.StockPicking < 0)
+                                            {
+                                                estiloBase += " bg-secondary text-white fw-bold";
+                                                texto = "NEGATIVO";
+                                            }
+                                            else
+                                            {
+                                                estiloBase += " bg-secondary text-white fw-bold";
+                                                texto = "SIN PARAMETRO";
+                                            }
+                                        }
+
+                                        <div class="@estiloBase" role="progressbar"
+                                             style="width: @width"
+                                             aria-valuenow="@ariaValueNow"
+                                             data-stockmin="@item.StockMinAbastecimiento"
+                                             data-stockpicking="@item.StockPicking"
+                                             aria-valuemin="0"
+                                             aria-valuemax="100">
+                                            @texto
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex justify-content-center align-items-center ">
+                                    <button type="button" class="btn btn-sm btn-outline-cobefar-2" onclick="gestionarBusquedaUbicaciones('@item.ItemCode')" title="Ubicaciones" data-bs-toggle="tooltip" data-bs-placement="top">
+                                        <i class="bi bi-arrow-up-right"></i> Ubicaciones
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- Modal de Filtros -->
+<div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-headerModals">
+                <h5 class="modal-title text-light" id="filterModalLabel">Filtrar Productos</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="filterForm">
+                    <div class="mb-3">
+                        <div class="mb-3">
+                            <label for="itemCode" class="form-label">Codigo de Articulo</label>
+                            <input class="form-control border-success" id="itemCode" value="" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="itemName" class="form-label">Descripción</label>
+                            <input class="form-control border-success" id="itemName" value="" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="batchNum" class="form-label">Clasificación</label>
+                            <input class="form-control border-success" id="clasificacion" value="" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" onclick="aplicarFiltro()">Aplicar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal de Ubicaciones -->
+<div class="modal fade" id="modalBuscador" tabindex="-1" aria-labelledby="modalBuscadorLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-headerModals text-white">
+                <h5 class="modal-title" id="modalBuscadorLabel">VER UBICACIONES</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <div class="modal-body">
+                @*<input type="text" id="inputBusqueda" class="form-control mb-3" placeholder="Escriba para buscar...">*@
+                <div id="resultadosBusqueda" class="list-group" style="max-height: 250px; overflow-y: auto;"></div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        if (!$.fn.DataTable.isDataTable('tbl_listaControlStockPicking')) {
+            inicializarDataTable('tbl_listaControlStockPicking', 25);
+            aplicarFiltro();
+        }
+    });
+    let modalInstance = null;
+    let itemCodeActual = null;
+    async function gestionarBusquedaUbicaciones(itemCode) {
+        if (itemCodeActual !== itemCode) {
+            itemCodeActual = itemCode;
+            await cargarUbicaciones(itemCode);
+        }
+    }
+    async function cargarUbicaciones(itemCode) {
+        try {
+            const response = await fetch("/AbastecimientoInterno/ConsultarUbicacionesSkuPicking", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ itemCode })
+            });
+
+            if (!response.ok) throw new Error(`Error en la solicitud: ${response.statusText}`);
+            const dataResult = await response.json();
+            const ubicacionesLotes = dataResult.resultUbicacionesLotes;
+
+            // Verificar que haya ubicaciones
+            if (!ubicacionesLotes || ubicacionesLotes.length === 0) {
+                Swal.fire('', 'No se encontraron ubicaciones para este código.', 'warning');
+                return;
+            }
+
+            // Limpiar contenido anterior
+            const contenedor = document.getElementById('resultadosBusqueda');
+            contenedor.innerHTML = '';
+
+            // Llenar la lista de ubicaciones (solo el código de ubicación)
+            ubicacionesLotes.forEach((ubicacion) => {
+                const item = document.createElement('p');
+                item.className = 'list-group-item';
+                item.textContent = ubicacion.CodigoUbicacion;
+                contenedor.appendChild(item);
+            });
+
+            abrirModalBusquedaRapida();
+
+        } catch (error) {
+            console.error('Error al cargar ubicaciones:', error);
+        }
+    }
+    function abrirModalBusquedaRapida() {
+        if (!modalInstance) {
+            const modalElement = document.getElementById('modalBuscador');
+            modalInstance = new bootstrap.Modal(modalElement);
+        }
+
+        modalInstance.show();
+
+        const contenedor = document.getElementById('resultadosBusqueda');
+    }
+    function aplicarFiltro() {
+        const form = document.getElementById('filterForm');
+        const clasificacion = form.clasificacion.value.trim().toLowerCase();
+        const itemCode = form.itemCode.value.trim().toLowerCase();
+        const itemName = form.itemName.value.trim().toLowerCase();
+
+        const table = $('#tbl_listaControlStockPicking').DataTable();
+
+        $.fn.dataTable.ext.search.length = 0;
+
+        $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+            const constItemCode = data[0]?.trim().toLowerCase();
+            const consItemName = data[1]?.trim().toLowerCase();
+            const constClasificacion = data[2]?.trim().toLowerCase();
+
+            const coincideItemCode = itemCode === "" || constItemCode.includes(itemCode);
+            const coincideItemName = itemName === "" || consItemName.includes(itemName);
+            const coincideClasificacion = clasificacion === "" || constClasificacion.includes(clasificacion);
+
+            return coincideClasificacion && coincideItemCode && coincideItemName;
+        });
+
+        table.draw();
+
+        const modalElement = document.getElementById('filterModal');
+        if (modalElement) {
+            const modalInstance = bootstrap.Modal.getInstance(modalElement);
+            if (modalInstance) {
+                modalInstance.hide();
+            }
+        }
+
+    }
+
+    function irARequerimientos() {
+        window.open(
+            '/AbastecimientoInterno/Requerimientos?popup=true',
+            '_blank',
+            'width=1440,height=700,scrollbars=yes,resizable=yes'
+        )
+    }
+</script>
+

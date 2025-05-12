@@ -332,11 +332,11 @@ namespace Capa_Datos
                 catch (Exception ex)
                 {
                     RegistrarError(ex, "Usuario_D - CrearUsuario");
-                    mensaje = "Ocurrió un error al registrar usuario. Por favor, comunicarse con SISTEMAS.";
+                    mensaje = "Ocurrió un error al registrar usuario. Por favor, comuníquese con el área de Sistemas para más información.";
                 }
             }
 
-            return new Helper_E { DocEntry = docEntry, Mensaje= mensaje };
+            return new Helper_E { DocEntry = docEntry, Mensajes = new List<string> { mensaje } };
         }
         public string EditarUsuario(Usuario_E datos)
         {
@@ -363,7 +363,7 @@ namespace Capa_Datos
                 catch (Exception ex)
                 {
                     RegistrarError(ex, "Usuario_D - EditarUsuario");
-                    msj = "Ocurrió un error al registrar usuario. Por favor, comunicarse con SISTEMAS.";
+                    msj = "Ocurrió un error al registrar usuario. Por favor, comuníquese con el área de Sistemas para más información.";
                 }
             }
 

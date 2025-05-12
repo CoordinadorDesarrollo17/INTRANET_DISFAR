@@ -3,7 +3,6 @@ const porPagina = 12;
 var totalPaginas = Math.ceil(cantidadEmpleados / porPagina);                    // cantidadEmpleados es tipo 'var' y se encuentra en el index.cshtml
 var pagActual = 1;
 document.addEventListener('DOMContentLoaded', function () {
-
     generarBotonesPaginacion();
 
     document.querySelectorAll(".prev").forEach(prevBtn => {
