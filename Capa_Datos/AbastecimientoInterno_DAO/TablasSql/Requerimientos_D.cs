@@ -87,6 +87,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             return requerimiento;
         }
+
         public Helper_E AtenderReserva(int detalleId)
         {
             string mensaje, icono;
@@ -287,10 +288,41 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     };
                     cmd.Parameters.Add(detalleParam);
 
-                    cmd.ExecuteNonQuery();
-                    int idGenerado = (int)idGeneradoParam.Value;
+                    // Retorno de ids generados para cabecera y detalle
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        var detalles = new List<DetalleRequerimientos_E>();
+                        while (reader.Read())
+                        {
+                            var detalle = new DetalleRequerimientos_E
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                                RequerimientoId = reader.GetInt32(reader.GetOrdinal("RequerimientoId")),
+                                ItemCode = reader.GetString(reader.GetOrdinal("ItemCode")),
+                                ItemName = reader.GetString(reader.GetOrdinal("ItemName")),
+                                BatchNum = reader.GetString(reader.GetOrdinal("BatchNum")),
+                                CodigoUbicacionOrigen = reader.GetString(reader.GetOrdinal("CodigoUbicacionOrigen")),
+                                CodigoUbicacionDestino = reader.GetString(reader.GetOrdinal("CodigoUbicacionDestino")),
+                                UmAlm = reader.GetString(reader.GetOrdinal("UmAlm")),
+                                ValorUmAlm = reader.GetInt32(reader.GetOrdinal("ValorUmAlm")),
+                                QuantityMaster = reader.IsDBNull(reader.GetOrdinal("QuantityMaster")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("QuantityMaster")),
+                                QuantitySaldo = reader.IsDBNull(reader.GetOrdinal("QuantitySaldo")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("QuantitySaldo")),
+                                QuantityUnidadesCajas = reader.IsDBNull(reader.GetOrdinal("QuantityUnidadesCajas")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("QuantityUnidadesCajas")),
+                                AtendidoReserva = reader.GetInt32(reader.GetOrdinal("AtendidoReserva")),
+                                AtendidoPicking = reader.GetInt32(reader.GetOrdinal("AtendidoPicking"))
+                            };
+                            detalles.Add(detalle);
+                        }
+                        requerimiento.Detalle = detalles;
+                    }
 
+                    // Ahora es seguro acceder al valor del parámetro de salida
+                    if (idGeneradoParam.Value == DBNull.Value)
+                        throw new Exception("El procedimiento no devolvió un Id generado.");
+
+                    int idGenerado = (int)idGeneradoParam.Value;
                     requerimiento.Id = idGenerado;
+
                     return requerimiento;
                 }
             }

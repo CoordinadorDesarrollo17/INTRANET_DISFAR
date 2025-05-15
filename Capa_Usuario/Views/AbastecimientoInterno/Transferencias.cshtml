@@ -528,7 +528,7 @@
 									<button id="btn_chevron_${key.ItemCode}" class="btn btn-sm ${claseBotonArrow}"><i class="bi bi-chevron-down"></i></button>
 								</td>
 								<td class="text-center ${claseTransferido}">${key.ItemCode}</td>
-								<td class="${claseTransferido}"><span class="ps-2">${key.ItemName}<span></td>
+								<td class="${claseTransferido}"><span class="ps-2">${key.ItemName.replace(/"/g, '&quot;')}<span></td>
 								<td class="text-center ${claseTransferido}">${key.QuantityCajas}</td>
 								<td class="text-center ${claseTransferido}">
 									${key.Estado == "TRANSFERIDO"
@@ -639,7 +639,7 @@
 								<td class="text-center">
 									<input type="hidden" name="transferenciaPost.SolicitudesTrasladoId" value="${articulo.SolicitudesTrasladoId}" />
 									<input type="hidden" name="transferenciaPost.Detalle[].ItemCode" value="${articulo.ItemCode}" />
-									<input type="hidden" name="transferenciaPost.Detalle[].ItemName" value="${articulo.ItemName}" />
+									<input type="hidden" name="transferenciaPost.Detalle[].ItemName" value="${articulo.ItemName.replace(/"/g, '&quot;')}" />
 									<input type="hidden" name="transferenciaPost.Detalle[].BatchNum" value="${item.BatchNum}" />${item.BatchNum}
 								</td>
 								<td class="text-center">
@@ -723,7 +723,7 @@
 													<td class="text-center">
 														<input type="hidden" name="transferenciaPost.SolicitudesTrasladoId" value="${articulo.SolicitudesTrasladoId}" />
 														<input type="hidden" name="transferenciaPost.Detalle[].ItemCode" value="${articulo.ItemCode}" />
-														<input type="hidden" name="transferenciaPost.Detalle[].ItemName" value="${articulo.ItemName}" />
+														<input type="hidden" name="transferenciaPost.Detalle[].ItemName" value="${articulo.ItemName.replace(/"/g, '&quot;')}" />
 														<input type="hidden" name="transferenciaPost.Detalle[].BatchNum" value="${item.BatchNum}" />${item.BatchNum}
 													</td>
 													<td class="text-center">
@@ -799,7 +799,7 @@
 				key = traslado.Detalle[itemCode]
 				tbody += ` <tr>
 											<td scope="col"><input type="text" name="solicitudTraslado.Detalle[].ItemCode" value="${key.ItemCode}"></td>
-											<td scope="col"><input type="text" name="solicitudTraslado.Detalle[].ItemName" value="${key.ItemName}"></td>
+											<td scope="col"><input type="text" name="solicitudTraslado.Detalle[].ItemName" value="${key.ItemName.replace(/"/g, '&quot;')}"></td>
 											<td scope="col"><input type="text" name="solicitudTraslado.Detalle[].BatchNum" value="${key.BatchNum}"></td>
 											<td scope="col"><input type="text" name="solicitudTraslado.Detalle[].InDate" value="${key.InDate}"></td>
 											<td scope="col"><input type="text" name="solicitudTraslado.Detalle[].ExpDate" value="${key.ExpDate}"></td>

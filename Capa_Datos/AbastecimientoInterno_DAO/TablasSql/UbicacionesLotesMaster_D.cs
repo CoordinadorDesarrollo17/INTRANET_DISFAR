@@ -175,9 +175,10 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
             catch (Exception ex)
             {
                 LogHelper.RegistrarError(ex, "UbicacionesLotesMaster_D - Salida");
-                mensaje = "Ocurrió un error al registrar una salida en UbicacionesLotesMaster. Comuníquese con el área de Sistemas para más información.";
+                mensaje = ex.Message;
                 icono = "error";
-                throw new Exception("Error en Salida.", ex);
+
+                //throw new Exception("Error en Salida.", ex);
             }
 
             return new Helper_E { Mensajes = new List<string> { mensaje }, Icono = icono };
