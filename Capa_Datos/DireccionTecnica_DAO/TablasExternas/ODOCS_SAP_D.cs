@@ -20,7 +20,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasExternas
             ODOCS_E documento = null;
             Helper_E helper = new Helper_E();
 
-            string query = $"CALL {uti.schemaHana}\"COBE_BUSCAR_DOC_ENTRADA_MERCANCIA\"({p_DocNum}, '{p_NumAtCard}') ";
+            string query = $"CALL {uti.schemaHana}\"COBE_BUSCAR_DOCENTRADA_MERCANCIA_INTERNAMIENTO\"({p_DocNum}, '{p_NumAtCard}')";
 
             try
             {
@@ -73,12 +73,12 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasExternas
 
         }
 
-        public (Helper_E, ODOCS_E) BuscarDocTransferencia(string valorBusqueda)
+        public (Helper_E, ODOCS_E) BuscarDocSolicitudTraslado(decimal p_DocNum, string p_NumAtCard)
         {
             ODOCS_E documento = null;
             Helper_E helper = new Helper_E();
 
-            string query = $"CALL {uti.schemaHana}\"COBE_BUSCAR_DOC_TRANSFERENCIA\"({valorBusqueda}) ";
+            string query = $"CALL {uti.schemaHana}\"COBE_BUSCAR_DOCSOLICITUDTRASLADO_INTERNAMIENTO\"({p_DocNum}, '{p_NumAtCard}')";
 
             try
             {

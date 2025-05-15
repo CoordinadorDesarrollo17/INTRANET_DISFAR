@@ -84,7 +84,7 @@ namespace Capa_Usuario.Controllers
             if (usuarioSesion == null)
                 return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
 
-            if (string.IsNullOrWhiteSpace(tipoDocumento) || !new List<string> { "OPDN", "OWTR" }.Contains(tipoDocumento))
+            if (string.IsNullOrWhiteSpace(tipoDocumento) || !new List<string> { "OPDN", "OWTQ" }.Contains(tipoDocumento))
                 return Json(new { Titulo = "Error al buscar documento", Mensajes = new List<string> { "Tipo de documento inválido." }, Icono = "error" }, JsonRequestBehavior.AllowGet);
 
             if (docNum <= 0 && string.IsNullOrWhiteSpace(guia))
@@ -106,7 +106,7 @@ namespace Capa_Usuario.Controllers
                 Capa_Negocio.DireccionTecnica_NEG.TablasExternas.ODOCS_SAP_N _internamientoSap = new Capa_Negocio.DireccionTecnica_NEG.TablasExternas.ODOCS_SAP_N();
                 var result = tipoDocumento == "OPDN"
                     ? _internamientoSap.BuscarDocEntradaMercaderia(docNum, "")
-                    : _internamientoSap.BuscarDocTransferenciasXDocNum(docNum);
+                    : _internamientoSap.BuscarDocSolicitudTraslado(docNum, "");
 
                 return Json(new { result.Item1.Titulo, result.Item1.Mensajes, result.Item1.Icono, Documento = result.Item2 });
             }
@@ -120,7 +120,7 @@ namespace Capa_Usuario.Controllers
                 Capa_Negocio.DireccionTecnica_NEG.TablasExternas.ODOCS_SAP_N _internamientoSap = new Capa_Negocio.DireccionTecnica_NEG.TablasExternas.ODOCS_SAP_N();
                 var result2 = tipoDocumento == "OPDN"
                     ? _internamientoSap.BuscarDocEntradaMercaderia(0, guia)
-                    : _internamientoSap.BuscarDocTransferenciasXGuia(guia);
+                    : _internamientoSap.BuscarDocSolicitudTraslado(0, guia);
 
                 return Json(new { result2.Item1.Titulo, result2.Item1.Mensajes, result2.Item1.Icono, Documento = result2.Item2 });
             }

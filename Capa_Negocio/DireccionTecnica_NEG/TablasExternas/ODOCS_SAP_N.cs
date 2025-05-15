@@ -20,14 +20,9 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasExternas
             return _datos.BuscarDocEntradaMercaderia(Convert.ToDecimal(docNum), guia);
         }
 
-        public (Helper_E, ODOCS_E) BuscarDocTransferenciasXDocNum(long docNum)
+        public (Helper_E, ODOCS_E) BuscarDocSolicitudTraslado(long docNum, string guia)
         {
-            return _datos.BuscarDocTransferencia(docNum.ToString());
-        }
-
-        public (Helper_E, ODOCS_E) BuscarDocTransferenciasXGuia(string guia)
-        {
-            return _datos.BuscarDocTransferencia(guia);
+            return _datos.BuscarDocSolicitudTraslado(Convert.ToDecimal(docNum), guia);
         }
     }
 }
