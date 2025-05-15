@@ -8,13 +8,13 @@
         <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
             <li><a href="@Url.Action("Sesion", "Index")">Abastecimiento Interno</a></li>
-            <li class="current"><em>Ubicaciones Picking</em></li>
+            <li class="current"><em>@ViewBag.Title</em></li>
         </ol>
     </nav>
 </div>
 
 <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
-    <div class="row px-3 pt-3"><h3 class="titulo-seccion">UBICACIONES PICKING</h3></div>
+    <div class="row px-3 pt-3"><h3 class="titulo-seccion">@ViewBag.Title.ToUpper()</h3></div>
 
     <div class="row px-3 py-3">
         <div class="col-12">
@@ -22,15 +22,15 @@
                 <i class="bi bi-plus-lg"></i> Ubicación
             </button>
 
-            <button type="button" id="btn_stockMins" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Ir a Stocks Min.">
-                <i class="bi bi-box-arrow-right"></i> Stocks Min.
-            </button>
-
             <button type="button" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Exportar Excel de Ubicaciones Picking" onclick="exportarExcel()">
                 <i class="bi bi-file-earmark-excel-fill"></i> Reporte
             </button>
 
-            <button type="button" class="btn btn-cobefar-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Cambio de ubicaciones" onclick="irACambioUbicaciones()">
+            <button type="button" id="btn_stockMins" class="btn btn-outline-info" data-bs-toggle="tooltip" data-bs-placement="top" title="Ir a Stocks Min.">
+                <i class="bi bi-box-arrow-right"></i> Stocks Min.
+            </button>
+
+            <button type="button" class="btn btn-outline-light" data-bs-toggle="tooltip" data-bs-placement="top" title="Cambio de ubicaciones" onclick="irACambioUbicaciones()">
                 <i class="bi bi-box-arrow-up-right"></i> Cambio de ubicaciones
             </button>
         </div>
@@ -38,6 +38,62 @@
 </div>
 
 <div class="bg-white px-3 py-3 align-items-center">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 bg-light border border-success">
+            <form id="frm_filtros">
+                <div class="row bg-cobefar-3 p-2 text-white"><h5>Filtros</h5></div>
+                <div class="row mb-3 p-3">
+                    <div class="col-lg-2">
+                        <label for="FiltroItemCode" class="form-label fw-bold">Código artículo:</label>
+                        <select id="FiltroItemCode" name="UbicacionesLotes[0].ItemCode" class="cls-select">
+                            @if (ViewBag.ItemsCodes != null)
+                            {
+                                <option value="">Seleccione</option>
+                                foreach (var item in ViewBag.ItemsCodes)
+                                {
+                                    <option value="@item">@item</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-lg-5">
+                        <label for="FiltroItemName" class="form-label fw-bold">Descripción:</label>
+                        <select id="FiltroItemName" name="UbicacionesLotes[0].ItemName" class="cls-select">
+                            @if (ViewBag.ItemsNames != null)
+                            {
+                                <option value="">Seleccione</option>
+                                foreach (var item in ViewBag.ItemsNames)
+                                {
+                                    <option value="@item">@item</option>
+                                }
+                            }
+                        </select>
+
+                    </div>
+                    <div class="col-lg-3">
+                        <label for="FiltroCodigoUbicacion" class="form-label fw-bold">Código Ubicación:</label>
+                        <select id="FiltroCodigoUbicacion" name="CodigoUbicacion" class="cls-select">
+                            @if (ViewBag.UbicacionesLotes != null)
+                            {
+                                <option value="">Seleccione</option>
+                                foreach (var item in ViewBag.UbicacionesLotes)
+                                {
+                                    <option value="@item">@item</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-lg-2 d-flex align-items-end justify-content-center my-1">
+                        <button type="button" id="btn_aplicarFiltros" class="btn btn-sm btn-outline-cobefar-2" onclick="aplicarFiltros()">
+                            <i class="bi bi-check-lg"></i> Aplicar filtros
+                        </button>
+                    </div>
+                </div><!-- // ROW -->
+            </form>
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-12">
             <div id="div_listado" class="bg-white"></div>
@@ -96,9 +152,15 @@
     <script src="~/Scripts/AbastecimientoInterno/Ubicaciones.js?v=@DateTime.Now.Ticks" defer></script>
     <script>
 		document.addEventListener('DOMContentLoaded', function () {
-            $('#div_listado').load(`@Url.Action("ListarUbicacionesPicking")`).fadeIn("fast")
-            limitarMaxCaracteres('CodigoUbicacion', 228)
-            permitirValoresNumericosPositivos()
+            $('#div_listado').load(`@Url.Action("ListarUbicacionesPicking")`).fadeIn("fast");
+            limitarMaxCaracteres('CodigoUbicacion', 228);
+            permitirValoresNumericosPositivos();
+
+            tippy('#btn_aplicarFiltros', {
+                content: 'Aplicar filtros',
+                animation: 'fade',
+                placement: 'bottom-end'
+            });
 		});
 
 		document.querySelector('#btn_nuevaUbicacionPicking').addEventListener('click', function () {
@@ -122,5 +184,29 @@
         function irACambioUbicaciones() {
             window.open('/AbastecimientoInterno/StockPicking', '_blank')
         }
+
+        async function aplicarFiltros() {
+            const form = document.querySelector('#frm_filtros');
+            const formData = new FormData(form);
+            const queryParams = new URLSearchParams(formData).toString();
+
+            //console.log(queryParams)
+            //return;
+
+            try {
+                $('#div_listado')
+                    .load(`@Url.Action("ListarUbicacionesPicking")?${queryParams}`)
+                    .fadeIn("fast");
+            } catch (error) {
+                console.error('Error al aplicar filtros:', error);
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error al aplicar filtros',
+                    text: error.message || 'Ocurrió un error inesperado.',
+                });
+            }
+        }
+
     </script>
 }
