@@ -79,7 +79,7 @@
 
 <input type="hidden" id="cantidad_solicitada_acumulada" />
 
-<script src="~/Scripts/AbastecimientoInterno/ListadoArticulos.js?v=@DateTime.Now.Ticks" defer> </script>
+<script src="~/Scripts/AbastecimientoInterno/ListadoArticulos.js?v=@DateTime.Now.Ticks" defer></script>
 <script>
     inicializarDataTable('tbl_listaArticulosAbastPicking', '25')
 
@@ -97,7 +97,7 @@
         } else {
             let stockMasterRequerido = 0
             let stockSaliendoFaltante = Number(cantidadSolicitada) - Number(cantidadAcumulada)
-
+            
             if (stockSaliendoFaltante > 0) {
                 stockSaliendoFaltante = stockSaliendoFaltante - Number(stockSaldo)
                 let residuo = Number(stockSaliendoFaltante) % Number(valorUmAlm)
@@ -120,6 +120,7 @@
 
                 document.querySelector(`#${idStockMaster}`).value = stockMasterRequerido
                 stockSaliendo = (stockMasterRequerido * Number(valorUmAlm)) + Number(stockSaldo)
+                
                 cantidadAcumulada = Number(cantidadAcumulada) + Number(stockSaliendo);      // Reasignar explícitamente la cantidadAcumulada
                 input_cantSolicitadaAcumulada.value = Number(cantidadAcumulada) + Number(stockSaliendo)
 
@@ -156,12 +157,19 @@
             }
 
             // Calcular el stock saliendo
-            fila.querySelector('[data-campo="StockSaliendo"]').value = calcularStockSaliendo(
-                cantidadSolicitada.value, valorUmAlm, stockSaldo, stockMaster, stockTotalUnidades, idStockMaster, `Fila ${index + 1}`
-            );
+            var calculo = calcularStockSaliendo(cantidadSolicitada.value, valorUmAlm, stockSaldo, stockMaster, stockTotalUnidades, idStockMaster, `Fila ${index + 1}`);
+            fila.querySelector('[data-campo="StockSaliendo"]').value = Number(calculo);
+
+            let stockSolicitadoMaster = 0;
+            let stockSolicitadoSaldo = 0;
+
+            stockSolicitadoMaster = (stockMaster > 0) ? Math.floor(Number(calculo) / Number(valorUmAlm)) : 0;
+            fila.querySelector('[data-campo="StockSolicitadoMaster"]').value = stockSolicitadoMaster;
+
+            stockSolicitadoSaldo = (stockMaster > 0) ? Number(calculo) % Number(valorUmAlm) : calculo;
+            fila.querySelector('[data-campo="StockSolicitadoSaldo"]').value = stockSolicitadoSaldo;
         });
     }
-
 
     function guardarArticulosPicking() {
         const tablaOrigen = document.querySelector('#tbl_listaArticulosAbastPicking tbody');
@@ -202,7 +210,7 @@
             tbody += `<tr id="fila_${item.ItemCode}_${num}">
                                 <td scope="col" class="text-center"><input type="hidden" name="requerimiento.Detalle[].ItemCode" data-fila="fila_${item.ItemCode}_${num}" class="cls-itemCodes" value="${item.ItemCode}" /> ${item.ItemCode} </td>
                                 <td scope="col" class="text-center">
-                                    <input type="hidden" name="requerimiento.Detalle[].ItemName" value="${item.ItemName}" />${item.ItemName}
+                                    <input type="hidden" name="requerimiento.Detalle[].ItemName" value="${item.ItemName.replace(/"/g, '&quot;')}" />${item.ItemName}
                                 </td>
                                 <td scope="col" class="text-center">
                                     <input type="hidden" name="requerimiento.Detalle[].BatchNum" value="${item.BatchNum}" />${item.BatchNum}
