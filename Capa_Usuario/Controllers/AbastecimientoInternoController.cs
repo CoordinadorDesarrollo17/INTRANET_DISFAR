@@ -10,6 +10,7 @@ using Capa_Negocio.AbastecimientoInterno_NEG.TablasSql;
 using Capa_Negocio.DireccionTecnica_NEG.TablasSql;
 using Capa_Usuario.Helpers;
 using OfficeOpenXml;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 using SpreadsheetLight;
 using System;
 using System.Collections.Generic;
@@ -1560,7 +1561,7 @@ namespace Capa_Usuario.Controllers
 
                 if (transferenciaGet.Detalle?.Any(t => t.ItemCode == itemCode) == true)
                 {
-                    var detalleFiltrado = transferenciaGet.Detalle.Where(b => b.CodigoUbicacion == "RESERVA-UBI-SISTEMA" && b.Validado == 0).ToList();
+                    var detalleFiltrado = transferenciaGet.Detalle.Where(b => b.ItemCode == itemCode && b.CodigoUbicacion == "RESERVA-UBI-SISTEMA" && b.Validado == 0).ToList();
 
                     foreach (var det in detalleFiltrado)
                     {
@@ -1779,34 +1780,43 @@ namespace Capa_Usuario.Controllers
                                 // Apilamos automáticamente a SKUs que tiene como CodigoUbicacionDestino = "PICKING-UBI-SISTEMA" y los que faltan confirmar por el área
                                 if (requerimientoGet.Detalle != null && requerimientoGet.Detalle.Any())
                                 {
-                                    var detalleFiltrado = requerimientoGet.Detalle
-                                            .Where(b => b.CodigoUbicacionDestino == "PICKING-UBI-SISTEMA" && b.AtendidoPicking == 0).ToList();
-
-                                    foreach (var det in detalleFiltrado)
+                                    foreach (var det in requerimientoGet.Detalle)
                                     {
                                         var buscarDetReq = _requerimientosN
                                             .ObtenerRequerimiento(det.RequerimientoId, cn)
                                             .Detalle
                                             .First(d => d.Id == det.Id);
 
-                                        if (buscarDetReq != null && buscarDetReq.AtendidoReserva == 0)
+                                        if (buscarDetReq != null)
                                         {
-                                            var resultadoAtender = AtenderReservaRequerimiento(det);
-                                            if (resultadoAtender is JsonResult jsonResultado)
+                                            // Apilamiento automático solo cuando la ubicación origen sea: RESERVA-UBI-SISTEMA y aúno no ha sido apilado ni confirmado por picking
+                                            if (det.CodigoUbicacionOrigen == "RESERVA-UBI-SISTEMA" && buscarDetReq.AtendidoReserva == 0 && buscarDetReq.AtendidoPicking == 0)
                                             {
-                                                var data = jsonResultado.Data as dynamic;
-                                                if (data != null && data.Icono == "error")
-                                                    return Json(new { Titulo = "Error", Mensajes = new List<string> { $"{data.Mensajes[0]}" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
-                                            }
+                                                var resultadoAtender = AtenderReservaRequerimiento(det);
+                                                if (resultadoAtender is JsonResult jsonResultado)
+                                                {
+                                                    var data = jsonResultado.Data as dynamic;
+                                                    if (data != null && data.Icono == "error")
+                                                        return Json(new { Titulo = "Error", Mensajes = new List<string> { $"{data.Mensajes[0]}" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
+                                                }
 
-                                            var resultadoReabastecer = AtenderPickingRequerimiento(det.Id, requerimientoGet.Id, det.ItemCode, det.ItemName);
-                                            if (resultadoReabastecer is JsonResult jsonResultado2)
-                                            {
-                                                var data2 = jsonResultado2.Data as dynamic;
-                                                if (data2 != null && data2.Icono == "error")
-                                                    return Json(new { Titulo = "Error", Mensajes = new List<string> { $"{data2.Mensajes[0]}" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
-                                            }
+                                                // Reabastecimiento automático solo cuando la ubicación destino sea: PICKING-UBI-SISTEMA
+                                                if (det.CodigoUbicacionDestino == "PICKING-UBI-SISTEMA")
+                                                {
+                                                    var resultadoReabastecer = AtenderPickingRequerimiento(det.Id, requerimientoGet.Id, det.ItemCode, det.ItemName);
+                                                    if (resultadoReabastecer is JsonResult jsonResultado2)
+                                                    {
+                                                        var data2 = jsonResultado2.Data as dynamic;
+                                                        if (data2 != null && data2.Icono == "error")
+                                                            return Json(new { Titulo = "Error", Mensajes = new List<string> { $"{data2.Mensajes[0]}" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
+                                                    }
+                                                }
+                                            }                                            
                                         }
+                                        else
+                                        {
+                                            return Json(new { Titulo = "Error", Mensajes = new List<string> { "Verificar datos enviados." }, Icono = "error" }, JsonRequestBehavior.AllowGet);
+                                        }                                        
                                     }
                                 }
 

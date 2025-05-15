@@ -72,6 +72,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.Reportes
                 .ThenBy(n => n.StockPicking > 0 && n.StockPicking >= n.StockMinAbastecimiento)                  // Stock picking cumpliendo el 100% o más del stock mín. abast. (VERDE)
                 .ThenBy(n => n.StockPicking > 0 && n.StockPicking >= n.StockMinAbastecimiento * 0.5M)    // Stock picking por abastecer (>=50% AMARILLO)
                 .ThenBy(n => n.StockPicking > 0 && n.StockPicking < n.StockMinAbastecimiento * 0.5M)      // Stock picking crítico por abastecer (<50% ROJO)
+                .ThenBy(n => n.StockMinAbastecimiento > 0 ? ((decimal)n.StockPicking * 100 / n.StockMinAbastecimiento) : decimal.MaxValue)       // Finalmente, ordena por % de abastecimiento ASC, pero evita división por cero
                 .ToList();
         }
 
