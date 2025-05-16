@@ -147,7 +147,7 @@
                                             string width = "100%";
                                             int ariaValueNow = 0;
 
-                                            if (porcentajeStock > 0)
+                                            if (porcentajeStock > 0 || porcentajeStock == 0)
                                             {
                                                 estiloBase += $" {colorClase}";
                                                 texto = $"{porcentajeStock.ToString("0.00")}%";
