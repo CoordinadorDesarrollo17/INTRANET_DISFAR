@@ -116,7 +116,7 @@
                         {
                             colorClase = "bg-danger"; //Rojo: Stock crítico
                         }
-                        else if (item.StockActualUnidades < item.StockMinAbastecimiento)
+                        else if (item.StockActualUnidades == item.StockPicking || item.StockActualUnidades < item.StockMinAbastecimiento)
                         {
                             colorClase = "bg-dark text-white";     // Cuando el stock sap no cubre el stock mín.
                         }
