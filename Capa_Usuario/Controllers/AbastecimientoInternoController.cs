@@ -2037,7 +2037,7 @@ namespace Capa_Usuario.Controllers
                             if (requerimiento == null || requerimiento.Detalle == null || !requerimiento.Detalle.Any())
                                 return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Se atendió el SKU correctamente y se generó kardex por salida." }, Icono = "error" });
 
-                            var requerimientoPorSku = requerimiento.Detalle.Where(x => x.ItemCode == detalleRequerimiento.ItemCode).ToList();
+                            var requerimientoPorSku = requerimiento.Detalle.Where(x => x.Id == detalleRequerimiento.Id && x.ItemCode == detalleRequerimiento.ItemCode && x.AtendidoReserva == 0).ToList();
                             int cantidadGlobal = requerimientoPorSku.Sum(x => x.QuantityUnidadesCajas ?? 0);
 
                             // Actualizar a AtendidoReserva 1 solo la linea de detalle enviada
@@ -2045,36 +2045,27 @@ namespace Capa_Usuario.Controllers
                             if (resultAtender.Icono.Equals("error"))
                                 return Json(new { Titulo = "No se pudo completar la acción", resultAtender.Mensajes, Icono = resultAtender.Icono });
 
-                            // Si tiene más de un elemento con el mismo itemCode, agrupamos
-                            if (requerimientoPorSku != null && requerimientoPorSku.Count > 1)
-                            {
-                                requerimientoPorSku.GroupBy(x => new { x.ItemCode })
-                                    .Select(g => new DetalleRequerimientos_E
-                                    {
-                                        ItemCode = g.Key.ItemCode,
-                                        CodigoUbicacionDestino = g.First().CodigoUbicacionDestino,
-                                        QuantityMaster = g.Sum(x => x.QuantityMaster ?? 0),
-                                        QuantitySaldo = g.Sum(x => x.QuantitySaldo ?? 0),
-                                        QuantityUnidadesCajas = g.Sum(x => x.QuantityUnidadesCajas ?? 0),
-                                        ItemName = g.First().ItemName,
-                                        UmAlm = g.First().UmAlm,
-                                        ValorUmAlm = g.First().ValorUmAlm,
-                                        BatchNum = g.First().BatchNum,
-                                        CodigoUbicacionOrigen = g.First().CodigoUbicacionOrigen,
-                                        AtendidoReserva = g.First().AtendidoReserva,
-                                        AtendidoPicking = g.First().AtendidoPicking,
-                                        RequerimientoId = g.First().RequerimientoId
-                                    });
-                            }
-
-                            // Solo para los SKUs que faltan atender
-                            if (!requerimientoPorSku.Any(req => req.AtendidoReserva == 1))
-                            {
-                                // Registrar Kardex Salida
-                                var resultKardex = _kardexAbastecimientoN.InsertarTransaccionSalidaKardex(detalleRequerimiento.ItemCode, detalleRequerimiento.ItemName, cantidadGlobal, operarioRegistra, detalleRequerimiento.RequerimientoId, cn);
-                                if (resultKardex.Icono.Equals("error"))
-                                    return Json(new { Titulo = "No se pudo completar la acción", resultKardex.Mensajes, Icono = resultKardex.Icono });
-                            }
+                            //// Si tiene más de un elemento con el mismo itemCode, agrupamos
+                            //if (requerimientoPorSku != null && requerimientoPorSku.Count > 1)
+                            //{
+                            //    requerimientoPorSku.GroupBy(x => new { x.ItemCode })
+                            //        .Select(g => new DetalleRequerimientos_E
+                            //        {
+                            //            ItemCode = g.Key.ItemCode,
+                            //            CodigoUbicacionDestino = g.First().CodigoUbicacionDestino,
+                            //            QuantityMaster = g.Sum(x => x.QuantityMaster ?? 0),
+                            //            QuantitySaldo = g.Sum(x => x.QuantitySaldo ?? 0),
+                            //            QuantityUnidadesCajas = g.Sum(x => x.QuantityUnidadesCajas ?? 0),
+                            //            ItemName = g.First().ItemName,
+                            //            UmAlm = g.First().UmAlm,
+                            //            ValorUmAlm = g.First().ValorUmAlm,
+                            //            BatchNum = g.First().BatchNum,
+                            //            CodigoUbicacionOrigen = g.First().CodigoUbicacionOrigen,
+                            //            AtendidoReserva = g.First().AtendidoReserva,
+                            //            AtendidoPicking = g.First().AtendidoPicking,
+                            //            RequerimientoId = g.First().RequerimientoId
+                            //        });
+                            //}
 
                             // Actualizar Ubicaciones Lotes Master
                             var resultUbicacionesLotesMaster = _ubicacionesLotesMasterN.Salida(requerimientoPorSku, cn);
@@ -2085,6 +2076,11 @@ namespace Capa_Usuario.Controllers
                             var resultUbicacionesLotes = _ubicacionesLotesN.Salida(requerimientoPorSku, cn);
                             if (resultUbicacionesLotes.Icono.Equals("error"))
                                 return Json(new { Titulo = "No se pudo completar la acción", resultUbicacionesLotes.Mensajes, Icono = resultUbicacionesLotes.Icono });
+
+                            // Registrar Kardex Salida
+                            var resultKardex = _kardexAbastecimientoN.InsertarTransaccionSalidaKardex(detalleRequerimiento.ItemCode, detalleRequerimiento.ItemName, cantidadGlobal, operarioRegistra, detalleRequerimiento.RequerimientoId, cn);
+                            if (resultKardex.Icono.Equals("error"))
+                                return Json(new { Titulo = "No se pudo completar la acción", resultKardex.Mensajes, Icono = resultKardex.Icono });
 
                             // Confirmar transacción
                             scope.Complete();
