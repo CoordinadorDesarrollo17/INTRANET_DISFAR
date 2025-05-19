@@ -15,14 +15,14 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasExternas
     {
         private readonly ODOCS_SAP_D _datos = new ODOCS_SAP_D();
 
-        public (Helper_E, ODOCS_E) BuscarDocEntradaMercaderia(long docNum)
+        public (Helper_E, ODOCS_E) BuscarDocEntradaMercaderia(long docNum, string guia)
         {
-            return _datos.BuscarDocEntradaMercaderia(docNum);
+            return _datos.BuscarDocEntradaMercaderia(Convert.ToDecimal(docNum), guia);
         }
 
-        public (Helper_E, ODOCS_E) BuscarDocTransferencias(long docNum)
+        public (Helper_E, ODOCS_E) BuscarDocSolicitudTraslado(long docNum, string guia)
         {
-            return _datos.BuscarDocTransferencia(docNum);
+            return _datos.BuscarDocSolicitudTraslado(Convert.ToDecimal(docNum), guia);
         }
     }
 }
