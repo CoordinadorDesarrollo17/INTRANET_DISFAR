@@ -5,7 +5,7 @@
     var tiposDocumento = new Dictionary<string, string>
 {
         { "OPDN", "Entrada de Mercancía" },
-        { "OWTR", "Transferencia" }
+        { "OWTQ", "Solicitudes de Traslado" }
     };
 }
 
@@ -86,9 +86,9 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" tabindex="-1"></button>
             </div>
 
-            <div class="modal-body bg-blancoHumo">
-                <div id="div_modalBody" class="container pb-0">
-                    <form id="frm_filtros">
+            <form id="frm_filtros">
+                <div class="modal-body bg-blancoHumo">
+                    <div id="div_modalBody" class="container pb-0">
                         <div class="row mb-3">
                             <div class="col-lg-3">
                                 <label for="DocNum" class="form-label fw-bold">DocNum:</label>
@@ -96,13 +96,33 @@
                             </div>
                             <div class="col-lg-3">
                                 <label for="TipoDocumento" class="form-label fw-bold">Tipo de Documento:</label>
-                                <input id="TipoDocumento" name="TipoDocumento" class="form-control " type="text" autocomplete="off" />
+                                <select id="TipoDocumento" name="TipoDocumento" class="form-select">
+                                    <option value="">Seleccione</option>
+                                    <option value="OPDN">Entrada de Mercancías</option>
+                                    <option value="OWTQ">Solicitudes de Traslado</option>
+                                </select>
                             </div>
+                            <div class="col-lg-3">
+                                <label for="Area" class="form-label fw-bold">Área:</label>
+                                <select id="Area" name="Area" class="cls-select">
+                                    <option value="">Todos</option>
+                                    <option value="Aprobados">Aprobados</option>
+                                    <option value="Baja">Baja</option>
+                                    <option value="Devolucion">Devolución</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-3">
+                                <label for="FechaContabilizacion" class="form-label fw-bold">Fecha Cont.:</label>
+                                <input id="FechaContabilizacion" name="FechaContabilizacion" class="form-control " type="date" autocomplete="off" />
+                            </div>
+                        </div><!-- // ROW -->
+
+                        <div class="row mb-3">
                             <div class="col-lg-3">
                                 <label for="CardCode" class="form-label fw-bold">RUC Proveedor:</label>
                                 <input id="CardCode" name="CardCode" class="form-control cls-num" type="text" autocomplete="off" />
                             </div>
-                            <div class="col-lg-3">
+                            <div class="col-lg-6">
                                 <label for="CardName" class="form-label fw-bold">Proveedor:</label>
                                 <select id="CardName" name="CardName" class="cls-select">
                                     <option value="">Seleccione</option>
@@ -111,17 +131,6 @@
                                         <option value="@item.CardName">@item.CardName</option>
                                     }
                                 </select>
-                            </div>
-                        </div><!-- // ROW -->
-
-                        <div class="row">
-                            <div class="col-lg-3">
-                                <label for="Guia" class="form-label fw-bold">Guía:</label>
-                                <input id="Guia" name="Guia" class="form-control " type="text" autocomplete="off" />
-                            </div>
-                            <div class="col-lg-3">
-                                <label for="ComprobanteVinculado" class="form-label fw-bold">Comprobante Vinculado:</label>
-                                <input id="ComprobanteVinculado" name="ComprobanteVinculado" class="form-control" type="text" autocomplete="off" />
                             </div>
                             <div class="col-lg-3">
                                 <label for="Estado" class="form-label fw-bold">Estado:</label>
@@ -133,25 +142,31 @@
                                     <option value="Cancelado">Cancelado</option>
                                 </select>
                             </div>
-                            <div class="col-lg-3">
-                                <label for="FechaContabilizacion" class="form-label fw-bold">Fecha Cont.:</label>
-                                <input id="FechaContabilizacion" name="FechaContabilizacion" class="form-control " type="date" autocomplete="off" />
-                            </div>
                         </div><!-- // ROW -->
-                    </form>
+                        <div class="row">
+                            <div class="col-lg-3">
+                                <label for="Guia" class="form-label fw-bold">Guía:</label>
+                                <input id="Guia" name="Guia" class="form-control " type="text" autocomplete="off" />
+                            </div>
+                            <div class="col-lg-3">
+                                <label for="ComprobanteVinculado" class="form-label fw-bold">Comprobante Vinculado:</label>
+                                <input id="ComprobanteVinculado" name="ComprobanteVinculado" class="form-control" type="text" autocomplete="off" />
+                            </div>                                                      
+                        </div><!-- // ROW -->
+                    </div>                    
                 </div>
-            </div>
+        </form>
 
-            <div class="modal-footer">
-                <button type="button" id="btn_cerrarModal" class="btn btn-outline-secondary" data-bs-dismiss="modal" data-bs-toggle="tooltip">
-                    <i class="bi bi-x-lg"></i> Cerrar
-                </button>
-                <button type="button" id="btn_aplicarFiltros" class="btn btn-cobefar-2" onclick="aplicarFiltros()">
-                    <i class="bi bi-check-lg"></i> Aplicar filtros
-                </button>
-            </div>
+        <div class="modal-footer">
+            <button type="button" id="btn_cerrarModal" class="btn btn-outline-secondary" data-bs-dismiss="modal" data-bs-toggle="tooltip">
+                <i class="bi bi-x-lg"></i> Cerrar
+            </button>
+            <button type="button" id="btn_aplicarFiltros" class="btn btn-cobefar-2" onclick="aplicarFiltros()">
+                <i class="bi bi-check-lg"></i> Aplicar filtros
+            </button>
         </div>
     </div>
+</div>
 </div>
 
 <div class="modal fade" id="modalReporte" tabindex="-1" aria-labelledby="modalLabel2" aria-hidden="true">
@@ -159,16 +174,45 @@
         <div class="modal-content">
             <div class="modal-header text-white bg-headerModals">
                 <h5 class="modal-title" id="modalLabel2">Exportar Reporte</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" tabindex="-1"></button>
             </div>
 
             <div class="modal-body bg-blancoHumo">
                 <div id="div_modalBody" class="container pb-0">
                     <form id="frm_exportarReporte">
+                        <div class="row mb-4">
+                            <div class="col-lg-6">
+                                <label for="RptArea" class="form-label fw-bold">Área:</label>
+                                <select id="RptArea" name="RptArea" class="cls-select">
+                                    <option value="">Todos</option>
+                                    <option value="Aprobados">Aprobados</option>
+                                    <option value="Baja">Baja</option>
+                                    <option value="Devolucion">Devolución</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-lg-12">
+                                <label for="RptProveedor" class="form-label fw-bold">Proveedor:</label>
+                                <select id="RptProveedor" name="RptProveedor" class="cls-select">
+                                    <option value="">Seleccione</option>
+                                    @foreach (var item in ViewBag.ListaProveedores)
+                                    {
+                                        <option value="@item.CardCode">@item.CardName</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
                         <div class="row">
                             <div class="col-lg-6">
-                                <label for="FechaContabilizacion2" class="form-label fw-bold">Fecha Cont.:</label>
-                                <input id="FechaContabilizacion2" name="FechaContabilizacion" class="form-control " type="date" autocomplete="off" />
+                                <label for="RptFechaInicioContabilizacion" class="form-label fw-bold">Fecha Inicio Contab.:</label>
+                                <input id="RptFechaInicioContabilizacion" name="RptFechaInicioContabilizacion" class="form-control " type="date" autocomplete="off" />
+                            </div>
+
+                            <div class="col-lg-6">
+                                <label for="RptFechaFinContabilizacion" class="form-label fw-bold">Fecha Fin Contab.:</label>
+                                <input id="RptFechaFinContabilizacion" name="RptFechaFinContabilizacion" class="form-control " type="date" autocomplete="off" />
                             </div>
                         </div><!-- // ROW -->
                     </form>
@@ -372,11 +416,17 @@
             const formData = new FormData(form);
             const payload = Object.fromEntries(formData.entries());
 
-            // Validar que FechaContabilizacion no esté vacío
-            if (!payload.FechaContabilizacion || payload.FechaContabilizacion.trim() === '') {
-                Swal.fire('Debes ingresar una Fecha de Contabilización.');
+            // Validación obligatoria para el rango de fechas FechaContabilizacion
+            if (
+                (!payload.RptFechaInicioContabilizacion || payload.RptFechaInicioContabilizacion.trim() === '')
+                && (!payload.RptFechaFinContabilizacion || payload.RptFechaFinContabilizacion.trim() === '')
+            ) {
+                Swal.fire('Debes ingresar un rango de fechas de contabilización.');
                 return;
             }
+
+            //console.log(payload)
+            //return;
 
             const queryString = new URLSearchParams(payload).toString();
             window.location.href = `/Transferencias/DescargarExcelTransferencias?${queryString}`;
