@@ -175,7 +175,7 @@
                                             <input type="hidden" name="Detalle[${key}].FechaVencimiento" value="${item.FechaVencimiento}">${item.FechaVencimiento}
                                         </td>
                                         <td class="text-center text-uppercase small">
-                                            <input type="hidden" name="Detalle[${key}].RegistroSanitario" value="${item.RegistroSanitario}">${item.RegistroSanitario}
+                                            <input type="hidden" name="Detalle[${key}].RegistroSanitario" data-identificador="${correlativo}" value="${item.RegistroSanitario}">${item.RegistroSanitario}
                                         </td>
                                         <td class="text-start text-uppercase small">
                                             <input type="hidden" name="Detalle[${key}].Fabricante" value="${item.Fabricante}">${item.Fabricante}
@@ -234,7 +234,7 @@
                                                                 </div>
                                                             </div>
                                                             <div class="col-lg-3">
-                                                            <!-- Protocolo -->
+                                                                <!-- Protocolo -->
                                                                     <div class="row mb-3">
                                                                         <div class="col-auto">
                                                                         <label class="small form-label fw-bold">Protocolo:</label>
@@ -266,6 +266,23 @@
                                                                                 type="file" id="formFileET_${correlativo}" name="Detalle[${key}].ArchivoET" accept=".pdf" data-identificador="${correlativo}">
                                                                         </div>
                                                                     </div>
+
+                                                                     <!-- RS -->
+                                                                     <div class="row mb-3">
+                                                                         <div class="col-auto">
+                                                                         <label class="small form-label fw-bold">R.S.:</label>
+                                                                         </div>
+                                                                         <div class="col-auto">
+                                                                         <button type="button"
+                                                                                 class="btn btn-sm btn-outline-primary btn-descargar-archivo" data-base64="${item.DescargarArchivoRS}" data-tipo="rs" data-nombre="${item.RegistroSanitario}.pdf"
+                                                                                 ${item.DescargarArchivoRS == null ? "hidden" : ""}><i class="bi bi-download"></i>
+                                                                         </button>
+                                                                         </div>
+                                                                         <div class="col-auto">
+                                                                         <input class="form-control cls-archivos"
+                                                                                 type="file" id="formFileRS_${correlativo}" name="Detalle[${key}].ArchivoRS" accept=".pdf" data-identificador="${correlativo}">
+                                                                         </div>
+                                                                     </div>
 
                                                                     <!-- Organoléptico -->
                                                                     <div class="row mb-3">
@@ -338,7 +355,8 @@
                         // Elementos que deben ser ocultados (hidden)
                         [
                             `#formFileET_${correlativo}`,
-                            `#formFileProtocolo_${correlativo}`
+                            `#formFileProtocolo_${correlativo}`,
+                            `#formFileRS_${correlativo}`
                         ].forEach(selector => {
                             const el = document.querySelector(selector);
                             if (el) el.hidden = documentoCancelado || item.Liberado == 1 || item.Transferido == 1 || isPopup
@@ -495,7 +513,7 @@
 
             inputs.forEach(input => {
                 // Obtener una sola vez el botón asociado
-                console.log(input)
+                //console.log(input)
                 if (!btnLiberar)
                     btnLiberar = input.closest('tr')?.querySelector('.btn-liberar');
 
@@ -521,6 +539,7 @@
             // Extraer los valores del dataset
             let base64Protocolo = "";
             let base64ET = "";
+            let base64RS = "";
 
             btnsDescarga.forEach(btn => {
                 const tipo = btn.getAttribute('data-tipo') || "";
@@ -530,10 +549,10 @@
                     base64Protocolo = base64;
                 } else if (tipo.includes('et')) {
                     base64ET = base64;
-                }
+                } 
             });
 
-            // Validar archivos: al menos uno debe estar presente
+            // Validar archivos: al menos uno debe estar presente -- RS: Opcional
             if (!filaSeleccionada["ArchivoProtocolo"] && !filaSeleccionada["ArchivoET"] && !base64Protocolo && !base64ET) {
                 generarAlerta('Advertencia', "Debe adjuntar al menos el archivo Protocolo o ET.", 'warning');
                 return false;
@@ -572,9 +591,11 @@
             // Buscar archivos directamente con correlativo
             const file1 = document.querySelector(`input[type="file"][data-identificador="${correlativo}"][name$=".ArchivoProtocolo"]`)?.files?.[0];
             const file2 = document.querySelector(`input[type="file"][data-identificador="${correlativo}"][name$=".ArchivoET"]`)?.files?.[0];
+            const file3 = document.querySelector(`input[type="file"][data-identificador="${correlativo}"][name$=".ArchivoRS"]`)?.files?.[0];
 
             if (file1) formData.append('ArchivoProtocolo', file1);
             if (file2) formData.append('ArchivoET', file2);
+            if (file3) formData.append('ArchivoRS', file3);
 
             try {
                 const response = await fetch("/Internamientos/EditarItemDetalleDoc", {

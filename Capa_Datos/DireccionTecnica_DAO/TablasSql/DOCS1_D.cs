@@ -276,6 +276,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                                 string baseRuta = uti.directorioFileServer;
                                 string rutaDirectorio = Path.Combine(baseRuta, "DireccionTecnica", "Internamiento");
                                 string carpeta = detalle.ItemCode ?? "undefined";
+
                                 string rutaET = Path.Combine(rutaDirectorio, carpeta, "ET.pdf").Replace("\\", "/");
                                 if (System.IO.File.Exists(rutaET))
                                 {
@@ -283,12 +284,18 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                                     detalle.DescargarArchivoET = Convert.ToBase64String(contenido);
                                 }
 
-
                                 string rutaProtocolo = Path.Combine(rutaDirectorio, carpeta, $"{detalle.Lote}.pdf").Replace("\\", "/");
                                 if (System.IO.File.Exists(rutaProtocolo))
                                 {
                                     byte[] contenido2 = System.IO.File.ReadAllBytes(rutaProtocolo);
                                     detalle.DescargarArchivoProtocolo = Convert.ToBase64String(contenido2);
+                                }
+                                
+                                string rutaRS = Path.Combine(rutaDirectorio, carpeta, $"{detalle.RegistroSanitario}.pdf").Replace("\\", "/");
+                                if (System.IO.File.Exists(rutaRS))
+                                {
+                                    byte[] contenido3 = System.IO.File.ReadAllBytes(rutaRS);
+                                    detalle.DescargarArchivoRS = Convert.ToBase64String(contenido3);
                                 }
 
                                 lista.Add(detalle);
@@ -336,8 +343,8 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                             cmd.ExecuteNonQuery();
 
                             // Proceso para cargar archivo
-                            string baseRuta = uti.directorioFileServer;
-                            string rutaDirectorio = Path.Combine(baseRuta, "DireccionTecnica", "Internamiento", datos.ItemCode);
+                            string baseRuta = uti.directorioDocumentosRegulatorios;
+                            string rutaDirectorio = Path.Combine(baseRuta, "Documentos", datos.ItemCode);
 
                             if (!Directory.Exists(rutaDirectorio))
                                 Directory.CreateDirectory(rutaDirectorio);
@@ -354,6 +361,14 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                                 string extension = Path.GetExtension(datos.ArchivoProtocolo.FileName)?.ToLower();
                                 string rutaCompleta = Path.Combine(rutaDirectorio, datos.Lote + extension);
                                 datos.ArchivoProtocolo.SaveAs(rutaCompleta);
+                            }
+
+                            if (datos.ArchivoRS != null)
+                            {
+                                string extension = Path.GetExtension(datos.ArchivoRS.FileName)?.ToLower();
+                                string rutaDirectorioRS = Path.Combine(baseRuta, "Documentos", "RegistrosSanitarios");
+                                string rutaCompleta = Path.Combine(rutaDirectorioRS, datos.RegistroSanitario + extension);
+                                datos.ArchivoRS.SaveAs(rutaCompleta);
                             }
 
                         }

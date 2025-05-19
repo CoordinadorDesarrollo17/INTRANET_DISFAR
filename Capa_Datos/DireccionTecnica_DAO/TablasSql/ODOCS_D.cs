@@ -52,7 +52,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                     sb.AppendLine("    SELECT TOP 1 SR.Estado");
                     sb.AppendLine("    FROM SolicitudesReversion_DOCS1 SR");
                     sb.AppendLine("    WHERE SR.DOCS1Id = DET.Id");
-                    sb.AppendLine("    ORDER BY SR.Id DESC"); 
+                    sb.AppendLine("    ORDER BY SR.Id DESC");
                     sb.AppendLine(") AS EstadoSolicitudReversion");
 
                     sb.AppendLine("FROM ODOCS DOC");
@@ -139,6 +139,13 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                                 {
                                     byte[] contenido2 = System.IO.File.ReadAllBytes(rutaProtocolo);
                                     detalle.DescargarArchivoProtocolo = Convert.ToBase64String(contenido2);
+                                }
+
+                                string rutaRS = Path.Combine(rutaDirectorio, "RegistrosSanitarios", $"{detalle.RegistroSanitario}.pdf").Replace("\\", "/");
+                                if (System.IO.File.Exists(rutaRS))
+                                {
+                                    byte[] contenido3 = System.IO.File.ReadAllBytes(rutaRS);
+                                    detalle.DescargarArchivoRS = Convert.ToBase64String(contenido3);
                                 }
 
                                 string rutaOrganoleptico = Path.Combine(rutaDirectorio, carpeta, $"{detalle.Lote}.pdf").Replace("\\", "/");
@@ -335,6 +342,13 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                                     detalle.DescargarArchivoProtocolo = Convert.ToBase64String(contenido2);
                                 }
 
+                                string rutaRS = Path.Combine(rutaDirectorio, "RegistrosSanitarios", $"{detalle.Lote}.pdf").Replace("\\", "/");
+                                if (System.IO.File.Exists(rutaRS))
+                                {
+                                    byte[] contenido3 = System.IO.File.ReadAllBytes(rutaRS);
+                                    detalle.DescargarArchivoProtocolo = Convert.ToBase64String(contenido3);
+                                }
+
                                 obj.Detalle.Add(detalle);
                             }
                         }
@@ -405,7 +419,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
 
                             foreach (var item in datos.Detalle)
                             {
-                                if (item.ArchivoET == null && item.ArchivoProtocolo == null)
+                                if (item.ArchivoET == null && item.ArchivoProtocolo == null && item.ArchivoRS == null)
                                     continue;
 
                                 string rutaDirectorio = Path.Combine(baseRuta, "Documentos", item.ItemCode);
@@ -431,6 +445,17 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
 
                                     string rutaCompleta = Path.Combine(rutaDirectorio, item.Lote + extension);
                                     item.ArchivoProtocolo.SaveAs(rutaCompleta);
+                                }
+
+                                if (item.ArchivoRS != null)
+                                {
+                                    string extension = Path.GetExtension(item.ArchivoRS.FileName)?.ToLower();
+                                    if (extension != ".pdf")
+                                        continue;
+
+                                    string rutaDirectorioRS = Path.Combine(baseRuta, "Documentos", "RegistrosSanitarios");
+                                    string rutaCompleta = Path.Combine(rutaDirectorioRS, item.RegistroSanitario + extension);
+                                    item.ArchivoRS.SaveAs(rutaCompleta);
                                 }
                             }
 
