@@ -16,8 +16,7 @@
         <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
             <li><a href="@Url.Action("Sesion", "Index")">Almacén</a></li>
-            <li><a href="@Url.Action("Sesion", "Index")">
-                s</a></li>
+            <li><a href="@Url.Action("Sesion", "Index")">Transferencias</a></li>
             <li><a href="@Url.Action("Index", "Transferencias")">Listado de Transferencias</a></li>
             <li class="current"><em>@ViewBag.Title</em></li>
         </ol>
@@ -97,6 +96,12 @@
         <!-- Tab Content -->
         <div class="tab-content mt-3" id="tabContent">
             <div class="tab-pane fade show active" id="tab1" role="tabpanel">
+                <div class="d-flex justify-content-end my-2">
+                    <button type="button" class="btn btn-outline-success btn-exportar" data-nombrearchivo="ListaAprobados_@Model.DocNum" data-idtabla="tbl_documento" onclick="exportarTablaExcel(this)">
+                        <i class="bi bi-file-excel"></i> Exportar
+                    </button>
+                </div>
+
                 <table id="tbl_documento" class="table table-bordered table-hover">
                     <thead class="thead-cobefar">
                         <tr>
@@ -152,6 +157,12 @@
             </div>
 
             <div class="tab-pane fade" id="tab2" role="tabpanel">
+                <div class="d-flex justify-content-end my-2">
+                    <button type="button" class="btn btn-outline-success btn-exportar" data-nombrearchivo="ListaBaja_@Model.DocNum" data-idtabla="tbl_documento2" onclick="exportarTablaExcel(this)">
+                        <i class="bi bi-file-excel"></i> Exportar
+                    </button>
+                </div>
+
                 <table id="tbl_documento2" class="table table-bordered table-hover">
                     <thead class="thead-cobefar">
                         <tr>
@@ -207,6 +218,12 @@
             </div>
 
             <div class="tab-pane fade" id="tab3" role="tabpanel">
+                <div class="d-flex justify-content-end my-2">
+                    <button type="button" class="btn btn-outline-success btn-exportar" data-nombrearchivo="ListaDevolucion_@Model.DocNum" data-idtabla="tbl_documento3" onclick="exportarTablaExcel(this)">
+                        <i class="bi bi-file-excel"></i> Exportar
+                    </button>
+                </div>
+
                 <table id="tbl_documento3" class="table table-bordered table-hover">
                     <thead class="thead-cobefar">
                         <tr>
@@ -388,6 +405,20 @@
             } catch (error) {
                 console.error('Error:', error);
             }
+        }
+
+        function exportarTablaExcel(btn) {
+            const idTabla = btn.dataset.idtabla || '';
+            const nombreArchivo = btn.dataset.nombrearchivo || '';
+
+            const tabla = document.getElementById(idTabla);
+            if (!tabla) return console.error("Tabla no encontrada");
+
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.table_to_sheet(tabla);
+
+            XLSX.utils.book_append_sheet(wb, ws, 'Hoja1');
+            XLSX.writeFile(wb, `${nombreArchivo}.xlsx`);
         }
 
         function irADevoluciones(btn) {
