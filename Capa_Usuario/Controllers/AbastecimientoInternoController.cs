@@ -705,18 +705,28 @@ namespace Capa_Usuario.Controllers
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                int columnas = 5;
+                int columnas = 7;
                 var listado = _ubicacionesN.ListarUbicaciones(new Ubicaciones_E { Almacen = "RESERVA" });
-                var listaULM = _ubicacionesLotesN.ListarUbicaciones(new UbicacionesLotes_E { Almacen = "RESERVA" });
+                var listaULM = _ubicacionesLotesMasterN.ListarUbicaciones(new UbicacionesLotesMaster_E { Almacen = "RESERVA" });
                 var codigoU = listaULM
                     .GroupBy(u => u.CodigoUbicacion)
                     .ToDictionary(g => g.Key, g => g.ToList());
+
                 foreach (var item in listado)
                 {
                     item.UbicacionesLotes = codigoU.ContainsKey(item.CodigoUbicacion)
-                        ? codigoU[item.CodigoUbicacion] // Si hay lotes, asignarlos
+                        ? codigoU[item.CodigoUbicacion]
+                             .Select(m => new UbicacionesLotes_E
+                             {
+                                 CodigoUbicacion = m.CodigoUbicacion,
+                                 ItemCode = m.ItemCode,
+                                 ItemName = m.ItemName,
+                                 BatchNum = m.BatchNum,
+                                 QuantityUnidadesCajas = m.QuantityUnidadesCajas
+                             }).ToList()
                         : new List<UbicacionesLotes_E>(); // Si no hay lotes, asignar lista vacía
                 }
+
                 var nuevaLista = listado.GroupJoin(
                                                     listaULM,
                                                     ub => ub.CodigoUbicacion,  // Clave en listado
@@ -724,7 +734,7 @@ namespace Capa_Usuario.Controllers
                                                     (ub, ulmGroup) => new
                                                     {
                                                         CodigoUbicacion = ub.CodigoUbicacion,
-                                                        Lotes = ulmGroup.Any() ? ulmGroup : new List<UbicacionesLotes_E> { new UbicacionesLotes_E() } // Si no tiene lotes, agrega una fila vacía
+                                                        Lotes = ulmGroup.Any() ? ulmGroup : new List<UbicacionesLotesMaster_E> { new UbicacionesLotesMaster_E() } // Si no tiene lotes, agrega una fila vacía
                                                     }
                                                 )
                                                 .SelectMany(grupo => grupo.Lotes.Select(ulm => new
@@ -733,11 +743,14 @@ namespace Capa_Usuario.Controllers
                                                     CodigoArticulo = ulm.ItemCode ?? "",
                                                     Descripcion = ulm.ItemName ?? "",
                                                     Lote = ulm.BatchNum ?? "",
+                                                    QuantityMaster = ulm?.QuantityMaster ?? 0,
+                                                    QuantitySaldo = ulm?.QuantitySaldo ?? 0,
                                                     CantidadUnidadesCajas = ulm.QuantityUnidadesCajas
                                                 }))
                                                 .OrderByDescending(x => !string.IsNullOrEmpty(x.Lote))  // Primero los que tienen Lote
                                                 .ThenBy(x => x.CodigoUbicacion)   // Luego ordena alfabéticamente por CódigoUbicacion
                                                 .ToList();
+
                 if (nuevaLista != null && nuevaLista.Any())
                 {
                     using (var libro = new ExcelPackage())
@@ -1811,12 +1824,12 @@ namespace Capa_Usuario.Controllers
                                                             return Json(new { Titulo = "Error", Mensajes = new List<string> { $"{data2.Mensajes[0]}" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
                                                     }
                                                 }
-                                            }                                            
+                                            }
                                         }
                                         else
                                         {
                                             return Json(new { Titulo = "Error", Mensajes = new List<string> { "Verificar datos enviados." }, Icono = "error" }, JsonRequestBehavior.AllowGet);
-                                        }                                        
+                                        }
                                     }
                                 }
 

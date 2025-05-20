@@ -16,6 +16,73 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
     {
         readonly Utilitarios uti = new Utilitarios();
         readonly DBHelper db = new DBHelper();
+
+        public List<UbicacionesLotesMaster_E> ListarUbicaciones(string condicion, Dictionary<string, object> parametros, SqlConnection cn)
+        {
+            List<UbicacionesLotesMaster_E> lista = new List<UbicacionesLotesMaster_E>();
+
+            try
+            {
+                if (cn == null)
+                    cn = new SqlConnection(uti.cadSql2);
+
+                if (cn.State != ConnectionState.Open)
+                    cn.Open();
+
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = cn;
+
+                var sb = new StringBuilder();
+
+                sb.AppendLine("SELECT ULM.[Id], ULM.[UbicacionLoteId], ULM.[Almacen], ULM.[ItemCode], ULM.[ItemName], ULM.[CodigoUbicacion], ULM.[BatchNum], ULM.[UmAlm],");
+                sb.AppendLine("ULM.[QuantityMaster], ULM.[QuantitySaldo], ULM.[QuantityUnidadesCajas]");
+                sb.AppendLine("FROM UbicacionesLotesMaster ULM");
+                sb.AppendLine("WHERE 1=1");
+                sb.AppendLine(condicion);
+
+                // Agregamos los parámetros dinámicamente
+                foreach (var param in parametros)
+                {
+                    cmd.Parameters.AddWithValue(param.Key, param.Value);
+                }
+
+                cmd.CommandText = sb.ToString();
+
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    if (dr.HasRows)
+                    {
+                        while (dr.Read())
+                        {
+                            var obj = new UbicacionesLotesMaster_E();
+
+                            if (!dr.IsDBNull(0)) obj.Id = dr.GetInt32(0);
+                            if (!dr.IsDBNull(1)) obj.UbicacionLoteId = dr.GetInt32(1);
+                            if (!dr.IsDBNull(2)) obj.Almacen = dr.GetString(2);
+                            if (!dr.IsDBNull(3)) obj.ItemCode = dr.GetString(3);
+                            if (!dr.IsDBNull(4)) obj.ItemName = dr.GetString(4);
+                            if (!dr.IsDBNull(5)) obj.CodigoUbicacion = dr.GetString(5);
+                            if (!dr.IsDBNull(6)) obj.BatchNum = dr.GetString(6);
+                            if (!dr.IsDBNull(7)) obj.UmAlm = dr.GetString(7);
+                            if (!dr.IsDBNull(8)) obj.QuantityMaster = dr.GetInt32(8);
+                            if (!dr.IsDBNull(9)) obj.QuantitySaldo = dr.GetInt32(9);
+                            if (!dr.IsDBNull(10)) obj.QuantityUnidadesCajas = dr.GetInt32(10);
+
+                            lista.Add(obj);
+                        }
+                    }
+                }
+                cn.Close();
+
+            }
+            catch (Exception ex)
+            {
+                LogHelper.RegistrarError(ex, "UbicacionesLotesMaster_D - ListarUbicaciones");
+            }
+
+            return lista;
+        }
+
         //Operacion desde transaccion ingreso en Kardex que suma la cantidad disponible  inserta un nuevo registro de ItemCode, Almacen, CodigoUbicacion, Lote y UmAlm.
 
         public Helper_E Ingreso(int ubicacionLoteId, DetalleTransferenciaReserva_E detalle, SqlConnection cn)
