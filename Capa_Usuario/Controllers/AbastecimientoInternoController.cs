@@ -400,13 +400,15 @@ namespace Capa_Usuario.Controllers
 
                 // Obtener solo las ubicaciones donde se encontraron lotes (listaULM)
                 var codigosUbicacionesConProducto = listaULM
-                    .Select(x => x.CodigoUbicacion)
-                    .Distinct()
-                    .ToList();
+                    .GroupBy(x => x.CodigoUbicacion)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.Sum(x => x.QuantityUnidadesCajas)
+                    );
 
                 // Filtrar ubicaciones completas solo por las que tienen productos encontrados
                 var listaU = _ubicacionesN.ListarUbicaciones(filtros)
-                    .Where(u => codigosUbicacionesConProducto.Contains(u.CodigoUbicacion))
+                    .Where(u => codigosUbicacionesConProducto.ContainsKey(u.CodigoUbicacion))
                     .ToList();
 
                 // Asignar cantidad de productos a cada ubicación
