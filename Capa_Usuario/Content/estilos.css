@@ -7,7 +7,7 @@ body::after {
     opacity: 0.05;
     transform: rotate(-45deg);
     top: 30%;
-    right: 20%;
+    right: 10%;
     z-index: 0;
 }
 

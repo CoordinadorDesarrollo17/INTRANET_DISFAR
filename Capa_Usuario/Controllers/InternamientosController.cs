@@ -1,19 +1,17 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
-using Capa_Entidad;
+using Capa_Entidad.Almacen_ENT.TablasSql;
 using Capa_Entidad.Seguridad_ENT;
 using Capa_Entidad.SocioNegocios_ENT.Tablas;
 using Capa_Entidad.TablasSql;
-using Capa_Negocio.AbastecimientoInterno_NEG.TablasSql;
 using Capa_Negocio.DireccionTecnica_NEG.TablasSql;
 using Capa_Negocio.SocioNegocios_NEG.TablasExternas;
 using Capa_Usuario.Helpers;
-using DocumentFormat.OpenXml.Wordprocessing;
-using OfficeOpenXml;
+using DocumentFormat.OpenXml.Office2013.Drawing.Chart;
 
 namespace Capa_Usuario.Controllers
 {
@@ -238,6 +236,61 @@ namespace Capa_Usuario.Controllers
             var result = _docsN.CancelarDocumento(id, usuarioRegistro);
 
             return Json(result);
+        }
+
+        public JsonResult CrearDevolucion(long id, int idOperacion = 0)
+        {
+            var usuarioSesion = Session["UsuarioId"] as Usuario_E;
+            if (usuarioSesion == null)
+                return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
+
+            var resultadoAcceso = VerificarPermiso(idOperacion);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
+                return Json(new { Titulo = "Acceso Denegado", Mensajes = new List<string> { "No tienes permisos para cancelar el documento" }, Icono = "warning" }, JsonRequestBehavior.AllowGet);
+
+            var lista = _docsN.ListarInternamientos(new ODOCS_E { Id = id });
+            var internamiento = lista != null ? lista.First() : new ODOCS_E();
+
+            var devolucion = new ORPD_E();
+            devolucion.WhsCode = internamiento.Detalle != null && internamiento.Detalle.Any() ? internamiento.Detalle.First().Almacen : "";
+            devolucion.CardCode = internamiento.CardCode;
+            devolucion.CardName = internamiento.CardName;
+            devolucion.RetiroMercado = false;
+            devolucion.SinEM = false;
+            devolucion.Operario = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
+
+            int linea = 1;
+            var detalleDevolucion = new List<RPD1_E>();
+            foreach (var item in internamiento.Detalle)
+            {
+                DateTime fechaConvertida = DateTime.ParseExact(item.FechaVencimiento, "dd/MM/yyyy", CultureInfo.InvariantCulture);
+
+                var obj = new RPD1_E();
+                obj.Linea = linea;
+                obj.ItemCode = item.ItemCode;
+                obj.ItemName = item.ItemName;
+                obj.FirmCode = 0;
+                obj.BatchNum = item.Lote;
+                obj.ExpDate = fechaConvertida.ToString("yyyy-MM-dd");
+                obj.Quantity = item.CantidadDevolucion;
+                obj.NumInBuy = 0;
+                obj.BuyUnitMsr = "";
+                obj.Motivo = 11;        // 11: Devolución
+                obj.RefFactura = internamiento.ComprobanteVinculado;
+                obj.Observacion = null;
+                obj.MaxQuantity = 0;
+                obj.Submotivo = 0;
+                obj.MaxQuantityOIBT = 0;
+                obj.NumInBuyKey = 0;
+
+                detalleDevolucion.Add(obj);
+                ++linea;
+            }
+            ;
+            var result = new Capa_Negocio.Almacen_NEG.TablasSql.ORPD_N().RegistrarDevolucion(devolucion, detalleDevolucion);
+
+            return Json(result);
+
         }
     }
 }
