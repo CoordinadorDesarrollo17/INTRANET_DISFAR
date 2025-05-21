@@ -391,7 +391,11 @@ namespace Capa_Usuario.Controllers
                     .GroupBy(u => u.CodigoUbicacion)
                     .ToDictionary(
                         g => g.Key,
-                        g => g.Select(u => u.ItemCode).Distinct().Count()
+                         g => new
+                         {
+                             CantidadTotal = g.Sum(x => x.QuantityUnidadesCajas),
+                             CantidadItemsDistintos = g.Select(u => u.ItemCode).Distinct().Count()
+                         }
                     );
 
                 // Obtener solo las ubicaciones donde se encontraron lotes (listaULM)
@@ -408,8 +412,8 @@ namespace Capa_Usuario.Controllers
                 // Asignar cantidad de productos a cada ubicación
                 foreach (var ubicacion in listaU)
                 {
-                    ubicacion.CantidadProductos = cantidadPorUbicacion.TryGetValue(ubicacion.CodigoUbicacion, out int cantidad)
-                        ? cantidad
+                    ubicacion.CantidadProductos = cantidadPorUbicacion.TryGetValue(ubicacion.CodigoUbicacion, out var resumen)
+                        ? resumen.CantidadTotal
                         : 0;
                 }
 
@@ -705,7 +709,7 @@ namespace Capa_Usuario.Controllers
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                int columnas = 7;
+                int columnas = 8;
                 var listado = _ubicacionesN.ListarUbicaciones(new Ubicaciones_E { Almacen = "RESERVA" });
                 var listaULM = _ubicacionesLotesMasterN.ListarUbicaciones(new UbicacionesLotesMaster_E { Almacen = "RESERVA" });
                 var codigoU = listaULM
@@ -743,8 +747,9 @@ namespace Capa_Usuario.Controllers
                                                     CodigoArticulo = ulm.ItemCode ?? "",
                                                     Descripcion = ulm.ItemName ?? "",
                                                     Lote = ulm.BatchNum ?? "",
-                                                    QuantityMaster = ulm?.QuantityMaster ?? 0,
-                                                    QuantitySaldo = ulm?.QuantitySaldo ?? 0,
+                                                    UmAlm = ulm.UmAlm ?? "",
+                                                    CantidadMaster = ulm?.QuantityMaster ?? 0,
+                                                    CantidadSaldo = ulm?.QuantitySaldo ?? 0,
                                                     CantidadUnidadesCajas = ulm.QuantityUnidadesCajas
                                                 }))
                                                 .OrderByDescending(x => !string.IsNullOrEmpty(x.Lote))  // Primero los que tienen Lote
