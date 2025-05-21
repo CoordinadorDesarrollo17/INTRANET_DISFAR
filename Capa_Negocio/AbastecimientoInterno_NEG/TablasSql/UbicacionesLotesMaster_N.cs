@@ -14,6 +14,49 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
     {
         readonly UbicacionesLotesMaster_D datosUbicacionesLM = new UbicacionesLotesMaster_D();
 
+        public List<UbicacionesLotesMaster_E> ListarUbicaciones(UbicacionesLotesMaster_E filtros, SqlConnection cn = null, Dictionary<string, object> parametros = null)
+        {
+            StringBuilder condicion = new StringBuilder();
+
+            if (parametros == null)
+                parametros = new Dictionary<string, object>();
+
+            if (filtros != null)
+            {
+                if (filtros.Id > 0)
+                {
+                    condicion.AppendLine("AND ULM.Id = @Id");
+                    parametros["@Id"] = filtros.Id;
+                }
+
+                if (!string.IsNullOrWhiteSpace(filtros.CodigoUbicacion))
+                {
+                    condicion.AppendLine("AND ULM.CodigoUbicacion = @CodigoUbicacion");
+                    parametros["@CodigoUbicacion"] = filtros.CodigoUbicacion;
+                }
+
+                if (!string.IsNullOrWhiteSpace(filtros.ItemCode))
+                {
+                    condicion.AppendLine("AND ULM.ItemCode = @ItemCode");
+                    parametros["@ItemCode"] = filtros.ItemCode;
+                }
+
+                if (!string.IsNullOrWhiteSpace(filtros.ItemName))
+                {
+                    condicion.AppendLine("AND ULM.ItemName = @ItemName");
+                    parametros["@ItemName"] = filtros.ItemName;
+                }
+
+                if (!string.IsNullOrWhiteSpace(filtros.Almacen))
+                {
+                    condicion.AppendLine("AND ULM.Almacen = @Almacen");
+                    parametros["@Almacen"] = filtros.Almacen;
+                }
+            }
+
+            return datosUbicacionesLM.ListarUbicaciones(condicion.ToString(), parametros, cn);
+        }
+
         public Helper_E Ingreso (int ubicacionLoteId, DetalleTransferenciaReserva_E ingreso, SqlConnection cn)
         {
             return datosUbicacionesLM.Ingreso(ubicacionLoteId,ingreso, cn);
