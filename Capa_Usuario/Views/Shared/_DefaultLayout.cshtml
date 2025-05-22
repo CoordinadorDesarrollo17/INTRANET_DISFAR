@@ -116,16 +116,21 @@
         }
 
         function statusBD() {
-            var parametros;
-            $.ajax('/Index/statusBD', {
-                data: parametros,
+            $.ajax({
+                url: '/Index/statusBD',
+                type: 'POST',
                 dataType: 'html',
                 cache: false,
-                type: 'post',
-            })
-                .done(function (response) {
-                    document.getElementById('statusBD').innerHTML = response;
-                });
+                success: function (response) {
+                    const contenedor = document.getElementById('statusBD');
+                    if (contenedor) {
+                        contenedor.innerHTML = response;
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error en statusBD:', status, error);
+                }
+            });
         }
 
         document.addEventListener('show.bs.modal', function () {

@@ -96,7 +96,7 @@
                         <th scope="col" class="text-center">Unidades Master</th>
                         <th scope="col" class="text-center">Unidades Saldo</th>
                         <th scope="col" class="text-center">
-                            <button type="button" class="btn btn-sm btn-outline-light" onclick="atenderTodos()"><i class="bi bi-check-all"></i> Atender Todos</button>
+                            <button type="button" id="btn-atender-todos" class="btn btn-sm btn-outline-light" onclick="atenderTodos()"><i class="bi bi-check-all"></i> Atender Todos</button>
                         </th>
                     </tr>
                 </thead>
@@ -197,6 +197,10 @@
             return;
         }
 
+        // Obtener el botón desde uno de los atributos (por ejemplo, usando detalleId)
+        const btn = document.querySelector(`button[data-detalleid="${detalleId}"]`);
+        if (btn) btn.style.display = 'none';
+
         swalWithBootstrapButtons.fire({
             title: '¿Está seguro(a) de ATENDER?',
             icon: 'warning',
@@ -232,12 +236,17 @@
                     }).then((result) => {
                         if (result.isConfirmed && data.Icono === 'success') {
                             window.location.reload();
+                        } else if (btn) {
+                            btn.style.display = ''; // volver a mostrar si fue cancelado o falló
                         }
                     });
 
                 } catch (error) {
                     console.error('Error:', error);
+                    if (btn) btn.style.display = ''; // restaurar botón si hubo error
                 }
+            } else if (btn) {
+                btn.style.display = ''; // restaurar si se canceló el swal
             }
         });
     }
@@ -285,6 +294,9 @@
     }
 
     function atenderTodos() {
+        const btnMasivo = document.getElementById('btn-atender-todos');
+        if (btnMasivo) btnMasivo.disabled = true;
+
         const form = document.getElementById('filterForm');
         const inputs = form.querySelectorAll('input');
 
@@ -294,7 +306,8 @@
         });
 
         if (String(camposFiltro.rackBloque) === '' && String(camposFiltro.posicion) === '' && String(camposFiltro.nivel) === '') {
-            generarAlerta('Error', 'Para atender todas las solicitudes, es obligatorio aplicar al menos uno de los siguientes filtros: Rack/Bloque, Posición o Nivel.', 'error')
+            generarAlerta('Error', 'Para atender todas las solicitudes, es obligatorio aplicar al menos uno de los siguientes filtros: Rack/Bloque, Posición o Nivel.', 'error');
+            if (btnMasivo) btnMasivo.disabled = false;
             return;
         }
 
@@ -364,12 +377,17 @@
                     }).then((result) => {
                         if (result.isConfirmed && data.Icono === 'success') {
                             window.location.reload();
+                        } else {
+                            if (btnMasivo) btnMasivo.disabled = false;
                         }
                     });
 
                 } catch (error) {
                     console.error('Error:', error);
+                    if (btnMasivo) btnMasivo.disabled = false;
                 }
+            } else {
+                if (btnMasivo) btnMasivo.disabled = false;
             }
         });
     }
