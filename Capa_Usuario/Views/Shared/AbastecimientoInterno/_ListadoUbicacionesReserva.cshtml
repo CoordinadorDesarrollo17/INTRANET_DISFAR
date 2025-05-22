@@ -121,9 +121,14 @@
 
         // Se verifica si el ItemCode ya existe en el array acumulador (acc), si no existe, se agrega el objeto a la nueva lista.
         const nuevaLista = datos.reduce((acc, item) => {
-            if (!acc.some(obj => obj.ItemCode === item.ItemCode)) {
-                acc.push(item);
+            const existente = acc.find(obj => obj.ItemCode === item.ItemCode);
+
+            if (existente) {
+                existente.QuantityUnidadesCajas += item.QuantityUnidadesCajas;
+            } else {
+                acc.push({ ...item }); // Clonamos para no modificar el original
             }
+
             return acc;
         }, []);
 
