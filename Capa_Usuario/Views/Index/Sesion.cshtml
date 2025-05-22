@@ -31,6 +31,15 @@
         padding: 0.25rem 0.5rem;
         display: block;
     }
+
+    .navbar .dropdown-menu {
+        display: none;
+    }
+
+        .navbar .dropdown-menu.show {
+            display: block;
+        }
+
 </style>
 
 <div class="container-body justify-content-center">
@@ -142,13 +151,48 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        // --- Menú móvil ---
         document.querySelectorAll('.mobile-toggle').forEach(btn => {
-            btn.addEventListener('click', function () {
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation();
                 const targetId = this.getAttribute('data-bs-target');
                 const submenu = document.querySelector(targetId);
-                console.log(this)
-                submenu.classList.toggle('show');
+                if (submenu) submenu.classList.toggle('show');
             });
         });
+
+        // --- Menú tablet/escritorio táctil ---
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+        if (isTouchDevice) {
+            document.querySelectorAll('.navbar .dropdown-toggle').forEach(dropdownToggle => {
+                dropdownToggle.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const dropdownMenu = this.nextElementSibling;
+
+                    // Cierra todos los otros menús abiertos, excepto el actual
+                    document.querySelectorAll('.navbar .dropdown-menu.show').forEach(openMenu => {
+                        if (openMenu !== dropdownMenu) {
+                            openMenu.classList.remove('show');
+                        }
+                    });
+
+                    dropdownMenu.classList.toggle('show');
+                });
+            });
+
+            // Cierra dropdown solo si se hace clic fuera de toggle o dropdown-menu
+            document.addEventListener('click', function (e) {
+                const isClickInsideMenu = e.target.closest('.navbar .dropdown-menu') || e.target.closest('.navbar .dropdown-toggle');
+                if (!isClickInsideMenu) {
+                    document.querySelectorAll('.navbar .dropdown-menu.show').forEach(menu => {
+                        menu.classList.remove('show');
+                    });
+                }
+            });
+        }
     });
+
 </script>
