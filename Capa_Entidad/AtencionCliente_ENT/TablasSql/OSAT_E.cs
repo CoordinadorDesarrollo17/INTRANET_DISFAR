@@ -29,8 +29,11 @@ namespace Capa_Entidad.AtencionCliente_ENT.TablasSql
         public string FechaAtencion { get; set; }
         public string TipoError { get; set; }
         public string Problema { get; set; }
-        public string TipoVenta { get; set; }
+        public string TipoVenta { get; set; }   
         public string CanalVenta { get; set; }
+        public int NotiCliente { get; set; }
+        public int DiasRetraso { get; set; }
+        public string ErrAlmOtrCom { get; set; }
 
         // Campos que no son de la tabla RTV1
         public string TiempoAtencion { get; set; }
@@ -43,6 +46,14 @@ namespace Capa_Entidad.AtencionCliente_ENT.TablasSql
         public List<SAT1_E> Det { get; set; }
         public Dictionary<string, string> DetORTV { get; set; }
         public List<HttpPostedFileBase> Archivo { get; set; }
+
+        // Se usa para el proceso de Notificar Cliente
+        public string CardName { get; set; }
+        public int TicketsAbiertos { get; set; }
+        public string FechaSapTicket { get; set; }
+        public int DocNumVt { get; set; }
+        public string EstadoVt { get; set; }
+        public string Vendedor { get; set; }
 
         public string enlistarDetSolicitudes()
         {

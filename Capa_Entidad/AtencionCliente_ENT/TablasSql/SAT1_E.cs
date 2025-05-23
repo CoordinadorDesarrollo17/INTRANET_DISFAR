@@ -35,6 +35,7 @@ namespace Capa_Entidad.AtencionCliente_ENT.TablasSql
         public string AlmVenta { get; set; }
         public string ErrorAlmacen { get; set; }
         public int? NCSAP { get; set; }
+        public string ErrAlmOtrCom { get; set; }
 
         // CAMPOS QUE NO SON DE LA TABLA
         public List<string> ComprobantesVinculados { get; set; }
@@ -69,6 +70,7 @@ namespace Capa_Entidad.AtencionCliente_ENT.TablasSql
             tb.Columns.Add("AlmVenta", typeof(string));
             tb.Columns.Add("ErrorAlmacen", typeof(string));
             tb.Columns.Add("NCSAP", typeof(int));
+            tb.Columns.Add("ErrAlmOtrCom", typeof(string));
 
             foreach (SAT1_E reg in dt)
             {
@@ -76,7 +78,7 @@ namespace Capa_Entidad.AtencionCliente_ENT.TablasSql
                     , reg.NumPerMsr, reg.Quantity, reg.BatchNum, reg.ExpDate, reg.unitMsrF, reg.NumPerMsrF
                     , reg.QuantityF, reg.PriceAfVAT, reg.LineTotalF, reg.Problema, reg.TipoError, reg.OpResponsable
                     , reg.Comentario, reg.Regalo, reg.MotRegalo, reg.TareaFact, reg.ComprobanteVinc, reg.AlmTransf
-                    , reg.ComprobanteFin, reg.AlmVenta, reg.ErrorAlmacen, reg.NCSAP);
+                    , reg.ComprobanteFin, reg.AlmVenta, reg.ErrorAlmacen, reg.NCSAP, reg.ErrAlmOtrCom);
             }
             return tb;
         }

@@ -39,6 +39,78 @@
             }
         });
     }
+
+    function cargarNotificacionesPendientes() {
+        var $tbody = $('#tablaNotificaciones tbody');
+        $tbody.html('<tr><td colspan="3">Cargando...</td></tr>');
+        $.ajax({
+            url: '@Url.Action("ObtenerNotificadoCliente", "AtencionCliente")',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                $tbody.empty();
+                if (data && data.length > 0) {
+                    for (var i = 0; i < data.length; i++) {
+                        $tbody.append(
+                            '<tr>' +
+                                '<td>' + data[i].CardName + '</td>' +
+                                '<td class="text-center">' + data[i].TicketsAbiertos + '</td>' +
+                                '<td class="text-center">' +
+                                    '<button type="button" class="btn btn-info btn-sm" onclick="verMasNotificacion(\'' + data[i].CardName.replace(/'/g, "\\'") + '\')">Ver Más</button>' +
+                                '</td>' +
+                            '</tr>'
+                        );
+                    }
+                } else {
+                    $tbody.html('<tr><td colspan="3">No hay notificaciones pendientes.</td></tr>');
+                }
+            },
+            error: function (xhr, status, error) {
+                $tbody.html('<tr><td colspan="3">Error al cargar los datos.</td></tr>');
+            }
+        });
+    }
+
+    $(function () {
+        $('#modalDerecha').on('show.bs.modal', function () {
+            cargarNotificacionesPendientes();
+        });
+    });
+
+    function verMasNotificacion(cardName) {
+    var $tbody = $('#tablaDetalleNotificaciones tbody');
+    $tbody.html('<tr><td colspan="4">Cargando...</td></tr>');
+    $('#modalDetalleNotificacion').modal('show');
+    $.ajax({
+        url: '@Url.Action("ObtenerNotificadoClienteDetalle", "AtencionCliente")',
+        type: 'GET',
+        data: { cardName: cardName },
+        dataType: 'json',
+        success: function (data) {
+            $tbody.empty();
+            if (data && data.length > 0) {
+                for (var i = 0; i < data.length; i++) {
+
+                    $tbody.append(
+                        '<tr>' +
+                            '<td>' + data[i].FechaSapTicket + '</td>' +
+                            '<td>' + data[i].DocNumVt + '</td>' +
+                            '<td>' + data[i].EstadoVt + '</td>' +
+                            '<td>' + data[i].Vendedor + '</td>' +
+                        '</tr>'
+                    );
+                }
+            } else {
+                $tbody.html('<tr><td colspan="4">No hay tickets abiertos para este cliente.</td></tr>');
+            }
+        },
+        error: function () {
+            $tbody.html('<tr><td colspan="4">Error al cargar los datos.</td></tr>');
+        }
+    });
+
+}
+
 </script>
 <style>
     .input_cls-estandar {
@@ -51,12 +123,10 @@
         color: #000000;
     }
 
-        a:hover {
-            text-decoration: none;
-            color: orangered;
-        }
-
-
+    a:hover {
+        text-decoration: none;
+        color: orangered;
+    }
 
     .detalle {
         border-color: red;
@@ -65,6 +135,28 @@
     .disabled {
         cursor: not-allowed;
         pointer-events: none;
+    }
+    #tablaNotificaciones thead th {
+        background: #e9ecef !important;
+        color: #212529 !important;
+        font-weight: bold !important;
+        border: 1px solid #dee2e6 !important;
+        visibility: visible !important;
+        display: table-cell !important;
+    }
+
+    #tablaDetalleNotificaciones thead th {
+        background: #e9ecef !important;
+        color: #212529 !important;
+        font-weight: bold !important;
+        border: 1px solid #dee2e6 !important;
+        visibility: visible !important;
+        display: table-cell !important;
+    }
+
+    #tablaDetalleNotificaciones td {
+        text-align: center;
+        vertical-align: middle;
     }
 </style>
 
@@ -85,12 +177,16 @@
 <div class="bg-white d-flex pl-2 w-100 py-3">
 
     <div class="mx-2">
-        <a id="accion" style="float:left; margin-right:20px;" href="@Url.Action("NuevaSolicitud", "AtencionCliente")" class="btn btn-success">
+        <a id="accion" style="float:left; margin-right:10px;" href="@Url.Action("NuevaSolicitud", "AtencionCliente")" class="btn btn-success">
             <i class="icon icon-plus"></i> Nueva Solicitud
         </a>
 
         <button id="accion" onclick="excel();" class="btn btn-warning">
             <i class="icon icon-file-excel"></i> Exportar a Excel
+        </button>
+
+        <button class="btn btn-primary" data-toggle="modal" data-target="#modalDerecha">
+            <i class="icon icon-info"></i> Notificaciones Pendientes
         </button>
     </div>
 
@@ -320,6 +416,67 @@
         </table>
 
     </form>
+    <!-- Modal para notificaciones pendientes -->
+    <div class="modal fade" id="modalDerecha" tabindex="-1" role="dialog" aria-labelledby="modalDerechaLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title" id="modalDerechaLabel">Notificaciones Pendientes</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered table-sm" id="tablaNotificaciones">
+                        <thead>
+                            <tr>
+                                <th>Cliente</th>
+                                <th>Tickets Abiertos</th>
+                                <th>Detalle</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Aquí se llenarán los datos -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalDetalleNotificacion" tabindex="-1" role="dialog" aria-labelledby="modalDetalleNotificacionLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="modalDetalleNotificacionLabel">Detalle de Tickets Abiertos</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered table-sm" id="tablaDetalleNotificaciones">
+                        <thead>
+                            <tr>
+                                <th>Fecha Ticket</th>
+                                <th>N° Ticket</th>
+                                <th>Estado</th>
+                                <th>Vendedor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Aquí se llenarán los datos -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 

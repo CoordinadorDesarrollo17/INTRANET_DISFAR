@@ -62,14 +62,15 @@ namespace Capa_Usuario.Controllers
                 {
                     { "", ""},
                     { "ARECEP3", "Área de Recepción 3"},
-                    { "ARECEP5", "Área de Recepción 5"},
-                    { "ARECEP7", "Área de Recepción 7"},
+                    { "ARECEP6", "Área de Recepción 6"},
+                    { "ARECEP8", "Área de Recepción 8"},
                     { "ADESP", "Área de Despacho"},
                     { "AVERIF", "Área de Verificación"},
                     { "AEMB", "Área de Embalaje"},
                     { "APICK", "Área de Picking"},
                     { "AFACT", "Área de Facturación"},
-                    { "AING", "Área de Ingreso"}
+                    { "AING", "Área de Ingreso"},
+                    { "OTROS", "OTROS"},
                 };
             Dictionary<string, string> result = new Dictionary<string, string>
                 {
@@ -612,6 +613,33 @@ namespace Capa_Usuario.Controllers
                 return Content(status);
             }
             catch (Exception e) { return Content(e.Message); }
+        }
+         public JsonResult ObtenerNotificadoCliente(int idOperation = 2701)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                var data = osatN.obtenerNotificadoCliente();
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+            else
+            {
+                return Json(new { error = "Acceso denegado" }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        public JsonResult ObtenerNotificadoClienteDetalle(string cardName, int idOperation = 2701)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                var data = osatN.obtenerNotificadoClienteDetalle(cardName);
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+            else
+            {
+                return Json(new { error = "Acceso denegado" }, JsonRequestBehavior.AllowGet);
+            }
         }
     }
 }

@@ -82,6 +82,15 @@ namespace Capa_Negocio.AtencionCliente_NEG.TablasSql
         {
             return osatD.BuscarAdjuntosOSAT(DocEntry, Linea);
         }
+        public List<OSAT_E> obtenerNotificadoCliente()
+        {
+            return osatD.obtenerNotificadoCliente();
+        }
+
+        public List<OSAT_E> obtenerNotificadoClienteDetalle(string cardName)
+        {
+            return osatD.obtenerNotificadoClienteDetalle(cardName);
+        }
 
         //validaciones
         public void validarNuevaSolicitud(OSAT_E obj)

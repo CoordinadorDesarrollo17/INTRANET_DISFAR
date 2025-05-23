@@ -164,14 +164,15 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
                 {
                     { "", ""},
                     { "ARECEP3", "Área de Recepción 3"},
-                    { "ARECEP5", "Área de Recepción 5"},
-                    { "ARECEP7", "Área de Recepción 7"},
+                    { "ARECEP6", "Área de Recepción 6"},
+                    { "ARECEP8", "Área de Recepción 8"},
                     { "ADESP", "Área de Despacho"},
                     { "AVERIF", "Área de Verificación"},
                     { "AEMB", "Área de Embalaje"},
                     { "APICK", "Área de Picking"},
                     { "AFACT", "Área de Facturación"},
-                    { "AING", "Área de Ingreso"}
+                    { "AING", "Área de Ingreso"},
+                    { "OTROS", "OTROS"}
                 };
             Dictionary<string, string> result = new Dictionary<string, string>
                 {
@@ -374,7 +375,7 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
         {
             OSAT_E objOSAT = null;
             string select = "SELECT AC.DocEntry, AC.DocNum, AC.Tipo, AC.DocNumTicket, AC.DocEntryTicket, AC.Estado, AC.Factor, AC.Contacto, AC.Telefono, AC.Correo, AC.DireccionRecojo, CONVERT(varchar,AC.FechaRegistro,23) AS FechaRegistro, " +
-                                    "AC.HoraRegistro, AC.OpRegistro, AC.UrlArchivo, AC.Resultado, AC.Solucion, AC.TipoSolucion, AC.FechaFacturacion, VT.LugarDestino, VT.CardName, VT.CardCode, AC.TipoVenta, AC.CanalVenta";
+                                    "AC.HoraRegistro, AC.OpRegistro, AC.UrlArchivo, AC.Resultado, AC.Solucion, AC.TipoSolucion, AC.FechaFacturacion, VT.LugarDestino, VT.CardName, VT.CardCode, AC.TipoVenta, AC.CanalVenta, AC.NotiCliente";
             string query = $"{select} FROM ac.OSAT AS AC LEFT JOIN vt.ORTV AS VT ON VT.DocNum = AC.DocNumTicket WHERE AC.DocEntry=@DocEntry ORDER BY AC.DocEntry DESC";
             try
             {
@@ -406,6 +407,7 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
                 if (!dr.IsDBNull(21)) { detORTV.Add("CardCode", dr.GetString(21)); } else { detORTV.Add("CardCode", ""); }
                 if (!dr.IsDBNull(22)) { objOSAT.TipoVenta = dr.GetString(22); }
                 if (!dr.IsDBNull(23)) { objOSAT.CanalVenta = dr.GetString(23); }
+                if (!dr.IsDBNull(24)) { objOSAT.NotiCliente = dr.GetBoolean(24) ? 1 : 0; }
                 objOSAT.DetORTV = detORTV;
                 objOSAT.Det = sat1D.buscarDetallesSolicitud(DocEntry);
                 foreach (SAT1_E sat1 in objOSAT.Det)
@@ -492,6 +494,7 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
                     cmd.Parameters.AddWithValue("@Contacto", obj.Contacto);
                     cmd.Parameters.AddWithValue("@Telefono", obj.Telefono);
                     cmd.Parameters.AddWithValue("@Correo", obj.Correo);
+                    cmd.Parameters.AddWithValue("@NotiCliente", obj.NotiCliente);
                     cmd.Parameters.AddWithValue("@DireccionRecojo", obj.DireccionRecojo);
                     cmd.Parameters.AddWithValue("@UrlArchivo", obj.UrlArchivo);
                     cmd.Parameters.AddWithValue("@Operario", obj.OpRegistro);   // Para el control de cambios - Usuario en sesiön
@@ -831,6 +834,83 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
                 cn.Close();
             }
             return ultimaLinea;
+        }
+        public List<OSAT_E> obtenerNotificadoCliente()
+        {
+            var resultado = new List<OSAT_E>();
+            string query = @"SELECT DISTINCT CardName, COUNT(*) AS TicketsAbiertos
+                     FROM vt.ORTV 
+                     WHERE LTRIM(RTRIM(UPPER(CardName))) IN (
+                         SELECT LTRIM(RTRIM(UPPER(Contacto)))
+                         FROM ac.OSAT
+                         WHERE Estado IN ('Registrado','Proceso','Atendido')
+                         AND Tipo IN ('Reclamo','Devolucion') AND NotiCliente = 1
+                     )
+                     AND Estado IN ('RECIBIDO','PICKEANDO','VERIFICANDO','EMPACANDO','EMPACADO') 
+                     GROUP BY CardName";
+            using (SqlConnection cn = new SqlConnection(uti.cadSql))
+            {
+                SqlCommand cmd = new SqlCommand(query, cn);
+                cn.Open();
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        resultado.Add(new OSAT_E
+                        {
+                            CardName = dr.IsDBNull(0) ? "" : dr.GetString(0),
+                            TicketsAbiertos = dr.IsDBNull(1) ? 0 : dr.GetInt32(1)
+                        });
+                    }
+                }
+                cn.Close();
+            }
+            return resultado;
+        }
+
+
+        public List<OSAT_E> obtenerNotificadoClienteDetalle(string cardName)
+        {
+            var resultado = new List<OSAT_E>();
+            string query = @"
+        SELECT 
+            FechaSapTicket,
+            DocNum,
+            Estado,
+            Vendedor,
+            CardName
+            FROM vt.ORTV
+        WHERE LTRIM(RTRIM(UPPER(CardName))) IN (
+            SELECT LTRIM(RTRIM(UPPER(Contacto)))
+            FROM ac.OSAT
+            WHERE Estado IN ('Registrado','Proceso','Atendido')
+            AND Tipo IN ('Reclamo','Devolucion') AND NotiCliente = 1
+        )
+        AND Estado IN ('RECIBIDO','PICKEANDO','VERIFICANDO','EMPACANDO','EMPACADO')
+        AND CardName = @CardName";
+            using (SqlConnection cn = new SqlConnection(uti.cadSql))
+            {
+                SqlCommand cmd = new SqlCommand(query, cn);
+                cmd.Parameters.AddWithValue("@CardName", cardName);
+                cn.Open();
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        var dto = new OSAT_E
+                        {
+                            FechaSapTicket = dr.IsDBNull(0) ? "" : dr.GetDateTime(0).ToString("yyyy-MM-dd"),
+                            DocNumVt = dr.IsDBNull(1) ? 0 : dr.GetInt32(1),
+                            EstadoVt = dr.IsDBNull(2) ? "" : dr.GetString(2),
+                            Vendedor = dr.IsDBNull(3) ? "" : dr.GetString(3),
+                            CardName = dr.IsDBNull(4) ? "" : dr.GetString(4)
+                        };
+                        resultado.Add(dto);
+                    }
+                }
+                cn.Close();
+            }
+            return resultado;
         }
     }
 }
