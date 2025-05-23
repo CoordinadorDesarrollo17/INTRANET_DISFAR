@@ -120,11 +120,11 @@ namespace Capa_Usuario.Controllers
                     worksheet.Cells["A1"].LoadFromCollection(solicitudes, PrintHeaders: true);
                     if (solicitudes != null && solicitudes.Count >= 1)
                     {
-                        for (var col = 1; col <= 26; col++)
+                        for (var col = 1; col <= 29; col++)
                         {
                             worksheet.Column(col).AutoFit();
                         }
-                        var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: solicitudes.Count + 1, toColumn: 26), "Solicitudes");
+                        var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: solicitudes.Count + 1, toColumn: 29), "Solicitudes");
                         tabla.ShowHeader = true;
                         tabla.TableStyle = TableStyles.Medium2;
                     }

@@ -236,8 +236,11 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
             }
             StringBuilder sb = new StringBuilder();
             sb.Append("SELECT AC.DocEntry, AC.DocNum, AC.DocNumTicket, AC.Estado, AC.Factor, CONVERT(varchar,AC.FechaRegistro,23) AS FechaRegistro, AC.Resultado, AC.Solucion, AC.FechaFacturacion, AC.TipoVenta, AC.CanalVenta");
-            sb.Append(" ,VT.LugarDestino, VT.CardName, (SELECT TOP 1 FechaOperacion FROM ac.CC_OSAT where Operacion='ATENDER' and DocEntry=AC.DocEntry\r\n order by FechaOperacion DESC, HoraOperacion DESC) AS FechaAtencion");
-            sb.Append(" ,DET.Problema, DET.TipoError, DET.OpResponsable, DET.Comentario, DET.ErrorAlmacen, DET.NCSAP  ,DET.ItemCode,DET.Dscription,DET.BatchNum,DET.ExpDate,DET.UnitMsrF,DET.QuantityF,DET.LineTotalF");
+            sb.Append(" ,VT.LugarDestino, VT.CardName, (SELECT TOP 1 FechaOperacion FROM ac.CC_OSAT WHERE Operacion='ATENDER' AND DocEntry=AC.DocEntry ORDER BY FechaOperacion DESC, HoraOperacion DESC) AS FechaAtencion");
+            sb.Append(" ,DET.Problema, DET.TipoError, DET.OpResponsable, DET.Comentario, DET.ErrorAlmacen, DET.NCSAP, DET.ItemCode, DET.Dscription, DET.BatchNum, DET.ExpDate, DET.UnitMsrF, DET.QuantityF, DET.LineTotalF");
+            sb.Append(" ,(SELECT TOP 1 FechaOperacion FROM ac.CC_OSAT WHERE Operacion='PROCESAR' AND DocEntry=AC.DocEntry ORDER BY FechaOperacion DESC, HoraOperacion DESC) AS FecProceso");
+            sb.Append(" ,(SELECT TOP 1 FechaOperacion FROM ac.CC_OSAT WHERE Operacion='CULMINAR' AND DocEntry=AC.DocEntry ORDER BY FechaOperacion DESC, HoraOperacion DESC) AS FecCulminado");
+            sb.Append(",AC.TipoSolucion");
             sb.Append(" FROM ac.OSAT AC");
             sb.Append(" LEFT JOIN vt.ORTV VT ON VT.DocNum = AC.DocNumTicket");
             sb.Append(" INNER JOIN ac.SAT1 DET ON DET.DocEntry = AC.DocEntry");
@@ -278,6 +281,9 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
                     if (!dr.IsDBNull(24)) { rpt.UnitMsrF = dr.GetString(24); }
                     if (!dr.IsDBNull(25)) { rpt.QuantityF = dr.GetDecimal(25); }
                     if (!dr.IsDBNull(26)) { rpt.Total = dr.GetDecimal(26); }
+                    if (!dr.IsDBNull(27)) { rpt.FechaProceso = dr.GetDateTime(27).ToString("yyyy-MM-dd"); }
+                    if (!dr.IsDBNull(28)) { rpt.FechaCulminado = dr.GetDateTime(28).ToString("yyyy-MM-dd"); }
+                    if (!dr.IsDBNull(29)) { rpt.TipoSolucion = dr.GetString(29); }
                     lista.Add(rpt);
                 }
                 dr.Close();

@@ -30,5 +30,8 @@ namespace Capa_Entidad.AtencionCliente_ENT.ReportesSql
         [DisplayName("UNIDAD")] public string UnitMsrF { get; set; }
         [DisplayName("CANTIDAD")] public decimal QuantityF { get; set; }
         [DisplayName("TOTAL")] public decimal Total { get; set; }
+        [DisplayName("FECHA PROCESO")] public string FechaProceso { get; set; } 
+        [DisplayName("FECHA CULMINADO")] public string FechaCulminado { get; set; }
+        [DisplayName("TIPO SOLUCION")] public string TipoSolucion { get; set; }
     }
 }
