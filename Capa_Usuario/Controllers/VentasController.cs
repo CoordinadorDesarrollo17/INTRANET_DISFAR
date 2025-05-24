@@ -2856,7 +2856,7 @@ namespace Capa_Usuario.Controllers
                     {
                         DetORTV = ortv,
                         TipoSolicitudCreaTicketVenta = "('Reclamo','Devolucion')",      // TipoSolicitudCreaTicketVenta: Filtro para el botón Reclamos Crea Ticket Venta
-                        TipoSolucion = "('Regalo','Articulo','RegaloArticulo')",
+                        TipoSolucion = "('Regalo','Articulo','RegaloArticulo','Intercambio','NotaDeCredito','NCPorDesc','Envio')",
                         Estado = "Atendido"
                     };
                     return View(osatN.ListarSolicitudes(filtro, false));
@@ -3348,7 +3348,7 @@ namespace Capa_Usuario.Controllers
             {
                 DetORTV = ortv,
                 TipoSolicitudCreaTicketVenta = "('Reclamo','Devolucion')",      // TipoSolicitudCreaTicketVenta: Filtro para el botón Reclamos Crea Ticket Venta
-                TipoSolucion = "('Regalo','Articulo','RegaloArticulo')",
+                TipoSolucion = "('Regalo','Articulo','RegaloArticulo','Intercambio','NotaDeCredito','NCPorDesc','Envio')",
                 Estado = "Atendido"
             };
             return Json(osatN.ListarSolicitudes(filtro, false));
