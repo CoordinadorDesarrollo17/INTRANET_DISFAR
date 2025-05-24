@@ -256,11 +256,12 @@ namespace Capa_Usuario.Controllers
             devolucion.CardCode = internamiento.CardCode;
             devolucion.CardName = internamiento.CardName;
             devolucion.RetiroMercado = false;
-            devolucion.SinEM = false;
+            devolucion.SinEM = false;       // Si tiene entrada de mercancía
             devolucion.Operario = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
 
             int linea = 1;
             var detalleDevolucion = new List<RPD1_E>();
+
             foreach (var item in internamiento.Detalle)
             {
                 DateTime fechaConvertida = DateTime.ParseExact(item.FechaVencimiento, "dd/MM/yyyy", CultureInfo.InvariantCulture);
@@ -286,7 +287,7 @@ namespace Capa_Usuario.Controllers
                 detalleDevolucion.Add(obj);
                 ++linea;
             }
-            ;
+
             var result = new Capa_Negocio.Almacen_NEG.TablasSql.ORPD_N().RegistrarDevolucion(devolucion, detalleDevolucion);
 
             return Json(result);
