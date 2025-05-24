@@ -21,6 +21,7 @@ using System.Windows.Forms;
 using System.Deployment.Internal;
 using System.Dynamic;
 using DocumentFormat.OpenXml.Drawing;
+using System.Drawing;
 namespace Capa_Datos.Ventas_DAO.TablasSql
 {
     public class ORTV_D
@@ -2451,7 +2452,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                                         "T0.Zona, T0.DirDestino, PesadoPedido.PesoTotal, CONVERT (varchar, T0.FechaPago, 103) AS 'FechaPagoVenta', CONVERT (varchar, T0.HoraPago, 108) AS 'HoraPagoVenta' " +
                                         //"(Select top 1 CONVERT(varchar, FechaOperacion , 103) from vt.CC_ORTV where DocEntry=T0.DocEntry and Operacion='PREENVIAR' order by FechaOperacion,HoraOperacion desc ), " +
                                         //"(Select top 1 CONVERT(varchar, FechaOperacion , 103) from vt.CC_ORTV where DocEntry=T0.DocEntry and Operacion='ENVIAR' order by FechaOperacion,HoraOperacion desc ) " +
-                                        "FROM VT.ORTV T0 INNER JOIN VT.RTV2 T1 ON T0.DocEntry=T1.DocEntry "+
+                                        "FROM VT.ORTV T0 INNER JOIN VT.RTV2 T1 ON T0.DocEntry=T1.DocEntry " +
                                         "OUTER APPLY ( " +
                                             "SELECT TOP 1 SUM(peso) AS 'PesoTotal' FROM VT.RTV6  " +
                                             "WHERE DocEntry = T0.DocEntry " +
@@ -2587,9 +2588,9 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     if (!dr.IsDBNull(12)) { o.EstadoPago = dr.GetString(12); }
                     if (!dr.IsDBNull(13)) { o.EstadoFacturacion = dr.GetString(13); }
                     if (!dr.IsDBNull(14)) { o.TipoVenta = dr.GetString(14); }
-                    if (!dr.IsDBNull(15)) { o.FechaPago = dr.GetDateTime(15).ToString("yyyy-MM-dd"); }
-                    if (!dr.IsDBNull(16)) { o.HoraPago = dr.GetTimeSpan(16).ToString(); }
-                    if (!dr.IsDBNull(17))  o.TiempoEntrega = dr.GetDateTime(17); 
+                    if (!dr.IsDBNull(15)) o.FechaPago = dr.GetString(15);
+                    if (!dr.IsDBNull(16)) o.HoraPago = dr.GetString(16);
+                    if (!dr.IsDBNull(17)) o.TiempoEntrega = dr.GetDateTime(17);
                     if (!dr.IsDBNull(18)) { o.Vinculados = dr.GetString(18); }
                     if (o.LugarDestino == "Domicilio" || o.LugarDestino == "Agencia")
                     { o.Guias = GuiasTicket(o.DocEntry); }
@@ -2609,7 +2610,17 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 }
                 cn.Close();
             }
-            catch { cn.Close(); }
+            catch (SqlException sqlEx)
+            {
+                LogHelper.RegistrarError(sqlEx, $"Error SQL en ORTV_D - ListarTicketsParaRepartos()");
+                cn.Close();
+            }
+            catch (Exception ex)
+            {
+                LogHelper.RegistrarError(ex, $"Error inesperado en ORTV_D - ListarTicketsParaRepartos()");
+                cn.Close();
+            }
+
             return lista;
         }
         public List<ORTV_E> ListarTicketsRepartosNoEnviados(ORTV_E filtro, string[] estados)
