@@ -84,8 +84,93 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
             {
                 topSelect = "TOP 50";
             }
-            string select = $"select {topSelect} AC.DocEntry, AC.DocNum, CONVERT(varchar,AC.FechaRegistro,23) AS FechaRegistro, AC.DocNumTicket, AC.Estado, AC.Resultado, AC.Tipo, AC.Factor, AC.FechaFacturacion, AC.Solucion, AC.TipoSolucion, VT.LugarDestino, VT.CardName, VT.CardCode," +
-                $"(SELECT TOP 1 FechaOperacion FROM ac.CC_OSAT where Operacion='ATENDER' and DocEntry=AC.DocEntry\r\n order by FechaOperacion,HoraOperacion desc) AS FechaAtencion, AC.TipoVenta, AC.CanalVenta";
+
+            string estadoFiltro = filtro?.Estado != null ? filtro.Estado.Replace("'", "''") : "";
+
+            string select = $@"
+            SELECT {topSelect}
+                AC.DocEntry,
+                AC.DocNum,
+                CONVERT(varchar, AC.FechaRegistro, 23) AS FechaRegistro,
+                AC.DocNumTicket,
+                AC.Estado,
+                AC.Resultado,
+                AC.Tipo,
+                AC.Factor,
+                CASE
+            {(string.IsNullOrEmpty(estadoFiltro) ? "" : $@"
+            WHEN AC.Estado = '{estadoFiltro}' AND '{estadoFiltro}' IN('Registrado','Proceso','Atendido')
+                THEN DATEDIFF(
+                    DAY,
+                    (SELECT TOP 1 FechaOperacion
+                     FROM ac.CC_OSAT
+                     WHERE DocEntry = AC.DocEntry
+                       AND Operacion = 
+                            CASE 
+                                WHEN '{estadoFiltro}' = 'Registrado' THEN 'REGISTRAR'
+                                WHEN '{estadoFiltro}' = 'Proceso' THEN 'PROCESAR'
+                                WHEN '{estadoFiltro}' = 'Atendido' THEN 'ATENDER'
+                                WHEN '{estadoFiltro}' = 'Culminado' THEN 'CULMINAR'
+                                WHEN '{estadoFiltro}' = 'Anulado' THEN 'ANULAR'
+                                ELSE '{estadoFiltro}'
+                            END
+                     ORDER BY FechaOperacion ASC),
+                    GETDATE()
+                )
+            WHEN AC.Estado = '{estadoFiltro}' AND '{estadoFiltro}' ='Culminado'
+            THEN DATEDIFF(
+                    DAY,
+                    (SELECT TOP 1 FechaOperacion
+                     FROM ac.CC_OSAT
+                     WHERE DocEntry = AC.DocEntry
+                     AND Operacion = 'REGISTRAR'
+                     ORDER BY FechaOperacion ASC),
+                    (SELECT TOP 1 FechaOperacion
+                     FROM ac.CC_OSAT
+                     WHERE DocEntry = AC.DocEntry
+                     AND Operacion = 'CULMINAR'
+                     ORDER BY FechaOperacion ASC)
+                )
+            ")}
+            WHEN AC.Tipo IN ('Reclamo', 'Devolucion') AND AC.Estado IN ('Registrado', 'Proceso', 'Atendido')
+                THEN DATEDIFF(
+                    DAY,
+                    (SELECT TOP 1 FechaOperacion
+                     FROM ac.CC_OSAT
+                     WHERE DocEntry = AC.DocEntry AND Operacion = 'REGISTRAR'
+                     ORDER BY FechaOperacion ASC),
+                    (
+                        SELECT CASE
+                            WHEN EXISTS (
+                                SELECT 1 FROM ac.CC_OSAT
+                                WHERE DocEntry = AC.DocEntry AND Operacion = 'ANULAR'
+                            )
+                                THEN NULL
+                            ELSE ISNULL(
+                                (SELECT TOP 1 FechaOperacion
+                                 FROM ac.CC_OSAT
+                                 WHERE DocEntry = AC.DocEntry AND Operacion = 'CULMINAR'
+                                 ORDER BY FechaOperacion DESC),
+                                CONVERT(char(10), GETDATE(), 126)
+                            )
+                        END
+                    )
+                )
+            ELSE NULL
+        END AS DiasRetraso,
+        AC.Solucion,
+        AC.TipoSolucion,
+        VT.LugarDestino,
+        VT.CardName,
+        VT.CardCode,
+        (SELECT TOP 1 FechaOperacion
+         FROM ac.CC_OSAT
+         WHERE Operacion = 'ATENDER' AND DocEntry = AC.DocEntry
+         ORDER BY FechaOperacion, HoraOperacion DESC) AS FechaAtencion,
+        AC.TipoVenta,
+        AC.CanalVenta
+";
+
             string query = $"{select} FROM ac.OSAT AS AC LEFT JOIN vt.ORTV AS VT ON VT.DocNum = AC.DocNumTicket WHERE AC.DocEntry>0 {fil} ORDER BY AC.DocEntry DESC";
             try
             {
@@ -103,7 +188,7 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
                     if (!dr.IsDBNull(5)) { objOSAT.Resultado = dr.GetString(5); }
                     if (!dr.IsDBNull(6)) { objOSAT.Tipo = dr.GetString(6); }
                     if (!dr.IsDBNull(7)) { objOSAT.Factor = dr.GetString(7); }
-                    if (!dr.IsDBNull(8)) { objOSAT.FechaFacturacion = dr.GetDateTime(8).ToString("yyyy-MM-dd"); }
+                    if (!dr.IsDBNull(8)) { objOSAT.DiasRetraso = dr.GetInt32(8); }
                     if (!dr.IsDBNull(9)) { objOSAT.Solucion = dr.GetString(9); }
                     if (!dr.IsDBNull(10)) { objOSAT.TipoSolucion = dr.GetString(10); }
                     if (!dr.IsDBNull(11)) { detORTV.Add("LugarDestino", dr.GetString(11)); } else { detORTV.Add("LugarDestino", ""); }
