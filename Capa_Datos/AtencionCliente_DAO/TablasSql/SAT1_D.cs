@@ -37,7 +37,7 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
         public List<SAT1_E> buscarDetallesSolicitud(int DocEntry)
         {
             List<SAT1_E> lista = new List<SAT1_E>();
-            string query = "select DocEntry,Linea,NroSap,ItemCode,Dscription,UnitMsr,NumPerMsr,Quantity,BatchNum,ExpDate,unitMsrF,QuantityF,PriceAfVAT,LineTotalF,Problema,TipoError,OpResponsable,Comentario,Regalo,MotRegalo,TareaFact,ComprobanteVinc,AlmTransf,ComprobanteFin,AlmVenta, ErrorAlmacen, NCSAP from ac.SAT1 WHERE  DocEntry=@DocEntry";
+            string query = "select DocEntry,Linea,NroSap,ItemCode,Dscription,UnitMsr,NumPerMsr,Quantity,BatchNum,ExpDate,unitMsrF,QuantityF,PriceAfVAT,LineTotalF,Problema,TipoError,OpResponsable,Comentario,Regalo,MotRegalo,TareaFact,ComprobanteVinc,AlmTransf,ComprobanteFin,AlmVenta, ErrorAlmacen, NCSAP, ErrAlmOtrCom from ac.SAT1 WHERE  DocEntry=@DocEntry";
             try
             {
                 SqlDataReader dr = db.ExecuteReaderNoSp(query, new List<string>() { "@DocEntry" }, DocEntry);
@@ -71,6 +71,7 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
                     if (!dr.IsDBNull(24)) { o.AlmVenta = dr.GetString(24); }
                     if (!dr.IsDBNull(25)) { o.ErrorAlmacen = dr.GetString(25); }
                     if (!dr.IsDBNull(26)) { o.NCSAP = dr.GetInt32(26); }
+                    if (!dr.IsDBNull(27)) { o.ErrAlmOtrCom = dr.GetString(27); }
                     lista.Add(o);
                 }
                 dr.Close();
