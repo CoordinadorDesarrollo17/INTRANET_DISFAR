@@ -25,7 +25,8 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasExternas
         public SolicitudesTraslado_E BuscarSolicitudDeTraslado(int DocNum)
         {
             SolicitudesTraslado_E solicitud = null;
-            string query = $"CALL {uti.schemaHana}\"COBE_BUSCAR_DOC_SOL_TRASLADO\"({DocNum}) ";
+            //string query = $"CALL {uti.schemaHana}\"COBE_BUSCAR_DOC_SOL_TRASLADO\"({DocNum}) ";
+            string query = $"CALL {uti.schemaHana}\"COBE_BUSCAR_DOC_SOL_TRASLADO_2\"({DocNum}) ";
 
             try
             {
@@ -49,7 +50,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasExternas
                         }
 
                         string itemCode = hdr.IsDBNull(10) ? "" : hdr.GetString(10);
-                        string batchNum = hdr.IsDBNull(13) ? "" : hdr.GetString(13); // Lote
+                        string batchNum = hdr.IsDBNull(15) ? "" : hdr.GetString(15); // Lote
                         string uniqueKey = $"{itemCode}_{batchNum}"; // Clave única combinada
 
                         // Crear nueva instancia de detalle
@@ -60,9 +61,9 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasExternas
                             ItemCode = itemCode,
                             ItemName = hdr.IsDBNull(11) ? "" : hdr.GetString(11),
                             BatchNum = batchNum,
-                            QuantityCajas = hdr.IsDBNull(14) ? 0 : Math.Round(hdr.GetDecimal(14), 0),
-                            InDate = hdr.IsDBNull(15) ? "" : hdr.GetString(15),
-                            ExpDate = hdr.IsDBNull(16) ? "" : hdr.GetString(16)
+                            QuantityCajas = hdr.IsDBNull(16) ? 0 : Math.Round(hdr.GetDecimal(16), 0),
+                            InDate = hdr.IsDBNull(17) ? "" : hdr.GetString(17),
+                            ExpDate = hdr.IsDBNull(18) ? "" : hdr.GetString(18)
                         };
 
                         // Si la clave única no existe en el diccionario, agregar el detalle
