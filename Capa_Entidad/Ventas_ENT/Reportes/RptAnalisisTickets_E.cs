@@ -188,6 +188,11 @@ namespace Capa_Entidad.Ventas_ENT.Reportes
         [DisplayName("ALMACEN SALIDA")]
         public string AlmacenSalida { get; set; }               // USADO COMO FILTRO
         public string Comentario { get; set; }               
+        public string ZonaVenta { get; set; }               
+        public string DirDestinoVenta { get; set; }               
+        public decimal PesoTotalPedido { get; set; }               
+        public string FechaPagoTicket { get; set; }               
+        public string HoraPagoTicket { get; set; }                             
     }
 
     public class RptFiltrosAnalisisTickets_E : RptAnalisisTickets_E

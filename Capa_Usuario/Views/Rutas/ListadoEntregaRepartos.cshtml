@@ -30,33 +30,47 @@
         $(location).attr('href', "/Rutas/EntregaMasiva?" + o);
     }
     function liberarTrTable1(DocEntry, Linea, DocEntryTicket, docNumTicket, idOTC, tipoVista = '') {
-        //console.log(tipoVista);
-
         Swal.fire({
             title: `¿Está seguro(a) de liberar el ticket N° ${docNumTicket} ?`,
             text: "Este proceso es irreversible!",
             icon: 'warning',
-            input: 'textarea',
-            inputPlaceholder: 'Escribe tu comentario aquí',
+            html: `<select id="motivoSelect" class="form-control" style="width:100%;margin-bottom:10px">
+                            <option value="" disabled selected>Seleccione un motivo</option>
+                            <option value="A SOLICITUD DEL VENDEDOR NO SE ENTREGA EL PEDIDO">A SOLICITUD DEL VENDEDOR NO SE ENTREGA EL PEDIDO</option>
+                            <option value="ACCESO RESTRINGIDO AL LUGAR DE ENTREGA">ACCESO RESTRINGIDO AL LUGAR DE ENTREGA</option>
+                            <option value="AGENCIA CERRADA">AGENCIA CERRADA</option>
+                            <option value="ALTAS HORAS DE LA NOCHE">ALTAS HORAS DE LA NOCHE</option>
+                            <option value="CLIENTE CERRADO">CLIENTE CERRADO</option>
+                            <option value="CLIENTE DESEA OTRA FECHA">CLIENTE DESEA OTRA FECHA</option>
+                            <option value="CLIENTE NO QUISO RECEPCIONAR">CLIENTE NO QUISO RECEPCIONAR</option>
+                            <option value="CLIENTE NO SE ENCUENTRA DISPONIBLE">CLIENTE NO SE ENCUENTRA DISPONIBLE</option>
+                            <option value="CLIENTE NO TIENE DINERO">CLIENTE NO TIENE DINERO</option>
+                            <option value="CLIENTE YA NO QUIERE EL PEDIDO">CLIENTE YA NO QUIERE EL PEDIDO</option>
+                            <option value="DIRECCIÓN INCORRECTA - POR VENTAS">DIRECCIÓN INCORRECTA - POR VENTAS</option>
+                            <option value="EL PEDIDO SE ANULARÁ">EL PEDIDO SE ANULARÁ</option>
+                            <option value="FALTANTE">FALTANTE</option>
+                            <option value="INTERNO">INTERNO</option>
+                            <option value="MERCADERÍA EN MAL ESTADO">MERCADERÍA EN MAL ESTADO</option>
+                            <option value="PROBLEMA DOCUMENTARIO (FALTA PROTOCOLOS, FACTURAS, ENTRE OTRAS)">PROBLEMA DOCUMENTARIO (FALTA PROTOCOLOS, FACTURAS, ENTRE OTRAS)</option>
+                            <option value="SIN PERSONAL DE RECEPCIÓN DE PEDIDOS EN LUGAR DE ENTREGA">SIN PERSONAL DE RECEPCIÓN DE PEDIDOS EN LUGAR DE ENTREGA</option>
+                            <option value="UNA CAJA POR OTRA">UNA CAJA POR OTRA</option>
+                        </select>`,
             confirmButtonText: 'Si, estoy seguro(a)',
-            confirmButtonColor: '#28a745',
             cancelButtonText: 'Cancelar',
-            cancelButtonColor: '#d33',
+            customClass: {
+                confirmButton: 'btn btn-success mx-2',
+                cancelButton: 'btn btn-outline-danger'
+            },
             showCancelButton: true,
-            preConfirm: (comentario) => {
-                if (tipoVista == 'MOVIL' && !comentario) {
-                    Swal.update({
-                        title: '¡Error!',
-                        text: 'Por favor ingresa un comentario',
-                        icon: 'error',
-                        showCancelButton: true,
-                        confirmButtonColor: '#3085d6',
-                        cancelButtonColor: '#d33',
-                        confirmButtonText: 'OK',
-                    });
-                    return false; // Para evitar que se cierre el modal
+            buttonsStyling: false,
+            preConfirm: () => {
+                const motivo = document.getElementById('motivoSelect').value;
+
+                if (/*tipoVista == 'MOVIL' && */!motivo) {
+                    Swal.showValidationMessage('Debe seleccionar un motivo');
+                    return false;
                 }
-                return comentario;
+                return motivo;
             }
         }).then((result) => {
             if (result.isConfirmed) {

@@ -3,6 +3,10 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+@section Styles{
+    <link href="https://unpkg.com/slim-select@latest/dist/slimselect.css" rel="stylesheet" />
+}
+
 <script>
     $(document).ready(function () { });
     function cargarFormulario(info) {
@@ -60,3 +64,7 @@
 
 <table id="Reporte" class="table-responsive" style="background-color:white">
 </table>
+
+@section Scripts{
+    <script src="https://unpkg.com/slim-select@latest/dist/slimselect.min.js" defer></script>
+}
