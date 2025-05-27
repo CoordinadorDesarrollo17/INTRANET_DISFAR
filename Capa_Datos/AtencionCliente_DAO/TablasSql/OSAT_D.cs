@@ -929,16 +929,17 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
         public List<OSAT_E> obtenerNotificadoCliente()
         {
             var resultado = new List<OSAT_E>();
-            string query = @"SELECT DISTINCT CardName, COUNT(*) AS TicketsAbiertos
+            string query = @"SELECT DISTINCT CardName,CardCode, COUNT(*) AS TicketsAbiertos
                      FROM vt.ORTV 
-                     WHERE LTRIM(RTRIM(UPPER(CardName))) IN (
-                         SELECT LTRIM(RTRIM(UPPER(Contacto)))
-                         FROM ac.OSAT
-                         WHERE Estado IN ('Registrado','Proceso','Atendido')
-                         AND Tipo IN ('Reclamo','Devolucion') AND NotiCliente = 1
+                     WHERE CardCode
+                     IN (SELECT CardCode FROM vt.ORTV WHERE DocNum in (
+                     	SELECT DocNumTicket
+                     	FROM ac.OSAT
+                     	WHERE Estado IN ('Registrado','Proceso','Atendido')
+                     	AND Tipo IN ('Reclamo','Devolucion') AND NotiCliente = 1)
                      )
                      AND Estado IN ('RECIBIDO','PICKEANDO','VERIFICANDO','EMPACANDO','EMPACADO') 
-                     GROUP BY CardName";
+                     GROUP BY CardName,CardCode";
             using (SqlConnection cn = new SqlConnection(uti.cadSql))
             {
                 SqlCommand cmd = new SqlCommand(query, cn);
@@ -950,7 +951,8 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
                         resultado.Add(new OSAT_E
                         {
                             CardName = dr.IsDBNull(0) ? "" : dr.GetString(0),
-                            TicketsAbiertos = dr.IsDBNull(1) ? 0 : dr.GetInt32(1)
+                            CardCode = dr.IsDBNull(1) ? "" : dr.GetString(1),
+                            TicketsAbiertos = dr.IsDBNull(2) ? 0 : dr.GetInt32(2)
                         });
                     }
                 }
@@ -960,7 +962,7 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
         }
 
 
-        public List<OSAT_E> obtenerNotificadoClienteDetalle(string cardName)
+        public List<OSAT_E> obtenerNotificadoClienteDetalle(string CardCode)
         {
             var resultado = new List<OSAT_E>();
             string query = @"
@@ -971,18 +973,18 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
             Vendedor,
             CardName
             FROM vt.ORTV
-        WHERE LTRIM(RTRIM(UPPER(CardName))) IN (
-            SELECT LTRIM(RTRIM(UPPER(Contacto)))
-            FROM ac.OSAT
-            WHERE Estado IN ('Registrado','Proceso','Atendido')
-            AND Tipo IN ('Reclamo','Devolucion') AND NotiCliente = 1
-        )
-        AND Estado IN ('RECIBIDO','PICKEANDO','VERIFICANDO','EMPACANDO','EMPACADO')
-        AND CardName = @CardName";
+        WHERE CardCode
+        IN (SELECT CardCode FROM vt.ORTV WHERE DocNum in (
+        	SELECT DocNumTicket
+        	FROM ac.OSAT
+        	WHERE Estado IN ('Registrado','Proceso','Atendido')
+        	AND Tipo IN ('Reclamo','Devolucion') AND NotiCliente = 1))
+         AND Estado IN ('RECIBIDO','PICKEANDO','VERIFICANDO','EMPACANDO','EMPACADO')
+         AND CardCode = @CardCode";
             using (SqlConnection cn = new SqlConnection(uti.cadSql))
             {
                 SqlCommand cmd = new SqlCommand(query, cn);
-                cmd.Parameters.AddWithValue("@CardName", cardName);
+                cmd.Parameters.AddWithValue("@CardCode", CardCode);
                 cn.Open();
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {

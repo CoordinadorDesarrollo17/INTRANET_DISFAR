@@ -49,6 +49,7 @@ namespace Capa_Entidad.AtencionCliente_ENT.TablasSql
 
         // Se usa para el proceso de Notificar Cliente
         public string CardName { get; set; }
+        public string CardCode { get; set; }
         public int TicketsAbiertos { get; set; }
         public string FechaSapTicket { get; set; }
         public int DocNumVt { get; set; }

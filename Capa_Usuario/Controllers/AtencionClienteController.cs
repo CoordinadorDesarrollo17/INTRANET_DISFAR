@@ -628,12 +628,12 @@ namespace Capa_Usuario.Controllers
             }
         }
 
-        public JsonResult ObtenerNotificadoClienteDetalle(string cardName, int idOperation = 2701)
+        public JsonResult ObtenerNotificadoClienteDetalle(string CardCode, int idOperation = 2701)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                var data = osatN.obtenerNotificadoClienteDetalle(cardName);
+                var data = osatN.obtenerNotificadoClienteDetalle(CardCode);
                 return Json(data, JsonRequestBehavior.AllowGet);
             }
             else

@@ -56,7 +56,7 @@
                                 '<td>' + data[i].CardName + '</td>' +
                                 '<td class="text-center">' + data[i].TicketsAbiertos + '</td>' +
                                 '<td class="text-center">' +
-                                    '<button type="button" class="btn btn-info btn-sm" onclick="verMasNotificacion(\'' + data[i].CardName.replace(/'/g, "\\'") + '\')">Ver Más</button>' +
+                            '<button type="button" class="btn btn-info btn-sm" onclick="verMasNotificacion(\'' + data[i].CardCode.replace(/'/g, "\\'") + '\')">Ver Más</button>' +
                                 '</td>' +
                             '</tr>'
                         );
@@ -77,14 +77,14 @@
         });
     });
 
-    function verMasNotificacion(cardName) {
+    function verMasNotificacion(CardCode) {
     var $tbody = $('#tablaDetalleNotificaciones tbody');
     $tbody.html('<tr><td colspan="4">Cargando...</td></tr>');
     $('#modalDetalleNotificacion').modal('show');
     $.ajax({
         url: '@Url.Action("ObtenerNotificadoClienteDetalle", "AtencionCliente")',
         type: 'GET',
-        data: { cardName: cardName },
+        data: { CardCode: CardCode },
         dataType: 'json',
         success: function (data) {
             $tbody.empty();
