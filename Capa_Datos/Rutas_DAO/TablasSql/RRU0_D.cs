@@ -117,6 +117,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                         catch (Exception ex)
                         {
                             tran.Rollback();
+                            LogHelper.RegistrarError(ex, "Error inesperado en RRU0_D - liberarRRU0()");
                             throw new Exception($"Error al liberar detalle D:{o.DocEntry}-L:{o.Linea}", ex);
                         }
                     }

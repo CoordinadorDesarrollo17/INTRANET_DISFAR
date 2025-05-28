@@ -350,11 +350,11 @@ namespace Capa_Usuario.Controllers
                     {
                         if (reporte.Count >= 1)
                         {
-                            for (var col = 1; col <= 37; col++)
+                            for (var col = 1; col <= 47; col++)
                             {
                                 worksheet.Column(col).AutoFit();
                             }
-                            var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: reporte.Count + 1, toColumn: 37), "ReporteHojasRuta");
+                            var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: reporte.Count + 1, toColumn: 47), "ReporteHojasRuta");
                             tabla.ShowHeader = true;
                             tabla.TableStyle = TableStyles.Medium2;
                         }
@@ -1124,7 +1124,7 @@ namespace Capa_Usuario.Controllers
             else
             { return Content(""); }
         }
-        public ActionResult liberarRRU0(RRU0_E o, int idOperation = 202)
+        public ActionResult liberarRRU0(RRU0_E o, int idOperation = 300)
         {
             string acceso = AccesoHelper.VerificarAccesos(idOperation, (Usuario_E)Session["UsuarioId"], this.ControllerContext.RouteData.Values["action"].ToString(), Request.UserHostAddress, Request.UserHostName);
             if (acceso == "C_Access")
