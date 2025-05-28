@@ -1124,7 +1124,7 @@ namespace Capa_Usuario.Controllers
             else
             { return Content(""); }
         }
-        public ActionResult liberarRRU0(RRU0_E o, int idOperation = 202)
+        public ActionResult liberarRRU0(RRU0_E o, int idOperation = 300)
         {
             string acceso = AccesoHelper.VerificarAccesos(idOperation, (Usuario_E)Session["UsuarioId"], this.ControllerContext.RouteData.Values["action"].ToString(), Request.UserHostAddress, Request.UserHostName);
             if (acceso == "C_Access")
