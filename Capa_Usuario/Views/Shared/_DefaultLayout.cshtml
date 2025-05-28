@@ -781,14 +781,15 @@
 		});
 	}
 
-		function inicializarDataTable(idTable, itemsPorPagina) {
+		function inicializarDataTable(idTable, itemsPorPagina, conBuscador = true) {
 			const items = Number(itemsPorPagina)
 
-            if ($.fn.DataTable.isDataTable(`#${idTable}`)) {
+			if ($.fn.DataTable.isDataTable(`#${idTable}`)) {
                 $(`#${idTable}`).DataTable().clear().destroy();
             }
 
 			let table = $(`#${idTable}`).DataTable({
+                "searching": conBuscador,  
                 "order": [],  // Desactiva ordenamiento automatico.
                 "ordering": true, // Iconos para ordenar todas las columnas de la tabla.
                 "pageLength": items,

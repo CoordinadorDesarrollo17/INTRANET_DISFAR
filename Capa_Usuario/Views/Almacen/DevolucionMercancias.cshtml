@@ -51,7 +51,7 @@
 
 
     <div class="bg-white">
-        <table id="tbl_listaDevoluciones" class="table table-light table-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
+        <table id="tbl_listaDevoluciones" class="table table-light table-sm table-hover" cellspacing="0" width="100%">
             <thead class="bg-cobefar-6">
                 <tr>
                     <th class="text-center">DocNum<br /><div class="d-flex justify-content-center"><input type="text" name="DocNum" id="filtro_DocNum" class="form-control-sm border text-center filtrosDevolucion" autocomplete="off" style="width: 100px" onchange="filtrar();" value="@if (ViewBag.Devolucion.DocNum != 0) { Write(ViewBag.Devolucion.DocNum); }" /></div></th>
@@ -74,7 +74,6 @@
                         </div>
                     </th>
 
-                    <th class="text-center"></th>
                     <th class="text-center"></th>
                     <th class="text-center"></th>
                     <th class="text-center"></th>
@@ -566,6 +565,8 @@
 
         var tableObs = $('#tbl_listaSubmotivos').DataTable();
         tableObs.columns.adjust().draw();
+
+        inicializarDataTable('tbl_listaDevoluciones', 50, false);
     });
 
     $('#tbl_listaDevoluciones_filter').hide();
