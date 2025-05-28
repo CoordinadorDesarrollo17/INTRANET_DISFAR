@@ -140,7 +140,7 @@
             const tbody = document.querySelector(`#tbl_documento tbody`);
             const modeloJS = @Html.Raw(ViewBag.JsonModel);
 
-            document.querySelector('#btn_crearDevolucion').hidden = modeloJS[0].TipoDocumento == 'OWTQ';
+            document.querySelector('#btn_crearDevolucion').hidden = modeloJS[0].TipoDocumento != 'OPDN';
             document.querySelector('#TipoDocumento').value = tiposDocumento[modeloJS[0].TipoDocumento];
             document.querySelector('#Id').value = modeloJS[0].Id;
             document.querySelector('#DocEntry').value = modeloJS[0].DocEntry;
@@ -844,6 +844,11 @@
                             body: JSON.stringify({ id }) // Enviar los datos como JSON
                         });
 
+                        if (!response.ok) throw new Error(`Error en la solicitud: ${response.statusText}`);
+
+                        const contentType = response.headers.get("content-type");
+                        if (!contentType || !contentType.includes("application/json")) throw new Error("Sesión expirada. Por favor, vuelve a iniciar sesión.");
+
                         const data = await response.json();
 
                         Swal.fire({
@@ -863,6 +868,20 @@
 
                     } catch (error) {
                         console.error('Error:', error);
+                        if (error.message.includes("Sesión expirada")) {
+                            Swal.fire({
+                                title: 'Sesión expirada',
+                                text: 'Por seguridad, se actualizará la página.',
+                                icon: 'warning',
+                                allowOutsideClick: false,
+                                allowEscapeKey: false,
+                                showConfirmButton: true
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            Swal.fire('Ocurrió un error al procesar la solicitud. Intente nuevamente o comuníquese con SISTEMAS.');
+                        }
                     }
                 } else if (result.dismiss === Swal.DismissReason.cancel) {
                     // Acción si se cancela (opcional)

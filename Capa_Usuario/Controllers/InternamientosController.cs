@@ -261,28 +261,45 @@ namespace Capa_Usuario.Controllers
 
             int linea = 1;
             var detalleDevolucion = new List<RPD1_E>();
+            var nuevaListaDetalle = internamiento.Detalle.Where(i => i.Liberado == 1 && i.Transferido == 0 && i.CantidadDevolucion > 0).ToList();
 
-            foreach (var item in internamiento.Detalle)
+            if (nuevaListaDetalle != null && !nuevaListaDetalle.Any())
+                return Json(new { Titulo = "No se pudo generar la devolución", Mensajes = new List<string> { "Debe liberar al menos un artículo o ingresar una cantidad para devolución mayor a cero." }, Icono = "warning" }, JsonRequestBehavior.AllowGet);
+
+            foreach (var item in nuevaListaDetalle)
             {
                 DateTime fechaConvertida = DateTime.ParseExact(item.FechaVencimiento, "dd/MM/yyyy", CultureInfo.InvariantCulture);
+                DateTime fechaContabilizacionConvertida = DateTime.ParseExact(internamiento.FechaContabilizacion, "dd/MM/yyyy", CultureInfo.InvariantCulture);
+
+                var listaEM = new Capa_Negocio.Almacen_NEG.Tablas.OPDN_N()
+                    .Listar(new Capa_Entidad.Almacen_ENT.Tablas.OPDN_E
+                    {
+                        DocNum = Convert.ToInt32(internamiento.DocNum),
+                        DocDate = fechaContabilizacionConvertida.ToString("yyyy-MM-dd"),
+                        ItemCode = item.ItemCode,
+                        BatchNum = item.Lote,
+                        CardCode = $"P{internamiento.CardCode}",
+                        U_COB_LUGAREN = devolucion.WhsCode,
+                        NumAtCard = internamiento.ComprobanteVinculado
+                    });
 
                 var obj = new RPD1_E();
                 obj.Linea = linea;
                 obj.ItemCode = item.ItemCode;
                 obj.ItemName = item.ItemName;
-                obj.FirmCode = 0;
+                obj.FirmCode = Convert.ToInt32(listaEM.First().FirmCode);
                 obj.BatchNum = item.Lote;
                 obj.ExpDate = fechaConvertida.ToString("yyyy-MM-dd");
                 obj.Quantity = item.CantidadDevolucion;
-                obj.NumInBuy = 0;
-                obj.BuyUnitMsr = "";
+                obj.NumInBuy = listaEM.First().NumInBuy;
+                obj.BuyUnitMsr = listaEM.First().BuyUnitMsr;
                 obj.Motivo = 11;        // 11: Devolución
                 obj.RefFactura = internamiento.ComprobanteVinculado;
                 obj.Observacion = null;
-                obj.MaxQuantity = 0;
+                obj.MaxQuantity = listaEM.First().Quantity;
                 obj.Submotivo = 0;
-                obj.MaxQuantityOIBT = 0;
-                obj.NumInBuyKey = 0;
+                obj.MaxQuantityOIBT = listaEM.First().Quantity / listaEM.First().NumInBuy;
+                obj.NumInBuyKey = listaEM.First().NumInBuy;
 
                 detalleDevolucion.Add(obj);
                 ++linea;
@@ -290,7 +307,13 @@ namespace Capa_Usuario.Controllers
 
             var result = new Capa_Negocio.Almacen_NEG.TablasSql.ORPD_N().RegistrarDevolucion(devolucion, detalleDevolucion);
 
-            return Json(result);
+            var titulo = (result > 0) ? "Acción completada" : "Error";
+            var icono = (result > 0) ? "success" : "error";
+            var mensajes = (result > 0)
+                ? new List<string> { $"Se registró correctamenta la devolución: {result}" } 
+                : new List<string> { "Ocurrió un error al cancelar el documento.", "Por favor, comuníquese con el área de Sistemas para más información" };
+
+            return Json(new { Titulo = titulo, Mensajes = mensajes, Icono = icono }, JsonRequestBehavior.AllowGet);
 
         }
     }

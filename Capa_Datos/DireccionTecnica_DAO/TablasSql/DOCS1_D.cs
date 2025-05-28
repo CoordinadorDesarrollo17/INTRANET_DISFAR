@@ -274,28 +274,31 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                                 detalle.Transferido = dr.IsDBNull(17) ? 0 : dr.GetInt32(17);
 
                                 // Asignación de archivos adjuntos
-                                string baseRuta = uti.directorioFileServer;
-                                string rutaDirectorio = Path.Combine(baseRuta, "DireccionTecnica", "Internamiento");
+                                string baseRuta = uti.directorioDocumentosRegulatorios;
+                                string rutaDirectorio = Path.Combine(baseRuta, "Documentos", detalle.ItemCode);
                                 string carpeta = detalle.ItemCode ?? "undefined";
 
-                                string rutaET = Path.Combine(rutaDirectorio, carpeta, "ET.pdf").Replace("\\", "/");
-                                if (System.IO.File.Exists(rutaET))
+                                //string rutaET = Path.Combine(rutaDirectorio, carpeta, "ET.pdf").Replace("\\", "/");
+                                string rutaCompletaET = Path.Combine(rutaDirectorio, "ET.pdf").Replace("\\", "/");
+                                if (System.IO.File.Exists(rutaCompletaET))
                                 {
-                                    byte[] contenido = System.IO.File.ReadAllBytes(rutaET);
+                                    byte[] contenido = System.IO.File.ReadAllBytes(rutaCompletaET);
                                     detalle.DescargarArchivoET = Convert.ToBase64String(contenido);
                                 }
 
-                                string rutaProtocolo = Path.Combine(rutaDirectorio, carpeta, $"{detalle.Lote}.pdf").Replace("\\", "/");
-                                if (System.IO.File.Exists(rutaProtocolo))
+                                string rutaCompletaProtocolo = Path.Combine(rutaDirectorio, $"{detalle.Lote}.pdf").Replace("\\", "/");
+                                //string rutaProtocolo = Path.Combine(rutaDirectorio, carpeta, $"{detalle.Lote}.pdf").Replace("\\", "/");
+                                if (System.IO.File.Exists(rutaCompletaProtocolo))
                                 {
-                                    byte[] contenido2 = System.IO.File.ReadAllBytes(rutaProtocolo);
+                                    byte[] contenido2 = System.IO.File.ReadAllBytes(rutaCompletaProtocolo);
                                     detalle.DescargarArchivoProtocolo = Convert.ToBase64String(contenido2);
                                 }
 
-                                string rutaRS = Path.Combine(rutaDirectorio, carpeta, $"{detalle.RegistroSanitario}.pdf").Replace("\\", "/");
-                                if (System.IO.File.Exists(rutaRS))
+                                string rutaDirectorioRS = Path.Combine(baseRuta, "Documentos", "RegistrosSanitarios");
+                                string rutaCompletaRS = Path.Combine(rutaDirectorioRS, $"{detalle.RegistroSanitario}.pdf").Replace("\\", "/");
+                                if (System.IO.File.Exists(rutaCompletaRS))
                                 {
-                                    byte[] contenido3 = System.IO.File.ReadAllBytes(rutaRS);
+                                    byte[] contenido3 = System.IO.File.ReadAllBytes(rutaCompletaRS);
                                     detalle.DescargarArchivoRS = Convert.ToBase64String(contenido3);
                                 }
 
