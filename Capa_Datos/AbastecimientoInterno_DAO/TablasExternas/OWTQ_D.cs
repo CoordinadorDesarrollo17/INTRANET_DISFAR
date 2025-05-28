@@ -25,8 +25,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasExternas
         public SolicitudesTraslado_E BuscarSolicitudDeTraslado(int DocNum)
         {
             SolicitudesTraslado_E solicitud = null;
-            //string query = $"CALL {uti.schemaHana}\"COBE_BUSCAR_DOC_SOL_TRASLADO\"({DocNum}) ";
-            string query = $"CALL {uti.schemaHana}\"COBE_BUSCAR_DOC_SOL_TRASLADO_2\"({DocNum}) ";
+            string query = $"CALL {uti.schemaHana}\"COBE_BUSCAR_DOC_SOL_TRASLADO\"({DocNum}) ";
 
             try
             {
