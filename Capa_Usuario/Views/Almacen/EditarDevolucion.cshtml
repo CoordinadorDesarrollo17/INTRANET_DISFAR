@@ -16,13 +16,13 @@
         <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
             <li><a href="@Url.Action("DevolucionMercancias", "Almacen")">Listado de devoluciones</a></li>
-            <li class="current"><em>Editar Devolución</em></li>
+            <li class="current"><em>@ViewBag.Title</em></li>
         </ol>
     </nav>
 </div>
 
 <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
-    <div class="px-3 pt-3"><h3 class="titulo-seccion">EDITAR DEVOLUCIÓN</h3></div>
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">@ViewBag.Title.ToUpper()</h3></div>
 </div>
 
 <form action="/Almacen/EditarDevolucion" method="post" id="frmEditarDevolucion">
@@ -36,8 +36,8 @@
             </div>
 
             <div class="col-lg-2 my-2">
-                <label class="text-dark form-label font-weight-bold font-18">Fecha:</label>
-                <input type="text" id="FechaOperacion" class="form-control border-success text-center" value="@if (Model != null) { Write(Model.FechaOperacion); }" disabled>
+                <label class="text-dark form-label font-weight-bold font-18">Fecha Devolución:</label>
+                <input type="date" id="FechaDevolucion" name="FechaDevolucion" class="form-control border-success text-center" value="@(Model?.FechaDevolucion != null ? DateTime.Parse(Model.FechaDevolucion).ToString("yyyy-MM-dd") : "")">
             </div>
 
             <div class="col-lg-2 my-2">
@@ -78,17 +78,17 @@
         <div class="row mt-4">
             <div class="col-lg-2">
                 <button type="button" id="btn_modalArticulos" data-toggle="modal" data-target="#modalArticulos" hidden></button>
-                <button type="button" class="btn btn-warning" onclick="agregarArticulos();"><i class="icon icon-plus"></i> Agregar Artículos</button>
+                <button type="button" class="btn btn-warning cls-liberaciones" onclick="agregarArticulos();"><i class="icon icon-plus"></i> Agregar Artículos</button>
             </div>
             <div class="col-lg-2">
-                <button id="btn_nuevo_articulo" type="button" class="btn btn-info" data-toggle="collapse" data-target="#div_nuevoArticulo" aria-expanded="false" aria-controls="div_nuevoArticulo"><i class="icon icon-plus"></i> Nuevo Artículo</button>
+                <button id="btn_nuevo_articulo" type="button" class="btn btn-info cls-liberaciones" data-toggle="collapse" data-target="#div_nuevoArticulo" aria-expanded="false" aria-controls="div_nuevoArticulo"><i class="icon icon-plus"></i> Nuevo Artículo</button>
                 <button type="button" class="btn btn-primary" id="btn_consultarRM" onclick="agregarArticulosRM();"><i class="icon icon-search"></i> Consultar RM </button>
                 <button type="button" id="btn_modalArticulosRM" data-toggle="modal" data-target="#modalArticulosRM" hidden></button>
             </div>
 
-            <div class="col-lg-6 d-flex align-items-center justify-content-end">
+            <div class="col-lg-8 d-flex align-items-center justify-content-end">
                 <label for="factura_unica" class="text-dark form-label font-weight-bold font-18 mt-3 mr-3">Factura única:</label>
-                <input type="text" name="CardName" id="factura_unica" class="form-control border-success text-center" value="" style="width: 300px;" autocomplete="off" onkeyup="completarRefFactura(this.value);">
+                <input type="text" name="CardName" id="factura_unica" class="form-control border-success text-center cls-liberaciones" value="" style="width: 300px;" autocomplete="off" onkeyup="completarRefFactura(this.value);">
             </div>
         </div>
         <div id="div_nuevoArticulo" class="collapse">
@@ -136,9 +136,12 @@
                     <thead class="bg-cobefar">
                         <tr>
                             <th hidden></th>
-                            <th hidden></th>@*Guarda MaxQuantity*@
-                            <th hidden></th>@*Guarda MaxQuantityOIBT*@
-                            <th hidden></th>@*Guarda NumInBuyKey*@
+                            <th hidden></th>
+                            @*Guarda MaxQuantity*@
+                            <th hidden></th>
+                            @*Guarda MaxQuantityOIBT*@
+                            <th hidden></th>
+                            @*Guarda NumInBuyKey*@
                             <th hidden></th>
                             <th hidden></th>
                             <th class="text-center">Descripción del producto</th>
@@ -171,7 +174,7 @@
                                         <input type="hidden" id="lote" name="DetalleDevolucion[@num].BatchNum" value="@m.BatchNum" />@m.BatchNum<br />
                                         <span class="text-danger font-weight-bold">Fecha V.:</span><br /><input type="hidden" id="fechaV" name="DetalleDevolucion[@num].ExpDate" value="@m.ExpDate" />@m.ExpDate
                                     </td>
-                                    <td><input type="number" id="QuantityIngresada_@num" name="DetalleDevolucion[@num].Quantity" class="form-control border-success text-center" tipoarticulo="@if (m.MaxQuantity == Convert.ToDecimal(0.00)) { Write("NUEVO"); } else { Write("BD");}" style="width: 100px;" value="@m.Quantity" min="1" required /></td>
+                                    <td><input type="number" id="QuantityIngresada_@num" name="DetalleDevolucion[@num].Quantity" class="form-control text-center cls-liberaciones" tipoarticulo="@if (m.MaxQuantity == Convert.ToDecimal(0.00)) { Write("NUEVO"); } else { Write("BD");}" style="width: 100px;" value="@m.Quantity" min="1" required /></td>
                                     <td class="text-center">
                                         <select id="NumInBuy_@num" name="DetalleDevolucion[@num].NumInBuy" style="display: none">
                                             <option value="@m.NumInBuy" tipo="@m.BuyUnitMsr"></option>
@@ -204,9 +207,9 @@
                                         </select>
                                         <script>$(`#ListaObsxMotivo_@num`).select2();</script>
                                     </td>
-                                    <td><input type="text" name="DetalleDevolucion[@num].RefFactura" class="form-control border-success text-center cls-factura-unica" value="@m.RefFactura"></td>
-                                    <td><input type="text" name="DetalleDevolucion[@num].Observacion" class="form-control border-success text-center font-14" autocomplete="off" value="@m.Observacion"></td>
-                                    <td><button type="button" class="btn btn-danger" onclick="borrarFila(@num)"><i class="icon-bin"></i></button></td>
+                                    <td><input type="text" name="DetalleDevolucion[@num].RefFactura" class="form-control text-center cls-factura-unica cls-liberaciones" value="@m.RefFactura"></td>
+                                    <td><input type="text" name="DetalleDevolucion[@num].Observacion" class="form-control text-center font-14" autocomplete="off" value="@m.Observacion"></td>
+                                    <td><button type="button" class="btn btn-danger cls-liberaciones" onclick="borrarFila(@num)"><i class="icon-bin"></i></button></td>
                                 </tr>
                                 ++num;
                             }
@@ -403,14 +406,24 @@
 </div>
 
 <script>
-
     if ('@ViewBag.Mensaje' != "") {
             Swal.fire('@ViewBag.Mensaje');
-        }
+    }
+
     $(document).ready(function () {
         reconstruirTabla();
         validarRetiroMercado($('#RetiroMercado').val());
+        ocultarCamposPorLiberaciones();
+
+        // bloquea fechas mayores a hoy
+        const inputFecha = document.getElementById('FechaDevolucion');
+        const hoy = new Date();
+        const yyyy = hoy.getFullYear();
+        const mm = String(hoy.getMonth() + 1).padStart(2, '0');
+        const dd = String(hoy.getDate()).padStart(2, '0');
+        inputFecha.max = `${yyyy}-${mm}-${dd}`;
     });
+
     var num = 0;
     //busca facturas solo de RM
     function buscarFacturas(ItemCode, BatchNum, Quantity) {
@@ -568,7 +581,7 @@
             });
         }
     }
-   
+
     function validarFiltrosArticulo() {
         let result = false;
         //cuando el usuario elije NO en entrada mercancia este dato $('#SinEM').val() viaja como true
@@ -819,7 +832,7 @@
             }
             /********** Campos a mostrar dependiente si es artículo existente o no existente **********/
             let filaBatchNum, filaExpDate= '';
-           
+
             if (BatchNum != '') {
                 filaBatchNum = `<input type="hidden" id="lote" name="DetalleDevolucion[${num}].BatchNum" value="${BatchNum}" />${BatchNum}`;
             } else {
@@ -871,7 +884,7 @@
             //agregamos a la fila el nuevo item
             $('#tbl_detalleDevolucion > tbody').append(fila);
             $(`.cls-select2`).select2();
-            
+
             obtenerAtributoSelect('tipo', `NumInBuy_${num}`, `BuyUnitMsr_${num}`);          // seteamos el campo oculto BuyUnitMsr_${num}
             ++num;
             if ($('.cls-filaDevolucion').length >= 1) {
@@ -959,5 +972,19 @@
 
     }
 
-</script>
+    function ocultarCamposPorLiberaciones() {
+        const provieneLiberaciones = @((ViewBag.DevolucionOrigenLiberaciones ?? false).ToString().ToLower());
 
+        if (provieneLiberaciones) {
+            document.querySelectorAll('.cls-liberaciones').forEach(function (el) {
+                switch (el.tagName) {
+                    case 'SELECT', 'INPUT':
+                        el.readOnly = true;     //el.disabled = true;
+                        break;
+                    default:
+                        el.style.display = 'none';
+                }
+            });
+        }
+    }
+</script>

@@ -256,7 +256,8 @@ namespace Capa_Usuario.Controllers
             devolucion.CardCode = internamiento.CardCode;
             devolucion.CardName = internamiento.CardName;
             devolucion.RetiroMercado = false;
-            devolucion.SinEM = false;       // Si tiene entrada de mercancía
+            devolucion.SinEM = false;                                   // Si tiene entrada de mercancía
+            devolucion.ODOCSId = internamiento.Id;          // Para vincular la devolución con la liberación, sirve para las devoluciones anuladas
             devolucion.Operario = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
 
             int linea = 1;
