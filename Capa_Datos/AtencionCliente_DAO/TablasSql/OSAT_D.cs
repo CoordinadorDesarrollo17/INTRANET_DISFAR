@@ -781,46 +781,57 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
             OSAT_E objOSAT = new OSAT_E();
             using (SqlConnection cn = new SqlConnection(uti.cadSql))
             {
-                String query = $"SELECT DocEntry, CardCode, CardName, LugarDestino, Vendedor, FechaFacturacion, DirDestino FROM vt.ORTV WHERE DocNum = @DocNumTicket";
-                SqlCommand cmd = new SqlCommand(query, cn) { CommandType = CommandType.Text };
+                string query = @"
+                SELECT 
+                    O.DocEntry, O.CardCode, O.CardName, O.LugarDestino, O.Vendedor, O.FechaFacturacion, O.DirDestino,
+                    R.NombrePer, R.TelfPer
+                FROM vt.ORTV O
+                LEFT JOIN vt.RTV1 R ON O.DocEntry = R.DocEntry
+                WHERE O.DocNum = @DocNumTicket";
+                SqlCommand cmd = new SqlCommand(query, cn);
                 cmd.Parameters.AddWithValue("@DocNumTicket", DocNumTicket);
                 cn.Open();
-                try
+                SqlDataReader dr = cmd.ExecuteReader();
+                Dictionary<string, string> DetORTV = new Dictionary<string, string>();
+                if (dr.HasRows)
                 {
-                    SqlDataReader dr = cmd.ExecuteReader();
-                    if (dr.HasRows)
+                    dr.Read();
+                    if (!dr.IsDBNull(0))
                     {
-                        dr.Read();
-                        // Validamos en si el DocEntry no sea "null" ya que es prioridad para obtener datos de RTV1
-                        if (!dr.IsDBNull(0))
+                        objOSAT.DocEntryTicket = dr.GetInt32(0);
+                        objOSAT.DocNumTicket = DocNumTicket;
+                        objOSAT.Contacto = !dr.IsDBNull(7) ? dr.GetString(7) : "";
+                        objOSAT.Telefono = !dr.IsDBNull(8) ? dr.GetString(8) : "";
+                        if (!dr.IsDBNull(1)) DetORTV.Add("CardCode", dr.GetString(1));
+                        if (!dr.IsDBNull(2)) DetORTV.Add("CardName", dr.GetString(2));
+                        if (!dr.IsDBNull(3)) DetORTV.Add("LugarDestino", dr.GetString(3));
+                        if (!dr.IsDBNull(4)) DetORTV.Add("Vendedor", dr.GetString(4));
+                        if (!dr.IsDBNull(5)) objOSAT.FechaFacturacion = dr.GetDateTime(5).ToString("yyyy-MM-dd");
+                        if (!dr.IsDBNull(6)) objOSAT.DireccionRecojo = dr.GetString(6);
+                    }
+                }
+                dr.Close();
+
+                //Obtener todos los NroSap relacionados al ticket
+                List<int> nroSaps = new List<int>();
+                string queryNroSap = "SELECT NroSap FROM vt.RTV2 WHERE DocEntry = @DocNumTicket";
+                using (SqlCommand cmdNroSap = new SqlCommand(queryNroSap, cn))
+                {
+                    cmdNroSap.Parameters.AddWithValue("@DocNumTicket", objOSAT.DocEntryTicket);
+                    using (SqlDataReader drNroSap = cmdNroSap.ExecuteReader())
+                    {
+                        while (drNroSap.Read())
                         {
-                            List<RTV1_E> datosRTV1 = new List<RTV1_E>();
-                            ORTV_E datosORTV = new ORTV_E();
-                            Dictionary<string, string> DetORTV = new Dictionary<string, string>();
-                            objOSAT.DocEntryTicket = dr.GetInt32(0);
-                            objOSAT.DocNumTicket = DocNumTicket;
-                            datosRTV1 = rtv1D.BuscarRTV1(dr.GetInt32(0));
-                            if (datosRTV1.Count >= 1)
-                            {
-                                objOSAT.Contacto = (!string.IsNullOrWhiteSpace(datosRTV1[0].NombrePer)) ? datosRTV1[0].NombrePer : "";
-                                objOSAT.Telefono = (!string.IsNullOrWhiteSpace(datosRTV1[0].TelfPer)) ? datosRTV1[0].TelfPer : "";
-                            }
-                            if (!dr.IsDBNull(1)) { DetORTV.Add("CardCode", dr.GetString(1)); }
-                            if (!dr.IsDBNull(2)) { DetORTV.Add("CardName", dr.GetString(2)); }
-                            if (!dr.IsDBNull(3)) { DetORTV.Add("LugarDestino", dr.GetString(3)); }
-                            if (!dr.IsDBNull(4)) { DetORTV.Add("Vendedor", dr.GetString(4)); }
-                            if (!dr.IsDBNull(5)) { objOSAT.FechaFacturacion = dr.GetDateTime(5).ToString("yyyy-MM-dd"); }
-                            if (!dr.IsDBNull(6)) { objOSAT.DireccionRecojo = dr.GetString(6); }
-                            objOSAT.Det = sat1D.ListarArticulosTicket(DocNumTicket);
-                            objOSAT.DetORTV = DetORTV;
+                            if (!drNroSap.IsDBNull(0))
+                                nroSaps.Add(drNroSap.GetInt32(0));
                         }
                     }
-                    dr.Close();
                 }
-                catch (Exception e)
-                {
-                    throw new Exception("Error: " + e.Message);
-                }
+
+                //Obtener detalles de artículos en una consulta HANA
+                objOSAT.Det = sat1D.ListarArticulosTicketPorNroSap(nroSaps);
+
+                objOSAT.DetORTV = DetORTV;
                 cn.Close();
             }
             return objOSAT;
