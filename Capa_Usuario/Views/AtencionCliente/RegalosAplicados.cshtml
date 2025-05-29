@@ -1,0 +1,119 @@
+@model IEnumerable<Capa_Entidad.AtencionCliente_ENT.ReportesSql.Rpt_Regalos>
+@using Capa_Entidad.AtencionCliente_ENT.TablasSql
+@{
+    ViewBag.Title = "RegalosAplicados";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    OSAT_E f = ViewBag.Osat as OSAT_E ?? new OSAT_E();
+}
+<script>function filtrar() {
+        var object = $("#frm").serialize();
+        window.location.href = "/AtencionCliente/RegalosAplicados?" + object;
+    }
+    function excelRegalos() {
+        var object = $("#frm").serialize();
+        window.location.href = "/AtencionCliente/ExportarExcelRegalos?" + object;
+    }
+    $(document).ready(function () {
+        // Permite filtrar con Enter
+        $('#frm input').on('keypress', function (e) {
+            if (e.which === 13) {
+                e.preventDefault();
+                filtrar();
+            }
+        });
+    });</script>
+<style>
+    .input_cls-estandar {
+        height: 28px;
+        font-size: 13px;
+        padding: 2px 6px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .cls-dataTable th,
+    .cls-dataTable td {
+        border: 1px solid #dee2e6 !important;
+        text-align: center !important;
+        vertical-align: middle !important;
+    }
+</style>
+
+<div class="pt-3">
+    <nav>
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li class="current"><em>Regalos Aplicados</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
+    <div class="px-3 pt-3">
+        <h3 class="titulo-seccion">MÓDULO DE REGALOS APLICADOS</h3>
+    </div>
+</div>
+
+<div class="bg-white d-flex pl-2 w-100 py-3">
+    <div class="mx-2">
+        <button id="accion" onclick="excelRegalos();" class="btn btn-warning">
+            <i class="icon icon-file-excel"></i> Exportar a Excel
+        </button>
+    </div>
+</div>
+
+<div class="bg-white">
+    <form name="frm" id="frm" method="get" autocomplete="off">
+        <table class="table table-light table-sm table-hover cls-dataTable" cellspacing="0" width="100%">
+            <thead class="bg-cobefar-6">
+                <tr>
+                    <th class="text-center"> N° Ticket Venta</th>
+                    <th class="text-center">Fecha Ticket</th>
+                    <th class="text-center">Cliente</th>
+                    <th class="text-center">Estado Venta</th>
+                    <th class="text-center">N° Solicitud AT</th>
+                    <th class="text-center">Estado Solicitud AT</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.DocNum</td>
+                            <td>
+                                @{
+                                    DateTime fecha;
+                                    if (DateTime.TryParse(item.FechaSapTicket?.ToString(), out fecha))
+                                    {
+                                        @fecha.ToString("dd/MM/yyyy")
+                                    }
+                                    else
+                                    {
+                                        @item.FechaSapTicket
+                                    }
+                                }
+                            </td>
+                            <td>@item.CardName</td>
+                            <td>@item.EstadoVt</td>
+                            <td>@item.DocNumTicket</td>
+                            <td>@item.Estado</td>
+
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="7" class="text-center">No se encontraron resultados.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </form>
+</div>
+@if (ViewBag.Mensaje != null && !string.IsNullOrEmpty(ViewBag.Mensaje.ToString()))
+{
+    <div class="alert alert-danger mx-3">@ViewBag.Mensaje</div>
+}

@@ -67,6 +67,14 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
                 {
                     fil += $" AND AC.Tipo IN {filtro.TipoSolicitudCreaTicketVenta}";
                 }
+                if (filtro.SoloSinTicketSolucion.HasValue && filtro.SoloSinTicketSolucion.Value)
+                {
+                    fil += " AND TicketSolucion IS NULL";
+                }
+                if (filtro.TicketSolucion != null)
+                {
+                    fil += " OR TicketSolucion =" + filtro.TicketSolucion;
+                }
                 //
                 if (filtro.Factor != null) { fil += " and AC.Factor  ='" + filtro.Factor + "'"; }
                 if (filtro.TipoSolucion != null) { fil += " and AC.TipoSolucion in" + filtro.TipoSolucion; }
@@ -1005,5 +1013,85 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
             }
             return resultado;
         }
+        public void ActualizarTicketSolucion(List<string> docNums, string ticketSolucion)
+        {
+            using (SqlConnection cn = new SqlConnection(uti.cadSql))
+            {
+                try
+                {
+                    cn.Open();
+
+                    // Siempre limpiar primero todos los registros con ese TicketSolucion
+                    string limpiarQuery = "UPDATE ac.OSAT SET TicketSolucion = NULL WHERE TicketSolucion = @TicketSolucion";
+                    using (SqlCommand limpiarCmd = new SqlCommand(limpiarQuery, cn))
+                    {
+                        limpiarCmd.Parameters.AddWithValue("@TicketSolucion", ticketSolucion);
+                        limpiarCmd.ExecuteNonQuery();
+                    }
+
+                    // Solo si hay docNums, asignar el nuevo TicketSolucion
+                    if (docNums != null && docNums.Count > 0)
+                    {
+                        foreach (var docNum in docNums)
+                        {
+                            string query = "UPDATE ac.OSAT SET TicketSolucion = @TicketSolucion WHERE DocNum = @DocNum";
+                            using (SqlCommand cmd = new SqlCommand(query, cn))
+                            {
+                                cmd.Parameters.AddWithValue("@TicketSolucion", ticketSolucion);
+                                cmd.Parameters.AddWithValue("@DocNum", docNum);
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+                    }
+
+                    cn.Close();
+                }
+                catch (Exception e)
+                {
+                    cn.Close();
+                    throw new Exception("Error al actualizar TicketSolucion en OSAT: " + e.Message);
+                }
+            }
+        }
+
+        public List<Rpt_Regalos> ListarRegalosAplicados()
+        {
+            var lista = new List<Rpt_Regalos>();
+            using (var cn = new SqlConnection(uti.cadSql))
+            {
+                cn.Open();
+                string query = @"
+            SELECT TOP 50
+                v.DocNum,
+                v.FechaSapTicket,
+                v.CardName,
+                v.Estado AS EstadoTicket,
+                o.DocNumTicket,
+                o.Estado AS EstadoOsat
+            FROM ac.OSAT o
+            INNER JOIN vt.ORTV v ON o.TicketSolucion = v.DocNum
+            WHERE o.TicketSolucion IS NOT NULL AND LTRIM(RTRIM(o.TicketSolucion)) <> ''
+        ";
+                using (var cmd = new SqlCommand(query, cn))
+                using (var dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        var obj = new Rpt_Regalos
+                        {
+                            DocNum = dr["DocNum"]?.ToString(),
+                            FechaSapTicket = dr["FechaSapTicket"]?.ToString(),
+                            CardName = dr["CardName"]?.ToString(),
+                            EstadoVt = dr["EstadoTicket"]?.ToString(),
+                            DocNumTicket = dr["DocNumTicket"]?.ToString(),
+                            Estado = dr["EstadoOsat"]?.ToString()
+                        };
+                        lista.Add(obj);
+                    }
+                }
+            }
+            return lista;
+        }
+
     }
 }

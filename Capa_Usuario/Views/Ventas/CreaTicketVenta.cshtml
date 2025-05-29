@@ -366,7 +366,11 @@
             }
         });
     }
-
+    function setNroSolicitudReclamo(jsonLista) {
+        var lista = JSON.parse(jsonLista);
+        document.getElementById('NroSolicitudReclamo').value = lista.join(', ');
+        document.getElementById('SolicitudesReclamoSeleccionadas').value = lista.join(',');
+    }
 </script>
 <script src="~/Scripts/Ventas/TicketDeVenta.js"></script>
 <style>
@@ -799,7 +803,17 @@
                     <div class="row mt-4">
                         <div class="col-lg-3">
                             <label for="MontoFinal" class="text-white bg-cobefar px-2 form-label font-weight-bold font-18">Monto Final:</label>
-                            <div id="infoMontoFinal"><input id="MontoFinal" name="MontoFinal" type="text" readonly class="form-control border-success" /></div>
+                            <div id="infoMontoFinal">
+                                <input id="MontoFinal" name="MontoFinal" type="text" readonly class="form-control border-success" />
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <label for="NroSolicitudReclamo" class="text-dark form-label font-weight-bold font-18">N° Solicitud Reclamo:</label>
+                            <div>
+                                <input id="NroSolicitudReclamo" name="NroSolicitudReclamo" type="text" readonly class="form-control border-success" />
+                                <input type="hidden" id="SolicitudesReclamoSeleccionadas" name="SolicitudesReclamoSeleccionadas" />
+
+                            </div>
                         </div>
                     </div>
 

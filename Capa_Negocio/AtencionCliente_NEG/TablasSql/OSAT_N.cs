@@ -20,7 +20,6 @@ namespace Capa_Negocio.AtencionCliente_NEG.TablasSql
         {
             return osatD.ListarSolicitudesExcel(filtro);
         }
-
         public string registrarNuevaSolicitud(OSAT_E obj)
         {
             validarNuevaSolicitud(obj);
@@ -86,12 +85,18 @@ namespace Capa_Negocio.AtencionCliente_NEG.TablasSql
         {
             return osatD.obtenerNotificadoCliente();
         }
-
         public List<OSAT_E> obtenerNotificadoClienteDetalle(string cardName)
         {
             return osatD.obtenerNotificadoClienteDetalle(cardName);
         }
-
+        public void ActualizarTicketSolucion(List<string> docNums, string ticketSolucion)
+        {
+            new OSAT_D().ActualizarTicketSolucion(docNums, ticketSolucion);
+        }
+        public List<Rpt_Regalos> ListarSolicitudesExcelRegalos()
+        {
+            return osatD.ListarRegalosAplicados();
+        }
         //validaciones
         public void validarNuevaSolicitud(OSAT_E obj)
         {

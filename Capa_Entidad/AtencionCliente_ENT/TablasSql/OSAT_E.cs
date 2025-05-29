@@ -34,6 +34,7 @@ namespace Capa_Entidad.AtencionCliente_ENT.TablasSql
         public int NotiCliente { get; set; }
         public int DiasRetraso { get; set; }
         public string ErrAlmOtrCom { get; set; }
+        public string TicketSolucion { get; set; }
 
         // Campos que no son de la tabla RTV1
         public string TiempoAtencion { get; set; }
@@ -42,6 +43,7 @@ namespace Capa_Entidad.AtencionCliente_ENT.TablasSql
 
         // Se usa para filtrar query sobre el botón Reclamos en CreaTicketVenta
         public string TipoSolicitudCreaTicketVenta { get; set; }
+        public bool? SoloSinTicketSolucion { get; set; }
 
         public List<SAT1_E> Det { get; set; }
         public Dictionary<string, string> DetORTV { get; set; }

@@ -614,7 +614,7 @@ namespace Capa_Usuario.Controllers
             }
             catch (Exception e) { return Content(e.Message); }
         }
-         public JsonResult ObtenerNotificadoCliente(int idOperation = 2701)
+         public JsonResult ObtenerNotificadoCliente(int idOperation = 2711)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
@@ -628,7 +628,7 @@ namespace Capa_Usuario.Controllers
             }
         }
 
-        public JsonResult ObtenerNotificadoClienteDetalle(string CardCode, int idOperation = 2701)
+        public JsonResult ObtenerNotificadoClienteDetalle(string CardCode, int idOperation = 2711)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
@@ -639,6 +639,59 @@ namespace Capa_Usuario.Controllers
             else
             {
                 return Json(new { error = "Acceso denegado" }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        public ActionResult RegalosAplicados(OSAT_E filtro = null, string Mensaje = "", int idOperation = 2713)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                ViewBag.Mensaje = Mensaje;
+                ViewBag.Osat = filtro ?? new OSAT_E();
+                // Llama a un nuevo método que solo trae los OSAT con TicketSolucion no nulo
+                var lista = osatN.ListarSolicitudesExcelRegalos();
+                return View(lista);
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
+
+        public ActionResult ExportarExcelRegalos(int idOperation = 2713)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                OSAT_N osatN = new OSAT_N();
+                string excelContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                // Llama al método que retorna List<Rpt_Regalos>
+                var lista = osatN.ListarSolicitudesExcelRegalos();
+
+                using (var libro = new OfficeOpenXml.ExcelPackage())
+                {
+                    var worksheet = libro.Workbook.Worksheets.Add("RegalosAplicados");
+                    worksheet.Cells["A1"].LoadFromCollection(lista, PrintHeaders: true);
+
+                    if (lista != null && lista.Count >= 1)
+                    {
+                        for (var col = 1; col <= worksheet.Dimension.End.Column; col++)
+                        {
+                            worksheet.Column(col).AutoFit();
+                        }
+                        var tabla = worksheet.Tables.Add(
+                            new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: lista.Count + 1, toColumn: worksheet.Dimension.End.Column),
+                            "RegalosAplicados"
+                        );
+                        tabla.ShowHeader = true;
+                        tabla.TableStyle = TableStyles.Medium2;
+                    }
+                    return File(libro.GetAsByteArray(), excelContentType, "RegalosAplicados.xlsx");
+                }
+            }
+            else
+            {
+                return resultadoAcceso;
             }
         }
     }
