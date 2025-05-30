@@ -642,8 +642,9 @@
 							<tbody>`
 			articulo.DetalleLotes.forEach(item => {
                 let lote = item.BatchNum.split(" ").join("");
+                let correlativoDinamico = `${articulo.ItemCode}_${lote}`;
 
-                tableHtml += `<tr data-lote="${lote}">
+                tableHtml += `<tr data-lote="${correlativoDinamico}">
 								<td class="text-center">
 									<input type="hidden" name="transferenciaPost.SolicitudesTrasladoId" value="${articulo.SolicitudesTrasladoId}" />
 									<input type="hidden" name="transferenciaPost.Detalle[].ItemCode" value="${articulo.ItemCode}" />
@@ -657,13 +658,13 @@
 									<input type="hidden" name="transferenciaPost.Detalle[].ExpDate" value="${item.ExpDate}" />${item.ExpDate}
 								</td>
 								<td class="text-center">
-									<input type="text" id="lote_quantityUnidades_${lote}" name="transferenciaPost.Detalle[].QuantityUnidadesCajas" class="form-control text-center cls-num cls-limpiarItem_${itemCodeFormat}"
-									data-idcantmaster="lote_cantidadMaster_${lote}" data-idcantsaldo="lote_cantidadSaldo_${lote}" data-cantidadtotal="${item.QuantityCajas}"
-									data-idundmaster="lote_undMaster_${lote}" oninput="calcularStockUnidades(this.value, this.dataset)" value="${item.QuantityCajas}">
+									<input type="text" id="lote_quantityUnidades_${correlativoDinamico}" name="transferenciaPost.Detalle[].QuantityUnidadesCajas" class="form-control text-center cls-num cls-limpiarItem_${itemCodeFormat}"
+									data-idcantmaster="lote_cantidadMaster_${correlativoDinamico}" data-idcantsaldo="lote_cantidadSaldo_${correlativoDinamico}" data-cantidadtotal="${item.QuantityCajas}"
+									data-idundmaster="lote_undMaster_${correlativoDinamico}" oninput="calcularStockUnidades(this.value, this.dataset)" value="${item.QuantityCajas}">
 								</td>
 								 <td scope="col" class="text-center align-middle">
-									 <select id="lote_undMaster_${lote}" data-idundmaster="lote_undMaster_${lote}" data-idcantmaster="lote_cantidadMaster_${lote}" data-idcantsaldo="lote_cantidadSaldo_${lote}" data-cantidadtotal="${item.QuantityCajas}"
-										data-idquantityunidades ="lote_quantityUnidades_${lote}"
+									 <select id="lote_undMaster_${correlativoDinamico}" data-idundmaster="lote_undMaster_${correlativoDinamico}" data-idcantmaster="lote_cantidadMaster_${correlativoDinamico}" data-idcantsaldo="lote_cantidadSaldo_${correlativoDinamico}" data-cantidadtotal="${item.QuantityCajas}"
+										data-idquantityunidades ="lote_quantityUnidades_${correlativoDinamico}"
 										name="transferenciaPost.Detalle[].ValorUmAlm" class="form-select cls-limpiarItem_${itemCodeFormat}" onchange="calcularCantidadMasterSaldo(this.value, this.dataset)"  onclick="abrirModalBusquedaRapida(this)">
 										 <option value="">Seleccione</option>
 										${cargarOpcionesMasters(item.UnidadAlmSugerido)}
@@ -671,14 +672,14 @@
 								 </td>
 								<td scope="col" class="text-center">
 									<div class="mx-auto w-75">
-										<input type="text" id="lote_cantidadMaster_${lote}" name="transferenciaPost.Detalle[].QuantityMaster" class="form-control text-center cls-num cls-readonly cls-limpiarItem_${itemCodeFormat}" readonly>
+										<input type="text" id="lote_cantidadMaster_${correlativoDinamico}" name="transferenciaPost.Detalle[].QuantityMaster" class="form-control text-center cls-num cls-readonly cls-limpiarItem_${itemCodeFormat}" readonly>
 									</div>
 								</td>
 								 <td scope="col" class="text-center">
-									<div class="mx-auto w-75"><input type="text" id="lote_cantidadSaldo_${lote}" name="transferenciaPost.Detalle[].QuantitySaldo" class="form-control text-center cls-num cls-readonly cls-limpiarItem_${itemCodeFormat}" readonly></div>
+									<div class="mx-auto w-75"><input type="text" id="lote_cantidadSaldo_${correlativoDinamico}" name="transferenciaPost.Detalle[].QuantitySaldo" class="form-control text-center cls-num cls-readonly cls-limpiarItem_${itemCodeFormat}" readonly></div>
 								</td>
 								<td class="text-center">
-									<select id="lote_ubicacion_${lote}" name="transferenciaPost.Detalle[].CodigoUbicacion" data-idloteubicacion="lote_ubicacion_${lote}" data-itemcode="${articulo.ItemCode}"
+									<select id="lote_ubicacion_${correlativoDinamico}" name="transferenciaPost.Detalle[].CodigoUbicacion" data-idloteubicacion="lote_ubicacion_${correlativoDinamico}" data-itemcode="${articulo.ItemCode}"
 									class="form-select cls-limpiarItem_${itemCodeFormat}" onclick="gestionarBusquedaUbicaciones(this)"   style="width: 200px">
 										<option value="">Seleccione</option>
 									</select>
@@ -726,8 +727,10 @@
                 });
 			} else {
 				articulo.DetalleLotes.forEach(item => {
-                    let lote = item.BatchNum.split(" ").join("")
-                    tableHtml += `<tr data-lote="${lote}">
+                    let lote = item.BatchNum.split(" ").join("");
+                    let correlativoDinamico = `${articulo.ItemCode}_${lote}`;
+
+                    tableHtml += `<tr data-lote="${correlativoDinamico}">
 													<td class="text-center">
 														<input type="hidden" name="transferenciaPost.SolicitudesTrasladoId" value="${articulo.SolicitudesTrasladoId}" />
 														<input type="hidden" name="transferenciaPost.Detalle[].ItemCode" value="${articulo.ItemCode}" />
@@ -741,13 +744,13 @@
 														<input type="hidden" name="transferenciaPost.Detalle[].ExpDate" value="${item.ExpDate}" />${item.ExpDate}
 													</td>
 													<td class="text-center">
-														<input type="text" id="lote_quantityUnidades_${lote}" name="transferenciaPost.Detalle[].QuantityUnidadesCajas" class="form-control text-center cls-num cls-limpiarItem_${articulo.ItemCode}" value="${item.QuantityCajas}"
-														data-idcantmaster="lote_cantidadMaster_${lote}" data-idcantsaldo="lote_cantidadSaldo_${lote}" data-cantidadtotal="${item.QuantityCajas}"
-														data-idundmaster="lote_undMaster_${lote}" oninput="calcularStockUnidades(this.value, this.dataset)">
+														<input type="text" id="lote_quantityUnidades_${correlativoDinamico}" name="transferenciaPost.Detalle[].QuantityUnidadesCajas" class="form-control text-center cls-num cls-limpiarItem_${articulo.ItemCode}" value="${item.QuantityCajas}"
+														data-idcantmaster="lote_cantidadMaster_${correlativoDinamico}" data-idcantsaldo="lote_cantidadSaldo_${correlativoDinamico}" data-cantidadtotal="${item.QuantityCajas}"
+														data-idundmaster="lote_undMaster_${correlativoDinamico}" oninput="calcularStockUnidades(this.value, this.dataset)">
 													</td>
 													 <td scope="col" class="text-center align-middle">
-														 <select id="lote_undMaster_${lote}" data-idundmaster="lote_undMaster_${lote}" data-idcantmaster="lote_cantidadMaster_${lote}" data-idcantsaldo="lote_cantidadSaldo_${lote}" data-cantidadtotal="${item.QuantityCajas}"
-															data-idquantityunidades ="lote_quantityUnidades_${lote}"
+														 <select id="lote_undMaster_${correlativoDinamico}" data-idundmaster="lote_undMaster_${correlativoDinamico}" data-idcantmaster="lote_cantidadMaster_${correlativoDinamico}" data-idcantsaldo="lote_cantidadSaldo_${correlativoDinamico}" data-cantidadtotal="${item.QuantityCajas}"
+															data-idquantityunidades ="lote_quantityUnidades_${correlativoDinamico}"
 															name="transferenciaPost.Detalle[].ValorUmAlm" class="form-select cls-limpiarItem_${articulo.ItemCode}" onchange="calcularCantidadMasterSaldo(this.value, this.dataset)" onclick="abrirModalBusquedaRapida(this)">
 															 <option value="">Seleccione</option>
 															${cargarOpcionesMasters(articulo.UnidadAlmSugerido)}
@@ -755,14 +758,14 @@
 													 </td>
 													<td scope="col" class="text-center">
 														<div class="mx-auto w-75">
-															<input type="text" id="lote_cantidadMaster_${lote}" name="transferenciaPost.Detalle[].QuantityMaster" class="form-control text-center cls-num cls-readonly cls-limpiarItem_${articulo.ItemCode}" readonly>
+															<input type="text" id="lote_cantidadMaster_${correlativoDinamico}" name="transferenciaPost.Detalle[].QuantityMaster" class="form-control text-center cls-num cls-readonly cls-limpiarItem_${articulo.ItemCode}" readonly>
 														</div>
 													</td>
 													 <td scope="col" class="text-center">
-														<div class="mx-auto w-75"><input type="text" id="lote_cantidadSaldo_${lote}" name="transferenciaPost.Detalle[].QuantitySaldo" class="form-control text-center cls-num cls-readonly cls-limpiarItem_${articulo.ItemCode}" readonly></div>
+														<div class="mx-auto w-75"><input type="text" id="lote_cantidadSaldo_${correlativoDinamico}" name="transferenciaPost.Detalle[].QuantitySaldo" class="form-control text-center cls-num cls-readonly cls-limpiarItem_${articulo.ItemCode}" readonly></div>
 													</td>
 													<td class="text-center">
-														<select id="lote_ubicacion_${lote}" name="transferenciaPost.Detalle[].CodigoUbicacion" data-idloteubicacion="lote_ubicacion_${lote}" data-itemcode="${articulo.ItemCode}"
+														<select id="lote_ubicacion_${correlativoDinamico}" name="transferenciaPost.Detalle[].CodigoUbicacion" data-idloteubicacion="lote_ubicacion_${correlativoDinamico}" data-itemcode="${articulo.ItemCode}"
 														class="form-select cls-limpiarItem_${articulo.ItemCode}" onclick="gestionarBusquedaUbicaciones(this)"  style="width: 200px" >
 															<option value="">Seleccione</option>
 														</select>
