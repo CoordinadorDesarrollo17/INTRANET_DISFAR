@@ -258,7 +258,6 @@
                                 <td class="text-center text-uppercase small">@item.Almacen</td>
                                 <td class="text-center text-uppercase small">@item.CantidadDevolucion</td>
                                 <td class="text-center text-uppercase small">
-                                    <button type="button" class="btn btn-sm btn-outline-cobefar-2 btn-nuevaDevolucion" onclick="irADevoluciones(this)"><i class="bi bi-box-arrow-up-right"></i></button>
                                     @if (item.AtencionDevolucion != null && item.AtencionDevolucion.Atendido == 0)
                                     {
                                         <button type="button" class="btn btn-sm btn-success btn-transferir" data-cantidad="@item.CantidadDevolucion" data-area="devolucion" data-id="@item.Id"
@@ -300,12 +299,6 @@
 
             tippy('.btn-exportar', {
                 content: 'Descargar Excel',
-                animation: 'fade',
-                placement: 'bottom-start'
-            });
-
-            tippy('.btn-nuevaDevolucion', {
-                content: 'Ir a Devoluciones',
                 animation: 'fade',
                 placement: 'bottom-start'
             });
@@ -419,36 +412,6 @@
 
             XLSX.utils.book_append_sheet(wb, ws, 'Hoja1');
             XLSX.writeFile(wb, `${nombreArchivo}.xlsx`);
-        }
-
-        function irADevoluciones(btn) {
-            Swal.fire({
-                title: '¿Qué tipo de devolución desea registrar?',
-                icon: 'question',
-                showCancelButton: false,
-                showDenyButton: true,
-                confirmButtonText: "<i class='bi bi-journal-text'></i> DEV07",
-                denyButtonText: "<i class='bi bi-journal-text'></i> Nueva Devolución",
-                reverseButtons: true,
-                allowEscapeKey: false,
-                allowOutsideClick: true,
-                customClass: {
-                    confirmButton: 'btn btn-primary',
-                    denyButton: 'btn btn-warning mx-1'
-                },
-                buttonsStyling: false
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    const url = `/Almacen/NuevaDevolucion?Almacen=DEV07&popup=true`;
-                    abrirPopup(url);
-                } else if (result.isDenied) {
-                    const url = `/Almacen/NuevaDevolucion?popup=true`;
-                    abrirPopup(url);
-                } else {
-                    // Cancelado
-                    console.log("Operación cancelada");
-                }
-            });
         }
 
         function abrirPopup(ruta) {

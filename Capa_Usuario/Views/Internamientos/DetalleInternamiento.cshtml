@@ -10,8 +10,8 @@
         <nav>
             <ol class="cd-breadcrumb bg-cobefar-degradado-1">
                 <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
-                <li><a href="@Url.Action("Sesion", "Index")">Dirección Técnica</a></li>
-                <li><a href="@Url.Action("Sesion", "Index")">Liberaciones</a></li>
+                @*<li><a href="@Url.Action("Sesion", "Index")">Dirección Técnica</a></li>
+                <li><a href="@Url.Action("Sesion", "Index")">Liberaciones</a></li>*@
                 <li><a href="@Url.Action("Index", "Internamientos")">Listado de Internamientos</a></li>
                 <li class="current"><em>@ViewBag.Title</em></li>
             </ol>
@@ -111,7 +111,7 @@
 
 @section Scripts{
     @*<script src="~/Scripts/Adquisiciones/GestionRequerimientos.js?v=@DateTime.Now.Ticks" defer></script>*@
-    <script>
+<script>
         document.addEventListener('DOMContentLoaded', function () {
             agregarFilaATabla();
             soloNumerosPorClase('cls-num');
@@ -139,8 +139,10 @@
         };
             const tbody = document.querySelector(`#tbl_documento tbody`);
             const modeloJS = @Html.Raw(ViewBag.JsonModel);
-
-            document.querySelector('#btn_crearDevolucion').hidden = modeloJS[0].TipoDocumento != 'OPDN';
+            const isPopup = ('@isPopup' || '').toLowerCase() === 'true';
+            //console.log(typeof modeloJS[0].TieneDevolucion)
+            document.querySelector('#btn_crearDevolucion').hidden = modeloJS[0].TipoDocumento != 'OPDN' || isPopup || modeloJS[0].TieneDevolucion;
+            document.querySelector('#btn_liberarTodos').hidden = isPopup;
             document.querySelector('#TipoDocumento').value = tiposDocumento[modeloJS[0].TipoDocumento];
             document.querySelector('#Id').value = modeloJS[0].Id;
             document.querySelector('#DocEntry').value = modeloJS[0].DocEntry;
@@ -346,10 +348,17 @@
 
                         const documentoCancelado = modeloJS[0].Estado == "Cancelado";
                         // Ocultar botón revertir liberación cuando el documento se encuentre cancelado ó el artículo aún no se encuentre liberardo ó el artículo se encuentre transferido
-                        const isPopup = ('@isPopup' || '').toLowerCase() === 'true';
-                        document.querySelector(`#btn_solicitarReversionLiberacion_${key}`).hidden = documentoCancelado || item.Liberado == 0 || item.Transferido == 1 || item.EstadoSolicitudReversion != 'Rechazado' || isPopup;
+
+                        document.querySelector(`#btn_solicitarReversionLiberacion_${key}`).hidden = documentoCancelado != false || item.Liberado != 1 || item.Transferido != 0 || (item.EstadoSolicitudReversion != null && item.EstadoSolicitudReversion != 'Rechazado') || isPopup;
                         document.querySelector(`#btn_editar_${key}`).hidden = documentoCancelado || item.Liberado == 1 || item.Transferido == 1 || isPopup || item.EstadoSolicitudReversion == 'Pendiente';
                         document.querySelector(`#btn_liberar_${key}`).hidden = documentoCancelado || item.Liberado == 1 || item.Transferido == 1 || isPopup || item.EstadoSolicitudReversion == 'Pendiente';
+
+                        //console.log(documentoCancelado);
+                        //console.log(item.Liberado);
+                        //console.log(item.Transferido);
+                        //console.log(item.EstadoSolicitudReversion);
+                        //console.log(isPopup);
+                        //console.log('----------------------------------------');
 
                         // Elementos que deben ser deshabilitados
                         [
@@ -889,5 +898,5 @@
                 }
             });
         }
-    </script>
+</script>
 }

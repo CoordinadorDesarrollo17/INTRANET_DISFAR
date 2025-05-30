@@ -42,6 +42,12 @@ namespace Capa_Datos.Almacen_DAO.TablasSql
                 {
                     condWhere += $" AND DEV.WhsCode = '{Filtros.WhsCode}' ";
                 }
+
+                if (Filtros.ODOCSId != null && Filtros.ODOCSId > 0)
+                {
+                    condWhere += $" AND DEV.ODOCSId = '{Filtros.ODOCSId}' ";
+                }
+
                 if (Filtros.DetalleDevolucion != null && Filtros.DetalleDevolucion.Count >= 1 && Filtros.DetalleDevolucion[0].RefFactura != null)
                 {
                     join += " INNER JOIN al.RPD1 DET on DET.DocEntry = DEV.DocEntry";

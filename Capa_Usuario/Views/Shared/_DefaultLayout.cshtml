@@ -781,7 +781,7 @@
 		});
 	}
 
-		function inicializarDataTable(idTable, itemsPorPagina, conBuscador = true) {
+		function inicializarDataTable(idTable, itemsPorPagina, conBuscador = true, conOrden = true) {
 			const items = Number(itemsPorPagina)
 
 			if ($.fn.DataTable.isDataTable(`#${idTable}`)) {
@@ -791,7 +791,7 @@
 			let table = $(`#${idTable}`).DataTable({
                 "searching": conBuscador,  
                 "order": [],  // Desactiva ordenamiento automatico.
-                "ordering": true, // Iconos para ordenar todas las columnas de la tabla.
+                "ordering": conOrden, // Iconos para ordenar todas las columnas de la tabla.
                 "pageLength": items,
                 "lengthMenu": [items, items * 2, items * 3, items * 4, items * 5],
                 "language": {
