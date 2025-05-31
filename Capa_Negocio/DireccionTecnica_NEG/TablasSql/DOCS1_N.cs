@@ -188,6 +188,7 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
             {
                 detalle.DescargarArchivoProtocolo = lista.First().DescargarArchivoProtocolo;
                 detalle.DescargarArchivoET = lista.First().DescargarArchivoET;
+                detalle.DescargarArchivoRS = lista.First().DescargarArchivoRS;
             }
 
             return ValidarParaEdicion(detalle) ?? _datos.EditarItemDetalleDoc(detalle, usuarioRegistro);
@@ -242,8 +243,9 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
             if (string.IsNullOrWhiteSpace(detalle.CertificadoAnalisis))
                 return _helpers.CrearRespuestaError($"El certificado de análisis es obligatorio");
 
-            if (detalle.ArchivoET == null && detalle.ArchivoProtocolo == null && detalle.DescargarArchivoET == null && detalle.DescargarArchivoProtocolo == null)
-                return _helpers.CrearRespuestaError($"Debe cargar un Protocolo y/o ET.");
+            if (detalle.ArchivoET == null && detalle.ArchivoProtocolo == null && detalle.ArchivoRS == null
+                && detalle.DescargarArchivoET == null && detalle.DescargarArchivoProtocolo == null && detalle.DescargarArchivoRS == null)
+                return _helpers.CrearRespuestaError($"Debe cargar un Protocolo, E.T. y/o R.S.");
 
             if (detalle.CantidadAprobados <= 0 && detalle.CantidadBaja <= 0 && detalle.CantidadDevolucion <= 0)
                 return _helpers.CrearRespuestaError("Debe ingresar las cantidades para Aprobados, Bajas y/o Devolución.");

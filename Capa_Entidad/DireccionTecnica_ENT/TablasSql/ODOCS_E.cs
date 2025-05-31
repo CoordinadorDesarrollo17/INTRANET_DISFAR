@@ -20,5 +20,7 @@ namespace Capa_Entidad.TablasSql
 
         // Campos Externos
         public string UsuarioRegistro { get; set; }
+        public string Area { get; set; }
+        public bool TieneDevolucion { get; set; }
     }
 }

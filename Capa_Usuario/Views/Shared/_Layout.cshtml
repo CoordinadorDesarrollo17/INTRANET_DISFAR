@@ -348,7 +348,7 @@
             });
         }
 
-        function inicializarDataTable(idTable, itemsPorPagina) {
+        function inicializarDataTable(idTable, itemsPorPagina, conBuscador = true) {
             const items = Number(itemsPorPagina)
 
             if ($.fn.DataTable.isDataTable(`#${idTable}`)) {
@@ -356,6 +356,7 @@
             }
 
             let table = $(`#${idTable}`).DataTable({
+                "searching": conBuscador,  
                 order: [],  // Desactiva ordenamiento automatico.
                 ordering: false, // Iconos para ordenar todas las columnas de la tabla.
                 responsive: true,        // Mantiene la tabla responsiva si es necesario
