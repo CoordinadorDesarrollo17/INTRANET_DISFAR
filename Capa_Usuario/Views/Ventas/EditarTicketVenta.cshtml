@@ -107,7 +107,7 @@
     }
     //reclamos ( atencion al cliente )
     function verificarReclamos() {
-        var parametros = { "CardCode": $("#CardCode").val() };
+        var parametros = { "CardCode": $("#CardCode").val(), "DocNumTicket": $("#DocNum").val() };
         $.ajax('/Ventas/comprobarReclamosCliente',
             {
                 data: parametros,
@@ -715,8 +715,9 @@
                     <div class="col-lg-3">
                         <label for="NroSolicitudReclamo" class="text-dark form-label font-weight-bold font-18">N° Solicitud Reclamo:</label>
                         <div>
-                            <input id="NroSolicitudReclamo" name="NroSolicitudReclamo" type="text" readonly class="form-control border-success" />
-                            <input type="hidden" id="SolicitudesReclamoSeleccionadas" name="SolicitudesReclamoSeleccionadas" />
+                            <input id="NroSolicitudReclamo" name="NroSolicitudReclamo" type="text" readonly class="form-control border-success" value="@ViewBag.ReclamosAplicados" />
+                            <input type="hidden" id="SolicitudesReclamoSeleccionadas" name="SolicitudesReclamoSeleccionadas" value="@ViewBag.ReclamosAplicados" />
+
                         </div>
                     </div>
                 </div>

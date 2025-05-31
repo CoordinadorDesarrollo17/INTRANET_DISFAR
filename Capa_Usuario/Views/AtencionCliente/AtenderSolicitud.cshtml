@@ -253,8 +253,8 @@
                         <label class="text-dark form-label font-weight-bold font-18">Error de almacén:</label>
                         <input type="text" class="form-control text-center border-success" readonly
                                value="@(Model.Det[0].ErrorAlmacen == "ARECEP3" ? "Área de Recepción 3" :
-                        Model.Det[0].ErrorAlmacen == "ARECEP5" ? "Área de Recepción 5" :
-                        Model.Det[0].ErrorAlmacen == "ARECEP7" ? "Área de Recepción 7" :
+                        Model.Det[0].ErrorAlmacen == "ARECEP6" ? "Área de Recepción 6" :
+                        Model.Det[0].ErrorAlmacen == "ARECEP8" ? "Área de Recepción 8" :
                         Model.Det[0].ErrorAlmacen == "ADESP"   ? "Área de Despacho" :
                         Model.Det[0].ErrorAlmacen == "AVERIF"  ? "Área de Verificación" :
                         Model.Det[0].ErrorAlmacen == "AEMB"    ? "Área de Embalaje" :
@@ -283,8 +283,8 @@
                         <select class="form-control bg-cobefar text-white" id="ErrorAlmacen" name="ErrorAlmacen" onchange="enviarValorEscogido(this.value, this.id)">
                             <option value=''>Seleccione</option>
                             <option value='ARECEP3'>Área de Recepción 3</option>
-                            <option value='ARECEP5'>Área de Recepción 5</option>
-                            <option value='ARECEP7'>Área de Recepción 7</option>
+                            <option value='ARECEP6'>Área de Recepción 6</option>
+                            <option value='ARECEP8'>Área de Recepción 8</option>
                             <option value='ADESP'>Área de Despacho</option>
                             <option value='AVERIF'>Área de Verificación</option>
                             <option value='AEMB'>Área de Embalaje</option>

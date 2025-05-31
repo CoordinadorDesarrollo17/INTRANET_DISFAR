@@ -377,8 +377,12 @@
                 })
 
                 $("#Articulos > tbody").html(filas);
-                const almacenesUnicos = [...new Set(response.Det.map(x => x.AlmVenta).filter(Boolean))].join(', ');
-                $("#AlmacenProcedencia").val(almacenesUnicos);
+                if (response.DetORTV.LugarDestino == 'Centro' || response.DetORTV.LugarDestino == 'Arriola') {
+                    $("#AlmacenProcedencia").val(response.DetORTV.AlmProcedencia);
+                } else {
+                    const almacenesUnicos = [...new Set(response.Det.map(x => x.AlmVenta).filter(Boolean))].join(', ');
+                    $("#AlmacenProcedencia").val(almacenesUnicos);
+                }
                 $("#CardCode").val(response.CardCode);
                 $("#CardName").val(response.CardName);
                 $("#Telefono").val(response.Telefono);

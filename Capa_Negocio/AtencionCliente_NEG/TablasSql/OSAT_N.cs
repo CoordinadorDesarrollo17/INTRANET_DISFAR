@@ -93,7 +93,7 @@ namespace Capa_Negocio.AtencionCliente_NEG.TablasSql
         {
             new OSAT_D().ActualizarTicketSolucion(docNums, ticketSolucion);
         }
-        public List<Rpt_Regalos> ListarSolicitudesExcelRegalos()
+        public List<Rpt_Regalos> ListarRegalosAplicados()
         {
             return osatD.ListarRegalosAplicados();
         }

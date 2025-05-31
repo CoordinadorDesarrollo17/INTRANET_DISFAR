@@ -649,7 +649,7 @@ namespace Capa_Usuario.Controllers
                 ViewBag.Mensaje = Mensaje;
                 ViewBag.Osat = filtro ?? new OSAT_E();
                 // Llama a un nuevo método que solo trae los OSAT con TicketSolucion no nulo
-                var lista = osatN.ListarSolicitudesExcelRegalos();
+                var lista = osatN.ListarRegalosAplicados();
                 return View(lista);
             }
             else
@@ -666,7 +666,7 @@ namespace Capa_Usuario.Controllers
                 OSAT_N osatN = new OSAT_N();
                 string excelContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
                 // Llama al método que retorna List<Rpt_Regalos>
-                var lista = osatN.ListarSolicitudesExcelRegalos();
+                var lista = osatN.ListarRegalosAplicados();
 
                 using (var libro = new OfficeOpenXml.ExcelPackage())
                 {

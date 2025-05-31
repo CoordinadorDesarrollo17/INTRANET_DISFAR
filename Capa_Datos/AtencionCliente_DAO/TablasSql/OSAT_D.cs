@@ -176,7 +176,8 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
          WHERE Operacion = 'ATENDER' AND DocEntry = AC.DocEntry
          ORDER BY FechaOperacion, HoraOperacion DESC) AS FechaAtencion,
         AC.TipoVenta,
-        AC.CanalVenta
+        AC.CanalVenta,
+        AC.TicketSolucion
 ";
 
             string query = $"{select} FROM ac.OSAT AS AC LEFT JOIN vt.ORTV AS VT ON VT.DocNum = AC.DocNumTicket WHERE AC.DocEntry>0 {fil} ORDER BY AC.DocEntry DESC";
@@ -205,6 +206,7 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
                     if (!dr.IsDBNull(14)) { objOSAT.FechaAtencion = dr.GetDateTime(14).ToString("yyyy-MM-dd"); }
                     if (!dr.IsDBNull(15)) { objOSAT.TipoVenta = dr.GetString(15); }
                     if (!dr.IsDBNull(16)) { objOSAT.CanalVenta = dr.GetString(16); }
+                    if (!dr.IsDBNull(17)) { objOSAT.TicketSolucion = dr.GetString(17); }
                     objOSAT.DetORTV = detORTV;
                     List<CC_OSAT_E> DatosAtencion = ccOSAT_D.ListarCC_OSAT(dr.GetInt32(0), "ATENDER");
                     if (DatosAtencion[0].Operacion == "ATENDER" && !String.IsNullOrEmpty(objOSAT.Resultado))
@@ -784,7 +786,7 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
                 string query = @"
                 SELECT 
                     O.DocEntry, O.CardCode, O.CardName, O.LugarDestino, O.Vendedor, O.FechaFacturacion, O.DirDestino,
-                    R.NombrePer, R.TelfPer
+                    R.NombrePer, R.TelfPer, O.AlmProcedencia
                 FROM vt.ORTV O
                 LEFT JOIN vt.RTV1 R ON O.DocEntry = R.DocEntry
                 WHERE O.DocNum = @DocNumTicket";
@@ -806,6 +808,7 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
                         if (!dr.IsDBNull(2)) DetORTV.Add("CardName", dr.GetString(2));
                         if (!dr.IsDBNull(3)) DetORTV.Add("LugarDestino", dr.GetString(3));
                         if (!dr.IsDBNull(4)) DetORTV.Add("Vendedor", dr.GetString(4));
+                        if (!dr.IsDBNull(9)) DetORTV.Add("AlmProcedencia", dr.GetString(9));
                         if (!dr.IsDBNull(5)) objOSAT.FechaFacturacion = dr.GetDateTime(5).ToString("yyyy-MM-dd");
                         if (!dr.IsDBNull(6)) objOSAT.DireccionRecojo = dr.GetString(6);
                     }

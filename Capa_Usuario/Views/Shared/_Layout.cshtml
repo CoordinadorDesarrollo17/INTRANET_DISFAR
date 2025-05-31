@@ -178,6 +178,13 @@
                 });
             }
 
+            if (document.getElementsByClassName("cls-dataTableOrder").length > 0) {
+                $('.cls-dataTableOrder').DataTable({
+                    "ordering": true,
+                    "scrollX": true
+                });
+            }
+
             if (document.getElementsByClassName("cls-dataTable50").length > 0) {
                 $('.cls-dataTable50').DataTable({
                     "searching": true,

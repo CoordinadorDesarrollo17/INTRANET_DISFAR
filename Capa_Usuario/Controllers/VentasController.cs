@@ -22,6 +22,7 @@ using Capa_Negocio.Ventas_NEG.TablasSql;
 using Capa_Usuario.Helpers;
 using CrystalDecisions.CrystalReports.Engine;
 using CrystalDecisions.Shared;
+using DocumentFormat.OpenXml.EMMA;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using Microsoft.Reporting.WebForms;
@@ -252,6 +253,22 @@ namespace Capa_Usuario.Controllers
                 ViewBag.Agencias = couN.Listar();
                 ViewBag.IdRol = user.IdRol;
                 ViewBag.Usuario = $"{user.Prefijo}{user.Id}";
+                // --- INICIO: OBTENER RECLAMOS CON TICKETSOLUCION ---
+                var osatN = new Capa_Negocio.AtencionCliente_NEG.TablasSql.OSAT_N();
+                var filtro = new Capa_Entidad.AtencionCliente_ENT.TablasSql.OSAT_E
+                {
+                    DetORTV = new Dictionary<string, string> { { "CardCode", t.CardCode } },
+                    TicketSolucion = t.DocNum.ToString()
+                };
+                var reclamos = osatN.ListarSolicitudes(filtro, false);
+                // Filtrar los que tienen TicketSolucion asignado (no null ni vacío)
+                var reclamosAplicados = reclamos
+                .Where(x => !string.IsNullOrEmpty(x.TicketSolucion) && x.TicketSolucion == t.DocNum.ToString())
+                .Select(x => x.DocNum.ToString())
+                .ToList();
+                ViewBag.ReclamosAplicados = string.Join(",", reclamosAplicados);
+
+                // --- FIN: OBTENER RECLAMOS CON TICKETSOLUCION ---
                 if (t.Estado.Equals("SEPARADO")) { return RedirectToAction("CreaTicketVenta", new { DocEntry = t.DocEntry }); }
                 else { return View(t); }
             }
@@ -3362,7 +3379,7 @@ namespace Capa_Usuario.Controllers
         {
             return Json(_libroDeSaldoN.obtenerLibroSaldo(CardCode));
         }
-        public JsonResult comprobarReclamosCliente(string CardCode)
+        public JsonResult comprobarReclamosCliente(string CardCode, int? DocNumTicket = null)
         {
             Capa_Negocio.AtencionCliente_NEG.TablasSql.OSAT_N osatN = new Capa_Negocio.AtencionCliente_NEG.TablasSql.OSAT_N();
             Dictionary<string, string> ortv = new Dictionary<string, string> { { "CardCode", CardCode } };
@@ -3370,8 +3387,10 @@ namespace Capa_Usuario.Controllers
             {
                 DetORTV = ortv,
                 TipoSolicitudCreaTicketVenta = "('Reclamo','Devolucion')",      // TipoSolicitudCreaTicketVenta: Filtro para el botón Reclamos Crea Ticket Venta
-                TipoSolucion = "('Regalo','Articulo','RegaloArticulo','Intercambio','NotaDeCredito','NCPorDesc','Envio')",
-                Estado = "Atendido"
+                TipoSolucion = "('Regalo')",
+                SoloSinTicketSolucion = true,
+                Estado = "Atendido",
+                TicketSolucion = DocNumTicket?.ToString()
             };
             return Json(osatN.ListarSolicitudes(filtro, false));
         }
