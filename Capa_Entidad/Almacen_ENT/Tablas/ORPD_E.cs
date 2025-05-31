@@ -26,6 +26,6 @@ namespace Capa_Entidad.Almacen_ENT.Tablas
         public decimal NumInBuy { get; set; }
         public string BuyUnitMsr { get; set; }
         public string RefFactura { get; set; }
-public List<RPD1_E> DetalleDevolucion { get; set; }                  
+        public List<RPD1_E> DetalleDevolucion { get; set; }
     }
 }

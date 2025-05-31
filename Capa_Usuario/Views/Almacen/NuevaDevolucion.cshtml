@@ -49,7 +49,7 @@
             {
                 <div class="col-lg-2 my-2">
                     <label class="text-dark form-label font-weight-bold font-18">Retiro de mercado:</label>
-                    <select name="RM" id="RetiroMercado" class="form-control bg-cobefar text-white border-success" style="width: 150px" onchange="validarRetiroMercado(this.value)" required>
+                    <select name="RM" id="RetiroMercado" class="form-control bg-cobefar text-white border-success" style="width: 180px" onchange="validarRetiroMercado(this.value)" required>
                         <option value="true">SI</option>
                         <option value="false" selected>NO</option>
                     </select>
@@ -58,7 +58,7 @@
 
             <div class="col-lg-3 my-2" id="div_SinEM">
                 <label class="text-dark form-label font-weight-bold font-18">Entrada de mercancía:</label>
-                <select name="SinEM" id="SinEM" class="form-control bg-cobefar text-white border-success" style="width: 150px" required>
+                <select name="SinEM" id="SinEM" class="form-control bg-cobefar text-white border-success" style="width: 180px" required>
                     <option value="false" selected>SI</option>
                     <option value="true">NO</option>
                 </select>
@@ -85,8 +85,13 @@
                 <input type="text" id="direccion_alm" class="form-control border-success text-center" value="" required readonly>
             </div>
 
-            <div class="col-lg-5 d-flex align-items-end justify-content-end">
-                <label for="factura_unica" class="text-dark form-label font-weight-bold font-18 mt-3 mr-3">Factura única:</label>
+            <div class="col-lg-2">
+                <label for="FechaDevolucion" class="text-dark form-label font-weight-bold font-18">Fecha Devolución:</label>
+                <input type="date" id="FechaDevolucion" name="FechaDevolucion" class="form-control border-success text-center" value="">
+            </div>
+
+            <div class="col-lg-3">
+                <label for="factura_unica" class="text-dark form-label font-weight-bold font-18">Factura única:</label>
                 <input type="text" name="CardName" id="factura_unica" class="form-control border-success text-center" value="" style="width: 300px;" autocomplete="off" onkeyup="completarRefFactura(this.value);">
             </div>
         </div>
@@ -415,6 +420,13 @@
     $(document).ready(function () {
         validarRetiroMercado($('#RetiroMercado').val());
 
+        // bloquea fechas mayores a hoy
+        const inputFecha = document.getElementById('FechaDevolucion');
+        const hoy = new Date();
+        const yyyy = hoy.getFullYear();
+        const mm = String(hoy.getMonth() + 1).padStart(2, '0');
+        const dd = String(hoy.getDate()).padStart(2, '0');
+        inputFecha.max = `${yyyy}-${mm}-${dd}`; 
     });
     var num = 1;
     var fechaActual = new Date();

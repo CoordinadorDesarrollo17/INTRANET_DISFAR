@@ -191,6 +191,8 @@ namespace Capa_Entidad.Ventas_ENT.Reportes
         public string ZonaVenta { get; set; }               
         public string DirDestinoVenta { get; set; }               
         public decimal PesoTotalPedido { get; set; }               
+        public string FechaPagoTicket { get; set; }               
+        public string HoraPagoTicket { get; set; }                             
     }
 
     public class RptFiltrosAnalisisTickets_E : RptAnalisisTickets_E

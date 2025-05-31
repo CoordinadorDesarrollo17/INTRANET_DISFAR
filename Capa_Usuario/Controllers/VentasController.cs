@@ -2496,11 +2496,11 @@ namespace Capa_Usuario.Controllers
                     {
                         if (analisisTickets.Count >= 1)
                         {
-                            for (var col = 1; col <= 63; col++)
+                            for (var col = 1; col <= 65; col++)
                             {
                                 worksheet.Column(col).AutoFit();
                             }
-                            var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: analisisTickets.Count + 1, toColumn: 63), "AnalisisTickets");
+                            var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: analisisTickets.Count + 1, toColumn: 65), "RptAnalisisTickets");
                             tabla.ShowHeader = true;
                             tabla.TableStyle = OfficeOpenXml.Table.TableStyles.Medium2;
                         }
@@ -3887,6 +3887,9 @@ namespace Capa_Usuario.Controllers
         {
             var lista = new ORTV_N().obtenerOrdenDeVenta(docNum);
 
+            if (lista == null || !lista.Any())
+                return Content("No se encontró la orden.");
+
             // Depende de LugarDestino del ticket
             if (lista != null && lista[0].Almacen != "ALM07" && (string.IsNullOrEmpty(almProcedencia) || almProcedencia == "16"))
             {
@@ -3902,8 +3905,9 @@ namespace Capa_Usuario.Controllers
             }
 
             lista = lista
-        .OrderBy(x => x.Ubicaciones != null && x.Ubicaciones.Length > 0 ? x.Ubicaciones[0] : string.Empty)
-        .ToList();
+                .OrderBy(x => x.Ubicaciones != null && x.Ubicaciones.Length > 0 ? x.Ubicaciones[0] : string.Empty)
+                .ToList();
+
             ViewBag.AlmProcedencia = almProcedencia;
             return View("~/Views/Ventas/PDF/PDF_OrdenesDeVentasSophos.cshtml", lista);
         }

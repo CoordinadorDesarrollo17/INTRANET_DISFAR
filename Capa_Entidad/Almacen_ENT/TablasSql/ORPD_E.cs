@@ -16,13 +16,14 @@ namespace Capa_Entidad.Almacen_ENT.TablasSql
         public string Correo { get; set; }
         public string TiempoCorreoEnviado { get; set; }
         public string Comentario { get; set; }
+        public bool SinEM { get; set; }
+        public long? ODOCSId { get; set; }       // Para liberaciones (Dirección Técnica)
 
         /********************* CAMPOS EXTRAS ********************/
         public string HoraDevolucion { get; set; }
         public string Operario { get; set; }                    // Para la tabla CC_ORPD
         public string FechaOperacion { get; set; }      // Para la tabla CC_ORPD
-        public bool SinEM { get; set; }
-        public List<RPD1_E> DetalleDevolucion { get; set; }             
+        public List<RPD1_E> DetalleDevolucion { get; set; }
     }
 
 }

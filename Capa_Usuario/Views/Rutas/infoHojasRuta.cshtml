@@ -87,12 +87,12 @@
             <div class="row mt-4">
                 <div class="col-lg-3">
                     <label for="FechaRegistroDesde" class="text-dark font-weight-bold font-18">Fecha Registro Desde:</label>
-                    <input class="form-control border-success" id="FechaRegistroDesde" name="FechaRegistroDesde" type="date" value="">
+                    <input class="form-control border-success" id="FechaRegistroDesde" name="FechaRegistroDesde" type="date" value="" onchange="aplicarRango()">
                 </div>
 
                 <div class="col-lg-3">
                     <label for="FechaRegistroHasta" class="text-dark font-weight-bold font-18">Fecha Registro Hasta:</label>
-                    <input class="form-control border-success" id="FechaRegistroHasta" name="FechaRegistroHasta" type="date" value="">
+                    <input class="form-control border-success" id="FechaRegistroHasta" name="FechaRegistroHasta" type="date" value="" readonly>
                 </div>
 
                 <div class="col-lg-3">
@@ -183,6 +183,7 @@
             });
         })();
 
+
         function rpt() {
             var queryString = $("#frm").serialize();
             const params = new URLSearchParams(queryString);
@@ -201,6 +202,25 @@
 
             $(location).attr('href', "/Rutas/RptHojasRuta?" + queryString);
             $('#Reporte').html("");
+        }
+
+        function aplicarRango() {
+            const desde = document.getElementById('FechaRegistroDesde');
+            const hasta = document.getElementById('FechaRegistroHasta');
+
+            if (!desde) return;
+
+            const [year, month] = desde.value.split('-').map(Number);
+
+            // Obtener el último día del mes (día 0 del mes siguiente)
+            const ultimoDia = new Date(year, month, 0); // mes +1, día 0 → último día del mes actual
+
+            // Convertir a yyyy-MM-dd
+            const yyyy = ultimoDia.getFullYear();
+            const mm = String(ultimoDia.getMonth() + 1).padStart(2, '0');
+            const dd = String(ultimoDia.getDate()).padStart(2, '0');
+
+            hasta.value = `${yyyy}-${mm}-${dd}`;
         }
     </script>
 </body>
