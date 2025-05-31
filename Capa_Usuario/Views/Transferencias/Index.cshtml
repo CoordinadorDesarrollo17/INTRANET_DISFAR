@@ -13,8 +13,8 @@
     <nav>
         <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
-            <li><a href="@Url.Action("Sesion", "Index")">Almacén</a></li>
-            <li><a href="@Url.Action("Sesion", "Index")">Liberaciones</a></li>
+            @*<li><a href="@Url.Action("Sesion", "Index")">Almacén</a></li>
+            <li><a href="@Url.Action("Sesion", "Index")">Liberaciones</a></li>*@
             <li class="current"><em>@ViewBag.Title</em></li>
         </ol>
     </nav>
@@ -65,7 +65,7 @@
                             <td scope="col" class="text-center small">@item.Estado</td>
                             <td scope="col" class="text-center small">
                                 <button type="button" class="btn btn-sm btn-outline-dark btn_verDetalle" onclick="redireccionar(this)" data-ruta="/Transferencias/VerDetalle?Id=@item.Id"><i class="bi bi-search"></i></button>
-                                @if (item.Estado != "Liberado" || item.Estado != "Cancelado")
+                                @if (item.Estado == "Transferido")
                                 {
                                     <button type="button" class="btn btn-sm btn-outline-danger cls-cancelarTransferencia" onclick="cancelarTransferencia(@item.Id)"><i class="bi bi-trash2-fill"></i></button>
                                 }
@@ -136,10 +136,10 @@
                                 <label for="Estado" class="form-label fw-bold">Estado:</label>
                                 <select id="Estado" name="Estado" class="form-select">
                                     <option value="">Seleccione</option>
-                                    <option value="Pendiente">Pendiente</option>
+                                    @*<option value="Pendiente">Pendiente</option>*@
                                     <option value="Liberado">Liberado</option>
                                     <option value="Transferido">Transferido</option>
-                                    <option value="Cancelado">Cancelado</option>
+                                    @*<option value="Cancelado">Cancelado</option>*@
                                 </select>
                             </div>
                         </div><!-- // ROW -->
