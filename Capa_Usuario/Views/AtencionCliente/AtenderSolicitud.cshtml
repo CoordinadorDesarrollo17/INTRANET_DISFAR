@@ -61,6 +61,17 @@
             }
         });
     }
+
+    $(document).ready(function () {
+        $('#ErrorAlmacen').on('change', function () {
+            if ($(this).val() === 'OTROS') {
+                $('#div_comentario_otros').show();
+            } else {
+                $('#div_comentario_otros').hide();
+                $('#ComentarioErrorAlmacen').val('');
+            }
+        });
+    });
 </script>
 
 <div class="pt-4">
@@ -157,9 +168,10 @@
                         <select name="TipoSolucion" id="TipoSolucion" class="form-control bg-cobefar text-white">
                             <option value="">Seleccione</option>
                             <option value="Regalo">Regalo</option>
-                            <option value="Articulo">Articulo</option>
-                            <option value="RegaloArticulo">Regalo y Articulo</option>
+                            <option value="Intercambio">Intercambio</option>
+                            <option value="Envio">Envio</option>
                             <option value="NotaDeCredito">Nota De Credito</option>
+                            <option value="NCPorDesc">Nota De Credito por Descuento</option>
                             <option value="Otros">Otros</option>
                         </select>
                     }
@@ -235,21 +247,60 @@
                     <input type="text" id="Problema" name="Problema" class="form-control text-center border-success" value="@Model.Det[0].Problema" readonly />
                 </div>
 
-                <div id="div_errorAlmacen" class="col-lg-3" style="display: none">
-                    <label for="ErrorAlmacen" class="text-dark form-label font-weight-bold font-18">Error de almacén:</label>
-                    <select class="form-control bg-cobefar text-white" id="ErrorAlmacen" name="ErrorAlmacen" onchange="enviarValorEscogido(this.value, this.id)">
-                        <option value=''>Seleccione</option>
-                        <option value='ARECEP3'>Área de Recepción 3</option>
-                        <option value='ARECEP5'>Área de Recepción 5</option>
-                        <option value='ARECEP7'>Área de Recepción 7</option>
-                        <option value='ADESP'>Área de Despacho</option>
-                        <option value='AVERIF'>Área de Verificación</option>
-                        <option value='AEMB'>Área de Embalaje</option>
-                        <option value='APICK'>Área de Picking</option>
-                        <option value='AFACT'>Área de Facturación</option>
-                        <option value='AING'>Área de Ingreso</option>
-                    </select>
-                </div>
+                @if (Model.Estado == "Atendido" && Model.Det[0].TipoError == "ErrorAlmacen")
+                {
+                    <div class="col-lg-3">
+                        <label class="text-dark form-label font-weight-bold font-18">Error de almacén:</label>
+                        <input type="text" class="form-control text-center border-success" readonly
+                               value="@(Model.Det[0].ErrorAlmacen == "ARECEP3" ? "Área de Recepción 3" :
+                        Model.Det[0].ErrorAlmacen == "ARECEP5" ? "Área de Recepción 5" :
+                        Model.Det[0].ErrorAlmacen == "ARECEP6" ? "Área de Recepción 6" :
+                        Model.Det[0].ErrorAlmacen == "ARECEP7" ? "Área de Recepción 7" :
+                        Model.Det[0].ErrorAlmacen == "ARECEP8" ? "Área de Recepción 8" :
+                        Model.Det[0].ErrorAlmacen == "ADESP"   ? "Área de Despacho" :
+                        Model.Det[0].ErrorAlmacen == "AVERIF"  ? "Área de Verificación" :
+                        Model.Det[0].ErrorAlmacen == "AEMB"    ? "Área de Embalaje" :
+                        Model.Det[0].ErrorAlmacen == "APICK"   ? "Área de Picking" :
+                        Model.Det[0].ErrorAlmacen == "AFACT"   ? "Área de Facturación" :
+                        Model.Det[0].ErrorAlmacen == "AING"    ? "Área de Ingreso" :
+                        Model.Det[0].ErrorAlmacen == "OTROS"   ? "Otros" : "")" />
+                    </div>
+                        
+                           <div class="col-lg-4 mt-3">
+                               @if (Model.Det[0].ErrorAlmacen == "OTROS")
+                               {
+                                   <div style="margin-top:8px;">
+                                       <label class="text-dark form-label font-weight-bold font-18">Comentario (obligatorio si selecciona Otros):</label>
+                                       @Html.EditorFor(model => @Model.Det[0].ErrAlmOtrCom, new { htmlAttributes = new { @class = "form-control border-success text-center", @readonly = true } })
+                                   </div>
+                               }
+                           </div>
+                        
+                    
+                }
+                else
+                {
+                    <div id="div_errorAlmacen" class="col-lg-3" style="display: none">
+                        <label for="ErrorAlmacen" class="text-dark form-label font-weight-bold font-18">Error de almacén:</label>
+                        <select class="form-control bg-cobefar text-white" id="ErrorAlmacen" name="ErrorAlmacen" onchange="enviarValorEscogido(this.value, this.id)">
+                            <option value=''>Seleccione</option>
+                            <option value='ARECEP3'>Área de Recepción 3</option>
+                            <option value='ARECEP6'>Área de Recepción 6</option>
+                            <option value='ARECEP8'>Área de Recepción 8</option>
+                            <option value='ADESP'>Área de Despacho</option>
+                            <option value='AVERIF'>Área de Verificación</option>
+                            <option value='AEMB'>Área de Embalaje</option>
+                            <option value='APICK'>Área de Picking</option>
+                            <option value='AFACT'>Área de Facturación</option>
+                            <option value='AING'>Área de Ingreso</option>
+                            <option value='OTROS'>Otros</option>
+                        </select>
+                        <div id="div_comentario_otros" style="display:none; margin-top:8px;">
+                            <label for="ErrAlmOtrCom" class="form-label font-weight-bold">Comentario (obligatorio si selecciona Otros):</label>
+                            <textarea class="form-control" id="ErrAlmOtrCom" name="ErrAlmOtrCom" rows="2" maxlength="250"></textarea>
+                        </div>
+                    </div>
+                }
             </div>
 
             <div class="row mt-4 ">

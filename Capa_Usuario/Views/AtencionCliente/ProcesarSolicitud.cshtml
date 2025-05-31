@@ -180,6 +180,27 @@
                     <label for="LugarDestino" class="text-dark form-label font-weight-bold font-18">Lugar de Destino:</label>
                     @Html.EditorFor(model => model.DetORTV["LugarDestino"], new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
                 </div>
+
+                <div class="col-lg-2">
+                    <label for="NotiCliente" class="text-dark form-label font-weight-bold font-18">Notificar Cliente:</label>
+                    @if (Model.Estado == "Proceso")
+                    {
+                        <input type="text"
+                               class="form-control text-center border-success"
+                               value="@(Model.NotiCliente == 1 ? "SI" : "NO")"
+                               readonly />
+                        @Html.HiddenFor(model => model.NotiCliente)
+                    }
+
+                    else if (Model.Estado == "Registrado")
+                    {
+                        <select name="NotiCliente" id="NotiCliente" class="form-control bg-cobefar text-white border-success">
+                            <option value="0">NO</option>
+                            <option value="1">SI</option>
+
+                        </select>
+                    }
+                </div>
             </div>
 
             @Html.EditorFor(model => model.DetORTV["CardCode"], new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })

@@ -63,13 +63,16 @@ namespace Capa_Usuario.Controllers
                     { "", ""},
                     { "ARECEP3", "Área de Recepción 3"},
                     { "ARECEP5", "Área de Recepción 5"},
+                    { "ARECEP6", "Área de Recepción 6"},
                     { "ARECEP7", "Área de Recepción 7"},
+                    { "ARECEP8", "Área de Recepción 8"},
                     { "ADESP", "Área de Despacho"},
                     { "AVERIF", "Área de Verificación"},
                     { "AEMB", "Área de Embalaje"},
                     { "APICK", "Área de Picking"},
                     { "AFACT", "Área de Facturación"},
-                    { "AING", "Área de Ingreso"}
+                    { "AING", "Área de Ingreso"},
+                    { "OTROS", "OTROS"},
                 };
             Dictionary<string, string> result = new Dictionary<string, string>
                 {
@@ -119,11 +122,11 @@ namespace Capa_Usuario.Controllers
                     worksheet.Cells["A1"].LoadFromCollection(solicitudes, PrintHeaders: true);
                     if (solicitudes != null && solicitudes.Count >= 1)
                     {
-                        for (var col = 1; col <= 26; col++)
+                        for (var col = 1; col <= 29; col++)
                         {
                             worksheet.Column(col).AutoFit();
                         }
-                        var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: solicitudes.Count + 1, toColumn: 26), "Solicitudes");
+                        var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: solicitudes.Count + 1, toColumn: 29), "Solicitudes");
                         tabla.ShowHeader = true;
                         tabla.TableStyle = TableStyles.Medium2;
                     }
@@ -612,6 +615,86 @@ namespace Capa_Usuario.Controllers
                 return Content(status);
             }
             catch (Exception e) { return Content(e.Message); }
+        }
+         public JsonResult ObtenerNotificadoCliente(int idOperation = 2711)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                var data = osatN.obtenerNotificadoCliente();
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+            else
+            {
+                return Json(new { error = "Acceso denegado" }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        public JsonResult ObtenerNotificadoClienteDetalle(string CardCode, int idOperation = 2711)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                var data = osatN.obtenerNotificadoClienteDetalle(CardCode);
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+            else
+            {
+                return Json(new { error = "Acceso denegado" }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        public ActionResult RegalosAplicados(OSAT_E filtro = null, string Mensaje = "", int idOperation = 2713)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                ViewBag.Mensaje = Mensaje;
+                ViewBag.Osat = filtro ?? new OSAT_E();
+                // Llama a un nuevo método que solo trae los OSAT con TicketSolucion no nulo
+                var lista = osatN.ListarRegalosAplicados();
+                return View(lista);
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
+
+        public ActionResult ExportarExcelRegalos(int idOperation = 2713)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                OSAT_N osatN = new OSAT_N();
+                string excelContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                // Llama al método que retorna List<Rpt_Regalos>
+                var lista = osatN.ListarRegalosAplicados();
+
+                using (var libro = new OfficeOpenXml.ExcelPackage())
+                {
+                    var worksheet = libro.Workbook.Worksheets.Add("RegalosAplicados");
+                    worksheet.Cells["A1"].LoadFromCollection(lista, PrintHeaders: true);
+
+                    if (lista != null && lista.Count >= 1)
+                    {
+                        for (var col = 1; col <= worksheet.Dimension.End.Column; col++)
+                        {
+                            worksheet.Column(col).AutoFit();
+                        }
+                        var tabla = worksheet.Tables.Add(
+                            new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: lista.Count + 1, toColumn: worksheet.Dimension.End.Column),
+                            "RegalosAplicados"
+                        );
+                        tabla.ShowHeader = true;
+                        tabla.TableStyle = TableStyles.Medium2;
+                    }
+                    return File(libro.GetAsByteArray(), excelContentType, "RegalosAplicados.xlsx");
+                }
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
         }
     }
 }

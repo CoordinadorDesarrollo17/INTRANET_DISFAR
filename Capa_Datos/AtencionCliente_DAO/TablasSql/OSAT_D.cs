@@ -67,6 +67,14 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
                 {
                     fil += $" AND AC.Tipo IN {filtro.TipoSolicitudCreaTicketVenta}";
                 }
+                if (filtro.SoloSinTicketSolucion.HasValue && filtro.SoloSinTicketSolucion.Value)
+                {
+                    fil += " AND TicketSolucion IS NULL";
+                }
+                if (filtro.TicketSolucion != null)
+                {
+                    fil += " OR TicketSolucion =" + filtro.TicketSolucion;
+                }
                 //
                 if (filtro.Factor != null) { fil += " and AC.Factor  ='" + filtro.Factor + "'"; }
                 if (filtro.TipoSolucion != null) { fil += " and AC.TipoSolucion in" + filtro.TipoSolucion; }
@@ -84,8 +92,94 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
             {
                 topSelect = "TOP 50";
             }
-            string select = $"select {topSelect} AC.DocEntry, AC.DocNum, CONVERT(varchar,AC.FechaRegistro,23) AS FechaRegistro, AC.DocNumTicket, AC.Estado, AC.Resultado, AC.Tipo, AC.Factor, AC.FechaFacturacion, AC.Solucion, AC.TipoSolucion, VT.LugarDestino, VT.CardName, VT.CardCode," +
-                $"(SELECT TOP 1 FechaOperacion FROM ac.CC_OSAT where Operacion='ATENDER' and DocEntry=AC.DocEntry\r\n order by FechaOperacion,HoraOperacion desc) AS FechaAtencion, AC.TipoVenta, AC.CanalVenta";
+
+            string estadoFiltro = filtro?.Estado != null ? filtro.Estado.Replace("'", "''") : "";
+
+            string select = $@"
+            SELECT {topSelect}
+                AC.DocEntry,
+                AC.DocNum,
+                CONVERT(varchar, AC.FechaRegistro, 23) AS FechaRegistro,
+                AC.DocNumTicket,
+                AC.Estado,
+                AC.Resultado,
+                AC.Tipo,
+                AC.Factor,
+                CASE
+            {(string.IsNullOrEmpty(estadoFiltro) ? "" : $@"
+            WHEN AC.Estado = '{estadoFiltro}' AND '{estadoFiltro}' IN('Registrado','Proceso','Atendido')
+                THEN DATEDIFF(
+                    DAY,
+                    (SELECT TOP 1 FechaOperacion
+                     FROM ac.CC_OSAT
+                     WHERE DocEntry = AC.DocEntry
+                       AND Operacion = 
+                            CASE 
+                                WHEN '{estadoFiltro}' = 'Registrado' THEN 'REGISTRAR'
+                                WHEN '{estadoFiltro}' = 'Proceso' THEN 'PROCESAR'
+                                WHEN '{estadoFiltro}' = 'Atendido' THEN 'ATENDER'
+                                WHEN '{estadoFiltro}' = 'Culminado' THEN 'CULMINAR'
+                                WHEN '{estadoFiltro}' = 'Anulado' THEN 'ANULAR'
+                                ELSE '{estadoFiltro}'
+                            END
+                     ORDER BY FechaOperacion ASC),
+                    GETDATE()
+                )
+            WHEN AC.Estado = '{estadoFiltro}' AND '{estadoFiltro}' ='Culminado'
+            THEN DATEDIFF(
+                    DAY,
+                    (SELECT TOP 1 FechaOperacion
+                     FROM ac.CC_OSAT
+                     WHERE DocEntry = AC.DocEntry
+                     AND Operacion = 'REGISTRAR'
+                     ORDER BY FechaOperacion ASC),
+                    (SELECT TOP 1 FechaOperacion
+                     FROM ac.CC_OSAT
+                     WHERE DocEntry = AC.DocEntry
+                     AND Operacion = 'CULMINAR'
+                     ORDER BY FechaOperacion ASC)
+                )
+            ")}
+            WHEN AC.Tipo IN ('Reclamo', 'Devolucion') AND AC.Estado IN ('Registrado', 'Proceso', 'Atendido')
+                THEN DATEDIFF(
+                    DAY,
+                    (SELECT TOP 1 FechaOperacion
+                     FROM ac.CC_OSAT
+                     WHERE DocEntry = AC.DocEntry AND Operacion = 'REGISTRAR'
+                     ORDER BY FechaOperacion ASC),
+                    (
+                        SELECT CASE
+                            WHEN EXISTS (
+                                SELECT 1 FROM ac.CC_OSAT
+                                WHERE DocEntry = AC.DocEntry AND Operacion = 'ANULAR'
+                            )
+                                THEN NULL
+                            ELSE ISNULL(
+                                (SELECT TOP 1 FechaOperacion
+                                 FROM ac.CC_OSAT
+                                 WHERE DocEntry = AC.DocEntry AND Operacion = 'CULMINAR'
+                                 ORDER BY FechaOperacion DESC),
+                                CONVERT(char(10), GETDATE(), 126)
+                            )
+                        END
+                    )
+                )
+            ELSE NULL
+        END AS DiasRetraso,
+        AC.Solucion,
+        AC.TipoSolucion,
+        VT.LugarDestino,
+        VT.CardName,
+        VT.CardCode,
+        (SELECT TOP 1 FechaOperacion
+         FROM ac.CC_OSAT
+         WHERE Operacion = 'ATENDER' AND DocEntry = AC.DocEntry
+         ORDER BY FechaOperacion, HoraOperacion DESC) AS FechaAtencion,
+        AC.TipoVenta,
+        AC.CanalVenta,
+        AC.TicketSolucion
+";
+
             string query = $"{select} FROM ac.OSAT AS AC LEFT JOIN vt.ORTV AS VT ON VT.DocNum = AC.DocNumTicket WHERE AC.DocEntry>0 {fil} ORDER BY AC.DocEntry DESC";
             try
             {
@@ -103,7 +197,7 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
                     if (!dr.IsDBNull(5)) { objOSAT.Resultado = dr.GetString(5); }
                     if (!dr.IsDBNull(6)) { objOSAT.Tipo = dr.GetString(6); }
                     if (!dr.IsDBNull(7)) { objOSAT.Factor = dr.GetString(7); }
-                    if (!dr.IsDBNull(8)) { objOSAT.FechaFacturacion = dr.GetDateTime(8).ToString("yyyy-MM-dd"); }
+                    if (!dr.IsDBNull(8)) { objOSAT.DiasRetraso = dr.GetInt32(8); }
                     if (!dr.IsDBNull(9)) { objOSAT.Solucion = dr.GetString(9); }
                     if (!dr.IsDBNull(10)) { objOSAT.TipoSolucion = dr.GetString(10); }
                     if (!dr.IsDBNull(11)) { detORTV.Add("LugarDestino", dr.GetString(11)); } else { detORTV.Add("LugarDestino", ""); }
@@ -112,6 +206,7 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
                     if (!dr.IsDBNull(14)) { objOSAT.FechaAtencion = dr.GetDateTime(14).ToString("yyyy-MM-dd"); }
                     if (!dr.IsDBNull(15)) { objOSAT.TipoVenta = dr.GetString(15); }
                     if (!dr.IsDBNull(16)) { objOSAT.CanalVenta = dr.GetString(16); }
+                    if (!dr.IsDBNull(17)) { objOSAT.TicketSolucion = dr.GetString(17); }
                     objOSAT.DetORTV = detORTV;
                     List<CC_OSAT_E> DatosAtencion = ccOSAT_D.ListarCC_OSAT(dr.GetInt32(0), "ATENDER");
                     if (DatosAtencion[0].Operacion == "ATENDER" && !String.IsNullOrEmpty(objOSAT.Resultado))
@@ -165,13 +260,16 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
                     { "", ""},
                     { "ARECEP3", "Área de Recepción 3"},
                     { "ARECEP5", "Área de Recepción 5"},
+                    { "ARECEP6", "Área de Recepción 6"},
                     { "ARECEP7", "Área de Recepción 7"},
+                    { "ARECEP8", "Área de Recepción 8"},
                     { "ADESP", "Área de Despacho"},
                     { "AVERIF", "Área de Verificación"},
                     { "AEMB", "Área de Embalaje"},
                     { "APICK", "Área de Picking"},
                     { "AFACT", "Área de Facturación"},
-                    { "AING", "Área de Ingreso"}
+                    { "AING", "Área de Ingreso"},
+                    { "OTROS", "OTROS"}
                 };
             Dictionary<string, string> result = new Dictionary<string, string>
                 {
@@ -235,8 +333,11 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
             }
             StringBuilder sb = new StringBuilder();
             sb.Append("SELECT AC.DocEntry, AC.DocNum, AC.DocNumTicket, AC.Estado, AC.Factor, CONVERT(varchar,AC.FechaRegistro,23) AS FechaRegistro, AC.Resultado, AC.Solucion, AC.FechaFacturacion, AC.TipoVenta, AC.CanalVenta");
-            sb.Append(" ,VT.LugarDestino, VT.CardName, (SELECT TOP 1 FechaOperacion FROM ac.CC_OSAT where Operacion='ATENDER' and DocEntry=AC.DocEntry\r\n order by FechaOperacion DESC, HoraOperacion DESC) AS FechaAtencion");
-            sb.Append(" ,DET.Problema, DET.TipoError, DET.OpResponsable, DET.Comentario, DET.ErrorAlmacen, DET.NCSAP  ,DET.ItemCode,DET.Dscription,DET.BatchNum,DET.ExpDate,DET.UnitMsrF,DET.QuantityF,DET.LineTotalF");
+            sb.Append(" ,VT.LugarDestino, VT.CardName, (SELECT TOP 1 FechaOperacion FROM ac.CC_OSAT WHERE Operacion='ATENDER' AND DocEntry=AC.DocEntry ORDER BY FechaOperacion DESC, HoraOperacion DESC) AS FechaAtencion");
+            sb.Append(" ,DET.Problema, DET.TipoError, DET.OpResponsable, DET.Comentario, DET.ErrorAlmacen, DET.NCSAP, DET.ItemCode, DET.Dscription, DET.BatchNum, DET.ExpDate, DET.UnitMsrF, DET.QuantityF, DET.LineTotalF");
+            sb.Append(" ,(SELECT TOP 1 FechaOperacion FROM ac.CC_OSAT WHERE Operacion='PROCESAR' AND DocEntry=AC.DocEntry ORDER BY FechaOperacion DESC, HoraOperacion DESC) AS FecProceso");
+            sb.Append(" ,(SELECT TOP 1 FechaOperacion FROM ac.CC_OSAT WHERE Operacion='CULMINAR' AND DocEntry=AC.DocEntry ORDER BY FechaOperacion DESC, HoraOperacion DESC) AS FecCulminado");
+            sb.Append(",AC.TipoSolucion");
             sb.Append(" FROM ac.OSAT AC");
             sb.Append(" LEFT JOIN vt.ORTV VT ON VT.DocNum = AC.DocNumTicket");
             sb.Append(" INNER JOIN ac.SAT1 DET ON DET.DocEntry = AC.DocEntry");
@@ -277,6 +378,9 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
                     if (!dr.IsDBNull(24)) { rpt.UnitMsrF = dr.GetString(24); }
                     if (!dr.IsDBNull(25)) { rpt.QuantityF = dr.GetDecimal(25); }
                     if (!dr.IsDBNull(26)) { rpt.Total = dr.GetDecimal(26); }
+                    if (!dr.IsDBNull(27)) { rpt.FechaProceso = dr.GetDateTime(27).ToString("yyyy-MM-dd"); }
+                    if (!dr.IsDBNull(28)) { rpt.FechaCulminado = dr.GetDateTime(28).ToString("yyyy-MM-dd"); }
+                    if (!dr.IsDBNull(29)) { rpt.TipoSolucion = dr.GetString(29); }
                     lista.Add(rpt);
                 }
                 dr.Close();
@@ -374,7 +478,7 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
         {
             OSAT_E objOSAT = null;
             string select = "SELECT AC.DocEntry, AC.DocNum, AC.Tipo, AC.DocNumTicket, AC.DocEntryTicket, AC.Estado, AC.Factor, AC.Contacto, AC.Telefono, AC.Correo, AC.DireccionRecojo, CONVERT(varchar,AC.FechaRegistro,23) AS FechaRegistro, " +
-                                    "AC.HoraRegistro, AC.OpRegistro, AC.UrlArchivo, AC.Resultado, AC.Solucion, AC.TipoSolucion, AC.FechaFacturacion, VT.LugarDestino, VT.CardName, VT.CardCode, AC.TipoVenta, AC.CanalVenta";
+                                    "AC.HoraRegistro, AC.OpRegistro, AC.UrlArchivo, AC.Resultado, AC.Solucion, AC.TipoSolucion, AC.FechaFacturacion, VT.LugarDestino, VT.CardName, VT.CardCode, AC.TipoVenta, AC.CanalVenta, AC.NotiCliente";
             string query = $"{select} FROM ac.OSAT AS AC LEFT JOIN vt.ORTV AS VT ON VT.DocNum = AC.DocNumTicket WHERE AC.DocEntry=@DocEntry ORDER BY AC.DocEntry DESC";
             try
             {
@@ -406,6 +510,7 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
                 if (!dr.IsDBNull(21)) { detORTV.Add("CardCode", dr.GetString(21)); } else { detORTV.Add("CardCode", ""); }
                 if (!dr.IsDBNull(22)) { objOSAT.TipoVenta = dr.GetString(22); }
                 if (!dr.IsDBNull(23)) { objOSAT.CanalVenta = dr.GetString(23); }
+                if (!dr.IsDBNull(24)) { objOSAT.NotiCliente = dr.GetBoolean(24) ? 1 : 0; }
                 objOSAT.DetORTV = detORTV;
                 objOSAT.Det = sat1D.buscarDetallesSolicitud(DocEntry);
                 foreach (SAT1_E sat1 in objOSAT.Det)
@@ -492,6 +597,7 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
                     cmd.Parameters.AddWithValue("@Contacto", obj.Contacto);
                     cmd.Parameters.AddWithValue("@Telefono", obj.Telefono);
                     cmd.Parameters.AddWithValue("@Correo", obj.Correo);
+                    cmd.Parameters.AddWithValue("@NotiCliente", obj.NotiCliente);
                     cmd.Parameters.AddWithValue("@DireccionRecojo", obj.DireccionRecojo);
                     cmd.Parameters.AddWithValue("@UrlArchivo", obj.UrlArchivo);
                     cmd.Parameters.AddWithValue("@Operario", obj.OpRegistro);   // Para el control de cambios - Usuario en sesiön
@@ -679,46 +785,58 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
             OSAT_E objOSAT = new OSAT_E();
             using (SqlConnection cn = new SqlConnection(uti.cadSql))
             {
-                String query = $"SELECT DocEntry, CardCode, CardName, LugarDestino, Vendedor, FechaFacturacion, DirDestino FROM vt.ORTV WHERE DocNum = @DocNumTicket";
-                SqlCommand cmd = new SqlCommand(query, cn) { CommandType = CommandType.Text };
+                string query = @"
+                SELECT 
+                    O.DocEntry, O.CardCode, O.CardName, O.LugarDestino, O.Vendedor, O.FechaFacturacion, O.DirDestino,
+                    R.NombrePer, R.TelfPer, O.AlmProcedencia
+                FROM vt.ORTV O
+                LEFT JOIN vt.RTV1 R ON O.DocEntry = R.DocEntry
+                WHERE O.DocNum = @DocNumTicket";
+                SqlCommand cmd = new SqlCommand(query, cn);
                 cmd.Parameters.AddWithValue("@DocNumTicket", DocNumTicket);
                 cn.Open();
-                try
+                SqlDataReader dr = cmd.ExecuteReader();
+                Dictionary<string, string> DetORTV = new Dictionary<string, string>();
+                if (dr.HasRows)
                 {
-                    SqlDataReader dr = cmd.ExecuteReader();
-                    if (dr.HasRows)
+                    dr.Read();
+                    if (!dr.IsDBNull(0))
                     {
-                        dr.Read();
-                        // Validamos en si el DocEntry no sea "null" ya que es prioridad para obtener datos de RTV1
-                        if (!dr.IsDBNull(0))
+                        objOSAT.DocEntryTicket = dr.GetInt32(0);
+                        objOSAT.DocNumTicket = DocNumTicket;
+                        objOSAT.Contacto = !dr.IsDBNull(7) ? dr.GetString(7) : "";
+                        objOSAT.Telefono = !dr.IsDBNull(8) ? dr.GetString(8) : "";
+                        if (!dr.IsDBNull(1)) DetORTV.Add("CardCode", dr.GetString(1));
+                        if (!dr.IsDBNull(2)) DetORTV.Add("CardName", dr.GetString(2));
+                        if (!dr.IsDBNull(3)) DetORTV.Add("LugarDestino", dr.GetString(3));
+                        if (!dr.IsDBNull(4)) DetORTV.Add("Vendedor", dr.GetString(4));
+                        if (!dr.IsDBNull(9)) DetORTV.Add("AlmProcedencia", dr.GetString(9));
+                        if (!dr.IsDBNull(5)) objOSAT.FechaFacturacion = dr.GetDateTime(5).ToString("yyyy-MM-dd");
+                        if (!dr.IsDBNull(6)) objOSAT.DireccionRecojo = dr.GetString(6);
+                    }
+                }
+                dr.Close();
+
+                //Obtener todos los NroSap relacionados al ticket
+                List<int> nroSaps = new List<int>();
+                string queryNroSap = "SELECT NroSap FROM vt.RTV2 WHERE DocEntry = @DocNumTicket";
+                using (SqlCommand cmdNroSap = new SqlCommand(queryNroSap, cn))
+                {
+                    cmdNroSap.Parameters.AddWithValue("@DocNumTicket", objOSAT.DocEntryTicket);
+                    using (SqlDataReader drNroSap = cmdNroSap.ExecuteReader())
+                    {
+                        while (drNroSap.Read())
                         {
-                            List<RTV1_E> datosRTV1 = new List<RTV1_E>();
-                            ORTV_E datosORTV = new ORTV_E();
-                            Dictionary<string, string> DetORTV = new Dictionary<string, string>();
-                            objOSAT.DocEntryTicket = dr.GetInt32(0);
-                            objOSAT.DocNumTicket = DocNumTicket;
-                            datosRTV1 = rtv1D.BuscarRTV1(dr.GetInt32(0));
-                            if (datosRTV1.Count >= 1)
-                            {
-                                objOSAT.Contacto = (!string.IsNullOrWhiteSpace(datosRTV1[0].NombrePer)) ? datosRTV1[0].NombrePer : "";
-                                objOSAT.Telefono = (!string.IsNullOrWhiteSpace(datosRTV1[0].TelfPer)) ? datosRTV1[0].TelfPer : "";
-                            }
-                            if (!dr.IsDBNull(1)) { DetORTV.Add("CardCode", dr.GetString(1)); }
-                            if (!dr.IsDBNull(2)) { DetORTV.Add("CardName", dr.GetString(2)); }
-                            if (!dr.IsDBNull(3)) { DetORTV.Add("LugarDestino", dr.GetString(3)); }
-                            if (!dr.IsDBNull(4)) { DetORTV.Add("Vendedor", dr.GetString(4)); }
-                            if (!dr.IsDBNull(5)) { objOSAT.FechaFacturacion = dr.GetDateTime(5).ToString("yyyy-MM-dd"); }
-                            if (!dr.IsDBNull(6)) { objOSAT.DireccionRecojo = dr.GetString(6); }
-                            objOSAT.Det = sat1D.ListarArticulosTicket(DocNumTicket);
-                            objOSAT.DetORTV = DetORTV;
+                            if (!drNroSap.IsDBNull(0))
+                                nroSaps.Add(drNroSap.GetInt32(0));
                         }
                     }
-                    dr.Close();
                 }
-                catch (Exception e)
-                {
-                    throw new Exception("Error: " + e.Message);
-                }
+
+                //Obtener detalles de artículos en una consulta HANA
+                objOSAT.Det = sat1D.ListarArticulosTicketPorNroSap(nroSaps);
+
+                objOSAT.DetORTV = DetORTV;
                 cn.Close();
             }
             return objOSAT;
@@ -832,5 +950,164 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
             }
             return ultimaLinea;
         }
+        public List<OSAT_E> obtenerNotificadoCliente()
+        {
+            var resultado = new List<OSAT_E>();
+            string query = @"SELECT DISTINCT CardName,CardCode, COUNT(*) AS TicketsAbiertos
+                     FROM vt.ORTV 
+                     WHERE CardCode
+                     IN (SELECT CardCode FROM vt.ORTV WHERE DocNum in (
+                     	SELECT DocNumTicket
+                     	FROM ac.OSAT
+                     	WHERE Estado IN ('Registrado','Proceso','Atendido')
+                     	AND Tipo IN ('Reclamo','Devolucion') AND NotiCliente = 1)
+                     )
+                     AND Estado IN ('RECIBIDO','PICKEANDO','VERIFICANDO','EMPACANDO','EMPACADO') 
+                     GROUP BY CardName,CardCode";
+            using (SqlConnection cn = new SqlConnection(uti.cadSql))
+            {
+                SqlCommand cmd = new SqlCommand(query, cn);
+                cn.Open();
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        resultado.Add(new OSAT_E
+                        {
+                            CardName = dr.IsDBNull(0) ? "" : dr.GetString(0),
+                            CardCode = dr.IsDBNull(1) ? "" : dr.GetString(1),
+                            TicketsAbiertos = dr.IsDBNull(2) ? 0 : dr.GetInt32(2)
+                        });
+                    }
+                }
+                cn.Close();
+            }
+            return resultado;
+        }
+
+
+        public List<OSAT_E> obtenerNotificadoClienteDetalle(string CardCode)
+        {
+            var resultado = new List<OSAT_E>();
+            string query = @"
+        SELECT 
+            FechaSapTicket,
+            DocNum,
+            Estado,
+            Vendedor,
+            CardName
+            FROM vt.ORTV
+        WHERE CardCode
+        IN (SELECT CardCode FROM vt.ORTV WHERE DocNum in (
+        	SELECT DocNumTicket
+        	FROM ac.OSAT
+        	WHERE Estado IN ('Registrado','Proceso','Atendido')
+        	AND Tipo IN ('Reclamo','Devolucion') AND NotiCliente = 1))
+         AND Estado IN ('RECIBIDO','PICKEANDO','VERIFICANDO','EMPACANDO','EMPACADO')
+         AND CardCode = @CardCode";
+            using (SqlConnection cn = new SqlConnection(uti.cadSql))
+            {
+                SqlCommand cmd = new SqlCommand(query, cn);
+                cmd.Parameters.AddWithValue("@CardCode", CardCode);
+                cn.Open();
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        var dto = new OSAT_E
+                        {
+                            FechaSapTicket = dr.IsDBNull(0) ? "" : dr.GetDateTime(0).ToString("yyyy-MM-dd"),
+                            DocNumVt = dr.IsDBNull(1) ? 0 : dr.GetInt32(1),
+                            EstadoVt = dr.IsDBNull(2) ? "" : dr.GetString(2),
+                            Vendedor = dr.IsDBNull(3) ? "" : dr.GetString(3),
+                            CardName = dr.IsDBNull(4) ? "" : dr.GetString(4)
+                        };
+                        resultado.Add(dto);
+                    }
+                }
+                cn.Close();
+            }
+            return resultado;
+        }
+        public void ActualizarTicketSolucion(List<string> docNums, string ticketSolucion)
+        {
+            using (SqlConnection cn = new SqlConnection(uti.cadSql))
+            {
+                try
+                {
+                    cn.Open();
+
+                    // Siempre limpiar primero todos los registros con ese TicketSolucion
+                    string limpiarQuery = "UPDATE ac.OSAT SET TicketSolucion = NULL WHERE TicketSolucion = @TicketSolucion";
+                    using (SqlCommand limpiarCmd = new SqlCommand(limpiarQuery, cn))
+                    {
+                        limpiarCmd.Parameters.AddWithValue("@TicketSolucion", ticketSolucion);
+                        limpiarCmd.ExecuteNonQuery();
+                    }
+
+                    // Solo si hay docNums, asignar el nuevo TicketSolucion
+                    if (docNums != null && docNums.Count > 0)
+                    {
+                        foreach (var docNum in docNums)
+                        {
+                            string query = "UPDATE ac.OSAT SET TicketSolucion = @TicketSolucion WHERE DocNum = @DocNum";
+                            using (SqlCommand cmd = new SqlCommand(query, cn))
+                            {
+                                cmd.Parameters.AddWithValue("@TicketSolucion", ticketSolucion);
+                                cmd.Parameters.AddWithValue("@DocNum", docNum);
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+                    }
+
+                    cn.Close();
+                }
+                catch (Exception e)
+                {
+                    cn.Close();
+                    throw new Exception("Error al actualizar TicketSolucion en OSAT: " + e.Message);
+                }
+            }
+        }
+
+        public List<Rpt_Regalos> ListarRegalosAplicados()
+        {
+            var lista = new List<Rpt_Regalos>();
+            using (var cn = new SqlConnection(uti.cadSql))
+            {
+                cn.Open();
+                string query = @"
+            SELECT TOP 50
+                v.DocNum,
+                v.FechaSapTicket,
+                v.CardName,
+                v.Estado AS EstadoTicket,
+                o.DocNumTicket,
+                o.Estado AS EstadoOsat
+            FROM ac.OSAT o
+            INNER JOIN vt.ORTV v ON o.TicketSolucion = v.DocNum
+            WHERE o.TicketSolucion IS NOT NULL AND LTRIM(RTRIM(o.TicketSolucion)) <> ''
+        ";
+                using (var cmd = new SqlCommand(query, cn))
+                using (var dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        var obj = new Rpt_Regalos
+                        {
+                            DocNum = dr["DocNum"]?.ToString(),
+                            FechaSapTicket = dr["FechaSapTicket"]?.ToString(),
+                            CardName = dr["CardName"]?.ToString(),
+                            EstadoVt = dr["EstadoTicket"]?.ToString(),
+                            DocNumTicket = dr["DocNumTicket"]?.ToString(),
+                            Estado = dr["EstadoOsat"]?.ToString()
+                        };
+                        lista.Add(obj);
+                    }
+                }
+            }
+            return lista;
+        }
+
     }
 }
