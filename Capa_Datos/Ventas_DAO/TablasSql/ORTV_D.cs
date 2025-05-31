@@ -21,6 +21,7 @@ using System.Windows.Forms;
 using System.Deployment.Internal;
 using System.Dynamic;
 using DocumentFormat.OpenXml.Drawing;
+using System.Drawing;
 namespace Capa_Datos.Ventas_DAO.TablasSql
 {
     public class ORTV_D
@@ -2435,7 +2436,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                                         "(Select top 1 Operario from vt.RTV13 where DocEntry=T0.DocEntry AND Linea = 1) AS 'OP APOYO 1 FIN EMPACAR', " +
                                         "(Select top 1 Operario from vt.RTV13 where DocEntry=T0.DocEntry AND Linea = 2) AS 'OP APOYO 2 FIN EMPACAR', " +
                                         "T0.LugarDestino AS 'LUGAR DESTINO',  (SELECT STUFF((SELECT ', ' + cast(t1.NroSap as varchar(max)) FROM vt.RTV2 t1 INNER JOIN  vt.ORTV x ON x.DocEntry = t1.DocEntry WHERE t1.DocEntry = t0.DocEntry FOR XML PATH('')), 1,2, '')) AS 'NRO DE VENTAS', " +
-                                        "(select COUNT(m.NroSap) from vt.RTV2 m where m.DocEntry=T0.DocEntry)  AS 'TOTAL NRO VENTAS', T0.Cajas AS 'CAJAS', T0.EstadoPago AS 'ESTADO PAGO',T0.FormaPago , T0.EstadoFacturacion AS 'ESTADO FACTURACION', CONVERT(varchar, T0.FechaFacturacion, 103) AS 'FECHA FACTURACION', " +
+                                        "(select COUNT(m.NroSap) from vt.RTV2 m where m.DocEntry=T0.DocEntry)  AS 'TOTAL NRO VENTAS', T0.Cajas AS 'CAJAS', T0.EstadoPago AS 'ESTADO PAGO', T0.FormaPago , T0.EstadoFacturacion AS 'ESTADO FACTURACION', CONVERT(varchar, T0.FechaFacturacion, 103) AS 'FECHA FACTURACION', " +
                                         "convert(varchar(8),T0.HoraFacturacion) as 'HORA FACTURACION', T0.OpFacturacion AS 'OP FACTURACION'," +
                                         "(Select top 1 CONVERT(varchar, FechaOperacion , 103) from vt.CC_ORTV where DocEntry=T0.DocEntry and Operacion='ENTREGAR' order by FechaOperacion,HoraOperacion desc ) AS 'FECHA ENTREGA', " +
                                         "(Select top 1 CONVERT(varchar(8),HoraOperacion) from vt.CC_ORTV where DocEntry=T0.DocEntry and Operacion='ENTREGAR' order by FechaOperacion,HoraOperacion desc ) as 'HORA ENTREGA', " +
@@ -2448,8 +2449,10 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                                         "(Select top 1 Operario from vt.CC_ORTV where DocEntry=T0.DocEntry and Operacion='CANCELAR' order by FechaOperacion,HoraOperacion desc ) AS 'OP CANCELADO', " +
                                         "CONVERT(varchar, T0.TiempoEntrega , 103) AS 'FECHA ESTIMADA ENTREGA', CONVERT(varchar, T0.TiempoEntrega , 8) AS 'HORA ESTIMADA ENTREGA', T1.LugarDeEntrega AS 'LUGAR ENTREGA', T0.NroMesa AS 'NRO MESA', " +
                                         "(SELECT STUFF((SELECT ', ' + cast(t1.AlmacenSalida as varchar(max)) FROM vt.RTV2 t1 INNER JOIN  vt.ORTV x ON x.DocEntry = t1.DocEntry WHERE t1.DocEntry = t0.DocEntry FOR XML PATH('')), 1,2, '')) AS 'ALMACEN SALIDA',T0.Comentario," +
-                                        "T0.Zona, T0.DirDestino, PesadoPedido.PesoTotal " +
-                                        "FROM VT.ORTV T0 INNER JOIN VT.RTV2 T1 ON T0.DocEntry=T1.DocEntry "+
+                                        "T0.Zona, T0.DirDestino, PesadoPedido.PesoTotal, CONVERT (varchar, T0.FechaPago, 103) AS 'FechaPagoVenta', CONVERT (varchar, T0.HoraPago, 108) AS 'HoraPagoVenta' " +
+                                        //"(Select top 1 CONVERT(varchar, FechaOperacion , 103) from vt.CC_ORTV where DocEntry=T0.DocEntry and Operacion='PREENVIAR' order by FechaOperacion,HoraOperacion desc ), " +
+                                        //"(Select top 1 CONVERT(varchar, FechaOperacion , 103) from vt.CC_ORTV where DocEntry=T0.DocEntry and Operacion='ENVIAR' order by FechaOperacion,HoraOperacion desc ) " +
+                                        "FROM VT.ORTV T0 INNER JOIN VT.RTV2 T1 ON T0.DocEntry=T1.DocEntry " +
                                         "OUTER APPLY ( " +
                                             "SELECT TOP 1 SUM(peso) AS 'PesoTotal' FROM VT.RTV6  " +
                                             "WHERE DocEntry = T0.DocEntry " +
@@ -2530,6 +2533,8 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                             if (!dr.IsDBNull(60)) { rpt.ZonaVenta = dr.GetString(60); }
                             if (!dr.IsDBNull(61)) { rpt.DirDestinoVenta = dr.GetString(61); }
                             if (!dr.IsDBNull(62)) { rpt.PesoTotalPedido = dr.GetDecimal(62); }
+                            if (!dr.IsDBNull(63)) { rpt.FechaPagoTicket = dr.GetString(63); }
+                            if (!dr.IsDBNull(64)) { rpt.HoraPagoTicket = dr.GetString(64); }
                             lista.Add(rpt);
                         }
                     }
@@ -2583,9 +2588,9 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     if (!dr.IsDBNull(12)) { o.EstadoPago = dr.GetString(12); }
                     if (!dr.IsDBNull(13)) { o.EstadoFacturacion = dr.GetString(13); }
                     if (!dr.IsDBNull(14)) { o.TipoVenta = dr.GetString(14); }
-                    if (!dr.IsDBNull(15)) { o.FechaPago = dr.GetDateTime(15).ToString("yyyy-MM-dd"); }
-                    if (!dr.IsDBNull(16)) { o.HoraPago = dr.GetTimeSpan(16).ToString(); }
-                    if (!dr.IsDBNull(17))  o.TiempoEntrega = dr.GetDateTime(17); 
+                    if (!dr.IsDBNull(15)) o.FechaPago = dr.GetString(15);
+                    if (!dr.IsDBNull(16)) o.HoraPago = dr.GetString(16);
+                    if (!dr.IsDBNull(17)) o.TiempoEntrega = dr.GetDateTime(17);
                     if (!dr.IsDBNull(18)) { o.Vinculados = dr.GetString(18); }
                     if (o.LugarDestino == "Domicilio" || o.LugarDestino == "Agencia")
                     { o.Guias = GuiasTicket(o.DocEntry); }
@@ -2605,7 +2610,17 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 }
                 cn.Close();
             }
-            catch { cn.Close(); }
+            catch (SqlException sqlEx)
+            {
+                LogHelper.RegistrarError(sqlEx, $"Error SQL en ORTV_D - ListarTicketsParaRepartos()");
+                cn.Close();
+            }
+            catch (Exception ex)
+            {
+                LogHelper.RegistrarError(ex, $"Error inesperado en ORTV_D - ListarTicketsParaRepartos()");
+                cn.Close();
+            }
+
             return lista;
         }
         public List<ORTV_E> ListarTicketsRepartosNoEnviados(ORTV_E filtro, string[] estados)

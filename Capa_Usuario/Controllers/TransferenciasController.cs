@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
+using Capa_Entidad.DireccionTecnica_ENT.Reportes;
 using Capa_Entidad.DireccionTecnica_ENT.Reportes.Liberaciones;
 using Capa_Entidad.Seguridad_ENT;
 using Capa_Entidad.SocioNegocios_ENT.Tablas;
@@ -136,18 +137,18 @@ namespace Capa_Usuario.Controllers
             return Json(result);
         }
 
-        public ActionResult DescargarExcelTransferencias(ODOCS_E filtros, int idOperacion = 6205)
+        public ActionResult DescargarExcelTransferencias(RptFiltrosTransferencias_E filtrosPOST, int idOperacion = 6205)
         {
             var resultadoAcceso = VerificarPermiso(idOperacion);
 
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                var listado = _docsN.ListarTransferencias(filtros);
+                var listado = _docsN.ListarTransferenciasParaReporte(filtrosPOST);
 
                 var tiposDocumento = new Dictionary<string, string>
                     {
                         { "OPDN", "Entrada de Mercancía" },
-                        { "OWTR", "Transferencia" }
+                        { "OWTQ", "Solicitudes de Traslado" }
                     };
 
                 if (listado != null && listado.Any())

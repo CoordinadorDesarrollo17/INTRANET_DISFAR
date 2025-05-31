@@ -5,7 +5,7 @@
     var tiposDocumento = new Dictionary<string, string>
 {
         { "OPDN", "Entrada de Mercancía" },
-        { "OWTR", "Transferencia" }
+       { "OWTQ", "Solicitudes de Traslado" }
     };
 }
 
@@ -13,8 +13,8 @@
     <nav>
         <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
-            <li><a href="@Url.Action("Sesion", "Index")">Dirección Técnica</a></li>
-            <li><a href="@Url.Action("Sesion", "Index")">Liberaciones</a></li>
+            @*<li><a href="@Url.Action("Sesion", "Index")">Dirección Técnica</a></li>
+            <li><a href="@Url.Action("Sesion", "Index")">Liberaciones</a></li>*@
             <li class="current"><em>@ViewBag.Title</em></li>
         </ol>
     </nav>
