@@ -62,7 +62,9 @@ namespace Capa_Usuario.Controllers
                 {
                     { "", ""},
                     { "ARECEP3", "Área de Recepción 3"},
+                    { "ARECEP5", "Área de Recepción 5"},
                     { "ARECEP6", "Área de Recepción 6"},
+                    { "ARECEP7", "Área de Recepción 7"},
                     { "ARECEP8", "Área de Recepción 8"},
                     { "ADESP", "Área de Despacho"},
                     { "AVERIF", "Área de Verificación"},
