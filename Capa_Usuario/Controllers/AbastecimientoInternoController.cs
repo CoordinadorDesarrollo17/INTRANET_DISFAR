@@ -1771,6 +1771,11 @@ namespace Capa_Usuario.Controllers
                                     return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { $"Revise que exista previamente la ubicación en Picking {u}" }, Icono = "error" });
                             }
                         }
+                        else if (requerimiento.TipoAbastecimiento == "Venta Master"){
+                            if(string.IsNullOrWhiteSpace(requerimiento.Zona))
+                                return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { $"Debe seleccionar la zona para Venta Master" }, Icono = "error" });
+                        }
+
                         // Asignar datos de operario en el requerimiento
                         requerimiento.OperarioRegistra = $"{user.Nombres} {user.Apellidos}";
                         Utilitarios uti = new Utilitarios();
