@@ -78,25 +78,54 @@ namespace Capa_Usuario.Controllers
             }
         }
 
-        public JsonResult BuscarDocumento(long docNum, string tipoDocumento)
+        public JsonResult BuscarDocumento(long docNum, string guia, string tipoDocumento)
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
                 return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
 
-            if (string.IsNullOrWhiteSpace(tipoDocumento) || !new List<string> { "OPDN", "OWTR" }.Contains(tipoDocumento))
+            if (string.IsNullOrWhiteSpace(tipoDocumento) || !new List<string> { "OPDN", "OWTQ" }.Contains(tipoDocumento))
                 return Json(new { Titulo = "Error al buscar documento", Mensajes = new List<string> { "Tipo de documento inválido." }, Icono = "error" }, JsonRequestBehavior.AllowGet);
 
-            if (docNum <= 0)
-                return Json(new { Titulo = "Error al buscar documento", Mensajes = new List<string> { "DocNum inválido." }, Icono = "error" }, JsonRequestBehavior.AllowGet);
+            if (docNum <= 0 && string.IsNullOrWhiteSpace(guia))
+            {
+                return Json(new
+                {
+                    Titulo = "Validación requerida",
+                    Mensajes = new List<string> { "Debe ingresar al menos el DocNum mayor a cero o la Guía no vacía." },
+                    Icono = "error"
+                }, JsonRequestBehavior.AllowGet);
+            }
 
-            if (_docsN.ListarInternamientos(new ODOCS_E { DocNum = docNum }).Where(x => x.Estado != "Cancelado").Any())
-                return Json(_helper.CrearAlertaUI(new List<string> { "El documento ingresado ya se encuentra registrado." }, "error"), JsonRequestBehavior.AllowGet);
+            // Si se envió solo el docnum y es válido
+            if (docNum > 0)
+            {
+                if (_docsN.ListarInternamientos(new ODOCS_E { DocNum = docNum }).Any(x => x.Estado != "Cancelado"))
+                    return Json(_helper.CrearAlertaUI(new List<string> { "El documento ingresado ya se encuentra registrado." }, "error"), JsonRequestBehavior.AllowGet);
 
-            Capa_Negocio.DireccionTecnica_NEG.TablasExternas.ODOCS_SAP_N _internamientoSap = new Capa_Negocio.DireccionTecnica_NEG.TablasExternas.ODOCS_SAP_N();
-            var result = tipoDocumento == "OPDN" ? _internamientoSap.BuscarDocEntradaMercaderia(docNum) : _internamientoSap.BuscarDocTransferencias(docNum);
+                Capa_Negocio.DireccionTecnica_NEG.TablasExternas.ODOCS_SAP_N _internamientoSap = new Capa_Negocio.DireccionTecnica_NEG.TablasExternas.ODOCS_SAP_N();
+                var result = tipoDocumento == "OPDN"
+                    ? _internamientoSap.BuscarDocEntradaMercaderia(docNum, "")
+                    : _internamientoSap.BuscarDocSolicitudTraslado(docNum, "");
 
-            return Json(new { result.Item1.Titulo, result.Item1.Mensajes, result.Item1.Icono, Documento = result.Item2 });
+                return Json(new { result.Item1.Titulo, result.Item1.Mensajes, result.Item1.Icono, Documento = result.Item2 });
+            }
+
+            // Si se envió solo la guía y es válida
+            if (!string.IsNullOrWhiteSpace(guia))
+            {
+                if (_docsN.ListarInternamientos(new ODOCS_E { Guia = guia }).Any(x => x.Estado != "Cancelado"))
+                    return Json(_helper.CrearAlertaUI(new List<string> { "La guía ingresada ya se encuentra registrada." }, "error"), JsonRequestBehavior.AllowGet);
+
+                Capa_Negocio.DireccionTecnica_NEG.TablasExternas.ODOCS_SAP_N _internamientoSap = new Capa_Negocio.DireccionTecnica_NEG.TablasExternas.ODOCS_SAP_N();
+                var result2 = tipoDocumento == "OPDN"
+                    ? _internamientoSap.BuscarDocEntradaMercaderia(0, guia)
+                    : _internamientoSap.BuscarDocSolicitudTraslado(0, guia);
+
+                return Json(new { result2.Item1.Titulo, result2.Item1.Mensajes, result2.Item1.Icono, Documento = result2.Item2 });
+            }
+
+            return Json(new { Titulo = "Error inesperado", Mensajes = new List<string> { "No se pudo procesar la solicitud." }, Icono = "error" }, JsonRequestBehavior.AllowGet);
         }
 
         public ActionResult FiltrarListado(ODOCS_E filtros)

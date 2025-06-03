@@ -4,29 +4,43 @@
 @{
     Layout = null;
 }
-<script>
-    $(document).ready(function () { });
-    function rpt() {
-        if ($('#FecIni').val() == '' || $('#FecFin').val() == '') {
-            $('#FecIni').addClass("bg-danger text-white");
-            $('#FecFin').addClass("bg-danger text-white");
-            Swal.fire("Debe elegir un rango de fechas para los tickets");
-        } else {
-            $('#FecIni').removeClass("bg-danger text-white");
-            $('#FecFin').removeClass("bg-danger text-white");
-
-            $('#Reporte').html('<img src="/imagenes/index/ReportesDigemid/cargando.gif" />');
-            var parametros = $("#frm").serialize();
-            $(location).attr('href', "/Ventas/RptAnalisisTickets?" + parametros);
-            $('#Reporte').html("");
-        }
-    }
-</script>
 
 <!DOCTYPE html>
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .ss-main {
+            height: 38px !important;
+            line-height: 1.5 !important;
+            font-size: 1rem !important; /* 16px */
+        }
+
+            .ss-main .ss-search input {
+                height: 38px !important;
+                font-size: 1rem !important;
+                padding: 0.375rem 0.75rem !important;
+                line-height: 1.5 !important;
+                box-sizing: border-box !important;
+            }
+
+            .ss-main .ss-single-selected {
+                display: flex !important;
+                align-items: center !important;
+                cursor: pointer !important;
+                width: 100% !important;
+                height: 38px !important;
+                padding: 0.375rem 0.75rem !important;
+                font-size: 1rem !important;
+                border: 1px solid #ced4da !important;
+                border-radius: 0.375rem !important;
+                background-color: #fff !important;
+                outline: 0 !important;
+                box-sizing: border-box !important;
+                transition: background-color .2s ease-in-out !important;
+            }
+    </style>
 </head>
 <body>
 
@@ -35,14 +49,14 @@
 
         @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm" }))
         {
-            
+
 
             <div class="row mt-4">
                 <div class="col-lg-4">
                     <label for="AlmacenSalida" class="text-dark font-weight-bold font-18">Almacen(Origen):</label>
-                    <select id="AlmacenSalida" name="AlmacenSalida" class="form-control bg-cobefar text-white border-success">
+                    <select id="AlmacenSalida" name="AlmacenSalida" class="form-control border-success cls-select">
                         <option value="">Seleccione</option>
-                        @foreach (OWHS_E obj in ViewBag.Almacenes)
+                        @foreach (var obj in ViewBag.Almacenes)
                         {
                             <option value="@obj.WhsCode">@obj.WhsName</option>
                         }
@@ -51,9 +65,9 @@
 
                 <div class="col-lg-4">
                     <label for="AlmIni" class="text-dark font-weight-bold font-18">Almacenes(Lug.Ent.) Desde:</label>
-                    <select class="form-control bg-cobefar text-white border-success" name="AlmIni" id="Almacen">
+                    <select class="form-control border-success cls-select" name="AlmIni" id="Almacen">
                         <option value="">Seleccione</option>
-                        @foreach (OWHS_E obj in ViewBag.Almacenes)
+                        @foreach (var obj in ViewBag.Almacenes)
                         {
                             <option value="@obj.WhsName">@obj.WhsName</option>
                         }
@@ -62,9 +76,9 @@
 
                 <div class="col-lg-4">
                     <label for="AlmIni" class="text-dark font-weight-bold font-18">Almacenes(Lug.Ent.) Hasta:</label>
-                    <select class="form-control bg-cobefar text-white border-success" name="AlmFin" id="Almacen">
+                    <select class="form-control border-success cls-select" name="AlmFin" id="Almacen">
                         <option value="">Seleccione</option>
-                        @foreach (OWHS_E obj in ViewBag.Almacenes)
+                        @foreach (var obj in ViewBag.Almacenes)
                         {
                             <option value="@obj.WhsName">@obj.WhsName</option>
                         }
@@ -75,7 +89,7 @@
             <div class="row mt-4">
                 <div class="col-lg-4">
                     <label for="Estado" class="text-dark font-weight-bold font-18">Estado:</label>
-                    <select class="form-control bg-cobefar text-white border-success" name="Estado">
+                    <select class="form-control border-success cls-select" name="Estado">
                         <option value="">Seleccione</option>
                         <option value="ABIERTO">ABIERTO</option>
                         <option value="RECIBIDO">RECIBIDO</option>
@@ -116,7 +130,7 @@
 
                 <div class="col-lg-6">
                     <label for="LugarDestino" class="text-dark font-weight-bold font-18">Lugar Destino:</label>
-                    <select name="LugarDestino" class="form-control bg-cobefar text-white border-success">
+                    <select name="LugarDestino" class="form-control border-success cls-select">
                         <option value="">Seleccione</option>
                         <option value="Arriola">Arriola</option>
                         <option value="Domicilio">Domicilio</option>
@@ -130,7 +144,7 @@
             <div class="row mt-4">
                 <div class="col-lg-6">
                     <label for="TipoOperario" class="text-dark font-weight-bold font-18">Tipo Operario:</label>
-                    <select name="TipoOperario" class="form-control bg-cobefar text-white border-success">
+                    <select name="TipoOperario" class="form-control border-success cls-select">
                         <option value="">Seleccione</option>
                         <option value="OpSeparo">OpSeparo</option>
                         <option value="OpAbierto">OpAbierto</option>
@@ -164,7 +178,7 @@
             <div class="row mt-4">
                 <div class="col-lg-4">
                     <label for="FormaPago" class="text-dark font-weight-bold font-18">Forma de Pago:</label>
-                    <select class="form-control bg-cobefar text-white border-success" name="FormaPago" id="FormaPago">
+                    <select class="form-control border-success cls-select" name="FormaPago" id="FormaPago">
                         <option value="">Seleccione</option>
                         <option value="EFE/CAPON">EFE/CAPON</option>
                         <option value="EFECTIVO">EFECTIVO</option>
@@ -173,12 +187,12 @@
                 </div>
                 <div class="col-lg-4">
                     <label for="MontoFinalIni" class="text-dark font-weight-bold font-18">Montos Finales Desde S/:</label>
-                    @Html.EditorFor(model => model.MontoFinalIni, new { htmlAttributes = new { @class = "form-control border-success", @autocomplete = "off" } })
+                    <input autocomplete="off" class="form-control border-success" id="MontoFinalIni" name="MontoFinalIni" type="text" value="">
                 </div>
 
                 <div class="col-lg-4">
                     <label for="MontoFinalIni" class="text-dark font-weight-bold font-18">Montos Finales Hasta S/:</label>
-                    @Html.EditorFor(model => model.MontoFinalFin, new { htmlAttributes = new { @class = "form-control border-success", @autocomplete = "off" } })
+                    <input autocomplete="off" class="form-control border-success" id="MontoFinalFin" name="MontoFinalFin" type="text" value="">
                 </div>
             </div>
 
@@ -191,5 +205,31 @@
         }
     </div>
 
+    <script>
+        (function () {
+            const selects = document.querySelectorAll('.cls-select');
+            selects.forEach(select => {
+                new SlimSelect({
+                    select: select
+                });
+            });
+        })();
+
+        function rpt() {
+            if ($('#FecIni').val() == '' || $('#FecFin').val() == '') {
+                $('#FecIni').addClass("bg-danger text-white");
+                $('#FecFin').addClass("bg-danger text-white");
+                Swal.fire("Debe elegir un rango de fechas para los tickets");
+            } else {
+                $('#FecIni').removeClass("bg-danger text-white");
+                $('#FecFin').removeClass("bg-danger text-white");
+
+                $('#Reporte').html('<img src="/imagenes/index/ReportesDigemid/cargando.gif" />');
+                var parametros = $("#frm").serialize();
+                $(location).attr('href', "/Ventas/RptAnalisisTickets?" + parametros);
+                $('#Reporte').html("");
+            }
+        }
+    </script>
 </body>
 </html>

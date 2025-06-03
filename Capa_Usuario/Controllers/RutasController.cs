@@ -1,43 +1,34 @@
-﻿using Capa_Entidad.Almacen_ENT.Tablas;
-using Capa_Entidad.General_ENT.TablasSql;
+﻿using Capa_Entidad.General_ENT.TablasSql;
 using Capa_Entidad.Rutas_ENT.ReportesSql;
 using Capa_Entidad.Rutas_ENT.TablasSql;
 using Capa_Entidad.Seguridad_ENT;
 using Capa_Entidad.SocioNegocios_ENT.Tablas;
-using Capa_Entidad.Ventas_ENT.Tablas;
 using Capa_Entidad.Ventas_ENT.TablasSql;
 using Capa_Negocio;
-using Capa_Negocio.Almacen_NEG.Tablas;
 using Capa_Negocio.General_NEG.TablasSql;
 using Capa_Negocio.Rutas_NEG.TablasSql;
 using Capa_Negocio.Seguridad_NEG;
 using Capa_Negocio.SocioNegocios_NEG.TablasExternas;
-using Capa_Negocio.Ventas_NEG.Tablas;
 using Capa_Negocio.Ventas_NEG.TablasSql;
 using Capa_Usuario.Helpers;
-using iTextSharp.text;
-using iTextSharp.text.pdf;
-using Microsoft.Reporting.WebForms;
 using OfficeOpenXml;
 using OfficeOpenXml.Table;
-using PdfiumViewer;
 using Rotativa;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Printing;
 using System.Linq;
 using System.Web.Mvc;
+
 namespace Capa_Usuario.Controllers
 {
     public class RutasController : Controller
     {
         // ope - 201-299
-        OVEH_N ovehN = new OVEH_N();
-        ORRU_N orruN = new ORRU_N();
-        Usuario_N ousrN = new Usuario_N();
-        OWHS_N owhsN = new OWHS_N();
+        private readonly OVEH_N ovehN = new OVEH_N();
+        private readonly ORRU_N orruN = new ORRU_N();
+        private readonly Usuario_N ousrN = new Usuario_N();
+        private readonly Capa_Negocio.General_NEG.TablasSql.OWHS_N owhsN = new Capa_Negocio.General_NEG.TablasSql.OWHS_N();
+        private readonly Capa_Negocio.General_NEG.Tablas.OWHS_N _owhsSapN = new Capa_Negocio.General_NEG.Tablas.OWHS_N();
         /************************* C O N F I G U R A C I Ó N *************************/
         private ActionResult VerificarPermiso(int idOperation)
         {
@@ -329,7 +320,7 @@ namespace Capa_Usuario.Controllers
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 OCHO_N ochoN = new OCHO_N(); OCRD_N ocrdN = new OCRD_N();
-                ViewBag.Almacenes = owhsN.listarAlmacenes();
+                ViewBag.Almacenes = _owhsSapN.ListarAlmacenes("todos");
                 ViewBag.Clientes = ocrdN.listarSociosDeNegocios(new OCRD_E { CardType = "C" });
                 ViewBag.Transportistas = ochoN.listaChoferes(0, null);
                 ViewBag.ListaVehiculos = ovehN.listaVeh(0, null);
@@ -342,10 +333,9 @@ namespace Capa_Usuario.Controllers
         }
         public ActionResult RptHojasRuta(ORRU_E o, int idOperation = 208)
         {
-            if (string.IsNullOrWhiteSpace(o.FecConIni) || string.IsNullOrWhiteSpace(o.FecConFin))
-            {
+            if (string.IsNullOrWhiteSpace(o.FechaRegistroDesde) || string.IsNullOrWhiteSpace(o.FechaRegistroHasta))
                 return null;
-            }
+
             string acceso = AccesoHelper.VerificarAccesos(idOperation, (Usuario_E)Session["UsuarioId"], this.ControllerContext.RouteData.Values["action"].ToString(), Request.UserHostAddress, Request.UserHostName);
             if (acceso == "C_Access")
             {
@@ -360,11 +350,11 @@ namespace Capa_Usuario.Controllers
                     {
                         if (reporte.Count >= 1)
                         {
-                            for (var col = 1; col <= 36; col++)
+                            for (var col = 1; col <= 47; col++)
                             {
                                 worksheet.Column(col).AutoFit();
                             }
-                            var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: reporte.Count + 1, toColumn: 36), "ReporteHojasRuta");
+                            var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: reporte.Count + 1, toColumn: 47), "ReporteHojasRuta");
                             tabla.ShowHeader = true;
                             tabla.TableStyle = TableStyles.Medium2;
                         }
@@ -1134,7 +1124,7 @@ namespace Capa_Usuario.Controllers
             else
             { return Content(""); }
         }
-        public ActionResult liberarRRU0(RRU0_E o, int idOperation = 202)
+        public ActionResult liberarRRU0(RRU0_E o, int idOperation = 300)
         {
             string acceso = AccesoHelper.VerificarAccesos(idOperation, (Usuario_E)Session["UsuarioId"], this.ControllerContext.RouteData.Values["action"].ToString(), Request.UserHostAddress, Request.UserHostName);
             if (acceso == "C_Access")

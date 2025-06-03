@@ -44,7 +44,7 @@ namespace Capa_Usuario.Controllers
         CC_ORTV_N ccORTV_N = new CC_ORTV_N();
         UbicacionesLotes_N _ubicacionesLotesN = new UbicacionesLotes_N();
         private readonly OUSR_OPE_N _usuarioOperacionN = new OUSR_OPE_N();
-
+        private readonly Capa_Negocio.General_NEG.Tablas.OWHS_N _owhsSapN = new Capa_Negocio.General_NEG.Tablas.OWHS_N();
         /************************* C O N F I G U R A C I Ó N *************************/
         private ActionResult VerificarPermiso(int idOperation)
         {
@@ -2433,7 +2433,7 @@ namespace Capa_Usuario.Controllers
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                ViewBag.Almacenes = new Capa_Negocio.General_NEG.TablasSql.OWHS_N().listarAlmacenes();
+                ViewBag.Almacenes = _owhsSapN.ListarAlmacenes("todos");
                 ViewBag.Clientes = new Capa_Negocio.SocioNegocios_NEG.TablasExternas.OCRD_N().listarSociosDeNegocios(new OCRD_E { CardType = "C" });
                 ViewBag.Operarios = new Capa_Negocio.Seguridad_NEG.Usuario_N().ListaUsuarios(null);
                 return View();
@@ -2459,11 +2459,11 @@ namespace Capa_Usuario.Controllers
                     {
                         if (analisisTickets.Count >= 1)
                         {
-                            for (var col = 1; col <= 60; col++)
+                            for (var col = 1; col <= 65; col++)
                             {
                                 worksheet.Column(col).AutoFit();
                             }
-                            var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: analisisTickets.Count + 1, toColumn: 60), "AnalisisTickets");
+                            var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: analisisTickets.Count + 1, toColumn: 65), "RptAnalisisTickets");
                             tabla.ShowHeader = true;
                             tabla.TableStyle = OfficeOpenXml.Table.TableStyles.Medium2;
                         }
@@ -3846,6 +3846,9 @@ namespace Capa_Usuario.Controllers
         {
             var lista = new ORTV_N().obtenerOrdenDeVenta(docNum);
 
+            if (lista == null || !lista.Any())
+                return Content("No se encontró la orden.");
+
             // Depende de LugarDestino del ticket
             if (lista != null && lista[0].Almacen != "ALM07" && (string.IsNullOrEmpty(almProcedencia) || almProcedencia == "16"))
             {
@@ -3861,8 +3864,9 @@ namespace Capa_Usuario.Controllers
             }
 
             lista = lista
-        .OrderBy(x => x.Ubicaciones != null && x.Ubicaciones.Length > 0 ? x.Ubicaciones[0] : string.Empty)
-        .ToList();
+                .OrderBy(x => x.Ubicaciones != null && x.Ubicaciones.Length > 0 ? x.Ubicaciones[0] : string.Empty)
+                .ToList();
+
             ViewBag.AlmProcedencia = almProcedencia;
             return View("~/Views/Ventas/PDF/PDF_OrdenesDeVentasSophos.cshtml", lista);
         }

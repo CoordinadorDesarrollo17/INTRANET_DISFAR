@@ -165,7 +165,8 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                 }
                 hdr.Close();
             }
-            catch { };
+            catch { }
+            ;
             return lista;
         }
         public ORRU_E obtenerOrdenDeRuta(int DocEntry)
@@ -755,76 +756,93 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
         /********Reportes************/
         public List<ORRU_E.RptRutas> ReporteHojasRuta(ORRU_E o)
         {
-            List<ORRU_E.RptRutas> lista = new List<ORRU_E.RptRutas>();
-            SqlConnection cn = new SqlConnection(uti.cadSql);
+            var lista = new List<ORRU_E.RptRutas>();
 
             try
             {
-                SqlCommand cmd = new SqlCommand("al.RptHojasRuta", cn)
+                using (var cn = new SqlConnection(uti.cadSql))
+                using (var cmd = new SqlCommand("al.RptHojasRuta_2", cn))
                 {
-                    CommandType = CommandType.StoredProcedure
-                };
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.CommandTimeout = 300;
 
-                cmd.Parameters.AddWithValue("@AlmIni", o.AlmIni);
-                cmd.Parameters.AddWithValue("@AlmFin", o.AlmFin);
-                cmd.Parameters.AddWithValue("@Estado", o.Estado);
-                cmd.Parameters.AddWithValue("@FecConIni", o.FecConIni);
-                cmd.Parameters.AddWithValue("@FecConFin", o.FecConFin);
-                cmd.Parameters.AddWithValue("@CardCode", o.CardCode);
-                cmd.Parameters.AddWithValue("@TipoRuta", o.TipoRuta);
-                cmd.Parameters.AddWithValue("@TransDesc", o.TransDesc);
-                cmd.Parameters.AddWithValue("@Placa", o.Placa);
-                cmd.Parameters.AddWithValue("@MontoTotalIni", o.MontoTotalIni);
-                cmd.Parameters.AddWithValue("@MontoTotalFin", o.MontoTotalFin);
-                cn.Open();
+                    cmd.Parameters.AddWithValue("@AlmIni", o.AlmIni);
+                    cmd.Parameters.AddWithValue("@AlmFin", o.AlmFin);
+                    cmd.Parameters.AddWithValue("@Estado", o.Estado);
+                    cmd.Parameters.AddWithValue("@FechaRegistroDesde", o.FechaRegistroDesde);
+                    cmd.Parameters.AddWithValue("@FechaRegistroHasta", o.FechaRegistroHasta);
+                    cmd.Parameters.AddWithValue("@CardCode", o.CardCode ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@TipoRuta", o.TipoRuta ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@TransDesc", o.TransDesc ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Placa", o.Placa ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@MontoTotalIni", o.MontoTotalIni);
+                    cmd.Parameters.AddWithValue("@MontoTotalFin", o.MontoTotalFin);
 
-                SqlDataReader dr = cmd.ExecuteReader();
+                    cn.Open();
 
-                while (dr.Read())
-                {
-                    ORRU_E.RptRutas or = new ORRU_E.RptRutas();
-                    if (!dr.IsDBNull(0)) { or.TransDesc = dr.GetString(0); }
-                    if (!dr.IsDBNull(1)) { or.TipoRuta = dr.GetString(1); }
-                    if (!dr.IsDBNull(2)) { or.CopilDesc = dr.GetString(2); }
-                    if (!dr.IsDBNull(3)) { or.Copil2Desc = dr.GetString(3); }
-                    if (!dr.IsDBNull(4)) { or.Copil3Desc = dr.GetString(4); }
-                    if (!dr.IsDBNull(5)) { or.Copil4Desc = dr.GetString(5); }
-                    if (!dr.IsDBNull(6)) { or.Placa = dr.GetString(6); }
-                    if (!dr.IsDBNull(7)) { or.AlmOrigenDesc = dr.GetString(7); }
-                    if (!dr.IsDBNull(8)) { or.AlmDestinoDesc = dr.GetString(8); }
-                    if (!dr.IsDBNull(9)) { or.Propietario = dr.GetString(9); }
-                    if (!dr.IsDBNull(10)) { or.Observaciones = dr.GetString(10); }
-                    if (!dr.IsDBNull(11)) { or.DocNum = dr.GetInt32(11); }
-                    if (!dr.IsDBNull(12)) { or.FechaCont = dr.GetDateTime(12).ToString("yyyy-MM-dd"); }
-                    if (!dr.IsDBNull(13)) { or.FechaDoc = dr.GetDateTime(13).ToString("yyyy-MM-dd"); }
-                    if (!dr.IsDBNull(14)) { or.Hora = dr.GetString(14); }
-                    if (!dr.IsDBNull(15)) { or.Estado = dr.GetString(15); }
-                    if (!dr.IsDBNull(16)) { or.Linea = dr.GetInt32(16); }
-                    if (!dr.IsDBNull(17)) { or.CardCode = dr.GetString(17); }
-                    if (!dr.IsDBNull(18)) { or.CardName = dr.GetString(18); }
-                    if (!dr.IsDBNull(19)) { or.DocNumTicket = dr.GetInt32(19); }
-                    if (!dr.IsDBNull(20)) { or.Guias = dr.GetString(20); }
-                    if (!dr.IsDBNull(21)) { or.Cajas = dr.GetInt32(21); }
-                    if (!dr.IsDBNull(22)) { or.Observaciones2 = dr.GetString(22); }
-                    if (!dr.IsDBNull(23)) { or.DirDestino = dr.GetString(23); }
-                    if (!dr.IsDBNull(24)) { or.Distrito1 = dr.GetString(24); }
-                    if (!dr.IsDBNull(25)) { or.Provincia1 = dr.GetString(25); }
-                    if (!dr.IsDBNull(26)) { or.Departamento1 = dr.GetString(26); }
-                    if (!dr.IsDBNull(27)) { or.DirDestino2 = dr.GetString(27); }
-                    if (!dr.IsDBNull(28)) { or.Distrito2 = dr.GetString(28); }
-                    if (!dr.IsDBNull(29)) { or.Provincia2 = dr.GetString(29); }
-                    if (!dr.IsDBNull(30)) { or.Departamento2 = dr.GetString(30); }
-                    if (!dr.IsDBNull(31)) { or.MontoTotal = dr.GetDecimal(31); }
-                    if (!dr.IsDBNull(32)) { or.MontoFinal = dr.GetDecimal(32); }
-                    if (!dr.IsDBNull(33)) { or.Flete = dr.GetDecimal(33); }
-                    if (!dr.IsDBNull(34)) { or.GastoEnvio = dr.GetDecimal(34); }
-                    if (!dr.IsDBNull(35)) { or.TipoVenta = dr.GetString(35); }
-                    lista.Add(or);
+                    using (var dr = cmd.ExecuteReader())
+                    {
+                        while (dr.Read())
+                        {
+                            var or = new ORRU_E.RptRutas();
+                            if (!dr.IsDBNull(0)) or.TransDesc = dr.GetString(0);
+                            if (!dr.IsDBNull(1)) or.TipoRuta = dr.GetString(1);
+                            if (!dr.IsDBNull(2)) or.CopilDesc = dr.GetString(2);
+                            if (!dr.IsDBNull(3)) or.Copil2Desc = dr.GetString(3);
+                            if (!dr.IsDBNull(4)) or.Copil3Desc = dr.GetString(4);
+                            if (!dr.IsDBNull(5)) or.Placa = dr.GetString(5);
+                            if (!dr.IsDBNull(6)) or.AlmOrigenDesc = dr.GetString(6);
+                            if (!dr.IsDBNull(7)) or.AlmDestinoDesc = dr.GetString(7);
+                            if (!dr.IsDBNull(8)) or.Propietario = dr.GetString(8);
+                            if (!dr.IsDBNull(9)) or.DocNum = dr.GetInt32(9);
+                            if (!dr.IsDBNull(10)) or.FechaDoc = dr.GetDateTime(10).ToString("yyyy-MM-dd");
+                            if (!dr.IsDBNull(11)) or.Hora = dr.GetString(11);
+                            if (!dr.IsDBNull(12)) or.Estado = dr.GetString(12);
+                            if (!dr.IsDBNull(13)) or.Linea = dr.GetInt32(13);
+                            if (!dr.IsDBNull(14)) or.CardCode = dr.GetString(14);
+                            if (!dr.IsDBNull(15)) or.CardName = dr.GetString(15);
+                            if (!dr.IsDBNull(16)) or.DocNumTicket = dr.GetInt32(16);
+                            if (!dr.IsDBNull(17)) or.Guias = dr.GetString(17);
+                            if (!dr.IsDBNull(18)) or.Cajas = dr.GetInt32(18);
+                            if (!dr.IsDBNull(19)) or.DirDestino = dr.GetString(19);
+                            if (!dr.IsDBNull(20)) or.Distrito1 = dr.GetString(20);
+                            if (!dr.IsDBNull(21)) or.Provincia1 = dr.GetString(21);
+                            if (!dr.IsDBNull(22)) or.Departamento1 = dr.GetString(22);
+                            if (!dr.IsDBNull(23)) or.MontoTotal = dr.GetDecimal(23);
+                            if (!dr.IsDBNull(24)) or.MontoFinal = dr.GetDecimal(24);
+                            if (!dr.IsDBNull(25)) or.Flete = dr.GetDecimal(25);
+                            if (!dr.IsDBNull(26)) or.GastoEnvio = dr.GetDecimal(26);
+                            if (!dr.IsDBNull(27)) or.TipoVenta = dr.GetString(27);
+                            if (!dr.IsDBNull(28)) or.ZonaVenta = dr.GetString(28);
+                            if (!dr.IsDBNull(29)) or.FechaEntregaVenta = dr.GetString(29);
+                            if (!dr.IsDBNull(30)) or.HoraEntregaVenta = dr.GetString(30);
+                            if (!dr.IsDBNull(31)) or.FechaInicioReparto = dr.GetString(31);
+                            if (!dr.IsDBNull(32)) or.HoraInicioReparto = dr.GetString(32);
+                            if (!dr.IsDBNull(33)) or.FechaFinReparto = dr.GetString(33);
+                            if (!dr.IsDBNull(34)) or.HoraFinReparto = dr.GetString(34);
+                            if (!dr.IsDBNull(35)) or.PesoTotalVenta = dr.GetDecimal(35);
+                            if (!dr.IsDBNull(36)) or.FormaPagoVenta = dr.GetString(36);
+                            if (!dr.IsDBNull(37)) or.TipoPagoRepartoContraEntrega = dr.GetString(37);
+                            if (!dr.IsDBNull(38)) or.ComentarioLiberado = dr.GetString(38);
+                            if (!dr.IsDBNull(39)) or.MontoRecibidoDepositoContraEntrega = dr.GetDecimal(39);
+                            if (!dr.IsDBNull(40)) or.MontoRecibidoEfectivoContraEntrega = dr.GetDecimal(40);
+                            if (!dr.IsDBNull(41)) or.FechaPagoVenta = dr.GetString(41);
+                            if (!dr.IsDBNull(42)) or.HoraPagoVenta = dr.GetString(42);
+                            if (!dr.IsDBNull(43)) or.FechaEntregaReparto = dr.GetString(43);
+                            if (!dr.IsDBNull(44)) or.HoraEntregaReparto = dr.GetString(44);
+                            if (!dr.IsDBNull(45)) or.FechaPreenvio = dr.GetString(45);
+                            if (!dr.IsDBNull(46)) or.FechaEnviado = dr.GetString(46);
+                            lista.Add(or);
+                        }
+                    }
+
+                    cn.Close();
                 }
-                dr.Close();
-                cn.Close();
             }
-            catch (Exception e) { cn.Close(); throw new Exception(e.Message); }
+            catch (Exception e)
+            {
+                LogHelper.RegistrarError(e, "Error inesperado en ORRU_D - ReporteHojasRuta()");
+            }
 
             return lista;
         }
@@ -1026,7 +1044,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                 catch { }
             }
 
-            return lista.OrderBy(x=>x.HoraLlegada).ToList();
+            return lista.OrderBy(x => x.HoraLlegada).ToList();
         }
         public List<RptPesaje_E> ListarRptPesaje(FiltroRptPesaje datosFiltro)
         {

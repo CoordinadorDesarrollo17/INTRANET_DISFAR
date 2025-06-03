@@ -361,6 +361,7 @@
                     <th class="text-center">
                         Tiempo Entrega
                     </th>
+                    <th class="text-center">ALM. Origen</th>
                     <th></th>
                     <th></th>
                     <th></th>
@@ -469,6 +470,7 @@
                             }
                         </td>
                         <td class="text-center">@Convert.ToDateTime(item.TiempoEntrega).ToString("dd/MM/yyyy HH:mm:ss")</td>
+                        <td class="text-center">@item.AlmProcedencia</td>
                         <td>
                             @if (condPesar && verBtnPesar)
                             {
