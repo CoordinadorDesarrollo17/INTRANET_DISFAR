@@ -13,6 +13,7 @@
 }
 
 <script>
+    window.hayReclamos = false;
     $(document).ready(function () {
         //verifica los datos del ticket apenas carga la pagina
         verificacionDatos('');
@@ -265,14 +266,16 @@
                 cache: false,
                 type: 'post'
             })
-            .done(function (response) {
-                if (response.length > 0) {
-                    $("#ReporteReclamos").html("<button type='button' class='btn btn-danger' onclick='reporteReclamosCliente();'><i class='icon-folder-open''></i> Reclamos</button></td>")
-                }
-                else {
-                    $("#ReporteReclamos").html("");
-                }
-            });
+        .done(function (response) {
+            if (response.length > 0) {
+                window.hayReclamos = true;
+                $("#ReporteReclamos").html("<button type='button' class='btn btn-danger' onclick='reporteReclamosCliente();'><i class='icon-folder-open''></i> Reclamos</button>")
+            }
+            else {
+                window.hayReclamos = false;
+                $("#ReporteReclamos").html("");
+            }
+        });
     }
 
     function reporteReclamosCliente() {
@@ -310,7 +313,15 @@
         var tipoVenta;
         var tipoVentaInput = $('#TipoVentaInput');
         var tipoVentaSelect = $('#TipoVentaSelect');
-
+        var solicitudesReclamo = $("#SolicitudesReclamoSeleccionadas").val();
+        if (window.hayReclamos && (!solicitudesReclamo || solicitudesReclamo.trim() === "")) {
+            Swal.fire({
+                title: 'No puede crear el ticket',
+                text: 'Existen reclamos pendientes y no ha vinculado ninguna solicitud de reclamo.',
+                icon: 'error'
+            });
+            return false;
+        }
         if (tipoVentaSelect.val()!='') {
             tipoVenta = tipoVentaSelect.val();
         } else {
