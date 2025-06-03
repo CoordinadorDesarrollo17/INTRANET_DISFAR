@@ -13,7 +13,7 @@ namespace Capa_Entidad.AtencionCliente_ENT.ReportesSql
         [DisplayName("FECHA TICKET")] public string FechaSapTicket { get; set; }
         [DisplayName("CLIENTE")] public string CardName { get; set; }
         [DisplayName("ESTADO VENTA")] public string EstadoVt { get; set; }
-        [DisplayName("N° SOLICITUD AT")] public string DocNumTicket { get; set; }
+        [DisplayName("N° SOLICITUD AT")] public string DocNumAT { get; set; }
         [DisplayName("ESTADO SOLICITUD AT")] public string Estado { get; set; }
     }
 }
