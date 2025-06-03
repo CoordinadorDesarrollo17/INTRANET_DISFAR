@@ -2409,6 +2409,20 @@ namespace Capa_Usuario.Controllers
 
         }
 
+        public ActionResult KardexIngreso(int idOperation = 3801)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                var lista = _transferenciaReservaN.ListarDetalles();
+                return View(lista);
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
+
         /**************** R E A B A S T E C I M I E N T O ****************/
         //Listado de detalle solicitudes de traslado Transferido y atendidoReserva=0 
         public ActionResult Reabastecimiento(int idOperation = 3600)

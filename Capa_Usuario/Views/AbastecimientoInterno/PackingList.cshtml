@@ -94,6 +94,7 @@
                             <button type="button" id="btn_seleccionarTodos" class="btn btn-sm btn-outline-light"><i class="bi bi-check-all"></i> Seleccionar Todos</button>
                         </th>
                         <th scope="col" class="text-center">Nro Transferencia</th>
+                        <th scope="col" class="text-center">Ubicación Destino</th>
                         <th scope="col" class="text-center">Código de artículo</th>
                         <th scope="col" class="text-center">Descripción</th>
                         <th scope="col" class="text-center">Lote</th>
@@ -113,6 +114,7 @@
                                 <input type="checkbox" class="chkItem" value="@item.Id" />
                             </td>
                             <td class="text-center align-middle">@item.TransferenciaReservaId</td>
+                            <td class="text-center align-middle">@item.CodigoUbicacion</td>
                             <td class="text-center align-middle">@item.ItemCode</td>
                             <td class="text-center align-middle">@item.ItemName</td>
                             <td class="text-center align-middle">@item.BatchNum</td>
@@ -143,36 +145,35 @@
                 <form id="filterForm">
                     <div class="mb-3">
                         <div class="mb-3">
-                            <label for="itemCode" class="form-label">Codigo de Articulo</label>
-                            <input class="form-control border-success" id="itemCode" value="" />
+                            <label for="itemCode" class="form-label fw-bold">Código de Artículo</label>
+                            <input class="form-control" id="itemCode" value="" />
                         </div>
                         <div class="mb-3">
-                            <label for="itemName" class="form-label">Descripción</label>
-                            <input class="form-control border-success" id="itemName" value="" />
+                            <label for="itemName" class="form-label fw-bold">Descripción</label>
+                            <input class="form-control" id="itemName" value="" />
                         </div>
                         <div class="mb-3">
-                            <label for="batchNum" class="form-label">Lote</label>
-                            <input class="form-control border-success" id="batchNum" value="" />
+                            <label for="batchNum" class="form-label fw-bold">Lote</label>
+                            <input class="form-control" id="batchNum" value="" />
                         </div>
                         <div class="mb-3">
-                            <label for="rackBloque" class="form-label">Rack/Bloque</label>
-                            <input class="form-control border-success" id="rackBloque" value="" />
+                            <label for="rackBloque" class="form-label fw-bold">Rack/Bloque</label>
+                            <input class="form-control" id="rackBloque" value="" />
                         </div>
                         <div class="mb-3">
-                            <label for="posicion" class="form-label">Posición</label>
-                            <input class="form-control border-success" id="posicion" value="" />
+                            <label for="posicion" class="form-label fw-bold">Posición</label>
+                            <input class="form-control" id="posicion" value="" />
                         </div>
-
                         <div class="mb-3">
-                            <label for="nivel" class="form-label">Nivel</label>
-                            <input class="form-control border-success" id="nivel" value="" />
+                            <label for="nivel" class="form-label fw-bold">Nivel</label>
+                            <input class="form-control" id="nivel" value="" />
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary" onclick="aplicarFiltro()">Aplicar</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i> Cerrar</button>
+                <button type="button" class="btn btn-sm btn-cobefar" onclick="aplicarFiltro()"><i class="bi bi-check-lg"></i> Aplicar filtros</button>
             </div>
         </div>
     </div>
