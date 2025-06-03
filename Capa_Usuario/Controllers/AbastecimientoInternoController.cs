@@ -10,6 +10,7 @@ using Capa_Negocio.AbastecimientoInterno_NEG.TablasSql;
 using Capa_Negocio.DireccionTecnica_NEG.TablasSql;
 using Capa_Usuario.Helpers;
 using OfficeOpenXml;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 using SpreadsheetLight;
 using System;
@@ -21,6 +22,7 @@ using System.Linq;
 using System.Transactions;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Services.Description;
 using IsolationLevel = System.Transactions.IsolationLevel;
 
 namespace Capa_Usuario.Controllers
@@ -1771,8 +1773,9 @@ namespace Capa_Usuario.Controllers
                                     return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { $"Revise que exista previamente la ubicación en Picking {u}" }, Icono = "error" });
                             }
                         }
-                        else if (requerimiento.TipoAbastecimiento == "Venta Master"){
-                            if(string.IsNullOrWhiteSpace(requerimiento.Zona))
+                        else if (requerimiento.TipoAbastecimiento == "Venta Master")
+                        {
+                            if (string.IsNullOrWhiteSpace(requerimiento.Zona))
                                 return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { $"Debe seleccionar la zona para Venta Master" }, Icono = "error" });
                         }
 
@@ -2365,6 +2368,46 @@ namespace Capa_Usuario.Controllers
             }
         }
 
+        public ActionResult PackingList(int idOperation = 3800)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                var lista = _transferenciaReservaN.ListarDetalles();
+                return View(lista);
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
+
+        public ActionResult ImprimirPackingList(List<int> packingIds)
+        {
+            var todos = _transferenciaReservaN.ListarDetalles();
+            var modelo = todos.Where(x => packingIds.Contains(x.Id)).ToList();
+            var usuario = Session["UsuarioId"] as Usuario_E;
+
+            if (usuario == null)
+                return Content("Sesión expirada. Volver a iniciar sesión.");
+
+            if (!modelo.Any())
+                return Content("No se encontraron resultados para los IDs enviados.");
+
+            ViewBag.Usuario = $"{usuario.Nombres} {usuario.Apellidos}";
+
+            var pdf = new Rotativa.ViewAsPdf("PackingList_PDF", modelo)
+            {
+                PageSize = Rotativa.Options.Size.A4,
+                PageOrientation = Rotativa.Options.Orientation.Landscape,
+                PageMargins = new Rotativa.Options.Margins(10, 10, 10, 10)
+            };
+
+            var pdfBytes = pdf.BuildFile(ControllerContext);
+
+            return File(pdfBytes, "application/pdf", "PackingList.pdf");
+
+        }
 
         /**************** R E A B A S T E C I M I E N T O ****************/
         //Listado de detalle solicitudes de traslado Transferido y atendidoReserva=0 
