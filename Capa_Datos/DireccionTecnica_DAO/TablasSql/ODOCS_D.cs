@@ -187,7 +187,11 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
             List<ODOCS_E> lista = new List<ODOCS_E>();
             var lookup = new Dictionary<int, ODOCS_E>();
 
+            // Solo mostrarán todos los resultados cuando envíen algún filtro desde la vista
             var top = string.IsNullOrEmpty(condicion) ? "TOP 100" : string.Empty;
+
+            // Por defecto solo se mostrarán resultados que se encuentren en estado pendiente a transferir
+            var filtroDefault = string.IsNullOrEmpty(condicion) ? "AND Transferido = 0" : string.Empty;
 
             try
             {
@@ -247,6 +251,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                     sb.AppendLine(") AT_DE");
 
                     sb.AppendLine("WHERE DET.Liberado = 1");
+                    sb.AppendLine($"{filtroDefault}");
                     sb.AppendLine(condicion?.ToString().Trim());
 
 
