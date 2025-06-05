@@ -43,6 +43,7 @@ namespace Capa_Entidad.AtencionCliente_ENT.TablasSql
 
         // Se usa para filtrar query sobre el botón Reclamos en CreaTicketVenta
         public string TipoSolicitudCreaTicketVenta { get; set; }
+        public string TipoSolucionCreaTicketVenta { get; set; }
         public bool? SoloSinTicketSolucion { get; set; }
 
         public List<SAT1_E> Det { get; set; }
