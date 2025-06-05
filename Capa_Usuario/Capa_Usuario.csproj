@@ -787,6 +787,9 @@
     <Compile Include="SqlServerTypes\Loader.cs" />
     <Content Include="Views\SolicitudesReversion_DOCS1\Index.cshtml" />
     <Content Include="Views\AtencionCliente\RegalosAplicados.cshtml" />
+    <Content Include="Views\AbastecimientoInterno\PackingList.cshtml" />
+    <Content Include="Views\AbastecimientoInterno\PackingList_PDF.cshtml" />
+    <Content Include="Views\AbastecimientoInterno\ReportesExcel.cshtml" />
     <None Include="Views\DireccionTecnica\OrganolepticoEM_PDF.cshtml" />
   </ItemGroup>
   <ItemGroup>

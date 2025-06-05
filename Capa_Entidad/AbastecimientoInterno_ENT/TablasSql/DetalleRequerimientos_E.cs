@@ -23,5 +23,6 @@
         public  string RackBloque{ get; set; }
         public  string Posicion{ get; set; }
         public  string Nivel{ get; set; }
+        public string Zona { get; set; }         // Zona solo cuando sea Venta Master
     }
 }
