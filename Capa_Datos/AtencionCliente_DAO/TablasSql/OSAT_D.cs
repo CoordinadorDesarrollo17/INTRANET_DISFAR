@@ -67,17 +67,21 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
                 {
                     fil += $" AND AC.Tipo IN {filtro.TipoSolicitudCreaTicketVenta}";
                 }
+                if (filtro.TipoSolucionCreaTicketVenta != null)
+                {
+                    fil += $" AND AC.TipoSolucion IN {filtro.TipoSolucionCreaTicketVenta}";
+                }
                 if (filtro.SoloSinTicketSolucion.HasValue && filtro.SoloSinTicketSolucion.Value)
                 {
                     fil += " AND TicketSolucion IS NULL";
                 }
                 if (filtro.TicketSolucion != null)
                 {
-                    fil += " OR TicketSolucion =" + filtro.TicketSolucion;
+                    fil += " OR TicketSolucion =" + filtro.TicketSolucion +"AND AC.Estado ='Atendido'";
                 }
                 //
                 if (filtro.Factor != null) { fil += " and AC.Factor  ='" + filtro.Factor + "'"; }
-                if (filtro.TipoSolucion != null) { fil += " and AC.TipoSolucion in" + filtro.TipoSolucion; }
+                //if (filtro.TipoSolucion != null) { fil += " and AC.TipoSolucion in" + filtro.TipoSolucion; }
                 if (filtro.DocFact != null && filtro.DocFact != "")
                 {
                     List<SAT1_ComprobanteFin> arrDocEntry = sat1D.buscarComprobanteFin(filtro.DocFact);
@@ -96,7 +100,7 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
             string estadoFiltro = filtro?.Estado != null ? filtro.Estado.Replace("'", "''") : "";
 
             string select = $@"
-            SELECT {topSelect}
+            SELECT 
                 AC.DocEntry,
                 AC.DocNum,
                 CONVERT(varchar, AC.FechaRegistro, 23) AS FechaRegistro,
@@ -180,7 +184,7 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
         AC.TicketSolucion
 ";
 
-            string query = $"{select} FROM ac.OSAT AS AC LEFT JOIN vt.ORTV AS VT ON VT.DocNum = AC.DocNumTicket WHERE AC.DocEntry>0 {fil} ORDER BY AC.DocEntry DESC";
+            string query = $"{select} FROM ac.OSAT AS AC LEFT JOIN vt.ORTV AS VT ON VT.DocNum = AC.DocNumTicket WHERE ac.FechaRegistro > (SELECT CONVERT(VARCHAR(10), DATEADD(MONTH, -2, DATEADD(yy, DATEDIFF(yy, 0, GETDATE()), 0)), 120)) AND AC.DocEntry>0 {fil} ORDER BY AC.DocEntry DESC";
             try
             {
                 SqlDataReader dr = db.ExecuteReaderNoSp(query);
@@ -1082,7 +1086,7 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
                 v.FechaSapTicket,
                 v.CardName,
                 v.Estado AS EstadoTicket,
-                o.DocNumTicket,
+                o.DocNum AS DocNumAT,
                 o.Estado AS EstadoOsat
             FROM ac.OSAT o
             INNER JOIN vt.ORTV v ON o.TicketSolucion = v.DocNum
@@ -1099,7 +1103,7 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
                             FechaSapTicket = dr["FechaSapTicket"]?.ToString(),
                             CardName = dr["CardName"]?.ToString(),
                             EstadoVt = dr["EstadoTicket"]?.ToString(),
-                            DocNumTicket = dr["DocNumTicket"]?.ToString(),
+                            DocNumAT = dr["DocNumAT"]?.ToString(),
                             Estado = dr["EstadoOsat"]?.ToString()
                         };
                         lista.Add(obj);

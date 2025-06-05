@@ -11,7 +11,7 @@
     </div>
     <div class="row px-3 py-3">
         <div class="col-12">
-            <button type="button" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Agregar registros seleccionados" onclick="agregarSeleccionados()">
+            <button type="button" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Agregar todos los reclamos" onclick="agregarTodos()">
                 <i class="bi bi-plus-circle-fill"></i> Agregar
             </button>
             <button type="button" class="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="No adjuntar ningun reclamo" onclick="cancelarSeleccion()">
@@ -27,9 +27,6 @@
             <table id="tbl_ReclamosCliente" class="dt-container dt-empty-footer table table-sm table-hover font-14 table-responsive" width="100%">
                 <thead class="thead-cobefar">
                     <tr>
-                        <th class="text-center" data-orderable="false">
-                            <input type="checkbox" id="checkAll" onclick="toggleAllChecks(this)" title="Seleccionar todos" "ordering": false/>
-                        </th>
                         <th class="text-center">@Html.DisplayNameFor(model => model.DocEntry)</th>
                         <th class="text-center">@Html.DisplayNameFor(model => model.DocNum)</th>
                         <th class="text-center">@Html.DisplayNameFor(model => model.Estado)</th>
@@ -42,9 +39,6 @@
                     @foreach (var item in Model)
                     {
                         <tr>
-                            <td class="text-center">
-                                <input type="checkbox" class="checkFila" value="@item.DocNum" @(string.IsNullOrEmpty(item.TicketSolucion) ? "" : "checked") />
-                            </td>
                             <td class="text-center">@Html.DisplayFor(modelItem => item.DocEntry)</td>
                             <td class="text-center">@Html.DisplayFor(modelItem => item.DocNum)</td>
                             <td class="text-center">@Html.DisplayFor(modelItem => item.Estado)</td>
@@ -73,21 +67,21 @@
         inicializarEventosChecks();
     });
 
-    function toggleAllChecks(source) {
-        document.querySelectorAll('.checkFila').forEach(cb => {
-            cb.checked = source.checked;
+    function agregarTodos() {
+        // Obtiene todos los DocEntry de la tabla
+        var docnums = [];
+        $('#tbl_ReclamosCliente tbody tr').each(function () {
+            var DocNum = $(this).find('td').eq(1).text().trim();
+            if (DocNum) docnums.push(DocNum);
         });
-        actualizarNroSolicitudReclamo();
-    }
 
-    function agregarSeleccionados() {
-        const seleccionados = obtenerSeleccionados();
-        if (seleccionados.length === 0) {
-            alert('Debe seleccionar al menos un reclamo.');
+        if (docnums.length === 0) {
+            alert('No hay reclamos para agregar.');
             return;
         }
+
         if (window.opener && !window.opener.closed) {
-            window.opener.setNroSolicitudReclamo(JSON.stringify(seleccionados));
+            window.opener.setNroSolicitudReclamo(JSON.stringify(docnums));
             window.close();
         }
     }
@@ -98,24 +92,6 @@
             window.opener.document.getElementById('SolicitudesReclamoSeleccionadas').value = '';
             window.close();
         }
-    }
-
-    function obtenerSeleccionados() {
-        return Array.from(document.querySelectorAll('.checkFila:checked')).map(cb => cb.value);
-    }
-
-    function actualizarNroSolicitudReclamo() {
-        if (window.opener && !window.opener.closed) {
-            const seleccionados = obtenerSeleccionados();
-            window.opener.document.getElementById('NroSolicitudReclamo').value = seleccionados.join(', ');
-            window.opener.document.getElementById('SolicitudesReclamoSeleccionadas').value = seleccionados.join(',');
-        }
-    }
-
-    function inicializarEventosChecks() {
-        document.querySelectorAll('.checkFila').forEach(cb => {
-            cb.addEventListener('change', actualizarNroSolicitudReclamo);
-        });
     }
 
     function sincronizarChecksConPrincipal() {

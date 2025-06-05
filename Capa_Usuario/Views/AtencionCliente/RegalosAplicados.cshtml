@@ -12,8 +12,7 @@
     }
     document.addEventListener('DOMContentLoaded', function () {
         if (!$.fn.DataTable.isDataTable('tbl_RegalosAplicados')) {
-            inicializarDataTable('tbl_RegalosAplicados', 100);
-            aplicarFiltro();
+            inicializarDataTable('tbl_RegalosAplicados', 10);
         }
     });
 </script>
@@ -74,7 +73,7 @@
                                 </td>
                                 <td class="text-center align-middle">@item.CardName</td>
                                 <td class="text-center align-middle">@item.EstadoVt</td>
-                                <td class="text-center align-middle">@item.DocNumTicket</td>
+                                <td class="text-center align-middle">@item.DocNumAT</td>
                                 <td class="text-center align-middle">@item.Estado</td>
 
                             </tr>

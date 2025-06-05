@@ -133,10 +133,10 @@
         color: #000000;
     }
 
-        a:hover {
-            text-decoration: none;
-            color: orangered;
-        }
+    a:hover {
+        text-decoration: none;
+        color: orangered;
+    }
 
     .detalle {
         border-color: red;
@@ -182,34 +182,34 @@
         margin-bottom: 0;
     }
 
-        .tabla-detalle-solicitud th,
-        .tabla-detalle-solicitud td {
-            border: 1px solid #dee2e6 !important;
-            padding: 6px 8px !important;
-            font-size: 13px;
-            height: 36px;
-            vertical-align: middle !important;
-            text-align: center;
-            background-color: #f8f9fa;
-            word-break: break-word;
-        }
+    .tabla-detalle-solicitud th,
+    .tabla-detalle-solicitud td {
+        border: 1px solid #dee2e6 !important;
+        padding: 6px 8px !important;
+        font-size: 13px;
+        height: 36px;
+        vertical-align: middle !important;
+        text-align: center;
+        background-color: #f8f9fa;
+        word-break: break-word;
+    }
 
-        .tabla-detalle-solicitud th {
-            background-color: #28a745 !important;
-            color: #fff !important;
-            font-weight: bold;
-        }
+    .tabla-detalle-solicitud th {
+        background-color: #28a745 !important;
+        color: #fff !important;
+        font-weight: bold;
+    }
 
     .cls-dataTable {
         border-collapse: collapse !important;
     }
 
-        .cls-dataTable th,
-        .cls-dataTable td {
-            border: 1px solid #dee2e6 !important;
-            text-align: center !important;
-            vertical-align: middle !important;
-        }
+    .cls-dataTable th,
+    .cls-dataTable td {
+        border: 1px solid #dee2e6 !important;
+        text-align: center !important;
+        vertical-align: middle !important;
+    }
 </style>
 
 <div class="pt-3">
@@ -370,8 +370,6 @@
                         </td>
                         <td style="width: 20px">
                             <a href="@Url.Action( "DetallesSolicitud", "AtencionCliente", new { id = item.DocEntry })" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Detalles Solicitud"><i class="icon-search text-primary"></i></a>
-                            @*<a href="#"><i title="Ver Detalle" class="text-cobefar icon-eye" data-toggle="modal" data-target="#modal_detalleLab" onclick="verDetalleLab(@item.DocEntry);"></i></a>*@
-                            @*<a href="#"><i title="Documentos" class="icon-folder-open text-warning" data-toggle="modal" data-target="#M@(item.DocEntry)"></i></a>*@
 
                             @if (item.Estado.Equals("Registrado"))
                             {
@@ -440,35 +438,6 @@
                         }
 
                     }
-
-                    <!-- Modal -->
-                    <!--<div class="modal fade" id="M@(item.DocEntry)" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="exampleModalLabel">Documentos</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                                <div class="modal-body text-center">
-                                    <a href="@Url.Action("RptDocEnvio", "AtencionCliente", new { id = item.DocEntry })" class="btn btn-success">
-                                        <i class="icon-file-pdf"></i>
-                                        <span><strong>DocEnvio</strong></span>
-                                    </a><p></p>
-                                    <p style="text-align:center; color:brown">Area Dirección Técnica</p>
-                                    <a href="@Url.Action("RptDocReg015", "AtencionCliente", new {  id = item.DocEntry})" class="btn btn-success">
-                                        <i class="icon-file-pdf"></i>
-                                        <span><strong>Doc REG-015</strong></span>
-                                    </a>
-                                    <a href="@Url.Action("RptDocReg016", "AtencionCliente", new {  id = item.DocEntry })" class="btn btn-success">
-                                        <i class="icon-file-pdf"></i>
-                                        <span><strong>Doc REG-016</strong></span>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>-->
                 }
             </tbody>
 
@@ -558,58 +527,3 @@
         </div>
     </div>
 </div>
-
-
-@*<div class="modal fade" id="modal_detalleLab" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header bg-cobefar text-white">
-                    <h5 class="modal-title" id="exampleModalLabel">Detalles</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span class="text-white" aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div id="contenido_modal" class="modal-body text-center">
-                </div>
-            </div>
-        </div>
-    </div>*@
-
-@*<script>
-        function verDetalleLab(docEntry) {
-            $.ajax('/AtencionCliente/ObtenerDetalleSolicitud',
-                {
-                    data: { DocEntry: docEntry },
-                    dataType: 'JSON',
-                    cache: false,
-                    type: 'POST'
-                }).done(function (response) {
-                    let modal = `<div class="modal-body text-center">
-                                    <table class="table table-light table-sm table-hover table-bordered" cellspacing="0" width="100%">
-                                        <thead class="bg-success">
-                                            <tr>
-                                                <th class="text-center">Código</th>
-                                                <th class="text-center">Descripción</th>
-                                                <th class="text-center">Lote</th>
-                                                <th class="text-center">Fecha Venc.</th>
-                                            </tr>
-                                        </thead>
-
-                                        <tbody>`;
-                    if (response[0]) {
-                        for (let indice in response) {
-                            modal += `<tr class="detalle">
-                                                                    <td class="text-center">${response[indice].ItemCode}</td>
-                                                                    <td class="text-center">${response[indice].Dscription}</td>
-                                                                    <td class="text-center">${response[indice].BatchNum}</td>
-                                                                    <td class="text-center">${response[indice].ExpDate}</td>
-                                                                </tr>`;
-                        }
-                    }
-                    modal += `</tbody>
-                                        </table>
-                                    </div>`;
-                    $('#contenido_modal').html(modal);
-                });
-        }
-    </script>*@
