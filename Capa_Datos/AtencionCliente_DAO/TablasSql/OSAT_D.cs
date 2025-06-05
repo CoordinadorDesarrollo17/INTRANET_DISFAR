@@ -67,17 +67,21 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
                 {
                     fil += $" AND AC.Tipo IN {filtro.TipoSolicitudCreaTicketVenta}";
                 }
+                if (filtro.TipoSolucionCreaTicketVenta != null)
+                {
+                    fil += $" AND AC.TipoSolucion IN {filtro.TipoSolucionCreaTicketVenta}";
+                }
                 if (filtro.SoloSinTicketSolucion.HasValue && filtro.SoloSinTicketSolucion.Value)
                 {
                     fil += " AND TicketSolucion IS NULL";
                 }
                 if (filtro.TicketSolucion != null)
                 {
-                    fil += " OR TicketSolucion =" + filtro.TicketSolucion;
+                    fil += " OR TicketSolucion =" + filtro.TicketSolucion +"AND AC.Estado ='Atendido'";
                 }
                 //
                 if (filtro.Factor != null) { fil += " and AC.Factor  ='" + filtro.Factor + "'"; }
-                if (filtro.TipoSolucion != null) { fil += " and AC.TipoSolucion in" + filtro.TipoSolucion; }
+                //if (filtro.TipoSolucion != null) { fil += " and AC.TipoSolucion in" + filtro.TipoSolucion; }
                 if (filtro.DocFact != null && filtro.DocFact != "")
                 {
                     List<SAT1_ComprobanteFin> arrDocEntry = sat1D.buscarComprobanteFin(filtro.DocFact);

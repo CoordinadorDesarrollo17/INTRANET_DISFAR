@@ -2893,7 +2893,7 @@ namespace Capa_Usuario.Controllers
                     {
                         DetORTV = ortv,
                         TipoSolicitudCreaTicketVenta = "('Reclamo','Devolucion')",      // TipoSolicitudCreaTicketVenta: Filtro para el botón Reclamos Crea Ticket Venta
-                        TipoSolucion = "('Regalo')",
+                        TipoSolucionCreaTicketVenta = "('Regalo')",
                         Estado = "Atendido",
                         SoloSinTicketSolucion = true,
                         TicketSolucion = DocNumTicket?.ToString()
@@ -3387,7 +3387,7 @@ namespace Capa_Usuario.Controllers
             {
                 DetORTV = ortv,
                 TipoSolicitudCreaTicketVenta = "('Reclamo','Devolucion')",      // TipoSolicitudCreaTicketVenta: Filtro para el botón Reclamos Crea Ticket Venta
-                TipoSolucion = "('Regalo')",
+                TipoSolucionCreaTicketVenta = "('Regalo')",
                 SoloSinTicketSolucion = true,
                 Estado = "Atendido",
                 TicketSolucion = DocNumTicket?.ToString()
