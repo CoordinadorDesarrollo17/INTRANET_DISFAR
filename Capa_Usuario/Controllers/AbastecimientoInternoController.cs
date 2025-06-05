@@ -45,6 +45,8 @@ namespace Capa_Usuario.Controllers
         private readonly ReporteStockReserva_N _reporteStockReserva = new ReporteStockReserva_N();
         private readonly ProductosDisponiblesReserva_N _productosDisponiblesReserva = new ProductosDisponiblesReserva_N();
         private readonly Capa_Negocio.Helpers _helper = new Capa_Negocio.Helpers();
+        private readonly ReporteKardex_N _reporteKardex = new ReporteKardex_N();
+
         /************************* C O N F I G U R A C I Ó N *************************/
         private ActionResult VerificarPermiso(int idOperation)
         {
@@ -2409,13 +2411,87 @@ namespace Capa_Usuario.Controllers
 
         }
 
-        public ActionResult KardexIngreso(int idOperation = 3801)
+        public ActionResult ReportesExcel(int idOperation = 3801)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                var lista = _transferenciaReservaN.ListarDetalles();
-                return View(lista);
+                return View();
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
+
+        public ActionResult ExportarExcelKardexIngreso(string fechaInicio = null, string fechaFin = null, int idOperation = 3802)
+        {
+            if (string.IsNullOrEmpty(fechaInicio) || string.IsNullOrEmpty(fechaFin))
+                return Content("No hay datos para exportar");
+
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                int columnas = 13;
+                var lista = _reporteKardex.ListarKardexIngreso(fechaInicio, fechaFin);
+
+                if (lista != null && lista.Any())
+                {
+                    using (var libro = new ExcelPackage())
+                    {
+                        var worksheet = libro.Workbook.Worksheets.Add("KardexIngreso");
+                        worksheet.Cells["A1"].LoadFromCollection(lista, PrintHeaders: true);
+                        for (var col = 1; col <= columnas; col++)
+                        {
+                            worksheet.Column(col).AutoFit();
+                        }
+                        var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: lista.Count() + 1, toColumn: columnas), "KardexIngreso");
+                        tabla.ShowHeader = true;
+                        tabla.TableStyle = OfficeOpenXml.Table.TableStyles.Medium2;
+                        string excelContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                        return File(libro.GetAsByteArray(), excelContentType, "KardexIngreso.xlsx");
+                    }
+                }
+                else { return Content("No hay datos para exportar"); }
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
+
+        public ActionResult ExportarExcelKardexSalida(string fechaInicio = null, string fechaFin = null, int idOperation = 3803)
+        {
+            if (string.IsNullOrEmpty(fechaInicio) || string.IsNullOrEmpty(fechaFin))
+                return Content("No hay datos para exportar");
+
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                int columnas = 14;
+                var lista = _reporteKardex.ListarKardexSalida(fechaInicio, fechaFin);
+
+                if (lista != null && lista.Any())
+                {
+                    using (var libro = new ExcelPackage())
+                    {
+                        var worksheet = libro.Workbook.Worksheets.Add("KardexSalida");
+                        worksheet.Cells["A1"].LoadFromCollection(lista, PrintHeaders: true);
+
+                        // Auto ajustar columnas
+                        for (var col = 1; col <= columnas; col++)
+                        {
+                            worksheet.Column(col).AutoFit();
+                        }
+
+                        var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: lista.Count() + 1, toColumn: columnas), "KardexSalida");
+                        tabla.ShowHeader = true;
+                        tabla.TableStyle = OfficeOpenXml.Table.TableStyles.Medium2;
+                        string excelContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                        return File(libro.GetAsByteArray(), excelContentType, "KardexSalida.xlsx");
+                    }
+                }
+                else { return Content("No hay datos para exportar"); }
             }
             else
             {

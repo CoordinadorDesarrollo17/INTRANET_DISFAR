@@ -4,15 +4,6 @@
 }
 
 <style>
-    td.details-control {
-        cursor: pointer;
-        text-align: center;
-    }
-
-    .subtable {
-        margin-left: 50px;
-    }
-
     @@media screen and (max-width: 768px) {
         header {
             display: none;
@@ -251,7 +242,7 @@
         if (packingIds.length === 0) {
             generarAlerta('Error', 'Debes seleccionar al menos un artículo para imprimir el packing list', 'error');
             return;
-        }            
+        }
 
         const query = packingIds.map(id => `packingIds=${id}`).join("&");
         const url = `/AbastecimientoInterno/ImprimirPackingList?${query}`;

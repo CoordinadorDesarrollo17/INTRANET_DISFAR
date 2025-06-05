@@ -1,0 +1,83 @@
+@{
+    ViewBag.Title = "Reportes en Excel";
+    Layout = "~/Views/Shared/_DefaultLayout.cshtml";
+}
+
+<div class="pt-3">
+    <nav>
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            @*<li><a href="@Url.Action("Sesion", "Index")">Abastecimiento Interno</a></li>*@
+            <li class="current"><em>@ViewBag.Title</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
+    <div class="row px-3 pt-3">
+        <h3 class="titulo-seccion"><i class="bi bi-file-earmark-excel-fill me-2"></i> @ViewBag.Title.ToUpper()</h3>
+    </div>
+</div>
+
+<div class="bg-white px-3 py-3 align-items-center">
+    <div class="row mb-3 justify-content-center">
+        <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12">
+            <div class="card border-success shadow-sm">
+                <div class="card-header bg-success text-white fw-bold">
+                    Filtros
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="FechaInicio" class="form-label">Fecha inicio:</label>
+                            <input type="date" class="form-control" id="FechaInicio" name="FechaInicio">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="FechaFin" class="form-label">Fecha Fin:</label>
+                            <input type="date" class="form-control" id="FechaFin" name="FechaFin">
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer d-flex justify-content-end gap-2">
+                    <button class="btn btn-success" onclick="exportarExcel('ExportarExcelKardexIngreso')">
+                        <i class="bi bi-download"></i> Kardex Ingreso
+                    </button>
+                    <button class="btn btn-primary" onclick="exportarExcel('ExportarExcelKardexSalida')">
+                        <i class="bi bi-download"></i> Kardex Salida
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const hoy = new Date();
+        const yyyy = hoy.getFullYear();
+        const mm = String(hoy.getMonth() + 1).padStart(2, '0');
+        const dd = String(hoy.getDate()).padStart(2, '0');
+        const fechaHoy = `${yyyy}-${mm}-${dd}`;
+
+        document.getElementById('FechaInicio').setAttribute('max', fechaHoy);
+        document.getElementById('FechaFin').setAttribute('max', fechaHoy);
+
+        // Para datatable
+        if (!$.fn.DataTable.isDataTable('tbl_listaArticulos')) {
+            inicializarDataTable('tbl_listaArticulos', 50, false, false);
+        }
+    });
+
+    function exportarExcel(url) {
+        const fechaInicio = document.getElementById('FechaInicio')?.value || '';
+        const fechaFin = document.getElementById('FechaFin')?.value || '';
+
+        if (fechaInicio == '' || fechaFin == '') {
+            Swal.fire('Debe seleccionar un rango de fechas válido');
+            return;
+        }
+
+        $(location).attr('href', `/AbastecimientoInterno/${url}?FechaInicio=${fechaInicio}&FechaFin=${fechaFin}`);
+    }
+</script>

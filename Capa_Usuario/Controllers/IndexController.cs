@@ -261,15 +261,11 @@ namespace Capa_Usuario.Controllers
             return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "PackingList", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
         }
 
-        public ActionResult AI_KardexIngreso(int idOperation = 3801)
+        public ActionResult AI_ReportesExcel(int idOperation = 3801)
         {
-            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "KardexIngreso", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
+            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "ReportesExcel", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
         }
 
-        public ActionResult AI_KardexSalida(int idOperation = 3802)
-        {
-            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "KardexSalida", controllerDestino = "AbastecimientoInterno", usuario = (Usuario_E)Session["UsuarioId"] });
-        }
 
         ///****************************************************************************************/
         /*********************************** M Ó D U L O   R E C U R S O S   H U M A N O S ***********************************/
