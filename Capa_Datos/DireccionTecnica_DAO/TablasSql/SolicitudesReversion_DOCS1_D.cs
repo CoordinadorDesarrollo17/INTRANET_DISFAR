@@ -44,6 +44,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                         cmd.Parameters.AddWithValue(prm.Key, prm.Value);
                     }
 
+                    sb.AppendLine("ORDER BY SOL.Id DESC");
                     cmd.CommandText = sb.ToString();
 
                     cn.Open();
