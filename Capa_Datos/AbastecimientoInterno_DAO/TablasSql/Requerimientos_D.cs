@@ -36,6 +36,13 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     Direction = ParameterDirection.Output
                 };
                 cmd.Parameters.Add(outputId);
+
+                SqlParameter param2 = new SqlParameter("@Aprobado", SqlDbType.Int)
+                {
+                    Value = 0
+                };
+                cmd.Parameters.Add(param2);
+
                 SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
@@ -50,6 +57,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     if (!dr.IsDBNull(5)) { requerimiento.TiempoRegistro = dr.GetDateTime(5); }
                     if (!dr.IsDBNull(6)) { requerimiento.OperarioRegistra = dr.GetString(6); }
                     if (!dr.IsDBNull(7)) { requerimiento.Zona = dr.GetString(7); }
+                    if (!dr.IsDBNull(8)) { requerimiento.Aprobado = dr.GetInt32(8); }
 
                     requerimiento.Detalle = new List<DetalleRequerimientos_E>();
                 }
@@ -184,6 +192,12 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     };
                     cmd.Parameters.Add(idGeneradoParam);
 
+                    SqlParameter param2 = new SqlParameter("@Aprobado", SqlDbType.Int)
+                    {
+                        Value = 0
+                    };
+                    cmd.Parameters.Add(param2);
+
                     SqlDataReader dr = cmd.ExecuteReader();
 
                     if (dr.HasRows)
@@ -284,6 +298,12 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     };
                     cmd.Parameters.Add(idGeneradoParam);
 
+                    SqlParameter param2 = new SqlParameter("@Aprobado", SqlDbType.Int)
+                    {
+                        Value = 0
+                    };
+                    cmd.Parameters.Add(param2);
+
                     SqlParameter detalleParam = new SqlParameter("@Detalle", SqlDbType.Structured)
                     {
                         TypeName = "dbo.DetalleRequerimientosType",
@@ -305,7 +325,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                                 ItemName = reader.GetString(reader.GetOrdinal("ItemName")),
                                 BatchNum = reader.GetString(reader.GetOrdinal("BatchNum")),
                                 CodigoUbicacionOrigen = reader.GetString(reader.GetOrdinal("CodigoUbicacionOrigen")),
-                                CodigoUbicacionDestino = reader.GetString(reader.GetOrdinal("CodigoUbicacionDestino")),
+                                CodigoUbicacionDestino = reader.IsDBNull(reader.GetOrdinal("CodigoUbicacionDestino")) ? null : reader.GetString(reader.GetOrdinal("CodigoUbicacionDestino")),
                                 UmAlm = reader.GetString(reader.GetOrdinal("UmAlm")),
                                 ValorUmAlm = reader.GetInt32(reader.GetOrdinal("ValorUmAlm")),
                                 QuantityMaster = reader.IsDBNull(reader.GetOrdinal("QuantityMaster")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("QuantityMaster")),

@@ -9,6 +9,7 @@ using Capa_Negocio.AbastecimientoInterno_NEG.TablasExternas;
 using Capa_Negocio.AbastecimientoInterno_NEG.TablasSql;
 using Capa_Negocio.DireccionTecnica_NEG.TablasSql;
 using Capa_Usuario.Helpers;
+using dotless.Core.Parser.Tree;
 using OfficeOpenXml;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
@@ -2497,6 +2498,173 @@ namespace Capa_Usuario.Controllers
             {
                 return resultadoAcceso;
             }
+        }
+
+        public JsonResult CrearRequerimientoAutomatico(int idOperation = 3804)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
+                return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "Sin accesos." }, Icono = "error" });
+
+            var user = Session["UsuarioId"] as Usuario_E;
+            if (user == null)
+                return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "No existe usuario logueado, se terminó la sesión." }, Icono = "error" });
+
+            var lista = new List<UbicacionesLotesMaster_E>();
+
+            // 1. Obtenemos la lista de ItemCodes que requieren abastecimiento en Picking
+            var listaItemCodes = _reporteStockPicking.ListarArticulosConStockPickingInsuficiente();
+            //var listaItemCodes = new List<string> { "VITPH0042" };
+
+            // 2. Iteramos cada ItemCode para consultar stock en RESERVA y obtener la cantidad solicitada por ItemCode
+            if (listaItemCodes != null && listaItemCodes.Any())
+            {
+                foreach (var item in listaItemCodes)
+                {
+                    // Orden: próxima fecha de vencimiento, primera fecha de admisión registrada, la menor cantidad en unidades
+                    List<UbicacionesLotesMaster_E> listaLotesM = _ubicacionesLotesMasterN.BuscarArticulos(new UbicacionesLotesMaster_E { ItemCode = item.ItemCode }) ?? new List<UbicacionesLotesMaster_E>();
+                    if (listaLotesM != null && listaLotesM.Any())
+                    {
+                        // Verificar si todas las fechas ExpDate e InDate son iguales
+                        bool fechasIguales = listaLotesM.All(a => a.ExpDate == listaLotesM.First().ExpDate) && listaLotesM.All(a => a.InDate == listaLotesM.First().InDate);
+
+                        // Aplicar el ordenamiento según la condición
+                        listaLotesM = fechasIguales
+                            ? listaLotesM.OrderBy(a => a.CodigoUbicacion != "RESERVA-UBI-SISTEMA").ThenBy(a => a.QuantityUnidadesCajas).ThenBy(a => a.CodigoUbicacion).ToList() // Ordenar por CodigoUbicacion si las fechas son iguales
+                            : listaLotesM.OrderBy(a => DateTime.Parse(a.ExpDate))
+                                   .ThenBy(a => DateTime.Parse(a.InDate))
+                                   .ThenBy(a => a.QuantityUnidadesCajas)
+                                   .ToList();
+
+                        var cantidadAcumulada = 0;
+                        foreach (var lm in listaLotesM)
+                        {
+                            var cantidadSolicitada = listaItemCodes.Single(l => l.ItemCode.Equals(lm.ItemCode)).CantidadSolicitada;
+                            lm.CantidadSolicitada = cantidadSolicitada;
+
+                            // Agregar el objeto si la cantidad en unidades caja cubre la cantidad solicitada
+                            if (lm.QuantityUnidadesCajas <= cantidadSolicitada - cantidadAcumulada)
+                            {
+                                cantidadAcumulada = cantidadAcumulada == 0 ? lm.QuantityUnidadesCajas : cantidadAcumulada + lm.QuantityUnidadesCajas;
+                                lista.Add(lm);
+                            }
+                            else
+                            {
+                                var stockMasterRequerido = 0;
+                                var stockSaliendoFaltante = cantidadSolicitada - cantidadAcumulada;
+
+                                if (stockSaliendoFaltante > 0)
+                                {
+                                    stockSaliendoFaltante = stockSaliendoFaltante - lm.QuantitySaldo;
+                                    var residuo = stockSaliendoFaltante % lm.ValorUmAlm;
+
+                                    if (residuo == 0)
+                                    {
+                                        stockMasterRequerido = stockSaliendoFaltante / lm.ValorUmAlm;                  // Dividimos para saber cuantos masters cubren el "stockSaliendoFaltante"
+                                    }
+                                    else
+                                    {
+                                        var numero = stockSaliendoFaltante;
+
+                                        // Buscamos la cantidad correcta a cubrir 1 master completo
+                                        while (numero % lm.ValorUmAlm != 0)
+                                        {
+                                            numero++;
+                                        }
+
+                                        // Una vez encontrado el valor, lo dividimos con el valor del master para el stock saliendo
+                                        stockMasterRequerido = numero / lm.ValorUmAlm;
+                                    }
+
+                                    if (stockMasterRequerido > lm.QuantityMaster)
+                                    {
+                                        //  console.warn(`${ fila}: El stock MASTER requerido es mayor al stock MASTER disponible.`)
+                                        //return 0;
+                                        continue;
+                                    }
+
+                                    // Siempre se requiere el saldo completo y la cantidad previamente calculada del máster
+                                    lm.QuantityMaster = stockMasterRequerido;
+
+                                    // Actualizamos la cantidad total
+                                    lm.QuantityUnidadesCajas = (stockMasterRequerido * lm.ValorUmAlm) + lm.QuantitySaldo;
+
+                                    // Actualizamos la cantidad acumulada
+                                    cantidadAcumulada = cantidadAcumulada + lm.QuantityUnidadesCajas;
+
+                                    // Agregamos el objeto
+                                    lista.Add(lm);
+                                }
+
+                            }
+                        }
+
+                    }
+                }
+            }
+
+            if (lista.Any())
+            {
+                var requerimiento = new Requerimientos_E
+                {
+                    Origen = "Reserva",
+                    Destino = "Picking",
+                    TipoAbastecimiento = "Picking",
+                    OperarioRegistra = $"{user.Nombres} {user.Apellidos}",
+                    Aprobado = 0
+                };
+                var detalleReq = new List<DetalleRequerimientos_E>();
+
+                foreach (var item in lista)
+                {
+                    var obj = new DetalleRequerimientos_E();
+                    obj.ItemCode = item.ItemCode;
+                    obj.ItemName = item.ItemName;
+                    obj.CodigoUbicacionOrigen = item.CodigoUbicacion;
+                    obj.BatchNum = item.BatchNum;
+                    obj.ValorUmAlm = item.ValorUmAlm;
+                    obj.UmAlm = item.UmAlm;
+                    obj.QuantityMaster = item.QuantityMaster;
+                    obj.QuantitySaldo = item.QuantitySaldo;
+                    obj.QuantityUnidadesCajas = item.QuantityUnidadesCajas;
+
+                    detalleReq.Add(obj);
+                }
+
+                requerimiento.Detalle = detalleReq;
+
+                Utilitarios uti = new Utilitarios();
+
+                // Iniciar la transacción global para las operaciones críticas
+                using (var scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }, TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+                    {
+                        cn.Open();
+                        var requerimientoGet = _requerimientosN.RegistrarRequerimiento(requerimiento, cn);
+                        if (requerimientoGet == null || requerimientoGet.Id == 0)
+                            return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "No se completo el registro del requerimiento" }, Icono = "error" });
+                    }
+
+                    scope.Complete();
+                }
+
+                return Json(new
+                {
+                    Titulo = "Éxito",
+                    Mensajes = new List<string> { "Se encontraron artículos para abastecer." },
+                    Icono = "success",
+                    // Lotes = lista
+                    Requerimiento = requerimiento
+                }, JsonRequestBehavior.AllowGet);
+            }
+
+            return Json(new
+            {
+                Titulo = "Datos inválidos",
+                Mensajes = new List<string> { "No se encontraron solicitudes a procesar." },
+                Icono = "error"
+            }, JsonRequestBehavior.AllowGet);
         }
 
         /**************** R E A B A S T E C I M I E N T O ****************/
