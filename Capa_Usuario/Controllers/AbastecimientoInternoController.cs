@@ -2667,6 +2667,19 @@ namespace Capa_Usuario.Controllers
             }, JsonRequestBehavior.AllowGet);
         }
 
+        public ActionResult ListarRequerimientos(int idOperation = 3805)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                return View();
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
+
         /**************** R E A B A S T E C I M I E N T O ****************/
         //Listado de detalle solicitudes de traslado Transferido y atendidoReserva=0 
         public ActionResult Reabastecimiento(int idOperation = 3600)

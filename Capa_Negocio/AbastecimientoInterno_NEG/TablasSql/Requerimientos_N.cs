@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Capa_Entidad;
+using Capa_Entidad.TablasSql;
 
 namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
 {
@@ -25,9 +26,9 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         }
         public Helper_E AtenderPicking(int detalleId, SqlConnection cn)
         {
-            return _requerimientoD.AtenderPicking(detalleId,cn);
+            return _requerimientoD.AtenderPicking(detalleId, cn);
         }
-        public List<DetalleRequerimientos_E> ListarDetalles(string itemCode="", string proceso = "")
+        public List<DetalleRequerimientos_E> ListarDetalles(string itemCode = "", string proceso = "")
         {
             var detalles = _requerimientoD.ListarDetalles() ?? new List<DetalleRequerimientos_E>();
             var result = new List<DetalleRequerimientos_E>();
@@ -42,7 +43,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
 
                 case "ListarApiladores":
                     result = detalles
-                        .Where(x => x.AtendidoReserva == 0 && x.AtendidoPicking == 0)
+                        .Where(x => x.AtendidoReserva == 0 && x.AtendidoPicking == 0 && x.Aprobado == 0)
                         .OrderByDescending(x => x.Zona)
                         .ToList();
                     break;
@@ -63,20 +64,35 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         {
             return _requerimientoD.RegistrarRequerimiento(requerimiento, cn);
         }
-        public bool ValidarSkuParaKardexSalida(int requerimientoId,string itemCode, Requerimientos_E requerimiento)
+        public bool ValidarSkuParaKardexSalida(int requerimientoId, string itemCode, Requerimientos_E requerimiento)
         {
             // Validar si ya no existe algún elemento con el mismo ItemCode y AtendidoPicking en 0, por lo tanto todo esta Atendido y listo para sacarlo por Kardex
             bool valido = !requerimiento.Detalle.Any(d => d.ItemCode == itemCode && d.AtendidoPicking == 0);
             return valido;
         }
-       public bool ValidarSkuParaCambioUbicacion(string itemCode, string batchNum,string codigoUbicacionReserva)
+        public bool ValidarSkuParaCambioUbicacion(string itemCode, string batchNum, string codigoUbicacionReserva)
         {
             var lista = ListarDetalles(itemCode);
-            bool valido = !lista.Any(d => 
-            d.CodigoUbicacionOrigen==codigoUbicacionReserva && 
-            d.BatchNum==batchNum &&
+            bool valido = !lista.Any(d =>
+            d.CodigoUbicacionOrigen == codigoUbicacionReserva &&
+            d.BatchNum == batchNum &&
             d.AtendidoPicking == 0);
             return valido;
+        }
+
+        public (Helper_E, List<Requerimientos_E>) ListarRequerimientos(Requerimientos_E filtros = null, Dictionary<string, object> parametros = null)
+        {
+            StringBuilder condicion = new StringBuilder();
+
+            if (parametros == null)
+                parametros = new Dictionary<string, object>();
+
+            if (filtros != null)
+            { 
+
+            }
+
+            return _requerimientoD.ListarRequerimientos(condicion.ToString(), parametros);
         }
     }
 }

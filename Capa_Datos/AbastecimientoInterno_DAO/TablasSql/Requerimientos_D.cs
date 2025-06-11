@@ -224,6 +224,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                             if (!dr.IsDBNull(15)) { detalle.Posicion = dr.GetString(15); }
                             if (!dr.IsDBNull(16)) { detalle.RackBloque = dr.GetString(16); }
                             if (!dr.IsDBNull(17)) { detalle.Zona = dr.GetString(17); }
+                            if (!dr.IsDBNull(18)) { detalle.Aprobado = dr.GetInt32(18); }
                             lista.Add(detalle);
                         }
                     }
@@ -354,6 +355,66 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 LogHelper.RegistrarError(ex, "Requerimientos_D - RegistrarRequerimiento");
                 throw new Exception("Error al registrar el requerimiento.", ex);
             }
+        }
+
+        public (Helper_E, List<Requerimientos_E>) ListarRequerimientos(string condicion, Dictionary<string, object> parametros)
+        {
+            var lista = new List<Requerimientos_E>();
+            Helper_E _helper = new Helper_E();
+            var top = string.IsNullOrEmpty(condicion) ? "TOP 100" : string.Empty;
+
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+                {
+                    SqlCommand cmd = new SqlCommand();
+                    cmd.Connection = cn;
+
+                    var sb = new StringBuilder();
+
+                    sb.AppendLine($"SELECT {top} RQ.Id, RQ.Origen, RQ.Destino, RQ.TipoAbastecimiento, RQ.Comentario, RQ.TiempoRegistro, RQ.OperarioRegistra, RQ.Zona, RQ.Aprobado");
+                    sb.AppendLine("FROM Requerimientos RQ");
+                    sb.AppendLine(condicion?.ToString().Trim());
+
+                    // Agregamos los parámetros dinámicamente
+                    foreach (var prm in parametros)
+                    {
+                        cmd.Parameters.AddWithValue(prm.Key, prm.Value);
+                    }
+
+                    sb.AppendLine("ORDER BY 1 DESC");
+                    cmd.CommandText = sb.ToString();
+
+                    cn.Open();
+
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        if (dr.HasRows)
+                        {
+                            while (dr.Read())
+                            {
+                                var obj = new Requerimientos_E();
+                                if (!dr.IsDBNull(0))  obj.Id = dr.GetInt32(0); 
+                            }
+                        }
+
+                        _helper.Titulo = "Acción completada";
+                        _helper.Mensajes.Add("Se envió la solicitud para revertir la liberación de este artículo correctamente.");
+                        _helper.Icono = "success";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.RegistrarError(ex, "Error inesperado en Requerimientos_D - ListarRequerimientos()");
+
+                _helper.Titulo = "Error";
+                _helper.Mensajes.Add("Ocurrió un error al enviar la solicitud para revertir la liberación del artículo.");
+                _helper.Mensajes.Add("Por favor, comuníquese con el área de Sistemas para más información.");
+                _helper.Icono = "error";
+            }
+
+            return (_helper, lista);
         }
     }
 }

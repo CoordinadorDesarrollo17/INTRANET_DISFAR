@@ -1,0 +1,307 @@
+@{
+    ViewBag.Title = "Listado de Requerimientos";
+    Layout = "~/Views/Shared/_DefaultLayout.cshtml";
+}
+
+<div class="pt-3">
+    <nav>
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li class="current"><em>@ViewBag.Title</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
+    <div class="row px-3 pt-3"><h3 class="titulo-seccion">@ViewBag.Title.ToUpper()</h3></div>
+    <div class="row px-3 py-2">
+        <div class="col-12">
+            <button type="button" id="btn_filtrar" class="btn btn-sm btn-outline-light" onclick="abrirModalFiltros()">
+                <i class="bi bi-filter"></i> Filtrar
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="bg-white px-3 py-3 align-items-center">
+    <form id="frm_listadoInternamientos">
+        <div id="div_listado" class="table-responsive shadow-sm rounded">
+            <table id="tbl_listadoInternamientos" class="table table-bordered table-hover">
+                <thead class="thead-cobefar">
+                    <tr>
+                        <th scope="col" class="text-center small">Nro Requerimiento</th>
+                        <th scope="col" class="text-center small">Origen</th>
+                        <th scope="col" class="text-center small">Destino</th>
+                        <th scope="col" class="text-center small">Tipo de Abastecimiento</th>
+                        <th scope="col" class="text-center small">Registrado Por</th>
+                        <th scope="col" class="text-center small">Fecha y Hora de Registro</th>
+                        <th scope="col" class="text-center small">Zona</th>
+                        <th scope="col" class="text-center small" style="width: 7%"></th>
+                    </tr>
+                </thead>
+                <tbody class="table-white">
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td scope="col" class="text-center small">@item.Id</td>
+                            <td scope="col" class="text-center small">@item.Origen</td>
+                            <td scope="col" class="text-center small">@item.Destino</td>
+                            <td scope="col" class="text-center small">@item.TipoAbastecimiento</td>
+                            <td scope="col" class="text-center small">@item.TiempoRegistro</td>
+                            <td scope="col" class="text-center small">@item.OperarioRegistra</td>
+                            <td scope="col" class="text-center small">@item.Zona</td>
+                            <td scope="col" class="text-center small">
+                                @*<button type="button" class="btn btn-sm btn-outline-dark btn_verDetalle" onclick="redireccionar(this)" data-ruta="/Internamientos/VerDetalle?Id=@item.Id"><i class="bi bi-search"></i></button>
+                                <button type="button" class="btn btn-sm btn-outline-danger cls-cancelarDocumento" onclick="cancelarDocumento(@item.Id)" @if (item.Estado == "Transferido" || item.Estado == "Cancelado") { Write("hidden"); }><i class="bi bi-trash2-fill"></i></button>*@
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </form>
+</div>
+
+<div class="modal fade" id="modalFiltros" tabindex="-1" aria-labelledby="modalLabel1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header text-white bg-headerModals">
+                <h5 class="modal-title" id="modalLabel1">Filtros</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" tabindex="-1"></button>
+            </div>
+
+            <div class="modal-body bg-blancoHumo">
+                <div id="div_modalBody" class="container pb-0">
+                    <form id="frm_filtros">
+                        <div class="row mb-3">
+                            <div class="col-lg-3">
+                                <label for="DocNum" class="form-label fw-bold">DocNum:</label>
+                                <input id="DocNum" name="DocNum" class="form-control cls-num" type="text" autocomplete="off" />
+                            </div>
+                            <div class="col-lg-3">
+                                <label for="TipoDocumento" class="form-label fw-bold">Tipo de Documento:</label>
+                                <select id="TipoDocumento" name="TipoDocumento" class="form-select">
+                                    <option value="">Seleccione</option>
+                                    <option value="OPDN">Entrada de Mercancías</option>
+                                    <option value="OWTR">Transferencias</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-3">
+                                <label for="CardCode" class="form-label fw-bold">RUC Proveedor:</label>
+                                <input id="CardCode" name="CardCode" class="form-control cls-num" type="text" autocomplete="off" />
+                            </div>
+                            <div class="col-lg-3">
+                                <label for="CardName" class="form-label fw-bold">Proveedor:</label>
+                                <select id="CardName" name="CardName" class="cls-select">
+                                    <option value="">Seleccione</option>
+                                    @foreach (var item in ViewBag.ListaProveedores)
+                                    {
+                                        <option value="@item.CardName">@item.CardName</option>
+                                    }
+                                </select>
+                            </div>
+                        </div><!-- // ROW -->
+
+                        <div class="row">
+                            <div class="col-lg-3">
+                                <label for="Guia" class="form-label fw-bold">Guía:</label>
+                                <input id="Guia" name="Guia" class="form-control " type="text" autocomplete="off" />
+                            </div>
+                            <div class="col-lg-3">
+                                <label for="ComprobanteVinculado" class="form-label fw-bold">Comprobante Vinculado:</label>
+                                <input id="ComprobanteVinculado" name="ComprobanteVinculado" class="form-control" type="text" autocomplete="off" />
+                            </div>
+                            <div class="col-lg-3">
+                                <label for="Estado" class="form-label fw-bold">Estado:</label>
+                                <select id="Estado" name="Estado" class="form-select">
+                                    <option value="">Seleccione</option>
+                                    <option value="Pendiente">Pendiente</option>
+                                    <option value="Liberado">Liberado</option>
+                                    <option value="Transferido">Transferido</option>
+                                    <option value="Cancelado">Cancelado</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-3">
+                                <label for="FechaContabilizacion" class="form-label fw-bold">Fecha Cont.:</label>
+                                <input id="FechaContabilizacion" name="FechaContabilizacion" class="form-control " type="date" autocomplete="off" />
+                            </div>
+                        </div><!-- // ROW -->
+                    </form>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" id="btn_cerrarModal" class="btn btn-outline-secondary" data-bs-dismiss="modal" data-bs-toggle="tooltip">
+                    <i class="bi bi-x-lg"></i> Cerrar
+                </button>
+                <button type="button" id="btn_aplicarFiltros" class="btn btn-cobefar-2" onclick="aplicarFiltros()">
+                    <i class="bi bi-check-lg"></i> Aplicar filtros
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            soloNumerosPorClase('cls-num');
+            inicializarDataTable('tbl_listadoInternamientos', 25);
+
+            tippy('#btn_internamiento', {
+                content: 'Nuevo internamiento',
+                animation: 'fade',
+                placement: 'bottom'
+            });
+
+            tippy('#btn_filtrar', {
+                content: 'Filtrar listado',
+                animation: 'fade',
+                placement: 'right'
+            });
+
+            tippy('#btn_cerrarModal', {
+                content: 'Cerrar filtros',
+                animation: 'fade',
+                placement: 'bottom-start'
+            });
+
+            tippy('#btn_aplicarFiltros', {
+                content: 'Aplicar filtros',
+                animation: 'fade',
+                placement: 'bottom-end'
+            });
+
+            tippy('.btn_verDetalle', {
+                content: 'Ver detalle',
+                animation: 'fade',
+                placement: 'bottom-end'
+            });
+
+            tippy('.cls-cancelarDocumento', {
+                content: 'Cancelar documento',
+                animation: 'fade',
+                placement: 'bottom-end'
+            });
+        });
+
+        function abrirModalFiltros() {
+            const modal = document.querySelector('#modalFiltros')
+            const bootstrapModal = new bootstrap.Modal(modal, {
+                focus: false,
+                keyboard: false,
+                backdrop: 'static'
+            })
+            bootstrapModal.show();
+        }
+
+        function redireccionar(input) {
+            window.location.replace(input.dataset.ruta);
+        }
+
+        async function aplicarFiltros() {
+            const form = document.querySelector('#frm_filtros');
+            const formData = new FormData(form);
+            const rawPayload = Object.fromEntries(formData.entries());
+
+            const payload = {};
+
+            // Lista de campos que deben ser convertidos a número
+            const camposNumericos = ['DocNum'];
+
+            for (const key in rawPayload) {
+                if (camposNumericos.includes(key)) {
+                    const val = rawPayload[key].trim();
+                    payload[key] = val === '' ? null : Number(val);
+                } else {
+                    payload[key] = rawPayload[key];
+                }
+            }
+
+            try {
+                const response = await fetch("/Internamientos/FiltrarListado", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error en la solicitud: ${response.statusText}`);
+                }
+
+                // Recibimos el HTML directamente
+                const html = await response.text();
+
+                document.querySelector('#div_listado').innerHTML = html;
+                inicializarDataTable('tbl_listadoInternamientos', '25');
+
+                const modalElement = document.querySelector('#modalFiltros');
+
+                document.activeElement.blur();
+                const instance = bootstrap.Modal.getInstance(modalElement)
+                    ?? new bootstrap.Modal(modalElement);
+                instance.hide();
+
+            } catch (error) {
+                console.error('Error al filtrar:', error);
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error al aplicar filtros',
+                    text: error.message || 'Ocurrió un error inesperado.',
+                });
+            }
+        }
+
+        async function cancelarDocumento(id) {
+            swalWithBootstrapButtons.fire({
+                title: '¿Está seguro(a) de CANCELAR DOCUMENTO?',
+                html: 'El documento será cancelado sin posibilidad de revertir esta acción.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: "<i class='bi bi-check-lg'></i> Si, liberar",
+                cancelButtonText: "<i class='bi bi-x-lg mx-1'></i> Cancelar",
+                reverseButtons: true,
+                allowEscapeKey: false,
+                allowOutsideClick: false,
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-outline-danger mx-1'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+
+                    try {
+                        const response = await fetch("/Internamientos/CancelarDocumento", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ id })
+                        });
+
+                        if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+
+                        const data = await response.json();
+
+                        Swal.fire({
+                            title: data.Titulo,
+                            html: Array.isArray(data.Mensajes) ? data.Mensajes.join('<br>') : data.Mensajes || "",
+                            icon: data.Icono,
+                            confirmButtonColor: '#28a745'
+                        }).then(result => {
+                            if (result.isConfirmed && data.Icono === "success") {
+                                location.reload();
+                            }
+                        });
+                    } catch (error) {
+                        console.error('Error al registrar:', error);
+                    }
+                }
+            });
+        }
+    </script>
+}
