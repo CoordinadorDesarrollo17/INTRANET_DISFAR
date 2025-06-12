@@ -5,6 +5,7 @@ using Capa_Entidad.AtencionCliente_ENT.TablasSql;
 using Capa_Entidad.Ventas_ENT.TablasSql;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Capa_Negocio.AtencionCliente_NEG.TablasSql
 {
@@ -28,7 +29,9 @@ namespace Capa_Negocio.AtencionCliente_NEG.TablasSql
         }
         public OSAT_E buscarSolicitud(int DocEntry)
         {
-            return osatD.buscarSolicitud(DocEntry);
+            var solicitud = osatD.buscarSolicitud(DocEntry);
+
+            return solicitud;
         }
         public string anularSolicitud(OSAT_E obj)
         {
@@ -264,10 +267,11 @@ namespace Capa_Negocio.AtencionCliente_NEG.TablasSql
                     if (string.IsNullOrWhiteSpace(o.AlmTransf)) { throw new Exception("El campo almacen debe ser seleccionado si hay una NC vinculada linea:" + o.Linea); }
                 }
 
+                if(o.NuevoPrecioArticulo != null && o.NuevoPrecioArticulo <= 0)
+                    throw new Exception("El nuevo precio de artículo debe ser mayor a cero en la línea: " + o.Linea);
+
                 if (!string.IsNullOrWhiteSpace(o.TipoError) && o.TipoError.Equals("ErrorAlmacen") && !string.IsNullOrWhiteSpace(obj.Resultado) && obj.Resultado.Equals("Procede") && string.IsNullOrWhiteSpace(o.ErrorAlmacen))
-                {
                     throw new Exception("Debe elegir un error de almacén");
-                }
             }
         }
         public void validarRevertirAtenderSolicitud(OSAT_E obj)
