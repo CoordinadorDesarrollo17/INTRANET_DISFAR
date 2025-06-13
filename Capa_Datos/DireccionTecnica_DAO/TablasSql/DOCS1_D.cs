@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Capa_Entidad.TablasSql;
 using Capa_Entidad;
+using DocumentFormat.OpenXml.Office2010.Excel;
 
 namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
 {
@@ -157,7 +158,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
             }
 
             return result;
-        }        
+        }
 
         public Helper_E RevertirLiberacionArticulo(int id, string estado, string usuarioRegistro)
         {
@@ -273,22 +274,32 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                                 detalle.Transferido = dr.IsDBNull(17) ? 0 : dr.GetInt32(17);
 
                                 // Asignación de archivos adjuntos
-                                string baseRuta = uti.directorioFileServer;
-                                string rutaDirectorio = Path.Combine(baseRuta, "DireccionTecnica", "Internamiento");
+                                string baseRuta = uti.directorioDocumentosRegulatorios;
+                                string rutaDirectorio = Path.Combine(baseRuta, "Documentos", detalle.ItemCode);
                                 string carpeta = detalle.ItemCode ?? "undefined";
-                                string rutaET = Path.Combine(rutaDirectorio, carpeta, "ET.pdf").Replace("\\", "/");
-                                if (System.IO.File.Exists(rutaET))
+
+                                //string rutaET = Path.Combine(rutaDirectorio, carpeta, "ET.pdf").Replace("\\", "/");
+                                string rutaCompletaET = Path.Combine(rutaDirectorio, "ET.pdf").Replace("\\", "/");
+                                if (System.IO.File.Exists(rutaCompletaET))
                                 {
-                                    byte[] contenido = System.IO.File.ReadAllBytes(rutaET);
+                                    byte[] contenido = System.IO.File.ReadAllBytes(rutaCompletaET);
                                     detalle.DescargarArchivoET = Convert.ToBase64String(contenido);
                                 }
 
-
-                                string rutaProtocolo = Path.Combine(rutaDirectorio, carpeta, $"{detalle.Lote}.pdf").Replace("\\", "/");
-                                if (System.IO.File.Exists(rutaProtocolo))
+                                string rutaCompletaProtocolo = Path.Combine(rutaDirectorio, $"{detalle.Lote}.pdf").Replace("\\", "/");
+                                //string rutaProtocolo = Path.Combine(rutaDirectorio, carpeta, $"{detalle.Lote}.pdf").Replace("\\", "/");
+                                if (System.IO.File.Exists(rutaCompletaProtocolo))
                                 {
-                                    byte[] contenido2 = System.IO.File.ReadAllBytes(rutaProtocolo);
+                                    byte[] contenido2 = System.IO.File.ReadAllBytes(rutaCompletaProtocolo);
                                     detalle.DescargarArchivoProtocolo = Convert.ToBase64String(contenido2);
+                                }
+
+                                string rutaDirectorioRS = Path.Combine(baseRuta, "Documentos", "RegistrosSanitarios");
+                                string rutaCompletaRS = Path.Combine(rutaDirectorioRS, $"{detalle.RegistroSanitario}.pdf").Replace("\\", "/");
+                                if (System.IO.File.Exists(rutaCompletaRS))
+                                {
+                                    byte[] contenido3 = System.IO.File.ReadAllBytes(rutaCompletaRS);
+                                    detalle.DescargarArchivoRS = Convert.ToBase64String(contenido3);
                                 }
 
                                 lista.Add(detalle);
@@ -336,8 +347,8 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                             cmd.ExecuteNonQuery();
 
                             // Proceso para cargar archivo
-                            string baseRuta = uti.directorioFileServer;
-                            string rutaDirectorio = Path.Combine(baseRuta, "DireccionTecnica", "Internamiento", datos.ItemCode);
+                            string baseRuta = uti.directorioDocumentosRegulatorios;
+                            string rutaDirectorio = Path.Combine(baseRuta, "Documentos", datos.ItemCode);
 
                             if (!Directory.Exists(rutaDirectorio))
                                 Directory.CreateDirectory(rutaDirectorio);
@@ -354,6 +365,14 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                                 string extension = Path.GetExtension(datos.ArchivoProtocolo.FileName)?.ToLower();
                                 string rutaCompleta = Path.Combine(rutaDirectorio, datos.Lote + extension);
                                 datos.ArchivoProtocolo.SaveAs(rutaCompleta);
+                            }
+
+                            if (datos.ArchivoRS != null)
+                            {
+                                string extension = Path.GetExtension(datos.ArchivoRS.FileName)?.ToLower();
+                                string rutaDirectorioRS = Path.Combine(baseRuta, "Documentos", "RegistrosSanitarios");
+                                string rutaCompleta = Path.Combine(rutaDirectorioRS, datos.RegistroSanitario + extension);
+                                datos.ArchivoRS.SaveAs(rutaCompleta);
                             }
 
                         }
@@ -375,6 +394,136 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                     }
                 }
             }
+
+            // Si al editar el item no se presenta inconvenientes, continuamos con la inserción de datos al servidor 39 (DOCUMENTOS REGULATORIOS)
+            if (result.Icono == "success")
+            {
+                if (datos.ArchivoProtocolo != null)
+                {
+                    // Server = 39; database = DOCUMENTOS_REGULATORIOS
+                    using (var connection = new SqlConnection(uti.CadSql4))
+                    {
+                        connection.Open();
+
+                        using (var cmd = new SqlCommand("sp_GestionarProtocolos", connection))
+                        {
+                            cmd.CommandType = CommandType.StoredProcedure;
+
+                            cmd.Parameters.AddWithValue("@ItemCode", datos.ItemCode);
+                            cmd.Parameters.AddWithValue("@DistNumber", datos.Lote);
+                            cmd.Parameters.AddWithValue("@Ruta", $"{datos.ItemCode}/{datos.Lote}.pdf");
+                            cmd.Parameters.AddWithValue("@OpCarga", usuarioRegistro ?? (object)DBNull.Value);
+                            cmd.Parameters.AddWithValue("@TiempoCarga", DateTime.Now);
+                            cmd.Parameters.AddWithValue("@Operacion", "UPSERT");
+
+                            try
+                            {
+                                cmd.ExecuteNonQuery();
+                            }
+                            catch (SqlException ex)
+                            {
+                                LogHelper.RegistrarError(ex, "Error SQL en DOCS1_D - ListarDetalleDocumento - sp_GestionarProtocolos");
+                                result.Titulo = "Error";
+                                result.Mensajes.Add("Ocurrió un error inesperado al editar el detalle.");
+                                result.Mensajes.Add("Por favor, comuníquese con el área de Sistemas para más información.");
+                                result.Icono = "error";
+
+                            }
+                            catch (Exception ex)
+                            {
+                                LogHelper.RegistrarError(ex, "Error inesperado en DOCS1_D - ListarDetalleDocumento - sp_GestionarProtocolos");
+                                result.Titulo = "Error";
+                                result.Mensajes.Add("Ocurrió un error inesperado al editar el detalle.");
+                                result.Mensajes.Add("Por favor, comuníquese con el área de Sistemas para más información.");
+                                result.Icono = "error";
+                            }
+                        }
+                    }
+                }
+
+                if (datos.ArchivoET != null)
+                {
+                    // Server = 39; database = DOCUMENTOS_REGULATORIOS
+                    using (var connection = new SqlConnection(uti.CadSql4))
+                    {
+                        connection.Open();
+
+                        using (var cmd = new SqlCommand("sp_GestionarEspecificacionesTecnicas", connection))
+                        {
+                            cmd.CommandType = CommandType.StoredProcedure;
+
+                            cmd.Parameters.AddWithValue("@ItemCode", datos.ItemCode);
+                            cmd.Parameters.AddWithValue("@Ruta", $"{datos.ItemCode}\\ET.pdf");
+                            cmd.Parameters.AddWithValue("@Nombre", "ET");
+                            cmd.Parameters.AddWithValue("@OpCarga", usuarioRegistro ?? (object)DBNull.Value);
+                            cmd.Parameters.AddWithValue("@TiempoCarga", DateTime.Now);
+                            cmd.Parameters.AddWithValue("@Operacion", "UPSERT");
+
+                            try
+                            {
+                                cmd.ExecuteNonQuery();
+                            }
+                            catch (SqlException ex)
+                            {
+                                LogHelper.RegistrarError(ex, "Error SQL en DOCS1_D - ListarDetalleDocumento - sp_GestionarEspecificacionesTecnicas");
+                                result.Titulo = "Error";
+                                result.Mensajes.Add("Ocurrió un error inesperado al editar el detalle.");
+                                result.Mensajes.Add("Por favor, comuníquese con el área de Sistemas para más información.");
+                                result.Icono = "error";
+                            }
+                            catch (Exception ex)
+                            {
+                                LogHelper.RegistrarError(ex, "Error inesperado en DOCS1_D - ListarDetalleDocumento - sp_GestionarEspecificacionesTecnicas");
+                                result.Titulo = "Error";
+                                result.Mensajes.Add("Ocurrió un error inesperado al editar el detalle.");
+                                result.Mensajes.Add("Por favor, comuníquese con el área de Sistemas para más información.");
+                                result.Icono = "error";
+                            }
+                        }
+                    }
+                }
+
+                if (datos.ArchivoRS != null)
+                {
+                    // Server = 39; database = DOCUMENTOS_REGULATORIOS
+                    using (var connection = new SqlConnection(uti.CadSql4))
+                    {
+                        connection.Open();
+
+                        using (var cmd = new SqlCommand("sp_GestionarRegistrosSanitarios", connection))
+                        {
+                            cmd.CommandType = CommandType.StoredProcedure;
+
+                            cmd.Parameters.AddWithValue("@MnfSerial", datos.RegistroSanitario);
+                            cmd.Parameters.AddWithValue("@Ruta", $"RegistrosSanitarios\\{datos.RegistroSanitario}.pdf");
+                            cmd.Parameters.AddWithValue("@OpCarga", usuarioRegistro ?? (object)DBNull.Value);
+                            cmd.Parameters.AddWithValue("@TiempoCarga", DateTime.Now);
+                            cmd.Parameters.AddWithValue("@Operacion", "UPSERT");
+
+                            try
+                            {
+                                cmd.ExecuteNonQuery();
+                            }
+                            catch (SqlException ex)
+                            {
+                                LogHelper.RegistrarError(ex, "Error SQL en DOCS1_D - ListarDetalleDocumento - sp_GestionarRegistrosSanitarios");
+                                result.Titulo = "Error";
+                                result.Mensajes.Add("Ocurrió un error inesperado al editar el detalle.");
+                                result.Mensajes.Add("Por favor, comuníquese con el área de Sistemas para más información.");
+                                result.Icono = "error";
+                            }
+                            catch (Exception ex)
+                            {
+                                LogHelper.RegistrarError(ex, "Error inesperado en DOCS1_D - ListarDetalleDocumento - sp_GestionarRegistrosSanitarios");
+                                result.Titulo = "Error";
+                                result.Mensajes.Add("Ocurrió un error inesperado al editar el detalle.");
+                                result.Mensajes.Add("Por favor, comuníquese con el área de Sistemas para más información.");
+                                result.Icono = "error";
+                            }
+                        }
+                    }
+                }                
+            }            
 
             return result;
         }

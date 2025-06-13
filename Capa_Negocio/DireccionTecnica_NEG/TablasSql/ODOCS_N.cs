@@ -7,6 +7,7 @@ using Capa_Entidad.TablasSql;
 using Capa_Entidad;
 using System.Data.SqlClient;
 using Capa_Datos.DireccionTecnica_DAO.TablasSql;
+using Capa_Entidad.DireccionTecnica_ENT.Reportes;
 
 namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
 {
@@ -144,10 +145,75 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
                     condicion.AppendLine("AND DOC.FechaContabilizacion = @FechaContabilizacion");
                     parametros["@FechaContabilizacion"] = filtros.FechaContabilizacion;
                 }
+
+                if (!string.IsNullOrWhiteSpace(filtros.Area))
+                {
+                    switch (filtros.Area.Trim().ToLower())
+                    {
+                        case "aprobados":
+                            condicion.AppendLine("AND DET.CantidadAprobados > 0");
+                            break;
+
+                        case "baja":
+                            condicion.AppendLine("AND DET.CantidadBaja > 0");
+                            break;
+
+                        case "devolucion":
+                        case "devolución": // Para que funcione con tilde también
+                            condicion.AppendLine("AND DET.CantidadDevolucion > 0");
+                            break;
+                    }
+                }
             }
 
             return _datos.ListarTransferencias(condicion.ToString(), parametros);
-        }        
+        }
+
+        public List<ODOCS_E> ListarTransferenciasParaReporte(RptFiltrosTransferencias_E filtros = null, Dictionary<string, object> parametros = null)
+        {
+            StringBuilder condicion = new StringBuilder();
+
+            if (parametros == null)
+                parametros = new Dictionary<string, object>();
+
+            if (filtros != null)
+            {
+                if (!string.IsNullOrWhiteSpace(filtros.RptFechaInicioContabilizacion) && !string.IsNullOrWhiteSpace(filtros.RptFechaFinContabilizacion))
+                {
+                    condicion.AppendLine("AND DOC.FechaContabilizacion BETWEEN @FechaInicio AND @FechaFin");
+                    parametros["@FechaInicio"] = filtros.RptFechaInicioContabilizacion;
+                    parametros["@FechaFin"] = filtros.RptFechaFinContabilizacion;
+                }
+
+                if (!string.IsNullOrWhiteSpace(filtros.RptProveedor))
+                {
+                    condicion.AppendLine("AND DOC.CardCode = @CardCode");
+                    parametros["@CardCode"] = filtros.RptProveedor;
+                }
+
+                if (!string.IsNullOrWhiteSpace(filtros.RptArea))
+                {
+                    switch (filtros.RptArea.Trim().ToLower())
+                    {
+                        case "aprobados":
+                            condicion.AppendLine("AND DET.CantidadAprobados > 0");
+                            break;
+
+                        case "baja":
+                            condicion.AppendLine("AND DET.CantidadBaja > 0");
+                            break;
+
+                        case "devolucion":
+                        case "devolución": // Para que funcione con tilde también
+                            condicion.AppendLine("AND DET.CantidadDevolucion > 0");
+                            break;
+                    }
+                }
+            }
+
+            return _datos.ListarTransferencias(condicion.ToString(), parametros);
+        }
+
 
         public Helper_E RegistrarDocumento(ODOCS_E datos)
         {

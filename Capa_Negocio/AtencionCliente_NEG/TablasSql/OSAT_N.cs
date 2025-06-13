@@ -5,6 +5,7 @@ using Capa_Entidad.AtencionCliente_ENT.TablasSql;
 using Capa_Entidad.Ventas_ENT.TablasSql;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Capa_Negocio.AtencionCliente_NEG.TablasSql
 {
@@ -20,7 +21,6 @@ namespace Capa_Negocio.AtencionCliente_NEG.TablasSql
         {
             return osatD.ListarSolicitudesExcel(filtro);
         }
-
         public string registrarNuevaSolicitud(OSAT_E obj)
         {
             validarNuevaSolicitud(obj);
@@ -28,7 +28,9 @@ namespace Capa_Negocio.AtencionCliente_NEG.TablasSql
         }
         public OSAT_E buscarSolicitud(int DocEntry)
         {
-            return osatD.buscarSolicitud(DocEntry);
+            var solicitud = osatD.buscarSolicitud(DocEntry);
+
+            return solicitud;
         }
         public string anularSolicitud(OSAT_E obj)
         {
@@ -82,7 +84,22 @@ namespace Capa_Negocio.AtencionCliente_NEG.TablasSql
         {
             return osatD.BuscarAdjuntosOSAT(DocEntry, Linea);
         }
-
+        public List<OSAT_E> obtenerNotificadoCliente()
+        {
+            return osatD.obtenerNotificadoCliente();
+        }
+        public List<OSAT_E> obtenerNotificadoClienteDetalle(string cardName)
+        {
+            return osatD.obtenerNotificadoClienteDetalle(cardName);
+        }
+        public void ActualizarTicketSolucion(List<string> docNums, string ticketSolucion)
+        {
+            new OSAT_D().ActualizarTicketSolucion(docNums, ticketSolucion);
+        }
+        public List<Rpt_Regalos> ListarRegalosAplicados()
+        {
+            return osatD.ListarRegalosAplicados();
+        }
         //validaciones
         public void validarNuevaSolicitud(OSAT_E obj)
         {
@@ -242,6 +259,16 @@ namespace Capa_Negocio.AtencionCliente_NEG.TablasSql
         }
         public void validarAtenderSolicitud(OSAT_E obj)
         {
+            if (!string.IsNullOrWhiteSpace(obj.ErrAlmOtrCom) && obj.Det != null)
+            {
+                foreach (var o in obj.Det)
+                {
+                    if (o.ErrorAlmacen == "OTROS")
+                    {
+                        o.ErrAlmOtrCom = obj.ErrAlmOtrCom;
+                    }
+                }
+            }
             OSAT_E bean = buscarSolicitud(obj.DocEntry);
             if (bean.Estado == "Anulado") { throw new Exception("No se pueden hacer operaciones en solicitud en estado Anulado"); }
             if (bean.Estado != "Proceso") { throw new Exception("Solo se puede atender en estado Proceso"); }
@@ -264,10 +291,19 @@ namespace Capa_Negocio.AtencionCliente_NEG.TablasSql
                     if (string.IsNullOrWhiteSpace(o.AlmTransf)) { throw new Exception("El campo almacen debe ser seleccionado si hay una NC vinculada linea:" + o.Linea); }
                 }
 
+                if(o.NuevoPrecioArticulo != null && o.NuevoPrecioArticulo <= 0)
+                    throw new Exception("El nuevo precio de artículo debe ser mayor a cero en la línea: " + o.Linea);
+
                 if (!string.IsNullOrWhiteSpace(o.TipoError) && o.TipoError.Equals("ErrorAlmacen") && !string.IsNullOrWhiteSpace(obj.Resultado) && obj.Resultado.Equals("Procede") && string.IsNullOrWhiteSpace(o.ErrorAlmacen))
-                {
                     throw new Exception("Debe elegir un error de almacén");
+<<<<<<< HEAD
                 }
+                if (!string.IsNullOrWhiteSpace(o.TipoError) && o.TipoError.Equals("ErrorAlmacen") && !string.IsNullOrWhiteSpace(obj.Resultado) && obj.Resultado.Equals("Procede") && o.ErrorAlmacen == "OTROS" && string.IsNullOrWhiteSpace(o.ErrAlmOtrCom))
+                {
+                    throw new Exception("Debe ingresar un comentario para 'Otros' en error de almacén en la línea " + o.Linea);
+                }   
+=======
+>>>>>>> hotfix/NotaCreditoSolicitudes
             }
         }
         public void validarRevertirAtenderSolicitud(OSAT_E obj)

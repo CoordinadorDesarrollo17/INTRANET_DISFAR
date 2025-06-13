@@ -178,6 +178,13 @@
                 });
             }
 
+            if (document.getElementsByClassName("cls-dataTableOrder").length > 0) {
+                $('.cls-dataTableOrder').DataTable({
+                    "ordering": true,
+                    "scrollX": true
+                });
+            }
+
             if (document.getElementsByClassName("cls-dataTable50").length > 0) {
                 $('.cls-dataTable50').DataTable({
                     "searching": true,
@@ -255,6 +262,22 @@
                 if (!regex.test(valor)) {
                     campo.value = valor.replace(/\D/g, ''); // Elimina todos los caracteres que no son dígitos
                 }
+            });
+        }
+
+        function permitirValoresNumericosPositivos() {
+            let campos = document.querySelectorAll('.cls-num'); // Selecciona todos los elementos con la clase 'cls-num'
+
+            campos.forEach(function (campo) {
+                campo.addEventListener('input', function () {
+                    var valor = campo.value;
+                    var regex = /^[0-9]*[.,]?[0-9]*$/; // Expresi�n regular para permitir n�meros y un solo punto decimal
+
+                    if (!regex.test(valor)) {
+                        // Permitir n�meros decimales y reemplazar cualquier car�cter no permitido
+                        campo.value = valor.replace(/[^0-9.,]/g, '').replace(/(.*)[.,](.*)[.,]/g, '$1.$2'); // Permitir solo un punto decimal
+                    }
+                });
             });
         }
 
@@ -348,7 +371,7 @@
             });
         }
 
-        function inicializarDataTable(idTable, itemsPorPagina) {
+        function inicializarDataTable(idTable, itemsPorPagina, conBuscador = true) {
             const items = Number(itemsPorPagina)
 
             if ($.fn.DataTable.isDataTable(`#${idTable}`)) {
@@ -356,6 +379,7 @@
             }
 
             let table = $(`#${idTable}`).DataTable({
+                "searching": conBuscador,  
                 order: [],  // Desactiva ordenamiento automatico.
                 ordering: false, // Iconos para ordenar todas las columnas de la tabla.
                 responsive: true,        // Mantiene la tabla responsiva si es necesario

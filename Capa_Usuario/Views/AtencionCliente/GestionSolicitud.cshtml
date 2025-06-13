@@ -39,6 +39,88 @@
             }
         });
     }
+
+    function cargarNotificacionesPendientes() {
+        var $tbody = $('#tablaNotificaciones tbody');
+        $tbody.html('<tr><td colspan="3">Cargando...</td></tr>');
+        $.ajax({
+            url: '@Url.Action("ObtenerNotificadoCliente", "AtencionCliente")',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                $tbody.empty();
+                if (data && data.length > 0) {
+                    for (var i = 0; i < data.length; i++) {
+                        $tbody.append(
+                            '<tr>' +
+                                '<td>' + data[i].CardName + '</td>' +
+                                '<td class="text-center">' + data[i].TicketsAbiertos + '</td>' +
+                                '<td class="text-center">' +
+                            '<button type="button" class="btn btn-info btn-sm" onclick="verMasNotificacion(\'' + data[i].CardCode.replace(/'/g, "\\'") + '\')">Ver Más</button>' +
+                                '</td>' +
+                            '</tr>'
+                        );
+                    }
+                } else {
+                    $tbody.html('<tr><td colspan="3">No hay notificaciones pendientes.</td></tr>');
+                }
+            },
+            error: function (xhr, status, error) {
+                $tbody.html('<tr><td colspan="3">Error al cargar los datos.</td></tr>');
+            }
+        });
+    }
+
+    $(function () {
+        $('#modalDerecha').on('show.bs.modal', function () {
+            cargarNotificacionesPendientes();
+        });
+    });
+
+    function verMasNotificacion(CardCode) {
+    var $tbody = $('#tablaDetalleNotificaciones tbody');
+    $tbody.html('<tr><td colspan="4">Cargando...</td></tr>');
+    $('#modalDetalleNotificacion').modal('show');
+    $.ajax({
+        url: '@Url.Action("ObtenerNotificadoClienteDetalle", "AtencionCliente")',
+        type: 'GET',
+        data: { CardCode: CardCode },
+        dataType: 'json',
+        success: function (data) {
+            $tbody.empty();
+            if (data && data.length > 0) {
+                for (var i = 0; i < data.length; i++) {
+
+                    $tbody.append(
+                        '<tr>' +
+                            '<td>' + data[i].FechaSapTicket + '</td>' +
+                            '<td>' + data[i].DocNumVt + '</td>' +
+                            '<td>' + data[i].EstadoVt + '</td>' +
+                            '<td>' + data[i].Vendedor + '</td>' +
+                        '</tr>'
+                    );
+                }
+            } else {
+                $tbody.html('<tr><td colspan="4">No hay tickets abiertos para este cliente.</td></tr>');
+            }
+        },
+        error: function () {
+            $tbody.html('<tr><td colspan="4">Error al cargar los datos.</td></tr>');
+        }
+    });
+    @{
+    // Pintar de rojo mayor a 2 dias
+    string estadoFiltro = f.Estado;
+
+    var estadosValidos = new[] { "Registrado", "Proceso", "Atendido" };
+
+    int contadorRojo = Model.Count(x =>
+        estadosValidos.Contains(string.IsNullOrEmpty(estadoFiltro) ? x.Estado : estadoFiltro)
+        && x.DiasRetraso > 2
+    );
+    }
+}
+
 </script>
 <style>
     .input_cls-estandar {
@@ -51,12 +133,10 @@
         color: #000000;
     }
 
-        a:hover {
-            text-decoration: none;
-            color: orangered;
-        }
-
-
+    a:hover {
+        text-decoration: none;
+        color: orangered;
+    }
 
     .detalle {
         border-color: red;
@@ -65,6 +145,70 @@
     .disabled {
         cursor: not-allowed;
         pointer-events: none;
+    }
+
+    #tablaNotificaciones thead th {
+        background: #e9ecef !important;
+        color: #212529 !important;
+        font-weight: bold !important;
+        border: 1px solid #dee2e6 !important;
+        visibility: visible !important;
+        display: table-cell !important;
+    }
+
+    #tablaDetalleNotificaciones thead th {
+        background: #e9ecef !important;
+        color: #212529 !important;
+        font-weight: bold !important;
+        border: 1px solid #dee2e6 !important;
+        visibility: visible !important;
+        display: table-cell !important;
+    }
+
+    #tablaDetalleNotificaciones td {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .text-rojo {
+        color: red !important;
+        font-weight: bold;
+    }
+
+    .tabla-detalle-solicitud {
+        width: 100%;
+        table-layout: fixed;
+        border-collapse: collapse;
+        margin-bottom: 0;
+    }
+
+    .tabla-detalle-solicitud th,
+    .tabla-detalle-solicitud td {
+        border: 1px solid #dee2e6 !important;
+        padding: 6px 8px !important;
+        font-size: 13px;
+        height: 36px;
+        vertical-align: middle !important;
+        text-align: center;
+        background-color: #f8f9fa;
+        word-break: break-word;
+    }
+
+    .tabla-detalle-solicitud th {
+        background-color: #28a745 !important;
+        color: #fff !important;
+        font-weight: bold;
+    }
+
+    .cls-dataTable {
+        border-collapse: collapse !important;
+    }
+
+    .cls-dataTable th,
+    .cls-dataTable td {
+        border: 1px solid #dee2e6 !important;
+        text-align: center !important;
+        vertical-align: middle !important;
     }
 </style>
 
@@ -79,19 +223,33 @@
 
 
 <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
-    <div class="px-3 pt-3"><h3 class="titulo-seccion">MÓDULO GESTIÓN DE SOLICITUDES</h3></div>    
-</div>
-
-<div class="bg-white d-flex pl-2 w-100 py-3">
-
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">MÓDULO GESTIÓN DE SOLICITUDES</h3></div>
     <div class="mx-2">
-        <a id="accion" style="float:left; margin-right:20px;" href="@Url.Action("NuevaSolicitud", "AtencionCliente")" class="btn btn-success">
+        <a id="accion" style="float:left; margin-right:10px;" href="@Url.Action("NuevaSolicitud", "AtencionCliente")" class="btn btn-success">
             <i class="icon icon-plus"></i> Nueva Solicitud
         </a>
 
         <button id="accion" onclick="excel();" class="btn btn-warning">
             <i class="icon icon-file-excel"></i> Exportar a Excel
         </button>
+
+        <button class="btn btn-primary" data-toggle="modal" data-target="#modalDerecha">
+            <i class="icon icon-info"></i> Notificaciones Pendientes
+        </button>
+    </div>
+</div>
+
+<div class="bg-white d-flex pl-2 w-100 py-3">
+
+    
+
+    <div class="ml-auto" style="display:inline-block; min-width:120px; min-height:60px; background:#fff3cd; border:2px solid #ffeeba; border-radius:8px; margin:0 15px 10px 0; padding:10px; text-align:center;">
+        <span style="font-size:16px; color:#b94a48; font-weight:bold;">
+            <i class="icon-warning"></i> Criticos: @contadorRojo
+        </span>
+        <div style="font-size:12px; color:#856404;">
+            Registros con más de 2 días de retraso
+        </div>
     </div>
 
 </div>
@@ -145,8 +303,7 @@
                         <input type="text" name="Resultado" class="form-control-sm border" onchange="filtrar();" value="@ViewBag.Osat.Resultado" />
                     </th>
                     <th>
-                        TiempoAtención
-                        <input type="date" name="FechaAtencion" class="form-control-sm border" onchange="filtrar();" style="width: 130px" value="@f.FechaAtencion" />
+                        Dias Retraso
                     </th>
                     <th>
                         @Html.DisplayNameFor(model => model.Tipo)
@@ -177,7 +334,7 @@
             <tbody>
                 @foreach (var item in Model)
                 {
-                    <tr>
+                    <tr class="fila-principal" data-docentry="@item.DocEntry">
                         <td class="text-center">
                             @Html.DisplayFor(modelItem => item.DocNum)
                         </td>
@@ -197,8 +354,10 @@
                         <td class="text-center">
                             @Html.DisplayFor(modelItem => item.Resultado)
                         </td>
-                        <td class="text-center">
-                            @item.FechaAtencion
+                        <td class="text-center @((
+                            (item.Estado == "Registrado" || item.Estado == "Proceso" || item.Estado == "Atendido") && item.DiasRetraso > 2
+                            ) ? "text-rojo" : "")">
+                            @item.DiasRetraso
                         </td>
                         <td class="text-center">
                             @Html.DisplayFor(modelItem => item.Tipo)
@@ -211,8 +370,6 @@
                         </td>
                         <td style="width: 20px">
                             <a href="@Url.Action( "DetallesSolicitud", "AtencionCliente", new { id = item.DocEntry })" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Detalles Solicitud"><i class="icon-search text-primary"></i></a>
-                            @*<a href="#"><i title="Ver Detalle" class="text-cobefar icon-eye" data-toggle="modal" data-target="#modal_detalleLab" onclick="verDetalleLab(@item.DocEntry);"></i></a>*@
-                            @*<a href="#"><i title="Documentos" class="icon-folder-open text-warning" data-toggle="modal" data-target="#M@(item.DocEntry)"></i></a>*@
 
                             @if (item.Estado.Equals("Registrado"))
                             {
@@ -239,34 +396,31 @@
 
                     if (item.Det != null)
                     {
-                        if (item.Det.Count > 0)
+                        if (item.Det != null && item.Det.Count > 0)
                         {
-                            <tr>
+                            <tr class="fila-detalle" id="detalle-@item.DocEntry" style="display:none;">
                                 <td></td>
                                 <td colspan="10">
-                                    <table class="table table-light table-sm table-hover table-bordered" cellspacing="0" width="100%">
+                                    <table class="tabla-detalle-solicitud">
                                         <thead>
                                             <tr>
-                                                <th class="bg-success text-center">Codigo</th>
-                                                <th class="bg-success text-center">Descripcion</th>
-                                                <th class="bg-success text-center">Lote</th>
-                                                <th class="bg-success text-center">Fec. Ven</th>
+                                                <th>Codigo</th>
+                                                <th>Descripcion</th>
+                                                <th>Lote</th>
+                                                <th>Fec. Ven</th>
                                             </tr>
                                         </thead>
-                                        <tbody class="table-secondary">
+                                        <tbody>
                                             @foreach (var obj in item.Det)
                                             {
-                                                <tr class="detalle">
-                                                    <td class="text-center">@obj.ItemCode</td>
-                                                    <td class="text-center">@obj.Dscription</td>
-                                                    <td class="text-center">@obj.BatchNum</td>
-                                                    <td class="text-center">@obj.ExpDate</td>
-
+                                                <tr>
+                                                    <td>@obj.ItemCode</td>
+                                                    <td>@obj.Dscription</td>
+                                                    <td>@obj.BatchNum</td>
+                                                    <td>@obj.ExpDate</td>
                                                 </tr>
                                             }
-
                                         </tbody>
-
                                     </table>
                                 </td>
                                 <td style="display:none"></td>
@@ -284,35 +438,6 @@
                         }
 
                     }
-
-                    <!-- Modal -->
-                    <!--<div class="modal fade" id="M@(item.DocEntry)" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="exampleModalLabel">Documentos</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                                <div class="modal-body text-center">
-                                    <a href="@Url.Action("RptDocEnvio", "AtencionCliente", new { id = item.DocEntry })" class="btn btn-success">
-                                        <i class="icon-file-pdf"></i>
-                                        <span><strong>DocEnvio</strong></span>
-                                    </a><p></p>
-                                    <p style="text-align:center; color:brown">Area Dirección Técnica</p>
-                                    <a href="@Url.Action("RptDocReg015", "AtencionCliente", new {  id = item.DocEntry})" class="btn btn-success">
-                                        <i class="icon-file-pdf"></i>
-                                        <span><strong>Doc REG-015</strong></span>
-                                    </a>
-                                    <a href="@Url.Action("RptDocReg016", "AtencionCliente", new {  id = item.DocEntry })" class="btn btn-success">
-                                        <i class="icon-file-pdf"></i>
-                                        <span><strong>Doc REG-016</strong></span>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>-->
                 }
             </tbody>
 
@@ -320,59 +445,85 @@
         </table>
 
     </form>
-</div>
+    <script>
+        $(document).ready(function () {
+            // Evita que el clic en botones/links dentro de la fila principal dispare el evento de la fila
+            $(document).on('click', '.fila-principal a, .fila-principal button', function (e) {
+                e.stopPropagation();
+            });
 
+            // Maneja el clic en la fila principal
+            $(document).on('click', '.fila-principal', function () {
+                var docEntry = $(this).data('docentry');
+                var $detalle = $('#detalle-' + docEntry);
 
-@*<div class="modal fade" id="modal_detalleLab" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-cobefar text-white">
-                <h5 class="modal-title" id="exampleModalLabel">Detalles</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span class="text-white" aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div id="contenido_modal" class="modal-body text-center">
+                // Oculta todos los detalles excepto el seleccionado
+                $('.fila-detalle').not($detalle).hide();
+
+                // Alterna el detalle seleccionado
+                $detalle.toggle();
+            });
+        });
+    </script>
+    <!-- Modal para notificaciones pendientes -->
+    <div class="modal fade" id="modalDerecha" tabindex="-1" role="dialog" aria-labelledby="modalDerechaLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title" id="modalDerechaLabel">Notificaciones Pendientes</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered table-sm" id="tablaNotificaciones">
+                        <thead>
+                            <tr>
+                                <th>Cliente</th>
+                                <th>Tickets Abiertos</th>
+                                <th>Detalle</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Aquí se llenarán los datos -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                </div>
             </div>
         </div>
     </div>
-</div>*@
 
-@*<script>
-    function verDetalleLab(docEntry) {
-        $.ajax('/AtencionCliente/ObtenerDetalleSolicitud',
-            {
-                data: { DocEntry: docEntry },
-                dataType: 'JSON',
-                cache: false,
-                type: 'POST'
-            }).done(function (response) {
-                let modal = `<div class="modal-body text-center">
-                                <table class="table table-light table-sm table-hover table-bordered" cellspacing="0" width="100%">
-                                    <thead class="bg-success">
-                                        <tr>
-                                            <th class="text-center">Código</th>
-                                            <th class="text-center">Descripción</th>
-                                            <th class="text-center">Lote</th>
-                                            <th class="text-center">Fecha Venc.</th>
-                                        </tr>
-                                    </thead>
-
-                                    <tbody>`;
-                if (response[0]) {
-                    for (let indice in response) {
-                        modal += `<tr class="detalle">
-                                                                <td class="text-center">${response[indice].ItemCode}</td>
-                                                                <td class="text-center">${response[indice].Dscription}</td>
-                                                                <td class="text-center">${response[indice].BatchNum}</td>
-                                                                <td class="text-center">${response[indice].ExpDate}</td>
-                                                            </tr>`;
-                    }
-                }
-                modal += `</tbody>
-                                    </table>
-                                </div>`;
-                $('#contenido_modal').html(modal);
-            });
-    }
-</script>*@
+    <div class="modal fade" id="modalDetalleNotificacion" tabindex="-1" role="dialog" aria-labelledby="modalDetalleNotificacionLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="modalDetalleNotificacionLabel">Detalle de Tickets Abiertos</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered table-sm" id="tablaDetalleNotificaciones">
+                        <thead>
+                            <tr>
+                                <th>Fecha Ticket</th>
+                                <th>N° Ticket</th>
+                                <th>Estado</th>
+                                <th>Vendedor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Aquí se llenarán los datos -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

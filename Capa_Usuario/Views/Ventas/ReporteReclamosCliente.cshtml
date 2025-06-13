@@ -1,60 +1,113 @@
 ﻿@model IEnumerable<Capa_Entidad.AtencionCliente_ENT.TablasSql.OSAT_E>
 
 @{
-    ViewBag.Title = "ReporteReclamosCliente";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Reporte Reclamos Cliente";
+    Layout = "~/Views/Shared/_DefaultLayout.cshtml";
 }
 
-
-<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2 pt-3">
-    <div class="px-3 pt-3"><h3 class="titulo-seccion">REPORTE RECLAMOS CLIENTE</h3></div>
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
+    <div class="row px-3 pt-3">
+        <h3 class="titulo-seccion">@ViewBag.Title.ToUpper()</h3>
+    </div>
+    <div class="row px-3 py-3">
+        <div class="col-12">
+            <button type="button" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Agregar todos los reclamos" onclick="agregarTodos()">
+                <i class="bi bi-plus-circle-fill"></i> Agregar
+            </button>
+            <button type="button" class="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="No adjuntar ningun reclamo" onclick="cancelarSeleccion()">
+                <i class="bi bi-x-circle"></i> Limpiar
+            </button>
+        </div>
+    </div>
 </div>
 
-<table class="table table-light table-sm table-hover">
-    <thead class="thead-dark">
-        <tr>
-            <th class="text-center">
-                @Html.DisplayNameFor(model => model.DocEntry)
-            </th>
-            <th class="text-center">
-                @Html.DisplayNameFor(model => model.DocNum)
-            </th>
-            <th class="text-center">
-                @Html.DisplayNameFor(model => model.Estado)
-            </th>
-            <th class="text-center">
-                @Html.DisplayNameFor(model => model.Resultado)
-            </th>
-            <th class="text-center">
-                @Html.DisplayNameFor(model => model.TipoSolucion)
-            </th>
-            <th class="text-center">
-                @Html.DisplayNameFor(model => model.Solucion)
-            </th>
-        </tr>
-    </thead>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td class="text-center">
-                    @Html.DisplayFor(modelItem => item.DocEntry)
-                </td>
-                <td class="text-center">
-                    @Html.DisplayFor(modelItem => item.DocNum)
-                </td>
-                <td class="text-center">
-                    @Html.DisplayFor(modelItem => item.Estado)
-                </td>
-                <td class="text-center">
-                    @Html.DisplayFor(modelItem => item.Resultado)
-                </td>
-                <td class="text-center">
-                    @Html.DisplayFor(modelItem => item.TipoSolucion)
-                </td>
-                <td class="text-center">
-                    @Html.DisplayFor(modelItem => item.Solucion)
-                </td>
-            </tr>
+<div class="bg-white px-3 py-3 align-items-center">
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <table id="tbl_ReclamosCliente" class="dt-container dt-empty-footer table table-sm table-hover font-14 table-responsive" width="100%">
+                <thead class="thead-cobefar">
+                    <tr>
+                        <th class="text-center">@Html.DisplayNameFor(model => model.DocEntry)</th>
+                        <th class="text-center">@Html.DisplayNameFor(model => model.DocNum)</th>
+                        <th class="text-center">@Html.DisplayNameFor(model => model.Estado)</th>
+                        <th class="text-center">@Html.DisplayNameFor(model => model.Resultado)</th>
+                        <th class="text-center">@Html.DisplayNameFor(model => model.TipoSolucion)</th>
+                        <th class="text-center">@Html.DisplayNameFor(model => model.Solucion)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="text-center">@Html.DisplayFor(modelItem => item.DocEntry)</td>
+                            <td class="text-center">@Html.DisplayFor(modelItem => item.DocNum)</td>
+                            <td class="text-center">@Html.DisplayFor(modelItem => item.Estado)</td>
+                            <td class="text-center">@Html.DisplayFor(modelItem => item.Resultado)</td>
+                            <td class="text-center">@Html.DisplayFor(modelItem => item.TipoSolucion)</td>
+                            <td class="text-center">@Html.DisplayFor(modelItem => item.Solucion)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        if (!$.fn.DataTable.isDataTable('tbl_ReclamosCliente')) {
+            inicializarDataTable('tbl_ReclamosCliente', 10);
+            if (typeof aplicarFiltro === "function") aplicarFiltro();
+        }
+        document.getElementById('checkAll').addEventListener('change', function () {
+            toggleAllChecks(this);
+        });
+
+        sincronizarChecksConPrincipal();
+        inicializarEventosChecks();
+    });
+
+    function agregarTodos() {
+        // Obtiene todos los DocEntry de la tabla
+        var docnums = [];
+        $('#tbl_ReclamosCliente tbody tr').each(function () {
+            var DocNum = $(this).find('td').eq(1).text().trim();
+            if (DocNum) docnums.push(DocNum);
+        });
+
+        if (docnums.length === 0) {
+            alert('No hay reclamos para agregar.');
+            return;
         }
 
-</table>
+        if (window.opener && !window.opener.closed) {
+            window.opener.setNroSolicitudReclamo(JSON.stringify(docnums));
+            window.close();
+        }
+    }
+
+    function cancelarSeleccion() {
+        if (window.opener && !window.opener.closed) {
+            window.opener.document.getElementById('NroSolicitudReclamo').value = '';
+            window.opener.document.getElementById('SolicitudesReclamoSeleccionadas').value = '';
+            window.close();
+        }
+    }
+
+    function sincronizarChecksConPrincipal() {
+        if (window.opener && !window.opener.closed) {
+            const nroSolicitud = window.opener.document.getElementById('NroSolicitudReclamo');
+            if (nroSolicitud) {
+                const seleccionados = nroSolicitud.value
+                    ? nroSolicitud.value.split(',').map(x => x.trim())
+                    : [];
+                document.querySelectorAll('.checkFila').forEach(cb => {
+                    cb.checked = seleccionados.includes(cb.value);
+                });
+            }
+            actualizarNroSolicitudReclamo();
+        }
+    }
+
+
+</script>

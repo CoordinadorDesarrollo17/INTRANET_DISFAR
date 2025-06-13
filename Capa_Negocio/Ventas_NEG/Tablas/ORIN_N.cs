@@ -1,4 +1,5 @@
 ﻿using Capa_Datos.Ventas_DAO.Tablas;
+using Capa_Entidad.AtencionCliente_ENT.TablasExternas;
 using Capa_Entidad.Rutas_ENT.TablasSql;
 using Capa_Entidad.Ventas_ENT.Tablas;
 using System.Collections.Generic;
@@ -20,10 +21,6 @@ namespace Capa_Negocio.Ventas_NEG.Tablas
         { return orinD.ObtenerDetalleNotaCreditoServicio(numAtCard); }
         public List<NotaCreditoDebito_E> ObtenerDetalleNotaCreditoArticulo(string numAtCard)
         { return orinD.ObtenerDetalleNotaCreditoArticulo(numAtCard); }
-
-        
-        
-
 
     }
 }

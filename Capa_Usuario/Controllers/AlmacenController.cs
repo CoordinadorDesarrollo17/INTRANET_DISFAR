@@ -202,6 +202,10 @@ namespace Capa_Usuario.Controllers
                 ViewBag.Laboratorios = omrcN.listarFabricantes();
                 ViewBag.MotivosDevoluciones = mdN.ListarMotivosDevoluciones(new Capa_Entidad.Almacen_ENT.TablasSql.MotivosDevoluciones_E { Estado = "1" });
                 ViewBag.SubmotivosDevoluciones = subN.ListarSubmotivosDevoluciones(new Capa_Entidad.Almacen_ENT.TablasSql.SubmotivosDevoluciones_E { Estado = "1" });
+
+                // Verificamos si la devolución viene desde una liberación (DT) para luego validar elementos del DOM de la vista
+                ViewBag.DevolucionOrigenLiberaciones = datosDevolucion != null && datosDevolucion.ODOCSId != null && datosDevolucion.ODOCSId > 0;
+
                 if (Almacen != null && Almacen.Equals("DEV07"))
                 {
                     return View("EditarDevolucionAlmDEV07", datosDevolucion);
@@ -272,7 +276,7 @@ namespace Capa_Usuario.Controllers
             if (datos.FirmCode >= 1)
             {
                 var datalist = "<datalist id='ListaProductos'>";
-                var listaProductos = new Capa_Negocio.Almacen_NEG.Tablas.OITM_N().Listar(new Capa_Entidad.Almacen_ENT.Tablas.OITM_E { FirmCode = datos.FirmCode});
+                var listaProductos = new Capa_Negocio.Almacen_NEG.Tablas.OITM_N().Listar(new Capa_Entidad.Almacen_ENT.Tablas.OITM_E { FirmCode = datos.FirmCode });
                 if (listaProductos != null && listaProductos.Count >= 1)
                 {
                     foreach (var p in listaProductos)
@@ -290,7 +294,7 @@ namespace Capa_Usuario.Controllers
         }
         public JsonResult BuscarLotesProducto(Capa_Entidad.Almacen_ENT.Tablas.OIBT_E filtros)
         {
-            
+
             if (!string.IsNullOrWhiteSpace(filtros.ItemCode))
             {
                 Capa_Negocio.Almacen_NEG.Tablas.OIBT_N oibtN = new Capa_Negocio.Almacen_NEG.Tablas.OIBT_N();
@@ -540,7 +544,7 @@ namespace Capa_Usuario.Controllers
                 {
                     { "R", "Devolución recogida por el Proveedor" },
                     { "AA","Anulacion correcta" },
-                    { "RR","Devolucion esta pendiente de recojo" },
+                    { "RR","Devolucion se revirtió correctamente" },
                     { "NC","Nota de credito aplicada" },
                     { "EC","Correo enviado, revise su bandeja" }
                 };
@@ -1740,10 +1744,11 @@ namespace Capa_Usuario.Controllers
             {
                 Capa_Entidad.Almacen_ENT.TablasSql.OIAR_E obj = new Capa_Negocio.Almacen_NEG.TablasSql.OIAR_N().Buscar(id);
                 ViewBag.Lotes = new Capa_Negocio.Almacen_NEG.TablasSql.IPE2_N().listarArticulos(
-                    new Capa_Entidad.Almacen_ENT.TablasSql.IPE2_E { 
-                        DocEntry = obj.DocEntryPer, 
-                        ItemCode = obj.ItemCode, 
-                        WhsCode = obj.WhsCode 
+                    new Capa_Entidad.Almacen_ENT.TablasSql.IPE2_E
+                    {
+                        DocEntry = obj.DocEntryPer,
+                        ItemCode = obj.ItemCode,
+                        WhsCode = obj.WhsCode
                     });
                 return View(obj);
             }
@@ -1805,8 +1810,10 @@ namespace Capa_Usuario.Controllers
                 OIAR_N oiarN = new OIAR_N();
                 try
                 {
-                    if (Capa_Entidad.Almacen_ENT.TablasSql.OIPE_E.PeriodoSeleccionado == null || Capa_Entidad.Almacen_ENT.TablasSql.OIPE_E.PeriodoSeleccionado.DocEntry == 0) { 
-                        throw new Exception("no hay periodo Seleccionado"); }
+                    if (Capa_Entidad.Almacen_ENT.TablasSql.OIPE_E.PeriodoSeleccionado == null || Capa_Entidad.Almacen_ENT.TablasSql.OIPE_E.PeriodoSeleccionado.DocEntry == 0)
+                    {
+                        throw new Exception("no hay periodo Seleccionado");
+                    }
                     oiarN.validarVistaReportes(Capa_Entidad.Almacen_ENT.TablasSql.OIPE_E.PeriodoSeleccionado.DocEntry);
                     ViewBag.Laboratorios = new Capa_Negocio.Almacen_NEG.Tablas.OMRC_N().listarFabricantes();
                     return View();

@@ -296,6 +296,9 @@
 
                                                                                                 <label for="formFileET_${correlativo}" class="small form-label fw-bold mt-4">Cargar E.T.:</label>
                                                                                                 <input class="form-control" type="file" id="formFileET_${correlativo}" name="Detalle[${key}].ArchivoET" accept=".pdf">
+
+                                                                                                 <label for="formFileRS_${correlativo}" class="small form-label fw-bold mt-4">Cargar R.S.:</label>
+                                                                                                <input class="form-control" type="file" id="formFileRS_${correlativo}" name="Detalle[${key}].ArchivoRS" accept=".pdf">
                                                                                             </div>
                                                                                             <div class="col-lg-5">
                                                                                                   <label class="small form-label fw-bold">Comentario Organoléptico:</label>
@@ -398,7 +401,6 @@
                 console.error('Error al registrar:', error);
             }
         }
-
 
         function validarCantidad(input) {
             const total = 0;

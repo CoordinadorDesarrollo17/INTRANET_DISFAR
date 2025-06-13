@@ -42,6 +42,12 @@ namespace Capa_Datos.Almacen_DAO.TablasSql
                 {
                     condWhere += $" AND DEV.WhsCode = '{Filtros.WhsCode}' ";
                 }
+
+                if (Filtros.ODOCSId != null && Filtros.ODOCSId > 0)
+                {
+                    condWhere += $" AND DEV.ODOCSId = '{Filtros.ODOCSId}' ";
+                }
+
                 if (Filtros.DetalleDevolucion != null && Filtros.DetalleDevolucion.Count >= 1 && Filtros.DetalleDevolucion[0].RefFactura != null)
                 {
                     join += " INNER JOIN al.RPD1 DET on DET.DocEntry = DEV.DocEntry";
@@ -51,7 +57,11 @@ namespace Capa_Datos.Almacen_DAO.TablasSql
 
             using (SqlConnection cn = new SqlConnection(uti.cadSql))
             {
-                string query = $"SELECT DISTINCT TOP 100 DEV.DocEntry, DEV.DocNum, CONVERT(varchar,DEV.FechaDevolucion,103) AS 'FechaDevolucion',CONVERT(varchar, DEV.HoraDevolucion,8), DEV.Correlativo, DEV.WhsCode, DEV.CardCode, DEV.CardName, DEV.Estado, DEV.RetiroMercado, DEV.Correo, DEV.TiempoCorreoEnviado , DEV.Comentario FROM al.ORPD DEV {join} WHERE 1=1 {condWhere} ORDER BY DEV.DocEntry DESC";
+                string query = $"SELECT DISTINCT TOP 100 " +
+                    $"DEV.DocEntry, DEV.DocNum, CONVERT(varchar,DEV.FechaDevolucion,103) AS 'FechaDevolucion',CONVERT(varchar, DEV.HoraDevolucion,8), DEV.Correlativo, DEV.WhsCode, DEV.CardCode, DEV.CardName, DEV.Estado, DEV.RetiroMercado, DEV.Correo, DEV.TiempoCorreoEnviado , DEV.Comentario, DEV.SinEM, DEV.ODOCSId " +
+                    $"FROM al.ORPD DEV {join} " +
+                    $"WHERE 1=1 {condWhere} ORDER BY DEV.DocEntry DESC";
+
                 SqlCommand cmd = new SqlCommand(query, cn);         // prepara
                                                                     //cmd.Parameters.AddWithValue("@DocEntry", DocEntry);
                 cn.Open();
@@ -79,6 +89,8 @@ namespace Capa_Datos.Almacen_DAO.TablasSql
                             if (!dr.IsDBNull(10)) { dev.Correo = dr.GetString(10); }
                             if (!dr.IsDBNull(11)) { dev.TiempoCorreoEnviado = dr.GetDateTime(11).ToString("yyyy-MM-dd"); }
                             if (!dr.IsDBNull(12)) { dev.Comentario = dr.GetString(12); }
+                            if (!dr.IsDBNull(13)) { dev.SinEM = dr.GetBoolean(13); }
+                            if (!dr.IsDBNull(14)) { dev.ODOCSId = dr.GetInt64(14); }
                             /*** C O N T R O L  D E  C A M B I O S ***/
                             CC_ORPD_E ccDev = new CC_ORPD_E
                             {
@@ -120,7 +132,8 @@ namespace Capa_Datos.Almacen_DAO.TablasSql
 
             using (SqlConnection cn = new SqlConnection(uti.cadSql))
             {
-                string query = "SELECT DocEntry, DocNum, CONVERT(varchar,FechaDevolucion,103), CONVERT(varchar,HoraDevolucion,8 ),Correlativo, WhsCode, CardCode, CardName, Estado, RetiroMercado, Correo, TiempoCorreoEnviado, SinEM FROM al.ORPD WHERE DocEntry = @DocEntry";
+                string query = "SELECT DocEntry, DocNum, CONVERT(varchar,FechaDevolucion,103), CONVERT(varchar,HoraDevolucion,8 ),Correlativo, WhsCode, CardCode, CardName, Estado, RetiroMercado, Correo, TiempoCorreoEnviado, SinEM, ODOCSId " +
+                    "FROM al.ORPD WHERE DocEntry = @DocEntry";
                 SqlCommand cmd = new SqlCommand(query, cn);         // prepara
                 cmd.Parameters.AddWithValue("@DocEntry", DocEntry);
                 cn.Open();
@@ -146,6 +159,7 @@ namespace Capa_Datos.Almacen_DAO.TablasSql
                     if (!dr.IsDBNull(10)) { dev.Correo = dr.GetString(10); }
                     if (!dr.IsDBNull(11)) { dev.TiempoCorreoEnviado = Convert.ToDateTime(dr.GetDateTime(11)).ToString("dd/MM/yyyy HH:mm:ss.fff"); }
                     if (!dr.IsDBNull(12)) { dev.SinEM = dr.GetBoolean(12); }
+                    if (!dr.IsDBNull(13)) { dev.ODOCSId = dr.GetInt64(13); }
 
                     dev.DetalleDevolucion = rpd1_D.ListarDetalleDevolucion(dev.DocEntry);
                     /******** C O N T R O L  D E  C A M B I O S ********/
@@ -195,11 +209,12 @@ namespace Capa_Datos.Almacen_DAO.TablasSql
                     cmd.Parameters.AddWithValue("@CardCode", Devolucion.CardCode);
                     cmd.Parameters.AddWithValue("@CardName", Devolucion.CardName);
                     cmd.Parameters.AddWithValue("@WhsCode", Devolucion.WhsCode);
-                    cmd.Parameters.AddWithValue("@FechaDevolucion", Devolucion.FechaDevolucion);
+                    cmd.Parameters.AddWithValue("@FechaDevolucion", Devolucion.FechaDevolucion ?? (object)DBNull.Value);
                     cmd.Parameters.AddWithValue("@RetiroMercado", Devolucion.RetiroMercado);
-                    cmd.Parameters.AddWithValue("@TiempoCorreoEnviado", Devolucion.TiempoCorreoEnviado);
-                    cmd.Parameters.AddWithValue("@Correo", Devolucion.Correo);
+                    cmd.Parameters.AddWithValue("@TiempoCorreoEnviado", Devolucion.TiempoCorreoEnviado ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Correo", Devolucion.Correo ?? (object)DBNull.Value);
                     cmd.Parameters.AddWithValue("@SinEM", Devolucion.SinEM);
+                    cmd.Parameters.AddWithValue("@ODOCSId", Devolucion.ODOCSId.HasValue ? (object)Devolucion.ODOCSId.Value : DBNull.Value);
                     cmd.Parameters.AddWithValue("@Operario", Devolucion.Operario);
                     cmd.Parameters.Add("@DocEntry", SqlDbType.Int);
                     cmd.Parameters["@DocEntry"].Direction = ParameterDirection.Output;
@@ -262,6 +277,7 @@ namespace Capa_Datos.Almacen_DAO.TablasSql
                     cmd.Parameters.AddWithValue("@Operario", Devolucion.Operario);
                     cmd.Parameters.AddWithValue("@DocEntry", Devolucion.DocEntry);
                     cmd.Parameters.AddWithValue("@DocNum", Devolucion.DocNum);
+                    cmd.Parameters.AddWithValue("@FechaDevolucion", Devolucion.FechaDevolucion);
 
                     // datos de ordenes de venta
                     if (DetalleDevolucion != null && DetalleDevolucion.Count >= 1)
@@ -338,6 +354,7 @@ namespace Capa_Datos.Almacen_DAO.TablasSql
                 catch (Exception ex2)
                 {
                     status = 0; tran.Rollback();
+                    LogHelper.RegistrarError(ex2, "ORPD_D - CambiarEstadoDevolucion()");
                     throw new Exception("Error en registro: " + ex2.Message);
                 }
                 finally
