@@ -38,101 +38,102 @@
 <div class="bg-form-pestanas-cobefar">
     @using (Html.BeginForm("CulminarSolicitud", "AtencionCliente", FormMethod.Post, new { id = "frm_culminarSolicitud", enctype = "multipart/form-data" }))
     {
-        
+
         <div class="bg-section-form p-4 bg-form-cobefar">
-            <div class="row mt-4">
+            <div class="row">
                 @Html.EditorFor(model => model.DocEntry, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
                 <div class="col-lg-3">
                     <label for="Tipo" class="text-dark form-label font-weight-bold font-18">Tipo:</label>
-                    @Html.EditorFor(model => model.Tipo, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = true } })
+                    @Html.EditorFor(model => model.Tipo, new { htmlAttributes = new { @class = "form-control text-center", @readonly = true } })
                 </div>
 
                 <div class="col-lg-3">
                     <label for="Estado" class="text-dark form-label font-weight-bold font-18">Estado:</label>
-                    @Html.EditorFor(model => model.Estado, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = true } })
+                    @Html.EditorFor(model => model.Estado, new { htmlAttributes = new { @class = "form-control text-center", @readonly = true } })
                 </div>
 
                 <div class="col-lg-3">
                     <label for="FechaAtencion" class="text-dark form-label font-weight-bold font-18">Fecha de registro:</label>
-                    <input id="FechaAtencion" name="FechaAtencion" class="form-control border-success text-center" value="@Model.FechaRegistro" readonly />
+                    <input id="FechaAtencion" name="FechaAtencion" class="form-control text-center" value="@Model.FechaRegistro" readonly />
                 </div>
 
                 <div class="col-lg-3">
                     <label for="OpAtencion" class="text-dark form-label font-weight-bold font-18">Registrado por:</label>
-                    <input id="OpAtencion" name="OpAtencion" class="form-control border-success text-center" value="@Model.OpRegistro" readonly />
+                    <input id="OpAtencion" name="OpAtencion" class="form-control text-center" value="@Model.OpRegistro" readonly />
                 </div>
             </div>
 
-            <div class="row mt-2">
+            <div class="row mt-4">
                 <div class="col-lg-3">
                     <label for="DocNum" class="text-dark form-label font-weight-bold font-18">N° Solicitud:</label>
-                    @Html.EditorFor(model => model.DocNum, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = true } })
+                    @Html.EditorFor(model => model.DocNum, new { htmlAttributes = new { @class = "form-control text-center", @readonly = true } })
                 </div>
 
                 @if (Model.Tipo != null && !Model.Tipo.Equals("Reclamo"))
                 {
                     <div class="col-lg-3">
                         <label for="TipoVenta" class="text-dark form-label font-weight-bold font-18">Tipo de Venta:</label>
-                        <input type="text" class="form-control border-success text-center" id="TipoVenta" name="TipoVenta" readonly value="@ViewBag.TipoVenta">
+                        <input type="text" class="form-control text-center" id="TipoVenta" name="TipoVenta" readonly value="@ViewBag.TipoVenta">
                     </div>
 
                     <div class="col-lg-3">
                         <label for="CanalVenta" class="text-dark form-label font-weight-bold font-18">Canal de Venta:</label>
-                        <input type="text" class="form-control border-success text-center" id="CanalVenta" name="CanalVenta" readonly value="@ViewBag.CanalVenta">
+                        <input type="text" class="form-control text-center" id="CanalVenta" name="CanalVenta" readonly value="@ViewBag.CanalVenta">
                     </div>
                 }
 
                 <div class="col-lg-3">
                     <label for="Factor" class="text-dark form-label font-weight-bold font-18">Factor:</label>
-                    <input id="Factor" name="Factor" class="form-control border-success text-center" value="@Model.Factor" readonly />
+                    <input id="Factor" name="Factor" class="form-control text-center" value="@Model.Factor" readonly />
                 </div>
             </div>
 
             <div class="row mt-4">
                 <div class="col-lg-3">
                     <label for="DocNumTicket" class="text-dark form-label font-weight-bold font-18">N° Ticket:</label>
-                    @Html.EditorFor(model => model.DocNumTicket, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = true } })
+                    @Html.EditorFor(model => model.DocNumTicket, new { htmlAttributes = new { @class = "form-control text-center", @readonly = true } })
                 </div>
 
                 <div class="col-lg-3">
                     <label for="Resultado" class="text-dark form-label font-weight-bold font-18">Resultado:</label>
-                    <input id="Resultado" name="Resultado" class="form-control border-success text-center" value="@Model.Resultado" readonly />
+                    <input id="Resultado" name="Resultado" class="form-control text-center" value="@Model.Resultado" readonly />
                 </div>
 
                 <div class="col-lg-3">
                     <label for="TipoSolucion" class="text-dark form-label font-weight-bold font-18">Tipo Solución:</label>
-                    <input id="TipoSolucion" name="TipoSolucion" class="form-control border-success text-center" value="@Model.TipoSolucion" readonly />
+                    <input id="TipoSolucion" name="TipoSolucion" class="form-control text-center" value="@Model.TipoSolucion" readonly />
                 </div>
 
                 <div class="col-lg-3">
                     <label for="LugarDestino" class="text-dark form-label font-weight-bold font-18">Lugar de Destino:</label>
-                    <input type="text" id="LugarDestino" name="LugarDestino" class="form-control text-center border-success" value="@Model.DetORTV["LugarDestino"]" readonly />
+                    <input type="text" id="LugarDestino" name="LugarDestino" class="form-control text-center" value="@Model.DetORTV["LugarDestino"]" readonly />
                 </div>
             </div>
 
             <div class="row mt-4 mb-5">
                 <div class="col-lg-12">
                     <label for="Solucion" class="text-dark form-label font-weight-bold font-18">Solución:</label>
-                    <input id="Solucion" name="Solucion" class="form-control border-success text-center" value="@Model.Solucion" readonly />
+                    <input id="Solucion" name="Solucion" class="form-control" value="@Model.Solucion" readonly />
                 </div>
             </div>
 
+            <hr />
             <h4 class="text-cobefar font-weight-bold">DATOS DEL CLIENTE</h4>
 
             <div class="row mt-2">
                 <div class="col-lg-6">
                     <label for="Contacto" class="text-dark form-label font-weight-bold font-18">Contacto:</label>
-                    <input type="text" id="Contacto" name="Contacto" class="form-control text-center border-success" value="@Model.Contacto" readonly />
+                    <input type="text" id="Contacto" name="Contacto" class="form-control text-center" value="@Model.Contacto" readonly />
                 </div>
 
                 <div class="col-lg-4">
                     <label for="Correo" class="text-dark form-label font-weight-bold font-18">Correo:</label>
-                    <input type="text" id="Correo" name="Correo" class="form-control text-center border-success" value="@Model.Correo" readonly />
+                    <input type="text" id="Correo" name="Correo" class="form-control text-center" value="@Model.Correo" readonly />
                 </div>
 
                 <div class="col-lg-2">
                     <label for="Telefono" class="text-dark form-label font-weight-bold font-18">Teléfono:</label>
-                    <input type="text" id="Telefono" name="Telefono" class="form-control text-center border-success" value="@Model.Telefono" readonly />
+                    <input type="text" id="Telefono" name="Telefono" class="form-control text-center" value="@Model.Telefono" readonly />
                 </div>
 
             </div>
@@ -140,25 +141,26 @@
             <div class="row mt-4">
                 <div class="col-lg-12">
                     <label for="DireccionRecojo" class="text-dark form-label font-weight-bold font-18">Dirección:</label>
-                    <input type="text" id="DireccionRecojo" name="DireccionRecojo" class="form-control text-center border-success" value="@Model.DireccionRecojo" readonly />
+                    <input type="text" id="DireccionRecojo" name="DireccionRecojo" class="form-control" value="@Model.DireccionRecojo" readonly />
                 </div>
             </div>
 
             <div class="row mt-4">
                 <div class="col-lg-4">
                     <label for="Problema" class="text-dark form-label font-weight-bold font-18">Problema:</label>
-                    <input type="text" id="Problema" name="Problema" class="form-control text-center border-success" value="@if (Model.Det != null && Model.Det.Count >= 1) { Write(Model.Det[0].Problema); }" readonly />
+                    <input type="text" id="Problema" name="Problema" class="form-control text-center" value="@if (Model.Det != null && Model.Det.Count >= 1) { Write(Model.Det[0].Problema); }" readonly />
                 </div>
 
                 <div class="col-lg-4">
                     <label for="TipoError" class="text-dark form-label font-weight-bold font-18">Tipo de Error:</label>
-                    <input type="text" id="TipoError" name="TipoError" class="form-control text-center border-success" value="@if (Model.Det != null && Model.Det.Count >= 1) { Write(Model.Det[0].TipoError); }" readonly />
+                    <input type="text" id="TipoError" name="TipoError" class="form-control text-center" value="@if (Model.Det != null && Model.Det.Count >= 1) { Write(Model.Det[0].TipoError); }" readonly />
                 </div>
 
                 @if (Model.Det[0].TipoError == "ErrorAlmacen")
                 {
                     <div class="col-lg-4">
                         <label for="ErrorAlmacen" class="text-dark form-label font-weight-bold font-18">Error de almacén:</label>
+<<<<<<< HEAD
                         <input type="text" class="form-control border-success text-center" readonly
                                value="@(Model.Det[0].ErrorAlmacen == "ARECEP3" ? "Área de Recepción 3" :
                             Model.Det[0].ErrorAlmacen == "ARECEP5" ? "Área de Recepción 5" :
@@ -172,6 +174,9 @@
                             Model.Det[0].ErrorAlmacen == "AFACT"   ? "Área de Facturación" :
                             Model.Det[0].ErrorAlmacen == "AING"    ? "Área de Ingreso" :
                             Model.Det[0].ErrorAlmacen == "OTROS"   ? "OTROS" : "")" />
+=======
+                        <input type="text" class="form-control text-center" id="ErrorAlmacen" name="ErrorAlmacen" readonly value="@ViewBag.ErrorAlmacen">
+>>>>>>> hotfix/NotaCreditoSolicitudes
                     </div>
                     
                 }
@@ -181,12 +186,12 @@
             <div class="row mt-4">
                 <div class="col-lg-4">
                     <label for="TipoError" class="text-dark form-label font-weight-bold font-18">Fecha de proceso:</label>
-                    <input type="text" id="Problema" name="Problema" class="form-control text-center border-success" value="@ViewBag.FechaProceso" readonly />
+                    <input type="text" id="Problema" name="Problema" class="form-control text-center" value="@ViewBag.FechaProceso" readonly />
                 </div>
 
                 <div class="col-lg-4">
                     <label for="Problema" class="text-dark form-label font-weight-bold font-18">Op Proceso:</label>
-                    <input type="text" id="Problema" name="Problema" class="form-control text-center border-success" value="@ViewBag.OpProceso" readonly />
+                    <input type="text" id="Problema" name="Problema" class="form-control text-center" value="@ViewBag.OpProceso" readonly />
                 </div>
 
                 @if (Model.Det[0].ErrorAlmacen == "OTROS")
@@ -203,31 +208,31 @@
             <div class="row mt-4">
                 <div class="col-lg-4">
                     <label for="TipoError" class="text-dark form-label font-weight-bold font-18">Fecha de atención:</label>
-                    <input type="text" id="Problema" name="Problema" class="form-control text-center border-success" value="@ViewBag.FechaAtencion" readonly />
+                    <input type="text" id="Problema" name="Problema" class="form-control text-center" value="@ViewBag.FechaAtencion" readonly />
                 </div>
 
                 <div class="col-lg-4">
                     <label for="Problema" class="text-dark form-label font-weight-bold font-18">Op Atención:</label>
-                    <input type="text" id="Problema" name="Problema" class="form-control text-center border-success" value="@ViewBag.OpAtencion" readonly />
+                    <input type="text" id="Problema" name="Problema" class="form-control text-center" value="@ViewBag.OpAtencion" readonly />
                 </div>
             </div>
 
             <div class="row mt-4">
                 <div class="col-lg-4">
                     <label for="TipoError" class="text-dark form-label font-weight-bold font-18">Fecha de culminación:</label>
-                    <input type="text" id="Problema" name="Problema" class="form-control text-center border-success" value="@ViewBag.FechaCulminacion" readonly />
+                    <input type="text" id="Problema" name="Problema" class="form-control text-center" value="@ViewBag.FechaCulminacion" readonly />
                 </div>
 
                 <div class="col-lg-4">
                     <label for="Problema" class="text-dark form-label font-weight-bold font-18">Op Culminación:</label>
-                    <input type="text" id="Problema" name="Problema" class="form-control text-center border-success" value="@ViewBag.OpCulminacion" readonly />
+                    <input type="text" id="Problema" name="Problema" class="form-control text-center" value="@ViewBag.OpCulminacion" readonly />
                 </div>
             </div>
 
             <div class="row mt-4">
                 <div class="col-lg-12">
                     <table id="Articulos" class="table table-light table-hover table-bordered table-responsive" width="100%">
-                        <thead class="thead-dark">
+                        <thead class="thead-cobefar">
                             <tr>
                                 <th colspan="2" class="text-center">Detalle</th>
                                 <th class="text-center" style="width:50px">Um Vend</th>
@@ -253,7 +258,7 @@
                         </thead>
                         @if (Model.Det.Count > 0 && Model.Det != null)
                         {
-                            <tbody class="table-primary">
+                            <tbody class="bg-light">
                                 @{
                                     int i = 0;
                                     Dictionary<string, string> opcUnit = new Dictionary<string, string>() { { "C", "Cajas" }, { "P", "Piezas" } };
@@ -292,7 +297,26 @@
                                         <td class="text-center"><input type="hidden" name="Det[@i].Regalo" value="@obj.Regalo" readonly />@obj.Regalo</td>
                                         <td class="text-center"><input type="hidden" name="Det[@i].MotRegalo" value="@obj.MotRegalo" readonly />@obj.MotRegalo</td>
                                         <td class="text-center"><input type="hidden" name="Det[@i].TareaFact" value="@obj.TareaFact" readonly />@obj.TareaFact</td>
-                                        <td class="text-center"><input type="hidden" name="Det[@i].ComprobanteVinc" value="@obj.ComprobanteVinc" readonly />@obj.ComprobanteVinc</td>
+                                        <td class="text-center">
+                                            <div>
+                                                <input type="hidden" name="Det[@i].ComprobanteVinc" value="@obj.ComprobanteVinc" readonly />@obj.ComprobanteVinc
+                                            </div>
+
+                                            @if (obj.NuevoPrecioArticulo != null && obj.ReferenciaNC_ND != null)
+                                            {
+                                                <div>
+                                                    <div class="mt-3">
+                                                        <label class="form-label font-weight-bold">Nuevo precio artículo:</label>
+                                                        <input type="hidden" name="Det[@i].NuevoPrecioArticulo" class="form-control cls-num text-right" value="@((double)obj.NuevoPrecioArticulo)" readonly />@((double)obj.NuevoPrecioArticulo)
+                                                    </div>
+                                                    <div class="mt-3">
+                                                        <label class="form-label font-weight-bold">Referencia NC/ND:</label>
+                                                        <input type="hidden" name="Det[@i].ReferenciaNC_ND" class="form-control" value="@obj.ReferenciaNC_ND" readonly />@obj.ReferenciaNC_ND
+                                                    </div>
+                                                </div>
+                                            }
+
+                                        </td>
                                         <td class="text-center"><input type="hidden" name="Det[@i].AlmTransf" value="@obj.AlmTransf" readonly />@obj.AlmTransf</td>
                                         <td class="text-center"><input type='hidden' name='Det[@i].AlmVenta' value='@obj.AlmVenta' readonly />@obj.AlmVenta</td>
                                         @if (Model.Estado == "Culminado")
@@ -329,10 +353,10 @@
             {
                 foreach (KeyValuePair<int, string> adj in ViewBag.Adjuntos)
                 {
-                    <div class="row mt-4">
+                    <div class="row mt-3">
                         <div class="col-lg-4">
                             <div class="d-flex">
-                                <input class='form-control border-success' value='@adj.Value' readonly />
+                                <input class='form-control' value='@adj.Value' readonly />
                                 <a href="@Url.Action("ArchivoSolicitud", "AtencionCliente" , new { id = Model.DocEntry, linea = adj.Key } )" class="btn btn-cobefar"><i class="icon-folder-download"></i> Descargar</a>
                             </div>
 
@@ -341,20 +365,18 @@
                 }
             }
 
-            <div class="row mt-4">
+            <div class="row mt-3">
+                <div class="col-lg-6">
+                    <label for="UrlArchivo" class="text-dark form-label font-weight-bold font-18">Url Drive:</label>
+                    @Html.EditorFor(model => model.UrlArchivo, new { htmlAttributes = new { @class = "form-control", @readonly = true } })
+                </div>
+            </div>
+
+            <div class="row mt-3">
                 <div class="col-lg-6">
                     <button type="button" class="btn btn-success" onclick="culminarSolicitud();"><i class="icon icon-checkmark"></i> Culminar</button>
                 </div>
             </div>
-
-            <div class="row mt-4">
-                <div class="col-lg-6">
-                    <label for="UrlArchivo" class="text-dark form-label font-weight-bold font-18">Url Drive:</label>
-                    @Html.EditorFor(model => model.UrlArchivo, new { htmlAttributes = new { @class = "form-control border-success", @readonly = true } })
-                </div>
-            </div>
-
-
         </div>
     }
 </div>

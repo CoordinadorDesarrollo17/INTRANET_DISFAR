@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using Capa_Entidad.AtencionCliente_ENT.TablasExternas;
 
 namespace Capa_Entidad.AtencionCliente_ENT.TablasSql
 {
@@ -35,10 +36,15 @@ namespace Capa_Entidad.AtencionCliente_ENT.TablasSql
         public string AlmVenta { get; set; }
         public string ErrorAlmacen { get; set; }
         public int? NCSAP { get; set; }
+<<<<<<< HEAD
         public string ErrAlmOtrCom { get; set; }
+=======
+        public decimal? NuevoPrecioArticulo { get; set; }
+        public string ReferenciaNC_ND { get; set; }
+>>>>>>> hotfix/NotaCreditoSolicitudes
 
         // CAMPOS QUE NO SON DE LA TABLA
-        public List<string> ComprobantesVinculados { get; set; }
+        public Dictionary<string, NotaFinanciera_E> ComprobantesVinculados { get; set; }
         public static DataTable tbDetalle(List<SAT1_E> dt)
         {
             DataTable tb = new DataTable();
@@ -70,7 +76,12 @@ namespace Capa_Entidad.AtencionCliente_ENT.TablasSql
             tb.Columns.Add("AlmVenta", typeof(string));
             tb.Columns.Add("ErrorAlmacen", typeof(string));
             tb.Columns.Add("NCSAP", typeof(int));
+<<<<<<< HEAD
             tb.Columns.Add("ErrAlmOtrCom", typeof(string));
+=======
+            tb.Columns.Add("NuevoPrecioArticulo", typeof(decimal));
+            tb.Columns.Add("ReferenciaNC_ND", typeof(string));
+>>>>>>> hotfix/NotaCreditoSolicitudes
 
             foreach (SAT1_E reg in dt)
             {
@@ -78,7 +89,11 @@ namespace Capa_Entidad.AtencionCliente_ENT.TablasSql
                     , reg.NumPerMsr, reg.Quantity, reg.BatchNum, reg.ExpDate, reg.unitMsrF, reg.NumPerMsrF
                     , reg.QuantityF, reg.PriceAfVAT, reg.LineTotalF, reg.Problema, reg.TipoError, reg.OpResponsable
                     , reg.Comentario, reg.Regalo, reg.MotRegalo, reg.TareaFact, reg.ComprobanteVinc, reg.AlmTransf
+<<<<<<< HEAD
                     , reg.ComprobanteFin, reg.AlmVenta, reg.ErrorAlmacen, reg.NCSAP, reg.ErrAlmOtrCom);
+=======
+                    , reg.ComprobanteFin, reg.AlmVenta, reg.ErrorAlmacen, reg.NCSAP, reg.NuevoPrecioArticulo, reg.ReferenciaNC_ND);
+>>>>>>> hotfix/NotaCreditoSolicitudes
             }
             return tb;
         }

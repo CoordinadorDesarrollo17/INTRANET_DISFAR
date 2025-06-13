@@ -28,9 +28,9 @@
         $(`.cls-${id}`).val(valor);
     }
 
-
     function atenderSolicitud() {
         var object = $("#AtenderSolicitud").serialize();
+
         $.ajax('/AtencionCliente/validarAtenderSolicitud',
             {
                 data: object,
@@ -43,6 +43,7 @@
                 else { $("#AtenderSolicitud").submit(); }
             });
     }
+
     function revertirAtenderSolicitud() {
         var object = $("#AtenderSolicitud").serialize();
         Swal.fire({
@@ -91,59 +92,59 @@
 <div class="bg-form-pestanas-cobefar">
     @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "AtenderSolicitud", enctype = "multipart/form-data" }))
     {
-        
+
         <div class="bg-section-form p-4 bg-form-cobefar">
             @Html.EditorFor(model => model.DocEntry, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
 
-            <div class="row mt-4">
+            <div class="row">
                 @Html.EditorFor(model => model.DocEntry, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
                 <div class="col-lg-3">
                     <label for="Tipo" class="text-dark form-label font-weight-bold font-18">Tipo:</label>
-                    @Html.EditorFor(model => model.Tipo, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = true } })
+                    @Html.EditorFor(model => model.Tipo, new { htmlAttributes = new { @class = "form-control text-center", @readonly = true } })
                 </div>
 
                 <div class="col-lg-3">
                     <label for="Estado" class="text-dark form-label font-weight-bold font-18">Estado:</label>
-                    @Html.EditorFor(model => model.Estado, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = true } })
+                    @Html.EditorFor(model => model.Estado, new { htmlAttributes = new { @class = "form-control text-center", @readonly = true } })
                 </div>
             </div>
 
             <div class="row mt-4">
                 <div class="col-lg-3">
                     <label for="DocNum" class="text-dark form-label font-weight-bold font-18">N° Solicitud:</label>
-                    @Html.EditorFor(model => model.DocNum, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = true } })
+                    @Html.EditorFor(model => model.DocNum, new { htmlAttributes = new { @class = "form-control text-center", @readonly = true } })
                 </div>
 
                 @if (Model.Tipo != null && !Model.Tipo.Equals("Reclamo"))
                 {
                     <div class="col-lg-3">
                         <label for="TipoVenta" class="text-dark form-label font-weight-bold font-18">Tipo de Venta:</label>
-                        <input type="text" class="form-control border-success text-center" id="TipoVenta" name="TipoVenta" readonly value="@ViewBag.TipoVenta">
+                        <input type="text" class="form-control text-center" id="TipoVenta" name="TipoVenta" readonly value="@ViewBag.TipoVenta">
                     </div>
 
                     <div class="col-lg-3">
                         <label for="CanalVenta" class="text-dark form-label font-weight-bold font-18">Canal de Venta:</label>
-                        <input type="text" class="form-control border-success text-center" id="CanalVenta" name="CanalVenta" readonly value="@ViewBag.CanalVenta">
+                        <input type="text" class="form-control text-center" id="CanalVenta" name="CanalVenta" readonly value="@ViewBag.CanalVenta">
                     </div>
                 }
 
                 <div class="col-lg-3">
                     <label for="Factor" class="text-dark form-label font-weight-bold font-18">Factor:</label>
-                    @Html.EditorFor(model => model.Factor, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = true } })
+                    @Html.EditorFor(model => model.Factor, new { htmlAttributes = new { @class = "form-control text-center", @readonly = true } })
                 </div>
             </div>
 
             <div class="row mt-4">
                 <div class="col-lg-3">
                     <label for="DocNumTicket" class="text-dark form-label font-weight-bold font-18">N° Ticket:</label>
-                    @Html.EditorFor(model => model.DocNumTicket, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = true } })
+                    @Html.EditorFor(model => model.DocNumTicket, new { htmlAttributes = new { @class = "form-control text-center", @readonly = true } })
                 </div>
 
                 <div class="col-lg-3">
                     <label for="Resultado" class="text-dark form-label font-weight-bold font-18">Resultado:</label>
                     @if (Model.Estado == "Atendido")
                     {
-                        @Html.EditorFor(model => model.Resultado, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = true } })
+                        @Html.EditorFor(model => model.Resultado, new { htmlAttributes = new { @class = "form-control text-center", @readonly = true } })
                     }
                     else if (Model.Estado == "Proceso")
                     {
@@ -161,7 +162,7 @@
                     <label for="TipoSolucion" class="text-dark form-label font-weight-bold font-18">Tipo Solución:</label>
                     @if (Model.Estado == "Atendido")
                     {
-                        @Html.EditorFor(model => model.TipoSolucion, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = true } })
+                        @Html.EditorFor(model => model.TipoSolucion, new { htmlAttributes = new { @class = "form-control text-center", @readonly = true } })
                     }
                     else if (Model.Estado == "Proceso")
                     {
@@ -183,11 +184,11 @@
                     <label for="Solucion" class="text-dark form-label font-weight-bold font-18">Solución:</label>
                     @if (Model.Estado == "Atendido")
                     {
-                        @Html.EditorFor(model => model.Solucion, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = true } })
+                        @Html.EditorFor(model => model.Solucion, new { htmlAttributes = new { @class = "form-control text-center", @readonly = true } })
                     }
                     else if (Model.Estado == "Proceso")
                     {
-                        @Html.EditorFor(model => model.Solucion, new { htmlAttributes = new { @class = "form-control border-success" } })
+                        @Html.EditorFor(model => model.Solucion, new { htmlAttributes = new { @class = "form-control" } })
                     }
                 </div>
             </div>
@@ -195,36 +196,37 @@
             <div class="row mt-4 mb-4">
                 <div class="col-lg-3">
                     <label for="FechaAtencion" class="text-dark form-label font-weight-bold font-18">Fecha de atención:</label>
-                    <input id="FechaAtencion" name="FechaAtencion" class="form-control border-success text-center" value="@DatosAtencion[0].FechaOperacion" readonly />
+                    <input id="FechaAtencion" name="FechaAtencion" class="form-control text-center" value="@DatosAtencion[0].FechaOperacion" readonly />
                 </div>
 
                 <div class="col-lg-4">
                     <label for="OpAtencion" class="text-dark form-label font-weight-bold font-18">Op Atención:</label>
-                    <input id="OpAtencion" name="OpAtencion" class="form-control border-success text-center" value="@DatosAtencion[0].Operario" readonly />
+                    <input id="OpAtencion" name="OpAtencion" class="form-control text-center" value="@DatosAtencion[0].Operario" readonly />
                 </div>
 
                 <div class="col-lg-3">
                     <label for="LugarDestino" class="text-dark form-label font-weight-bold font-18">Lugar de Destino:</label>
-                    @Html.EditorFor(model => model.DetORTV["LugarDestino"], new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                    @Html.EditorFor(model => model.DetORTV["LugarDestino"], new { htmlAttributes = new { @class = "form-control text-center", @readonly = "true" } })
                 </div>
             </div>
 
+            <hr />
             <h4 class="text-cobefar font-weight-bold">DATOS DEL CLIENTE</h4>
 
             <div class="row mt-4">
-                <div class="col-lg-4">
+                <div class="col-5">
                     <label for="Contacto" class="text-dark form-label font-weight-bold font-18">Contacto:</label>
-                    @Html.EditorFor(model => model.Contacto, new { htmlAttributes = new { @class = "form-control border-success text-center", @readonly = true } })
+                    @Html.EditorFor(model => model.Contacto, new { htmlAttributes = new { @class = "form-control text-center", @readonly = true } })
                 </div>
 
-                <div class="col-lg-4">
+                <div class="col-5">
                     <label for="Correo" class="text-dark form-label font-weight-bold font-18">Correo:</label>
-                    @Html.EditorFor(model => model.Correo, new { htmlAttributes = new { @class = "form-control border-success text-center", @readonly = true } })
+                    @Html.EditorFor(model => model.Correo, new { htmlAttributes = new { @class = "form-control text-center", @readonly = true } })
                 </div>
 
-                <div class="col-lg-2">
+                <div class="col-2">
                     <label for="Telefono" class="text-dark form-label font-weight-bold font-18">Teléfono:</label>
-                    @Html.EditorFor(model => model.Telefono, new { htmlAttributes = new { @class = "form-control border-success text-center", @readonly = true } })
+                    @Html.EditorFor(model => model.Telefono, new { htmlAttributes = new { @class = "form-control text-center", @readonly = true } })
                 </div>
 
             </div>
@@ -232,19 +234,19 @@
             <div class="row mt-4">
                 <div class="col-lg-10">
                     <label for="DireccionRecojo" class="text-dark form-label font-weight-bold font-18">Dirección:</label>
-                    @Html.EditorFor(model => model.DireccionRecojo, new { htmlAttributes = new { @class = "form-control border-success", @readonly = true } })
+                    @Html.EditorFor(model => model.DireccionRecojo, new { htmlAttributes = new { @class = "form-control ", @readonly = true } })
                 </div>
             </div>
 
             <div class="row mt-4">
                 <div class="col-lg-4">
                     <label for="TipoError" class="text-dark form-label font-weight-bold font-18">Tipo de Error:</label>
-                    <input type="text" id="TipoError" name="TipoError" class="form-control text-center border-success" value="@Model.Det[0].TipoError" readonly />
+                    <input type="text" id="TipoError" name="TipoError" class="form-control text-center" value="@Model.Det[0].TipoError" readonly />
                 </div>
 
                 <div class="col-lg-4">
                     <label for="Problema" class="text-dark form-label font-weight-bold font-18">Problema:</label>
-                    <input type="text" id="Problema" name="Problema" class="form-control text-center border-success" value="@Model.Det[0].Problema" readonly />
+                    <input type="text" id="Problema" name="Problema" class="form-control text-center" value="@Model.Det[0].Problema" readonly />
                 </div>
 
                 @if (Model.Estado == "Atendido" && Model.Det[0].TipoError == "ErrorAlmacen")
@@ -305,13 +307,13 @@
 
             <div class="row mt-4 ">
                 <div class="col-lg-12 ">
-                    <table id="ArtAten" class="table table-light table-sm table-hover table-bordered table-responsive">
-                        <thead class="thead-dark">
+                    <table id="ArtAten" class="table table-light table-hover table-bordered table-responsive">
+                        <thead class="thead-cobefar">
                             <tr>
                                 <th class="text-center" style="width:50px">Nro Sap</th>
                                 <th class="text-center" style="width:50px">Código</th>
-                                <th class="text-center" style="width:150px">Descripción</th>
-                                <th class="text-center" style="width:100px">Lote</th>
+                                <th class="text-center" style="width:250px">Descripción</th>
+                                <th class="text-center" style="width:110px">Lote</th>
                                 <th class="text-center" style="width:80px">Fecha Ven</th>
                                 <th class="text-center" style="width:50px">UmVend</th>
                                 <th class="text-center" style="width:50px">CantVend</th>
@@ -319,17 +321,17 @@
                                 <th class="text-center" style="width:50px">UM Rec</th>
                                 <th class="text-center" style="width:50px">CantRec</th>
                                 <th class="text-center" style="width:50px">Total</th>
-                                <th class="text-center" style="width:100px">Operario Responsable</th>
+                                <th class="text-center" style="width:150px">Operario Responsable</th>
                                 <th class="text-center" style="width:100px">Comentario</th>
                                 <th class="text-center" style="width:100px">Regalo</th>
                                 <th class="text-center" style="width:100px">Motivo Regalo</th>
-                                <th class="text-center" style="width:100px">Tarea Fact</th>
-                                <th class="text-center" style="width:100px">Comprobante Vin</th>
+                                <th class="text-center">Tarea Fact</th>
+                                <th class="text-center" style="width:100px">Comprobante Vinc.</th>
                                 <th class="text-center" style="width:100px">Alm Transf</th>
                                 <th class="text-center" style="width:80px">Alm Venta</th>
                             </tr>
                         </thead>
-                        <tbody style="background: #D1D1D1">
+                        <tbody class="bg-light">
                             @{
                                 int i = 0;
                                 Dictionary<string, string> unitMsrF = new Dictionary<string, string>();
@@ -365,23 +367,23 @@
                                     @if (Model.Estado == "Atendido")
                                     {
                                         <td class="text-center">
-                                            <input class='form-control' type='text' name='Det[@i].Comentario' value='@obj.Comentario' style='width:100px; ' readonly />
+                                            <input class='form-control' type='text' name='Det[@i].Comentario' value='@obj.Comentario' style='width: 200px; ' readonly />
                                         </td>
                                     }
                                     else if (Model.Estado == "Proceso")
                                     {
-                                        <td class="text-center"><input class='form-control' type='text' name='Det[@i].Comentario' value='@obj.Comentario' style='width:100px' autocomplete="off" /></td>
+                                        <td class="text-center"><input class='form-control' type='text' name='Det[@i].Comentario' value='@obj.Comentario' style='width: 200px' autocomplete="off" /></td>
                                     }
                                     @if (Model.Estado == "Atendido")
                                     {
                                         <td class="text-center">
-                                            <input class='form-control' type='text' name='Det[@i].Regalo' value='@obj.Regalo' style='width:100px;' readonly />
+                                            <input class='form-control' type='text' name='Det[@i].Regalo' value='@obj.Regalo' style='width: 280px;' readonly />
                                         </td>
                                     }
                                     else if (Model.Estado == "Proceso")
                                     {
                                         <td class="text-center">
-                                            <input type="text" class='form-control' name='Det[@i].Regalo' list="listaRegalos" style='width:100px;' autocomplete="off">
+                                            <input type="text" class='form-control' name='Det[@i].Regalo' list="listaRegalos" style='width: 280px;' autocomplete="off">
                                             <datalist id="listaRegalos">
                                                 <option value="">Seleccione</option>
                                                 @foreach (OREG_E bean in ViewBag.Regalos)
@@ -394,23 +396,23 @@
                                     @if (Model.Estado == "Atendido")
                                     {
                                         <td class="text-center">
-                                            <input class='form-control' type='text' name='Det[@i].MotRegalo' value='@obj.MotRegalo' style='width:100px;' readonly />
+                                            <input class="form-control" type="text" name="Det[@i].MotRegalo" value="@obj.MotRegalo" style="width: 280px;" readonly />
                                         </td>
                                     }
                                     else if (Model.Estado == "Proceso")
                                     {
-                                        <td class="text-center"><input class='form-control' type='text' name='Det[@i].MotRegalo' value='@obj.MotRegalo' style='width:100px;' /></td>
+                                        <td class="text-center"><input class="form-control" type="text" name="Det[@i].MotRegalo" value="@obj.MotRegalo" style="width: 280px;" /></td>
                                     }
                                     @if (Model.Estado == "Atendido")
                                     {
                                         <td class="text-center">
-                                            <input class='form-control' type='text' name='Det[@i].TareaFact' value='@obj.TareaFact' style='width:100px;' readonly />
+                                            <input class='form-control' type='text' name='Det[@i].TareaFact' value='@obj.TareaFact' style="width: 180px" readonly />
                                         </td>
                                     }
                                     else if (Model.Estado == "Proceso")
                                     {
                                         <td class="text-center">
-                                            <select class='form-control' name='Det[@i].TareaFact' id='Det@(i)TareaFact' style='width:100px;'>
+                                            <select class='form-control' name='Det[@i].TareaFact' id='Det@(i)TareaFact' style="width: 180px">
                                                 <option value=''>Seleccione</option>
                                                 @if (obj.TareaFact == "N.C.")
                                                 {
@@ -426,32 +428,57 @@
                                     @if (Model.Estado == "Atendido")
                                     {
                                         <td class="text-center">
-                                            <input class='form-control' type='text' name='Det[@i].ComprobanteVinc' value='@obj.ComprobanteVinc' style='width:100px;' readonly />
+                                            <div>
+                                                <input class="form-control" type="text" name="Det[@i].ComprobanteVinc" value="@obj.ComprobanteVinc" style="width: 230px" readonly />
+                                            </div>
+
+                                                <div @if (obj.ReferenciaNC_ND == null && obj.NuevoPrecioArticulo == null) { Write("hidden"); }>
+                                                    <div class="mt-3">
+                                                        <label class="form-label font-weight-bold">Nuevo precio artículo:</label>
+                                                        <input type="text" name="Det[@i].NuevoPrecioArticulo" class="form-control cls-num text-right" value="@((double)obj.NuevoPrecioArticulo)" readonly />
+                                                    </div>
+                                                    <div class="mt-3">
+                                                        <label class="form-label font-weight-bold">Referencia NC/ND:</label>
+                                                        <input type="text" name="Det[@i].ReferenciaNC_ND" class="form-control" value="@obj.ReferenciaNC_ND" readonly />
+                                                    </div>
+                                                </div>
                                         </td>
                                     }
                                     else if (Model.Estado == "Proceso")
                                     {
                                         <td class="text-center">
-                                            <select class='form-control' name='Det[@i].ComprobanteVinc' id='Det@(i)ComprobanteVinc' style='width:100px;'>
-                                                <option value=''>Seleccione</option>
-                                                @foreach (var nro in obj.ComprobantesVinculados)
-                                                {
-                                                    <option value="@nro">@nro</option>
-                                                }
-                                            </select>
-                                        </td>
+                                            <div>
+                                                <select class="form-control cls-comprobanteVinc" name="Det[@i].ComprobanteVinc" id="Det@(i)ComprobanteVinc" onchange="actualizarClaseSelect(this, '@i')" style="width: 230px">
+                                                    <option value=''>Seleccione</option>
+                                                    @foreach (var item in obj.ComprobantesVinculados)
+                                                    {
+                                                        <option value="@item.Key" data-tiponota="@item.Value.TipoNota" data-nronota="@item.Value.NroNota">@item.Key @item.Value.TipoNota</option>
+                                                    }
+                                                </select>
+                                            </div>
 
+                                            <div id="div_FacturaNC_ND_@i" hidden>
+                                                <div class="mt-3">
+                                                    <label class="form-label font-weight-bold">Nuevo precio artículo:</label>
+                                                    <input type="text" name="Det[@i].NuevoPrecioArticulo" id="Det@(i)NuevoPrecioArticulo" class="form-control cls-num" value="" />
+                                                </div>
+                                                <div class="mt-3">
+                                                    <label class="form-label font-weight-bold">Referencia NC/ND:</label>
+                                                    <input type="text" name="Det[@i].ReferenciaNC_ND" id="ReferenciaNC_ND_@(i)" class="form-control" value="" readonly />
+                                                </div>
+                                            </div>
+                                        </td>
                                     }
                                     @if (Model.Estado == "Atendido")
                                     {
                                         <td class="text-center">
-                                            <input class='form-control' type='text' name='Det[@i].AlmTransf' value='@obj.AlmTransf' style='width:100px; height:30px;' readonly />
+                                            <input class='form-control' type='text' name='Det[@i].AlmTransf' value='@obj.AlmTransf' style="width: 270px;" readonly />
                                         </td>
                                     }
                                     else if (Model.Estado == "Proceso")
                                     {
                                         <td class="text-center">
-                                            <select class='form-control' name='Det[@i].AlmTransf' id="Almacen" style='width:100px; '>
+                                            <select class='form-control' name='Det[@i].AlmTransf' id="Almacen" style="width: 270px; ">
                                                 <option value="">Seleccione</option>
                                                 @foreach (OWHS_E bean in ViewBag.Almacenes)
                                                 {
@@ -469,14 +496,15 @@
                     </table>
                 </div>
             </div>
+
             @if (cantidadAdjuntos >= 1)
             {
                 foreach (KeyValuePair<int, string> adj in Adjuntos)
                 {
-                    <div class="row mt-4">
+                    <div class="row mt-3">
                         <div class="col-lg-4">
                             <div class="d-flex">
-                                <input class='form-control border-success' value='@adj.Value' readonly />
+                                <input class='form-control' value='@adj.Value' readonly />
                                 <a href="@Url.Action("ArchivoSolicitud", "AtencionCliente" , new { id = Model.DocEntry, linea = adj.Key } )" class="btn btn-cobefar"><i class="icon-folder-download"></i> Descargar</a>
                             </div>
 
@@ -484,10 +512,10 @@
                     </div>
                 }
             }
-            <div class="row mt-4">
+            <div class="row mt-3">
                 <div class="col-lg-6">
                     <label for="UrlArchivo" class="text-dark form-label font-weight-bold font-18">Url Drive:</label>
-                    @Html.EditorFor(model => model.UrlArchivo, new { htmlAttributes = new { @class = "form-control border-success", @readonly = true } })
+                    @Html.EditorFor(model => model.UrlArchivo, new { htmlAttributes = new { @class = "form-control", @readonly = true } })
                 </div>
             </div>
 
@@ -496,7 +524,7 @@
                     <button type="button" class="btn btn-success" onclick="atenderSolicitud();"><i class="icon icon-checkmark"></i> Atender</button>
                     @if (Model.Estado == "Atendido")
                     {
-                        <button type="button" class="btn btn-danger" onclick="revertirAtenderSolicitud();"><i class="icon icon-undo"></i> Revertir</button>
+                        <button type="button" class="btn btn-outline-danger" onclick="revertirAtenderSolicitud();"><i class="icon icon-undo"></i> Revertir</button>
                     }
                 </div>
             </div>
@@ -515,6 +543,10 @@
         })
     };
 
+    document.addEventListener('DOMContentLoaded', function () {
+        permitirValoresNumericosPositivos();
+    });
+
     document.getElementById("Resultado").addEventListener("change", (event) => {
         let tipoError = document.getElementById("TipoError").value;
         let errorAlmacen = document.getElementById("ErrorAlmacen").value;
@@ -527,4 +559,20 @@
             $('.cls-ErrorAlmacen').val('');
         }
     });
+
+    function actualizarClaseSelect(input, id) {
+        const selectedOption = input.options[input.selectedIndex];
+        const tipoNota = selectedOption.getAttribute('data-tiponota');
+        const nroNota = selectedOption.getAttribute('data-nronota');
+
+        if (input.value !== '' && tipoNota !== '') {
+            input.classList.add('bg-danger', 'text-white');
+            document.querySelector(`#div_FacturaNC_ND_${id}`).hidden = false;
+            document.querySelector(`#ReferenciaNC_ND_${id}`).value = nroNota;
+        } else {
+            input.classList.remove('bg-danger', 'text-white');
+            document.querySelector(`#div_FacturaNC_ND_${id}`).hidden = true;
+            document.querySelector(`#ReferenciaNC_ND_${id}`).value = '';
+        }
+    }
 </script>
