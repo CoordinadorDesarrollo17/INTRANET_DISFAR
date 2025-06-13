@@ -22,8 +22,8 @@ namespace Capa_Usuario
         public void migracion(object state)
         {
             new Capa_Negocio.SocioNegocios_NEG.TablasExternas.OCRD_N().Migrar();
-            new Capa_Negocio.RecursosHumanos_NEG.TablasExternas.OAREA_N().MigrarAreasHANA();
-            new Capa_Negocio.RecursosHumanos_NEG.TablasExternas.ODPTO_N().MigrarDepartamentosHANA();
+            //new Capa_Negocio.RecursosHumanos_NEG.TablasExternas.OAREA_N().MigrarAreasHANA();
+            //new Capa_Negocio.RecursosHumanos_NEG.TablasExternas.ODPTO_N().MigrarDepartamentosHANA();
         }
         public void inactivarUsuario(object state)
         {

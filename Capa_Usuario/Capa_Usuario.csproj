@@ -1058,20 +1058,6 @@
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Capa_Datos\Capa_Datos.csproj">
-      <Project>{6BBFB369-2F7E-4BB7-9A56-6E92656798DB}</Project>
-      <Name>Capa_Datos</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Capa_Entidad\Capa_Entidad.csproj">
-      <Project>{6325e074-d449-47f7-85da-ff0ca692012f}</Project>
-      <Name>Capa_Entidad</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Capa_Negocio\Capa_Negocio.csproj">
-      <Project>{88940673-5a02-43f7-bde6-4ac8aabcccab}</Project>
-      <Name>Capa_Negocio</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Reportes\RptAtencionCliente\RptDocReg015.rpt">
       <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
       <LastGenOutput>RptDocReg015.cs</LastGenOutput>
@@ -1124,6 +1110,20 @@
       <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
       <LastGenOutput>RptHojasCargoDet.cs</LastGenOutput>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Capa_Datos\Capa_Datos.csproj">
+      <Project>{6bbfb369-2f7e-4bb7-9a56-6e92656798db}</Project>
+      <Name>Capa_Datos</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Capa_Entidad\Capa_Entidad.csproj">
+      <Project>{6325e074-d449-47f7-85da-ff0ca692012f}</Project>
+      <Name>Capa_Entidad</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Capa_Negocio\Capa_Negocio.csproj">
+      <Project>{88940673-5a02-43f7-bde6-4ac8aabcccab}</Project>
+      <Name>Capa_Negocio</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
