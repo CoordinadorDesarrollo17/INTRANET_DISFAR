@@ -4,6 +4,7 @@ using Sap.Data.Hana;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Text;
 
 namespace Capa_Datos.AtencionCliente_DAO.TablasSql
 {
@@ -37,13 +38,24 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
         public List<SAT1_E> buscarDetallesSolicitud(int DocEntry)
         {
             List<SAT1_E> lista = new List<SAT1_E>();
+<<<<<<< HEAD
             string query = "select DocEntry,Linea,NroSap,ItemCode,Dscription,UnitMsr,NumPerMsr,Quantity,BatchNum,ExpDate,unitMsrF,QuantityF,PriceAfVAT,LineTotalF,Problema,TipoError,OpResponsable,Comentario,Regalo,MotRegalo,TareaFact,ComprobanteVinc,AlmTransf,ComprobanteFin,AlmVenta, ErrorAlmacen, NCSAP, ErrAlmOtrCom from ac.SAT1 WHERE  DocEntry=@DocEntry";
+=======
+
+            var sb = new StringBuilder();
+            sb.AppendLine("SELECT DocEntry,Linea,NroSap,ItemCode,Dscription,UnitMsr,NumPerMsr,Quantity,BatchNum,ExpDate,unitMsrF,QuantityF,PriceAfVAT,LineTotalF,Problema,TipoError,OpResponsable,Comentario,Regalo,MotRegalo,TareaFact,");
+            sb.AppendLine("ComprobanteVinc,AlmTransf,ComprobanteFin,AlmVenta, ErrorAlmacen, NCSAP, NuevoPrecioArticulo, ReferenciaNC_ND");
+            sb.AppendLine("FROM ac.SAT1");
+            sb.AppendLine("WHERE DocEntry=@DocEntry");
+
+>>>>>>> hotfix/NotaCreditoSolicitudes
             try
             {
-                SqlDataReader dr = db.ExecuteReaderNoSp(query, new List<string>() { "@DocEntry" }, DocEntry);
+                SqlDataReader dr = db.ExecuteReaderNoSp(sb.ToString(), new List<string>() { "@DocEntry" }, DocEntry);
                 while (dr.Read())
                 {
                     SAT1_E o = new SAT1_E();
+
                     if (!dr.IsDBNull(0)) { o.DocEntry = dr.GetInt32(0); }
                     if (!dr.IsDBNull(1)) { o.Linea = dr.GetInt32(1); }
                     if (!dr.IsDBNull(2)) { o.NroSap = dr.GetInt32(2); }
@@ -54,6 +66,7 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
                     if (!dr.IsDBNull(7)) { o.Quantity = dr.GetDecimal(7); }
                     if (!dr.IsDBNull(8)) { o.BatchNum = dr.GetString(8); }
                     if (!dr.IsDBNull(9)) { o.ExpDate = dr.GetString(9); }
+<<<<<<< HEAD
                     if (!dr.IsDBNull(10)) { o.unitMsrF = dr.GetString(10); }
                     if (!dr.IsDBNull(11)) { o.QuantityF = dr.GetDecimal(11); }
                     if (!dr.IsDBNull(12)) { o.PriceAfVAT = dr.GetDecimal(12); }
@@ -72,6 +85,28 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
                     if (!dr.IsDBNull(25)) { o.ErrorAlmacen = dr.GetString(25); }
                     if (!dr.IsDBNull(26)) { o.NCSAP = dr.GetInt32(26); }
                     if (!dr.IsDBNull(27)) { o.ErrAlmOtrCom = dr.GetString(27); }
+=======
+                    if (!dr.IsDBNull(10)) o.unitMsrF = dr.GetString(10);
+                    if (!dr.IsDBNull(11)) o.QuantityF = dr.GetDecimal(11);
+                    if (!dr.IsDBNull(12)) o.PriceAfVAT = dr.GetDecimal(12);
+                    if (!dr.IsDBNull(13)) o.LineTotalF = dr.GetDecimal(13);
+                    if (!dr.IsDBNull(14)) o.Problema = dr.GetString(14);
+                    if (!dr.IsDBNull(15)) o.TipoError = dr.GetString(15);
+                    if (!dr.IsDBNull(16)) o.OpResponsable = dr.GetString(16);
+                    if (!dr.IsDBNull(17)) o.Comentario = dr.GetString(17);
+                    if (!dr.IsDBNull(18)) o.Regalo = dr.GetString(18);
+                    if (!dr.IsDBNull(19)) o.MotRegalo = dr.GetString(19);
+                    if (!dr.IsDBNull(20)) o.TareaFact = dr.GetString(20);
+                    if (!dr.IsDBNull(21)) o.ComprobanteVinc = dr.GetString(21);
+                    if (!dr.IsDBNull(22)) o.AlmTransf = dr.GetString(22);
+                    if (!dr.IsDBNull(23)) o.ComprobanteFin = dr.GetString(23);
+                    if (!dr.IsDBNull(24)) o.AlmVenta = dr.GetString(24);
+                    if (!dr.IsDBNull(25)) o.ErrorAlmacen = dr.GetString(25);
+                    if (!dr.IsDBNull(26)) o.NCSAP = dr.GetInt32(26);
+                    if (!dr.IsDBNull(27)) o.NuevoPrecioArticulo = dr.GetDecimal(27);
+                    if (!dr.IsDBNull(28)) o.ReferenciaNC_ND = dr.GetString(28);
+
+>>>>>>> hotfix/NotaCreditoSolicitudes
                     lista.Add(o);
                 }
                 dr.Close();

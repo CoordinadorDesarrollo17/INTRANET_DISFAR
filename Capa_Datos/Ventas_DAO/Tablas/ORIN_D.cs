@@ -1,4 +1,6 @@
-﻿using Capa_Entidad.Rutas_ENT.TablasSql;
+﻿using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
+using Capa_Entidad.AtencionCliente_ENT.TablasExternas;
+using Capa_Entidad.Rutas_ENT.TablasSql;
 using Capa_Entidad.Ventas_ENT.Tablas;
 using Sap.Data.Hana;
 using System;
@@ -8,7 +10,7 @@ namespace Capa_Datos.Ventas_DAO.Tablas
 {
     public class ORIN_D
     {
-        DBHelper db = new DBHelper(); 
+        DBHelper db = new DBHelper();
         Utilitarios uti = new Utilitarios();
         public List<ORIN_E> Listar(ORIN_E fil)
         {
@@ -37,7 +39,7 @@ namespace Capa_Datos.Ventas_DAO.Tablas
             catch { }
             return lista;
         }
-        public ORIN_E ObtenerCabecera(int docEntry,string numAtCard)
+        public ORIN_E ObtenerCabecera(int docEntry, string numAtCard)
         {
             ORIN_E o = null;
             string query = $"select \"DocEntry\",\"DocNum\",\"DocDate\",\"CardName\",\"NumAtCard\",\"DocTotal\",\"U_SYP_STATUS\", IFNULL(\"U_SYP_MDTO\"||'-','')||IFNULL(\"U_SYP_MDSO\"||'-','')||IFNULL(\"U_SYP_MDCO\",''), \"DocType\", \"U_SYP_MDSD\",\"U_SYP_MDCD\",\"Address\", (SELECT \"LicTradNum\" FROM {uti.schemaHana}OCRD WHERE \"CardCode\" = {uti.schemaHana}ORIN.\"CardCode\"),(SELECT \"CurrName\" FROM {uti.schemaHana}\"OCRN\" WHERE \"CurrCode\" = {uti.schemaHana}ORIN.\"DocCur\") from {uti.schemaHana}ORIN where \"DocEntry\"={docEntry} or \"NumAtCard\" ='{numAtCard}'";
@@ -199,6 +201,66 @@ namespace Capa_Datos.Ventas_DAO.Tablas
                 catch (Exception e) { throw new Exception(e.Message); }
             }
             return lista;
+        }
+
+        public NotaFinanciera_E ObtenerNotaFinancieraPorFactura(string factura)
+        {
+            var resultado = new NotaFinanciera_E();
+            bool tieneNC = false;
+            bool tieneNB = false;
+
+            string query = $"CALL {uti.schemaHana}\"COBE_OBTENER_NC_NB_POR_FACTURA\"('{factura}', ?, ?) ";
+
+            try
+            {
+                HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
+
+                while (hdr.Read())
+                {
+                    if (!hdr.IsDBNull(0)) resultado.TipoNC = hdr.GetString(0);
+                    if (!hdr.IsDBNull(1)) resultado.MotivoNC = hdr.GetString(1);
+                    if (!hdr.IsDBNull(2)) resultado.FechaDocOrigenNC = hdr.GetString(2);
+                    if (!hdr.IsDBNull(3)) resultado.NroNotaCredito = hdr.GetString(3);
+                    tieneNC = true;
+                }
+
+                hdr.NextResult();
+
+                while (hdr.Read())
+                {
+                    if (!hdr.IsDBNull(0)) resultado.TipoNB = hdr.GetString(0);
+                    if (!hdr.IsDBNull(1)) resultado.MotivoNB = hdr.GetString(1);
+                    if (!hdr.IsDBNull(2)) resultado.FechaDocOrigenNB = hdr.GetString(2);
+                    if (!hdr.IsDBNull(3)) resultado.NroNotaDebito = hdr.GetString(3);
+                    tieneNB = true;
+                }
+
+                hdr.Close();
+
+                if (tieneNC && tieneNB)
+                {
+                    resultado.TipoNota = "(NC/ND)";
+                    resultado.NroNota = $"{resultado.NroNotaCredito} / {resultado.NroNotaDebito}";
+                }
+                else if (tieneNC)
+                {
+                    resultado.TipoNota = "(NC)";
+                    resultado.NroNota = $"{resultado.NroNotaCredito}";
+                }
+                else if (tieneNB)
+                {
+                    resultado.TipoNota = "(ND)";
+                    resultado.NroNota = $"{resultado.NroNotaDebito}";
+                }
+
+                resultado.Factura = factura;
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Error: {e.Message}");
+            }
+
+            return resultado;
         }
     }
 }

@@ -57,6 +57,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AbastecimientoInterno_NEG\Reportes\ReporteKardex_N.cs" />
     <Compile Include="AbastecimientoInterno_NEG\Reportes\ReporteStockPicking_N.cs" />
     <Compile Include="AbastecimientoInterno_NEG\Reportes\ReporteStockReserva_N.cs" />
     <Compile Include="AbastecimientoInterno_NEG\TablasExternas\OWTQ_N.cs" />
