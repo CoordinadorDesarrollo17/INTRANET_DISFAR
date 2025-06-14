@@ -16,6 +16,9 @@
     <div class="row px-3 pt-3"><h3 class="titulo-seccion">@ViewBag.Title.ToUpper()</h3></div>
     <div class="row px-3 py-2">
         <div class="col-12">
+            <button type="button" id="btn_NuevoRequerimiento" class="btn btn-sm btn-warning" onclick="redireccionar(this)" data-ruta="/AbastecimientoInterno/Requerimientos">
+                <i class="bi bi-plus-lg"></i> Requerimiento
+            </button>
             <button type="button" id="btn_filtrar" class="btn btn-sm btn-outline-light" onclick="abrirModalFiltros()">
                 <i class="bi bi-filter"></i> Filtrar
             </button>
@@ -26,33 +29,34 @@
 <div class="bg-white px-3 py-3 align-items-center">
     <form id="frm_listadoInternamientos">
         <div id="div_listado" class="table-responsive shadow-sm rounded">
-            <table id="tbl_listadoInternamientos" class="table table-bordered table-hover">
+            <table id="tbl_ListadoRequerimientos" class="table table-bordered table-hover">
                 <thead class="thead-cobefar">
                     <tr>
-                        <th scope="col" class="text-center small">Nro Requerimiento</th>
+                        <th scope="col" class="text-center small" style="width: 7%">Nro Requerimiento</th>
                         <th scope="col" class="text-center small">Origen</th>
                         <th scope="col" class="text-center small">Destino</th>
                         <th scope="col" class="text-center small">Tipo de Abastecimiento</th>
                         <th scope="col" class="text-center small">Registrado Por</th>
-                        <th scope="col" class="text-center small">Fecha y Hora de Registro</th>
+                        <th scope="col" class="text-center small">Fecha de Registro</th>
+                        <th scope="col" class="text-center small">Hora de Registro</th>
                         <th scope="col" class="text-center small">Zona</th>
                         <th scope="col" class="text-center small" style="width: 7%"></th>
                     </tr>
                 </thead>
                 <tbody class="table-white">
-                    @foreach (var item in Model)
+                    @foreach (var item in Model.Item2)
                     {
                         <tr>
                             <td scope="col" class="text-center small">@item.Id</td>
                             <td scope="col" class="text-center small">@item.Origen</td>
                             <td scope="col" class="text-center small">@item.Destino</td>
                             <td scope="col" class="text-center small">@item.TipoAbastecimiento</td>
-                            <td scope="col" class="text-center small">@item.TiempoRegistro</td>
+                            <td scope="col" class="text-center small">@item.FechaRegistro</td>
+                            <td scope="col" class="text-center small">@item.HoraRegistro</td>
                             <td scope="col" class="text-center small">@item.OperarioRegistra</td>
                             <td scope="col" class="text-center small">@item.Zona</td>
                             <td scope="col" class="text-center small">
-                                @*<button type="button" class="btn btn-sm btn-outline-dark btn_verDetalle" onclick="redireccionar(this)" data-ruta="/Internamientos/VerDetalle?Id=@item.Id"><i class="bi bi-search"></i></button>
-                                <button type="button" class="btn btn-sm btn-outline-danger cls-cancelarDocumento" onclick="cancelarDocumento(@item.Id)" @if (item.Estado == "Transferido" || item.Estado == "Cancelado") { Write("hidden"); }><i class="bi bi-trash2-fill"></i></button>*@
+                                <button type="button" class="btn btn-sm btn-outline-dark btn_verDetalle" onclick="cargarDetalleRequerimiento(@item.Id, @item.Aprobado)"><i class="bi bi-search"></i></button>
                             </td>
                         </tr>
                     }
@@ -74,56 +78,45 @@
                 <div id="div_modalBody" class="container pb-0">
                     <form id="frm_filtros">
                         <div class="row mb-3">
-                            <div class="col-lg-3">
-                                <label for="DocNum" class="form-label fw-bold">DocNum:</label>
-                                <input id="DocNum" name="DocNum" class="form-control cls-num" type="text" autocomplete="off" />
+                            <div class="col-3">
+                                <label for="Id" class="form-label fw-bold">Nro Requerimiento:</label>
+                                <input id="Id" name="Id" class="form-control cls-num" type="text" autocomplete="off" />
                             </div>
-                            <div class="col-lg-3">
-                                <label for="TipoDocumento" class="form-label fw-bold">Tipo de Documento:</label>
-                                <select id="TipoDocumento" name="TipoDocumento" class="form-select">
+                            <div class="col-3">
+                                <label for="TipoAbastecimiento" class="form-label fw-bold">Tipo de Abastecimiento:</label>
+                                <select id="TipoAbastecimiento" name="TipoAbastecimiento" class="form-select">
                                     <option value="">Seleccione</option>
-                                    <option value="OPDN">Entrada de Mercancías</option>
-                                    <option value="OWTR">Transferencias</option>
+                                    <option data-tipo="P" value="Picking">Picking</option>
+                                    <option data-tipo="VM" value="Venta Master">Venta Master</option>
+                                    <option data-tipo="SA" value="Salida por Almacen">Salida por Almacén</option>
                                 </select>
                             </div>
-                            <div class="col-lg-3">
-                                <label for="CardCode" class="form-label fw-bold">RUC Proveedor:</label>
-                                <input id="CardCode" name="CardCode" class="form-control cls-num" type="text" autocomplete="off" />
-                            </div>
-                            <div class="col-lg-3">
-                                <label for="CardName" class="form-label fw-bold">Proveedor:</label>
-                                <select id="CardName" name="CardName" class="cls-select">
+                            <div class="col-3">
+                                <label for="Zona" class="form-label fw-bold">Zona:</label>
+                                <select id="Zona" name="Zona" class="form-select">
                                     <option value="">Seleccione</option>
-                                    @foreach (var item in ViewBag.ListaProveedores)
-                                    {
-                                        <option value="@item.CardName">@item.CardName</option>
-                                    }
+                                    <option value="Picking">Picking</option>
+                                    <option value="Recepcion">Recepción</option>
                                 </select>
                             </div>
+                            <div class="col-3">
+                                <label for="FechaRegistro" class="form-label fw-bold">Fecha Registro:</label>
+                                <input id="FechaRegistro" name="FechaRegistro" class="form-control " type="date" autocomplete="off" />
+                            </div>                           
                         </div><!-- // ROW -->
 
                         <div class="row">
-                            <div class="col-lg-3">
-                                <label for="Guia" class="form-label fw-bold">Guía:</label>
-                                <input id="Guia" name="Guia" class="form-control " type="text" autocomplete="off" />
-                            </div>
-                            <div class="col-lg-3">
-                                <label for="ComprobanteVinculado" class="form-label fw-bold">Comprobante Vinculado:</label>
-                                <input id="ComprobanteVinculado" name="ComprobanteVinculado" class="form-control" type="text" autocomplete="off" />
-                            </div>
-                            <div class="col-lg-3">
-                                <label for="Estado" class="form-label fw-bold">Estado:</label>
-                                <select id="Estado" name="Estado" class="form-select">
+                            <div class="col-3">
+                                <label for="Aprobado" class="form-label fw-bold">Aprobado:</label>
+                                <select id="Aprobado" name="Aprobado" class="form-select">
                                     <option value="">Seleccione</option>
-                                    <option value="Pendiente">Pendiente</option>
-                                    <option value="Liberado">Liberado</option>
-                                    <option value="Transferido">Transferido</option>
-                                    <option value="Cancelado">Cancelado</option>
+                                    <option value="1">SI</option>
+                                    <option value="0">NO</option>
                                 </select>
                             </div>
-                            <div class="col-lg-3">
-                                <label for="FechaContabilizacion" class="form-label fw-bold">Fecha Cont.:</label>
-                                <input id="FechaContabilizacion" name="FechaContabilizacion" class="form-control " type="date" autocomplete="off" />
+                            <div class="col-6">
+                                <label for="OperarioRegistra" class="form-label fw-bold">Registrado Por:</label>
+                                <input id="OperarioRegistra" name="OperarioRegistra" class="form-control" type="text" autocomplete="off" />
                             </div>
                         </div><!-- // ROW -->
                     </form>
@@ -142,22 +135,38 @@
     </div>
 </div>
 
+<div class="modal fade" id="modalDetalle" tabindex="-1" aria-labelledby="modalDetalleLabel" aria-hidden="true">
+    <div class="modal-dialog modal-full-width modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header text-white bg-headerModals">
+                <h5 class="modal-title" id="modalDetalleLabel">Detalle del Requerimiento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" tabindex="-1"></button>
+            </div>
+            <div class="modal-body" id="modalContenido">
+                <!-- Aquí se cargará la vista parcial -->
+            </div>
+            <div id="div_AprobarRequerimiento" class="modal-footer d-flex justify-content-start" hidden>
+                <button type="button" id="btn_AprobarRequerimiento" class="btn btn-sm btn-success" onclick="aprobarRequerimiento(this)" data-requerimiento="0"><i class="bi bi-check-lg"></i> Aprobar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts{
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             soloNumerosPorClase('cls-num');
-            inicializarDataTable('tbl_listadoInternamientos', 25);
-
-            tippy('#btn_internamiento', {
-                content: 'Nuevo internamiento',
-                animation: 'fade',
-                placement: 'bottom'
-            });
+            inicializarDataTable('tbl_ListadoRequerimientos', 25);
 
             tippy('#btn_filtrar', {
                 content: 'Filtrar listado',
                 animation: 'fade',
                 placement: 'right'
+            });
+
+            tippy('#btn_NuevoRequerimiento', {
+                content: 'Nuevo requerimiento',
+                animation: 'fade'
             });
 
             tippy('#btn_cerrarModal', {
@@ -173,15 +182,14 @@
             });
 
             tippy('.btn_verDetalle', {
-                content: 'Ver detalle',
+                content: 'Ver detalle del requerimiento',
                 animation: 'fade',
-                placement: 'bottom-end'
+                placement: 'bottom-start'
             });
 
-            tippy('.cls-cancelarDocumento', {
-                content: 'Cancelar documento',
-                animation: 'fade',
-                placement: 'bottom-end'
+            tippy('#btn_AprobarRequerimiento', {
+                content: 'Aprobar requerimiento',
+                animation: 'fade'
             });
         });
 
@@ -195,10 +203,6 @@
             bootstrapModal.show();
         }
 
-        function redireccionar(input) {
-            window.location.replace(input.dataset.ruta);
-        }
-
         async function aplicarFiltros() {
             const form = document.querySelector('#frm_filtros');
             const formData = new FormData(form);
@@ -207,7 +211,7 @@
             const payload = {};
 
             // Lista de campos que deben ser convertidos a número
-            const camposNumericos = ['DocNum'];
+            const camposNumericos = ['Id', 'Aprobado'];
 
             for (const key in rawPayload) {
                 if (camposNumericos.includes(key)) {
@@ -219,7 +223,7 @@
             }
 
             try {
-                const response = await fetch("/Internamientos/FiltrarListado", {
+                const response = await fetch("/AbastecimientoInterno/FiltrarListado", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -235,7 +239,7 @@
                 const html = await response.text();
 
                 document.querySelector('#div_listado').innerHTML = html;
-                inicializarDataTable('tbl_listadoInternamientos', '25');
+                inicializarDataTable('tbl_ListadoRequerimientos', '25');
 
                 const modalElement = document.querySelector('#modalFiltros');
 
@@ -303,5 +307,107 @@
                 }
             });
         }
+
+        function cargarDetalleRequerimiento(requerimientoId, aprobado) {
+            const url = `/AbastecimientoInterno/VerDetalleRequerimiento?requerimientoId=${requerimientoId}`;
+            const modal = new bootstrap.Modal(document.getElementById('modalDetalle'));
+            const contenedor = document.getElementById('modalContenido');
+
+            contenedor.innerHTML = '<div class="text-center my-3">Cargando...</div>';
+
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest' // Para asegurar que se trata como una solicitud AJAX
+                }
+            })
+                .then(async response => {
+                    const contentType = response.headers.get("content-type");
+
+                    if (!response.ok) throw new Error('Error inesperado del servidor.');
+
+                    // Detectar si es JSON (mensaje de error)
+                    if (contentType && contentType.includes("application/json")) {
+                        const json = await response.json();
+                        Swal.fire({
+                            title: json.Titulo || 'Error',
+                            html: json.Mensajes ? json.Mensajes.join('<br>') : 'Ocurrió un error inesperado.',
+                            icon: json.Icono || 'error'
+                        });
+                        throw new Error('Mensaje del servidor recibido, operación cancelada.');
+                    }
+
+                    // Si es HTML válido, insertar en el modal
+                    const html = await response.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    contenedor.replaceChildren(...doc.body.children);
+
+                    const claseAprobado = aprobado == 0 ? 'd-block' : 'd-none';
+                    const div = document.getElementById('div_AprobarRequerimiento');
+                    document.getElementById('btn_AprobarRequerimiento').dataset.requerimiento = requerimientoId;
+                    
+                    // Asegurar que se elimina cualquier clase anterior de visibilidad
+                    div.classList.remove('d-none', 'd-block');
+                    div.classList.add(claseAprobado);
+
+                    modal.show();
+                })
+                .catch(error => {
+                    console.error('Error al cargar el detalle:', error);
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'No se pudo cargar el detalle. Intenta nuevamente.',
+                        icon: 'error',
+                        confirmButtonText: 'Aceptar'
+                    });
+                });
+        }
+
+        async function aprobarRequerimiento(button) {
+            const id = parseInt(button.dataset.requerimiento) || 0;
+
+            if (!id) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ID inválido',
+                    text: 'No se pudo obtener el ID del requerimiento.',
+                });
+                return;
+            }
+
+            try {
+                const response = await fetch("/AbastecimientoInterno/AprobarRequerimiento", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ id }) // se recomienda enviar un objeto, no solo el valor
+                });
+
+                if (!response.ok) throw new Error('Error inesperado del servidor.');
+
+                const json = await response.json();
+
+                Swal.fire({
+                        title: json.Titulo,
+                        html: json.Mensajes ? json.Mensajes.join('<br>') : '',
+                        icon: json.Icono
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        location.reload();
+                    }
+                });
+            } catch (error) {
+                console.error('Error al aprobar:', error);
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error al aprobar requerimiento',
+                    text: error.message || 'Ocurrió un error inesperado.',
+                });
+            }
+        }
+
     </script>
 }

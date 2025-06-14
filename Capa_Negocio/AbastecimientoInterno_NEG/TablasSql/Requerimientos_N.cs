@@ -88,11 +88,44 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
                 parametros = new Dictionary<string, object>();
 
             if (filtros != null)
-            { 
+            {
+                if (filtros.Id > 0)
+                {
+                    condicion.AppendLine("AND RQ.Id = @Id");
+                    parametros["@Id"] = filtros.Id;
+                }
 
+                if (!string.IsNullOrWhiteSpace(filtros.TipoAbastecimiento))
+                {
+                    condicion.AppendLine("AND RQ.TipoAbastecimiento = @TipoAbastecimiento");
+                    parametros["@TipoAbastecimiento"] = filtros.TipoAbastecimiento;
+                }
+
+                if (!string.IsNullOrWhiteSpace(filtros.Zona))
+                {
+                    condicion.AppendLine("AND RQ.Zona = @Zona");
+                    parametros["@Zona"] = filtros.Zona;
+                }
+
+                if (!string.IsNullOrWhiteSpace(filtros.FechaRegistro))
+                {
+                    condicion.AppendLine("AND CONVERT (VARCHAR, RQ.TiempoRegistro, 103) = @FechaRegistro");
+                    parametros["@FechaRegistro"] = filtros.FechaRegistro;
+                }
+
+                if (!string.IsNullOrWhiteSpace(filtros.OperarioRegistra))
+                {
+                    condicion.AppendLine("AND RQ.OperarioRegistra = @OperarioRegistra");
+                    parametros["@OperarioRegistra"] = filtros.OperarioRegistra;
+                }
             }
 
             return _requerimientoD.ListarRequerimientos(condicion.ToString(), parametros);
+        }
+
+        public Helper_E AprobarRequerimiento(int id, string operarioRegistra)
+        {
+            return _requerimientoD.AprobarRequerimiento(id, operarioRegistra);
         }
     }
 }

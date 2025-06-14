@@ -372,7 +372,8 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
                     var sb = new StringBuilder();
 
-                    sb.AppendLine($"SELECT {top} RQ.Id, RQ.Origen, RQ.Destino, RQ.TipoAbastecimiento, RQ.Comentario, RQ.TiempoRegistro, RQ.OperarioRegistra, RQ.Zona, RQ.Aprobado");
+                    sb.AppendLine($"SELECT {top} RQ.Id, RQ.Origen, RQ.Destino, RQ.TipoAbastecimiento, RQ.Comentario, CONVERT (VARCHAR, RQ.TiempoRegistro, 103) AS FechaRegistro, CONVERT (VARCHAR, RQ.TiempoRegistro, 108) AS HoraRegistro,");
+                    sb.AppendLine("RQ.OperarioRegistra, RQ.Zona, RQ.Aprobado");
                     sb.AppendLine("FROM Requerimientos RQ");
                     sb.AppendLine(condicion?.ToString().Trim());
 
@@ -394,7 +395,19 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                             while (dr.Read())
                             {
                                 var obj = new Requerimientos_E();
-                                if (!dr.IsDBNull(0))  obj.Id = dr.GetInt32(0); 
+
+                                if (!dr.IsDBNull(0)) obj.Id = dr.GetInt32(0);
+                                if (!dr.IsDBNull(1)) obj.Origen = dr.GetString(1);
+                                if (!dr.IsDBNull(2)) obj.Destino = dr.GetString(2);
+                                if (!dr.IsDBNull(3)) obj.TipoAbastecimiento = dr.GetString(3);
+                                if (!dr.IsDBNull(4)) obj.Comentario = dr.GetString(4);
+                                if (!dr.IsDBNull(5)) obj.FechaRegistro = dr.GetString(5);
+                                if (!dr.IsDBNull(6)) obj.HoraRegistro = dr.GetString(6);
+                                if (!dr.IsDBNull(7)) obj.OperarioRegistra = dr.GetString(7);
+                                if (!dr.IsDBNull(8)) obj.Zona = dr.GetString(8);
+                                if (!dr.IsDBNull(9)) obj.Aprobado = dr.GetInt32(9);
+
+                                lista.Add(obj);
                             }
                         }
 
@@ -415,6 +428,54 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
             }
 
             return (_helper, lista);
+        }
+
+        public Helper_E AprobarRequerimiento(int id, string operarioRegistra)
+        {
+            string mensaje, icono;
+            Helper_E _helper = new Helper_E();
+
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+                {
+                    cn.Open();
+                    using (SqlCommand cmd = new SqlCommand("sp_MantenimientoRequerimiento", cn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
+                        cmd.Parameters.AddWithValue("@TipoMantenimiento", "APROBAR");
+                        cmd.Parameters.AddWithValue("@Id", id);
+                        cmd.Parameters.AddWithValue("@OperarioRegistra", operarioRegistra);
+                        SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
+                        {
+                            Direction = ParameterDirection.Output
+                        };
+                        cmd.Parameters.Add(idGeneradoParam);
+
+                        SqlParameter param2 = new SqlParameter("@Aprobado", SqlDbType.Int)
+                        {
+                            Value = 0
+                        };
+                        cmd.Parameters.Add(param2);
+
+                        cmd.ExecuteNonQuery();
+
+                        _helper.Titulo = "Acción completada";
+                        _helper.Mensajes = new List<string> { "Se aprobó el requerimiento correctamente." };
+                        _helper.Icono = "success";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.RegistrarError(ex, "Requerimientos_D - AprobarRequerimiento()");
+                _helper.Titulo = "Error";
+                _helper.Mensajes = new List<string> { "Ocurrió un error al aprobar requerimiento. Comuníquese con el área de Sistemas para más información." };
+                _helper.Icono = "error";
+            }
+
+            return _helper;
         }
     }
 }

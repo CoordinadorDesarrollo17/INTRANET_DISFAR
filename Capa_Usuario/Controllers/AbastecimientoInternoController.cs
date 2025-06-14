@@ -2672,7 +2672,9 @@ namespace Capa_Usuario.Controllers
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                return View();
+                var lista = _requerimientosN.ListarRequerimientos();
+
+                return View(lista);
             }
             else
             {
@@ -2680,6 +2682,63 @@ namespace Capa_Usuario.Controllers
             }
         }
 
+        public ActionResult VerDetalleRequerimiento(int requerimientoId, int idOperation = 3401)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                var usuarioSesion = Session["UsuarioId"] as Usuario_E;
+                if (usuarioSesion == null)
+                    return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
+
+                var filtro = new DetalleRequerimientos_E { RequerimientoId = requerimientoId };
+                var (helper, lista) = new DetalleRequerimientos_N().ObtenerDetalleRequerimiento(filtro);
+
+                if (lista == null)
+                {
+                    // Devuelve el mensaje de error desde la capa de negocio
+                    return Json(new
+                    {
+                        Titulo = helper.Titulo,
+                        Mensajes = helper.Mensajes,
+                        Icono = helper.Icono
+                    }, JsonRequestBehavior.AllowGet);
+                }
+
+                return PartialView("AbastecimientoInterno/_ListadoDetalleRequerimiento", lista);
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
+
+        public JsonResult AprobarRequerimiento(int id, int idOperation = 3402)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
+                return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "Sin accesos." }, Icono = "error" });
+
+            var user = Session["UsuarioId"] as Usuario_E;
+            if (user == null)
+                return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "No existe usuario logueado, se terminó la sesión." }, Icono = "error" });
+
+            var operarioRegistra = $"{user.Nombres} {user.Apellidos}";
+            var resultado = _requerimientosN.AprobarRequerimiento(id, operarioRegistra);
+
+            return Json(resultado, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult FiltrarListado(Requerimientos_E filtros)
+        {
+            var usuarioSesion = Session["UsuarioId"] as Usuario_E;
+            if (usuarioSesion == null)
+                return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
+
+            var lista = _requerimientosN.ListarRequerimientos(filtros);
+
+            return PartialView("AbastecimientoInterno/_ListadoDetalleRequerimiento", lista);
+        }
         /**************** R E A B A S T E C I M I E N T O ****************/
         //Listado de detalle solicitudes de traslado Transferido y atendidoReserva=0 
         public ActionResult Reabastecimiento(int idOperation = 3600)
