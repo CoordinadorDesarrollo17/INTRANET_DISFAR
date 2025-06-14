@@ -74,9 +74,9 @@ namespace Capa_Entidad.AtencionCliente_ENT.TablasSql
             tb.Columns.Add("AlmVenta", typeof(string));
             tb.Columns.Add("ErrorAlmacen", typeof(string));
             tb.Columns.Add("NCSAP", typeof(int));
-            tb.Columns.Add("ErrAlmOtrCom", typeof(string));
             tb.Columns.Add("NuevoPrecioArticulo", typeof(decimal));
             tb.Columns.Add("ReferenciaNC_ND", typeof(string));
+            tb.Columns.Add("ErrAlmOtrCom", typeof(string));
 
             foreach (SAT1_E reg in dt)
             {
@@ -84,8 +84,8 @@ namespace Capa_Entidad.AtencionCliente_ENT.TablasSql
                     , reg.NumPerMsr, reg.Quantity, reg.BatchNum, reg.ExpDate, reg.unitMsrF, reg.NumPerMsrF
                     , reg.QuantityF, reg.PriceAfVAT, reg.LineTotalF, reg.Problema, reg.TipoError, reg.OpResponsable
                     , reg.Comentario, reg.Regalo, reg.MotRegalo, reg.TareaFact, reg.ComprobanteVinc, reg.AlmTransf
-                    , reg.ComprobanteFin, reg.AlmVenta, reg.ErrorAlmacen, reg.NCSAP, reg.ErrAlmOtrCom
-                    , reg.ComprobanteFin, reg.AlmVenta, reg.ErrorAlmacen, reg.NCSAP, reg.NuevoPrecioArticulo, reg.ReferenciaNC_ND);
+                    , reg.ComprobanteFin, reg.AlmVenta, reg.ErrorAlmacen, reg.NCSAP, reg.NuevoPrecioArticulo, reg.ReferenciaNC_ND, reg.ErrAlmOtrCom);
+
             }
             return tb;
         }
