@@ -175,7 +175,7 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
         VT.LugarDestino,
         VT.CardName,
         VT.CardCode,
-        (SELECT TOP 1 FechaOperacion
+        (SELECT TOP 1 FechaOperacion    
          FROM ac.CC_OSAT
          WHERE Operacion = 'ATENDER' AND DocEntry = AC.DocEntry
          ORDER BY FechaOperacion, HoraOperacion DESC) AS FechaAtencion,
@@ -448,10 +448,18 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
                     }
                     tran.Commit();
                 }
-                catch (Exception e) { tran.Rollback(); cn.Close(); throw new Exception("Error en creacion: " + e.Message); }
+                catch (Exception e)
+                {
+                    tran.Rollback(); cn.Close(); throw new Exception("Error en creacion: " + e.Message);
+                    LogHelper.RegistrarError(e, "Error inesperado en OSAT_D - registrarNuevaSolicitud()");
+                }
                 cn.Close();
             }
-            catch (Exception e2) { cn.Close(); status = 0; throw new Exception("Error en creacion y conexion: " + e2.Message); }
+            catch (Exception e2)
+            {
+                cn.Close(); status = 0; throw new Exception("Error en creacion y conexion: " + e2.Message);
+                LogHelper.RegistrarError(e2, "Error inesperado en OSAT_D - registrarNuevaSolicitud()");
+            }
             return obj.DocNum;
         }
         public string anularSolicitud(OSAT_E obj)
@@ -519,12 +527,17 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
                 objOSAT.Det = sat1D.buscarDetallesSolicitud(DocEntry);
                 foreach (SAT1_E sat1 in objOSAT.Det)
                 {
-                    sat1.ComprobantesVinculados = new List<string>();
+                    sat1.ComprobantesVinculados = new Dictionary<string, Capa_Entidad.AtencionCliente_ENT.TablasExternas.NotaFinanciera_E>();
+
                     foreach (RTV2_E bean in rtv2D.BuscarRTV2(objOSAT.DocEntryTicket))
                     {
                         foreach (OINV_E bean2 in oinvD.listadoComprobantesPorOrdrArticulo(ordrD.buscarDocEntry(bean.NroSap), sat1.ItemCode))
                         {
-                            sat1.ComprobantesVinculados.Add(bean2.NumAtCard);
+                            // Obtenemos datos importantes para facilitar la selección del usuario
+                            // En el desplegable de la vista se mostrará "ComprobantesVinculados": NC, NB o NC/NB según sea el caso
+                            var notaFinanciera = new ORIN_D().ObtenerNotaFinancieraPorFactura(bean2.NumAtCard);
+
+                            sat1.ComprobantesVinculados[bean2.NumAtCard] = notaFinanciera;
                         }
                     }
                 }
@@ -676,7 +689,11 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
                     cmd.ExecuteNonQuery();
                     tran.Commit();
                 }
-                catch { tran.Rollback(); cn.Close(); throw new Exception("Error en creacion: "); }
+                catch(Exception ex)
+                {
+                    tran.Rollback(); cn.Close(); throw new Exception("Error en creacion: ");
+                    LogHelper.RegistrarError(ex, "Error inesperado en OSAT_D - atenderSolicitud()");
+                }
                 cn.Close();
             }
             catch (Exception e2) { cn.Close(); throw new Exception("Error en creacion y conexion: " + e2.Message); }
