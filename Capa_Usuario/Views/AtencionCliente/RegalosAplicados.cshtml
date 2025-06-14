@@ -1,0 +1,90 @@
+@model IEnumerable<Capa_Entidad.AtencionCliente_ENT.ReportesSql.Rpt_Regalos>
+@using Capa_Entidad.AtencionCliente_ENT.TablasSql
+@{
+    ViewBag.Title = "Regalos Aplicados";
+    Layout = "~/Views/Shared/_DefaultLayout.cshtml";
+    OSAT_E f = ViewBag.Osat as OSAT_E ?? new OSAT_E();
+}
+<script>
+    function excelRegalos() {
+        var object = $("#frm").serialize();
+        window.location.href = "/AtencionCliente/ExportarExcelRegalos?" + object;
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+        if (!$.fn.DataTable.isDataTable('tbl_RegalosAplicados')) {
+            inicializarDataTable('tbl_RegalosAplicados', 10);
+        }
+    });
+</script>
+
+<div class="pt-3">
+    <nav>
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li class="current"><em>@ViewBag.Title</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
+    <div class="row px-3 pt-3"><h3 class="titulo-seccion">@ViewBag.Title.ToUpper()</h3></div>
+    <div class="row px-3 py-3">
+        <div class="col-12">
+            <button type="button" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Exportar Excel de regalos aplicados" onclick="excelRegalos()">
+                <i class="bi bi-file-earmark-excel-fill"></i> Reporte
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="bg-white px-3 py-3 align-items-center">
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <table id="tbl_RegalosAplicados" class="dt-container dt-empty-footer table table-sm table-hover font-14 table-responsive" width="100%">
+                <thead class="thead-cobefar">
+                    <tr>
+                        <th scope="col" class="text-center"> N° Ticket Venta</th>
+                        <th scope="col" class="text-center">Fecha Ticket</th>
+                        <th scope="col" class="text-center">Cliente</th>
+                        <th scope="col" class="text-center">Estado Venta</th>
+                        <th scope="col" class="text-center">N° Solicitud AT</th>
+                        <th scope="col" class="text-center">Estado Solicitud AT</th>
+                    </tr>
+                </thead>
+                <tbody class="text-dark">
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="text-center align-middle">@item.DocNum</td>
+                                <td class="text-center align-middle">
+                                    @{
+                                        DateTime fecha;
+                                        if (DateTime.TryParse(item.FechaSapTicket?.ToString(), out fecha))
+                                        {
+                                            @fecha.ToString("dd/MM/yyyy")
+                                        }
+                                        else
+                                        {
+                                            @item.FechaSapTicket
+                                        }
+                                    }
+                                </td>
+                                <td class="text-center align-middle">@item.CardName</td>
+                                <td class="text-center align-middle">@item.EstadoVt</td>
+                                <td class="text-center align-middle">@item.DocNumAT</td>
+                                <td class="text-center align-middle">@item.Estado</td>
+
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+    @if (ViewBag.Mensaje != null && !string.IsNullOrEmpty(ViewBag.Mensaje.ToString()))
+    {
+        <div class="alert alert-danger mx-3">@ViewBag.Mensaje</div>
+    }

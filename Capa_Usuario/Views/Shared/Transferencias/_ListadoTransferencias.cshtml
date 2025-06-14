@@ -2,7 +2,7 @@
     var tiposDocumento = new Dictionary<string, string>
 {
         { "OPDN", "Entrada de Mercancía" },
-        { "OWTR", "Transferencia" }
+       { "OWTQ", "Solicitudes de Traslado" }
     };
 }
 
@@ -34,7 +34,7 @@
                 <td scope="col" class="text-center small">@item.Estado</td>
                 <td scope="col" class="text-center small">
                     <button type="button" class="btn btn-sm btn-outline-dark btn_verDetalle" onclick="redireccionar(this)" data-ruta="/Transferencias/VerDetalle?Id=@item.Id"><i class="bi bi-search"></i></button>
-                    @if (item.Estado != "Liberado" || item.Estado != "Cancelado")
+                    @if (item.Estado == "Transferido")
                     {
                         <button type="button" class="btn btn-sm btn-outline-danger cls-cancelarTransferencia" onclick="cancelarTransferencia(@item.Id)"><i class="bi bi-trash2-fill"></i></button>
                     }

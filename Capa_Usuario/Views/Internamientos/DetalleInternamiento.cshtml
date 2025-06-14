@@ -10,8 +10,8 @@
         <nav>
             <ol class="cd-breadcrumb bg-cobefar-degradado-1">
                 <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
-                <li><a href="@Url.Action("Sesion", "Index")">Dirección Técnica</a></li>
-                <li><a href="@Url.Action("Sesion", "Index")">Liberaciones</a></li>
+                @*<li><a href="@Url.Action("Sesion", "Index")">Dirección Técnica</a></li>
+                <li><a href="@Url.Action("Sesion", "Index")">Liberaciones</a></li>*@
                 <li><a href="@Url.Action("Index", "Internamientos")">Listado de Internamientos</a></li>
                 <li class="current"><em>@ViewBag.Title</em></li>
             </ol>
@@ -29,6 +29,7 @@
             <!-- DocNum con botón -->
             <div class="col-lg-2">
                 <label for="DocNum" class="form-label fw-semibold small">DocNum:</label>
+                <input type="hidden" id="Id" name="Id" readonly />
                 <input type="hidden" id="DocEntry" name="DocEntry" readonly />
                 <input type="text" id="DocNum" name="DocNum" autocomplete="off" class="form-control text-center bg-light text-small" readonly>
             </div>
@@ -73,6 +74,10 @@
                 <label for="CardName" class="form-label fw-semibold small">Proveedor:</label>
                 <input type="text" id="CardName" name="CardName" autocomplete="off" readonly class="form-control bg-light text-small">
             </div>
+
+            <div class="col-lg-4 d-flex align-items-center justify-content-end">
+                <button type="button" id="btn_crearDevolucion" class="btn btn-sm btn-cobefar-2" onclick="crearDevolucion()" hidden><i class="bi bi-box-seam-fill"></i> Crear devoluciones</button>
+            </div>
         </div>
     </form>
     <hr />
@@ -106,13 +111,18 @@
 
 @section Scripts{
     @*<script src="~/Scripts/Adquisiciones/GestionRequerimientos.js?v=@DateTime.Now.Ticks" defer></script>*@
-    <script>
+<script>
         document.addEventListener('DOMContentLoaded', function () {
             agregarFilaATabla();
             soloNumerosPorClase('cls-num');
 
             tippy('#btn_corregir', {
                 content: 'Guardar internamiento',
+                animation: 'fade'
+            });
+
+            tippy('#btn_crearDevolucion', {
+                content: 'Crear devoluciones',
                 animation: 'fade'
             });
 
@@ -125,12 +135,16 @@
         function agregarFilaATabla() {
         let tiposDocumento = {
             OPDN: 'Entrada de Mercancía',
-            OWTR: 'Transferencia'
+            OWTQ: 'Solicitud de Traslado'
         };
             const tbody = document.querySelector(`#tbl_documento tbody`);
             const modeloJS = @Html.Raw(ViewBag.JsonModel);
-
+            const isPopup = ('@isPopup' || '').toLowerCase() === 'true';
+            //console.log(typeof modeloJS[0].TieneDevolucion)
+            document.querySelector('#btn_crearDevolucion').hidden = modeloJS[0].TipoDocumento != 'OPDN' || isPopup || modeloJS[0].TieneDevolucion;
+            document.querySelector('#btn_liberarTodos').hidden = isPopup;
             document.querySelector('#TipoDocumento').value = tiposDocumento[modeloJS[0].TipoDocumento];
+            document.querySelector('#Id').value = modeloJS[0].Id;
             document.querySelector('#DocEntry').value = modeloJS[0].DocEntry;
             document.querySelector('#DocNum').value = modeloJS[0].DocNum;
             document.querySelector('#CardCode').value = modeloJS[0].CardCode;
@@ -140,10 +154,10 @@
             document.querySelector('#FechaContabilizacion').value = modeloJS[0].FechaContabilizacion;
             document.querySelector('#Estado').value = modeloJS[0].Estado;
 
-            const opcionesChevron = {
-                Pendiente: 'btn-danger',
-                Pendiente: 'btn-danger',
-            }
+            //const opcionesChevron = {
+            //    Pendiente: 'btn-danger',
+            //    Pendiente: 'btn-danger',
+            //}
 
             for (let key in modeloJS[0].Detalle) {
                 if (modeloJS[0].Detalle.hasOwnProperty(key)) {
@@ -175,7 +189,7 @@
                                             <input type="hidden" name="Detalle[${key}].FechaVencimiento" value="${item.FechaVencimiento}">${item.FechaVencimiento}
                                         </td>
                                         <td class="text-center text-uppercase small">
-                                            <input type="hidden" name="Detalle[${key}].RegistroSanitario" value="${item.RegistroSanitario}">${item.RegistroSanitario}
+                                            <input type="hidden" name="Detalle[${key}].RegistroSanitario" data-identificador="${correlativo}" value="${item.RegistroSanitario}">${item.RegistroSanitario}
                                         </td>
                                         <td class="text-start text-uppercase small">
                                             <input type="hidden" name="Detalle[${key}].Fabricante" value="${item.Fabricante}">${item.Fabricante}
@@ -234,7 +248,7 @@
                                                                 </div>
                                                             </div>
                                                             <div class="col-lg-3">
-                                                            <!-- Protocolo -->
+                                                                <!-- Protocolo -->
                                                                     <div class="row mb-3">
                                                                         <div class="col-auto">
                                                                         <label class="small form-label fw-bold">Protocolo:</label>
@@ -267,14 +281,35 @@
                                                                         </div>
                                                                     </div>
 
+                                                                     <!-- RS -->
+                                                                     <div class="row mb-3">
+                                                                         <div class="col-auto">
+                                                                         <label class="small form-label fw-bold">R.S.:</label>
+                                                                         </div>
+                                                                         <div class="col-auto">
+                                                                         <button type="button"
+                                                                                 class="btn btn-sm btn-outline-primary btn-descargar-archivo" data-base64="${item.DescargarArchivoRS}" data-tipo="rs" data-nombre="${item.RegistroSanitario}.pdf"
+                                                                                 ${item.DescargarArchivoRS == null ? "hidden" : ""}><i class="bi bi-download"></i>
+                                                                         </button>
+                                                                         </div>
+                                                                         <div class="col-auto">
+                                                                         <input class="form-control cls-archivos"
+                                                                                 type="file" id="formFileRS_${correlativo}" name="Detalle[${key}].ArchivoRS" accept=".pdf" data-identificador="${correlativo}">
+                                                                         </div>
+                                                                     </div>
+
                                                                     <!-- Organoléptico -->
                                                                     <div class="row mb-3">
                                                                         <div class="col-auto">
                                                                         <label class="small form-label fw-bold">Organoléptico:</label>
                                                                         </div>
                                                                         <div class="col-auto">
-                                                                        <button type="button"
-                                                                                class="btn btn-sm btn-outline-primary btn-descargar-organoleptico" data-url="/DireccionTecnica/OrganolepticoEmPdf?DocEntry=${modeloJS[0].DocEntry}&Almacen=${item.Almacen}&ItemCode=${item.ItemCode}&Lote=${item.Lote}&DetalleId=${item.Id}" data-tipo="organoleptico" data-nombre="${item.ItemCode}.pdf"><i class="bi bi-download"></i>
+                                                                       <button type="button"
+                                                                            class="btn btn-sm btn-outline-primary btn-descargar-organoleptico"
+                                                                            data-url="/DireccionTecnica/OrganolepticoEmPdf?DocEntry=${modeloJS[0].DocEntry}&Almacen=${item.Almacen}&ItemCode=${item.ItemCode}&Lote=${item.Lote}&DetalleId=${item.Id}"
+                                                                            data-tipo="organoleptico"
+                                                                            data-nombre="${item.ItemCode}.pdf">
+                                                                            <i class="bi bi-download"></i>
                                                                         </button>
                                                                         </div>
                                                                     </div>
@@ -317,10 +352,17 @@
 
                         const documentoCancelado = modeloJS[0].Estado == "Cancelado";
                         // Ocultar botón revertir liberación cuando el documento se encuentre cancelado ó el artículo aún no se encuentre liberardo ó el artículo se encuentre transferido
-                        const isPopup = ('@isPopup' || '').toLowerCase() === 'true';
-                        document.querySelector(`#btn_solicitarReversionLiberacion_${key}`).hidden = documentoCancelado || item.Liberado == 0 || item.Transferido == 1 || item.EstadoSolicitudReversion != 'Rechazado' || isPopup;
+
+                        document.querySelector(`#btn_solicitarReversionLiberacion_${key}`).hidden = documentoCancelado != false || item.Liberado != 1 || item.Transferido != 0 || (item.EstadoSolicitudReversion != null && item.EstadoSolicitudReversion != 'Rechazado') || isPopup;
                         document.querySelector(`#btn_editar_${key}`).hidden = documentoCancelado || item.Liberado == 1 || item.Transferido == 1 || isPopup || item.EstadoSolicitudReversion == 'Pendiente';
                         document.querySelector(`#btn_liberar_${key}`).hidden = documentoCancelado || item.Liberado == 1 || item.Transferido == 1 || isPopup || item.EstadoSolicitudReversion == 'Pendiente';
+
+                        //console.log(documentoCancelado);
+                        //console.log(item.Liberado);
+                        //console.log(item.Transferido);
+                        //console.log(item.EstadoSolicitudReversion);
+                        //console.log(isPopup);
+                        //console.log('----------------------------------------');
 
                         // Elementos que deben ser deshabilitados
                         [
@@ -338,7 +380,8 @@
                         // Elementos que deben ser ocultados (hidden)
                         [
                             `#formFileET_${correlativo}`,
-                            `#formFileProtocolo_${correlativo}`
+                            `#formFileProtocolo_${correlativo}`,
+                            `#formFileRS_${correlativo}`
                         ].forEach(selector => {
                             const el = document.querySelector(selector);
                             if (el) el.hidden = documentoCancelado || item.Liberado == 1 || item.Transferido == 1 || isPopup
@@ -469,20 +512,13 @@
             document.querySelectorAll('.btn-descargar-organoleptico').forEach(boton => {
                 boton.addEventListener('click', function () {
                     const url = this.dataset.url;
-                    const nombre = this.dataset.nombre || "archivo.pdf";
 
                     if (!url) {
                         Swal.fire("Archivo no disponible", "", "info");
                         return;
                     }
 
-                    const link = document.createElement("a");
-                    link.href = url;
-                    link.download = nombre; // A veces ignorado por el navegador si `url` apunta a otra web o no tiene header correcto
-                    link.target = "_blank";
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
+                    window.location.href = url;
                 });
             });
 
@@ -495,7 +531,7 @@
 
             inputs.forEach(input => {
                 // Obtener una sola vez el botón asociado
-                console.log(input)
+                //console.log(input)
                 if (!btnLiberar)
                     btnLiberar = input.closest('tr')?.querySelector('.btn-liberar');
 
@@ -521,6 +557,7 @@
             // Extraer los valores del dataset
             let base64Protocolo = "";
             let base64ET = "";
+            let base64RS = "";
 
             btnsDescarga.forEach(btn => {
                 const tipo = btn.getAttribute('data-tipo') || "";
@@ -533,7 +570,7 @@
                 }
             });
 
-            // Validar archivos: al menos uno debe estar presente
+            // Validar archivos: al menos uno debe estar presente -- RS: Opcional
             if (!filaSeleccionada["ArchivoProtocolo"] && !filaSeleccionada["ArchivoET"] && !base64Protocolo && !base64ET) {
                 generarAlerta('Advertencia', "Debe adjuntar al menos el archivo Protocolo o ET.", 'warning');
                 return false;
@@ -572,9 +609,11 @@
             // Buscar archivos directamente con correlativo
             const file1 = document.querySelector(`input[type="file"][data-identificador="${correlativo}"][name$=".ArchivoProtocolo"]`)?.files?.[0];
             const file2 = document.querySelector(`input[type="file"][data-identificador="${correlativo}"][name$=".ArchivoET"]`)?.files?.[0];
+            const file3 = document.querySelector(`input[type="file"][data-identificador="${correlativo}"][name$=".ArchivoRS"]`)?.files?.[0];
 
             if (file1) formData.append('ArchivoProtocolo', file1);
             if (file2) formData.append('ArchivoET', file2);
+            if (file3) formData.append('ArchivoRS', file3);
 
             try {
                 const response = await fetch("/Internamientos/EditarItemDetalleDoc", {
@@ -781,6 +820,80 @@
             } catch (error) {
                 console.error('Error:', error);
             }
-    }
-    </script>
+        }
+
+        async function crearDevolucion() {
+            Swal.fire({
+                title: '¿Estás seguro(a) de crear devolución?',
+                html: 'Se procederá a crear una devolución de todos los artículos de este internamiento.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: `<i class="bi bi-check-lg"></i> Aceptar`,
+                cancelButtonText: `<i class="bi bi-x-lg"></i> Cancelar`,
+                buttonsStyling: false, // Para poder usar clases personalizadas
+                customClass: {
+                    confirmButton: 'btn btn-success me-2',
+                    cancelButton: 'btn btn-outline-danger'
+                },
+                allowEscapeKey: false,
+                allowOutsideClick: false
+            }).then( async(result) => {
+                if (result.isConfirmed) {
+                    let id = document.querySelector('#Id').value || 0;
+
+                    try {
+                        const response = await fetch("/Internamientos/CrearDevolucion", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ id }) // Enviar los datos como JSON
+                        });
+
+                        if (!response.ok) throw new Error(`Error en la solicitud: ${response.statusText}`);
+
+                        const contentType = response.headers.get("content-type");
+                        if (!contentType || !contentType.includes("application/json")) throw new Error("Sesión expirada. Por favor, vuelve a iniciar sesión.");
+
+                        const data = await response.json();
+
+                        Swal.fire({
+                            title: data.Titulo,
+                            html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                                ? data.Mensajes.join('<br>')
+                                : data.Mensajes || "",
+                            icon: data.Icono,
+                            allowEscapeKey: false,
+                            allowOutsideClick: false,
+                            showConfirmButton: true
+                        }).then((result) => {
+                            if (result.isConfirmed && data.Icono == 'success') {
+                                window.location.reload()
+                            }
+                        })
+
+                    } catch (error) {
+                        console.error('Error:', error);
+                        if (error.message.includes("Sesión expirada")) {
+                            Swal.fire({
+                                title: 'Sesión expirada',
+                                text: 'Por seguridad, se actualizará la página.',
+                                icon: 'warning',
+                                allowOutsideClick: false,
+                                allowEscapeKey: false,
+                                showConfirmButton: true
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            Swal.fire('Ocurrió un error al procesar la solicitud. Intente nuevamente o comuníquese con SISTEMAS.');
+                        }
+                    }
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    // Acción si se cancela (opcional)
+                    console.log('Operación cancelada');
+                }
+            });
+        }
+</script>
 }

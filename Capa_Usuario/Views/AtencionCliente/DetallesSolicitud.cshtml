@@ -155,13 +155,27 @@
                     <input type="text" id="TipoError" name="TipoError" class="form-control text-center border-success" value="@if (Model.Det != null && Model.Det.Count >= 1) { Write(Model.Det[0].TipoError); }" readonly />
                 </div>
 
-                @if (Model.Det.Count >= 1 && !string.IsNullOrWhiteSpace(Model.Det[0].TipoError) && Model.Det[0].TipoError.Equals("ErrorAlmacen") && !string.IsNullOrWhiteSpace(ViewBag.ErrorAlmacen))
+                @if (Model.Det[0].TipoError == "ErrorAlmacen")
                 {
                     <div class="col-lg-4">
                         <label for="ErrorAlmacen" class="text-dark form-label font-weight-bold font-18">Error de almacén:</label>
-                        <input type="text" class="form-control border-success text-center" id="ErrorAlmacen" name="ErrorAlmacen" readonly value="@ViewBag.ErrorAlmacen">
+                        <input type="text" class="form-control border-success text-center" readonly
+                               value="@(Model.Det[0].ErrorAlmacen == "ARECEP3" ? "Área de Recepción 3" :
+                            Model.Det[0].ErrorAlmacen == "ARECEP5" ? "Área de Recepción 5" :
+                            Model.Det[0].ErrorAlmacen == "ARECEP6" ? "Área de Recepción 6" :
+                            Model.Det[0].ErrorAlmacen == "ARECEP7" ? "Área de Recepción 7" :
+                            Model.Det[0].ErrorAlmacen == "ARECEP8" ? "Área de Recepción 8" :
+                            Model.Det[0].ErrorAlmacen == "ADESP"   ? "Área de Despacho" :
+                            Model.Det[0].ErrorAlmacen == "AVERIF"  ? "Área de Verificación" :
+                            Model.Det[0].ErrorAlmacen == "AEMB"    ? "Área de Embalaje" :
+                            Model.Det[0].ErrorAlmacen == "APICK"   ? "Área de Picking" :
+                            Model.Det[0].ErrorAlmacen == "AFACT"   ? "Área de Facturación" :
+                            Model.Det[0].ErrorAlmacen == "AING"    ? "Área de Ingreso" :
+                            Model.Det[0].ErrorAlmacen == "OTROS"   ? "OTROS" : "")" />
                     </div>
+                    
                 }
+
             </div>
 
             <div class="row mt-4">
@@ -174,7 +188,17 @@
                     <label for="Problema" class="text-dark form-label font-weight-bold font-18">Op Proceso:</label>
                     <input type="text" id="Problema" name="Problema" class="form-control text-center border-success" value="@ViewBag.OpProceso" readonly />
                 </div>
+
+                @if (Model.Det[0].ErrorAlmacen == "OTROS")
+                {
+                    <div class="col-lg-4">
+                        <label class="text-dark form-label font-weight-bold font-18">Comentario (obligatorio si selecciona Otros):</label>
+                        @Html.EditorFor(model => @Model.Det[0].ErrAlmOtrCom, new { htmlAttributes = new { @class = "form-control border-success text-center", @readonly = true } })
+                    </div>
+                }
+                
             </div>
+
 
             <div class="row mt-4">
                 <div class="col-lg-4">

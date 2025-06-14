@@ -92,6 +92,15 @@
                 <label for="Comentario" class="form-label fw-bold">Nro. Ticket:</label>
                 <input type="text" id="Comentario" class="form-control cls-num" name="Comentario" autocomplete="off" />
             </div>
+
+            <div id="div_zona" class="col-lg-2" hidden>
+                <label for="Zona" class="form-label fw-bold">Zona:</label>
+                <select id="Zona" name="Zona" class="form-select">
+                    <option value="">Seleccione</option>
+                    <option value="Picking">Picking</option>
+                    <option value="Recepcion">Recepción</option>
+                </select>
+            </div>
         </div><!-- // row-->
 
         <div class="row">
@@ -372,7 +381,7 @@
 			if (!tipoAbastecimiento) {
 				Swal.fire('Seleccione un tipo de abastecimiento.')
 				return;
-			}
+            }
 
             filasRequerimientos.forEach((fila) => {
                 let inputs = fila.querySelectorAll("input, select");
@@ -411,8 +420,14 @@
 				}
 			}
 
+
             //console.log(payload)
-            //return;
+            const { TipoAbastecimiento } = payload.requerimiento;
+            const { Zona } = payload.requerimiento;
+
+            if (TipoAbastecimiento == "Venta Master" && Zona == "") {
+                generarAlerta('Error en la operación', 'Debe seleccionar la zona para Venta Master.', 'error');
+            }
 
             try {
                 const response = await fetch("/AbastecimientoInterno/RegistrarRequerimiento", {
@@ -733,14 +748,16 @@
 
         function validarTipoAbastecimiento(elemento) {
             const divComentario = document.getElementById("div_comentario")
+            const divZona = document.getElementById("div_zona")
             const opcion = elemento.options[elemento.selectedIndex]
             const tipoAbastecimiento = opcion.getAttribute("data-tipo")
 
-            document.querySelector('#tbl_detalleRequerimiento tbody').innerHTML = ''
-            divComentario.classList.toggle("hidden", tipoAbastecimiento !== "VM")
+            document.querySelector('#tbl_detalleRequerimiento tbody').innerHTML = '';
+            divComentario.hidden = tipoAbastecimiento !== "VM";
+            divZona.hidden = tipoAbastecimiento !== "VM";
 
-            if (["VM", "SA"].includes(tipoAbastecimiento)) {
-                resetValoresVacios(["Comentario"])
+            if (["VM"].includes(tipoAbastecimiento)) {
+                resetValoresVacios(["Comentario", "Zona"]);
             }
         }
 

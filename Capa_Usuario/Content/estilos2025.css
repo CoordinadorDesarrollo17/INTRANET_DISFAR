@@ -1,15 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
-/*
+
 body::after {
     content: "PRUEBAS";
     position: fixed;
-    font-size: 150px;
-    opacity: 0.05;
-    transform: rotate(-45deg);
-    top: 60%;
-    right: 10%;
-    z-index: 0;
-}*/
+    top: 10px; /* Distancia desde la parte superior */
+    right: 10px; /* Distancia desde la parte derecha */
+    font-size: 32px; /* Tamaño más razonable si va arriba */
+    opacity: 0.5; /* Mayor visibilidad si lo deseas */
+    z-index: 9999; /* Asegura que esté por encima si es necesario */
+    transform: none; /* Elimina la rotación */
+}
 
 * {
     margin: 0px;

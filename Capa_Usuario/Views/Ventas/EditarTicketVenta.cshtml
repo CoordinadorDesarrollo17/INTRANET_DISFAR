@@ -13,12 +13,14 @@
 }
 
 <script>
+    window.hayReclamos = false;
+
     $(document).ready(function () {
         //verifica los datos del ticket apenas carga la pagina por si hubiera algun error desde la creacion
         verificacionDatos('@Model.Estado');
         //segun el ruc del cliente trae  el desplegable de sus direcciones SAP
         validacionDirDestino('@Model.Estado');
-
+        verificarReclamos();
         //si no existe direccion 2 en la creacion, campo debe estar inhabilitado
         if ($("#Ubigeo2").val()=='') {
              $("#DirDestino2").attr('readonly', true);
@@ -81,6 +83,15 @@
 
             mensaje = '<div class="my-swal-text">Tipo de Venta: <strong>' + tipoVenta + '</strong><br>Lugar de Destino: <strong>' + lugarDestino + '</strong><br>Coordinaciones: <strong>' + coordinaciones + '</strong><br>T.E: <strong>' + te + '</strong><br>Agencia: <strong>' + agencia + '</strong><br>Modo de envio: <strong>' + envioagencia + '</strong><br>Referencia: <strong>' + referencia + '</strong></div>';
         }
+        var solicitudesReclamo = $("#SolicitudesReclamoSeleccionadas").val();
+        if (window.hayReclamos && (!solicitudesReclamo || solicitudesReclamo.trim() === "")) {
+            Swal.fire({
+                title: 'No puede editar el ticket',
+                text: 'Existen reclamos pendientes y no ha vinculado ninguna solicitud de reclamo.',
+                icon: 'error'
+            });
+            return false; // No continuar
+        }
         // Mostrar aviso
         Swal.fire({
             title: 'Confirmación de envío',
@@ -104,6 +115,42 @@
                 });
             }
         });
+    }
+    //reclamos ( atencion al cliente )
+    function verificarReclamos() {
+        var parametros = { "CardCode": $("#CardCode").val(), "DocNumTicket": $("#DocNum").val() };
+        $.ajax('/Ventas/comprobarReclamosCliente',
+            {
+                data: parametros,
+                dataType: 'json',
+                cache: false,
+                type: 'post'
+            })
+        .done(function (response) {
+            if (response.length > 0) {
+                window.hayReclamos = true;
+                $("#ReporteReclamos").html("<button type='button' class='btn btn-danger' onclick='reporteReclamosCliente();'><i class='icon-folder-open''></i> Reclamos</button>")
+            }
+            else {
+                window.hayReclamos = false;
+                $("#ReporteReclamos").html("");
+            }
+        });
+    }
+
+    function reporteReclamosCliente() {
+        window.open(
+            "/Ventas/ReporteReclamosCliente?CardCode=" + $("#CardCode").val() + "&DocNumTicket=" + $("#DocNum").val(),
+            null,
+            'width=1080,height=450,top=100,left=100,toolbar=no,location=no,status=no,menubar=no'
+        );
+    }
+
+
+    function setNroSolicitudReclamo(jsonLista) {
+        var lista = JSON.parse(jsonLista);
+        document.getElementById('NroSolicitudReclamo').value = lista.join(', ');
+        document.getElementById('SolicitudesReclamoSeleccionadas').value = lista.join(',');
     }
 </script>
 <script src="~/Scripts/Ventas/TicketDeVenta.js"></script>
@@ -237,7 +284,11 @@
                     <div class="row mt-4">
                         <div id="infoListaClientes" class="col-lg-7">
                             <label for="CardName" class="text-dark form-label font-weight-bold font-18">Cliente:</label>
-                            <input type="text" id="CardName" name="CardName" list='ListaClientes' class="form-control border-success" value="@Model.CardName" readonly>
+                            <input type="search" id="CardName" name="CardName" list='ListaClientes' class="form-control border-success" value="@Model.CardName" onchange="buscarClienteRegalo(); verificarReclamos();" autocomplete="off">
+                            @if (Request["Tipo"] != null && Request["Tipo"].Equals("PedidoOnline"))
+                            {
+                                <span class="text-cobefar font-weight-bold">Ticket separado para: </span><span class="text-danger font-weight-bold">@Model.CardName</span>
+                            }
                         </div>
 
                         <div id="infoCliente" class="col-lg-2">
@@ -273,10 +324,9 @@
 
                         <div class="row mt-4">
                             <div class="col-lg-9">
-                                <label for="DirDestino" class="text-dark form-label font-weight-bold font-18">DirDestino: </label>
-                                @if (!string.IsNullOrWhiteSpace(Model.DirDestino))
-                                {<label class="text-dark form-label font-16" id="DireccionEscogida">@Model.DirDestino </label>}
-                                <select name="DirDestino" id="DirDestino" class="form-control bg-cobefar text-white border-success" onchange="enviarValSelect('DirDestino', 'Distrito', 'Distrito');enviarValSelect('DirDestino', 'Provincia', 'Provincia');enviarValSelect('DirDestino', 'Departamento', 'Departamento');enviarValSelect('DirDestino', 'Ubigeo', 'Ubigeo');enviarValSelect('DirDestino', 'Calle', 'Calle');enviarValSelect('DirDestino', 'Zona', 'Zona');" @*muestraCampo()*@>
+                                <label for="DirDestino" class="text-dark form-label font-weight-bold font-18">DirDestino:</label>
+                                <select name="DirDestino" id="DirDestino" class="form-control bg-cobefar text-white border-success"
+                                        onchange="enviarValSelect('DirDestino', 'Distrito', 'Distrito');enviarValSelect('DirDestino', 'Provincia', 'Provincia');enviarValSelect('DirDestino', 'Departamento', 'Departamento');enviarValSelect('DirDestino', 'Ubigeo', 'Ubigeo');enviarValSelect('DirDestino', 'Calle', 'Calle');enviarValSelect('DirDestino', 'Zona', 'Zona');">
                                     <option value="">Seleccione</option>
                                 </select>
                                 <input type="hidden" id="Calle" name="Det3[0].Calle" />
@@ -284,7 +334,6 @@
                                 <input type="hidden" id="Distrito" name="Det3[0].Distrito" />
                                 <input type="hidden" id="Provincia" name="Det3[0].Provincia" />
                                 <input type="hidden" id="Departamento" name="Det3[0].Departamento" />
-
                             </div>
                             <div class="col-lg-3">
                                 <label class="text-dark form-label font-weight-bold font-18">Zona: </label> @Model.Zona
@@ -670,12 +719,21 @@
                         </div>
                     }
 
-                    <div class="row mt-4">
-                        <div class="col-lg-3">
-                            <label for="MontoFinal" class="text-white bg-cobefar px-2 form-label font-weight-bold font-18">Monto Final:</label>
-                            <div id="infoMontoFinal"><input id="MontoFinal" name="MontoFinal" type="text" value="@Model.MontoFinal" readonly class="form-control font-weight-bold border-success" /></div>
+                <div class="row mt-4">
+                    <div class="col-lg-3">
+                        <label for="MontoFinal" class="text-white bg-cobefar px-2 form-label font-weight-bold font-18">Monto Final:</label>
+                        <div id="infoMontoFinal"><input id="MontoFinal" name="MontoFinal" type="text" value="@Model.MontoFinal" readonly class="form-control font-weight-bold border-success" /></div>
+                    </div>
+
+                    <div class="col-lg-3">
+                        <label for="NroSolicitudReclamo" class="text-dark form-label font-weight-bold font-18">N° Solicitud Reclamo:</label>
+                        <div>
+                            <input id="NroSolicitudReclamo" name="NroSolicitudReclamo" type="text" readonly class="form-control border-success" value="@ViewBag.ReclamosAplicados" />
+                            <input type="hidden" id="SolicitudesReclamoSeleccionadas" name="SolicitudesReclamoSeleccionadas" value="@ViewBag.ReclamosAplicados" />
+
                         </div>
                     </div>
+                </div>
 
                     <div class="row mt-4">
                         <div class="col-lg-12">

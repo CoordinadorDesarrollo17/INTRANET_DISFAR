@@ -37,7 +37,7 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
         public List<SAT1_E> buscarDetallesSolicitud(int DocEntry)
         {
             List<SAT1_E> lista = new List<SAT1_E>();
-            string query = "select DocEntry,Linea,NroSap,ItemCode,Dscription,UnitMsr,NumPerMsr,Quantity,BatchNum,ExpDate,unitMsrF,QuantityF,PriceAfVAT,LineTotalF,Problema,TipoError,OpResponsable,Comentario,Regalo,MotRegalo,TareaFact,ComprobanteVinc,AlmTransf,ComprobanteFin,AlmVenta, ErrorAlmacen, NCSAP from ac.SAT1 WHERE  DocEntry=@DocEntry";
+            string query = "select DocEntry,Linea,NroSap,ItemCode,Dscription,UnitMsr,NumPerMsr,Quantity,BatchNum,ExpDate,unitMsrF,QuantityF,PriceAfVAT,LineTotalF,Problema,TipoError,OpResponsable,Comentario,Regalo,MotRegalo,TareaFact,ComprobanteVinc,AlmTransf,ComprobanteFin,AlmVenta, ErrorAlmacen, NCSAP, ErrAlmOtrCom from ac.SAT1 WHERE  DocEntry=@DocEntry";
             try
             {
                 SqlDataReader dr = db.ExecuteReaderNoSp(query, new List<string>() { "@DocEntry" }, DocEntry);
@@ -71,6 +71,7 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
                     if (!dr.IsDBNull(24)) { o.AlmVenta = dr.GetString(24); }
                     if (!dr.IsDBNull(25)) { o.ErrorAlmacen = dr.GetString(25); }
                     if (!dr.IsDBNull(26)) { o.NCSAP = dr.GetInt32(26); }
+                    if (!dr.IsDBNull(27)) { o.ErrAlmOtrCom = dr.GetString(27); }
                     lista.Add(o);
                 }
                 dr.Close();
@@ -131,6 +132,66 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
                     hcn.Close();
                 }
                 catch { hcn.Close(); }
+            }
+            return lista;
+        }
+        public List<SAT1_E> ListarArticulosTicketPorNroSap(List<int> nroSaps)
+        {
+            var lista = new List<SAT1_E>();
+            if (nroSaps == null || nroSaps.Count == 0)
+                return lista;
+
+            string nroSapList = string.Join(",", nroSaps);
+            string hanaQuery = $@"
+                SELECT 
+                    T0.""DocNum"",
+                    T1.""ItemCode"",
+                    T1.""Dscription"",
+                    T1.""unitMsr"",
+                    T1.""NumPerMsr"",
+                    T2.""Quantity""/T1.""NumPerMsr"" AS ""Quantity"",
+                    T2.""BatchNum"",
+                    T3.""ExpDate"",
+                    T1.""PriceAfVAT"",
+                    T1.""WhsCode""
+                FROM {uti.schemaHana}""ORDR"" T0
+                INNER JOIN {uti.schemaHana}""RDR1"" T1 ON T1.""DocEntry"" = T0.""DocEntry""
+                LEFT JOIN {uti.schemaHana}""IBT1"" T2
+                    ON T2.""ItemCode"" = T1.""ItemCode""
+                    AND T2.""BaseType"" = T0.""ObjType""
+                    AND T2.""BaseEntry"" = T0.""DocEntry""
+                    AND T2.""BaseLinNum"" = T1.""LineNum""
+                    AND T2.""Quantity"" > 0
+                LEFT JOIN {uti.schemaHana}""OBTN"" T3
+                    ON T3.""DistNumber"" = T2.""BatchNum""
+                    AND T3.""ItemCode"" = T2.""ItemCode""
+                WHERE T0.""DocNum"" IN ({nroSapList})
+                ORDER BY T1.""Dscription""";
+
+            using (HanaConnection hcn = new HanaConnection(uti.cadHana))
+            {
+                hcn.Open();
+                using (HanaCommand hcmd = new HanaCommand(hanaQuery, hcn))
+                using (HanaDataReader hdr = hcmd.ExecuteReader())
+                {
+                    int i = 0;
+                    while (hdr.Read())
+                    {
+                        SAT1_E o = new SAT1_E();
+                        o.Linea = i++;
+                        if (!hdr.IsDBNull(0)) o.NroSap = hdr.GetInt32(0);
+                        if (!hdr.IsDBNull(1)) o.ItemCode = hdr.GetString(1);
+                        if (!hdr.IsDBNull(2)) o.Dscription = hdr.GetString(2);
+                        if (!hdr.IsDBNull(3)) o.UnitMsr = hdr.GetString(3);
+                        if (!hdr.IsDBNull(4)) o.NumPerMsr = hdr.GetDecimal(4);
+                        if (!hdr.IsDBNull(5)) o.Quantity = hdr.GetDecimal(5);
+                        if (!hdr.IsDBNull(6)) o.BatchNum = hdr.GetString(6);
+                        if (!hdr.IsDBNull(7)) o.ExpDate = hdr.GetDateTime(7).ToString("yyyy-MM-dd");
+                        if (!hdr.IsDBNull(8)) o.PriceAfVAT = hdr.GetDecimal(8);
+                        if (!hdr.IsDBNull(9)) o.AlmVenta = hdr.GetString(9);
+                        lista.Add(o);
+                    }
+                }
             }
             return lista;
         }

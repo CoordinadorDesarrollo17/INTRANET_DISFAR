@@ -23,6 +23,8 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
             List<ODOCS_E> lista = new List<ODOCS_E>();
             var lookup = new Dictionary<int, ODOCS_E>();
 
+            var top = string.IsNullOrEmpty(condicion) ? "TOP 100" : string.Empty;
+
             try
             {
                 using (SqlConnection cn = new SqlConnection(uti.CadSql3))
@@ -32,7 +34,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
 
                     var sb = new StringBuilder();
 
-                    sb.AppendLine("SELECT DOC.Id, DOC.TipoDocumento, DOC.DocEntry, DOC.DocNum,");
+                    sb.AppendLine($"SELECT {top} DOC.Id, DOC.TipoDocumento, DOC.DocEntry, DOC.DocNum,");
                     sb.AppendLine("CASE WHEN LEFT(DOC.CardCode, 1) = 'P' THEN SUBSTRING(DOC.CardCode, 2, LEN(DOC.CardCode)) ELSE DOC.CardCode END AS CardCodeFormat,");
                     sb.AppendLine("DOC.CardName, DOC.Guia, DOC.ComprobanteVinculado,");
                     sb.AppendLine("CONVERT(varchar, DOC.FechaContabilizacion, 103) AS FechaContabilizacion,");
@@ -52,12 +54,17 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                     sb.AppendLine("    SELECT TOP 1 SR.Estado");
                     sb.AppendLine("    FROM SolicitudesReversion_DOCS1 SR");
                     sb.AppendLine("    WHERE SR.DOCS1Id = DET.Id");
-                    sb.AppendLine("    ORDER BY SR.Id DESC"); 
+                    sb.AppendLine("    ORDER BY SR.Id DESC");
                     sb.AppendLine(") AS EstadoSolicitudReversion");
+
+                    //sb.AppendLine("(");
+                    //sb.AppendLine("    SELECT TOP 1 DocEntry");
+                    //sb.AppendLine("    FROM INTRANET_V2.al.ORDP");
+                    //sb.AppendLine("    WHERE ODOCSId = @Id");
+                    //sb.AppendLine(") AS Devoluciones");
 
                     sb.AppendLine("FROM ODOCS DOC");
                     sb.AppendLine("INNER JOIN DOCS1 DET ON DOC.Id = DET.ODOCSId");
-                    sb.AppendLine("WHERE 1=1");
 
                     sb.AppendLine(condicion?.ToString().Trim());
 
@@ -67,6 +74,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                         cmd.Parameters.AddWithValue(prm.Key, prm.Value);
                     }
 
+                    sb.AppendLine("ORDER BY 1 DESC");
                     cmd.CommandText = sb.ToString();
 
                     cn.Open();
@@ -141,6 +149,13 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                                     detalle.DescargarArchivoProtocolo = Convert.ToBase64String(contenido2);
                                 }
 
+                                string rutaRS = Path.Combine(rutaDirectorio, "RegistrosSanitarios", $"{detalle.RegistroSanitario}.pdf").Replace("\\", "/");
+                                if (System.IO.File.Exists(rutaRS))
+                                {
+                                    byte[] contenido3 = System.IO.File.ReadAllBytes(rutaRS);
+                                    detalle.DescargarArchivoRS = Convert.ToBase64String(contenido3);
+                                }
+
                                 string rutaOrganoleptico = Path.Combine(rutaDirectorio, carpeta, $"{detalle.Lote}.pdf").Replace("\\", "/");
                                 if (System.IO.File.Exists(rutaOrganoleptico))
                                 {
@@ -149,6 +164,10 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                                 }
 
                                 obj.Detalle.Add(detalle);
+
+                                // Verificamos si el documento de liberaciones tiene ya una devolución en estado diferente a: ANULADO o REVERTIDO
+                                var devoluciones = new Capa_Datos.Almacen_DAO.TablasSql.ORPD_D().ListarDevoluciones(new Capa_Entidad.Almacen_ENT.TablasSql.ORPD_E { ODOCSId = obj.Id });
+                                obj.TieneDevolucion = devoluciones != null && devoluciones.Count > 0 && devoluciones[0].Estado != "ANULADO" && devoluciones[0].Estado != "REVERTIDO";
                             }
                         }
                     }
@@ -168,6 +187,12 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
             List<ODOCS_E> lista = new List<ODOCS_E>();
             var lookup = new Dictionary<int, ODOCS_E>();
 
+            // Solo mostrarán todos los resultados cuando envíen algún filtro desde la vista
+            var top = string.IsNullOrEmpty(condicion) ? "TOP 100" : string.Empty;
+
+            // Por defecto solo se mostrarán resultados que se encuentren en estado pendiente a transferir
+            var filtroDefault = string.IsNullOrEmpty(condicion) ? "AND Transferido = 0" : string.Empty;
+
             try
             {
                 using (SqlConnection cn = new SqlConnection(uti.CadSql3))
@@ -177,7 +202,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
 
                     var sb = new StringBuilder();
 
-                    sb.AppendLine("SELECT");
+                    sb.AppendLine($"SELECT {top}");
                     sb.AppendLine("DOC.Id, DOC.TipoDocumento, DOC.DocEntry, DOC.DocNum,");
                     sb.AppendLine("CASE WHEN LEFT(DOC.CardCode, 1) = 'P' THEN SUBSTRING(DOC.CardCode, 2, LEN(DOC.CardCode)) ELSE DOC.CardCode END AS CardCodeFormat,");
                     sb.AppendLine("DOC.CardName, DOC.Guia, DOC.ComprobanteVinculado,");
@@ -226,6 +251,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                     sb.AppendLine(") AT_DE");
 
                     sb.AppendLine("WHERE DET.Liberado = 1");
+                    sb.AppendLine($"{filtroDefault}");
                     sb.AppendLine(condicion?.ToString().Trim());
 
 
@@ -235,6 +261,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                         cmd.Parameters.AddWithValue(prm.Key, prm.Value);
                     }
 
+                    sb.AppendLine("ORDER BY 1 DESC");
                     cmd.CommandText = sb.ToString();
 
                     cn.Open();
@@ -335,6 +362,13 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                                     detalle.DescargarArchivoProtocolo = Convert.ToBase64String(contenido2);
                                 }
 
+                                string rutaRS = Path.Combine(rutaDirectorio, "RegistrosSanitarios", $"{detalle.Lote}.pdf").Replace("\\", "/");
+                                if (System.IO.File.Exists(rutaRS))
+                                {
+                                    byte[] contenido3 = System.IO.File.ReadAllBytes(rutaRS);
+                                    detalle.DescargarArchivoProtocolo = Convert.ToBase64String(contenido3);
+                                }
+
                                 obj.Detalle.Add(detalle);
                             }
                         }
@@ -405,7 +439,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
 
                             foreach (var item in datos.Detalle)
                             {
-                                if (item.ArchivoET == null && item.ArchivoProtocolo == null)
+                                if (item.ArchivoET == null && item.ArchivoProtocolo == null && item.ArchivoRS == null)
                                     continue;
 
                                 string rutaDirectorio = Path.Combine(baseRuta, "Documentos", item.ItemCode);
@@ -431,6 +465,17 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
 
                                     string rutaCompleta = Path.Combine(rutaDirectorio, item.Lote + extension);
                                     item.ArchivoProtocolo.SaveAs(rutaCompleta);
+                                }
+
+                                if (item.ArchivoRS != null)
+                                {
+                                    string extension = Path.GetExtension(item.ArchivoRS.FileName)?.ToLower();
+                                    if (extension != ".pdf")
+                                        continue;
+
+                                    string rutaDirectorioRS = Path.Combine(baseRuta, "Documentos", "RegistrosSanitarios");
+                                    string rutaCompleta = Path.Combine(rutaDirectorioRS, item.RegistroSanitario + extension);
+                                    item.ArchivoRS.SaveAs(rutaCompleta);
                                 }
                             }
 
@@ -464,39 +509,35 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
             using (SqlConnection cn = new SqlConnection(uti.CadSql3))
             {
                 cn.Open();
-                using (SqlTransaction transaction = cn.BeginTransaction())
+
+                try
                 {
-                    try
+                    using (SqlCommand cmd = new SqlCommand("sp_GestionarDocumentos", cn))
                     {
-                        using (SqlCommand cmd = new SqlCommand("sp_GestionarDocumentos", cn, transaction))
-                        {
-                            cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.CommandType = CommandType.StoredProcedure;
 
-                            cmd.Parameters.AddWithValue("@Operacion", "CANCELAR");
-                            cmd.Parameters.AddWithValue("@Id", id);
+                        cmd.Parameters.AddWithValue("@Operacion", "CANCELAR");
+                        cmd.Parameters.AddWithValue("@Id", id);
 
-                            // Para [CC_ODOCS]
-                            cmd.Parameters.AddWithValue("@UsuarioRegistro", usuarioRegistro);
-                            cmd.Parameters.AddWithValue("@TipoOperacion", "CANCELAR");
+                        // Para [CC_ODOCS]
+                        cmd.Parameters.AddWithValue("@UsuarioRegistro", usuarioRegistro);
+                        cmd.Parameters.AddWithValue("@TipoOperacion", "CANCELAR");
 
-                            cmd.ExecuteNonQuery();
-                        }
-                        transaction.Commit();
-
-                        result.Titulo = "Acción completada";
-                        result.Mensajes.Add("Documento cancelado correctamente.");
-                        result.Icono = "success";
+                        cmd.ExecuteNonQuery();
                     }
-                    catch (Exception ex)
-                    {
-                        transaction.Rollback();
-                        LogHelper.RegistrarError(ex, "Error inesperado en ODOCS_D - CancelarDocumento()");
 
-                        result.Titulo = "Error";
-                        result.Mensajes.Add("Ocurrió un error al cancelar el documento.");
-                        result.Mensajes.Add("Por favor, comuníquese con el área de Sistemas para más información.");
-                        result.Icono = "error";
-                    }
+                    result.Titulo = "Acción completada";
+                    result.Mensajes.Add("Documento cancelado correctamente.");
+                    result.Icono = "success";
+                }
+                catch (Exception ex)
+                {
+                    LogHelper.RegistrarError(ex, "Error inesperado en ODOCS_D - CancelarDocumento()");
+
+                    result.Titulo = "Error";
+                    result.Mensajes.Add("Ocurrió un error al cancelar el documento.");
+                    result.Mensajes.Add("Por favor, comuníquese con el área de Sistemas para más información.");
+                    result.Icono = "error";
                 }
             }
 

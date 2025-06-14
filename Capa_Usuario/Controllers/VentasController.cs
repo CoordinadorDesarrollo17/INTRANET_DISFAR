@@ -22,10 +22,12 @@ using Capa_Negocio.Ventas_NEG.TablasSql;
 using Capa_Usuario.Helpers;
 using CrystalDecisions.CrystalReports.Engine;
 using CrystalDecisions.Shared;
+using DocumentFormat.OpenXml.EMMA;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using Microsoft.Reporting.WebForms;
 using OfficeOpenXml;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 using Rotativa;
 using System;
 using System.Collections.Generic;
@@ -190,7 +192,7 @@ namespace Capa_Usuario.Controllers
             }
         }
         [HttpPost]
-        public ActionResult CreaTicketVenta(ORTV_E ticket, int idOperation = 502)
+        public ActionResult CreaTicketVenta(ORTV_E ticket, string SolicitudesReclamoSeleccionadas, int idOperation = 502)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
@@ -201,6 +203,11 @@ namespace Capa_Usuario.Controllers
                     ticket.OpRegistro = $"{user.Nombres} {user.Apellidos}";
                     ticket.WhsCodeLog = $"{user.WhsCode}";
                     int DocNum = _ticketN.Registrar(ticket);
+                    if (!string.IsNullOrEmpty(SolicitudesReclamoSeleccionadas))
+                    {
+                        var listaSolicitudes = SolicitudesReclamoSeleccionadas.Split(',').ToList();
+                        new Capa_Negocio.AtencionCliente_NEG.TablasSql.OSAT_N().ActualizarTicketSolucion(listaSolicitudes, DocNum.ToString());
+                    }
                     return RedirectToAction("ListadoTicketsVenta", new { DocNum = DocNum });
                 }
                 catch (Exception e)
@@ -246,6 +253,22 @@ namespace Capa_Usuario.Controllers
                 ViewBag.Agencias = couN.Listar();
                 ViewBag.IdRol = user.IdRol;
                 ViewBag.Usuario = $"{user.Prefijo}{user.Id}";
+                // --- INICIO: OBTENER RECLAMOS CON TICKETSOLUCION ---
+                var osatN = new Capa_Negocio.AtencionCliente_NEG.TablasSql.OSAT_N();
+                var filtro = new Capa_Entidad.AtencionCliente_ENT.TablasSql.OSAT_E
+                {
+                    DetORTV = new Dictionary<string, string> { { "CardCode", t.CardCode } },
+                    TicketSolucion = t.DocNum.ToString()
+                };
+                var reclamos = osatN.ListarSolicitudes(filtro, false);
+                // Filtrar los que tienen TicketSolucion asignado (no null ni vacío)
+                var reclamosAplicados = reclamos
+                .Where(x => !string.IsNullOrEmpty(x.TicketSolucion) && x.TicketSolucion == t.DocNum.ToString())
+                .Select(x => x.DocNum.ToString())
+                .ToList();
+                ViewBag.ReclamosAplicados = string.Join(",", reclamosAplicados);
+
+                // --- FIN: OBTENER RECLAMOS CON TICKETSOLUCION ---
                 if (t.Estado.Equals("SEPARADO")) { return RedirectToAction("CreaTicketVenta", new { DocEntry = t.DocEntry }); }
                 else { return View(t); }
             }
@@ -255,7 +278,7 @@ namespace Capa_Usuario.Controllers
             }
         }
         [HttpPost]
-        public ActionResult EditarTicketVenta(int DocEntry, ORTV_E t, int idOperation = 503)
+        public ActionResult EditarTicketVenta(int DocEntry, ORTV_E t, string SolicitudesReclamoSeleccionadas, int idOperation = 503)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
@@ -267,6 +290,17 @@ namespace Capa_Usuario.Controllers
                     t.OpRegistro = $"{user.Nombres} {user.Apellidos}";     // Seteamos el valor de OpRegistro para grabarlo en la transaccion de regalo si lo tuviera.
                     t.WhsCodeLog = $"{user.WhsCode}";
                     _ticketN.Editar(DocEntry, t);
+                    int DocNum = t.DocNum;
+                    // --- Actualización de OSAT ---
+                    if (!string.IsNullOrEmpty(SolicitudesReclamoSeleccionadas))
+                    {
+                        var listaSolicitudes = SolicitudesReclamoSeleccionadas.Split(',').ToList();
+                        new Capa_Negocio.AtencionCliente_NEG.TablasSql.OSAT_N().ActualizarTicketSolucion(listaSolicitudes, DocNum.ToString());
+                    }
+                    else
+                    {
+                        new Capa_Negocio.AtencionCliente_NEG.TablasSql.OSAT_N().ActualizarTicketSolucion(new List<string>(), DocNum.ToString());
+                    }
                     return RedirectToAction("ListadoTicketsVenta", new { DocNum = t.DocNum });
                 }
                 catch (Exception e)
@@ -484,7 +518,10 @@ namespace Capa_Usuario.Controllers
                     ORTV_N ortvN = new ORTV_N();
                     Usuario_E usu = (Usuario_E)Session["UsuarioId"];
                     string Operario = $"{usu.Nombres} {usu.Apellidos}";
-                    int DocNum = ortvN.Cancelar(DocEntry, Operario, usu.IdRol);
+                    int DocNum = ortvN.Cancelar(DocEntry, Operario, usu.IdRol);                    
+                    var osatN = new Capa_Negocio.AtencionCliente_NEG.TablasSql.OSAT_N();
+                    osatN.ActualizarTicketSolucion(new List<string>(), DocNum.ToString());
+                    
                     return RedirectToAction(vista, new { DocNum });
                 }
                 catch (Exception e)
@@ -2842,7 +2879,7 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-        public ActionResult ReporteReclamosCliente(string CardCode, int idOperation = 523)
+        public ActionResult ReporteReclamosCliente(string CardCode, int? DocNumTicket = null, int idOperation = 523)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
@@ -2856,8 +2893,10 @@ namespace Capa_Usuario.Controllers
                     {
                         DetORTV = ortv,
                         TipoSolicitudCreaTicketVenta = "('Reclamo','Devolucion')",      // TipoSolicitudCreaTicketVenta: Filtro para el botón Reclamos Crea Ticket Venta
-                        TipoSolucion = "('Regalo','Articulo','RegaloArticulo')",
-                        Estado = "Atendido"
+                        TipoSolucionCreaTicketVenta = "('Regalo')",
+                        Estado = "Atendido",
+                        SoloSinTicketSolucion = true,
+                        TicketSolucion = DocNumTicket?.ToString()
                     };
                     return View(osatN.ListarSolicitudes(filtro, false));
                 }
@@ -3340,7 +3379,7 @@ namespace Capa_Usuario.Controllers
         {
             return Json(_libroDeSaldoN.obtenerLibroSaldo(CardCode));
         }
-        public JsonResult comprobarReclamosCliente(string CardCode)
+        public JsonResult comprobarReclamosCliente(string CardCode, int? DocNumTicket = null)
         {
             Capa_Negocio.AtencionCliente_NEG.TablasSql.OSAT_N osatN = new Capa_Negocio.AtencionCliente_NEG.TablasSql.OSAT_N();
             Dictionary<string, string> ortv = new Dictionary<string, string> { { "CardCode", CardCode } };
@@ -3348,8 +3387,10 @@ namespace Capa_Usuario.Controllers
             {
                 DetORTV = ortv,
                 TipoSolicitudCreaTicketVenta = "('Reclamo','Devolucion')",      // TipoSolicitudCreaTicketVenta: Filtro para el botón Reclamos Crea Ticket Venta
-                TipoSolucion = "('Regalo','Articulo','RegaloArticulo')",
-                Estado = "Atendido"
+                TipoSolucionCreaTicketVenta = "('Regalo')",
+                SoloSinTicketSolucion = true,
+                Estado = "Atendido",
+                TicketSolucion = DocNumTicket?.ToString()
             };
             return Json(osatN.ListarSolicitudes(filtro, false));
         }

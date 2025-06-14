@@ -43,6 +43,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
                 case "ListarApiladores":
                     result = detalles
                         .Where(x => x.AtendidoReserva == 0 && x.AtendidoPicking == 0)
+                        .OrderByDescending(x => x.Zona)
                         .ToList();
                     break;
 
@@ -60,7 +61,6 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         }
         public Requerimientos_E RegistrarRequerimiento(Requerimientos_E requerimiento, SqlConnection cn)
         {
-            //Validar que las Cantidades que se desean imputar se encuentren disponibles
             return _requerimientoD.RegistrarRequerimiento(requerimiento, cn);
         }
         public bool ValidarSkuParaKardexSalida(int requerimientoId,string itemCode, Requerimientos_E requerimiento)

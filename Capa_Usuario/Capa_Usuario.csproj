@@ -786,7 +786,11 @@
     </Compile>
     <Compile Include="SqlServerTypes\Loader.cs" />
     <Content Include="Views\SolicitudesReversion_DOCS1\Index.cshtml" />
-    <None Include="Views\DireccionTecnica\OrganolepticoEM_PDF.cshtml" />
+    <Content Include="Views\AtencionCliente\RegalosAplicados.cshtml" />
+    <Content Include="Views\AbastecimientoInterno\PackingList.cshtml" />
+    <Content Include="Views\AbastecimientoInterno\PackingList_PDF.cshtml" />
+    <Content Include="Views\AbastecimientoInterno\ReportesExcel.cshtml" />
+    <Content Include="Views\DireccionTecnica\OrganolepticoEM_PDF.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\web.config" />

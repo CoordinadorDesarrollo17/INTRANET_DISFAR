@@ -2,8 +2,8 @@
 @using Capa_Entidad.Almacen_ENT.Tablas;
 @using Capa_Entidad.Almacen_ENT.TablasSql;
 @{
-    ViewBag.Title = "DevolucionMercancias";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Devolución de Mercancías";
+    Layout = "~/Views/Shared/_DefaultLayout.cshtml";
     List<OWHS_E> Almacenes = (List<OWHS_E>)ViewBag.Almacenes;
     List<OMRC_E> Laboratorios = (List<OMRC_E>)ViewBag.Laboratorios;
     List<MotivosDevoluciones_E> motivos = (List<MotivosDevoluciones_E>)ViewBag.Motivos;
@@ -22,151 +22,161 @@
 
 <form name="frm" id="frm">
     <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
-        <div class="px-3 pt-3"><h3 class="titulo-seccion">DEVOLUCIÓN DE MERCANCÍAS</h3></div>
-    </div>
-
-    <div class="bg-white d-flex w-100 py-3">
-        <div class="d-flex col-lg-8 col-md-6 col-sm-12 col-6 my-lg-2 button-group">
-            <a href="@Url.Action("NuevaDevolucion", "Almacen")" class="btn btn-warning mr-1 my-1" title="Nueva Devolución">
-                <i class="icon icon-plus"></i> Nueva Devolución
-            </a>
-
-            <a href="@Url.Action("NuevaDevolucion", "Almacen", new { Almacen ="DEV07"})" class="btn btn-primary mx-1 my-1" title="ALM. DEV07">
-                <i class="icon icon-plus"></i> DEV07
-            </a>
-
-            <button type="button" class="btn btn-success mx-1 my-1" title="Descargar Reporte Histórico" data-toggle="modal" data-target="#modalReporte" onclick="limpiarCampos()">
-                <i class="icon icon-file-excel"></i> Reporte Histórico
-            </button>
-
-            <button type="button" class="btn btn-info mx-1 my-1" title="Motivos y Sub Motivos" data-toggle="modal" data-target="#modalMotivosyObs">
-                <i class="icon icon-folder-open"></i> Motivos y Submotivos.
-            </button>
-        </div>
-
-        <div class="d-flex col-lg-4 col-md-6 col-sm-12 col-12 mt-sm-2 justify-content-lg-end justify-content-md-end justify-content-sm-center">
-            <input type="text" name="DetalleDevolucion[0].RefFactura" class="form-control text-center border-success filtrosDevolucion" placeholder="Buscar por factura..." style="width: 250px; height: 50px" value="@if (ViewBag.Devolucion.DetalleDevolucion != null && ViewBag.Devolucion.DetalleDevolucion.Count >= 1) { Write(ViewBag.Devolucion.DetalleDevolucion[0].RefFactura); }" onchange="filtrar();" />
+        <div class="px-3 pt-3"><h3 class="titulo-seccion">@ViewBag.Title.ToUpper()</h3></div>
+        <div class="row px-3 py-2">
+            <div class="col-12">
+                <button type="button" id="btn_nuevaDevolucion" class="btn btn-sm btn-warning" onclick="redireccionar(this)" data-ruta="@Url.Action("NuevaDevolucion", "Almacen")" title="Nueva Devolución">
+                    <i class="bi bi-plus-lg"></i> Devolución
+                </button>
+                <button type="button" id="btn_nuevaDevolucionDEV07" class="btn btn-sm btn-primary" onclick="redireccionar(this)" data-ruta="@Url.Action("NuevaDevolucion", "Almacen", new { Almacen ="DEV07"})" title="Nueva Devolución para DEV07">
+                    <i class="bi bi-plus-lg"></i> DEV07
+                </button>
+                <button type="button" class="btn btn-sm btn-success" title="Descargar Reporte Histórico" data-bs-toggle="modal" data-bs-target="#modalReporte" onclick="limpiarCampos()">
+                    <i class="bi bi-file-earmark-excel"></i> Reporte Histórico
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-light" title="Motivos y Sub Motivos" data-bs-toggle="modal" data-bs-target="#modalMotivosyObs">
+                    <i class="bi bi-folder2-open"></i> Motivos y Submotivos
+                </button>
+            </div>
         </div>
     </div>
 
+    <div class="bg-white px-3 py-3 align-items-center">
+        <div class="table-responsive shadow-sm rounded">
+            <table id="tbl_listaDevoluciones" class="table table-light table-sm table-hover" cellspacing="0" width="100%">
+                <thead class="thead-cobefar">
+                    <tr>
+                        <th class="text-center">DocNum<br /><div class="d-flex justify-content-center"><input type="text" name="DocNum" id="filtro_DocNum" class="form-control border text-center filtrosDevolucion" autocomplete="off" style="width: 100px" onchange="filtrar();" value="@if (ViewBag.Devolucion.DocNum != 0) { Write(ViewBag.Devolucion.DocNum); }" /></div></th>
+                        <th class="text-center" style="width: 100px">
+                            Almacen<br /><div class="d-flex justify-content-center">
+                                <input type="text" name="WhsCode" class="form-control border text-center filtrosDevolucion" autocomplete="off" style="width: 100px" onchange="filtrar();" value="@if (!string.IsNullOrWhiteSpace(ViewBag.Devolucion.WhsCode)) { Write(ViewBag.Devolucion.WhsCode); }" />
+                            </div>
+                        </th>
+                        <th class="text-center" style="width: 100px">Fecha Registro</th>
+                        <th class="text-center">Correlativo</th>
+                        <th class="text-center" style="width: 100px">Fecha Devolución</th>
+                        <th class="text-center">Proveedor<br /><div class="d-flex justify-content-center"><input type="text" name="CardName" class="form-control border text-center filtrosDevolucion" autocomplete="off" style="width: 300px" onchange="filtrar();" value="@ViewBag.Devolucion.CardName" /></div></th>
+                        <th class="text-center">Registrado por</th>
+                        <th class="text-center">
+                            Estado de Recojo<br />
+                            <div class="d-flex justify-content-center">
+                                <select type="text" name="Estado" id="EstadoPost" class="form-select border filtrosDevolucion" autocomplete="off" style="width: 200px" onchange="filtrar();">
+                                    <option value="">Seleccione</option>
+                                    <option value="PENDIENTE DE RECOJO" @if (ViewBag.Devolucion.Estado != null && ViewBag.Devolucion.Estado.Equals("PENDIENTE DE RECOJO")) { Write("selected"); }>Pendiente de recojo</option>
+                                    <option value="RECOGIDO" @if (ViewBag.Devolucion.Estado != null && ViewBag.Devolucion.Estado.Equals("RECOGIDO")) { Write("selected"); }>Recogido</option>
+                                    <option value="REVERTIDO" @if (ViewBag.Devolucion.Estado != null && ViewBag.Devolucion.Estado.Equals("REVERTIDO")) { Write("selected"); }>Revertido</option>
+                                    <option value="NC APLICADA" @if (ViewBag.Devolucion.Estado != null && ViewBag.Devolucion.Estado.Equals("NC APLICADA")) { Write("selected"); }>NC Aplicada</option>
+                                    <option value="ANULADO" @if (ViewBag.Devolucion.Estado != null && ViewBag.Devolucion.Estado.Equals("ANULADO")) { Write("selected"); }>Anulado</option>
+                                </select>
+                            </div>
+                        </th>
 
-    <div class="bg-white">
-        <table id="tbl_listaDevoluciones" class="table table-light table-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
-            <thead class="bg-cobefar-6">
-                <tr>
-                    <th class="text-center">DocNum<br /><div class="d-flex justify-content-center"><input type="text" name="DocNum" id="filtro_DocNum" class="form-control-sm border text-center filtrosDevolucion" autocomplete="off" style="width: 100px" onchange="filtrar();" value="@if (ViewBag.Devolucion.DocNum != 0) { Write(ViewBag.Devolucion.DocNum); }" /></div></th>
-                    <th class="text-center">Almacen<br /><div class="d-flex justify-content-center"><input type="text" name="WhsCode" class="form-control-sm border w-50 text-center filtrosDevolucion" autocomplete="off" style="width: 50px" onchange="filtrar();" value="@if (!string.IsNullOrWhiteSpace(ViewBag.Devolucion.WhsCode)) { Write(ViewBag.Devolucion.WhsCode); }" /></div></th>
-                    <th class="text-center">Fecha Registro</th>
-                    <th class="text-center">Correlativo</th>
-                    <th class="text-center">Fecha Devolución</th>
-                    <th class="text-center">Proveedor<br /><div class="d-flex justify-content-center"><input type="text" name="CardName" class="form-control-sm border text-center filtrosDevolucion" autocomplete="off" style="width: 300px" onchange="filtrar();" value="@ViewBag.Devolucion.CardName" /></div></th>
-                    <th class="text-center">Registrado por</th>
-                    <th class="text-center">
-                        Estado<br />
-                        <div class="d-flex justify-content-center">
-                            <select type="text" name="Estado" id="EstadoPost" class="form-control-sm border filtrosDevolucion" autocomplete="off" style="width: 200px" onchange="filtrar();">
-                                <option value="">Seleccione</option>
-                                <option value="PENDIENTE DE RECOJO" @if (ViewBag.Devolucion.Estado != null && ViewBag.Devolucion.Estado.Equals("PENDIENTE DE RECOJO")) { Write("selected"); }>Pendiente de recojo</option>
-                                <option value="RECOGIDO" @if (ViewBag.Devolucion.Estado != null && ViewBag.Devolucion.Estado.Equals("RECOGIDO")) { Write("selected"); }>Recogido</option>
-                                <option value="NC APLICADA" @if (ViewBag.Devolucion.Estado != null && ViewBag.Devolucion.Estado.Equals("NC APLICADA")) { Write("selected"); }>NC Aplicada</option>
-                                <option value="ANULADO" @if (ViewBag.Devolucion.Estado != null && ViewBag.Devolucion.Estado.Equals("ANULADO")) { Write("selected"); }>Anulado</option>
-                            </select>
-                        </div>
-                    </th>
-
-                    <th class="text-center"></th>
-                    <th class="text-center"></th>
-                    <th class="text-center"></th>
-                    <th class="text-center"></th>
-                    <th class="text-center"></th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (Model != null)
-                {
-                    foreach (var m in Model)
+                        <th class="text-center"></th>
+                        <th class="text-center"></th>
+                        <th class="text-center"></th>
+                        <th class="text-center"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null)
                     {
-                        <tr>
-                            <td class="text-center">@m.DocNum</td>
-                            <td class="text-center">@m.WhsCode</td>
-                            <td class="text-center">@m.FechaOperacion</td>
-                            <td class="text-center">@m.Correlativo</td>
-                            <td class="text-center">@m.FechaDevolucion</td>
-                            <td class="text-center">@m.CardName</td>
-                            <td class="text-center">@m.Operario</td>
-                            <td class="text-center">@m.Estado</td>
+                        foreach (var m in Model)
+                        {
+                            <tr>
+                                <td class="text-center">@m.DocNum</td>
+                                <td class="text-center">@m.WhsCode</td>
+                                <td class="text-center">@m.FechaOperacion</td>
+                                <td class="text-center">@m.Correlativo</td>
+                                <td class="text-center">@m.FechaDevolucion</td>
+                                <td class="text-center">@m.CardName</td>
+                                <td class="text-center">@m.Operario</td>
+                                <td class="text-center">@m.Estado</td>
 
-                            <td class="text-center">
-                                @if (m.Estado.Equals("PENDIENTE DE RECOJO"))
-                                {
-                                    <button type="button" class="btn btn-sm btn-light" onclick="validarCambioEstadoDevolucion(@m.DocEntry,@m.DocNum,'@m.WhsCode','AA');" data-toggle="tooltip" data-placement="top" title="Anular"> <i class="icon-bin2 text-danger"></i></button>
-                                }
-                                // Solo para Estado RECOGIDO y guardará "0" en el campo "SinNC" siempre y cuando no encuentre un NULL en NotaCredito línea x línea en RPD1
-                                @*else if (m.Estado.Equals("RECOGIDO") && m.SinNC.Equals(0))
+                                <td class="text-center">
+                                    @if (m.Estado.Equals("PENDIENTE DE RECOJO"))
                                     {
-                                        <button type="button" class="btn btn-sm btn-success" onclick="validarCambioEstadoDevolucion(@m.DocEntry,@m.DocNum,'@m.WhsCode','NC');"> NC Aplicada</button>
-                                    }*@
-                            </td>
-                            <td class="text-center">
-                                @if (m.Estado.Equals("RECOGIDO"))
-                                {
-                                    <button type="button" class="btn btn-sm btn-orange" onclick="validarCambioEstadoDevolucion(@m.DocEntry, @m.DocNum, '@m.WhsCode', 'RR')" data-toggle="tooltip" data-placement="top" title="Revertir Recojo">Rv. recojo</button>
-                                }
-                                @if (m.Estado.Equals("PENDIENTE DE RECOJO"))
-                                {
-                                    <button type="button" class="btn btn-sm btn-blue" onclick="validarCambioEstadoDevolucion(@m.DocEntry, @m.DocNum, '@m.WhsCode', 'R')" data-toggle="tooltip" data-placement="top" title="Recogido">Recogido</button>
-                                }
-                            </td>
-                            <td class="text-center">
-                                @if (m.Estado.Equals("PENDIENTE DE RECOJO"))
-                                {
-                                    if (m.WhsCode.Equals("DEV07"))
-                                    {
-                                        <a href="/Almacen/EditarDevolucion?DocEntry=@m.DocEntry&Almacen=DEV07" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Editar Devolución - ALM DEV07" > <i class="icon-pencil text-purple"></i></a>
+                                        <button type="button" class="btn btn-sm btn-outline-danger cls-anular" onclick="validarCambioEstadoDevolucion(@m.DocEntry,@m.DocNum,'@m.WhsCode','AA');">
+                                            <i class="bi bi-trash2-fill"></i>
+                                        </button>
                                     }
-                                    else
+                                    // Solo para Estado RECOGIDO y guardará "0" en el campo "SinNC" siempre y cuando no encuentre un NULL en NotaCredito línea x línea en RPD1
+                                    @*else if (m.Estado.Equals("RECOGIDO") && m.SinNC.Equals(0))
+                                        {
+                                            <button type="button" class="btn btn-sm btn-success" onclick="validarCambioEstadoDevolucion(@m.DocEntry,@m.DocNum,'@m.WhsCode','NC');"> NC Aplicada</button>
+                                        }*@
+                                </td>
+                                <td class="text-center">
+                                    @if (m.Estado.Equals("RECOGIDO"))
                                     {
-                                        <a href="/Almacen/EditarDevolucion?DocEntry=@m.DocEntry" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Editar Devolución"> <i class="icon-pencil text-primary"></i></a>
+                                        <button type="button" class="btn btn-sm btn-orange cls-revertirRecojo" onclick="validarCambioEstadoDevolucion(@m.DocEntry, @m.DocNum, '@m.WhsCode', 'RR')">Rv. recojo</button>
                                     }
-                                }
-                            </td>
-                            <td class="text-center"><a href="/Almacen/SeguimientoDevolucion?DocEntry=@m.DocEntry" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Ver Devolución"> <i class="icon-search text-dark"></i></a></td>
-                        </tr>
+                                    @if (m.Estado.Equals("PENDIENTE DE RECOJO"))
+                                    {
+                                        <button type="button" class="btn btn-sm btn-blue cls-recogido" onclick="validarCambioEstadoDevolucion(@m.DocEntry, @m.DocNum, '@m.WhsCode', 'R')">Recogido</button>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @if (m.Estado.Equals("PENDIENTE DE RECOJO"))
+                                    {
+                                        if (m.WhsCode.Equals("DEV07"))
+                                        {
+                                            <a href="/Almacen/EditarDevolucion?DocEntry=@m.DocEntry&Almacen=DEV07" class="btn btn-sm btn-outline-primary cls-editar"> <i class="bi bi-pencil"></i></a>
+                                        }
+                                        else
+                                        {
+                                            <a href="/Almacen/EditarDevolucion?DocEntry=@m.DocEntry" class="btn btn-sm btn-outline-primary cls-editar"> <i class="bi bi-pencil"></i></a>
+                                        }
+                                    }
+                                </td>
+                                <td class="text-center"><a href="/Almacen/SeguimientoDevolucion?DocEntry=@m.DocEntry" class="btn btn-sm btn-outline-dark cls-verDatos"> <i class="bi bi-search"></i></a></td>
+                            </tr>
+                        }
                     }
-                }
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
     </div>
 </form>
 <form id="frmReporteHistorico">
     <!-- Modal -->
     <div class="modal fade" id="modalReporte" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header bg-headerModals text-white">
                     <h5 class="modal-title" id="exampleModalLabel">Reporte Histórico</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true" class="text-white">&times;</span>
-                    </button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" tabindex="-1"></button>
                 </div>
                 <div class="modal-body">
                     <div class="row mb-4">
                         <div class="col-lg-3 col-md-3">
-                            <label class="text-cobefar font-weight-bold">Fecha Registro Desde:</label>
-                            <input type="date" id="FechaDesde" name="FechaDesde" class="form-control border-success text-center" />
+                            <label class="fw-bold">Fecha registro desde:</label>
+                            <input type="date" id="FechaDesde" name="FechaDesde" class="form-control text-center" />
                         </div>
 
                         <div class="col-lg-3 col-md-3">
-                            <label class="text-cobefar font-weight-bold">Fecha Registro Hasta:</label>
-                            <input type="date" id="FechaHasta" name="FechaHasta" class="form-control border-success text-center" />
+                            <label class="fw-bold">Fecha registro hasta:</label>
+                            <input type="date" id="FechaHasta" name="FechaHasta" class="form-control text-center" />
                         </div>
 
                         <div class="col-lg-6 col-md-6">
-                            <label class="text-cobefar font-weight-bold">Estado:</label>
-                            <select type="text" id="EstadoReporte" class="form-control bg-cobefar text-white" autocomplete="off" style="width: 250px">
+                            <label class="fw-bold">DocNum:</label>
+                            <input type="text" id="DocNumReporte" class="form-control w-50" autocomplete="off" />
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-lg-6">
+                            <label class="fw-bold">Factura:</label>
+                            <input type="text" id="RefFacturaReporte" class="form-control" />
+                        </div>
+
+                        <div class="col-lg-6 col-md-6">
+                            <label class="fw-bold">Estado de recojo:</label>
+                            <select type="text" id="EstadoReporte" class="form-select" autocomplete="off" style="width: 350px">
                                 <option value="">Seleccione</option>
                                 <option value="PENDIENTE DE RECOJO" @if (ViewBag.Devolucion.Estado != null && ViewBag.Devolucion.Estado.Equals("PENDIENTE DE RECOJO")) { Write("selected"); }>Pendiente de recojo</option>
                                 <option value="RECOGIDO" @if (ViewBag.Devolucion.Estado != null && ViewBag.Devolucion.Estado.Equals("RECOGIDO")) { Write("selected"); }>Recogido</option>
+                                <option value="REVERTIDO" @if (ViewBag.Devolucion.Estado != null && ViewBag.Devolucion.Estado.Equals("REVERTIDO")) { Write("selected"); }>Revertido</option>
                                 <option value="NC APLICADA" @if (ViewBag.Devolucion.Estado != null && ViewBag.Devolucion.Estado.Equals("NC APLICADA")) { Write("selected"); }>NC Aplicada</option>
                                 <option value="ANULADO" @if (ViewBag.Devolucion.Estado != null && ViewBag.Devolucion.Estado.Equals("ANULADO")) { Write("selected"); }>Anulado</option>
                             </select>
@@ -174,14 +184,15 @@
                     </div>
 
                     <div class="row mb-4">
-                        <div class="col-lg-6">
-                            <label class="text-cobefar font-weight-bold">Factura:</label>
-                            <input type="text" id="RefFacturaReporte" class="form-control border-success text-center" />
+                        <div class="col-lg-6 col-md-6">
+                            <label class="fw-bold">Proveedor:</label>
+                            <input type="search" id="CardNameReporte" list='ListaClientes' class="form-control" onkeyup="cargarListaCliente(this.value)" autocomplete="off" />
+                            <div id="div_listaClientes"></div>
                         </div>
 
                         <div class="col-lg-6">
-                            <label class="text-cobefar font-weight-bold">Almacén:</label>
-                            <select id="WhsCodeReporte" class="form-control bg-cobefar text-white border-success">
+                            <label class="fw-bold">Almacén:</label>
+                            <select id="WhsCodeReporte" class="form-select" style="width: 350px">
                                 <option value="">Seleccione</option>
                                 @if (Almacenes != null && Almacenes.Count() >= 1)
                                 {
@@ -196,22 +207,8 @@
 
                     <div class="row mb-4">
                         <div class="col-lg-6 col-md-6">
-                            <label class="text-cobefar font-weight-bold">Proveedor:</label>
-                            <input type="search" id="CardNameReporte" list='ListaClientes' class="form-control border-success" onkeyup="cargarListaCliente(this.value)" autocomplete="off" />
-                            <div id="div_listaClientes"></div>
-                        </div>
-                    </div>
-                    <div class="row mb-4">
-                        <div class="col-lg-6 col-md-6">
-                            <label class="text-cobefar font-weight-bold">Doc Num:</label>
-                            <input type="text" id="DocNumReporte" class="form-control border-success" autocomplete="off" />
-                        </div>
-                    </div>
-
-                    <div class="row mb-4">
-                        <div class="col-lg-6 col-md-6">
-                            <label class="text-cobefar font-weight-bold">Laboratorio:</label>
-                            <input type="search" id="FirmCodeReporte" list='ListaLab' class="form-control border-success" onchange="cargarProductos(this.value)" autocomplete="off" />
+                            <label class="fw-bold">Laboratorio:</label>
+                            <input type="search" id="FirmCodeReporte" list='ListaLab' class="form-control" onchange="cargarProductos(this.value)" autocomplete="off" />
                             <datalist id="ListaLab">
                                 @if (Laboratorios != null && Laboratorios.Count() >= 1)
                                 {
@@ -224,21 +221,16 @@
                         </div>
 
                         <div class="col-lg-6 col-md-6">
-                            <label class="text-cobefar font-weight-bold">Producto:</label>
-                            <input type="text" id="ItemNameReporte" list="ListaProductos" class="form-control border-success text-center" autocomplete="off" />
+                            <label class="fw-bold">Producto:</label>
+                            <input type="text" id="ItemNameReporte" list="ListaProductos" class="form-control" autocomplete="off" />
                             <div id="div_listaProductos"></div>
-                        </div>
-                    </div>
-
-                    <div class="row mt-2">
-                        <div class="col-lg-2 d-flex align-items-end">
-                            <button type="button" class="btn btn-cobefar mb-2" onclick="ExportarReporteHistorico()"><i class="icon-filter"></i> Generar Reporte</button>
                         </div>
                     </div>
 
                 </div>
                 <div class="modal-footer">
-                    <button type="button" id="btn_cerrarModal" class="btn btn-secondary" data-dismiss="modal"><i class='icon-cross'></i> Cerrar</button>
+                    <button type="button" id="btn_cerrarModal" class="btn btn-outline-secondary" data-bs-dismiss="modal"><i class='bi bi-x-lg'></i> Cerrar</button>
+                    <button type="button" class="btn btn-cobefar" onclick="ExportarReporteHistorico()"><i class="bi bi-check-lg"></i> Generar Reporte</button>
                 </div>
             </div>
         </div>
@@ -250,30 +242,28 @@
 <div class="modal fade" id="modalMotivosyObs" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-md">
         <div class="modal-content">
-            <div class="modal-header bg-cobefar text-white">
+            <div class="modal-header bg-headerModals text-white">
                 <h5 class="modal-title" id="exampleModalLabel">Motivos y Submotivos</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true" class="text-white">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" tabindex="-1"></button>
             </div>
             <div class="modal-body">
                 <div class="row mb-4">
                     <div class="col-lg-6 col-md-6 text-center">
-                        <button class="btn btn-cobefar font-weight-bold mx-1 my-1" title="Nuevo Motivo" data-toggle="modal" data-target="#modalMotivo" onclick="limpiarCamposMotivo()">
-                            <i class="icon icon-plus"></i> Nuevo Motivo
+                        <button class="btn btn-cobefar fw-bold mx-1 my-1" title="Nuevo Motivo" data-bs-toggle="modal" data-bs-target="#modalMotivo" onclick="limpiarCamposMotivo()">
+                            <i class="bi bi-plus-lg"></i> Nuevo Motivo
                         </button>
                     </div>
 
                     <div class="col-lg-6 col-md-6 text-center">
-                        <button class="btn btn-cobefar font-weight-bold mx-1 my-1" title="Nuevo Sub Motivo" data-toggle="modal" data-target="#modalSubmotivo" onclick="limpiarCamposSubmotivo()">
-                            <i class="icon icon-plus"></i> Nuevo Submotivo
+                        <button class="btn btn-cobefar fw-bold mx-1 my-1" title="Nuevo Sub Motivo" data-bs-toggle="modal" data-bs-target="#modalSubmotivo" onclick="limpiarCamposSubmotivo()">
+                            <i class="bi bi-plus-lg"></i> Nuevo Submotivo
                         </button>
                     </div>
                 </div>
 
             </div>
             <div class="modal-footer">
-                <button type="button" id="btn_cerrarModal" class="btn btn-secondary" data-dismiss="modal"><i class='icon-cross'></i> Cerrar</button>
+                <button type="button" id="btn_cerrarModal" class="btn btn-outline-secondary" data-bs-dismiss="modal"><i class='bi bi-x-lg'></i> Cerrar</button>
             </div>
         </div>
     </div>
@@ -283,31 +273,29 @@
 <div class="modal fade" id="modalMotivo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header bg-cobefar text-white">
+            <div class="modal-header bg-headerModals text-white">
                 <h5 class="modal-title" id="exampleModalLabel">Motivos Devoluciones</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true" class="text-white">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" tabindex="-1"></button>
             </div>
             <div class="modal-body">
                 <form id="frm_motivo">
                     <div class="row mb-4">
                         <div class="col-lg-6 col-md-6">
-                            <label class="text-cobefar font-weight-bold">Descripción:</label>
+                            <label class="text-cobefar fw-bold">Descripción:</label>
                             <input type="hidden" id="idmotivo" name="IdMotivo" />
-                            <input type="text" id="desc_motivo" name="Descripcion" class="form-control border-success" autocomplete="off" />
+                            <input type="text" id="desc_motivo" name="Descripcion" class="form-control" autocomplete="off" />
                         </div>
 
                         <div class="col-lg-3 col-md-3">
-                            <label class="text-cobefar font-weight-bold">Estado:</label>
-                            <select id="estado_motivo" name="Estado" class="form-control bg-cobefar text-white">
+                            <label class="text-cobefar fw-bold">Estado:</label>
+                            <select id="estado_motivo" name="Estado" class="form-select">
                                 <option value="1">Activo</option>
                                 <option value="0">Inactivo</option>
                             </select>
                         </div>
 
                         <div id="div_btnAccionMotivo" class="col-lg-3 col-md-3 d-flex align-self-end">
-                            <button type="button" class="btn btn-success" onclick="agregarMotivo()"><i class="icon icon-plus"></i> Agregar</button>
+                            <button type="button" class="btn btn-success" onclick="agregarMotivo()"><i class="bi bi-plus-lg"></i> Agregar</button>
                         </div>
                     </div>
                 </form>
@@ -316,7 +304,7 @@
                     <div class="col-lg-12 col-md-12">
                         <div class="bg-white">
                             <table id="tbl_listaMotivos" class="table table-light table-sm table-hover" cellspacing="0" width="100%">
-                                <thead class="bg-cobefar-6">
+                                <thead class="thead-cobefar">
                                     <tr>
                                         <th class="text-center">#</th>
                                         <th class="text-center">Motivo</th>
@@ -333,8 +321,8 @@
                                             <tr>
                                                 <td class="text-center">@num</td>
                                                 <td class="text-center">@m.Descripcion</td>
-                                                <td class="text-center font-weight-bold @if (m.Estado.Equals("1")) { Write("text-success"); } else { Write("text-danger"); }">@m.DescEstado</td>
-                                                <td class="text-center"><button type="button" class="btn btn-sm btn-light" onclick="llenarCamposMotivo (@m.IdMotivo, '@m.Descripcion')" data-toggle="tooltip" data-placement="top" title="Editar Motivo"><i class="icon-pencil text-primary"></i></button></td>
+                                                <td class="text-center fw-bold @if (m.Estado.Equals("1")) { Write("text-success"); } else { Write("text-danger"); }">@m.DescEstado</td>
+                                                <td class="text-center"><button type="button" class="btn btn-sm btn-light" onclick="llenarCamposMotivo (@m.IdMotivo, '@m.Descripcion')"><i class="bi bi-pencil text-primary"></i></button></td>
                                             </tr>
                                             ++num;
                                         }
@@ -348,7 +336,7 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" id="btn_cerrarModal" class="btn btn-secondary" data-dismiss="modal"><i class='icon-cross'></i> Cerrar</button>
+                <button type="button" id="btn_cerrarModal" class="btn btn-outline-secondary" data-bs-dismiss="modal"><i class='bi bi-x-lg'></i> Cerrar</button>
             </div>
         </div>
     </div>
@@ -358,30 +346,28 @@
 <div class="modal fade" id="modalMotivosyObs" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-md">
         <div class="modal-content">
-            <div class="modal-header bg-cobefar text-white">
+            <div class="modal-header bg-headerModals text-white">
                 <h5 class="modal-title" id="exampleModalLabel">Motivos y Submotivos</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true" class="text-white">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" tabindex="-1"></button>
             </div>
             <div class="modal-body">
                 <div class="row mb-4">
                     <div class="col-lg-6 col-md-6 text-center">
-                        <button class="btn btn-cobefar font-weight-bold mx-1 my-1" title="Nuevo Motivo" data-toggle="modal" data-target="#modalMotivo" onclick="limpiarCamposMotivo()">
-                            <i class="icon icon-plus"></i> Nuevo Motivo
+                        <button class="btn btn-cobefar fw-bold mx-1 my-1" title="Nuevo Motivo" data-bs-toggle="modal" data-bs-target="#modalMotivo" onclick="limpiarCamposMotivo()">
+                            <i class="bi bi-plus-lg"></i> Nuevo Motivo
                         </button>
                     </div>
 
                     <div class="col-lg-6 col-md-6 text-center">
-                        <button class="btn btn-cobefar font-weight-bold mx-1 my-1" title="Nueva Observación" data-toggle="modal" data-target="#modalSubmotivo" onclick="limpiarCamposSubmotivo()">
-                            <i class="icon icon-plus"></i> Nueva Observación
+                        <button class="btn btn-cobefar fw-bold mx-1 my-1" title="Nueva Observación" data-bs-toggle="modal" data-bs-target="#modalSubmotivo" onclick="limpiarCamposSubmotivo()">
+                            <i class="bi bi-plus-lg"></i> Nueva Observación
                         </button>
                     </div>
                 </div>
 
             </div>
             <div class="modal-footer">
-                <button type="button" id="btn_cerrarModal" class="btn btn-secondary" data-dismiss="modal"><i class='icon-cross'></i> Cerrar</button>
+                <button type="button" id="btn_cerrarModal" class="btn btn-outline-secondary" data-bs-dismiss="modal"><i class='bi bi-x-lg'></i> Cerrar</button>
             </div>
         </div>
     </div>
@@ -394,29 +380,27 @@
         <div class="modal-content">
             <div class="modal-header bg-cobefar text-white">
                 <h5 class="modal-title" id="exampleModalLabel">Motivos Devoluciones</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true" class="text-white">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" tabindex="-1"></button>
             </div>
             <div class="modal-body">
                 <form id="frm_motivo">
                     <div class="row mb-4">
                         <div class="col-lg-6 col-md-6">
-                            <label class="text-cobefar font-weight-bold">Descripción:</label>
+                            <label class="text-cobefar fw-bold">Descripción:</label>
                             <input type="hidden" id="idmotivo" name="IdMotivo" />
-                            <input type="text" id="desc_motivo" name="Descripcion" class="form-control border-success" autocomplete="off" />
+                            <input type="text" id="desc_motivo" name="Descripcion" class="form-control" autocomplete="off" />
                         </div>
 
                         <div class="col-lg-3 col-md-3">
-                            <label class="text-cobefar font-weight-bold">Estado:</label>
-                            <select id="estado_motivo" name="Estado" class="form-control bg-cobefar text-white">
+                            <label class="text-cobefar fw-bold">Estado:</label>
+                            <select id="estado_motivo" name="Estado" class="form-select text-white">
                                 <option value="1">Activo</option>
                                 <option value="0">Inactivo</option>
                             </select>
                         </div>
 
                         <div id="div_btnAccionMotivo" class="col-lg-3 col-md-3 d-flex align-self-end">
-                            <button type="button" class="btn btn-success" onclick="agregarMotivo()"><i class="icon icon-plus"></i> Agregar</button>
+                            <button type="button" class="btn btn-success" onclick="agregarMotivo()"><i class="bi bi-plus-lg"></i> Agregar</button>
                         </div>
                     </div>
                 </form>
@@ -425,7 +409,7 @@
                     <div class="col-lg-12 col-md-12">
                         <div class="bg-white">
                             <table id="tbl_listaMotivos" class="table table-light table-sm table-hover" cellspacing="0" width="100%">
-                                <thead class="bg-cobefar-6">
+                                <thead class="thead-cobefar">
                                     <tr>
                                         <th class="text-center">#</th>
                                         <th class="text-center">Motivo</th>
@@ -442,8 +426,8 @@
                                             <tr>
                                                 <td class="text-center">@num</td>
                                                 <td class="text-center">@m.Descripcion</td>
-                                                <td class="text-center font-weight-bold @if (m.Estado.Equals("1")) { Write("text-success"); } else { Write("text-danger"); }">@m.DescEstado</td>
-                                                <td class="text-center"><button type="button" class="btn btn-warning" onclick="llenarCamposMotivo (@m.IdMotivo, '@m.Descripcion')"><i title="Editar Motivo" class="icon-pencil"></i></button></td>
+                                                <td class="text-center fw-bold @if (m.Estado.Equals("1")) { Write("text-success"); } else { Write("text-danger"); }">@m.DescEstado</td>
+                                                <td class="text-center"><button type="button" class="btn btn-warning" onclick="llenarCamposMotivo (@m.IdMotivo, '@m.Descripcion')"><i title="Editar Motivo" class="bi bi-pencil"></i></button></td>
                                             </tr>
                                             ++num;
                                         }
@@ -457,7 +441,7 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" id="btn_cerrarModal" class="btn btn-secondary" data-dismiss="modal"><i class='icon-cross'></i> Cerrar</button>
+                <button type="button" id="btn_cerrarModal" class="btn btn-outline-secondary" data-bs-dismiss="modal"><i class='bi bi-x-lg'></i> Cerrar</button>
             </div>
         </div>
     </div>
@@ -470,16 +454,14 @@
         <div class="modal-content">
             <div class="modal-header bg-cobefar text-white">
                 <h5 class="modal-title" id="exampleModalLabel">Submotivos Devoluciones</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true" class="text-white">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" tabindex="-1"></button>
             </div>
             <div class="modal-body">
                 <form id="frm_submotivo">
                     <div class="row mb-4">
                         <div class="col-lg-6 col-md-6">
-                            <label class="text-cobefar font-weight-bold">Motivo:</label>
-                            <select id="idmotivo_submotivo" name="IdMotivo" class="form-control bg-cobefar text-white">
+                            <label class="text-cobefar fw-bold">Motivo:</label>
+                            <select id="idmotivo_submotivo" name="IdMotivo" class="form-select bg-cobefar text-white">
                                 <option value="">Seleccione</option>
                                 @if (motivosSubmotivos != null && motivosSubmotivos.Count >= 1)
                                 {
@@ -494,21 +476,21 @@
 
                     <div class="row mb-4">
                         <div class="col-lg-6 col-md-6">
-                            <label class="text-cobefar font-weight-bold">Descripción:</label>
+                            <label class="text-cobefar fw-bold">Descripción:</label>
                             <input type="hidden" id="idsubmotivo" name="IdSubmotivo" />
-                            <input type="text" id="desc_submotivo" name="Descripcion" class="form-control border-success" autocomplete="off" />
+                            <input type="text" id="desc_submotivo" name="Descripcion" class="form-control" autocomplete="off" />
                         </div>
 
                         <div class="col-lg-3 col-md-3">
-                            <label class="text-cobefar font-weight-bold">Estado:</label>
-                            <select id="estado_submotivo" name="Estado" class="form-control bg-cobefar text-white">
+                            <label class="text-cobefar fw-bold">Estado:</label>
+                            <select id="estado_submotivo" name="Estado" class="form-select bg-cobefar text-white">
                                 <option value="1">Activo</option>
                                 <option value="0">Inactivo</option>
                             </select>
                         </div>
 
                         <div id="div_btnAccionSubmotivo" class="col-lg-3 col-md-3 d-flex align-self-end">
-                            <button type="button" class="btn btn-success" onclick="agregarSubmotivo()"><i class="icon icon-plus"></i> Agregar</button>
+                            <button type="button" class="btn btn-success" onclick="agregarSubmotivo()"><i class="bi bi-plus-lg"></i> Agregar</button>
                         </div>
                     </div>
                 </form>
@@ -517,7 +499,7 @@
                     <div class="col-lg-12 col-md-12">
                         <div class="bg-white">
                             <table id="tbl_listaSubmotivos" class="table table-light table-sm table-hover " cellspacing="0" width="100%">
-                                <thead class="bg-cobefar-6">
+                                <thead class="thead-cobefar">
                                     <tr>
                                         <th class="text-center">#</th>
                                         <th class="text-center">Motivo</th>
@@ -536,8 +518,8 @@
                                                 <td class="text-center">@num</td>
                                                 <td class="text-center">@o.DescMotivo</td>
                                                 <td class="text-center">@o.Descripcion</td>
-                                                <td class="text-center font-weight-bold @if (o.Estado.Equals("1")) { Write("text-success"); } else { Write("text-danger"); }">@o.DescEstado</td>
-                                                <td class="text-center"><button type="button" class="btn btn-sm btn-light" onclick="llenarCamposSubmotivo(@o.IdSubmotivo, '@o.Descripcion', @o.IdMotivo)" data-toggle="tooltip" data-placement="top" title="Editar Motivo"><i class="icon-pencil text-primary"></i></button></td>
+                                                <td class="text-center fw-bold @if (o.Estado.Equals("1")) { Write("text-success"); } else { Write("text-danger"); }">@o.DescEstado</td>
+                                                <td class="text-center"><button type="button" class="btn btn-sm btn-light" onclick="llenarCamposSubmotivo(@o.IdSubmotivo, '@o.Descripcion', @o.IdMotivo)"><i class="bi bi-pencil text-primary"></i></button></td>
                                             </tr>
                                             ++num;
                                         }
@@ -551,24 +533,47 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" id="btn_cerrarModal" class="btn btn-secondary" data-dismiss="modal"><i class='icon-cross'></i> Cerrar</button>
+                <button type="button" id="btn_cerrarModal" class="btn btn-outline-secondary" data-bs-dismiss="modal"><i class='bi bi-x-lg'></i> Cerrar</button>
             </div>
         </div>
     </div>
 </div>
 
-
-
 <script>
-    $(document).ready(function () {
-        var tableMot = $('#tbl_listaMotivos').DataTable();
-        tableMot.columns.adjust().draw();
+    document.addEventListener('DOMContentLoaded', function () {
+        tippy('.cls-anular', {
+            content: 'Anular devolución',
+            animation: 'fade',
+            placement: 'bottom'
+        });
 
-        var tableObs = $('#tbl_listaSubmotivos').DataTable();
-        tableObs.columns.adjust().draw();
+        tippy('.cls-verDatos', {
+            content: 'Ver datos de devolución',
+            animation: 'fade',
+            placement: 'bottom'
+        });
+
+        tippy('.cls-editar', {
+            content: 'Editar devolución',
+            animation: 'fade',
+            placement: 'bottom'
+        });
+
+        tippy('.cls-recogido', {
+            content: 'Recogido ',
+            animation: 'fade'
+        });
+
+        tippy('.cls-revertirRecojo', {
+            content: 'Revertir Recojo',
+            animation: 'fade'
+        });
+
+        inicializarDataTable('tbl_listaDevoluciones', 25, false, false);
+        inicializarDataTable('tbl_listaMotivos', 10, false, false);
+        inicializarDataTable('tbl_listaSubmotivos', 10, false, false);
+        limitarMaxCaracteres('DocNumReporte', 6);
     });
-
-    $('#tbl_listaDevoluciones_filter').hide();
 
     function limpiarCampos() {
         $('#FechaDesde').val('');
@@ -633,8 +638,8 @@
                 text: "Este proceso genera el correlativo del documento.",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonText: "<i class='icon-checkmark'></i> Si, estoy seguro(a)",
-                cancelButtonText: "<i class='icon-cross'></i> Cancelar",
+                confirmButtonText: "<i class='bi bi-check-lg'></i> Si, estoy seguro(a)",
+                cancelButtonText: "<i class='bi bi-x-lg'></i> Cancelar",
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
@@ -672,8 +677,8 @@
                 text: "Perdera el correlativo del documento.",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonText: "<i class='icon-checkmark'></i> Si, estoy seguro(a)",
-                cancelButtonText: "<i class='icon-cross'></i> Cancelar",
+                confirmButtonText: "<i class='bi bi-check-lg'></i> Si, estoy seguro(a)",
+                cancelButtonText: "<i class='bi bi-x-lg'></i> Cancelar",
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
@@ -772,7 +777,7 @@
             }).fail(function (jqXHR, textStatus, errorThrown) {
                 console.log(jqXHR.status + textStatus + errorThrown);
             });
-        } 
+        }
     }
 
     function cargarListaCliente(textoIngresado) {
@@ -806,7 +811,7 @@
     function limpiarCamposMotivo() {
         $('#desc_motivo').val('');
         $('#estado_motivo').val('1');
-        $('#div_btnAccionMotivo').html(`<button type="button" class="btn btn-success" onclick="agregarMotivo()"><i class="icon icon-plus"></i> Agregar</button>`);
+        $('#div_btnAccionMotivo').html(`<button type="button" class="btn btn-success" onclick="agregarMotivo()"><i class="bi bi-plus-lg"></i> Agregar</button>`);
     }
 
     function agregarMotivo() {
@@ -847,7 +852,7 @@
         cargarMensaje();
         $(`#desc_motivo`).val(desc);
         $(`#idmotivo`).val(id);
-        $('#div_btnAccionMotivo').html(`<button type="button" class="btn btn-success" onclick="editarMotivo()"><i class="icon icon-pencil"></i> Editar</button>`);
+        $('#div_btnAccionMotivo').html(`<button type="button" class="btn btn-success" onclick="editarMotivo()"><i class="bi bi-pencil"></i> Editar</button>`);
     }
 
     /********* SUBMOTIVOS *********/
@@ -855,7 +860,7 @@
         $('#desc_submotivo').val('');
         $('#estado_submotivo').val('1');
         $('#idmotivo_submotivo').val('');
-        $('#div_btnAccionSubmotivo').html(`<button type="button" class="btn btn-success" onclick="agregarSubmotivo()"><i class="icon icon-plus"></i> Agregar</button>`);
+        $('#div_btnAccionSubmotivo').html(`<button type="button" class="btn btn-success" onclick="agregarSubmotivo()"><i class="bi bi-plus-lg"></i> Agregar</button>`);
     }
 
     function agregarSubmotivo() {
@@ -901,6 +906,10 @@
         $(`#desc_submotivo`).val(desc);
         $(`#idsubmotivo`).val(idSubmotivo);
         $(`#idmotivo_submotivo`).val(idMotivo);
-        $('#div_btnAccionSubmotivo').html(`<button type="button" class="btn btn-success" onclick="editarSubmotivo()"><i class="icon icon-pencil"></i> Editar</button>`);
+        $('#div_btnAccionSubmotivo').html(`<button type="button" class="btn btn-success" onclick="editarSubmotivo()"><i class="bi bi-pencil"></i> Editar</button>`);
+    }
+
+    function redireccionar(input) {
+        window.location.replace(input.dataset.ruta);
     }
 </script>

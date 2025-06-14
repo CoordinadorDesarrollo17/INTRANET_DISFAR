@@ -107,6 +107,12 @@
                     <input type="text" id="LugarDestino" name="DetORTV['LugarDestino']" class="form-control text-center border-success" value="" readonly />
                 </div>
 
+                <div class="col-lg-3">
+                    <label for="AlmacenProcedencia" class="text-dark form-label font-weight-bold font-18">Almacen de Procedencia:</label>
+                    <!--Html.EditorFor(model => model.LugarDestino, new { htmlAttributes = new { class = "form-control border-success", readonly = "true" } })-->
+                    <input type="text" id="AlmacenProcedencia" name="DetORTV['LugarDestino']" class="form-control text-center border-success" value="" readonly />
+                </div>
+
             </div>
 
             <input type="text" id="DocEntryTicket" name="DocEntryTicket" class="form-control border-success" value="" hidden readonly>
@@ -290,7 +296,8 @@
                                     <option value='UnidadDeVentaErrónea'>Unidad de venta errónea</option>
                                     <option value='PrecioIncorrecto'>Precio incorrecto</option>
                                     <option value='CantidadIncorrecta'>Cantidad incorrecta</option>
-                                    <option value='FechaCorta'>Fecha corta</option>`;
+                                    <option value='FechaCorta'>Fecha corta</option>
+                                    <option value='PromocionNoEnviada'>Promoción no enviada</option>`;
         }
         else if (tipoError == "ErrorCliente") {
             problemas += `<option value='ProductoIncorrecto'>Producto incorrecto</option>
@@ -370,6 +377,12 @@
                 })
 
                 $("#Articulos > tbody").html(filas);
+                if (response.DetORTV.LugarDestino == 'Centro' || response.DetORTV.LugarDestino == 'Arriola') {
+                    $("#AlmacenProcedencia").val(response.DetORTV.AlmProcedencia);
+                } else {
+                    const almacenesUnicos = [...new Set(response.Det.map(x => x.AlmVenta).filter(Boolean))].join(', ');
+                    $("#AlmacenProcedencia").val(almacenesUnicos);
+                }
                 $("#CardCode").val(response.CardCode);
                 $("#CardName").val(response.CardName);
                 $("#Telefono").val(response.Telefono);

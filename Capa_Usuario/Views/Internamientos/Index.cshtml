@@ -5,7 +5,7 @@
     var tiposDocumento = new Dictionary<string, string>
 {
         { "OPDN", "Entrada de Mercancía" },
-        { "OWTR", "Transferencia" }
+       { "OWTQ", "Solicitudes de Traslado" }
     };
 }
 
@@ -13,8 +13,8 @@
     <nav>
         <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
-            <li><a href="@Url.Action("Sesion", "Index")">Dirección Técnica</a></li>
-            <li><a href="@Url.Action("Sesion", "Index")">Liberaciones</a></li>
+            @*<li><a href="@Url.Action("Sesion", "Index")">Dirección Técnica</a></li>
+            <li><a href="@Url.Action("Sesion", "Index")">Liberaciones</a></li>*@
             <li class="current"><em>@ViewBag.Title</em></li>
         </ol>
     </nav>
@@ -274,7 +274,7 @@
                 html: 'El documento será cancelado sin posibilidad de revertir esta acción.',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonText: "<i class='bi bi-check-lg'></i> Si, liberar",
+                confirmButtonText: "<i class='bi bi-check-lg'></i> Si",
                 cancelButtonText: "<i class='bi bi-x-lg mx-1'></i> Cancelar",
                 reverseButtons: true,
                 allowEscapeKey: false,
