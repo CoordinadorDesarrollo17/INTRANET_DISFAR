@@ -188,7 +188,7 @@
 
     @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "EditaTicketVenta" }))
     {
-        
+
         <div class="tab-content" id="nav-tabContent">
 
             <div class="tab-pane fade show active" id="nav-datos-pedidos" role="tabpanel" aria-labelledby="nav-datos-pedidos-tab">
@@ -207,7 +207,7 @@
                         </div>
                     </div>
 
-                    <div class="row mt-4">                       
+                    <div class="row mt-4">
 
                         <div class="col-lg-2">
                             <label for="DocNum" class="text-dark form-label font-weight-bold font-18">DocNum Ticket:</label>
@@ -251,7 +251,8 @@
 
                         <div class="col-lg-2">
                             <label for="LugarDestino" class="text-dark form-label font-weight-bold font-18">Lugar destino:</label>
-                            <select name="LugarDestino" id="LugarDestino" class="form-control bg-cobefar text-white border-success" onchange="muestraCampo();mostrarOficinas();mostrarTableTicketsVinculados($('#selectVinculado').val()); validarLugarDestino(this.value)">
+                            <select name="LugarDestino" id="LugarDestino" class="form-control bg-cobefar text-white border-success"
+                                    onchange="muestraCampo(); mostrarOficinas(); mostrarTableTicketsVinculados($('#selectVinculado').val()); validarLugarDestino(this.value);  limpiarAlmProcedencia(this.value);">
                                 <option value="">Seleccione</option>
                                 <option value="Arriola" @{ if (Model.LugarDestino == "Arriola") { Write("selected"); } }>Para Arriola</option>
                                 <option value="Agencia" @{ if (Model.LugarDestino == "Agencia") { Write("selected"); } }>Para Agencia</option>
@@ -719,21 +720,21 @@
                         </div>
                     }
 
-                <div class="row mt-4">
-                    <div class="col-lg-3">
-                        <label for="MontoFinal" class="text-white bg-cobefar px-2 form-label font-weight-bold font-18">Monto Final:</label>
-                        <div id="infoMontoFinal"><input id="MontoFinal" name="MontoFinal" type="text" value="@Model.MontoFinal" readonly class="form-control font-weight-bold border-success" /></div>
-                    </div>
+                    <div class="row mt-4">
+                        <div class="col-lg-3">
+                            <label for="MontoFinal" class="text-white bg-cobefar px-2 form-label font-weight-bold font-18">Monto Final:</label>
+                            <div id="infoMontoFinal"><input id="MontoFinal" name="MontoFinal" type="text" value="@Model.MontoFinal" readonly class="form-control font-weight-bold border-success" /></div>
+                        </div>
 
-                    <div class="col-lg-3">
-                        <label for="NroSolicitudReclamo" class="text-dark form-label font-weight-bold font-18">N° Solicitud Reclamo:</label>
-                        <div>
-                            <input id="NroSolicitudReclamo" name="NroSolicitudReclamo" type="text" readonly class="form-control border-success" value="@ViewBag.ReclamosAplicados" />
-                            <input type="hidden" id="SolicitudesReclamoSeleccionadas" name="SolicitudesReclamoSeleccionadas" value="@ViewBag.ReclamosAplicados" />
+                        <div class="col-lg-3">
+                            <label for="NroSolicitudReclamo" class="text-dark form-label font-weight-bold font-18">N° Solicitud Reclamo:</label>
+                            <div>
+                                <input id="NroSolicitudReclamo" name="NroSolicitudReclamo" type="text" readonly class="form-control border-success" value="@ViewBag.ReclamosAplicados" />
+                                <input type="hidden" id="SolicitudesReclamoSeleccionadas" name="SolicitudesReclamoSeleccionadas" value="@ViewBag.ReclamosAplicados" />
 
+                            </div>
                         </div>
                     </div>
-                </div>
 
                     <div class="row mt-4">
                         <div class="col-lg-12">

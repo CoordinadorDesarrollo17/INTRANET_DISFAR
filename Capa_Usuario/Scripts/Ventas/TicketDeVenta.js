@@ -599,3 +599,9 @@ function validarLugarDestino(valor) {
 
     return;
 }
+
+function limpiarAlmProcedencia(lugarDestino) {
+    if (lugarDestino !== 'Arriola' && lugarDestino !== 'Centro') {
+        document.getElementById('AlmProcedencia').value = '';
+    }
+}
