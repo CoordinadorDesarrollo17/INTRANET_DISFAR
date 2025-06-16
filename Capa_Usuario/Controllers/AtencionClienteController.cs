@@ -94,6 +94,11 @@ namespace Capa_Usuario.Controllers
                 ViewBag.Mensaje = Mensaje;
                 ViewBag.Osat = filtro;
                 Usuario_E user = (Usuario_E)Session["UsuarioId"];
+
+
+                var listaCompleta = osatN.ListarSolicitudes2(filtro, false);
+                ViewBag.ContadorCriticos = listaCompleta.Count(x => x.DiasRetraso > 2);
+
                 if (user.IdRol == 54)
                 {
                     return View(osatN.ListarSolicitudes(filtro, true));

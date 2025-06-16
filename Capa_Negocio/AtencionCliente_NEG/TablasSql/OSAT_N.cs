@@ -17,6 +17,10 @@ namespace Capa_Negocio.AtencionCliente_NEG.TablasSql
         {
             return osatD.ListarSolicitudes(filtro, false, fact);
         }
+        public List<OSAT_E> ListarSolicitudes2(OSAT_E filtro, bool fact)
+        {
+            return osatD.ListarSolicitudes(filtro, true, fact);
+        }
         public List<Rpt_OSAT_E> ListarSolicitudesExcel(OSAT_E filtro)
         {
             return osatD.ListarSolicitudesExcel(filtro);
