@@ -267,18 +267,18 @@
                         Model.Det[0].ErrorAlmacen == "AING"    ? "Área de Ingreso" :
                         Model.Det[0].ErrorAlmacen == "OTROS"   ? "Otros" : "")" />
                     </div>
-                        
-                           <div class="col-lg-4 mt-3">
-                               @if (Model.Det[0].ErrorAlmacen == "OTROS")
-                               {
-                                   <div style="margin-top:8px;">
-                                       <label class="text-dark form-label font-weight-bold font-18">Comentario (obligatorio si selecciona Otros):</label>
-                                       @Html.EditorFor(model => @Model.Det[0].ErrAlmOtrCom, new { htmlAttributes = new { @class = "form-control border-success text-center", @readonly = true } })
-                                   </div>
-                               }
-                           </div>
-                        
-                    
+
+                    <div class="col-lg-4 mt-3">
+                        @if (Model.Det[0].ErrorAlmacen == "OTROS")
+                        {
+                            <div style="margin-top:8px;">
+                                <label class="text-dark form-label font-weight-bold font-18">Comentario (obligatorio si selecciona Otros):</label>
+                                @Html.EditorFor(model => @Model.Det[0].ErrAlmOtrCom, new { htmlAttributes = new { @class = "form-control border-success text-center", @readonly = true } })
+                            </div>
+                        }
+                    </div>
+
+
                 }
                 else
                 {
@@ -432,7 +432,9 @@
                                                 <input class="form-control" type="text" name="Det[@i].ComprobanteVinc" value="@obj.ComprobanteVinc" style="width: 230px" readonly />
                                             </div>
 
-                                                <div @if (obj.ReferenciaNC_ND == null && obj.NuevoPrecioArticulo == null) { Write("hidden"); }>
+                                            @if (obj.ReferenciaNC_ND != null && obj.NuevoPrecioArticulo != null)
+                                            {
+                                                <div>
                                                     <div class="mt-3">
                                                         <label class="form-label font-weight-bold">Nuevo precio artículo:</label>
                                                         <input type="text" name="Det[@i].NuevoPrecioArticulo" class="form-control cls-num text-right" value="@((double)obj.NuevoPrecioArticulo)" readonly />
@@ -442,6 +444,7 @@
                                                         <input type="text" name="Det[@i].ReferenciaNC_ND" class="form-control" value="@obj.ReferenciaNC_ND" readonly />
                                                     </div>
                                                 </div>
+                                            }
                                         </td>
                                     }
                                     else if (Model.Estado == "Proceso")
