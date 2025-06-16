@@ -790,7 +790,7 @@
     <Content Include="Views\AbastecimientoInterno\PackingList.cshtml" />
     <Content Include="Views\AbastecimientoInterno\PackingList_PDF.cshtml" />
     <Content Include="Views\AbastecimientoInterno\ReportesExcel.cshtml" />
-    <None Include="Views\DireccionTecnica\OrganolepticoEM_PDF.cshtml" />
+    <Content Include="Views\DireccionTecnica\OrganolepticoEM_PDF.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\web.config" />
