@@ -49,6 +49,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     if (!dr.IsDBNull(4)) { requerimiento.Comentario = dr.GetString(4); }
                     if (!dr.IsDBNull(5)) { requerimiento.TiempoRegistro = dr.GetDateTime(5); }
                     if (!dr.IsDBNull(6)) { requerimiento.OperarioRegistra = dr.GetString(6); }
+                    if (!dr.IsDBNull(7)) { requerimiento.Zona = dr.GetString(7); }
 
                     requerimiento.Detalle = new List<DetalleRequerimientos_E>();
                 }
@@ -208,6 +209,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                             if (!dr.IsDBNull(14)) { detalle.Nivel = dr.GetString(14); }
                             if (!dr.IsDBNull(15)) { detalle.Posicion = dr.GetString(15); }
                             if (!dr.IsDBNull(16)) { detalle.RackBloque = dr.GetString(16); }
+                            if (!dr.IsDBNull(17)) { detalle.Zona = dr.GetString(17); }
                             lista.Add(detalle);
                         }
                     }
@@ -237,6 +239,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     cmd.Parameters.AddWithValue("@TipoAbastecimiento", requerimiento.TipoAbastecimiento);
                     cmd.Parameters.AddWithValue("@Comentario", requerimiento.Comentario);
                     cmd.Parameters.AddWithValue("@OperarioRegistra", requerimiento.OperarioRegistra);
+                    cmd.Parameters.AddWithValue("@Zona", requerimiento.Zona);
 
                     // Crear tabla de parámetros para el tipo DetalleRequerimientosType
                     DataTable detalleTable = new DataTable();

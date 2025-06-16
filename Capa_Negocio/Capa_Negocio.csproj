@@ -57,6 +57,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AbastecimientoInterno_NEG\Reportes\ReporteKardex_N.cs" />
     <Compile Include="AbastecimientoInterno_NEG\Reportes\ReporteStockPicking_N.cs" />
     <Compile Include="AbastecimientoInterno_NEG\Reportes\ReporteStockReserva_N.cs" />
     <Compile Include="AbastecimientoInterno_NEG\TablasExternas\OWTQ_N.cs" />
@@ -193,6 +194,9 @@
     <Compile Include="Ventas_NEG\TablasSql\ORTV_N.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Capa_Datos\Capa_Datos.csproj">
       <Project>{6bbfb369-2f7e-4bb7-9a56-6e92656798db}</Project>
       <Name>Capa_Datos</Name>
@@ -202,9 +206,5 @@
       <Name>Capa_Entidad</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

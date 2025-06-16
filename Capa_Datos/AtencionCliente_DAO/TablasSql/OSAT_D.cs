@@ -175,7 +175,7 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
         VT.LugarDestino,
         VT.CardName,
         VT.CardCode,
-        (SELECT TOP 1 FechaOperacion
+        (SELECT TOP 1 FechaOperacion    
          FROM ac.CC_OSAT
          WHERE Operacion = 'ATENDER' AND DocEntry = AC.DocEntry
          ORDER BY FechaOperacion, HoraOperacion DESC) AS FechaAtencion,

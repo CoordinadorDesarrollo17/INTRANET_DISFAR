@@ -10,6 +10,7 @@ using Capa_Negocio.AbastecimientoInterno_NEG.TablasSql;
 using Capa_Negocio.DireccionTecnica_NEG.TablasSql;
 using Capa_Usuario.Helpers;
 using OfficeOpenXml;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 using SpreadsheetLight;
 using System;
@@ -21,6 +22,7 @@ using System.Linq;
 using System.Transactions;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Services.Description;
 using IsolationLevel = System.Transactions.IsolationLevel;
 
 namespace Capa_Usuario.Controllers
@@ -43,6 +45,8 @@ namespace Capa_Usuario.Controllers
         private readonly ReporteStockReserva_N _reporteStockReserva = new ReporteStockReserva_N();
         private readonly ProductosDisponiblesReserva_N _productosDisponiblesReserva = new ProductosDisponiblesReserva_N();
         private readonly Capa_Negocio.Helpers _helper = new Capa_Negocio.Helpers();
+        private readonly ReporteKardex_N _reporteKardex = new ReporteKardex_N();
+
         /************************* C O N F I G U R A C I Ó N *************************/
         private ActionResult VerificarPermiso(int idOperation)
         {
@@ -1771,6 +1775,12 @@ namespace Capa_Usuario.Controllers
                                     return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { $"Revise que exista previamente la ubicación en Picking {u}" }, Icono = "error" });
                             }
                         }
+                        else if (requerimiento.TipoAbastecimiento == "Venta Master")
+                        {
+                            if (string.IsNullOrWhiteSpace(requerimiento.Zona))
+                                return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { $"Debe seleccionar la zona para Venta Master" }, Icono = "error" });
+                        }
+
                         // Asignar datos de operario en el requerimiento
                         requerimiento.OperarioRegistra = $"{user.Nombres} {user.Apellidos}";
                         Utilitarios uti = new Utilitarios();
@@ -2360,6 +2370,134 @@ namespace Capa_Usuario.Controllers
             }
         }
 
+        public ActionResult PackingList(int idOperation = 3800)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                var lista = _transferenciaReservaN.ListarDetalles();
+                return View(lista);
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
+
+        public ActionResult ImprimirPackingList(List<int> packingIds)
+        {
+            var todos = _transferenciaReservaN.ListarDetalles();
+            var modelo = todos.Where(x => packingIds.Contains(x.Id)).ToList();
+            var usuario = Session["UsuarioId"] as Usuario_E;
+
+            if (usuario == null)
+                return Content("Sesión expirada. Volver a iniciar sesión.");
+
+            if (!modelo.Any())
+                return Content("No se encontraron resultados para los IDs enviados.");
+
+            ViewBag.Usuario = $"{usuario.Nombres} {usuario.Apellidos}";
+
+            var pdf = new Rotativa.ViewAsPdf("PackingList_PDF", modelo)
+            {
+                PageSize = Rotativa.Options.Size.A4,
+                PageOrientation = Rotativa.Options.Orientation.Landscape,
+                PageMargins = new Rotativa.Options.Margins(10, 10, 10, 10)
+            };
+
+            var pdfBytes = pdf.BuildFile(ControllerContext);
+
+            return File(pdfBytes, "application/pdf", "PackingList.pdf");
+
+        }
+
+        public ActionResult ReportesExcel(int idOperation = 3801)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                return View();
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
+
+        public ActionResult ExportarExcelKardexIngreso(string fechaInicio = null, string fechaFin = null, int idOperation = 3802)
+        {
+            if (string.IsNullOrEmpty(fechaInicio) || string.IsNullOrEmpty(fechaFin))
+                return Content("No hay datos para exportar");
+
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                int columnas = 13;
+                var lista = _reporteKardex.ListarKardexIngreso(fechaInicio, fechaFin);
+
+                if (lista != null && lista.Any())
+                {
+                    using (var libro = new ExcelPackage())
+                    {
+                        var worksheet = libro.Workbook.Worksheets.Add("KardexIngreso");
+                        worksheet.Cells["A1"].LoadFromCollection(lista, PrintHeaders: true);
+                        for (var col = 1; col <= columnas; col++)
+                        {
+                            worksheet.Column(col).AutoFit();
+                        }
+                        var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: lista.Count() + 1, toColumn: columnas), "KardexIngreso");
+                        tabla.ShowHeader = true;
+                        tabla.TableStyle = OfficeOpenXml.Table.TableStyles.Medium2;
+                        string excelContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                        return File(libro.GetAsByteArray(), excelContentType, "KardexIngreso.xlsx");
+                    }
+                }
+                else { return Content("No hay datos para exportar"); }
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
+
+        public ActionResult ExportarExcelKardexSalida(string fechaInicio = null, string fechaFin = null, int idOperation = 3803)
+        {
+            if (string.IsNullOrEmpty(fechaInicio) || string.IsNullOrEmpty(fechaFin))
+                return Content("No hay datos para exportar");
+
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                int columnas = 14;
+                var lista = _reporteKardex.ListarKardexSalida(fechaInicio, fechaFin);
+
+                if (lista != null && lista.Any())
+                {
+                    using (var libro = new ExcelPackage())
+                    {
+                        var worksheet = libro.Workbook.Worksheets.Add("KardexSalida");
+                        worksheet.Cells["A1"].LoadFromCollection(lista, PrintHeaders: true);
+
+                        // Auto ajustar columnas
+                        for (var col = 1; col <= columnas; col++)
+                        {
+                            worksheet.Column(col).AutoFit();
+                        }
+
+                        var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: lista.Count() + 1, toColumn: columnas), "KardexSalida");
+                        tabla.ShowHeader = true;
+                        tabla.TableStyle = OfficeOpenXml.Table.TableStyles.Medium2;
+                        string excelContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                        return File(libro.GetAsByteArray(), excelContentType, "KardexSalida.xlsx");
+                    }
+                }
+                else { return Content("No hay datos para exportar"); }
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
 
         /**************** R E A B A S T E C I M I E N T O ****************/
         //Listado de detalle solicitudes de traslado Transferido y atendidoReserva=0 

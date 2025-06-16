@@ -40,24 +40,14 @@ namespace Capa_Datos
 
             // HANA Database Configuration
             this.cadHana = "Server=172.16.55.36:30015;UserName=B1ADMIN;Password=Passw0rd;";
-<<<<<<< HEAD
-            this.schemaHana = "\"BASE_24_05_2025\".";
-            //this.schemaHana = "\"B1H_COBEFAR_2018\".";
-            //this.cadHanaOnPremise = Environment.GetEnvironmentVariable("CNX_HANA_ON_PREMISE", EnvironmentVariableTarget.Machine);
-            //this.schemaHanaOnPremise = "\"B1H_COBEFAR_2018\".";
-            this.BDsql = Environment.GetEnvironmentVariable("BD_PROYECTO_INTRANET", EnvironmentVariableTarget.Machine);
-            this.cadSql = Environment.GetEnvironmentVariable("BD_DEVELOP", EnvironmentVariableTarget.Machine);
-=======
             //this.schemaHana = "\"BASE_01_06_2025\".";
             this.schemaHana = "\"B1H_COBEFAR_2018\".";
             //this.cadHanaOnPremise = Environment.GetEnvironmentVariable("CNX_HANA_ON_PREMISE", EnvironmentVariableTarget.Machine);
             //this.schemaHanaOnPremise = "\"B1H_COBEFAR_2018\".";
-            this.BDsql = Environment.GetEnvironmentVariable("BD_PROYECTO_INTRANET", EnvironmentVariableTarget.Machine);
-            //this.cadSql = Environment.GetEnvironmentVariable("BD_PRUEBAS", EnvironmentVariableTarget.Machine);
-            this.cadSql = Environment.GetEnvironmentVariable("SOLICITUDES", EnvironmentVariableTarget.Machine);
->>>>>>> hotfix/NotaCreditoSolicitudes
-            //this.cadSql = Environment.GetEnvironmentVariable("PROYECTO_INTRANET", EnvironmentVariableTarget.Machine);
-            this.cadSql2 = Environment.GetEnvironmentVariable("PROYECTO_RESERVA_PICKING", EnvironmentVariableTarget.Machine);
+            this.BDsql = Environment.GetEnvironmentVariable("NOMBRE_BD_PRINCIPAL", EnvironmentVariableTarget.Machine);
+            //this.cadSql = Environment.GetEnvironmentVariable("BD_DEVELOP", EnvironmentVariableTarget.Machine);
+            this.cadSql = Environment.GetEnvironmentVariable("PROYECTO_INTRANET", EnvironmentVariableTarget.Machine);
+            this.cadSql2 = Environment.GetEnvironmentVariable("BD_Operaciones", EnvironmentVariableTarget.Machine);
             CadSql3 = Environment.GetEnvironmentVariable("BD_DT", EnvironmentVariableTarget.Machine);
             CadSql4 = Environment.GetEnvironmentVariable("BD_DOCUMENTOS_REGULATORIOS", EnvironmentVariableTarget.Machine);
             this.serverSophos = Environment.GetEnvironmentVariable("SOPHOS", EnvironmentVariableTarget.Machine);

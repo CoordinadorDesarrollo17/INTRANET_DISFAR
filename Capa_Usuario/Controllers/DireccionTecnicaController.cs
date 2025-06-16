@@ -521,7 +521,7 @@ namespace Capa_Usuario.Controllers
             if (detalle != null && detalle.Any())
                 orgEM.First().ComentarioOrganoleptico = detalle.First().ComentarioOrganoleptico;
 
-            var pdfResult = new ViewAsPdf("OrganolepticoEM_PDF", orgEM)
+            var pdfResult = new ViewAsPdf("~/Views/DireccionTecnica/OrganolepticoEM_PDF.cshtml", orgEM)
             {
                 PageSize = Rotativa.Options.Size.A4,
                 FileName = $"Organoleptico_{lote}.pdf"

@@ -47,6 +47,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AbastecimientoInterno_ENT\Reportes\ReporteKardexIngreso_E.cs" />
+    <Compile Include="AbastecimientoInterno_ENT\Reportes\ReporteKardexSalida_E.cs" />
     <Compile Include="AbastecimientoInterno_ENT\Reportes\ReporteStockPicking_E.cs" />
     <Compile Include="AbastecimientoInterno_ENT\Reportes\ReporteStockReserva_E.cs" />
     <Compile Include="AbastecimientoInterno_ENT\TablasSql\DetalleReservaTransferenciaMasiva_E.cs" />
@@ -78,11 +80,8 @@
     <Compile Include="Almacen_ENT\Tablas\OPDN_E.cs" />
     <Compile Include="Almacen_ENT\Tablas\ORPD_E.cs" />
     <Compile Include="Almacen_ENT\Tablas\RPD1_E.cs" />
-<<<<<<< HEAD
     <Compile Include="AtencionCliente_ENT\ReportesSql\Rpt_Regalos.cs" />
-=======
     <Compile Include="AtencionCliente_ENT\TablasExternas\NotaFinanciera_E.cs" />
->>>>>>> hotfix/NotaCreditoSolicitudes
     <Compile Include="AtencionCliente_ENT\TablasSql\CC_OSAT_E.cs" />
     <Compile Include="Almacen_ENT\TablasSql\CC_OIPE_E.cs" />
     <Compile Include="Almacen_ENT\TablasSql\IAR11_E.cs" />
