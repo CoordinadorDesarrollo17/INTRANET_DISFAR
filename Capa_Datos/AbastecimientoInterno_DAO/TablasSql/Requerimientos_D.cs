@@ -375,6 +375,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     sb.AppendLine($"SELECT {top} RQ.Id, RQ.Origen, RQ.Destino, RQ.TipoAbastecimiento, RQ.Comentario, CONVERT (VARCHAR, RQ.TiempoRegistro, 103) AS FechaRegistro, CONVERT (VARCHAR, RQ.TiempoRegistro, 108) AS HoraRegistro,");
                     sb.AppendLine("RQ.OperarioRegistra, RQ.Zona, RQ.Aprobado");
                     sb.AppendLine("FROM Requerimientos RQ");
+                    sb.AppendLine("WHERE 1 = 1");
                     sb.AppendLine(condicion?.ToString().Trim());
 
                     // Agregamos los parámetros dinámicamente

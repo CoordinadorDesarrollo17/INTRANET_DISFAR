@@ -109,8 +109,14 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
 
                 if (!string.IsNullOrWhiteSpace(filtros.FechaRegistro))
                 {
-                    condicion.AppendLine("AND CONVERT (VARCHAR, RQ.TiempoRegistro, 103) = @FechaRegistro");
+                    condicion.AppendLine("AND RQ.TiempoRegistro >= @FechaRegistro AND RQ.TiempoRegistro < DATEADD(DAY, 1, @FechaRegistro)");
                     parametros["@FechaRegistro"] = filtros.FechaRegistro;
+                }
+
+                if (filtros.Aprobado != null)
+                {
+                    condicion.AppendLine("AND RQ.Aprobado = @Aprobado");
+                    parametros["@Aprobado"] = filtros.Aprobado;
                 }
 
                 if (!string.IsNullOrWhiteSpace(filtros.OperarioRegistra))

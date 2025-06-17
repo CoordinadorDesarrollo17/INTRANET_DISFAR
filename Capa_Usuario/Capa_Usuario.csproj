@@ -1046,6 +1046,7 @@
     <Content Include="Views\Transferencias\DetalleTransferencia.cshtml" />
     <Content Include="Views\Shared\Transferencias\_ListadoTransferencias.cshtml" />
     <Content Include="Views\Shared\AbastecimientoInterno\_ListadoDetalleRequerimiento.cshtml" />
+    <Content Include="Views\Shared\AbastecimientoInterno\_ListadoRequerimientos.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

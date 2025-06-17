@@ -33,26 +33,26 @@
                 <thead class="thead-cobefar">
                     <tr>
                         <th scope="col" class="text-center small" style="width: 7%">Nro Requerimiento</th>
+                        <th scope="col" class="text-center small">Fecha de Registro</th>
+                        <th scope="col" class="text-center small">Hora de Registro</th>
                         <th scope="col" class="text-center small">Origen</th>
                         <th scope="col" class="text-center small">Destino</th>
                         <th scope="col" class="text-center small">Tipo de Abastecimiento</th>
                         <th scope="col" class="text-center small">Registrado Por</th>
-                        <th scope="col" class="text-center small">Fecha de Registro</th>
-                        <th scope="col" class="text-center small">Hora de Registro</th>
                         <th scope="col" class="text-center small">Zona</th>
                         <th scope="col" class="text-center small" style="width: 7%"></th>
                     </tr>
                 </thead>
                 <tbody class="table-white">
-                    @foreach (var item in Model.Item2)
+                    @foreach (var item in Model)
                     {
                         <tr>
                             <td scope="col" class="text-center small">@item.Id</td>
+                            <td scope="col" class="text-center small">@item.FechaRegistro</td>
+                            <td scope="col" class="text-center small">@item.HoraRegistro</td>
                             <td scope="col" class="text-center small">@item.Origen</td>
                             <td scope="col" class="text-center small">@item.Destino</td>
                             <td scope="col" class="text-center small">@item.TipoAbastecimiento</td>
-                            <td scope="col" class="text-center small">@item.FechaRegistro</td>
-                            <td scope="col" class="text-center small">@item.HoraRegistro</td>
                             <td scope="col" class="text-center small">@item.OperarioRegistra</td>
                             <td scope="col" class="text-center small">@item.Zona</td>
                             <td scope="col" class="text-center small">
@@ -102,7 +102,7 @@
                             <div class="col-3">
                                 <label for="FechaRegistro" class="form-label fw-bold">Fecha Registro:</label>
                                 <input id="FechaRegistro" name="FechaRegistro" class="form-control " type="date" autocomplete="off" />
-                            </div>                           
+                            </div>
                         </div><!-- // ROW -->
 
                         <div class="row">
@@ -115,8 +115,14 @@
                                 </select>
                             </div>
                             <div class="col-6">
-                                <label for="OperarioRegistra" class="form-label fw-bold">Registrado Por:</label>
-                                <input id="OperarioRegistra" name="OperarioRegistra" class="form-control" type="text" autocomplete="off" />
+                                <label for="OperarioRegistra" class="form-label fw-bold">OpRegistro:</label>
+                                <select id="OperarioRegistra" name="OperarioRegistra" class="cls-select">
+                                    <option value="">Seleccione</option>
+                                    @foreach (var item in ViewBag.ListaOpRegistro)
+                                    {
+                                        <option value="@item">@item</option>
+                                    }
+                                </select>
                             </div>
                         </div><!-- // ROW -->
                     </form>
@@ -215,12 +221,14 @@
 
             for (const key in rawPayload) {
                 if (camposNumericos.includes(key)) {
-                    const val = rawPayload[key].trim();
+                    const val = (rawPayload[key] ?? '').trim();
                     payload[key] = val === '' ? null : Number(val);
                 } else {
                     payload[key] = rawPayload[key];
                 }
             }
+            //console.log(payload)
+            //return;
 
             try {
                 const response = await fetch("/AbastecimientoInterno/FiltrarListado", {
@@ -346,7 +354,7 @@
                     const claseAprobado = aprobado == 0 ? 'd-block' : 'd-none';
                     const div = document.getElementById('div_AprobarRequerimiento');
                     document.getElementById('btn_AprobarRequerimiento').dataset.requerimiento = requerimientoId;
-                    
+
                     // Asegurar que se elimina cualquier clase anterior de visibilidad
                     div.classList.remove('d-none', 'd-block');
                     div.classList.add(claseAprobado);
@@ -390,9 +398,9 @@
                 const json = await response.json();
 
                 Swal.fire({
-                        title: json.Titulo,
-                        html: json.Mensajes ? json.Mensajes.join('<br>') : '',
-                        icon: json.Icono
+                    title: json.Titulo,
+                    html: json.Mensajes ? json.Mensajes.join('<br>') : '',
+                    icon: json.Icono
                 }).then((result) => {
                     if (result.isConfirmed) {
                         location.reload();

@@ -2672,7 +2672,8 @@ namespace Capa_Usuario.Controllers
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                var lista = _requerimientosN.ListarRequerimientos();
+                var (helper, lista) = _requerimientosN.ListarRequerimientos();
+                ViewBag.ListaOpRegistro = lista.Select(x => x.OperarioRegistra).Distinct().OrderBy(x => x).ToList();
 
                 return View(lista);
             }
@@ -2735,9 +2736,10 @@ namespace Capa_Usuario.Controllers
             if (usuarioSesion == null)
                 return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
 
-            var lista = _requerimientosN.ListarRequerimientos(filtros);
+            var (helper, lista) = _requerimientosN.ListarRequerimientos(filtros);
+            ViewBag.Mensajes = helper;
 
-            return PartialView("AbastecimientoInterno/_ListadoDetalleRequerimiento", lista);
+            return PartialView("AbastecimientoInterno/_ListadoRequerimientos", lista);
         }
         /**************** R E A B A S T E C I M I E N T O ****************/
         //Listado de detalle solicitudes de traslado Transferido y atendidoReserva=0 
