@@ -7,7 +7,9 @@ using Capa_Entidad.Seguridad_ENT;
 using Capa_Entidad.Ventas_ENT.Reportes;
 using Capa_Entidad.Ventas_ENT.Tablas;
 using Capa_Entidad.Ventas_ENT.TablasSql;
+using Capa_Negocio.Seguridad_NEG.TablasSql;
 using Capa_Negocio.Ventas_NEG.Tablas;
+using Microsoft.ReportingServices.ReportProcessing.ReportObjectModel;
 using Sap.Data.Hana;
 using System;
 using System.Collections.Generic;
@@ -440,7 +442,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 if (t.Estado.Equals("CANCELADO")) { throw new Exception("El ticket esta CANCELADO"); }
                 List<CC_ORTV_E> listaEstados = ccTicket.ListarCC_ORTV(DocEntry, null, true);
                 if (listaEstados.Count > 0) { if (listaEstados.FirstOrDefault().Operacion == "FIN PICKING") { throw new Exception("El ticket ya FINALIZO PICKING"); } }
-                if (!t.Estado.Equals("PICKEANDO")  && !t.Estado.Equals("VERIFICANDO")) { throw new Exception("Solo puedes poner FIN PICKING a Ticket en PICKEANDO O VERIFICANDO, debes revertir o continuar el proceso"); }
+                if (!t.Estado.Equals("PICKEANDO") && !t.Estado.Equals("VERIFICANDO")) { throw new Exception("Solo puedes poner FIN PICKING a Ticket en PICKEANDO O VERIFICANDO, debes revertir o continuar el proceso"); }
             }
             else if (Estado.Equals("ANULAR FIN PICKING"))
             {
@@ -544,7 +546,11 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             else if (Estado.Equals("ANULAR INICIO EMPACAR"))
             {
                 if (t.Estado.Equals("CANCELADO")) { throw new Exception("El ticket esta CANCELADO"); }
-                if (t.RolSupervisor != 4 && t.RolSupervisor != 11 && t.RolSupervisor != 1 && t.RolSupervisor != 5) { throw new Exception("No tiene permisos para revertir procesos"); }
+
+                var permisoAnularPackingTicket = (new OUSR_OPE_N().VerificarAccesoOperacion(new OUSR_OPE_E { UsrDocEntry = t.DocEntryOpRegistro, OpeID = 805 })) > 0;
+                if (permisoAnularPackingTicket == false && t.RolSupervisor != 4 && t.RolSupervisor != 11 && t.RolSupervisor != 1 && t.RolSupervisor != 5)
+                    throw new Exception("No tiene permisos para revertir procesos");
+
                 List<CC_ORTV_E> listaEstados = ccTicket.ListarCC_ORTV(DocEntry, null, true);
                 if (listaEstados.Count > 0)
                 {
@@ -577,7 +583,10 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             }
             else if (Estado.Equals("ANULAR FIN EMPACAR"))
             {
-                if (t.RolSupervisor != 4 && t.RolSupervisor != 11 && t.RolSupervisor != 1 && t.RolSupervisor != 5) { throw new Exception("No tiene permisos para revertir procesos"); }
+                var permisoAnularPackingTicket = (new OUSR_OPE_N().VerificarAccesoOperacion(new OUSR_OPE_E { UsrDocEntry = t.DocEntryOpRegistro, OpeID = 805 })) > 0;
+                if (permisoAnularPackingTicket == false && t.RolSupervisor != 4 && t.RolSupervisor != 11 && t.RolSupervisor != 1 && t.RolSupervisor != 5)
+                    throw new Exception("No tiene permisos para revertir procesos");
+
                 if (t.Estado.Equals("CANCELADO")) { throw new Exception("El ticket esta CANCELADO"); }
                 if (!t.Estado.Equals("EMPACADO")) { throw new Exception("Solo puedes ANULAR FIN EMPACAR  a un ticket EMPACADO"); }
             }
@@ -692,7 +701,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         public int emitirGuia(int DocEntry, Usuario_E u)
         {
             ORTV_E t = ObtenerDatosCompletosTicket(DocEntry);
-            if(t.ProductoPendiente != null && t.ProductoPendiente == 1) { throw new Exception("No puede emitir guia si esta pendiente de productos."); }
+            if (t.ProductoPendiente != null && t.ProductoPendiente == 1) { throw new Exception("No puede emitir guia si esta pendiente de productos."); }
             if (t.Estado.Equals("CANCELADO") || t.Estado.Equals("ANULADO")) { throw new Exception("No puede emitir guia en este ticket."); }
             if (!t.EstadoFacturacion.Equals("PENDIENTE")) { throw new Exception("El ticket no puede emitir guias."); }
             return tkD.EmitirGuia(DocEntry, u);
@@ -731,7 +740,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             }
             //valida que el campo Max1099 de facturas o boletas encontradas sumen el monto total a pagar del ticket 
             // El dato Max1099 cubre los anticipos 
-            if (Math.Abs(ComprobantesVinculados.Sum(x => x.Max1099) - t.MontoTotal ) > 0.10m ||
+            if (Math.Abs(ComprobantesVinculados.Sum(x => x.Max1099) - t.MontoTotal) > 0.10m ||
                 (t.MontoTotal - Math.Abs(ComprobantesVinculados.Sum(x => x.Max1099)) > 0.10m))
             {
                 throw new Exception("Los documentos emitidos no suman lo total a pagar por el cliente.");

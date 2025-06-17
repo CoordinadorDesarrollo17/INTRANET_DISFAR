@@ -11,6 +11,7 @@ using System.Data.SqlClient;
 using System.IO;
 using System.Text;
 using System.Web;
+using System.Web.UI.WebControls;
 namespace Capa_Datos.AtencionCliente_DAO.TablasSql
 {
     public class OSAT_D // atenciones al cliente
@@ -92,6 +93,7 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
                     fil += $" AND DocEntry IN ({concatDocEntry.Remove(concatDocEntry.Length - 1)})";
                 }
             }
+
             if (todos == false)
             {
                 topSelect = "TOP 100";
@@ -235,6 +237,7 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
             catch (Exception e) { throw new Exception(e.Message); }
             return lista;
         }
+
         protected Dictionary<string, string> DatosSolicitud(string tipoVenta, string canalVenta, string errorAlm)
         {
             if (string.IsNullOrWhiteSpace(tipoVenta)) { tipoVenta = ""; }

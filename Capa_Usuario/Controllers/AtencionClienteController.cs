@@ -91,22 +91,16 @@ namespace Capa_Usuario.Controllers
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                ViewBag.Mensaje = Mensaje;
-                ViewBag.Osat = filtro;
                 Usuario_E user = (Usuario_E)Session["UsuarioId"];
 
+                var mostrarTodos = (user.IdRol == 54) ? true : false;       // IdRol: 54 (operario alm facturador)
+                var lista = osatN.ListarSolicitudes(filtro, mostrarTodos);
 
-                var listaCompleta = osatN.ListarSolicitudes2(filtro, false);
-                ViewBag.ContadorCriticos = listaCompleta.Count(x => x.DiasRetraso > 2);
+                ViewBag.ContadorCriticos = osatN.ListarSolicitudes(filtro, true, false).Count(x => x.DiasRetraso > 2);
+                ViewBag.Mensaje = Mensaje;
+                ViewBag.Osat = filtro;
 
-                if (user.IdRol == 54)
-                {
-                    return View(osatN.ListarSolicitudes(filtro, true));
-                }
-                else
-                {
-                    return View(osatN.ListarSolicitudes(filtro, false));
-                }
+                return View(lista);
             }
             else
             {
@@ -555,7 +549,7 @@ namespace Capa_Usuario.Controllers
                         contentType = "application/octet-stream";
                     }
                 }
-                string rutaarchivo = utilitarios.directorioFileServer+ "AtencionAlCliente_2023/" + id + "/" + adjuntos[linea];
+                string rutaarchivo = utilitarios.directorioFileServer + "AtencionAlCliente_2023/" + id + "/" + adjuntos[linea];
                 return File(rutaarchivo, contentType, adjuntos[linea]);
             }
             else
@@ -621,7 +615,7 @@ namespace Capa_Usuario.Controllers
             }
             catch (Exception e) { return Content(e.Message); }
         }
-         public JsonResult ObtenerNotificadoCliente(int idOperation = 2711)
+        public JsonResult ObtenerNotificadoCliente(int idOperation = 2711)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
