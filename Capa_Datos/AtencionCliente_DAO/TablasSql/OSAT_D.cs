@@ -11,6 +11,7 @@ using System.Data.SqlClient;
 using System.IO;
 using System.Text;
 using System.Web;
+using System.Web.UI.WebControls;
 namespace Capa_Datos.AtencionCliente_DAO.TablasSql
 {
     public class OSAT_D // atenciones al cliente
@@ -92,15 +93,17 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
                     fil += $" AND DocEntry IN ({concatDocEntry.Remove(concatDocEntry.Length - 1)})";
                 }
             }
+
             if (todos == false)
             {
-                topSelect = "TOP 50";
+                topSelect = "TOP 100";
             }
+            else topSelect = "";
 
             string estadoFiltro = filtro?.Estado != null ? filtro.Estado.Replace("'", "''") : "";
 
             string select = $@"
-            SELECT 
+            SELECT {topSelect}
                 AC.DocEntry,
                 AC.DocNum,
                 CONVERT(varchar, AC.FechaRegistro, 23) AS FechaRegistro,
@@ -235,6 +238,7 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
             catch (Exception e) { throw new Exception(e.Message); }
             return lista;
         }
+
         protected Dictionary<string, string> DatosSolicitud(string tipoVenta, string canalVenta, string errorAlm)
         {
             if (string.IsNullOrWhiteSpace(tipoVenta)) { tipoVenta = ""; }
