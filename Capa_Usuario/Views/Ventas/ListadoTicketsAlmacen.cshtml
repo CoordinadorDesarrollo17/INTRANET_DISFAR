@@ -401,7 +401,7 @@
 
                             <td class="text-center">
                                 @*El boton "INICIO EMPACAR" solo se habilita si y solo si el ticket tiene como ultimo estado "INICIO VERIFICAR" o "FIN VERIFICAR" o "ANULAR INICIO EMPACAR" y cuando el estado de ticket esta en PICKEANDO o en VERIFICANDO*@
-                                @if (ViewBag.RolSupervisor == 50 || ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 52 || ViewBag.RolSupervisor == 53 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4)
+                                @if (ViewBag.PermisosUsuario["PackingTicket"] == true || ViewBag.RolSupervisor == 1)
                                 {
                                     <div class="btn-container">
                                         @if (condIniEmpacar)

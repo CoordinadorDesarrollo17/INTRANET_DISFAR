@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Capa_Entidad.AtencionCliente_ENT.TablasSql.OSAT_E>
+﻿﻿@model IEnumerable<Capa_Entidad.AtencionCliente_ENT.TablasSql.OSAT_E>
 @using Capa_Entidad.AtencionCliente_ENT.TablasSql
 @{
     ViewBag.Title = "GestionSolicitud";
@@ -133,10 +133,10 @@
         color: #000000;
     }
 
-    a:hover {
-        text-decoration: none;
-        color: orangered;
-    }
+        a:hover {
+            text-decoration: none;
+            color: orangered;
+        }
 
     .detalle {
         border-color: red;
@@ -176,40 +176,41 @@
     }
 
     .tabla-detalle-solicitud {
-        width: 100%;
+        width: 100% !important;
         table-layout: fixed;
         border-collapse: collapse;
         margin-bottom: 0;
+        word-wrap: break-word;
     }
 
-    .tabla-detalle-solicitud th,
-    .tabla-detalle-solicitud td {
-        border: 1px solid #dee2e6 !important;
-        padding: 6px 8px !important;
-        font-size: 13px;
-        height: 36px;
-        vertical-align: middle !important;
-        text-align: center;
-        background-color: #f8f9fa;
-        word-break: break-word;
-    }
+        .tabla-detalle-solicitud th,
+        .tabla-detalle-solicitud td {
+            border: 1px solid #dee2e6 !important;
+            padding: 6px 8px !important;
+            font-size: 13px;
+            height: 36px;
+            vertical-align: middle !important;
+            text-align: center;
+            background-color: #f8f9fa;
+            word-break: break-word;
+        }
 
-    .tabla-detalle-solicitud th {
-        background-color: #28a745 !important;
-        color: #fff !important;
-        font-weight: bold;
-    }
+        .tabla-detalle-solicitud th {
+            background-color: #28a745 !important;
+            color: #fff !important;
+            font-weight: bold;
+        }
 
-    .cls-dataTable {
+    #tbl_ListadoSolicitudes {
         border-collapse: collapse !important;
     }
 
-    .cls-dataTable th,
-    .cls-dataTable td {
-        border: 1px solid #dee2e6 !important;
-        text-align: center !important;
-        vertical-align: middle !important;
-    }
+        #tbl_ListadoSolicitudes th,
+        #tbl_ListadoSolicitudes td {
+            border: 1px solid #dee2e6 !important;
+            text-align: center !important;
+            vertical-align: middle !important;
+        }
 </style>
 
 <div class="pt-3">
@@ -241,23 +242,24 @@
 
 <div class="bg-white d-flex pl-2 w-100 py-3">
 
-    
+
 
     <div class="ml-auto" style="display:inline-block; min-width:120px; min-height:60px; background:#fff3cd; border:2px solid #ffeeba; border-radius:8px; margin:0 15px 10px 0; padding:10px; text-align:center;">
         <span style="font-size:16px; color:#b94a48; font-weight:bold;">
-            <i class="icon-warning"></i> Criticos: @contadorRojo
+            Críticos: <span id="contadorRojo">@ViewBag.ContadorCriticos</span>
         </span>
         <div style="font-size:12px; color:#856404;">
             Registros con más de 2 días de retraso
         </div>
     </div>
 
+
 </div>
 
 <div class="bg-white">
     <form name="frm" id="frm">
 
-        <table class="table table-light table-sm table-hover cls-dataTable " cellspacing="0" width="100%">
+        <table id="tbl_ListadoSolicitudes" class="table table-light table-sm table-hover" cellspacing="0" width="100%">
             <thead class="bg-cobefar-6">
                 <tr>
                     <th class="text-center">
@@ -325,16 +327,16 @@
                     </th>
                     <th>
                         DocFact<br />
-                        <input type="text" name="DocFact" id="doc_fact" style="width: 120px;" class="form-control-sm border input_cls-estandar" onchange="filtrar();" value="@f.DocFact" />
+                        <input type="text" name="DocFact" id="doc_fact" style="width: 150px;" class="form-control-sm border input_cls-estandar" onchange="filtrar();" value="@f.DocFact" />
                     </th>
-                    <th></th>
+                    <th style="width: 100px"></th>
                 </tr>
             </thead>
 
             <tbody>
                 @foreach (var item in Model)
                 {
-                    <tr class="fila-principal" data-docentry="@item.DocEntry">
+                    <tr class="fila-principal" data-docentry="@item.DocEntry" data-detalle="@Json.Encode(item.Det)">
                         <td class="text-center">
                             @Html.DisplayFor(modelItem => item.DocNum)
                         </td>
@@ -393,55 +395,39 @@
                             }
                         </td>
                     </tr>
-
-                    if (item.Det != null)
-                    {
-                        if (item.Det != null && item.Det.Count > 0)
-                        {
-                            <tr class="fila-detalle" id="detalle-@item.DocEntry" style="display:none;">
-                                <td></td>
-                                <td colspan="10">
-                                    <table class="tabla-detalle-solicitud">
-                                        <thead>
-                                            <tr>
-                                                <th>Codigo</th>
-                                                <th>Descripcion</th>
-                                                <th>Lote</th>
-                                                <th>Fec. Ven</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach (var obj in item.Det)
-                                            {
+                    @*<tr class="fila-detalle" id="detalle-@item.DocEntry" style="display:none;">
+                            @if (item.Det != null && item.Det.Count > 0)
+                            {
+                                    <td></td>
+                                    <td colspan="10">
+                                        <table class="tabla-detalle-solicitud">
+                                            <thead>
                                                 <tr>
-                                                    <td>@obj.ItemCode</td>
-                                                    <td>@obj.Dscription</td>
-                                                    <td>@obj.BatchNum</td>
-                                                    <td>@obj.ExpDate</td>
+                                                    <th>Codigo</th>
+                                                    <th>Descripcion</th>
+                                                    <th>Lote</th>
+                                                    <th>Fec. Ven</th>
                                                 </tr>
-                                            }
-                                        </tbody>
-                                    </table>
-                                </td>
-                                <td style="display:none"></td>
-                                <td style="display:none"></td>
-                                <td style="display:none"></td>
-                                <td style="display:none"></td>
-                                <td style="display:none"></td>
-                                <td style="display:none"></td>
-                                <td style="display:none"></td>
-                                <td style="display:none"></td>
-                                <td style="display:none"></td>
-                                <td style="display:none"></td>
-                                <td></td>
-                            </tr>
-                        }
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var obj in item.Det)
+                                                {
+                                                    <tr>
+                                                        <td>@obj.ItemCode</td>
+                                                        <td>@obj.Dscription</td>
+                                                        <td>@obj.BatchNum</td>
+                                                        <td>@obj.ExpDate</td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </td>
 
-                    }
+                                    <td></td>
+                                }
+                        </tr>*@
                 }
             </tbody>
-
-
         </table>
 
     </form>
@@ -527,3 +513,35 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var table = inicializarDataTable('tbl_ListadoSolicitudes', 20, false, false);
+        $('#tbl_ListadoSolicitudes tbody').on('click', 'tr.fila-principal', function () {
+            var tr = $(this);
+            var row = table.row(tr);
+
+            if (row.child.isShown()) {
+                row.child.hide();
+                tr.removeClass('shown');
+            } else {
+                // Obtiene los detalles desde el atributo data-detalle
+                var detalles = JSON.parse(JSON.stringify(tr.data('detalle')));
+                //console.log(detalles)
+                var html = '<table class="tabla-detalle-solicitud"><thead><tr><th>Código</th><th>Descripción</th><th>Lote</th><th>Fec. Ven</th></tr></thead><tbody>';
+                for (var i = 0; i < detalles.length; i++) {
+                    html += `<tr>
+                          <td>${detalles[i].ItemCode}</td>
+                          <td>${detalles[i].Dscription}</td>
+                          <td>${detalles[i].BatchNum}</td>
+                          <td>${detalles[i].ExpDate}</td>
+                       </tr>`;
+                }
+                html += '</tbody></table>';
+
+                row.child(html).show();
+                tr.addClass('shown');
+            }
+        });
+    });
+</script>

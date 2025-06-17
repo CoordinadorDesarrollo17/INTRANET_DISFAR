@@ -13,10 +13,11 @@ namespace Capa_Negocio.AtencionCliente_NEG.TablasSql
     {
         OSAT_D osatD = new OSAT_D();
 
-        public List<OSAT_E> ListarSolicitudes(OSAT_E filtro, bool fact)
+        public List<OSAT_E> ListarSolicitudes(OSAT_E filtro, bool mostrarTodos = false, bool fact = false)
         {
-            return osatD.ListarSolicitudes(filtro, false, fact);
+            return osatD.ListarSolicitudes(filtro, mostrarTodos, fact);
         }
+
         public List<Rpt_OSAT_E> ListarSolicitudesExcel(OSAT_E filtro)
         {
             return osatD.ListarSolicitudesExcel(filtro);
