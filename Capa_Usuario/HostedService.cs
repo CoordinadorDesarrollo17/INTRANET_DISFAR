@@ -1,65 +1,91 @@
-﻿using System.Threading;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using Capa_Datos;
 using Capa_Negocio.Seguridad_NEG;
+
 namespace Capa_Usuario
 {
-    public class HostedService
+    public class HostedService : IDisposable
     {
-        private Timer _timer;
-        private int status = -1;
+        private Timer _timerInactivarUsuario;
+        private Timer _timerCambiarEstadoNC;
+
         public void StartAsync()
         {
-            _timer = new Timer(migracion, null, TimeSpan.Zero, TimeSpan.FromDays(1));
-            _timer = new Timer(inactivarUsuario, null, TimeSpan.Zero, TimeSpan.FromDays(5));
-            _timer = new Timer(cambiarEstadoNCAplicada, null, TimeSpan.Zero, TimeSpan.FromDays(1));
+            _timerInactivarUsuario = new Timer(InactivarUsuario, null, TimeSpan.Zero, TimeSpan.FromDays(5));
+            _timerCambiarEstadoNC = new Timer(CambiarEstadoNCAplicada, null, TimeSpan.Zero, TimeSpan.FromDays(1));
         }
+
         public void StopAsync()
         {
-            _timer?.Change(Timeout.Infinite, 0);
+            _timerInactivarUsuario?.Change(Timeout.Infinite, 0);
+            _timerCambiarEstadoNC?.Change(Timeout.Infinite, 0);
         }
-        public void migracion(object state)
+
+        public void InactivarUsuario(object state)
         {
-            new Capa_Negocio.SocioNegocios_NEG.TablasExternas.OCRD_N().Migrar();
-            //new Capa_Negocio.RecursosHumanos_NEG.TablasExternas.OAREA_N().MigrarAreasHANA();
-            //new Capa_Negocio.RecursosHumanos_NEG.TablasExternas.ODPTO_N().MigrarDepartamentosHANA();
-        }
-        public void inactivarUsuario(object state)
-        {
-            Usuario_N ousrN = new Usuario_N();
-            var listaUsuariosActivos = ousrN.ListaUsuarios(new Capa_Entidad.Seguridad_ENT.Usuario_E { Activo = 1 });
-            foreach (var f in listaUsuariosActivos)
+            try
             {
-                if (f.DiferenciaDias > 50) { ousrN.Inactivar(f); }
-            }
-        }
-        public void cambiarEstadoNCAplicada(object state)
-        {
-            Capa_Negocio.Almacen_NEG.Tablas.ORPD_N orpdN_Hana = new Capa_Negocio.Almacen_NEG.Tablas.ORPD_N();
-            Capa_Negocio.Almacen_NEG.TablasSql.ORPD_N orpdN = new Capa_Negocio.Almacen_NEG.TablasSql.ORPD_N();
-            List<Capa_Entidad.Almacen_ENT.TablasSql.ORPD_E> listaDev = orpdN.ListarDevoluciones(new Capa_Entidad.Almacen_ENT.TablasSql.ORPD_E { Estado = "RECOGIDO" }).OrderBy(x => x.DocEntry).ToList();
-            foreach (Capa_Entidad.Almacen_ENT.TablasSql.ORPD_E obj in listaDev)
-            {
-                Capa_Entidad.Almacen_ENT.TablasSql.ORPD_E Dev1 = orpdN.ObtenerDevolucion(obj.DocEntry);
-                bool sonTodasIguales = Dev1.DetalleDevolucion.All(x => x.RefFactura == Dev1.DetalleDevolucion[0].RefFactura);
-                DateTime fechaObjeto = DateTime.ParseExact(Dev1.FechaDevolucion, "dd/MM/yyyy", null);
-                string FechaFormateada = fechaObjeto.ToString("yyyy-MM-dd");
-                if (sonTodasIguales)
+                Usuario_N ousrN = new Usuario_N();
+                var listaUsuariosActivos = ousrN.ListaUsuarios(new Capa_Entidad.Seguridad_ENT.Usuario_E { Activo = 1 });
+                foreach (var f in listaUsuariosActivos)
                 {
-                    //si la lista de devoluciones tiene en su detallado factura unica, buscamos el archivo en estado Cerrado a nivel de SAP y la devolucion pasa a NC APLICADA
-                    orpdN_Hana.BuscarDevolucion(Dev1, FechaFormateada, Dev1.CardCode, Dev1.DetalleDevolucion[0].RefFactura);
-                }
-                else
-                {
-                    //si la lista de devoluciones tiene en su detallado facturas diferentes:
-                    orpdN_Hana.BuscarDevolucion(Dev1, FechaFormateada, Dev1.CardCode, null);
+                    if (f.DiferenciaDias > 50)
+                    {
+                        ousrN.Inactivar(f);
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                LogHelper.RegistrarError(ex, "Error inesperado en HostedService - InactivarUsuario()");
+            }
         }
+
+        public void CambiarEstadoNCAplicada(object state)
+        {
+            try
+            {
+                Capa_Negocio.Almacen_NEG.Tablas.ORPD_N orpdN_Hana = new Capa_Negocio.Almacen_NEG.Tablas.ORPD_N();
+                Capa_Negocio.Almacen_NEG.TablasSql.ORPD_N orpdN = new Capa_Negocio.Almacen_NEG.TablasSql.ORPD_N();
+
+                List<Capa_Entidad.Almacen_ENT.TablasSql.ORPD_E> listaDev = orpdN
+                    .ListarDevoluciones(new Capa_Entidad.Almacen_ENT.TablasSql.ORPD_E { Estado = "RECOGIDO" })
+                    .OrderBy(x => x.DocEntry)
+                    .ToList();
+
+                foreach (var obj in listaDev)
+                {
+                    var Dev1 = orpdN.ObtenerDevolucion(obj.DocEntry);
+                    if (Dev1.FechaDevolucion == null)
+                        continue;
+
+                    bool sonTodasIguales = Dev1.DetalleDevolucion.All(x => x.RefFactura == Dev1.DetalleDevolucion[0].RefFactura);
+                    DateTime fechaObjeto = DateTime.ParseExact(Dev1.FechaDevolucion, "dd/MM/yyyy", null);
+                    string FechaFormateada = fechaObjeto.ToString("yyyy-MM-dd");
+
+                    if (sonTodasIguales)
+                    {
+                        orpdN_Hana.BuscarDevolucion(Dev1, FechaFormateada, Dev1.CardCode, Dev1.DetalleDevolucion[0].RefFactura);
+                    }
+                    else
+                    {
+                        orpdN_Hana.BuscarDevolucion(Dev1, FechaFormateada, Dev1.CardCode, null);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.RegistrarError(ex, "Error inesperado en HostedService - CambiarEstadoNCAplicada()");
+            }
+        }
+
         public void Dispose()
         {
-            _timer.Dispose();
+            _timerInactivarUsuario?.Dispose();
+            _timerCambiarEstadoNC?.Dispose();
         }
     }
 }
