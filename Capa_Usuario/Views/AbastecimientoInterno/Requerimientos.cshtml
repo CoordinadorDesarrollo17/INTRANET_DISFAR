@@ -381,7 +381,7 @@
 			if (!tipoAbastecimiento) {
 				Swal.fire('Seleccione un tipo de abastecimiento.')
 				return;
-			}
+            }
 
             filasRequerimientos.forEach((fila) => {
                 let inputs = fila.querySelectorAll("input, select");
@@ -428,8 +428,6 @@
             if (TipoAbastecimiento == "Venta Master" && Zona == "") {
                 generarAlerta('Error en la operación', 'Debe seleccionar la zona para Venta Master.', 'error');
             }
-
-            return;
 
             try {
                 const response = await fetch("/AbastecimientoInterno/RegistrarRequerimiento", {

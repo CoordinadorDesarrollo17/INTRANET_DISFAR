@@ -116,6 +116,7 @@ namespace Capa_Datos.Almacen_DAO.TablasSql
                 catch (Exception e)
                 {
                     throw new Exception(e.Message);
+                    LogHelper.RegistrarError(e, "Error inesperado en ORPD_D - ListarDevoluciones()");
                 }
                 finally
                 {

@@ -227,17 +227,16 @@
     <Compile Include="Ventas_DAO\TablasSql\ORTV_D.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Capa_Entidad\Capa_Entidad.csproj">
-      <Project>{6325e074-d449-47f7-85da-ff0ca692012f}</Project>
-      <Name>Capa_Entidad</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Capa_Entidad\Capa_Entidad.csproj">
+      <Project>{6325e074-d449-47f7-85da-ff0ca692012f}</Project>
+      <Name>Capa_Entidad</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

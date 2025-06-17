@@ -260,7 +260,7 @@ namespace Capa_Usuario.Controllers
                     DetORTV = new Dictionary<string, string> { { "CardCode", t.CardCode } },
                     TicketSolucion = t.DocNum.ToString()
                 };
-                var reclamos = osatN.ListarSolicitudes(filtro, false);
+                var reclamos = osatN.ListarSolicitudes(filtro, false, false);
                 // Filtrar los que tienen TicketSolucion asignado (no null ni vacío)
                 var reclamosAplicados = reclamos
                 .Where(x => !string.IsNullOrEmpty(x.TicketSolucion) && x.TicketSolucion == t.DocNum.ToString())
@@ -1484,6 +1484,7 @@ namespace Capa_Usuario.Controllers
 
                 ViewBag.PermisosUsuario = new Dictionary<string, bool>
                 {
+                    {"PackingTicket",  (_usuarioOperacionN.VerificarAccesoOperacion(new OUSR_OPE_E { UsrDocEntry = user.DocEntry, OpeID = 804 })) > 0 },
                     {"CancelarTicket",  (_usuarioOperacionN.VerificarAccesoOperacion(new OUSR_OPE_E { UsrDocEntry = user.DocEntry, OpeID = 518 })) > 0 },
                     {"AnularPickingTicket",  (_usuarioOperacionN.VerificarAccesoOperacion(new OUSR_OPE_E { UsrDocEntry = user.DocEntry, OpeID = 803 })) > 0 },
                     {"AnularPackingTicket",  (_usuarioOperacionN.VerificarAccesoOperacion(new OUSR_OPE_E { UsrDocEntry = user.DocEntry, OpeID = 805 })) > 0 },
@@ -1844,6 +1845,7 @@ namespace Capa_Usuario.Controllers
                     ORTV_E ticket = _ticketN.ObtenerDatosCompletosTicket(DocEntry);
                     ticket.OpRegistro = $"{usu.Nombres} {usu.Apellidos}";
                     ticket.RolSupervisor = usu.IdRol;
+                    ticket.DocEntryOpRegistro = usu.DocEntry;
                     int DocNum = _ticketN.editarSeguimientoTicket("ANULAR INICIO EMPACAR", DocEntry, ticket);
                     return RedirectToAction("ListadoTicketsAlmacen", new { DocNum = DocNum, Mensaje = "Inicio de packing anulado" });
                 }
@@ -1959,6 +1961,7 @@ namespace Capa_Usuario.Controllers
                     ticket.OpRegistro = $"{usu.Nombres} {usu.Apellidos}";
                     ticket.RolSupervisor = usu.IdRol;
                     ticket.Operario = usu.WhsCode;
+                    ticket.DocEntryOpRegistro = usu.DocEntry;
                     int DocNum = _ticketN.editarSeguimientoTicket("ANULAR FIN EMPACAR", DocEntry, ticket);
                     return RedirectToAction("ListadoTicketsAlmacen", new { DocNum = DocNum });
                 }
@@ -2898,7 +2901,7 @@ namespace Capa_Usuario.Controllers
                         SoloSinTicketSolucion = true,
                         TicketSolucion = DocNumTicket?.ToString()
                     };
-                    return View(osatN.ListarSolicitudes(filtro, false));
+                    return View(osatN.ListarSolicitudes(filtro, false, false));
                 }
                 catch (Exception e) { ViewBag.Mensaje = e.Message; return View(); }
             }
@@ -3392,7 +3395,7 @@ namespace Capa_Usuario.Controllers
                 Estado = "Atendido",
                 TicketSolucion = DocNumTicket?.ToString()
             };
-            return Json(osatN.ListarSolicitudes(filtro, false));
+            return Json(osatN.ListarSolicitudes(filtro, false, false));
         }
         public JsonResult CalcularMontos(ORTV_E t)
         {

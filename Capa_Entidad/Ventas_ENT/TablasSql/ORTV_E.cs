@@ -59,6 +59,7 @@ namespace Capa_Entidad.Ventas_ENT.TablasSql
         [DisplayName("Hora Registro")] public string HoraRegistro { get; set; }
         public string NroVentas { get; set; }
         public string OpRegistro { get; set; }
+        public int DocEntryOpRegistro { get; set; }          // Para los permisos de usuario
         public int RolSupervisor { get; set; }
         public string AlmProcedencia { get; set; }
         public string Zona { get; set; }
@@ -91,7 +92,6 @@ namespace Capa_Entidad.Ventas_ENT.TablasSql
         public decimal PesoTotal { get; set; }
         public int Impreso { get; set; }
         public string OpImpresion { get; set; }
-        
 
         /**** LISTADO TICKETS RECEPCIÓN ****/
         public string HoraRecibir { get; set; }

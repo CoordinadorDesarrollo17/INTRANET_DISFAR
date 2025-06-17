@@ -523,9 +523,9 @@
                 let key = detalle[itemCode]
                 let claseTransferido = (key.Estado === "TRANSFERIDO") ? 'bg-secondary text-white' : ''
                 let claseBotonArrow = (key.Estado === "TRANSFERIDO") ? 'btn-light' : 'btn-dark'
-                let itemCodeFormat = key.ItemCode.replace(/&/g, '__amp__'); // reemplaza caracter '&' no válido
+                let itemCodeFormat = key.ItemCode.replace(/\s+/g, '__space__').replace(/&/g, '__amp__'); // reemplaza caracter '&' no válido
 
-                tbody += `<tr data-producto="${itemCodeFormat}" data- class="fila-detalle">
+                tbody += `<tr data-producto="${itemCodeFormat}" class="fila-detalle">
 								<td class="details-control text-center ${claseTransferido}">
 									<button id="btn_chevron_${itemCodeFormat}" class="btn btn-sm ${claseBotonArrow}"><i class="bi bi-chevron-down"></i></button>
 								</td>
@@ -563,7 +563,6 @@
             return tbody
         }
 		function generarHTMLDetalle(func, detalleTraslado, detalleTransferencia = {}) {
-
 			if (typeof func === 'function') {
 				document.querySelector('#tbl_detalle tbody').insertAdjacentHTML('beforeend', renderizarDetalle(detalleTraslado));
 				inicializarSlimSelectsPorClase('cls-select')
@@ -579,21 +578,23 @@
                     const productFormat = productoID.replace(/__amp__/g, '&');
                     var button = $(this).find('button i');
 
-					if (!productoID) {
+                    if (!productoID) {
 						console.warn('Producto ID no definido en el <tr>.')
 						return;
                     }
 
+                    // Formateamos el data-producto para reestablecer su nombe con espacio
+                    const productoIDFormat = productoID.replace(/__space__/, ' ');
                     const detalleRow = tr.next('.detalle-fila')
 
                     if (detalleRow.length) {
                         detalleRow.toggle()
                         button.toggleClass('bi-chevron-down bi-chevron-up')
-					} else {
+                    } else {                       
 						// Validar que el objeto detalle y los lotes existan antes de abrir
-                        if (detalleTraslado[productFormat] && Array.isArray(detalleTraslado[productFormat].DetalleLotes)) {
+                        if (detalleTraslado[productoIDFormat] && Array.isArray(detalleTraslado[productoIDFormat].DetalleLotes)) {
                             try {
-                                const html = func(detalleTraslado[productFormat], detalleTransferencia);
+                                const html = func(detalleTraslado[productoIDFormat], detalleTransferencia);
                                 const detalleTr = $('<tr class="detalle-fila"><td colspan="100%">' + html + '</td></tr>');
                                 tr.after(detalleTr); // insertar justo después
 								button.removeClass('bi-chevron-down').addClass('bi-chevron-up');
@@ -601,7 +602,7 @@
 								console.error('Error al mostrar los lotes de transferencia:', error);
 							}
 						} else {
-                            console.warn(`Detalle o DetalleLotes no válido para producto ID: ${productoID}`, detalleTraslado[productFormat]);
+                            console.warn(`Detalle o DetalleLotes no válido para producto ID: ${productoID}`, detalleTraslado[productoIDFormat]);
 						}
 					}
                 });
@@ -624,7 +625,7 @@
 		}
 		// 2do Nivel
 		function formatLotes(articulo, transferencia = null) {
-            let itemCodeFormat = articulo.ItemCode.replace(/&/g, '__amp__'); // reemplaza caracter '&' no válido
+            let itemCodeFormat = articulo.ItemCode.replace(/&/g, '__amp__').replace(/\s+/g, ''); // reemplaza caracter '&' no válido
             let tableHtml = `<div class="d-flex justify-content-center w-100"><table id="tbl_detalleLotes_${itemCodeFormat}" class="table table-sm table-bordered table-hover subtable w-75 tbl_detalleLotes">
 							<thead class="table-success">
 								<tr>
@@ -640,9 +641,10 @@
 								</tr>
 							</thead>
 							<tbody>`
-			articulo.DetalleLotes.forEach(item => {
-                let lote = item.BatchNum.split(" ").join("");
-                let correlativoDinamico = `${articulo.ItemCode}_${lote}`;
+            articulo.DetalleLotes.forEach(item => {
+                let articuloFormat = articulo.ItemCode.replace(/\s+/g, ''); // elimina todos los espacios (uno o más)
+                let lote = item.BatchNum.replace(/\s+/g, ''); // elimina todos los espacios (uno o más)
+                let correlativoDinamico = `${articuloFormat}_${lote}`;
 
                 tableHtml += `<tr data-lote="${correlativoDinamico}">
 								<td class="text-center">
@@ -727,8 +729,9 @@
                 });
 			} else {
 				articulo.DetalleLotes.forEach(item => {
-                    let lote = item.BatchNum.split(" ").join("");
-                    let correlativoDinamico = `${articulo.ItemCode}_${lote}`;
+                    let articuloFormat = articulo.ItemCode.replace(/\s+/g, ''); // elimina todos los espacios (uno o más)
+                    let lote = item.BatchNum.replace(/\s+/g, ''); // elimina todos los espacios (uno o más)
+                    let correlativoDinamico = `${articuloFormat}_${lote}`;
 
                     tableHtml += `<tr data-lote="${correlativoDinamico}">
 													<td class="text-center">
