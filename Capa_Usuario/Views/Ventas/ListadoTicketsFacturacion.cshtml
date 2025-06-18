@@ -75,7 +75,7 @@
 </style>
 
 
-    <script>
+<script>
      $(document).ready(function () {
             modTabla();
             $('[data-toggle="tooltip"]').tooltip();
@@ -526,7 +526,7 @@
 
         }
 
-    </script>
+</script>
 
 
 <div class="pt-4">
@@ -762,11 +762,15 @@
                                         <p class="pl-2" style="@colorTipoComprobante @lineheight">@dt.Monto: @dt.TipoComprobante</p>
                                         <p class="pl-2 text-sm-center" style="@styleObs">@dt.Observaciones</p>
                                     }
-                                    @if (item.LugarDestino.Equals("Centro") || item.LugarDestino.Equals("Arriola"))
+
+                                    @if (item.LugarDestino != null)
                                     {
-                                        <p class="pl-2">Origen: @item.AlmProcedencia</p>
+                                        if (item.LugarDestino.Equals("Centro") || item.LugarDestino.Equals("Arriola"))
+                                        {
+                                            <p class="pl-2">Origen: @item.AlmProcedencia</p>
+                                        }
                                     }
-                                    else
+                                    else if(item.Det2.Count >= 1)
                                     {
                                         <p class="pl-2">Origen: @item.Det2.FirstOrDefault(y => y.Monto > 0 && y.AlmacenSalida != "06").AlmacenSalida</p>
                                     }
@@ -878,7 +882,7 @@
                             }
                         </td>
                         <td>
-                            @if ( item.ProductoPendiente == 0 && item.EstadoFacturacion == "GRE EMITIDA")
+                            @if (item.ProductoPendiente == 0 && item.EstadoFacturacion == "GRE EMITIDA")
                             {
                                 <a class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Facturar" href="@Url.Action( "FacturarTicketVenta", "Ventas", new { DocEntry = item.DocEntry,
                                     EstadoPago = ViewBag.Ortv.EstadoPago,
@@ -900,7 +904,7 @@
                             }
                         </td>
                         <td>
-                            @if ( item.ProductoPendiente == 0 && item.EstadoFacturacion == "FACTURADO")
+                            @if (item.ProductoPendiente == 0 && item.EstadoFacturacion == "FACTURADO")
                             {
                                 <a href="@Url.Action( "AnularFacturarTicketVenta", "Ventas", new { DocEntry = item.DocEntry,
                                 EstadoPago = ViewBag.Ortv.EstadoPago,

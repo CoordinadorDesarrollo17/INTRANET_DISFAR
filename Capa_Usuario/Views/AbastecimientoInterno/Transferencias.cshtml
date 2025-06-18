@@ -197,16 +197,38 @@
 		const masters = JSON.parse(`@Html.Raw(Json.Encode(ViewBag.Masters))`)
 		let opcionesMasters = ''
 		const configDataTable = {
-			paging: false,          // ❌ Deshabilitar paginación
-			searching: false,       // ❌ Ocultar la barra de búsqueda
-			info: false,            // ❌ Ocultar el número de registros ("Mostrando X de Y registros")
-			ordering: false,        // ❌ Deshabilitar la opción de ordenar columnas
-			lengthChange: false,    // ❌ Ocultar el selector de cantidad de elementos por página
-			bFilter: false,         // ❌ Desactivar filtrado de DataTables
-			bSort: false,           // ❌ Desactivar ordenamiento en columnas
-			bPaginate: false,       // ❌ Desactivar paginación manualmente
-			autoWidth: false,       // ✅ Evita que DataTables ajuste el ancho de las columnas automáticamente
-			responsive: true        // ✅ Mantiene la tabla responsiva si es necesario
+			paging: false,          // Deshabilitar paginación
+			searching: true,       // Ocultar la barra de búsqueda
+			info: false,            // Ocultar el número de registros ("Mostrando X de Y registros")
+			ordering: false,        // Deshabilitar la opción de ordenar columnas
+			lengthChange: false,    // Ocultar el selector de cantidad de elementos por página
+			bFilter: false,         // Desactivar filtrado de DataTables
+			bSort: false,           // Desactivar ordenamiento en columnas
+			bPaginate: false,       // Desactivar paginación manualmente
+			autoWidth: false,       // Evita que DataTables ajuste el ancho de las columnas automáticamente
+            responsive: true,        // Mantiene la tabla responsiva si es necesario
+            language: {
+                processing: "Procesando...",
+                search: "Buscar:",
+                lengthMenu: "Mostrar _MENU_ registros",
+                info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                infoEmpty: "Mostrando 0 a 0 de 0 registros",
+                infoFiltered: "(filtrado de _MAX_ registros en total)",
+                infoPostFix: "",
+                loadingRecords: "Cargando...",
+                zeroRecords: "No se encontraron registros coincidentes",
+                emptyTable: "No hay datos disponibles en la tabla",
+                paginate: {
+                    first: "Primero",
+                    previous: "Anterior",
+                    next: "Siguiente",
+                    last: "Último"
+                },
+                aria: {
+                    sortAscending: ": activar para ordenar la columna ascendente",
+                    sortDescending: ": activar para ordenar la columna descendente"
+                }
+            }
 		}
 		// Funciones
 		function cargarOpcionesMasters(unidadAlmSugerido) {
@@ -590,7 +612,7 @@
                     if (detalleRow.length) {
                         detalleRow.toggle()
                         button.toggleClass('bi-chevron-down bi-chevron-up')
-                    } else {                       
+                    } else {
 						// Validar que el objeto detalle y los lotes existan antes de abrir
                         if (detalleTraslado[productoIDFormat] && Array.isArray(detalleTraslado[productoIDFormat].DetalleLotes)) {
                             try {
@@ -607,17 +629,18 @@
 					}
                 });
 
-				$('.fila-detalle').each(function (index) {
-                    let productoID = $(this).data('producto');
-                    const productFormat = productoID.replace(/__amp__/g, '&');
+                // Descomentar para mostrar la segunda tabla de lotes al buscar DocNum
+				//$('.fila-detalle').each(function (index) {
+    //                let productoID = $(this).data('producto');
+    //                const productFormat = productoID.replace(/__amp__/g, '&');
 
-                    if (detalleTraslado[productFormat] && detalleTraslado[productFormat].DetalleLotes.length === 1 && detalleTraslado[productFormat].Estado === "PENDIENTE") {
-                        const btnChevron = document.querySelector(`#btn_chevron_${productoID}`)
-                        if (btnChevron) {
-                            btnChevron.click();
-                        }
-					}
-				});
+    //                if (detalleTraslado[productFormat] && detalleTraslado[productFormat].DetalleLotes.length === 1 && detalleTraslado[productFormat].Estado === "PENDIENTE") {
+    //                    const btnChevron = document.querySelector(`#btn_chevron_${productoID}`)
+    //                    if (btnChevron) {
+    //                        btnChevron.click();
+    //                    }
+				//	}
+				//});
 			} else {
 				console.warn('El parámetro func no es una función válida:', func);
 				return;
