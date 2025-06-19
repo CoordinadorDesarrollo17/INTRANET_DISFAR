@@ -2,7 +2,7 @@
 
 @{
     Layout = null;
-
+    decimal totalFaltantes = 0;
 }
 <!DOCTYPE html>
 <html>
@@ -99,11 +99,10 @@
                         <th class="text-center border text-dark font-weight-bold">LOTE</th>
                         <th class="text-center border text-dark font-weight-bold">F.VCTO</th>
                         <th class="text-center border text-dark font-weight-bold">CANT</th>
-                        <th class="text-center border text-dark font-weight-bold">CANT. FALTANTE</th>
-                        <th class="text-center border text-dark font-weight-bold">PRECIO TOTAL</th>
+                        <th class="text-center border text-dark font-weight-bold">OBS.</th>
                     </tr>
                 </thead>
-                <tbody class="border">
+                <tbody>
                     @if (Model != null)
                     {
                         foreach (var item in Model[0].ItemCodeDetalle)
@@ -117,34 +116,38 @@
 
                                 cantidadSolicitadaVentas += item2.CantidadSolicitadaVenta;
                                 cantidadFaltante = cantidadSolicitadaVentas - item.TotalUnidadesVendidas;
-                                <tr>
-                                    <td class="p-1 border">
-                                        @if (item.Ubicaciones != null)
+                    <tr>
+                        <td class="p-1 border">
+                            @if (item.Ubicaciones != null)
                                         {
                                             foreach (var ubicacion in item.Ubicaciones)
                                             {
-                                                <div>@ubicacion.Replace("PICKING-", "")</div>
+                            <div>@ubicacion.Replace("PICKING-", "")</div>
                                             }
                                         }
-                                    </td>
-                                    <td class="p-1 border">@item.Codigo</td>
-                                    <td class="p-1 border">@item.Producto</td>
-                                    <td class="text-center p-1 border">@item2.Lote</td>
-                                    <td class="text-center p-1 border">@item2.FechaVenc</td>
-                                    <td class="text-center p-1 border">@item2.UniMedidVend @item2.NumUnidVend</td>
-                                    <td class="text-center p-1 border">
-                                        @if (mostrarFaltante)
+                        </td>
+                        <td class="p-1 border">@item.Codigo</td>
+                        <td class="p-1 border">@item.Producto</td>
+                        <td class="text-center p-1 border">@item2.Lote</td>
+                        <td class="text-center p-1 border">@item2.FechaVenc</td>
+                        <td class="text-center p-1 border">@item2.UniMedidVend @item2.NumUnidVend</td>
+                        <td class="text-center p-1 border">
+                            @if (mostrarFaltante)
                                         {
-                                            @Convert.ToInt32(cantidadFaltante)
+                            @Convert.ToInt32(cantidadFaltante)
                                             mostrarFaltante = false;
+                                            totalFaltantes += cantidadFaltante;
                                         }
-                                    </td>
-                                    <td class="text-center p-1 border">@item2.TotalProdIgvVend.ToString("F2")</td>
-                                </tr>
+                        </td>
+                    </tr>
                             }
-
                         }
                     }
+                    <tr>
+                        <td style="border: none !important;" colspan="5"></td>
+                        <td class="p-1 font-weight-bold"></td>
+                        <td class="p-1 border text-center">@Convert.ToInt32(totalFaltantes)</td>
+                    </tr>
                 </tbody>
             </table>
             <table width="100%" class="align-content-between" style="margin-top: 10px;">
