@@ -182,10 +182,13 @@
     <Compile Include="ReportesDigemid_ENT\Formularios\FrmBalanceControlados_E.cs" />
     <Compile Include="ReportesDigemid_ENT\Formularios\FrmKardex_E.cs" />
     <Compile Include="ReportesDigemid_ENT\Formularios\FrmOperacionesLotes_E.cs" />
+    <Compile Include="ReportesDigemid_ENT\OrdenDeVentaAgrupada_E.cs" />
     <Compile Include="ReportesDigemid_ENT\OrdenDeVenta_E.cs" />
     <Compile Include="ReportesDigemid_ENT\OrganolepticoEm_E.cs" />
     <Compile Include="ReportesDigemid_ENT\OrganolepticoTs_E.cs" />
     <Compile Include="ReportesDigemid_ENT\OrganolepticoVt_E.cs" />
+    <Compile Include="ReportesDigemid_ENT\OVItemCodeDetalle_E.cs" />
+    <Compile Include="ReportesDigemid_ENT\OVLoteDetalle_E.cs" />
     <Compile Include="ReportesDigemid_ENT\Reportes\AuditoriaStocks_E.cs" />
     <Compile Include="ReportesDigemid_ENT\Reportes\ComprobanteDePago_E.cs" />
     <Compile Include="ReportesDigemid_ENT\Reportes\NotaCreditoVentaArticulo_E.cs" />
