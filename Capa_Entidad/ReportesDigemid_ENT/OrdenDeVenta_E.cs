@@ -30,7 +30,8 @@ namespace Capa_Entidad.ReportesDigemid_ENT
         public string UniMedidVend { get; set; }
         public string AlmacenSalida { get; set; }
         public string TipoVenta { get; set; }
-        public string ItemCode { get; set; }
+        public string ItemCode { get; set; }        
+        public decimal CantidadSolicitadaVenta { get; set; }
         public string[] Ubicaciones { get; set; }
     }
 }
