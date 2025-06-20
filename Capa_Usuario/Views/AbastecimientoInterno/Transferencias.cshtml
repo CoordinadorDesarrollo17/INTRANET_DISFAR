@@ -44,7 +44,7 @@
         <div class="col-lg-2">
             <label for="DocNum" class="form-label fw-bold">DocNum:</label>
             <div class="input-group">
-                <input type="text" id="DocNum" class="form-control border border-success" name="DocNum" autocomplete="off" />
+                <input type="text" id="DocNum" class="form-control border" name="DocNum" autocomplete="off" />
                 <button id="buscarDocNum" type="button" class="btn btn-cobefar-2" onclick="buscarSolicitud()" data-bs-toggle="tooltip" data-bs-placement="top" title="Buscar solicitud de traslado">
                     <i class="bi bi-search"></i>
                 </button>
@@ -622,15 +622,15 @@
                 <i class="bi bi-arrow-repeat"></i>
            </button>`
                         : (key.AtendidoReserva == 0
-                        ? `<button class="btn btn-danger" onclick="deleteItemTransferencia('${itemCodeFormat}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Reestablecer valores asignados">
+                        ? `<button class="btn btn-danger" onclick="deleteItemTransferencia('${key.ItemCode}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Reestablecer valores asignados">
                      <i class="bi bi-arrow-repeat"></i>
                </button>
                ${key.Validado == 0
-                            ? `<button class="btn btn-cobefar-3 ms-2" onclick="validarItemParaApilar('${itemCodeFormat}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Validar para apilar">
+                            ? `<button class="btn btn-cobefar-3 ms-2" onclick="validarItemParaApilar('${key.ItemCode}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Validar para apilar">
                         <i class="bi bi-check-circle"></i>
                       </button>`
                                 : ''}`
-                            : `<button class="btn btn-danger" onclick="revertirTransferenciaReserva('${itemCodeFormat}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Revertir transferencia reserva">
+                        : `<button class="btn btn-danger" onclick="revertirTransferenciaReserva('${key.ItemCode}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Revertir transferencia reserva">
                     <i class="bi bi-arrow-repeat"></i>
                </button>`
                         )
@@ -1650,13 +1650,13 @@
                             </select>
                         </td>
                         <td class="text-center">
-                            <div class="d-flex justify-content-center"><input type="text" id="InDate_${correlativoLote}" name="transferenciaPost.Detalle[].InDate" class="form-control cls-readonly" readonly ></div>
+                            <div class="d-flex justify-content-center"><input type="text" id="InDate_${correlativoLote}" name="transferenciaPost.Detalle[].InDate" class="form-control cls-readonly text-center" readonly ></div>
                         </td>
                         <td class="text-center">
-                            <div class="d-flex justify-content-center"><input type="text" id="ExpDate_${correlativoLote}" name="transferenciaPost.Detalle[].ExpDate" class="form-control cls-readonly" readonly></div>
+                            <div class="d-flex justify-content-center"><input type="text" id="ExpDate_${correlativoLote}" name="transferenciaPost.Detalle[].ExpDate" class="form-control cls-readonly text-center" readonly></div>
                         </td>
                         <td class="text-center">
-                            <input type="text" id="lote_quantityUnidades_${correlativoLote}" class="form-control text-center cls-limpiarItem_${correlativo}"
+                            <input type="text" id="lote_quantityUnidades_${correlativoLote}" name="transferenciaPost.Detalle[].QuantityUnidadesCajas" class="form-control text-center cls-limpiarItem_${correlativo}"
                                 data-idcantmaster="lote_cantidadMaster_${correlativoLote}"
                                 data-idcantsaldo="lote_cantidadSaldo_${correlativoLote}"
                                 data-idundmaster="lote_undMaster_${correlativoLote}"
@@ -1732,18 +1732,25 @@
                 inputExpDate.value = "";
 
                 document.getElementById(`hidden_ItemCode_${correlativoLote}`).value = codigo;
-                document.getElementById(`hidden_ItemName_${correlativoLote}`).value = selectedOption.text;
+                document.getElementById(`hidden_ItemName_${correlativoLote}`).value = document.getElementById(`ItemName_${correlativo}`).value;
             });
 
             selectLotes.addEventListener("change", function () {
                 let selected = this.options[this.selectedIndex];
-                inputInDate.value = selected.dataset.indate || "";
-                inputExpDate.value = selected.dataset.expdate || "";
+
+                inputInDate.value = convertirFecha(selected.dataset.indate);
+                inputExpDate.value = convertirFecha(selected.dataset.expdate);
             });
 
             contadorProducto++;
             permitirValoresNumericosPositivos();
         }
 
+         function convertirFecha(fecha) {
+            if (!fecha) return "";
+            let partes = fecha.split("/");
+            if (partes.length !== 3) return "";
+            return `${partes[2]}-${partes[1]}-${partes[0]}`;
+        }
     </script>
 }
