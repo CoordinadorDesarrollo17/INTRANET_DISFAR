@@ -544,15 +544,15 @@
                 <i class="bi bi-arrow-repeat"></i>
            </button>`
                         : (key.AtendidoReserva == 0
-                        ? `<button class="btn btn-danger" onclick="deleteItemTransferencia('${itemCodeFormat}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Reestablecer valores asignados">
+                        ? `<button class="btn btn-danger" onclick="deleteItemTransferencia('${key.ItemCode}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Reestablecer valores asignados">
                      <i class="bi bi-arrow-repeat"></i>
                </button>
                ${key.Validado == 0
-                            ? `<button class="btn btn-cobefar-3 ms-2" onclick="validarItemParaApilar('${itemCodeFormat}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Validar para apilar">
+                            ? `<button class="btn btn-cobefar-3 ms-2" onclick="validarItemParaApilar('${key.ItemCode}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Validar para apilar">
                         <i class="bi bi-check-circle"></i>
                       </button>`
                                 : ''}`
-                            : `<button class="btn btn-danger" onclick="revertirTransferenciaReserva('${itemCodeFormat}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Revertir transferencia reserva">
+                        : `<button class="btn btn-danger" onclick="revertirTransferenciaReserva('${key.ItemCode}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Revertir transferencia reserva">
                     <i class="bi bi-arrow-repeat"></i>
                </button>`
                         )
@@ -590,7 +590,7 @@
                     if (detalleRow.length) {
                         detalleRow.toggle()
                         button.toggleClass('bi-chevron-down bi-chevron-up')
-                    } else {                       
+                    } else {
 						// Validar que el objeto detalle y los lotes existan antes de abrir
                         if (detalleTraslado[productoIDFormat] && Array.isArray(detalleTraslado[productoIDFormat].DetalleLotes)) {
                             try {
