@@ -794,6 +794,8 @@ namespace Capa_Usuario.Controllers
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 ViewBag.Masters = _masterN.ListarMasters();
+                ViewBag.Articulos = _ubicacionesLotesMasterN.BuscarArticulos();
+
                 return View();
             }
             else

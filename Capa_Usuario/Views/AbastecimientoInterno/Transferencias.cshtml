@@ -68,7 +68,6 @@
         <div class="col-lg-2">
             <label for="OperarioResponsableSAP" class="form-label fw-bold">Operario Responsable SAP:</label>
             <input type="text" id="OperarioResponsableSAP" class="form-control cls-readonly text-center" name="OperarioResponsableSAP" autocomplete="off" readonly />
-            <input type="hidden" id="MotivoTraslado" name="MotivoTraslado" readonly />
             <input type="hidden" id="DocDate" name="DocDate" readonly />
         </div>
 
@@ -76,6 +75,12 @@
             <button type="button" id="btn_AbrirModalImportacion" class="btn btn-success w-100" onclick="abrirModalImportacion()" data-bs-toggle="tooltip" data-bs-placement="top" title="Importar datos directamente a la base">
                 <i class="bi bi-upload"></i>
             </button>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-2">
+            <button id="btn_AgregarArticulo" class="btn btn-cobefar-2" onclick="agregarArticulo()">Agregar</button>
         </div>
     </div>
 
@@ -142,10 +147,10 @@
         </table>
     </div>
 
-    <div id="div_Comentario" class="row mt-3" hidden>
+    <div class="row mt-3">
         <div class="col-6">
-            <label for="Comentario" class="form-label fw-bold">Comentario:</label>
-            <textarea id="Comentario" name="Comentario" class="form-control" rows="2"></textarea>
+            <label for="MotivoTraslado" class="form-label fw-bold">Motivo Traslado:</label>
+            <textarea id="MotivoTraslado" name="MotivoTraslado" class="form-control cls-readonly" rows="2" readonly></textarea>
         </div>
     </div>
 
@@ -184,7 +189,7 @@
 
 <!-- Modal de Busqueda Rapida -->
 <div class="modal fade" id="modalBuscador" tabindex="-1" aria-labelledby="modalBuscadorLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-headerModals text-white">
                 <h5 class="modal-title" id="modalBuscadorLabel">BÚSQUEDA RÁPIDA</h5>
@@ -203,8 +208,12 @@
 @section Scripts{
     <script>
 		// Declaración de variables
-		const masters = JSON.parse(`@Html.Raw(Json.Encode(ViewBag.Masters))`)
-		let opcionesMasters = ''
+        const articulos = @Html.Raw(Json.Encode(ViewBag.Articulos));
+        let opcionesArticulos = '';
+        let opcionesLotes = '';
+
+        const masters = JSON.parse(`@Html.Raw(Json.Encode(ViewBag.Masters))`);
+        let opcionesMasters = '';
 		const configDataTable = {
 			paging: false,          // Deshabilitar paginación
 			searching: true,       // Ocultar la barra de búsqueda
@@ -246,7 +255,43 @@
 				opcionesMasters += `<option value="${item.ValorUmAlm}" data-umalm="${item.UmAlm}" ${item.UmAlm === unidadAlmSugerido ? 'selected' : ''}>${item.UmAlm}</option>`;
 			});
 			return opcionesMasters;
-		}
+        }
+
+        function cargarOpcionesArticulos() {
+            opcionesArticulos = ""; // Reiniciar la variable para evitar acumulación de valores previos
+            let vistos = new Set();
+
+            articulos.forEach(item => {
+                if (!vistos.has(item.ItemCode)) {
+                    opcionesArticulos += `<option value="${item.ItemName}" data-itemcode="${item.ItemCode}" data-indate="${item.InDate}" data-expdate="${item.ExpDate}">${item.ItemCode} - ${item.ItemName}</option>`;
+                    vistos.add(item.ItemCode);
+                }
+            });
+
+            return opcionesArticulos;
+        }
+
+        function cargarOpcionesLotes(filtroItemCode = "") {
+            if (!filtroItemCode) {
+                generarAlerta("Error al cargar lotes", "Debes seleccionar un artículo.", "error");
+                return "";
+            }
+
+            let opcionesLotes = "";
+            let vistos = new Set();
+
+            articulos
+                .filter(a => a.ItemCode === filtroItemCode)
+                .forEach(item => {
+                    if (!vistos.has(item.BatchNum)) {
+                        opcionesLotes += `<option value="${item.BatchNum}" data-indate="${item.InDate}" data-expdate="${item.ExpDate}">${item.BatchNum}</option>`;
+                        vistos.add(item.BatchNum);
+                    }
+                });
+
+            return opcionesLotes;
+        }
+
 		async function realizarTransferencia() {
 			const form = document.querySelector('#frm_tablaCopiaSap')
 			if (!form) {
@@ -308,7 +353,9 @@
 					SolicitudTrasladoDocNum: document.querySelector('#DocNum').value,
 					Detalle: detallesTransferencia
 				}
-			};
+            };
+
+            console.log(payload); return;
             registrarTransferenciaStock(payload)
 		}
         async function registrarTransferenciaStock(payload) {
@@ -815,11 +862,46 @@
 			return tableHtml
 		}
         function clonarFila(idTableLotes) {
+            const configDataTableLotes = {
+                paging: false,          // Deshabilitar paginación
+                searching: false,       // Ocultar la barra de búsqueda
+                info: false,            // Ocultar el número de registros ("Mostrando X de Y registros")
+                ordering: false,        // Deshabilitar la opción de ordenar columnas
+                lengthChange: false,    // Ocultar el selector de cantidad de elementos por página
+                bFilter: false,         // Desactivar filtrado de DataTables
+                bSort: false,           // Desactivar ordenamiento en columnas
+                bPaginate: false,       // Desactivar paginación manualmente
+                autoWidth: false,       // Evita que DataTables ajuste el ancho de las columnas automáticamente
+                responsive: true,        // Mantiene la tabla responsiva si es necesario
+                language: {
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthMenu: "Mostrar _MENU_ registros",
+                    info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                    infoEmpty: "Mostrando 0 a 0 de 0 registros",
+                    infoFiltered: "(filtrado de _MAX_ registros en total)",
+                    infoPostFix: "",
+                    loadingRecords: "Cargando...",
+                    zeroRecords: "No se encontraron registros coincidentes",
+                    emptyTable: "No hay datos disponibles en la tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Último"
+                    },
+                    aria: {
+                        sortAscending: ": activar para ordenar la columna ascendente",
+                        sortDescending: ": activar para ordenar la columna descendente"
+                    }
+                }
+            }
+
             // Verificar si la tabla ya está inicializada con DataTable
             if ($.fn.DataTable.isDataTable(`#${idTableLotes}`)) {
                 $(`#${idTableLotes}`).DataTable().destroy();
             }
-            let tabla = $(`#${idTableLotes}`).DataTable(configDataTable); // Obtener instancia de DataTable
+            let tabla = $(`#${idTableLotes}`).DataTable(configDataTableLotes); // Obtener instancia de DataTable
             // Eliminar cualquier event listener de click previamente
             $(`#${idTableLotes} tbody`).off('click', '.btn-cobefar');
             $(`#${idTableLotes} tbody`).on('click', '.btn-cobefar', function () {
@@ -1336,7 +1418,7 @@
             const tbody = tabla.querySelector("tbody");
 
             if (!tbody || tbody.children.length === 0) {
-                console.warn("La tabla no tiene datos.");
+                generarAlerta("Atención!", "La tabla no tiene datos.", "warning");
                 return;
             }
 
@@ -1483,19 +1565,185 @@
 
         function validarTipoDocumento(valor) {
             if (valor == "EMI") {
-                document.getElementById("div_Comentario").hidden = false;
+                document.getElementById("MotivoTraslado").readOnly = false;
+                document.getElementById("MotivoTraslado").classList.remove("cls-readonly");
                 document.getElementById("btn_AbrirModalImportacion").disabled = true;
                 document.getElementById('DocNum').readOnly = true;
                 document.getElementById('buscarDocNum').disabled = true;
-                resetValoresVacios["DocEntry", "DocNum", "NroGuia", "CardCode", "CardName", "OperarioResponsableSAP", "MotivoTraslado", "DocDate", "copiaDocEntry", "copiaDocNum", "copiaNroGuia", "copiaCardCode", "copiaCardName",
-                    "copiaOperarioResponsableSAP", "copiaMotivoTraslado", "copiaDocDate", "Comentario"];
-                document.getElementById("tbl_detalle").innerHTML = "";
+                resetValoresVacios(["DocEntry", "DocNum", "NroGuia", "CardCode", "CardName", "OperarioResponsableSAP", "MotivoTraslado", "DocDate", "copiaDocEntry", "copiaDocNum", "copiaNroGuia", "copiaCardCode", "copiaCardName",
+                    "copiaOperarioResponsableSAP", "copiaMotivoTraslado", "copiaDocDate"]);
+                document.querySelector("#tbl_detalle tbody").innerHTML = '';
             }else {
-                document.getElementById("div_Comentario").hidden = true;
+                document.getElementById("MotivoTraslado").readOnly = true;
+                document.getElementById("MotivoTraslado").classList.add("cls-readonly");
                 document.getElementById("btn_AbrirModalImportacion").disabled = false;
                 document.getElementById('DocNum').readOnly = false;
                 document.getElementById('buscarDocNum').disabled = false;
             }
         }
+
+
+        let contadorProducto = 1;
+        function agregarArticulo() {
+            let correlativo = `producto_${contadorProducto}`;
+            let itemCode = `COD${contadorProducto.toString().padStart(4, "0")}`; // ejemplo: COD0001
+            let idTablaLotes = `tbl_detalleLotes_${itemCode}`;
+            let correlativoLote = `${itemCode}_0001`;
+
+            // Fila principal
+            let filaPrincipal = `
+            <tr data-producto="${correlativo}" class="fila-detalle">
+                <td class="details-control text-center">
+                    <button id="btn_chevron_${correlativo}" class="btn btn-sm btn-dark">
+                        <i class="bi bi-chevron-up"></i>
+                    </button>
+                </td>
+                <td class="text-center"><input type="text" id="ItemCode_${correlativo}" class="form-control cls-readonly text-center" readonly /></td>
+                <td class="">
+                  <select id="ItemName_${correlativo}" class="form-select" onclick="abrirModalBusquedaRapida(this)">
+                      <option value="">Seleccione</option>
+                      ${cargarOpcionesArticulos()}
+                  </select>
+                </td>
+                <td class="text-center dt-type-numeric">
+                    <div class="d-flex justify-content-center"></div>
+                </td>
+                <td class="text-center">
+                    <div class="d-flex justify-content-center">
+                        <input type="text" class="form-control text-center cls-readonly" value="RESERVA" readonly style="width: 140px" />
+                    </div>
+                </td>
+                <td class="text-center"></td>
+                <td class="text-center">PENDIENTE</td>
+                <td class="text-center">
+                    <button class="btn btn-danger" onclick="limpiarValoresItem('cls-limpiarItem_${correlativo}')" data-bs-toggle="tooltip" title="Borrar valores asignados">
+                        <i class="bi bi-arrow-repeat"></i>
+                    </button>
+                </td>
+            </tr>`;
+
+            // Fila de subdetalle
+            let filaSubdetalle = `
+<tr class="detalle-fila">
+    <td colspan="100%">
+        <div class="d-flex justify-content-center w-100">
+            <table id="${idTablaLotes}" class="table table-sm table-bordered table-hover subtable w-75 tbl_detalleLotes">
+                <thead class="table-success">
+                    <tr>
+                        <th class="text-center" style="width: 100px;">Lote</th>
+                        <th class="text-center" style="width: 200px;">Fecha de Admisión</th>
+                        <th class="text-center" style="width: 200px;">Fecha de Vencimiento</th>
+                        <th class="text-center" style="width: 200px;">Stock UNIDADES</th>
+                        <th class="text-center" style="width: 200px;">Unidad MASTER</th>
+                        <th class="text-center" style="width: 200px;">Cantidad en MASTER</th>
+                        <th class="text-center" style="width: 200px;">Cantidad en SALDO</th>
+                        <th class="text-center" style="width: 200px;">Ubicación</th>
+                        <th style="width: 5%;"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr data-lote="${correlativoLote}">
+                        <td class="text-center">
+                            <select id="BatchNum_${correlativo}" name="transferenciaPost.Detalle[].BatchNum" class="form-select"
+                                onclick="abrirModalBusquedaRapida(this)" style="width:150px">
+                                <option value="">Seleccione</option>
+                            </select>
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center"><input type="text" id="InDate_${correlativoLote}" name="transferenciaPost.Detalle[].InDate" class="form-control cls-readonly" readonly ></div>
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center"><input type="text" id="ExpDate_${correlativoLote}" name="transferenciaPost.Detalle[].ExpDate" class="form-control cls-readonly" readonly></div>
+                        </td>
+                        <td class="text-center">
+                            <input type="text" id="lote_quantityUnidades_${correlativoLote}" class="form-control text-center cls-limpiarItem_${correlativo}"
+                                data-idcantmaster="lote_cantidadMaster_${correlativoLote}"
+                                data-idcantsaldo="lote_cantidadSaldo_${correlativoLote}"
+                                data-idundmaster="lote_undMaster_${correlativoLote}"
+                                oninput="calcularStockUnidades(this.value, this.dataset)" />
+                        </td>
+                        <td class="text-center">
+                            <select id="lote_undMaster_${correlativoLote}"
+                                    data-idundmaster="lote_undMaster_${correlativoLote}"
+                                    data-idcantmaster="lote_cantidadMaster_${correlativoLote}"
+                                    data-idcantsaldo="lote_cantidadSaldo_${correlativoLote}"
+                                    data-idquantityunidades="lote_quantityUnidades_${correlativoLote}"
+                                    name="transferenciaPost.Detalle[].ValorUmAlm"
+                                    class="form-select cls-limpiarItem_${correlativo}"
+                                    onchange="calcularCantidadMasterSaldo(this.value, this.dataset)"
+                                    onclick="abrirModalBusquedaRapida(this)">
+                                <option value="">Seleccione</option>
+                                ${cargarOpcionesMasters()}
+                            </select>
+                        </td>
+                        <td class="text-center">
+                            <input type="text" id="lote_cantidadMaster_${correlativoLote}" name="transferenciaPost.Detalle[].QuantityMaster" class="form-control text-center cls-readonly cls-limpiarItem_${correlativo}" readonly />
+                        </td>
+                        <td class="text-center">
+                            <input type="text" id="lote_cantidadSaldo_${correlativoLote}" name="transferenciaPost.Detalle[].QuantitySaldo" class="form-control text-center cls-readonly cls-limpiarItem_${correlativo}" readonly />
+                        </td>
+                        <td class="text-center">
+                            <select id="lote_ubicacion_${correlativoLote}"
+                                name="transferenciaPost.Detalle[].CodigoUbicacion"
+                                data-idloteubicacion="lote_ubicacion_${correlativoLote}"
+                                data-itemcode="${itemCode}"
+                                class="form-select cls-limpiarItem_${correlativo}"
+                                onclick="gestionarBusquedaUbicaciones(this)" style="width: 200px">
+                            <option value="">Seleccione</option>
+                        </select>
+                         </td>
+                        <td class="text-center">
+                           <input type="hidden" id="hidden_ItemCode_${correlativoLote}" name="transferenciaPost.Detalle[].ItemCode" />
+                            <input type="hidden" id="hidden_ItemName_${correlativoLote}" name="transferenciaPost.Detalle[].ItemName" />
+                            <button type="button" class="btn btn-sm btn-cobefar" onclick="clonarFila('${idTablaLotes}')">
+                                <i class="bi bi-plus-lg"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </td>
+</tr>`;
+
+            // Insertar ambas filas
+            const tbody = document.querySelector("#tbl_detalle tbody");
+            tbody.insertAdjacentHTML("beforeend", filaPrincipal);
+            tbody.insertAdjacentHTML("beforeend", filaSubdetalle);
+
+            // Obtener elementos dinámicos recién creados
+            let selectArticulo = document.getElementById(`ItemName_${correlativo}`);
+            let inputItemCode = document.getElementById(`ItemCode_${correlativo}`);
+            let selectLotes = document.getElementById(`BatchNum_${correlativo}`);
+            let inputInDate = document.getElementById(`InDate_${correlativoLote}`);
+            let inputExpDate = document.getElementById(`ExpDate_${correlativoLote}`);
+
+            // Asignar evento: cuando cambia el artículo, actualizar el ItemCode y los lotes
+            selectArticulo.addEventListener("change", function () {
+                let selectedOption = this.options[this.selectedIndex];
+                let codigo = selectedOption.dataset.itemcode || "";
+                inputItemCode.value = codigo;
+
+                // Cargar lotes correspondientes al nuevo itemCode
+                const opcionesLotes = cargarOpcionesLotes(codigo);
+                selectLotes.innerHTML = '<option value="">Seleccione</option>' + opcionesLotes;
+
+                inputInDate.value = "";
+                inputExpDate.value = "";
+
+                document.getElementById(`hidden_ItemCode_${correlativoLote}`).value = codigo;
+                document.getElementById(`hidden_ItemName_${correlativoLote}`).value = selectedOption.text;
+            });
+
+            selectLotes.addEventListener("change", function () {
+                let selected = this.options[this.selectedIndex];
+                inputInDate.value = selected.dataset.indate || "";
+                inputExpDate.value = selected.dataset.expdate || "";
+            });
+
+            contadorProducto++;
+            permitirValoresNumericosPositivos();
+        }
+
     </script>
 }
