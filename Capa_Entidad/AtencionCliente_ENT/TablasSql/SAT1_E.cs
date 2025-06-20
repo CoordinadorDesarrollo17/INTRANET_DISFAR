@@ -36,10 +36,9 @@ namespace Capa_Entidad.AtencionCliente_ENT.TablasSql
         public string AlmVenta { get; set; }
         public string ErrorAlmacen { get; set; }
         public int? NCSAP { get; set; }
-        public string ErrAlmOtrCom { get; set; }
         public decimal? NuevoPrecioArticulo { get; set; }
         public string ReferenciaNC_ND { get; set; }
-
+        public string ErrAlmOtrCom { get; set; }
 
         // CAMPOS QUE NO SON DE LA TABLA
         public Dictionary<string, NotaFinanciera_E> ComprobantesVinculados { get; set; }
