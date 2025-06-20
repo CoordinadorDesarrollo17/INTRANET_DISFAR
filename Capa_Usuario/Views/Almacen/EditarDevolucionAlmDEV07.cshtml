@@ -35,8 +35,8 @@
             </div>
 
             <div class="col-lg-2 my-2">
-                <label class="text-dark form-label font-weight-bold font-18">Fecha:</label>
-                <input type="text" id="FechaOperacion" class="form-control border-success text-center" value="@if (Model != null) { Write(Model.FechaOperacion); }" disabled>
+                <label class="text-dark form-label font-weight-bold font-18">Fecha Devolución:</label>
+                <input type="date" id="FechaDevolucion" name="FechaDevolucion" class="form-control border-success text-center" value="@(Model?.FechaDevolucion != null ? DateTime.Parse(Model.FechaDevolucion).ToString("yyyy-MM-dd") : "")">
             </div>
         </div>
 
@@ -152,7 +152,7 @@
                                         <input type="hidden" id="lote" name="DetalleDevolucion[@num].BatchNum" value="@m.BatchNum" />@m.BatchNum<br />
                                         <span class="text-danger font-weight-bold">Fecha V.:</span><br /><input type="hidden" id="fechaV" name="DetalleDevolucion[@num].ExpDate" value="@m.ExpDate" />@m.ExpDate
                                     </td>
-                                    <td><input type="number" id="QuantityIngresada_@num" name="DetalleDevolucion[@num].Quantity" class="form-control border-success text-center" tipoarticulo="@if (m.MaxQuantity == Convert.ToDecimal(0.00)) { Write("NUEVO"); } else { Write("BD");}" style="width: 100px;" value="@m.Quantity"  min="1" required /></td>
+                                    <td><input type="number" id="QuantityIngresada_@num" name="DetalleDevolucion[@num].Quantity" class="form-control border-success text-center" tipoarticulo="@if (m.MaxQuantity == Convert.ToDecimal(0.00)) { Write("NUEVO"); } else { Write("BD");}" style="width: 100px;" value="@m.Quantity" min="1" required /></td>
                                     <td class="text-center">
                                         <select id="NumInBuy_@num" name="DetalleDevolucion[@num].NumInBuy" style="display: none">
                                             <option value="@m.NumInBuy" tipo="@m.BuyUnitMsr"></option>
@@ -311,6 +311,14 @@
 
      $(document).ready(function () {
          reconstruirTabla();
+
+         // bloquea fechas mayores a hoy
+         const inputFecha = document.getElementById('FechaDevolucion');
+         const hoy = new Date();
+         const yyyy = hoy.getFullYear();
+         const mm = String(hoy.getMonth() + 1).padStart(2, '0');
+         const dd = String(hoy.getDate()).padStart(2, '0');
+         inputFecha.max = `${yyyy}-${mm}-${dd}`;
     });
 
     var num = 0;
@@ -535,7 +543,7 @@
         } else {
             $('#CardName').attr('readonly', false);
         }
-      
+
     }
 
     function agregarDetalleDevolucion(ItemCode, Dscription, FirmCode, FirmName, BatchNum, ExpDate, BuyUnitMsr, NumAtCard, NumInBuy, Quantity, tipoArticulo, CardCode, CardName, QuantityOIBT) {
@@ -623,7 +631,7 @@
             //agregamos a la fila el nuevo item
             $('#tbl_detalleDevolucion > tbody').append(fila);
             $(`.cls-select2`).select2();
-            
+
             obtenerAtributoSelect('tipo', `NumInBuy_${num}`, `BuyUnitMsr_${num}`);          // seteamos el campo oculto BuyUnitMsr_${num}
             ++num;
             if ($('.cls-filaDevolucion').length >= 1) {

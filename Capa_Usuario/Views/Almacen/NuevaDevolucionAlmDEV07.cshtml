@@ -56,6 +56,10 @@
                 <input type="text" id="direccion_alm" class="form-control border-success text-center" value="@if (Almacenes != null && Almacenes.Count() >= 1) { Write(Almacenes[0].Street + Almacenes[0].StreetNo); }" required readonly>
             </div>
 
+            <div class="col-lg-2">
+                <label for="FechaDevolucion" class="text-dark form-label font-weight-bold font-18">Fecha Devolución:</label>
+                <input type="date" id="FechaDevolucion" name="FechaDevolucion" class="form-control border-success text-center" value="">
+            </div>
         </div>
 
         <div class="row mt-4">
@@ -295,6 +299,13 @@
     }
 
     $(document).ready(function () {
+        // bloquea fechas mayores a hoy
+        const inputFecha = document.getElementById('FechaDevolucion');
+        const hoy = new Date();
+        const yyyy = hoy.getFullYear();
+        const mm = String(hoy.getMonth() + 1).padStart(2, '0');
+        const dd = String(hoy.getDate()).padStart(2, '0');
+        inputFecha.max = `${yyyy}-${mm}-${dd}`; 
     });
 
     var num = 0;
