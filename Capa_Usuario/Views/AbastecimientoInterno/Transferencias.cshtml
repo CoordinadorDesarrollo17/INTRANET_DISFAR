@@ -358,6 +358,79 @@
             console.log(payload); return;
             registrarTransferenciaStock(payload)
 		}
+
+        async function realizarTransferenciaEMI() {
+	        const form = document.querySelector('#frm_tablaCopiaSap')
+	        if (!form) {
+		        console.log("Formulario no válido.");
+		        return;
+	        }
+            
+            document.getElementById("copiaCardCode").value = 'P20600546041';
+            document.getElementById("copiaCardName").value = 'COBEFAR S.A.C.';
+            document.getElementById("copiaMotivoTraslado").value = document.getElementById("MotivoTraslado").value;
+
+	        const filasSolicitudTraslado = document.querySelectorAll("#tbl_copiaSap tbody tr");
+	        let detallesSolicitud = [];
+	        filasSolicitudTraslado.forEach((fila) => {
+		        let inputs = fila.querySelectorAll("input, select");
+		        let detalleSolicitud = {};
+		        inputs.forEach(input => {
+			        let name = input.name.trim();
+			        if (name.startsWith("solicitudTraslado.Detalle[]")) {
+				        let key = name.replace("solicitudTraslado.Detalle[].", "").trim();
+				        detalleSolicitud[key] = input.value;
+			        }
+		        });
+		        if (Object.keys(detalleSolicitud).length > 0) detallesSolicitud.push(detalleSolicitud);
+	        });
+	        const filasTransferencia = document.querySelectorAll(".tbl_detalleLotes tbody tr");
+	        let detallesTransferencia = [];
+	        filasTransferencia.forEach((fila) => {
+		        let inputs = fila.querySelectorAll("input, select");
+		        let detalleTransferencia = {};
+		        let camposValidos = true; // Bandera para validar los campos requeridos
+		        inputs.forEach(input => {
+			        let name = input.name.trim();
+			        if (name.startsWith("transferenciaPost.Detalle[]")) {
+				        let key = name.replace("transferenciaPost.Detalle[].", "").trim();
+				        let value = input.value.trim(); // Aseguramos que no tenga espacios en blanco al inicio o fin
+				        if (key === "ValorUmAlm") {
+					        let selectedOption = input.options[input.selectedIndex];
+					        detalleTransferencia[key] = value;
+					        detalleTransferencia["UmAlm"] = selectedOption.dataset.umalm || ""; // Evita valores undefined
+				        } else {
+					        detalleTransferencia[key] = value;
+				        }
+				        // Verificar si los campos obligatorios están vacíos
+				        if ((key === "QuantitySaldo" || key === "UmAlm") && value === "") {
+					        camposValidos = false; // Marcar como inválido si algún campo está vacío
+				        }
+			        }
+		        });
+		        // Solo agregar si los campos requeridos tienen valores
+		        if (camposValidos && Object.keys(detalleTransferencia).length > 0) {
+			        detallesTransferencia.push(detalleTransferencia);
+		        }
+	        });
+	        const formData = new FormData(form);
+	        const jsonData = Object.fromEntries(formData.entries());
+	        const payload = {
+		        solicitudTraslado: {
+			        ...jsonData, // Otros datos generales del formulario
+			        Detalle: detallesSolicitud
+		        },
+		        transferenciaPost: {
+			        ...jsonData,
+			        SolicitudTrasladoDocNum: document.querySelector('#DocNum').value,
+			        Detalle: detallesTransferencia
+		        }
+            };
+
+            console.log(payload); return;
+            registrarTransferenciaStock(payload)
+        }
+
         async function registrarTransferenciaStock(payload) {
             try {
                 const response = await fetch("/AbastecimientoInterno/RegistrarTransferenciaDeStock", {
@@ -1644,7 +1717,7 @@
                 <tbody>
                     <tr data-lote="${correlativoLote}">
                         <td class="text-center">
-                            <select id="BatchNum_${correlativo}" name="transferenciaPost.Detalle[].BatchNum" class="form-select"
+                            <select id="BatchNum_${correlativo}" name="transferenciaPost.Detalle[].BatchNum" class="form-select lote-select"
                                 onclick="abrirModalBusquedaRapida(this)" style="width:150px">
                                 <option value="">Seleccione</option>
                             </select>
@@ -1695,7 +1768,7 @@
                         <td class="text-center">
                            <input type="hidden" id="hidden_ItemCode_${correlativoLote}" name="transferenciaPost.Detalle[].ItemCode" />
                             <input type="hidden" id="hidden_ItemName_${correlativoLote}" name="transferenciaPost.Detalle[].ItemName" />
-                            <button type="button" class="btn btn-sm btn-cobefar" onclick="clonarFila('${idTablaLotes}')">
+                            <button type="button" class="btn btn-sm btn-cobefar" onclick="clonarFilaLote('${idTablaLotes}')">
                                 <i class="bi bi-plus-lg"></i>
                             </button>
                         </td>
@@ -1714,7 +1787,8 @@
             // Obtener elementos dinámicos recién creados
             let selectArticulo = document.getElementById(`ItemName_${correlativo}`);
             let inputItemCode = document.getElementById(`ItemCode_${correlativo}`);
-            let selectLotes = document.getElementById(`BatchNum_${correlativo}`);
+            //let selectLotes = document.getElementById(`BatchNum_${correlativo}`);
+            let selectLotes = document.querySelector(`select[id^="BatchNum_${correlativo}"]`);
             let inputInDate = document.getElementById(`InDate_${correlativoLote}`);
             let inputExpDate = document.getElementById(`ExpDate_${correlativoLote}`);
 
@@ -1735,12 +1809,14 @@
                 document.getElementById(`hidden_ItemName_${correlativoLote}`).value = document.getElementById(`ItemName_${correlativo}`).value;
             });
 
-            selectLotes.addEventListener("change", function () {
-                let selected = this.options[this.selectedIndex];
+            if (selectLotes) {
+                selectLotes.addEventListener("change", function () {
+                    let selected = this.options[this.selectedIndex];
 
-                inputInDate.value = convertirFecha(selected.dataset.indate);
-                inputExpDate.value = convertirFecha(selected.dataset.expdate);
-            });
+                    inputInDate.value = convertirFecha(selected.dataset.indate);
+                    inputExpDate.value = convertirFecha(selected.dataset.expdate);
+                });
+            }
 
             contadorProducto++;
             permitirValoresNumericosPositivos();
@@ -1751,6 +1827,83 @@
             let partes = fecha.split("/");
             if (partes.length !== 3) return "";
             return `${partes[2]}-${partes[1]}-${partes[0]}`;
+        }
+
+        function clonarFilaLote(idTablaLotes) {
+           const tabla = document.getElementById(idTablaLotes);
+            const tbody = tabla.querySelector('tbody');
+            const filaOriginal = tbody.querySelector('tr:last-of-type');
+            const filaClonada = filaOriginal.cloneNode(true);
+            const random = Math.floor(Math.random() * 10000);
+
+            // Eliminar botón "+" en la fila clonada
+            const botonClonado = filaClonada.querySelector('button.btn-cobefar');
+            if (botonClonado) {
+                botonClonado.remove();
+            }
+
+            const elementos = filaClonada.querySelectorAll('input, select');
+            elementos.forEach(el => {
+                // Limpiar valores
+                if (el.tagName === 'INPUT') {
+                    if (el.type !== 'hidden') el.value = '';
+                } else if (el.tagName === 'SELECT') {
+                    el.selectedIndex = 0;
+                }
+
+                // Reasignar ID
+                if (el.id) {
+                    const oldId = el.id;
+                    const newId = `${oldId}_clone_${random}`;
+                    el.setAttribute('id', newId);
+
+                    // Actualizar datasets
+                    if (el.dataset.idcantmaster) el.dataset.idcantmaster += `_clone_${random}`;
+                    if (el.dataset.idcantsaldo) el.dataset.idcantsaldo += `_clone_${random}`;
+                    if (el.dataset.idundmaster) el.dataset.idundmaster += `_clone_${random}`;
+                    if (el.dataset.idquantityunidades) el.dataset.idquantityunidades += `_clone_${random}`;
+                    if (el.dataset.idloteubicacion) el.dataset.idloteubicacion += `_clone_${random}`;
+                }
+
+                // Eventos
+                if (el.classList.contains('lote-select')) {
+                    el.addEventListener("change", function () {
+                        const selected = this.options[this.selectedIndex];
+                        const inDate = selected.dataset.indate || '';
+                        const expDate = selected.dataset.expdate || '';
+
+                        const fila = this.closest('tr');
+                        const inputInDate = fila.querySelector('input[name*="InDate"]');
+                        const inputExpDate = fila.querySelector('input[name*="ExpDate"]');
+
+                        if (inputInDate) inputInDate.value = convertirFecha(inDate);
+                        if (inputExpDate) inputExpDate.value = convertirFecha(expDate);
+                    });
+                }
+
+                if (el.id?.includes('lote_undMaster_')) {
+                    el.onchange = function () {
+                        calcularCantidadMasterSaldo(this.value, this.dataset);
+                    };
+                }
+
+                if (el.id?.includes('lote_ubicacion_')) {
+                    el.onclick = function () {
+                        gestionarBusquedaUbicaciones(this);
+                    };
+                }
+
+                // Campos ocultos
+                if (el.type === 'hidden' && el.id.startsWith('hidden_ItemCode_')) {
+                    el.id += `_clone_${random}`;
+                }
+
+                if (el.type === 'hidden' && el.id.startsWith('hidden_ItemName_')) {
+                    el.id += `_clone_${random}`;
+                }
+            });
+
+            tbody.appendChild(filaClonada);
         }
     </script>
 }
