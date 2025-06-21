@@ -94,7 +94,10 @@ namespace Capa_Usuario.Controllers
                 Usuario_E user = (Usuario_E)Session["UsuarioId"];
 
                 var mostrarTodos = (user.IdRol == 54) ? true : false;       // IdRol: 54 (operario alm facturador)
-                var lista = osatN.ListarSolicitudes(filtro, mostrarTodos);
+                var lista = osatN.ListarSolicitudes(filtro, mostrarTodos, mostrarTodos);
+
+                //var RoFac = (user.IdRol == 54) ? true : false;       // IdRol: 54 (operario alm facturador)
+                //var lista = osatN.ListarSolicitudes(filtro, false, RoFac);
 
                 ViewBag.ContadorCriticos = osatN.ListarSolicitudes(filtro, true, false).Count(x => x.DiasRetraso > 2);
                 ViewBag.Mensaje = Mensaje;
