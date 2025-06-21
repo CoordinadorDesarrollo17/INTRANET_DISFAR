@@ -30,7 +30,6 @@ namespace Capa_Usuario.Controllers
     public class AbastecimientoInternoController : Controller
     {
         private readonly Ubicaciones_N _ubicacionesN = new Ubicaciones_N();
-        private readonly Productos_N _productosN = new Productos_N();
         private readonly OWTQ_N _solicitudTrasladoHanaN = new OWTQ_N();
         private readonly StockMinProductos_N _stockMinProdN = new StockMinProductos_N();
         private readonly TransferenciaReserva_N _transferenciaReservaN = new TransferenciaReserva_N();
@@ -234,11 +233,23 @@ namespace Capa_Usuario.Controllers
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 var lista = _stockMinProdN.ListarStockMinProductos();
-                var productos = _productosN.ListarProductos();
+                var articulos = _ubicacionesLotesMasterN.BuscarArticulos();
+
+                var diccionario = articulos
+                .GroupBy(a => a.ItemCode) // Por si acaso hay duplicados
+                .Select(g => g.First())
+                .ToDictionary(a => a.ItemCode, a => a.ItemName);
+
                 // Excluir los ItemCode que están en "lista"
                 var itemCodesAExcluir = lista.Select(s => s.ItemCode).ToHashSet(); // Usar HashSet para mejor rendimiento
-                var productosFiltrados = productos.Where(p => !itemCodesAExcluir.Contains(p.ItemCode)).ToList();
+                var productosFiltrados = articulos
+                    .Where(p => !itemCodesAExcluir.Contains(p.ItemCode))
+                    .GroupBy(p => p.ItemCode)
+                    .Select(g => g.First())
+                    .ToList();
+
                 ViewBag.Productos = productosFiltrados;
+
                 return View(lista);
             }
             else
