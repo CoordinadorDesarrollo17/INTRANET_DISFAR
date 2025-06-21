@@ -1,6 +1,7 @@
 ﻿using Capa_Datos;
 using Capa_Datos.Ventas_DAO.TablasSql;
 using Capa_Entidad.ComprobantesContables_ENT;
+using Capa_Entidad.ReportesDigemid_ENT;
 using Capa_Entidad.Rutas_ENT.ReportesSql;
 using Capa_Entidad.Rutas_ENT.TablasSql;
 using Capa_Entidad.Seguridad_ENT;
@@ -12,6 +13,7 @@ using Capa_Negocio.Ventas_NEG.Tablas;
 using Microsoft.ReportingServices.ReportProcessing.ReportObjectModel;
 using Sap.Data.Hana;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -812,10 +814,12 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         {
             return tkD.CalcularMontos(t);
         }
-        public List<Capa_Entidad.ReportesDigemid_ENT.OrdenDeVenta_E> obtenerOrdenDeVenta(int docNum)
+        public List<OrdenDeVenta_E> obtenerOrdenDeVenta(int docNum)
         {
             ReportesDigemid_NEG.DocumentosDig_N dN = new ReportesDigemid_NEG.DocumentosDig_N();
-            return dN.ConsultarOrdenDeVenta(docNum);
+            var resultado = dN.ConsultarOrdenDeVenta(docNum);
+
+            return resultado;
         }
         public string generaInfoListaClientes(string Fecha)
         {

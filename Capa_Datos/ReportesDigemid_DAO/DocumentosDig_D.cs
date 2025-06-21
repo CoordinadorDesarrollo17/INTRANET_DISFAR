@@ -397,7 +397,7 @@ namespace Capa_Datos.ReportesDigemid_DAO
                 int DocEntry = dr.GetInt32(0);
                 dr.Close();
 
-                HanaCommand hcmd2 = new HanaCommand(uti.schemaHana + "DIEGO_LYT_OV", hcn);
+                HanaCommand hcmd2 = new HanaCommand(uti.schemaHana + "DIEGO_LYT_OV_2", hcn);
                 hcmd2.CommandType = CommandType.StoredProcedure;
                 hcmd2.Parameters.AddWithValue("DocEntry", DocEntry);
                 HanaDataReader hdr2 = hcmd2.ExecuteReader();
@@ -411,18 +411,20 @@ namespace Capa_Datos.ReportesDigemid_DAO
                     if (!hdr2.IsDBNull(4)) { o.RucCliente = hdr2.GetString(4); }
                     if (!hdr2.IsDBNull(7)) { o.UniMedidVend = hdr2.GetString(7); }
                     if (!hdr2.IsDBNull(8)) { o.NumUnidVend = hdr2.GetDecimal(8); }
-                    if (!hdr2.IsDBNull(10)) { o.Laboratorio = hdr2.GetString(10); }
-                    if (!hdr2.IsDBNull(11)) { o.Producto = hdr2.GetString(11); }
-                    if (!hdr2.IsDBNull(12)) { o.Lote = hdr2.GetString(12); }
-                    if (!hdr2.IsDBNull(13)) { o.FechaVenc = hdr2.GetDateTime(13).ToString("dd/MM/yyyy"); }
-                    if (!hdr2.IsDBNull(14)) { o.PrecioProdIgvVend = hdr2.GetDecimal(14); }
-                    if (!hdr2.IsDBNull(16)) { o.TotalProdIgvVend = hdr2.GetDecimal(16); }
-                    if (!hdr2.IsDBNull(17)) { o.SlpName = hdr2.GetString(17); }
-                    if (!hdr2.IsDBNull(18)) { o.Comentarios = hdr2.GetString(18); }
-                    if (!hdr2.IsDBNull(19)) { o.DocTotal = hdr2.GetDecimal(19); }
-                    if (!hdr2.IsDBNull(20)) { o.Almacen = hdr2.GetString(20); }
-                    if (!hdr2.IsDBNull(22)) { o.RegSanit = hdr2.GetString(22); }
-                    if (!hdr2.IsDBNull(23)) { o.ItemCode = hdr2.GetString(23); }
+                    if (!hdr2.IsDBNull(9)) o.CantidadSolicitadaVenta = hdr2.GetDecimal(9);
+                    if (!hdr2.IsDBNull(11)) { o.Laboratorio = hdr2.GetString(11); }
+                    if (!hdr2.IsDBNull(12)) { o.Producto = hdr2.GetString(12); }
+                    if (!hdr2.IsDBNull(13)) { o.Lote = hdr2.GetString(13); }
+                    if (!hdr2.IsDBNull(14)) { o.FechaVenc = hdr2.GetDateTime(14).ToString("dd/MM/yyyy"); }
+                    if (!hdr2.IsDBNull(15)) { o.PrecioProdIgvVend = hdr2.GetDecimal(15); }
+                    if (!hdr2.IsDBNull(17)) { o.TotalProdIgvVend = hdr2.GetDecimal(17); }
+                    if (!hdr2.IsDBNull(18)) { o.SlpName = hdr2.GetString(18); }
+                    if (!hdr2.IsDBNull(19)) { o.Comentarios = hdr2.GetString(19); }
+                    if (!hdr2.IsDBNull(20)) { o.DocTotal = hdr2.GetDecimal(20); }
+                    if (!hdr2.IsDBNull(21)) { o.Almacen = hdr2.GetString(21); }
+                    if (!hdr2.IsDBNull(23)) { o.RegSanit = hdr2.GetString(23); }
+                    if (!hdr2.IsDBNull(24)) { o.ItemCode = hdr2.GetString(24); }
+
                     lista.Add(o);
                 }
                 hdr2.Close();
@@ -569,7 +571,7 @@ namespace Capa_Datos.ReportesDigemid_DAO
         {
             List<PreciosOpm_E> lista = new List<PreciosOpm_E>();
             List<PreciosOpm_E> listaAux = new List<PreciosOpm_E>();
-            string query = "CALL "+uti.schemaHana+"DIEGO_RPT_REGVENTAS('" + FecIni + "','" + FecFin + "')";
+            string query = "CALL " + uti.schemaHana + "DIEGO_RPT_REGVENTAS('" + FecIni + "','" + FecFin + "')";
             try
             {
                 HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);

@@ -1,19 +1,15 @@
 ﻿@using Capa_Entidad.ReportesDigemid_ENT
-@model IEnumerable<OrdenDeVenta_E>
 
 @{
     Layout = null;
-    List<OrdenDeVenta_E> orden = new List<OrdenDeVenta_E>(Model);
-    DateTime fecha = DateTime.Parse(orden[0].Fecha);
-    DateTime soloFecha = fecha.Date;
-
+    decimal totalFaltantes = 0;
 }
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
     <link href="~/Content/css/bootstrap.css" rel="stylesheet" type="text/css" />
-
+    <title>FORMATO DE ORDEN DE VENTA - COBEFAR S.A.C</title>
     <style>
         html, body, table, td, th {
             font-family: Helvetica, Arial, sans-serif !important;
@@ -71,27 +67,24 @@
                     <td colspan="4" class="text-center font-weight-bold" style="font-size: 14px !important;">FORMATO DE ORDEN DE VENTA</td>
                 </tr>
                 <tr>
-                    <td colspan="4" class="text-center titulo-celda">N° @orden[0].DocNum</td>
+                    <td colspan="4" class="text-center titulo-celda">N° @Model[0].DocNum</td>
                 </tr>
                 <tr>
                     <td class="titulo-celda" style="width: 10%;">FECHA:</td>
-                    <td class="titulo-celda-sinbold" style="width: 50%;">@soloFecha.ToString("dd/MM/yyyy")</td>
+                    <td class="titulo-celda-sinbold" style="width: 50%;">@Model[0].Fecha</td>
                     <td class="titulo-celda text-left" style="width: 10%; ">ALMACÉN:</td>
                     <td class="titulo-celda" style="width: 30%;">
-                        @if (new List<string> { "01", "09" }.Contains(orden[0].Almacen)) { Write(ViewBag.AlmProcedencia); }
-                        else { Write(orden[0].Almacen); }
+                        @if (new List<string> { "01", "09" }.Contains(Model[0].Almacen)) { Write(ViewBag.AlmProcedencia); }
+                        else { Write(Model[0].Almacen); }
                     </td>
-
                 </tr>
-
                 <tr>
-
                     <td class="titulo-celda" style="width: 10%;">CLIENTE:</td>
-                    <td class="titulo-celda" style="width: 50%;">@orden[0].CardName</td>
+                    <td class="titulo-celda" style="width: 50%;">@Model[0].CardName</td>
                     <td class="titulo-celda text-left" style="width: 10%;">VENDEDOR:</td>
                     <td class="titulo-celda-sinbold" style="width: 30%;">
-                        @if (!string.IsNullOrEmpty(orden[0].SlpName) && orden[0].SlpName.Length > 15) { Write(orden[0].SlpName.Substring(0, 15)); }
-                        else { Write(orden[0].SlpName); }
+                        @if (!string.IsNullOrEmpty(Model[0].SlpName) && Model[0].SlpName.Length > 15) { Write(Model[0].SlpName.Substring(0, 15)); }
+                        else { Write(Model[0].SlpName); }
                     </td>
                 </tr>
             </table>
@@ -106,37 +99,55 @@
                         <th class="text-center border text-dark font-weight-bold">LOTE</th>
                         <th class="text-center border text-dark font-weight-bold">F.VCTO</th>
                         <th class="text-center border text-dark font-weight-bold">CANT</th>
-                        <th class="text-center border text-dark font-weight-bold">PRECIO UNIT</th>
-                        <th class="text-center border text-dark font-weight-bold">PRECIO TOTAL</th>
+                        <th class="text-center border text-dark font-weight-bold">OBS.</th>
                     </tr>
                 </thead>
-                <tbody class="border">
+                <tbody>
                     @if (Model != null)
                     {
-                        foreach (var a in Model)
+                        foreach (var item in Model[0].ItemCodeDetalle)
                         {
-                            <tr>
-                                <td class="p-1 border">
-                                    @{
-                                        if (a.Ubicaciones != null)
+                            bool mostrarFaltante = true;
+                            decimal cantidadSolicitadaVentas = 0;
+
+                            foreach (var item2 in item.LoteDetalle)
+                            {
+                                decimal cantidadFaltante = 0;
+
+                                cantidadSolicitadaVentas += item2.CantidadSolicitadaVenta;
+                                cantidadFaltante = cantidadSolicitadaVentas - item.TotalUnidadesVendidas;
+                    <tr>
+                        <td class="p-1 border">
+                            @if (item.Ubicaciones != null)
                                         {
-                                            foreach (var ubicacion in a.Ubicaciones)
+                                            foreach (var ubicacion in item.Ubicaciones)
                                             {
-                                                <div>@ubicacion.Replace("PICKING-", "")</div>
+                            <div>@ubicacion.Replace("PICKING-", "")</div>
                                             }
                                         }
-                                    }
-                                </td>
-                                <td class="p-1 border">@a.ItemCode</td>
-                                <td class="p-1 border">@a.Producto</td>
-                                <td class="text-center p-1 border">@a.Lote</td>
-                                <td class="text-center p-1 border">@a.FechaVenc</td>
-                                <td class="text-center p-1 border">@a.UniMedidVend @a.NumUnidVend</td>
-                                <td class="text-center p-1 border">@a.PrecioProdIgvVend.ToString("F2")</td>
-                                <td class="text-center p-1 border">@a.TotalProdIgvVend.ToString("F2")</td>
-                            </tr>
+                        </td>
+                        <td class="p-1 border">@item.Codigo</td>
+                        <td class="p-1 border">@item.Producto</td>
+                        <td class="text-center p-1 border">@item2.Lote</td>
+                        <td class="text-center p-1 border">@item2.FechaVenc</td>
+                        <td class="text-center p-1 border">@item2.UniMedidVend @item2.NumUnidVend</td>
+                        <td class="text-center p-1 border">
+                            @if (mostrarFaltante)
+                                        {
+                            @Convert.ToInt32(cantidadFaltante)
+                                            mostrarFaltante = false;
+                                            totalFaltantes += cantidadFaltante;
+                                        }
+                        </td>
+                    </tr>
+                            }
                         }
                     }
+                    <tr>
+                        <td style="border: none !important;" colspan="5"></td>
+                        <td class="p-1 font-weight-bold"></td>
+                        <td class="p-1 border text-center">@Convert.ToInt32(totalFaltantes)</td>
+                    </tr>
                 </tbody>
             </table>
             <table width="100%" class="align-content-between" style="margin-top: 10px;">
@@ -144,12 +155,12 @@
                     <td class="font-weight-bold text-left" style="width: 100px;"></td>
                     <td class="text-left" style="width: 450px;"></td>
                     <td class="titulo-celda text-left" style="width: 300px;">TOTAL GENERAL:</td>
-                    <td class="titulo-celda text-left" style="width: 250px;">S/ @orden[0].DocTotal.ToString("F2")</td>
+                    <td class="titulo-celda text-left" style="width: 250px;">S/ @Model[0].DocTotal.ToString("F2")</td>
                 </tr>
             </table>
         </div>
     </div>
     <div style="page-break-after: always"></div>
 
-    </body>
+</body>
 </html>

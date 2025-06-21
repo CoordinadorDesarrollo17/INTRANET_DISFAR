@@ -1,6 +1,7 @@
 ﻿using Capa_Datos;
 using Capa_Datos.Ventas_DAO.TablasSql;
 using Capa_Entidad.ComprobantesContables_ENT;
+using Capa_Entidad.ReportesDigemid_ENT;
 using Capa_Entidad.ReportesDigemid_ENT.Reportes;
 using Capa_Entidad.Seguridad_ENT;
 using Capa_Entidad.SocioNegocios_ENT.Tablas;
@@ -518,10 +519,10 @@ namespace Capa_Usuario.Controllers
                     ORTV_N ortvN = new ORTV_N();
                     Usuario_E usu = (Usuario_E)Session["UsuarioId"];
                     string Operario = $"{usu.Nombres} {usu.Apellidos}";
-                    int DocNum = ortvN.Cancelar(DocEntry, Operario, usu.IdRol);                    
+                    int DocNum = ortvN.Cancelar(DocEntry, Operario, usu.IdRol);
                     var osatN = new Capa_Negocio.AtencionCliente_NEG.TablasSql.OSAT_N();
                     osatN.ActualizarTicketSolucion(new List<string>(), DocNum.ToString());
-                    
+
                     return RedirectToAction(vista, new { DocNum });
                 }
                 catch (Exception e)
@@ -3894,16 +3895,28 @@ namespace Capa_Usuario.Controllers
                 return Content("No se encontró la orden.");
 
             // Depende de LugarDestino del ticket
-            if (lista != null && lista[0].Almacen != "ALM07" && (string.IsNullOrEmpty(almProcedencia) || almProcedencia == "16"))
+            if (lista != null && lista.Count > 0 && lista[0].Almacen != "ALM07" && (string.IsNullOrEmpty(almProcedencia) || almProcedencia == "16"))
             {
+                var ubicacionesPorItem = new Dictionary<string, string[]>(); // Caché
+
                 foreach (var ordr in lista)
                 {
-                    string[] ubicaciones = _ubicacionesLotesN.ListarUbicaciones(new Capa_Entidad.AbastecimientoInterno_ENT.TablasSql.UbicacionesLotes_E { ItemCode = ordr.ItemCode, Almacen = "PICKING" })
+                    if (!ubicacionesPorItem.ContainsKey(ordr.ItemCode))
+                    {
+                        var ubicaciones = _ubicacionesLotesN.ListarUbicaciones(new Capa_Entidad.AbastecimientoInterno_ENT.TablasSql.UbicacionesLotes_E
+                        {
+                            ItemCode = ordr.ItemCode,
+                            Almacen = "PICKING"
+                        })
                         .Select(u => u.CodigoUbicacion)
-                        .Where(c => !string.IsNullOrWhiteSpace(c)) // limpia nulos y vacíos
+                        .Where(c => !string.IsNullOrWhiteSpace(c))
                         .ToArray();
 
-                    ordr.Ubicaciones = ubicaciones;
+                        ubicacionesPorItem[ordr.ItemCode] = ubicaciones;
+                    }
+
+                    // Siempre asignar (cada línea debe tener su copia)
+                    ordr.Ubicaciones = ubicacionesPorItem[ordr.ItemCode];
                 }
             }
 
@@ -3911,8 +3924,48 @@ namespace Capa_Usuario.Controllers
                 .OrderBy(x => x.Ubicaciones != null && x.Ubicaciones.Length > 0 ? x.Ubicaciones[0] : string.Empty)
                 .ToList();
 
+            List<OrdenDeVentaAgrupada_E> resultado = lista
+                .GroupBy(x => new { x.Almacen, x.DocNum, x.NombreBd, x.Fecha, x.CardName, x.RucCliente, x.SlpName, x.DocTotal })
+                .Select(doc => new OrdenDeVentaAgrupada_E
+                {
+                    Almacen = doc.Key.Almacen,
+                    DocNum = doc.Key.DocNum,
+                    NombreBd = doc.Key.NombreBd,
+                    Fecha = Convert.ToDateTime(doc.Key.Fecha).ToString("dd/MM/yyyy"),
+                    CardName = doc.Key.CardName,
+                    RucCliente = doc.Key.RucCliente,
+                    SlpName = doc.Key.SlpName,
+                    DocTotal = doc.Key.DocTotal,
+
+                    ItemCodeDetalle = doc
+                        .GroupBy(x => x.ItemCode)
+                        .Select(g => new OVItemCodeDetalle_E
+                        {
+                            Codigo = g.Key,
+                            Producto = g.First().Producto,
+                            Laboratorio = g.First().Laboratorio,                            
+                            TotalUnidadesVendidas = g.Sum(x => x.NumUnidVend),
+                            Comentarios = g.First().Comentarios,
+                            Ubicaciones = g.First().Ubicaciones,
+
+                            LoteDetalle = g
+                                .GroupBy(l => l.Lote)
+                                .Select(l => new OVLoteDetalle_E
+                                {
+                                    Lote = l.Key,
+                                    FechaVenc = l.First().FechaVenc,
+                                    NumUnidVend = l.Sum(x => x.NumUnidVend),
+                                    PrecioProdIgvVend = l.First().PrecioProdIgvVend,
+                                    TotalProdIgvVend = l.First().TotalProdIgvVend,
+                                    UniMedidVend = l.First().UniMedidVend,
+                                    CantidadSolicitadaVenta = l.Sum(y => y.CantidadSolicitadaVenta)
+                                }).ToList()
+                        }).ToList()
+                }).ToList();
+
             ViewBag.AlmProcedencia = almProcedencia;
-            return View("~/Views/Ventas/PDF/PDF_OrdenesDeVentasSophos.cshtml", lista);
+
+            return View("~/Views/Ventas/PDF/PDF_OrdenesDeVentasSophos.cshtml", resultado);
         }
     }
 }

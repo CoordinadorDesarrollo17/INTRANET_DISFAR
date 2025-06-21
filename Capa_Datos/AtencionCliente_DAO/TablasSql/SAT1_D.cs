@@ -42,7 +42,7 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
 
             var sb = new StringBuilder();
             sb.AppendLine("SELECT DocEntry,Linea,NroSap,ItemCode,Dscription,UnitMsr,NumPerMsr,Quantity,BatchNum,ExpDate,unitMsrF,QuantityF,PriceAfVAT,LineTotalF,Problema,TipoError,OpResponsable,Comentario,Regalo,MotRegalo,TareaFact,");
-            sb.AppendLine("ComprobanteVinc,AlmTransf,ComprobanteFin,AlmVenta, ErrorAlmacen, NCSAP, NuevoPrecioArticulo, ReferenciaNC_ND");
+            sb.AppendLine("ComprobanteVinc,AlmTransf,ComprobanteFin,AlmVenta, ErrorAlmacen, NCSAP, NuevoPrecioArticulo, ReferenciaNC_ND, ErrAlmOtrCom ");
             sb.AppendLine("FROM ac.SAT1");
             sb.AppendLine("WHERE DocEntry=@DocEntry");
 
@@ -82,6 +82,7 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
                     if (!dr.IsDBNull(26)) o.NCSAP = dr.GetInt32(26);
                     if (!dr.IsDBNull(27)) o.NuevoPrecioArticulo = dr.GetDecimal(27);
                     if (!dr.IsDBNull(28)) o.ReferenciaNC_ND = dr.GetString(28);
+                    if (!dr.IsDBNull(29)) o.ErrAlmOtrCom = dr.GetString(29);
 
                     lista.Add(o);
                 }
