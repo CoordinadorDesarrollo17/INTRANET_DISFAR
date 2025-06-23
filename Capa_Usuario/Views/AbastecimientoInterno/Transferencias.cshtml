@@ -35,7 +35,7 @@
         <div class="col-lg-2">
             <input type="hidden" id="DocEntry" name="DocEntry" readonly />
             <label for="TipoDocumento" class="form-label fw-bold">Tipo de documento:</label>
-            <select id="TipoDocumento" name="TipoDocumento" class="form-select" onclick="validarTipoDocumento(this.value)">
+            <select id="TipoDocumento" name="TipoDocumento" class="form-select" onchange="validarTipoDocumento(this.value)">
                 <option value="OWTQ">Solicitud de Traslado</option>
                 <option value="EMI">Entrada de Mercadería Inventario</option>
             </select>
@@ -158,7 +158,7 @@
     <div id="div_botones" class="row" style="display: none">
         <div class="col-lg-12">
             <button id="cancelarCritico" type="button" class="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Cancelar" onclick="cancelarTransferenciaTraslado()"><i class="bi bi-x-lg"></i> Cancelar</button>
-            <button type="button" id="btn_transferir" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Transferir"><i class="bi bi-arrow-left-right"></i> Transferir</button>
+            <button type="button" id="btn_transferir" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Transferir" onclick="realizarTransferencia()"><i class="bi bi-arrow-left-right"></i> Transferir</button>
         </div>
     </div>
 </div><!-- main -->
@@ -370,28 +370,33 @@
             document.getElementById("copiaCardName").value = 'COBEFAR S.A.C.';
             document.getElementById("copiaMotivoTraslado").value = document.getElementById("MotivoTraslado").value;
 
-	        const filasSolicitudTraslado = document.querySelectorAll("#tbl_copiaSap tbody tr");
-	        let detallesSolicitud = [];
-	        filasSolicitudTraslado.forEach((fila) => {
-		        let inputs = fila.querySelectorAll("input, select");
-		        let detalleSolicitud = {};
-		        inputs.forEach(input => {
-			        let name = input.name.trim();
-			        if (name.startsWith("solicitudTraslado.Detalle[]")) {
-				        let key = name.replace("solicitudTraslado.Detalle[].", "").trim();
-				        detalleSolicitud[key] = input.value;
-			        }
-		        });
-		        if (Object.keys(detalleSolicitud).length > 0) detallesSolicitud.push(detalleSolicitud);
-	        });
+	        //const filasSolicitudTraslado = document.querySelectorAll("#tbl_copiaSap tbody tr");
+	        //let detallesSolicitud = [];
+	        //filasSolicitudTraslado.forEach((fila) => {
+		       // let inputs = fila.querySelectorAll("input, select");
+		       // let detalleSolicitud = {};
+		       // inputs.forEach(input => {
+			      //  let name = input.name.trim();
+			      //  if (name.startsWith("solicitudTraslado.Detalle[]")) {
+				     //   let key = name.replace("solicitudTraslado.Detalle[].", "").trim();
+				     //   detalleSolicitud[key] = input.value;
+			      //  }
+		       // });
+		       // if (Object.keys(detalleSolicitud).length > 0) detallesSolicitud.push(detalleSolicitud);
+         //   });
+            let detallesSolicitud = [];
+
 	        const filasTransferencia = document.querySelectorAll(".tbl_detalleLotes tbody tr");
 	        let detallesTransferencia = [];
 	        filasTransferencia.forEach((fila) => {
 		        let inputs = fila.querySelectorAll("input, select");
-		        let detalleTransferencia = {};
-		        let camposValidos = true; // Bandera para validar los campos requeridos
+                let detalleTransferencia = {};
+                let detalleSolicitud = {};
+                let camposValidos = true; // Bandera para validar los campos requeridos
+
 		        inputs.forEach(input => {
-			        let name = input.name.trim();
+                    let name = input.name.trim();
+
 			        if (name.startsWith("transferenciaPost.Detalle[]")) {
 				        let key = name.replace("transferenciaPost.Detalle[].", "").trim();
 				        let value = input.value.trim(); // Aseguramos que no tenga espacios en blanco al inicio o fin
@@ -405,18 +410,36 @@
 				        // Verificar si los campos obligatorios están vacíos
 				        if ((key === "QuantitySaldo" || key === "UmAlm") && value === "") {
 					        camposValidos = false; // Marcar como inválido si algún campo está vacío
-				        }
+                        }
+
+                        // Solo tomar los campos requeridos para solicitudTraslado
+                        if ([
+                            "ItemCode", "ItemName", "BatchNum", "InDate", "ExpDate", "QuantityCajas"
+                        ].includes(key)) {
+                            detalleSolicitud[key] = value;
+                        }
 			        }
 		        });
-		        // Solo agregar si los campos requeridos tienen valores
+
+                // Forzar valores por defecto para almacenes
+                detalleSolicitud["FromWhsCode"] = "16";
+                detalleSolicitud["ToWhsCode"] = "16";
+
+                // Solo agregar si los campos requeridos tienen valores
+                if (Object.keys(detalleSolicitud).length > 0) {
+                    detallesSolicitud.push(detalleSolicitud);
+                }
+
 		        if (camposValidos && Object.keys(detalleTransferencia).length > 0) {
 			        detallesTransferencia.push(detalleTransferencia);
 		        }
-	        });
+            });
+
+
 	        const formData = new FormData(form);
 	        const jsonData = Object.fromEntries(formData.entries());
 	        const payload = {
-		        solicitudTraslado: {
+                solicitudTrasladoPost: {
 			        ...jsonData, // Otros datos generales del formulario
 			        Detalle: detallesSolicitud
 		        },
@@ -427,8 +450,8 @@
 		        }
             };
 
-            console.log(payload); return;
-            registrarTransferenciaStock(payload)
+            //console.log(payload); return;
+            registrarTransferenciaStock(payload);
         }
 
         async function registrarTransferenciaStock(payload) {
@@ -1153,9 +1176,8 @@
 			document.querySelector(`#${data.idcantsaldo}`).value = cantidadSaldo
 		}
 		document.addEventListener('DOMContentLoaded', function () {
-			permitirSoloNumeros('DocNum')
-            permitirValoresNumericosPositivos()
-			document.getElementById("btn_transferir").addEventListener("click", realizarTransferencia)
+            permitirSoloNumeros('DocNum');
+            permitirValoresNumericosPositivos();
         });
 
 		function limpiarValoresItem(claseItemCode) {
@@ -1637,6 +1659,12 @@
         }
 
         function validarTipoDocumento(valor) {
+            if (valor == "") {
+                return;
+            }
+
+            document.querySelector('#div_botones').style.display = 'block';
+
             if (valor == "EMI") {
                 document.getElementById("MotivoTraslado").readOnly = false;
                 document.getElementById("MotivoTraslado").classList.remove("cls-readonly");
@@ -1646,12 +1674,14 @@
                 resetValoresVacios(["DocEntry", "DocNum", "NroGuia", "CardCode", "CardName", "OperarioResponsableSAP", "MotivoTraslado", "DocDate", "copiaDocEntry", "copiaDocNum", "copiaNroGuia", "copiaCardCode", "copiaCardName",
                     "copiaOperarioResponsableSAP", "copiaMotivoTraslado", "copiaDocDate"]);
                 document.querySelector("#tbl_detalle tbody").innerHTML = '';
+                document.getElementById("btn_transferir").onclick = realizarTransferenciaEMI;
             }else {
                 document.getElementById("MotivoTraslado").readOnly = true;
                 document.getElementById("MotivoTraslado").classList.add("cls-readonly");
                 document.getElementById("btn_AbrirModalImportacion").disabled = false;
                 document.getElementById('DocNum').readOnly = false;
                 document.getElementById('buscarDocNum').disabled = false;
+                document.getElementById("btn_transferir").onclick = realizarTransferencia;
             }
         }
 
