@@ -1,6 +1,7 @@
 ﻿using Capa_Datos.AbastecimientoInterno_DAO.TablasSql;
 using Capa_Entidad;
 using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
+using Capa_Negocio.Almacen_NEG.Tablas;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -57,9 +58,9 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
             return datosUbicacionesLM.ListarUbicaciones(condicion.ToString(), parametros, cn);
         }
 
-        public Helper_E Ingreso (int ubicacionLoteId, DetalleTransferenciaReserva_E ingreso, SqlConnection cn)
+        public Helper_E Ingreso(int ubicacionLoteId, DetalleTransferenciaReserva_E ingreso, SqlConnection cn)
         {
-            return datosUbicacionesLM.Ingreso(ubicacionLoteId,ingreso, cn);
+            return datosUbicacionesLM.Ingreso(ubicacionLoteId, ingreso, cn);
         }
         public Helper_E RevertirIngreso(TransferenciaReserva_E ingreso, SqlConnection cn)
         {
@@ -67,9 +68,23 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         }
         public Helper_E Salida(List<DetalleRequerimientos_E> salida, SqlConnection cn)
         {
-            return datosUbicacionesLM.Salida(salida, cn);
+            var resultado = datosUbicacionesLM.Salida(salida, cn);
+            var almacenes = new List<string> { "ALM07", "ALM08", "16", "03" };
+
+            if (resultado.Icono == "success")
+            {
+                foreach (var item in salida)
+                {
+                    var stock = new OITW_N().ObtenerStockSKUPorAlmacen(item.ItemCode, almacenes);
+
+                    if (stock == 0)
+                        datosUbicacionesLM.LimpiarRegistros(item, cn);
+                }
+            }
+
+            return resultado;
         }
-        
+
         public List<UbicacionesLotesMaster_E> BuscarArticulos(UbicacionesLotesMaster_E filtros = null, StringBuilder condicion = null, Dictionary<string, object> parametros = null)
         {
             condicion = new StringBuilder();
@@ -90,5 +105,5 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         {
             return datosUbicacionesLM.Obtener(id);
         }
-        }
+    }
 }
