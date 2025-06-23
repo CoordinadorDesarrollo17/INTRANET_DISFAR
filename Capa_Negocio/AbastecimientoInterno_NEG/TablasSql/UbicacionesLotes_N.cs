@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Capa_Datos.AbastecimientoInterno_DAO.TablasSql;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Capa_Negocio.Almacen_NEG.Tablas;
 
 namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
 {
@@ -80,7 +81,21 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         }
         public Helper_E Salida(List<DetalleRequerimientos_E> salida, SqlConnection cn)
         {
-            return datosUbicacionesL.Salida(salida, cn);
+            var resultado = datosUbicacionesL.Salida(salida, cn);
+            var almacenes = new List<string> { "ALM07", "ALM08", "16", "03" };
+
+            if (resultado.Icono == "success")
+            {
+                foreach (var item in salida)
+                {
+                    var stock = new OITW_N().ObtenerStockSKUPorAlmacen(item.ItemCode, almacenes);
+
+                    if (stock == 0)
+                        datosUbicacionesL.EliminarArticulo(item.ItemCode, item.CodigoUbicacionOrigen);
+                }
+            }
+
+            return resultado;
         }
 
         public Helper_E EliminarArticulo(string itemCode, string codigoUbicacion)
