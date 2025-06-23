@@ -115,7 +115,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     cmd.Parameters.AddWithValue("@QuantityMaster", detalle.QuantityMaster);
                     cmd.Parameters.AddWithValue("@QuantitySaldo", detalle.QuantitySaldo);
                     cmd.Parameters.AddWithValue("@UbicacionLoteId", ubicacionLoteId);
-                  
+
                     SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
                     {
                         Direction = ParameterDirection.Output
@@ -339,7 +339,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
                     cmd.Parameters.AddWithValue("@Almacen", "RESERVA");
                     cmd.Parameters.AddWithValue("@Id", id);
-               
+
                     cmd.CommandText = sb.ToString();
 
                     cn.Open();
@@ -348,19 +348,19 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     {
                         if (dr.HasRows && dr.Read())
                         {
-                                obj = new UbicacionesLotesMaster_E();
-                                if (!dr.IsDBNull(0)) obj.Id = dr.GetInt32(0);
-                                if (!dr.IsDBNull(1)) obj.ItemCode = dr.GetString(1);
-                                if (!dr.IsDBNull(2)) obj.ItemName = dr.GetString(2);
-                                if (!dr.IsDBNull(3)) obj.CodigoUbicacion = dr.GetString(3);
-                                if (!dr.IsDBNull(4)) obj.BatchNum = dr.GetString(4);
-                                if (!dr.IsDBNull(5)) obj.UmAlm = dr.GetString(5);
-                                if (!dr.IsDBNull(6)) obj.ValorUmAlm = dr.GetInt32(6);
-                                if (!dr.IsDBNull(7)) obj.QuantityMaster = dr.GetInt32(7);
-                                if (!dr.IsDBNull(8)) obj.QuantitySaldo = dr.GetInt32(8);
-                                if (!dr.IsDBNull(9)) obj.QuantityUnidadesCajas = dr.GetInt32(9);
-                                if (!dr.IsDBNull(10)) obj.InDate = dr.GetString(10);
-                                if (!dr.IsDBNull(11)) obj.ExpDate = dr.GetString(11);
+                            obj = new UbicacionesLotesMaster_E();
+                            if (!dr.IsDBNull(0)) obj.Id = dr.GetInt32(0);
+                            if (!dr.IsDBNull(1)) obj.ItemCode = dr.GetString(1);
+                            if (!dr.IsDBNull(2)) obj.ItemName = dr.GetString(2);
+                            if (!dr.IsDBNull(3)) obj.CodigoUbicacion = dr.GetString(3);
+                            if (!dr.IsDBNull(4)) obj.BatchNum = dr.GetString(4);
+                            if (!dr.IsDBNull(5)) obj.UmAlm = dr.GetString(5);
+                            if (!dr.IsDBNull(6)) obj.ValorUmAlm = dr.GetInt32(6);
+                            if (!dr.IsDBNull(7)) obj.QuantityMaster = dr.GetInt32(7);
+                            if (!dr.IsDBNull(8)) obj.QuantitySaldo = dr.GetInt32(8);
+                            if (!dr.IsDBNull(9)) obj.QuantityUnidadesCajas = dr.GetInt32(9);
+                            if (!dr.IsDBNull(10)) obj.InDate = dr.GetString(10);
+                            if (!dr.IsDBNull(11)) obj.ExpDate = dr.GetString(11);
                         }
                     }
                     cn.Close();
@@ -372,6 +372,51 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
             }
 
             return obj;
+        }
+
+        public Helper_E LimpiarRegistros(DetalleRequerimientos_E detalle, SqlConnection cn)
+        {
+            string mensaje, icono;
+
+            try
+            {
+                if (cn.State != ConnectionState.Open)
+                    cn.Open();
+
+                using (SqlCommand cmd = new SqlCommand("sp_MantenimientoUbicacionesLotesMaster", cn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.Clear();
+
+                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "LIMPIAR");
+                    cmd.Parameters.AddWithValue("@Almacen", "RESERVA");
+                    cmd.Parameters.AddWithValue("@ItemCode", detalle.ItemCode);
+                    cmd.Parameters.AddWithValue("@ItemName", detalle.ItemName);
+                    cmd.Parameters.AddWithValue("@CodigoUbicacion", detalle.CodigoUbicacionOrigen);
+                    cmd.Parameters.AddWithValue("@BatchNum", detalle.BatchNum);
+                    cmd.Parameters.AddWithValue("@UmAlm", detalle.UmAlm);
+                    cmd.Parameters.AddWithValue("@ValorUmAlm", detalle.ValorUmAlm);
+                    cmd.Parameters.AddWithValue("@QuantityMaster", detalle.QuantityMaster);
+                    cmd.Parameters.AddWithValue("@QuantitySaldo", detalle.QuantitySaldo);
+                    SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
+                    {
+                        Direction = ParameterDirection.Output
+                    };
+                    cmd.Parameters.Add(idGeneradoParam);
+                    cmd.ExecuteNonQuery();
+
+                    mensaje = "Operacion de salida en UbicacionesLotesMaster realizado correctamente";
+                    icono = "success";
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.RegistrarError(ex, "Error inesperado en UbicacionesLotesMaster_D - LimpiarRegistros()");
+                mensaje = ex.Message;
+                icono = "error";
+            }
+
+            return new Helper_E { Mensajes = new List<string> { mensaje }, Icono = icono };
         }
     }
 }

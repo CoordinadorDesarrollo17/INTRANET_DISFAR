@@ -7,6 +7,7 @@ using Capa_Entidad.TablasSql;
 using Capa_Negocio.AbastecimientoInterno_NEG.Reportes;
 using Capa_Negocio.AbastecimientoInterno_NEG.TablasExternas;
 using Capa_Negocio.AbastecimientoInterno_NEG.TablasSql;
+using Capa_Negocio.Almacen_NEG.Tablas;
 using Capa_Negocio.DireccionTecnica_NEG.TablasSql;
 using Capa_Usuario.Helpers;
 using OfficeOpenXml;
@@ -1623,6 +1624,8 @@ namespace Capa_Usuario.Controllers
                 return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { ex.Message }, Icono = "error" }, JsonRequestBehavior.AllowGet);
             }
         }
+
+
         /****************************** R E Q U E R I M I E N T O S ****************************/
         /****************************** A P I L A D O R E S ****************************/
         public ActionResult Requerimientos(int idOperation = 3400)
@@ -1708,11 +1711,11 @@ namespace Capa_Usuario.Controllers
                         if (cantidadSolicitada < 0 || (stockEnPicking <= 0 && stockMinimoParaLaVenta <= 0)) cantidadSolicitada = 0;
                     }
                 }
-                return Json(new { cantidadSolicitada = Convert.ToString(cantidadSolicitada), tieneStockMin = stockMin == true ? "Y" : "N" });
+                return Json(new { cantidadSolicitada = Convert.ToString(cantidadSolicitada), tieneStockMin = stockMin == true ? "Y" : "N" }, JsonRequestBehavior.AllowGet);
             }
             else
             {
-                return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "Sin accesos." }, Icono = "error" });
+                return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "Sin accesos." }, Icono = "error" }, JsonRequestBehavior.AllowGet);
             }
         }
         public JsonResult RegistrarRequerimiento(Requerimientos_E requerimiento, int idOperation = 3403)
