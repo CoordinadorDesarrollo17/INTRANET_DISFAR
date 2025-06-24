@@ -80,7 +80,7 @@
 
     <div class="row mb-4">
         <div class="col-2">
-            <button id="btn_AgregarArticulo" class="btn btn-cobefar-2" onclick="agregarArticulo()">Agregar</button>
+            <button id="btn_AgregarArticulo" class="btn btn-cobefar-2" onclick="agregarArticulo()" hidden><i class="bi bi-plus-lg"></i> Agregar</button>
         </div>
     </div>
 
@@ -344,7 +344,7 @@
 			const formData = new FormData(form);
 			const jsonData = Object.fromEntries(formData.entries());
 			const payload = {
-				solicitudTraslado: {
+                solicitudTrasladoPost: {
 					...jsonData, // Otros datos generales del formulario
 					Detalle: detallesSolicitud
 				},
@@ -355,7 +355,7 @@
 				}
             };
 
-            console.log(payload); return;
+            //console.log(payload); return;
             registrarTransferenciaStock(payload)
 		}
 
@@ -365,25 +365,11 @@
 		        console.log("Formulario no válido.");
 		        return;
 	        }
-            
+
             document.getElementById("copiaCardCode").value = 'P20600546041';
             document.getElementById("copiaCardName").value = 'COBEFAR S.A.C.';
             document.getElementById("copiaMotivoTraslado").value = document.getElementById("MotivoTraslado").value;
 
-	        //const filasSolicitudTraslado = document.querySelectorAll("#tbl_copiaSap tbody tr");
-	        //let detallesSolicitud = [];
-	        //filasSolicitudTraslado.forEach((fila) => {
-		       // let inputs = fila.querySelectorAll("input, select");
-		       // let detalleSolicitud = {};
-		       // inputs.forEach(input => {
-			      //  let name = input.name.trim();
-			      //  if (name.startsWith("solicitudTraslado.Detalle[]")) {
-				     //   let key = name.replace("solicitudTraslado.Detalle[].", "").trim();
-				     //   detalleSolicitud[key] = input.value;
-			      //  }
-		       // });
-		       // if (Object.keys(detalleSolicitud).length > 0) detallesSolicitud.push(detalleSolicitud);
-         //   });
             let detallesSolicitud = [];
 
 	        const filasTransferencia = document.querySelectorAll(".tbl_detalleLotes tbody tr");
@@ -399,14 +385,16 @@
 
 			        if (name.startsWith("transferenciaPost.Detalle[]")) {
 				        let key = name.replace("transferenciaPost.Detalle[].", "").trim();
-				        let value = input.value.trim(); // Aseguramos que no tenga espacios en blanco al inicio o fin
+                        let value = input.value.trim(); // Aseguramos que no tenga espacios en blanco al inicio o fin
+
 				        if (key === "ValorUmAlm") {
 					        let selectedOption = input.options[input.selectedIndex];
 					        detalleTransferencia[key] = value;
 					        detalleTransferencia["UmAlm"] = selectedOption.dataset.umalm || ""; // Evita valores undefined
 				        } else {
 					        detalleTransferencia[key] = value;
-				        }
+                        }
+
 				        // Verificar si los campos obligatorios están vacíos
 				        if ((key === "QuantitySaldo" || key === "UmAlm") && value === "") {
 					        camposValidos = false; // Marcar como inválido si algún campo está vacío
@@ -414,9 +402,10 @@
 
                         // Solo tomar los campos requeridos para solicitudTraslado
                         if ([
-                            "ItemCode", "ItemName", "BatchNum", "InDate", "ExpDate", "QuantityCajas"
+                            "ItemCode", "ItemName", "BatchNum", "InDate", "ExpDate", "QuantityUnidadesCajas"
                         ].includes(key)) {
-                            detalleSolicitud[key] = value;
+                            const solicitudKey = key === "QuantityUnidadesCajas" ? "QuantityCajas" : key;
+                            detalleSolicitud[solicitudKey] = value;
                         }
 			        }
 		        });
@@ -450,7 +439,7 @@
 		        }
             };
 
-            //console.log(payload); return;
+           // console.log(payload); return;
             registrarTransferenciaStock(payload);
         }
 
@@ -622,7 +611,6 @@
                 });
             }
         }
-
 
         function abrirModalImportacion() {
             let modal = new bootstrap.Modal(document.getElementById('ModalImportar'));
@@ -1662,7 +1650,6 @@
             if (valor == "") {
                 return;
             }
-
             document.querySelector('#div_botones').style.display = 'block';
 
             if (valor == "EMI") {
@@ -1674,17 +1661,18 @@
                 resetValoresVacios(["DocEntry", "DocNum", "NroGuia", "CardCode", "CardName", "OperarioResponsableSAP", "MotivoTraslado", "DocDate", "copiaDocEntry", "copiaDocNum", "copiaNroGuia", "copiaCardCode", "copiaCardName",
                     "copiaOperarioResponsableSAP", "copiaMotivoTraslado", "copiaDocDate"]);
                 document.querySelector("#tbl_detalle tbody").innerHTML = '';
-                document.getElementById("btn_transferir").onclick = realizarTransferenciaEMI;
-            }else {
+                document.getElementById("btn_transferir").setAttribute("onclick", "realizarTransferenciaEMI()");
+                document.getElementById("btn_AgregarArticulo").hidden = false;
+            } else {
+                document.getElementById("btn_AgregarArticulo").hidden = true;
                 document.getElementById("MotivoTraslado").readOnly = true;
                 document.getElementById("MotivoTraslado").classList.add("cls-readonly");
                 document.getElementById("btn_AbrirModalImportacion").disabled = false;
                 document.getElementById('DocNum').readOnly = false;
                 document.getElementById('buscarDocNum').disabled = false;
-                document.getElementById("btn_transferir").onclick = realizarTransferencia;
+                document.getElementById("btn_transferir").setAttribute("onclick", "realizarTransferencia()");
             }
         }
-
 
         let contadorProducto = 1;
         function agregarArticulo() {

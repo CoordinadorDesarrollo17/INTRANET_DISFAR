@@ -1152,7 +1152,7 @@ namespace Capa_Usuario.Controllers
                         using (SqlConnection cn = new SqlConnection(uti.cadSql2))
                         {
                             cn.Open();
-                            var solicitudTraslado  = new SolicitudesTraslado_E();
+                            var solicitudTraslado = new SolicitudesTraslado_E();
 
                             //Es exclusivo para la continuacion de transferencia en una solicitud de traslado.
                             if (solicitudTrasladoPost == null || solicitudTrasladoPost.DocNum == 0)
@@ -1169,6 +1169,10 @@ namespace Capa_Usuario.Controllers
 
                                 //Asigna su Id porque ya fue insertado
                                 solicitudTrasladoPost.Id = resultImportarSolicitud.Id;
+                            }
+                            else
+                            {
+                                solicitudTrasladoPost = solicitudTraslado;
                             }
 
                             // Validar o inserta los lotes de registro sanitario (fuera de la transacción)
