@@ -36,6 +36,13 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     Direction = ParameterDirection.Output
                 };
                 cmd.Parameters.Add(outputId);
+
+                SqlParameter param2 = new SqlParameter("@Aprobado", SqlDbType.Int)
+                {
+                    Value = 0
+                };
+                cmd.Parameters.Add(param2);
+
                 SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
@@ -50,6 +57,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     if (!dr.IsDBNull(5)) { requerimiento.TiempoRegistro = dr.GetDateTime(5); }
                     if (!dr.IsDBNull(6)) { requerimiento.OperarioRegistra = dr.GetString(6); }
                     if (!dr.IsDBNull(7)) { requerimiento.Zona = dr.GetString(7); }
+                    if (!dr.IsDBNull(8)) { requerimiento.Aprobado = dr.GetInt32(8); }
 
                     requerimiento.Detalle = new List<DetalleRequerimientos_E>();
                 }
@@ -184,6 +192,12 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     };
                     cmd.Parameters.Add(idGeneradoParam);
 
+                    SqlParameter param2 = new SqlParameter("@Aprobado", SqlDbType.Int)
+                    {
+                        Value = 0
+                    };
+                    cmd.Parameters.Add(param2);
+
                     SqlDataReader dr = cmd.ExecuteReader();
 
                     if (dr.HasRows)
@@ -210,6 +224,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                             if (!dr.IsDBNull(15)) { detalle.Posicion = dr.GetString(15); }
                             if (!dr.IsDBNull(16)) { detalle.RackBloque = dr.GetString(16); }
                             if (!dr.IsDBNull(17)) { detalle.Zona = dr.GetString(17); }
+                            if (!dr.IsDBNull(18)) { detalle.Aprobado = dr.GetInt32(18); }
                             lista.Add(detalle);
                         }
                     }
@@ -284,6 +299,12 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     };
                     cmd.Parameters.Add(idGeneradoParam);
 
+                    SqlParameter param2 = new SqlParameter("@Aprobado", SqlDbType.Int)
+                    {
+                        Value = 0
+                    };
+                    cmd.Parameters.Add(param2);
+
                     SqlParameter detalleParam = new SqlParameter("@Detalle", SqlDbType.Structured)
                     {
                         TypeName = "dbo.DetalleRequerimientosType",
@@ -305,7 +326,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                                 ItemName = reader.GetString(reader.GetOrdinal("ItemName")),
                                 BatchNum = reader.GetString(reader.GetOrdinal("BatchNum")),
                                 CodigoUbicacionOrigen = reader.GetString(reader.GetOrdinal("CodigoUbicacionOrigen")),
-                                CodigoUbicacionDestino = reader.GetString(reader.GetOrdinal("CodigoUbicacionDestino")),
+                                CodigoUbicacionDestino = reader.IsDBNull(reader.GetOrdinal("CodigoUbicacionDestino")) ? null : reader.GetString(reader.GetOrdinal("CodigoUbicacionDestino")),
                                 UmAlm = reader.GetString(reader.GetOrdinal("UmAlm")),
                                 ValorUmAlm = reader.GetInt32(reader.GetOrdinal("ValorUmAlm")),
                                 QuantityMaster = reader.IsDBNull(reader.GetOrdinal("QuantityMaster")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("QuantityMaster")),
@@ -334,6 +355,128 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 LogHelper.RegistrarError(ex, "Requerimientos_D - RegistrarRequerimiento");
                 throw new Exception("Error al registrar el requerimiento.", ex);
             }
+        }
+
+        public (Helper_E, List<Requerimientos_E>) ListarRequerimientos(string condicion, Dictionary<string, object> parametros)
+        {
+            var lista = new List<Requerimientos_E>();
+            Helper_E _helper = new Helper_E();
+            var top = string.IsNullOrEmpty(condicion) ? "TOP 100" : string.Empty;
+
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+                {
+                    SqlCommand cmd = new SqlCommand();
+                    cmd.Connection = cn;
+
+                    var sb = new StringBuilder();
+
+                    sb.AppendLine($"SELECT {top} RQ.Id, RQ.Origen, RQ.Destino, RQ.TipoAbastecimiento, RQ.Comentario, CONVERT (VARCHAR, RQ.TiempoRegistro, 103) AS FechaRegistro, CONVERT (VARCHAR, RQ.TiempoRegistro, 108) AS HoraRegistro,");
+                    sb.AppendLine("RQ.OperarioRegistra, RQ.Zona, RQ.Aprobado");
+                    sb.AppendLine("FROM Requerimientos RQ");
+                    sb.AppendLine("WHERE 1 = 1");
+                    sb.AppendLine(condicion?.ToString().Trim());
+
+                    // Agregamos los parámetros dinámicamente
+                    foreach (var prm in parametros)
+                    {
+                        cmd.Parameters.AddWithValue(prm.Key, prm.Value);
+                    }
+
+                    sb.AppendLine("ORDER BY 1 DESC");
+                    cmd.CommandText = sb.ToString();
+
+                    cn.Open();
+
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        if (dr.HasRows)
+                        {
+                            while (dr.Read())
+                            {
+                                var obj = new Requerimientos_E();
+
+                                if (!dr.IsDBNull(0)) obj.Id = dr.GetInt32(0);
+                                if (!dr.IsDBNull(1)) obj.Origen = dr.GetString(1);
+                                if (!dr.IsDBNull(2)) obj.Destino = dr.GetString(2);
+                                if (!dr.IsDBNull(3)) obj.TipoAbastecimiento = dr.GetString(3);
+                                if (!dr.IsDBNull(4)) obj.Comentario = dr.GetString(4);
+                                if (!dr.IsDBNull(5)) obj.FechaRegistro = dr.GetString(5);
+                                if (!dr.IsDBNull(6)) obj.HoraRegistro = dr.GetString(6);
+                                if (!dr.IsDBNull(7)) obj.OperarioRegistra = dr.GetString(7);
+                                if (!dr.IsDBNull(8)) obj.Zona = dr.GetString(8);
+                                if (!dr.IsDBNull(9)) obj.Aprobado = dr.GetInt32(9);
+
+                                lista.Add(obj);
+                            }
+                        }
+
+                        _helper.Titulo = "Acción completada";
+                        _helper.Mensajes.Add("Se envió la solicitud para revertir la liberación de este artículo correctamente.");
+                        _helper.Icono = "success";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.RegistrarError(ex, "Error inesperado en Requerimientos_D - ListarRequerimientos()");
+
+                _helper.Titulo = "Error";
+                _helper.Mensajes.Add("Ocurrió un error al enviar la solicitud para revertir la liberación del artículo.");
+                _helper.Mensajes.Add("Por favor, comuníquese con el área de Sistemas para más información.");
+                _helper.Icono = "error";
+            }
+
+            return (_helper, lista);
+        }
+
+        public Helper_E AprobarRequerimiento(int id, string operarioRegistra)
+        {
+            string mensaje, icono;
+            Helper_E _helper = new Helper_E();
+
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+                {
+                    cn.Open();
+                    using (SqlCommand cmd = new SqlCommand("sp_MantenimientoRequerimiento", cn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
+                        cmd.Parameters.AddWithValue("@TipoMantenimiento", "APROBAR");
+                        cmd.Parameters.AddWithValue("@Id", id);
+                        cmd.Parameters.AddWithValue("@OperarioRegistra", operarioRegistra);
+                        SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
+                        {
+                            Direction = ParameterDirection.Output
+                        };
+                        cmd.Parameters.Add(idGeneradoParam);
+
+                        SqlParameter param2 = new SqlParameter("@Aprobado", SqlDbType.Int)
+                        {
+                            Value = 0
+                        };
+                        cmd.Parameters.Add(param2);
+
+                        cmd.ExecuteNonQuery();
+
+                        _helper.Titulo = "Acción completada";
+                        _helper.Mensajes = new List<string> { "Se aprobó el requerimiento correctamente." };
+                        _helper.Icono = "success";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.RegistrarError(ex, "Requerimientos_D - AprobarRequerimiento()");
+                _helper.Titulo = "Error";
+                _helper.Mensajes = new List<string> { "Ocurrió un error al aprobar requerimiento. Comuníquese con el área de Sistemas para más información." };
+                _helper.Icono = "error";
+            }
+
+            return _helper;
         }
     }
 }

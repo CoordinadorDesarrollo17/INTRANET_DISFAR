@@ -10,6 +10,7 @@ using Capa_Negocio.AbastecimientoInterno_NEG.TablasSql;
 using Capa_Negocio.Almacen_NEG.Tablas;
 using Capa_Negocio.DireccionTecnica_NEG.TablasSql;
 using Capa_Usuario.Helpers;
+using dotless.Core.Parser.Tree;
 using OfficeOpenXml;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
@@ -805,6 +806,8 @@ namespace Capa_Usuario.Controllers
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 ViewBag.Masters = _masterN.ListarMasters();
+                ViewBag.Articulos = _ubicacionesLotesMasterN.BuscarArticulos();
+
                 return View();
             }
             else
@@ -1112,7 +1115,7 @@ namespace Capa_Usuario.Controllers
                 }, JsonRequestBehavior.AllowGet);
             }
         }
-        public JsonResult RegistrarTransferenciaDeStock(SolicitudesTraslado_E solicitudTraslado, TransferenciaReserva_E transferenciaPost, int idOperation = 3304)
+        public JsonResult RegistrarTransferenciaDeStock(SolicitudesTraslado_E solicitudTrasladoPost, TransferenciaReserva_E transferenciaPost, int idOperation = 3304)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
@@ -1149,33 +1152,38 @@ namespace Capa_Usuario.Controllers
                         using (SqlConnection cn = new SqlConnection(uti.cadSql2))
                         {
                             cn.Open();
+                            var solicitudTraslado = new SolicitudesTraslado_E();
 
                             //Es exclusivo para la continuacion de transferencia en una solicitud de traslado.
-                            if (solicitudTraslado == null || solicitudTraslado.DocNum == 0)
+                            if (solicitudTrasladoPost == null || solicitudTrasladoPost.DocNum == 0)
                                 solicitudTraslado = _solicitudTrasladoN.ObtenerSolicitudDeTraslado(transferenciaPost.SolicitudTrasladoDocNum, cn);
 
                             if (solicitudTraslado == null || solicitudTraslado.Id == 0)
                             {
                                 // Importa a las tablas internas solo si no existe previamente el DocNum
-                                var resultImportarSolicitud = _solicitudTrasladoN.ImportarSolicitudDeTraslado(solicitudTraslado, cn);
+                                var resultImportarSolicitud = _solicitudTrasladoN.ImportarSolicitudDeTraslado(solicitudTrasladoPost, cn);
 
                                 // Validar si la importación fue exitosa
                                 if (resultImportarSolicitud.Icono.Equals("error") || resultImportarSolicitud.Id == 0)
                                     return Json(new { Titulo = "No se pudo completar la acción", resultImportarSolicitud.Mensajes, Icono = "error" });
 
                                 //Asigna su Id porque ya fue insertado
-                                solicitudTraslado.Id = resultImportarSolicitud.Id;
+                                solicitudTrasladoPost.Id = resultImportarSolicitud.Id;
+                            }
+                            else
+                            {
+                                solicitudTrasladoPost = solicitudTraslado;
                             }
 
                             // Validar o inserta los lotes de registro sanitario (fuera de la transacción)
-                            var resultLotes = _lotesRegistroSanitarioN.ValidarLotesRegistroSanitario(solicitudTraslado.Detalle, cn);
+                            var resultLotes = _lotesRegistroSanitarioN.ValidarLotesRegistroSanitario(solicitudTrasladoPost.Detalle, cn);
                             if (resultLotes.Icono.Equals("error"))
                                 return Json(new { Titulo = "No se pudo completar la acción", resultLotes.Mensajes, Icono = resultLotes.Icono });
 
                             // Asignar datos de traslado a la transferencia, preparando para registrar  agregar lineas a la transferencia
                             transferenciaPost.OperarioRegistra = $"{user.Nombres} {user.Apellidos}";
-                            transferenciaPost.SolicitudTrasladoId = solicitudTraslado.Id;
-                            transferenciaPost.SolicitudTrasladoDocNum = solicitudTraslado.DocNum;
+                            transferenciaPost.SolicitudTrasladoId = solicitudTrasladoPost.Id;
+                            transferenciaPost.SolicitudTrasladoDocNum = solicitudTrasladoPost.DocNum;
 
                             // Registrar  o agrega mas lineas al detalle de la transferencia de reserva
                             var resultTransferenciaGet = _transferenciaReservaN.RegistrarTransferenciaReserva(transferenciaPost, cn);
@@ -1184,7 +1192,7 @@ namespace Capa_Usuario.Controllers
                                 if (resultTransferenciaGet.Icono.Equals("error"))
                                 {
                                     // Validar y eliminar la solicitud de traslado si en caso se importo a la tabla interna pero no se ha encontrado una transferencia
-                                    _solicitudTrasladoN.DeleteSolicitudDeTraslado(solicitudTraslado.DocNum, cn);
+                                    _solicitudTrasladoN.DeleteSolicitudDeTraslado(solicitudTrasladoPost.DocNum, cn);
                                     return Json(new { Titulo = "No se pudo completar la acción", resultTransferenciaGet.Mensajes, Icono = resultTransferenciaGet.Icono });
                                 }
                             }
@@ -2513,6 +2521,247 @@ namespace Capa_Usuario.Controllers
             }
         }
 
+        public JsonResult CrearRequerimientoAutomatico(int idOperation = 3804)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
+                return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "Sin accesos." }, Icono = "error" });
+
+            var user = Session["UsuarioId"] as Usuario_E;
+            if (user == null)
+                return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "No existe usuario logueado, se terminó la sesión." }, Icono = "error" });
+
+            var lista = new List<UbicacionesLotesMaster_E>();
+
+            // 1. Obtenemos la lista de ItemCodes que requieren abastecimiento en Picking
+            var listaItemCodes = _reporteStockPicking.ListarArticulosConStockPickingInsuficiente();
+            //var listaItemCodes = new List<string> { "VITPH0042" };
+
+            // 2. Iteramos cada ItemCode para consultar stock en RESERVA y obtener la cantidad solicitada por ItemCode
+            if (listaItemCodes != null && listaItemCodes.Any())
+            {
+                foreach (var item in listaItemCodes)
+                {
+                    // Orden: próxima fecha de vencimiento, primera fecha de admisión registrada, la menor cantidad en unidades
+                    List<UbicacionesLotesMaster_E> listaLotesM = _ubicacionesLotesMasterN.BuscarArticulos(new UbicacionesLotesMaster_E { ItemCode = item.ItemCode }) ?? new List<UbicacionesLotesMaster_E>();
+                    if (listaLotesM != null && listaLotesM.Any())
+                    {
+                        // Verificar si todas las fechas ExpDate e InDate son iguales
+                        bool fechasIguales = listaLotesM.All(a => a.ExpDate == listaLotesM.First().ExpDate) && listaLotesM.All(a => a.InDate == listaLotesM.First().InDate);
+
+                        // Aplicar el ordenamiento según la condición
+                        listaLotesM = fechasIguales
+                            ? listaLotesM.OrderBy(a => a.CodigoUbicacion != "RESERVA-UBI-SISTEMA").ThenBy(a => a.QuantityUnidadesCajas).ThenBy(a => a.CodigoUbicacion).ToList() // Ordenar por CodigoUbicacion si las fechas son iguales
+                            : listaLotesM.OrderBy(a => DateTime.Parse(a.ExpDate))
+                                   .ThenBy(a => DateTime.Parse(a.InDate))
+                                   .ThenBy(a => a.QuantityUnidadesCajas)
+                                   .ToList();
+
+                        var cantidadAcumulada = 0;
+                        foreach (var lm in listaLotesM)
+                        {
+                            var cantidadSolicitada = listaItemCodes.Single(l => l.ItemCode.Equals(lm.ItemCode)).CantidadSolicitada;
+                            lm.CantidadSolicitada = cantidadSolicitada;
+
+                            // Agregar el objeto si la cantidad en unidades caja cubre la cantidad solicitada
+                            if (lm.QuantityUnidadesCajas <= cantidadSolicitada - cantidadAcumulada)
+                            {
+                                cantidadAcumulada = cantidadAcumulada == 0 ? lm.QuantityUnidadesCajas : cantidadAcumulada + lm.QuantityUnidadesCajas;
+                                lista.Add(lm);
+                            }
+                            else
+                            {
+                                var stockMasterRequerido = 0;
+                                var stockSaliendoFaltante = cantidadSolicitada - cantidadAcumulada;
+
+                                if (stockSaliendoFaltante > 0)
+                                {
+                                    stockSaliendoFaltante = stockSaliendoFaltante - lm.QuantitySaldo;
+                                    var residuo = stockSaliendoFaltante % lm.ValorUmAlm;
+
+                                    if (residuo == 0)
+                                    {
+                                        stockMasterRequerido = stockSaliendoFaltante / lm.ValorUmAlm;                  // Dividimos para saber cuantos masters cubren el "stockSaliendoFaltante"
+                                    }
+                                    else
+                                    {
+                                        var numero = stockSaliendoFaltante;
+
+                                        // Buscamos la cantidad correcta a cubrir 1 master completo
+                                        while (numero % lm.ValorUmAlm != 0)
+                                        {
+                                            numero++;
+                                        }
+
+                                        // Una vez encontrado el valor, lo dividimos con el valor del master para el stock saliendo
+                                        stockMasterRequerido = numero / lm.ValorUmAlm;
+                                    }
+
+                                    if (stockMasterRequerido > lm.QuantityMaster)
+                                    {
+                                        //  console.warn(`${ fila}: El stock MASTER requerido es mayor al stock MASTER disponible.`)
+                                        //return 0;
+                                        continue;
+                                    }
+
+                                    // Siempre se requiere el saldo completo y la cantidad previamente calculada del máster
+                                    lm.QuantityMaster = stockMasterRequerido;
+
+                                    // Actualizamos la cantidad total
+                                    lm.QuantityUnidadesCajas = (stockMasterRequerido * lm.ValorUmAlm) + lm.QuantitySaldo;
+
+                                    // Actualizamos la cantidad acumulada
+                                    cantidadAcumulada = cantidadAcumulada + lm.QuantityUnidadesCajas;
+
+                                    // Agregamos el objeto
+                                    lista.Add(lm);
+                                }
+
+                            }
+                        }
+
+                    }
+                }
+            }
+
+            if (lista.Any())
+            {
+                var requerimiento = new Requerimientos_E
+                {
+                    Origen = "Reserva",
+                    Destino = "Picking",
+                    TipoAbastecimiento = "Picking",
+                    OperarioRegistra = $"{user.Nombres} {user.Apellidos}",
+                    Aprobado = 0
+                };
+                var detalleReq = new List<DetalleRequerimientos_E>();
+
+                foreach (var item in lista)
+                {
+                    var obj = new DetalleRequerimientos_E();
+                    obj.ItemCode = item.ItemCode;
+                    obj.ItemName = item.ItemName;
+                    obj.CodigoUbicacionOrigen = item.CodigoUbicacion;
+                    obj.BatchNum = item.BatchNum;
+                    obj.ValorUmAlm = item.ValorUmAlm;
+                    obj.UmAlm = item.UmAlm;
+                    obj.QuantityMaster = item.QuantityMaster;
+                    obj.QuantitySaldo = item.QuantitySaldo;
+                    obj.QuantityUnidadesCajas = item.QuantityUnidadesCajas;
+
+                    detalleReq.Add(obj);
+                }
+
+                requerimiento.Detalle = detalleReq;
+
+                Utilitarios uti = new Utilitarios();
+
+                // Iniciar la transacción global para las operaciones críticas
+                using (var scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }, TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+                    {
+                        cn.Open();
+                        var requerimientoGet = _requerimientosN.RegistrarRequerimiento(requerimiento, cn);
+                        if (requerimientoGet == null || requerimientoGet.Id == 0)
+                            return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "No se completo el registro del requerimiento" }, Icono = "error" });
+                    }
+
+                    scope.Complete();
+                }
+
+                return Json(new
+                {
+                    Titulo = "Éxito",
+                    Mensajes = new List<string> { "Se encontraron artículos para abastecer." },
+                    Icono = "success",
+                    // Lotes = lista
+                    Requerimiento = requerimiento
+                }, JsonRequestBehavior.AllowGet);
+            }
+
+            return Json(new
+            {
+                Titulo = "Datos inválidos",
+                Mensajes = new List<string> { "No se encontraron solicitudes a procesar." },
+                Icono = "error"
+            }, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult ListarRequerimientos(int idOperation = 3805)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                var (helper, lista) = _requerimientosN.ListarRequerimientos();
+                ViewBag.ListaOpRegistro = lista.Select(x => x.OperarioRegistra).Distinct().OrderBy(x => x).ToList();
+
+                return View(lista);
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
+
+        public ActionResult VerDetalleRequerimiento(int requerimientoId, int idOperation = 3401)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                var usuarioSesion = Session["UsuarioId"] as Usuario_E;
+                if (usuarioSesion == null)
+                    return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
+
+                var filtro = new DetalleRequerimientos_E { RequerimientoId = requerimientoId };
+                var (helper, lista) = new DetalleRequerimientos_N().ObtenerDetalleRequerimiento(filtro);
+
+                if (lista == null)
+                {
+                    // Devuelve el mensaje de error desde la capa de negocio
+                    return Json(new
+                    {
+                        Titulo = helper.Titulo,
+                        Mensajes = helper.Mensajes,
+                        Icono = helper.Icono
+                    }, JsonRequestBehavior.AllowGet);
+                }
+
+                return PartialView("AbastecimientoInterno/_ListadoDetalleRequerimiento", lista);
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
+
+        public JsonResult AprobarRequerimiento(int id, int idOperation = 3402)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
+                return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "Sin accesos." }, Icono = "error" });
+
+            var user = Session["UsuarioId"] as Usuario_E;
+            if (user == null)
+                return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "No existe usuario logueado, se terminó la sesión." }, Icono = "error" });
+
+            var operarioRegistra = $"{user.Nombres} {user.Apellidos}";
+            var resultado = _requerimientosN.AprobarRequerimiento(id, operarioRegistra);
+
+            return Json(resultado, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult FiltrarListado(Requerimientos_E filtros)
+        {
+            var usuarioSesion = Session["UsuarioId"] as Usuario_E;
+            if (usuarioSesion == null)
+                return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
+
+            var (helper, lista) = _requerimientosN.ListarRequerimientos(filtros);
+            ViewBag.Mensajes = helper;
+
+            return PartialView("AbastecimientoInterno/_ListadoRequerimientos", lista);
+        }
         /**************** R E A B A S T E C I M I E N T O ****************/
         //Listado de detalle solicitudes de traslado Transferido y atendidoReserva=0 
         public ActionResult Reabastecimiento(int idOperation = 3600)

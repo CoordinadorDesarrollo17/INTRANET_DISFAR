@@ -14,6 +14,7 @@
         public int QuantityMaster { get; set; }
         public int QuantitySaldo { get; set; }
         public int QuantityUnidadesCajas { get; set; }
+        public int CantidadSolicitada { get; set; }
 
         // Campos que no son de la tabla
         public string InDate { get; set; }

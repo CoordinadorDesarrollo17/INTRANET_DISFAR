@@ -1304,7 +1304,8 @@ namespace Capa_Usuario.Controllers
         public JsonResult EditarDetalleOrdenRuta(int BaseEntry, int BaseLinea, int[] DetRRU11, int idOperation = 203)
         {
             bool nrocajas = false;
-            string mensaje;
+            string mensaje = string.Empty;
+
             if (Array.IndexOf(DetRRU11, 0) == -1)
             {
                 RRU11_N rru11N = new RRU11_N();
