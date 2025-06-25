@@ -550,5 +550,6 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             return result;
         }
+
     }
 }

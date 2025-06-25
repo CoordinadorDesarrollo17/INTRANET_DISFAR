@@ -7,6 +7,7 @@ using Capa_Entidad.TablasSql;
 using Capa_Negocio.AbastecimientoInterno_NEG.Reportes;
 using Capa_Negocio.AbastecimientoInterno_NEG.TablasExternas;
 using Capa_Negocio.AbastecimientoInterno_NEG.TablasSql;
+using Capa_Negocio.Almacen_NEG.Tablas;
 using Capa_Negocio.DireccionTecnica_NEG.TablasSql;
 using Capa_Usuario.Helpers;
 using OfficeOpenXml;
@@ -30,7 +31,6 @@ namespace Capa_Usuario.Controllers
     public class AbastecimientoInternoController : Controller
     {
         private readonly Ubicaciones_N _ubicacionesN = new Ubicaciones_N();
-        private readonly Productos_N _productosN = new Productos_N();
         private readonly OWTQ_N _solicitudTrasladoHanaN = new OWTQ_N();
         private readonly StockMinProductos_N _stockMinProdN = new StockMinProductos_N();
         private readonly TransferenciaReserva_N _transferenciaReservaN = new TransferenciaReserva_N();
@@ -234,11 +234,23 @@ namespace Capa_Usuario.Controllers
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 var lista = _stockMinProdN.ListarStockMinProductos();
-                var productos = _productosN.ListarProductos();
+                var articulos = _ubicacionesLotesMasterN.BuscarArticulos();
+
+                var diccionario = articulos
+                .GroupBy(a => a.ItemCode) // Por si acaso hay duplicados
+                .Select(g => g.First())
+                .ToDictionary(a => a.ItemCode, a => a.ItemName);
+
                 // Excluir los ItemCode que están en "lista"
                 var itemCodesAExcluir = lista.Select(s => s.ItemCode).ToHashSet(); // Usar HashSet para mejor rendimiento
-                var productosFiltrados = productos.Where(p => !itemCodesAExcluir.Contains(p.ItemCode)).ToList();
+                var productosFiltrados = articulos
+                    .Where(p => !itemCodesAExcluir.Contains(p.ItemCode))
+                    .GroupBy(p => p.ItemCode)
+                    .Select(g => g.First())
+                    .ToList();
+
                 ViewBag.Productos = productosFiltrados;
+
                 return View(lista);
             }
             else
@@ -1612,6 +1624,8 @@ namespace Capa_Usuario.Controllers
                 return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { ex.Message }, Icono = "error" }, JsonRequestBehavior.AllowGet);
             }
         }
+
+
         /****************************** R E Q U E R I M I E N T O S ****************************/
         /****************************** A P I L A D O R E S ****************************/
         public ActionResult Requerimientos(int idOperation = 3400)
@@ -1697,11 +1711,11 @@ namespace Capa_Usuario.Controllers
                         if (cantidadSolicitada < 0 || (stockEnPicking <= 0 && stockMinimoParaLaVenta <= 0)) cantidadSolicitada = 0;
                     }
                 }
-                return Json(new { cantidadSolicitada = Convert.ToString(cantidadSolicitada), tieneStockMin = stockMin == true ? "Y" : "N" });
+                return Json(new { cantidadSolicitada = Convert.ToString(cantidadSolicitada), tieneStockMin = stockMin == true ? "Y" : "N" }, JsonRequestBehavior.AllowGet);
             }
             else
             {
-                return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "Sin accesos." }, Icono = "error" });
+                return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "Sin accesos." }, Icono = "error" }, JsonRequestBehavior.AllowGet);
             }
         }
         public JsonResult RegistrarRequerimiento(Requerimientos_E requerimiento, int idOperation = 3403)

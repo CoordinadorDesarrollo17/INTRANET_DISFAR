@@ -75,5 +75,32 @@ namespace Capa_Datos.Almacen_DAO.Tablas
             return lista;
         }
 
+        public int ObtenerStockSKUPorAlmacen(string condicion, Dictionary<string, object> parametros)
+        {
+            var stock = 0;
+
+            string query = $@"
+            SELECT SUM(""OnHand"")
+            FROM {uti.schemaHana}OITW
+            {condicion}";
+
+            try
+            {
+                using (HanaDataReader hdr = db.HanaExecuteReaderNoSp(query))
+                {
+                    while (hdr.Read())
+                    {
+                        stock = hdr.IsDBNull(0) ? 0 : Convert.ToInt32(hdr.GetDecimal(0));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.RegistrarError(ex, "Error en inesperado en OITW_D - ObtenerStockSKUPorAlmacen()");
+            }
+
+            return stock;
+        }
+
     }
 }
