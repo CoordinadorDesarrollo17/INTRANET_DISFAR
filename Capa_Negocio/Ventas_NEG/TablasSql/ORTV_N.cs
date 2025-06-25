@@ -428,7 +428,9 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             }
             else if (Estado.Equals("ANULAR INICIO PICKING"))
             {
-                if (t.RolSupervisor != 4 && t.RolSupervisor != 11 && t.RolSupervisor != 1 && t.RolSupervisor != 5) { throw new Exception("No tiene permisos para revertir procesos"); }
+                var permisoAnularPickingTicket = (new OUSR_OPE_N().VerificarAccesoOperacion(new OUSR_OPE_E { UsrDocEntry = t.DocEntryOpRegistro, OpeID = 803 })) > 0;
+                if (permisoAnularPickingTicket == false) { throw new Exception("No tiene permisos para revertir procesos"); }
+
                 List<CC_ORTV_E> listaEstados = ccTicket.ListarCC_ORTV(DocEntry, null, true);
                 if (listaEstados.Count > 0)
                 {
@@ -448,7 +450,9 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             }
             else if (Estado.Equals("ANULAR FIN PICKING"))
             {
-                if (t.RolSupervisor != 4 && t.RolSupervisor != 11 && t.RolSupervisor != 1 && t.RolSupervisor != 5) { throw new Exception("No tiene permisos para revertir procesos"); }
+                var permisoAnularFinPickingTicket = (new OUSR_OPE_N().VerificarAccesoOperacion(new OUSR_OPE_E { UsrDocEntry = t.DocEntryOpRegistro, OpeID = 803 })) > 0;
+                if (permisoAnularFinPickingTicket == false) { throw new Exception("No tiene permisos para revertir procesos"); }
+
                 List<CC_ORTV_E> listaEstados = ccTicket.ListarCC_ORTV(DocEntry, null, true);
                 if (listaEstados.Count > 0)
                 {
@@ -482,7 +486,8 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             }
             else if (Estado.Equals("ANULAR INICIO VERIFICAR"))
             {
-                if (t.RolSupervisor != 4 && t.RolSupervisor != 11 && t.RolSupervisor != 1 && t.RolSupervisor != 5) { throw new Exception("No tiene permisos para revertir procesos"); }
+                var permisoAnularVerificarTicket = (new OUSR_OPE_N().VerificarAccesoOperacion(new OUSR_OPE_E { UsrDocEntry = t.DocEntryOpRegistro, OpeID = 809 })) > 0;
+                if (permisoAnularVerificarTicket == false) { throw new Exception("No tiene permisos para revertir procesos"); }
                 List<CC_ORTV_E> listaEstados = ccTicket.ListarCC_ORTV(DocEntry, null, true);
                 if (listaEstados.Count > 0)
                 {
@@ -508,10 +513,9 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             }
             else if (Estado.Equals("ANULAR FIN VERIFICAR"))
             {
-                if (t.RolSupervisor != 4 && t.RolSupervisor != 11 && t.RolSupervisor != 1 && t.RolSupervisor != 5)
-                {
-                    throw new Exception("No tiene permisos para revertir procesos");
-                }
+                var permisoAnularFinVerificarTicket = (new OUSR_OPE_N().VerificarAccesoOperacion(new OUSR_OPE_E { UsrDocEntry = t.DocEntryOpRegistro, OpeID = 809 })) > 0;
+                if (permisoAnularFinVerificarTicket == false) { throw new Exception("No tiene permisos para revertir procesos"); }
+
                 List<CC_ORTV_E> listaEstados = ccTicket.ListarCC_ORTV(DocEntry, null, true);
                 if (listaEstados.Count > 0)
                 {
@@ -550,8 +554,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 if (t.Estado.Equals("CANCELADO")) { throw new Exception("El ticket esta CANCELADO"); }
 
                 var permisoAnularPackingTicket = (new OUSR_OPE_N().VerificarAccesoOperacion(new OUSR_OPE_E { UsrDocEntry = t.DocEntryOpRegistro, OpeID = 805 })) > 0;
-                if (permisoAnularPackingTicket == false && t.RolSupervisor != 4 && t.RolSupervisor != 11 && t.RolSupervisor != 1 && t.RolSupervisor != 5)
-                    throw new Exception("No tiene permisos para revertir procesos");
+                if (permisoAnularPackingTicket == false) { throw new Exception("No tiene permisos para revertir procesos"); }
 
                 List<CC_ORTV_E> listaEstados = ccTicket.ListarCC_ORTV(DocEntry, null, true);
                 if (listaEstados.Count > 0)
@@ -585,9 +588,8 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             }
             else if (Estado.Equals("ANULAR FIN EMPACAR"))
             {
-                var permisoAnularPackingTicket = (new OUSR_OPE_N().VerificarAccesoOperacion(new OUSR_OPE_E { UsrDocEntry = t.DocEntryOpRegistro, OpeID = 805 })) > 0;
-                if (permisoAnularPackingTicket == false && t.RolSupervisor != 4 && t.RolSupervisor != 11 && t.RolSupervisor != 1 && t.RolSupervisor != 5)
-                    throw new Exception("No tiene permisos para revertir procesos");
+                var permisoAnularFinPackingTicket = (new OUSR_OPE_N().VerificarAccesoOperacion(new OUSR_OPE_E { UsrDocEntry = t.DocEntryOpRegistro, OpeID = 805 })) > 0;
+                if (permisoAnularFinPackingTicket == false) { throw new Exception("No tiene permisos para revertir procesos"); }
 
                 if (t.Estado.Equals("CANCELADO")) { throw new Exception("El ticket esta CANCELADO"); }
                 if (!t.Estado.Equals("EMPACADO")) { throw new Exception("Solo puedes ANULAR FIN EMPACAR  a un ticket EMPACADO"); }

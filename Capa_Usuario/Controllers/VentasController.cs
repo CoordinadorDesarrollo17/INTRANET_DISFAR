@@ -1540,6 +1540,7 @@ namespace Capa_Usuario.Controllers
                     ORTV_E ticket = _ticketN.ObtenerDatosCompletosTicket(DocEntry);
                     ticket.OpRegistro = $"{usu.Nombres} {usu.Apellidos}";
                     ticket.RolSupervisor = usu.IdRol;
+                    ticket.DocEntryOpRegistro = usu.DocEntry;
                     int DocNum = _ticketN.editarSeguimientoTicket("ANULAR INICIO PICKING", DocEntry, ticket);
                     return RedirectToAction("ListadoTicketsAlmacen", new { DocNum = DocNum, Mensaje = "Se ha anulado el proceso de iniciar picking" });
                 }
@@ -1640,6 +1641,7 @@ namespace Capa_Usuario.Controllers
                     ORTV_E ticket = _ticketN.ObtenerDatosCompletosTicket(DocEntry);
                     ticket.OpRegistro = $"{usu.Nombres} {usu.Apellidos}";
                     ticket.RolSupervisor = usu.IdRol;
+                    ticket.DocEntryOpRegistro = usu.DocEntry;
                     int DocNum = _ticketN.editarSeguimientoTicket("ANULAR FIN PICKING", DocEntry, ticket);
                     return RedirectToAction("ListadoTicketsAlmacen", new { DocNum = DocNum });
                 }
@@ -1684,6 +1686,7 @@ namespace Capa_Usuario.Controllers
                     ORTV_E ticket = _ticketN.ObtenerDatosCompletosTicket(DocEntry);
                     ticket.OpRegistro = $"{usu.Nombres} {usu.Apellidos}";
                     ticket.RolSupervisor = usu.IdRol;
+                    ticket.DocEntryOpRegistro = usu.DocEntry;
                     int DocNum = _ticketN.editarSeguimientoTicket("ANULAR INICIO VERIFICAR", DocEntry, ticket);
                     return RedirectToAction("ListadoTicketsAlmacen", new { DocNum = DocNum, Mensaje = "Inicio de verificación ANULADO" });
                 }
@@ -1802,6 +1805,7 @@ namespace Capa_Usuario.Controllers
                     ORTV_E ticket = _ticketN.ObtenerDatosCompletosTicket(DocEntry);
                     ticket.OpRegistro = $"{usu.Nombres} {usu.Apellidos}";
                     ticket.RolSupervisor = usu.IdRol;
+                    ticket.DocEntryOpRegistro = usu.DocEntry;
                     int DocNum = _ticketN.editarSeguimientoTicket("ANULAR FIN VERIFICAR", DocEntry, ticket);
                     return RedirectToAction("ListadoTicketsAlmacen", new { DocNum = DocNum });
                 }
