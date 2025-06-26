@@ -10,6 +10,6 @@ namespace Capa_Negocio.RecursosHumanos_NEG.TablasExternas
     public class OAREA_N
     {
         OAREA_D _datos = new OAREA_D();
-        public void MigrarAreasHANA() { _datos.MigrarAreasHANA(); }
+        //public void MigrarAreasHANA() { _datos.MigrarAreasHANA(); }
     }
 }

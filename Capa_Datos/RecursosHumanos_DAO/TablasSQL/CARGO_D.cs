@@ -7,11 +7,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-namespace Capa_Datos.RecursosHumanos_DAO
+
+namespace Capa_Datos.RecursosHumanos_DAO.TablasSQL
 {
     public class CARGO_D
     {
-        readonly Utilitarios uti = new Utilitarios();
+        private readonly Utilitarios uti = new Utilitarios();
+
         public string RegistrarCargo(CARGO_E datos)
         {
             string mensajeError;
@@ -33,11 +35,12 @@ namespace Capa_Datos.RecursosHumanos_DAO
                 catch (Exception ex)
                 {
                     File.AppendAllText(uti.directorioLogs + "CARGO_D - RegistrarCargo.txt", $"{DateTime.Now}: {ex.Message}\n {ex.StackTrace}\n");        // Registro de error
-                    mensajeError = "Ocurrió un error al registrar el cargo. Por favor, comuníquese con el área de Sistemas para más información.";
+                    mensajeError = "Ocurrió un error al registrar el cargo. Por favor, comunicarse con SISTEMAS.";
                 }
             }
             return mensajeError;
         }
+
         public string EditarCargo(CARGO_E datos)
         {
             string mensajeError;
@@ -58,11 +61,12 @@ namespace Capa_Datos.RecursosHumanos_DAO
                 catch (Exception ex)
                 {
                     File.AppendAllText(uti.directorioLogs + "CARGO_D - EditarCargo.txt", $"{DateTime.Now}: {ex.Message}\n {ex.StackTrace}\n");        // Registro de error
-                    mensajeError = "Ocurrió un error al editar el cargo. Por favor, comuníquese con el área de Sistemas para más información.";
+                    mensajeError = "Ocurrió un error al editar el cargo. Por favor, comunicarse con SISTEMAS.";
                 }
             }
             return mensajeError;
         }
+
         public string EliminarCargo(int id)
         {
             string mensajeError;
@@ -81,11 +85,12 @@ namespace Capa_Datos.RecursosHumanos_DAO
                 catch (Exception ex)
                 {
                     File.AppendAllText(uti.directorioLogs + "CARGO_D - EliminarCargo.txt", $"{DateTime.Now}: {ex.Message}\n {ex.StackTrace}\n");        // Registro de error
-                    mensajeError = "Ocurrió un error al eliminar el cargo. Por favor, comuníquese con el área de Sistemas para más información.";
+                    mensajeError = "Ocurrió un error al eliminar el cargo. Por favor, comunicarse con SISTEMAS.";
                 }
             }
             return mensajeError;
         }
+
         public List<CARGO_E> ListarCargos(CARGO_E filtros)
         {
             List<CARGO_E> lista = null;
@@ -146,6 +151,7 @@ namespace Capa_Datos.RecursosHumanos_DAO
             }
             return lista;
         }
+
         public CARGO_E ObtenerDatosCargo(int id)
         {
             CARGO_E obj = null;

@@ -1,19 +1,21 @@
-﻿using Capa_Entidad.RecursosHumanos_ENT.TablasSQL;
+﻿using Capa_Datos.RecursosHumanos_DAO.TablasSQL;
+using Capa_Entidad;
+using Capa_Entidad.RecursosHumanos_ENT.TablasSQL;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Data;
+using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.IO;
-using Capa_Entidad;
-using Capa_Datos.RecursosHumanos_DAO.TablasSQL;
-namespace Capa_Datos.RecursosHumanos_DAO
+
+namespace Capa_Datos.RecursosHumanos_DAO.TablasSQL
 {
     public class EMPL1_D
     {
-        readonly Utilitarios uti = new Utilitarios();
+        private readonly Utilitarios uti = new Utilitarios();
+
         public List<EMPL1_E> ListarDatosLaborales(EMPL1_E filtros)
         {
             List<EMPL1_E> lista = new List<EMPL1_E>();
@@ -92,6 +94,7 @@ namespace Capa_Datos.RecursosHumanos_DAO
             }
             return lista;
         }
+
         public Dictionary<string, string> BuscarAnexoCorreoDuplicado(string anexo, string correoCorporativo, int id)
         {
             var obj = new Dictionary<string, string>();
@@ -121,6 +124,7 @@ namespace Capa_Datos.RecursosHumanos_DAO
             }
             return obj;
         }
+
         public EMPL1_E ObtenerDatosLaborales(int idOEMPL)
         {
             EMPL1_E obj = null;
@@ -134,7 +138,7 @@ namespace Capa_Datos.RecursosHumanos_DAO
                     sb.Append("SELECT DL.IdEMPL1, DL.IdOEMPL, DL.TipoContrato, CONVERT(varchar, DL.FechaContratacion, 103), DL.Salario, CONVERT(varchar, DL.FechaCese, 103), DL.IdSede, DL.IdDepartamento,");
                     sb.Append(" DL.IdArea, DL.IdCargo, DL.IdNumeroCorporativo, DL.AnexoCorporativo, DL.CorreoCorporativo, DL.TurnoTrabajo, DL.Discapacidad, ISNULL(DL.CondicionLaboral, ''), DEP.Nombre, ISNULL(CAR.Nombre, ''), ISNULL(NU.NumeroCorporativo, '')");
                     sb.Append(" FROM rrhh.EMPL1 DL");
-                    sb.Append(" INNER JOIN dbo.ODPTO DEP ON DEP.IdDepartamento = DL.IdDepartamento");
+                    sb.Append(" INNER JOIN dbo.ODPTO DEP ON DEP.Id = DL.IdDepartamento");
                     sb.Append(" LEFT JOIN dbo.CARGO CAR ON CAR.Id= DL.IdCargo");
                     sb.Append(" LEFT JOIN dbo.ONUM NU ON NU.IdNumero = DL.IdNumeroCorporativo");
                     sb.Append(" WHERE DL.IdOEMPL = @IdOEMPL");
@@ -179,6 +183,7 @@ namespace Capa_Datos.RecursosHumanos_DAO
             }
             return obj;
         }
+
         private void RegistrarError(Exception ex, string nombreArchivo)
         {
             File.AppendAllText(uti.directorioLogs + nombreArchivo + ".txt", $"{DateTime.Now}: {ex.Message}\n {ex.StackTrace}\n");
