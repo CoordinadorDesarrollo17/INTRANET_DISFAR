@@ -832,6 +832,8 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                             if (!dr.IsDBNull(44)) or.HoraEntregaReparto = dr.GetString(44);
                             if (!dr.IsDBNull(45)) or.FechaPreenvio = dr.GetString(45);
                             if (!dr.IsDBNull(46)) or.FechaEnviado = dr.GetString(46);
+                            if (!dr.IsDBNull(47)) or.NombreRecoge = dr.GetString(47);
+
                             lista.Add(or);
                         }
                     }
