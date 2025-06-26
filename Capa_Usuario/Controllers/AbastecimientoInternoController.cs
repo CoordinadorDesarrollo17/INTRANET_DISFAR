@@ -806,7 +806,13 @@ namespace Capa_Usuario.Controllers
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 ViewBag.Masters = _masterN.ListarMasters();
-                ViewBag.Articulos = _ubicacionesLotesMasterN.BuscarArticulos();
+                var filtros = new DetalleTransferenciaReserva_E { AtendidoReserva = 1, Validado = 1 };
+                var (helper, lista) = new DetalleTransferenciaReserva_N().ObtenerDetalleTransferenciaReserva(filtros);
+                ViewBag.Articulos = helper.Icono == "success" ? lista
+                    .GroupBy(x => x.ItemCode)
+                    .Select(g => g.First())
+                    .OrderBy(x => x.ItemCode)
+                    .ToList() : new List<DetalleTransferenciaReserva_E>();
 
                 return View();
             }

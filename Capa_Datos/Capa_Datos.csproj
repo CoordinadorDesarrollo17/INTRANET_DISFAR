@@ -85,6 +85,7 @@
     <Compile Include="AbastecimientoInterno_DAO\Reportes\ReporteStockReserva_D.cs" />
     <Compile Include="AbastecimientoInterno_DAO\TablasExternas\OWTQ_D.cs" />
     <Compile Include="AbastecimientoInterno_DAO\TablasSql\DetalleRequerimiento_D.cs" />
+    <Compile Include="AbastecimientoInterno_DAO\TablasSql\DetalleTransferenciaReserva_D.cs" />
     <Compile Include="AbastecimientoInterno_DAO\TablasSql\KardexAbastecimiento_D.cs" />
     <Compile Include="AbastecimientoInterno_DAO\TablasSql\LotesRegistroSanitario_D.cs" />
     <Compile Include="AbastecimientoInterno_DAO\TablasSql\Masters_D.cs" />
