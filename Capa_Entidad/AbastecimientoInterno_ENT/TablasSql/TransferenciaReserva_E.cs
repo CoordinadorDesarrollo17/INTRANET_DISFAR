@@ -15,5 +15,6 @@ namespace Capa_Entidad.AbastecimientoInterno_ENT.TablasSql
         public string OperarioRegistra { get; set; }
         public List<DetalleTransferenciaReserva_E> Detalle { get; set; }
         public string TipoDocumento { get; set; }
+        public string MotivoTraslado { get; set; }
     }
 }

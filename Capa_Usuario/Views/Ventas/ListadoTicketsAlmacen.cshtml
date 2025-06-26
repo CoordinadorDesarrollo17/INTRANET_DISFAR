@@ -435,7 +435,7 @@
                         @if (!string.IsNullOrWhiteSpace(ViewBag.AlmUsuario) && ViewBag.AlmUsuario == "07")
                         {
                             <td class="text-center">
-                                @if (ViewBag.PermisosUsuario["AnularPickingTicket"] == true && (item.ultimoCCEstado == "INICIO PICKING" || item.ultimoCCEstado == "ANULAR FIN PICKING") && item.hayIniPicking && item.Estado == "PICKEANDO" && item.hayFinPicking == false)
+                                @if (ViewBag.RolSupervisor == 1 || ViewBag.PermisosUsuario["AnularPickingTicket"] == true && (item.ultimoCCEstado == "INICIO PICKING" || item.ultimoCCEstado == "ANULAR FIN PICKING") && item.hayIniPicking && item.Estado == "PICKEANDO" && item.hayFinPicking == false)
                                 {
                                     <a href="@Url.Action("AnularIniciarSacandoTicket", "Ventas", new { DocEntry = item.DocEntry })"
                                        class="btn btn-light text-danger btn-sm"
@@ -445,7 +445,7 @@
                                         <i class="icon icon-undo"></i>
                                     </a>
                                 }
-                                @if (ViewBag.PermisosUsuario["AnularPackingTicket"] == true && item.Estado == "EMPACADO")
+                                @if (ViewBag.RolSupervisor == 1 || ViewBag.PermisosUsuario["AnularPackingTicket"] == true && item.Estado == "EMPACADO")
                                 {
                                     <a href="@Url.Action("AnularEmpacadoTicket", "Ventas", new { DocEntry = item.DocEntry })"
                                        class="btn btn-light text-danger btn-sm"
@@ -512,7 +512,7 @@
                                         <i class="icon icon-undo"></i>
                                     </a>
                                 }
-                                @if (ViewBag.PermisosUsuario["AnularPackingTicket"] == true && item.Estado == "EMPACADO")
+                                @if ((ViewBag.RolSupervisor == 1 || ViewBag.PermisosUsuario["AnularPackingTicket"] == true) && item.Estado == "EMPACADO")
                                 {
                                     <a href="@Url.Action("AnularEmpacadoTicket", "Ventas", new { DocEntry = item.DocEntry })"
                                        class="btn btn-light text-danger btn-sm"

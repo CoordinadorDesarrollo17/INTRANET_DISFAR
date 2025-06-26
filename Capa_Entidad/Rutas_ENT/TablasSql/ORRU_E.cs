@@ -131,6 +131,8 @@ namespace Capa_Entidad.Rutas_ENT.TablasSql
             public string HoraEntregaReparto { get; set; }
             public string FechaPreenvio { get; set; }
             public string FechaEnviado { get; set; }
+            public string NombreRecoge { get; set; }
+
         }
 
         public class RptRutasDet

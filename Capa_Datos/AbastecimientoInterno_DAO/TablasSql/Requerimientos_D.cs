@@ -118,6 +118,12 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                         };
                         cmd.Parameters.Add(idGeneradoParam);
 
+                        SqlParameter param2 = new SqlParameter("@Aprobado", SqlDbType.Int)
+                        {
+                            Value = 0
+                        };
+                        cmd.Parameters.Add(param2);
+
                         cmd.ExecuteNonQuery();
 
                         mensaje = "Detalle requerimiento AtendidoReserva actualizado";
@@ -157,6 +163,13 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                         Direction = ParameterDirection.Output
                     };
                     cmd.Parameters.Add(idGeneradoParam);
+
+                    SqlParameter param2 = new SqlParameter("@Aprobado", SqlDbType.Int)
+                    {
+                        Value = 0
+                    };
+                    cmd.Parameters.Add(param2);
+
                     cmd.ExecuteNonQuery();
 
                     mensaje = "Detalle requerimiento AtendidoPicking actualizado";
