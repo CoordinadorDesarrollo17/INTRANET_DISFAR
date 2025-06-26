@@ -1131,6 +1131,9 @@ namespace Capa_Usuario.Controllers
                 if (string.IsNullOrWhiteSpace(solicitudTrasladoPost.MotivoTraslado) && transferenciaPost.SolicitudTrasladoDocNum == 0)
                     return Json(new { Titulo = "No se completó la acción", Mensajes = new List<string> { "Debes ingresar el motivo de traslado." }, Icono = "error" });
 
+                if (string.IsNullOrWhiteSpace(solicitudTrasladoPost.TipoDocumento) && transferenciaPost.SolicitudTrasladoDocNum == 0)
+                    return Json(new { Titulo = "No se completó la acción", Mensajes = new List<string> { "Debes seleccionar el tipo de documento." }, Icono = "error" });
+
                 if (transferenciaPost != null)
                 {
                     if (transferenciaPost.Detalle == null)
@@ -1156,7 +1159,7 @@ namespace Capa_Usuario.Controllers
                         using (SqlConnection cn = new SqlConnection(uti.cadSql2))
                         {
                             cn.Open();
-                            var solicitudTraslado = new SolicitudesTraslado_E();
+                            SolicitudesTraslado_E solicitudTraslado = null;
                             solicitudTrasladoPost.OperarioRegistra = $"{user.Nombres} {user.Apellidos}";
 
                             //Es exclusivo para la continuacion de transferencia en una solicitud de traslado.
