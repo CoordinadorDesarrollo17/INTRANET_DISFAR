@@ -125,6 +125,7 @@
                     <input type="text" id="copiaCardName" name="CardName" readonly />
                     <input type="text" id="copiaOperarioResponsableSAP" name="OperarioResponsableSAP" readonly />
                     <input type="text" id="copiaMotivoTraslado" name="MotivoTraslado" readonly />
+                    <input type="text" id="copiaTipoDocumento" name="TipoDocumento" readonly />
                     <input type="text" id="copiaDocDate" name="DocDate" readonly />
                 </div>
             </div><!-- row -->
@@ -309,7 +310,9 @@
 						let key = name.replace("solicitudTraslado.Detalle[].", "").trim();
 						detalleSolicitud[key] = input.value;
 					}
-				});
+                });
+
+
 				if (Object.keys(detalleSolicitud).length > 0) detallesSolicitud.push(detalleSolicitud);
 			});
 			const filasTransferencia = document.querySelectorAll(".tbl_detalleLotes tbody tr");
@@ -369,6 +372,7 @@
             document.getElementById("copiaCardCode").value = 'P20600546041';
             document.getElementById("copiaCardName").value = 'COBEFAR S.A.C.';
             document.getElementById("copiaMotivoTraslado").value = document.getElementById("MotivoTraslado").value;
+            document.getElementById("copiaTipoDocumento").value = document.getElementById("TipoDocumento").value;
 
             let detallesSolicitud = [];
 
@@ -456,6 +460,7 @@
                     throw new Error(`Error en la solicitud: ${response.status}`);
                 }
                 const data = await response.json();
+
                 Swal.fire({
                     title: data.Titulo,
                     html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
@@ -478,9 +483,10 @@
                             cancelButtonText: '<i class="bi bi-x-lg"></i> Cancelar'
                         }).then(result => {
                             if (result.isConfirmed) {
-                                buscarSolicitud()
+                                document.getElementById('DocNum').value = data.DocNum;
+                                buscarSolicitud();
                             } else {
-                                location.reload()
+                                location.reload();
                             }
                         });
                     }
@@ -1659,7 +1665,7 @@
                 document.getElementById('DocNum').readOnly = true;
                 document.getElementById('buscarDocNum').disabled = true;
                 resetValoresVacios(["DocEntry", "DocNum", "NroGuia", "CardCode", "CardName", "OperarioResponsableSAP", "MotivoTraslado", "DocDate", "copiaDocEntry", "copiaDocNum", "copiaNroGuia", "copiaCardCode", "copiaCardName",
-                    "copiaOperarioResponsableSAP", "copiaMotivoTraslado", "copiaDocDate"]);
+                    "copiaOperarioResponsableSAP", "copiaMotivoTraslado", "copiaTipoDocumento", "copiaDocDate"]);
                 document.querySelector("#tbl_detalle tbody").innerHTML = '';
                 document.getElementById("btn_transferir").setAttribute("onclick", "realizarTransferenciaEMI()");
                 document.getElementById("btn_AgregarArticulo").hidden = false;
@@ -1670,6 +1676,7 @@
                 document.getElementById("btn_AbrirModalImportacion").disabled = false;
                 document.getElementById('DocNum').readOnly = false;
                 document.getElementById('buscarDocNum').disabled = false;
+                document.querySelector("#tbl_detalle tbody").innerHTML = '';
                 document.getElementById("btn_transferir").setAttribute("onclick", "realizarTransferencia()");
             }
         }

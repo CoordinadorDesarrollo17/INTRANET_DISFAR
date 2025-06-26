@@ -255,6 +255,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     cmd.Parameters.AddWithValue("@Comentario", requerimiento.Comentario);
                     cmd.Parameters.AddWithValue("@OperarioRegistra", requerimiento.OperarioRegistra);
                     cmd.Parameters.AddWithValue("@Zona", requerimiento.Zona);
+                    cmd.Parameters.AddWithValue("@Aprobado", requerimiento.Aprobado);
 
                     // Crear tabla de parámetros para el tipo DetalleRequerimientosType
                     DataTable detalleTable = new DataTable();
@@ -298,12 +299,6 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                         Direction = ParameterDirection.Output
                     };
                     cmd.Parameters.Add(idGeneradoParam);
-
-                    SqlParameter param2 = new SqlParameter("@Aprobado", SqlDbType.Int)
-                    {
-                        Value = 0
-                    };
-                    cmd.Parameters.Add(param2);
 
                     SqlParameter detalleParam = new SqlParameter("@Detalle", SqlDbType.Structured)
                     {
@@ -473,6 +468,54 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 LogHelper.RegistrarError(ex, "Requerimientos_D - AprobarRequerimiento()");
                 _helper.Titulo = "Error";
                 _helper.Mensajes = new List<string> { "Ocurrió un error al aprobar requerimiento. Comuníquese con el área de Sistemas para más información." };
+                _helper.Icono = "error";
+            }
+
+            return _helper;
+        }
+
+        public Helper_E RechazarRequerimiento(int id, string operarioRegistra)
+        {
+            string mensaje, icono;
+            Helper_E _helper = new Helper_E();
+
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+                {
+                    cn.Open();
+                    using (SqlCommand cmd = new SqlCommand("sp_MantenimientoRequerimiento", cn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
+                        cmd.Parameters.AddWithValue("@TipoMantenimiento", "RECHAZAR");
+                        cmd.Parameters.AddWithValue("@Id", id);
+                        cmd.Parameters.AddWithValue("@OperarioRegistra", operarioRegistra);
+                        SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
+                        {
+                            Direction = ParameterDirection.Output
+                        };
+                        cmd.Parameters.Add(idGeneradoParam);
+
+                        SqlParameter param2 = new SqlParameter("@Aprobado", SqlDbType.Int)
+                        {
+                            Value = 0
+                        };
+                        cmd.Parameters.Add(param2);
+
+                        cmd.ExecuteNonQuery();
+
+                        _helper.Titulo = "Acción completada";
+                        _helper.Mensajes = new List<string> { "Se rechazó el requerimiento correctamente." };
+                        _helper.Icono = "success";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.RegistrarError(ex, "Error inesperado en Requerimientos_D - RechazarRequerimiento()");
+                _helper.Titulo = "Error";
+                _helper.Mensajes = new List<string> { "Ocurrió un error al rechazar requerimiento. Comuníquese con el área de Sistemas para más información." };
                 _helper.Icono = "error";
             }
 

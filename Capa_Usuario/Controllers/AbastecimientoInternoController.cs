@@ -1127,6 +1127,9 @@ namespace Capa_Usuario.Controllers
                 if (user == null)
                     return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "No existe usuario logueado, se terminó la sesión." }, Icono = "error" });
 
+                if (string.IsNullOrWhiteSpace(solicitudTrasladoPost.MotivoTraslado))
+                    return Json(new { Titulo = "No se completó la acción", Mensajes = new List<string> { "Debes ingresar el motivo de traslado." }, Icono = "error" });
+
                 if (transferenciaPost != null)
                 {
                     if (transferenciaPost.Detalle == null)
@@ -1153,6 +1156,7 @@ namespace Capa_Usuario.Controllers
                         {
                             cn.Open();
                             var solicitudTraslado = new SolicitudesTraslado_E();
+                            solicitudTrasladoPost.OperarioRegistra = $"{user.Nombres} {user.Apellidos}";
 
                             //Es exclusivo para la continuacion de transferencia en una solicitud de traslado.
                             if (solicitudTrasladoPost == null || solicitudTrasladoPost.DocNum == 0)
@@ -1169,6 +1173,7 @@ namespace Capa_Usuario.Controllers
 
                                 //Asigna su Id porque ya fue insertado
                                 solicitudTrasladoPost.Id = resultImportarSolicitud.Id;
+                                solicitudTrasladoPost.DocNum = resultImportarSolicitud.DocNum;
                             }
                             else
                             {
@@ -1184,6 +1189,7 @@ namespace Capa_Usuario.Controllers
                             transferenciaPost.OperarioRegistra = $"{user.Nombres} {user.Apellidos}";
                             transferenciaPost.SolicitudTrasladoId = solicitudTrasladoPost.Id;
                             transferenciaPost.SolicitudTrasladoDocNum = solicitudTrasladoPost.DocNum;
+                            transferenciaPost.TipoDocumento = solicitudTrasladoPost.TipoDocumento;
 
                             // Registrar  o agrega mas lineas al detalle de la transferencia de reserva
                             var resultTransferenciaGet = _transferenciaReservaN.RegistrarTransferenciaReserva(transferenciaPost, cn);
@@ -1208,7 +1214,7 @@ namespace Capa_Usuario.Controllers
                         }
                     }
                     // Devolver respuesta exitosa
-                    return Json(new { Titulo = "Acción completada exitosamente", Mensajes = new List<string> { "Se registró la Transferencia Reserva correctamente." }, Icono = "success" });
+                    return Json(new { Titulo = "Acción completada exitosamente", Mensajes = new List<string> { "Se registró la Transferencia Reserva correctamente." }, Icono = "success", DocNum = transferenciaPost.SolicitudTrasladoDocNum });
                 }
                 else
                 {
@@ -1805,6 +1811,7 @@ namespace Capa_Usuario.Controllers
 
                         // Asignar datos de operario en el requerimiento
                         requerimiento.OperarioRegistra = $"{user.Nombres} {user.Apellidos}";
+                        requerimiento.Aprobado = 1; // No necesita aprobación
                         Utilitarios uti = new Utilitarios();
 
                         // Iniciar la transacción global para las operaciones críticas
@@ -2521,7 +2528,7 @@ namespace Capa_Usuario.Controllers
             }
         }
 
-        public JsonResult CrearRequerimientoAutomatico(int idOperation = 3804)
+        public JsonResult CrearRequerimientoAutomatico(int idOperation = 3807)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
@@ -2642,6 +2649,12 @@ namespace Capa_Usuario.Controllers
                     obj.ItemCode = item.ItemCode;
                     obj.ItemName = item.ItemName;
                     obj.CodigoUbicacionOrigen = item.CodigoUbicacion;
+
+                    var ubicaciones = _ubicacionesLotesN.ListarUbicaciones(new UbicacionesLotes_E { ItemCode = item.ItemCode });
+                    obj.CodigoUbicacionDestino = (ubicaciones != null && ubicaciones.Any())
+                        ? string.Join(", ", ubicaciones.Select(u => u.CodigoUbicacion))
+                        : "PICKING-UBI-SISTEMA";
+
                     obj.BatchNum = item.BatchNum;
                     obj.ValorUmAlm = item.ValorUmAlm;
                     obj.UmAlm = item.UmAlm;
@@ -2735,7 +2748,7 @@ namespace Capa_Usuario.Controllers
             }
         }
 
-        public JsonResult AprobarRequerimiento(int id, int idOperation = 3402)
+        public JsonResult AprobarRequerimiento(int id, int idOperation = 3804)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
@@ -2747,6 +2760,38 @@ namespace Capa_Usuario.Controllers
 
             var operarioRegistra = $"{user.Nombres} {user.Apellidos}";
             var resultado = _requerimientosN.AprobarRequerimiento(id, operarioRegistra);
+
+            return Json(resultado, JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult RechazarRequerimiento(int id, int idOperation = 3805)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
+                return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "Sin accesos." }, Icono = "error" });
+
+            var user = Session["UsuarioId"] as Usuario_E;
+            if (user == null)
+                return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "No existe usuario logueado, se terminó la sesión." }, Icono = "error" });
+
+            var operarioRegistra = $"{user.Nombres} {user.Apellidos}";
+            var resultado = _requerimientosN.RechazarRequerimiento(id, operarioRegistra);
+
+            return Json(resultado, JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult EliminarItemDetalleRequerimiento(int itemID, int idOperation = 3806)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
+                return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "Sin accesos." }, Icono = "error" });
+
+            var user = Session["UsuarioId"] as Usuario_E;
+            if (user == null)
+                return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "No existe usuario logueado, se terminó la sesión." }, Icono = "error" });
+
+            var operarioRegistra = $"{user.Nombres} {user.Apellidos}";
+            var resultado = new DetalleRequerimientos_N().EliminarItem(itemID, operarioRegistra);
 
             return Json(resultado, JsonRequestBehavior.AllowGet);
         }

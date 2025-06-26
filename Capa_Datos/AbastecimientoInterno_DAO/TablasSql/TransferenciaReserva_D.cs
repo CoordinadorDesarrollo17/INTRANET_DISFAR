@@ -31,8 +31,8 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     cmd.CommandType = CommandType.StoredProcedure;
 
                     cmd.Parameters.AddWithValue("@TipoMantenimiento", "INSERT");
-                    cmd.Parameters.AddWithValue("@SolicitudTrasladoId", transferencia.SolicitudTrasladoId);//25000010
-                    cmd.Parameters.AddWithValue("@SolicitudTrasladoDocNum", transferencia.SolicitudTrasladoDocNum);//250000003
+                    cmd.Parameters.AddWithValue("@SolicitudTrasladoId", transferencia.SolicitudTrasladoId);
+                    cmd.Parameters.AddWithValue("@SolicitudTrasladoDocNum", transferencia.SolicitudTrasladoDocNum);
                     cmd.Parameters.AddWithValue("@CardCode", transferencia.CardCode);
                     cmd.Parameters.AddWithValue("@CardName", transferencia.CardName);
                     cmd.Parameters.AddWithValue("@NroGuia", transferencia.NroGuia);
@@ -55,7 +55,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     int idGenerado = (int)idGeneradoParam.Value;
                     if (idGenerado > 0)
                     {
-                        return new Helper_E { Mensajes = new List<string> { "Transferencia de reserva generada correctamente" }, Icono = "success", Id = idGenerado };
+                        return new Helper_E { Mensajes = new List<string> { "Transferencia de reserva generada correctamente" }, Icono = "success", Id = idGenerado, DocNum = transferencia.SolicitudTrasladoDocNum };
                     }
                     else
                     {

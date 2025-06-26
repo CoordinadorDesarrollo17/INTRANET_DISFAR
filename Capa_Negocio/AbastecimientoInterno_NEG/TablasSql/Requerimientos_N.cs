@@ -133,5 +133,10 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         {
             return _requerimientoD.AprobarRequerimiento(id, operarioRegistra);
         }
+
+        public Helper_E RechazarRequerimiento(int id, string operarioRegistra)
+        {
+            return _requerimientoD.RechazarRequerimiento(id, operarioRegistra);
+        }
     }
 }

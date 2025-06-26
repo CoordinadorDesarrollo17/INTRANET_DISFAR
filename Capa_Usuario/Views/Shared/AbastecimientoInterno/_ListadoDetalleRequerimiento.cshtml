@@ -18,6 +18,7 @@
             <th scope="col" class="text-center">Cant. Unds.</th>
             <th scope="col" class="text-center">Apilado</th>
             <th scope="col" class="text-center">Reabast. Confirm.</th>
+            <th scope="col" class="text-center"></th>
         </tr>
     </thead>
     <tbody class="text-dark">
@@ -37,6 +38,12 @@
                     <td scope="col" class="text-center">@item.QuantityUnidadesCajas</td>
                     <td scope="col" class="text-center">@opciones[item.AtendidoReserva]</td>
                     <td scope="col" class="text-center">@opciones[item.AtendidoPicking]</td>
+                    <td scope="col" class="text-center">
+                        @if (item.AtendidoReserva == 0)
+                        {
+                            <button type="button" class="btn btn-sm btn-danger btn-eliminarItem" onclick="eliminarItem(@item.Id)"><i class="bi bi-trash-fill"></i></button>
+                        }
+                    </td>
                 </tr>
             }
         }

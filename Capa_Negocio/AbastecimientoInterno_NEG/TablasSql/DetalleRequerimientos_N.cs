@@ -41,5 +41,10 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
 
             return _datos.ObtenerDetalleRequerimiento(condicion.ToString(), parametros);
         }
+
+        public Helper_E EliminarItem(int id, string operarioRegistra)
+        {
+            return _datos.EliminarItem(id, operarioRegistra);
+        }
     }
 }

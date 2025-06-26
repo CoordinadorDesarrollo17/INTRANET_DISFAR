@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
 using Capa_Entidad;
+using System.Data;
 
 namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 {
@@ -87,6 +88,43 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
             }
 
             return (_helper, lista);
+        }
+
+        public Helper_E EliminarItem(int id, string operarioRegistra)
+        {
+            string mensaje, icono;
+            Helper_E _helper = new Helper_E();
+
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+                {
+                    cn.Open();
+                    using (SqlCommand cmd = new SqlCommand("sp_MantenimientoDetalleRequerimiento", cn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
+                        cmd.Parameters.AddWithValue("@TipoMantenimiento", "ELIMINAR_ITEM");
+                        cmd.Parameters.AddWithValue("@Id", id);
+                        cmd.Parameters.AddWithValue("@OperarioRegistra", operarioRegistra);
+
+                        cmd.ExecuteNonQuery();
+
+                        _helper.Titulo = "Acción completada";
+                        _helper.Mensajes = new List<string> { "Se eliminó el ítem correctamente." };
+                        _helper.Icono = "success";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.RegistrarError(ex, "Error inesperado en DetalleRequerimiento_D - EliminarItem()");
+                _helper.Titulo = "Error";
+                _helper.Mensajes = new List<string> { "Ocurrió un error al eliminar ítem. Comuníquese con el área de Sistemas para más información." };
+                _helper.Icono = "error";
+            }
+
+            return _helper;
         }
     }
 }

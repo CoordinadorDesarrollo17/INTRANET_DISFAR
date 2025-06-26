@@ -105,6 +105,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
         {
             string mensaje, icono;
             SolicitudesTraslado_E solicitud = null;
+            int baseInicial = 0;
 
             try
             {
@@ -112,6 +113,29 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 {
                     cn.Open();
                 }
+
+                // Solo para tipo de documento EMI
+                
+                string queryMax = @"
+                        SELECT ISNULL(MAX(DocNum), 0) 
+                        FROM SolicitudesTraslado 
+                        WHERE DocNum >= @BaseInicial AND DocNum < 250000000
+                    ";
+
+                using (SqlCommand cmdMax = new SqlCommand(queryMax, cn))
+                {
+                    cmdMax.Parameters.AddWithValue("@BaseInicial", 200000000);
+
+                    object result = cmdMax.ExecuteScalar();
+                    int maxActual = Convert.ToInt32(result);
+
+                    if (maxActual == 0)
+                        baseInicial = 200000000;
+                    else
+                        baseInicial = maxActual + 1;
+                }
+
+
                 using (SqlCommand cmd = new SqlCommand("sp_MantenimientoSolicitudTraslado", cn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
@@ -119,12 +143,12 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     // Parámetros de la solicitud
                     cmd.Parameters.AddWithValue("@TipoMantenimiento", "INSERT");
                     cmd.Parameters.AddWithValue("@DocEntry", obj.DocEntry);
-                    cmd.Parameters.AddWithValue("@DocNum", obj.DocNum);
-                    cmd.Parameters.AddWithValue("@DocDate", obj.DocDate);
+                    cmd.Parameters.AddWithValue("@DocNum", obj.TipoDocumento == "EMI" ? baseInicial : obj.DocNum);
+                    cmd.Parameters.AddWithValue("@DocDate", obj.TipoDocumento == "EMI" ? DateTime.Now.ToString("yyyy-MM-dd") : obj.DocDate);
                     cmd.Parameters.AddWithValue("@NroGuia", obj.NroGuia);
                     cmd.Parameters.AddWithValue("@CardCode", obj.CardCode);
                     cmd.Parameters.AddWithValue("@CardName", obj.CardName);
-                    cmd.Parameters.AddWithValue("@OperarioResponsableSAP", obj.OperarioResponsableSAP);
+                    cmd.Parameters.AddWithValue("@OperarioResponsableSAP", obj.TipoDocumento == "EMI"? obj.OperarioRegistra : obj.OperarioResponsableSAP);
                     cmd.Parameters.AddWithValue("@MotivoTraslado", obj.MotivoTraslado);
                     cmd.Parameters.AddWithValue("@Estado", obj.Estado ?? "PENDIENTE");
 
@@ -196,7 +220,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 }
                 else
                 {
-                    mensaje = $"Error SQL al importar la solicitud: {sqlEx.Message} ";
+                    mensaje = $"Error SQL al importar la solicitud.";
                     icono = "error";
                 }
 
@@ -210,7 +234,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 throw new Exception($"Error al importar la solicitud de traslado: {ex.Message}");
             }
 
-            return new Helper_E { Mensajes = new List<string> { mensaje }, Icono = icono, Id = obj.Id };
+            return new Helper_E { Mensajes = new List<string> { mensaje }, Icono = icono, Id = obj.Id, DocNum = baseInicial };
         }
         public Helper_E DeleteSolicitudDeTraslado(int docNum, SqlConnection cn)
         {

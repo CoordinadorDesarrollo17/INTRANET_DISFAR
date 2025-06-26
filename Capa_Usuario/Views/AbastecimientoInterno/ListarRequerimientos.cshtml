@@ -153,6 +153,7 @@
             </div>
             <div id="div_AprobarRequerimiento" class="modal-footer d-flex justify-content-start" hidden>
                 <button type="button" id="btn_AprobarRequerimiento" class="btn btn-sm btn-success" onclick="aprobarRequerimiento(this)" data-requerimiento="0"><i class="bi bi-check-lg"></i> Aprobar</button>
+                <button type="button" id="btn_RechazarRequerimiento" class="btn btn-sm btn-outline-danger" onclick="rechazarRequerimiento(this)" data-requerimiento="0"><i class="bi bi-x-lg"></i> Rechazar</button>
             </div>
         </div>
     </div>
@@ -195,6 +196,16 @@
 
             tippy('#btn_AprobarRequerimiento', {
                 content: 'Aprobar requerimiento',
+                animation: 'fade'
+            });
+
+            tippy('#btn_RechazarRequerimiento', {
+                content: 'Rechazar requerimiento',
+                animation: 'fade'
+            });
+
+            tippy('.btn-eliminarItem', {
+                content: 'Eliminar ítem del detalle',
                 animation: 'fade'
             });
         });
@@ -354,6 +365,7 @@
                     const claseAprobado = aprobado == 0 ? 'd-block' : 'd-none';
                     const div = document.getElementById('div_AprobarRequerimiento');
                     document.getElementById('btn_AprobarRequerimiento').dataset.requerimiento = requerimientoId;
+                    document.getElementById('btn_RechazarRequerimiento').dataset.requerimiento = requerimientoId;
 
                     // Asegurar que se elimina cualquier clase anterior de visibilidad
                     div.classList.remove('d-none', 'd-block');
@@ -402,7 +414,7 @@
                     html: json.Mensajes ? json.Mensajes.join('<br>') : '',
                     icon: json.Icono
                 }).then((result) => {
-                    if (result.isConfirmed) {
+                    if (result.isConfirmed && json.Icono == "success") {
                         location.reload();
                     }
                 });
@@ -417,5 +429,102 @@
             }
         }
 
+        async function rechazarRequerimiento(button) {
+            const id = parseInt(button.dataset.requerimiento) || 0;
+
+            if (!id) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ID inválido',
+                    text: 'No se pudo obtener el ID del requerimiento.',
+                });
+                return;
+            }
+
+            try {
+                const response = await fetch("/AbastecimientoInterno/RechazarRequerimiento", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ id }) // se recomienda enviar un objeto, no solo el valor
+                });
+
+                if (!response.ok) throw new Error('Error inesperado del servidor.');
+
+                const json = await response.json();
+
+                Swal.fire({
+                    title: json.Titulo,
+                    html: json.Mensajes ? json.Mensajes.join('<br>') : '',
+                    icon: json.Icono
+                }).then((result) => {
+                    if (result.isConfirmed && json.Icono == "success") {
+                        location.reload();
+                    }
+                });
+            } catch (error) {
+                console.error('Error al rechazar:', error);
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error al rechazar requerimiento',
+                    text: error.message || 'Ocurrió un error inesperado.',
+                });
+            }
+        }
+
+        async function eliminarItem(ItemID) {
+            Swal.fire({
+                title: "¿Estás seguro(a) de eliminar ítem?",
+                html: "El ítem se eliminará del detalle del requerimiento.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "<i class='bi bi-check-lg'></i> Si, continuar",
+                cancelButtonText: "<i class='bi bi-x-lg mx-1'></i> Cancelar",
+                reverseButtons: true,
+                allowEscapeKey: false,
+                allowOutsideClick: false,
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-outline-danger mx-1'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const response = await fetch("/AbastecimientoInterno/EliminarItemDetalleRequerimiento", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ ItemID }) // Se envía un objeto vacío
+                        });
+
+                        if (!response.ok) throw new Error('Error inesperado del servidor.');
+
+                        const json = await response.json();
+
+                        Swal.fire({
+                            title: json.Titulo,
+                            html: json.Mensajes ? json.Mensajes.join('<br>') : '',
+                            icon: json.Icono
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                location.reload();
+                            }
+                        });
+                    } catch (error) {
+                        console.error('Error al crear requerimiento automático:', error);
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error al crear requerimiento',
+                            text: error.message || 'Ocurrió un error inesperado.',
+                        });
+                    }
+                }
+            });           
+        }
     </script>
 }
