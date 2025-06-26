@@ -756,7 +756,7 @@
                     }
 
                     // Formateamos el data-producto para reestablecer su nombe con espacio
-                    const productoIDFormat = productoID.replace(/__space__/, ' ');
+                    const productoIDFormat = productoID.replace(/__space__/, ' ').replace(/__amp__/g, '&');
                     const detalleRow = tr.next('.detalle-fila')
 
                     if (detalleRow.length) {
@@ -1746,10 +1746,9 @@
                 <tbody>
                     <tr data-lote="${correlativoLote}">
                         <td class="text-center">
-                            <select id="BatchNum_${correlativo}" name="transferenciaPost.Detalle[].BatchNum" class="form-select lote-select"
-                                onclick="abrirModalBusquedaRapida(this)" style="width:150px">
-                                <option value="">Seleccione</option>
-                            </select>
+                            <input list="listaLotesArticulos" name="producto" name="transferenciaPost.Detalle[].BatchNum" class="form-select lote-select" style="width: 150px">
+                            <datalist id="listaLotesArticulos" id="BatchNum_${correlativo}">
+                            </datalist>
                         </td>
                         <td class="text-center">
                             <div class="d-flex justify-content-center"><input type="text" id="InDate_${correlativoLote}" name="transferenciaPost.Detalle[].InDate" class="form-control cls-readonly text-center" readonly ></div>
@@ -1816,7 +1815,6 @@
             // Obtener elementos dinámicos recién creados
             let selectArticulo = document.getElementById(`ItemName_${correlativo}`);
             let inputItemCode = document.getElementById(`ItemCode_${correlativo}`);
-            //let selectLotes = document.getElementById(`BatchNum_${correlativo}`);
             let selectLotes = document.querySelector(`select[id^="BatchNum_${correlativo}"]`);
             let inputInDate = document.getElementById(`InDate_${correlativoLote}`);
             let inputExpDate = document.getElementById(`ExpDate_${correlativoLote}`);
@@ -1829,7 +1827,9 @@
 
                 // Cargar lotes correspondientes al nuevo itemCode
                 const opcionesLotes = cargarOpcionesLotes(codigo);
-                selectLotes.innerHTML = '<option value="">Seleccione</option>' + opcionesLotes;
+                //selectLotes.innerHTML = '<option value="">Seleccione</option>' + opcionesLotes;
+                const datalistLotes = document.getElementById('listaLotesArticulos');
+                datalistLotes.innerHTML = opcionesLotes;
 
                 inputInDate.value = "";
                 inputExpDate.value = "";
