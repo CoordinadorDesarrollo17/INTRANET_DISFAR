@@ -43,7 +43,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
 
                 case "ListarApiladores":
                     result = detalles
-                        .Where(x => x.AtendidoReserva == 0 && x.AtendidoPicking == 0 && x.Aprobado == 0)
+                        .Where(x => x.AtendidoReserva == 0 && x.AtendidoPicking == 0 && x.Aprobado == 1)
                         .OrderByDescending(x => x.Zona)
                         .ToList();
                     break;

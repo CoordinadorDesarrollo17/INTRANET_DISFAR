@@ -1127,7 +1127,8 @@ namespace Capa_Usuario.Controllers
                 if (user == null)
                     return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "No existe usuario logueado, se terminó la sesión." }, Icono = "error" });
 
-                if (string.IsNullOrWhiteSpace(solicitudTrasladoPost.MotivoTraslado))
+                // Solo se valida cuando se registra por primera vez, a parte de la 2da vez ya es solo transferencias
+                if (string.IsNullOrWhiteSpace(solicitudTrasladoPost.MotivoTraslado) && transferenciaPost.SolicitudTrasladoDocNum == 0)
                     return Json(new { Titulo = "No se completó la acción", Mensajes = new List<string> { "Debes ingresar el motivo de traslado." }, Icono = "error" });
 
                 if (transferenciaPost != null)

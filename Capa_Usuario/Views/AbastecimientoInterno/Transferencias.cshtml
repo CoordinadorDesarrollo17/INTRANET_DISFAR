@@ -343,7 +343,9 @@
 				if (camposValidos && Object.keys(detalleTransferencia).length > 0) {
 					detallesTransferencia.push(detalleTransferencia);
 				}
-			});
+            });
+
+
 			const formData = new FormData(form);
 			const jsonData = Object.fromEntries(formData.entries());
 			const payload = {
