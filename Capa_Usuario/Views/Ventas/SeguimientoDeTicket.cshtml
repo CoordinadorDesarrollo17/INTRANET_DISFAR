@@ -79,7 +79,7 @@
 
     @using (Html.BeginForm())
     {
-        
+
         <div class="tab-content" id="nav-tabContent">
 
             <div class="tab-pane fade show active" id="nav-flujo-estados" role="tabpanel" aria-labelledby="nav-flujo-estados-tab">
@@ -90,7 +90,11 @@
                         <div class="col-lg-6">
                             @if (Model.hayFinVerificar && flujoEstados["FIN VERIFICAR"].Operario != null && flujoEstados["FIN VERIFICAR"].FechaOperacion != null && Model.ProductoPendiente != null && Model.ProductoPendiente == 1)
                             {
-                               <input class="btn btn-sm btn-success" type="submit" name="UPDATEPROD" value="Productos pendientes NO" /><!--ponerlo en 0-->
+                                <input class="btn btn-sm btn-success"
+                                       type="button"
+                                       name="UPDATEPROD"
+                                       value="Productos pendientes NO"
+                                       onclick="confirmarActualizarProd(this)" />
                             }
                         </div>
                     </div>
@@ -430,87 +434,87 @@
                     </div>
 
                     @if (Model.Estado.Equals("PREENVIO") || Model.Estado.Equals("ENVIADO") || Model.Estado.Equals("ENTREGADO"))
-{
-if (Model.orru != null && Model.orru.DocNum != 0)
-{
-                <div class="container">
-                    <div class="row">
-                        <div class="col-lg-8 mb-2">
-                            <div class="font-14 text-center p-2" style="background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 5px;">
-                                <p><span class="font-weight-bold">Documentos Impresos por: </span>@Model.orru.Propietario <strong> Fecha :  </strong>@Convert.ToDateTime(Model.orru.FechaDoc).ToString("yyyy-MM-dd") <strong>Hora: </strong> @Model.orru.HoraRegistro</p>
+                    {
+                        if (Model.orru != null && Model.orru.DocNum != 0)
+                        {
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-lg-8 mb-2">
+                                        <div class="font-14 text-center p-2" style="background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 5px;">
+                                            <p><span class="font-weight-bold">Documentos Impresos por: </span>@Model.orru.Propietario <strong> Fecha :  </strong>@Convert.ToDateTime(Model.orru.FechaDoc).ToString("yyyy-MM-dd") <strong>Hora: </strong> @Model.orru.HoraRegistro</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 mb-2">
+                                        <div class="font-14 text-center p-2" style="background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 5px;">
+                                            <p><span class="font-weight-bold">N° Ruta: </span>@Model.orru.DocNum</p>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-4 mb-2">
+                                        <div class="font-14 text-center p-2" style="background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 5px;">
+                                            <p><span class="font-weight-bold">Conductor: </span>@if (Model.orru.TransDesc != null && Model.orru.TransDesc.Length > 12) { Write(Model.orru.TransDesc.Substring(0, 12)); }</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 mb-2">
+                                        <div class="font-14 text-center p-2" style="background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 5px;">
+                                            <p><span class="font-weight-bold">Copiloto1: </span>@if (Model.orru.CopilDesc != null && Model.orru.CopilDesc.Length > 12) { Write(Model.orru.CopilDesc.Substring(0, 12)); }</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 mb-2">
+                                        <div class="font-14 text-center p-2" style="background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 5px;">
+                                            <p><span class="font-weight-bold">Copiloto2: </span>@if (Model.orru.Copil2Desc != null && Model.orru.Copil2Desc.Length > 12) { Write(Model.orru.Copil2Desc.Substring(0, 12)); }</p>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        }
+
+                        <div class="row mt-4 mx-1">
+                            <div class="col-lg-12 p-2 border border-success">
+                                <span class="text-dark form-label font-weight-bold font-18">Comentario:</span> @Model.Comentario
                             </div>
                         </div>
-                        <div class="col-lg-4 mb-2">
-                            <div class="font-14 text-center p-2" style="background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 5px;">
-                                <p><span class="font-weight-bold">N° Ruta: </span>@Model.orru.DocNum</p>
+
+                        if (Model.Det2 != null)
+                        {
+                            <div class="row mt-4">
+                                <div class="col-lg-12">
+                                    <table class="table table-hover table-bordered" id="detallesPedidos">
+                                        <thead class="bg-cobefar">
+                                            <tr>
+                                                <th class="text-center">#</th>
+                                                <th class="text-center">Monto</th>
+                                                <th class="text-center">Nro SAP</th>
+                                                <th class="text-center">Tipo Doc</th>
+                                                <th class="text-center">Vendedor</th>
+                                                <th class="text-center">LugarDeEntrega</th>
+                                                <th class="text-center">Observación</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (RTV2_E dt in Model.Det2)
+                                            {
+                                                <tr>
+                                                    <td class="text-center">@Html.DisplayFor(model => dt.Linea)</td>
+                                                    <td class="text-center" style="background-color:#33FFC6">S/@Html.DisplayFor(model => dt.Monto)</td>
+                                                    <td class="text-center">@Html.DisplayFor(model => dt.NroSap)</td>
+                                                    <td class="text-center">@Html.DisplayFor(model => dt.TipoComprobante)</td>
+                                                    <td class="text-center">@Html.DisplayFor(model => dt.Vendedor)</td>
+                                                    <td class="text-center" style="background-color:#33FFC6">@Html.DisplayFor(model => dt.LugarDeEntrega)</td>
+                                                    <td class="text-center" style="background-color:#33FFC6">@Html.DisplayFor(model => dt.Observaciones)</td>
+                                                </tr>
+                                            }
+
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
-                        </div>
-
-                    </div>
-                    <div class="row">
-                        <div class="col-lg-4 mb-2">
-                            <div class="font-14 text-center p-2" style="background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 5px;">
-                                <p><span class="font-weight-bold">Conductor: </span>@if (Model.orru.TransDesc != null && Model.orru.TransDesc.Length > 12) { Write(Model.orru.TransDesc.Substring(0, 12)); }</p>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 mb-2">
-                            <div class="font-14 text-center p-2" style="background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 5px;">
-                                <p><span class="font-weight-bold">Copiloto1: </span>@if (Model.orru.CopilDesc != null && Model.orru.CopilDesc.Length > 12) { Write(Model.orru.CopilDesc.Substring(0, 12)); }</p>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 mb-2">
-                            <div class="font-14 text-center p-2" style="background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 5px;">
-                                <p><span class="font-weight-bold">Copiloto2: </span>@if (Model.orru.Copil2Desc != null && Model.orru.Copil2Desc.Length > 12) { Write(Model.orru.Copil2Desc.Substring(0, 12)); }</p>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-
-            }
-
-                <div class="row mt-4 mx-1">
-                    <div class="col-lg-12 p-2 border border-success">
-                        <span class="text-dark form-label font-weight-bold font-18">Comentario:</span> @Model.Comentario
-                    </div>
-                </div>
-
-                if (Model.Det2 != null)
-                {
-                    <div class="row mt-4">
-                        <div class="col-lg-12">
-                            <table class="table table-hover table-bordered" id="detallesPedidos">
-                                <thead class="bg-cobefar">
-                                    <tr>
-                                        <th class="text-center">#</th>
-                                        <th class="text-center">Monto</th>
-                                        <th class="text-center">Nro SAP</th>
-                                        <th class="text-center">Tipo Doc</th>
-                                        <th class="text-center">Vendedor</th>
-                                        <th class="text-center">LugarDeEntrega</th>
-                                        <th class="text-center">Observación</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (RTV2_E dt in Model.Det2)
-                                    {
-                                        <tr>
-                                            <td class="text-center">@Html.DisplayFor(model => dt.Linea)</td>
-                                            <td class="text-center" style="background-color:#33FFC6">S/@Html.DisplayFor(model => dt.Monto)</td>
-                                            <td class="text-center">@Html.DisplayFor(model => dt.NroSap)</td>
-                                            <td class="text-center">@Html.DisplayFor(model => dt.TipoComprobante)</td>
-                                            <td class="text-center">@Html.DisplayFor(model => dt.Vendedor)</td>
-                                            <td class="text-center" style="background-color:#33FFC6">@Html.DisplayFor(model => dt.LugarDeEntrega)</td>
-                                            <td class="text-center" style="background-color:#33FFC6">@Html.DisplayFor(model => dt.Observaciones)</td>
-                                        </tr>
-                                    }
-
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                }
-            }
+                        }
+                    }
 
 
                 </div>
@@ -652,40 +656,40 @@ if (Model.orru != null && Model.orru.DocNum != 0)
                             @Html.EditorFor(model => model.HoraRegistro, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
                         </div>
                     </div>
-                        <div class="col-lg-3 mt-4">
-                            <label class="text-dark form-label font-weight-bold font-18">Vinculación de ticket</label>
-                            <input id="VinculacionTicket" class="form-control text-center border-success" value="@Model.Observaciones2" readonly />
-                        </div>
+                    <div class="col-lg-3 mt-4">
+                        <label class="text-dark form-label font-weight-bold font-18">Vinculación de ticket</label>
+                        <input id="VinculacionTicket" class="form-control text-center border-success" value="@Model.Observaciones2" readonly />
+                    </div>
 
-                        <div class="col-lg-8  mt-4" id="divVinculados">
-                            <table id="DetallesVinculados" class="table table-sm">
-                                <thead class="bg-success">
-                                    <tr>
-                                        <th class="text-center">#</th>
-                                        <th class="text-center">Ticket</th>
-                                        <th hidden>Ruc</th>
-                                        <th class="text-center">Cliente</th>
-                                        <th class="text-center">Monto</th>
-                                    </tr>
-                                </thead>
+                    <div class="col-lg-8  mt-4" id="divVinculados">
+                        <table id="DetallesVinculados" class="table table-sm">
+                            <thead class="bg-success">
+                                <tr>
+                                    <th class="text-center">#</th>
+                                    <th class="text-center">Ticket</th>
+                                    <th hidden>Ruc</th>
+                                    <th class="text-center">Cliente</th>
+                                    <th class="text-center">Monto</th>
+                                </tr>
+                            </thead>
 
-                                <tbody>
-                                    @if (Model.Det7 != null && Model.Det7.Count > 0)
+                            <tbody>
+                                @if (Model.Det7 != null && Model.Det7.Count > 0)
+                                {
+                                    foreach (var dt in Model.Det7)
                                     {
-                                        foreach (var dt in Model.Det7)
-                                        {
-                                            <tr>
-                                                <td><input class='form-control text-center' value='@dt.Linea' readonly /></td>
-                                                <td><input class='form-control text-center' value='@dt.DocNumVinc' readonly /></td>
-                                                <td hidden><input class='form-control text-center' value='@dt.CardCode' readonly /></td>
-                                                <td><input class='form-control text-center' value='@dt.CardName' readonly /></td>
-                                                <td><input class='form-control text-center' value='@dt.MontoFinal' readonly /></td>
-                                            </tr>
-                                        }
+                                        <tr>
+                                            <td><input class='form-control text-center' value='@dt.Linea' readonly /></td>
+                                            <td><input class='form-control text-center' value='@dt.DocNumVinc' readonly /></td>
+                                            <td hidden><input class='form-control text-center' value='@dt.CardCode' readonly /></td>
+                                            <td><input class='form-control text-center' value='@dt.CardName' readonly /></td>
+                                            <td><input class='form-control text-center' value='@dt.MontoFinal' readonly /></td>
+                                        </tr>
                                     }
-                                </tbody>
-                            </table>
-                        </div>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -911,8 +915,33 @@ if (Model.orru != null && Model.orru.DocNum != 0)
     }
 </div><!-- // PESTAÑAS -->
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    if ('@ViewBag.Mensaje' != "") {
-        Swal.fire('@ViewBag.Mensaje');
+    // Mostrar mensaje de ViewBag.Mensaje si existe
+    $(function () {
+        if ('@ViewBag.Mensaje' !== "") {
+            Swal.fire('@ViewBag.Mensaje');
+        }
+    });
+
+    // Confirmación antes de marcar productos pendientes como NO
+    function confirmarActualizarProd(btn) {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "Esta acción marcará los productos pendientes como NO.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, continuar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Buscar el formulario más cercano y enviar
+                $(btn).closest('form').append(
+                    $('<input>').attr({ type: 'hidden', name: btn.name, value: btn.value })
+                );
+                $(btn).closest('form').submit();
+            }
+        });
     }
 </script>
+
