@@ -9,9 +9,9 @@ namespace Capa_Negocio.RecursosHumanos_NEG.TablasExternas
     public class ODPTO_N
     {
         ODPTO_D _datos = new ODPTO_D();
-        public void MigrarDepartamentosHANA()
-        {
-            _datos.MigrarDepartamentosHANA();
-        }
+        //public void MigrarDepartamentosHANA()
+        //{
+        //    _datos.MigrarDepartamentosHANA();
+        //}
     }
 }

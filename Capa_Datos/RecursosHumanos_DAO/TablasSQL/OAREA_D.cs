@@ -7,59 +7,76 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 namespace Capa_Datos.RecursosHumanos_DAO.TablasSQL
 {
     public class OAREA_D
     {
-        readonly Utilitarios uti = new Utilitarios();
-        public void RegistrarAreas(List<OAREA_E> listaDatos)
+        private readonly Utilitarios uti = new Utilitarios();
+
+        public OAREA_E BuscarArea(int id)
         {
-            using (SqlConnection cn = new SqlConnection(uti.cadSql))
+            OAREA_E obj = null;
+            try
             {
-                using (SqlCommand cmd = new SqlCommand("dbo.MANT_OAREA", cn))
+                using (SqlConnection cn = new SqlConnection(uti.cadSql2))
                 {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    try
+                    SqlCommand cmd = new SqlCommand();
+                    cmd.Connection = cn;
+                    StringBuilder sb = new StringBuilder();
+                    sb.Append("SELECT AR.Id, AR.IdDepartamento, AR.Nombre, AR.Estado, CONVERT(varchar, AR.FechaRegistro, 103),");
+                    sb.Append(" CASE WHEN AR.Estado = 'Y' THEN 'ACTIVO' ELSE 'INACTIVO' END AS DescripcionEstado, AR.Codigo");
+                    sb.Append(" FROM dbo.OAREA AR");
+                    sb.Append(" WHERE AR.ID=@Id ");
+                    cmd.Parameters.AddWithValue("@Id", id);
+
+                    cmd.CommandText = sb.ToString();
+                    cn.Open();
+                    using (SqlDataReader dr = cmd.ExecuteReader())
                     {
-                        cn.Open();
-                        // Procesar cada elemento en la lista
-                        foreach (var area in listaDatos)
+                        if (dr.Read())
                         {
-                            // Limpiar los parámetros antes de agregar nuevos
-                            cmd.Parameters.Clear();
-                            cmd.Parameters.AddWithValue("@Accion", "INS");
-                            cmd.Parameters.AddWithValue("@IdArea", area.IdArea);
-                            cmd.Parameters.AddWithValue("@IdDepartamento", area.IdDepartamento);
-                            cmd.Parameters.AddWithValue("@Nombre", area.Nombre);
-                            cmd.Parameters.AddWithValue("@Estado", area.Estado);
-                            cmd.ExecuteNonQuery();
+                            obj = new OAREA_E();
+                            if (!dr.IsDBNull(0)) { obj.Id = dr.GetInt32(0); }
+                            if (!dr.IsDBNull(1)) { obj.IdDepartamento = dr.GetInt32(1); }
+                            if (!dr.IsDBNull(2)) { obj.Nombre = dr.GetString(2); }
+                            if (!dr.IsDBNull(3)) { obj.Estado = dr.GetString(3); }
+                            if (!dr.IsDBNull(4)) { obj.FechaRegistro = dr.GetString(4); }
+                            if (!dr.IsDBNull(5)) { obj.DescripcionEstado = dr.GetString(5); }
+                            if (!dr.IsDBNull(6)) { obj.Codigo = dr.GetInt32(6); }
                         }
-                        Console.WriteLine("Inserción completada con éxito.");
                     }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine("Error al ejecutar el procedimiento almacenado: " + ex.Message);
-                        File.AppendAllText(uti.directorioLogs + "OAREA_D - RegistrarAreas.txt", $"{DateTime.Now}: {ex.Message}\n {ex.StackTrace}\n");        // Registro de error
-                    }
+                    cn.Close();
                 }
             }
+            catch (Exception ex)
+            {
+                File.AppendAllText(uti.directorioLogs + "OAREA_D - BuscarArea.txt", $"{DateTime.Now}: {ex.Message}\n {ex.StackTrace}\n");
+            }
+            return obj;
         }
+
         public List<OAREA_E> ListarAreas(OAREA_E filtros)
         {
             List<OAREA_E> lista = null;
             try
             {
-                using (SqlConnection cn = new SqlConnection(uti.cadSql))
+                using (SqlConnection cn = new SqlConnection(uti.cadSql2))
                 {
                     SqlCommand cmd = new SqlCommand();
                     cmd.Connection = cn;
                     StringBuilder sb = new StringBuilder();
-                    sb.Append("SELECT AR.IdArea, AR.IdDepartamento, AR.Nombre, AR.Estado, CONVERT(varchar, AR.FechaRegistro, 103),");
-                    sb.Append(" CASE WHEN AR.Estado = 'Y' THEN 'ACTIVO' ELSE 'INACTIVO' END AS DescripcionEstado");
+                    sb.Append("SELECT AR.Id, AR.IdDepartamento, AR.Nombre, AR.Estado, CONVERT(varchar, AR.FechaRegistro, 103),");
+                    sb.Append(" CASE WHEN AR.Estado = 'Y' THEN 'ACTIVO' ELSE 'INACTIVO' END AS DescripcionEstado, AR.Codigo");
                     sb.Append(" FROM dbo.OAREA AR");
                     sb.Append(" WHERE 1 = 1");
                     if (filtros != null)
                     {
+                        if (filtros.Id > 0)
+                        {
+                            sb.Append(" AND AR.Id = @Id");
+                            cmd.Parameters.AddWithValue("@Id", filtros.Id);
+                        }
                         if (filtros.IdDepartamento > 0)
                         {
                             sb.Append(" AND AR.IdDepartamento = @IdDepartamento");
@@ -76,7 +93,6 @@ namespace Capa_Datos.RecursosHumanos_DAO.TablasSQL
                             cmd.Parameters.AddWithValue("@Estado", filtros.Estado);
                         }
                     }
-                    //sb.Append($" ORDER BY ---- DESC");    DESCOMENTAR LÍNEA SI SE DESEA ORDENAR POR ALGÚN CAMPO EN ESPECIAL
                     cmd.CommandText = sb.ToString();
                     cn.Open();
                     using (SqlDataReader dr = cmd.ExecuteReader())
@@ -87,12 +103,13 @@ namespace Capa_Datos.RecursosHumanos_DAO.TablasSQL
                             while (dr.Read())
                             {
                                 OAREA_E obj = new OAREA_E();
-                                if (!dr.IsDBNull(0)) { obj.IdArea = dr.GetInt32(0); }
+                                if (!dr.IsDBNull(0)) { obj.Id = dr.GetInt32(0); }
                                 if (!dr.IsDBNull(1)) { obj.IdDepartamento = dr.GetInt32(1); }
                                 if (!dr.IsDBNull(2)) { obj.Nombre = dr.GetString(2); }
                                 if (!dr.IsDBNull(3)) { obj.Estado = dr.GetString(3); }
                                 if (!dr.IsDBNull(4)) { obj.FechaRegistro = dr.GetString(4); }
                                 if (!dr.IsDBNull(5)) { obj.DescripcionEstado = dr.GetString(5); }
+                                if (!dr.IsDBNull(6)) { obj.Codigo = dr.GetInt32(6); }
                                 lista.Add(obj);
                             }
                         }
@@ -106,47 +123,63 @@ namespace Capa_Datos.RecursosHumanos_DAO.TablasSQL
             }
             return lista;
         }
-        public OAREA_E ObtenerDatosArea(int idArea)
+
+        public void InsertarAreas(List<OAREA_E> areas)
         {
-            OAREA_E obj = null;
-            try
+            using (SqlConnection cn = new SqlConnection(uti.cadSql2))
             {
-                using (SqlConnection cn = new SqlConnection(uti.cadSql))
+                cn.Open();
+                foreach (var area in areas)
                 {
-                    SqlCommand cmd = new SqlCommand();
-                    cmd.Connection = cn;
-                    StringBuilder sb = new StringBuilder();
-                    sb.Append("SELECT AR.IdArea, AR.IdDepartamento, AR.Nombre, AR.Estado, CONVERT(varchar, AR.FechaRegistro, 103),");
-                    sb.Append(" CASE WHEN AR.Estado = 'Y' THEN 'ACTIVO' ELSE 'INACTIVO' END AS DescripcionEstado");
-                    sb.Append(" FROM dbo.OAREA AR");
-                    sb.Append(" WHERE IdArea = @IdArea");
-                    cmd.CommandText = sb.ToString();
-                    cmd.Parameters.AddWithValue("@IdArea", idArea);
-                    cn.Open();
-                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    using (SqlCommand cmd = new SqlCommand("dbo.MANT_OAREA", cn))
                     {
-                        if (dr.HasRows)
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@Accion", "INS");
+                        cmd.Parameters.AddWithValue("@Codigo", area.Codigo);
+                        cmd.Parameters.AddWithValue("@IdDepartamento", area.IdDepartamento);
+                        cmd.Parameters.AddWithValue("@Nombre", area.Nombre);
+                        cmd.Parameters.AddWithValue("@Estado", area.Estado);
+                        try
                         {
-                            obj = new OAREA_E();
-                            while (dr.Read())
-                            {
-                                if (!dr.IsDBNull(0)) { obj.IdArea = dr.GetInt32(0); }
-                                if (!dr.IsDBNull(1)) { obj.IdDepartamento = dr.GetInt32(1); }
-                                if (!dr.IsDBNull(2)) { obj.Nombre = dr.GetString(2); }
-                                if (!dr.IsDBNull(3)) { obj.Estado = dr.GetString(3); }
-                                if (!dr.IsDBNull(4)) { obj.FechaRegistro = dr.GetString(4); }
-                                if (!dr.IsDBNull(5)) { obj.DescripcionEstado = dr.GetString(5); }
-                            }
+                            cmd.ExecuteNonQuery();
+                        }
+                        catch (Exception ex)
+                        {
+                            LogHelper.RegistrarError(ex, "OAREA_D - InsertarAreas");
                         }
                     }
-                    cn.Close();
                 }
+                cn.Close();
             }
-            catch (Exception ex)
+        }
+
+        public void ActualizarAreas(List<OAREA_E> areas)
+        {
+            using (SqlConnection cn = new SqlConnection(uti.cadSql2))
             {
-                File.AppendAllText(uti.directorioLogs + "OAREA_D - ObtenerDatosArea.txt", $"{DateTime.Now}: {ex.Message}\n {ex.StackTrace}\n");        // Registro de error
+                cn.Open();
+                foreach (var area in areas)
+                {
+                    using (SqlCommand cmd = new SqlCommand("dbo.MANT_OAREA", cn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@Accion", "UPD");
+                        cmd.Parameters.AddWithValue("@Codigo", area.Codigo);
+                        cmd.Parameters.AddWithValue("@IdDepartamento", area.IdDepartamento);
+                        cmd.Parameters.AddWithValue("@Nombre", area.Nombre);
+                        cmd.Parameters.AddWithValue("@Estado", area.Estado);
+                        try
+                        {
+                            cmd.ExecuteNonQuery();
+                        }
+                        catch (Exception ex)
+                        {
+                            LogHelper.RegistrarError(ex, "OAREA_D - ActualizarAreas");
+                        }
+                    }
+                }
+                cn.Close();
             }
-            return obj;
         }
     }
 }

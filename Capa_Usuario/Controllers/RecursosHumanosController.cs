@@ -60,7 +60,7 @@ namespace Capa_Usuario.Controllers
         [HttpGet]
         public ActionResult DirectorioTelefonico()
         {
-            ViewBag.Departamentos = new Capa_Negocio.RecursosHumanos_NEG.TablasSQL.ODPTO_N().ListarDepartamentos(new ODPTO_E { Estado = "Y" }).Where(x => x.IdDepartamento != 18);
+            ViewBag.Departamentos = new Capa_Negocio.RecursosHumanos_NEG.TablasSQL.ODPTO_N().ListarDepartamentos(new ODPTO_E { Estado = "Y" }).Where(x => x.Id != 18);
             ViewBag.NumCorporativos = new Capa_Negocio.RecursosHumanos_NEG.TablasSQL.ONUM_N().ListarNumeros(new ONUM_E { Estado = "1", Asignado = "0" });
             Usuario_E usu = (Usuario_E)Session["UsuarioId"];
             int? rolId = usu != null ? usu.IdRol : (int?)null;

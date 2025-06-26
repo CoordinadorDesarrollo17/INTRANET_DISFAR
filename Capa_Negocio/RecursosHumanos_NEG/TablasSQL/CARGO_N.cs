@@ -1,5 +1,6 @@
 ﻿using Capa_Datos.General_DAO;
 using Capa_Datos.RecursosHumanos_DAO;
+using Capa_Datos.RecursosHumanos_DAO.TablasSQL;
 using Capa_Datos.Ventas_DAO.TablasSql;
 using Capa_Entidad.RecursosHumanos_ENT.TablasSQL;
 using Capa_Entidad.Ventas_ENT.TablasSql;
