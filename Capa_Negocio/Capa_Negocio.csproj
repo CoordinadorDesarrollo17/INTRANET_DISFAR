@@ -62,6 +62,7 @@
     <Compile Include="AbastecimientoInterno_NEG\Reportes\ReporteStockReserva_N.cs" />
     <Compile Include="AbastecimientoInterno_NEG\TablasExternas\OWTQ_N.cs" />
     <Compile Include="AbastecimientoInterno_NEG\TablasSql\DetalleRequerimientos_N.cs" />
+    <Compile Include="AbastecimientoInterno_NEG\TablasSql\DetalleTransferenciaReserva_N.cs" />
     <Compile Include="AbastecimientoInterno_NEG\TablasSql\KardexAbastecimiento_N.cs" />
     <Compile Include="AbastecimientoInterno_NEG\TablasSql\LotesRegistroSanitario_N.cs" />
     <Compile Include="AbastecimientoInterno_NEG\TablasSql\Masters_N.cs" />
