@@ -1,0 +1,530 @@
+@{
+    ViewBag.Title = "Listado de Requerimientos";
+    Layout = "~/Views/Shared/_DefaultLayout.cshtml";
+}
+
+<div class="pt-3">
+    <nav>
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li class="current"><em>@ViewBag.Title</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
+    <div class="row px-3 pt-3"><h3 class="titulo-seccion">@ViewBag.Title.ToUpper()</h3></div>
+    <div class="row px-3 py-2">
+        <div class="col-12">
+            <button type="button" id="btn_NuevoRequerimiento" class="btn btn-sm btn-warning" onclick="redireccionar(this)" data-ruta="/AbastecimientoInterno/Requerimientos">
+                <i class="bi bi-plus-lg"></i> Requerimiento
+            </button>
+            <button type="button" id="btn_filtrar" class="btn btn-sm btn-outline-light" onclick="abrirModalFiltros()">
+                <i class="bi bi-filter"></i> Filtrar
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="bg-white px-3 py-3 align-items-center">
+    <form id="frm_listadoInternamientos">
+        <div id="div_listado" class="table-responsive shadow-sm rounded">
+            <table id="tbl_ListadoRequerimientos" class="table table-bordered table-hover">
+                <thead class="thead-cobefar">
+                    <tr>
+                        <th scope="col" class="text-center small" style="width: 7%">Nro Requerimiento</th>
+                        <th scope="col" class="text-center small">Fecha de Registro</th>
+                        <th scope="col" class="text-center small">Hora de Registro</th>
+                        <th scope="col" class="text-center small">Origen</th>
+                        <th scope="col" class="text-center small">Destino</th>
+                        <th scope="col" class="text-center small">Tipo de Abastecimiento</th>
+                        <th scope="col" class="text-center small">Registrado Por</th>
+                        <th scope="col" class="text-center small">Zona</th>
+                        <th scope="col" class="text-center small" style="width: 7%"></th>
+                    </tr>
+                </thead>
+                <tbody class="table-white">
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td scope="col" class="text-center small">@item.Id</td>
+                            <td scope="col" class="text-center small">@item.FechaRegistro</td>
+                            <td scope="col" class="text-center small">@item.HoraRegistro</td>
+                            <td scope="col" class="text-center small">@item.Origen</td>
+                            <td scope="col" class="text-center small">@item.Destino</td>
+                            <td scope="col" class="text-center small">@item.TipoAbastecimiento</td>
+                            <td scope="col" class="text-center small">@item.OperarioRegistra</td>
+                            <td scope="col" class="text-center small">@item.Zona</td>
+                            <td scope="col" class="text-center small">
+                                <button type="button" class="btn btn-sm btn-outline-dark btn_verDetalle" onclick="cargarDetalleRequerimiento(@item.Id, @item.Aprobado)"><i class="bi bi-search"></i></button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </form>
+</div>
+
+<div class="modal fade" id="modalFiltros" tabindex="-1" aria-labelledby="modalLabel1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header text-white bg-headerModals">
+                <h5 class="modal-title" id="modalLabel1">Filtros</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" tabindex="-1"></button>
+            </div>
+
+            <div class="modal-body bg-blancoHumo">
+                <div id="div_modalBody" class="container pb-0">
+                    <form id="frm_filtros">
+                        <div class="row mb-3">
+                            <div class="col-3">
+                                <label for="Id" class="form-label fw-bold">Nro Requerimiento:</label>
+                                <input id="Id" name="Id" class="form-control cls-num" type="text" autocomplete="off" />
+                            </div>
+                            <div class="col-3">
+                                <label for="TipoAbastecimiento" class="form-label fw-bold">Tipo de Abastecimiento:</label>
+                                <select id="TipoAbastecimiento" name="TipoAbastecimiento" class="form-select">
+                                    <option value="">Seleccione</option>
+                                    <option data-tipo="P" value="Picking">Picking</option>
+                                    <option data-tipo="VM" value="Venta Master">Venta Master</option>
+                                    <option data-tipo="SA" value="Salida por Almacen">Salida por Almacén</option>
+                                </select>
+                            </div>
+                            <div class="col-3">
+                                <label for="Zona" class="form-label fw-bold">Zona:</label>
+                                <select id="Zona" name="Zona" class="form-select">
+                                    <option value="">Seleccione</option>
+                                    <option value="Picking">Picking</option>
+                                    <option value="Recepcion">Recepción</option>
+                                </select>
+                            </div>
+                            <div class="col-3">
+                                <label for="FechaRegistro" class="form-label fw-bold">Fecha Registro:</label>
+                                <input id="FechaRegistro" name="FechaRegistro" class="form-control " type="date" autocomplete="off" />
+                            </div>
+                        </div><!-- // ROW -->
+
+                        <div class="row">
+                            <div class="col-3">
+                                <label for="Aprobado" class="form-label fw-bold">Aprobado:</label>
+                                <select id="Aprobado" name="Aprobado" class="form-select">
+                                    <option value="">Seleccione</option>
+                                    <option value="1">SI</option>
+                                    <option value="0">NO</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label for="OperarioRegistra" class="form-label fw-bold">OpRegistro:</label>
+                                <select id="OperarioRegistra" name="OperarioRegistra" class="cls-select">
+                                    <option value="">Seleccione</option>
+                                    @foreach (var item in ViewBag.ListaOpRegistro)
+                                    {
+                                        <option value="@item">@item</option>
+                                    }
+                                </select>
+                            </div>
+                        </div><!-- // ROW -->
+                    </form>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" id="btn_cerrarModal" class="btn btn-outline-secondary" data-bs-dismiss="modal" data-bs-toggle="tooltip">
+                    <i class="bi bi-x-lg"></i> Cerrar
+                </button>
+                <button type="button" id="btn_aplicarFiltros" class="btn btn-cobefar-2" onclick="aplicarFiltros()">
+                    <i class="bi bi-check-lg"></i> Aplicar filtros
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDetalle" tabindex="-1" aria-labelledby="modalDetalleLabel" aria-hidden="true">
+    <div class="modal-dialog modal-full-width modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header text-white bg-headerModals">
+                <h5 class="modal-title" id="modalDetalleLabel">Detalle del Requerimiento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" tabindex="-1"></button>
+            </div>
+            <div class="modal-body" id="modalContenido">
+                <!-- Aquí se cargará la vista parcial -->
+            </div>
+            <div id="div_AprobarRequerimiento" class="modal-footer d-flex justify-content-start" hidden>
+                <button type="button" id="btn_AprobarRequerimiento" class="btn btn-sm btn-success" onclick="aprobarRequerimiento(this)" data-requerimiento="0"><i class="bi bi-check-lg"></i> Aprobar</button>
+                <button type="button" id="btn_RechazarRequerimiento" class="btn btn-sm btn-outline-danger" onclick="rechazarRequerimiento(this)" data-requerimiento="0"><i class="bi bi-x-lg"></i> Rechazar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            soloNumerosPorClase('cls-num');
+            inicializarDataTable('tbl_ListadoRequerimientos', 25);
+
+            tippy('#btn_filtrar', {
+                content: 'Filtrar listado',
+                animation: 'fade',
+                placement: 'right'
+            });
+
+            tippy('#btn_NuevoRequerimiento', {
+                content: 'Nuevo requerimiento',
+                animation: 'fade'
+            });
+
+            tippy('#btn_cerrarModal', {
+                content: 'Cerrar filtros',
+                animation: 'fade',
+                placement: 'bottom-start'
+            });
+
+            tippy('#btn_aplicarFiltros', {
+                content: 'Aplicar filtros',
+                animation: 'fade',
+                placement: 'bottom-end'
+            });
+
+            tippy('.btn_verDetalle', {
+                content: 'Ver detalle del requerimiento',
+                animation: 'fade',
+                placement: 'bottom-start'
+            });
+
+            tippy('#btn_AprobarRequerimiento', {
+                content: 'Aprobar requerimiento',
+                animation: 'fade'
+            });
+
+            tippy('#btn_RechazarRequerimiento', {
+                content: 'Rechazar requerimiento',
+                animation: 'fade'
+            });
+
+            tippy('.btn-eliminarItem', {
+                content: 'Eliminar ítem del detalle',
+                animation: 'fade'
+            });
+        });
+
+        function abrirModalFiltros() {
+            const modal = document.querySelector('#modalFiltros')
+            const bootstrapModal = new bootstrap.Modal(modal, {
+                focus: false,
+                keyboard: false,
+                backdrop: 'static'
+            })
+            bootstrapModal.show();
+        }
+
+        async function aplicarFiltros() {
+            const form = document.querySelector('#frm_filtros');
+            const formData = new FormData(form);
+            const rawPayload = Object.fromEntries(formData.entries());
+
+            const payload = {};
+
+            // Lista de campos que deben ser convertidos a número
+            const camposNumericos = ['Id', 'Aprobado'];
+
+            for (const key in rawPayload) {
+                if (camposNumericos.includes(key)) {
+                    const val = (rawPayload[key] ?? '').trim();
+                    payload[key] = val === '' ? null : Number(val);
+                } else {
+                    payload[key] = rawPayload[key];
+                }
+            }
+            //console.log(payload)
+            //return;
+
+            try {
+                const response = await fetch("/AbastecimientoInterno/FiltrarListado", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error en la solicitud: ${response.statusText}`);
+                }
+
+                // Recibimos el HTML directamente
+                const html = await response.text();
+
+                document.querySelector('#div_listado').innerHTML = html;
+                inicializarDataTable('tbl_ListadoRequerimientos', '25');
+
+                const modalElement = document.querySelector('#modalFiltros');
+
+                document.activeElement.blur();
+                const instance = bootstrap.Modal.getInstance(modalElement)
+                    ?? new bootstrap.Modal(modalElement);
+                instance.hide();
+
+            } catch (error) {
+                console.error('Error al filtrar:', error);
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error al aplicar filtros',
+                    text: error.message || 'Ocurrió un error inesperado.',
+                });
+            }
+        }
+
+        async function cancelarDocumento(id) {
+            swalWithBootstrapButtons.fire({
+                title: '¿Está seguro(a) de CANCELAR DOCUMENTO?',
+                html: 'El documento será cancelado sin posibilidad de revertir esta acción.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: "<i class='bi bi-check-lg'></i> Si, liberar",
+                cancelButtonText: "<i class='bi bi-x-lg mx-1'></i> Cancelar",
+                reverseButtons: true,
+                allowEscapeKey: false,
+                allowOutsideClick: false,
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-outline-danger mx-1'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+
+                    try {
+                        const response = await fetch("/Internamientos/CancelarDocumento", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ id })
+                        });
+
+                        if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+
+                        const data = await response.json();
+
+                        Swal.fire({
+                            title: data.Titulo,
+                            html: Array.isArray(data.Mensajes) ? data.Mensajes.join('<br>') : data.Mensajes || "",
+                            icon: data.Icono,
+                            confirmButtonColor: '#28a745'
+                        }).then(result => {
+                            if (result.isConfirmed && data.Icono === "success") {
+                                location.reload();
+                            }
+                        });
+                    } catch (error) {
+                        console.error('Error al registrar:', error);
+                    }
+                }
+            });
+        }
+
+        function cargarDetalleRequerimiento(requerimientoId, aprobado) {
+            const url = `/AbastecimientoInterno/VerDetalleRequerimiento?requerimientoId=${requerimientoId}`;
+            const modal = new bootstrap.Modal(document.getElementById('modalDetalle'));
+            const contenedor = document.getElementById('modalContenido');
+
+            contenedor.innerHTML = '<div class="text-center my-3">Cargando...</div>';
+
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest' // Para asegurar que se trata como una solicitud AJAX
+                }
+            })
+                .then(async response => {
+                    const contentType = response.headers.get("content-type");
+
+                    if (!response.ok) throw new Error('Error inesperado del servidor.');
+
+                    // Detectar si es JSON (mensaje de error)
+                    if (contentType && contentType.includes("application/json")) {
+                        const json = await response.json();
+                        Swal.fire({
+                            title: json.Titulo || 'Error',
+                            html: json.Mensajes ? json.Mensajes.join('<br>') : 'Ocurrió un error inesperado.',
+                            icon: json.Icono || 'error'
+                        });
+                        throw new Error('Mensaje del servidor recibido, operación cancelada.');
+                    }
+
+                    // Si es HTML válido, insertar en el modal
+                    const html = await response.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    contenedor.replaceChildren(...doc.body.children);
+
+                    const claseAprobado = aprobado == 0 ? 'd-block' : 'd-none';
+                    const div = document.getElementById('div_AprobarRequerimiento');
+                    document.getElementById('btn_AprobarRequerimiento').dataset.requerimiento = requerimientoId;
+                    document.getElementById('btn_RechazarRequerimiento').dataset.requerimiento = requerimientoId;
+
+                    // Asegurar que se elimina cualquier clase anterior de visibilidad
+                    div.classList.remove('d-none', 'd-block');
+                    div.classList.add(claseAprobado);
+
+                    modal.show();
+                })
+                .catch(error => {
+                    console.error('Error al cargar el detalle:', error);
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'No se pudo cargar el detalle. Intenta nuevamente.',
+                        icon: 'error',
+                        confirmButtonText: 'Aceptar'
+                    });
+                });
+        }
+
+        async function aprobarRequerimiento(button) {
+            const id = parseInt(button.dataset.requerimiento) || 0;
+
+            if (!id) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ID inválido',
+                    text: 'No se pudo obtener el ID del requerimiento.',
+                });
+                return;
+            }
+
+            try {
+                const response = await fetch("/AbastecimientoInterno/AprobarRequerimiento", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ id }) // se recomienda enviar un objeto, no solo el valor
+                });
+
+                if (!response.ok) throw new Error('Error inesperado del servidor.');
+
+                const json = await response.json();
+
+                Swal.fire({
+                    title: json.Titulo,
+                    html: json.Mensajes ? json.Mensajes.join('<br>') : '',
+                    icon: json.Icono
+                }).then((result) => {
+                    if (result.isConfirmed && json.Icono == "success") {
+                        location.reload();
+                    }
+                });
+            } catch (error) {
+                console.error('Error al aprobar:', error);
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error al aprobar requerimiento',
+                    text: error.message || 'Ocurrió un error inesperado.',
+                });
+            }
+        }
+
+        async function rechazarRequerimiento(button) {
+            const id = parseInt(button.dataset.requerimiento) || 0;
+
+            if (!id) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ID inválido',
+                    text: 'No se pudo obtener el ID del requerimiento.',
+                });
+                return;
+            }
+
+            try {
+                const response = await fetch("/AbastecimientoInterno/RechazarRequerimiento", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ id }) // se recomienda enviar un objeto, no solo el valor
+                });
+
+                if (!response.ok) throw new Error('Error inesperado del servidor.');
+
+                const json = await response.json();
+
+                Swal.fire({
+                    title: json.Titulo,
+                    html: json.Mensajes ? json.Mensajes.join('<br>') : '',
+                    icon: json.Icono
+                }).then((result) => {
+                    if (result.isConfirmed && json.Icono == "success") {
+                        location.reload();
+                    }
+                });
+            } catch (error) {
+                console.error('Error al rechazar:', error);
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error al rechazar requerimiento',
+                    text: error.message || 'Ocurrió un error inesperado.',
+                });
+            }
+        }
+
+        async function eliminarItem(ItemID) {
+            Swal.fire({
+                title: "¿Estás seguro(a) de eliminar ítem?",
+                html: "El ítem se eliminará del detalle del requerimiento.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "<i class='bi bi-check-lg'></i> Si, continuar",
+                cancelButtonText: "<i class='bi bi-x-lg mx-1'></i> Cancelar",
+                reverseButtons: true,
+                allowEscapeKey: false,
+                allowOutsideClick: false,
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-outline-danger mx-1'
+                },
+                buttonsStyling: false
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const response = await fetch("/AbastecimientoInterno/EliminarItemDetalleRequerimiento", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ ItemID }) // Se envía un objeto vacío
+                        });
+
+                        if (!response.ok) throw new Error('Error inesperado del servidor.');
+
+                        const json = await response.json();
+
+                        Swal.fire({
+                            title: json.Titulo,
+                            html: json.Mensajes ? json.Mensajes.join('<br>') : '',
+                            icon: json.Icono
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                location.reload();
+                            }
+                        });
+                    } catch (error) {
+                        console.error('Error al crear requerimiento automático:', error);
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error al crear requerimiento',
+                            text: error.message || 'Ocurrió un error inesperado.',
+                        });
+                    }
+                }
+            });           
+        }
+    </script>
+}
