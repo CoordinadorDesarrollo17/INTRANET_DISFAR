@@ -1,6 +1,8 @@
 ﻿using Capa_Datos;
 using Capa_Entidad;
+using Capa_Entidad.General_ENT.TablasSql;
 using Capa_Entidad.Seguridad_ENT;
+using Capa_Negocio.General_NEG.TablasSql;
 using Capa_Negocio.Seguridad_NEG;
 using System;
 using System.Collections.Generic;
@@ -128,5 +130,27 @@ namespace Capa_Negocio
             }
         }
 
+        public Dictionary<string, string> BuscarFirmas(string tipoFirma, string almacen)
+        {
+            Dictionary<string, string> result = new Dictionary<string, string>();
+            if (!string.IsNullOrWhiteSpace(tipoFirma) && !string.IsNullOrWhiteSpace(almacen))
+            {
+                // tipoFirma = 'ResponsableALMActas' abarca -> ActaRecepcionEm, ActaRecepcionTs
+                var firmas = new Firmas_N().ListarFirmas(new Firmas_E() { TipoFirma = tipoFirma, CodigoAlmacen = almacen });
+
+                if (firmas != null && firmas.Any())
+                {
+                    string FilePath;
+                    var firma = firmas.First();
+
+                    FilePath = firma.RutaFirma;
+                    result.Add("NombApe", $"{firma.Nombres} {firma.Apellidos}");
+                    byte[] archivo = System.IO.File.ReadAllBytes(FilePath);
+                    var base64 = Convert.ToBase64String(archivo);                                   //La propiedad de tu modelo que es byte[]
+                    result.Add("Firma", String.Format("data:image/gif;base64,{0}", base64));       // Damos formato para indicar que se trata de una cadena base64
+                }
+            }
+            return result;
+        }
     }
 }

@@ -692,40 +692,32 @@ namespace Capa_Usuario.Controllers
         //Formato que maneja internamente Direccion Tecnica
         public ActionResult FormatoDevolucionDT(int DocEntry)
         {
-            Capa_Negocio.General_NEG.TablasSql.OWHS_N owhsN = new Capa_Negocio.General_NEG.TablasSql.OWHS_N();
-            Usuario_E usu = (Usuario_E)Session["UsuarioId"];
-            Capa_Negocio.Almacen_NEG.TablasSql.ORPD_N orpdN = new Capa_Negocio.Almacen_NEG.TablasSql.ORPD_N();
-            Capa_Negocio.Almacen_NEG.TablasSql.CC_ORPD_N ccOrpdN = new Capa_Negocio.Almacen_NEG.TablasSql.CC_ORPD_N();
-            Firmas_N firN = new Firmas_N();
-            Firmas_E firE = new Firmas_E();
-            Dictionary<string, int> listaEncargados = new Dictionary<string, int>
-            {
-                { "03", 185},					// Julio Roman Silva
-				{ "05", 697},					// Jesus Angel Nunahuanca Cordova
-				{ "06", 185},					// Julio Roman Silva
-				{ "DEV07", 161},			// Carmen Condori Saravia
-				{ "CUAR07", 161},			// Carmen Condori Saravia
-			};
-            var datosDevolucion = orpdN.ObtenerDevolucion(DocEntry);
+            var _helpers = new Capa_Negocio.Helpers();
+            var usu = (Usuario_E)Session["UsuarioId"];
+
+            var datosDevolucion = new Capa_Negocio.Almacen_NEG.TablasSql.ORPD_N().ObtenerDevolucion(DocEntry);
+
+            // Obtener almacenes
             string[] arrWhsCode = { datosDevolucion.WhsCode };
-            List<Capa_Entidad.General_ENT.TablasSql.OWHS_E> listaAlm = owhsN.listarAlmacenes(arrWhsCode);
+            List<Capa_Entidad.General_ENT.TablasSql.OWHS_E> listaAlm = new Capa_Negocio.General_NEG.TablasSql.OWHS_N().listarAlmacenes(arrWhsCode);
             ViewBag.Almacenes = listaAlm;
-            string FilePath, FilePathDT;
-            firE.DocEntryUsuario = listaEncargados[listaAlm[0].WhsCode];
-            var firma = firN.ListarFirmas(firE);
-            if (firma != null && firma.Count >= 1)
+
+            // Obtener nombres, apellidos y firma del responsable de almacén
+            string nombApe = string.Empty;
+            string firma = string.Empty;
+            var firmaResponsableALM = _helpers.BuscarFirmas("ResponsableALMActas", datosDevolucion.WhsCode);
+            if (firmaResponsableALM != null && firmaResponsableALM.Any())
             {
-                FilePath = firN.ListarFirmas(firE)[0].RutaFirma;
-                ViewBag.ResponsableAlmacen = $"{firN.ListarFirmas(firE)[0].Nombres} {firN.ListarFirmas(firE)[0].Apellidos}";
-                byte[] archivo = System.IO.File.ReadAllBytes(FilePath);
-                var base64 = Convert.ToBase64String(archivo); //La propiedad de tu modelo que es byte[]
-                ViewBag.Firmas = String.Format("data:image/gif;base64,{0}", base64); // Damos formato para indicar que se trata de una cadena base64
-                                                                                     //}
+                nombApe = firmaResponsableALM["NombApe"];
+                firma = firmaResponsableALM["Firma"];
             }
-            FilePathDT = "E:\\COBEFARWEBFILES\\Firmas\\FirmaPamelaCollahuaSenosain.png";
-            byte[] archivoDT = System.IO.File.ReadAllBytes(FilePathDT);
-            var base64DT = Convert.ToBase64String(archivoDT); //La propiedad de tu modelo que es byte[]
-            ViewBag.FirmaDT = String.Format("data:image/gif;base64,{0}", base64DT); // Damos formato para indicar que se trata de una cadena base64
+            ViewBag.NombreResponsableAlmacen = nombApe;
+            ViewBag.FirmaResponsableAlmacen = firma;
+
+            // Obtener firma del director técnico, actualmente es el ResponsableDT del almacén 08
+            var firmaResponsableDT = _helpers.BuscarFirmas("ResponsableDT", "08");
+            ViewBag.FirmaDT = firmaResponsableDT != null && firmaResponsableDT.Any() ? firmaResponsableDT["Firma"] : "";
+
             return View(datosDevolucion);
         }
         public ActionResult PdfFormatoDevolucionDT(int DocEntry, string LevConformidad)
