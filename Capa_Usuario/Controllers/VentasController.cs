@@ -3942,10 +3942,26 @@ namespace Capa_Usuario.Controllers
                     DocTotal = doc.Key.DocTotal,
 
                     ItemCodeDetalle = doc
-                        .GroupBy(x => x.ItemCode)
+                        .Select((x, idx) => new
+                        {
+                            x.ItemCode,
+                            x.UniMedidVend,
+                            x.Producto,
+                            x.Laboratorio,
+                            x.Comentarios,
+                            x.Ubicaciones,
+                            x.Lote,
+                            x.FechaVenc,
+                            x.NumUnidVend,
+                            x.PrecioProdIgvVend,
+                            x.TotalProdIgvVend,
+                            x.CantidadSolicitadaVenta,
+                            Grupo = x.UniMedidVend == "F" ? $"{x.ItemCode}_idx{idx}" : x.ItemCode  // clave artificial
+                        })
+                        .GroupBy(x => x.Grupo)
                         .Select(g => new OVItemCodeDetalle_E
                         {
-                            Codigo = g.Key,
+                            Codigo = g.First().ItemCode,
                             Producto = g.First().Producto,
                             Laboratorio = g.First().Laboratorio,                            
                             TotalUnidadesVendidas = g.Sum(x => x.NumUnidVend),
