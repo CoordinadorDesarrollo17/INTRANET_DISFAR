@@ -2159,7 +2159,7 @@ namespace Capa_Usuario.Controllers
                     }
 
                     // 9. Retornar éxito solo con atención de SKU
-                    return Json(new { Titulo = "Acción completada exitosamente", Mensajes = new List<string> { "Se atendió el SKU correctamente." }, Icono = "success" });
+                    //return Json(new { Titulo = "Acción completada exitosamente", Mensajes = new List<string> { "Se atendió el SKU correctamente." }, Icono = "success" });
                 }
                 catch (Exception ex)
                 {

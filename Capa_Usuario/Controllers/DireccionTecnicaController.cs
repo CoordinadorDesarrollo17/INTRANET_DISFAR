@@ -53,7 +53,7 @@ namespace Capa_Usuario.Controllers
          * @param {String} almacen
          * @returns {Dictionary} result
          */
-        protected Dictionary<string, string> BuscarFirmas(string tipoFirma, string almacen)
+        private Dictionary<string, string> BuscarFirmas(string tipoFirma, string almacen)
         {
             Dictionary<string, string> result = new Dictionary<string, string>();
             if (!string.IsNullOrWhiteSpace(tipoFirma) && !string.IsNullOrWhiteSpace(almacen))
