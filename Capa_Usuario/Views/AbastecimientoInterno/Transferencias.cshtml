@@ -815,7 +815,7 @@
 							</thead>
 							<tbody>`
             articulo.DetalleLotes.forEach(item => {
-                let articuloFormat = articulo.ItemCode.replace(/\s+/g, ''); // elimina todos los espacios (uno o más)
+                let articuloFormat = articulo.ItemCode.replace(/\s+/g, '').replace(/&/g, '__amp__'); // elimina todos los espacios (uno o más)
                 let lote = item.BatchNum.replace(/\s+/g, ''); // elimina todos los espacios (uno o más)
                 let correlativoDinamico = `${articuloFormat}_${lote}`;
 
@@ -902,7 +902,7 @@
                 });
 			} else {
 				articulo.DetalleLotes.forEach(item => {
-                    let articuloFormat = articulo.ItemCode.replace(/\s+/g, ''); // elimina todos los espacios (uno o más)
+                    let articuloFormat = articulo.ItemCode.replace(/\s+/g, '').replace(/&/g, '__amp__'); // elimina todos los espacios (uno o más)
                     let lote = item.BatchNum.replace(/\s+/g, ''); // elimina todos los espacios (uno o más)
                     let correlativoDinamico = `${articuloFormat}_${lote}`;
 
@@ -1746,15 +1746,15 @@
                 <tbody>
                     <tr data-lote="${correlativoLote}">
                         <td class="text-center">
-                            <input list="listaLotesArticulos" name="producto" name="transferenciaPost.Detalle[].BatchNum" class="form-select lote-select" style="width: 150px">
-                            <datalist id="listaLotesArticulos" id="BatchNum_${correlativo}">
+                            <input list="listaLotesArticulos" id="BatchNum_${correlativo}" name="producto" name="transferenciaPost.Detalle[].BatchNum" class="form-select lote-select" style="width: 150px" oninput="cargarFechaInDateExpDate(this, '${correlativoLote}')">
+                            <datalist id="listaLotesArticulos" >
                             </datalist>
                         </td>
                         <td class="text-center">
-                            <div class="d-flex justify-content-center"><input type="text" id="InDate_${correlativoLote}" name="transferenciaPost.Detalle[].InDate" class="form-control cls-readonly text-center" readonly ></div>
+                            <div class="d-flex justify-content-center"><input type="text" id="InDate_${correlativoLote}" name="transferenciaPost.Detalle[].InDate" class="form-control text-center" ></div>
                         </td>
                         <td class="text-center">
-                            <div class="d-flex justify-content-center"><input type="text" id="ExpDate_${correlativoLote}" name="transferenciaPost.Detalle[].ExpDate" class="form-control cls-readonly text-center" readonly></div>
+                            <div class="d-flex justify-content-center"><input type="text" id="ExpDate_${correlativoLote}" name="transferenciaPost.Detalle[].ExpDate" class="form-control text-center"></div>
                         </td>
                         <td class="text-center">
                             <input type="text" id="lote_quantityUnidades_${correlativoLote}" name="transferenciaPost.Detalle[].QuantityUnidadesCajas" class="form-control text-center cls-limpiarItem_${correlativo}"
@@ -1815,9 +1815,6 @@
             // Obtener elementos dinámicos recién creados
             let selectArticulo = document.getElementById(`ItemName_${correlativo}`);
             let inputItemCode = document.getElementById(`ItemCode_${correlativo}`);
-            let selectLotes = document.querySelector(`select[id^="BatchNum_${correlativo}"]`);
-            let inputInDate = document.getElementById(`InDate_${correlativoLote}`);
-            let inputExpDate = document.getElementById(`ExpDate_${correlativoLote}`);
 
             // Asignar evento: cuando cambia el artículo, actualizar el ItemCode y los lotes
             selectArticulo.addEventListener("change", function () {
@@ -1831,24 +1828,30 @@
                 const datalistLotes = document.getElementById('listaLotesArticulos');
                 datalistLotes.innerHTML = opcionesLotes;
 
-                inputInDate.value = "";
-                inputExpDate.value = "";
-
                 document.getElementById(`hidden_ItemCode_${correlativoLote}`).value = codigo;
                 document.getElementById(`hidden_ItemName_${correlativoLote}`).value = document.getElementById(`ItemName_${correlativo}`).value;
             });
 
-            if (selectLotes) {
-                selectLotes.addEventListener("change", function () {
-                    let selected = this.options[this.selectedIndex];
-
-                    inputInDate.value = convertirFecha(selected.dataset.indate);
-                    inputExpDate.value = convertirFecha(selected.dataset.expdate);
-                });
-            }
-
             contadorProducto++;
             permitirValoresNumericosPositivos();
+        }
+
+        function cargarFechaInDateExpDate(input, correlativo){
+            const opciones = document.querySelectorAll("#listaLotesArticulos option");
+            const opcionSeleccionada = Array.from(opciones).find(op => op.value === input.value);
+            let inputInDate = document.getElementById(`InDate_${correlativo}`);
+            let inputExpDate = document.getElementById(`ExpDate_${correlativo}`);
+
+            if (opcionSeleccionada) {
+                const inDate = opcionSeleccionada.dataset.indate || "";
+                const expDate = opcionSeleccionada.dataset.expdate || "";
+
+                inputInDate.value = inDate ? convertirFecha(inDate) : "";
+                inputExpDate.value = expDate ? convertirFecha(expDate) : "";
+            } else {
+                inputInDate.value = "";
+                inputExpDate.value = "";
+            }
         }
 
          function convertirFecha(fecha) {
@@ -1859,54 +1862,63 @@
         }
 
         function clonarFilaLote(idTablaLotes) {
-           const tabla = document.getElementById(idTablaLotes);
+            const tabla = document.getElementById(idTablaLotes);
             const tbody = tabla.querySelector('tbody');
             const filaOriginal = tbody.querySelector('tr:last-of-type');
             const filaClonada = filaOriginal.cloneNode(true);
             const random = Math.floor(Math.random() * 10000);
 
-            // Eliminar botón "+" en la fila clonada
+            // Eliminar el botón "+" en la fila clonada
             const botonClonado = filaClonada.querySelector('button.btn-cobefar');
-            if (botonClonado) {
-                botonClonado.remove();
-            }
+            if (botonClonado) botonClonado.remove();
 
+            // Actualizar todos los IDs, valores y eventos
             const elementos = filaClonada.querySelectorAll('input, select');
             elementos.forEach(el => {
                 // Limpiar valores
-                if (el.tagName === 'INPUT') {
-                    if (el.type !== 'hidden') el.value = '';
+                if (el.tagName === 'INPUT' && el.type !== 'hidden') {
+                    el.value = '';
                 } else if (el.tagName === 'SELECT') {
                     el.selectedIndex = 0;
                 }
 
-                // Reasignar ID
+                // Reasignar ID y name
                 if (el.id) {
                     const oldId = el.id;
                     const newId = `${oldId}_clone_${random}`;
                     el.setAttribute('id', newId);
-
-                    // Actualizar datasets
-                    if (el.dataset.idcantmaster) el.dataset.idcantmaster += `_clone_${random}`;
-                    if (el.dataset.idcantsaldo) el.dataset.idcantsaldo += `_clone_${random}`;
-                    if (el.dataset.idundmaster) el.dataset.idundmaster += `_clone_${random}`;
-                    if (el.dataset.idquantityunidades) el.dataset.idquantityunidades += `_clone_${random}`;
-                    if (el.dataset.idloteubicacion) el.dataset.idloteubicacion += `_clone_${random}`;
                 }
 
-                // Eventos
+                if (el.name && el.name.includes('transferenciaPost.Detalle')) {
+                    const name = el.getAttribute('name');
+                    el.setAttribute('name', name.replace(/\[\]/g, `[${random}]`));
+                }
+
+                // Actualizar data-* si corresponde
+                if (el.dataset.idcantmaster) el.dataset.idcantmaster += `_clone_${random}`;
+                if (el.dataset.idcantsaldo) el.dataset.idcantsaldo += `_clone_${random}`;
+                if (el.dataset.idundmaster) el.dataset.idundmaster += `_clone_${random}`;
+                if (el.dataset.idquantityunidades) el.dataset.idquantityunidades += `_clone_${random}`;
+                if (el.dataset.idloteubicacion) el.dataset.idloteubicacion += `_clone_${random}`;
+
+                // Reasignar eventos
                 if (el.classList.contains('lote-select')) {
-                    el.addEventListener("change", function () {
-                        const selected = this.options[this.selectedIndex];
-                        const inDate = selected.dataset.indate || '';
-                        const expDate = selected.dataset.expdate || '';
+                    el.addEventListener('input', function () {
+                        const valorIngresado = this.value;
+                        const opciones = document.querySelectorAll("#listaLotesArticulos option");
+                        const opcion = Array.from(opciones).find(op => op.value === valorIngresado);
 
                         const fila = this.closest('tr');
-                        const inputInDate = fila.querySelector('input[name*="InDate"]');
-                        const inputExpDate = fila.querySelector('input[name*="ExpDate"]');
+                        const inputInDate = fila.querySelector('input[id^="InDate_"]');
+                        const inputExpDate = fila.querySelector('input[id^="ExpDate_"]');
 
-                        if (inputInDate) inputInDate.value = convertirFecha(inDate);
-                        if (inputExpDate) inputExpDate.value = convertirFecha(expDate);
+                        if (opcion) {
+                            inputInDate.value = convertirFecha(opcion.dataset.indate);
+                            inputExpDate.value = convertirFecha(opcion.dataset.expdate);
+                        } else {
+                            inputInDate.value = "";
+                            inputExpDate.value = "";
+                        }
                     });
                 }
 
@@ -1922,17 +1934,17 @@
                     };
                 }
 
-                // Campos ocultos
+                // Actualizar IDs ocultos
                 if (el.type === 'hidden' && el.id.startsWith('hidden_ItemCode_')) {
-                    el.id += `_clone_${random}`;
+                    el.setAttribute('id', el.id + `_clone_${random}`);
                 }
-
                 if (el.type === 'hidden' && el.id.startsWith('hidden_ItemName_')) {
-                    el.id += `_clone_${random}`;
+                    el.setAttribute('id', el.id + `_clone_${random}`);
                 }
-            });
+        });
 
-            tbody.appendChild(filaClonada);
-        }
+    tbody.appendChild(filaClonada);
+}
+
     </script>
 }
