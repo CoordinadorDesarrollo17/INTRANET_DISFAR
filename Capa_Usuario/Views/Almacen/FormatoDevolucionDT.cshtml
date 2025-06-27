@@ -218,7 +218,7 @@
 
         <div class="row mt-2">
             <div class="col-12">
-                <span class="font-weight-bold">AUXILIAR DE ALMACÉN:</span> @if (ViewBag.ResponsableAlmacen != null) { Write(ViewBag.ResponsableAlmacen); }
+                <span class="font-weight-bold">AUXILIAR DE ALMACÉN:</span> @if (ViewBag.NombreResponsableAlmacen != null) { Write(ViewBag.NombreResponsableAlmacen); }
             </div>
         </div>
 
@@ -228,8 +228,8 @@
                     <table class="font-weight-bold">
                         <tr>
                             <td class="border-bottom border-dark text-center" style="width: 240px; height: 100px">
-                                @if (ViewBag.Firmas != null)
-                                {<img src="@ViewBag.Firmas" width="250" />}
+                                @if (ViewBag.FirmaResponsableAlmacen != null)
+                                {<img src="@ViewBag.FirmaResponsableAlmacen" width="250" />}
                             </td>
                             <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
                             <td class="border-bottom border-dark text-center" style="width: 240px; height: 100px">
