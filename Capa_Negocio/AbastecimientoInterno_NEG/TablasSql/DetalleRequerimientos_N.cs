@@ -14,7 +14,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
     {
         DetalleRequerimiento_D _datos = new DetalleRequerimiento_D();
 
-        public (Helper_E, List<DetalleRequerimientos_E>) ObtenerDetalleRequerimiento(DetalleRequerimientos_E filtros = null, Dictionary<string, object> parametros = null)
+        public (Helper_E, List<DetalleRequerimientos_E>) ObtenerDetalleRequerimiento(DetalleRequerimientos_E filtros = null, Dictionary<string, object> parametros = null, bool esParaListado = false)
         {
             StringBuilder condicion = new StringBuilder();
             Helper_E _helper = new Helper_E();
@@ -32,16 +32,20 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
 
                 return (_helper, null);
             }
-           
-            condicion.AppendLine("WHERE DET.AtendidoReserva = @AtendidoReserva");
-            parametros["@AtendidoReserva"] = filtros.AtendidoReserva;
 
-            condicion.AppendLine("AND DET.AtendidoPicking = @AtendidoPicking");
-            parametros["@AtendidoPicking"] = filtros.AtendidoPicking;
+            if (esParaListado == false)
+            {
+                condicion.AppendLine("WHERE DET.AtendidoReserva = @AtendidoReserva");
+                parametros["@AtendidoReserva"] = filtros.AtendidoReserva;
+
+                condicion.AppendLine("AND DET.AtendidoPicking = @AtendidoPicking");
+                parametros["@AtendidoPicking"] = filtros.AtendidoPicking;
+            }
 
             if (filtros.RequerimientoId > 0)
             {
-                condicion.AppendLine("AND DET.RequerimientoId = @RequerimientoId");
+                var prefijoCondicion = string.IsNullOrEmpty(condicion.ToString()) ? "WHERE" : "AND";
+                condicion.AppendLine($"{prefijoCondicion} DET.RequerimientoId = @RequerimientoId");
                 parametros["@RequerimientoId"] = filtros.RequerimientoId;
             }
 

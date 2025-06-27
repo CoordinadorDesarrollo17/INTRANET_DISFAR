@@ -2737,7 +2737,7 @@ namespace Capa_Usuario.Controllers
                     return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
 
                 var filtro = new DetalleRequerimientos_E { RequerimientoId = requerimientoId };
-                var (helper, lista) = new DetalleRequerimientos_N().ObtenerDetalleRequerimiento(filtro);
+                var (helper, lista) = new DetalleRequerimientos_N().ObtenerDetalleRequerimiento(filtro, null, true);
 
                 if (lista == null)
                 {
