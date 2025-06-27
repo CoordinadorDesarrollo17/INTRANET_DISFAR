@@ -79,10 +79,19 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.Reportes
         {
             var resultado = new List<OITW_E>();
             var controlStockInternoPicking = _datosReporte.ControlHistoricoDeIngresosAPicking();
+
+            // Obtenemos todos los SKUs que ya se encuentran registrado en un requerimiento
+            var filtrosDetalleReq = new DetalleRequerimientos_E { AtendidoReserva = 0, AtendidoPicking = 0 };
+            var articulosEnRequerimientos = new DetalleRequerimientos_N().ObtenerDetalleRequerimiento(filtrosDetalleReq)
+                .Item2.Select(r => r.ItemCode)
+                .Distinct()
+                .ToHashSet();
+
+            // Obtener los artículos disponibles que no están en requerimientos
             List<OITW_E> articulos = new Capa_Negocio.Almacen_NEG.Tablas.OITW_N()
                 .ListarDetArticulosInv(new OITW_E { WhsCode = "16" })
-                .Where(x => x.OnHand > 0)
-                .Take(24)
+                .Where(x => x.OnHand > 0 && !articulosEnRequerimientos.Contains(x.ItemCode))
+                .Take(25)
                 .ToList();
 
             if (articulos != null && articulos.Any())
