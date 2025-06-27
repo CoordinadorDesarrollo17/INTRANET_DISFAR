@@ -23,7 +23,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
                 parametros = new Dictionary<string, object>();
 
             // Obligatorio enviar al menos el RequerimientoId
-            if (filtros == null || filtros.RequerimientoId <= 0)
+            if (filtros == null/* || filtros.RequerimientoId <= 0*/)
             {
                 _helper.Titulo = "Error";
                 _helper.Mensajes.Add("Ocurrió un error al obtener datos.");
@@ -32,10 +32,16 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
 
                 return (_helper, null);
             }
+           
+            condicion.AppendLine("WHERE DET.AtendidoReserva = @AtendidoReserva");
+            parametros["@AtendidoReserva"] = filtros.AtendidoReserva;
+
+            condicion.AppendLine("AND DET.AtendidoPicking = @AtendidoPicking");
+            parametros["@AtendidoPicking"] = filtros.AtendidoPicking;
 
             if (filtros.RequerimientoId > 0)
             {
-                condicion.AppendLine("WHERE DET.RequerimientoId = @RequerimientoId");
+                condicion.AppendLine("AND DET.RequerimientoId = @RequerimientoId");
                 parametros["@RequerimientoId"] = filtros.RequerimientoId;
             }
 
