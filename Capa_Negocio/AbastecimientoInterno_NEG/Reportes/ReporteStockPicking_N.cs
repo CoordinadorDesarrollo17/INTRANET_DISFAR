@@ -91,14 +91,18 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.Reportes
             List<OITW_E> articulos = new Capa_Negocio.Almacen_NEG.Tablas.OITW_N()
                 .ListarDetArticulosInv(new OITW_E { WhsCode = "16" })
                 .Where(x => x.OnHand > 0 && !articulosEnRequerimientos.Contains(x.ItemCode))
-                .Take(25)
                 .ToList();
 
+            int contador = 1;
             if (articulos != null && articulos.Any())
             {
                 // Iterar sobre una copia de la lista para evitar el error de modificación
                 foreach (var item in articulos.ToList())
                 {
+                    // Tener en cuenta solo 20 SKUs
+                    if (contador == 20)
+                        break;
+
                     // 1. Obtener la cantidad solicitada para este ItemCode
                     List<DetalleRequerimientos_E> resultDetReq = _requerimientosN.ListarDetalles(item.ItemCode, "CantidadSolicitada");
                     int quantityReq = resultDetReq?.Sum(r => r.QuantityUnidadesCajas) ?? 0;
@@ -117,14 +121,15 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.Reportes
                     item.StockPicking = stockEnPicking;
                     item.StockMinAbastecimiento = (controlPorItemCode != null && item.StockLibreUnidades > 0) ? controlPorItemCode.StockMinAbastecimiento : 0;        // Debe existir stock en RESERVA 
 
-                    // Si está en condición crítica (<50%), lo agregamos al resultado
-                    if (item.StockPicking > 0 && item.StockPicking < item.StockMinAbastecimiento * 0.5M)
+                    // Si está en condición crítica (<50%) y tiene stock en RESERVA, lo agregamos al resultado
+                    if (stockDeAlmReserva > 0 && item.StockPicking > 0 && item.StockPicking < item.StockMinAbastecimiento * 0.5M)
                     {
                         resultado.Add(new OITW_E
                         {
                             ItemCode = item.ItemCode,
                             CantidadSolicitada = item.CantidadSolicitada
                         });
+                        ++contador;
                     }
                 }
             }

@@ -2660,7 +2660,7 @@ namespace Capa_Usuario.Controllers
                     obj.ItemName = item.ItemName;
                     obj.CodigoUbicacionOrigen = item.CodigoUbicacion;
 
-                    var ubicaciones = _ubicacionesLotesN.ListarUbicaciones(new UbicacionesLotes_E { ItemCode = item.ItemCode });
+                    var ubicaciones = _ubicacionesLotesN.ListarUbicaciones(new UbicacionesLotes_E { ItemCode = item.ItemCode, Almacen = "PICKING" });
                     obj.CodigoUbicacionDestino = (ubicaciones != null && ubicaciones.Any())
                         ? string.Join(", ", ubicaciones.Select(u => u.CodigoUbicacion))
                         : "PICKING-UBI-SISTEMA";
