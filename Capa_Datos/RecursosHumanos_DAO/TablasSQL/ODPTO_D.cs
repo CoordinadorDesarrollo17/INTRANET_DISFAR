@@ -76,7 +76,7 @@ namespace Capa_Datos.RecursosHumanos_DAO.TablasSQL
             List<ODPTO_E> lista = null;
             try
             {
-                using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+                using (SqlConnection cn = new SqlConnection(uti.cadSql))
                 {
                     SqlCommand cmd = new SqlCommand();
                     cmd.Connection = cn;

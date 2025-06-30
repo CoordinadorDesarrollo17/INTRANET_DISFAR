@@ -79,7 +79,7 @@
                     {
                         string marginClass = fila == 1 ? "mt-2" : "mb-2";
 
-                        <div class="btn btn-dark btn-block mx-1 py-3 btn-atajoFiltro @marginClass" data-id="@item.IdDepartamento">
+                        <div class="btn btn-dark btn-block mx-1 py-3 btn-atajoFiltro @marginClass" data-id="@item.Id">
                             <div class="text-center font-weight-bold">@item.Nombre</div>
                         </div>
                         ++fila;
@@ -237,7 +237,7 @@
                             {
                                 foreach (var dpto in ViewBag.Departamentos)
                                 {
-                                    <option value="@dpto.IdDepartamento">@dpto.Nombre</option>
+                                    <option value="@dpto.">@dpto.Nombre</option>
                                 }
                             }
                         </select>
