@@ -1755,8 +1755,8 @@
                 <tbody>
                     <tr data-lote="${correlativoLote}">
                         <td class="text-center">
-                            <input list="listaLotesArticulos" id="BatchNum_${correlativo}" name="transferenciaPost.Detalle[].BatchNum" class="form-select lote-select" style="width: 150px" oninput="cargarFechaInDateExpDate(this, '${correlativoLote}')">
-                            <datalist id="listaLotesArticulos" >
+                            <input list="listaLotesArticulos_${correlativo}" id="BatchNum_${correlativo}" name="transferenciaPost.Detalle[].BatchNum" class="form-select lote-select" style="width: 150px" oninput="cargarFechaInDateExpDate(this, '${correlativoLote}')">
+                            <datalist id="listaLotesArticulos_${correlativo}" >
                             </datalist>
                         </td>
                         <td class="text-center">
@@ -1834,7 +1834,7 @@
                 // Cargar lotes correspondientes al nuevo itemCode
                 const opcionesLotes = cargarOpcionesLotes(codigo);
                 //selectLotes.innerHTML = '<option value="">Seleccione</option>' + opcionesLotes;
-                const datalistLotes = document.getElementById('listaLotesArticulos');
+                const datalistLotes = document.getElementById(`listaLotesArticulos_${correlativo}`);
                 datalistLotes.innerHTML = opcionesLotes;
 
                 document.getElementById(`hidden_ItemCode_${correlativoLote}`).value = codigo;
@@ -1846,7 +1846,7 @@
         }
 
         function cargarFechaInDateExpDate(input, correlativo) {
-            const opciones = document.querySelectorAll("#listaLotesArticulos option");
+            const opciones = document.querySelectorAll(`#listaLotesArticulos_${correlativo} option`);
             const opcionSeleccionada = Array.from(opciones).find(op => op.value === input.value);
             let inputInDate = document.getElementById(`InDate_${correlativo}`);
             let inputExpDate = document.getElementById(`ExpDate_${correlativo}`);
