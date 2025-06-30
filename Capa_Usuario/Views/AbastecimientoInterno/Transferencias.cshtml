@@ -1844,7 +1844,7 @@
             permitirValoresNumericosPositivos();
         }
 
-        function cargarFechaInDateExpDate(input, correlativo){
+        function cargarFechaInDateExpDate(input, correlativo) {
             const opciones = document.querySelectorAll("#listaLotesArticulos option");
             const opcionSeleccionada = Array.from(opciones).find(op => op.value === input.value);
             let inputInDate = document.getElementById(`InDate_${correlativo}`);
