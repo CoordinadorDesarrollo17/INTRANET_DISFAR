@@ -809,7 +809,7 @@ namespace Capa_Usuario.Controllers
                 var filtros = new DetalleTransferenciaReserva_E { AtendidoReserva = 1, Validado = 1 };
                 var (helper, lista) = new DetalleTransferenciaReserva_N().ObtenerDetalleTransferenciaReserva(filtros);
                 ViewBag.Articulos = helper.Icono == "success" ? lista
-                    .GroupBy(x => x.ItemCode)
+                    .GroupBy(x => new { x.ItemCode, x.BatchNum })
                     .Select(g => g.First())
                     .OrderBy(x => x.ItemCode)
                     .ToList() : new List<DetalleTransferenciaReserva_E>();
