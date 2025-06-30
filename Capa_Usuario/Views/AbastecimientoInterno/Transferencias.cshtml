@@ -1625,7 +1625,7 @@
                 item.className = 'list-group-item list-group-item-action';
                 item.textContent = opt.text;
                 item.dataset.value = opt.value;
-                item.onclick = () => seleccionarOpcion(opt.value);
+                item.onclick = () => seleccionarOpcion(opt.value, opt.text);
                 contenedor.appendChild(item);
             });
             modalInstance.show();
@@ -1639,11 +1639,19 @@
                 });
             };
         }
-        function seleccionarOpcion(valor) {
+        function seleccionarOpcion(valor, texto) {
             if (selectActual) {
-                selectActual.value = valor;
-                selectActual.dispatchEvent(new Event('change'));
+                // Seleccionar exactamente la opción que coincida con value y text
+                for (let i = 0; i < selectActual.options.length; i++) {
+                    const opt = selectActual.options[i];
+                    if (opt.value === valor && opt.text === texto) {
+                        selectActual.selectedIndex = i;
+                        selectActual.dispatchEvent(new Event('change'));
+                        break;
+                    }
+                }
             }
+
             modalInstance.hide();
             const modalElement = document.getElementById('modalBuscador');
             if (modalElement.contains(document.activeElement)) {
