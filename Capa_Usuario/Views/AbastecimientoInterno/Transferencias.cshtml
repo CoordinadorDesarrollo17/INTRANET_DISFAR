@@ -446,7 +446,7 @@
 		        }
             };
 
-           // console.log(payload); return;
+            //console.log(payload); return;
             registrarTransferenciaStock(payload);
         }
 
@@ -486,6 +486,7 @@
                             cancelButtonText: '<i class="bi bi-x-lg"></i> Cancelar'
                         }).then(result => {
                             if (result.isConfirmed) {
+                                document.querySelector("#tbl_detalle tbody").innerHTML = '';
                                 document.getElementById('DocNum').value = data.DocNum;
                                 buscarSolicitud();
                             } else {
@@ -1674,8 +1675,8 @@
                 document.getElementById("MotivoTraslado").readOnly = false;
                 document.getElementById("MotivoTraslado").classList.remove("cls-readonly");
                 document.getElementById("btn_AbrirModalImportacion").disabled = true;
-                document.getElementById('DocNum').readOnly = true;
-                document.getElementById('buscarDocNum').disabled = true;
+                //document.getElementById('DocNum').readOnly = true;
+                //document.getElementById('buscarDocNum').disabled = true;
                 resetValoresVacios(["DocEntry", "DocNum", "NroGuia", "CardCode", "CardName", "OperarioResponsableSAP", "MotivoTraslado", "DocDate", "copiaDocEntry", "copiaDocNum", "copiaNroGuia", "copiaCardCode", "copiaCardName",
                     "copiaOperarioResponsableSAP", "copiaMotivoTraslado", "copiaTipoDocumento", "copiaDocDate"]);
                 document.querySelector("#tbl_detalle tbody").innerHTML = '';
@@ -1686,8 +1687,8 @@
                 document.getElementById("MotivoTraslado").readOnly = true;
                 document.getElementById("MotivoTraslado").classList.add("cls-readonly");
                 document.getElementById("btn_AbrirModalImportacion").disabled = false;
-                document.getElementById('DocNum').readOnly = false;
-                document.getElementById('buscarDocNum').disabled = false;
+                //document.getElementById('DocNum').readOnly = false;
+                //document.getElementById('buscarDocNum').disabled = false;
                 document.querySelector("#tbl_detalle tbody").innerHTML = '';
                 document.getElementById("btn_transferir").setAttribute("onclick", "realizarTransferencia()");
             }
@@ -1754,7 +1755,7 @@
                 <tbody>
                     <tr data-lote="${correlativoLote}">
                         <td class="text-center">
-                            <input list="listaLotesArticulos" id="BatchNum_${correlativo}" name="producto" name="transferenciaPost.Detalle[].BatchNum" class="form-select lote-select" style="width: 150px" oninput="cargarFechaInDateExpDate(this, '${correlativoLote}')">
+                            <input list="listaLotesArticulos" id="BatchNum_${correlativo}" name="transferenciaPost.Detalle[].BatchNum" class="form-select lote-select" style="width: 150px" oninput="cargarFechaInDateExpDate(this, '${correlativoLote}')">
                             <datalist id="listaLotesArticulos" >
                             </datalist>
                         </td>
