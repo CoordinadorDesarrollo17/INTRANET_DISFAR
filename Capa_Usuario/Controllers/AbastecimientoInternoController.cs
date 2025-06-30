@@ -9,6 +9,7 @@ using Capa_Negocio.AbastecimientoInterno_NEG.TablasExternas;
 using Capa_Negocio.AbastecimientoInterno_NEG.TablasSql;
 using Capa_Negocio.Almacen_NEG.Tablas;
 using Capa_Negocio.DireccionTecnica_NEG.TablasSql;
+using Capa_Negocio.Seguridad_NEG.TablasSql;
 using Capa_Usuario.Helpers;
 using dotless.Core.Parser.Tree;
 using OfficeOpenXml;
@@ -1657,6 +1658,13 @@ namespace Capa_Usuario.Controllers
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
+                var usuarioSesion = Session["UsuarioId"] as Usuario_E;
+                if (usuarioSesion == null)
+                    return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
+
+                var filtrosOperacion = new OUSR_OPE_E { UsrDocEntry = usuarioSesion.DocEntry, OpeID = 3807 };
+                ViewBag.PermisoRequerimientoAutomatico = (new OUSR_OPE_N().VerificarAccesoOperacion(filtrosOperacion)) > 0 || usuarioSesion.IdRol == 1;     // IdRol: 1 -> MANAGER
+
                 return View();
             }
             else
