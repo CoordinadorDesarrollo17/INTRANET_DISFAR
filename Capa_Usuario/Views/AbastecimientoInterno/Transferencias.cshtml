@@ -1755,15 +1755,15 @@
                 <tbody>
                     <tr data-lote="${correlativoLote}">
                         <td class="text-center">
-                            <input list="listaLotesArticulos_${correlativo}" id="BatchNum_${correlativo}" name="transferenciaPost.Detalle[].BatchNum" class="form-select lote-select" style="width: 150px" oninput="cargarFechaInDateExpDate(this, '${correlativoLote}')">
+                            <input list="listaLotesArticulos_${correlativo}" id="BatchNum_${correlativo}" name="transferenciaPost.Detalle[].BatchNum" class="form-select lote-select" style="width: 150px" oninput="cargarFechaInDateExpDate(this, '${correlativo}')">
                             <datalist id="listaLotesArticulos_${correlativo}" >
                             </datalist>
                         </td>
                         <td class="text-center">
-                            <div class="d-flex justify-content-center"><input type="text" id="InDate_${correlativoLote}" name="transferenciaPost.Detalle[].InDate" class="form-control text-center" ></div>
+                            <div class="d-flex justify-content-center"><input type="text" id="InDate_${correlativo}" name="transferenciaPost.Detalle[].InDate" class="form-control text-center" ></div>
                         </td>
                         <td class="text-center">
-                            <div class="d-flex justify-content-center"><input type="text" id="ExpDate_${correlativoLote}" name="transferenciaPost.Detalle[].ExpDate" class="form-control text-center"></div>
+                            <div class="d-flex justify-content-center"><input type="text" id="ExpDate_${correlativo}" name="transferenciaPost.Detalle[].ExpDate" class="form-control text-center"></div>
                         </td>
                         <td class="text-center">
                             <input type="text" id="lote_quantityUnidades_${correlativoLote}" name="transferenciaPost.Detalle[].QuantityUnidadesCajas" class="form-control text-center cls-limpiarItem_${correlativo}"
@@ -1881,8 +1881,8 @@
             const botonClonado = filaClonada.querySelector('button.btn-cobefar');
             if (botonClonado) botonClonado.remove();
 
-            // Actualizar todos los IDs, valores y eventos
             const elementos = filaClonada.querySelectorAll('input, select');
+
             elementos.forEach(el => {
                 // Limpiar valores
                 if (el.tagName === 'INPUT' && el.type !== 'hidden') {
@@ -1891,30 +1891,57 @@
                     el.selectedIndex = 0;
                 }
 
-                // Reasignar ID y name
+                // Reasignar ID
                 if (el.id) {
                     const oldId = el.id;
                     const newId = `${oldId}_clone_${random}`;
                     el.setAttribute('id', newId);
                 }
 
+                // Reasignar name
                 if (el.name && el.name.includes('transferenciaPost.Detalle')) {
                     const name = el.getAttribute('name');
-                    el.setAttribute('name', name.replace(/\[\]/g, `[${random}]`));
+                    el.setAttribute('name', name.replace(/\[\d+\]/g, `[${random}]`));
                 }
 
-                // Actualizar data-* si corresponde
+                // Actualizar atributos data-*
                 if (el.dataset.idcantmaster) el.dataset.idcantmaster += `_clone_${random}`;
                 if (el.dataset.idcantsaldo) el.dataset.idcantsaldo += `_clone_${random}`;
                 if (el.dataset.idundmaster) el.dataset.idundmaster += `_clone_${random}`;
                 if (el.dataset.idquantityunidades) el.dataset.idquantityunidades += `_clone_${random}`;
                 if (el.dataset.idloteubicacion) el.dataset.idloteubicacion += `_clone_${random}`;
 
+                // Actualizar list y clonar datalist
+                if (el.hasAttribute('list')) {
+                    const oldListId = el.getAttribute('list'); // Ej: listaLotesArticulos_producto_1
+                    const match = oldListId.match(/^listaLotesArticulos_(producto_\d+)$/);
+                    if (match) {
+                        const oldProducto = match[1]; // producto_1
+                        const newProducto = `${oldProducto}_clone_${random}`;
+                        const newListId = `listaLotesArticulos_${newProducto}`;
+                        el.setAttribute('list', newListId);
+
+                        // Clonar el datalist original (una sola vez por clonación)
+                        const oldDatalist = document.getElementById(oldListId);
+                        if (oldDatalist) {
+                            const newDatalist = oldDatalist.cloneNode(true);
+                            newDatalist.id = newListId;
+                            document.body.appendChild(newDatalist); // lo puedes colocar en otro lugar si prefieres
+                        }
+
+                        // Actualizar también el oninput con el nuevo producto
+                        if (el.hasAttribute('oninput')) {
+                            const nuevoOninput = `cargarFechaInDateExpDate(this, '${newProducto}')`;
+                            el.setAttribute('oninput', nuevoOninput);
+                        }
+                    }
+                }
+
                 // Reasignar eventos
                 if (el.classList.contains('lote-select')) {
                     el.addEventListener('input', function () {
                         const valorIngresado = this.value;
-                        const opciones = document.querySelectorAll("#listaLotesArticulos option");
+                        const opciones = document.querySelectorAll(`#${this.getAttribute('list')} option`);
                         const opcion = Array.from(opciones).find(op => op.value === valorIngresado);
 
                         const fila = this.closest('tr');
@@ -1950,10 +1977,10 @@
                 if (el.type === 'hidden' && el.id.startsWith('hidden_ItemName_')) {
                     el.setAttribute('id', el.id + `_clone_${random}`);
                 }
-        });
+            });
 
-    tbody.appendChild(filaClonada);
-}
+            tbody.appendChild(filaClonada);
+        }
 
     </script>
 }
