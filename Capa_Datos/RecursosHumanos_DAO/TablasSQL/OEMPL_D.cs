@@ -8,11 +8,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-namespace Capa_Datos.RecursosHumanos_DAO
+
+namespace Capa_Datos.RecursosHumanos_DAO.TablasSQL
 {
     public class OEMPL_D
     {
-        readonly Utilitarios uti = new Utilitarios();
+        private readonly Utilitarios uti = new Utilitarios();
+
         public string RegistrarEmpleado(OEMPL_E datosEmpleado, EMPL1_E datosLaborales)
         {
             string mensajeError = "Ocurrió un error al registrar al empleado. Por favor, comunicarse con SISTEMAS.";
@@ -91,6 +93,7 @@ namespace Capa_Datos.RecursosHumanos_DAO
             }
             return string.Empty;
         }
+
         public string EditarEmpleado(OEMPL_E empleado, EMPL1_E datosLaborales)
         {
             string mensajeError = "Ocurrió un error al editar al empleado. Por favor, comunicarse con SISTEMAS.";
@@ -176,6 +179,7 @@ namespace Capa_Datos.RecursosHumanos_DAO
             }
             return string.Empty;
         }
+
         public string EliminarEmpleado(int id)
         {
             string mensajeError;
@@ -199,6 +203,7 @@ namespace Capa_Datos.RecursosHumanos_DAO
             }
             return mensajeError;
         }
+
         public List<OEMPL_E> ListarEmpleados(OEMPL_E filtros, int? IdRol)
         {
             DateTime fechaActual = DateTime.Now;
@@ -282,15 +287,14 @@ namespace Capa_Datos.RecursosHumanos_DAO
                     sb.Append(" END AS Posicion ");
                     sb.Append(" FROM rrhh.OEMPL EMP ");
                     sb.Append(" INNER JOIN rrhh.EMPL1 DL ON DL.IdOEMPL = EMP.IdOEMPL");
-                    sb.Append(" LEFT JOIN dbo.ODPTO DEP ON DEP.IdDepartamento = DL.IdDepartamento");
-                    sb.Append(" LEFT JOIN dbo.OAREA AR ON AR.IdArea = DL.IdArea AND AR.IdDepartamento = DEP.IdDepartamento");
+                    sb.Append(" LEFT JOIN dbo.ODPTO DEP ON DEP.Id= DL.IdDepartamento");
+                    sb.Append(" LEFT JOIN dbo.OAREA AR ON AR.Codigo = DL.IdArea AND AR.IdDepartamento = DEP.Id");
                     sb.Append(" LEFT JOIN dbo.CARGO CAR ON CAR.Id = DL.IdCargo");
                     sb.Append(" LEFT JOIN dbo.ONUM NU ON NU.IdNumero = DL.IdNumeroCorporativo");
                     sb.Append(" WHERE 1 = 1");
                     if (filtros != null)
                     {
-                        
-                        if (filtros.IdOEMPL>0)
+                        if (filtros.IdOEMPL > 0)
                         {
                             sb.Append(" AND EMP.IdOEMPL = @IdOEMPL");
                             cmd.Parameters.AddWithValue("@IdOEMPL", filtros.IdOEMPL);
@@ -445,6 +449,7 @@ namespace Capa_Datos.RecursosHumanos_DAO
             }
             return lista;
         }
+
         public OEMPL_E ObtenerDatosEmpleado(int id, string nroDocumento = "")
         {
             OEMPL_E obj = null;
@@ -514,6 +519,7 @@ namespace Capa_Datos.RecursosHumanos_DAO
             }
             return obj;
         }
+
         public List<Capa_Entidad.RecursosHumanos_ENT.Reportes.RptEmpleados_E> ExportarListaEmpleados(OEMPL_E filtros)
         {
             List<Capa_Entidad.RecursosHumanos_ENT.Reportes.RptEmpleados_E> lista = null;
@@ -529,7 +535,7 @@ namespace Capa_Datos.RecursosHumanos_DAO
                     sb.Append(" INNER JOIN rrhh.EMPL1 DL ON DL.IdOEMPL = EMP.IdOEMPL");
                     sb.Append(" LEFT JOIN dbo.SEDE SD ON SD.Id = DL.IdSede");
                     sb.Append(" LEFT JOIN dbo.ODPTO DEP ON DEP.IdDepartamento = DL.IdDepartamento");
-                    sb.Append(" LEFT JOIN dbo.OAREA AR ON AR.IdDepartamento = DL.IdDepartamento AND AR.IdArea = DL.IdArea");
+                    sb.Append(" LEFT JOIN dbo.OAREA AR ON AR.IdDepartamento = DL.IdDepartamento AND AR.Codigo = DL.IdArea");
                     sb.Append(" LEFT JOIN dbo.CARGO CAR ON CAR.Id = DL.IdCargo");
                     sb.Append(" LEFT JOIN dbo.ONUM NU ON NU.IdNumero = DL.IdNumeroCorporativo");
                     sb.Append(" WHERE 1 = 1");
@@ -587,6 +593,7 @@ namespace Capa_Datos.RecursosHumanos_DAO
             }
             return lista;
         }
+
         private void RegistrarError(Exception ex, string nombreArchivo)
         {
             File.AppendAllText(uti.directorioLogs + nombreArchivo + ".txt", $"{DateTime.Now}: {ex.Message}\n {ex.StackTrace}\n");

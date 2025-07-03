@@ -34,16 +34,17 @@
 
         <div class="col-lg-2">
             <input type="hidden" id="DocEntry" name="DocEntry" readonly />
-            <label for="" class="form-label fw-bold">Tipo de documento:</label>
-            <select id="" class="form-select">
+            <label for="TipoDocumento" class="form-label fw-bold">Tipo de documento:</label>
+            <select id="TipoDocumento" name="TipoDocumento" class="form-select" onchange="validarTipoDocumento(this.value)">
                 <option value="OWTQ">Solicitud de Traslado</option>
+                <option value="EMI">Entrada de Mercadería Inventario</option>
             </select>
         </div>
 
         <div class="col-lg-2">
             <label for="DocNum" class="form-label fw-bold">DocNum:</label>
             <div class="input-group">
-                <input type="text" id="DocNum" class="form-control border border-success" name="DocNum" autocomplete="off" />
+                <input type="text" id="DocNum" class="form-control border" name="DocNum" autocomplete="off" />
                 <button id="buscarDocNum" type="button" class="btn btn-cobefar-2" onclick="buscarSolicitud()" data-bs-toggle="tooltip" data-bs-placement="top" title="Buscar solicitud de traslado">
                     <i class="bi bi-search"></i>
                 </button>
@@ -67,14 +68,19 @@
         <div class="col-lg-2">
             <label for="OperarioResponsableSAP" class="form-label fw-bold">Operario Responsable SAP:</label>
             <input type="text" id="OperarioResponsableSAP" class="form-control cls-readonly text-center" name="OperarioResponsableSAP" autocomplete="off" readonly />
-            <input type="hidden" id="MotivoTraslado" name="MotivoTraslado" readonly />
             <input type="hidden" id="DocDate" name="DocDate" readonly />
         </div>
 
         <div class="col-lg-1 d-flex align-items-end">
-            <button type="button" class="btn btn-success w-100" onclick="abrirModalImportacion()" data-bs-toggle="tooltip" data-bs-placement="top" title="Importar datos directamente a la base">
+            <button type="button" id="btn_AbrirModalImportacion" class="btn btn-success w-100" onclick="abrirModalImportacion()" data-bs-toggle="tooltip" data-bs-placement="top" title="Importar datos directamente a la base">
                 <i class="bi bi-upload"></i>
             </button>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-2">
+            <button id="btn_AgregarArticulo" class="btn btn-cobefar-2" onclick="agregarArticulo()" hidden><i class="bi bi-plus-lg"></i> Agregar</button>
         </div>
     </div>
 
@@ -119,6 +125,7 @@
                     <input type="text" id="copiaCardName" name="CardName" readonly />
                     <input type="text" id="copiaOperarioResponsableSAP" name="OperarioResponsableSAP" readonly />
                     <input type="text" id="copiaMotivoTraslado" name="MotivoTraslado" readonly />
+                    <input type="text" id="copiaTipoDocumento" name="TipoDocumento" readonly />
                     <input type="text" id="copiaDocDate" name="DocDate" readonly />
                 </div>
             </div><!-- row -->
@@ -140,11 +147,19 @@
             </tbody>
         </table>
     </div>
+
+    <div class="row mt-3">
+        <div class="col-6">
+            <label for="MotivoTraslado" class="form-label fw-bold">Motivo Traslado:</label>
+            <textarea id="MotivoTraslado" name="MotivoTraslado" class="form-control cls-readonly" rows="2" readonly></textarea>
+        </div>
+    </div>
+
     <hr />
     <div id="div_botones" class="row" style="display: none">
         <div class="col-lg-12">
             <button id="cancelarCritico" type="button" class="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Cancelar" onclick="cancelarTransferenciaTraslado()"><i class="bi bi-x-lg"></i> Cancelar</button>
-            <button type="button" id="btn_transferir" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Transferir"><i class="bi bi-arrow-left-right"></i> Transferir</button>
+            <button type="button" id="btn_transferir" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Transferir" onclick="realizarTransferencia()"><i class="bi bi-arrow-left-right"></i> Transferir</button>
         </div>
     </div>
 </div><!-- main -->
@@ -175,7 +190,7 @@
 
 <!-- Modal de Busqueda Rapida -->
 <div class="modal fade" id="modalBuscador" tabindex="-1" aria-labelledby="modalBuscadorLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-headerModals text-white">
                 <h5 class="modal-title" id="modalBuscadorLabel">BÚSQUEDA RÁPIDA</h5>
@@ -194,19 +209,45 @@
 @section Scripts{
     <script>
 		// Declaración de variables
-		const masters = JSON.parse(`@Html.Raw(Json.Encode(ViewBag.Masters))`)
-		let opcionesMasters = ''
+        const articulos = @Html.Raw(Json.Encode(ViewBag.Articulos));
+        let opcionesArticulos = '';
+        let opcionesLotes = '';
+
+        const masters = JSON.parse(`@Html.Raw(Json.Encode(ViewBag.Masters))`);
+        let opcionesMasters = '';
 		const configDataTable = {
-			paging: false,          // ❌ Deshabilitar paginación
-			searching: false,       // ❌ Ocultar la barra de búsqueda
-			info: false,            // ❌ Ocultar el número de registros ("Mostrando X de Y registros")
-			ordering: false,        // ❌ Deshabilitar la opción de ordenar columnas
-			lengthChange: false,    // ❌ Ocultar el selector de cantidad de elementos por página
-			bFilter: false,         // ❌ Desactivar filtrado de DataTables
-			bSort: false,           // ❌ Desactivar ordenamiento en columnas
-			bPaginate: false,       // ❌ Desactivar paginación manualmente
-			autoWidth: false,       // ✅ Evita que DataTables ajuste el ancho de las columnas automáticamente
-			responsive: true        // ✅ Mantiene la tabla responsiva si es necesario
+			paging: false,          // Deshabilitar paginación
+			searching: true,       // Ocultar la barra de búsqueda
+			info: false,            // Ocultar el número de registros ("Mostrando X de Y registros")
+			ordering: false,        // Deshabilitar la opción de ordenar columnas
+			lengthChange: false,    // Ocultar el selector de cantidad de elementos por página
+			bFilter: false,         // Desactivar filtrado de DataTables
+			bSort: false,           // Desactivar ordenamiento en columnas
+			bPaginate: false,       // Desactivar paginación manualmente
+			autoWidth: false,       // Evita que DataTables ajuste el ancho de las columnas automáticamente
+            responsive: true,        // Mantiene la tabla responsiva si es necesario
+            language: {
+                processing: "Procesando...",
+                search: "Buscar:",
+                lengthMenu: "Mostrar _MENU_ registros",
+                info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                infoEmpty: "Mostrando 0 a 0 de 0 registros",
+                infoFiltered: "(filtrado de _MAX_ registros en total)",
+                infoPostFix: "",
+                loadingRecords: "Cargando...",
+                zeroRecords: "No se encontraron registros coincidentes",
+                emptyTable: "No hay datos disponibles en la tabla",
+                paginate: {
+                    first: "Primero",
+                    previous: "Anterior",
+                    next: "Siguiente",
+                    last: "Último"
+                },
+                aria: {
+                    sortAscending: ": activar para ordenar la columna ascendente",
+                    sortDescending: ": activar para ordenar la columna descendente"
+                }
+            }
 		}
 		// Funciones
 		function cargarOpcionesMasters(unidadAlmSugerido) {
@@ -215,7 +256,43 @@
 				opcionesMasters += `<option value="${item.ValorUmAlm}" data-umalm="${item.UmAlm}" ${item.UmAlm === unidadAlmSugerido ? 'selected' : ''}>${item.UmAlm}</option>`;
 			});
 			return opcionesMasters;
-		}
+        }
+
+        function cargarOpcionesArticulos() {
+            opcionesArticulos = ""; // Reiniciar la variable para evitar acumulación de valores previos
+            let vistos = new Set();
+
+            articulos.forEach(item => {
+                if (!vistos.has(item.ItemCode)) {
+                    opcionesArticulos += `<option value="${item.ItemName}" data-itemcode="${item.ItemCode}" data-indate="${item.InDate}" data-expdate="${item.ExpDate}">${item.ItemCode} - ${item.ItemName}</option>`;
+                    vistos.add(item.ItemCode);
+                }
+            });
+
+            return opcionesArticulos;
+        }
+
+        function cargarOpcionesLotes(filtroItemCode = "") {
+            if (!filtroItemCode) {
+                generarAlerta("Error al cargar lotes", "Debes seleccionar un artículo.", "error");
+                return "";
+            }
+
+            let opcionesLotes = "";
+            let vistos = new Set();
+
+            articulos
+                .filter(a => a.ItemCode === filtroItemCode)
+                .forEach(item => {
+                    if (!vistos.has(item.BatchNum)) {
+                        opcionesLotes += `<option value="${item.BatchNum}" data-indate="${item.InDate}" data-expdate="${item.ExpDate}">${item.BatchNum}</option>`;
+                        vistos.add(item.BatchNum);
+                    }
+                });
+
+            return opcionesLotes;
+        }
+
 		async function realizarTransferencia() {
 			const form = document.querySelector('#frm_tablaCopiaSap')
 			if (!form) {
@@ -233,7 +310,9 @@
 						let key = name.replace("solicitudTraslado.Detalle[].", "").trim();
 						detalleSolicitud[key] = input.value;
 					}
-				});
+                });
+
+
 				if (Object.keys(detalleSolicitud).length > 0) detallesSolicitud.push(detalleSolicitud);
 			});
 			const filasTransferencia = document.querySelectorAll(".tbl_detalleLotes tbody tr");
@@ -264,11 +343,14 @@
 				if (camposValidos && Object.keys(detalleTransferencia).length > 0) {
 					detallesTransferencia.push(detalleTransferencia);
 				}
-			});
+            });
+
 			const formData = new FormData(form);
 			const jsonData = Object.fromEntries(formData.entries());
+            jsonData["TipoDocumento"] = document.getElementById("TipoDocumento").value;
+
 			const payload = {
-				solicitudTraslado: {
+                solicitudTrasladoPost: {
 					...jsonData, // Otros datos generales del formulario
 					Detalle: detallesSolicitud
 				},
@@ -277,9 +359,97 @@
 					SolicitudTrasladoDocNum: document.querySelector('#DocNum').value,
 					Detalle: detallesTransferencia
 				}
-			};
+            };
+
+            //console.log(payload); return;
             registrarTransferenciaStock(payload)
 		}
+
+        async function realizarTransferenciaEMI() {
+	        const form = document.querySelector('#frm_tablaCopiaSap')
+	        if (!form) {
+		        console.log("Formulario no válido.");
+		        return;
+	        }
+
+            document.getElementById("copiaCardCode").value = 'P20600546041';
+            document.getElementById("copiaCardName").value = 'COBEFAR S.A.C.';
+            document.getElementById("copiaMotivoTraslado").value = document.getElementById("MotivoTraslado").value;
+            document.getElementById("copiaTipoDocumento").value = document.getElementById("TipoDocumento").value;
+
+            let detallesSolicitud = [];
+
+	        const filasTransferencia = document.querySelectorAll(".tbl_detalleLotes tbody tr");
+	        let detallesTransferencia = [];
+	        filasTransferencia.forEach((fila) => {
+		        let inputs = fila.querySelectorAll("input, select");
+                let detalleTransferencia = {};
+                let detalleSolicitud = {};
+                let camposValidos = true; // Bandera para validar los campos requeridos
+
+		        inputs.forEach(input => {
+                    let name = input.name.trim();
+
+			        if (name.startsWith("transferenciaPost.Detalle[]")) {
+				        let key = name.replace("transferenciaPost.Detalle[].", "").trim();
+                        let value = input.value.trim(); // Aseguramos que no tenga espacios en blanco al inicio o fin
+
+				        if (key === "ValorUmAlm") {
+					        let selectedOption = input.options[input.selectedIndex];
+					        detalleTransferencia[key] = value;
+					        detalleTransferencia["UmAlm"] = selectedOption.dataset.umalm || ""; // Evita valores undefined
+				        } else {
+					        detalleTransferencia[key] = value;
+                        }
+
+				        // Verificar si los campos obligatorios están vacíos
+				        if ((key === "QuantitySaldo" || key === "UmAlm") && value === "") {
+					        camposValidos = false; // Marcar como inválido si algún campo está vacío
+                        }
+
+                        // Solo tomar los campos requeridos para solicitudTraslado
+                        if ([
+                            "ItemCode", "ItemName", "BatchNum", "InDate", "ExpDate", "QuantityUnidadesCajas"
+                        ].includes(key)) {
+                            const solicitudKey = key === "QuantityUnidadesCajas" ? "QuantityCajas" : key;
+                            detalleSolicitud[solicitudKey] = value;
+                        }
+			        }
+		        });
+
+                // Forzar valores por defecto para almacenes
+                detalleSolicitud["FromWhsCode"] = "16";
+                detalleSolicitud["ToWhsCode"] = "16";
+
+                // Solo agregar si los campos requeridos tienen valores
+                if (Object.keys(detalleSolicitud).length > 0) {
+                    detallesSolicitud.push(detalleSolicitud);
+                }
+
+		        if (camposValidos && Object.keys(detalleTransferencia).length > 0) {
+			        detallesTransferencia.push(detalleTransferencia);
+		        }
+            });
+
+
+	        const formData = new FormData(form);
+	        const jsonData = Object.fromEntries(formData.entries());
+	        const payload = {
+                solicitudTrasladoPost: {
+			        ...jsonData, // Otros datos generales del formulario
+			        Detalle: detallesSolicitud
+		        },
+		        transferenciaPost: {
+			        ...jsonData,
+			        SolicitudTrasladoDocNum: document.querySelector('#DocNum').value,
+			        Detalle: detallesTransferencia
+		        }
+            };
+
+            //console.log(payload); return;
+            registrarTransferenciaStock(payload);
+        }
+
         async function registrarTransferenciaStock(payload) {
             try {
                 const response = await fetch("/AbastecimientoInterno/RegistrarTransferenciaDeStock", {
@@ -293,6 +463,7 @@
                     throw new Error(`Error en la solicitud: ${response.status}`);
                 }
                 const data = await response.json();
+
                 Swal.fire({
                     title: data.Titulo,
                     html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
@@ -315,9 +486,11 @@
                             cancelButtonText: '<i class="bi bi-x-lg"></i> Cancelar'
                         }).then(result => {
                             if (result.isConfirmed) {
-                                buscarSolicitud()
+                                document.querySelector("#tbl_detalle tbody").innerHTML = '';
+                                document.getElementById('DocNum').value = data.DocNum;
+                                buscarSolicitud();
                             } else {
-                                location.reload()
+                                location.reload();
                             }
                         });
                     }
@@ -399,6 +572,7 @@
                     return;
                 }
 
+                //console.log(data)
                 document.querySelector('#NroGuia').value = data.traslado.NroGuia || "";
                 document.querySelector('#CardCode').value = data.traslado.CardCode || "";
                 document.querySelector('#CardName').value = data.traslado.CardName || "";
@@ -448,7 +622,6 @@
                 });
             }
         }
-
 
         function abrirModalImportacion() {
             let modal = new bootstrap.Modal(document.getElementById('ModalImportar'));
@@ -584,7 +757,7 @@
                     }
 
                     // Formateamos el data-producto para reestablecer su nombe con espacio
-                    const productoIDFormat = productoID.replace(/__space__/, ' ');
+                    const productoIDFormat = productoID.replace(/__space__/, ' ').replace(/__amp__/g, '&');
                     const detalleRow = tr.next('.detalle-fila')
 
                     if (detalleRow.length) {
@@ -607,17 +780,18 @@
 					}
                 });
 
-				$('.fila-detalle').each(function (index) {
-                    let productoID = $(this).data('producto');
-                    const productFormat = productoID.replace(/__amp__/g, '&');
+                // Descomentar para mostrar la segunda tabla de lotes al buscar DocNum
+				//$('.fila-detalle').each(function (index) {
+    //                let productoID = $(this).data('producto');
+    //                const productFormat = productoID.replace(/__amp__/g, '&');
 
-                    if (detalleTraslado[productFormat] && detalleTraslado[productFormat].DetalleLotes.length === 1 && detalleTraslado[productFormat].Estado === "PENDIENTE") {
-                        const btnChevron = document.querySelector(`#btn_chevron_${productoID}`)
-                        if (btnChevron) {
-                            btnChevron.click();
-                        }
-					}
-				});
+    //                if (detalleTraslado[productFormat] && detalleTraslado[productFormat].DetalleLotes.length === 1 && detalleTraslado[productFormat].Estado === "PENDIENTE") {
+    //                    const btnChevron = document.querySelector(`#btn_chevron_${productoID}`)
+    //                    if (btnChevron) {
+    //                        btnChevron.click();
+    //                    }
+				//	}
+				//});
 			} else {
 				console.warn('El parámetro func no es una función válida:', func);
 				return;
@@ -642,7 +816,7 @@
 							</thead>
 							<tbody>`
             articulo.DetalleLotes.forEach(item => {
-                let articuloFormat = articulo.ItemCode.replace(/\s+/g, ''); // elimina todos los espacios (uno o más)
+                let articuloFormat = articulo.ItemCode.replace(/\s+/g, '').replace(/&/g, '__amp__'); // elimina todos los espacios (uno o más)
                 let lote = item.BatchNum.replace(/\s+/g, ''); // elimina todos los espacios (uno o más)
                 let correlativoDinamico = `${articuloFormat}_${lote}`;
 
@@ -729,7 +903,7 @@
                 });
 			} else {
 				articulo.DetalleLotes.forEach(item => {
-                    let articuloFormat = articulo.ItemCode.replace(/\s+/g, ''); // elimina todos los espacios (uno o más)
+                    let articuloFormat = articulo.ItemCode.replace(/\s+/g, '').replace(/&/g, '__amp__'); // elimina todos los espacios (uno o más)
                     let lote = item.BatchNum.replace(/\s+/g, ''); // elimina todos los espacios (uno o más)
                     let correlativoDinamico = `${articuloFormat}_${lote}`;
 
@@ -783,11 +957,46 @@
 			return tableHtml
 		}
         function clonarFila(idTableLotes) {
+            const configDataTableLotes = {
+                paging: false,          // Deshabilitar paginación
+                searching: false,       // Ocultar la barra de búsqueda
+                info: false,            // Ocultar el número de registros ("Mostrando X de Y registros")
+                ordering: false,        // Deshabilitar la opción de ordenar columnas
+                lengthChange: false,    // Ocultar el selector de cantidad de elementos por página
+                bFilter: false,         // Desactivar filtrado de DataTables
+                bSort: false,           // Desactivar ordenamiento en columnas
+                bPaginate: false,       // Desactivar paginación manualmente
+                autoWidth: false,       // Evita que DataTables ajuste el ancho de las columnas automáticamente
+                responsive: true,        // Mantiene la tabla responsiva si es necesario
+                language: {
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthMenu: "Mostrar _MENU_ registros",
+                    info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                    infoEmpty: "Mostrando 0 a 0 de 0 registros",
+                    infoFiltered: "(filtrado de _MAX_ registros en total)",
+                    infoPostFix: "",
+                    loadingRecords: "Cargando...",
+                    zeroRecords: "No se encontraron registros coincidentes",
+                    emptyTable: "No hay datos disponibles en la tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Último"
+                    },
+                    aria: {
+                        sortAscending: ": activar para ordenar la columna ascendente",
+                        sortDescending: ": activar para ordenar la columna descendente"
+                    }
+                }
+            }
+
             // Verificar si la tabla ya está inicializada con DataTable
             if ($.fn.DataTable.isDataTable(`#${idTableLotes}`)) {
                 $(`#${idTableLotes}`).DataTable().destroy();
             }
-            let tabla = $(`#${idTableLotes}`).DataTable(configDataTable); // Obtener instancia de DataTable
+            let tabla = $(`#${idTableLotes}`).DataTable(configDataTableLotes); // Obtener instancia de DataTable
             // Eliminar cualquier event listener de click previamente
             $(`#${idTableLotes} tbody`).off('click', '.btn-cobefar');
             $(`#${idTableLotes} tbody`).on('click', '.btn-cobefar', function () {
@@ -966,9 +1175,8 @@
 			document.querySelector(`#${data.idcantsaldo}`).value = cantidadSaldo
 		}
 		document.addEventListener('DOMContentLoaded', function () {
-			permitirSoloNumeros('DocNum')
-            permitirValoresNumericosPositivos()
-			document.getElementById("btn_transferir").addEventListener("click", realizarTransferencia)
+            permitirSoloNumeros('DocNum');
+            permitirValoresNumericosPositivos();
         });
 
 		function limpiarValoresItem(claseItemCode) {
@@ -1304,7 +1512,7 @@
             const tbody = tabla.querySelector("tbody");
 
             if (!tbody || tbody.children.length === 0) {
-                console.warn("La tabla no tiene datos.");
+                generarAlerta("Atención!", "La tabla no tiene datos.", "warning");
                 return;
             }
 
@@ -1418,7 +1626,7 @@
                 item.className = 'list-group-item list-group-item-action';
                 item.textContent = opt.text;
                 item.dataset.value = opt.value;
-                item.onclick = () => seleccionarOpcion(opt.value);
+                item.onclick = () => seleccionarOpcion(opt.value, opt.text);
                 contenedor.appendChild(item);
             });
             modalInstance.show();
@@ -1432,11 +1640,19 @@
                 });
             };
         }
-        function seleccionarOpcion(valor) {
+        function seleccionarOpcion(valor, texto) {
             if (selectActual) {
-                selectActual.value = valor;
-                selectActual.dispatchEvent(new Event('change'));
+                // Seleccionar exactamente la opción que coincida con value y text
+                for (let i = 0; i < selectActual.options.length; i++) {
+                    const opt = selectActual.options[i];
+                    if (opt.value === valor && opt.text === texto) {
+                        selectActual.selectedIndex = i;
+                        selectActual.dispatchEvent(new Event('change'));
+                        break;
+                    }
+                }
             }
+
             modalInstance.hide();
             const modalElement = document.getElementById('modalBuscador');
             if (modalElement.contains(document.activeElement)) {
@@ -1448,5 +1664,296 @@
             }
             selectActual = null;
         }
+
+        function validarTipoDocumento(valor) {
+            if (valor == "") {
+                return;
+            }
+            document.querySelector('#div_botones').style.display = 'block';
+
+            if (valor == "EMI") {
+                document.getElementById("MotivoTraslado").readOnly = false;
+                document.getElementById("MotivoTraslado").classList.remove("cls-readonly");
+                document.getElementById("btn_AbrirModalImportacion").disabled = true;
+                //document.getElementById('DocNum').readOnly = true;
+                //document.getElementById('buscarDocNum').disabled = true;
+                resetValoresVacios(["DocEntry", "DocNum", "NroGuia", "CardCode", "CardName", "OperarioResponsableSAP", "MotivoTraslado", "DocDate", "copiaDocEntry", "copiaDocNum", "copiaNroGuia", "copiaCardCode", "copiaCardName",
+                    "copiaOperarioResponsableSAP", "copiaMotivoTraslado", "copiaTipoDocumento", "copiaDocDate"]);
+                document.querySelector("#tbl_detalle tbody").innerHTML = '';
+                document.getElementById("btn_transferir").setAttribute("onclick", "realizarTransferenciaEMI()");
+                document.getElementById("btn_AgregarArticulo").hidden = false;
+            } else {
+                document.getElementById("btn_AgregarArticulo").hidden = true;
+                document.getElementById("MotivoTraslado").readOnly = true;
+                document.getElementById("MotivoTraslado").classList.add("cls-readonly");
+                document.getElementById("btn_AbrirModalImportacion").disabled = false;
+                //document.getElementById('DocNum').readOnly = false;
+                //document.getElementById('buscarDocNum').disabled = false;
+                document.querySelector("#tbl_detalle tbody").innerHTML = '';
+                document.getElementById("btn_transferir").setAttribute("onclick", "realizarTransferencia()");
+            }
+        }
+
+        let contadorProducto = 1;
+        function agregarArticulo() {
+            let correlativo = `producto_${contadorProducto}`;
+            let itemCode = `COD${contadorProducto.toString().padStart(4, "0")}`; // ejemplo: COD0001
+            let idTablaLotes = `tbl_detalleLotes_${itemCode}`;
+            let correlativoLote = `${itemCode}_0001`;
+
+            // Fila principal
+            let filaPrincipal = `
+            <tr data-producto="${correlativo}" class="fila-detalle">
+                <td class="details-control text-center">
+                    <button id="btn_chevron_${correlativo}" class="btn btn-sm btn-dark">
+                        <i class="bi bi-chevron-up"></i>
+                    </button>
+                </td>
+                <td class="text-center"><input type="text" id="ItemCode_${correlativo}" class="form-control cls-readonly text-center" readonly /></td>
+                <td class="">
+                  <select id="ItemName_${correlativo}" class="form-select" onclick="abrirModalBusquedaRapida(this)">
+                      <option value="">Seleccione</option>
+                      ${cargarOpcionesArticulos()}
+                  </select>
+                </td>
+                <td class="text-center dt-type-numeric">
+                    <div class="d-flex justify-content-center"></div>
+                </td>
+                <td class="text-center">
+                    <div class="d-flex justify-content-center">
+                        <input type="text" class="form-control text-center cls-readonly" value="RESERVA" readonly style="width: 140px" />
+                    </div>
+                </td>
+                <td class="text-center"></td>
+                <td class="text-center">PENDIENTE</td>
+                <td class="text-center">
+                    <button class="btn btn-danger" onclick="limpiarValoresItem('cls-limpiarItem_${correlativo}')" data-bs-toggle="tooltip" title="Borrar valores asignados">
+                        <i class="bi bi-arrow-repeat"></i>
+                    </button>
+                </td>
+            </tr>`;
+
+            // Fila de subdetalle
+            let filaSubdetalle = `
+<tr class="detalle-fila">
+    <td colspan="100%">
+        <div class="d-flex justify-content-center w-100">
+            <table id="${idTablaLotes}" class="table table-sm table-bordered table-hover subtable w-75 tbl_detalleLotes">
+                <thead class="table-success">
+                    <tr>
+                        <th class="text-center" style="width: 100px;">Lote</th>
+                        <th class="text-center" style="width: 200px;">Fecha de Admisión</th>
+                        <th class="text-center" style="width: 200px;">Fecha de Vencimiento</th>
+                        <th class="text-center" style="width: 200px;">Stock UNIDADES</th>
+                        <th class="text-center" style="width: 200px;">Unidad MASTER</th>
+                        <th class="text-center" style="width: 200px;">Cantidad en MASTER</th>
+                        <th class="text-center" style="width: 200px;">Cantidad en SALDO</th>
+                        <th class="text-center" style="width: 200px;">Ubicación</th>
+                        <th style="width: 5%;"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr data-lote="${correlativoLote}">
+                        <td class="text-center">
+                            <input list="listaLotesArticulos_${correlativo}" id="BatchNum_${correlativo}" name="transferenciaPost.Detalle[].BatchNum" class="form-select lote-select" style="width: 150px" oninput="cargarFechaInDateExpDate(this, '${correlativoLote}')">
+                            <datalist id="listaLotesArticulos_${correlativo}" >
+                            </datalist>
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center"><input type="text" id="InDate_${correlativoLote}" name="transferenciaPost.Detalle[].InDate" class="form-control text-center" ></div>
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center"><input type="text" id="ExpDate_${correlativoLote}" name="transferenciaPost.Detalle[].ExpDate" class="form-control text-center"></div>
+                        </td>
+                        <td class="text-center">
+                            <input type="text" id="lote_quantityUnidades_${correlativoLote}" name="transferenciaPost.Detalle[].QuantityUnidadesCajas" class="form-control text-center cls-limpiarItem_${correlativo}"
+                                data-idcantmaster="lote_cantidadMaster_${correlativoLote}"
+                                data-idcantsaldo="lote_cantidadSaldo_${correlativoLote}"
+                                data-idundmaster="lote_undMaster_${correlativoLote}"
+                                oninput="calcularStockUnidades(this.value, this.dataset)" />
+                        </td>
+                        <td class="text-center">
+                            <select id="lote_undMaster_${correlativoLote}"
+                                    data-idundmaster="lote_undMaster_${correlativoLote}"
+                                    data-idcantmaster="lote_cantidadMaster_${correlativoLote}"
+                                    data-idcantsaldo="lote_cantidadSaldo_${correlativoLote}"
+                                    data-idquantityunidades="lote_quantityUnidades_${correlativoLote}"
+                                    name="transferenciaPost.Detalle[].ValorUmAlm"
+                                    class="form-select cls-limpiarItem_${correlativo}"
+                                    onchange="calcularCantidadMasterSaldo(this.value, this.dataset)"
+                                    onclick="abrirModalBusquedaRapida(this)">
+                                <option value="">Seleccione</option>
+                                ${cargarOpcionesMasters()}
+                            </select>
+                        </td>
+                        <td class="text-center">
+                            <input type="text" id="lote_cantidadMaster_${correlativoLote}" name="transferenciaPost.Detalle[].QuantityMaster" class="form-control text-center cls-readonly cls-limpiarItem_${correlativo}" readonly />
+                        </td>
+                        <td class="text-center">
+                            <input type="text" id="lote_cantidadSaldo_${correlativoLote}" name="transferenciaPost.Detalle[].QuantitySaldo" class="form-control text-center cls-readonly cls-limpiarItem_${correlativo}" readonly />
+                        </td>
+                        <td class="text-center">
+                            <select id="lote_ubicacion_${correlativoLote}"
+                                name="transferenciaPost.Detalle[].CodigoUbicacion"
+                                data-idloteubicacion="lote_ubicacion_${correlativoLote}"
+                                data-itemcode="${itemCode}"
+                                class="form-select cls-limpiarItem_${correlativo}"
+                                onclick="gestionarBusquedaUbicaciones(this)" style="width: 200px">
+                            <option value="">Seleccione</option>
+                        </select>
+                         </td>
+                        <td class="text-center">
+                           <input type="hidden" id="hidden_ItemCode_${correlativoLote}" name="transferenciaPost.Detalle[].ItemCode" />
+                            <input type="hidden" id="hidden_ItemName_${correlativoLote}" name="transferenciaPost.Detalle[].ItemName" />
+                            <button type="button" class="btn btn-sm btn-cobefar" onclick="clonarFilaLote('${idTablaLotes}')">
+                                <i class="bi bi-plus-lg"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </td>
+</tr>`;
+
+            // Insertar ambas filas
+            const tbody = document.querySelector("#tbl_detalle tbody");
+            tbody.insertAdjacentHTML("beforeend", filaPrincipal);
+            tbody.insertAdjacentHTML("beforeend", filaSubdetalle);
+
+            // Obtener elementos dinámicos recién creados
+            let selectArticulo = document.getElementById(`ItemName_${correlativo}`);
+            let inputItemCode = document.getElementById(`ItemCode_${correlativo}`);
+
+            // Asignar evento: cuando cambia el artículo, actualizar el ItemCode y los lotes
+            selectArticulo.addEventListener("change", function () {
+                let selectedOption = this.options[this.selectedIndex];
+                let codigo = selectedOption.dataset.itemcode || "";
+                inputItemCode.value = codigo;
+
+                // Cargar lotes correspondientes al nuevo itemCode
+                const opcionesLotes = cargarOpcionesLotes(codigo);
+                //selectLotes.innerHTML = '<option value="">Seleccione</option>' + opcionesLotes;
+                const datalistLotes = document.getElementById(`listaLotesArticulos_${correlativo}`);
+                datalistLotes.innerHTML = opcionesLotes;
+
+                document.getElementById(`hidden_ItemCode_${correlativoLote}`).value = codigo;
+                document.getElementById(`hidden_ItemName_${correlativoLote}`).value = document.getElementById(`ItemName_${correlativo}`).value;
+            });
+
+            contadorProducto++;
+            permitirValoresNumericosPositivos();
+        }
+
+        function cargarFechaInDateExpDate(input, correlativo) {
+            const opciones = document.querySelectorAll(`#listaLotesArticulos_${correlativo} option`);
+            const opcionSeleccionada = Array.from(opciones).find(op => op.value === input.value);
+            let inputInDate = document.getElementById(`InDate_${correlativo}`);
+            let inputExpDate = document.getElementById(`ExpDate_${correlativo}`);
+
+            if (opcionSeleccionada) {
+                const inDate = opcionSeleccionada.dataset.indate || "";
+                const expDate = opcionSeleccionada.dataset.expdate || "";
+
+                inputInDate.value = inDate ? convertirFecha(inDate) : "";
+                inputExpDate.value = expDate ? convertirFecha(expDate) : "";
+            } else {
+                inputInDate.value = "";
+                inputExpDate.value = "";
+            }
+        }
+
+         function convertirFecha(fecha) {
+            if (!fecha) return "";
+            let partes = fecha.split("/");
+            if (partes.length !== 3) return "";
+            return `${partes[2]}-${partes[1]}-${partes[0]}`;
+        }
+
+        function clonarFilaLote(idTablaLotes) {
+            const tabla = document.getElementById(idTablaLotes);
+            const tbody = tabla.querySelector('tbody');
+            const filaOriginal = tbody.querySelector('tr:last-of-type');
+            const filaClonada = filaOriginal.cloneNode(true);
+            const random = Math.floor(Math.random() * 10000);
+
+            // Eliminar el botón "+" en la fila clonada
+            const botonClonado = filaClonada.querySelector('button.btn-cobefar');
+            if (botonClonado) botonClonado.remove();
+
+            // Actualizar todos los IDs, valores y eventos
+            const elementos = filaClonada.querySelectorAll('input, select');
+            elementos.forEach(el => {
+                // Limpiar valores
+                if (el.tagName === 'INPUT' && el.type !== 'hidden') {
+                    el.value = '';
+                } else if (el.tagName === 'SELECT') {
+                    el.selectedIndex = 0;
+                }
+
+                // Reasignar ID y name
+                if (el.id) {
+                    const oldId = el.id;
+                    const newId = `${oldId}_clone_${random}`;
+                    el.setAttribute('id', newId);
+                }
+
+                if (el.name && el.name.includes('transferenciaPost.Detalle')) {
+                    const name = el.getAttribute('name');
+                    el.setAttribute('name', name.replace(/\[\]/g, `[${random}]`));
+                }
+
+                // Actualizar data-* si corresponde
+                if (el.dataset.idcantmaster) el.dataset.idcantmaster += `_clone_${random}`;
+                if (el.dataset.idcantsaldo) el.dataset.idcantsaldo += `_clone_${random}`;
+                if (el.dataset.idundmaster) el.dataset.idundmaster += `_clone_${random}`;
+                if (el.dataset.idquantityunidades) el.dataset.idquantityunidades += `_clone_${random}`;
+                if (el.dataset.idloteubicacion) el.dataset.idloteubicacion += `_clone_${random}`;
+
+                // Reasignar eventos
+                if (el.classList.contains('lote-select')) {
+                    el.addEventListener('input', function () {
+                        const valorIngresado = this.value;
+                        const opciones = document.querySelectorAll("#listaLotesArticulos option");
+                        const opcion = Array.from(opciones).find(op => op.value === valorIngresado);
+
+                        const fila = this.closest('tr');
+                        const inputInDate = fila.querySelector('input[id^="InDate_"]');
+                        const inputExpDate = fila.querySelector('input[id^="ExpDate_"]');
+
+                        if (opcion) {
+                            inputInDate.value = convertirFecha(opcion.dataset.indate);
+                            inputExpDate.value = convertirFecha(opcion.dataset.expdate);
+                        } else {
+                            inputInDate.value = "";
+                            inputExpDate.value = "";
+                        }
+                    });
+                }
+
+                if (el.id?.includes('lote_undMaster_')) {
+                    el.onchange = function () {
+                        calcularCantidadMasterSaldo(this.value, this.dataset);
+                    };
+                }
+
+                if (el.id?.includes('lote_ubicacion_')) {
+                    el.onclick = function () {
+                        gestionarBusquedaUbicaciones(this);
+                    };
+                }
+
+                // Actualizar IDs ocultos
+                if (el.type === 'hidden' && el.id.startsWith('hidden_ItemCode_')) {
+                    el.setAttribute('id', el.id + `_clone_${random}`);
+                }
+                if (el.type === 'hidden' && el.id.startsWith('hidden_ItemName_')) {
+                    el.setAttribute('id', el.id + `_clone_${random}`);
+                }
+        });
+
+    tbody.appendChild(filaClonada);
+}
+
     </script>
 }

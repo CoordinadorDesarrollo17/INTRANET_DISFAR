@@ -14,6 +14,9 @@ namespace Capa_Entidad.AbastecimientoInterno_ENT.TablasSql
         public DateTime TiempoRegistro { get; set; }
         public string OperarioRegistra { get; set; }
         public string Zona { get; set; }
+        public int? Aprobado { get; set; }
         public List<DetalleRequerimientos_E> Detalle { get; set; }
+        public string FechaRegistro { get; set; }
+        public string HoraRegistro { get; set; }
     }
 }

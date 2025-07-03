@@ -8,11 +8,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 namespace Capa_Datos.RecursosHumanos_DAO.TablasSQL
 {
     public class HIST_OEMPL_D
     {
-        readonly Utilitarios uti = new Utilitarios();
+        private readonly Utilitarios uti = new Utilitarios();
+
         public void RegistrarHistoricoEmpleado(OEMPL_E datos)
         {
             using (SqlConnection cn = new SqlConnection(uti.cadSql))
@@ -41,6 +43,7 @@ namespace Capa_Datos.RecursosHumanos_DAO.TablasSQL
                 }
             }
         }
+
         public void RegistrarHistoricoDatosLaborales(EMPL1_E datos)
         {
             using (SqlConnection cn = new SqlConnection(uti.cadSql))
@@ -64,7 +67,7 @@ namespace Capa_Datos.RecursosHumanos_DAO.TablasSQL
                     cmd2.Parameters.AddWithValue("@AnexoCorporativo", datos.AnexoCorporativo ?? string.Empty);
                     cmd2.Parameters.AddWithValue("@CorreoCorporativo", datos.CorreoCorporativo ?? string.Empty);
                     cmd2.Parameters.AddWithValue("@TurnoTrabajo", datos.TurnoTrabajo ?? string.Empty);
-                    cmd2.Parameters.AddWithValue("@Discapacidad",datos.Discapacidad ?? string.Empty);
+                    cmd2.Parameters.AddWithValue("@Discapacidad", datos.Discapacidad ?? string.Empty);
                     cmd2.ExecuteNonQuery();
                 }
                 catch (Exception ex)
@@ -73,6 +76,7 @@ namespace Capa_Datos.RecursosHumanos_DAO.TablasSQL
                 }
             }
         }
+
         private void RegistrarError(Exception ex, string nombreArchivo)
         {
             File.AppendAllText(uti.directorioLogs + nombreArchivo + ".txt", $"{DateTime.Now}: {ex.Message}\n {ex.StackTrace}\n");

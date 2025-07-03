@@ -51,7 +51,7 @@ namespace Capa_Usuario.Controllers
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 Usuario_E usuarioSesion = (Usuario_E)Session["UsuarioId"];
-                ViewBag.Empleados = new OEMPL_N().ListarEmpleadosConDatosLaborales(new Capa_Entidad.RecursosHumanos_ENT.TablasSQL.OEMPL_E { Estado = "1" }, null);
+                ViewBag.Empleados = new OEMPL_N().ListarEmpleadosConDatosLaborales(new Capa_Entidad.RecursosHumanos_ENT.TablasSQL.OEMPL_E { Estado = "1" }, null).OrderBy(x => x.NombresApellidos).ToList();
                 ViewBag.Roles = orolN.listarRoles(usuarioSesion.IdRol);
                 ViewBag.Sedes = new SEDE_N().ListarSedesParaCrearUsuario(null);
                 return View(new Usuario_E());
@@ -72,7 +72,8 @@ namespace Capa_Usuario.Controllers
                 try
                 {
                     var result = ousrN.crearUsuario(datosPost, $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}");
-                    return RedirectToAction("GestionPermisos", new { result.Mensajes });
+                    TempData["Mensaje"] = string.Join(", ", result.Mensajes);
+                    return RedirectToAction("GestionPermisos");
                 }
                 catch (Exception e)
                 {

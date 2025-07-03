@@ -1,0 +1,33 @@
+<table id="tbl_ListadoRequerimientos" class="table table-bordered table-hover">
+    <thead class="thead-cobefar">
+        <tr>
+            <th scope="col" class="text-center small" style="width: 7%">Nro Requerimiento</th>
+            <th scope="col" class="text-center small">Origen</th>
+            <th scope="col" class="text-center small">Destino</th>
+            <th scope="col" class="text-center small">Tipo de Abastecimiento</th>
+            <th scope="col" class="text-center small">Registrado Por</th>
+            <th scope="col" class="text-center small">Fecha de Registro</th>
+            <th scope="col" class="text-center small">Hora de Registro</th>
+            <th scope="col" class="text-center small">Zona</th>
+            <th scope="col" class="text-center small" style="width: 7%"></th>
+        </tr>
+    </thead>
+    <tbody class="table-white">
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td scope="col" class="text-center small">@item.Id</td>
+                <td scope="col" class="text-center small">@item.Origen</td>
+                <td scope="col" class="text-center small">@item.Destino</td>
+                <td scope="col" class="text-center small">@item.TipoAbastecimiento</td>
+                <td scope="col" class="text-center small">@item.FechaRegistro</td>
+                <td scope="col" class="text-center small">@item.HoraRegistro</td>
+                <td scope="col" class="text-center small">@item.OperarioRegistra</td>
+                <td scope="col" class="text-center small">@item.Zona</td>
+                <td scope="col" class="text-center small">
+                    <button type="button" class="btn btn-sm btn-outline-dark btn_verDetalle" onclick="cargarDetalleRequerimiento(@item.Id, @item.Aprobado)"><i class="bi bi-search"></i></button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

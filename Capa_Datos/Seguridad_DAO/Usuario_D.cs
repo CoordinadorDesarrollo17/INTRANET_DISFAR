@@ -118,7 +118,7 @@ namespace Capa_Datos
                     if (u != null)
                     {
                         // Actualizar FechaUltimoIngreso
-                         using (SqlCommand updateCmd = new SqlCommand(updateQuery, cn, transaction))
+                        using (SqlCommand updateCmd = new SqlCommand(updateQuery, cn, transaction))
                         {
                             updateCmd.Parameters.AddWithValue("@user", user);
                             updateCmd.Parameters.AddWithValue("@pass", pass);
@@ -291,16 +291,13 @@ namespace Capa_Datos
         {
             string mensaje = string.Empty;
             int docEntry = 0;
-
             using (SqlConnection cn = new SqlConnection(uti.cadSql))
             {
                 cn.Open();
-
                 try
                 {
                     SqlCommand cmd = new SqlCommand("dbo.MANT_OUSR", cn);
                     cmd.CommandType = CommandType.StoredProcedure;
-
                     cmd.Parameters.AddWithValue("@TipoMantenimiento", "A");
                     cmd.Parameters.AddWithValue("@Prefijo", usu.Prefijo);
                     cmd.Parameters.AddWithValue("@Id", usu.Id);
@@ -314,59 +311,50 @@ namespace Capa_Datos
                     cmd.Parameters.AddWithValue("@WhsCode", usu.WhsCode);
                     cmd.Parameters.AddWithValue("@CodigoSap", usu.CodigoSap);
                     cmd.Parameters.AddWithValue("@EmpleadoID", usu.EmpleadoID);
-
                     // Agregar parámetro de salida para DocEntry
                     SqlParameter outputDocEntry = new SqlParameter("@DocEntry", SqlDbType.Int)
                     {
                         Direction = ParameterDirection.Output
                     };
                     cmd.Parameters.Add(outputDocEntry);
-
                     cmd.ExecuteNonQuery();
-
                     // Recuperar el valor de DocEntry
                     docEntry = (int)outputDocEntry.Value;
-
                     mensaje = $"Usuario: {usu.Prefijo}{usu.Id} y Contraseña: {usu.Password} creados";
                 }
                 catch (Exception ex)
                 {
                     RegistrarError(ex, "Usuario_D - CrearUsuario");
-                    mensaje = "Ocurrió un error al registrar usuario. Por favor, comuníquese con el área de Sistemas para más información.";
+                    mensaje = "Ocurrió un error al registrar usuario. Por favor, comunicarse con SISTEMAS.";
                 }
             }
-
             return new Helper_E { DocEntry = docEntry, Mensajes = new List<string> { mensaje } };
         }
+
         public string EditarUsuario(Usuario_E datos)
         {
             string msj = string.Empty;
-
             using (SqlConnection cn = new SqlConnection(uti.cadSql))
             {
                 cn.Open();
-
                 try
                 {
                     SqlCommand cmd = new SqlCommand("dbo.MANT_OUSR", cn);
                     cmd.CommandType = CommandType.StoredProcedure;
-
                     cmd.Parameters.AddWithValue("@TipoMantenimiento", "U");         // UPDATE
                     cmd.Parameters.AddWithValue("@DocEntry", datos.DocEntry);
                     cmd.Parameters.AddWithValue("@Email", datos.Email);
                     cmd.Parameters.AddWithValue("@Password", datos.Password);
                     cmd.Parameters.AddWithValue("@WhsCode", datos.WhsCode);
                     cmd.Parameters.AddWithValue("@CodigoSap", datos.CodigoSap);
-
                     cmd.ExecuteNonQuery();
                 }
                 catch (Exception ex)
                 {
                     RegistrarError(ex, "Usuario_D - EditarUsuario");
-                    msj = "Ocurrió un error al registrar usuario. Por favor, comuníquese con el área de Sistemas para más información.";
+                    msj = "Ocurrió un error al registrar usuario. Por favor, comunicarse con SISTEMAS.";
                 }
             }
-
             return msj;
         }
         public string Inactivar(Usuario_E usu)
