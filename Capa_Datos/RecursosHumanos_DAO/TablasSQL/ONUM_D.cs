@@ -10,11 +10,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 namespace Capa_Datos.RecursosHumanos_DAO.TablasSQL
 {
     public class ONUM_D
     {
-        readonly Utilitarios uti = new Utilitarios();
+        private readonly Utilitarios uti = new Utilitarios();
+
         public string RegistrarNumero(ONUM_E datos)
         {
             string mensajeError;
@@ -39,6 +41,7 @@ namespace Capa_Datos.RecursosHumanos_DAO.TablasSQL
             }
             return mensajeError;
         }
+
         public string EditarNumero(ONUM_E num)
         {
             string mensajeError;
@@ -73,6 +76,7 @@ namespace Capa_Datos.RecursosHumanos_DAO.TablasSQL
             }
             return mensajeError;
         }
+
         public string EliminarNumero(int idNumero)
         {
             string mensajeError;
@@ -96,6 +100,7 @@ namespace Capa_Datos.RecursosHumanos_DAO.TablasSQL
             }
             return mensajeError;
         }
+
         public string AsignarNumero(int idNumero, string nroDocumento)
         {
             string mensajeError;
@@ -120,6 +125,7 @@ namespace Capa_Datos.RecursosHumanos_DAO.TablasSQL
             }
             return mensajeError;
         }
+
         public string LiberarNumero(int idNumero, int idOEMPL)
         {
             string mensajeError;
@@ -144,6 +150,7 @@ namespace Capa_Datos.RecursosHumanos_DAO.TablasSQL
             }
             return mensajeError;
         }
+
         public string LiberarNumerosEmpleado(string nroDocumento)
         {
             string mensajeError;
@@ -167,6 +174,7 @@ namespace Capa_Datos.RecursosHumanos_DAO.TablasSQL
             }
             return mensajeError;
         }
+
         public List<ONUM_E> ListarNumeros(ONUM_E filtros)
         {
             List<ONUM_E> lista = null;
@@ -241,6 +249,7 @@ namespace Capa_Datos.RecursosHumanos_DAO.TablasSQL
             }
             return lista;
         }
+
         public ONUM_E ObtenerDatosNumero(int idNumero)
         {
             ONUM_E obj = null;
@@ -284,6 +293,7 @@ namespace Capa_Datos.RecursosHumanos_DAO.TablasSQL
             }
             return obj;
         }
+
         public List<RptNumerosCorporativos_E> ExportarListaNumeros(RptNumerosCorporativos_E filtros)
         {
             List<RptNumerosCorporativos_E> lista = null;
@@ -356,6 +366,7 @@ namespace Capa_Datos.RecursosHumanos_DAO.TablasSQL
             }
             return lista;
         }
+
         private void RegistrarAuditoriaCambios(string campo, string valorAnterior, string valorActual, int idNumero, int registradoPor)
         {
             if (!string.IsNullOrWhiteSpace(valorActual) && !valorAnterior.Equals(valorActual))
@@ -370,6 +381,7 @@ namespace Capa_Datos.RecursosHumanos_DAO.TablasSQL
                 });
             }
         }
+
         private void RegistrarError(Exception ex, string nombreArchivo)
         {
             File.AppendAllText(uti.directorioLogs + nombreArchivo + ".txt", $"{DateTime.Now}: {ex.Message}\n {ex.StackTrace}\n");

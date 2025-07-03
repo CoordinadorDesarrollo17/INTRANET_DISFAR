@@ -28,6 +28,7 @@
 
         // Campos que no son de la tabla
         public string DescripcionEstado { get; set; }
+
         public string NombresApellidos { get; set; }
         public EMPL1_E DatosLaborales { get; set; }
         public int PaginacionResultados { get; set; }

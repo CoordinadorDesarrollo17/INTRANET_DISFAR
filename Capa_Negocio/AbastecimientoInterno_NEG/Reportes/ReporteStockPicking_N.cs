@@ -33,7 +33,6 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.Reportes
                 // Iterar sobre una copia de la lista para evitar el error de modificación
                 foreach (var item in articulos.ToList())
                 {
-                    // CAN
                     List<DetalleRequerimientos_E> resultDetReq = _requerimientosN.ListarDetalles(item.ItemCode, "CantidadSolicitada");
                     int quantityReq = resultDetReq?.Sum(r => r.QuantityUnidadesCajas) ?? 0;
 
@@ -74,6 +73,68 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.Reportes
                 .ThenBy(n => n.StockPicking > 0 && n.StockPicking < n.StockMinAbastecimiento * 0.5M)      // Stock picking crítico por abastecer (<50% ROJO)
                 .ThenBy(n => n.StockMinAbastecimiento > 0 ? ((decimal)n.StockPicking * 100 / n.StockMinAbastecimiento) : decimal.MaxValue)       // Finalmente, ordena por % de abastecimiento ASC, pero evita división por cero
                 .ToList();
+        }
+
+        public List<OITW_E> ListarArticulosConStockPickingInsuficiente()
+        {
+            var resultado = new List<OITW_E>();
+            var controlStockInternoPicking = _datosReporte.ControlHistoricoDeIngresosAPicking();
+
+            // Obtenemos todos los SKUs que ya se encuentran registrado en un requerimiento
+            var filtrosDetalleReq = new DetalleRequerimientos_E { AtendidoReserva = 0, AtendidoPicking = 0 };
+            var articulosEnRequerimientos = new DetalleRequerimientos_N().ObtenerDetalleRequerimiento(filtrosDetalleReq)
+                .Item2.Select(r => r.ItemCode)
+                .Distinct()
+                .ToHashSet();
+
+            // Obtener los artículos disponibles que no están en requerimientos
+            List<OITW_E> articulos = new Capa_Negocio.Almacen_NEG.Tablas.OITW_N()
+                .ListarDetArticulosInv(new OITW_E { WhsCode = "16" })
+                .Where(x => x.OnHand > 0 && !articulosEnRequerimientos.Contains(x.ItemCode))
+                .ToList();
+
+            int contador = 1;
+            if (articulos != null && articulos.Any())
+            {
+                // Iterar sobre una copia de la lista para evitar el error de modificación
+                foreach (var item in articulos.ToList())
+                {
+                    // Tener en cuenta solo 20 SKUs
+                    if (contador == 20)
+                        break;
+
+                    // 1. Obtener la cantidad solicitada para este ItemCode
+                    List<DetalleRequerimientos_E> resultDetReq = _requerimientosN.ListarDetalles(item.ItemCode, "CantidadSolicitada");
+                    int quantityReq = resultDetReq?.Sum(r => r.QuantityUnidadesCajas) ?? 0;
+
+                    // 2. Obtener los lotes disponibles para ese ItemCode
+                    List<UbicacionesLotes_E> resultUbicacionesLotes = _ubicacionesLotesN.Obtener(item.ItemCode).Where(x => x.Almacen.Equals("RESERVA")).ToList();
+                    int quantityUbicacionesLote = resultUbicacionesLotes?.Sum(r => r.QuantityUnidadesCajas) ?? 0;
+
+                    int stockDeAlmReserva = quantityUbicacionesLote - quantityReq;
+                    decimal stockEnPicking = item.StockLibreUnidades - stockDeAlmReserva;
+                    decimal stockMinimoParaLaVenta = new StockMinProductos_N().Obtener(item.ItemCode).StockMinAbastecimiento;
+                    item.CantidadSolicitada = Convert.ToInt32(stockMinimoParaLaVenta - stockEnPicking);
+
+                    var controlPorItemCode = controlStockInternoPicking.FirstOrDefault(i => i.ItemCode == item.ItemCode);
+
+                    item.StockPicking = stockEnPicking;
+                    item.StockMinAbastecimiento = (controlPorItemCode != null && item.StockLibreUnidades > 0) ? controlPorItemCode.StockMinAbastecimiento : 0;        // Debe existir stock en RESERVA 
+
+                    // Si está en condición crítica (<50%) y tiene stock en RESERVA, lo agregamos al resultado
+                    if (stockDeAlmReserva > 0 && item.StockPicking > 0 && item.StockPicking < item.StockMinAbastecimiento * 0.5M)
+                    {
+                        resultado.Add(new OITW_E
+                        {
+                            ItemCode = item.ItemCode,
+                            CantidadSolicitada = item.CantidadSolicitada
+                        });
+                        ++contador;
+                    }
+                }
+            }
+
+            return resultado;
         }
 
         public (Helper_E, List<ReporteStockPicking_E>) ListarStockPicking()

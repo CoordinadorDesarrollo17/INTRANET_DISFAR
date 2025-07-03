@@ -97,13 +97,12 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
             if (todos == false)
             {
                 topSelect = "TOP 100";
-            }
-            else topSelect = "";
+            } else topSelect = "";
 
             string estadoFiltro = filtro?.Estado != null ? filtro.Estado.Replace("'", "''") : "";
 
             string select = $@"
-            SELECT {topSelect}
+            SELECT  {topSelect}
                 AC.DocEntry,
                 AC.DocNum,
                 CONVERT(varchar, AC.FechaRegistro, 23) AS FechaRegistro,

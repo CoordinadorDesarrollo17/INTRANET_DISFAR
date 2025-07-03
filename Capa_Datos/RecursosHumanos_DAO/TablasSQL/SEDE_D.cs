@@ -11,11 +11,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-namespace Capa_Datos.General_DAO
+
+namespace Capa_Datos.RecursosHumanos_DAO.TablasSQL
 {
     public class SEDE_D
     {
-        readonly Utilitarios uti = new Utilitarios();
+        private readonly Utilitarios uti = new Utilitarios();
+
         public string RegistrarSede(SEDE_E datos)
         {
             string mensajeError;
@@ -36,11 +38,12 @@ namespace Capa_Datos.General_DAO
                 catch (Exception ex)
                 {
                     File.AppendAllText(uti.directorioLogs + "SEDE_D - RegistrarSede.txt", $"{DateTime.Now}: {ex.Message}\n {ex.StackTrace}\n");        // Registro de error
-                    mensajeError = "Ocurrió un error al registrar la sede. Por favor, comuníquese con el área de Sistemas para más información.";
+                    mensajeError = "Ocurrió un error al registrar la sede. Por favor, comunicarse con SISTEMAS.";
                 }
             }
             return mensajeError;
         }
+
         public string EditarSede(SEDE_E datos)
         {
             string mensajeError;
@@ -60,11 +63,12 @@ namespace Capa_Datos.General_DAO
                 catch (Exception ex)
                 {
                     File.AppendAllText(uti.directorioLogs + "SEDE_D - EditarSede.txt", $"{DateTime.Now}: {ex.Message}\n {ex.StackTrace}\n");        // Registro de error
-                    mensajeError = "Ocurrió un error al editar la sede. Por favor, comuníquese con el área de Sistemas para más información.";
+                    mensajeError = "Ocurrió un error al editar la sede. Por favor, comunicarse con SISTEMAS.";
                 }
             }
             return mensajeError;
         }
+
         public string EliminarSede(int Id)
         {
             string mensajeError;
@@ -83,11 +87,12 @@ namespace Capa_Datos.General_DAO
                 catch (Exception ex)
                 {
                     File.AppendAllText(uti.directorioLogs + "SEDE_D - EliminarSede.txt", $"{DateTime.Now}: {ex.Message}\n {ex.StackTrace}\n");        // Registro de error
-                    mensajeError = "Ocurrió un error al eliminar la sede. Por favor, comuníquese con el área de Sistemas para más información.";
+                    mensajeError = "Ocurrió un error al eliminar la sede. Por favor, comunicarse con SISTEMAS.";
                 }
             }
             return mensajeError;
         }
+
         public List<SEDE_E> ListarSedes(SEDE_E filtros)
         {
             List<SEDE_E> lista = null;
@@ -124,7 +129,7 @@ namespace Capa_Datos.General_DAO
                             cmd.Parameters.AddWithValue("@Estado", filtros.Estado);
                         }
                     }
-                    sb.Append($" ORDER BY SD.Nombre ASC");   
+                    sb.Append($" ORDER BY SD.Nombre ASC");
                     cmd.CommandText = sb.ToString();
                     cn.Open();
                     using (SqlDataReader dr = cmd.ExecuteReader())
@@ -153,6 +158,7 @@ namespace Capa_Datos.General_DAO
             }
             return lista;
         }
+
         public SEDE_E ObtenerDatosSede(int Id)
         {
             SEDE_E obj = null;

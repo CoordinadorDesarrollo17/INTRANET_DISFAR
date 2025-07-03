@@ -3929,43 +3929,69 @@ namespace Capa_Usuario.Controllers
                 .ToList();
 
             List<OrdenDeVentaAgrupada_E> resultado = lista
-                .GroupBy(x => new { x.Almacen, x.DocNum, x.NombreBd, x.Fecha, x.CardName, x.RucCliente, x.SlpName, x.DocTotal })
-                .Select(doc => new OrdenDeVentaAgrupada_E
-                {
-                    Almacen = doc.Key.Almacen,
-                    DocNum = doc.Key.DocNum,
-                    NombreBd = doc.Key.NombreBd,
-                    Fecha = Convert.ToDateTime(doc.Key.Fecha).ToString("dd/MM/yyyy"),
-                    CardName = doc.Key.CardName,
-                    RucCliente = doc.Key.RucCliente,
-                    SlpName = doc.Key.SlpName,
-                    DocTotal = doc.Key.DocTotal,
+                 .GroupBy(x => new { x.Almacen, x.DocNum, x.NombreBd, x.Fecha, x.CardName, x.RucCliente, x.SlpName, x.DocTotal })
+                 .Select(doc => new OrdenDeVentaAgrupada_E
+                 {
+                     Almacen = doc.Key.Almacen,
+                     DocNum = doc.Key.DocNum,
+                     NombreBd = doc.Key.NombreBd,
+                     Fecha = Convert.ToDateTime(doc.Key.Fecha).ToString("dd/MM/yyyy"),
+                     CardName = doc.Key.CardName,
+                     RucCliente = doc.Key.RucCliente,
+                     SlpName = doc.Key.SlpName,
+                     DocTotal = doc.Key.DocTotal,
 
-                    ItemCodeDetalle = doc
-                        .GroupBy(x => x.ItemCode)
-                        .Select(g => new OVItemCodeDetalle_E
-                        {
-                            Codigo = g.Key,
-                            Producto = g.First().Producto,
-                            Laboratorio = g.First().Laboratorio,                            
-                            TotalUnidadesVendidas = g.Sum(x => x.NumUnidVend),
-                            Comentarios = g.First().Comentarios,
-                            Ubicaciones = g.First().Ubicaciones,
+                     ItemCodeDetalle = doc
+                         .Select((x, idx) => new
+                         {
+                             x.ItemCode,
+                             x.UniMedidVend,
+                             x.Producto,
+                             x.Laboratorio,
+                             x.Comentarios,
+                             x.Ubicaciones,
+                             x.Lote,
+                             x.FechaVenc,
+                             x.NumUnidVend,
+                             x.PrecioProdIgvVend,
+                             x.TotalProdIgvVend,
+                             x.CantidadSolicitadaVenta,
+                             Grupo = x.UniMedidVend?.Trim().ToUpper() == "F" ? $"{x.ItemCode}_idx{idx}" : x.ItemCode
+                         })
+                         .ToList()
+                         .GroupBy(x => x.Grupo)
+                         .Select(g =>
+                         {
+                             // Sumar todas las unidades vendidas del mismo ItemCode (no por idx)
+                             var totalUnidadesVendidas = doc
+                                 .Where(d => d.ItemCode == g.First().ItemCode)
+                                 .Sum(d => d.NumUnidVend);
 
-                            LoteDetalle = g
-                                .GroupBy(l => l.Lote)
-                                .Select(l => new OVLoteDetalle_E
-                                {
-                                    Lote = l.Key,
-                                    FechaVenc = l.First().FechaVenc,
-                                    NumUnidVend = l.Sum(x => x.NumUnidVend),
-                                    PrecioProdIgvVend = l.First().PrecioProdIgvVend,
-                                    TotalProdIgvVend = l.First().TotalProdIgvVend,
-                                    UniMedidVend = l.First().UniMedidVend,
-                                    CantidadSolicitadaVenta = l.Sum(y => y.CantidadSolicitadaVenta)
-                                }).ToList()
-                        }).ToList()
-                }).ToList();
+                             return new OVItemCodeDetalle_E
+                             {
+                                 Codigo = g.First().ItemCode,
+                                 Producto = g.First().Producto,
+                                 Laboratorio = g.First().Laboratorio,
+                                 Comentarios = g.First().Comentarios,
+                                 Ubicaciones = g.First().Ubicaciones,
+                                 TotalUnidadesVendidas = totalUnidadesVendidas,
+
+                                 LoteDetalle = g
+                                     .GroupBy(l => l.Lote)
+                                     .Select(l => new OVLoteDetalle_E
+                                     {
+                                         Lote = l.Key,
+                                         FechaVenc = l.First().FechaVenc,
+                                         NumUnidVend = l.Sum(x => x.NumUnidVend),
+                                         PrecioProdIgvVend = l.First().PrecioProdIgvVend,
+                                         TotalProdIgvVend = l.First().TotalProdIgvVend,
+                                         UniMedidVend = l.First().UniMedidVend,
+                                         CantidadSolicitadaVenta = l.Sum(y => y.CantidadSolicitadaVenta)
+                                     }).ToList()
+                             };
+                         }).ToList()
+                 }).ToList();
+
 
             ViewBag.AlmProcedencia = almProcedencia;
 

@@ -49,7 +49,6 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
                 .GroupBy(item => item.Value.ItemCode)
                 .ToDictionary(g => g.Key, g => g.Sum(i => i.Value.QuantityCajas));
 
-
             foreach (var item in cantidadTransferencia)
             {
                 // 3. Si las cantidades no coinciden, retorna null

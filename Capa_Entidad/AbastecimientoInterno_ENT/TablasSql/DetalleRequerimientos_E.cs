@@ -24,5 +24,6 @@
         public  string Posicion{ get; set; }
         public  string Nivel{ get; set; }
         public string Zona { get; set; }         // Zona solo cuando sea Venta Master
+        public int Aprobado { get; set; }         // Campo de requerimiento automático
     }
 }
