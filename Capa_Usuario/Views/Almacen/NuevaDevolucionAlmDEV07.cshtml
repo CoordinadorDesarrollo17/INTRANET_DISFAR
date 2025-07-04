@@ -18,19 +18,22 @@
         height: 38px !important;
         min-height: 38px !important;
         font-size: 1rem;
-        line-height: 38px !important; 
+        line-height: 38px !important;
         padding: 0 12px;
         box-sizing: border-box;
     }
+
     .select2-container--default .select2-selection--single .select2-selection__rendered {
         line-height: 38px !important;
         padding-left: 0 !important;
         padding-right: 0 !important;
-        text-align: center; 
+        text-align: center;
     }
+
     .select2-container--default .select2-selection--single .select2-selection__arrow {
         height: 38px !important;
     }
+
     .form-control {
         text-align: center;
     }
@@ -85,7 +88,6 @@
 
         <div class="row mt-4">
             <div class="col-lg-6">
-                <button type="button" id="btn_modalArticulos" data-toggle="modal" data-target="#modalArticulos" hidden></button>
                 <button type="button" class="btn btn-warning" onclick="agregarArticulos();"><i class="icon icon-plus"></i> Agregar Artículos</button>
                 <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#div_nuevoArticulo" aria-expanded="false" aria-controls="div_nuevoArticulo"><i class="icon icon-plus"></i> Nuevo Artículo</button>
             </div>
@@ -208,8 +210,7 @@
                 <div class="row mt-2">
                     <div class="col-lg-4 my-2">
                         <label class="text-cobefar font-weight-bold">Producto:</label>
-                        <input type="search" id="ItemName" list='ListaProductos' class="form-control border-success" onchange="cargarItemName()" autocomplete="off" />
-                        <div id="div_listaProductos"></div>
+                        <select id="ItemName" class="form-control border-success " onchange="cargarItemName()"></select>
                     </div>
 
                     <div class="col-lg-2 my-2">
@@ -340,6 +341,10 @@
         $('#lab_nuevoArticulo').select2({
             width: '100%'
         });
+        $('#ItemName').select2({
+            width: '100%',
+            dropdownParent: $('#modalArticulos') // Importante para modales Bootstrap
+        });
 
         // Al cargar la página, bloquea el select de producto si no hay laboratorio seleccionado
         if (!$('#lab_nuevoArticulo').val()) {
@@ -377,7 +382,7 @@
     }
 
     function agregarArticulos() {
-        if ($('#CardCode').val() === '' ) {
+        if ($('#CardCode').val() === '') {
             Swal.fire('Por favor escoger un Proveedor');
         } else {
             $('#Laboratorio').val('');
@@ -387,14 +392,14 @@
             }
 
             limpiarCampos('NumAtCard');
-            $('#btn_modalArticulos').click();
+            $('#modalArticulos').modal('show'); // <-- Bootstrap modal estándar
         }
     }
 
 
     function cargarItemName() {
-        let itemName = $('#ItemName').val();
-        let itemCode = $(`#ListaProductos option[value='${itemName}']`).attr("itemcode");
+        let $option = $('#ItemName option:selected');
+        let itemCode = $option.val();
         $('#ItemCode').val(itemCode);
 
         if (typeof itemCode !== 'undefined' && itemCode != '') {
@@ -421,7 +426,7 @@
         $(`#${idDestino}`).val(valorDestino);
     }
 
-    function buscarProducto(idSelect, lista) {
+    function buscarProducto(idSelect, destino) {
         var firmCode = $(`#${idSelect}`).val();
         var validFor = $('#validFor_nuevoArticulo').val();
 
@@ -443,7 +448,18 @@
                 }
             }).done(function (response) {
                 swal.close();
-                let $select = $('#prod_nuevoArticulo');
+                let $select;
+                let isModal = false;
+
+                if (idSelect === 'Laboratorio') {
+                    $select = $('#ItemName');
+                    isModal = true;
+                } else if (idSelect === 'lab_nuevoArticulo') {
+                    $select = $('#prod_nuevoArticulo');
+                } else {
+                    $select = $('#' + destino);
+                }
+
                 $select.empty();
                 $select.append('<option value="">Seleccione</option>');
                 if (response && response.length > 0) {
@@ -460,7 +476,18 @@
                         );
                     });
                 }
-                $select.select2({ width: '100%' });
+
+                // Inicializa select2 correctamente según el contexto
+                if (isModal) {
+                    $select.select2({
+                        width: '100%',
+                        dropdownParent: $('#modalArticulos')
+                    });
+                } else {
+                    $select.select2({
+                        width: '100%'
+                    });
+                }
             }).fail(function (jqXHR, textStatus, errorThrown) {
                 console.log(jqXHR.status + textStatus + errorThrown);
             });
