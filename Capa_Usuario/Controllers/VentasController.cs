@@ -3983,7 +3983,7 @@ namespace Capa_Usuario.Controllers
                                     {
                                         Lote = l.Key,
                                         FechaVenc = l.First().FechaVenc,
-                                        NumUnidVend = l.First().NumUnidVend,
+                                        NumUnidVend = l.Sum(x => x.NumUnidVend),
                                         PrecioProdIgvVend = l.First().PrecioProdIgvVend,
                                         TotalProdIgvVend = l.First().TotalProdIgvVend,
                                         UniMedidVend = l.First().UniMedidVend,
