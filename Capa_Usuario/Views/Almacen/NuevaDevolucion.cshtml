@@ -605,7 +605,7 @@
 
     function cargarItemName() {
         let $option = $('#ItemName option:selected');
-        let itemCode = $option.data('itemcode'); // o $option.attr('data-itemcode')
+        let itemCode = $option.attr('itemcode');
         $('#ItemCode').val(itemCode);
 
         if (typeof itemCode !== 'undefined' && itemCode !== '') {
