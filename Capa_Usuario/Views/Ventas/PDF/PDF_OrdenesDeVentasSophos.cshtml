@@ -105,41 +105,41 @@
                 <tbody>
                     @if (Model != null)
                     {
-                        foreach (var item in Model[0].ItemCodeDetalle)
-                        {
-                            bool mostrarFaltante = true;
-                            decimal cantidadSolicitadaVentas = 0;
+                        List<string> listaCodigos = new List<string>();
 
+                        foreach (var item in Model[0].ItemCodeDetalle)
+                        {                           
+                            //decimal cantidadSolicitadaVentas = 0;
+                            decimal cantidadFaltante = 0;
                             foreach (var item2 in item.LoteDetalle)
                             {
-                                decimal cantidadFaltante = 0;
-
-                                cantidadSolicitadaVentas += item2.CantidadSolicitadaVenta;
-                                cantidadFaltante = cantidadSolicitadaVentas - item.TotalUnidadesVendidas;
-                    <tr>
-                        <td class="p-1 border">
-                            @if (item.Ubicaciones != null)
+                                //cantidadSolicitadaVentas += item2.CantidadSolicitadaVenta;
+                                //cantidadFaltante = cantidadSolicitadaVentas - item.TotalUnidadesVendidas;
+                                cantidadFaltante = item2.CantidadSolicitadaVenta - item.TotalUnidadesVendidas;
+                                <tr>
+                                    <td class="p-1 border">
+                                        @if (item.Ubicaciones != null)
                                         {
                                             foreach (var ubicacion in item.Ubicaciones)
                                             {
-                            <div>@ubicacion.Replace("PICKING-", "")</div>
+                                                <div>@ubicacion.Replace("PICKING-", "")</div>
                                             }
                                         }
-                        </td>
-                        <td class="p-1 border">@item.Codigo</td>
-                        <td class="p-1 border">@item.Producto</td>
-                        <td class="text-center p-1 border">@item2.Lote</td>
-                        <td class="text-center p-1 border">@item2.FechaVenc</td>
-                        <td class="text-center p-1 border">@item2.UniMedidVend @item2.NumUnidVend</td>
-                        <td class="text-center p-1 border">
-                            @if (mostrarFaltante)
+                                    </td>
+                                    <td class="p-1 border">@item.Codigo</td>
+                                    <td class="p-1 border">@item.Producto</td>
+                                    <td class="text-center p-1 border">@item2.Lote</td>
+                                    <td class="text-center p-1 border">@item2.FechaVenc</td>
+                                    <td class="text-center p-1 border">@item2.UniMedidVend @item2.NumUnidVend</td>
+                                    <td class="text-center p-1 border">
+                                        @if (cantidadFaltante > 0 && !listaCodigos.Contains(item.Codigo))
                                         {
-                            @Convert.ToInt32(cantidadFaltante)
-                                            mostrarFaltante = false;
+                                            @Convert.ToInt32(cantidadFaltante)
+                                            listaCodigos.Add(item.Codigo);
                                             totalFaltantes += cantidadFaltante;
                                         }
-                        </td>
-                    </tr>
+                                    </td>
+                                </tr>
                             }
                         }
                     }

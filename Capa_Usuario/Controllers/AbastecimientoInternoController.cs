@@ -807,13 +807,20 @@ namespace Capa_Usuario.Controllers
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 ViewBag.Masters = _masterN.ListarMasters();
-                var filtros = new DetalleTransferenciaReserva_E { AtendidoReserva = 1, Validado = 1 };
-                var (helper, lista) = new DetalleTransferenciaReserva_N().ObtenerDetalleTransferenciaReserva(filtros);
-                ViewBag.Articulos = helper.Icono == "success" ? lista
-                    .GroupBy(x => new { x.ItemCode, x.BatchNum })
-                    .Select(g => g.First())
+
+                ViewBag.Articulos = _ubicacionesLotesMasterN.BuscarArticulos()
+                     .GroupBy(x => new { x.ItemCode, x.BatchNum })
+                     .Select(g => g.First())
                     .OrderBy(x => x.ItemCode)
-                    .ToList() : new List<DetalleTransferenciaReserva_E>();
+                    .ToList();
+
+                //var filtros = new DetalleTransferenciaReserva_E { AtendidoReserva = 1, Validado = 1 };
+                //var (helper, lista) = new DetalleTransferenciaReserva_N().ObtenerDetalleTransferenciaReserva(filtros);
+                //ViewBag.Articulos = helper.Icono == "success" ? lista
+                //    .GroupBy(x => new { x.ItemCode, x.BatchNum })
+                //    .Select(g => g.First())
+                //    .OrderBy(x => x.ItemCode)
+                //    .ToList() : new List<DetalleTransferenciaReserva_E>();
 
                 return View();
             }
