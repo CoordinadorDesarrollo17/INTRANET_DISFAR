@@ -100,8 +100,8 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.Reportes
                 foreach (var item in articulos.ToList())
                 {
                     // Tener en cuenta solo 20 SKUs
-                    if (contador == 20)
-                        break;
+                    //if (contador == 20)
+                    //    break;
 
                     // 1. Obtener la cantidad solicitada para este ItemCode
                     List<DetalleRequerimientos_E> resultDetReq = _requerimientosN.ListarDetalles(item.ItemCode, "CantidadSolicitada");
