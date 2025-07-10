@@ -69,7 +69,7 @@
             </div>
         </div>
 
-        <div class="row mt-4" @if (Model != null && Model.Estado == "REVERTIDO") { Write("hidden"); }>
+        <div class="row mt-4" @if (Model != null && Model.Estado == "ANULADO") { Write("hidden"); }>
             <div class="col-lg-3 d-flex">
                 <label class="text-dark form-label font-weight-bold font-16">Levantamiento de conformidad:</label>
                 <select name="LevConformidad" id="LevConformidad" class="form-control bg-success text-white border-success mx-4" style="width: 150px" required>

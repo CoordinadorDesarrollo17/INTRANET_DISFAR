@@ -173,7 +173,7 @@
                     </div>
                     <div class="col-lg-2 d-flex justify-content-center align-items-center">
                         <button type="button" class="btn btn-success"
-                                onclick="agregarDetalleDevolucion($('#codprod_nuevoArticulo').val(), $('#prod_nuevoArticulo').val(), $('#FirmCode_nuevoArticulo').val(), $('#FirmName_nuevoArticulo').val(), '' , '' , $('#BuyUnitMsr_nuevoArticulo').val(), '' , $('#NumInBuy_nuevoArticulo').val(), 0, 'NUEVO','','',0);">
+                                onclick="agregarDetalleDevolucion($('#codprod_nuevoArticulo').val(),$('#prod_nuevoArticulo option:selected').data('itemname'),$('#FirmCode_nuevoArticulo').val(),$('#FirmName_nuevoArticulo').val(),'', '', $('#BuyUnitMsr_nuevoArticulo').val(), '', $('#NumInBuy_nuevoArticulo').val(), 0, 'NUEVO','','',0);">
                             <i class='icon-plus'></i>
                         </button>
                     </div>
@@ -605,7 +605,7 @@
 
     function cargarItemName() {
         let $option = $('#ItemName option:selected');
-        let itemCode = $option.data('itemcode'); // o $option.attr('data-itemcode')
+        let itemCode = $option.attr('itemcode');
         $('#ItemCode').val(itemCode);
 
         if (typeof itemCode !== 'undefined' && itemCode !== '') {
@@ -675,11 +675,11 @@
                     response.forEach(function (p) {
                         $select.append(
                             `<option value="${p.ItemCode}"
-                            itemcode="${p.ItemCode}"
-                            buyunitmsr="${p.BuyUnitMsr}"
-                            numinbuy="${p.NumInBuy}"
-                            firmcode="${p.FirmCode}"
-                            firmname="${p.U_SYP_FABRICANTE}">
+                            data-itemname="${p.ItemName}"
+                            data-firmcode="${p.FirmCode}"
+                            data-firmname="${p.U_SYP_FABRICANTE}"
+                            data-buyunitmsr="${p.BuyUnitMsr}"
+                            data-numinbuy="${p.NumInBuy}">
                             ${p.ItemName}
                         </option>`
                         );
@@ -1051,11 +1051,11 @@
 
     function cargarItemCode() {
         let $option = $('#prod_nuevoArticulo option:selected');
-        let itemCode = $option.attr("itemcode");
-        let buyUnitMsr = $option.attr("buyunitmsr");
-        let numInBuy = $option.attr("numinbuy");
-        let firmCode = $option.attr("firmcode");
-        let firmName = $option.attr("firmname");
+        let itemCode = $option.val();
+        let buyUnitMsr = $option.data("buyunitmsr");
+        let numInBuy = $option.data("numinbuy");
+        let firmCode = $option.data("firmcode");
+        let firmName = $option.data("firmname");
 
         $('#codprod_nuevoArticulo').val(itemCode);
         $('#BuyUnitMsr_nuevoArticulo').val(buyUnitMsr);
