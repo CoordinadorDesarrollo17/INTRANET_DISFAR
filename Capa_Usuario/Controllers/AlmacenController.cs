@@ -275,21 +275,14 @@ namespace Capa_Usuario.Controllers
         {
             if (datos.FirmCode >= 1)
             {
-                var datalist = "<datalist id='ListaProductos'>";
-                var listaProductos = new Capa_Negocio.Almacen_NEG.Tablas.OITM_N().Listar(new Capa_Entidad.Almacen_ENT.Tablas.OITM_E { FirmCode = datos.FirmCode });
-                if (listaProductos != null && listaProductos.Count >= 1)
-                {
-                    foreach (var p in listaProductos)
-                    {
-                        datalist += $"<option ItemCode='{p.ItemCode}' FirmCode='{p.FirmCode}' FirmName='{p.U_SYP_FABRICANTE}' BuyUnitMsr='{p.BuyUnitMsr}' NumInBuy='{p.NumInBuy}' value='{p.ItemName}'></option>";
-                    }
-                }
-                datalist += "</datalist>";
-                return Json(datalist);
+                var listaProductos = new Capa_Negocio.Almacen_NEG.Tablas.OITM_N().Listar(
+                    new Capa_Entidad.Almacen_ENT.Tablas.OITM_E { FirmCode = datos.FirmCode, validFor = datos.validFor }
+                );
+                return Json(listaProductos, JsonRequestBehavior.AllowGet);
             }
             else
             {
-                return null;
+                return Json(new List<Capa_Entidad.Almacen_ENT.Tablas.OITM_E>(), JsonRequestBehavior.AllowGet);
             }
         }
         public JsonResult BuscarLotesProducto(Capa_Entidad.Almacen_ENT.Tablas.OIBT_E filtros)

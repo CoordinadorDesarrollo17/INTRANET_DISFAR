@@ -13,7 +13,31 @@
 
     var isPopup = Request.QueryString["popup"] != null && Request.QueryString["popup"].ToLower() == "true";
 }
+<style>
+    .form-control, .select2-container .select2-selection--single {
+        height: 38px !important;
+        min-height: 38px !important;
+        font-size: 1rem;
+        line-height: 38px !important;
+        padding: 0 12px;
+        box-sizing: border-box;
+    }
 
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 38px !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        text-align: center;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 38px !important;
+    }
+
+    .form-control {
+        text-align: center;
+    }
+</style>
 @if (!isPopup)
 {
     <div class="pt-4">
@@ -64,7 +88,6 @@
 
         <div class="row mt-4">
             <div class="col-lg-6">
-                <button type="button" id="btn_modalArticulos" data-toggle="modal" data-target="#modalArticulos" hidden></button>
                 <button type="button" class="btn btn-warning" onclick="agregarArticulos();"><i class="icon icon-plus"></i> Agregar Artículos</button>
                 <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#div_nuevoArticulo" aria-expanded="false" aria-controls="div_nuevoArticulo"><i class="icon icon-plus"></i> Nuevo Artículo</button>
             </div>
@@ -73,9 +96,18 @@
         <div id="div_nuevoArticulo" class="collapse">
             <div class="card card-body bg-dark m-4 p-4">
                 <div class="row">
-                    <div class="col-lg-4">
+                    <div class="col-lg-2">
+                        <label class="text-white font-weight-bold">Estado:</label>
+                        <select id="validFor_nuevoArticulo" class="form-control border-success"
+                                onchange="$('#codprod_nuevoArticulo').val(''); $('#prod_nuevoArticulo').val(''); buscarProducto('lab_nuevoArticulo', 'div_productosNuevoArticulo');">
+                            <option value="Y">Activo</option>
+                            <option value="N">Inactivo</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-3">
                         <label class="text-white font-weight-bold">Laboratorio:</label>
-                        <select id="lab_nuevoArticulo" class="form-control bg-cobefar text-white" onchange="$('#codprod_nuevoArticulo').val(''), $('#prod_nuevoArticulo').val(''); buscarProducto(this.id, 'div_productosNuevoArticulo');">
+                        <select id="lab_nuevoArticulo" class="form-control bg-cobefar text-white"
+                                onchange="$('#codprod_nuevoArticulo').val(''), $('#prod_nuevoArticulo').val(''); buscarProducto(this.id, 'div_productosNuevoArticulo');">
                             <option value="">Seleccione</option>
                             @if (Laboratorios != null && Laboratorios.Count() >= 1)
                             {
@@ -86,13 +118,10 @@
                             }
                         </select>
                     </div>
-
-                    <div class="col-lg-4">
+                    <div class="col-lg-3">
                         <label for="prod_nuevoArticulo" class="text-white font-weight-bold">Producto:</label>
-                        <input type="search" id="prod_nuevoArticulo" list='ListaProductos' class="form-control border-success" onchange="cargarItemCode()" autocomplete="off" />
-                        <div id="div_productosNuevoArticulo"></div>
+                        <select id="prod_nuevoArticulo" class="form-control border-success" onchange="cargarItemCode()"></select>
                     </div>
-
                     <div class="col-lg-2">
                         <label for="codprod_nuevoArticulo" class="text-white font-weight-bold">Cód. producto:</label>
                         <input type="text" id="codprod_nuevoArticulo" class="form-control border-success text-center" readonly />
@@ -101,13 +130,14 @@
                         <input type="hidden" id="FirmCode_nuevoArticulo" readonly />
                         <input type="hidden" id="FirmName_nuevoArticulo" readonly />
                     </div>
-
                     <div class="col-lg-2 d-flex justify-content-center align-items-center">
-                        <button type="button" class="btn btn-success" onclick="agregarDetalleDevolucion($('#codprod_nuevoArticulo').val(), $('#prod_nuevoArticulo').val(), $('#FirmCode_nuevoArticulo').val(), $('#FirmName_nuevoArticulo').val(), '' , '' , $('#BuyUnitMsr_nuevoArticulo').val(), '' , $('#NumInBuy_nuevoArticulo').val(), 0, 'NUEVO','','',0);"><i class='icon-plus'></i> </button>
+                        <button type="button" class="btn btn-success"
+                                onclick="agregarDetalleDevolucion($('#codprod_nuevoArticulo').val(), $('#prod_nuevoArticulo').val(), $('#FirmCode_nuevoArticulo').val(), $('#FirmName_nuevoArticulo').val(), '' , '' , $('#BuyUnitMsr_nuevoArticulo').val(), '' , $('#NumInBuy_nuevoArticulo').val(), 0, 'NUEVO','','',0);">
+                            <i class='icon-plus'></i>
+                        </button>
                     </div>
                 </div>
             </div>
-
         </div>
 
         <div class="row pt-4 mt-4">
@@ -180,8 +210,7 @@
                 <div class="row mt-2">
                     <div class="col-lg-4 my-2">
                         <label class="text-cobefar font-weight-bold">Producto:</label>
-                        <input type="search" id="ItemName" list='ListaProductos' class="form-control border-success" onchange="cargarItemName()" autocomplete="off" />
-                        <div id="div_listaProductos"></div>
+                        <select id="ItemName" class="form-control border-success " onchange="cargarItemName()"></select>
                     </div>
 
                     <div class="col-lg-2 my-2">
@@ -305,7 +334,33 @@
         const yyyy = hoy.getFullYear();
         const mm = String(hoy.getMonth() + 1).padStart(2, '0');
         const dd = String(hoy.getDate()).padStart(2, '0');
-        inputFecha.max = `${yyyy}-${mm}-${dd}`; 
+        inputFecha.max = `${yyyy}-${mm}-${dd}`;
+        $('#lab_nuevoArticulo').select2({
+            width: '100%' // Opcional, para que ocupe todo el ancho del contenedor
+        });
+        $('#lab_nuevoArticulo').select2({
+            width: '100%'
+        });
+        $('#ItemName').select2({
+            width: '100%',
+            dropdownParent: $('#modalArticulos') // Importante para modales Bootstrap
+        });
+
+        // Al cargar la página, bloquea el select de producto si no hay laboratorio seleccionado
+        if (!$('#lab_nuevoArticulo').val()) {
+            $('#prod_nuevoArticulo').prop('disabled', true).val('');
+            $('#prod_nuevoArticulo').trigger('change.select2');
+        }
+
+        // Evento para habilitar/deshabilitar el select de producto según el laboratorio
+        $('#lab_nuevoArticulo').on('change', function () {
+            if ($(this).val()) {
+                $('#prod_nuevoArticulo').prop('disabled', false);
+            } else {
+                $('#prod_nuevoArticulo').prop('disabled', true).val('');
+                $('#prod_nuevoArticulo').trigger('change.select2');
+            }
+        });
     });
 
     var num = 0;
@@ -327,7 +382,7 @@
     }
 
     function agregarArticulos() {
-        if ($('#CardCode').val() === '' ) {
+        if ($('#CardCode').val() === '') {
             Swal.fire('Por favor escoger un Proveedor');
         } else {
             $('#Laboratorio').val('');
@@ -337,14 +392,14 @@
             }
 
             limpiarCampos('NumAtCard');
-            $('#btn_modalArticulos').click();
+            $('#modalArticulos').modal('show'); // <-- Bootstrap modal estándar
         }
     }
 
 
     function cargarItemName() {
-        let itemName = $('#ItemName').val();
-        let itemCode = $(`#ListaProductos option[value='${itemName}']`).attr("itemcode");
+        let $option = $('#ItemName option:selected');
+        let itemCode = $option.val();
         $('#ItemCode').val(itemCode);
 
         if (typeof itemCode !== 'undefined' && itemCode != '') {
@@ -371,11 +426,13 @@
         $(`#${idDestino}`).val(valorDestino);
     }
 
-    function buscarProducto(idSelect, lista) {
-        if ($(`#${idSelect}`).val() != '') {
+    function buscarProducto(idSelect, destino) {
+        var firmCode = $(`#${idSelect}`).val();
+        var validFor = $('#validFor_nuevoArticulo').val();
+
+        if (firmCode != '') {
             Swal.fire({
                 html: '<img src="/imagenes/index/ReportesDigemid/cargando.gif" />',
-                //closeOnCancel: false,
                 allowOutsideClick: false,
                 showCancelButton: false,
                 showConfirmButton: false
@@ -385,13 +442,51 @@
                 url: '/Almacen/BuscarProducto',
                 type: 'POST',
                 dataType: 'json',
-                data: { 'FirmCode': $(`#${idSelect}`).val() }
+                data: {
+                    'FirmCode': firmCode,
+                    'ValidFor': validFor
+                }
             }).done(function (response) {
                 swal.close();
-                if (response != '') {
-                    $(`#${lista}`).html(response);
+                let $select;
+                let isModal = false;
+
+                if (idSelect === 'Laboratorio') {
+                    $select = $('#ItemName');
+                    isModal = true;
+                } else if (idSelect === 'lab_nuevoArticulo') {
+                    $select = $('#prod_nuevoArticulo');
                 } else {
-                    $(`#${lista}`).html('');
+                    $select = $('#' + destino);
+                }
+
+                $select.empty();
+                $select.append('<option value="">Seleccione</option>');
+                if (response && response.length > 0) {
+                    response.forEach(function (p) {
+                        $select.append(
+                            `<option value="${p.ItemCode}"
+                            data-itemname="${p.ItemName}"
+                            data-firmcode="${p.FirmCode}"
+                            data-firmname="${p.U_SYP_FABRICANTE}"
+                            data-buyunitmsr="${p.BuyUnitMsr}"
+                            data-numinbuy="${p.NumInBuy}">
+                            ${p.ItemName}
+                        </option>`
+                        );
+                    });
+                }
+
+                // Inicializa select2 correctamente según el contexto
+                if (isModal) {
+                    $select.select2({
+                        width: '100%',
+                        dropdownParent: $('#modalArticulos')
+                    });
+                } else {
+                    $select.select2({
+                        width: '100%'
+                    });
                 }
             }).fail(function (jqXHR, textStatus, errorThrown) {
                 console.log(jqXHR.status + textStatus + errorThrown);
@@ -642,19 +737,20 @@
     }
 
     function cargarItemCode() {
-        let itemName = $('#prod_nuevoArticulo').val();
-        let itemCode = $(`#ListaProductos option[value='${itemName}']`).attr("itemcode");
-        let buyUnitMsr = $(`#ListaProductos option[value='${itemName}']`).attr("buyunitmsr");
-        let numInBuy = $(`#ListaProductos option[value='${itemName}']`).attr("numinbuy");
-        let firmCode = $(`#ListaProductos option[value='${itemName}']`).attr("firmcode");
-        let firmName = $(`#ListaProductos option[value='${itemName}']`).attr("firmname");
+        // Obtiene el option seleccionado
+        var $option = $('#prod_nuevoArticulo option:selected');
+        var itemCode = $option.val();
+        var buyUnitMsr = $option.data('buyunitmsr');
+        var numInBuy = $option.data('numinbuy');
+        var firmCode = $option.data('firmcode');
+        var firmName = $option.data('firmname');
 
-        // Campos hidden para que se puedan insertar en el detalle como cuando se busca por productos que están en la BD
-        $('#codprod_nuevoArticulo').val(itemCode);
-        $('#BuyUnitMsr_nuevoArticulo').val(buyUnitMsr);
-        $('#NumInBuy_nuevoArticulo').val(numInBuy);
-        $('#FirmCode_nuevoArticulo').val(firmCode);
-        $('#FirmName_nuevoArticulo').val(firmName);
+        // Asigna los valores a los campos correspondientes
+        $('#codprod_nuevoArticulo').val(itemCode || '');
+        $('#BuyUnitMsr_nuevoArticulo').val(buyUnitMsr || '');
+        $('#NumInBuy_nuevoArticulo').val(numInBuy || '');
+        $('#FirmCode_nuevoArticulo').val(firmCode || '');
+        $('#FirmName_nuevoArticulo').val(firmName || '');
     }
 
     function cargarMotivos(idCampoMotivo = '') {
