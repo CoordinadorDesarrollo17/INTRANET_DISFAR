@@ -24,7 +24,9 @@ namespace Capa_Entidad.ReportesDigemid_ENT
         public string Laboratorio { get; set; }
         public string Lote { get; set; }
         public string RegSanit { get; set; }
+        public decimal NumUnid { get; set; }
         public decimal NumUnidVend { get; set; }
+        public decimal CantUnid { get; set; }
         public decimal PrecioProdIgvVend { get; set; }
         public decimal TotalProdIgvVend { get; set; }
         public string UniMedidVend { get; set; }
@@ -33,5 +35,8 @@ namespace Capa_Entidad.ReportesDigemid_ENT
         public string ItemCode { get; set; }        
         public decimal CantidadSolicitadaVenta { get; set; }
         public string[] Ubicaciones { get; set; }
+
+        // C A M P O S   E X T R A S
+        public decimal TotalNumUnidVend { get; set; }
     }
 }
