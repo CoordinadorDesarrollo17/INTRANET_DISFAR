@@ -109,6 +109,7 @@ namespace Capa_Entidad.Rutas_ENT.TablasSql
             //public string Departamento2 { get; set; }
             public decimal MontoTotal { get; set; }
             public decimal MontoFinal { get; set; }
+            public string Agencia { get; set; }
             public decimal Flete { get; set; }
             public decimal GastoEnvio { get; set; }
             public string TipoVenta { get; set; }
