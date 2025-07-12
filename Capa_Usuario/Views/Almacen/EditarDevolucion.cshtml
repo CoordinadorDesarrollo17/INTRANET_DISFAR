@@ -154,8 +154,7 @@
                         <input type="hidden" id="FirmName_nuevoArticulo" readonly />
                     </div>
                     <div class="col-lg-2 d-flex justify-content-center align-items-center">
-                        <button type="button" class="btn btn-success"
-                                onclick="agregarDetalleDevolucion($('#codprod_nuevoArticulo').val(), $('#prod_nuevoArticulo').val(), $('#FirmCode_nuevoArticulo').val(), $('#FirmName_nuevoArticulo').val(), '' , '' , $('#BuyUnitMsr_nuevoArticulo').val(), '' , $('#NumInBuy_nuevoArticulo').val(), 0, 'NUEVO','','',0);">
+                        <button type="button" class="btn btn-success" onclick="agregarDetalleDevolucion($('#codprod_nuevoArticulo').val(),$('#prod_nuevoArticulo option:selected').data('itemname'),$('#FirmCode_nuevoArticulo').val(),$('#FirmName_nuevoArticulo').val(),'', '', $('#BuyUnitMsr_nuevoArticulo').val(), '', $('#NumInBuy_nuevoArticulo').val(), 0, 'NUEVO','','',0);">
                             <i class='icon-plus'></i>
                         </button>
                     </div>
@@ -648,6 +647,7 @@
                     response.forEach(function (p) {
                         $select.append(
                             `<option value="${p.ItemCode}"
+                            data-itemname="${p.ItemName}"
                             itemcode="${p.ItemCode}"
                             buyunitmsr="${p.BuyUnitMsr}"
                             numinbuy="${p.NumInBuy}"
@@ -671,7 +671,7 @@
                     });
                 }
             }).fail(function (jqXHR, textStatus, errorThrown) {
-                console.log(jqXHR.status, textStatus, errorThrown);
+                console.log(jqXHR.status + textStatus + errorThrown);
             });
         }
     }
