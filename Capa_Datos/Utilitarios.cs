@@ -45,8 +45,8 @@ namespace Capa_Datos
 
             this.BDsql = Environment.GetEnvironmentVariable("NOMBRE_BD_PRINCIPAL", EnvironmentVariableTarget.Machine);
 
-            //this.cadSql = Environment.GetEnvironmentVariable("PROYECTO_INTRANET", EnvironmentVariableTarget.Machine);
-            this.cadSql = Environment.GetEnvironmentVariable("BD_DEVELOP", EnvironmentVariableTarget.Machine);
+            this.cadSql = Environment.GetEnvironmentVariable("PROYECTO_INTRANET", EnvironmentVariableTarget.Machine);
+            //this.cadSql = Environment.GetEnvironmentVariable("BD_DEVELOP", EnvironmentVariableTarget.Machine);
 
             this.cadSql2 = Environment.GetEnvironmentVariable("BD_Operaciones", EnvironmentVariableTarget.Machine);
             CadSql3 = Environment.GetEnvironmentVariable("BD_DT", EnvironmentVariableTarget.Machine);

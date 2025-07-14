@@ -3247,56 +3247,11 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
         public List<ORTV_E> ListarTicketsAreaFacturacion(Usuario_E user, ORTV_E t)
         {
             List<ORTV_E> lista = new List<ORTV_E>();
-            string condWhere = string.Empty, orderby = "t0.DocNum DESC", condEstado = string.Empty;
+            string condWhere = string.Empty;
+            string condEstado = string.Empty;
+
             if (t != null)
             {
-                //sin activar ningun filtro solo trae tickets con cierto estado de ticket y de facturacion asi como establecer un orden de prioridad de facturar
-                if (t.DocNum == 0 && t.FechaSapTicket == null && t.CardName == null && t.Vendedor == null && t.Zona == null && t.MontoFinal == 0 && t.LugarDestino == null && t.Estado == null
-                    && t.EstadoFacturacion == null && t.EstadoPago == null && t.TipoVenta == null && t.EstadoGasto == null && t.Flete != 0.01M && t.DescuentoNC != 0.01M && t.TiempoEntrega == null)
-                {
-                    condEstado = $@" AND T0.Estado IN ('PICKEANDO','VERIFICANDO','EMPACANDO','EMPACADO', 'PESADO', 'PREENVIO', 'ENVIADO') ";
-                    condWhere = $@" AND EXISTS (
-                                                SELECT 1 
-                                                FROM VT.CC_ORTV 
-                                                WHERE DocEntry = T0.DocEntry AND Operacion = 'FIN VERIFICAR'
-                                            ) 
-                                            AND NOT EXISTS (
-                                                SELECT 1 
-                                                FROM VT.CC_ORTV 
-                                                WHERE DocEntry = T0.DocEntry 
-                                                AND Operacion = 'ANULAR FIN VERIFICAR' 
-                                                AND (
-                                                    (SELECT TOP 1 Id FROM VT.CC_ORTV WHERE DocEntry = T0.DocEntry AND Operacion = 'FIN VERIFICAR' ORDER BY Id DESC) 
-                                                    < 
-                                                    (SELECT TOP 1 Id FROM VT.CC_ORTV WHERE DocEntry = T0.DocEntry AND Operacion = 'ANULAR FIN VERIFICAR' ORDER BY Id DESC)
-                                                ) 
-                                            )
-                                                AND YEAR(T0.FechaSapTicket) = 2025 AND t0.EstadoFacturacion in ('PENDIENTE','GRE EMITIDA') ";
-                    orderby = "CASE WHEN t0.EstadoFacturacion = 'PENDIENTE' THEN 0 WHEN t0.EstadoFacturacion = 'GRE EMITIDA' THEN 1 WHEN t0.EstadoFacturacion = 'FACTURADO' THEN 2 ELSE 3 END, t0.TiempoEntrega";
-                }
-                else if (t.DocNum == 0 && t.FechaSapTicket == null && t.CardName == null && t.Vendedor == null && t.Zona == null && t.MontoFinal == 0 && t.LugarDestino == null && t.Estado == null
-                    && t.EstadoPago == null && t.TipoVenta == null && t.EstadoGasto == null && t.Flete != 0.01M && t.DescuentoNC != 0.01M && t.TiempoEntrega == null)
-                {
-                    condEstado = " AND T0.Estado IN ('PICKEANDO','VERIFICANDO','EMPACANDO','EMPACADO', 'PESADO', 'PREENVIO', 'ENVIADO') ";
-                    condWhere = $@" AND EXISTS (
-                                                SELECT 1 
-                                                FROM VT.CC_ORTV 
-                                                WHERE DocEntry = T0.DocEntry AND Operacion = 'FIN VERIFICAR'
-                                            ) 
-                                            AND NOT EXISTS (
-                                                SELECT 1 
-                                                FROM VT.CC_ORTV 
-                                                WHERE DocEntry = T0.DocEntry 
-                                                AND Operacion = 'ANULAR FIN VERIFICAR' 
-                                                AND (
-                                                    (SELECT TOP 1 Id FROM VT.CC_ORTV WHERE DocEntry = T0.DocEntry AND Operacion = 'FIN VERIFICAR' ORDER BY Id DESC) 
-                                                    < 
-                                                    (SELECT TOP 1 Id FROM VT.CC_ORTV WHERE DocEntry = T0.DocEntry AND Operacion = 'ANULAR FIN VERIFICAR' ORDER BY Id DESC)
-                                                ) 
-                                            )
-                                                AND YEAR(T0.FechaSapTicket) = 2025 ";
-                    orderby = "CASE WHEN t0.EstadoFacturacion = 'PENDIENTE' THEN 0 WHEN t0.EstadoFacturacion = 'GRE EMITIDA' THEN 1 WHEN t0.EstadoFacturacion = 'FACTURADO' THEN 2 ELSE 3 END, t0.TiempoEntrega";
-                }
                 condWhere += t.DocNum > 0 ? $" AND t0.DocNum like '%{t.DocNum}%'" : "";
                 condWhere += t.FechaSapTicket != null ? $" AND t0.FechaSapTicket='{t.FechaSapTicket}'" : "";
                 condWhere += t.AlmProcedencia != null ? $" AND t0.AlmProcedencia='{t.AlmProcedencia}'" : "";
@@ -3313,45 +3268,43 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
                 condWhere += t.DescuentoNC == 0.01M ? " AND t0.DescuentoNC>0" : "";
                 condWhere += t.TiempoEntrega != null ? $" AND CONVERT(char(10), t0.TiempoEntrega,126) = '{Convert.ToDateTime(t.TiempoEntrega).ToString("yyyy-MM-dd")}'" : "";
             }
-            string query = $@"
-            SELECT TOP 200 
-                t0.DocEntry, 
-                t0.DocNum, 
-                t0.CardCode, 
-                t0.CardName, 
-                t0.Estado, 
-                t0.FechaSapTicket, 
-                (
-                    SELECT TOP 1 HoraOperacion 
-                    FROM vt.CC_ORTV 
-                    WHERE DocEntry = t0.DocEntry AND Operacion = 'REGISTRAR' 
-                    ORDER BY FechaOperacion, HoraOperacion DESC
-                ) AS 'HoraAbierto', 
-                t0.LugarDestino, 
-                t0.Flete, 
-                t0.Vendedor, 
-                t0.EstadoPago, 
-                t0.EstadoGasto, 
-                t0.PagoEnv, 
-                t0.TipoVenta, 
-                t0.EstadoFacturacion, 
-                t0.DescuentoNC, 
-                t0.Zona, 
-                t0.TiempoEntrega, 
-                t0.AlmProcedencia, 
-                (
-                    SELECT TOP 1 Estado 
-                    FROM vt.BusquedaProducto 
-                    WHERE DocEntry = t0.DocEntry
-                ) AS EstadoBusquedaProducto,
-                CASE 
-                WHEN EXISTS (SELECT 1 FROM vt.CC_ORTV_print WHERE DocEntryTicket = t0.DocEntry AND Id_Usuario = 'Facturacion') THEN 1 ELSE 0 END AS ExisteEnCC_ORTV_print
-            FROM vt.ORTV t0  
-            WHERE 
-                ((SELECT TOP 1 Estado FROM vt.BusquedaProducto WHERE DocEntry=T0.DocEntry) = 'CONCLUIDO' 
-                OR NOT EXISTS (SELECT 1 FROM vt.BusquedaProducto WHERE DocEntry=T0.DocEntry))
-                {condWhere} {condEstado}
-            ORDER BY {orderby}";
+
+            var queryBuilder = new StringBuilder();
+            queryBuilder.AppendLine("SELECT TOP 200");
+            queryBuilder.AppendLine("   t0.DocEntry, t0.DocNum, t0.CardCode, t0.CardName, t0.Estado, t0.FechaSapTicket,");
+            queryBuilder.AppendLine("    (");
+            queryBuilder.AppendLine("        SELECT TOP 1 HoraOperacion");
+            queryBuilder.AppendLine("        FROM vt.CC_ORTV");
+            queryBuilder.AppendLine("        WHERE DocEntry = t0.DocEntry AND Operacion = 'REGISTRAR'");
+            queryBuilder.AppendLine("        ORDER BY FechaOperacion, HoraOperacion DESC");
+            queryBuilder.AppendLine("    ) AS 'HoraAbierto',");
+            queryBuilder.AppendLine("   t0.LugarDestino, t0.Flete, t0.Vendedor, t0.EstadoPago, t0.EstadoGasto,");
+            queryBuilder.AppendLine("   t0.PagoEnv, t0.TipoVenta, t0.EstadoFacturacion, t0.DescuentoNC, t0.Zona, t0.TiempoEntrega, t0.AlmProcedencia,");
+            queryBuilder.AppendLine("   subBusquedaProducto.Estado AS EstadoBusquedaProducto,");
+            queryBuilder.AppendLine("   CASE");
+            queryBuilder.AppendLine("       WHEN EXISTS (SELECT 1 FROM vt.CC_ORTV_print WHERE DocEntryTicket = t0.DocEntry AND Id_Usuario = 'Facturacion') THEN 1 ELSE 0 END AS ExisteEnCC_ORTV_print");
+            queryBuilder.AppendLine("FROM vt.ORTV t0");
+            queryBuilder.AppendLine("OUTER APPLY (");
+            queryBuilder.AppendLine("   SELECT TOP 1 Estado");
+            queryBuilder.AppendLine("   FROM vt.BusquedaProducto bp");
+            queryBuilder.AppendLine("   WHERE bp.DocEntry = t0.DocEntry");
+            queryBuilder.AppendLine(") AS subBusquedaProducto");
+            queryBuilder.AppendLine("WHERE");
+            queryBuilder.AppendLine("    T0.Estado != 'CANCELADO'");
+            queryBuilder.AppendLine("    AND YEAR(T0.FechaSapTicket) = 2025");
+            queryBuilder.AppendLine("    AND ((SELECT TOP 1 Estado FROM vt.BusquedaProducto WHERE DocEntry=T0.DocEntry) = 'CONCLUIDO'");
+            queryBuilder.AppendLine("    OR NOT EXISTS (SELECT 1 FROM vt.BusquedaProducto WHERE DocEntry=T0.DocEntry))");
+            queryBuilder.AppendLine($"    {condWhere}");
+            queryBuilder.AppendLine("ORDER BY");
+            queryBuilder.AppendLine("   CASE WHEN t0.EstadoFacturacion = 'PENDIENTE'");
+            queryBuilder.AppendLine("       THEN 0 WHEN t0.EstadoFacturacion = 'GRE EMITIDA'");
+            queryBuilder.AppendLine("       THEN 1 WHEN t0.EstadoFacturacion = 'FACTURADO'");
+            queryBuilder.AppendLine("       THEN 2 ELSE 3");
+            queryBuilder.AppendLine("   END,");
+            queryBuilder.AppendLine("   subBusquedaProducto.Estado DESC, t0.TiempoEntrega");
+
+            string query = queryBuilder.ToString();
+
             using (SqlConnection cn = new SqlConnection(uti.cadSql))
             {
                 SqlCommand cmd = new SqlCommand(query, cn);
@@ -3393,6 +3346,7 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
                             ticket.FechaSapTicket = (ticket.FechaSapTicket != null) ? Convert.ToDateTime(ticket.FechaSapTicket).ToString("dd/MM/yyyy") : null;
                             ticket.Det1 = obtenerDet1Ticket(ticket.DocEntry); if (ticket.Det1.Count == 0) { ticket.Det1 = null; }      //Datos de recojo
                             ticket.Det2 = obtenerDet2Ticket(ticket.DocEntry);
+
                             var validLugarDestino = new List<string> { "Domicilio", "Agencia" };
                             if (validLugarDestino.Contains(ticket.LugarDestino))
                             {
@@ -3404,25 +3358,24 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
                                 var zonaPedido = crd1D.BuscarZonaPedido(ordenDeVenta.ShipToCode, ticket.CardCode);
                                 if (ticket.Zona != zonaPedido) { ticket.zonaDistinta = true; }
                             }
+
                             //Busco si tiene obligatoriamente Fin verificar si tiene Filtro de DOCNUM
                             CC_ORTV_D ccOrtv = new CC_ORTV_D();
                             ticket.hayFinVerificar = false;
                             var hayFinVerificar = ccOrtv.ListarCC_ORTV(ticket.DocEntry, "FIN VERIFICAR", false);
                             var hayAnularFinVerificar = ccOrtv.ListarCC_ORTV(ticket.DocEntry, "ANULAR FIN VERIFICAR", false);
+
                             List<CC_ORTV_E> listOperacionVerificar = new List<CC_ORTV_E>();
                             if (hayFinVerificar != null && hayFinVerificar.Count > 0)
-                            {
                                 listOperacionVerificar.Add(hayFinVerificar.FirstOrDefault());
-                            }
+
                             if (hayAnularFinVerificar != null && hayAnularFinVerificar.Count > 0)
-                            {
                                 listOperacionVerificar.Add(hayAnularFinVerificar.FirstOrDefault());
-                            }
+
                             var listaOrdenada = listOperacionVerificar.OrderByDescending(x => x.Id).ToList();
                             if (listaOrdenada.FirstOrDefault() != null && !string.IsNullOrWhiteSpace(listaOrdenada[0].Operacion) && listaOrdenada[0].Operacion.Equals("FIN VERIFICAR"))
-                            {
                                 ticket.hayFinVerificar = true;
-                            }
+
                             //si solo se desea ver los tickets ya cargados que tengan una zona distinta
                             if (t.zonaDistinta)
                             {
