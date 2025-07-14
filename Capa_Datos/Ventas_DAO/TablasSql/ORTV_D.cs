@@ -3248,7 +3248,7 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
         {
             List<ORTV_E> lista = new List<ORTV_E>();
             string condWhere = string.Empty;
-            string condEstado = string.Empty;
+            string orderBy = string.Empty;
 
             if (t != null)
             {
@@ -3259,8 +3259,14 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
                 condWhere += t.Vendedor != null ? $" AND t0.Vendedor like '%{t.Vendedor}%'" : "";
                 condWhere += t.Zona != null ? $" AND t0.Zona ='{t.Zona}'" : "";
                 condWhere += t.LugarDestino != null ? $" AND t0.LugarDestino='{t.LugarDestino}'" : "";
-                condWhere += t.Estado != null ? $" AND t0.Estado='{t.Estado}'" : "";
-                condWhere += t.EstadoFacturacion != null ? $" AND t0.EstadoFacturacion='{t.EstadoFacturacion}'" : "";
+                condWhere += t.Estado != null ? $" AND t0.Estado='{t.Estado}'" : " AND T0.Estado != 'CANCELADO'";
+
+                if (!string.IsNullOrWhiteSpace(t.EstadoFacturacion))
+                {
+                    condWhere += $" AND t0.EstadoFacturacion='{t.EstadoFacturacion}'";
+                    orderBy = "CASE WHEN EXISTS (SELECT 1 FROM vt.CC_ORTV_print WHERE DocEntryTicket = t0.DocEntry AND Id_Usuario = 'Facturacion') THEN 1 ELSE 0 END,";
+                }
+
                 condWhere += t.EstadoPago != null ? $" AND t0.EstadoPago='{t.EstadoPago}'" : "";
                 condWhere += t.TipoVenta != null ? $" AND t0.TipoVenta='{t.TipoVenta}'" : "";
                 condWhere += t.EstadoGasto != null ? $" AND t0.EstadoGasto='{t.EstadoGasto}'" : "";
@@ -3290,18 +3296,17 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
             queryBuilder.AppendLine("   WHERE bp.DocEntry = t0.DocEntry");
             queryBuilder.AppendLine(") AS subBusquedaProducto");
             queryBuilder.AppendLine("WHERE");
-            queryBuilder.AppendLine("    T0.Estado != 'CANCELADO'");
-            queryBuilder.AppendLine("    AND YEAR(T0.FechaSapTicket) = 2025");
+            queryBuilder.AppendLine("    YEAR(T0.FechaSapTicket) = 2025");
             queryBuilder.AppendLine("    AND ((SELECT TOP 1 Estado FROM vt.BusquedaProducto WHERE DocEntry=T0.DocEntry) = 'CONCLUIDO'");
             queryBuilder.AppendLine("    OR NOT EXISTS (SELECT 1 FROM vt.BusquedaProducto WHERE DocEntry=T0.DocEntry))");
             queryBuilder.AppendLine($"    {condWhere}");
             queryBuilder.AppendLine("ORDER BY");
-            queryBuilder.AppendLine("   CASE WHEN t0.EstadoFacturacion = 'PENDIENTE'");
+            queryBuilder.AppendLine($"   {orderBy} CASE WHEN t0.EstadoFacturacion = 'PENDIENTE'");
             queryBuilder.AppendLine("       THEN 0 WHEN t0.EstadoFacturacion = 'GRE EMITIDA'");
             queryBuilder.AppendLine("       THEN 1 WHEN t0.EstadoFacturacion = 'FACTURADO'");
             queryBuilder.AppendLine("       THEN 2 ELSE 3");
             queryBuilder.AppendLine("   END,");
-            queryBuilder.AppendLine("   subBusquedaProducto.Estado DESC, t0.TiempoEntrega");
+            queryBuilder.AppendLine("   subBusquedaProducto.Estado DESC, t0.TiempoEntrega, t0.DocNum DESC");
 
             string query = queryBuilder.ToString();
 
