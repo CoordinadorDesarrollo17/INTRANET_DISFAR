@@ -198,6 +198,7 @@
     <Compile Include="ReportesDigemid_ENT\Reportes\VentasArtLote_E.cs" />
     <Compile Include="Rutas_ENT\ReportesSql\RptPesaje_E.cs" />
     <Compile Include="Rutas_ENT\ReportesSql\Rpt_TempHumed_E.cs" />
+    <Compile Include="Rutas_ENT\TablasSql\MotivoLiberacion.cs" />
     <Compile Include="Rutas_ENT\TablasSql\RRU01_E.cs" />
     <Compile Include="Rutas_ENT\TablasSql\RRU0_E.cs" />
     <Compile Include="Rutas_ENT\Formularios\FrmHojasRutaFormatoA_E.cs" />
