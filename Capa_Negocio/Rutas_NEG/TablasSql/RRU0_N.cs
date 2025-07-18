@@ -4,6 +4,7 @@ using Capa_Entidad.Rutas_ENT.TablasSql;
 using Capa_Entidad.Ventas_ENT.TablasSql;
 using Capa_Negocio.Ventas_NEG.TablasSql;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -189,6 +190,11 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
                 r.OpEntrega = o.OpEntrega;
                 rru0D.entregarRRU0(r);
             }
+        }
+
+        public List<MotivoLiberacion> ListarMotivosLiberacion()
+        {
+            return rru0D.ListarMotivosLiberacion(); 
         }
     }
 }

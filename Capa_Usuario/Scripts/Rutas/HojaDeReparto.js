@@ -197,46 +197,49 @@ function borrarLineaTabla(dom) {
 
 //funciones que solo se usan para Editar Hoja de reparto
 function liberarLineaTabla(DocEntry, Linea, DocEntryTicket, idreg) {
-    const comentarioLiberado = 'INTERNO';
+    $.getJSON('/Rutas/ObtenerMotivosLiberacion', function (motivos) {
+        var motivo = motivos.find(function (m) { return m.id === 14; });
+        var comentarioLiberado = motivo ? motivo.descripcion : 'INTERNO';
 
-    Swal.fire({
-        title: '¿Está seguro(a) de liberar el ticket?',
-        text: "Este proceso es irreversible!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Si, estoy seguro(a)',
-        cancelButtonText: 'Cancelar',
-        customClass: {
-            confirmButton: 'btn btn-success mx-2',
-            cancelButton: 'btn btn-outline-danger'
-        },
-        showCancelButton: true,
-        buttonsStyling: false 
-    }).then((result) => {
-        if (result.isConfirmed) {
-            var parametros = { DocEntry, Linea, DocEntryTicket, comentarioLiberado };
-            $.ajax('/Rutas/liberarRRU0',
-                {
-                    data: parametros,
-                    dataType: 'html',
-                    cache: false,
-                    type: 'post'
-                })
-                .done(function (response) {
-                    if (response == "ok") {
-                        $("#" + idreg).css("background", "lightgray");
-                        Swal.fire(
-                            'Ticket liberado exitosamente',
-                            '',
-                            'success'
-                        )
-                    }
-                    else {
-                        swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false;
-                    }
-                });
-        }
-    })
+        Swal.fire({
+            title: '¿Está seguro(a) de liberar el ticket?',
+            text: "Este proceso es irreversible!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Si, estoy seguro(a)',
+            cancelButtonText: 'Cancelar',
+            customClass: {
+                confirmButton: 'btn btn-success mx-2',
+                cancelButton: 'btn btn-outline-danger'
+            },
+            showCancelButton: true,
+            buttonsStyling: false
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var parametros = { DocEntry, Linea, DocEntryTicket, comentarioLiberado };
+                $.ajax('/Rutas/liberarRRU0',
+                    {
+                        data: parametros,
+                        dataType: 'html',
+                        cache: false,
+                        type: 'post'
+                    })
+                    .done(function (response) {
+                        if (response == "ok") {
+                            $("#" + idreg).css("background", "lightgray");
+                            Swal.fire(
+                                'Ticket liberado exitosamente',
+                                '',
+                                'success'
+                            )
+                        }
+                        else {
+                            swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false;
+                        }
+                    });
+            }
+        });
+    });
 }
 
 function grabarLineaTabla(DocEntryRu, Linea, DocEntryTi) {
