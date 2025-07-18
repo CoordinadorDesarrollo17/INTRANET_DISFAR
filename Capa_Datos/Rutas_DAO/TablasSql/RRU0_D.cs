@@ -332,6 +332,28 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                 }
             }
         }
+        public List<MotivoLiberacion> ListarMotivosLiberacion()
+        {
+            List<MotivoLiberacion> lista = new List<MotivoLiberacion>();
+            using (SqlConnection cn = new SqlConnection(uti.cadSql))
+            {
+                string query = "SELECT Id, Descripcion FROM al.MotivoLiberacion ORDER BY Id";
+                SqlCommand cmd = new SqlCommand(query, cn);
+                cn.Open();
+                SqlDataReader dr = cmd.ExecuteReader();
+                while (dr.Read())
+                {
+                    MotivoLiberacion motivo = new MotivoLiberacion
+                    {
+                        id = dr.GetInt32(0),
+                        descripcion = dr.GetString(1)
+                    };
+                    lista.Add(motivo);
+                }
+                dr.Close();
+            }
+            return lista;
+        }
 
     }
 }

@@ -1142,6 +1142,14 @@ namespace Capa_Usuario.Controllers
             else
             { return Content(""); }
         }
+
+        public JsonResult ObtenerMotivosLiberacion()
+        {
+            RRU0_N rru0N = new RRU0_N();
+            var motivos = rru0N.ListarMotivosLiberacion();
+            return Json(motivos, JsonRequestBehavior.AllowGet);
+        }
+
         public string ListarTarifarios(string accion)
         {
             OUR2_N our2N = new OUR2_N();
