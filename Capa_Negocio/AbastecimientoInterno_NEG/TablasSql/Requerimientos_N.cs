@@ -28,9 +28,9 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         {
             return _requerimientoD.AtenderPicking(detalleId, cn);
         }
-        public List<DetalleRequerimientos_E> ListarDetalles(string itemCode = "", string proceso = "")
+        public List<DetalleRequerimientos_E> ListarDetalles_OLD(string itemCode = "", string proceso = "")
         {
-            var detalles = _requerimientoD.ListarDetalles() ?? new List<DetalleRequerimientos_E>();
+            var detalles = _requerimientoD.ListarDetalles_OLD() ?? new List<DetalleRequerimientos_E>();
             var result = new List<DetalleRequerimientos_E>();
 
             switch (proceso)
@@ -60,6 +60,41 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
             }
             return result;
         }
+
+        public List<DetalleRequerimientos_E> ListarDetalles(List<string> itemCodes, string proceso = "")
+        {
+            var result = new List<DetalleRequerimientos_E>();
+            var detalles = _requerimientoD.ListarDetalles(itemCodes);
+
+            switch (proceso)
+            {
+                case "CantidadSolicitada":
+                    result = detalles
+                        .Where(d => d.AtendidoPicking == 0)
+                        .ToList();
+                    break;
+
+                case "ListarApiladores":
+                    result = detalles
+                        .Where(x => x.AtendidoReserva == 0 && x.AtendidoPicking == 0 && x.Aprobado == 1)
+                        .OrderByDescending(x => x.Zona)
+                        .ToList();
+                    break;
+
+                case "ListarPicking":
+                    result = detalles
+                        .Where(x => x.AtendidoReserva == 1 && x.AtendidoPicking == 0)
+                        .ToList();
+                    break;
+
+                default:
+                    result = detalles;
+                    break;
+            }
+
+            return result;
+        }
+
         public Requerimientos_E RegistrarRequerimiento(Requerimientos_E requerimiento, SqlConnection cn)
         {
             return _requerimientoD.RegistrarRequerimiento(requerimiento, cn);
@@ -72,7 +107,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         }
         public bool ValidarSkuParaCambioUbicacion(string itemCode, string batchNum, string codigoUbicacionReserva)
         {
-            var lista = ListarDetalles(itemCode);
+            var lista = ListarDetalles_OLD(itemCode);
             bool valido = !lista.Any(d =>
             d.CodigoUbicacionOrigen == codigoUbicacionReserva &&
             d.BatchNum == batchNum &&

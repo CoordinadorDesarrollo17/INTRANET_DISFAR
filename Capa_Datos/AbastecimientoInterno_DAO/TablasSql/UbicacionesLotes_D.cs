@@ -1,13 +1,15 @@
-﻿using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
-using Capa_Entidad;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Data;
+using Capa_Entidad;
+using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
 using Capa_Entidad.RecursosHumanos_ENT.TablasSQL;
+using DocumentFormat.OpenXml.Office.Word;
+using DocumentFormat.OpenXml.Presentation;
 
 namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 {
@@ -136,9 +138,78 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
             }
             catch (Exception ex)
             {
-                LogHelper.RegistrarError(ex, "UbicacionesLotes_D - Obtener");
-                throw new Exception("Error al obtener la ubicación del lote.", ex);
+                LogHelper.RegistrarError(ex, "Error inesperado en UbicacionesLotes_D - Obtener()");
+                throw new Exception("Error al obtener ubicaciones de lotes de forma masiva.", ex);
+
             }
+        }
+
+        public List<UbicacionesLotes_E> ObtenerDatos(List<string> itemCodes)
+        {
+            var resultado = new List<UbicacionesLotes_E>();
+
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+                {
+                    SqlCommand cmd = new SqlCommand();
+                    cmd.Connection = cn;
+
+                    var sb = new StringBuilder();
+                    sb.AppendLine("SELECT UL.Id, UL.UbicacionId, UL.Almacen, UL.ItemCode, UL.ItemName, UL.CodigoUbicacion, UL.BatchNum, UL.QuantityUnidadesCajas");
+                    sb.AppendLine("FROM UbicacionesLotes UL");
+                    sb.AppendLine("INNER JOIN @ItemCodes IC ON UL.ItemCode = IC.ItemCode");
+
+                    cmd.CommandText = sb.ToString();
+
+                    // Para el Type @ItemCodeList
+                    var table = new DataTable();
+                    table.Columns.Add("ItemCode", typeof(string));
+                    foreach (var code in itemCodes)
+                    {
+                        table.Rows.Add(code);
+                    }
+
+                    var tvpParam = new SqlParameter("@ItemCodes", SqlDbType.Structured)
+                    {
+                        TypeName = "ItemCodeList", // nombre del tipo definido en SQL Server
+                        Value = table
+                    };
+                    cmd.Parameters.Add(tvpParam);
+
+                    // Siempre después de la preparación de la consulta
+                    cn.Open();
+
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        if (dr.HasRows)
+                        {
+                            while (dr.Read())
+                            {
+                                var ubicacionLote = new UbicacionesLotes_E();
+
+                                if (!dr.IsDBNull(0)) ubicacionLote.Id = dr.GetInt32(0);
+                                if (!dr.IsDBNull(1)) ubicacionLote.UbicacionId = dr.GetInt32(1);
+                                if (!dr.IsDBNull(2)) ubicacionLote.Almacen = dr.GetString(2);
+                                if (!dr.IsDBNull(3)) ubicacionLote.ItemCode = dr.GetString(3);
+                                if (!dr.IsDBNull(4)) ubicacionLote.ItemName = dr.GetString(4);
+                                if (!dr.IsDBNull(5)) ubicacionLote.CodigoUbicacion = dr.GetString(5);
+                                if (!dr.IsDBNull(6)) ubicacionLote.BatchNum = dr.GetString(6);
+                                if (!dr.IsDBNull(7)) ubicacionLote.QuantityUnidadesCajas = dr.GetInt32(7);
+
+                                resultado.Add(ubicacionLote);
+                            }
+                        }
+                    }
+                    cn.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.RegistrarError(ex, "Error inesperado en UbicacionesLotes_D - Obtener()");
+            }
+
+            return resultado;
         }
 
         public UbicacionesLotes_E ObtenerPorId(int id)
