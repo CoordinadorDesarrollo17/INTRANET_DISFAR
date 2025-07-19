@@ -66,6 +66,14 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
             return datosUbicacionesL.Obtener(itemCode, batchNum);
         }
 
+        public List<UbicacionesLotes_E> ObtenerDatosPorItemCode(List<string> itemCodes)
+        {
+            if (itemCodes == null || !itemCodes.Any())
+                return new List<UbicacionesLotes_E>();
+
+            return datosUbicacionesL.ObtenerDatos(itemCodes);
+        }
+
         public UbicacionesLotes_E ObtenerPorId(int id)
         {
             return datosUbicacionesL.ObtenerPorId(id);
