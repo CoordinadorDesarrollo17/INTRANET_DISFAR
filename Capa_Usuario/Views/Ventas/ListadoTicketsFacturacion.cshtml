@@ -692,6 +692,8 @@
                         Estado Ticket<br />
                         <select name="Estado" id="Estado" class="form-control-sm border" onchange="filtrar();">
                             <option value="">Seleccione</option>
+                            <option value="ABIERTO" @{ if (ticket != null && ticket.Estado == "ABIERTO") { Write("selected"); } }>ABIERTO</option>
+                            <option value="RECIBIDO" @{ if (ticket != null && ticket.Estado == "RECIBIDO") { Write("selected"); } }>RECIBIDO</option>
                             <option value="PICKEANDO" @{ if (ticket != null && ticket.Estado == "PICKEANDO") { Write("selected"); } }>PICKEANDO</option>
                             <option value="VERIFICANDO" @{ if (ticket != null && ticket.Estado == "VERIFICANDO") { Write("selected"); } }>VERIFICANDO</option>
                             <option value="EMPACANDO" @{ if (ticket != null && ticket.Estado == "EMPACANDO") { Write("selected"); } }>EMPACANDO</option>
