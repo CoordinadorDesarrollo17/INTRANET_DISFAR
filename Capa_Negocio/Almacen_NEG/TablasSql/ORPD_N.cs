@@ -49,21 +49,38 @@ namespace Capa_Negocio.Almacen_NEG.TablasSql
             validarCantidadDetalleDevolucion(detalleDevolucion);
             return orpdD.EditarDevolucion(devolucion, detalleDevolucion);
         }
+
         public int CambiarEstadoDevolucion(ORPD_E devolucion, string tipoMantenimiento)
         {
             ORPD_E obj = ObtenerDevolucion(devolucion.DocEntry);
+
             switch (tipoMantenimiento)
             {
+                // Cambiar @Estado a: RECOGIDO
+                case "R":
+                    if (string.IsNullOrEmpty(obj.FechaDevolucion))
+                        throw new Exception("Para cambiar a estado RECOGIDO debes seleccionar la fecha de devolución.");
+                    break;
+
+                // Cambiar @Estado a: ANULADO
                 case "AA":
-                    if (!obj.Estado.Equals("PENDIENTE DE RECOJO")) { throw new Exception("La devolución no es apta para la anulacion"); }
+                    if (!obj.Estado.Equals("PENDIENTE DE RECOJO"))
+                        throw new Exception("La devolución no es apta para la anulacion");
                     break;
+
+                // Cambiar @Estado a: REVERTIDO
                 case "RR":
-                    if (!obj.Estado.Equals("RECOGIDO")) { throw new Exception("La devolución no es apta para revertir recojo"); }
+                    if (!obj.Estado.Equals("RECOGIDO"))
+                        throw new Exception("La devolución no es apta para revertir recojo");
                     break;
+
+                // Cambiar @Estado a: NC APLICADA
                 case "NC":
-                    if (!obj.Estado.Equals("RECOGIDO")) { throw new Exception("La devolución no es apta para aplicar NC"); }
+                    if (!obj.Estado.Equals("RECOGIDO"))
+                        throw new Exception("La devolución no es apta para aplicar NC");
                     break;
             }
+
             return orpdD.CambiarEstadoDevolucion(devolucion, tipoMantenimiento);
         }
 
@@ -138,7 +155,7 @@ namespace Capa_Negocio.Almacen_NEG.TablasSql
                                 decimal MaxQuantityPermitidaPz = obj.NumInBuyKey * MaxQuantityTotal;
                                 if (Math.Round(SumCantIngPz, 2) > Math.Round(MaxQuantityPermitidaPz, 2))
                                 {
-                                    throw new Exception( obj.ItemName+ " \n Lote: " + obj.BatchNum + "\n Supera la cantidad máxima: " + MaxQuantityTotal);
+                                    throw new Exception(obj.ItemName + " \n Lote: " + obj.BatchNum + "\n Supera la cantidad máxima: " + MaxQuantityTotal);
                                 }
                             }
                         }
