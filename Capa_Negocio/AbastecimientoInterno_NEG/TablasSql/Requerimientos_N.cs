@@ -69,22 +69,24 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
             switch (proceso)
             {
                 case "CantidadSolicitada":
-                    result = detalles
-                        .Where(d => d.AtendidoPicking == 0)
-                        .ToList();
+                    result = detalles != null && detalles.Any()
+                        ? detalles.Where(d => d.AtendidoPicking == 0).ToList()
+                        : new List<DetalleRequerimientos_E>();
                     break;
 
                 case "ListarApiladores":
-                    result = detalles
-                        .Where(x => x.AtendidoReserva == 0 && x.AtendidoPicking == 0 && x.Aprobado == 1)
-                        .OrderByDescending(x => x.Zona)
-                        .ToList();
+                    result = detalles != null && detalles.Any()
+                        ? detalles.Where(x => x.AtendidoReserva == 0 && x.AtendidoPicking == 0 && x.Aprobado == 1)
+                            .OrderByDescending(x => x.Zona)
+                            .ToList()
+                        : new List<DetalleRequerimientos_E>();
                     break;
 
                 case "ListarPicking":
-                    result = detalles
-                        .Where(x => x.AtendidoReserva == 1 && x.AtendidoPicking == 0)
-                        .ToList();
+                    result = detalles != null && detalles.Any()
+                        ? detalles.Where(x => x.AtendidoReserva == 1 && x.AtendidoPicking == 0)
+                            .ToList()
+                        : new List<DetalleRequerimientos_E>();
                     break;
 
                 default:
