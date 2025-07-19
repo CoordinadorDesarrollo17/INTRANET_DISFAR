@@ -1736,7 +1736,7 @@ namespace Capa_Usuario.Controllers
                     if (stockLibreEnAlmacen16 > 0)
                     {
                         // Para ver los imputados
-                        List<DetalleRequerimientos_E> resultDetReq = _requerimientosN.ListarDetalles(itemCode, "CantidadSolicitada");
+                        List<DetalleRequerimientos_E> resultDetReq = _requerimientosN.ListarDetalles_OLD(itemCode, "CantidadSolicitada");
                         int quantityReq = 0;
                         if (resultDetReq != null) { quantityReq = Convert.ToInt32(resultDetReq.Sum(r => r.QuantityUnidadesCajas)); }
                         List<UbicacionesLotes_E> resultUbicacionesLotes = _ubicacionesLotesN.Obtener(itemCode).Where(x => x.Almacen.Equals("RESERVA")).ToList();
@@ -2085,7 +2085,7 @@ namespace Capa_Usuario.Controllers
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                var lista = _requerimientosN.ListarDetalles("", "ListarApiladores");
+                var lista = _requerimientosN.ListarDetalles_OLD("", "ListarApiladores");
                 return View(lista);
             }
             else
@@ -2839,7 +2839,7 @@ namespace Capa_Usuario.Controllers
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                var lista = _requerimientosN.ListarDetalles("", "ListarPicking");
+                var lista = _requerimientosN.ListarDetalles_OLD("", "ListarPicking");
                 return View(lista);
             }
             else

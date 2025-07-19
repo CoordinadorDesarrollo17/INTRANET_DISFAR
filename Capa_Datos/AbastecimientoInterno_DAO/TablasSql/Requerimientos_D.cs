@@ -187,7 +187,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             return new Helper_E { Mensajes = new List<string> { mensaje }, Icono = icono };
         }
-        public List<DetalleRequerimientos_E> ListarDetalles()
+        public List<DetalleRequerimientos_E> ListarDetalles_OLD()
         {
             List<DetalleRequerimientos_E> lista = null;
 
@@ -250,6 +250,88 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             return lista;
         }
+
+        public List<DetalleRequerimientos_E> ListarDetalles(List<string> itemCodes)
+        {
+            List<DetalleRequerimientos_E> lista = null;
+
+            using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+            {
+                try
+                {
+                    cn.Open();
+                    SqlCommand cmd = new SqlCommand("sp_MantenimientoRequerimiento", cn);
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "LIST");
+
+                    SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
+                    {
+                        Direction = ParameterDirection.Output
+                    };
+                    cmd.Parameters.Add(idGeneradoParam);
+
+                    SqlParameter param2 = new SqlParameter("@Aprobado", SqlDbType.Int)
+                    {
+                        Value = 0
+                    };
+                    cmd.Parameters.Add(param2);
+                    
+                    // Para el Type @ItemCodeList
+                    var table = new DataTable();
+                    table.Columns.Add("ItemCode", typeof(string));
+                    foreach (var code in itemCodes)
+                    {
+                        table.Rows.Add(code);
+                    }
+
+                    var tvpParam = new SqlParameter("@ItemCodes", SqlDbType.Structured)
+                    {
+                        TypeName = "ItemCodeList", // nombre del tipo definido en SQL Server
+                        Value = table
+                    };
+                    cmd.Parameters.Add(tvpParam);
+
+                    SqlDataReader dr = cmd.ExecuteReader();
+
+                    if (dr.HasRows)
+                    {
+                        lista = new List<DetalleRequerimientos_E>();
+                        while (dr.Read())
+                        {
+                            var detalle = new DetalleRequerimientos_E();
+                            if (!dr.IsDBNull(0)) { detalle.Id = dr.GetInt32(0); }
+                            if (!dr.IsDBNull(1)) { detalle.RequerimientoId = dr.GetInt32(1); }
+                            if (!dr.IsDBNull(2)) { detalle.ItemCode = dr.GetString(2); }
+                            if (!dr.IsDBNull(3)) { detalle.ItemName = dr.GetString(3); }
+                            if (!dr.IsDBNull(4)) { detalle.BatchNum = dr.GetString(4); }
+                            if (!dr.IsDBNull(5)) { detalle.CodigoUbicacionOrigen = dr.GetString(5); }
+                            if (!dr.IsDBNull(6)) { detalle.CodigoUbicacionDestino = dr.GetString(6); }
+                            if (!dr.IsDBNull(7)) { detalle.UmAlm = dr.GetString(7); }
+                            if (!dr.IsDBNull(8)) { detalle.ValorUmAlm = dr.GetInt32(8); }
+                            if (!dr.IsDBNull(9)) { detalle.QuantityMaster = dr.GetInt32(9); }
+                            if (!dr.IsDBNull(10)) { detalle.QuantitySaldo = dr.GetInt32(10); }
+                            if (!dr.IsDBNull(11)) { detalle.QuantityUnidadesCajas = dr.GetInt32(11); }
+                            if (!dr.IsDBNull(12)) { detalle.AtendidoReserva = dr.GetInt32(12); }
+                            if (!dr.IsDBNull(13)) { detalle.AtendidoPicking = dr.GetInt32(13); }
+                            if (!dr.IsDBNull(14)) { detalle.Nivel = dr.GetString(14); }
+                            if (!dr.IsDBNull(15)) { detalle.Posicion = dr.GetString(15); }
+                            if (!dr.IsDBNull(16)) { detalle.RackBloque = dr.GetString(16); }
+                            if (!dr.IsDBNull(17)) { detalle.Zona = dr.GetString(17); }
+                            if (!dr.IsDBNull(18)) { detalle.Aprobado = dr.GetInt32(18); }
+                            lista.Add(detalle);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogHelper.RegistrarError(ex, "Error inesperado en Requerimientos_D - ListarDetalles()");
+                }
+            }
+
+            return lista;
+        }
+
         public Requerimientos_E RegistrarRequerimiento(Requerimientos_E requerimiento, SqlConnection cn)
         {
             if (cn.State != ConnectionState.Open)
