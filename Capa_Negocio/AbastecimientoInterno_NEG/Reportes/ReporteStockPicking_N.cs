@@ -30,23 +30,46 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.Reportes
 
             if (articulos != null && articulos.Any())
             {
-                // Iterar sobre una copia de la lista para evitar el error de modificación
-                foreach (var item in articulos.ToList())
+                var itemCodes = articulos.Select(a => a.ItemCode).Distinct().ToList();
+
+                // Precarga de detalles de requerimiento para todos los ítems
+                var detallesReq = _requerimientosN.ListarDetalles(itemCodes, "CantidadSolicitada");
+                var detallesAgrupados = detallesReq
+                    .GroupBy(r => r.ItemCode)
+                    .ToDictionary(g => g.Key, g => g.Sum(x => x.QuantityUnidadesCajas));
+
+                // Precarga de ubicaciones de lotes para todos los ítems
+                var ubicacionesLotes = _ubicacionesLotesN.ObtenerDatosPorItemCode(itemCodes);
+                var ubicacionesAgrupadas = ubicacionesLotes
+                    .Where(x => x.Almacen == "RESERVA")
+                    .GroupBy(x => x.ItemCode)
+                    .ToDictionary(g => g.Key, g => g.Sum(x => x.QuantityUnidadesCajas));
+
+                // Indexación del control interno por ItemCode
+                var controlPorItemCode = controlStockInternoPicking
+                    .GroupBy(x => x.ItemCode)
+                    .ToDictionary(g => g.Key, g => g.First());
+
+                foreach (var item in articulos)
                 {
-                    List<DetalleRequerimientos_E> resultDetReq = _requerimientosN.ListarDetalles(item.ItemCode, "CantidadSolicitada");
-                    int quantityReq = resultDetReq?.Sum(r => r.QuantityUnidadesCajas) ?? 0;
+                    detallesAgrupados.TryGetValue(item.ItemCode, out var quantityReq);
+                    ubicacionesAgrupadas.TryGetValue(item.ItemCode, out var quantityUbicacionesLote);
 
-                    List<UbicacionesLotes_E> resultUbicacionesLotes = _ubicacionesLotesN.Obtener(item.ItemCode).Where(x => x.Almacen.Equals("RESERVA")).ToList();
-                    int quantityUbicacionesLote = resultUbicacionesLotes?.Sum(r => r.QuantityUnidadesCajas) ?? 0;
-
-                    int stockDeAlmReserva = quantityUbicacionesLote - quantityReq;
+                    int stockDeAlmReserva = quantityUbicacionesLote - (quantityReq ?? 0);
                     decimal stockEnPicking = item.StockLibreUnidades - stockDeAlmReserva;
 
-                    var controlPorItemCode = controlStockInternoPicking.FirstOrDefault(i => i.ItemCode == item.ItemCode);
-
                     item.StockPicking = stockEnPicking;
-                    item.Clasificacion = (controlPorItemCode != null) ? controlPorItemCode.Clasificacion : string.Empty;
-                    item.StockMinAbastecimiento = (controlPorItemCode != null && item.StockLibreUnidades > 0) ? controlPorItemCode.StockMinAbastecimiento : 0;        // Debe existir stock en RESERVA 
+
+                    if (controlPorItemCode.TryGetValue(item.ItemCode, out var control))
+                    {
+                        item.Clasificacion = control.Clasificacion;
+                        item.StockMinAbastecimiento = (item.StockLibreUnidades > 0) ? control.StockMinAbastecimiento : 0;
+                    }
+                    else
+                    {
+                        item.Clasificacion = string.Empty;
+                        item.StockMinAbastecimiento = 0;
+                    }
                 }
             }
 
@@ -104,7 +127,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.Reportes
                     //    break;
 
                     // 1. Obtener la cantidad solicitada para este ItemCode
-                    List<DetalleRequerimientos_E> resultDetReq = _requerimientosN.ListarDetalles(item.ItemCode, "CantidadSolicitada");
+                    List<DetalleRequerimientos_E> resultDetReq = _requerimientosN.ListarDetalles_OLD(item.ItemCode, "CantidadSolicitada");
                     int quantityReq = resultDetReq?.Sum(r => r.QuantityUnidadesCajas) ?? 0;
 
                     // 2. Obtener los lotes disponibles para ese ItemCode
