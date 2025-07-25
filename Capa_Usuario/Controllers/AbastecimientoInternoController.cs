@@ -1689,8 +1689,13 @@ namespace Capa_Usuario.Controllers
                 var usuarioSesion = Session["UsuarioId"] as Usuario_E;
                 if (usuarioSesion == null)
                     return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
+
                 // Orden: próxima fecha de vencimiento, primera fecha de admisión registrada, la menor cantidad en unidades
-                List<UbicacionesLotesMaster_E> lista = _ubicacionesLotesMasterN.BuscarArticulos(new UbicacionesLotesMaster_E { ItemCode = itemCode }) ?? new List<UbicacionesLotesMaster_E>();
+                var articulos = _ubicacionesLotesMasterN.BuscarArticulos(new UbicacionesLotesMaster_E { ItemCode = itemCode });
+                List<UbicacionesLotesMaster_E> lista = (articulos ?? Enumerable.Empty<UbicacionesLotesMaster_E>())
+                    .Where(w => w.QuantityUnidadesCajas > 0)
+                    .ToList();
+
                 if (lista.Any())
                 {
                     // Verificar si todas las fechas ExpDate e InDate son iguales
