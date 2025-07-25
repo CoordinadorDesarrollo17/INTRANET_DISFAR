@@ -731,8 +731,9 @@ namespace Capa_Usuario.Controllers
             {
                 int columnas = 8;
                 var listado = _ubicacionesN.ListarUbicaciones(new Ubicaciones_E { Almacen = "RESERVA" });
-                var listaULM = _ubicacionesLotesMasterN.ListarUbicaciones(new UbicacionesLotesMaster_E { Almacen = "RESERVA" });
-                var codigoU = listaULM
+                var listaULM = _ubicacionesLotesMasterN.ListarUbicaciones(new UbicacionesLotesMaster_E { Almacen = "RESERVA" })
+                    .Where(w => w.QuantityUnidadesCajas > 0);
+                var codigoU = listaULM                    
                     .GroupBy(u => u.CodigoUbicacion)
                     .ToDictionary(g => g.Key, g => g.ToList());
 
