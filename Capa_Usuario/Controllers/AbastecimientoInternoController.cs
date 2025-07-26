@@ -731,8 +731,9 @@ namespace Capa_Usuario.Controllers
             {
                 int columnas = 8;
                 var listado = _ubicacionesN.ListarUbicaciones(new Ubicaciones_E { Almacen = "RESERVA" });
-                var listaULM = _ubicacionesLotesMasterN.ListarUbicaciones(new UbicacionesLotesMaster_E { Almacen = "RESERVA" });
-                var codigoU = listaULM
+                var listaULM = _ubicacionesLotesMasterN.ListarUbicaciones(new UbicacionesLotesMaster_E { Almacen = "RESERVA" })
+                    .Where(w => w.QuantityUnidadesCajas > 0);
+                var codigoU = listaULM                    
                     .GroupBy(u => u.CodigoUbicacion)
                     .ToDictionary(g => g.Key, g => g.ToList());
 
@@ -1688,8 +1689,13 @@ namespace Capa_Usuario.Controllers
                 var usuarioSesion = Session["UsuarioId"] as Usuario_E;
                 if (usuarioSesion == null)
                     return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
+
                 // Orden: próxima fecha de vencimiento, primera fecha de admisión registrada, la menor cantidad en unidades
-                List<UbicacionesLotesMaster_E> lista = _ubicacionesLotesMasterN.BuscarArticulos(new UbicacionesLotesMaster_E { ItemCode = itemCode }) ?? new List<UbicacionesLotesMaster_E>();
+                var articulos = _ubicacionesLotesMasterN.BuscarArticulos(new UbicacionesLotesMaster_E { ItemCode = itemCode });
+                List<UbicacionesLotesMaster_E> lista = (articulos ?? Enumerable.Empty<UbicacionesLotesMaster_E>())
+                    .Where(w => w.QuantityUnidadesCajas > 0)
+                    .ToList();
+
                 if (lista.Any())
                 {
                     // Verificar si todas las fechas ExpDate e InDate son iguales
@@ -1736,7 +1742,7 @@ namespace Capa_Usuario.Controllers
                     if (stockLibreEnAlmacen16 > 0)
                     {
                         // Para ver los imputados
-                        List<DetalleRequerimientos_E> resultDetReq = _requerimientosN.ListarDetalles(itemCode, "CantidadSolicitada");
+                        List<DetalleRequerimientos_E> resultDetReq = _requerimientosN.ListarDetalles_OLD(itemCode, "CantidadSolicitada");
                         int quantityReq = 0;
                         if (resultDetReq != null) { quantityReq = Convert.ToInt32(resultDetReq.Sum(r => r.QuantityUnidadesCajas)); }
                         List<UbicacionesLotes_E> resultUbicacionesLotes = _ubicacionesLotesN.Obtener(itemCode).Where(x => x.Almacen.Equals("RESERVA")).ToList();
@@ -2085,7 +2091,7 @@ namespace Capa_Usuario.Controllers
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                var lista = _requerimientosN.ListarDetalles("", "ListarApiladores");
+                var lista = _requerimientosN.ListarDetalles_OLD("", "ListarApiladores");
                 return View(lista);
             }
             else
@@ -2839,7 +2845,7 @@ namespace Capa_Usuario.Controllers
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                var lista = _requerimientosN.ListarDetalles("", "ListarPicking");
+                var lista = _requerimientosN.ListarDetalles_OLD("", "ListarPicking");
                 return View(lista);
             }
             else
