@@ -112,7 +112,7 @@
                         // Definir color basado en la relación con el Stock Mínimo
                         string colorClase = "";
 
-                        if (item.StockActualUnidades > item.StockMinAbastecimiento && item.StockPicking < item.StockMinAbastecimiento * 0.5m)
+                        if (item.StockActualUnidades > item.StockPicking && item.StockPicking < item.StockMinAbastecimiento * 0.5m)
                         {
                             colorClase = "bg-danger"; //Rojo: Stock crítico
                         }
