@@ -401,11 +401,12 @@ namespace Capa_Usuario.Controllers
                 {
                     Almacen = "RESERVA",
                     ItemCode = itemCode,
-                    ItemName = itemName
+                    ItemName = itemName,
+                    CodigoUbicacion = filtros.CodigoUbicacion
                 });
 
                 // Agrupar listaULM por CodigoUbicacion
-                var cantidadPorUbicacion = listaULM
+                var cantidadPorUbicacion = listaULM                    
                     .GroupBy(u => u.CodigoUbicacion)
                     .ToDictionary(
                         g => g.Key,
@@ -437,7 +438,9 @@ namespace Capa_Usuario.Controllers
                         : 0;
                 }
 
-                ViewBag.ListaFiltradaUbicacionesLotes = listaULM;
+                ViewBag.ListaFiltradaUbicacionesLotes = listaULM
+                    .Where(w => w.QuantityUnidadesCajas > 0)
+                    .ToList();
 
                 return PartialView("AbastecimientoInterno/_ListadoUbicacionesReserva", listaU);
             }

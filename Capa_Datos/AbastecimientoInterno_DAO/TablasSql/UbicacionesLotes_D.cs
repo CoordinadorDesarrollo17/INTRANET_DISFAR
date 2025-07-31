@@ -79,7 +79,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
             }
             catch (Exception ex)
             {
-                LogHelper.RegistrarError(ex, "UbicacionesLotesMaster_D - ListarUbicaciones");
+                LogHelper.RegistrarError(ex, "Error inesperado en UbicacionesLotes_D - ListarUbicaciones()");
             }
 
             return lista;
