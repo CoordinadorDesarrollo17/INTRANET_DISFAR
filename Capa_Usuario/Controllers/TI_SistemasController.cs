@@ -8,6 +8,7 @@ using Capa_Negocio.Seguridad_NEG.TablasSql;
 using Capa_Negocio.RecursosHumanos_NEG.TablasSQL;
 using Capa_Usuario.Helpers;
 using System.Linq;
+using Capa_Entidad.RecursosHumanos_ENT.TablasSQL;
 namespace Capa_Usuario.Controllers
 {
     public class TI_SistemasController : Controller
@@ -51,9 +52,16 @@ namespace Capa_Usuario.Controllers
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 Usuario_E usuarioSesion = (Usuario_E)Session["UsuarioId"];
-                ViewBag.Empleados = new OEMPL_N().ListarEmpleadosConDatosLaborales(new Capa_Entidad.RecursosHumanos_ENT.TablasSQL.OEMPL_E { Estado = "1" }, null).OrderBy(x => x.NombresApellidos).ToList();
-                ViewBag.Roles = orolN.listarRoles(usuarioSesion.IdRol);
-                ViewBag.Sedes = new SEDE_N().ListarSedesParaCrearUsuario(null);
+                var empleados = new OEMPL_N()
+                    .ListarEmpleadosConDatosLaborales(
+                        new Capa_Entidad.RecursosHumanos_ENT.TablasSQL.OEMPL_E { Estado = "1" },
+                        null
+                    ) ?? new List<Capa_Entidad.RecursosHumanos_ENT.TablasSQL.OEMPL_E>();
+
+                ViewBag.Empleados = empleados.OrderBy(x => x.NombresApellidos).ToList();
+                ViewBag.Roles = orolN.listarRoles(usuarioSesion.IdRol) ?? new List<Orol_E>();
+                ViewBag.Sedes = new SEDE_N().ListarSedesParaCrearUsuario(null) ?? new List<SEDE_E>();
+
                 return View(new Usuario_E());
             }
             else
@@ -78,8 +86,14 @@ namespace Capa_Usuario.Controllers
                 catch (Exception e)
                 {
                     ViewBag.Mensaje = e.Message;
-                    ViewBag.Empleados = new OEMPL_N().ListarEmpleadosConDatosLaborales(new Capa_Entidad.RecursosHumanos_ENT.TablasSQL.OEMPL_E { Estado = "1" }, null);
-                    ViewBag.Roles = orolN.listarRoles(usuarioSesion.IdRol);
+                    var empleados = new OEMPL_N()
+                    .ListarEmpleadosConDatosLaborales(
+                        new Capa_Entidad.RecursosHumanos_ENT.TablasSQL.OEMPL_E { Estado = "1" },
+                        null
+                    ) ?? new List<Capa_Entidad.RecursosHumanos_ENT.TablasSQL.OEMPL_E>();
+
+                    ViewBag.Empleados = empleados.OrderBy(x => x.NombresApellidos).ToList();
+                    ViewBag.Roles = orolN.listarRoles(usuarioSesion.IdRol) ?? new List<Orol_E>();
                     ViewBag.Sedes = new SEDE_N().ListarSedesParaCrearUsuario(null);
                     return View(datosPost);
                 }

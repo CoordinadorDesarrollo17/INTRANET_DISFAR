@@ -25,10 +25,10 @@ namespace Capa_Negocio.RecursosHumanos_NEG.TablasSQL
         public List<OEMPL_E> ListarEmpleadosConDatosLaborales(OEMPL_E filtrosEmpleados, EMPL1_E filtrosDatosLaborales)
         {
             // Obtener la lista de empleados
-            var empleados = emplD.ListarEmpleados(filtrosEmpleados,null);
+            var empleados = emplD.ListarEmpleados(filtrosEmpleados,null) ?? new List<OEMPL_E>();
 
             // Obtener la lista de datos laborales
-            var datosLaborales = empl1D.ListarDatosLaborales(filtrosDatosLaborales);
+            var datosLaborales = empl1D.ListarDatosLaborales(filtrosDatosLaborales) ?? new List<EMPL1_E>();
 
             // Combinar las listas usando LINQ
             var empleadosConDatosLaborales = empleados.Select(empleado =>
