@@ -401,11 +401,12 @@ namespace Capa_Usuario.Controllers
                 {
                     Almacen = "RESERVA",
                     ItemCode = itemCode,
-                    ItemName = itemName
+                    ItemName = itemName,
+                    CodigoUbicacion = filtros.CodigoUbicacion
                 });
 
                 // Agrupar listaULM por CodigoUbicacion
-                var cantidadPorUbicacion = listaULM
+                var cantidadPorUbicacion = listaULM                    
                     .GroupBy(u => u.CodigoUbicacion)
                     .ToDictionary(
                         g => g.Key,
@@ -437,7 +438,9 @@ namespace Capa_Usuario.Controllers
                         : 0;
                 }
 
-                ViewBag.ListaFiltradaUbicacionesLotes = listaULM;
+                ViewBag.ListaFiltradaUbicacionesLotes = listaULM
+                    .Where(w => w.QuantityUnidadesCajas > 0)
+                    .ToList();
 
                 return PartialView("AbastecimientoInterno/_ListadoUbicacionesReserva", listaU);
             }
@@ -731,8 +734,9 @@ namespace Capa_Usuario.Controllers
             {
                 int columnas = 8;
                 var listado = _ubicacionesN.ListarUbicaciones(new Ubicaciones_E { Almacen = "RESERVA" });
-                var listaULM = _ubicacionesLotesMasterN.ListarUbicaciones(new UbicacionesLotesMaster_E { Almacen = "RESERVA" });
-                var codigoU = listaULM
+                var listaULM = _ubicacionesLotesMasterN.ListarUbicaciones(new UbicacionesLotesMaster_E { Almacen = "RESERVA" })
+                    .Where(w => w.QuantityUnidadesCajas > 0);
+                var codigoU = listaULM                    
                     .GroupBy(u => u.CodigoUbicacion)
                     .ToDictionary(g => g.Key, g => g.ToList());
 
@@ -1688,8 +1692,13 @@ namespace Capa_Usuario.Controllers
                 var usuarioSesion = Session["UsuarioId"] as Usuario_E;
                 if (usuarioSesion == null)
                     return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
+
                 // Orden: próxima fecha de vencimiento, primera fecha de admisión registrada, la menor cantidad en unidades
-                List<UbicacionesLotesMaster_E> lista = _ubicacionesLotesMasterN.BuscarArticulos(new UbicacionesLotesMaster_E { ItemCode = itemCode }) ?? new List<UbicacionesLotesMaster_E>();
+                var articulos = _ubicacionesLotesMasterN.BuscarArticulos(new UbicacionesLotesMaster_E { ItemCode = itemCode });
+                List<UbicacionesLotesMaster_E> lista = (articulos ?? Enumerable.Empty<UbicacionesLotesMaster_E>())
+                    .Where(w => w.QuantityUnidadesCajas > 0)
+                    .ToList();
+
                 if (lista.Any())
                 {
                     // Verificar si todas las fechas ExpDate e InDate son iguales

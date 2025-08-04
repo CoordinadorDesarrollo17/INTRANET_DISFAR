@@ -1,4 +1,12 @@
-﻿using Capa_Datos;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Mail;
+using System.Web.Mvc;
+using Aspose.Pdf.Operators;
+using Capa_Datos;
 using Capa_Entidad.General_ENT.TablasSql;
 using Capa_Entidad.Seguridad_ENT;
 using Capa_Entidad.SocioNegocios_ENT.Tablas;
@@ -12,13 +20,6 @@ using Microsoft.Reporting.WebForms;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using Rotativa;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Mail;
-using System.Web.Mvc;
 using TableStyles = OfficeOpenXml.Table.TableStyles;
 namespace Capa_Usuario.Controllers
 {
@@ -529,11 +530,13 @@ namespace Capa_Usuario.Controllers
         {
             if (devolucion.DocEntry >= 1 && devolucion.DocNum >= 1)
             {
-                Usuario_E usu = (Usuario_E)Session["UsuarioId"];
-                Capa_Negocio.Almacen_NEG.TablasSql.ORPD_N orpdN = new Capa_Negocio.Almacen_NEG.TablasSql.ORPD_N();
-                devolucion.Operario = $"{usu.Nombres} {usu.Apellidos}";
-                orpdN.CambiarEstadoDevolucion(devolucion, tipoMantenimiento);
-                Dictionary<string, string> mensajes = new Dictionary<string, string>
+                try
+                {
+                    Usuario_E usu = (Usuario_E)Session["UsuarioId"];
+                    Capa_Negocio.Almacen_NEG.TablasSql.ORPD_N orpdN = new Capa_Negocio.Almacen_NEG.TablasSql.ORPD_N();
+                    devolucion.Operario = $"{usu.Nombres} {usu.Apellidos}";
+                    orpdN.CambiarEstadoDevolucion(devolucion, tipoMantenimiento);
+                    Dictionary<string, string> mensajes = new Dictionary<string, string>
                 {
                     { "R", "Devolución recogida por el Proveedor" },
                     { "AA","Anulacion correcta" },
@@ -541,11 +544,16 @@ namespace Capa_Usuario.Controllers
                     { "NC","Nota de credito aplicada" },
                     { "EC","Correo enviado, revise su bandeja" }
                 };
-                return Json(new { Lista = CargarListaDevoluciones(devolucion), Mensaje = mensajes[tipoMantenimiento] });
+                    return Json(new { Lista = CargarListaDevoluciones(devolucion), Mensaje = mensajes[tipoMantenimiento] });
+                }
+                catch (Exception ex)
+                {
+                    return Json(new { Error = true, Mensaje = ex.Message });
+                }
             }
             else
             {
-                return null;
+                return Json(new { Error = true, Mensaje = "Los datos enviados no son válidos." });
             }
         }
         public JsonResult EnviarCorreo(int DocEntryDev, string Correo1, string Correo2, string WhsCode)
