@@ -545,13 +545,15 @@ namespace Capa_Datos
         }
         public List<string> listaCopilotos()
         {
-            string query = "SELECT concat(T.Nombres,' ',T.Apellidos) " +
-                           "FROM ousr T " +
-                           "INNER JOIN rrhh.OEMPL T0 " +
-                           "    ON T.EmpleadoID = T0.IdOEMPL " +
-                           "WHERE T.idrol = 55 " +
-                           "    AND T.activo = 1 " +
-                           "    AND T0.NroDocumento NOT IN (SELECT Name FROM [al].[OCHO]);";
+            //string query = "SELECT concat(T.Nombres,' ',T.Apellidos) " +
+            //               "FROM ousr T " +
+            //               "INNER JOIN rrhh.OEMPL T0 " +
+            //               "    ON T.EmpleadoID = T0.IdOEMPL " +
+            //               "WHERE T.idrol = 55 " +
+            //               "    AND T.activo = 1 " +
+            //               "    AND T0.NroDocumento NOT IN (SELECT Name FROM [al].[OCHO]);";
+
+            string query = "SELECT concat(T.Nombres,' ',T.Apellidos) FROM ousr T where IdRol = 55 AND activo = 1 AND concat(T.Prefijo, T.Id) not in (SELECT Code FROM[al].[OCHO])";
 
             List<string> copilotos = new List<string>();
 
