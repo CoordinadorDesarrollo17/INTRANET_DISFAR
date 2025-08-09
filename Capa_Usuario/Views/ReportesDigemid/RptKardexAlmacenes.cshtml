@@ -27,11 +27,11 @@
     }
 </style>
 
-<div class="impresion mt-4" style="width: 100%">
+<div id="tbl_detalle" class="impresion mt-4" style="width: 100%">
     <table width="100%">
         <tbody>
             <tr>
-                <td class="border-0 text-left" width="250"><img src="~/Content/img/logo-drogueria-cobefar.jpg" width="150"></td>
+                <td class="border-0 text-left" width="250"><img class="no-export" src="~/Content/img/logo-drogueria-cobefar.jpg" width="150"></td>
                 <td class="border-0 text-center" width="500"><h5 class="font-weight-bold">KÁRDEX CONTROL DE EXISTENCIAS</h5>@Model.WhsName</td>
                 <td width="180" class="border-0 text-left font-weight-bold"><div>REG-009-03</div></td>
             </tr>
@@ -54,7 +54,7 @@
 
     </table>
 
-    <table id="tbl_detalle" class="table table-bordered text-center" width="100%" style="margin-top: 40px;">
+    <table class="table table-bordered text-center" width="100%" style="margin-top: 40px;">
         <thead class="text-dark">
             <tr>
                 <th class="border text-dark" style="vertical-align: middle">REGISTRO SANITARIO</th>
@@ -103,39 +103,63 @@
         printJS({ printable: 'div_plantillaRpt', type: 'html', targetStyles: ['*'] })
     }
 
-    function descargarExcel(tableID, filename = '') {
+    function descargarExcel(tableID, filename = '', { keepImages = false } = {}) {
         //window.open('/ReportesDigemid/RptExcelKardexAlmacenes?WhsCode=' + $('#WhsCode').val() + '&FecIni=' + $('#FecIni').val() + '&FecFin=' + $('#FecFin').val() + '&ItemCode=' + $('#ItemCode').val() + '&Lote=' + $('#Lote').val(), '_blank');
-        
-            var downloadLink;
-            var dataType = 'application/vnd.ms-excel';
-            var tableSelect = document.getElementById(tableID);
-            var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
-            tableHTML = "<meta http-equiv=\"content-type\" content=\"application/vnd.ms-excel; charset=UTF-8\">" + tableHTML;
-            //tableHTML = decodeURIComponent(escape(tableHTML));
-            // Specify file name
-            filename = filename ? filename + '.xls' : 'excel_data.xls';
 
-            // Create download link element
-            downloadLink = document.createElement("a");
-
-            document.body.appendChild(downloadLink);
-
-            if (navigator.msSaveOrOpenBlob) {
-                var blob = new Blob(['ufeff', tableHTML], {
-                    //type: dataType
-                    type: "text/plain;charset=utf-8;"
-                });
-                navigator.msSaveOrOpenBlob(blob, filename);
-            } else {
-                // Create a link to the file
-                downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
-
-                // Setting the file name
-                downloadLink.download = filename;
-
-                //triggering the function
-                downloadLink.click();
-            }
+        const tableSelect = document.getElementById(tableID);
+        if (!tableSelect) {
+            console.error(`No existe el elemento #${tableID}`);
+            return;
         }
-    
+
+        // Clonar para no tocar el DOM original
+        const clone = tableSelect.cloneNode(true);
+
+        // Por defecto quitamos imágenes (evita el ícono de “imagen vinculada” en Excel)
+        if (!keepImages) {
+            clone.querySelectorAll('img').forEach(img => img.remove());
+            // O solo imágenes con clase específica:
+            // clone.querySelectorAll('img.no-export').forEach(img => img.remove());
+        }
+
+        // Armar HTML mínimo compatible con Excel
+        const html =
+            '<!DOCTYPE html><html><head>' +
+            '<meta http-equiv="Content-Type" content="application/vnd.ms-excel; charset=UTF-8"/>' +
+            '<meta charset="UTF-8"/>' +
+            '<style>table{border-collapse:collapse}th,td{border:1px solid #000;padding:4px}</style>' +
+            '</head><body>' +
+            clone.outerHTML +
+            '</body></html>';
+
+        const fname = filename.endsWith('.xls') ? filename : `${filename}.xls`;
+
+        // Preferir Blob (mejor compatibilidad y sin límite de longitud)
+        try {
+            const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+
+            if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+                // IE/Edge Legacy
+                window.navigator.msSaveOrOpenBlob(blob, fname);
+            } else {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fname;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+        } catch (e) {
+            // Fallback a data URI si Blob fallara (raro)
+            const dataUri = 'data:application/vnd.ms-excel;charset=utf-8,' + encodeURIComponent(html);
+            const a = document.createElement('a');
+            a.href = dataUri;
+            a.download = fname;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+    }
 </script>
