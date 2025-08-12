@@ -73,9 +73,17 @@ namespace Capa_Usuario.Controllers
                 ViewBag.ComentarioAdjunto = result?.ComentarioAdjunto ?? string.Empty;
                 ViewBag.IdRol = usu.IdRol;
                 var datosCC = (result != null) ? new CC_OTC_N().ObtenerDatosCC_OTC(result.IdOTC, "REGISTRAR") : null;
-                string fechaRegistro = datosCC.FechaOperacion + " " + datosCC.HoraOperacion;
-                ViewBag.DatosRegistro = fechaRegistro;
-                ViewBag.UsuarioValidacion = datosCC.Operario;
+                if (datosCC != null)
+                {
+                    string fechaRegistro = datosCC.FechaOperacion + " " + datosCC.HoraOperacion;
+                    ViewBag.DatosRegistro = fechaRegistro;
+                    ViewBag.UsuarioValidacion = datosCC.Operario;
+                }
+                else
+                {
+                    ViewBag.DatosRegistro = "";
+                    ViewBag.UsuarioValidacion = "";
+                }
                 ViewBag.Comprobantes = (datosCC != null) ? otcN.ObtenerComprobantePagoEfectivo((int)result.DocNumTicket, datosCC.FechaOperacion) : new List<string>();
                 OPP_N oppN = new OPP_N();
                 ViewBag.PagosParciales = (result != null) ? oppN.ObtenerDatosPagosParciales(result.IdOTC) : null;
