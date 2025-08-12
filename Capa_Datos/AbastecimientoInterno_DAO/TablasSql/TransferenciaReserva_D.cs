@@ -255,6 +255,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
             return new Helper_E { Mensajes = new List<string> { mensaje }, Icono = icono };
         }
+        
         public Helper_E AtenderReserva(int detalleId, SqlConnection cn)
         {
             string mensaje, icono;
@@ -262,9 +263,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
             try
             {
                 if (cn.State != ConnectionState.Open)
-                {
                     cn.Open();
-                }
 
                 using (SqlCommand cmd = new SqlCommand("sp_MantenimientoTransferenciaReserva", cn))
                 {
@@ -285,16 +284,22 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 }
 
             }
-            catch (Exception ex)
+            catch (SqlException ex) // Error técnico de SQL
             {
-                LogHelper.RegistrarError(ex, "SolicitudTraslado_D - AtenderReserva");
+                LogHelper.RegistrarError(ex, "Error inesperado en SolicitudTraslado_D - AtenderReserva()");
+                mensaje = ex.Message;
+                icono = "error";
+            }
+            catch (Exception ex) // Otros errores técnicos
+            {
+                LogHelper.RegistrarError(ex, "Error inesperado en SolicitudTraslado_D - AtenderReserva()");
                 mensaje = "Ocurrió un error al actualizar AtendidoReserva. Comuníquese con el área de Sistemas para más información.";
                 icono = "error";
-                throw new Exception("Error en AtenderReserva.", ex);
             }
 
             return new Helper_E { Mensajes = new List<string> { mensaje }, Icono = icono };
         }
+
         public List<DetalleTransferenciaReserva_E> ListarDetalles()
         {
             List<DetalleTransferenciaReserva_E> lista = null;
