@@ -104,6 +104,9 @@ namespace Capa_Datos.DireccionTecnica_DAO.Reportes
                 case "ALM07":
                     procedureName = "COBE_KARDEX_ALM07_" + loteCondition;
                     break;
+                case "16":      // Almacén N° 8
+                    procedureName = "COBE_KARDEX_ALM08_" + loteCondition;
+                    break;
             }
 
             return $"{baseCall}{procedureName}('{f.FecIni}', '{f.FecFin}', '{f.ItemCode}'{(string.IsNullOrWhiteSpace(f.Lote) ? "" : $", '{f.Lote}'")})";
