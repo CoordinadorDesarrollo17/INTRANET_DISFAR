@@ -523,6 +523,16 @@
                                                 </a>
                                             </div>
                                         }
+                                        @if (ViewBag.DatosRegistro != null)
+                                        {
+                                            <div class="mt-3 text-center">
+                                                <strong>Datos registro de evidencia:</strong>
+                                                <span>@ViewBag.DatosRegistro</span>
+                                                <br />
+                                                <strong>Validación solicitada por:</strong>
+                                                <span>@ViewBag.UsuarioValidacion</span>
+                                            </div>
+                                        }
                                     </div>
                                 </div>
 
