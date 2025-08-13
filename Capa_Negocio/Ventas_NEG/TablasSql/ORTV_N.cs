@@ -952,5 +952,16 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         { return tkD.ListarTicketsAreaAlmacén(user, t); }
         public List<ORTV_E> ListarTicketsAreaDespacho(Usuario_E user, ORTV_E t)
         { return tkD.ListarTicketsAreaDespacho(user, t); }
+
+        public bool GuardarComentario(int docEntry, string comentario)
+        {
+            if(comentario.Length > 400) throw new Exception("El comentario no puede tener mas de 400 caracteres");
+            return tkD.GuardarComentario(docEntry, comentario);
+        }
+
+        public string LeerComentario(int docEntry)
+        {
+            return tkD.LeerComentario(docEntry);
+        }
     }
 }

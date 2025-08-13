@@ -22,6 +22,7 @@ using System.Deployment.Internal;
 using System.Dynamic;
 using DocumentFormat.OpenXml.Drawing;
 using System.Drawing;
+using System.Web;
 namespace Capa_Datos.Ventas_DAO.TablasSql
 {
     public class ORTV_D
@@ -3706,5 +3707,80 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
             }
             return lista;
         }
+
+        public bool GuardarComentario(int docEntry, string comentario)
+        {
+            bool exito = false;
+
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(uti.cadSql))
+                {
+                    string updateQuery = "UPDATE vt.ComentarioFac SET Comentario = @Comentario WHERE DocEntry = @DocEntry";
+                    string insertQuery = "INSERT INTO vt.ComentarioFac (DocEntry, Comentario) VALUES (@DocEntry, @Comentario)";
+
+                    using (SqlCommand cmd = new SqlCommand(updateQuery, cn))
+                    {
+                        cmd.Parameters.AddWithValue("@Comentario", (object)comentario ?? DBNull.Value);
+                        cmd.Parameters.AddWithValue("@DocEntry", docEntry);
+
+                        cn.Open();
+                        int rowsAffected = cmd.ExecuteNonQuery();
+
+                        if (rowsAffected == 0)
+                        {
+                            // No existe, así que lo insertamos
+                            cmd.CommandText = insertQuery;
+                            rowsAffected = cmd.ExecuteNonQuery();
+                        }
+
+                        exito = rowsAffected > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(
+                    $"Error al guardar el comentario para el DocEntry {docEntry}.", ex);
+            }
+
+            return exito;
+        }
+
+
+
+        public string LeerComentario(int docEntry)
+        {
+            string comentarioFac = null;
+
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(uti.cadSql))
+                {
+                    using (SqlCommand cmd = new SqlCommand(
+                        "SELECT Comentario FROM vt.ComentarioFac WHERE DocEntry = @DocEntry", cn))
+                    {
+                        cmd.Parameters.AddWithValue("@DocEntry", docEntry);
+
+                        cn.Open();
+                        using (SqlDataReader dr = cmd.ExecuteReader())
+                        {
+                            if (dr.Read() && !dr.IsDBNull(0))
+                            {
+                                comentarioFac = dr.GetString(0);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(
+                    $"Error al leer el comentario del DocEntry {docEntry}.", ex);
+            }
+
+            return comentarioFac;
+        }
+
     }
 }

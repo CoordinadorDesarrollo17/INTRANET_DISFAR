@@ -3996,5 +3996,35 @@ namespace Capa_Usuario.Controllers
 
             return View("~/Views/Ventas/PDF/PDF_OrdenesDeVentasSophos.cshtml", resultado);
         }
+        [HttpPost]
+        public JsonResult GuardarObservacion(int docEntry, string observacion)
+        {
+            try
+            {
+                var exito = _ticketN.GuardarComentario(docEntry, observacion);
+                if (exito)
+                    return Json(new { success = true, message = "Observación guardada correctamente." });
+                else
+                    return Json(new { success = false, message = "No se pudo guardar la observación." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+        [HttpGet]
+        public JsonResult LeerObservacion(int docEntry)
+        {
+            try
+            {
+                var comentario = _ticketN.LeerComentario(docEntry);
+                return Json(new { success = true, comentario = comentario ?? "" }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, comentario = "", message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
     }
 }

@@ -85,19 +85,19 @@
 
 
 <script>
-     $(document).ready(function () {
-            modTabla();
-            $('[data-toggle="tooltip"]').tooltip();
+    $(document).ready(function () {
+        modTabla();
+        $('[data-toggle="tooltip"]').tooltip();
 
-            if ('@ViewBag.Mensaje' !== "") {
-                var mensaje = '@Html.Raw(ViewBag.Mensaje)';
-                Swal.fire({
-                    text: mensaje,
-                    showConfirmButton: false,
-                    timer: 2000
-                });
-            }
-     });
+        if ('@ViewBag.Mensaje' !== "") {
+            var mensaje = '@Html.Raw(ViewBag.Mensaje)';
+            Swal.fire({
+                text: mensaje,
+                showConfirmButton: false,
+                timer: 2000
+            });
+        }
+    });
 
     function clearZona() {
         $('#Zona').val('');
@@ -118,38 +118,33 @@
         var LugarDestino = $("#LugarDestino").val();
         if (LugarDestino != null && LugarDestino != "") {
             if (LugarDestino === "Agencia" || LugarDestino === "Agencia Courier") {
-
                 //Muestra la persona de recojo
                 $("#tablaFacturacion tr td:nth-child(11)").show();
                 $("#tablaFacturacion th:nth-child(11)").show();
                 //Oculta zona
                 $("#tablaFacturacion tr td:nth-child(5)").hide();
                 $("#tablaFacturacion th:nth-child(5)").hide();
-
             } else if (LugarDestino === "Domicilio") {
                 //Oculta la
                 $("#tablaFacturacion tr td:nth-child(11)").hide();
                 $("#tablaFacturacion th:nth-child(11)").hide();
-            }
-            else if (LugarDestino === "Centro" || LugarDestino === "Arriola") {
+            } else if (LugarDestino === "Centro" || LugarDestino === "Arriola") {
                 $("#tablaFacturacion tr td:nth-child(5)").hide();
                 $("#tablaFacturacion th:nth-child(5)").hide();
-
                 $("#tablaFacturacion tr td:nth-child(11)").hide();
                 $("#tablaFacturacion th:nth-child(11)").hide();
             }
         } else {
             $("#tablaFacturacion tr td:nth-child(5)").hide();
             $("#tablaFacturacion th:nth-child(5)").hide();
-
             $("#tablaFacturacion tr td:nth-child(11)").hide();
             $("#tablaFacturacion th:nth-child(11)").hide();
         }
     }
 
     function confirmarFacturar(DocEntry) {
-    window.location.href = '/Ventas/FacturarTicketVenta?DocEntry=' + DocEntry;
-        }
+        window.location.href = '/Ventas/FacturarTicketVenta?DocEntry=' + DocEntry;
+    }
 
     function abrirModalFB(DocEntry) {
         var modalId = "ModalComprobantes" + DocEntry;
@@ -185,7 +180,7 @@
 
             $("#" + modalId).modal('show');
         });
-        }
+    }
 
     function revertirFacturacionTicket(DocEntry) {
         const swalWithBootstrapButtons = Swal.mixin({
@@ -209,7 +204,7 @@
                 window.location.href = '/Ventas/AnularFacturarTicketVenta?DocEntry=' + DocEntry + '&vista=ListadoTicketsFacturacion';
             }
         });
-        }
+    }
 
     function buscarFacturasyBoletas(DocEntry, callback) {
         if (DocEntry !== '') {
@@ -262,7 +257,7 @@
                 });
 
         }
-        }
+    }
 
     function confirmarEmitirGuias(DocEntry) {
                var docNum = "@(ViewBag.Ortv != null ? ViewBag.Ortv.DocNum : "")";
@@ -319,7 +314,7 @@
                     callback(tableHtml);
                 });
         }
-        }
+    }
 
     function abrirModalGuias(DocEntry) {
         var modalId = "ModalGuias" + DocEntry;
@@ -357,7 +352,7 @@
             // Una vez que se ha agregado el HTML del modal al cuerpo del documento, ábrelo
             $("#" + modalId).modal('show');
         });
-        }
+    }
 
     function revertirEmitirGuiasTicket(DocEntry) {
         const swalWithBootstrapButtons = Swal.mixin({
@@ -381,12 +376,12 @@
                 location.href = '/Ventas/RevertirEmitirGuiasTicketVenta?DocEntry=' + DocEntry + '&vista=ListadoTicketsGuiasRemision';
             }
         });
-        }
+    }
 
     var tiempoRecarga = setTimeout(function () { window.location.reload() }, 90000);  //1.5 min
 
     async function generarHtmlComprobantes(docEntry, estado, lugarDestino) {
-    let html = '<div class="btn-group" role="group">';
+        let html = '<div class="btn-group" role="group">';
 
         const { existeNC, existeND, existeF, existeG } = await validarDocumentos(docEntry);
 
@@ -403,30 +398,30 @@
 
     // Función para validar la existencia de los documentos antes de mostrar el boton de descarga
     async function validarDocumentos(docEntry) {
-    try {
-        const response = await $.ajax({
-            url: '@Url.Action("ExistenciaDeDocumentos", "ComprobantesContables")',
-            type: 'GET',
-            data: { DocEntry: docEntry }
-        });
+        try {
+            const response = await $.ajax({
+                url: '@Url.Action("ExistenciaDeDocumentos", "ComprobantesContables")',
+                type: 'GET',
+                data: { DocEntry: docEntry }
+            });
 
-        return {
-            existeNC: response?.existeNC || "N",
-            existeND: response?.existeND || "N",
-            existeF: response?.existeF || "N",
-            existeG: response?.existeG || "N"
-        };
-    } catch (error) {
-        Swal.fire('Error', 'Ocurrió un error en la solicitud: ' + error, 'error');
-        return {
-            existeNC: "N",
-            existeND: "N",
-            existeF: "N",
-            existeG: "N",
+            return {
+                existeNC: response?.existeNC || "N",
+                existeND: response?.existeND || "N",
+                existeF: response?.existeF || "N",
+                existeG: response?.existeG || "N"
+            };
+        } catch (error) {
+            Swal.fire('Error', 'Ocurrió un error en la solicitud: ' + error, 'error');
+            return {
+                existeNC: "N",
+                existeND: "N",
+                existeF: "N",
+                existeG: "N",
 
-        };
+            };
+        }
     }
-}
 
     // Función para generar los botones de comprobantes
     function generarBotonesComprobantes(docEntry, existeNC, existeND, existeF, existeG) {
@@ -480,7 +475,7 @@
 
     // Función para descargar comprobantes contables
     function descargarComprobante(docEntry, tipo) {
-    const btn = document.querySelector(`[data-docentry="${docEntry}"][data-tipo="${tipo}"]`);
+        const btn = document.querySelector(`[data-docentry="${docEntry}"][data-tipo="${tipo}"]`);
 
         if (btn) {
         btn.disabled = true;
@@ -520,7 +515,7 @@
                 }
             }
         });
-        }
+    }
 
     function registrarImpresion(DocEntry) {
         $.ajax({
@@ -533,8 +528,59 @@
             console.log(jqXHR.status + textStatus + errorThrown);
         });
 
-        }
+    }
 
+    function guardarObservacion(docEntry) {
+        var obs = $('#observacion_' + docEntry).val();
+        if (obs.length > 400) {
+            Swal.fire('Advertencia', 'La observación no puede superar los 400 caracteres.', 'warning');
+            return;
+        }
+        $.ajax({
+            url: '/Ventas/GuardarObservacion',
+            type: 'POST',
+            data: { docEntry: docEntry, observacion: obs },
+            success: function (response) {
+                if (response.success) {
+                    Swal.fire('Éxito', response.message, 'success');
+                    $('#modalObservacion_' + docEntry).modal('hide');
+                } else {
+                    Swal.fire('Error', 'No se pudo guardar la observación.', 'error');
+                }
+            },
+            error: function () {
+                Swal.fire('Error', 'Ocurrió un error al guardar la observación.', 'error');
+            }
+        });
+    }
+
+    function cargarObservacion(docEntry) {
+        $.ajax({
+            url: '/Ventas/LeerObservacion',
+            type: 'GET',
+            data: { docEntry: docEntry },
+            success: function (response) {
+                if (response.success) {
+                    $('#observacion_' + docEntry).val(response.comentario);
+                } else {
+                    $('#observacion_' + docEntry).val('');
+                    Swal.fire('Error', 'No se pudo cargar la observación.', 'error');
+                }
+            },
+            error: function () {
+                $('#observacion_' + docEntry).val('');
+                Swal.fire('Error', 'Ocurrió un error al cargar la observación.', 'error');
+            }
+        });
+    }
+
+    function validarObservacionInput(docEntry) {
+        var obs = $('#observacion_' + docEntry).val();
+        if (obs.length > 200) {
+            Swal.fire('Advertencia', 'La observación no puede superar los 400 caracteres.', 'warning');
+            $('#observacion_' + docEntry).val(obs.substring(0, 400));
+        }
+    }
 </script>
 
 
@@ -723,6 +769,7 @@
                     <th></th><!--18-->
                     <th></th><!--19-->
                     <th></th><!--20-->
+                    <th>Observación</th>
                 </tr>
             </thead>
             <tbody class="text-dark">
@@ -980,9 +1027,34 @@
                             }
                         </td>
                         <td style="@styleEmitirGuias">
-                            <a href="#" class="btn  btn-light" data-toggle="tooltip" data-placement="top" title="Imprimir" onclick="registrarImpresion(@item.DocEntry);">
+                            <a href="#" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Imprimir" onclick="registrarImpresion(@item.DocEntry);">
                                 <i class="icon-printer text-cobefar"></i>
                             </a>
+                        </td>
+                        <td style="@styleEmitirGuias">
+                            <a href="#" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Observación" onclick="cargarObservacion(@item.DocEntry); $('#modalObservacion_@item.DocEntry').modal('show'); return false;">
+                                <span class="icon icon-bubble2 text-primary"></span>
+                            </a>
+                            <!-- Modal Observación -->
+                            <div class="modal fade" id="modalObservacion_@item.DocEntry" tabindex="-1" role="dialog" aria-labelledby="modalObservacionLabel_@item.DocEntry" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="modalObservacionLabel_@item.DocEntry">Observación para Ticket @item.DocNum</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <textarea class="form-control" id="observacion_@item.DocEntry" rows="3" placeholder="Ingrese su observación aquí..." maxlength="400" oninput="validarObservacionInput(@item.DocEntry)"></textarea>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-primary" onclick="guardarObservacion(@item.DocEntry)">Guardar</button>
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                 }
