@@ -3245,12 +3245,17 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
             }
             return lista;
         }
-        public List<ORTV_E> ListarTicketsAreaFacturacion(Usuario_E user, ORTV_E t)
+        public List<ORTV_E> ListarTicketsAreaFacturacion(Usuario_E user, ORTV_E t, int SoloConObservacion = 0)
         {
             List<ORTV_E> lista = new List<ORTV_E>();
             string condWhere = string.Empty;
+            string joinObservacion = string.Empty;
             string orderBy = string.Empty;
-
+            if (SoloConObservacion == 1)
+            {
+                joinObservacion = " INNER JOIN vt.ComentarioFac cf ON cf.DocEntry = t0.DocEntry ";
+                condWhere += " AND cf.Comentario IS NOT NULL AND LTRIM(RTRIM(cf.Comentario)) <> '' ";
+            }
             if (t != null)
             {
                 condWhere += t.DocNum > 0 ? $" AND t0.DocNum like '%{t.DocNum}%'" : "";
@@ -3291,6 +3296,8 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
             queryBuilder.AppendLine("   CASE");
             queryBuilder.AppendLine("       WHEN EXISTS (SELECT 1 FROM vt.CC_ORTV_print WHERE DocEntryTicket = t0.DocEntry AND Id_Usuario = 'Facturacion') THEN 1 ELSE 0 END AS ExisteEnCC_ORTV_print");
             queryBuilder.AppendLine("FROM vt.ORTV t0");
+            if (!string.IsNullOrEmpty(joinObservacion))
+                queryBuilder.AppendLine(joinObservacion);
             queryBuilder.AppendLine("OUTER APPLY (");
             queryBuilder.AppendLine("   SELECT TOP 1 Estado");
             queryBuilder.AppendLine("   FROM vt.BusquedaProducto bp");
