@@ -944,8 +944,10 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         { return tkD.ObtenerTicketRotulado(docEntry); }
         public ORTV_E ObtenerTicketTacoEmpaque(int docEntry)
         { return tkD.ObtenerTicketTacoEmpaque(docEntry); }
-        public List<ORTV_E> ListarTicketsAreaFacturacion(Usuario_E user, ORTV_E t)
-        { return tkD.ListarTicketsAreaFacturacion(user, t); }
+        public List<ORTV_E> ListarTicketsAreaFacturacion(Usuario_E user, ORTV_E t, int SoloConObservacion = 0)
+        {
+            return tkD.ListarTicketsAreaFacturacion(user, t, SoloConObservacion);
+        }
         public List<ORTV_E> ListarTicketsAreaRecepcion(Usuario_E user, ORTV_E t)
         { return tkD.ListarTicketsAreaRecepcion(user, t); }
         public List<ORTV_E> ListarTicketsAreaAlmacén(Usuario_E user, ORTV_E t)
