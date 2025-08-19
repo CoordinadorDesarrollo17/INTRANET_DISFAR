@@ -26,4 +26,10 @@
         public int EmpleadoID { get; set; }
         public string EmpleadoCobefar { get; set; }     // Campo para selección SI/NO
     }
+    public class Credenciales_E
+    { 
+    public string correo { get; set; }
+    public string password { get; set; }
+    
+    }
 }

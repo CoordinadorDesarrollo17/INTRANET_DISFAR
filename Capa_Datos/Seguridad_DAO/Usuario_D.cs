@@ -68,6 +68,34 @@ namespace Capa_Datos
             catch (Exception e) { cn.Close(); throw new Exception(e.Message); }
             return u;
         }
+
+        public Credenciales_E buscarCredenciales()
+        {
+            Credenciales_E u = new Credenciales_E();
+            string query = $"SELECT TOP 1 Correo, CONVERT(VARCHAR(MAX), DECRYPTBYPASSPHRASE('pwC0B3F@R', Password)) AS Password FROM dbo.CredencialesSMTP;";
+
+            SqlConnection cn = new SqlConnection(uti.cadSql);
+            try
+            {
+                cn.Open();
+                SqlCommand cmd = new SqlCommand(query, cn);
+                cmd.CommandType = CommandType.Text;
+                SqlDataReader dr = cmd.ExecuteReader();
+                while (dr.Read())
+                {
+
+                    if (!dr.IsDBNull(0)) { u.correo = dr.GetString(0); }
+                    if (!dr.IsDBNull(1)) { u.password = dr.GetString(1); }
+                   
+                }
+                dr.Close();
+                cn.Close();
+            }
+            catch (Exception e) { cn.Close(); throw new Exception(e.Message); }
+            return u;
+        }
+
+
         public Usuario_E buscarUsuarioSesion(string user, string pass)
         {
             Usuario_E u = null;
