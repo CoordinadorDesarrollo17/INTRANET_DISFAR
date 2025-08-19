@@ -558,50 +558,84 @@ namespace Capa_Usuario.Controllers
         }
         public JsonResult EnviarCorreo(int DocEntryDev, string Correo1, string Correo2, string WhsCode)
         {
-            Usuario_D usuD = new Usuario_D(); Utilitarios uti = new Utilitarios();
+            Usuario_D usuD = new Usuario_D();
+            Utilitarios uti = new Utilitarios();
             int DocEntryEncargado = 0;
+
             if (WhsCode.Equals("03")) { DocEntryEncargado = 185; }
             else if (WhsCode.Equals("05")) { DocEntryEncargado = 697; }
             else if (WhsCode.Equals("06")) { DocEntryEncargado = 202; }
             else if (WhsCode.Equals("CUAR07")) { DocEntryEncargado = 161; }
             else if (WhsCode.Equals("DEV07")) { DocEntryEncargado = 161; }
+
             if (DocEntryEncargado > 0)
             {
                 var encargado = usuD.buscarUsuario(DocEntryEncargado);
+                Credenciales_E credenciales = usuD.buscarCredenciales();
+                string remitente = credenciales.correo;
+                string claveRemitente = credenciales.password;
+                string correoAlmacen = encargado.Email;
                 string destinatario = Correo1;
-                string remitente = encargado.Email;
                 string asunto = "COBEFAR SAC - DEVOLUCION DE MERCADERIA";
-                string cuerpo = "<html><body><h3 style='color:green;'>DEVOLUCION DE MERCADERIA- COBEFAR SAC</h3><p style='font-size:16px;font-weight:bold'>Estimado proveedor,\n\n<br>Por medio de la presente adjuntamos el formato para devolucion de productos con su detallado, por favor sirvase a revisarlo y responder este correo en la brevedad para pactar una fecha de entrega.<br></p><span>Área Devoluciones - COBEFAR SAC\n</span></body></html>";
-                MailMessage ms = new MailMessage(remitente, destinatario, asunto, cuerpo);
-                ms.IsBodyHtml = true;  // Indicar que el cuerpo es HTML
+                string cuerpo = "<html><body><h3 style='color:green;'>DEVOLUCION DE MERCADERIA - COBEFAR SAC</h3>" +
+                                "<p style='font-size:16px;font-weight:bold'>Estimado proveedor,<br><br>" +
+                                "Por medio de la presente adjuntamos el formato para devolucion de productos con su detallado, " +
+                                "por favor sirvase a revisarlo y responder este correo en la brevedad para pactar una fecha de entrega.<br></p>" +
+                                "<span>Área Devoluciones - COBEFAR SAC</span></body></html>";
+
+                // Crear correo
+                MailMessage ms = new MailMessage();
+                ms.From = new MailAddress(remitente, "COBEFAR SAC");
+                ms.To.Add(destinatario);
+                if (!string.IsNullOrWhiteSpace(correoAlmacen))
+                {
+                    ms.To.Add(correoAlmacen);
+                }
                 if (!string.IsNullOrWhiteSpace(encargado.Email)) { ms.Bcc.Add(encargado.Email); }
                 if (!string.IsNullOrWhiteSpace(Correo2)) { ms.Bcc.Add(Correo2); }
-                SmtpClient smtp = new SmtpClient(uti.Smtp, uti.CodigoSmtp);
-                smtp.EnableSsl = true;
-                smtp.Credentials = new NetworkCredential(remitente, encargado.ClaveEmail);
-                //ADJUNTAR ARCHIVO PDF O EXCEL
-                var root = Server.MapPath("~/PDF/");
-                if (!System.IO.Directory.Exists(@root))
+                ms.Subject = asunto;
+                ms.Body = cuerpo;
+                ms.IsBodyHtml = true;
+
+                // Configurar cliente SMTP (Office365)
+                SmtpClient smtp = new SmtpClient("smtp.office365.com", 587)
                 {
-                    System.IO.Directory.CreateDirectory(@root);
-                }
-                var pdfname = String.Format("FormatoDevolucion_" + DocEntryDev + ".pdf");
+                    EnableSsl = true,
+                    UseDefaultCredentials = false,
+                    Credentials = new NetworkCredential(remitente, claveRemitente),
+                    DeliveryMethod = SmtpDeliveryMethod.Network
+                };
+
+                // Crear directorios
+                var root = Server.MapPath("~/PDF/");
+                if (!System.IO.Directory.Exists(root))
+                    System.IO.Directory.CreateDirectory(root);
+
+                var pdfname = $"FormatoDevolucion_{DocEntryDev}.pdf";
                 var pathPdf = Path.Combine(root, pdfname);
                 pathPdf = Path.GetFullPath(pathPdf);
-                var something = new ActionAsPdf("FormatoDevolucionSimple", new { DocEntry = DocEntryDev }) { FileName = pdfname, PageOrientation = Rotativa.Options.Orientation.Landscape, PageSize = Rotativa.Options.Size.A4 };
+
+                var something = new ActionAsPdf("FormatoDevolucionSimple", new { DocEntry = DocEntryDev })
+                {
+                    FileName = pdfname,
+                    PageOrientation = Rotativa.Options.Orientation.Landscape,
+                    PageSize = Rotativa.Options.Size.A4
+                };
                 var binary = something.BuildPdf(this.ControllerContext);
                 System.IO.File.Create(pathPdf).Close();
-                System.IO.File.WriteAllBytes(@pathPdf, binary);
+                System.IO.File.WriteAllBytes(pathPdf, binary);
+
                 var rootExcel = Server.MapPath("~/EXCEL/");
-                if (!System.IO.Directory.Exists(@rootExcel))
-                {
-                    System.IO.Directory.CreateDirectory(@rootExcel);
-                }
-                var excelname = String.Format("FormatoDevolucion_" + DocEntryDev + ".xlsx");
+                if (!System.IO.Directory.Exists(rootExcel))
+                    System.IO.Directory.CreateDirectory(rootExcel);
+
+                var excelname = $"FormatoDevolucion_{DocEntryDev}.xlsx";
                 var pathExcel = Path.Combine(rootExcel, excelname);
+
                 Capa_Negocio.Almacen_NEG.TablasSql.ORPD_N orpdN = new Capa_Negocio.Almacen_NEG.TablasSql.ORPD_N();
                 var objdevolucion = orpdN.ObtenerDevolucion(DocEntryDev);
-                //solo se envia formato excel si es de portugal no RM
+
+                // Adjuntar Excel solo para Portugal
                 if (objdevolucion.RetiroMercado == false && objdevolucion.CardCode.Equals("P20100204330"))
                 {
                     var dev = orpdN.RptCorreoDevolucion(DocEntryDev);
@@ -611,9 +645,8 @@ namespace Capa_Usuario.Controllers
                         using (var libro = new ExcelPackage())
                         {
                             ExcelWorksheet worksheet = libro.Workbook.Worksheets.Add("Devolucion");
-                            worksheet.Cells["C2:I2"].Merge = true; // Combina las celdas de C2 a I2
+                            worksheet.Cells["C2:I2"].Merge = true;
                             worksheet.Cells["C2:I2"].Value = "DEVOLUCION AL LABORATORIO PORTUGAL";
-                            // Establecer el formato de centrado
                             worksheet.Cells["C2:I2"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                             worksheet.Cells["C2:I2"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
                             worksheet.Cells["C2:I2"].Style.Font.Bold = true;
@@ -621,49 +654,56 @@ namespace Capa_Usuario.Controllers
                             worksheet.Cells["C3:I3"].Style.Font.Bold = true;
                             worksheet.Cells["C3:I3"].Style.Font.Size = 12;
                             worksheet.Cells["C3"].LoadFromCollection(dev, PrintHeaders: true);
-                            // A continuación, establecemos el formato de texto para toda la columna F
+
                             worksheet.Cells["D:D"].Style.Numberformat.Format = "@";
                             worksheet.Cells["F:F"].Style.Numberformat.Format = "@";
+
                             if (dev != null && dev.Count >= 1)
                             {
-                                // Establecer formato para todas las columnas
                                 for (var col = 1; col <= 7; col++)
-                                {
                                     worksheet.Column(col).AutoFit();
-                                }
-                                // Crear la tabla a partir de los datos en C3
+
                                 var tabla = worksheet.Tables.Add(worksheet.Cells["C3:I" + (dev.Count + 2)], "Devolucion");
                                 tabla.ShowHeader = true;
                                 tabla.TableStyle = TableStyles.Medium7;
                             }
+
                             System.IO.File.Create(pathExcel).Close();
-                            System.IO.File.WriteAllBytes(@pathExcel, libro.GetAsByteArray());
-                            ms.Attachments.Add(new System.Net.Mail.Attachment(pathExcel));
+                            System.IO.File.WriteAllBytes(pathExcel, libro.GetAsByteArray());
+                            ms.Attachments.Add(new Attachment(pathExcel));
                         }
                     }
                 }
-                ms.Attachments.Add(new System.Net.Mail.Attachment(pathPdf));
+
+                // Adjuntar PDF
+                ms.Attachments.Add(new Attachment(pathPdf));
+
                 try
                 {
                     ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
                     smtp.Send(ms);
+
+                    // liberar adjuntos
+                    foreach (Attachment att in ms.Attachments)
+                        att.Dispose();
                     ms.Dispose();
-                    //registrar el correo de proveedor en su devolucion TipoMantenimiento AC
-                    CambiarEstadoDevolucion(new Capa_Entidad.Almacen_ENT.TablasSql.ORPD_E { DocEntry = DocEntryDev, Correo = Correo1, DocNum = 1 }, "EC");
-                    System.IO.File.Delete(@pathPdf);
+
+                    // eliminar archivos temporales
+                    System.IO.File.Delete(pathPdf);
                     if (objdevolucion.RetiroMercado == false && objdevolucion.CardCode.Equals("P20100204330"))
-                    { System.IO.File.Delete(@pathExcel); }
+                        System.IO.File.Delete(pathExcel);
+
                     return Json("Envio de correo exitoso, revise su bandeja");
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Error: {ex.Message}");
-                    return Json("Error en envio de email");
+                    return Json("Error en envio de email: " + ex.Message);
                 }
             }
             return null;
         }
-        //Formato que se envia al proveedor por correo como referencia
+
         public ActionResult FormatoDevolucionSimple(int DocEntry)
         {
             Capa_Negocio.General_NEG.TablasSql.OWHS_N owhsN = new Capa_Negocio.General_NEG.TablasSql.OWHS_N();
