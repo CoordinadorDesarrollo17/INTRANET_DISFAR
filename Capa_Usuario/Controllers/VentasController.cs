@@ -1345,7 +1345,13 @@ namespace Capa_Usuario.Controllers
                     lista.Add(oinvNeg.listadoBoletasDeVenta(new OINV_E { NumAtCard = o }).FirstOrDefault());
                 }
             }
-            return Json(lista = lista.GroupBy(x => x.NumAtCard).Select(g => g.First()).ToList());
+            return Json(
+                    lista
+                        .Where(x => x != null && !string.IsNullOrWhiteSpace(x.NumAtCard))
+                        .GroupBy(x => x.NumAtCard)
+                        .Select(g => g.First())
+                        .ToList()
+                );
         }
         public JsonResult buscarGuias(int DocEntry)
         {
