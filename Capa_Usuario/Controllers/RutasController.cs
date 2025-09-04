@@ -674,6 +674,10 @@ namespace Capa_Usuario.Controllers
 
                 if (resultTempHum != null && resultTempHum.Any())
                 {
+                    resultTempHum = resultTempHum
+                   .OrderBy(x => x.Fecha)
+                   .ThenBy(x => TimeSpan.Parse(x.HoraSalida))
+                   .ToList();
                     var datosUsuario = new Usuario_N().BuscarDocEntryPorNombreCompleto(resultTempHum[0].Encargado);
                     docEntryUsuarioTransportista = datosUsuario.DocEntry;
                 }
