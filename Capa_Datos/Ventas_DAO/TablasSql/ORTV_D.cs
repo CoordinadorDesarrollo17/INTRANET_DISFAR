@@ -2951,7 +2951,15 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
             try
             {
                 cn.Open();
-                SqlCommand cmd = new SqlCommand("select DocEntry,DocNum,CardCode, CardName,Estado,TipoVenta,LugarDestino, DirDestino,Referencia,Agencia,EnvioAgencia,Embalaje,CodSapVendedor,Vendedor,MontoTotal,Flete,GastoEnvio,EstadoGasto,PagoEnv,ClaveEnv,TiempoEntrega,DescuentoNC,DeudaCliente,DeudaEmpresa,MontoFinal,FormaPago,MontoRecibido,EstadoPago,FechaPago,HoraPago,Cajero,Comentario,Cajas,NroMesa,FechaNC,EstadoFacturacion,FechaFacturacion,HoraFacturacion,OpFacturacion, Observaciones,Observaciones2,Observaciones3,FechaSapTicket, (Select top 1 FechaOperacion from vt.CC_ORTV where DocEntry=" + DocEntry + " and Operacion='REGISTRAR' order by FechaOperacion DESC,HoraOperacion DESC ) AS 'FECHA REGISTRO', (Select top 1 HoraOperacion from vt.CC_ORTV where DocEntry=" + DocEntry + " and Operacion='REGISTRAR' order by FechaOperacion,HoraOperacion desc ) AS 'HORA REGISTRO' ,AlmProcedencia, Zona,Notificado,Visible,Presupuesto, (Select  Estado from vt.BusquedaProducto where DocEntry=vt.ORTV.DocEntry )   from vt.ORTV where DocEntry=" + DocEntry, cn);
+                SqlCommand cmd = new SqlCommand("select DocEntry,DocNum,CardCode, CardName,Estado,TipoVenta,LugarDestino, " +
+                    "DirDestino,Referencia,Agencia,EnvioAgencia,Embalaje,CodSapVendedor,Vendedor,MontoTotal,Flete,GastoEnvio," +
+                    "EstadoGasto,PagoEnv,ClaveEnv,TiempoEntrega,DescuentoNC,DeudaCliente,DeudaEmpresa,MontoFinal,FormaPago,MontoRecibido," +
+                    "EstadoPago,FechaPago,HoraPago,Cajero,Comentario,Cajas,NroMesa,FechaNC,EstadoFacturacion,FechaFacturacion,HoraFacturacion," +
+                    "OpFacturacion, Observaciones,Observaciones2,Observaciones3,FechaSapTicket, (Select top 1 FechaOperacion " +
+                    "from vt.CC_ORTV where DocEntry=" + DocEntry + " and Operacion='REGISTRAR' order by FechaOperacion DESC,HoraOperacion DESC ) AS 'FECHA REGISTRO'," +
+                    " (Select top 1 HoraOperacion from vt.CC_ORTV where DocEntry=" + DocEntry + " and Operacion='REGISTRAR' order by FechaOperacion,HoraOperacion desc ) " +
+                    "AS 'HORA REGISTRO' ,AlmProcedencia, Zona,Notificado,Visible,Presupuesto, (Select  Estado from vt.BusquedaProducto where DocEntry=vt.ORTV.DocEntry )   " +
+                    "from vt.ORTV where DocEntry=" + DocEntry, cn);
                 cmd.CommandType = CommandType.Text;
                 SqlDataReader dr = cmd.ExecuteReader();
                 dr.Read();
