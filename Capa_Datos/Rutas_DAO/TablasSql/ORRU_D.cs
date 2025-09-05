@@ -897,7 +897,9 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                   CONVERT(VARCHAR(8), T1.HoraEntrega), 
                   T1.TempF1, 
                   T1.HumedF1, 
-                  T0.TransDesc 
+                  T0.TransDesc, 
+                  T0.DocEntry, 
+                  T1.DocNumTicket 
            FROM al.ORRU T0 
            INNER JOIN al.RRU0 T1 ON T0.DocEntry = T1.DocEntry 
            WHERE (SELECT TOP 1 FechaOperacion 
@@ -932,7 +934,9 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                   CONVERT(VARCHAR(8), T1.HoraEntrega), 
                   T1.TempF2, 
                   T1.HumedF2, 
-                  T0.TransDesc 
+                  T0.TransDesc, 
+                  T0.DocEntry, 
+                  T1.DocNumTicket 
            FROM al.ORRU T0 
            INNER JOIN al.RRU0 T1 ON T0.DocEntry = T1.DocEntry 
            WHERE (SELECT TOP 1 FechaOperacion 
@@ -956,7 +960,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                    FROM al.CC_ORRU 
                    WHERE Operacion = 'TERMINAR' 
                          AND DocEntry = T1.DocEntry 
-                   ORDER BY FechaOperacion DESC, HoraOperacion DESC), 
+                   ORDER BY FechaOperacion, HoraOperacion DESC), 
                   T0.DocNum, 
                   T1.Guia, 
                   (SELECT TOP 1 CONVERT(VARCHAR, HoraOperacion, 108) 
@@ -969,7 +973,9 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                   CONVERT(VARCHAR(8), T1.HoraEntrega), 
                   T1.TempF1, 
                   T1.HumedF1, 
-                  T0.TransDesc 
+                  T0.TransDesc, 
+                  T0.DocEntry, 
+                  0 
            FROM al.ORRU T0 
            INNER JOIN al.RRU1 T1 ON T0.DocEntry = T1.DocEntry 
            WHERE (SELECT TOP 1 FechaOperacion 
@@ -991,27 +997,29 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                    FROM al.CC_ORRU 
                    WHERE Operacion = 'TERMINAR' 
                          AND DocEntry = T1.DocEntry 
-                   ORDER BY FechaOperacion DESC, HoraOperacion DESC), 
+                   ORDER BY FechaOperacion, HoraOperacion DESC), 
                   T0.DocNum, 
                   T1.Guia, 
                   (SELECT TOP 1 CONVERT(VARCHAR, HoraOperacion, 108) 
                    FROM al.CC_ORRU 
                    WHERE Operacion = 'INICIAR' 
                          AND DocEntry = T1.DocEntry 
-                   ORDER BY FechaOperacion DESC, HoraOperacion DESC), 
+                   ORDER BY FechaOperacion, HoraOperacion DESC), 
                   T1.TempI2, 
                   T1.HumedI2, 
                   CONVERT(VARCHAR(8), T1.HoraEntrega), 
                   T1.TempF2, 
                   T1.HumedF2, 
-                  T0.TransDesc 
+                  T0.TransDesc, 
+                  T0.DocEntry, 
+                  0 
            FROM al.ORRU T0 
            INNER JOIN al.RRU1 T1 ON T0.DocEntry = T1.DocEntry 
            WHERE (SELECT TOP 1 FechaOperacion 
                   FROM al.CC_ORRU 
                   WHERE Operacion = 'TERMINAR' 
                         AND DocEntry = T1.DocEntry 
-                  ORDER BY FechaOperacion DESC, HoraOperacion DESC) IN ('{FechaTerEn}') 
+                  ORDER BY FechaOperacion, HoraOperacion DESC) IN ('{FechaTerEn}') 
                  AND T1.Estado = 'ENTREGADO' 
                  AND T0.DocEntry = {obj.DocEntry}";
 
@@ -1038,6 +1046,8 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                         if (!dr.IsDBNull(9)) { p.TempF = dr.GetDecimal(9); }
                         if (!dr.IsDBNull(10)) { p.HumedF = Convert.ToInt32(dr.GetDecimal(10)); }
                         if (!dr.IsDBNull(11)) { p.Encargado = dr.GetString(11); }
+                        if (!dr.IsDBNull(12)) { p.DocEntry = dr.GetInt32(12); }
+                        if (!dr.IsDBNull(13)) { p.DocNum = dr.GetInt32(13); }
                         lista.Add(p);
                     }
 
@@ -1136,6 +1146,36 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
             }
 
             return lista;
+        }
+
+        // Nuevo método: actualiza HoraEntrega (hora de llegada) en RRU0 o RRU1
+        public bool ActualizarHoraLlegada(int docEntry, int docNum, string nuevaHora)
+        {
+            int filas = 0;
+            var ts = TimeSpan.Parse(nuevaHora); // admite HH:mm:ss
+            using (var cn = new SqlConnection(uti.cadSql))
+            {
+                cn.Open();
+                using (var cmd = new SqlCommand("update al.RRU0 set HoraEntrega = @Hora where DocEntry=@DocEntry and DocNumTicket=@DocNum and Estado='ENTREGADO'", cn))
+                {
+                    cmd.Parameters.AddWithValue("@Hora", ts);
+                    cmd.Parameters.AddWithValue("@DocEntry", docEntry);
+                    cmd.Parameters.AddWithValue("@DocNum", docNum);
+                    filas = cmd.ExecuteNonQuery();
+                }
+                if (filas == 0)
+                {
+                    using (var cmd2 = new SqlCommand("update al.RRU1 set HoraEntrega = @Hora where DocEntry=@DocEntry and Guia=@Guia and Estado='ENTREGADO'", cn))
+                    {
+                        cmd2.Parameters.AddWithValue("@Hora", ts);
+                        cmd2.Parameters.AddWithValue("@DocEntry", docEntry);
+                        cmd2.Parameters.AddWithValue("@Guia", docNum.ToString());
+                        filas = cmd2.ExecuteNonQuery();
+                    }
+                }
+                cn.Close();
+            }
+            return filas > 0;
         }
     }
 }

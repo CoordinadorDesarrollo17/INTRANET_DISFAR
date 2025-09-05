@@ -1431,5 +1431,26 @@ namespace Capa_Usuario.Controllers
             ORRU_N orruN = new ORRU_N();
             return Json(orruN.listarGuiasTraslado(Origen));
         }
+
+        [HttpPost]
+        public ActionResult ActualizarHoraLlegada(int DocEntry, int DocNum, string NuevaHora)
+        {
+            // Aceptar HH:mm o HH:mm:ss
+            if (string.IsNullOrWhiteSpace(NuevaHora) || !(NuevaHora.Length == 5 || NuevaHora.Length == 8))
+                return Json(new { ok = false, msg = "Hora inválida" });
+            if (NuevaHora.Length == 5) NuevaHora += ":00"; // normalizar a HH:mm:ss
+            try
+            {
+                var actualizado = orruN.ActualizarHoraLlegada(DocEntry, DocNum, NuevaHora);
+                if (actualizado)
+                    return Json(new { ok = true });
+                else
+                    return Json(new { ok = false, msg = "No se pudo actualizar" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { ok = false, msg = ex.Message });
+            }
+        }
     }
 }
