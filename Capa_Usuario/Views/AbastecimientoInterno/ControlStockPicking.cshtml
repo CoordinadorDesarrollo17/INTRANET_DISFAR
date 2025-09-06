@@ -82,6 +82,9 @@
             <button type="button" class="btn btn-warning" onclick="irARequerimientos()" title="Ir a Requerimientos" data-bs-toggle="tooltip" data-bs-placement="top">
                 <i class="bi bi-box-arrow-right"></i> Ir a Requerimientos
             </button>
+            <button type="button" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Exportar Excel de Control Stock Picking" onclick="exportarExcel()">
+                <i class="bi bi-file-earmark-excel-fill"></i> Reporte
+            </button>
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#filterModal"><i class="bi bi-filter-circle"></i> Filtrar</button>
         </div>
     </div>
@@ -342,6 +345,9 @@
             }
         }
 
+    }
+    function exportarExcel() {
+        $(location).attr('href', `/AbastecimientoInterno/ExportarControlStockInternoPicking`)
     }
 
     function irARequerimientos() {
