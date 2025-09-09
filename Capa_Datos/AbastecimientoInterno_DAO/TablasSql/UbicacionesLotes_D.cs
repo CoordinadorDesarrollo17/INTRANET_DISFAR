@@ -40,8 +40,10 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
                 var sb = new StringBuilder();
 
-                sb.AppendLine("SELECT ULM.[Id], ULM.[UbicacionId], ULM.[Almacen], ULM.[ItemCode], ULM.[ItemName], ULM.[CodigoUbicacion], ULM.[BatchNum], ULM.[QuantityUnidadesCajas]");
+                sb.AppendLine("SELECT ULM.[Id], ULM.[UbicacionId], ULM.[Almacen], ULM.[ItemCode], ULM.[ItemName], ULM.[CodigoUbicacion], ULM.[BatchNum], ULM.[QuantityUnidadesCajas],SMP.[StockMinAbastecimiento]");
                 sb.AppendLine("FROM UbicacionesLotes ULM");
+                sb.AppendLine("lEFT JOIN StockMinProductos SMP");
+                sb.AppendLine("ON ULM.ItemCode = SMP.ItemCode");
                 sb.AppendLine("WHERE 1=1");
                 sb.AppendLine(condicion);
 
@@ -69,7 +71,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                             if (!dr.IsDBNull(5)) obj.CodigoUbicacion = dr.GetString(5);
                             if (!dr.IsDBNull(6)) obj.BatchNum = dr.GetString(6);
                             if (!dr.IsDBNull(7)) obj.QuantityUnidadesCajas = dr.GetInt32(7);
-
+                            if (!dr.IsDBNull(8)) obj.StockMinAbastecimiento = dr.GetInt32(8);
                             lista.Add(obj);
                         }
                     }

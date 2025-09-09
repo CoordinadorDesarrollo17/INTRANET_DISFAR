@@ -1,67 +1,101 @@
 ﻿document.addEventListener("DOMContentLoaded", function () {
-    document.getElementById('emplCobefar1').addEventListener('change', function () {
-        if (this.checked) {
-            document.getElementById('inputRoles').value = "";
-            document.getElementById('idRol').value = 0;
-            document.getElementById('usuario').value = "";
-            document.getElementById('CodigoSap').value = "";
 
-            document.getElementById('div_inputsForm').style.display = "block";
-            document.getElementById('div_listaEmpleados').style.display = "block";
+    // === Empleado Cobefar 1 ===
+    let empl1 = document.getElementById('emplCobefar1');
+    if (empl1) {
+        empl1.addEventListener('change', function () {
+            if (this.checked) {
+                document.getElementById('inputRoles').value = "";
+                document.getElementById('idRol').value = 0;
+                document.getElementById('usuario').value = "";
+                document.getElementById('CodigoSap').value = "";
 
-            document.getElementById('Nombres').value = "";
-            document.getElementById('div_nombres').style.display = "none";
+                document.getElementById('div_inputsForm').style.display = "block";
+                document.getElementById('div_listaEmpleados').style.display = "block";
 
-            document.getElementById('Apellidos').value = "";
-            document.getElementById('div_apellidos').style.display = "none";
-        }
-    });
+                document.getElementById('Nombres').value = "";
+                document.getElementById('div_nombres').style.display = "none";
 
-    document.getElementById('emplCobefar2').addEventListener('change', function () {
-        if (this.checked) {
-            document.getElementById('inputRoles').value = "";
-            document.getElementById('idRol').value = 0;
-            document.getElementById('usuario').value = "";
-            document.getElementById('CodigoSap').value = "";
+                document.getElementById('Apellidos').value = "";
+                document.getElementById('div_apellidos').style.display = "none";
+            }
+        });
+    }
 
-            document.getElementById('div_inputsForm').style.display = "block";
-            document.getElementById('div_listaEmpleados').style.display = "none";
+    // === Empleado Cobefar 2 ===
+    let empl2 = document.getElementById('emplCobefar2');
+    if (empl2) {
+        empl2.addEventListener('change', function () {
+            if (this.checked) {
+                document.getElementById('inputRoles').value = "";
+                document.getElementById('idRol').value = 0;
+                document.getElementById('usuario').value = "";
+                document.getElementById('CodigoSap').value = "";
 
-            document.getElementById('Nombres').value = "";
-            document.getElementById('div_nombres').style.display = "block";
+                document.getElementById('div_inputsForm').style.display = "block";
+                document.getElementById('div_listaEmpleados').style.display = "none";
 
-            document.getElementById('Apellidos').value = "";
-            document.getElementById('div_apellidos').style.display = "block";
-        }
-    });
+                document.getElementById('Nombres').value = "";
+                document.getElementById('div_nombres').style.display = "block";
 
+                document.getElementById('Apellidos').value = "";
+                document.getElementById('div_apellidos').style.display = "block";
+            }
+        });
+    }
 
-    document.getElementById('inputEmpleados').addEventListener('change', function () {
-        const sedeMapping = {
-            "1": "01",
-            "2": "03",
-            "4": "06",
-            "5": "07"
-        };
+    // === Input empleados ===
+    let inputEmpleados = document.getElementById('inputEmpleados');
+    if (inputEmpleados) {
+        inputEmpleados.addEventListener('change', function () {
+            const sedeMapping = {
+                "1": "01",
+                "2": "03",
+                "4": "06",
+                "5": "07"
+            };
 
-        const idsede = document.getElementById("sedeId").value;
-        const whsCode = sedeMapping[idsede];
+            const idsede = document.getElementById("sedeId")?.value;
+            const whsCode = sedeMapping[idsede];
 
-        if (whsCode) {
-            document.getElementById("WhsCode").value = whsCode;
-        } else {
-            document.getElementById("WhsCode").value = "";
-        }
-    });
+            let whsCodeInput = document.getElementById("WhsCode");
+            if (whsCodeInput) {
+                whsCodeInput.value = whsCode || "";
+            }
+        });
 
-    gestionarValorDatalist('inputEmpleados', 'listaEmpleados', 'empleadoId', 'idempleado');
-    gestionarValorDatalist('inputEmpleados', 'listaEmpleados', 'sedeId', 'idsede');
-    gestionarValorDatalist('inputRoles', 'listaRoles', 'idRol', 'idrol');
+        // Datalist relacionados con inputEmpleados
+        gestionarValorDatalist('inputEmpleados', 'listaEmpleados', 'empleadoId', 'idempleado');
+        gestionarValorDatalist('inputEmpleados', 'listaEmpleados', 'sedeId', 'idsede');
+    }
+
+    // === Input roles ===
+    let inputRoles = document.getElementById('inputRoles');
+    if (inputRoles) {
+        gestionarValorDatalist('inputRoles', 'listaRoles', 'idRol', 'idrol');
+    }
 });
+
+
+// === Funciones auxiliares ===
 
 function mostrarMensaje(mensaje) {
     if (typeof mensaje === 'string' && mensaje.trim() !== '') {
-        Swal.fire(mensaje);
+        Swal.fire({
+            icon: 'info',
+            title: 'Mensaje',
+            text: mensaje,
+            showConfirmButton: true,
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#198754',
+            background: '#f6fff7',
+            color: '#198754',
+            customClass: {
+                popup: 'swal2-modern-popup',
+                title: 'swal2-modern-title',
+                confirmButton: 'swal2-modern-confirm'
+            }
+        });
     }
 }
 
@@ -103,6 +137,5 @@ function infoIdUsuario(elemento) {
         $('#usuario').val('');
         $('#prefijo').val('');
         $('#id').val('');
-        //console.error('No se encontró una opción válida');
     }
 }

@@ -10,5 +10,6 @@
         public string CodigoUbicacion { get; set; }
         public string BatchNum { get; set; }
         public int QuantityUnidadesCajas { get; set; }
+        public int StockMinAbastecimiento { get; set; }
     }
 }
