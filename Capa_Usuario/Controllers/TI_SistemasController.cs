@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Web.Mvc;
-using Capa_Negocio.Seguridad_NEG;
+﻿using Capa_Entidad.RecursosHumanos_ENT.TablasSQL;
 using Capa_Entidad.Seguridad_ENT;
 using Capa_Negocio.General_NEG.TablasSql;
-using Capa_Negocio.Seguridad_NEG.TablasSql;
 using Capa_Negocio.RecursosHumanos_NEG.TablasSQL;
+using Capa_Negocio.Seguridad_NEG;
+using Capa_Negocio.Seguridad_NEG.TablasSql;
 using Capa_Usuario.Helpers;
+using System;
+using System.Collections.Generic;
 using System.Linq;
-using Capa_Entidad.RecursosHumanos_ENT.TablasSQL;
+using System.Web.Mvc;
 namespace Capa_Usuario.Controllers
 {
     public class TI_SistemasController : Controller
@@ -38,7 +38,7 @@ namespace Capa_Usuario.Controllers
                 var usuarioSesion = (Usuario_E)Session["UsuarioId"];
                 ViewBag.Mensaje = Mensaje;
                 ViewBag.Usuario = filtro;
-                ViewBag.Roles = orolN.listarRoles(usuarioSesion.IdRol).Where(x => x.Id!=1);
+                ViewBag.Roles = orolN.listarRoles(usuarioSesion.IdRol).Where(x => x.Id != 1);
                 return View(ousrN.listaUsuariosPermisos(filtro, usuarioSesion.IdRol).OrderByDescending(x => x.DocEntry).ToList());
             }
             else
@@ -135,11 +135,17 @@ namespace Capa_Usuario.Controllers
                     usuario.Password2 = datosPost.Password2;
                     ViewBag.RolUsuario = orolN.ObtenerRol(usuario.IdRol);
                     ViewBag.Sedes = new SEDE_N().ListarSedesParaCrearUsuario(null);
+                    // Si el mensaje no contiene éxito, lo agregamos
+                    if (!mensaje.ToLower().Contains("éxito"))
+                    {
+                        mensaje = "¡Cambios guardados con éxito!";
+                    }
                     ViewBag.Mensaje = mensaje;
                     return View(usuario);
                 }
                 else
                 {
+                    TempData["Mensaje"] = "¡Cambios guardados con éxito!";
                     return RedirectToAction("GestionPermisos");
                 }
             }
@@ -227,16 +233,18 @@ namespace Capa_Usuario.Controllers
             string acceso = AccesoHelper.VerificarAccesos(idOperation, (Usuario_E)Session["UsuarioId"], this.ControllerContext.RouteData.Values["controller"].ToString(), Request.UserHostAddress, Request.UserHostName);
             if (string.IsNullOrWhiteSpace(acceso) || !acceso.Equals("C_Access"))
             {
-                return Json(new { Titulo = "Error crítico", Comentario = new List<string>() { "No cuentas con permisos para realizar esta acción." }, Icono = "error" });
+                return Json(new { Mensaje = "Error crítico", Comentario = new List<string>() { "No cuentas con permisos para realizar esta acción." }, Icono = "error" });
             }
             if (operaciones == null || usrDocEntry <= 0)
             {
-                return Json(new { Titulo = "Error crítico", Comentario = new List<string>() { "Recargar página e intentar de nuevo." }, Icono = "error" });
+                return Json(new { Mensaje = "Error crítico", Comentario = new List<string>() { "Recargar página e intentar de nuevo." }, Icono = "error" });
             }
             var mensajeError = new OUSR_OPE_N().AsignarPermisosPorUsuario(operaciones, usrDocEntry);
             string mensaje = string.IsNullOrWhiteSpace(mensajeError) ? "¡Acción realizada con éxito!" : "No se pudo completar la acción";
             string iconoMensaje = string.IsNullOrWhiteSpace(mensajeError) ? "success" : "warning";
-            return Json(new { Mensaje = mensaje, Comentario = new List<string>() { mensajeError }, Icono = iconoMensaje });
+            // Para consistencia con el JS, devolver también el campo Titulo
+            string titulo = iconoMensaje == "success" ? "Cambios guardados" : "Mensaje";
+            return Json(new { Mensaje = mensaje, Titulo = titulo, Comentario = new List<string>() { mensajeError }, Icono = iconoMensaje });
         }
         // infos
         public JsonResult infoIdUsuario(int idRol)

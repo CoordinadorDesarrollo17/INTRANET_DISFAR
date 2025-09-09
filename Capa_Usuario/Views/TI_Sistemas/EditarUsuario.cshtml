@@ -2,12 +2,60 @@
 
 @{
     ViewBag.Title = "EditarUsuario";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_DefaultLayout.cshtml";
 }
 
 @section Scripts{
-    <script src="~/Scripts/TI_Sistemas/Usuario.js"></script>
-    <script>mostrarMensaje(`@ViewBag.Mensaje`)</script>
+    <script src="~/Scripts/TI_Sistemas/Usuario.js?v=3"></script>
+    <!-- <script>mostrarMensaje('@ViewBag.Mensaje')</script> -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/slim-select@2.8.1/dist/slimselect.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/slim-select@2.8.1/dist/slimselect.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            new SlimSelect({ select: '#WhsCode', settings: { showSearch: true } });
+        });
+        // Mostrar SweetAlert2 moderno de éxito si existe ViewBag.Mensaje y es éxito
+        document.addEventListener('DOMContentLoaded', function () {
+            var mensaje = '@ViewBag.Mensaje';
+            if (typeof mensaje === 'string' && mensaje.toLowerCase().indexOf('éxito') !== -1) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Cambios guardados',
+                    text: mensaje,
+                    showConfirmButton: true,
+                    confirmButtonText: 'Aceptar',
+                    confirmButtonColor: '#198754',
+                    background: '#f6fff7',
+                    color: '#198754',
+                    customClass: {
+                        popup: 'swal2-modern-popup',
+                        title: 'swal2-modern-title',
+                        confirmButton: 'swal2-modern-confirm'
+                    }
+                });
+            }
+        });
+    </script>
+    <style>
+        .swal2-modern-popup {
+            border-radius: 1rem !important;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+        }
+
+        .swal2-modern-title {
+            font-weight: 700 !important;
+            color: #198754 !important;
+        }
+
+        .swal2-modern-confirm {
+            font-weight: 600 !important;
+            font-size: 1rem !important;
+            padding: 0.5rem 2rem !important;
+            border-radius: 0.5rem !important;
+        }
+    </style>
 }
 
 <div class="pt-4">
@@ -27,7 +75,6 @@
 <div class="bg-form-pestanas-cobefar p-4 bg-form-cobefar">
     @using (Html.BeginForm("EditarUsuario", "TI_Sistemas", FormMethod.Post, new { id = "form" }))
     {
-        
         @Html.Hidden("DocEntry", Model.DocEntry)
         <div class="row">
             <div class="col-lg-3">
@@ -59,7 +106,7 @@
             </div>
 
             <div class="col-lg-3">
-                <label class="text-dark font-weight-bold">Usuario:</label>
+                <label class="text-dark form-label font-weight-bold">Usuario:</label>
                 <input class="form-control text-center input-cobefar" id="Usuario" name="Usuario" readonly type="text" value="@{ Write(Model.Prefijo+Model.Id); } ">
                 <input type="hidden" id="Prefijo" name="Prefijo" value="@Model.Prefijo">
                 <input type="hidden" id="Id" name="Id" value="@Model.Id">
@@ -67,11 +114,11 @@
 
             <div class="col-lg-2">
                 <label for="WhsCode" class="text-dark form-label font-weight-bold">Almacén:</label>
-                <select id="WhsCode" name="WhsCode" class="form-control input-cobefar">
+                <select id="WhsCode" name="WhsCode" class="form-control">
                     <option value="">Seleccione</option>
                     @foreach (var sede in ViewBag.Sedes)
                     {
-                        <option value="@sede.IdAlterno" @(Model.WhsCode == sede.IdAlterno ? "selected" : "")>@sede.Nombre</option>
+                        <option value="@sede.IdAlterno" @(Model.WhsCode == sede.IdAlterno ? "selected" : "")>@sede.Nombre.ToUpper()</option>
                     }
                 </select>
             </div>
@@ -79,7 +126,7 @@
 
         <div class="row mt-4">
             <div class="col-lg-3">
-                <label for="Password" class="text-dark font-weight-bold">Contraseña:</label>
+                <label for="Password" class="text-dark form-label font-weight-bold">Contraseña:</label>
                 <input type="text" id="Password" name="Password" class="form-control input-cobefar" value="@Model.Password" autocomplete="off" />
             </div>
 
@@ -103,7 +150,7 @@
         {
             <div class="row mt-4">
                 <div class="col-lg-2">
-                    <button type="button" id="btn_guardarCambios" class="btn btn-success"><i class="icon icon-checkmark"></i> Guardar cambios</button>
+                    <button type="button" id="btn_guardarCambios" class="btn btn-success"><i class="bi bi-check-circle"></i> Guardar cambios</button>
                 </div>
             </div>
 
