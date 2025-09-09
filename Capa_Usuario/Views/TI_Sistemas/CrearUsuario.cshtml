@@ -2,12 +2,30 @@
 
 @{
     ViewBag.Title = "CrearUsuario";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_DefaultLayout.cshtml";
 }
 
 @section Scripts{
-    <script src="~/Scripts/TI_Sistemas/Usuario.js"></script>
+    <script src="~/Scripts/ti_sistemas/usuario.js"></script>
     <script>mostrarMensaje(`@ViewBag.Mensaje`)</script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/slim-select@2.8.1/dist/slimselect.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/slim-select@2.8.1/dist/slimselect.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            new SlimSelect({ select: '#WhsCode', settings: { showSearch: true } });
+            new SlimSelect({ select: '#inputRoles', settings: { showSearch: true } });
+            var selectRoles = document.getElementById('inputRoles');
+            if (selectRoles) {
+                selectRoles.addEventListener('change', function () {
+                    // El valor seleccionado es el texto del option
+                    var value = selectRoles.value;
+                    // Llama a la función JS que busca el option en el datalist
+                    infoIdUsuario({ value: value });
+                });
+            }
+        });
+    </script>
 }
 
 <div class="pt-4">
@@ -27,8 +45,6 @@
 <div class="bg-form-pestanas-cobefar p-4 bg-form-cobefar">
     @using (Html.BeginForm())
     {
-        
-
         <div class="row">
             <div class="col-lg-6">
                 <div class="form-group">
@@ -48,7 +64,7 @@
         </div>
 
         <div id="div_inputsForm" style="@if (string.IsNullOrWhiteSpace(Model.EmpleadoCobefar)) { Write("display:none;"); }">
-            <div class="row">
+            <div class="row mt-4">
                 <div id="div_listaEmpleados" class="col-lg-4" style="@if (!string.IsNullOrWhiteSpace(Model.EmpleadoCobefar) && Model.EmpleadoCobefar == "NO") { Write("display:none;"); }">
                     <label for="Apellidos" class="text-dark form-label font-weight-bold">Nombres y Apellidos:</label>
                     <input type="hidden" id="empleadoId" name="empleadoId" />
@@ -79,11 +95,11 @@
 
                 <div class="col-lg-2">
                     <label for="WhsCode" class="text-dark form-label font-weight-bold">Almacén:</label>
-                    <select id="WhsCode" name="WhsCode" class="form-control input-cobefar">
+                    <select id="WhsCode" name="WhsCode" class="form-control">
                         <option value="">Seleccione</option>
                         @foreach (var sede in ViewBag.Sedes)
                         {
-                            <option value="@sede.IdAlterno" @(Model.WhsCode == sede.IdAlterno ? "selected" : "")>@sede.Nombre</option>
+                            <option value="@sede.IdAlterno" @(Model.WhsCode == sede.IdAlterno ? "selected" : "")>@sede.Nombre.ToUpper()</option>
                         }
                     </select>
                 </div>
@@ -93,17 +109,23 @@
                 <div class="col-lg-4">
                     <label class="text-dark form-label font-weight-bold">Rol:</label>
                     <input type="hidden" id="idRol" name="idRol" />
-                    <input type="search" list="listaRoles" id="inputRoles" class="form-control" placeholder="Buscar rol..." onchange="infoIdUsuario(this);" autocomplete="off" />
+                    <select id="inputRoles" name="inputRoles" class="form-control" autocomplete="off">
+                        <option value="">Seleccione</option>
+                        @foreach (var rol in ViewBag.Roles)
+                        {
+                            <option value="@rol.Nombre.ToUpper()" data-idrol="@rol.Id">@rol.Nombre.ToUpper()</option>
+                        }
+                    </select>
                     <datalist id="listaRoles">
                         @foreach (var rol in ViewBag.Roles)
                         {
-                            <option value="@rol.Nombre" data-idrol="@rol.Id"></option>
+                            <option value="@rol.Nombre.ToUpper()" data-idrol="@rol.Id"></option>
                         }
                     </datalist>
                 </div>
 
                 <div class="col-lg-3">
-                    <label class="text-dark font-weight-bold">Usuario:</label>
+                    <label class="text-dark form-label font-weight-bold">Usuario:</label>
                     <input type="text" id="usuario" class="form-control text-center input-cobefar" value="" readonly />
                     <input type="hidden" id="id" name="Id" value="" />
                     <input type="hidden" id="prefijo" name="Prefijo" value="" />
@@ -118,10 +140,9 @@
 
             <div class="row mt-4">
                 <div class="col-lg-2">
-                    <button type="submit" class="btn btn-success"><i class="icon icon-checkmark"></i> Registrar usuario</button>
+                    <button type="submit" class="btn btn-success"><i class="bi bi-check-circle"></i> Registrar usuario</button>
                 </div>
             </div>
         </div>
-
     }
 </div>
