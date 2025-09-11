@@ -331,6 +331,23 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+        public ActionResult infoHojasRutaT(int idOperation = 207)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                OCHO_N ochoN = new OCHO_N(); OCRD_N ocrdN = new OCRD_N();
+                ViewBag.Almacenes = _owhsSapN.ListarAlmacenes("todos");
+                ViewBag.Clientes = ocrdN.listarSociosDeNegocios(new OCRD_E { CardType = "C" });
+                ViewBag.Transportistas = ochoN.listaChoferes(0, null);
+                ViewBag.ListaVehiculos = ovehN.listaVeh(0, null);
+                return View();
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
         public ActionResult RptHojasRuta(ORRU_E o, int idOperation = 208)
         {
             if (string.IsNullOrWhiteSpace(o.FechaRegistroDesde) || string.IsNullOrWhiteSpace(o.FechaRegistroHasta))
@@ -355,6 +372,43 @@ namespace Capa_Usuario.Controllers
                                 worksheet.Column(col).AutoFit();
                             }
                             var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: reporte.Count + 1, toColumn: 49), "ReporteHojasRuta");
+                            tabla.ShowHeader = true;
+                            tabla.TableStyle = TableStyles.Medium2;
+                        }
+                    }
+                    return File(libro.GetAsByteArray(), excelContentType, "AnalisisHojasRuta.xlsx");
+                }
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public ActionResult RptHojasRutaT(ORRU_E o, int idOperation = 208)
+        {
+            if (string.IsNullOrWhiteSpace(o.FechaRegistroDesde) || string.IsNullOrWhiteSpace(o.FechaRegistroHasta))
+                return null;
+
+            string acceso = AccesoHelper.VerificarAccesos(idOperation, (Usuario_E)Session["UsuarioId"], this.ControllerContext.RouteData.Values["action"].ToString(), Request.UserHostAddress, Request.UserHostName);
+            if (acceso == "C_Access")
+            {
+                ORRU_N orruN = new ORRU_N();
+                string excelContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                var reporte = orruN.ReporteTransferencias(o);
+                using (var libro = new ExcelPackage())
+                {
+                    var worksheet = libro.Workbook.Worksheets.Add("ReporteTransferencias");
+                    worksheet.Cells["A1"].LoadFromCollection(reporte, PrintHeaders: true);
+                    if (reporte != null)
+                    {
+                        if (reporte.Count >= 1)
+                        {
+                            for (var col = 1; col <= 10; col++)
+                            {
+                                worksheet.Column(col).AutoFit();
+                            }
+                            var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: reporte.Count + 1, toColumn: 10), "ReporteHojasRuta");
                             tabla.ShowHeader = true;
                             tabla.TableStyle = TableStyles.Medium2;
                         }
