@@ -1,0 +1,154 @@
+﻿@model Capa_Entidad.Rutas_ENT.TablasSql.ORRU_E
+@using Capa_Entidad.General_ENT.TablasSql
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .ss-main {
+            height: 38px !important;
+            line-height: 1.5 !important;
+            font-size: 1rem !important; /* 16px */
+        }
+
+            .ss-main .ss-search input {
+                height: 38px !important;
+                font-size: 1rem !important;
+                padding: 0.375rem 0.75rem !important;
+                line-height: 1.5 !important;
+                box-sizing: border-box !important;
+            }
+
+            .ss-main .ss-single-selected {
+                display: flex !important;
+                align-items: center !important;
+                cursor: pointer !important;
+                width: 100% !important;
+                height: 38px !important;
+                padding: 0.375rem 0.75rem !important;
+                font-size: 1rem !important;
+                border: 1px solid #ced4da !important;
+                border-radius: 0.375rem !important;
+                background-color: #fff !important;
+                outline: 0 !important;
+                box-sizing: border-box !important;
+                transition: background-color .2s ease-in-out !important;
+            }
+    </style>
+</head>
+<body>
+    @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm" }))
+    {
+
+        <div class="container" style="padding: 2%; background-color:rgb(220, 220, 220);">
+            <h3 class="text-cobefar font-weight-bold text-center">ANÁLISIS DE HOJAS DE RUTA</h3>
+            <div class="row mt-4">
+                <div class="col-lg-3">
+                    <label for="AlmIni" class="text-dark font-weight-bold font-18">Almacén Origen:</label>
+                    <select id="AlmIni" name="AlmIni" class="form-control border-success cls-select">
+                        <option value="">Seleccione</option>
+                        @foreach (var item in ViewBag.Almacenes)
+                        {
+                            <option value="@item.WhsCode">@item.WhsName</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="AlmFin" class="text-dark font-weight-bold font-18">Almacén Destino:</label>
+                    <select id="AlmFin" name="AlmFin" class="form-control border-success cls-select">
+                        <option value="">Seleccione</option>
+                        @foreach (var item in ViewBag.Almacenes)
+                        {
+                            <option value="@item.WhsCode">@item.WhsName</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="TipoRuta" class="text-dark font-weight-bold font-18">Tipo de Ruta:</label>
+                    <select id="TipoRuta" name="TipoRuta" class="border-success cls-select">
+                        <option value="">Seleccione</option>
+                        <option value="TA">Transferencia</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-3">
+                    <label for="FechaRegistroDesde" class="text-dark font-weight-bold font-18">Fecha Registro Desde:</label>
+                    <input class="form-control border-success" id="FechaRegistroDesde" name="FechaRegistroDesde" type="date" value="" onchange="aplicarRango()">
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="FechaRegistroHasta" class="text-dark font-weight-bold font-18">Fecha Registro Hasta:</label>
+                    <input class="form-control border-success" id="FechaRegistroHasta" name="FechaRegistroHasta" type="date" value="" readonly>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-lg-4">
+                    <button id="Generar" type="button" class="btn btn-success" onclick="rpt()"><i class="icon icon-checkmark"></i> Generar</button>
+                </div>
+            </div>
+
+        </div>
+    }
+
+    <script defer>
+        (function () {
+            const selects = document.querySelectorAll('.cls-select');
+            selects.forEach(select => {
+                new SlimSelect({
+                    select: select
+                });
+            });
+        })();
+
+
+        function rpt() {
+            var queryString = $("#frm").serialize();
+            const params = new URLSearchParams(queryString);
+            const fechaRegistroDesde = params.get('FechaRegistroDesde');
+            const fechaRegistroHasta = params.get('FechaRegistroHasta');
+
+            if (!fechaRegistroDesde) {
+                Swal.fire(`Es obligatorio llenar el campo: "Fecha Registro Desde".`);
+                return;
+            }
+
+            if (!fechaRegistroHasta) {
+                Swal.fire(`Es obligatorio llenar el campo: "Fecha Registro Hasta".`);
+                return;
+            }
+
+            $(location).attr('href', "/Rutas/RptHojasRutaT?" + queryString);
+            $('#Reporte').html("");
+        }
+
+        function aplicarRango() {
+            const desde = document.getElementById('FechaRegistroDesde');
+            const hasta = document.getElementById('FechaRegistroHasta');
+
+            if (!desde) return;
+
+            const [year, month] = desde.value.split('-').map(Number);
+
+            // Obtener el último día del mes (día 0 del mes siguiente)
+            const ultimoDia = new Date(year, month, 0); // mes +1, día 0 → último día del mes actual
+
+            // Convertir a yyyy-MM-dd
+            const yyyy = ultimoDia.getFullYear();
+            const mm = String(ultimoDia.getMonth() + 1).padStart(2, '0');
+            const dd = String(ultimoDia.getDate()).padStart(2, '0');
+
+            hasta.value = `${yyyy}-${mm}-${dd}`;
+        }
+    </script>
+</body>
+</html>
