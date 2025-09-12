@@ -46,7 +46,7 @@
     {
 
         <div class="container" style="padding: 2%; background-color:rgb(220, 220, 220);">
-            <h3 class="text-cobefar font-weight-bold text-center">ANÁLISIS DE HOJAS DE RUTA</h3>
+            <h3 class="text-cobefar font-weight-bold text-center">ANÁLISIS DE HOJAS DE RUTA-TRANSFERENCIAS</h3>
             <div class="row mt-4">
                 <div class="col-lg-3">
                     <label for="AlmIni" class="text-dark font-weight-bold font-18">Almacén Origen:</label>
@@ -89,6 +89,16 @@
                 <div class="col-lg-3">
                     <label for="FechaRegistroHasta" class="text-dark font-weight-bold font-18">Fecha Registro Hasta:</label>
                     <input class="form-control border-success" id="FechaRegistroHasta" name="FechaRegistroHasta" type="date" value="" readonly>
+                </div>
+                <div class="col-lg-3">
+                    <label for="Placa" class="text-dark font-weight-bold font-18">Placa:</label>
+                    <select name="Placa" class="border-success cls-select">
+                        <option value="">Seleccione</option>
+                        @foreach (var p in ViewBag.ListaVehiculos)
+                        {
+                            <option value="@p.U_SYP_VEPL">@p.U_SYP_VEPL</option>
+                        }
+                    </select>
                 </div>
             </div>
             <div class="row mt-4">
