@@ -253,6 +253,11 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
         {
             return orruD.ReporteHojasRuta(o);
         }
+
+        public List<ORRU_E.RptRutasT> ReporteTransferencias(ORRU_E o)
+        {
+            return orruD.ReporteTransferencias(o);
+        }
         public List<RptPesaje_E> ListarRptPesaje(FiltroRptPesaje datosFiltro)
         {
             return orruD.ListarRptPesaje(datosFiltro);
