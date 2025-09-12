@@ -46,7 +46,7 @@
     {
 
         <div class="container" style="padding: 2%; background-color:rgb(220, 220, 220);">
-            <h3 class="text-cobefar font-weight-bold text-center">ANÁLISIS DE HOJAS DE RUTA-VENTAS</h3>
+            <h3 class="text-cobefar font-weight-bold text-center">ANÁLISIS DE HOJAS DE RUTA-TRANSFERENCIAS</h3>
             <div class="row mt-4">
                 <div class="col-lg-3">
                     <label for="AlmIni" class="text-dark font-weight-bold font-18">Almacén Origen:</label>
@@ -74,11 +74,7 @@
                     <label for="TipoRuta" class="text-dark font-weight-bold font-18">Tipo de Ruta:</label>
                     <select id="TipoRuta" name="TipoRuta" class="border-success cls-select">
                         <option value="">Seleccione</option>
-                        <option value="VC">VC-Centro</option>
-                        <option value="VD">VD-Domicilio</option>
-                        <option value="VA">VA-Arriola</option>
-                        <option value="VG">VG-Agencia</option>
-                        <option value="AC">AC-Agencia Courier</option>
+                        <option value="TA">Transferencia</option>
                     </select>
                 </div>
 
@@ -94,32 +90,6 @@
                     <label for="FechaRegistroHasta" class="text-dark font-weight-bold font-18">Fecha Registro Hasta:</label>
                     <input class="form-control border-success" id="FechaRegistroHasta" name="FechaRegistroHasta" type="date" value="" readonly>
                 </div>
-
-                <div class="col-lg-3">
-                    <label for="Estado" class="text-dark font-weight-bold font-18">Estado:</label>
-                    <select class="border-success cls-select" id="Estado" name="Estado">
-                        <option value="">Seleccione</option>
-                        <option value="TERMINADO">TERMINADO</option>
-                        <option value="ENVIADO">ENVIADO</option>
-                        <option value="EDITADO">EDITADO</option>
-                        <option value="CREADO">CREADO</option>
-                        <option value="ANULADO">ANULADO</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="row mt-4">
-                <div class="col-lg-6">
-                    <label for="TransDesc" class="text-dark font-weight-bold font-18">Transportista:</label>
-                    <select name="TransDesc" class="border-success cls-select">
-                        <option value="">Seleccione</option>
-                        @foreach (var t in ViewBag.Transportistas)
-                        {
-                            <option value="@t.U_SYP_CHNO" TransCod="@t.Code">@t.U_SYP_CHNO</option>
-                        }
-                    </select>
-                </div>
-
                 <div class="col-lg-3">
                     <label for="Placa" class="text-dark font-weight-bold font-18">Placa:</label>
                     <select name="Placa" class="border-success cls-select">
@@ -131,44 +101,11 @@
                     </select>
                 </div>
             </div>
-
-            <div class="row mt-4">
-                <div class="col-lg-6">
-                    <label for="CardCode" class="text-dark font-weight-bold font-18">Cliente:</label>
-                    @*<input type="search" class="form-control border-success" list="ListaClientes" name="CardCode">
-                        <datalist id="ListaClientes">
-                            @foreach (var obj in ViewBag.Clientes)
-                            {
-                                <option CardCode="@obj.CardCode" value="@obj.CardCode">@obj.CardName</option>
-                            }
-                        </datalist>*@
-                    <select id="CardCode" name="CardCode" class="border-success cls-select">
-                        <option value="">Seleccione</option>
-                        @foreach (var obj in ViewBag.Clientes)
-                        {
-                            <option value="@obj.CardCode">@obj.CardCode - @obj.CardName</option>
-                        }
-                    </select>
-                </div>
-
-                <div class="col-lg-3">
-                    <label for="MontoTotalIni" class="text-dark font-weight-bold font-18">Montos Tot. Desde S/:</label>
-                    <input class="form-control border-success" id="MontoTotalIni" name="MontoTotalIni" type="text" value="">
-                </div>
-
-                <div class="col-lg-3">
-                    <label for="MontoTotalFin" class="text-dark font-weight-bold font-18">Montos Tot. Hasta S/:</label>
-                    <input class="form-control border-success" id="MontoTotalFin" name="MontoTotalFin" type="text" value="">
-                </div>
-            </div>
-
             <div class="row mt-4">
                 <div class="col-lg-4">
                     <button id="Generar" type="button" class="btn btn-success" onclick="rpt()"><i class="icon icon-checkmark"></i> Generar</button>
                 </div>
-
             </div>
-
 
         </div>
     }
@@ -200,7 +137,7 @@
                 return;
             }
 
-            $(location).attr('href', "/Rutas/RptHojasRuta?" + queryString);
+            $(location).attr('href', "/Rutas/RptHojasRutaT?" + queryString);
             $('#Reporte').html("");
         }
 

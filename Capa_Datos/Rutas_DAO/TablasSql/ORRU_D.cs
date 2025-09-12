@@ -849,6 +849,84 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
 
             return lista;
         }
+
+        public List<ORRU_E.RptRutasT> ReporteTransferencias(ORRU_E o)
+        {
+            var lista = new List<ORRU_E.RptRutasT>();
+
+            try
+            {
+                using (var cn = new SqlConnection(uti.cadSql))
+                using (var cmd = new SqlCommand())
+                {
+                    cmd.Connection = cn;
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandTimeout = 300;
+
+                    cmd.CommandText = @"
+                       SELECT 
+                        T0.TipoRuta,
+                        T0.DocNum,
+                        T0.FechaRegistro,
+                        T0.AlmOrigenDesc,
+                        T0.AlmDestinoDesc,
+                        T0.CopilDesc,
+                        T0.Placa,
+                        T1.Guia,
+                        T1.NroSap,
+                        T0.Estado
+                    FROM al.ORRU AS T0
+                    LEFT JOIN al.RRU1 AS T1 
+                        ON T1.DocEntry = T0.DocEntry
+                    WHERE T0.TipoRuta = 'TA'
+                        AND (@AlmIni IS NULL OR T0.AlmOrigenCod = @AlmIni)
+                        AND (@AlmFin IS NULL OR T0.AlmDestinoCod = @AlmFin)
+                        AND (@Placa IS NULL OR T0.Placa = @Placa)
+                        AND (
+                            @FechaRegistroDesde IS NULL 
+                            OR (T0.FechaRegistro BETWEEN @FechaRegistroDesde AND @FechaRegistroHasta)
+                            )
+                    ";
+
+                    cmd.Parameters.AddWithValue("@AlmIni", o.AlmIni ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@AlmFin", o.AlmFin ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Placa", o.Placa ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FechaRegistroDesde", o.FechaRegistroDesde ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FechaRegistroHasta", o.FechaRegistroHasta ?? (object)DBNull.Value);
+
+                    cn.Open();
+
+                    using (var dr = cmd.ExecuteReader())
+                    {
+                        while (dr.Read())
+                        {
+                            var or = new ORRU_E.RptRutasT();
+                            if (!dr.IsDBNull(0)) or.TipoRuta = dr.GetString(0);
+                            if (!dr.IsDBNull(1)) or.DocNum = dr.GetInt32(1);
+                            if (!dr.IsDBNull(2)) or.FechaDoc = dr.GetDateTime(2).ToString("yyyy-MM-dd");
+                            if (!dr.IsDBNull(3)) or.AlmOrigenDesc = dr.GetString(3);
+                            if (!dr.IsDBNull(4)) or.AlmDestinoDesc = dr.GetString(4);
+                            if (!dr.IsDBNull(5)) or.CopilDesc = dr.GetString(5);
+                            if (!dr.IsDBNull(6)) or.Placa = dr.GetString(6);
+                            if (!dr.IsDBNull(7)) or.Guia = dr.GetString(7);
+                            if (!dr.IsDBNull(8)) or.NroSap = dr.GetInt32(8);
+                            if (!dr.IsDBNull(9)) or.Estado = dr.GetString(9);
+
+                            lista.Add(or);
+                        }
+                    }
+
+                    cn.Close();
+                }
+            }
+            catch (Exception e)
+            {
+                LogHelper.RegistrarError(e, "Error inesperado en ORRU_D - ReporteTransferenciasSimple()");
+            }
+
+            return lista;
+        }
+
         public List<Rpt_TempHumed_E> RptTempHumed(string Placa, string FechaTerEn, string Serie)
         {
             List<Rpt_TempHumed_E> lista = new List<Rpt_TempHumed_E>();
