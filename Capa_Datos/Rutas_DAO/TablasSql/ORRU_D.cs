@@ -881,7 +881,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                     WHERE T0.TipoRuta = 'TA'
                         AND (@AlmIni IS NULL OR T0.AlmOrigenCod = @AlmIni)
                         AND (@AlmFin IS NULL OR T0.AlmDestinoCod = @AlmFin)
-                        AND (@Estado IS NULL OR T0.Estado = @Estado)
+                        AND (@Placa IS NULL OR T0.Placa = @Placa)
                         AND (
                             @FechaRegistroDesde IS NULL 
                             OR (T0.FechaRegistro BETWEEN @FechaRegistroDesde AND @FechaRegistroHasta)
@@ -890,7 +890,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
 
                     cmd.Parameters.AddWithValue("@AlmIni", o.AlmIni ?? (object)DBNull.Value);
                     cmd.Parameters.AddWithValue("@AlmFin", o.AlmFin ?? (object)DBNull.Value);
-                    cmd.Parameters.AddWithValue("@Estado", o.Estado ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Placa", o.Placa ?? (object)DBNull.Value);
                     cmd.Parameters.AddWithValue("@FechaRegistroDesde", o.FechaRegistroDesde ?? (object)DBNull.Value);
                     cmd.Parameters.AddWithValue("@FechaRegistroHasta", o.FechaRegistroHasta ?? (object)DBNull.Value);
 
