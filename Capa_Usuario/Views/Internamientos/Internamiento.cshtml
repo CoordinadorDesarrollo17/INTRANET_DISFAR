@@ -267,9 +267,15 @@
 
                         // Si subtabla ya existe, la eliminamos
                         if (nextRow && nextRow.classList.contains('subtable-row')) {
-                            nextRow.remove();
-                            icon.classList.remove('bi-chevron-up');
-                            icon.classList.add('bi-chevron-down');
+                            if (nextRow.style.display === 'none') {
+                                nextRow.style.display = '';
+                                icon.classList.remove('bi-chevron-down');
+                                icon.classList.add('bi-chevron-up');
+                            } else {
+                                nextRow.style.display = 'none';
+                                icon.classList.remove('bi-chevron-up');
+                                icon.classList.add('bi-chevron-down');
+                            }
                             return;
                         }
 
