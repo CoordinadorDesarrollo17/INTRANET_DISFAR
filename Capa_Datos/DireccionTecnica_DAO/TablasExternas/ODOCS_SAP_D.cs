@@ -59,7 +59,10 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasExternas
                     helper.Titulo = "Acción completada";
                     helper.Mensajes = new List<string> { "Documento cargado correctamente." };
                     helper.Icono = "success";
-                }
+                } else
+                    helper.Titulo = "Error";
+                    helper.Mensajes = new List<string> { "No se encontraron documentos con el DocNum o Nro. Guia ingresado." };
+                    helper.Icono = "error";
             }
             catch (Exception ex)
             {
@@ -119,6 +122,10 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasExternas
                     helper.Mensajes = new List<string> { "Documento cargado correctamente." };
                     helper.Icono = "success";
                 }
+                else
+                    helper.Titulo = "Error";
+                    helper.Mensajes = new List<string> { "No se encontraron documentos con el DocNum o Nro. Guia ingresado." };
+                    helper.Icono = "error";
             }
             catch (Exception ex)
             {
