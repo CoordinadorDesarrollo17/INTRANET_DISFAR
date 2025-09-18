@@ -60,6 +60,12 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasExternas
                     helper.Mensajes = new List<string> { "Documento cargado correctamente." };
                     helper.Icono = "success";
                 }
+                else
+                {
+                    helper.Titulo = "Error";
+                    helper.Mensajes = new List<string> { "No se encontraron documentos con el DocNum o Nro. Guia ingresado." };
+                    helper.Icono = "error";
+                }
             }
             catch (Exception ex)
             {
@@ -101,14 +107,16 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasExternas
 
                         var detalle = new DOCS1_E();
                         detalle.Almacen = hdr.IsDBNull(7) ? "" : hdr.GetString(7);
-                        detalle.CantidadTotal = hdr.IsDBNull(8) ? 0 : hdr.GetInt32(8);
+                        int ordinalCantidad = hdr.GetOrdinal("CantidadTotalPzasPorLote");
+                        detalle.CantidadTotal = hdr.IsDBNull(ordinalCantidad)
+                            ? 0
+                            : Convert.ToInt32(hdr.GetDecimal(ordinalCantidad));
                         detalle.ItemCode = hdr.IsDBNull(9) ? "" : hdr.GetString(9);
                         detalle.ItemName = hdr.IsDBNull(10) ? "" : hdr.GetString(10);
                         detalle.Fabricante = hdr.IsDBNull(11) ? "" : hdr.GetString(11);
                         detalle.Lote = hdr.IsDBNull(12) ? "" : hdr.GetString(12);
                         detalle.RegistroSanitario = hdr.IsDBNull(13) ? "" : hdr.GetString(13);
                         detalle.FechaVencimiento = hdr.IsDBNull(14) ? "" : hdr.GetString(14);
-
                         documento.Detalle.Add(detalle);
                     }
 
@@ -116,6 +124,11 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasExternas
                     helper.Titulo = "Acción completada";
                     helper.Mensajes = new List<string> { "Documento cargado correctamente." };
                     helper.Icono = "success";
+                }
+                else { 
+                    helper.Titulo = "Error";
+                    helper.Mensajes = new List<string> { "No se encontraron documentos con el DocNum o Nro. Guia ingresado." };
+                    helper.Icono = "error";
                 }
             }
             catch (Exception ex)
