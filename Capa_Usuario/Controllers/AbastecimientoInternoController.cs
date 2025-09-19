@@ -12,6 +12,7 @@ using Capa_Negocio.DireccionTecnica_NEG.TablasSql;
 using Capa_Negocio.Seguridad_NEG.TablasSql;
 using Capa_Usuario.Helpers;
 using dotless.Core.Parser.Tree;
+using Microsoft.ReportingServices.ReportProcessing.ReportObjectModel;
 using OfficeOpenXml;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
@@ -2116,7 +2117,6 @@ namespace Capa_Usuario.Controllers
 
                 if (detalleRequerimiento.Id <= 0 || detalleRequerimiento.RequerimientoId <= 0 || string.IsNullOrEmpty(detalleRequerimiento.ItemCode) || string.IsNullOrEmpty(detalleRequerimiento.ItemName))
                     return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "Los datos enviados son inválidos." }, Icono = "error" });
-
                 try
                 {
                     Utilitarios uti = new Utilitarios();
@@ -2136,7 +2136,7 @@ namespace Capa_Usuario.Controllers
                             int cantidadGlobal = requerimientoPorSku.Sum(x => x.QuantityUnidadesCajas ?? 0);
 
                             // Actualizar a AtendidoReserva 1 solo la linea de detalle enviada
-                            var resultAtender = _requerimientosN.AtenderReserva(detalleRequerimiento.Id);
+                            var resultAtender = _requerimientosN.AtenderReserva(detalleRequerimiento.Id, operarioRegistra);
                             if (resultAtender.Icono.Equals("error"))
                                 return Json(new { Titulo = "No se pudo completar la acción", resultAtender.Mensajes, Icono = resultAtender.Icono });
 
@@ -2238,7 +2238,8 @@ namespace Capa_Usuario.Controllers
                         cn.Open();
 
                         // Actualizar AtendidoReserva=1
-                        var resultAtender = _transferenciaReservaN.AtenderReserva(detalleId, cn);
+                        string operarioRegistraT = $"{usuario.Nombres} {usuario.Apellidos}";
+                        var resultAtender = _transferenciaReservaN.AtenderReserva(detalleId, cn, operarioRegistraT);
                         if (resultAtender == null || !resultAtender.Icono.Equals("success"))
                             return Json(new { Titulo = "Error al atender reserva", resultAtender?.Mensajes, Icono = resultAtender?.Icono ?? "error" });
 
@@ -2369,8 +2370,8 @@ namespace Capa_Usuario.Controllers
                                     Icono = "error"
                                 });
                             }
-
-                            var resultAtender = _transferenciaReservaN.AtenderReserva(detalle.DetalleId, cn);
+                            string operarioRegistra = $"{usuario.Nombres} {usuario.Apellidos}";
+                            var resultAtender = _transferenciaReservaN.AtenderReserva(detalle.DetalleId, cn, operarioRegistra);
                             if (resultAtender == null || resultAtender.Icono != "success")
                             {
                                 return Json(new
@@ -2497,7 +2498,7 @@ namespace Capa_Usuario.Controllers
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                int columnas = 13;
+                int columnas = 14;
                 var lista = _reporteKardex.ListarKardexIngreso(fechaInicio, fechaFin);
 
                 if (lista != null && lista.Any())
@@ -2533,7 +2534,7 @@ namespace Capa_Usuario.Controllers
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                int columnas = 14;
+                int columnas = 19;
                 var lista = _reporteKardex.ListarKardexSalida(fechaInicio, fechaFin);
 
                 if (lista != null && lista.Any())
@@ -2880,9 +2881,9 @@ namespace Capa_Usuario.Controllers
                     using (SqlConnection cn = new SqlConnection(uti.cadSql2))
                     {
                         cn.Open();
-
+                        string operarioRegistra = $"{user.Nombres} {user.Apellidos}";
                         // 1. Atender Picking
-                        var resultAtender = _requerimientosN.AtenderPicking(id, cn);
+                        var resultAtender = _requerimientosN.AtenderPicking(id, cn, operarioRegistra);
                         if (resultAtender == null || !resultAtender.Icono.Equals("success"))
                             return Json(new { Titulo = "Error en la operación", resultAtender?.Mensajes, Icono = resultAtender?.Icono ?? "error" });
 

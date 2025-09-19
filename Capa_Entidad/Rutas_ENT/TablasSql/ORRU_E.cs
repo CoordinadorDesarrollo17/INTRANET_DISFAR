@@ -141,7 +141,7 @@ namespace Capa_Entidad.Rutas_ENT.TablasSql
             public string FechaDoc { get; set; }
             public string AlmOrigenDesc { get; set; }
             public string AlmDestinoDesc { get; set; }
-            public string CopilDesc { get; set; }
+            public string Transportista { get; set; }
             public string Placa { get; set; }
             public string Guia { get; set; }
             public int NroSap { get; set; }
