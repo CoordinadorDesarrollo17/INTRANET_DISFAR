@@ -870,7 +870,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                         T0.FechaRegistro,
                         T0.AlmOrigenDesc,
                         T0.AlmDestinoDesc,
-                        T0.TransDesc AS Transportista,
+                        T0.TransDesc,
                         T0.Placa,
                         T1.Guia,
                         T1.NroSap,
@@ -906,7 +906,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                             if (!dr.IsDBNull(2)) or.FechaDoc = dr.GetDateTime(2).ToString("yyyy-MM-dd");
                             if (!dr.IsDBNull(3)) or.AlmOrigenDesc = dr.GetString(3);
                             if (!dr.IsDBNull(4)) or.AlmDestinoDesc = dr.GetString(4);
-                            if (!dr.IsDBNull(5)) or.Transportista = dr.GetString(5);
+                            if (!dr.IsDBNull(5)) or.TransDesc = dr.GetString(5);
                             if (!dr.IsDBNull(6)) or.Placa = dr.GetString(6);
                             if (!dr.IsDBNull(7)) or.Guia = dr.GetString(7);
                             if (!dr.IsDBNull(8)) or.NroSap = dr.GetInt32(8);
