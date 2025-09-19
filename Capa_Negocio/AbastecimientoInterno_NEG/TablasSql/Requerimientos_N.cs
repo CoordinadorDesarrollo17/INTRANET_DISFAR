@@ -20,13 +20,13 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         {
             return _requerimientoD.ObtenerRequerimiento(id, cn);
         }
-        public Helper_E AtenderReserva(int detalleId)
+        public Helper_E AtenderReserva(int detalleId, string operarioRegistra)
         {
-            return _requerimientoD.AtenderReserva(detalleId);
+            return _requerimientoD.AtenderReserva(detalleId, operarioRegistra);
         }
-        public Helper_E AtenderPicking(int detalleId, SqlConnection cn)
+        public Helper_E AtenderPicking(int detalleId, SqlConnection cn, string operarioRegistra)
         {
-            return _requerimientoD.AtenderPicking(detalleId, cn);
+            return _requerimientoD.AtenderPicking(detalleId, cn, operarioRegistra);
         }
         public List<DetalleRequerimientos_E> ListarDetalles_OLD(string itemCode = "", string proceso = "")
         {
