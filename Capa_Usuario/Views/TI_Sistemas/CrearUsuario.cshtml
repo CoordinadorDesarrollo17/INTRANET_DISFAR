@@ -25,6 +25,11 @@
                 });
             }
         });
+        document.getElementById('inputRoles').addEventListener('change', function () {
+            var selectedOption = this.options[this.selectedIndex];
+            var idRol = selectedOption.getAttribute('data-idrol') || '';
+            document.getElementById('idRol').value = idRol;
+        });
     </script>
 }
 
