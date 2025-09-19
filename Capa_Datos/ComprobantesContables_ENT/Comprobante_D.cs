@@ -142,7 +142,7 @@ namespace Capa_Datos.ComprobantesContables_ENT
                             while (hdr.Read())
                             {
                                 Guia_Remision_E c = new Guia_Remision_E();
-                                if (!hdr.IsDBNull(0)) { c.NombreBD = hdr.GetString(0); }
+                                c.NombreBD = "Cobefar S.A.C.";
                                 if (!hdr.IsDBNull(1)) { c.DocDate = Convert.ToDateTime(hdr.GetString(1)).ToString("dd/MM/yyyy"); }
                                 if (!hdr.IsDBNull(2)) { c.RucBD = hdr.GetString(2); }
                                 if (!hdr.IsDBNull(3)) { c.FechaTrasl = Convert.ToDateTime(hdr.GetString(3)).ToString("dd/MM/yyyy"); }
@@ -199,7 +199,7 @@ namespace Capa_Datos.ComprobantesContables_ENT
                                 Guia_Remision_E c = new Guia_Remision_E();
                                 if (!hdr.IsDBNull(0)) { c.DocEntry = hdr.GetInt32(0); }
                                 if (!hdr.IsDBNull(2)) { c.ElaboradoPor = hdr.GetString(2); }
-                                if (!hdr.IsDBNull(3)) { c.NombreBD = hdr.GetString(3); }
+                                c.NombreBD = "Cobefar S.A.C.";
                                 if (!hdr.IsDBNull(4)) { c.DireccionBD = hdr.GetString(4); }
                                 if (!hdr.IsDBNull(5)) { c.RucBD = hdr.GetString(5); }
                                 if (!hdr.IsDBNull(6)) { c.TelBD = hdr.GetString(6); }
