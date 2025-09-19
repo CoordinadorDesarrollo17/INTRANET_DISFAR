@@ -42,6 +42,7 @@ namespace Capa_Datos
             this.cadHana = "Server=172.16.55.36:30015;UserName=B1ADMIN;Password=Passw0rd;";
             this.schemaHana = "\"B1H_COBEFAR_2018\".";
             //this.schemaHana = "\"BASE_01_06_2025\".";
+            //this.schemaHana = "\"BASE_28_06_2025\".";
 
             this.BDsql = Environment.GetEnvironmentVariable("NOMBRE_BD_PRINCIPAL", EnvironmentVariableTarget.Machine);
             this.cadSql = Environment.GetEnvironmentVariable("PROYECTO_INTRANET", EnvironmentVariableTarget.Machine);
@@ -49,7 +50,7 @@ namespace Capa_Datos
             CadSql3 = Environment.GetEnvironmentVariable("BD_DT", EnvironmentVariableTarget.Machine);
             CadSql4 = Environment.GetEnvironmentVariable("BD_DOCUMENTOS_REGULATORIOS", EnvironmentVariableTarget.Machine);
             this.serverSophos = Environment.GetEnvironmentVariable("SOPHOS", EnvironmentVariableTarget.Machine);
-
+                                             
             // CORREO 
             this.Smtp = "smtp.gmail.com";
             this.CodigoSmtp = 25;
