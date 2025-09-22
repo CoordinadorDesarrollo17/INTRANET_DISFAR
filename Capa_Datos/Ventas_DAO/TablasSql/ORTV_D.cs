@@ -22,6 +22,7 @@ using System.Deployment.Internal;
 using System.Dynamic;
 using DocumentFormat.OpenXml.Drawing;
 using System.Drawing;
+using System.Web;
 namespace Capa_Datos.Ventas_DAO.TablasSql
 {
     public class ORTV_D
@@ -2950,7 +2951,15 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
             try
             {
                 cn.Open();
-                SqlCommand cmd = new SqlCommand("select DocEntry,DocNum,CardCode, CardName,Estado,TipoVenta,LugarDestino, DirDestino,Referencia,Agencia,EnvioAgencia,Embalaje,CodSapVendedor,Vendedor,MontoTotal,Flete,GastoEnvio,EstadoGasto,PagoEnv,ClaveEnv,TiempoEntrega,DescuentoNC,DeudaCliente,DeudaEmpresa,MontoFinal,FormaPago,MontoRecibido,EstadoPago,FechaPago,HoraPago,Cajero,Comentario,Cajas,NroMesa,FechaNC,EstadoFacturacion,FechaFacturacion,HoraFacturacion,OpFacturacion, Observaciones,Observaciones2,Observaciones3,FechaSapTicket, (Select top 1 FechaOperacion from vt.CC_ORTV where DocEntry=" + DocEntry + " and Operacion='REGISTRAR' order by FechaOperacion DESC,HoraOperacion DESC ) AS 'FECHA REGISTRO', (Select top 1 HoraOperacion from vt.CC_ORTV where DocEntry=" + DocEntry + " and Operacion='REGISTRAR' order by FechaOperacion,HoraOperacion desc ) AS 'HORA REGISTRO' ,AlmProcedencia, Zona,Notificado,Visible,Presupuesto, (Select  Estado from vt.BusquedaProducto where DocEntry=vt.ORTV.DocEntry )   from vt.ORTV where DocEntry=" + DocEntry, cn);
+                SqlCommand cmd = new SqlCommand("select DocEntry,DocNum,CardCode, CardName,Estado,TipoVenta,LugarDestino, " +
+                    "DirDestino,Referencia,Agencia,EnvioAgencia,Embalaje,CodSapVendedor,Vendedor,MontoTotal,Flete,GastoEnvio," +
+                    "EstadoGasto,PagoEnv,ClaveEnv,TiempoEntrega,DescuentoNC,DeudaCliente,DeudaEmpresa,MontoFinal,FormaPago,MontoRecibido," +
+                    "EstadoPago,FechaPago,HoraPago,Cajero,Comentario,Cajas,NroMesa,FechaNC,EstadoFacturacion,FechaFacturacion,HoraFacturacion," +
+                    "OpFacturacion, Observaciones,Observaciones2,Observaciones3,FechaSapTicket, (Select top 1 FechaOperacion " +
+                    "from vt.CC_ORTV where DocEntry=" + DocEntry + " and Operacion='REGISTRAR' order by FechaOperacion DESC,HoraOperacion DESC ) AS 'FECHA REGISTRO'," +
+                    " (Select top 1 HoraOperacion from vt.CC_ORTV where DocEntry=" + DocEntry + " and Operacion='REGISTRAR' order by FechaOperacion,HoraOperacion desc ) " +
+                    "AS 'HORA REGISTRO' ,AlmProcedencia, Zona,Notificado,Visible,Presupuesto, (Select  Estado from vt.BusquedaProducto where DocEntry=vt.ORTV.DocEntry )   " +
+                    "from vt.ORTV where DocEntry=" + DocEntry, cn);
                 cmd.CommandType = CommandType.Text;
                 SqlDataReader dr = cmd.ExecuteReader();
                 dr.Read();
@@ -3244,12 +3253,17 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
             }
             return lista;
         }
-        public List<ORTV_E> ListarTicketsAreaFacturacion(Usuario_E user, ORTV_E t)
+        public List<ORTV_E> ListarTicketsAreaFacturacion(Usuario_E user, ORTV_E t, int SoloConObservacion = 0)
         {
             List<ORTV_E> lista = new List<ORTV_E>();
             string condWhere = string.Empty;
+            string joinObservacion = string.Empty;
             string orderBy = string.Empty;
-
+            if (SoloConObservacion == 1)
+            {
+                joinObservacion = " INNER JOIN vt.ComentarioFac cf ON cf.DocEntry = t0.DocEntry ";
+                condWhere += " AND cf.Comentario IS NOT NULL AND LTRIM(RTRIM(cf.Comentario)) <> '' ";
+            }
             if (t != null)
             {
                 condWhere += t.DocNum > 0 ? $" AND t0.DocNum like '%{t.DocNum}%'" : "";
@@ -3290,6 +3304,8 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
             queryBuilder.AppendLine("   CASE");
             queryBuilder.AppendLine("       WHEN EXISTS (SELECT 1 FROM vt.CC_ORTV_print WHERE DocEntryTicket = t0.DocEntry AND Id_Usuario = 'Facturacion') THEN 1 ELSE 0 END AS ExisteEnCC_ORTV_print");
             queryBuilder.AppendLine("FROM vt.ORTV t0");
+            if (!string.IsNullOrEmpty(joinObservacion))
+                queryBuilder.AppendLine(joinObservacion);
             queryBuilder.AppendLine("OUTER APPLY (");
             queryBuilder.AppendLine("   SELECT TOP 1 Estado");
             queryBuilder.AppendLine("   FROM vt.BusquedaProducto bp");
@@ -3706,5 +3722,80 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
             }
             return lista;
         }
+
+        public bool GuardarComentario(int docEntry, string comentario)
+        {
+            bool exito = false;
+
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(uti.cadSql))
+                {
+                    string updateQuery = "UPDATE vt.ComentarioFac SET Comentario = @Comentario WHERE DocEntry = @DocEntry";
+                    string insertQuery = "INSERT INTO vt.ComentarioFac (DocEntry, Comentario) VALUES (@DocEntry, @Comentario)";
+
+                    using (SqlCommand cmd = new SqlCommand(updateQuery, cn))
+                    {
+                        cmd.Parameters.AddWithValue("@Comentario", (object)comentario ?? DBNull.Value);
+                        cmd.Parameters.AddWithValue("@DocEntry", docEntry);
+
+                        cn.Open();
+                        int rowsAffected = cmd.ExecuteNonQuery();
+
+                        if (rowsAffected == 0)
+                        {
+                            // No existe, así que lo insertamos
+                            cmd.CommandText = insertQuery;
+                            rowsAffected = cmd.ExecuteNonQuery();
+                        }
+
+                        exito = rowsAffected > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(
+                    $"Error al guardar el comentario para el DocEntry {docEntry}.", ex);
+            }
+
+            return exito;
+        }
+
+
+
+        public string LeerComentario(int docEntry)
+        {
+            string comentarioFac = null;
+
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(uti.cadSql))
+                {
+                    using (SqlCommand cmd = new SqlCommand(
+                        "SELECT Comentario FROM vt.ComentarioFac WHERE DocEntry = @DocEntry", cn))
+                    {
+                        cmd.Parameters.AddWithValue("@DocEntry", docEntry);
+
+                        cn.Open();
+                        using (SqlDataReader dr = cmd.ExecuteReader())
+                        {
+                            if (dr.Read() && !dr.IsDBNull(0))
+                            {
+                                comentarioFac = dr.GetString(0);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(
+                    $"Error al leer el comentario del DocEntry {docEntry}.", ex);
+            }
+
+            return comentarioFac;
+        }
+
     }
 }

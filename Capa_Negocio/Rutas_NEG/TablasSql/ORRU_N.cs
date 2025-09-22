@@ -253,9 +253,22 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
         {
             return orruD.ReporteHojasRuta(o);
         }
+
+        public List<ORRU_E.RptRutasT> ReporteTransferencias(ORRU_E o)
+        {
+            return orruD.ReporteTransferencias(o);
+        }
         public List<RptPesaje_E> ListarRptPesaje(FiltroRptPesaje datosFiltro)
         {
             return orruD.ListarRptPesaje(datosFiltro);
+        }
+        // Nuevo: actualizar hora de llegada (HoraEntrega) en RRU0 o RRU1
+        public bool ActualizarHoraLlegada(int docEntry, int docNum, string nuevaHora)
+        {
+            if (string.IsNullOrWhiteSpace(nuevaHora) || !Regex.IsMatch(nuevaHora, @"^\d{2}:\d{2}(:\d{2})?$"))
+                throw new Exception("Formato de hora inválido (HH:mm o HH:mm:ss)");
+            if (nuevaHora.Length == 5) nuevaHora += ":00"; // normalizar
+            return orruD.ActualizarHoraLlegada(docEntry, docNum, nuevaHora);
         }
     }
 }

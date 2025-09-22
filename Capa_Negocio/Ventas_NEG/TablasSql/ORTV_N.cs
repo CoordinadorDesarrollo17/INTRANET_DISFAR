@@ -944,13 +944,26 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         { return tkD.ObtenerTicketRotulado(docEntry); }
         public ORTV_E ObtenerTicketTacoEmpaque(int docEntry)
         { return tkD.ObtenerTicketTacoEmpaque(docEntry); }
-        public List<ORTV_E> ListarTicketsAreaFacturacion(Usuario_E user, ORTV_E t)
-        { return tkD.ListarTicketsAreaFacturacion(user, t); }
+        public List<ORTV_E> ListarTicketsAreaFacturacion(Usuario_E user, ORTV_E t, int SoloConObservacion = 0)
+        {
+            return tkD.ListarTicketsAreaFacturacion(user, t, SoloConObservacion);
+        }
         public List<ORTV_E> ListarTicketsAreaRecepcion(Usuario_E user, ORTV_E t)
         { return tkD.ListarTicketsAreaRecepcion(user, t); }
         public List<ORTV_E> ListarTicketsAreaAlmacén(Usuario_E user, ORTV_E t)
         { return tkD.ListarTicketsAreaAlmacén(user, t); }
         public List<ORTV_E> ListarTicketsAreaDespacho(Usuario_E user, ORTV_E t)
         { return tkD.ListarTicketsAreaDespacho(user, t); }
+
+        public bool GuardarComentario(int docEntry, string comentario)
+        {
+            if(comentario.Length > 400) throw new Exception("El comentario no puede tener mas de 400 caracteres");
+            return tkD.GuardarComentario(docEntry, comentario);
+        }
+
+        public string LeerComentario(int docEntry)
+        {
+            return tkD.LeerComentario(docEntry);
+        }
     }
 }

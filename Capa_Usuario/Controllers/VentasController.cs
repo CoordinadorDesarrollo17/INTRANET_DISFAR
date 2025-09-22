@@ -822,7 +822,7 @@ namespace Capa_Usuario.Controllers
             }
             else { return null; }
         }
-        public ActionResult ListadoTicketsFacturacion(int DocNum = 0, ORTV_E ticket = null, string Mensaje = "", int idOperation = 601)
+        public ActionResult ListadoTicketsFacturacion(int DocNum = 0, ORTV_E ticket = null, string Mensaje = "", int idOperation = 601, int SoloConObservacion = 0)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
@@ -846,7 +846,7 @@ namespace Capa_Usuario.Controllers
                 }
                 else { ViewBag.Ortv = ticket; }
                 ViewBag.Mensaje = Mensaje;
-                var lista = _ticketN.ListarTicketsAreaFacturacion(user, ticket);
+                var lista = tkN.ListarTicketsAreaFacturacion(user, ticket, SoloConObservacion);
                 ViewBag.CP = _ticketN.CantidadTicketsFacturacion("PENDIENTE");
                 ViewBag.CG = _ticketN.CantidadTicketsFacturacion("GRE EMITIDA");
                 return View(lista);
@@ -1345,7 +1345,13 @@ namespace Capa_Usuario.Controllers
                     lista.Add(oinvNeg.listadoBoletasDeVenta(new OINV_E { NumAtCard = o }).FirstOrDefault());
                 }
             }
-            return Json(lista = lista.GroupBy(x => x.NumAtCard).Select(g => g.First()).ToList());
+            return Json(
+                    lista
+                        .Where(x => x != null && !string.IsNullOrWhiteSpace(x.NumAtCard))
+                        .GroupBy(x => x.NumAtCard)
+                        .Select(g => g.First())
+                        .ToList()
+                );
         }
         public JsonResult buscarGuias(int DocEntry)
         {
@@ -3996,5 +4002,35 @@ namespace Capa_Usuario.Controllers
 
             return View("~/Views/Ventas/PDF/PDF_OrdenesDeVentasSophos.cshtml", resultado);
         }
+        [HttpPost]
+        public JsonResult GuardarObservacion(int docEntry, string observacion)
+        {
+            try
+            {
+                var exito = _ticketN.GuardarComentario(docEntry, observacion);
+                if (exito)
+                    return Json(new { success = true, message = "Observación guardada correctamente." });
+                else
+                    return Json(new { success = false, message = "No se pudo guardar la observación." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+        [HttpGet]
+        public JsonResult LeerObservacion(int docEntry)
+        {
+            try
+            {
+                var comentario = _ticketN.LeerComentario(docEntry);
+                return Json(new { success = true, comentario = comentario ?? "" }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, comentario = "", message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
     }
 }

@@ -23,120 +23,38 @@
     {
         foreach (var m in Model)
         {
-            if (num <= 22)
-            {
-                lista1.Add(m);
-            }
-            else if (num > 22 && num <= 44)
-            {
-                lista2.Add(m);
-            }
-            else if (num > 44 && num <= 66)
-            {
-                lista3.Add(m);
-            }
-            else if (num > 66 && num <= 88)
-            {
-                lista4.Add(m);
-            }
-            else if (num > 88 && num <= 110)
-            {
-                lista5.Add(m);
-            }
-            else if (num > 110 && num <= 132)
-            {
-                lista6.Add(m);
-            }
-            else if (num > 132 && num <= 154)
-            {
-                lista7.Add(m);
-            }
-            else if (num > 154 && num <= 176)
-            {
-                lista8.Add(m);
-            }
-            else if (num > 176 && num <= 198)
-            {
-                lista9.Add(m);
-            }
-            else if (num > 198 && num <= 220)
-            {
-                lista10.Add(m);
-            }
-            else if (num > 220 && num <= 242)
-            {
-                lista11.Add(m);
-            }
-            else if (num > 242 && num <= 264)
-            {
-                lista12.Add(m);
-            }
-            else if (num > 264 && num <= 286)
-            {
-                lista13.Add(m);
-            }
-            else if (num > 286 && num <= 308)
-            {
-                lista14.Add(m);
-            }
-            else if (num > 308 && num <= 330)
-            {
-                lista15.Add(m);
-            }
-            else if (num > 330 && num <= 352)
-            {
-                lista16.Add(m);
-            }
+            if (num <= 22) { lista1.Add(m); }
+            else if (num > 22 && num <= 44) { lista2.Add(m); }
+            else if (num > 44 && num <= 66) { lista3.Add(m); }
+            else if (num > 66 && num <= 88) { lista4.Add(m); }
+            else if (num > 88 && num <= 110) { lista5.Add(m); }
+            else if (num > 110 && num <= 132) { lista6.Add(m); }
+            else if (num > 132 && num <= 154) { lista7.Add(m); }
+            else if (num > 154 && num <= 176) { lista8.Add(m); }
+            else if (num > 176 && num <= 198) { lista9.Add(m); }
+            else if (num > 198 && num <= 220) { lista10.Add(m); }
+            else if (num > 220 && num <= 242) { lista11.Add(m); }
+            else if (num > 242 && num <= 264) { lista12.Add(m); }
+            else if (num > 264 && num <= 286) { lista13.Add(m); }
+            else if (num > 286 && num <= 308) { lista14.Add(m); }
+            else if (num > 308 && num <= 330) { lista15.Add(m); }
+            else if (num > 330 && num <= 352) { lista16.Add(m); }
             ++num;
         }
-        listaGeneral.Add("lista1", lista1);
-        listaGeneral.Add("lista2", lista2);
-        listaGeneral.Add("lista3", lista3);
-        listaGeneral.Add("lista4", lista4);
-        listaGeneral.Add("lista5", lista5);
-        listaGeneral.Add("lista6", lista6);
-        listaGeneral.Add("lista7", lista7);
-        listaGeneral.Add("lista8", lista8);
-        listaGeneral.Add("lista9", lista9);
-        listaGeneral.Add("lista10", lista10);
-        listaGeneral.Add("lista11", lista11);
-        listaGeneral.Add("lista12", lista12);
-        listaGeneral.Add("lista13", lista13);
-        listaGeneral.Add("lista14", lista14);
-        listaGeneral.Add("lista15", lista15);
-        listaGeneral.Add("lista16", lista16);
+        listaGeneral.Add("lista1", lista1); listaGeneral.Add("lista2", lista2); listaGeneral.Add("lista3", lista3); listaGeneral.Add("lista4", lista4); listaGeneral.Add("lista5", lista5); listaGeneral.Add("lista6", lista6); listaGeneral.Add("lista7", lista7); listaGeneral.Add("lista8", lista8); listaGeneral.Add("lista9", lista9); listaGeneral.Add("lista10", lista10); listaGeneral.Add("lista11", lista11); listaGeneral.Add("lista12", lista12); listaGeneral.Add("lista13", lista13); listaGeneral.Add("lista14", lista14); listaGeneral.Add("lista15", lista15); listaGeneral.Add("lista16", lista16);
     }
 }
 <link href="~/Content/css/bootstrap.css" rel="stylesheet" type="text/css" />
 <style>
-    .table-bordered {
-        border: 2px solid black !important;
-    }
-        .table-bordered th, .table-bordered td {
-            border: 2px solid black !important;
-        }
-    .border {
-        border: 2px solid black !important;
-    }
-    .container {
-        font-family: Arial;
-    }
-    .cls-contenido {
-        margin-top: 10px;
-    }
+    .table-bordered { border: 2px solid black !important; }
+    .table-bordered th, .table-bordered td { border: 2px solid black !important; }
+    .border { border: 2px solid black !important; }
+    .container { font-family: Arial; }
+    .cls-contenido { margin-top: 10px; }
     @@media print {
-        .container {
-            max-width: 100%;
-        }
-        .cls-footer {
-            position: fixed;
-            bottom: 0px;
-            padding-left: 0px;
-            padding-right: 0px;
-        }
-        #cabecera {
-            background-color: #C6E0B4;
-        }
+        .container { max-width: 100%; }
+        .cls-footer { position: fixed; bottom: 0px; padding-left: 0px; padding-right: 0px; }
+        #cabecera { background-color: #C6E0B4; }
     }
 </style>
 <div class="container">
@@ -165,7 +83,6 @@
                         </tr>
                     </table>
                     <div>
-                        <!-- Primer div -->
                         <div class="col-12 d-flex justify-content-between" style="font-size: 14px;">
                             <div class="d-flex">
                                 <span class="font-weight-bold">MES:</span>
@@ -176,7 +93,6 @@
                                 <span style="border-bottom: dotted 2px; padding-left: 10px;">@ViewBag.Placa</span>
                             </div>
                         </div>
-                        <!-- Segundo div -->
                         <div class="col-12 d-flex justify-content-between" style="font-size: 14px; margin-top: 10px;">
                             <div class="d-flex">
                                 <span class="font-weight-bold">AÑO:</span>
@@ -186,9 +102,7 @@
                                 <span class="font-weight-bold">CÓDIGO DL-T:</span>
                                 <span style="border-bottom: dotted 2px; padding-left: 10px;">
                                     @if (Model != null && Model.Count >= 1)
-                                    {
-                                        Write(Model[0].Serie);
-                                    }
+                                    { Write(Model[0].Serie); }
                                 </span>
                             </div>
                         </div>
@@ -221,14 +135,14 @@
                                             <td class="text-center" style="vertical-align: top;">@datos2.Codigo</td>
                                             <td class="text-center" style="vertical-align: top;">@datos2.HoraSalida</td>
                                             <td class="text-center" style="vertical-align: top;">@datos2.TempI.ToString("N1") °C</td>
-                                            <td class="text-center" style="vertical-align: top;">@datos2.HoraLlegada</td>
+                                            <td class="text-center" style="vertical-align: top;">
+                                                <input type="time" class="form-control editable-hora" value="@datos2.HoraLlegada" data-docentry="@datos2.DocEntry" data-docnum="@datos2.Codigo" step="1" style="width:130px; display:inline-block;" />
+                                                <span class="hora-texto">@datos2.HoraLlegada</span>
+                                            </td>
                                             <td class="text-center" style="vertical-align: top;">@datos2.TempF.ToString("N1") °C</td>
                                             <td class="text-center" style="vertical-align: top;">@datos2.Encargado</td>
                                             <td class="text-center">
-                                                @*@if (datos2.TempI >= 15 && datos2.TempI <= 25 && datos2.HumedI >= 55 && datos2.HumedI <65 && datos2.TempF >= 15 && datos2.TempF <= 25 && datos2.HumedF >= 55 && datos2.HumedF < 65)
-                                                {*@
-                                                    <img src="~/Content/img/checkAzul.png" width="40" />
-                                                @*}*@
+                                                <img src="~/Content/img/checkAzul.png" width="40" />
                                             </td>
                                         </tr>
                                     }
@@ -247,12 +161,8 @@
                                 </tr>
                             </table>
                             <table width="100%">
-                                <tr>
-                                    <td height="30" style="border-bottom: dotted 2px;"></td>
-                                </tr>
-                                <tr>
-                                    <td height="30" style="border-bottom: dotted 2px;"></td>
-                                </tr>
+                                <tr><td height="30" style="border-bottom: dotted 2px;"></td></tr>
+                                <tr><td height="30" style="border-bottom: dotted 2px;"></td></tr>
                             </table>
                         </div>
                     </div>
@@ -261,13 +171,11 @@
                             <table>
                                 <tr>
                                     <td class="border text-center" width="300" height="100">
-                                        @if (ViewBag.FirmaTransportista != null)
-                                        {<img src="@ViewBag.FirmaTransportista" width="150" />}
+                                        @if (ViewBag.FirmaTransportista != null) {<img src="@ViewBag.FirmaTransportista" width="150" />}
                                     </td>
                                     <td class="" width="300"></td>
                                     <td class="border text-center" width="300" height="100">
-                                        @if (ViewBag.FirmaQF != null)
-                                        {<img src="@ViewBag.FirmaQF" width="150" />}
+                                        @if (ViewBag.FirmaQF != null) {<img src="@ViewBag.FirmaQF" width="150" />}
                                     </td>
                                 </tr>
                                 <tr>
@@ -275,9 +183,7 @@
                                     <td>&nbsp;</td>
                                     <td class="border text-center font-weight-bold">QUÍMICO FARMACÉUTICO ASISTENTE</td>
                                 </tr>
-                                <tr>
-                                    <td height="20"></td>
-                                </tr>
+                                <tr><td height="20"></td></tr>
                                 <tr>
                                     <td colspan="3">
                                         <table width="50%" style="margin: auto; padding-top: 20px">
@@ -288,7 +194,6 @@
                                     </td>
                                 </tr>
                             </table>
-
                         </div>
                     </div>
                 </div>
@@ -301,3 +206,55 @@
         <h2 class="text-danger text-center my-3">CON LA FECHA Y PLACA SELECCIONADA</h2>
     }
 </div>
+<!-- jQuery necesario porque Layout es null -->
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+<script>
+    function esHoraValida(valor) {
+        return /^\d{2}:\d{2}(:\d{2})?$/.test(valor);
+    }
+    function normalizarHora(valor) { // devuelve HH:mm:ss
+        if (!valor) return "";
+        if (/^\d{2}:\d{2}$/.test(valor)) return valor + ":00";
+        return valor; // ya tiene segundos
+    }
+    function guardarHoraLlegada($input) {
+        var nuevaHora = $input.val();
+        if (!esHoraValida(nuevaHora)) return; // formato inválido
+        var horaEnviar = normalizarHora(nuevaHora); // aseguramos HH:mm:ss para BD
+        var docEntry = $input.data('docentry');
+        var docNum = $input.data('docnum');
+        $.ajax({
+            url: '/Rutas/ActualizarHoraLlegada',
+            type: 'POST',
+            data: { DocEntry: docEntry, DocNum: docNum, NuevaHora: horaEnviar },
+            success: function (resp) {
+                if (resp && resp.ok) {
+                    $input.siblings('.hora-texto').text(horaEnviar);
+                    feedbackOk($input[0]);
+                } else { feedbackError($input[0], resp.msg || 'Error'); }
+            },
+            error: function () { feedbackError($input[0], 'Error de red'); }
+        });
+    }
+    function feedbackOk(input) {
+        input.classList.remove('is-invalid');
+        input.classList.add('is-valid');
+        setTimeout(function () { input.classList.remove('is-valid'); }, 1200);
+    }
+    function feedbackError(input, msg) {
+        input.classList.remove('is-valid');
+        input.classList.add('is-invalid');
+        if (msg) console.warn(msg);
+    }
+    $(document).on('change', '.editable-hora', function () { guardarHoraLlegada($(this)); });
+
+    // Sincronizar antes de imprimir (por si el usuario cambia y no pierde foco)
+    window.addEventListener('beforeprint', function () { $('.editable-hora').each(function () { var $inp = $(this); var val = normalizarHora($inp.val()); if (val && $inp.siblings('.hora-texto').text() !== val) { $inp.siblings('.hora-texto').text(val); } }); });
+</script>
+<style>
+    @@media print { .editable-hora { display: none !important; } .hora-texto { display: inline !important; } }
+    .hora-texto { display: none; }
+    @@media print { .hora-texto { display: inline !important; } }
+    .is-valid { border: 2px solid #28a745 !important; }
+    .is-invalid { border: 2px solid #dc3545 !important; }
+</style>

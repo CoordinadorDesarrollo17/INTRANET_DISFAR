@@ -33,15 +33,16 @@ namespace Capa_Datos
         public Utilitarios()
         {
             // File Directories
-            this.directorioGeneral = Environment.GetEnvironmentVariable("DIRECTORIO_GENERAL", EnvironmentVariableTarget.Machine) ?? @"E:\";
-            this.directorioFileServer = Environment.GetEnvironmentVariable("DIRECTORIO_FILESERVER", EnvironmentVariableTarget.Machine) ?? @"E:\COBEFARWEBFILES\";
+            this.directorioGeneral = Environment.GetEnvironmentVariable("DIRECTORIO_GENERAL", EnvironmentVariableTarget.Machine) ?? @"C:\";
+            this.directorioFileServer = Environment.GetEnvironmentVariable("DIRECTORIO_FILESERVER", EnvironmentVariableTarget.Machine) ?? @"C:\COBEFARWEBFILES\";
             this.directorioDocumentosRegulatorios = Environment.GetEnvironmentVariable("DIRECTORIO_DOCUMENTOSREGULATORIOS", EnvironmentVariableTarget.Machine);
-            this.directorioLogs = Environment.GetEnvironmentVariable("DIRECTORIO_LOGS", EnvironmentVariableTarget.Machine) ?? @"E:\COBEFARWEBLOGS\";
+            this.directorioLogs = Environment.GetEnvironmentVariable("DIRECTORIO_LOGS", EnvironmentVariableTarget.Machine) ?? @"C:\COBEFARWEBLOGS\";
 
             // HANA Database Configuration
             this.cadHana = "Server=172.16.55.36:30015;UserName=B1ADMIN;Password=Passw0rd;";
             this.schemaHana = "\"B1H_COBEFAR_2018\".";
             //this.schemaHana = "\"BASE_01_06_2025\".";
+            //this.schemaHana = "\"BASE_28_06_2025\".";
 
             this.BDsql = Environment.GetEnvironmentVariable("NOMBRE_BD_PRINCIPAL", EnvironmentVariableTarget.Machine);
             this.cadSql = Environment.GetEnvironmentVariable("PROYECTO_INTRANET", EnvironmentVariableTarget.Machine);
@@ -49,7 +50,7 @@ namespace Capa_Datos
             CadSql3 = Environment.GetEnvironmentVariable("BD_DT", EnvironmentVariableTarget.Machine);
             CadSql4 = Environment.GetEnvironmentVariable("BD_DOCUMENTOS_REGULATORIOS", EnvironmentVariableTarget.Machine);
             this.serverSophos = Environment.GetEnvironmentVariable("SOPHOS", EnvironmentVariableTarget.Machine);
-
+                                             
             // CORREO 
             this.Smtp = "smtp.gmail.com";
             this.CodigoSmtp = 25;

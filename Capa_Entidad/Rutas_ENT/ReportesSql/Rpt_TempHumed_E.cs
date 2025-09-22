@@ -25,5 +25,8 @@ namespace Capa_Entidad.Rutas_ENT.ReportesSql
         public string Verificado { get; set; }
         /************ C A M P O S   Q U E   N O   S O N   D E   L A   T A B L A ************/
         public string TransCod { get; set; }
+        // Nuevos campos para identificar el registro a actualizar (si existen en el origen de datos)
+        public int DocEntry { get; set; }
+        public int DocNum { get; set; }
     }
 }

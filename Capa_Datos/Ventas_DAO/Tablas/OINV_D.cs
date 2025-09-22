@@ -17,24 +17,37 @@ namespace Capa_Datos.Ventas_DAO.Tablas
         {
             List<OINV_E> lista = new List<OINV_E>();
             string filtros = "";
+            string numAtCardFiltro = "";
+         
             if (fil != null)
             {
-                if (fil.DocNum > 0) { filtros += " and \"DocNum\" like '%" + fil.DocNum + "'"; }
-                if (fil.U_BPP_FECINITRA != null) { filtros += " and \"U_BPP_FECINITRA\"='" + fil.U_BPP_FECINITRA + "'"; }
-                if (fil.DocDate != null) { filtros += " and \"DocDate\"='" + fil.DocDate + "'"; }
-                if (fil.CardName != null) { filtros += " and UPPER(\"CardName\") like UPPER('%" + fil.CardName + "%')"; }
-                if (fil.NumAtCard != null) { filtros += " and UPPER(\"NumAtCard\") like UPPER('%" + fil.NumAtCard + "')"; }
-                if (fil.U_COB_CORDOC != null) { filtros += " and UPPER(\"U_COB_CORDOC\") like UPPER('%" + fil.U_COB_CORDOC + "')"; }
-                if (fil.DocTotal > 0.00M) { filtros += " and \"DocTotal\" like '%" + fil.DocTotal + "%'"; }
-                if (fil.U_SYP_STATUS != null) { filtros += " and UPPER(\"U_SYP_STATUS\")=UPPER('" + fil.U_SYP_STATUS + "')"; }
-                if (fil.U_COB_LUGAREN != null) { filtros += " and \"U_COB_LUGAREN\"='" + fil.U_COB_LUGAREN + "'"; }
+                if (fil.DocNum > 0) { filtros += " and T0.\"DocNum\" like '%" + fil.DocNum + "'"; }
+                if (fil.U_BPP_FECINITRA != null) { filtros += " and T0.\"U_BPP_FECINITRA\"='" + fil.U_BPP_FECINITRA + "'"; }
+                if (fil.DocDate != null) { filtros += " and T0.\"DocDate\"='" + fil.DocDate + "'"; }
+                if (fil.CardName != null) { filtros += " and UPPER(T0.\"CardName\") like UPPER('%" + fil.CardName + "%')"; }
+                if (fil.NumAtCard != null)
+                {
+                    numAtCardFiltro = "AND UPPER(T0.\"NumAtCard\") LIKE UPPER('%" + fil.NumAtCard + "%') ";
+                }
+                if (fil.U_COB_CORDOC != null) { filtros += " and UPPER(T0.\"U_COB_CORDOC\") like UPPER('%" + fil.U_COB_CORDOC + "%')"; }
+                if (fil.DocTotal > 0.00M) { filtros += " and T0.\"DocTotal\" like '%" + fil.DocTotal + "%'"; }
+                if (fil.U_SYP_STATUS != null) { filtros += " and UPPER(T0.\"U_SYP_STATUS\")=UPPER('" + fil.U_SYP_STATUS + "')"; }
+                if (fil.U_COB_LUGAREN != null) { filtros += " and T0.\"U_COB_LUGAREN\"='" + fil.U_COB_LUGAREN + "'"; }
             }
 
-            string query = "select top 50 \"DocEntry\",\"DocNum\",\"CANCELED\",\"DocDate\",\"CardName\",\"NumAtCard\",\"DocTotal\"" +
-                                    ",\"U_SYP_STATUS\",\"U_COB_LUGAREN\",\"U_COB_TIPODOC\",\"U_COB_SERIE\",\"U_COB_CORDOC\", \"U_BPP_FECINITRA\"  from " + uti.schemaHana + "OINV " +
-                                    "where \"DocEntry\">0 and \"Series\" in(select \"Series\" from " + uti.schemaHana + "nnm1 where \"SeriesName\" like 'FV%')" +
-            filtros + " order by 1 desc";
-
+            string query = "SELECT TOP 50 " +
+                "T0.\"DocEntry\", T0.\"DocNum\", T0.\"CANCELED\", T0.\"DocDate\", T0.\"CardName\", T0.\"NumAtCard\", T0.\"DocTotal\", " +
+                "T0.\"U_SYP_STATUS\", T0.\"U_COB_LUGAREN\", T0.\"U_COB_TIPODOC\", T0.\"U_COB_SERIE\", T0.\"U_COB_CORDOC\", T0.\"U_BPP_FECINITRA\" " +
+                "FROM " + uti.schemaHana + "OINV T0 " +
+                "WHERE T0.\"DocEntry\" > 0 " +
+                "AND T0.\"Series\" IN (SELECT \"Series\" FROM " + uti.schemaHana + "nnm1 WHERE \"SeriesName\" LIKE 'FV%') " +
+                numAtCardFiltro +
+                "AND NOT EXISTS ( " +
+                    "SELECT 1 FROM " + uti.schemaHana + "RIN1 R1 " +
+                    "WHERE R1.\"BaseEntry\" = T0.\"DocEntry\" AND R1.\"BaseType\" = '13' " +
+                ") " +
+                filtros +
+                " ORDER BY T0.\"DocEntry\" DESC";
 
             try
             {
