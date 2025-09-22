@@ -2450,6 +2450,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                                         "(Select top 1 Operario from vt.CC_ORTV where DocEntry=T0.DocEntry and Operacion='CANCELAR' order by FechaOperacion,HoraOperacion desc ) AS 'OP CANCELADO', " +
                                         "CONVERT(varchar, T0.TiempoEntrega , 103) AS 'FECHA ESTIMADA ENTREGA', CONVERT(varchar, T0.TiempoEntrega , 8) AS 'HORA ESTIMADA ENTREGA', T1.LugarDeEntrega AS 'LUGAR ENTREGA', T0.NroMesa AS 'NRO MESA', " +
                                         "(SELECT STUFF((SELECT ', ' + cast(t1.AlmacenSalida as varchar(max)) FROM vt.RTV2 t1 INNER JOIN  vt.ORTV x ON x.DocEntry = t1.DocEntry WHERE t1.DocEntry = t0.DocEntry FOR XML PATH('')), 1,2, '')) AS 'ALMACEN SALIDA',T0.Comentario," +
+                                        "(SELECT TOP 1 C.Comentario FROM vt.ComentarioFac C WHERE C.DocEntry = T0.DocEntry ORDER BY C.DocEntry DESC) AS 'COMENTARIO FAC', "+
                                         "T0.Zona, T0.DirDestino, PesadoPedido.PesoTotal, CONVERT (varchar, T0.FechaPago, 103) AS 'FechaPagoVenta', CONVERT (varchar, T0.HoraPago, 108) AS 'HoraPagoVenta' " +
                                         //"(Select top 1 CONVERT(varchar, FechaOperacion , 103) from vt.CC_ORTV where DocEntry=T0.DocEntry and Operacion='PREENVIAR' order by FechaOperacion,HoraOperacion desc ), " +
                                         //"(Select top 1 CONVERT(varchar, FechaOperacion , 103) from vt.CC_ORTV where DocEntry=T0.DocEntry and Operacion='ENVIAR' order by FechaOperacion,HoraOperacion desc ) " +
@@ -2531,11 +2532,12 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                             if (!dr.IsDBNull(57)) { rpt.NroMesa = dr.GetInt32(57); }
                             if (!dr.IsDBNull(58)) { rpt.AlmacenSalida = dr.GetString(58); }
                             if (!dr.IsDBNull(59)) { rpt.Comentario = dr.GetString(59); }
-                            if (!dr.IsDBNull(60)) { rpt.ZonaVenta = dr.GetString(60); }
-                            if (!dr.IsDBNull(61)) { rpt.DirDestinoVenta = dr.GetString(61); }
-                            if (!dr.IsDBNull(62)) { rpt.PesoTotalPedido = dr.GetDecimal(62); }
-                            if (!dr.IsDBNull(63)) { rpt.FechaPagoTicket = dr.GetString(63); }
-                            if (!dr.IsDBNull(64)) { rpt.HoraPagoTicket = dr.GetString(64); }
+                            if (!dr.IsDBNull(60)) { rpt.ComentarioFac = dr.GetString(60); }
+                            if (!dr.IsDBNull(61)) { rpt.ZonaVenta = dr.GetString(61); }
+                            if (!dr.IsDBNull(62)) { rpt.DirDestinoVenta = dr.GetString(62); }
+                            if (!dr.IsDBNull(63)) { rpt.PesoTotalPedido = dr.GetDecimal(63); }
+                            if (!dr.IsDBNull(64)) { rpt.FechaPagoTicket = dr.GetString(64); }
+                            if (!dr.IsDBNull(65)) { rpt.HoraPagoTicket = dr.GetString(65); }
                             lista.Add(rpt);
                         }
                     }
