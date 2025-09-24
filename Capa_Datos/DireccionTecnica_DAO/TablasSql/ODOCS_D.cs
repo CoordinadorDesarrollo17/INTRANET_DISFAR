@@ -392,110 +392,104 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
             using (SqlConnection cn = new SqlConnection(uti.CadSql3))
             {
                 cn.Open();
-                using (SqlTransaction transaction = cn.BeginTransaction())
+                try
                 {
-                    try
+                    using (SqlCommand cmd = new SqlCommand("sp_GestionarDocumentos", cn))
                     {
-                        using (SqlCommand cmd = new SqlCommand("sp_GestionarDocumentos", cn, transaction))
+                        cmd.CommandType = CommandType.StoredProcedure;
+
+                        cmd.Parameters.AddWithValue("@Operacion", "REGISTRAR");
+                        cmd.Parameters.AddWithValue("@TipoDocumento", datos.TipoDocumento);
+                        cmd.Parameters.AddWithValue("@DocEntry", datos.DocEntry);
+                        cmd.Parameters.AddWithValue("@DocNum", datos.DocNum);
+                        cmd.Parameters.AddWithValue("@CardCode", datos.CardCode);
+                        cmd.Parameters.AddWithValue("@CardName", datos.CardName);
+                        cmd.Parameters.AddWithValue("@Guia", datos.Guia);
+                        cmd.Parameters.AddWithValue("@ComprobanteVinculado", datos.ComprobanteVinculado);
+                        cmd.Parameters.AddWithValue("@FechaContabilizacion", (object)datos.FechaContabilizacion ?? DBNull.Value);
+                        cmd.Parameters.AddWithValue("@FechaInicioTraslado", (object)datos.FechaInicioTraslado ?? DBNull.Value);
+                        cmd.Parameters.AddWithValue("@Estado", "Pendiente");
+
+                        // Para [CC_ODOCS]
+                        cmd.Parameters.AddWithValue("@UsuarioRegistro", datos.UsuarioRegistro);
+                        cmd.Parameters.AddWithValue("@TipoOperacion", "REGISTRAR");
+
+                        // Agregar parámetro de salida para Id
+                        SqlParameter outputId = new SqlParameter("@Id", SqlDbType.Int)
                         {
-                            cmd.CommandType = CommandType.StoredProcedure;
+                            Direction = ParameterDirection.Output
+                        };
+                        cmd.Parameters.Add(outputId);
 
-                            cmd.Parameters.AddWithValue("@Operacion", "REGISTRAR");
-                            cmd.Parameters.AddWithValue("@TipoDocumento", datos.TipoDocumento);
-                            cmd.Parameters.AddWithValue("@DocEntry", datos.DocEntry);
-                            cmd.Parameters.AddWithValue("@DocNum", datos.DocNum);
-                            cmd.Parameters.AddWithValue("@CardCode", datos.CardCode);
-                            cmd.Parameters.AddWithValue("@CardName", datos.CardName);
-                            cmd.Parameters.AddWithValue("@Guia", datos.Guia);
-                            cmd.Parameters.AddWithValue("@ComprobanteVinculado", datos.ComprobanteVinculado);
-                            cmd.Parameters.AddWithValue("@FechaContabilizacion", (object)datos.FechaContabilizacion ?? DBNull.Value);
-                            cmd.Parameters.AddWithValue("@FechaInicioTraslado", (object)datos.FechaInicioTraslado ?? DBNull.Value);
-                            cmd.Parameters.AddWithValue("@Estado", "Pendiente");
+                        // Tabla de detalles
+                        DataTable dtDetalle = ConvertirADatatable(datos.Detalle);
+                        SqlParameter detallesParam = cmd.Parameters.AddWithValue("@Detalle", dtDetalle);
+                        detallesParam.SqlDbType = SqlDbType.Structured;
+                        detallesParam.TypeName = "dbo.DOCS1_Type";
 
-                            // Para [CC_ODOCS]
-                            cmd.Parameters.AddWithValue("@UsuarioRegistro", datos.UsuarioRegistro);
-                            cmd.Parameters.AddWithValue("@TipoOperacion", "REGISTRAR");
+                        cmd.ExecuteNonQuery();
 
-                            // Agregar parámetro de salida para Id
-                            SqlParameter outputId = new SqlParameter("@Id", SqlDbType.Int)
+                        if (outputId.Value != DBNull.Value)
+                            id = (int)outputId.Value;
+
+                        // Proceso para cargar archivo
+                        string baseRuta = uti.directorioDocumentosRegulatorios;
+
+                        foreach (var item in datos.Detalle)
+                        {
+                            if (item.ArchivoET == null && item.ArchivoProtocolo == null && item.ArchivoRS == null)
+                                continue;
+
+                            string rutaDirectorio = Path.Combine(baseRuta, "Documentos", item.ItemCode);
+
+                            if (!Directory.Exists(rutaDirectorio))
+                                Directory.CreateDirectory(rutaDirectorio);
+
+                            if (item.ArchivoET != null)
                             {
-                                Direction = ParameterDirection.Output
-                            };
-                            cmd.Parameters.Add(outputId);
-
-                            // Tabla de detalles
-                            DataTable dtDetalle = ConvertirADatatable(datos.Detalle);
-                            SqlParameter detallesParam = cmd.Parameters.AddWithValue("@Detalle", dtDetalle);
-                            detallesParam.SqlDbType = SqlDbType.Structured;
-                            detallesParam.TypeName = "dbo.DOCS1_Type";
-
-                            cmd.ExecuteNonQuery();
-
-                            if (outputId.Value != DBNull.Value)
-                                id = (int)outputId.Value;
-
-                            // Proceso para cargar archivo
-                            string baseRuta = uti.directorioDocumentosRegulatorios;
-
-                            foreach (var item in datos.Detalle)
-                            {
-                                if (item.ArchivoET == null && item.ArchivoProtocolo == null && item.ArchivoRS == null)
+                                string extension = Path.GetExtension(item.ArchivoET.FileName)?.ToLower();
+                                if (extension != ".pdf")
                                     continue;
 
-                                string rutaDirectorio = Path.Combine(baseRuta, "Documentos", item.ItemCode);
-
-                                if (!Directory.Exists(rutaDirectorio))
-                                    Directory.CreateDirectory(rutaDirectorio);
-
-                                if (item.ArchivoET != null)
-                                {
-                                    string extension = Path.GetExtension(item.ArchivoET.FileName)?.ToLower();
-                                    if (extension != ".pdf")
-                                        continue;
-
-                                    string rutaCompleta = Path.Combine(rutaDirectorio, "ET" + extension);
-                                    item.ArchivoET.SaveAs(rutaCompleta);
-                                }
-
-                                if (item.ArchivoProtocolo != null)
-                                {
-                                    string extension = Path.GetExtension(item.ArchivoProtocolo.FileName)?.ToLower();
-                                    if (extension != ".pdf")
-                                        continue;
-
-                                    string rutaCompleta = Path.Combine(rutaDirectorio, item.Lote + extension);
-                                    item.ArchivoProtocolo.SaveAs(rutaCompleta);
-                                }
-
-                                if (item.ArchivoRS != null)
-                                {
-                                    string extension = Path.GetExtension(item.ArchivoRS.FileName)?.ToLower();
-                                    if (extension != ".pdf")
-                                        continue;
-
-                                    string rutaDirectorioRS = Path.Combine(baseRuta, "Documentos", "RegistrosSanitarios");
-                                    string rutaCompleta = Path.Combine(rutaDirectorioRS, item.RegistroSanitario + extension);
-                                    item.ArchivoRS.SaveAs(rutaCompleta);
-                                }
+                                string rutaCompleta = Path.Combine(rutaDirectorio, "ET" + extension);
+                                item.ArchivoET.SaveAs(rutaCompleta);
                             }
 
+                            if (item.ArchivoProtocolo != null)
+                            {
+                                string extension = Path.GetExtension(item.ArchivoProtocolo.FileName)?.ToLower();
+                                if (extension != ".pdf")
+                                    continue;
+
+                                string rutaCompleta = Path.Combine(rutaDirectorio, item.Lote + extension);
+                                item.ArchivoProtocolo.SaveAs(rutaCompleta);
+                            }
+
+                            if (item.ArchivoRS != null)
+                            {
+                                string extension = Path.GetExtension(item.ArchivoRS.FileName)?.ToLower();
+                                if (extension != ".pdf")
+                                    continue;
+
+                                string rutaDirectorioRS = Path.Combine(baseRuta, "Documentos", "RegistrosSanitarios");
+                                string rutaCompleta = Path.Combine(rutaDirectorioRS, item.RegistroSanitario + extension);
+                                item.ArchivoRS.SaveAs(rutaCompleta);
+                            }
                         }
-                        transaction.Commit();
-
-                        result.Titulo = "Acción completada";
-                        result.Mensajes.Add("Documento registrado correctamente.");
-                        result.Icono = "success";
                     }
-                    catch (Exception ex)
-                    {
-                        transaction.Rollback();
-                        LogHelper.RegistrarError(ex, "Error inesperado en ODOCS_D - RegistrarDocumento");
 
-                        result.Titulo = "Error";
-                        result.Mensajes.Add("Ocurrió un error al registrar el documento.");
-                        result.Mensajes.Add("Por favor, comuníquese con el área de Sistemas para más información.");
-                        result.Icono = "error";
-                    }
+                    result.Titulo = "Acción completada";
+                    result.Mensajes.Add("Documento registrado correctamente.");
+                    result.Icono = "success";
+                }
+                catch (Exception ex)
+                {
+                    LogHelper.RegistrarError(ex, "Error inesperado en ODOCS_D - RegistrarDocumento");
+
+                    result.Titulo = "Error";
+                    result.Mensajes.Add("Ocurrió un error al registrar el documento.");
+                    result.Mensajes.Add("Por favor, comuníquese con el área de Sistemas para más información.");
+                    result.Icono = "error";
                 }
             }
 
