@@ -75,9 +75,9 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.TablasSql
         {
             return _datosTransferencia.DeleteDetalleItemTransferenciaReserva(ids, cn);
         }
-        public Helper_E AtenderReserva(int detalleId, SqlConnection cn)
+        public Helper_E AtenderReserva(int detalleId, SqlConnection cn, string operarioRegistra)
         {
-            return _datosTransferencia.AtenderReserva(detalleId, cn);
+            return _datosTransferencia.AtenderReserva(detalleId, cn, operarioRegistra);
         }
         public List<DetalleTransferenciaReserva_E> ListarDetalles()
         {
