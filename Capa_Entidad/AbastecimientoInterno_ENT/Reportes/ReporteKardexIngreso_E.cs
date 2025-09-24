@@ -5,6 +5,7 @@
         public int DocNumTransferencia {  get; set; }
         public string Proceso {  get; set; }
         public string FechaIngreso {  get; set; }
+        public string HoradeNumTransferencia { get; set; }
         public string HoraIngreso {  get; set; }
         public string OperarioIngreso {  get; set; }
         public string SKU {  get; set; }

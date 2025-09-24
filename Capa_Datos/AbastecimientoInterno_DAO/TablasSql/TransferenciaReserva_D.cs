@@ -256,7 +256,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
             return new Helper_E { Mensajes = new List<string> { mensaje }, Icono = icono };
         }
         
-        public Helper_E AtenderReserva(int detalleId, SqlConnection cn)
+        public Helper_E AtenderReserva(int detalleId, SqlConnection cn, string operarioRegistra)
         {
             string mensaje, icono;
 
@@ -271,6 +271,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
 
                     cmd.Parameters.AddWithValue("@TipoMantenimiento", "ATD_RESERVA");
                     cmd.Parameters.AddWithValue("@DetalleId", detalleId);
+                    cmd.Parameters.AddWithValue("@OperarioRegistra", operarioRegistra);
                     SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
                     {
                         Direction = ParameterDirection.Output
