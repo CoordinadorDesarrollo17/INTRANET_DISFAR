@@ -71,7 +71,7 @@
 
                 @if (Model.LugarDestino == "Agencia" && !string.IsNullOrWhiteSpace(Model.Agencia))
                 {
-                    @Model.LugarDestino  <span> - </span>  @Model.Agencia
+                    @Model.LugarDestino <span> - </span> @Model.Agencia
                 }
                 else
                 {
@@ -79,6 +79,22 @@
                 }
             </td>
         </tr>
+        @if (Model.LugarDestino == "Agencia")
+        {
+            <tr style="background:@fondo">
+                <td><strong>Fill: </strong></td>
+                <td>
+                    @if (Model.isFill == 1)
+                    {
+                        <span style="color:red;font-weight:bold;">AGENCIA SOLICITA FILL OBLIGATORIO</span>
+                    }
+                    else
+                    {
+                        <span style="color:green;font-weight:bold;">SIN RESTRICCIONES</span>
+                    }
+                </td>
+            </tr>
+        }
         <tr>
             <td><strong>@Html.DisplayNameFor(model => model.Vendedor): </strong></td>
             <td>@Html.DisplayFor(model => model.Vendedor)</td>
@@ -101,161 +117,161 @@
                 }
 
             </td>
-                </tr>
-                <tr>
-                    <td><strong>Sacador:</strong></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td><strong>Chequeador: </strong></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td><strong>Encajador: </strong></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td><strong>TiempoChequeo(f/h): </strong></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td><strong># Mesa: </strong></td>
-                    <td></td>
-                </tr>
-                @if (Model.LugarDestino != null && !(Model.LugarDestino.Equals("Agencia") || Model.LugarDestino.Equals("Agencia Courier") || Model.LugarDestino.Equals("Domicilio")))
-                {
-                    <tr>
-                        <td><strong>Nombre: <br />Doc. Ident.: <br />Firma: </strong></td>
-                        <td></td>
-                    </tr>
-                }
+        </tr>
+        <tr>
+            <td><strong>Sacador:</strong></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td><strong>Chequeador: </strong></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td><strong>Encajador: </strong></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td><strong>TiempoChequeo(f/h): </strong></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td><strong># Mesa: </strong></td>
+            <td></td>
+        </tr>
+        @if (Model.LugarDestino != null && !(Model.LugarDestino.Equals("Agencia") || Model.LugarDestino.Equals("Agencia Courier") || Model.LugarDestino.Equals("Domicilio")))
+        {
+            <tr>
+                <td><strong>Nombre: <br />Doc. Ident.: <br />Firma: </strong></td>
+                <td></td>
+            </tr>
+        }
 
-                @if (Model.LugarDestino != "Centro" && Model.Det3 != null && Model.Det3.Count >= 2)
+        @if (Model.LugarDestino != "Centro" && Model.Det3 != null && Model.Det3.Count >= 2)
+        {
+            if (!string.IsNullOrWhiteSpace(Model.Det3[1].Calle) && Model.Det3[1].Calle.Length > 0)
+            {
+                if (Model.LugarDestino == "Agencia" || Model.LugarDestino == "Agencia Courier")
                 {
-                    if (!string.IsNullOrWhiteSpace(Model.Det3[1].Calle) && Model.Det3[1].Calle.Length > 0)
+                    if (Model.EnvioAgencia == "Oficina de agencia")
                     {
-                        if (Model.LugarDestino == "Agencia" || Model.LugarDestino == "Agencia Courier")
-                        {
-                            if (Model.EnvioAgencia == "Oficina de agencia")
-                            {
-                                <tr>
-                                    <td colspan="2">
-                                        @Model.Det3[1].Distrito-@Model.Det3[1].Provincia-@Model.Det3[1].Departamento
-                                        @if (Model.Referencia != null)
-                                        {<b>REF.: @Model.Referencia.ToUpper()</b>}
-                                        else if (Model.Det3[1].Calle != null)
-                                        { @Model.Det3[1].Calle.ToUpper()}
-                                    </td>
-                                </tr>
-                            }
-                            else
-                            {
-                                <tr>
-                                    <td colspan="2">
-                                        @Model.Det3[1].Calle  @if (Model.Referencia != null)
-                                        {<b>REF.:@Model.Referencia.ToUpper()</b>}
-                                    </td>
-                                </tr>
-                            }
-                        }
-                        else
-                        {
-
-                            if (Model.EnvioAgencia == "Oficina de agencia")
-                            {
-                                if (Model.Det3 != null && Model.Det3.Count > 0)
-                                {
-                                    <tr>
-                                        <td colspan="2">@Model.Det3[0].Distrito - @Model.Det3[0].Provincia - @Model.Det3[0].Departamento </td>
-                                    </tr>
-                                }
-                            }
-                            else
-                            {
-                                if (Model.Det3 != null && Model.Det3.Count > 1)
-                                {
-                                    <tr>
-                                        <td colspan="2">@Model.Det3[1].Distrito - @Model.Det3[1].Provincia - @Model.Det3[1].Departamento </td>
-                                    </tr>
-                                }
-                            }
-                        }
+                        <tr>
+                            <td colspan="2">
+                                @Model.Det3[1].Distrito-@Model.Det3[1].Provincia-@Model.Det3[1].Departamento
+                                @if (Model.Referencia != null)
+                                {<b>REF.: @Model.Referencia.ToUpper()</b>}
+                            else if (Model.Det3[1].Calle != null)
+                            { @Model.Det3[1].Calle.ToUpper()}
+                            </td>
+                        </tr>
                     }
-
-                }
-                else if (!string.IsNullOrWhiteSpace(Model.DirDestino) && Model.DirDestino.Length > 0)
-                {
-                    if (Model.LugarDestino == "Agencia" || Model.LugarDestino == "Agencia Courier")
+                    else
                     {
-                        if (Model.EnvioAgencia == "Oficina de agencia")
-                        {
-                            if (Model.Det3 != null && Model.Det3.Count > 0)
-                            {
-                                <tr>
-                                    <td colspan="2">
-                                        @Model.Det3[0].Distrito - @Model.Det3[0].Provincia - @Model.Det3[0].Departamento
-                                        @if (Model.Referencia != null)
-                                        {<b>REF.: @Model.Referencia.ToUpper()</b>}
-                                    </td>
-                                </tr>
-                            }
+                        <tr>
+                            <td colspan="2">
+                                @Model.Det3[1].Calle  @if (Model.Referencia != null)
+                                {<b>REF.:@Model.Referencia.ToUpper()</b>}
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
 
-                        }
-                        else
+                    if (Model.EnvioAgencia == "Oficina de agencia")
+                    {
+                        if (Model.Det3 != null && Model.Det3.Count > 0)
                         {
                             <tr>
-                                <td colspan="2">
-                                    @Model.DirDestino @if (Model.Referencia != null)
-                                    {<b>REF.: @Model.Referencia.ToUpper()</b>}
-                                </td>
+                                <td colspan="2">@Model.Det3[0].Distrito - @Model.Det3[0].Provincia - @Model.Det3[0].Departamento </td>
                             </tr>
                         }
                     }
                     else
                     {
-                        if (Model.EnvioAgencia == "Oficina de agencia")
-                        {
-                            if (Model.Det3 != null && Model.Det3.Count > 0)
-                            {
-                                <tr>
-                                    <td colspan="2">@Model.Det3[0].Distrito-@Model.Det3[0].Provincia-@Model.Det3[0].Departamento</td>
-                                </tr>
-                            }
-
-                        }
-                        else
+                        if (Model.Det3 != null && Model.Det3.Count > 1)
                         {
                             <tr>
-                                <td colspan="2">@Model.DirDestino</td>
+                                <td colspan="2">@Model.Det3[1].Distrito - @Model.Det3[1].Provincia - @Model.Det3[1].Departamento </td>
                             </tr>
                         }
-
                     }
                 }
+            }
 
-                <tr>
-                    <td><strong>@Html.DisplayNameFor(model => model.Comentario): </strong></td>
-                    <td width="50%">@Html.DisplayFor(model => model.Comentario)</td>
-                </tr>
-
-                @if (Model.Det5 != null && Model.Det5.Count >= 1)
+        }
+        else if (!string.IsNullOrWhiteSpace(Model.DirDestino) && Model.DirDestino.Length > 0)
+        {
+            if (Model.LugarDestino == "Agencia" || Model.LugarDestino == "Agencia Courier")
+            {
+                if (Model.EnvioAgencia == "Oficina de agencia")
                 {
-                    if (Model.Det5[0].IdReg > 0)
+                    if (Model.Det3 != null && Model.Det3.Count > 0)
                     {
-                        string fondoReg = "";
-                        if (Model.Det5[0].RegTipo.ToLower() == "a") { fondoReg = "#C8E3F3"; }
-                        else if (Model.Det5[0].RegTipo.ToLower() == "b") { fondoReg = "#F2F526"; }
-                        else if (Model.Det5[0].RegTipo.ToLower() == "c") { fondoReg = "#F1EFDD"; }
-                        else if (Model.Det5[0].RegTipo.ToLower() == "d") { fondoReg = "#D6B581"; }
-                        else if (Model.Det5[0].RegTipo.ToLower() == "e") { fondoReg = "skyblue"; }
-                        <tr style="background:@fondoReg">
-                            <td>
-                                <strong>Regalo</strong>
-                            <td>@(Math.Round(Model.Det5[0].RegCant, 0) + " " + Model.Det5[0].RegCate + " " + Model.Det5[0].RegTipo)</td>
+                        <tr>
+                            <td colspan="2">
+                                @Model.Det3[0].Distrito - @Model.Det3[0].Provincia - @Model.Det3[0].Departamento
+                                @if (Model.Referencia != null)
+                                {<b>REF.: @Model.Referencia.ToUpper()</b>}
+                            </td>
                         </tr>
                     }
+
                 }
-            </table>
+                else
+                {
+                    <tr>
+                        <td colspan="2">
+                            @Model.DirDestino @if (Model.Referencia != null)
+                            {<b>REF.: @Model.Referencia.ToUpper()</b>}
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                if (Model.EnvioAgencia == "Oficina de agencia")
+                {
+                    if (Model.Det3 != null && Model.Det3.Count > 0)
+                    {
+                        <tr>
+                            <td colspan="2">@Model.Det3[0].Distrito-@Model.Det3[0].Provincia-@Model.Det3[0].Departamento</td>
+                        </tr>
+                    }
+
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="2">@Model.DirDestino</td>
+                    </tr>
+                }
+
+            }
+        }
+
+        <tr>
+            <td><strong>@Html.DisplayNameFor(model => model.Comentario): </strong></td>
+            <td width="50%">@Html.DisplayFor(model => model.Comentario)</td>
+        </tr>
+
+        @if (Model.Det5 != null && Model.Det5.Count >= 1)
+        {
+            if (Model.Det5[0].IdReg > 0)
+            {
+                string fondoReg = "";
+                if (Model.Det5[0].RegTipo.ToLower() == "a") { fondoReg = "#C8E3F3"; }
+                else if (Model.Det5[0].RegTipo.ToLower() == "b") { fondoReg = "#F2F526"; }
+                else if (Model.Det5[0].RegTipo.ToLower() == "c") { fondoReg = "#F1EFDD"; }
+                else if (Model.Det5[0].RegTipo.ToLower() == "d") { fondoReg = "#D6B581"; }
+                else if (Model.Det5[0].RegTipo.ToLower() == "e") { fondoReg = "skyblue"; }
+                <tr style="background:@fondoReg">
+                    <td>
+                        <strong>Regalo</strong>
+                    <td>@(Math.Round(Model.Det5[0].RegCant, 0) + " " + Model.Det5[0].RegCate + " " + Model.Det5[0].RegTipo)</td>
+                </tr>
+            }
+        }
+    </table>
 
 </body>
 </html>
