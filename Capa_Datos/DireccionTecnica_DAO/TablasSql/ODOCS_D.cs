@@ -587,7 +587,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
         private DataTable ConvertirADatatable(List<DOCS1_E> detalles)
         {
             DataTable table = new DataTable();
-            table.Columns.Add("ODCOSId", typeof(int));
+            table.Columns.Add("ODOCSId", typeof(int));
             table.Columns.Add("ItemCode", typeof(string));
             table.Columns.Add("ItemName", typeof(string));
             table.Columns.Add("Lote", typeof(string));
