@@ -68,6 +68,10 @@ namespace Capa_Entidad.Ventas_ENT.TablasSql
         public string Presupuesto { get; set; }
         public string Guias { get; set; }
 
+        /********** Fill **********/
+        public int isFill { get; set; }
+
+
         /********** AnularTicketVenta **********/
         public string OpAnulacion { get; set; }
         public string FechaAnulacion { get; set; }
