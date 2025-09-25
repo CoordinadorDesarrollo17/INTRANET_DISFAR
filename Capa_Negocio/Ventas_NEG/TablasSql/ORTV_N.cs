@@ -965,5 +965,9 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         {
             return tkD.LeerComentario(docEntry);
         }
+        public int AgenciaFill(string Agencia)
+        {
+            return tkD.AgenciaFill(Agencia.ToUpper());
+        }
     }
 }

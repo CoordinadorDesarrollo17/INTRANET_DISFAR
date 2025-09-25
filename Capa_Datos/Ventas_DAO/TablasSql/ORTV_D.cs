@@ -3799,5 +3799,34 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
             return comentarioFac;
         }
 
+        public int AgenciaFill(string Agencia)
+        {
+            int resultado = 0;
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(uti.cadSql))
+                {
+                    cn.Open();
+                    string query = "SELECT fill FROM dbo.AgenciaFill WHERE UPPER(agencia) = TRIM(UPPER(@Agencia))";
+                    using (SqlCommand cmd = new SqlCommand(query, cn))
+                    {
+                        cmd.Parameters.AddWithValue("@Agencia", Agencia);
+                        object valor = cmd.ExecuteScalar();
+                        if (valor != null && valor != DBNull.Value)
+                        {
+                            resultado = Convert.ToInt32(valor);
+                        }
+                    }
+                    cn.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                // Puedes registrar el error si tienes un logger
+                resultado = -1; // -1 indica error
+            }
+            return resultado;
+        }
+
     }
 }
