@@ -96,9 +96,11 @@
                         <th class="text-center border text-dark font-weight-bold">UBICACIÓN</th>
                         <th class="text-center border text-dark font-weight-bold">SKU</th>
                         <th class="text-center border text-dark font-weight-bold">DESCRIPCIÓN</th>
+                        <th class="text-center border text-dark font-weight-bold">CANT.</th>
+                        <th class="text-center border text-dark font-weight-bold">VALID.</th>
                         <th class="text-center border text-dark font-weight-bold">LOTE</th>
                         <th class="text-center border text-dark font-weight-bold">F. VCTO</th>
-                        <th class="text-center border text-dark font-weight-bold">CANT.</th>
+
                         <th class="text-center border text-dark font-weight-bold">OBS.</th>
                     </tr>
                 </thead>
@@ -128,9 +130,10 @@
                                     </td>
                                     <td class="p-1 border">@item.Codigo</td>
                                     <td class="p-1 border">@item.Producto</td>
-                                    <td class="text-center p-1 border">@item2.Lote</td>
-                                    <td class="text-center p-1 border">@item2.FechaVenc</td>
-                                    <td class="text-center p-1 border">@item2.UniMedidVend @item2.NumUnidVend</td>
+                                    <td class="text-center p-1 border font-weight-bold">@item2.UniMedidVend @item2.NumUnidVend</td>
+                                    <td class="text-center p-1 border"></td>
+                                    <td class="text-center p-1 border font-weight-bold">@item2.Lote</td>
+                                    <td class="text-center p-1 border font">@item2.FechaVenc</td>
                                     <td class="text-center p-1 border">
                                         @if (cantidadFaltante > 0 && !listaCodigos.Contains(item.Codigo))
                                         {

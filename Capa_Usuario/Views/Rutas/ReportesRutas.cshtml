@@ -28,6 +28,7 @@
         float: left;
         width: 75%;
     }
+
 </style>
 <script>
     function cargarFormulario(info) {
@@ -65,10 +66,11 @@
         <section>
             <div class="section1">
                 <ul>
-                    <li id="infoHojasRuta"><button class="btn btn-warning m-2" onclick="cargarFormulario('infoHojasRuta')"><strong>Análisis Hojas de Ruta</strong></button></li>
+                    <li id="infoHojasRuta" ><button class="btn btn-warning m-2" onclick="cargarFormulario('infoHojasRuta')"><strong>Análisis Hojas de Ruta-Ventas</strong></button></li>
                     <li id="infoTicketsPesaje"><button class="btn btn-warning m-2" onclick="cargarFormulario('infoTicketsPesaje')"><strong>Análisis Pesaje</strong></button></li>
-                    <li id="infoHojasCargo"><button class="btn btn-warning m-2" onclick="cargarFormulario('infoHojasCargo')"><strong>Análisis Hojas de Cargo</strong></button></li>
-                    <li id="infoHojasCargo"><button class="btn btn-warning m-2" onclick="cargarFormulario('infoHojasCargoDetallado')"><strong>Análisis Hojas de Cargo / Detallado</strong></button></li>
+                    <li id="infoHojasCargo" style="display:none;"><button class="btn btn-warning m-2" onclick="cargarFormulario('infoHojasCargo')"><strong>Análisis Hojas de Cargo</strong></button></li>
+                    <li id="infoHojasCargo" style="display:none;"><button class="btn btn-warning m-2" onclick="cargarFormulario('infoHojasCargoDetallado')"><strong>Análisis Hojas de Cargo / Detallado</strong></button></li>
+                    <li id="infoHojasRutaT"><button class="btn btn-warning m-2" onclick="cargarFormulario('infoHojasRutaT')"><strong>Análisis Hojas de Ruta-Transferencias</strong></button></li>
                 </ul>
             </div>
             <div id="Formulario" class="section2">

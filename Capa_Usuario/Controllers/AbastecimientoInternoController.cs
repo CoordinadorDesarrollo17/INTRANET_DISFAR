@@ -12,6 +12,7 @@ using Capa_Negocio.DireccionTecnica_NEG.TablasSql;
 using Capa_Negocio.Seguridad_NEG.TablasSql;
 using Capa_Usuario.Helpers;
 using dotless.Core.Parser.Tree;
+using Microsoft.ReportingServices.ReportProcessing.ReportObjectModel;
 using OfficeOpenXml;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
@@ -294,7 +295,7 @@ namespace Capa_Usuario.Controllers
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                int columnas = 4;
+                int columnas = 5;
                 var listado = _ubicacionesN.ListarUbicaciones(new Ubicaciones_E { Almacen = "PICKING" });
                 var listaULM = _ubicacionesLotesN.ListarUbicaciones(new UbicacionesLotes_E { Almacen = "PICKING" });
                 var codigoU = listaULM
@@ -321,7 +322,8 @@ namespace Capa_Usuario.Controllers
                                                     CodigoUbicacion = grupo.CodigoUbicacion,
                                                     CodigoArticulo = ulm.ItemCode ?? "",
                                                     Descripcion = ulm.ItemName ?? "",
-                                                    Lote = ulm.BatchNum ?? ""
+                                                    Lote = ulm.BatchNum ?? "",
+                                                    StockMinAbastecimiento = ulm.StockMinAbastecimiento,
                                                 }))
                                                 .OrderByDescending(x => !string.IsNullOrEmpty(x.Lote))  // Primero los que tienen Lote
                                                 .ThenBy(x => x.CodigoUbicacion)   // Luego ordena alfabéticamente por CódigoUbicacion
@@ -336,6 +338,7 @@ namespace Capa_Usuario.Controllers
                         {
                             worksheet.Column(col).AutoFit();
                         }
+                        worksheet.Column(columnas).Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                         var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: nuevaLista.Count() + 1, toColumn: columnas), "ReporteUbicaciones_PICKING");
                         tabla.ShowHeader = true;
                         tabla.TableStyle = OfficeOpenXml.Table.TableStyles.Medium2;
@@ -2114,7 +2117,6 @@ namespace Capa_Usuario.Controllers
 
                 if (detalleRequerimiento.Id <= 0 || detalleRequerimiento.RequerimientoId <= 0 || string.IsNullOrEmpty(detalleRequerimiento.ItemCode) || string.IsNullOrEmpty(detalleRequerimiento.ItemName))
                     return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "Los datos enviados son inválidos." }, Icono = "error" });
-
                 try
                 {
                     Utilitarios uti = new Utilitarios();
@@ -2134,7 +2136,7 @@ namespace Capa_Usuario.Controllers
                             int cantidadGlobal = requerimientoPorSku.Sum(x => x.QuantityUnidadesCajas ?? 0);
 
                             // Actualizar a AtendidoReserva 1 solo la linea de detalle enviada
-                            var resultAtender = _requerimientosN.AtenderReserva(detalleRequerimiento.Id);
+                            var resultAtender = _requerimientosN.AtenderReserva(detalleRequerimiento.Id, operarioRegistra);
                             if (resultAtender.Icono.Equals("error"))
                                 return Json(new { Titulo = "No se pudo completar la acción", resultAtender.Mensajes, Icono = resultAtender.Icono });
 
@@ -2236,7 +2238,8 @@ namespace Capa_Usuario.Controllers
                         cn.Open();
 
                         // Actualizar AtendidoReserva=1
-                        var resultAtender = _transferenciaReservaN.AtenderReserva(detalleId, cn);
+                        string operarioRegistraT = $"{usuario.Nombres} {usuario.Apellidos}";
+                        var resultAtender = _transferenciaReservaN.AtenderReserva(detalleId, cn, operarioRegistraT);
                         if (resultAtender == null || !resultAtender.Icono.Equals("success"))
                             return Json(new { Titulo = "Error al atender reserva", resultAtender?.Mensajes, Icono = resultAtender?.Icono ?? "error" });
 
@@ -2367,8 +2370,8 @@ namespace Capa_Usuario.Controllers
                                     Icono = "error"
                                 });
                             }
-
-                            var resultAtender = _transferenciaReservaN.AtenderReserva(detalle.DetalleId, cn);
+                            string operarioRegistra = $"{usuario.Nombres} {usuario.Apellidos}";
+                            var resultAtender = _transferenciaReservaN.AtenderReserva(detalle.DetalleId, cn, operarioRegistra);
                             if (resultAtender == null || resultAtender.Icono != "success")
                             {
                                 return Json(new
@@ -2495,7 +2498,7 @@ namespace Capa_Usuario.Controllers
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                int columnas = 13;
+                int columnas = 14;
                 var lista = _reporteKardex.ListarKardexIngreso(fechaInicio, fechaFin);
 
                 if (lista != null && lista.Any())
@@ -2531,7 +2534,7 @@ namespace Capa_Usuario.Controllers
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                int columnas = 14;
+                int columnas = 19;
                 var lista = _reporteKardex.ListarKardexSalida(fechaInicio, fechaFin);
 
                 if (lista != null && lista.Any())
@@ -2878,9 +2881,9 @@ namespace Capa_Usuario.Controllers
                     using (SqlConnection cn = new SqlConnection(uti.cadSql2))
                     {
                         cn.Open();
-
+                        string operarioRegistra = $"{user.Nombres} {user.Apellidos}";
                         // 1. Atender Picking
-                        var resultAtender = _requerimientosN.AtenderPicking(id, cn);
+                        var resultAtender = _requerimientosN.AtenderPicking(id, cn, operarioRegistra);
                         if (resultAtender == null || !resultAtender.Icono.Equals("success"))
                             return Json(new { Titulo = "Error en la operación", resultAtender?.Mensajes, Icono = resultAtender?.Icono ?? "error" });
 
@@ -2910,6 +2913,76 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+
+        public ActionResult ExportarControlStockInternoPicking(int idOperation = 3306)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
+            {
+                return resultadoAcceso;
+            }
+            
+            // Llamar al negocio
+            var negocio = new ReporteStockPicking_N();
+            var lista = negocio.ControlStockInternoPicking();
+
+            if (lista == null || !lista.Any())
+            {
+                return Content("No hay datos para exportar");
+            }
+            var exportar = lista.Select(x => new
+            {
+                CodigoArticulo = x.ItemCode,
+                Descripcion = x.ItemName,
+                Clasificacion = x.Clasificacion,
+                StockActualPiezas = x.StockActualPiezas,
+                StockActualUnidades = Math.Truncate(x.StockActualUnidades * 100)/100,
+                StockPicking = Math.Truncate(x.StockPicking*100)/100,
+                StockMinAbastecimiento = x.StockMinAbastecimiento,
+                PorcentajeStock = (x.StockMinAbastecimiento > 0)
+                        ? (x.StockPicking / x.StockMinAbastecimiento) * 100
+                        : 0
+            }).ToList();
+            // Generar Excel
+            using (var paquete = new ExcelPackage())
+            {
+                var hoja = paquete.Workbook.Worksheets.Add("ControlStockPicking");
+
+                // Cargar datos
+                hoja.Cells["A1"].LoadFromCollection(exportar, PrintHeaders: true);
+
+                // Autoajustar columnas
+                int columnas = 8;
+                for (int col = 1; col <= columnas; col++)
+                {
+                    hoja.Column(col).AutoFit();
+                }
+                // Formato de 2 decimales
+                hoja.Column(5).Style.Numberformat.Format = "0.00";
+                hoja.Column(6).Style.Numberformat.Format = "0.00";
+                hoja.Cells["H2:H" + (exportar.Count + 1)].Style.Numberformat.Format = "0.00\"%\"";
+                // Formato de tabla
+                var tabla = hoja.Tables.Add(
+                    new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: lista.Count + 1, toColumn: columnas),
+                    "TablaControlStockPicking"
+                );
+                tabla.ShowHeader = true;
+                tabla.TableStyle = OfficeOpenXml.Table.TableStyles.Medium2;
+
+                // centrar StockPicking y StockMinAbastecimiento
+                var colStockPicking = hoja.Column(columnas - 1); // Ajustar si cambia el orden
+                colStockPicking.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+
+                var colStockMin = hoja.Column(columnas);
+                colStockMin.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+
+                //Devolver archivo
+                string contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                string fileName = "ControlStockInternoPicking.xlsx";
+                return File(paquete.GetAsByteArray(), contentType, fileName);
+            }
+        }
+
         public JsonResult ConsultarUbicacionesSkuPicking(string itemCode, int idOperation = 3701)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);

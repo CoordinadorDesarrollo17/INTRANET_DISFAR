@@ -313,6 +313,7 @@
     <Content Include="Content\img\logo-cobefar.png" />
     <Content Include="Content\img\logo-drogueria-cobefar.jpg" />
     <Content Include="Content\img\logo.png" />
+    <Content Include="Content\img\LogoFarmacovigilancia.jpg" />
     <Content Include="Content\img\video-presentacion-24-05-23.mp4" />
     <Content Include="Content\img\white-background-abstract.jpg" />
     <Content Include="Content\js\alertify.min.js" />
@@ -1047,6 +1048,7 @@
     <Content Include="Views\Shared\Transferencias\_ListadoTransferencias.cshtml" />
     <Content Include="Views\Shared\AbastecimientoInterno\_ListadoDetalleRequerimiento.cshtml" />
     <Content Include="Views\Shared\AbastecimientoInterno\_ListadoRequerimientos.cshtml" />
+    <Content Include="Views\Rutas\InfoHojasRutaT.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
