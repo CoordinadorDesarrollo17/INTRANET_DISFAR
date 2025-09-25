@@ -3807,7 +3807,7 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
                 using (SqlConnection cn = new SqlConnection(uti.cadSql))
                 {
                     cn.Open();
-                    string query = "SELECT fill FROM AgenciaFill WHERE UPPER(agencia) = UPPER(@Agencia)";
+                    string query = "SELECT fill FROM dbo.AgenciaFill WHERE UPPER(agencia) = TRIM(UPPER(@Agencia))";
                     using (SqlCommand cmd = new SqlCommand(query, cn))
                     {
                         cmd.Parameters.AddWithValue("@Agencia", Agencia);
