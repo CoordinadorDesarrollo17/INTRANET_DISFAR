@@ -3470,19 +3470,24 @@ namespace Capa_Usuario.Controllers
         public ActionResult PdfTacoComentarios(int DocEntry)
         {
             ORTV_E ticket = _ticketN.ObtenerDatosCompletosTicket(DocEntry);
+            var agenciaStr = ticket.Agencia ?? string.Empty;
+            int agenciaFill = _ticketN.AgenciaFill(agenciaStr);
+            if (agenciaFill < 0) agenciaFill = 0;
+
             List<CC_ORTV_E> ticketAbierto = ccORTV_N.ListarCC_ORTV(DocEntry, "REGISTRAR");
             // Si el ticket no está ABIERTO y en el control de cambios nunca hubo un movimiento
             if (ticket.Estado != "ABIERTO" && ticketAbierto[0].FechaOperacion == "")
             {
                 return RedirectToAction("ListadoTicketsRecepcion", new { DocNum = ticket.DocNum, Mensaje = "El ticket debe estar ABIERTO" });
             }
-            return new ActionAsPdf("TacoComentarios", new { DocEntry = DocEntry }) { FileName = "TacoComentario" + DocEntry + ".pdf", PageOrientation = Rotativa.Options.Orientation.Portrait, PageSize = Rotativa.Options.Size.A6 };
+            return new ActionAsPdf("TacoComentarios", new { DocEntry = DocEntry, agencia = agenciaFill }) { FileName = "TacoComentario" + DocEntry + ".pdf", PageOrientation = Rotativa.Options.Orientation.Portrait, PageSize = Rotativa.Options.Size.A6 };
         }
-        public ActionResult TacoComentarios(int DocEntry)
+        public ActionResult TacoComentarios(int DocEntry, int agencia)
         {
             try
             {
                 ORTV_E t = _ticketN.ObtenerDatosCompletosTicket(DocEntry);
+                t.isFill = agencia;
                 if (t.TiempoEntrega != null)
                 {
                     try
