@@ -20,6 +20,8 @@ namespace Capa_Entidad.TablasSql
         public int CantidadAprobados { get; set; }
         public int CantidadBaja { get; set; }
         public int CantidadDevolucion { get; set; }
+        public int CantidadFaltante { get; set; }
+
         public int CantidadTotal { get; set; }
         public int Liberado { get; set; }
         public int Transferido { get; set; }

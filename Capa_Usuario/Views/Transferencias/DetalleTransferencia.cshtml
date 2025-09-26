@@ -280,6 +280,68 @@
                     </tbody>
                 </table>
             </div>
+
+            <div class="tab-pane fade" id="tab2" role="tabpanel">
+                <div class="d-flex justify-content-end my-2">
+                    <button type="button" class="btn btn-outline-success btn-exportar" data-nombrearchivo="ListaFaltante_@Model.DocNum" data-idtabla="tbl_documento2" onclick="exportarTablaExcel(this)">
+                        <i class="bi bi-file-excel"></i> Exportar
+                    </button>
+                </div>
+
+                <table id="tbl_documento2" class="table table-bordered table-hover">
+                    <thead class="thead-cobefar">
+                        <tr>
+                            <th scope="col" class="text-center text-uppercase small" style="width: 7%;">Código de artículo</th>
+                            <th scope="col" class="text-center text-uppercase small">Descripción</th>
+                            <th scope="col" class="text-center text-uppercase small">Lote</th>
+                            <th scope="col" class="text-center text-uppercase small" style="width: 7%;">F.V.</th>
+                            <th scope="col" class="text-center text-uppercase small" style="width: 7%;">R.S.</th>
+                            <th scope="col" class="text-center text-uppercase small">Fabricante</th>
+                            <th scope="col" class="text-center text-uppercase small" style="width: 7%;">Cond. alm. y trans.</th>
+                            <th scope="col" class="text-center text-uppercase small">Almacén</th>
+                            <th scope="col" class="text-center text-uppercase small">Cantidad</th>
+                            <th scope="col" class="text-center text-uppercase small">
+                                <button type="button" class="btn btn-sm btn-outline-light btn-confirmarTodos" onclick="confirmarTodos('faltante')"><i class="bi bi-check-all"></i> Confirmar TODOS</button>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-white">
+                        @foreach (var item in ViewBag.ListaFaltante)
+                        {
+                            <tr>
+                                <td class="text-center text-uppercase small">
+                                    <input type="hidden" value="@item.ItemCode">@item.ItemCode
+                                    <input type="hidden" class="cls-ids" value="@item.Id">
+                                </td>
+                                <td class="text-start text-uppercase small">@item.ItemName</td>
+                                <td class="text-center text-uppercase small">@item.Lote</td>
+                                <td class="text-center text-uppercase small">@item.FechaVencimiento</td>
+                                <td class="text-center text-uppercase small">@item.RegistroSanitario</td>
+                                <td class="text-start text-uppercase small">@item.Fabricante</td>
+                                <td class="text-center text-uppercase small">@item.CondicionAlmTrans</td>
+                                <td class="text-center text-uppercase small">@item.Almacen</td>
+                                <td class="text-center text-uppercase small">@item.CantidadBaja</td>
+                                <td class="text-center text-uppercase small">
+                                    @if (item.AtencionFaltante != null && item.AtencionFaltante.Atendido == 0)
+                                    {
+                                        <button type="button" class="btn btn-sm btn-success btn-transferir" data-cantidad="@item.CantidadFaltante" data-area="baja" data-id="@item.Id"
+                                                onclick="transferirArticulo(this)">
+                                            <i class="bi bi-check-lg"></i>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="btn btn-sm btn-outline-danger btn-revertir" data-id="@item.Id" data-area="baja" onclick="revertirTransferenciaArticulo(this)">
+                                            <i class="bi bi-arrow-counterclockwise"></i>
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
         </div>
 
     </div>

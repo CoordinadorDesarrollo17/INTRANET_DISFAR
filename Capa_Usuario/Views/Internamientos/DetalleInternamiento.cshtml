@@ -339,6 +339,12 @@
                                                                             <input type="text" id="CantidadDevolucion_${correlativo}" name="Detalle[${key}].CantidadDevolucion" class="form-control w-75 cls-num bg-cobefar-3 text-end text-white" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" value="${item.CantidadDevolucion > 0 ? item.CantidadDevolucion : ''}" oninput="validarCantidad(this)" autocomplete="off">
                                                                         </td>
                                                                     </tr>
+                                                                    <tr>
+                                                                        <td>Faltante:</td>
+                                                                        <td>
+                                                                            <input type="text" id="CantidadFaltante_${correlativo}" name="Detalle[${key}].CantidadFaltante" class="form-control w-75 cls-num bg-cobefar-3 text-end text-white" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" value="${item.CantidadFaltante > 0 ? item.CantidadFaltante : ''}" oninput="validarCantidad(this)" autocomplete="off">
+                                                                        </td>
+                                                                    </tr>
                                                                     </table>
                                                             </div>
                                                         </div>
@@ -371,7 +377,8 @@
                             `#ComentarioOrganoleptico_${correlativo}`,
                             `#CantidadAprobados_${correlativo}`,
                             `#CantidadBaja_${correlativo}`,
-                            `#CantidadDevolucion_${correlativo}`
+                            `#CantidadDevolucion_${correlativo}`,
+                             `#CantidadFaltante_${correlativo}`
                         ].forEach(selector => {
                             const el = document.querySelector(selector);
                             if (el) el.disabled = documentoCancelado || item.Liberado == 1 || item.Transferido == 1 || isPopup
@@ -580,8 +587,9 @@
             const devolucion = filaSeleccionada["CantidadDevolucion"] || 0;
             const baja = filaSeleccionada["CantidadBaja"] || 0;
             const aprobados = filaSeleccionada["CantidadAprobados"] || 0;
+            const faltante = filaSeleccionada["CantidadFaltante"] || 0;
 
-            const suma = Number(devolucion) + Number(baja) + Number(aprobados);
+            const suma = Number(devolucion) + Number(baja) + Number(aprobados) + Number(faltante);
             if (suma !== Number(filaSeleccionada["CantidadTotal"])){
                 generarAlerta('Advertencia', `La suma de las cantidades ingresadas para Aprobados, Baja y Devolución; debe ser igual a ${filaSeleccionada["CantidadTotal"]}.`, 'warning');
                 return false;
