@@ -75,8 +75,13 @@
                 <input type="text" id="CardName" name="CardName" autocomplete="off" readonly class="form-control bg-light text-small">
             </div>
 
-            <div class="col-lg-4 d-flex align-items-center justify-content-end">
-                <button type="button" id="btn_crearDevolucion" class="btn btn-sm btn-cobefar-2" onclick="crearDevolucion()" hidden><i class="bi bi-box-seam-fill"></i> Crear devoluciones</button>
+            <div class="col-lg-4 d-flex align-items-center justify-content-end gap-2">
+                <button type="button" id="btn_crearDevolucion" class="btn btn-sm btn-cobefar-2 me-2" onclick="crearDevolucion()" hidden>
+                    <i class="bi bi-box-seam-fill"></i> Crear devoluciones
+                </button>
+                <button type="button" id="btn_noGenerarDevolucion" class="btn btn-sm btn-danger" onclick="noGenerarDevolucion()" hidden>
+                    <i class="bi bi-x-circle-fill"></i> No generar devolución
+                </button>
             </div>
         </div>
     </form>
@@ -126,11 +131,50 @@
                 animation: 'fade'
             });
 
+            tippy('#btn_noGenerarDevolucion', {
+                content: 'No generar devolución',
+                animation: 'fade'
+            });
+
             tippy('.cls-solicitarReversionLiberacion', {
                 content: 'Solicitar reversión de liberación',
                 animation: 'fade'
             });
         })
+
+        function validarBotonDevolucion() {
+            const btnCrearDevolucion = document.getElementById('btn_crearDevolucion');
+            const btnNoGenerarDevolucion = document.getElementById('btn_noGenerarDevolucion');
+            const estadoGeneral = document.getElementById('Estado').value;
+            const filas = document.querySelectorAll('#tbl_documento tbody tr.main-row');
+            const modeloJS = @Html.Raw(ViewBag.JsonModel);
+            const isPopup = ('@isPopup' || '').toLowerCase() === 'true';
+            let todosLiberadosOTransferidos = true;
+            filas.forEach(tr => {
+                const liberado = tr.getAttribute('data-liberado');
+                const transferido = tr.getAttribute('data-transferido');
+                if (!(liberado === '1' || transferido === '1')) {
+                    todosLiberadosOTransferidos = false;
+                }
+            });
+            // Mostrar solo si cumple todas las condiciones
+            const habilitar =
+                modeloJS[0].TipoDocumento === 'OPDN' &&
+                !isPopup &&
+                !modeloJS[0].TieneDevolucion &&
+                (todosLiberadosOTransferidos || estadoGeneral === 'Liberado');
+            btnCrearDevolucion.hidden = !habilitar;
+            btnNoGenerarDevolucion.hidden = !habilitar;
+        }
+
+        function mostrarBotonesSoloSiLiberado() {
+            const btnCrearDevolucion = document.getElementById('btn_crearDevolucion');
+            const btnNoGenerarDevolucion = document.getElementById('btn_noGenerarDevolucion');
+            const estadoGeneral = document.getElementById('Estado').value;
+            const habilitar = estadoGeneral === 'Liberado';
+            btnCrearDevolucion.hidden = !habilitar;
+            btnNoGenerarDevolucion.hidden = !habilitar;
+        }
 
         function agregarFilaATabla() {
         let tiposDocumento = {
@@ -140,8 +184,6 @@
             const tbody = document.querySelector(`#tbl_documento tbody`);
             const modeloJS = @Html.Raw(ViewBag.JsonModel);
             const isPopup = ('@isPopup' || '').toLowerCase() === 'true';
-            //console.log(typeof modeloJS[0].TieneDevolucion)
-            document.querySelector('#btn_crearDevolucion').hidden = modeloJS[0].TipoDocumento != 'OPDN' || isPopup || modeloJS[0].TieneDevolucion;
             document.querySelector('#btn_liberarTodos').hidden = isPopup;
             document.querySelector('#TipoDocumento').value = tiposDocumento[modeloJS[0].TipoDocumento];
             document.querySelector('#Id').value = modeloJS[0].Id;
@@ -378,7 +420,7 @@
                             `#CantidadAprobados_${correlativo}`,
                             `#CantidadBaja_${correlativo}`,
                             `#CantidadDevolucion_${correlativo}`,
-                             `#CantidadFaltante_${correlativo}`
+                            `#CantidadFaltante_${correlativo}`
                         ].forEach(selector => {
                             const el = document.querySelector(selector);
                             if (el) el.disabled = documentoCancelado || item.Liberado == 1 || item.Transferido == 1 || isPopup
@@ -423,6 +465,7 @@
                     });
                 }
             }
+            mostrarBotonesSoloSiLiberado();
         }
 
         async function registrarDocumento() {
@@ -492,7 +535,7 @@
             //if (total !== input.dataset.cantidad) {
             //    generarAlerta('Error en cantidades', 'Las cantidades ingresadas en Aprobado / Baja / Devolución deben cubrir la cantidad del artículo.', 'error');
             //}
-    }
+        }
 
         function inicializarDescargas() {
             document.querySelectorAll('.btn-descargar-archivo').forEach(boton => {
@@ -721,69 +764,69 @@
         async function liberarTodos() {
             const inputs = document.querySelectorAll('.cls-ids');
 
-            if (inputs.length === 0) {
-                console.warn("No se encontraron elementos con clase .cls-ids");
-                generarAlerta('Error', 'Ocurrió un error inesperado, comuníquese con el área de Sistemas, gracias.', 'error');
-                return;
-            }
+    if (inputs.length === 0) {
+        console.warn("No se encontraron elementos con clase .cls-ids");
+        generarAlerta('Error', 'Ocurrió un error inesperado, comuníquese con el área de Sistemas, gracias.', 'error');
+        return;
+    }
 
-            let grupoIds = [];
-            inputs.forEach(input => {
-                grupoIds.push(input.value);
-            });
+    let grupoIds = [];
+    inputs.forEach(input => {
+        grupoIds.push(input.value);
+    });
 
-            swalWithBootstrapButtons.fire({
-                title: '¿Estás seguro(a) de LIBERAR todos los artículos?',
-                html: 'Todos los artículos que cumplan las validaciones serán liberados.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: "<i class='bi bi-check-lg'></i> Si, liberar",
-                cancelButtonText: "<i class='bi bi-x-lg mx-1'></i> Cancelar",
-                reverseButtons: true,
-                allowEscapeKey: false,
-                allowOutsideClick: false,
-                customClass: {
-                    confirmButton: 'btn btn-success',
-                    cancelButton: 'btn btn-outline-danger mx-1'
-                },
-                buttonsStyling: false
-            }).then(async (result) => {
-                if (result.isConfirmed) {
-                    try {
-                        const response = await fetch("/Internamientos/LiberarArticulos", {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify(grupoIds) // Enviar los datos como JSON
-                        });
+    swalWithBootstrapButtons.fire({
+        title: '¿Estás seguro(a) de LIBERAR todos los artículos?',
+        html: 'Todos los artículos que cumplan las validaciones serán liberados.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: "<i class='bi bi-check-lg'></i> Si, liberar",
+        cancelButtonText: "<i class='bi bi-x-lg mx-1'></i> Cancelar",
+        reverseButtons: true,
+        allowEscapeKey: false,
+        allowOutsideClick: false,
+        customClass: {
+            confirmButton: 'btn btn-success',
+            cancelButton: 'btn btn-outline-danger mx-1'
+        },
+        buttonsStyling: false
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            try {
+                const response = await fetch("/Internamientos/LiberarArticulos", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(grupoIds) // Enviar los datos como JSON
+                });
 
-                        if (!response.ok) {
-                            throw new Error(`Error en la solicitud: ${response.statusText}`);
-                        }
-
-                        const data = await response.json();
-
-                        Swal.fire({
-                            title: data.Titulo,
-                            html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
-                                ? data.Mensajes.join('<br>')
-                                : data.Mensajes || "",
-                            icon: data.Icono,
-                            allowEscapeKey: false,
-                            allowOutsideClick: false,
-                            showConfirmButton: true
-                        }).then((result) => {
-                            if (result.isConfirmed && data.Icono == 'success') {
-                                window.location.reload()
-                            }
-                        })
-
-                    } catch (error) {
-                        console.error('Error:', error);
-                    }
+                if (!response.ok) {
+                    throw new Error(`Error en la solicitud: ${response.statusText}`);
                 }
-            });
+
+                const data = await response.json();
+
+                Swal.fire({
+                    title: data.Titulo,
+                    html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                        ? data.Mensajes.join('<br>')
+                        : data.Mensajes || "",
+                    icon: data.Icono,
+                    allowEscapeKey: false,
+                    allowOutsideClick: false,
+                    showConfirmButton: true
+                }).then((result) => {
+                    if (result.isConfirmed && data.Icono == 'success') {
+                        window.location.reload()
+                    }
+                })
+
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+    });
         }
 
         async function solicitarReversionLiberacion(elem) {
@@ -900,6 +943,60 @@
                 } else if (result.dismiss === Swal.DismissReason.cancel) {
                     // Acción si se cancela (opcional)
                     console.log('Operación cancelada');
+                }
+            });
+        }
+
+        async function noGenerarDevolucion() {
+            Swal.fire({
+                title: '¿Está seguro(a) de NO generar devolución?',
+                html: 'Esta acción marcará el internamiento como que no requiere devolución.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: '<i class="bi bi-check-lg"></i> Aceptar',
+                cancelButtonText: '<i class="bi bi-x-lg"></i> Cancelar',
+                buttonsStyling: false,
+                customClass: {
+                    confirmButton: 'btn btn-success me-2',
+                    cancelButton: 'btn btn-outline-danger'
+                },
+                allowEscapeKey: false,
+                allowOutsideClick: false
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    let id = document.querySelector('#Id').value || 0;
+                    try {
+                        const response = await fetch("/Internamientos/NoGenerarDevolucion", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ id })
+                        });
+
+                        if (!response.ok) throw new Error(`Error en la solicitud: ${response.statusText}`);
+
+                        const data = await response.json();
+
+                        Swal.fire({
+                            title: data.Titulo,
+                            html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                                ? data.Mensajes.join('<br>')
+                                : data.Mensajes || "",
+                            icon: data.Icono,
+                            allowEscapeKey: false,
+                            allowOutsideClick: false,
+                            showConfirmButton: true
+                        }).then((result) => {
+                            if (result.isConfirmed && data.Icono == 'success') {
+                                window.location.reload();
+                            }
+                        })
+
+                    } catch (error) {
+                        console.error('Error:', error);
+                        Swal.fire('Ocurrió un error al procesar la solicitud. Intente nuevamente o comuníquese con SISTEMAS.');
+                    }
                 }
             });
         }

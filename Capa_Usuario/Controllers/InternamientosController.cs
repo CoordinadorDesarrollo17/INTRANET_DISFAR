@@ -317,5 +317,63 @@ namespace Capa_Usuario.Controllers
             return Json(new { Titulo = titulo, Mensajes = mensajes, Icono = icono }, JsonRequestBehavior.AllowGet);
 
         }
+
+        //public JsonResult NoGenerarDevolucion(long id, int idOperacion = 0)
+        //{
+        //    // 1. Validar sesión
+        //    var usuarioSesion = Session["UsuarioId"] as Usuario_E;
+        //    if (usuarioSesion == null)
+        //        return Json(new
+        //        {
+        //            Titulo = "Sesión expirada",
+        //            Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" },
+        //            Icono = "error"
+        //        }, JsonRequestBehavior.AllowGet);
+
+        //    // 2. Validar permisos
+        //    var resultadoAcceso = VerificarPermiso(idOperacion);
+        //    if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
+        //        return Json(new
+        //        {
+        //            Titulo = "Acceso denegado",
+        //            Mensajes = new List<string> { "No tienes permisos para esta acción" },
+        //            Icono = "warning"
+        //        }, JsonRequestBehavior.AllowGet);
+
+        //    // 3. Obtener internamiento
+        //    var internamiento = _docsN.ListarInternamientos(new ODOCS_E { Id = id }).FirstOrDefault();
+        //    if (internamiento == null)
+        //        return Json(new
+        //        {
+        //            Titulo = "Documento no encontrado",
+        //            Mensajes = new List<string> { "El internamiento especificado no existe." },
+        //            Icono = "error"
+        //        }, JsonRequestBehavior.AllowGet);
+
+        //    // 4. Ejecutar el paso de transferencia normal,
+        //    //    el mismo que usarías después de la devolución
+        //    //    (ajusta el método a lo que realmente uses).
+        //    var transferResult = new Capa_Negocio.Almacen_NEG.TablasSql.    ()
+        //                             .RegistrarTransferenciaDesdeInternamiento(internamiento);
+
+        //    if (transferResult <= 0)
+        //        return Json(new
+        //        {
+        //            Titulo = "Error en transferencia",
+        //            Mensajes = new List<string> { "No se pudo completar la transferencia." },
+        //            Icono = "error"
+        //        }, JsonRequestBehavior.AllowGet);
+
+        //    // 5. Respuesta
+        //    return Json(new
+        //    {
+        //        Titulo = "Acción completada",
+        //        Mensajes = new List<string> {
+        //    $"El documento {internamiento.DocNum} fue transferido sin generar devolución."
+        //},
+        //        Icono = "success"
+        //    }, JsonRequestBehavior.AllowGet);
+        //}
+
     }
 }

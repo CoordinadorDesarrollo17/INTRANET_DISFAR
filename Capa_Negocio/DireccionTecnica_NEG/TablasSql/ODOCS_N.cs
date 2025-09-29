@@ -162,6 +162,10 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
                         case "devolución": // Para que funcione con tilde también
                             condicion.AppendLine("AND DET.CantidadDevolucion > 0");
                             break;
+
+                        case "faltante": 
+                            condicion.AppendLine("AND DET.CantidadFaltante > 0");
+                            break;
                     }
                 }
             }
@@ -206,6 +210,10 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
                         case "devolucion":
                         case "devolución": // Para que funcione con tilde también
                             condicion.AppendLine("AND DET.CantidadDevolucion > 0");
+                            break;
+
+                        case "faltante":
+                            condicion.AppendLine("AND DET.CantidadFaltante > 0");
                             break;
                     }
                 }

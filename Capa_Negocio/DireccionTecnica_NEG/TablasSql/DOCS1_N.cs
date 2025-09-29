@@ -250,7 +250,7 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
                 && detalle.DescargarArchivoET == null && detalle.DescargarArchivoProtocolo == null && detalle.DescargarArchivoRS == null)
                 return _helpers.CrearRespuestaError($"Debe cargar un Protocolo, E.T. y/o R.S.");
 
-            if (detalle.CantidadAprobados <= 0 && detalle.CantidadBaja <= 0 && detalle.CantidadDevolucion <= 0)
+            if (detalle.CantidadAprobados <= 0 && detalle.CantidadBaja <= 0 && detalle.CantidadDevolucion <= 0 && detalle.CantidadFaltante <= 0  )
                 return _helpers.CrearRespuestaError("Debe ingresar las cantidades para Aprobados, Bajas y/o Devolución.");
 
             if (detalle.CantidadAprobados > 0 || detalle.CantidadBaja > 0 || detalle.CantidadDevolucion > 0 || detalle.CantidadFaltante > 0)
@@ -264,7 +264,7 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
         {
             bool certificadoInvalido = string.IsNullOrWhiteSpace(detalle.CertificadoAnalisis);
             bool archivosFaltantes = detalle.DescargarArchivoET == null && detalle.DescargarArchivoProtocolo == null;
-            bool cantidadesCero = detalle.CantidadAprobados <= 0 && detalle.CantidadBaja <= 0 && detalle.CantidadDevolucion <= 0;
+            bool cantidadesCero = detalle.CantidadAprobados <= 0 && detalle.CantidadBaja <= 0 && detalle.CantidadDevolucion <= 0 && detalle.CantidadFaltante <= 0;
             bool cantidadesInvalidas =
                 (detalle.CantidadAprobados > 0 || detalle.CantidadBaja > 0 || detalle.CantidadDevolucion > 0 || detalle.CantidadFaltante > 0) &&
                 !EsCantidadValida(detalle.CantidadAprobados, detalle.CantidadBaja, detalle.CantidadDevolucion, detalle.CantidadFaltante, detalle.CantidadTotal);

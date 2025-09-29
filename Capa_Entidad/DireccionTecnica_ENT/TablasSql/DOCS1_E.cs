@@ -21,7 +21,6 @@ namespace Capa_Entidad.TablasSql
         public int CantidadBaja { get; set; }
         public int CantidadDevolucion { get; set; }
         public int CantidadFaltante { get; set; }
-
         public int CantidadTotal { get; set; }
         public int Liberado { get; set; }
         public int Transferido { get; set; }
@@ -36,5 +35,6 @@ namespace Capa_Entidad.TablasSql
         public AT_DOCS1_E AtencionAprobados { get; set; }
         public AT_DOCS1_E AtencionBaja { get; set; }
         public AT_DOCS1_E AtencionDevolucion { get; set; }
+        public AT_DOCS1_E AtencionFaltante { get; set; }
     }
 }
