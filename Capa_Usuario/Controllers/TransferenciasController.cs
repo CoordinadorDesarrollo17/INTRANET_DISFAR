@@ -81,6 +81,7 @@ namespace Capa_Usuario.Controllers
                 ViewBag.ListaAprobados = lista.Detalle.Where(x => x.CantidadAprobados > 0).ToList();
                 ViewBag.ListaBaja = lista.Detalle.Where(x => x.CantidadBaja > 0).ToList();
                 ViewBag.ListaDevolucion = lista.Detalle.Where(x => x.CantidadDevolucion > 0).ToList();
+                ViewBag.ListaFaltante = lista.Detalle.Where(x => x.CantidadFaltante > 0).ToList();
 
                 return View("DetalleTransferencia", lista);
             }
@@ -183,6 +184,7 @@ namespace Capa_Usuario.Controllers
                             CantidadAprobados = d.CantidadAprobados,
                             CantidadBaja = d.CantidadBaja,
                             CantidadDevolucion = d.CantidadDevolucion,
+                            CantidadFaltante = d.CantidadFaltante,
                             CantidadTotal = d.CantidadTotal,
                             Liberado = d.Liberado == 1 ? "SI" : "NO",
                             Transferido = d.Transferido == 1 ? "SI" : "NO"
