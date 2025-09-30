@@ -79,19 +79,16 @@
                 }
             </td>
         </tr>
-        @if (Model.LugarDestino == "Agencia")
+        <tr style="background:@fondo">
+            <td><strong>@Html.DisplayNameFor(model => model.Zona): </strong></td>
+            <td>@Model.Zona</td>
+        </tr>
+        @if (Model.LugarDestino == "Agencia" && Model.isFill == 1)
         {
             <tr style="background:@fondo">
                 <td><strong>Fill: </strong></td>
                 <td>
-                    @if (Model.isFill == 1)
-                    {
-                        <span style="color:red;font-weight:bold;">AGENCIA SOLICITA FILL OBLIGATORIO</span>
-                    }
-                    else
-                    {
-                        <span style="color:green;font-weight:bold;">SIN RESTRICCIONES</span>
-                    }
+                    <span style="color:red;font-weight:bold;">AGENCIA SOLICITA FILL OBLIGATORIO</span>
                 </td>
             </tr>
         }
@@ -117,22 +114,6 @@
                 }
 
             </td>
-        </tr>
-        <tr>
-            <td><strong>Sacador:</strong></td>
-            <td></td>
-        </tr>
-        <tr>
-            <td><strong>Chequeador: </strong></td>
-            <td></td>
-        </tr>
-        <tr>
-            <td><strong>Encajador: </strong></td>
-            <td></td>
-        </tr>
-        <tr>
-            <td><strong>TiempoChequeo(f/h): </strong></td>
-            <td></td>
         </tr>
         <tr>
             <td><strong># Mesa: </strong></td>
