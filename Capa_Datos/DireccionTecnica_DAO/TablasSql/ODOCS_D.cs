@@ -1,16 +1,17 @@
-﻿using System;
+﻿using Capa_Entidad;
+using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
+using Capa_Entidad.DireccionTecnica_ENT.TablasSql;
+using Capa_Entidad.TablasSql;
+using Microsoft.ReportingServices.ReportProcessing.OnDemandReportObjectModel;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using Capa_Entidad;
-using Capa_Entidad.AbastecimientoInterno_ENT.TablasSql;
-using Capa_Entidad.DireccionTecnica_ENT.TablasSql;
-using Capa_Entidad.TablasSql;
-using Microsoft.ReportingServices.ReportProcessing.OnDemandReportObjectModel;
 
 namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
 {
@@ -44,7 +45,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                     sb.AppendLine("CONVERT(varchar, DET.FechaVencimiento, 103) AS FechaVencimiento,");
                     sb.AppendLine("DET.RegistroSanitario, DET.Fabricante, DET.CondicionAlmTrans,");
                     sb.AppendLine("DET.Almacen, DET.CertificadoAnalisis, DET.ComentarioOrganoleptico,");
-                    sb.AppendLine("DET.CantidadAprobados, DET.CantidadBaja, DET.CantidadDevolucion,");
+                    sb.AppendLine("DET.CantidadAprobados, DET.CantidadBaja, DET.CantidadDevolucion,DET.CantidadFaltante,");
                     sb.AppendLine("DET.CantidadTotal, DET.Liberado, DET.Transferido,");
 
                     // Devuelve el estado actual de la solicitud de reversión asociada al DET.Id, si existe.
@@ -125,10 +126,12 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                                 detalle.CantidadAprobados = dr.IsDBNull(22) ? 0 : dr.GetInt32(22);
                                 detalle.CantidadBaja = dr.IsDBNull(23) ? 0 : dr.GetInt32(23);
                                 detalle.CantidadDevolucion = dr.IsDBNull(24) ? 0 : dr.GetInt32(24);
-                                detalle.CantidadTotal = dr.IsDBNull(25) ? 0 : dr.GetInt32(25);
-                                detalle.Liberado = dr.IsDBNull(26) ? 0 : dr.GetInt32(26);
-                                detalle.Transferido = dr.IsDBNull(27) ? 0 : dr.GetInt32(27);
-                                detalle.EstadoSolicitudReversion = dr.IsDBNull(28) ? null : dr.GetString(28);
+                                detalle.CantidadFaltante = dr.IsDBNull(25) ? 0 : dr.GetInt32(25);
+                                detalle.CantidadTotal = dr.IsDBNull(26) ? 0 : dr.GetInt32(26);
+                                detalle.Liberado = dr.IsDBNull(27) ? 0 : dr.GetInt32(27);
+                                detalle.Transferido = dr.IsDBNull(28) ? 0 : dr.GetInt32(28);
+                                detalle.EstadoSolicitudReversion = dr.IsDBNull(29) ? null : dr.GetString(29);
+                                
 
                                 // Asignación de archivos adjuntos
                                 string baseRuta = uti.directorioDocumentosRegulatorios;
@@ -214,7 +217,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                     sb.AppendLine("CONVERT(varchar, DET.FechaVencimiento, 103) AS FechaVencimiento,");
                     sb.AppendLine("DET.RegistroSanitario, DET.Fabricante, DET.CondicionAlmTrans,");
                     sb.AppendLine("DET.Almacen, DET.CertificadoAnalisis, DET.ComentarioOrganoleptico,");
-                    sb.AppendLine("DET.CantidadAprobados, DET.CantidadBaja, DET.CantidadDevolucion, DET.CantidadTotal,");
+                    sb.AppendLine("DET.CantidadAprobados, DET.CantidadBaja, DET.CantidadDevolucion,DET.CantidadFaltante, DET.CantidadTotal, ");
                     sb.AppendLine("DET.Liberado, DET.Transferido,");
 
                     // Aprobados
@@ -227,7 +230,11 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
 
                     // Devolución
                     sb.AppendLine("AT_DE.Area, AT_DE.Atendido AS AtendidoDevolucion, AT_DE.AtendidoPor AS AtendidoPor,");
-                    sb.AppendLine("CONVERT(varchar, AT_DE.Fecha, 103) AS FechaDevolucion, CONVERT(varchar, AT_DE.Hora , 8) AS HoraDevolucion");
+                    sb.AppendLine("CONVERT(varchar, AT_DE.Fecha, 103) AS FechaDevolucion, CONVERT(varchar, AT_DE.Hora , 8) AS HoraDevolucion,");
+
+                    // Faltante
+                    sb.AppendLine("AT_FA.Area, AT_FA.Atendido AS AtendidoFaltante, AT_FA.AtendidoPor AS AtendidoPor,");
+                    sb.AppendLine("CONVERT(varchar, AT_FA.Fecha, 103) AS FechaFaltante, CONVERT(varchar, AT_FA.Hora , 8) AS HoraFaltante");
 
                     sb.AppendLine("FROM ODOCS DOC");
                     sb.AppendLine("INNER JOIN DOCS1 DET ON DOC.Id = DET.ODOCSId");
@@ -249,6 +256,12 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                     sb.AppendLine("    WHERE DOCS1Id = DET.Id AND Area = 'Devolucion'");
                     sb.AppendLine("    ORDER BY Fecha DESC, Hora DESC");
                     sb.AppendLine(") AT_DE");
+
+                    sb.AppendLine("OUTER APPLY (");
+                    sb.AppendLine("    SELECT TOP 1 Area, Atendido, AtendidoPor, CONVERT(varchar, Fecha, 103) AS Fecha, CONVERT(varchar, Hora , 8) AS Hora FROM AT_DOCS1");
+                    sb.AppendLine("    WHERE DOCS1Id = DET.Id AND Area = 'Faltante'");
+                    sb.AppendLine("    ORDER BY Fecha DESC, Hora DESC");
+                    sb.AppendLine(") AT_FA");
 
                     sb.AppendLine("WHERE DET.Liberado = 1");
                     sb.AppendLine($"{filtroDefault}");
@@ -312,36 +325,47 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                                 detalle.CantidadAprobados = dr.IsDBNull(22) ? 0 : dr.GetInt32(22);
                                 detalle.CantidadBaja = dr.IsDBNull(23) ? 0 : dr.GetInt32(23);
                                 detalle.CantidadDevolucion = dr.IsDBNull(24) ? 0 : dr.GetInt32(24);
-                                detalle.CantidadTotal = dr.IsDBNull(25) ? 0 : dr.GetInt32(25);
-                                detalle.Liberado = dr.IsDBNull(26) ? 0 : dr.GetInt32(26);
-                                detalle.Transferido = dr.IsDBNull(27) ? 0 : dr.GetInt32(27);
+                                detalle.CantidadFaltante = dr.IsDBNull(25) ? 0 : dr.GetInt32(25);
+                                detalle.CantidadTotal = dr.IsDBNull(26) ? 0 : dr.GetInt32(26);
+                                detalle.Liberado = dr.IsDBNull(27) ? 0 : dr.GetInt32(27);
+                                detalle.Transferido = dr.IsDBNull(28) ? 0 : dr.GetInt32(28);
 
                                 detalle.AtencionAprobados = new AT_DOCS1_E
                                 {
-                                    Area = dr.IsDBNull(28) ? null : dr.GetString(28),
-                                    Atendido = dr.IsDBNull(29) ? 0 : dr.GetInt32(29),
-                                    AtendidoPor = dr.IsDBNull(30) ? null : dr.GetString(30),
-                                    Fecha = dr.IsDBNull(31) ? null : dr.GetString(31),
-                                    Hora = dr.IsDBNull(32) ? null : dr.GetString(32)
+                                    Area = dr.IsDBNull(29) ? null : dr.GetString(29),
+                                    Atendido = dr.IsDBNull(30) ? 0 : dr.GetInt32(30),
+                                    AtendidoPor = dr.IsDBNull(31) ? null : dr.GetString(31),
+                                    Fecha = dr.IsDBNull(32) ? null : dr.GetString(32),
+                                    Hora = dr.IsDBNull(33) ? null : dr.GetString(33)
                                 };
 
                                 detalle.AtencionBaja = new AT_DOCS1_E
                                 {
-                                    Area = dr.IsDBNull(33) ? null : dr.GetString(33),
-                                    Atendido = dr.IsDBNull(34) ? 0 : dr.GetInt32(34),
-                                    AtendidoPor = dr.IsDBNull(35) ? null : dr.GetString(35),
-                                    Fecha = dr.IsDBNull(36) ? null : dr.GetString(36),
-                                    Hora = dr.IsDBNull(37) ? null : dr.GetString(37)
+                                    Area = dr.IsDBNull(34) ? null : dr.GetString(34),
+                                    Atendido = dr.IsDBNull(35) ? 0 : dr.GetInt32(35),
+                                    AtendidoPor = dr.IsDBNull(36) ? null : dr.GetString(36),
+                                    Fecha = dr.IsDBNull(37) ? null : dr.GetString(37),
+                                    Hora = dr.IsDBNull(38) ? null : dr.GetString(38)
                                 };
 
                                 detalle.AtencionDevolucion = new AT_DOCS1_E
                                 {
-                                    Area = dr.IsDBNull(38) ? null : dr.GetString(38),
-                                    Atendido = dr.IsDBNull(39) ? 0 : dr.GetInt32(39),
-                                    AtendidoPor = dr.IsDBNull(40) ? null : dr.GetString(40),
-                                    Fecha = dr.IsDBNull(41) ? null : dr.GetString(41),
-                                    Hora = dr.IsDBNull(42) ? null : dr.GetString(42)
+                                    Area = dr.IsDBNull(39) ? null : dr.GetString(39),
+                                    Atendido = dr.IsDBNull(40) ? 0 : dr.GetInt32(40),
+                                    AtendidoPor = dr.IsDBNull(41) ? null : dr.GetString(41),
+                                    Fecha = dr.IsDBNull(42) ? null : dr.GetString(42),
+                                    Hora = dr.IsDBNull(43) ? null : dr.GetString(43)
                                 };
+
+                                detalle.AtencionFaltante = new AT_DOCS1_E
+                                {
+                                    Area = dr.IsDBNull(44) ? null : dr.GetString(44),
+                                    Atendido = dr.IsDBNull(45) ? 0 : dr.GetInt32(45),
+                                    AtendidoPor = dr.IsDBNull(46) ? null : dr.GetString(46),
+                                    Fecha = dr.IsDBNull(47) ? null : dr.GetString(47),
+                                    Hora = dr.IsDBNull(48) ? null : dr.GetString(48)
+                                };
+
 
                                 // Asignación de archivos adjuntos
                                 string baseRuta = uti.directorioDocumentosRegulatorios;
@@ -601,6 +625,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
             table.Columns.Add("CantidadAprobados", typeof(int));
             table.Columns.Add("CantidadBaja", typeof(int));
             table.Columns.Add("CantidadDevolucion", typeof(int));
+            table.Columns.Add("CantidadFaltante", typeof(int));
             table.Columns.Add("CantidadTotal", typeof(int));
             table.Columns.Add("Liberado", typeof(int));
             table.Columns.Add("Transferido", typeof(int));
@@ -608,7 +633,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
             foreach (var detalle in detalles)
             {
                 table.Rows.Add(0, detalle.ItemCode, detalle.ItemName, detalle.Lote, detalle.FechaVencimiento, detalle.RegistroSanitario, detalle.Fabricante, detalle.CondicionAlmTrans,
-                    detalle.Almacen, detalle.CertificadoAnalisis, detalle.ComentarioOrganoleptico, detalle.CantidadAprobados, detalle.CantidadBaja, detalle.CantidadDevolucion, detalle.CantidadTotal,
+                    detalle.Almacen, detalle.CertificadoAnalisis, detalle.ComentarioOrganoleptico, detalle.CantidadAprobados, detalle.CantidadBaja, detalle.CantidadDevolucion, detalle.CantidadFaltante, detalle.CantidadTotal,
                     detalle.Liberado, detalle.Transferido);
             }
             return table;

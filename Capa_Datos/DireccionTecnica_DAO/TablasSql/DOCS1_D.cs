@@ -223,7 +223,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                     var sb = new StringBuilder();
 
                     sb.AppendLine("SELECT Id, ODOCSId, ItemCode, ItemName, Lote, CONVERT(varchar, FechaVencimiento, 103), RegistroSanitario, Fabricante, CondicionAlmTrans, Almacen, CertificadoAnalisis, ComentarioOrganoleptico,");
-                    sb.AppendLine("CantidadAprobados, CantidadBaja, CantidadDevolucion, CantidadTotal, Liberado, Transferido");
+                    sb.AppendLine("CantidadAprobados, CantidadBaja, CantidadDevolucion,CantidadFaltante, CantidadTotal, Liberado, Transferido");
                     sb.AppendLine("FROM DOCS1");
 
                     if (traerTodos)
@@ -269,9 +269,11 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                                 detalle.CantidadAprobados = dr.IsDBNull(12) ? 0 : dr.GetInt32(12);
                                 detalle.CantidadBaja = dr.IsDBNull(13) ? 0 : dr.GetInt32(13);
                                 detalle.CantidadDevolucion = dr.IsDBNull(14) ? 0 : dr.GetInt32(14);
-                                detalle.CantidadTotal = dr.IsDBNull(15) ? 0 : dr.GetInt32(15);
-                                detalle.Liberado = dr.IsDBNull(16) ? 0 : dr.GetInt32(16);
-                                detalle.Transferido = dr.IsDBNull(17) ? 0 : dr.GetInt32(17);
+                                detalle.CantidadFaltante = dr.IsDBNull(15) ? 0 : dr.GetInt32(15);
+                                detalle.CantidadTotal = dr.IsDBNull(16) ? 0 : dr.GetInt32(16);
+                                detalle.Liberado = dr.IsDBNull(17) ? 0 : dr.GetInt32(17);
+                                detalle.Transferido = dr.IsDBNull(18) ? 0 : dr.GetInt32(18);
+
 
                                 // Asignación de archivos adjuntos
                                 string baseRuta = uti.directorioDocumentosRegulatorios;
@@ -339,6 +341,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                             cmd.Parameters.AddWithValue("@CantidadAprobados", datos.CantidadAprobados);
                             cmd.Parameters.AddWithValue("@CantidadBaja", datos.CantidadBaja);
                             cmd.Parameters.AddWithValue("@CantidadDevolucion", datos.CantidadDevolucion);
+                            cmd.Parameters.AddWithValue("@CantidadFaltante", datos.CantidadFaltante);
 
                             // Para [CC_ODOCS]
                             cmd.Parameters.AddWithValue("@UsuarioRegistro", usuarioRegistro);
@@ -545,6 +548,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
             table.Columns.Add("CantidadAprobados", typeof(int));
             table.Columns.Add("CantidadBaja", typeof(int));
             table.Columns.Add("CantidadDevolucion", typeof(int));
+            table.Columns.Add("CantidadFaltante", typeof(int));
             table.Columns.Add("CantidadTotal", typeof(int));
             table.Columns.Add("Liberado", typeof(int));
             table.Columns.Add("Transferido", typeof(int));
@@ -552,7 +556,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
             foreach (var detalle in detalles)
             {
                 table.Rows.Add(0, detalle.ItemCode, detalle.ItemName, detalle.Lote, detalle.FechaVencimiento, detalle.RegistroSanitario, detalle.Fabricante, detalle.CondicionAlmTrans,
-                    detalle.Almacen, detalle.CertificadoAnalisis, detalle.ComentarioOrganoleptico, detalle.CantidadAprobados, detalle.CantidadBaja, detalle.CantidadDevolucion, detalle.CantidadTotal,
+                    detalle.Almacen, detalle.CertificadoAnalisis, detalle.ComentarioOrganoleptico, detalle.CantidadAprobados, detalle.CantidadBaja, detalle.CantidadDevolucion, detalle.CantidadFaltante, detalle.CantidadTotal,
                     detalle.Liberado, detalle.Transferido);
             }
             return table;

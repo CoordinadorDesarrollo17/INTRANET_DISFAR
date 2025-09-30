@@ -152,7 +152,11 @@
                                 <th class="text-center border-dark font-weight-normal f12">@displayQuantity @if (m.BuyUnitMsr.Equals("PZA")) { Write(" (PZA)"); }</th>
                                 <th class="text-center border-dark font-weight-normal f12">@m.RefFactura</th>
                                 <th class="text-center border-dark font-weight-normal f12">@m.DescMotivo</th>
-                                <th class="text-center border-dark font-weight-normal f12">@obs</th>
+                                
+                                <th class="text-center border-dark font-weight-normal f12">
+                                    @(obs + (string.IsNullOrWhiteSpace(m.Observacion) ? "" : " - " + m.Observacion))
+                                </th>
+
                             </tr>
                         }
                     }
