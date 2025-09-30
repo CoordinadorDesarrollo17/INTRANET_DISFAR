@@ -79,9 +79,6 @@
                 <button type="button" id="btn_crearDevolucion" class="btn btn-sm btn-cobefar-2 me-2" onclick="crearDevolucion()" hidden>
                     <i class="bi bi-box-seam-fill"></i> Crear devoluciones
                 </button>
-                <button type="button" id="btn_noGenerarDevolucion" class="btn btn-sm btn-danger" onclick="noGenerarDevolucion()" hidden>
-                    <i class="bi bi-x-circle-fill"></i> No generar devolución
-                </button>
             </div>
         </div>
     </form>
@@ -968,59 +965,7 @@
             });
         }
 
-    async function noGenerarDevolucion() {
-        Swal.fire({
-            title: '¿Está seguro(a) de NO generar devolución?',
-            html: 'Esta acción marcará el internamiento como que no requiere devolución.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: '<i class="bi bi-check-lg"></i> Aceptar',
-            cancelButtonText: '<i class="bi bi-x-lg"></i> Cancelar',
-            buttonsStyling: false,
-            customClass: {
-                confirmButton: 'btn btn-success me-2',
-                cancelButton: 'btn btn-outline-danger'
-            },
-            allowEscapeKey: false,
-            allowOutsideClick: false
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                let id = document.querySelector('#Id').value || 0;
-                try {
-                    const response = await fetch("/Internamientos/NoGenerarDevolucion", {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ id })
-                    });
-
-                    if (!response.ok) throw new Error(`Error en la solicitud: ${response.statusText}`);
-
-                    const data = await response.json();
-
-                    Swal.fire({
-                        title: data.Titulo,
-                        html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
-                            ? data.Mensajes.join('<br>')
-                            : data.Mensajes || "",
-                        icon: data.Icono,
-                        allowEscapeKey: false,
-                        allowOutsideClick: false,
-                        showConfirmButton: true
-                    }).then((result) => {
-                        if (result.isConfirmed && data.Icono == 'success') {
-                            window.location.reload();
-                        }
-                    })
-
-                } catch (error) {
-                    console.error('Error:', error);
-                    Swal.fire('Ocurrió un error al procesar la solicitud. Intente nuevamente o comuníquese con SISTEMAS.');
-                }
-            }
-        });
-    }
+    
 
 </script>
 }
