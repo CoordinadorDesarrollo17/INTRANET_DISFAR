@@ -876,7 +876,7 @@
         async function crearDevolucion() {
             Swal.fire({
                 title: '¿Estás seguro(a) de crear devolución?',
-                html: 'Se procederá a crear una devolución de todos los artículos de este internamiento.',
+                html: 'Se procederá a crear una devolución y faltante de todos los artículos de este internamiento.',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: `<i class="bi bi-check-lg"></i> Aceptar`,
@@ -888,41 +888,62 @@
                 },
                 allowEscapeKey: false,
                 allowOutsideClick: false
-            }).then( async(result) => {
+            }).then(async (result) => {
                 if (result.isConfirmed) {
                     let id = document.querySelector('#Id').value || 0;
-
+                    let devolucionOk = false;
+                    let faltanteOk = false;
+                    let devolucionData = null;
+                    let faltanteData = null;
                     try {
-                        const response = await fetch("/Internamientos/CrearDevolucion", {
+                        // Proceso 1: Crear Devolución
+                        const responseDevolucion = await fetch("/Internamientos/CrearDevolucion", {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
                             },
                             body: JSON.stringify({ id }) // Enviar los datos como JSON
                         });
+                        if (!responseDevolucion.ok) throw new Error(`Error en la solicitud: ${responseDevolucion.statusText}`);
+                        const contentTypeDev = responseDevolucion.headers.get("content-type");
+                        if (!contentTypeDev || !contentTypeDev.includes("application/json")) throw new Error("Sesión expirada. Por favor, vuelve a iniciar sesión.");
+                        devolucionData = await responseDevolucion.json();
+                        devolucionOk = devolucionData.Icono == 'success';
 
-                        if (!response.ok) throw new Error(`Error en la solicitud: ${response.statusText}`);
+                        // Proceso 2: Crear Faltante
+                        const responseFaltante = await fetch("/Internamientos/CrearFaltante", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ id }) // Enviar los datos como JSON
+                        });
+                        if (!responseFaltante.ok) throw new Error(`Error en la solicitud: ${responseFaltante.statusText}`);
+                        const contentTypeFalt = responseFaltante.headers.get("content-type");
+                        if (!contentTypeFalt || !contentTypeFalt.includes("application/json")) throw new Error("Sesión expirada. Por favor, vuelve a iniciar sesión.");
+                        faltanteData = await responseFaltante.json();
+                        faltanteOk = faltanteData.Icono == 'success';
 
-                        const contentType = response.headers.get("content-type");
-                        if (!contentType || !contentType.includes("application/json")) throw new Error("Sesión expirada. Por favor, vuelve a iniciar sesión.");
-
-                        const data = await response.json();
-
+                        // Mostrar resultado combinado
+                        let mensajes = [];
+                        if (devolucionData) {
+                            mensajes.push(`<b>Devolución:</b> ${Array.isArray(devolucionData.Mensajes) ? devolucionData.Mensajes.join('<br>') : devolucionData.Mensajes || ''}`);
+                        }
+                        if (faltanteData) {
+                            mensajes.push(`<b>Faltante:</b> ${Array.isArray(faltanteData.Mensajes) ? faltanteData.Mensajes.join('<br>') : faltanteData.Mensajes || ''}`);
+                        }
                         Swal.fire({
-                            title: data.Titulo,
-                            html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
-                                ? data.Mensajes.join('<br>')
-                                : data.Mensajes || "",
-                            icon: data.Icono,
+                            title: 'Resultado de procesos',
+                            html: mensajes.join('<hr>'),
+                            icon: devolucionOk && faltanteOk ? 'success' : 'warning',
                             allowEscapeKey: false,
                             allowOutsideClick: false,
                             showConfirmButton: true
                         }).then((result) => {
-                            if (result.isConfirmed && data.Icono == 'success') {
-                                window.location.reload()
+                            if (result.isConfirmed && devolucionOk && faltanteOk) {
+                                window.location.reload();
                             }
-                        })
-
+                        });
                     } catch (error) {
                         console.error('Error:', error);
                         if (error.message.includes("Sesión expirada")) {
@@ -947,58 +968,59 @@
             });
         }
 
-        async function noGenerarDevolucion() {
-            Swal.fire({
-                title: '¿Está seguro(a) de NO generar devolución?',
-                html: 'Esta acción marcará el internamiento como que no requiere devolución.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: '<i class="bi bi-check-lg"></i> Aceptar',
-                cancelButtonText: '<i class="bi bi-x-lg"></i> Cancelar',
-                buttonsStyling: false,
-                customClass: {
-                    confirmButton: 'btn btn-success me-2',
-                    cancelButton: 'btn btn-outline-danger'
-                },
-                allowEscapeKey: false,
-                allowOutsideClick: false
-            }).then(async (result) => {
-                if (result.isConfirmed) {
-                    let id = document.querySelector('#Id').value || 0;
-                    try {
-                        const response = await fetch("/Internamientos/NoGenerarDevolucion", {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({ id })
-                        });
+    async function noGenerarDevolucion() {
+        Swal.fire({
+            title: '¿Está seguro(a) de NO generar devolución?',
+            html: 'Esta acción marcará el internamiento como que no requiere devolución.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: '<i class="bi bi-check-lg"></i> Aceptar',
+            cancelButtonText: '<i class="bi bi-x-lg"></i> Cancelar',
+            buttonsStyling: false,
+            customClass: {
+                confirmButton: 'btn btn-success me-2',
+                cancelButton: 'btn btn-outline-danger'
+            },
+            allowEscapeKey: false,
+            allowOutsideClick: false
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                let id = document.querySelector('#Id').value || 0;
+                try {
+                    const response = await fetch("/Internamientos/NoGenerarDevolucion", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ id })
+                    });
 
-                        if (!response.ok) throw new Error(`Error en la solicitud: ${response.statusText}`);
+                    if (!response.ok) throw new Error(`Error en la solicitud: ${response.statusText}`);
 
-                        const data = await response.json();
+                    const data = await response.json();
 
-                        Swal.fire({
-                            title: data.Titulo,
-                            html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
-                                ? data.Mensajes.join('<br>')
-                                : data.Mensajes || "",
-                            icon: data.Icono,
-                            allowEscapeKey: false,
-                            allowOutsideClick: false,
-                            showConfirmButton: true
-                        }).then((result) => {
-                            if (result.isConfirmed && data.Icono == 'success') {
-                                window.location.reload();
-                            }
-                        })
+                    Swal.fire({
+                        title: data.Titulo,
+                        html: Array.isArray(data.Mensajes) && data.Mensajes.length > 0
+                            ? data.Mensajes.join('<br>')
+                            : data.Mensajes || "",
+                        icon: data.Icono,
+                        allowEscapeKey: false,
+                        allowOutsideClick: false,
+                        showConfirmButton: true
+                    }).then((result) => {
+                        if (result.isConfirmed && data.Icono == 'success') {
+                            window.location.reload();
+                        }
+                    })
 
-                    } catch (error) {
-                        console.error('Error:', error);
-                        Swal.fire('Ocurrió un error al procesar la solicitud. Intente nuevamente o comuníquese con SISTEMAS.');
-                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    Swal.fire('Ocurrió un error al procesar la solicitud. Intente nuevamente o comuníquese con SISTEMAS.');
                 }
-            });
-        }
+            }
+        });
+    }
+
 </script>
 }

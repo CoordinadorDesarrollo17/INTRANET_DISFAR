@@ -262,10 +262,11 @@ namespace Capa_Usuario.Controllers
 
             int linea = 1;
             var detalleDevolucion = new List<RPD1_E>();
-            var nuevaListaDetalle = internamiento.Detalle.Where(i => i.Liberado == 1 && i.Transferido == 0 && i.CantidadDevolucion > 0).ToList();
+            // --- CAMBIO: Procesar también artículos con CantidadFaltante > 0 ---
+            var nuevaListaDetalle = internamiento.Detalle.Where(i => i.Liberado == 1 && i.Transferido == 0 && (i.CantidadDevolucion > 0 )).ToList();
 
             if (nuevaListaDetalle != null && !nuevaListaDetalle.Any())
-                return Json(new { Titulo = "No se pudo generar la devolución", Mensajes = new List<string> { "Debe liberar al menos un artículo o ingresar una cantidad para devolución mayor a cero." }, Icono = "warning" }, JsonRequestBehavior.AllowGet);
+                return Json(new { Titulo = "No se pudo generar la devolución", Mensajes = new List<string> { "Debe liberar al menos un artículo o ingresar una cantidad para devolución o faltante mayor a cero." }, Icono = "warning" }, JsonRequestBehavior.AllowGet);
 
             foreach (var item in nuevaListaDetalle)
             {
@@ -284,26 +285,51 @@ namespace Capa_Usuario.Controllers
                         NumAtCard = internamiento.ComprobanteVinculado
                     });
 
-                var obj = new RPD1_E();
-                obj.Linea = linea;
-                obj.ItemCode = item.ItemCode;
-                obj.ItemName = item.ItemName;
-                obj.FirmCode = Convert.ToInt32(listaEM.First().FirmCode);
-                obj.BatchNum = item.Lote;
-                obj.ExpDate = fechaConvertida.ToString("yyyy-MM-dd");
-                obj.Quantity = item.CantidadDevolucion;
-                obj.NumInBuy = listaEM.First().NumInBuy;
-                obj.BuyUnitMsr = listaEM.First().BuyUnitMsr;
-                obj.Motivo = 11;        // 11: Devolución
-                obj.RefFactura = internamiento.ComprobanteVinculado;
-                obj.Observacion = null;
-                obj.MaxQuantity = listaEM.First().Quantity;
-                obj.Submotivo = 0;
-                obj.MaxQuantityOIBT = listaEM.First().Quantity / listaEM.First().NumInBuy;
-                obj.NumInBuyKey = listaEM.First().NumInBuy;
-
-                detalleDevolucion.Add(obj);
-                ++linea;
+                // --- CAMBIO: Si CantidadDevolucion > 0, Motivo = 11 (DEVOLUCIÓN); Si CantidadFaltante > 0, Motivo = 12 (FALTANTE) ---
+                if (item.CantidadDevolucion > 0)
+                {
+                    var obj = new RPD1_E();
+                    obj.Linea = linea;
+                    obj.ItemCode = item.ItemCode;
+                    obj.ItemName = item.ItemName;
+                    obj.FirmCode = Convert.ToInt32(listaEM.First().FirmCode);
+                    obj.BatchNum = item.Lote;
+                    obj.ExpDate = fechaConvertida.ToString("yyyy-MM-dd");
+                    obj.Quantity = item.CantidadDevolucion;
+                    obj.NumInBuy = listaEM.First().NumInBuy;
+                    obj.BuyUnitMsr = listaEM.First().BuyUnitMsr;
+                    obj.Motivo = 11;        // 11: Devolución
+                    obj.RefFactura = internamiento.ComprobanteVinculado;
+                    obj.Observacion = null;
+                    obj.MaxQuantity = listaEM.First().Quantity;
+                    obj.Submotivo = 0;
+                    obj.MaxQuantityOIBT = listaEM.First().Quantity / listaEM.First().NumInBuy;
+                    obj.NumInBuyKey = listaEM.First().NumInBuy;
+                    detalleDevolucion.Add(obj);
+                    ++linea;
+                }
+                //if (item.CantidadFaltante > 0)
+                //{
+                //    var obj = new RPD1_E();
+                //    obj.Linea = linea;
+                //    obj.ItemCode = item.ItemCode;
+                //    obj.ItemName = item.ItemName;
+                //    obj.FirmCode = Convert.ToInt32(listaEM.First().FirmCode);
+                //    obj.BatchNum = item.Lote;
+                //    obj.ExpDate = fechaConvertida.ToString("yyyy-MM-dd");
+                //    obj.Quantity = item.CantidadFaltante;
+                //    obj.NumInBuy = listaEM.First().NumInBuy;
+                //    obj.BuyUnitMsr = listaEM.First().BuyUnitMsr;
+                //    obj.Motivo = 44;        // 12: Faltante (verifica este valor en tu catálogo de motivos)
+                //    obj.RefFactura = internamiento.ComprobanteVinculado;
+                //    obj.Observacion = null;
+                //    obj.MaxQuantity = listaEM.First().Quantity;
+                //    obj.Submotivo = 0;
+                //    obj.MaxQuantityOIBT = listaEM.First().Quantity / listaEM.First().NumInBuy;
+                //    obj.NumInBuyKey = listaEM.First().NumInBuy;
+                //    detalleDevolucion.Add(obj);
+                //    ++linea;
+                //}
             }
 
             var result = new Capa_Negocio.Almacen_NEG.TablasSql.ORPD_N().RegistrarDevolucion(devolucion, detalleDevolucion);
@@ -311,69 +337,119 @@ namespace Capa_Usuario.Controllers
             var titulo = (result > 0) ? "Acción completada" : "Error";
             var icono = (result > 0) ? "success" : "error";
             var mensajes = (result > 0)
-                ? new List<string> { $"Se registró correctamenta la devolución: {result}" } 
+                ? new List<string> { $"Se registró correctamenta la devolución: {result}" }
                 : new List<string> { "Ocurrió un error al cancelar el documento.", "Por favor, comuníquese con el área de Sistemas para más información" };
 
             return Json(new { Titulo = titulo, Mensajes = mensajes, Icono = icono }, JsonRequestBehavior.AllowGet);
 
         }
 
-        //public JsonResult NoGenerarDevolucion(long id, int idOperacion = 0)
-        //{
-        //    // 1. Validar sesión
-        //    var usuarioSesion = Session["UsuarioId"] as Usuario_E;
-        //    if (usuarioSesion == null)
-        //        return Json(new
-        //        {
-        //            Titulo = "Sesión expirada",
-        //            Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" },
-        //            Icono = "error"
-        //        }, JsonRequestBehavior.AllowGet);
+        public JsonResult CrearFaltante(long id, int idOperacion = 0)    //Crear faltante Independidete de en DEVOLUCION
+        {
+            var usuarioSesion = Session["UsuarioId"] as Usuario_E;
+            if (usuarioSesion == null)
+                return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" }, JsonRequestBehavior.AllowGet);
 
-        //    // 2. Validar permisos
-        //    var resultadoAcceso = VerificarPermiso(idOperacion);
-        //    if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
-        //        return Json(new
-        //        {
-        //            Titulo = "Acceso denegado",
-        //            Mensajes = new List<string> { "No tienes permisos para esta acción" },
-        //            Icono = "warning"
-        //        }, JsonRequestBehavior.AllowGet);
+            var resultadoAcceso = VerificarPermiso(idOperacion);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
+                return Json(new { Titulo = "Acceso Denegado", Mensajes = new List<string> { "No tienes permisos para cancelar el documento" }, Icono = "warning" }, JsonRequestBehavior.AllowGet);
 
-        //    // 3. Obtener internamiento
-        //    var internamiento = _docsN.ListarInternamientos(new ODOCS_E { Id = id }).FirstOrDefault();
-        //    if (internamiento == null)
-        //        return Json(new
-        //        {
-        //            Titulo = "Documento no encontrado",
-        //            Mensajes = new List<string> { "El internamiento especificado no existe." },
-        //            Icono = "error"
-        //        }, JsonRequestBehavior.AllowGet);
+            var lista = _docsN.ListarInternamientos(new ODOCS_E { Id = id });
+            var internamiento = lista != null ? lista.First() : new ODOCS_E();
 
-        //    // 4. Ejecutar el paso de transferencia normal,
-        //    //    el mismo que usarías después de la devolución
-        //    //    (ajusta el método a lo que realmente uses).
-        //    var transferResult = new Capa_Negocio.Almacen_NEG.TablasSql.    ()
-        //                             .RegistrarTransferenciaDesdeInternamiento(internamiento);
+            var devolucion = new ORPD_E();
+            devolucion.WhsCode = internamiento.Detalle != null && internamiento.Detalle.Any() ? internamiento.Detalle.First().Almacen : "";
+            devolucion.CardCode = internamiento.CardCode;
+            devolucion.CardName = internamiento.CardName;
+            devolucion.RetiroMercado = false;
+            devolucion.SinEM = false;                                   // Si tiene entrada de mercancía
+            devolucion.ODOCSId = internamiento.Id;          // Para vincular la devolución con la liberación, sirve para las devoluciones anuladas
+            devolucion.Operario = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
 
-        //    if (transferResult <= 0)
-        //        return Json(new
-        //        {
-        //            Titulo = "Error en transferencia",
-        //            Mensajes = new List<string> { "No se pudo completar la transferencia." },
-        //            Icono = "error"
-        //        }, JsonRequestBehavior.AllowGet);
+            int linea = 1;
+            var detalleDevolucion = new List<RPD1_E>();  //REUTILISANDO 
+            // --- CAMBIO: Procesar también artículos con CantidadFaltante > 0 ---
+            var nuevaListaDetalle = internamiento.Detalle.Where(i => i.Liberado == 1 && i.Transferido == 0 && ( i.CantidadFaltante > 0)).ToList();
 
-        //    // 5. Respuesta
-        //    return Json(new
-        //    {
-        //        Titulo = "Acción completada",
-        //        Mensajes = new List<string> {
-        //    $"El documento {internamiento.DocNum} fue transferido sin generar devolución."
-        //},
-        //        Icono = "success"
-        //    }, JsonRequestBehavior.AllowGet);
-        //}
+            if (nuevaListaDetalle != null && !nuevaListaDetalle.Any())
+                return Json(new { Titulo = "No se pudo generar la devolución", Mensajes = new List<string> { "Debe liberar al menos un artículo o ingresar una cantidad para devolución o faltante mayor a cero." }, Icono = "warning" }, JsonRequestBehavior.AllowGet);
+
+            foreach (var item in nuevaListaDetalle)
+            {
+                DateTime fechaConvertida = DateTime.ParseExact(item.FechaVencimiento, "dd/MM/yyyy", CultureInfo.InvariantCulture);
+                DateTime fechaContabilizacionConvertida = DateTime.ParseExact(internamiento.FechaContabilizacion, "dd/MM/yyyy", CultureInfo.InvariantCulture);
+
+                var listaEM = new Capa_Negocio.Almacen_NEG.Tablas.OPDN_N()
+                    .Listar(new Capa_Entidad.Almacen_ENT.Tablas.OPDN_E
+                    {
+                        DocNum = Convert.ToInt32(internamiento.DocNum),
+                        DocDate = fechaContabilizacionConvertida.ToString("yyyy-MM-dd"),
+                        ItemCode = item.ItemCode,
+                        BatchNum = item.Lote,
+                        CardCode = $"P{internamiento.CardCode}",
+                        U_COB_LUGAREN = devolucion.WhsCode,
+                        NumAtCard = internamiento.ComprobanteVinculado
+                    });
+
+                // --- CAMBIO: Si CantidadDevolucion > 0, Motivo = 11 (DEVOLUCIÓN); Si CantidadFaltante > 0, Motivo = 12 (FALTANTE) ---
+                //if (item.CantidadDevolucion > 0)
+                //{
+                //    var obj = new RPD1_E();
+                //    obj.Linea = linea;
+                //    obj.ItemCode = item.ItemCode;
+                //    obj.ItemName = item.ItemName;
+                //    obj.FirmCode = Convert.ToInt32(listaEM.First().FirmCode);
+                //    obj.BatchNum = item.Lote;
+                //    obj.ExpDate = fechaConvertida.ToString("yyyy-MM-dd");
+                //    obj.Quantity = item.CantidadDevolucion;
+                //    obj.NumInBuy = listaEM.First().NumInBuy;
+                //    obj.BuyUnitMsr = listaEM.First().BuyUnitMsr;
+                //    obj.Motivo = 11;        // 11: Devolución
+                //    obj.RefFactura = internamiento.ComprobanteVinculado;
+                //    obj.Observacion = null;
+                //    obj.MaxQuantity = listaEM.First().Quantity;
+                //    obj.Submotivo = 0;
+                //    obj.MaxQuantityOIBT = listaEM.First().Quantity / listaEM.First().NumInBuy;
+                //    obj.NumInBuyKey = listaEM.First().NumInBuy;
+                //    detalleDevolucion.Add(obj);
+                //    ++linea;
+                //}
+                if (item.CantidadFaltante > 0)
+                {
+                    var obj = new RPD1_E();
+                    obj.Linea = linea;
+                    obj.ItemCode = item.ItemCode;
+                    obj.ItemName = item.ItemName;
+                    obj.FirmCode = Convert.ToInt32(listaEM.First().FirmCode);
+                    obj.BatchNum = item.Lote;
+                    obj.ExpDate = fechaConvertida.ToString("yyyy-MM-dd");
+                    obj.Quantity = item.CantidadFaltante;
+                    obj.NumInBuy = listaEM.First().NumInBuy;
+                    obj.BuyUnitMsr = listaEM.First().BuyUnitMsr;
+                    obj.Motivo = 44;        // 12: Faltante (verifica este valor en tu catálogo de motivos)
+                    obj.RefFactura = internamiento.ComprobanteVinculado;
+                    obj.Observacion = null;
+                    obj.MaxQuantity = listaEM.First().Quantity;
+                    obj.Submotivo = 0;
+                    obj.MaxQuantityOIBT = listaEM.First().Quantity / listaEM.First().NumInBuy;
+                    obj.NumInBuyKey = listaEM.First().NumInBuy;
+                    detalleDevolucion.Add(obj);
+                    ++linea;
+                }
+            }
+
+            var result = new Capa_Negocio.Almacen_NEG.TablasSql.ORPD_N().RegistrarDevolucion(devolucion, detalleDevolucion);
+
+            var titulo = (result > 0) ? "Acción completada" : "Error";
+            var icono = (result > 0) ? "success" : "error";
+            var mensajes = (result > 0)
+                ? new List<string> { $"Se registró correctamenta la devolución Faltante: {result}" }
+                : new List<string> { "Ocurrió un error al cancelar el documento.", "Por favor, comuníquese con el área de Sistemas para más información" };
+
+            return Json(new { Titulo = titulo, Mensajes = mensajes, Icono = icono }, JsonRequestBehavior.AllowGet);
+
+        }
+
 
     }
 }
