@@ -28,6 +28,7 @@
         public int CantidadAprobados{ get; set; }
         public int CantidadBaja{ get; set; }
         public int CantidadDevolucion { get; set; }
+        public int CantidadFaltante { get; set; }
         public int CantidadTotal{ get; set; }
         public string Liberado{ get; set; }
         public string Transferido { get; set; }
