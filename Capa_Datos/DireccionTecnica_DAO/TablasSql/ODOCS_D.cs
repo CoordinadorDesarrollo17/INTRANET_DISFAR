@@ -629,12 +629,13 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
             table.Columns.Add("CantidadTotal", typeof(int));
             table.Columns.Add("Liberado", typeof(int));
             table.Columns.Add("Transferido", typeof(int));
+            table.Columns.Add("FirmCode", typeof(int));
 
             foreach (var detalle in detalles)
             {
                 table.Rows.Add(0, detalle.ItemCode, detalle.ItemName, detalle.Lote, detalle.FechaVencimiento, detalle.RegistroSanitario, detalle.Fabricante, detalle.CondicionAlmTrans,
                     detalle.Almacen, detalle.CertificadoAnalisis, detalle.ComentarioOrganoleptico, detalle.CantidadAprobados, detalle.CantidadBaja, detalle.CantidadDevolucion, detalle.CantidadFaltante, detalle.CantidadTotal,
-                    detalle.Liberado, detalle.Transferido);
+                    detalle.Liberado, detalle.Transferido, detalle.FirmCode);
             }
             return table;
         }
