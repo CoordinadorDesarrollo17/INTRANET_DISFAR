@@ -231,10 +231,13 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
                 if (string.IsNullOrWhiteSpace(item.Almacen))
                     return _helpers.CrearRespuestaError($"Almacen no válido en ítem{indicadorFila}");
 
+                if (item.CantidadAprobados <= 0)
+                    return _helpers.CrearRespuestaError($"Llenar correctamente la cantidad aprobada.{indicadorFila}");
+
                 if (item.CantidadAprobados > 0 || item.CantidadBaja > 0 || item.CantidadDevolucion > 0 || item.CantidadFaltante > 0)
                     if (!EsCantidadValida(item.CantidadAprobados, item.CantidadBaja, item.CantidadDevolucion, item.CantidadFaltante, item.CantidadTotal))
                         return _helpers.CrearRespuestaError($"Las cantidades ingresadas no suman la cantidad total en ítem{indicadorFila}");
-
+                
                 index++;
             }
 
