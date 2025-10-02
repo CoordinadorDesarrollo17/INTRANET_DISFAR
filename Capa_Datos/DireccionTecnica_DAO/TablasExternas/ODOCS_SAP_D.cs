@@ -51,6 +51,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasExternas
                         detalle.Lote = hdr.IsDBNull(13) ? "" : hdr.GetString(13);
                         detalle.RegistroSanitario = hdr.IsDBNull(14) ? "" : hdr.GetString(14);
                         detalle.FechaVencimiento = hdr.IsDBNull(15) ? "" : hdr.GetString(15);
+                        detalle.FirmCode = hdr.IsDBNull(16) ? 0 : hdr.GetInt32(16);
 
                         documento.Detalle.Add(detalle);
                     }

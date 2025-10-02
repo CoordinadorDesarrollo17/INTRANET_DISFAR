@@ -231,10 +231,13 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
                 if (string.IsNullOrWhiteSpace(item.Almacen))
                     return _helpers.CrearRespuestaError($"Almacen no válido en ítem{indicadorFila}");
 
+                if (item.CantidadAprobados <= 0)
+                    return _helpers.CrearRespuestaError($"Llenar correctamente la cantidad aprobada.{indicadorFila}");
+
                 if (item.CantidadAprobados > 0 || item.CantidadBaja > 0 || item.CantidadDevolucion > 0 || item.CantidadFaltante > 0)
                     if (!EsCantidadValida(item.CantidadAprobados, item.CantidadBaja, item.CantidadDevolucion, item.CantidadFaltante, item.CantidadTotal))
                         return _helpers.CrearRespuestaError($"Las cantidades ingresadas no suman la cantidad total en ítem{indicadorFila}");
-
+                
                 index++;
             }
 
@@ -254,7 +257,7 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
                 return _helpers.CrearRespuestaError("Debe ingresar las cantidades para Aprobados, Bajas y/o Devolución.");
 
             if (detalle.CantidadAprobados > 0 || detalle.CantidadBaja > 0 || detalle.CantidadDevolucion > 0 || detalle.CantidadFaltante > 0)
-                if (!EsCantidadValida(detalle.CantidadAprobados, detalle.CantidadBaja, detalle.CantidadDevolucion, detalle.CantidadTotal, detalle.CantidadFaltante))
+                if (!EsCantidadValida(detalle.CantidadAprobados, detalle.CantidadBaja, detalle.CantidadDevolucion, detalle.CantidadFaltante, detalle.CantidadTotal))
                     return _helpers.CrearRespuestaError($"Las cantidades ingresadas no suman la cantidad total.");
 
             return null;
@@ -278,7 +281,7 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
         private bool EsCantidadValida(int cantidadAprobados, int cantidadBaja, int cantidadDevolucion, int cantidadFaltante, int cantidadTotal)
         {
             var bandera = false;
-            var calculo = cantidadAprobados + cantidadBaja + cantidadDevolucion+ cantidadFaltante;
+            var calculo = cantidadAprobados + cantidadBaja + cantidadDevolucion + cantidadFaltante;
 
             if (calculo == cantidadTotal)
                 bandera = true;
