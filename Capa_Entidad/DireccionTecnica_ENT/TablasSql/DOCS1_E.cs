@@ -36,5 +36,6 @@ namespace Capa_Entidad.TablasSql
         public AT_DOCS1_E AtencionBaja { get; set; }
         public AT_DOCS1_E AtencionDevolucion { get; set; }
         public AT_DOCS1_E AtencionFaltante { get; set; }
+        public int FirmCode { get; set; }
     }
 }
