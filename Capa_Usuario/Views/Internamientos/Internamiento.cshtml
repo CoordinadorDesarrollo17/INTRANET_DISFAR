@@ -222,39 +222,39 @@
                     tr.classList.add('main-row');
 
                     tr.innerHTML = `
-                                                                                <td class="text-center">
-                                                                                    <button type="button" class="btn btn-sm btn-cobefar-2 toggle-subtable">
-                                                                                        <i class="bi bi-chevron-down"></i>
-                                                                                    </button>
-                                                                                </td>
-                                                                                <td class="text-center text-uppercase small">
-                                                                                    <input type="hidden" name="Detalle[${key}].ItemCode" value="${item.ItemCode}">${item.ItemCode}
-                                                                                </td>
-                                                                                <td class="text-start text-uppercase small">
-                                                                                    <input type="hidden" name="Detalle[${key}].ItemName" value="${item.ItemName}">${item.ItemName}
-                                                                                </td>
-                                                                                <td class="text-center text-uppercase small">
-                                                                                    <input type="hidden" name="Detalle[${key}].Lote" value="${item.Lote}">${item.Lote}
-                                                                                </td>
-                                                                                <td class="text-center text-uppercase small">
-                                                                                    <input type="hidden" name="Detalle[${key}].FechaVencimiento" value="${item.FechaVencimiento}">${item.FechaVencimiento}
-                                                                                </td>
-                                                                                <td class="text-center text-uppercase small">
-                                                                                    <input type="hidden" name="Detalle[${key}].RegistroSanitario" value="${item.RegistroSanitario}">${item.RegistroSanitario}
-                                                                                </td>
-                                                                                <td class="text-start text-uppercase small">
-                                                                                    <input type="hidden" name="Detalle[${key}].Fabricante" value="${item.Fabricante}">${item.Fabricante}
-                                                                                </td>
-                                                                                <td class="text-center text-uppercase small">
-                                                                                    <input type="hidden" name="Detalle[${key}].CondicionAlmTrans" value="15ºC - 25ºC">15ºC - 25ºC
-                                                                                </td>
-                                                                                <td class="text-center text-uppercase small">
-                                                                                    <input type="hidden" name="Detalle[${key}].Almacen" value="${item.Almacen}">${item.Almacen}
-                                                                                </td>
-                                                                                <td class="text-center text-uppercase small">
-                                                                                    <input type="hidden" name="Detalle[${key}].CantidadTotal" value="${item.CantidadTotal}">${item.CantidadTotal}
-                                                                                </td>
-                                                                            `;
+                                                                                    <td class="text-center">
+                                                                                        <button type="button" class="btn btn-sm btn-cobefar-2 toggle-subtable">
+                                                                                            <i class="bi bi-chevron-down"></i>
+                                                                                        </button>
+                                                                                    </td>
+                                                                                    <td class="text-center text-uppercase small">
+                                                                                        <input type="hidden" name="Detalle[${key}].ItemCode" value="${item.ItemCode}">${item.ItemCode}
+                                                                                    </td>
+                                                                                    <td class="text-start text-uppercase small">
+                                                                                        <input type="hidden" name="Detalle[${key}].ItemName" value="${item.ItemName}">${item.ItemName}
+                                                                                    </td>
+                                                                                    <td class="text-center text-uppercase small">
+                                                                                        <input type="hidden" name="Detalle[${key}].Lote" value="${item.Lote}">${item.Lote}
+                                                                                    </td>
+                                                                                    <td class="text-center text-uppercase small">
+                                                                                        <input type="hidden" name="Detalle[${key}].FechaVencimiento" value="${item.FechaVencimiento}">${item.FechaVencimiento}
+                                                                                    </td>
+                                                                                    <td class="text-center text-uppercase small">
+                                                                                        <input type="hidden" name="Detalle[${key}].RegistroSanitario" value="${item.RegistroSanitario}">${item.RegistroSanitario}
+                                                                                    </td>
+                                                                                    <td class="text-start text-uppercase small">
+                                                                                        <input type="hidden" name="Detalle[${key}].Fabricante" value="${item.Fabricante}">${item.Fabricante}
+                                                                                    </td>
+                                                                                    <td class="text-center text-uppercase small">
+                                                                                        <input type="hidden" name="Detalle[${key}].CondicionAlmTrans" value="15ºC - 25ºC">15ºC - 25ºC
+                                                                                    </td>
+                                                                                    <td class="text-center text-uppercase small">
+                                                                                        <input type="hidden" name="Detalle[${key}].Almacen" value="${item.Almacen}">${item.Almacen}
+                                                                                    </td>
+                                                                                    <td class="text-center text-uppercase small">
+                                                                                        <input type="hidden" name="Detalle[${key}].CantidadTotal" value="${item.CantidadTotal}">${item.CantidadTotal}
+                                                                                    </td>
+                                                                                `;
 
                     // Agregar fila al tbody
                     tbody.appendChild(tr);
@@ -283,65 +283,65 @@
                         const subRow = document.createElement('tr');
                         subRow.classList.add('subtable-row');
                         subRow.innerHTML = `
-                                                                                    <td colspan="10" class="bg-light p-3">
-                                                                                        <div class="row">
-                                                                                         <div class="col-lg-2">
-                                                                                             <label class="small form-label fw-bold">Certificado de Análisis:</label>
-                                                                                             <div class="form-check">
-                                                                                                <input class="form-check-input" type="radio" name="Detalle[${key}].CertificadoAnalisis" id="opcion1_${correlativo}" value="Aplica" checked>
-                                                                                                <label class="form-check-label" for="opcion1_${correlativo}">Aplica</label>
-                                                                                              </div>
+                                                                                        <td colspan="10" class="bg-light p-3">
+                                                                                            <div class="row">
+                                                                                             <div class="col-lg-2">
+                                                                                                 <label class="small form-label fw-bold">Certificado de Análisis:</label>
+                                                                                                 <div class="form-check">
+                                                                                                    <input class="form-check-input" type="radio" name="Detalle[${key}].CertificadoAnalisis" id="opcion1_${correlativo}" value="Aplica" checked>
+                                                                                                    <label class="form-check-label" for="opcion1_${correlativo}">Aplica</label>
+                                                                                                  </div>
 
-                                                                                              <div class="form-check">
-                                                                                                <input class="form-check-input" type="radio" name="Detalle[${key}].CertificadoAnalisis" id="opcion2_${correlativo}" value="No Aplica">
-                                                                                                <label class="form-check-label" for="opcion2_${correlativo}">No Aplica</label>
-                                                                                              </div>
-                                                                                         </div>
-                                                                                            <div class="col-lg-3">
-                                                                                                <label for="formFileProtocolo_${correlativo}" class="small form-label fw-bold">Cargar Protocolo:</label>
-                                                                                                <input class="form-control" type="file" id="formFileProtocolo_${correlativo}" name="Detalle[${key}].ArchivoProtocolo" accept=".pdf">
+                                                                                                  <div class="form-check">
+                                                                                                    <input class="form-check-input" type="radio" name="Detalle[${key}].CertificadoAnalisis" id="opcion2_${correlativo}" value="No Aplica">
+                                                                                                    <label class="form-check-label" for="opcion2_${correlativo}">No Aplica</label>
+                                                                                                  </div>
+                                                                                             </div>
+                                                                                                <div class="col-lg-3">
+                                                                                                    <label for="formFileProtocolo_${correlativo}" class="small form-label fw-bold">Cargar Protocolo:</label>
+                                                                                                    <input class="form-control" type="file" id="formFileProtocolo_${correlativo}" name="Detalle[${key}].ArchivoProtocolo" accept=".pdf">
 
-                                                                                                <label for="formFileET_${correlativo}" class="small form-label fw-bold mt-4">Cargar E.T.:</label>
-                                                                                                <input class="form-control" type="file" id="formFileET_${correlativo}" name="Detalle[${key}].ArchivoET" accept=".pdf">
+                                                                                                    <label for="formFileET_${correlativo}" class="small form-label fw-bold mt-4">Cargar E.T.:</label>
+                                                                                                    <input class="form-control" type="file" id="formFileET_${correlativo}" name="Detalle[${key}].ArchivoET" accept=".pdf">
 
-                                                                                                 <label for="formFileRS_${correlativo}" class="small form-label fw-bold mt-4">Cargar R.S.:</label>
-                                                                                                <input class="form-control" type="file" id="formFileRS_${correlativo}" name="Detalle[${key}].ArchivoRS" accept=".pdf">
+                                                                                                     <label for="formFileRS_${correlativo}" class="small form-label fw-bold mt-4">Cargar R.S.:</label>
+                                                                                                    <input class="form-control" type="file" id="formFileRS_${correlativo}" name="Detalle[${key}].ArchivoRS" accept=".pdf">
+                                                                                                </div>
+                                                                                                <div class="col-lg-5">
+                                                                                                      <label class="small form-label fw-bold">Comentario Organoléptico:</label>
+                                                                                                      <textarea name="Detalle[${key}].ComentarioOrganoleptico" class="form-control" rows="2">${item.ComentarioOrganoleptico ?? ''}</textarea>
+                                                                                                </div>
+                                                                                                <div class="col-lg-2">
+                                                                                                      <table>
+                                                                                                        <tr>
+                                                                                                            <td>Aprobados:</td>
+                                                                                                            <td>
+                                                                                                                <input type="text" name="Detalle[${key}].CantidadAprobados" class="form-control w-75 cls-num" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" oninput="validarCantidad(this)" autocomplete="off">
+                                                                                                            </td>
+                                                                                                        </tr>
+                                                                                                        <tr>
+                                                                                                            <td>Baja:</td>
+                                                                                                            <td>
+                                                                                                                <input type="text" name="Detalle[${key}].CantidadBaja" class="form-control w-75 cls-num" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" oninput="validarCantidad(this)" autocomplete="off">
+                                                                                                            </td>
+                                                                                                        </tr>
+                                                                                                        <tr>
+                                                                                                            <td>Devolución:</td>
+                                                                                                            <td>
+                                                                                                                <input type="text" name="Detalle[${key}].CantidadDevolucion" class="form-control w-75 cls-num" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" oninput="validarCantidad(this)" autocomplete="off">
+                                                                                                            </td>
+                                                                                                        </tr>
+                                                                                                        <tr>
+                                                                                                            <td>Faltante:</td>
+                                                                                                            <td>
+                                                                                                                <input type="text" name="Detalle[${key}].CantidadFaltante" class="form-control w-75 cls-num" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" oninput="validarCantidad(this)" autocomplete="off">
+                                                                                                            </td>
+                                                                                                        </tr>
+                                                                                                      </table>
+                                                                                                </div>
                                                                                             </div>
-                                                                                            <div class="col-lg-5">
-                                                                                                  <label class="small form-label fw-bold">Comentario Organoléptico:</label>
-                                                                                                  <textarea name="Detalle[${key}].ComentarioOrganoleptico" class="form-control" rows="2">${item.ComentarioOrganoleptico ?? ''}</textarea>
-                                                                                            </div>
-                                                                                            <div class="col-lg-2">
-                                                                                                  <table>
-                                                                                                    <tr>
-                                                                                                        <td>Aprobados:</td>
-                                                                                                        <td>
-                                                                                                            <input type="text" name="Detalle[${key}].CantidadAprobados" class="form-control w-75 cls-num" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" oninput="validarCantidad(this)" autocomplete="off">
-                                                                                                        </td>
-                                                                                                    </tr>
-                                                                                                    <tr>
-                                                                                                        <td>Baja:</td>
-                                                                                                        <td>
-                                                                                                            <input type="text" name="Detalle[${key}].CantidadBaja" class="form-control w-75 cls-num" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" oninput="validarCantidad(this)" autocomplete="off">
-                                                                                                        </td>
-                                                                                                    </tr>
-                                                                                                    <tr>
-                                                                                                        <td>Devolución:</td>
-                                                                                                        <td>
-                                                                                                            <input type="text" name="Detalle[${key}].CantidadDevolucion" class="form-control w-75 cls-num" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" oninput="validarCantidad(this)" autocomplete="off">
-                                                                                                        </td>
-                                                                                                    </tr>
-                                                                                                    <tr>
-                                                                                                        <td>Faltante:</td>
-                                                                                                        <td>
-                                                                                                            <input type="text" name="Detalle[${key}].CantidadFaltante" class="form-control w-75 cls-num" data-identificador="${correlativo}" data-cantidad="${item.CantidadTotal}" oninput="validarCantidad(this)" autocomplete="off">
-                                                                                                        </td>
-                                                                                                    </tr>
-                                                                                                  </table>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    </td>
-                                                                                `;
+                                                                                        </td>
+                                                                                    `;
 
                         currentRow.parentNode.insertBefore(subRow, currentRow.nextSibling);
                         soloNumerosPorClase('cls-num')
@@ -353,6 +353,12 @@
         }
 
         async function registrarDocumento() {
+            const btnGuardar = document.getElementById('btn_guardar');
+            if (btnGuardar.disabled) return; // Evita doble clic
+            btnGuardar.disabled = true;
+            const originalHtml = btnGuardar.innerHTML;
+            btnGuardar.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Guardando...';
+
             const formData = new FormData();
 
             // Reorganizar inputs Detalle[] desde frm_datosTabla
@@ -406,12 +412,17 @@
                     icon: data.Icono,
                     confirmButtonColor: '#28a745'
                 }).then(result => {
-                    if (result.isConfirmed && data.Icono === "success") {
+                    if (data.Icono === "success" && result.isConfirmed) {
                         location.reload();
+                    } else {
+                        btnGuardar.disabled = false;
+                        btnGuardar.innerHTML = originalHtml;
                     }
                 });
             } catch (error) {
                 console.error('Error al registrar:', error);
+                btnGuardar.disabled = false;
+                btnGuardar.innerHTML = originalHtml;
             }
         }
 
