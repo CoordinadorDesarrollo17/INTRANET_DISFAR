@@ -1781,6 +1781,27 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+
+
+        [HttpPost]
+        public JsonResult GuardarProductoPendiente(int DocEntry, int ProductoPendiente)
+        {
+            // Solo registrar "PENDIENTE" si ProductoPendiente == 1
+            if (ProductoPendiente == 1)
+            {
+                // Llama a la capa de negocio/datos para registrar el estado "PENDIENTE"
+                var negocio = new ORTV_N();
+                negocio.RegistrarProductoPendiente(DocEntry);
+
+                // Puedes devolver el DocNum para redirigir
+                var ticket = negocio.ObtenerTicketVenta(DocEntry);
+                return Json(new { DocNum = ticket.DocNum });
+            }
+            return Json(new { DocNum = 0 });
+        }
+
+
+
         public ActionResult AnularVerificadoTicket(int DocEntry, int idOperation = 809)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);

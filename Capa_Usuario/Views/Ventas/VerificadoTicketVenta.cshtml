@@ -19,9 +19,15 @@
             if ($('#ProductoPendiente').val() === '1') {
                 $('#btnTerminarVerificar').hide();
                 $('#btnPendientes').show();
+                // Bloquear campos Verificador 2 y 3
+                $('#Verificador2').prop('disabled', true);
+                $('#Verificador3').prop('disabled', true);
             } else {
                 $('#btnTerminarVerificar').show();
                 $('#btnPendientes').hide();
+                // Desbloquear campos Verificador 2 y 3
+                $('#Verificador2').prop('disabled', false);
+                $('#Verificador3').prop('disabled', false);
             }
         }
         $('#ProductoPendiente').on('change', actualizarBotonesPendientes);
@@ -36,6 +42,20 @@
             icon: 'info',
             title: 'Productos Pendientes',
             text: 'Recuerde revisar y gestionar los productos pendientes antes de finalizar la verificación.'
+        });
+    }
+    function guardarPendiente() {
+        // Solo envía el campo ProductoPendiente=1 y redirige
+        const form = document.getElementById('formPendientes');
+        const docEntry = '@Model.DocEntry';
+        const formData = new FormData(form);
+        fetch(`/Ventas/GuardarProductoPendiente?DocEntry=${docEntry}`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(result => {
+            window.location.replace(`/Ventas/ListadoTicketsAlmacen?DocNum=${result.DocNum}`);
         });
     }
 </script>
@@ -135,7 +155,10 @@
                 <div class="row mt-4">
                     <div class="col-lg-2 d-flex align-items-center">
                         <button type="button" class="btn btn-success mr-2" id="btnTerminarVerificar" onclick="validarForm()"><i class="icon icon-checkmark"></i> Terminar Verificar</button>
-                        <button type="button" class="btn btn-warning" id="btnPendientes" style="display:none;" onclick="mostrarPendientes()"><i class="icon icon-alert"></i> Existen Productos Pendientes</button>
+                        <form id="formPendientes" method="post" style="display:inline;">
+                            <input type="hidden" name="ProductoPendiente" value="1" />
+                            <button type="button" class="btn btn-warning" id="btnPendientes" style="display:none;" onclick="guardarPendiente()"><i class="icon icon-alert"></i> Existen Productos Pendientes</button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -828,4 +851,5 @@
 
         $('#' + idCampoDestino).val(valor);
     }
+
 </script>
