@@ -92,20 +92,33 @@ namespace Capa_Datos.Almacen_DAO.TablasSql
                             if (!dr.IsDBNull(13)) { dev.SinEM = dr.GetBoolean(13); }
                             if (!dr.IsDBNull(14)) { dev.ODOCSId = dr.GetInt64(14); }
                             /*** C O N T R O L  D E  C A M B I O S ***/
-                            CC_ORPD_E ccDev = new CC_ORPD_E
+                            // Obtener la fecha de REGISTRAR
+                            CC_ORPD_E ccDevRegistrar = new CC_ORPD_E
                             {
                                 DocEntry = dev.DocEntry,
                                 Operacion = "REGISTRAR"
                             };
+                            var listaCCRegistrar = cC_ORPD_D.ListarCC_ORPD(ccDevRegistrar);
 
-                            var listaCC = cC_ORPD_D.ListarCC_ORPD(ccDev);
-
-                            if (listaCC != null && listaCC.Count() >= 1)
+                            // Obtener el operario de EDITAR
+                            CC_ORPD_E ccDevEditar = new CC_ORPD_E
                             {
-                                dev.Operario = listaCC[0].Operario;
-                                dev.FechaOperacion = listaCC[0].FechaOperacion;     // Registro
+                                DocEntry = dev.DocEntry,
+                                Operacion = "EDITAR"
+                            };
+                            var listaCCEditar = cC_ORPD_D.ListarCC_ORPD(ccDevEditar);
 
-                                lista.Add(dev);     // solo se agregará a la lista los que cumplen con los filtros enviados
+                            if (listaCCRegistrar != null && listaCCRegistrar.Count() >= 1)
+                            {
+                                dev.FechaOperacion = listaCCRegistrar[0].FechaOperacion; // Fecha de registro
+
+                                // Si hay edición, usa ese operario; si no, usa el de registro
+                                if (listaCCEditar != null && listaCCEditar.Count() >= 1)
+                                    dev.Operario = listaCCEditar[0].Operario;
+                                else
+                                    dev.Operario = listaCCRegistrar[0].Operario;
+
+                                lista.Add(dev);
                             }
 
                         }
