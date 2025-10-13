@@ -238,7 +238,7 @@ namespace Capa_Usuario.Controllers
             return Json(result);
         }
 
-        public JsonResult CrearDevolucion(long id, int idOperacion = 0)
+        public JsonResult CrearDevolucion(long id, int idOperacion = 100)
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
@@ -344,7 +344,7 @@ namespace Capa_Usuario.Controllers
 
         }
 
-        public JsonResult CrearFaltante(long id, int idOperacion = 0)    //Crear faltante Independidete de en DEVOLUCION
+        public JsonResult CrearFaltante(long id, int idOperacion = 100)    //Crear faltante Independidete de en DEVOLUCION
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
