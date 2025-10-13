@@ -1761,11 +1761,18 @@ namespace Capa_Usuario.Controllers
                     ticket.OpRegistro = $"{u.Nombres} {u.Apellidos}";
                     ticket.Det12 = ticketPost.Det12;        // OpVerificador 2 y OpVerificador 3
                     ticket.ProductoPendiente = ticketPost.ProductoPendiente;
-                    int DocNum = _ticketN.editarSeguimientoTicket("FIN VERIFICAR", DocEntry, ticket);
                     var listaUsuarios = _usuarioN.ListaUsuarios(new Usuario_E() { Prefijo = "ALM" });
                     var usuariosDistinct = listaUsuarios.Select(x => $"{x.Nombres} {x.Apellidos}").Distinct().ToList();
                     ViewBag.ListaUsuarios = usuariosDistinct;
-                    return Json(new { DocNum, Mensaje = $"Ticket {DocNum} verificado correctamente" });
+
+                    if (ticket.ProductoPendiente == 0)
+                    {
+                        int DocNum = _ticketN.editarSeguimientoTicket("FIN VERIFICAR", DocEntry, ticket);
+                        return Json(new { DocNum, Mensaje = $"Ticket {DocNum} verificado correctamente" });
+                    }
+                    else
+
+                    return Json(new { ticket.DocNum, Mensaje = $"Ticket {ticket.DocNum} xxx" });
                 }
                 catch (Exception e)
                 {
