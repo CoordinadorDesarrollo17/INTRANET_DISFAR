@@ -67,7 +67,6 @@
 <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
     <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO DE REPARTOS</h3></div>
 
-
     <div class="d-none d-sm-block pl-2 w-100 p-3">
         <div class="row">
             <a href="@Url.Action("NuevaHojaDeReparto", "Rutas",new {TipoRep="Re" })" class="btn btn-success ml-2">
@@ -83,7 +82,6 @@
         </div>
     </div>
 </div>
-
 
 <div class="modal" id="ModalGestion" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
@@ -110,7 +108,6 @@
         </div>
     </div>
 </div>
-
 
 <form name="frm" id="filterForm">
     <div class="bg-white bg-form-cobefar p-3">
@@ -177,28 +174,21 @@
                         <td class="text-center @if (ViewBag.DocNum == item.DocNum) { Write("bg-success"); } ">
                             @Html.DisplayFor(modelItem => item.DocNum)
                         </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.TipoRuta)
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.TransDesc)
-                        </td>
+                        <td class="text-center">@Html.DisplayFor(modelItem => item.TipoRuta)</td>
+                        <td class="text-center">@Html.DisplayFor(modelItem => item.TransDesc)</td>
                         <td class="text-center">
                             @Convert.ToDateTime(item.TiempoPac).ToString("dd/MM/yyyy") <br class="d-md-none" />@Convert.ToDateTime(item.TiempoPac).ToString("HH:mm")
                         </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.Estado)
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.TotalCajas)
-                        </td>
+                        <td class="text-center">@Html.DisplayFor(modelItem => item.Estado)</td>
+                        <td class="text-center">@Html.DisplayFor(modelItem => item.TotalCajas)</td>
                         <td class="text-center">
                             <div class="d-flex">
                                 @if (item.Estado.Equals("CREADO"))
                                 {
-                                    <button type="button" class="btn btn-success btn-sm d-block d-sm-block d-md-block d-lg-none d-xl-none mx-1" data-toggle="modal" data-target="#M1" onclick="llenarModal1(@item.DocEntry,@item.DocNum,0,0);">Ini</button>
-
+                                    @* <button type="button" class="btn btn-success btn-sm d-block d-sm-block d-md-block d-lg-none d-xl-none mx-1" data-toggle="modal" data-target="#M1" onclick="llenarModal1(@item.DocEntry,@item.DocNum,0,0);">Ini</button> *@
+                                    <a href="@Url.Action("IniciarReparto", "Rutas", new { DocEntry = item.DocEntry })" class="btn btn-success btn-sm d-block d-sm-block d-md-block d-lg-none d-xl-none mx-1">Ini</a>
                                 }
+
                                 @if (item.Estado.Equals("CREADO") || item.Estado.Equals("ENVIADO"))
                                 {
                                     <a href="@Url.Action("EditarHojaDeReparto", "Rutas", new { DocEntry = item.DocEntry, TipoRep = "Re" })" class="d-none d-sm-none d-md-none d-lg-block d-xl-block btn btn-light mx-1" data-toggle="tooltip" data-placement="top" title="Editar"><i class="icon-pencil text-primary"></i></a>
@@ -231,7 +221,6 @@
                                 }
                             </div>
                         </td>
-
                     </tr>
                 }
             </tbody>
@@ -239,64 +228,13 @@
     </div>
 </form>
 
-<div class="modal" id="M1" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-headerModals text-white">
-                <h5 class="modal-title" id="exampleModalLabel">INICIAR REPARTO</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span class="text-white" aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body bg-light">
-                <div class="modal-body bg-light">
-                    <form id="formIni">
-                        <!-- Encabezado y campo oculto -->
-                        <div class="form-group text-center">
-                            <label class="bg-cobefar text-white font-weight-bold px-3 py-2 font-18 rounded" id="M1DocNum"></label>
-                            <input type="hidden" name="DocEntry" id="M1DocEntry" readonly>
-                        </div>
-
-                        <!-- Termohigrómetros -->
-                        <div class="form-group">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <div class="border p-3 rounded bg-white">
-                                        <label class="d-block font-weight-bold text-center mb-2">TERMOHIGROMETRO 1</label>
-                                        <div class="form-group">
-                                            <label for="TempI1" class="font-weight-bold">Temperatura Inicial 1:</label>
-                                            <input id="TempI1" type="number" step="0.1" class="form-control border-success" name="TempI1">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <div class="border p-3 rounded bg-white">
-                                        <label class="d-block font-weight-bold text-center mb-2">TERMOHIGROMETRO 2</label>
-                                        <div class="form-group">
-                                            <label for="TempI2" class="font-weight-bold">Temperatura Inicial 2:</label>
-                                            <input id="TempI2" type="number" step="0.1" class="form-control border-success" name="TempI2">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Botones de acción -->
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-cobefar" onclick="iniciarReparto();">
-                                <i class="icon-checkmark"></i> Sí
-                            </button>
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                                <i class="icon-cross"></i> No
-                            </button>
-                        </div>
-                    </form>
-                </div>
-
-            </div>
-        </div>
+@* ======= MODAL INICIAR REPARTO COMENTADO TEMPORALMENTE ======= *@
+@*
+    <div class="modal" id="M1" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        ... (contenido original del modal omitido por decisión temporal) ...
     </div>
-</div>
+*@
+
 <div class="modal" id="M2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">

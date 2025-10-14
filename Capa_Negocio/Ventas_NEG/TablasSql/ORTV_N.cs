@@ -806,6 +806,16 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             if (!(obj.FecIni != null && obj.FecFin != null)) { throw new Exception("Debe completar las 2 fechas"); }
             return tkD.TbRptAnalisisVentas(obj);
         }
+
+        //*********Nuevo Para guardar el si ****************//
+
+        public void RegistrarProductoPendiente(int docEntry)
+        {
+            var datos = new ORTV_D();
+            datos.RegistrarProductoPendiente(docEntry);
+        }
+
+        //*********Fin del nuevo para no perderme ****************//
         //ATENCION AL CLIENTES
         public List<ORTV_E> ListarTicketsParaAtencion()
         {
