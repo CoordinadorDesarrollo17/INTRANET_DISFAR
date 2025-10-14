@@ -78,8 +78,6 @@
                 <td width=270px><font size="@ViewBag.Letra">@Convert.ToDateTime(Model.TiempoPac).ToString("dd/MM/yyyy")</font></td>
             </tr>
             <tr>
-                <td><font size="@ViewBag.Letra"><strong>HORA INICIO: </strong></font></td>
-                <td width=150px><font size="@ViewBag.Letra">@Convert.ToDateTime(Model.TiempoPac).ToString("HH:mm:ss")</font></td>
                 <td colspan=10><font size="@ViewBag.Letra">CONDICIÓN ALMACENAMIENTO : T° 15°C-25°C</font></td>
             </tr>
             <tr>
@@ -116,6 +114,8 @@
                 <th align=center width=4%><font size="@ViewBag.Letra">VISTO</font></th>
                 <th align=center width=10%><font size="@ViewBag.Letra">RECIBIDO POR</font></th>
                 <th align=center width=18%><font size="@ViewBag.Letra">FIRMA Y/O SELLO DE RECIBIDO</font></th>
+                <th align=center width=18%><font size="@ViewBag.Letra">HORA ENTREGA</font></th>
+
 
             </tr>
             @foreach (var det in Model2.DetRRU0.Where(x => x.Estado != "LIBERADO").OrderBy(x => x.Linea).ToList())
