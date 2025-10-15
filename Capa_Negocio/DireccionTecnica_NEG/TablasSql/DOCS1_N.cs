@@ -270,7 +270,7 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
         public Helper_E ValidarParaLiberacion(DOCS1_E detalle)
         {
             bool certificadoInvalido = string.IsNullOrWhiteSpace(detalle.CertificadoAnalisis);
-            bool archivosFaltantes = detalle.DescargarArchivoET == null && detalle.DescargarArchivoProtocolo == null;
+            bool archivosFaltantes = detalle.DescargarArchivoET == null && detalle.DescargarArchivoProtocolo == null && detalle.DescargarArchivoRS == null;
             bool cantidadesCero = detalle.CantidadAprobados <= 0 && detalle.CantidadBaja <= 0 && detalle.CantidadDevolucion <= 0 && detalle.CantidadFaltante <= 0;
             bool cantidadesInvalidas =
                 (detalle.CantidadAprobados > 0 || detalle.CantidadBaja > 0 || detalle.CantidadDevolucion > 0 || detalle.CantidadFaltante > 0) &&
