@@ -108,7 +108,7 @@ namespace Capa_Negocio.Almacen_NEG.TablasSql
                         decimal CantidadIngresadaPz = Math.Round(obj.Quantity * obj.NumInBuy, 2);
                         if (MaxQuantityPermitidaOIBTPz > 0)
                         {
-                            if (CantidadIngresadaPz > MaxQuantityPermitidaPz && CantidadIngresadaPz > MaxQuantityPermitidaOIBTPz) { throw new Exception("El producto " + obj.ItemName.Substring(0, 10) + "-" + obj.BatchNum + " excede la cantidad permitida"); }
+                            if (CantidadIngresadaPz > MaxQuantityPermitidaPz || CantidadIngresadaPz > MaxQuantityPermitidaOIBTPz) { throw new Exception("El producto " + obj.ItemName.Substring(0, 10) + "-" + obj.BatchNum + " excede la cantidad permitida"); }
                         }
                         else
                         {

@@ -260,7 +260,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasSql
                                 detalle.ItemName = dr.IsDBNull(3) ? null : dr.GetString(3);
                                 detalle.Lote = dr.IsDBNull(4) ? null : dr.GetString(4);
                                 detalle.FechaVencimiento = dr.IsDBNull(5) ? null : dr.GetString(5);
-                                detalle.RegistroSanitario = dr.IsDBNull(6) ? null : dr.GetString(6);
+                                detalle.RegistroSanitario = dr.IsDBNull(6) ? "" : dr.GetString(6);
                                 detalle.Fabricante = dr.IsDBNull(7) ? null : dr.GetString(7);
                                 detalle.CondicionAlmTrans = dr.IsDBNull(8) ? null : dr.GetString(8);
                                 detalle.Almacen = dr.IsDBNull(9) ? null : dr.GetString(9);

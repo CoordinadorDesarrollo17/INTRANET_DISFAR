@@ -303,7 +303,7 @@ namespace Capa_Usuario.Controllers
                     obj.Observacion = null;
                     obj.MaxQuantity = listaEM.First().Quantity;
                     obj.Submotivo = 0;
-                    obj.MaxQuantityOIBT = listaEM.First().Quantity / listaEM.First().NumInBuy;
+                    obj.MaxQuantityOIBT = listaEM.First().Quantity;
                     obj.NumInBuyKey = listaEM.First().NumInBuy;
                     detalleDevolucion.Add(obj);
                     ++linea;
@@ -426,12 +426,12 @@ namespace Capa_Usuario.Controllers
                     obj.Quantity = item.CantidadFaltante;
                     obj.NumInBuy = listaEM.First().NumInBuy;
                     obj.BuyUnitMsr = listaEM.First().BuyUnitMsr;
-                    obj.Motivo = 44;        // 12: Faltante (verifica este valor en tu catálogo de motivos)
+                    obj.Motivo = 44;        // 44: Faltante (verifica este valor en tu catálogo de motivos)
                     obj.RefFactura = internamiento.ComprobanteVinculado;
                     obj.Observacion = null;
                     obj.MaxQuantity = listaEM.First().Quantity;
                     obj.Submotivo = 0;
-                    obj.MaxQuantityOIBT = listaEM.First().Quantity / listaEM.First().NumInBuy;
+                    obj.MaxQuantityOIBT = listaEM.First().Quantity;
                     obj.NumInBuyKey = listaEM.First().NumInBuy;
                     detalleDevolucion.Add(obj);
                     ++linea;

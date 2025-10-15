@@ -219,8 +219,8 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
                 if (string.IsNullOrWhiteSpace(item.FechaVencimiento))
                     return _helpers.CrearRespuestaError($"Fecha de vencimiento no válida en ítem{indicadorFila}");
 
-                if (string.IsNullOrWhiteSpace(item.RegistroSanitario))
-                    return _helpers.CrearRespuestaError($"Registro sanitario no válido en ítem{indicadorFila}");
+                //if (string.IsNullOrWhiteSpace(item.RegistroSanitario))
+                //    return _helpers.CrearRespuestaError($"Registro sanitario no válido en ítem{indicadorFila}");
 
                 if (string.IsNullOrWhiteSpace(item.Fabricante))
                     return _helpers.CrearRespuestaError($"Fabricante no válido en ítem{indicadorFila}");
@@ -270,7 +270,7 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
         public Helper_E ValidarParaLiberacion(DOCS1_E detalle)
         {
             bool certificadoInvalido = string.IsNullOrWhiteSpace(detalle.CertificadoAnalisis);
-            bool archivosFaltantes = detalle.DescargarArchivoET == null && detalle.DescargarArchivoProtocolo == null;
+            bool archivosFaltantes = detalle.DescargarArchivoET == null && detalle.DescargarArchivoProtocolo == null && detalle.DescargarArchivoRS == null;
             bool cantidadesCero = detalle.CantidadAprobados <= 0 && detalle.CantidadBaja <= 0 && detalle.CantidadDevolucion <= 0 && detalle.CantidadFaltante <= 0;
             bool cantidadesInvalidas =
                 (detalle.CantidadAprobados > 0 || detalle.CantidadBaja > 0 || detalle.CantidadDevolucion > 0 || detalle.CantidadFaltante > 0) &&
