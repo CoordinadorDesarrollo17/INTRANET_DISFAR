@@ -219,8 +219,8 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
                 if (string.IsNullOrWhiteSpace(item.FechaVencimiento))
                     return _helpers.CrearRespuestaError($"Fecha de vencimiento no válida en ítem{indicadorFila}");
 
-                if (string.IsNullOrWhiteSpace(item.RegistroSanitario))
-                    return _helpers.CrearRespuestaError($"Registro sanitario no válido en ítem{indicadorFila}");
+                //if (string.IsNullOrWhiteSpace(item.RegistroSanitario))
+                //    return _helpers.CrearRespuestaError($"Registro sanitario no válido en ítem{indicadorFila}");
 
                 if (string.IsNullOrWhiteSpace(item.Fabricante))
                     return _helpers.CrearRespuestaError($"Fabricante no válido en ítem{indicadorFila}");
