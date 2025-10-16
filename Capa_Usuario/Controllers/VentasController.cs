@@ -3297,7 +3297,7 @@ namespace Capa_Usuario.Controllers
                     {
                         if (t.LugarDestino == "Centro")
                         {
-                            t.TiempoEntrega = Convert.ToDateTime(t.TiempoEntrega).AddMinutes(90);
+                            t.TiempoEntrega = Convert.ToDateTime(t.TiempoEntrega).AddMinutes(120);
                         }
                         else if (t.LugarDestino == "Arriola")
                         {
