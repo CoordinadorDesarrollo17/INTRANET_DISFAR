@@ -11,6 +11,7 @@ using Capa_Negocio.Almacen_NEG.Tablas;
 using Capa_Negocio.DireccionTecnica_NEG.TablasSql;
 using Capa_Negocio.Seguridad_NEG.TablasSql;
 using Capa_Usuario.Helpers;
+using DocumentFormat.OpenXml.Spreadsheet;
 using dotless.Core.Parser.Tree;
 using Microsoft.ReportingServices.ReportProcessing.ReportObjectModel;
 using OfficeOpenXml;
@@ -353,6 +354,83 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+
+        private readonly StockMinProductos_N _stockMinimoN = new StockMinProductos_N();
+
+
+        [HttpGet]
+        public ActionResult ExportarExcelStockMinimoPicking()
+        {
+            try
+            {
+                // 1️⃣ Llama a la capa de negocio
+                var lista = _stockMinimoN.ListarStockMinProductos();
+
+                if (lista == null || !lista.Any())
+                    return Content("No se encontraron registros para exportar.");
+
+                // 2️⃣ Generar Excel con EPPlus
+                using (var excel = new OfficeOpenXml.ExcelPackage())
+                {
+                    var hoja = excel.Workbook.Worksheets.Add("StockMinimoPicking");
+
+                    // ENCABEZADOS
+                    hoja.Cells[1, 1].Value = "Código de Artículo";
+                    hoja.Cells[1, 2].Value = "Descripción";
+                    hoja.Cells[1, 3].Value = "Stock Mínimo Abastecimiento";
+                    hoja.Cells[1, 4].Value = "Clasificación";
+
+                    using (var rango = hoja.Cells[1, 1, 1, 4])
+                    {
+                        rango.Style.Font.Bold = true;
+                        rango.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                        rango.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.FromArgb(0, 102, 51));
+                        rango.Style.Font.Color.SetColor(System.Drawing.Color.White);
+                        rango.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                    }
+
+
+                    // 🔹 AGREGAR FILTROS AUTOMÁTICOS
+                    hoja.Cells["A1:D1"].AutoFilter = true;
+
+                    // DATOS
+                    int fila = 2;
+                    foreach (var item in lista)
+                    {
+                        hoja.Cells[fila, 1].Value = item.ItemCode;
+                        hoja.Cells[fila, 2].Value = item.ItemName;
+                        hoja.Cells[fila, 3].Value = item.StockMinAbastecimiento;
+                        hoja.Cells[fila, 4].Value = item.Clasificacion;
+                        fila++;
+                    }
+
+                    hoja.Cells.AutoFitColumns();
+
+                    using (var rango = hoja.Cells[1, 1, fila - 1, 4])
+                    {
+                        rango.Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                        rango.Style.Border.Bottom.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                        rango.Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                        rango.Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                    }
+
+                    // 3️⃣ Retornar archivo
+                    string nombreArchivo = $"Reporte_StockMinimoPicking_{DateTime.Now:yyyyMMdd_HHmm}.xlsx";
+                    string contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+                    return File(excel.GetAsByteArray(), contentType, nombreArchivo);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Content($"Error al generar el reporte: {ex.Message}");
+            }
+        }
+
+
+
+
+
         /************************* U B I C A C I O N E S   R E S E R V A *************************/
         public ActionResult UbicacionesReserva(int idOperation = 3200)
         {
