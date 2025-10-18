@@ -33,6 +33,9 @@
             <button type="button" id="btn_nuevoSM" class="btn btn-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="Nuevo stock mínimo picking">
                 <i class="bi bi-plus-lg"></i> Stock Mín.
             </button>
+            <button type="button" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Exportar Excel de Stock Minimo Picking" onclick="exportarExcel()">
+                <i class="bi bi-file-earmark-excel-fill"></i> Reporte
+            </button>
         </div>
     </div>
 </div>
@@ -246,5 +249,56 @@
                 console.error('Error:', error);
             }
         }
+        async function exportarExcel() {
+            try {
+                // Mostrar mensaje de carga
+                Swal.fire({
+                    title: "Generando reporte...",
+                    text: "Por favor espera mientras se genera el archivo Excel.",
+                    allowEscapeKey: false,
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading()
+                });
+
+                // Llamada al método del controlador
+                const response = await fetch("/AbastecimientoInterno/ExportarExcelStockMinimoPicking", {
+                    method: "GET"
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error en la solicitud: ${response.statusText}`);
+                }
+
+                // Convertir respuesta a blob (archivo)
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "Reporte_StockMinimo_Picking.xlsx";
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+
+                Swal.close();
+
+                Swal.fire({
+                    title: "Reporte generado",
+                    text: "El archivo Excel se descargó correctamente.",
+                    icon: "success",
+                    timer: 2500,
+                    showConfirmButton: false
+                });
+            } catch (error) {
+                console.error("Error al generar el reporte:", error);
+                Swal.fire({
+                    title: "Error",
+                    text: "Ocurrió un problema al generar el reporte.",
+                    icon: "error",
+                    confirmButtonText: "Aceptar"
+                });
+            }
+        }
+
     </script>
 }
