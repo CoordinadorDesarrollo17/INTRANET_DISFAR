@@ -1761,11 +1761,18 @@ namespace Capa_Usuario.Controllers
                     ticket.OpRegistro = $"{u.Nombres} {u.Apellidos}";
                     ticket.Det12 = ticketPost.Det12;        // OpVerificador 2 y OpVerificador 3
                     ticket.ProductoPendiente = ticketPost.ProductoPendiente;
-                    int DocNum = _ticketN.editarSeguimientoTicket("FIN VERIFICAR", DocEntry, ticket);
                     var listaUsuarios = _usuarioN.ListaUsuarios(new Usuario_E() { Prefijo = "ALM" });
                     var usuariosDistinct = listaUsuarios.Select(x => $"{x.Nombres} {x.Apellidos}").Distinct().ToList();
                     ViewBag.ListaUsuarios = usuariosDistinct;
-                    return Json(new { DocNum, Mensaje = $"Ticket {DocNum} verificado correctamente" });
+
+                    if (ticket.ProductoPendiente == 0)
+                    {
+                        int DocNum = _ticketN.editarSeguimientoTicket("FIN VERIFICAR", DocEntry, ticket);
+                        return Json(new { DocNum, Mensaje = $"Ticket {DocNum} verificado correctamente" });
+                    }
+                    else
+
+                    return Json(new { ticket.DocNum, Mensaje = $"Ticket {ticket.DocNum} xxx" });
                 }
                 catch (Exception e)
                 {
@@ -1781,6 +1788,27 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+
+
+        [HttpPost]
+        public JsonResult GuardarProductoPendiente(int DocEntry, int ProductoPendiente)
+        {
+            // Solo registrar "PENDIENTE" si ProductoPendiente == 1
+            if (ProductoPendiente == 1)
+            {
+                // Llama a la capa de negocio/datos para registrar el estado "PENDIENTE"
+                var negocio = new ORTV_N();
+                negocio.RegistrarProductoPendiente(DocEntry);
+
+                // Puedes devolver el DocNum para redirigir
+                var ticket = negocio.ObtenerTicketVenta(DocEntry);
+                return Json(new { DocNum = ticket.DocNum });
+            }
+            return Json(new { DocNum = 0 });
+        }
+
+
+
         public ActionResult AnularVerificadoTicket(int DocEntry, int idOperation = 809)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
@@ -3269,7 +3297,7 @@ namespace Capa_Usuario.Controllers
                     {
                         if (t.LugarDestino == "Centro")
                         {
-                            t.TiempoEntrega = Convert.ToDateTime(t.TiempoEntrega).AddMinutes(90);
+                            t.TiempoEntrega = Convert.ToDateTime(t.TiempoEntrega).AddMinutes(120);
                         }
                         else if (t.LugarDestino == "Arriola")
                         {

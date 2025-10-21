@@ -219,8 +219,8 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
                 if (string.IsNullOrWhiteSpace(item.FechaVencimiento))
                     return _helpers.CrearRespuestaError($"Fecha de vencimiento no válida en ítem{indicadorFila}");
 
-                if (string.IsNullOrWhiteSpace(item.RegistroSanitario))
-                    return _helpers.CrearRespuestaError($"Registro sanitario no válido en ítem{indicadorFila}");
+                //if (string.IsNullOrWhiteSpace(item.RegistroSanitario))
+                //    return _helpers.CrearRespuestaError($"Registro sanitario no válido en ítem{indicadorFila}");
 
                 if (string.IsNullOrWhiteSpace(item.Fabricante))
                     return _helpers.CrearRespuestaError($"Fabricante no válido en ítem{indicadorFila}");
@@ -231,9 +231,13 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
                 if (string.IsNullOrWhiteSpace(item.Almacen))
                     return _helpers.CrearRespuestaError($"Almacen no válido en ítem{indicadorFila}");
 
-                if (item.CantidadAprobados <= 0)
-                    return _helpers.CrearRespuestaError($"Llenar correctamente la cantidad aprobada.{indicadorFila}");
-
+                if (item.CantidadAprobados <= 0 &&
+                item.CantidadBaja <= 0 &&
+                item.CantidadDevolucion <= 0 &&
+                item.CantidadFaltante <= 0)
+                {
+                    return _helpers.CrearRespuestaError($"Debe ingresar al menos una cantidad mayor a 0 en ítem{indicadorFila}");
+                }
                 if (item.CantidadAprobados > 0 || item.CantidadBaja > 0 || item.CantidadDevolucion > 0 || item.CantidadFaltante > 0)
                     if (!EsCantidadValida(item.CantidadAprobados, item.CantidadBaja, item.CantidadDevolucion, item.CantidadFaltante, item.CantidadTotal))
                         return _helpers.CrearRespuestaError($"Las cantidades ingresadas no suman la cantidad total en ítem{indicadorFila}");
@@ -266,7 +270,7 @@ namespace Capa_Negocio.DireccionTecnica_NEG.TablasSql
         public Helper_E ValidarParaLiberacion(DOCS1_E detalle)
         {
             bool certificadoInvalido = string.IsNullOrWhiteSpace(detalle.CertificadoAnalisis);
-            bool archivosFaltantes = detalle.DescargarArchivoET == null && detalle.DescargarArchivoProtocolo == null;
+            bool archivosFaltantes = detalle.DescargarArchivoET == null && detalle.DescargarArchivoProtocolo == null && detalle.DescargarArchivoRS == null;
             bool cantidadesCero = detalle.CantidadAprobados <= 0 && detalle.CantidadBaja <= 0 && detalle.CantidadDevolucion <= 0 && detalle.CantidadFaltante <= 0;
             bool cantidadesInvalidas =
                 (detalle.CantidadAprobados > 0 || detalle.CantidadBaja > 0 || detalle.CantidadDevolucion > 0 || detalle.CantidadFaltante > 0) &&

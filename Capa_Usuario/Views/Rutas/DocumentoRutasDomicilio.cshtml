@@ -52,7 +52,7 @@
                     <table width="100%">
                         <tr>
                             <td width="100" style="text-align: center; border: 1px solid;"><strong> <font size="@(ViewBag.Letra+1)">F/DBT-001</font></strong></td>
-                            <td style="text-align: center; border: 1px solid;" width="30"><strong>V1</strong></td>
+                            <td style="text-align: center; border: 1px solid;" width="30"><strong>V2</strong></td>
                         </tr>
                     </table>
                 </td>
@@ -78,8 +78,6 @@
                 <td width=270px><font size="@ViewBag.Letra">@Convert.ToDateTime(Model.TiempoPac).ToString("dd/MM/yyyy")</font></td>
             </tr>
             <tr>
-                <td><font size="@ViewBag.Letra"><strong>HORA INICIO: </strong></font></td>
-                <td width=150px><font size="@ViewBag.Letra">@Convert.ToDateTime(Model.TiempoPac).ToString("HH:mm:ss")</font></td>
                 <td colspan=10><font size="@ViewBag.Letra">CONDICIÓN ALMACENAMIENTO : T° 15°C-25°C</font></td>
             </tr>
             <tr>
@@ -116,6 +114,8 @@
                 <th align=center width=4%><font size="@ViewBag.Letra">VISTO</font></th>
                 <th align=center width=10%><font size="@ViewBag.Letra">RECIBIDO POR</font></th>
                 <th align=center width=18%><font size="@ViewBag.Letra">FIRMA Y/O SELLO DE RECIBIDO</font></th>
+                <th align=center width=18%><font size="@ViewBag.Letra">HORA ENTREGA</font></th>
+
 
             </tr>
             @foreach (var det in Model2.DetRRU0.Where(x => x.Estado != "LIBERADO").OrderBy(x => x.Linea).ToList())
@@ -148,6 +148,8 @@
                         </font>
                     </td>
                     <td style='text-align: justify; word-wrap: break-word;'><font size="@ViewBag.Letra">_________</font></td>
+                    <td style='text-align: center;'><font size="@ViewBag.Letra"></font></td>
+
                 </tr>
             }
         </table>

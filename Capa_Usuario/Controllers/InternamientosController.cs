@@ -238,7 +238,7 @@ namespace Capa_Usuario.Controllers
             return Json(result);
         }
 
-        public JsonResult CrearDevolucion(long id, int idOperacion = 0)
+        public JsonResult CrearDevolucion(long id, int idOperacion = 100)
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
@@ -303,7 +303,7 @@ namespace Capa_Usuario.Controllers
                     obj.Observacion = null;
                     obj.MaxQuantity = listaEM.First().Quantity;
                     obj.Submotivo = 0;
-                    obj.MaxQuantityOIBT = listaEM.First().Quantity / listaEM.First().NumInBuy;
+                    obj.MaxQuantityOIBT = listaEM.First().Quantity;
                     obj.NumInBuyKey = listaEM.First().NumInBuy;
                     detalleDevolucion.Add(obj);
                     ++linea;
@@ -344,7 +344,7 @@ namespace Capa_Usuario.Controllers
 
         }
 
-        public JsonResult CrearFaltante(long id, int idOperacion = 0)    //Crear faltante Independidete de en DEVOLUCION
+        public JsonResult CrearFaltante(long id, int idOperacion = 100)    //Crear faltante Independidete de en DEVOLUCION
         {
             var usuarioSesion = Session["UsuarioId"] as Usuario_E;
             if (usuarioSesion == null)
@@ -426,12 +426,12 @@ namespace Capa_Usuario.Controllers
                     obj.Quantity = item.CantidadFaltante;
                     obj.NumInBuy = listaEM.First().NumInBuy;
                     obj.BuyUnitMsr = listaEM.First().BuyUnitMsr;
-                    obj.Motivo = 44;        // 12: Faltante (verifica este valor en tu catálogo de motivos)
+                    obj.Motivo = 44;        // 44: Faltante (verifica este valor en tu catálogo de motivos)
                     obj.RefFactura = internamiento.ComprobanteVinculado;
                     obj.Observacion = null;
                     obj.MaxQuantity = listaEM.First().Quantity;
                     obj.Submotivo = 0;
-                    obj.MaxQuantityOIBT = listaEM.First().Quantity / listaEM.First().NumInBuy;
+                    obj.MaxQuantityOIBT = listaEM.First().Quantity;
                     obj.NumInBuyKey = listaEM.First().NumInBuy;
                     detalleDevolucion.Add(obj);
                     ++linea;

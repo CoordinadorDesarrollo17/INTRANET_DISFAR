@@ -108,7 +108,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.TablasExternas
 
                         var detalle = new DOCS1_E();
                         detalle.Almacen = hdr.IsDBNull(7) ? "" : hdr.GetString(7);
-                        int ordinalCantidad = hdr.GetOrdinal("CantidadTotalPzasPorLote");
+                        int ordinalCantidad = hdr.GetOrdinal("CantidadTotalCajasPorLote");
                         detalle.CantidadTotal = hdr.IsDBNull(ordinalCantidad)
                             ? 0
                             : Convert.ToInt32(hdr.GetDecimal(ordinalCantidad));

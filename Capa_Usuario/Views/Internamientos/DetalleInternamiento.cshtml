@@ -128,11 +128,6 @@
                 animation: 'fade'
             });
 
-            tippy('#btn_noGenerarDevolucion', {
-                content: 'No generar devolución',
-                animation: 'fade'
-            });
-
             tippy('.cls-solicitarReversionLiberacion', {
                 content: 'Solicitar reversión de liberación',
                 animation: 'fade'
@@ -141,7 +136,6 @@
 
         function validarBotonDevolucion() {
             const btnCrearDevolucion = document.getElementById('btn_crearDevolucion');
-            const btnNoGenerarDevolucion = document.getElementById('btn_noGenerarDevolucion');
             const estadoGeneral = document.getElementById('Estado').value;
             const filas = document.querySelectorAll('#tbl_documento tbody tr.main-row');
             const modeloJS = @Html.Raw(ViewBag.JsonModel);
@@ -166,7 +160,6 @@
 
         function mostrarBotonesSoloSiLiberado() {
             const btnCrearDevolucion = document.getElementById('btn_crearDevolucion');
-            const btnNoGenerarDevolucion = document.getElementById('btn_noGenerarDevolucion');
             const estadoGeneral = document.getElementById('Estado').value;
             const habilitar = estadoGeneral === 'Liberado';
             btnCrearDevolucion.hidden = !habilitar;
@@ -228,7 +221,12 @@
                                             <input type="hidden" name="Detalle[${key}].FechaVencimiento" value="${item.FechaVencimiento}">${item.FechaVencimiento}
                                         </td>
                                         <td class="text-center text-uppercase small">
-                                            <input type="hidden" name="Detalle[${key}].RegistroSanitario" data-identificador="${correlativo}" value="${item.RegistroSanitario}">${item.RegistroSanitario}
+                                            <input
+                                                type="hidden"
+                                                name="Detalle[${key}].RegistroSanitario" 
+                                                data-identificador="${correlativo}" 
+                                                value="${item.RegistroSanitario && item.RegistroSanitario !== 'null' ? item.RegistroSanitario : ''}">
+                                            ${item.RegistroSanitario && item.RegistroSanitario !== 'null' ? item.RegistroSanitario : ''}
                                         </td>
                                         <td class="text-start text-uppercase small">
                                             <input type="hidden" name="Detalle[${key}].Fabricante" value="${item.Fabricante}">${item.Fabricante}
