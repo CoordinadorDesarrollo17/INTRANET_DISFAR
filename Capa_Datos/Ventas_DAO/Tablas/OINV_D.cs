@@ -146,7 +146,11 @@ namespace Capa_Datos.Ventas_DAO.Tablas
             //Domicilio y agencia:
 
             string query1 = $@"
-            SELECT T4.""DocEntry"", T4.""DocNum"", T4.""NumAtCard"", T4.""Max1099"" 
+            SELECT 
+                T4.""DocEntry"", 
+                T4.""DocNum"", 
+                T4.""NumAtCard"", 
+                T4.""Max1099""
             FROM {uti.schemaHana}ODLN T0
             INNER JOIN {uti.schemaHana}DLN1 T1 
                 ON T1.""DocEntry"" = T0.""DocEntry""
@@ -162,12 +166,26 @@ namespace Capa_Datos.Ventas_DAO.Tablas
             INNER JOIN {uti.schemaHana}OINV T4 
                 ON T4.""DocEntry"" = T3.""DocEntry"" 
                 AND T4.""CANCELED"" = 'N' 
-            WHERE T0.""CANCELED"" = 'N' 
-            GROUP BY T4.""DocEntry"", T4.""DocNum"", T4.""NumAtCard"", T4.""Max1099""";
+            WHERE 
+                T0.""CANCELED"" = 'N'
+                AND T4.""DocEntry"" NOT IN (
+                    SELECT DISTINCT R1.""BaseEntry""
+                    FROM {uti.schemaHana}RIN1 R1
+                    INNER JOIN {uti.schemaHana}ORIN R0 
+                        ON R0.""DocEntry"" = R1.""DocEntry""
+                    WHERE 
+                        R0.""CANCELED"" = 'N'
+                        AND R1.""BaseType"" = '13'  -- 13 = Factura de clientes (OINV)
+                )
+            GROUP BY 
+                T4.""DocEntry"", 
+                T4.""DocNum"", 
+                T4.""NumAtCard"", 
+                T4.""Max1099""";
 
             //Centro y arriola:
 
-                    string query2 = $@"
+            string query2 = $@"
             SELECT T0.""DocEntry"", T0.""DocNum"", T0.""NumAtCard"", T0.""Max1099"" 
             FROM {uti.schemaHana}OINV T0
             INNER JOIN {uti.schemaHana}INV1 T1 
