@@ -2576,7 +2576,7 @@ namespace Capa_Usuario.Controllers
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                int columnas = 14;
+                int columnas = 17;
                 var lista = _reporteKardex.ListarKardexIngreso(fechaInicio, fechaFin);
 
                 if (lista != null && lista.Any())
