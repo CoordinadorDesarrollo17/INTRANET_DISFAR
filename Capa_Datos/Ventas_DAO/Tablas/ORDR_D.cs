@@ -109,22 +109,24 @@ namespace Capa_Datos.Ventas_DAO.Tablas
             }
             catch { cn.Close(); return ConducYPlaca; }
 
+            string conducyPlacaRem = odlnD.buscarConducyPlacaRemision(DocEntry);
             // Obtener conductor y placa
             string conducyPlacaSinEnt = oinvD.buscarConducyPlacaSinEnt(DocEntry);
 
             string conducyPlacaConEnt = string.Empty;
             foreach (ODLN_E o in odlnD.listarEntregasPorNroVenta(DocEntry))
             {
-                conducyPlacaConEnt += oinvD.buscarConducyPlacaConEnt(o.DocEntry); // ✅ CORREGIDO
+                conducyPlacaConEnt += oinvD.buscarConducyPlacaConEnt(o.DocEntry);
             }
 
-            if (!string.IsNullOrWhiteSpace(conducyPlacaSinEnt))
+            // ✅ Misma lógica que usas en guiasTraslado
+            if (!string.IsNullOrWhiteSpace(conducyPlacaRem))
             {
-                ConducYPlaca = conducyPlacaSinEnt;
+                ConducYPlaca = conducyPlacaRem;
             }
             else
             {
-                ConducYPlaca = conducyPlacaConEnt;
+                ConducYPlaca = conducyPlacaSinEnt + conducyPlacaConEnt;
             }
 
             return ConducYPlaca;
