@@ -1,7 +1,18 @@
-﻿
+﻿<!-- Botón masivo arriba -->
+<div class="mt-2 mb-2 text-end">
+    <button class="btn btn-success" id="btnCambiarUbicacionReservaMasiva">
+        <i class="bi bi-arrow-clockwise"></i> Cambiar ubicación masiva
+    </button>
+    <span id="spinnerCambiarUbicacionReservaMasiva" style="display:none;margin-left:10px;">
+        <span class="spinner-border spinner-border-sm text-success" role="status" aria-hidden="true"></span>
+        Procesando...
+    </span>
+</div>
+
 <table id="tbl_listaStockReserva" class="dt-container dt-empty-footer table table-sm table-hover table-responsive font-12" width="100%">
     <thead class="thead-cobefar">
         <tr>
+            <th scope="col" class="text-center"><input type="checkbox" id="checkAllReserva" /></th>
             <th scope="col" class="text-center">Código de artículo</th>
             <th scope="col" class="text-center">Descripción</th>
             <th scope="col" class="text-center">Lote</th>
@@ -20,9 +31,10 @@
             foreach (var item in Model)
             {
                 var loteMaster = item.BatchNum.Replace(" ", "") + item.UmAlm;
-
-
                 <tr>
+                    <td scope="col" class="text-center align-middle">
+                        <input type="checkbox" class="check-reserva-item" data-ubicacionlotemasterid="@item.UbicacionLoteMasterId" />
+                    </td>
                     <td scope="col" class="text-center align-middle">@item.ItemCode </td>
                     <td scope="col" class="align-middle"><span class="ps-2">@item.ItemName</span></td>
                     <td scope="col" class="text-center align-middle">@item.BatchNum</td>
@@ -133,4 +145,70 @@
         }
     });
 
+    // Selección masiva de checkboxes
+    document.getElementById('checkAllReserva').addEventListener('change', function () {
+        const checked = this.checked;
+        document.querySelectorAll('.check-reserva-item').forEach(cb => {
+            cb.checked = checked;
+        });
+    });
+
+    // Acción masiva
+    document.getElementById('btnCambiarUbicacionReservaMasiva').addEventListener('click', async function () {
+        const btn = this;
+        const spinner = document.getElementById('spinnerCambiarUbicacionReservaMasiva');
+        btn.disabled = true;
+        spinner.style.display = '';
+
+        const seleccionados = Array.from(document.querySelectorAll('.check-reserva-item:checked'));
+        if (seleccionados.length === 0) {
+            Swal.fire('Seleccione al menos un ítem', '', 'warning');
+            btn.disabled = false;
+            spinner.style.display = 'none';
+            return;
+        }
+        // Recopilar datos
+        const items = seleccionados.map(cb => {
+            const ubicacionLoteMasterId = cb.dataset.ubicacionlotemasterid;
+            const select = document.getElementById('idunico_' + ubicacionLoteMasterId);
+            const nuevoCodigoUbicacion = select ? select.value : '';
+            return {
+                ubicacionLoteMasterId,
+                nuevoCodigoUbicacion
+            };
+        });
+        // Validar que todos tengan ubicación seleccionada
+        if (items.some(x => !x.nuevoCodigoUbicacion)) {
+            Swal.fire('Todos los ítems seleccionados deben tener una nueva ubicación elegida.', '', 'error');
+            btn.disabled = false;
+            spinner.style.display = 'none';
+            return;
+        }
+        // Enviar al backend
+        try {
+            const response = await fetch('/AbastecimientoInterno/CambiarUbicacionReservaMasivo', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ items })
+            });
+            const data = await response.json();
+            Swal.fire({
+                title: data.Titulo || 'Resultado',
+                html: Array.isArray(data.Mensajes) ? data.Mensajes.join('<br>') : data.Mensajes,
+                icon: data.Icono || 'info',
+                allowEscapeKey: false,
+                allowOutsideClick: false,
+                showConfirmButton: true
+            }).then(() => {
+                location.reload();
+            });
+        } catch (error) {
+            Swal.fire('Error al cambiar ubicaciones', error.message, 'error');
+        } finally {
+            btn.disabled = false;
+            spinner.style.display = 'none';
+        }
+    });
 </script>
