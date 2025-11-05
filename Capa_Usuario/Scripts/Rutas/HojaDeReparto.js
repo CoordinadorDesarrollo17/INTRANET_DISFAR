@@ -26,7 +26,6 @@ function agregarTicketsDetalle(esEdicion) {
         var tipoRuta = $('#TipoRuta').val();
 
         // ✅ VALIDACIÓN: Solo para VD (Domicilio) y VG (Agencia)
-        // Verificar que DENTRO de cada ticket todos los conductores/placas sean iguales
         if (tipoRuta === 'VD' || tipoRuta === 'VG') {
             var ticketsConProblema = [];
 
@@ -35,18 +34,25 @@ function agregarTicketsDetalle(esEdicion) {
                 var docNum = tr.find('input[id^="DocNum"]').val();
                 var conducyPlacaTicket = tr.find('input[id^="ConducYPlaca"]').val();
 
-                // Limpiar el valor
                 if (conducyPlacaTicket && conducyPlacaTicket !== 'null' && conducyPlacaTicket !== 'undefined') {
                     conducyPlacaTicket = conducyPlacaTicket.trim();
                 } else {
                     conducyPlacaTicket = '';
                 }
 
-                // ✅ VALIDACIÓN INTERNA: Separar por comas y verificar que todos sean iguales
                 if (conducyPlacaTicket !== '') {
-                    var conductores = conducyPlacaTicket.split(',').map(function (c) { return c.trim(); });
+                    // ✅ FILTRAR: Vacíos, guiones solos, y espacios
+                    var conductores = conducyPlacaTicket.split(',')
+                        .map(function (c) { return c.trim(); })
+                        .filter(function (c) {
+                            return c !== '' && c !== '-' && c !== 'null' && c !== 'undefined';
+                        });
 
-                    // Verificar que todos los conductores sean iguales
+                    // Si después de filtrar no quedan conductores, saltar
+                    if (conductores.length === 0) {
+                        return; // continue
+                    }
+
                     var primerConductor = conductores[0];
                     var hayDiferenciasInternas = false;
                     var conductoresDiferentes = [];
@@ -60,7 +66,8 @@ function agregarTicketsDetalle(esEdicion) {
                         }
                     }
 
-                    if (hayDiferenciasInternas) {
+                    // ✅ Solo agregar a problemas si HAY conductores diferentes REALES
+                    if (hayDiferenciasInternas && conductoresDiferentes.length > 0) {
                         ticketsConProblema.push({
                             docNum: docNum,
                             primerConductor: primerConductor,
@@ -70,7 +77,6 @@ function agregarTicketsDetalle(esEdicion) {
                 }
             });
 
-            // Si encontró tickets con conductores diferentes internamente, mostrar error
             if (ticketsConProblema.length > 0) {
                 var mensaje = '<strong>ERROR:</strong> Los siguientes tickets tienen diferentes conductores/placas en sus guías:<br><br>';
 
@@ -93,7 +99,7 @@ function agregarTicketsDetalle(esEdicion) {
                     confirmButtonText: 'Entendido',
                     width: '800px'
                 });
-                return; // ❌ DETENER - NO AGREGAR NADA
+                return;
             }
         }
         // ✅ FIN DE VALIDACIÓN
