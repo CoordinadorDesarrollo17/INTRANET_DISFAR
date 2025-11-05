@@ -3074,5 +3074,127 @@ namespace Capa_Usuario.Controllers
                 return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "Sin accesos." }, Icono = "error" });
             }
         }
+    
+        // --- INICIO: Cambio masivo de ubicación en Reserva ---
+        [HttpPost]
+        public JsonResult CambiarUbicacionReservaMasivo(MasivoCambioUbicacionReservaRequest request, int idOperation = 3207)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
+            {
+                return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "Sin accesos." }, Icono = "error" });
+            }
+            var usuarioSesion = Session["UsuarioId"] as Usuario_E;
+            if (usuarioSesion == null)
+                return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" });
+
+            if (request?.items == null || !request.items.Any())
+                return Json(new { Titulo = "Error", Mensajes = new List<string> { "No se recibieron ítems para procesar." }, Icono = "error" });
+
+            var mensajes = new List<string>();
+            var errores = new List<string>();
+            foreach (var item in request.items)
+            {
+                if (string.IsNullOrWhiteSpace(item.nuevoCodigoUbicacion) || item.ubicacionLoteMasterId <= 0)
+                {
+                    errores.Add($"Ubicación inválida para el ítem con ID {item.ubicacionLoteMasterId}.");
+                    continue;
+                }
+                try
+                {
+                    var obj = _ubicacionesLotesMasterN.Obtener(item.ubicacionLoteMasterId);
+                    bool resultValidarSku = _requerimientosN.ValidarSkuParaCambioUbicacion(obj.ItemCode, obj.BatchNum, obj.CodigoUbicacion);
+                    if (!resultValidarSku)
+                    {
+                        errores.Add($"ID {item.ubicacionLoteMasterId}: SKU/Lote/Ubicación comprometidos en proceso.");
+                        continue;
+                    }
+                    List<DetalleRequerimientos_E> listaEnvioDatos = new List<DetalleRequerimientos_E> { new DetalleRequerimientos_E {
+                ItemCode=obj.ItemCode,
+                ItemName=obj.ItemName,
+                BatchNum=obj.BatchNum,
+                UmAlm=obj.UmAlm,
+                ValorUmAlm=obj.ValorUmAlm,
+                QuantityMaster=obj.QuantityMaster,
+                QuantitySaldo = obj.QuantitySaldo,
+                QuantityUnidadesCajas= obj.QuantityUnidadesCajas,
+                CodigoUbicacionOrigen=obj.CodigoUbicacion
+            } };
+                    Utilitarios uti = new Utilitarios();
+                    using (var scope = new TransactionScope(TransactionScopeOption.Required,
+                       new TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted },
+                       TransactionScopeAsyncFlowOption.Enabled))
+                    {
+                        using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+                        {
+                            cn.Open();
+                            var resultSalidaUbicacionesLotesMaster = _ubicacionesLotesMasterN.Salida(listaEnvioDatos, cn);
+                            if (resultSalidaUbicacionesLotesMaster.Icono.Equals("error"))
+                            {
+                                errores.Add($"ID {item.ubicacionLoteMasterId}: {string.Join("; ", resultSalidaUbicacionesLotesMaster.Mensajes)}");
+                                continue;
+                            }
+                            var resultSalidaUbicacionesLotes = _ubicacionesLotesN.Salida(listaEnvioDatos, cn);
+                            if (resultSalidaUbicacionesLotes.Icono.Equals("error"))
+                            {
+                                errores.Add($"ID {item.ubicacionLoteMasterId}: {string.Join("; ", resultSalidaUbicacionesLotes.Mensajes)}");
+                                continue;
+                            }
+                            var resultIngresoUbicacionesLotes = _ubicacionesLotesN.Ingreso(new DetalleTransferenciaReserva_E
+                            {
+                                ItemCode = obj.ItemCode,
+                                ItemName = obj.ItemName,
+                                BatchNum = obj.BatchNum,
+                                CodigoUbicacion = item.nuevoCodigoUbicacion,
+                                QuantityUnidadesCajas = Convert.ToInt32(obj.QuantityUnidadesCajas)
+                            }, cn);
+                            if (resultIngresoUbicacionesLotes.Icono.Equals("error"))
+                            {
+                                errores.Add($"ID {item.ubicacionLoteMasterId}: {string.Join("; ", resultIngresoUbicacionesLotes.Mensajes)}");
+                                continue;
+                            }
+                            var resultIngresoUbicacionesLotesMaster = _ubicacionesLotesMasterN.Ingreso(resultIngresoUbicacionesLotes.Id, new DetalleTransferenciaReserva_E
+                            {
+                                ItemCode = obj.ItemCode,
+                                ItemName = obj.ItemName,
+                                BatchNum = obj.BatchNum,
+                                CodigoUbicacion = item.nuevoCodigoUbicacion,
+                                QuantityMaster = obj.QuantityMaster,
+                                QuantitySaldo = obj.QuantitySaldo,
+                                UmAlm = obj.UmAlm,
+                                ValorUmAlm = obj.ValorUmAlm
+                            }, cn);
+                            if (resultIngresoUbicacionesLotesMaster.Icono.Equals("error"))
+                            {
+                                errores.Add($"ID {item.ubicacionLoteMasterId}: {string.Join("; ", resultIngresoUbicacionesLotesMaster.Mensajes)}");
+                                continue;
+                            }
+                            scope.Complete();
+                            mensajes.Add($"ID {item.ubicacionLoteMasterId}: Cambio realizado correctamente.");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    errores.Add($"ID {item.ubicacionLoteMasterId}: {ex.Message}");
+                }
+            }
+            if (errores.Any())
+            {
+                return Json(new { Titulo = "Errores en el cambio masivo", Mensajes = errores, Icono = "error" });
+            }
+            return Json(new { Titulo = "Acción completada", Mensajes = mensajes, Icono = "success" });
+        }
+
+        public class MasivoCambioUbicacionReservaRequest
+        {
+            public List<ItemCambioUbicacionReserva> items { get; set; }
+        }
+        public class ItemCambioUbicacionReserva
+        {
+            public int ubicacionLoteMasterId { get; set; }
+            public string nuevoCodigoUbicacion { get; set; }
+        }
+        // --- FIN: Cambio masivo de ubicación en Reserva ---
     }
 }
