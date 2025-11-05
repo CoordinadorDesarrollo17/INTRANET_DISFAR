@@ -1116,6 +1116,8 @@ namespace Capa_Usuario.Controllers
             if (TipoRuta == "VD")
             {
                 ortvE.LugarDestino = "Domicilio";
+                if(Zona == "CONO AGENCIA") { ortvE.LugEntrega = " "; }
+                else
                 ortvE.LugEntrega = AlmOrigenCod;
             }
             else if (TipoRuta == "VG")
