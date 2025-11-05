@@ -1750,6 +1750,7 @@ namespace Capa_Usuario.Controllers
         }
         [HttpPost]
         public ActionResult VerificadoTicketVenta(int DocEntry, ORTV_E ticketPost, int idOperation = 808)
+
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
@@ -1760,19 +1761,21 @@ namespace Capa_Usuario.Controllers
                     ORTV_E ticket = _ticketN.ObtenerDatosCompletosTicket(DocEntry);
                     ticket.OpRegistro = $"{u.Nombres} {u.Apellidos}";
                     ticket.Det12 = ticketPost.Det12;        // OpVerificador 2 y OpVerificador 3
-                    ticket.ProductoPendiente = ticketPost.ProductoPendiente;
+                    ticket.ProductoPendiente = ticketPost.ProductoPendiente;  // IMPORTANTE: Se asigna el valor
+
                     var listaUsuarios = _usuarioN.ListaUsuarios(new Usuario_E() { Prefijo = "ALM" });
                     var usuariosDistinct = listaUsuarios.Select(x => $"{x.Nombres} {x.Apellidos}").Distinct().ToList();
                     ViewBag.ListaUsuarios = usuariosDistinct;
 
-                    if (ticket.ProductoPendiente == 0)
-                    {
-                        int DocNum = _ticketN.editarSeguimientoTicket("FIN VERIFICAR", DocEntry, ticket);
-                        return Json(new { DocNum, Mensaje = $"Ticket {DocNum} verificado correctamente" });
-                    }
-                    else
+                    // Registrar el ticket independientemente del valor de ProductoPendiente
+                    int DocNum = _ticketN.editarSeguimientoTicket("FIN VERIFICAR", DocEntry, ticket);
 
-                    return Json(new { ticket.DocNum, Mensaje = $"Ticket {ticket.DocNum} xxx" });
+                    // Mensaje diferente según si hay productos pendientes o no
+                    string mensaje = ticket.ProductoPendiente == 1
+                        ? $"Ticket {DocNum} verificado con productos pendientes"
+                        : $"Ticket {DocNum} verificado correctamente";
+
+                    return Json(new { DocNum, Mensaje = mensaje });
                 }
                 catch (Exception e)
                 {
@@ -1788,26 +1791,6 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-
-
-        [HttpPost]
-        public JsonResult GuardarProductoPendiente(int DocEntry, int ProductoPendiente)
-        {
-            // Solo registrar "PENDIENTE" si ProductoPendiente == 1
-            if (ProductoPendiente == 1)
-            {
-                // Llama a la capa de negocio/datos para registrar el estado "PENDIENTE"
-                var negocio = new ORTV_N();
-                negocio.RegistrarProductoPendiente(DocEntry);
-
-                // Puedes devolver el DocNum para redirigir
-                var ticket = negocio.ObtenerTicketVenta(DocEntry);
-                return Json(new { DocNum = ticket.DocNum });
-            }
-            return Json(new { DocNum = 0 });
-        }
-
-
 
         public ActionResult AnularVerificadoTicket(int DocEntry, int idOperation = 809)
         {
