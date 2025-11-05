@@ -94,6 +94,8 @@
                     <option value="AGENCIA">AGENCIA</option>
                     <option value="PREVENTA">PREVENTA</option>
                     <option value="ARRIOLA">ARRIOLA</option>
+                    <option value="CONO ARRIOLA"> CONO ARRIOLA</option>
+                    <option value="CONO AGENCIA">CONO AGENCIA</option>
                 </select>
             </div>
             <div id="div_almacen-origen" class="col-lg-2">
@@ -297,3 +299,31 @@
         });
     </script>
 }
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const tipoRutaSelect = document.getElementById('TipoRuta');
+        const zonaSelect = document.getElementById('Zona');
+
+        function actualizarOpcionesZona() {
+            // Mostrar todas las opciones primero
+            Array.from(zonaSelect.options).forEach(opt => {
+                opt.hidden = false;
+            });
+
+            // Si es Domicilio, ocultar AGENCIA y ARRIOLA
+            if (tipoRutaSelect.value === 'VD') {
+                Array.from(zonaSelect.options).forEach(opt => {
+                    if (opt.value === 'AGENCIA' || opt.value === 'ARRIOLA') {
+                        opt.hidden = true;
+                        // Si está seleccionada, resetea el select
+                        if (zonaSelect.value === opt.value) zonaSelect.value = '';
+                    }
+                });
+            }
+        }
+        tipoRutaSelect.addEventListener('change', actualizarOpcionesZona);
+        // Ejecutar al cargar por si hay valor inicial
+        actualizarOpcionesZona();
+    });
+</script>
