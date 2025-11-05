@@ -1,4 +1,3 @@
-ï»¿
 $(document).ready(function () {
     //ocultar boton de tickets no enviados al iniciar el DOM
     $("#btn-NoEnviados").hide();
@@ -11,7 +10,7 @@ $(document).ready(function () {
 function agregarTicketsDetalle(esEdicion) {
     let tablaDeTicketsPorEnviar = $('#detalleRuta').DataTable();
 
-    var nrows = 0;
+  var nrows = 0;
 
     $("#Detalles tr").each(function () {
         nrows++;
@@ -19,71 +18,72 @@ function agregarTicketsDetalle(esEdicion) {
    /* console.log(nrows);*/
     let checkboxesSeleccionados = tablaDeTicketsPorEnviar.rows({ page: 'all' }).nodes().to$().find('.cls-chkVerif:checked');
 
-    if (checkboxesSeleccionados.length > 0) {
+if (checkboxesSeleccionados.length > 0) {
         checkboxesSeleccionados.each(function () {
-            var tr = $(this).closest('tr');
-            // Ver si esa fila tiene vinculados
+ var tr = $(this).closest('tr');
+     // Ver si esa fila tiene vinculados
             var vinculados = tr.find('input[id^="Vinculados"]').val();
 
-            // Verificamos si hay valores en vinculados
-            if (vinculados != null && vinculados != "") {
-                // Separamos los valores por la coma
-                var valoresVinculados = vinculados.split(",");
-                // Iteramos sobre los docnum vinculados
-                for (var i = 0; i < valoresVinculados.length; i++) {
-                    var docnum = valoresVinculados[i].trim();
+ // Verificamos si hay valores en vinculados
+        if (vinculados != null && vinculados != "") {
+      // Separamos los valores por la coma
+            var valoresVinculados = vinculados.split(",");
+       // Iteramos sobre los docnum vinculados
+    for (var i = 0; i < valoresVinculados.length; i++) {
+          var docnum = valoresVinculados[i].trim();
 
-                    var found = false;
+ var found = false;
 
-                    checkboxesSeleccionados.each(function () {
-                        var tr = $(this).closest('tr');
-                        if (tr.find('input[id^="DocNum"]').val() === docnum && $(this).prop('checked')) {
-                            found = true;
-                            return false;
-                        }
-                    });
+    checkboxesSeleccionados.each(function () {
+     var tr = $(this).closest('tr');
+   if (tr.find('input[id^="DocNum"]').val() === docnum && $(this).prop('checked')) {
+              found = true;
+          return false;
+           }
+        });
 
-                    //buscamos en los valores que ya han sido agregados a la tabla llamada Detalles
-                    var tablaDetallesAgregados = $('#Detalles');
-                    if (tablaDetallesAgregados.find('tbody tr').length > 0) {
-                        // Recorrer todas las filas de la tabla
-                        tablaDetallesAgregados.find('tbody tr').each(function () {
-                            // Obtener el valor del campo con id que comienza con "DocNumTDet" en la fila actual
-                            var valorDocNum = $(this).find('input[id^="DocNumTDet"]').val();
-                            // Verificar si el valor obtenido es igual a la variable "docnum"
-                            if (valorDocNum === docnum) {
-                                found = true;
-                                return false;
-                            }
-                        });
-                    }
+             //buscamos en los valores que ya han sido agregados a la tabla llamada Detalles
+      var tablaDetallesAgregados = $('#Detalles');
+    if (tablaDetallesAgregados.find('tbody tr').length > 0) {
+   // Recorrer todas las filas de la tabla
+        tablaDetallesAgregados.find('tbody tr').each(function () {
+// Obtener el valor del campo con id que comienza con "DocNumTDet" in the fila actual
+ var valorDocNum = $(this).find('input[id^="DocNumTDet"]').val();
+  // Verificar si el valor obtenido es igual a la variable "docnum"
+    if (valorDocNum === docnum) {
+          found = true;
+          return false;
+         }
+  });
+   }
 
-                    if (!found && vinculados !== "") {
-                        Swal.fire("Debe agregar a su detalle tambien los vinculados: '" + vinculados + "'");
-                        return;
-                    }
-                }
-            }
+       if (!found && vinculados !== "") {
+      Swal.fire("Debe agregar a su detalle tambien los vinculados: '" + vinculados + "'");
+       return;
+       }
+       }
+    }
 
-            // Obtener los valores relevantes de la fila y pasarlos a agregarItem
+  // Obtener los valores relevantes de la fila y pasarlos a agregarItem
             var docEntry = tr.find('input[id^="DocEntry"]').val();
             var docNum = tr.find('input[id^="DocNum"]').val();
             var cardName = tr.find('input[id^="CardName"]').val();
-            var guias = tr.find('input[id^="GuÃ­as"]').val();
-            var cajas = tr.find('input[id^="Cajas"]').val();
-            var obs = tr.find('input[id^="Obs"]').val();
+     var guias = tr.find('input[id^="Guías"]').val();
+            var conducyPlaca = tr.find('input[id^="ConducYPlaca"]').val();
+          var cajas = tr.find('input[id^="Cajas"]').val();
+        var obs = tr.find('input[id^="Obs"]').val();
             var direcciones = tr.find('input[id^="Direcciones"]').val();
             var montoFinal = tr.find('input[id^="MontoFinal"]').val();
-            var envio = tr.find('input[id^="Envio"]').val();
+   var envio = tr.find('input[id^="Envio"]').val();
 
-            agregarItem(docEntry, docNum, cardName, guias, cajas, obs, direcciones, montoFinal, envio, esEdicion);
+      agregarItem(docEntry, docNum, cardName, guias, conducyPlaca, cajas, obs, direcciones, montoFinal, envio, esEdicion);
         });
 
-        checkboxesSeleccionados.prop('checked', false);
+     checkboxesSeleccionados.prop('checked', false);
         $("#chk_verifTodos").prop('checked', false);
         // Se posiciona en la tabla de detallado final
-        $('html, body').animate({
-            scrollTop: $('#divDetalleRuta').offset().top
+  $('html, body').animate({
+ scrollTop: $('#divDetalleRuta').offset().top
         }, 1000);
     }
 
@@ -93,8 +93,8 @@ function agregarTicketsDetalle(esEdicion) {
     }
 }
 
-// FunciÃ³n unificada que agrega un item al detalle principal
-function agregarItem(docEntry, docNum, cardName, guias, cajas, obs, direcciones, montoFinal, envio, esEdicion) {
+// Función unificada que agrega un item al detalle principal
+function agregarItem(docEntry, docNum, cardName, guias, conducyPlaca, cajas, obs, direcciones, montoFinal, envio, esEdicion) {
     
     // Verificar si el campo ya existe
     if (validarUnicoCampoTabla(docEntry, "Detalles") == false) {
@@ -103,93 +103,101 @@ function agregarItem(docEntry, docNum, cardName, guias, cajas, obs, direcciones,
         if (docEntry == null || docEntry == "") {
             return false;
         }
-        // Construir la fila HTML de la tabla
-        var fila = "<tr>" +
-            "<td><input name='DetRRU0[" + contDet + "].Linea' type='text' value='" + (contDet + 1) + "' style='width:40px' class='form-control' readonly/></td>" +
+        
+        // Formatear guías y conductor/placa para mostrar con saltos de línea
+     var guiasFormateadas = guias ? guias.replace(/,/g, '\n').trim() : '';
+ var conducyPlacaFormateada = conducyPlaca ? conducyPlaca.replace(/,/g, '\n').trim() : '';
+      
+      // Construir la fila HTML de la tabla
+      var fila = "<tr>" +
+        "<td><input name='DetRRU0[" + contDet + "].Linea' type='text' value='" + (contDet + 1) + "' style='width:40px' class='form-control' readonly/></td>" +
             "<td hidden><input name='DetRRU0[" + contDet + "].DocEntryTicket' id='DocEntryTDet" + contDet + "' type='text' value='" + docEntry + "'  class='form-control'  readonly/></td>" +
-            "<td><input name='DetRRU0[" + contDet + "].DocNumTicket' id='DocNumTDet" + contDet + "' type='text' value='" + docNum + "' style='width:110px' class='form-control' readonly/></td>" +
-            "<td><input name='DetRRU0[" + contDet + "].Socio' type='text' value='" + cardName + "' style='width:200px' class='form-control' readonly/></td>" +
-            "<td><textarea name='DetRRU0[" + contDet + "].Guias' class='form-control' readonly>" + guias + "</textarea></td>" +
-            "<td><input name='DetRRU0[" + contDet + "].Cajas' type='text' value='" + cajas + "' style='width:40px' class='form-control' readonly/></td>" +
-            "<td><input name='DetRRU0[" + contDet + "].Observaciones' type='text' value='" + obs + "' class='form-control' readonly/></td>" +
+   "<td><input name='DetRRU0[" + contDet + "].DocNumTicket' id='DocNumTDet" + contDet + "' type='text' value='" + docNum + "' style='width:110px' class='form-control' readonly/></td>" +
+         "<td><input name='DetRRU0[" + contDet + "].Socio' type='text' value='" + cardName + "' style='width:200px' class='form-control' readonly/></td>" +
+      "<td><textarea name='DetRRU0[" + contDet + "].Guias' class='form-control' readonly rows='3'>" + guiasFormateadas + "</textarea></td>" +
+          "<td><textarea name='DetRRU0[" + contDet + "].ConducYPlaca' class='form-control' readonly rows='3'>" + conducyPlacaFormateada + "</textarea></td>" +
+   "<td><input name='DetRRU0[" + contDet + "].Cajas' type='text' value='" + cajas + "' style='width:40px' class='form-control' readonly/></td>" +
+     "<td><input name='DetRRU0[" + contDet + "].Observaciones' type='text' value='" + obs + "' class='form-control' readonly/></td>" +
             "<td><textarea name='DetRRU0[" + contDet + "].Direcciones' class='form-control' readonly>" + direcciones + "</textarea></td>" +
-            "<td><input name='DetRRU0[" + contDet + "].MontoFinal' type='text' value='" + montoFinal + "' class='form-control' readonly/></td>" +
-            "<td><input name='DetRRU0[" + contDet + "].Envio' type='text' value='" + envio + "' class='form-control' readonly/></td>" +
+     "<td><input name='DetRRU0[" + contDet + "].MontoFinal' type='text' value='" + montoFinal + "' class='form-control' readonly/></td>" +
+  "<td><input name='DetRRU0[" + contDet + "].Envio' type='text' value='" + envio + "' class='form-control' readonly/></td>" +
             "<td><a href='SeguimientoDeTicket?DocEntry=" + docEntry + "' target='_blank' style='cursor:pointer' class='btn btn-outline-primary' onclick=window.open(this.href,this.target,'width=500,height=350,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');><i class='icon-truck'></i></a></td>";
 
-        // Agregar botones segÃºn si es para grabar o no
+     // Agregar botones según si es para grabar o no
         if (esEdicion) {
-            var docEntryElement = document.getElementById("doc_entry");
+   var docEntryElement = document.getElementById("doc_entry");
 
-            if (docEntryElement) {
-                docEntryOrru = docEntryElement.value;
+ if (docEntryElement) {
+    docEntryOrru = docEntryElement.value;
             }
 
-            fila += "<td colspan='2' class='d-flex justify-content-center' id='acc" + (contDet + 1) + "'>" +
-                "<button type='button' class='btn btn-outline-success mr-2' onclick='grabarLineaTabla(" + docEntryOrru + ","+(contDet + 1) + "," + docEntry + ")'><i class='icon icon-lock'></i> Grabar</button>" +
-                "<button type='button' class='btn btn-outline-danger' onclick='borrarLineaTabla(this)'><i class='icon icon-bin'></i></button>" +
-                "</td>";
-        } else {
+      fila += "<td colspan='2' class='d-flex justify-content-center' id='acc" + (contDet + 1) + "'>" +
+            "<button type='button' class='btn btn-outline-success mr-2' onclick='grabarLineaTabla(" + docEntryOrru + ","+(contDet + 1) + "," + docEntry + ")'><i class='icon icon-lock'></i> Grabar</button>" +
+           "<button type='button' class='btn btn-outline-danger' onclick='borrarLineaTabla(this)'><i class='icon icon-bin'></i></button>" +
+      "</td>";
+     } else {
             fila += "<td><button type='button' class='btn btn-outline-danger' onclick='borrarLineaTabla(this)'><i class='icon icon-bin'></i></button></td>";
-        }
+  }
 
         fila += "</tr>";
        
         // Agregar la fila al detalle de la tabla
-        $("#Detalles").append(fila);
+    $("#Detalles").append(fila);
 
-        // Calcular el total de cajas
+    // Calcular el total de cajas
         calcularTotalCajas();
 
         // Incrementar el contador de detalle
         contDet++;
 
-        return true;
+    return true;
     }
 }
 
 function borrarLineaTabla(dom) {
     Swal.fire({
-        title: 'Â¿EstÃ¡s seguro?',
-        text: 'Esta acciÃ³n no se puede deshacer.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
+      title: '¿Estás seguro?',
+    text: 'Esta acción no se puede deshacer.',
+   icon: 'warning',
+     showCancelButton: true,
+  confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
-        confirmButtonText: 'SÃ­, eliminar',
+        confirmButtonText: 'Sí, eliminar',
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
-            var i = -1;
+       var i = -1;
 
             $(dom).closest('tr').remove();
 
-            contDet = contDet - 1;
-            $("#Detalles tr").each(function (index, htm) {
-                iden1 = $(htm).find("td:eq(0) input");
-                iden1.attr("name", "DetRRU0[" + i + "].Linea");
-                iden1.val(i + 1);
-                iden1 = $(htm).find("td:eq(1) input");
-                iden1.attr("name", "DetRRU0[" + i + "].DocEntryTicket");
-                iden1 = $(htm).find("td:eq(2) input");
-                iden1.attr("name", "DetRRU0[" + i + "].DocNumTicket");
-                iden1 = $(htm).find("td:eq(3) input");
-                iden1.attr("name", "DetRRU0[" + i + "].Socio");
-                iden1 = $(htm).find("td:eq(4) textarea");
-                iden1.attr("name", "DetRRU0[" + i + "].Guias");
-                iden1 = $(htm).find("td:eq(5) input");
-                iden1.attr("name", "DetRRU0[" + i + "].Cajas");
-                iden1 = $(htm).find("td:eq(6) input");
-                iden1.attr("name", "DetRRU0[" + i + "].Observaciones");
-                iden1 = $(htm).find("td:eq(7) textarea");
-                iden1.attr("name", "DetRRU0[" + i + "].Direcciones");
-                iden1 = $(htm).find("td:eq(8) input");
-                iden1.attr("name", "DetRRU0[" + i + "].MontoFinal");
-                iden1 = $(htm).find("td:eq(9) input");
-                iden1.attr("name", "DetRRU0[" + i + "].Envio");
-                i = i + 1;
+  contDet = contDet - 1;
+    $("#Detalles tr").each(function (index, htm) {
+     iden1 = $(htm).find("td:eq(0) input");
+    iden1.attr("name", "DetRRU0[" + i + "].Linea");
+         iden1.val(i + 1);
+     iden1 = $(htm).find("td:eq(1) input");
+      iden1.attr("name", "DetRRU0[" + i + "].DocEntryTicket");
+      iden1 = $(htm).find("td:eq(2) input");
+     iden1.attr("name", "DetRRU0[" + i + "].DocNumTicket");
+       iden1 = $(htm).find("td:eq(3) input");
+     iden1.attr("name", "DetRRU0[" + i + "].Socio");
+     iden1 = $(htm).find("td:eq(4) textarea");
+        iden1.attr("name", "DetRRU0[" + i + "].Guias");
+ iden1 = $(htm).find("td:eq(5) textarea");
+             iden1.attr("name", "DetRRU0[" + i + "].ConducYPlaca");
+iden1 = $(htm).find("td:eq(6) input");
+         iden1.attr("name", "DetRRU0[" + i + "].Cajas");
+        iden1 = $(htm).find("td:eq(7) input");
+     iden1.attr("name", "DetRRU0[" + i + "].Observaciones");
+         iden1 = $(htm).find("td:eq(8) textarea");
+      iden1.attr("name", "DetRRU0[" + i + "].Direcciones");
+    iden1 = $(htm).find("td:eq(9) input");
+          iden1.attr("name", "DetRRU0[" + i + "].MontoFinal");
+iden1 = $(htm).find("td:eq(10) input");
+      iden1.attr("name", "DetRRU0[" + i + "].Envio");
+      i = i + 1;
             });
-            calcularTotalCajas();
+  calcularTotalCajas();
 
         }
     });
@@ -202,74 +210,75 @@ function liberarLineaTabla(DocEntry, Linea, DocEntryTicket, idreg) {
         var comentarioLiberado = motivo ? motivo.descripcion : 'INTERNO';
 
         Swal.fire({
-            title: 'Â¿EstÃ¡ seguro(a) de liberar el ticket?',
-            text: "Este proceso es irreversible!",
+ title: '¿Está seguro(a) de liberar el ticket?',
+       text: "Este proceso es irreversible!",
             icon: 'warning',
-            showCancelButton: true,
+        showCancelButton: true,
             confirmButtonText: 'Si, estoy seguro(a)',
-            cancelButtonText: 'Cancelar',
-            customClass: {
+ cancelButtonText: 'Cancelar',
+  customClass: {
                 confirmButton: 'btn btn-success mx-2',
-                cancelButton: 'btn btn-outline-danger'
+    cancelButton: 'btn btn-outline-danger'
             },
-            showCancelButton: true,
+          showCancelButton: true,
             buttonsStyling: false
         }).then((result) => {
-            if (result.isConfirmed) {
-                var parametros = { DocEntry, Linea, DocEntryTicket, comentarioLiberado };
-                $.ajax('/Rutas/liberarRRU0',
-                    {
-                        data: parametros,
-                        dataType: 'html',
-                        cache: false,
-                        type: 'post'
-                    })
-                    .done(function (response) {
-                        if (response == "ok") {
-                            $("#" + idreg).css("background", "lightgray");
-                            Swal.fire(
-                                'Ticket liberado exitosamente',
-                                '',
-                                'success'
-                            )
-                        }
-                        else {
-                            swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false;
-                        }
-                    });
-            }
+      if (result.isConfirmed) {
+     var parametros = { DocEntry, Linea, DocEntryTicket, comentarioLiberado };
+     $.ajax('/Rutas/liberarRRU0',
+   {
+             data: parametros,
+           dataType: 'html',
+       cache: false,
+             type: 'post'
+   })
+    .done(function (response) {
+         if (response == "ok") {
+       $("#" + idreg).css("background", "lightgray");
+           Swal.fire(
+     'Ticket liberado exitosamente',
+                '',
+'success'
+       )
+         }
+          else {
+                swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false;
+      }
+   });
+      }
         });
-    });
+ });
 }
 
 function grabarLineaTabla(DocEntryRu, Linea, DocEntryTi) {
     let Guias = $("textarea[name='DetRRU0[" + (Linea - 1) + "].Guias']").val();
+    let ConducYPlaca = $("textarea[name='DetRRU0[" + (Linea - 1) + "].ConducYPlaca']").val(); // <-- ? 1. LÍNEA AGREGADA
     Swal.fire({
-        title: 'Â¿EstÃ¡ seguro(a) de grabar?',
+        title: '¿Está seguro(a) de grabar?',
         text: "Este proceso es irreversible!",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Si'
+      cancelButtonColor: '#d33',
+confirmButtonText: 'Si'
     }).then((result) => {
         if (result.isConfirmed) {
-            var object = { "DocEntry": DocEntryRu, "Linea": Linea, "DocEntryTicket": DocEntryTi, "Guias": Guias };
-            $.ajax('/Rutas/agregarRRU0',
-                {
-                    data: object,
-                    dataType: 'html',
-                    cache: false,
-                    type: 'post'
-                })
-                .done(function (response) {
-                    if (response != "ok") { swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false }
-                    else {
-                        swal.fire({ title: 'Ticket agregado al detalle de ruta', text: "Presione OK para continuar", icon: "success" });
-                        $("#acc" + Linea).html("<button type='button' class='btn btn-blue btn-sm' onclick=liberarTrTable1(" + DocEntryRu + "," + Linea + "," + DocEntryTi + "," + '"' + 'reg' + Linea + '"' + ")><i class='icon icon-unlocked'>  </i>Liberar</button> ");
-                        return false
-                    }
-                });
+            var object = { "DocEntry": DocEntryRu, "Linea": Linea, "DocEntryTicket": DocEntryTi, "Guias": Guias, "ConducYPlaca": ConducYPlaca };
+     $.ajax('/Rutas/agregarRRU0',
+       {
+       data: object,
+           dataType: 'html',
+   cache: false,
+            type: 'post'
+             })
+.done(function (response) {
+        if (response != "ok") { swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false }
+           else {
+          swal.fire({ title: 'Ticket agregado al detalle de ruta', text: "Presione OK para continuar", icon: "success" });
+    $("#acc" + Linea).html("<button type='button' class='btn btn-blue btn-sm' onclick=liberarTrTable1(" + DocEntryRu + "," + Linea + "," + DocEntryTi + "," + '"' + 'reg' + Linea + '"' + ")><i class='icon icon-unlocked'>  </i>Liberar</button> ");
+            return false
+       }
+     });
         }
     })
 }
@@ -278,43 +287,43 @@ function validarTipoRuta(tipo, estado) {
     if (tipo === 'VG') {
         $('#div_almacen-destino').hide();
         $('#div_almacen-origen').hide();
-        //limpiar valores de almacen destino
+    //limpiar valores de almacen destino
         $('#AlmDestinoDesc option[value=" "]').prop('selected', true);
         $('#AlmDestinoCod').val(''); $('#AlmDestinoDesc2').val('');
-        //limpiar valores de almacen origen
+    //limpiar valores de almacen origen
         $('#AlmOrigenDesc option[value=" "]').prop('selected', true);
         $('#AlmOrigenCod').val(''); $('#AlmOrigenDesc2').val('');
         if (estado !== "CREADO") {
-            $('#Zona option[value="AGENCIA"]').prop('selected', true);
-        }
+          $('#Zona option[value="AGENCIA"]').prop('selected', true);
+      }
         buscarConductorYPlaca('AGENCIA');
     } else {
         $('#div_almacen-destino').show();
-        $('#div_almacen-origen').show();
+ $('#div_almacen-origen').show();
         //enviar como parametro default el valor de combobox a almacen destino
-        if (tipo === "VA") {
-            $('#AlmDestinoDesc option[value="ALMACÃ‰N NÂ°5 (Arriola)"]').prop('selected', true);
-            if (estado !== "CREADO") {
-                $('#Zona option[value="ARRIOLA"]').prop('selected', true);
-            }
+      if (tipo === "VA") {
+  $('#AlmDestinoDesc option[value="ALMACÉN N°5 (Arriola)"]').prop('selected', true);
+ if (estado !== "CREADO") {
+  $('#Zona option[value="ARRIOLA"]').prop('selected', true);
+    }
             buscarConductorYPlaca('ARRIOLA');
         }
         else if (tipo === "VC") {
-            $('#AlmDestinoDesc option[value="ALMACÃ‰N NÂ°1"]').prop('selected', true);
-            if (estado !== "CREADO") {
-                $('#Zona option[value="CONO CENTRO"]').prop('selected', true);
-            }
-            buscarConductorYPlaca('CONO CENTRO');
+$('#AlmDestinoDesc option[value="ALMACÉN N°1"]').prop('selected', true);
+   if (estado !== "CREADO") {
+          $('#Zona option[value="CONO CENTRO"]').prop('selected', true);
+          }
+        buscarConductorYPlaca('CONO CENTRO');
         }
         else if (tipo === "VD") {
-            $('#AlmDestinoDesc option[value="DOMICILIOS"]').prop('selected', true);
+        $('#AlmDestinoDesc option[value="DOMICILIOS"]').prop('selected', true);
         }
         if (estado !== "CREADO") {
-            enviarValSelect('AlmDestinoDesc', 'AlmDestinoCod', 'AlmDestinoCod');
+ enviarValSelect('AlmDestinoDesc', 'AlmDestinoCod', 'AlmDestinoCod');
             enviarValSelect('AlmDestinoDesc', 'AlmDestinoDesc2', 'AlmDestinoDesc2');
         }
     }
-    if (estado === "CREADO") {
+if (estado === "CREADO") {
         //ocultar el detallado de RRU11 cuando el tipo de ruta es diferente a transferencia de almacenes
         if (tipo != 'TA') { $("#tbl_detRRu11").css("display", "none"); }
     }
@@ -327,22 +336,22 @@ function buscarConductorYPlaca(zona) {
     $.ajax({
         url: '/Repartos/buscarConductorYPlaca',
         data: parametros,
-        dataType: 'json',
-        cache: false,
-        type: 'post'
+    dataType: 'json',
+      cache: false,
+    type: 'post'
     })
         .done(function (response) {
-            if (response.Placa !== '' && response.Conductor !== '') {
-                selectConductor.val(response.Conductor).change();
-                selectPlaca.val(response.Placa).change();
-            } else {
-                selectConductor.val('').change();
-                selectPlaca.val('').change();
-            }
+if (response.Placa !== '' && response.Conductor !== '') {
+             selectConductor.val(response.Conductor).change();
+      selectPlaca.val(response.Placa).change();
+        } else {
+        selectConductor.val('').change();
+           selectPlaca.val('').change();
+     }
 
         }).fail(function () {
-            Swal.fire('Error', 'Hubo un problema al cargar los datos', 'error');
-        });
+   Swal.fire('Error', 'Hubo un problema al cargar los datos', 'error');
+   });
 }
 
 function enviarValSelect(idi, idf, attrf) {
@@ -360,160 +369,179 @@ function listarTickets(estado) {
     if (TipoRuta !== '' && TipoRuta == 'VG') {
         if (FechaSapTicket !== '' && Zona !== '') {
             if (xhr && xhr.readyState !== 4) {
-                xhr.abort();
+    xhr.abort();
             }
-            Swal.fire({
-                title: 'Trayendo informaciÃ³n de tickets',
-                text: 'Si cierra la ventana, la carga de datos seguirÃ¡ en proceso.',
-                allowEscapeKey: false,
-                allowOutsideClick: false,
-                showCloseButton: false,
-                showConfirmButton: false,
-                timer: 3000
+  Swal.fire({
+       title: 'Trayendo información de tickets',
+ text: 'Si cierra la ventana, la carga de datos seguirá en proceso.',
+      allowEscapeKey: false,
+            allowOutsideClick: false,
+     showCloseButton: false,
+          showConfirmButton: false,
+    timer: 3000
             });
-            var parametros = { "FechaSapTicket": FechaSapTicket, "TipoRuta": TipoRuta, "Zona": Zona, "AlmOrigenCod": AlmOrigenCod }
-            if (estado === 'CREADO') {
+var parametros = { "FechaSapTicket": FechaSapTicket, "TipoRuta": TipoRuta, "Zona": Zona, "AlmOrigenCod": AlmOrigenCod }
+        if (estado === 'CREADO') {
                 // Destruir la tabla antes de volver a cargar los datos
-                tabla.clear().destroy();
-            }
-            xhr = $.ajax({
-                url: '/Rutas/infoTicketsReparto',
-                data: parametros,
-                dataType: 'json',
-                cache: false,
-                type: 'post'
+ tabla.clear().destroy();
+     }
+  xhr = $.ajax({
+            url: '/Rutas/infoTicketsReparto',
+        data: parametros,
+    dataType: 'json',
+        cache: false,
+    type: 'post'
             })
-                .done(function (response) {
-                    $("#btn-NoEnviados a").text('');
-                    $("#btn-NoEnviados").hide();
-                    if (estado === 'CREADO') {
-                        // Volver a inicializar DataTable despuÃ©s de destruirlo
-                        tabla = $('#detalleRuta').DataTable();
-                    } else {
-                        if (tabla.rows().count() > 0) {
-                            tabla.clear().draw();
-                        }
-                    }
-                    var msjNoEnviados = "";
-                    response.Resultado.forEach(function (item, index) {
-                        var fila = $('<tr>');
-                        // Agregar el ID a la fila
-                        fila.attr('id', 'fila' + index);
+          .done(function (response) {
+          $("#btn-NoEnviados a").text('');
+      $("#btn-NoEnviados").hide();
+   if (estado === 'CREADO') {
+  // Volver a inicializar DataTable después de destruirlo
+            tabla = $('#detalleRuta').DataTable();
+        } else {
+        if (tabla.rows().count() > 0) {
+      tabla.clear().draw();
+       }
+  }
+           var msjNoEnviados = "";
+         response.Resultado.forEach(function (item, index) {
+       var fila = $('<tr>');
+     // Agregar el ID a la fila
+     fila.attr('id', 'fila' + index);
 
-                        // Crear las celdas con inputs y agregarlas a la fila
-                        fila.append('<td class="text-center"><input type="checkbox" class="cls-chkVerif ml-3" id="check' + index + '" autocomplete="off"></td>');
-                        fila.append('<td class="text-center"><input id="Linea' + index + '" type="text" value="' + (index + 1) + '" readonly hidden/>' + (index + 1) + '</td>');
-                        fila.append('<td hidden><input id="DocEntry' + index + '" type="text" value="' + item.DocEntry + '" readonly hidden/></td>');
-                        fila.append('<td class="text-center"><input id="DocNum' + index + '" type="text" value="' + item.DocNum + '" hidden/>' + item.DocNum + '</td>');
-                        fila.append('<td hidden><input id="CardCode' + index + '" type="text" value="' + item.CardCode + '" hidden/></td>');
-                        fila.append('<td class="text-center" style="width:250px"><input id="CardName' + index + '" type="text" value="' + item.CardName + '" hidden/>' + item.CardName + '</td>');
-                        fila.append('<td class="text-center" style="width:450px"><input id="GuÃ­as' + index + '" type="text" value="' + item.Guias + '" readonly hidden/>' + item.Guias + '</td>');
-                        fila.append('<td class="text-center"><input id="Cajas' + index + '" type="text" value="' + item.Cajas + '" readonly hidden/>' + item.Cajas + '</td>');
-                        fila.append('<td hidden><input id="Obs' + index + '" type="text" value="' + (item.Observaciones != null ? item.Observaciones : '') + '" readonly hidden/>' + (item.Observaciones != null ? item.Observaciones : '') + '</td>');
-                        fila.append('<td hidden><input id="Direcciones' + index + '" type="text" value="' + (item.DirDestino != null ? item.DirDestino : '') + '" readonly hidden/>' + (item.DirDestino != null ? item.DirDestino : '') + '</td>');
-                        fila.append('<td class="text-center" style="width:70px"><input  type="text" value="' + item.Agencia + '" readonly hidden/>' + (item.Agencia != null ? item.Agencia : '') + '</td>');
-                        fila.append('<td class="text-center"><input id="MontoFinal' + index + '" type="text" value="' + item.MontoFinal.toFixed(2) + '" readonly hidden/>' + item.MontoFinal.toFixed(2) + '</td>');
-                        fila.append('<td hidden><input id="Envio' + index + '" type="text" value="' + item.GastoEnvio.toFixed(2) + '" readonly hidden/>' + item.GastoEnvio.toFixed(2) + '</td>');
-                        fila.append('<td class="text-center"><input id="TipoVenta' + index + '" type="text" value="' + item.TipoVenta + '" readonly hidden/>' + item.TipoVenta + '</td>');
-                        fila.append('<td class="text-center">' + formatearFechaHora(item.TiempoEntrega) + '</td>');
-                        fila.append('<td class="text-center">' + (item.FechaPago != null ? item.FechaPago + '<br>' + item.HoraPago : 'PENDIENTE') + '</td>');
-                        fila.append('<td hidden><input id="Vinculados' + index + '" type="text" value="' + (item.Vinculados != null ? item.Vinculados : '') + '" readonly hidden/>' + (item.Vinculados != null ? item.Vinculados : '') + '</td>');
+             // Formatear guías y conductor/placa con saltos de línea HTML
+             var guiasFormateadas = item.Guias ? item.Guias.replace(/,/g, '<br>') : '';
+             var conducyPlacaFormateada = item.ConducYPlaca ? item.ConducYPlaca.replace(/,/g, '<br>') : '';
 
-                        tabla.row.add(fila);
-                    });
+             // Crear las celdas con inputs y agregarlas a la fila
+             fila.append('<td class="text-center"><input type="checkbox" class="cls-chkVerif ml-3" id="check' + index + '" autocomplete="off"></td>');
+             fila.append('<td class="text-center"><input id="Linea' + index + '" type="text" value="' + (index + 1) + '" readonly hidden/>' + (index + 1) + '</td>');
+             fila.append('<td hidden><input id="DocEntry' + index + '" type="text" value="' + item.DocEntry + '" readonly hidden/></td>');
+             fila.append('<td class="text-center"><input id="DocNum' + index + '" type="text" value="' + item.DocNum + '" hidden/>' + item.DocNum + '</td>');
+             fila.append('<td hidden><input id="CardCode' + index + '" type="text" value="' + item.CardCode + '" hidden/></td>');
+             fila.append('<td class="text-center" style="width:250px"><input id="CardName' + index + '" type="text" value="' + item.CardName + '" hidden/>' + item.CardName + '</td>');
+             fila.append('<td class="text-center" style="width:450px"><input id="Guías' + index + '" type="text" value="' + item.Guias + '" readonly hidden/>' + guiasFormateadas + '</td>');
+    
+    // ? CORRECCIÓN: Mostrar el valor formateado y mantener input hidden con valor original
+    fila.append('<td class="text-center" style="width:350px"><input id="ConducYPlaca' + index + '" type="text" value="' + (item.ConducYPlaca != null ? item.ConducYPlaca : '') + '" readonly hidden/><span>' + (conducyPlacaFormateada || '') + '</span></td>');
+    
+    fila.append('<td class="text-center"><input id="Cajas' + index + '" type="text" value="' + item.Cajas + '" readonly hidden/>' + item.Cajas + '</td>');
+             fila.append('<td hidden><input id="Obs' + index + '" type="text" value="' + (item.Observaciones != null ? item.Observaciones : '') + '" readonly hidden/>' + (item.Observaciones != null ? item.Observaciones : '') + '</td>');
+             fila.append('<td hidden><input id="Direcciones' + index + '" type="text" value="' + (item.DirDestino != null ? item.DirDestino : '') + '" readonly hidden/>' + (item.DirDestino != null ? item.DirDestino : '') + '</td>');
+             fila.append('<td class="text-center" style="width:70px"><input type="text" value="' + item.Agencia + '" readonly hidden/>' + (item.Agencia != null ? item.Agencia : '') + '</td>');
+             fila.append('<td class="text-center"><input id="MontoFinal' + index + '" type="text" value="' + item.MontoFinal.toFixed(2) + '" readonly hidden/>' + item.MontoFinal.toFixed(2) + '</td>');
+             fila.append('<td hidden><input id="Envio' + index + '" type="text" value="' + item.GastoEnvio.toFixed(2) + '" readonly hidden/>' + item.GastoEnvio.toFixed(2) + '</td>');
+             fila.append('<td class="text-center"><input id="TipoVenta' + index + '" type="text" value="' + item.TipoVenta + '" readonly hidden/>' + item.TipoVenta + '</td>');
+             fila.append('<td class="text-center">' + formatearFechaHora(item.TiempoEntrega) + '</td>');
+             fila.append('<td class="text-center">' + (item.FechaPago != null ? item.FechaPago + '<br>' + item.HoraPago : 'PENDIENTE') + '</td>');
+             fila.append('<td hidden><input id="Vinculados' + index + '" type="text" value="' + (item.Vinculados != null ? item.Vinculados : '') + '" readonly hidden/></td>');
 
-                    tabla.draw(); // Dibujar la tabla una vez que se han agregado todas las filas
-                    if (response.CantidadTicketsNoEnviados != 0) {
-                        msjNoEnviados = "Tiene " + response.CantidadTicketsNoEnviados + " tickets pendiente de envio";
-                        $("#btn-NoEnviados a").text(msjNoEnviados);
-                        $("#btn-NoEnviados").show();
-                    }
-                    Swal.close();
-                })
+     tabla.row.add(fila);
+        });
+
+       tabla.draw(); // Dibujar la tabla una vez que se han agregado todas las filas
+               if (response.CantidadTicketsNoEnviados != 0) {
+           msjNoEnviados = "Tiene " + response.CantidadTicketsNoEnviados + " tickets pendiente de envio";
+         $("#btn-NoEnviados a").text(msjNoEnviados);
+       $("#btn-NoEnviados").show();
+     }
+      Swal.close();
+  })
                 .fail(function () {
-                    // Manejar error si es necesario
-                    Swal.fire('Error', 'Hubo un problema al cargar los datos', 'error');
-                });
-        }
+     // Manejar error si es necesario
+          Swal.fire('Error', 'Hubo un problema al cargar los datos', 'error');
+          });
+ }
     } else if (TipoRuta !== '' && TipoRuta !== 'VG') {
         if (FechaSapTicket !== '' && Zona !== '' && AlmOrigenCod !== '') {
-            if (xhr && xhr.readyState !== 4) {
-                xhr.abort();
-            }
-            Swal.fire({
-                title: 'Trayendo informaciÃ³n de tickets',
-                text: 'Si cierra la ventana, la carga de datos seguirÃ¡ en proceso.',
-                allowEscapeKey: false,
-                allowOutsideClick: false,
-                showCloseButton: false,
-                showConfirmButton: false,
-                timer: 3000
-            });
-            var parametros = { "FechaSapTicket": FechaSapTicket, "TipoRuta": TipoRuta, "Zona": Zona, "AlmOrigenCod": AlmOrigenCod }
+ if (xhr && xhr.readyState !== 4) {
+            xhr.abort();
+      }
+        Swal.fire({
+        title: 'Trayendo información de tickets',
+text: 'Si cierra la ventana, la carga de datos seguirá en proceso.',
+            allowEscapeKey: false,
+ allowOutsideClick: false,
+   showCloseButton: false,
+        showConfirmButton: false,
+timer: 3000
+        });
+     
+        var parametros = { "FechaSapTicket": FechaSapTicket, "TipoRuta": TipoRuta, "Zona": Zona, "AlmOrigenCod": AlmOrigenCod }
+        
+        if (estado === 'CREADO') {
+            // Destruir la tabla antes de volver a cargar los datos
+         tabla.clear().destroy();
+        }
+      
+        xhr = $.ajax({
+      url: '/Rutas/infoTicketsReparto',
+            data: parametros,
+   dataType: 'json',
+    cache: false,
+          type: 'post'
+        })
+        .done(function (response) {
+          $("#btn-NoEnviados a").text('');
+          $("#btn-NoEnviados").hide();
+
             if (estado === 'CREADO') {
-                // Destruir la tabla antes de volver a cargar los datos
-                tabla.clear().destroy();
+    // Volver a inicializar DataTable después de destruirlo
+    tabla = $('#detalleRuta').DataTable();
+ } else {
+       if (tabla.rows().count() > 0) {
+   tabla.clear().draw();
+          }
             }
-            xhr = $.ajax({
-                url: '/Rutas/infoTicketsReparto',
-                data: parametros,
-                dataType: 'json',
-                cache: false,
-                type: 'post'
-            })
-                .done(function (response) {
-                    $("#btn-NoEnviados a").text('');
-                    $("#btn-NoEnviados").hide();
 
-                    if (estado === 'CREADO') {
-                        // Volver a inicializar DataTable despuÃ©s de destruirlo
-                        tabla = $('#detalleRuta').DataTable();
-                    } else {
-                        if (tabla.rows().count() > 0) {
-                            tabla.clear().draw();
-                        }
-                    }
+            var msjNoEnviados = "";
+ response.Resultado.forEach(function (item, index) {
+              var fila = $('<tr>');
+      // Agregar el ID a la fila
+    fila.attr('id', 'fila' + index);
 
-                    var msjNoEnviados = "";
-                    response.Resultado.forEach(function (item, index) {
-                        var fila = $('<tr>');
-                        // Agregar el ID a la fila
-                        fila.attr('id', 'fila' + index);
+    // Formatear guías y conductor/placa con saltos de línea HTML
+    var guiasFormateadas = item.Guias ? item.Guias.replace(/,/g, '<br>') : '';
+          var conducyPlacaFormateada = item.ConducYPlaca ? item.ConducYPlaca.replace(/,/g, '<br>') : '';
 
-                        // Crear las celdas con inputs y agregarlas a la fila
-                        fila.append('<td class="text-center"><input type="checkbox" class="cls-chkVerif ml-3" id="check' + index + '" autocomplete="off"></td>');
-                        fila.append('<td class="text-center"><input id="Linea' + index + '" type="text" value="' + (index + 1) + '" readonly hidden/>' + (index + 1) + '</td>');
-                        fila.append('<td hidden><input id="DocEntry' + index + '" type="text" value="' + item.DocEntry + '" readonly hidden/></td>');
-                        fila.append('<td class="text-center"><input id="DocNum' + index + '" type="text" value="' + item.DocNum + '" hidden/>' + item.DocNum + '</td>');
-                        fila.append('<td hidden><input id="CardCode' + index + '" type="text" value="' + item.CardCode + '" hidden/></td>');
-                        fila.append('<td class="text-center" style="width:250px"><input id="CardName' + index + '" type="text" value="' + item.CardName + '" hidden/>' + item.CardName + '</td>');
-                        fila.append('<td class="text-center" style="width:450px"><input id="GuÃ­as' + index + '" type="text" value="' + item.Guias + '" readonly hidden/>' + item.Guias + '</td>');
-                        fila.append('<td class="text-center"><input id="Cajas' + index + '" type="text" value="' + item.Cajas + '" readonly hidden/>' + item.Cajas + '</td>');
-                        fila.append('<td hidden><input id="Obs' + index + '" type="text" value="' + (item.Observaciones != null ? item.Observaciones : '') + '" readonly hidden/>' + (item.Observaciones != null ? item.Observaciones : '') + '</td>');
-                        fila.append('<td hidden><input id="Direcciones' + index + '" type="text" value="' + (item.DirDestino != null ? item.DirDestino : '') + '" readonly hidden/>' + (item.DirDestino != null ? item.DirDestino : '') + '</td>');
-                        fila.append('<td class="text-center" style="width:70px"><input  type="text" value="' + item.Agencia + '" readonly hidden/>' + (item.Agencia != null ? item.Agencia : '') + '</td>');
-                        fila.append('<td class="text-center"><input id="MontoFinal' + index + '" type="text" value="' + item.MontoFinal.toFixed(2) + '" readonly hidden/>' + item.MontoFinal.toFixed(2) + '</td>');
-                        fila.append('<td hidden><input id="Envio' + index + '" type="text" value="' + item.GastoEnvio.toFixed(2) + '" readonly hidden/>' + item.GastoEnvio.toFixed(2) + '</td>');
-                        fila.append('<td class="text-center"><input id="TipoVenta' + index + '" type="text" value="' + item.TipoVenta + '" readonly hidden/>' + item.TipoVenta + '</td>');
-                        fila.append('<td class="text-center">' + formatearFechaHora(item.TiempoEntrega) + '</td>');
-                        fila.append('<td class="text-center">' + (item.FechaPago != null ? item.FechaPago + '<br>' + item.HoraPago : 'PENDIENTE') + '</td>');
-                        fila.append('<td hidden><input id="Vinculados' + index + '" type="text" value="' + (item.Vinculados != null ? item.Vinculados : '') + '" readonly hidden/>' + (item.Vinculados != null ? item.Vinculados : '') + '</td>');
+     // Crear las celdas con inputs y agregarlas a la fila (TOTAL: 18 columnas)
+  fila.append('<td class="text-center"><input type="checkbox" class="cls-chkVerif ml-3" id="check' + index + '" autocomplete="off"></td>'); // 0
+    fila.append('<td class="text-center"><input id="Linea' + index + '" type="text" value="' + (index + 1) + '" readonly hidden/>' + (index + 1) + '</td>'); // 1
+fila.append('<td hidden><input id="DocEntry' + index + '" type="text" value="' + item.DocEntry + '" readonly hidden/></td>'); // 2
+    fila.append('<td class="text-center"><input id="DocNum' + index + '" type="text" value="' + item.DocNum + '" hidden/>' + item.DocNum + '</td>'); // 3
+       fila.append('<td hidden><input id="CardCode' + index + '" type="text" value="' + item.CardCode + '" hidden/></td>'); // 4
+        fila.append('<td class="text-center" style="width:250px"><input id="CardName' + index + '" type="text" value="' + item.CardName + '" hidden/>' + item.CardName + '</td>'); // 5
+    fila.append('<td class="text-center" style="width:450px"><input id="Guías' + index + '" type="text" value="' + item.Guias + '" readonly hidden/>' + guiasFormateadas + '</td>'); // 6
+    
+    // ? CORRECCIÓN: Mostrar el valor formateado
+    fila.append('<td class="text-center" style="width:350px"><input id="ConducYPlaca' + index + '" type="text" value="' + (item.ConducYPlaca != null ? item.ConducYPlaca : '') + '" readonly hidden/><span>' + (conducyPlacaFormateada || '') + '</span></td>'); // 7
+    
+    fila.append('<td class="text-center"><input id="Cajas' + index + '" type="text" value="' + item.Cajas + '" readonly hidden/>' + item.Cajas + '</td>'); // 8
+    fila.append('<td hidden><input id="Obs' + index + '" type="text" value="' + (item.Observaciones != null ? item.Observaciones : '') + '" readonly hidden/>' + (item.Observaciones != null ? item.Observaciones : '') + '</td>'); // 9
+    fila.append('<td hidden><input id="Direcciones' + index + '" type="text" value="' + (item.DirDestino != null ? item.DirDestino : '') + '" readonly hidden/>' + (item.DirDestino != null ? item.DirDestino : '') + '</td>'); // 10
+    fila.append('<td class="text-center" style="width:70px"><input  type="text" value="' + item.Agencia + '" readonly hidden/>' + (item.Agencia != null ? item.Agencia : '') + '</td>'); // 11
+    fila.append('<td class="text-center"><input id="MontoFinal' + index + '" type="text" value="' + item.MontoFinal.toFixed(2) + '" readonly hidden/>' + item.MontoFinal.toFixed(2) + '</td>'); // 12
+    fila.append('<td hidden><input id="Envio' + index + '" type="text" value="' + item.GastoEnvio.toFixed(2) + '" readonly hidden/>' + item.GastoEnvio.toFixed(2) + '</td>'); // 13
+    fila.append('<td class="text-center"><input id="TipoVenta' + index + '" type="text" value="' + item.TipoVenta + '" readonly hidden/>' + item.TipoVenta + '</td>'); // 14
+    fila.append('<td class="text-center">' + formatearFechaHora(item.TiempoEntrega) + '</td>'); // 15
+    fila.append('<td class="text-center">' + (item.FechaPago != null ? item.FechaPago + '<br>' + item.HoraPago : 'PENDIENTE') + '</td>'); // 16
+    fila.append('<td hidden><input id="Vinculados' + index + '" type="text" value="' + (item.Vinculados != null ? item.Vinculados : '') + '" readonly hidden/></td>'); // 17
 
-                        tabla.row.add(fila);
-                    });
+          tabla.row.add(fila);
+         });
 
-                    tabla.draw(); // Dibujar la tabla una vez que se han agregado todas las filas
-                    if (response.CantidadTicketsNoEnviados != 0) {
-                        msjNoEnviados = "Tiene " + response.CantidadTicketsNoEnviados + " tickets pendiente de envio";
-                        $("#btn-NoEnviados a").text(msjNoEnviados);
-                        $("#btn-NoEnviados").show();
-                    }
-                    Swal.close();
-                })
-                .fail(function () {
-                    // Manejar error si es necesario
+                tabla.draw(); // Dibujar la tabla una vez que se han agregado todas las filas
+      if (response.CantidadTicketsNoEnviados != 0) {
+       msjNoEnviados = "Tiene " + response.CantidadTicketsNoEnviados + " tickets pendiente de envio";
+$("#btn-NoEnviados a").text(msjNoEnviados);
+    $("#btn-NoEnviados").show();
+       }
+    Swal.close();
+       })
+           .fail(function () {
+        // Manejar error si es necesario
                     Swal.fire('Error', 'Hubo un problema al cargar los datos', 'error');
-                });
+            });
         }
     }
 }
@@ -529,8 +557,8 @@ function seleccionarVerif() {
 }
 
 function verTicketsNoEnviados() {
-    let FechaSapTicket = $('#FechaSapTicket').val();
-    let TipoRuta = $('#TipoRuta').val();
+  let FechaSapTicket = $('#FechaSapTicket').val();
+  let TipoRuta = $('#TipoRuta').val();
     let Zona = $('#Zona').val();
     let AlmOrigenCod = $('#AlmOrigenCod').val();
     let tablaModal = $('#tableModalNE');
@@ -540,35 +568,35 @@ function verTicketsNoEnviados() {
         tbody.empty();
     }
     if (FechaSapTicket !== '' && TipoRuta !== '' && Zona !== '') {
-        var parametros = { "FechaSapTicket": FechaSapTicket, "TipoRuta": TipoRuta, "Zona": Zona, "AlmOrigenCod": AlmOrigenCod }
-        $.ajax({
-            url: '/Rutas/listarTicketsRepartosNoEnviados',
-            data: parametros,
-            dataType: 'json',
-            cache: false,
-            type: 'post'
+   var parametros = { "FechaSapTicket": FechaSapTicket, "TipoRuta": TipoRuta, "Zona": Zona, "AlmOrigenCod": AlmOrigenCod }
+    $.ajax({
+      url: '/Rutas/listarTicketsRepartosNoEnviados',
+   data: parametros,
+          dataType: 'json',
+        cache: false,
+  type: 'post'
         })
             .done(function (response) {
-                response.forEach(function (item, index) {
-                    var fila = $('<tr>');
-                    fila.append('<td class="text-center">' + item.DocNum + '  </td>');
-                    fila.append('<td class="text-center">' + item.FechaSapTicket + '</td>');
-                    fila.append('<td class="text-center">' + item.CardName + '</td>');
-                    fila.append('<td class="text-center">' + item.MontoFinal.toFixed(2) + '</td></tr>');
-                    tbody.append(fila);
-                });
+   response.forEach(function (item, index) {
+             var fila = $('<tr>');
+     fila.append('<td class="text-center">' + item.DocNum + '  </td>');
+  fila.append('<td class="text-center">' + item.FechaSapTicket + '</td>');
+         fila.append('<td class="text-center">' + item.CardName + '</td>');
+    fila.append('<td class="text-center">' + item.MontoFinal.toFixed(2) + '</td></tr>');
+ tbody.append(fila);
+     });
 
             }).fail(function () {
-                // Manejar error si es necesario
-                Swal.fire('Error', 'Hubo un problema al cargar los datos', 'error');
-            });
+        // Manejar error si es necesario
+        Swal.fire('Error', 'Hubo un problema al cargar los datos', 'error');
+      });
         $("#ModalTicketsNE").modal('show');
     }
 }
 
 function calcularTotalCajas() {
     cajas = 0;
-    $("#Detalles > tbody tr").find('td:eq(5) input').each(function () {
+    $("#Detalles > tbody tr").find('td:eq(6) input').each(function () {
         cajas += $(this).val() * 1;
     })
     $("#TotalCajas").val(cajas);
@@ -579,40 +607,40 @@ function validarUnicoCampoTabla(identificador, idTabla) {
     var sinRegistro = true;
     $("#" + idTabla + " tr").find('td:eq(1) input').each(function () {
         iden = $(this).val();
-        if (iden == identificador) {
-            Swal.fire("El valor ya se encuentra en la tabla", "Verifique", "warning");
-            sinRegistro = false;
+  if (iden == identificador) {
+   Swal.fire("El valor ya se encuentra en la tabla", "Verifique", "warning");
+    sinRegistro = false;
         }
     });
-    return sinRegistro;
+  return sinRegistro;
 }
 
 function validarEnviarFormulario(estado) {
     var object = $("#form").serialize();
-    if (estado === 'CREADO') {
+if (estado === 'CREADO') {
         $.ajax('/Rutas/validarDatosEncabezadoRuta',
-            {
-                data: object,
+      {
+ data: object,
                 dataType: 'html',
-                cache: false,
+             cache: false,
                 type: 'post'
-            })
-            .done(function (response) {
-                if (response != "OK") { swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false }
-                else { $("#form").submit(); }
-            });
+       })
+   .done(function (response) {
+       if (response != "OK") { swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false }
+              else { $("#form").submit(); }
+   });
     } else {
         $.ajax('/Rutas/validarNuevaHojaDeRepartoOTransferencia',
             {
-                data: object,
+      data: object,
                 dataType: 'html',
-                cache: false,
-                type: 'post'
+  cache: false,
+ type: 'post'
             })
-            .done(function (response) {
-                if (response != "OK") { swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false }
-                else { $("#form").submit(); }
-            });
+.done(function (response) {
+    if (response != "OK") { swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false }
+           else { $("#form").submit(); }
+    });
     }
 }
 
@@ -623,14 +651,14 @@ function formatearFechaHora(jsonDate) {
 
     // Opcional: ajusta a tu zona horaria si lo necesitas
     const opciones = {
-        year: 'numeric',
+   year: 'numeric',
         month: '2-digit',
-        day: '2-digit',
+  day: '2-digit',
         hour: '2-digit',
-        minute: '2-digit',
+  minute: '2-digit',
         second: '2-digit',
-        hour12: false
+     hour12: false
     };
 
-    return fecha.toLocaleString('es-PE', opciones); // ejemplo para PerÃº
+    return fecha.toLocaleString('es-PE', opciones); // ejemplo para Perú
 }

@@ -24,10 +24,58 @@
 <style>
     #Detalles textarea {
         font-size: 12px;
+        white-space: pre-line; /* ✅ ESTO HACE QUE SE RESPETEN LOS SALTOS DE LÍNEA */
+        overflow-wrap: break-word;
+        resize: none; /* Evita que el usuario cambie el tamaño */
+    }
+
+    /* Estilos para las columnas de la tabla */
+    #detalleRuta th:nth-child(7), /* Guías */
+    #Detalles th:nth-child(5) { /* Guías en tabla detalle */
+        width: 200px !important;
+        max-width: 200px;
+    }
+
+    #detalleRuta th:nth-child(8), /* Conductor/Placa */
+    #Detalles th:nth-child(6) { /* Conductor/Placa en tabla detalle */
+        width: 350px !important;
+        max-width: 350px;
+    }
+
+    #detalleRuta td:nth-child(7), /* Guías */
+    #Detalles td:nth-child(5) { /* Guías en tabla detalle */
+        white-space: pre-line;
+        word-break: break-word;
+        font-size: 11px;
+    }
+
+    #detalleRuta td:nth-child(8), /* Conductor/Placa */
+    #Detalles td:nth-child(6) { /* Conductor/Placa en tabla detalle */
+        white-space: pre-line;
+        word-break: break-word;
+        font-size: 11px;
+        line-height: 1.4;
     }
 </style>
 <script>
     var contDet = 0;
+
+    // Ajustar altura de textareas automáticamente
+    function ajustarAlturaTextareas() {
+        document.querySelectorAll('#Detalles textarea').forEach(function (textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+        });
+    }
+
+    // Ejecutar cuando cargue la página
+    window.addEventListener('DOMContentLoaded', ajustarAlturaTextareas);
+
+    // Observar cambios en la tabla
+    const observer = new MutationObserver(ajustarAlturaTextareas);
+    document.addEventListener('DOMContentLoaded', function () {
+        observer.observe(document.querySelector('#Detalles tbody'), { childList: true });
+    });
 </script>
 <script src="~/Scripts/Rutas/HojaDeReparto.js?v=@DateTime.Now.Ticks>" defer></script>
 
@@ -202,57 +250,59 @@
 
         <!--Tabla con los tickets a enviar disponibles segun parametros-->
         <div class="col-lg-12">
-            <table id="detalleRuta" class="table table-light table-sm table-hover cls-dataTable" cellspacing="0" width="100%">
-                <thead class="bg-cobefar-6 text-white">
-                    <tr>
-                        <th class="text-center"></th>
-                        <th class="text-center">#</th>
-                        <th hidden>DocEntryTicket</th>
-                        <th class="text-center">NroTicket</th>
-                        <th hidden>CodSocio</th>
-                        <th class="text-center" style="width:250px">Socio</th>
-                        <th class="text-center" style="width:450px">Guías</th>
-                        <th class="text-center">Cajas</th>
-                        <th hidden>Obs.</th>
-                        <th hidden>Direcciones</th>
-                        <th class="text-center" style="width:70px">Agencia</th>
-                        <th class="text-center">Monto final</th>
-                        <th hidden>Envio</th>
-                        <th class="text-center">Tipo de venta</th>
-                        <th class="text-center">Tiempo de pago</th>
-                        <th hidden>Vinculados</th>
-                    </tr>
+   <table id="detalleRuta" class="table table-light table-sm table-hover cls-dataTable" cellspacing="0" width="100%">
+      <thead class="bg-cobefar-6 text-white">
+     <tr>
+        <th class="text-center"></th>
+       <th class="text-center">#</th>
+     <th hidden>DocEntryTicket</th>
+   <th class="text-center">NroTicket</th>
+          <th hidden>CodSocio</th>
+            <th class="text-center" style="width:250px">Socio</th>
+            <th class="text-center" style="width:200px">Guías</th>
+          <th class="text-center" style="width:350px">Conductor/Placa</th>
+       <th class="text-center">Cajas</th>
+     <th hidden>Obs.</th>
+        <th hidden>Direcciones</th>
+ <th class="text-center" style="width:70px">Agencia</th>
+              <th class="text-center">Monto final</th>
+   <th hidden>Envio</th>
+             <th class="text-center">Tipo de venta</th>
+       <th class="text-center">Tiempo de pago</th>
+           <th hidden>Vinculados</th>
+        </tr>
                 </thead>
             </table>
-        </div>
+     </div>
     </div>
 
 
     <!--Tabla principal que detalla los tickets agregados a la orden de reparto-->
     <h3 class="text-cobefar font-weight-bold mt-2">
-        DETALLE DE RUTA<br />
+     DETALLE DE RUTA<br />
     </h3>
     <div id="divDetalleRuta">
-        <div class="mt-2">
-            <table id="Detalles" class="table table-light table-sm table-hover" cellspacing="0" width="100%">
-                <thead class="bg-success">
-                    <tr>
-                        <th class="text-center">#</th>
-                        <th hidden>DocEntryT</th>
-                        <th class="text-center">NroTicket</th>
-                        <th class="text-center">Socio</th>
-                        <th class="text-center">Guías</th>
-                        <th class="text-center">Cajas</th>
-                        <th class="text-center">Obs.</th>
-                        <th class="text-center">Direcciones</th>
-                        <th class="text-center">Monto final</th>
-                        <th class="text-center">Envio</th>
-                        <th class="text-center"></th><!--Boton seguimiento-->
-                        <th class="text-center"></th> <!--Boton borrar-->
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+      <div class="mt-2">
+        <table id="Detalles" class="table table-light table-sm table-hover" cellspacing="0" width="100%">
+<thead class="bg-success">
+          <tr>
+         <th class="text-center">#</th>
+           <th hidden>DocEntryT</th>
+  <th class="text-center">NroTicket</th>
+             <th class="text-center">Socio</th>
+          <th class="text-center" style="width:200px">Guías</th>
+        <th class="text-center" style="width:350px">Conductor/Placa</th>
+ <th class="text-center">Cajas</th>
+          <th class="text-center">Obs.</th>
+           <th class="text-center">Direcciones</th>
+       <th class="text-center">Monto final</th>
+      <th class="text-center">Envio</th>
+      <th class="text-center"></th><!--Boton seguimiento-->
+    <th class="text-center"></th> <!--Boton borrar-->
+             </tr>
+     </thead>
+          <tbody></tbody>
+   </table>
         </div>
 
     </div>
