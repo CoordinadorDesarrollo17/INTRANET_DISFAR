@@ -47,7 +47,9 @@ namespace Capa_Datos.Repartos_DAO.TablasHana
             return lista;
         }
         public (string placa, string conductor) buscarConductorYPlaca(string zona)
-        {
+        {   if (zona == "ARRIOLA") { zona = "CONO ARRIOLA"; }
+            else if (zona == "CONO AGENCIA") { zona = "AGENCIA"; }
+            
             string placa = "";
             string conductor = "";
             string query = $@"

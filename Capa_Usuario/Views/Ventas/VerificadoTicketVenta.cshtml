@@ -12,9 +12,20 @@
     List<OMRC_E> laboratorios = (List<OMRC_E>)ViewBag.Laboratorios;
     List<SAT1_E> productosTicket = (List<SAT1_E>)ViewBag.ListaArticulosTicket;
 }
+<script>
 
-
-
+    function filtrar() {
+        var object = $("#frm").serialize();
+        $(location).attr('href', "/Ventas/ListadoTicketsAlmacen?" + object);
+    }
+    function mostrarPendientes() {
+        Swal.fire({
+            icon: 'info',
+            title: 'Productos Pendientes',
+            text: 'Recuerde revisar y gestionar los productos pendientes antes de finalizar la verificación.'
+        });
+    }
+</script>
 
 <div class="pt-4">
     <nav>
@@ -75,8 +86,9 @@
                         <label class="col-sm-2 bg-cobefar text-white text-center py-2 px-2 col-form-label font-weight-bold font-18">¿Productos pendientes?</label>
                         <div class="col-lg-2">
                             <select id="ProductoPendiente" name="ProductoPendiente" class="form-control border-success">
-                                <option value="0">NO</option>
+                                <option value="">Seleccione</option>
                                 <option value="1">SI</option>
+                                <option value="0">NO</option>
                             </select>
                         </div>
                         <label for="OpVerificado" class="col-sm-2 bg-cobefar text-white text-center py-2 px-2 col-form-label font-weight-bold font-18">OpVerificado:</label>
@@ -110,10 +122,6 @@
                 <div class="row mt-4">
                     <div class="col-lg-2 d-flex align-items-center">
                         <button type="button" class="btn btn-success mr-2" id="btnTerminarVerificar" onclick="validarForm()"><i class="icon icon-checkmark"></i> Terminar Verificar</button>
-                        <form id="formPendientes" method="post" style="display:inline;">
-                            <input type="hidden" name="ProductoPendiente" value="1" />
-                            <button type="button" class="btn btn-warning" id="btnPendientes" style="display:none;" onclick="guardarPendiente()"><i class="icon icon-alert"></i> Existen Productos Pendientes</button>
-                        </form>
                     </div>
                 </div>
             </div>
@@ -587,10 +595,10 @@
 
     function borrarFila(id) {
         $('#tr_' + id).remove();
-        reconstructuarTabla();
+        reconstruirTabla();
     }
 
-    function reconstructuarTabla() {
+    function reconstruirTabla() {
         var i = 0;
 
         $("#tbl_erroresPicking tr").each(function (index, htm) {
@@ -716,7 +724,7 @@
                                 </tr>`;
             $('#tbl_erroresPicking > tbody').append(contenido);
             ++num;
-            reconstructuarTabla();
+            reconstruirTabla();
         }
     }
 
@@ -743,53 +751,26 @@
     const frmErroresPicking = document.querySelector("#frm_erroresPicking");
 
     async function registrarErroresPicking() {
-        if (validarDatosDetalle() === true) {
-            const formDataEP = new FormData(frmErroresPicking);
+        if (validarDatosDetalle() == true) {
+        const formDataEP = new FormData(frmErroresPicking);
 
-            try {
-                const response = await fetch(`/Ventas/RegistrarErroresPicking?DocEntry=${docEntryTicket}`, {
-                    method: "POST",
-                    body: formDataEP,
-                });
+        try {
+            const response = await fetch(`/Ventas/RegistrarErroresPicking?DocEntry=${docEntryTicket}`, {
+                method: "POST",
+                body: formDataEP,
+            });
 
-                if (!response.ok) {
-                    throw new Error(`Error HTTP ${response.status}`);
+            const resultEP = await response.json();
+                Swal.fire(resultEP.Mensaje);
+
+                if (typeof resultEP.DocNum != 'undefined') {
+                    enviarForm();
                 }
-
-                const resultEP = await response.json();
-
-                // 🟢 Si el backend devolvió un error con "Titulo"
-                if (resultEP.Titulo) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: resultEP.Titulo
-                    });
-                    return; // 🔹 Evitamos seguir si hubo error
-                }
-
-                // 🟢 Si todo fue bien
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Éxito',
-                    text: resultEP.Mensaje || 'Se registraron los errores de picking correctamente.'
-                });
-
-                if (typeof resultEP.DocNum !== 'undefined') {
-                    enviarForm(); // o cualquier otra acción de éxito
-                }
-
-            } catch (e) {
-                console.error("❌ Error en registrarErroresPicking:", e);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error inesperado',
-                    text: e.message || 'Ocurrió un error al registrar los errores de picking.'
-                });
-            }
+        } catch (e) {
+            console.error(e);
+        }
         }
     }
-
 
     // Asumir el envío de formularios
     frmErroresPicking.addEventListener("submit", (event) => {
@@ -834,83 +815,4 @@
         $('#' + idCampoDestino).val(valor);
     }
 
-</script>
-
-<script>
-    $(document).ready(function () {
-        // Controlar visibilidad de botones según selección
-        function actualizarBotonesPendientes() {
-            if ($('#ProductoPendiente').val() === '1') {
-                $('#btnTerminarVerificar').hide();
-                $('#btnPendientes').show();
-
-                // Bloquear campos Verificador 2 y 3
-                $('#Verificador2').prop('disabled', true);
-                $('#Verificador3').prop('disabled', true);
-            } else {
-                $('#btnTerminarVerificar').show();
-                $('#btnPendientes').hide();
-
-                // Desbloquear campos Verificador 2 y 3
-                $('#Verificador2').prop('disabled', false);
-                $('#Verificador3').prop('disabled', false);
-            }
-        }
-
-        // Detectar cambios y aplicar el estado inicial
-        $('#ProductoPendiente').on('change', actualizarBotonesPendientes);
-        actualizarBotonesPendientes(); // Ejecutar al cargar
-    });
-
-    function filtrar() {
-        var object = $("#frm").serialize();
-        $(location).attr('href', "/Ventas/ListadoTicketsAlmacen?" + object);
-    }
-
-    function mostrarPendientes() {
-        Swal.fire({
-            icon: 'info',
-            title: 'Productos Pendientes',
-            text: 'Recuerde revisar y gestionar los productos pendientes antes de finalizar la verificación.'
-        });
-    }
-
-    function guardarPendiente() {
-        const form = document.getElementById('formPendientes');
-        const docEntry = '@Model.DocEntry'; // Razor insertará el valor aquí
-        const formData = new FormData(form);
-
-        fetch(`/Ventas/GuardarProductoPendiente?DocEntry=${docEntry}`, {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Error HTTP ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(result => {
-            console.log("✅ Resultado recibido:", result);
-
-            if (result && result.DocNum && result.DocNum !== 0) {
-                // Guardó correctamente → ejecuta la validación o lo que siga
-                validarForm();
-            } else {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Aviso',
-                    text: 'No se registró ningún producto pendiente.'
-                });
-            }
-        })
-        .catch(err => {
-            console.error("❌ Error en guardarPendiente:", err);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Ocurrió un problema al guardar el producto pendiente.'
-            });
-        });
-    }
 </script>

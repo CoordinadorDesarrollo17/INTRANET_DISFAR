@@ -67,6 +67,7 @@ namespace Capa_Entidad.Ventas_ENT.TablasSql
         public string Visible { get; set; }
         public string Presupuesto { get; set; }
         public string Guias { get; set; }
+        public string ConducYPlaca { get; set; }
 
         /********** Fill **********/
         public int isFill { get; set; }

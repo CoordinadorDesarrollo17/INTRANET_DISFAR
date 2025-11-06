@@ -89,6 +89,48 @@ namespace Capa_Datos.Ventas_DAO.Tablas
             else { guia = guiasTras + guiasTrasEnt; }
             return guia;
         }
+        public string conducyPlacaTraslado(int DocNum)
+        {
+            string ConducYPlaca = "";
+            int DocEntry = 0;
+
+            string query = "select \"DocEntry\" from " + uti.schemaHana + "ordr where \"DocNum\"=" + DocNum + " and \"CANCELED\"='N'";
+            HanaConnection cn = new HanaConnection(uti.cadHana);
+            try
+            {
+                cn.Open();
+                HanaCommand cmd = new HanaCommand(query, cn);
+                cmd.CommandType = System.Data.CommandType.Text;
+                HanaDataReader dr = cmd.ExecuteReader();
+                dr.Read();
+                if (!dr.IsDBNull(0)) { DocEntry = dr.GetInt32(0); }
+                dr.Close();
+                cn.Close();
+            }
+            catch { cn.Close(); return ConducYPlaca; }
+
+            string conducyPlacaRem = odlnD.buscarConducyPlacaRemision(DocEntry);
+            // Obtener conductor y placa
+            string conducyPlacaSinEnt = oinvD.buscarConducyPlacaSinEnt(DocEntry);
+
+            string conducyPlacaConEnt = string.Empty;
+            foreach (ODLN_E o in odlnD.listarEntregasPorNroVenta(DocEntry))
+            {
+                conducyPlacaConEnt += oinvD.buscarConducyPlacaConEnt(o.DocEntry);
+            }
+
+            // ✅ Misma lógica que usas en guiasTraslado
+            if (!string.IsNullOrWhiteSpace(conducyPlacaRem))
+            {
+                ConducYPlaca = conducyPlacaRem;
+            }
+            else
+            {
+                ConducYPlaca = conducyPlacaSinEnt + conducyPlacaConEnt;
+            }
+
+            return ConducYPlaca;
+        }
         public int buscarDocEntry(int DocNum)
         {
             int DocEntry = 0;
