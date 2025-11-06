@@ -100,14 +100,18 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                 using (SqlConnection cn = new SqlConnection(uti.cadSql2))
                 {
                     cn.Open();
-                    using (SqlCommand cmd = new SqlCommand("sp_MantenimientoDetalleRequerimiento", cn))
+                    using (SqlCommand cmd = new SqlCommand("sp_MantenimientoRequerimiento", cn))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
 
-                        cmd.Parameters.AddWithValue("@TipoMantenimiento", "ELIMINAR_ITEM");
-                        cmd.Parameters.AddWithValue("@Id", id);
+                        cmd.Parameters.AddWithValue("@TipoMantenimiento", "RECHAZAR-ITEM");
+                        cmd.Parameters.AddWithValue("@DetalleId", id);
                         cmd.Parameters.AddWithValue("@OperarioRegistra", operarioRegistra);
-
+                        SqlParameter idGeneradoParam = new SqlParameter("@IdGenerado", SqlDbType.Int)
+                        {
+                            Direction = ParameterDirection.Output
+                        };
+                        cmd.Parameters.Add(idGeneradoParam);
                         cmd.ExecuteNonQuery();
 
                         _helper.Titulo = "Acción completada";
