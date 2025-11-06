@@ -612,7 +612,6 @@
     <Content Include="Scripts\RecursosHumanos\ModuloNumerosCorporativos.js" />
     <Content Include="Scripts\RecursosHumanos\ModuloSedes.js" />
     <Content Include="Scripts\Rutas\HojaDeReparto.js" />
-    <Content Include="Scripts\Rutas\HojaDeReparto_BACKUP.js" />
     <Content Include="Scripts\Rutas\TransferenciaEntreAlmacenes.js" />
     <Content Include="Scripts\shared\jquery.doubleScroll.js" />
     <Content Include="Scripts\shared\snow.js" />
