@@ -156,36 +156,24 @@
             <div class="row mt-lg-4">
                 <div class="col-lg-2">
                     <label for="CopilDesc" class="text-dark form-label font-weight-bold font-18">Copiloto 1:</label>
-                    @Html.EditorFor(model => model.CopilDesc, new
-                    {
-                        htmlAttributes = new
-                        {
-                            @type = "search",
-                            @class = "text-center form-control border-success",
-                            @list = "ListaCopilotos",
-                            @autocomplete = "off"
-                        }
-                    })
-                    <datalist id="ListaCopilotos">
+                    <select name="CopilDesc" id="CopilDesc" class="form-control bg-cobefar text-white border-success">
+                        <option value="">Seleccione</option>
                         @foreach (var x in Copilotos)
                         {
-                            <option value="@x.ToUpper()"></option>
+                            <option value="@x.ToUpper()" @if (Model.CopilDesc == x.ToUpper()) { <text> selected</text> }>@x.ToUpper()</option>
                         }
-                    </datalist>
+                    </select>
                 </div>
 
                 <div class="col-lg-2">
                     <label for="Copil2Desc" class="text-dark form-label font-weight-bold font-18">Copiloto 2:</label>
-                    @Html.EditorFor(model => model.Copil2Desc, new
-                    {
-                        htmlAttributes = new
+                    <select name="Copil2Desc" id="Copil2Desc" class="form-control bg-cobefar text-white border-success">
+                        <option value="">Seleccione</option>
+                        @foreach (var x in Copilotos)
                         {
-                            @type = "search",
-                            @class = "text-center form-control border-success",
-                            @list = "ListaCopilotos",
-                            @autocomplete = "off"
+                            <option value="@x.ToUpper()" @if (Model.Copil2Desc == x.ToUpper()) { <text> selected</text> }>@x.ToUpper()</option>
                         }
-                    })
+                    </select>
                 </div>
 
                 <div class="col-lg-2">
@@ -200,7 +188,7 @@
 
                 <div class="col-lg-4">
                     <label for="Observaciones" class="text-dark form-label font-weight-bold font-18">Observaciones:</label>
-                    @Html.EditorFor(model => model.Observaciones, new { htmlAttributes = new { @class = "form-control border-success",@autocomplete="off" } })
+                    @Html.EditorFor(model => model.Observaciones, new { htmlAttributes = new { @class = "form-control border-success", @autocomplete = "off" } })
                 </div>
             </div>
             <!--Boton de editar datos de cabecera-->
