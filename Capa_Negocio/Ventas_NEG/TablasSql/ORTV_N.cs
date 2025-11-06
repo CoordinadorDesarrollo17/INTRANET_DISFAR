@@ -807,15 +807,6 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             return tkD.TbRptAnalisisVentas(obj);
         }
 
-        //*********Nuevo Para guardar el si ****************//
-
-        public void RegistrarProductoPendiente(int docEntry)
-        {
-            var datos = new ORTV_D();
-            datos.RegistrarProductoPendiente(docEntry);
-        }
-
-        //*********Fin del nuevo para no perderme ****************//
         //ATENCION AL CLIENTES
         public List<ORTV_E> ListarTicketsParaAtencion()
         {

@@ -95,6 +95,51 @@ namespace Capa_Datos.Almacen_DAO.Tablas
             catch { cn.Close(); return guias; }
             return guias;
         }
+
+        public string ConducyPlacaTicketTransferencia(int DocNum, string WhsCode, string CardCode)
+        {
+            string result = string.Empty;
+            string query = "SELECT TOP 10 IFNULL(T0.\"U_SYP_MDFN\" || '-' || T0.\"U_SYP_MDVC\", '') AS \"ConducYPlaca\" " +
+                           "FROM " + uti.schemaHana + "OWTR T0 " +
+                           "WHERE T0.\"CANCELED\" = 'N' " +
+                           "AND T0.\"U_SYP_MDFN\" IS NOT NULL " +
+                           "AND T0.\"U_SYP_MDVC\" IS NOT NULL " +
+                           "AND T0.\"ToWhsCode\" = '" + WhsCode + "' " +
+                           "AND T0.\"U_COB_LUGAREN\" = '" + WhsCode + "' " +
+                           "AND T0.\"Comments\" LIKE '%" + DocNum + "%' " +
+                           "AND T0.\"CardCode\" = '" + CardCode + "' " +
+                           "ORDER BY T0.\"DocEntry\" DESC";
+
+            using (HanaConnection cn = new HanaConnection(uti.cadHana))
+            {
+                try
+                {
+                    cn.Open();
+                    using (HanaCommand cmd = new HanaCommand(query, cn))
+                    {
+                        cmd.CommandType = System.Data.CommandType.Text;
+                        using (HanaDataReader dr = cmd.ExecuteReader())
+                        {
+                            while (dr.Read())
+                            {
+                                if (!dr.IsDBNull(0))
+                                {
+                                    result += dr.GetString(0) + ",";
+                                }
+                            }
+                        }
+                    }
+                    cn.Close();
+                }
+                catch
+                {
+                    cn.Close();
+                    return result;
+                }
+            }
+            return result;
+        }
+
         public List<Guia_Remision_E> buscarGuiaRemisionSap(string NumAtCard)
         {
             List<Guia_Remision_E> lista = new List<Guia_Remision_E>();

@@ -8,21 +8,21 @@ using Capa_Entidad.SocioNegocios_ENT.Tablas;
 using Capa_Entidad.Ventas_ENT.Reportes;
 using Capa_Entidad.Ventas_ENT.Tablas;
 using Capa_Entidad.Ventas_ENT.TablasSql;
+using DocumentFormat.OpenXml.Drawing;
 using DocumentFormat.OpenXml.EMMA;
 using Microsoft.ReportingServices.ReportProcessing.ReportObjectModel;
 using Sap.Data.Hana;
 using System;
-using System.Text;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Windows.Forms;
 using System.Deployment.Internal;
-using System.Dynamic;
-using DocumentFormat.OpenXml.Drawing;
 using System.Drawing;
+using System.Dynamic;
+using System.Linq;
+using System.Text;
 using System.Web;
+using System.Windows.Forms;
 namespace Capa_Datos.Ventas_DAO.TablasSql
 {
     public class ORTV_D
@@ -1960,6 +1960,34 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             catch { cn.Close(); }
             return Guias;
         }
+
+        public string ConducyPlacaTicket(int DocEntry)
+        {
+            string ConducYPlaca = string.Empty;
+            Tablas.ORDR_D ordrD = new Tablas.ORDR_D();
+            SqlConnection cn = new SqlConnection(uti.cadSql);
+            try
+            {
+                cn.Open();
+                SqlCommand cmd = new SqlCommand("select NroSap from vt.rtv2 where DocEntry=" + DocEntry, cn);
+                SqlDataReader dr = cmd.ExecuteReader();
+                string conducyPlacaTicket = string.Empty;
+                while (dr.Read())
+                {
+                    if (!dr.IsDBNull(0))
+                    {
+                        var cp = ordrD.conducyPlacaTraslado(dr.GetInt32(0));
+                        if (!string.IsNullOrWhiteSpace(cp)) { conducyPlacaTicket += cp; }
+                    }
+                }
+                ConducYPlaca = conducyPlacaTicket;
+                dr.Close();
+                cn.Close();
+            }
+            catch { cn.Close(); }
+            return ConducYPlaca;
+        }
+
         //Metodos desde Hojas de Reparto
         public void Preenviar(int DocEntry, string Operario, SqlTransaction tran, SqlConnection cn)
         {
@@ -2596,12 +2624,23 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     if (!dr.IsDBNull(17)) o.TiempoEntrega = dr.GetDateTime(17);
                     if (!dr.IsDBNull(18)) { o.Vinculados = dr.GetString(18); }
                     if (o.LugarDestino == "Domicilio" || o.LugarDestino == "Agencia")
-                    { o.Guias = GuiasTicket(o.DocEntry); }
+                    { 
+                        o.Guias = GuiasTicket(o.DocEntry);
+                        o.ConducYPlaca = ConducyPlacaTicket(o.DocEntry); // Conductor y placa
+                    }
                     else
                     {
                         Almacen_DAO.Tablas.OWTR_D owtrD = new Almacen_DAO.Tablas.OWTR_D();
-                        if (o.LugarDestino == "Arriola") { o.Guias = owtrD.GuiasTicketTransferencia(o.DocNum, "09", o.CardCode); }
-                        else { o.Guias = owtrD.GuiasTicketTransferencia(o.DocNum, "01", o.CardCode); }
+                        if (o.LugarDestino == "Arriola")
+                        {
+                            o.Guias = owtrD.GuiasTicketTransferencia(o.DocNum, "09", o.CardCode);
+                            o.ConducYPlaca = owtrD.ConducyPlacaTicketTransferencia(o.DocNum, "09", o.CardCode);
+                        }
+                        else
+                        {
+                            o.Guias = owtrD.GuiasTicketTransferencia(o.DocNum, "01", o.CardCode);
+                            o.ConducYPlaca = owtrD.ConducyPlacaTicketTransferencia(o.DocNum, "01", o.CardCode);
+                        }
                     }
                     lista.Add(o);
                 }
@@ -2953,49 +2992,14 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
             try
             {
                 cn.Open();
-                SqlCommand cmd = new SqlCommand("select DocEntry," +
-                    "DocNum," +
-                    "CardCode, " +
-                    "CardName," +
-                    "Estado," +
-                    "TipoVenta," +
-                    "LugarDestino, " +
-                    "DirDestino," +
-                    "Referencia," +
-                    "Agencia," +
-                    "EnvioAgencia," +
-                    "Embalaje," +
-                    "CodSapVendedor," +
-                    "Vendedor," +
-                    "MontoTotal," +
-                    "Flete," +
-                    "GastoEnvio," +
-                    "EstadoGasto," +
-                    "PagoEnv," +
-                    "ClaveEnv," +
-                    "TiempoEntrega," +
-                    "DescuentoNC," +
-                    "DeudaCliente," +
-                    "DeudaEmpresa," +
-                    "MontoFinal," +
-                    "FormaPago," +
-                    "MontoRecibido," +
-                    "EstadoPago," +
-                    "FechaPago," +
-                    "HoraPago,Cajero," +
-                    "Comentario,Cajas," +
-                    "NroMesa,FechaNC," +
-                    "EstadoFacturacion,FechaFacturacion,HoraFacturacion," +
-                    "OpFacturacion, Observaciones,Observaciones2,Observaciones3," +
-                    "FechaSapTicket, (Select top 1 FechaOperacion " +
-                    "from vt.CC_ORTV " +
-                    "where DocEntry=" + DocEntry + " and Operacion='REGISTRAR' " +
-                    "order by FechaOperacion DESC,HoraOperacion DESC ) AS 'FECHA REGISTRO'," +
-                    " (Select top 1 HoraOperacion from vt.CC_ORTV where DocEntry=" + DocEntry + " " +
-                    "and Operacion='REGISTRAR' order by FechaOperacion,HoraOperacion desc ) " +
-                    "AS 'HORA REGISTRO' " +
-                    ",AlmProcedencia, " +
-                    "Zona,Notificado,Visible,Presupuesto, (Select  Estado from vt.BusquedaProducto where DocEntry=vt.ORTV.DocEntry )   " +
+                SqlCommand cmd = new SqlCommand("select DocEntry,DocNum,CardCode, CardName,Estado,TipoVenta,LugarDestino, " +
+                    "DirDestino,Referencia,Agencia,EnvioAgencia,Embalaje,CodSapVendedor,Vendedor,MontoTotal,Flete,GastoEnvio," +
+                    "EstadoGasto,PagoEnv,ClaveEnv,TiempoEntrega,DescuentoNC,DeudaCliente,DeudaEmpresa,MontoFinal,FormaPago,MontoRecibido," +
+                    "EstadoPago,FechaPago,HoraPago,Cajero,Comentario,Cajas,NroMesa,FechaNC,EstadoFacturacion,FechaFacturacion,HoraFacturacion," +
+                    "OpFacturacion, Observaciones,Observaciones2,Observaciones3,FechaSapTicket, (Select top 1 FechaOperacion " +
+                    "from vt.CC_ORTV where DocEntry=" + DocEntry + " and Operacion='REGISTRAR' order by FechaOperacion DESC,HoraOperacion DESC ) AS 'FECHA REGISTRO'," +
+                    " (Select top 1 HoraOperacion from vt.CC_ORTV where DocEntry=" + DocEntry + " and Operacion='REGISTRAR' order by FechaOperacion,HoraOperacion desc ) " +
+                    "AS 'HORA REGISTRO' ,AlmProcedencia, Zona,Notificado,Visible,Presupuesto, (Select  Estado from vt.BusquedaProducto where DocEntry=vt.ORTV.DocEntry )   " +
                     "from vt.ORTV where DocEntry=" + DocEntry, cn);
                 cmd.CommandType = CommandType.Text;
                 SqlDataReader dr = cmd.ExecuteReader();
@@ -3072,30 +3076,6 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
             catch (Exception e) { cn.Close(); throw new Exception(e.Message); }
             return t;
         }
-
-
-        //*********Nuevo apra si****************//
-
-        public void RegistrarProductoPendiente(int docEntry)
-        {
-            using (SqlConnection cn = new SqlConnection(uti.cadSql))
-            {
-                cn.Open();
-                string query = @"
-            IF EXISTS (SELECT 1 FROM vt.BusquedaProducto WHERE DocEntry=@DocEntry)
-                UPDATE vt.BusquedaProducto SET Estado='PENDIENTE' WHERE DocEntry=@DocEntry
-            ELSE
-                INSERT INTO vt.BusquedaProducto (DocEntry, Estado) VALUES (@DocEntry, 'PENDIENTE')";
-                using (SqlCommand cmd = new SqlCommand(query, cn))
-                {
-                    cmd.Parameters.AddWithValue("@DocEntry", docEntry);
-                    cmd.ExecuteNonQuery();
-                }
-                cn.Close();
-            }
-        }
-
-        //*********FIN del nuevo****************//
         public ORTV_E ObtenerTicketRotulado(int DocEntry)
         {
             ORTV_E t = new ORTV_E();
