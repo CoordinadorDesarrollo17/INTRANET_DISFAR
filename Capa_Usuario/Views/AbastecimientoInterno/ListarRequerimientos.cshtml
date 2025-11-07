@@ -95,8 +95,10 @@
                                 <label for="Zona" class="form-label fw-bold">Zona:</label>
                                 <select id="Zona" name="Zona" class="form-select">
                                     <option value="">Seleccione</option>
-                                    <option value="Picking">Picking</option>
+                                    <option value="Verificacion">Verificación</option>
                                     <option value="Recepcion">Recepción</option>
+                                    <option value="RECEP-URGENTE">RECEP-URGENTE</option>
+                                    <option value="VERIF-URGENTE">VERIF-URGENTE</option>
                                 </select>
                             </div>
                             <div class="col-3">
@@ -278,6 +280,72 @@
             }
         }
 
+        // ---- Filtro por rango de porcentaje para el detalle (100%) ----
+        function parseNumber(val, def) {
+            if (val === null || val === undefined) return def;
+            var n = parseFloat(('' + val).replace(',', '.'));
+            return isNaN(n) ? def : n;
+        }
+
+        function initDetalleRequerimientoTableAndFilter() {
+            var $table = $('#tbl_ListadoDetalleRequerimiento');
+            if ($table.length === 0) return;
+
+            // Inicializar DataTable si fuera necesario
+            var table;
+            if ($.fn.DataTable.isDataTable($table)) {
+                table = $table.DataTable();
+            } else if (typeof inicializarDataTable === 'function') {
+                table = inicializarDataTable('tbl_ListadoDetalleRequerimiento', 25);
+            } else {
+                table = $table.DataTable({ pageLength: 25 });
+            }
+
+            // Registrar filtro global solo una vez
+            if (!window._detalleReqRangeFilterAdded) {
+                window._detalleReqRangeFilterAdded = true;
+                $.fn.dataTable.ext.search.push(function (settings, data, dataIndex, rowData, counter) {
+                    if (!settings.nTable || settings.nTable.id !== 'tbl_ListadoDetalleRequerimiento') return true;
+
+                    var minInput = document.getElementById('filtroPorcentajeMin');
+                    var maxInput = document.getElementById('filtroPorcentajeMax');
+
+                    var min = parseNumber(minInput && minInput.value, null);
+                    var max = parseNumber(maxInput && maxInput.value, null);
+
+                    if (min === null && max === null) return true;
+
+                    var rowNode = settings.aoData[dataIndex].nTr;
+                    if (!rowNode) return true;
+                    var $bar = $(rowNode).find('td').eq(11).find('.progress-bar').first();
+                    if (!$bar || $bar.length === 0) return true;
+
+                    var stockMin = parseNumber($bar.attr('data-stockmin'), 0);
+                    var stockPicking = parseNumber($bar.attr('data-stockpicking'), 0);
+                    var percent = (stockMin > 0) ? (stockPicking * 100.0 / stockMin) : parseNumber($bar.attr('data-percent'), -1);
+
+                    if (percent < 0) return false;
+                    if (min !== null && percent < min) return false;
+                    if (max !== null && percent > max) return false;
+                    return true;
+                });
+            }
+
+            // Enlazar eventos a los inputs del filtro (per contenido cargado)
+            var minInputEl = document.getElementById('filtroPorcentajeMin');
+            var maxInputEl = document.getElementById('filtroPorcentajeMax');
+            var btnClear = document.getElementById('btnLimpiarFiltroPorcentaje');
+
+            if (minInputEl) minInputEl.oninput = function () { table.draw(); };
+            if (maxInputEl) maxInputEl.oninput = function () { table.draw(); };
+            if (btnClear) btnClear.onclick = function () {
+                if (minInputEl) minInputEl.value = '';
+                if (maxInputEl) maxInputEl.value = '';
+                table.draw();
+            };
+        }
+        // ----------------------------------------------------------------
+
         async function cancelarDocumento(id) {
             swalWithBootstrapButtons.fire({
                 title: '¿Está seguro(a) de CANCELAR DOCUMENTO?',
@@ -337,7 +405,7 @@
             fetch(url, {
                 method: 'GET',
                 headers: {
-                    'X-Requested-With': 'XMLHttpRequest' // Para asegurar que se trata como una solicitud AJAX
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
             })
                 .then(async response => {
@@ -345,7 +413,6 @@
 
                     if (!response.ok) throw new Error('Error inesperado del servidor.');
 
-                    // Detectar si es JSON (mensaje de error)
                     if (contentType && contentType.includes("application/json")) {
                         const json = await response.json();
                         Swal.fire({
@@ -356,7 +423,6 @@
                         throw new Error('Mensaje del servidor recibido, operación cancelada.');
                     }
 
-                    // Si es HTML válido, insertar en el modal
                     const html = await response.text();
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(html, 'text/html');
@@ -367,9 +433,11 @@
                     document.getElementById('btn_AprobarRequerimiento').dataset.requerimiento = requerimientoId;
                     document.getElementById('btn_RechazarRequerimiento').dataset.requerimiento = requerimientoId;
 
-                    // Asegurar que se elimina cualquier clase anterior de visibilidad
                     div.classList.remove('d-none', 'd-block');
                     div.classList.add(claseAprobado);
+
+                    // Inicializar DataTable y filtro de porcentajes del detalle (columna 100%)
+                    initDetalleRequerimientoTableAndFilter();
 
                     modal.show();
                 })
@@ -402,7 +470,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ id }) // se recomienda enviar un objeto, no solo el valor
+                    body: JSON.stringify({ id })
                 });
 
                 if (!response.ok) throw new Error('Error inesperado del servidor.');
@@ -447,7 +515,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ id }) // se recomienda enviar un objeto, no solo el valor
+                    body: JSON.stringify({ id })
                 });
 
                 if (!response.ok) throw new Error('Error inesperado del servidor.');
@@ -498,7 +566,7 @@
                             headers: {
                                 'Content-Type': 'application/json',
                             },
-                            body: JSON.stringify({ ItemID }) // Se envía un objeto vacío
+                            body: JSON.stringify({ ItemID })
                         });
 
                         if (!response.ok) throw new Error('Error inesperado del servidor.');
