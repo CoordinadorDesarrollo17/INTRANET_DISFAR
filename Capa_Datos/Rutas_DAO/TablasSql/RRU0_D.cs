@@ -154,7 +154,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
         public RRU0_E buscarRRU0(int DocEntry, int Linea)
         {
             RRU0_E o = new RRU0_E() { Ticket = new ORTV_E() };
-            string query = "select t0.*" +
+            string query = "select t0.DocEntry,t0.Linea,t0.DocEntryTicket,t0.DocNumTicket,t0.Socio,t0.Guias,t0.Verificado,t0.Cajas,t0.Observaciones,t0.MontoFinal,t0.Envio,t0.Direcciones,t0.Estado,t0.TempI1,t0.HumedI1,t0.TempI2,t0.HumedI2,t0.TempF1,t0.HumedF1,t0.TempF2,t0.HumedF2,t0.OpEntrega,t0.FechaEntrega,t0.HoraEntrega,t0.ComentarioLiberado" +
                 ",(select PagoEnv from vt.ortv where DocEntry = t0.DocEntryTicket)" +
                 ",(select ClaveEnv from vt.ortv where DocEntry = t0.DocEntryTicket)" +
                 ",(select RegCant from vt.rtv5 where DocEntry = t0.DocEntryTicket and Linea=1)" +
@@ -320,7 +320,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                         }
                         catch (Exception e)
                         {
-                            
+
                             tran.Rollback();
                             throw new Exception(e.Message);
                         }
