@@ -25,5 +25,8 @@
         public  string Nivel{ get; set; }
         public string Zona { get; set; }         // Zona solo cuando sea Venta Master
         public int Aprobado { get; set; }         // Campo de requerimiento automático
+        public int StockMinAbastecimiento { get; set; }
+        public decimal StockPicking { get; set; }
+        public decimal StockActualUnidades { get; set; }
     }
 }

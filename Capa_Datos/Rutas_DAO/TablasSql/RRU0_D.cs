@@ -320,7 +320,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                         }
                         catch (Exception e)
                         {
-                            
+
                             tran.Rollback();
                             throw new Exception(e.Message);
                         }
