@@ -156,6 +156,7 @@
             <div id="div_AprobarRequerimiento" class="modal-footer d-flex justify-content-start" hidden>
                 <button type="button" id="btn_AprobarRequerimiento" class="btn btn-sm btn-success" onclick="aprobarRequerimiento(this)" data-requerimiento="0"><i class="bi bi-check-lg"></i> Aprobar</button>
                 <button type="button" id="btn_RechazarRequerimiento" class="btn btn-sm btn-outline-danger" onclick="rechazarRequerimiento(this)" data-requerimiento="0"><i class="bi bi-x-lg"></i> Rechazar</button>
+                <button type="button" id="btn_EliminarSeleccionados" class="btn btn-sm btn-danger ms-2"><i class="bi bi-trash-fill"></i> Eliminar seleccionados</button>
             </div>
         </div>
     </div>
@@ -229,7 +230,6 @@
 
             const payload = {};
 
-            // Lista de campos que deben ser convertidos a número
             const camposNumericos = ['Id', 'Aprobado'];
 
             for (const key in rawPayload) {
@@ -240,8 +240,6 @@
                     payload[key] = rawPayload[key];
                 }
             }
-            //console.log(payload)
-            //return;
 
             try {
                 const response = await fetch("/AbastecimientoInterno/FiltrarListado", {
@@ -256,7 +254,6 @@
                     throw new Error(`Error en la solicitud: ${response.statusText}`);
                 }
 
-                // Recibimos el HTML directamente
                 const html = await response.text();
 
                 document.querySelector('#div_listado').innerHTML = html;
@@ -280,7 +277,6 @@
             }
         }
 
-        // ---- Filtro por rango de porcentaje para el detalle (100%) ----
         function parseNumber(val, def) {
             if (val === null || val === undefined) return def;
             var n = parseFloat(('' + val).replace(',', '.'));
@@ -291,7 +287,6 @@
             var $table = $('#tbl_ListadoDetalleRequerimiento');
             if ($table.length === 0) return;
 
-            // Inicializar DataTable si fuera necesario
             var table;
             if ($.fn.DataTable.isDataTable($table)) {
                 table = $table.DataTable();
@@ -301,7 +296,6 @@
                 table = $table.DataTable({ pageLength: 25 });
             }
 
-            // Registrar filtro global solo una vez
             if (!window._detalleReqRangeFilterAdded) {
                 window._detalleReqRangeFilterAdded = true;
                 $.fn.dataTable.ext.search.push(function (settings, data, dataIndex, rowData, counter) {
@@ -331,7 +325,6 @@
                 });
             }
 
-            // Enlazar eventos a los inputs del filtro (per contenido cargado)
             var minInputEl = document.getElementById('filtroPorcentajeMin');
             var maxInputEl = document.getElementById('filtroPorcentajeMax');
             var btnClear = document.getElementById('btnLimpiarFiltroPorcentaje');
@@ -344,7 +337,6 @@
                 table.draw();
             };
         }
-        // ----------------------------------------------------------------
 
         async function cancelarDocumento(id) {
             swalWithBootstrapButtons.fire({
@@ -364,7 +356,6 @@
                 buttonsStyling: false
             }).then(async (result) => {
                 if (result.isConfirmed) {
-
                     try {
                         const response = await fetch("/Internamientos/CancelarDocumento", {
                             method: 'POST',
@@ -396,14 +387,15 @@
         }
 
         function cargarDetalleRequerimiento(requerimientoId, aprobado) {
-            const url = `/AbastecimientoInterno/VerDetalleRequerimiento?requerimientoId=${requerimientoId}`;
-            const modal = new bootstrap.Modal(document.getElementById('modalDetalle'));
+            const url = `/AbastecimientoInterno/VerDetalleRequerimiento?requerimientoId=${requerimientoId}&_=${Date.now()}`;
+            const modalEl = document.getElementById('modalDetalle');
             const contenedor = document.getElementById('modalContenido');
 
             contenedor.innerHTML = '<div class="text-center my-3">Cargando...</div>';
 
             fetch(url, {
                 method: 'GET',
+                cache: 'no-store',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'
                 }
@@ -423,10 +415,18 @@
                         throw new Error('Mensaje del servidor recibido, operación cancelada.');
                     }
 
+                    try {
+                        var $oldTable = $('#tbl_ListadoDetalleRequerimiento');
+                        if ($oldTable.length && $.fn.DataTable.isDataTable($oldTable)) {
+                            $oldTable.DataTable().destroy();
+                        }
+                    } catch (e) { }
+
                     const html = await response.text();
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(html, 'text/html');
                     contenedor.replaceChildren(...doc.body.children);
+                    contenedor.scrollTop = 0;
 
                     const claseAprobado = aprobado == 0 ? 'd-block' : 'd-none';
                     const div = document.getElementById('div_AprobarRequerimiento');
@@ -436,10 +436,71 @@
                     div.classList.remove('d-none', 'd-block');
                     div.classList.add(claseAprobado);
 
-                    // Inicializar DataTable y filtro de porcentajes del detalle (columna 100%)
                     initDetalleRequerimientoTableAndFilter();
 
-                    modal.show();
+                    setTimeout(function () {
+                        var btnEliminar = document.getElementById('btn_EliminarSeleccionados');
+                        if (btnEliminar) {
+                            btnEliminar.onclick = function () {
+                                var ids = Array.from(document.querySelectorAll('.chkSelectItem:checked')).map(function (el) { return parseInt(el.value); });
+                                if (ids.length === 0) {
+                                    Swal.fire({
+                                        icon: 'warning',
+                                        title: 'Seleccione al menos un ítem',
+                                        text: 'Debe seleccionar al menos un ítem para eliminar.'
+                                    });
+                                    return;
+                                }
+                                Swal.fire({
+                                    title: '¿Está seguro que desea eliminar los ítems seleccionados?',
+                                    icon: 'warning',
+                                    showCancelButton: true,
+                                    confirmButtonText: "<i class='bi bi-check-lg'></i> Sí, eliminar",
+                                    cancelButtonText: "<i class='bi bi-x-lg mx-1'></i> Cancelar",
+                                    reverseButtons: true,
+                                    allowEscapeKey: false,
+                                    allowOutsideClick: false,
+                                    customClass: {
+                                        confirmButton: 'btn btn-success',
+                                        cancelButton: 'btn btn-outline-danger mx-1'
+                                    },
+                                    buttonsStyling: false
+                                }).then(function (result) {
+                                    if (result.isConfirmed) {
+                                        fetch('/AbastecimientoInterno/EliminarItemsDetalleRequerimiento', {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ itemIDs: ids, idOperation: 3806 })
+                                        })
+                                        .then(async resp => {
+                                            if (!resp.ok) throw new Error('Error inesperado del servidor.');
+                                            var json = await resp.json();
+                                            Swal.fire({
+                                                title: json.Titulo || 'Resultado',
+                                                html: json.Mensajes ? json.Mensajes.join('<br>') : '',
+                                                icon: json.Icono || (json.success ? 'success' : 'error')
+                                            }).then(function(){
+                                                if (json.Icono === 'success' || json.success === true) {
+                                                    contenedor.innerHTML = '<div class="text-center my-3">Actualizando...</div>';
+                                                    cargarDetalleRequerimiento(requerimientoId, aprobado);
+                                                }
+                                            });
+                                        })
+                                        .catch(function (err) {
+                                            Swal.fire({
+                                                icon: 'error',
+                                                title: 'Error al eliminar',
+                                                text: err.message || 'Ocurrió un error inesperado.'
+                                            });
+                                        });
+                                    }
+                                });
+                            };
+                        }
+                    }, 100);
+
+                    const existing = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                    existing.show();
                 })
                 .catch(error => {
                     console.error('Error al cargar el detalle:', error);
