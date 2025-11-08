@@ -18,6 +18,7 @@
 <table id="tbl_ListadoDetalleRequerimiento" class="dt-container dt-empty-footer table table-hover table-bordered table-striped font-14" width="100%">
     <thead class="thead-cobefar">
         <tr>
+            <th scope="col" class="text-center" style="width:40px"><input type="checkbox" id="chkSelectAll" /></th>
             <th scope="col" class="text-center">Cód. Artículo</th>
             <th scope="col" class="text-center">Descripción</th>
             <th scope="col" class="text-center">Lote</th>
@@ -65,6 +66,7 @@
                 decimal formatStockActualUnds = Math.Truncate(item.StockActualUnidades * 100) / 100;
                 decimal formatStockPicking = Math.Truncate(item.StockPicking * 100) / 100;
                 <tr>
+                    <td scope="col" class="text-center"><input type="checkbox" class="chkSelectItem" value="@item.Id" /></td>
                     <td scope="col" class="text-center">@item.ItemCode</td>
                     <td scope="col" class="text-center">@item.ItemName</td>
                     <td scope="col" class="text-center">@item.BatchNum</td>
@@ -143,6 +145,7 @@
         var minInput = document.getElementById('filtroPorcentajeMin');
         var maxInput = document.getElementById('filtroPorcentajeMax');
         var btnClear = document.getElementById('btnLimpiarFiltroPorcentaje');
+        var chkSelectAll = document.getElementById('chkSelectAll');
 
         function parseNumber(val, def) {
             if (val === null || val === undefined) return def;
@@ -182,7 +185,7 @@
                 // Tomamos el progress bar de la fila y calculamos el porcentaje desde data-*
                 var rowNode = settings.aoData[dataIndex].nTr;
                 if (!rowNode) return true;
-                var $bar = $(rowNode).find('td').eq(11).find('.progress-bar').first();
+                var $bar = $(rowNode).find('td').eq(12).find('.progress-bar').first();
                 if (!$bar || $bar.length === 0) return true;
 
                 var stockMin = parseNumber($bar.attr('data-stockmin'), 0);
