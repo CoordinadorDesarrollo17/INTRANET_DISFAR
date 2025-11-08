@@ -1024,15 +1024,35 @@ namespace Capa_Usuario.Controllers
         public void EnviarCorreo(int docEntry, string correoCliente)
         {
             Utilitarios uti = new Utilitarios();
+
             string destinatario = correoCliente;
-            string remitente = "cobefar.facturacion@gmail.com";
-            string asunto = "COBEFAR SAC - DOCUMENTOS ELECTRONICOS";
-            string cuerpo = "<html><body><h3 style='color:green;'>Gracias por su compra - COBEFAR SAC</h3><p style='font-size:16px;font-weight:bold'>Estimado cliente,<br>Adjuntamos sus comprobantes electrónicos.</p><span>Área Comercial - COBEFAR SAC</span></body></html>";
-            MailMessage ms = new MailMessage(remitente, destinatario, asunto, cuerpo)
-            {
-                IsBodyHtml = true
-            };
+            string remitente = "facturacion@cobefar.com.pe";
+            string claveRemitente = "jnrfpqmjzbngkzrv"; // ⚠️ cámbiala por la real
+
+            string asunto = "COBEFAR SAC - DOCUMENTOS ELECTRÓNICOS";
+            string cuerpo = @"
+                            <html>
+                            <body>
+                                <h3 style='color:green;'>Gracias por su compra - COBEFAR SAC</h3>
+                                <p style='font-size:16px;font-weight:bold'>
+                                    Estimado cliente,<br>
+                                    Adjuntamos sus comprobantes electrónicos.
+                                </p>
+                                <span>Área Comercial - COBEFAR SAC</span>
+                            </body>
+                            </html>";
+
+            // Crear mensaje
+            MailMessage ms = new MailMessage();
+            ms.From = new MailAddress(remitente, "COBEFAR SAC");
+            ms.To.Add(destinatario);
+            ms.Subject = asunto;
+            ms.Body = cuerpo;
+            ms.IsBodyHtml = true;
+
+            // Generar y adjuntar PDF
             string filePath = CrearYObtenerDocumento(docEntry, "F");
+
             try
             {
                 if (!string.IsNullOrWhiteSpace(filePath) && System.IO.File.Exists(filePath))
@@ -1043,25 +1063,38 @@ namespace Capa_Usuario.Controllers
                 {
                     throw new FileNotFoundException("No se encontró el archivo PDF para adjuntar.");
                 }
-                SmtpClient smtp = new SmtpClient(uti.Smtp, uti.CodigoSmtp)
+
+                // 🔹 SOLO aquí se usa Office 365
+                using (SmtpClient smtp = new SmtpClient("smtp.office365.com", 587))
                 {
-                    EnableSsl = true,
-                    Credentials = new NetworkCredential(remitente, "yrklhfztkobemclu")
-                };
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-                smtp.Send(ms);
+                    smtp.EnableSsl = true;
+                    smtp.UseDefaultCredentials = false;
+                    smtp.Credentials = new NetworkCredential(remitente, claveRemitente);
+                    smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
+
+                    // Requerido por Microsoft (TLS 1.2)
+                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
+                    smtp.Send(ms);
+                    Console.WriteLine("✅ Correo enviado exitosamente a " + destinatario);
+                }
+            }
+            catch (SmtpException ex)
+            {
+                Console.WriteLine($"❌ Error SMTP: {ex.StatusCode} - {ex.Message}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error al enviar el correo: {ex.Message}");
+                Console.WriteLine($"❌ Error general: {ex.Message}");
             }
             finally
             {
+                // Eliminar PDF temporal
                 if (!string.IsNullOrWhiteSpace(filePath) && System.IO.File.Exists(filePath))
                 {
                     try
                     {
-                        System.IO.File.Delete(filePath);
+                        System.IO.File.Delete(filePath); 
                         Console.WriteLine("Archivo PDF eliminado después del envío del correo.");
                     }
                     catch (Exception deleteEx)
@@ -1071,6 +1104,8 @@ namespace Capa_Usuario.Controllers
                 }
             }
         }
+
+
         private List<Comprobante_E> ObtenerEncabezados(List<int> listDocEntrySap, ORTV_E obj, string Tipo)
         {
             Comprobante_N compN = new Comprobante_N();
