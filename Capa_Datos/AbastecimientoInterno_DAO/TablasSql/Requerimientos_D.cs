@@ -279,6 +279,21 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     };
                     cmd.Parameters.Add(param2);
 
+                    // Para el Type @ItemCodeList
+                    var table = new DataTable();
+                    table.Columns.Add("ItemCode", typeof(string));
+                    foreach (var code in itemCodes)
+                    {
+                        table.Rows.Add(code);
+                    }
+
+                    var tvpParam = new SqlParameter("@ItemCodes", SqlDbType.Structured)
+                    {
+                        TypeName = "ItemCodeList", // nombre del tipo definido en SQL Server
+                        Value = table
+                    };
+                    cmd.Parameters.Add(tvpParam);
+
                     SqlDataReader dr = cmd.ExecuteReader();
 
                     if (dr.HasRows)
@@ -308,13 +323,6 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                             if (!dr.IsDBNull(18)) { detalle.Aprobado = dr.GetInt32(18); }
                             lista.Add(detalle);
                         }
-                    }
-
-                    // Si se pasó una lista de códigos, filtrar en memoria
-                    if (itemCodes != null && itemCodes.Count > 0 && lista != null)
-                    {
-                        var set = new HashSet<string>(itemCodes);
-                        lista = lista.Where(d => d.ItemCode != null && set.Contains(d.ItemCode)).ToList();
                     }
                 }
                 catch (Exception ex)
@@ -396,6 +404,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                     };
                     cmd.Parameters.Add(detalleParam);
 
+                    // Retorno de ids generados para cabecera y detalle
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         var detalles = new List<DetalleRequerimientos_E>();
@@ -423,6 +432,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                         requerimiento.Detalle = detalles;
                     }
 
+                    // Ahora es seguro acceder al valor del parámetro de salida
                     if (idGeneradoParam.Value == DBNull.Value)
                         throw new Exception("El procedimiento no devolvió un Id generado.");
 
