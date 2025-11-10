@@ -154,8 +154,8 @@
                 <!-- Aquí se cargará la vista parcial -->
             </div>
             <div id="div_AprobarRequerimiento" class="modal-footer d-flex justify-content-start" hidden>
-                <button type="button" id="btn_AprobarRequerimiento" class="btn btn-sm btn-success" onclick="aprobarRequerimiento(this)" data-requerimiento="0"><i class="bi bi-check-lg"></i> Aprobar</button>
-                <button type="button" id="btn_RechazarRequerimiento" class="btn btn-sm btn-outline-danger" onclick="rechazarRequerimiento(this)" data-requerimiento="0"><i class="bi bi-x-lg"></i> Rechazar</button>
+                <button type="button" id="btn_AprobarRequerimiento" class="btn btn-sm btn-success" onclick="aprobarRequerimiento(this)" data-requerimiento="0"><i class="bi bi-check-lg"></i> Aprobar Req.</button>
+                <button type="button" id="btn_RechazarRequerimiento" class="btn btn-sm btn-outline-danger" onclick="rechazarRequerimiento(this)" data-requerimiento="0"><i class="bi bi-x-lg"></i> Rechazar Req.</button>
                 <button type="button" id="btn_EliminarSeleccionados" class="btn btn-sm btn-danger ms-2"><i class="bi bi-trash-fill"></i> Eliminar seleccionados</button>
             </div>
         </div>
@@ -283,41 +283,28 @@
             return isNaN(n) ? def : n;
         }
 
+        // Solo ajustamos selección de progress-bar sin usar índice fijo.
         function initDetalleRequerimientoTableAndFilter() {
             var $table = $('#tbl_ListadoDetalleRequerimiento');
             if ($table.length === 0) return;
-
-            var table;
-            if ($.fn.DataTable.isDataTable($table)) {
-                table = $table.DataTable();
-            } else if (typeof inicializarDataTable === 'function') {
-                table = inicializarDataTable('tbl_ListadoDetalleRequerimiento', 25);
-            } else {
-                table = $table.DataTable({ pageLength: 25 });
-            }
+            var table = $.fn.DataTable.isDataTable($table) ? $table.DataTable() : (typeof inicializarDataTable === 'function' ? inicializarDataTable('tbl_ListadoDetalleRequerimiento', 25) : $table.DataTable({ pageLength: 25 }));
 
             if (!window._detalleReqRangeFilterAdded) {
                 window._detalleReqRangeFilterAdded = true;
-                $.fn.dataTable.ext.search.push(function (settings, data, dataIndex, rowData, counter) {
+                $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
                     if (!settings.nTable || settings.nTable.id !== 'tbl_ListadoDetalleRequerimiento') return true;
-
                     var minInput = document.getElementById('filtroPorcentajeMin');
                     var maxInput = document.getElementById('filtroPorcentajeMax');
-
                     var min = parseNumber(minInput && minInput.value, null);
                     var max = parseNumber(maxInput && maxInput.value, null);
-
                     if (min === null && max === null) return true;
-
                     var rowNode = settings.aoData[dataIndex].nTr;
                     if (!rowNode) return true;
-                    var $bar = $(rowNode).find('td').eq(11).find('.progress-bar').first();
-                    if (!$bar || $bar.length === 0) return true;
-
+                    var $bar = $(rowNode).find('.progress-bar').first(); // cambio: ya no depende de eq(11)
+                    if (!$bar.length) return true;
                     var stockMin = parseNumber($bar.attr('data-stockmin'), 0);
                     var stockPicking = parseNumber($bar.attr('data-stockpicking'), 0);
                     var percent = (stockMin > 0) ? (stockPicking * 100.0 / stockMin) : parseNumber($bar.attr('data-percent'), -1);
-
                     if (percent < 0) return false;
                     if (min !== null && percent < min) return false;
                     if (max !== null && percent > max) return false;
@@ -328,14 +315,9 @@
             var minInputEl = document.getElementById('filtroPorcentajeMin');
             var maxInputEl = document.getElementById('filtroPorcentajeMax');
             var btnClear = document.getElementById('btnLimpiarFiltroPorcentaje');
-
             if (minInputEl) minInputEl.oninput = function () { table.draw(); };
             if (maxInputEl) maxInputEl.oninput = function () { table.draw(); };
-            if (btnClear) btnClear.onclick = function () {
-                if (minInputEl) minInputEl.value = '';
-                if (maxInputEl) maxInputEl.value = '';
-                table.draw();
-            };
+            if (btnClear) btnClear.onclick = function () { if (minInputEl) minInputEl.value = ''; if (maxInputEl) maxInputEl.value = ''; table.draw(); };
         }
 
         async function cancelarDocumento(id) {
@@ -349,39 +331,17 @@
                 reverseButtons: true,
                 allowEscapeKey: false,
                 allowOutsideClick: false,
-                customClass: {
-                    confirmButton: 'btn btn-success',
-                    cancelButton: 'btn btn-outline-danger mx-1'
-                },
+                customClass: { confirmButton: 'btn btn-success', cancelButton: 'btn btn-outline-danger mx-1' },
                 buttonsStyling: false
             }).then(async (result) => {
                 if (result.isConfirmed) {
                     try {
-                        const response = await fetch("/Internamientos/CancelarDocumento", {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({ id })
-                        });
-
+                        const response = await fetch('/Internamientos/CancelarDocumento', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
                         if (!response.ok) throw new Error(`Error: ${response.statusText}`);
-
                         const data = await response.json();
-
-                        Swal.fire({
-                            title: data.Titulo,
-                            html: Array.isArray(data.Mensajes) ? data.Mensajes.join('<br>') : data.Mensajes || "",
-                            icon: data.Icono,
-                            confirmButtonColor: '#28a745'
-                        }).then(result => {
-                            if (result.isConfirmed && data.Icono === "success") {
-                                location.reload();
-                            }
-                        });
-                    } catch (error) {
-                        console.error('Error al registrar:', error);
-                    }
+                        Swal.fire({ title: data.Titulo, html: Array.isArray(data.Mensajes) ? data.Mensajes.join('<br>') : data.Mensajes || '', icon: data.Icono, confirmButtonColor: '#28a745' })
+                            .then(r => { if (r.isConfirmed && data.Icono === 'success') location.reload(); });
+                    } catch (error) { console.error('Error al registrar:', error); }
                 }
             });
         }
@@ -390,65 +350,39 @@
             const url = `/AbastecimientoInterno/VerDetalleRequerimiento?requerimientoId=${requerimientoId}&_=${Date.now()}`;
             const modalEl = document.getElementById('modalDetalle');
             const contenedor = document.getElementById('modalContenido');
-
             contenedor.innerHTML = '<div class="text-center my-3">Cargando...</div>';
-
-            fetch(url, {
-                method: 'GET',
-                cache: 'no-store',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
+            fetch(url, { method: 'GET', cache: 'no-store', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                 .then(async response => {
-                    const contentType = response.headers.get("content-type");
-
+                    const contentType = response.headers.get('content-type');
                     if (!response.ok) throw new Error('Error inesperado del servidor.');
-
-                    if (contentType && contentType.includes("application/json")) {
+                    if (contentType && contentType.includes('application/json')) {
                         const json = await response.json();
-                        Swal.fire({
-                            title: json.Titulo || 'Error',
-                            html: json.Mensajes ? json.Mensajes.join('<br>') : 'Ocurrió un error inesperado.',
-                            icon: json.Icono || 'error'
-                        });
+                        Swal.fire({ title: json.Titulo || 'Error', html: json.Mensajes ? json.Mensajes.join('<br>') : 'Ocurrió un error inesperado.', icon: json.Icono || 'error' });
                         throw new Error('Mensaje del servidor recibido, operación cancelada.');
                     }
-
                     try {
                         var $oldTable = $('#tbl_ListadoDetalleRequerimiento');
-                        if ($oldTable.length && $.fn.DataTable.isDataTable($oldTable)) {
-                            $oldTable.DataTable().destroy();
-                        }
-                    } catch (e) { }
-
+                        if ($oldTable.length && $.fn.DataTable.isDataTable($oldTable)) $oldTable.DataTable().destroy();
+                    } catch { }
                     const html = await response.text();
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(html, 'text/html');
                     contenedor.replaceChildren(...doc.body.children);
                     contenedor.scrollTop = 0;
-
                     const claseAprobado = aprobado == 0 ? 'd-block' : 'd-none';
                     const div = document.getElementById('div_AprobarRequerimiento');
                     document.getElementById('btn_AprobarRequerimiento').dataset.requerimiento = requerimientoId;
                     document.getElementById('btn_RechazarRequerimiento').dataset.requerimiento = requerimientoId;
-
                     div.classList.remove('d-none', 'd-block');
                     div.classList.add(claseAprobado);
-
                     initDetalleRequerimientoTableAndFilter();
-
                     setTimeout(function () {
                         var btnEliminar = document.getElementById('btn_EliminarSeleccionados');
                         if (btnEliminar) {
                             btnEliminar.onclick = function () {
-                                var ids = Array.from(document.querySelectorAll('.chkSelectItem:checked')).map(function (el) { return parseInt(el.value); });
+                                var ids = Array.from(document.querySelectorAll('.chkSelectItem:checked')).map(el => parseInt(el.value));
                                 if (ids.length === 0) {
-                                    Swal.fire({
-                                        icon: 'warning',
-                                        title: 'Seleccione al menos un ítem',
-                                        text: 'Debe seleccionar al menos un ítem para eliminar.'
-                                    });
+                                    Swal.fire({ icon: 'warning', title: 'Seleccione al menos un ítem', text: 'Debe seleccionar al menos un ítem para eliminar.' });
                                     return;
                                 }
                                 Swal.fire({
@@ -460,200 +394,80 @@
                                     reverseButtons: true,
                                     allowEscapeKey: false,
                                     allowOutsideClick: false,
-                                    customClass: {
-                                        confirmButton: 'btn btn-success',
-                                        cancelButton: 'btn btn-outline-danger mx-1'
-                                    },
+                                    customClass: { confirmButton: 'btn btn-success', cancelButton: 'btn btn-outline-danger mx-1' },
                                     buttonsStyling: false
                                 }).then(function (result) {
                                     if (result.isConfirmed) {
                                         fetch('/AbastecimientoInterno/EliminarItemsDetalleRequerimiento', {
-                                            method: 'POST',
-                                            headers: { 'Content-Type': 'application/json' },
-                                            body: JSON.stringify({ itemIDs: ids, idOperation: 3806 })
+                                            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ itemIDs: ids, idOperation: 3806 })
                                         })
-                                        .then(async resp => {
-                                            if (!resp.ok) throw new Error('Error inesperado del servidor.');
-                                            var json = await resp.json();
-                                            Swal.fire({
-                                                title: json.Titulo || 'Resultado',
-                                                html: json.Mensajes ? json.Mensajes.join('<br>') : '',
-                                                icon: json.Icono || (json.success ? 'success' : 'error')
-                                            }).then(function(){
-                                                if (json.Icono === 'success' || json.success === true) {
-                                                    contenedor.innerHTML = '<div class="text-center my-3">Actualizando...</div>';
-                                                    cargarDetalleRequerimiento(requerimientoId, aprobado);
-                                                }
-                                            });
-                                        })
-                                        .catch(function (err) {
-                                            Swal.fire({
-                                                icon: 'error',
-                                                title: 'Error al eliminar',
-                                                text: err.message || 'Ocurrió un error inesperado.'
-                                            });
-                                        });
+                                            .then(async resp => {
+                                                if (!resp.ok) throw new Error('Error inesperado del servidor.');
+                                                var json = await resp.json();
+                                                Swal.fire({ title: json.Titulo || 'Resultado', html: json.Mensajes ? json.Mensajes.join('<br>') : '', icon: json.Icono || (json.success ? 'success' : 'error') })
+                                                    .then(function () { if (json.Icono === 'success' || json.success === true) { contenedor.innerHTML = '<div class="text-center my-3">Actualizando...</div>'; cargarDetalleRequerimiento(requerimientoId, aprobado); } });
+                                            })
+                                            .catch(function (err) { Swal.fire({ icon: 'error', title: 'Error al eliminar', text: err.message || 'Ocurrió un error inesperado.' }); });
                                     }
                                 });
                             };
                         }
                     }, 100);
-
-                    const existing = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-                    existing.show();
+                    (bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl)).show();
                 })
                 .catch(error => {
                     console.error('Error al cargar el detalle:', error);
-                    Swal.fire({
-                        title: 'Error',
-                        text: 'No se pudo cargar el detalle. Intenta nuevamente.',
-                        icon: 'error',
-                        confirmButtonText: 'Aceptar'
-                    });
+                    Swal.fire({ title: 'Error', text: 'No se pudo cargar el detalle. Intenta nuevamente.', icon: 'error', confirmButtonText: 'Aceptar' });
                 });
         }
 
         async function aprobarRequerimiento(button) {
             const id = parseInt(button.dataset.requerimiento) || 0;
-
-            if (!id) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'ID inválido',
-                    text: 'No se pudo obtener el ID del requerimiento.',
-                });
-                return;
-            }
-
+            if (!id) { Swal.fire({ icon: 'warning', title: 'ID inválido', text: 'No se pudo obtener el ID del requerimiento.' }); return; }
             try {
-                const response = await fetch("/AbastecimientoInterno/AprobarRequerimiento", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ id })
-                });
-
+                const response = await fetch('/AbastecimientoInterno/AprobarRequerimiento', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
                 if (!response.ok) throw new Error('Error inesperado del servidor.');
-
                 const json = await response.json();
-
-                Swal.fire({
-                    title: json.Titulo,
-                    html: json.Mensajes ? json.Mensajes.join('<br>') : '',
-                    icon: json.Icono
-                }).then((result) => {
-                    if (result.isConfirmed && json.Icono == "success") {
-                        location.reload();
-                    }
-                });
-            } catch (error) {
-                console.error('Error al aprobar:', error);
-
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error al aprobar requerimiento',
-                    text: error.message || 'Ocurrió un error inesperado.',
-                });
-            }
+                Swal.fire({ title: json.Titulo, html: json.Mensajes ? json.Mensajes.join('<br>') : '', icon: json.Icono }).then(r => { if (r.isConfirmed && json.Icono == 'success') location.reload(); });
+            } catch (error) { Swal.fire({ icon: 'error', title: 'Error al aprobar requerimiento', text: error.message || 'Ocurrió un error inesperado.' }); }
         }
 
         async function rechazarRequerimiento(button) {
             const id = parseInt(button.dataset.requerimiento) || 0;
-
-            if (!id) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'ID inválido',
-                    text: 'No se pudo obtener el ID del requerimiento.',
-                });
-                return;
-            }
-
+            if (!id) { Swal.fire({ icon: 'warning', title: 'ID inválido', text: 'No se pudo obtener el ID del requerimiento.' }); return; }
             try {
-                const response = await fetch("/AbastecimientoInterno/RechazarRequerimiento", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ id })
-                });
-
+                const response = await fetch('/AbastecimientoInterno/RechazarRequerimiento', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
                 if (!response.ok) throw new Error('Error inesperado del servidor.');
-
                 const json = await response.json();
-
-                Swal.fire({
-                    title: json.Titulo,
-                    html: json.Mensajes ? json.Mensajes.join('<br>') : '',
-                    icon: json.Icono
-                }).then((result) => {
-                    if (result.isConfirmed && json.Icono == "success") {
-                        location.reload();
-                    }
-                });
-            } catch (error) {
-                console.error('Error al rechazar:', error);
-
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error al rechazar requerimiento',
-                    text: error.message || 'Ocurrió un error inesperado.',
-                });
-            }
+                Swal.fire({ title: json.Titulo, html: json.Mensajes ? json.Mensajes.join('<br>') : '', icon: json.Icono }).then(r => { if (r.isConfirmed && json.Icono == 'success') location.reload(); });
+            } catch (error) { Swal.fire({ icon: 'error', title: 'Error al rechazar requerimiento', text: error.message || 'Ocurrió un error inesperado.' }); }
         }
 
         async function eliminarItem(ItemID) {
             Swal.fire({
-                title: "¿Estás seguro(a) de eliminar ítem?",
-                html: "El ítem se eliminará del detalle del requerimiento.",
-                icon: "warning",
+                title: '¿Estás seguro(a) de eliminar ítem?',
+                html: 'El ítem se eliminará del detalle del requerimiento.',
+                icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: "<i class='bi bi-check-lg'></i> Si, continuar",
                 cancelButtonText: "<i class='bi bi-x-lg mx-1'></i> Cancelar",
                 reverseButtons: true,
                 allowEscapeKey: false,
                 allowOutsideClick: false,
-                customClass: {
-                    confirmButton: 'btn btn-success',
-                    cancelButton: 'btn btn-outline-danger mx-1'
-                },
+                customClass: { confirmButton: 'btn btn-success', cancelButton: 'btn btn-outline-danger mx-1' },
                 buttonsStyling: false
             }).then(async (result) => {
                 if (result.isConfirmed) {
                     try {
-                        const response = await fetch("/AbastecimientoInterno/EliminarItemDetalleRequerimiento", {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({ ItemID })
-                        });
-
+                        const response = await fetch('/AbastecimientoInterno/EliminarItemDetalleRequerimiento', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ItemID }) });
                         if (!response.ok) throw new Error('Error inesperado del servidor.');
-
                         const json = await response.json();
-
-                        Swal.fire({
-                            title: json.Titulo,
-                            html: json.Mensajes ? json.Mensajes.join('<br>') : '',
-                            icon: json.Icono
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                location.reload();
-                            }
-                        });
+                        Swal.fire({ title: json.Titulo, html: json.Mensajes ? json.Mensajes.join('<br>') : '', icon: json.Icono }).then(r => { if (r.isConfirmed) location.reload(); });
                     } catch (error) {
-                        console.error('Error al crear requerimiento automático:', error);
-
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error al crear requerimiento',
-                            text: error.message || 'Ocurrió un error inesperado.',
-                        });
+                        Swal.fire({ icon: 'error', title: 'Error al crear requerimiento', text: error.message || 'Ocurrió un error inesperado.' });
                     }
                 }
-            });           
+            });
         }
     </script>
 }
