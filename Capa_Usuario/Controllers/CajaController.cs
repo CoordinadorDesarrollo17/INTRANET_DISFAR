@@ -142,6 +142,8 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+
+        [HttpPost]
         public ActionResult ConfGastEnvio(ORTV_E o, int DocEntryTicket, int idOTC = 0, int idOperation = 504)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
