@@ -45,8 +45,8 @@ namespace Capa_Datos
             //this.schemaHana = "\"BASE_28_06_2025\".";
 
             this.BDsql = Environment.GetEnvironmentVariable("NOMBRE_BD_PRINCIPAL", EnvironmentVariableTarget.Machine);
-            this.cadSql = Environment.GetEnvironmentVariable("PROYECTO_INTRANET_LOCAL_A", EnvironmentVariableTarget.Machine);
-            this.cadSql2 = Environment.GetEnvironmentVariable("BD_Operaciones_LOCAL", EnvironmentVariableTarget.Machine);
+            this.cadSql = Environment.GetEnvironmentVariable("PROYECTO_INTRANET", EnvironmentVariableTarget.Machine);
+            this.cadSql2 = Environment.GetEnvironmentVariable("BD_Operaciones", EnvironmentVariableTarget.Machine);
             CadSql3 = Environment.GetEnvironmentVariable("BD_DT", EnvironmentVariableTarget.Machine);
             CadSql4 = Environment.GetEnvironmentVariable("BD_DOCUMENTOS_REGULATORIOS", EnvironmentVariableTarget.Machine);
             this.serverSophos = Environment.GetEnvironmentVariable("SOPHOS", EnvironmentVariableTarget.Machine);
