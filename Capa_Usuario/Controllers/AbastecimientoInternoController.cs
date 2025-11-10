@@ -2665,8 +2665,10 @@ namespace Capa_Usuario.Controllers
                 foreach (var item in listaItemCodes)
                 {
                     // Orden: próxima fecha de vencimiento, primera fecha de admisión registrada, la menor cantidad en unidades
-                    List<UbicacionesLotesMaster_E> listaLotesM = _ubicacionesLotesMasterN.BuscarArticulos(new UbicacionesLotesMaster_E { ItemCode = item.ItemCode }) ?? new List<UbicacionesLotesMaster_E>();
-                    if (listaLotesM != null && listaLotesM.Any())
+                    List<UbicacionesLotesMaster_E> listaLotesM =
+                        (_ubicacionesLotesMasterN.BuscarArticulos(new UbicacionesLotesMaster_E { ItemCode = item.ItemCode }) ?? new List<UbicacionesLotesMaster_E>())
+                        .Where(x => x.QuantityMaster > 0)
+                        .ToList(); if (listaLotesM != null && listaLotesM.Any())
                     {
                         // Verificar si todas las fechas ExpDate e InDate son iguales
                         bool fechasIguales = listaLotesM.All(a => a.ExpDate == listaLotesM.First().ExpDate) && listaLotesM.All(a => a.InDate == listaLotesM.First().InDate);
