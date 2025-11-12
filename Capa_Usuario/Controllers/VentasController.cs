@@ -2855,11 +2855,19 @@ namespace Capa_Usuario.Controllers
                 try
                 {
                     ViewBag.CliReg = filtro;
+                    // Obtener listas necesarias para el modal de Nuevo Cliente Regalo
                     OCLR_N oclrN = new OCLR_N();
+                    OREG_N oregN = new OREG_N();
+                    OCRD_N ocrdN = new OCRD_N();
+                    OREG_E filtroRegalo = null;
+                    ViewBag.Regalos = oregN.listaRegalos(filtroRegalo);
+                    ViewBag.Clientes = ocrdN.listarSociosDeNegocios(new OCRD_E { CardType = "C" });
                     return View(oclrN.listadoRegaloCliente(filtro));
                 }
                 catch (Exception e)
-                { return RedirectToAction("GestionClienteRegalos", new { msj = e.Message }); }
+                {
+                    return RedirectToAction("GestionClienteRegalos", new { msj = e.Message });
+                }
             }
             else
             {
