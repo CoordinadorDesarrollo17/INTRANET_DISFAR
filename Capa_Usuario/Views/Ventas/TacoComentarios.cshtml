@@ -15,6 +15,39 @@
     {
         fondo = "#FD932A";
     }
+    // Lista de destinos que requieren Film para MARVISUR
+    var destinosFilm = new[] { "TINGO MARÍA", "TOCACHE", "AGUAYTÍA", "PUCALLPA",
+                               "CHACHAPOYAS", "RIOJA", "TARAPOTO", "JUANJUÍ",
+                               "YURIMAGUAS", "NAUTA", "IQUITOS" };
+
+    // Obtenemos el distrito actual
+    string distritoDestino = "";
+    if (Model.Det3 != null && Model.Det3.Count > 0)
+    {
+        // Ajusta el índice si tu distrito está en Det3[1]
+        distritoDestino = Model.Det3[0].Distrito?.ToUpper().Trim() ?? "";
+    }
+
+    bool esDestinoEspecial = destinosFilm.Contains(distritoDestino);
+    bool mostrarObligatorio = false;
+
+    // Caso normal: si isFill == 1, mostrar obligatorio
+    if (Model.LugarDestino == "Agencia" && Model.isFill == 1)
+    {
+        mostrarObligatorio = true;
+    }
+
+    // Si es MARVISUR y NO está en la lista → NO obligatorio
+    if (Model.LugarDestino == "Agencia" && Model.Agencia == "MARVISUR" && !esDestinoEspecial)
+    {
+        mostrarObligatorio = false;
+    }
+
+    // Si es MARVISUR y está en la lista → SÍ obligatorio (aunque isFill sea 0)
+    if (Model.LugarDestino == "Agencia" && Model.Agencia == "MARVISUR" && esDestinoEspecial)
+    {
+        mostrarObligatorio = true;
+    }
 }
 <!DOCTYPE html>
 
@@ -38,17 +71,17 @@
                     @Html.DisplayFor(model => model.LugarDestino)
                 }
             </td>
-            <td  style="text-align:center;"><strong>@Html.DisplayNameFor(model => model.Zona): </strong><br />@Model.Zona</td>
+            <td style="text-align:center;"><strong>@Html.DisplayNameFor(model => model.Zona): </strong><br />@Model.Zona</td>
         </tr>
 
-        @if (Model.LugarDestino == "Agencia" && Model.isFill == 1)
+        @if (mostrarObligatorio)
         {
-           <tr style="background:@fondo">
-               <td colspan="2" style="text-align:center;">
-                   <strong>Film: </strong>
-                   <span style="color:red;font-weight:bold;"> OBLIGATORIO</span>
-               </td>
-           </tr>
+            <tr style="background:@fondo">
+                <td colspan="2" style="text-align:center;">
+                    <strong>Film: </strong>
+                    <span style="color:red;font-weight:bold;">OBLIGATORIO</span>
+                </td>
+            </tr>
         }
 
         <tr style="background:@fondo">
@@ -90,8 +123,6 @@
                 }
             }
         </tr>
-
-
         <tr>
             <td><strong>@Html.DisplayNameFor(model => model.Vendedor): </strong></td>
             <td>@Html.DisplayFor(model => model.Vendedor)</td>
@@ -186,7 +217,6 @@
                             </td>
                         </tr>
                     }
-
                 }
                 else
                 {
