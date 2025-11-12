@@ -1,35 +1,16 @@
 ﻿@model IEnumerable<Capa_Entidad.Ventas_ENT.TablasSql.OCLR_E>
 @using Capa_Entidad.Ventas_ENT.TablasSql
 @{
-    ViewBag.Title = "GestionClienteRegalos";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Gestión Cliente Regalos";
+    Layout = "~/Views/Shared/_DefaultLayout.cshtml";
     OCLR_E f = (OCLR_E)ViewBag.CliReg;
 }
-<script>
-    $(document).ready(function () {
-        $('#filterModal').on('shown.bs.modal', function () {
-            $('#filterModal input:first').focus();
-        });
-    });
-    function filtrar() {
-        var object = $("#filterForm").serialize();
-        $(location).attr('href', "/Ventas/GestionRegalos?" + object);
-    }
-    function limpiarFiltros() {
-        const formulario = document.getElementById('filterForm');
-
-        const inputs = formulario.querySelectorAll('input[type="text"], input[type="date"], input[type="number"], textarea');
-        inputs.forEach(input => {
-            input.value = '';
-        });
-        const selects = formulario.querySelectorAll('select');
-        selects.forEach(select => {
-            select.selectedIndex = 0;
-        });
-        //Recarga llamando otra vez a la funcion
-        filtrar();
-    }
-</script>
+@using Capa_Entidad.SocioNegocios_ENT.Tablas
+@using Capa_Entidad.Ventas_ENT.TablasSql
+@{
+    var c = ViewBag.Clientes as List<OCRD_E>;
+    var u = ViewBag.Regalos as List<OREG_E>;
+}
 
 <div class="pt-3">
     <nav>
@@ -42,114 +23,250 @@
 </div>
 
 <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
-    <div class="px-3 pt-3"><h3 class="titulo-seccion">GESTIÓN REGALOS CLIENTE</h3></div>
+    <div class="row px-3 pt-3 mb-2">
+        <h3 class="titulo-seccion">@ViewBag.Title.ToUpper()</h3>
+    </div>
 
     <div class="row pl-2 w-100 py-1">
-        <div class="d-flex col-lg-8 col-md-6 col-sm-12 col-6">
-                <a href="@Url.Action("NuevoClienteRegalo", "Ventas")" class="btn btn-success ml-2"><i class="icon icon-plus"> </i> Agregar Cliente</a>
+        <div class="d-flex col-lg-8 col-md-6 col-sm-12 col-6 mb-3">
+            <!-- Botón para abrir el modal -->
+            <a href="#" class="btn btn-success ms-2" data-bs-toggle="modal" data-bs-target="#modalNuevoClienteRegalo">
+                <i class="bi bi-plus-lg me-1"></i> Nuevo Cliente
+            </a>
         </div>
     </div>
 </div>
 
 <form name="filterForm" id="filterForm">
 
-    <!-- Modal para Filtros -->
-    <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header bg-headerModals">
-                    <h5 class="modal-title text-light" id="modalFiltrosLabel">Filtros de Búsqueda</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true" class="text-light">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="CardCode">Ruc</label>
-                                    <input type="text" name="CardCode" id="CardCode" class="form-control" value="@f.CardCode" />
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="CardName">Razón Social</label>
-                                    <input type="text" name="CardName" id="CardName" class="form-control" value="@f.CardName" />
-                                </div>
-                            </div>
-                            <div class="col-md-2">
-                                <div class="form-group">
-                                    <label for="NroOpe">NroOpe</label>
-                                    <input type="number" name="NroOpe" id="NroOpe" class="form-control" value="@f.NroOpe" />
-                                </div>
-                            </div>
-                            <div class="col-md-2">
-                                <div class="form-group">
-                                    <label for="Saldo">Saldo </label>
-                                    <input type="number" name="Saldo" id="Saldo" class="form-control" value="@f.Saldo" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                    <button type="button" class="btn btn-info" onclick="limpiarFiltros();">Limpiar</button>
-                    <button type="button" class="btn btn-primary" onclick="filtrar();">Aplicar Filtros</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="bg-white bg-form-cobefar pt-2">
-        <table class="table table-light table-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
-            <thead class="bg-cobefar-6">
-                <tr>
-                    <th class="text-center">
-                        @Html.DisplayName("Ruc")
-                    </th>
-                    <th class="text-center">
-                        @Html.DisplayName("Cliente")
-                    </th>
-                    <th class="text-center">
-                        @Html.DisplayNameFor(model => model.NroOpe)
-                    </th>
-                    <th class="text-center">
-                        @Html.DisplayNameFor(model => model.Saldo)
-                    </th>
-                    <th class="text-center"></th>
-                    <th class="text-center"></th>
-                </tr>
-            </thead>
-            <tbody class="text-dark">
-                @foreach (var item in Model)
-                {
+    <div class="bg-white px-3 py-3 align-items-center">
+        <div class="table-responsive">
+            <table id="tbl_ListadoRegalosCliente" class="dt-container dt-empty-footer table table-sm table-hover font-14">
+                <thead class="thead-cobefar">
                     <tr>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.CardCode)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.CardName)
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.NroOpe)
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.Saldo)
-                        </td>
-                        <td>
-                            <a href="@Url.Action("EditarClienteRegalos", "Ventas", new { CardCode = item.CardCode })" class="btn btn-light text-primary">
-                                <i title="Editar" class="icon-pencil"></i>
-                            </a>
-                        </td>
-                        <td>
-                        </td>
+                        <th class="text-center border-end border-start">
+                            @Html.DisplayName("Ruc")
+                        </th>
+                        <th class="text-center border-end">
+                            @Html.DisplayName("Cliente")
+                        </th>
+                        <th class="text-center border-end">
+                            @Html.DisplayNameFor(model => model.NroOpe)
+                        </th>
+                        <th class="text-center border-end">
+                            @Html.DisplayNameFor(model => model.Saldo)
+                        </th>
+                        <th class="text-center border-end">Editar</th>
+
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody class="text-dark">
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="text-center border-end border-start">
+                                @Html.DisplayFor(modelItem => item.CardCode)
+                            </td>
+                            <td class="text-center border-end">
+                                @Html.DisplayFor(modelItem => item.CardName)
+                            </td>
+                            <td class="text-center border-end">
+                                @Html.DisplayFor(modelItem => item.NroOpe)
+                            </td>
+                            <td class="text-center border-end">
+                                @Html.DisplayFor(modelItem => item.Saldo)
+                            </td>
+                            <td class="text-center border-end">
+                                <a href="@Url.Action("EditarClienteRegalos", "Ventas", new { CardCode = item.CardCode })" class="btn btn-light text-primary" title="Editar">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 </form>
 
+<!-- Modal Nuevo Cliente Regalo -->
+<div class="modal fade" id="modalNuevoClienteRegalo" tabindex="-1" aria-labelledby="modalNuevoClienteRegaloLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-cobefar-degradado-1">
+                <h5 class="modal-title text-light" id="modalNuevoClienteRegaloLabel">Nuevo Cliente Regalo</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <form id="NuevoClienteRegalo" autocomplete="off">
+                    <div class="row mb-3">
+                        <div class="col-lg-4">
+                            <label for="CardCode" class="form-label">RUC:</label>
+                            <input type="search" id="CardCode" list="listaClientes" name="CardCode" class="form-control border-success" onchange="completaCampo();" />
+                            <datalist id="listaClientes">
+                                @foreach (OCRD_E obj in c)
+                                {
+                                    <option CardCode="@obj.CardCode" CardName="@obj.CardName" value="@obj.CardCode">@obj.CardName</option>
+                                }
+                            </datalist>
+                        </div>
+                        <div class="col-lg-8">
+                            <label for="CardName" class="form-label">Razón Social:</label>
+                            <input class="form-control border-success" type="search" name="CardName" id="CardName" readonly />
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-lg-6">
+                            <label for="Regalos" class="form-label">Lista Regalo:</label>
+                            <input type="search" id="Regalos" list="listaRegalos" class="form-control border-success" />
+                            <datalist id="listaRegalos">
+                                @foreach (OREG_E obj in u)
+                                {
+                                    <option categoria="@obj.Categoria" tipo="@obj.Tipo" value="@obj.Id">@(obj.Categoria + " " + obj.Tipo)</option>
+                                }
+                            </datalist>
+                        </div>
+                        <div class="col-lg-6">
+                            <label for="Cantidad" class="form-label">Cantidad:</label>
+                            <div class="d-flex">
+                                <input type="number" id="Cantidad" name="Cantidad" class="form-control border-success me-2" />
+                                <button type="button" class="btn btn-info" onclick="agregarTabla('Regalos','Cantidad');">Agregar</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <table id="Det" class="table table-striped table-hover table-sm">
+                                <thead class="bg-cobefar text-white">
+                                    <tr>
+                                        <th class="text-center" style="width:100px">#</th>
+                                        <th hidden>IdReg</th>
+                                        <th class="text-center" style="width:300px">Categoria</th>
+                                        <th class="text-center" style="width:200px">Tipo</th>
+                                        <th class="text-center" style="width:200px">Cantidad</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" onclick="validar();">
+                    <i class="bi bi-check-lg"></i> Registrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Foco en el primer input del modal de filtros
+        $('#filterModal').on('shown.bs.modal', function () {
+            $('#filterModal input:first').focus();
+        });
+
+        // Inicializar DataTable con ancho fijo en la columna Cliente
+        if (!$.fn.DataTable.isDataTable('#tbl_ListadoRegalosCliente')) {
+            $('#tbl_ListadoRegalosCliente').DataTable({
+                autoWidth: false,
+                pageLength: 50,
+                ordering: false,
+                searching: true,
+                language: {
+                    url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+                },
+                columns: [
+                    { width: "180px" }, // Ruc
+                    { width: "450px" }, // Cliente
+                    null,               // NroOpe
+                    null,               // Saldo
+                    { width: "100px" }   // Editar
+                ]
+            });
+        }
+    });
+
+    // Función para filtrar
+    function filtrar() {
+        var object = $("#filterForm").serialize();
+        $(location).attr('href', "/Ventas/GestionRegalos?" + object);
+    }
+
+    // Función para limpiar filtros
+    function limpiarFiltros() {
+        const formulario = document.getElementById('filterForm');
+        const inputs = formulario.querySelectorAll('input[type="text"], input[type="date"], input[type="number"], textarea');
+        inputs.forEach(input => {
+            input.value = '';
+        });
+        const selects = formulario.querySelectorAll('select');
+        selects.forEach(select => {
+            select.selectedIndex = 0;
+        });
+        // Recarga llamando otra vez a la función
+        filtrar();
+    }
+
+    // Función para completar el campo Razón Social automáticamente
+    function completaCampo() {
+        var cardCode = $("#CardCode").val();
+        var cardName = $("#listaClientes option[value='" + cardCode + "']").attr("CardName");
+        $("#CardName").val(cardName || "");
+    }
+
+    var cont = 0;
+    function agregarTabla(id, cant) {
+        var valId = $("#" + id);
+        var valCategoria = $("#listaRegalos option[value='" + valId.val() + "']").attr("categoria");
+        var valTipo = $("#listaRegalos option[value='" + valId.val() + "']").attr("tipo");
+        if (valId.val() == null || valId.val() == "") { Swal.fire("No ha seleccionado un regalo", "Verifique", "warning"); return; }
+        if (valTipo == null || valTipo == "") { Swal.fire("No ha seleccionado un regalo existente", "Verifique", "warning"); return; }
+        var valCant = $("#" + cant).val();
+        if (valCant < 0 || valCant == "" || valCant == null) { Swal.fire("No ha ingresado una cantidad valida", "Verifique", "warning"); return; }
+
+        if (validarUnicoCampoTabla(valId.val(), "Det")) {
+            $("#Det").append("<tr><td><input class='form-control'  value='" + (cont + 1) + " ' readonly /></td>" +
+                "<td hidden><input class= 'form-control' name = 'Det[" + cont + "].IdReg' value = '" + valId.val() + "' readonly /></td >" +
+                "<td><input class= 'form-control' name = 'Det[" + cont + "].Categoria' value = '" + valCategoria + "' readonly /></td >" +
+                "<td> <input class='form-control' name='Det[" + cont + "].Tipo' value='" + valTipo + "' readonly /></td >" +
+                "<td> <input class='form-control' name='Det[" + cont + "].Cantidad'  value='" + valCant + "' readonly /></td > <td>" +
+                "<button type='button' onclick='borrarTrTable1(this)' class='btn btn-danger'>Retirar</button></td></tr>"
+            );
+            cont = cont + 1;
+        }
+        $("#" + id).val("");
+        $("#" + cant).val("");
+    }
+
+    function borrarTrTable1(dom) {
+        var i = -1;
+        $(dom).closest('tr').remove();
+        cont = cont - 1;
+        $("#Det tr").each(function (index, htm) {
+            var iden1 = $(htm).find("td:eq(0) input");
+            iden1.attr("name", "Det[" + index + "].Linea");
+            iden1.val(index + 1);
+            var iden2 = $(htm).find("td:eq(1) input");
+            iden2.attr("name", "Det[" + index + "].IdReg");
+            var iden3 = $(htm).find("td:eq(2) input");
+            iden3.attr("name", "Det[" + index + "].Categoria");
+            var iden4 = $(htm).find("td:eq(3) input");
+            iden4.attr("name", "Det[" + index + "].Tipo");
+            var iden5 = $(htm).find("td:eq(4) input");
+            iden5.attr("name", "Det[" + index + "].Cantidad");
+        });
+    }
+    function validarUnicoCampoTabla(identificador, idTabla) {
+        var sinRegistro = true;
+        $("#" + idTabla + " tr").find('td:eq(1) input').each(function () {
+            var iden = $(this).val();
+            if (iden == identificador) { Swal.fire("El valor ya se encuentra en la tabla", "Verifique", "warning"); sinRegistro = false; }
+        });
+        return sinRegistro;
+    }
+</script>
