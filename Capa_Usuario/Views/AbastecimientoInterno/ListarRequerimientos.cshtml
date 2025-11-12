@@ -300,9 +300,8 @@
                     if (min === null && max === null) return true;
                     var rowNode = settings.aoData[dataIndex].nTr;
                     if (!rowNode) return true;
-                    var $bar = $(rowNode).find('td').eq(12).find('.progress-bar').first();
-                    if (!$bar || $bar.length === 0) return true;
-
+                    var $bar = $(rowNode).find('.progress-bar').first(); // cambio: ya no depende de eq(11)
+                    if (!$bar.length) return true;
                     var stockMin = parseNumber($bar.attr('data-stockmin'), 0);
                     var stockPicking = parseNumber($bar.attr('data-stockpicking'), 0);
                     var percent = (stockMin > 0) ? (stockPicking * 100.0 / stockMin) : parseNumber($bar.attr('data-percent'), -1);
