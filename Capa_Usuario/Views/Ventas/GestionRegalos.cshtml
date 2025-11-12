@@ -162,7 +162,7 @@
             </div>
             <div class="modal-footer justify-content-center">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-success" onclick="validarEnviarFormulario();">
+                <button type="button" class="btn btn-success" onclick="guardarNuevoRegalo();">
                     <i class="bi bi-check-lg"></i> Registrar
                 </button>
             </div>
@@ -406,6 +406,35 @@
         });
     }
 
+    function guardarNuevoRegalo() {
+        var object = $("#NuevoRegalo").serialize();
+        $.ajax({
+            url: '/Ventas/NuevoRegalo',
+            type: 'POST',
+            data: object,
+            success: function (response) {
+                Swal.fire({
+                    title: 'Regalo registrado',
+                    text: 'El nuevo regalo se ha guardado correctamente.',
+                    icon: 'success',
+                    confirmButtonText: 'OK',
+                    customClass: { confirmButton: 'btn btn-success' }
+                }).then(() => {
+                    $('#modalNuevoRegalo').modal('hide');
+                    location.reload();
+                });
+            },
+            error: function (xhr) {
+                Swal.fire({
+                    title: 'Error',
+                    text: xhr.responseText || 'No se pudo registrar el regalo.',
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                    customClass: { confirmButton: 'btn btn-danger' }
+                });
+            }
+        });
+    }
 </script>
 
 
