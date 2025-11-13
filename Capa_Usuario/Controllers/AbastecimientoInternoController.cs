@@ -2643,7 +2643,7 @@ namespace Capa_Usuario.Controllers
             }
         }
 
-        public JsonResult CrearRequerimientoAutomatico(int idOperation = 3807)
+        public JsonResult CrearRequerimientoAutomatico(int porcentaje, int idOperation = 3807)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
@@ -2656,7 +2656,7 @@ namespace Capa_Usuario.Controllers
             var lista = new List<UbicacionesLotesMaster_E>();
 
             // 1. Obtenemos la lista de ItemCodes que requieren abastecimiento en Picking
-            var listaItemCodes = _reporteStockPicking.ListarArticulosConStockPickingInsuficiente();
+            var listaItemCodes = _reporteStockPicking.ListarArticulosConStockPickingInsuficiente(porcentaje);
             //var listaItemCodes = new List<string> { "VITPH0042" };
 
             // 2. Iteramos cada ItemCode para consultar stock en RESERVA y obtener la cantidad solicitada por ItemCode
@@ -2665,8 +2665,10 @@ namespace Capa_Usuario.Controllers
                 foreach (var item in listaItemCodes)
                 {
                     // Orden: próxima fecha de vencimiento, primera fecha de admisión registrada, la menor cantidad en unidades
-                    List<UbicacionesLotesMaster_E> listaLotesM = _ubicacionesLotesMasterN.BuscarArticulos(new UbicacionesLotesMaster_E { ItemCode = item.ItemCode }) ?? new List<UbicacionesLotesMaster_E>();
-                    if (listaLotesM != null && listaLotesM.Any())
+                    List<UbicacionesLotesMaster_E> listaLotesM =
+                        (_ubicacionesLotesMasterN.BuscarArticulos(new UbicacionesLotesMaster_E { ItemCode = item.ItemCode }) ?? new List<UbicacionesLotesMaster_E>())
+                        .Where(x => x.QuantityMaster > 0)
+                        .ToList(); if (listaLotesM != null && listaLotesM.Any())
                     {
                         // Verificar si todas las fechas ExpDate e InDate son iguales
                         bool fechasIguales = listaLotesM.All(a => a.ExpDate == listaLotesM.First().ExpDate) && listaLotesM.All(a => a.InDate == listaLotesM.First().InDate);
@@ -3195,6 +3197,27 @@ namespace Capa_Usuario.Controllers
             public int ubicacionLoteMasterId { get; set; }
             public string nuevoCodigoUbicacion { get; set; }
         }
-        // --- FIN: Cambio masivo de ubicación en Reserva ---
+        [HttpPost]
+        public JsonResult EliminarItemsDetalleRequerimiento(List<int> itemIDs, int idOperation = 3806)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
+                return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "Sin accesos." }, Icono = "error" });
+
+            var user = Session["UsuarioId"] as Usuario_E;
+            if (user == null)
+                return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "No existe usuario logueado, se terminó la sesión." }, Icono = "error" });
+
+            var operarioRegistra = $"{user.Nombres} {user.Apellidos}";
+            var resultados = new List<object>();
+
+            foreach (var id in itemIDs)
+            {
+                var resultado = new DetalleRequerimientos_N().EliminarItem(id, operarioRegistra);
+                resultados.Add(resultado);
+            }
+
+            return Json(new { Titulo = "Eliminación masiva completada", Resultados = resultados, Icono = "success" }, JsonRequestBehavior.AllowGet);
+        }
     }
 }

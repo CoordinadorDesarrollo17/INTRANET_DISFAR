@@ -31,8 +31,37 @@
         });
     }
     function ConfirGastoEnv() {
-        var o = $("#form").serialize();
-        $(location).attr('href', "/Caja/ConfGastEnvio?" + o);
+        // Obtener solo los campos necesarios para evitar enviar todo el formulario
+        var formData = {
+            DocEntryTicket: parseInt($('#DocEntryTicket').val()),
+            PagoEnv: $('#PagoEnv').val(),
+            DetOpe: $('input[name=" "]').val() || '', 
+            DocNum: $('#DocNum').val(),
+            CardCode: $('#CardCode').val(),
+            GastoEnvio: $('#GastoEnvio').val()
+        };
+
+        // Enviar por POST usando AJAX
+        $.ajax({
+            url: '/Caja/ConfGastEnvio',
+            type: 'POST',
+            data: formData,
+            success: function (response) {
+                // Recargar la página para ver los cambios
+                location.reload();
+            },
+            error: function (xhr, status, error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: xhr.responseText || 'Ocurrió un error al confirmar el gasto de envío'
+                });
+                console.error('Error:', error);
+            }
+        });
+
+        // Cerrar el modal
+        $('#Modal').modal('hide');
     }
 </script>
 
@@ -151,7 +180,7 @@
                         <div class="row mt-4">
                             <div class="col-xl-8 col-lg-8">
                                 <div class="d-flex">
-                                    <input type="text" class="form-control border-success" name="DetOpe" placeholder="Texto Confirmación" />
+                                    <input type="text" class="form-control border-success" name=" " placeholder="Texto Confirmación" />
                                     @if (Model.EstadoGasto != "CONFIRMADO")
                                     {
                                         <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#Modal">

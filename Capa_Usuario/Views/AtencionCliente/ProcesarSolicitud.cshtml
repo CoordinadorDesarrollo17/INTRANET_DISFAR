@@ -59,7 +59,21 @@
             confirmButtonText: '¡Si, revertir!'
         }).then(result => {
             if (result.value) {
-                $(location).attr('href', "/AtencionCliente/RevertirProcesarSolicitud?" + object);
+                $.ajax({
+                    url: '/AtencionCliente/RevertirProcesarSolicitud',
+                    type: 'POST',
+                    data: object,
+                    success: function (response) {
+                        window.location.href = response.redirectUrl || '/AtencionCliente/GestionSolicitud';
+                    },
+                    error: function (xhr, status, error) {
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'Ocurrió un error al revertir la solicitud: ' + error,
+                            icon: 'error'
+                        });
+                    }
+                });
             }
         });
     }

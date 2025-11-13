@@ -101,7 +101,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.Reportes
                 .ToList();
         }
 
-        public List<OITW_E> ListarArticulosConStockPickingInsuficiente()
+        public List<OITW_E> ListarArticulosConStockPickingInsuficiente(int porcentaje)
         {
             var resultado = new List<OITW_E>();
             var controlStockInternoPicking = _datosReporte.ControlHistoricoDeIngresosAPicking();
@@ -167,8 +167,9 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.Reportes
                     // Cantidad a solicitar respecto al mínimo (si es negativa, no se usa para filtrar)
                     item.CantidadSolicitada = Convert.ToInt32(stockMin - stockEnPicking);
 
+                    decimal factor = porcentaje / 100M;
                     // Condición: crítico (<50%) y con stock en RESERVA
-                    if (stockDeAlmReserva > 0 && item.StockPicking > 0 && item.StockPicking < item.StockMinAbastecimiento * 0.5M)
+                    if (stockDeAlmReserva > 0 && item.StockPicking > 0 && item.StockPicking < item.StockMinAbastecimiento * factor)
                     {
                         resultado.Add(new OITW_E
                         {
